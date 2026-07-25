@@ -1,6 +1,6 @@
 # Maintainer conventions — repo-carried, brain-safe
 
-> **Who this is for.** You are **DEVELOPING the launcher itself** (this `second-brain-generator`
+> **Who this is for.** You are **DEVELOPING the launcher itself** (this `kenjaku`
 > repo), **not installing a brain**. These are the durable working rules for maintaining the
 > generator. They are **carried in the repo** so they travel with any clone / any machine / any
 > collaborator — instead of living only in one person's local `~/.claude/` (global rules + machine

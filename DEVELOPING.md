@@ -5,7 +5,7 @@
 
 ## Project goal
 
-`second-brain-generator` is an **installable template** for a second brain: a versioned
+`kenjaku` is an **installable launcher** for a second brain: a versioned
 Markdown vault that a Claude Code agent queries in natural language via a RAG engine.
 Extracted from a personal second brain to be reusable by anyone.
 
