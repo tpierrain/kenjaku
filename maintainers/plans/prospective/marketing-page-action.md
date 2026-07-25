@@ -664,18 +664,24 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
       band + pinned the canonical **chibi Kenjaku mascot** (was off-model / a floating head). Two render glitches
       (`keepour`, `eval-adR%`) cleared by **re-roll** (never harden the prompt — `nano-banana-verbose-guards-leak`).
       New PNG copied into `docs/img/` (2752×1536).
-    - **⏳ STILL OPEN (Thomas's earlier ask, NOT done):** move the *"vs other second brains"* section **down into
-      the tech zone** and **reframe it** around the real user worry — *"will my second brain stay tethered to the
-      Kenjaku repo?"* (answer: no link back to the launcher by construction, `git init` in the brain, engine
-      self-upgrades opt-in, notes never touched). This is why the section was pulled from the matrix.
+    - [x] **Moved + reframed the *"vs other second brains"* section** _(2026-07-25 · working tree)_ — pulled it
+      out of act-1 *"How it compares"* and **down into the tech zone** (new `## Your brain isn't tethered to this
+      repo`, placed after *"And how it's built"*, before *"Getting started"*). Reframed around the real user worry
+      *"will my second brain stay tethered to the Kenjaku repo?"*: answered by construction (installer copies into
+      a fresh folder + `git init` in the brain = no remote / no link back; launcher read-only & reusable; engine
+      self-upgrades opt-in; notes/keys/constitution/skills never touched). Kept the `board-generator` image + the
+      living-product / run-as-a-product / market-landscape lines. Updated the *"How it compares"* intro (3→2
+      reference points + a pointer link to the moved section) and its HTML comment. New prose written em-dash-free
+      per the typographic rule.
   - [ ] 12c · **Resolve 11e** — decide the single source of truth per claim across
     `MARKETING.md` / `README.md` / `EN-QUOI-C-EST-DIFFERENT.md` (stop the divergence debt before merging).
   - [ ] 12d · **Green-light P-MERGE** — promote the arc to `README.md` (the north star), keeping the
     install CTA high, relocating install/engine/privacy detail to `SETUP.md` + links, fixing anchors/badges,
     preserving the `CLAUDE.md` bootstrap relationship.
-  - **Resume after `/clear`:** open this plan → **first do the OPEN item in 12b-bis** (move + reframe the
-    *"vs other second brains"* section to the tech zone as *"stays tethered to the Kenjaku repo?"*), **then 12c**
-    (content ownership), **then 12d** (P-MERGE). Everything through 12b-bis is committed & pushed.
+  - **Resume after `/clear`:** open this plan → the 12b-bis move+reframe is **done** (working tree, not yet
+    committed) → next is **12c** (content ownership: single source of truth per claim across
+    MARKETING / README / EN-QUOI), **then 12d** (P-MERGE). Also still open: **11g / 12a-F3** (English pre-flight +
+    Typora/GitHub render check) before P-MERGE.
 
 ---
 

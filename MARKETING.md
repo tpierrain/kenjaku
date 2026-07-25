@@ -125,15 +125,16 @@ wiki — a platform.*
 
 ---
 
-<!-- R6 comparatives, in order: 1) bare LLM, 2) plain LLM wiki à la Karpathy, 3) other second brains.
-     All three now present (board-vs-wiki added 2026-07-24, framed per ADR 0033 — credited superset).
-     Consolidated 2026-07-25 (11d): three boards + one line each, then ONE unified matrix. -->
+<!-- R6 comparatives here: 1) bare LLM, 2) plain LLM wiki à la Karpathy (ADR 0033, credited superset),
+     then ONE unified matrix. The 3rd comparative (vs other second brains / board-generator) moved down
+     into the tech zone 2026-07-25 (12b-bis), reframed as "your brain isn't tethered to this repo". -->
 
 ## How it compares — at a glance
 
-Three reference points people reach for — a **bare LLM**, a **Karpathy-style LLM wiki**, and the
-**classic second-brain apps** — each with its own board below. The **matrix at the end** puts the two
-closest — a bare LLM and the plain wiki — side by side with Kenjaku.
+Two reference points people reach for: a **bare LLM** and a **Karpathy-style LLM wiki**, each with its
+own board below, then a **side-by-side matrix** with Kenjaku. *(How it stacks up against the classic
+second-brain **apps**, and why installing one doesn't lock you into this repo, is [further
+down](#your-brain-isnt-tethered-to-this-repo) in the technical part.)*
 
 ### vs a bare LLM (ChatGPT / Claude alone)
 
@@ -153,23 +154,6 @@ it in a **whole layer of deterministic, battle-tested software**, so all you do 
 
 > 🧬 *A **credited evolution**, a **superset** — not an opposition, and never a priority claim.
 > ([ADR 0033](maintainers/decisions/0033-descends-from-karpathy-llm-wiki-not-graphify.md))*
-
-### vs other "second brains" — a living, personal product (that begins with a generator)
-
-<img src="docs/img/board-generator.png" alt="A living, personal product that begins with a generator: one read-only, reusable generator produces many independent, owned brains (Your brain, Her brain, His brain), each its own git repo with your notes and your CLAUDE.md, no link back to the launcher. Each brain keeps living — the engine self-upgrades while your notes and skills grow alongside. Everyone generates their own; you share the generator, never the brain." width="100%">
-
-A useful second brain is **personal** — what serves a Head of Engineering, a PM or a researcher has
-little in common. So it isn't a *finished*, one-size-fits-all app: it's a **living, personal product**
-that **begins with a generator**. The generator installs and tailors *your own* brain to your goals and
-line of work; from there it **keeps living** — the engine **self-upgrades**, while your **content** and
-your **skills / competences** grow right alongside it. You share the **generator**, never the brain.
-
-And it's run **as a product, not a hack**: brains **in real use**, with every **engine upgrade tested
-against existing brains before it ships** — the migration path is a **release gate**, so an update never
-reaches your notes until it's proven safe on them.
-
-*The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
-Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
 
 ### Side by side
 
@@ -367,6 +351,29 @@ interchangeable adapters**. That's
 what makes "pick your privacy at install" **safe** — you swap the adapter, your notes and skills don't
 move. *([ADR 0006](maintainers/decisions/0006-rag-mcp-is-stable-contract.md) ·
 [ADR 0007](maintainers/decisions/0007-three-embedder-adapters-privacy-scale.md))*
+
+---
+
+## Your brain isn't tethered to this repo
+
+<img src="docs/img/board-generator.png" alt="A living, personal product that begins with a generator: one read-only, reusable generator produces many independent, owned brains (Your brain, Her brain, His brain), each its own git repo with your notes and your CLAUDE.md, no link back to the launcher. Each brain keeps living — the engine self-upgrades while your notes and skills grow alongside. Everyone generates their own; you share the generator, never the brain." width="100%">
+
+A fair thing to worry about before installing: *does my second brain stay chained to the Kenjaku repo?*
+**It doesn't, and not by promise but by construction.** The installer **copies** the files into a **fresh
+folder** and runs **`git init` inside it**, so there's **no remote and no link back** to the launcher from
+the start. The launcher stays **read-only and reusable** (one launcher, many brains); your brain is its
+**own git repo**, carrying your notes and your `CLAUDE.md`.
+
+That's also why it's a **living, personal product** rather than a frozen app. A useful second brain is
+**personal** (what serves a Head of Engineering, a PM or a researcher barely overlaps), so the generator
+tailors ***your own*** to your line of work, then it **keeps living on its own**. The engine
+**self-upgrades only when you opt in**, and an upgrade touches **only the engine machinery, never your
+notes, keys, constitution or skills**. It's run **as a product, not a hack**: brains **in real use**, every
+upgrade **tested against existing brains before it ships** (the migration path is a **release gate**). You
+share the **generator**, never the brain, and you could walk away from this repo tomorrow without losing a thing.
+
+*The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
+Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
 
 ---
 
