@@ -749,15 +749,16 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     **quality imperceptible** (verified by eye on the text-heaviest board `board-reliability`; 1760px = 2× the
     ~880px GitHub column = retina-crisp). JPEG q90 was even smaller (~570 KB) but needs a format/filename change
     → rejected in favour of pngquant-in-place.
-  - [ ] 13a · **Confirm the quality setting with Thomas** — 1760px + pngquant (proposed) vs 2048px (~+30%
-    weight, more margin). **← RESUME HERE (awaiting Thomas's answer).**
-  - [ ] 13b · **Recompress the 18 boards in place** (chosen setting), `.png` kept; eyeball 2–3 renders
-    (incl. a text-heavy one) before committing the binaries.
-  - [ ] 13c · **Decide: ship boards into brains (remove the `board-*` exclusion, TDD: flip
-    `tracked-files.mjs` + its test + fix the stale "~12MB" comment) vs keep the exclusion.** Thomas leaned
-    "don't leave broken images"; at ~11 MB shipping-into-brains is now cheap → likely **remove the exclusion**
-    so the brain README renders everywhere. If kept excluded instead: brain README keeps broken boards (accept)
-    OR give the brain a lighter/no README.
+  - [x] 13a · **Confirm the quality setting with Thomas** _(2026-07-25)_ — **1760px + pngquant** chosen
+    (over 2048px). `.png` kept, no `<img src>` change anywhere.
+  - [x] 13b · **Recompressed the 18 boards in place** _(2026-07-25 · working tree)_ — `sips --resampleWidth
+    1760` + `pngquant --quality=70-90 --speed 1`. **87 MB → 12 MB (−86%)**, ~570–800 KB/board, all 1760px
+    wide. Thomas eyeballed the 3 text-heaviest (reliability · anatomy · vs-wiki) → **"nickel"** (crisp).
+  - [x] 13c · **Exclusion removed — boards now ship into brains** _(2026-07-25 · working tree, TDD)_ —
+    Thomas's call: "retirer l'exclusion". Flipped `scripts/lib/tracked-files.mjs` (dropped the
+    `"docs/img/board-"` prefix + fixed the stale "~12MB" comment → now accurate 87→12 MB) and its test
+    `tracked-files.test.mjs` (RED-first: asserts the boards are now copied). All 37 tracked-files/install
+    tests green. Brain's copy of the launcher README now renders every board instead of broken images.
   - [ ] 13d · Commit + push; then finish 12d-7-ii (render check) + 12d-8 (PR title) → **merge to main**.
 
 - **Resume after `/clear`:** open this plan → the P-MERGE (Step 12 / 12d) is **done, committed & pushed** on
