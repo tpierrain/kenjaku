@@ -133,7 +133,7 @@ wiki — a platform.*
 Two reference points people reach for: a **bare LLM** and a **Karpathy-style LLM wiki**, each with its
 own board below, then a **side-by-side matrix** with Kenjaku. *(How it stacks up against the classic
 second-brain **apps**, and why installing one doesn't lock you into this repo, is [further
-down](#your-brain-isnt-tethered-to-this-repo) in the technical part.)*
+down](#your-brain-isnt-tied-to-this-repo) in the technical part.)*
 
 ### vs a bare LLM (ChatGPT / Claude alone)
 
@@ -384,7 +384,7 @@ move. *([ADR 0006](maintainers/decisions/0006-rag-mcp-is-stable-contract.md) ·
 
 ---
 
-## Your brain isn't tethered to this repo
+## Your brain isn't tied to this repo
 
 <img src="docs/img/board-generator.png" alt="A living, personal product that begins with a generator: one read-only, reusable generator produces many independent, owned brains (Your brain, Her brain, His brain), each its own git repo with your notes and your CLAUDE.md, no link back to the launcher. Each brain keeps living — the engine self-upgrades while your notes and skills grow alongside. Everyone generates their own; you share the generator, never the brain." width="100%">
 
