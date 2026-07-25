@@ -121,7 +121,9 @@ there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFER
 <img src="docs/img/board-skills.png" alt="More than search — an extensible platform of skills: a spotlighted /coach that acts as a sparring partner challenging your thinking, grounded in your own notes; a catalog of ready-made skills (import, sync-sources, prepare-1-1, local-mirror, switch, update-engine), one plain-words line each; and a prominent 'add your own' tile — because skills are just Markdown you can grow. It's a platform, and it grows with you." width="100%">
 
 Kenjaku isn't just a search box: it ships ready-made **skills** — a `/coach` that plays a fierce
-sparring partner to challenge your thinking (grounded in **your own** notes), plus `import`,
+sparring partner to challenge your thinking (grounded in **your own** notes), **self-healing
+wiki-health** skills that keep your notes tidy (`/lint`, `/consolidate`, `/file-back` spot decayed
+links, duplicates and unfiled captures, then **propose** fixes you confirm), plus `import`,
 `sync-sources`, `prepare-1-1`, `local-mirror`, `switch` and `update-engine` — and, above all, **you add
 your own just by describing them**. Skills are plain Markdown you can read, tweak and grow. *Not just a
 wiki — a platform.*
