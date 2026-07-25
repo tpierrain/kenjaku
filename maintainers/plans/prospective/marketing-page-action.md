@@ -692,25 +692,37 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
       links repointed to README sections. *(Default decided; a thin redirect stub is the fallback if Thomas
       prefers.)*
   - [ ] 12d · **EXECUTE P-MERGE** — rewrite `README.md` from [`readme-merge-skeleton.md`](readme-merge-skeleton.md).
-    Mechanical once 12c is set; do it in this order:
-    - [ ] 12d-1 · **Rewrite `README.md` in place** per the skeleton: R0 arc order (why → what → compare →
-      privacy → **install CTA promoted high** → vision → hinge → tech zone → connectors → articles → license),
-      pulling the boards + prose from `MARKETING.md`, keeping the 2 worked dialogues + badges + logo from the
-      current README.
-    - [ ] 12d-2 · **Relocate the delegated blocks to `SETUP.md`** — verify each is already there (README only
-      *linked* them today); add/refresh any that are thin. Blocks: install step-by-step + launcher-vs-brain
-      ASCII · backup §7 · engine-update §10 · migration/import · privacy/training §9 · under-the-hood tables +
-      glossary · Desktop-user warm-engine note.
-    - [ ] 12d-3 · **Compress connectors** into a starter table + pointer to `CONNECTORS.md`.
-    - [ ] 12d-4 · **Preserve anchors** — add invisible `<a id="old-slug"></a>` aliases for the 9 anchors that
-      badges + external links depend on (table in the skeleton). No 404 on any badge/shared link.
-    - [ ] 12d-5 · **Retire `MARKETING.md`** — `git rm` after its content is in README; grep + repoint every
-      inbound link (`README.md` hero nav, EN-QUOI, any board-prompt doc) to the new README sections.
-    - [ ] 12d-6 · **Preserve invariants** — the `CLAUDE.md` bootstrap relationship untouched; badge hrefs point
-      at the re-pointed anchors; `docs/img/board-*` still excluded from the brain copy.
-    - [ ] 12d-7 · **English pre-flight + render check** (absorbs 11g / 12a-F3) — Typora + GitHub, SVG + all PNGs
-      display, page reads top-to-bottom, every relative link resolves.
-    - [ ] 12d-8 · **Update PR #45** title/body to reflect "MARKETING → README promotion (P-MERGE)".
+    Mechanical once 12c is set; do it in this order. _(mechanical rewrite + automated checks done
+    2026-07-25 · working tree, NOT committed — awaiting Thomas's visual render check before commit/PR)_
+    - [x] 12d-1 · **Rewrite `README.md` in place** per the skeleton _(2026-07-25 · working tree)_ — R0 arc order
+      (why → what → compare → privacy → **install CTA promoted high** → keeping-fresh → hinge → software/anatomy →
+      what's-in-the-box → measured → built → not-tethered → connectors → articles → license), boards + prose
+      pulled from `MARKETING.md`, 2 worked dialogues + 5 badges + rag-inside logo kept from the old README.
+      798 → 467 lines.
+    - [x] 12d-2 · **Relocated the delegated blocks to `SETUP.md`** _(2026-07-25 · working tree)_ — verified §7
+      backup / §9 privacy / §10 engine-update / §11 import / §6 connectors already present; **added** the
+      launcher-vs-brain ASCII to §2 and a new **§12 "Under the hood — components, skills & vocabulary"**
+      (the 3 reference tables + the glossary, per 12c). Fixed the now-dangling SETUP §8 warm-engine link
+      (pointed at the deleted README section → self-contained).
+    - [x] 12d-3 · **Compressed connectors** into native-vs-MCP 2 lines + a 6-row starter table + pointer to
+      `CONNECTORS.md` + `SETUP §6`. _(2026-07-25 · working tree)_
+    - [x] 12d-4 · **Anchors preserved** _(2026-07-25 · working tree)_ — 9 invisible `<a id>` aliases added
+      (`what-is-a-second-brain` · `and-the-privacy-of-my-data` · `how-do-i-choose-my-semantic-search-my-rag` ·
+      `ready-to-try-it` · `keeping-your-brain-up-to-date-its-engine` · `one-brain-several-universes-optional` ·
+      `under-the-hood` · `wiring-up-your-sources-connectors`); 3 badge hrefs repointed to the new GitHub slugs.
+      **All internal anchors + all EN-QUOI/SETUP cross-links verified to resolve with the GitHub slug algorithm.**
+    - [x] 12d-5 · **Retired `MARKETING.md`** _(2026-07-25 · working tree)_ — `git rm`; the sole inbound link
+      (`docs/marketing-image-prompts.md`) repointed to the README. (README/EN-QUOI/CONNECTORS had none.)
+    - [x] 12d-6 · **Invariants preserved** _(2026-07-25 · working tree)_ — `CLAUDE.md` untouched (not in diff);
+      badge hrefs point at the re-pointed anchors; `docs/img/board-*` still excluded from the brain copy
+      (`scripts/lib/tracked-files.mjs:50`, unchanged).
+    - [x] 12d-7-i · **English pre-flight + automated link/image/anchor check** _(2026-07-25 · working tree)_ —
+      clean (only the intentional `à la carte` idiom + the product-locale demo phrase *"importe mes anciennes
+      notes…"*); every `<img>`, relative file link and internal anchor resolves.
+    - [ ] 12d-7-ii · **Typora/GitHub visual render check** (Thomas's eyes) — SVG + all PNGs display, page reads
+      top-to-bottom. **← RESUME HERE.**
+    - [ ] 12d-8 · **Commit the P-MERGE lot + update PR #45** title/body to "MARKETING → README promotion
+      (P-MERGE)". *(Held until Thomas's render check + go.)*
   - **Resume after `/clear` (EXECUTION MODE):** open this plan → 12c is **done** (ownership matrix above +
     spec in [`readme-merge-skeleton.md`](readme-merge-skeleton.md)) → **go straight to 12d and EXECUTE**,
     starting at the first unchecked **12d-N**. The skeleton file is the blueprint; announce 12d-1 before

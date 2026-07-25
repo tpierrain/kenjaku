@@ -2,8 +2,8 @@
 
 > **What this is.** One **self-contained** prompt per board: the shared house-style preamble is
 > **inlined into each**, so you copy one block straight into Nano Banana with nothing to prepend. Drop
-> each render in [`docs/img/`](img/) under the exact `board-*.png` filename; `MARKETING.md` and the
-> README reference those slots, so they pick it up with no further edit. **Attach `docs/img/kenjaku.png`
+> each render in [`docs/img/`](img/) under the exact `board-*.png` filename; the
+> README references those slots, so it picks them up with no further edit. **Attach `docs/img/kenjaku.png`
 > as a reference image** every time, so the chibi mascot and the character stay faithful.
 >
 > **⚠️ Which prompts to use.** The **current grand-public campaign** is the section right below —
