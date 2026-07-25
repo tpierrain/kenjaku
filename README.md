@@ -1,7 +1,5 @@
 # Kenjaku — your second brain &nbsp;<img src="docs/img/rag-inside.svg" alt="RAG inside" height="34" valign="middle">
 
-<sub>🧠 *Why “Kenjaku”?* He's the [brain-swapping schemer](https://jujutsu-kaisen.fandom.com/wiki/Kenjaku) of *Jujutsu Kaisen*, a wink at a second brain you graft on and get to keep.</sub>
-
 ## Never miss what matters — and never drown in the rest.
 
 ### 🧠 *Just ask. Sit down and relax.* &nbsp;<sub>*— your second brain handles the rest.*</sub>
@@ -115,6 +113,12 @@ there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFER
 
 *Honesty is part of the approach — the full owned-up limitations are in
 [EN-QUOI §7](EN-QUOI-C-EST-DIFFERENT.md#7-what-it-is-not-the-owned-up-limitations).*
+
+---
+
+## 🧠 Why “Kenjaku”?
+
+**Kenjaku** is the brain-swapping schemer of [*Jujutsu Kaisen*](https://jujutsu-kaisen.fandom.com/wiki/Kenjaku): a body-hopping antagonist who grafts himself onto a new host and carries on. A wink at what a second brain does: you graft it on, and you get to keep it.
 
 ---
 
