@@ -1,5 +1,7 @@
 # Kenjaku — your second brain &nbsp;<img src="docs/img/rag-inside.svg" alt="RAG inside" height="34" valign="middle">
 
+<sub>🧠 *Why “Kenjaku”?* He's the [brain-swapping schemer](https://jujutsu-kaisen.fandom.com/wiki/Kenjaku) of *Jujutsu Kaisen*, a wink at a second brain you graft on and get to keep.</sub>
+
 ## Never miss what matters — and never drown in the rest.
 
 ### 🧠 *Just ask. Sit down and relax.* &nbsp;<sub>*— your second brain handles the rest.*</sub>
@@ -21,10 +23,6 @@ piece of info from your work in seconds, always with the sources.** *In Claude D
 command line, your call.*
 
 **[🧠 What's a second brain?](#what-is-a-second-brain) · [🚀 Install yours now](#-install-your-brain-in-one-paste) · [📖 View the articles](#the-article-series)**
-
-<sub>🧠 *Why “Kenjaku”?[^1] He's the brain-swapping schemer of* Jujutsu Kaisen*, a wink at a second brain you graft on and get to keep.*</sub>
-
-[^1]: [Kenjaku on the *Jujutsu Kaisen* wiki](https://jujutsu-kaisen.fandom.com/wiki/Kenjaku).
 
 > 🧑 *"Where are we on the billing project — who owns what, and what's been decided?"*
 >
