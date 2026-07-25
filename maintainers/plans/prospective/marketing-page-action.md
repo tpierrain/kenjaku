@@ -722,10 +722,11 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     - [x] 12d-7-i · **English pre-flight + automated link/image/anchor check** _(2026-07-25 · working tree)_ —
       clean (only the intentional `à la carte` idiom + the product-locale demo phrase *"importe mes anciennes
       notes…"*); every `<img>`, relative file link and internal anchor resolves.
-    - [ ] 12d-7-ii · **Typora/GitHub visual render check** (Thomas's eyes) — SVG + all PNGs display, page reads
-      top-to-bottom. *(Pending Thomas; the automated pass 12d-7-i is green.)*
-    - [ ] 12d-8 · **Update PR #45** title/body to "MARKETING → README promotion (P-MERGE)". *(The commits are
-      already pushed; only the PR title/body wording remains — do it just before merging to main.)*
+    - [x] 12d-7-ii · **GitHub visual render check** _(2026-07-25 · Thomas)_ — SVG + all PNGs display, page
+      reads top-to-bottom on the `docs/marketing-page` branch. Validated.
+    - [x] 12d-8 · **PR #45 title/body updated** _(2026-07-25)_ — title → "docs: promote MARKETING.md →
+      README.md (P-MERGE)", body rewritten (English) summarizing the promotion + board recompression +
+      boards-ship-into-brains.
 
 - [ ] **Step 13 — Board-image weight: shrink, then decide whether to ship them into brains** _(opened
   2026-07-25, branch `docs/marketing-page`; blocks merge to main)_
@@ -763,10 +764,11 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     `docs/marketing-page` (PR #45). Remaining before **merge to main**: 12d-7-ii (render check, Thomas's
     eyes) + 12d-8 (PR title/body).
 
-- **Resume after `/clear`:** open this plan → **Step 13 is DONE** (boards recompressed 87→12 MB, exclusion
-  removed in TDD, committed & pushed on `docs/marketing-page` / PR #45). The ONLY things left before merging
-  to `main`: **12d-7-ii** (Thomas's visual render check of the reworked README in Typora/GitHub) and
-  **12d-8** (update the PR #45 title/body to "MARKETING → README promotion (P-MERGE)"). Both are on Thomas.
+- **Resume after `/clear`:** open this plan → **everything is DONE and PR #45 is MERGE-READY.** P-MERGE
+  (Step 12) + board recompression & shipping (Step 13) are committed & pushed on `docs/marketing-page`;
+  render check (12d-7-ii) validated by Thomas; PR #45 title/body updated (12d-8). The only remaining action
+  is the **merge of PR #45 into `main`** (Thomas's go). Once merged: archive this plan (`plan-done = archived`)
+  and prune the MEMORY.md marketing-page pointer.
 
 ---
 
