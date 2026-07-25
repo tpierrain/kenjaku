@@ -653,12 +653,29 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     - [x] Applied: **F1** (act-1 merge), **F2** (hexagon once), **F4** (A–F prose compressed), **F6** (dedup
       upgrade-safety), **F7** (trailing whitespace). Page 402→388 lines, 19→17 `##` sections, all boards
       kept, English pre-flight clean. **F5** decided = leave. Deferred: **F3**→12d, **F9**→12c; **F8** kept.
+  - [x] 12b-bis · **Post-audit editorial pass with Thomas** _(2026-07-25 · committed)_ — driven live after 12b:
+    - [x] Comparatives matrix trimmed to **3 columns** (Bare LLM · **Karpathy's LLM wiki** · Kenjaku): renamed
+      the *"Plain LLM wiki"* header and **dropped the *Other "second brains"* column** (Thomas). Fixed the now-stale
+      *"all three"* wording → heading `### Side by side`, intro reworded ("the two closest, side by side").
+    - [x] **Catalog C** gained a **wiki-health** bullet — the brain self-heals its *knowledge* too: `/lint`,
+      `/consolidate`, `/file-back` + a SessionStart nudge watch for decay and **propose** fixes you confirm
+      (deterministic taxonomy-conformant builder, never overwrites). Grounded on the real engine-skills/scripts.
+    - [x] **`board-reliability` re-rendered & integrated** — added `/lint + /consolidate` to the *Self-healing*
+      band + pinned the canonical **chibi Kenjaku mascot** (was off-model / a floating head). Two render glitches
+      (`keepour`, `eval-adR%`) cleared by **re-roll** (never harden the prompt — `nano-banana-verbose-guards-leak`).
+      New PNG copied into `docs/img/` (2752×1536).
+    - **⏳ STILL OPEN (Thomas's earlier ask, NOT done):** move the *"vs other second brains"* section **down into
+      the tech zone** and **reframe it** around the real user worry — *"will my second brain stay tethered to the
+      Kenjaku repo?"* (answer: no link back to the launcher by construction, `git init` in the brain, engine
+      self-upgrades opt-in, notes never touched). This is why the section was pulled from the matrix.
   - [ ] 12c · **Resolve 11e** — decide the single source of truth per claim across
     `MARKETING.md` / `README.md` / `EN-QUOI-C-EST-DIFFERENT.md` (stop the divergence debt before merging).
   - [ ] 12d · **Green-light P-MERGE** — promote the arc to `README.md` (the north star), keeping the
     install CTA high, relocating install/engine/privacy detail to `SETUP.md` + links, fixing anchors/badges,
     preserving the `CLAUDE.md` bootstrap relationship.
-  - **Resume after `/clear`:** open this plan, start at **12a**, and produce the audit **before** editing.
+  - **Resume after `/clear`:** open this plan → **first do the OPEN item in 12b-bis** (move + reframe the
+    *"vs other second brains"* section to the tech zone as *"stays tethered to the Kenjaku repo?"*), **then 12c**
+    (content ownership), **then 12d** (P-MERGE). Everything through 12b-bis is committed & pushed.
 
 ---
 

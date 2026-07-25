@@ -131,9 +131,9 @@ wiki — a platform.*
 
 ## How it compares — at a glance
 
-Three reference points people reach for — a **bare LLM**, a **plain LLM wiki**, and the **classic
-second-brain apps**. Each board says it in a picture; the **one matrix at the end** lines all three up
-against Kenjaku.
+Three reference points people reach for — a **bare LLM**, a **Karpathy-style LLM wiki**, and the
+**classic second-brain apps** — each with its own board below. The **matrix at the end** puts the two
+closest — a bare LLM and the plain wiki — side by side with Kenjaku.
 
 ### vs a bare LLM (ChatGPT / Claude alone)
 
@@ -171,16 +171,16 @@ reaches your notes until it's proven safe on them.
 *The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
 Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
 
-### All three, side by side
+### Side by side
 
-| | Bare LLM | Plain LLM wiki | Other "second brains" | **Kenjaku** |
-|---|---|---|---|---|
-| **Memory** | Only what you paste; gone after the chat | Files you point an agent at | The vendor's database | **Persistent — grows with every question** |
-| **Grounding** | Can invent | Your files, searched by hand | Varies, often opaque | **Your notes, with source + date** |
-| **Scope** | A single chat | Your wiki files | Walled to one tool | **Cross-cutting across all your tools** |
-| **Ownership** | Hosted, ephemeral | Yours (Markdown) | Vendor's, closed format | **Yours — Markdown, your git repo** |
-| **Freshness & upkeep** | — | Hand-wired, manual | Vendor sync | **Deterministic, self-healing, hands-off** |
-| **Reliability** | — | DIY, fragile | Closed box | **Battle-tested · green-only tests · grounding proven** |
+| | Bare LLM | Karpathy's LLM wiki | **Kenjaku** |
+|---|---|---|---|
+| **Memory** | Only what you paste; gone after the chat | Files you point an agent at | **Persistent — grows with every question** |
+| **Grounding** | Can invent | Your files, searched by hand | **Your notes, with source + date** |
+| **Scope** | A single chat | Your wiki files | **Cross-cutting across all your tools** |
+| **Ownership** | Hosted, ephemeral | Yours (Markdown) | **Yours — Markdown, your git repo** |
+| **Freshness & upkeep** | — | Hand-wired, manual | **Deterministic, self-healing, hands-off** |
+| **Reliability** | — | DIY, fragile | **Battle-tested · green-only tests · grounding proven** |
 
 ---
 
@@ -312,6 +312,11 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   session: the brain **reconciles on its own** (re-indexes the delta, auto-saves, auto-commits) — nothing
   to replay by hand. An **idempotent reconciler** converges it to its desired state, the pattern behind
   Kubernetes / GitOps / Terraform. *(ADR 0026)*
+- **Keeps its *knowledge* healthy, not just its infra.** A SessionStart nudge and the `/lint`,
+  `/consolidate` and `/file-back` skills watch the wiki for decay — dangling `[[links]]`, orphan notes,
+  stale entity pages, raw captures never filed — and **propose** fixes you confirm (never a silent
+  rewrite). Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
+  re-introduce the very defects `/lint` reports. Self-healing at the *content* layer.
 - **It can only *add*, never overwrite** — a structural write-allowlist means the reconciler and the
   **self-upgradable engine** touch only what's missing; **your notes, keys, constitution and skills stay
   untouched**. *(ADR 0012 / 0014 / 0025)*
