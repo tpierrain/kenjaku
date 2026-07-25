@@ -146,10 +146,10 @@ answers from **your** sources, with the date.*
 
 <img src="docs/img/board-vs-wiki.png" alt="Kenjaku vs Karpathy's plain LLM wiki: an LLM wiki (Andrej Karpathy's credited idea) has an LLM write your sources into an interlinked Markdown wiki you point an agent at. Kenjaku keeps that wiki, and wraps it in a whole layer of deterministic, battle-tested software — so it's wrapped in deterministic battle-tested software, you just ask and it handles everything automatically, and it's reliable: nothing lost, always fresh, sources proven. A superset — the wiki plus an embedding RAG (semantic search) and live connectors — with the reliability a hand-built wiki lacks." width="100%">
 
-Kenjaku **descends from** Andrej Karpathy's **"LLM Wiki"** (credited prior art): an LLM compiles your
-sources into an interlinked Markdown wiki you point an agent at. Kenjaku **keeps that wiki** — and wraps
-it in a **whole layer of deterministic, battle-tested software**, so all you do is **ask**, and it
-**holds up**. The difference isn't a feature list; it's the **reliability wrapper** a hand-built wiki lacks.
+In short: **Kenjaku is a Karpathy-style LLM wiki, reinforced where it counts with software.** It keeps
+the wiki (an LLM turns your sources into an interlinked Markdown wiki), and adds the layer a hand-built
+one lacks: **deterministic, battle-tested software** that makes it **more reliable** and takes the work
+off your hands, so all you do is **ask** (the **affordance**).
 
 > 🧬 *A **credited evolution**, a **superset** — not an opposition, and never a priority claim.
 > ([ADR 0033](maintainers/decisions/0033-descends-from-karpathy-llm-wiki-not-graphify.md))*
