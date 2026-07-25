@@ -673,15 +673,49 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
       living-product / run-as-a-product / market-landscape lines. Updated the *"How it compares"* intro (3→2
       reference points + a pointer link to the moved section) and its HTML comment. New prose written em-dash-free
       per the typographic rule.
-  - [ ] 12c · **Resolve 11e** — decide the single source of truth per claim across
-    `MARKETING.md` / `README.md` / `EN-QUOI-C-EST-DIFFERENT.md` (stop the divergence debt before merging).
-  - [ ] 12d · **Green-light P-MERGE** — promote the arc to `README.md` (the north star), keeping the
-    install CTA high, relocating install/engine/privacy detail to `SETUP.md` + links, fixing anchors/badges,
-    preserving the `CLAUDE.md` bootstrap relationship.
-  - **Resume after `/clear`:** open this plan → the 12b-bis move+reframe is **done** (working tree, not yet
-    committed) → next is **12c** (content ownership: single source of truth per claim across
-    MARKETING / README / EN-QUOI), **then 12d** (P-MERGE). Also still open: **11g / 12a-F3** (English pre-flight +
-    Typora/GitHub render check) before P-MERGE.
+  - [x] 12c · **Content ownership resolved (one claim, one owner)** _(2026-07-25 · working tree)_ — decided
+    with Thomas: **README stays lean (shop window + install CTA + non-delegable blocks), everything deep is
+    pointed at, never re-copied.** The detailed execution spec is
+    [`readme-merge-skeleton.md`](readme-merge-skeleton.md) (annotated future-README structure, source tags,
+    length budget, anchor-preservation table). Ownership matrix:
+    - [x] **`README.md`** owns: the R0 arc + all boards · the **install CTA** (paste command, non-delegable) ·
+      the 2 worked 🧑/🧠 dialogues · the honest scope table · the article series · a **compact** privacy summary
+      + connectors table · the license summary. It **points** to everything below.
+    - [x] **`SETUP.md`** owns the deep how-to: full install steps · RAG-choice detail · backup/multi-machine
+      (§7) · engine-update (§10) · migration/import · privacy/training-controls (§9) · Desktop troubleshooting ·
+      the "under the hood" tables + 4-phase ASCII + glossary (superseded in README by the visual A–F catalog).
+    - [x] **`CONNECTORS.md`** owns the full connector menu (README keeps only a starter table + pointer).
+    - [x] **`EN-QUOI-C-EST-DIFFERENT.md`** owns the prose differentiators · owned-up limits (§7) · market
+      landscape (§9) · RAG à la carte (§6) · OKF roadmap · ROC provenance.
+    - [x] **ADRs** own the *why* of each stance; **skills** self-document via their `SKILL.md`.
+    - [x] **`MARKETING.md` dies** (de-dup): its content becomes the README; the file is deleted and inbound
+      links repointed to README sections. *(Default decided; a thin redirect stub is the fallback if Thomas
+      prefers.)*
+  - [ ] 12d · **EXECUTE P-MERGE** — rewrite `README.md` from [`readme-merge-skeleton.md`](readme-merge-skeleton.md).
+    Mechanical once 12c is set; do it in this order:
+    - [ ] 12d-1 · **Rewrite `README.md` in place** per the skeleton: R0 arc order (why → what → compare →
+      privacy → **install CTA promoted high** → vision → hinge → tech zone → connectors → articles → license),
+      pulling the boards + prose from `MARKETING.md`, keeping the 2 worked dialogues + badges + logo from the
+      current README.
+    - [ ] 12d-2 · **Relocate the delegated blocks to `SETUP.md`** — verify each is already there (README only
+      *linked* them today); add/refresh any that are thin. Blocks: install step-by-step + launcher-vs-brain
+      ASCII · backup §7 · engine-update §10 · migration/import · privacy/training §9 · under-the-hood tables +
+      glossary · Desktop-user warm-engine note.
+    - [ ] 12d-3 · **Compress connectors** into a starter table + pointer to `CONNECTORS.md`.
+    - [ ] 12d-4 · **Preserve anchors** — add invisible `<a id="old-slug"></a>` aliases for the 9 anchors that
+      badges + external links depend on (table in the skeleton). No 404 on any badge/shared link.
+    - [ ] 12d-5 · **Retire `MARKETING.md`** — `git rm` after its content is in README; grep + repoint every
+      inbound link (`README.md` hero nav, EN-QUOI, any board-prompt doc) to the new README sections.
+    - [ ] 12d-6 · **Preserve invariants** — the `CLAUDE.md` bootstrap relationship untouched; badge hrefs point
+      at the re-pointed anchors; `docs/img/board-*` still excluded from the brain copy.
+    - [ ] 12d-7 · **English pre-flight + render check** (absorbs 11g / 12a-F3) — Typora + GitHub, SVG + all PNGs
+      display, page reads top-to-bottom, every relative link resolves.
+    - [ ] 12d-8 · **Update PR #45** title/body to reflect "MARKETING → README promotion (P-MERGE)".
+  - **Resume after `/clear` (EXECUTION MODE):** open this plan → 12c is **done** (ownership matrix above +
+    spec in [`readme-merge-skeleton.md`](readme-merge-skeleton.md)) → **go straight to 12d and EXECUTE**,
+    starting at the first unchecked **12d-N**. The skeleton file is the blueprint; announce 12d-1 before
+    editing, then work down the sub-checkboxes. Everything through 12c is committed & pushed on
+    `docs/marketing-page` (PR #45).
 
 ---
 
