@@ -692,8 +692,11 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
       links repointed to README sections. *(Default decided; a thin redirect stub is the fallback if Thomas
       prefers.)*
   - [ ] 12d · **EXECUTE P-MERGE** — rewrite `README.md` from [`readme-merge-skeleton.md`](readme-merge-skeleton.md).
-    Mechanical once 12c is set; do it in this order. _(mechanical rewrite + automated checks done
-    2026-07-25 · working tree, NOT committed — awaiting Thomas's visual render check before commit/PR)_
+    Mechanical once 12c is set; do it in this order. _(rewrite + automated checks + editorial follow-ups
+    all **COMMITTED & PUSHED** on `docs/marketing-page` / PR #45 — `d27f388` P-MERGE lot, then `51d4577`
+    tethered→tied, `a014a59` vs-wiki condensed, `5aaa22e` wiki-health skills in the platform blurb,
+    `4195814` Karpathy-wiki tagline up top + GitHub About, `5dd6841` SETUP skills reference completed.
+    Remaining before merge: Step 13 (board-image weight decision) + 12d-7-ii render check + 12d-8 PR title.)_
     - [x] 12d-1 · **Rewrite `README.md` in place** per the skeleton _(2026-07-25 · working tree)_ — R0 arc order
       (why → what → compare → privacy → **install CTA promoted high** → keeping-fresh → hinge → software/anatomy →
       what's-in-the-box → measured → built → not-tethered → connectors → articles → license), boards + prose
@@ -720,14 +723,46 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
       clean (only the intentional `à la carte` idiom + the product-locale demo phrase *"importe mes anciennes
       notes…"*); every `<img>`, relative file link and internal anchor resolves.
     - [ ] 12d-7-ii · **Typora/GitHub visual render check** (Thomas's eyes) — SVG + all PNGs display, page reads
-      top-to-bottom. **← RESUME HERE.**
-    - [ ] 12d-8 · **Commit the P-MERGE lot + update PR #45** title/body to "MARKETING → README promotion
-      (P-MERGE)". *(Held until Thomas's render check + go.)*
-  - **Resume after `/clear` (EXECUTION MODE):** open this plan → 12c is **done** (ownership matrix above +
-    spec in [`readme-merge-skeleton.md`](readme-merge-skeleton.md)) → **go straight to 12d and EXECUTE**,
-    starting at the first unchecked **12d-N**. The skeleton file is the blueprint; announce 12d-1 before
-    editing, then work down the sub-checkboxes. Everything through 12c is committed & pushed on
-    `docs/marketing-page` (PR #45).
+      top-to-bottom. *(Pending Thomas; the automated pass 12d-7-i is green.)*
+    - [ ] 12d-8 · **Update PR #45** title/body to "MARKETING → README promotion (P-MERGE)". *(The commits are
+      already pushed; only the PR title/body wording remains — do it just before merging to main.)*
+
+- [ ] **Step 13 — Board-image weight: shrink, then decide whether to ship them into brains** _(opened
+  2026-07-25, branch `docs/marketing-page`; blocks merge to main)_
+  - **Why it came up.** Pre-merge check of install/upgrade impact (Thomas's ask). **Verdict: install +
+    upgrade are functionally UNAFFECTED** by the P-MERGE — 34/34 install tests green, `engine-manifest.json`
+    lists only `CLAUDE.md`, **no code references `MARKETING.md`**, SETUP §8 dangling link fixed. The ONE
+    real (cosmetic) side-effect: the launcher README is **copied verbatim into every generated brain**
+    (`CLAUDE.md.template` links it "for the general idea"), and it references **15 `board-*` images that are
+    excluded from the brain copy** → broken images in the brain's README. Pre-existing on `main` (3 boards);
+    the rewrite takes it to 15.
+  - **Key facts (don't re-derive).**
+    - Board art = **87 MB** total (18 boards @ **2752×1536**, ~4–6 MB each). The comment in
+      `scripts/lib/tracked-files.mjs:50` still says "~12MB" — **stale**, fix it when touched.
+    - **Only `README.md`** references boards (15). `SETUP.md` / `CONNECTORS.md` / both `CLAUDE.md.template`
+      reference **0** board images → they render fine in a brain already.
+    - Exclusion lives in `tracked-files.mjs` `DEV_ONLY_PREFIXES` (`"docs/img/board-"`) + its test
+      `scripts/lib/tracked-files.test.mjs` ("excludes the marketing boards").
+  - **Compression proven (empirically, this session).** `pngquant` **installed via brew**. Winner keeps
+    the `.png` extension (so **no `<img src>` / filename change anywhere**): **resize to 1760px (`sips
+    --resampleWidth 1760`) + `pngquant --quality=70-90`** → **~600 KB/board**, i.e. **87 MB → ~11 MB (−87%)**,
+    **quality imperceptible** (verified by eye on the text-heaviest board `board-reliability`; 1760px = 2× the
+    ~880px GitHub column = retina-crisp). JPEG q90 was even smaller (~570 KB) but needs a format/filename change
+    → rejected in favour of pngquant-in-place.
+  - [ ] 13a · **Confirm the quality setting with Thomas** — 1760px + pngquant (proposed) vs 2048px (~+30%
+    weight, more margin). **← RESUME HERE (awaiting Thomas's answer).**
+  - [ ] 13b · **Recompress the 18 boards in place** (chosen setting), `.png` kept; eyeball 2–3 renders
+    (incl. a text-heavy one) before committing the binaries.
+  - [ ] 13c · **Decide: ship boards into brains (remove the `board-*` exclusion, TDD: flip
+    `tracked-files.mjs` + its test + fix the stale "~12MB" comment) vs keep the exclusion.** Thomas leaned
+    "don't leave broken images"; at ~11 MB shipping-into-brains is now cheap → likely **remove the exclusion**
+    so the brain README renders everywhere. If kept excluded instead: brain README keeps broken boards (accept)
+    OR give the brain a lighter/no README.
+  - [ ] 13d · Commit + push; then finish 12d-7-ii (render check) + 12d-8 (PR title) → **merge to main**.
+
+- **Resume after `/clear`:** open this plan → the P-MERGE (Step 12 / 12d) is **done, committed & pushed** on
+  `docs/marketing-page` (PR #45). The live thread is **Step 13** — start at **13a** (waiting on Thomas: 1760px
+  vs 2048px for the board recompression). Then 13b→13d, and finally 12d-7-ii + 12d-8 before merging to main.
 
 ---
 
