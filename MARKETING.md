@@ -24,9 +24,9 @@ command line, your call.*
 > matter — recalled in seconds, **always with the source**. Just ask, in plain words; it **keeps itself
 > up to date** by pulling from every source you connect to it.
 >
-> It stays **personal and private**: your notes are plain Markdown in **your own** git repo, indexed
-> **on your machine by default — nothing leaves it** — even as your **work and operational** sources
-> get grafted on.
+> It stays **personal and private**: your notes are plain Markdown in **your own** git repo, and the
+> **search is indexed on your machine by default — so it stays local** — even as your **work and
+> operational** sources get grafted on. *(The AI that reasons is still Claude — see “what it is not”.)*
 
 ---
 
@@ -61,10 +61,10 @@ Three everyday scenes:
 > keeps *your* thread: your teams and 1-1s, the *why* behind a product decision, a client's whole context.
 
 > **All-audience by design — that's the whole point.** It was **conceived so non-tech profiles can use
-> it**: use-case-driven, with the busywork turned into **automatic tasks** and **no temporal coupling**
-> to track (never a *"did it refresh before I asked?"*). If you can *chat* with Claude, you can use it —
-> you never manage anything; freshness, backup and recovery are all handled for you. **Just ask. Sit
-> down and relax.** *(Only the one-time install is technical, and it's guided end-to-end.)*
+> it**: use-case-driven, nothing to manage, and **no temporal coupling** to track (never a *"did it
+> refresh before I asked?"* — freshness, backup and recovery are all handled). If you can *chat* with
+> Claude, you can use it. **Just ask. Sit down and relax.** *(Only the one-time install is technical,
+> and it's guided end-to-end.)*
 
 <img src="docs/img/board-affordance.png" alt="Built for everyone: an ordinary, non-technical person relaxes in a chair and simply asks in plain words, while all the engineering — indexing, syncing, saving, keeping things fresh — runs hidden in a machine room below the floor. No setup, no jargon, no wondering whether it refreshed first. Just ask, sit down and relax; the engineering stays out of your way." width="100%">
 
@@ -77,21 +77,15 @@ in the small *"if you're curious:"* strip on each board.
 
 <img src="docs/img/board-remember.png" alt="Never forget: instead of losing track amid scattered notes, your second brain keeps every decision, message and meeting and pulls the exact one back in seconds — always with its source, never invented, never fetched from the web." width="100%">
 
-> **🧠 Never forget.** Every decision, message and meeting is *kept* — and pulled back the instant you
-> ask, always with its source. It answers from **your own notes**, never invents, never wanders off to
-> the web.
+*🧠 **Never forget** — every decision, message and meeting, pulled back in seconds, always with its source. From **your own notes**; never invented, never off to the web.*
 
 <img src="docs/img/board-commitments.png" alt="Never let anyone down: instead of carrying every commitment in your head, your second brain shows at a glance what's on you and what others owe you, and by when — even capturing a spoken 'I'll take care of it' onto the right to-do list. No mental load." width="100%">
 
-> **✅ Never let anyone down.** Always know what's on **you** — and what **others** owe you, and by when —
-> without carrying it all in your head. A commitment said out loud (*"I'll take care of it"*) lands on the
-> right to-do list on its own. No more being late because you forgot you were on the hook.
+*✅ **Never let anyone down** — what's on **you** and what **others** owe you, and by when. A spoken *"I'll take care of it"* lands on the right to-do list by itself.*
 
 <img src="docs/img/board-connect.png" alt="Never drown: plugged into all your sources and everything the rest of the company shares — Slack, mail, Drive, Notion and more — your second brain filters the flood down to what actually concerns you. Read-only; it reads your sources, never changes them." width="100%">
 
-> **🌊 Never drown.** Plug into all your sources — and everything the rest of the company shares (Slack,
-> mail, Drive, Notion & more) — and it **filters the flood** down to what actually concerns you. Read-only:
-> it reads your sources, never changes them.
+*🌊 **Never drown** — plugged into all your sources (and what the company shares), **filtered** to what concerns you. Read-only: it reads your sources, never changes them.*
 
 ---
 
@@ -168,10 +162,7 @@ it in a **whole layer of deterministic, battle-tested software**, so all you do 
 
 ## vs other "second brains" — a living, personal product (that begins with a generator)
 
-<!-- Illustrated board: drop docs/img/board-generator.png (prompt in docs/marketing-image-prompts.md), then uncomment:
-<img src="docs/img/board-generator.png" alt="A living, personal product that begins with a generator: one launcher produces many independent, owned brains" width="100%"> -->
-> 🎨 *Illustrated board coming — generate `board-generator.png` from
-> [`docs/marketing-image-prompts.md`](docs/marketing-image-prompts.md) and drop it in `docs/img/`.*
+<img src="docs/img/board-generator.png" alt="A living, personal product that begins with a generator: one read-only, reusable generator produces many independent, owned brains (Your brain, Her brain, His brain), each its own git repo with your notes and your CLAUDE.md, no link back to the launcher. Each brain keeps living — the engine self-upgrades while your notes and skills grow alongside. Everyone generates their own; you share the generator, never the brain." width="100%">
 
 A useful second brain is **personal** — what serves a Head of Engineering, a PM or a researcher has
 little in common. So it isn't a *finished*, one-size-fits-all app: it's a **living, personal product**
@@ -216,8 +207,23 @@ your notes or skills.
 > *([the “à la carte RAG”, EN-QUOI §6](EN-QUOI-C-EST-DIFFERENT.md#6-the-à-la-carte-rag-you-pick-your-engine-according-to-your-constraints))*
 
 <!-- ════════════════════════════════════════════════════════════════════════════════════════════ -->
-<!-- ACT 2 — THE VISION (B2B / connected teams). DEFERRED to P2 (R11/R12/R13). Slot reserved here.  -->
+<!-- ACT 2 — THE VISION (B2B / connected teams). board-mesh wired 2026-07-25 (R12/R13).             -->
 <!-- ════════════════════════════════════════════════════════════════════════════════════════════ -->
+
+## The bigger picture — a mesh of connected teams
+
+Zoom out from *your* brain to a whole company. Each team keeps its **official golden source** current
+(deals, roadmap, tickets, customer topics) and **exposes it as a central MCP server / API**. Everyone's
+second brain then **reads them all** — so each person stays coherent and relevant against the flood,
+pulling from the *other* teams' sources of truth, not just their own.
+
+<img src="docs/img/board-mesh.png" alt="Connected teams — golden sources everyone reads: four roles (Sales, Customer Success, Product, Tech), each a person with their own private second brain. Each team keeps its official golden source current (deals & commitments, onboardings & open topics, roadmap & priorities, features & tickets) and exposes it as a central MCP server / API. Read-arrows fan from every golden source back to everyone's second brain — what's available and coming, client insights and meeting transcripts, priorities and specs, delivery status, incidents and fixes. Every team's golden source becomes a central MCP / API, read by everyone's second brain." width="100%">
+
+> **The thesis.** A mesh of personal second brains, each reading the others' golden sources, is a
+> concrete way to **augment a whole company with AI** — everyone doing their job with the right
+> information and the right understanding, **without pooling anyone's private notes**. And where a
+> company hasn't exposed central MCPs yet, the `local-mirror` skill mirrors a source (e.g. a Notion
+> zone) into a **searchable local stand-in** — value today, on the way there.
 
 ---
 
@@ -364,6 +370,18 @@ interchangeable adapters**. That's
 what makes "pick your privacy at install" **safe** — you swap the adapter, your notes and skills don't
 move. *([ADR 0006](maintainers/decisions/0006-rag-mcp-is-stable-contract.md) ·
 [ADR 0007](maintainers/decisions/0007-three-embedder-adapters-privacy-scale.md))*
+
+---
+
+## Getting started — set up once, then just ask
+
+The only technical step is the **one-time setup**, and Claude walks you through it in plain chat: you
+answer a few questions (name it, where, your language, and the one privacy choice), Claude runs the
+single command, builds your brain and checks it works. After that, you never touch the machinery.
+
+<img src="docs/img/board-install.png" alt="Set up once, then just ask — how a Kenjaku installs, in four steps: 1) Get the launcher (grab the open-source launcher once; one-time, ~15 min, needs git + Node); 2) Answer a few questions in plain chat (name it, where, your language) and pick where your search runs (on your machine, an API key, or local via Ollama); 3) One command builds YOUR brain (copies & personalizes, git init, installs the search engine, self-checks); 4) Open it, and just ask (a fresh conversation rooted in your brain). Claude guides you through the one-time setup; after that you never touch the machinery." width="100%">
+
+*Full walk-through in [SETUP](SETUP.md).*
 
 ---
 

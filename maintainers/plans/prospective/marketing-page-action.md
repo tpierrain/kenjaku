@@ -539,6 +539,50 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
   - [x] 10c · Both rendered → verified clean → copied in → `<img>` slots + MARKETING sections wired.
     _(2026-07-24 · `a4f5a1b`)_ — Thomas's gate ("integrate only if no grave error") met for both.
 
+- [ ] **Step 11 — Critical-review polish pass → make `MARKETING.md` README-ready** _(started 2026-07-25, branch `docs/marketing-page`)_
+  - Why: before P-MERGE (promote MARKETING → README), a critique with Thomas flagged, in priority order:
+    (1) the page is **long & repetitive** vs its own R-STYLE (4 consecutive emotional sections, the
+    triad *never forget / let anyone down / drown* repeated 4×); (2) **two visible holes** — the ACT 2
+    B2B mesh slot is empty and *"vs other second brains"* still shows a **"🎨 Illustrated board coming"**
+    placeholder; (3) the absolute **"nothing leaves it"** claims contradict the honest *"not 100%
+    private"* line; (4) **3-way duplication** MARKETING/README/EN-QUOI (source-of-truth undecided);
+    (5) the **"Kenjaku"** name is never explained. Decisions taken with Thomas: **edit MARKETING first**
+    (promote to README in a later pass) and **produce the 2 missing boards** (do NOT cut the slots).
+  - [x] 11a · **Produced + rendered + wired the 3 missing boards** (generator · mesh · install) at current
+    grand-public grammar. _(2026-07-25 · working tree)_
+    - [x] 11a-i · `board-generator` prompt upgraded to current grammar (anti-leak guard, #E8590C ribbon,
+      no ADR numbers) + relocated out of the Annex into a live act-2 section. _(2026-07-25 · working tree)_
+    - [x] 11a-ii · `board-mesh` prompt upgraded + relocated. **Framing resolved with Thomas (final):**
+      adapted from his "Connected teams — information flows by itself" reference into a **read/consume
+      loop** — each team keeps its **official golden source** (Notion, DB…) current; each source is
+      **exposed as a central MCP server / API**; **everyone's second brain reads them all** (each node =
+      a PERSON in that role with their OWN private brain). **Deliberately NO "second brain → golden
+      source" write arrow** (Thomas: the update is human-mediated — a person, informed by their brain,
+      keeps the source current; a direct brain-writes-source link would overclaim). Kenjaku house form,
+      **generic roles only** (`no-client-demo-context-in-repo`). _(2026-07-25 · working tree — file lost
+      once to a plan-mode session, regenerated)_
+    - [x] 11a-iii · `board-install` prompt written — "Set up once, then just ask" (4-step guided path +
+      the 3 privacy chips + honesty chip), for the CTA / future README "Install yours now". _(2026-07-25 ·
+      working tree)_
+    - [x] 11a-iv · Thomas rendered the 3 → verified clean (no leak, ribbons correct, spelling OK) →
+      copied into `docs/img/` → wired `<img>`: **`board-mesh` fills the ACT 2 slot** (new "The bigger
+      picture — a mesh of connected teams" section + thesis + local-mirror bridge line); **`board-generator`
+      replaces the "🎨 coming" placeholder** in "vs other second brains"; **`board-install`** wired into a
+      new "Getting started — set up once, then just ask" section before "Going further". _(2026-07-25 ·
+      working tree)_
+  - [x] 11b · **Border the absolute privacy claims** — pitch "nothing leaves it" → the *search/index*
+    stays local, so the hooks no longer contradict the honest "not 100% private" line. _(2026-07-25 · working tree)_
+  - [x] 11c · **Compressed the top of act 1** per R-STYLE _(2026-07-25 · working tree)_ — the three triad
+    boards' restating blockquotes collapsed to one-line captions each (kept the boards), and the
+    "all-audience by design" note tightened. Triad now stated once in the pitch + once as captions,
+    not 4×.
+  - [ ] 11d · **Consolidate the 5 comparative/scope tables** (what-is-not · vs-LLM · vs-wiki ·
+    vs-others · privacy) to cut comparison fatigue.
+  - [ ] 11e · **Decide content ownership** MARKETING / README / EN-QUOI (single source per claim)
+    before P-MERGE, to stop divergence debt.
+  - [ ] 11f · **Explain or lean into the "Kenjaku" name** (one line — the brain-swapping reference).
+  - [ ] 11g · English pre-flight + Typora/GitHub render check on the reworked page.
+
 ---
 
 ## `MARKETING.md` — outline
