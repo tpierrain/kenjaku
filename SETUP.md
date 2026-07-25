@@ -68,7 +68,7 @@ That's it: the **free tier is active immediately**, no credit card required to g
 > home → `~/<name>`). The installer **refuses if the target folder already exists** — it's the one that creates it.
 
 ```bash
-cd second-brain-generator   # the cloned launcher
+cd kenjaku   # the cloned launcher
 node installer.mjs          # interactive: asks for name, location, your name, language
 ```
 
@@ -77,9 +77,9 @@ node installer.mjs          # interactive: asks for name, location, your name, l
 ```
 You give ONE instruction to Claude Code:
         │   "Install me a second brain named "second-brain" (name to be confirmed)
-        │     from this generator: https://github.com/tpierrain/second-brain-generator"
+        │     from this generator: https://github.com/tpierrain/kenjaku"
         ▼
-    📁 second-brain-generator/   ← the LAUNCHER (Claude clones it): read-only, reusable, never modified
+    📁 kenjaku/   ← the LAUNCHER (Claude clones it): read-only, reusable, never modified
         │
         │   Claude runs the installer in it  →  which CREATES a folder ELSEWHERE
         ▼

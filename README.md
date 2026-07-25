@@ -8,11 +8,11 @@
 
 > **Kenjaku is a Karpathy-style LLM wiki, reinforced where it counts with battle-tested software.**
 
-[![Latest release](https://img.shields.io/github/v/release/tpierrain/second-brain-generator?sort=semver&display_name=tag&label=latest&color=7c4dff&style=flat-square&logo=github&logoColor=white)](https://github.com/tpierrain/second-brain-generator/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/tpierrain/kenjaku?sort=semver&display_name=tag&label=latest&color=7c4dff&style=flat-square&logo=github&logoColor=white)](https://github.com/tpierrain/kenjaku/releases/latest)
 &nbsp;[![Privacy: local by default](https://img.shields.io/badge/privacy-local%20by%20default-3d5afe?style=flat-square&logo=lock&logoColor=white)](#privacy-à-la-carte--you-decide-who-touches-your-data)
 &nbsp;[![Runs on macOS and Windows](https://img.shields.io/badge/runs%20on-macOS%20%C2%B7%20Windows-2979ff?style=flat-square)](#-install-your-brain-in-one-paste)
 &nbsp;[![Engine: self-upgradable since v3.0.0](https://img.shields.io/badge/engine-self--upgradable%20since%20v3.0.0-651fff?style=flat-square&logo=rocket&logoColor=white)](#keeping-your-brain-fresh--universes--engine-updates--importing-an-old-brain)
-&nbsp;[![Mutation tested with Stryker](https://img.shields.io/badge/mutation%20tested-Stryker-e74c24?style=flat-square&logo=stryker&logoColor=white)](https://github.com/tpierrain/second-brain-generator/tree/main/maintainers/mutation)
+&nbsp;[![Mutation tested with Stryker](https://img.shields.io/badge/mutation%20tested-Stryker-e74c24?style=flat-square&logo=stryker&logoColor=white)](https://github.com/tpierrain/kenjaku/tree/main/maintainers/mutation)
 
 <img src="docs/img/board-hero.png" alt="Meet Kenjaku, your second brain: a relaxed mascot beside a private brain wired to Slack, Drive, Gmail and your calendar that stays on your machine. The promise — never miss what matters, and never drown in the rest; all your work, remembered, always up to date and always sourced. Three pillars: never forget (find anything in seconds from your own sources, never invented), never let anyone down (always know what's on you and by when, no mental load), never drown (plugged into all your tools, filtered to what matters to you). Just ask. Sit down and relax. It's all automated." width="100%">
 
@@ -22,7 +22,9 @@ command line, your call.*
 
 **[🧠 What's a second brain?](#what-is-a-second-brain) · [🚀 Install yours now](#-install-your-brain-in-one-paste) · [📖 View the articles](#the-article-series)**
 
-<sub>🧠 *Why “Kenjaku”? He's the brain-swapping schemer of* Jujutsu Kaisen *— a wink at a second brain you graft on and get to keep. The repo is still `second-brain-generator`.*</sub>
+<sub>🧠 *Why “Kenjaku”?[^1] He's the brain-swapping schemer of* Jujutsu Kaisen*, a wink at a second brain you graft on and get to keep.*</sub>
+
+[^1]: [Kenjaku on the *Jujutsu Kaisen* wiki](https://jujutsu-kaisen.fandom.com/wiki/Kenjaku).
 
 > 🧑 *"Where are we on the billing project — who owns what, and what's been decided?"*
 >
@@ -204,7 +206,7 @@ your notes or skills.
 **Your only hands-on move:** open Claude and paste this one sentence (adapt the name & URL).
 
 ```text
-Install me a second brain named "second-brain" (name to be confirmed) from this generator: https://github.com/tpierrain/second-brain-generator
+Install me a second brain named "second-brain" (name to be confirmed) from this generator: https://github.com/tpierrain/kenjaku
 ```
 
 Claude does everything else: clones the launcher, asks you a few questions **in chat** (name, location,
