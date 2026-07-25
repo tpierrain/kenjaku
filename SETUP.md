@@ -536,6 +536,8 @@ offer** the update.
 
 ### The skills you call
 
+Everyday capabilities, invoked in plain words (the `/name` is the explicit form):
+
 | Skill | What it does |
 |---|---|
 | **`/coach`** | **"In-your-face" coach**, a sparring partner wired to your vault, *Radical Candor* spirit (caring AND brutally honest): it challenges your decisions, names your blind spots. *Self-coaching only.* |
@@ -544,7 +546,19 @@ offer** the update.
 | **`/local-mirror`** | Plugs your brain onto a **local mirror** — a live zone of an internal tool (**Notion** today) that gets **mirrored into your vault** as Markdown, so the RAG searches and **cites** it. Declare one, then sync / refresh / inspect it. *The central RAG you don't have yet — but local, right now.* |
 | **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Invisible until you have a second universe. |
 | **`/import`** | Imports the notes of a **previous** brain into this one (safe plan → confirm → copy → re-index). See §11. |
+| **`/update-engine`** | Upgrades your brain's **engine** (search code, launchers, engine scripts), opt-in, **never touching your notes**. See §10. |
 | **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |
+
+**Wiki-health skills (keep your knowledge tidy).** Engine-managed skills that watch the vault for decay
+and always **propose** fixes you confirm (never a silent rewrite):
+
+| Skill | What it does |
+|---|---|
+| **`/lint`** | **Health-checks the wiki**: reports dangling `[[links]]`, orphan notes nobody links to, stale entity pages, and malformed frontmatter. The diagnosis — you decide what to fix. |
+| **`/consolidate`** | Promotes **raw captures** (recent meetings, daily notes, transcripts) into durable **entity / topic pages** — creating or enriching the higher-order wiki page. |
+| **`/file-back`** | After a substantive exchange, **proposes distilling the answer** into a durable note (topic / decision / person / meeting), with a suggested target page. |
+| **`/open-note`** | Opens a vault note from an *"open X for me"* intent (semantic + exact match) in Obsidian; if none exists, it synthesizes the topic. |
+| **`/mcp-token-expired`** | Helper: what to do when a native claude.ai connector (Slack, Calendar, Notion, Drive, Gmail) returns an **auth error** — how to re-authenticate. |
 
 ### The internal tooling (you don't call it)
 
