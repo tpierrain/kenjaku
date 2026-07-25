@@ -576,11 +576,36 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     boards' restating blockquotes collapsed to one-line captions each (kept the boards), and the
     "all-audience by design" note tightened. Triad now stated once in the pitch + once as captions,
     not 4×.
-  - [ ] 11d · **Consolidate the 5 comparative/scope tables** (what-is-not · vs-LLM · vs-wiki ·
-    vs-others · privacy) to cut comparison fatigue.
+  - [x] 11d · **Consolidate the 5 comparative/scope tables** (what-is-not · vs-LLM · vs-wiki ·
+    vs-others · privacy) to cut comparison fatigue. _(2026-07-25 · working tree)_ — Thomas's call:
+    **unified matrix** (option A). The three "vs" tables (12 rows) collapse into ONE 4-column matrix
+    ("All three, side by side": Bare LLM · Plain wiki · Other brains · Kenjaku, 6 rows), grouped under a
+    single `## How it compares — at a glance` with the three boards demoted to `###` + a one-line punch
+    each. `what-is-not` + `privacy` kept as their own scope tables (they're not comparatives). Net:
+    5 tables → 3.
   - [ ] 11e · **Decide content ownership** MARKETING / README / EN-QUOI (single source per claim)
     before P-MERGE, to stop divergence debt.
-  - [ ] 11f · **Explain or lean into the "Kenjaku" name** (one line — the brain-swapping reference).
+  - [x] 11f · **Explain or lean into the "Kenjaku" name** (one line — the brain-swapping reference).
+    _(2026-07-25 · working tree)_ — light `<sub>` aside under the hero: *Jujutsu Kaisen*'s brain-swapping
+    schemer, a wink at a second brain you graft on and keep; notes the repo slug stays
+    `second-brain-generator`. Kept out of the pitch so the hook isn't diluted.
+  - [x] 11h · **Lead the Hero with the ultimate promise; chill line becomes the subtitle** (Thomas, review).
+    _(2026-07-25 · working tree)_ — *"Never miss what matters — and never drown in the rest."* promoted to
+    the Hero headline (H2 under the H1), because the **pain-resolution** promise hooks a cold reader harder
+    than the affordance (and it matches the page's own *why → what* arc, R5/R7). *"Just ask. Sit down and
+    relax."* kept as the **subtitle** (still the established catchphrase, R15 — demoted, not dropped) and
+    italicized to read softer. De-duplicated the pitch (which repeated the promise verbatim → now leads
+    with *"Stay on top of everything moving around you…"*). *Open: whether to adopt it as the **global**
+    tagline (README hero + GitHub About) — tie into 11e / P-MERGE, not done yet.*
+    - [x] 11h-render · **Re-render `board-hero.png` to lead with the promise** _(2026-07-25 · working tree)_.
+      Prompt updated: centerpiece headline swapped *"All your work, remembered."* →
+      **"Never miss what matters — and never drown in the rest."** (two lines), old line demoted to the
+      grey sub-line. Pillars + ribbon unchanged. Thomas rendered → verified clean (no leak, ribbon #E8590C,
+      spelling OK) → copied into `docs/img/` → `<img>` alt updated to the new headline.
+  - [x] 11i · **State the auto-save + remote backup (survives a lost laptop)** (Thomas, review).
+    _(2026-07-25 · working tree)_ — new reassurance blockquote in "How a question flows": every change
+    **auto-committed to git** instantly; connect a **remote** (optional, one setting) → **auto-pushed**, so
+    a lost/stolen/dead laptop costs nothing (restore on a new machine). Framed honestly (remote is opt-in).
   - [ ] 11g · English pre-flight + Typora/GitHub render check on the reworked page.
 
 ---

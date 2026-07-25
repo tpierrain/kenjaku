@@ -1,6 +1,8 @@
 # Kenjaku — your second brain
 
-### 🧠 Just ask. Sit down and relax. &nbsp;<sub>*— your second brain handles the rest.*</sub>
+## Never miss what matters — and never drown in the rest.
+
+### 🧠 *Just ask. Sit down and relax.* &nbsp;<sub>*— your second brain handles the rest.*</sub>
 
 **All your work, remembered — always up-to-date, always sourced.**
 
@@ -12,17 +14,18 @@
 piece of info from your work in seconds, always with the sources.** *In Claude Desktop or on the
 command line, your call.*
 
-<img src="docs/img/board-hero.png" alt="Meet Kenjaku, your second brain: a relaxed mascot beside a private brain wired to Slack, Drive, Gmail and your calendar that stays on your machine — all your work, remembered, always up to date and always sourced. Three pillars: never forget (find anything in seconds from your own sources, never invented), never let anyone down (always know what's on you and by when, no mental load), never drown (plugged into all your tools, filtered to what matters to you). Just ask. Sit down and relax. It's all automated." width="100%">
+<img src="docs/img/board-hero.png" alt="Meet Kenjaku, your second brain: a relaxed mascot beside a private brain wired to Slack, Drive, Gmail and your calendar that stays on your machine. The promise — never miss what matters, and never drown in the rest; all your work, remembered, always up to date and always sourced. Three pillars: never forget (find anything in seconds from your own sources, never invented), never let anyone down (always know what's on you and by when, no mental load), never drown (plugged into all your tools, filtered to what matters to you). Just ask. Sit down and relax. It's all automated." width="100%">
+
+<sub>🧠 *Why “Kenjaku”? He's the brain-swapping schemer of* Jujutsu Kaisen *— a wink at a second brain you graft on and get to keep. The repo is still `second-brain-generator`.*</sub>
 
 ---
 
 ## The pitch
 
-> **Never miss what matters — and never drown in the rest.** Stay on top of everything moving around
-> you, at work and in life, without being buried by the flood you'd otherwise have to sift through
-> yourself. And **remember everything that counts** — your decisions, other people's, the things that
-> matter — recalled in seconds, **always with the source**. Just ask, in plain words; it **keeps itself
-> up to date** by pulling from every source you connect to it.
+> **Stay on top of everything moving around you** — at work and in life — without being buried by the
+> flood you'd otherwise have to sift through yourself. And **remember everything that counts** — your
+> decisions, other people's, the things that matter — recalled in seconds, **always with the source**.
+> Just ask, in plain words; it **keeps itself up to date** by pulling from every source you connect to it.
 >
 > It stays **personal and private**: your notes are plain Markdown in **your own** git repo, and the
 > **search is indexed on your machine by default — so it stays local** — even as your **work and
@@ -97,6 +100,11 @@ The web's **stale-while-revalidate** pattern, applied to your memory: you get a 
 what's already indexed; freshness catches up **behind the scenes** and only **amends** the answer if
 there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFERENT.md#2-how-it-works-answer-right-away-verify-afterwards))*
 
+> 💾 **Nothing to save, nothing to lose.** Every change is **auto-committed to your git repo** the
+> instant it's written — no *"did I save that?"*, ever. Connect a **remote** (optional, one setting) and
+> it **auto-pushes** there too, so a **lost, stolen or dead laptop costs you nothing** — restore your
+> whole brain on a new machine from the backup.
+
 ---
 
 ## What it is — and what it is *not*
@@ -126,20 +134,23 @@ wiki — a platform.*
 ---
 
 <!-- R6 comparatives, in order: 1) bare LLM, 2) plain LLM wiki à la Karpathy, 3) other second brains.
-     All three now present (board-vs-wiki added 2026-07-24, framed per ADR 0033 — credited superset). -->
+     All three now present (board-vs-wiki added 2026-07-24, framed per ADR 0033 — credited superset).
+     Consolidated 2026-07-25 (11d): three boards + one line each, then ONE unified matrix. -->
 
-## vs a bare LLM (ChatGPT / Claude alone)
+## How it compares — at a glance
+
+Three reference points people reach for — a **bare LLM**, a **plain LLM wiki**, and the **classic
+second-brain apps**. Each board says it in a picture; the **one matrix at the end** lines all three up
+against Kenjaku.
+
+### vs a bare LLM (ChatGPT / Claude alone)
 
 <img src="docs/img/board-vs-llm.png" alt="A real memory, not a confident guess: a bare chatbot only knows what you paste in, forgets after the chat and can make things up; your second brain has a persistent memory that grows with every question, answers from YOUR sources with the date, and stays yours in Markdown in your git repo." width="100%">
 
-| | A bare LLM | Your second brain |
-|---|---|---|
-| **Memory** | Only what you re-paste; forgotten after the chat | **Persistent**, grows with every question |
-| **Grounding** | Answers from training — can make things up | **From your notes**, with the source and its date |
-| **Scope** | A single walled conversation | **Cross-cutting** across all your tools |
-| **Ownership** | Hosted, ephemeral | **Yours**, in Markdown, in your git repo |
+*A bare chatbot only knows what you paste and forgets after the chat — your brain **remembers**, and
+answers from **your** sources, with the date.*
 
-## vs a plain LLM wiki (à la Karpathy) — kept, and grown up
+### vs a plain LLM wiki (à la Karpathy) — kept, and grown up
 
 <img src="docs/img/board-vs-wiki.png" alt="Kenjaku vs Karpathy's plain LLM wiki: an LLM wiki (Andrej Karpathy's credited idea) has an LLM write your sources into an interlinked Markdown wiki you point an agent at. Kenjaku keeps that wiki, and wraps it in a whole layer of deterministic, battle-tested software — so it's wrapped in deterministic battle-tested software, you just ask and it handles everything automatically, and it's reliable: nothing lost, always fresh, sources proven. A superset — the wiki plus an embedding RAG (semantic search) and live connectors — with the reliability a hand-built wiki lacks." width="100%">
 
@@ -148,19 +159,10 @@ sources into an interlinked Markdown wiki you point an agent at. Kenjaku **keeps
 it in a **whole layer of deterministic, battle-tested software**, so all you do is **ask**, and it
 **holds up**. The difference isn't a feature list; it's the **reliability wrapper** a hand-built wiki lacks.
 
-| | A plain LLM wiki | Kenjaku |
-|---|---|---|
-| **Core idea** | An LLM-built interlinked Markdown wiki | **The same wiki — kept** |
-| **Search** | Point an agent at the files | **+ embedding RAG** (semantic search) & live connectors |
-| **Freshness & upkeep** | Hand-wired, manual | **Deterministic, self-healing, hands-off** |
-| **Reliability** | DIY, fragile | **Battle-tested · green-only tests · grounding proven** |
-
 > 🧬 *A **credited evolution**, a **superset** — not an opposition, and never a priority claim.
 > ([ADR 0033](maintainers/decisions/0033-descends-from-karpathy-llm-wiki-not-graphify.md))*
 
----
-
-## vs other "second brains" — a living, personal product (that begins with a generator)
+### vs other "second brains" — a living, personal product (that begins with a generator)
 
 <img src="docs/img/board-generator.png" alt="A living, personal product that begins with a generator: one read-only, reusable generator produces many independent, owned brains (Your brain, Her brain, His brain), each its own git repo with your notes and your CLAUDE.md, no link back to the launcher. Each brain keeps living — the engine self-upgrades while your notes and skills grow alongside. Everyone generates their own; you share the generator, never the brain." width="100%">
 
@@ -174,15 +176,19 @@ And it's run **as a product, not a hack**: brains **in real use**, with every **
 against existing brains before it ships** — the migration path is a **release gate**, so an update never
 reaches your notes until it's proven safe on them.
 
-| | Classic "second brain" tools | This approach |
-|---|---|---|
-| **What's delivered** | A finished product, identical for everyone | A **generator** that produces **your** instance |
-| **Your data** | At the vendor's, closed format | **At home**, in Markdown, in your git repo |
-| **Scope** | Walled to a single tool | **Cross-cutting** across your tools |
-| **Customization** | Settings in a closed UI | **Your `CLAUDE.md` constitution + your skills**, editable |
-
 *The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
 Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
+
+### All three, side by side
+
+| | Bare LLM | Plain LLM wiki | Other "second brains" | **Kenjaku** |
+|---|---|---|---|---|
+| **Memory** | Only what you paste; gone after the chat | Files you point an agent at | The vendor's database | **Persistent — grows with every question** |
+| **Grounding** | Can invent | Your files, searched by hand | Varies, often opaque | **Your notes, with source + date** |
+| **Scope** | A single chat | Your wiki files | Walled to one tool | **Cross-cutting across all your tools** |
+| **Ownership** | Hosted, ephemeral | Yours (Markdown) | Vendor's, closed format | **Yours — Markdown, your git repo** |
+| **Freshness & upkeep** | — | Hand-wired, manual | Vendor sync | **Deterministic, self-healing, hands-off** |
+| **Reliability** | — | DIY, fragile | Closed box | **Battle-tested · green-only tests · grounding proven** |
 
 ---
 
