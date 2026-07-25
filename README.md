@@ -1,4 +1,4 @@
-# Kenjaku — your second brain &nbsp;<img src="docs/img/rag-inside.svg" alt="RAG inside" height="34" valign="middle">
+# Kenjaku — Second Brain Generator &nbsp;<img src="docs/img/rag-inside.svg" alt="RAG inside" height="34" valign="middle">
 
 *By Thomas Pierrain (VP Tech at [shodo](https://shodo.io/))*
 
@@ -8,7 +8,7 @@
 &nbsp;[![Engine: self-upgradable since v3.0.0](https://img.shields.io/badge/engine-self--upgradable%20since%20v3.0.0-651fff?style=flat-square&logo=rocket&logoColor=white)](#keeping-your-brain-up-to-date-its-engine)
 &nbsp;[![Mutation tested with Stryker](https://img.shields.io/badge/mutation%20tested-Stryker-e74c24?style=flat-square&logo=stryker&logoColor=white)](https://github.com/tpierrain/second-brain-generator/tree/main/maintainers/mutation)
 
-![Meet Kenjaku, your second brain: a relaxed mascot beside a private brain wired to Slack, Drive, Gmail and your calendar that stays on your machine — all your work, remembered, always up-to-date and always sourced. Three pillars: never forget (find anything in seconds from your own sources, never invented), never let anyone down (always know what's on you and by when, no mental load), never drown (plugged into all your tools, filtered to what matters to you). Just ask. Sit down and relax. It's all automated.](docs/img/board-hero.png)
+![Meet Kenjaku, your second brain: sources like Slack, Drive, Gmail and your calendar flow into one private brain that stays on your machine — all your work, remembered, always up-to-date and always sourced. Just ask. Sit down and relax. It's all automated.](docs/img/board-hero.png)
 
 **Ask it like you'd ask a personal assistant — no dev skills required — and pull up any decision or piece of info from your work in seconds, always with the sources.**
 *In Claude Desktop or on the command line, your call.*
@@ -21,7 +21,7 @@
 
 **🔄 Self-upgradable — new in v3.0.0.** Your brain keeps **its own engine** up to date: *ask in plain words, confirm,* and it pulls the latest search engine — **without ever touching a single one of your notes.** No terminal, no re-install. *([how it works](#keeping-your-brain-up-to-date-its-engine))*
 
-**[🧠 What's a second brain?](#what-is-a-second-brain) · [🚀 Install yours now](#ready-to-try-it) · [🎨 The one-pager](MARKETING.md) · [📖 View the articles](#the-article-series)**
+**[🧠 What's a second brain?](#what-is-a-second-brain) · [🚀 Install yours now](#ready-to-try-it) · [📖 View the articles](#the-article-series)**
 
 > 🧑 *"Where are we on the billing project — who owns what, and what's been decided?"*
 >
@@ -48,19 +48,6 @@ around).
 
 ---
 
-## What it gives you every day — *never forget · never let anyone down · never drown*
-
-Three everyday aches it takes off your plate. The mechanics stay in the small *"if you're curious:"*
-strip on each board — you don't need them to *use* it.
-
-![Never forget: instead of losing track amid scattered notes, your second brain keeps every decision, message and meeting and pulls the exact one back in seconds — always with its source, never invented, never fetched from the web.](docs/img/board-remember.png)
-
-![Never let anyone down: instead of carrying every commitment in your head, your second brain shows at a glance what's on you and what others owe you, and by when — even capturing a spoken 'I'll take care of it' onto the right to-do list. No mental load.](docs/img/board-commitments.png)
-
-![Never drown: plugged into all your sources and everything the rest of the company shares — Slack, mail, Drive, Notion and more — your second brain filters the flood down to what actually concerns you. Read-only; it reads your sources, never changes them.](docs/img/board-connect.png)
-
----
-
 ## What is a "second brain"?
 
 A **memory external to you**: your notes, your decisions and your work exchanges gathered in one
@@ -80,6 +67,8 @@ A few properties define it:
   catches up in the background and folds anything new into its answer.
 - **It cites its sources.** No answers out of thin air: you can always trace back to the original
   note or message, with its date.
+
+![Why you need a second brain and what it is: as work speeds up you plug into more tools (Slack, mail, Drive, meeting transcripts) and fall behind; a second brain gives you one memory across all your tools, answering in plain words from your own sources, always with the date, and keeping itself up to date.](docs/img/board-why-what.png)
 
 > 📂 **An open, human-readable format.** The substrate of your second brain is just a set of
 > **Markdown (`.md`)** files — linked together with `[[wikilink]]` links where it makes sense (a
@@ -178,6 +167,8 @@ The infra, the storage, the concurrency, the guardrails: that's **its** job — 
   *(To decide: ["how do I choose my semantic search"](#how-do-i-choose-my-semantic-search-my-rag).)*
 - **Zero effort on your part.** You never have to kick off a sync, or even know that git exists: you
   ask your question, that's it.
+
+![How it works, for you: you do one thing, ask in plain words; then it runs hands-off, answer now (searches your vault, replies in seconds with the source), sync in the background (pulls Slack, Drive and mail read-only), amend the answer only if something new turned up, and save, version and back up with an auto-commit to git. You never click save, never refresh, never lose a thing.](docs/img/board-flow.png)
 
 > 💡 For the curious: your answer arrives right away from what your brain already has in memory, and
 > updates quietly in the background if it finds something new — a bit like a web page that displays
