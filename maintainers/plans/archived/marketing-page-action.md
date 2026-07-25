@@ -1,7 +1,9 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS : 🚧 IN PROGRESS — branch `docs/marketing-page`                       -->
-<!-- This is the ONE canonical plan for this chantier. Tick boxes as you go.      -->
-<!-- After a /clear: open this file, resume at the first unchecked `- [ ]`.       -->
+<!-- STATUS : ✅ DONE — shipped via PR #45 (squash-merged into `main` 2026-07-25,  -->
+<!--          commit 711ac54). MARKETING.md promoted to README.md (P-MERGE);       -->
+<!--          boards recompressed 87→12 MB and shipped into generated brains.      -->
+<!--          Archived per `plan-done = archived`. Deferred items below (P2 B2B     -->
+<!--          act, Step 5 market watch) were explicitly out of this pass's scope.  -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Plan — `MARKETING.md`: a presentable, visual one-pager for the Second Brain Generator
