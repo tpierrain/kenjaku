@@ -72,6 +72,34 @@ cd second-brain-generator   # the cloned launcher
 node installer.mjs          # interactive: asks for name, location, your name, language
 ```
 
+**Launcher vs brain, at a glance** — one instruction, two folders, no link between them:
+
+```
+You give ONE instruction to Claude Code:
+        │   "Install me a second brain named "second-brain" (name to be confirmed)
+        │     from this generator: https://github.com/tpierrain/second-brain-generator"
+        ▼
+    📁 second-brain-generator/   ← the LAUNCHER (Claude clones it): read-only, reusable, never modified
+        │
+        │   Claude runs the installer in it  →  which CREATES a folder ELSEWHERE
+        ▼
+    📁 ~/second-brain/            ← YOUR second brain: a FRESH folder (files copied + git init)
+        ├── CLAUDE.md          (your constitution — generated from the bootstrap stub)
+        ├── vault/             (your notes)
+        ├── rag/               (the search engine)
+        ├── .git/              (FRESH repo, 0 remote — no link to the launcher)
+        └── .mcp.json, .env …  (generated config)
+        │
+        │   you reopen Claude Code INSIDE the brain
+        ▼
+    → you ask your questions
+        │
+        │   (optional, whenever you want) you ask Claude, INSIDE your brain:
+        │   "Push my second brain to a remote GitHub repository (for a backup)"
+        ▼
+    ☁️  remote repository        ← backup + multi-machine (push opt-in, see §7)
+```
+
 The script:
 1. checks the prerequisites (and stops cleanly if any are missing);
 2. asks you for the **brain name / location / your name / language**;
@@ -335,7 +363,7 @@ changes from the other machine.
 | RAG status "unavailable" at startup | RAG engine not yet installed / DB being written | `cd rag && npm install`; the status recovers once the index is built |
 | The MCP server doesn't appear | `.mcp.json` missing / wrong path | re-run `node installer.mjs`, accept the server in Claude Code |
 | **MCP smoke-test ❌** at the end of installation ("MCP connection KO") | `rag/` not installed, `.mcp.json` poorly generated, or `npx`/`tsx` unavailable | `cd rag && npm install` then re-run `node installer.mjs`; check that `.mcp.json` points to `npx tsx rag/src/index.ts` with the right `cwd`. Manual test: `npx tsx rag/src/index.ts` should start without crashing (the Gemini key is **not** required for this test). |
-| Memory feels tight with several brains open in **Claude Desktop** | Each open brain keeps **one warm search engine** in RAM (the MCP server lives with the parent session, not your typing) | Close the brain conversations you're not using. See the README's [**Notes for Claude Desktop users**](README.md#-notes-for-claude-desktop-users). |
+| Memory feels tight with several brains open in **Claude Desktop** | Each open brain keeps **one warm search engine** in RAM (the MCP server lives with the parent session, not your typing) | Close the brain conversations you're not using — each open brain conversation holds one warm embedder in RAM. |
 
 ## 9. Data privacy
 
@@ -487,3 +515,82 @@ offer** the update.
 > ```
 > Deterministic core (`scripts/import-brain.mjs` + `scripts/lib/import-vault.mjs`); exits non-zero on
 > failure. (Day to day you don't need this — just ask your brain.)
+
+## 12. Under the hood — components, skills & vocabulary
+
+*For the curious and the technical. You don't need any of this to use your brain — the README's visual
+"reliability, determinism, robustness" catalog is the conceptual tour; this is the component reference.*
+
+### What's in the box
+
+| Element | Role | Status |
+|---|---|---|
+| **`rag/`** | RAG engine (TypeScript MCP server): chunking, embeddings **à la carte** (local / API key / Ollama), semantic search, quota guardrails | ✅ ready to use |
+| **`local-mirror/`** | **Optional** second MCP server. Point it at a **Notion** zone; it keeps a **fully-synchronized local copy** in your vault so the RAG searches & **cites** it offline. Driven by `/local-mirror`. *Built as a **fallback** for teams with **no golden-source RAG** in reach; a pragmatic alternative, **not a target**.* | ⚙️ optional |
+| **`vault/`** | Your Markdown content (example notes included) | 🔧 to fill in |
+| **`CLAUDE.md`** | The rules Claude follows (4-phase flow, conventions, posture) | 🌱 bootstrap stub in the launcher → the installer **generates** a personalized version **in the brain**, then to be tailored |
+| **`.claude/skills/`** | Shipped skills (see below) + ideas for other skills | 🔧 to flesh out |
+| **`.claude/settings.json`** | Hooks (auto-commit, startup status) + permissions | ✅ generated |
+| **`scripts/*.mjs`** | Cross-OS Node hooks: repo + RAG state at startup, auto-commit | ✅ ready |
+| **`installer.mjs`** | Installer: **creates the brain folder** from the launcher (macOS / Linux / Windows) | ✅ |
+
+### The skills you call
+
+Everyday capabilities, invoked in plain words (the `/name` is the explicit form):
+
+| Skill | What it does |
+|---|---|
+| **`/coach`** | **"In-your-face" coach**, a sparring partner wired to your vault, *Radical Candor* spirit (caring AND brutally honest): it challenges your decisions, names your blind spots. *Self-coaching only.* |
+| **`/prepare-1-1`** | Prepares a 1-1 **both ways**: with **your manager** or with someone **you manage** (tracking commitments, KPI review). Cross-references the person's profile + last 1-1 + recent signals. |
+| **`/improve`** | Evolves your harness: reads the frictions, proposes and applies the useful improvements. |
+| **`/local-mirror`** | Plugs your brain onto a **local mirror** — a live zone of an internal tool (**Notion** today) that gets **mirrored into your vault** as Markdown, so the RAG searches and **cites** it. Declare one, then sync / refresh / inspect it. *The central RAG you don't have yet — but local, right now.* |
+| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Invisible until you have a second universe. |
+| **`/import`** | Imports the notes of a **previous** brain into this one (safe plan → confirm → copy → re-index). See §11. |
+| **`/update-engine`** | Upgrades your brain's **engine** (search code, launchers, engine scripts), opt-in, **never touching your notes**. See §10. |
+| **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |
+
+**Wiki-health skills (keep your knowledge tidy).** Engine-managed skills that watch the vault for decay
+and always **propose** fixes you confirm (never a silent rewrite):
+
+| Skill | What it does |
+|---|---|
+| **`/lint`** | **Health-checks the wiki**: reports dangling `[[links]]`, orphan notes nobody links to, stale entity pages, and malformed frontmatter. The diagnosis — you decide what to fix. |
+| **`/consolidate`** | Promotes **raw captures** (recent meetings, daily notes, transcripts) into durable **entity / topic pages** — creating or enriching the higher-order wiki page. |
+| **`/file-back`** | After a substantive exchange, **proposes distilling the answer** into a durable note (topic / decision / person / meeting), with a suggested target page. |
+| **`/open-note`** | Opens a vault note from an *"open X for me"* intent (semantic + exact match) in Obsidian; if none exists, it synthesizes the topic. |
+| **`/mcp-token-expired`** | Helper: what to do when a native claude.ai connector (Slack, Calendar, Notion, Drive, Gmail) returns an **auth error** — how to re-authenticate. |
+
+### The internal tooling (you don't call it)
+
+| Element | Role | What triggers it |
+|---|---|---|
+| **`sync-sources`** | Pulls the **delta** of external sources in parallel **read-only** sub-agents — the engine behind Phase 2. 🔧 to wire to your connectors. | **your questions** (never you) |
+| **auto-commit hook** | **Commits** your vault on every change (and **pushes** it if you've enabled a remote repository — *opt-in*, off by default). This is what means a **non-technical** profile **never has to know git**: everything is versioned on its own, locally, nothing gets lost. | automatic |
+| **`tdd-discipline`** | Vendored TDD discipline — used to develop *the harness itself*. | Claude, when modifying the harness |
+
+The rest is **not shipped**: those are **skill ideas** to let emerge as you need them, detailed in
+[`.claude/skills/EXAMPLES.md`](.claude/skills/EXAMPLES.md) — e.g. `briefing-journee` (morning briefing),
+`briefing` (recap after an absence), `prepare-meeting`, `weekly-review`.
+
+> **Skill ≠ connector.** Slack, Drive, Notion, Calendar are **connectors** (data sources), not skills.
+> You wire them up in the installer (§6). A *skill* is a procedure that leverages these sources.
+
+### The vocabulary in 30 seconds
+
+<details>
+<summary>Unfold the mini-glossary</summary>
+
+- **Vault** — the folder where your notes live (in Markdown).
+- **RAG / semantic search** — the tech that finds a note by the *meaning* of your question, not by
+  exact keywords.
+- **Embeddings** — the translation of a text into numbers, to compare *meanings* with each other.
+- **Skill** — a procedure you trigger (e.g. "prepare my 1-1").
+- **Connector** — a hookup to one of your sources (Slack, Drive, Notion…). Two forms: **native**
+  (enabled in your Claude account settings) or **MCP** (a server declared in `.mcp.json`).
+- **Harness** — the set of rules (`CLAUDE.md`) + skills that you personalize.
+- **Hook** — an automatic action triggered by an event (e.g. save on every change).
+- **Installer** — the program that sets everything up for you.
+- **Repo / git** — the versioned place where everything is stored and backed up.
+- **Universe** — a soft retrieval scope (a past employer, a client, a sphere); see `/switch`.
+
+</details>

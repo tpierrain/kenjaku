@@ -539,6 +539,237 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
   - [x] 10c · Both rendered → verified clean → copied in → `<img>` slots + MARKETING sections wired.
     _(2026-07-24 · `a4f5a1b`)_ — Thomas's gate ("integrate only if no grave error") met for both.
 
+- [ ] **Step 11 — Critical-review polish pass → make `MARKETING.md` README-ready** _(started 2026-07-25, branch `docs/marketing-page`)_
+  - Why: before P-MERGE (promote MARKETING → README), a critique with Thomas flagged, in priority order:
+    (1) the page is **long & repetitive** vs its own R-STYLE (4 consecutive emotional sections, the
+    triad *never forget / let anyone down / drown* repeated 4×); (2) **two visible holes** — the ACT 2
+    B2B mesh slot is empty and *"vs other second brains"* still shows a **"🎨 Illustrated board coming"**
+    placeholder; (3) the absolute **"nothing leaves it"** claims contradict the honest *"not 100%
+    private"* line; (4) **3-way duplication** MARKETING/README/EN-QUOI (source-of-truth undecided);
+    (5) the **"Kenjaku"** name is never explained. Decisions taken with Thomas: **edit MARKETING first**
+    (promote to README in a later pass) and **produce the 2 missing boards** (do NOT cut the slots).
+  - [x] 11a · **Produced + rendered + wired the 3 missing boards** (generator · mesh · install) at current
+    grand-public grammar. _(2026-07-25 · working tree)_
+    - [x] 11a-i · `board-generator` prompt upgraded to current grammar (anti-leak guard, #E8590C ribbon,
+      no ADR numbers) + relocated out of the Annex into a live act-2 section. _(2026-07-25 · working tree)_
+    - [x] 11a-ii · `board-mesh` prompt upgraded + relocated. **Framing resolved with Thomas (final):**
+      adapted from his "Connected teams — information flows by itself" reference into a **read/consume
+      loop** — each team keeps its **official golden source** (Notion, DB…) current; each source is
+      **exposed as a central MCP server / API**; **everyone's second brain reads them all** (each node =
+      a PERSON in that role with their OWN private brain). **Deliberately NO "second brain → golden
+      source" write arrow** (Thomas: the update is human-mediated — a person, informed by their brain,
+      keeps the source current; a direct brain-writes-source link would overclaim). Kenjaku house form,
+      **generic roles only** (`no-client-demo-context-in-repo`). _(2026-07-25 · working tree — file lost
+      once to a plan-mode session, regenerated)_
+    - [x] 11a-iii · `board-install` prompt written — "Set up once, then just ask" (4-step guided path +
+      the 3 privacy chips + honesty chip), for the CTA / future README "Install yours now". _(2026-07-25 ·
+      working tree)_
+    - [x] 11a-iv · Thomas rendered the 3 → verified clean (no leak, ribbons correct, spelling OK) →
+      copied into `docs/img/` → wired `<img>`: **`board-mesh` fills the ACT 2 slot** (new "The bigger
+      picture — a mesh of connected teams" section + thesis + local-mirror bridge line); **`board-generator`
+      replaces the "🎨 coming" placeholder** in "vs other second brains"; **`board-install`** wired into a
+      new "Getting started — set up once, then just ask" section before "Going further". _(2026-07-25 ·
+      working tree)_
+  - [x] 11b · **Border the absolute privacy claims** — pitch "nothing leaves it" → the *search/index*
+    stays local, so the hooks no longer contradict the honest "not 100% private" line. _(2026-07-25 · working tree)_
+  - [x] 11c · **Compressed the top of act 1** per R-STYLE _(2026-07-25 · working tree)_ — the three triad
+    boards' restating blockquotes collapsed to one-line captions each (kept the boards), and the
+    "all-audience by design" note tightened. Triad now stated once in the pitch + once as captions,
+    not 4×.
+  - [x] 11d · **Consolidate the 5 comparative/scope tables** (what-is-not · vs-LLM · vs-wiki ·
+    vs-others · privacy) to cut comparison fatigue. _(2026-07-25 · working tree)_ — Thomas's call:
+    **unified matrix** (option A). The three "vs" tables (12 rows) collapse into ONE 4-column matrix
+    ("All three, side by side": Bare LLM · Plain wiki · Other brains · Kenjaku, 6 rows), grouped under a
+    single `## How it compares — at a glance` with the three boards demoted to `###` + a one-line punch
+    each. `what-is-not` + `privacy` kept as their own scope tables (they're not comparatives). Net:
+    5 tables → 3.
+  - [ ] 11e · **Decide content ownership** MARKETING / README / EN-QUOI (single source per claim)
+    before P-MERGE, to stop divergence debt.
+  - [x] 11f · **Explain or lean into the "Kenjaku" name** (one line — the brain-swapping reference).
+    _(2026-07-25 · working tree)_ — light `<sub>` aside under the hero: *Jujutsu Kaisen*'s brain-swapping
+    schemer, a wink at a second brain you graft on and keep; notes the repo slug stays
+    `second-brain-generator`. Kept out of the pitch so the hook isn't diluted.
+  - [x] 11h · **Lead the Hero with the ultimate promise; chill line becomes the subtitle** (Thomas, review).
+    _(2026-07-25 · working tree)_ — *"Never miss what matters — and never drown in the rest."* promoted to
+    the Hero headline (H2 under the H1), because the **pain-resolution** promise hooks a cold reader harder
+    than the affordance (and it matches the page's own *why → what* arc, R5/R7). *"Just ask. Sit down and
+    relax."* kept as the **subtitle** (still the established catchphrase, R15 — demoted, not dropped) and
+    italicized to read softer. De-duplicated the pitch (which repeated the promise verbatim → now leads
+    with *"Stay on top of everything moving around you…"*). *Open: whether to adopt it as the **global**
+    tagline (README hero + GitHub About) — tie into 11e / P-MERGE, not done yet.*
+    - [x] 11h-render · **Re-render `board-hero.png` to lead with the promise** _(2026-07-25 · working tree)_.
+      Prompt updated: centerpiece headline swapped *"All your work, remembered."* →
+      **"Never miss what matters — and never drown in the rest."** (two lines), old line demoted to the
+      grey sub-line. Pillars + ribbon unchanged. Thomas rendered → verified clean (no leak, ribbon #E8590C,
+      spelling OK) → copied into `docs/img/` → `<img>` alt updated to the new headline.
+  - [x] 11i · **State the auto-save + remote backup (survives a lost laptop)** (Thomas, review).
+    _(2026-07-25 · working tree)_ — new reassurance blockquote in "How a question flows": every change
+    **auto-committed to git** instantly; connect a **remote** (optional, one setting) → **auto-pushed**, so
+    a lost/stolen/dead laptop costs nothing (restore on a new machine). Framed honestly (remote is opt-in).
+  - [ ] 11g · English pre-flight + Typora/GitHub render check on the reworked page.
+
+- [ ] **Step 12 — Fresh critical audit → make the marketing content README-worthy (P-MERGE prep)**
+  _(requested by Thomas 2026-07-25, after a `/clear`; branch `docs/marketing-page`; PR #45 open)_
+  - Why (Thomas, explicit): *"in an ideal world, everything we produced should end up in the `README`."*
+    So before P-MERGE, run a **fresh critical audit** of `MARKETING.md` with **clean eyes** (that's why
+    the `/clear`) and judge it **as the repo's future front door**, not just as a companion page. This
+    step **sequences/absorbs** the leftover Step-11 items (11e content ownership, 11g render check).
+  - [x] 12a · **Fresh critical read of `MARKETING.md`** against: R-STYLE (length / repetition — is it still
+    too long?), any remaining holes or placeholders, claim honesty (no absolute-privacy overclaim),
+    the non-tech-first arc (R5/R7), the anti-bullshit/credibility constraint, and README-fitness. Output
+    a **prioritized findings list** (not edits yet). _(2026-07-25 · working tree — audit below)_
+    - **Baseline:** 402 lines, **17 `<img>`** (hero + 14 boards + hexagon SVG), 19 top-level sections.
+      No placeholders/holes remain (mesh · generator · install boards all wired); privacy claims correctly
+      scoped to the RAG engine; the why→what arc holds. Findings, prioritized:
+    - **P1 — high value (blocks R-STYLE / README-fitness):**
+      - [x] **F1 (length/repetition, act 1).** _(2026-07-25 · working tree)_ The personal payoff was told
+        **3×**: hero-board pillars → *"What it does for you"* (3 scenes) → *"Three everyday wins"* (triad).
+        → **Merged the two sections into one** *"What it does for you — never forget · never let anyone down ·
+        never drown"*: kept the 3 win-boards + the affordance board, folded each of the 3 scenes into its
+        matching win-caption (recall → never-forget · customer/threads → never-let-down · week-off/CRM →
+        never-drown). −1 H2, −14 lines, no board lost.
+      - [x] **F2 (tech-zone triple-telling).** _(2026-07-25 · working tree)_ → demoted catalog **E**'s
+        ports/adapters bullet to a **one-line pointer** to the standalone *"And how it's built"* section
+        (which keeps the full telling + hexagon SVG). Anatomy keeps its single passing mention.
+      - [ ] **F3 (README-fitness, → 12d).** DEFERRED to P-MERGE. (a) **No "Install yours now" CTA high up**
+        (*"Getting started"* is 2nd-from-last). (b) intro blockquote frames the page as a **companion** —
+        rewrite/remove at promotion. Both are 12d.
+    - **P2 — medium:**
+      - [x] **F4 (skippable act is the heaviest).** _(2026-07-25 · working tree)_ → **compressed the A–F
+        prose** (A 6→3 bullets, B 6→4, C 5→3, F 5→4; every ADR ref + distinct proof kept). The two boards
+        (determinism · reliability) now carry the visual; the prose is the tight substance.
+      - [x] **F5 (pre-hinge tech leak).** _(2026-07-25 · Thomas's call)_ **Leave as-is** — the *skills*
+        section reads in plain language despite the slugs, and Karpathy belongs to the non-tech *"how it
+        compares"* axis. No move.
+      - [x] **F6 (repetition, minor).** _(2026-07-25 · working tree)_ → folded "never overwrite / self-upgrade
+        / notes untouched" into **one** statement in catalog C, and trimmed catalog F's *QA'd* bullet so it no
+        longer re-narrates the release gate already stated in the act-2 product para.
+    - **P3 — nits:**
+      - [x] **F7.** _(2026-07-25 · working tree)_ Stripped all trailing whitespace (incl. the *"E ·"* tabs).
+      - [ ] **F8.** *"…still Claude"* caveat 3× (pitch · what-is-not · privacy) — **left** (distinct contexts, honest).
+      - [ ] **F9.** Content-ownership (MARKETING vs README vs EN-QUOI) → 11e / 12c as planned.
+  - [x] 12b · Triage each finding **fix-in-place vs defer**; apply the high-value fixes on the branch.
+    _(2026-07-25 · working tree)_
+    - [x] Applied: **F1** (act-1 merge), **F2** (hexagon once), **F4** (A–F prose compressed), **F6** (dedup
+      upgrade-safety), **F7** (trailing whitespace). Page 402→388 lines, 19→17 `##` sections, all boards
+      kept, English pre-flight clean. **F5** decided = leave. Deferred: **F3**→12d, **F9**→12c; **F8** kept.
+  - [x] 12b-bis · **Post-audit editorial pass with Thomas** _(2026-07-25 · committed)_ — driven live after 12b:
+    - [x] Comparatives matrix trimmed to **3 columns** (Bare LLM · **Karpathy's LLM wiki** · Kenjaku): renamed
+      the *"Plain LLM wiki"* header and **dropped the *Other "second brains"* column** (Thomas). Fixed the now-stale
+      *"all three"* wording → heading `### Side by side`, intro reworded ("the two closest, side by side").
+    - [x] **Catalog C** gained a **wiki-health** bullet — the brain self-heals its *knowledge* too: `/lint`,
+      `/consolidate`, `/file-back` + a SessionStart nudge watch for decay and **propose** fixes you confirm
+      (deterministic taxonomy-conformant builder, never overwrites). Grounded on the real engine-skills/scripts.
+    - [x] **`board-reliability` re-rendered & integrated** — added `/lint + /consolidate` to the *Self-healing*
+      band + pinned the canonical **chibi Kenjaku mascot** (was off-model / a floating head). Two render glitches
+      (`keepour`, `eval-adR%`) cleared by **re-roll** (never harden the prompt — `nano-banana-verbose-guards-leak`).
+      New PNG copied into `docs/img/` (2752×1536).
+    - [x] **Moved + reframed the *"vs other second brains"* section** _(2026-07-25 · working tree)_ — pulled it
+      out of act-1 *"How it compares"* and **down into the tech zone** (new `## Your brain isn't tethered to this
+      repo`, placed after *"And how it's built"*, before *"Getting started"*). Reframed around the real user worry
+      *"will my second brain stay tethered to the Kenjaku repo?"*: answered by construction (installer copies into
+      a fresh folder + `git init` in the brain = no remote / no link back; launcher read-only & reusable; engine
+      self-upgrades opt-in; notes/keys/constitution/skills never touched). Kept the `board-generator` image + the
+      living-product / run-as-a-product / market-landscape lines. Updated the *"How it compares"* intro (3→2
+      reference points + a pointer link to the moved section) and its HTML comment. New prose written em-dash-free
+      per the typographic rule.
+  - [x] 12c · **Content ownership resolved (one claim, one owner)** _(2026-07-25 · working tree)_ — decided
+    with Thomas: **README stays lean (shop window + install CTA + non-delegable blocks), everything deep is
+    pointed at, never re-copied.** The detailed execution spec is
+    [`readme-merge-skeleton.md`](readme-merge-skeleton.md) (annotated future-README structure, source tags,
+    length budget, anchor-preservation table). Ownership matrix:
+    - [x] **`README.md`** owns: the R0 arc + all boards · the **install CTA** (paste command, non-delegable) ·
+      the 2 worked 🧑/🧠 dialogues · the honest scope table · the article series · a **compact** privacy summary
+      + connectors table · the license summary. It **points** to everything below.
+    - [x] **`SETUP.md`** owns the deep how-to: full install steps · RAG-choice detail · backup/multi-machine
+      (§7) · engine-update (§10) · migration/import · privacy/training-controls (§9) · Desktop troubleshooting ·
+      the "under the hood" tables + 4-phase ASCII + glossary (superseded in README by the visual A–F catalog).
+    - [x] **`CONNECTORS.md`** owns the full connector menu (README keeps only a starter table + pointer).
+    - [x] **`EN-QUOI-C-EST-DIFFERENT.md`** owns the prose differentiators · owned-up limits (§7) · market
+      landscape (§9) · RAG à la carte (§6) · OKF roadmap · ROC provenance.
+    - [x] **ADRs** own the *why* of each stance; **skills** self-document via their `SKILL.md`.
+    - [x] **`MARKETING.md` dies** (de-dup): its content becomes the README; the file is deleted and inbound
+      links repointed to README sections. *(Default decided; a thin redirect stub is the fallback if Thomas
+      prefers.)*
+  - [ ] 12d · **EXECUTE P-MERGE** — rewrite `README.md` from [`readme-merge-skeleton.md`](readme-merge-skeleton.md).
+    Mechanical once 12c is set; do it in this order. _(rewrite + automated checks + editorial follow-ups
+    all **COMMITTED & PUSHED** on `docs/marketing-page` / PR #45 — `d27f388` P-MERGE lot, then `51d4577`
+    tethered→tied, `a014a59` vs-wiki condensed, `5aaa22e` wiki-health skills in the platform blurb,
+    `4195814` Karpathy-wiki tagline up top + GitHub About, `5dd6841` SETUP skills reference completed.
+    Remaining before merge: Step 13 (board-image weight decision) + 12d-7-ii render check + 12d-8 PR title.)_
+    - [x] 12d-1 · **Rewrite `README.md` in place** per the skeleton _(2026-07-25 · working tree)_ — R0 arc order
+      (why → what → compare → privacy → **install CTA promoted high** → keeping-fresh → hinge → software/anatomy →
+      what's-in-the-box → measured → built → not-tethered → connectors → articles → license), boards + prose
+      pulled from `MARKETING.md`, 2 worked dialogues + 5 badges + rag-inside logo kept from the old README.
+      798 → 467 lines.
+    - [x] 12d-2 · **Relocated the delegated blocks to `SETUP.md`** _(2026-07-25 · working tree)_ — verified §7
+      backup / §9 privacy / §10 engine-update / §11 import / §6 connectors already present; **added** the
+      launcher-vs-brain ASCII to §2 and a new **§12 "Under the hood — components, skills & vocabulary"**
+      (the 3 reference tables + the glossary, per 12c). Fixed the now-dangling SETUP §8 warm-engine link
+      (pointed at the deleted README section → self-contained).
+    - [x] 12d-3 · **Compressed connectors** into native-vs-MCP 2 lines + a 6-row starter table + pointer to
+      `CONNECTORS.md` + `SETUP §6`. _(2026-07-25 · working tree)_
+    - [x] 12d-4 · **Anchors preserved** _(2026-07-25 · working tree)_ — 9 invisible `<a id>` aliases added
+      (`what-is-a-second-brain` · `and-the-privacy-of-my-data` · `how-do-i-choose-my-semantic-search-my-rag` ·
+      `ready-to-try-it` · `keeping-your-brain-up-to-date-its-engine` · `one-brain-several-universes-optional` ·
+      `under-the-hood` · `wiring-up-your-sources-connectors`); 3 badge hrefs repointed to the new GitHub slugs.
+      **All internal anchors + all EN-QUOI/SETUP cross-links verified to resolve with the GitHub slug algorithm.**
+    - [x] 12d-5 · **Retired `MARKETING.md`** _(2026-07-25 · working tree)_ — `git rm`; the sole inbound link
+      (`docs/marketing-image-prompts.md`) repointed to the README. (README/EN-QUOI/CONNECTORS had none.)
+    - [x] 12d-6 · **Invariants preserved** _(2026-07-25 · working tree)_ — `CLAUDE.md` untouched (not in diff);
+      badge hrefs point at the re-pointed anchors; `docs/img/board-*` still excluded from the brain copy
+      (`scripts/lib/tracked-files.mjs:50`, unchanged).
+    - [x] 12d-7-i · **English pre-flight + automated link/image/anchor check** _(2026-07-25 · working tree)_ —
+      clean (only the intentional `à la carte` idiom + the product-locale demo phrase *"importe mes anciennes
+      notes…"*); every `<img>`, relative file link and internal anchor resolves.
+    - [x] 12d-7-ii · **GitHub visual render check** _(2026-07-25 · Thomas)_ — SVG + all PNGs display, page
+      reads top-to-bottom on the `docs/marketing-page` branch. Validated.
+    - [x] 12d-8 · **PR #45 title/body updated** _(2026-07-25)_ — title → "docs: promote MARKETING.md →
+      README.md (P-MERGE)", body rewritten (English) summarizing the promotion + board recompression +
+      boards-ship-into-brains.
+
+- [ ] **Step 13 — Board-image weight: shrink, then decide whether to ship them into brains** _(opened
+  2026-07-25, branch `docs/marketing-page`; blocks merge to main)_
+  - **Why it came up.** Pre-merge check of install/upgrade impact (Thomas's ask). **Verdict: install +
+    upgrade are functionally UNAFFECTED** by the P-MERGE — 34/34 install tests green, `engine-manifest.json`
+    lists only `CLAUDE.md`, **no code references `MARKETING.md`**, SETUP §8 dangling link fixed. The ONE
+    real (cosmetic) side-effect: the launcher README is **copied verbatim into every generated brain**
+    (`CLAUDE.md.template` links it "for the general idea"), and it references **15 `board-*` images that are
+    excluded from the brain copy** → broken images in the brain's README. Pre-existing on `main` (3 boards);
+    the rewrite takes it to 15.
+  - **Key facts (don't re-derive).**
+    - Board art = **87 MB** total (18 boards @ **2752×1536**, ~4–6 MB each). The comment in
+      `scripts/lib/tracked-files.mjs:50` still says "~12MB" — **stale**, fix it when touched.
+    - **Only `README.md`** references boards (15). `SETUP.md` / `CONNECTORS.md` / both `CLAUDE.md.template`
+      reference **0** board images → they render fine in a brain already.
+    - Exclusion lives in `tracked-files.mjs` `DEV_ONLY_PREFIXES` (`"docs/img/board-"`) + its test
+      `scripts/lib/tracked-files.test.mjs` ("excludes the marketing boards").
+  - **Compression proven (empirically, this session).** `pngquant` **installed via brew**. Winner keeps
+    the `.png` extension (so **no `<img src>` / filename change anywhere**): **resize to 1760px (`sips
+    --resampleWidth 1760`) + `pngquant --quality=70-90`** → **~600 KB/board**, i.e. **87 MB → ~11 MB (−87%)**,
+    **quality imperceptible** (verified by eye on the text-heaviest board `board-reliability`; 1760px = 2× the
+    ~880px GitHub column = retina-crisp). JPEG q90 was even smaller (~570 KB) but needs a format/filename change
+    → rejected in favour of pngquant-in-place.
+  - [x] 13a · **Confirm the quality setting with Thomas** _(2026-07-25)_ — **1760px + pngquant** chosen
+    (over 2048px). `.png` kept, no `<img src>` change anywhere.
+  - [x] 13b · **Recompressed the 18 boards in place** _(2026-07-25 · working tree)_ — `sips --resampleWidth
+    1760` + `pngquant --quality=70-90 --speed 1`. **87 MB → 12 MB (−86%)**, ~570–800 KB/board, all 1760px
+    wide. Thomas eyeballed the 3 text-heaviest (reliability · anatomy · vs-wiki) → **"nickel"** (crisp).
+  - [x] 13c · **Exclusion removed — boards now ship into brains** _(2026-07-25 · working tree, TDD)_ —
+    Thomas's call: "retirer l'exclusion". Flipped `scripts/lib/tracked-files.mjs` (dropped the
+    `"docs/img/board-"` prefix + fixed the stale "~12MB" comment → now accurate 87→12 MB) and its test
+    `tracked-files.test.mjs` (RED-first: asserts the boards are now copied). All 37 tracked-files/install
+    tests green. Brain's copy of the launcher README now renders every board instead of broken images.
+  - [x] 13d · **Committed + pushed** _(2026-07-25 · `a0976b7` recompress, `7b889e1` exclusion flip)_ on
+    `docs/marketing-page` (PR #45). Remaining before **merge to main**: 12d-7-ii (render check, Thomas's
+    eyes) + 12d-8 (PR title/body).
+
+- **Resume after `/clear`:** open this plan → **everything is DONE and PR #45 is MERGE-READY.** P-MERGE
+  (Step 12) + board recompression & shipping (Step 13) are committed & pushed on `docs/marketing-page`;
+  render check (12d-7-ii) validated by Thomas; PR #45 title/body updated (12d-8). The only remaining action
+  is the **merge of PR #45 into `main`** (Thomas's go). Once merged: archive this plan (`plan-done = archived`)
+  and prune the MEMORY.md marketing-page pointer.
+
 ---
 
 ## `MARKETING.md` — outline
