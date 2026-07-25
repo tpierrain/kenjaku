@@ -608,6 +608,24 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     a lost/stolen/dead laptop costs nothing (restore on a new machine). Framed honestly (remote is opt-in).
   - [ ] 11g · English pre-flight + Typora/GitHub render check on the reworked page.
 
+- [ ] **Step 12 — Fresh critical audit → make the marketing content README-worthy (P-MERGE prep)**
+  _(requested by Thomas 2026-07-25, after a `/clear`; branch `docs/marketing-page`; PR #45 open)_
+  - Why (Thomas, explicit): *"in an ideal world, everything we produced should end up in the `README`."*
+    So before P-MERGE, run a **fresh critical audit** of `MARKETING.md` with **clean eyes** (that's why
+    the `/clear`) and judge it **as the repo's future front door**, not just as a companion page. This
+    step **sequences/absorbs** the leftover Step-11 items (11e content ownership, 11g render check).
+  - [ ] 12a · **Fresh critical read of `MARKETING.md`** against: R-STYLE (length / repetition — is it still
+    too long?), any remaining holes or placeholders, claim honesty (no absolute-privacy overclaim),
+    the non-tech-first arc (R5/R7), the anti-bullshit/credibility constraint, and README-fitness. Output
+    a **prioritized findings list** (not edits yet).
+  - [ ] 12b · Triage each finding **fix-in-place vs defer**; apply the high-value fixes on the branch.
+  - [ ] 12c · **Resolve 11e** — decide the single source of truth per claim across
+    `MARKETING.md` / `README.md` / `EN-QUOI-C-EST-DIFFERENT.md` (stop the divergence debt before merging).
+  - [ ] 12d · **Green-light P-MERGE** — promote the arc to `README.md` (the north star), keeping the
+    install CTA high, relocating install/engine/privacy detail to `SETUP.md` + links, fixing anchors/badges,
+    preserving the `CLAUDE.md` bootstrap relationship.
+  - **Resume after `/clear`:** open this plan, start at **12a**, and produce the audit **before** editing.
+
 ---
 
 ## `MARKETING.md` — outline
