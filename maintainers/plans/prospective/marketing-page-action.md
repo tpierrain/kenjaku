@@ -759,11 +759,14 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     `"docs/img/board-"` prefix + fixed the stale "~12MB" comment → now accurate 87→12 MB) and its test
     `tracked-files.test.mjs` (RED-first: asserts the boards are now copied). All 37 tracked-files/install
     tests green. Brain's copy of the launcher README now renders every board instead of broken images.
-  - [ ] 13d · Commit + push; then finish 12d-7-ii (render check) + 12d-8 (PR title) → **merge to main**.
+  - [x] 13d · **Committed + pushed** _(2026-07-25 · `a0976b7` recompress, `7b889e1` exclusion flip)_ on
+    `docs/marketing-page` (PR #45). Remaining before **merge to main**: 12d-7-ii (render check, Thomas's
+    eyes) + 12d-8 (PR title/body).
 
-- **Resume after `/clear`:** open this plan → the P-MERGE (Step 12 / 12d) is **done, committed & pushed** on
-  `docs/marketing-page` (PR #45). The live thread is **Step 13** — start at **13a** (waiting on Thomas: 1760px
-  vs 2048px for the board recompression). Then 13b→13d, and finally 12d-7-ii + 12d-8 before merging to main.
+- **Resume after `/clear`:** open this plan → **Step 13 is DONE** (boards recompressed 87→12 MB, exclusion
+  removed in TDD, committed & pushed on `docs/marketing-page` / PR #45). The ONLY things left before merging
+  to `main`: **12d-7-ii** (Thomas's visual render check of the reworked README in Typora/GitHub) and
+  **12d-8** (update the PR #45 title/body to "MARKETING → README promotion (P-MERGE)"). Both are on Thomas.
 
 ---
 
