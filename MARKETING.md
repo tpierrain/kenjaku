@@ -49,16 +49,27 @@ of it is a second full-time job — **unless your memory does it for you.**
 
 ---
 
-## What it does for you
+## What it does for you — *never forget · never let anyone down · never drown*
 
-Three everyday scenes:
+The whole point, in three everyday aches it takes off your plate. No jargon — the mechanics live in the
+small *"if you're curious:"* strip on each board.
 
-- **🛟 Back from a week off — *"what moved while I was out?"*** One question across Slack, mail and your
-  notes: the decisions taken, the blockers, what now needs *you* — instead of 400-unread archaeology.
-- **🗣️ Live with a customer — *"is this available? in progress? when?"*** Plugged into the roadmap, the
-  commitments and what's shipping, your brain hands you a **fresh, reliable** answer to relay on the spot.
-- **🔎 *"What are customers actually asking for?"*** Wire in the CRM and the call transcripts — then,
-  instead of drowning in them, ask: it **filters to what concerns you**, with the source and the date.
+<img src="docs/img/board-remember.png" alt="Never forget: instead of losing track amid scattered notes, your second brain keeps every decision, message and meeting and pulls the exact one back in seconds — always with its source, never invented, never fetched from the web." width="100%">
+
+*🧠 **Never forget** — the decision made last quarter, the message you know you saw somewhere: pulled back
+in seconds, always with its source. From **your own notes**; never invented, never off to the web.*
+
+<img src="docs/img/board-commitments.png" alt="Never let anyone down: instead of carrying every commitment in your head, your second brain shows at a glance what's on you and what others owe you, and by when — even capturing a spoken 'I'll take care of it' onto the right to-do list. No mental load." width="100%">
+
+*✅ **Never let anyone down** — live with a customer, or juggling ten threads: know at a glance what's on
+**you** and what **others** owe you, and by when. A spoken *"I'll take care of it"* lands on the right
+to-do list by itself.*
+
+<img src="docs/img/board-connect.png" alt="Never drown: plugged into all your sources and everything the rest of the company shares — Slack, mail, Drive, Notion and more — your second brain filters the flood down to what actually concerns you. Read-only; it reads your sources, never changes them." width="100%">
+
+*🌊 **Never drown** — back from a week off, or freshly wired into the CRM and call transcripts: instead of
+drowning in the flood, ask, and it **filters** it down to what concerns *you*, with the source and the
+date. Read-only: it reads your sources, never changes them.*
 
 > **Whoever you are** — Head of Engineering, PM, Customer Success, sales, consultant, researcher — it
 > keeps *your* thread: your teams and 1-1s, the *why* behind a product decision, a client's whole context.
@@ -70,25 +81,6 @@ Three everyday scenes:
 > and it's guided end-to-end.)*
 
 <img src="docs/img/board-affordance.png" alt="Built for everyone: an ordinary, non-technical person relaxes in a chair and simply asks in plain words, while all the engineering — indexing, syncing, saving, keeping things fresh — runs hidden in a machine room below the floor. No setup, no jargon, no wondering whether it refreshed first. Just ask, sit down and relax; the engineering stays out of your way." width="100%">
-
----
-
-## Three everyday wins — *never forget · never let anyone down · never drown*
-
-The whole point, in three everyday aches it takes off your plate. No jargon needed — the mechanics live
-in the small *"if you're curious:"* strip on each board.
-
-<img src="docs/img/board-remember.png" alt="Never forget: instead of losing track amid scattered notes, your second brain keeps every decision, message and meeting and pulls the exact one back in seconds — always with its source, never invented, never fetched from the web." width="100%">
-
-*🧠 **Never forget** — every decision, message and meeting, pulled back in seconds, always with its source. From **your own notes**; never invented, never off to the web.*
-
-<img src="docs/img/board-commitments.png" alt="Never let anyone down: instead of carrying every commitment in your head, your second brain shows at a glance what's on you and what others owe you, and by when — even capturing a spoken 'I'll take care of it' onto the right to-do list. No mental load." width="100%">
-
-*✅ **Never let anyone down** — what's on **you** and what **others** owe you, and by when. A spoken *"I'll take care of it"* lands on the right to-do list by itself.*
-
-<img src="docs/img/board-connect.png" alt="Never drown: plugged into all your sources and everything the rest of the company shares — Slack, mail, Drive, Notion and more — your second brain filters the flood down to what actually concerns you. Read-only; it reads your sources, never changes them." width="100%">
-
-*🌊 **Never drown** — plugged into all your sources (and what the company shares), **filtered** to what concerns you. Read-only: it reads your sources, never changes them.*
 
 ---
 
@@ -296,40 +288,33 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 <img src="docs/img/board-reliability.png" alt="The reliability stack, from foundation to top: Grounded in truth (semantic search answers from your vault, a synthetic canary proves it, fail-loud verify-rag); Determinism over guesswork (pure functions, binary exit-code tools, real event triggers not timers, locks, debounced reindex and once-per-turn auto-push); Self-healing desired-state (idempotent reconciler à la Kubernetes/GitOps/Terraform, never overwrites your notes, self-upgradable engine); Hexagonal architecture (stable local MCP port, swappable adapters, open format, open license, zero lock-in); Proven engineering (TDD baby-steps, green-only commits, temporal-coupling-proof, eval-set 90%, embedders benchmarked local ≥ cloud FR, 34 ADRs, mutation 90–97%). The through-line: fail loudly rather than pretend." width="100%">
 
 **A · Grounded in truth (no hallucination).**
-- **Semantic RAG grounding** — answers come *from your vault*, with the source note and its date.
-- **Every search is *routed* through the vault MCP** — the model can't free-wheel an answer; each query
-  must pass through **deterministic** semantic retrieval, which **bounds hallucination and drift**. The
-  LLM is called only where its *judgment* is genuinely the point — never on a load-bearing lookup.
-- **Synthetic canary** — a made-up fact ("Pélagie de Mollecuisse / Flemmr"), unfindable outside the
-  vault and keyword-proof, **proves** the answer is real retrieval, not invention.
-- **Fail-loud verification** — `verify-rag` exits `0` only once the canary answers; otherwise it says so.
-- **Background health-check**, non-blocking, re-checks the canary each session. *(ADR 0028)*
+- **Answers come *from your vault*** — semantic RAG, with the source note and its date; and **every search
+  is *routed* through the vault MCP**, so the model can't free-wheel a lookup — which **bounds hallucination
+  and drift**. The LLM is called only where its *judgment* is genuinely the point.
+- **A synthetic canary proves it** — a made-up fact ("Pélagie de Mollecuisse / Flemmr"), unfindable outside
+  the vault, makes `verify-rag` exit `0` only on real retrieval; a non-blocking check re-runs it each
+  session. *(ADR 0028)*
 - **Index identity stamp + confirm-gate** — swapping embedders never silently corrupts the index. *(ADR 0006)*
 
 **B · Determinism over guesswork.** *(the ladder of [ADR 0009](maintainers/decisions/0009-prefer-deterministic-mechanisms.md))*
 
-> **One of the big traps with AI is non-determinism.** The brain **contains it on purpose**: it frames
-> every load-bearing step with **fully deterministic** mechanisms wherever it can — and, where it can't,
-> with mechanisms that **lean toward** more determinism (e.g. **Claude hooks** firing on real events
-> rather than trusting the model to remember). The ladder, from most to least deterministic:
+> **A big trap with AI is non-determinism** — so the brain **contains it on purpose**: fully deterministic
+> mechanisms wherever it can, and where it can't, ones that **lean** that way (e.g. **Claude hooks** firing
+> on real events rather than trusting the model to remember). The ladder, most to least deterministic:
 
-- **Pure functions** with injected dependencies, unit-tested with fakes.
-- **Binary exit-code tools** — a *verdict* (0/1), not a vibe.
-- **Real event triggers, not timers** — auto-commit fires on a file edit; auto-push on the Stop event.
-- **Bounded scheduler + injected clock** — a write burst coalesces into one incremental reindex.
-- **PID + timestamp locking** — no two windows reindex at once.
-- **LLM only where judgment is the point** (onboarding chat, wording) — never on a load-bearing step.
+- **Pure functions** (injected deps, faked in tests) and **binary exit-code tools** — a *verdict* (0/1), not a vibe.
+- **Real event triggers, not timers** — auto-commit on a file edit, auto-push on the Stop event.
+- **Bounded scheduler + injected clock + PID locking** — a write burst coalesces into one reindex; no two windows collide.
+- **LLM only where judgment is the point** — never on a load-bearing step.
 
 **C · Self-healing, desired-state.** *(SRE / GitOps prior art)*
 - **Always catches up — whatever happened.** A crash, a burst of edits, days away, an interrupted
-  session: the brain **reconciles on its own** — re-indexes the delta, auto-saves, auto-commits,
-  restores freshness. Nothing to replay or repair by hand.
-- **Idempotent reconciler** converges the brain to its desired state — the pattern behind Kubernetes,
-  GitOps, Terraform, Chef/Puppet, DSC. *(ADR 0026)*
-- **Structural write-allowlist** — the reconciler can only *add* engine-delivered things when absent;
-  it **never overwrites** your vault or constitution.
-- **Self-upgradable engine** — your brain updates itself on request; **your notes, keys, constitution,
-  settings and custom skills are never touched**. *(ADR 0012 / 0014 / 0025)*
+  session: the brain **reconciles on its own** (re-indexes the delta, auto-saves, auto-commits) — nothing
+  to replay by hand. An **idempotent reconciler** converges it to its desired state, the pattern behind
+  Kubernetes / GitOps / Terraform. *(ADR 0026)*
+- **It can only *add*, never overwrite** — a structural write-allowlist means the reconciler and the
+  **self-upgradable engine** touch only what's missing; **your notes, keys, constitution and skills stay
+  untouched**. *(ADR 0012 / 0014 / 0025)*
 - **No hidden, driftable state** — short-lived hooks re-derive what they need each run (`run-node`
   re-resolves the toolchain; `auto-push` re-queries the remote).
 
@@ -338,18 +323,19 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **Incremental reindex** — only the delta is re-embedded, within seconds of an edit.
 - **On-device embeddings** — *EmbeddingGemma* runs locally (it's designed to run even on a phone).
 
-**E · Hexagonal architecture (ports & adapters).** 	 	
-- **Ports & adapters** — a **stable, local MCP API port** the whole harness depends on, behind which the
-  **embedder, vector store and chunking are swappable adapters**. *(ADR 0006 / 0007)*
+**E · Hexagonal architecture (ports & adapters).**
+- **Ports & adapters** — one **stable, local MCP port**; the embedder, vector store and chunking are
+  **swappable adapters** (told in full in *"And how it's built"* below). *(ADR 0006 / 0007)*
 - **Open by construction** — open **protocol** (MCP) + open **format** (Markdown + `[[wikilinks]]`) +
   open **license** (Apache-2.0) → **zero lock-in**.
 
 **F · Proven engineering.**
 - **TDD baby-steps**, **green-only commits** (never commit red); **outside-in diamond TDD** for the harness.
-- **Eval-set** — retrieval quality is *measured*, not asserted (see below).
-- **ADR-governed** — 34 architectural decisions, each with an explicit `Scope:` and a `Crux`.
-- **Mutation testing** (Stryker) — a reliability score for the test suite itself: **90–97%** across the three engine packages (rag 90.4%, local-mirror 95.6%, harness 97.3%).
-- **QA'd like a product** — **upgrade & migration paths are a release gate** (Windows parity, the idempotent reconciler, the mutation score) — existing brains are tested *against* before a new engine ships, so an update never breaks a brain in real use.
+- **Measured, not asserted** — an **eval-set** for retrieval quality (below) and **mutation testing**
+  (Stryker) scoring the *tests themselves* **90–97%** across the three engine packages.
+- **ADR-governed** — 34 decisions, each with an explicit `Scope:` and a `Crux`.
+- **QA'd like a product** — the **upgrade/migration path is a release gate** (Windows parity · reconciler ·
+  mutation score), so a new engine is proven on existing brains before it ships.
 
 ---
 

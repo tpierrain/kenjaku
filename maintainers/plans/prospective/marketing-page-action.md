@@ -614,11 +614,45 @@ pass. **R-STYLE applies throughout** (short, punchy, scannable — boards/tables
     So before P-MERGE, run a **fresh critical audit** of `MARKETING.md` with **clean eyes** (that's why
     the `/clear`) and judge it **as the repo's future front door**, not just as a companion page. This
     step **sequences/absorbs** the leftover Step-11 items (11e content ownership, 11g render check).
-  - [ ] 12a · **Fresh critical read of `MARKETING.md`** against: R-STYLE (length / repetition — is it still
+  - [x] 12a · **Fresh critical read of `MARKETING.md`** against: R-STYLE (length / repetition — is it still
     too long?), any remaining holes or placeholders, claim honesty (no absolute-privacy overclaim),
     the non-tech-first arc (R5/R7), the anti-bullshit/credibility constraint, and README-fitness. Output
-    a **prioritized findings list** (not edits yet).
-  - [ ] 12b · Triage each finding **fix-in-place vs defer**; apply the high-value fixes on the branch.
+    a **prioritized findings list** (not edits yet). _(2026-07-25 · working tree — audit below)_
+    - **Baseline:** 402 lines, **17 `<img>`** (hero + 14 boards + hexagon SVG), 19 top-level sections.
+      No placeholders/holes remain (mesh · generator · install boards all wired); privacy claims correctly
+      scoped to the RAG engine; the why→what arc holds. Findings, prioritized:
+    - **P1 — high value (blocks R-STYLE / README-fitness):**
+      - [x] **F1 (length/repetition, act 1).** _(2026-07-25 · working tree)_ The personal payoff was told
+        **3×**: hero-board pillars → *"What it does for you"* (3 scenes) → *"Three everyday wins"* (triad).
+        → **Merged the two sections into one** *"What it does for you — never forget · never let anyone down ·
+        never drown"*: kept the 3 win-boards + the affordance board, folded each of the 3 scenes into its
+        matching win-caption (recall → never-forget · customer/threads → never-let-down · week-off/CRM →
+        never-drown). −1 H2, −14 lines, no board lost.
+      - [x] **F2 (tech-zone triple-telling).** _(2026-07-25 · working tree)_ → demoted catalog **E**'s
+        ports/adapters bullet to a **one-line pointer** to the standalone *"And how it's built"* section
+        (which keeps the full telling + hexagon SVG). Anatomy keeps its single passing mention.
+      - [ ] **F3 (README-fitness, → 12d).** DEFERRED to P-MERGE. (a) **No "Install yours now" CTA high up**
+        (*"Getting started"* is 2nd-from-last). (b) intro blockquote frames the page as a **companion** —
+        rewrite/remove at promotion. Both are 12d.
+    - **P2 — medium:**
+      - [x] **F4 (skippable act is the heaviest).** _(2026-07-25 · working tree)_ → **compressed the A–F
+        prose** (A 6→3 bullets, B 6→4, C 5→3, F 5→4; every ADR ref + distinct proof kept). The two boards
+        (determinism · reliability) now carry the visual; the prose is the tight substance.
+      - [x] **F5 (pre-hinge tech leak).** _(2026-07-25 · Thomas's call)_ **Leave as-is** — the *skills*
+        section reads in plain language despite the slugs, and Karpathy belongs to the non-tech *"how it
+        compares"* axis. No move.
+      - [x] **F6 (repetition, minor).** _(2026-07-25 · working tree)_ → folded "never overwrite / self-upgrade
+        / notes untouched" into **one** statement in catalog C, and trimmed catalog F's *QA'd* bullet so it no
+        longer re-narrates the release gate already stated in the act-2 product para.
+    - **P3 — nits:**
+      - [x] **F7.** _(2026-07-25 · working tree)_ Stripped all trailing whitespace (incl. the *"E ·"* tabs).
+      - [ ] **F8.** *"…still Claude"* caveat 3× (pitch · what-is-not · privacy) — **left** (distinct contexts, honest).
+      - [ ] **F9.** Content-ownership (MARKETING vs README vs EN-QUOI) → 11e / 12c as planned.
+  - [x] 12b · Triage each finding **fix-in-place vs defer**; apply the high-value fixes on the branch.
+    _(2026-07-25 · working tree)_
+    - [x] Applied: **F1** (act-1 merge), **F2** (hexagon once), **F4** (A–F prose compressed), **F6** (dedup
+      upgrade-safety), **F7** (trailing whitespace). Page 402→388 lines, 19→17 `##` sections, all boards
+      kept, English pre-flight clean. **F5** decided = leave. Deferred: **F3**→12d, **F9**→12c; **F8** kept.
   - [ ] 12c · **Resolve 11e** — decide the single source of truth per claim across
     `MARKETING.md` / `README.md` / `EN-QUOI-C-EST-DIFFERENT.md` (stop the divergence debt before merging).
   - [ ] 12d · **Green-light P-MERGE** — promote the arc to `README.md` (the north star), keeping the
