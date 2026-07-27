@@ -133,9 +133,12 @@ release (the pre-layering, monolithic-constitution line, ~v3.2.x).
         reindex decision** (recorded vs target `indexSchemaVersion`) and shows it before applying: what lands,
         and whether notes will be re-encoded + the rough cost. Today `update-engine` reports reindex only
         *after* (`scripts/update-engine.mjs:15`, `runReindex` IFF the schema moved); expose it *ahead*.
-  - [ ] **Grounded reindex fact:** `indexSchemaVersion` has been **`1` continuously** since before v3.2.1
-        (introduced 2026-06-14, never changed) through today → a **v3.2.x → current jump triggers NO reindex**.
-        A reindex only ever fires if the index format changes in the future — exactly when (C) earns its keep.
+  - [ ] **Grounded reindex fact (CORRECTED 2026-07-27, was stale).** `indexSchemaVersion` was `1`
+        continuously from 2026-06-14 until the **universes** commit `3d85060` (v3.6.0), which moved the
+        **engine constant** to `2` (`rag/src/lib/vector-store.ts:63`). The **manifest was never bumped**
+        (still `1`), so `update-engine` today triggers neither a reindex nor a warning, and a stamped-`1`
+        brain instead hits the runtime stale-schema gate on its first search. See §"Side-finding" below:
+        this is exactly the case (C) was meant to make honest, and it is now live, not hypothetical.
   - [ ] **QA fixtures:** reproduce legacy brains from the release **tag(s)** (checkout the deployed version, run
         the installer) + **synthetic** personal edits to exercise the nasty boundary cases. Never use real
         deployed brains' private content. First step: **enumerate the versions actually deployed** so QA covers
@@ -144,6 +147,127 @@ release (the pre-layering, monolithic-constitution line, ~v3.2.x).
       fleet") when picked up; F-B7e (constitution re-layering) becomes one component of it.
 
 > Cross-ref: the reciprocal prerequisite note lives in the migration plan's Track D.
+
+## Increment 2.5 (decided 2026-07-27) — refresh an UNTOUCHED engine skill, pulled forward from Gate 4(A)
+
+> **Status:** 🟠 NEXT TO EXECUTE (ROADMAP Gate 2.5). Owns the *skills* half of Gate 4(A) only; the
+> constitution half (`CLAUDE.engine.md` propagation) stays in Gate 4.
+> **Why it jumped the queue:** the propagation gap is no longer theoretical, and the fleet is growing.
+
+### The trigger (evidence, 2026-07-27)
+
+The gap this plan describes is **already biting, in the field, on shipped releases**:
+
+- **12 commits** have touched `.claude/skills/**` since `v3.2.2`. **None** of them reached a brain that
+  already had the skill.
+- Concretely: `4e43e70` (shipped in **v3.6.2**) added 22 lines to `.claude/skills/switch/SKILL.md` (the
+  single-account native-connectors reminder). A brain installed at **v3.6.0 / v3.6.1 will never receive
+  it**, even after `/update-engine`, because its skill directory exists. Meanwhile the matching
+  deterministic core (`scripts/lib/universes.mjs`, a `replace` glob) **is** refreshed → a live
+  **core/skill drift**.
+- The installed base is growing (public communication started), so the share of the fleet frozen on old
+  skills grows monotonically. Every skill improvement shipped before this increment is invisible to it.
+
+### The decision
+
+**Refresh an engine skill if, and only if, we can PROVE nobody touched it.** The proof already exists on
+every deployed brain: the installer records a **sha256 provenance base per `merge` file** in
+`engine-manifest.json` (`installer.mjs` / `engine-source.mjs`, `fingerprint()`), and `reseedProvenance()`
+refreshes it after each update.
+
+- **Hash matches the recorded base** → the file is byte-identical to what the engine last delivered →
+  **overwrite it**. This is the overwhelming majority of users.
+- **Hash differs** → the owner customized it (the documented `prepare-1-1` "refine to your own KPIs" case)
+  → **touch nothing**, drop the new version alongside (`SKILL.md.new`, option 1 "conffile fallback" above)
+  and **say so**.
+
+This does not weaken ADR 0012's write-allowlist: we only ever overwrite a file we can prove is untouched,
+which is strictly safer than what `update-engine` already does daily on `rag/src/**`.
+
+### Where it lives, and why one pass is enough
+
+The home is **`reconcileBrain`** (it already does the install-if-absent of engine skills), behind an
+explicit guard:
+
+- [ ] **Guard: `sourceDir !== brainDir`.** The reconciler has three callers and they do not share a
+      contract:
+  - **`auto-finalize`** (ADR 0026 Layer A, `scripts/update-engine.mjs` step 8) re-execs the
+    **freshly-written** reconciler in a child process with the **fetched** `sourceDir`
+    (`scripts/lib/auto-finalize.mjs:28`) → new skill content is available → **refresh here**.
+  - **SessionStart self-heal** passes `sourceDir === brainDir` (`scripts/session-self-heal.mjs:161`,
+    local converge, no network) → no new content, and no user asked for anything → **never refresh**.
+  - The parent `update-engine` process itself runs the OLD code; it does not matter, because
+    auto-finalize re-runs the NEW reconciler from disk.
+- [ ] **Rule to hold, stated once:** *a skill is only ever overwritten during an update the owner
+      explicitly asked for, never silently at session start.* ADR 0026's "additive" invariant keeps
+      holding exactly where it matters.
+- [ ] **Convergence is ONE pass** for every brain at **v3.3.0+**, because auto-finalize already
+      "collaps[es] the historical 2-cycle into a single invocation". No second `/update-engine`.
+- [ ] **Pre-v3.3.0 tail** (no auto-finalize in their installed orchestrator): decide whether to carry
+      them with the proven **message-in-a-bottle** vector (`rag/postinstall-restart-notice.mjs`, commit
+      `2ce1556`) — the old orchestrator always runs `npm install` with `stdio:"inherit"`, and npm runs the
+      **new** `postinstall` already on disk, so new code executes under the old orchestrator on the FIRST
+      update. ADR 0025 already documents this cohort as "heals on its next update", so a 2-cycle fallback
+      is an acceptable answer too. **Decide, do not drift.**
+
+### The two real traps (neither is about the delivery mechanism)
+
+- [ ] **T1 — Provenance re-seed, or the feature silently dies after one use.** After refreshing a file we
+      MUST rewrite its provenance entry. Otherwise, at the next update, the refreshed file no longer
+      matches the recorded base, gets classified "user-modified", and is **never refreshed again**. Today
+      `reseedProvenance` only covers the `copied` bucket (`scripts/update-engine.mjs` step 7); refreshed
+      skills must be folded in. **A test must lock this** (refresh twice in a row, second run is a clean
+      no-op, not a "user-modified" verdict).
+- [ ] **T2 — Locale, or we re-anglicize French brains.** 8 of 9 shipped skills have a French source under
+      `templates/fr/.claude/skills/<name>/SKILL.md`. Refreshing from the repo root would replace a FR
+      brain's skills with EN ones. This is the exact trap that kept `CLAUDE.engine.md` out of `replace`
+      (see the Gate 1 refinement above). The machinery exists but points the other way:
+      `engine-copy-select.mjs` **excludes** locale-owned paths from the copy; here we must instead
+      **resolve the source per locale**. The brain records its locale (`scripts/lib/demo-locale.mjs`).
+      `switch` and `local-mirror` have no FR source today: decide whether that is a gap to fix or a
+      deliberate EN-only surface.
+
+### Tracking
+
+- [ ] **Step 1 — Pure core: the refresh verdict** (TDD, injected fs, no side effects). Given the installed
+      file, the recorded provenance base and the candidate new content → `refresh` / `preserve` /
+      `absent-install`. Triangulate: no base recorded (pre-provenance brain), base recorded but file
+      missing, identical content already (no-op), CRLF/LF drift.
+- [ ] **Step 2 — Locale-aware source resolution** (T2). Pure function: brain locale + skill name +
+      source tree → the file to deliver. Test EN and FR, and the no-FR-source case.
+- [ ] **Step 3 — Wire into `reconcileBrain`** behind the `sourceDir !== brainDir` guard. Assert by test
+      that a SessionStart-shaped call (`sourceDir === brainDir`) refreshes **nothing**.
+- [ ] **Step 4 — Provenance re-seed for refreshed files** (T1), with the refresh-twice test.
+- [ ] **Step 5 — Report what happened**, in the `update-engine` summary: which skills were refreshed,
+      which were **preserved because customized** (naming the `.new` file). Deterministic prose (ADR 0009),
+      unit-tested, relayed verbatim by the skill.
+- [ ] **Step 6 — Pre-v3.3.0 tail:** decide bottle vs documented 2-cycle, then implement the choice.
+- [ ] **Step 7 — ADR:** amend **0026** (the reconciler gains a conditional, provenance-gated overwrite,
+      scoped to explicit updates) and cross-note **0025** (its "out of scope, belongs to a future 3-way
+      merge" consequence is now partially closed). Keep the `Scope:` field per `CONVENTIONS.md`.
+- [ ] **Step 8 — QA on fixtures** reproduced from real release tags (v3.2.2 / v3.6.0 / v3.6.2), with
+      synthetic personal edits. Never use real deployed brains' content. Verify the `4e43e70` case
+      end-to-end: a v3.6.0 fixture must end up with the v3.6.2 `switch` skill.
+- [ ] **Step 9 — Docs:** SETUP / the `update-engine` skill wording ("your customized skills are never
+      overwritten; you are told when a newer version is available").
+
+### Side-finding (2026-07-27) — the schema-bump warning was never wired
+
+Independent of the above, found while auditing the fleet path. **Do NOT fix it inside increment 2.5**
+(bumping the manifest triggers a fleet-wide reindex; keep that as its own deliberate change).
+
+- `rag/src/lib/vector-store.ts:63` has `INDEX_SCHEMA_VERSION = 2` (moved by the universes commit
+  `3d85060`), but `engine-manifest.json` still declares `"indexSchemaVersion": 1`.
+- `scripts/lib/reindex-trigger.mjs:15` compares those two manifests → `update-engine` **neither reindexes
+  nor warns**, contrary to what ADR 0034's Consequences and the ROADMAP invariant both claim.
+- **Not a corruption, and not silent:** brains whose index was stamped `1` (i.e. indexed under v3.0.0 →
+  v3.5.x) get `staleSchemaMessage()` on their **first search** after upgrading, and the forced full
+  re-encode restamps correctly. An index predating schema versioning (stamp `null`) is grandfathered.
+  The SQLite side is clean too: `applySchema` adds `documents.universe` out of band with
+  `NOT NULL DEFAULT 'default'`, so an old index never errors.
+- [ ] Decide: bump the manifest to `2` (proactive, one fleet-wide reindex, honest warning up front) vs
+      leave the runtime gate to handle it (status quo, surprise at first search). Then align ADR 0034's
+      Consequences and the ROADMAP invariant with whatever is true.
 
 ## Next steps (post-demo)
 
