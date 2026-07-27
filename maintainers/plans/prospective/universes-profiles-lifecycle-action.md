@@ -112,7 +112,11 @@ Nothing in this plan can break an installed brain (the vault is in `SACRED_TREES
 can never write a note; the universes v1 SQLite migration is already handled out of band by
 `applySchema`). The real risks are all **"the feature never arrives"**:
 
-- [ ] **F1 — A skill already installed is NEVER updated.** By design (ADR 0025/0026), install-if-absent
+- [x] **F1 — RESOLVED by v4.1.0 (2026-07-27): an untouched engine skill IS now refreshed.** Kept below
+      as the reason this plan waited, not as a live constraint. An owner who *tailored* `/switch` still
+      keeps their version (they get a `.new` sidecar), so F3's add-verbs-only rule below survives F1 and
+      is now the binding one. Historical statement follows.
+      **A skill already installed is NEVER updated.** By design (ADR 0025/0026), install-if-absent
       at the **directory** level in all three paths (`engine-apply-plan.mjs:60`, `staged-skills.mjs:29`,
       the SessionStart self-heal). So enriching `.claude/skills/switch/SKILL.md` reaches **no existing
       brain**, while the core (`scripts/lib/**`, a `replace` glob) **is** refreshed → core/skill drift.
@@ -186,8 +190,17 @@ can never write a note; the universes v1 SQLite migration is already handled out
 
 ## Tracking
 
-> Order revised 2026-07-27. **Prerequisite: ROADMAP Gate 2.5 is green** (see the blocked note at the
-> top). Then work from the first unchecked box below.
+> Order revised 2026-07-27. Its prerequisite (ROADMAP Gate 2.5) **is green since v4.1.0**, so work
+> from the first unchecked box **below**.
+>
+> ⚠️ **THIS list is the work list.** The unchecked boxes under §"Fleet constraints" (F2-F4) and
+> §"Open decisions" are **guardrails and questions**, not steps to tick in order: F2-F4 are honoured
+> *while* doing the steps and re-checked at Step 7, and the decisions are resolved by Step 1. Resuming
+> after a `/clear` means the first unchecked box **in this section**, never the first one in the file.
+>
+> 🌱 **Start from a FRESH branch off `main`.** The old `feat/universe-profiles-lifecycle` held nothing
+> unique (the plan itself reached `main` through PR #47) and was deleted on 2026-07-27, so nobody
+> branches from a point 39 commits behind.
 
 - [x] **Step -1 — Design review + fleet audit** _(2026-07-27 · this commit)_ → §"Design review",
       §"Fleet constraints", D1 resolved, D4 opened.
