@@ -1,14 +1,13 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
 > **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
-> **Steps 0 through 8 are done**, fleet re-check and marketing pass included _(2026-07-27)_. **Step 9
-> is fixed and locally verified _(2026-07-27)_, awaiting the Windows CI run to confirm it.** One thing
-> then stands between here and the tag: Step 10 (`local-mirror` must name the universe and confirm the
-> first pull, asked by Thomas at the release). Branch: `feat/universes-v2-profiles`, PR **#49** open,
-> nothing merged or tagged.
+> **Steps 0 through 9 are done**, fleet re-check, marketing pass and Windows parity included
+> _(2026-07-27, CI 7/7)_. **ONE thing now stands between here and the tag: Step 10** (`local-mirror`
+> must name the universe and confirm the first pull, asked by Thomas at the release). Branch:
+> `feat/universes-v2-profiles`, PR **#49** open, nothing merged or tagged.
 >
-> ▶️ **Resuming after a `/clear`: go to Step 10**, then the tag (check Step 9's last box once CI is
-> green on the three Windows jobs). Step 10 opens with a decision to settle with Thomas before any code.
+> ▶️ **Resuming after a `/clear`: go to Step 10**, then the tag. Step 10 opens with a decision to
+> settle with Thomas before any code.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -581,7 +580,9 @@ can never write a note; the universes v1 SQLite migration is already handled out
       (`C:\brain`) and asserting the paths that come out. Four such tests now exist: one pure
       (`universes.test.mjs`, both builders) and one per CLI (delete / rename / profile, covering the
       folder move, the note re-stamp and the reindex cwd).
-- [ ] Green on all three Windows jobs before the tag.
+- [x] **Green on all three Windows jobs** _(2026-07-27 · run `30307984513` on `175e215`)_: 7/7,
+      Node 22/24/26 on windows-latest and macos-latest plus the Windows installer e2e. The local
+      win32 simulation and the real thing agreed.
 
 ### Step 10 — `local-mirror`: name the universe, and confirm before the first pull
 
