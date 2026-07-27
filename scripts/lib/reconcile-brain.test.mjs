@@ -245,6 +245,9 @@ test("reconcileBrain — index schema moved → reindex runs and is reported", a
   assert.deepEqual(calls.reindex, [brainDir], "schema moved → reindex must run once in the brain");
   assert.deepEqual(calls.reindexMode, ["full"], "a schema move re-encodes every note → FULL reindex");
   assert.equal(report.reindexed, true);
+  // The REASON is user-facing (update-engine's report says whether every note was
+  // re-encoded or not), so it is asserted by value, not merely as "truthy".
+  assert.equal(report.reindexReason, "schema");
 });
 
 // ── Test 4: THE EXTENSIBILITY INVARIANT (the project's promise — users may grow
@@ -398,6 +401,9 @@ test("reconcileBrain — seeds the engine-health note on an upgrader (absent) an
   assert.deepEqual(calls.reindex, [brainDir], "seeding the note must trigger a paired reindex");
   assert.deepEqual(calls.reindexMode, ["incremental"], "the seed pairing is INCREMENTAL (only the one note), never a full re-encode");
   assert.equal(report.reindexed, true);
+  // The two reasons must stay DISTINGUISHABLE: the schema case re-encodes the whole
+  // vault, this one does not, and the report tells the user which of the two happened.
+  assert.equal(report.reindexReason, "health-note-seed");
 });
 
 // ── Test 8: WRITE-IF-ABSENT + the index is its own membership oracle (ADR 0026,
@@ -1340,6 +1346,44 @@ test("runReconcileCli — a file it delivers under an existing skill stays refre
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md"), "utf8"), improved);
   const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
   assert.equal(persisted.provenance[".claude/skills/coach/references/radical-candor.md"], base(improved));
+});
+
+// The absent case for the launchers, never fed until now: a manifest that declares NO
+// `regenerate` bucket. Regenerating launchers is not free (it rewrites four files, which
+// the auto-commit hook then sees), so "nothing declared" must mean nothing done — and be
+// reported as such. Mirror image of test 1, which only ever saw a populated bucket.
+test("reconcileBrain — a manifest with an EMPTY regenerate bucket regenerates nothing", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const target = { ...manifest(), regimes: { ...manifest().regimes, regenerate: [] } };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local: target, ...s });
+
+  assert.deepEqual(calls.regenerate, [], "nothing declared → the launcher seam is never called");
+  assert.equal(report.regenerated, false);
+  assert.equal(existsSync(join(brainDir, "rag/launch.sh")), false, "no launcher may appear out of nowhere");
+});
+
+// …and its mirror: a populated bucket regenerates, and SAYS it did.
+test("reconcileBrain — a populated regenerate bucket regenerates, and reports it", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const target = manifest();
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local: target, ...s });
+
+  assert.deepEqual(calls.regenerate, ["posix"]);
+  assert.equal(report.regenerated, true);
 });
 
 // ── The CLI's own contract: flag parsing, seam wiring, manifest write ────────
