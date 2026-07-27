@@ -1,6 +1,7 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
-> **Status:** IN PROGRESS (Release A, Step 6 — Steps 0, 2 and 3 done). Branch: `feat/universes-v2-profiles`.
+> **Status:** Release A **CODE-COMPLETE** (Steps 0, 2, 3, 6, 7 done) — next: cut the release, then
+> Release B (Steps 4-5). Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -258,8 +259,9 @@ can never write a note; the universes v1 SQLite migration is already handled out
       _(2026-07-27 · commits `65afa86`, `c59e2d3`, `452f200`, `779bd73`, `006afd9`)_.
 - [ ] **Step 4 — Delete a universe** (guarded script + documentation) — per D3.
 - [ ] **Step 5 — Rename a universe** — per D4, scope depends on that decision. Last, deliberately.
-- [ ] **Step 6 — Docs + ADR update** (SETUP, the `/switch` surface, ADR 0034 addendum or a new ADR).
-- [ ] **Step 7 — Fleet / migration note** (profiles are opt-in backfill; re-check F1-F4 before shipping).
+- [x] **Step 6 — Docs + ADR update**, scoped to Release A _(2026-07-27 · commit `2081034`)_. The
+      rename/delete half stays open for Release B (see the step below).
+- [x] **Step 7 — Fleet / migration re-check** for Release A _(2026-07-27 · this commit)_.
 
 ### Step 2 — Universe profile: data + write core _(DONE 2026-07-27)_
 - [x] Profile note path + frontmatter schema per **D1 (resolved)**: `vault/<slug>/universe.md` (and
@@ -341,16 +343,40 @@ can never write a note; the universes v1 SQLite migration is already handled out
       was `old`, then reindex. Refuse renaming `default`. **Declare the script in the manifest** (cf. F2).
 - [ ] TDD on the core; the fs-moving CLI gets a focused test with injected fs.
 
-### Step 6 — Docs + ADR
-- [ ] Update the `/switch` surface ("What it does NOT do" currently says delete/rename are not built).
-      Respect **F3**: add verbs, never change existing verbs' semantics or message format.
-- [ ] SETUP.md: "How to rename / delete a universe" + the RAG self-heal behaviour on deletion.
-- [ ] ADR: either an addendum to ADR 0034 or a small new ADR for profiles + lifecycle (keep the
-      `Scope:` field per repo convention). State the **constitution vs profile boundary** (cf. D1).
+### Step 6 — Docs + ADR _(Release A DONE 2026-07-27; the lifecycle half belongs to Release B)_
+- [x] Updated the `/switch` surface: the profile questions, the post-switch `--digest` refresh, and the
+      `--decline` path. **F3 honoured** — verbs ADDED (`--digest`, `--decline`), not one existing verb's
+      semantics or message format touched. Skill `version: 1.0.0 → 1.1.0`, and its frontmatter
+      `description` now carries the "describe my context" triggers, or an owner accepting the offer
+      would never load the skill that owns the questions.
+- [x] **ADR 0035** — `0035-a-universe-profile-is-a-note-plus-an-injected-digest.md`, with the `Scope:`
+      field, cross-linked from ADR 0034's `Related:`. States the **constitution vs profile boundary**
+      D1 asked for, and records the digest-not-behind-the-gate reasoning (the gate protects the *word*,
+      not the feature).
+- [x] SETUP.md **§5.1** ("Telling your brain about your context") + the glossary entry, and a README
+      bullet — the user-facing half of Release A. Anchor checked, not assumed.
+- [ ] **Release B only:** SETUP.md "How to rename / delete a universe" + the RAG self-heal behaviour on
+      deletion, and `/switch`'s "What it does NOT do" (still accurate today: neither is built).
 
 ### Step 7 — Fleet / migration
-- [ ] Re-check **F1-F4** before shipping. Confirm no forced global reindex for existing brains beyond
-      what delete/rename inherently need; profiles are pure opt-in backfill.
+- [x] **F1-F4 re-checked for Release A, with evidence, 2026-07-27:**
+  - [x] **F1** (skills reach the fleet) — `.claude/skills/switch/**` is a `replace` entry, so an
+        *untouched* `/switch` is refreshed; a tailored one keeps its version and gets a `.new` sidecar.
+        A brain predating the universes hook still converges: `reconcile-brain.mjs` reconciles
+        SessionStart entries **additively** from `settings.json.template`, so `session-universe.mjs`
+        gets wired at the next restart.
+  - [x] **F2** (a new top-level script must be declared BY HAND) — `scripts/set-universe-profile.mjs`
+        is in the `replace` list AND git-tracked (the integrity test only sees it once tracked). No
+        other new top-level script in Release A.
+  - [x] **F3** (old skill + new core) — nothing but new verbs. The one core message that changed shape
+        is the SessionStart hook's own output, which no skill relays.
+  - [x] **F4** (no schema bump) — `git diff main -- rag/` is **empty**: Release A does not touch the
+        engine at all. Profiles are pure opt-in backfill; writing one triggers only the ordinary
+        incremental reindex.
+  - [x] **New committed state file, deliberately:** `.vault-rag/profile-nudges.json` is NOT gitignored
+        (only `.vault-rag/active-universe` is). A refusal is the owner's decision, not the machine's.
+  - [x] **Permissions:** no allowlist entry added — `set-universe-profile.mjs` is confirmed on first
+        run exactly like `set-active-universe.mjs`. A write that asks is the behaviour we want.
 
 ## Conventions reminder (repo rules)
 - Artifacts in English (this file, code, commits, PR). TDD baby-steps, green-only commits. Deterministic
