@@ -323,11 +323,37 @@ can never write a note; the universes v1 SQLite migration is already handled out
         hygiene as the first run: tree verified restored, stray `local-mirror/undefined.*.tmp` and the
         21 MB `.stryker-tmp/` removed, suite re-run green (229/229) on the restored tree.
         Log: `<scratchpad>/mutation-local-mirror-rerun.log`.
-  - [x] Score pasted into the release note (`<scratchpad>/release-v4.2.0.md`, this session's
-        scratchpad) **and** into `maintainers/mutation/RESULTS.md`: current-scores row, visual bars,
-        and a full dated section pinned to v4.2.0 carrying the per-file debt table. The note says in
-        one paragraph why 89.29 % < 95.63 % is **growth, not regression** (+336 mutants), so a reader
-        meets the explanation with the number rather than after it.
+  - [x] ⚠️ **The "not this release's debt" claim was WRONG, and the check that caught it is the
+        keeper** _(2026-07-28, commit `3d3a465`)_. Before publishing, the per-file table was diffed
+        against the **2026-07-16** one: four files scored *worse*, and **every one of them had been
+        touched after that audit — three by this release itself**. The origin column above was
+        file-level, and **new code lands inside old files**, so `lib/config.ts`, `lib/markdown.ts` and
+        `domain/local-mirror.ts` were mislabelled "pre-existing". Reading each survivor's own diff
+        found **11 more live mutants that were ours**, all killed:
+    - [x] `lib/config.ts` **83.33 % → 100 %** (4): nothing asserted the segments of the two
+          `.vault-rag` paths — and a wrong path does not fail, it reads as "no such file" and degrades
+          to the default scope, i.e. **the exact silent failure this release exists to close**.
+    - [x] `domain/local-mirror.ts` **94.15 % → 95.82 %** (6): the `setup_source` guidance was asserted
+          by fragments (half a sentence deletable unnoticed), and `universes.join(', ')` → `join("")`
+          survived — nobody had ever asserted the menu **rendered with separators** (the discipline's
+          "collections ≥ 2" rule). Both messages now asserted whole.
+    - [x] `lib/markdown.ts` **83.33 % → 100 %** (1): the universe guard was only reachable with
+          `undefined`, which js-yaml drops — unobservable at acceptance level. Pinned at the unit on
+          the observable case (a blank universe is not a universe).
+    - [x] Equivalents recorded, not chased: `fs-universes.ts` `catch {}`, and `lib/universe.ts` ×2
+          (`JSON.parse(raw ?? '')`, and a `catch {}` that falls through to the same `return []`).
+    - [x] **Durable rule written down** in `maintainers/mutation/RETROSPECTIVE.md` → *"a file is not an
+          increment"*: never attribute survivors by filename; diff the per-file table against the
+          previous audit, then read the survivor's line.
+  - [x] **Final full campaign on the tagged tree** _(2026-07-28, 11 min 41 s, exit 0)_: **90.44 %**
+        (940 killed, 6 timeout, **100 survived** / 1046) — above the 89.10 % the campaign first
+        reported. Log: `<scratchpad>/mutation-local-mirror-final.log`.
+  - [x] Score pasted into the release note (`<scratchpad>/release-v4.2.0.md`) **and** into
+        `maintainers/mutation/RESULTS.md`: current-scores row, visual bars, a dated section pinned to
+        v4.2.0 with the three-campaign trail, the corrected per-file attribution, and a note marking
+        the by-layer bars as the superseded 2026-07-16 photo. The release note states in one paragraph
+        that the gap to 95.63 % is growth (+336 mutants of auto-refresh code) **and** that this
+        release's own share was found and paid before tagging.
   - [ ] Merge PR #49 → `main`, tag **`v4.2.0`**, `gh release create` with that note.
   - [ ] After the tag: archive this plan (`prospective/` → `archived/`), close Gate 2.6 in the
         ROADMAP, and prune the `kenjaku-next-work-order` memory pointer.
