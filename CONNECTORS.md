@@ -160,6 +160,14 @@ Three paths, detailed in [SETUP §6](SETUP.md):
 > 🔐 **Neutrality / security.** The generator hardcodes **no secret**: MCP credentials are `<…>`
 > placeholders that **you** fill in. Never commit your real tokens.
 
+> 🌌 **If you keep several universes** — a connector is wired **once, for the whole brain**, and stays
+> pointed at the account you gave it. Switching universe re-scopes **your notes**, not your live
+> connectors, so landing in another sphere still reads the same Slack workspace or mailbox until you
+> reconnect it yourself. Your brain says so, in one line, the moment you land in a named universe. Worth
+> writing down which account each sphere actually uses, on that universe's own page
+> ([SETUP §5.1](SETUP.md#51-telling-your-brain-about-your-context-optional-2-minutes)): your brain then
+> has it at hand when it matters.
+
 ---
 
 ## Once wired up — document the routing

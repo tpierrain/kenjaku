@@ -503,6 +503,35 @@ can never write a note; the universes v1 SQLite migration is already handled out
   - [x] **Permissions:** no allowlist entry added — `set-universe-profile.mjs` is confirmed on first
         run exactly like `set-active-universe.mjs`. A write that asks is the behaviour we want.
 
+### Step 8 — Release (CONVENTIONS §10 marketing-surface pass, then the tag)
+- [x] **Marketing surface re-read, 2026-07-27, verdict recorded** _(this commit)_:
+  - [x] **What this release made FALSE or imprecise** — one hit, and it was ours: the README's new
+        profile bullet promised *"one sphere's people **never leak** into another's answers"*. A
+        universe is a **soft** scope by design (ADR 0034, not an isolation wall) and the owner can say
+        "search all universes", so the absolute was writing a cheque the design refuses to cash.
+        Rewritten as *"stay out of another's answers, unless you ask to search across them"*. Exactly
+        the class of rot §10 was written for, caught in the release it was born in.
+  - [x] **What this release made TRUE that we did not sell** — **renaming**. Now one clause in the
+        README universes bullet (it renames everywhere, and says what it costs first) plus the SETUP
+        §5.2 link. **Deleting stays deliberately unsold** (D3): a capability we do not advertise is
+        the point, not an oversight, and this line is here so no future release "fixes" it.
+  - [x] **CONNECTORS.md** — the profile records *which account a sphere uses*, which made the
+        single-account caveat worth stating where connectors are actually documented: a connector is
+        wired once for the whole brain and does **not** follow a universe switch. It was only ever said
+        at switch time, by the reminder.
+  - [x] **EN-QUOI-C-EST-DIFFERENT.md — no change, deliberately.** Re-read whole: no absolute broken.
+        *"Safe by construction: the brain takes no action on your tools"* still holds (universes act on
+        the owner's own vault, never on a connected tool), and *"yours, in an open format"* is
+        reinforced, since a profile is a plain note. Universes are absent from that piece, which is a
+        pre-existing editorial choice, not something this release changed.
+  - [x] **Boards — re-read through their README alt texts and `docs/marketing-image-prompts.md`, copy
+        still accurate, NO re-render.** The `switch` tile ("flip between contexts: jobs, clients,
+        spheres") is now an undersell of a bigger skill, not a falsehood; board-connect's "read-only,
+        never changes your sources" and board-privacy's "your notes never move" both scope to
+        connectors and to swapping the embedder, neither of which this release touches.
+- [ ] Tag + GitHub release (title in the `The One Where…` series), carrying the backlog merged past
+      v4.1.0 (the re-synced `tdd-discipline` skill, the marketing corrections).
+
 ## Conventions reminder (repo rules)
 - Artifacts in English (this file, code, commits, PR). TDD baby-steps, green-only commits. Deterministic
   core owns logic; skills are thin drivers (ADR 0009). Checkboxes on every step (this file). No em dashes.
