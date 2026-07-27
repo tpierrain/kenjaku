@@ -229,10 +229,17 @@ explicit guard:
 
 ### Tracking
 
-- [ ] **Step 1 — Pure core: the refresh verdict** (TDD, injected fs, no side effects). Given the installed
+- [x] **Step 1 — Pure core: the refresh verdict** (TDD, injected fs, no side effects). Given the installed
       file, the recorded provenance base and the candidate new content → `refresh` / `preserve` /
       `absent-install`. Triangulate: no base recorded (pre-provenance brain), base recorded but file
-      missing, identical content already (no-op), CRLF/LF drift.
+      missing, identical content already (no-op), CRLF/LF drift. _(2026-07-27 · `scripts/lib/engine-skill-refresh.mjs`)_
+  - [x] Two refinements the tests pulled out, worth carrying into Step 5's prose: `preserve` carries a
+        **reason** (`customized` vs `no-provenance`) so a pre-provenance brain is never reported as a
+        customizer, and a 4th verdict **`unchanged`** keeps a converged brain byte-identical (no
+        auto-commit churn).
+  - [x] **CRLF decision:** line endings are not authorship. A file matching the base *modulo* EOLs counts
+        as untouched (else the whole Windows fleet freezes as "customized"), and a CRLF copy of the
+        candidate is `unchanged`, not a rewrite-to-LF at every update.
 - [ ] **Step 2 — Locale-aware source resolution** (T2). Pure function: brain locale + skill name +
       source tree → the file to deliver. Test EN and FR, and the no-FR-source case.
 - [ ] **Step 3 — Wire into `reconcileBrain`** behind the `sourceDir !== brainDir` guard. Assert by test
