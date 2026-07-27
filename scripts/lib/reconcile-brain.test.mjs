@@ -54,13 +54,13 @@ const SACRED = {
   "vault/my-note.md": "# Mollecuisse\nThe canary that must never be lost.\n",
 };
 
-function manifest({ ragVersion = "1.1.0", indexSchemaVersion = 1, extraMerge = [], engineMcpServers = ["vault-rag"] } = {}) {
+function manifest({ ragVersion = "1.1.0", indexSchemaVersion = 1, extraMerge = [], extraReplace = [], engineMcpServers = ["vault-rag"] } = {}) {
   return {
     manifestVersion: 1,
     engineVersion: { rag: ragVersion, constitutionTemplate: "1.0.0", scripts: "1.0.0" },
     indexSchemaVersion,
     regimes: {
-      replace: ["rag/src/**", "rag/package.json"],
+      replace: ["rag/src/**", "rag/package.json", ...extraReplace],
       regenerate: ["rag/launch.sh", "rag/launch.cmd", "scripts/run-node.sh", "scripts/run-node.cmd"],
       merge: [".claude/skills/zzz-mine/**", "scripts/update-engine.mjs", ...extraMerge],
     },
@@ -854,6 +854,72 @@ test("reconcileBrain — the new version of a customized skill is dropped alongs
   assert.deepEqual(report.skillsPreserved, [
     { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
   ]);
+});
+
+// ── STAGED skills (engine-skills/) get the same treatment as the merge 9 ─────
+// A staged skill (local-mirror, lint, open-note…) is delivered install-if-absent from
+// the non-sacred `engine-skills/<name>/` path, and provenance is recorded for `merge`
+// files only — so it had NO base and would read `no-provenance` forever, frozen at the
+// version it was installed at. Its base costs nothing though: the brain's OWN
+// `engine-skills/<name>/` copy, read BEFORE this update overwrites it, IS byte-for-byte
+// what the engine last delivered (install-if-absent copied that very subtree).
+test("reconcileBrain — an untouched STAGED skill is refreshed, using the brain's own staging copy as the base", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: lint\n---\nLint the vault.\n";
+  const next = delivered + "\nNow reports orphan notes too.\n";
+  writeFile(brainDir, ".claude/skills/lint/SKILL.md", delivered); // installed at a past update
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", delivered); // …from THIS staging copy
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", next);
+  const opts = { extraReplace: ["engine-skills/**"] };
+  const target = manifest(opts);
+  const local = manifest({ ragVersion: "1.0.0", ...opts });
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md"), "utf8"), next);
+  assert.deepEqual(report.skillsRefreshed, ["lint"]);
+});
+
+test("reconcileBrain — a CUSTOMIZED staged skill is preserved too (the staging base discriminates)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // Same fixture as above, except the owner edited their installed copy. The staging
+  // tree still holds what the engine delivered, so the divergence is provable — and a
+  // staged skill earns exactly the same protection as a merge one.
+  const delivered = "---\nname: lint\n---\nLint the vault.\n";
+  const mine = delivered + "\n## My own rules\nNo orphan meeting notes.\n";
+  const next = delivered + "\nNow reports orphan notes too.\n";
+  writeFile(brainDir, ".claude/skills/lint/SKILL.md", mine);
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", delivered);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", next);
+  const opts = { extraReplace: ["engine-skills/**"] };
+
+  const { ...s } = seams();
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest(opts),
+    local: manifest({ ragVersion: "1.0.0", ...opts }),
+    ...s,
+  });
+
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md"), "utf8"), mine);
+  assert.deepEqual(report.skillsRefreshed, []);
+  assert.deepEqual(report.skillsPreserved, [
+    { skill: "lint", reason: "customized", newVersionPath: ".claude/skills/lint/SKILL.md.new" },
+  ]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md.new"), "utf8"), next);
 });
 
 test("reconcileBrain — a stale .new is cleared once the owner has adopted the new version", async (t) => {

@@ -13,11 +13,11 @@ import { dirname, join, resolve } from "node:path";
 import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
 import { resolveLocaleSource } from "./engine-copy-select.mjs";
 import { readBrainLocale } from "./brain-locale.mjs";
-
-// The runtime home of the skills a brain uses. Increment 2.5 refreshes SKILLS only:
-// the other `merge` files (the constitution, settings.json, the engine-owned scripts)
-// keep their current regimes — the constitution's own layering stays a Gate 4 subject.
-const SKILLS_PREFIX = ".claude/skills/";
+// SKILLS_PREFIX = the runtime home of the skills a brain uses; STAGING_PREFIX = where a
+// staged skill's source ships. Increment 2.5 refreshes SKILLS only: the other `merge`
+// files (the constitution, settings.json, the engine-owned scripts) keep their current
+// regimes — the constitution's own layering stays a Gate 4 subject.
+import { SKILLS_PREFIX, STAGING_PREFIX } from "./staged-skills.mjs";
 
 // The source files eligible for a provenance-gated refresh: those the manifest
 // DECLARES engine-owned (`merge` regime) AND that live in the skills tree. A skill the
@@ -25,6 +25,21 @@ const SKILLS_PREFIX = ".claude/skills/";
 // of ADR 0012, unchanged here.
 export function selectRefreshableSkillFiles({ sourceFiles, manifest }) {
   return selectMergeFiles(manifest, sourceFiles).filter((rel) => rel.startsWith(SKILLS_PREFIX));
+}
+
+// The refresh works on (installed path ← source path) pairs, because the two families of
+// engine skills do NOT ship at the same place:
+//   • the 9 `merge` skills ship AT their runtime path (`.claude/skills/<name>/…`);
+//   • the staged ones ship at `engine-skills/<name>/…` and are install-if-absent'd into
+//     `.claude/skills/<name>/…` — the sacred scrub forbids delivering a skill under
+//     `.claude/skills/` by copy (ADR 0026), which is exactly what protects the owner's.
+// Mapping them here lets ONE verdict + ONE write path serve both.
+export function refreshableSkillPairs({ sourceFiles, manifest }) {
+  const merge = selectRefreshableSkillFiles({ sourceFiles, manifest }).map((rel) => ({ rel, sourceRel: rel }));
+  const staged = sourceFiles
+    .filter((f) => f.startsWith(STAGING_PREFIX) && f.slice(STAGING_PREFIX.length).includes("/"))
+    .map((sourceRel) => ({ rel: SKILLS_PREFIX + sourceRel.slice(STAGING_PREFIX.length), sourceRel }));
+  return [...merge, ...staged];
 }
 
 // Line endings are NOT authorship: a Windows checkout/editor can rewrite LF→CRLF
@@ -73,8 +88,8 @@ export function refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manif
   if (resolve(sourceDir) === resolve(brainDir)) return { skillsRefreshed, skillsPreserved, refreshedFileMap };
 
   const locale = readBrainLocale(brainDir);
-  for (const rel of selectRefreshableSkillFiles({ sourceFiles, manifest })) {
-    const candidate = readFileSync(join(sourceDir, resolveLocaleSource({ rel, locale, sourceFiles })), "utf8");
+  for (const { rel, sourceRel } of refreshableSkillPairs({ sourceFiles, manifest })) {
+    const candidate = readFileSync(join(sourceDir, resolveLocaleSource({ rel: sourceRel, locale, sourceFiles })), "utf8");
     const installedPath = join(brainDir, rel);
     const installed = existsSync(installedPath) ? readFileSync(installedPath, "utf8") : null;
     const { verdict, reason } = refreshVerdict({ installed, base: provenance[rel], candidate });

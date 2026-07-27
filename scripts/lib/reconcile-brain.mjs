@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 
 import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
-import { installStagedSkills } from "./staged-skills.mjs";
+import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
 import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
@@ -74,6 +74,10 @@ export async function reconcileBrain({
   //    dev-only files (scripts/lib/eval-*/mcp-search.*), F2 keeps the brain's
   //    locale-owned files (scripts/lib/demo-locale.mjs → no fr→en regression).
   const sourceFiles = listFilesRelPosix(sourceDir);
+  // ⚠️ BEFORE the copy: the brain's own `engine-skills/` copy is the provenance base of
+  // the STAGED skills (Increment 2.5), and `engine-skills/**` is a `replace` glob — one
+  // line later it holds the NEW content and every staged skill would read as untouched.
+  const stagedProvenance = readStagedProvenance(brainDir);
   const copyGlobs = [...plan.overwrite, ...plan.replaceScripts];
   const copied = [];
   for (const rel of selectEngineFilesToCopy({ sourceFiles, copyGlobs })) {
@@ -114,7 +118,10 @@ export async function reconcileBrain({
     sourceDir,
     sourceFiles,
     manifest: target,
-    provenance: local?.provenance ?? {},
+    // The two families of base, in one map keyed by the INSTALLED path: the manifest's
+    // recorded sha256 for the `merge` skills, the pre-copy staging tree for the staged
+    // ones. They can never collide — a staged skill is, by construction, not a merge file.
+    provenance: { ...(local?.provenance ?? {}), ...stagedProvenance },
   });
 
   // 2.ter Reconcile .mcp.json against the engine's MCP servers (ADR 0025): register a

@@ -250,11 +250,31 @@ explicit guard:
   - [x] **`switch` / `local-mirror` have no FR source: resolved as "fall back to the root", not a gap to
         block on.** The root is exactly what a FR brain received at install, so refreshing from it is a
         same-language update. Writing the FR versions stays a content task, independent of this increment.
-  - [ ] **Finding for Steps 4-5 — `local-mirror` has no provenance base at all:** the manifest's `merge`
-        regime lists 9 skills but NOT `.claude/skills/local-mirror/**` (it ships staged, via
-        `engine-skills/`), so it is never fingerprinted → it would be `preserve: no-provenance` forever.
-        Decide with the reseed step: add it to the `merge` globs (and let the reseed give deployed brains
-        a base on their next update).
+  - [x] **Finding — the STAGED skills have no provenance base at all:** the manifest's `merge` regime
+        lists 9 skills, and provenance is recorded for `merge` files only. A staged skill is never
+        fingerprinted → `preserve: no-provenance` forever.
+    - [x] **It is not just `local-mirror`: 6 skills** are staged (`consolidate`, `file-back`, `lint`,
+          `local-mirror`, `mcp-token-expired`, `open-note`). The drift is already on disk: `engine-skills/**`
+          is `replace`, so every brain's SOURCE copy is updated at each update while the INSTALLED copy
+          under `.claude/skills/` stays frozen.
+    - [x] **Why it was never done (not an oversight):** the sacred scrub strips `.claude/skills/` from
+          `replace` (it is what protects the owner's skills), so a skill bound for EXISTING brains cannot
+          be delivered by copy. Hence the 2026-06-21 relocation to the non-sacred `engine-skills/<name>/`
+          + install-if-absent (ADR 0026 amendment). Provenance follows `merge`, so staged skills got none —
+          invisible until something started refreshing skills at all.
+    - [x] **DECIDED (2026-07-27, Thomas): treat the staged 6 exactly like the other 9.**
+    - [x] **How, without touching the manifest:** the brain's OWN `engine-skills/<name>/` copy, read
+          BEFORE the update overwrites it, is byte-for-byte what the engine last delivered — i.e. a free,
+          retroactive provenance base for the whole deployed fleet (install-if-absent copied that very
+          subtree). Captured ahead of the copy step, `engine-skills/<name>/**` mapped to
+          `.claude/skills/<name>/**`, and the existing verdict applies unchanged.
+          _(2026-07-27 · `readStagedProvenance` + `refreshableSkillPairs`)_
+      - [x] **Self-maintaining, so nothing to re-seed:** `engine-skills/**` is a `replace` glob, so the
+            copy step refreshes the staging tree at every update — the base for the NEXT update writes
+            itself. `reseedProvenance` filters to `merge` files and ignores these paths: correct as is.
+      - [x] The read-before-copy ordering is **locked by the refresh test**, not by a comment: read it
+            one line later and the base is the NEW content, every staged skill reads "customized", and
+            the test fails loudly (mutation-checked).
 - [x] **Step 3 — Wire into `reconcileBrain`** behind the `sourceDir !== brainDir` guard. Assert by test
       that a SessionStart-shaped call (`sourceDir === brainDir`) refreshes **nothing**.
       _(2026-07-27 · `refreshUntouchedSkills` in `engine-skill-refresh.mjs`, step 2.bis-refresh)_
@@ -293,7 +313,18 @@ explicit guard:
   - [x] The `update-engine` skill relays both lines (EN + `templates/fr`), and its "genuine no-op"
         carve-out now includes "no skill brought up to date" — else a refresh-only update would
         wrongly skip the restart banner.
-- [ ] **Step 6 — Pre-v3.3.0 tail:** decide bottle vs documented 2-cycle, then implement the choice.
+- [ ] **Step 6 — Pre-v3.3.0 tail: DECIDED (2026-07-27) → the message-in-a-bottle (option A).** Carry the
+      cohort with `rag/postinstall-restart-notice.mjs`'s proven vector so a pre-v3.3.0 brain converges on
+      its FIRST `/update-engine`, not its second.
+  - [ ] **Why A and not the documented 2-cycle (Thomas, explicitly):** today it is simply the better user
+        experience, and the goal right now is **market share** — widening the installed base. A newcomer
+        on an old engine must not silently keep frozen skills until they happen to update twice.
+  - [ ] **Exit condition (do not let this become mystery debt):** the bottle is a *transitional* vector.
+        When the pre-v3.3.0 cohort has shrunk, delete it and fall back to option B (2-cycle, already
+        documented by ADR 0025). Whoever removes it should find this line, not archaeology.
+  - [ ] Fail-soft is not optional here: the bottle runs inside `npm install`: a throw would abort the
+        install and break the update. Same discipline as the existing restart notice (never throws,
+        swallowed by the CLI wrapper).
 - [ ] **Step 7 — ADR:** amend **0026** (the reconciler gains a conditional, provenance-gated overwrite,
       scoped to explicit updates) and cross-note **0025** (its "out of scope, belongs to a future 3-way
       merge" consequence is now partially closed). Keep the `Scope:` field per `CONVENTIONS.md`.
