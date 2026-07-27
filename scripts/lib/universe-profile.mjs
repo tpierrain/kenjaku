@@ -17,7 +17,7 @@ const PROFILE_FILENAME = "universe.md";
 
 // How many lines of profile may ride EVERY session (D1: the cap is a design
 // constraint, not a nicety). Enough for the identity line, a short description and
-// the two lists; anything longer stays in the note, which the RAG can still search.
+// the lists; anything longer stays in the note, which the RAG can still search.
 const DIGEST_MAX_LINES = 12;
 
 // The single gate on what "the default universe" means here, so the note's PATH
@@ -114,6 +114,7 @@ export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) 
     `${frontmatter.displayName}${kind}${tail}.`,
     ...sections.about,
     ...listLine("People", sections.people),
+    ...listLine("Topics", sections.topics),
     ...listLine("Connector accounts", sections.connectors),
   ];
   if (lines.length <= maxLines) return lines.join("\n");
@@ -131,28 +132,30 @@ function listLine(title, items) {
   return items.length ? [`${title}: ${items.join(", ")}.`] : [];
 }
 
+// The headings the digest knows how to quote. A table rather than a ternary
+// chain: the list is now long enough that adding one must not mean re-reading a
+// nested conditional.
+const SECTIONS = { People: "people", Topics: "topics", "Connector accounts": "connectors" };
+
 // Split the profile note's body into the pieces the digest quotes: the free text
-// under the H1, and the bullet lists of the two known sections. Anything an owner
-// added by hand beyond those is left to the note (and to the RAG).
+// under the H1, and the bullet lists of the known sections. Anything an owner
+// added by hand beyond those lands in `other` and is left to the note (and to the
+// RAG), so a hand-written section never leaks into every session's context.
 function bodySections(body) {
-  const about = [];
-  const people = [];
-  const connectors = [];
+  const out = { about: [], people: [], topics: [], connectors: [], other: [] };
   let current = "about";
   for (const line of body.split("\n")) {
     const heading = line.match(/^##\s+(.*)$/);
     if (heading) {
-      const title = heading[1].trim();
-      current = title === "People" ? "people" : title === "Connector accounts" ? "connectors" : "other";
+      current = SECTIONS[heading[1].trim()] ?? "other";
       continue;
     }
     if (line.startsWith("# ") || line.trim() === "") continue;
-    const item = line.replace(/^-\s*/, "");
-    if (current === "about") about.push(line);
-    else if (current === "people") people.push(item);
-    else if (current === "connectors") connectors.push(item);
+    // The free text is quoted as written; list sections are quoted as values, so
+    // the digest can join them into one line instead of a bullet list.
+    out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
   }
-  return { about, people, connectors };
+  return out;
 }
 
 /**
@@ -190,6 +193,10 @@ export function renderUniverseProfile(answers) {
   // People stay in the ANSWERED order, never sorted: the owner named the most
   // present ones first, and that ordering is itself information.
   const people = answers.people ?? [];
+  // The recurring subjects of this sphere. They answer a different question from
+  // People ("is this note about my work HERE?"), which is what lets an ambiguous
+  // ask resolve without a round-trip.
+  const topics = answers.topics ?? [];
   // Which account each single-account connector uses HERE. Those connectors do not
   // follow a universe switch, so this is what turns the switch reminder from a
   // generic warning into "reconnect Slack to acme.slack.com".
@@ -202,6 +209,7 @@ export function renderUniverseProfile(answers) {
       `# ${displayName}`,
       ...(answers.about ? ["", answers.about] : []),
       ...section("People", people.map((p) => `- ${p}`)),
+      ...section("Topics", topics.map((t) => `- ${t}`)),
       ...section("Connector accounts", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
       "",
     ].join("\n"),

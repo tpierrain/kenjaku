@@ -412,3 +412,64 @@ test("universeProfilePath treats a missing universe as the default (single-unive
   // undefined slug must land at the root too, never at "undefined/universe.md".
   assert.equal(universeProfilePath(undefined), "universe.md");
 });
+
+// ── Topics: what this sphere is ABOUT ────────────────────────────────────────
+// People answer "who is Zoe?"; topics answer "is this note even about my work
+// here?" — the recurring subjects (a product, a migration, a client account) that
+// make an ambiguous question resolvable without asking back.
+
+test("renderUniverseProfile records the recurring topics as their own section", () => {
+  const { content } = renderUniverseProfile({
+    universe: "acme",
+    displayName: "Acme Corp",
+    topics: ["platform migration", "hiring"],
+    today: "2026-07-27",
+  });
+
+  assert.match(content, /## Topics\n\n- platform migration\n- hiring\n/);
+});
+
+test("renderUniverseDigest carries the topics, in the note's order, after the people", () => {
+  // A topic that lives only in the note is a topic the session cannot use to
+  // disambiguate — and disambiguating is the whole reason to record them.
+  const raw = renderUniverseProfile({
+    universe: "acme",
+    displayName: "Acme Corp",
+    people: ["Zoe (CTO)"],
+    topics: ["platform migration", "hiring"],
+    connectors: [{ tool: "Slack", account: "acme.slack.com" }],
+    today: "2026-07-27",
+  }).content;
+
+  assert.equal(
+    renderUniverseDigest(raw),
+    [
+      "Acme Corp.",
+      "People: Zoe (CTO).",
+      "Topics: platform migration, hiring.",
+      "Connector accounts: Slack: acme.slack.com.",
+    ].join("\n"),
+  );
+});
+
+test("renderUniverseDigest reads a HAND-EDITED profile, trailing spaces in the headings and all", () => {
+  // The note belongs to its owner: they edit it in Obsidian, which happily leaves
+  // a trailing space behind a heading. A digest that silently dropped a section
+  // over one invisible character would look like the profile itself was ignored.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "## People  ",
+    "* Zoe (CTO)",
+    "- Alice (PM)",
+  ].join("\n");
+
+  // `*` and `-` are both Markdown bullets, and a digest that quoted one of them
+  // back as part of a person's name would read as a typo the owner never made.
+  assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Zoe (CTO), Alice (PM).");
+});
