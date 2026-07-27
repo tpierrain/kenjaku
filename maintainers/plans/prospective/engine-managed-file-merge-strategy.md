@@ -240,8 +240,21 @@ explicit guard:
   - [x] **CRLF decision:** line endings are not authorship. A file matching the base *modulo* EOLs counts
         as untouched (else the whole Windows fleet freezes as "customized"), and a CRLF copy of the
         candidate is `unchanged`, not a rewrite-to-LF at every update.
-- [ ] **Step 2 — Locale-aware source resolution** (T2). Pure function: brain locale + skill name +
+- [x] **Step 2 — Locale-aware source resolution** (T2). Pure function: brain locale + skill name +
       source tree → the file to deliver. Test EN and FR, and the no-FR-source case.
+      _(2026-07-27 · `resolveLocaleSource` in `engine-copy-select.mjs` + `brain-locale.mjs`)_
+  - [x] The brain's locale is read from **its own** `scripts/lib/demo-locale.mjs` marker
+        (`readBrainLocale`), not from the tree the code runs from — the marker is locale-owned (F2), so
+        an update never overwrites it and it stays truthful for the brain's lifetime. No marker → `en`,
+        never a crash.
+  - [x] **`switch` / `local-mirror` have no FR source: resolved as "fall back to the root", not a gap to
+        block on.** The root is exactly what a FR brain received at install, so refreshing from it is a
+        same-language update. Writing the FR versions stays a content task, independent of this increment.
+  - [ ] **Finding for Steps 4-5 — `local-mirror` has no provenance base at all:** the manifest's `merge`
+        regime lists 9 skills but NOT `.claude/skills/local-mirror/**` (it ships staged, via
+        `engine-skills/`), so it is never fingerprinted → it would be `preserve: no-provenance` forever.
+        Decide with the reseed step: add it to the `merge` globs (and let the reseed give deployed brains
+        a base on their next update).
 - [ ] **Step 3 — Wire into `reconcileBrain`** behind the `sourceDir !== brainDir` guard. Assert by test
       that a SessionStart-shaped call (`sourceDir === brainDir`) refreshes **nothing**.
 - [ ] **Step 4 — Provenance re-seed for refreshed files** (T1), with the refresh-twice test.

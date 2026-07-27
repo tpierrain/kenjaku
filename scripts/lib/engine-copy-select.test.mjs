@@ -1,7 +1,51 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { localeOwnedPaths, selectEngineFilesToCopy } from "./engine-copy-select.mjs";
+import { localeOwnedPaths, selectEngineFilesToCopy, resolveLocaleSource } from "./engine-copy-select.mjs";
+
+// ── resolveLocaleSource: WHICH source file to deliver to a brain of a given locale ──
+// The twin of localeOwnedPaths: that one EXCLUDES locale-owned paths from the blind
+// copy; this one RESOLVES a rel path to the source the brain's locale should get
+// (Increment 2.5, trap T2 — refreshing a FR brain from the root would re-anglicize it).
+test("resolveLocaleSource — the default-locale brain reads the ROOT file", () => {
+  assert.equal(
+    resolveLocaleSource({
+      rel: ".claude/skills/coach/SKILL.md",
+      locale: "en",
+      sourceFiles: [".claude/skills/coach/SKILL.md", "templates/fr/.claude/skills/coach/SKILL.md"],
+    }),
+    ".claude/skills/coach/SKILL.md",
+  );
+});
+
+test("resolveLocaleSource — a FR brain reads its OWN localized source, not the root one", () => {
+  assert.equal(
+    resolveLocaleSource({
+      rel: ".claude/skills/coach/SKILL.md",
+      locale: "fr",
+      sourceFiles: [".claude/skills/coach/SKILL.md", "templates/fr/.claude/skills/coach/SKILL.md"],
+    }),
+    "templates/fr/.claude/skills/coach/SKILL.md",
+  );
+});
+
+test("resolveLocaleSource — no source in the brain's locale → the ROOT file, never another locale's", () => {
+  // `switch` and `local-mirror` ship EN-only today. Falling back to the root is the
+  // safe answer: it is exactly what the FR brain received at install, so refreshing
+  // from it is a same-language update — never a regression, and never a Spanish skill.
+  assert.equal(
+    resolveLocaleSource({
+      rel: ".claude/skills/switch/SKILL.md",
+      locale: "fr",
+      sourceFiles: [
+        ".claude/skills/switch/SKILL.md",
+        "templates/es/.claude/skills/switch/SKILL.md", // another locale → must NOT be picked
+        "templates/fr/.claude/skills/coach/SKILL.md", // FR exists, but for another skill
+      ],
+    }),
+    ".claude/skills/switch/SKILL.md",
+  );
+});
 
 // ── localeOwnedPaths: which rel paths a locale OWNS (from templates/<locale>/<rel>) ──
 test("localeOwnedPaths — derives the owned rel from templates/<locale>/<rel>", () => {

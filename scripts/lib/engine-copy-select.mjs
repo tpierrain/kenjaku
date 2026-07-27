@@ -27,6 +27,14 @@ export function localeOwnedPaths(sourceFiles) {
   return owned;
 }
 
+// The SOURCE file to deliver for `rel` to a brain installed in `locale`. The mirror
+// image of localeOwnedPaths: that one excludes locale-owned paths from the blind copy;
+// this one resolves the ONE source a locale-aware delivery should read.
+export function resolveLocaleSource({ rel, locale, sourceFiles }) {
+  const localized = `templates/${locale}/${rel}`;
+  return sourceFiles.includes(localized) ? localized : rel;
+}
+
 // The rel paths to ACTUALLY copy: matching the engine copy globs, MINUS the dev-only
 // files, MINUS the locale-owned files. `localeOwnedRel` may be injected (tests); it
 // defaults to the set derived from `sourceFiles`.
