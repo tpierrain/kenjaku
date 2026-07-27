@@ -168,6 +168,28 @@ test("sessionUniverseReminder makes no offer once the owner declined", () => {
   assert.equal(sessionUniverseReminder(args).offer, null);
 });
 
+test("sessionUniverseReminder tells the offer which vocabulary this brain is allowed", () => {
+  // The registry is what decides, and only the hook has read it. Forget to pass it
+  // and every brain gets the below-the-gate wording, including one with 4 universes.
+  const alone = seams({ readState: () => ({ registry: [], active: "default" }) });
+  const many = seams({ readState: () => ({ registry: ["acme", "blue"], active: "acme" }) });
+
+  assert.match(sessionUniverseReminder(alone.args).offer, /BELOW the disclosure gate/);
+  assert.match(sessionUniverseReminder(many.args).offer, /PAST the disclosure gate/);
+});
+
+test("sessionUniverseReminder makes no offer when the profile could not be READ", () => {
+  // An unreadable profile is not an absent one. Treating it as absent would turn a
+  // broken file into an offer to write the page the owner already has, every session.
+  const { args } = seams({
+    readDigest: () => {
+      throw new Error("unreadable profile");
+    },
+  });
+
+  assert.equal(sessionUniverseReminder(args).offer, null);
+});
+
 // --- the offer must land somewhere that exists ------------------------------
 
 test("the capture offer points at a section the /switch skill actually has", () => {

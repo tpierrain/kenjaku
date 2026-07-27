@@ -133,18 +133,49 @@ test("runSetUniverseProfile --digest prints the working context of the active un
   const code = runSetUniverseProfile(["--digest"], args);
 
   assert.equal(code, 0);
-  assert.deepEqual(calls.logged, ["Acme Corp (employer).\nPeople: Zoe (CTO)."]);
+  assert.deepEqual(calls.logged, ["[working context]\nAcme Corp (employer).\nPeople: Zoe (CTO)."]);
   assert.deepEqual(calls.spawned, []);
 });
 
-test("runSetUniverseProfile --digest stays quiet, and successful, when there is no profile", () => {
-  // The commonest case by far. Failing here would make the /switch skill's
-  // post-switch step look broken on every brain that never filled a profile in.
+test("runSetUniverseProfile --digest is read-only: it never writes and never reindexes", () => {
+  // It runs after EVERY switch. A side effect here would fire on a move the owner
+  // makes several times a day, and a re-index is the one they would feel.
   const { args, calls } = deps();
 
   const code = runSetUniverseProfile(["--digest"], args);
 
   assert.equal(code, 0);
-  assert.deepEqual(calls.logged, []);
+  assert.deepEqual(calls.written, []);
+  assert.deepEqual(calls.spawned, []);
   assert.deepEqual(calls.errored, []);
+});
+
+test("runSetUniverseProfile --digest OFFERS to describe the universe you just switched into", () => {
+  // Landing in a sphere the brain knows nothing about is the moment to ask: you are
+  // standing in it. Otherwise a universe you rarely start a session in is never
+  // asked about at all — which is exactly the case of a brain that grew universes
+  // before profiles existed.
+  const { args, calls } = deps({
+    files: { "/brain/.vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }) },
+  });
+
+  const code = runSetUniverseProfile(["--digest"], args);
+
+  assert.equal(code, 0);
+  assert.equal(calls.logged.length, 1);
+  assert.match(calls.logged[0], /^\[ask the owner\]\n/);
+  // Past the gate, so the offer is allowed to name the thing it is describing.
+  assert.match(calls.logged[0], /PAST the disclosure gate/);
+});
+
+test("runSetUniverseProfile --digest stays silent once that universe's offer was declined", () => {
+  const { args, calls } = deps({
+    files: {
+      "/brain/.vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+      "/brain/.vault-rag/profile-nudges.json": JSON.stringify({ declined: ["acme"] }),
+    },
+  });
+
+  assert.equal(runSetUniverseProfile(["--digest"], args), 0);
+  assert.deepEqual(calls.logged, []);
 });

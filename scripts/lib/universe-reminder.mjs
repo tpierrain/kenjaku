@@ -46,10 +46,21 @@ export function pointerHealNotice({ healed, from, active }) {
  * universes: it reaches single-universe brains, which must not meet the machinery
  * before they own a second one (ADR 0034). Pure.
  */
-export function profileCaptureOffer({ hasProfile, declined }) {
+export function profileCaptureOffer({ hasProfile, declined, multiverse = false }) {
   if (hasProfile || declined) return null;
+  // THE dichotomy (ADR 0034). Below the gate the machinery does not exist yet, so
+  // the word would name a thing this owner has never met; past it, the word IS the
+  // vocabulary they already switch with. The CORE decides which, because deciding
+  // requires counting universes, and counting is not the LLM's job (ADR 0009).
+  const vocabulary = multiverse
+    ? `This brain is PAST the disclosure gate: say \`universe\` plainly — you are ` +
+      `describing the one currently active.`
+    : `This brain is BELOW the disclosure gate: never use the word \`universe\` with ` +
+      `this user — say their context, their world, this place. They have never met ` +
+      `the notion and must not meet it here.`;
   return (
     `Your brain does not know your context yet — what you do, where, with whom. ` +
+    `${vocabulary} ` +
     `Offer ONCE, in the user's language, to spend two minutes on it (a handful of ` +
     `questions: what this place is, your role there, the people who matter, which ` +
     `accounts your tools use). Say plainly that they can skip it, now or forever. ` +

@@ -1,7 +1,7 @@
 ---
 name: switch
 description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with')."
-version: 1.1.0
+version: 1.2.0
 ---
 
 # /switch — Change or create the active universe (opt-in, no reindex)
@@ -36,6 +36,14 @@ language:
   `<brain>/.vault-rag/`. The engine reads it live on the next search. Never offer a reindex here.
 - **The core is the single surface.** Natural language ("create a universe X") and `/switch X`
   route to the **same** script, so there is never a diverging path (ADR 0009).
+- **🔤 Two worlds, two vocabularies — and you never decide which.** Below the disclosure gate (a
+  single universe, nothing ever created) the notion **does not exist for this user**: never write or
+  say *universe* to them, speak of **their context, their world, this place**. The moment a second
+  universe exists, the opposite holds: everything is framed as universes, because that is the word
+  they now switch with. **The deterministic core tells you which world you are in** (`BELOW the
+  disclosure gate` / `PAST the disclosure gate`, printed with the offer) — do **not** infer it by
+  counting universes yourself (ADR 0009). File paths the core prints (`vault/universe.md`) are the
+  one exception: a filename is a filename, and quoting it back is fine.
 - **Creating a universe is create-and-switch** (git `switch -c` ergonomics): register the name and
   make it active in one move. The name is normalized to a safe kebab slug (e.g. "Blue Team" →
   `blue-team`); the reserved name `default` cannot be created.
@@ -68,9 +76,14 @@ people and the wrong tools:
 node scripts/set-universe-profile.mjs --digest
 ```
 
-Anything it prints is **background for you**, not a message for the user: use it silently when it
-helps (who someone is, which account to reach for), do **not** read it back to them. It prints
-nothing when that universe has no profile — the normal case, and not an error.
+It prints **one of two blocks**, or nothing at all. Read the marker, they want opposite things:
+
+- `[working context]` → **background for you**, never a message for the user. Use it silently (who
+  someone is, which account to reach for); do **not** read it back to them.
+- `[ask the owner]` → the profile **offer** for the universe you just landed in, which has none. Act
+  on it: answer whatever the user was doing first, then make the offer in a line or two, in their
+  language. It appears **once** per universe — accept and it is written, decline and it is recorded.
+- **nothing** → that universe has a profile, or its offer was already declined. Not an error.
 
 ### No-argument menu — `/switch` alone
 
@@ -110,9 +123,11 @@ space, who is in it, what it is about, which accounts its tools use. A short dig
 injected at session start, because the ambient facts of a sphere are needed exactly when nobody
 thinks to search for them.
 
-**When to offer it:** right after a `create` (above), or when the session's start-of-conversation
-context says this brain has no profile yet, or whenever the user asks to describe / update their
-context. **Never twice in one session, never after a refusal.**
+**When to offer it:** right after a `create` (above); when a `--digest` after a switch prints an
+`[ask the owner]` block; when the session's start-of-conversation context says this brain has no
+profile yet; or whenever the user asks to describe / update their context. **Never twice in one
+session, never after a refusal.** Offer *after* dealing with what the user actually asked — an offer
+that interrupts their real question is not an offer, it is an interruption.
 
 **The questions.** Ask them as ONE short batch, in the user's language, and say up front that
 every one of them is skippable and that the page stays editable afterwards (it is a plain note).

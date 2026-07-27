@@ -26,10 +26,12 @@ import { spawnSync } from "node:child_process";
 import {
   writeUniverseProfile,
   declineProfileCapture,
+  profileCaptureDeclined,
   readUniverseProfile,
   renderUniverseDigest,
 } from "./lib/universe-profile.mjs";
-import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
+import { readActiveUniverse, vaultRagDir, readRegistry, isMultiverse } from "./lib/universes.mjs";
+import { profileCaptureOffer } from "./lib/universe-reminder.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
 
@@ -70,8 +72,25 @@ export function runSetUniverseProfile(argv, deps = realProfileDeps) {
   // digest injected at session start describes the universe it STARTED in, and a
   // stale profile is worse than none (it names the wrong people, the wrong tools).
   if (argv.includes("--digest")) {
-    const profile = readUniverseProfile(deps.io, `${deps.cwd()}/vault`, deps.activeUniverse());
-    if (profile) deps.log(renderUniverseDigest(profile));
+    const dir = vaultRagDir(deps.cwd());
+    const universe = deps.activeUniverse();
+    const profile = readUniverseProfile(deps.io, `${deps.cwd()}/vault`, universe);
+    if (profile) {
+      deps.log(`[working context]\n${renderUniverseDigest(profile)}`);
+      return 0;
+    }
+    // No profile HERE: landing in a sphere the brain knows nothing about is the
+    // moment to ask, because you are standing in it. Without this, a universe you
+    // rarely start a session in is never asked about at all — the exact case of a
+    // brain that grew universes before profiles existed.
+    const offer = profileCaptureOffer({
+      hasProfile: false,
+      declined: profileCaptureDeclined(deps.io, dir, universe),
+      multiverse: isMultiverse(readRegistry(deps.io, dir)),
+    });
+    // Two different markers, because the two blocks want opposite things: one is
+    // background to use silently, the other is a question to actually ask.
+    if (offer) deps.log(`[ask the owner]\n${offer}`);
     return 0;
   }
 

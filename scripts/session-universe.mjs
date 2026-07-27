@@ -24,6 +24,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  isMultiverse,
   readRegistry,
   readActiveUniverse,
   healActiveUniversePointer,
@@ -58,17 +59,18 @@ export function sessionUniverseReminder({
   // Read in its OWN try: an unreadable profile must not cost the session its
   // universe reminder (and vice-versa). One broken part, one lost part.
   let digest = null;
-  let offer = null;
+  // An unreadable profile is NOT an absent one. Without this flag a broken file
+  // would read as "no profile" and turn into an offer to write the page the owner
+  // already has — every single session.
+  let profileUnreadable = false;
   try {
     digest = readDigest(dir) ?? null;
-    // No profile and never refused → the one skippable offer (D2). Same try as the
-    // digest ON PURPOSE: an unreadable profile would otherwise read as "no profile"
-    // and turn a broken file into a nagging offer on every session.
-    offer = profileCaptureOffer({ hasProfile: digest !== null, declined: readDeclined(dir) });
   } catch {
-    // swallow — fail-open; the profile is a convenience, never a blocker.
+    profileUnreadable = true; // fail-open; the profile is a convenience, never a blocker.
   }
 
+  let reported = false;
+  let multiverse = false;
   try {
     // Self-heal FIRST, so the reminder below describes the repaired state and not
     // the ghost scope this machine woke up in.
@@ -76,15 +78,31 @@ export function sessionUniverseReminder({
     if (heal) emit(heal);
 
     const { registry, active } = readState(dir);
+    // The registry is also what decides which VOCABULARY the offer may use: only
+    // this hook has read it, and counting universes is not the LLM's job (ADR 0009).
+    multiverse = isMultiverse(registry);
     const nudge = universeReminder({ registry, active });
     if (nudge) {
       emit(nudge);
-      return { reported: true, digest, offer };
+      reported = true;
     }
   } catch {
     // swallow — fail-open; a state hiccup must never break session start.
   }
-  return { reported: false, digest, offer };
+
+  let offer = null;
+  try {
+    if (!profileUnreadable) {
+      offer = profileCaptureOffer({
+        hasProfile: digest !== null,
+        declined: readDeclined(dir),
+        multiverse,
+      });
+    }
+  } catch {
+    // swallow — an unreadable refusal marker must not cost the session its start.
+  }
+  return { reported, digest, offer };
 }
 
 // ── main: wire the real I/O seams (deterministic glue, not unit-tested) ───────

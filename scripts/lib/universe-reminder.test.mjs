@@ -61,6 +61,19 @@ test("profileCaptureOffer never says 'universe' in the words meant for the user"
   assert.doesNotMatch(prose, /universe/i);
 });
 
+test("profileCaptureOffer forbids the word 'universe' to a single-universe brain, and allows it past the gate", () => {
+  // THE dichotomy (ADR 0034): below the gate the machinery does not exist yet, so
+  // the session must say "your context"; the moment a second universe exists,
+  // everything is framed as universes. The core decides which — never the LLM,
+  // which would have to count universes to know (ADR 0009).
+  const alone = profileCaptureOffer({ hasProfile: false, declined: false, multiverse: false });
+  const many = profileCaptureOffer({ hasProfile: false, declined: false, multiverse: true });
+
+  assert.match(alone, /never use the word `universe`/i);
+  assert.doesNotMatch(many, /never use the word `universe`/i);
+  assert.match(many, /universe/i);
+});
+
 test("profileCaptureOffer stays silent once a profile exists", () => {
   assert.equal(profileCaptureOffer({ hasProfile: true, declined: false }), null);
 });
