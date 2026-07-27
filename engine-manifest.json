@@ -22,6 +22,7 @@
       "scripts/import-brain.mjs",
       "scripts/set-active-universe.mjs",
       "scripts/set-universe-profile.mjs",
+      "scripts/delete-universe.mjs",
       "scripts/open-env.mjs",
       "scripts/session-self-heal.mjs",
       "scripts/session-status.mjs",
