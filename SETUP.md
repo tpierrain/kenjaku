@@ -275,6 +275,42 @@ your people are. To fill it in later, or to change your mind, just ask ("describ
 > If you use several **universes** (see `/switch` below), each one gets its **own** page: the people
 > and the accounts of one sphere never leak into another's answers.
 
+### 5.2 Deleting a universe — the one operation you run yourself
+
+You will most likely never need this. It is written down so that the day you do (a client you no
+longer work with, a sphere that turned out to be one too many), you find a procedure rather than
+improvise one.
+
+**Deleting a universe deletes its notes.** So, deliberately, your brain will never offer it, never
+suggest it, and never do it for you — it will only hand you the command when you explicitly ask to
+delete a universe. **You** run it, in **your** terminal, from your brain folder:
+
+```bash
+node scripts/delete-universe.mjs "<name>"
+```
+
+It tells you how many notes are about to go, then asks you to **retype the name** to confirm —
+anything else cancels and nothing is touched. Only then does it remove `vault/<name>/`, drop the
+universe from your list, put you back in your cross-cutting scope if you were standing in the one you
+deleted, and re-index. Your cross-cutting (default) scope cannot be deleted; it is where every note
+that belongs to no particular sphere lives.
+
+The script **refuses to run** if it is not talking to a real terminal — including when Claude tries
+to run it for you. That is on purpose: a confirmation someone else can type on your behalf is not a
+confirmation.
+
+**And it is undoable.** Your vault is a git repository that has been committing your notes all along,
+so the notes are still in its history. To bring a deleted universe back, find the commit that removed
+it, then restore the folder from just before it:
+
+```bash
+git log --diff-filter=D -- vault/<name>/     # the commit that deleted it
+git checkout <commit>~1 -- vault/<name>/     # bring the notes back
+```
+
+Then tell your brain to re-index (or run `cd rag && npm run reindex`), and re-create the universe with
+`/switch` if you want to work in it again.
+
 ## 6. External connectors (optional)
 
 The generator only provides the RAG engine. To also query your other sources
@@ -576,7 +612,7 @@ Everyday capabilities, invoked in plain words (the `/name` is the explicit form)
 | **`/prepare-1-1`** | Prepares a 1-1 **both ways**: with **your manager** or with someone **you manage** (tracking commitments, KPI review). Cross-references the person's profile + last 1-1 + recent signals. |
 | **`/improve`** | Evolves your harness: reads the frictions, proposes and applies the useful improvements. |
 | **`/local-mirror`** | Plugs your brain onto a **local mirror** — a live zone of an internal tool (**Notion** today) that gets **mirrored into your vault** as Markdown, so the RAG searches and **cites** it. Declare one, then sync / refresh / inspect it. *The central RAG you don't have yet — but local, right now.* |
-| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Also records **what a universe is** (your role there, its people, its topics, which accounts your tools use — see §5.1). Invisible until you have a second universe. |
+| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Also records **what a universe is** (your role there, its people, its topics, which accounts your tools use — see §5.1). Invisible until you have a second universe. Deleting one is never offered and is a command **you** run yourself — see §5.2. |
 | **`/import`** | Imports the notes of a **previous** brain into this one (safe plan → confirm → copy → re-index). See §11. |
 | **`/update-engine`** | Upgrades your brain's **engine** (search code, launchers, engine scripts), opt-in, **never touching your notes**. See §10. |
 | **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |

@@ -1,7 +1,7 @@
 ---
 name: switch
-description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with')."
-version: 1.2.0
+description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
+version: 1.3.0
 ---
 
 # /switch — Change or create the active universe (opt-in, no reindex)
@@ -164,9 +164,38 @@ echo '{"universe":"acme","displayName":"Acme Corp","kind":"employer","role":"Hea
 node scripts/set-universe-profile.mjs --decline
 ```
 
+### Delete a universe — ONLY when the user explicitly asks for it
+
+> 🛑 **Read this rule before the procedure.** Deleting a universe erases its notes. It is therefore
+> **never** mentioned, suggested, offered, hinted at or listed anywhere else: not in a switch, not in
+> a create, not in the menu, not in a trailing *"you can also…"*. Someone moving between two spheres
+> must never be one half-read line away from losing one. The **only** door is the user saying, in so
+> many words, that they want to delete a universe. Discoverable on demand, invisible otherwise.
+
+> 🛑 **You hand over the command. You do NOT run it.** Print it and let the user run it **themselves,
+> in their own terminal**. If you ran it and typed the confirmation yourself, the gate would guard
+> nothing — which is why the script **refuses to run at all** without an interactive terminal (no
+> `--yes`, no piped stdin). Do not try to work around that refusal; it is the feature.
+
+When, and only when, the user asks to delete a universe, tell them what it costs and give them this:
+
+```bash
+node scripts/delete-universe.mjs "<name>"
+```
+
+Say, in their language, what will happen when they run it: it prints how many notes are about to go,
+asks them to **retype the name** to confirm (anything else cancels), then deletes `vault/<name>/`,
+removes it from the registry, puts them back in their cross-cutting scope if they were standing in
+that universe, and re-indexes. The cross-cutting (default) scope cannot be deleted.
+
+And tell them the part that makes this survivable: **git still has the notes.** The auto-commit hook
+has been versioning the vault all along, so a deletion is undoable, and the script prints the exact
+two commands (`git log --diff-filter=D -- vault/<name>/`, then
+`git checkout <commit>~1 -- vault/<name>/`). Say it *before* they run it, not after.
+
 ## What it does NOT do
 
 - It does **not** move or re-stamp existing notes (that is `/import --universe` at import time, or a
   future one-shot re-stamp). Switching is only about *where new work and default searches point*.
-- It does **not** delete a universe. A created universe is a self-contained `vault/<slug>/` subtree,
-  so a future "delete this universe" stays a trivial `rm -rf` + prune + reindex — not built here.
+- It does **not** rename a universe. A rename moves `vault/<old>/` and re-stamps every note under it,
+  so it is its own operation — not built here yet.

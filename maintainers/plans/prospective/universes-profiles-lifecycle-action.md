@@ -261,7 +261,7 @@ can never write a note; the universes v1 SQLite migration is already handled out
       _(2026-07-27 · commits `9fa064a`, `383e0a2`, `48a74b1`)_.
 - [x] **Step 3 — Universe profile: capture + inject** (conversational triggers + the SessionStart digest)
       _(2026-07-27 · commits `65afa86`, `c59e2d3`, `452f200`, `779bd73`, `006afd9`)_.
-- [ ] **Step 4 — Delete a universe** (guarded script + documentation) — per D3.
+- [x] **Step 4 — Delete a universe** (guarded script + documentation) — per D3 _(2026-07-27 · commits `93f46ce`, `b216331`, and this one)_.
 - [ ] **Step 5 — Rename a universe** — per D4, scope depends on that decision. Last, deliberately.
 - [x] **Step 6 — Docs + ADR update**, scoped to Release A _(2026-07-27 · commit `2081034`)_. The
       rename/delete half stays open for Release B (see the step below).
@@ -353,12 +353,38 @@ can never write a note; the universes v1 SQLite migration is already handled out
       (the registry), not `listAllUniverses()`. `resetPointer` reads through the *validated* pointer.
       Six mutants hand-applied and killed (each guard dropped, the prune inverted, `resetPointer`
       inverted, `available` leaking the default).
-- [ ] `scripts/delete-universe.mjs <slug>` with an explicit confirmation gate (per D3): print the note
+- [x] `scripts/delete-universe.mjs <slug>` with an explicit confirmation gate (per D3): print the note
       count first, retype-the-slug confirmation, `rm -rf vault/<slug>/`, prune registry, reset pointer if
-      needed, reindex. **Declare it in `engine-manifest.json`** (cf. F2).
-- [ ] Document the procedure (per D3), **including the git recovery command**. This is the "documented,
-      not one-click" requirement.
-- [ ] Make the procedure discoverable from `/switch` without making it easy (cf. D3 sub-checkbox).
+      needed, reindex. **Declared in `engine-manifest.json`** (cf. F2) and git-tracked, so the integrity
+      test sees it. _(2026-07-27 · commit `b216331`)_
+  - [x] The TTY refusal is the **first** thing the flow does, before the plan is even computed:
+        `isInteractive()` demands a terminal on **both** ends, since a piped stdin is exactly the shape
+        an assistant would use to answer on the owner's behalf. **Verified for real**, not only in
+        tests: `echo "blue" | node scripts/delete-universe.mjs blue` exits 1 and touches nothing.
+  - [x] **Deviation, minor and deliberate:** the flow is `async`. The confirmation needs a real prompt,
+        and the repo already owns one pattern for that (`readline/promises`, as in `installer.mjs`);
+        a hand-rolled sync read on fd 0 would have been a second, worse one.
+  - [x] **Deviation, honest:** the failed-reindex branch was written in the same green step as the
+        reindex call itself (mirrored from `set-universe-profile.mjs`) rather than driven by its own
+        red. Its test came right after and does hold — recorded so the baby-step is not claimed
+        cleaner than it was.
+  - [x] Eleven mutants hand-applied and killed. **Two survived the first pass** and each earned a
+        test: an answer merely *containing* the slug ("yes delete blue") passed a `.includes` gate,
+        and the note count printed *after* the question was invisible until a shared timeline made
+        "shown before asked" an assertable fact. A third (dropping `.trim()`) dies on the retyped
+        answer with its trailing newline.
+- [x] Document the procedure (per D3), **including the git recovery command**. This is the "documented,
+      not one-click" requirement. _(2026-07-27 · this commit)_ → SETUP **§5.2**, warning first, plus the
+      two-command `git log --diff-filter=D` / `git checkout <commit>~1` recovery, and the reason the
+      script refuses to run when Claude tries to run it for the owner.
+- [x] Make the procedure discoverable from `/switch` without making it easy (cf. D3 sub-checkbox).
+      _(2026-07-27 · this commit)_ → a section that **opens with the rule** (never mentioned, suggested
+      or offered anywhere else; the skill hands the command over and does not run it), skill
+      `version: 1.2.0 → 1.3.0`, and the frontmatter `description` extended with the explicit-ask
+      triggers only — without them the skill would not even load when someone asks to delete, which is
+      "undiscoverable", not "not offered". **The deterministic core still emits no deletion copy at
+      all** (F3): nothing in `runSwitchCli` mentions it, so the fleet's older `/switch` cannot relay it.
+      The stale "it does **not** delete a universe" bullet is now the rename one.
 
 ### Step 5 — Rename a universe (scope per D4)
 - [ ] Pure core: validate new name/slug (non-empty, not `default`, not already existing), compute the
