@@ -1,7 +1,8 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
-> **Status:** Release A **CODE-COMPLETE** (Steps 0, 2, 3, 6, 7 done) — next: cut the release, then
-> Release B (Steps 4-5). Branch: `feat/universes-v2-profiles`.
+> **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
+> Half A done (Steps 0, 2, 3, 6, 7), **Step 4 done**, **Step 5 (rename) is what remains** before any
+> tag. Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -406,8 +407,13 @@ can never write a note; the universes v1 SQLite migration is already handled out
       not the feature).
 - [x] SETUP.md **§5.1** ("Telling your brain about your context") + the glossary entry, and a README
       bullet — the user-facing half of Release A. Anchor checked, not assumed.
-- [ ] **Release B only:** SETUP.md "How to rename / delete a universe" + the RAG self-heal behaviour on
-      deletion, and `/switch`'s "What it does NOT do" (still accurate today: neither is built).
+- [x] **The delete half** _(2026-07-27 · commit `8a48271`)_: SETUP **§5.2** (what it costs, the
+      retype-the-name gate, the TTY refusal, the git recovery commands) + the `/switch` section that
+      leads with the never-offer rule, and the stale "it does **not** delete a universe" bullet under
+      "What it does NOT do" replaced by the rename one.
+- [ ] **The rename half (Step 5):** SETUP "How to rename a universe" + the re-embedding cost it
+      implies (paths change, so the index treats every note as new), and the "What it does NOT do"
+      bullet retired once rename exists.
 
 ### Step 7 — Fleet / migration
 - [x] **F1-F4 re-checked for Release A, with evidence, 2026-07-27:**
