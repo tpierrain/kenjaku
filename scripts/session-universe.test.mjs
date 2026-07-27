@@ -19,6 +19,7 @@ function seams(overrides = {}) {
     readState: () => ({ registry: ["acme"], active: "acme" }),
     healPointer: (dir) => (calls.healed.push(dir), { healed: false, from: "acme", active: "acme" }),
     readDigest: (dir) => (calls.digested.push(dir), null),
+    readDeclined: () => false,
     emit: (msg) => calls.emitted.push(msg),
   };
   return { args: { ...base, ...overrides }, calls };
@@ -144,6 +145,26 @@ test("sessionUniverseReminder — fail-open: a throwing readDigest costs the ses
   assert.equal(res.digest, null);
   // The routine reminder still made it out: one broken part must not mute the rest.
   assert.deepEqual(calls.emitted, ["Active universe: 'acme' (of 2: default, acme)."]);
+});
+
+test("sessionUniverseReminder offers the profile capture when there is none, once", () => {
+  const { args } = seams({ readDigest: () => null, readDeclined: () => false });
+
+  const res = sessionUniverseReminder(args);
+
+  assert.match(res.offer, /context/i);
+});
+
+test("sessionUniverseReminder makes no offer once a profile exists", () => {
+  const { args } = seams({ readDigest: () => "Acme Corp (employer)." });
+
+  assert.equal(sessionUniverseReminder(args).offer, null);
+});
+
+test("sessionUniverseReminder makes no offer once the owner declined", () => {
+  const { args } = seams({ readDigest: () => null, readDeclined: () => true });
+
+  assert.equal(sessionUniverseReminder(args).offer, null);
 });
 
 test("settings.json.template wires session-universe as a SessionStart hook, AFTER session-self-heal", () => {

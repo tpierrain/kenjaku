@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   universeReminder,
   buildUniverseHookOutput,
+  profileCaptureOffer,
 } from "./universe-reminder.mjs";
 import { DEFAULT_UNIVERSE } from "./universes.mjs";
 
@@ -25,6 +26,35 @@ test("universeReminder falls back to the default when the active pointer is blan
   // the owner is on their cross-cutting default corpus, and we say so by name.
   const nudge = universeReminder({ registry: ["acme"], active: "" });
   assert.match(nudge, /Active universe: 'default'/);
+});
+
+// ── profileCaptureOffer: the ONE skippable offer to describe your context ────
+// D2: existing brains (Thomas' own included) have no profile and no reason to
+// learn the command exists. So the session offers, once, and takes no for an
+// answer forever.
+
+test("profileCaptureOffer invites the owner to describe their context when there is no profile", () => {
+  const offer = profileCaptureOffer({ hasProfile: false, declined: false });
+
+  assert.match(offer, /context/i);
+  // It must read as declinable, or a one-shot offer becomes a demand.
+  assert.match(offer, /(skip|decline|no thanks|not now)/i);
+});
+
+test("profileCaptureOffer never says 'universe' (it must be safe below the gate)", () => {
+  // This offer reaches single-universe brains — the majority — and the word would
+  // expose machinery they do not have yet (ADR 0034 progressive disclosure).
+  assert.doesNotMatch(profileCaptureOffer({ hasProfile: false, declined: false }), /universe/i);
+});
+
+test("profileCaptureOffer stays silent once a profile exists", () => {
+  assert.equal(profileCaptureOffer({ hasProfile: true, declined: false }), null);
+});
+
+test("profileCaptureOffer stays silent forever once declined", () => {
+  // Without this, a skippable offer comes back every single session, which is the
+  // definition of nagging.
+  assert.equal(profileCaptureOffer({ hasProfile: false, declined: true }), null);
 });
 
 // ── buildUniverseHookOutput: wrap the nudge for the SessionStart hook ─────────
@@ -54,6 +84,26 @@ test("buildUniverseHookOutput frames a lone digest WITHOUT naming universes", ()
   const out = buildUniverseHookOutput({ digest: "Acme Corp (employer)." });
 
   assert.doesNotMatch(out.hookSpecificOutput.additionalContext, /universe/i);
+});
+
+test("buildUniverseHookOutput carries the capture offer, and it survives alongside a reminder", () => {
+  // The offer is the whole point of D2's backfill: it must reach the chat channel,
+  // not just the CLI-only systemMessage that Desktop drops on the floor.
+  const out = buildUniverseHookOutput({
+    nudge: "Active universe: 'acme' (of 2: default, acme).",
+    offer: "Your brain does not know your context yet.",
+  });
+
+  assert.match(out.hookSpecificOutput.additionalContext, /does not know your context yet/);
+  assert.match(out.hookSpecificOutput.additionalContext, /Active universe: 'acme'/);
+});
+
+test("buildUniverseHookOutput returns an envelope for a lone offer (no reminder, no digest)", () => {
+  // The commonest backfill case by far: a single-universe brain with no profile.
+  // If only the nudge/digest opened the envelope, that owner would never be asked.
+  const out = buildUniverseHookOutput({ offer: "Your brain does not know your context yet." });
+
+  assert.match(out.hookSpecificOutput.additionalContext, /does not know your context yet/);
 });
 
 test("buildUniverseHookOutput carries the reminder AND the digest when both apply", () => {

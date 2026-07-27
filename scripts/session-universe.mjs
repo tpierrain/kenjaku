@@ -29,8 +29,17 @@ import {
   healActiveUniversePointer,
   vaultRagDir,
 } from "./lib/universes.mjs";
-import { universeReminder, buildUniverseHookOutput, pointerHealNotice } from "./lib/universe-reminder.mjs";
-import { readUniverseProfile, renderUniverseDigest } from "./lib/universe-profile.mjs";
+import {
+  universeReminder,
+  buildUniverseHookOutput,
+  pointerHealNotice,
+  profileCaptureOffer,
+} from "./lib/universe-reminder.mjs";
+import {
+  readUniverseProfile,
+  renderUniverseDigest,
+  profileCaptureDeclined,
+} from "./lib/universe-profile.mjs";
 
 // Vault paths are built and compared in POSIX form so behaviour is identical
 // across platforms (on Windows resolve() yields backslashes). Cf. file-back-note.
@@ -44,12 +53,18 @@ export function sessionUniverseReminder({
   emit,
   healPointer = () => ({ healed: false }),
   readDigest = () => null,
+  readDeclined = () => false,
 }) {
   // Read in its OWN try: an unreadable profile must not cost the session its
   // universe reminder (and vice-versa). One broken part, one lost part.
   let digest = null;
+  let offer = null;
   try {
     digest = readDigest(dir) ?? null;
+    // No profile and never refused → the one skippable offer (D2). Same try as the
+    // digest ON PURPOSE: an unreadable profile would otherwise read as "no profile"
+    // and turn a broken file into a nagging offer on every session.
+    offer = profileCaptureOffer({ hasProfile: digest !== null, declined: readDeclined(dir) });
   } catch {
     // swallow — fail-open; the profile is a convenience, never a blocker.
   }
@@ -64,12 +79,12 @@ export function sessionUniverseReminder({
     const nudge = universeReminder({ registry, active });
     if (nudge) {
       emit(nudge);
-      return { reported: true, digest };
+      return { reported: true, digest, offer };
     }
   } catch {
     // swallow — fail-open; a state hiccup must never break session start.
   }
-  return { reported: false, digest };
+  return { reported: false, digest, offer };
 }
 
 // ── main: wire the real I/O seams (deterministic glue, not unit-tested) ───────
@@ -84,7 +99,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const vaultDir = `${toPosix(brainDir)}/vault`;
   const lines = [];
 
-  const { digest } = sessionUniverseReminder({
+  const { digest, offer } = sessionUniverseReminder({
     dir: vaultRagDir(brainDir),
     // The profile of the universe actually in force. Read through
     // readActiveUniverse, which VALIDATES against the registry, so a machine whose
@@ -94,6 +109,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       const profile = readUniverseProfile(io, vaultDir, readActiveUniverse(io, dir));
       return profile ? renderUniverseDigest(profile) : null;
     },
+    // A refusal is remembered PER UNIVERSE: saying no to describing Acme must not
+    // silence the question for a universe created later, which is a different world.
+    readDeclined: (dir) => profileCaptureDeclined(io, dir, readActiveUniverse(io, dir)),
     // The only write this hook performs: repairing a pointer left aimed at a
     // universe that is gone. A healthy pointer is never rewritten.
     healPointer: (dir) => healActiveUniversePointer(io, dir),
@@ -104,7 +122,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     emit: (msg) => lines.push(msg),
   });
 
-  const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, digest });
+  const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, digest, offer });
   if (output) {
     // additionalContext is the ONLY Desktop-visible channel (chat) — see buildUniverseHookOutput.
     process.stdout.write(JSON.stringify(output) + "\n");

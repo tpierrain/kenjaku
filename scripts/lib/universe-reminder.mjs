@@ -41,13 +41,30 @@ export function pointerHealNotice({ healed, from, active }) {
 }
 
 /**
+ * The one skippable offer to describe the sphere the owner works in (D2), or null
+ * when there is already a profile or the offer was declined. Says nothing about
+ * universes: it reaches single-universe brains, which must not meet the machinery
+ * before they own a second one (ADR 0034). Pure.
+ */
+export function profileCaptureOffer({ hasProfile, declined }) {
+  if (hasProfile || declined) return null;
+  return (
+    `Your brain does not know your context yet — what you do, where, with whom. ` +
+    `Offer ONCE, in the user's language, to spend two minutes on it (a handful of ` +
+    `questions: what this place is, your role there, the people who matter, which ` +
+    `accounts your tools use). Say plainly that they can skip it, now or forever. ` +
+    `If they decline, do not ask again in a later session.`
+  );
+}
+
+/**
  * Wraps the nudge into the SessionStart hook output, or null when there is nothing
  * to emit. Mirrors buildWikiHealthHookOutput: the nudge rides `additionalContext`
  * (the only Desktop-visible channel), phrased as a DIRECTIVE the agent relays to
  * the user; `systemMessage` carries the raw fact (dropped on Desktop, shown on CLI).
  */
-export function buildUniverseHookOutput({ nudge = null, digest = null } = {}) {
-  if (!nudge && !digest) return null;
+export function buildUniverseHookOutput({ nudge = null, digest = null, offer = null } = {}) {
+  if (!nudge && !digest && !offer) return null;
   const parts = [];
   if (nudge) {
     parts.push(
@@ -68,8 +85,9 @@ export function buildUniverseHookOutput({ nudge = null, digest = null } = {}) {
         `account to reach for); do not repeat it back to them and do not treat it as a task.`,
     );
   }
+  if (offer) parts.push(`[onboarding] ${offer}`);
   return {
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
-    systemMessage: [nudge, digest].filter(Boolean).join("\n"),
+    systemMessage: [nudge, digest, offer].filter(Boolean).join("\n"),
   };
 }

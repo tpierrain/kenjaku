@@ -7,6 +7,8 @@ import {
   renderUniverseDigest,
   readUniverseProfile,
   writeUniverseProfile,
+  declineProfileCapture,
+  profileCaptureDeclined,
 } from "./universe-profile.mjs";
 import { DEFAULT_UNIVERSE } from "./universes.mjs";
 
@@ -104,6 +106,42 @@ test("writeUniverseProfile refuses to overwrite a profile the owner already has"
   assert.deepEqual(res, { ok: false, reason: "exists", path: "acme/universe.md" });
   assert.deepEqual(io.writes, []);
   assert.equal(io.files.get("/brain/vault/acme/universe.md"), "hand-written by the owner");
+});
+
+// --- "do not ask again" (D2) --------------------------------------------------
+
+test("declineProfileCapture remembers a refusal, per universe", () => {
+  const io = fakeFs();
+
+  declineProfileCapture(io, "/brain/.vault-rag", "acme");
+
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "acme"), true);
+  // Declining for one sphere says nothing about another: creating a universe later
+  // must still get its own offer.
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "blue"), false);
+});
+
+test("profileCaptureDeclined reads false on a brain that was never asked", () => {
+  assert.equal(profileCaptureDeclined(fakeFs(), "/brain/.vault-rag", "acme"), false);
+});
+
+test("declineProfileCapture keeps the refusals it already had", () => {
+  // Two entries, and the second must not erase the first: a refusal is forever.
+  const io = fakeFs();
+
+  declineProfileCapture(io, "/brain/.vault-rag", "acme");
+  declineProfileCapture(io, "/brain/.vault-rag", "blue");
+
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "acme"), true);
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "blue"), true);
+});
+
+test("profileCaptureDeclined treats a corrupt marker file as 'never asked'", () => {
+  // A broken state file must never wedge a session; the worst case is asking once
+  // more, which is strictly better than crashing session start.
+  const io = fakeFs({ "/brain/.vault-rag/profile-nudges.json": "{ not json" });
+
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "acme"), false);
 });
 
 // --- the injected digest -----------------------------------------------------

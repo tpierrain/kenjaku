@@ -65,6 +65,36 @@ function dirnamePosix(path) {
   return path.slice(0, path.lastIndexOf("/"));
 }
 
+// Where a refusal is remembered. Under .vault-rag/ and therefore COMMITTED (only
+// the active pointer is gitignored): declining is the owner's decision, not the
+// machine's, so it must travel with the brain instead of coming back on the laptop.
+const NUDGE_STATE_FILE = "profile-nudges.json";
+
+/** True when the owner has said no to describing this universe. Injected fs. */
+export function profileCaptureDeclined(io, dir, universe) {
+  return readDeclined(io, dir).includes(universe);
+}
+
+/** Remembers a refusal, keeping the ones already recorded. Injected fs. */
+export function declineProfileCapture(io, dir, universe) {
+  const declined = [...new Set([...readDeclined(io, dir), universe])].sort();
+  io.mkdirSync(dir, { recursive: true });
+  io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "\n");
+}
+
+// A corrupt or absent marker reads as "nobody was ever asked": worst case the
+// offer comes once more, which beats wedging a session over a broken state file.
+function readDeclined(io, dir) {
+  const path = `${dir}/${NUDGE_STATE_FILE}`;
+  if (!io.existsSync(path)) return [];
+  try {
+    const parsed = JSON.parse(io.readFileSync(path));
+    return Array.isArray(parsed?.declined) ? parsed.declined : [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * The short block injected at session start for the active universe, built from
  * the profile note as it is ON DISK (so an owner editing the note in Obsidian
