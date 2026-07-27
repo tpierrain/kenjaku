@@ -279,6 +279,23 @@ can never write a note; the universes v1 SQLite migration is already handled out
       _(2026-07-28 · commits `c9ab78e`, `934abc1`, `b83b6b3`)_. The three DEFECTs are fixed and
       pinned; the core, not the model, decides whether there is a choice to make.
 - [ ] **Step 11 — Cut the release.** Everything above is done; this is the last box of Gate 2.6.
+      **Thomas said go (2026-07-28): `v4.2.0`, titled *The One Where Your Brain Knows Where It Is*.**
+  - [x] CI **7/7 green** on PR #49 (Node 22/24/26 × macOS + Windows, Windows installer e2e).
+  - [x] PR #49 body updated with the `local-mirror` half.
+  - [x] CONVENTIONS §10 marketing pass **re-run for the mirror half** _(`d1cff81`)_: `CONNECTORS.md`
+        and `SETUP.md` stated the pre-universes path unconditionally; boards re-read, still true, no
+        re-render (verdict recorded in that commit).
+  - [ ] ⚠️ **A `local-mirror` mutation campaign was launched and Stryker runs `inPlace: true`** — the
+        working tree gets INSTRUMENTED while it runs. **Never `git add -A` during it.** When it ends,
+        check `git status` is clean under `local-mirror/**` (Stryker restores on exit); if it was
+        killed mid-run, restore with `git checkout -- local-mirror/src`. Log:
+        `<scratchpad>/mutation-local-mirror.log`.
+  - [ ] Paste the measured score into the release note draft (`SCORE_PLACEHOLDER`), which is written
+        and ready at `<scratchpad>/release-v4.2.0.md`. Update the `local-mirror` row of
+        `maintainers/mutation/RESULTS.md` with the same number, pinned to v4.2.0.
+  - [ ] Merge PR #49 → `main`, tag **`v4.2.0`**, `gh release create` with that note.
+  - [ ] After the tag: archive this plan (`prospective/` → `archived/`), close Gate 2.6 in the
+        ROADMAP, and prune the `kenjaku-next-work-order` memory pointer.
 
 ### Step 2 — Universe profile: data + write core _(DONE 2026-07-27)_
 - [x] Profile note path + frontmatter schema per **D1 (resolved)**: `vault/<slug>/universe.md` (and
