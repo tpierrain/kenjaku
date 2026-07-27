@@ -130,3 +130,21 @@ test('the success message names the folder the pages are really in, universe inc
   assert.equal(written, 'acme/mirrors/team-a/page-1.md');
   assert.match(result.message, /Files live under acme\/mirrors\/team-a\//);
 });
+
+// The confirmation belongs to the FIRST pull only. Re-asking on every refresh is how a useful
+// confirmation becomes noise people click through — and the universe is frozen in the config
+// anyway, deliberately never re-read on the hot sync path.
+test('refreshing a declared mirror never asks again, however many universes exist', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withUniverses('blue-team')
+    .withConnectablePages(aNotionPage({ id: 'page-1' }));
+  const gss = harness.build();
+  await gss.setupSource(aSetupRequest({ universe: 'blue-team' }));
+
+  harness.withNotionPages(aNotionPage({ id: 'page-2' }));
+  const report = await gss.sync('team-a');
+
+  assert.deepEqual(report, { name: 'team-a', status: 'ok', written: 1, deleted: 0, unchanged: 1 });
+  assert.ok(harness.vaultFiles().has('blue-team/mirrors/team-a/page-2.md'), 'still the frozen universe');
+});

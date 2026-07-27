@@ -99,6 +99,9 @@ export class LocalMirror implements ILocalMirror {
     }
 
     // Freeze the retained universe into the config NOW (ADR 0034) — never re-read at sync time.
+    // Past the gate `req.universe` is always set (the two guards above are what make that true);
+    // below it there is nothing to choose and `active` is necessarily the default, since an empty
+    // registry disqualifies every pointer. So this reads "what they chose, else where they are".
     const config = configFromRequest(req, req.universe ?? active);
     const connector = this.deps.connectorFor(config);
 

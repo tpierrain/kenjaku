@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseUniverseRegistry, resolveActiveUniverse } from '../lib/universe.js';
+import {
+  isMultiverse,
+  listAllUniverses,
+  parseUniverseRegistry,
+  resolveActiveUniverse,
+} from '../lib/universe.js';
 
 // The committed universe registry (ADR 0034) lives at `<brainRoot>/.vault-rag/universes.json`
 // and holds the CREATED universes only — the implicit default is never stored, its absence IS
@@ -55,4 +60,24 @@ test('resolveActiveUniverse: a blank, whitespace-only or absent pointer is the d
   assert.equal(resolveActiveUniverse('', ['acme']), 'default');
   assert.equal(resolveActiveUniverse('   \n', ['acme']), 'default');
   assert.equal(resolveActiveUniverse(null, ['acme']), 'default');
+});
+
+// ── The menu, and the disclosure gate ────────────────────────────────────────
+
+test('listAllUniverses: the default comes FIRST (it is the cross-cutting one), the rest sorted', () => {
+  assert.deepEqual(listAllUniverses(['zeta', 'acme', 'blue-team']), [
+    'default',
+    'acme',
+    'blue-team',
+    'zeta',
+  ]);
+  assert.deepEqual(listAllUniverses([]), ['default'], 'the default always exists, alone or not');
+});
+
+// The gate is what keeps a single-universe owner from ever meeting the notion (ADR 0034). Its
+// boundary is exactly "one created universe", i.e. two in total counting the implicit default.
+test('isMultiverse: closed on a brain with no created universe, open from the first one', () => {
+  assert.equal(isMultiverse([]), false);
+  assert.equal(isMultiverse(['acme']), true);
+  assert.equal(isMultiverse(['acme', 'blue-team']), true);
 });
