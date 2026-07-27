@@ -1,12 +1,18 @@
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- STATUS: ✅ SHIPPED as v4.2.0, "The One Where Your Brain Knows Where It Is"  -->
+<!-- (PR #49, merge 96d0546, tag 2026-07-28, CI 7/7 incl. Windows). ROADMAP      -->
+<!-- Gate 2.6 is closed. Archived; kept for its design record + checkboxes.      -->
+<!-- Nothing here is open work — the only residual is the shared field-verify    -->
+<!-- of Gates 1/2, which folds into Gate 3 (generate time).                      -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
-> **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
-> **Steps 0 through 10 are done** _(2026-07-28)_: fleet re-check, marketing pass, Windows parity
-> (CI 7/7) and the `local-mirror` universe choice included. **Nothing but the tag is left.** Branch:
-> `feat/universes-v2-profiles`, PR **#49** open, nothing merged or tagged.
->
-> ▶️ **Resuming after a `/clear`: go to Step 11 — cut the release.** PR #49's body predates Step 10,
-> so it needs the mirror half added before merging.
+> **Status: ✅ SHIPPED — v4.2.0, 2026-07-28.** ONE release for the whole gate (Thomas, 2026-07-27 —
+> the A/B split is reversed). Steps -1 through 11 are done: profiles, self-healing pointer, guarded
+> delete, full rename, fleet re-check, marketing pass, Windows parity, the `local-mirror` universe
+> choice, and the mutation gate (local-mirror pinned at **90.44 %**). Release:
+> <https://github.com/tpierrain/kenjaku/releases/tag/v4.2.0>.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -278,7 +284,7 @@ can never write a note; the universes v1 SQLite migration is already handled out
 - [x] **Step 10 — `local-mirror` names the universe and confirms before the first pull**
       _(2026-07-28 · commits `c9ab78e`, `934abc1`, `b83b6b3`)_. The three DEFECTs are fixed and
       pinned; the core, not the model, decides whether there is a choice to make.
-- [ ] **Step 11 — Cut the release.** Everything above is done; this is the last box of Gate 2.6.
+- [x] **Step 11 — Cut the release.** _(2026-07-28 · merge `96d0546` · tag **v4.2.0**)_ — the last box of Gate 2.6.
       **Thomas said go (2026-07-28): `v4.2.0`, titled *The One Where Your Brain Knows Where It Is*.**
       `<scratchpad>` below = `/private/tmp/claude-501/-Users-tpierrain-Dev-kenjaku/0a61a2f2-cc76-4834-8d04-4da0bd8a7027/scratchpad/`
       (session-scoped; a `/clear` keeps the files, a new session does not — if it is gone, the release
@@ -354,9 +360,11 @@ can never write a note; the universes v1 SQLite migration is already handled out
         the by-layer bars as the superseded 2026-07-16 photo. The release note states in one paragraph
         that the gap to 95.63 % is growth (+336 mutants of auto-refresh code) **and** that this
         release's own share was found and paid before tagging.
-  - [ ] Merge PR #49 → `main`, tag **`v4.2.0`**, `gh release create` with that note.
-  - [ ] After the tag: archive this plan (`prospective/` → `archived/`), close Gate 2.6 in the
-        ROADMAP, and prune the `kenjaku-next-work-order` memory pointer.
+  - [x] Merged PR #49 → `main` (`96d0546`), tagged **`v4.2.0`** on CI 7/7 (run `30313411985`),
+        published the release _(2026-07-28)_:
+        <https://github.com/tpierrain/kenjaku/releases/tag/v4.2.0>.
+  - [x] After the tag: this plan archived (`prospective/` → `archived/`), Gate 2.6 closed in the
+        ROADMAP, `kenjaku-next-work-order` memory pointer pruned.
 
 ### Step 2 — Universe profile: data + write core _(DONE 2026-07-27)_
 - [x] Profile note path + frontmatter schema per **D1 (resolved)**: `vault/<slug>/universe.md` (and

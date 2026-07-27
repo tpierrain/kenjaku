@@ -85,7 +85,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         reached nobody; `4e43e70` in v3.6.2 will never reach a v3.6.0/v3.6.1 brain), and the frozen share
         of the fleet grows with the installed base.
   - [x] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Increment 2.5".
-- [ ] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle. IN PROGRESS — ships as ONE release.**
+- [x] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle.** _(2026-07-28 · PR #49 · merge `96d0546`; released as **v4.2.0**, "The One Where Your Brain Knows Where It Is"; CI 7/7 incl. Windows)_
   - [x] Was blocked by design, not by code: its user-facing surface is the `/switch` skill, which could
         not reach the existing fleet until Gate 2.5 shipped. **Unblocked** by v4.1.0 — an untouched
         `/switch` is now refreshed on the fleet's next `/update-engine`.
@@ -113,9 +113,12 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         nothing and hands back the choice, because getting the scope right afterwards costs a full
         re-embed. Two defects fell with it (a ghost pointer frozen into a new mirror; a success
         message naming a folder the files were not in).
-  - [ ] **Then cut the release.** PR #49 is open; its body predates the `local-mirror` half and needs
-        it added. Nothing merged or tagged.
-  - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
+  - [x] **Release cut** _(2026-07-28)_. The mutation gate ran three campaigns: 89.10 % → 89.29 %
+        (killed the universe reader's untested default) → **90.44 %** on the tagged tree, after an
+        audit found 11 more live mutants that were this release's own — the per-file "origin" table
+        had mislabelled them, because new code lands *inside* old files. Rule recorded in
+        `maintainers/mutation/RETROSPECTIVE.md` ("a file is not an increment").
+  - [x] **Canonical plan:** `archived/universes-profiles-lifecycle-action.md` (archived at the tag).
 - [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no
         shared file). It was "NEXT TO EXECUTE" before 2.5 was pulled forward. If the personal migration
@@ -143,7 +146,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
 | Plan (canonical) | What it delivers | Gate | Status |
 | --- | --- | --- | --- |
 | `prospective/engine-managed-file-merge-strategy.md` | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. | 1, **2.5** & 4 | 🟢 Increment 2.5 (skills half) shipped in **v4.1.0**; the constitution half stays prospective in Gate 4. |
-| `prospective/universes-profiles-lifecycle-action.md` | Per-universe profiles (captured + injected), rename, guarded delete. | 2.6 | 🟠 IN PROGRESS — **Release A code-complete 2026-07-27** (self-heal + profiles), awaiting its tag; Release B (delete + rename) after. |
+| `archived/universes-profiles-lifecycle-action.md` | Per-universe profiles (captured + injected), rename, guarded delete. | 2.6 | ✅ Shipped in **v4.2.0** (PR #49, 2026-07-28) — profiles + lifecycle + the mirror's universe choice, one release. Plan archived. |
 | `archived/universes-progressive-disclosure-action.md` | A soft, progressively-disclosed per-universe retrieval scope over one shared vault/index (ADR 0034). | 2 | ✅ Shipped (PR #38 in v3.6.0, then write-path trilogy + `/switch` flag in v3.6.2, 2026-07-21). Plan archived; field-verify folds into Gate 3. |
 | `prospective/second-brain-migration-and-engine-upstream-action.md` | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | 3 | In progress: Tracks A/B/C DONE (PR #29/#30/#32); **Track D now unblocked (Gate 2 shipped)**; F post-migration. |
 
