@@ -1,6 +1,6 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
-> **Status:** DRAFT / prospective. Branch: `feat/universe-profiles-lifecycle`.
+> **Status:** IN PROGRESS (Release A, Step 0). Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -158,35 +158,43 @@ can never write a note; the universes v1 SQLite migration is already handled out
             who the owner is and how the brain behaves (sacred surface, untouched per ADR 0034); the
             profile says what **this sphere** is. Without that line, the default universe's profile and
             the `CLAUDE.md` owner section will drift and contradict each other.
-- [ ] **D2 — Where/how are the profile questions triggered at INSTALL for the default universe?**
-      **STILL OPEN.** Reframed 2026-07-27: as originally worded this decision **contradicts ADR 0034**.
-      At install there is exactly ONE universe, and progressive disclosure says the word "universe" must
-      stay **invisible** until a second one exists. The *value* Thomas wants (the brain knows his context
-      from day one) is legitimate; only the label is wrong.
-      - **(a) First session / on demand (recommended).** Installer untouched. One skippable offer in an
-        early session, plus the command any time. Needs a **"do not ask again" marker**, else the nudge
-        returns every session. Also the only option that reaches **existing** brains.
-      - **(b) At install, phrased as "your context", never "universe".** Keeps day-one value and respects
-        ADR 0034, but adds questions to an already heavy installer and only ever helps **future** installs.
-      - **(c) At install, phrased as "universe".** Rejected: frontally contradicts progressive disclosure.
-- [ ] **D3 — Delete UX (must stay "not one-click"). Near-settled, confirm the last point.**
-      NO easy `/switch delete`. Provide `scripts/delete-universe.mjs <slug>` (add it to the manifest, cf.
-      F2) refusing `default`, requiring the slug to be retyped, **printing how many notes will go before
-      confirming**, then: `rm -rf vault/<slug>/`, prune the registry, reset the pointer if needed, reindex.
-      Document the procedure in SETUP.md, **including the git recovery command** (the deletion is
-      committed, so git is the undo).
-      - [ ] Confirm the 2026-07-27 addition: `/switch` (or its successor surface) must **know the
-            procedure exists** and point at it when asked to delete, so nobody improvises a raw `rm -rf`
-            and orphans the registry. "Hidden" must not mean "undiscoverable".
-- [ ] **D4 — Rename scope (NEW, opened 2026-07-27). Decision needed.**
-      Rename is the **riskiest** item of this plan for the **rarest** use (you name a client once): it
-      moves the whole subtree, rewrites `universe:` frontmatter in **every** note under it, re-embeds the
-      universe (paths change), produces a large git diff, and is exposed to the orphan-pointer bug (Step 0).
-      - **(a) Display name + slug-only-while-empty (recommended).** Renaming changes the profile's
-        `displayName`; the slug (folder) only moves while the universe has no notes yet. Zero frontmatter
-        rewrite, zero re-embedding, tiny diff. Cost: the folder keeps its old name in Obsidian.
-      - **(b) Full rename.** Visually coherent, at the cost above.
-      - **(c) Defer rename entirely**, ship profile + delete first.
+- [x] **D2 — Profile questions for the default universe: RESOLVED 2026-07-27 (Thomas) → (a) first
+      session / on demand.** The installer stays **untouched**. One skippable offer in an early session,
+      plus the command available any time, with a **"do not ask again" marker** (else the nudge returns
+      every session). Decisive argument: it is the only option that also reaches **already-installed**
+      brains, Thomas' own included. The word "universe" stays invisible below the progressive-disclosure
+      gate (ADR 0034): the offer talks about *your context*, not about universes.
+      - **Rejected:** (b) asking at install, phrased as "your context" (adds weight to an already heavy
+        installer and only ever helps future installs); (c) asking at install phrased as "universe"
+        (frontally contradicts progressive disclosure).
+- [x] **D3 — Delete UX: RESOLVED 2026-07-27 (Thomas), and the constraint is STRONGER than drafted.**
+      Yes, the procedure exists, deterministic and documented, and yes `/switch` knows about it. But
+      **it must never be surfaced, suggested, or made convenient.** Thomas' framing: someone who lets
+      themselves be guided and reads messages halfway must **never** end up deleting a universe when all
+      they wanted was to move from one to another. The threat model is the fat-finger, not the attacker.
+      Binding rules, all three verifiable at review time:
+      - [x] **Not a word in the normal flow.** Not in `list`, not in `switch`, not in `create`, not in a
+            trailing "you can also…". The **deterministic core must never emit deletion copy either**,
+            otherwise the fleet's old `/switch` relays it verbatim (cf. F3).
+      - [x] **One door: explicit intent.** The procedure is disclosed **only** when the person asks to
+            delete a universe. Discoverable on demand, invisible otherwise. "Hidden" must not mean
+            "undiscoverable", but "discoverable" must not mean "offered".
+      - [x] **The human types the guard, not Claude.** The skill hands over the command; it does **not**
+            run it. If Claude runs the script and answers its own retype-the-slug prompt, the gate guards
+            nothing. → `delete-universe.mjs` must **refuse to run without an interactive TTY** (no
+            `--yes`, no piped stdin), so the guarantee is deterministic rather than resting on model
+            restraint (ADR 0009 spirit). Design this into Step 4, do not bolt it on.
+      - Durable beyond this repo: recorded as the `never-surface-destructive-paths` preference.
+- [x] **D4 — Rename scope: RESOLVED 2026-07-27 (Thomas) → (b) FULL rename.** Cost accepted knowingly
+      after the trade-off was laid out: moving `vault/<old>/` to `vault/<new>/`, rewriting `universe:`
+      frontmatter in **every** note under it, re-embedding the whole universe (paths change, so the index
+      treats them as new documents), and a large git diff. In exchange, the rename is coherent
+      **everywhere**, Obsidian included, instead of leaving a stale folder name behind.
+      - **Rejected:** (a) displayName + slug-only-while-empty (cheap, but the folder keeps its old name);
+        (c) deferring rename entirely.
+      - **Consequence:** full rename is exactly the cross-machine scenario that produces an orphan
+        pointer (committed registry vs gitignored pointer), so **Step 0 is a hard prerequisite**, not a
+        nicety. It ships first, in Release A, before rename exists at all.
 
 ## Tracking
 
@@ -200,18 +208,31 @@ can never write a note; the universes v1 SQLite migration is already handled out
 >
 > 🌱 **Start from a FRESH branch off `main`.** The old `feat/universe-profiles-lifecycle` held nothing
 > unique (the plan itself reached `main` through PR #47) and was deleted on 2026-07-27, so nobody
-> branches from a point 39 commits behind.
+> branches from a point 39 commits behind. Branch in use since 2026-07-27:
+> **`feat/universes-v2-profiles`**.
+>
+> 📦 **Gate 2.6 ships as TWO releases (decided with Thomas, 2026-07-27).** Do not try to land it all at
+> once.
+> - **Release A (in progress) = Steps 0, 2, 3, plus 6-7 scoped to what A ships.** Self-healing pointer
+>   + universe profile (note *and* SessionStart digest injection). This is where the felt value is. It
+>   also carries the backlog already merged past the v4.1.0 tag (re-synced `tdd-discipline`, marketing
+>   corrections), which reaches nobody until a new tag exists.
+> - **Release B (after) = Steps 4 and 5**, delete + full rename, with their docs and ADR. The riskiest
+>   surface, isolated on purpose, and it depends on Step 0 having shipped in A.
 
-- [x] **Step -1 — Design review + fleet audit** _(2026-07-27 · this commit)_ → §"Design review",
-      §"Fleet constraints", D1 resolved, D4 opened.
+- [x] **Step -1 — Design review + fleet audit** _(2026-07-27 · commit `3de46cb` and earlier)_ →
+      §"Design review", §"Fleet constraints", D1 resolved, D4 opened.
 - [ ] **Step 0 — Self-heal the active-universe pointer** (prerequisite of Steps 3 and 4, small, testable).
+      **← RELEASE A, START HERE.**
   - [ ] Pure core: a pointer naming a universe absent from the registry is invalid → fall back to
         `default`. TDD, injected fs.
   - [ ] Surface it through `session-self-heal.mjs` (already a SessionStart hook): repair, **say it in one
         line**, fail-open, always exit 0. Never silently wrong, never blocking.
   - [ ] Test the cross-machine scenario from §"Design review" (committed registry vs gitignored pointer).
-- [ ] **Step 1 — Resolve the remaining decisions D2 / D3-confirm / D4 with Thomas** (blocks Steps 3-5,
-      not Step 2).
+- [x] **Step 1 — Resolve the remaining decisions D2 / D3-confirm / D4 with Thomas** _(2026-07-27 · this
+      commit)_. **D2** → first session / on demand, installer untouched. **D3** → confirmed *and
+      hardened*: never surfaced, explicit intent only, human types the guard (TTY-only script). **D4** →
+      full rename, cost accepted. Rationale in §"Open decisions". Steps 3, 4 and 5 are unblocked.
 - [ ] **Step 2 — Universe profile: data + write core** (pure, TDD, tested).
 - [ ] **Step 3 — Universe profile: capture + inject** (conversational triggers + the SessionStart digest).
 - [ ] **Step 4 — Delete a universe** (guarded script + documentation) — per D3.
