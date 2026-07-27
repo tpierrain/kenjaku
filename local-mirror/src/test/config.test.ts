@@ -9,6 +9,8 @@ import {
   VAULT_DIR,
   SIDECAR_DIR,
   CONFIG_PATH,
+  ACTIVE_UNIVERSE_PATH,
+  UNIVERSES_REGISTRY_PATH,
 } from '../lib/config.js';
 
 test('resolvePath: a non-empty env value wins, resolved to absolute', () => {
@@ -31,6 +33,19 @@ test('paths: defaults rooted at the repo, all absolute', () => {
   assert.equal(basename(VAULT_DIR), 'vault');
   assert.equal(basename(SIDECAR_DIR), '.local-mirror');
   assert.equal(basename(CONFIG_PATH), 'local-mirror.config.json');
+});
+
+// The two universe-state paths (ADR 0034) are read-only inputs written by the `/switch` skill,
+// and a wrong one does not fail: it reads as "no such file" and degrades to the default scope,
+// silently freezing a new mirror into the wrong universe. So pin both the file name AND the
+// state dir they sit in — the whole point is that they match what `/switch` writes.
+test('paths: the universe pointer and registry sit in the brain state dir, by name', () => {
+  for (const p of [ACTIVE_UNIVERSE_PATH, UNIVERSES_REGISTRY_PATH]) {
+    assert.ok(isAbsolute(p));
+    assert.equal(basename(dirname(p)), '.vault-rag');
+  }
+  assert.equal(basename(ACTIVE_UNIVERSE_PATH), 'active-universe');
+  assert.equal(basename(UNIVERSES_REGISTRY_PATH), 'universes.json');
 });
 
 test('paths: projectRoot climbs to the actual repo root (sibling packages present)', () => {

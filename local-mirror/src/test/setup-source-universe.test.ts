@@ -38,10 +38,20 @@ test('past the gate, a setup that names no universe pulls nothing and asks which
   assert.equal(result.ok, false, 'nothing was set up yet');
   assert.equal((await harness.declaredSources()).length, 0, 'no mirror is declared before the choice');
   assert.equal(harness.vaultFiles().size, 0, 'and not a single note is pulled');
-  // The message must carry WHY choosing now matters, and where it would land.
-  assert.match(result.message, /acme\/mirrors\/team-a\//);
-  assert.match(result.message, /re-embed/i);
-  assert.match(result.message, /setup_source again/);
+  // Asserted WHOLE, not by fragments: this message is the entire user-facing surface of the
+  // choice — where the pages would land, the full menu (a list is not a list until it renders
+  // with separators), why the default is the cross-cutting one, and what to do next. Matching
+  // pieces of it let half the sentence be deleted without a single test noticing.
+  assert.equal(
+    result.message,
+    'Nothing declared and nothing pulled yet: "team-a" must first be attached to a universe. ' +
+      "Left as it is, it would join 'acme' (the one you are working in) and its pages would " +
+      'land under acme/mirrors/team-a/. Available: default, acme, blue-team — ' +
+      "'default' is the cross-cutting one, for a source every universe should find (a " +
+      'company-wide wiki, say). Moving a mirror afterwards costs a full re-embed of every page ' +
+      'it holds, so this is the cheap moment to get it right. Call setup_source again with the ' +
+      'universe named.',
+  );
 });
 
 test('naming a universe on the second call declares the mirror there and pulls it', async () => {
@@ -75,8 +85,12 @@ test('a universe that does not exist is refused, and the real ones are named', a
   const result = await gss.setupSource(aSetupRequest({ universe: 'acme-corp' }));
 
   assert.equal(result.ok, false);
-  assert.match(result.message, /"acme-corp"/);
-  assert.match(result.message, /default, acme, blue-team/);
+  assert.equal(
+    result.message,
+    'There is no universe called "acme-corp", so nothing was declared or pulled. The ones that ' +
+      'exist are: default, acme, blue-team. Call setup_source again with one of them (or create ' +
+      'it first with /switch).',
+  );
   assert.deepEqual(result.awaitingUniverse, { active: 'acme', universes: ['default', 'acme', 'blue-team'] });
   assert.equal((await harness.declaredSources()).length, 0, 'an unknown universe declares nothing');
   assert.equal(harness.vaultFiles().size, 0, 'and pulls nothing into a folder nobody knows about');
