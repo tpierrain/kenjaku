@@ -392,16 +392,41 @@ explicit guard:
         in a fixture test (a hand-rolled sha256 silently disagreed with the manifest's `sha256:` prefix
         and turned every untouched skill into "customized"), and simulate the update path with the same
         helpers it uses, or the QA proves something the product never does.
-- [ ] **Step 8.5 — `/code-review` of the whole increment BEFORE going further** (asked by Thomas,
+- [x] **Step 8.5 — `/code-review` of the whole increment BEFORE going further** (asked by Thomas,
       2026-07-27, to run right after his `/clear`). Nothing else moves until its findings are triaged:
       a review is worth most while the branch is still open and the design fresh, not after Step 10
-      has polished the tests around whatever it would have flagged.
-  - [ ] Scope: the branch diff `feat/engine-skill-refresh` vs `main` — the refresh core, its wiring in
+      has polished the tests around whatever it would have flagged. **Ran 2026-07-27** (ultrareview,
+      27 files / +2558 −48): **2 findings, both `nit`, both verified real, both fixed now.**
+  - [x] Scope: the branch diff `feat/engine-skill-refresh` vs `main` — the refresh core, its wiring in
         the reconciler, both manifest re-seed paths, the postinstall bottle, the report prose, and the
         release-tag QA suite.
-  - [ ] Triage each finding into: fix now (before Step 9), fold into Step 10's mutation pass, or
+  - [x] Triage each finding into: fix now (before Step 9), fold into Step 10's mutation pass, or
         record as deliberate. **Answer every one of them in this plan** — an unanswered review finding
         is exactly the kind of thing a `/clear` erases.
+  - [x] **F1 (nit) — ADR 0026 still announced "the two narrow, nominative carve-outs below" while this
+        increment added a third** (the skill-content exception, joining vault + settings). The STATUS
+        line at the top had been updated to "three" in the same amend, the invariant intro had not, so
+        the ADR disagreed with itself. **Verdict: FIX NOW.** _(2026-07-27)_ One word, plus a
+        **`Subtree-complete`** bullet added to the §8 enforced-tests list to record what F2 locked.
+        Amend-in-place (CONVENTIONS §6bis) only pays off if the amended doc reads as one coherent whole.
+  - [x] **F2 (nit) — the `absent-install` verdict was silently dropped by the I/O wrapper.**
+        `refreshUntouchedSkills` dispatched on `refresh` and `preserve` only, so the verdict its own
+        docstring promises ("nothing on disk → deliver it") produced no write, no report, no provenance.
+        Combined with install-if-absent deciding at the **skill-DIR** level (`reconcile-brain.mjs` step
+        2.bis: dir exists → `continue`), a file a release adds **under an already-installed skill**
+        (`.claude/skills/coach/references/…`, well within the `**` merge glob) would reach **no**
+        deployed brain, ever: this increment's own core/skill drift, one level deeper.
+        **Verdict: FIX NOW** _(2026-07-27)_ — TDD, two red-first tests then a one-line branch: the
+        `absent-install` verdict now writes down the same path as `refresh` and folds the file into
+        `refreshedFileMap`, so **both** manifest re-seed paths give it a base and it stays refreshable
+        at the next update (the T1 sibling, third door). Fixed now rather than deferred because the code
+        contradicted its own documented contract, and the fix is smaller than the note explaining it.
+  - [x] **Correction to the review, recorded so it is not re-derived:** F2 claimed "coach has a
+        `references/` folder in HEAD already". **It does not** — all 9 merge skills and all 6 staged
+        ones ship a lone `SKILL.md` (`find` on the branch); the `references/radical-candor.md` it saw is
+        a **test fixture** in `engine-skill-refresh.test.mjs`. So F2's field impact was **zero today**,
+        strictly latent, which is why `nit` was the right severity: it was fixed for the first release
+        that adds a sub-file, not for a brain in the wild.
 - [ ] **Step 9 — Docs:** SETUP / the `update-engine` skill wording ("your customized skills are never
       overwritten; you are told when a newer version is available"). Includes the stale claim in
       `.claude/skills/update-engine/SKILL.md` §What it touches — "any engine skill you already have" is
