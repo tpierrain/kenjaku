@@ -98,7 +98,12 @@ export function refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manif
     // file, so a sidecar left by a previous update is now a lie ("a newer version
     // awaits" when the owner already adopted it, or when we just refreshed it).
     if (verdict !== "preserve" || reason !== "customized") rmSync(`${installedPath}.new`, { force: true });
-    if (verdict === "refresh") {
+    // `absent-install` writes down the SAME path as `refresh`: a skill is a SUBTREE, and
+    // install-if-absent decides at the skill-DIR level (`reconcile-brain.mjs` step 2.bis),
+    // so a `references/`/`examples/` file a release adds under a skill the brain ALREADY
+    // has is invisible to it. Dropping the verdict here would leave that file unreachable
+    // by any number of updates — the core/skill drift of this increment, one level down.
+    if (verdict === "refresh" || verdict === "absent-install") {
       mkdirSync(dirname(installedPath), { recursive: true });
       writeFileSync(installedPath, candidate);
       refreshedFileMap[rel] = candidate;

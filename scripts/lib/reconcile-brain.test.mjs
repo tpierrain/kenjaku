@@ -856,6 +856,46 @@ test("reconcileBrain — the new version of a customized skill is dropped alongs
   ]);
 });
 
+// A skill is a SUBTREE, not a single `SKILL.md`: a release may add a `references/`
+// or `examples/` file to a skill the brain already has. install-if-absent can never
+// deliver it (it skips at the skill-DIR level, and the dir exists), so if the refresh
+// drops the `absent-install` verdict too, that file reaches NO deployed brain — the
+// very core/skill drift this increment closes, one level deeper.
+test("reconcileBrain — a NEW file under an ALREADY-INSTALLED skill is delivered, not dropped", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: coach\n---\nBe a fierce coach.\n";
+  const added = "# Radical Candor\nCare personally, challenge directly.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", delivered); // untouched AND up to date
+  writeFile(sourceDir, ".claude/skills/coach/references/radical-candor.md", added); // the newcomer
+  const target = manifest({ extraMerge: [".claude/skills/coach/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/coach/**"] }),
+    provenance: { ".claude/skills/coach/SKILL.md": base(delivered) },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md"), "utf8"),
+    added,
+    "the file the release added under the existing skill actually landed",
+  );
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"),
+    delivered,
+    "and the already-converged sibling was not rewritten for nothing",
+  );
+  assert.deepEqual(report.skillsRefreshed, ["coach"]);
+  assert.deepEqual(report.skillsPreserved, []);
+});
+
 // ── STAGED skills (engine-skills/) get the same treatment as the merge 9 ─────
 // A staged skill (local-mirror, lint, open-note…) is delivered install-if-absent from
 // the non-sacred `engine-skills/<name>/` path, and provenance is recorded for `merge`
@@ -1119,4 +1159,47 @@ test("runReconcileCli — a skill it INSTALLS gets a provenance base, so the nex
     base(delivered),
     "the base describes what was just installed — without it the skill is frozen forever",
   );
+});
+
+// Same freeze, third door: a file delivered because it was MISSING under an existing
+// skill needs a base too, or the release after it would read "no-provenance" and never
+// improve it again. Proven end-to-end: deliver it, then ship a better one.
+test("runReconcileCli — a file it delivers under an existing skill stays refreshable next time", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const skill = "---\nname: coach\n---\nYour sparring partner.\n";
+  const added = "# Radical Candor\nCare personally.\n";
+  const improved = added + "Challenge directly.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", skill);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", skill);
+  writeFile(sourceDir, ".claude/skills/coach/references/radical-candor.md", added);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: [".claude/skills/coach/**"] }),
+        provenance: { ".claude/skills/coach/SKILL.md": base(skill) },
+      },
+      null,
+      2,
+    ),
+  );
+  const runReconcileCli = await loadCli();
+  const argv = ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"];
+
+  const first = await runReconcileCli({ argv, seams: seams() });
+  writeFile(sourceDir, ".claude/skills/coach/references/radical-candor.md", improved); // the NEXT release
+  const second = await runReconcileCli({ argv, seams: seams() });
+
+  assert.deepEqual(first.skillsRefreshed, ["coach"]);
+  assert.deepEqual(second.skillsRefreshed, ["coach"], "still refreshable — not frozen on no-provenance");
+  assert.deepEqual(second.skillsPreserved, []);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md"), "utf8"), improved);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(persisted.provenance[".claude/skills/coach/references/radical-candor.md"], base(improved));
 });
