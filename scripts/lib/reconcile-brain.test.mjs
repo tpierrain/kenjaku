@@ -92,8 +92,14 @@ function buildSource() {
 
 // Inject all four I/O seams; record their side effects. regenerateLaunchers writes
 // the launcher files (mirrors the real builder) so existence can be asserted.
+// `countVaultNotes` returns a DISTINCTIVE count (not 0) and records the brainDir it was
+// handed: a stub that returns 0 and ignores its argument cannot tell a wired seam from an
+// unwired one — the reconciler could call the real counter, or call it with no brain at
+// all, and every assertion would still hold.
+const STUB_VAULT_NOTES = 407;
+
 function seams() {
-  const calls = { install: [], reindex: [], reindexMode: [], regenerate: [] };
+  const calls = { install: [], reindex: [], reindexMode: [], regenerate: [], count: [] };
   return {
     calls,
     regenerateLaunchers: async ({ brainDir, platform }) => {
@@ -107,7 +113,10 @@ function seams() {
       calls.reindex.push(brainDir);
       calls.reindexMode.push(mode);
     },
-    countVaultNotes: async () => 0,
+    countVaultNotes: async ({ brainDir }) => {
+      calls.count.push(brainDir);
+      return STUB_VAULT_NOTES;
+    },
   };
 }
 
@@ -1331,6 +1340,103 @@ test("runReconcileCli — a file it delivers under an existing skill stays refre
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md"), "utf8"), improved);
   const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
   assert.equal(persisted.provenance[".claude/skills/coach/references/radical-candor.md"], base(improved));
+});
+
+// ── The CLI's own contract: flag parsing, seam wiring, manifest write ────────
+// `runReconcileCli` is what the auto-finalize CHILD is launched as, so its argv
+// handling is load-bearing: a flag silently read as `undefined` converges the wrong
+// folder (or nothing at all) while every in-process test stays green.
+
+test("runReconcileCli — refuses to run without BOTH directories, whichever one is missing", async () => {
+  const runReconcileCli = await loadCli();
+  const required = /reconcile-brain: --brainDir and --sourceDir are required/;
+
+  await assert.rejects(runReconcileCli({ argv: [] }), required);
+  await assert.rejects(runReconcileCli({ argv: ["--brainDir", "/brains/mine"] }), required);
+  await assert.rejects(runReconcileCli({ argv: ["--sourceDir", "/src"] }), required);
+  // A flag in LAST position carries no value — indistinguishable from an absent one.
+  await assert.rejects(runReconcileCli({ argv: ["--sourceDir", "/src", "--brainDir"] }), required);
+});
+
+// The platform decides which launcher halves get regenerated and which hook commands
+// get the win32 repair, so a `--platform` that never reaches the seams is a silent
+// cross-platform bug. Triangulated: the flag when given, this process's platform when not
+// — and an ABSENT flag must yield NO value, never the first argv entry it happens to sit near.
+test("runReconcileCli — the --platform flag reaches the seams, and defaults to this process's platform", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(manifest(), null, 2));
+  const runReconcileCli = await loadCli();
+
+  const given = seams();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "win32"],
+    seams: given,
+  });
+  assert.deepEqual(given.calls.regenerate, ["win32"]);
+
+  const omitted = seams();
+  await runReconcileCli({ argv: ["--brainDir", brainDir, "--sourceDir", sourceDir], seams: omitted });
+  assert.deepEqual(omitted.calls.regenerate, [process.platform]);
+});
+
+// The seams the caller DOES pass must be the ones used — the `?? default` fallbacks are
+// there for the real child process, not to quietly override an injected double. Proven by
+// a stub whose count no real vault would return, handed the brain it was asked about.
+test("runReconcileCli — uses the seams it is given, brain and all, rather than the real I/O", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(manifest(), null, 2));
+
+  const { calls, ...s } = seams();
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  assert.equal(report.vaultNoteCount, STUB_VAULT_NOTES);
+  assert.deepEqual(calls.count, [brainDir], "the note count must be taken on the brain being reconciled");
+  assert.deepEqual(calls.install, [join(brainDir, "rag")]);
+});
+
+// The T1 re-seed writes the brain's manifest — the file every later update reads to decide
+// what it may touch. Two things must hold, and neither was pinned: it is written as a
+// well-formed text file (2-space indent + FINAL NEWLINE, it is git-committed and diffed at
+// every update), and a run that delivers NOTHING must not rewrite it at all. The fixture is
+// deliberately stored NON-canonically (compact JSON) so an unconditional rewrite is visible
+// as a byte change instead of hiding behind identical formatting.
+test("runReconcileCli — writes the manifest as a text file when it re-seeds, and not at all when it delivers nothing", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const manifestPath = join(brainDir, "engine-manifest.json");
+  writeFileSync(manifestPath, JSON.stringify(manifest())); // compact, no trailing newline
+  const untouched = readFileSync(manifestPath, "utf8");
+  const runReconcileCli = await loadCli();
+  const argv = ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"];
+
+  await runReconcileCli({ argv, seams: seams() });
+  assert.equal(readFileSync(manifestPath, "utf8"), untouched, "nothing delivered → the manifest is not rewritten");
+
+  // Now give the source a skill to deliver: the re-seed fires and rewrites the manifest.
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", "---\nname: coach\n---\nYour sparring partner.\n");
+  writeFileSync(manifestPath, JSON.stringify(manifest({ extraMerge: [".claude/skills/coach/**"] })));
+  await runReconcileCli({ argv, seams: seams() });
+
+  const raw = readFileSync(manifestPath, "utf8");
+  assert.equal(raw, JSON.stringify(JSON.parse(raw), null, 2) + "\n");
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

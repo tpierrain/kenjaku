@@ -264,9 +264,14 @@ export async function reconcileBrain({
 // and local → schema is unchanged from its own viewpoint, so the child never reindexes
 // (it converges files; it does not migrate). RECONCILE ONLY: no fetch, no auto-finalize
 // → no recursion. `seams` is injectable for tests; defaults are the real I/O seams.
+// A flag in LAST position carries no value: reading past the end already yields
+// `undefined`, so no length guard is needed — one would be unable to change a single
+// byte of the result (mutation lesson: a guard that cannot matter says the same in less
+// code). The `i >= 0` check, on the other hand, is load-bearing: without it an ABSENT
+// flag would read `argv[0]` and hand back the first argument as its value.
 function flagValue(argv, name) {
   const i = argv.indexOf(name);
-  return i >= 0 && i + 1 < argv.length ? argv[i + 1] : undefined;
+  return i >= 0 ? argv[i + 1] : undefined;
 }
 
 export async function runReconcileCli({ argv, seams = {} }) {
