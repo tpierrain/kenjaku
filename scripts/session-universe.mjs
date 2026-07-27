@@ -30,10 +30,30 @@ import {
   vaultRagDir,
 } from "./lib/universes.mjs";
 import { universeReminder, buildUniverseHookOutput, pointerHealNotice } from "./lib/universe-reminder.mjs";
+import { readUniverseProfile, renderUniverseDigest } from "./lib/universe-profile.mjs";
+
+// Vault paths are built and compared in POSIX form so behaviour is identical
+// across platforms (on Windows resolve() yields backslashes). Cf. file-back-note.
+const toPosix = (p) => p.split("\\").join("/");
 
 // Testable core: read the universe state (injected), build the reminder, emit it
 // only past the gate. Fail-open — odd/missing state must never disturb session start.
-export function sessionUniverseReminder({ readState, dir, emit, healPointer = () => ({ healed: false }) }) {
+export function sessionUniverseReminder({
+  readState,
+  dir,
+  emit,
+  healPointer = () => ({ healed: false }),
+  readDigest = () => null,
+}) {
+  // Read in its OWN try: an unreadable profile must not cost the session its
+  // universe reminder (and vice-versa). One broken part, one lost part.
+  let digest = null;
+  try {
+    digest = readDigest(dir) ?? null;
+  } catch {
+    // swallow — fail-open; the profile is a convenience, never a blocker.
+  }
+
   try {
     // Self-heal FIRST, so the reminder below describes the repaired state and not
     // the ghost scope this machine woke up in.
@@ -44,12 +64,12 @@ export function sessionUniverseReminder({ readState, dir, emit, healPointer = ()
     const nudge = universeReminder({ registry, active });
     if (nudge) {
       emit(nudge);
-      return { reported: true };
+      return { reported: true, digest };
     }
   } catch {
     // swallow — fail-open; a state hiccup must never break session start.
   }
-  return { reported: false };
+  return { reported: false, digest };
 }
 
 // ── main: wire the real I/O seams (deterministic glue, not unit-tested) ───────
@@ -61,10 +81,19 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     mkdirSync,
   };
   const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const vaultDir = `${toPosix(brainDir)}/vault`;
   const lines = [];
 
-  sessionUniverseReminder({
+  const { digest } = sessionUniverseReminder({
     dir: vaultRagDir(brainDir),
+    // The profile of the universe actually in force. Read through
+    // readActiveUniverse, which VALIDATES against the registry, so a machine whose
+    // pointer is a ghost injects the default universe's profile — no dependency on
+    // whether the repair below has run yet.
+    readDigest: (dir) => {
+      const profile = readUniverseProfile(io, vaultDir, readActiveUniverse(io, dir));
+      return profile ? renderUniverseDigest(profile) : null;
+    },
     // The only write this hook performs: repairing a pointer left aimed at a
     // universe that is gone. A healthy pointer is never rewritten.
     healPointer: (dir) => healActiveUniversePointer(io, dir),
@@ -75,7 +104,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     emit: (msg) => lines.push(msg),
   });
 
-  const output = buildUniverseHookOutput(lines.join(" "));
+  const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, digest });
   if (output) {
     // additionalContext is the ONLY Desktop-visible channel (chat) — see buildUniverseHookOutput.
     process.stdout.write(JSON.stringify(output) + "\n");

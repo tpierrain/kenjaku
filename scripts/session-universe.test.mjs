@@ -13,11 +13,12 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // past the progressive-disclosure gate (>= 2 universes). Fail-open: never throws.
 
 function seams(overrides = {}) {
-  const calls = { emitted: [], healed: [] };
+  const calls = { emitted: [], healed: [], digested: [] };
   const base = {
     dir: "/brain/.vault-rag",
     readState: () => ({ registry: ["acme"], active: "acme" }),
     healPointer: (dir) => (calls.healed.push(dir), { healed: false, from: "acme", active: "acme" }),
+    readDigest: (dir) => (calls.digested.push(dir), null),
     emit: (msg) => calls.emitted.push(msg),
   };
   return { args: { ...base, ...overrides }, calls };
@@ -95,6 +96,54 @@ test("sessionUniverseReminder — a healthy pointer adds no repair line (only th
 
   assert.deepEqual(calls.emitted, ["Active universe: 'acme' (of 2: default, acme)."]);
   assert.deepEqual(calls.healed, ["/brain/.vault-rag"]); // healed against the state dir it was given
+});
+
+// --- the profile digest (universes v2, Step 3) -------------------------------
+
+test("sessionUniverseReminder returns the active universe's profile digest for injection", () => {
+  const { args, calls } = seams({
+    readDigest: (dir) => (calls.digested.push(dir), "Acme Corp (employer)."),
+  });
+
+  const res = sessionUniverseReminder(args);
+
+  assert.equal(res.digest, "Acme Corp (employer).");
+  assert.deepEqual(calls.digested, ["/brain/.vault-rag"]);
+});
+
+test("sessionUniverseReminder returns the digest even below the gate (a lone universe has a profile too)", () => {
+  // A single-universe brain is the COMMON case, and D2 has it capturing a profile
+  // at first session. Gating the digest on a second universe would make the
+  // capture pointless for almost everyone who ever fills one in.
+  const { args } = seams({
+    readState: () => ({ registry: [], active: "default" }),
+    readDigest: () => "My world (personal).",
+  });
+
+  const res = sessionUniverseReminder(args);
+
+  assert.equal(res.digest, "My world (personal).");
+  assert.equal(res.reported, false); // the universe reminder itself stays silent
+});
+
+test("sessionUniverseReminder reports no digest when the universe has no profile yet", () => {
+  const { args } = seams({ readDigest: () => null });
+
+  assert.equal(sessionUniverseReminder(args).digest, null);
+});
+
+test("sessionUniverseReminder — fail-open: a throwing readDigest costs the session nothing", () => {
+  const { args, calls } = seams({
+    readDigest: () => {
+      throw new Error("unreadable profile");
+    },
+  });
+
+  const res = sessionUniverseReminder(args); // must NOT throw
+
+  assert.equal(res.digest, null);
+  // The routine reminder still made it out: one broken part must not mute the rest.
+  assert.deepEqual(calls.emitted, ["Active universe: 'acme' (of 2: default, acme)."]);
 });
 
 test("settings.json.template wires session-universe as a SessionStart hook, AFTER session-self-heal", () => {

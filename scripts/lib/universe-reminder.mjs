@@ -46,17 +46,30 @@ export function pointerHealNotice({ healed, from, active }) {
  * (the only Desktop-visible channel), phrased as a DIRECTIVE the agent relays to
  * the user; `systemMessage` carries the raw fact (dropped on Desktop, shown on CLI).
  */
-export function buildUniverseHookOutput(nudge) {
-  if (!nudge) return null;
-  return {
-    hookSpecificOutput: {
-      hookEventName: "SessionStart",
-      additionalContext:
-        `[universe] ${nudge} Early in your next reply, briefly and in the user's language, ` +
+export function buildUniverseHookOutput({ nudge = null, digest = null } = {}) {
+  if (!nudge && !digest) return null;
+  const parts = [];
+  if (nudge) {
+    parts.push(
+      `[universe] ${nudge} Early in your next reply, briefly and in the user's language, ` +
         `remind the user which universe is active and that searches stay scoped to it plus ` +
         `their cross-cutting (default) notes. They can say "search all universes" to span them, ` +
         `or /switch to change universe. Mention it once, do not nag.`,
-    },
-    systemMessage: nudge,
+    );
+  }
+  if (digest) {
+    // Deliberately says nothing about universes: a single-universe brain can have a
+    // profile (that IS the backfill case), and progressive disclosure means it must
+    // not meet the word before it owns two of them. This block is about THEIR world.
+    parts.push(
+      `[working context]\n${digest}\n` +
+        `That is background on the sphere this owner works in — their role, their people, ` +
+        `the accounts their tools use. USE it silently when it helps (who someone is, which ` +
+        `account to reach for); do not repeat it back to them and do not treat it as a task.`,
+    );
+  }
+  return {
+    hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
+    systemMessage: [nudge, digest].filter(Boolean).join("\n"),
   };
 }

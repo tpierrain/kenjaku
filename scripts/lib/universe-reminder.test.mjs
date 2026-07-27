@@ -28,12 +28,46 @@ test("universeReminder falls back to the default when the active pointer is blan
 });
 
 // ── buildUniverseHookOutput: wrap the nudge for the SessionStart hook ─────────
-test("buildUniverseHookOutput returns null when there is no nudge (gate closed)", () => {
-  assert.equal(buildUniverseHookOutput(null), null);
+test("buildUniverseHookOutput returns null when there is nothing to say at all", () => {
+  // Gate closed AND no profile: the hook must print nothing, not an empty envelope.
+  assert.equal(buildUniverseHookOutput({}), null);
+  assert.equal(buildUniverseHookOutput(), null);
+  assert.equal(buildUniverseHookOutput({ nudge: null, digest: null }), null);
+});
+
+test("buildUniverseHookOutput injects a profile digest as context to USE, not to announce", () => {
+  // The digest is ambient background (who you are here, who your people are). The
+  // agent should ACT on it, never read it back at the owner like a status line.
+  const out = buildUniverseHookOutput({
+    digest: "Acme Corp (employer) — your role: Head of Engineering.\nPeople: Zoe (CTO).",
+  });
+
+  assert.match(out.hookSpecificOutput.additionalContext, /Acme Corp \(employer\)/);
+  assert.match(out.hookSpecificOutput.additionalContext, /People: Zoe \(CTO\)\./);
+  assert.match(out.hookSpecificOutput.additionalContext, /do not (repeat|recite|announce)/i);
+});
+
+test("buildUniverseHookOutput frames a lone digest WITHOUT naming universes", () => {
+  // A single-universe brain can have a profile too (that is the whole backfill
+  // case), and progressive disclosure means it must never meet the word before it
+  // has two of them. The digest is about their world, not about the machinery.
+  const out = buildUniverseHookOutput({ digest: "Acme Corp (employer)." });
+
+  assert.doesNotMatch(out.hookSpecificOutput.additionalContext, /universe/i);
+});
+
+test("buildUniverseHookOutput carries the reminder AND the digest when both apply", () => {
+  const out = buildUniverseHookOutput({
+    nudge: "Active universe: 'acme' (of 2: default, acme).",
+    digest: "Acme Corp (employer).",
+  });
+
+  assert.match(out.hookSpecificOutput.additionalContext, /Active universe: 'acme'/);
+  assert.match(out.hookSpecificOutput.additionalContext, /Acme Corp \(employer\)\./);
 });
 
 test("buildUniverseHookOutput rides additionalContext (chat) and keeps systemMessage (CLI)", () => {
-  const out = buildUniverseHookOutput("Active universe: 'acme' (of 2: default, acme).");
+  const out = buildUniverseHookOutput({ nudge: "Active universe: 'acme' (of 2: default, acme)." });
 
   assert.equal(out.hookSpecificOutput.hookEventName, "SessionStart");
   // The chat channel embeds the fact AND instructs the agent to relay it.
