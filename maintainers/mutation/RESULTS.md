@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %) |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). ⚠️ `update-engine.mjs` **98.49 %**, `engine-source.mjs` **81.40 %**, `reconcile-brain.mjs` **69.14 %** as of [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) — the last two are **not hardened yet** |
 | **local-mirror** | **95.63 %** | 2026-07-16 (post-B4) | [re-audit](#full-local-mirror-re-audit--2026-07-16-post-b4) — the 78.69 % closer below is superseded |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -130,6 +130,49 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## Increment 2.5 (engine skill refresh) — Step 10 — 2026-07-27
+
+The gate before merging `feat/engine-skill-refresh`. Scope = the surface the increment
+touched. Run per the recipe below (disposable worktree + `--inPlace`), one file (or one
+COMMA-SEPARATED `--mutate`, see the gotcha) at a time.
+
+| File | Before | After | Note |
+|---|---|---|---|
+| `scripts/lib/engine-skill-refresh.mjs` | 86.72 % | **100 %** | 119/119, no equivalents _(6d6564b)_ |
+| `scripts/update-engine.mjs` | 51.52 % | **98.49 %** | 196/200, 3 equivalents _(5a04fa4, a54a0b1)_ |
+| `scripts/lib/engine-source.mjs` | — | 81.40 % | 8 survivors — **first measurement, not yet hardened** |
+| `scripts/lib/reconcile-brain.mjs` | — | 69.14 % | 54 survivors — **first measurement, not yet hardened** |
+
+> ⚠️ **The 2026-07-15 line "`scripts/**` is now fully hardened" was never true of these
+> files.** It covered the three enumerated worst files plus `scripts/lib/**` *as measured
+> then*; `update-engine.mjs`, `reconcile-brain.mjs` and `engine-source.mjs` appear nowhere
+> in this document before today. Their low scores are **not** a regression from this branch.
+
+**`update-engine.mjs` — what the 96 survivors actually were.** ~40 clustered in the
+top-level `if (isEntrypoint(…))` block: a composition root with no seam. Extracting
+`countNewCapabilities` / `needsRestart` / `armRestartFlag` / `bareHookName` +
+`runUpdateCli(deps)` + `realUpdateDeps` (the `clear-example-notes` idiom) made them
+reachable. Most of the rest were `formatReport` prose: the tests pinned one line each with
+a regex, leaving every other line free to mutate → replaced by **golden assertions on the
+whole report** (quiet no-op / everything-on / steady state / one-capability singular), each
+list carrying **two** entries so a dropped `, ` separator diverges. Two production honesty
+fixes fell out of it: a manifest with no `engineVersion` reads `rag unknown` (not
+`undefined`), and a rejection with no reason prints `no reason given`. The entry point is
+now **spawned as a process** in a test — bug B2 was exactly a guard that silently never
+fired, and nothing else can catch that.
+
+**The 3 remaining survivors are equivalent**, recorded so nobody re-hunts them: the
+`skillsPreserved = []` default mutated to `["Stryker was here"]` (its only reader
+destructures `{ skill, reason }` and `continue`s on `reason !== "customized"` → identical
+output), and two `readFileSync(…, "utf8") → ""` (Node hands back a **Buffer**; both values
+are only `JSON.parse`d or fed to `createHash().update()` → same bytes, same digest).
+
+**Gotcha (cost a whole run):** multiple `--mutate` flags **do not accumulate** — only the
+last one applies. Use ONE comma-separated value:
+`--mutate "scripts/lib/reconcile-brain.mjs,scripts/lib/engine-source.mjs"`.
 
 ---
 

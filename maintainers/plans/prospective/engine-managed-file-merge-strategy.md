@@ -487,7 +487,8 @@ explicit guard:
           customized` rewrites the `.new` immediately after, so guarding the clear on the verdict
           cannot change a byte. Clearing **unconditionally** says the same in less code and the
           mutants vanish. Only production change of this step; suite green at 790.
-  - [ ] **`scripts/update-engine.mjs` → 51.52 %, 96 survivors** _(measured 2026-07-27)_. **DECISION
+  - [x] **`scripts/update-engine.mjs` → 98.49 %** (196/200, 3 equivalents), from **51.52 % / 96
+        survivors**. _(2026-07-27 · `5a04fa4` seam + goldens, `a54a0b1` the last 20)_ **DECISION
         (Thomas, 2026-07-27): harden it IN THIS BRANCH**, not as a follow-up. The proposal to fix only
         this increment's own lines and defer the rest was **rejected** — do not re-propose it.
     - [x] **Qualified before acting: this is NOT a regression from this branch.** `update-engine.mjs`
@@ -495,29 +496,75 @@ explicit guard:
           hardened" line covered only the three enumerated worst files (`clear-example-notes`,
           `auto-push`, `auto-commit`) plus `scripts/lib/**`. So the baseline assumption written one
           bullet above is **wrong for this file** — corrected here so nobody re-derives it.
-    - [ ] **(a) This increment's own lines.** `L88 if (skillsRefreshed.length > 0)`: the `true` and
+    - [x] **(a) This increment's own lines.** `L88 if (skillsRefreshed.length > 0)`: the `true` and
           `>= 0` mutants live, so nothing asserts that an EMPTY list writes **no** line. `L289`: this
           branch added the `report.skillsRefreshed?.length > 0` term to the restart-flag condition, and
-          it sits inside the untested `if (isEntryPoint)` block.
-    - [ ] **(b) Dead branch, not a missing test.** `L100`'s `newVersionPath ? … : ""` else-branch is
+          it sits inside the untested `if (isEntryPoint)` block. **Both covered by (c)+(d) below** —
+          the empty-list case by the "quiet no-op" golden, `L289` by `needsRestart`'s own tests.
+    - [x] **(b) Dead branch, not a missing test.** `L100`'s `newVersionPath ? … : ""` else-branch is
           **unreachable by construction**: `refreshUntouchedSkills` only ever emits `reason ===
           "customized"` **with** a `newVersionPath`, and `formatReport` `continue`s on every other
           reason. Delete the ternary rather than test-cover a state the producer cannot emit
-          (mutation lesson #6: an unreachable branch is a design defect, not an exemption).
-    - [ ] **(c) The composition root has no seam.** The whole top-level `if (isEntryPoint)` block
+          (mutation lesson #6: an unreachable branch is a design defect, not an exemption). **Deleted.**
+    - [x] **(c) The composition root has no seam.** The whole top-level `if (isEntryPoint)` block
           (`L278-302`: newCaps arithmetic, the restart-flag write, the stdout/stderr paths) is
           **untested**, which is why ~40 of the 96 survivors cluster there. Extract testable seams
           (at least `needsRestart(report)` and the newCaps computation) instead of leaving it inert.
-    - [ ] **(d) The older prose branches** of `formatReport` (`L47-L143`: hook-name stripping regexes,
+          **Done, and further than asked:** `countNewCapabilities`, `needsRestart`, `armRestartFlag`,
+          `bareHookName`, plus `runUpdateCli(deps)` + `realUpdateDeps` (the `clear-example-notes`
+          idiom) — the entry block is now pure wiring, and its guard is the canonical `isEntrypoint`
+          (Windows paths / spaces, bug B2). `realUpdateDeps` gets its own test: a CLI wired to the
+          wrong folder or a swallowing stream would otherwise run flawlessly against nothing. And the
+          entry point is finally **spawned as a process** — safe because the committed manifest pins no
+          `source` (integrity-tested), so it fails before it can fetch or write.
+    - [x] **(d) The older prose branches** of `formatReport` (`L47-L143`: hook-name stripping regexes,
           the singular/plural `capability/capabilities` pair, the restart banner text, the
           "your notes were left untouched" line). Pre-existing, now in scope by the decision above.
-  - [ ] **`reconcile-brain.mjs` + `engine-source.mjs`: NOT MEASURED YET.** A first attempt passed three
-        separate `--mutate` flags: **they do not accumulate, only the last one applies**, so that run
-        silently measured `update-engine.mjs` alone. Use ONE comma-separated value:
-        `--mutate "scripts/lib/reconcile-brain.mjs,scripts/lib/engine-source.mjs"`. The re-run was
-        still in flight when the session was cleared → **re-run it**.
-  - [ ] Record the run in `maintainers/mutation/RESULTS.md` (before/after table, per CONVENTIONS §5bis),
-        including the honest note that `update-engine.mjs` had never been audited before.
+          **Pinned by 4 golden assertions on the WHOLE report** (quiet no-op / everything-on / steady
+          state / one-capability singular) rather than line-by-line regexes, each list carrying **two**
+          entries so a dropped `, ` separator diverges. The anchored hook-name stripping became
+          `bareHookName`, tested with the mid-path and mid-name decoys the anchors exist for.
+    - [x] **Two honesty fixes the mutants surfaced** (not just tests): a target manifest with no
+          `engineVersion` now reads `rag unknown` instead of `rag undefined` — it is printed **after**
+          the update is done and recorded, so crashing or lying there is the worst option — and a
+          rejection with no reason prints `no reason given` instead of leaving a ❌ over an empty line.
+    - [x] **The 3 survivors left are EQUIVALENT, recorded so nobody re-hunts them.** (1) the
+          `skillsPreserved = []` default mutated to `["Stryker was here"]`: its only use destructures
+          `{ skill, reason }` and `continue`s on `reason !== "customized"`, so a string element yields
+          undefined props and the exact same output. (2)+(3) `readFileSync(…, "utf8")` mutated to `""`:
+          Node hands back a **Buffer**, and both values are only ever `JSON.parse`d or fed to
+          `createHash().update()` — same bytes, same digest, no observable difference.
+  - [x] **`reconcile-brain.mjs` + `engine-source.mjs`: MEASURED** _(2026-07-27)_ — `--mutate` flags **do
+        not accumulate, only the last one applies**; ONE comma-separated value is the fix:
+        `--mutate "scripts/lib/reconcile-brain.mjs,scripts/lib/engine-source.mjs"`.
+        **`reconcile-brain.mjs` 69.14 % (54 survivors)** · **`engine-source.mjs` 81.40 % (8)**. Neither
+        was ever audited before (same correction as `update-engine.mjs` above).
+  - [x] Record the run in `maintainers/mutation/RESULTS.md` (before/after table, per CONVENTIONS §5bis),
+        including the honest note that `update-engine.mjs` had never been audited before. _(2026-07-27)_
+  - [ ] **⏭️ THE OPEN QUESTION — how far to harden `reconcile-brain.mjs` (54) + `engine-source.mjs` (8)
+        in THIS branch. ASK THOMAS FIRST, then execute.** This is **not** the deferral he already
+        rejected: that decision named `update-engine.mjs` (now at 98.49 %, done). These are different
+        files, and only a handful of their survivors sit on lines this increment wrote. The survivor
+        map, so nobody re-measures to answer:
+    - [ ] **In scope by the increment's own rationale** — `L98-101` (install-if-absent: the file-copy
+          loop + `installedFileMap`, which feeds the T1 re-seed) and `L131`
+          (`local?.provenance` — the staged/merge base merge).
+    - [ ] **Pre-existing, untouched by this branch** — `L145-199` the MCP + hook reconcile (~13,
+          `L194` alone has 5) · `L220-242` launchers / install / reindex / count (~6) · **`L269-317`
+          the `runReconcileCli` composition root (~22)**, which extracts exactly like
+          `runUpdateCli(deps)` did — the same seam, the same win, ~40 % of the file's survivors.
+    - [ ] **Finding, mid-flight, do NOT re-derive.** Emptying the `L100-101` copy loop leaves the
+          whole suite GREEN, because Step 8.5's F2 gave the refresh pass an `absent-install` verdict
+          that re-delivers the same bytes one block later. The two paths overlap; what still differs
+          is the **headline** (`installedSkills` = a NEW capability, counted for the restart banner,
+          vs `skillsRefreshed` = "brought up to date"). A first assertion on that contract is committed
+          (`reconcile-brain.test.mjs`, test 1) but it **does not kill the mutant yet** — verified by
+          hand: unmutated, 2.bis writes the file first, so the refresh sees it on disk with no base and
+          returns `preserve: no-provenance`, leaving `skillsRefreshed` empty in BOTH worlds. The
+          discriminator has to be something else (the probe used: `/tmp/probe.mjs` pattern — call
+          `reconcileBrain` directly and print `installedSkills` / `skillsRefreshed` / `skillsPreserved`).
+  - [ ] Re-run the two files after hardening and update the RESULTS.md row (it currently says
+        "not yet hardened" — an honest line that must stop being true or stay true on purpose).
 
 ### Side-finding (2026-07-27) — the schema-bump warning was never wired
 

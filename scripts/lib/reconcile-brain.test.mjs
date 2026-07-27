@@ -146,6 +146,11 @@ test("reconcileBrain — copies engine files, installs a missing engine skill, r
   // Missing engine skill installed from the source, and named in the report.
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), skillBody);
   assert.deepEqual(report.installedSkills, ["coach"]);
+  // …and it is reported as INSTALLED, never as "brought up to date". Since Step 8.5's F2
+  // the refresh pass ALSO delivers an absent file (`absent-install`), so a broken
+  // install-if-absent would still put the bytes on disk — under the wrong headline, and
+  // stripped of its new-capability status (no restart counter, no "run once more").
+  assert.deepEqual(report.skillsRefreshed, [], "a skill that was ABSENT is installed, not refreshed");
   // Launchers regenerated once for this platform.
   assert.deepEqual(calls.regenerate, ["posix"]);
   assert.ok(existsSync(join(brainDir, "rag/launch.sh")));
