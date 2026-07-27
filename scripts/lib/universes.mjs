@@ -292,3 +292,31 @@ export function createAndSwitch(io, dir, rawName) {
   writeActiveUniverse(io, dir, name);
   return { ok: true, name, created, openedGate };
 }
+
+/**
+ * Decides what deleting a universe would mean — WITHOUT touching anything. Pure
+ * over the injected fs reads: it validates the slug against the registry and
+ * returns either a refusal or the exact end state (pruned registry, and whether
+ * the active pointer must fall back to the default scope).
+ *
+ * Deletion is the one irreversible universe operation, so every refusal is
+ * decided here rather than in the CLI's prose (ADR 0009): a caller that skips a
+ * check cannot exist if the check is the return value.
+ */
+export function planUniverseDeletion(io, dir, rawName) {
+  const name = normalizeUniverseName(rawName);
+  if (!name) return { ok: false, reason: "empty", name };
+  if (name === DEFAULT_UNIVERSE) return { ok: false, reason: "reserved", name };
+  const registry = readRegistry(io, dir);
+  if (!registry.includes(name)) {
+    return { ok: false, reason: "unknown", name, available: registry };
+  }
+  return {
+    ok: true,
+    name,
+    registry: registry.filter((u) => u !== name),
+    // Through the validated reader, like every other caller: what the owner is
+    // actually standing in, never what the file happens to say.
+    resetPointer: readActiveUniverse(io, dir) === name,
+  };
+}

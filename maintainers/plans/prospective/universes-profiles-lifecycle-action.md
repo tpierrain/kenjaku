@@ -344,8 +344,15 @@ can never write a note; the universes v1 SQLite migration is already handled out
       the heading `.trim()`, the bullet character class, the Topics section, the `if (profile)` guard.
 
 ### Step 4 — Delete a universe (guarded)
-- [ ] Pure core: validate slug is a real created universe (not `default`), compute the pruned
+- [x] Pure core: validate slug is a real created universe (not `default`), compute the pruned
       registry, decide whether the active pointer must fall back to `default`.
+      _(2026-07-27 · this commit)_ → `planUniverseDeletion(io, dir, rawName)` in
+      `scripts/lib/universes.mjs`: **it decides, it never acts**. Three refusals are distinct on
+      purpose (`empty` / `reserved` / `unknown`), because "the default scope does not exist" would be
+      a lie about the one scope that always does. `available` lists only the **deletable** universes
+      (the registry), not `listAllUniverses()`. `resetPointer` reads through the *validated* pointer.
+      Six mutants hand-applied and killed (each guard dropped, the prune inverted, `resetPointer`
+      inverted, `available` leaking the default).
 - [ ] `scripts/delete-universe.mjs <slug>` with an explicit confirmation gate (per D3): print the note
       count first, retype-the-slug confirmation, `rm -rf vault/<slug>/`, prune registry, reset pointer if
       needed, reindex. **Declare it in `engine-manifest.json`** (cf. F2).

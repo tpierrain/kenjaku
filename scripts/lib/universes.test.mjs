@@ -18,6 +18,7 @@ import {
   healActiveUniversePointer,
   readRawActiveUniverse,
   nativeConnectorsReminder,
+  planUniverseDeletion,
   DEFAULT_UNIVERSE,
 } from "./universes.mjs";
 
@@ -461,4 +462,91 @@ test("nativeConnectorsReminder warns when leaving the default scope for a named 
   const msg = nativeConnectorsReminder({ from: DEFAULT_UNIVERSE, to: "acme" });
   assert.match(msg, /single-account/i);
   assert.match(msg, /'acme'/);
+});
+
+// ── planUniverseDeletion: the pure core of `delete-universe.mjs` ──────────────
+// Deletion is the one irreversible universe operation, so EVERY refusal is decided
+// here, in a pure function that the CLI cannot talk out of (ADR 0009). It never
+// touches the fs: it reads the state and returns what the caller must do.
+
+test("planUniverseDeletion refuses a universe that was never created", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+  });
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", "ghost"), {
+    ok: false,
+    reason: "unknown",
+    name: "ghost",
+    available: ["acme"],
+  });
+});
+
+test("planUniverseDeletion accepts a created universe and prunes it from the registry", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+  });
+  // Two entries, deleting the SECOND one: a one-entry registry could not tell
+  // "pruned the named one" from "emptied the registry".
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", "blue"), {
+    ok: true,
+    name: "blue",
+    registry: ["acme"],
+    // Nobody is standing in 'blue' here (no pointer at all) — the twin of the
+    // active-universe case below, so "reset it" cannot pass as a constant.
+    resetPointer: false,
+  });
+});
+
+test("planUniverseDeletion refuses the default scope as RESERVED, not as unknown", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+  });
+  // The default is never IN the registry, so "unknown" would come out on its own —
+  // and would tell the owner their cross-cutting scope does not exist. It is not
+  // missing, it is undeletable: the vault root is where every unscoped note lives.
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", DEFAULT_UNIVERSE), {
+    ok: false,
+    reason: "reserved",
+    name: DEFAULT_UNIVERSE,
+  });
+});
+
+test("planUniverseDeletion refuses an empty slug rather than reporting an unknown ''", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+  });
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", "///"), {
+    ok: false,
+    reason: "empty",
+    name: "",
+  });
+});
+
+test("planUniverseDeletion says the pointer must fall back when the ACTIVE universe goes", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+  writeActiveUniverse(io, DIR, "blue");
+
+  assert.deepEqual(planUniverseDeletion(io, DIR, "blue"), {
+    ok: true,
+    name: "blue",
+    registry: ["acme"],
+    resetPointer: true,
+  });
+});
+
+test("planUniverseDeletion leaves the pointer alone when it stands in ANOTHER universe", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+  writeActiveUniverse(io, DIR, "acme");
+
+  // A pointer that EXISTS and names a live universe: distinct from the
+  // no-pointer-at-all case, and the one that tells "it is the active one" apart
+  // from "it is any named one".
+  assert.deepEqual(planUniverseDeletion(io, DIR, "blue"), {
+    ok: true,
+    name: "blue",
+    registry: ["acme"],
+    resetPointer: false,
+  });
 });
