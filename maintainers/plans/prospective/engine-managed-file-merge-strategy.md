@@ -392,6 +392,16 @@ explicit guard:
         in a fixture test (a hand-rolled sha256 silently disagreed with the manifest's `sha256:` prefix
         and turned every untouched skill into "customized"), and simulate the update path with the same
         helpers it uses, or the QA proves something the product never does.
+- [ ] **Step 8.5 — `/code-review` of the whole increment BEFORE going further** (asked by Thomas,
+      2026-07-27, to run right after his `/clear`). Nothing else moves until its findings are triaged:
+      a review is worth most while the branch is still open and the design fresh, not after Step 10
+      has polished the tests around whatever it would have flagged.
+  - [ ] Scope: the branch diff `feat/engine-skill-refresh` vs `main` — the refresh core, its wiring in
+        the reconciler, both manifest re-seed paths, the postinstall bottle, the report prose, and the
+        release-tag QA suite.
+  - [ ] Triage each finding into: fix now (before Step 9), fold into Step 10's mutation pass, or
+        record as deliberate. **Answer every one of them in this plan** — an unanswered review finding
+        is exactly the kind of thing a `/clear` erases.
 - [ ] **Step 9 — Docs:** SETUP / the `update-engine` skill wording ("your customized skills are never
       overwritten; you are told when a newer version is available"). Includes the stale claim in
       `.claude/skills/update-engine/SKILL.md` §What it touches — "any engine skill you already have" is
