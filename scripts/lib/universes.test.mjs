@@ -108,6 +108,21 @@ test("writeActiveUniverse then readActiveUniverse round-trips (trimmed)", () => 
   assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), "acme");
 });
 
+test("readActiveUniverse survives an fs that returns Buffers (node's raw readFileSync)", () => {
+  // node's readFileSync WITHOUT an encoding returns a Buffer, and callers have
+  // always been free to pass it (file-back-note.mjs does). A Buffer has no
+  // .trim(), so the pointer read used to throw — but only on a brain that HAS a
+  // pointer file, i.e. only once a second universe exists. Never in a test, always
+  // in the field.
+  const io = {
+    existsSync: () => true,
+    readFileSync: (p) =>
+      Buffer.from(p.endsWith("universes.json") ? '{"universes":["acme"]}\n' : "acme\n"),
+  };
+
+  assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), "acme");
+});
+
 test("readActiveUniverse ignores a pointer whose universe is gone from the registry", () => {
   const io = fakeFs();
   writeRegistry(io, "/brain/.vault-rag", ["blue"]);

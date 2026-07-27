@@ -230,7 +230,11 @@ export function readActiveUniverse(io, dir) {
 export function readRawActiveUniverse(io, dir) {
   const path = activeUniversePath(dir);
   if (!io.existsSync(path)) return DEFAULT_UNIVERSE;
-  const raw = io.readFileSync(path).trim();
+  // String() because node's readFileSync WITHOUT an encoding returns a Buffer, and
+  // callers pass it that way (file-back-note.mjs does). A Buffer has no .trim(), so
+  // this used to throw — but only on a brain that HAS a pointer file, which is only
+  // ever true past the second universe. Never in a test, always in the field.
+  const raw = String(io.readFileSync(path)).trim();
   return raw || DEFAULT_UNIVERSE;
 }
 

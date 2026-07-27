@@ -35,7 +35,13 @@ export const realFileBackDeps = {
   // are working in, so it stays on-scope for that universe's retrieval. Read from
   // the brain's .vault-rag pointer, anchored on cwd like the vault write path. A
   // default/single-universe brain reads back "default" → note stays at the root.
-  universe: () => readActiveUniverse({ existsSync, readFileSync }, vaultRagDir(process.cwd())),
+  // readFileSync as TEXT, not the raw Buffer form: the pointer reader trims what it
+  // reads, and a Buffer has no .trim() (it threw on any brain past one universe).
+  universe: () =>
+    readActiveUniverse(
+      { existsSync, readFileSync: (p) => readFileSync(p, "utf-8") },
+      vaultRagDir(process.cwd()),
+    ),
   readInput: () => readFileSync(0, "utf8"),
   exists: (p) => existsSync(p),
   writeFile: (p, content) => {
