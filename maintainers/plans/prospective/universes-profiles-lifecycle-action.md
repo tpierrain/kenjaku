@@ -1,6 +1,6 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
-> **Status:** IN PROGRESS (Release A, Step 0). Branch: `feat/universes-v2-profiles`.
+> **Status:** IN PROGRESS (Release A, Step 2 — Step 0 done). Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -222,13 +222,32 @@ can never write a note; the universes v1 SQLite migration is already handled out
 
 - [x] **Step -1 — Design review + fleet audit** _(2026-07-27 · commit `3de46cb` and earlier)_ →
       §"Design review", §"Fleet constraints", D1 resolved, D4 opened.
-- [ ] **Step 0 — Self-heal the active-universe pointer** (prerequisite of Steps 3 and 4, small, testable).
-      **← RELEASE A, START HERE.**
-  - [ ] Pure core: a pointer naming a universe absent from the registry is invalid → fall back to
-        `default`. TDD, injected fs.
-  - [ ] Surface it through `session-self-heal.mjs` (already a SessionStart hook): repair, **say it in one
-        line**, fail-open, always exit 0. Never silently wrong, never blocking.
-  - [ ] Test the cross-machine scenario from §"Design review" (committed registry vs gitignored pointer).
+- [x] **Step 0 — Self-heal the active-universe pointer** (prerequisite of Steps 3 and 4, small, testable)
+      _(2026-07-27 · commits `0a505c9`, `8d0084d`)_.
+  - [x] Pure core: a pointer naming a universe absent from the registry is invalid → fall back to
+        `default`. TDD, injected fs. → `resolveActiveUniverse()`, and `readActiveUniverse()` now resolves
+        through it, so NO caller (filing a note, `/switch current`, the reminder) can act on a ghost.
+        `readRawActiveUniverse()` keeps the unvalidated read the heal needs to see the orphan.
+  - [x] Surface it: repair, **say it in one line**, fail-open, always exit 0.
+        **Deviation from the drafted wording, deliberate:** it went into `session-universe.mjs`, NOT
+        `session-self-heal.mjs`. That hook's only output channel is hard-wired to the engine-update
+        `RESTART REQUIRED` directive, so routing a pointer repair through it would announce a restart
+        nobody needs and merge two unrelated responsibilities. `session-universe.mjs` is the universes
+        hook, already reads registry + pointer, and is equally a `replace` entry in the manifest (F2
+        checked: no new top-level script, nothing to declare). The notice is **not** gated by progressive
+        disclosure (it can only fire on a brain that had universes; silence there would be the bug).
+  - [x] Test the cross-machine scenario from §"Design review" (committed registry vs gitignored pointer):
+        `universes.test.mjs` → *"cross-machine: a universe renamed elsewhere heals here…"*, including
+        idempotence on the next session.
+  - [x] **Deliberate non-goal, recorded so it is not re-derived:** the engine-side reader
+        (`rag/src/lib/active-universe.ts`) was left unvalidated. It re-reads the file on every search, so
+        once the hook has repaired it the engine is correct. The only residual window is a session that
+        was ALREADY open when the rename was pulled; it closes at the next session start. Validating in TS
+        too would duplicate the rule across two languages for that window alone.
+  - [x] Mutation-checked by hand (not merely reasoned): heal-always-writes, never-report-the-repair,
+        notice-gated-behind-the-reminder and never-heal all die. One surviving mutant
+        (`listAllUniverses(registry).includes` → `registry.includes`) was **equivalent** and answered by
+        simplifying the production code, per the tdd-discipline rule.
 - [x] **Step 1 — Resolve the remaining decisions D2 / D3-confirm / D4 with Thomas** _(2026-07-27 · this
       commit)_. **D2** → first session / on demand, installer untouched. **D3** → confirmed *and
       hardened*: never surfaced, explicit intent only, human types the guard (TTY-only script). **D4** →
