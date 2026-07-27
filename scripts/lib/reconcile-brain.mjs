@@ -135,7 +135,10 @@ export async function reconcileBrain({
     // The two families of base, in one map keyed by the INSTALLED path: the manifest's
     // recorded sha256 for the `merge` skills, the pre-copy staging tree for the staged
     // ones. They can never collide — a staged skill is, by construction, not a merge file.
-    provenance: { ...(local?.provenance ?? {}), ...stagedProvenance },
+    // No `?? {}`: object spread already ignores undefined, so the fallback could not
+    // change a byte (mutation lesson — a guard that cannot matter is noise). The `?.`,
+    // on the other hand, is load-bearing: a caller may legitimately have no `local`.
+    provenance: { ...local?.provenance, ...stagedProvenance },
   });
 
   // 2.ter Reconcile .mcp.json against the engine's MCP servers (ADR 0025): register a

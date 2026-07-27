@@ -1458,6 +1458,54 @@ test("runReconcileCli — a file it delivers under an existing skill stays refre
   assert.equal(persisted.provenance[".claude/skills/coach/references/radical-candor.md"], base(improved));
 });
 
+// Every glob in the real manifest today is `<skill>/**`, so the SINGLE-star shape — a
+// manifest declaring only a skill's top-level files — had never been fed. It must still
+// resolve to the skill's DIRECTORY: get that wrong and install-if-absent tests a path
+// that can never exist, so the skill is re-installed on every single update, and the
+// report names it `*` instead of the skill.
+test("reconcileBrain — a single-star skill glob still resolves to the skill's directory", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", "---\nname: coach\n---\nYour sparring partner.\n");
+  const target = manifest({ extraMerge: [".claude/skills/coach/*"] });
+
+  const first = await reconcile({ brainDir, platform: "posix", sourceDir, target, local: target, ...seams() });
+  const second = await reconcile({ brainDir, platform: "posix", sourceDir, target, local: target, ...seams() });
+
+  assert.deepEqual(first.installedSkills, ["coach"], "reported under the skill's name, not the wildcard");
+  assert.equal(existsSync(join(brainDir, ".claude/skills/coach/SKILL.md")), true);
+  assert.deepEqual(second.installedSkills, [], "the skill dir now exists → never re-installed");
+});
+
+// A caller that knows the TARGET but has no `local` manifest to offer (the shape any
+// converge-only caller has). Provenance must then read as empty rather than crash: a
+// throw here aborts the whole reconcile, and with it the launchers, the install and the
+// reindex — for a brain that was merely missing a baseline.
+test("reconcileBrain — a reconcile with no `local` manifest at all still converges", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const skill = "---\nname: coach\n---\nYour sparring partner.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", skill);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", skill + "Challenge directly.\n");
+  const target = manifest({ extraMerge: [".claude/skills/coach/**"] });
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, ...s });
+
+  assert.deepEqual(report.skillsRefreshed, [], "no base on record → nothing may be overwritten");
+  assert.deepEqual(report.skillsPreserved, [{ skill: "coach", reason: "no-provenance" }]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), skill, "the brain's copy is left alone");
+  assert.deepEqual(calls.install, [join(brainDir, "rag")], "the rest of the converge still runs");
+});
+
 // ── The {{PROJECT_ROOT}} normalisation, made verifiable OFF Windows ──────────
 // On a POSIX CI the transform is a no-op on every real path, so a regression in it
 // would be invisible there and would only surface on the deployed Windows fleet — as
