@@ -13,10 +13,11 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // past the progressive-disclosure gate (>= 2 universes). Fail-open: never throws.
 
 function seams(overrides = {}) {
-  const calls = { emitted: [] };
+  const calls = { emitted: [], healed: [] };
   const base = {
     dir: "/brain/.vault-rag",
     readState: () => ({ registry: ["acme"], active: "acme" }),
+    healPointer: (dir) => (calls.healed.push(dir), { healed: false, from: "acme", active: "acme" }),
     emit: (msg) => calls.emitted.push(msg),
   };
   return { args: { ...base, ...overrides }, calls };
@@ -50,6 +51,50 @@ test("sessionUniverseReminder — fail-open: a throwing readState never propagat
   });
   sessionUniverseReminder(args); // must NOT throw
   assert.deepEqual(calls.emitted, []);
+});
+
+// --- self-heal of an orphan pointer (universes v2, Step 0) -------------------
+// The pointer is per-machine and gitignored, the registry is committed: pulling a
+// rename/delete made elsewhere leaves this machine aimed at a universe that is
+// gone. The session repairs it and SAYS SO — a scope that silently changed under
+// the owner is worse than the orphan it replaces.
+
+test("sessionUniverseReminder — a repaired orphan pointer is announced, naming the universe that vanished", () => {
+  const { args, calls } = seams({
+    healPointer: () => ({ healed: true, from: "acme", active: "default" }),
+    readState: () => ({ registry: ["blue"], active: "default" }),
+  });
+
+  sessionUniverseReminder(args);
+
+  const notice = calls.emitted.find((m) => /acme/.test(m));
+  assert.ok(notice, `expected a notice naming the vanished universe, got ${JSON.stringify(calls.emitted)}`);
+  assert.match(notice, /no longer exists/i);
+  assert.match(notice, /default/);
+});
+
+test("sessionUniverseReminder — the repair is announced even below the progressive-disclosure gate", () => {
+  // The last universe was deleted: the registry is empty, so the routine reminder
+  // stays silent (single-universe brain). The repair must NOT inherit that silence
+  // — this owner was searching 'acme' a moment ago.
+  const { args, calls } = seams({
+    healPointer: () => ({ healed: true, from: "acme", active: "default" }),
+    readState: () => ({ registry: [], active: "default" }),
+  });
+
+  sessionUniverseReminder(args);
+
+  assert.equal(calls.emitted.length, 1);
+  assert.match(calls.emitted[0], /'acme'.*no longer exists/i);
+});
+
+test("sessionUniverseReminder — a healthy pointer adds no repair line (only the routine reminder)", () => {
+  const { args, calls } = seams();
+
+  sessionUniverseReminder(args);
+
+  assert.deepEqual(calls.emitted, ["Active universe: 'acme' (of 2: default, acme)."]);
+  assert.deepEqual(calls.healed, ["/brain/.vault-rag"]); // healed against the state dir it was given
 });
 
 test("settings.json.template wires session-universe as a SessionStart hook, AFTER session-self-heal", () => {

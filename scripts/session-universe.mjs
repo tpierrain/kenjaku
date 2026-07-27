@@ -7,23 +7,39 @@
 //
 // Below the gate it says nothing at all: a single-universe brain behaves exactly
 // as today (progressive disclosure). The SURFACE is an additionalContext directive
-// the agent relays in the chat (the only Desktop-visible channel); no writes here.
+// the agent relays in the chat (the only Desktop-visible channel).
+//
+// It also SELF-HEALS the pointer (universes v2, Step 0): the pointer is per-machine
+// and gitignored while the registry is committed, so pulling a rename/delete made on
+// another machine leaves this one aimed at a universe that no longer exists — which
+// the engine would silently turn into "zero hits". The single write this hook can
+// ever do is that repair, and it is always announced.
 //
 // Contract: quiet below the gate, fail-open (never throws, ALWAYS exits 0).
 // Wired as a SessionStart hook AFTER session-self-heal.mjs (cf. .claude/settings.json).
 // Cross-OS: pure Node.
 // ─────────────────────────────────────────────────────────────────────────────
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { readRegistry, readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
-import { universeReminder, buildUniverseHookOutput } from "./lib/universe-reminder.mjs";
+import {
+  readRegistry,
+  readActiveUniverse,
+  healActiveUniversePointer,
+  vaultRagDir,
+} from "./lib/universes.mjs";
+import { universeReminder, buildUniverseHookOutput, pointerHealNotice } from "./lib/universe-reminder.mjs";
 
 // Testable core: read the universe state (injected), build the reminder, emit it
 // only past the gate. Fail-open — odd/missing state must never disturb session start.
-export function sessionUniverseReminder({ readState, dir, emit }) {
+export function sessionUniverseReminder({ readState, dir, emit, healPointer = () => ({ healed: false }) }) {
   try {
+    // Self-heal FIRST, so the reminder below describes the repaired state and not
+    // the ghost scope this machine woke up in.
+    const heal = pointerHealNotice(healPointer(dir));
+    if (heal) emit(heal);
+
     const { registry, active } = readState(dir);
     const nudge = universeReminder({ registry, active });
     if (nudge) {
@@ -36,25 +52,30 @@ export function sessionUniverseReminder({ readState, dir, emit }) {
   return { reported: false };
 }
 
-// ── main: wire the real read-only seams (deterministic glue, not unit-tested) ──
+// ── main: wire the real I/O seams (deterministic glue, not unit-tested) ───────
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const io = {
     existsSync,
     readFileSync: (p) => readFileSync(p, "utf-8"),
+    writeFileSync,
+    mkdirSync,
   };
   const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  let nudge = null;
+  const lines = [];
 
   sessionUniverseReminder({
     dir: vaultRagDir(brainDir),
+    // The only write this hook performs: repairing a pointer left aimed at a
+    // universe that is gone. A healthy pointer is never rewritten.
+    healPointer: (dir) => healActiveUniversePointer(io, dir),
     readState: (dir) => ({
       registry: readRegistry(io, dir),
       active: readActiveUniverse(io, dir),
     }),
-    emit: (msg) => (nudge = msg),
+    emit: (msg) => lines.push(msg),
   });
 
-  const output = buildUniverseHookOutput(nudge);
+  const output = buildUniverseHookOutput(lines.join(" "));
   if (output) {
     // additionalContext is the ONLY Desktop-visible channel (chat) — see buildUniverseHookOutput.
     process.stdout.write(JSON.stringify(output) + "\n");

@@ -234,6 +234,20 @@ export function readRawActiveUniverse(io, dir) {
   return raw || DEFAULT_UNIVERSE;
 }
 
+/**
+ * Repairs an orphan pointer ON DISK: when the pointer names a universe that is no
+ * longer in the registry, it is rewritten to the default scope and the repair is
+ * reported so the session can say it in one line (never silently wrong). A healthy
+ * pointer is left completely untouched — no write, nothing to report.
+ */
+export function healActiveUniversePointer(io, dir) {
+  const from = readRawActiveUniverse(io, dir);
+  const active = resolveActiveUniverse(from, readRegistry(io, dir));
+  if (active === from) return { healed: false, from, active };
+  writeActiveUniverse(io, dir, active);
+  return { healed: true, from, active };
+}
+
 /** Persists the active-universe pointer (per-machine), creating the dir. */
 export function writeActiveUniverse(io, dir, name) {
   io.mkdirSync(dir, { recursive: true });

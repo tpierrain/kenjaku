@@ -15,21 +15,30 @@ import {
   runSwitchCli,
   isMultiverse,
   resolveActiveUniverse,
+  healActiveUniversePointer,
+  readRawActiveUniverse,
   nativeConnectorsReminder,
   DEFAULT_UNIVERSE,
 } from "./universes.mjs";
 
 // In-memory fs fake: a Map<path, contents> behind the fs surface the module uses.
+// `writes` records every write (path + data) so a test can claim "this touched
+// NOTHING" — content equality alone cannot tell a no-op from a rewrite.
 function fakeFs(initial = {}) {
   const files = new Map(Object.entries(initial));
+  const writes = [];
   return {
     files,
+    writes,
     existsSync: (p) => files.has(p),
     readFileSync: (p) => {
       if (!files.has(p)) throw new Error(`ENOENT: ${p}`);
       return files.get(p);
     },
-    writeFileSync: (p, data) => files.set(p, data),
+    writeFileSync: (p, data) => {
+      writes.push({ path: p, data });
+      files.set(p, data);
+    },
     mkdirSync: () => {},
   };
 }
@@ -99,14 +108,80 @@ test("writeActiveUniverse then readActiveUniverse round-trips (trimmed)", () => 
   assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), "acme");
 });
 
-// --- switch (guarded) --------------------------------------------------------
-
 test("readActiveUniverse ignores a pointer whose universe is gone from the registry", () => {
   const io = fakeFs();
   writeRegistry(io, "/brain/.vault-rag", ["blue"]);
   writeActiveUniverse(io, "/brain/.vault-rag", "acme"); // deleted/renamed elsewhere
 
   assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), DEFAULT_UNIVERSE);
+});
+
+// --- self-heal of an orphan pointer ------------------------------------------
+
+test("healActiveUniversePointer repairs an orphan pointer on disk and reports what it healed", () => {
+  const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["blue"]);
+  writeActiveUniverse(io, "/brain/.vault-rag", "acme"); // deleted/renamed on another machine
+
+  const res = healActiveUniversePointer(io, "/brain/.vault-rag");
+
+  assert.deepEqual(res, { healed: true, from: "acme", active: DEFAULT_UNIVERSE });
+  assert.equal(readRawActiveUniverse(io, "/brain/.vault-rag"), DEFAULT_UNIVERSE);
+});
+
+test("healActiveUniversePointer leaves a healthy pointer alone and writes NOTHING", () => {
+  const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["acme"]);
+  writeActiveUniverse(io, "/brain/.vault-rag", "acme");
+  io.writes.length = 0; // ignore the fixture's own writes
+
+  const res = healActiveUniversePointer(io, "/brain/.vault-rag");
+
+  assert.deepEqual(res, { healed: false, from: "acme", active: "acme" });
+  // Every session start runs this: a healthy brain must not rewrite state on disk.
+  assert.deepEqual(io.writes, []);
+});
+
+test("healActiveUniversePointer creates no pointer file on a brain that never had one", () => {
+  const io = fakeFs();
+
+  const res = healActiveUniversePointer(io, "/brain/.vault-rag");
+
+  assert.deepEqual(res, { healed: false, from: DEFAULT_UNIVERSE, active: DEFAULT_UNIVERSE });
+  assert.deepEqual(io.writes, []);
+});
+
+test("cross-machine: a universe renamed elsewhere heals here instead of searching a ghost", () => {
+  // Machine B, working in 'acme'. The registry is COMMITTED, the pointer is
+  // per-machine and GITIGNORED — that asymmetry is the whole bug.
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+  writeActiveUniverse(io, DIR, "acme");
+
+  // git pull: the rename made on machine A lands in the registry alone.
+  writeRegistry(io, DIR, ["acme-corp"]);
+
+  // The read side already refuses to hand the ghost to anyone (filing a note,
+  // scoping a search), before any repair happens.
+  assert.equal(readActiveUniverse(io, DIR), DEFAULT_UNIVERSE);
+
+  // Session start makes the disk agree, exactly once, and reports it.
+  assert.deepEqual(healActiveUniversePointer(io, DIR), {
+    healed: true,
+    from: "acme",
+    active: DEFAULT_UNIVERSE,
+  });
+  assert.deepEqual(runSwitchCli(io, DIR, ["list"]), {
+    code: 0,
+    message: "* default\n  acme-corp",
+  });
+
+  // The NEXT session finds nothing to heal (and says nothing).
+  assert.deepEqual(healActiveUniversePointer(io, DIR), {
+    healed: false,
+    from: DEFAULT_UNIVERSE,
+    active: DEFAULT_UNIVERSE,
+  });
 });
 
 // --- switch (guarded) --------------------------------------------------------

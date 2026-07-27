@@ -24,6 +24,23 @@ export function universeReminder({ registry, active }) {
 }
 
 /**
+ * The one-line notice for a pointer this session just repaired: the universe it
+ * named is gone (deleted or renamed on another machine, pulled in since), so the
+ * scope fell back to the default. Pure; null when nothing was healed.
+ *
+ * Deliberately NOT behind the progressive-disclosure gate: a heal can only happen
+ * on a brain that had a universe, so the word is not new to this owner, and a
+ * search scope that changed under their feet must never pass in silence.
+ */
+export function pointerHealNotice({ healed, from, active }) {
+  if (!healed) return null;
+  return (
+    `The universe '${from}' this machine was working in no longer exists ` +
+    `(deleted or renamed elsewhere), so the scope is back to '${active}'.`
+  );
+}
+
+/**
  * Wraps the nudge into the SessionStart hook output, or null when there is nothing
  * to emit. Mirrors buildWikiHealthHookOutput: the nudge rides `additionalContext`
  * (the only Desktop-visible channel), phrased as a DIRECTIVE the agent relays to
