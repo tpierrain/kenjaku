@@ -44,6 +44,13 @@ import {
 // SKIPPED a self-copy: in SessionStart self-heal mode srcDir === brainDir, so a file
 // would be copied onto itself — on Linux `copyFileSync(f, f)` truncates the dest before
 // copying (it would zero the engine file; ADR 0015 cross-platform safety). Skip it.
+// `{{PROJECT_ROOT}}` is substituted POSIX-normalised (cf. installer toPosix): the brain
+// dir reaches templates as `C:/Users/...`, never `C:\Users\...`, because the values land
+// in hook commands Git Bash also has to run — a backslash there is eaten (issue #31).
+// Exported so the win32 contract is verifiable on a POSIX CI, where the transform is
+// otherwise a no-op and any regression in it would be invisible.
+export const toPosix = (p) => p.split("\\").join("/");
+
 function copyInto(srcDir, destDir, rel) {
   const src = join(srcDir, rel);
   const dest = join(destDir, rel);
@@ -142,7 +149,7 @@ export async function reconcileBrain({
   const brainMcpPath = join(brainDir, ".mcp.json");
   const mcpServersAdded = [];
   if (existsSync(templatePath) && existsSync(brainMcpPath)) {
-    const projectRoot = brainDir.split("\\").join("/"); // {{PROJECT_ROOT}} is posix (cf. installer toPosix)
+    const projectRoot = toPosix(brainDir);
     const templateMcp = JSON.parse(readFileSync(templatePath, "utf8").split("{{PROJECT_ROOT}}").join(projectRoot));
     const engineServerIds = Object.keys(templateMcp.mcpServers ?? {}); // desired-state = delivered template keys
     const brainMcp = JSON.parse(readFileSync(brainMcpPath, "utf8"));
@@ -173,7 +180,7 @@ export async function reconcileBrain({
   const settingsTemplatePath = join(sourceDir, ".claude", "settings.json.template");
   const brainSettingsPath = join(brainDir, ".claude", "settings.json");
   if (existsSync(settingsTemplatePath) && existsSync(brainSettingsPath)) {
-    const projectRoot = brainDir.split("\\").join("/"); // {{PROJECT_ROOT}} is posix (cf. step 2.ter)
+    const projectRoot = toPosix(brainDir); // same normalisation as step 2.ter
     const brainSettings = JSON.parse(readFileSync(brainSettingsPath, "utf8"));
     const templateSettings = JSON.parse(readFileSync(settingsTemplatePath, "utf8"));
     const { hooks: addedHooks, hooksAdded: added } = reconcileHooks({

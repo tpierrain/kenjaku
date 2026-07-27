@@ -47,6 +47,10 @@ function writeFile(root, rel, content) {
   writeFileSync(abs, content);
 }
 
+// The expectation side of the {{PROJECT_ROOT}} normalisation: a no-op on POSIX, the real
+// contract on win32 (where the temp brain dir carries backslashes).
+const toPosixPath = (p) => p.split("\\").join("/");
+
 // The sacred files the reconciler must never touch (write-allowlist safety core).
 const SACRED = {
   "CLAUDE.md": "# My personalized constitution\nI tailored this. Do not touch.\n",
@@ -616,6 +620,11 @@ test("reconcileBrain — wires the missing engine SessionStart hooks into settin
   assert.ok(cmds.includes(`/usr/local/bin/node "${root}/scripts/session-obsidian-hint.mjs"`), "session-obsidian-hint wired");
   assert.equal(settings.mine, true, "a user-owned settings key must be preserved");
   assert.equal(settings.hooks.SessionStart[0].hooks[0].command, `/usr/local/bin/node "${brainDir}/scripts/session-status.mjs"`, "the existing session-status entry stays first, untouched");
+  // settings.json is SACRED and git-committed: when the reconciler does write it, it
+  // writes a well-formed text file (final newline included), not a stripped blob.
+  const rawSettings = readFileSync(join(brainDir, ".claude/settings.json"), "utf8");
+  assert.equal(rawSettings, JSON.stringify(settings, null, 2) + "\n");
+  assert.equal("statusLine" in settings, false, "a brain with no statusLine must not acquire an empty one");
 });
 
 // ── Test 13: idempotence + A2 invariant — a SECOND reconcile over a converged brain wires
@@ -642,6 +651,100 @@ test("reconcileBrain — a converged brain's settings.json is left byte-identica
   const second = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s2 });
   assert.deepEqual(second.hooksAdded, [], "a converged brain wires nothing");
   assert.equal(sha256(join(brainDir, ".claude/settings.json")), settingsHash, "settings.json must be byte-identical on the 2nd run (no churn)");
+});
+
+// Test 13's fixture is written EXACTLY as the reconciler would serialise it, so a
+// reconciler that rewrote settings.json unconditionally would still leave it
+// byte-identical — the no-churn guard was self-confirming. Here the very same converged
+// brain stores its settings NON-canonically (the shape a human editor leaves: 4-space
+// indent, no final newline). Now "written only when something is actually added" is a
+// claim the bytes can refute. This matters: settings.json is SACRED, and a silent
+// reformat of the user's own file at every session start is exactly the churn ADR 0026
+// forbids.
+test("reconcileBrain — a converged brain's HAND-FORMATTED settings.json is not even reformatted", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  const target = manifest();
+  const local = manifest({ ragVersion: "1.0.0" });
+
+  // First converge normally, then re-store the SAME settings hand-formatted.
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(v310Settings(brainDir), null, 2) + "\n");
+  await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+  const settingsPath = join(brainDir, ".claude/settings.json");
+  const handFormatted = JSON.stringify(JSON.parse(readFileSync(settingsPath, "utf8")), null, 4); // 4 spaces, no final newline
+  writeFileSync(settingsPath, handFormatted);
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.deepEqual(report.hooksAdded, []);
+  assert.deepEqual(report.hooksRepaired, []);
+  assert.equal(readFileSync(settingsPath, "utf8"), handFormatted, "nothing to add → settings.json must not be touched AT ALL");
+});
+
+// A deployed win32 brain whose hook commands are broken but which has NO statusLine and
+// is missing no hook: the ONLY reason to write is the repair itself. Nothing else covered
+// that term of the write guard in isolation — every other repair fixture also had a
+// statusLine to heal, so a reconciler that ignored repairs alone would have stayed green
+// and left the whole Windows fleet broken forever (the additive merge never rewrites an
+// existing command, so the repair is these brains' only route back).
+test("reconcileBrain (win32) — a repair with nothing added and no statusLine still writes", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const rootPosix = toPosixPath(brainDir);
+  const { statusLine, ...noStatusLine } = brokenWin32Settings(rootPosix);
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(noStatusLine, null, 2) + "\n");
+  writeFile(brainDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  const target = manifest();
+
+  const report = await reconcile({
+    brainDir, platform: "win32", sourceDir: brainDir, target, local: target, ...seams(),
+  });
+
+  assert.deepEqual(report.hooksAdded, [], "the broken brain already wires every engine hook");
+  assert.ok(report.hooksRepaired.includes("scripts/session-self-heal.mjs"), "the repair itself is the only reason to write");
+  const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
+  const cmds = Object.values(settings.hooks).flatMap((groups) => groups.flatMap((g) => g.hooks.map((h) => h.command)));
+  for (const cmd of cmds) assert.doesNotMatch(cmd, /cmd \/c/i, "the healed commands must actually be on disk");
+  assert.equal("statusLine" in settings, false, "a brain with no statusLine must not acquire an empty one");
+});
+
+// The mirror: ONLY the statusLine is broken. It is not a hook, it lives at the top level
+// of settings.json, and it is repaired through its own separate path — so it needs its own
+// reason-to-write and its own line in the report, named exactly.
+test("reconcileBrain (win32) — a broken statusLine alone is reason enough to write, and is named as such", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const rootPosix = toPosixPath(brainDir);
+  const healed = (script) => `${rootPosix}/scripts/run-node.cmd "${rootPosix}/scripts/${script}"`;
+  const settingsIn = {
+    mine: true,
+    statusLine: { type: "command", command: brokenWin32Settings(rootPosix).statusLine.command }, // the ONLY broken thing
+    hooks: {
+      PostToolUse: [{ matcher: "Write|Edit", hooks: [{ type: "command", command: healed("auto-commit.mjs"), timeout: 30000 }] }],
+      SessionStart: ["session-self-heal", "session-health", "session-obsidian-hint", "session-status"].map((s) => ({
+        matcher: "", hooks: [{ type: "command", command: healed(`${s}.mjs`), timeout: 20000 }],
+      })),
+      Stop: [{ matcher: "", hooks: [{ type: "command", command: healed("auto-push.mjs"), timeout: 20000 }] }],
+    },
+  };
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(settingsIn, null, 2) + "\n");
+  writeFile(brainDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  const target = manifest();
+
+  const report = await reconcile({
+    brainDir, platform: "win32", sourceDir: brainDir, target, local: target, ...seams(),
+  });
+
+  assert.deepEqual(report.hooksAdded, []);
+  assert.deepEqual(report.hooksRepaired, ["statusLine"], "the statusLine is the sole repair, and is reported under that exact name");
+  const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
+  assert.doesNotMatch(settings.statusLine.command, /cmd \/c/i);
+  assert.equal(settings.statusLine.type, "command", "the rest of the statusLine entry survives the repair");
 });
 
 // A DEPLOYED Windows brain generated before the issue-#31 fix: every engine hook
@@ -756,9 +859,16 @@ test("reconcileBrain — registers MCP servers from the DELIVERED template keys,
   const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
 
   assert.deepEqual(report.mcpServersAdded, ["local-mirror"], "the template's local-mirror server registers even though the manifest is stale");
-  const mcp = JSON.parse(readFileSync(join(brainDir, ".mcp.json"), "utf8"));
+  const raw = readFileSync(join(brainDir, ".mcp.json"), "utf8");
+  const mcp = JSON.parse(raw);
   assert.ok(mcp.mcpServers["local-mirror"], "local-mirror is now in .mcp.json");
   assert.ok(mcp.mcpServers["vault-rag"], "vault-rag is preserved");
+  // {{PROJECT_ROOT}} must arrive SUBSTITUTED (and POSIX-normalised): an unsubstituted
+  // placeholder means an MCP server that cannot start, and the brain loses its RAG.
+  assert.equal(mcp.mcpServers["local-mirror"].cwd, toPosixPath(brainDir));
+  // …and the file stays a well-formed text file: it is git-committed, and a missing
+  // final newline puts a "\ No newline at end of file" in every diff that touches it.
+  assert.equal(raw, JSON.stringify(mcp, null, 2) + "\n");
 });
 
 // Tiny indirection so the helpers above read cleanly; resolves the lazily-loaded export.
@@ -1346,6 +1456,17 @@ test("runReconcileCli — a file it delivers under an existing skill stays refre
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md"), "utf8"), improved);
   const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
   assert.equal(persisted.provenance[".claude/skills/coach/references/radical-candor.md"], base(improved));
+});
+
+// ── The {{PROJECT_ROOT}} normalisation, made verifiable OFF Windows ──────────
+// On a POSIX CI the transform is a no-op on every real path, so a regression in it
+// would be invisible there and would only surface on the deployed Windows fleet — as
+// a hook command Git Bash silently eats (issue #31). Fed a win32-shaped path instead.
+test("toPosix — a Windows brain dir reaches the templates with forward slashes only", async () => {
+  const { toPosix } = await import("./reconcile-brain.mjs");
+
+  assert.equal(toPosix("C:\\Users\\me\\my-brain"), "C:/Users/me/my-brain");
+  assert.equal(toPosix("/Users/me/my-brain"), "/Users/me/my-brain", "a POSIX path passes through untouched");
 });
 
 // The absent case for the launchers, never fed until now: a manifest that declares NO
