@@ -96,8 +96,12 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         `feat/universes-v2-profiles`)_. Plan Steps 0, 2, 3, 6, 7 ticked; F1-F4 re-checked with evidence.
         The eventual tag also carries the backlog already merged past v4.1.0 (the re-synced
         `tdd-discipline` skill, the marketing corrections), which reaches nobody until it exists.
-  - [ ] **Half B — guarded delete + full rename** (plan Steps 4-5): the riskiest surface, kept last on
-        purpose, and dependent on Half A's self-healing pointer.
+  - [x] **Half B — guarded delete + full rename** (plan Steps 4-5) _(2026-07-27, same branch)_: the
+        riskiest surface, kept last on purpose. Delete refuses any non-TTY caller (no `--yes`, no
+        piped stdin, no assistant answering its own prompt); rename is full and reversible, so it
+        carries no such gate.
+  - [ ] **All that remains before the tag:** extend Step 7's fleet re-check to the two new scripts,
+        then cut the release (marketing-surface re-read per CONVENTIONS §10).
   - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
 - [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no

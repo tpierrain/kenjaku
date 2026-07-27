@@ -429,6 +429,13 @@ can never write a note; the universes v1 SQLite migration is already handled out
       NOT do" bullet is now about **merging**, which really is refused.
 
 ### Step 7 — Fleet / migration
+- [ ] **F1-F4 re-check EXTENDED to delete + rename, before the tag.** Partly evidenced already
+      (both scripts are `replace` entries in the manifest, git-tracked, and `git diff main -- rag/`
+      must still be empty → no schema bump, F4). What is NOT yet re-checked: F3 for the two new
+      surfaces (an older `/switch` on the fleet must not be able to relay deletion copy — the core
+      still emits none, confirm it), and whether either script needs a permissions entry (both are
+      confirmed on first run, like `set-active-universe.mjs` — a write that asks is the behaviour we
+      want, so the expected answer is "no entry").
 - [x] **F1-F4 re-checked for Release A, with evidence, 2026-07-27:**
   - [x] **F1** (skills reach the fleet) — `.claude/skills/switch/**` is a `replace` entry, so an
         *untouched* `/switch` is refreshed; a tailored one keeps its version and gets a `.new` sidecar.
