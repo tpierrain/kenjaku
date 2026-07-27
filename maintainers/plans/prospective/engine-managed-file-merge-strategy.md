@@ -325,6 +325,32 @@ explicit guard:
   - [ ] Fail-soft is not optional here: the bottle runs inside `npm install`: a throw would abort the
         install and break the update. Same discipline as the existing restart notice (never throws,
         swallowed by the CLI wrapper).
+  - [ ] **Design settled BEFORE coding (2026-07-27) — the bottle PRINTS a directive, it does not
+        refresh.** Making the postinstall run the refresh itself looks obvious and does not survive
+        contact with the facts:
+    - [ ] **It has no source to refresh FROM.** The merge skills' new content exists only in the
+          orchestrator's temp clone, whose path the postinstall never learns; and the manifest still
+          records the OLD `source.ref` at that moment (step 7 writes it AFTER `npm install`), so
+          re-fetching from it would pull the version being replaced.
+    - [ ] **The staged base is already gone.** `engine-skills/**` is a `replace` glob copied BEFORE
+          `npm install`, so by postinstall time the staging tree holds the NEW content. Comparing
+          against it would call every outdated-but-untouched skill "customized" and litter the brain
+          with `.new` files: the exact opposite of the promise.
+    - [ ] **A reconcile inside `npm install` recurses.** `reconcileBrain` runs `npm install` itself →
+          postinstall → reconcile → … Any refresh-from-the-bottle needs a re-entrancy guard that the
+          print-only vector does not.
+    - [ ] **Therefore:** the bottle prints a directive addressed to the AGENT ("this brain ran a
+          pre-auto-finalize orchestrator — run `node scripts/update-engine.mjs` once more, now"),
+          exactly like `restartNoticeBanner()` does today, and the `update-engine` skill carries the
+          matching rule. The user still asks ONCE and ends up converged in the same interaction (the
+          option-A experience Thomas asked for), with zero new execution path inside npm.
+    - [ ] **Cohort signal (deterministic, no guessing):** auto-finalize shipped in **v3.3.0**, whose
+          manifest records `engineVersion.scripts: "1.1.0"` (`7105a7a`, released by `423d7e4`). At
+          postinstall time the manifest still holds the brain's OLD versions, so
+          `recorded scripts < 1.1.0` ⇒ the orchestrator that is running has no auto-finalize. Same
+          read-the-stale-manifest trick the restart notice already relies on.
+    - [ ] Testable halves, as for the restart notice: a pure `shouldFinishRefresh({...})` predicate +
+          a pure banner; the I/O `main()` stays thin glue.
 - [ ] **Step 7 — ADR:** amend **0026** (the reconciler gains a conditional, provenance-gated overwrite,
       scoped to explicit updates) and cross-note **0025** (its "out of scope, belongs to a future 3-way
       merge" consequence is now partially closed). Keep the `Scope:` field per `CONVENTIONS.md`.
