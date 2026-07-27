@@ -460,6 +460,37 @@ explicit guard:
   - [ ] Kill every surviving mutant with a test (or record why it is equivalent). Watch specifically:
         the `reason` discrimination (`customized` vs `no-provenance`), the EOL normalization, the
         `.new` write/clear conditions, and the guard's equality.
+  - [x] **HOW TO RUN IT (re-derived the hard way 2026-07-27, do not lose this).** `mutate:changed`
+        covers **only** `rag/` + `local-mirror` TS: our surface is `scripts/**`, which it deliberately
+        skips. And the `stryker.scripts.config.mjs` default (`inPlace: false`, sandbox) **cannot work
+        here**: the sandbox copy has no `.git`, so `engine-manifest-integrity` fails the DRY RUN and
+        Stryker aborts before mutating anything. The working recipe is the one in `RESULTS.md`: a
+        **disposable git worktree** + `--inPlace` (git present, deletions confined). Also: the HTML
+        report's embedded literal is **JS, not JSON** (it splits `</script>` into `"<"+"script>"`),
+        so parse it with `new Function`, never `JSON.parse`. First run: `npm install` in
+        `maintainers/mutation/` (node_modules is not committed).
+  - [x] **`scripts/lib/engine-skill-refresh.mjs` → 100 %** (119/119, no equivalent left to excuse),
+        from **86.72 % / 17 survivors**. _(2026-07-27 · `6d6564b`)_ What the survivors actually were:
+    - [x] **`preserve: no-provenance` had no I/O-level test at all** (only the pure verdict), so its
+          report shape, its "writes no `.new`" rule and its stale-sidecar clearing were all unpinned —
+          the last one being a claim ADR 0026 §8 explicitly makes. One test, three mutants.
+    - [x] **Report speaks in SKILLS, refresh works in FILES.** No test had two files in one skill, so
+          the per-skill dedup was invisible on both lists. Now covered both ways, asserting that
+          reporting once still drops a `.new` **per file**. (Reachable only thanks to Step 8.5's F2.)
+    - [x] **The staged-prefix guard was inert before this branch** (a loose file directly under
+          `engine-skills/` is not a skill): with the verdict dropped it changed nothing. Now that an
+          absent file is delivered, an unguarded prefix would write into the owner's skills root.
+    - [x] **A base recorded on CRLF bytes** (Windows clone with autocrlf) matches only the RAW
+          comparison. The drift case was covered; its mirror image was not.
+    - [x] **The 5 sidecar-guard survivors were redundancy, NOT a test gap** — and are recorded here
+          because the temptation to write them off as "equivalent" was the wrong call. `preserve:
+          customized` rewrites the `.new` immediately after, so guarding the clear on the verdict
+          cannot change a byte. Clearing **unconditionally** says the same in less code and the
+          mutants vanish. Only production change of this step; suite green at 790.
+  - [ ] `reconcile-brain.mjs` + `engine-source.mjs` + `update-engine.mjs`: pass running. Baseline to
+        compare against: `RESULTS.md` records `scripts/**` as **already fully hardened**, so any
+        survivor there is a regression introduced by THIS branch, not pre-existing debt.
+  - [ ] Record the run in `maintainers/mutation/RESULTS.md` (before/after table, per CONVENTIONS §5bis).
 
 ### Side-finding (2026-07-27) — the schema-bump warning was never wired
 
