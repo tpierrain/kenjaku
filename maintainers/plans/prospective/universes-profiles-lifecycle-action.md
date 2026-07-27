@@ -8,11 +8,18 @@
 > **Handoff note (why this file exists):** written by Opus 4.8 at the end of an exploration session to
 > carry context forward across a model switch (pointers, not copies).
 >
-> ⛔ **BLOCKED — do NOT start coding this plan yet (decided 2026-07-27).** It is **ROADMAP Gate 2.6**,
-> and it **depends on Gate 2.5** (`engine-managed-file-merge-strategy.md` → §"Increment 2.5"). Reason
-> below in §"Fleet constraints" (F1): this plan's user-facing surface is the `/switch` skill, and an
-> already-installed skill is **never** updated today, so shipping it first would deliver the feature to
-> nobody but fresh installs. Go work Gate 2.5 first; come back here when it is green.
+> ✅ **UNBLOCKED (2026-07-27) — this is ROADMAP Gate 2.6, and it is NEXT TO EXECUTE.** It depended on
+> Gate 2.5 (`engine-managed-file-merge-strategy.md` → §"Increment 2.5"), **shipped in v4.1.0**. The
+> blocker was F1 below: this plan's user-facing surface is the `/switch` skill, and an already-installed
+> skill used to be **never** updated, so shipping this first would have delivered the feature to nobody
+> but fresh installs. An untouched `/switch` is now refreshed on the fleet's next `/update-engine`, so
+> the constraint is lifted. Read F1 as history, not as a gate.
+>
+> 📦 **This gate's release also carries a backlog of already-merged content** that missed the v4.1.0 tag
+> and reaches nobody until then (`update-engine` resolves the **highest semver tag**, never `main`, cf.
+> `engine-fetch.mjs` → `pickLatestSemverTag`): the re-synced `tdd-discipline` skill (EN + FR, the
+> mutation-testing lessons) and the post-release marketing corrections. **Decided with Thomas
+> (2026-07-27): do NOT cut a doc-only v4.1.1 for them, let them ride with this release.**
 
 ## Goal (Thomas' request, verbatim intent)
 
