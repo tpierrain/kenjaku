@@ -100,8 +100,12 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         riskiest surface, kept last on purpose. Delete refuses any non-TTY caller (no `--yes`, no
         piped stdin, no assistant answering its own prompt); rename is full and reversible, so it
         carries no such gate.
-  - [ ] **All that remains before the tag:** extend Step 7's fleet re-check to the two new scripts,
-        then cut the release (marketing-surface re-read per CONVENTIONS §10).
+  - [x] **Fleet re-check extended to delete + rename, with evidence** _(2026-07-27)_: both scripts are
+        declared by hand in the manifest and tracked (F2), the core still emits **no** deletion or
+        rename copy an older fleet `/switch` could relay (F3), and `rag/` is untouched, so no
+        fleet-wide reindex (F4). Rename gained a `--preflight` so nobody meets the re-embed unwarned.
+  - [ ] **All that remains before the tag:** cut the release (marketing-surface re-read per
+        CONVENTIONS §10).
   - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
 - [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no

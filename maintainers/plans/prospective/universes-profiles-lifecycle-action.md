@@ -1,8 +1,8 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
 > **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
-> **All steps are done** (0 through 7). What remains is the release itself: Step 7's fleet re-check
-> extended to delete/rename, then the tag. Branch: `feat/universes-v2-profiles`.
+> **All steps are done** (0 through 7), fleet re-check included _(2026-07-27)_. What remains is the
+> release itself: **the tag**. Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -156,7 +156,8 @@ can never write a note; the universes v1 SQLite migration is already handled out
       - [ ] Bonus unlocked by this: `nativeConnectorsReminder` (`universes.mjs:155`) currently emits a
             **generic** line. With a profile it can name the actual accounts ("acme uses the acme Slack
             workspace"). Cheap, and it makes the reminder actionable.
-      - [ ] Boundary to state explicitly in the ADR: **constitution vs profile.** The constitution says
+      - [x] _(done — ADR 0035 §8, 2026-07-27)_ Boundary to state explicitly in the ADR: **constitution
+            vs profile.** The constitution says
             who the owner is and how the brain behaves (sacred surface, untouched per ADR 0034); the
             profile says what **this sphere** is. Without that line, the default universe's profile and
             the `CLAUDE.md` owner section will drift and contradict each other.
@@ -405,6 +406,16 @@ can never write a note; the universes v1 SQLite migration is already handled out
   - [x] **No TTY gate here, deliberately** (unlike delete): a rename loses nothing and is undone by
         renaming back. `never-surface-destructive-paths` is about destruction, and applying it to a
         reversible operation would be cargo-culting the ritual instead of the reason.
+  - [x] **Informed consent, not a gate: `--preflight`** _(2026-07-27 · this commit)_. Asked for by
+        Thomas at the re-check. A rename is reversible, so the point is not to protect the notes but
+        the **person**: the re-embed can keep a machine busy for minutes, and someone who was not told
+        reads that as a hung brain. `node scripts/rename-universe.mjs --preflight <old> <new>` prints
+        the note count, what moves, whether they keep standing there, and the re-encode cost —
+        **touching nothing** — and the refusals fire there too, before anyone waits. The wording lives
+        in the core (ADR 0009), not in chat prose, so every session says the same thing. Confirmed for
+        real on a throwaway brain (exit 0 and nothing on disk changed; `exists` still refuses).
+        Two mutants hand-applied and killed: counting the notes at the NEW path (reads 0), and
+        dropping the short-circuit so the preflight renames for real.
 - [x] TDD on the core; the fs-moving CLI has its own tests with injected fs.
 
 ### Step 6 — Docs + ADR _(Release A DONE 2026-07-27; the lifecycle half belongs to Release B)_
@@ -423,19 +434,52 @@ can never write a note; the universes v1 SQLite migration is already handled out
       retype-the-name gate, the TTY refusal, the git recovery commands) + the `/switch` section that
       leads with the never-offer rule, and the stale "it does **not** delete a universe" bullet under
       "What it does NOT do" replaced by the rename one.
+- [x] **The rename preflight** _(2026-07-27 · this commit)_: the `/switch` rename section is now a
+      **two-step flow** (preflight → relay → confirm → run), SETUP §5.2 says the brain tells you the
+      cost and waits for your go, the Golden rule "no reindex" gains its explicit lifecycle exception,
+      and the frontmatter `description`'s "does NOT touch notes and needs no reindex" is scoped to
+      **switching** (it was stated of the whole skill, which rename made false). Skill
+      `version: 1.4.0 → 1.5.0`.
 - [x] **The rename half** _(2026-07-27 · this commit)_: SETUP **§5.2** (delete became §5.3), naming
       the re-embed cost as compute-not-data and the cross-machine self-heal; `/switch` gains a rename
       section and the triggers in its `description`; skill `version: 1.3.0 → 1.4.0`. The "What it does
       NOT do" bullet is now about **merging**, which really is refused.
 
 ### Step 7 — Fleet / migration
-- [ ] **F1-F4 re-check EXTENDED to delete + rename, before the tag.** Partly evidenced already
-      (both scripts are `replace` entries in the manifest, git-tracked, and `git diff main -- rag/`
-      must still be empty → no schema bump, F4). What is NOT yet re-checked: F3 for the two new
-      surfaces (an older `/switch` on the fleet must not be able to relay deletion copy — the core
-      still emits none, confirm it), and whether either script needs a permissions entry (both are
-      confirmed on first run, like `set-active-universe.mjs` — a write that asks is the behaviour we
-      want, so the expected answer is "no entry").
+- [x] **F1-F4 re-check EXTENDED to delete + rename, with evidence, 2026-07-27** _(this commit)_:
+  - [x] **F1** (the surface reaches the fleet) — `.claude/skills/switch/**` is a `replace` entry
+        (`engine-manifest.json:64`), so an *untouched* `/switch` is refreshed with the rename and
+        delete sections at the next `/update-engine`; a tailored one keeps its version and gets a
+        `.new` sidecar. Nothing else in this half is user-facing except SETUP/README, which are
+        engine-owned docs.
+  - [x] **F2** (a new top-level script must be declared BY HAND) — `scripts/delete-universe.mjs` and
+        `scripts/rename-universe.mjs` are both in the `replace` list (`engine-manifest.json:25-26`)
+        **and** git-tracked (`git ls-files` confirms; the integrity test only sees a tracked file).
+        Their new dependency `scripts/lib/stamp-universe.mjs` rides the `scripts/lib/**` glob. No
+        other new top-level script in this half.
+  - [x] **F3** (old skill + new core) — **still zero deletion copy in `runSwitchCli`**, re-read
+        end to end: its verbs are `current`/`list`/`menu`/`create`/`switch` and their message shapes
+        are byte-identical to `main`, so a fleet `/switch` predating this release relays exactly what
+        it relayed before. Deletion and rename live in their **own** scripts, which no old skill
+        knows how to call. The only string in the core containing the word *deleted* is
+        `pointerHealNotice` (`universe-reminder.mjs:39`), and it is a **report of a repair already
+        made**, not an offer of a path: it names no command and rides the SessionStart hook's own
+        output, which no skill relays. Bonus, verified by reading `parseSwitchArgs`: an old skill
+        handed `delete acme` would route it to `switch` and answer `unknown universe 'delete acme'` —
+        a refusal, not an action.
+  - [x] **F4** (no schema bump) — `git diff main...HEAD -- rag/` is still **empty**: this half does
+        not touch the engine at all, so no fleet-wide reindex. The re-embed a rename costs is
+        **local to the renamed universe** and follows from paths changing, not from a schema version:
+        `index-manager.ts:177` looks the stored hash up **by `relativePath`**, so a moved note is a
+        new document; and the re-stamped frontmatter changes the content hash anyway.
+  - [x] **Permissions: no allowlist entry**, as expected. `rename-universe.mjs` is confirmed on first
+        run exactly like `set-active-universe.mjs` (`.claude/settings.json.template` allows no
+        `node scripts/…`) — a write that asks is the behaviour we want. `delete-universe.mjs` needs
+        none by construction: the owner runs it in their own terminal, so Claude never invokes it.
+  - [x] **Reindex duration, confirmed rather than assumed** (Thomas asked): with the in-process
+        embedder the measured sweep behind `EMBED_BATCH` (`in-process-embedder.ts:17-24`) is
+        **264 notes ≈ 5.3 min** at batch 4. So "seconds on a small universe, a few minutes on a large
+        one" is a measurement, not a hedge — and it is why the rename now has a `--preflight`.
 - [x] **F1-F4 re-checked for Release A, with evidence, 2026-07-27:**
   - [x] **F1** (skills reach the fleet) — `.claude/skills/switch/**` is a `replace` entry, so an
         *untouched* `/switch` is refreshed; a tailored one keeps its version and gets a `.new` sidecar.
