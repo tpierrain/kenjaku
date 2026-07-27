@@ -87,6 +87,15 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 - **`exit 1`** → **relay the error as-is** and tell the user the brain was not changed
   past the point of failure. **Never claim success when it failed.**
 
+> 🔁 **MANDATORY — if the output carries the `ENGINE UPDATE UNFINISHED — AGENT, RUN THE UPDATE
+> ONCE MORE` banner, run `node scripts/update-engine.mjs` once more, immediately, WITHOUT asking
+> the user again** (they already asked for this update). This brain came from an engine older than
+> **v3.3.0**, whose orchestrator does not re-run the freshly-written reconciler: the first pass laid
+> the new engine on disk, **only the second one refreshes its untouched engine skills**. Report the
+> **SECOND** run's summary and its restart instruction, not the first one's — and don't make the user
+> wait through a question in between. **It cannot loop**: the second pass records the new versions,
+> so the banner is gone. _(Transitional vector for the pre-v3.3.0 cohort; it disappears with them.)_
+
 > 🛑 **MANDATORY — whenever ANY engine file changed, you MUST end your chat message by telling
 > the user, LOUDLY and in their language, to FULLY RESTART Claude.** This is the **only**
 > Desktop-visible channel: Claude Desktop's Code tab renders **no status bar** — just the chat —

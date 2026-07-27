@@ -80,6 +80,17 @@ applique exactement les fichiers du moteur, régénère les launchers, lance `np
 - **`exit 1`** → **relaie l'erreur telle quelle** et dis à l'utilisateur que le cerveau n'a pas
   été modifié au-delà du point d'échec. **Ne prétends jamais que ça a marché si ça a échoué.**
 
+> 🔁 **OBLIGATOIRE — si la sortie porte la bannière `ENGINE UPDATE UNFINISHED — AGENT, RUN THE
+> UPDATE ONCE MORE`, relance `node scripts/update-engine.mjs` une seconde fois, tout de suite, SANS
+> reposer la question** (la personne a déjà demandé cette mise à jour). Ce cerveau vient d'un moteur
+> antérieur à la **v3.3.0**, dont l'orchestrateur ne relance pas le réconciliateur fraîchement
+> écrit : la première passe pose le nouveau moteur sur le disque, **seule la seconde remet à jour
+> ses skills du moteur restés intacts**. Rends compte du résumé de la **SECONDE** passe et de sa
+> consigne de redémarrage, pas de ceux de la première, sans faire attendre la personne derrière une
+> question intermédiaire. **Aucune boucle possible** : la seconde passe enregistre les nouvelles
+> versions, donc la bannière disparaît. _(Vecteur transitoire pour la cohorte pré-v3.3.0 ; il
+> disparaîtra avec elle.)_
+
 > **Si le résumé indique que de nouveaux skills/MCP ont été installés** (l'avertissement
 > « ACTION NEEDED ») : dis à l'utilisateur qu'un **redémarrage complet de Claude** (fermer puis
 > rouvrir) suffit, puis de **revenir dans CETTE même conversation** — la nouvelle capacité se
