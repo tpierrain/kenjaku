@@ -46,6 +46,11 @@ citable notes** — *the central RAG you don't have yet, but local and right now
 - **Today: Notion.** You declare the **root page** of a zone (its whole sub-tree is in scope) and the
   brain keeps `vault/mirrors/<name>/` in sync with it — new/edited pages rewritten, deleted /
   out-of-scope pages removed, delta-only (no noise).
+- **If you have several universes, you say which one the mirror belongs to** — before a single page is
+  pulled. The brain names the one you are working in, offers the others (including the **cross-cutting**
+  scope, for a source everything should find), and only then mirrors, into
+  `vault/<universe>/mirrors/<name>/`. It asks first because moving a mirror afterwards **re-encodes
+  every page it holds**. With a single universe there is nothing to ask, and nothing changes.
 - **How:** the **`/local-mirror` skill** drives it (onboard, sync, check freshness, status, remove);
   the work runs in the built-in **`local-mirror`** MCP server. The Notion integration **token
   lives only in `.env`**, never in the chat.

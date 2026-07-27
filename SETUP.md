@@ -410,7 +410,10 @@ skill** (*"set up a local mirror of a Notion zone"*). Create a Notion integratio
 (<https://www.notion.so/my-integrations>), **share it on the root page** of the zone, put its token in
 `.env` under a name of your choice (e.g. `NOTION_TOKEN_PASC=secret_…`), and pass **that env-var name**
 to the skill — **the token never travels through the chat**. The skill tests the scope, does the first
-sync, and explains each step.
+sync, and explains each step. **If you have several universes**, it first asks which one the mirror
+belongs to (the one you are working in is proposed, and a cross-cutting mirror is one word away) and
+pulls nothing until you answer — its pages then live in `vault/<universe>/mirrors/<name>/`. Getting
+that right afterwards would re-encode the whole mirror, which is why it asks before, not after.
 
 Once a mirror is declared, it also **refreshes itself in the background** while a brain window is open:
 the `local-mirror` server checks freshness on a timer and re-syncs only the mirrors that fell behind, no
