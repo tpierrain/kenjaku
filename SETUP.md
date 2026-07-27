@@ -275,7 +275,27 @@ your people are. To fill it in later, or to change your mind, just ask ("describ
 > If you use several **universes** (see `/switch` below), each one gets its **own** page: the people
 > and the accounts of one sphere never leak into another's answers.
 
-### 5.2 Deleting a universe — the one operation you run yourself
+### 5.2 Renaming a universe
+
+Names age: a client becomes an employer, a project gets its real name. Just ask — *"rename my acme
+universe to Acme Corp"* — and your brain runs it for you. Nothing is lost, and renaming it back undoes
+it, so there is nothing to be careful about here.
+
+It is a **full** rename: the folder `vault/acme/` becomes `vault/acme-corp/`, every note inside is
+re-labelled, and you stay in that universe under its new name — so the new name is true in Obsidian
+and in git too, not only in your brain's list. The one cost: because every file moved, your brain
+re-reads and re-encodes that universe's notes (a few minutes if it is a big one; it is compute, not
+data).
+
+Two things it will refuse: renaming onto a name you already use (that would be *merging* two
+universes, a different question), and renaming your cross-cutting scope, which has no folder of its
+own.
+
+> 💻 **On another machine**, the new name arrives with your next `git pull`. Your brain notices that
+> the universe you were in there has been renamed and puts you back on solid ground on its own, with
+> a one-line notice. Nothing to do.
+
+### 5.3 Deleting a universe — the one operation you run yourself
 
 You will most likely never need this. It is written down so that the day you do (a client you no
 longer work with, a sphere that turned out to be one too many), you find a procedure rather than
@@ -612,7 +632,7 @@ Everyday capabilities, invoked in plain words (the `/name` is the explicit form)
 | **`/prepare-1-1`** | Prepares a 1-1 **both ways**: with **your manager** or with someone **you manage** (tracking commitments, KPI review). Cross-references the person's profile + last 1-1 + recent signals. |
 | **`/improve`** | Evolves your harness: reads the frictions, proposes and applies the useful improvements. |
 | **`/local-mirror`** | Plugs your brain onto a **local mirror** — a live zone of an internal tool (**Notion** today) that gets **mirrored into your vault** as Markdown, so the RAG searches and **cites** it. Declare one, then sync / refresh / inspect it. *The central RAG you don't have yet — but local, right now.* |
-| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Also records **what a universe is** (your role there, its people, its topics, which accounts your tools use — see §5.1). Invisible until you have a second universe. Deleting one is never offered and is a command **you** run yourself — see §5.2. |
+| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Also records **what a universe is** (your role there, its people, its topics, which accounts your tools use — see §5.1). Invisible until you have a second universe. Renaming one is a normal request (§5.2); deleting one is never offered and is a command **you** run yourself (§5.3). |
 | **`/import`** | Imports the notes of a **previous** brain into this one (safe plan → confirm → copy → re-index). See §11. |
 | **`/update-engine`** | Upgrades your brain's **engine** (search code, launchers, engine scripts), opt-in, **never touching your notes**. See §10. |
 | **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |

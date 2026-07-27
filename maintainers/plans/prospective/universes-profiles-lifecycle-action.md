@@ -1,8 +1,8 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
 > **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
-> Half A done (Steps 0, 2, 3, 6, 7), **Step 4 done**, **Step 5 (rename) is what remains** before any
-> tag. Branch: `feat/universes-v2-profiles`.
+> **All steps are done** (0 through 7). What remains is the release itself: Step 7's fleet re-check
+> extended to delete/rename, then the tag. Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -263,7 +263,7 @@ can never write a note; the universes v1 SQLite migration is already handled out
 - [x] **Step 3 — Universe profile: capture + inject** (conversational triggers + the SessionStart digest)
       _(2026-07-27 · commits `65afa86`, `c59e2d3`, `452f200`, `779bd73`, `006afd9`)_.
 - [x] **Step 4 — Delete a universe** (guarded script + documentation) — per D3 _(2026-07-27 · commits `93f46ce`, `b216331`, and this one)_.
-- [ ] **Step 5 — Rename a universe** — per D4, scope depends on that decision. Last, deliberately.
+- [x] **Step 5 — Rename a universe** — per D4 (full rename). Last, deliberately. _(2026-07-27 · commits `c695c8e`, `c4cd386`, and this one)_.
 - [x] **Step 6 — Docs + ADR update**, scoped to Release A _(2026-07-27 · commit `2081034`)_. The
       rename/delete half stays open for Release B (see the step below).
 - [x] **Step 7 — Fleet / migration re-check** for Release A _(2026-07-27 · this commit)_.
@@ -388,12 +388,24 @@ can never write a note; the universes v1 SQLite migration is already handled out
       The stale "it does **not** delete a universe" bullet is now the rename one.
 
 ### Step 5 — Rename a universe (scope per D4)
-- [ ] Pure core: validate new name/slug (non-empty, not `default`, not already existing), compute the
-      registry transform.
-- [ ] Implement the scope D4 selected. If (b) full rename: move `vault/<old>/` to `vault/<new>/`, rewrite
-      `universe:` frontmatter in every note under it, update the registry, update the active pointer if it
-      was `old`, then reindex. Refuse renaming `default`. **Declare the script in the manifest** (cf. F2).
-- [ ] TDD on the core; the fs-moving CLI gets a focused test with injected fs.
+- [x] Pure core `planUniverseRename`: it validates its SOURCE through the same gate as deletion
+      (`refuseUnlessCreated`, extracted in the refactor step — the two had drifted into half-consistent
+      copies), and its TARGET on its own terms: `empty`, `reserved` (renaming INTO `default` would make
+      the registry entry vanish while the folder stayed on disk) and `exists` (that is a *merge*, whose
+      questions a rename cannot answer). Six mutants killed.
+- [x] Full rename (D4-b): `scripts/rename-universe.mjs <old> <new>` moves `vault/<old>/`, re-stamps
+      every note under it, rewrites the registry, carries the pointer along **only** if you were
+      standing there, then reindexes. **Declared in `engine-manifest.json`** (F2). Eight mutants killed,
+      and it was **run for real** on a throwaway brain (folder, both notes, registry and pointer checked
+      on disk) — the Step-2 lesson applied, not merely quoted.
+  - [x] `restampUniverse` (new, in `stamp-universe.mjs`) is deliberately the **opposite** of
+        `stampUniverse`: stamping protects an explicit scope, renaming must overwrite it. It also
+        stamps a note that declares none — the Obsidian-typed note, which would otherwise survive the
+        rename unscoped and fall back to the cross-cutting scope.
+  - [x] **No TTY gate here, deliberately** (unlike delete): a rename loses nothing and is undone by
+        renaming back. `never-surface-destructive-paths` is about destruction, and applying it to a
+        reversible operation would be cargo-culting the ritual instead of the reason.
+- [x] TDD on the core; the fs-moving CLI has its own tests with injected fs.
 
 ### Step 6 — Docs + ADR _(Release A DONE 2026-07-27; the lifecycle half belongs to Release B)_
 - [x] Updated the `/switch` surface: the profile questions, the post-switch `--digest` refresh, and the
@@ -411,9 +423,10 @@ can never write a note; the universes v1 SQLite migration is already handled out
       retype-the-name gate, the TTY refusal, the git recovery commands) + the `/switch` section that
       leads with the never-offer rule, and the stale "it does **not** delete a universe" bullet under
       "What it does NOT do" replaced by the rename one.
-- [ ] **The rename half (Step 5):** SETUP "How to rename a universe" + the re-embedding cost it
-      implies (paths change, so the index treats every note as new), and the "What it does NOT do"
-      bullet retired once rename exists.
+- [x] **The rename half** _(2026-07-27 · this commit)_: SETUP **§5.2** (delete became §5.3), naming
+      the re-embed cost as compute-not-data and the cross-machine self-heal; `/switch` gains a rename
+      section and the triggers in its `description`; skill `version: 1.3.0 → 1.4.0`. The "What it does
+      NOT do" bullet is now about **merging**, which really is refused.
 
 ### Step 7 — Fleet / migration
 - [x] **F1-F4 re-checked for Release A, with evidence, 2026-07-27:**

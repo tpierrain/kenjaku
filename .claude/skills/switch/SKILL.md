@@ -1,7 +1,7 @@
 ---
 name: switch
-description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
-version: 1.3.0
+description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with'). It also RENAMES a universe ('rename acme to Acme Corp', 'renomme cet univers'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
+version: 1.4.0
 ---
 
 # /switch — Change or create the active universe (opt-in, no reindex)
@@ -164,6 +164,27 @@ echo '{"universe":"acme","displayName":"Acme Corp","kind":"employer","role":"Hea
 node scripts/set-universe-profile.mjs --decline
 ```
 
+### Rename a universe — "rename acme to Acme Corp"
+
+A **full** rename (ADR 0034 / decision D4): the folder moves, every note under it is re-stamped, the
+registry entry changes name, and the user keeps standing where they were. Unlike deletion, this
+loses nothing and is undone by renaming back — so you may run it yourself.
+
+```bash
+node scripts/rename-universe.mjs "<old>" "<new>"
+```
+
+- **exit 0** → relay the core's message verbatim. It names the cost, which is worth saying **before**
+  running it too: every path under the universe changed, so the index re-embeds the whole universe
+  (a few minutes on a large one). Nothing is lost, it is compute.
+- **exit 1** → relay the reason as-is: `exists` (that name is taken — merging two universes is a
+  different operation), `reserved` (the cross-cutting default is neither renameable nor a valid
+  target), `unknown` / `empty`.
+
+> 💻 **On another machine**, the pointer is per-machine and gitignored while the registry is
+> committed, so a pull lands the new name with a pointer still naming the old one. That machine
+> **heals itself** at its next session start and says so in one line — nothing to do.
+
 ### Delete a universe — ONLY when the user explicitly asks for it
 
 > 🛑 **Read this rule before the procedure.** Deleting a universe erases its notes. It is therefore
@@ -197,5 +218,5 @@ two commands (`git log --diff-filter=D -- vault/<name>/`, then
 
 - It does **not** move or re-stamp existing notes (that is `/import --universe` at import time, or a
   future one-shot re-stamp). Switching is only about *where new work and default searches point*.
-- It does **not** rename a universe. A rename moves `vault/<old>/` and re-stamps every note under it,
-  so it is its own operation — not built here yet.
+- It does **not** merge two universes. Renaming onto an existing name is refused: which notes win and
+  whose profile survives are questions a rename cannot answer for you.
