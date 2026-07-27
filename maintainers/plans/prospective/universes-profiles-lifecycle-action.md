@@ -588,6 +588,11 @@ can never write a note; the universes v1 SQLite migration is already handled out
 
 > 🎯 **Thomas' request, 2026-07-27**, added to this release deliberately: it is the same story
 > (universes), and an owner should meet it once.
+>
+> ▶️ **RESUME HERE after the `/clear` (2026-07-27).** The decision is settled (see the DECIDED box)
+> and **no code has been written yet**. Start at **DEFECT 3 or the core preflight** — read the three
+> DEFECT boxes first, they are findings from the code, not guesses. Do **not** re-open where a mirror
+> lands: that half is already implemented, with file:line evidence recorded below.
 
 - [ ] **The ask, verbatim in intent:** when declaring a **Notion zone** as a local mirror, the brain
       must (a) **remind which universe is active**, and **only if several exist** (the ADR 0034
@@ -596,29 +601,72 @@ can never write a note; the universes v1 SQLite migration is already handled out
       economic, and it is the same one that gave rename its preflight: moving mirrored docs into
       another universe afterwards costs a full re-embed of the whole mirror, so the cheap moment to
       get the scope right is **before** the first pull, not after.
-- [ ] **Decide FIRST, before any code — where does a mirror land when a universe is active?** Today it
-      is `vault/mirrors/<name>/` (`local-mirror/SKILL.md:11,176,292`), i.e. at the **vault root**,
-      which means **cross-cutting / default scope, always**. So a two-universe owner mirroring a
-      client's Notion zone puts it in *every* universe's answers, and Thomas' "too expensive to move
-      afterwards" is precisely the cost of undoing that. Two options:
-      - **(a) Confirm only** (the literal ask): the mirror keeps landing at the root, and the
-        confirmation makes that consequence explicit, including how to avoid it.
-      - **(b) Scope the mirror to the active universe** (`vault/<slug>/mirrors/<name>/`) when one is
-        active, with the confirmation naming where it will land. Truer to the feature, but it touches
-        the mirror's path contract (refresh, dedup, the exclusion zones listed in the skill) — check
-        each before choosing.
-      - **Recommendation: (b), with (a)'s confirmation on top** — but this is Thomas' call and it is
-        the first thing to settle.
+
+- [x] **DECIDED (Thomas, 2026-07-27): a mirror is ALWAYS attached to a universe** — the default one
+      when that is all there is, one of the existing ones otherwise. This is stronger and cleaner than
+      the (a)/(b) fork drafted below: attachment is an **invariant**, not a special case. It maps
+      exactly onto ADR 0034, where the default universe **is** the vault root, so "attached to
+      default" and "lands at `vault/mirrors/<name>/`" are the same sentence. Nothing changes for a
+      single-universe owner, and there is no migration.
+  - [x] **Past the gate, the owner CHOOSES** (Thomas, 2026-07-27): the confirmation proposes the
+        **active** universe pre-selected and lets them name another, including an explicit
+        **cross-cutting (default)** for something like a company-wide wiki. Confirm-only was the
+        alternative and was rejected: it makes a cross-cutting mirror require a `/switch` to default
+        first, which nobody would guess.
+
+- [x] ~~Decide FIRST — where does a mirror land when a universe is active?~~ **The question was
+      already answered BY THE CODE, and the drafted premise was wrong** (verified 2026-07-27, before
+      writing anything). The claim "today it is `vault/mirrors/<name>/`, cross-cutting always" was
+      read off `local-mirror/SKILL.md`, **not** off the implementation. The chosen behaviour is
+      already shipped in the `local-mirror` server:
+  - `local-mirror.ts:87` — `setupSource` **freezes** the active universe into the config at
+    declaration time, with the reason stated in the code: never re-read on the hot sync path, so a
+    background tick firing while the owner `/switch`es cannot scatter one mirror across universes.
+  - `local-mirror.ts:489` (`vaultPathFor`) — a scoped mirror lands under `<universe>/<target_dir>/`,
+    a default one keeps the historical root path.
+  - `configFromRequest` (`:503`) stamps `universe` **only** when non-default, exactly as notes carry
+    `universe:` only outside the default scope.
+  - ⇒ **The remaining work is the user-facing half plus two defects**, NOT the path contract.
+
+- [ ] **DEFECT 1 (found while verifying, fix it here): the success message names a folder the files
+      are not in.** `local-mirror.ts:125` says ``Files live under ${config.target_dir}/``, which is
+      `mirrors/<name>/` — the **universe prefix is missing**. For a scoped mirror the files are in
+      `<universe>/mirrors/<name>/`. Use the same path builder the writer uses (`vaultPathFor`), so
+      the message cannot drift from reality again.
+- [ ] **DEFECT 2: the skill documents the pre-universe layout, unconditionally**, on
+      `engine-skills/local-mirror/SKILL.md` lines **11, 93, 176, 277, 292** (`vault/mirrors/<name>/`).
+      This is what misled this very plan, so it will mislead the next session too. Line 277 (the
+      "look before declaring absence" instruction) and 292 (the exclusion-zone table) are the two that
+      actually change behaviour when wrong.
+- [ ] **DEFECT 3 (same class as Step 0, in the OTHER package): local-mirror does not validate the
+      active pointer against the registry.** `adapters/fs-active-universe.ts` trims the pointer and
+      trusts it, so a pointer left naming a deleted/renamed universe freezes a **ghost** universe into
+      a brand-new mirror: its notes land under `vault/<ghost>/mirrors/…` and are filtered out of every
+      search, silently. Step 0 fixed exactly this on the brain side (`resolveActiveUniverse` against
+      the registry). Reading the registry is needed for the choice above anyway, so resolve through it
+      here too rather than leaving the hole open in the package that writes the most files.
+
 - [ ] **The gate is the core's decision, never the model's** (ADR 0009, and the two-vocabulary rule
       already built in `universe-reminder.mjs` → `profileCaptureOffer`): whatever emits the reminder
       must decide *below vs past the gate* deterministically and hand the skill the wording. Reuse
       `isMultiverse` / the existing vocabulary switch rather than growing a second one.
+  - [ ] **Proposed shape for the confirmation, so it is core-enforced rather than honour-system:**
+        past the gate, `setup_source` called **without** an explicit `universe` does **not pull** — it
+        returns the deterministic preflight text (where it would land, the universes available, the
+        re-embed cost of moving later). The pull happens on the second call, which now carries the
+        universe. Below the gate, one call, no `universe`, and the word never appears. This makes "no
+        pull before the message exists" a property of the core, and needs no `confirmed: true` flag
+        (a flag the model can set itself would guard nothing, cf. D3's TTY reasoning).
+  - [ ] Validate a requested universe **against the registry** in the core: an unknown name is a
+        refusal that lists the real ones, never a silently-created folder.
 - [ ] **First pull only, not refreshes.** A refresh must stay a one-liner; re-confirming it every time
       is how a useful confirmation becomes noise people click through.
 - [ ] Fleet constraints apply as ever: **F2** if this adds a top-level script (declare it by hand in
       `engine-manifest.json`), **F3** add verbs only, and the `local-mirror` skill's own `version:`
       bump so an untouched copy is refreshed on the fleet.
-- [ ] TDD as usual: pure core first, then the thin driver.
+- [ ] TDD as usual: pure core first, then the thin driver. The package is a back-end (MCP server), so
+      it follows the Outside-in Diamond skill and its existing `src/test/` conventions (`builder.ts`,
+      one behaviour per file).
 
 ## Conventions reminder (repo rules)
 - Artifacts in English (this file, code, commits, PR). TDD baby-steps, green-only commits. Deterministic
