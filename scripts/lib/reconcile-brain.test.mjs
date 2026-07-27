@@ -706,7 +706,20 @@ test("reconcileBrain (win32) — a repair with nothing added and no statusLine s
   });
 
   assert.deepEqual(report.hooksAdded, [], "the broken brain already wires every engine hook");
-  assert.ok(report.hooksRepaired.includes("scripts/session-self-heal.mjs"), "the repair itself is the only reason to write");
+  // The WHOLE list, not `.includes`: a report that also claimed to have repaired a
+  // statusLine this brain does not even have would be a lie the user acts on.
+  assert.deepEqual(
+    [...report.hooksRepaired].sort(),
+    [
+      "scripts/auto-commit.mjs",
+      "scripts/auto-push.mjs",
+      "scripts/session-health.mjs",
+      "scripts/session-obsidian-hint.mjs",
+      "scripts/session-self-heal.mjs",
+      "scripts/session-status.mjs",
+    ],
+    "the repair itself is the only reason to write — and it reports exactly what it healed",
+  );
   const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
   const cmds = Object.values(settings.hooks).flatMap((groups) => groups.flatMap((g) => g.hooks.map((h) => h.command)));
   for (const cmd of cmds) assert.doesNotMatch(cmd, /cmd \/c/i, "the healed commands must actually be on disk");
@@ -793,9 +806,20 @@ test("reconcileBrain (win32) — heals the issue-#31 broken hook + statusLine co
     assert.doesNotMatch(cmd, /\\/, "no backslash must remain (Git Bash would eat it)");
     assert.match(cmd, new RegExp(`^${rootPosix}/scripts/run-node\\.cmd `), "the fixed forward-slash run-node.cmd prefix");
   }
-  assert.ok(report.hooksRepaired.includes("scripts/session-self-heal.mjs"), "a healed hook is reported");
-  assert.ok(report.hooksRepaired.includes("scripts/auto-push.mjs"), "the Stop hook is healed too");
-  assert.ok(report.hooksRepaired.includes("statusLine"), "the statusLine command is healed too");
+  // The whole list, in one assertion: the Stop hook and the top-level statusLine are
+  // healed alongside the SessionStart ones, and nothing else is claimed.
+  assert.deepEqual(
+    [...report.hooksRepaired].sort(),
+    [
+      "scripts/auto-commit.mjs",
+      "scripts/auto-push.mjs",
+      "scripts/session-health.mjs",
+      "scripts/session-obsidian-hint.mjs",
+      "scripts/session-self-heal.mjs",
+      "scripts/session-status.mjs",
+      "statusLine",
+    ],
+  );
   assert.equal(settings.mine, true, "a user-owned settings key survives the repair");
 
   // Idempotent: a second self-heal pass repairs nothing and leaves the file byte-identical.
