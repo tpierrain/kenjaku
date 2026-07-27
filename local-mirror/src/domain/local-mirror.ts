@@ -20,11 +20,12 @@ import type {
   IVaultWriter,
   PersistedItem,
   PersistedState,
+  UniverseState,
 } from './ports.js';
 import { toLocalMirrorMarkdown } from '../lib/markdown.js';
 import { contentHash } from '../lib/content-hash.js';
 import { extractPageId } from '../lib/notion-url.js';
-import { DEFAULT_UNIVERSE } from '../lib/universe.js';
+import { DEFAULT_UNIVERSE, isMultiverse, listAllUniverses } from '../lib/universe.js';
 import { pagesToDelete } from './reconcile.js';
 
 /**
@@ -54,11 +55,12 @@ export interface LocalMirrorDeps {
   /** Single-flight lock per source, across processes (auto-refresh study, S2 item 1). */
   syncLock: ISyncLock;
   /**
-   * The currently-active universe (ADR 0034), read ONLY by `setupSource` to FREEZE a mirror's
-   * universe at declaration time — never on the hot sync path, so a background tick firing while
-   * the user `/switch`es can't scatter one mirror's notes across universes.
+   * The brain's universe state (ADR 0034) — the active universe AND the registry it is validated
+   * against. Read ONLY by `setupSource`: to offer the choice, and to FREEZE the chosen universe
+   * into the config at declaration time — never on the hot sync path, so a background tick firing
+   * while the user `/switch`es can't scatter one mirror's notes across universes.
    */
-  activeUniverse: () => string;
+  universes: () => UniverseState;
 }
 
 /** The Domain Service — the concrete API port. Pure orchestration, no transport. */
@@ -84,8 +86,23 @@ export class LocalMirror implements ILocalMirror {
    * name (`tokenEnv`) is stored (§11).
    */
   async setupSource(req: SetupRequest): Promise<SetupResult> {
-    // Freeze the active universe into the config NOW (ADR 0034) — never re-read at sync time.
-    const config = configFromRequest(req, this.deps.activeUniverse());
+    const { active, registry } = this.deps.universes();
+    // Past the disclosure gate, the universe must be named BEFORE anything is pulled: moving a
+    // mirror afterwards costs a full re-embed of every note it holds (ADR 0034). The refusal to
+    // pull is the CORE's, not the driver's — a flag the model could set itself would guard
+    // nothing. Below the gate there is nothing to choose, so the word never comes up.
+    if (!req.universe && isMultiverse(registry)) return universeChoiceNeeded(req, active, registry);
+    // A universe nobody declared is a typo or the stale memory of a renamed one. Creating its
+    // folder anyway would file the whole mirror into a scope no search ever reaches.
+    if (req.universe && !listAllUniverses(registry).includes(req.universe)) {
+      return unknownUniverse(req, active, registry);
+    }
+
+    // Freeze the retained universe into the config NOW (ADR 0034) — never re-read at sync time.
+    // Past the gate `req.universe` is always set (the two guards above are what make that true);
+    // below it there is nothing to choose and `active` is necessarily the default, since an empty
+    // registry disqualifies every pointer. So this reads "what they chose, else where they are".
+    const config = configFromRequest(req, req.universe ?? active);
     const connector = this.deps.connectorFor(config);
 
     let items;
@@ -122,7 +139,9 @@ export class LocalMirror implements ILocalMirror {
       message:
         `Source "${req.name}" set up: scope confirmed (${items.length} page(s) in the zone), ` +
         `first sync ${report.status} — ${report.written} written, ${report.unchanged} unchanged. ` +
-        `Files live under ${config.target_dir}/; the brain will index them and answer with ` +
+        // Through the writer's own path builder, universe prefix included — a message that
+        // names a folder the files are not in is how an owner concludes the mirror is broken.
+        `Files live under ${vaultDirFor(config)}/; the brain will index them and answer with ` +
         `clickable citations.`,
     };
   }
@@ -481,13 +500,70 @@ export function toSourceState(
 }
 
 /**
+ * The preflight (ADR 0034): past the disclosure gate, a setup that has not named its universe
+ * declares NOTHING and pulls NOTHING — it hands back the menu, the pre-selection, where the
+ * mirror would land, and why the choice is cheap now and expensive later. The machine-readable
+ * `awaitingUniverse` is what the driver reads; the message is what the owner is told.
+ */
+export function universeChoiceNeeded(
+  req: SetupRequest,
+  active: string,
+  registry: readonly string[],
+): SetupResult {
+  const universes = listAllUniverses(registry);
+  const landing = vaultDirFor(configFromRequest(req, active));
+  return {
+    name: req.name,
+    ok: false,
+    awaitingUniverse: { active, universes },
+    message:
+      `Nothing declared and nothing pulled yet: "${req.name}" must first be attached to a ` +
+      `universe. Left as it is, it would join '${active}' (the one you are working in) and its ` +
+      `pages would land under ${landing}/. Available: ${universes.join(', ')} — '` +
+      `${DEFAULT_UNIVERSE}' is the cross-cutting one, for a source every universe should find ` +
+      `(a company-wide wiki, say). Moving a mirror afterwards costs a full re-embed of every ` +
+      `page it holds, so this is the cheap moment to get it right. Call setup_source again with ` +
+      `the universe named.`,
+  };
+}
+
+/**
+ * The refusal (ADR 0034): the requested universe exists nowhere, so nothing is declared and
+ * nothing is pulled. It carries the same `awaitingUniverse` menu as the preflight — the caller's
+ * next move is identical, so the shape it reads should be too.
+ */
+export function unknownUniverse(
+  req: SetupRequest,
+  active: string,
+  registry: readonly string[],
+): SetupResult {
+  const universes = listAllUniverses(registry);
+  return {
+    name: req.name,
+    ok: false,
+    awaitingUniverse: { active, universes },
+    message:
+      `There is no universe called "${req.universe}", so nothing was declared or pulled. ` +
+      `The ones that exist are: ${universes.join(', ')}. Call setup_source again with one of ` +
+      `them (or create it first with /switch).`,
+  };
+}
+
+/**
+ * Vault-relative FOLDER of a mirror's notes — the universe prefix included, so a message that
+ * tells the owner where their files live can never drift from where the writer actually puts them.
+ */
+export function vaultDirFor(config: LocalMirrorConfig): string {
+  return `${config.universe ? `${config.universe}/` : ''}${config.target_dir}`;
+}
+
+/**
  * Vault-relative path of a mirrored note. A universe-scoped mirror lands under its universe root
  * (`<universe>/<target_dir>/<id>.md`, ADR 0034) so retrieval scope travels with the file, exactly
  * as `/import --universe` files notes; a rootless mirror keeps the historical root path unchanged.
  */
 export function vaultPathFor(config: LocalMirrorConfig, id: string): string {
-  const prefix = config.universe ? `${config.universe}/` : '';
-  return `${prefix}${config.target_dir}/${id}.md`;
+  return `${vaultDirFor(config)}/${id}.md`;
 }
 
 /** The source's stable Notion root page id — from prior state, else extracted from the URL. */

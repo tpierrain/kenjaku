@@ -46,6 +46,11 @@ citable notes** — *the central RAG you don't have yet, but local and right now
 - **Today: Notion.** You declare the **root page** of a zone (its whole sub-tree is in scope) and the
   brain keeps `vault/mirrors/<name>/` in sync with it — new/edited pages rewritten, deleted /
   out-of-scope pages removed, delta-only (no noise).
+- **If you have several universes, you say which one the mirror belongs to** — before a single page is
+  pulled. The brain names the one you are working in, offers the others (including the **cross-cutting**
+  scope, for a source everything should find), and only then mirrors, into
+  `vault/<universe>/mirrors/<name>/`. It asks first because moving a mirror afterwards **re-encodes
+  every page it holds**. With a single universe there is nothing to ask, and nothing changes.
 - **How:** the **`/local-mirror` skill** drives it (onboard, sync, check freshness, status, remove);
   the work runs in the built-in **`local-mirror`** MCP server. The Notion integration **token
   lives only in `.env`**, never in the chat.
@@ -159,6 +164,14 @@ Three paths, detailed in [SETUP §6](SETUP.md):
 
 > 🔐 **Neutrality / security.** The generator hardcodes **no secret**: MCP credentials are `<…>`
 > placeholders that **you** fill in. Never commit your real tokens.
+
+> 🌌 **If you keep several universes** — a connector is wired **once, for the whole brain**, and stays
+> pointed at the account you gave it. Switching universe re-scopes **your notes**, not your live
+> connectors, so landing in another sphere still reads the same Slack workspace or mailbox until you
+> reconnect it yourself. Your brain says so, in one line, the moment you land in a named universe. Worth
+> writing down which account each sphere actually uses, on that universe's own page
+> ([SETUP §5.1](SETUP.md#51-telling-your-brain-about-your-context-optional-2-minutes)): your brain then
+> has it at hand when it matters.
 
 ---
 

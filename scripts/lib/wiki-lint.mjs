@@ -82,7 +82,12 @@ export function isUnderZone(path, prefix) {
 // Brain-specific work folders (e.g. `prep-day/`) stay per-brain via options.orphanExclude.
 const RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "actions-log.md"];
 const ENGINE_WORK_ZONES = ["meetings/", "briefings/", "prep-1-1/", "coaching/"];
-const DEFAULT_ORPHAN_EXCLUDE = [...RAW_CAPTURE_ZONES, ...ENGINE_WORK_ZONES];
+// A universe's profile page (`universe.md` at the root, `<universe>/universe.md`
+// in a subtree — isUnderZone matches both) describes a whole sphere: nothing links
+// TO it by design, so flagging it orphan would be a lie nobody can ever clear. It
+// keeps its frontmatter obligations, being a curated page.
+const ENGINE_STATE_NOTES = ["universe.md"];
+const DEFAULT_ORPHAN_EXCLUDE = [...RAW_CAPTURE_ZONES, ...ENGINE_WORK_ZONES, ...ENGINE_STATE_NOTES];
 
 // A raw dump is not a curated wiki node: an imported transcript, an inbox scratch,
 // the append-only ledger arrive without the taxonomy frontmatter and shouldn't be

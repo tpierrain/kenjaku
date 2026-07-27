@@ -78,3 +78,14 @@ export const ACTIVE_UNIVERSE_PATH = resolvePath(
   process.env.LOCAL_MIRROR_ACTIVE_UNIVERSE,
   resolve(projectRoot, '.vault-rag', 'active-universe'),
 );
+
+/**
+ * The COMMITTED universe registry (ADR 0034) — the created universes, written by `/switch`.
+ * `setup_source` reads it to know which universes exist: to offer the choice, and to disqualify
+ * a pointer left naming one that was renamed or deleted on another machine. Absent (the
+ * single-universe case) → no created universe → the default scope, silently.
+ */
+export const UNIVERSES_REGISTRY_PATH = resolvePath(
+  process.env.LOCAL_MIRROR_UNIVERSES_REGISTRY,
+  resolve(projectRoot, '.vault-rag', 'universes.json'),
+);

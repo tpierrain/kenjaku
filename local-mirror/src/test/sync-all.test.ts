@@ -63,7 +63,7 @@ function buildSyncOver(specs: SourceSpec[]): {
   const syncLock = { acquire: () => true, release: () => {} };
 
   return {
-    api: new LocalMirror({ configStore, stateStore, vaultWriter, clock, connectorFor, syncLock, activeUniverse: () => 'default' }),
+    api: new LocalMirror({ configStore, stateStore, vaultWriter, clock, connectorFor, syncLock, universes: () => ({ active: 'default', registry: [] }) }),
     written,
     deleted,
   };

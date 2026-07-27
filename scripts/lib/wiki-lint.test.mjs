@@ -155,6 +155,18 @@ test("lintVault — the append-only ledger (actions-log.md) is a raw zone, never
   assert.deepEqual(report.orphans, ["topic.md"]);
 });
 
+test("lintVault — a universe profile is never an orphan, at the root or in its subtree", () => {
+  // A universe's profile page describes a whole sphere; nothing links TO it by
+  // design, in either universe layout — so flagging it would be a permanent lie
+  // the owner can never clear, exactly like actions-log.md.
+  const report = lintVault([
+    { path: "universe.md", frontmatter: { type: "universe" }, body: "" },
+    { path: "acme/universe.md", frontmatter: { type: "universe" }, body: "" },
+    { path: "topic.md", frontmatter: {}, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["topic.md"]);
+});
+
 // ── stale entity pages: an entity note left behind by fresher notes citing it ──
 
 test("lintVault — flags an entity page older than the freshest note linking to it", () => {

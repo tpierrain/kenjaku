@@ -55,6 +55,22 @@ export function listAllUniverses(registry) {
 }
 
 /**
+ * Resolves the active-universe pointer AGAINST the registry: a pointer naming a
+ * universe that no longer exists is an orphan and resolves to the default scope.
+ * The pointer is per-machine and gitignored while the registry is committed, so a
+ * rename/delete on one machine leaves the others pointing at a ghost — which the
+ * engine would happily turn into "zero hits, silently". Pure.
+ *
+ * The implicit default needs no membership test: it is never stored in the
+ * registry (addToRegistry refuses it) and it IS the fallback, so checking the raw
+ * registry and checking listAllUniverses() are the same function here — the
+ * shorter one is kept on purpose.
+ */
+export function resolveActiveUniverse(active, registry) {
+  return registry.includes(active) ? active : DEFAULT_UNIVERSE;
+}
+
+/**
  * The progressive-disclosure gate (ADR 0034): true only once at least TWO
  * universes exist (the implicit default plus one created), i.e. the registry
  * holds at least one entry. Below the gate the whole feature stays invisible —
@@ -161,14 +177,18 @@ export function nativeConnectorsReminder({ from, to }) {
   );
 }
 
-/** Path of the committed registry of created universes, inside the .vault-rag dir. */
+/**
+ * Path of the committed registry of created universes, inside the .vault-rag dir.
+ * POSIX-normalised like vaultRagDir: fs tolerates either separator, but every
+ * string comparison (fake-fs keys, log lines, dedup) does not.
+ */
 export function registryPath(dir) {
-  return join(dir, "universes.json");
+  return toPosix(join(dir, "universes.json"));
 }
 
 /** Path of the per-machine active-universe pointer, inside the .vault-rag dir. */
 export function activeUniversePath(dir) {
-  return join(dir, "active-universe");
+  return toPosix(join(dir, "active-universe"));
 }
 
 /**
@@ -199,12 +219,41 @@ export function writeRegistry(io, dir, registry) {
 /**
  * Reads the active-universe pointer (absent/blank → the default universe, so a
  * single-universe brain behaves exactly as today). Mirrors the engine's reader.
+ * The result is VALIDATED against the registry (cf. resolveActiveUniverse), so no
+ * caller can ever act on a universe that no longer exists.
  */
 export function readActiveUniverse(io, dir) {
+  return resolveActiveUniverse(readRawActiveUniverse(io, dir), readRegistry(io, dir));
+}
+
+/**
+ * The pointer AS WRITTEN on disk, unvalidated (absent/blank → the default). Only
+ * the self-heal needs this: it must see the orphan in order to repair and report
+ * it. Everything else reads through readActiveUniverse.
+ */
+export function readRawActiveUniverse(io, dir) {
   const path = activeUniversePath(dir);
   if (!io.existsSync(path)) return DEFAULT_UNIVERSE;
-  const raw = io.readFileSync(path).trim();
+  // String() because node's readFileSync WITHOUT an encoding returns a Buffer, and
+  // callers pass it that way (file-back-note.mjs does). A Buffer has no .trim(), so
+  // this used to throw — but only on a brain that HAS a pointer file, which is only
+  // ever true past the second universe. Never in a test, always in the field.
+  const raw = String(io.readFileSync(path)).trim();
   return raw || DEFAULT_UNIVERSE;
+}
+
+/**
+ * Repairs an orphan pointer ON DISK: when the pointer names a universe that is no
+ * longer in the registry, it is rewritten to the default scope and the repair is
+ * reported so the session can say it in one line (never silently wrong). A healthy
+ * pointer is left completely untouched — no write, nothing to report.
+ */
+export function healActiveUniversePointer(io, dir) {
+  const from = readRawActiveUniverse(io, dir);
+  const active = resolveActiveUniverse(from, readRegistry(io, dir));
+  if (active === from) return { healed: false, from, active };
+  writeActiveUniverse(io, dir, active);
+  return { healed: true, from, active };
 }
 
 /** Persists the active-universe pointer (per-machine), creating the dir. */
@@ -246,4 +295,74 @@ export function createAndSwitch(io, dir, rawName) {
   if (created) writeRegistry(io, dir, addToRegistry(registry, name));
   writeActiveUniverse(io, dir, name);
   return { ok: true, name, created, openedGate };
+}
+
+/**
+ * The shared gate of every operation that acts ON an existing universe (delete,
+ * rename): it must be a real created one, never the implicit default — which has
+ * no registry entry and no folder of its own, so "unknown" would be a lie about
+ * it. Returns the refusal to hand straight back, or null when the name is good.
+ */
+function refuseUnlessCreated(registry, name) {
+  if (!name) return { ok: false, reason: "empty", name };
+  if (name === DEFAULT_UNIVERSE) return { ok: false, reason: "reserved", name };
+  if (!registry.includes(name)) {
+    return { ok: false, reason: "unknown", name, available: registry };
+  }
+  return null;
+}
+
+/**
+ * Decides what deleting a universe would mean — WITHOUT touching anything. Pure
+ * over the injected fs reads: it validates the slug against the registry and
+ * returns either a refusal or the exact end state (pruned registry, and whether
+ * the active pointer must fall back to the default scope).
+ *
+ * Deletion is the one irreversible universe operation, so every refusal is
+ * decided here rather than in the CLI's prose (ADR 0009): a caller that skips a
+ * check cannot exist if the check is the return value.
+ */
+export function planUniverseDeletion(io, dir, rawName) {
+  const name = normalizeUniverseName(rawName);
+  const registry = readRegistry(io, dir);
+  const refusal = refuseUnlessCreated(registry, name);
+  if (refusal) return refusal;
+  return {
+    ok: true,
+    name,
+    registry: registry.filter((u) => u !== name),
+    // Through the validated reader, like every other caller: what the owner is
+    // actually standing in, never what the file happens to say.
+    resetPointer: readActiveUniverse(io, dir) === name,
+  };
+}
+
+/**
+ * Decides what renaming a universe would mean — WITHOUT touching anything. Same
+ * contract as planUniverseDeletion: the source is validated exactly as a deletion
+ * validates its target (a rename is a move, and moving something that is not
+ * there fails the same way).
+ */
+export function planUniverseRename(io, dir, rawFrom, rawTo) {
+  const from = normalizeUniverseName(rawFrom);
+  const registry = readRegistry(io, dir);
+  const refusal = refuseUnlessCreated(registry, from);
+  if (refusal) return refusal;
+  const to = normalizeUniverseName(rawTo);
+  if (!to) return { ok: false, reason: "empty", name: to };
+  if (to === DEFAULT_UNIVERSE) return { ok: false, reason: "reserved", name: to };
+  if (registry.includes(to)) return { ok: false, reason: "exists", name: to };
+  return {
+    ok: true,
+    from,
+    to,
+    registry: addToRegistry(
+      registry.filter((u) => u !== from),
+      to,
+    ),
+    // Renaming what you are standing in leaves you standing in it, under its new
+    // name. Anything else would drop you into the cross-cutting scope as a side
+    // effect of a naming decision.
+    movePointer: readActiveUniverse(io, dir) === from,
+  };
 }

@@ -16,10 +16,12 @@
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
 | **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent) |
-| **local-mirror** | **95.63 %** | 2026-07-16 (post-B4) | [re-audit](#full-local-mirror-re-audit--2026-07-16-post-b4) — the 78.69 % closer below is superseded |
+| **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
 its tag-time snapshot; the B4 + optional-weak-tier gains below land in `main` after v3.4.2).
+**local-mirror's 90.44 % is pinned to v4.2.0** — a published tag is frozen, so that number stays true
+for it forever, debt table included.
 
 ## Visual overview (scores at a glance)
 
@@ -30,8 +32,8 @@ its tag-time snapshot; the B4 + optional-weak-tier gains below land in `main` af
 
 ```
 scripts       97.27 %  ██████████████████░░
-local-mirror  95.63 %  █████████████████░░░
 rag           90.42 %  ██████████████░░░░░░
+local-mirror  90.44 %  ██████████████░░░░░░
                        └──────────────────┘  70 ──────────► 100 %
 ```
 
@@ -88,6 +90,10 @@ Citations / config / version / deps
 
 ### local-mirror — by Hive layer
 
+> 📌 **These bars are the 2026-07-16 photo** (17 files, aggregate 95.63 %), kept as the last
+> by-layer view. The package has since grown to 26 mutated files at **90.44 %** — for the current
+> per-file state, read the [v4.2.0 re-audit](#full-local-mirror-re-audit--2026-07-28-v420) table below.
+
 ```
 Domain
   reconcile              100.00 %  ████████████████████
@@ -130,6 +136,77 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## Full `local-mirror` re-audit — 2026-07-28 (v4.2.0)
+
+**Current `local-mirror` score: 90.44 %** (940 killed + 6 timeout / 1046 covered, 100 survived,
+0 no-coverage). Run at `concurrency: 4`, 11 min 41 s, on the exact tree tagged **v4.2.0** (universes v2).
+
+**How it got there, because the path matters more than the number.** Three full campaigns:
+
+| Run | Score | What changed |
+|---|---|---|
+| First audit | 89.10 % | the release's code as written (114 survivors) |
+| After the obvious hole | 89.29 % | the universe reader's default `readFileSync` was never exercised — every test injected a fake (`9fedd47`) |
+| **Tagged** | **90.44 %** | after the audit below found **11 more live mutants that were this release's own** (`3d3a465`) |
+
+**The audit that mattered, and the trap it sprung.** The first read of the drop against 95.63 % blamed
+it entirely on unhardened auto-refresh code, on the strength of a per-**file** origin table. That table
+was wrong: new code lands **inside** old files, so `lib/config.ts`, `lib/markdown.ts` and
+`domain/local-mirror.ts` — all filed as "pre-existing" — had been touched by the universes work, and
+their survivors were ours. Comparing the per-file scores against the 2026-07-16 table (every file that
+scores *worse* has new code in it) and then reading each survivor's own diff is what surfaced them.
+Recorded as a durable reading rule in [`RETROSPECTIVE.md`](RETROSPECTIVE.md) → "a file is not an
+increment".
+
+What those 11 were, and why they were worth killing rather than explaining away:
+
+- **`lib/config.ts` 83.33 % → 100 %** (4): nothing asserted the segments of the two `.vault-rag` paths.
+  A wrong path does not fail loudly — it reads as "no such file" and degrades to the default scope,
+  silently freezing a new mirror into the wrong universe. That is the *exact* failure mode this release
+  exists to close, left unpinned.
+- **`domain/local-mirror.ts` 94.15 % → 95.82 %** (6): the `setup_source` guidance messages were
+  asserted by fragments, so half a sentence could be deleted unnoticed — and `universes.join(', ')` →
+  `join("")` survived, i.e. no test ever rendered the menu **with its separators** (the discipline's
+  "collections ≥ 2" rule, missed). Both messages are now asserted whole.
+- **`lib/markdown.ts` 83.33 % → 100 %** (1): the universe guard was only ever reached with `undefined`,
+  which js-yaml drops from the frontmatter — unobservable through the acceptance tests. Pinned at the
+  unit on the case that *is* observable: a blank universe is not a universe.
+
+**The remainder of the −5.19 against 95.63 % is genuine growth**: 710 → 1046 mutants (+336), mostly
+auto-refresh code (S2 inter-process lock, scheduler, boot) that never had a hardening pass.
+
+Per-file, worst-first:
+
+| File | Score | Survived | Whose debt, and why it is still there |
+|---|---|---|---|
+| `server.ts` | 50.00 % | 19 (+2 t/o) | composition root — integration-only boot lines. The one survivor near this release's wiring is the **auto-refresh** sync-lock construction, not the universe reader. |
+| `auto-sync-scheduler.ts` | 70.59 % | 10 (+1 t/o) | **auto-refresh**, never hardened |
+| `adapters/fs-sync-lock.ts` | 72.41 % | 24 | **auto-refresh** (S2 inter-process lock), never hardened |
+| `content-hash.ts` | 80.00 % | 1 | small never-hardened leaf (unchanged since 2026-07-16) |
+| `fs-state-store.ts` | 81.82 % | 4 | small never-hardened leaf (unchanged) |
+| `notion-connector.ts` | 85.29 % | 5 | unchanged |
+| `fs-universes.ts` | **85.71 %** | 1 | **this release — paid** (57.14 % → 85.71 %); the 1 left is a documented equivalent |
+| `auto-sync-boot.ts` | 86.96 % | 3 (+1 t/o) | **auto-refresh**, never hardened |
+| `fs-vault-writer.ts` | 87.50 % | 1 | unchanged |
+| `strip-volatile-urls.ts` | 89.19 % | 4 | unchanged |
+| `sync-interval.ts` | 92.31 % | 1 | **auto-refresh** |
+| `fs-config-store.ts` | 93.75 % | 2 | unchanged |
+| `notion-transformers.ts` | 94.87 % | 6 | hardened — documented equivalents |
+| `lib/universe.ts` | **95.12 %** | 2 | **this release**; both **equivalent** — `JSON.parse(raw ?? '')` → any other unparseable string, and `catch { return [] }` → `catch {}`, which falls through to the same `return []` |
+| `domain/local-mirror.ts` | **95.82 %** | 15 (+2 t/o) | **this release — paid** (94.15 % → 95.82 %); the 15 left sit on pre-existing lines, none on the universe code |
+| `notion-url.ts` / `notion-gateway.ts` | 97.87 % / 97.44 % | 1 / 1 | hardened — documented equivalents |
+| `lib/config.ts`, `lib/markdown.ts` | **100.00 %** | 0 | **this release — paid** (both 83.33 % → 100 %) |
+| `index.ts`, `reconcile.ts`, `auto-sync-supervisor.ts`, `fresh-env.ts`, `system-clock.ts` | 100.00 % | 0 | full |
+
+**What this release deliberately did NOT pay.** The auto-refresh tier (`fs-sync-lock` 72.41 %,
+`auto-sync-scheduler` 70.59 %, `auto-sync-boot` 86.96 %) and `server.ts` are **dated debt from another
+increment**, recorded here rather than folded into a universes release: hardening them is its own pass,
+with its own audit, and mixing it in would hide which change moved the number. That is the natural
+next "B5" target for this package, alongside rag's embedders. The distinction is only defensible
+because the survivors were read **line by line** rather than file by file — see the trap above.
 
 ---
 

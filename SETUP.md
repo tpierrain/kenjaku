@@ -251,6 +251,91 @@ goes through your default editor (or, if no editor opens, Claude shows the note 
 | `vault/` | Delete the example notes, put in your own. Keep the naming conventions. |
 | `.claude/skills/` | Add your skills (see `EXAMPLES.md`). `/improve` helps you evolve them. |
 
+### 5.1 Telling your brain about your context (optional, 2 minutes)
+
+Your brain knows your **notes**. It does not know that you run engineering at Acme, that Zoe is the
+CTO there, or that "Slack" for you means `acme.slack.com`. Those are exactly the facts nobody thinks
+to *search* for, because you need them to phrase the search in the first place.
+
+So, early on, your brain **offers once** to ask you a handful of questions: what this place is, your
+role, since when, the people who matter, the subjects that keep coming back, and which accounts your
+tools use. Every question is skippable, and **"no thanks" is permanent** — it will not come back at
+you session after session.
+
+What it writes is a **normal note** (`vault/universe.md`), which means:
+
+- you can **edit it any time** in Obsidian or your editor, and the change takes effect immediately —
+  nothing to re-run;
+- it is **versioned** with the rest of your vault, and **searchable** like any other note;
+- it is **never overwritten** — once the page exists, it is yours.
+
+A short summary of it is handed to each new conversation, so your brain starts already knowing who
+your people are. To fill it in later, or to change your mind, just ask ("describe my context").
+
+> If you use several **universes** (see `/switch` below), each one gets its **own** page: the people
+> and the accounts of one sphere never leak into another's answers.
+
+### 5.2 Renaming a universe
+
+Names age: a client becomes an employer, a project gets its real name. Just ask — *"rename my acme
+universe to Acme Corp"* — and your brain runs it for you. Nothing is lost, and renaming it back undoes
+it, so there is nothing to be careful about here.
+
+It is a **full** rename: the folder `vault/acme/` becomes `vault/acme-corp/`, every note inside is
+re-labelled, and you stay in that universe under its new name — so the new name is true in Obsidian
+and in git too, not only in your brain's list. The one cost: because every file moved, your brain
+re-reads and re-encodes that universe's notes (a few minutes if it is a big one; it is compute, not
+data).
+
+**Your brain tells you all that before it does any of it**, and waits for your go: how many notes are
+about to move, and that re-encoding them for search will keep the machine busy — seconds on a small
+universe, a few minutes on a large one. Nothing has happened yet at that point, so you can say no, or
+pick another name if it tells you the one you asked for is taken.
+
+Two things it will refuse: renaming onto a name you already use (that would be *merging* two
+universes, a different question), and renaming your cross-cutting scope, which has no folder of its
+own.
+
+> 💻 **On another machine**, the new name arrives with your next `git pull`. Your brain notices that
+> the universe you were in there has been renamed and puts you back on solid ground on its own, with
+> a one-line notice. Nothing to do.
+
+### 5.3 Deleting a universe — the one operation you run yourself
+
+You will most likely never need this. It is written down so that the day you do (a client you no
+longer work with, a sphere that turned out to be one too many), you find a procedure rather than
+improvise one.
+
+**Deleting a universe deletes its notes.** So, deliberately, your brain will never offer it, never
+suggest it, and never do it for you — it will only hand you the command when you explicitly ask to
+delete a universe. **You** run it, in **your** terminal, from your brain folder:
+
+```bash
+node scripts/delete-universe.mjs "<name>"
+```
+
+It tells you how many notes are about to go, then asks you to **retype the name** to confirm —
+anything else cancels and nothing is touched. Only then does it remove `vault/<name>/`, drop the
+universe from your list, put you back in your cross-cutting scope if you were standing in the one you
+deleted, and re-index. Your cross-cutting (default) scope cannot be deleted; it is where every note
+that belongs to no particular sphere lives.
+
+The script **refuses to run** if it is not talking to a real terminal — including when Claude tries
+to run it for you. That is on purpose: a confirmation someone else can type on your behalf is not a
+confirmation.
+
+**And it is undoable.** Your vault is a git repository that has been committing your notes all along,
+so the notes are still in its history. To bring a deleted universe back, find the commit that removed
+it, then restore the folder from just before it:
+
+```bash
+git log --diff-filter=D -- vault/<name>/     # the commit that deleted it
+git checkout <commit>~1 -- vault/<name>/     # bring the notes back
+```
+
+Then tell your brain to re-index (or run `cd rag && npm run reindex`), and re-create the universe with
+`/switch` if you want to work in it again.
+
 ## 6. External connectors (optional)
 
 The generator only provides the RAG engine. To also query your other sources
@@ -325,7 +410,10 @@ skill** (*"set up a local mirror of a Notion zone"*). Create a Notion integratio
 (<https://www.notion.so/my-integrations>), **share it on the root page** of the zone, put its token in
 `.env` under a name of your choice (e.g. `NOTION_TOKEN_PASC=secret_…`), and pass **that env-var name**
 to the skill — **the token never travels through the chat**. The skill tests the scope, does the first
-sync, and explains each step.
+sync, and explains each step. **If you have several universes**, it first asks which one the mirror
+belongs to (the one you are working in is proposed, and a cross-cutting mirror is one word away) and
+pulls nothing until you answer — its pages then live in `vault/<universe>/mirrors/<name>/`. Getting
+that right afterwards would re-encode the whole mirror, which is why it asks before, not after.
 
 Once a mirror is declared, it also **refreshes itself in the background** while a brain window is open:
 the `local-mirror` server checks freshness on a timer and re-syncs only the mirrors that fell behind, no
@@ -552,7 +640,7 @@ Everyday capabilities, invoked in plain words (the `/name` is the explicit form)
 | **`/prepare-1-1`** | Prepares a 1-1 **both ways**: with **your manager** or with someone **you manage** (tracking commitments, KPI review). Cross-references the person's profile + last 1-1 + recent signals. |
 | **`/improve`** | Evolves your harness: reads the frictions, proposes and applies the useful improvements. |
 | **`/local-mirror`** | Plugs your brain onto a **local mirror** — a live zone of an internal tool (**Notion** today) that gets **mirrored into your vault** as Markdown, so the RAG searches and **cites** it. Declare one, then sync / refresh / inspect it. *The central RAG you don't have yet — but local, right now.* |
-| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Invisible until you have a second universe. |
+| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Also records **what a universe is** (your role there, its people, its topics, which accounts your tools use — see §5.1). Invisible until you have a second universe. Renaming one is a normal request (§5.2); deleting one is never offered and is a command **you** run yourself (§5.3). |
 | **`/import`** | Imports the notes of a **previous** brain into this one (safe plan → confirm → copy → re-index). See §11. |
 | **`/update-engine`** | Upgrades your brain's **engine** (search code, launchers, engine scripts), opt-in, **never touching your notes**. See §10. |
 | **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |
@@ -600,5 +688,6 @@ The rest is **not shipped**: those are **skill ideas** to let emerge as you need
 - **Installer** — the program that sets everything up for you.
 - **Repo / git** — the versioned place where everything is stored and backed up.
 - **Universe** — a soft retrieval scope (a past employer, a client, a sphere); see `/switch`.
+- **Profile** — the note describing what a universe *is* (role, people, topics, accounts); see §5.1.
 
 </details>

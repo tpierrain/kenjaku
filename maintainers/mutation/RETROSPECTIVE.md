@@ -63,6 +63,14 @@ confirmed, none refuted, plus 3 new infra-shaped clusters.**
   construction (`new Client({auth})`), `import.meta.url` guards, `Number()`/parse that already trims.
 - **Tooling trap:** Stryker **inflates** the score via false timeouts (a bogus 87.5–100% masking the honest
   ~56%). Bridle `concurrency`/`timeout` in the config before trusting a run.
+- **Reading trap — a file is not an increment** (found 2026-07-28, gating v4.2.0). When a release audit
+  asks *"which survivors are mine?"*, the answer is **not** readable from the file list: new code lands
+  **inside** files that already existed, so a file whose name predates the work can hold nothing but the
+  work. Labelling `config.ts` / `markdown.ts` / the domain service "pre-existing" on that basis nearly
+  shipped 11 live mutants of the release's own code as somebody else's debt. **The cheap, reliable
+  read:** diff the per-file table against the **previous audit's** table — every file that scores *worse*
+  is one where new, unhardened code landed — then read each survivor's own diff to see whose line it sits
+  on. A per-file score is a blend of old and new code, so only the survivor's line answers the question.
 
 > **The objective signal is the mutation score, not line coverage** — a suite can cover 100% of lines and
 > kill ~0% of mutants (exactly what `document-scanner`/`vault-watcher` did at 0%).

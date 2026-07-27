@@ -12,23 +12,37 @@ import {
   createAndSwitch,
   parseSwitchArgs,
   vaultRagDir,
+  registryPath,
+  activeUniversePath,
   runSwitchCli,
   isMultiverse,
+  resolveActiveUniverse,
+  healActiveUniversePointer,
+  readRawActiveUniverse,
   nativeConnectorsReminder,
+  planUniverseDeletion,
+  planUniverseRename,
   DEFAULT_UNIVERSE,
 } from "./universes.mjs";
 
 // In-memory fs fake: a Map<path, contents> behind the fs surface the module uses.
+// `writes` records every write (path + data) so a test can claim "this touched
+// NOTHING" — content equality alone cannot tell a no-op from a rewrite.
 function fakeFs(initial = {}) {
   const files = new Map(Object.entries(initial));
+  const writes = [];
   return {
     files,
+    writes,
     existsSync: (p) => files.has(p),
     readFileSync: (p) => {
       if (!files.has(p)) throw new Error(`ENOENT: ${p}`);
       return files.get(p);
     },
-    writeFileSync: (p, data) => files.set(p, data),
+    writeFileSync: (p, data) => {
+      writes.push({ path: p, data });
+      files.set(p, data);
+    },
     mkdirSync: () => {},
   };
 }
@@ -92,9 +106,101 @@ test("readActiveUniverse falls back to the default when no pointer exists", () =
 
 test("writeActiveUniverse then readActiveUniverse round-trips (trimmed)", () => {
   const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["acme"]); // the universe must exist to be pointed at
   writeActiveUniverse(io, "/brain/.vault-rag", "acme");
 
   assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), "acme");
+});
+
+test("readActiveUniverse survives an fs that returns Buffers (node's raw readFileSync)", () => {
+  // node's readFileSync WITHOUT an encoding returns a Buffer, and callers have
+  // always been free to pass it (file-back-note.mjs does). A Buffer has no
+  // .trim(), so the pointer read used to throw — but only on a brain that HAS a
+  // pointer file, i.e. only once a second universe exists. Never in a test, always
+  // in the field.
+  const io = {
+    existsSync: () => true,
+    readFileSync: (p) =>
+      Buffer.from(p.endsWith("universes.json") ? '{"universes":["acme"]}\n' : "acme\n"),
+  };
+
+  assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), "acme");
+});
+
+test("readActiveUniverse ignores a pointer whose universe is gone from the registry", () => {
+  const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["blue"]);
+  writeActiveUniverse(io, "/brain/.vault-rag", "acme"); // deleted/renamed elsewhere
+
+  assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), DEFAULT_UNIVERSE);
+});
+
+// --- self-heal of an orphan pointer ------------------------------------------
+
+test("healActiveUniversePointer repairs an orphan pointer on disk and reports what it healed", () => {
+  const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["blue"]);
+  writeActiveUniverse(io, "/brain/.vault-rag", "acme"); // deleted/renamed on another machine
+
+  const res = healActiveUniversePointer(io, "/brain/.vault-rag");
+
+  assert.deepEqual(res, { healed: true, from: "acme", active: DEFAULT_UNIVERSE });
+  assert.equal(readRawActiveUniverse(io, "/brain/.vault-rag"), DEFAULT_UNIVERSE);
+});
+
+test("healActiveUniversePointer leaves a healthy pointer alone and writes NOTHING", () => {
+  const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["acme"]);
+  writeActiveUniverse(io, "/brain/.vault-rag", "acme");
+  io.writes.length = 0; // ignore the fixture's own writes
+
+  const res = healActiveUniversePointer(io, "/brain/.vault-rag");
+
+  assert.deepEqual(res, { healed: false, from: "acme", active: "acme" });
+  // Every session start runs this: a healthy brain must not rewrite state on disk.
+  assert.deepEqual(io.writes, []);
+});
+
+test("healActiveUniversePointer creates no pointer file on a brain that never had one", () => {
+  const io = fakeFs();
+
+  const res = healActiveUniversePointer(io, "/brain/.vault-rag");
+
+  assert.deepEqual(res, { healed: false, from: DEFAULT_UNIVERSE, active: DEFAULT_UNIVERSE });
+  assert.deepEqual(io.writes, []);
+});
+
+test("cross-machine: a universe renamed elsewhere heals here instead of searching a ghost", () => {
+  // Machine B, working in 'acme'. The registry is COMMITTED, the pointer is
+  // per-machine and GITIGNORED — that asymmetry is the whole bug.
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+  writeActiveUniverse(io, DIR, "acme");
+
+  // git pull: the rename made on machine A lands in the registry alone.
+  writeRegistry(io, DIR, ["acme-corp"]);
+
+  // The read side already refuses to hand the ghost to anyone (filing a note,
+  // scoping a search), before any repair happens.
+  assert.equal(readActiveUniverse(io, DIR), DEFAULT_UNIVERSE);
+
+  // Session start makes the disk agree, exactly once, and reports it.
+  assert.deepEqual(healActiveUniversePointer(io, DIR), {
+    healed: true,
+    from: "acme",
+    active: DEFAULT_UNIVERSE,
+  });
+  assert.deepEqual(runSwitchCli(io, DIR, ["list"]), {
+    code: 0,
+    message: "* default\n  acme-corp",
+  });
+
+  // The NEXT session finds nothing to heal (and says nothing).
+  assert.deepEqual(healActiveUniversePointer(io, DIR), {
+    healed: false,
+    from: DEFAULT_UNIVERSE,
+    active: DEFAULT_UNIVERSE,
+  });
 });
 
 // --- switch (guarded) --------------------------------------------------------
@@ -211,6 +317,22 @@ test("vaultRagDir joins the .vault-rag state dir onto the brain root", () => {
   assert.equal(vaultRagDir("/brain"), "/brain/.vault-rag");
 });
 
+// The module states ONE convention in its header: state paths are POSIX. Only
+// vaultRagDir honoured it, and join() hides the gap on macOS (it emits "/"
+// anyway), so CI on Windows was the only thing that could ever see the break.
+// Handing each builder a backslashed dir reproduces it on ANY platform: a
+// builder that normalises its own output cannot leak a separator it was given.
+test("every state-path builder normalises to POSIX, even from a backslashed dir", () => {
+  const winDir = "C:\\Users\\me\\brain\\.vault-rag";
+
+  assert.equal(vaultRagDir("C:\\Users\\me\\brain"), "C:/Users/me/brain/.vault-rag");
+  assert.equal(registryPath(winDir), "C:/Users/me/brain/.vault-rag/universes.json");
+  assert.equal(
+    activeUniversePath(winDir),
+    "C:/Users/me/brain/.vault-rag/active-universe",
+  );
+});
+
 // --- CLI dispatch (exit code + message) --------------------------------------
 
 const DIR = "/brain/.vault-rag";
@@ -279,6 +401,7 @@ test("runSwitchCli switch back to the default scope does NOT append the reminder
 
 test("runSwitchCli current prints the active universe (exit 0)", () => {
   const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
   writeActiveUniverse(io, DIR, "acme");
 
   assert.deepEqual(runSwitchCli(io, DIR, ["current"]), { code: 0, message: "acme" });
@@ -294,6 +417,29 @@ test("runSwitchCli list marks the active universe among all", () => {
   assert.equal(res.code, 0);
   assert.match(res.message, /\* acme/);
   assert.match(res.message, / {2}default/);
+});
+
+// ── resolveActiveUniverse: the pointer can outlive the universe it names ──────
+// The pointer is per-machine and gitignored; the registry is committed. So a
+// rename/delete on machine A leaves machine B pointing at a universe that no
+// longer exists — and an unvalidated pointer silently filters every search down
+// to zero hits. An orphan pointer resolves to the default scope instead.
+
+test("resolveActiveUniverse falls back to the default when the pointer names an unknown universe", () => {
+  assert.equal(resolveActiveUniverse("acme", ["blue"]), DEFAULT_UNIVERSE);
+});
+
+test("resolveActiveUniverse keeps a pointer that IS in the registry", () => {
+  // Two entries, deliberately unsorted, and the match is the LAST one: an
+  // implementation peeking only at registry[0] diverges here.
+  assert.equal(resolveActiveUniverse("acme", ["blue", "acme"]), "acme");
+});
+
+test("resolveActiveUniverse keeps the default even though the registry never stores it", () => {
+  // The default is implicit: its ABSENCE from the registry is what defines it
+  // (addToRegistry refuses to store it). Validating against the raw registry
+  // instead of the full list would heal the default away on every brain.
+  assert.equal(resolveActiveUniverse(DEFAULT_UNIVERSE, []), DEFAULT_UNIVERSE);
 });
 
 // ── isMultiverse: the progressive-disclosure gate (ADR 0034 Step 4) ──────────
@@ -335,4 +481,205 @@ test("nativeConnectorsReminder warns when leaving the default scope for a named 
   const msg = nativeConnectorsReminder({ from: DEFAULT_UNIVERSE, to: "acme" });
   assert.match(msg, /single-account/i);
   assert.match(msg, /'acme'/);
+});
+
+// ── planUniverseDeletion: the pure core of `delete-universe.mjs` ──────────────
+// Deletion is the one irreversible universe operation, so EVERY refusal is decided
+// here, in a pure function that the CLI cannot talk out of (ADR 0009). It never
+// touches the fs: it reads the state and returns what the caller must do.
+
+test("planUniverseDeletion refuses a universe that was never created", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+  });
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", "ghost"), {
+    ok: false,
+    reason: "unknown",
+    name: "ghost",
+    available: ["acme"],
+  });
+});
+
+test("planUniverseDeletion accepts a created universe and prunes it from the registry", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+  });
+  // Two entries, deleting the SECOND one: a one-entry registry could not tell
+  // "pruned the named one" from "emptied the registry".
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", "blue"), {
+    ok: true,
+    name: "blue",
+    registry: ["acme"],
+    // Nobody is standing in 'blue' here (no pointer at all) — the twin of the
+    // active-universe case below, so "reset it" cannot pass as a constant.
+    resetPointer: false,
+  });
+});
+
+test("planUniverseDeletion refuses the default scope as RESERVED, not as unknown", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+  });
+  // The default is never IN the registry, so "unknown" would come out on its own —
+  // and would tell the owner their cross-cutting scope does not exist. It is not
+  // missing, it is undeletable: the vault root is where every unscoped note lives.
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", DEFAULT_UNIVERSE), {
+    ok: false,
+    reason: "reserved",
+    name: DEFAULT_UNIVERSE,
+  });
+});
+
+test("planUniverseDeletion refuses an empty slug rather than reporting an unknown ''", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+  });
+  assert.deepEqual(planUniverseDeletion(io, ".vault-rag", "///"), {
+    ok: false,
+    reason: "empty",
+    name: "",
+  });
+});
+
+test("planUniverseDeletion says the pointer must fall back when the ACTIVE universe goes", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+  writeActiveUniverse(io, DIR, "blue");
+
+  assert.deepEqual(planUniverseDeletion(io, DIR, "blue"), {
+    ok: true,
+    name: "blue",
+    registry: ["acme"],
+    resetPointer: true,
+  });
+});
+
+test("planUniverseDeletion leaves the pointer alone when it stands in ANOTHER universe", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+  writeActiveUniverse(io, DIR, "acme");
+
+  // A pointer that EXISTS and names a live universe: distinct from the
+  // no-pointer-at-all case, and the one that tells "it is the active one" apart
+  // from "it is any named one".
+  assert.deepEqual(planUniverseDeletion(io, DIR, "blue"), {
+    ok: true,
+    name: "blue",
+    registry: ["acme"],
+    resetPointer: false,
+  });
+});
+
+// ── planUniverseRename: the pure core of `rename-universe.mjs` ────────────────
+// A full rename (D4): the folder moves, every note under it is re-stamped, the
+// registry entry changes name. Same discipline as deletion — the function decides
+// and computes, it never touches anything.
+
+test("planUniverseRename refuses a source universe that does not exist", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.deepEqual(planUniverseRename(io, DIR, "ghost", "whatever"), {
+    ok: false,
+    reason: "unknown",
+    name: "ghost",
+    available: ["acme"],
+  });
+});
+
+test("planUniverseRename computes the renamed registry, re-sorted", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+
+  // 'acme' → 'zeta' has to move to the END: renaming in place would leave
+  // ["zeta", "blue"], which reads sorted only if you never look.
+  assert.deepEqual(planUniverseRename(io, DIR, "Acme", "Zeta"), {
+    ok: true,
+    from: "acme",
+    to: "zeta",
+    registry: ["blue", "zeta"],
+    // Nobody is standing in 'acme' here (no pointer at all): the twin of the
+    // follow-the-pointer case below.
+    movePointer: false,
+  });
+});
+
+test("planUniverseRename refuses a target name that is already taken", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+
+  // Merging two universes is a different operation with a different meaning
+  // (whose notes win, whose profile survives) — not something a rename should
+  // perform silently by moving one folder onto another.
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "Blue"), {
+    ok: false,
+    reason: "exists",
+    name: "blue",
+  });
+});
+
+test("planUniverseRename refuses to rename the default scope", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  // The default scope has no folder of its own (it IS the vault root) and no
+  // registry entry: there is nothing to rename, and "unknown" would suggest it
+  // had gone missing.
+  assert.deepEqual(planUniverseRename(io, DIR, DEFAULT_UNIVERSE, "personal"), {
+    ok: false,
+    reason: "reserved",
+    name: DEFAULT_UNIVERSE,
+  });
+});
+
+test("planUniverseRename refuses to rename a universe INTO the default scope", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  // The twin of the case above, and the dangerous one: 'default' is never stored
+  // in the registry, so without this guard the entry would simply vanish while a
+  // folder full of notes stayed on disk under its old name.
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "Default"), {
+    ok: false,
+    reason: "reserved",
+    name: DEFAULT_UNIVERSE,
+  });
+});
+
+test("planUniverseRename refuses an empty target rather than renaming to nothing", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "///"), {
+    ok: false,
+    reason: "empty",
+    name: "",
+  });
+});
+
+test("planUniverseRename carries the pointer along when you rename the universe you are in", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+  writeActiveUniverse(io, DIR, "acme");
+
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "acme-corp"), {
+    ok: true,
+    from: "acme",
+    to: "acme-corp",
+    registry: ["acme-corp", "blue"],
+    // Renaming what you are standing in should leave you standing in it, under
+    // its new name — not silently drop you back to the cross-cutting scope.
+    movePointer: true,
+  });
+});
+
+test("planUniverseRename refuses an empty SOURCE (the gate it now shares with deletion)", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.deepEqual(planUniverseRename(io, DIR, "", "acme-corp"), {
+    ok: false,
+    reason: "empty",
+    name: "",
+  });
 });
