@@ -54,30 +54,40 @@ installer.
    caller's goodwill. The digest is built from the note **as it is on disk**, so editing the page in
    Obsidian changes what is injected, with nothing to re-run.
 
-3. **The injected copy never says "universe".** The digest is *not* behind the progressive-disclosure
+3. **Two worlds, two vocabularies, decided by the core.** Below the gate the notion does not exist
+   for its owner, so every word aimed at them says *their context, their world, this place*; the
+   moment a second universe exists, the opposite holds, because that word is now the one they switch
+   with. Which world applies is stated **by the deterministic core** (`BELOW` / `PAST the disclosure
+   gate`) and obeyed by the skill: deciding requires counting universes, and counting is not the
+   model's job (ADR 0009). **The one exception is the artifact itself** — the page is `universe.md`
+   with `type: universe` in both worlds. Naming it `context.md` was considered and **rejected**: for
+   a developer, "context" reads as the LLM context window, and a filename an owner rarely opens is a
+   far smaller leak than a vocabulary collision they meet every day.
+
+4. **The injected copy never says "universe".** The digest is *not* behind the progressive-disclosure
    gate, deliberately: a single-universe brain is the common case and the one most likely to fill a
    profile in, so gating the digest would make the capture pointless for nearly everyone who uses it.
    What the gate protects is the **word**, not the feature — so the injected block talks about *the
    sphere this owner works in*, and a brain with one universe never meets the machinery (ADR 0034 §2).
 
-4. **The profile is offered exactly once, and "no" is permanent.** When a universe has no profile, the
+5. **The profile is offered exactly once, and "no" is permanent.** When a universe has no profile, the
    SessionStart hook emits one skippable offer. A refusal is recorded per universe in
    `.vault-rag/profile-nudges.json`, which is **committed** — unlike the active pointer, refusing is
    the owner's decision, not the machine's, so it must not come back on the laptop. A universe created
    later is a different world and is still asked. This is what makes the offer reach **already
    installed** brains, at the cost of nothing at install time.
 
-5. **The questions are conversational; everything written is not** (ADR 0009). The `/switch` skill
+6. **The questions are conversational; everything written is not** (ADR 0009). The `/switch` skill
    asks, in the owner's language, as one short batch of skippable questions. Every byte that lands on
    disk goes through `set-universe-profile.mjs`: the note's shape, the refusal marker, and the wording
    of what happened. The digest re-read after a switch is a **new verb** (`--digest`) rather than an
    addition to the switch message, because the profile is background *for the session* — appending it
    to a message the skill relays verbatim would echo the owner's own profile back at them.
 
-6. **A profile is never overwritten.** The page belongs to its owner the moment it exists; a capture
+7. **A profile is never overwritten.** The page belongs to its owner the moment it exists; a capture
    flow run twice refuses and names the page to edit instead.
 
-7. **The boundary with the constitution.** `CLAUDE.md` says **who the owner is and how the brain
+8. **The boundary with the constitution.** `CLAUDE.md` says **who the owner is and how the brain
    behaves** — a sacred surface, untouched here (ADR 0034). A profile says **what this sphere is**.
    The owner's identity, tone and standing rules never move into a profile; a sphere's people,
    accounts and topics never move into the constitution. Without that line drawn, the default
@@ -95,6 +105,10 @@ installer.
 - **The digest reads a hand-edited page.** Because the owner edits it in Obsidian, the parser tolerates
   what a human leaves behind (trailing spaces after a heading, `*` bullets as readily as `-`). A
   section silently dropped over one invisible character would look like the profile was being ignored.
+- **The offer follows the owner into a universe.** Landing in a sphere with no profile emits it once,
+  because that is when the owner is standing in it. Without that door, a universe they rarely start a
+  session in would never be asked about at all — precisely the case of a brain that grew universes
+  before profiles existed.
 - **Everything is fail-open.** An unreadable profile costs the session its digest and nothing else —
   not its universe reminder, and never its start.
 - **Lifecycle is deliberately not decided here.** Renaming and deleting a universe (which must move the
@@ -107,6 +121,10 @@ installer.
   un-editable by a human.
 - **Injection with no note (rejected).** Nothing versioned, nothing editable, nothing searchable —
   and it contradicts "everything is a note", which is the reason Obsidian works over this vault at all.
+- **Name the page `context.md` / `type: context` (rejected, Thomas 2026-07-27).** It would remove
+  the last leak of the word below the gate, but "context" collides head-on with the LLM *context
+  window* for any developer — and the page is one an owner opens rarely, if ever. A rare, inert leak
+  beats a daily ambiguity.
 - **Ask at install (rejected, D2).** It only ever helps *future* installs — precisely the brains that
   need it least — and adds weight to an already heavy installer. The variant that asks at install
   *using the word "universe"* also frontally contradicts progressive disclosure.

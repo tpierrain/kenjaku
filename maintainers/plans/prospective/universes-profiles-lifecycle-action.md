@@ -318,6 +318,20 @@ can never write a note; the universes v1 SQLite migration is already handled out
 - [x] Drafted the actual questions, in the `/switch` skill: displayName, kind, role, period, about,
       people, **topics** (new — `renderUniverseProfile`/`renderUniverseDigest` had no place to put them),
       and which accounts each native connector uses here. Asked as ONE short batch, every one skippable.
+- [x] **THE dichotomy, enforced by the core (Thomas, 2026-07-27 — the release-blocking review).** A
+      first pass only protected the *injected* channel; the CLI prose and the skill still spoke
+      "universe" to a mono-universe owner, who has never met the notion. Now `profileCaptureOffer`
+      takes `multiverse` and states which world applies (`BELOW` / `PAST the disclosure gate`), the
+      hook feeds it from the registry, and the skill has it as a golden rule. **The model never
+      decides**: deciding means counting universes (ADR 0009).
+      **Arbitrated and closed: the ARTIFACT keeps the word** — `universe.md`, `type: universe`, in
+      both worlds. `context.md` was rejected by Thomas: "context" collides with the LLM context
+      window for any developer, and the page is rarely opened. The file paths the CLI prints are
+      therefore fine to quote back.
+- [x] **The offer follows you into a universe** (Thomas' own case: universes created before profiles
+      existed). A `--digest` after a switch emits `[ask the owner]` when that universe has none, and
+      is silent once declined. The session-start offer only ever covers the universe you *start* in,
+      so without this door a sphere you rarely open is never asked about at all.
 - [x] **D1 bonus, satisfied in effect:** the switch reminder stays the generic instruction, and the
       digest that now follows a switch carries the actual accounts (`Connector accounts: Slack:
       acme.slack.com.`). Naming them in the reminder *too* would only duplicate it.
