@@ -89,10 +89,17 @@ export async function reconcileBrain({
   //    (possibly user-customized) is left byte-identical; a brand-new engine skill is
   //    copied in. Non-declared / custom skills are never in `installSkills` → untouchable.
   const installedSkills = [];
+  // What install-if-absent WRITES is engine-delivered content, so it needs a provenance
+  // base like any other delivered merge file. Without it the freshly-installed skill
+  // reads `no-provenance` at every later update and is frozen forever — the very freeze
+  // this increment removes, re-entering by the install-if-absent door.
+  const installedFileMap = {};
   for (const skillGlob of plan.installSkills) {
     const skillDir = skillGlob.replace(/\/\*\*?$/, ""); // ".../local-mirror/**" → ".../local-mirror"
     if (existsSync(join(brainDir, skillDir))) continue; // present → preserve, never overwrite
-    for (const rel of sourceFiles.filter((f) => matchesAny([skillGlob], f))) copyInto(sourceDir, brainDir, rel);
+    for (const rel of sourceFiles.filter((f) => matchesAny([skillGlob], f))) {
+      if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
+    }
     installedSkills.push(skillDir.split("/").pop()); // the skill name, for the report
   }
 
@@ -241,6 +248,7 @@ export async function reconcileBrain({
     reindexReason,
     vaultNoteCount,
     installedSkills,
+    installedFileMap,
     skillsRefreshed,
     skillsPreserved,
     refreshedFileMap,
@@ -288,11 +296,12 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // the refresh happens HERE). Without this, a refreshed file no longer matches its
   // recorded base → the next update calls it "user-modified" and never refreshes it
   // again: the feature would work exactly once per brain, silently.
-  if (Object.keys(report.refreshedFileMap).length > 0) {
+  const delivered = { ...report.installedFileMap, ...report.refreshedFileMap };
+  if (Object.keys(delivered).length > 0) {
     const provenance = reseedProvenance({
       priorProvenance: manifest.provenance ?? {},
       manifest,
-      deliveredFileMap: report.refreshedFileMap,
+      deliveredFileMap: delivered,
     });
     writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance }, null, 2) + "\n");
   }

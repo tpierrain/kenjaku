@@ -183,6 +183,7 @@ export async function updateEngine({
     reindexReason,
     vaultNoteCount,
     installedSkills,
+    installedFileMap,
     skillsRefreshed,
     skillsPreserved,
     refreshedFileMap,
@@ -211,8 +212,12 @@ export async function updateEngine({
   //    (built from the `local` copy read before the reconcile) leaves their base at the
   //    OLD content → the next update calls them "user-modified" and never refreshes
   //    them again: the feature would work exactly once per brain, silently.
+  //    Same for the skills the reconcile just INSTALLED (install-if-absent): they are
+  //    engine-delivered content with no base yet, and a skill without a base is never
+  //    refreshable again.
   const deliveredFileMap = {
     ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")])),
+    ...installedFileMap,
     ...refreshedFileMap,
   };
   const updated = {

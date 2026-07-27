@@ -1085,3 +1085,38 @@ test("runReconcileCli — refreshing twice in a row is a clean no-op, NOT a 'cus
   assert.deepEqual(second.skillsPreserved, [], "the refreshed file is NOT mistaken for a customization");
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), improved);
 });
+
+// ── T1's sibling, found by the release-fixture QA (plan Step 8) ──────────────
+// install-if-absent (ADR 0025) delivers a skill the brain lacks — and recorded no base
+// for it. That skill would then read "no-provenance" at EVERY later update and never be
+// refreshed again: the exact freeze this increment removes, re-entering by the other
+// door. The cohort that just received `switch` must not be frozen on it forever.
+test("runReconcileCli — a skill it INSTALLS gets a provenance base, so the next update can refresh it", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", delivered); // absent from the brain
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify({ ...manifest({ extraMerge: [".claude/skills/switch/**"] }), provenance: {} }, null, 2),
+  );
+
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  assert.deepEqual(report.installedSkills, ["switch"]);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    persisted.provenance[".claude/skills/switch/SKILL.md"],
+    base(delivered),
+    "the base describes what was just installed — without it the skill is frozen forever",
+  );
+});
