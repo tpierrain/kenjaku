@@ -104,8 +104,13 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         declared by hand in the manifest and tracked (F2), the core still emits **no** deletion or
         rename copy an older fleet `/switch` could relay (F3), and `rag/` is untouched, so no
         fleet-wide reindex (F4). Rename gained a `--preflight` so nobody meets the re-embed unwarned.
-  - [ ] **All that remains before the tag:** cut the release (marketing-surface re-read per
-        CONVENTIONS §10).
+  - [x] **Marketing-surface re-read done** _(2026-07-27, CONVENTIONS §10)_: it caught a `never leak`
+        absolute we had just written for a scope that is deliberately soft. Verdict in the plan.
+  - [ ] **Before the tag, two things** _(2026-07-27)_: **Windows is RED on PR #49** (22 harness tests,
+        the three Windows jobs; root cause found, see plan Step 9), and **`local-mirror` must name the
+        active universe and confirm the first pull** before mirroring a Notion zone (plan Step 10,
+        asked by Thomas: getting the scope right afterwards costs a full re-embed).
+  - [ ] **Then cut the release.** PR #49 is open with its body written; nothing merged or tagged.
   - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
 - [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no

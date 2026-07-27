@@ -1,8 +1,13 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
 > **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
-> **All steps are done** (0 through 7), fleet re-check included _(2026-07-27)_. What remains is the
-> release itself: **the tag**. Branch: `feat/universes-v2-profiles`.
+> **Steps 0 through 8 are done**, fleet re-check and marketing pass included _(2026-07-27)_. **Two
+> things now stand between here and the tag: Step 9 (Windows is RED on CI, 22 tests) and Step 10
+> (`local-mirror` must name the universe and confirm the first pull, asked by Thomas at the release).**
+> Branch: `feat/universes-v2-profiles`, PR **#49** open, nothing merged or tagged.
+>
+> ▶️ **Resuming after a `/clear`: go to Step 9**, then Step 10, then the tag. Step 10 opens with a
+> decision to settle with Thomas before any code.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -530,7 +535,77 @@ can never write a note; the universes v1 SQLite migration is already handled out
         never changes your sources" and board-privacy's "your notes never move" both scope to
         connectors and to swapping the embedder, neither of which this release touches.
 - [ ] Tag + GitHub release (title in the `The One Where…` series), carrying the backlog merged past
-      v4.1.0 (the re-synced `tdd-discipline` skill, the marketing corrections).
+      v4.1.0 (the re-synced `tdd-discipline` skill, the marketing corrections). **BLOCKED by Steps 9
+      and 10 below.** Proposed, not yet agreed with Thomas: `v4.2.0` (additive, `rag/` untouched, so
+      `rag/package.json` stays at 1.1.5 as it did between v4.0.0 and v4.1.0), titled
+      *"The One Where Your Brain Learns Where It Is"*.
+  - PR **#49** is open with the release body already written. **Nothing is merged or tagged.**
+  - Unrelated and deliberately left alone: PR **#48** (external, a `fast-uri` CVE bump) touches
+    `rag/`, so letting it ride this release would invalidate the "engine untouched, no fleet-wide
+    reindex" claim. Handle it separately, after the tag.
+
+### Step 9 — Windows parity: 22 tests are RED on CI (blocks the tag)
+
+> 🛑 **Found by CI on PR #49, 2026-07-27.** macOS is green on Node 22/24/26 and the Windows installer
+> e2e passes, but the **three Windows harness jobs fail**. Nothing in Gate 2.6 ever ran on Windows.
+> The F1-F4 re-check did not catch this and could not: it audits **distribution** (does the code reach
+> the fleet), not **parity** (does it work once there). DEVELOPING §8 makes parity a release gate.
+
+- [ ] **Root cause, already identified — do not re-investigate.** `scripts/lib/universes.mjs` declares
+      a POSIX-normalisation convention in its own header (L16-18, `toPosix`) and `vaultRagDir` (L92)
+      applies it. **`registryPath` (L181) and `activeUniversePath` (L186) do not**: they return a raw
+      `join()`, which on Windows yields `.vault-rag\universes.json`. So every registry read misses,
+      `readRegistry` returns `[]`, and the failures cascade from there (the tell in the log is
+      `Deletable universes: .`, an empty list where `acme` was seeded).
+- [ ] **Fix (recommended):** apply `toPosix` in those two builders, so they honour the convention the
+      file already states and `vaultRagDir` already follows. Prefer this over patching the tests: the
+      production paths are **mixed-separator on Windows today** (`C:/brain/.vault-rag\universes.json`),
+      which fs tolerates but every string comparison does not. Fixing the builders fixes both.
+- [ ] Re-run the **whole** suite after the fix; the 22 failures span `delete-universe`,
+      `rename-universe`, `planUniverseDeletion` and `set-universe-profile`. If any test still fails,
+      it keys its fake fs with a hardcoded `".vault-rag/…"` string (e.g.
+      `universes.test.mjs:475-517`) — key those through `registryPath()` / `activeUniversePath()`
+      instead of a literal, which is what the older tests do.
+- [ ] **Close the loop, do not just fix the symptom:** ask why nothing but CI can see this, and decide
+      whether a guardrail is worth it (a pure test asserting both builders return POSIX-normalised
+      paths would have failed on macOS too, and is three lines).
+- [ ] Green on all three Windows jobs before the tag.
+
+### Step 10 — `local-mirror`: name the universe, and confirm before the first pull
+
+> 🎯 **Thomas' request, 2026-07-27**, added to this release deliberately: it is the same story
+> (universes), and an owner should meet it once.
+
+- [ ] **The ask, verbatim in intent:** when declaring a **Notion zone** as a local mirror, the brain
+      must (a) **remind which universe is active**, and **only if several exist** (the ADR 0034
+      progressive-disclosure gate — a single-universe owner must not meet the word), and (b) **ask for
+      confirmation before the FIRST full pull** of the zone's docs into the vault. The reason is
+      economic, and it is the same one that gave rename its preflight: moving mirrored docs into
+      another universe afterwards costs a full re-embed of the whole mirror, so the cheap moment to
+      get the scope right is **before** the first pull, not after.
+- [ ] **Decide FIRST, before any code — where does a mirror land when a universe is active?** Today it
+      is `vault/mirrors/<name>/` (`local-mirror/SKILL.md:11,176,292`), i.e. at the **vault root**,
+      which means **cross-cutting / default scope, always**. So a two-universe owner mirroring a
+      client's Notion zone puts it in *every* universe's answers, and Thomas' "too expensive to move
+      afterwards" is precisely the cost of undoing that. Two options:
+      - **(a) Confirm only** (the literal ask): the mirror keeps landing at the root, and the
+        confirmation makes that consequence explicit, including how to avoid it.
+      - **(b) Scope the mirror to the active universe** (`vault/<slug>/mirrors/<name>/`) when one is
+        active, with the confirmation naming where it will land. Truer to the feature, but it touches
+        the mirror's path contract (refresh, dedup, the exclusion zones listed in the skill) — check
+        each before choosing.
+      - **Recommendation: (b), with (a)'s confirmation on top** — but this is Thomas' call and it is
+        the first thing to settle.
+- [ ] **The gate is the core's decision, never the model's** (ADR 0009, and the two-vocabulary rule
+      already built in `universe-reminder.mjs` → `profileCaptureOffer`): whatever emits the reminder
+      must decide *below vs past the gate* deterministically and hand the skill the wording. Reuse
+      `isMultiverse` / the existing vocabulary switch rather than growing a second one.
+- [ ] **First pull only, not refreshes.** A refresh must stay a one-liner; re-confirming it every time
+      is how a useful confirmation becomes noise people click through.
+- [ ] Fleet constraints apply as ever: **F2** if this adds a top-level script (declare it by hand in
+      `engine-manifest.json`), **F3** add verbs only, and the `local-mirror` skill's own `version:`
+      bump so an untouched copy is refreshed on the fleet.
+- [ ] TDD as usual: pure core first, then the thin driver.
 
 ## Conventions reminder (repo rules)
 - Artifacts in English (this file, code, commits, PR). TDD baby-steps, green-only commits. Deterministic
