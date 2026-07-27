@@ -406,6 +406,10 @@ can never write a note; the universes v1 SQLite migration is already handled out
   - [x] **No TTY gate here, deliberately** (unlike delete): a rename loses nothing and is undone by
         renaming back. `never-surface-destructive-paths` is about destruction, and applying it to a
         reversible operation would be cargo-culting the ritual instead of the reason.
+        **Re-confirmed by Thomas, 2026-07-27**, once the alternative was laid out plainly: Claude may
+        run the rename itself after the owner says yes. The ceremony would be paid at **every**
+        rename, by people who own no terminal, to protect against a few minutes of unwanted compute
+        that renaming back undoes. Delete earns its TTY because there it is the notes that go.
   - [x] **Informed consent, not a gate: `--preflight`** _(2026-07-27 · this commit)_. Asked for by
         Thomas at the re-check. A rename is reversible, so the point is not to protect the notes but
         the **person**: the re-embed can keep a machine busy for minutes, and someone who was not told
