@@ -1,6 +1,6 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
-> **Status:** IN PROGRESS (Release A, Step 3 — Steps 0 and 2 done). Branch: `feat/universes-v2-profiles`.
+> **Status:** IN PROGRESS (Release A, Step 6 — Steps 0, 2 and 3 done). Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -254,7 +254,8 @@ can never write a note; the universes v1 SQLite migration is already handled out
       full rename, cost accepted. Rationale in §"Open decisions". Steps 3, 4 and 5 are unblocked.
 - [x] **Step 2 — Universe profile: data + write core** (pure, TDD, tested)
       _(2026-07-27 · commits `9fa064a`, `383e0a2`, `48a74b1`)_.
-- [ ] **Step 3 — Universe profile: capture + inject** (conversational triggers + the SessionStart digest).
+- [x] **Step 3 — Universe profile: capture + inject** (conversational triggers + the SessionStart digest)
+      _(2026-07-27 · commits `65afa86`, `c59e2d3`, `452f200`, `779bd73`, `006afd9`)_.
 - [ ] **Step 4 — Delete a universe** (guarded script + documentation) — per D3.
 - [ ] **Step 5 — Rename a universe** — per D4, scope depends on that decision. Last, deliberately.
 - [ ] **Step 6 — Docs + ADR update** (SETUP, the `/switch` surface, ADR 0034 addendum or a new ADR).
@@ -285,16 +286,42 @@ can never write a note; the universes v1 SQLite migration is already handled out
 - [x] Also extracted `parseNote` into a pure `scripts/lib/note-parse.mjs` (re-exported by
       `wiki-lint-io.mjs`) so a pure core stops importing an fs adapter to read a note.
 
-### Step 3 — Universe profile: capture + inject
-- [ ] **Inject** the digest via `scripts/session-universe.mjs` (already a `replace` glob, so it reaches
-      the fleet) and on switch, past the progressive-disclosure gate. Fail-open, never blocking.
-- [ ] After a `create`, offer (opt-in, skippable) to capture the new universe's profile via a few
-      questions, then call the Step-2 CLI. Relay deterministic core messages verbatim (ADR 0009).
-- [ ] Backfill path: when a universe has no profile note, flag it once and offer to fill it (covers
-      Thomas' default / memory-palace case). **Needs a "do not ask again" marker** (cf. D2).
-- [ ] Install path per D2, only if D2 picks an installer change.
-- [ ] Draft the actual questions (the plan never did): displayName, kind, role, period, key people, key
-      topics, **and which accounts each native connector uses here** (feeds the D1 bonus).
+### Step 3 — Universe profile: capture + inject _(DONE 2026-07-27)_
+- [x] **Inject** the digest via `scripts/session-universe.mjs` (a `replace` glob, so it reaches the
+      fleet). Read in its OWN try/catch: an unreadable profile must not cost the session its universe
+      reminder, nor the reverse.
+      **Deviation, deliberate:** the digest is **NOT** behind the progressive-disclosure gate. A
+      single-universe brain is the common case AND the one D2 offers a profile to; gating the digest
+      would make the capture pointless for almost everyone who ever fills one in. What the gate really
+      protects is the **word** "universe", so the injected copy never says it — verified end to end on a
+      single-universe brain.
+- [x] **On switch**, via a new `--digest` verb rather than an addition to the switch message: the
+      profile is background for the session, and appending it to a message the skill relays *verbatim*
+      would echo the owner's own profile back at them. Quiet + exit 0 when there is no profile (the
+      common case must never look like a broken step). F3 honoured: a **new verb**, no existing verb's
+      semantics or format touched.
+- [x] After a `create`, offer (opt-in, skippable) to capture the new universe's profile, then call the
+      Step-2 CLI. In the `/switch` skill, right after the `create` branch.
+- [x] Backfill path: `profileCaptureOffer()` + the `.vault-rag/profile-nudges.json` marker
+      (**committed**, unlike the active pointer: refusing is the owner's decision, not the machine's, so
+      it must not come back on the laptop — while a universe created later still gets asked).
+      `--decline` records it deterministically and reads no stdin.
+- [x] The offer **routes both answers to a deterministic surface** (ADR 0009). Left to improvise, a
+      session would hand-write a note of the wrong shape and forget the refusal by the next session. A
+      test pins the offer's skill reference to a heading that actually exists — rename it and the
+      directive would still fire, still lead nowhere, and nothing else would notice.
+- [x] Install path per D2 → **nothing to do**: D2 chose "first session / on demand, installer
+      untouched", and the SessionStart offer covers a fresh install exactly like an old brain. Recorded
+      here so the box is not re-opened as an oversight.
+- [x] Drafted the actual questions, in the `/switch` skill: displayName, kind, role, period, about,
+      people, **topics** (new — `renderUniverseProfile`/`renderUniverseDigest` had no place to put them),
+      and which accounts each native connector uses here. Asked as ONE short batch, every one skippable.
+- [x] **D1 bonus, satisfied in effect:** the switch reminder stays the generic instruction, and the
+      digest that now follows a switch carries the actual accounts (`Connector accounts: Slack:
+      acme.slack.com.`). Naming them in the reminder *too* would only duplicate it.
+- [x] Also hardened while here: the digest reads a **hand-edited** profile the way its owner leaves it
+      (trailing spaces after a heading, `*` bullets as readily as `-`). Mutants hand-applied and killed:
+      the heading `.trim()`, the bullet character class, the Topics section, the `if (profile)` guard.
 
 ### Step 4 — Delete a universe (guarded)
 - [ ] Pure core: validate slug is a real created universe (not `default`), compute the pruned
