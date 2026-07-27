@@ -55,6 +55,22 @@ export function listAllUniverses(registry) {
 }
 
 /**
+ * Resolves the active-universe pointer AGAINST the registry: a pointer naming a
+ * universe that no longer exists is an orphan and resolves to the default scope.
+ * The pointer is per-machine and gitignored while the registry is committed, so a
+ * rename/delete on one machine leaves the others pointing at a ghost — which the
+ * engine would happily turn into "zero hits, silently". Pure.
+ *
+ * The implicit default needs no membership test: it is never stored in the
+ * registry (addToRegistry refuses it) and it IS the fallback, so checking the raw
+ * registry and checking listAllUniverses() are the same function here — the
+ * shorter one is kept on purpose.
+ */
+export function resolveActiveUniverse(active, registry) {
+  return registry.includes(active) ? active : DEFAULT_UNIVERSE;
+}
+
+/**
  * The progressive-disclosure gate (ADR 0034): true only once at least TWO
  * universes exist (the implicit default plus one created), i.e. the registry
  * holds at least one entry. Below the gate the whole feature stays invisible —
@@ -199,8 +215,19 @@ export function writeRegistry(io, dir, registry) {
 /**
  * Reads the active-universe pointer (absent/blank → the default universe, so a
  * single-universe brain behaves exactly as today). Mirrors the engine's reader.
+ * The result is VALIDATED against the registry (cf. resolveActiveUniverse), so no
+ * caller can ever act on a universe that no longer exists.
  */
 export function readActiveUniverse(io, dir) {
+  return resolveActiveUniverse(readRawActiveUniverse(io, dir), readRegistry(io, dir));
+}
+
+/**
+ * The pointer AS WRITTEN on disk, unvalidated (absent/blank → the default). Only
+ * the self-heal needs this: it must see the orphan in order to repair and report
+ * it. Everything else reads through readActiveUniverse.
+ */
+export function readRawActiveUniverse(io, dir) {
   const path = activeUniversePath(dir);
   if (!io.existsSync(path)) return DEFAULT_UNIVERSE;
   const raw = io.readFileSync(path).trim();

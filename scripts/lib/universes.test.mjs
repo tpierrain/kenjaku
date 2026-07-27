@@ -14,6 +14,7 @@ import {
   vaultRagDir,
   runSwitchCli,
   isMultiverse,
+  resolveActiveUniverse,
   nativeConnectorsReminder,
   DEFAULT_UNIVERSE,
 } from "./universes.mjs";
@@ -92,9 +93,20 @@ test("readActiveUniverse falls back to the default when no pointer exists", () =
 
 test("writeActiveUniverse then readActiveUniverse round-trips (trimmed)", () => {
   const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["acme"]); // the universe must exist to be pointed at
   writeActiveUniverse(io, "/brain/.vault-rag", "acme");
 
   assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), "acme");
+});
+
+// --- switch (guarded) --------------------------------------------------------
+
+test("readActiveUniverse ignores a pointer whose universe is gone from the registry", () => {
+  const io = fakeFs();
+  writeRegistry(io, "/brain/.vault-rag", ["blue"]);
+  writeActiveUniverse(io, "/brain/.vault-rag", "acme"); // deleted/renamed elsewhere
+
+  assert.equal(readActiveUniverse(io, "/brain/.vault-rag"), DEFAULT_UNIVERSE);
 });
 
 // --- switch (guarded) --------------------------------------------------------
@@ -279,6 +291,7 @@ test("runSwitchCli switch back to the default scope does NOT append the reminder
 
 test("runSwitchCli current prints the active universe (exit 0)", () => {
   const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
   writeActiveUniverse(io, DIR, "acme");
 
   assert.deepEqual(runSwitchCli(io, DIR, ["current"]), { code: 0, message: "acme" });
@@ -294,6 +307,29 @@ test("runSwitchCli list marks the active universe among all", () => {
   assert.equal(res.code, 0);
   assert.match(res.message, /\* acme/);
   assert.match(res.message, / {2}default/);
+});
+
+// ── resolveActiveUniverse: the pointer can outlive the universe it names ──────
+// The pointer is per-machine and gitignored; the registry is committed. So a
+// rename/delete on machine A leaves machine B pointing at a universe that no
+// longer exists — and an unvalidated pointer silently filters every search down
+// to zero hits. An orphan pointer resolves to the default scope instead.
+
+test("resolveActiveUniverse falls back to the default when the pointer names an unknown universe", () => {
+  assert.equal(resolveActiveUniverse("acme", ["blue"]), DEFAULT_UNIVERSE);
+});
+
+test("resolveActiveUniverse keeps a pointer that IS in the registry", () => {
+  // Two entries, deliberately unsorted, and the match is the LAST one: an
+  // implementation peeking only at registry[0] diverges here.
+  assert.equal(resolveActiveUniverse("acme", ["blue", "acme"]), "acme");
+});
+
+test("resolveActiveUniverse keeps the default even though the registry never stores it", () => {
+  // The default is implicit: its ABSENCE from the registry is what defines it
+  // (addToRegistry refuses to store it). Validating against the raw registry
+  // instead of the full list would heal the default away on every brain.
+  assert.equal(resolveActiveUniverse(DEFAULT_UNIVERSE, []), DEFAULT_UNIVERSE);
 });
 
 // ── isMultiverse: the progressive-disclosure gate (ADR 0034 Step 4) ──────────
