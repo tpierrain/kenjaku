@@ -1,6 +1,6 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
-> **Status:** IN PROGRESS (Release A, Step 2 — Step 0 done). Branch: `feat/universes-v2-profiles`.
+> **Status:** IN PROGRESS (Release A, Step 3 — Steps 0 and 2 done). Branch: `feat/universes-v2-profiles`.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -252,25 +252,38 @@ can never write a note; the universes v1 SQLite migration is already handled out
       commit)_. **D2** → first session / on demand, installer untouched. **D3** → confirmed *and
       hardened*: never surfaced, explicit intent only, human types the guard (TTY-only script). **D4** →
       full rename, cost accepted. Rationale in §"Open decisions". Steps 3, 4 and 5 are unblocked.
-- [ ] **Step 2 — Universe profile: data + write core** (pure, TDD, tested).
+- [x] **Step 2 — Universe profile: data + write core** (pure, TDD, tested)
+      _(2026-07-27 · commits `9fa064a`, `383e0a2`, `48a74b1`)_.
 - [ ] **Step 3 — Universe profile: capture + inject** (conversational triggers + the SessionStart digest).
 - [ ] **Step 4 — Delete a universe** (guarded script + documentation) — per D3.
 - [ ] **Step 5 — Rename a universe** — per D4, scope depends on that decision. Last, deliberately.
 - [ ] **Step 6 — Docs + ADR update** (SETUP, the `/switch` surface, ADR 0034 addendum or a new ADR).
 - [ ] **Step 7 — Fleet / migration note** (profiles are opt-in backfill; re-check F1-F4 before shipping).
 
-### Step 2 — Universe profile: data + write core
-- [ ] Profile note path + frontmatter schema per **D1 (resolved)**: `vault/<slug>/universe.md` (and
-      `vault/universe.md` for default), explicit `type: universe`. **No leading underscore**, and add the
-      path to `wiki-lint.mjs`'s orphan exclusions (see §"Design review" for why both are required).
-- [ ] Add pure functions in `scripts/lib/` (new module, e.g. `universe-profile.mjs`): build the
-      profile note content from answers, resolve its path from a slug, detect "has no profile yet".
-      Injected fs, no side effects in the pure layer (ADR 0009). TDD, one baby-step at a time.
-- [ ] The **digest renderer** is part of this core, not an afterthought: profile → the short block that
-      gets injected. Enforce the length cap **in the pure function**, with a test.
-- [ ] Wire a CLI entry (e.g. `scripts/set-universe-profile.mjs`) that writes the note and triggers a
-      reindex so the profile becomes searchable. **Declare it in `engine-manifest.json`** (cf. F2).
-- [ ] Tests first (fail-first), assertions on the whole object/content, triangulate slug edge cases.
+### Step 2 — Universe profile: data + write core _(DONE 2026-07-27)_
+- [x] Profile note path + frontmatter schema per **D1 (resolved)**: `vault/<slug>/universe.md` (and
+      `vault/universe.md` for default), explicit `type: universe`. **No leading underscore**, and the
+      path added to `wiki-lint.mjs`'s orphan exclusions (new `ENGINE_STATE_NOTES` list; `isUnderZone`
+      already matches both layouts, root and `<universe>/`).
+- [x] Pure functions in `scripts/lib/universe-profile.mjs`: `universeProfilePath`,
+      `renderUniverseProfile`, `readUniverseProfile` (quiet `null` = "no profile yet", the D2 backfill
+      signal), `writeUniverseProfile` (**refuses to overwrite**, like filing back a note).
+- [x] The **digest renderer** with the cap enforced IN the pure function (`renderUniverseDigest`,
+      `DIGEST_MAX_LINES = 12`), truncation naming the note. Boundary tested (`<=` vs `<`) and
+      mutation-checked.
+- [x] CLI `scripts/set-universe-profile.mjs` (JSON answers on stdin, `--no-reindex` for tests), writes
+      then reindexes. **Declared in `engine-manifest.json`** (F2 honoured; note the integrity test only
+      catches it once the file is git-TRACKED).
+- [x] Tests first, whole-content assertions against hand-written fixtures, `throws` with matchers.
+- [x] **Side-fix, pre-existing and shipped-broken:** the active-pointer reader called `.trim()` on what
+      `readFileSync` returned, and both real call sites passed the **Buffer** form (no encoding). It threw
+      on ANY brain with a pointer file, i.e. on every multi-universe brain — `file-back-note.mjs` included
+      (filing back while in a named universe crashed). Invisible to the suite because every fake returns
+      strings. Found by running the CLI for real on a throwaway brain. Fixed at the source (`String(...)`)
+      and at both call sites. **Lesson worth keeping: a fake that is kinder than reality hides a whole
+      class of bugs; run the real thing once per increment.**
+- [x] Also extracted `parseNote` into a pure `scripts/lib/note-parse.mjs` (re-exported by
+      `wiki-lint-io.mjs`) so a pure core stops importing an fs adapter to read a note.
 
 ### Step 3 — Universe profile: capture + inject
 - [ ] **Inject** the digest via `scripts/session-universe.mjs` (already a `replace` glob, so it reaches
