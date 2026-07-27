@@ -76,8 +76,10 @@ where they are ABSENT — never overwrite, never touch anything the manifest doe
   code or newer; the ≤v3.2.0 cohort heals on its next update (documented, no extra code).
 - **Zero clobber risk.** Install-if-absent means a user-customized engine skill (the `prepare-1-1`
   "refine to your own KPIs" case) is never overwritten. Refreshing the *content* of an
-  already-installed engine skill remains out of scope (it belongs to a future 3-way merge, same as the
-  other `merge` files).
+  already-installed engine skill is out of scope **here** — it is decided in **ADR 0026 §8**, which keeps
+  this clobber-freedom intact by gating any overwrite on **proof** that the file still holds the engine's
+  own bytes (a customized skill is preserved and reported, the engine's newer version dropped beside it).
+  A full 3-way merge of a customized skill remains future work.
 - **The safety core is unchanged in spirit**: still a write-allowlist; the one new bucket is additive
   and conditional, and the sacred scrub on the destructive buckets is intact.
 - **No schema change, no forced reindex.**

@@ -1,4 +1,15 @@
-# Mutation testing — retrospective: what the survivors taught us (Step 6)
+# Mutation testing — retrospectives
+
+> Two passes, a fortnight apart. **[Part I](#part-i--what-the-survivors-taught-us-step-6)** (2026-07-15,
+> Step 6) diagnosed the assertion habits across `rag` / `local-mirror` / `scripts`.
+> **[Part II](#part-ii--why-it-happened-again-increment-25-step-10)** (2026-07-27, Increment 2.5 Step 10)
+> asks the harder question Thomas put next: *given that Part I's rules existed and were engraved, how did
+> we still write four files scoring 51 % to 87 %?* Read Part II first if you want the actionable answer —
+> Part I is the catalogue it builds on.
+
+---
+
+# Part I — what the survivors taught us (Step 6)
 
 > **Dev-only.** This whole folder lives under `maintainers/` and is **excluded from the brain copy**
 > (`scripts/lib/tracked-files.mjs` → `DEV_ONLY_PREFIXES`), so none of it ever reaches a generated brain.
@@ -108,3 +119,110 @@ and its residual equivalents are in the plan's Step 3.
 **Verification:** `scripts/**` suite green (560/560), including the new lint guard and `tracked-files`.
 The doc changes touch only `maintainers/` (never in the rag/local-mirror packages), so no engine re-run
 was needed.
+
+---
+
+# Part II — why it happened again (Increment 2.5, Step 10)
+
+> **2026-07-27.** Written at Thomas's request, at the end of the Step 10 hardening, to answer the question
+> the numbers raise: *Part I's rules existed, were engraved in `tdd-discipline` and in `CONVENTIONS.md`
+> §5bis/§5ter, and had a CI lint. So how did we still ship four files scoring 51 % to 87 %?*
+
+## The numbers that prompt the question
+
+| File | Before | After | Residual |
+|---|---|---|---|
+| `scripts/lib/engine-skill-refresh.mjs` | 86.72 % | **100 %** | 0 |
+| `scripts/update-engine.mjs` | 51.52 % | **98.49 %** | 3 equivalent |
+| `scripts/lib/reconcile-brain.mjs` | 71.43 % | **~96 %** | 6 equivalent |
+| `scripts/lib/engine-source.mjs` | 81.40 % | **93.02 %** | 3 equivalent |
+
+## The headline finding: the discipline stopped at the edge of the domain logic
+
+Rank those four by score and the ordering is not random — it tracks **how the code was written**:
+
+- `engine-skill-refresh.mjs` (86.7 %) was built **in TDD baby-steps** during this increment. It started
+  highest and needed only assertion polish.
+- `engine-source.mjs` (81.4 %) is a **pure module**: small, side-effect-free, easy to drive from a test.
+- `reconcile-brain.mjs` (71.4 %) is a pure core **wrapped in I/O and a CLI**.
+- `update-engine.mjs` (51.5 %) is **mostly composition**: fetch, orchestrate, report, boot.
+
+The rule that predicts the score is not "did we write tests" — all four had tests, and the suite was green
+at 790 before any of this. It is: **was this line reached by a test that was written FIRST, or was it glue
+added afterwards around an already-green core?** In `update-engine.mjs`, ~40 of 96 survivors sat in a single
+top-level `if (isEntrypoint(…))` block; in `reconcile-brain.mjs`, ~22 sat in the CLI around it. That is
+Part I's **C4** — already diagnosed, already engraved — reproduced almost verbatim, twice.
+
+**So the honest answer to "how did this happen" is not that we lacked the rule. It is that the rule was
+written as an assertion habit, and the failure is a DESIGN habit.** You cannot assert your way into a
+composition root: you have to give it a seam *while writing it*. Every time the fix was the same
+(`runUpdateCli(deps)` / `runReconcileCliProcess(deps)` + a `real…Deps` object + one subprocess test), and
+every time the seam was cheap **after** the fact only because the logic underneath was already clean.
+
+## Four failure shapes Part I did not have a name for
+
+**1. The self-confirming fixture.** The no-churn test built its `settings.json` fixture with
+`JSON.stringify(x, null, 2) + "\n"` — i.e. **with the same serialiser the production code writes it with**.
+So "the reconciler must not rewrite a converged brain's settings" could not fail: a reconciler rewriting the
+file on every run left it byte-identical. The test was green and proved nothing. Fix: make the fixture
+**foreign to the writer** (4-space indent, no final newline — the shape a human editor leaves), and the
+claim becomes refutable.
+→ *Rule: a fixture must never be produced by the code under test. If it is, the assertion is a tautology.*
+
+**2. The stub that cannot discriminate.** `countVaultNotes: async () => 0` returns exactly what a real
+empty vault returns, and ignores its argument entirely. A reconciler calling the REAL counter, or calling
+it with no brain dir at all, passed every test. Fix: stubs return values **no real implementation would
+produce** (407 notes), and **record their arguments**.
+→ *Rule: a double's return value must be a fingerprint. If the stub's answer is plausible for the real
+thing, it proves nothing about the wiring.*
+
+**3. The multi-reason condition never isolated.** `if (added.length > 0 || repaired.length > 0 ||
+statusLineRepaired)` had three reasons to fire, and **every fixture triggered at least two of them at once**
+(each broken-Windows fixture had both broken hooks and a broken statusLine). So no single term was ever the
+sole cause, and dropping any one of them kept the suite green — including the one that would have left the
+entire deployed Windows fleet unrepairable.
+→ *Rule: a condition with N reasons needs N tests, each feeding exactly ONE reason. Sharper than "triangulate
+the operator": here every operator was right and the coverage was still a lie.*
+
+**4. Platform-conditional code, invisible on the CI's platform.** `brainDir.split("\\").join("/")` is a
+**no-op on every POSIX path**, so on a macOS/Linux CI no test could distinguish it from `p => p`. The
+Windows contract it encodes (issue #31: Git Bash eats a backslash in a hook command) was therefore untested
+by construction, and a regression would only ever have surfaced on a user's machine. Fix: extract the
+transform into a named exported helper (`toPosix`) and feed it a **Windows-shaped input** on the POSIX CI.
+→ *Rule: any platform-conditional transform must be a pure named function fed foreign-platform data.
+"We can't test that here" means "extract it", not "skip it".*
+
+## The systemic finding: the audit's own success suppressed the re-check
+
+`update-engine.mjs`, `reconcile-brain.mjs` and `engine-source.mjs` appear **nowhere** in Part I's results.
+They were never measured. Yet `RESULTS.md` carried the line *"`scripts/**` is now fully hardened"* — true of
+the three worst files enumerated at the time, false as a statement about the directory. Anyone (including
+us, at the start of Step 10) reading that line concluded the surface was covered and that a low score would
+be a **regression from this branch**. It was not; it was virgin territory wearing a "done" label.
+
+→ *Rule: a hardening claim states the FILES it measured, never a glob. And `mutate:changed` is the trigger
+that makes it self-correcting: it deliberately skips `scripts/**`, which is exactly why `scripts/**` drifted.*
+
+## Two habits that worked, and are worth keeping
+
+- **Hand-applying each mutant against the full suite before and after writing the test.** Cheaper than a
+  Stryker run (seconds vs minutes), and it caught a real mistake here: a mutant I had recorded as *killed*
+  was in fact the OTHER branch of the same ternary, still alive, because the assertion used
+  `.includes(…)` instead of naming the whole list — Part I's C2, reproduced in a branch written after C2 was
+  engraved. Reasoning about mutants is not verifying them.
+- **Simplifying production instead of excusing the mutant.** Three guards in this branch could not change a
+  single byte (`flagValue`'s length check, `?? {}` before an object spread, the sidecar-clear condition of
+  the previous step). Deleting them said the same thing in less code and removed the mutants outright. The
+  temptation each time was to file them under "equivalent" and move on.
+
+## What this changes
+
+The four new shapes above are **assertion/fixture habits** and generalise beyond this repo → they belong in
+the global `tdd-discipline` skill, next to Part I's six. The two findings that are **not** assertion habits
+are the important ones, and they are structural:
+
+1. **Composition roots get their seam when they are WRITTEN, not when they are audited.** The `runXCli(deps)`
+   + `realXDeps` + one-subprocess-test shape is now the default for any new entry point in this repo, not a
+   remediation pattern.
+2. **A hardening claim names files, never globs** — so the next reader cannot mistake unmeasured code for
+   measured code.

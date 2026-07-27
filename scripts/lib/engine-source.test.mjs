@@ -36,6 +36,18 @@ test("selectMergeFiles — an exact merge entry selects only that file", () => {
   assert.deepEqual(selectMergeFiles(manifest, candidates), ["CLAUDE.md"]);
 });
 
+// The absent case, fed on purpose: a manifest may legitimately carry no `merge`
+// regime (a partial / hand-written one, or a future regime split). Selection must
+// then be EMPTY, never a crash — this runs at install time, on the brain's own
+// manifest, where a throw would abort the enrichment and leave a brain with no
+// provenance at all (frozen forever, ADR 0026 §8). Triangulated down the whole
+// optional chain: no merge key, no regimes key, no manifest at all.
+test("selectMergeFiles — a manifest with no merge regime selects nothing, and never throws", () => {
+  assert.deepEqual(selectMergeFiles({ regimes: { replace: ["rag/src/**"] } }, ["CLAUDE.md", "rag/src/index.ts"]), []);
+  assert.deepEqual(selectMergeFiles({ manifestVersion: 1 }, ["CLAUDE.md"]), []);
+  assert.deepEqual(selectMergeFiles(undefined, ["CLAUDE.md"]), []);
+});
+
 test("selectMergeFiles — a `**` glob selects the whole subtree, nothing outside it", () => {
   const manifest = { regimes: { merge: [".claude/skills/coach/**"] } };
   const candidates = [
@@ -84,6 +96,30 @@ test("buildSource — a launcher with no remote records repo:null (update-engine
     buildSource({ repo: "", tag: "v1.0.0", branch: "main", commit: "abc" }),
     { repo: null, ref: "v1.0.0" },
   );
+});
+
+// The two mirror images of the "no remote" case above. `git remote get-url` hands back
+// a trailing newline, and a launcher with no remote can yield blank-but-not-empty — both
+// must read as NO remote (repo: null), because that null is exactly what makes
+// update-engine ASK the user where to pull from instead of trying to clone `"  "`.
+// A padded but real URL, conversely, must be recorded CLEAN: a ref with a stray newline
+// is not clone-able.
+test("buildSource — a blank remote is no remote at all, and a padded one is recorded trimmed", () => {
+  assert.deepEqual(buildSource({ repo: "  \n ", tag: "v1.0.0", branch: "main", commit: "abc" }), {
+    repo: null,
+    ref: "v1.0.0",
+  });
+  assert.deepEqual(buildSource({ repo: " git@github.com:me/launcher.git\n", tag: "v1.0.0" }), {
+    repo: "git@github.com:me/launcher.git",
+    ref: "v1.0.0",
+  });
+});
+
+// The absent case: git facts that carry no `repo` key at all (an installer path that
+// never probed the remote). Must degrade to repo:null like the empty string, never throw
+// — a throw here aborts the whole manifest enrichment.
+test("buildSource — git facts with no repo key at all still record repo:null", () => {
+  assert.deepEqual(buildSource({ tag: null, branch: "main", commit: "abc" }), { repo: null, ref: "main" });
 });
 
 test("enrichManifest — sets source + provenance, preserves the rest, never mutates the input", () => {
@@ -202,4 +238,11 @@ test("recordSourceAndProvenance — writes source + fingerprints ONLY the merge 
   });
   // The rest of the manifest is preserved.
   assert.equal(m.engineVersion.rag, "1.1.0");
+
+  // …and it is written as a well-formed text file: 2-space indent + a FINAL NEWLINE.
+  // engine-manifest.json is git-committed and rewritten at every update, so a missing
+  // trailing newline makes every single update diff carry a spurious
+  // "\ No newline at end of file" — noise in the one file whose diff must stay readable.
+  const raw = readFileSync(join(brainDir, "engine-manifest.json"), "utf8");
+  assert.equal(raw, JSON.stringify(m, null, 2) + "\n");
 });

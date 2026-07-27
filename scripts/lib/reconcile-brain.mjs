@@ -20,15 +20,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
+import { isEntrypoint } from "./entrypoint.mjs";
 import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
-import { installStagedSkills } from "./staged-skills.mjs";
+import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
+import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
+import { reseedProvenance } from "./engine-source.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
 import {
@@ -42,6 +44,13 @@ import {
 // SKIPPED a self-copy: in SessionStart self-heal mode srcDir === brainDir, so a file
 // would be copied onto itself — on Linux `copyFileSync(f, f)` truncates the dest before
 // copying (it would zero the engine file; ADR 0015 cross-platform safety). Skip it.
+// `{{PROJECT_ROOT}}` is substituted POSIX-normalised (cf. installer toPosix): the brain
+// dir reaches templates as `C:/Users/...`, never `C:\Users\...`, because the values land
+// in hook commands Git Bash also has to run — a backslash there is eaten (issue #31).
+// Exported so the win32 contract is verifiable on a POSIX CI, where the transform is
+// otherwise a no-op and any regression in it would be invisible.
+export const toPosix = (p) => p.split("\\").join("/");
+
 function copyInto(srcDir, destDir, rel) {
   const src = join(srcDir, rel);
   const dest = join(destDir, rel);
@@ -72,6 +81,10 @@ export async function reconcileBrain({
   //    dev-only files (scripts/lib/eval-*/mcp-search.*), F2 keeps the brain's
   //    locale-owned files (scripts/lib/demo-locale.mjs → no fr→en regression).
   const sourceFiles = listFilesRelPosix(sourceDir);
+  // ⚠️ BEFORE the copy: the brain's own `engine-skills/` copy is the provenance base of
+  // the STAGED skills (Increment 2.5), and `engine-skills/**` is a `replace` glob — one
+  // line later it holds the NEW content and every staged skill would read as untouched.
+  const stagedProvenance = readStagedProvenance(brainDir);
   const copyGlobs = [...plan.overwrite, ...plan.replaceScripts];
   const copied = [];
   for (const rel of selectEngineFilesToCopy({ sourceFiles, copyGlobs })) {
@@ -83,10 +96,17 @@ export async function reconcileBrain({
   //    (possibly user-customized) is left byte-identical; a brand-new engine skill is
   //    copied in. Non-declared / custom skills are never in `installSkills` → untouchable.
   const installedSkills = [];
+  // What install-if-absent WRITES is engine-delivered content, so it needs a provenance
+  // base like any other delivered merge file. Without it the freshly-installed skill
+  // reads `no-provenance` at every later update and is frozen forever — the very freeze
+  // this increment removes, re-entering by the install-if-absent door.
+  const installedFileMap = {};
   for (const skillGlob of plan.installSkills) {
     const skillDir = skillGlob.replace(/\/\*\*?$/, ""); // ".../local-mirror/**" → ".../local-mirror"
     if (existsSync(join(brainDir, skillDir))) continue; // present → preserve, never overwrite
-    for (const rel of sourceFiles.filter((f) => matchesAny([skillGlob], f))) copyInto(sourceDir, brainDir, rel);
+    for (const rel of sourceFiles.filter((f) => matchesAny([skillGlob], f))) {
+      if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
+    }
     installedSkills.push(skillDir.split("/").pop()); // the skill name, for the report
   }
 
@@ -96,6 +116,30 @@ export async function reconcileBrain({
   //    file → pass-1 delivers it). install-if-absent each into `.claude/skills/<name>/`,
   //    alongside the merge-skill install above; fold the names into the same report.
   installedSkills.push(...installStagedSkills({ sourceDir, brainDir }));
+
+  // 2.bis-refresh REFRESH the engine skills the brain has NOT touched (Increment 2.5).
+  //    install-if-absent above stops at the skill-DIR level, so an already-present skill
+  //    was frozen forever: 12 skill commits since v3.2.2 reached nobody, while their
+  //    deterministic cores (a `replace` glob) were refreshed → live core/skill drift.
+  //    Here we overwrite ONLY what the sha256 provenance base proves byte-identical to
+  //    what the engine last delivered; a customized skill is preserved and reported.
+  //    ⚠️ Guarded on `sourceDir !== brainDir`: a skill is only ever overwritten during an
+  //    update the owner explicitly asked for (auto-finalize hands us the FETCHED source),
+  //    NEVER at SessionStart self-heal (which passes the brain as its own source — no new
+  //    content, and nobody asked). ADR 0026's "additive" invariant holds where it matters.
+  const { skillsRefreshed, skillsPreserved, refreshedFileMap } = refreshUntouchedSkills({
+    brainDir,
+    sourceDir,
+    sourceFiles,
+    manifest: target,
+    // The two families of base, in one map keyed by the INSTALLED path: the manifest's
+    // recorded sha256 for the `merge` skills, the pre-copy staging tree for the staged
+    // ones. They can never collide — a staged skill is, by construction, not a merge file.
+    // No `?? {}`: object spread already ignores undefined, so the fallback could not
+    // change a byte (mutation lesson — a guard that cannot matter is noise). The `?.`,
+    // on the other hand, is load-bearing: a caller may legitimately have no `local`.
+    provenance: { ...local?.provenance, ...stagedProvenance },
+  });
 
   // 2.ter Reconcile .mcp.json against the engine's MCP servers (ADR 0025): register a
   //    newly-shipped engine server the brain is MISSING, taking its definition from the
@@ -108,7 +152,7 @@ export async function reconcileBrain({
   const brainMcpPath = join(brainDir, ".mcp.json");
   const mcpServersAdded = [];
   if (existsSync(templatePath) && existsSync(brainMcpPath)) {
-    const projectRoot = brainDir.split("\\").join("/"); // {{PROJECT_ROOT}} is posix (cf. installer toPosix)
+    const projectRoot = toPosix(brainDir);
     const templateMcp = JSON.parse(readFileSync(templatePath, "utf8").split("{{PROJECT_ROOT}}").join(projectRoot));
     const engineServerIds = Object.keys(templateMcp.mcpServers ?? {}); // desired-state = delivered template keys
     const brainMcp = JSON.parse(readFileSync(brainMcpPath, "utf8"));
@@ -139,7 +183,7 @@ export async function reconcileBrain({
   const settingsTemplatePath = join(sourceDir, ".claude", "settings.json.template");
   const brainSettingsPath = join(brainDir, ".claude", "settings.json");
   if (existsSync(settingsTemplatePath) && existsSync(brainSettingsPath)) {
-    const projectRoot = brainDir.split("\\").join("/"); // {{PROJECT_ROOT}} is posix (cf. step 2.ter)
+    const projectRoot = toPosix(brainDir); // same normalisation as step 2.ter
     const brainSettings = JSON.parse(readFileSync(brainSettingsPath, "utf8"));
     const templateSettings = JSON.parse(readFileSync(settingsTemplatePath, "utf8"));
     const { hooks: addedHooks, hooksAdded: added } = reconcileHooks({
@@ -207,7 +251,21 @@ export async function reconcileBrain({
   //    any reindex so it reflects the current vault.
   const vaultNoteCount = await countVaultNotes({ brainDir });
 
-  return { copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills, mcpServersAdded, hooksAdded, hooksRepaired };
+  return {
+    copied,
+    regenerated,
+    reindexed,
+    reindexReason,
+    vaultNoteCount,
+    installedSkills,
+    installedFileMap,
+    skillsRefreshed,
+    skillsPreserved,
+    refreshedFileMap,
+    mcpServersAdded,
+    hooksAdded,
+    hooksRepaired,
+  };
 }
 
 // ── CLI entry — what the auto-finalize child process runs (ADR 0026, Layer A) ──
@@ -216,9 +274,14 @@ export async function reconcileBrain({
 // and local → schema is unchanged from its own viewpoint, so the child never reindexes
 // (it converges files; it does not migrate). RECONCILE ONLY: no fetch, no auto-finalize
 // → no recursion. `seams` is injectable for tests; defaults are the real I/O seams.
+// A flag in LAST position carries no value: reading past the end already yields
+// `undefined`, so no length guard is needed — one would be unable to change a single
+// byte of the result (mutation lesson: a guard that cannot matter says the same in less
+// code). The `i >= 0` check, on the other hand, is load-bearing: without it an ABSENT
+// flag would read `argv[0]` and hand back the first argument as its value.
 function flagValue(argv, name) {
   const i = argv.indexOf(name);
-  return i >= 0 && i + 1 < argv.length ? argv[i + 1] : undefined;
+  return i >= 0 ? argv[i + 1] : undefined;
 }
 
 export async function runReconcileCli({ argv, seams = {} }) {
@@ -228,8 +291,9 @@ export async function runReconcileCli({ argv, seams = {} }) {
   if (!brainDir || !sourceDir) {
     throw new Error("reconcile-brain: --brainDir and --sourceDir are required");
   }
-  const manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
-  return reconcileBrain({
+  const manifestPath = join(brainDir, "engine-manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const report = await reconcileBrain({
     brainDir,
     platform,
     sourceDir,
@@ -240,15 +304,56 @@ export async function runReconcileCli({ argv, seams = {} }) {
     runReindex: seams.runReindex ?? defaultRunReindex,
     countVaultNotes: seams.countVaultNotes ?? defaultCountVaultNotes,
   });
+
+  // T1 — re-seed the provenance base of the skills we just refreshed. The child is the
+  // LAST writer of the brain's manifest on the update path (the parent's step 7 already
+  // ran, and on the first update carrying this feature the parent runs the OLD code, so
+  // the refresh happens HERE). Without this, a refreshed file no longer matches its
+  // recorded base → the next update calls it "user-modified" and never refreshes it
+  // again: the feature would work exactly once per brain, silently.
+  const delivered = { ...report.installedFileMap, ...report.refreshedFileMap };
+  if (Object.keys(delivered).length > 0) {
+    const provenance = reseedProvenance({
+      priorProvenance: manifest.provenance ?? {},
+      manifest,
+      deliveredFileMap: delivered,
+    });
+    writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance }, null, 2) + "\n");
+  }
+  return report;
 }
 
-// Guarded so importing this module never runs the CLI. FAIL LOUD on error (exit 1) —
-// auto-finalize's own caller treats a child failure as best-effort (fail-soft there).
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  runReconcileCli({ argv: process.argv.slice(2) })
-    .then(() => process.exit(0))
-    .catch((e) => {
-      process.stderr.write(`\n❌ reconcile-brain failed.\n${e?.message ?? e}\n`);
-      process.exit(1);
-    });
+// The real I/O the child process runs on: the flags it was actually launched with and
+// the real stderr. Everything `runReconcileCliProcess` decides is testable BECAUSE it is
+// handed these instead of reaching for them (the `clear-example-notes` idiom, twin of
+// update-engine's `realUpdateDeps`) — the entry-point block below is now pure wiring.
+export const realReconcileDeps = {
+  argv: process.argv.slice(2),
+  runReconcileCli,
+  error: (s) => process.stderr.write(s),
+};
+
+// What the auto-finalize child process does, minus the process. Returns the exit code.
+// FAIL LOUD on error (exit 1) — auto-finalize's own caller treats a child failure as
+// best-effort (fail-soft there), so this banner is the ONLY trace a broken reconcile
+// leaves behind. `?? e` catches a thrown non-Error (a bare string); `?? "no reason
+// given"` catches a rejection with no reason at all — a ❌ over an empty line tells
+// nobody anything.
+export async function runReconcileCliProcess(deps = realReconcileDeps) {
+  try {
+    await deps.runReconcileCli({ argv: deps.argv });
+    return 0;
+  } catch (e) {
+    deps.error(`\n❌ reconcile-brain failed.\n${e?.message ?? e ?? "no reason given"}\n`);
+    return 1;
+  }
+}
+
+// ── CLI entry ────────────────────────────────────────────────────────────────
+// Guarded so importing this module never runs the CLI. Through the canonical
+// `isEntrypoint` (bug B2): a hand-rolled path/URL comparison silently never matches on
+// Windows paths or paths carrying a space, and a guard that never fires makes the whole
+// command an inert no-op that says nothing about it.
+if (isEntrypoint(import.meta.url, process.argv[1])) {
+  process.exit(await runReconcileCliProcess());
 }

@@ -1,7 +1,7 @@
 ---
 name: update-engine
-description: "Updates your second brain's ENGINE (the RAG search code, launchers and engine-owned scripts) to a newer version, opt-in and without ever touching your notes, .env, constitution, settings or custom skills. Reindexes only if the index format changed. Use when the user asks to update/upgrade their brain's engine, or to check whether an engine update is available."
-version: 1.1.0
+description: "Updates your second brain's ENGINE (the RAG search code, launchers and engine-owned scripts) to a newer version, opt-in and without ever touching your notes, .env, constitution, settings, your own skills or any engine skill you tailored. Reindexes only if the index format changed. Use when the user asks to update/upgrade their brain's engine, or to check whether an engine update is available."
+version: 1.2.0
 ---
 
 # /update-engine — Upgrade your brain's engine (opt-in, non-destructive)
@@ -10,7 +10,8 @@ version: 1.1.0
 > search code (`rag/`), the launchers and the engine-owned scripts. This skill swaps
 > it for a newer version pinned in the launcher you were generated from, **without
 > ever touching what is yours**: your notes, `.env`, constitution (`CLAUDE.md`),
-> `.claude/settings.json` and any custom skills are left **byte-for-byte unchanged**.
+> `.claude/settings.json`, your own skills and **any engine skill you tailored** are left
+> **byte-for-byte unchanged**.
 >
 > ⚠️ **This is a thin conversational driver.** All the real, testable work lives in
 > the deterministic core `scripts/update-engine.mjs` (ADR 0016). This skill only
@@ -41,7 +42,8 @@ code on disk and may trigger a reindex; it must always be a conscious, accepted 
 | `rag/launch.*`, `scripts/run-node.*` launchers | `.env` (your keys) |
 | engine scripts (`auto-commit`, `auto-push`, `status-line`, `verify-rag`) | `CLAUDE.md` (your constitution) |
 | `update-engine` itself (it self-updates) | `.claude/settings.json` |
-| **missing** engine skills (e.g. `local-mirror`) — _added if absent_ (ADR 0025) | your custom skills **and any engine skill you already have** (`.claude/skills/**`) |
+| **missing** engine skills (e.g. `local-mirror`) — _added if absent_ (ADR 0025) | your **own** skills (`.claude/skills/**`): the engine never declared them, so it can never write them |
+| engine skills **you never edited**: _brought up to date_ (ADR 0026 §8) | any engine skill **you tailored**: kept byte-for-byte, with the engine's newer version dropped **beside** it as `.new` |
 | **missing** engine MCP servers in `.mcp.json` — _added if absent_ (ADR 0025) | any server you added yourself to `.mcp.json` |
 
 ## Procedure
@@ -49,8 +51,12 @@ code on disk and may trigger a reindex; it must always be a conscious, accepted 
 ### Step 1 — Confirm with the user (mandatory, opt-in)
 Explain, plainly:
 - it pulls a newer engine and swaps in the new code, launchers and engine scripts;
-- **your notes, `.env`, constitution, settings and custom skills stay untouched**;
-- it will **reindex only if the index format changed** (a few minutes, nothing lost —
+- **your notes, `.env`, constitution, settings and your own skills stay untouched**;
+- it will **bring up to date the engine skills you never edited**, so improvements shipped
+  since this brain was installed finally reach it; **anything you tailored stands exactly as
+  you wrote it**, and the engine's newer version is simply left beside it as `.new`, yours to
+  adopt or ignore;
+- it will **reindex only if the index format changed** (a few minutes, nothing lost:
   your notes are simply re-encoded);
 - **prerequisites**: `git`, `npm` and a network connection (same as at install). Here
   `npm install` means installing the RAG engine's **dependencies locally** — nothing is
@@ -78,8 +84,23 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 ### Step 3 — Report (don't pretend)
 - **`exit 0`** → relay the printed summary (new version, how many engine files were
   swapped, whether a reindex ran). Reassure that nothing of theirs was touched.
+  - When the summary lists **engine skill(s) brought up to date**, name them: an
+    improvement shipped months ago has just reached this brain, and silent delivery
+    leaves the user unaware they now have it.
+  - When it says a **customized skill was kept**, relay that too, **with the `.new`
+    path**: their version stands untouched, and the engine's newer one sits beside it —
+    offer to compare the two, or to merge the new bits into theirs, if they want it.
 - **`exit 1`** → **relay the error as-is** and tell the user the brain was not changed
   past the point of failure. **Never claim success when it failed.**
+
+> 🔁 **MANDATORY — if the output carries the `ENGINE UPDATE UNFINISHED — AGENT, RUN THE UPDATE
+> ONCE MORE` banner, run `node scripts/update-engine.mjs` once more, immediately, WITHOUT asking
+> the user again** (they already asked for this update). This brain came from an engine older than
+> **v3.3.0**, whose orchestrator does not re-run the freshly-written reconciler: the first pass laid
+> the new engine on disk, **only the second one refreshes its untouched engine skills**. Report the
+> **SECOND** run's summary and its restart instruction, not the first one's — and don't make the user
+> wait through a question in between. **It cannot loop**: the second pass records the new versions,
+> so the banner is gone. _(Transitional vector for the pre-v3.3.0 cohort; it disappears with them.)_
 
 > 🛑 **MANDATORY — whenever ANY engine file changed, you MUST end your chat message by telling
 > the user, LOUDLY and in their language, to FULLY RESTART Claude.** This is the **only**
@@ -104,8 +125,10 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 >   rule (a session not yet rooted in the brain), not what picking up new engine code needs.
 > - Phrase it **in the user's language**, calmly: it is a one-time, harmless step — the brain
 >   wired its own self-healing in the background; one restart and they're done.
-> - The **genuine no-op** (the report shows **no** files swapped and **no** reindex) is the only
->   case where you skip the restart banner — don't cry wolf when nothing changed.
+> - The **genuine no-op** (the report shows **no** files swapped, **no** skill brought up to date
+>   and **no** reindex) is the only case where you skip the restart banner — don't cry wolf when
+>   nothing changed. A refreshed skill counts as a change: its new text loads only at the next
+>   session start, so this conversation still runs the old one.
 >
 > _One-time exception (a brain upgrading from a pre-3.2 engine): the first update runs the
 > OLD orchestrator, so this report won't yet list the new runtime hooks. They are wired

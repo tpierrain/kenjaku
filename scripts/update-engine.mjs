@@ -22,6 +22,7 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { isEntrypoint } from "./lib/entrypoint.mjs";
 
 import {
   fetchSource as defaultFetchSource,
@@ -41,16 +42,48 @@ import { defaultFinalizeReconcile } from "./lib/auto-finalize.mjs";
 // Re-export so the engine's own tests keep importing the count seam from here.
 export { defaultCountVaultNotes };
 
+// How many capabilities this update DELIVERED that the running conversation cannot
+// see yet (Layer B config-freeze): a skill, an MCP server and a hook all load only at
+// the next session start. Pure, and shared by the report banner and the CLI's
+// restart-flag decision so the two can never drift apart.
+export function countNewCapabilities(report) {
+  return (
+    (report.installedSkills?.length ?? 0) +
+    (report.mcpServersAdded?.length ?? 0) +
+    (report.hooksAdded?.length ?? 0)
+  );
+}
+
+// Did this update place anything on disk that only takes effect at the next session
+// start? Then the persistent restart flag must be armed (A2 / F-B7d), so the statusLine
+// keeps nudging after the report banner has scrolled away.
+export function needsRestart(report) {
+  return (
+    report.copied?.length > 0 ||
+    Boolean(report.regenerated) ||
+    countNewCapabilities(report) > 0 ||
+    report.skillsRefreshed?.length > 0
+  );
+}
+
+// F-B2 (ADR 0026) / issue #31: hooks are wired into settings.json by PATH
+// (`scripts/session-health.mjs`) but read by the user by bare name. Both anchors are
+// deliberate — only a LEADING `scripts/` and a TRAILING `.mjs` go — so a value that is
+// not a script path at all ("statusLine") passes through untouched.
+export function bareHookName(command) {
+  return command.replace(/^scripts\//, "").replace(/\.mjs$/, "");
+}
+
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
-  const wiredHooks = hooksAdded.map((s) => s.replace(/^scripts\//, "").replace(/\.mjs$/, ""));
+  const wiredHooks = hooksAdded.map(bareHookName);
   // Issue #31: broken `cmd /c "…\run-node.cmd"` hook/statusLine commands healed in place
   // on a pre-fix Windows brain (by bare name; "statusLine" passes through unchanged).
-  const healedHooks = hooksRepaired.map((s) => s.replace(/^scripts\//, "").replace(/\.mjs$/, ""));
+  const healedHooks = hooksRepaired.map(bareHookName);
   // Honest reindex line: a schema move re-encodes EVERY note; the health-note pairing (ADR
   // 0026 decision B, upgraders) only makes sure the one engine-owned note is present and
   // indexed (incremental — your other notes are untouched) — never claim "the index format
@@ -61,7 +94,10 @@ export function formatReport(report) {
       ? `   • ensured the engine health-check note is present and indexed (incremental — your other notes were not re-encoded)`
       : `   • reindexed — the index format changed (your notes were re-encoded, nothing lost)`;
   const lines = [
-    `✅ Engine updated to ${ref} (rag ${engineVersion?.rag}).`,
+    // `?? "unknown"`: a manifest with no engineVersion block is broken, but the update
+    // it describes is already done and recorded — printing "undefined" (or throwing)
+    // would be the report lying about a change that DID happen.
+    `✅ Engine updated to ${ref} (rag ${engineVersion?.rag ?? "unknown"}).`,
     `   • ${copied.length} engine file(s) swapped` + (regenerated ? " + launchers regenerated" : ""),
     reindexLine,
   ];
@@ -82,6 +118,28 @@ export function formatReport(report) {
   if (mcpServersAdded.length > 0) {
     lines.push(`   • new MCP server(s) registered: ${mcpServersAdded.join(", ")}`);
   }
+  // Increment 2.5: an engine skill the owner never touched was brought up to date.
+  // Distinct from "new engine skill(s) installed" above — the skill was already
+  // there, so the news is that it MOVED ON, not that it appeared.
+  if (skillsRefreshed.length > 0) {
+    lines.push(`   • engine skill(s) brought up to date: ${skillsRefreshed.join(", ")}`);
+  }
+  // ...and the mirror promise: a skill the owner edited is left ALONE. Report it per
+  // skill, with the path of the new version dropped beside it, so the choice to adopt
+  // the new bits stays theirs. `no-provenance` stays silent on purpose: it is a machine
+  // detail (an older brain that was never fingerprinted), not a decision the user made
+  // nor one they can act on.
+  // The path is read UNCONDITIONALLY: `refreshUntouchedSkills` emits `customized` only
+  // ever WITH a `newVersionPath` (engine-skill-refresh.mjs — the sidecar is written on
+  // that same branch), so a "no path" fallback here would be a state the producer cannot
+  // emit — a dead branch to maintain and mutation-test forever, not a safety net.
+  for (const { skill, reason, newVersionPath } of skillsPreserved) {
+    if (reason !== "customized") continue;
+    lines.push(
+      `   • your customized "${skill}" skill was kept exactly as you wrote it` +
+        ` — the newer engine version sits next to it as ${newVersionPath}`,
+    );
+  }
   if (wiredHooks.length > 0) {
     lines.push(`   • new runtime hook(s) wired: ${wiredHooks.join(", ")}`);
   }
@@ -95,7 +153,7 @@ export function formatReport(report) {
   // this same conversation (field-proven, F4). Do NOT muddy it with "start a new
   // conversation": that is the distinct initial-rooting rule (a never-rooted session),
   // not what is needed just to pick up new capabilities.
-  const newCapabilities = installedSkills.length + mcpServersAdded.length + wiredHooks.length;
+  const newCapabilities = countNewCapabilities(report);
   if (newCapabilities > 0) {
     const noun = newCapabilities === 1 ? "capability" : "capabilities";
     const them = newCapabilities === 1 ? "it" : "them";
@@ -107,7 +165,7 @@ export function formatReport(report) {
       `   brand-new chat for this. Until you restart, your brain CAN'T use ${them}.`,
       `   • If still missing after a restart, run /update-engine once more.`,
     );
-  } else if (copied.length > 0 || regenerated) {
+  } else if (copied.length > 0 || regenerated || skillsRefreshed.length > 0) {
     // F-B7d (ship-blocker A1): even a steady-state swap with NO brand-new capability still
     // needs a restart — the MCP server, hooks and constitution THIS conversation loaded are
     // the OLD ones until Claude is reopened. Stay silent and a "✅ done" reads as "already
@@ -115,7 +173,7 @@ export function formatReport(report) {
     // new-capability counter / "run once more" fallback (those are reserved for actual new
     // capabilities). The genuine no-op (nothing swapped) skips this entirely → no crying wolf.
     lines.push(
-      `   ⚠️ ACTION NEEDED — the engine code was updated on disk, but THIS conversation is`,
+      `   ⚠️ ACTION NEEDED — your engine was updated on disk, but THIS conversation is`,
       `   still running the OLD version. A FULL RESTART of Claude (close it and reopen) is`,
       `   enough: come back to THIS same conversation afterwards and the update takes effect.`,
       `   Until you restart, your brain keeps using the old engine.`,
@@ -158,8 +216,21 @@ export async function updateEngine({
   //    vault notes — all behind the deterministic, idempotent
   //    `reconcileBrain`. Extracted so the SAME reconciler runs at auto-finalize (a fresh
   //    child process at the end of this function) and at SessionStart self-heal.
-  const { copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills, mcpServersAdded, hooksAdded, hooksRepaired } =
-    await reconcileBrain({
+  const {
+    copied,
+    regenerated,
+    reindexed,
+    reindexReason,
+    vaultNoteCount,
+    installedSkills,
+    installedFileMap,
+    skillsRefreshed,
+    skillsPreserved,
+    refreshedFileMap,
+    mcpServersAdded,
+    hooksAdded,
+    hooksRepaired,
+  } = await reconcileBrain({
       brainDir,
       platform,
       sourceDir,
@@ -176,9 +247,19 @@ export async function updateEngine({
   //    re-delivered (the engine-owned scripts, read back from disk), while the user's
   //    untouched merge files (CLAUDE.md/settings/skills) keep their prior base — so a
   //    future Phase 2 3-way still detects the user's edits.
-  const deliveredFileMap = Object.fromEntries(
-    copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]),
-  );
+  //    T1 (Increment 2.5): the skills the reconcile just REFRESHED are re-delivered
+  //    content too, so they must be re-seeded here. Miss them and this manifest write
+  //    (built from the `local` copy read before the reconcile) leaves their base at the
+  //    OLD content → the next update calls them "user-modified" and never refreshes
+  //    them again: the feature would work exactly once per brain, silently.
+  //    Same for the skills the reconcile just INSTALLED (install-if-absent): they are
+  //    engine-delivered content with no base yet, and a skill without a base is never
+  //    refreshable again.
+  const deliveredFileMap = {
+    ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")])),
+    ...installedFileMap,
+    ...refreshedFileMap,
+  };
   const updated = {
     ...local,
     engineVersion: target.engineVersion,
@@ -212,37 +293,70 @@ export async function updateEngine({
     // swallowed on purpose — the update succeeded; self-heal will finish the job.
   }
 
-  return { ref: updated.source.ref, engineVersion: updated.engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills, mcpServersAdded, hooksAdded, hooksRepaired };
+  return {
+    ref: updated.source.ref,
+    engineVersion: updated.engineVersion,
+    copied,
+    regenerated,
+    reindexed,
+    reindexReason,
+    vaultNoteCount,
+    installedSkills,
+    skillsRefreshed,
+    skillsPreserved,
+    mcpServersAdded,
+    hooksAdded,
+    hooksRepaired,
+  };
 }
 
-// ── CLI entry (the command the brain-side `update-engine` skill runs) ─────────
-// Guarded so importing this module in tests does NOT run it. Operates on the brain
-// the script lives in (<brain>/scripts/update-engine.mjs → brainDir = its parent),
-// with the real git/npm/ONNX seams. FAIL LOUD (the project's strategy): on any
-// error, print it to stderr and exit non-zero — never pretend it worked.
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  updateEngine({ brainDir })
-    .then((report) => {
-      // A2 (F-B7d): if this update placed anything a restart is needed for, arm the
-      // persistent restart flag so the statusLine keeps nudging until the user restarts —
-      // a belt for the in-session converged case (the report banner alone scrolls away).
-      // The next fresh, converged session clears it (session-self-heal). Fail-soft.
-      const newCaps = (report.installedSkills?.length ?? 0) + (report.mcpServersAdded?.length ?? 0) + (report.hooksAdded?.length ?? 0);
-      if (report.copied?.length > 0 || report.regenerated || newCaps > 0) {
-        try {
-          const flagPath = join(brainDir, RESTART_FLAG_REL);
-          mkdirSync(dirname(flagPath), { recursive: true });
-          writeFileSync(flagPath, "restart needed to finish the engine update\n");
-        } catch {
-          /* fail-soft: the nudge is a convenience, never a blocker */
-        }
-      }
-      process.stdout.write(formatReport(report) + "\n");
-      process.exit(0);
-    })
-    .catch((e) => {
-      process.stderr.write(`\n❌ update-engine failed — the brain was NOT changed past this point.\n${e?.message ?? e}\n`);
-      process.exit(1);
-    });
+// A2 (F-B7d): arm the persistent restart flag so the statusLine keeps nudging until
+// the user restarts — a belt for the in-session converged case (the report banner
+// alone scrolls away). The next fresh, converged session clears it
+// (session-self-heal). Fail-soft: the nudge is a convenience, never a blocker.
+export function armRestartFlag(brainDir) {
+  try {
+    const flagPath = join(brainDir, RESTART_FLAG_REL);
+    mkdirSync(dirname(flagPath), { recursive: true });
+    writeFileSync(flagPath, "restart needed to finish the engine update\n");
+  } catch {
+    /* fail-soft */
+  }
+}
+
+// The real I/O the CLI runs on: the brain the script lives in
+// (<brain>/scripts/update-engine.mjs → brainDir = its parent), the real update, the
+// real flag write and the real streams. Everything `runUpdateCli` decides is testable
+// BECAUSE it is handed these instead of reaching for them (the `clear-example-notes`
+// idiom) — the entry-point block below is now pure wiring.
+export const realUpdateDeps = {
+  brainDir: resolve(dirname(fileURLToPath(import.meta.url)), ".."),
+  updateEngine,
+  armRestartFlag,
+  log: (s) => process.stdout.write(s),
+  error: (s) => process.stderr.write(s),
+};
+
+// The command the brain-side `update-engine` skill runs, minus the process. Returns
+// the exit code. FAIL LOUD (the project's strategy): on any error, print it to stderr
+// and hand back a non-zero — never pretend it worked.
+export async function runUpdateCli(deps = realUpdateDeps) {
+  try {
+    const report = await deps.updateEngine({ brainDir: deps.brainDir });
+    if (needsRestart(report)) deps.armRestartFlag(deps.brainDir);
+    deps.log(formatReport(report) + "\n");
+    return 0;
+  } catch (e) {
+    // `?? e` catches a thrown non-Error (a bare string); `?? "no reason given"` catches
+    // a rejection with no reason at all — a ❌ banner over an empty line tells nobody
+    // anything, and this is the one output a failed update leaves behind.
+    deps.error(`\n❌ update-engine failed — the brain was NOT changed past this point.\n${e?.message ?? e ?? "no reason given"}\n`);
+    return 1;
+  }
+}
+
+// ── CLI entry ────────────────────────────────────────────────────────────────
+// Guarded so importing this module in tests does NOT run it.
+if (isEntrypoint(import.meta.url, process.argv[1])) {
+  process.exit(await runUpdateCli());
 }

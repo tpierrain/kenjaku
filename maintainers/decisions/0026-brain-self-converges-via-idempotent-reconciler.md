@@ -5,10 +5,12 @@
   Index format unchanged → no schema bump, no forced reindex. The "residual bootstrap" caveat in
   *Consequences* is accepted as the deliberate trade-off (declarative-data convergence in one pass;
   only a rare reconciler-engine change still lags one update). The blanket-sacred *Safety invariant* carries
-  **two narrow, nominative exceptions** (Decision §5 and §6 + invariant below): the reconciler may **seed
+  **three narrow, nominative exceptions** (Decision §5, §6 and §8 + invariant below): the reconciler may **seed
   (write-if-absent)** the engine-owned health-check note + incrementally reindex it (so the `health_check`
-  canary, ADR 0030, also works on upgraders), and may **merge (add-if-absent)** engine-owned hook entries
-  into `settings.json` (so the v3.3.0 SessionStart runtime hooks reach upgraders, not just fresh installs).
+  canary, ADR 0030, also works on upgraders), may **merge (add-if-absent)** engine-owned hook entries
+  into `settings.json` (so the v3.3.0 SessionStart runtime hooks reach upgraders, not just fresh installs),
+  and may **refresh (overwrite-if-provably-untouched)** an engine-owned skill during an explicit update, so
+  skill improvements reach brains that already have the skill.
 - **Scope:** Second brain (runtime) + Installer — a brain-side **deterministic reconciler** invoked by
   `update-engine` (as a child process) and by the **SessionStart** hook; the installer may reuse the
   same pure libs at install time.
@@ -28,10 +30,12 @@
 >   `engine-manifest.json` (which `update-engine` never refreshes) — through one idempotent **reconciler**,
 >   run after every update (an auto-finalize child process) and at every **SessionStart** (self-heal — plus,
 >   for the one-time pre-3.2 jump, a bootstrap tick on the already-wired `session-status` hook).
-> - **Guarantee —** the reconciler only ever **adds** engine-delivered, engine-owned things **when
->   absent**: engine skill dirs, `.mcp.json` servers, `settings.json` **hook entries**, regenerated
->   launchers, and the single health-check note. It **never** overwrites or deletes the vault, `.env`, the
->   constitution, a user skill, or any user-authored `.mcp.json` server or `settings.json` entry.
+> - **Guarantee —** the reconciler adds engine-delivered, engine-owned things **when absent**: engine
+>   skill dirs, `.mcp.json` servers, `settings.json` **hook entries**, regenerated launchers, and the
+>   single health-check note. It overwrites exactly one thing, under proof: an engine-owned **skill whose
+>   bytes still match what the engine last delivered**, and only during an update the owner explicitly
+>   asked for (§8). It **never** overwrites or deletes the vault, `.env`, the constitution, a user skill,
+>   a **customized** engine skill, or any user-authored `.mcp.json` server or `settings.json` entry.
 > - **Prior art (not NIH) —** this is the canonical **desired-state reconciliation loop** (Kubernetes
 >   controllers, GitOps Argo/Flux, Terraform plan→apply, Chef/Puppet converge, Microsoft DSC Test/Set,
 >   Windows Installer self-healing); **SessionStart is its level-triggered tick**.
@@ -189,12 +193,46 @@ thing we add on top is naming discipline (see the terminology note in `CONVENTIO
    never a delivered duplicate to keep in sync. Accepted consequence: the **launcher itself** no longer
    auto-discovers that skill — it is an engine-delivered asset that runs in a brain, not the launcher.
 
+8. **An engine-owned skill is REFRESHED when — and only when — the brain can PROVE nobody touched it.**
+   Install-if-absent (§7, ADR 0025) delivers a *missing* skill but freezes an *existing* one forever: a
+   brain keeps the skill exactly as it was installed, while the deterministic core the skill drives is
+   refreshed by `replace` at every update — a widening **core/skill drift** on a growing installed base.
+   Convergence therefore extends from *presence* to *content*, without ever weakening user sovereignty:
+   - **The proof already exists on every brain.** The installer records a **sha256 provenance base per
+     `merge` file** and re-seeds it after each update. Bytes equal to the recorded base ⇒ the file is
+     exactly what the engine last delivered ⇒ **overwrite it**. Bytes differ ⇒ the owner customized it
+     (the documented `prepare-1-1` "refine to your own KPIs" case) ⇒ **touch nothing**, drop the engine's
+     newer version **alongside** as `SKILL.md.new`, and **say so** in the report, naming the path. This is
+     the *conffile* answer (Debian `dpkg`/`ucf`, `.rpmnew`), not an auto-merge.
+   - **No base recorded ⇒ no claim.** A brain older than provenance gets neither a refresh nor a sidecar
+     nor a report line: nothing is proven there, and littering it with unexplained `.new` files would be
+     noise, not a choice offered to the owner. **Line endings are not authorship** — a file matching the
+     base *modulo* EOLs counts as untouched, else the whole Windows fleet reads as customized.
+   - **Staged skills (§7) carry a base for free, retroactively.** They live outside the `merge` regime, so
+     they were never fingerprinted; but the brain's **own** `engine-skills/<name>/` copy, read **before**
+     the copy step overwrites it, *is* byte-for-byte what the engine last delivered (install-if-absent
+     copied that very subtree). Read at that instant, it answers the only question the refresh asks, for
+     the whole deployed fleet — and it is self-maintaining, since `replace` leaves the next base behind.
+   - **Only during an update the owner asked for** — the reconciler runs with `sourceDir !== brainDir`
+     only when it was handed **fetched** content (the auto-finalize child, §2). SessionStart self-heal
+     passes `sourceDir === brainDir`: no new content, nobody asked, **nothing is ever overwritten there**.
+     ADR 0026's additive invariant keeps holding exactly where it matters — at every silent tick.
+   - **Locale-aware by construction.** The source is resolved per the brain's own recorded locale, so a
+     French brain receives the French skill and is never re-anglicized by an update. A skill with no
+     source in that locale falls back to the root — which is precisely what that brain was installed
+     with, so the refresh stays a same-language update.
+   - **Re-seed the provenance of what was refreshed**, in the same run that refreshed it. Without it the
+     refreshed file no longer matches the recorded base at the next update, reads as "customized", and is
+     **never refreshed again** — the feature would die silently after one use.
+   - **A refresh is a change, not a new capability**: the new text loads at the next session start, so the
+     report raises the ordinary restart instruction, with no "run once more" counter.
+
 ### Safety invariant (every test asserts it)
 
 > The reconciler only ever writes manifest-declared engine-owned skills/MCP servers (install-if-absent)
 > and regenerated launchers. The vault, `.env`, the constitution, every user-added `.mcp.json`
 > server, every user-authored `settings.json` entry and every non-declared/custom skill are untouchable —
-> **EXCEPT** the two narrow, nominative carve-outs below.
+> **EXCEPT** the three narrow, nominative carve-outs below.
 
 > **⚠️ The one vault exception.** The "vault is untouchable" rule **stands**;
 > its **only** exception is that the reconciler MAY **create** (write-if-absent — **never** overwrite,
@@ -225,6 +263,25 @@ thing we add on top is naming discipline (see the terminology note in `CONVENTIO
 > - **Cross-OS** — the appended command carries the win32-safe shape (the brain's own `{{NODE}}` prefix +
 >   POSIX `{{PROJECT_ROOT}}`), unit-pinned on darwin and win32 (ADR 0015).
 
+> **⚠️ The one skill-content exception.** The "an existing skill is never written" rule **stands** for
+> every skill the user authored and every engine skill they customized; its **only** exception is that the
+> reconciler MAY **overwrite an engine-owned skill file whose bytes it can prove are still the engine's
+> own**, and **only** when running against fetched content (an explicit update). Enforced by tests:
+> - **Provenance-gated** — a file differing from its recorded base is left byte-identical and reported
+>   preserved, with the engine's version dropped beside it as `.new`; a file with **no** recorded base is
+>   left alone, silently.
+> - **Explicit updates only** — a SessionStart-shaped call (`sourceDir === brainDir`) refreshes **nothing**
+>   and reports nothing (no nagging at every session start).
+> - **Scoped to skills** — only `merge`-declared files **under `.claude/skills/`** (plus the staged skills
+>   of §7) are eligible; the constitution and the engine-owned scripts, also `merge`, stay out.
+> - **Refreshable twice** — refreshing re-seeds provenance, so a second consecutive update is a clean
+>   no-op: neither a refresh nor a "customized" verdict.
+> - **Subtree-complete** — a skill is a *subtree*, and install-if-absent decides at the skill-DIR level,
+>   so a file a release adds **under a skill the brain already has** (`references/…`) is delivered by this
+>   refresh, with a provenance base of its own, instead of reaching no brain at all.
+> - **No stale sidecar** — a `.new` left from an earlier update is cleared as soon as its verdict changes,
+>   so a surviving sidecar never keeps claiming something newer awaits.
+
 ## Consequences
 
 - **Layer A solved**: one `/update-engine` invocation finishes the job (the auto-finalize child process).
@@ -251,6 +308,18 @@ thing we add on top is naming discipline (see the terminology note in `CONVENTIO
   changes, that change still lags one update. By keeping it a **stable interpreter of declarative
   manifest DATA**, **feature additions** (a new skill dir, MCP server, settings entry) land in **one
   pass**; only the **rare** reconciler-engine change lags. We move the cost from *frequent* to *rare*.
+- **Skill improvements finally reach the brains that already have the skill**, closing the core/skill
+  drift: the deterministic core a skill drives was already refreshed by `replace` at every update, while
+  the prose driving it stayed frozen at install time. Convergence now covers *content*, not only presence.
+- **Customization becomes an explicit, visible state.** A brain is in exactly one of three legible
+  situations per skill — engine's own (refreshed), customized (kept, with the newer version beside it),
+  or unprovable (left alone). The owner is told which, and never has to diff anything to find out.
+- **One pass for every brain at v3.3.0+**, since auto-finalize already collapses the 2-cycle. The older
+  tail — orchestrators without auto-finalize, identified by the `scripts` version their manifest still
+  records at that moment — is carried by a **transitional** directive printed from the engine's
+  `postinstall` (the same "message in a bottle" vector that reaches a frozen orchestrator through
+  `npm install`), asking for the second pass inside the same interaction so the owner still only asks
+  once. It is expected to be **deleted** once that cohort has shrunk, falling back to the 2-cycle.
 - **Upgraders get a real canary** without breaking the vault-sacred guarantee in substance: user data is
   still never read-for-mutation, never overwritten, never deleted — the engine only
   (re)places **its own** health file, in **its own** namespace (`engine-health/`), and only when missing.
@@ -299,6 +368,29 @@ thing we add on top is naming discipline (see the terminology note in `CONVENTIO
   truth** to keep in sync with the very files it describes (the templates + `engine-skills/`). Deriving
   desired-state directly from those delivered files is strictly less to maintain and cannot drift out of
   step with what is actually on disk.
+- **Decide a skill is stale by comparing versions or dates instead of hashing it.** Rejected: a version
+  says what the engine shipped, never whether the owner edited their copy. Only the bytes prove that, and
+  the whole carve-out rests on that proof.
+- **Refresh skills at SessionStart too** (the level-triggered tick, like every other convergence).
+  Rejected: nobody asked for anything at a session start, and the tick has no fetched content to deliver
+  — it would be an overwrite in the dark. Content convergence is tied to the explicit update; presence
+  convergence stays on the tick.
+- **3-way merge a customized skill** (base + theirs + new). Deferred, not dismissed: it is the natural
+  next step, but the conffile answer (keep theirs, drop `.new` beside, tell them) delivers the value with
+  zero auto-merge risk, and a skill is prose — a merged instruction file can read as coherent while
+  saying two contradictory things.
+- **Refresh every skill from the repository root regardless of the brain's locale.** Rejected: it would
+  silently re-anglicize a French brain — the exact trap that keeps the engine constitution layer out of a
+  refreshed regime until it is made locale-aware.
+- **Have the pre-auto-finalize bottle perform the refresh itself** rather than print a directive.
+  Rejected on three independent counts: at `postinstall` time there is no source to refresh **from** (the
+  new skills live in the orchestrator's throw-away clone, and the manifest still records the **old**
+  source), the staged base has already been overwritten by the copy step (so every outdated-but-untouched
+  skill would read as customized), and reconciling inside `npm install` would recurse into it.
+- **Leave the pre-auto-finalize cohort on the documented 2-cycle** (ADR 0025). Considered, and the right
+  fallback once that cohort is small; rejected as the shipping answer while the installed base is
+  growing, because a newcomer landing on an old engine would keep frozen skills until they happened to
+  update twice, with nothing telling them so.
 - **Punch a hole in the sacred scrub to deliver the new skill under `.claude/skills/` via `replace`.**
   Rejected — exposing `.claude/skills/` to engine writes breaks the user-sovereignty core (ADR 0003/0012).
   The non-sacred `engine-skills/` staging dir + install-if-absent (§7) delivers the skill without weakening

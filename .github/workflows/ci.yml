@@ -39,8 +39,11 @@ jobs:
           node-version: ${{ matrix.node }}
 
       # Harness suites — pure .mjs seams (node:test), no deps to install.
+      # `rag/*.test.mjs` belongs here, NOT in the engine job: the postinstall "message in a
+      # bottle" is dependency-free .mjs, so rag's `npm test` (tsx over src/lib/*.test.ts) never
+      # globbed it and it was running nowhere.
       - name: Harness tests
-        run: node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"
+        run: node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
 
       # Engine — `npm ci` builds the native binding (better-sqlite3) on this
       # exact Node; the test run then exercises it. This is the real net.

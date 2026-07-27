@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %) |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent) |
 | **local-mirror** | **95.63 %** | 2026-07-16 (post-B4) | [re-audit](#full-local-mirror-re-audit--2026-07-16-post-b4) — the 78.69 % closer below is superseded |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -130,6 +130,79 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## Increment 2.5 (engine skill refresh) — Step 10 — 2026-07-27
+
+The gate before merging `feat/engine-skill-refresh`. Scope = the surface the increment
+touched. Run per the recipe below (disposable worktree + `--inPlace`), one file (or one
+COMMA-SEPARATED `--mutate`, see the gotcha) at a time.
+
+| File | Before | After | Note |
+|---|---|---|---|
+| `scripts/lib/engine-skill-refresh.mjs` | 86.72 % | **100 %** | 119/119, no equivalents _(6d6564b)_ |
+| `scripts/update-engine.mjs` | 51.52 % | **98.49 %** | 196/200, 3 equivalents _(5a04fa4, a54a0b1)_ |
+| `scripts/lib/engine-source.mjs` | 81.40 % | **93.02 %** | 40/43, 3 equivalents _(3790a2e)_ |
+| `scripts/lib/reconcile-brain.mjs` | 71.43 % | **96.45 %** | 162 killed + 1 timeout / 169, 6 equivalents _(3900fbb, fc520b0, e0cd006, 49e1457, a369fe2, e480621)_ |
+
+> **Decision (Thomas, 2026-07-27): both remaining files hardened IN THIS BRANCH**, to the same
+> standard as `update-engine.mjs` — including the survivors this increment never wrote. The two
+> narrower options (increment-only lines; increment + the composition-root seam) were put to him
+> and declined. **Effective 100 % on non-equivalents** for all four files of the increment.
+
+**`reconcile-brain.mjs` — what the 51 survivors were.** ~14 in the process-level wiring (the argv
+slice, the error banner, the exit code, the entry guard), fixed the same way `update-engine.mjs` was:
+extract `runReconcileCliProcess(deps)` + `realReconcileDeps`, leave the entry block as pure wiring,
+spawn it once as a real process, and route the guard through the canonical `isEntrypoint` (this file
+was the last hold-out hand-rolling it — bug B2). ~16 more in the CLI's own contract (missing-flag
+refusal, `--platform` reaching the seams, the manifest write). ~11 in the `.mcp.json` / `settings.json`
+side-channels, where two habits were the root cause: a **self-confirming fixture** (settings.json
+stored with the exact serialiser production writes it with → an unconditional rewrite left it
+byte-identical, so the no-churn guard could not be refuted by its own test) and **two write-reasons
+never isolated** (every repair fixture had BOTH broken hooks and a broken statusLine, so neither term
+of the guard was ever the sole cause). The rest were absent cases never fed: an empty `regenerate`
+bucket, a single-star skill glob, a reconcile with no `local` manifest.
+
+Three production simplifications fell out, all the same lesson: `flagValue`'s length check, `?? {}`
+before an object spread, and (previous step) the sidecar-clear condition could not change a single
+byte — deleting them said the same in less code and removed the mutants. One extraction, `toPosix`,
+makes the win32 `{{PROJECT_ROOT}}` contract verifiable on a POSIX CI, where it was a no-op and thus
+untestable by construction.
+
+> ⚠️ **Method note that paid for itself:** each mutant was hand-applied against the full suite before
+> and after writing its test, rather than reasoned about. That caught one filed as *killed* which was
+> in fact the OTHER branch of the same ternary, still alive because the assertion said `.includes(…)`
+> instead of naming the whole list. See [`RETROSPECTIVE.md`](RETROSPECTIVE.md) Part II for the
+> root-cause analysis of why four files of one increment scored 51–87 % despite Part I's rules.
+
+> ⚠️ **The 2026-07-15 line "`scripts/**` is now fully hardened" was never true of these
+> files.** It covered the three enumerated worst files plus `scripts/lib/**` *as measured
+> then*; `update-engine.mjs`, `reconcile-brain.mjs` and `engine-source.mjs` appear nowhere
+> in this document before today. Their low scores are **not** a regression from this branch.
+
+**`update-engine.mjs` — what the 96 survivors actually were.** ~40 clustered in the
+top-level `if (isEntrypoint(…))` block: a composition root with no seam. Extracting
+`countNewCapabilities` / `needsRestart` / `armRestartFlag` / `bareHookName` +
+`runUpdateCli(deps)` + `realUpdateDeps` (the `clear-example-notes` idiom) made them
+reachable. Most of the rest were `formatReport` prose: the tests pinned one line each with
+a regex, leaving every other line free to mutate → replaced by **golden assertions on the
+whole report** (quiet no-op / everything-on / steady state / one-capability singular), each
+list carrying **two** entries so a dropped `, ` separator diverges. Two production honesty
+fixes fell out of it: a manifest with no `engineVersion` reads `rag unknown` (not
+`undefined`), and a rejection with no reason prints `no reason given`. The entry point is
+now **spawned as a process** in a test — bug B2 was exactly a guard that silently never
+fired, and nothing else can catch that.
+
+**The 3 remaining survivors are equivalent**, recorded so nobody re-hunts them: the
+`skillsPreserved = []` default mutated to `["Stryker was here"]` (its only reader
+destructures `{ skill, reason }` and `continue`s on `reason !== "customized"` → identical
+output), and two `readFileSync(…, "utf8") → ""` (Node hands back a **Buffer**; both values
+are only `JSON.parse`d or fed to `createHash().update()` → same bytes, same digest).
+
+**Gotcha (cost a whole run):** multiple `--mutate` flags **do not accumulate** — only the
+last one applies. Use ONE comma-separated value:
+`--mutate "scripts/lib/reconcile-brain.mjs,scripts/lib/engine-source.mjs"`.
 
 ---
 

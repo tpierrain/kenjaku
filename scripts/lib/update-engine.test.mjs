@@ -9,7 +9,9 @@ import {
   rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -44,7 +46,8 @@ async function loadCore() {
 // ── formatReport: the human summary the brain-side skill prints (Step 6) ──────
 // Pure (report object → string) so the wording is unit-tested; the CLI entry holds
 // only the untestable I/O wiring (ADR 0009).
-import { formatReport, defaultCountVaultNotes } from "../update-engine.mjs";
+import { formatReport, countNewCapabilities, needsRestart, bareHookName, runUpdateCli, realUpdateDeps, armRestartFlag, defaultCountVaultNotes } from "../update-engine.mjs";
+import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
 
 // F2: the default count must match what the indexer actually treats as a note —
 // the document-scanner excludes `_template.md`, `.gitkeep` and the `.obsidian/`
@@ -278,6 +281,232 @@ test("formatReport — a true no-op (nothing swapped or regenerated) does NOT cr
   assert.doesNotMatch(out, /once more/i);
 });
 
+// Step 10 (mutation hardening): the regex tests above each pin ONE line, so every
+// OTHER line is free to mutate — an emptied literal, a flipped guard, a line that
+// appears when it should not. These two assert the WHOLE report, byte for byte: the
+// quiet no-op (the floor: only the lines that ALWAYS show) and the everything-on
+// update (the ceiling: every optional line at once, in order). Between them every
+// prose branch is pinned, both when it fires and when it must stay silent.
+test("formatReport — a quiet no-op prints EXACTLY the four always-on lines, nothing else", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 0 engine file(s) swapped",
+      "   • index format unchanged — no reindex needed",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+test("formatReport — an everything-on update prints every optional line, in order, byte for byte", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts", "scripts/auto-commit.mjs"],
+    regenerated: true,
+    reindexed: true,
+    vaultNoteCount: 2,
+    // Every list holds TWO entries, deliberately NOT alphabetical: on a single item a
+    // dropped separator and a re-sorted list are both invisible.
+    installedSkills: ["local-mirror", "coach"],
+    mcpServersAdded: ["local-mirror", "vault-rag"],
+    skillsRefreshed: ["switch", "coach"],
+    // A customized preserve (reported, with its sidecar) next to a no-provenance one
+    // (silent by design) — the discriminating pair for the `reason` filter.
+    skillsPreserved: [
+      { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+      { skill: "import", reason: "no-provenance" },
+    ],
+    hooksAdded: ["scripts/session-health.mjs", "scripts/session-self-heal.mjs"],
+    // "statusLine" is the decoy: it carries neither the `scripts/` prefix nor the
+    // `.mjs` suffix, so it must pass through the stripping untouched.
+    hooksRepaired: ["scripts/auto-push.mjs", "statusLine"],
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 2 engine file(s) swapped + launchers regenerated",
+      "   • reindexed — the index format changed (your notes were re-encoded, nothing lost)",
+      "   • your vault holds 2 notes — searchable as the reindex finishes",
+      "   • new engine skill(s) installed: local-mirror, coach",
+      "   • new MCP server(s) registered: local-mirror, vault-rag",
+      "   • engine skill(s) brought up to date: switch, coach",
+      '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
+      "   • new runtime hook(s) wired: session-health, session-self-heal",
+      "   • repaired Windows hook command(s) (issue #31 — 'laude' error): auto-push, statusLine",
+      "   ⚠️ ACTION NEEDED — 6 new capabilities are installed on disk but NOT active in THIS conversation.",
+      "   A FULL RESTART of Claude (close it and reopen) is enough: come back to THIS same",
+      "   conversation afterwards and your brain can use them. You do NOT need to start a",
+      "   brand-new chat for this. Until you restart, your brain CAN'T use them.",
+      "   • If still missing after a restart, run /update-engine once more.",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+// A manifest with no `engineVersion` block is a broken manifest — but by the time the
+// report is printed the update is DONE and recorded, so crashing here would print
+// "the brain was NOT changed past this point" over a change that DID happen. Degrade
+// honestly instead: say the version is unknown, and keep every other line.
+test("formatReport — a target manifest with no engineVersion says so instead of crashing", () => {
+  const out = formatReport({ ref: "v3.6.2", copied: [], regenerated: false, reindexed: false });
+
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag unknown).",
+      "   • 0 engine file(s) swapped",
+      "   • index format unchanged — no reindex needed",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+// The third shape, between the floor and the ceiling: an upgrader whose schema did NOT
+// move (health-note seed only), holding a single note, with a preserve the report must
+// stay SILENT about — and the steady-state restart banner, whose wording is a different
+// literal from the new-capability one above.
+test("formatReport — a steady-state upgrade prints the incremental-reindex + generic-restart wording, byte for byte", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: true,
+    reindexReason: "health-note-seed",
+    vaultNoteCount: 1,
+    skillsPreserved: [{ skill: "coach", reason: "no-provenance" }],
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 1 engine file(s) swapped",
+      "   • ensured the engine health-check note is present and indexed (incremental — your other notes were not re-encoded)",
+      "   • your vault holds 1 note — searchable as the reindex finishes",
+      "   ⚠️ ACTION NEEDED — your engine was updated on disk, but THIS conversation is",
+      "   still running the OLD version. A FULL RESTART of Claude (close it and reopen) is",
+      "   enough: come back to THIS same conversation afterwards and the update takes effect.",
+      "   Until you restart, your brain keeps using the old engine.",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+// The boundary of the capability counter (lesson: triangulate the singular/plural pair).
+// ONE new capability must read "1 new capability IS installed … can use IT" — the
+// ceiling test above pins the plural half of the very same three ternaries.
+test("formatReport — exactly one new capability reads in the singular, byte for byte", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    installedSkills: ["local-mirror"],
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 0 engine file(s) swapped",
+      "   • index format unchanged — no reindex needed",
+      "   • new engine skill(s) installed: local-mirror",
+      "   ⚠️ ACTION NEEDED — 1 new capability is installed on disk but NOT active in THIS conversation.",
+      "   A FULL RESTART of Claude (close it and reopen) is enough: come back to THIS same",
+      "   conversation afterwards and your brain can use it. You do NOT need to start a",
+      "   brand-new chat for this. Until you restart, your brain CAN'T use it.",
+      "   • If still missing after a restart, run /update-engine once more.",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+// ── Increment 2.5, Step 5: report the SKILL refresh ──────────────────────────
+// The whole point of the increment is that a shipped skill improvement finally
+// reaches an existing brain. Delivering it silently leaves the user unaware their
+// `switch` skill just gained the native-connectors reminder — say which skills
+// were brought up to date.
+test("formatReport — names the engine skill(s) it refreshed to the new version", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    skillsRefreshed: ["switch", "coach"],
+  });
+  assert.match(out, /switch, coach/);
+  assert.match(out, /skill/i);
+  // Not a NEW capability: the skill was already there, only its content moved on.
+  assert.doesNotMatch(out, /new engine skill/i);
+});
+
+// The other half of the promise: a skill the owner made their own is NEVER
+// overwritten, and they are TOLD — with the path of the new version dropped next to
+// it, so "I'd like the new bits too" is one question away instead of invisible.
+test("formatReport — says which customized skill was preserved, and where its new version sits", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    skillsPreserved: [
+      { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+    ],
+  });
+  assert.match(out, /prepare-1-1/);
+  assert.match(out, /\.claude\/skills\/prepare-1-1\/SKILL\.md\.new/);
+  assert.match(out, /kept|preserved|as you wrote/i);
+});
+
+// Step 1's refinement, carried into the prose: a pre-provenance brain (nothing was
+// ever fingerprinted for that file) must NOT be told it customized anything — it
+// didn't. There is nothing to decide and nothing to adopt, so the report stays silent
+// rather than manufacturing a scary, unactionable line on every single update.
+test("formatReport — a preserve with no provenance is NOT reported as a customization", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    skillsPreserved: [{ skill: "coach", reason: "no-provenance" }],
+  });
+  assert.doesNotMatch(out, /customized/i);
+  assert.doesNotMatch(out, /coach/);
+});
+
+// A refreshed skill is on disk but THIS conversation loaded the OLD text when it
+// started (Layer B config-freeze) — exactly the staleness the restart banner exists
+// for. Staying silent because no engine *file* was swapped would let the user try the
+// improved skill in a session that cannot see it, and conclude the update lied.
+test("formatReport — a refresh-only update still says the running session is stale", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    skillsRefreshed: ["switch"],
+  });
+  assert.match(out, /action needed/i);
+  assert.match(out, /restart/i);
+  // Still not a NEW capability: no counter, no "run once more" fallback.
+  assert.doesNotMatch(out, /once more/i);
+  assert.doesNotMatch(out, /new capabilit/i);
+});
+
 // F2: the recap must surface the number the USER cares about — how many notes their
 // brain holds — not just the maintainer-facing "N engine files swapped" count.
 test("formatReport — surfaces the vault note count", () => {
@@ -316,6 +545,265 @@ test("formatReport — when reindexed, hints that searchability catches up as in
   });
   assert.match(out, /9 note/);
   assert.match(out, /indexing|searchable|catches up/i);
+});
+
+// F-B2 (ADR 0026): hooks are wired into settings.json by PATH, and read by the user by
+// bare name. The stripping is anchored on purpose — only a LEADING `scripts/` and a
+// TRAILING `.mjs` go — so a value that is not a script path ("statusLine") survives
+// intact and nothing is chopped out of the middle of a name.
+test("bareHookName — strips only a leading scripts/ and a trailing .mjs", () => {
+  assert.equal(bareHookName("scripts/session-health.mjs"), "session-health");
+  assert.equal(bareHookName("statusLine"), "statusLine", "not a script path — untouched");
+  assert.equal(bareHookName("vendor/scripts/probe.mjs"), "vendor/scripts/probe", "scripts/ mid-path is part of the name");
+  assert.equal(bareHookName("scripts/probe.mjs.bak"), "probe.mjs.bak", ".mjs mid-name is part of the name");
+});
+
+// ── Step 10: the CLI's decisions, extracted OUT of the entry-point block ──────
+// They used to live inside `if (isEntrypoint(...))`, unreachable by any test — which
+// is why ~40 of the file's 96 surviving mutants clustered there. Pure predicates now.
+test("countNewCapabilities — sums the skills, MCP servers and hooks this update delivered", () => {
+  assert.equal(
+    countNewCapabilities({
+      installedSkills: ["local-mirror"],
+      mcpServersAdded: ["local-mirror", "vault-rag"],
+      hooksAdded: ["scripts/session-health.mjs", "scripts/session-self-heal.mjs", "scripts/auto-push.mjs"],
+    }),
+    6,
+  );
+});
+
+// The absent twin: an older reconcile (or a partial report) carries none of the three
+// lists. Counting must yield 0 — never NaN, which would make the banner read
+// "NaN new capabilities" and, worse, silently falsify every comparison against it.
+test("countNewCapabilities — a report carrying none of the three lists counts 0", () => {
+  assert.equal(countNewCapabilities({ copied: ["rag/src/index.ts"] }), 0);
+});
+
+// Increment 2.5: a refreshed skill is the trigger this branch ADDED — its new text
+// loads only at the next session start, so the persistent nudge must be armed even
+// though not a single engine file was swapped.
+test("needsRestart — a refresh-only update still arms the nudge", () => {
+  assert.equal(
+    needsRestart({ copied: [], regenerated: false, skillsRefreshed: ["switch"] }),
+    true,
+  );
+});
+
+// The don't-cry-wolf boundary, same as the report banner's: an update that changed
+// nothing on disk must leave the nudge disarmed, or the statusLine nags forever.
+test("needsRestart — a genuine no-op leaves the nudge disarmed", () => {
+  assert.equal(
+    needsRestart({ copied: [], regenerated: false, skillsRefreshed: [], installedSkills: [], mcpServersAdded: [], hooksAdded: [] }),
+    false,
+  );
+});
+
+// The absent twin: a report carrying none of the keys at all (an older reconcile, a
+// partial report) must answer "no restart needed" — never explode. The optional chains
+// are the whole reason this holds, and nothing else exercises them.
+test("needsRestart — a report carrying none of the keys answers no, without throwing", () => {
+  assert.equal(needsRestart({}), false);
+});
+
+// The other three triggers, each ALONE (an OR chain where only one disjunct is ever
+// exercised is indistinguishable from that disjunct): a swapped engine file, a mere
+// launcher regeneration, and a brand-new capability each stale the running session.
+test("needsRestart — a swapped file, a launcher regeneration or a new capability each arm it on their own", () => {
+  const base = { copied: [], regenerated: false, skillsRefreshed: [], installedSkills: [], mcpServersAdded: [], hooksAdded: [] };
+  assert.equal(needsRestart({ ...base, copied: ["rag/src/index.ts"] }), true, "a swapped engine file");
+  assert.equal(needsRestart({ ...base, regenerated: true }), true, "regenerated launchers");
+  assert.equal(needsRestart({ ...base, hooksAdded: ["scripts/session-health.mjs"] }), true, "a newly wired hook");
+});
+
+// The CLI itself, now a function taking its I/O as deps (the `clear-example-notes`
+// idiom): the happy path prints the human report on stdout, arms nothing else, and
+// hands the shell a 0.
+test("runUpdateCli — prints the report on stdout and exits 0", async () => {
+  const out = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async ({ brainDir }) => {
+      assert.equal(brainDir, "/brains/mine", "the CLI updates the brain it was told about");
+      return { ref: "v3.6.2", engineVersion: { rag: "1.1.4" }, copied: [], regenerated: false, reindexed: false };
+    },
+    armRestartFlag: () => assert.fail("a no-op update must not arm the restart nudge"),
+    log: (s) => out.push(s),
+    error: (s) => assert.fail(`nothing should reach stderr, got: ${s}`),
+  });
+
+  assert.equal(code, 0);
+  assert.deepEqual(out, [
+    formatReport({ ref: "v3.6.2", engineVersion: { rag: "1.1.4" }, copied: [], regenerated: false, reindexed: false }) + "\n",
+  ]);
+});
+
+// FAIL LOUD: a failed update must reach stderr with the message AND the "the brain was
+// NOT changed past this point" reassurance, print NOTHING on stdout (a report there
+// would read as success), and hand the shell a non-zero.
+test("runUpdateCli — a failed update goes to stderr, prints no report, and exits 1", async () => {
+  const err = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => {
+      throw new Error("git clone failed: host unreachable");
+    },
+    armRestartFlag: () => assert.fail("a failed update must not arm the restart nudge"),
+    log: (s) => assert.fail(`nothing should reach stdout, got: ${s}`),
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, [
+    "\n❌ update-engine failed — the brain was NOT changed past this point.\ngit clone failed: host unreachable\n",
+  ]);
+});
+
+// A thrown non-Error (a rejected string, a bare object) must still print SOMETHING
+// usable — the `?? e` fallback, whose absent twin is otherwise never exercised.
+test("runUpdateCli — a thrown non-Error still reaches stderr, not an empty 'undefined'", async () => {
+  const err = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => {
+      throw "ENOSPC: no space left on device";
+    },
+    armRestartFlag: () => {},
+    log: () => {},
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, [
+    "\n❌ update-engine failed — the brain was NOT changed past this point.\nENOSPC: no space left on device\n",
+  ]);
+});
+
+// The wiring the no-op test above can only prove NEGATIVELY: an update that did place
+// something on disk arms the nudge, ONCE, in the brain it just updated (a flag armed in
+// the wrong folder nudges nobody).
+test("runUpdateCli — an update that changed something arms the nudge in that brain, once", async () => {
+  const armed = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => ({
+      ref: "v3.6.2",
+      engineVersion: { rag: "1.1.4" },
+      copied: [],
+      regenerated: false,
+      reindexed: false,
+      skillsRefreshed: ["switch"],
+    }),
+    armRestartFlag: (dir) => armed.push(dir),
+    log: () => {},
+    error: (s) => assert.fail(`nothing should reach stderr, got: ${s}`),
+  });
+
+  assert.equal(code, 0);
+  assert.deepEqual(armed, ["/brains/mine"]);
+});
+
+// The bottom of the barrel: a rejection with NO reason at all (a `throw null`, an
+// aborted child). The banner must still say something a human can act on — printing a
+// bare "null" under a ❌ is the same dead end as printing nothing.
+test("runUpdateCli — a rejection with no reason still explains itself", async () => {
+  const err = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => {
+      throw null;
+    },
+    armRestartFlag: () => {},
+    log: () => {},
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, [
+    "\n❌ update-engine failed — the brain was NOT changed past this point.\nno reason given\n",
+  ]);
+});
+
+// …and the last untested link: that the entry-point guard actually FIRES. Bug B2 was
+// exactly this — a hand-rolled `file://` comparison that silently never matched, so
+// running the command did nothing at all and said nothing about it. Everything above
+// can be green while the script is a no-op, so run it for real, as a process.
+// Safe by construction: the COMMITTED launcher manifest pins no `source`
+// (engine-manifest-integrity enforces it), so the run fails on that before it can
+// fetch, write or touch anything.
+test("the CLI entry point actually runs the update (and fails LOUDLY, never silently)", () => {
+  const script = resolve(dirname(fileURLToPath(import.meta.url)), "../update-engine.mjs");
+
+  const r = spawnSync(process.execPath, [script], { encoding: "utf8" });
+
+  assert.equal(r.status, 1, "a script that silently does nothing would exit 0");
+  assert.match(r.stderr, /❌ update-engine failed/);
+  assert.match(r.stderr, /no source repo recorded/);
+  assert.equal(r.stdout, "", "a failed update must not print a success report");
+});
+
+// The wiring itself — the one thing `runUpdateCli(deps)` can never prove, since every
+// test hands it doubles. If `realUpdateDeps` pointed at the wrong folder or at a
+// swallowing stream, the CLI would run flawlessly against nothing and say so.
+test("realUpdateDeps — points at the brain the script lives in, and at the real streams", () => {
+  const brainRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+  assert.equal(realUpdateDeps.brainDir, brainRoot, "brainDir = the parent of scripts/, i.e. the brain itself");
+  assert.equal(realUpdateDeps.armRestartFlag, armRestartFlag);
+  assert.equal(realUpdateDeps.updateEngine.name, "updateEngine");
+
+  const outs = [];
+  const errs = [];
+  const [realOut, realErr] = [process.stdout.write, process.stderr.write];
+  process.stdout.write = (s) => outs.push(s) && true;
+  process.stderr.write = (s) => errs.push(s) && true;
+  try {
+    realUpdateDeps.log("the report\n");
+    realUpdateDeps.error("the failure\n");
+  } finally {
+    [process.stdout.write, process.stderr.write] = [realOut, realErr];
+  }
+  assert.deepEqual(outs, ["the report\n"], "the report goes to stdout");
+  assert.deepEqual(errs, ["the failure\n"], "the failure goes to stderr, never mixed into the report");
+});
+
+// The flag write itself: it lands where `session-self-heal` / the statusLine look for
+// it, with a body a human can read if they ever open it — and it creates the `.cache/`
+// folder, which a freshly-installed brain does not have yet.
+test("armRestartFlag — drops the nudge file under the brain, creating .cache/ if needed", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-flag-"));
+
+  armRestartFlag(brainDir);
+
+  assert.equal(
+    readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8"),
+    "restart needed to finish the engine update\n",
+  );
+});
+
+// The common case, and the one a non-recursive mkdir would break: `.cache/` is already
+// there (every brain past its first session has it) and the flag was cleared by a
+// converged session. Re-arming must still drop the file, not blow up on EEXIST and get
+// swallowed by the fail-soft catch — which would silently stop nudging forever.
+test("armRestartFlag — re-arms in a brain whose .cache/ already exists", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-flag-again-"));
+  mkdirSync(join(brainDir, dirname(RESTART_FLAG_REL)), { recursive: true });
+
+  armRestartFlag(brainDir);
+
+  assert.equal(
+    readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8"),
+    "restart needed to finish the engine update\n",
+  );
+});
+
+// Fail-soft: the nudge is a convenience on top of an update that ALREADY succeeded and
+// is ALREADY recorded. A read-only `.cache/`, a full disk — none of it may turn a good
+// update into a failure the user reads as "my brain was not updated".
+test("armRestartFlag — an unwritable brain never throws (the update already succeeded)", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-flag-ro-"));
+  // A FILE where the `.cache` directory should go → mkdir + write both fail.
+  writeFileSync(join(brainDir, ".cache"), "not a directory\n");
+
+  assert.doesNotThrow(() => armRestartFlag(brainDir));
 });
 
 function sha256(path) {
@@ -371,7 +859,7 @@ function fp(content) {
   return "sha256:" + createHash("sha256").update(content).digest("hex");
 }
 
-function manifest({ ragVersion, indexSchemaVersion, ref, provenance = {} }) {
+function manifest({ ragVersion, indexSchemaVersion, ref, provenance = {}, extraMerge = [] }) {
   return JSON.stringify(
     {
       manifestVersion: 1,
@@ -389,6 +877,7 @@ function manifest({ ragVersion, indexSchemaVersion, ref, provenance = {} }) {
           "scripts/status-line.mjs",
           "scripts/verify-rag.mjs",
           "scripts/update-engine.mjs",
+          ...extraMerge,
         ],
       },
       engineMcpServers: ["vault-rag"],
@@ -474,7 +963,10 @@ async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, coun
     // target's version; overridable to exercise the offline/no-tag fallback. The
     // committed launcher manifest has NO `source`, so this — not target.source —
     // is the single thing that advances the brain's recorded ref.
-    resolveLatestTag: resolveLatestTag ?? (async () => "v1.1.0"),
+    resolveLatestTag: async (arg) => {
+      calls.resolveTag = arg;
+      return resolveLatestTag ? resolveLatestTag(arg) : "v1.1.0";
+    },
     fetchSource: async ({ repo, ref }) => {
       calls.fetch = { repo, ref };
       return sourceDir;
@@ -512,6 +1004,14 @@ for (const platform of ["posix", "win32"]) {
     // 0. The engine was fetched at the RESOLVED latest tag (not the brain's pinned
     //    ref) — this is what makes the displayed Version actually advance (ADR 0017).
     assert.equal(calls.fetch.ref, "v1.1.0", "must fetch the resolved latest tag, not the old pinned ref");
+    //    …and the tag was looked up on the repo the BRAIN recorded. Ask without it and
+    //    the lookup answers null, the update silently re-pulls the pinned ref forever,
+    //    and the brain never advances a single version.
+    assert.deepEqual(
+      calls.resolveTag,
+      { repo: "https://example.test/launcher.git" },
+      "the latest tag must be resolved on the brain's recorded source repo",
+    );
 
     // 1. Every COPIED engine file now carries the vB bytes — the `replace` bucket and
     //    the engine-owned scripts (incl. update-engine.mjs self-update). The launchers
@@ -542,7 +1042,12 @@ for (const platform of ["posix", "win32"]) {
     assertSacredUntouched(brainDir, before);
 
     // 5. The brain's manifest now records the new version + the ref it pulled.
-    const m = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+    const manifestText = readFileSync(join(brainDir, "engine-manifest.json"), "utf8");
+    // The brain is a git repo whose hook commits this file: a manifest written without
+    // its trailing newline shows up as a "\ No newline at end of file" diff on every
+    // single update, forever.
+    assert.equal(manifestText.endsWith("}\n"), true, "the manifest must be written with a trailing newline");
+    const m = JSON.parse(manifestText);
     assert.equal(m.engineVersion.rag, "1.1.0", "manifest engineVersion.rag must be bumped to the target");
     assert.equal(m.indexSchemaVersion, 2, "manifest indexSchemaVersion must follow the target");
     assert.equal(m.source.ref, "v1.1.0", "manifest source.ref must ADVANCE to the resolved latest tag");
@@ -972,4 +1477,52 @@ test("gate — returns the vault note count from the injected seam", async (t) =
   });
 
   assert.equal(report.vaultNoteCount, 42);
+});
+
+// ── Increment 2.5 / trap T1 — the parent's step 7 must not lose the reseed ────
+// When the in-process reconcile refreshes a skill, step 7 rewrites the manifest from
+// the `local` copy it read BEFORE reconciling. Unless the refreshed files are folded
+// into the re-seed, the skill's base stays at the OLD content and the very next update
+// classifies it "user-modified" — the feature would die after one use.
+test("updateEngine — a refreshed skill's provenance base is re-seeded by step 7", async (t) => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-brain-refresh-"));
+  const sourceDir = mkdtempSync(join(tmpdir(), "sbg-source-refresh-"));
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  const extraMerge = [".claude/skills/switch/**"];
+  for (const [rel, content] of Object.entries(flat(engineFiles("vA")))) writeFile(brainDir, rel, content);
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    manifest({
+      ragVersion: "1.0.0",
+      indexSchemaVersion: 1,
+      ref: "v1.0.0",
+      extraMerge,
+      provenance: { ".claude/skills/switch/SKILL.md": fp(delivered) },
+    }),
+  );
+  for (const [rel, content] of Object.entries(flat(engineFiles("vB")))) writeFile(sourceDir, rel, content);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  writeFile(
+    sourceDir,
+    "engine-manifest.json",
+    manifest({ ragVersion: "1.1.0", indexSchemaVersion: 1, ref: "v1.1.0", extraMerge }),
+  );
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  assert.deepEqual(report.skillsRefreshed, ["switch"]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"), improved);
+  const m = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    m.provenance[".claude/skills/switch/SKILL.md"],
+    fp(improved),
+    "step 7 must re-seed the base of what the reconcile just refreshed",
+  );
 });

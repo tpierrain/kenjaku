@@ -38,10 +38,19 @@ Decided with Thomas 2026-07-18, extended 2026-07-19 (universes). When juggling p
    **Deferred to AFTER the migration.**
 
 **Why deferring 🔴 is safe:** the constitution is `sacred` and `constitutionTemplate` is frozen at
-`1.0.0`, so no constitution re-layering is forced. Note that Universes (Gate 2) bumps
-`indexSchemaVersion` 1 → 2, so a **v3.2.x → current jump WILL reindex once** (it previously did not);
-`update-engine` handles this with a warning and is state-convergent (one jump converges). Deferral stays
-safe because **nothing forces** the fleet's upgrade in the interim.
+`1.0.0`, so no constitution re-layering is forced. Deferral stays safe because **nothing forces** the
+fleet's upgrade in the interim.
+
+> ⚠️ **Correction (2026-07-27).** This paragraph used to claim that `update-engine` "handles the
+> `indexSchemaVersion` 1 → 2 bump with a warning". It does **not**: the universes commit moved the engine
+> constant to `2` but **never bumped the manifest**, which still reads `1`, and that manifest pair is what
+> `reindex-trigger.mjs` compares. A stamped-`1` brain therefore meets the runtime stale-schema gate on its
+> **first search** after upgrading (fail-loud, self-healing, no corruption) instead of being warned up
+> front. Tracked in `prospective/engine-managed-file-merge-strategy.md` → §"Side-finding"; deliberately
+> NOT folded into Gate 2.5, since bumping the manifest is itself a fleet-wide reindex event.
+
+**Pulled forward (2026-07-27):** Gate **2.5** (refresh untouched engine skills) jumped ahead of the
+migration. Rationale in its gate entry below; it is independent of Gate 3, so the order is reversible.
 
 ---
 
@@ -67,7 +76,23 @@ safe because **nothing forces** the fleet's upgrade in the interim.
   - [ ] Field-verify a fresh single-universe install is born "today" (no universe folder, no
         frontmatter key, no reminder) and that creating a 2nd universe surfaces `/switch` + the
         reminder + scoped search — at Gate 3 generate time.
-- [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2). NEXT TO EXECUTE.**
+- [ ] **Gate 2.5 — 🔄 Refresh an UNTOUCHED engine skill (pull-forward of Gate 4A). NEXT TO EXECUTE.**
+  - [ ] Provenance-gated refresh (sha256 base already recorded on every brain): overwrite only what is
+        provably byte-identical to what the engine last delivered; a customized skill is preserved and
+        reported. Lives in `reconcileBrain`, guarded on `sourceDir !== brainDir` so it fires on an
+        explicit update, never at SessionStart.
+  - [ ] **Why it jumped the queue:** the gap is live, not theoretical (12 skill commits since v3.2.2 have
+        reached nobody; `4e43e70` in v3.6.2 will never reach a v3.6.0/v3.6.1 brain), and the frozen share
+        of the fleet grows with the installed base.
+  - [ ] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Increment 2.5".
+- [ ] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle (DEPENDS on Gate 2.5).**
+  - [ ] Blocked by design, not by code: its user-facing surface is the `/switch` skill, which cannot
+        reach the existing fleet until Gate 2.5 ships.
+  - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
+- [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
+  - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no
+        shared file). It was "NEXT TO EXECUTE" before 2.5 was pulled forward. If the personal migration
+        becomes the priority again, flip the order here in one line: nothing in 2.5 / 2.6 blocks it.
   - [ ] Track D: generate brain → `/import --universe` ~405 notes → layer private capabilities.
   - [ ] **Canonical plan:** `prospective/second-brain-migration-and-engine-upstream-action.md` → Track D.
 - [ ] **Gate 4 — 🔴 Fleet re-layering + big-jump upgrade experience (deferred until after Gate 3).**
@@ -90,7 +115,8 @@ safe because **nothing forces** the fleet's upgrade in the interim.
 
 | Plan (canonical) | What it delivers | Gate | Status |
 | --- | --- | --- | --- |
-| `prospective/engine-managed-file-merge-strategy.md` | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. | 1 & 4 | 🔭 Prospective / analysis; sequencing decided. |
+| `prospective/engine-managed-file-merge-strategy.md` | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. | 1, **2.5** & 4 | 🟠 Increment 2.5 (skills half) is NEXT TO EXECUTE; the constitution half stays prospective in Gate 4. |
+| `prospective/universes-profiles-lifecycle-action.md` | Per-universe profiles (captured + injected), rename, guarded delete. | 2.6 | 🔭 Design reviewed 2026-07-27; blocked on Gate 2.5 for its user-facing surface. |
 | `archived/universes-progressive-disclosure-action.md` | A soft, progressively-disclosed per-universe retrieval scope over one shared vault/index (ADR 0034). | 2 | ✅ Shipped (PR #38 in v3.6.0, then write-path trilogy + `/switch` flag in v3.6.2, 2026-07-21). Plan archived; field-verify folds into Gate 3. |
 | `prospective/second-brain-migration-and-engine-upstream-action.md` | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | 3 | In progress: Tracks A/B/C DONE (PR #29/#30/#32); **Track D now unblocked (Gate 2 shipped)**; F post-migration. |
 
