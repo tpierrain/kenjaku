@@ -293,9 +293,10 @@ can never write a note; the universes v1 SQLite migration is already handled out
         ran — **never `git add -A` during a campaign**; it restores on exit (verified clean, stray
         `local-mirror/undefined.*.tmp` files removed by hand). If one is ever killed mid-run, restore
         with `git checkout -- local-mirror/src`. Log: `<scratchpad>/mutation-local-mirror.log`.
-  - [ ] **Decide what to publish, then paste it.** Measured: **89.10 %** (926 killed, 6 timeout,
-        **114 survived**), down from the 95.63 % of 2026-07-16. **The drop is NOT this release's
-        change** — it is code that landed *after* that audit and was never mutation-hardened:
+  - [x] **Decided (Thomas, 2026-07-28): kill my survivors first, then publish the re-measured number.**
+        First measure: **89.10 %** (926 killed, 6 timeout, **114 survived**), down from the 95.63 % of
+        2026-07-16. **The drop is NOT this release's change** — it is code that landed *after* that
+        audit and was never mutation-hardened:
         | file | score | survived | origin |
         | --- | --- | --- | --- |
         | `server.ts` | 50.00 % | 19 | composition root, integration-only boot lines |
@@ -306,21 +307,27 @@ can never write a note; the universes v1 SQLite migration is already handled out
         | `lib/universe.ts` | 95.12 % | 2 | this release (mine) |
         | `domain/local-mirror.ts` | 94.15 % | 21 | pre-existing |
         | `index.ts` | 100.00 % | 0 | — |
-    - [ ] **My own 3 survivors, diagnosed** (`fs-universes.ts`): **2 are a real hole** — every test
+    - [x] **My own 3 survivors, diagnosed** (`fs-universes.ts`): **2 are a real hole** — every test
           injects a fake `read`, so the DEFAULT reader is never exercised (mutants `read = () =>
           undefined` and `readFileSync(p, 'utf8')` → `readFileSync(p, "")` both survive). Killable with
           ONE test against a real temp dir (the package's own "test the glue too" convention, cf.
           `lib/config.ts`). **1 is equivalent**: `catch { return null }` → `catch {}` — every consumer
           (`parseUniverseRegistry`, `resolveActiveUniverse`) treats `undefined` exactly like `null`.
-    - [ ] **Open question for Thomas (asked 2026-07-28, unanswered):** kill my 2 survivors first and
-          pin the re-measured number, **or** tag as-is publishing 89.10 % with the explanation?
-          **My recommendation: kill them first** (cheap, it is my code, and the discipline says a
-          survivor is killed or recorded as equivalent). The OTHER files' debt is **not this
-          release's to pay**: record it in `RESULTS.md` as dated auto-refresh debt, own passe.
-  - [ ] Paste the retained score into the release note draft (`SCORE_PLACEHOLDER`), which is written
-        and ready at `<scratchpad>/release-v4.2.0.md`. Update the `local-mirror` row of
-        `maintainers/mutation/RESULTS.md` with the same number, pinned to v4.2.0, **plus the
-        per-file debt table above** so the next reader knows what 89.10 % is made of.
+    - [x] **Answered (Thomas, 2026-07-28): kill them first.** Done in `9fedd47` — ONE test against a
+          real temp dir exercises the default reader, **57.14 % → 85.71 %** on the file (both mutants
+          killed, verified by a scoped re-run before the full one). The 3rd stays as the recorded
+          equivalent. The OTHER files' debt was **not this release's to pay**: it is written down in
+          `RESULTS.md` as dated auto-refresh debt, its own pass (the next "B5" for this package).
+  - [x] **Full campaign re-run after the kill** _(2026-07-28, 12 min 14 s, exit 0)_: **89.29 %**
+        (928 killed, 6 timeout, **112 survived** / 1046). Measured, not derived. Same `inPlace`
+        hygiene as the first run: tree verified restored, stray `local-mirror/undefined.*.tmp` and the
+        21 MB `.stryker-tmp/` removed, suite re-run green (229/229) on the restored tree.
+        Log: `<scratchpad>/mutation-local-mirror-rerun.log`.
+  - [x] Score pasted into the release note (`<scratchpad>/release-v4.2.0.md`, this session's
+        scratchpad) **and** into `maintainers/mutation/RESULTS.md`: current-scores row, visual bars,
+        and a full dated section pinned to v4.2.0 carrying the per-file debt table. The note says in
+        one paragraph why 89.29 % < 95.63 % is **growth, not regression** (+336 mutants), so a reader
+        meets the explanation with the number rather than after it.
   - [ ] Merge PR #49 → `main`, tag **`v4.2.0`**, `gh release create` with that note.
   - [ ] After the tag: archive this plan (`prospective/` → `archived/`), close Gate 2.6 in the
         ROADMAP, and prune the `kenjaku-next-work-order` memory pointer.

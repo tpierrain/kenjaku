@@ -16,10 +16,12 @@
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
 | **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent) |
-| **local-mirror** | **95.63 %** | 2026-07-16 (post-B4) | [re-audit](#full-local-mirror-re-audit--2026-07-16-post-b4) — the 78.69 % closer below is superseded |
+| **local-mirror** | **89.29 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — the package grew by 336 mutants since the 95.63 % below; the drop is auto-refresh code, not a regression |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
 its tag-time snapshot; the B4 + optional-weak-tier gains below land in `main` after v3.4.2).
+**local-mirror's 89.29 % is pinned to v4.2.0** — a published tag is frozen, so that number stays true
+for it forever, debt table included.
 
 ## Visual overview (scores at a glance)
 
@@ -30,8 +32,8 @@ its tag-time snapshot; the B4 + optional-weak-tier gains below land in `main` af
 
 ```
 scripts       97.27 %  ██████████████████░░
-local-mirror  95.63 %  █████████████████░░░
 rag           90.42 %  ██████████████░░░░░░
+local-mirror  89.29 %  █████████████░░░░░░░
                        └──────────────────┘  70 ──────────► 100 %
 ```
 
@@ -130,6 +132,56 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## Full `local-mirror` re-audit — 2026-07-28 (v4.2.0)
+
+**Current `local-mirror` score: 89.29 %** (928 killed + 6 timeout / 1046 covered, 112 survived,
+0 no-coverage). Run at `concurrency: 4`, 12 min 14 s, the gate before tagging **v4.2.0** (universes v2).
+
+**Read the −6.34 points against 95.63 % as growth, not regression.** The package went from **710 to
+1046 mutants** (+336) between the two audits: the auto-refresh work (S2 inter-process lock, scheduler,
+boot) and this release's universe-awareness landed *after* the 2026-07-16 audit and were never
+mutation-hardened. Every file that existed at 95.63 % scores the same or better today — nothing that
+was killed came back to life.
+
+Per-file, worst-first:
+
+| File | Score | Survived | Origin of the debt |
+|---|---|---|---|
+| `server.ts` | 50.00 % | 19 (+2 t/o) | composition root — integration-only boot lines |
+| `auto-sync-scheduler.ts` | 70.59 % | 10 (+1 t/o) | **auto-refresh**, never hardened |
+| `adapters/fs-sync-lock.ts` | 71.26 % | 25 | **auto-refresh** (S2 inter-process lock), never hardened |
+| `content-hash.ts` | 80.00 % | 1 | small never-hardened leaf (unchanged) |
+| `fs-state-store.ts` | 81.82 % | 4 | small never-hardened leaf (unchanged) |
+| `config.ts` / `markdown.ts` | 83.33 % | 4 / 1 | grew since B4 took `config.ts` to 100 % |
+| `fs-universes.ts` | **85.71 %** | 1 | **this release** — hardened here, see below |
+| `notion-connector.ts` | 85.29 % | 5 | unchanged since 2026-07-16 |
+| `auto-sync-boot.ts` | 86.96 % | 3 (+1 t/o) | **auto-refresh**, never hardened |
+| `fs-vault-writer.ts` | 87.50 % | 1 | unchanged |
+| `strip-volatile-urls.ts` | 89.19 % | 4 | unchanged |
+| `sync-interval.ts` | 92.31 % | 1 | **auto-refresh** |
+| `fs-config-store.ts` | 93.75 % | 2 | unchanged |
+| `domain/local-mirror.ts` | 94.15 % | 21 (+2 t/o) | the big Domain Service; documented equivalents + growth |
+| `notion-transformers.ts` | 94.87 % | 6 | hardened — documented equivalents |
+| `lib/universe.ts` | **95.12 %** | 2 | **this release** |
+| `notion-url.ts` / `notion-gateway.ts` | 97.87 % / 97.44 % | 1 / 1 | hardened — documented equivalents |
+| `index.ts`, `reconcile.ts`, `auto-sync-supervisor.ts`, `fresh-env.ts`, `system-clock.ts` | 100.00 % | 0 | full |
+
+**What this release paid.** `fs-universes.ts` audited at **57.14 %** with 3 survivors. Two were a real
+hole of a recognisable shape: every test injected its own `read`, so the **default** reader — the only
+one production runs — was never exercised, and both mutants on it (`read = () => undefined`, and
+`readFileSync(p, 'utf8')` → `readFileSync(p, "")`) survived. One test against a real temp dir kills
+both (**57.14 % → 85.71 %**, commit `9fedd47`). The last survivor is **equivalent**: `catch { return
+null }` → `catch {}`, and both consumers (`parseUniverseRegistry`, `resolveActiveUniverse`) treat
+`undefined` exactly like `null`. `lib/universe.ts` came in at 95.12 % as written.
+
+**What this release deliberately did NOT pay.** The auto-refresh tier (`fs-sync-lock` 71.26 %,
+`auto-sync-scheduler` 70.59 %, `auto-sync-boot` 87.00 %) and `server.ts` are **dated debt from another
+increment**, recorded here rather than folded into a universes release: hardening them is its own pass,
+with its own audit, and mixing it in would hide which change moved the number. That is the natural
+next "B5" target for this package, alongside rag's embedders.
 
 ---
 
