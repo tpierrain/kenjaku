@@ -40,8 +40,10 @@ class LocalMirrorBuilder {
   private readonly clock = new MutableClock(new Date('2026-06-17T00:00:00.000Z'));
   /** Stable reference so tests can inspect what `setup_source` declared. */
   private readonly configs = new InMemoryConfigStore(this.declared, () => this.unreadableConfig);
-  /** The active universe a `setup_source` will FREEZE into the config (default: the default universe). */
+  /** The universe the owner is working in — the one a `setup_source` pre-selects and freezes. */
   private activeUniverse = 'default';
+  /** The universes this brain has created (the implicit default is never registered). */
+  private readonly registry: string[] = [];
 
   /** Declare local mirrors, as if already written to the config file. */
   withDeclaredSources(...configs: LocalMirrorConfig[]): this {
@@ -49,9 +51,18 @@ class LocalMirrorBuilder {
     return this;
   }
 
-  /** Set the active universe that a `setup_source` will freeze into the new mirror's config. */
+  /**
+   * The owner works in this universe: it exists (so it is registered) and it is the active one.
+   * A `setup_source` pre-selects it, then freezes the retained universe into the mirror's config.
+   */
   withActiveUniverse(name: string): this {
     this.activeUniverse = name;
+    return this.withUniverses(name);
+  }
+
+  /** Universes this brain has created, beyond the implicit default (registry entries). */
+  withUniverses(...names: string[]): this {
+    for (const name of names) if (!this.registry.includes(name)) this.registry.push(name);
     return this;
   }
 
@@ -169,7 +180,7 @@ class LocalMirrorBuilder {
       clock: this.clock,
       connectorFor: () => new StubConnector(() => this.pages, () => this.enumerationError),
       syncLock: new FakeSyncLock(this.lockedByOthers),
-      activeUniverse: () => this.activeUniverse,
+      universes: () => ({ active: this.activeUniverse, registry: [...this.registry] }),
     });
   }
 }

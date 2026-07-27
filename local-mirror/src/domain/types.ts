@@ -67,12 +67,26 @@ export interface SetupRequest {
   description: string;
   rootPageUrl: string;
   tokenEnv: string;
+  /**
+   * The universe this mirror belongs to (ADR 0034). Past the progressive-disclosure gate it is
+   * REQUIRED: a call without it pulls nothing and returns the choice instead (`awaitingUniverse`),
+   * because moving a mirror afterwards costs a full re-embed. Below the gate it is meaningless
+   * and left unset — the owner never meets the notion.
+   */
+  universe?: string;
 }
 
 export interface SetupResult {
   name: string;
   ok: boolean;
   message: string;
+  /**
+   * Present when NOTHING was declared or pulled because the universe has yet to be named: the
+   * menu to choose from (default first) and the pre-selection (the universe the owner is working
+   * in). The caller re-calls `setupSource` with `universe` set. A machine-readable field rather
+   * than prose, so the driver never parses the message.
+   */
+  awaitingUniverse?: { active: string; universes: string[] };
 }
 
 /** What a `sync` changed (PRD §9). */

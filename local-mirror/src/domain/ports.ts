@@ -87,5 +87,17 @@ export interface ISyncLock {
   release(name: string): void;
 }
 
+/**
+ * The brain's universe state at one instant (ADR 0034), read as ONE snapshot so the active
+ * universe and the list it is validated against can never disagree. `active` is already resolved
+ * against `registry`: a pointer naming a universe that no longer exists reads as the default.
+ * `registry` holds the CREATED universes only — the implicit default is never stored, so an empty
+ * registry means a single-universe brain, below the progressive-disclosure gate.
+ */
+export interface UniverseState {
+  active: string;
+  registry: readonly string[];
+}
+
 /** Builds the right connector for a declared source (one token/scope per source). */
 export type ConnectorFactory = (config: LocalMirrorConfig) => ISourceConnector;

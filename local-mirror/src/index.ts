@@ -33,16 +33,29 @@ export function createMcpServer(api: ILocalMirror, hooks: McpServerHooks = {}): 
 
   server.tool(
     'setup_source',
-    'Interactive onboarding of a local mirror: tests the connection/scope, does the first sync, explains each step. The token travels via an env var, never through this tool.',
+    'Interactive onboarding of a local mirror: tests the connection/scope, does the first sync, explains each step. The token travels via an env var, never through this tool. When the brain holds several universes, the first call answers with the choice to make (`awaitingUniverse`) and pulls NOTHING; relay it, then call again with `universe` set.',
     {
       name: z.string().describe('Short technical id = vault subfolder name (e.g. team-a)'),
       title: z.string().describe('Human label'),
       description: z.string().describe('Natural-language topics covered (routing key)'),
       root_page_url: z.string().describe('Root Notion page URL of the zone'),
       token_env: z.string().describe('Name of the env var holding the integration token'),
+      universe: z
+        .string()
+        .optional()
+        .describe(
+          'Universe this mirror belongs to (ADR 0034). Omit on the first call: the server answers with the available universes when there is a choice to make, and pulls nothing until one is named. Never invent one.',
+        ),
     },
-    async ({ name, title, description, root_page_url, token_env }) => {
-      const result = await api.setupSource({ name, title, description, rootPageUrl: root_page_url, tokenEnv: token_env });
+    async ({ name, title, description, root_page_url, token_env, universe }) => {
+      const result = await api.setupSource({
+        name,
+        title,
+        description,
+        rootPageUrl: root_page_url,
+        tokenEnv: token_env,
+        ...(universe ? { universe } : {}),
+      });
       // A source may now be declared → let the boot (re-)arm auto-sync if it was idle. After the
       // port call so listSources sees the upserted config; unconditional because setupSource can
       // persist a source even on a first-sync failure (ok:false), and the boot re-checks anyway.

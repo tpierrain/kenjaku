@@ -237,3 +237,33 @@ test('health_check calls the port with no argument', async () => {
 
   await close();
 });
+
+// The universe a mirror is attached to (ADR 0034) is an OPTIONAL argument of the tool: past the
+// disclosure gate the core refuses to pull until it is set, below the gate it is never sent.
+test('setup_source passes the chosen universe through to the port', async () => {
+  const { api, calls } = spyApi();
+  const { client, close } = await connect(api);
+
+  await client.callTool({
+    name: 'setup_source',
+    arguments: {
+      name: 'team-a',
+      title: 'Team A',
+      description: 'roadmap + specs',
+      root_page_url: 'https://notion.so/root',
+      token_env: 'TEAM_A_TOKEN',
+      universe: 'blue-team',
+    },
+  });
+
+  assert.deepEqual(calls[0].args[0], {
+    name: 'team-a',
+    title: 'Team A',
+    description: 'roadmap + specs',
+    rootPageUrl: 'https://notion.so/root',
+    tokenEnv: 'TEAM_A_TOKEN',
+    universe: 'blue-team',
+  });
+
+  await close();
+});

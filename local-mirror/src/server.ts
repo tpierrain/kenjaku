@@ -23,8 +23,14 @@ import { FsVaultWriter } from './adapters/fs-vault-writer.js';
 import { SystemClock } from './adapters/system-clock.js';
 import { FsSyncLock } from './adapters/fs-sync-lock.js';
 import { notionConnectorFactory } from './adapters/notion-gateway.js';
-import { readActiveUniverse } from './adapters/fs-active-universe.js';
-import { VAULT_DIR, SIDECAR_DIR, CONFIG_PATH, ACTIVE_UNIVERSE_PATH } from './lib/config.js';
+import { readUniverses } from './adapters/fs-universes.js';
+import {
+  VAULT_DIR,
+  SIDECAR_DIR,
+  CONFIG_PATH,
+  ACTIVE_UNIVERSE_PATH,
+  UNIVERSES_REGISTRY_PATH,
+} from './lib/config.js';
 import { resolveSyncIntervalSeconds } from './lib/sync-interval.js';
 import { AutoSyncSupervisor } from './auto-sync-supervisor.js';
 
@@ -37,7 +43,7 @@ export function buildDeps(): LocalMirrorDeps {
     clock: new SystemClock(),
     connectorFor: notionConnectorFactory,
     syncLock: new FsSyncLock({ sidecarDir: SIDECAR_DIR }),
-    activeUniverse: () => readActiveUniverse(ACTIVE_UNIVERSE_PATH),
+    universes: () => readUniverses(ACTIVE_UNIVERSE_PATH, UNIVERSES_REGISTRY_PATH),
   };
 }
 
