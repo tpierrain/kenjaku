@@ -1,13 +1,12 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
 > **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
-> **Steps 0 through 9 are done**, fleet re-check, marketing pass and Windows parity included
-> _(2026-07-27, CI 7/7)_. **ONE thing now stands between here and the tag: Step 10** (`local-mirror`
-> must name the universe and confirm the first pull, asked by Thomas at the release). Branch:
+> **Steps 0 through 10 are done** _(2026-07-28)_: fleet re-check, marketing pass, Windows parity
+> (CI 7/7) and the `local-mirror` universe choice included. **Nothing but the tag is left.** Branch:
 > `feat/universes-v2-profiles`, PR **#49** open, nothing merged or tagged.
 >
-> ▶️ **Resuming after a `/clear`: go to Step 10**, then the tag. Step 10 opens with a decision to
-> settle with Thomas before any code.
+> ▶️ **Resuming after a `/clear`: go to Step 11 — cut the release.** PR #49's body predates Step 10,
+> so it needs the mirror half added before merging.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -273,6 +272,13 @@ can never write a note; the universes v1 SQLite migration is already handled out
 - [x] **Step 6 — Docs + ADR update**, scoped to Release A _(2026-07-27 · commit `2081034`)_. The
       rename/delete half stays open for Release B (see the step below).
 - [x] **Step 7 — Fleet / migration re-check** for Release A _(2026-07-27 · this commit)_.
+- [x] **Step 8 — Release prep**: marketing-surface pass, then PR #49 _(2026-07-27)_. The tag itself
+      waited on Steps 9 and 10.
+- [x] **Step 9 — Windows parity** _(2026-07-27 · `175e215`; CI 7/7 on run `30307984513`)_.
+- [x] **Step 10 — `local-mirror` names the universe and confirms before the first pull**
+      _(2026-07-28 · commits `c9ab78e`, `934abc1`, `b83b6b3`)_. The three DEFECTs are fixed and
+      pinned; the core, not the model, decides whether there is a choice to make.
+- [ ] **Step 11 — Cut the release.** Everything above is done; this is the last box of Gate 2.6.
 
 ### Step 2 — Universe profile: data + write core _(DONE 2026-07-27)_
 - [x] Profile note path + frontmatter schema per **D1 (resolved)**: `vault/<slug>/universe.md` (and
@@ -589,12 +595,12 @@ can never write a note; the universes v1 SQLite migration is already handled out
 > 🎯 **Thomas' request, 2026-07-27**, added to this release deliberately: it is the same story
 > (universes), and an owner should meet it once.
 >
-> ▶️ **RESUME HERE after the `/clear` (2026-07-27).** The decision is settled (see the DECIDED box)
-> and **no code has been written yet**. Start at **DEFECT 3 or the core preflight** — read the three
-> DEFECT boxes first, they are findings from the code, not guesses. Do **not** re-open where a mirror
-> lands: that half is already implemented, with file:line evidence recorded below.
+> ✅ **DONE (2026-07-28 · commits `c9ab78e`, `934abc1`, `b83b6b3`).** The core owns the refusal, both
+> defects in the package are fixed, the skill no longer documents the pre-universes layout, and the
+> three defects' regressions are pinned. 228 tests green in `local-mirror` (+3 brain-side guards),
+> typecheck clean. **Nothing else stands between this branch and the tag.**
 
-- [ ] **The ask, verbatim in intent:** when declaring a **Notion zone** as a local mirror, the brain
+- [x] **The ask, verbatim in intent:** when declaring a **Notion zone** as a local mirror, the brain
       must (a) **remind which universe is active**, and **only if several exist** (the ADR 0034
       progressive-disclosure gate — a single-universe owner must not meet the word), and (b) **ask for
       confirmation before the FIRST full pull** of the zone's docs into the vault. The reason is
@@ -628,45 +634,75 @@ can never write a note; the universes v1 SQLite migration is already handled out
     `universe:` only outside the default scope.
   - ⇒ **The remaining work is the user-facing half plus two defects**, NOT the path contract.
 
-- [ ] **DEFECT 1 (found while verifying, fix it here): the success message names a folder the files
+- [x] **DEFECT 1 (found while verifying, fix it here): the success message names a folder the files
       are not in.** `local-mirror.ts:125` says ``Files live under ${config.target_dir}/``, which is
       `mirrors/<name>/` — the **universe prefix is missing**. For a scoped mirror the files are in
       `<universe>/mirrors/<name>/`. Use the same path builder the writer uses (`vaultPathFor`), so
       the message cannot drift from reality again.
-- [ ] **DEFECT 2: the skill documents the pre-universe layout, unconditionally**, on
+      _(2026-07-28 · `c9ab78e`)_ Fixed by extracting `vaultDirFor(config)` — the FOLDER, universe
+      prefix included — and routing both `vaultPathFor` and the message through it, so the sentence
+      and the writer cannot disagree by construction.
+- [x] **DEFECT 2: the skill documents the pre-universe layout, unconditionally**, on
       `engine-skills/local-mirror/SKILL.md` lines **11, 93, 176, 277, 292** (`vault/mirrors/<name>/`).
       This is what misled this very plan, so it will mislead the next session too. Line 277 (the
       "look before declaring absence" instruction) and 292 (the exclusion-zone table) are the two that
       actually change behaviour when wrong.
-- [ ] **DEFECT 3 (same class as Step 0, in the OTHER package): local-mirror does not validate the
+      _(2026-07-28 · `934abc1`)_ All five corrected, `version:` bumped to 1.1.0, and the onboarding
+      flow gained the two-call step. **Pinned by two guards** in `scripts/lib/local-mirror-skill.test.mjs`
+      (the scoped path, and `awaitingUniverse` + the never-say-the-word rule): a doc defect that
+      already misled one plan deserved a red suite, not a careful edit.
+- [x] **DEFECT 3 (same class as Step 0, in the OTHER package): local-mirror does not validate the
       active pointer against the registry.** `adapters/fs-active-universe.ts` trims the pointer and
       trusts it, so a pointer left naming a deleted/renamed universe freezes a **ghost** universe into
       a brand-new mirror: its notes land under `vault/<ghost>/mirrors/…` and are filtered out of every
       search, silently. Step 0 fixed exactly this on the brain side (`resolveActiveUniverse` against
       the registry). Reading the registry is needed for the choice above anyway, so resolve through it
       here too rather than leaving the hole open in the package that writes the most files.
+      _(2026-07-28 · `c9ab78e`)_ The adapter became `fs-universes.ts`: it reads the registry FIRST,
+      then resolves the pointer through it (`lib/universe.ts` → `parseUniverseRegistry`,
+      `resolveActiveUniverse`), and every read failure degrades to the default scope rather than
+      breaking a declaration. The SPI dep is now ONE snapshot (`universes(): { active, registry }`)
+      so the active universe and the list validating it can never disagree.
 
-- [ ] **The gate is the core's decision, never the model's** (ADR 0009, and the two-vocabulary rule
+- [x] **The gate is the core's decision, never the model's** (ADR 0009, and the two-vocabulary rule
       already built in `universe-reminder.mjs` → `profileCaptureOffer`): whatever emits the reminder
       must decide *below vs past the gate* deterministically and hand the skill the wording. Reuse
       `isMultiverse` / the existing vocabulary switch rather than growing a second one.
-  - [ ] **Proposed shape for the confirmation, so it is core-enforced rather than honour-system:**
+      _(2026-07-28)_ `isMultiverse` / `listAllUniverses` are re-declared in `local-mirror/src/lib/universe.ts`
+      with the same semantics and a lock-step comment — the two packages cannot import across the
+      language boundary, exactly as `DEFAULT_UNIVERSE` already was. **No second vocabulary**: the
+      skill is told *whether* there was a choice, never asked to count.
+  - [x] **Proposed shape for the confirmation, so it is core-enforced rather than honour-system:**
         past the gate, `setup_source` called **without** an explicit `universe` does **not pull** — it
         returns the deterministic preflight text (where it would land, the universes available, the
         re-embed cost of moving later). The pull happens on the second call, which now carries the
         universe. Below the gate, one call, no `universe`, and the word never appears. This makes "no
         pull before the message exists" a property of the core, and needs no `confirmed: true` flag
         (a flag the model can set itself would guard nothing, cf. D3's TTY reasoning).
-  - [ ] Validate a requested universe **against the registry** in the core: an unknown name is a
+        _(2026-07-28)_ Shipped as drafted, **plus a machine-readable half**: the result carries
+        `awaitingUniverse: { active, universes }` next to the prose, so the driver reads a field
+        instead of parsing a sentence. **Deviation, deliberate:** the preflight names the *active*
+        universe as the pre-selection but does NOT pre-commit to it — the owner may answer
+        `default` for a cross-cutting source, per the DECIDED box above.
+  - [x] Validate a requested universe **against the registry** in the core: an unknown name is a
         refusal that lists the real ones, never a silently-created folder.
-- [ ] **First pull only, not refreshes.** A refresh must stay a one-liner; re-confirming it every time
-      is how a useful confirmation becomes noise people click through.
-- [ ] Fleet constraints apply as ever: **F2** if this adds a top-level script (declare it by hand in
+- [x] **First pull only, not refreshes.** A refresh must stay a one-liner; re-confirming it every time
+      is how a useful confirmation becomes noise people click through. _(2026-07-28 · `b83b6b3`)_
+      Pinned by a test: the universe is frozen in the config and `sync` never reads the universe
+      state at all, so a refresh cannot ask.
+- [x] Fleet constraints apply as ever: **F2** if this adds a top-level script (declare it by hand in
       `engine-manifest.json`), **F3** add verbs only, and the `local-mirror` skill's own `version:`
       bump so an untouched copy is refreshed on the fleet.
-- [ ] TDD as usual: pure core first, then the thin driver. The package is a back-end (MCP server), so
+      _(2026-07-28)_ **F2 nothing to declare**: every new file is under `local-mirror/src/**`, already
+      a `replace` glob. **F3 respected**: no new tool and no removed one, a single OPTIONAL argument
+      added to `setup_source` (an old driver that omits it gets the preflight, which is the safe
+      side). **Skill bumped** 1.0.0 → 1.1.0.
+- [x] TDD as usual: pure core first, then the thin driver. The package is a back-end (MCP server), so
       it follows the Outside-in Diamond skill and its existing `src/test/` conventions (`builder.ts`,
-      one behaviour per file).
+      one behaviour per file). _(2026-07-28)_ Followed, including moving the two pre-existing universe
+      tests out of `setup-source.test.ts` into `setup-source-universe.test.ts`, where the behaviour
+      now lives. Hand mutation-check done (`b83b6b3`): two real gaps closed, one equivalent mutant
+      answered in the code.
 
 ## Conventions reminder (repo rules)
 - Artifacts in English (this file, code, commits, PR). TDD baby-steps, green-only commits. Deterministic

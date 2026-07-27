@@ -106,11 +106,15 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         fleet-wide reindex (F4). Rename gained a `--preflight` so nobody meets the re-embed unwarned.
   - [x] **Marketing-surface re-read done** _(2026-07-27, CONVENTIONS §10)_: it caught a `never leak`
         absolute we had just written for a scope that is deliberately soft. Verdict in the plan.
-  - [ ] **Before the tag, two things** _(2026-07-27)_: **Windows is RED on PR #49** (22 harness tests,
-        the three Windows jobs; root cause found, see plan Step 9), and **`local-mirror` must name the
-        active universe and confirm the first pull** before mirroring a Notion zone (plan Step 10,
-        asked by Thomas: getting the scope right afterwards costs a full re-embed).
-  - [ ] **Then cut the release.** PR #49 is open with its body written; nothing merged or tagged.
+  - [x] **The two pre-tag conditions are met.** **Windows parity** _(2026-07-27 · `175e215`, CI 7/7 on
+        run `30307984513`)_: the 22 red harness tests came from two path builders skipping the POSIX
+        convention their own module declares. **`local-mirror` now names the universe** _(2026-07-28 ·
+        `c9ab78e`, `934abc1`, `b83b6b3`)_: past the disclosure gate a first `setup_source` pulls
+        nothing and hands back the choice, because getting the scope right afterwards costs a full
+        re-embed. Two defects fell with it (a ghost pointer frozen into a new mirror; a success
+        message naming a folder the files were not in).
+  - [ ] **Then cut the release.** PR #49 is open; its body predates the `local-mirror` half and needs
+        it added. Nothing merged or tagged.
   - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
 - [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no
