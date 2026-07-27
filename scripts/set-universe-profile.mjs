@@ -11,16 +11,18 @@
 //
 //   echo '<json answers>' | node scripts/set-universe-profile.mjs
 //   echo '<json answers>' | node scripts/set-universe-profile.mjs --no-reindex
+//   node scripts/set-universe-profile.mjs --decline     # never ask me again
 //
 // Answers: { universe?, displayName, kind?, role?, period?, about?, people?[],
 // connectors?[{tool, account}] }. Without `universe`, the ACTIVE one is used.
-// Exits 0 when written, 1 when refused or on error.
+// Exits 0 when written (or when the refusal is recorded), 1 when the profile
+// already exists or on error.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { writeUniverseProfile } from "./lib/universe-profile.mjs";
+import { writeUniverseProfile, declineProfileCapture } from "./lib/universe-profile.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
@@ -49,6 +51,15 @@ export const realProfileDeps = {
 
 /** Reads the answers, writes the profile note. Returns the process exit code. */
 export function runSetUniverseProfile(argv, deps = realProfileDeps) {
+  // The refusal path reads NO stdin: it is answered by a person saying "no
+  // thanks", and demanding a JSON payload to decline would be its own small
+  // insult. Handled before anything else for exactly that reason.
+  if (argv.includes("--decline")) {
+    declineProfileCapture(deps.io, vaultRagDir(deps.cwd()), deps.activeUniverse());
+    deps.log("✓ Noted — I will not ask about your context again.");
+    return 0;
+  }
+
   let answers;
   try {
     answers = JSON.parse(deps.readInput());

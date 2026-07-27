@@ -96,3 +96,24 @@ test("runSetUniverseProfile writes the profile of the ACTIVE universe and names 
   assert.match(files.get("/brain/vault/acme/universe.md"), /^---\ntype: universe\n/);
   assert.match(files.get("/brain/vault/acme/universe.md"), /displayName: Acme Corp/);
 });
+
+// ── --decline: the owner said no, and must not be asked again ────────────────
+// The offer is only acceptable BECAUSE refusing sticks (D2). The refusal is
+// recorded by this deterministic CLI, not improvised by the session.
+
+test("runSetUniverseProfile --decline records the refusal for the active universe, and says so", () => {
+  // Declining must cost nothing: no stdin to feed, no re-index to sit through.
+  const { args, calls, files } = deps({
+    readInput: () => assert.fail("declining must not demand answers on stdin"),
+  });
+
+  const code = runSetUniverseProfile(["--decline"], args);
+
+  assert.equal(code, 0);
+  assert.deepEqual(calls.spawned, []);
+  assert.deepEqual(calls.errored, []);
+  assert.deepEqual(JSON.parse(files.get("/brain/.vault-rag/profile-nudges.json")), {
+    declined: ["acme"],
+  });
+  assert.deepEqual(calls.logged, ["✓ Noted — I will not ask about your context again."]);
+});
