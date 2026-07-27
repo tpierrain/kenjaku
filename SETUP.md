@@ -251,6 +251,30 @@ goes through your default editor (or, if no editor opens, Claude shows the note 
 | `vault/` | Delete the example notes, put in your own. Keep the naming conventions. |
 | `.claude/skills/` | Add your skills (see `EXAMPLES.md`). `/improve` helps you evolve them. |
 
+### 5.1 Telling your brain about your context (optional, 2 minutes)
+
+Your brain knows your **notes**. It does not know that you run engineering at Acme, that Zoe is the
+CTO there, or that "Slack" for you means `acme.slack.com`. Those are exactly the facts nobody thinks
+to *search* for, because you need them to phrase the search in the first place.
+
+So, early on, your brain **offers once** to ask you a handful of questions: what this place is, your
+role, since when, the people who matter, the subjects that keep coming back, and which accounts your
+tools use. Every question is skippable, and **"no thanks" is permanent** — it will not come back at
+you session after session.
+
+What it writes is a **normal note** (`vault/universe.md`), which means:
+
+- you can **edit it any time** in Obsidian or your editor, and the change takes effect immediately —
+  nothing to re-run;
+- it is **versioned** with the rest of your vault, and **searchable** like any other note;
+- it is **never overwritten** — once the page exists, it is yours.
+
+A short summary of it is handed to each new conversation, so your brain starts already knowing who
+your people are. To fill it in later, or to change your mind, just ask ("describe my context").
+
+> If you use several **universes** (see `/switch` below), each one gets its **own** page: the people
+> and the accounts of one sphere never leak into another's answers.
+
 ## 6. External connectors (optional)
 
 The generator only provides the RAG engine. To also query your other sources
@@ -552,7 +576,7 @@ Everyday capabilities, invoked in plain words (the `/name` is the explicit form)
 | **`/prepare-1-1`** | Prepares a 1-1 **both ways**: with **your manager** or with someone **you manage** (tracking commitments, KPI review). Cross-references the person's profile + last 1-1 + recent signals. |
 | **`/improve`** | Evolves your harness: reads the frictions, proposes and applies the useful improvements. |
 | **`/local-mirror`** | Plugs your brain onto a **local mirror** — a live zone of an internal tool (**Notion** today) that gets **mirrored into your vault** as Markdown, so the RAG searches and **cites** it. Declare one, then sync / refresh / inspect it. *The central RAG you don't have yet — but local, right now.* |
-| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Invisible until you have a second universe. |
+| **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Also records **what a universe is** (your role there, its people, its topics, which accounts your tools use — see §5.1). Invisible until you have a second universe. |
 | **`/import`** | Imports the notes of a **previous** brain into this one (safe plan → confirm → copy → re-index). See §11. |
 | **`/update-engine`** | Upgrades your brain's **engine** (search code, launchers, engine scripts), opt-in, **never touching your notes**. See §10. |
 | **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |
@@ -600,5 +624,6 @@ The rest is **not shipped**: those are **skill ideas** to let emerge as you need
 - **Installer** — the program that sets everything up for you.
 - **Repo / git** — the versioned place where everything is stored and backed up.
 - **Universe** — a soft retrieval scope (a past employer, a client, a sphere); see `/switch`.
+- **Profile** — the note describing what a universe *is* (role, people, topics, accounts); see §5.1.
 
 </details>

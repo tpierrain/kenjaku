@@ -7,7 +7,8 @@
 - **Related:** [`0009-prefer-deterministic-mechanisms.md`](0009-prefer-deterministic-mechanisms.md) (the engine, not the LLM,
   enforces the default scope); [`0007-three-embedder-adapters-privacy-scale.md`](0007-three-embedder-adapters-privacy-scale.md)
   (a cross-universe union needs a shared embedder, so all unionable universes share one); [`0019-import-previous-brain-is-a-keyword-skill.md`](0019-import-previous-brain-is-a-keyword-skill.md)
-  (import gains `--universe`); plan
+  (import gains `--universe`); [`0035-a-universe-profile-is-a-note-plus-an-injected-digest.md`](0035-a-universe-profile-is-a-note-plus-an-injected-digest.md)
+  (what a universe *is*, and why the disclosure gate protects the word rather than the feature); plan
   [`../plans/prospective/universes-progressive-disclosure-action.md`](../plans/prospective/universes-progressive-disclosure-action.md).
 
 ## Crux

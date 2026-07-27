@@ -244,6 +244,13 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   brain answers from *that* universe's notes (plus the handful you keep cross-cutting). It stays
   **invisible until you create a second one**. A plain *"switch to my Acme universe"* changes the scope.
   *([skill `switch`](.claude/skills/switch/SKILL.md))*
+- **🪪 It learns *your* context, once, in two minutes.** Your brain knows your notes — it doesn't know
+  that you run engineering at Acme, that Zoe is the CTO, or that *"Slack"* here means the Acme
+  workspace. Exactly the facts you need in order to *phrase* a question. So it offers, **once**, to ask
+  you a handful of skippable questions, and *"no thanks"* is permanent. What it writes is **a normal
+  note you own**: edit it in Obsidian whenever you like, it takes effect straight away. Several
+  universes? Each gets **its own** page, so one sphere's people never leak into another's answers.
+  *([SETUP §5.1](SETUP.md#51-telling-your-brain-about-your-context-optional-2-minutes))*
 - **🔄 The engine self-upgrades (new in v3.0.0).** Your brain carries its own updater: *ask in plain
   words, confirm,* and it pulls the latest search engine — **without ever touching a single one of your
   notes** (your `.env`, `CLAUDE.md`, settings and custom skills are sacred too). No terminal, no
