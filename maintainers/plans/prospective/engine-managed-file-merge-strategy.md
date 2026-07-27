@@ -374,9 +374,24 @@ explicit guard:
   - [x] Rejected alternatives recorded so nobody re-litigates them: version/date instead of hash,
         refreshing at SessionStart, refreshing from the root regardless of locale, 3-way-merging prose,
         making the bottle refresh instead of print, and leaving the old cohort on the 2-cycle.
-- [ ] **Step 8 — QA on fixtures** reproduced from real release tags (v3.2.2 / v3.6.0 / v3.6.2), with
+- [x] **Step 8 — QA on fixtures** reproduced from real release tags (v3.2.2 / v3.6.0 / v3.6.2), with
       synthetic personal edits. Never use real deployed brains' content. Verify the `4e43e70` case
       end-to-end: a v3.6.0 fixture must end up with the v3.6.2 `switch` skill.
+      _(2026-07-27 · `c2590ae` · `scripts/lib/release-fixture-refresh.test.mjs`)_
+  - [x] **Automated, not a one-off session:** the fixtures are the tags' own bytes, captured with
+        `git show <tag>:<path>` into `maintainers/qa/release-fixtures/<tag>/` (under `maintainers/`,
+        so no brain ever carries QA payload), and the **source is this repository at HEAD** — the
+        assertions are about released content. `v3.6.2` needed no fixture: `switch/SKILL.md` is
+        byte-identical from v3.6.2 to HEAD, so "ends up at HEAD" *is* "ends up at v3.6.2".
+  - [x] **Found a real defect, and fixed it (`c2590ae`): a skill delivered by install-if-absent got
+        NO provenance base**, so it read `no-provenance` at every later update and was frozen the day
+        it arrived — the freeze this increment removes, re-entering by the other door. It bit exactly
+        the cohort we are serving: a v3.2.2 brain receiving `switch` would never have received a
+        later improvement to it. Both manifest writers on the update path now re-seed it.
+  - [x] Two test-side lessons worth keeping: use the **production** `fingerprint` / `reseedProvenance`
+        in a fixture test (a hand-rolled sha256 silently disagreed with the manifest's `sha256:` prefix
+        and turned every untouched skill into "customized"), and simulate the update path with the same
+        helpers it uses, or the QA proves something the product never does.
 - [ ] **Step 9 — Docs:** SETUP / the `update-engine` skill wording ("your customized skills are never
       overwritten; you are told when a newer version is available"). Includes the stale claim in
       `.claude/skills/update-engine/SKILL.md` §What it touches — "any engine skill you already have" is
