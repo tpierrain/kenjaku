@@ -44,7 +44,8 @@ async function loadCore() {
 // ── formatReport: the human summary the brain-side skill prints (Step 6) ──────
 // Pure (report object → string) so the wording is unit-tested; the CLI entry holds
 // only the untestable I/O wiring (ADR 0009).
-import { formatReport, defaultCountVaultNotes } from "../update-engine.mjs";
+import { formatReport, countNewCapabilities, needsRestart, runUpdateCli, armRestartFlag, defaultCountVaultNotes } from "../update-engine.mjs";
+import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
 
 // F2: the default count must match what the indexer actually treats as a note —
 // the document-scanner excludes `_template.md`, `.gitkeep` and the `.obsidian/`
@@ -278,6 +279,137 @@ test("formatReport — a true no-op (nothing swapped or regenerated) does NOT cr
   assert.doesNotMatch(out, /once more/i);
 });
 
+// Step 10 (mutation hardening): the regex tests above each pin ONE line, so every
+// OTHER line is free to mutate — an emptied literal, a flipped guard, a line that
+// appears when it should not. These two assert the WHOLE report, byte for byte: the
+// quiet no-op (the floor: only the lines that ALWAYS show) and the everything-on
+// update (the ceiling: every optional line at once, in order). Between them every
+// prose branch is pinned, both when it fires and when it must stay silent.
+test("formatReport — a quiet no-op prints EXACTLY the four always-on lines, nothing else", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 0 engine file(s) swapped",
+      "   • index format unchanged — no reindex needed",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+test("formatReport — an everything-on update prints every optional line, in order, byte for byte", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts", "scripts/auto-commit.mjs"],
+    regenerated: true,
+    reindexed: true,
+    vaultNoteCount: 2,
+    installedSkills: ["local-mirror"],
+    mcpServersAdded: ["local-mirror"],
+    // Deliberately NOT alphabetical: a sorting mutant must diverge from the input order.
+    skillsRefreshed: ["switch", "coach"],
+    // A customized preserve (reported, with its sidecar) next to a no-provenance one
+    // (silent by design) — the discriminating pair for the `reason` filter.
+    skillsPreserved: [
+      { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+      { skill: "import", reason: "no-provenance" },
+    ],
+    hooksAdded: ["scripts/session-health.mjs"],
+    // "statusLine" is the decoy: it carries neither the `scripts/` prefix nor the
+    // `.mjs` suffix, so it must pass through the stripping untouched.
+    hooksRepaired: ["scripts/auto-push.mjs", "statusLine"],
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 2 engine file(s) swapped + launchers regenerated",
+      "   • reindexed — the index format changed (your notes were re-encoded, nothing lost)",
+      "   • your vault holds 2 notes — searchable as the reindex finishes",
+      "   • new engine skill(s) installed: local-mirror",
+      "   • new MCP server(s) registered: local-mirror",
+      "   • engine skill(s) brought up to date: switch, coach",
+      '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
+      "   • new runtime hook(s) wired: session-health",
+      "   • repaired Windows hook command(s) (issue #31 — 'laude' error): auto-push, statusLine",
+      "   ⚠️ ACTION NEEDED — 3 new capabilities are installed on disk but NOT active in THIS conversation.",
+      "   A FULL RESTART of Claude (close it and reopen) is enough: come back to THIS same",
+      "   conversation afterwards and your brain can use them. You do NOT need to start a",
+      "   brand-new chat for this. Until you restart, your brain CAN'T use them.",
+      "   • If still missing after a restart, run /update-engine once more.",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+// The third shape, between the floor and the ceiling: an upgrader whose schema did NOT
+// move (health-note seed only), holding a single note, with a preserve the report must
+// stay SILENT about — and the steady-state restart banner, whose wording is a different
+// literal from the new-capability one above.
+test("formatReport — a steady-state upgrade prints the incremental-reindex + generic-restart wording, byte for byte", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: true,
+    reindexReason: "health-note-seed",
+    vaultNoteCount: 1,
+    skillsPreserved: [{ skill: "coach", reason: "no-provenance" }],
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 1 engine file(s) swapped",
+      "   • ensured the engine health-check note is present and indexed (incremental — your other notes were not re-encoded)",
+      "   • your vault holds 1 note — searchable as the reindex finishes",
+      "   ⚠️ ACTION NEEDED — your engine was updated on disk, but THIS conversation is",
+      "   still running the OLD version. A FULL RESTART of Claude (close it and reopen) is",
+      "   enough: come back to THIS same conversation afterwards and the update takes effect.",
+      "   Until you restart, your brain keeps using the old engine.",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+// The boundary of the capability counter (lesson: triangulate the singular/plural pair).
+// ONE new capability must read "1 new capability IS installed … can use IT" — the
+// ceiling test above pins the plural half of the very same three ternaries.
+test("formatReport — exactly one new capability reads in the singular, byte for byte", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    installedSkills: ["local-mirror"],
+  });
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag 1.1.4).",
+      "   • 0 engine file(s) swapped",
+      "   • index format unchanged — no reindex needed",
+      "   • new engine skill(s) installed: local-mirror",
+      "   ⚠️ ACTION NEEDED — 1 new capability is installed on disk but NOT active in THIS conversation.",
+      "   A FULL RESTART of Claude (close it and reopen) is enough: come back to THIS same",
+      "   conversation afterwards and your brain can use it. You do NOT need to start a",
+      "   brand-new chat for this. Until you restart, your brain CAN'T use it.",
+      "   • If still missing after a restart, run /update-engine once more.",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
 // ── Increment 2.5, Step 5: report the SKILL refresh ──────────────────────────
 // The whole point of the increment is that a shipped skill improvement finally
 // reaches an existing brain. Delivering it silently leaves the user unaware their
@@ -392,6 +524,168 @@ test("formatReport — when reindexed, hints that searchability catches up as in
   });
   assert.match(out, /9 note/);
   assert.match(out, /indexing|searchable|catches up/i);
+});
+
+// ── Step 10: the CLI's decisions, extracted OUT of the entry-point block ──────
+// They used to live inside `if (isEntrypoint(...))`, unreachable by any test — which
+// is why ~40 of the file's 96 surviving mutants clustered there. Pure predicates now.
+test("countNewCapabilities — sums the skills, MCP servers and hooks this update delivered", () => {
+  assert.equal(
+    countNewCapabilities({
+      installedSkills: ["local-mirror"],
+      mcpServersAdded: ["local-mirror", "vault-rag"],
+      hooksAdded: ["scripts/session-health.mjs", "scripts/session-self-heal.mjs", "scripts/auto-push.mjs"],
+    }),
+    6,
+  );
+});
+
+// The absent twin: an older reconcile (or a partial report) carries none of the three
+// lists. Counting must yield 0 — never NaN, which would make the banner read
+// "NaN new capabilities" and, worse, silently falsify every comparison against it.
+test("countNewCapabilities — a report carrying none of the three lists counts 0", () => {
+  assert.equal(countNewCapabilities({ copied: ["rag/src/index.ts"] }), 0);
+});
+
+// Increment 2.5: a refreshed skill is the trigger this branch ADDED — its new text
+// loads only at the next session start, so the persistent nudge must be armed even
+// though not a single engine file was swapped.
+test("needsRestart — a refresh-only update still arms the nudge", () => {
+  assert.equal(
+    needsRestart({ copied: [], regenerated: false, skillsRefreshed: ["switch"] }),
+    true,
+  );
+});
+
+// The don't-cry-wolf boundary, same as the report banner's: an update that changed
+// nothing on disk must leave the nudge disarmed, or the statusLine nags forever.
+test("needsRestart — a genuine no-op leaves the nudge disarmed", () => {
+  assert.equal(
+    needsRestart({ copied: [], regenerated: false, skillsRefreshed: [], installedSkills: [], mcpServersAdded: [], hooksAdded: [] }),
+    false,
+  );
+});
+
+// The other three triggers, each ALONE (an OR chain where only one disjunct is ever
+// exercised is indistinguishable from that disjunct): a swapped engine file, a mere
+// launcher regeneration, and a brand-new capability each stale the running session.
+test("needsRestart — a swapped file, a launcher regeneration or a new capability each arm it on their own", () => {
+  const base = { copied: [], regenerated: false, skillsRefreshed: [], installedSkills: [], mcpServersAdded: [], hooksAdded: [] };
+  assert.equal(needsRestart({ ...base, copied: ["rag/src/index.ts"] }), true, "a swapped engine file");
+  assert.equal(needsRestart({ ...base, regenerated: true }), true, "regenerated launchers");
+  assert.equal(needsRestart({ ...base, hooksAdded: ["scripts/session-health.mjs"] }), true, "a newly wired hook");
+});
+
+// The CLI itself, now a function taking its I/O as deps (the `clear-example-notes`
+// idiom): the happy path prints the human report on stdout, arms nothing else, and
+// hands the shell a 0.
+test("runUpdateCli — prints the report on stdout and exits 0", async () => {
+  const out = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async ({ brainDir }) => {
+      assert.equal(brainDir, "/brains/mine", "the CLI updates the brain it was told about");
+      return { ref: "v3.6.2", engineVersion: { rag: "1.1.4" }, copied: [], regenerated: false, reindexed: false };
+    },
+    armRestartFlag: () => assert.fail("a no-op update must not arm the restart nudge"),
+    log: (s) => out.push(s),
+    error: (s) => assert.fail(`nothing should reach stderr, got: ${s}`),
+  });
+
+  assert.equal(code, 0);
+  assert.deepEqual(out, [
+    formatReport({ ref: "v3.6.2", engineVersion: { rag: "1.1.4" }, copied: [], regenerated: false, reindexed: false }) + "\n",
+  ]);
+});
+
+// FAIL LOUD: a failed update must reach stderr with the message AND the "the brain was
+// NOT changed past this point" reassurance, print NOTHING on stdout (a report there
+// would read as success), and hand the shell a non-zero.
+test("runUpdateCli — a failed update goes to stderr, prints no report, and exits 1", async () => {
+  const err = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => {
+      throw new Error("git clone failed: host unreachable");
+    },
+    armRestartFlag: () => assert.fail("a failed update must not arm the restart nudge"),
+    log: (s) => assert.fail(`nothing should reach stdout, got: ${s}`),
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, [
+    "\n❌ update-engine failed — the brain was NOT changed past this point.\ngit clone failed: host unreachable\n",
+  ]);
+});
+
+// A thrown non-Error (a rejected string, a bare object) must still print SOMETHING
+// usable — the `?? e` fallback, whose absent twin is otherwise never exercised.
+test("runUpdateCli — a thrown non-Error still reaches stderr, not an empty 'undefined'", async () => {
+  const err = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => {
+      throw "ENOSPC: no space left on device";
+    },
+    armRestartFlag: () => {},
+    log: () => {},
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, [
+    "\n❌ update-engine failed — the brain was NOT changed past this point.\nENOSPC: no space left on device\n",
+  ]);
+});
+
+// The wiring the no-op test above can only prove NEGATIVELY: an update that did place
+// something on disk arms the nudge, ONCE, in the brain it just updated (a flag armed in
+// the wrong folder nudges nobody).
+test("runUpdateCli — an update that changed something arms the nudge in that brain, once", async () => {
+  const armed = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => ({
+      ref: "v3.6.2",
+      engineVersion: { rag: "1.1.4" },
+      copied: [],
+      regenerated: false,
+      reindexed: false,
+      skillsRefreshed: ["switch"],
+    }),
+    armRestartFlag: (dir) => armed.push(dir),
+    log: () => {},
+    error: (s) => assert.fail(`nothing should reach stderr, got: ${s}`),
+  });
+
+  assert.equal(code, 0);
+  assert.deepEqual(armed, ["/brains/mine"]);
+});
+
+// The flag write itself: it lands where `session-self-heal` / the statusLine look for
+// it, with a body a human can read if they ever open it — and it creates the `.cache/`
+// folder, which a freshly-installed brain does not have yet.
+test("armRestartFlag — drops the nudge file under the brain, creating .cache/ if needed", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-flag-"));
+
+  armRestartFlag(brainDir);
+
+  assert.equal(
+    readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8"),
+    "restart needed to finish the engine update\n",
+  );
+});
+
+// Fail-soft: the nudge is a convenience on top of an update that ALREADY succeeded and
+// is ALREADY recorded. A read-only `.cache/`, a full disk — none of it may turn a good
+// update into a failure the user reads as "my brain was not updated".
+test("armRestartFlag — an unwritable brain never throws (the update already succeeded)", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-flag-ro-"));
+  // A FILE where the `.cache` directory should go → mkdir + write both fail.
+  writeFileSync(join(brainDir, ".cache"), "not a directory\n");
+
+  assert.doesNotThrow(() => armRestartFlag(brainDir));
 });
 
 function sha256(path) {

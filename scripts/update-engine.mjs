@@ -22,6 +22,7 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { isEntrypoint } from "./lib/entrypoint.mjs";
 
 import {
   fetchSource as defaultFetchSource,
@@ -40,6 +41,30 @@ import { defaultFinalizeReconcile } from "./lib/auto-finalize.mjs";
 
 // Re-export so the engine's own tests keep importing the count seam from here.
 export { defaultCountVaultNotes };
+
+// How many capabilities this update DELIVERED that the running conversation cannot
+// see yet (Layer B config-freeze): a skill, an MCP server and a hook all load only at
+// the next session start. Pure, and shared by the report banner and the CLI's
+// restart-flag decision so the two can never drift apart.
+export function countNewCapabilities(report) {
+  return (
+    (report.installedSkills?.length ?? 0) +
+    (report.mcpServersAdded?.length ?? 0) +
+    (report.hooksAdded?.length ?? 0)
+  );
+}
+
+// Did this update place anything on disk that only takes effect at the next session
+// start? Then the persistent restart flag must be armed (A2 / F-B7d), so the statusLine
+// keeps nudging after the report banner has scrolled away.
+export function needsRestart(report) {
+  return (
+    report.copied?.length > 0 ||
+    Boolean(report.regenerated) ||
+    countNewCapabilities(report) > 0 ||
+    report.skillsRefreshed?.length > 0
+  );
+}
 
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
@@ -93,11 +118,15 @@ export function formatReport(report) {
   // the new bits stays theirs. `no-provenance` stays silent on purpose: it is a machine
   // detail (an older brain that was never fingerprinted), not a decision the user made
   // nor one they can act on.
+  // The path is read UNCONDITIONALLY: `refreshUntouchedSkills` emits `customized` only
+  // ever WITH a `newVersionPath` (engine-skill-refresh.mjs — the sidecar is written on
+  // that same branch), so a "no path" fallback here would be a state the producer cannot
+  // emit — a dead branch to maintain and mutation-test forever, not a safety net.
   for (const { skill, reason, newVersionPath } of skillsPreserved) {
     if (reason !== "customized") continue;
     lines.push(
       `   • your customized "${skill}" skill was kept exactly as you wrote it` +
-        (newVersionPath ? ` — the newer engine version sits next to it as ${newVersionPath}` : ""),
+        ` — the newer engine version sits next to it as ${newVersionPath}`,
     );
   }
   if (wiredHooks.length > 0) {
@@ -113,7 +142,7 @@ export function formatReport(report) {
   // this same conversation (field-proven, F4). Do NOT muddy it with "start a new
   // conversation": that is the distinct initial-rooting rule (a never-rooted session),
   // not what is needed just to pick up new capabilities.
-  const newCapabilities = installedSkills.length + mcpServersAdded.length + wiredHooks.length;
+  const newCapabilities = countNewCapabilities(report);
   if (newCapabilities > 0) {
     const noun = newCapabilities === 1 ? "capability" : "capabilities";
     const them = newCapabilities === 1 ? "it" : "them";
@@ -270,36 +299,50 @@ export async function updateEngine({
   };
 }
 
-// ── CLI entry (the command the brain-side `update-engine` skill runs) ─────────
-// Guarded so importing this module in tests does NOT run it. Operates on the brain
-// the script lives in (<brain>/scripts/update-engine.mjs → brainDir = its parent),
-// with the real git/npm/ONNX seams. FAIL LOUD (the project's strategy): on any
-// error, print it to stderr and exit non-zero — never pretend it worked.
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  updateEngine({ brainDir })
-    .then((report) => {
-      // A2 (F-B7d): if this update placed anything a restart is needed for, arm the
-      // persistent restart flag so the statusLine keeps nudging until the user restarts —
-      // a belt for the in-session converged case (the report banner alone scrolls away).
-      // The next fresh, converged session clears it (session-self-heal). Fail-soft.
-      const newCaps = (report.installedSkills?.length ?? 0) + (report.mcpServersAdded?.length ?? 0) + (report.hooksAdded?.length ?? 0);
-      // A refreshed skill counts too (Increment 2.5): its new text loads only at the
-      // next session start, so the nudge must keep standing until the user restarts.
-      if (report.copied?.length > 0 || report.regenerated || newCaps > 0 || report.skillsRefreshed?.length > 0) {
-        try {
-          const flagPath = join(brainDir, RESTART_FLAG_REL);
-          mkdirSync(dirname(flagPath), { recursive: true });
-          writeFileSync(flagPath, "restart needed to finish the engine update\n");
-        } catch {
-          /* fail-soft: the nudge is a convenience, never a blocker */
-        }
-      }
-      process.stdout.write(formatReport(report) + "\n");
-      process.exit(0);
-    })
-    .catch((e) => {
-      process.stderr.write(`\n❌ update-engine failed — the brain was NOT changed past this point.\n${e?.message ?? e}\n`);
-      process.exit(1);
-    });
+// A2 (F-B7d): arm the persistent restart flag so the statusLine keeps nudging until
+// the user restarts — a belt for the in-session converged case (the report banner
+// alone scrolls away). The next fresh, converged session clears it
+// (session-self-heal). Fail-soft: the nudge is a convenience, never a blocker.
+export function armRestartFlag(brainDir) {
+  try {
+    const flagPath = join(brainDir, RESTART_FLAG_REL);
+    mkdirSync(dirname(flagPath), { recursive: true });
+    writeFileSync(flagPath, "restart needed to finish the engine update\n");
+  } catch {
+    /* fail-soft */
+  }
+}
+
+// The real I/O the CLI runs on: the brain the script lives in
+// (<brain>/scripts/update-engine.mjs → brainDir = its parent), the real update, the
+// real flag write and the real streams. Everything `runUpdateCli` decides is testable
+// BECAUSE it is handed these instead of reaching for them (the `clear-example-notes`
+// idiom) — the entry-point block below is now pure wiring.
+export const realUpdateDeps = {
+  brainDir: resolve(dirname(fileURLToPath(import.meta.url)), ".."),
+  updateEngine,
+  armRestartFlag,
+  log: (s) => process.stdout.write(s),
+  error: (s) => process.stderr.write(s),
+};
+
+// The command the brain-side `update-engine` skill runs, minus the process. Returns
+// the exit code. FAIL LOUD (the project's strategy): on any error, print it to stderr
+// and hand back a non-zero — never pretend it worked.
+export async function runUpdateCli(deps = realUpdateDeps) {
+  try {
+    const report = await deps.updateEngine({ brainDir: deps.brainDir });
+    if (needsRestart(report)) deps.armRestartFlag(deps.brainDir);
+    deps.log(formatReport(report) + "\n");
+    return 0;
+  } catch (e) {
+    deps.error(`\n❌ update-engine failed — the brain was NOT changed past this point.\n${e?.message ?? e}\n`);
+    return 1;
+  }
+}
+
+// ── CLI entry ────────────────────────────────────────────────────────────────
+// Guarded so importing this module in tests does NOT run it.
+if (isEntrypoint(import.meta.url, process.argv[1])) {
+  process.exit(await runUpdateCli());
 }
