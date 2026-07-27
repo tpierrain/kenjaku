@@ -287,6 +287,11 @@ and in git too, not only in your brain's list. The one cost: because every file 
 re-reads and re-encodes that universe's notes (a few minutes if it is a big one; it is compute, not
 data).
 
+**Your brain tells you all that before it does any of it**, and waits for your go: how many notes are
+about to move, and that re-encoding them for search will keep the machine busy — seconds on a small
+universe, a few minutes on a large one. Nothing has happened yet at that point, so you can say no, or
+pick another name if it tells you the one you asked for is taken.
+
 Two things it will refuse: renaming onto a name you already use (that would be *merging* two
 universes, a different question), and renaming your cross-cutting scope, which has no folder of its
 own.

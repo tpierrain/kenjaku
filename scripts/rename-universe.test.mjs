@@ -30,6 +30,60 @@ function deps(overrides = {}) {
   return { args: { ...base, ...overrides, files: undefined }, calls, files };
 }
 
+test("runRenameUniverse --preflight says what the rename will do, and does none of it", () => {
+  const { args, calls } = deps({
+    files: {
+      "/brain/.vault-rag/universes.json": '{"universes":["acme"]}',
+      "__notes__/brain/vault/acme": ["daily/2026-07-27.md", "topics/widgets.md"],
+    },
+  });
+
+  const code = runRenameUniverse(["--preflight", "acme", "Acme Corp"], args);
+
+  assert.equal(code, 0);
+  const said = calls.logged.join("\n");
+  assert.match(said, /'acme' → 'acme-corp'/);
+  assert.match(said, /2 notes/);
+  // The whole point: the cost is named BEFORE anyone commits to it.
+  assert.match(said, /re-encode/i);
+  assert.match(said, /minutes/i);
+  assert.deepEqual(calls.moved, []);
+  assert.deepEqual(calls.written, []);
+  assert.deepEqual(calls.spawned, []);
+});
+
+test("runRenameUniverse --preflight tells you whether the rename moves you or not", () => {
+  const standingThere = deps({
+    files: {
+      "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}',
+      "/brain/.vault-rag/active-universe": "acme\n",
+    },
+  });
+  const standingElsewhere = deps({
+    files: {
+      "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}',
+      "/brain/.vault-rag/active-universe": "blue\n",
+    },
+  });
+
+  runRenameUniverse(["--preflight", "acme", "acme-corp"], standingThere.args);
+  runRenameUniverse(["--preflight", "acme", "acme-corp"], standingElsewhere.args);
+
+  assert.match(standingThere.calls.logged.join("\n"), /keep standing in it/);
+  assert.match(standingElsewhere.calls.logged.join("\n"), /stay where you are/);
+});
+
+test("runRenameUniverse --preflight refuses an impossible rename before anyone waits for it", () => {
+  const { args, calls } = deps({
+    files: { "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },
+  });
+
+  // The refusals are worth more here than after the fact: nothing has run yet.
+  assert.equal(runRenameUniverse(["--preflight", "acme", "blue"], args), 1);
+  assert.match(calls.errored.join("\n"), /'blue'/);
+  assert.deepEqual(calls.logged, []);
+});
+
 test("runRenameUniverse refuses a target name that is already taken, and moves nothing", () => {
   const { args, calls } = deps({
     files: { "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },

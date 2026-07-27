@@ -1,7 +1,7 @@
 ---
 name: switch
-description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with'). It also RENAMES a universe ('rename acme to Acme Corp', 'renomme cet univers'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
-version: 1.4.0
+description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. Switching itself does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with'). It also RENAMES a universe ('rename acme to Acme Corp', 'renomme cet univers'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
+version: 1.5.0
 ---
 
 # /switch — Change or create the active universe (opt-in, no reindex)
@@ -34,6 +34,8 @@ language:
 
 - **No writes to notes, no reindex.** Switching only re-points the active-universe pointer under
   `<brain>/.vault-rag/`. The engine reads it live on the next search. Never offer a reindex here.
+  (The two lifecycle operations below are the exceptions, and they reindex **themselves**: renaming
+  a universe moves every one of its notes, deleting one removes them. Still nothing to offer.)
 - **The core is the single surface.** Natural language ("create a universe X") and `/switch X`
   route to the **same** script, so there is never a diverging path (ADR 0009).
 - **🔤 Two worlds, two vocabularies — and you never decide which.** Below the disclosure gate (a
@@ -168,18 +170,33 @@ node scripts/set-universe-profile.mjs --decline
 
 A **full** rename (ADR 0034 / decision D4): the folder moves, every note under it is re-stamped, the
 registry entry changes name, and the user keeps standing where they were. Unlike deletion, this
-loses nothing and is undone by renaming back — so you may run it yourself.
+loses nothing and is undone by renaming back — so you may run it yourself, **once they have said yes
+to what it costs**.
+
+**Step 1 — say what will happen, and let them answer.** Never rename on the strength of the request
+alone: the re-embed can keep their machine busy for minutes, and someone who was not told will think
+their brain hung. The wording is the core's, not yours — this changes nothing on disk:
+
+```bash
+node scripts/rename-universe.mjs --preflight "<old>" "<new>"
+```
+
+- **exit 0** → relay that message in their language (it names the note count, what moves, and that
+  the whole universe gets re-encoded for search: seconds on a small universe, a few minutes on a
+  large one). Then **ask them to confirm**. Nothing is lost either way — it is compute, not data.
+- **exit 1** → relay the refusal and stop. Nothing has run.
+
+**Step 2 — only after they confirm**, run the real thing:
 
 ```bash
 node scripts/rename-universe.mjs "<old>" "<new>"
 ```
 
-- **exit 0** → relay the core's message verbatim. It names the cost, which is worth saying **before**
-  running it too: every path under the universe changed, so the index re-embeds the whole universe
-  (a few minutes on a large one). Nothing is lost, it is compute.
+- **exit 0** → relay the core's message verbatim.
 - **exit 1** → relay the reason as-is: `exists` (that name is taken — merging two universes is a
   different operation), `reserved` (the cross-cutting default is neither renameable nor a valid
-  target), `unknown` / `empty`.
+  target), `unknown` / `empty`. A `reindex failed` here means the rename **did** happen on disk and
+  only the index is behind: relay the `cd rag && npm run reindex` it prints.
 
 > 💻 **On another machine**, the pointer is per-machine and gitignored while the registry is
 > committed, so a pull lands the new name with a pointer still naming the old one. That machine

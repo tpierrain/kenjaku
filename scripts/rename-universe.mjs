@@ -43,13 +43,43 @@ const REFUSALS = {
     `different operation — pick another name.`,
 };
 
-/** Runs the rename. Returns the process exit code. */
+/**
+ * What the rename is about to do, said BEFORE it is done. A rename is reversible,
+ * so this is not a gate — it is the difference between a person who chose the
+ * re-embed and one who is merely watching their machine be busy for a few minutes.
+ * Deterministic here rather than improvised in chat (ADR 0009).
+ */
+function preflightMessage(plan, noteCount) {
+  const pointer = plan.movePointer
+    ? "you keep standing in it, under its new name"
+    : "you stay where you are";
+  return (
+    `Renaming '${plan.from}' → '${plan.to}' will, in one go:\n` +
+    `  · move vault/${plan.from}/ to vault/${plan.to}/, with its ${noteCount} notes\n` +
+    `  · re-label every one of those notes with the new name\n` +
+    `  · rename the registry entry (${pointer})\n` +
+    `  · re-encode that whole universe for search: every path changed, so the index\n` +
+    `    treats each note as new. This is the slow part — seconds on a small\n` +
+    `    universe, a few minutes on a large one, and the machine works throughout.\n` +
+    `Nothing is lost, and renaming back undoes it.`
+  );
+}
+
+/** Runs the rename, or only describes it when argv starts with `--preflight`. */
 export function runRenameUniverse(argv, deps) {
+  const preflight = argv[0] === "--preflight";
+  const [from, to] = preflight ? argv.slice(1) : argv;
   const dir = vaultRagDir(deps.cwd());
-  const plan = planUniverseRename(deps.io, dir, argv[0], argv[1]);
+  const plan = planUniverseRename(deps.io, dir, from, to);
   if (!plan.ok) {
     deps.error(REFUSALS[plan.reason](plan));
     return 1;
+  }
+
+  if (preflight) {
+    // Counted at the OLD path: nothing has moved, and nothing will on this path.
+    deps.log(preflightMessage(plan, deps.listNotes(`${deps.cwd()}/vault/${plan.from}`).length));
+    return 0;
   }
 
   const vault = `${deps.cwd()}/vault`;
