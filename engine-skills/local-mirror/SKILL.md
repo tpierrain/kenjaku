@@ -1,14 +1,15 @@
 ---
 name: local-mirror
 description: "Declare and refresh a LOCAL MIRROR — a one-way local copy of a chosen zone of an internal tool (Notion today) replicated into this brain's vault as Markdown, so the LOCAL RAG can search and cite it OFFLINE. A mirror is a 'synchronized source' kept locally: copied once, then refreshed on demand. Use when the user wants to mirror / replicate / copy a Notion zone locally, declare / set up / connect a local mirror, refresh / sync / update one (e.g. 'mirror the Team A zone from Notion', 'refresh my product mirror', 'réplique cette zone Notion en local', 'mets en place un miroir local pour ce Notion', 'mets en place une synchronisation miroir avec ce Notion', 'fais que mon cerveau puisse chercher dans ce Notion'), check whether one is behind, list them, or remove one. DO NOT use this skill when the user simply wants to read, write, create, edit, fetch or SEARCH Notion content live and ad hoc — that is the job of the NATIVE Notion connector (a different tool); this skill is ONLY for mirroring a Notion zone locally for the RAG. When the intent is genuinely ambiguous (durable / offline / 'puisse chercher' → mirror; one-off / live / now → native connector), ask the balanced 2-option question first. The actual work runs in the local-mirror MCP server; this skill is the thin conversational driver."
-version: 1.0.0
+version: 1.1.0
 ---
 
 # /local-mirror — Mirror a live internal source into your vault (opt-in, safe)
 
 > Brain-side skill. A **local mirror** (a *copie miroir* / *réplica locale*) is a zone of an
 > internal tool (Notion for the MVP) that you declare once; the brain then **mirrors its pages
-> into `vault/mirrors/<name>/` as plain Markdown**. From there the existing RAG indexes and cites
+> into `vault/mirrors/<name>/` as plain Markdown** (or `vault/<universe>/mirrors/<name>/` when the
+> mirror belongs to a universe, see below). From there the existing RAG indexes and cites
 > them like any other note — *the central RAG you don't have yet, but local and right now, plugged
 > onto your live sources.*
 >
@@ -90,7 +91,8 @@ local / chez toi / hors-ligne** so it never drifts back into the ambiguous nativ
 **Never** use "golden source" / "source de vérité" anymore — they over-claim and confuse. Mirror the
 user's own wording when they have one. The **identifiers stay English everywhere** regardless of the
 spoken language: the skill name `local-mirror`, the frontmatter key `mirror`, the folder
-`vault/mirrors/<name>/`, the MCP tools — never translate those.
+`vault/mirrors/<name>/` (`vault/<universe>/mirrors/<name>/` when scoped), the MCP tools — never
+translate those.
 
 ## Golden rule — the token NEVER travels through the chat
 
@@ -144,7 +146,25 @@ committed. The `setup_source` tool takes the **name of the env var**, not the to
    freeze. Then call it with the five fields. It **tests the scope** (a scoped search that returns only
    the zone), does the **first sync**, writes the config (`local-mirror.config.json`, the versioned
    source of truth) and the sidecar state, and returns a step-by-step `message`.
-4. **Report** what came back — **from the structured `setup_source` result**, and if you want to
+4. **Read the answer before reporting: was a universe handed back to choose?** A mirror is always
+   attached to one (ADR 0034), and moving it later costs a **full re-embed of every mirrored page**
+   — so the scope is settled *before* the first pull, not after. **Do not count universes yourself
+   and never raise the subject on your own**: call step 3 **without** `universe`, and let the
+   server tell you whether there was even a choice to make.
+   - **No `awaitingUniverse` in the result** → there was nothing to choose (a brain with a single
+     universe), and it already pulled. **Never say the word** "universe" / « univers » to this
+     user: they have not met the notion, and this is not where they should. Straight to step 5.
+   - **`awaitingUniverse: { active, universes }`** → **nothing was declared and nothing was
+     pulled.** Relay the `message` in the user's language: which universe the mirror would join
+     (`active`, the one they are working in), where its pages would land, the full list, and that
+     **`default` is the cross-cutting choice** for a source every universe should find (a
+     company-wide wiki, say). Once they confirm or name another, **call `setup_source` again with
+     `universe` set** — that second call is the one that declares and pulls.
+   - A name that matches nothing comes back **refused**, with the real universes listed: relay it
+     and let them pick. **Never invent a universe**, and never create one here (that is `/switch`'s
+     job). This only ever happens on the FIRST setup of a mirror — a **refresh** (`sync`) is a
+     one-liner and never asks again.
+5. **Report** what came back — **from the structured `setup_source` result**, and if you want to
    double-check where things landed, **from the `status <name>` tool** (it returns config, watermark,
    item count and last-sync state). ⚠️ **Never verify the sync with a compound shell command**
    (`cd … && cat … && ls … && find …`) — that triggers a needless permission prompt and the tools
@@ -173,7 +193,8 @@ committed. The `setup_source` tool takes the **name of the env var**, not the to
 > use-time when a question would need a file's contents (the brain can't cite what it never indexed). If
 > the user needs those facts searchable, have them paste the key points into the Notion page as text.
 
-> The produced `.md` files land in `vault/mirrors/<name>/`. The **existing FileWatcher** indexes
+> The produced `.md` files land in `vault/mirrors/<name>/` — or `vault/<universe>/mirrors/<name>/`
+> for a mirror attached to a universe. The **existing FileWatcher** indexes
 > them and the **auto-commit hook** commits them — `local-mirror` is unaware of the RAG (PRD §7).
 > Nothing else to wire on a freshly-installed brain: the server is already declared in `.mcp.json`.
 
@@ -274,8 +295,9 @@ exactly what landed — **use it**:
   briefly **lag the disk**. This safeguard is **cheap and local** — keep it, but decoupled from any
   blocking sync:
   - **List the perimeter titles** (cheap — `status` / the just-synced report, or a quick look at
-    `vault/mirrors/<name>/`) before declaring absence. The page may be right there, freshly
-    written, just not embedded yet.
+    the mirror's folder: `vault/mirrors/<name>/`, or `vault/<universe>/mirrors/<name>/` when it is
+    scoped — `setup_source` told you which) before declaring absence. The page may be right there,
+    freshly written, just not embedded yet.
   - **Search by the actual title/keywords**, not only by theme — a page titled "Naxos" won't surface
     under "Greek islands" if only its body is matched (and titles are now indexed precisely for this).
   - **Temper confidence**: say *"the index may need a moment — the page **Naxos** is in the perimeter"*
@@ -289,6 +311,6 @@ exactly what landed — **use it**:
 
 | Touched (local-mirror content) | **NEVER touched** |
 | --- | --- |
-| `vault/mirrors/<name>/**` (produced Markdown) | your own notes, demo notes, attachments |
+| `vault/mirrors/<name>/**` — or `vault/<universe>/mirrors/<name>/**` when scoped (produced Markdown) | your own notes, demo notes, attachments |
 | `.local-mirror/<name>.state.json` (sidecar, committed, NOT indexed) | `.env` (only read for the token), `CLAUDE.md`, settings |
 | `local-mirror.config.json` (declarations) | the RAG index/config (it just reacts to the files) |

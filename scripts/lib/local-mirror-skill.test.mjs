@@ -39,6 +39,25 @@ test("local-mirror skill — the frontmatter trigger names BOTH the native conne
   );
 });
 
+// Universes (ADR 0034) — the skill used to document the PRE-universe layout unconditionally
+// (`vault/mirrors/<name>/`, cross-cutting always), which is false for a scoped mirror and is
+// what misled the plan that added this very feature. Two things must stay written down, or the
+// next session re-derives the wrong contract: a scoped mirror carries its universe in the path,
+// and past the disclosure gate `setup_source` answers with a choice BEFORE pulling anything.
+test("local-mirror skill — documents the universe-scoped path, not just the root one", () => {
+  assert.match(
+    SKILL,
+    /vault\/<universe>\/mirrors\/<name>\//,
+    "the scoped layout must be documented alongside the root one"
+  );
+});
+
+test("local-mirror skill — documents the two-call setup past the disclosure gate", () => {
+  assert.match(SKILL, /awaitingUniverse/, "the driver must be told which field carries the choice");
+  // And that a single-universe owner must never meet the notion (progressive disclosure).
+  assert.match(SKILL, /never (say|mention|use) the word/i);
+});
+
 test("local-mirror skill — the body routes the two modes explicitly (live/ad-hoc vs durable/offline)", () => {
   assert.match(SKILL, /native Notion connector/i);
   // The durable / offline mirror framing that distinguishes the two.
