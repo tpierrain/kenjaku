@@ -450,14 +450,14 @@ explicit guard:
         too, and step 7 says why provenance is re-seeded (it keeps the delivery refreshable next time).
   - [x] **Left alone on purpose:** SETUP §"Sacred by construction" already said "anything under
         `.claude/skills/` **you customized**" — accurate as written, so it is not re-touched.
-- [ ] **Step 10 — Mutation testing on the impacted surface, LAST, right before the merge** (asked by
+- [x] **Step 10 — Mutation testing on the impacted surface, LAST, right before the merge** (asked by
       Thomas, 2026-07-27). The objective signal for this increment is the mutation score, not line
       coverage: the whole feature is a decision tree (`refreshVerdict`), a guard (`sourceDir !==
       brainDir`), a re-seed and prose branches — precisely where a surviving mutant means a brain
       silently loses its customization or never gets refreshed again.
-  - [ ] Scope: `scripts/lib/engine-skill-refresh.mjs`, the refresh block of `scripts/lib/reconcile-brain.mjs`,
+  - [x] Scope: `scripts/lib/engine-skill-refresh.mjs`, the refresh block of `scripts/lib/reconcile-brain.mjs`,
         `reseedProvenance` + step 7 of `scripts/update-engine.mjs`, and `formatReport`'s new branches.
-  - [ ] Kill every surviving mutant with a test (or record why it is equivalent). Watch specifically:
+  - [x] Kill every surviving mutant with a test (or record why it is equivalent). Watch specifically:
         the `reason` discrimination (`customized` vs `no-provenance`), the EOL normalization, the
         `.new` write/clear conditions, and the guard's equality.
   - [x] **HOW TO RUN IT (re-derived the hard way 2026-07-27, do not lose this).** `mutate:changed`
@@ -541,19 +541,52 @@ explicit guard:
         was ever audited before (same correction as `update-engine.mjs` above).
   - [x] Record the run in `maintainers/mutation/RESULTS.md` (before/after table, per CONVENTIONS §5bis),
         including the honest note that `update-engine.mjs` had never been audited before. _(2026-07-27)_
-  - [ ] **⏭️ THE OPEN QUESTION — how far to harden `reconcile-brain.mjs` (54) + `engine-source.mjs` (8)
-        in THIS branch. ASK THOMAS FIRST, then execute.** This is **not** the deferral he already
-        rejected: that decision named `update-engine.mjs` (now at 98.49 %, done). These are different
-        files, and only a handful of their survivors sit on lines this increment wrote. The survivor
-        map, so nobody re-measures to answer:
-    - [ ] **In scope by the increment's own rationale** — `L98-101` (install-if-absent: the file-copy
-          loop + `installedFileMap`, which feeds the T1 re-seed) and `L131`
-          (`local?.provenance` — the staged/merge base merge).
-    - [ ] **Pre-existing, untouched by this branch** — `L145-199` the MCP + hook reconcile (~13,
-          `L194` alone has 5) · `L220-242` launchers / install / reindex / count (~6) · **`L269-317`
-          the `runReconcileCli` composition root (~22)**, which extracts exactly like
-          `runUpdateCli(deps)` did — the same seam, the same win, ~40 % of the file's survivors.
-    - [ ] **Finding, mid-flight, do NOT re-derive.** Emptying the `L100-101` copy loop leaves the
+  - [x] **✅ ANSWERED (Thomas, 2026-07-27): HARDEN BOTH FILES FULLY, IN THIS BRANCH** — same standard
+        as `update-engine.mjs`, i.e. take `reconcile-brain.mjs` and `engine-source.mjs` to ~100 %
+        (every survivor killed or recorded as equivalent), **including the pre-existing ones this
+        increment never wrote**. The two narrower options (increment-only lines; increment + the
+        composition-root seam) were **put to him and declined** — do not re-propose either. The
+        survivor map below is the work list, not a menu:
+    - [x] **EXACT SURVIVOR MAP re-measured on `31ed87c`** _(2026-07-27, 4 min 28 s)_ —
+          `engine-source.mjs` **81.40 %** (8) · `reconcile-brain.mjs` **71.43 %** (50 + 1 timeout).
+          Recipe: disposable worktree + `--inPlace` + ONE comma-separated `--mutate`; the console
+          output is truncated by the `| tail -N` in the recipe, so read the **HTML report** instead
+          (`new Function`, never `JSON.parse` — the embedded literal is JS).
+    - [x] **`engine-source.mjs` — 5 killable, 3 equivalent.** `L27` optional chaining ×2 (no `merge`
+          regime / no manifest at all → must select nothing, never throw) · `L45` ×2 (`.trim()`
+          dropped → a whitespace-only remote must still read as *no* remote; `?? ""` → a git fact
+          with no `repo` key at all) · `L88` the manifest's trailing newline. Equivalent: `L27`'s
+          `[] → ["Stryker was here"]` (a matcher for a glob no real path can equal) and the two
+          `readFileSync(…, "utf8") → ""` (Node hands back a Buffer; both values are only `JSON.parse`d
+          or `createHash().update()`-ed — same bytes, same digest, as already recorded for
+          `update-engine.mjs`).
+    - [x] **`reconcile-brain.mjs` — in scope by the increment's own rationale.** `L98` the
+          `/\/\*\*?$/` skill-glob regex ×2 (anchor + optional `?`) · `L101` the `installedFileMap`
+          read (Buffer-equivalent) · `L131` `local?.provenance` (a reconcile called with no `local`).
+    - [x] **`reconcile-brain.mjs` — pre-existing, now in scope by the decision above.**
+          **(i) `L145-199` MCP + hooks (~13):** `brainDir.split("\\")` ×2 (nothing asserts the
+          SUBSTITUTED `{{PROJECT_ROOT}}` ever reaches the written files) · the `.mcp.json` / settings
+          trailing newlines · `L194`'s 5 (the write guard: no test isolates *only* a statusLine
+          repair, nor *only* a hook repair, and the converged fixture is already canonically
+          formatted so an unconditional write changes no byte, cf. the `>= 0` survivors) · `L196` ·
+          `L199`'s `["statusLine"]`. **(ii) `L220-242` (~6):** an EMPTY `regenerate` bucket is never
+          exercised · `reindexReason`'s two string literals are never asserted by value · the
+          `countVaultNotes({ brainDir })` argument is never observed (every stub ignores it and
+          returns 0 — make the stub return a distinctive count). **(iii) `L269-317` the composition
+          root (~22):** `flagValue`'s guard/arithmetic, the `--platform` fallback (`??` → `&&` must
+          be caught by passing `--platform win32` and asserting it reaches `regenerateLaunchers`),
+          the missing-flag throw + its message, `seams.x ?? default` (a stub returning a distinctive
+          value discriminates), the `delivered.length > 0` write guard, the manifest newline, and the
+          whole entry block.
+    - [x] **The fix for (iii) is the KNOWN-GOOD pattern, not invention:** extract the entry block's
+          body into an exported `runReconcileCliProcess(deps)` + `realReconcileDeps`, exactly as
+          `runUpdateCli(deps)` / `realUpdateDeps` took `update-engine.mjs` from 51 % to 98 %. It makes
+          the `catch` unit-testable (`throw null` / a bare string / an `Error`) and leaves the entry
+          block as pure wiring, spawned once as a real process. **Also swap the hand-rolled
+          `resolve(process.argv[1]) === fileURLToPath(import.meta.url)` guard for the canonical
+          `isEntrypoint` helper** — every other script already uses it (bug B2); `reconcile-brain.mjs`
+          is the last hold-out.
+    - [x] **Finding, mid-flight, do NOT re-derive.** Emptying the `L100-101` copy loop leaves the
           whole suite GREEN, because Step 8.5's F2 gave the refresh pass an `absent-install` verdict
           that re-delivers the same bytes one block later. The two paths overlap; what still differs
           is the **headline** (`installedSkills` = a NEW capability, counted for the restart banner,
@@ -563,8 +596,20 @@ explicit guard:
           returns `preserve: no-provenance`, leaving `skillsRefreshed` empty in BOTH worlds. The
           discriminator has to be something else (the probe used: `/tmp/probe.mjs` pattern — call
           `reconcileBrain` directly and print `installedSkills` / `skillsRefreshed` / `skillsPreserved`).
-  - [ ] Re-run the two files after hardening and update the RESULTS.md row (it currently says
+  - [x] Re-run the two files after hardening and update the RESULTS.md row (it currently says
         "not yet hardened" — an honest line that must stop being true or stay true on purpose).
+  - [x] **AT THE VERY END — the ROOT-CAUSE retrospective (asked by Thomas, 2026-07-27): HOW did we
+        come to write tests that score this badly, and what changes in the harness's TDD practice?**
+        Not a summary of the survivors (RESULTS.md already holds those), but the *upstream* question:
+        which habits produced them. Raw material is now abundant and concrete — four files audited in
+        one branch (86.72 / 51.52 / 69.14 / 81.40 %) with the survivor causes written down per file.
+        Look for the recurring shapes: one-regex-per-line assertions instead of goldens on the whole
+        output, composition roots left with no seam (the ~40 + ~22 clusters), branches tested through
+        the pure core but never at I/O level, mirror-image cases never triangulated (CRLF), and the
+        "equivalent mutant" reflex used to excuse redundancy. Land it in
+        `maintainers/mutation/RETROSPECTIVE.md` **and** feed whatever generalizes back into the
+        `tdd-discipline` skill (§"Qualité des assertions"), so the lesson reaches every future project
+        and not just this repo.
 
 ### Side-finding (2026-07-27) — the schema-bump warning was never wired
 

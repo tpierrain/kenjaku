@@ -143,8 +143,38 @@ COMMA-SEPARATED `--mutate`, see the gotcha) at a time.
 |---|---|---|---|
 | `scripts/lib/engine-skill-refresh.mjs` | 86.72 % | **100 %** | 119/119, no equivalents _(6d6564b)_ |
 | `scripts/update-engine.mjs` | 51.52 % | **98.49 %** | 196/200, 3 equivalents _(5a04fa4, a54a0b1)_ |
-| `scripts/lib/engine-source.mjs` | — | 81.40 % | 8 survivors — **first measurement, not yet hardened** |
-| `scripts/lib/reconcile-brain.mjs` | — | 69.14 % | 54 survivors — **first measurement, not yet hardened** |
+| `scripts/lib/engine-source.mjs` | 81.40 % | **93.02 %** | 40/43, 3 equivalents _(3790a2e)_ |
+| `scripts/lib/reconcile-brain.mjs` | 71.43 % | **96.45 %** | 162 killed + 1 timeout / 169, 6 equivalents _(3900fbb, fc520b0, e0cd006, 49e1457, a369fe2, e480621)_ |
+
+> **Decision (Thomas, 2026-07-27): both remaining files hardened IN THIS BRANCH**, to the same
+> standard as `update-engine.mjs` — including the survivors this increment never wrote. The two
+> narrower options (increment-only lines; increment + the composition-root seam) were put to him
+> and declined. **Effective 100 % on non-equivalents** for all four files of the increment.
+
+**`reconcile-brain.mjs` — what the 51 survivors were.** ~14 in the process-level wiring (the argv
+slice, the error banner, the exit code, the entry guard), fixed the same way `update-engine.mjs` was:
+extract `runReconcileCliProcess(deps)` + `realReconcileDeps`, leave the entry block as pure wiring,
+spawn it once as a real process, and route the guard through the canonical `isEntrypoint` (this file
+was the last hold-out hand-rolling it — bug B2). ~16 more in the CLI's own contract (missing-flag
+refusal, `--platform` reaching the seams, the manifest write). ~11 in the `.mcp.json` / `settings.json`
+side-channels, where two habits were the root cause: a **self-confirming fixture** (settings.json
+stored with the exact serialiser production writes it with → an unconditional rewrite left it
+byte-identical, so the no-churn guard could not be refuted by its own test) and **two write-reasons
+never isolated** (every repair fixture had BOTH broken hooks and a broken statusLine, so neither term
+of the guard was ever the sole cause). The rest were absent cases never fed: an empty `regenerate`
+bucket, a single-star skill glob, a reconcile with no `local` manifest.
+
+Three production simplifications fell out, all the same lesson: `flagValue`'s length check, `?? {}`
+before an object spread, and (previous step) the sidecar-clear condition could not change a single
+byte — deleting them said the same in less code and removed the mutants. One extraction, `toPosix`,
+makes the win32 `{{PROJECT_ROOT}}` contract verifiable on a POSIX CI, where it was a no-op and thus
+untestable by construction.
+
+> ⚠️ **Method note that paid for itself:** each mutant was hand-applied against the full suite before
+> and after writing its test, rather than reasoned about. That caught one filed as *killed* which was
+> in fact the OTHER branch of the same ternary, still alive because the assertion said `.includes(…)`
+> instead of naming the whole list. See [`RETROSPECTIVE.md`](RETROSPECTIVE.md) Part II for the
+> root-cause analysis of why four files of one increment scored 51–87 % despite Part I's rules.
 
 > ⚠️ **The 2026-07-15 line "`scripts/**` is now fully hardened" was never true of these
 > files.** It covered the three enumerated worst files plus `scripts/lib/**` *as measured
