@@ -363,9 +363,17 @@ explicit guard:
             between the two. Added to the harness step (dependency-free `.mjs` seams belong there).
       - [x] The three cohorts were also smoke-run through the real `main()` on fixture brain layouts
             (old scripts → both banners; modern → restart only; converged → silence).
-- [ ] **Step 7 — ADR:** amend **0026** (the reconciler gains a conditional, provenance-gated overwrite,
+- [x] **Step 7 — ADR:** amend **0026** (the reconciler gains a conditional, provenance-gated overwrite,
       scoped to explicit updates) and cross-note **0025** (its "out of scope, belongs to a future 3-way
       merge" consequence is now partially closed). Keep the `Scope:` field per `CONVENTIONS.md`.
+      _(2026-07-27 · `2e49008`)_
+  - [x] Amended **in place** per `CONVENTIONS.md` §6bis (same topic: what the reconciler may write) and
+        written **timelessly** per §6ter — no "amended" scars, no autobiography. Landed as Decision §8 +
+        a third nominative carve-out in the safety invariant, with the Crux guarantee corrected (it
+        claimed the reconciler only ever *adds*) and the STATUS line moved from two exceptions to three.
+  - [x] Rejected alternatives recorded so nobody re-litigates them: version/date instead of hash,
+        refreshing at SessionStart, refreshing from the root regardless of locale, 3-way-merging prose,
+        making the bottle refresh instead of print, and leaving the old cohort on the 2-cycle.
 - [ ] **Step 8 — QA on fixtures** reproduced from real release tags (v3.2.2 / v3.6.0 / v3.6.2), with
       synthetic personal edits. Never use real deployed brains' content. Verify the `4e43e70` case
       end-to-end: a v3.6.0 fixture must end up with the v3.6.2 `switch` skill.
