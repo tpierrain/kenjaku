@@ -1,7 +1,7 @@
 ---
 name: update-engine
-description: "Updates your second brain's ENGINE (the RAG search code, launchers and engine-owned scripts) to a newer version, opt-in and without ever touching your notes, .env, constitution, settings or custom skills. Reindexes only if the index format changed. Use when the user asks to update/upgrade their brain's engine, or to check whether an engine update is available."
-version: 1.1.0
+description: "Updates your second brain's ENGINE (the RAG search code, launchers and engine-owned scripts) to a newer version, opt-in and without ever touching your notes, .env, constitution, settings, your own skills or any engine skill you tailored. Reindexes only if the index format changed. Use when the user asks to update/upgrade their brain's engine, or to check whether an engine update is available."
+version: 1.2.0
 ---
 
 # /update-engine — Upgrade your brain's engine (opt-in, non-destructive)
@@ -10,7 +10,8 @@ version: 1.1.0
 > search code (`rag/`), the launchers and the engine-owned scripts. This skill swaps
 > it for a newer version pinned in the launcher you were generated from, **without
 > ever touching what is yours**: your notes, `.env`, constitution (`CLAUDE.md`),
-> `.claude/settings.json` and any custom skills are left **byte-for-byte unchanged**.
+> `.claude/settings.json`, your own skills and **any engine skill you tailored** are left
+> **byte-for-byte unchanged**.
 >
 > ⚠️ **This is a thin conversational driver.** All the real, testable work lives in
 > the deterministic core `scripts/update-engine.mjs` (ADR 0016). This skill only
@@ -41,7 +42,8 @@ code on disk and may trigger a reindex; it must always be a conscious, accepted 
 | `rag/launch.*`, `scripts/run-node.*` launchers | `.env` (your keys) |
 | engine scripts (`auto-commit`, `auto-push`, `status-line`, `verify-rag`) | `CLAUDE.md` (your constitution) |
 | `update-engine` itself (it self-updates) | `.claude/settings.json` |
-| **missing** engine skills (e.g. `local-mirror`) — _added if absent_ (ADR 0025) | your custom skills **and any engine skill you already have** (`.claude/skills/**`) |
+| **missing** engine skills (e.g. `local-mirror`) — _added if absent_ (ADR 0025) | your **own** skills (`.claude/skills/**`): the engine never declared them, so it can never write them |
+| engine skills **you never edited**: _brought up to date_ (ADR 0026 §8) | any engine skill **you tailored**: kept byte-for-byte, with the engine's newer version dropped **beside** it as `.new` |
 | **missing** engine MCP servers in `.mcp.json` — _added if absent_ (ADR 0025) | any server you added yourself to `.mcp.json` |
 
 ## Procedure
@@ -49,8 +51,12 @@ code on disk and may trigger a reindex; it must always be a conscious, accepted 
 ### Step 1 — Confirm with the user (mandatory, opt-in)
 Explain, plainly:
 - it pulls a newer engine and swaps in the new code, launchers and engine scripts;
-- **your notes, `.env`, constitution, settings and custom skills stay untouched**;
-- it will **reindex only if the index format changed** (a few minutes, nothing lost —
+- **your notes, `.env`, constitution, settings and your own skills stay untouched**;
+- it will **bring up to date the engine skills you never edited**, so improvements shipped
+  since this brain was installed finally reach it; **anything you tailored stands exactly as
+  you wrote it**, and the engine's newer version is simply left beside it as `.new`, yours to
+  adopt or ignore;
+- it will **reindex only if the index format changed** (a few minutes, nothing lost:
   your notes are simply re-encoded);
 - **prerequisites**: `git`, `npm` and a network connection (same as at install). Here
   `npm install` means installing the RAG engine's **dependencies locally** — nothing is

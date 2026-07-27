@@ -427,10 +427,29 @@ explicit guard:
         a **test fixture** in `engine-skill-refresh.test.mjs`. So F2's field impact was **zero today**,
         strictly latent, which is why `nit` was the right severity: it was fixed for the first release
         that adds a sub-file, not for a brain in the wild.
-- [ ] **Step 9 — Docs:** SETUP / the `update-engine` skill wording ("your customized skills are never
+- [x] **Step 9 — Docs:** SETUP / the `update-engine` skill wording ("your customized skills are never
       overwritten; you are told when a newer version is available"). Includes the stale claim in
       `.claude/skills/update-engine/SKILL.md` §What it touches — "any engine skill you already have" is
       no longer in the untouched column (an *untouched* one is now refreshed; a *customized* one is not).
+      _(2026-07-27)_
+  - [x] **`.claude/skills/update-engine/SKILL.md`** — the §What-it-touches row was the load-bearing lie
+        and is now split in two: *engine skills you never edited* move to the **Updated** column, *any
+        engine skill you tailored* stays in the **NEVER touched** one, with its `.new` sidecar named.
+        Header promise and the Step-1 confirmation script realigned (the refresh is stated as a
+        **benefit** the user is about to get, not a risk), frontmatter description included: it is what
+        the harness reads to decide whether to load the skill at all, so a stale one mis-routes.
+  - [x] **`templates/fr/.claude/skills/update-engine/SKILL.md`** — same three edits, written in French
+        (deliberate product localization, never anglicized). The FR table was **two ADRs behind**, not
+        just one: it still lacked the ADR 0025 install-if-absent rows (missing skills / missing MCP
+        servers), so a French brain's table is realigned with the EN one in the same pass rather than
+        left half-true. Also fixed "identiques **au** octet près" → "à l'octet près".
+  - [x] **`SETUP.md` §10** — the refresh gets its own numbered step in "What it does, step by step"
+        (the list jumped straight from the write-allowlist to `npm install`), phrased around the
+        *proof*: the brain fingerprints what it delivered, so it can prove what you never touched.
+        The "never touches" sentence and the one-line report summary now name the tailored-skill case
+        too, and step 7 says why provenance is re-seeded (it keeps the delivery refreshable next time).
+  - [x] **Left alone on purpose:** SETUP §"Sacred by construction" already said "anything under
+        `.claude/skills/` **you customized**" — accurate as written, so it is not re-touched.
 - [ ] **Step 10 — Mutation testing on the impacted surface, LAST, right before the merge** (asked by
       Thomas, 2026-07-27). The objective signal for this increment is the mutation score, not line
       coverage: the whole feature is a decision tree (`refreshVerdict`), a guard (`sourceDir !==

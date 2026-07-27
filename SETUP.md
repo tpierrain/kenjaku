@@ -422,8 +422,8 @@ re-encodes in a few minutes, **without losing a single note**.
 
 Your brain ships with a built-in, **opt-in** updater for its **engine** — the RAG search code
 (`rag/src`), the launchers, and the engine-owned scripts (`scripts/`). It **never** touches your
-notes, `.env`, `CLAUDE.md`, `.claude/settings.json` or your custom skills: it only writes files that
-`engine-manifest.json` declares Engine-owned.
+notes, `.env`, `CLAUDE.md`, `.claude/settings.json`, your own skills or any engine skill you
+tailored: it only writes files that `engine-manifest.json` declares Engine-owned.
 
 > 🗺️ **`engine-manifest.json` is the readable map.** It lists *what counts as the engine* and records a
 > `source: { repo, ref }` — the launcher's git URL and the exact tag/commit your engine was built from.
@@ -438,7 +438,8 @@ notes, `.env`, `CLAUDE.md`, `.claude/settings.json` or your custom skills: it on
 > search engine."*
 
 The brain confirms with you first (**opt-in, never automatic**), runs the update, then reports what
-changed: **new version · files swapped · whether a reindex ran · "your files were untouched".**
+changed: **new version · files swapped · skills brought up to date (and those left as you tailored
+them) · whether a reindex ran · "your files were untouched".**
 Because the engine is **observable** (it knows its own version), the brain may also **proactively
 offer** the update.
 
@@ -449,11 +450,18 @@ offer** the update.
 3. Computes a **write-allowlist** plan: overwrite the `replace` bucket (`rag/src`, etc.),
    **regenerate** the `.sh`/`.cmd` launchers, replace the engine-owned scripts (including the updater
    itself).
-4. Runs `npm install` in `rag/` — this installs the engine's **dependencies locally**; it does **not**
+4. **Brings the engine skills you never edited up to date.** Your brain records a fingerprint of every
+   skill file the engine delivered, so it can *prove* which ones you never touched: those are refreshed
+   to the newer version, and improvements shipped since your install finally reach you. **A skill you
+   tailored is never overwritten**: it stands byte-for-byte as you wrote it, and the engine's newer
+   version is dropped **beside** it as `<skill>/SKILL.md.new`, yours to adopt, cherry-pick or delete.
+   The report names both, so a silent delivery never leaves you unaware of what you gained.
+5. Runs `npm install` in `rag/` — this installs the engine's **dependencies locally**; it does **not**
    pull your brain from any registry (self-hosted, ADR 0001).
-5. **Reindexes only if** `indexSchemaVersion` changed (a few minutes); otherwise your index is left
+6. **Reindexes only if** `indexSchemaVersion` changed (a few minutes); otherwise your index is left
    as-is.
-6. Records the new `engineVersion` + `source.ref` and re-seeds the provenance fingerprints.
+7. Records the new `engineVersion` + `source.ref` and re-seeds the provenance fingerprints, so what it
+   just delivered stays refreshable at the update after that.
 
 ### Prerequisites & guarantees
 
