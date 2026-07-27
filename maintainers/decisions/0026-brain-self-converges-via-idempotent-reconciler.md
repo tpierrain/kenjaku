@@ -232,7 +232,7 @@ thing we add on top is naming discipline (see the terminology note in `CONVENTIO
 > The reconciler only ever writes manifest-declared engine-owned skills/MCP servers (install-if-absent)
 > and regenerated launchers. The vault, `.env`, the constitution, every user-added `.mcp.json`
 > server, every user-authored `settings.json` entry and every non-declared/custom skill are untouchable —
-> **EXCEPT** the two narrow, nominative carve-outs below.
+> **EXCEPT** the three narrow, nominative carve-outs below.
 
 > **⚠️ The one vault exception.** The "vault is untouchable" rule **stands**;
 > its **only** exception is that the reconciler MAY **create** (write-if-absent — **never** overwrite,
@@ -276,6 +276,9 @@ thing we add on top is naming discipline (see the terminology note in `CONVENTIO
 >   of §7) are eligible; the constitution and the engine-owned scripts, also `merge`, stay out.
 > - **Refreshable twice** — refreshing re-seeds provenance, so a second consecutive update is a clean
 >   no-op: neither a refresh nor a "customized" verdict.
+> - **Subtree-complete** — a skill is a *subtree*, and install-if-absent decides at the skill-DIR level,
+>   so a file a release adds **under a skill the brain already has** (`references/…`) is delivered by this
+>   refresh, with a provenance base of its own, instead of reaching no brain at all.
 > - **No stale sidecar** — a `.new` left from an earlier update is cleared as soon as its verdict changes,
 >   so a surviving sidecar never keeps claiming something newer awaits.
 
