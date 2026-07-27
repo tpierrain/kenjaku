@@ -30,6 +30,7 @@ import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
+import { reseedProvenance } from "./engine-source.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
 import {
@@ -260,8 +261,9 @@ export async function runReconcileCli({ argv, seams = {} }) {
   if (!brainDir || !sourceDir) {
     throw new Error("reconcile-brain: --brainDir and --sourceDir are required");
   }
-  const manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
-  return reconcileBrain({
+  const manifestPath = join(brainDir, "engine-manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const report = await reconcileBrain({
     brainDir,
     platform,
     sourceDir,
@@ -272,6 +274,22 @@ export async function runReconcileCli({ argv, seams = {} }) {
     runReindex: seams.runReindex ?? defaultRunReindex,
     countVaultNotes: seams.countVaultNotes ?? defaultCountVaultNotes,
   });
+
+  // T1 — re-seed the provenance base of the skills we just refreshed. The child is the
+  // LAST writer of the brain's manifest on the update path (the parent's step 7 already
+  // ran, and on the first update carrying this feature the parent runs the OLD code, so
+  // the refresh happens HERE). Without this, a refreshed file no longer matches its
+  // recorded base → the next update calls it "user-modified" and never refreshes it
+  // again: the feature would work exactly once per brain, silently.
+  if (Object.keys(report.refreshedFileMap).length > 0) {
+    const provenance = reseedProvenance({
+      priorProvenance: manifest.provenance ?? {},
+      manifest,
+      deliveredFileMap: report.refreshedFileMap,
+    });
+    writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance }, null, 2) + "\n");
+  }
+  return report;
 }
 
 // Guarded so importing this module never runs the CLI. FAIL LOUD on error (exit 1) —

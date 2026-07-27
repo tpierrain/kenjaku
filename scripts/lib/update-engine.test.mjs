@@ -371,7 +371,7 @@ function fp(content) {
   return "sha256:" + createHash("sha256").update(content).digest("hex");
 }
 
-function manifest({ ragVersion, indexSchemaVersion, ref, provenance = {} }) {
+function manifest({ ragVersion, indexSchemaVersion, ref, provenance = {}, extraMerge = [] }) {
   return JSON.stringify(
     {
       manifestVersion: 1,
@@ -389,6 +389,7 @@ function manifest({ ragVersion, indexSchemaVersion, ref, provenance = {} }) {
           "scripts/status-line.mjs",
           "scripts/verify-rag.mjs",
           "scripts/update-engine.mjs",
+          ...extraMerge,
         ],
       },
       engineMcpServers: ["vault-rag"],
@@ -972,4 +973,52 @@ test("gate — returns the vault note count from the injected seam", async (t) =
   });
 
   assert.equal(report.vaultNoteCount, 42);
+});
+
+// ── Increment 2.5 / trap T1 — the parent's step 7 must not lose the reseed ────
+// When the in-process reconcile refreshes a skill, step 7 rewrites the manifest from
+// the `local` copy it read BEFORE reconciling. Unless the refreshed files are folded
+// into the re-seed, the skill's base stays at the OLD content and the very next update
+// classifies it "user-modified" — the feature would die after one use.
+test("updateEngine — a refreshed skill's provenance base is re-seeded by step 7", async (t) => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-brain-refresh-"));
+  const sourceDir = mkdtempSync(join(tmpdir(), "sbg-source-refresh-"));
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  const extraMerge = [".claude/skills/switch/**"];
+  for (const [rel, content] of Object.entries(flat(engineFiles("vA")))) writeFile(brainDir, rel, content);
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    manifest({
+      ragVersion: "1.0.0",
+      indexSchemaVersion: 1,
+      ref: "v1.0.0",
+      extraMerge,
+      provenance: { ".claude/skills/switch/SKILL.md": fp(delivered) },
+    }),
+  );
+  for (const [rel, content] of Object.entries(flat(engineFiles("vB")))) writeFile(sourceDir, rel, content);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  writeFile(
+    sourceDir,
+    "engine-manifest.json",
+    manifest({ ragVersion: "1.1.0", indexSchemaVersion: 1, ref: "v1.1.0", extraMerge }),
+  );
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  assert.deepEqual(report.skillsRefreshed, ["switch"]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"), improved);
+  const m = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    m.provenance[".claude/skills/switch/SKILL.md"],
+    fp(improved),
+    "step 7 must re-seed the base of what the reconcile just refreshed",
+  );
 });

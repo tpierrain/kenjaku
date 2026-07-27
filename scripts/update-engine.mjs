@@ -158,8 +158,20 @@ export async function updateEngine({
   //    vault notes — all behind the deterministic, idempotent
   //    `reconcileBrain`. Extracted so the SAME reconciler runs at auto-finalize (a fresh
   //    child process at the end of this function) and at SessionStart self-heal.
-  const { copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills, mcpServersAdded, hooksAdded, hooksRepaired } =
-    await reconcileBrain({
+  const {
+    copied,
+    regenerated,
+    reindexed,
+    reindexReason,
+    vaultNoteCount,
+    installedSkills,
+    skillsRefreshed,
+    skillsPreserved,
+    refreshedFileMap,
+    mcpServersAdded,
+    hooksAdded,
+    hooksRepaired,
+  } = await reconcileBrain({
       brainDir,
       platform,
       sourceDir,
@@ -176,9 +188,15 @@ export async function updateEngine({
   //    re-delivered (the engine-owned scripts, read back from disk), while the user's
   //    untouched merge files (CLAUDE.md/settings/skills) keep their prior base — so a
   //    future Phase 2 3-way still detects the user's edits.
-  const deliveredFileMap = Object.fromEntries(
-    copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]),
-  );
+  //    T1 (Increment 2.5): the skills the reconcile just REFRESHED are re-delivered
+  //    content too, so they must be re-seeded here. Miss them and this manifest write
+  //    (built from the `local` copy read before the reconcile) leaves their base at the
+  //    OLD content → the next update calls them "user-modified" and never refreshes
+  //    them again: the feature would work exactly once per brain, silently.
+  const deliveredFileMap = {
+    ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")])),
+    ...refreshedFileMap,
+  };
   const updated = {
     ...local,
     engineVersion: target.engineVersion,
@@ -212,7 +230,21 @@ export async function updateEngine({
     // swallowed on purpose — the update succeeded; self-heal will finish the job.
   }
 
-  return { ref: updated.source.ref, engineVersion: updated.engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills, mcpServersAdded, hooksAdded, hooksRepaired };
+  return {
+    ref: updated.source.ref,
+    engineVersion: updated.engineVersion,
+    copied,
+    regenerated,
+    reindexed,
+    reindexReason,
+    vaultNoteCount,
+    installedSkills,
+    skillsRefreshed,
+    skillsPreserved,
+    mcpServersAdded,
+    hooksAdded,
+    hooksRepaired,
+  };
 }
 
 // ── CLI entry (the command the brain-side `update-engine` skill runs) ─────────

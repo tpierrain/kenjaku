@@ -872,3 +872,82 @@ test("reconcileBrain — a FR brain is refreshed from the FR source, never re-an
   );
   assert.deepEqual(report.skillsRefreshed, ["coach"]);
 });
+
+// ── T1: the trap that would make this feature die silently after ONE use ─────
+// A refreshed file no longer matches the base recorded for it. Unless the base is
+// re-seeded, the NEXT update classifies it "user-modified" and never refreshes it
+// again — the feature would work exactly once per brain, silently.
+test("runReconcileCli — re-seeds the provenance base of what it refreshed (T1)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: [".claude/skills/switch/**"] }),
+        provenance: { ".claude/skills/switch/SKILL.md": base(delivered) },
+      },
+      null,
+      2,
+    ),
+  );
+
+  const { ...s } = seams();
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  assert.deepEqual(report.skillsRefreshed, ["switch"]);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    persisted.provenance[".claude/skills/switch/SKILL.md"],
+    base(improved),
+    "the base now describes what the engine JUST delivered",
+  );
+});
+
+test("runReconcileCli — refreshing twice in a row is a clean no-op, NOT a 'customized' verdict (T1)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: coach\n---\nYour sparring partner.\n";
+  const improved = delivered + "\nA newer section.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", improved);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: [".claude/skills/coach/**"] }),
+        provenance: { ".claude/skills/coach/SKILL.md": base(delivered) },
+      },
+      null,
+      2,
+    ),
+  );
+  const runReconcileCli = await loadCli();
+  const argv = ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"];
+
+  const first = await runReconcileCli({ argv, seams: seams() });
+  const second = await runReconcileCli({ argv, seams: seams() });
+
+  assert.deepEqual(first.skillsRefreshed, ["coach"]);
+  assert.deepEqual(second.skillsRefreshed, [], "nothing left to do the second time");
+  assert.deepEqual(second.skillsPreserved, [], "the refreshed file is NOT mistaken for a customization");
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), improved);
+});

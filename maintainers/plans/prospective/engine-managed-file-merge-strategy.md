@@ -267,7 +267,16 @@ explicit guard:
   - [x] Self-heal test proves the guard is observable: a customized skill is neither rewritten NOR
         reported at session start (no nagging), while the same fixture under an explicit update reports
         it preserved.
-- [ ] **Step 4 — Provenance re-seed for refreshed files** (T1), with the refresh-twice test.
+- [x] **Step 4 — Provenance re-seed for refreshed files** (T1), with the refresh-twice test.
+      _(2026-07-27 · `runReconcileCli` + `update-engine.mjs` step 7)_
+  - [x] **BOTH writers had to be covered, not one:** the auto-finalize child (`runReconcileCli`) is the
+        last writer of the manifest on the update path, and on the FIRST update carrying this feature
+        the parent still runs the OLD code, so the refresh happens there. It now re-seeds and persists.
+  - [x] The parent's step 7 folds `refreshedFileMap` into `deliveredFileMap`. It rebuilds the manifest
+        from the `local` copy read BEFORE the reconcile, so without this it would silently overwrite the
+        child's re-seed with the stale base.
+  - [x] Locked by the refresh-twice test: the second run reports **neither** a refresh **nor** a
+        `customized` preserve.
 - [ ] **Step 5 — Report what happened**, in the `update-engine` summary: which skills were refreshed,
       which were **preserved because customized** (naming the `.new` file). Deterministic prose (ADR 0009),
       unit-tested, relayed verbatim by the skill.
