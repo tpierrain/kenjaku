@@ -896,6 +896,128 @@ test("reconcileBrain — a NEW file under an ALREADY-INSTALLED skill is delivere
   assert.deepEqual(report.skillsPreserved, []);
 });
 
+// A pre-provenance brain: the file is engine-shipped but nothing was ever fingerprinted
+// for it, so "untouched" is UNPROVABLE. We keep the owner's copy either way, but the two
+// preserves are NOT the same report: `no-provenance` must not call them a customizer, and
+// must NOT litter the brain with a `.new` for a claim we cannot make. A sidecar left by an
+// earlier update is cleared all the same — only `preserve: customized` still has something
+// newer genuinely pending.
+test("reconcileBrain — an UNPROVABLE skill is preserved WITHOUT a .new, and a stale one is cleared", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const theirs = "---\nname: coach\n---\nYour sparring partner, as they have it.\n";
+  const candidate = theirs + "\nA newer engine section.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", theirs);
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md.new", "left over from an earlier update\n");
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", candidate);
+  const target = manifest({ extraMerge: [".claude/skills/coach/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/coach/**"] }),
+    provenance: {}, // nothing was ever recorded for this file
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), theirs);
+  assert.deepEqual(report.skillsRefreshed, []);
+  assert.deepEqual(
+    report.skillsPreserved,
+    [{ skill: "coach", reason: "no-provenance" }],
+    "reported as unprovable, NOT as a customization, and with no .new to point at",
+  );
+  assert.equal(
+    existsSync(join(brainDir, ".claude/skills/coach/SKILL.md.new")),
+    false,
+    "we make no claim here, so the old sidecar's claim must not survive either",
+  );
+});
+
+// The report speaks in SKILLS, the refresh works in FILES. Now that a skill can hold more
+// than one engine file, the two counts diverge: what the owner must read is "your coach
+// skill was brought up to date", once, not the same name repeated per file touched.
+test("reconcileBrain — TWO refreshed files in ONE skill are reported as ONE skill", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const skillWas = "---\nname: coach\n---\nYour sparring partner.\n";
+  const refWas = "# Radical Candor\nCare personally.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", skillWas);
+  writeFile(brainDir, ".claude/skills/coach/references/radical-candor.md", refWas);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", skillWas + "Now with examples.\n");
+  writeFile(sourceDir, ".claude/skills/coach/references/radical-candor.md", refWas + "Challenge directly.\n");
+  const target = manifest({ extraMerge: [".claude/skills/coach/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/coach/**"] }),
+    provenance: {
+      ".claude/skills/coach/SKILL.md": base(skillWas),
+      ".claude/skills/coach/references/radical-candor.md": base(refWas),
+    },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.skillsRefreshed, ["coach"], "named once, not once per file");
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"),
+    skillWas + "Now with examples.\n",
+  );
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md"), "utf8"),
+    refWas + "Challenge directly.\n",
+    "both files moved, even though the skill is named once",
+  );
+});
+
+test("reconcileBrain — TWO customized files in ONE skill are reported once, but BOTH get a .new", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const skillWas = "---\nname: coach\n---\nYour sparring partner.\n";
+  const refWas = "# Radical Candor\nCare personally.\n";
+  const skillNext = skillWas + "Engine's newer take.\n";
+  const refNext = refWas + "Engine's newer reference.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", skillWas + "MY OWN tone.\n");
+  writeFile(brainDir, ".claude/skills/coach/references/radical-candor.md", refWas + "MY OWN notes.\n");
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", skillNext);
+  writeFile(sourceDir, ".claude/skills/coach/references/radical-candor.md", refNext);
+  const target = manifest({ extraMerge: [".claude/skills/coach/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/coach/**"] }),
+    provenance: {
+      ".claude/skills/coach/SKILL.md": base(skillWas),
+      ".claude/skills/coach/references/radical-candor.md": base(refWas),
+    },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(report.skillsPreserved.length, 1, "one line per SKILL, not per file");
+  assert.deepEqual(
+    report.skillsPreserved.map(({ skill, reason }) => ({ skill, reason })),
+    [{ skill: "coach", reason: "customized" }],
+  );
+  // Reporting once must not mean delivering once: every customized file still gets its own
+  // sidecar, or the owner silently loses the engine's newer version of the unnamed one.
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md.new"), "utf8"), skillNext);
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md.new"), "utf8"),
+    refNext,
+  );
+});
+
 // ── STAGED skills (engine-skills/) get the same treatment as the merge 9 ─────
 // A staged skill (local-mirror, lint, open-note…) is delivered install-if-absent from
 // the non-sacred `engine-skills/<name>/` path, and provenance is recorded for `merge`

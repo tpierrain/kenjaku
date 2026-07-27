@@ -94,10 +94,13 @@ export function refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manif
     const installed = existsSync(installedPath) ? readFileSync(installedPath, "utf8") : null;
     const { verdict, reason } = refreshVerdict({ installed, base: provenance[rel], candidate });
     const skill = skillNameOf(rel);
-    // Any verdict but "preserve: customized" means nothing newer is pending for that
-    // file, so a sidecar left by a previous update is now a lie ("a newer version
-    // awaits" when the owner already adopted it, or when we just refreshed it).
-    if (verdict !== "preserve" || reason !== "customized") rmSync(`${installedPath}.new`, { force: true });
+    // A sidecar left by a previous update is a claim ("a newer version awaits") that only
+    // ONE verdict still backs: `preserve: customized`. Any other verdict makes it a lie —
+    // the owner already adopted it, or we just refreshed the file under it — so it goes.
+    // Cleared UNCONDITIONALLY, and the customized branch below re-drops it: guarding this
+    // on the verdict would be redundant with that write (rm-then-write and write-alone
+    // leave the same bytes), i.e. a condition no test could ever tell apart.
+    rmSync(`${installedPath}.new`, { force: true });
     // `absent-install` writes down the SAME path as `refresh`: a skill is a SUBTREE, and
     // install-if-absent decides at the skill-DIR level (`reconcile-brain.mjs` step 2.bis),
     // so a `references/`/`examples/` file a release adds under a skill the brain ALREADY

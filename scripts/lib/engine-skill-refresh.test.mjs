@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { fingerprint } from "./engine-source.mjs";
-import { refreshVerdict, selectRefreshableSkillFiles } from "./engine-skill-refresh.mjs";
+import { refreshableSkillPairs, refreshVerdict, selectRefreshableSkillFiles } from "./engine-skill-refresh.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-skill-refresh — the PURE verdict behind "refresh an engine skill only
@@ -85,6 +85,23 @@ test("already carrying the candidate content → nothing to do (no write, no chu
   );
 });
 
+test("a base RECORDED on CRLF bytes still matches its own file → refresh, not 'customized'", () => {
+  // The mirror image of the drift case below. On Windows, `git clone` with autocrlf hands
+  // the engine CRLF bytes, so what it DELIVERED — and therefore fingerprinted as the base —
+  // is CRLF. At the next update the file still matches that base RAW, but no longer once
+  // normalized. Comparing the normalized form alone would freeze the whole Windows fleet as
+  // "customized"; the raw comparison is what keeps them refreshable.
+  const deliveredCrlf = "# switch (v3.6.0)\r\nline two\r\n";
+  assert.deepEqual(
+    refreshVerdict({
+      installed: deliveredCrlf,
+      base: fingerprint(deliveredCrlf),
+      candidate: "# switch (v3.6.2)\nline two\n",
+    }),
+    { verdict: "refresh" },
+  );
+});
+
 test("Windows CRLF drift is NOT a customization → still refresh it", () => {
   // A Windows brain whose checkout/editor rewrote the line endings differs from the
   // base BYTE-wise while nobody edited a word. Freezing those brains forever would
@@ -121,5 +138,28 @@ test("selectRefreshableSkillFiles — the engine-declared SKILL files, and nothi
     ".claude/skills/coach/SKILL.md",
     ".claude/skills/coach/references/radical-candor.md",
     ".claude/skills/switch/SKILL.md",
+  ]);
+});
+
+test("refreshableSkillPairs — a loose file directly under engine-skills/ is NOT a staged skill", () => {
+  // A staged skill is `engine-skills/<name>/<file>`; the SKILL NAME is that first segment.
+  // A file sitting directly under `engine-skills/` has no such segment, so mapping it would
+  // aim at `.claude/skills/README.md` — a file loose in the skills root, belonging to no
+  // skill. Since the refresh now DELIVERS what is absent, an unguarded prefix would write
+  // that file into the owner's skills folder instead of merely ignoring it.
+  const manifest = { regimes: { merge: [".claude/skills/switch/**"] } };
+  const sourceFiles = [
+    "engine-skills/README.md", // loose: no skill segment
+    "engine-skills/lint/SKILL.md", // a genuine staged skill
+    "engine-skills/local-mirror/references/scopes.md", // nested deeper, still genuine
+    ".claude/skills/switch/SKILL.md",
+  ];
+  assert.deepEqual(refreshableSkillPairs({ sourceFiles, manifest }), [
+    { rel: ".claude/skills/switch/SKILL.md", sourceRel: ".claude/skills/switch/SKILL.md" },
+    { rel: ".claude/skills/lint/SKILL.md", sourceRel: "engine-skills/lint/SKILL.md" },
+    {
+      rel: ".claude/skills/local-mirror/references/scopes.md",
+      sourceRel: "engine-skills/local-mirror/references/scopes.md",
+    },
   ]);
 });
