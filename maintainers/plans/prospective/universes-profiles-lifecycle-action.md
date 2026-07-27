@@ -212,14 +212,18 @@ can never write a note; the universes v1 SQLite migration is already handled out
 > branches from a point 39 commits behind. Branch in use since 2026-07-27:
 > **`feat/universes-v2-profiles`**.
 >
-> 📦 **Gate 2.6 ships as TWO releases (decided with Thomas, 2026-07-27).** Do not try to land it all at
-> once.
-> - **Release A (in progress) = Steps 0, 2, 3, plus 6-7 scoped to what A ships.** Self-healing pointer
->   + universe profile (note *and* SessionStart digest injection). This is where the felt value is. It
->   also carries the backlog already merged past the v4.1.0 tag (re-synced `tdd-discipline`, marketing
->   corrections), which reaches nobody until a new tag exists.
-> - **Release B (after) = Steps 4 and 5**, delete + full rename, with their docs and ADR. The riskiest
->   surface, isolated on purpose, and it depends on Step 0 having shipped in A.
+> 📦 **REVISED 2026-07-27 (Thomas), and this supersedes the two-release split below: Gate 2.6 ships
+> as ONE release.** The whole universes story travels together — profiles *and* lifecycle — so an
+> owner meets the notion once, not twice. Concretely: **stay on `feat/universes-v2-profiles`**, keep
+> committing there, **no tag until Step 5 is done**. The A/B vocabulary is kept below only because
+> the ticked boxes reference it; read it as "the two halves of one release", not as two shipments.
+> - **Half A (DONE, unreleased) = Steps 0, 2, 3, plus 6-7 scoped to it.** Self-healing pointer +
+>   universe profile (note *and* SessionStart digest injection). The tag that eventually carries it
+>   also carries the backlog already merged past v4.1.0 (re-synced `tdd-discipline`, marketing
+>   corrections), which reaches nobody until that tag exists.
+> - **Half B (in progress) = Steps 4 and 5**, delete + full rename, with their docs and ADR. The
+>   riskiest surface. It still depends on Step 0's self-healing pointer, which is why that shipped
+>   first *in the branch* — the ordering constraint was never about two tags.
 
 - [x] **Step -1 — Design review + fleet audit** _(2026-07-27 · commit `3de46cb` and earlier)_ →
       §"Design review", §"Fleet constraints", D1 resolved, D4 opened.

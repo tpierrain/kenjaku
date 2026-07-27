@@ -85,16 +85,19 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         reached nobody; `4e43e70` in v3.6.2 will never reach a v3.6.0/v3.6.1 brain), and the frozen share
         of the fleet grows with the installed base.
   - [x] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Increment 2.5".
-- [ ] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle. IN PROGRESS — ships as TWO releases.**
+- [ ] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle. IN PROGRESS — ships as ONE release.**
   - [x] Was blocked by design, not by code: its user-facing surface is the `/switch` skill, which could
         not reach the existing fleet until Gate 2.5 shipped. **Unblocked** by v4.1.0 — an untouched
         `/switch` is now refreshed on the fleet's next `/update-engine`.
-  - [x] **Release A — self-healing pointer + universe profiles: CODE-COMPLETE** _(2026-07-27, branch
+  - [x] **Release split REVERSED (2026-07-27, Thomas): one release, not two.** The whole universes
+        story ships together, so an owner meets the notion once. Everything stays on
+        `feat/universes-v2-profiles`; **no tag before plan Step 5 is done**.
+  - [x] **Half A — self-healing pointer + universe profiles: CODE-COMPLETE** _(2026-07-27, branch
         `feat/universes-v2-profiles`)_. Plan Steps 0, 2, 3, 6, 7 ticked; F1-F4 re-checked with evidence.
-        **Not released yet** — and this tag also carries the backlog already merged past v4.1.0 (the
-        re-synced `tdd-discipline` skill, the marketing corrections), which reaches nobody until it exists.
-  - [ ] **Release B — guarded delete + full rename** (plan Steps 4-5), deliberately isolated: the riskiest
-        surface, and it depends on Release A's self-healing pointer having shipped.
+        The eventual tag also carries the backlog already merged past v4.1.0 (the re-synced
+        `tdd-discipline` skill, the marketing corrections), which reaches nobody until it exists.
+  - [ ] **Half B — guarded delete + full rename** (plan Steps 4-5): the riskiest surface, kept last on
+        purpose, and dependent on Half A's self-healing pointer.
   - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
 - [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no
