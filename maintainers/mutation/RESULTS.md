@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). ⚠️ `update-engine.mjs` **98.49 %**, `engine-source.mjs` **81.40 %**, `reconcile-brain.mjs` **69.14 %** as of [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) — the last two are **not hardened yet** |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent) |
 | **local-mirror** | **95.63 %** | 2026-07-16 (post-B4) | [re-audit](#full-local-mirror-re-audit--2026-07-16-post-b4) — the 78.69 % closer below is superseded |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
