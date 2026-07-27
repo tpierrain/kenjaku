@@ -1,5 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { readUniverses } from '../adapters/fs-universes.js';
 
 // The brain's universe state (ADR 0034) lives in two files under `<brainRoot>/.vault-rag/`,
@@ -65,4 +68,19 @@ test('readUniverses: an unreadable registry disqualifies every pointer (nothing 
   const state = readUniverses(POINTER, REGISTRY, filesystem({ [POINTER]: 'acme\n' }));
 
   assert.deepEqual(state, { active: 'default', registry: [] });
+});
+
+// Every test above injects its own reader, so the DEFAULT one — the only reader production ever
+// uses — would go unexercised: read the two real files off a real disk once, or a brain that
+// declares a mirror while working in `acme` would file it into the default scope for good.
+test('readUniverses: the default reader reads the two real files off the disk', async () => {
+  const stateDir = await mkdtemp(join(tmpdir(), 'gss-universes-'));
+  const pointer = join(stateDir, 'active-universe');
+  const registry = join(stateDir, 'universes.json');
+  await writeFile(registry, '{"universes":["acme","blue-team"]}', 'utf8');
+  await writeFile(pointer, 'acme\n', 'utf8');
+
+  const state = readUniverses(pointer, registry);
+
+  assert.deepEqual(state, { active: 'acme', registry: ['acme', 'blue-team'] });
 });
