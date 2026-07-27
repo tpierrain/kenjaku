@@ -294,6 +294,21 @@ export function createAndSwitch(io, dir, rawName) {
 }
 
 /**
+ * The shared gate of every operation that acts ON an existing universe (delete,
+ * rename): it must be a real created one, never the implicit default — which has
+ * no registry entry and no folder of its own, so "unknown" would be a lie about
+ * it. Returns the refusal to hand straight back, or null when the name is good.
+ */
+function refuseUnlessCreated(registry, name) {
+  if (!name) return { ok: false, reason: "empty", name };
+  if (name === DEFAULT_UNIVERSE) return { ok: false, reason: "reserved", name };
+  if (!registry.includes(name)) {
+    return { ok: false, reason: "unknown", name, available: registry };
+  }
+  return null;
+}
+
+/**
  * Decides what deleting a universe would mean — WITHOUT touching anything. Pure
  * over the injected fs reads: it validates the slug against the registry and
  * returns either a refusal or the exact end state (pruned registry, and whether
@@ -305,12 +320,9 @@ export function createAndSwitch(io, dir, rawName) {
  */
 export function planUniverseDeletion(io, dir, rawName) {
   const name = normalizeUniverseName(rawName);
-  if (!name) return { ok: false, reason: "empty", name };
-  if (name === DEFAULT_UNIVERSE) return { ok: false, reason: "reserved", name };
   const registry = readRegistry(io, dir);
-  if (!registry.includes(name)) {
-    return { ok: false, reason: "unknown", name, available: registry };
-  }
+  const refusal = refuseUnlessCreated(registry, name);
+  if (refusal) return refusal;
   return {
     ok: true,
     name,
@@ -318,5 +330,35 @@ export function planUniverseDeletion(io, dir, rawName) {
     // Through the validated reader, like every other caller: what the owner is
     // actually standing in, never what the file happens to say.
     resetPointer: readActiveUniverse(io, dir) === name,
+  };
+}
+
+/**
+ * Decides what renaming a universe would mean — WITHOUT touching anything. Same
+ * contract as planUniverseDeletion: the source is validated exactly as a deletion
+ * validates its target (a rename is a move, and moving something that is not
+ * there fails the same way).
+ */
+export function planUniverseRename(io, dir, rawFrom, rawTo) {
+  const from = normalizeUniverseName(rawFrom);
+  const registry = readRegistry(io, dir);
+  const refusal = refuseUnlessCreated(registry, from);
+  if (refusal) return refusal;
+  const to = normalizeUniverseName(rawTo);
+  if (!to) return { ok: false, reason: "empty", name: to };
+  if (to === DEFAULT_UNIVERSE) return { ok: false, reason: "reserved", name: to };
+  if (registry.includes(to)) return { ok: false, reason: "exists", name: to };
+  return {
+    ok: true,
+    from,
+    to,
+    registry: addToRegistry(
+      registry.filter((u) => u !== from),
+      to,
+    ),
+    // Renaming what you are standing in leaves you standing in it, under its new
+    // name. Anything else would drop you into the cross-cutting scope as a side
+    // effect of a naming decision.
+    movePointer: readActiveUniverse(io, dir) === from,
   };
 }

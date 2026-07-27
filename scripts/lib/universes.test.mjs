@@ -19,6 +19,7 @@ import {
   readRawActiveUniverse,
   nativeConnectorsReminder,
   planUniverseDeletion,
+  planUniverseRename,
   DEFAULT_UNIVERSE,
 } from "./universes.mjs";
 
@@ -548,5 +549,119 @@ test("planUniverseDeletion leaves the pointer alone when it stands in ANOTHER un
     name: "blue",
     registry: ["acme"],
     resetPointer: false,
+  });
+});
+
+// ── planUniverseRename: the pure core of `rename-universe.mjs` ────────────────
+// A full rename (D4): the folder moves, every note under it is re-stamped, the
+// registry entry changes name. Same discipline as deletion — the function decides
+// and computes, it never touches anything.
+
+test("planUniverseRename refuses a source universe that does not exist", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.deepEqual(planUniverseRename(io, DIR, "ghost", "whatever"), {
+    ok: false,
+    reason: "unknown",
+    name: "ghost",
+    available: ["acme"],
+  });
+});
+
+test("planUniverseRename computes the renamed registry, re-sorted", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+
+  // 'acme' → 'zeta' has to move to the END: renaming in place would leave
+  // ["zeta", "blue"], which reads sorted only if you never look.
+  assert.deepEqual(planUniverseRename(io, DIR, "Acme", "Zeta"), {
+    ok: true,
+    from: "acme",
+    to: "zeta",
+    registry: ["blue", "zeta"],
+    // Nobody is standing in 'acme' here (no pointer at all): the twin of the
+    // follow-the-pointer case below.
+    movePointer: false,
+  });
+});
+
+test("planUniverseRename refuses a target name that is already taken", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+
+  // Merging two universes is a different operation with a different meaning
+  // (whose notes win, whose profile survives) — not something a rename should
+  // perform silently by moving one folder onto another.
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "Blue"), {
+    ok: false,
+    reason: "exists",
+    name: "blue",
+  });
+});
+
+test("planUniverseRename refuses to rename the default scope", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  // The default scope has no folder of its own (it IS the vault root) and no
+  // registry entry: there is nothing to rename, and "unknown" would suggest it
+  // had gone missing.
+  assert.deepEqual(planUniverseRename(io, DIR, DEFAULT_UNIVERSE, "personal"), {
+    ok: false,
+    reason: "reserved",
+    name: DEFAULT_UNIVERSE,
+  });
+});
+
+test("planUniverseRename refuses to rename a universe INTO the default scope", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  // The twin of the case above, and the dangerous one: 'default' is never stored
+  // in the registry, so without this guard the entry would simply vanish while a
+  // folder full of notes stayed on disk under its old name.
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "Default"), {
+    ok: false,
+    reason: "reserved",
+    name: DEFAULT_UNIVERSE,
+  });
+});
+
+test("planUniverseRename refuses an empty target rather than renaming to nothing", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "///"), {
+    ok: false,
+    reason: "empty",
+    name: "",
+  });
+});
+
+test("planUniverseRename carries the pointer along when you rename the universe you are in", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+  writeActiveUniverse(io, DIR, "acme");
+
+  assert.deepEqual(planUniverseRename(io, DIR, "acme", "acme-corp"), {
+    ok: true,
+    from: "acme",
+    to: "acme-corp",
+    registry: ["acme-corp", "blue"],
+    // Renaming what you are standing in should leave you standing in it, under
+    // its new name — not silently drop you back to the cross-cutting scope.
+    movePointer: true,
+  });
+});
+
+test("planUniverseRename refuses an empty SOURCE (the gate it now shares with deletion)", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.deepEqual(planUniverseRename(io, DIR, "", "acme-corp"), {
+    ok: false,
+    reason: "empty",
+    name: "",
   });
 });
