@@ -15,8 +15,8 @@
 > 🛠️ **Maintainer note (only if you are DEVELOPING the launcher itself — not installing a brain):**
 > also follow [`maintainers/CONVENTIONS.md`](maintainers/CONVENTIONS.md). It carries the repo's
 > durable rules (checkboxes on every plan step, one canonical plan = the repo's, artifacts in English,
-> TDD baby-steps + green-only commits, ADR `Scope:` field, plan-done = archived) so they travel with
-> the clone instead of living only on one machine. This note is part of the **installer stub**, so it
+> TDD baby-steps + green-only commits, ADR `Scope:` field, plan-done = archived, and a marketing-surface
+> re-read at every release) so they travel with the clone instead of living only on one machine. This note is part of the **installer stub**, so it
 > is **overwritten at install** and never reaches a generated brain.
 
 ## Step 1 — Get the launcher (normal clone)

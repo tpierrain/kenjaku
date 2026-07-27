@@ -131,8 +131,9 @@ sparring partner to challenge your thinking (grounded in **your own** notes), **
 wiki-health** skills that keep your notes tidy (`/lint`, `/consolidate`, `/file-back` spot decayed
 links, duplicates and unfiled captures, then **propose** fixes you confirm), plus `import`,
 `sync-sources`, `prepare-1-1`, `local-mirror`, `switch` and `update-engine` — and, above all, **you add
-your own just by describing them**. Skills are plain Markdown you can read, tweak and grow. *Not just a
-wiki — a platform.*
+your own just by describing them**. Skills are plain Markdown you can read, tweak and grow. The ones you
+leave alone **keep improving with each engine update**; the ones you tailor become yours and are never
+overwritten. *Not just a wiki — a platform.*
 
 ---
 
@@ -246,7 +247,10 @@ and **git**. The installer checks each one and tells you cleanly if something's 
 - **🔄 The engine self-upgrades (new in v3.0.0).** Your brain carries its own updater: *ask in plain
   words, confirm,* and it pulls the latest search engine — **without ever touching a single one of your
   notes** (your `.env`, `CLAUDE.md`, settings and custom skills are sacred too). No terminal, no
-  re-install. *(mental model + hands-on steps: [SETUP §10](SETUP.md#10-keeping-your-engine-up-to-date-update-engine))*
+  re-install. **Since v4.1.0 its ready-made skills come along too**: the ones you never edited are
+  brought up to date, and any skill you've tailored is left exactly as you wrote it, with the new
+  version parked beside it for you to take or ignore.
+  *(mental model + hands-on steps: [SETUP §10](SETUP.md#10-keeping-your-engine-up-to-date-update-engine))*
 - **🧬 Already have a brain from *before* v3.0.0? Bring your notes over.** Install a fresh brain, then
   say *"importe mes anciennes notes depuis `<path>`"* — it shows a **safe plan**, confirms, copies your
   notes (never the old engine, never overwriting) and re-indexes. *([skill `import`](.claude/skills/import/SKILL.md)
@@ -339,9 +343,12 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   stale entity pages, raw captures never filed — and **propose** fixes you confirm (never a silent
   rewrite). Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
   re-introduce the very defects `/lint` reports. Self-healing at the *content* layer.
-- **It can only *add*, never overwrite** — a structural write-allowlist means the reconciler and the
-  **self-upgradable engine** touch only what's missing; **your notes, keys, constitution and skills stay
-  untouched**. *(ADR 0012 / 0014 / 0025)*
+- **It never overwrites your work, and it has to *prove* it**: a structural write-allowlist means the
+  reconciler and the **self-upgradable engine** only add what's missing, plus one narrow exception they
+  can demonstrate. An engine file is refreshed **only when its fingerprint proves you never edited it**
+  (that's how skill improvements finally reach an existing brain); the moment you've made it yours, it's
+  left alone and the new version waits beside it. **Your notes, keys and constitution stay untouched,
+  full stop.** *(ADR 0012 / 0014 / 0025 / 0026)*
 - **No hidden, driftable state** — short-lived hooks re-derive what they need each run (`run-node`
   re-resolves the toolchain; `auto-push` re-queries the remote).
 
@@ -406,8 +413,9 @@ That's also why it's a **living, personal product** rather than a frozen app. A 
 **personal** (what serves a Head of Engineering, a PM or a researcher barely overlaps), so the generator
 tailors ***your own*** to your line of work, then it **keeps living on its own**. The engine
 **self-upgrades only when you opt in**, and an upgrade touches **only the engine machinery, never your
-notes, keys, constitution or skills**. It's run **as a product, not a hack**: brains **in real use**, every
-upgrade **tested against existing brains before it ships** (the migration path is a **release gate**). You
+notes, keys, constitution, nor any skill you've made your own**. It's run **as a product, not a hack**:
+brains **in real use**, every upgrade **tested against existing brains before it ships** (the migration
+path is a **release gate**). You
 share the **generator**, never the brain, and you could walk away from this repo tomorrow without losing a thing.
 
 *The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,

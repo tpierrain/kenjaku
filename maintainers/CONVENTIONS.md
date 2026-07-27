@@ -314,6 +314,45 @@ Node 22/24/26 × macOS + Windows). Use it as the source of truth.
 
 Full rationale: ADR [`0015`](decisions/0015-cross-platform-parity.md) (cross-platform parity).
 
+## 10. Every release re-reads the marketing surface
+
+**A release is not done when the tag is pushed. It is done when the way we present Kenjaku still tells
+the truth.** Shipping a capability silently rewrites the value of sentences written months earlier: some
+become false, and some become an undersell. Both are defects, and neither shows up in CI.
+
+So, **at every release, before writing the release note**, re-read the marketing surface and answer two
+questions, in this order:
+
+1. **What did this release make FALSE, or merely imprecise?** Hunt the absolute promises first, they are
+   the ones that rot: *never*, *only*, *always*, *untouched*, *sacred*, *it can only add*. A promise that
+   was exactly true yesterday can become a half-truth today without a single word changing.
+2. **What did this release make TRUE that we do not sell yet?** A capability nobody reads about might as
+   well not exist. If it changes what a newcomer would decide, it belongs on the page, not only in the
+   release note.
+
+**The surface to re-read** (whole list, every time, it is short):
+
+- [`../README.md`](../README.md) : the marketing page, and the densest field of absolute promises.
+- [`../EN-QUOI-C-EST-DIFFERENT.md`](../EN-QUOI-C-EST-DIFFERENT.md) : the positioning / market piece.
+- [`../SETUP.md`](../SETUP.md) and [`../CONNECTORS.md`](../CONNECTORS.md) : promise-bearing where they
+  describe what a step does *to the user's stuff*.
+- The **boards** (`docs/img/board-*.png`), through their **alt texts in the README** and their source
+  copy in [`../docs/marketing-image-prompts.md`](../docs/marketing-image-prompts.md). Regenerating a
+  board is expensive, so **decide explicitly**: either the copy still holds, or the prompt is corrected
+  and the board re-rendered. Never leave a board asserting something the code stopped doing.
+- The **release note** itself, which is the most-read marketing artifact of all. Lead it with *why this
+  matters to you*, not with the mechanism.
+
+**Record the verdict, including the boring one.** "Boards re-read, copy still accurate, no re-render" is
+a result worth writing in the release's plan or PR: it is the difference between *checked* and *not
+looked at*, and the next release should not have to re-derive it.
+
+> Origin (2026-07-27, Thomas, at the v4.1.0 release): that release made the engine refresh untouched
+> skills, which turned three README sentences into half-truths in one commit (*"it can only add, never
+> overwrite"*, *"an upgrade touches never your notes, keys, constitution or skills"*, and a skills
+> section that sold tweaking without saying what tweaking costs). None of them would have been caught by
+> a test. Hence the standing pass.
+
 ## See also (operative rules already homed in the repo)
 
 - [`../DEVELOPING.md`](../DEVELOPING.md) — manual commits, neutrality (+ the Thomas-Pierrain

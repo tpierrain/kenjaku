@@ -614,6 +614,27 @@ explicit guard:
         `maintainers/mutation/RETROSPECTIVE.md` **and** feed whatever generalizes back into the
         `tdd-discipline` skill (§"Qualité des assertions"), so the lesson reaches every future project
         and not just this repo.
+- [x] **Step 11 — Marketing-surface pass, AFTER the release** _(2026-07-27, asked by Thomas at v4.1.0)_.
+      This increment is what created the standing rule, now `CONVENTIONS.md` §10: every release re-reads
+      how Kenjaku is presented, hunting both what the release made **false** and what it made **true but
+      unsold**. Verdicts below, including the boring ones (per §10, "not looked at" and "checked, nothing
+      to do" must be distinguishable).
+  - [x] **`README.md`, 3 promises broken by this very increment.** (a) *"It can only **add**, never
+        overwrite … your notes, keys, constitution and skills stay untouched"* was exactly true the day
+        before and is a half-truth now: rewritten around the **proof** (a file is refreshed only when its
+        fingerprint shows you never edited it), with ADR 0026 added to the citation list. (b) *"an upgrade
+        touches … never your notes, keys, constitution or skills"* → "nor any skill **you've made your
+        own**". (c) the skills section sold tweaking without saying what tweaking **costs**: a tailored
+        skill stops receiving engine improvements, which is a fair trade only if it is stated.
+  - [x] **The gain, sold where a newcomer reads it**, not only in the release note: the self-upgrade
+        bullet now says the ready-made skills come along too, and `EN-QUOI` §"Evolution" contrasts
+        vendor-forced updates with "only when you ask, and never on what you tailored".
+  - [x] **Boards: re-read, NOT re-rendered — deliberately.** `board-reliability` says "never overwrites
+        your **notes**" and `board-anatomy` says `CLAUDE.md` is "never touched by upgrades" while
+        `CLAUDE.engine.md` is "refreshed by upgrades": all three still true after this increment, and the
+        `Skills` tile carries no promise at all. So no prompt edit and no re-render, which is a *result*,
+        not an omission (re-rendering a board is expensive; §10 asks for the explicit decision).
+  - [x] **`SETUP.md` needed nothing here** — Step 9 already rewrote §10 as part of the increment itself.
 
 ### Side-finding (2026-07-27) — the schema-bump warning was never wired
 

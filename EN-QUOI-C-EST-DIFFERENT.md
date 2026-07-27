@@ -151,7 +151,7 @@ added later, **deliberately and under your control**, never by default.)
 | **Distribution** | Plugin/marketplace, or a SaaS account to create | **Home-grown installer** driven **in chat** by Claude: "ask me questions, I'll install myself" — designed **non-tech** |
 | **What gets created** | A space at the vendor's | An **owned git repository**, with its custom-generated `CLAUDE.md` constitution |
 | **Upstream dependency** | The app can change/break/shut down under you | **None**: the brain is **self-sufficient**, works **offline forever**, as generated |
-| **Evolution** | Update forced by the vendor | **Local iteration**: you add/modify your own skills, in your brain |
+| **Evolution** | Update forced by the vendor | **Local iteration**: you add/modify your own skills, in your brain. Engine improvements reach you **only when you ask for an update**, and only on the skills you never edited: anything you tailored is preserved, never overwritten |
 
 The **launcher** (this repo) is **reusable and never modified**: it **creates elsewhere** a fresh
 brain folder (copies the files + `git init`, **0 remotes**), so **no link** to the launcher,
