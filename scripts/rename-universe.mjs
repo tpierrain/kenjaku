@@ -15,7 +15,6 @@
 // nothing and is undone by renaming back.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
-import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
 import {
@@ -65,11 +64,18 @@ function preflightMessage(plan, noteCount) {
   );
 }
 
+// Windows hands cwd() back as C:\brain, and a backslash survives into every path
+// built from it — which fs tolerates but string comparisons do not. Normalising
+// the ROOT once means every path below is POSIX by construction. Cf. installer
+// toPosix / document-scanner / universes.mjs.
+const toPosix = (p) => p.split("\\").join("/");
+
 /** Runs the rename, or only describes it when argv starts with `--preflight`. */
 export function runRenameUniverse(argv, deps) {
   const preflight = argv[0] === "--preflight";
   const [from, to] = preflight ? argv.slice(1) : argv;
-  const dir = vaultRagDir(deps.cwd());
+  const root = toPosix(deps.cwd());
+  const dir = vaultRagDir(root);
   const plan = planUniverseRename(deps.io, dir, from, to);
   if (!plan.ok) {
     deps.error(REFUSALS[plan.reason](plan));
@@ -78,11 +84,11 @@ export function runRenameUniverse(argv, deps) {
 
   if (preflight) {
     // Counted at the OLD path: nothing has moved, and nothing will on this path.
-    deps.log(preflightMessage(plan, deps.listNotes(`${deps.cwd()}/vault/${plan.from}`).length));
+    deps.log(preflightMessage(plan, deps.listNotes(`${root}/vault/${plan.from}`).length));
     return 0;
   }
 
-  const vault = `${deps.cwd()}/vault`;
+  const vault = `${root}/vault`;
   const universeDir = `${vault}/${plan.to}`;
   deps.renameSync(`${vault}/${plan.from}`, universeDir);
 
@@ -100,7 +106,7 @@ export function runRenameUniverse(argv, deps) {
   // this re-embeds the whole universe. That is the cost D4 accepted knowingly.
   const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
   const r = deps.spawnSync(NPM, ["run", "--silent", "reindex"], {
-    cwd: join(deps.cwd(), "rag"),
+    cwd: `${root}/rag`,
     stdio: "inherit",
     // npm.cmd needs a shell since Node >= 18.20 (CVE-2024-27980) or EINVAL; no-op POSIX (ADR 0031).
     shell: needsShell(NPM, deps.platform),

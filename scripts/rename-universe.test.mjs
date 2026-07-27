@@ -181,6 +181,26 @@ test("runRenameUniverse reindexes and says the rename cost a full re-embed", () 
   assert.match(calls.logged.join("\n"), /'acme' → 'acme-corp'/);
 });
 
+test("runRenameUniverse works from a backslashed root: POSIX paths throughout", () => {
+  // Windows hands cwd() back as C:\brain, and the folder move, the note re-stamp
+  // and the reindex all hang off it. A single leaked backslash makes the registry
+  // read miss and the rename find nothing to rename.
+  const { args, calls } = deps({
+    cwd: () => "C:\\brain",
+    files: {
+      "C:/brain/.vault-rag/universes.json": '{"universes":["acme"]}',
+      "__notes__C:/brain/vault/acme-corp": ["daily/2026-07-27.md"],
+      "C:/brain/vault/acme-corp/daily/2026-07-27.md": "---\nuniverse: acme\n---\nbody\n",
+    },
+  });
+
+  assert.equal(runRenameUniverse(["acme", "acme-corp"], args), 0);
+
+  assert.deepEqual(calls.moved, [{ from: "C:/brain/vault/acme", to: "C:/brain/vault/acme-corp" }]);
+  assert.equal(calls.written[0].path, "C:/brain/vault/acme-corp/daily/2026-07-27.md");
+  assert.equal(calls.spawned[0][2].cwd, "C:/brain/rag");
+});
+
 test("runRenameUniverse reports a failed reindex instead of claiming a finished rename", () => {
   const { args, calls } = deps({
     files: { "/brain/.vault-rag/universes.json": '{"universes":["acme"]}' },

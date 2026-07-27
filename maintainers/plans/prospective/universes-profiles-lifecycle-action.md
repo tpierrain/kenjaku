@@ -1,13 +1,14 @@
 # Universes v2 — per-universe profiles + lifecycle (rename / delete)
 
 > **Status:** ONE release for the whole gate (Thomas, 2026-07-27 — the A/B split is reversed).
-> **Steps 0 through 8 are done**, fleet re-check and marketing pass included _(2026-07-27)_. **Two
-> things now stand between here and the tag: Step 9 (Windows is RED on CI, 22 tests) and Step 10
-> (`local-mirror` must name the universe and confirm the first pull, asked by Thomas at the release).**
-> Branch: `feat/universes-v2-profiles`, PR **#49** open, nothing merged or tagged.
+> **Steps 0 through 8 are done**, fleet re-check and marketing pass included _(2026-07-27)_. **Step 9
+> is fixed and locally verified _(2026-07-27)_, awaiting the Windows CI run to confirm it.** One thing
+> then stands between here and the tag: Step 10 (`local-mirror` must name the universe and confirm the
+> first pull, asked by Thomas at the release). Branch: `feat/universes-v2-profiles`, PR **#49** open,
+> nothing merged or tagged.
 >
-> ▶️ **Resuming after a `/clear`: go to Step 9**, then Step 10, then the tag. Step 10 opens with a
-> decision to settle with Thomas before any code.
+> ▶️ **Resuming after a `/clear`: go to Step 10**, then the tag (check Step 9's last box once CI is
+> green on the three Windows jobs). Step 10 opens with a decision to settle with Thomas before any code.
 > **Follows:** ADR 0034 (universes as a soft retrieval scope) and its plan
 > `universes-progressive-disclosure-action.md` (shipped). This is the next small increment on
 > universes.
@@ -551,24 +552,35 @@ can never write a note; the universes v1 SQLite migration is already handled out
 > The F1-F4 re-check did not catch this and could not: it audits **distribution** (does the code reach
 > the fleet), not **parity** (does it work once there). DEVELOPING §8 makes parity a release gate.
 
-- [ ] **Root cause, already identified — do not re-investigate.** `scripts/lib/universes.mjs` declares
+- [x] **Root cause, already identified — do not re-investigate.** `scripts/lib/universes.mjs` declares
       a POSIX-normalisation convention in its own header (L16-18, `toPosix`) and `vaultRagDir` (L92)
       applies it. **`registryPath` (L181) and `activeUniversePath` (L186) do not**: they return a raw
       `join()`, which on Windows yields `.vault-rag\universes.json`. So every registry read misses,
       `readRegistry` returns `[]`, and the failures cascade from there (the tell in the log is
       `Deletable universes: .`, an empty list where `acme` was seeded).
-- [ ] **Fix (recommended):** apply `toPosix` in those two builders, so they honour the convention the
-      file already states and `vaultRagDir` already follows. Prefer this over patching the tests: the
-      production paths are **mixed-separator on Windows today** (`C:/brain/.vault-rag\universes.json`),
-      which fs tolerates but every string comparison does not. Fixing the builders fixes both.
-- [ ] Re-run the **whole** suite after the fix; the 22 failures span `delete-universe`,
-      `rename-universe`, `planUniverseDeletion` and `set-universe-profile`. If any test still fails,
-      it keys its fake fs with a hardcoded `".vault-rag/…"` string (e.g.
-      `universes.test.mjs:475-517`) — key those through `registryPath()` / `activeUniversePath()`
-      instead of a literal, which is what the older tests do.
-- [ ] **Close the loop, do not just fix the symptom:** ask why nothing but CI can see this, and decide
-      whether a guardrail is worth it (a pure test asserting both builders return POSIX-normalised
-      paths would have failed on macOS too, and is three lines).
+- [x] **Fix applied, and it was BROADER than the two builders** _(2026-07-27 · this commit)_. The two
+      builders now apply `toPosix`, as planned. But the same class of break lived in the three CLIs
+      too: each rebuilt paths from `deps.cwd()`, which is `C:\brain` on Windows, so `${cwd}/vault/...`
+      and `join(cwd, "rag")` leaked a backslash the registry fix alone would not have caught. Each CLI
+      now **normalises the root ONCE** (`const root = toPosix(deps.cwd())`) and builds every path from
+      it, which let `node:path`'s `join` go away entirely in all three. Fixing the builders was
+      preferred over patching the tests, per the reasoning below: the production paths were
+      mixed-separator on Windows, which fs tolerates and every string comparison does not.
+- [x] Whole suite re-run: **955 pass / 0 fail** on macOS. No test needed re-keying — the literal
+      `"/brain/.vault-rag/…"` fake-fs keys are what the fixed builders now produce on Windows too.
+- [x] **Verified the Windows half locally rather than trusting the push.** macOS `join` emits `/`, so
+      it can never see this: the suites were re-run under a **loader that redirects `node:path` to
+      `path.win32`** (throwaway, in the scratchpad, not committed). Before: the 22 known failures.
+      After: **the four affected suites are green**. The only residual failures under that simulation
+      are its own artefacts (tests touching the REAL macOS filesystem through a win32 `resolve`), and
+      they were never among the 22.
+- [x] **Loop closed — the guardrail is a backslashed ROOT, not a POSIX assertion.** The reason nothing
+      but CI could see this: every test fed the code a POSIX cwd, so `join` never had a backslash to
+      leak. A test asserting "the builders return POSIX" would have stayed green on macOS and proved
+      nothing. What is red-on-macOS-before / green-after is handing the code a **Windows-shaped root**
+      (`C:\brain`) and asserting the paths that come out. Four such tests now exist: one pure
+      (`universes.test.mjs`, both builders) and one per CLI (delete / rename / profile, covering the
+      folder move, the note re-stamp and the reindex cwd).
 - [ ] Green on all three Windows jobs before the tag.
 
 ### Step 10 — `local-mirror`: name the universe, and confirm before the first pull

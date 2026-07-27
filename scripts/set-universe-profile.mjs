@@ -20,7 +20,6 @@
 // already exists or on error.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
 import {
@@ -34,6 +33,12 @@ import { readActiveUniverse, vaultRagDir, readRegistry, isMultiverse } from "./l
 import { profileCaptureOffer } from "./lib/universe-reminder.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
+
+// Windows hands cwd() back as C:\brain, and a backslash survives into every path
+// built from it — which fs tolerates but string comparisons do not. Normalising
+// the ROOT once means every path below is POSIX by construction. Cf. installer
+// toPosix / document-scanner / universes.mjs.
+const toPosix = (p) => p.split("\\").join("/");
 
 // Real wiring — every side effect behind a port so the flow stays unit-testable.
 // The fs surface the cores expect — readFileSync always as UTF-8 TEXT (the raw
@@ -59,11 +64,13 @@ export const realProfileDeps = {
 
 /** Reads the answers, writes the profile note. Returns the process exit code. */
 export function runSetUniverseProfile(argv, deps = realProfileDeps) {
+  const root = toPosix(deps.cwd());
+
   // The refusal path reads NO stdin: it is answered by a person saying "no
   // thanks", and demanding a JSON payload to decline would be its own small
   // insult. Handled before anything else for exactly that reason.
   if (argv.includes("--decline")) {
-    declineProfileCapture(deps.io, vaultRagDir(deps.cwd()), deps.activeUniverse());
+    declineProfileCapture(deps.io, vaultRagDir(root), deps.activeUniverse());
     deps.log("✓ Noted — I will not ask about your context again.");
     return 0;
   }
@@ -72,9 +79,9 @@ export function runSetUniverseProfile(argv, deps = realProfileDeps) {
   // digest injected at session start describes the universe it STARTED in, and a
   // stale profile is worse than none (it names the wrong people, the wrong tools).
   if (argv.includes("--digest")) {
-    const dir = vaultRagDir(deps.cwd());
+    const dir = vaultRagDir(root);
     const universe = deps.activeUniverse();
-    const profile = readUniverseProfile(deps.io, `${deps.cwd()}/vault`, universe);
+    const profile = readUniverseProfile(deps.io, `${root}/vault`, universe);
     if (profile) {
       deps.log(`[working context]\n${renderUniverseDigest(profile)}`);
       return 0;
@@ -103,7 +110,7 @@ export function runSetUniverseProfile(argv, deps = realProfileDeps) {
   }
 
   const universe = answers.universe ?? deps.activeUniverse();
-  const vaultDir = `${deps.cwd()}/vault`;
+  const vaultDir = `${root}/vault`;
   const res = writeUniverseProfile(deps.io, vaultDir, {
     ...answers,
     universe,
@@ -125,7 +132,7 @@ export function runSetUniverseProfile(argv, deps = realProfileDeps) {
   // most of the point of storing it as a note rather than as registry metadata.
   const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
   const r = deps.spawnSync(NPM, ["run", "--silent", "reindex"], {
-    cwd: join(deps.cwd(), "rag"),
+    cwd: `${root}/rag`,
     stdio: "inherit",
     // npm.cmd needs a shell since Node >= 18.20 (CVE-2024-27980) or EINVAL; no-op POSIX (ADR 0031).
     shell: needsShell(NPM, deps.platform),

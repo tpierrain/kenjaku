@@ -12,6 +12,8 @@ import {
   createAndSwitch,
   parseSwitchArgs,
   vaultRagDir,
+  registryPath,
+  activeUniversePath,
   runSwitchCli,
   isMultiverse,
   resolveActiveUniverse,
@@ -313,6 +315,22 @@ test("parseSwitchArgs: explicit create / switch / list / current verbs", () => {
 
 test("vaultRagDir joins the .vault-rag state dir onto the brain root", () => {
   assert.equal(vaultRagDir("/brain"), "/brain/.vault-rag");
+});
+
+// The module states ONE convention in its header: state paths are POSIX. Only
+// vaultRagDir honoured it, and join() hides the gap on macOS (it emits "/"
+// anyway), so CI on Windows was the only thing that could ever see the break.
+// Handing each builder a backslashed dir reproduces it on ANY platform: a
+// builder that normalises its own output cannot leak a separator it was given.
+test("every state-path builder normalises to POSIX, even from a backslashed dir", () => {
+  const winDir = "C:\\Users\\me\\brain\\.vault-rag";
+
+  assert.equal(vaultRagDir("C:\\Users\\me\\brain"), "C:/Users/me/brain/.vault-rag");
+  assert.equal(registryPath(winDir), "C:/Users/me/brain/.vault-rag/universes.json");
+  assert.equal(
+    activeUniversePath(winDir),
+    "C:/Users/me/brain/.vault-rag/active-universe",
+  );
 });
 
 // --- CLI dispatch (exit code + message) --------------------------------------

@@ -177,14 +177,18 @@ export function nativeConnectorsReminder({ from, to }) {
   );
 }
 
-/** Path of the committed registry of created universes, inside the .vault-rag dir. */
+/**
+ * Path of the committed registry of created universes, inside the .vault-rag dir.
+ * POSIX-normalised like vaultRagDir: fs tolerates either separator, but every
+ * string comparison (fake-fs keys, log lines, dedup) does not.
+ */
 export function registryPath(dir) {
-  return join(dir, "universes.json");
+  return toPosix(join(dir, "universes.json"));
 }
 
 /** Path of the per-machine active-universe pointer, inside the .vault-rag dir. */
 export function activeUniversePath(dir) {
-  return join(dir, "active-universe");
+  return toPosix(join(dir, "active-universe"));
 }
 
 /**

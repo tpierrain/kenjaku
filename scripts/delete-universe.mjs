@@ -12,7 +12,6 @@
 // answer on your behalf guards nothing (ADR 0009).
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { stdin, stdout } from "node:process";
@@ -27,6 +26,12 @@ import {
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
 import { listFilesRelPosix } from "./lib/fs-walk.mjs";
+
+// Windows hands cwd() back as C:\brain, and a backslash survives into every path
+// built from it — which fs tolerates but string comparisons do not. Normalising
+// the ROOT once means every path below is POSIX by construction. Cf. installer
+// toPosix / document-scanner / universes.mjs.
+const toPosix = (p) => p.split("\\").join("/");
 
 // What each refusal from the pure core says out loud. The wording lives here, in
 // one place, so no session ever has to invent it.
@@ -49,7 +54,8 @@ export async function runDeleteUniverse(argv, deps) {
     return 1;
   }
 
-  const dir = vaultRagDir(deps.cwd());
+  const root = toPosix(deps.cwd());
+  const dir = vaultRagDir(root);
   const plan = planUniverseDeletion(deps.io, dir, argv[0]);
   if (!plan.ok) {
     deps.error(REFUSALS[plan.reason](plan));
@@ -58,7 +64,7 @@ export async function runDeleteUniverse(argv, deps) {
 
   // Say what is about to be lost BEFORE asking, while there is still nothing to
   // regret: a confirmation you answer without knowing the count confirms nothing.
-  const universeDir = `${deps.cwd()}/vault/${plan.name}`;
+  const universeDir = `${root}/vault/${plan.name}`;
   const notes = deps.listNotes(universeDir);
   deps.log(
     `About to delete the universe '${plan.name}': ${notes.length} notes under ` +
@@ -81,7 +87,7 @@ export async function runDeleteUniverse(argv, deps) {
   // longer exist — a failure nobody would ever trace back to a deletion.
   const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
   const r = deps.spawnSync(NPM, ["run", "--silent", "reindex"], {
-    cwd: join(deps.cwd(), "rag"),
+    cwd: `${root}/rag`,
     stdio: "inherit",
     // npm.cmd needs a shell since Node >= 18.20 (CVE-2024-27980) or EINVAL; no-op POSIX (ADR 0031).
     shell: needsShell(NPM, deps.platform),

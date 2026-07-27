@@ -152,6 +152,24 @@ test("runDeleteUniverse leaves you where you are when you delete some OTHER univ
   );
 });
 
+test("runDeleteUniverse works from a backslashed root: POSIX paths throughout", async () => {
+  // Windows hands cwd() back as C:\brain. Every path built from it must come out
+  // POSIX-normalised, or the registry read misses and the deletion silently finds
+  // no universe to delete — which is what the Windows CI jobs were reporting.
+  const { args, calls } = deps({
+    cwd: () => "C:\\brain",
+    files: { "C:/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },
+    askLine: (q) => (calls.asked.push(q), calls.timeline.push("ask"), "blue"),
+  });
+
+  assert.equal(await runDeleteUniverse(["blue"], args), 0);
+
+  assert.deepEqual(calls.removed, [
+    { path: "C:/brain/vault/blue", opts: { recursive: true, force: true } },
+  ]);
+  assert.equal(calls.spawned[0][2].cwd, "C:/brain/rag");
+});
+
 test("runDeleteUniverse reindexes, so the deleted notes stop coming back in searches", async () => {
   const { args, calls } = deps({
     files: { "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },

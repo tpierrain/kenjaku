@@ -46,6 +46,17 @@ test("runSetUniverseProfile reindexes so the profile is searchable, and says it 
   ]);
 });
 
+test("runSetUniverseProfile reindexes from a POSIX cwd, even on a backslashed root", () => {
+  // Windows hands cwd() back as C:\brain. join() then emits a mixed-separator
+  // path that fs tolerates and every string comparison does not — the exact
+  // break that made 22 tests red on the Windows CI jobs and nowhere else.
+  const { args, calls } = deps({ cwd: () => "C:\\brain" });
+
+  runSetUniverseProfile([], args);
+
+  assert.equal(calls.spawned[0][2].cwd, "C:/brain/rag");
+});
+
 test("runSetUniverseProfile reports a failed reindex instead of claiming success", () => {
   const { args, calls } = deps({ spawnSync: () => ({ status: 1 }) });
 
