@@ -816,7 +816,75 @@ test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and repor
     "the owner's customized skill is untouched",
   );
   assert.deepEqual(report.skillsRefreshed, []);
-  assert.deepEqual(report.skillsPreserved, [{ skill: "prepare-1-1", reason: "customized" }]);
+  assert.deepEqual(report.skillsPreserved, [
+    { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+  ]);
+});
+
+test("reconcileBrain — the new version of a customized skill is dropped alongside as .new", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // "We never overwrite your version" must not mean "you never get the improvement":
+  // the engine's version is left BESIDE the owner's, so adopting it (or cherry-picking
+  // from it) is a conversation away instead of invisible. Conffile fallback, plan §The
+  // decision. `.new` is not a `SKILL.md`, so Claude never loads it as a second skill.
+  const delivered = "---\nname: prepare-1-1\n---\nPrepare a 1-1.\n";
+  const mine = delivered + "\n## My own KPIs\nARR, churn.\n";
+  const candidate = delivered + "\nNew engine section.\n";
+  writeFile(brainDir, ".claude/skills/prepare-1-1/SKILL.md", mine);
+  writeFile(sourceDir, ".claude/skills/prepare-1-1/SKILL.md", candidate);
+  const target = manifest({ extraMerge: [".claude/skills/prepare-1-1/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/prepare-1-1/**"] }),
+    provenance: { ".claude/skills/prepare-1-1/SKILL.md": base(delivered) },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/prepare-1-1/SKILL.md.new"), "utf8"),
+    candidate,
+    "the engine version is available, verbatim, next to the owner's",
+  );
+  assert.deepEqual(report.skillsPreserved, [
+    { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+  ]);
+});
+
+test("reconcileBrain — a stale .new is cleared once the owner has adopted the new version", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // The owner read the `.new` we dropped last time and pasted it over their own file.
+  // Leaving the sidecar behind would keep claiming "a newer version awaits" forever —
+  // a stale prompt to do work that is already done.
+  const candidate = "---\nname: prepare-1-1\n---\nPrepare a 1-1.\nNew engine section.\n";
+  writeFile(brainDir, ".claude/skills/prepare-1-1/SKILL.md", candidate);
+  writeFile(brainDir, ".claude/skills/prepare-1-1/SKILL.md.new", candidate);
+  writeFile(sourceDir, ".claude/skills/prepare-1-1/SKILL.md", candidate);
+  const target = manifest({ extraMerge: [".claude/skills/prepare-1-1/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/prepare-1-1/**"] }),
+    provenance: { ".claude/skills/prepare-1-1/SKILL.md": base(candidate) },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(
+    existsSync(join(brainDir, ".claude/skills/prepare-1-1/SKILL.md.new")),
+    false,
+    "nothing newer is pending → the sidecar must not survive",
+  );
+  assert.deepEqual(report.skillsPreserved, []);
 });
 
 test("reconcileBrain — SessionStart self-heal (sourceDir === brainDir) refreshes NOTHING and reports nothing", async (t) => {

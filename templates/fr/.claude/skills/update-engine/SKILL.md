@@ -71,6 +71,12 @@ applique exactement les fichiers du moteur, régénère les launchers, lance `np
 - **`exit 0`** → relaie le résumé affiché (nouvelle version, combien de fichiers du moteur ont
   été remplacés, si une réindexation a eu lieu). Rassure : rien de ce qui est à l'utilisateur
   n'a été touché.
+  - Si le résumé liste des **skills du moteur remis à jour**, nomme-les : une amélioration
+    livrée il y a des mois vient enfin d'arriver dans ce cerveau ; la livrer en silence, c'est
+    laisser la personne ignorer qu'elle l'a désormais.
+  - S'il indique qu'un **skill personnalisé a été conservé**, relaie-le aussi, **avec le chemin
+    du fichier `.new`** : sa version reste intacte, et la version plus récente du moteur est
+    posée à côté. Propose de comparer les deux, ou d'intégrer les nouveautés dans la sienne.
 - **`exit 1`** → **relaie l'erreur telle quelle** et dis à l'utilisateur que le cerveau n'a pas
   été modifié au-delà du point d'échec. **Ne prétends jamais que ça a marché si ça a échoué.**
 

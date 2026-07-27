@@ -278,6 +278,82 @@ test("formatReport — a true no-op (nothing swapped or regenerated) does NOT cr
   assert.doesNotMatch(out, /once more/i);
 });
 
+// ── Increment 2.5, Step 5: report the SKILL refresh ──────────────────────────
+// The whole point of the increment is that a shipped skill improvement finally
+// reaches an existing brain. Delivering it silently leaves the user unaware their
+// `switch` skill just gained the native-connectors reminder — say which skills
+// were brought up to date.
+test("formatReport — names the engine skill(s) it refreshed to the new version", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    skillsRefreshed: ["switch", "coach"],
+  });
+  assert.match(out, /switch, coach/);
+  assert.match(out, /skill/i);
+  // Not a NEW capability: the skill was already there, only its content moved on.
+  assert.doesNotMatch(out, /new engine skill/i);
+});
+
+// The other half of the promise: a skill the owner made their own is NEVER
+// overwritten, and they are TOLD — with the path of the new version dropped next to
+// it, so "I'd like the new bits too" is one question away instead of invisible.
+test("formatReport — says which customized skill was preserved, and where its new version sits", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    skillsPreserved: [
+      { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+    ],
+  });
+  assert.match(out, /prepare-1-1/);
+  assert.match(out, /\.claude\/skills\/prepare-1-1\/SKILL\.md\.new/);
+  assert.match(out, /kept|preserved|as you wrote/i);
+});
+
+// Step 1's refinement, carried into the prose: a pre-provenance brain (nothing was
+// ever fingerprinted for that file) must NOT be told it customized anything — it
+// didn't. There is nothing to decide and nothing to adopt, so the report stays silent
+// rather than manufacturing a scary, unactionable line on every single update.
+test("formatReport — a preserve with no provenance is NOT reported as a customization", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    skillsPreserved: [{ skill: "coach", reason: "no-provenance" }],
+  });
+  assert.doesNotMatch(out, /customized/i);
+  assert.doesNotMatch(out, /coach/);
+});
+
+// A refreshed skill is on disk but THIS conversation loaded the OLD text when it
+// started (Layer B config-freeze) — exactly the staleness the restart banner exists
+// for. Staying silent because no engine *file* was swapped would let the user try the
+// improved skill in a session that cannot see it, and conclude the update lied.
+test("formatReport — a refresh-only update still says the running session is stale", () => {
+  const out = formatReport({
+    ref: "v3.6.2",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    skillsRefreshed: ["switch"],
+  });
+  assert.match(out, /action needed/i);
+  assert.match(out, /restart/i);
+  // Still not a NEW capability: no counter, no "run once more" fallback.
+  assert.doesNotMatch(out, /once more/i);
+  assert.doesNotMatch(out, /new capabilit/i);
+});
+
 // F2: the recap must surface the number the USER cares about — how many notes their
 // brain holds — not just the maintainer-facing "N engine files swapped" count.
 test("formatReport — surfaces the vault note count", () => {

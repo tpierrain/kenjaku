@@ -78,6 +78,12 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 ### Step 3 — Report (don't pretend)
 - **`exit 0`** → relay the printed summary (new version, how many engine files were
   swapped, whether a reindex ran). Reassure that nothing of theirs was touched.
+  - When the summary lists **engine skill(s) brought up to date**, name them: an
+    improvement shipped months ago has just reached this brain, and silent delivery
+    leaves the user unaware they now have it.
+  - When it says a **customized skill was kept**, relay that too, **with the `.new`
+    path**: their version stands untouched, and the engine's newer one sits beside it —
+    offer to compare the two, or to merge the new bits into theirs, if they want it.
 - **`exit 1`** → **relay the error as-is** and tell the user the brain was not changed
   past the point of failure. **Never claim success when it failed.**
 
@@ -104,8 +110,10 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 >   rule (a session not yet rooted in the brain), not what picking up new engine code needs.
 > - Phrase it **in the user's language**, calmly: it is a one-time, harmless step — the brain
 >   wired its own self-healing in the background; one restart and they're done.
-> - The **genuine no-op** (the report shows **no** files swapped and **no** reindex) is the only
->   case where you skip the restart banner — don't cry wolf when nothing changed.
+> - The **genuine no-op** (the report shows **no** files swapped, **no** skill brought up to date
+>   and **no** reindex) is the only case where you skip the restart banner — don't cry wolf when
+>   nothing changed. A refreshed skill counts as a change: its new text loads only at the next
+>   session start, so this conversation still runs the old one.
 >
 > _One-time exception (a brain upgrading from a pre-3.2 engine): the first update runs the
 > OLD orchestrator, so this report won't yet list the new runtime hooks. They are wired

@@ -7,7 +7,7 @@
 // delivered → safe to overwrite. Anything else is the owner's property.
 // No fs, no side effects: the caller reads the bytes and applies the verdict.
 // ─────────────────────────────────────────────────────────────────────────────
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
@@ -79,15 +79,28 @@ export function refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manif
     const installed = existsSync(installedPath) ? readFileSync(installedPath, "utf8") : null;
     const { verdict, reason } = refreshVerdict({ installed, base: provenance[rel], candidate });
     const skill = skillNameOf(rel);
+    // Any verdict but "preserve: customized" means nothing newer is pending for that
+    // file, so a sidecar left by a previous update is now a lie ("a newer version
+    // awaits" when the owner already adopted it, or when we just refreshed it).
+    if (verdict !== "preserve" || reason !== "customized") rmSync(`${installedPath}.new`, { force: true });
     if (verdict === "refresh") {
       mkdirSync(dirname(installedPath), { recursive: true });
       writeFileSync(installedPath, candidate);
       refreshedFileMap[rel] = candidate;
       if (!skillsRefreshed.includes(skill)) skillsRefreshed.push(skill);
-    } else if (verdict === "preserve" && !skillsPreserved.some((p) => p.skill === skill)) {
+    } else if (verdict === "preserve") {
+      // "Never overwritten" must not mean "never offered": drop the engine's version
+      // BESIDE the owner's (conffile fallback) so adopting it stays their call. Only
+      // when they actually customized it — a `no-provenance` preserve says we cannot
+      // PROVE anything, and littering an older brain with 9 unexplained `.new` files
+      // would be noise, not a choice. `.new` is not a `SKILL.md`: nothing loads it.
+      const newVersionPath = reason === "customized" ? `${rel}.new` : undefined;
+      if (newVersionPath) writeFileSync(join(brainDir, newVersionPath), candidate);
       // Reported per SKILL, not per file: what the owner needs to hear is "your
       // prepare-1-1 stands as you wrote it", not a list of paths.
-      skillsPreserved.push({ skill, reason });
+      if (!skillsPreserved.some((p) => p.skill === skill)) {
+        skillsPreserved.push(newVersionPath ? { skill, reason, newVersionPath } : { skill, reason });
+      }
     }
   }
   return { skillsRefreshed, skillsPreserved, refreshedFileMap };

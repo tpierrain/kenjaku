@@ -277,9 +277,22 @@ explicit guard:
         child's re-seed with the stale base.
   - [x] Locked by the refresh-twice test: the second run reports **neither** a refresh **nor** a
         `customized` preserve.
-- [ ] **Step 5 — Report what happened**, in the `update-engine` summary: which skills were refreshed,
+- [x] **Step 5 — Report what happened**, in the `update-engine` summary: which skills were refreshed,
       which were **preserved because customized** (naming the `.new` file). Deterministic prose (ADR 0009),
-      unit-tested, relayed verbatim by the skill.
+      unit-tested, relayed verbatim by the skill. _(2026-07-27 · `formatReport` + `refreshUntouchedSkills`)_
+  - [x] **The `.new` sidecar is now actually written** (it was decided in §The decision but no code
+        dropped it): on `preserve: customized` only. `no-provenance` gets **no** sidecar and **no**
+        report line — we cannot prove anything there, and littering an older brain with 9 unexplained
+        `.new` files would be noise, not a choice offered to the owner.
+  - [x] **A stale `.new` is cleared** on any other verdict: once the owner adopted the new version (or
+        we refreshed the file ourselves), a surviving sidecar keeps claiming "something newer awaits".
+  - [x] **A refresh-only update still raises the restart banner** (report + the CLI's persistent restart
+        flag): a refreshed skill is loaded at session start, so THIS conversation still runs the old
+        text. Counted as a *change*, never as a *new capability* (no counter, no "run once more").
+        The steady-state line now says "your engine was updated on disk" (true for a skill too).
+  - [x] The `update-engine` skill relays both lines (EN + `templates/fr`), and its "genuine no-op"
+        carve-out now includes "no skill brought up to date" — else a refresh-only update would
+        wrongly skip the restart banner.
 - [ ] **Step 6 — Pre-v3.3.0 tail:** decide bottle vs documented 2-cycle, then implement the choice.
 - [ ] **Step 7 — ADR:** amend **0026** (the reconciler gains a conditional, provenance-gated overwrite,
       scoped to explicit updates) and cross-note **0025** (its "out of scope, belongs to a future 3-way
@@ -288,7 +301,19 @@ explicit guard:
       synthetic personal edits. Never use real deployed brains' content. Verify the `4e43e70` case
       end-to-end: a v3.6.0 fixture must end up with the v3.6.2 `switch` skill.
 - [ ] **Step 9 — Docs:** SETUP / the `update-engine` skill wording ("your customized skills are never
-      overwritten; you are told when a newer version is available").
+      overwritten; you are told when a newer version is available"). Includes the stale claim in
+      `.claude/skills/update-engine/SKILL.md` §What it touches — "any engine skill you already have" is
+      no longer in the untouched column (an *untouched* one is now refreshed; a *customized* one is not).
+- [ ] **Step 10 — Mutation testing on the impacted surface, LAST, right before the merge** (asked by
+      Thomas, 2026-07-27). The objective signal for this increment is the mutation score, not line
+      coverage: the whole feature is a decision tree (`refreshVerdict`), a guard (`sourceDir !==
+      brainDir`), a re-seed and prose branches — precisely where a surviving mutant means a brain
+      silently loses its customization or never gets refreshed again.
+  - [ ] Scope: `scripts/lib/engine-skill-refresh.mjs`, the refresh block of `scripts/lib/reconcile-brain.mjs`,
+        `reseedProvenance` + step 7 of `scripts/update-engine.mjs`, and `formatReport`'s new branches.
+  - [ ] Kill every surviving mutant with a test (or record why it is equivalent). Watch specifically:
+        the `reason` discrimination (`customized` vs `no-provenance`), the EOL normalization, the
+        `.new` write/clear conditions, and the guard's equality.
 
 ### Side-finding (2026-07-27) — the schema-bump warning was never wired
 

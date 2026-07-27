@@ -44,7 +44,7 @@ export { defaultCountVaultNotes };
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map((s) => s.replace(/^scripts\//, "").replace(/\.mjs$/, ""));
@@ -82,6 +82,24 @@ export function formatReport(report) {
   if (mcpServersAdded.length > 0) {
     lines.push(`   • new MCP server(s) registered: ${mcpServersAdded.join(", ")}`);
   }
+  // Increment 2.5: an engine skill the owner never touched was brought up to date.
+  // Distinct from "new engine skill(s) installed" above — the skill was already
+  // there, so the news is that it MOVED ON, not that it appeared.
+  if (skillsRefreshed.length > 0) {
+    lines.push(`   • engine skill(s) brought up to date: ${skillsRefreshed.join(", ")}`);
+  }
+  // ...and the mirror promise: a skill the owner edited is left ALONE. Report it per
+  // skill, with the path of the new version dropped beside it, so the choice to adopt
+  // the new bits stays theirs. `no-provenance` stays silent on purpose: it is a machine
+  // detail (an older brain that was never fingerprinted), not a decision the user made
+  // nor one they can act on.
+  for (const { skill, reason, newVersionPath } of skillsPreserved) {
+    if (reason !== "customized") continue;
+    lines.push(
+      `   • your customized "${skill}" skill was kept exactly as you wrote it` +
+        (newVersionPath ? ` — the newer engine version sits next to it as ${newVersionPath}` : ""),
+    );
+  }
   if (wiredHooks.length > 0) {
     lines.push(`   • new runtime hook(s) wired: ${wiredHooks.join(", ")}`);
   }
@@ -107,7 +125,7 @@ export function formatReport(report) {
       `   brand-new chat for this. Until you restart, your brain CAN'T use ${them}.`,
       `   • If still missing after a restart, run /update-engine once more.`,
     );
-  } else if (copied.length > 0 || regenerated) {
+  } else if (copied.length > 0 || regenerated || skillsRefreshed.length > 0) {
     // F-B7d (ship-blocker A1): even a steady-state swap with NO brand-new capability still
     // needs a restart — the MCP server, hooks and constitution THIS conversation loaded are
     // the OLD ones until Claude is reopened. Stay silent and a "✅ done" reads as "already
@@ -115,7 +133,7 @@ export function formatReport(report) {
     // new-capability counter / "run once more" fallback (those are reserved for actual new
     // capabilities). The genuine no-op (nothing swapped) skips this entirely → no crying wolf.
     lines.push(
-      `   ⚠️ ACTION NEEDED — the engine code was updated on disk, but THIS conversation is`,
+      `   ⚠️ ACTION NEEDED — your engine was updated on disk, but THIS conversation is`,
       `   still running the OLD version. A FULL RESTART of Claude (close it and reopen) is`,
       `   enough: come back to THIS same conversation afterwards and the update takes effect.`,
       `   Until you restart, your brain keeps using the old engine.`,
@@ -261,7 +279,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       // a belt for the in-session converged case (the report banner alone scrolls away).
       // The next fresh, converged session clears it (session-self-heal). Fail-soft.
       const newCaps = (report.installedSkills?.length ?? 0) + (report.mcpServersAdded?.length ?? 0) + (report.hooksAdded?.length ?? 0);
-      if (report.copied?.length > 0 || report.regenerated || newCaps > 0) {
+      // A refreshed skill counts too (Increment 2.5): its new text loads only at the
+      // next session start, so the nudge must keep standing until the user restarts.
+      if (report.copied?.length > 0 || report.regenerated || newCaps > 0 || report.skillsRefreshed?.length > 0) {
         try {
           const flagPath = join(brainDir, RESTART_FLAG_REL);
           mkdirSync(dirname(flagPath), { recursive: true });
