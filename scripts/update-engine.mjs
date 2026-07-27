@@ -66,16 +66,24 @@ export function needsRestart(report) {
   );
 }
 
+// F-B2 (ADR 0026) / issue #31: hooks are wired into settings.json by PATH
+// (`scripts/session-health.mjs`) but read by the user by bare name. Both anchors are
+// deliberate — only a LEADING `scripts/` and a TRAILING `.mjs` go — so a value that is
+// not a script path at all ("statusLine") passes through untouched.
+export function bareHookName(command) {
+  return command.replace(/^scripts\//, "").replace(/\.mjs$/, "");
+}
+
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
   const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
-  const wiredHooks = hooksAdded.map((s) => s.replace(/^scripts\//, "").replace(/\.mjs$/, ""));
+  const wiredHooks = hooksAdded.map(bareHookName);
   // Issue #31: broken `cmd /c "…\run-node.cmd"` hook/statusLine commands healed in place
   // on a pre-fix Windows brain (by bare name; "statusLine" passes through unchanged).
-  const healedHooks = hooksRepaired.map((s) => s.replace(/^scripts\//, "").replace(/\.mjs$/, ""));
+  const healedHooks = hooksRepaired.map(bareHookName);
   // Honest reindex line: a schema move re-encodes EVERY note; the health-note pairing (ADR
   // 0026 decision B, upgraders) only makes sure the one engine-owned note is present and
   // indexed (incremental — your other notes are untouched) — never claim "the index format
@@ -86,7 +94,10 @@ export function formatReport(report) {
       ? `   • ensured the engine health-check note is present and indexed (incremental — your other notes were not re-encoded)`
       : `   • reindexed — the index format changed (your notes were re-encoded, nothing lost)`;
   const lines = [
-    `✅ Engine updated to ${ref} (rag ${engineVersion?.rag}).`,
+    // `?? "unknown"`: a manifest with no engineVersion block is broken, but the update
+    // it describes is already done and recorded — printing "undefined" (or throwing)
+    // would be the report lying about a change that DID happen.
+    `✅ Engine updated to ${ref} (rag ${engineVersion?.rag ?? "unknown"}).`,
     `   • ${copied.length} engine file(s) swapped` + (regenerated ? " + launchers regenerated" : ""),
     reindexLine,
   ];
@@ -336,7 +347,10 @@ export async function runUpdateCli(deps = realUpdateDeps) {
     deps.log(formatReport(report) + "\n");
     return 0;
   } catch (e) {
-    deps.error(`\n❌ update-engine failed — the brain was NOT changed past this point.\n${e?.message ?? e}\n`);
+    // `?? e` catches a thrown non-Error (a bare string); `?? "no reason given"` catches
+    // a rejection with no reason at all — a ❌ banner over an empty line tells nobody
+    // anything, and this is the one output a failed update leaves behind.
+    deps.error(`\n❌ update-engine failed — the brain was NOT changed past this point.\n${e?.message ?? e ?? "no reason given"}\n`);
     return 1;
   }
 }

@@ -9,7 +9,9 @@ import {
   rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -44,7 +46,7 @@ async function loadCore() {
 // ── formatReport: the human summary the brain-side skill prints (Step 6) ──────
 // Pure (report object → string) so the wording is unit-tested; the CLI entry holds
 // only the untestable I/O wiring (ADR 0009).
-import { formatReport, countNewCapabilities, needsRestart, runUpdateCli, armRestartFlag, defaultCountVaultNotes } from "../update-engine.mjs";
+import { formatReport, countNewCapabilities, needsRestart, bareHookName, runUpdateCli, realUpdateDeps, armRestartFlag, defaultCountVaultNotes } from "../update-engine.mjs";
 import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
 
 // F2: the default count must match what the indexer actually treats as a note —
@@ -312,9 +314,10 @@ test("formatReport — an everything-on update prints every optional line, in or
     regenerated: true,
     reindexed: true,
     vaultNoteCount: 2,
-    installedSkills: ["local-mirror"],
-    mcpServersAdded: ["local-mirror"],
-    // Deliberately NOT alphabetical: a sorting mutant must diverge from the input order.
+    // Every list holds TWO entries, deliberately NOT alphabetical: on a single item a
+    // dropped separator and a re-sorted list are both invisible.
+    installedSkills: ["local-mirror", "coach"],
+    mcpServersAdded: ["local-mirror", "vault-rag"],
     skillsRefreshed: ["switch", "coach"],
     // A customized preserve (reported, with its sidecar) next to a no-provenance one
     // (silent by design) — the discriminating pair for the `reason` filter.
@@ -322,7 +325,7 @@ test("formatReport — an everything-on update prints every optional line, in or
       { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
       { skill: "import", reason: "no-provenance" },
     ],
-    hooksAdded: ["scripts/session-health.mjs"],
+    hooksAdded: ["scripts/session-health.mjs", "scripts/session-self-heal.mjs"],
     // "statusLine" is the decoy: it carries neither the `scripts/` prefix nor the
     // `.mjs` suffix, so it must pass through the stripping untouched.
     hooksRepaired: ["scripts/auto-push.mjs", "statusLine"],
@@ -334,17 +337,35 @@ test("formatReport — an everything-on update prints every optional line, in or
       "   • 2 engine file(s) swapped + launchers regenerated",
       "   • reindexed — the index format changed (your notes were re-encoded, nothing lost)",
       "   • your vault holds 2 notes — searchable as the reindex finishes",
-      "   • new engine skill(s) installed: local-mirror",
-      "   • new MCP server(s) registered: local-mirror",
+      "   • new engine skill(s) installed: local-mirror, coach",
+      "   • new MCP server(s) registered: local-mirror, vault-rag",
       "   • engine skill(s) brought up to date: switch, coach",
       '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
-      "   • new runtime hook(s) wired: session-health",
+      "   • new runtime hook(s) wired: session-health, session-self-heal",
       "   • repaired Windows hook command(s) (issue #31 — 'laude' error): auto-push, statusLine",
-      "   ⚠️ ACTION NEEDED — 3 new capabilities are installed on disk but NOT active in THIS conversation.",
+      "   ⚠️ ACTION NEEDED — 6 new capabilities are installed on disk but NOT active in THIS conversation.",
       "   A FULL RESTART of Claude (close it and reopen) is enough: come back to THIS same",
       "   conversation afterwards and your brain can use them. You do NOT need to start a",
       "   brand-new chat for this. Until you restart, your brain CAN'T use them.",
       "   • If still missing after a restart, run /update-engine once more.",
+      "   Your notes, .env, constitution, settings and custom skills were left untouched.",
+    ].join("\n"),
+  );
+});
+
+// A manifest with no `engineVersion` block is a broken manifest — but by the time the
+// report is printed the update is DONE and recorded, so crashing here would print
+// "the brain was NOT changed past this point" over a change that DID happen. Degrade
+// honestly instead: say the version is unknown, and keep every other line.
+test("formatReport — a target manifest with no engineVersion says so instead of crashing", () => {
+  const out = formatReport({ ref: "v3.6.2", copied: [], regenerated: false, reindexed: false });
+
+  assert.equal(
+    out,
+    [
+      "✅ Engine updated to v3.6.2 (rag unknown).",
+      "   • 0 engine file(s) swapped",
+      "   • index format unchanged — no reindex needed",
       "   Your notes, .env, constitution, settings and custom skills were left untouched.",
     ].join("\n"),
   );
@@ -526,6 +547,17 @@ test("formatReport — when reindexed, hints that searchability catches up as in
   assert.match(out, /indexing|searchable|catches up/i);
 });
 
+// F-B2 (ADR 0026): hooks are wired into settings.json by PATH, and read by the user by
+// bare name. The stripping is anchored on purpose — only a LEADING `scripts/` and a
+// TRAILING `.mjs` go — so a value that is not a script path ("statusLine") survives
+// intact and nothing is chopped out of the middle of a name.
+test("bareHookName — strips only a leading scripts/ and a trailing .mjs", () => {
+  assert.equal(bareHookName("scripts/session-health.mjs"), "session-health");
+  assert.equal(bareHookName("statusLine"), "statusLine", "not a script path — untouched");
+  assert.equal(bareHookName("vendor/scripts/probe.mjs"), "vendor/scripts/probe", "scripts/ mid-path is part of the name");
+  assert.equal(bareHookName("scripts/probe.mjs.bak"), "probe.mjs.bak", ".mjs mid-name is part of the name");
+});
+
 // ── Step 10: the CLI's decisions, extracted OUT of the entry-point block ──────
 // They used to live inside `if (isEntrypoint(...))`, unreachable by any test — which
 // is why ~40 of the file's 96 surviving mutants clustered there. Pure predicates now.
@@ -564,6 +596,13 @@ test("needsRestart — a genuine no-op leaves the nudge disarmed", () => {
     needsRestart({ copied: [], regenerated: false, skillsRefreshed: [], installedSkills: [], mcpServersAdded: [], hooksAdded: [] }),
     false,
   );
+});
+
+// The absent twin: a report carrying none of the keys at all (an older reconcile, a
+// partial report) must answer "no restart needed" — never explode. The optional chains
+// are the whole reason this holds, and nothing else exercises them.
+test("needsRestart — a report carrying none of the keys answers no, without throwing", () => {
+  assert.equal(needsRestart({}), false);
 });
 
 // The other three triggers, each ALONE (an OR chain where only one disjunct is ever
@@ -663,11 +702,90 @@ test("runUpdateCli — an update that changed something arms the nudge in that b
   assert.deepEqual(armed, ["/brains/mine"]);
 });
 
+// The bottom of the barrel: a rejection with NO reason at all (a `throw null`, an
+// aborted child). The banner must still say something a human can act on — printing a
+// bare "null" under a ❌ is the same dead end as printing nothing.
+test("runUpdateCli — a rejection with no reason still explains itself", async () => {
+  const err = [];
+  const code = await runUpdateCli({
+    brainDir: "/brains/mine",
+    updateEngine: async () => {
+      throw null;
+    },
+    armRestartFlag: () => {},
+    log: () => {},
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, [
+    "\n❌ update-engine failed — the brain was NOT changed past this point.\nno reason given\n",
+  ]);
+});
+
+// …and the last untested link: that the entry-point guard actually FIRES. Bug B2 was
+// exactly this — a hand-rolled `file://` comparison that silently never matched, so
+// running the command did nothing at all and said nothing about it. Everything above
+// can be green while the script is a no-op, so run it for real, as a process.
+// Safe by construction: the COMMITTED launcher manifest pins no `source`
+// (engine-manifest-integrity enforces it), so the run fails on that before it can
+// fetch, write or touch anything.
+test("the CLI entry point actually runs the update (and fails LOUDLY, never silently)", () => {
+  const script = resolve(dirname(fileURLToPath(import.meta.url)), "../update-engine.mjs");
+
+  const r = spawnSync(process.execPath, [script], { encoding: "utf8" });
+
+  assert.equal(r.status, 1, "a script that silently does nothing would exit 0");
+  assert.match(r.stderr, /❌ update-engine failed/);
+  assert.match(r.stderr, /no source repo recorded/);
+  assert.equal(r.stdout, "", "a failed update must not print a success report");
+});
+
+// The wiring itself — the one thing `runUpdateCli(deps)` can never prove, since every
+// test hands it doubles. If `realUpdateDeps` pointed at the wrong folder or at a
+// swallowing stream, the CLI would run flawlessly against nothing and say so.
+test("realUpdateDeps — points at the brain the script lives in, and at the real streams", () => {
+  const brainRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+  assert.equal(realUpdateDeps.brainDir, brainRoot, "brainDir = the parent of scripts/, i.e. the brain itself");
+  assert.equal(realUpdateDeps.armRestartFlag, armRestartFlag);
+  assert.equal(realUpdateDeps.updateEngine.name, "updateEngine");
+
+  const outs = [];
+  const errs = [];
+  const [realOut, realErr] = [process.stdout.write, process.stderr.write];
+  process.stdout.write = (s) => outs.push(s) && true;
+  process.stderr.write = (s) => errs.push(s) && true;
+  try {
+    realUpdateDeps.log("the report\n");
+    realUpdateDeps.error("the failure\n");
+  } finally {
+    [process.stdout.write, process.stderr.write] = [realOut, realErr];
+  }
+  assert.deepEqual(outs, ["the report\n"], "the report goes to stdout");
+  assert.deepEqual(errs, ["the failure\n"], "the failure goes to stderr, never mixed into the report");
+});
+
 // The flag write itself: it lands where `session-self-heal` / the statusLine look for
 // it, with a body a human can read if they ever open it — and it creates the `.cache/`
 // folder, which a freshly-installed brain does not have yet.
 test("armRestartFlag — drops the nudge file under the brain, creating .cache/ if needed", () => {
   const brainDir = mkdtempSync(join(tmpdir(), "sbg-flag-"));
+
+  armRestartFlag(brainDir);
+
+  assert.equal(
+    readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8"),
+    "restart needed to finish the engine update\n",
+  );
+});
+
+// The common case, and the one a non-recursive mkdir would break: `.cache/` is already
+// there (every brain past its first session has it) and the flag was cleared by a
+// converged session. Re-arming must still drop the file, not blow up on EEXIST and get
+// swallowed by the fail-soft catch — which would silently stop nudging forever.
+test("armRestartFlag — re-arms in a brain whose .cache/ already exists", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-flag-again-"));
+  mkdirSync(join(brainDir, dirname(RESTART_FLAG_REL)), { recursive: true });
 
   armRestartFlag(brainDir);
 
@@ -845,7 +963,10 @@ async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, coun
     // target's version; overridable to exercise the offline/no-tag fallback. The
     // committed launcher manifest has NO `source`, so this — not target.source —
     // is the single thing that advances the brain's recorded ref.
-    resolveLatestTag: resolveLatestTag ?? (async () => "v1.1.0"),
+    resolveLatestTag: async (arg) => {
+      calls.resolveTag = arg;
+      return resolveLatestTag ? resolveLatestTag(arg) : "v1.1.0";
+    },
     fetchSource: async ({ repo, ref }) => {
       calls.fetch = { repo, ref };
       return sourceDir;
@@ -883,6 +1004,14 @@ for (const platform of ["posix", "win32"]) {
     // 0. The engine was fetched at the RESOLVED latest tag (not the brain's pinned
     //    ref) — this is what makes the displayed Version actually advance (ADR 0017).
     assert.equal(calls.fetch.ref, "v1.1.0", "must fetch the resolved latest tag, not the old pinned ref");
+    //    …and the tag was looked up on the repo the BRAIN recorded. Ask without it and
+    //    the lookup answers null, the update silently re-pulls the pinned ref forever,
+    //    and the brain never advances a single version.
+    assert.deepEqual(
+      calls.resolveTag,
+      { repo: "https://example.test/launcher.git" },
+      "the latest tag must be resolved on the brain's recorded source repo",
+    );
 
     // 1. Every COPIED engine file now carries the vB bytes — the `replace` bucket and
     //    the engine-owned scripts (incl. update-engine.mjs self-update). The launchers
@@ -913,7 +1042,12 @@ for (const platform of ["posix", "win32"]) {
     assertSacredUntouched(brainDir, before);
 
     // 5. The brain's manifest now records the new version + the ref it pulled.
-    const m = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+    const manifestText = readFileSync(join(brainDir, "engine-manifest.json"), "utf8");
+    // The brain is a git repo whose hook commits this file: a manifest written without
+    // its trailing newline shows up as a "\ No newline at end of file" diff on every
+    // single update, forever.
+    assert.equal(manifestText.endsWith("}\n"), true, "the manifest must be written with a trailing newline");
+    const m = JSON.parse(manifestText);
     assert.equal(m.engineVersion.rag, "1.1.0", "manifest engineVersion.rag must be bumped to the target");
     assert.equal(m.indexSchemaVersion, 2, "manifest indexSchemaVersion must follow the target");
     assert.equal(m.source.ref, "v1.1.0", "manifest source.ref must ADVANCE to the resolved latest tag");
