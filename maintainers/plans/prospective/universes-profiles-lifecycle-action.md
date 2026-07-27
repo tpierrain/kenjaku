@@ -280,19 +280,47 @@ can never write a note; the universes v1 SQLite migration is already handled out
       pinned; the core, not the model, decides whether there is a choice to make.
 - [ ] **Step 11 — Cut the release.** Everything above is done; this is the last box of Gate 2.6.
       **Thomas said go (2026-07-28): `v4.2.0`, titled *The One Where Your Brain Knows Where It Is*.**
+      `<scratchpad>` below = `/private/tmp/claude-501/-Users-tpierrain-Dev-kenjaku/0a61a2f2-cc76-4834-8d04-4da0bd8a7027/scratchpad/`
+      (session-scoped; a `/clear` keeps the files, a new session does not — if it is gone, the release
+      note is re-derivable from the PR #49 body plus the sections below).
   - [x] CI **7/7 green** on PR #49 (Node 22/24/26 × macOS + Windows, Windows installer e2e).
   - [x] PR #49 body updated with the `local-mirror` half.
   - [x] CONVENTIONS §10 marketing pass **re-run for the mirror half** _(`d1cff81`)_: `CONNECTORS.md`
         and `SETUP.md` stated the pre-universes path unconditionally; boards re-read, still true, no
         re-render (verdict recorded in that commit).
-  - [ ] ⚠️ **A `local-mirror` mutation campaign was launched and Stryker runs `inPlace: true`** — the
-        working tree gets INSTRUMENTED while it runs. **Never `git add -A` during it.** When it ends,
-        check `git status` is clean under `local-mirror/**` (Stryker restores on exit); if it was
-        killed mid-run, restore with `git checkout -- local-mirror/src`. Log:
-        `<scratchpad>/mutation-local-mirror.log`.
-  - [ ] Paste the measured score into the release note draft (`SCORE_PLACEHOLDER`), which is written
+  - [x] ⚠️ **`local-mirror` mutation campaign RUN and finished** _(2026-07-28, 12 min 36 s, exit 0,
+        1046 mutants)_. Stryker runs `inPlace: true`, so the working tree was INSTRUMENTED while it
+        ran — **never `git add -A` during a campaign**; it restores on exit (verified clean, stray
+        `local-mirror/undefined.*.tmp` files removed by hand). If one is ever killed mid-run, restore
+        with `git checkout -- local-mirror/src`. Log: `<scratchpad>/mutation-local-mirror.log`.
+  - [ ] **Decide what to publish, then paste it.** Measured: **89.10 %** (926 killed, 6 timeout,
+        **114 survived**), down from the 95.63 % of 2026-07-16. **The drop is NOT this release's
+        change** — it is code that landed *after* that audit and was never mutation-hardened:
+        | file | score | survived | origin |
+        | --- | --- | --- | --- |
+        | `server.ts` | 50.00 % | 19 | composition root, integration-only boot lines |
+        | `adapters/fs-sync-lock.ts` | 71.26 % | 25 | auto-refresh (S2 inter-process lock) |
+        | `auto-sync-scheduler.ts` | 70.59 % | 10 | auto-refresh |
+        | `auto-sync-boot.ts` | 87.00 % | 3 | auto-refresh |
+        | **`adapters/fs-universes.ts`** | **57.14 %** | **3** | **THIS release (mine)** |
+        | `lib/universe.ts` | 95.12 % | 2 | this release (mine) |
+        | `domain/local-mirror.ts` | 94.15 % | 21 | pre-existing |
+        | `index.ts` | 100.00 % | 0 | — |
+    - [ ] **My own 3 survivors, diagnosed** (`fs-universes.ts`): **2 are a real hole** — every test
+          injects a fake `read`, so the DEFAULT reader is never exercised (mutants `read = () =>
+          undefined` and `readFileSync(p, 'utf8')` → `readFileSync(p, "")` both survive). Killable with
+          ONE test against a real temp dir (the package's own "test the glue too" convention, cf.
+          `lib/config.ts`). **1 is equivalent**: `catch { return null }` → `catch {}` — every consumer
+          (`parseUniverseRegistry`, `resolveActiveUniverse`) treats `undefined` exactly like `null`.
+    - [ ] **Open question for Thomas (asked 2026-07-28, unanswered):** kill my 2 survivors first and
+          pin the re-measured number, **or** tag as-is publishing 89.10 % with the explanation?
+          **My recommendation: kill them first** (cheap, it is my code, and the discipline says a
+          survivor is killed or recorded as equivalent). The OTHER files' debt is **not this
+          release's to pay**: record it in `RESULTS.md` as dated auto-refresh debt, own passe.
+  - [ ] Paste the retained score into the release note draft (`SCORE_PLACEHOLDER`), which is written
         and ready at `<scratchpad>/release-v4.2.0.md`. Update the `local-mirror` row of
-        `maintainers/mutation/RESULTS.md` with the same number, pinned to v4.2.0.
+        `maintainers/mutation/RESULTS.md` with the same number, pinned to v4.2.0, **plus the
+        per-file debt table above** so the next reader knows what 89.10 % is made of.
   - [ ] Merge PR #49 → `main`, tag **`v4.2.0`**, `gh release create` with that note.
   - [ ] After the tag: archive this plan (`prospective/` → `archived/`), close Gate 2.6 in the
         ROADMAP, and prune the `kenjaku-next-work-order` memory pointer.
