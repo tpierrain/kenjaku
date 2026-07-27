@@ -150,9 +150,13 @@ release (the pre-layering, monolithic-constitution line, ~v3.2.x).
 
 ## Increment 2.5 (decided 2026-07-27) — refresh an UNTOUCHED engine skill, pulled forward from Gate 4(A)
 
-> **Status:** 🟠 NEXT TO EXECUTE (ROADMAP Gate 2.5). Owns the *skills* half of Gate 4(A) only; the
-> constitution half (`CLAUDE.engine.md` propagation) stays in Gate 4.
+> **Status:** ✅ SHIPPED in **v4.1.0** _(2026-07-27 · PR #47 · `163d882`)_ — "The One Where the Engine
+> Refreshes Its Skills, but Never Yours". Owns the *skills* half of Gate 4(A) only; the constitution
+> half (`CLAUDE.engine.md` propagation) stays in Gate 4, which is why this plan stays prospective.
 > **Why it jumped the queue:** the propagation gap is no longer theoretical, and the fleet is growing.
+> **Still open here, on purpose:** Step 6's exit condition (retire the pre-v3.3.0 bottle once that
+> cohort has shrunk) and the §Side-finding decision on `indexSchemaVersion` — both deliberately out of
+> this increment's scope, neither blocking the release.
 
 ### The trigger (evidence, 2026-07-27)
 

@@ -76,18 +76,19 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
   - [ ] Field-verify a fresh single-universe install is born "today" (no universe folder, no
         frontmatter key, no reminder) and that creating a 2nd universe surfaces `/switch` + the
         reminder + scoped search — at Gate 3 generate time.
-- [ ] **Gate 2.5 — 🔄 Refresh an UNTOUCHED engine skill (pull-forward of Gate 4A). NEXT TO EXECUTE.**
-  - [ ] Provenance-gated refresh (sha256 base already recorded on every brain): overwrite only what is
+- [x] **Gate 2.5 — 🔄 Refresh an UNTOUCHED engine skill (pull-forward of Gate 4A).** _(2026-07-27 · PR #47 · `163d882`; released as **v4.1.0**, "The One Where the Engine Refreshes Its Skills, but Never Yours"; CI 7/7 incl. Windows)_
+  - [x] Provenance-gated refresh (sha256 base already recorded on every brain): overwrite only what is
         provably byte-identical to what the engine last delivered; a customized skill is preserved and
         reported. Lives in `reconcileBrain`, guarded on `sourceDir !== brainDir` so it fires on an
         explicit update, never at SessionStart.
-  - [ ] **Why it jumped the queue:** the gap is live, not theoretical (12 skill commits since v3.2.2 have
+  - [x] **Why it jumped the queue:** the gap is live, not theoretical (12 skill commits since v3.2.2 have
         reached nobody; `4e43e70` in v3.6.2 will never reach a v3.6.0/v3.6.1 brain), and the frozen share
         of the fleet grows with the installed base.
-  - [ ] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Increment 2.5".
-- [ ] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle (DEPENDS on Gate 2.5).**
-  - [ ] Blocked by design, not by code: its user-facing surface is the `/switch` skill, which cannot
-        reach the existing fleet until Gate 2.5 ships.
+  - [x] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Increment 2.5".
+- [ ] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle. NEXT TO EXECUTE.**
+  - [x] Was blocked by design, not by code: its user-facing surface is the `/switch` skill, which could
+        not reach the existing fleet until Gate 2.5 shipped. **Unblocked** by v4.1.0 — an untouched
+        `/switch` is now refreshed on the fleet's next `/update-engine`.
   - [ ] **Canonical plan:** `prospective/universes-profiles-lifecycle-action.md`.
 - [ ] **Gate 3 — 🧠 Migration generate (depends on Gate 1 + Gate 2).**
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no
@@ -115,8 +116,8 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
 
 | Plan (canonical) | What it delivers | Gate | Status |
 | --- | --- | --- | --- |
-| `prospective/engine-managed-file-merge-strategy.md` | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. | 1, **2.5** & 4 | 🟠 Increment 2.5 (skills half) is NEXT TO EXECUTE; the constitution half stays prospective in Gate 4. |
-| `prospective/universes-profiles-lifecycle-action.md` | Per-universe profiles (captured + injected), rename, guarded delete. | 2.6 | 🔭 Design reviewed 2026-07-27; blocked on Gate 2.5 for its user-facing surface. |
+| `prospective/engine-managed-file-merge-strategy.md` | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. | 1, **2.5** & 4 | 🟢 Increment 2.5 (skills half) shipped in **v4.1.0**; the constitution half stays prospective in Gate 4. |
+| `prospective/universes-profiles-lifecycle-action.md` | Per-universe profiles (captured + injected), rename, guarded delete. | 2.6 | 🟠 NEXT TO EXECUTE — design reviewed 2026-07-27, unblocked by v4.1.0 (its `/switch` surface can now reach the fleet). |
 | `archived/universes-progressive-disclosure-action.md` | A soft, progressively-disclosed per-universe retrieval scope over one shared vault/index (ADR 0034). | 2 | ✅ Shipped (PR #38 in v3.6.0, then write-path trilogy + `/switch` flag in v3.6.2, 2026-07-21). Plan archived; field-verify folds into Gate 3. |
 | `prospective/second-brain-migration-and-engine-upstream-action.md` | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | 3 | In progress: Tracks A/B/C DONE (PR #29/#30/#32); **Track D now unblocked (Gate 2 shipped)**; F post-migration. |
 
