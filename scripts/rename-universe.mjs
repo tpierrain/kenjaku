@@ -1,0 +1,116 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// rename-universe.mjs — run FROM the brain folder to rename a universe, fully:
+// the folder moves, every note under it is re-stamped, the registry entry
+// changes name, and you keep standing where you were.
+//
+//   node scripts/rename-universe.mjs <old> <new>
+//
+// Decision D4 chose the FULL rename over a cheap display-name alias, cost
+// accepted: paths change, so the index treats every note as new and re-embeds
+// the whole universe. In exchange the new name is true everywhere — Obsidian,
+// git and grep included — instead of leaving a stale folder behind.
+//
+// No TTY gate here, deliberately (unlike delete-universe.mjs): a rename loses
+// nothing and is undone by renaming back.
+// ─────────────────────────────────────────────────────────────────────────────
+import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+
+import {
+  planUniverseRename,
+  vaultRagDir,
+  writeRegistry,
+  writeActiveUniverse,
+} from "./lib/universes.mjs";
+import { restampUniverse } from "./lib/stamp-universe.mjs";
+import { needsShell } from "./lib/spawn-shell.mjs";
+import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { listFilesRelPosix } from "./lib/fs-walk.mjs";
+
+// What each refusal from the pure core says out loud, in one place, so no session
+// has to invent it.
+const REFUSALS = {
+  empty: () => "✗ A rename needs both a universe to rename and a new name.",
+  reserved: () =>
+    "✗ The default scope cannot be renamed, nor be a rename's target: it is the " +
+    "cross-cutting scope, and it has no folder of its own.",
+  unknown: (plan) =>
+    `✗ No universe named '${plan.name}'. Existing universes: ${plan.available.join(", ")}.`,
+  exists: (plan) =>
+    `✗ A universe named '${plan.name}' already exists. Merging two universes is a ` +
+    `different operation — pick another name.`,
+};
+
+/** Runs the rename. Returns the process exit code. */
+export function runRenameUniverse(argv, deps) {
+  const dir = vaultRagDir(deps.cwd());
+  const plan = planUniverseRename(deps.io, dir, argv[0], argv[1]);
+  if (!plan.ok) {
+    deps.error(REFUSALS[plan.reason](plan));
+    return 1;
+  }
+
+  const vault = `${deps.cwd()}/vault`;
+  const universeDir = `${vault}/${plan.to}`;
+  deps.renameSync(`${vault}/${plan.from}`, universeDir);
+
+  // A note left declaring the old name would be filtered out of the very universe
+  // it visibly lives in — the folder says one thing, the frontmatter another.
+  for (const rel of deps.listNotes(universeDir)) {
+    const path = `${universeDir}/${rel}`;
+    deps.io.writeFileSync(path, restampUniverse(deps.io.readFileSync(path), plan.to));
+  }
+
+  writeRegistry(deps.io, dir, plan.registry);
+  if (plan.movePointer) writeActiveUniverse(deps.io, dir, plan.to);
+
+  // Every path under the universe changed, so the index treats each note as new:
+  // this re-embeds the whole universe. That is the cost D4 accepted knowingly.
+  const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
+  const r = deps.spawnSync(NPM, ["run", "--silent", "reindex"], {
+    cwd: join(deps.cwd(), "rag"),
+    stdio: "inherit",
+    // npm.cmd needs a shell since Node >= 18.20 (CVE-2024-27980) or EINVAL; no-op POSIX (ADR 0031).
+    shell: needsShell(NPM, deps.platform),
+  });
+  if (r.status !== 0) {
+    deps.error(
+      "✗ The rename is done on disk but the re-index failed — run it by hand:  " +
+        "cd rag && npm run reindex",
+    );
+    return 1;
+  }
+
+  deps.log(
+    `✓ Renamed '${plan.from}' → '${plan.to}': the folder, every note's frontmatter, ` +
+      `and the index. The whole universe was re-embedded, since all its paths changed.`,
+  );
+  return 0;
+}
+
+/** The real wiring, named rather than inlined so every branch above stays testable. */
+export function realRenameDeps() {
+  const io = {
+    existsSync,
+    readFileSync: (p) => readFileSync(p, "utf-8"),
+    writeFileSync,
+    mkdirSync,
+  };
+  return {
+    cwd: () => process.cwd(),
+    io,
+    listNotes: (dir) =>
+      existsSync(dir) ? listFilesRelPosix(dir).filter((f) => f.endsWith(".md")) : [],
+    renameSync,
+    spawnSync,
+    platform: process.platform,
+    log: (...a) => console.log(...a),
+    error: (...a) => console.error(...a),
+  };
+}
+
+if (isEntrypoint(import.meta.url, process.argv[1])) {
+  process.exit(runRenameUniverse(process.argv.slice(2), realRenameDeps()));
+}

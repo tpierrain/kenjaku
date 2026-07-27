@@ -29,3 +29,18 @@ export function stampUniverse(raw, universe) {
   if (/^universe:/m.test(inner)) return raw; // already scoped → leave it alone
   return `---\n${inner}\nuniverse: ${universe}\n---\n${body}`;
 }
+
+/**
+ * The rename counterpart of stampUniverse: returns `raw` with its `universe:` key
+ * set to `universe`, REPLACING whatever was there. Where stamping protects an
+ * explicit scope, renaming must overwrite it — a note left declaring the old name
+ * would be filtered out of the universe it visibly lives in. Falls back to
+ * stamping when the note declares no universe at all. Pure: no I/O.
+ */
+export function restampUniverse(raw, universe) {
+  const match = raw.match(FRONTMATTER);
+  if (!match || !/^universe:/m.test(match[1])) return stampUniverse(raw, universe);
+  const [, inner, body] = match;
+  const rewritten = inner.replace(/^universe:.*$/m, `universe: ${universe}`);
+  return `---\n${rewritten}\n---\n${body}`;
+}
