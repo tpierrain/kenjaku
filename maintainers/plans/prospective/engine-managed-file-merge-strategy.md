@@ -487,10 +487,37 @@ explicit guard:
           customized` rewrites the `.new` immediately after, so guarding the clear on the verdict
           cannot change a byte. Clearing **unconditionally** says the same in less code and the
           mutants vanish. Only production change of this step; suite green at 790.
-  - [ ] `reconcile-brain.mjs` + `engine-source.mjs` + `update-engine.mjs`: pass running. Baseline to
-        compare against: `RESULTS.md` records `scripts/**` as **already fully hardened**, so any
-        survivor there is a regression introduced by THIS branch, not pre-existing debt.
-  - [ ] Record the run in `maintainers/mutation/RESULTS.md` (before/after table, per CONVENTIONS §5bis).
+  - [ ] **`scripts/update-engine.mjs` → 51.52 %, 96 survivors** _(measured 2026-07-27)_. **DECISION
+        (Thomas, 2026-07-27): harden it IN THIS BRANCH**, not as a follow-up. The proposal to fix only
+        this increment's own lines and defer the rest was **rejected** — do not re-propose it.
+    - [x] **Qualified before acting: this is NOT a regression from this branch.** `update-engine.mjs`
+          appears **nowhere** in `RESULTS.md`: it was never hardened. The "`scripts/**` is now fully
+          hardened" line covered only the three enumerated worst files (`clear-example-notes`,
+          `auto-push`, `auto-commit`) plus `scripts/lib/**`. So the baseline assumption written one
+          bullet above is **wrong for this file** — corrected here so nobody re-derives it.
+    - [ ] **(a) This increment's own lines.** `L88 if (skillsRefreshed.length > 0)`: the `true` and
+          `>= 0` mutants live, so nothing asserts that an EMPTY list writes **no** line. `L289`: this
+          branch added the `report.skillsRefreshed?.length > 0` term to the restart-flag condition, and
+          it sits inside the untested `if (isEntryPoint)` block.
+    - [ ] **(b) Dead branch, not a missing test.** `L100`'s `newVersionPath ? … : ""` else-branch is
+          **unreachable by construction**: `refreshUntouchedSkills` only ever emits `reason ===
+          "customized"` **with** a `newVersionPath`, and `formatReport` `continue`s on every other
+          reason. Delete the ternary rather than test-cover a state the producer cannot emit
+          (mutation lesson #6: an unreachable branch is a design defect, not an exemption).
+    - [ ] **(c) The composition root has no seam.** The whole top-level `if (isEntryPoint)` block
+          (`L278-302`: newCaps arithmetic, the restart-flag write, the stdout/stderr paths) is
+          **untested**, which is why ~40 of the 96 survivors cluster there. Extract testable seams
+          (at least `needsRestart(report)` and the newCaps computation) instead of leaving it inert.
+    - [ ] **(d) The older prose branches** of `formatReport` (`L47-L143`: hook-name stripping regexes,
+          the singular/plural `capability/capabilities` pair, the restart banner text, the
+          "your notes were left untouched" line). Pre-existing, now in scope by the decision above.
+  - [ ] **`reconcile-brain.mjs` + `engine-source.mjs`: NOT MEASURED YET.** A first attempt passed three
+        separate `--mutate` flags: **they do not accumulate, only the last one applies**, so that run
+        silently measured `update-engine.mjs` alone. Use ONE comma-separated value:
+        `--mutate "scripts/lib/reconcile-brain.mjs,scripts/lib/engine-source.mjs"`. The re-run was
+        still in flight when the session was cleared → **re-run it**.
+  - [ ] Record the run in `maintainers/mutation/RESULTS.md` (before/after table, per CONVENTIONS §5bis),
+        including the honest note that `update-engine.mjs` had never been audited before.
 
 ### Side-finding (2026-07-27) — the schema-bump warning was never wired
 
