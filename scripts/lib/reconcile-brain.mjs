@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
 import { installStagedSkills } from "./staged-skills.mjs";
+import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
@@ -96,6 +97,24 @@ export async function reconcileBrain({
   //    file → pass-1 delivers it). install-if-absent each into `.claude/skills/<name>/`,
   //    alongside the merge-skill install above; fold the names into the same report.
   installedSkills.push(...installStagedSkills({ sourceDir, brainDir }));
+
+  // 2.bis-refresh REFRESH the engine skills the brain has NOT touched (Increment 2.5).
+  //    install-if-absent above stops at the skill-DIR level, so an already-present skill
+  //    was frozen forever: 12 skill commits since v3.2.2 reached nobody, while their
+  //    deterministic cores (a `replace` glob) were refreshed → live core/skill drift.
+  //    Here we overwrite ONLY what the sha256 provenance base proves byte-identical to
+  //    what the engine last delivered; a customized skill is preserved and reported.
+  //    ⚠️ Guarded on `sourceDir !== brainDir`: a skill is only ever overwritten during an
+  //    update the owner explicitly asked for (auto-finalize hands us the FETCHED source),
+  //    NEVER at SessionStart self-heal (which passes the brain as its own source — no new
+  //    content, and nobody asked). ADR 0026's "additive" invariant holds where it matters.
+  const { skillsRefreshed, skillsPreserved, refreshedFileMap } = refreshUntouchedSkills({
+    brainDir,
+    sourceDir,
+    sourceFiles,
+    manifest: target,
+    provenance: local?.provenance ?? {},
+  });
 
   // 2.ter Reconcile .mcp.json against the engine's MCP servers (ADR 0025): register a
   //    newly-shipped engine server the brain is MISSING, taking its definition from the
@@ -207,7 +226,20 @@ export async function reconcileBrain({
   //    any reindex so it reflects the current vault.
   const vaultNoteCount = await countVaultNotes({ brainDir });
 
-  return { copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills, mcpServersAdded, hooksAdded, hooksRepaired };
+  return {
+    copied,
+    regenerated,
+    reindexed,
+    reindexReason,
+    vaultNoteCount,
+    installedSkills,
+    skillsRefreshed,
+    skillsPreserved,
+    refreshedFileMap,
+    mcpServersAdded,
+    hooksAdded,
+    hooksRepaired,
+  };
 }
 
 // ── CLI entry — what the auto-finalize child process runs (ADR 0026, Layer A) ──

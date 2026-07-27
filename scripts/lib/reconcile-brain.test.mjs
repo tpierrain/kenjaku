@@ -744,3 +744,131 @@ async function reconcile(args) {
   const reconcileBrain = await loadReconciler();
   return reconcileBrain(args);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Increment 2.5 — refresh an UNTOUCHED engine skill. Until now an already-present
+// skill dir was skipped wholesale (install-if-absent), so 12 skill commits since
+// v3.2.2 reached nobody. The refresh is gated on the sha256 provenance base every
+// brain already records: overwrite ONLY what is provably byte-identical to what the
+// engine last delivered.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// The digest shape the manifest's `provenance` records (engine-source.fingerprint).
+function base(content) {
+  return "sha256:" + createHash("sha256").update(content).digest("hex");
+}
+
+test("reconcileBrain — an UNTOUCHED engine skill is refreshed to the source's version", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // The brain carries the skill EXACTLY as the engine last delivered it (v3.6.0),
+  // the source carries the improved one (v3.6.2) — the real 4e43e70 case.
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  const target = manifest({ extraMerge: [".claude/skills/switch/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/switch/**"] }),
+    provenance: { ".claude/skills/switch/SKILL.md": base(delivered) },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"),
+    improved,
+    "the untouched skill now carries the engine's newer version",
+  );
+  assert.deepEqual(report.skillsRefreshed, ["switch"]);
+  assert.deepEqual(report.skillsPreserved, []);
+});
+
+test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and reported as such", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // The documented case: the owner refined prepare-1-1 to their own KPIs.
+  const delivered = "---\nname: prepare-1-1\n---\nPrepare a 1-1.\n";
+  const mine = delivered + "\n## My own KPIs\nARR, churn.\n";
+  writeFile(brainDir, ".claude/skills/prepare-1-1/SKILL.md", mine);
+  writeFile(sourceDir, ".claude/skills/prepare-1-1/SKILL.md", delivered + "\nNew engine section.\n");
+  const target = manifest({ extraMerge: [".claude/skills/prepare-1-1/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/prepare-1-1/**"] }),
+    provenance: { ".claude/skills/prepare-1-1/SKILL.md": base(delivered) },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/prepare-1-1/SKILL.md"), "utf8"),
+    mine,
+    "the owner's customized skill is untouched",
+  );
+  assert.deepEqual(report.skillsRefreshed, []);
+  assert.deepEqual(report.skillsPreserved, [{ skill: "prepare-1-1", reason: "customized" }]);
+});
+
+test("reconcileBrain — SessionStart self-heal (sourceDir === brainDir) refreshes NOTHING and reports nothing", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  // Same fixture as the customized case, but the brain is its own source: the local
+  // converge has no new content, and nobody asked for an update. A skill is only ever
+  // overwritten during an explicit update — and the owner is not nagged at every start.
+  const delivered = "---\nname: prepare-1-1\n---\nPrepare a 1-1.\n";
+  const mine = delivered + "\n## My own KPIs\nARR, churn.\n";
+  writeFile(brainDir, ".claude/skills/prepare-1-1/SKILL.md", mine);
+  const target = manifest({ extraMerge: [".claude/skills/prepare-1-1/**"] });
+  const local = {
+    ...manifest({ extraMerge: [".claude/skills/prepare-1-1/**"] }),
+    provenance: { ".claude/skills/prepare-1-1/SKILL.md": base(delivered) },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir: brainDir, target, local, ...s });
+
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/prepare-1-1/SKILL.md"), "utf8"), mine);
+  assert.deepEqual(report.skillsRefreshed, []);
+  assert.deepEqual(report.skillsPreserved, [], "no nagging at session start");
+});
+
+test("reconcileBrain — a FR brain is refreshed from the FR source, never re-anglicized (T2)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // The brain declares its install locale in its own (locale-owned) marker.
+  writeFile(brainDir, "scripts/lib/demo-locale.mjs", 'export const BRAIN_LOCALE = "fr";\n');
+  const deliveredFr = "---\nname: coach\n---\nTon sparring-partner.\n";
+  const improvedFr = deliveredFr + "\nNouvelle section.\n";
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", deliveredFr);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", "---\nname: coach\n---\nYour sparring partner.\nNew section.\n");
+  writeFile(sourceDir, "templates/fr/.claude/skills/coach/SKILL.md", improvedFr);
+  const target = manifest({ extraMerge: [".claude/skills/coach/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/coach/**"] }),
+    provenance: { ".claude/skills/coach/SKILL.md": base(deliveredFr) },
+  };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"),
+    improvedFr,
+    "the FR brain got the FR version of the newer skill",
+  );
+  assert.deepEqual(report.skillsRefreshed, ["coach"]);
+});

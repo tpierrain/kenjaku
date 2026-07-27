@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { fingerprint } from "./engine-source.mjs";
-import { refreshVerdict } from "./engine-skill-refresh.mjs";
+import { refreshVerdict, selectRefreshableSkillFiles } from "./engine-skill-refresh.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-skill-refresh — the PURE verdict behind "refresh an engine skill only
@@ -98,4 +98,28 @@ test("Windows CRLF drift is NOT a customization → still refresh it", () => {
     }),
     { verdict: "refresh" },
   );
+});
+
+// ── Which files are even ELIGIBLE for the refresh ────────────────────────────
+test("selectRefreshableSkillFiles — the engine-declared SKILL files, and nothing else", () => {
+  const manifest = {
+    regimes: {
+      merge: [".claude/skills/coach/**", ".claude/skills/switch/**", "CLAUDE.md", "scripts/auto-commit.mjs"],
+    },
+  };
+  const sourceFiles = [
+    ".claude/skills/coach/SKILL.md",
+    ".claude/skills/coach/references/radical-candor.md",
+    ".claude/skills/switch/SKILL.md",
+    ".claude/skills/zzz-mine/SKILL.md", // home-made → the manifest never names it
+    "CLAUDE.md", // a merge file, but the constitution stays a Gate 4 concern
+    "scripts/auto-commit.mjs", // a merge file, but not a skill
+    "templates/fr/.claude/skills/coach/SKILL.md", // a SOURCE for a locale, not a target path
+    "rag/src/index.ts",
+  ];
+  assert.deepEqual(selectRefreshableSkillFiles({ sourceFiles, manifest }), [
+    ".claude/skills/coach/SKILL.md",
+    ".claude/skills/coach/references/radical-candor.md",
+    ".claude/skills/switch/SKILL.md",
+  ]);
 });

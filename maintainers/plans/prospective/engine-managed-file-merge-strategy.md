@@ -255,8 +255,18 @@ explicit guard:
         `engine-skills/`), so it is never fingerprinted → it would be `preserve: no-provenance` forever.
         Decide with the reseed step: add it to the `merge` globs (and let the reseed give deployed brains
         a base on their next update).
-- [ ] **Step 3 — Wire into `reconcileBrain`** behind the `sourceDir !== brainDir` guard. Assert by test
+- [x] **Step 3 — Wire into `reconcileBrain`** behind the `sourceDir !== brainDir` guard. Assert by test
       that a SessionStart-shaped call (`sourceDir === brainDir`) refreshes **nothing**.
+      _(2026-07-27 · `refreshUntouchedSkills` in `engine-skill-refresh.mjs`, step 2.bis-refresh)_
+  - [x] Runs AFTER install-if-absent, so a brand-new skill dir is installed once and then reads as
+        `unchanged` — the two passes compose instead of fighting.
+  - [x] Scope locked by the selector: `merge`-declared files **under `.claude/skills/`** only. The
+        constitution and the engine-owned scripts (also `merge`) stay out — Gate 4 keeps the
+        constitution half.
+  - [x] Reported per SKILL (`skillsRefreshed`, `skillsPreserved: [{skill, reason}]`), not per file.
+  - [x] Self-heal test proves the guard is observable: a customized skill is neither rewritten NOR
+        reported at session start (no nagging), while the same fixture under an explicit update reports
+        it preserved.
 - [ ] **Step 4 — Provenance re-seed for refreshed files** (T1), with the refresh-twice test.
 - [ ] **Step 5 — Report what happened**, in the `update-engine` summary: which skills were refreshed,
       which were **preserved because customized** (naming the `.new` file). Deterministic prose (ADR 0009),
