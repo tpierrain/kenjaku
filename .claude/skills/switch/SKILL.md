@@ -1,7 +1,7 @@
 ---
 name: switch
-description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active."
-version: 1.0.0
+description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. It does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with')."
+version: 1.1.0
 ---
 
 # /switch — Change or create the active universe (opt-in, no reindex)
@@ -86,6 +86,56 @@ node scripts/set-active-universe.mjs create "<name>"
   core (`openedGate`) owns that call, you only surface what it prints.
 - **exit 1** → relay the reason as-is (`reserved` = `default` is not creatable; `empty` = the name
   had no usable characters), and ask for another name.
+
+Then, **once**, offer to describe the universe just created (see below). Offer, never insist: a
+universe with no profile works exactly like one with a profile, only with less context.
+
+### Describe a universe — its profile (optional, skippable)
+
+A universe's **profile** is a normal note (`vault/<slug>/universe.md`, or `vault/universe.md` for
+the cross-cutting default) recording what this sphere **is**: an employer, a client, a personal
+space, who is in it, what it is about, which accounts its tools use. A short digest of it is
+injected at session start, because the ambient facts of a sphere are needed exactly when nobody
+thinks to search for them.
+
+**When to offer it:** right after a `create` (above), or when the session's start-of-conversation
+context says this brain has no profile yet, or whenever the user asks to describe / update their
+context. **Never twice in one session, never after a refusal.**
+
+**The questions.** Ask them as ONE short batch, in the user's language, and say up front that
+every one of them is skippable and that the page stays editable afterwards (it is a plain note).
+Do not interrogate: if they answer three out of seven, write those three.
+
+1. **What is this place, in a few words?** → `displayName` (+ `kind`: employer, client, project,
+   personal, community…)
+2. **What do you do there?** → `role`
+3. **Since when?** → `period`
+4. **In a sentence or two, what is it?** → `about`
+5. **Who are the people who matter here?** (name + who they are) → `people`
+6. **What subjects keep coming back?** → `topics`
+7. **Which accounts do your tools use here?** (Slack workspace, Notion workspace, mail address…) →
+   `connectors`. This is the one that turns a switch reminder from a generic warning into
+   *"reconnect Slack to acme.slack.com"* — worth asking even when the rest is skipped.
+
+**Then write it** — the note's shape is the core's job, never yours (ADR 0009). From the brain
+folder, pass the answers as JSON on stdin:
+
+```bash
+echo '{"universe":"acme","displayName":"Acme Corp","kind":"employer","role":"Head of Engineering","period":"since 2024","about":"Industrial widgets, two engineering teams.","people":["Zoe (CTO)","Alice (PM)"],"topics":["platform migration","hiring"],"connectors":[{"tool":"Slack","account":"acme.slack.com"}]}' \
+  | node scripts/set-universe-profile.mjs
+```
+
+- Omit `universe` to describe the **active** one. Omit any key the user skipped — a key written
+  empty reads as a fact ("nobody", "no role").
+- **exit 0** → relay the core's messages verbatim (it names the note and confirms the re-index).
+- **exit 1, "already exists"** → a profile is **never** overwritten: relay the message, which names
+  the page to edit directly (in Obsidian, or ask to open it).
+
+**If the user declines**, record it so they are never asked again — and say so plainly:
+
+```bash
+node scripts/set-universe-profile.mjs --decline
+```
 
 ## What it does NOT do
 

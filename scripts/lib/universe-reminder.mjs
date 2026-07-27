@@ -53,7 +53,13 @@ export function profileCaptureOffer({ hasProfile, declined }) {
     `Offer ONCE, in the user's language, to spend two minutes on it (a handful of ` +
     `questions: what this place is, your role there, the people who matter, which ` +
     `accounts your tools use). Say plainly that they can skip it, now or forever. ` +
-    `If they decline, do not ask again in a later session.`
+    // Both answers route to a deterministic surface (ADR 0009): left to improvise,
+    // a session would hand-write a note of the wrong shape, and would forget the
+    // refusal by the next session — which is how a one-shot offer becomes nagging.
+    `If they accept, load the \`switch\` skill and follow its ` +
+    `\`Describe a universe — its profile\` section. If they decline, run ` +
+    `\`node scripts/set-universe-profile.mjs --decline\` so they are never asked ` +
+    `again, and tell them it is recorded.`
   );
 }
 

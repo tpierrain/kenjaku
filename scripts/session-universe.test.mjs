@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { sessionUniverseReminder } from "./session-universe.mjs";
+import { profileCaptureOffer } from "./lib/universe-reminder.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -165,6 +166,25 @@ test("sessionUniverseReminder makes no offer once the owner declined", () => {
   const { args } = seams({ readDigest: () => null, readDeclined: () => true });
 
   assert.equal(sessionUniverseReminder(args).offer, null);
+});
+
+// --- the offer must land somewhere that exists ------------------------------
+
+test("the capture offer points at a section the /switch skill actually has", () => {
+  // The offer tells the session to follow a NAMED section of a skill. Rename that
+  // heading and the directive becomes a dead end that no test would otherwise
+  // notice — the offer would still be emitted, and still lead nowhere.
+  const skill = readFileSync(join(REPO_ROOT, ".claude", "skills", "switch", "SKILL.md"), "utf8");
+  const offer = profileCaptureOffer({ hasProfile: false, declined: false });
+  const [, section] = offer.match(/follow its `([^`]+)` section/);
+  const [, command] = offer.match(/run `node ([^`]+)`/);
+
+  assert.ok(
+    skill.split("\n").some((line) => line.startsWith("#") && line.includes(section)),
+    `no heading named "${section}" in the switch skill`,
+  );
+  // And the decline command must be the real script, spelled the way it is called.
+  assert.match(skill, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 });
 
 test("settings.json.template wires session-universe as a SessionStart hook, AFTER session-self-heal", () => {

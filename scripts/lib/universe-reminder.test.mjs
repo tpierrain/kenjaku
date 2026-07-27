@@ -41,10 +41,24 @@ test("profileCaptureOffer invites the owner to describe their context when there
   assert.match(offer, /(skip|decline|no thanks|not now)/i);
 });
 
-test("profileCaptureOffer never says 'universe' (it must be safe below the gate)", () => {
+test("profileCaptureOffer routes BOTH answers to the deterministic surface", () => {
+  // Left to improvise, a session would hand-write the profile note (wrong shape,
+  // unindexed) and forget the refusal by the next session. Both answers must land
+  // on the skill / the CLI that own them (ADR 0009).
+  const offer = profileCaptureOffer({ hasProfile: false, declined: false });
+
+  assert.match(offer, /switch/);
+  assert.match(offer, /set-universe-profile\.mjs --decline/);
+});
+
+test("profileCaptureOffer never says 'universe' in the words meant for the user", () => {
   // This offer reaches single-universe brains — the majority — and the word would
-  // expose machinery they do not have yet (ADR 0034 progressive disclosure).
-  assert.doesNotMatch(profileCaptureOffer({ hasProfile: false, declined: false }), /universe/i);
+  // expose machinery they do not have yet (ADR 0034 progressive disclosure). The
+  // `backticked` commands are for the agent alone, and are the ONLY place the word
+  // may appear (a script has the filename it has).
+  const prose = profileCaptureOffer({ hasProfile: false, declined: false }).replace(/`[^`]*`/g, "");
+
+  assert.doesNotMatch(prose, /universe/i);
 });
 
 test("profileCaptureOffer stays silent once a profile exists", () => {
