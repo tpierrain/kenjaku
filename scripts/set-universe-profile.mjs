@@ -12,9 +12,10 @@
 //   echo '<json answers>' | node scripts/set-universe-profile.mjs
 //   echo '<json answers>' | node scripts/set-universe-profile.mjs --no-reindex
 //   node scripts/set-universe-profile.mjs --decline     # never ask me again
+//   node scripts/set-universe-profile.mjs --digest      # the working context, after a switch
 //
 // Answers: { universe?, displayName, kind?, role?, period?, about?, people?[],
-// connectors?[{tool, account}] }. Without `universe`, the ACTIVE one is used.
+// topics?[], connectors?[{tool, account}] }. Without `universe`, the ACTIVE one is used.
 // Exits 0 when written (or when the refusal is recorded), 1 when the profile
 // already exists or on error.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,7 +23,12 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { writeUniverseProfile, declineProfileCapture } from "./lib/universe-profile.mjs";
+import {
+  writeUniverseProfile,
+  declineProfileCapture,
+  readUniverseProfile,
+  renderUniverseDigest,
+} from "./lib/universe-profile.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
@@ -57,6 +63,15 @@ export function runSetUniverseProfile(argv, deps = realProfileDeps) {
   if (argv.includes("--decline")) {
     declineProfileCapture(deps.io, vaultRagDir(deps.cwd()), deps.activeUniverse());
     deps.log("✓ Noted — I will not ask about your context again.");
+    return 0;
+  }
+
+  // Re-read the working context, for a session that has just switched sphere: the
+  // digest injected at session start describes the universe it STARTED in, and a
+  // stale profile is worse than none (it names the wrong people, the wrong tools).
+  if (argv.includes("--digest")) {
+    const profile = readUniverseProfile(deps.io, `${deps.cwd()}/vault`, deps.activeUniverse());
+    if (profile) deps.log(renderUniverseDigest(profile));
     return 0;
   }
 

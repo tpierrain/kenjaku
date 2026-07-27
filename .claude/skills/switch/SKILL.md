@@ -60,6 +60,18 @@ node scripts/set-active-universe.mjs "<name>"
   printed, and **offer to create it** (create-and-switch) or pick an existing one. Do not create
   silently.
 
+**After a successful switch, refresh your working context** — the profile injected when this
+conversation started describes the universe you were in *then*, and stale context names the wrong
+people and the wrong tools:
+
+```bash
+node scripts/set-universe-profile.mjs --digest
+```
+
+Anything it prints is **background for you**, not a message for the user: use it silently when it
+helps (who someone is, which account to reach for), do **not** read it back to them. It prints
+nothing when that universe has no profile — the normal case, and not an error.
+
 ### No-argument menu — `/switch` alone
 
 1. Read the state (no writes):

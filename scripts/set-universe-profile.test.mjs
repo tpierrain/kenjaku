@@ -117,3 +117,34 @@ test("runSetUniverseProfile --decline records the refusal for the active univers
   });
   assert.deepEqual(calls.logged, ["✓ Noted — I will not ask about your context again."]);
 });
+
+// ── --digest: re-read the working context after a switch ────────────────────
+// The SessionStart hook injects the digest of the universe in force AT START.
+// Switch mid-session and that context is stale — about the sphere you just left.
+
+test("runSetUniverseProfile --digest prints the working context of the active universe", () => {
+  const { args, calls } = deps({
+    files: {
+      "/brain/vault/acme/universe.md":
+        "---\ntype: universe\ndisplayName: Acme Corp\nkind: employer\n---\n\n# Acme Corp\n\n## People\n\n- Zoe (CTO)\n",
+    },
+  });
+
+  const code = runSetUniverseProfile(["--digest"], args);
+
+  assert.equal(code, 0);
+  assert.deepEqual(calls.logged, ["Acme Corp (employer).\nPeople: Zoe (CTO)."]);
+  assert.deepEqual(calls.spawned, []);
+});
+
+test("runSetUniverseProfile --digest stays quiet, and successful, when there is no profile", () => {
+  // The commonest case by far. Failing here would make the /switch skill's
+  // post-switch step look broken on every brain that never filled a profile in.
+  const { args, calls } = deps();
+
+  const code = runSetUniverseProfile(["--digest"], args);
+
+  assert.equal(code, 0);
+  assert.deepEqual(calls.logged, []);
+  assert.deepEqual(calls.errored, []);
+});
