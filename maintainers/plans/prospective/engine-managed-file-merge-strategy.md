@@ -313,44 +313,56 @@ explicit guard:
   - [x] The `update-engine` skill relays both lines (EN + `templates/fr`), and its "genuine no-op"
         carve-out now includes "no skill brought up to date" — else a refresh-only update would
         wrongly skip the restart banner.
-- [ ] **Step 6 — Pre-v3.3.0 tail: DECIDED (2026-07-27) → the message-in-a-bottle (option A).** Carry the
+- [x] **Step 6 — Pre-v3.3.0 tail: DECIDED (2026-07-27) → the message-in-a-bottle (option A).** Carry the
       cohort with `rag/postinstall-restart-notice.mjs`'s proven vector so a pre-v3.3.0 brain converges on
-      its FIRST `/update-engine`, not its second.
-  - [ ] **Why A and not the documented 2-cycle (Thomas, explicitly):** today it is simply the better user
+      its FIRST `/update-engine`, not its second. _(2026-07-27 · `4279fd4` code + `438606d` skill rule)_
+  - [x] **Why A and not the documented 2-cycle (Thomas, explicitly):** today it is simply the better user
         experience, and the goal right now is **market share** — widening the installed base. A newcomer
         on an old engine must not silently keep frozen skills until they happen to update twice.
   - [ ] **Exit condition (do not let this become mystery debt):** the bottle is a *transitional* vector.
         When the pre-v3.3.0 cohort has shrunk, delete it and fall back to option B (2-cycle, already
         documented by ADR 0025). Whoever removes it should find this line, not archaeology.
-  - [ ] Fail-soft is not optional here: the bottle runs inside `npm install`: a throw would abort the
+  - [x] Fail-soft is not optional here: the bottle runs inside `npm install`: a throw would abort the
         install and break the update. Same discipline as the existing restart notice (never throws,
-        swallowed by the CLI wrapper).
-  - [ ] **Design settled BEFORE coding (2026-07-27) — the bottle PRINTS a directive, it does not
+        swallowed by the CLI wrapper). _(inherited: the new banner rides the same try/caught `main()`)_
+  - [x] **Design settled BEFORE coding (2026-07-27) — the bottle PRINTS a directive, it does not
         refresh.** Making the postinstall run the refresh itself looks obvious and does not survive
         contact with the facts:
-    - [ ] **It has no source to refresh FROM.** The merge skills' new content exists only in the
+    - [x] **It has no source to refresh FROM.** The merge skills' new content exists only in the
           orchestrator's temp clone, whose path the postinstall never learns; and the manifest still
           records the OLD `source.ref` at that moment (step 7 writes it AFTER `npm install`), so
           re-fetching from it would pull the version being replaced.
-    - [ ] **The staged base is already gone.** `engine-skills/**` is a `replace` glob copied BEFORE
+    - [x] **The staged base is already gone.** `engine-skills/**` is a `replace` glob copied BEFORE
           `npm install`, so by postinstall time the staging tree holds the NEW content. Comparing
           against it would call every outdated-but-untouched skill "customized" and litter the brain
           with `.new` files: the exact opposite of the promise.
-    - [ ] **A reconcile inside `npm install` recurses.** `reconcileBrain` runs `npm install` itself →
+    - [x] **A reconcile inside `npm install` recurses.** `reconcileBrain` runs `npm install` itself →
           postinstall → reconcile → … Any refresh-from-the-bottle needs a re-entrancy guard that the
           print-only vector does not.
-    - [ ] **Therefore:** the bottle prints a directive addressed to the AGENT ("this brain ran a
+    - [x] **Therefore:** the bottle prints a directive addressed to the AGENT ("this brain ran a
           pre-auto-finalize orchestrator — run `node scripts/update-engine.mjs` once more, now"),
           exactly like `restartNoticeBanner()` does today, and the `update-engine` skill carries the
-          matching rule. The user still asks ONCE and ends up converged in the same interaction (the
-          option-A experience Thomas asked for), with zero new execution path inside npm.
-    - [ ] **Cohort signal (deterministic, no guessing):** auto-finalize shipped in **v3.3.0**, whose
+          matching rule (EN + `templates/fr`, incl. **why it cannot loop**: the first pass records the
+          new versions, so the second postinstall is silent). The user still asks ONCE and ends up
+          converged in the same interaction, with zero new execution path inside npm.
+    - [x] **Cohort signal (deterministic, no guessing):** auto-finalize shipped in **v3.3.0**, whose
           manifest records `engineVersion.scripts: "1.1.0"` (`7105a7a`, released by `423d7e4`). At
           postinstall time the manifest still holds the brain's OLD versions, so
           `recorded scripts < 1.1.0` ⇒ the orchestrator that is running has no auto-finalize. Same
           read-the-stale-manifest trick the restart notice already relies on.
-    - [ ] Testable halves, as for the restart notice: a pure `shouldFinishRefresh({...})` predicate +
+      - [x] **Two refinements the tests pulled out.** (a) An **absent or unparsable** `scripts` version
+            counts as *older* than the floor — a manifest without the key predates it, and one extra
+            converging update is cheaper than a permanently frozen skill set. (b) The cohort test is
+            **conjoined with the update-in-flight signal** (`recorded rag !== package rag`), because the
+            SessionStart self-heal runs `npm install` too: without it, every session start on an old
+            brain would nag the owner to update.
+    - [x] Testable halves, as for the restart notice: a pure `shouldFinishRefresh({...})` predicate +
           a pure banner; the I/O `main()` stays thin glue.
+      - [x] **Side-fix — the bottle's suite was running in NO CI job:** the harness step globs
+            `scripts/**` and rag's `npm test` globs `src/lib/*.test.ts`, so `rag/*.test.mjs` fell
+            between the two. Added to the harness step (dependency-free `.mjs` seams belong there).
+      - [x] The three cohorts were also smoke-run through the real `main()` on fixture brain layouts
+            (old scripts → both banners; modern → restart only; converged → silence).
 - [ ] **Step 7 — ADR:** amend **0026** (the reconciler gains a conditional, provenance-gated overwrite,
       scoped to explicit updates) and cross-note **0025** (its "out of scope, belongs to a future 3-way
       merge" consequence is now partially closed). Keep the `Scope:` field per `CONVENTIONS.md`.
