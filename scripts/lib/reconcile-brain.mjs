@@ -20,8 +20,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
+import { isEntrypoint } from "./entrypoint.mjs";
 import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
 import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
@@ -308,13 +308,37 @@ export async function runReconcileCli({ argv, seams = {} }) {
   return report;
 }
 
-// Guarded so importing this module never runs the CLI. FAIL LOUD on error (exit 1) —
-// auto-finalize's own caller treats a child failure as best-effort (fail-soft there).
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  runReconcileCli({ argv: process.argv.slice(2) })
-    .then(() => process.exit(0))
-    .catch((e) => {
-      process.stderr.write(`\n❌ reconcile-brain failed.\n${e?.message ?? e}\n`);
-      process.exit(1);
-    });
+// The real I/O the child process runs on: the flags it was actually launched with and
+// the real stderr. Everything `runReconcileCliProcess` decides is testable BECAUSE it is
+// handed these instead of reaching for them (the `clear-example-notes` idiom, twin of
+// update-engine's `realUpdateDeps`) — the entry-point block below is now pure wiring.
+export const realReconcileDeps = {
+  argv: process.argv.slice(2),
+  runReconcileCli,
+  error: (s) => process.stderr.write(s),
+};
+
+// What the auto-finalize child process does, minus the process. Returns the exit code.
+// FAIL LOUD on error (exit 1) — auto-finalize's own caller treats a child failure as
+// best-effort (fail-soft there), so this banner is the ONLY trace a broken reconcile
+// leaves behind. `?? e` catches a thrown non-Error (a bare string); `?? "no reason
+// given"` catches a rejection with no reason at all — a ❌ over an empty line tells
+// nobody anything.
+export async function runReconcileCliProcess(deps = realReconcileDeps) {
+  try {
+    await deps.runReconcileCli({ argv: deps.argv });
+    return 0;
+  } catch (e) {
+    deps.error(`\n❌ reconcile-brain failed.\n${e?.message ?? e ?? "no reason given"}\n`);
+    return 1;
+  }
+}
+
+// ── CLI entry ────────────────────────────────────────────────────────────────
+// Guarded so importing this module never runs the CLI. Through the canonical
+// `isEntrypoint` (bug B2): a hand-rolled path/URL comparison silently never matches on
+// Windows paths or paths carrying a space, and a guard that never fires makes the whole
+// command an inert no-op that says nothing about it.
+if (isEntrypoint(import.meta.url, process.argv[1])) {
+  process.exit(await runReconcileCliProcess());
 }

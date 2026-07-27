@@ -10,6 +10,8 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1329,4 +1331,123 @@ test("runReconcileCli — a file it delivers under an existing skill stays refre
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/references/radical-candor.md"), "utf8"), improved);
   const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
   assert.equal(persisted.provenance[".claude/skills/coach/references/radical-candor.md"], base(improved));
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The COMPOSITION ROOT (Step 10). Everything above hands `runReconcileCli` its
+// argv and its seams, so nothing exercised the process-level wiring: the argv
+// slice, the error banner, the exit code, the entry-point guard. That is where
+// the survivors clustered — the same shape, and the same fix, as
+// `update-engine.mjs`'s `runUpdateCli(deps)` / `realUpdateDeps`.
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function loadProcessCli() {
+  return (await import("./reconcile-brain.mjs")).runReconcileCliProcess;
+}
+
+test("runReconcileCliProcess — a successful reconcile exits 0 and stays silent", async () => {
+  const seen = [];
+  const err = [];
+  const runReconcileCliProcess = await loadProcessCli();
+
+  const code = await runReconcileCliProcess({
+    argv: ["--brainDir", "/brains/mine", "--sourceDir", "/src"],
+    runReconcileCli: async (args) => seen.push(args) && { copied: [] },
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 0);
+  assert.deepEqual(err, [], "a successful reconcile is a silent finisher — it must not write to stderr");
+  assert.deepEqual(seen, [{ argv: ["--brainDir", "/brains/mine", "--sourceDir", "/src"] }]);
+});
+
+// FAIL LOUD (the project's strategy): auto-finalize's own caller treats a child failure
+// as best-effort, so this banner + exit code is the ONLY trace a broken reconcile leaves.
+test("runReconcileCliProcess — a failure exits 1 and says exactly what broke", async () => {
+  const err = [];
+  const runReconcileCliProcess = await loadProcessCli();
+
+  const code = await runReconcileCliProcess({
+    argv: [],
+    runReconcileCli: async () => {
+      throw new Error("engine-manifest.json is unreadable");
+    },
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, ["\n❌ reconcile-brain failed.\nengine-manifest.json is unreadable\n"]);
+});
+
+// The bottom of the barrel, twin of update-engine's: a rejection with NO reason at all
+// (a thrown non-Error, an aborted child). A ❌ banner over an empty line tells nobody
+// anything — and this is the one output a failed reconcile leaves behind.
+test("runReconcileCliProcess — a rejection with no reason still explains itself", async () => {
+  const err = [];
+  const runReconcileCliProcess = await loadProcessCli();
+
+  const code = await runReconcileCliProcess({
+    argv: [],
+    runReconcileCli: async () => {
+      throw null;
+    },
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, ["\n❌ reconcile-brain failed.\nno reason given\n"]);
+});
+
+// A thrown bare string has no `.message` — the fallback must print the string itself,
+// not the word "undefined".
+test("runReconcileCliProcess — a thrown bare string is printed as-is", async () => {
+  const err = [];
+  const runReconcileCliProcess = await loadProcessCli();
+
+  const code = await runReconcileCliProcess({
+    argv: [],
+    runReconcileCli: async () => {
+      throw "npm exited 137";
+    },
+    error: (s) => err.push(s),
+  });
+
+  assert.equal(code, 1);
+  assert.deepEqual(err, ["\n❌ reconcile-brain failed.\nnpm exited 137\n"]);
+});
+
+// The wiring itself — the one thing `runReconcileCliProcess(deps)` can never prove,
+// since every test above hands it doubles. If `realReconcileDeps` passed the wrong argv
+// slice (node + the script path leaking in as flags) or a swallowing stream, the child
+// would run flawlessly against nothing and say so.
+test("realReconcileDeps — carries the process flags (not node/script) and the real stderr", async () => {
+  const { realReconcileDeps, runReconcileCli } = await import("./reconcile-brain.mjs");
+
+  assert.deepEqual(realReconcileDeps.argv, process.argv.slice(2));
+  assert.equal(realReconcileDeps.runReconcileCli, runReconcileCli);
+
+  const errs = [];
+  const realErr = process.stderr.write;
+  process.stderr.write = (s) => errs.push(s) && true;
+  try {
+    realReconcileDeps.error("boom\n");
+  } finally {
+    process.stderr.write = realErr;
+  }
+  assert.deepEqual(errs, ["boom\n"]);
+});
+
+// …and the last untested link: that the entry-point guard actually FIRES. Bug B2 was
+// exactly this class — a guard that silently never matched, so running the command did
+// nothing at all and said nothing about it. Everything above can be green while the
+// script is an inert no-op, so run it for real, as a process. Safe by construction: with
+// no flags it rejects before touching a single file.
+test("the CLI entry point actually runs the reconcile (and fails LOUDLY, never silently)", () => {
+  const script = fileURLToPath(new URL("./reconcile-brain.mjs", import.meta.url));
+
+  const r = spawnSync(process.execPath, [script], { encoding: "utf8" });
+
+  assert.equal(r.status, 1, "a script whose entry guard never fires would exit 0");
+  assert.equal(r.stderr, "\n❌ reconcile-brain failed.\nreconcile-brain: --brainDir and --sourceDir are required\n");
+  assert.equal(r.stdout, "", "a failed reconcile must not print anything to stdout");
 });
