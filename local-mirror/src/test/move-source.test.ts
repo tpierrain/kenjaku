@@ -278,9 +278,17 @@ test('a move refuses while another window is syncing that mirror, rather than ra
 
   const result = await gss.moveSource('team-a', 'acme');
 
-  assert.equal(result.ok, false);
-  assert.equal(result.moved, 0);
-  assert.match(result.message, /refresh|syncing/i);
+  // Asserted WHOLE, not by fragments: this sentence is the entire outcome of the call — it is what
+  // tells the owner nothing was moved, why, and that trying again is the fix. Matched on a piece of
+  // itself, its other clauses could all be blanked with the suite still green.
+  assert.deepEqual(result, {
+    name: 'team-a',
+    ok: false,
+    moved: 0,
+    message:
+      '"team-a" is being refreshed right now (another brain window, or its background timer), ' +
+      'so it was not moved — a move and a refresh rewrite the same files. Try again in a moment.',
+  });
   assert.deepEqual(
     [...harness.vaultFiles().keys()],
     ['mirrors/team-a/page-1.md'],
