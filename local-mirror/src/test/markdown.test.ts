@@ -104,3 +104,31 @@ test('a move preserves a frontmatter key the engine does not know', () => {
   ]);
   assert.equal(content.trim(), 'body');
 });
+
+// A note that lost its citation frontmatter cannot be rebuilt into a valid one: the move used to
+// write `source_url: undefined` (a dead citation) and, since the rebuild now keeps what it finds,
+// would write a note with no URL at all. Either way the page lands indexed and uncitable. Refusing
+// throws inside phase 1 of the move, which already rolls the new copies back and leaves the old
+// corpus untouched.
+test('a note whose citation frontmatter is missing is refused, not rebuilt broken', () => {
+  const noUrl = aNoteCarrying('tags: [invoices]').replace(
+    'source_url: https://www.notion.so/acme/Page-0123abc\n',
+    '',
+  );
+
+  assert.throws(() => reuniverseLocalMirrorMarkdown(noUrl, 'acme'), /source_url/);
+});
+
+// Two keys, gone at once, and neither is the one the first example pinned: the refusal must name
+// what is actually missing (that is what tells the owner which note to repair), not a key it
+// happens to check first.
+test('the refusal names every missing key, not just the first it looks for', () => {
+  const gutted = aNoteCarrying('tags: [invoices]')
+    .replace('mirror: team-a\n', '')
+    .replace("last_edited_time: '2026-07-28T10:00:00.000Z'\n", '');
+
+  assert.throws(
+    () => reuniverseLocalMirrorMarkdown(gutted, 'acme'),
+    /mirror, last_edited_time/,
+  );
+});

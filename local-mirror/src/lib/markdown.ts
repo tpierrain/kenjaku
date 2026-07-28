@@ -33,6 +33,15 @@ export interface LocalMirrorFrontmatter {
   universe?: string;
 }
 
+/** The keys every produced note carries, and the ones a move rebuilds from (`universe` apart). */
+const REQUIRED_FRONTMATTER = [
+  'mirror',
+  'source_id',
+  'title',
+  'source_url',
+  'last_edited_time',
+] as const;
+
 /**
  * Assemble one note: produced body + mandatory citation frontmatter (PRD §6). When `universe`
  * is truthy it is stamped LAST (matching `stamp-universe.mjs`'s append-last convention, so the
@@ -75,6 +84,16 @@ function renderNote(frontmatter: object, body: string): string {
  */
 export function reuniverseLocalMirrorMarkdown(raw: string, universe?: string): string {
   const { data, content } = parseLocalMirrorMarkdown(raw);
+  // A note stripped of its citation frontmatter cannot be rebuilt into a valid one — it would
+  // land in the new folder indexed and uncitable. Naming every missing key is what tells the
+  // owner which note to repair. Refusing here throws inside phase 1 of the move, which rolls the
+  // new copies back and leaves the old corpus untouched.
+  const missing = REQUIRED_FRONTMATTER.filter((key) => !data[key]);
+  if (missing.length > 0) {
+    throw new Error(
+      `this note is missing the local-mirror frontmatter a move rebuilds from: ${missing.join(', ')}`,
+    );
+  }
   // Every key the note carries is kept, in place — a `tags:` the owner added, a key a later
   // engine version stamps. Rebuilding from the five fields this module knows would DELETE the
   // rest, and a move only re-files a note. `universe` alone is re-stamped, last.
