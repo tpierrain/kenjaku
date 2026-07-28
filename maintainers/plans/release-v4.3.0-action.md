@@ -159,31 +159,32 @@
       launched it. **8 findings, every one reproduced against the real code before being accepted.**
       They are the work list below.
 - [ ] **Fix what the review raised** (each one TDD, red first, its own commit)
-  - [ ] **A move can DELETE the pages it was asked to re-file** (`local-mirror.ts` rollback). On a
+  - [x] **A move can DELETE the pages it was asked to re-file** (`local-mirror.ts` rollback). On a
         same-universe move the "landed" paths **are** the originals, so a phase-1 failure makes the
         rollback delete real notes — and the sidecar's matching hash then reports them `unchanged`
-        forever. The no-op guard exists in phase 2 and is missing here.
-  - [ ] **Phase 2 produces the half-move the design claims impossible** (`local-mirror.ts`). The old
-        copies are deleted **before** the config is persisted, and an unwritable old page throws out
-        of `moveSource` — so the caller never even gets the reassuring `MoveResult`. Persist the
-        sidecar and the config FIRST, then treat a failing delete as leftover garbage to report, not
-        as an abort.
-  - [ ] **A move races the background refresh** (`local-mirror.ts`). `sync` takes `syncLock` because
-        last-write-wins corrupts `state.json`; the move does not, while a timer re-syncs every 300 s
-        by default in every open window.
-  - [ ] **An engine update commits conflict markers** (`engine-commit.mjs`). It tests only "dirty",
-        then `add -A && commit` — burying `<<<<<<<` in the manifest the NEXT update will `JSON.parse`.
-        This is the very hazard `sweepThenPull` was given `countUnmerged` for; the same guard belongs
-        here (and the sibling gap in `auto-commit.mjs` decides whether SETUP's "nothing is committed
-        for you" is true on every path or only at session start).
-  - [ ] **…and it claims "committed" when git refused** (`engine-commit.mjs`). The `git commit`
-        result is dropped, so a brain with no `user.email` is told its engine files were committed
-        while the tree is left staged and dirty.
-  - [ ] **The fail-loud vault guard is blind to accented and spaced note names**
+        forever. The no-op guard exists in phase 2 and is missing here. _(`f6e5772`)_
+  - [x] **Phase 2 produces the half-move the design claims impossible** (`local-mirror.ts`). The old
+        copies were deleted **before** the config was persisted, and an unwritable old page threw out
+        of `moveSource` — so the caller never even got the reassuring `MoveResult`. Now: record the
+        sidecar and the config FIRST, then best-effort deletes, and what the vault refuses to remove
+        is **named in the message** as the leftover it is. The ordering is pinned by a test that
+        FAILS under the old order (the builder gained `withUnwritableConfig`; the first version of
+        that test passed both ways and was rewritten). _(`688ae0d`)_
+  - [x] **A move races the background refresh** (`local-mirror.ts`). It now takes the same
+        `syncLock` a sync takes, and refuses out loud while a refresh holds it. _(`9c41ea4`)_
+  - [x] **An engine update commits conflict markers** (`engine-commit.mjs`). The rule now lives once
+        in `treeState` (`repo-status.mjs`) and **all three** persistence paths read the tree through
+        it — the sweep, the engine commit, and `auto-commit.mjs`, whose identical gap made SETUP's
+        "nothing is committed for you" true only at session start. An update that walks away from a
+        dirty tree now says so and names the resolve. _(`76d3a0a`)_
+  - [x] **…and it claims "committed" when git refused** (`engine-commit.mjs`). The commit is only
+        claimed when git took it; otherwise the report names the usual cause (no git identity) and
+        says the files are staged and waiting. _(`cede198`)_
+  - [x] **The fail-loud vault guard is blind to accented and spaced note names**
         (`repo-status.mjs`). Git quotes those paths (` M "vault/r\303\251union.md"`), so the
-        `slice(3).startsWith("vault/")` test misses them. Measured on a real repo: **4 uncommitted
-        notes, counted as 1.** On a French-first product that is the normal case — the banner shows a
-        reassuring ✅ over unversioned notes, which is exactly the failure this guard exists to catch.
+        `slice(3).startsWith("vault/")` test missed them. Measured on a real repo: **4 uncommitted
+        notes, counted as 1.** Fixed by unquoting, and renames are read as the two paths they are
+        (proven by a hand-applied mutant). _(`fd7ae79`)_
   - [ ] **A note whose body starts with `---` is written DESTROYED — at sync time**
         (`markdown.ts`). `matter.stringify` re-parses a string body, so a Notion page whose first
         block is a divider has its characters scattered into the frontmatter (`'0': r`, `'1': e`…)
@@ -192,8 +193,21 @@
         victims. Also: a missing key currently stringifies to the literal `undefined`
         (`source_url: undefined` → a dead citation), and any frontmatter key the engine does not know
         is silently dropped by the move's rebuild.
-  - [ ] **A guard whose name lies** (`mcp-tools.test.ts`): "exactly the **7** tools" now asserts a
-        list of 8. That count is the only thing pinning "no tool was silently added".
+    - [ ] **⬅️ THE ONE STILL OPEN — resume here.** Reproduced with a probe against the real
+          `toLocalMirrorMarkdown`: `matter.stringify(body, data)` treats a string body that starts
+          with `---` as a file to PARSE, so the body's characters come back as `'0': r, '1': e, …`
+          inside the frontmatter and the body is `"\n"`. Fix at the write path (build the
+          frontmatter block instead of handing gray-matter a re-parseable string), then make
+          `reuniverseLocalMirrorMarkdown` preserve unknown keys and refuse a note whose required
+          frontmatter is missing rather than stringifying `undefined`. Byte-identity with what a
+          sync writes is the constraint that must survive (there is already a test for it).
+  - [x] **A guard whose name lies** (`mcp-tools.test.ts`): "exactly the **7** tools" asserted a list
+        of 8. _(`84a5d87`)_
+  - [ ] **After the last fix:** re-run the mutation snapshot on what changed (`repo-status.mjs`,
+        `engine-commit.mjs`, `auto-commit.mjs`, `local-mirror.ts`, `markdown.ts`) and update
+        [`../mutation/RESULTS.md`](../mutation/RESULTS.md) + the release-note figures below, which
+        still quote the PRE-review numbers.
+  - [ ] **Also update the PR #50 body**: it describes the four tracks but not the review fixes.
 - [ ] merge the PR into `main` once tracks A, B and C are green (PR #50 grows to carry them, or
       each track lands as its own PR onto the same branch — decide when A is done)
   - [ ] tag + publish `v4.3.0`, title in the house style (`v4.3.0 — The One Where …`);
