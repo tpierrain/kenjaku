@@ -209,7 +209,7 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
       skill + guard test + the Gate 4 fixture written out; only the **release-note line** is owed, at
       Track 9. **Source-level guard only**: the behaviour itself is Gate 4's fixture to run.
 - [x] **Track 10 — Commits stop tracking every pause** *(the push-cadence decision)* _(2026-07-28 ·
-      `f0f4b3f`, `0a1c9d2`)_ — persistence has its own window (2 min quiet, 10 min cap); indexing keeps
+      `aeda895`, `d828af6`, `c023ac3`)_ — persistence has its own window (2 min quiet, 10 min cap); indexing keeps
       its 5 s debounce. ADR 0037 amended in place. Only the **release-note line** is owed, at Track 9.
 - [ ] **Track 9 — Cut the release**
 
