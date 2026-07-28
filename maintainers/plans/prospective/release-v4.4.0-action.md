@@ -65,15 +65,58 @@ to avoid *"a network push per edit + its blocking retry pause"* (and that retry 
 `Atomics.wait`). Track 1 partly reintroduces that on the watcher path. The "a note is safe within
 seconds" promise only needs the **commit**; the push does not have to share its cadence.
 
-- [ ] **DECIDE (Thomas):** **(a)** ship as is; **(b)** decouple — commit per campaign, push on a much
-      longer quiet window or left to the Stop hook; **(c)** lengthen the global debounce, which also
-      delays search and so weakens the headline. **Recommendation: (b).** It keeps the release's actual
-      promise (a note is committed within seconds of you stopping) and restores the property
-      `auto-commit.mjs` says it wanted. Decide **before** the release note: it changes what we promise
-      to anyone whose vault has a remote.
+**▶️ WHERE THE DISCUSSION LANDED (2026-07-28, and it moved past the a/b/c options above).** Thomas
+proposed **2 minutes** instead of 5 s, then sharpened it into a better axis: *distinguish the time to
+commit/push/index for* **(1) files ingested by a SYNC** *(no debounce wanted there)* *from* **(2) files
+created or edited BY HAND in the vault**. That distinction is right, and the code says why:
+
+- **There is no notion of provenance today.** chokidar sees a write; a bulk mirror sync and a person
+  typing go down the **exact same** path — one 5 s debounce governing both indexing AND persistence.
+- **A sync cannot even announce itself.** `engine-skills/local-mirror/SKILL.md:314` documents that
+  freshly-synced pages are "not searchable **yet**: the FileWatcher reindexes a moment after files hit
+  disk" — the sync **waits for the watcher** instead of saying "batch done".
+- **The explicit door exists but is half-wired:** the `reindex` MCP tool (`rag/src/index.ts:176`) calls
+  `reindexFn` directly — it indexes and **never persists**. Only the watcher path runs
+  `runCatchUpCampaign`. So the one entry point that KNOWS a batch is complete is also the one that
+  cannot commit it.
+
+**Careful — "no debounce for a sync" must not mean "a campaign per file".** A sync lands in waves; with
+the debounce removed it would fire a campaign per wave, which is worse, not better. What is actually
+wanted is an **explicit end-of-batch signal**, which is a different mechanism from a shorter timer.
+
+**The target design, in three cases:**
+
+1. **Sync / import** → the skill calls an explicit "batch complete" that both indexes AND persists →
+   **one** index pass, **one** commit, **one** push, immediately, no waiting.
+2. **Hand-written note** → keep a **short** debounce (~5 s) for **indexing**, so search stays fresh —
+   that part already works and must not be sacrificed — and give **persistence** its own longer quiet
+   window (**Thomas's 2 minutes**), so commits and pushes stop tracking every pause.
+3. **Engine scripts writing a note** → same as case 2 (they are indistinguishable from a human write,
+   and that is fine).
+
+- [ ] **DECIDE (Thomas) — scope: does the provenance split ship in v4.4.0, or in v4.5.0?** The release
+      is otherwise DONE and green 7/7. Honest read: **case 2 (persistence gets its own 2-minute window)
+      is small and contained** — it touches code already written and reviewed, and it should ship
+      **in v4.4.0** so the sentence we publish is the one we keep (publishing "committed within
+      seconds" and changing it next release would be worse than shipping the real number now).
+      **Case 1 (the sync fast-path) is a new capability** — it changes the `reindex` tool's contract
+      and two skills, wants its own tests and its own release note, and is a **clean v4.5.0**.
+      Recommendation: **2-minute persistence window in v4.4.0, sync fast-path in v4.5.0.**
 
 **✅ PR #53 is open and CI is GREEN, 7/7** — https://github.com/tpierrain/kenjaku/pull/53, run
 `30388758449` _(2026-07-28)_: Node 22/24/26 × macOS + Windows, plus the Windows installer e2e.
+
+**✅ The recurring Windows-path defect now has a MACHINE, not a promise** _(2026-07-28 · `ci.yml`,
+`CONVENTIONS.md` §9)_. Thomas asked how to stop it coming back every 3-4 releases despite repeated
+requests. Root cause found, and it is not a weak reflex: §9 already described this exact bug ("a fake
+must key exactly the way production computes its key, never a hard-coded POSIX literal") and named the
+CI matrix as the deterministic net — but `ci.yml` triggered on `pull_request` and pushes to `main`
+**only**, and our PRs open at Track 9, i.e. at the END. **The net was unwired for the entire duration
+of the work.** Fixed: `push` on any branch + a cheap `early-windows` tripwire (one cell, Node 24 ×
+windows-latest, harness suites only). **Measured: 53 s, and the matrix + installer e2e correctly
+skipped** (run `30390100299`). Today's defect would have gone red at commit `84e4038`, 49 commits
+earlier. Approved by Thomas. **Do not "improve" this into a path lint — §9 rejected that deliberately
+as all-false-positives, and the tripwire attacks the cause instead.**
 
 **The first CI run was RED, and the rule earned its keep.** `restart-signal.test.mjs` (new in this
 branch, Track 2 · `84e4038`) spelled its fixture path as `` `/brain/${RESTART_FLAG_REL}` `` while
