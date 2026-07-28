@@ -13,15 +13,23 @@ export function shouldPersistCampaign(outcome: CampaignOutcome): boolean {
 
 /**
  * Does this checkout own a vault worth committing? True only for an INSTALLED
- * brain: `provenance` is stamped into the manifest at install time
- * (`scripts/lib/engine-source.mjs`) and is never present in the launcher's own.
- * Run the engine from the generator — a maintainer's dev session — and this stays
- * false, so the launcher's working tree is never swept into an `auto:` commit.
+ * brain, and the discriminator is `source` — the `{repo, ref}` that
+ * `recordSourceAndProvenance` stamps at install (`scripts/lib/engine-source.mjs`),
+ * and that the committed launcher manifest is guaranteed NOT to pin (asserted by
+ * `scripts/lib/engine-manifest-integrity.test.mjs`, which reads it as a QA-repoint
+ * leak). Run the engine from the generator — a maintainer's dev session — and this
+ * stays false, so the launcher's working tree is never swept into an `auto:` commit.
+ *
+ * NOT `provenance`: the launcher ships `"provenance": {}`, so keying on it returned
+ * true on the generator and the guard failed open over a real `vault/`.
+ *
  * Fails CLOSED on anything unreadable: not committing is the status quo, while
  * committing a repository we cannot identify is damage.
  */
 export function persistenceApplies(manifest: unknown): boolean {
-  return typeof manifest === "object" && manifest !== null && "provenance" in manifest;
+  if (typeof manifest !== "object" || manifest === null) return false;
+  const source = (manifest as { source?: unknown }).source;
+  return typeof source === "object" && source !== null;
 }
 
 /**

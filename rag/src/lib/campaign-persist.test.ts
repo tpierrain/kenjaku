@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
+import { readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   buildScriptRunner,
   persistCampaign,
@@ -109,13 +111,48 @@ test("the real runner launches the brain's own script, with this node, from the 
   ]);
 });
 
-test("vault persistence belongs to an INSTALLED brain, never to the launcher", () => {
-  // The launcher's own manifest carries no `provenance`: that key is stamped into
-  // the copy at install time (scripts/lib/engine-source.mjs). Running the engine
-  // from the launcher (a maintainer's `npm run dev`) must never commit the
-  // generator's working tree.
-  assert.equal(persistenceApplies({ manifestVersion: 1, provenance: {} }), true);
-  assert.equal(persistenceApplies({ manifestVersion: 1 }), false);
+test("vault persistence is refused for the REAL committed launcher manifest", () => {
+  // Not a hand-written shape — THE file this repo ships. A synthetic fixture is
+  // what let this guard fail open: it asserted a launcher "carries no provenance"
+  // while the committed manifest carries `"provenance": {}`, so the guard returned
+  // true on the generator, whose `vault/` is real. A maintainer running the engine
+  // here (`npm run dev`) would have their working tree swept into an `auto:` commit.
+  const launcherManifest = JSON.parse(
+    readFileSync(
+      resolve(dirname(fileURLToPath(import.meta.url)), "../../../engine-manifest.json"),
+      "utf-8",
+    ),
+  );
+
+  assert.equal(persistenceApplies(launcherManifest), false);
+});
+
+test("vault persistence applies to an INSTALLED brain — the shape `recordSourceAndProvenance` stamps", () => {
+  // What `enrichManifest(manifest, {source: buildSource(git), provenance})` leaves
+  // behind. `provenance` is present here too, on purpose: it is exactly what the
+  // launcher also has, so a guard that keyed on it could not tell these two apart.
+  const installed = {
+    manifestVersion: 1,
+    provenance: {},
+    source: { repo: "https://github.com/tpierrain/kenjaku", ref: "v4.4.0" },
+  };
+
+  assert.equal(persistenceApplies(installed), true);
+});
+
+test("a brain whose install could not name a repo still owns its vault (`repo: null`)", () => {
+  // `buildSource` yields `{repo: null, ref: undefined}` when the launcher had no
+  // remote to report. That brain is still an installed brain with its own git and
+  // its own vault: refusing to commit it would lose notes, which is the very
+  // failure this release exists to fix.
+  assert.equal(persistenceApplies({ source: { repo: null, ref: undefined } }), true);
+});
+
+test("a manifest whose `source` is null fails CLOSED (`typeof null === \"object\"`)", () => {
+  // The trap the launcher guard already fell into once: a truthiness-shaped check
+  // that a degenerate value satisfies. No install writes this, so it means the
+  // manifest was hand-edited or half-written — exactly when NOT committing is right.
+  assert.equal(persistenceApplies({ manifestVersion: 1, source: null }), false);
 });
 
 test("an unreadable manifest fails CLOSED — no commit over a repo we cannot identify", () => {
