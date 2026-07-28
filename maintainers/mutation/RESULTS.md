@@ -558,3 +558,28 @@ Killed here, worth keeping as patterns:
 **Accepted equivalent (1).** `pullOut ?? ""` → `?? "Stryker was here!"`: any replacement string with no
 `error:`/`fatal:`/`erreur :` prefix yields the same empty reason and the same fallback line, so no test
 can distinguish it.
+
+### PR 50, second increment (the SessionStart sweep) — 2026-07-28
+
+Same narrowing, over the two files this increment owns. **98.98 % overall** —
+`startup-sync.mjs` **100 %** (42/42), `repo-status.mjs` **98.21 %** (55/56), the single survivor being
+the `pullOut ?? ""` equivalent already accepted above. Command used (config in a scratch file, since
+the full `mutate:scripts` dry run is still blocked by `engine-manifest-integrity.test.mjs`):
+`mutate: ["scripts/lib/startup-sync.mjs", "scripts/lib/repo-status.mjs"]`, command runner
+`node --test scripts/lib/startup-sync.test.mjs scripts/lib/repo-status.test.mjs`.
+
+Killed here, worth keeping as patterns:
+
+- **Redundant regex anchors are dead code, not a coverage gap.** `/^(U.|.U|AA|DD)$/` tested against a
+  `slice(0, 2)` left BOTH anchor mutants alive: on a 2-char string the anchors cannot change the
+  verdict. No fixture could ever kill them, because the slice is already the anchor. Deleting them
+  (the "simplify the production" reflex again) took both mutants with it — and the guarantee stays
+  where it belongs, in the decoy fixture whose *path* carries the conflict codes: remove the slice and
+  that test goes red.
+- **`UU` is a fixture that satisfies two reasons at once.** It matches both the "U on the left" and
+  "U on the right" alternative, so either could be deleted with the suite green (§9 of the discipline).
+  Fed `UD` and `AU` separately, each alternative becomes singly necessary.
+- **The call-order claim needs the sequence asserted, not the outcome.** "The sweep runs BEFORE the
+  pull" is the whole point of the change and is invisible in any return value: only `deepEqual` on the
+  fake git's full call list pins it. Dropping the sweep entirely still leaves 4 of 7 tests green — the
+  3 that fail are the order test and the two real-git ones.

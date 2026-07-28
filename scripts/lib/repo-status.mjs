@@ -1,9 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // repo-status.mjs — decides the "repo" line of the SessionStart banner from git
-// facts already collected (no I/O here → testable). Includes the FAIL-LOUD
-// guard: if vault notes were left UNcommitted, that's the symptom of an
-// auto-commit that didn't run (typically silent hooks under nvm / the desktop
-// app's minimal PATH) → we SHOUT instead of showing a misleading ✅.
+// facts already collected (no I/O here → testable). Includes the two FAIL-LOUD
+// guards, both read AFTER the startup sweep + pull (startup-sync.mjs):
+//   - UNMERGED paths → git needs a human decision, and must NOT be told to
+//     "commit by hand" (that would bury the conflict markers in a note);
+//   - vault notes still UNcommitted → the sweep could not commit them (a git
+//     that refused, e.g. no identity configured).
+// Either way we SHOUT instead of showing a misleading ✅.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Counts the `git status --porcelain` entries that concern the vault. The
@@ -15,6 +18,20 @@ export function countVaultUncommitted(porcelainOut) {
   return porcelainOut
     .split("\n")
     .filter((l) => l.slice(3).startsWith("vault/"))
+    .length;
+}
+
+// Counts the paths git left UNMERGED. Porcelain marks those with a `U` in either
+// status column, plus the two U-less twins `AA` (both added) and `DD` (both
+// deleted). Only the 2 status chars count — a note NAMED "UU-something.md" is
+// ordinary dirt the startup sweep should happily commit. No anchors: the slice
+// below IS the anchor (it hands over exactly the 2 status chars, never a path).
+const UNMERGED_STATUS = /U.|.U|AA|DD/;
+
+export function countUnmerged(porcelainOut) {
+  return porcelainOut
+    .split("\n")
+    .filter((line) => UNMERGED_STATUS.test(line.slice(0, 2)))
     .length;
 }
 
@@ -42,15 +59,26 @@ export function pullFailureReason(pullOut) {
 //   short           : string — short HEAD
 //   changedCount    : number — files changed by the pull (if updated)
 //   uncommittedVault: number — uncommitted vault files (filtered porcelain)
-export function repoStatusLine({ pullOk, pullOut, short, changedCount = 0, uncommittedVault = 0 }) {
-  // Guard takes priority: uncommitted notes at startup = the auto-commit didn't
-  // run. We flag it loudly, ahead of any reassuring "up to date" status.
+//   conflictedCount : number — files git left unmerged (the sweep never touches them)
+export function repoStatusLine({ pullOk, pullOut, short, changedCount = 0, uncommittedVault = 0, conflictedCount = 0 }) {
+  // Highest priority: a conflict is the ONE dirty state the startup sweep refuses
+  // to commit, so it is also the one where the usual "commit by hand" advice would
+  // do damage. It needs a human, and it must say so first.
+  if (conflictedCount > 0) {
+    return (
+      `⚠️ Sync BLOCKED by a conflict — ${conflictedCount} file(s) hold changes git could not ` +
+      `merge on its own. Nothing was committed for you (that would bury the <<<<<<< markers ` +
+      `in your notes). Open them, keep what you want, then finish with: git rebase --continue.`
+    );
+  }
+  // Then: uncommitted notes at startup = the sweep couldn't commit them (a git
+  // identity missing, a hook that never ran). Flag it loudly, ahead of any
+  // reassuring "up to date" status.
   if (uncommittedVault > 0) {
     return (
-      `⚠️ ${uncommittedVault} vault note(s) NOT committed — the auto-commit didn't ` +
-      `run (silent hooks?). Your notes are ON DISK but not versioned. ` +
-      `Check the hooks (can scripts/run-node.sh find node?), or commit by hand: ` +
-      `git add -A && git commit.`
+      `⚠️ ${uncommittedVault} vault note(s) NOT committed — the startup sweep could not ` +
+      `commit them. Your notes are ON DISK but not versioned. Commit by hand to get git's ` +
+      `own reason: git add -A && git commit (a missing git identity is the usual culprit).`
     );
   }
   if (!pullOk) return `⚠️ Pull failed — ${pullFailureReason(pullOut) || "check manually."}`;
