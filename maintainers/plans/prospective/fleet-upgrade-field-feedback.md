@@ -45,6 +45,18 @@ reaches new installs only, never the deployed fleet.** This directly bites F8 (t
 nothing), F7 (must live in an engine skill, not the constitution) and F2 (logic must live inside
 `status-line.mjs`, engine-owned `replace`).
 
+**Scope update (2026-07-28, after F9-F11 — the frozen scope holds, three riders join it).** The QA
+continued and produced three more entries. None reopens the agreed scope; two of them land **inside**
+F8/P1 rather than beside it:
+
+- **F9 rides for free**: same root cause as F8, no separate fix — it becomes **P1's second test case**
+  (deletion, not just creation) and it pins the trigger condition (`indexed > 0 || removed > 0`).
+- **F11 is one line and P1 depends on it**: campaigns fire on `.obsidian/` UI churn, so P1's trigger
+  must be written knowing that. Ship it with P1.
+- **F10 is a genuine new candidate and NOT in the frozen scope — Thomas's call.** The engine drops
+  unreadable notes and reports "0 error" to the owner. It is small (the reporter never receives phase-1
+  errors) and it is the trust defect F7 is about, one layer down. **Ask before widening the release.**
+
 **Next step when picking this up:** write the release's action plan, then implement **F8/P1 in TDD** —
 it is the most structural, and its propagation trap deserves a test that locks it.
 
@@ -67,6 +79,12 @@ it is the most structural, and its propagation trap deserves a test that locks i
 - [ ] **F7 — the brain reports an unverified outcome in the measured voice** *(found 2026-07-28)*
 - [x] **v4.3.0 watcher claim: VALIDATED** _(2026-07-28 · 413→414, 4442→4499 chunks, 0 error, no manual reindex)_
 - [ ] **F8 — an Obsidian note is indexed live but committed only at the next session start** *(found 2026-07-28)* — **the defect this QA was built to find**
+- [ ] **F9 — a note DELETED inside Claude (via `rm`) is not committed either** *(found 2026-07-28)* — same root
+      cause as F8, from *inside* a session; **no separate fix, it is F8/P1's second test case**
+- [ ] **F10 — a note the indexer cannot read is dropped silently: the owner is told "0 error"** *(found 2026-07-28)* —
+      three of our own channels disagree about the same run; **the one the owner sees is the optimistic one**
+- [ ] **F11 — the watcher watches `.obsidian/`, which git deliberately ignores** *(found 2026-07-28)* — UI churn
+      triggers full scan campaigns; **constrains how F8/P1 may trigger its commit**
 - [ ] Field-log the rest of the run (entries appended below as they are met)
 - [ ] Triage the log into Gate 4's canonical plan once the run is over
 
@@ -376,6 +394,19 @@ to every owner and it is rarely observed under field conditions.
   - [ ] Land it where it will actually bind behaviour (the constitution / the relevant skill), not as a
         comment. **Being right by luck is indistinguishable from being right, until the day it isn't** —
         and auto-commit silently failing is precisely a failure mode this brain is supposed to catch.
+  - [x] **"The day it isn't" arrived — same QA run, ~20 minutes later** _(2026-07-28, see F9)_. Asked to
+        delete a note, the brain volunteered *"rien à committer, il était non suivi (jamais entré dans
+        l'historique)"*. **Both halves false**: the note had been committed by the session-start sweep,
+        and its deletion was sitting uncommitted — with the host's own `+0 −1` chip contradicting it on
+        the same screen. It surfaced **only because Thomas asked "tout est commit ?"**, which is not a
+        control we can ship.
+  - [ ] Note what this sharpens: the rule is not "check before reporting" in general — the very same
+        brain, one question later, ran `git status`, corrected itself out loud and flagged what it could
+        not verify. **The failure is specifically in the VOLUNTEERED recap**, where nobody asked and so
+        nobody checks. That is where the rule has to bite.
+  - [ ] And it is not only the agent: **F10 is the same defect one layer down**, in the engine, where
+        the reported "0 error" is not a presumption but a number the engine computed wrong. An agent
+        cannot be disciplined into surfacing what it was never given.
 
 ---
 
@@ -461,6 +492,15 @@ nothing runs at all** and both lag *together*, then both catch up at the next st
   - [ ] **Design agreed with Thomas: end of an indexing campaign → commit (+ push).** The campaign is
         already debounced, so this yields **one commit per burst**, not one per file, at the moment the
         engine already knows its own result ("1 doc indexé, 0 erreur").
+  - [ ] **Trigger on `indexed > 0 || removed > 0`, never on "a campaign ended"** — the two field
+        findings that pin this down, both 2026-07-28:
+    - [ ] **F9**: a deletion runs a campaign that indexes **nothing** (`last-run.json`:
+          `indexed:0, removed:1`). Gate on `indexed` alone and deletions stay uncommitted — the exact
+          hole F9 documents, shipped inside its own fix.
+    - [ ] **F11**: campaigns also fire on `.obsidian/` UI churn, which indexes nothing and changes
+          nothing git can see. Gate on "a campaign ended" and the hook fires on pane moves — harmless
+          today only because `.obsidian/` is gitignored, i.e. **by accident**, and `autopush` would
+          carry it to the network.
   - [x] **No loop risk — verified 2026-07-28**: the watcher watches `VAULT_DIR` only and `.cache` is
         deliberately outside it (`rag/src/index.ts`), while a commit writes to `.git/`. It cannot wake
         itself.
@@ -487,4 +527,134 @@ demonstrated in the same session — so the fix for F7 is about making it reliab
 
 ---
 
-## F9 — *(next entry: appended during the run)*
+## F9 — A note DELETED inside Claude is not committed: the hook is tool-shaped, not file-shaped
+
+> **F8's mirror image, and it closes the argument.** F8 = a file written *outside* Claude is not
+> committed. F9 = a file removed *inside* Claude is not committed either. The common cause is not
+> "outside Claude" at all — it is that auto-commit keys on **which tool ran**, while the vault changes
+> on **disk events**. Same asymmetry as F8, one layer deeper: **indexing is file-driven, committing is
+> tool-driven.**
+
+- [ ] **No separate fix — F9 is F8/P1's second test case.** The campaign-end trigger designed for P1
+      catches this one too (the deletion *did* run a campaign, see the evidence). What F9 changes is the
+      **test list**, not the design: a fix tested only on creation would ship with this hole open.
+  - [ ] The P1 test must cover **deletion**, not only creation: `last-run.json` reports `removed: 1`
+        distinctly from `indexed`, so the trigger must fire on `indexed > 0 **|| removed > 0**`.
+        Gating on `indexed` alone — the obvious reading of "end of an indexing campaign" — would
+        reproduce F9 exactly.
+  - [ ] Cover the `rm`-via-Bash path explicitly, since it is what the field hit, and it is not exotic:
+        deleting a note is a normal request an owner makes in plain language.
+
+**Observation (2026-07-28, Desktop).** Owner: *"tu peux supprimer aussi le fichier que j'ai rajouté
+aujourd'hui dans daily"*. The brain read the note first (good), deleted it, then reported:
+
+> *"**Git** : rien à committer, il était **non suivi** (jamais entré dans l'historique)."*
+
+**Both halves are false**, and the host's own diff chip said so on the same screen: `+0 −1`.
+
+**Verified on disk, read-only (2026-07-28).**
+
+- The note **was** tracked: added by `13246bd auto: session-start sweep (outside-Claude edits or engine
+  writes)` — i.e. **F8's own catch-up did its job**, and that is precisely what made the later claim wrong.
+- The deletion is **pending, uncommitted**: `git status` → ` D vault/daily/Test de nouvelle note débile.md`;
+  `git diff --stat HEAD` → `1 file changed, 1 deletion(-)`. That single line **is** the `+0 −1` chip.
+
+**Root cause (same line of settings as F8).** `.claude/settings.json.template:52-62` wires
+`auto-commit.mjs` to `PostToolUse` with matcher `Write|Edit`. A deletion goes through **Bash/`rm`** →
+no match → the hook never runs. `auto-commit.mjs:51` would have staged it happily (`git add .`); it is
+never asked to.
+
+**And the rescue the brain hoped for does not exist.** It said *"normalement il rattrape ça à l'arrêt de
+la session (Stop), mais je ne peux pas le vérifier dans ce tour"*. The `Stop` hook
+(`settings.json.template:136-146`) runs **`auto-push.mjs`, which is push-only** — its own header states
+it: *"auto-commit.mjs (PostToolUse) stays commit-only"* (`auto-push.mjs:6`). With nothing committed,
+there is nothing to push. **The deletion waits for the next SessionStart sweep**, exactly like F8.
+
+**Index ahead of git again — this time on a deletion, within a session.** Index: 414 documents / 4501
+chunks (queried read-only in `rag/.cache/vault.db`), the note gone. Git: still holding it. **P1's exact
+scenario, second instance, opposite direction.**
+
+**Credit, and it is the F7 pattern in its good form.** Asked *"tout est commit ?"*, the brain ran
+`git status`, found the `D`, **corrected its own earlier claim out loud** (*"le fichier de test avait
+finalement été commité par le hook pendant la session … d'où le `D` maintenant"*), named the root cause
+correctly (`rm` vs the Write|Edit matcher), **flagged the one thing it could not check as unchecked**,
+and asked before committing. The gap is not judgement — it is that the first answer was volunteered
+without the `git status` the second one ran. See F7.
+
+---
+
+## F10 — A note the indexer cannot read is dropped silently, and the owner is told "0 error"
+
+> **The worst failure mode this brain has**, in its quietest form: not a wrong answer, a **confident
+> answer over an incomplete index**. F7 is the agent presuming; F10 is the **engine** presuming, and it
+> is more serious because no amount of agent discipline can surface a number the engine never wrote down.
+
+- [ ] **Make phase-1 errors reach the same place phase-2 errors reach**
+  - [ ] Root cause, exact and readable in three lines: `reporter.start()` **resets** `errors: []`
+        (`rag/src/lib/reindex-reporter.ts:54`) and it runs **after phase 1**
+        (`index-manager.ts:260`, inside `runIndexingPhase`). `reporter.finish()` then merges **only**
+        `runResult.errors` — the phase-**2** errors (`index-manager.ts:271`). Phase-1 read errors are
+        pushed to `result.errors` (`index-manager.ts:201`) and **never handed to the reporter**.
+  - [ ] Consequence: `last-run.json` / `last-run.md` / `vault_stats` — everything the owner and the
+        agent can see — under-report. An **unreadable or unparseable note is scanned, dropped, and
+        counted nowhere**. Only the returned object knows, and only `watcher.log` prints it.
+  - [ ] Fix direction: hand phase-1 errors to the reporter (either `reporter.start({errors})` seeded
+        rather than reset, or a `recordError()` per read failure — the method already exists at
+        `reindex-reporter.ts:67` and has **no caller on this path**).
+  - [ ] Guard it with the arithmetic the owner can check: `scanned == indexed + skipped + errors`.
+        In the field run it reads `414 == 0 + 413 + ?` → the missing 1 is the defect, and an invariant
+        test on that sum would have caught it without any knowledge of the code.
+  - [ ] Identify what actually failed in `mind-palace` (reproduce with a CLI reindex and print the
+        error strings). **Not needed to establish the defect** — but a real file has been failing on
+        every campaign of this QA and nobody knows which.
+
+**Field evidence — three channels, one run, two answers (2026-07-28).**
+
+| Channel | What it said about the 13:45:45 campaign |
+| --- | --- |
+| `watcher.log` (`index.ts:421-423`) | `✅ catch-up done: 0 indexed, 413 unchanged, **1 errors**` |
+| `last-run.json` (same `finishedAt`, to the millisecond) | `"errors":[]`, `scanned:414, skipped:413, indexed:0, removed:1` |
+| The brain, to the owner | *"Watcher actif (idle), **0 erreur**, index à jour."* |
+
+The brain was **faithful to what it was given** — `vault_stats` reads the reporter's state. The engine
+handed it a clean bill of health for a run that had an error. And the same `1 errors` appears in the
+**preceding** campaign (13:44:45), so this is a standing condition of that vault, not a one-off blip.
+
+**Not a data-loss report, and worth saying so plainly.** The index is currently complete: 414 `.md` on
+disk = 414 `documents` rows, and **0 orphan chunks** (`chunks LEFT JOIN documents ON doc_path` → 0; the
+FK is `ON DELETE CASCADE`). So nothing is missing *today* — which is exactly why this must be fixed on
+the mechanism rather than on the symptom: **the day a note does fail, the brain will say "index à jour"
+and answer without it.**
+
+**Bonus, settled while here — the 4501-chunks coincidence is real.** The brain explained an unchanged
+chunk count after a deletion by *"tes 4 pages consolidées ont été réindexées en parallèle"*. Narrated in
+the measured voice without checking (F7's shape, third instance in two screens) — but **verified true**:
+no orphan chunk remains from the deleted note. Recorded so nobody re-opens it as a leak.
+
+---
+
+## F11 — The watcher watches `.obsidian/`, which git deliberately ignores
+
+- [ ] **Make the watcher's filter agree with the one git already has**
+  - [ ] `IGNORED_SEGMENTS = [".cache", ".git", "node_modules"]` (`rag/src/lib/vault-watcher.ts:16`) —
+        **`.obsidian` is absent**, while `.gitignore:34` has excluded `vault/.obsidian/` from day one.
+        Two filters expressing the same intent ("this is UI state, not notes"), and only one knows it.
+  - [ ] Field evidence: `📝 write detected: .obsidian/graph.json` ×3 and `.obsidian/workspace.json`,
+        which then triggered a full catch-up campaign (`0 indexed, 413 unchanged`). Obsidian rewrites
+        `workspace.json` on ordinary UI gestures — **an owner with Obsidian open pays a 414-file scan
+        for moving a pane.**
+  - [ ] Add `.obsidian` to the ignored segments. One line, and the anti-loop reasoning in the comment
+        above it (`vault-watcher.ts:11-14`) already establishes the principle — it just stopped one
+        directory short.
+
+**Why it lands in the release even though it is cosmetic on its own: it constrains F8/P1.** P1's design
+is *"end of an indexing campaign → commit (+ push)"*. Campaigns fire on `.obsidian` churn, so the
+trigger must **not** be "a campaign ended" but "a campaign **changed something**"
+(`indexed > 0 || removed > 0`). Today that saves us by accident: `.obsidian/` is gitignored, so
+`git add .` finds nothing and `attemptCommit` no-ops on a clean tree. **Accidental safety is the thing
+this file exists to convert into deliberate safety** — and with `secondbrain.autopush` on, the same
+trigger reaches the network.
+
+---
+
+## F12 — *(next entry: appended during the run)*
