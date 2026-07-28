@@ -211,10 +211,23 @@
             989 pass / 0 fail / 1 skipped (Windows-only).
   - [x] **A guard whose name lies** (`mcp-tools.test.ts`): "exactly the **7** tools" asserted a list
         of 8. _(`84a5d87`)_
-  - [ ] **After the last fix:** re-run the mutation snapshot on what changed (`repo-status.mjs`,
-        `engine-commit.mjs`, `auto-commit.mjs`, `local-mirror.ts`, `markdown.ts`) and update
-        [`../mutation/RESULTS.md`](../mutation/RESULTS.md) + the release-note figures below, which
-        still quote the PRE-review numbers.
+  - [x] **After the last fix:** mutation snapshot re-run on the `local-mirror` side and recorded in
+        [`../mutation/RESULTS.md`](../mutation/RESULTS.md) _(2026-07-28 · `b0553bf`)_ — the figures
+        below now quote it.
+    - [x] `markdown.ts` **100 %** (22/22) · `local-mirror.ts` **96.86 %** (456 killed, 15 survived,
+          6 timeouts). All 15 survivors are pre-existing lines (freshness arithmetic,
+          `maxLastEditedTime`, the `setup_source` duplicate guard); **none in the move or the
+          review fixes**.
+    - [x] The first re-run said **93.50 %**: the review fixes had added under-asserted code. Four
+          hardening steps took it back, each mutant hand-applied on the full suite before and after
+          _(`cbc0c4c`, `71b1ecc`, `4e59a5f`, `1f88c5d`)_ — the two new messages asserted whole, the
+          plural leftover branch fed, the `FakeSyncLock` made faithful (its no-op `release()` made
+          BOTH `finally { release }` blocks untestable), the rebuild's default-universe branch fed.
+    - [x] 257 pass / 0 fail in `local-mirror`, `tsc --noEmit` clean, harness suite 989 pass / 0 fail
+          / 1 skipped (Windows-only).
+    - [ ] **Still owed: the `scripts/**` side.** `repo-status.mjs`, `engine-commit.mjs` and
+          `auto-commit.mjs` changed after their last measure (98.53 % / 98.98 %), and their run needs
+          the disposable-worktree recipe (RESULTS.md) since `mutate:scripts` cannot dry-run.
   - [ ] **Also update the PR #50 body**: it describes the four tracks but not the review fixes.
 - [ ] merge the PR into `main` once tracks A, B and C are green (PR #50 grows to carry them, or
       each track lands as its own PR onto the same branch — decide when A is done)
@@ -223,7 +236,8 @@
         *The One Where a Mirror Moves House*
   - [ ] the release note carries the mutation snapshot pinned to the tag
         (CONVENTIONS §5ter): `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**,
-        `repo-status.mjs` **98.21 %**, plus whatever tracks A/B/C touch
+        `repo-status.mjs` **98.21 %**, `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**
+        — the last two re-measured AFTER the review fixes
   - [x] **the marketing-surface pass re-done for the minor scope** (CONVENTIONS §10) _(2026-07-28)_.
         It had been recorded as done for the patch scope; tracks A and C changed what an upgrade and
         a mirror promise, so the whole surface was re-read. Verdict, boring parts included:
