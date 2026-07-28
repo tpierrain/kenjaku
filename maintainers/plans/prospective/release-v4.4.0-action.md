@@ -28,6 +28,15 @@ launcher deliberately is not. Tracks 4, 5, 6, 7 and 8 owe a release-note line ea
 reproducing each finding against real code before accepting it. The **cut line** is decided there, on
 that diff, not before.
 
+**⏸️ Track 9 is OPEN and waiting on Thomas: he has to type `/code-review` himself** — it is a
+user-triggered command, an agent cannot launch it. Nothing else in Track 9 should start ahead of it:
+the cut line, and therefore which tracks the release note covers, is decided on that review. Diff at
+the time of writing: **52 commits, 66 files, +4235/-212**.
+
+**The branch has never been pushed** (no `origin/feat/v4.4.0-field-fixes`, no PR, no CI run). So the
+Track 9 CI box has **nothing to read yet**: pushing the branch and opening the PR is what makes the
+7/7 arbiter exist, and that comes *after* the review's fixes, not before.
+
 **One decision is waiting on Thomas, and it does not block Track 9.** Track 7 shipped `rag` as the
 **only** new slash command; `/index` and `/reindex` route there in plain language rather than each
 costing a staged directory (a description loaded in every session). The reasoning is written in
