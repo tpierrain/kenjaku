@@ -534,9 +534,64 @@ manager**. There is **no person note for the name it proposed at all**.
 
 ## Track 9 — Cut the release
 
-- [ ] ⚠️ **`/code-review` BEFORE the merge.** Reproduce each finding against real code before accepting
-      it; fix each in TDD, red first, its own commit.
+- [x] ⚠️ **`/code-review` BEFORE the merge.** Reproduce each finding against real code before accepting
+      it; fix each in TDD, red first, its own commit. _(2026-07-28 · run on `main...HEAD`, 66 files)_
+      **Six findings, ALL SIX reproduced on disk — none is a false positive, and none is caught by the
+      existing 1029 + 436 green tests.** Every one lands in code THIS release adds (Tracks 1, 3, 4), so
+      **none of them can be dropped by moving the cut line.** Fix list, in severity order:
+  - [ ] **R1 (HIGH) — the launcher guard fails OPEN.** `rag/src/lib/campaign-persist.ts:23`
+        (`persistenceApplies`) gates on `"provenance" in manifest`, but the **committed launcher
+        manifest carries `"provenance": {}`** (verified). So the guard returns **true on the launcher**,
+        which has a real `vault/`. A maintainer running the engine from the generator gets their
+        in-progress working tree swept into `auto: vault/claude sync` + pushed. The test at
+        `campaign-persist.test.ts:117` **asserts that exact launcher shape returns true**, under a
+        comment claiming the launcher "carries no provenance" — the test pins the bug.
+        **Fix: gate on `source`**, which `engine-manifest-integrity.test.mjs:117` guarantees the
+        launcher pins NOT, and `enrichManifest` stamps at install.
+  - [ ] **R2 (HIGH) — `scripts/refresh-note.mjs` reaches no brain, but the skill calling it does.**
+        The new entry point is in **no manifest regime**, and `computeApplyPlan` is a strict
+        write-allowlist → `update-engine` never copies it. `engine-skills/**` IS `replace`, so every
+        brain upgrading to v4.4.0 gets `consolidate/SKILL.md:118`'s **mandatory** `| node
+        scripts/refresh-note.mjs` and a `Cannot find module` on every refresh, with the old freehand
+        prose deleted. Its helper `scripts/lib/note-refresh.mjs` ships (`scripts/lib/**`), which masks it.
+        **Fix: declare it, + a guard test on the real invariant** — *every top-level script a delivered
+        skill invokes must itself be declared*. (Blunter "every script is declared" is wrong: 3 others
+        are undeclared **on purpose** — `clear-example-notes`, `pick-folder`, `run-eval` are
+        install-time/maintainer-only and no delivered skill calls them.)
+  - [ ] **R3 (MED) — an unbounded `git push` can freeze live indexing for the whole session.**
+        `buildScriptRunner` passes `{ cwd }` only to `promisify(execFile)` — **no `timeout`** — and
+        `ReindexScheduler.trigger` holds `running = true` for the entire await. A hung push (unreachable
+        remote, credential helper waiting) never resolves → every later vault write only sets `pending`
+        → **nothing is indexed again until the MCP server restarts**. Before this release the campaign
+        body was bounded local work. **Fix: bound the child.**
+  - [ ] **R4 (MED) — a duplicate-key error naming a key that does not exist.** `findDuplicateKey`'s
+        `^([^\s:#][^:]*):` also matches an **unindented block-sequence item whose value holds a colon**.
+        Reproduced: `links:` / `- https://a.com` / `- https://b.com` → `{key: "- https", first: 3,
+        second: 4}`. When gray-matter failed for an unrelated reason, the owner is told
+        `damaged front-matter key "- https": declared twice` and pointed at **two valid lines**. The
+        sibling `scripts/lib/note-refresh.mjs:32` uses `^([A-Za-z0-9_-]+):` and is immune — **the two
+        disagree**. Fix: converge on the strict one.
+  - [ ] **R5 (LOW) — a valid-JSON `null` spec crashes with a stack trace.** `spec.path ?? ""`
+        (`scripts/refresh-note.mjs:56`) sits **outside** the `JSON.parse` try/catch. Reproduced:
+        `echo null | node scripts/refresh-note.mjs` → `TypeError: Cannot read properties of null`,
+        breaking the skill's stated contract ("Exit 1 = refused, and it says why").
+  - [ ] **R6 (LOW) — `"persisted"` is not evidence that anything was committed.** `attemptCommit`
+        returns `"committed"` unconditionally after `add`/`commit` (`buildGit` swallows every git
+        error into `{ok:false}`, which nobody reads) and `auto-push.mjs` always exits 0. So
+        `persistCampaign` can only ever say `"failed"` if the **child fails to spawn**. An
+        `.git/index.lock` contention with the PostToolUse hook → nothing committed, yet the watcher
+        traces `💾 vault persistence: persisted`. **In a repo whose rule is "don't pretend", the log
+        pretends.**
+  - [ ] **Clean bill on the rest of the diff** (checked, not assumed): `reindex-reporter` error seeding
+        is appended not overwritten; `unaccountedNotes` reaches `vault_stats` via `status-report.ts:57`;
+        the `statusLine` retreat is provenance-guarded and byte-identically idempotent;
+        `resolveSourceRepo` no-ops on blank; `writeLastRunMarkdown` writes into `CACHE_DIR`, so the new
+        commit trigger **cannot feed itself**.
 - [ ] **Decide the cut line here**, on the real diff: Tracks 1-4 ship; any of 5-8 may become a follow-up.
+      **Provisional read, to confirm once R1-R6 are green:** the review found no reason to cut. Tracks
+      5-8 are each small, green and independent, and **no finding lives in them** — R1/R3/R6 are Track 1,
+      R2/R5 are Track 4's tooling, R4 is Track 3. Cutting would drop working code without removing a
+      single defect.
 - [ ] **CI is the arbiter, never a local green** (CONVENTIONS §9): 7/7 — Node 22/24/26 × macOS + Windows,
       plus the Windows installer e2e.
 - [ ] **Mutation snapshot pinned to the tag** (CONVENTIONS §5ter), recorded in
