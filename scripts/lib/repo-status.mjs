@@ -35,6 +35,18 @@ export function countUnmerged(porcelainOut) {
     .length;
 }
 
+// The ONE reading of the tree both persistence paths share: the session-start
+// sweep and the engine update's own commit. It lived, duplicated, in the sweep
+// alone — which is exactly how the update path came to bury conflict markers the
+// sweep had learned to refuse. One rule, one place, both callers.
+//   "conflicted" → a human must resolve; committing would bury `<<<<<<<`
+//   "dirty"      → ordinary uncommitted work, safe to stage
+//   "clean"      → nothing to do (a lone newline still reads clean)
+export function treeState(porcelainOut) {
+  if (countUnmerged(porcelainOut) > 0) return "conflicted";
+  return porcelainOut.trim().length > 0 ? "dirty" : "clean";
+}
+
 // git speaks the user's locale, so the diagnostic prefix is not always English
 // ("erreur : " under a French git). Same reason the "up to date" detection below
 // carries its French twin.

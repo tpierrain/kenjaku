@@ -53,6 +53,18 @@ test("commitEngineUpdate: a dirty tree is staged and committed, naming the engin
   ]);
 });
 
+test("commitEngineUpdate: an UNMERGED tree is left alone — the markers must not be committed", () => {
+  // An update can be asked for while a rebase is stopped on a conflict (the startup
+  // banner is telling the user so at that very moment). `add -A && commit` there
+  // would stage `<<<<<<<` INTO the manifest and fake-resolve the rebase — and that
+  // corrupted manifest is what the NEXT update `JSON.parse`s. Same hazard, same
+  // answer as the session-start sweep: hands off.
+  const { git, calls } = fakeGit({ porcelain: "UU engine-manifest.json\n M scripts/lib/tracked-files.mjs\n" });
+
+  assert.equal(commitEngineUpdate({ git, ref: "v4.3.0" }), "conflicted");
+  assert.deepEqual(calls, ["status --porcelain"]); // it looked, and stopped there
+});
+
 // ── The default seam, against a REAL git repo ────────────────────────────────
 // The pure function above proves the DECISION; only this proves the WIRING (right
 // cwd, right runner, a commit that actually lands). It is the one thing a fake git

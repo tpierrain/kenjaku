@@ -151,6 +151,16 @@ export function formatReport(report) {
   if (committed === "committed") {
     lines.push(`   • the engine files that changed were committed locally (nothing pushed)`);
   }
+  // The tree was left dirty deliberately: a merge/rebase was stopped on a conflict, and
+  // staging it would have buried the `<<<<<<<` markers (and fake-resolved the rebase).
+  // Silence here would hand back a brain that cannot pull, with nothing to explain it.
+  if (committed === "conflicted") {
+    lines.push(
+      `   ⚠️ the engine files were NOT committed: a merge conflict is pending in your brain's`,
+      `   repo, and committing would have buried the <<<<<<< markers in it. Resolve that`,
+      `   conflict, then commit — your engine is updated on disk either way.`,
+    );
+  }
   if (wiredHooks.length > 0) {
     lines.push(`   • new runtime hook(s) wired: ${wiredHooks.join(", ")}`);
   }

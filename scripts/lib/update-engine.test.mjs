@@ -117,6 +117,24 @@ test("formatReport — a 'clean' update claims NO commit", () => {
   assert.doesNotMatch(out, /committed/i);
 });
 
+// The third outcome: the tree was left dirty ON PURPOSE, because a conflict was
+// pending and staging it would have buried the markers. Saying nothing here would
+// leave the owner with a repo that cannot pull and no idea why — the exact silence
+// this release exists to end. So it must say it, and name the resolve.
+test("formatReport — a 'conflicted' update says the engine files were NOT committed, and why", () => {
+  const out = formatReport({
+    ref: "v1.1.0",
+    engineVersion: { rag: "1.1.0" },
+    copied: ["rag/src/index.ts"],
+    regenerated: true,
+    reindexed: false,
+    committed: "conflicted",
+  });
+  assert.match(out, /not committed|couldn't commit|could not commit/i);
+  assert.match(out, /conflict/i);
+  assert.doesNotMatch(out, /were committed locally/i);
+});
+
 test("formatReport — schema unchanged → states no reindex was needed (never a misleading 'reindexed')", () => {
   const out = formatReport({
     ref: "v1.1.0",

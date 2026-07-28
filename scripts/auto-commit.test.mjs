@@ -32,8 +32,11 @@ const REAL_SCRIPT = join(HERE, "auto-commit.mjs");
 // So we reconstruct <tmp>/scripts/auto-commit.mjs with the repo at <tmp>.
 function makeRepo() {
   const root = mkdtempSync(join(tmpdir(), "auto-commit-"));
-  mkdirSync(join(root, "scripts"));
+  mkdirSync(join(root, "scripts", "lib"), { recursive: true });
   copyFileSync(REAL_SCRIPT, join(root, "scripts", "auto-commit.mjs"));
+  // The hook reads the tree through `treeState` (shared with the sweep and the
+  // engine update), so the fixture must ship that module too — a brain does.
+  copyFileSync(join(HERE, "lib", "repo-status.mjs"), join(root, "scripts", "lib", "repo-status.mjs"));
   const git = (args) =>
     execFileSync("git", args, { cwd: root, encoding: "utf8" });
   git(["init", "-q"]);
@@ -96,6 +99,17 @@ test("attemptCommit — dirty tree: stages all + commits with the auto message �
     "add .",
     `commit -m ${COMMIT_MESSAGE}`,
   ]);
+});
+
+// This hook fires on EVERY write Claude makes — including the writes a user asks for
+// while helping them resolve a conflict. `add .` there stages the `<<<<<<<` markers
+// into the note and fake-resolves the rebase, which is precisely what SETUP promises
+// never happens ("nothing is committed for you"). The session-start sweep already
+// refuses; the promise is only true if this path refuses too.
+test("attemptCommit — UNMERGED tree: hands off, so the conflict markers are never staged", () => {
+  const { git, calls } = fakeGit({ status: "UU note.md\n M other.md\n" });
+  assert.equal(attemptCommit({ git }), "conflicted");
+  assert.deepEqual(calls, ["status --porcelain"]);
 });
 
 test("attemptCommit — clean tree: no add, no commit → clean (idempotent)", () => {

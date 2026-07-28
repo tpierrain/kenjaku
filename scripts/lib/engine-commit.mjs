@@ -14,18 +14,25 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { buildGit } from "../auto-commit.mjs";
+import { treeState } from "./repo-status.mjs";
 
 export function commitMessage(ref) {
   return `engine: update to ${ref}`;
 }
 
-// Returns "committed" | "clean". Stages everything (`add -A`) rather than the
-// copied-file list: the manifest, the launchers and the reconciler's own writes
-// all land at different steps, and only "stage it all" actually guarantees the
-// clean-tree invariant.
+// Returns "committed" | "clean" | "conflicted". Stages everything (`add -A`)
+// rather than the copied-file list: the manifest, the launchers and the
+// reconciler's own writes all land at different steps, and only "stage it all"
+// actually guarantees the clean-tree invariant.
+//
+// EXCEPT on an unmerged tree: an update can be asked for while a rebase is
+// stopped on a conflict, and `add -A` there would bury `<<<<<<<` markers in the
+// files it stages — including the manifest the NEXT update parses. Same hazard
+// and same answer as the session-start sweep (`sweepThenPull`): hands off, and
+// let the report say why the tree was left dirty.
 export function commitEngineUpdate({ git, ref }) {
-  const dirty = git(["status", "--porcelain"]).out.trim().length > 0;
-  if (!dirty) return "clean";
+  const state = treeState(git(["status", "--porcelain"]).out);
+  if (state !== "dirty") return state; // "conflicted" and "clean" are both answers
   git(["add", "-A"]);
   git(["commit", "-m", commitMessage(ref)]);
   return "committed";

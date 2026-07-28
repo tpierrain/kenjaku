@@ -13,6 +13,7 @@ import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { treeState } from "./lib/repo-status.mjs";
 
 // Builds the real git runner bound to `repo`. `execFile` is injected (default:
 // execFileSync) so the ok/failure mapping is unit-testable without a real git.
@@ -35,11 +36,18 @@ export const COMMIT_MESSAGE = "auto: vault/claude sync";
 
 // Commit-only vault persistence: if the tree is dirty, stage everything and
 // commit (never pushes — the Stop hook does that once per turn). Returns
-// "committed" | "clean". `git` is the injected runner. NEVER throws for a clean
-// tree; a failing git runner is best-effort (the local commit is the safety net).
+// "committed" | "clean" | "conflicted". `git` is the injected runner. NEVER throws
+// for a clean tree; a failing git runner is best-effort (the local commit is the
+// safety net).
+//
+// "conflicted" is the one case where persistence steps aside: this hook fires on
+// every write, conflict-resolution writes included, and `add .` on an unmerged tree
+// stages the `<<<<<<<` markers AND fake-resolves the rebase. The rule is shared
+// (`treeState`) with the session-start sweep and the engine update, so all three
+// persistence paths refuse the same tree.
 export function attemptCommit({ git }) {
-  const dirty = git(["status", "--porcelain"]).out.trim().length > 0;
-  if (!dirty) return "clean";
+  const state = treeState(git(["status", "--porcelain"]).out);
+  if (state !== "dirty") return state;
   git(["add", "."]);
   git(["commit", "-m", COMMIT_MESSAGE]);
   return "committed";
