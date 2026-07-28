@@ -18,11 +18,15 @@
 
 ## ▶️ START HERE
 
-**The next track to CODE is Track 8** _(as of 2026-07-28 · `3b8c0a6`)_. Track 1 stays unticked in
-`## Tracking` for what it still owes, and it is **not code**: its release-note copy is due at **Track 9**,
-and its remaining check needs an **installed brain**, which the launcher deliberately is not. Tracks 4,
-5, 6 and 7 owe a release-note line each, also at Track 9. So resume at Track 8 — do not reopen the
-implementation of Tracks 1-7.
+**All the code is written. The next track is Track 9 — cutting the release** _(as of 2026-07-28 ·
+`8d2e2c4`)_. Track 1 stays unticked in `## Tracking` for what it still owes, and it is **not code**: its
+release-note copy is due at **Track 9**, and its remaining check needs an **installed brain**, which the
+launcher deliberately is not. Tracks 4, 5, 6, 7 and 8 owe a release-note line each, also at Track 9.
+**Do not reopen the implementation of Tracks 1-8.**
+
+**Start Track 9 at its first box: `/code-review` on the real diff** (`main..feat/v4.4.0-field-fixes`),
+reproducing each finding against real code before accepting it. The **cut line** is decided there, on
+that diff, not before.
 
 **One decision is waiting on Thomas, and it does not block Track 8.** Track 7 shipped `rag` as the
 **only** new slash command; `/index` and `/reindex` route there in plain language rather than each
@@ -74,7 +78,9 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [x] **Track 7 — `/rag` answers instead of suggesting `/run`** *(F6)* _(2026-07-28 · `3b8c0a6`)_ —
       skill + guard test + SETUP row; only the **release-note line** is owed, at Track 9. The alias
       sweep is decided **in the track** (`rag` alone gets a directory) — re-open it only to overrule.
-- [ ] **Track 8 — The profile pre-fill reads the notes you wrote** *(retrieval)*
+- [x] **Track 8 — The profile pre-fill reads the notes you wrote** *(retrieval)* _(2026-07-28 · `8d2e2c4`)_ —
+      skill + guard test + the Gate 4 fixture written out; only the **release-note line** is owed, at
+      Track 9. **Source-level guard only**: the behaviour itself is Gate 4's fixture to run.
 - [ ] **Track 9 — Cut the release**
 
 > **Cut line, if the release grows too long.** Tracks 1-4 **are** the release. Tracks 5-8 are mutually
@@ -477,27 +483,39 @@ two lines** answer both things the pre-fill got wrong — including the owner's 
 had explicitly declined to guess (*"je ne veux pas l'inventer"*) **while it sat in the note about his own
 manager**. There is **no person note for the name it proposed at all**.
 
-- [ ] **The fix is retrieval, not phrasing.** When pre-filling `people` and `role`, query the
+- [x] **The fix is retrieval, not phrasing.** When pre-filling `people` and `role`, query the
       **structured source** — notes with `type: person` (and `type: universe`) scoped to the universe —
       instead of synthesising from whatever a similarity search surfaces. **The vault has a shape; the
       pre-fill ignored it and paid for it.** Write it into `.claude/skills/switch/SKILL.md`'s
-      `Describe a universe — its profile` section.
-- [ ] **Specify the pre-fill itself while there — it is currently luck.** Nothing in `SKILL.md:134-147`
+      `Describe a universe — its profile` section. _(2026-07-28 · `8d2e2c4`)_ — a **Before asking**
+      block: `list_documents` by `type: person`, the universe note, then `get_document` on what
+      matters; the path prefix carries the universe scope (`list_documents` takes no scope argument).
+- [x] **Specify the pre-fill itself while there — it is currently luck.** Nothing in `SKILL.md:134-147`
       asks for it, so another vault, another day, the same flow yields seven bare questions and the
       owner meets exactly the wall he fears. Rule: **research first, propose answers, ask for
       corrections**, with the two disciplines this run demonstrated spontaneously — **never invent**, and
-      **show an unknown as an explicit blank** rather than a plausible guess.
-- [ ] **Do not conclude "drop the pre-fill".** It turned seven questions into a one-line reply. Its cost
-      is concentrated in the one interaction that costs nothing: **agreeing**.
-- [ ] Keep the skill's copy saying that accepting a pre-fill records the agent's **inferences** as the
+      **show an unknown as an explicit blank** rather than a plausible guess. _(2026-07-28 · `8d2e2c4`)_
+- [x] **Do not conclude "drop the pre-fill".** It turned seven questions into a one-line reply. Its cost
+      is concentrated in the one interaction that costs nothing: **agreeing**. _(kept)_
+- [x] Keep the skill's copy saying that accepting a pre-fill records the agent's **inferences** as the
       owner's **stated facts**, in a note injected as ambient truth at every session start. Consented
-      and repairable, but worth saying.
-- [ ] **Keep the batch.** The alternative is seven round-trips, which the skill already rejects as an
+      and repairable, but worth saying. _(2026-07-28 · `8d2e2c4`)_ — the copy did **not** exist yet, so
+      it was written, not kept.
+- [x] **Keep the batch.** The alternative is seven round-trips, which the skill already rejects as an
       interrogation (`SKILL.md:136`, *"Do not interrogate"*). If it still reads long, the lever is
       **question 5's triple ask** (*"Qui manque ? Qui est de trop ? lesquels sont tes managés vs tes
-      pairs ?"*), not the number of questions.
-- [ ] Hand a fixture to Gate 4: *"the vault states X in a `type: person` note — does the capture flow
+      pairs ?"*), not the number of questions. _(2026-07-28 · `8d2e2c4`)_ — kept and **pinned by a
+      guard**, because "propose then correct" invites walking the owner through values one at a time,
+      which is the interrogation rebuilt. Q5 itself was left alone: with a roster proposed, it already
+      becomes a correction ask.
+- [x] Hand a fixture to Gate 4: *"the vault states X in a `type: person` note — does the capture flow
       propose X?"* Cheap, deterministic, and it locks the behaviour this run got wrong.
+      _(2026-07-28 · `8d2e2c4`)_ — **written out in full** in `ROADMAP.md` under Gate 4 (seed shape,
+      decoy, pass/fail), so the gate builds it instead of re-deriving it.
+
+> **What the guard does NOT prove.** `scripts/lib/switch-skill-prefill.test.mjs` pins the SOURCE (the
+> skill still names the structured query, the consent copy, the batch). Only Gate 4's fixture can show
+> the flow **behaves**. Do not report this track as behaviourally verified.
 
 > **Deliberately NOT in this track** (Thomas chose the retrieval form): arbitrating by date when
 > pre-filling, citing each proposed value's source note, and marking inference apart from reading. They
