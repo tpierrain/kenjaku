@@ -384,6 +384,21 @@ Index: `415/415`, 4501 chunks, 1 doc indexed, 0 error — the watcher caught it.
 untracked, while the three preceding `auto:` commits (last `59e1690`) captured only Claude-produced
 writes. Verified independently on disk and by the brain itself.
 
+**The sharper consequence, confirmed 2026-07-28: the index runs AHEAD of git.** `vault_stats` reports
+`415/415`, `daily: 1`, and the brain states it plainly — *"le RAG l'a déjà indexé (il embedde tout ce
+qu'il voit dans `vault/`, même non commité), mais côté git il reste non suivi"*. So the brain will
+**search, find and cite a note that exists on no remote and on no other machine**. Two consequences the
+"delayed, not lost" framing understates:
+
+- **Machine B disagrees with machine A about what the brain knows.** Not a stale index — a *different*
+  one. The multi-machine story assumes git is the transport, and the index quietly bypasses it.
+- **A disk failure loses a note the brain was actively citing**, which is the worst possible shape for
+  this defect: the owner has evidence the note is safely "in the brain" precisely because it answers
+  questions from it.
+
+The right invariant to state in the fix: **anything the index knows, git must know too**, and the gap
+between the two must be bounded by an exchange, not by a session.
+
 **Credit where due, and it is the counter-example to F7.** Asked "tout est commit ?", the brain **ran
 `git status` and listed the untracked files** before answering, distinguished what it had produced from
 what it had not, and asked for a green light before touching anything. That is the standard F7 asks for,
