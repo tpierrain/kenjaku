@@ -17,6 +17,24 @@ export function countVaultUncommitted(porcelainOut) {
     .length;
 }
 
+// git speaks the user's locale, so the diagnostic prefix is not always English
+// ("erreur : " under a French git). Same reason the "up to date" detection below
+// carries its French twin.
+const DIAGNOSTIC_PREFIX = /^(error|fatal|erreur)\s*:\s*/i;
+
+// Condenses git's raw stdout+stderr into ONE readable reason, because the
+// startup banner is a single line. Git prefixes its diagnostics with `error:` /
+// `fatal:` and drowns them in fetch chatter ("From github.com…", "* branch…") →
+// we keep only the diagnostic lines, stripped of that redundant prefix.
+export function pullFailureReason(pullOut) {
+  return (pullOut ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => DIAGNOSTIC_PREFIX.test(l))
+    .map((l) => l.replace(DIAGNOSTIC_PREFIX, ""))
+    .join(" ");
+}
+
 // Expected fields:
 //   pullOk          : bool   — the `git pull --rebase` succeeded (or no remote → true)
 //   pullOut         : string — its output (to detect "up to date")
@@ -34,7 +52,7 @@ export function repoStatusLine({ pullOk, pullOut, short, changedCount = 0, uncom
       `git add -A && git commit.`
     );
   }
-  if (!pullOk) return "⚠️ Pull failed — check manually.";
+  if (!pullOk) return `⚠️ Pull failed — ${pullFailureReason(pullOut) || "check manually."}`;
   if (/already up to date|déjà à jour/i.test(pullOut)) return `✅ Repo up to date (commit ${short}).`;
   return `📥 Repo updated — ${changedCount} file(s) changed (commit ${short}).`;
 }
