@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aLocalMirror, aNotionPage } from './builder.js';
+import { aLocalMirror, aNotionLocalMirror, aNotionPage } from './builder.js';
 
 // Acceptance tests at the API port: which UNIVERSE a new mirror belongs to (ADR 0034).
 //
@@ -143,6 +143,60 @@ test('the success message names the folder the pages are really in, universe inc
   const [written] = [...harness.vaultFiles().keys()];
   assert.equal(written, 'acme/mirrors/team-a/page-1.md');
   assert.match(result.message, /Files live under acme\/mirrors\/team-a\//);
+});
+
+// A mirror declared before universes existed carries no universe, so it stays cross-cutting at the
+// vault root. The natural way to re-file it is to call setup_source again with the universe named
+// — and that used to REPLACE the config and pull the whole corpus into the new folder while the
+// old files stayed on disk, indexed, frozen forever: one mirror, two copies, one of them dead.
+// Deletion reconciliation cannot catch them (it only removes pages that left the NOTION perimeter),
+// so nothing would ever clean up. Re-declaration is refused instead, before a single page is
+// fetched, and the refusal names the route that actually works.
+test('re-declaring a mirror into another universe is refused, and nothing is touched', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror())
+    .withNotionPages(aNotionPage({ id: 'page-1' }));
+  const gss = harness.build();
+
+  const result = await gss.setupSource(aSetupRequest({ universe: 'acme' }));
+
+  assert.equal(result.ok, false);
+  assert.equal(
+    result.message,
+    'The "team-a" mirror already exists, in the cross-cutting universe, and a mirror cannot ' +
+      'change universe by being declared again: its pages would be pulled into acme/mirrors/' +
+      'team-a/ while the old copies stayed behind, indexed and never refreshed again. To re-file ' +
+      'it, remove it with its files (remove_source "team-a", cleanup: true) and set it up again ' +
+      'in acme. To change anything else about it — a rotated token, a wider scope — declare it ' +
+      'again in the cross-cutting universe.',
+  );
+  assert.deepEqual(
+    await harness.declaredSources(),
+    [aNotionLocalMirror()],
+    'the declared mirror is left exactly as it was',
+  );
+  assert.equal(harness.vaultFiles().size, 0, 'and not one page was pulled into the new folder');
+});
+
+// The other half of that refusal: it targets a CHANGE of universe, nothing else. Re-declaring a
+// mirror where it already lives is how a rotated token or a widened root page gets applied, and
+// the refusal above explicitly promises it still works — so the promise is held to a test.
+test('re-declaring a mirror in the universe it already lives in still works', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror({ universe: 'acme' }))
+    .withNotionPages(aNotionPage({ id: 'page-1' }));
+  const gss = harness.build();
+
+  const result = await gss.setupSource(
+    aSetupRequest({ universe: 'acme', tokenEnv: 'ROTATED_TEAM_A_NOTION_TOKEN' }),
+  );
+
+  assert.equal(result.ok, true);
+  const [declared] = await harness.declaredSources();
+  assert.equal(declared.connector.config.token_env, 'ROTATED_TEAM_A_NOTION_TOKEN', 'the new token took');
+  assert.ok(harness.vaultFiles().has('acme/mirrors/team-a/page-1.md'), 'and the pages stay put');
 });
 
 // The confirmation belongs to the FIRST pull only. Re-asking on every refresh is how a useful

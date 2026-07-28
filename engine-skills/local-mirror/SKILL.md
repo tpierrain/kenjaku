@@ -164,6 +164,12 @@ committed. The `setup_source` tool takes the **name of the env var**, not the to
      and let them pick. **Never invent a universe**, and never create one here (that is `/switch`'s
      job). This only ever happens on the FIRST setup of a mirror — a **refresh** (`sync`) is a
      one-liner and never asks again.
+   - **A mirror that already exists cannot change universe by being declared again** — that call
+     comes back refused, having pulled nothing. Relay the refusal as it stands: re-declaring would
+     land the whole corpus in the new folder and leave a stale, never-refreshed copy in the old one.
+     Re-filing an existing mirror goes through `remove_source <name>` with `cleanup: true`, then a
+     fresh `setup_source` in the wanted universe — a **full re-pull and re-embed**, so say what it
+     costs before doing it, and never run the removal without an explicit yes.
 5. **Report** what came back — **from the structured `setup_source` result**, and if you want to
    double-check where things landed, **from the `status <name>` tool** (it returns config, watermark,
    item count and last-sync state). ⚠️ **Never verify the sync with a compound shell command**

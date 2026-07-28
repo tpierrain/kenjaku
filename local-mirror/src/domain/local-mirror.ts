@@ -102,7 +102,16 @@ export class LocalMirror implements ILocalMirror {
     // Past the gate `req.universe` is always set (the two guards above are what make that true);
     // below it there is nothing to choose and `active` is necessarily the default, since an empty
     // registry disqualifies every pointer. So this reads "what they chose, else where they are".
-    const config = configFromRequest(req, req.universe ?? active);
+    const retained = req.universe ?? active;
+    // A mirror that already exists cannot be re-filed by re-declaring it: the pull would land in
+    // the new folder and leave an orphaned, permanently stale copy in the old one. Refuse BEFORE
+    // reaching the connector — this costs no token and no network call.
+    const existing = (await this.deps.configStore.loadAll()).find((c) => c.name === req.name);
+    if (existing && universeOf(existing) !== retained) {
+      return cannotChangeUniverse(req, existing, retained);
+    }
+
+    const config = configFromRequest(req, retained);
     const connector = this.deps.connectorFor(config);
 
     let items;
@@ -547,6 +556,43 @@ export function unknownUniverse(
       `The ones that exist are: ${universes.join(', ')}. Call setup_source again with one of ` +
       `them (or create it first with /switch).`,
   };
+}
+
+/**
+ * The refusal that protects an existing corpus: a declared mirror cannot change universe by being
+ * declared again. Re-declaring would replace the config and pull every page into the new folder
+ * while the old copies stayed on disk — indexed, never refreshed, and beyond the reach of deletion
+ * reconciliation, which only removes pages that left the SOURCE's perimeter. So nothing is declared
+ * and nothing is pulled, and the owner is told the route that actually re-files a mirror.
+ */
+export function cannotChangeUniverse(
+  req: SetupRequest,
+  declared: LocalMirrorConfig,
+  target: string,
+): SetupResult {
+  const from = universeLabel(universeOf(declared));
+  const landing = vaultDirFor(configFromRequest(req, target));
+  return {
+    name: req.name,
+    ok: false,
+    message:
+      `The "${req.name}" mirror already exists, in ${from}, and a mirror cannot change universe ` +
+      `by being declared again: its pages would be pulled into ${landing}/ while the old copies ` +
+      `stayed behind, indexed and never refreshed again. To re-file it, remove it with its files ` +
+      `(remove_source "${req.name}", cleanup: true) and set it up again in ${universeLabel(target)}. ` +
+      `To change anything else about it — a rotated token, a wider scope — declare it again in ` +
+      `${from}.`,
+  };
+}
+
+/** The universe a declared mirror lives in: absent means the default one (ADR 0034). */
+function universeOf(config: LocalMirrorConfig): string {
+  return config.universe ?? DEFAULT_UNIVERSE;
+}
+
+/** How a universe is named to the owner: the default one has no name, it has a ROLE. */
+function universeLabel(universe: string): string {
+  return universe === DEFAULT_UNIVERSE ? 'the cross-cutting universe' : universe;
 }
 
 /**
