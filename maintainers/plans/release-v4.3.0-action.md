@@ -225,9 +225,12 @@
           BOTH `finally { release }` blocks untestable), the rebuild's default-universe branch fed.
     - [x] 257 pass / 0 fail in `local-mirror`, `tsc --noEmit` clean, harness suite 989 pass / 0 fail
           / 1 skipped (Windows-only).
-    - [ ] **Still owed: the `scripts/**` side.** `repo-status.mjs`, `engine-commit.mjs` and
-          `auto-commit.mjs` changed after their last measure (98.53 % / 98.98 %), and their run needs
-          the disposable-worktree recipe (RESULTS.md) since `mutate:scripts` cannot dry-run.
+    - [x] **The `scripts/**` side too**, in a disposable worktree (the recipe in RESULTS.md, since
+          `mutate:scripts` still cannot dry-run): **98.37 %** over the four files this branch touched
+          — `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs`
+          **97.44 %**, `auto-commit.mjs` **98.04 %**. Nothing to harden: the three survivors are
+          equivalents, two already accepted, the third being `stripQuotes`'s `startsWith`/`endsWith`
+          (git quotes a path at both ends or neither).
   - [ ] **Also update the PR #50 body**: it describes the four tracks but not the review fixes.
 - [ ] merge the PR into `main` once tracks A, B and C are green (PR #50 grows to carry them, or
       each track lands as its own PR onto the same branch — decide when A is done)
@@ -235,9 +238,9 @@
         draft titles on the table: *The One Where the Update Cleans Up After Itself*,
         *The One Where a Mirror Moves House*
   - [ ] the release note carries the mutation snapshot pinned to the tag
-        (CONVENTIONS §5ter): `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**,
-        `repo-status.mjs` **98.21 %**, `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**
-        — the last two re-measured AFTER the review fixes
+        (CONVENTIONS §5ter), all re-measured AFTER the review fixes: `engine-commit.mjs` **100 %**,
+        `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %**,
+        `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**
   - [x] **the marketing-surface pass re-done for the minor scope** (CONVENTIONS §10) _(2026-07-28)_.
         It had been recorded as done for the patch scope; tracks A and C changed what an upgrade and
         a mirror promise, so the whole surface was re-read. Verdict, boring parts included:

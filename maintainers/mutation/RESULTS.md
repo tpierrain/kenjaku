@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The two files touched on [2026-07-28](#pr-50-startup-pull--engine-commit--2026-07-28) were measured the same way: `engine-commit.mjs` **100 %**, `repo-status.mjs` **97.73 %** |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent) |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -657,3 +657,20 @@ run were genuine infinite loops (`if (name === 'all') return this.syncAll()` mut
 `sync` recurse into itself forever), so they are real kills. The six in the final run were not
 individually enumerated — the clear-text reporter names survivors, not timeouts — so read that score
 as 96.86 % with six kills taken on trust rather than inspected.
+
+### v4.3.0, the harness side of the review fixes — 2026-07-28
+
+The four `scripts/**` files this branch touched, measured together in a **disposable worktree** (the
+recipe above — `inPlace` on the real tree once deleted the demo vault), against their own covering
+tests. **98.37 %** overall — `engine-commit.mjs` **100 %** (20/20), `startup-sync.mjs` **100 %**
+(35/35), `repo-status.mjs` **97.44 %** (76/78), `auto-commit.mjs` **98.04 %** (50/51). Narrowed for
+the usual reason: `stryker.scripts.config.mjs` still cannot dry-run (`engine-manifest-integrity.test.mjs`
+asks `git ls-files`), and narrowing can only make a score pessimistic.
+
+**Nothing to harden — all three survivors are equivalents**, two of them already accepted above
+(`pullOut ?? ""`, and `auto-commit`'s `if (isEntryPoint(…))` entry-point guard). The new one:
+
+- **`stripQuotes`: `path.startsWith('"')` → `path.endsWith('"')`.** Git's porcelain either quotes a
+  path at BOTH ends or at neither — a `"` anywhere in a name is itself a reason to quote — so no line
+  git can emit distinguishes the two. Killing it would take a fixture git never produces (an
+  unquoted path ending in `"`), which is exactly the invented-fixture trap this file warns about.
