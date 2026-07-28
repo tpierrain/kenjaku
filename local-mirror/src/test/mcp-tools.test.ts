@@ -66,7 +66,7 @@ test('the server advertises its name and version', async () => {
   await close();
 });
 
-test('exactly the 7 tools are registered, each with a name and a non-empty description', async () => {
+test('exactly the 8 tools are registered, each with a name and a non-empty description', async () => {
   const { api } = spyApi();
   const { client, close } = await connect(api);
 
