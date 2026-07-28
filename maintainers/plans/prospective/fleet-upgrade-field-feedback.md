@@ -210,10 +210,11 @@ exactly among the people most likely to have configured one.
 > dated channel matrix in an ADR** — not another comment asserting on its own authority.
 
 - [ ] **Stop writing agent-directed prose into a channel the owner reads**
-  - [ ] Establish the fact: on Claude Code **v2.1.220 / CLI**, `hookSpecificOutput.additionalContext` is
-        displayed to the user, prefixed `SessionStart:startup says:`. Evidence below is conclusive for
-        `session-universe.mjs`. Re-check on Desktop while settling F4 — the answer decides whether *any*
-        channel is agent-only.
+  - [x] Establish the fact _(2026-07-28)_: on Claude Code **v2.1.220 / CLI**,
+        `hookSpecificOutput.additionalContext` is echoed to the user verbatim, prefixed
+        `SessionStart:startup says:`. **Scope: CLI only.** On Desktop the same directives produced *only*
+        the agent's intended relay (see the matrix below) — so the channel behaves as designed there and
+        the leak is a **terminal-side echo**, not a property of the channel.
   - [ ] Rewrite the leaking payloads so they read acceptably **to a human**, since a human reads them:
         no `Offer ONCE, in the user's language`, no `load the \`switch\` skill`, no
         `run \`node scripts/set-universe-profile.mjs --decline\``, no `PAST the disclosure gate`.
@@ -247,6 +248,63 @@ non-developers, and it opens by showing them the strings we pull: internal vocab
 CLI command with a flag. It reads like a leaked prompt, because it is one. For the target persona
 (Head of Engineering, PM, consultant) the effect is not "quirky", it is a loss of trust in a product
 that just spent ten minutes reindexing their notes.
+
+---
+
+## 📡 The channel matrix — verified 2026-07-28, the ADR's payload
+
+Both F4 and F5 exist because this table was never established, only assumed, in comments that then
+disagreed with each other. It is now field-verified end to end on **Claude Code v2.1.220**, CLI and
+Desktop Code tab, same brain (`mind-palace`), same session boundary. **This is what goes in the ADR.**
+
+| Channel | CLI (terminal) | Desktop — Code tab |
+| --- | --- | --- |
+| `statusLine` | ✅ rendered, persistent | ❌ **nothing** (F4) |
+| SessionStart `systemMessage` | ✅ displayed | ❌ dropped |
+| SessionStart `additionalContext` | ⚠️ **echoed verbatim** to the user (F5) | ✅ agent-only, as designed |
+| The agent's chat text | ✅ | ✅ **the only channel that reaches both** |
+
+Three consequences that must survive this file:
+
+1. **The chat is the only universal channel.** Anything an owner MUST see (restart required, key missing,
+   a stale index) belongs in the agent's message. Every other channel is a per-surface bonus.
+2. **`additionalContext` is not backstage on the CLI.** Anything routed there must read acceptably to a
+   human, in their language — it is a directive *and* a user-facing string on one of the two surfaces.
+3. **Nothing here is inferable from the documentation**, which never mentions Desktop and is framed
+   entirely in terminal terms. Hence: verify, date, record. Do not re-derive.
+
+---
+
+## ✅ End-to-end validation of the upgrade *(2026-07-28, Desktop, post-restart)*
+
+Recorded because a green `exit 0` is not proof that a brain works. Asked a real question
+(*"qu'ai-je dit au dernier EM avant de partir en vacances ?"*) in a Desktop conversation rooted in the
+brain. Observed, in order: the universe banner rendered as **intended French prose**, `vault-rag` search,
+`2026-07-10.md` read, a substantive answer, and a **citation with a working link** to
+`prep-day/2026-07-10.md` plus a Slack permalink. The optional housekeeping (6 `/consolidate` candidates,
+28 `/lint` dangling links) and the universe-profile offer landed **last, in one discreet parenthetical**,
+in the owner's language, explicitly skippable.
+
+So: the 413-note reindex is **verified from the vault, not merely reported**, and the v4.2.0 universe
+surface behaves on Desktop exactly as designed. **The design is right; F5 is a CLI echo defect on top of
+a sound design** — worth stating plainly so the fix stays narrow and nobody re-opens the design.
+
+**Second validation, same session — the self-converging loop, on Desktop.** A follow-up question reached
+*past* the vault: the brain pulled a Google Doc transcript through a connector, synthesised the 1-1
+(topics, unplanned subjects, actions per person), cited its source, and then **noticed its own gap** —
+the transcript is absent from the vault and `people/jeremy-hinard.md` says as much ("pas de transcript de
+ce 1-1"). It **proposed two writes** (import the transcript to `raw-sources/transcripts/…`, correct the
+person's note) and **asked before performing either**, saying so explicitly.
+
+That exercises, on the surface where none of our other channels reach, three invariants at once: the
+fan-in from external sources, the vault-vs-source gap detection, and **writes stay confirmed**. Worth
+recording as evidence, because "the brain proposes rather than acts" is a promise the constitution makes
+to every owner and it is rarely observed under field conditions.
+
+- [ ] **Watch the follow-through** (not yet observed): if the owner accepts, do the two new files get
+      indexed by the live watcher and committed by the auto-commit hook **without a manual reindex**?
+      That is the v4.3.0 headline claim (notes appearing outside a Claude write are picked up), and this
+      is a natural chance to see it fire. A miss here is an F6.
 
 ---
 
