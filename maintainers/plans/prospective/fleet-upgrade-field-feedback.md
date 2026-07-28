@@ -36,6 +36,7 @@ graduate straight into Gate 4's plan without a second investigation.
 - [ ] **F6 — `/rag` does not exist; the host suggests `/run`** *(found 2026-07-28)*
 - [ ] **F7 — the brain reports an unverified outcome in the measured voice** *(found 2026-07-28)*
 - [x] **v4.3.0 watcher claim: VALIDATED** _(2026-07-28 · 413→414, 4442→4499 chunks, 0 error, no manual reindex)_
+- [ ] **F8 — an Obsidian note is indexed live but committed only at the next session start** *(found 2026-07-28)* — **the defect this QA was built to find**
 - [ ] Field-log the rest of the run (entries appended below as they are met)
 - [ ] Triage the log into Gate 4's canonical plan once the run is over
 
@@ -348,4 +349,46 @@ to every owner and it is rarely observed under field conditions.
 
 ---
 
-## F8 — *(next entry: appended during the run)*
+## F8 — An Obsidian note is indexed live but committed only at the NEXT session start
+
+> The one defect this QA was designed to find. v4.3.0's headline claim holds **by half**: the note is
+> searchable within seconds and untracked by git for as long as the owner does not restart a session.
+
+- [ ] **Make the commit as file-driven as the indexing already is**
+  - [ ] Root cause, exactly: `auto-commit.mjs:51` runs `git add .` — it would happily stage the note.
+        The problem is **when it runs**: `.claude/settings.json` wires it to `PostToolUse` with matcher
+        `Write|Edit`, so it fires **only after Claude writes a file**. A note created in Obsidian
+        produces no tool call, so the hook never runs.
+  - [ ] **The asymmetry is the finding.** The very same disk event that the RAG watcher catches live
+        (and it does — `413 → 415`, indexed, universe `default`) triggers no commit. Indexing is
+        file-driven; committing is session-driven. One of the two is wrong, and it is not the watcher.
+  - [ ] Honest severity: **delayed, not lost.** `sweepThenPull` (`startup-sync.mjs`, called from
+        `session-status.mjs:58`) commits everything at SessionStart, and `repo-status.mjs:107` already
+        alerts when vault notes survive the sweep. So the note lands at the next session.
+  - [ ] But the window is real and it is the promise we sell: an owner writing in Obsidian for a week
+        without opening Claude has **nothing committed and nothing pushed** for that week — no backup,
+        and nothing on their second machine. "Backup" and "usable from several machines" are exactly
+        what the remote is offered for (CLAUDE.md step 4 §2).
+  - [ ] Cheapest candidate fix: also trigger the sweep on a **conversation-level** hook
+        (`UserPromptSubmit` / `Stop`) so any outside-written note is swept within one exchange instead of
+        one session. Cost is one `git status --porcelain` on a hook that already exists and no-ops on a
+        clean tree (`attemptCommit` reads the tree state first).
+  - [ ] Decide whether to go further and let the **watcher itself** request the commit. More faithful to
+        the promise, but it crosses a process boundary (the MCP server) into git-write territory — weigh
+        against the confirm-before-write posture before committing to it.
+  - [ ] Whatever ships: the release note for v4.3.0 says notes typed in Obsidian are "enfin
+        commitées/synchronisées". **Either the behaviour matches that sentence or the sentence changes.**
+
+**Field evidence (2026-07-28).** Note created in Obsidian at `vault/daily/Test de nouvelle note débile.md`.
+Index: `415/415`, 4501 chunks, 1 doc indexed, 0 error — the watcher caught it. Git: `?? vault/daily/`,
+untracked, while the three preceding `auto:` commits (last `59e1690`) captured only Claude-produced
+writes. Verified independently on disk and by the brain itself.
+
+**Credit where due, and it is the counter-example to F7.** Asked "tout est commit ?", the brain **ran
+`git status` and listed the untracked files** before answering, distinguished what it had produced from
+what it had not, and asked for a green light before touching anything. That is the standard F7 asks for,
+demonstrated in the same session — so the fix for F7 is about making it reliable, not about teaching it.
+
+---
+
+## F9 — *(next entry: appended during the run)*
