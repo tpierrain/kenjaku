@@ -325,6 +325,20 @@ Inqom et ton cerveau ne sait pas encore ce que c'est que ce contexte, qu'est-ce 
 avec qui, est-ce que tu aurais deux minutes pour donner ces quelques indications. Et qu'après, tout le
 niveau de détail qui arrive, ce soit **si je dis oui**, mais pas en upfront."*
 
+> ✅ **Field-validated the same day, and it is the argument for the whole decision.** Asked a real
+> question on the CLI (*"où en est le sujet notion-sync ?"*), the agent answered substantively, then
+> closed with **exactly the sentence Thomas described**, unprompted, last, in French, in one line:
+>
+> > 🧭 *Et si tu veux, on peut passer 2 minutes à décrire ton univers `inqom` (ton rôle, les gens qui
+> > comptent, les comptes que tes outils utilisent) pour que je sois plus juste par défaut. Tu peux aussi
+> > refuser, maintenant ou pour toujours.*
+>
+> **The agent composes the offer well from the fact alone.** It did not need the eight lines of
+> protocol to produce a better sentence than the protocol describes — it needed to know there was no
+> profile. That is the empirical proof that the upfront detail buys nothing: the quality we want is
+> already there, one line, at the right moment, in the right language. **Shrinking the trigger costs
+> nothing** — this screen is what the fix has to preserve, not what it has to build.
+
 - [ ] **Split the payload in two, by the moment it becomes useful.**
   - [ ] **Upfront (the trigger)**: the *fact* only, small enough to be harmless even when echoed. Which
         universe is active, that it has no profile, and that an offer is due once, in the user's
@@ -425,6 +439,33 @@ to every owner and it is rarely observed under field conditions.
       chunks, 1 doc indexed, 0 error, still 100 % local, no quota. **The v4.3.0 headline claim is
       validated on a file written outside the main agent.** The stricter variant (a note typed directly
       in Obsidian, no Claude write at all) is still worth running.
+
+---
+
+## ✅ Second end-to-end validation — the CLI, and the offer waits its turn *(2026-07-28)*
+
+The Desktop validation above had a twin on the CLI, same brain, one question: *"où en est le sujet
+notion-sync ?"*. Everything the design promises about **ordering and discretion** held:
+
+- [x] **The real question is answered first, in full.** 5 `vault-rag` calls + `slack-inqom`, a dated
+      synthesis, and **citations with working `file://` links** to `topics/…` and `meetings/…`.
+- [x] **Both optional offers land LAST, in one discreet line each**, in French, explicitly skippable:
+      the housekeeping (*"Quand tu veux, sans urgence"*) then the universe offer. **Nothing interrupts.**
+- [x] **The universe banner reads as intended prose**, not as plumbing: *"🌐 Univers actif : `inqom`
+      (mes recherches restent cadrées dessus + tes notes transverses)"* with the two ways out named.
+- [x] **It arbitrated a contradiction instead of averaging it**: *"La note du 22/06 disait « dévs
+      suspendus tant que le COMEX n'a pas tranché » ; tu as corrigé le 06/07"* — the later note wins,
+      and it says which is which.
+- [x] **It reported an ABSENCE as a finding**: *"Delta externe : j'ai vérifié Slack depuis le 08/07,
+      rien de neuf"*. Checking an external source and saying nothing came back is the honest shape, and
+      the opposite of the presumption defect recorded elsewhere in this file.
+- [x] **It ended on the decision, not on the summary**: *"ta vraie prochaine décision au retour de
+      congés c'est : est-ce que tu débloques du temps pour le write-side, ou tu le fais porter par
+      l'AI Ops ?"*
+
+**So the CLI surface is sound wherever the agent is speaking.** Everything wrong on this surface happens
+**before the agent speaks**, in the startup echo. Worth stating plainly so the fix stays narrow: we are
+repairing a hook payload, not a conversation.
 
 ---
 
