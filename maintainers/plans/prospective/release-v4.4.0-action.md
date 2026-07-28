@@ -53,7 +53,9 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
       _(2026-07-28 · `84e4038`, `65202ba`, `44cdd24`)_ — code, ADR and copy done; the on-a-real-brain
       check stays owed in the Verification section.
 - [x] **Track 3 — A note the engine cannot read is reported, not swallowed** *(F10)* _(2026-07-28 · `631b0ae`)_
-- [ ] **Track 4 — Consolidating a page can no longer damage it** *(F12)*
+- [ ] **Track 4 — Consolidating a page can no longer damage it** *(F12)* — **writer shipped**
+      _(2026-07-28 · `541028b`)_; what is left is the **reader-side** front-matter validation and the
+      release-note line.
 - [ ] **Track 5 — An installed brain follows the launcher when it moves** *(F1)*
 - [ ] **Track 6 — The first screen speaks to you, not to the machine** *(F5)*
 - [ ] **Track 7 — `/rag` answers instead of suggesting `/run`** *(F6)*
@@ -286,13 +288,15 @@ date**, its newest section absent from `chunks`. Four defects chained, none of t
       *"append a dated section … and bump the page's `updated:`"* — freehand, with no deterministic
       writer and no validation. The skill already delegates **creation** to a script; only the
       **refresh** is freehand.
-  - [ ] Give the refresh path a core that rewrites front-matter **by key**, so *"bump `updated:`"*
-        cannot become *"add a second `updated:`"* — the same treatment every other durable write gets
-        (ADR 0009).
-  - [ ] Point the skill at that script instead of describing the edit in prose.
+  - [x] **Done** _(2026-07-28 · `541028b`)_: `scripts/lib/note-refresh.mjs` (pure) + `scripts/refresh-note.mjs`
+        (the CLI twin of `file-back-note.mjs`). It rewrites front-matter **by key**, and REFUSES rather
+        than guesses: a page that does not exist (refreshing never creates), a path escaping `vault/`,
+        a file with no front-matter, and a page **already damaged** — named, never appended to.
+  - [x] The skill pipes to it _(2026-07-28 · `541028b`)_ and carries the four-defect chain as the
+        reason, so nobody re-opens the prose version.
 - [ ] **Validate front-matter at the seam that already reads every note.** A duplicate key is a one-line
       check, and it is the difference between a defect that announces itself and one that does not.
-- [ ] Test the exact shape that occurred: two `updated:` keys, three lines apart (lines 5 and 7).
+- [x] **The exact shape that occurred is a test** _(2026-07-28)_: two `updated:` keys, three lines apart.
 - [ ] **The irony belongs in the release note, stated calmly** (CONVENTIONS §11 — fix without
       dramatizing): consolidation exists so fresh captures become findable on the page that owns them,
       and here **the act of consolidating made its own output unfindable**.
