@@ -28,7 +28,7 @@ launcher deliberately is not. Tracks 4, 5, 6, 7 and 8 owe a release-note line ea
 reproducing each finding against real code before accepting it. The **cut line** is decided there, on
 that diff, not before.
 
-**One decision is waiting on Thomas, and it does not block Track 8.** Track 7 shipped `rag` as the
+**One decision is waiting on Thomas, and it does not block Track 9.** Track 7 shipped `rag` as the
 **only** new slash command; `/index` and `/reindex` route there in plain language rather than each
 costing a staged directory (a description loaded in every session). The reasoning is written in
 Track 7 and reversing it is one commit. If he wants the aliases, do it there — do not re-derive it.
