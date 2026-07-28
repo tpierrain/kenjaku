@@ -33,6 +33,9 @@ graduate straight into Gate 4's plan without a second investigation.
 - [x] ~~F-watch — the `*` dirty marker after the swap~~ **Not a defect** _(2026-07-28)_: the restart's
       auto-commit absorbed the 314 engine files as `a98921f` (73 files changed) and the marker cleared on
       its own. Recorded so nobody re-opens it.
+- [ ] **F6 — `/rag` does not exist; the host suggests `/run`** *(found 2026-07-28)*
+- [ ] **F7 — the brain reports an unverified outcome in the measured voice** *(found 2026-07-28)*
+- [x] **v4.3.0 watcher claim: VALIDATED** _(2026-07-28 · 413→414, 4442→4499 chunks, 0 error, no manual reindex)_
 - [ ] Field-log the rest of the run (entries appended below as they are met)
 - [ ] Triage the log into Gate 4's canonical plan once the run is over
 
@@ -301,11 +304,48 @@ fan-in from external sources, the vault-vs-source gap detection, and **writes st
 recording as evidence, because "the brain proposes rather than acts" is a promise the constitution makes
 to every owner and it is rarely observed under field conditions.
 
-- [ ] **Watch the follow-through** (not yet observed): if the owner accepts, do the two new files get
-      indexed by the live watcher and committed by the auto-commit hook **without a manual reindex**?
-      That is the v4.3.0 headline claim (notes appearing outside a Claude write are picked up), and this
-      is a natural chance to see it fire. A miss here is an F6.
+- [x] **Follow-through: PASSED** _(2026-07-28)_. The owner accepted; a sub-agent wrote the transcript
+      (1886 lines / 88 Ko) to `raw-sources/transcripts/2026-07-10-1-1-jeremy-thomas.md`, and **the live
+      watcher picked it up with no manual reindex and no prompting**: `413 → 414` files, `4442 → 4499`
+      chunks, 1 doc indexed, 0 error, still 100 % local, no quota. **The v4.3.0 headline claim is
+      validated on a file written outside the main agent.** The stricter variant (a note typed directly
+      in Obsidian, no Claude write at all) is still worth running.
 
 ---
 
-## F6 — *(next entry: appended during the run)*
+## F6 — The owner reaches for `/rag` and the product answers "did you mean /run?"
+
+- [ ] **Give the RAG a front door under the name people actually reach for**
+  - [ ] Observed: the owner typed `/rag`, got `Unknown command: /rag. Did you mean /run?` — and had to
+        fall back to plain language (`rag ?`), which worked fine. So nothing is broken; an **affordance
+        is missing** at the exact word an owner of a RAG-backed brain will try first.
+  - [ ] Worse than absence: the host's nearest-match suggests **`/run`**, an unrelated built-in. A
+        curious owner who follows the suggestion lands somewhere that has nothing to do with their index.
+  - [ ] Cheapest fix that fits the product: a thin `rag` skill reporting the same status the natural-
+        language path already produces (files/chunks, watcher liveness, embedder identity, engine +
+        schema versions) — the surface exists, only its name is missing.
+  - [ ] While there, sweep the other words an owner would guess for the same thing (`/status`,
+        `/index`, `/reindex`) and decide which are worth aliasing. **A name nobody guesses is a feature
+        nobody finds.**
+
+---
+
+## F7 — The brain reports an outcome it did not check ("l'auto-commit a dû enregistrer les deux")
+
+- [ ] **Verify, or say you did not** — never presume in the reporting voice
+  - [ ] Observed, closing an otherwise excellent recap: *"L'auto-commit du hook **a dû** enregistrer les
+        deux."* A presumption, delivered in the same register as the three facts above it, which were
+        genuinely measured (414/414, 4499 chunks, 0 error).
+  - [ ] The check is one read-only command away (`git log --oneline -2`, or the status the brain already
+        knows how to produce). There is no reason to guess here.
+  - [ ] This is the repo's own **"don't pretend"** rule (`CLAUDE.md` step 3 guardrails, `CONVENTIONS.md`)
+        turned inward: it currently governs the **installer's** reporting, and the same standard should
+        govern the **brain's**. An owner cannot tell a measured claim from a plausible one when both are
+        stated in the same voice.
+  - [ ] Land it where it will actually bind behaviour (the constitution / the relevant skill), not as a
+        comment. **Being right by luck is indistinguishable from being right, until the day it isn't** —
+        and auto-commit silently failing is precisely a failure mode this brain is supposed to catch.
+
+---
+
+## F8 — *(next entry: appended during the run)*
