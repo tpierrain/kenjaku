@@ -20,7 +20,17 @@ function fakeClock() {
       timers.set(id, { at: now + ms, fn });
       return id as unknown as Handle;
     },
+    /**
+     * Refuses a missing handle. A real `clearTimeout(null)` is a silent no-op, so
+     * a double that shrugs at one cannot tell "cancelled the pending window" from
+     * "cancelled nothing at all" — and every `!== null` guard in the scheduler
+     * becomes untestable.
+     */
     clear(handle: Handle) {
+      assert.ok(
+        handle !== null && handle !== undefined,
+        "clearTimer was handed no handle — a window was cancelled that had never been armed"
+      );
       timers.delete(handle as unknown as number);
     },
     /** Moves time forward, firing every timer whose deadline is reached, in order. */
@@ -125,7 +135,7 @@ test("the cap: a writing session that never pauses still commits, every 10 minut
   assert.equal(persisted, 3, "one commit per 10-minute cap, not one per pause");
 });
 
-test("once persisted, an idle vault commits nothing more (no self-sustaining loop)", () => {
+test("once persisted, an idle vault commits nothing more (no self-sustaining loop)", async () => {
   let persisted = 0;
   const clock = fakeClock();
   const scheduler = new PersistenceScheduler({
@@ -141,6 +151,11 @@ test("once persisted, an idle vault commits nothing more (no self-sustaining loo
   scheduler.notify();
   clock.advance(120_000);
   assert.equal(persisted, 1);
+  // Let the commit settle before idling: while one is still in flight the
+  // scheduler swallows anything that fires (it coalesces instead of running a
+  // second git), which would hide a window left armed behind the cap it forgot
+  // to cancel.
+  await flush();
 
   clock.advance(3_600_000); // an hour of nobody touching the vault
   assert.equal(persisted, 1, "no write, no commit — an empty commit is still noise");
@@ -194,4 +209,48 @@ test("a write during a slow push never starts a second git — one rerun at the 
 
   await ctrl.completeOne();
   assert.equal(ctrl.calls(), 2, "and nothing is left pending");
+});
+
+test("built on its defaults, the two windows are the ones we publish: 2 minutes and 10", () => {
+  const asked: number[] = [];
+  const scheduler = new PersistenceScheduler({
+    persist: async () => {},
+    setTimer: (_fn, ms) => {
+      asked.push(ms);
+      return 1 as unknown as Handle;
+    },
+    clearTimer: () => {},
+  });
+
+  scheduler.notify();
+
+  // Deliberately literals, not the exported constants: every other test names
+  // its own windows, so nothing until now proved the SHIPPED numbers are the
+  // ones an owner gets — the defaults could have drifted with the suite green,
+  // and they are the two figures the release note states.
+  assert.deepEqual(asked, [120_000, 600_000], "quiet window then cap, in that order");
+});
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+test("with nothing injected it schedules on the real clock, and a re-arm truly cancels", async () => {
+  let persisted = 0;
+  const scheduler = new PersistenceScheduler({
+    persist: async () => {
+      persisted++;
+    },
+    quietMs: 30,
+    // Kept short on purpose: this is the one test on REAL timers, so a cap the
+    // code forgets to cancel holds the whole suite open for its full duration.
+    // Two seconds is long enough never to fire here, short enough to stay a
+    // nuisance rather than a minute of dead wait under a mutation run.
+    capMs: 2_000,
+  });
+
+  scheduler.notify();
+  await delay(10);
+  scheduler.notify(); // inside the window: the first commit must never happen
+  await delay(150);
+
+  assert.equal(persisted, 1, "exactly one commit — the first window was really cancelled");
 });
