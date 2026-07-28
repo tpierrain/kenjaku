@@ -161,6 +161,15 @@ export function formatReport(report) {
       `   conflict, then commit — your engine is updated on disk either way.`,
     );
   }
+  // Asked, and refused: most often no git identity on this machine. The files are
+  // staged and the tree is dirty, so the startup pull stays blocked until it lands.
+  if (committed === "refused") {
+    lines.push(
+      `   ⚠️ git refused to commit the engine files (often: no name/email configured yet —`,
+      `   git config --global user.email "you@example.com"). They are staged and waiting;`,
+      `   commit them once git is happy, or your brain's startup pull stays blocked.`,
+    );
+  }
   if (wiredHooks.length > 0) {
     lines.push(`   • new runtime hook(s) wired: ${wiredHooks.join(", ")}`);
   }

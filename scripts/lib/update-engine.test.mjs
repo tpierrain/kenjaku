@@ -135,6 +135,22 @@ test("formatReport — a 'conflicted' update says the engine files were NOT comm
   assert.doesNotMatch(out, /were committed locally/i);
 });
 
+// And the fourth: git was asked, and said no (a machine with no `user.email` is the
+// common case). The files are staged and the tree is dirty, so the next pull is
+// blocked — the report must not print the reassuring "committed locally" line.
+test("formatReport — a 'refused' commit is reported as a failure to commit, not as a commit", () => {
+  const out = formatReport({
+    ref: "v1.1.0",
+    engineVersion: { rag: "1.1.0" },
+    copied: ["rag/src/index.ts"],
+    regenerated: true,
+    reindexed: false,
+    committed: "refused",
+  });
+  assert.match(out, /git refused|could not commit|couldn't commit/i);
+  assert.doesNotMatch(out, /were committed locally/i);
+});
+
 test("formatReport — schema unchanged → states no reindex was needed (never a misleading 'reindexed')", () => {
   const out = formatReport({
     ref: "v1.1.0",

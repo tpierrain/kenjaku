@@ -34,8 +34,12 @@ export function commitEngineUpdate({ git, ref }) {
   const state = treeState(git(["status", "--porcelain"]).out);
   if (state !== "dirty") return state; // "conflicted" and "clean" are both answers
   git(["add", "-A"]);
-  git(["commit", "-m", commitMessage(ref)]);
-  return "committed";
+  // git can refuse for reasons that have nothing to do with us — no `user.email` on a
+  // fresh machine being the common one. Reporting "committed" then would tell the
+  // owner their engine files are safe while the tree stays staged and dirty, and the
+  // report is the one place that could have named the cause.
+  const committed = git(["commit", "-m", commitMessage(ref)]);
+  return committed.ok ? "committed" : "refused";
 }
 
 // The real seam update-engine wires by default (the Gate injects a stub instead).

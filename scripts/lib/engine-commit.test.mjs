@@ -11,11 +11,12 @@ import { commitEngineUpdate, defaultCommitEngineWrites } from "./engine-commit.m
 // later arg-string mutant survive. `calls` records the whole sequence so the test
 // pins the exact commands, message included. Outputs carry the trailing newline a
 // real git emits, so production `.trim()`s stay pinned.
-function fakeGit({ porcelain = "" } = {}) {
+function fakeGit({ porcelain = "", commitOk = true } = {}) {
   const calls = [];
   const git = (args) => {
     calls.push(args.join(" "));
     if (args.join(" ") === "status --porcelain") return { out: porcelain, ok: true };
+    if (args[0] === "commit") return { out: "Author identity unknown\n", ok: commitOk };
     return { out: "", ok: true };
   };
   return { git, calls };
@@ -63,6 +64,17 @@ test("commitEngineUpdate: an UNMERGED tree is left alone — the markers must no
 
   assert.equal(commitEngineUpdate({ git, ref: "v4.3.0" }), "conflicted");
   assert.deepEqual(calls, ["status --porcelain"]); // it looked, and stopped there
+});
+
+test("commitEngineUpdate: a commit git REFUSED is not reported as committed", () => {
+  // A brain with no `user.email` configured (a fresh machine, a fresh account) makes
+  // `git commit` fail. Claiming "committed" there tells the owner their engine files
+  // are safe while the tree is left fully staged and dirty — so the next pull is
+  // blocked and the report was the one thing that could have said why.
+  const { git, calls } = fakeGit({ porcelain: " M engine-manifest.json\n", commitOk: false });
+
+  assert.equal(commitEngineUpdate({ git, ref: "v4.3.0" }), "refused");
+  assert.deepEqual(calls, ["status --porcelain", "add -A", "commit -m engine: update to v4.3.0"]);
 });
 
 // ── The default seam, against a REAL git repo ────────────────────────────────
