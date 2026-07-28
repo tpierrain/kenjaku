@@ -110,6 +110,24 @@ test('a move preserves a frontmatter key the engine does not know', () => {
 // would write a note with no URL at all. Either way the page lands indexed and uncitable. Refusing
 // throws inside phase 1 of the move, which already rolls the new copies back and leaves the old
 // corpus untouched.
+// The twin of the blank-universe case above, on the REBUILD path: a mirror moved to the
+// cross-cutting scope must come back with no `universe:` key at all, since the absence of the key
+// IS the default scope on disk. Stamped blank instead, the note would claim a universe named ""
+// and a later sync would see a page it never wrote.
+test('a move to a blank universe strips the key rather than stamping an empty one', () => {
+  const moved = reuniverseLocalMirrorMarkdown(aNoteCarrying('universe: acme'), '');
+
+  const { data } = parseLocalMirrorMarkdown(moved);
+  assert.equal('universe' in data, false);
+  assert.deepEqual(Object.keys(data), [
+    'mirror',
+    'source_id',
+    'title',
+    'source_url',
+    'last_edited_time',
+  ]);
+});
+
 test('a note whose citation frontmatter is missing is refused, not rebuilt broken', () => {
   const noUrl = aNoteCarrying('tags: [invoices]').replace(
     'source_url: https://www.notion.so/acme/Page-0123abc\n',
