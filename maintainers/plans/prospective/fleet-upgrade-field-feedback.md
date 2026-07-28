@@ -576,6 +576,37 @@ there is nothing to push. **The deletion waits for the next SessionStart sweep**
 chunks (queried read-only in `rag/.cache/vault.db`), the note gone. Git: still holding it. **P1's exact
 scenario, second instance, opposite direction.**
 
+### The aftermath, and it is the trap P1 must not fall into *(2026-07-28, same session)*
+
+Asked *"est-ce que tu penses bien à tout push à chaque fois ?"*, the brain committed + pushed the
+deletion (`74383b4`, `cf08685..74383b4`), **verified the wiring instead of asserting it** (`remote`
+present, `secondbrain.autopush = true`), gave the right practical answer, and then **offered to carry
+the defect itself**:
+
+> *"Si tu veux, je peux garder le réflexe de vérifier `git status` en fin de session pour attraper ces
+> cas-là avant que tu aies à le demander. Tu veux que je le fasse systématiquement ?"*
+
+- [ ] **Refuse that shape of fix, and say why in the release.** It is a **structural engine defect
+      offered an agent-side plaster.** Three reasons it must not be taken:
+  - [ ] It is not deterministic. Everything F9 documents comes from a hook being *guaranteed* to run;
+        an agent habit is guaranteed by nothing, least of all across `/clear` and new sessions.
+  - [ ] It would land in **one brain's** memory or constitution, i.e. reach **nobody** in the fleet
+        (`CLAUDE.md` is `SACRED_FILES`, cf. the constraint at the top of this file).
+  - [ ] **It would hide the defect from the very QA that found it.** A brain that self-heals in the
+        chat stops producing the evidence, and F9 becomes unobservable rather than fixed.
+- [ ] **But keep the good half.** The instinct is right, only the layer is wrong: what the brain is
+      reaching for is exactly `repo-status.mjs:107` (alerting when vault notes survive the sweep).
+      **P1 makes the plaster unnecessary**; the release note should be able to say the owner no longer
+      has to think about it, which is the actual promise.
+
+**One factual slip, same message, F7 family.** *"le push est géré par le **hook d'auto-commit**"* and
+*"le hook fait `add + commit + push` tout seul"*. It does not: `auto-commit.mjs:5` states
+**"COMMIT-ONLY: it never pushes"**, and the push is a separate `Stop` hook debounced to once per turn
+(`auto-push.mjs`). The **conclusion** was right (created/edited notes are pushed) and the wiring **was**
+verified, so this is not F7's silent-presumption shape. It is the milder one: a correct outcome
+explained by a mechanism nobody checked. Worth recording because F9's whole subtlety lives in the
+distinction between those two hooks, and the brain flattened it.
+
 **Credit, and it is the F7 pattern in its good form.** Asked *"tout est commit ?"*, the brain ran
 `git status`, found the `D`, **corrected its own earlier claim out loud** (*"le fichier de test avait
 finalement été commité par le hook pendant la session … d'où le `D` maintenant"*), named the root cause
