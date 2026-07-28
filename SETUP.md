@@ -662,6 +662,7 @@ Everyday capabilities, invoked in plain words (the `/name` is the explicit form)
 | **`/local-mirror`** | Plugs your brain onto a **local mirror** — a live zone of an internal tool (**Notion** today) that gets **mirrored into your vault** as Markdown, so the RAG searches and **cites** it. Declare one, then sync / refresh / inspect it. *The central RAG you don't have yet — but local, right now.* |
 | **`/switch`** | Switches the **active universe** (a soft retrieval scope), lists your universes, or creates a new one. Also records **what a universe is** (your role there, its people, its topics, which accounts your tools use — see §5.1). Invisible until you have a second universe. Renaming one is a normal request (§5.2); deleting one is never offered and is a command **you** run yourself (§5.3). |
 | **`/import`** | Imports the notes of a **previous** brain into this one (safe plan → confirm → copy → re-index). See §11. |
+| **`/rag`** | Tells you where your **search index** is at: how many notes and passages are indexed, whether the live watcher is running (a note saved in Obsidian is searchable within seconds), which embedder you're on, and the engine version. Re-indexes on demand — though day to day you never have to. |
 | **`/update-engine`** | Upgrades your brain's **engine** (search code, launchers, engine scripts), opt-in, **never touching your notes**. See §10. |
 | **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |
 
