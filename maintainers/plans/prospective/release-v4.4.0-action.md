@@ -53,9 +53,8 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
       _(2026-07-28 · `84e4038`, `65202ba`, `44cdd24`)_ — code, ADR and copy done; the on-a-real-brain
       check stays owed in the Verification section.
 - [x] **Track 3 — A note the engine cannot read is reported, not swallowed** *(F10)* _(2026-07-28 · `631b0ae`)_
-- [ ] **Track 4 — Consolidating a page can no longer damage it** *(F12)* — **writer shipped**
-      _(2026-07-28 · `541028b`)_; what is left is the **reader-side** front-matter validation and the
-      release-note line.
+- [x] **Track 4 — Consolidating a page can no longer damage it** *(F12)* _(2026-07-28 · `541028b`,
+      `6e0101b`)_ — writer **and** reader shipped; only the **release-note line** is owed, at Track 9.
 - [ ] **Track 5 — An installed brain follows the launcher when it moves** *(F1)*
 - [ ] **Track 6 — The first screen speaks to you, not to the machine** *(F5)*
 - [ ] **Track 7 — `/rag` answers instead of suggesting `/run`** *(F6)*
@@ -284,7 +283,7 @@ damaging the owner's notes, and the damage is invisible because F10 hides it.
 campaign since → **F10 swallowed the error** → the note stayed searchable and **confidently out of
 date**, its newest section absent from `chunks`. Four defects chained, none of them audible.
 
-- [ ] **Fix the writer, not the file.** `engine-skills/consolidate/SKILL.md:113` instructs the agent to
+- [x] **Fix the writer, not the file.** `engine-skills/consolidate/SKILL.md:113` instructs the agent to
       *"append a dated section … and bump the page's `updated:`"* — freehand, with no deterministic
       writer and no validation. The skill already delegates **creation** to a script; only the
       **refresh** is freehand.
@@ -294,12 +293,26 @@ date**, its newest section absent from `chunks`. Four defects chained, none of t
         a file with no front-matter, and a page **already damaged** — named, never appended to.
   - [x] The skill pipes to it _(2026-07-28 · `541028b`)_ and carries the four-defect chain as the
         reason, so nobody re-opens the prose version.
-- [ ] **Validate front-matter at the seam that already reads every note.** A duplicate key is a one-line
-      check, and it is the difference between a defect that announces itself and one that does not.
+- [x] **Validate front-matter at the seam that already reads every note** _(2026-07-28 · `6e0101b`)_.
+      A duplicate key is the difference between a defect that announces itself and one that does not.
+  - [x] **The check runs only once the YAML has ALREADY failed** — js-yaml refuses a duplicated key on
+        its own, so this can never turn a note the parser accepts into an error. It **upgrades a
+        message, it adds no verdict**: `duplicated mapping key (6:1)` becomes the key, both line
+        numbers, and the consequence (*the note keeps answering from the content it was last indexed
+        with*). Anything the scan does not recognise keeps its original `YAMLException`.
+  - [x] Each boundary of the scan is pinned by a test, and every one was **verified by hand-applying
+        the mutant**: top-level unindented keys only (two `updated:` lines inside a block scalar are
+        prose), it stops at the closing delimiter, and it declines a note with **no** front-matter (a
+        hand-written note may open on `key: value` prose and carry a `---` rule further down). That
+        last branch is unreachable through `parseDocument`, so `findDuplicateKey` is an exported pure
+        seam rather than an exempted branch.
+  - [x] **The index seam reports `err.message`, not `${err}`**: an owner reading `last-run.json` gains
+        nothing from the class name, and a diagnosis written for them reads worse for it.
 - [x] **The exact shape that occurred is a test** _(2026-07-28)_: two `updated:` keys, three lines apart.
 - [ ] **The irony belongs in the release note, stated calmly** (CONVENTIONS §11 — fix without
       dramatizing): consolidation exists so fresh captures become findable on the page that owns them,
-      and here **the act of consolidating made its own output unfindable**.
+      and here **the act of consolidating made its own output unfindable**. **Owed at Track 9**, with
+      Track 1's copy — the code of this track is done.
 
 ---
 
