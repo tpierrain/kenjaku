@@ -17,13 +17,46 @@
 name: CI
 
 on:
+  # `push` on ANY branch, so the `early-windows` tripwire can fire while a branch is
+  # still being written — the whole point (see that job). The expensive jobs below
+  # carry an `if` restricting them to pull requests and to `main`, so an ordinary
+  # branch push costs ONE short Windows job, not the whole matrix.
   push:
-    branches: [main, node-compat]
   pull_request:
 
 jobs:
+  # ── The early Windows tripwire (ADR 0015 / CONVENTIONS §9) ──────────────────
+  # Why this exists, and why it is NOT redundant with the matrix below: §9 names the
+  # CI matrix as the *deterministic* net for POSIX-invisible defects, but the matrix
+  # only ever fired on `pull_request` and on pushes to `main`. Our PRs open at the END
+  # of a release, so the net could not fire while the work was happening — a branch
+  # would reach 50+ commits before Windows ever spoke, and the same class of defect
+  # (a fixture path spelled with `/` where production `join`s) came back every few
+  # releases. Caught late, it is a red release; caught here, it is 40 seconds.
+  #
+  # Deliberately ONE cell and ONE step: the harness suites are dependency-free .mjs,
+  # so this needs no `npm ci` and no native build. It is a tripwire, not a matrix —
+  # the full 7/7 arbiter below still gates the merge.
+  early-windows:
+    name: Windows tripwire · harness
+    # Branch pushes only: on a pull_request the full matrix already covers this step,
+    # and on `main` the merge has already been arbitrated.
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Harness tests
+        run: node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
+
   test:
     name: Node ${{ matrix.node }} · ${{ matrix.os }}
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -91,6 +124,7 @@ jobs:
   # `timeout-minutes` is the belt against a future spawn-site hang regressing silently.
   install-e2e:
     name: Installer e2e · windows-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
