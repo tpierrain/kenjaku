@@ -26,6 +26,12 @@ export interface ISourceConnector {
 export interface IVaultWriter {
   write(path: string, content: string): Promise<void>;
   delete(path: string): Promise<void>;
+  /**
+   * Read a note back. A MOVE re-files the pages already on disk rather than re-pulling them
+   * (ADR 0034), so it needs to read what it is about to rewrite: no token, no network, and a
+   * mirror can be re-filed while the source is unreachable.
+   */
+  read(path: string): Promise<string>;
 }
 
 /** One tracked item in the per-source private state (sidecar §10). */

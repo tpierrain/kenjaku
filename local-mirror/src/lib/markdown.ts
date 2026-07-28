@@ -55,6 +55,27 @@ export function toLocalMirrorMarkdown(
   return matter.stringify(body, frontmatter, YAML_ENGINE);
 }
 
+/**
+ * Re-file a produced note into another universe (ADR 0034): the note is REBUILT through
+ * `toLocalMirrorMarkdown`, so a moved note is byte-identical to the one a sync would write
+ * there — otherwise the next sync would see a hash mismatch and rewrite every page. Passing no
+ * universe (the cross-cutting scope) drops the key, which is what "default" means on disk.
+ */
+export function reuniverseLocalMirrorMarkdown(raw: string, universe?: string): string {
+  const { data, content } = parseLocalMirrorMarkdown(raw);
+  return toLocalMirrorMarkdown(
+    String(data.mirror),
+    {
+      id: String(data.source_id),
+      title: String(data.title),
+      url: String(data.source_url),
+      lastEditedTime: String(data.last_edited_time),
+    },
+    content,
+    universe,
+  );
+}
+
 /** Read back a local-mirror note (frontmatter + body) using the same js-yaml-4 engine. */
 export function parseLocalMirrorMarkdown(raw: string): { data: Record<string, unknown>; content: string } {
   const { data, content } = matter(raw, YAML_ENGINE);

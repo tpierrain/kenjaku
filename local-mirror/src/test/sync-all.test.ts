@@ -53,6 +53,11 @@ function buildSyncOver(specs: SourceSpec[]): {
       written.delete(path);
       deleted.push(path);
     },
+    async read(path: string) {
+      const content = written.get(path);
+      if (content === undefined) throw new Error(`ENOENT: no such file ${path}`);
+      return content;
+    },
   };
   const clock: IClock = { now: () => new Date('2026-06-17T00:00:00.000Z') };
   const connectorFor: ConnectorFactory = (config) => {

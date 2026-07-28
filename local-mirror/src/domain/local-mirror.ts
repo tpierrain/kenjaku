@@ -3,6 +3,7 @@ import type {
   HealthCheckEntry,
   HealthReport,
   LocalMirrorConfig,
+  MoveResult,
   RemoveResult,
   SetupRequest,
   SetupResult,
@@ -22,7 +23,7 @@ import type {
   PersistedState,
   UniverseState,
 } from './ports.js';
-import { toLocalMirrorMarkdown } from '../lib/markdown.js';
+import { reuniverseLocalMirrorMarkdown, toLocalMirrorMarkdown } from '../lib/markdown.js';
 import { contentHash } from '../lib/content-hash.js';
 import { extractPageId } from '../lib/notion-url.js';
 import { DEFAULT_UNIVERSE, isMultiverse, listAllUniverses } from '../lib/universe.js';
@@ -41,6 +42,11 @@ export interface ILocalMirror {
   checkFreshness(name: string): Promise<FreshnessReport>;
   status(name: string): Promise<SourceStatus>;
   removeSource(name: string, cleanup?: boolean): Promise<RemoveResult>;
+  /**
+   * Re-file a declared mirror into another universe (ADR 0034) — the ONE deliberate way to change
+   * a frozen universe. Local: it rewrites the pages already on disk, never re-pulls them.
+   */
+  moveSource(name: string, universe: string): Promise<MoveResult>;
   /** Standard module health (ADR 0030): is the optional mirror operational? */
   healthCheck(): Promise<HealthReport>;
 }
@@ -432,6 +438,77 @@ export class LocalMirror implements ILocalMirror {
     await this.deps.configStore.remove(name);
     return { name, removed: true, cleanedUp: cleanup };
   }
+
+  /**
+   * Re-file a mirror into another universe (ADR 0034). The pages already on disk are rewritten
+   * under the target universe — read, re-stamped, written at the new path, deleted from the old —
+   * so a move needs no token and no network, and works while the source is unreachable.
+   */
+  async moveSource(name: string, universe: string): Promise<MoveResult> {
+    const configs = await this.deps.configStore.loadAll();
+    const config = configs.find((c) => c.name === name);
+    if (!config) return { name, ok: false, moved: 0, message: unknownMirror(name, configs) };
+
+    // Same rule as a declaration: a universe nobody created would swallow the whole corpus into a
+    // scope no search reaches. The registry is read HERE, at the deliberate move, and never on the
+    // sync path — which is exactly why the universe stays frozen in the config the rest of the time.
+    const universes = listAllUniverses(this.deps.universes().registry);
+    if (!universes.includes(universe)) {
+      return {
+        name,
+        ok: false,
+        moved: 0,
+        message:
+          `There is no universe called "${universe}", so "${name}" was not moved. The ones that ` +
+          `exist are: ${universes.join(', ')}. Call move_source again with one of them (or create ` +
+          `it first with /switch).`,
+      };
+    }
+
+    // The cross-cutting universe is the ABSENCE of the key, on disk as in the config — the same
+    // implicit-when-default rule `configFromRequest` applies at declaration time.
+    const moved = withUniverse(config, universe);
+    const persisted = await this.deps.stateStore.load(name);
+    const items = Object.entries(persisted?.items ?? {});
+
+    let count = 0;
+    const relocated: Record<string, PersistedItem> = {};
+    for (const [id, item] of items) {
+      const raw = await this.deps.vaultWriter.read(item.vaultPath);
+      const vaultPath = vaultPathFor(moved, id);
+      const markdown = reuniverseLocalMirrorMarkdown(raw, moved.universe);
+      await this.deps.vaultWriter.write(vaultPath, markdown);
+      await this.deps.vaultWriter.delete(item.vaultPath);
+      // The sidecar is the reconciliation map: a tracked path left pointing at the old folder
+      // would make a later cleanup delete nothing and orphan the moved corpus. The hash follows
+      // too — the universe key is part of the produced markdown, so a stale hash would make the
+      // very next sync rewrite every page for nothing.
+      relocated[id] = { ...item, vaultPath, contentHash: contentHash(markdown) };
+      count += 1;
+    }
+    if (persisted) await this.deps.stateStore.save(name, { ...persisted, items: relocated });
+
+    await this.deps.configStore.upsert(moved);
+    return {
+      name,
+      ok: true,
+      moved: count,
+      message:
+        `Moved "${name}" to ${universeLabel(universe)}: ` +
+        `${count} page(s) now live under ${vaultDirFor(moved)}/.`,
+    };
+  }
+}
+
+/** The refusal when the named mirror was never declared — it names the ones that were. */
+function unknownMirror(name: string, configs: readonly LocalMirrorConfig[]): string {
+  const declared = configs.map((c) => c.name);
+  return (
+    `There is no mirror called "${name}", so nothing was moved. ` +
+    (declared.length
+      ? `The declared ones are: ${declared.join(', ')}.`
+      : `No mirror is declared on this brain yet.`)
+  );
 }
 
 /** A single-check `unknown` health report — the "couldn't determine" verdict (ADR 0030). */
@@ -583,6 +660,15 @@ export function cannotChangeUniverse(
       `To change anything else about it — a rotated token, a wider scope — declare it again in ` +
       `${from}.`,
   };
+}
+
+/**
+ * The same config, filed in `universe` — with the key DROPPED for the cross-cutting scope, since
+ * its absence is what "default" means on disk and in the config (ADR 0034).
+ */
+function withUniverse(config: LocalMirrorConfig, universe: string): LocalMirrorConfig {
+  const { universe: _previous, ...rootless } = config;
+  return universe === DEFAULT_UNIVERSE ? rootless : { ...rootless, universe };
 }
 
 /** The universe a declared mirror lives in: absent means the default one (ADR 0034). */

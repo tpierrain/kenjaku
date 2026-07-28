@@ -107,13 +107,20 @@
 
 ## Track B — a mirror re-declaration cannot silently duplicate a corpus
 
-- [ ] **Re-declaring an existing mirror into a different universe is refused, loudly**, and the
-      refusal names the supported route
-  - [ ] Failing test first, in `local-mirror` (outside-in: through the `setupSource` API port).
-  - [ ] The refusal must say what to do instead. Once Track C lands, that is the **move**; until
+- [x] **Re-declaring an existing mirror into a different universe is refused, loudly**, and the
+      refusal names the supported route _(2026-07-28 · `5259851`)_
+  - [x] Failing test first, in `local-mirror` (outside-in: through the `setupSource` API port).
+        Seen red for the right reason (`ok` was `true`), then green.
+  - [x] The refusal must say what to do instead. Once Track C lands, that is the **move**; until
         then it is `remove_source cleanup: true` + `setup_source`.
-  - [ ] Same-universe re-declaration (a token rotation, a widened scope) must keep working —
-        the refusal targets a **change of universe** only.
+  - [x] Same-universe re-declaration (a token rotation, a widened scope) must keep working —
+        the refusal targets a **change of universe** only. Held to its own test (§9: a condition
+        with two reasons needs a test per reason), and the mutant `if (existing)` was applied by
+        hand to prove that test discriminates.
+  - [x] The refusal happens **before the connector is reached**: no token, no network call.
+  - [x] The skill relays it (`engine-skills/local-mirror/SKILL.md` step 4, copy in `.claude/`
+        kept in sync).
+  - [x] 234 pass / 0 fail in `local-mirror`, `tsc --noEmit` clean, harness suite still 982/0.
 
 ## Track C — a mirror can be MOVED to another universe
 
@@ -136,6 +143,9 @@
 
 ## Cutting the release
 
+- [ ] ⚠️ **`/code-review` BEFORE the merge** — Thomas asked for it explicitly (2026-07-28). It is
+      user-triggered, so it is his to launch; wait for its verdict and fix what it raises before
+      tagging.
 - [ ] merge the PR into `main` once tracks A, B and C are green (PR #50 grows to carry them, or
       each track lands as its own PR onto the same branch — decide when A is done)
   - [ ] tag + publish `v4.3.0`, title in the house style (`v4.3.0 — The One Where …`);

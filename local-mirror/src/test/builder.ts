@@ -277,6 +277,13 @@ class RecordingVaultWriter implements IVaultWriter {
   async write(path: string, content: string): Promise<void> {
     this.written.set(path, content);
   }
+  async read(path: string): Promise<string> {
+    const content = this.written.get(path);
+    // A real vault read of a missing file throws (ENOENT); the fake must too, or a move over a
+    // corpus half-deleted by hand would read as an empty note and quietly blank the page.
+    if (content === undefined) throw new Error(`ENOENT: no such file ${path}`);
+    return content;
+  }
   async delete(path: string): Promise<void> {
     // Throw BEFORE removing — a failed deletion leaves the file on disk.
     if (this.failingDeletes.has(path)) throw new Error(`EACCES: cannot delete ${path}`);

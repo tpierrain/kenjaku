@@ -114,6 +114,17 @@ export interface RemoveResult {
   cleanedUp: boolean;
 }
 
+/**
+ * The outcome of re-filing a mirror into another universe (ADR 0034). `moved` counts the pages
+ * rewritten under the target universe; a refusal reports `ok: false` with `moved: 0` and says why.
+ */
+export interface MoveResult {
+  name: string;
+  ok: boolean;
+  moved: number;
+  message: string;
+}
+
 /** One named sub-check inside a module's standard health report (ADR 0030). */
 export interface HealthCheckEntry {
   name: string;
