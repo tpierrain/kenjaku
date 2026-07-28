@@ -52,10 +52,18 @@ export function toLocalMirrorMarkdown(
     last_edited_time: item.lastEditedTime,
   };
   if (universe) frontmatter.universe = universe;
-  // `{ content }`, never the bare string: handed a string, gray-matter PARSES it as a whole
-  // file, so a body opening with `---` (a Notion page whose first block is a divider) comes
-  // back as characters scattered into the frontmatter and an emptied note. The body is a
-  // payload to append, not a document to re-read.
+  return renderNote(frontmatter, body);
+}
+
+/**
+ * The single write path: frontmatter block + body, appended verbatim.
+ *
+ * `{ content }`, never the bare string: handed a string, gray-matter PARSES it as a whole file,
+ * so a body opening with `---` (a Notion page whose first block is a divider) comes back as
+ * characters scattered into the frontmatter and an emptied note. The body is a payload to
+ * append, not a document to re-read.
+ */
+function renderNote(frontmatter: object, body: string): string {
   return matter.stringify({ content: body }, frontmatter, YAML_ENGINE);
 }
 
@@ -67,17 +75,13 @@ export function toLocalMirrorMarkdown(
  */
 export function reuniverseLocalMirrorMarkdown(raw: string, universe?: string): string {
   const { data, content } = parseLocalMirrorMarkdown(raw);
-  return toLocalMirrorMarkdown(
-    String(data.mirror),
-    {
-      id: String(data.source_id),
-      title: String(data.title),
-      url: String(data.source_url),
-      lastEditedTime: String(data.last_edited_time),
-    },
-    content,
-    universe,
-  );
+  // Every key the note carries is kept, in place — a `tags:` the owner added, a key a later
+  // engine version stamps. Rebuilding from the five fields this module knows would DELETE the
+  // rest, and a move only re-files a note. `universe` alone is re-stamped, last.
+  const { universe: _previous, ...kept } = data;
+  const frontmatter: Record<string, unknown> = { ...kept };
+  if (universe) frontmatter.universe = universe;
+  return renderNote(frontmatter, content);
 }
 
 /** Read back a local-mirror note (frontmatter + body) using the same js-yaml-4 engine. */

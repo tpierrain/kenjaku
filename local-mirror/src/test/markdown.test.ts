@@ -1,6 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { toLocalMirrorMarkdown, parseLocalMirrorMarkdown } from '../lib/markdown.js';
+import {
+  toLocalMirrorMarkdown,
+  parseLocalMirrorMarkdown,
+  reuniverseLocalMirrorMarkdown,
+} from '../lib/markdown.js';
 
 // The note renderer, at the unit. The acceptance tests cover the two shapes that travel
 // (a universe-scoped mirror stamps `universe:`, a rootless one does not), but they can only
@@ -56,4 +60,47 @@ test('a body that opens with a divider survives the write', () => {
     universe: 'acme',
   });
   assert.equal(content.trim(), '---\n\nreal content');
+});
+
+// Hand-written on purpose (never produced by the code under test): a note on disk can carry keys
+// this module never wrote — a `tags:` the owner added in Obsidian, a key a later engine version
+// stamps. A move RE-FILES a note; it does not get to edit it, so those keys must come out the
+// other side, in place, with `universe` still stamped last.
+const aNoteCarrying = (extraLine: string) =>
+  [
+    '---',
+    'mirror: team-a',
+    'source_id: page-1',
+    'title: Team A — invoices',
+    'source_url: https://www.notion.so/acme/Page-0123abc',
+    "last_edited_time: '2026-07-28T10:00:00.000Z'",
+    extraLine,
+    '---',
+    'body',
+    '',
+  ].join('\n');
+
+test('a move preserves a frontmatter key the engine does not know', () => {
+  const moved = reuniverseLocalMirrorMarkdown(aNoteCarrying('tags: [invoices]'), 'acme');
+
+  const { data, content } = parseLocalMirrorMarkdown(moved);
+  assert.deepEqual(data, {
+    mirror: 'team-a',
+    source_id: 'page-1',
+    title: 'Team A — invoices',
+    source_url: 'https://www.notion.so/acme/Page-0123abc',
+    last_edited_time: '2026-07-28T10:00:00.000Z',
+    tags: ['invoices'],
+    universe: 'acme',
+  });
+  assert.deepEqual(Object.keys(data), [
+    'mirror',
+    'source_id',
+    'title',
+    'source_url',
+    'last_edited_time',
+    'tags',
+    'universe',
+  ]);
+  assert.equal(content.trim(), 'body');
 });
