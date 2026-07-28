@@ -501,6 +501,34 @@ Engineer."*
       here (he read them) and repairable (it is a plain note he edits in Obsidian), but the skill's copy
       should keep saying so, since accepting a pre-fill is cheaper than writing one.
 
+### ⚠️ And the pre-fill was WRONG on a load-bearing fact — a near-miss, observed live
+
+The owner's drafted reply was *"c'est bon pour tout, sauf mon rôle"* — **one keystroke from blanket
+acceptance**. He rewrote everything instead, and the rewrite corrects the pre-fill on **who the CTO is**:
+the batch offered *"Michael Toubia (CTO, ton sponsor COMEX)"*, the owner answers *"sous la responsabilité
+du CTO (**Michael Aboumelhem**, qui a remplacé **Hossam LANAAIT**)"*. It also had the relationship wrong:
+Inqom is his **client** (he is VP of Technology at Shodo, consulting) where the batch had guessed
+employer-or-client, and his role is **Head of Engineering since February 2026**.
+
+- [ ] **This is the same defect as the confident presumption (F7), relocated into a pre-filled form** —
+      and worse, because the format is built to be accepted wholesale. The wrong CTO was stated in the
+      same voice as the five correct answers, with nothing marking it as a guess.
+- [ ] **The asymmetry is the clue.** Answering the *notion-sync* question minutes earlier, the same agent
+      **arbitrated a contradiction by date** (*"la note du 22/06 disait …, tu as corrigé le 06/07"*).
+      Pre-filling, it did not: it flattened a vault holding facts from different dates into one confident
+      present tense. **Same skill, applied when answering, dropped when proposing.**
+- [ ] **So the pre-fill spec must carry its own safeguards** — it is not enough to ask for it:
+  - [ ] **Arbitrate by date when pre-filling**, exactly as when answering. People's roles change; a vault
+        that spans months holds several truths and the newest wins.
+  - [ ] **Say where each proposed value comes from** (which note), at least for people and roles. A
+        traceable guess is checkable in one click; an untraceable one is accepted or not on vibes.
+  - [ ] **Mark inference apart from reading.** The run already distinguished *"je ne veux pas l'inventer"*
+        (blank) from a filled value; the missing third state is *"I read this in a note that may be
+        stale"*.
+- [ ] **Do not conclude "drop the pre-fill".** It turned seven questions into one line and the owner
+      engaged *more* because of it (he wrote a rich, specific answer instead of skipping). The lesson is
+      that **its cost is concentrated in the one interaction that costs nothing: agreeing.**
+
 ---
 
 ## F6 — The owner reaches for `/rag` and the product answers "did you mean /run?"
