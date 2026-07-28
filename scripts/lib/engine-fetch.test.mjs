@@ -82,6 +82,33 @@ test("fetchSource — a failed clone throws a clear error AND removes the orphan
   assert.deepEqual(removed, ["/tmp/sbg-src-DOOMED"], "the half-cloned temp dir must be cleaned up");
 });
 
+// …and "clear" has to mean clear TO AN OWNER, not to a maintainer. This is the one
+// screen a failed update leaves behind, on a product used by non-developers: a bare
+// `fatal: repository not found` names no culprit and no way out. So the message says
+// WHICH address the brain tried, that the address itself is what did not answer (true
+// whether the project moved or the train has no signal), and the one thing that fixes
+// the moved case — which is a line in a file nobody would think to open.
+test("fetchSource — a failed clone tells the owner which address failed and what they can do", async () => {
+  const { git } = fakeGit({ ok: false, out: "fatal: repository not found" });
+
+  await assert.rejects(
+    () =>
+      fetchSource({
+        repo: "https://example.test/missing.git",
+        ref: "v9.9.9",
+        git,
+        makeTempDir: () => "/tmp/sbg-src-DOOMED",
+        removeDir: () => {},
+      }),
+    (e) => {
+      assert.match(e.message, /https:\/\/example\.test\/missing\.git/, "the failing address must be named");
+      assert.match(e.message, /did not answer/, "say the address did not answer — not that the repo is gone");
+      assert.match(e.message, /source\.repo[\s\S]*engine-manifest\.json/, "point at the line that fixes a move");
+      return true;
+    },
+  );
+});
+
 test("fetchSource — a brain with no recorded repo fails clearly without spawning git", async () => {
   const { git, calls } = fakeGit();
   let made = false;
