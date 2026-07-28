@@ -24,18 +24,19 @@ release-note copy is due at **Track 9**, and its remaining check needs an **inst
 launcher deliberately is not. Tracks 4, 5, 6, 7 and 8 owe a release-note line each, also at Track 9.
 **Do not reopen the implementation of Tracks 1-8.**
 
-**Start Track 9 at its first box: `/code-review` on the real diff** (`main..feat/v4.4.0-field-fixes`),
-reproducing each finding against real code before accepting it. The **cut line** is decided there, on
-that diff, not before.
+**✅ The `/code-review` is DONE and its six findings are all fixed** _(2026-07-28 · `7a88257`,
+`eab28bd`, `c9ecf87`, `481ab88`, `5cd0bbb`, `e3ce3b2`)_. Every finding was reproduced on disk first,
+then fixed in TDD red-first, one commit each; both suites are green (**rag 441**, **scripts 1033**).
+The detail — what each defect was, and what killed it — is in Track 9's first box. **Do not re-run the
+review and do not re-derive those six.**
 
-**⏸️ Track 9 is OPEN and waiting on Thomas: he has to type `/code-review` himself** — it is a
-user-triggered command, an agent cannot launch it. Nothing else in Track 9 should start ahead of it:
-the cut line, and therefore which tracks the release note covers, is decided on that review. Diff at
-the time of writing: **52 commits, 66 files, +4235/-212**.
+**The cut line is DECIDED: nothing is cut.** All of Tracks 1-8 ship. No finding lived in Tracks 5-8,
+so cutting them would have dropped working code without removing a single defect.
 
-**The branch has never been pushed** (no `origin/feat/v4.4.0-field-fixes`, no PR, no CI run). So the
-Track 9 CI box has **nothing to read yet**: pushing the branch and opening the PR is what makes the
-7/7 arbiter exist, and that comes *after* the review's fixes, not before.
+**▶️ The next real step is `git push -u` + open the PR** — the branch has **never been pushed** (no
+`origin/feat/v4.4.0-field-fixes`, no PR, no CI run), so the "CI is the arbiter" box has nothing to
+read until it exists. Pushing is what makes the 7/7 arbiter real. After that, in order: the mutation
+snapshot, the marketing-surface pass, then the release note.
 
 **One decision is waiting on Thomas, and it does not block Track 9.** Track 7 shipped `rag` as the
 **only** new slash command; `/index` and `/reindex` route there in plain language rather than each
@@ -539,7 +540,7 @@ manager**. There is **no person note for the name it proposed at all**.
       **Six findings, ALL SIX reproduced on disk — none is a false positive, and none is caught by the
       existing 1029 + 436 green tests.** Every one lands in code THIS release adds (Tracks 1, 3, 4), so
       **none of them can be dropped by moving the cut line.** Fix list, in severity order:
-  - [ ] **R1 (HIGH) — the launcher guard fails OPEN.** `rag/src/lib/campaign-persist.ts:23`
+  - [x] **R1 (HIGH) — the launcher guard fails OPEN.** `rag/src/lib/campaign-persist.ts:23`
         (`persistenceApplies`) gates on `"provenance" in manifest`, but the **committed launcher
         manifest carries `"provenance": {}`** (verified). So the guard returns **true on the launcher**,
         which has a real `vault/`. A maintainer running the engine from the generator gets their
@@ -547,8 +548,8 @@ manager**. There is **no person note for the name it proposed at all**.
         `campaign-persist.test.ts:117` **asserts that exact launcher shape returns true**, under a
         comment claiming the launcher "carries no provenance" — the test pins the bug.
         **Fix: gate on `source`**, which `engine-manifest-integrity.test.mjs:117` guarantees the
-        launcher pins NOT, and `enrichManifest` stamps at install.
-  - [ ] **R2 (HIGH) — `scripts/refresh-note.mjs` reaches no brain, but the skill calling it does.**
+        launcher pins NOT, and `enrichManifest` stamps at install. _(2026-07-28 · `7a88257`)_ — keyed on `source`; the test now reads the REAL committed manifest, and all four hand-applied mutants die.
+  - [x] **R2 (HIGH) — `scripts/refresh-note.mjs` reaches no brain, but the skill calling it does.**
         The new entry point is in **no manifest regime**, and `computeApplyPlan` is a strict
         write-allowlist → `update-engine` never copies it. `engine-skills/**` IS `replace`, so every
         brain upgrading to v4.4.0 gets `consolidate/SKILL.md:118`'s **mandatory** `| node
@@ -557,41 +558,40 @@ manager**. There is **no person note for the name it proposed at all**.
         **Fix: declare it, + a guard test on the real invariant** — *every top-level script a delivered
         skill invokes must itself be declared*. (Blunter "every script is declared" is wrong: 3 others
         are undeclared **on purpose** — `clear-example-notes`, `pick-folder`, `run-eval` are
-        install-time/maintainer-only and no delivered skill calls them.)
-  - [ ] **R3 (MED) — an unbounded `git push` can freeze live indexing for the whole session.**
+        install-time/maintainer-only and no delivered skill calls them.) _(2026-07-28 · `eab28bd`)_ — declared, plus the invariant guard; `computeApplyPlan` now carries it.
+  - [x] **R3 (MED) — an unbounded `git push` can freeze live indexing for the whole session.**
         `buildScriptRunner` passes `{ cwd }` only to `promisify(execFile)` — **no `timeout`** — and
         `ReindexScheduler.trigger` holds `running = true` for the entire await. A hung push (unreachable
         remote, credential helper waiting) never resolves → every later vault write only sets `pending`
         → **nothing is indexed again until the MCP server restarts**. Before this release the campaign
-        body was bounded local work. **Fix: bound the child.**
-  - [ ] **R4 (MED) — a duplicate-key error naming a key that does not exist.** `findDuplicateKey`'s
+        body was bounded local work. **Fix: bound the child.** _(2026-07-28 · `c9ecf87`)_ — `PERSIST_TIMEOUT_MS = 120_000`; on expiry the child is killed and the next campaign retries.
+  - [x] **R4 (MED) — a duplicate-key error naming a key that does not exist.** `findDuplicateKey`'s
         `^([^\s:#][^:]*):` also matches an **unindented block-sequence item whose value holds a colon**.
         Reproduced: `links:` / `- https://a.com` / `- https://b.com` → `{key: "- https", first: 3,
         second: 4}`. When gray-matter failed for an unrelated reason, the owner is told
         `damaged front-matter key "- https": declared twice` and pointed at **two valid lines**. The
         sibling `scripts/lib/note-refresh.mjs:32` uses `^([A-Za-z0-9_-]+):` and is immune — **the two
-        disagree**. Fix: converge on the strict one.
-  - [ ] **R5 (LOW) — a valid-JSON `null` spec crashes with a stack trace.** `spec.path ?? ""`
+        disagree**. Fix: converge on the strict one. _(2026-07-28 · `481ab88`)_ — converged on the strict class, tie documented in BOTH files.
+  - [x] **R5 (LOW) — a valid-JSON `null` spec crashes with a stack trace.** `spec.path ?? ""`
         (`scripts/refresh-note.mjs:56`) sits **outside** the `JSON.parse` try/catch. Reproduced:
         `echo null | node scripts/refresh-note.mjs` → `TypeError: Cannot read properties of null`,
-        breaking the skill's stated contract ("Exit 1 = refused, and it says why").
-  - [ ] **R6 (LOW) — `"persisted"` is not evidence that anything was committed.** `attemptCommit`
+        breaking the skill's stated contract ("Exit 1 = refused, and it says why"). _(2026-07-28 · `5cd0bbb`)_ — shape validated once, before any use; live repro now exits 1 with a sentence.
+  - [x] **R6 (LOW) — `"persisted"` is not evidence that anything was committed.** `attemptCommit`
         returns `"committed"` unconditionally after `add`/`commit` (`buildGit` swallows every git
         error into `{ok:false}`, which nobody reads) and `auto-push.mjs` always exits 0. So
         `persistCampaign` can only ever say `"failed"` if the **child fails to spawn**. An
         `.git/index.lock` contention with the PostToolUse hook → nothing committed, yet the watcher
         traces `💾 vault persistence: persisted`. **In a repo whose rule is "don't pretend", the log
-        pretends.**
-  - [ ] **Clean bill on the rest of the diff** (checked, not assumed): `reindex-reporter` error seeding
+        pretends.** _(2026-07-28 · `e3ce3b2`)_ — `attemptCommit` reads git's verdict; the result is `"ran"` and the trace says `commit + push ran`.
+  - [x] **Clean bill on the rest of the diff** (checked, not assumed): `reindex-reporter` error seeding
         is appended not overwritten; `unaccountedNotes` reaches `vault_stats` via `status-report.ts:57`;
         the `statusLine` retreat is provenance-guarded and byte-identically idempotent;
         `resolveSourceRepo` no-ops on blank; `writeLastRunMarkdown` writes into `CACHE_DIR`, so the new
         commit trigger **cannot feed itself**.
-- [ ] **Decide the cut line here**, on the real diff: Tracks 1-4 ship; any of 5-8 may become a follow-up.
-      **Provisional read, to confirm once R1-R6 are green:** the review found no reason to cut. Tracks
-      5-8 are each small, green and independent, and **no finding lives in them** — R1/R3/R6 are Track 1,
-      R2/R5 are Track 4's tooling, R4 is Track 3. Cutting would drop working code without removing a
-      single defect.
+- [x] **Cut line DECIDED — nothing is cut, Tracks 1-8 all ship** _(2026-07-28, on the real diff)_.
+      The review found no reason to cut. Tracks 5-8 are each small, green and independent, and **no
+      finding lived in them** — R1/R3/R6 are Track 1, R2/R5 are Track 4's tooling, R4 is Track 3.
+      Cutting would have dropped working code without removing a single defect.
 - [ ] **CI is the arbiter, never a local green** (CONVENTIONS §9): 7/7 — Node 22/24/26 × macOS + Windows,
       plus the Windows installer e2e.
 - [ ] **Mutation snapshot pinned to the tag** (CONVENTIONS §5ter), recorded in
@@ -633,8 +633,9 @@ brain's own account.** The fixes owe the same.
   - [x] **The process-level half is proven** _(2026-07-28, disposable repo, not a real brain)_: a
         brain-shaped git repo holding the real `scripts/`, with a note that was **never in git** →
         `persistCampaign` through the REAL runner (real `node`, real `git`, real `auto-commit.mjs` +
-        `auto-push.mjs`) → `persisted`, the note committed as `auto: vault/claude sync`, working tree
-        clean. Push correctly **skipped**: no remote, `autopush` unset. Pointed at a non-existent brain
+        `auto-push.mjs`) → the success result (**named `persisted` at the time of the run; renamed
+        `"ran"` by R6**, which is the honest claim), the note committed as `auto: vault/claude sync`,
+        working tree clean. Push correctly **skipped**: no remote, `autopush` unset. Pointed at a non-existent brain
         it returns `failed` and **exits 0** — the failure path does not throw. What this does NOT cover,
         and why the box above stays open: the chokidar → debounce → campaign chain on a live vault.
 - [ ] **Track 2**: open a CLI session in a brain and confirm the owner's own status line is back; run
