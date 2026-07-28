@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { join } from "node:path";
 import { restartPendingOnDisk } from "./restart-signal.mjs";
 import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
 
@@ -22,7 +23,13 @@ test("a converged brain asks for no restart", () => {
 
 test("the explicit flag alone means a restart is pending", () => {
   // Written by the self-heal when it converged code THIS session predates.
-  assert.equal(restartPendingOnDisk(deps({ files: [`/brain/${RESTART_FLAG_REL}`] })), true);
+  //
+  // Built with `join`, never by string concatenation: the production code joins, so
+  // on Windows it looks up `\brain\.cache\restart-needed` while a hand-spelled
+  // `/brain/.cache/…` never matches. The nudge then goes silent on exactly the
+  // platform where it was already hardest to notice. (`join` is path normalisation
+  // here, not the function under test — that one is `restartPendingOnDisk`.)
+  assert.equal(restartPendingOnDisk(deps({ files: [join("/brain", RESTART_FLAG_REL)] })), true);
 });
 
 test("an engine-delivered skill sitting on disk, uninstalled, means it too", () => {
