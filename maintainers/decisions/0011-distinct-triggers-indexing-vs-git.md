@@ -9,6 +9,16 @@
   ADR *names* that split as a decision), [`0010-debounce-auto-push-to-stop-hook.md`](0010-debounce-auto-push-to-stop-hook.md)
   (same "the **event** is the debounce, not a daemon-timer" reasoning).
 
+## Crux
+
+- **Decision:** indexing is driven by the file-watcher, git persistence by the Claude hooks — and any
+  **engine-owned writer** (the updater) commits **its own** writes rather than waiting for those hooks.
+- **Key guarantee:** persistence never shares the RAG's failure domain, and **no code path leaves the
+  brain's repo dirty** — a dirty tree blocks the startup `git pull --rebase`, which silently costs the
+  user their sync.
+- **Prior art:** `etckeeper` (Debian/Ubuntu) commits `/etc` into git around each package-manager run,
+  precisely so an update never leaves the versioned tree dirty. Step 9 of the updater is the same move.
+
 ## Context
 
 The generated brain runs **two** background mechanisms that both react to "a note changed", but for
@@ -18,6 +28,7 @@ The generated brain runs **two** background mechanisms that both react to "a not
 |---|---|---|---|
 | **Indexing (RAG)** | **`chokidar`** file-watcher (`vault-watcher.ts` → `ReindexScheduler`, 5 s debounce, incremental sha256) | the **MCP server process** (long-lived, but **only while a brain conversation is open**) | **everyone** on the filesystem: Claude, Obsidian, a manual editor, a sync tool |
 | **Git auto-save** | the Claude **`PostToolUse Write\|Edit`** hook (`auto-commit.mjs`) + the **`Stop`** hook (`auto-push.mjs`) | the **Claude client** | **only Claude** (its `Write`/`Edit` tools) |
+| **Engine writes** | the **updater itself**, at the end of an update (`update-engine.mjs` step 9) | the **update run** | **only its own** writes (engine-owned, versioned files) |
 
 A natural "DRY" question arises: *`chokidar` already watches the whole filesystem — why not **also**
 drive `git commit` from it, instead of from a Claude hook that only sees Claude's own edits?* The
@@ -36,6 +47,8 @@ This ADR records why we **keep the two triggers separate** anyway.
   (don't re-encode mid-write, bundle a write-burst into one incremental pass).
 - **Claude hooks drive git** (`PostToolUse` → commit per edit; `Stop` → push once per turn, per
   ADR 0010). Event-exact, serialized per conversation, with tool context available on stdin.
+- **An engine-owned writer commits its own writes** (see below). Never pushes — push stays opt-in
+  (`secondbrain.autopush`, ADR 0010).
 
 The shared thing between the two is only **change *detection*** — and we already have it in **two
 valid, orthogonal places** (the hook for Claude edits, the sha256 hash for the index). Merging the
@@ -67,6 +80,27 @@ things (below).
    watchers** all attempting `git commit` on the same repo → lock contention + racing commits. The
    `PostToolUse` hook is naturally serialized per conversation. *(See the open multi-window question;
    pushing git writes into the watcher makes it worse, not better.)*
+
+### A writer that is not Claude owns its own commit
+
+The Claude hooks cover **Claude's** edits, by construction. The engine also writes to the brain on its
+own account — an update rewrites versioned, engine-owned files (the manifest, `scripts/lib/**`, the
+launchers, whatever the reconciler converges). Those writes are **not** Claude `Write`/`Edit` calls, so
+**no hook ever fires for them**.
+
+Left to the hooks, they wait for the user's next note edit — which may be days away, or never for
+someone who only ever *reads* their brain. And an uncommitted tree is not a cosmetic state: the
+SessionStart `git pull --rebase` **refuses to run** on one, so a multi-machine brain silently stops
+syncing at every start until a human commits by hand.
+
+So the rule generalizes: **whoever writes owns the durability of that write.** The updater commits at
+the very end of its run — after the auto-finalize pass, which writes too — and the invariant it holds
+is *an update never leaves the repo dirty*. It is **fail-soft** (a git hiccup must not fail an update
+that already landed) and it **never pushes**.
+
+This is not a special case bolted onto the updater: it is what keeps the two-trigger split above from
+having a hole in the middle. Any future engine-owned writer that runs outside a Claude tool call
+inherits the same obligation.
 
 ## The accepted gap (non-Claude edits) and how we'd close it *if* it mattered
 
@@ -102,6 +136,10 @@ daemon** (launchd/cron) or a **git-side hook** — heavier, against the "zero da
   the other — note persistence and retrieval fail in **independent domains**.
 - **The non-Claude-edit gap is documented, not hidden** — with a ready, deterministic, event-based
   remedy held in reserve, gated on a *proven* need (no over-engineering).
+- **A dirty tree stays a real signal, so the startup banner must explain it.** Since no engine path
+  leaves the repo dirty on purpose, a blocked pull now means something the user needs to read:
+  `repo-status.mjs` therefore surfaces git's own reason (locale included) instead of a bare
+  "check manually".
 
 ## Rejected alternatives
 
