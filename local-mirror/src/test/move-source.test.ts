@@ -179,6 +179,88 @@ test('a failed no-op move deletes nothing: the rollback must not shred the pages
   );
 });
 
+// Phase 2's own failure mode, which the all-or-nothing story above did NOT cover: every page has
+// landed and the OLD copy is what cannot be removed. Aborting there was the worst of both worlds —
+// the exception escaped `moveSource` (so the caller never even received the reassuring result), the
+// config still named the old universe, and the sidecar still pointed at the old paths, so the next
+// sync called everything `unchanged` and the new copies stayed orphaned, indexed and frozen for
+// good. The move is a fact once the pages are written: it is recorded, and the file git could not
+// remove is reported as the leftover it is.
+test('a move whose old copy cannot be deleted still completes, and says what it left behind', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror())
+    .withNotionPages(aNotionPage({ id: 'page-1' }), aNotionPage({ id: 'page-2' }));
+  const gss = harness.build();
+  await gss.sync('team-a');
+  harness.withFailingDeletionOf('mirrors/team-a/page-1.md');
+
+  const result = await gss.moveSource('team-a', 'acme');
+
+  assert.equal(result.ok, true, 'the pages ARE under the new universe — that is a move');
+  assert.equal(result.moved, 2);
+  assert.match(result.message, /mirrors\/team-a\/page-1\.md/, 'the leftover is named');
+  assert.match(result.message, /could not be deleted|delete by hand|remove it yourself/i);
+  // The config and the sidecar agree with the disk: that is what keeps the next sync sane.
+  const [declared] = await harness.declaredSources();
+  assert.equal(declared.universe, 'acme');
+  assert.deepEqual(
+    Object.values((await harness.sidecarOf('team-a'))!.items).map((i) => i.vaultPath).sort(),
+    ['acme/mirrors/team-a/page-1.md', 'acme/mirrors/team-a/page-2.md'],
+  );
+  assert.deepEqual(
+    [...harness.vaultFiles().keys()].sort(),
+    ['acme/mirrors/team-a/page-1.md', 'acme/mirrors/team-a/page-2.md', 'mirrors/team-a/page-1.md'],
+    'both new copies, plus the one stale file the vault refused to remove',
+  );
+});
+
+// And the recovery is real, not just described: the mirror is coherent, so the very next refresh
+// rewrites nothing and never tries to re-create anything at the old path. This is the assertion the
+// aborting version could not have passed — its sidecar would have called for a full rewrite.
+test('after a move that left a file behind, the next refresh is still a no-op', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror())
+    .withNotionPages(aNotionPage({ id: 'page-1' }), aNotionPage({ id: 'page-2' }));
+  const gss = harness.build();
+  await gss.sync('team-a');
+  harness.withFailingDeletionOf('mirrors/team-a/page-1.md');
+  await gss.moveSource('team-a', 'acme');
+
+  const report = await gss.sync('team-a');
+
+  assert.deepEqual(report, { name: 'team-a', status: 'ok', written: 0, deleted: 0, unchanged: 2 });
+});
+
+// THE test that pins the order, and the only thing that can: if recording the move is the LAST
+// step, a config that refuses to be written leaves the old copies already deleted and the mirror
+// still declared where it no longer lives — the sidecar then points at files nobody will ever
+// rewrite. Recording FIRST means such a failure happens while every page is still at its old path.
+test('a move that cannot be recorded deletes nothing — the corpus survives the failure', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror())
+    .withNotionPages(aNotionPage({ id: 'page-1' }), aNotionPage({ id: 'page-2' }));
+  const gss = harness.build();
+  await gss.sync('team-a');
+  harness.withUnwritableConfig();
+
+  await assert.rejects(() => gss.moveSource('team-a', 'acme'), /config file unwritable/);
+
+  assert.deepEqual(harness.deletedVaultFiles(), [], 'not one old page was deleted');
+  assert.deepEqual(
+    [...harness.vaultFiles().keys()].sort(),
+    [
+      'acme/mirrors/team-a/page-1.md',
+      'acme/mirrors/team-a/page-2.md',
+      'mirrors/team-a/page-1.md',
+      'mirrors/team-a/page-2.md',
+    ],
+    'the whole corpus is still readable at its old paths (the new copies are recoverable garbage)',
+  );
+});
+
 // A name that matches no mirror is a typo or a mirror already removed. Silently succeeding would
 // let an owner believe a corpus was re-filed when nothing exists to re-file.
 test('moving a mirror that was never declared is refused, and the real ones are named', async () => {

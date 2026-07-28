@@ -497,24 +497,36 @@ export class LocalMirror implements ILocalMirror {
       }
     }
 
-    // Phase 2 — every page has landed, so the old copies can go. A page whose path did not change
-    // (a mirror moved onto the universe it already lives in) must NOT be deleted: that is the file
-    // that was just written.
-    let count = 0;
-    for (const [id, item] of items) {
-      if (relocated[id].vaultPath !== item.vaultPath) await this.deps.vaultWriter.delete(item.vaultPath);
-      count += 1;
-    }
+    // Every page has landed, so the move is now a FACT: RECORD it before touching a single old
+    // copy. Deleting first and recording after was the one ordering that could produce the
+    // half-move this design rules out — an unwritable old page threw out of `moveSource` with the
+    // pages under two universes, the config naming the old one and the sidecar pointing at the old
+    // paths, so the next sync called everything `unchanged` and the new copies stayed orphaned,
+    // indexed and frozen for good. Recorded first, the worst case is a stale file we can name.
     if (persisted) await this.deps.stateStore.save(name, { ...persisted, items: relocated });
-
     await this.deps.configStore.upsert(moved);
+
+    // Then the old copies go. A page whose path did not change (a mirror moved onto the universe
+    // it already lives in) must NOT be deleted: that is the file phase 1 just wrote. A delete that
+    // fails is leftover garbage, not a reason to abort — the corpus is already where it belongs.
+    const leftBehind: string[] = [];
+    for (const [id, item] of items) {
+      if (relocated[id].vaultPath === item.vaultPath) continue;
+      try {
+        await this.deps.vaultWriter.delete(item.vaultPath);
+      } catch {
+        leftBehind.push(item.vaultPath);
+      }
+    }
+
     return {
       name,
       ok: true,
-      moved: count,
+      moved: items.length,
       message:
         `Moved "${name}" to ${universeLabel(universe)}: ` +
-        `${count} page(s) now live under ${vaultDirFor(moved)}/.`,
+        `${items.length} page(s) now live under ${vaultDirFor(moved)}/.` +
+        leftBehindNote(leftBehind),
     };
   }
 
@@ -557,6 +569,20 @@ function unknownMirror(name: string, configs: readonly LocalMirrorConfig[]): str
     (declared.length
       ? `The declared ones are: ${declared.join(', ')}.`
       : `No mirror is declared on this brain yet.`)
+  );
+}
+
+/**
+ * The tail a move adds when the vault refused to delete an old copy. Staying silent would leave a
+ * stale twin on disk — indexed, answering questions, and frozen forever, since the sidecar no
+ * longer tracks it — so the leftovers are named, one by one, and the cost is spelled out.
+ */
+function leftBehindNote(leftBehind: readonly string[]): string {
+  if (leftBehind.length === 0) return '';
+  const [copy, are] = leftBehind.length === 1 ? ['old copy', 'is'] : ['old copies', 'are'];
+  return (
+    ` ⚠️ ${leftBehind.length} ${copy} could not be deleted and ${are} still on disk: ` +
+    `${leftBehind.join(', ')} — delete by hand, or your brain will index the same page twice.`
   );
 }
 

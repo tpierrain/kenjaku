@@ -161,6 +161,16 @@ class LocalMirrorBuilder {
   }
 
   /**
+   * Make the config file unwritable (permission, read-only volume). This is what decides whether a
+   * move RECORDS before it deletes: if recording is the last step, a config that refuses leaves the
+   * old copies already deleted and the mirror declared where it no longer lives.
+   */
+  withUnwritableConfig(): this {
+    this.configs.refuseWrites();
+    return this;
+  }
+
+  /**
    * Move the test clock forward — e.g. to let the wall-clock minute elapse between a sync and a
    * later `check_freshness`. Notion stamps `last_edited_time` at minute granularity, so a sync
    * landing in that same minute may have snapshotted a page mid-edit.
@@ -265,7 +275,12 @@ class InMemoryConfigStore implements IConfigStore {
     if (this.unreadable()) throw new Error('config file unreadable (EACCES)');
     return [...this.configs];
   }
+  private unwritable = false;
+  refuseWrites(): void {
+    this.unwritable = true;
+  }
   async upsert(config: LocalMirrorConfig): Promise<void> {
+    if (this.unwritable) throw new Error('config file unwritable (EACCES)');
     const i = this.configs.findIndex((c) => c.name === config.name);
     if (i >= 0) this.configs[i] = config;
     else this.configs.push(config);
