@@ -583,3 +583,35 @@ Killed here, worth keeping as patterns:
   pull" is the whole point of the change and is invisible in any return value: only `deepEqual` on the
   fake git's full call list pins it. Dropping the sweep entirely still leaves 4 of 7 tests green — the
   3 that fail are the order test and the two real-git ones.
+
+## v4.3.0 — the mirror move (`local-mirror`) — 2026-07-28
+
+Targeted run over the two files this change owns.
+**`lib/markdown.ts` 100 %** (8/8) · **`domain/local-mirror.ts` 96.16 %** (424 killed, 17 survived,
+2 timeouts) at the last measured run.
+
+`local-mirror.ts` is a big pre-existing file, so the file score alone says little about the new code.
+What matters: of the 17 survivors, **exactly one sat inside this change** (the
+`if (persisted) stateStore.save(...)` guard, line 504). It was killed afterwards by the "never synced"
+test asserting `sidecarOf(name) === null`, **hand-verified** by applying `if (true)` and watching that
+test go red. The other 16 predate the change (`maxLastEditedTime`, the freshness arithmetic) and are
+outside its scope.
+
+The run itself found the gaps — this is what it bought, and each is a pattern worth keeping:
+
+- **A whole refusal branch nobody called.** `moveSource` on an undeclared mirror had no test at all:
+  seven mutants lived there, including `configs.find(() => true)` and `ok: false → ok: true`. Two
+  tests (a brain with mirrors, a brain with none) took all seven — and the second exists only because
+  the empty-registry sentence is a *different* clause, not a shorter list (§9: one test per reason).
+- **A rollback message asserted by a fragment.** The failed-move test matched the `ENOSPC` part with a
+  regex, so both sentences promising the corpus is intact could be blanked with the suite green — on
+  the one line that tells an owner nothing was lost. Now asserted whole (§1/§2).
+- **A rollback that deleted "what it wrote" without proving it.** Seeding `landed` with a junk entry
+  survived, because no test looked at what the rollback deleted. `deletedVaultFiles()` now names the
+  exact list.
+- **Both sides of the default-universe ternary.** `withUniverse` and `universeLabel` each had one
+  branch unfed: nothing moved a mirror *to* the cross-cutting universe, and no move message named a
+  real universe. Two `?` mutants died to one new test plus one added assertion (§4: feed the twin).
+- **The "moved onto the universe it already lives in" no-op** was written as a guard and proven by a
+  hand-applied mutant (delete unconditionally) before being trusted — the case where phase 2 would
+  delete the very file phase 1 had just written.

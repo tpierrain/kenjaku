@@ -471,19 +471,34 @@ export class LocalMirror implements ILocalMirror {
     const persisted = await this.deps.stateStore.load(name);
     const items = Object.entries(persisted?.items ?? {});
 
-    let count = 0;
+    // Phase 1 — write every page at its new path, deleting NOTHING yet. Half a move is the worst
+    // outcome there is (pages under two universes, a config agreeing with neither, repairable only
+    // by hand), so a failure here rolls the new copies back and leaves the old corpus untouched.
     const relocated: Record<string, PersistedItem> = {};
+    const landed: string[] = [];
     for (const [id, item] of items) {
-      const raw = await this.deps.vaultWriter.read(item.vaultPath);
       const vaultPath = vaultPathFor(moved, id);
-      const markdown = reuniverseLocalMirrorMarkdown(raw, moved.universe);
-      await this.deps.vaultWriter.write(vaultPath, markdown);
-      await this.deps.vaultWriter.delete(item.vaultPath);
-      // The sidecar is the reconciliation map: a tracked path left pointing at the old folder
-      // would make a later cleanup delete nothing and orphan the moved corpus. The hash follows
-      // too — the universe key is part of the produced markdown, so a stale hash would make the
-      // very next sync rewrite every page for nothing.
-      relocated[id] = { ...item, vaultPath, contentHash: contentHash(markdown) };
+      try {
+        const raw = await this.deps.vaultWriter.read(item.vaultPath);
+        const markdown = reuniverseLocalMirrorMarkdown(raw, moved.universe);
+        await this.deps.vaultWriter.write(vaultPath, markdown);
+        landed.push(vaultPath);
+        // The sidecar is the reconciliation map: a tracked path left pointing at the old folder
+        // would make a later cleanup delete nothing and orphan the moved corpus. The hash follows
+        // too — the universe key is part of the produced markdown, so a stale hash would make the
+        // very next sync rewrite every page for nothing.
+        relocated[id] = { ...item, vaultPath, contentHash: contentHash(markdown) };
+      } catch (error) {
+        return this.rollbackMove(name, landed, items, error);
+      }
+    }
+
+    // Phase 2 — every page has landed, so the old copies can go. A page whose path did not change
+    // (a mirror moved onto the universe it already lives in) must NOT be deleted: that is the file
+    // that was just written.
+    let count = 0;
+    for (const [id, item] of items) {
+      if (relocated[id].vaultPath !== item.vaultPath) await this.deps.vaultWriter.delete(item.vaultPath);
       count += 1;
     }
     if (persisted) await this.deps.stateStore.save(name, { ...persisted, items: relocated });
@@ -496,6 +511,36 @@ export class LocalMirror implements ILocalMirror {
       message:
         `Moved "${name}" to ${universeLabel(universe)}: ` +
         `${count} page(s) now live under ${vaultDirFor(moved)}/.`,
+    };
+  }
+
+  /**
+   * Undo a move that could not complete: the copies already written under the target universe are
+   * removed, so the mirror is left exactly as it was — every page at its old path, the config and
+   * the sidecar never touched (phase 2 had not started). A rollback delete that itself fails is
+   * swallowed: the corpus is already whole, and a leftover copy must not mask the real error.
+   */
+  private async rollbackMove(
+    name: string,
+    landed: readonly string[],
+    items: readonly (readonly [string, PersistedItem])[],
+    error: unknown,
+  ): Promise<MoveResult> {
+    for (const vaultPath of landed) {
+      try {
+        await this.deps.vaultWriter.delete(vaultPath);
+      } catch {
+        // Deliberately ignored — see above.
+      }
+    }
+    return {
+      name,
+      ok: false,
+      moved: 0,
+      message:
+        `"${name}" was NOT moved: ${errorMessage(error)}. Its ${items.length} page(s) are ` +
+        `untouched, where they were, and the mirror still belongs to the universe it did. ` +
+        `Nothing was left half-moved — try again once the vault is writable.`,
     };
   }
 }

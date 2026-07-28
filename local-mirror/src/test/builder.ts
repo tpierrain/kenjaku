@@ -38,6 +38,8 @@ class LocalMirrorBuilder {
   private readonly vault = new RecordingVaultWriter();
   /** Advanceable test clock so a test can sync in one minute and check freshness in a later one. */
   private readonly clock = new MutableClock(new Date('2026-06-17T00:00:00.000Z'));
+  /** Stable reference so tests can assert what a source did (or did not) persist. */
+  private readonly state = new InMemoryStateStore(() => this.unreachableStore);
   /** Stable reference so tests can inspect what `setup_source` declared. */
   private readonly configs = new InMemoryConfigStore(this.declared, () => this.unreadableConfig);
   /** The universe the owner is working in — the one a `setup_source` pre-selects and freezes. */
@@ -150,6 +152,15 @@ class LocalMirrorBuilder {
   }
 
   /**
+   * Make the vault refuse to write a given file (disk full, permission, transient FS failure).
+   * A move that cannot write one page must not leave the corpus split across two folders.
+   */
+  withFailingWriteOf(vaultPath: string): this {
+    this.vault.failWriteOf(vaultPath);
+    return this;
+  }
+
+  /**
    * Move the test clock forward — e.g. to let the wall-clock minute elapse between a sync and a
    * later `check_freshness`. Notion stamps `last_edited_time` at minute granularity, so a sync
    * landing in that same minute may have snapshotted a page mid-edit.
@@ -164,6 +175,19 @@ class LocalMirrorBuilder {
     return this.vault.written;
   }
 
+  /**
+   * The sidecar a source has on disk, or null when it has none. A mirror declared but never synced
+   * must have NO sidecar: writing one would record a corpus that was never pulled.
+   */
+  async sidecarOf(name: string): Promise<PersistedState | null> {
+    return this.state.load(name);
+  }
+
+  /** The vault files deleted, in order — what a reconciliation or a rolled-back move removed. */
+  deletedVaultFiles(): string[] {
+    return [...this.vault.deleted];
+  }
+
   /** The sources currently declared (after a `setup_source`, the new one shows up here). */
   async declaredSources(): Promise<LocalMirrorConfig[]> {
     return this.configs.loadAll();
@@ -175,7 +199,7 @@ class LocalMirrorBuilder {
     }
     return new LocalMirror({
       configStore: this.configs,
-      stateStore: new InMemoryStateStore(this.unreachableStore),
+      stateStore: this.state,
       vaultWriter: this.vault,
       clock: this.clock,
       connectorFor: () => new StubConnector(() => this.pages, () => this.enumerationError),
@@ -254,9 +278,9 @@ class InMemoryConfigStore implements IConfigStore {
 
 class InMemoryStateStore implements IStateStore {
   private readonly states = new Map<string, PersistedState>();
-  constructor(private readonly unreachable = false) {}
+  constructor(private readonly unreachable: () => boolean = () => false) {}
   async load(name: string): Promise<PersistedState | null> {
-    if (this.unreachable) throw new Error(`state store unreachable for "${name}"`);
+    if (this.unreachable()) throw new Error(`state store unreachable for "${name}"`);
     return this.states.get(name) ?? null;
   }
   async save(name: string, state: PersistedState): Promise<void> {
@@ -271,10 +295,15 @@ class RecordingVaultWriter implements IVaultWriter {
   readonly written = new Map<string, string>();
   readonly deleted: string[] = [];
   private readonly failingDeletes = new Set<string>();
+  private readonly failingWrites = new Set<string>();
   failDeleteOf(path: string): void {
     this.failingDeletes.add(path);
   }
+  failWriteOf(path: string): void {
+    this.failingWrites.add(path);
+  }
   async write(path: string, content: string): Promise<void> {
+    if (this.failingWrites.has(path)) throw new Error(`ENOSPC: cannot write ${path}`);
     this.written.set(path, content);
   }
   async read(path: string): Promise<string> {
