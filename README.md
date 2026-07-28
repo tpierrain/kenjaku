@@ -304,10 +304,13 @@ turns Claude into your grounded second brain. Here's what each piece is *for*:
   `verify-rag.mjs` (proves grounding, exit `0`/`1`), `update-engine.mjs` (self-upgrade, notes untouched).
 - **Hooks (event-driven)** — deterministic automation that fires on **real events**, not on the model
   remembering: **auto-commit** on every edit, **auto-push** on the Stop event, **reconcile** at session
-  start. This is what makes it self-healing and effortless.
+  start. A note *you* write outside Claude has no such event, so the **live watcher** carries it
+  instead: still a real file landing on disk, only with a quiet window deciding when the batch is
+  closed. This is what makes it self-healing and effortless.
 - **Skills** — on-demand capabilities: `coach`, `import`, `switch`, `sync-sources`, `prepare-1-1`, …
 - **Guardrails** — `settings.json` carries a **write-allowlist** + the hooks, so the deterministic
-  machinery can only *add* what's missing and **never overwrites** your notes.
+  machinery only *adds* what's missing, only ever touches files it can prove are its own, and
+  **never overwrites** your notes.
 - **Your vault** — *your* notes, plain **Markdown** + `[[wikilinks]]` (**Obsidian-compatible**), in **your**
   git repo. That's the data; everything above is the software that keeps it reliable, private and fresh.
 
@@ -355,11 +358,13 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   rewrite). Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
   re-introduce the very defects `/lint` reports. Self-healing at the *content* layer.
 - **It never overwrites your work, and it has to *prove* it**: a structural write-allowlist means the
-  reconciler and the **self-upgradable engine** only add what's missing, plus one narrow exception they
-  can demonstrate. An engine file is refreshed **only when its fingerprint proves you never edited it**
-  (that's how skill improvements finally reach an existing brain); the moment you've made it yours, it's
-  left alone and the new version waits beside it. **Your notes, keys and constitution stay untouched,
-  full stop.** *(ADR 0012 / 0014 / 0025 / 0026)*
+  reconciler and the **self-upgradable engine** only add what's missing, plus two narrow moves they can
+  demonstrate are about *their own* files. An engine file is refreshed **only when its fingerprint proves
+  you never edited it** (that's how skill improvements finally reach an existing brain); the moment
+  you've made it yours, it's left alone and the new version waits beside it. And your brain can now
+  **take something back**: the status line it once installed is removed so **yours** runs again — only
+  ever the line it recognises as its own, never one you wrote. **Your notes, keys and constitution stay
+  untouched, full stop.** *(ADR 0012 / 0014 / 0025 / 0026 / 0036)*
 - **No hidden, driftable state** — short-lived hooks re-derive what they need each run (`run-node`
   re-resolves the toolchain; `auto-push` re-queries the remote).
 

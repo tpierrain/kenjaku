@@ -805,13 +805,36 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       *what did this release make false, or merely imprecise?* (hunt the absolutes — *never*, *only*,
       *always*, *untouched*, *sacred*, *it can only add*), then *what did it make true that we do not
       sell yet?*
-  - [ ] Re-read `README.md`, `EN-QUOI-C-EST-DIFFERENT.md`, `SETUP.md`, `CONNECTORS.md`, and the boards
-        through their README alt texts + `docs/marketing-image-prompts.md`.
-  - [ ] ⚠️ **Two claims this release moves specifically**: (a) v4.3.0's sentence about Obsidian notes
+  - [x] Re-read `README.md`, `EN-QUOI-C-EST-DIFFERENT.md`, `SETUP.md`, `CONNECTORS.md`, and the boards
+        through their README alt texts + `docs/marketing-image-prompts.md`. _(2026-07-28)_
+  - [x] ⚠️ **Two claims this release moves specifically**: (a) v4.3.0's sentence about Obsidian notes
         being committed — **Track 1 makes it true**, say so; (b) anything asserting the reconciler
-        *only adds* and *never removes* — **Track 2 makes that imprecise**.
-  - [ ] **Record the verdict, including the boring one** ("boards re-read, copy still accurate, no
-        re-render" is a result worth writing).
+        *only adds* and *never removes* — **Track 2 makes that imprecise**. **Both fixed.**
+  - [x] **The verdict, surface by surface** _(2026-07-28)_:
+    - [x] **`SETUP.md` held the one genuinely stale sentence**, and it was the release's own subject:
+          the session-start sweep was described as what catches "notes you typed **directly in
+          Obsidian** (Claude never saw them, so no hook fired)". That is what Track 1 removes. Rewritten:
+          the watcher now carries those notes, and the sweep is reframed as the backstop for what is
+          written **with the brain closed** — which stays true, because the watcher lives inside a
+          Claude session (P2 was rejected). The two numbers are stated as two, never as one.
+    - [x] **`README.md`, three edits.** The hooks bullet said automation "fires on real events" and
+          listed only the three hooks; a note written outside Claude has no such event, so the watcher
+          is named there. The reconciler's "one narrow exception" is **two** now — Track 2 REMOVES a
+          key, so "only adds" needed the provenance clause, not a louder absolute. And the guardrails
+          line gained "only ever touches files it can prove are its own".
+    - [x] **The reliability board: prompt updated, image NOT re-rendered** — a deliberate call, and
+          the reason it is written down. `docs/marketing-image-prompts.md` sold "debounced reindex &
+          auto-push (once per turn)"; the push is no longer once-per-turn on the watcher path. The
+          prompt now reads "commits on a quiet window, pushes once per turn" so the **next** render is
+          right, while the **alt text is left alone on purpose**: it describes the PNG that is actually
+          on the page, and rewriting it would make the description outrun the image.
+          ⚠️ **"real event triggers, not timers" was re-read and KEPT**: the trigger is still a real
+          file landing on disk — only the moment the batch closes is a window — and the same sentence
+          already conceded "debounced reindex". Flagged as imprecise by Track 10, judged defensible
+          here; **re-open it if the next render is commissioned anyway.**
+    - [x] **The boring verdicts, worth writing**: `EN-QUOI-C-EST-DIFFERENT.md` needs nothing — "every
+          change is committed automatically" only became **more** true. `CONNECTORS.md` is untouched by
+          this release. No absolute broken in either.
 - [ ] **Release note** (CONVENTIONS §11, English): a two-sentence lead saying what the reader gains, in
       their words; `What you get` (≤ 6 emoji bullets); `What you have to do` (the command and the cost);
       then `---` and `Under the hood` with everything technical — nothing cut, moved below the fold.

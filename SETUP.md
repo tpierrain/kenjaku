@@ -165,15 +165,23 @@ node installer.mjs --non-interactive --name "second-brain" --owner "Jane Doe" --
   (the `Stop` hook), pushing all the turn's commits in one go — instead of a network push per edit.
   A failed push is non-blocking: your commits stay local and the **next turn catches up**. For
   syncing changes made on *another* machine mid-session, use the `/sync` skill.
+- **A note you write yourself is committed too, without waiting for Claude.** Type a note straight
+  into Obsidian, delete one from a terminal, or let one of your brain's own scripts write one: Claude
+  saw none of it, so no `Write|Edit` hook fires. Your brain's live watcher notices anyway. The note is
+  **searchable within seconds**, and it is **committed once your vault has been still for about two
+  minutes** — or after **ten minutes** if you simply never pause. Two different numbers on purpose:
+  search wants to be fresh immediately, while git is better off folding a whole writing session into
+  one commit than following every pause you take. This works **while a Claude session is open** (the
+  watcher lives there); write with your brain closed and the sweep below still catches it.
 - **An engine update commits its own files too.** `/update-engine` rewrites versioned engine files,
   which are not edits Claude made — so no `Write|Edit` hook fires for them. The update therefore
   commits them itself, at the end of its run: you will see one `engine: update to <version>` commit
   appear in your history. It is **local only** (push stays opt-in, as above). Without it those files
   would sit uncommitted, and the startup `git pull --rebase` refuses to run on a dirty repo — your
   brain would quietly stop syncing between machines.
-- **And a sweep at every session start, to catch what the two above miss.** Before its startup
-  `git pull --rebase`, your brain commits anything still uncommitted: notes you typed **directly in
-  Obsidian** (Claude never saw them, so no hook fired), or engine files left over by an update. You
+- **And a sweep at every session start, to catch what the others miss.** Before its startup
+  `git pull --rebase`, your brain commits anything still uncommitted: notes you wrote **with your brain
+  closed**, so no hook and no watcher was there to see them, or engine files left over by an update. You
   will see an `auto: session-start sweep …` commit when that happens. It is **local only**, and it is
   what keeps your sync from silently blocking. **One exception, on purpose:** if git stopped on a
   **conflict** (the same note changed on two machines), nothing is committed for you — the startup
