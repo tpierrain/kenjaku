@@ -10,6 +10,7 @@ import {
   selectMergeFiles,
   buildProvenance,
   buildSource,
+  resolveSourceRepo,
   enrichManifest,
   reseedProvenance,
   recordSourceAndProvenance,
@@ -120,6 +121,58 @@ test("buildSource — a blank remote is no remote at all, and a padded one is re
 // — a throw here aborts the whole manifest enrichment.
 test("buildSource — git facts with no repo key at all still record repo:null", () => {
   assert.deepEqual(buildSource({ tag: null, branch: "main", commit: "abc" }), { repo: null, ref: "main" });
+});
+
+// ─── resolveSourceRepo — a repository rename reaches deployed brains (F1) ────
+// The brain records `source.repo` at INSTALL time and never revises it, so a
+// rename of the launcher's repository propagates to no installed brain, ever:
+// they keep cloning the old name and survive only on GitHub's redirect — an alias
+// in a namespace we no longer own. The launcher therefore DECLARES its own
+// canonical URL in the manifest it ships, and the brain adopts it at the next
+// update: the source of truth becomes the launcher we just fetched, not the
+// brain's install-day memory.
+test("resolveSourceRepo — the fetched launcher's canonical URL supersedes the brain's install-day one", () => {
+  assert.equal(
+    resolveSourceRepo({
+      recorded: "https://github.com/tpierrain/second-brain-generator.git",
+      declared: "https://github.com/tpierrain/kenjaku.git",
+    }),
+    "https://github.com/tpierrain/kenjaku.git",
+  );
+});
+
+// The older-launcher case, and the reason the launcher's word is not taken blindly:
+// a manifest published before this field existed declares NOTHING. Adopting that
+// would blank the one URL the brain has and leave it unable to update at all — the
+// fix would be strictly worse than the defect. So an absent declaration keeps the
+// recorded URL.
+test("resolveSourceRepo — a launcher that declares no canonical URL leaves the recorded one alone", () => {
+  assert.equal(
+    resolveSourceRepo({
+      recorded: "https://github.com/tpierrain/kenjaku.git",
+      declared: undefined,
+    }),
+    "https://github.com/tpierrain/kenjaku.git",
+  );
+});
+
+// The two mirror images of the absent case — the manifest is hand-edited JSON, so
+// both are reachable by a slip of the hand. A blank declaration is NOT a declaration
+// (it must not blank a working source, exactly like `buildSource`'s blank remote),
+// and a padded real URL must be adopted CLEAN: a repo URL carrying a stray newline
+// is not clone-able, so the next update would die on the redirect we just fixed.
+test("resolveSourceRepo — a blank declaration declares nothing, and a padded one is adopted trimmed", () => {
+  assert.equal(
+    resolveSourceRepo({ recorded: "https://github.com/tpierrain/kenjaku.git", declared: "  \n " }),
+    "https://github.com/tpierrain/kenjaku.git",
+  );
+  assert.equal(
+    resolveSourceRepo({
+      recorded: "https://github.com/tpierrain/second-brain-generator.git",
+      declared: " https://github.com/tpierrain/kenjaku.git\n",
+    }),
+    "https://github.com/tpierrain/kenjaku.git",
+  );
 });
 
 test("enrichManifest — sets source + provenance, preserves the rest, never mutates the input", () => {

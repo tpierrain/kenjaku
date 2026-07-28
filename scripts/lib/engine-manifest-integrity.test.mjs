@@ -122,3 +122,20 @@ test("engine-manifest — the committed launcher manifest pins NO `source` (no Q
       "A committed source is almost certainly a leaked QA repoint (local bare repo / branch ref) — remove it.",
   );
 });
+
+// F1 — the counterpart of the guard above. The brain records WHERE it pulls from once,
+// at install, and revises it never: a repository rename therefore reaches no deployed
+// brain, and the whole fleet updates through a redirect in a namespace we no longer own.
+// `canonicalRepo` is how the launcher states its own address so brains converge on it
+// (update-engine.mjs, step 7). Blank it and every brain silently keeps its install-day
+// name forever — a silence this guard turns into a red suite. It must also be an
+// ANONYMOUS https clone URL: a brain updates on machines with no deploy key (ssh://,
+// git@) and a local path is the QA-repoint leak the guard above already refuses.
+test("engine-manifest — the launcher declares its own canonical repo URL, anonymously clone-able", () => {
+  assert.match(
+    manifest.canonicalRepo ?? "",
+    /^https:\/\/[^\s]+\.git$/,
+    "the launcher must declare `canonicalRepo` as an https .git URL — it is the only way a repository " +
+      "rename ever reaches an already-installed brain (F1), and ssh/local forms exclude keyless machines",
+  );
+});

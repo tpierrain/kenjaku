@@ -33,7 +33,7 @@ import {
   readTargetManifest,
 } from "./lib/engine-fetch.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
-import { reseedProvenance } from "./lib/engine-source.mjs";
+import { reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
 import {
   defaultRunInstall,
   defaultRunReindex,
@@ -304,7 +304,12 @@ export async function updateEngine({
     ...local,
     engineVersion: target.engineVersion,
     indexSchemaVersion: target.indexSchemaVersion,
-    source: { ...source, ref },
+    //    F1: the repo is re-read from the launcher we just fetched, not carried over
+    //    from install day. `source.repo` was written once, at install, and revised
+    //    never — so a repository RENAME reached no deployed brain and they all kept
+    //    cloning the old name, alive on a redirect in a namespace we no longer own.
+    //    The launcher declaring its own canonical URL is what lets the fleet follow.
+    source: { ...source, repo: resolveSourceRepo({ recorded: source.repo, declared: target.canonicalRepo }), ref },
     provenance: reseedProvenance({
       priorProvenance: local.provenance ?? {},
       manifest: target,
