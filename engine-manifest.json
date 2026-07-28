@@ -6,7 +6,7 @@
     "constitutionTemplate": "1.0.0",
     "scripts": "1.8.0"
   },
-  "indexSchemaVersion": 1,
+  "indexSchemaVersion": 2,
   "regimes": {
     "replace": [
       "rag/src/**",
