@@ -89,6 +89,23 @@ test("engine-manifest — vault-rag is tagged mandatory, so an absent vault-rag 
   );
 });
 
+// The manifest's `indexSchemaVersion` is what `reindex-trigger.mjs` compares (target vs the
+// brain's) to decide whether an upgrade owes a reindex. The RAG's own INDEX_SCHEMA_VERSION is
+// what the runtime gate compares (stamped vs current) to refuse a search on a stale index. When
+// the two drift apart, `update-engine` neither reindexes nor warns, and the owner meets the
+// staleness as a REFUSAL TO ANSWER their first question after upgrading. That is exactly how the
+// 1 → 2 bump shipped unannounced for a whole release. This guard makes the drift impossible.
+test("engine-manifest — indexSchemaVersion matches the RAG's INDEX_SCHEMA_VERSION (an upgrade must know the reindex it owes)", () => {
+  const vectorStore = readFileSync(join(repoRoot, "rag", "src", "lib", "vector-store.ts"), "utf8");
+  const declared = vectorStore.match(/INDEX_SCHEMA_VERSION\s*=\s*(\d+)/)?.[1];
+  assert.equal(
+    manifest.indexSchemaVersion,
+    Number(declared),
+    "the manifest must declare the index schema the engine actually writes; a manifest left behind " +
+      "makes update-engine skip the reindex it owes, and the first search after upgrading refuses to answer",
+  );
+});
+
 // Pre-ship belt (Thomas, 2026-06-21): the rig repoints a DISPOSABLE brain's manifest
 // `source` at a LOCAL bare repo + a branch ref (e.g. /Users/…/qa-v33-src.git) so
 // /update-engine pulls the not-yet-pushed work. That QA pointer must NEVER leak into the

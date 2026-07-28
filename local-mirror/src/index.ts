@@ -100,6 +100,18 @@ export function createMcpServer(api: ILocalMirror, hooks: McpServerHooks = {}): 
   );
 
   server.tool(
+    'move_source',
+    "Re-files an existing mirror into another universe: its pages are rewritten under the target universe and removed from the old folder. Local — no re-pull, no token needed. The brain re-embeds the moved pages, so ask the owner before running it.",
+    {
+      name: z.string().describe('Source name'),
+      universe: z
+        .string()
+        .describe('Target universe — one that already exists ("default" is the cross-cutting one)'),
+    },
+    async ({ name, universe }) => asText(await api.moveSource(name, universe)),
+  );
+
+  server.tool(
     'health_check',
     'Reports whether this OPTIONAL Notion mirror is operational (config readable, mirror store reachable). Pulls nothing. Returns a JSON { status, checks[] } verdict; nothing configured → unknown, never broken (ADR 0030).',
     {},

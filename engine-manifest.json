@@ -2,11 +2,11 @@
   "manifestVersion": 1,
   "engineVersion": {
     "rag": "1.1.5",
-    "local-mirror": "0.2.0",
+    "local-mirror": "0.3.0",
     "constitutionTemplate": "1.0.0",
-    "scripts": "1.7.0"
+    "scripts": "1.8.0"
   },
-  "indexSchemaVersion": 1,
+  "indexSchemaVersion": 2,
   "regimes": {
     "replace": [
       "rag/src/**",

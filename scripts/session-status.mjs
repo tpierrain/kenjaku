@@ -22,7 +22,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { hasGeminiKey, geminiKeyRequired } from "./lib/gemini-key.mjs";
-import { repoStatusLine, countVaultUncommitted } from "./lib/repo-status.mjs";
+import { repoStatusLine, countVaultUncommitted, countUnmerged } from "./lib/repo-status.mjs";
+import { sweepThenPull } from "./lib/startup-sync.mjs";
 import { bootstrapSessionHooks } from "./lib/hook-bootstrap.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
 
@@ -47,29 +48,30 @@ function git(args) {
   }
 }
 
-// ─── Repo line: git pull --rebase + status derivation ────────────────────────
-// (silent if no remote configured — purely local usage)
-const hasRemote = git(["remote"]).out.trim().length > 0;
-let pullOut = "already up to date";
-let pullOk = true;
-if (hasRemote) {
-  const r = git(["pull", "--rebase"]);
-  pullOut = r.out;
-  pullOk = r.ok;
-}
+// ─── Repo line: sweep the tree clean, THEN git pull --rebase ─────────────────
+// (the pull is silent if no remote is configured — purely local usage)
+// The sweep is what keeps the pull runnable: a dirty tree makes `pull --rebase`
+// refuse, and the brain is dirtied by writers no Claude hook sees (an engine
+// update's own files, an Obsidian edit). Being a HOOK is the point — a fresh
+// node process reading the code off disk, so the fix is live at the first restart
+// after the update that installs it, unlike the updater's own end-of-run commit.
+const { pullOk, pullOut } = sweepThenPull({ git });
 const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
 
-// Fail-loud guardrail: uncommitted vault notes at startup = a previous
-// auto-commit didn't run (silent hooks?). repoStatusLine turns this into a
-// priority alert (cf. scripts/lib/repo-status.mjs).
-const uncommittedVault = countVaultUncommitted(git(["status", "--porcelain"]).out);
+// Fail-loud guardrails, read AFTER the pull (which can itself leave conflicts):
+// unmerged paths need a human, and vault notes still uncommitted here mean the
+// sweep could not commit them. repoStatusLine turns both into priority alerts
+// (cf. scripts/lib/repo-status.mjs).
+const porcelain = git(["status", "--porcelain"]).out;
+const uncommittedVault = countVaultUncommitted(porcelain);
+const conflictedCount = countUnmerged(porcelain);
 const changedCount =
   pullOk && !/already up to date|déjà à jour/i.test(pullOut)
     ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
         .split("\n")
         .filter((l) => l.trim().length > 0).length
     : 0;
-const repoLine = repoStatusLine({ pullOk, pullOut, short, changedCount, uncommittedVault });
+const repoLine = repoStatusLine({ pullOk, pullOut, short, changedCount, uncommittedVault, conflictedCount });
 
 // ─── RAG line: docCount (db) vs .md files on disk ────────────────────────────
 function countMarkdown(dir) {

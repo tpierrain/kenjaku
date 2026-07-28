@@ -14,6 +14,9 @@
 //   5. runInstall            → `npm install` in the brain's rag/
 //   6. runReindex            → reindex IFF the index schema moved (else the index stays)
 //   7. record the new engineVersion + the pulled ref in the brain's manifest
+//   8. finalizeReconcile     → re-exec the freshly-written reconciler once (ADR 0026)
+//   9. commitEngineWrites    → commit what this update wrote, so it never leaves the
+//                              brain's repo dirty and blocking the startup pull (ADR 0011)
 // Everything outside the plan is untouchable BY CONSTRUCTION (the plan is an
 // allowlist) — the Gate asserts byte-identity of the user's sacred files.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -38,6 +41,7 @@ import {
   defaultRegenerateLaunchers,
 } from "./lib/engine-seams.mjs";
 import { defaultFinalizeReconcile } from "./lib/auto-finalize.mjs";
+import { defaultCommitEngineWrites } from "./lib/engine-commit.mjs";
 
 // Re-export so the engine's own tests keep importing the count seam from here.
 export { defaultCountVaultNotes };
@@ -77,7 +81,7 @@ export function bareHookName(command) {
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -140,6 +144,32 @@ export function formatReport(report) {
         ` — the newer engine version sits next to it as ${newVersionPath}`,
     );
   }
+  // The engine files this update rewrote are VERSIONED, so we committed them (step 9) —
+  // otherwise they sit dirty forever and the next SessionStart `git pull --rebase`
+  // refuses to run. The user will see that commit in their history, so we name it; and
+  // we say it stayed local, because pushing is opt-in (`secondbrain.autopush`).
+  if (committed === "committed") {
+    lines.push(`   • the engine files that changed were committed locally (nothing pushed)`);
+  }
+  // The tree was left dirty deliberately: a merge/rebase was stopped on a conflict, and
+  // staging it would have buried the `<<<<<<<` markers (and fake-resolved the rebase).
+  // Silence here would hand back a brain that cannot pull, with nothing to explain it.
+  if (committed === "conflicted") {
+    lines.push(
+      `   ⚠️ the engine files were NOT committed: a merge conflict is pending in your brain's`,
+      `   repo, and committing would have buried the <<<<<<< markers in it. Resolve that`,
+      `   conflict, then commit — your engine is updated on disk either way.`,
+    );
+  }
+  // Asked, and refused: most often no git identity on this machine. The files are
+  // staged and the tree is dirty, so the startup pull stays blocked until it lands.
+  if (committed === "refused") {
+    lines.push(
+      `   ⚠️ git refused to commit the engine files (often: no name/email configured yet —`,
+      `   git config --global user.email "you@example.com"). They are staged and waiting;`,
+      `   commit them once git is happy, or your brain's startup pull stays blocked.`,
+    );
+  }
   if (wiredHooks.length > 0) {
     lines.push(`   • new runtime hook(s) wired: ${wiredHooks.join(", ")}`);
   }
@@ -193,6 +223,7 @@ export async function updateEngine({
   runReindex = defaultRunReindex,
   countVaultNotes = defaultCountVaultNotes,
   finalizeReconcile = defaultFinalizeReconcile,
+  commitEngineWrites = defaultCommitEngineWrites,
 }) {
   const manifestPath = join(brainDir, "engine-manifest.json");
   const local = JSON.parse(readFileSync(manifestPath, "utf8"));
@@ -293,7 +324,27 @@ export async function updateEngine({
     // swallowed on purpose — the update succeeded; self-heal will finish the job.
   }
 
+  // 9. PERSIST what this update wrote. Everything above rewrote VERSIONED,
+  //    engine-owned files (the manifest, scripts/lib/**, the launchers, plus
+  //    whatever the finalize child converged) — and nothing else commits them: the
+  //    brain's auto-commit is a hook fired by a session WRITE, so a user who only
+  //    READS for a few days never triggers it. Left uncommitted, those files make
+  //    the SessionStart `git pull --rebase` refuse to run ("you have unstaged
+  //    changes") → the brain silently stops syncing at EVERY start until someone
+  //    commits by hand. Committing here keeps the invariant: an update never leaves
+  //    the repo dirty. It never PUSHES — that stays opt-in (`secondbrain.autopush`).
+  //    Done LAST, after the finalize child's own writes, and fail-soft for the same
+  //    reason as step 8: the update is already done + recorded.
+  let committed = null;
+  try {
+    committed = commitEngineWrites({ brainDir, ref });
+  } catch {
+    // swallowed on purpose — a git hiccup must never fail an applied update. The
+    // SessionStart banner says WHY the next pull is blocked (repo-status.mjs).
+  }
+
   return {
+    committed,
     ref: updated.source.ref,
     engineVersion: updated.engineVersion,
     copied,

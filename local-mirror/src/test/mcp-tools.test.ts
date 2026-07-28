@@ -27,6 +27,7 @@ function spyApi() {
     checkFreshness: { behind: false },
     status: { name: 'team-a', items: 7 },
     removeSource: { removed: true },
+    moveSource: { name: 'team-a', ok: true, moved: 4, message: 'moved' },
     healthCheck: { status: 'ok', checks: [] },
   };
   const api = {
@@ -36,6 +37,7 @@ function spyApi() {
     checkFreshness: record('checkFreshness', results.checkFreshness),
     status: record('status', results.status),
     removeSource: record('removeSource', results.removeSource),
+    moveSource: record('moveSource', results.moveSource),
     healthCheck: record('healthCheck', results.healthCheck),
   } as unknown as ILocalMirror;
   return { api, calls, results };
@@ -64,7 +66,7 @@ test('the server advertises its name and version', async () => {
   await close();
 });
 
-test('exactly the 7 tools are registered, each with a name and a non-empty description', async () => {
+test('exactly the 8 tools are registered, each with a name and a non-empty description', async () => {
   const { api } = spyApi();
   const { client, close } = await connect(api);
 
@@ -73,7 +75,7 @@ test('exactly the 7 tools are registered, each with a name and a non-empty descr
 
   assert.deepEqual(
     [...byName.keys()].sort(),
-    ['check_freshness', 'health_check', 'list_sources', 'remove_source', 'setup_source', 'status', 'sync'],
+    ['check_freshness', 'health_check', 'list_sources', 'move_source', 'remove_source', 'setup_source', 'status', 'sync'],
   );
   for (const t of tools) {
     assert.ok(t.description && t.description.length > 0, `${t.name} has a description`);
@@ -222,6 +224,21 @@ test('remove_source forwards the name and the optional cleanup flag', async () =
 
   assert.deepEqual(calls, [{ method: 'removeSource', args: ['team-a', true] }]);
   assert.deepEqual(res.content, envelope(results.removeSource));
+
+  await close();
+});
+
+test('move_source forwards the mirror and the target universe to the port', async () => {
+  const { api, calls, results } = spyApi();
+  const { client, close } = await connect(api);
+
+  const res = await client.callTool({
+    name: 'move_source',
+    arguments: { name: 'team-a', universe: 'acme' },
+  });
+
+  assert.deepEqual(calls, [{ method: 'moveSource', args: ['team-a', 'acme'] }]);
+  assert.deepEqual(res.content, envelope(results.moveSource));
 
   await close();
 });

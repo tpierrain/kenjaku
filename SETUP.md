@@ -165,6 +165,19 @@ node installer.mjs --non-interactive --name "second-brain" --owner "Jane Doe" --
   (the `Stop` hook), pushing all the turn's commits in one go — instead of a network push per edit.
   A failed push is non-blocking: your commits stay local and the **next turn catches up**. For
   syncing changes made on *another* machine mid-session, use the `/sync` skill.
+- **An engine update commits its own files too.** `/update-engine` rewrites versioned engine files,
+  which are not edits Claude made — so no `Write|Edit` hook fires for them. The update therefore
+  commits them itself, at the end of its run: you will see one `engine: update to <version>` commit
+  appear in your history. It is **local only** (push stays opt-in, as above). Without it those files
+  would sit uncommitted, and the startup `git pull --rebase` refuses to run on a dirty repo — your
+  brain would quietly stop syncing between machines.
+- **And a sweep at every session start, to catch what the two above miss.** Before its startup
+  `git pull --rebase`, your brain commits anything still uncommitted: notes you typed **directly in
+  Obsidian** (Claude never saw them, so no hook fired), or engine files left over by an update. You
+  will see an `auto: session-start sweep …` commit when that happens. It is **local only**, and it is
+  what keeps your sync from silently blocking. **One exception, on purpose:** if git stopped on a
+  **conflict** (the same note changed on two machines), nothing is committed for you — the startup
+  banner asks you to open the file, keep what you want, then run `git rebase --continue`.
 - **Remote repo: decided afterwards, never imposed.** The install creates no remote. You can wire
   one up whenever you want (see §7) — remembering to enable `secondbrain.autopush`. In assisted
   startup, Claude will **offer** to create one (backup + multi-machine) — answering no is risk-free.
@@ -414,6 +427,13 @@ sync, and explains each step. **If you have several universes**, it first asks w
 belongs to (the one you are working in is proposed, and a cross-cutting mirror is one word away) and
 pulls nothing until you answer — its pages then live in `vault/<universe>/mirrors/<name>/`. Getting
 that right afterwards would re-encode the whole mirror, which is why it asks before, not after.
+
+**Filed in the wrong universe anyway? Move it** — *"move my product mirror into my Acme universe"*.
+The mirror is re-filed **locally**: its pages, its config and its sync state travel together, nothing
+is re-downloaded from Notion (it works even with the source unreachable), and the next refresh
+rewrites nothing. The re-encode is the whole cost, and your brain says so before doing it. Note that
+re-**declaring** the same mirror into another universe is **refused** rather than performed: it would
+write a second copy while leaving the first one on disk, indexed and frozen. The move is the route.
 
 Once a mirror is declared, it also **refreshes itself in the background** while a brain window is open:
 the `local-mirror` server checks freshness on a timer and re-syncs only the mirrors that fell behind, no

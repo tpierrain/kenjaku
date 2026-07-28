@@ -96,7 +96,8 @@ what's already indexed; freshness catches up **behind the scenes** and only **am
 there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFERENT.md#2-how-it-works-answer-right-away-verify-afterwards))*
 
 > 💾 **Nothing to save, nothing to lose.** Every change is **auto-committed to your git repo** the
-> instant it's written — no *"did I save that?"*, ever. Connect a **remote** (optional, one setting) and
+> instant it's written — and whatever you typed straight into Obsidian, outside your brain, is swept
+> in at its next start. No *"did I save that?"*, ever. Connect a **remote** (optional, one setting) and
 > it **auto-pushes** there too, so a **lost, stolen or dead laptop costs you nothing** — restore your
 > whole brain on a new machine from the backup.
 

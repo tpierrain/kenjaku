@@ -73,10 +73,12 @@
     file-watcher (it would **share git's fate with the RAG's failure domain** — MCP down ⇒ backup down,
     the unsaved note being the worst failure — lose Claude's **intent-bearing commit messages** for a
     watcher's blind diff, put a timer in the commit path, and amplify the multi-window race; all for a
-    coverage win the watcher's own lifecycle only half-delivers). Documents the **accepted gap**
-    (non-Claude/Obsidian edits) + the on-brand remedy held in reserve (an event-bound `git add -A`
-    sweep on `SessionStart`/`Stop`, gated on a *proven* need). Names the split ADR 0009 already
-    implied. **Scope: Second brain (runtime).**
+    coverage win the watcher's own lifecycle only half-delivers). The **non-Claude/Obsidian gap** it
+    documented is now **closed** by the remedy it held in reserve: an event-bound `git add -A` sweep on
+    **`SessionStart`, before the pull** — shipped once the updater's own blind spot forced it (a script
+    that replaces itself mid-run cannot fix the update that installs it; a hook, re-read from disk, can).
+    A tree git left **unmerged** is the one thing the sweep never touches. Names the split ADR 0009
+    already implied. **Scope: Second brain (runtime).**
   - [`0012-engine-packaging-four-part-model.md`](decisions/0012-engine-packaging-four-part-model.md) —
     **engine packaging, supersedes 0003**: reopens upgradability on the trigger 0003 named (production +
     parallel evolution). Fixes the **four-part vocabulary** — **Installer** (out of scope) / **Engine**
@@ -152,6 +154,10 @@
       PRD [`prd-golden-source-sync.md`](plans/prd-golden-source-sync.md)). Self-contained
       steps with a Tracking table to drive it session by session (a `/clear` between each). **STATUS:
       🚧 ACTIVE — not started.**
+    - [`release-v4.2.1-action.md`](plans/release-v4.2.1-action.md) — **🗺️ action plan** for the
+      **v4.2.1** release: the startup banner now says why a pull failed, and an engine update commits
+      what it wrote so a brain never silently stops syncing (ADR 0011, amended). Code is done and CI
+      is green on PR #50; what remains is cutting the tag. **STATUS: 🚧 IN PROGRESS.**
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).

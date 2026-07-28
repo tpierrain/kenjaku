@@ -87,6 +87,70 @@ test("formatReport — schema moved → reports the new version, the swap, and t
   assert.match(out, /untouched|notes|\.env/i);
 });
 
+// The update commits the versioned engine files it rewrote (otherwise they sit dirty
+// and block the next SessionStart pull). The user WILL see that commit land in their
+// history, so the report says it — and says it stayed local, since push is opt-in.
+test("formatReport — a committed update says so, and says nothing was pushed", () => {
+  const out = formatReport({
+    ref: "v1.1.0",
+    engineVersion: { rag: "1.1.0" },
+    copied: ["rag/src/index.ts"],
+    regenerated: true,
+    reindexed: false,
+    committed: "committed",
+  });
+  assert.match(out, /committed/i);
+  assert.match(out, /not pushed|nothing pushed|stays local/i);
+});
+
+// The twin: an update that changed nothing on disk has nothing to commit, and must
+// not claim a commit that never happened.
+test("formatReport — a 'clean' update claims NO commit", () => {
+  const out = formatReport({
+    ref: "v1.1.0",
+    engineVersion: { rag: "1.1.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    committed: "clean",
+  });
+  assert.doesNotMatch(out, /committed/i);
+});
+
+// The third outcome: the tree was left dirty ON PURPOSE, because a conflict was
+// pending and staging it would have buried the markers. Saying nothing here would
+// leave the owner with a repo that cannot pull and no idea why — the exact silence
+// this release exists to end. So it must say it, and name the resolve.
+test("formatReport — a 'conflicted' update says the engine files were NOT committed, and why", () => {
+  const out = formatReport({
+    ref: "v1.1.0",
+    engineVersion: { rag: "1.1.0" },
+    copied: ["rag/src/index.ts"],
+    regenerated: true,
+    reindexed: false,
+    committed: "conflicted",
+  });
+  assert.match(out, /not committed|couldn't commit|could not commit/i);
+  assert.match(out, /conflict/i);
+  assert.doesNotMatch(out, /were committed locally/i);
+});
+
+// And the fourth: git was asked, and said no (a machine with no `user.email` is the
+// common case). The files are staged and the tree is dirty, so the next pull is
+// blocked — the report must not print the reassuring "committed locally" line.
+test("formatReport — a 'refused' commit is reported as a failure to commit, not as a commit", () => {
+  const out = formatReport({
+    ref: "v1.1.0",
+    engineVersion: { rag: "1.1.0" },
+    copied: ["rag/src/index.ts"],
+    regenerated: true,
+    reindexed: false,
+    committed: "refused",
+  });
+  assert.match(out, /git refused|could not commit|couldn't commit/i);
+  assert.doesNotMatch(out, /were committed locally/i);
+});
+
 test("formatReport — schema unchanged → states no reindex was needed (never a misleading 'reindexed')", () => {
   const out = formatReport({
     ref: "v1.1.0",
@@ -948,16 +1012,27 @@ function assertSacredUntouched(brainDir, before) {
 // object records the side effects we assert on.
 async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, countVaultNotes }) {
   const updateEngine = await loadCore();
-  const calls = { install: [], reindex: [], regenerate: [], finalize: [] };
+  const calls = { install: [], reindex: [], regenerate: [], finalize: [], commit: [], order: [] };
   const report = await updateEngine({
     brainDir,
     platform,
     countVaultNotes: countVaultNotes ?? (async () => 0),
+    // Persistence seam: an update rewrites VERSIONED engine files, and nothing
+    // else commits them (the brain's auto-commit only fires on a session write).
+    // Left uncommitted they block the next SessionStart `git pull --rebase`.
+    // Returns a value no real implementation would produce, so the wiring is
+    // proven by the report rather than by a plausible-looking default.
+    commitEngineWrites: ({ brainDir: bd, ref: r }) => {
+      calls.commit.push({ brainDir: bd, ref: r });
+      calls.order.push("commit");
+      return "committed-by-fake";
+    },
     // Auto-finalize (ADR 0026, Layer A): the real seam re-execs the reconciler in a
     // fresh child process. Stubbed here so no test spawns a real node process; we just
     // record that update-engine asked for the finalize pass with the right inputs.
     finalizeReconcile: async ({ brainDir: bd, sourceDir: sd, platform: p }) => {
       calls.finalize.push({ brainDir: bd, sourceDir: sd, platform: p });
+      calls.order.push("finalize");
     },
     // The launcher's latest release tag on the remote (ADR 0017). Default = the
     // target's version; overridable to exercise the offline/no-tag fallback. The
@@ -1087,6 +1162,35 @@ test("gate — auto-finalizes once after the update, handing the child the fetch
     calls.finalize,
     [{ brainDir, sourceDir, platform: "posix" }],
     "update-engine must auto-finalize exactly once, handing the child the brain dir + the fetched source",
+  );
+});
+
+// ── An update rewrites VERSIONED engine files (manifest, scripts/lib/**, launchers).
+//    Nothing else commits them: the brain's auto-commit is a hook fired by a session
+//    WRITE, so a user who only reads for days never triggers it — and meanwhile the
+//    SessionStart `git pull --rebase` refuses to run on a dirty tree, so the brain
+//    silently stops syncing on every start. The update therefore owns the commit,
+//    and owns it LAST: auto-finalize (step 8) writes too, so committing before it
+//    would leave exactly the files it just wrote behind.
+test("gate — an update COMMITS what it wrote, AFTER the auto-finalize wrote its share", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+
+  const { calls } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  assert.deepEqual(
+    calls.commit,
+    [{ brainDir, ref: "v1.1.0" }],
+    "the update must commit its own writes exactly once, naming the version it moved to",
+  );
+  assert.deepEqual(
+    calls.order,
+    ["finalize", "commit"],
+    "commit LAST — auto-finalize writes files, so an earlier commit leaves them dirty",
   );
 });
 

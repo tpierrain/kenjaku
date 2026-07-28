@@ -3,6 +3,7 @@ import type {
   HealthCheckEntry,
   HealthReport,
   LocalMirrorConfig,
+  MoveResult,
   RemoveResult,
   SetupRequest,
   SetupResult,
@@ -22,7 +23,7 @@ import type {
   PersistedState,
   UniverseState,
 } from './ports.js';
-import { toLocalMirrorMarkdown } from '../lib/markdown.js';
+import { reuniverseLocalMirrorMarkdown, toLocalMirrorMarkdown } from '../lib/markdown.js';
 import { contentHash } from '../lib/content-hash.js';
 import { extractPageId } from '../lib/notion-url.js';
 import { DEFAULT_UNIVERSE, isMultiverse, listAllUniverses } from '../lib/universe.js';
@@ -41,6 +42,11 @@ export interface ILocalMirror {
   checkFreshness(name: string): Promise<FreshnessReport>;
   status(name: string): Promise<SourceStatus>;
   removeSource(name: string, cleanup?: boolean): Promise<RemoveResult>;
+  /**
+   * Re-file a declared mirror into another universe (ADR 0034) — the ONE deliberate way to change
+   * a frozen universe. Local: it rewrites the pages already on disk, never re-pulls them.
+   */
+  moveSource(name: string, universe: string): Promise<MoveResult>;
   /** Standard module health (ADR 0030): is the optional mirror operational? */
   healthCheck(): Promise<HealthReport>;
 }
@@ -102,7 +108,16 @@ export class LocalMirror implements ILocalMirror {
     // Past the gate `req.universe` is always set (the two guards above are what make that true);
     // below it there is nothing to choose and `active` is necessarily the default, since an empty
     // registry disqualifies every pointer. So this reads "what they chose, else where they are".
-    const config = configFromRequest(req, req.universe ?? active);
+    const retained = req.universe ?? active;
+    // A mirror that already exists cannot be re-filed by re-declaring it: the pull would land in
+    // the new folder and leave an orphaned, permanently stale copy in the old one. Refuse BEFORE
+    // reaching the connector — this costs no token and no network call.
+    const existing = (await this.deps.configStore.loadAll()).find((c) => c.name === req.name);
+    if (existing && universeOf(existing) !== retained) {
+      return cannotChangeUniverse(req, existing, retained);
+    }
+
+    const config = configFromRequest(req, retained);
     const connector = this.deps.connectorFor(config);
 
     let items;
@@ -423,6 +438,180 @@ export class LocalMirror implements ILocalMirror {
     await this.deps.configStore.remove(name);
     return { name, removed: true, cleanedUp: cleanup };
   }
+
+  /**
+   * Re-file a mirror into another universe (ADR 0034). The pages already on disk are rewritten
+   * under the target universe — read, re-stamped, written at the new path, deleted from the old —
+   * so a move needs no token and no network, and works while the source is unreachable.
+   */
+  async moveSource(name: string, universe: string): Promise<MoveResult> {
+    const configs = await this.deps.configStore.loadAll();
+    const config = configs.find((c) => c.name === name);
+    if (!config) return { name, ok: false, moved: 0, message: unknownMirror(name, configs) };
+
+    // Same rule as a declaration: a universe nobody created would swallow the whole corpus into a
+    // scope no search reaches. The registry is read HERE, at the deliberate move, and never on the
+    // sync path — which is exactly why the universe stays frozen in the config the rest of the time.
+    const universes = listAllUniverses(this.deps.universes().registry);
+    if (!universes.includes(universe)) {
+      return {
+        name,
+        ok: false,
+        moved: 0,
+        message:
+          `There is no universe called "${universe}", so "${name}" was not moved. The ones that ` +
+          `exist are: ${universes.join(', ')}. Call move_source again with one of them (or create ` +
+          `it first with /switch).`,
+      };
+    }
+
+    // A move rewrites what a sync rewrites — the pages and the sidecar — and a sync starts on its
+    // own, on the freshness timer, in every open brain window. Racing one would let a refresh write
+    // pages at the OLD paths between phase 1 and the save that re-points the sidecar, leaving disk
+    // and sidecar disagreeing with no failure anywhere. Same single-flight lock as `sync`.
+    if (!this.deps.syncLock.acquire(config.name)) {
+      return {
+        name,
+        ok: false,
+        moved: 0,
+        message:
+          `"${name}" is being refreshed right now (another brain window, or its background ` +
+          `timer), so it was not moved — a move and a refresh rewrite the same files. Try again ` +
+          `in a moment.`,
+      };
+    }
+    try {
+      return await this.moveLocked(name, config, universe);
+    } finally {
+      this.deps.syncLock.release(config.name);
+    }
+  }
+
+  /** The critical section of a move — runs while holding the source's single-flight lock. */
+  private async moveLocked(
+    name: string,
+    config: LocalMirrorConfig,
+    universe: string,
+  ): Promise<MoveResult> {
+    // The cross-cutting universe is the ABSENCE of the key, on disk as in the config — the same
+    // implicit-when-default rule `configFromRequest` applies at declaration time.
+    const moved = withUniverse(config, universe);
+    const persisted = await this.deps.stateStore.load(name);
+    const items = Object.entries(persisted?.items ?? {});
+
+    // Phase 1 — write every page at its new path, deleting NOTHING yet. Half a move is the worst
+    // outcome there is (pages under two universes, a config agreeing with neither, repairable only
+    // by hand), so a failure here rolls the new copies back and leaves the old corpus untouched.
+    const relocated: Record<string, PersistedItem> = {};
+    const newCopies: string[] = [];
+    for (const [id, item] of items) {
+      const vaultPath = vaultPathFor(moved, id);
+      try {
+        const raw = await this.deps.vaultWriter.read(item.vaultPath);
+        const markdown = reuniverseLocalMirrorMarkdown(raw, moved.universe);
+        await this.deps.vaultWriter.write(vaultPath, markdown);
+        // Only a copy that did NOT exist before is the rollback's to remove. On a move onto
+        // the universe the mirror already lives in, the "new" path IS the old one: deleting it
+        // would destroy the page instead of undoing anything — and the sidecar's matching hash
+        // would then report it `unchanged` forever, so no later sync would bring it back.
+        if (vaultPath !== item.vaultPath) newCopies.push(vaultPath);
+        // The sidecar is the reconciliation map: a tracked path left pointing at the old folder
+        // would make a later cleanup delete nothing and orphan the moved corpus. The hash follows
+        // too — the universe key is part of the produced markdown, so a stale hash would make the
+        // very next sync rewrite every page for nothing.
+        relocated[id] = { ...item, vaultPath, contentHash: contentHash(markdown) };
+      } catch (error) {
+        return this.rollbackMove(name, newCopies, items, error);
+      }
+    }
+
+    // Every page has landed, so the move is now a FACT: RECORD it before touching a single old
+    // copy. Deleting first and recording after was the one ordering that could produce the
+    // half-move this design rules out — an unwritable old page threw out of `moveSource` with the
+    // pages under two universes, the config naming the old one and the sidecar pointing at the old
+    // paths, so the next sync called everything `unchanged` and the new copies stayed orphaned,
+    // indexed and frozen for good. Recorded first, the worst case is a stale file we can name.
+    if (persisted) await this.deps.stateStore.save(name, { ...persisted, items: relocated });
+    await this.deps.configStore.upsert(moved);
+
+    // Then the old copies go. A page whose path did not change (a mirror moved onto the universe
+    // it already lives in) must NOT be deleted: that is the file phase 1 just wrote. A delete that
+    // fails is leftover garbage, not a reason to abort — the corpus is already where it belongs.
+    const leftBehind: string[] = [];
+    for (const [id, item] of items) {
+      if (relocated[id].vaultPath === item.vaultPath) continue;
+      try {
+        await this.deps.vaultWriter.delete(item.vaultPath);
+      } catch {
+        leftBehind.push(item.vaultPath);
+      }
+    }
+
+    return {
+      name,
+      ok: true,
+      moved: items.length,
+      message:
+        `Moved "${name}" to ${universeLabel(universe)}: ` +
+        `${items.length} page(s) now live under ${vaultDirFor(moved)}/.` +
+        leftBehindNote(leftBehind),
+    };
+  }
+
+  /**
+   * Undo a move that could not complete: the copies already written under the target universe are
+   * removed, so the mirror is left exactly as it was — every page at its old path, the config and
+   * the sidecar never touched (phase 2 had not started). A rollback delete that itself fails is
+   * swallowed: the corpus is already whole, and a leftover copy must not mask the real error.
+   */
+  private async rollbackMove(
+    name: string,
+    newCopies: readonly string[],
+    items: readonly (readonly [string, PersistedItem])[],
+    error: unknown,
+  ): Promise<MoveResult> {
+    for (const vaultPath of newCopies) {
+      try {
+        await this.deps.vaultWriter.delete(vaultPath);
+      } catch {
+        // Deliberately ignored — see above.
+      }
+    }
+    return {
+      name,
+      ok: false,
+      moved: 0,
+      message:
+        `"${name}" was NOT moved: ${errorMessage(error)}. Its ${items.length} page(s) are ` +
+        `untouched, where they were, and the mirror still belongs to the universe it did. ` +
+        `Nothing was left half-moved — try again once the vault is writable.`,
+    };
+  }
+}
+
+/** The refusal when the named mirror was never declared — it names the ones that were. */
+function unknownMirror(name: string, configs: readonly LocalMirrorConfig[]): string {
+  const declared = configs.map((c) => c.name);
+  return (
+    `There is no mirror called "${name}", so nothing was moved. ` +
+    (declared.length
+      ? `The declared ones are: ${declared.join(', ')}.`
+      : `No mirror is declared on this brain yet.`)
+  );
+}
+
+/**
+ * The tail a move adds when the vault refused to delete an old copy. Staying silent would leave a
+ * stale twin on disk — indexed, answering questions, and frozen forever, since the sidecar no
+ * longer tracks it — so the leftovers are named, one by one, and the cost is spelled out.
+ */
+function leftBehindNote(leftBehind: readonly string[]): string {
+  if (leftBehind.length === 0) return '';
+  const [copy, are] = leftBehind.length === 1 ? ['old copy', 'is'] : ['old copies', 'are'];
+  return (
+    ` ⚠️ ${leftBehind.length} ${copy} could not be deleted and ${are} still on disk: ` +
+    `${leftBehind.join(', ')} — delete by hand, or your brain will index the same page twice.`
+  );
 }
 
 /** A single-check `unknown` health report — the "couldn't determine" verdict (ADR 0030). */
@@ -547,6 +736,52 @@ export function unknownUniverse(
       `The ones that exist are: ${universes.join(', ')}. Call setup_source again with one of ` +
       `them (or create it first with /switch).`,
   };
+}
+
+/**
+ * The refusal that protects an existing corpus: a declared mirror cannot change universe by being
+ * declared again. Re-declaring would replace the config and pull every page into the new folder
+ * while the old copies stayed on disk — indexed, never refreshed, and beyond the reach of deletion
+ * reconciliation, which only removes pages that left the SOURCE's perimeter. So nothing is declared
+ * and nothing is pulled, and the owner is told the route that actually re-files a mirror.
+ */
+export function cannotChangeUniverse(
+  req: SetupRequest,
+  declared: LocalMirrorConfig,
+  target: string,
+): SetupResult {
+  const from = universeLabel(universeOf(declared));
+  const landing = vaultDirFor(configFromRequest(req, target));
+  return {
+    name: req.name,
+    ok: false,
+    message:
+      `The "${req.name}" mirror already exists, in ${from}, and a mirror cannot change universe ` +
+      `by being declared again: its pages would be pulled into ${landing}/ while the old copies ` +
+      `stayed behind, indexed and never refreshed again. To re-file it, move it ` +
+      `(move_source "${req.name}", universe: ${target}) — that rewrites its pages where they ` +
+      `belong and leaves nothing behind. To change anything else about it — a rotated token, a ` +
+      `wider scope — declare it again in ${from}.`,
+  };
+}
+
+/**
+ * The same config, filed in `universe` — with the key DROPPED for the cross-cutting scope, since
+ * its absence is what "default" means on disk and in the config (ADR 0034).
+ */
+function withUniverse(config: LocalMirrorConfig, universe: string): LocalMirrorConfig {
+  const { universe: _previous, ...rootless } = config;
+  return universe === DEFAULT_UNIVERSE ? rootless : { ...rootless, universe };
+}
+
+/** The universe a declared mirror lives in: absent means the default one (ADR 0034). */
+function universeOf(config: LocalMirrorConfig): string {
+  return config.universe ?? DEFAULT_UNIVERSE;
+}
+
+/** How a universe is named to the owner: the default one has no name, it has a ROLE. */
+function universeLabel(universe: string): string {
+  return universe === DEFAULT_UNIVERSE ? 'the cross-cutting universe' : universe;
 }
 
 /**

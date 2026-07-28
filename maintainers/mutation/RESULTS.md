@@ -15,8 +15,8 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent) |
-| **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent) |
+| **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
 its tag-time snapshot; the B4 + optional-weak-tier gains below land in `main` after v3.4.2).
@@ -526,3 +526,151 @@ git worktree remove /tmp/sbg-mut-scripts --force
 ```
 
 Generated HTML reports + run logs land under `reports/` (git-ignored).
+
+## PR 50 (startup pull + engine commit) — 2026-07-28
+
+Targeted run over the two files the change owns. **98.53 % overall** —
+`engine-commit.mjs` **100 %** (24/24), `repo-status.mjs` **97.73 %** (43/44).
+
+The run had to be **narrowed to the covering tests** rather than the full harness command:
+`stryker.scripts.config.mjs` cannot complete its dry run any more, because
+`engine-manifest-integrity.test.mjs` asks `git ls-files` and the Stryker **sandbox copy has no
+`.git`** — every manifest glob reads as dead and the test fails before a single mutant runs. Narrowing
+can only make a score **pessimistic** (fewer tests available to kill a mutant), never inflate it.
+Restoring the full `mutate:scripts` run needs that integrity test to tolerate a repo-less checkout.
+
+Killed here, worth keeping as patterns:
+
+- **A blank-line filter that could not change anything.** `countVaultUncommitted` filtered out empty
+  lines before testing `slice(3).startsWith("vault/")` — but a blank line fails that test anyway. Four
+  mutants lived in that dead guard. Deleting it says the same thing in less code (the "simplify the
+  production rather than excuse the mutant" reflex), and takes all four with it.
+- **A warning asserted by fragments.** The uncommitted-notes alert was checked with three `match`es on
+  pieces of itself, so three of its clauses could be blanked with the suite still green — on the one
+  line that tells a user their notes are unversioned. Now asserted whole.
+- **Regex anchors need a mid-line decoy.** `/^(error|fatal|erreur)\s*:/` survived losing its `^` until
+  a fixture line *mentioned* `error:` mid-sentence (a git `hint:`); the indent-tolerating `.trim()`
+  survived until a fixture indented one of its diagnostic lines, as git does.
+- **`\s*` after the colon was deleted, not fed.** Rather than invent a `error:no-space` fixture no git
+  emits, the trailing `\s*` moved out of the regex into a `.trim()` on the extracted reason — same
+  behaviour, one fewer indistinguishable mutant.
+
+**Accepted equivalent (1).** `pullOut ?? ""` → `?? "Stryker was here!"`: any replacement string with no
+`error:`/`fatal:`/`erreur :` prefix yields the same empty reason and the same fallback line, so no test
+can distinguish it.
+
+### PR 50, second increment (the SessionStart sweep) — 2026-07-28
+
+Same narrowing, over the two files this increment owns. **98.98 % overall** —
+`startup-sync.mjs` **100 %** (42/42), `repo-status.mjs` **98.21 %** (55/56), the single survivor being
+the `pullOut ?? ""` equivalent already accepted above. Command used (config in a scratch file, since
+the full `mutate:scripts` dry run is still blocked by `engine-manifest-integrity.test.mjs`):
+`mutate: ["scripts/lib/startup-sync.mjs", "scripts/lib/repo-status.mjs"]`, command runner
+`node --test scripts/lib/startup-sync.test.mjs scripts/lib/repo-status.test.mjs`.
+
+Killed here, worth keeping as patterns:
+
+- **Redundant regex anchors are dead code, not a coverage gap.** `/^(U.|.U|AA|DD)$/` tested against a
+  `slice(0, 2)` left BOTH anchor mutants alive: on a 2-char string the anchors cannot change the
+  verdict. No fixture could ever kill them, because the slice is already the anchor. Deleting them
+  (the "simplify the production" reflex again) took both mutants with it — and the guarantee stays
+  where it belongs, in the decoy fixture whose *path* carries the conflict codes: remove the slice and
+  that test goes red.
+- **`UU` is a fixture that satisfies two reasons at once.** It matches both the "U on the left" and
+  "U on the right" alternative, so either could be deleted with the suite green (§9 of the discipline).
+  Fed `UD` and `AU` separately, each alternative becomes singly necessary.
+- **The call-order claim needs the sequence asserted, not the outcome.** "The sweep runs BEFORE the
+  pull" is the whole point of the change and is invisible in any return value: only `deepEqual` on the
+  fake git's full call list pins it. Dropping the sweep entirely still leaves 4 of 7 tests green — the
+  3 that fail are the order test and the two real-git ones.
+
+## v4.3.0 — the mirror move (`local-mirror`) — 2026-07-28
+
+Targeted run over the two files this change owns.
+**`lib/markdown.ts` 100 %** (8/8) · **`domain/local-mirror.ts` 96.16 %** (424 killed, 17 survived,
+2 timeouts) at the last measured run.
+
+`local-mirror.ts` is a big pre-existing file, so the file score alone says little about the new code.
+What matters: of the 17 survivors, **exactly one sat inside this change** (the
+`if (persisted) stateStore.save(...)` guard, line 504). It was killed afterwards by the "never synced"
+test asserting `sidecarOf(name) === null`, **hand-verified** by applying `if (true)` and watching that
+test go red. The other 16 predate the change (`maxLastEditedTime`, the freshness arithmetic) and are
+outside its scope.
+
+The run itself found the gaps — this is what it bought, and each is a pattern worth keeping:
+
+- **A whole refusal branch nobody called.** `moveSource` on an undeclared mirror had no test at all:
+  seven mutants lived there, including `configs.find(() => true)` and `ok: false → ok: true`. Two
+  tests (a brain with mirrors, a brain with none) took all seven — and the second exists only because
+  the empty-registry sentence is a *different* clause, not a shorter list (§9: one test per reason).
+- **A rollback message asserted by a fragment.** The failed-move test matched the `ENOSPC` part with a
+  regex, so both sentences promising the corpus is intact could be blanked with the suite green — on
+  the one line that tells an owner nothing was lost. Now asserted whole (§1/§2).
+- **A rollback that deleted "what it wrote" without proving it.** Seeding `landed` with a junk entry
+  survived, because no test looked at what the rollback deleted. `deletedVaultFiles()` now names the
+  exact list.
+- **Both sides of the default-universe ternary.** `withUniverse` and `universeLabel` each had one
+  branch unfed: nothing moved a mirror *to* the cross-cutting universe, and no move message named a
+  real universe. Two `?` mutants died to one new test plus one added assertion (§4: feed the twin).
+- **The "moved onto the universe it already lives in" no-op** was written as a guard and proven by a
+  hand-applied mutant (delete unconditionally) before being trusted — the case where phase 2 would
+  delete the very file phase 1 had just written.
+
+### v4.3.0, after the review fixes — 2026-07-28
+
+Re-measured once the eight `/code-review` findings were fixed, over the same two files.
+**`lib/markdown.ts` 100 %** (22/22) · **`domain/local-mirror.ts` 96.86 %** (456 killed, 15 survived,
+6 timeouts). Command:
+`stryker run maintainers/mutation/stryker.local-mirror.config.mjs --mutate "local-mirror/src/lib/markdown.ts,local-mirror/src/domain/local-mirror.ts"`.
+
+**The first re-run measured 93.50 %, not 96.86 %** — the fixes had ADDED under-asserted code, and
+saying so is the point of keeping this file. `markdown.ts` fell to 95.45 % and `local-mirror.ts` to
+93.50 % (32 survivors, up from 17). Four hardening steps took it back, each mutant hand-applied on
+the full suite before and after:
+
+- **Two new messages asserted by fragments.** The move's refusal-under-lock (`/refresh|syncing/i`)
+  and the leftover-copy warning (`/could not be deleted|delete by hand/i`) each let every other
+  clause of themselves be blanked with the suite green — including the clause naming the cost and
+  the one saying what to do. Eleven mutants lived in those two sentences. Both now asserted whole,
+  the refusal as a whole-result `deepEqual` (§1/§2).
+- **A plural branch no fixture reached.** Only ever one leftover, so `['old copies', 'are']` and the
+  `join(', ')` separator were unreachable — with one path, a separator that joined nothing reads the
+  same. A two-leftover test (the realistic case: a vault that refuses one delete refuses the next)
+  kills both (§5).
+- **A double that could not tell a leaked lock from a returned one.** `FakeSyncLock.release()` was a
+  no-op and `acquire()` recorded nothing, so BOTH `finally { release }` blocks were untestable — on a
+  real brain a leaked lockfile blocks every refresh until the stale timeout, which is the very
+  "brain quietly stopped syncing" failure this release exists to end. The double now holds what it
+  takes (§8), and a move is followed by the refresh that proves the lock came back. Dropping the
+  move's release turns 3 tests red, the sync's 20 — both were green before.
+- **The rebuild's default-universe branch, fed at last.** `reuniverseLocalMirrorMarkdown` only ever
+  saw `undefined`, which js-yaml drops, so stamping-blank and stripping were indistinguishable. Fed a
+  blank name they diverge (§4) — the same reflex the sibling test already applied to the write path.
+
+**Scope of what is left.** All 15 survivors sit on pre-existing lines — the `setup_source` duplicate
+guard (115), the sync report's `status !== 'failed'` (153), the freshness arithmetic (349/368), the
+empty-batch verdict (655) and `maxLastEditedTime`'s `>` (665). **Not one is inside the move, the
+review fixes, or `markdown.ts`.**
+
+**Timeouts are counted as kills, and only partly verified.** The two identified in the pre-hardening
+run were genuine infinite loops (`if (name === 'all') return this.syncAll()` mutated to `true` makes
+`sync` recurse into itself forever), so they are real kills. The six in the final run were not
+individually enumerated — the clear-text reporter names survivors, not timeouts — so read that score
+as 96.86 % with six kills taken on trust rather than inspected.
+
+### v4.3.0, the harness side of the review fixes — 2026-07-28
+
+The four `scripts/**` files this branch touched, measured together in a **disposable worktree** (the
+recipe above — `inPlace` on the real tree once deleted the demo vault), against their own covering
+tests. **98.37 %** overall — `engine-commit.mjs` **100 %** (20/20), `startup-sync.mjs` **100 %**
+(35/35), `repo-status.mjs` **97.44 %** (76/78), `auto-commit.mjs` **98.04 %** (50/51). Narrowed for
+the usual reason: `stryker.scripts.config.mjs` still cannot dry-run (`engine-manifest-integrity.test.mjs`
+asks `git ls-files`), and narrowing can only make a score pessimistic.
+
+**Nothing to harden — all three survivors are equivalents**, two of them already accepted above
+(`pullOut ?? ""`, and `auto-commit`'s `if (isEntryPoint(…))` entry-point guard). The new one:
+
+- **`stripQuotes`: `path.startsWith('"')` → `path.endsWith('"')`.** Git's porcelain either quotes a
+  path at BOTH ends or at neither — a `"` anywhere in a name is itself a reason to quote — so no line
+  git can emit distinguishes the two. Killing it would take a fixture git never produces (an
+  unquoted path ending in `"`), which is exactly the invented-fixture trap this file warns about.

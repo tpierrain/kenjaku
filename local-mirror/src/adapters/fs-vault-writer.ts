@@ -3,7 +3,7 @@
 // Deletes are idempotent (a page already gone is not an error) so reconciliation can be
 // replayed safely (PRD §7).
 
-import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type { IVaultWriter } from '../domain/ports.js';
@@ -23,5 +23,11 @@ export class FsVaultWriter implements IVaultWriter {
 
   async delete(path: string): Promise<void> {
     await rm(join(this.vaultDir, path), { force: true });
+  }
+
+  /** Reads a note back verbatim. Unlike delete, a missing file THROWS: a move that cannot read
+   *  a page must fail loudly rather than rewrite it as empty. */
+  async read(path: string): Promise<string> {
+    return readFile(join(this.vaultDir, path), 'utf8');
   }
 }

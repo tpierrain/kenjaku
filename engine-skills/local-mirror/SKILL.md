@@ -1,7 +1,7 @@
 ---
 name: local-mirror
-description: "Declare and refresh a LOCAL MIRROR — a one-way local copy of a chosen zone of an internal tool (Notion today) replicated into this brain's vault as Markdown, so the LOCAL RAG can search and cite it OFFLINE. A mirror is a 'synchronized source' kept locally: copied once, then refreshed on demand. Use when the user wants to mirror / replicate / copy a Notion zone locally, declare / set up / connect a local mirror, refresh / sync / update one (e.g. 'mirror the Team A zone from Notion', 'refresh my product mirror', 'réplique cette zone Notion en local', 'mets en place un miroir local pour ce Notion', 'mets en place une synchronisation miroir avec ce Notion', 'fais que mon cerveau puisse chercher dans ce Notion'), check whether one is behind, list them, or remove one. DO NOT use this skill when the user simply wants to read, write, create, edit, fetch or SEARCH Notion content live and ad hoc — that is the job of the NATIVE Notion connector (a different tool); this skill is ONLY for mirroring a Notion zone locally for the RAG. When the intent is genuinely ambiguous (durable / offline / 'puisse chercher' → mirror; one-off / live / now → native connector), ask the balanced 2-option question first. The actual work runs in the local-mirror MCP server; this skill is the thin conversational driver."
-version: 1.1.0
+description: "Declare and refresh a LOCAL MIRROR — a one-way local copy of a chosen zone of an internal tool (Notion today) replicated into this brain's vault as Markdown, so the LOCAL RAG can search and cite it OFFLINE. A mirror is a 'synchronized source' kept locally: copied once, then refreshed on demand. Use when the user wants to mirror / replicate / copy a Notion zone locally, declare / set up / connect a local mirror, refresh / sync / update one (e.g. 'mirror the Team A zone from Notion', 'refresh my product mirror', 'réplique cette zone Notion en local', 'mets en place un miroir local pour ce Notion', 'mets en place une synchronisation miroir avec ce Notion', 'fais que mon cerveau puisse chercher dans ce Notion'), check whether one is behind, list them, remove one, or MOVE one into another universe (re-file / ranger un miroir dans un autre univers, e.g. 'move my product mirror into the acme universe', 'range ce miroir dans mon univers Acme'). DO NOT use this skill when the user simply wants to read, write, create, edit, fetch or SEARCH Notion content live and ad hoc — that is the job of the NATIVE Notion connector (a different tool); this skill is ONLY for mirroring a Notion zone locally for the RAG. When the intent is genuinely ambiguous (durable / offline / 'puisse chercher' → mirror; one-off / live / now → native connector), ask the balanced 2-option question first. The actual work runs in the local-mirror MCP server; this skill is the thin conversational driver."
+version: 1.2.0
 ---
 
 # /local-mirror — Mirror a live internal source into your vault (opt-in, safe)
@@ -66,6 +66,8 @@ Load this whenever the user wants to work with a local mirror, in any language:
 - *"is `<name>` up to date? / what's its status?"* — → `check_freshness` / `status`
 - *"list my local mirrors"* — → `list_sources`
 - *"remove / disconnect the `<name>` mirror"* — → `remove_source`
+- *"file / move the `<name>` mirror into my `<universe>` universe"* — → `move_source` (only ever
+  once a second universe exists; below that gate the notion does not exist for this user)
 
 > **Scope — local mirrors only; do NOT invent other "source types".** This skill mirrors a Notion
 > zone into the vault, full stop. When the user asks the **generic** *"I'd like to connect a source"*,
@@ -164,6 +166,11 @@ committed. The `setup_source` tool takes the **name of the env var**, not the to
      and let them pick. **Never invent a universe**, and never create one here (that is `/switch`'s
      job). This only ever happens on the FIRST setup of a mirror — a **refresh** (`sync`) is a
      one-liner and never asks again.
+   - **A mirror that already exists cannot change universe by being declared again** — that call
+     comes back refused, having pulled nothing. Relay the refusal as it stands: re-declaring would
+     land the whole corpus in the new folder and leave a stale, never-refreshed copy in the old one.
+     Re-filing an existing mirror is what **`move_source`** is for (see Maintenance tools): local,
+     no re-pull, nothing left behind. Never run it without an explicit yes.
 5. **Report** what came back — **from the structured `setup_source` result**, and if you want to
    double-check where things landed, **from the `status <name>` tool** (it returns config, watermark,
    item count and last-sync state). ⚠️ **Never verify the sync with a compound shell command**
@@ -245,6 +252,19 @@ The one-time wiring (so a **future** session exposes the tools as first-class):
 - **`list_sources`** — all declared mirrors and their state.
 - **`remove_source <name>`** — de-registers it from the config. Pass `cleanup: true` to also delete the
   synced `.md` files and the sidecar state (the notes leave the vault → the RAG de-indexes them).
+- **`move_source <name> <universe>`** — **re-files a mirror into another universe** (ADR 0034). The
+  pages already on disk are rewritten under the target universe and removed from the old folder:
+  **local, no re-pull, no token**, so it works even when the source is unreachable. Use it when a
+  mirror sits in the wrong scope — typically one declared **before** the owner had a second universe,
+  which therefore sits in the cross-cutting one and dilutes every other universe's results.
+  - **Never move on your own initiative**: the owner asks, or you offer and they accept. Say what it
+    costs first — the moved pages are **re-embedded** by the brain, which takes a moment on a big
+    mirror — and say where they will land (`<universe>/mirrors/<name>/`, or the vault root for the
+    cross-cutting choice).
+  - A universe that does not exist comes back **refused**, with the real ones listed. **Never create
+    one here** — that is `/switch`'s job.
+  - Below the disclosure gate (a single universe) there is nothing to move and the word must never
+    come up. Do not raise the subject.
 
 ## Local-first routing — answer NOW, verify freshness in the background (important)
 

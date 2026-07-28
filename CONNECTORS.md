@@ -51,9 +51,14 @@ citable notes** — *the central RAG you don't have yet, but local and right now
   scope, for a source everything should find), and only then mirrors, into
   `vault/<universe>/mirrors/<name>/`. It asks first because moving a mirror afterwards **re-encodes
   every page it holds**. With a single universe there is nothing to ask, and nothing changes.
-- **How:** the **`/local-mirror` skill** drives it (onboard, sync, check freshness, status, remove);
-  the work runs in the built-in **`local-mirror`** MCP server. The Notion integration **token
-  lives only in `.env`**, never in the chat.
+- **Filed in the wrong universe? Move it.** *"Move my product mirror into my Acme universe"* re-files
+  it **locally** — its pages, its config and its sync state travel together, nothing is re-downloaded
+  from Notion (it works even if the source is unreachable), and the next refresh rewrites nothing. You
+  pay the re-encode, and only that. Re-**declaring** the same mirror into another universe is
+  **refused** instead, loudly: it would leave the first copy behind, indexed and frozen forever.
+- **How:** the **`/local-mirror` skill** drives it (onboard, sync, check freshness, status, move,
+  remove); the work runs in the built-in **`local-mirror`** MCP server. The Notion integration
+  **token lives only in `.env`**, never in the chat.
 - **Stays fresh on its own.** While a brain window is open, the mirror server re-checks freshness on a
   timer and re-syncs only what fell behind — no question needed. Tune the cadence with
   **`LOCAL_MIRROR_SYNC_INTERVAL`** in `.env` (seconds, **default 300**; **`0` = off**, keeping only the

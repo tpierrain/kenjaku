@@ -41,13 +41,14 @@ Decided with Thomas 2026-07-18, extended 2026-07-19 (universes). When juggling p
 `1.0.0`, so no constitution re-layering is forced. Deferral stays safe because **nothing forces** the
 fleet's upgrade in the interim.
 
-> ⚠️ **Correction (2026-07-27).** This paragraph used to claim that `update-engine` "handles the
-> `indexSchemaVersion` 1 → 2 bump with a warning". It does **not**: the universes commit moved the engine
-> constant to `2` but **never bumped the manifest**, which still reads `1`, and that manifest pair is what
-> `reindex-trigger.mjs` compares. A stamped-`1` brain therefore meets the runtime stale-schema gate on its
-> **first search** after upgrading (fail-loud, self-healing, no corruption) instead of being warned up
-> front. Tracked in `prospective/engine-managed-file-merge-strategy.md` → §"Side-finding"; deliberately
-> NOT folded into Gate 2.5, since bumping the manifest is itself a fleet-wide reindex event.
+> ✅ **Closed (2026-07-28 · `a3943e9`).** For a while this paragraph's claim that `update-engine`
+> "handles the `indexSchemaVersion` 1 → 2 bump with a warning" was false: the universes commit moved the
+> engine constant to `2` but never bumped the manifest, and that manifest pair is what
+> `reindex-trigger.mjs` compares, so a stamped-`1` brain met the runtime stale-schema gate on its **first
+> search** after upgrading instead of being told up front. The manifest now declares `2`, and a structural
+> test fails if the two ever drift again. The bump was held back as "a fleet-wide reindex event": it is
+> not one — the runtime gate force-re-encodes a stamped-`1` index anyway, so this only moves the moment
+> from the first question to the update itself. Shipping in **v4.3.0**.
 
 **Pulled forward (2026-07-27):** Gate **2.5** (refresh untouched engine skills) jumped ahead of the
 migration. Rationale in its gate entry below; it is independent of Gate 3, so the order is reversible.

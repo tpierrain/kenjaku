@@ -33,6 +33,15 @@ export interface LocalMirrorFrontmatter {
   universe?: string;
 }
 
+/** The keys every produced note carries, and the ones a move rebuilds from (`universe` apart). */
+const REQUIRED_FRONTMATTER = [
+  'mirror',
+  'source_id',
+  'title',
+  'source_url',
+  'last_edited_time',
+] as const;
+
 /**
  * Assemble one note: produced body + mandatory citation frontmatter (PRD §6). When `universe`
  * is truthy it is stamped LAST (matching `stamp-universe.mjs`'s append-last convention, so the
@@ -52,7 +61,46 @@ export function toLocalMirrorMarkdown(
     last_edited_time: item.lastEditedTime,
   };
   if (universe) frontmatter.universe = universe;
-  return matter.stringify(body, frontmatter, YAML_ENGINE);
+  return renderNote(frontmatter, body);
+}
+
+/**
+ * The single write path: frontmatter block + body, appended verbatim.
+ *
+ * `{ content }`, never the bare string: handed a string, gray-matter PARSES it as a whole file,
+ * so a body opening with `---` (a Notion page whose first block is a divider) comes back as
+ * characters scattered into the frontmatter and an emptied note. The body is a payload to
+ * append, not a document to re-read.
+ */
+function renderNote(frontmatter: object, body: string): string {
+  return matter.stringify({ content: body }, frontmatter, YAML_ENGINE);
+}
+
+/**
+ * Re-file a produced note into another universe (ADR 0034): the note is REBUILT through
+ * `toLocalMirrorMarkdown`, so a moved note is byte-identical to the one a sync would write
+ * there — otherwise the next sync would see a hash mismatch and rewrite every page. Passing no
+ * universe (the cross-cutting scope) drops the key, which is what "default" means on disk.
+ */
+export function reuniverseLocalMirrorMarkdown(raw: string, universe?: string): string {
+  const { data, content } = parseLocalMirrorMarkdown(raw);
+  // A note stripped of its citation frontmatter cannot be rebuilt into a valid one — it would
+  // land in the new folder indexed and uncitable. Naming every missing key is what tells the
+  // owner which note to repair. Refusing here throws inside phase 1 of the move, which rolls the
+  // new copies back and leaves the old corpus untouched.
+  const missing = REQUIRED_FRONTMATTER.filter((key) => !data[key]);
+  if (missing.length > 0) {
+    throw new Error(
+      `this note is missing the local-mirror frontmatter a move rebuilds from: ${missing.join(', ')}`,
+    );
+  }
+  // Every key the note carries is kept, in place — a `tags:` the owner added, a key a later
+  // engine version stamps. Rebuilding from the five fields this module knows would DELETE the
+  // rest, and a move only re-files a note. `universe` alone is re-stamped, last.
+  const { universe: _previous, ...kept } = data;
+  const frontmatter: Record<string, unknown> = { ...kept };
+  if (universe) frontmatter.universe = universe;
+  return renderNote(frontmatter, content);
 }
 
 /** Read back a local-mirror note (frontmatter + body) using the same js-yaml-4 engine. */
