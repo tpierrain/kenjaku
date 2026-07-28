@@ -56,6 +56,10 @@ export async function runCatchUpCampaign(deps: CampaignDeps): Promise<void> {
   if (decision.notify) deps.notify(decision.total);
 
   if (!deps.persist) return;
+  // Report the ACTION, not a verdict on git we never read back: the scripts are
+  // separate processes that exit 0 by the hook convention, so "they ran" is the
+  // whole of what completing them proves. See `PersistResult`.
   const persisted = await persistCampaign(result, deps.persist);
-  if (persisted !== "skipped") deps.trace(`💾 vault persistence: ${persisted}`);
+  if (persisted === "ran") deps.trace("💾 vault persistence: commit + push ran");
+  if (persisted === "failed") deps.trace("💾 vault persistence: failed to run");
 }

@@ -93,8 +93,17 @@ export function buildScriptRunner({
   };
 }
 
-/** What a persistence attempt did, so the watcher can trace it truthfully. */
-export type PersistResult = "persisted" | "skipped" | "failed";
+/**
+ * What a persistence attempt did, so the watcher can trace it truthfully.
+ *
+ * `"ran"` is deliberately weaker than "persisted". Both scripts are separate
+ * processes: their stdout is discarded (it must never reach the MCP stdio channel)
+ * and both exit 0 by the hook convention, `auto-push.mjs` explicitly so. Completing
+ * them therefore proves they RAN, and nothing more — a `.git/index.lock` contention
+ * with the PostToolUse hook commits nothing and still exits 0. `"failed"` means the
+ * child could not even be spawned or was killed on {@link PERSIST_TIMEOUT_MS}.
+ */
+export type PersistResult = "ran" | "skipped" | "failed";
 
 /**
  * Persists the vault when a campaign changed something: commit, then push. Reuses
@@ -108,7 +117,7 @@ export async function persistCampaign(
   if (!shouldPersistCampaign(outcome)) return "skipped";
   try {
     for (const script of PERSIST_SCRIPTS) await runScript(script);
-    return "persisted";
+    return "ran";
   } catch {
     // Best-effort, like every other persistence path: the watcher must survive a
     // missing git, a locked index or a hook that exits non-zero. The next campaign

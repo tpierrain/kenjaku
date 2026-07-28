@@ -37,7 +37,9 @@ test("a campaign that changed something commits, THEN pushes", async () => {
   );
   // The whole sequence, in order: the push is worthless before the commit.
   assert.deepEqual(ran, ["auto-commit.mjs", "auto-push.mjs"]);
-  assert.equal(outcome, "persisted");
+  // "ran", not "persisted": both scripts exit 0 by the hook convention and their
+  // output is discarded, so completing them is evidence they ran and of nothing more.
+  assert.equal(outcome, "ran");
 });
 
 test("a campaign that changed NOTHING runs no script at all", async () => {

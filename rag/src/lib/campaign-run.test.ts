@@ -73,12 +73,18 @@ test("the launcher's own vault is never committed", async () => {
   assert.equal(rec.traced.length, 2);
 });
 
-test("the campaign traces the persistence it performed, after the indexing line", async () => {
+test("the campaign traces what it RAN, not an outcome it never checked", async () => {
+  // The scripts are separate processes whose stdout we discard, and both exit 0 by
+  // design (the hook convention). So completing them proves they ran — it does NOT
+  // prove git committed anything: an `.git/index.lock` contention with the
+  // PostToolUse hook commits nothing and still exits 0. Saying "persisted" there was
+  // the trace asserting a fact it had no way to know, in a repo whose rule is not to
+  // pretend. It now reports the action, which is exactly what it observed.
   const rec = await runWith(campaign({ scanned: 1, indexed: 1, errors: ["boom"] }));
   assert.deepEqual(rec.traced, [
     "⚙️  catch-up triggered (debounce elapsed) — indexing in progress…",
     "✅ catch-up done: 1 indexed, 0 unchanged, 1 errors",
-    "💾 vault persistence: persisted",
+    "💾 vault persistence: commit + push ran",
   ]);
 });
 

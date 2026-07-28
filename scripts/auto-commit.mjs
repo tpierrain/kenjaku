@@ -36,9 +36,14 @@ export const COMMIT_MESSAGE = "auto: vault/claude sync";
 
 // Commit-only vault persistence: if the tree is dirty, stage everything and
 // commit (never pushes — the Stop hook does that once per turn). Returns
-// "committed" | "clean" | "conflicted". `git` is the injected runner. NEVER throws
-// for a clean tree; a failing git runner is best-effort (the local commit is the
-// safety net).
+// "committed" | "clean" | "conflicted" | "failed". `git` is the injected runner.
+// NEVER throws: `buildGit` maps a git that blew up to `{ok: false}`, and this reads
+// it rather than assuming success. Best-effort still, but it says which.
+//
+// "committed" is a CLAIM, so it is only made when git accepted both halves. It used
+// to be returned unconditionally, which turned an `.git/index.lock` contention with
+// the PostToolUse hook into a silent non-commit reported as a success — the one
+// failure mode a second brain must never paper over.
 //
 // "conflicted" is the one case where persistence steps aside: this hook fires on
 // every write, conflict-resolution writes included, and `add .` on an unmerged tree
@@ -48,8 +53,8 @@ export const COMMIT_MESSAGE = "auto: vault/claude sync";
 export function attemptCommit({ git }) {
   const state = treeState(git(["status", "--porcelain"]).out);
   if (state !== "dirty") return state;
-  git(["add", "."]);
-  git(["commit", "-m", COMMIT_MESSAGE]);
+  if (!git(["add", "."]).ok) return "failed";
+  if (!git(["commit", "-m", COMMIT_MESSAGE]).ok) return "failed";
   return "committed";
 }
 
