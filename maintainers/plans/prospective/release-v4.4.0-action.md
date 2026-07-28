@@ -18,6 +18,11 @@
 
 ## ▶️ START HERE
 
+**The next track to CODE is Track 5** _(as of 2026-07-28 · `fbec194`)_. Tracks 1 and 4 stay unticked in
+`## Tracking` for what they still owe, and **neither is code**: Track 1's release-note copy and Track 4's
+irony line are both due at **Track 9**, and Track 1's remaining check needs an **installed brain**, which
+the launcher deliberately is not. So resume at Track 5 — do not reopen Track 1's implementation.
+
 The QA is **closed**. Do not re-run it, do not re-read `mind-palace`, do not re-investigate any entry:
 each one in the field log states observation → root cause → fix, and **every one was verified on disk**.
 The two decisions that were pending are **answered** (below). Resume at the first unticked box in
