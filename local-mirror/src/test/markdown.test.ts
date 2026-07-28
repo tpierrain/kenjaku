@@ -105,11 +105,6 @@ test('a move preserves a frontmatter key the engine does not know', () => {
   assert.equal(content.trim(), 'body');
 });
 
-// A note that lost its citation frontmatter cannot be rebuilt into a valid one: the move used to
-// write `source_url: undefined` (a dead citation) and, since the rebuild now keeps what it finds,
-// would write a note with no URL at all. Either way the page lands indexed and uncitable. Refusing
-// throws inside phase 1 of the move, which already rolls the new copies back and leaves the old
-// corpus untouched.
 // The twin of the blank-universe case above, on the REBUILD path: a mirror moved to the
 // cross-cutting scope must come back with no `universe:` key at all, since the absence of the key
 // IS the default scope on disk. Stamped blank instead, the note would claim a universe named ""
@@ -128,6 +123,11 @@ test('a move to a blank universe strips the key rather than stamping an empty on
   ]);
 });
 
+// A note that lost its citation frontmatter cannot be rebuilt into a valid one: the move used to
+// write `source_url: undefined` (a dead citation) and, since the rebuild now keeps what it finds,
+// would write a note with no URL at all. Either way the page lands indexed and uncitable. Refusing
+// throws inside phase 1 of the move, which already rolls the new copies back and leaves the old
+// corpus untouched.
 test('a note whose citation frontmatter is missing is refused, not rebuilt broken', () => {
   const noUrl = aNoteCarrying('tags: [invoices]').replace(
     'source_url: https://www.notion.so/acme/Page-0123abc\n',

@@ -16,7 +16,7 @@
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
 | **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The two files touched on [2026-07-28](#pr-50-startup-pull--engine-commit--2026-07-28) were measured the same way: `engine-commit.mjs` **100 %**, `repo-status.mjs` **97.73 %** |
-| **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging |
+| **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
 its tag-time snapshot; the B4 + optional-weak-tier gains below land in `main` after v3.4.2).
@@ -615,3 +615,45 @@ The run itself found the gaps — this is what it bought, and each is a pattern 
 - **The "moved onto the universe it already lives in" no-op** was written as a guard and proven by a
   hand-applied mutant (delete unconditionally) before being trusted — the case where phase 2 would
   delete the very file phase 1 had just written.
+
+### v4.3.0, after the review fixes — 2026-07-28
+
+Re-measured once the eight `/code-review` findings were fixed, over the same two files.
+**`lib/markdown.ts` 100 %** (22/22) · **`domain/local-mirror.ts` 96.86 %** (456 killed, 15 survived,
+6 timeouts). Command:
+`stryker run maintainers/mutation/stryker.local-mirror.config.mjs --mutate "local-mirror/src/lib/markdown.ts,local-mirror/src/domain/local-mirror.ts"`.
+
+**The first re-run measured 93.50 %, not 96.86 %** — the fixes had ADDED under-asserted code, and
+saying so is the point of keeping this file. `markdown.ts` fell to 95.45 % and `local-mirror.ts` to
+93.50 % (32 survivors, up from 17). Four hardening steps took it back, each mutant hand-applied on
+the full suite before and after:
+
+- **Two new messages asserted by fragments.** The move's refusal-under-lock (`/refresh|syncing/i`)
+  and the leftover-copy warning (`/could not be deleted|delete by hand/i`) each let every other
+  clause of themselves be blanked with the suite green — including the clause naming the cost and
+  the one saying what to do. Eleven mutants lived in those two sentences. Both now asserted whole,
+  the refusal as a whole-result `deepEqual` (§1/§2).
+- **A plural branch no fixture reached.** Only ever one leftover, so `['old copies', 'are']` and the
+  `join(', ')` separator were unreachable — with one path, a separator that joined nothing reads the
+  same. A two-leftover test (the realistic case: a vault that refuses one delete refuses the next)
+  kills both (§5).
+- **A double that could not tell a leaked lock from a returned one.** `FakeSyncLock.release()` was a
+  no-op and `acquire()` recorded nothing, so BOTH `finally { release }` blocks were untestable — on a
+  real brain a leaked lockfile blocks every refresh until the stale timeout, which is the very
+  "brain quietly stopped syncing" failure this release exists to end. The double now holds what it
+  takes (§8), and a move is followed by the refresh that proves the lock came back. Dropping the
+  move's release turns 3 tests red, the sync's 20 — both were green before.
+- **The rebuild's default-universe branch, fed at last.** `reuniverseLocalMirrorMarkdown` only ever
+  saw `undefined`, which js-yaml drops, so stamping-blank and stripping were indistinguishable. Fed a
+  blank name they diverge (§4) — the same reflex the sibling test already applied to the write path.
+
+**Scope of what is left.** All 15 survivors sit on pre-existing lines — the `setup_source` duplicate
+guard (115), the sync report's `status !== 'failed'` (153), the freshness arithmetic (349/368), the
+empty-batch verdict (655) and `maxLastEditedTime`'s `>` (665). **Not one is inside the move, the
+review fixes, or `markdown.ts`.**
+
+**Timeouts are counted as kills, and only partly verified.** The two identified in the pre-hardening
+run were genuine infinite loops (`if (name === 'all') return this.syncAll()` mutated to `true` makes
+`sync` recurse into itself forever), so they are real kills. The six in the final run were not
+individually enumerated — the clear-text reporter names survivors, not timeouts — so read that score
+as 96.86 % with six kills taken on trust rather than inspected.
