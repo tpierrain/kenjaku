@@ -594,6 +594,17 @@ the defect itself**:
         (`CLAUDE.md` is `SACRED_FILES`, cf. the constraint at the top of this file).
   - [ ] **It would hide the defect from the very QA that found it.** A brain that self-heals in the
         chat stops producing the evidence, and F9 becomes unobservable rather than fixed.
+- [x] **And the offer was ACCEPTED, within one exchange** _(2026-07-28, observed live)_. Not a lapse
+      on the owner's part, **the finding itself**: the product made "yes" cheaper than the diagnosis.
+      An offer phrased as *"tu veux que je le fasse systématiquement ?"* costs one word to accept and a
+      paragraph to refuse, so **this is the default outcome in the field, not the exception**. Caught
+      here only because a second pair of eyes was reading the same screen; on any other machine the
+      plaster lands, the defect stops being observable, and nobody ever files F9. Checked immediately
+      after: **nothing durable was written** (clean tree, `CLAUDE.md` untouched since `e4f44b6`), so the
+      habit died with the session. It was one commit away from being permanent, in a `sacred` file.
+  - [ ] Consequence for the fix: an engine defect must **not** be offered as a behaviour the owner can
+        opt into. If the brain notices this class of gap at all, the right move is to **name it as a
+        known engine limitation** ("this is fixed in the next version"), never to volunteer to carry it.
 - [ ] **But keep the good half.** The instinct is right, only the layer is wrong: what the brain is
       reaching for is exactly `repo-status.mjs:107` (alerting when vault notes survive the sweep).
       **P1 makes the plaster unnecessary**; the release note should be able to say the owner no longer
