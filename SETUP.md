@@ -165,6 +165,12 @@ node installer.mjs --non-interactive --name "second-brain" --owner "Jane Doe" --
   (the `Stop` hook), pushing all the turn's commits in one go — instead of a network push per edit.
   A failed push is non-blocking: your commits stay local and the **next turn catches up**. For
   syncing changes made on *another* machine mid-session, use the `/sync` skill.
+- **An engine update commits its own files too.** `/update-engine` rewrites versioned engine files,
+  which are not edits Claude made — so no `Write|Edit` hook fires for them. The update therefore
+  commits them itself, at the end of its run: you will see one `engine: update to <version>` commit
+  appear in your history. It is **local only** (push stays opt-in, as above). Without it those files
+  would sit uncommitted, and the startup `git pull --rebase` refuses to run on a dirty repo — your
+  brain would quietly stop syncing between machines.
 - **Remote repo: decided afterwards, never imposed.** The install creates no remote. You can wire
   one up whenever you want (see §7) — remembering to enable `secondbrain.autopush`. In assisted
   startup, Claude will **offer** to create one (backup + multi-machine) — answering no is risk-free.
