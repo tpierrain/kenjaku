@@ -85,10 +85,13 @@ plan's own strategy is "migrate early, explore later"). A soft default scope pre
   Bucket-1 note-convention change is small enough to land before the import rather than blocking it.
 - **A cross-universe union requires a shared embedder** (comparable vectors). Because there is one index
   here, union "just works"; the constraint only bites if isolation is ever revisited (ADR 0007).
-- **Schema bump.** Adding the column moves `INDEX_SCHEMA_VERSION` to 2. A freshly generated brain is
-  born at 2 (free). Deployed brains reindex once on their next engine upgrade: this **retires the
-  "v3.2.x -> current triggers no reindex" simplification** the fleet ROADMAP leaned on; `update-engine`
-  handles it with a warning, and it is a one-shot. This is a Gate-4 (fleet) concern, not a blocker here.
+- **Schema bump.** Adding the column moves `INDEX_SCHEMA_VERSION` to 2, and the engine manifest
+  declares the same number so an upgrade knows what it owes (a structural test fails if the two ever
+  drift). A freshly generated brain is born at 2 (free). Deployed brains reindex once on their next
+  engine upgrade, announced by `update-engine` before it runs: this **retires the "v3.2.x -> current
+  triggers no reindex" simplification** the fleet ROADMAP leaned on, and it is a one-shot. The runtime
+  keeps its own gate underneath (a search on a stale index refuses rather than answers from a format
+  it no longer writes), so an index that reaches the new engine by any other route still self-heals. This is a Gate-4 (fleet) concern, not a blocker here.
 - **Type detection must ignore a leading universe segment** (folder-to-type keyed on `daily/` etc. now
   sees `inqom/daily/...`).
 - **Multi-window concurrency is deferred.** A single global active-universe state file means two Desktop

@@ -84,21 +84,26 @@
 
 ## Track A — an upgrade that warns about the reindex it owes
 
-- [ ] **An engine update announces the reindex a schema bump forces**, instead of letting the
-      first search discover it
-  - [ ] The decision that was left open (`prospective/engine-managed-file-merge-strategy.md`
+- [x] **An engine update announces the reindex a schema bump forces**, instead of letting the
+      first search discover it _(2026-07-28 · `a3943e9`)_
+  - [x] The decision that was left open (`prospective/engine-managed-file-merge-strategy.md`
         §Side-finding) is settled here: **bump the manifest**. The argument that settles it is that
         bumping **adds no reindex** — a stamped-`1` brain is force-reindexed either way by the
         runtime gate (`index.ts:90` → `reindexForce`). It only moves the moment from "at the first
         question, as a refusal to answer" to "during the update, announced". Same cost, honest.
-  - [ ] Failing test first: an integrity test that reads `engine-manifest.json` and the RAG's
+  - [x] Failing test first: an integrity test that reads `engine-manifest.json` and the RAG's
         `INDEX_SCHEMA_VERSION` and **fails when they diverge** — the guard whose absence let this
-        drift for a whole release.
-  - [ ] Then bump `engine-manifest.json` to `"indexSchemaVersion": 2`.
-  - [ ] Align the prose that claimed this already worked: ADR 0034 §Consequences, the ROADMAP
-        correction paragraph, and tick the §Side-finding decision box in
+        drift for a whole release. Seen red for the right reason (`1 !== 2`), then green.
+  - [x] Then bump `engine-manifest.json` to `"indexSchemaVersion": 2`. **No new code**: the honest
+        line (`update-engine.mjs:95-99`, *"reindexed — the index format changed"*) was already
+        written and tested; it simply never fired while the two manifests agreed.
+  - [x] Align the prose that claimed this already worked: ADR 0034 §Consequences, the ROADMAP
+        correction paragraph (now ✅ Closed), and the §Side-finding decision box in
         `prospective/engine-managed-file-merge-strategy.md`.
-  - [ ] Mutation-check the touched harness files (CONVENTIONS §5ter).
+  - [x] Mutation-check: **nothing to measure** — the change is one manifest value plus one test;
+        no production branch was added. Recorded rather than run, per CONVENTIONS §5ter's rule
+        that a hardening claim names what was measured.
+  - [x] Harness suite green: 982 pass / 0 fail / 1 skipped (Windows-only).
 
 ## Track B — a mirror re-declaration cannot silently duplicate a corpus
 

@@ -650,9 +650,13 @@ Independent of the above, found while auditing the fleet path. **Do NOT fix it i
   re-encode restamps correctly. An index predating schema versioning (stamp `null`) is grandfathered.
   The SQLite side is clean too: `applySchema` adds `documents.universe` out of band with
   `NOT NULL DEFAULT 'default'`, so an old index never errors.
-- [ ] Decide: bump the manifest to `2` (proactive, one fleet-wide reindex, honest warning up front) vs
-      leave the runtime gate to handle it (status quo, surprise at first search). Then align ADR 0034's
-      Consequences and the ROADMAP invariant with whatever is true.
+- [x] **Decided and shipped: bump the manifest to `2`** _(2026-07-28 · `a3943e9`, release v4.3.0)_.
+      What settled it: bumping is **not** a fleet-wide reindex event, which is why it was held back.
+      A stamped-`1` index is force-re-encoded by the runtime gate anyway (`index.ts:90` →
+      `reindexForce`), so the bump adds no work — it only moves the moment from "the first question,
+      answered by a refusal" to "the update, announced". ADR 0034's Consequences and the ROADMAP
+      paragraph are aligned, and a structural test in `engine-manifest-integrity.test.mjs` now fails
+      if the manifest and `INDEX_SCHEMA_VERSION` ever drift apart again.
 
 ## Next steps (post-demo)
 
