@@ -1,7 +1,10 @@
 # Release v4.3.0 — a brain that stopped syncing, an upgrade that warns, and a mirror that can move
 
-- **STATUS:** 🚧 IN PROGRESS — all four tracks are green locally; what remains is the
-  `/code-review` Thomas asked for, then the merge and the tag.
+- **STATUS:** ✅ SHIPPED as **v4.3.0 — The One Where the Update Cleans Up After Itself**
+  (2026-07-28). PR #50 merged (`c8b0d29`), tag `v4.3.0` published as latest. CI 7/7 on the tag
+  (Node 22/24/26 × macOS + Windows, plus the Windows installer e2e). The `/code-review` Thomas
+  asked for ran before the merge: 8 findings, all 8 fixed on the branch, mutation re-measured
+  afterwards (`markdown.ts` 100 %, `local-mirror.ts` 96.86 %, the four harness files 98.37 %).
 - **Scope:** Second brain (runtime) — startup sync, engine update persistence, index-schema
   honesty, and a mirror's universe placement.
 - **Branch:** `fix/pull-failure-says-why` · **PR:** <https://github.com/tpierrain/kenjaku/pull/50>
@@ -16,7 +19,7 @@
 - [x] **Track A — an upgrade that warns about the reindex it owes** (§Track A) _(`a3943e9`)_
 - [x] **Track B — a mirror re-declaration cannot silently duplicate a corpus** (§Track B) _(`5259851`)_
 - [x] **Track C — a mirror can be MOVED to another universe** (§Track C) _(`9acc21f` → `3ca3c31`)_
-- [ ] **Cut the release** (§Cutting the release)
+- [x] **Cut the release** (§Cutting the release) _(2026-07-28 · `c8b0d29` → `v4.3.0`)_
 
 ## Track 1 — the startup sync fix (shipped into the branch)
 
@@ -235,12 +238,12 @@
   - [x] **PR #50's body now carries the review fixes** _(2026-07-28)_: a "What the code review found"
         section naming the three content-losing ones, and a Tests block quoting the post-fix mutation
         figures instead of the pre-review ones.
-- [ ] merge the PR into `main` once tracks A, B and C are green (PR #50 grows to carry them, or
-      each track lands as its own PR onto the same branch — decide when A is done)
-  - [ ] tag + publish `v4.3.0`, title in the house style (`v4.3.0 — The One Where …`);
-        draft titles on the table: *The One Where the Update Cleans Up After Itself*,
-        *The One Where a Mirror Moves House*
-  - [ ] the release note carries the mutation snapshot pinned to the tag
+- [x] merged the PR into `main` _(2026-07-28 · `c8b0d29`)_ — the four tracks landed on one branch,
+      which is what let the review see them together
+  - [x] tagged + published **`v4.3.0 — The One Where the Update Cleans Up After Itself`**
+        _(2026-07-28)_ — Thomas picked the title from the drafts on the table
+        (<https://github.com/tpierrain/kenjaku/releases/tag/v4.3.0>)
+  - [x] the release note carries the mutation snapshot pinned to the tag
         (CONVENTIONS §5ter), all re-measured AFTER the review fixes: `engine-commit.mjs` **100 %**,
         `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %**,
         `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**
@@ -269,15 +272,17 @@
           **No re-render.**
   - [x] **PR #50's title and body rewritten to the v4.3.0 scope** _(2026-07-28)_: they described
         track 1 only, so the PR was advertising a patch while carrying a minor.
-- [ ] **Unblock Thomas's own brain** (`~/mind-palace`) — he asked for nothing to be touched
-      while this was in flight
+- [ ] **Unblock Thomas's own brain** (`~/mind-palace`) — **handed to him** (2026-07-28): asked at
+      the release, he chose to run it himself rather than have it touched from here
   - [ ] its 3 engine files from the 2026-07-25 update are still uncommitted, so every
-        startup pull has failed since; one `git add -A && git commit` clears it
+        startup pull has failed since; one `git add -A && git commit` clears it. **From v4.3.0 on
+        this repairs itself**: the SessionStart sweep commits them at the first restart after the
+        update, so this box closes by itself the moment that brain takes this version.
   - [x] ✅ the caveat that used to sit here is **gone**: step 9 alone did not self-apply on the
         update that installs it (the running process is the OLD `update-engine.mjs`), which is
         precisely why the sweep moved into the SessionStart hook. Now the **first restart after
         the update** commits those files by itself — no hand-commit needed on any brain.
-- [ ] **Archive this plan** on ship (CONVENTIONS §7) + drop the memory pointer
+- [x] **Archived on ship** (CONVENTIONS §7) + memory pointer dropped _(2026-07-28)_
 
 ## Follow-up found on the way (not this release)
 

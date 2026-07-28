@@ -154,10 +154,6 @@
       PRD [`prd-golden-source-sync.md`](plans/prd-golden-source-sync.md)). Self-contained
       steps with a Tracking table to drive it session by session (a `/clear` between each). **STATUS:
       🚧 ACTIVE — not started.**
-    - [`release-v4.2.1-action.md`](plans/release-v4.2.1-action.md) — **🗺️ action plan** for the
-      **v4.2.1** release: the startup banner now says why a pull failed, and an engine update commits
-      what it wrote so a brain never silently stops syncing (ADR 0011, amended). Code is done and CI
-      is green on PR #50; what remains is cutting the tag. **STATUS: 🚧 IN PROGRESS.**
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).
@@ -191,6 +187,13 @@
       Thomas's go/no-go + answers to the open questions** (default freshness window, concurrency lock,
       who commits the background-written notes). No code started.
   - **`plans/archived/`** — shipped/closed plans (kept for the detail of the steps):
+    - [`release-v4.3.0-action.md`](plans/archived/release-v4.3.0-action.md) — **v4.3.0**: a brain
+      that stopped syncing (the startup banner says why a pull failed; an engine update commits what
+      it wrote; a SessionStart sweep picks up Obsidian edits — ADR 0011, amended), an upgrade that
+      warns about the reindex it owes, a mirror re-declaration that cannot silently duplicate a
+      corpus, and a mirror that can **move** to another universe (ADR 0034, amended). Carries the
+      `/code-review` work list: 8 findings, all fixed, mutation re-measured after.
+      **STATUS: ✅ SHIPPED (2026-07-28, PR #50 → `v4.3.0`).**
     - [`debounce-auto-push.md`](plans/archived/debounce-auto-push.md) — **debounce the auto-push**: keep
       per-edit local commits, but move `git push` out of the per-edit hook to a **`Stop` hook**
       (push once per turn) to avoid micro-pushes / rate-limiting. Indexing already debounced +
