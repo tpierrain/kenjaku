@@ -154,6 +154,31 @@ test('a move that fails partway leaves the mirror exactly as it was', async () =
   assert.equal('universe' in declared, false, 'and the mirror still belongs where it did');
 });
 
+// The two guards above, combined: a move onto the CURRENT universe that fails partway. The new
+// path IS the old path there, so the copies "already written" are the originals — and a rollback
+// that deletes them destroys the corpus it was protecting. Worse, the sidecar still holds a
+// matching hash, so the next sync reports those pages `unchanged` and never writes them back: the
+// notes are gone from the vault and from the RAG, permanently, on a call that changed nothing.
+test('a failed no-op move deletes nothing: the rollback must not shred the pages it just rewrote', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror({ universe: 'acme' }))
+    .withNotionPages(aNotionPage({ id: 'page-1' }), aNotionPage({ id: 'page-2' }));
+  const gss = harness.build();
+  await gss.sync('team-a');
+  harness.withFailingWriteOf('acme/mirrors/team-a/page-2.md');
+
+  const result = await gss.moveSource('team-a', 'acme');
+
+  assert.equal(result.ok, false);
+  assert.deepEqual(harness.deletedVaultFiles(), [], 'not one page was deleted');
+  assert.deepEqual(
+    [...harness.vaultFiles().keys()].sort(),
+    ['acme/mirrors/team-a/page-1.md', 'acme/mirrors/team-a/page-2.md'],
+    'both pages are still there, where they always were',
+  );
+});
+
 // A name that matches no mirror is a typo or a mirror already removed. Silently succeeding would
 // let an owner believe a corpus was re-filed when nothing exists to re-file.
 test('moving a mirror that was never declared is refused, and the real ones are named', async () => {

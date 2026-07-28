@@ -475,21 +475,25 @@ export class LocalMirror implements ILocalMirror {
     // outcome there is (pages under two universes, a config agreeing with neither, repairable only
     // by hand), so a failure here rolls the new copies back and leaves the old corpus untouched.
     const relocated: Record<string, PersistedItem> = {};
-    const landed: string[] = [];
+    const newCopies: string[] = [];
     for (const [id, item] of items) {
       const vaultPath = vaultPathFor(moved, id);
       try {
         const raw = await this.deps.vaultWriter.read(item.vaultPath);
         const markdown = reuniverseLocalMirrorMarkdown(raw, moved.universe);
         await this.deps.vaultWriter.write(vaultPath, markdown);
-        landed.push(vaultPath);
+        // Only a copy that did NOT exist before is the rollback's to remove. On a move onto
+        // the universe the mirror already lives in, the "new" path IS the old one: deleting it
+        // would destroy the page instead of undoing anything — and the sidecar's matching hash
+        // would then report it `unchanged` forever, so no later sync would bring it back.
+        if (vaultPath !== item.vaultPath) newCopies.push(vaultPath);
         // The sidecar is the reconciliation map: a tracked path left pointing at the old folder
         // would make a later cleanup delete nothing and orphan the moved corpus. The hash follows
         // too — the universe key is part of the produced markdown, so a stale hash would make the
         // very next sync rewrite every page for nothing.
         relocated[id] = { ...item, vaultPath, contentHash: contentHash(markdown) };
       } catch (error) {
-        return this.rollbackMove(name, landed, items, error);
+        return this.rollbackMove(name, newCopies, items, error);
       }
     }
 
@@ -522,11 +526,11 @@ export class LocalMirror implements ILocalMirror {
    */
   private async rollbackMove(
     name: string,
-    landed: readonly string[],
+    newCopies: readonly string[],
     items: readonly (readonly [string, PersistedItem])[],
     error: unknown,
   ): Promise<MoveResult> {
-    for (const vaultPath of landed) {
+    for (const vaultPath of newCopies) {
       try {
         await this.deps.vaultWriter.delete(vaultPath);
       } catch {
