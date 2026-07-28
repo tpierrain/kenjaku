@@ -166,9 +166,31 @@
   - [ ] the release note carries the mutation snapshot pinned to the tag
         (CONVENTIONS §5ter): `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**,
         `repo-status.mjs` **98.21 %**, plus whatever tracks A/B/C touch
-  - [ ] **the marketing-surface pass must be re-done** (CONVENTIONS §10): it was recorded as done
-        for the patch scope, but tracks A and C change what an upgrade and a mirror promise —
-        re-read before tagging
+  - [x] **the marketing-surface pass re-done for the minor scope** (CONVENTIONS §10) _(2026-07-28)_.
+        It had been recorded as done for the patch scope; tracks A and C changed what an upgrade and
+        a mirror promise, so the whole surface was re-read. Verdict, boring parts included:
+    - [x] **Made imprecise → fixed.** `CONNECTORS.md` and `SETUP.md §(d)` both explained the
+          ask-first-about-the-universe rule with *"moving a mirror afterwards re-encodes every page"*
+          — which read as *there is no way back*. There is one now: both gained the **move** (local,
+          no re-download, next refresh rewrites nothing, the re-encode is the whole cost) and the
+          fact that re-**declaring** into another universe is **refused**, not silently duplicated.
+          The `/local-mirror` verb list gained `move`.
+    - [x] **Made truer → said.** `README` sold *"every change auto-committed the instant it's
+          written"*, which was a half-truth for notes typed in Obsidian outside the brain (the very
+          gap ADR 0011 had accepted). The SessionStart sweep closes it, so the sentence now says it:
+          *"…and whatever you typed straight into Obsidian is swept in at its next start."*
+    - [x] **Re-read, still true, nothing to change:** `EN-QUOI §"never a silent reindex"` (about the
+          embedder swap — track A extends the same honesty to a schema bump, it does not contradict
+          it) · `README` *"an upgrade touches only the engine machinery, never your notes"* and
+          SETUP §10 *"Sacred by construction"* (a reindex re-embeds, and step 9 commits — neither
+          writes a note) · SETUP §10 step 6 *"reindexes only if `indexSchemaVersion` changed"*, which
+          track A finally makes operative rather than theoretical.
+    - [x] **Boards re-read through their alt texts and their source prompts** — the only mirror copy
+          is the skills board's tile (*"mirror a Notion zone locally, searchable offline"*), still
+          exactly true; no board asserts anything about a mirror's universe or an update's reindex.
+          **No re-render.**
+  - [x] **PR #50's title and body rewritten to the v4.3.0 scope** _(2026-07-28)_: they described
+        track 1 only, so the PR was advertising a patch while carrying a minor.
 - [ ] **Unblock Thomas's own brain** (`~/mind-palace`) — he asked for nothing to be touched
       while this was in flight
   - [ ] its 3 engine files from the 2026-07-25 update are still uncommitted, so every

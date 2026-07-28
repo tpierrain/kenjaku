@@ -428,6 +428,13 @@ belongs to (the one you are working in is proposed, and a cross-cutting mirror i
 pulls nothing until you answer — its pages then live in `vault/<universe>/mirrors/<name>/`. Getting
 that right afterwards would re-encode the whole mirror, which is why it asks before, not after.
 
+**Filed in the wrong universe anyway? Move it** — *"move my product mirror into my Acme universe"*.
+The mirror is re-filed **locally**: its pages, its config and its sync state travel together, nothing
+is re-downloaded from Notion (it works even with the source unreachable), and the next refresh
+rewrites nothing. The re-encode is the whole cost, and your brain says so before doing it. Note that
+re-**declaring** the same mirror into another universe is **refused** rather than performed: it would
+write a second copy while leaving the first one on disk, indexed and frozen. The move is the route.
+
 Once a mirror is declared, it also **refreshes itself in the background** while a brain window is open:
 the `local-mirror` server checks freshness on a timer and re-syncs only the mirrors that fell behind, no
 question needed. The cadence is set by **`LOCAL_MIRROR_SYNC_INTERVAL`** in `.env` (seconds, **default 300**
