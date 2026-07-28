@@ -771,11 +771,28 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       `maintainers/mutation/RESULTS.md` and carried in the release note. Baseline at v4.3.0:
       scripts **97.27 %**, local-mirror **90.44 %**, rag **90.42 %**.
       **Scope decided on the diff** (`main...HEAD`), the usual targeted run, not a full re-audit:
-  - [ ] **rag** — the 10 changed `rag/src/lib/**` prod files: `campaign-persist`, `campaign-run`,
+  - [x] **rag** — the 10 changed `rag/src/lib/**` prod files: `campaign-persist`, `campaign-run`,
         `config`, `engine-version`, `frontmatter-parser`, `index-manager`, `persistence-scheduler`,
         `progress-report`, `reindex-reporter`, `vault-watcher`. Command: the `stryker.rag.config.mjs`
         run narrowed with `--mutate "<the 10 paths>"`.
-  - [ ] **scripts** — the 13 changed `scripts/**` prod files, in a **disposable worktree**
+        **First run: 90.39 %** _(562 mutants, 54 survivors)_ — and the honest read is that the number
+        hid the problem. **`persistence-scheduler.ts`, the file this release ADDS, came out at 76.32 %**,
+        the weakest of the ten. **20 of the 54 survivors sat on lines this branch wrote**; the other 34
+        are pre-existing and named in `RESULTS.md`.
+    - [x] **18 of the 20 killed** _(2026-07-28 · `bebce0c`, `474d09a`)_, each hand-applied and watched
+          red before the fix, then reverted. rag **454** green.
+    - [x] **2 recorded as equivalents, with the reason**: `campaign-persist.ts:30`
+          (`typeof manifest !== "object"` is only observable with a *function* carrying a `.source`
+          object — `JSON.parse` cannot produce one) and `engine-version.ts:83` (dropping the `"utf-8"`
+          encoding hands `JSON.parse` a Buffer it decodes to the same string). Neither is killable
+          without a fixture the real domain never produces.
+    - [x] **Confirmation re-run** of the same 10 files _(2026-07-28)_: **90.39 % → 93.93 %**, and the
+          two files this release adds are now **100 %** — `persistence-scheduler.ts` (was 76.32 %) and
+          `campaign-run.ts` (was 86.96 %). `frontmatter-parser` 95.07 → **97.87 %**, `progress-report`
+          89.61 → **93.51 %**, `engine-version` 81.63 → **83.67 %**. The 34 remaining survivors are
+          pre-existing lines plus the two recorded equivalents — **verified line by line**, nothing of
+          this release's own is left standing.
+  - [ ] **scripts** — the 16 changed `scripts/**` prod files, in a **disposable worktree**
         (`inPlace` on the real tree once wiped the demo vault; recipe in RESULTS.md), narrowed to
         their covering tests because `engine-manifest-integrity.test.mjs` still breaks the dry run.
   - [ ] **local-mirror** — ⛔️ **nothing to run**: this release touches no `local-mirror/src/**` file.
