@@ -793,8 +793,35 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
           pre-existing lines plus the two recorded equivalents — **verified line by line**, nothing of
           this release's own is left standing.
   - [ ] **scripts** — the 16 changed `scripts/**` prod files, in a **disposable worktree**
-        (`inPlace` on the real tree once wiped the demo vault; recipe in RESULTS.md), narrowed to
-        their covering tests because `engine-manifest-integrity.test.mjs` still breaks the dry run.
+        (`inPlace` on the real tree once wiped the demo vault; recipe in RESULTS.md).
+        **Good news, correcting RESULTS.md**: the FULL harness command dry-runs fine in a worktree
+        (**1033 green**) — `engine-manifest-integrity.test.mjs` only broke in the *sandbox*, which has
+        no `.git`. So this run is **not narrowed**, and its score is not pessimistic. Fold that back
+        into `RESULTS.md` when writing the snapshot.
+    - [ ] **Run it in BATCHES of < 9 min.** ⚠️ Learned twice on 2026-07-28: the whole run is ~30 min
+          for ~1230 mutants, and a background command is **capped at 10 min** — the first attempt was
+          killed at 40 %. `setsid` does not exist on macOS, so detaching is not the way out.
+          Driver: `scratchpad/run-batch.sh <name> "<comma-separated files>"`, which **resets the
+          worktree first** (a killed run leaves Stryker's `@ts-nocheck` behind and the next dry run
+          dies on it — that exact failure cost a restart).
+          Batches: **A** `update-engine` · **B** `reconcile-brain` · **C** `session-status`,
+          `session-self-heal`, `status-line` · **D** `universe-reminder`, `engine-fetch`,
+          `engine-source`, `refresh-note`, `auto-commit`, `note-refresh` · **E** `actions-log-seed`,
+          `wiki-health-nudge`, `restart-signal`, `restart-nudge`, `status-line-retreat`.
+    - [ ] ⚠️ **Two worktree traps, both paid for on 2026-07-28 — write them into `RESULTS.md`, they
+          are new and neither is in the existing gotchas.**
+      - [ ] **A mutant of `auto-commit.mjs` COMMITS the instrumented tree.** The worktree came back
+            sitting on an `auto: vault/claude sync` commit of its own, so `git checkout -- .`
+            faithfully restored *Stryker's instrumentation* and every later dry run died on
+            `SyntaxError: Identifier 'stryNS_…' has already been declared`. The reset has to be
+            `git reset --hard <sha>` + `git clean -fd`, never `checkout -- .`. This is the worktree
+            doing its job — the same mutant on the real tree would have committed **there**.
+      - [ ] **`disableTypeChecks` must be OFF for this package.** Stryker prepends `// @ts-nocheck`
+            to ~370 files, and under `inPlace` that lands on the real worktree. These are plain
+            `.mjs` with nothing to type-check. The CLI has no flag for it, so the batch run uses a
+            tiny `stryker.scripts.batch.config.mjs` that spreads the base config and turns it off.
+    - [ ] Same discipline as rag: cross-reference every survivor against the lines
+          `git diff main...HEAD` actually adds, kill what is ours, name what is not.
   - [ ] **local-mirror** — ⛔️ **nothing to run**: this release touches no `local-mirror/src/**` file.
         Its **90.44 %** carries over from v4.2.0 unchanged; say so rather than re-measuring.
   - [ ] Kill every survivor that sits **inside this release's own code**, or record it as an accepted
