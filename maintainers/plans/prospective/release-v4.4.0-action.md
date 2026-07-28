@@ -18,8 +18,9 @@
 
 ## ▶️ START HERE
 
-**All the code is written. The next track is Track 9 — cutting the release** _(as of 2026-07-28 ·
-`8d2e2c4`)_. Track 1 stays unticked in `## Tracking` for what it still owes, and it is **not code**: its
+**The next track is Track 10 — giving persistence its own quiet window** _(decided with Thomas
+2026-07-28; it runs **before** Track 9, which cuts the release)_. Tracks 1-8 are code-complete
+_(`8d2e2c4`)_. Track 1 stays unticked in `## Tracking` for what it still owes, and it is **not code**: its
 release-note copy is due at **Track 9**, and its remaining check needs an **installed brain**, which the
 launcher deliberately is not. Tracks 4, 5, 6, 7 and 8 owe a release-note line each, also at Track 9.
 **Do not reopen the implementation of Tracks 1-8.**
@@ -94,22 +95,23 @@ wanted is an **explicit end-of-batch signal**, which is a different mechanism fr
 3. **Engine scripts writing a note** → same as case 2 (they are indistinguishable from a human write,
    and that is fine).
 
-- [ ] **DECIDE (Thomas) — scope: does the provenance split ship in v4.4.0, or in v4.5.0?** The release
-      is otherwise DONE and green 7/7. Honest read: **case 2 (persistence gets its own 2-minute window)
-      is small and contained** — it touches code already written and reviewed, and it should ship
-      **in v4.4.0** so the sentence we publish is the one we keep (publishing "committed within
-      seconds" and changing it next release would be worse than shipping the real number now).
-      **Case 1 (the sync fast-path) is a new capability** — it changes the `reindex` tool's contract
-      and two skills, wants its own tests and its own release note, and is a **clean v4.5.0**.
-      Recommendation: **2-minute persistence window in v4.4.0, sync fast-path in v4.5.0.**
-  - [ ] **Sub-question, only if case 2 ships: does the 2-minute window need a CAP?** The window would
-        re-arm exactly like the 5 s one (`ReindexScheduler.notify`, `reindex-scheduler.ts:58-65`), so
-        an hour of writing that never goes 2 minutes without a keystroke commits **nothing** for that
-        hour. Not a data-loss risk (the file is on disk, indexed within 5 s, and the PostToolUse /
-        Stop hooks still commit + push around any Claude session), but the "saved while you write it"
-        promise deserves a **maximum wait** (commit at latest every N minutes even under continuous
-        typing) rather than a pure quiet-window. Raised 2026-07-28 while summarising the two
-        behaviours for Thomas; **decide it with the scope call, not after**.
+- [x] **DECIDED (Thomas, 2026-07-28) — case 2 ships in v4.4.0, case 1 is v4.5.0.** Persistence gets
+      its own ~2-minute quiet window on the watcher path; indexing keeps its 5 s debounce untouched.
+      The sync fast-path (an explicit "batch complete" that indexes AND persists) is a new capability,
+      changes the `reindex` tool's contract and two skills, and is a **clean v4.5.0**. → **Track 10**.
+      **Do not re-open this**, and do not let case 1 creep into this release.
+      - **Thomas also unfroze the release title**: it is *not* validated yet, so the copy follows the
+        behaviour, never the reverse. The "saved while you write it" angle survives (the **indexing**
+        is still seconds); what the note must state honestly is the **commit/push** number we land on.
+  - [ ] **Sub-question, still open: does the 2-minute window need a CAP?** The window re-arms exactly
+        like the 5 s one (`ReindexScheduler.notify`, `reindex-scheduler.ts:58-65`), so a writing
+        session that never goes 2 minutes without a keystroke commits **nothing** until it finally
+        pauses. Not a data-loss risk (the file is on disk and indexed within 5 s), but the net that
+        used to cover it is thinner than it looks: the PostToolUse/Stop hooks only fire on a **Claude
+        turn**, and the watcher's whole point is the case where Claude is **idle** while someone types
+        in Obsidian. A **maximum wait** (commit at latest every N minutes even under continuous
+        typing) bounds that exposure for ~15 lines and its tests. Since the title is unfrozen, this is
+        now a pure behaviour call, not a copy constraint.
 
 **What the split does and does NOT touch — established while answering Thomas, do not re-derive.** It
 only governs the **watcher** path, i.e. writes made **outside** a Claude turn (Obsidian, `rm`, engine
@@ -141,14 +143,14 @@ never matched. Four Windows jobs failed on a suite that had been green on macOS 
 paid for: CI is the arbiter, never a local green** — and the branch had gone 52 commits without ever
 being pushed, so nothing could tell us.
 
-**What remains, in order:** **settle the push-cadence decision above** (the one blocker), the mutation
-snapshot, the marketing-surface pass, then the release note.
+**What remains, in order:** **Track 10** (the push cadence, decided, one cap sub-question open), the
+mutation snapshot, the marketing-surface pass, then the release note.
 
-**The release TITLE is settled in substance: Thomas picked the "saved while you write it" angle**
-(2026-07-28). Exact wording still to confirm against the series, which is `The One Where …`:
-`v4.4.0 — The One Where a Note Is Saved While You Write It`. Note the claim is about the **local
-commit**, which is what the four locks actually deliver — do not let the copy imply the push shares
-that cadence, especially if option (a) is chosen above.
+**The release TITLE is NOT frozen** — Thomas said so explicitly (2026-07-28) when the cadence change
+came up: *the copy follows the behaviour, never the reverse*. The "saved while you write it" angle he
+picked survives, because the **indexing** stays at 5 s; what the note must state honestly is the
+**commit/push** number Track 10 lands on. Working title, to confirm against the `The One Where …`
+series: `v4.4.0 — The One Where a Note Is Saved While You Write It`.
 
 **One decision is waiting on Thomas, and it does not block Track 9.** Track 7 shipped `rag` as the
 **only** new slash command; `/index` and `/reindex` route there in plain language rather than each
@@ -203,6 +205,9 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [x] **Track 8 — The profile pre-fill reads the notes you wrote** *(retrieval)* _(2026-07-28 · `8d2e2c4`)_ —
       skill + guard test + the Gate 4 fixture written out; only the **release-note line** is owed, at
       Track 9. **Source-level guard only**: the behaviour itself is Gate 4's fixture to run.
+- [ ] **Track 10 — Commits stop tracking every pause** *(the push-cadence decision, runs **BEFORE**
+      Track 9)* — persistence gets its own ~2-minute quiet window on the watcher path; indexing keeps
+      its 5 s debounce. Numbered last, ordered first: it is the last blocker on the release note.
 - [ ] **Track 9 — Cut the release**
 
 > **Cut line, if the release grows too long.** Tracks 1-4 **are** the release. Tracks 5-8 are mutually
@@ -642,6 +647,31 @@ manager**. There is **no person note for the name it proposed at all**.
 > **Deliberately NOT in this track** (Thomas chose the retrieval form): arbitrating by date when
 > pre-filling, citing each proposed value's source note, and marking inference apart from reading. They
 > repair a *guess*; here there was no need to guess at all. Keep them in the field log for Gate 4.
+
+---
+
+## Track 10 — Commits stop tracking every pause *(runs BEFORE Track 9)*
+
+**Why**: today one 5 s re-arming debounce governs **both** indexing and persistence, so on the watcher
+path every pause longer than 5 s costs a commit **and a network push** (with `auto-push.mjs`'s blocking
+3 s retry). Half an hour of writing in Obsidian with 20 real pauses = up to 20 of each. The four locks
+in START HERE are real, but they bound the **indexing**, not the push. Decided with Thomas 2026-07-28.
+
+**Scope**: the **watcher** path only. Claude's own writes keep committing per `Write|Edit` (PostToolUse)
+and pushing per turn (Stop). This track can only make the watcher quieter.
+
+- [ ] **Settle the CAP sub-question above** before writing code (a pure quiet-window, or a quiet-window
+      with a maximum wait).
+- [ ] **Split the two timers.** Indexing keeps its 5 s debounce **untouched** (search freshness is the
+      part that already works and must not be sacrificed); persistence gets its own ~2-minute window.
+      Prefer a second scheduler over a flag on `ReindexScheduler` if that keeps the class honest.
+- [ ] **TDD, red first**, with injected timers — `reindex-scheduler.test.ts` already drives the clock
+      that way, so the new window is testable without a single real `setTimeout`.
+- [ ] **The behaviour to pin in tests**: writes 30 s apart index ~6 times and commit **zero** times;
+      the commit fires once, after the quiet window; a campaign that changed nothing still commits
+      nothing (`shouldPersistCampaign`).
+- [ ] **Re-run both suites** (rag + scripts) and let the branch push so CI speaks (CONVENTIONS §9).
+- [ ] **Release-note line**, owed at Track 9, stating the **honest number** we land on.
 
 ---
 
