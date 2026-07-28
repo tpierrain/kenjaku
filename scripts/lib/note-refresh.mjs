@@ -34,6 +34,10 @@ export function duplicateFrontmatterKeys(content) {
   const seen = new Set();
   const dupes = [];
   for (const line of parts.frontmatter.split(/\r?\n/)) {
+    // Kept character-for-character in step with `findDuplicateKey` in
+    // rag/src/lib/frontmatter-parser.ts: the two answer the same question on the same
+    // notes, and when they drifted apart the looser one invented a key (`- https`)
+    // out of a list of URLs. Separate packages, so the tie is this comment, not code.
     const kv = line.match(/^([A-Za-z0-9_-]+):/);
     if (!kv) continue;
     const key = kv[1];

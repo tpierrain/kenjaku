@@ -217,6 +217,26 @@ test("the scan stops at the closing delimiter: the body holds no keys", () => {
   assert.throws(() => parseDocument(raw, "topics/x.md"), /YAMLException/);
 });
 
+test("a list of URLs is not a duplicated key: `- ` items are values, not keys", () => {
+  // The shape a person/source note actually has. An unindented block-sequence item
+  // whose VALUE holds a colon (`- https://…`) looks like `<something>:` to a loose
+  // scan, so two of them were reported as the key `- https` "declared twice" — and
+  // the owner was sent to two perfectly valid lines to delete one. We only look once
+  // the YAML has already failed for its own reason, so the wrong verdict lands
+  // exactly when someone is already confused.
+  const raw = "---\ntitle: [unclosed\nlinks:\n- https://a.com\n- https://b.com\n---\nbody\n";
+
+  assert.equal(findDuplicateKey(raw), null);
+});
+
+test("a genuinely duplicated key is still named, with both of its lines", () => {
+  // F12's own damage — the reason this scan exists. Assert the WHOLE verdict: a
+  // check on the key alone would not notice the line numbers pointing elsewhere.
+  const raw = "---\ntitle: [unclosed\nupdated: 2026-07-01\ntags: [a]\nupdated: 2026-07-28\n---\nbody\n";
+
+  assert.deepEqual(findDuplicateKey(raw), { key: "updated", first: 3, second: 5 });
+});
+
 test("a note with no front-matter has no front-matter key, horizontal rules included", () => {
   // Read directly: a note whose YAML never parses in the first place cannot reach the
   // catch, so this contract is only observable here. A hand-written note may well open

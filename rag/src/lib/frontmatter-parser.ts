@@ -89,8 +89,12 @@ export function findDuplicateKey(
   for (let i = 1; i < lines.length; i++) {
     if (lines[i].trim() === "---") break;
     // Top-level keys only (anchored, unindented): a nested `updated:` under another
-    // key is a different mapping, and YAML accepts it.
-    const key = lines[i].match(/^([^\s:#][^:]*):/)?.[1];
+    // key is a different mapping, and YAML accepts it. The character class is
+    // deliberately strict — and identical to `duplicateFrontmatterKeys` in
+    // scripts/lib/note-refresh.mjs, the sibling scan. A permissive "anything up to a
+    // colon" also swallows unindented block-sequence items whose value holds a colon
+    // (`- https://a.com`), and reports a key that does not exist.
+    const key = lines[i].match(/^([A-Za-z0-9_-]+):/)?.[1];
     if (key === undefined) continue;
     const first = seenAtLine.get(key);
     if (first !== undefined) return { key, first, second: i + 1 };
