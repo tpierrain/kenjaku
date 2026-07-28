@@ -318,6 +318,34 @@ SessionStart:startup says: ✅ Repo up to date (commit 74383b4).
       `systemMessage` channel, displayed clean on the CLI (and dropped on Desktop). Everything above it
       carries the `SessionStart:startup says:` prefix: `additionalContext`, echoed verbatim. **One
       screen, both behaviours, exactly as the matrix predicts.**
+### ✅ Design decided by Thomas *(2026-07-28)* — progressive disclosure: the trigger, then the detail
+
+His words, on seeing the screen above: *"ce serait utile en intro de dire, en fait ton univers actif est
+Inqom et ton cerveau ne sait pas encore ce que c'est que ce contexte, qu'est-ce que tu fais, comment,
+avec qui, est-ce que tu aurais deux minutes pour donner ces quelques indications. Et qu'après, tout le
+niveau de détail qui arrive, ce soit **si je dis oui**, mais pas en upfront."*
+
+- [ ] **Split the payload in two, by the moment it becomes useful.**
+  - [ ] **Upfront (the trigger)**: the *fact* only, small enough to be harmless even when echoed. Which
+        universe is active, that it has no profile, and that an offer is due once, in the user's
+        language. Nothing about how to run it.
+  - [ ] **On acceptance (the detail)**: the seven questions, the skill section to follow, the write
+        command, the decline command. **The agent already loads the `switch` skill at that point** —
+        which is where all of it lives.
+- [ ] **This deletes a duplication, it does not move it.** The trigger currently recites the question
+      themes (*"what this place is, your role there, the people who matter, which accounts your tools
+      use"*) **and** says to load the skill whose `Describe a universe — its profile` section holds the
+      canonical seven (`.claude/skills/switch/SKILL.md:134-147`). The upfront copy is redundant with a
+      document that gets read anyway. Removing it costs nothing and is the bulk of the eight lines.
+- [ ] **Defence in depth, which is why this is worth doing even after the echo is fixed.** A one-line
+      trigger that leaks is survivable; eight lines of protocol is not. Shrinking the payload makes the
+      startup screen acceptable **whatever the host does next** with `additionalContext` — and the host's
+      behaviour is not ours to control (see the matrix: nothing there was inferable from the docs).
+- [ ] **The intro sentence is the AGENT's to speak, not the hook's to print.** It must be in the owner's
+      language and read like a person wrote it, and it must reach **both** surfaces. The hook cannot do
+      either: its text is English-by-design (agent-directed) and it renders on the CLI only. So the hook
+      carries the fact, the agent composes the sentence Thomas described.
+
 - [ ] **Volume is a defect in its own right, and the owner said so first**: *"bcp trop verbeux je trouve
       pour les gens"* (Thomas, on this screen). Eight lines of internal prose plus three prefixed blocks,
       before the first prompt, on a product sold to non-developers. The fix is not only *rewriting* the
