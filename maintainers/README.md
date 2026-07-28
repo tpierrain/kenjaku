@@ -152,6 +152,10 @@
       PRD [`prd-golden-source-sync.md`](plans/prd-golden-source-sync.md)). Self-contained
       steps with a Tracking table to drive it session by session (a `/clear` between each). **STATUS:
       🚧 ACTIVE — not started.**
+    - [`release-v4.2.1-action.md`](plans/release-v4.2.1-action.md) — **🗺️ action plan** for the
+      **v4.2.1** release: the startup banner now says why a pull failed, and an engine update commits
+      what it wrote so a brain never silently stops syncing (ADR 0011, amended). Code is done and CI
+      is green on PR #50; what remains is cutting the tag. **STATUS: 🚧 IN PROGRESS.**
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).
