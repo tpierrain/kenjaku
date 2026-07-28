@@ -103,15 +103,17 @@ wanted is an **explicit end-of-batch signal**, which is a different mechanism fr
       - **Thomas also unfroze the release title**: it is *not* validated yet, so the copy follows the
         behaviour, never the reverse. The "saved while you write it" angle survives (the **indexing**
         is still seconds); what the note must state honestly is the **commit/push** number we land on.
-  - [ ] **Sub-question, still open: does the 2-minute window need a CAP?** The window re-arms exactly
+  - [x] **DECIDED (Thomas, 2026-07-28) — YES, a cap, at 10 minutes.** The window re-arms exactly
         like the 5 s one (`ReindexScheduler.notify`, `reindex-scheduler.ts:58-65`), so a writing
         session that never goes 2 minutes without a keystroke commits **nothing** until it finally
         pauses. Not a data-loss risk (the file is on disk and indexed within 5 s), but the net that
         used to cover it is thinner than it looks: the PostToolUse/Stop hooks only fire on a **Claude
         turn**, and the watcher's whole point is the case where Claude is **idle** while someone types
-        in Obsidian. A **maximum wait** (commit at latest every N minutes even under continuous
-        typing) bounds that exposure for ~15 lines and its tests. Since the title is unfrozen, this is
-        now a pure behaviour call, not a copy constraint.
+        in Obsidian. A **maximum wait** bounds that exposure for ~15 lines and its tests. Since the
+        title is unfrozen, this was a pure behaviour call, not a copy constraint.
+        **Landed contract: commit at the earlier of (a) 2 minutes of silence, (b) 10 minutes since the
+        first write not yet persisted.** A 30-minute session with no real pause commits 3 times
+        instead of 0.
 
 **What the split does and does NOT touch — established while answering Thomas, do not re-derive.** It
 only governs the **watcher** path, i.e. writes made **outside** a Claude turn (Obsidian, `rm`, engine
@@ -660,8 +662,8 @@ in START HERE are real, but they bound the **indexing**, not the push. Decided w
 **Scope**: the **watcher** path only. Claude's own writes keep committing per `Write|Edit` (PostToolUse)
 and pushing per turn (Stop). This track can only make the watcher quieter.
 
-- [ ] **Settle the CAP sub-question above** before writing code (a pure quiet-window, or a quiet-window
-      with a maximum wait).
+- [x] **CAP settled** _(2026-07-28, Thomas)_: quiet window **2 min**, hard cap **10 min** since the
+      first write not yet persisted. Whichever comes first.
 - [ ] **Split the two timers.** Indexing keeps its 5 s debounce **untouched** (search freshness is the
       part that already works and must not be sacrificed); persistence gets its own ~2-minute window.
       Prefer a second scheduler over a flag on `ReindexScheduler` if that keeps the class honest.
