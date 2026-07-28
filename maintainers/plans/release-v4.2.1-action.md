@@ -14,7 +14,20 @@
       sees its commit) _(2026-07-28 · `e9e854b`)_
 - [x] **The two touched files are mutation-clean** (98.53 %) _(2026-07-28 · `6293770`)_
 - [x] CI matrix fully green (macOS + Windows × Node 22/24/26 + installer e2e)
-- [ ] **Cut the release** — Thomas's call, deliberately left undone
+- [ ] 🚧 **RESUME HERE — move the commit-if-dirty into the SessionStart hook.** Blocks the release.
+  - [ ] Why: step 9 lives in `update-engine.mjs`, which is **not** a hook. It runs once, replacing
+        itself mid-flight while the in-flight process keeps the OLD code in memory — so the update
+        that *installs* the fix still leaves the repo dirty, and only the update *after* it commits.
+        The very hole this release claims to close is re-opened one last time on every brain.
+  - [ ] Fix: `commit-if-dirty` before the `git pull --rebase` in the SessionStart path. A hook is a
+        fresh node process each time, reading the `.mjs` off disk → active at the **first restart
+        after the update**, the installing update included.
+  - [ ] This is the remedy ADR 0011 already holds in reserve ("a `git add -A && commit-if-dirty`
+        sweep on a conversation-boundary event") — so it also closes the Obsidian-edit gap that ADR
+        documents as accepted. Amend 0011 accordingly; keep step 9 or fold it in, whichever the
+        tests pull out.
+- [ ] **Cut the release** — ⛔️ NOT before the step above: shipping as-is re-introduces the bug once
+      per brain. Then Thomas's call.
   - [ ] merge PR #50 into `main`
   - [ ] tag + publish `v4.2.1`, title in the house style (`v4.2.1 — The One Where …`);
         draft title on the table: *The One Where the Update Cleans Up After Itself*
