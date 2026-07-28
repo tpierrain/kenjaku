@@ -602,6 +602,10 @@ the defect itself**:
       plaster lands, the defect stops being observable, and nobody ever files F9. Checked immediately
       after: **nothing durable was written** (clean tree, `CLAUDE.md` untouched since `e4f44b6`), so the
       habit died with the session. It was one commit away from being permanent, in a `sacred` file.
+      **The retraction was clean**: told to cancel, the brain confirmed *"je n'ai rien écrit nulle part …
+      jamais persistée (ni dans CLAUDE.md, ni en mémoire)"*, which **matches the disk check made before
+      it answered**. On the exact class of claim F7 and F9 turn on (is this persisted, and where?), it
+      was accurate. The gap is the offer, not the honesty.
   - [ ] Consequence for the fix: an engine defect must **not** be offered as a behaviour the owner can
         opt into. If the brain notices this class of gap at all, the right move is to **name it as a
         known engine limitation** ("this is fixed in the next version"), never to volunteer to carry it.
