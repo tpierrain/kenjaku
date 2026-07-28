@@ -40,9 +40,9 @@ export function buildWikiHealthHookOutput(nudge) {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
       additionalContext:
-        `[wiki-health] Pending housekeeping: ${nudge}. Tell them once, in their language, and ` +
-        `offer to run it: /consolidate promotes raw captures into entity/topic pages, /lint gives ` +
-        `the full report. Optional, and every write stays confirmed — never auto-file.`,
+        `[wiki-health] Pending: ${nudge}. Tell them once, in their language; offer ` +
+        `/consolidate for the candidates, /lint for the links. Optional, and every write ` +
+        `stays confirmed.`,
     },
     systemMessage: nudge,
   };

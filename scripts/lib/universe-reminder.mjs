@@ -64,9 +64,11 @@ export function profileCaptureOffer({ hasProfile, declined, multiverse = false }
   const vocabulary = multiverse
     ? "say `universe` plainly — the active one"
     : "never use the word `universe`: they have never met the notion, say their context";
+  // No mention of the refusal already checked above: the core gated on it, so saying
+  // so again is bookkeeping the agent cannot act on and the owner should not read.
   return (
-    `No profile yet for this owner's context, and no refusal on file. Offer once, in ` +
-    `their language, to describe it, and say plainly it is skippable (${vocabulary}).`
+    `No profile yet for this owner's context. Offer once, in their language, to ` +
+    `describe it, and say it is skippable (${vocabulary}).`
   );
 }
 

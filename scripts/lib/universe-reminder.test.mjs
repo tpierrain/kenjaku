@@ -147,8 +147,9 @@ test("buildUniverseHookOutput keeps the whole startup payload short — volume I
     offer: profileCaptureOffer({ hasProfile: false, declined: false, multiverse: true }),
   }).hookSpecificOutput.additionalContext;
 
+  // Two blocks, each a fact plus one sentence of direction — about 190 chars apiece.
   assert.ok(
-    payload.length <= 420,
+    payload.length <= 380,
     `the startup payload grew back to ${payload.length} chars:\n${payload}`,
   );
 });

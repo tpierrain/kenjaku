@@ -95,9 +95,11 @@ test("buildWikiHealthHookOutput — non-null → SessionStart directive on the D
 test("buildWikiHealthHookOutput keeps the echoed payload short — volume IS the defect (F5)", () => {
   // The CLI echoes additionalContext verbatim, prefixed `SessionStart:startup says:`,
   // before the owner types a word. Housekeeping is the least urgent of the startup
-  // blocks, so it gets the least room.
-  const ctx = buildWikiHealthHookOutput("3 consolidation candidates and 1 dangling links")
-    .hookSpecificOutput.additionalContext;
+  // blocks, so it gets the least room: one sentence of direction around the counts.
+  // The counts are excluded — they are facts about the owner's vault, not our prose.
+  const nudge = "3 consolidation candidates and 1 dangling links";
+  const ctx = buildWikiHealthHookOutput(nudge).hookSpecificOutput.additionalContext;
+  const framing = ctx.length - nudge.length;
 
-  assert.ok(ctx.length <= 320, `the housekeeping payload grew back to ${ctx.length} chars:\n${ctx}`);
+  assert.ok(framing <= 170, `the housekeeping framing grew back to ${framing} chars:\n${ctx}`);
 });
