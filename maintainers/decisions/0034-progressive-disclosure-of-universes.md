@@ -73,7 +73,21 @@ plan's own strategy is "migrate early, explore later"). A soft default scope pre
    The state write goes through a deterministic script; the skill is a thin conversational driver over
    it. Crossing the count-1-to-2 threshold triggers a one-time inline onboarding.
 
-5. **Per-universe directories buy future one-shot deletion, not a wall.** Because a created universe is
+5. **A replicated source's universe is frozen at declaration, and changed only by an explicit
+   move.** A local mirror is attached to a universe when it is declared, and the sync path never
+   re-reads that attachment: a background refresh firing while the owner switches universe would
+   otherwise scatter one mirror's pages across two scopes. Freezing alone would be a trap, though —
+   a mirror declared before the owner had a second universe sits in the cross-cutting scope, where
+   it dilutes every other universe's results, and a corpus cannot be condemned to the scope it was
+   born in. So there is exactly **one** way to change it: an explicit **move**, asked for by the
+   owner, never inferred. The move is **local** — it rewrites the pages already on disk under the
+   target universe and deletes the old copies — so it needs no token and no network, and it costs
+   only the re-embedding of the pages it moved. Re-declaring a mirror is **not** a move and is
+   refused: it would pull the corpus into the new folder while the old copies stayed behind,
+   indexed and never refreshed again, and nothing would ever clean them up (deletion reconciliation
+   only removes pages that left the *source's* perimeter, not pages the mirror itself abandoned).
+
+6. **Per-universe directories buy future one-shot deletion, not a wall.** Because a created universe is
    a self-contained subtree, a future GDPR-style "delete this universe" is `rm -rf vault/<universe>/` +
    `DELETE ... WHERE universe = ?` + reindex. The capability is not built now; the layout makes it a
    later one-liner.

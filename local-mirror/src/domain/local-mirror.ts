@@ -655,10 +655,10 @@ export function cannotChangeUniverse(
     message:
       `The "${req.name}" mirror already exists, in ${from}, and a mirror cannot change universe ` +
       `by being declared again: its pages would be pulled into ${landing}/ while the old copies ` +
-      `stayed behind, indexed and never refreshed again. To re-file it, remove it with its files ` +
-      `(remove_source "${req.name}", cleanup: true) and set it up again in ${universeLabel(target)}. ` +
-      `To change anything else about it — a rotated token, a wider scope — declare it again in ` +
-      `${from}.`,
+      `stayed behind, indexed and never refreshed again. To re-file it, move it ` +
+      `(move_source "${req.name}", universe: ${target}) — that rewrites its pages where they ` +
+      `belong and leaves nothing behind. To change anything else about it — a rotated token, a ` +
+      `wider scope — declare it again in ${from}.`,
   };
 }
 

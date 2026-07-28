@@ -167,9 +167,9 @@ test('re-declaring a mirror into another universe is refused, and nothing is tou
     'The "team-a" mirror already exists, in the cross-cutting universe, and a mirror cannot ' +
       'change universe by being declared again: its pages would be pulled into acme/mirrors/' +
       'team-a/ while the old copies stayed behind, indexed and never refreshed again. To re-file ' +
-      'it, remove it with its files (remove_source "team-a", cleanup: true) and set it up again ' +
-      'in acme. To change anything else about it — a rotated token, a wider scope — declare it ' +
-      'again in the cross-cutting universe.',
+      'it, move it (move_source "team-a", universe: acme) — that rewrites its pages where they ' +
+      'belong and leaves nothing behind. To change anything else about it — a rotated token, a ' +
+      'wider scope — declare it again in the cross-cutting universe.',
   );
   assert.deepEqual(
     await harness.declaredSources(),
