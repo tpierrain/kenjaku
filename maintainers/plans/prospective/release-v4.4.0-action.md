@@ -102,6 +102,21 @@ wanted is an **explicit end-of-batch signal**, which is a different mechanism fr
       **Case 1 (the sync fast-path) is a new capability** — it changes the `reindex` tool's contract
       and two skills, wants its own tests and its own release note, and is a **clean v4.5.0**.
       Recommendation: **2-minute persistence window in v4.4.0, sync fast-path in v4.5.0.**
+  - [ ] **Sub-question, only if case 2 ships: does the 2-minute window need a CAP?** The window would
+        re-arm exactly like the 5 s one (`ReindexScheduler.notify`, `reindex-scheduler.ts:58-65`), so
+        an hour of writing that never goes 2 minutes without a keystroke commits **nothing** for that
+        hour. Not a data-loss risk (the file is on disk, indexed within 5 s, and the PostToolUse /
+        Stop hooks still commit + push around any Claude session), but the "saved while you write it"
+        promise deserves a **maximum wait** (commit at latest every N minutes even under continuous
+        typing) rather than a pure quiet-window. Raised 2026-07-28 while summarising the two
+        behaviours for Thomas; **decide it with the scope call, not after**.
+
+**What the split does and does NOT touch — established while answering Thomas, do not re-derive.** It
+only governs the **watcher** path, i.e. writes made **outside** a Claude turn (Obsidian, `rm`, engine
+scripts, a mirror sync). Writes made **by Claude** are unchanged: `auto-commit.mjs` still commits on
+every `Write|Edit` via PostToolUse, `auto-push.mjs` still pushes once per turn via Stop
+(`scripts/auto-commit.mjs:1-8`). So the split can only ever make the **watcher** quieter, never the
+in-session path slower.
 
 **✅ PR #53 is open and CI is GREEN, 7/7** — https://github.com/tpierrain/kenjaku/pull/53, run
 `30388758449` _(2026-07-28)_: Node 22/24/26 × macOS + Windows, plus the Windows installer e2e.
