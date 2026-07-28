@@ -23,7 +23,24 @@ graduate straight into Gate 4's plan without a second investigation.
 
 ---
 
-## ▶️ RESUME HERE (written 2026-07-28 before a `/clear` — read this first)
+## ⛔️ THIS FILE IS THE EVIDENCE — the WORK lives elsewhere *(2026-07-28)*
+
+**The run is over and the release is planned.** Do not resume here: the fixes moved to
+**`prospective/release-v4.4.0-action.md`**, which owns the work list, the tracks and the tests. This
+file keeps what it was always for — **observation → root cause → fix, each verified on disk** — so the
+release plan can cite it instead of re-investigating.
+
+The two decisions this block used to hold open were **answered by Thomas on 2026-07-28**: **F12 ships in
+full** (a deterministic front-matter writer, not just an alarm) and **the prefill ships in its retrieval
+form** (query `type: person` notes). He also **pulled F2 forward** out of Gate 4 — the status line
+retreats, so an owner's own line survives opening their brain. All three are recorded in the release
+plan; **do not re-ask them.**
+
+Still unshipped and still living here: **F3** and **F7**, both deferred to Gate 4.
+
+---
+
+## ▶️ (historical) RESUME HERE — written before a `/clear`, kept as the record of that moment
 
 **Where we got to.** The upgrade itself is **done and green** (`mind-palace` on v4.3.0). The QA then
 **kept running all afternoon** and is what produced most of this file: **twelve field entries (F1-F12)**,
@@ -68,13 +85,18 @@ F8/P1 rather than beside it:
   (deletion, not just creation) and it pins the trigger condition (`indexed > 0 || removed > 0`).
 - **F11 is one line and P1 depends on it**: campaigns fire on `.obsidian/` UI churn, so P1's trigger
   must be written knowing that. Ship it with P1.
-- ⏳ **TWO DECISIONS PENDING — asked, not yet answered** (both found *after* the scope was frozen, both
-  put to Thomas on 2026-07-28; **ask again before writing the release plan**):
-  - [ ] **F12 — consolidation corrupts front-matter.** My recommendation: **non-negotiable**. It is our
-        code silently damaging the owner's notes, and the damage is invisible because F10 hides it.
-  - [ ] **The pre-fill that never reads the person notes** (inside the universe-capture section). Wider
-        in scope, but it is the only defect that makes the brain state a **falsehood about a fact the
-        owner wrote himself**. Cheapest form is a skill edit: pre-fill from `type: person` notes.
+- ✅ **THE TWO PENDING DECISIONS ARE ANSWERED** _(Thomas, 2026-07-28)_ — both ship, in their fuller form:
+  - [x] **F12 — consolidation corrupts front-matter. SHIPS IN FULL**, not the minimal alarm: a
+        deterministic writer that rewrites front-matter **by key**, plus a duplicate-key validation. It
+        is our code silently damaging the owner's notes, and the damage is invisible because F10 hides it.
+  - [x] **The pre-fill that never reads the person notes — SHIPS in its "retrieval" form**: query the
+        structured source (`type: person` / `type: universe` notes) instead of synthesising from a
+        similarity search. The date-arbitration and provenance-citing safeguards stay here for Gate 4 —
+        they repair a *guess*, and here there was no need to guess at all.
+  - [x] **And a third, added by Thomas the same day: F2 is PULLED FORWARD out of Gate 4.** The status
+        line **retreats** — Kenjaku stops occupying it so the owner's own line (`clepsydre`) runs again.
+        F4 had settled that Desktop renders none, so ours was evicting a personal line on the only
+        surface where it renders, in exchange for nothing.
 - **F10 joins the release** _(Thomas, 2026-07-28)_. The engine drops unreadable notes and reports
   "0 error" to the owner. Small (the reporter never receives phase-1 errors), and it is the trust defect
   F7 is about, one layer down: a brain that answers confidently over an incomplete index is the failure
@@ -86,10 +108,12 @@ F8/P1 rather than beside it:
 
 **Next step when picking this up, in this order:**
 
-- [ ] 1. **Settle the two pending decisions above** (F12, and the pre-fill retrieval defect). They change
-      what the release contains, so they come before the plan, not after.
-- [ ] 2. **Write the release's action plan** from the agreed scope.
-- [ ] 3. **Implement F8/P1 in TDD.** It is the most structural, and its propagation trap deserves a test
+- [x] 1. **Settle the two pending decisions above** (F12, and the pre-fill retrieval defect) _(2026-07-28)_.
+      Both ship; F2 was pulled forward at the same time. See the answered block above.
+- [x] 2. **Write the release's action plan** from the agreed scope _(2026-07-28)_ →
+      **`prospective/release-v4.4.0-action.md`**, which is now the canonical work list.
+- [ ] 3. **Implement F8/P1 in TDD** — tracked as **Track 1** of the release plan, not here.
+      It is the most structural, and its propagation trap deserves a test
       that locks it. Its three field-proven cases, all in this file: a note written **outside** Claude
       (F8), a note **deleted** via `rm` (F9), and — the primary one, because an owner meets it without
       doing anything unusual — a note written by **the engine's own script** (F8 → "Third path CONFIRMED").
