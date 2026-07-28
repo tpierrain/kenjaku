@@ -33,28 +33,58 @@ review and do not re-derive those six.**
 **The cut line is DECIDED: nothing is cut.** All of Tracks 1-8 ship. No finding lived in Tracks 5-8,
 so cutting them would have dropped working code without removing a single defect.
 
-**⏸️ ONE DECISION IS OPEN, raised by Thomas 2026-07-28 and NOT found by the review: the push
-cadence on the watcher path.** He asked what stops a commit/reindex storm while someone types in
-Obsidian. The answer, verified in code, is four locks: the watcher ignores `.obsidian`
-(`vault-watcher.ts:21`); `ReindexScheduler.notify` is a **re-arming** 5 s debounce, so writes closer
-together than 5 s trigger nothing at all; indexing is incremental by sha256, so only the changed note
-is re-embedded; and persistence is gated on `indexed > 0 || removed > 0`, with `git add .` folding a
-whole burst into ONE commit. Typing is therefore safe.
+**⏸️ ONE DECISION IS OPEN — the push cadence on the watcher path.** Raised by Thomas 2026-07-28,
+**not found by the code review**, and it is the last thing blocking the release note. He asked what
+stops a commit/reindex storm while someone types in Obsidian: *"on passe notre temps à écrire des
+mots, à faire une mini pause, à continuer"*.
+
+**The four locks, each verified in code — do not re-derive this analysis:**
+
+1. **The watcher ignores `.obsidian`** (`rag/src/lib/vault-watcher.ts:21`, `IGNORED_SEGMENTS`). Moving
+   a pane rewrites `workspace.json`; watching it bought a full-vault scan per gesture and would fire a
+   commit on a change git cannot even see.
+2. **`ReindexScheduler.notify` is a RE-ARMING 5 s debounce** (`reindex-scheduler.ts:58-65`,
+   `DEFAULT_DEBOUNCE_MS = 5000`): each write **clears** the pending timer and sets a new one. So writes
+   closer together than 5 s trigger **nothing at all** — the countdown only starts once typing really
+   stops. **This is the lock that answers Thomas's question**, and it means there is no per-keystroke
+   and no per-save storm.
+3. **Indexing is incremental by sha256** (`index-manager.ts:36`, `shouldSkip`): only the note whose
+   content actually changed is re-embedded, the rest are `skipped`. The expensive half is bounded to
+   one note per campaign.
+4. **Persistence is gated on `indexed > 0 || removed > 0`**, and `git add .` folds a whole burst into
+   **ONE** commit. A campaign that changed nothing commits nothing.
+
+**The honest bound, to be stated in the release note and not glossed over:** a pause **longer** than
+5 s does start a campaign. Half an hour of writing with 20 real pauses is up to 20 `auto:` commits.
+Cheap locally (one note re-embedded, one local commit) and merely chatty in `git log`.
 
 **The gap is the PUSH, not the commit.** Every campaign that changed something also runs
-`auto-push.mjs`, so with `secondbrain.autopush` on, a pause longer than 5 s means a network push.
-`auto-commit.mjs:5-7` states the push was deliberately moved to the Stop hook precisely to avoid "a
-network push per edit + its blocking retry pause" — Track 1 partly reintroduces that on the watcher
-path. Local commits are cheap and the "a note is safe within seconds" promise only needs the COMMIT;
-the push does not have to share its cadence. **Options: (a) ship as is; (b) decouple — commit per
-campaign, push on a much longer quiet window or left to the Stop hook; (c) lengthen the global
-debounce, which also delays search.** Recommendation: **(b)**. Decide before the release note, since
-it changes what we promise about a vault with a remote.
+`auto-push.mjs`, so with `secondbrain.autopush` on, **a pause longer than 5 s means a network push**.
+`scripts/auto-commit.mjs:5-7` records that the push was deliberately moved to the Stop hook precisely
+to avoid *"a network push per edit + its blocking retry pause"* (and that retry is a **blocking 3 s**
+`Atomics.wait`). Track 1 partly reintroduces that on the watcher path. The "a note is safe within
+seconds" promise only needs the **commit**; the push does not have to share its cadence.
 
-**▶️ The branch IS pushed and PR #53 is open** _(2026-07-28)_ — https://github.com/tpierrain/kenjaku/pull/53,
-CI running. What remains, in order: **settle the push-cadence decision above**, read the CI verdict
-(7/7 is the arbiter, never a local green), the mutation snapshot, the marketing-surface pass, then
-the release note.
+- [ ] **DECIDE (Thomas):** **(a)** ship as is; **(b)** decouple — commit per campaign, push on a much
+      longer quiet window or left to the Stop hook; **(c)** lengthen the global debounce, which also
+      delays search and so weakens the headline. **Recommendation: (b).** It keeps the release's actual
+      promise (a note is committed within seconds of you stopping) and restores the property
+      `auto-commit.mjs` says it wanted. Decide **before** the release note: it changes what we promise
+      to anyone whose vault has a remote.
+
+**✅ PR #53 is open and CI is GREEN, 7/7** — https://github.com/tpierrain/kenjaku/pull/53, run
+`30388758449` _(2026-07-28)_: Node 22/24/26 × macOS + Windows, plus the Windows installer e2e.
+
+**The first CI run was RED, and the rule earned its keep.** `restart-signal.test.mjs` (new in this
+branch, Track 2 · `84e4038`) spelled its fixture path as `` `/brain/${RESTART_FLAG_REL}` `` while
+`restartPendingOnDisk` **joins** it — so on Windows the lookup was `\brain\.cache\restart-needed` and
+never matched. Four Windows jobs failed on a suite that had been green on macOS all along. Fixed in
+`b4b627d` by building the fixture with `join`. **Lesson, already written in CONVENTIONS §9 and now
+paid for: CI is the arbiter, never a local green** — and the branch had gone 52 commits without ever
+being pushed, so nothing could tell us.
+
+**What remains, in order:** **settle the push-cadence decision above** (the one blocker), the mutation
+snapshot, the marketing-surface pass, then the release note.
 
 **The release TITLE is settled in substance: Thomas picked the "saved while you write it" angle**
 (2026-07-28). Exact wording still to confirm against the series, which is `The One Where …`:
@@ -616,8 +646,10 @@ manager**. There is **no person note for the name it proposed at all**.
       The review found no reason to cut. Tracks 5-8 are each small, green and independent, and **no
       finding lived in them** — R1/R3/R6 are Track 1, R2/R5 are Track 4's tooling, R4 is Track 3.
       Cutting would have dropped working code without removing a single defect.
-- [ ] **CI is the arbiter, never a local green** (CONVENTIONS §9): 7/7 — Node 22/24/26 × macOS + Windows,
-      plus the Windows installer e2e.
+- [x] **CI is the arbiter, never a local green** (CONVENTIONS §9): 7/7 — Node 22/24/26 × macOS + Windows,
+      plus the Windows installer e2e. _(2026-07-28 · PR #53, run `30388758449`, all green)_ — the
+      first run was **red on all four Windows jobs** (a fixture path built by hand instead of joined,
+      `b4b627d`); see START HERE for what that cost and why the rule exists.
 - [ ] **Mutation snapshot pinned to the tag** (CONVENTIONS §5ter), recorded in
       `maintainers/mutation/RESULTS.md` and carried in the release note. Baseline at v4.3.0:
       scripts **97.27 %**, local-mirror **90.44 %**, rag **90.42 %**.
