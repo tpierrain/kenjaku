@@ -90,8 +90,8 @@ test("a push that fails ASYNCHRONOUSLY is caught too — the commit still stands
   });
 });
 
-test("the real runner launches the brain's own script, with this node, from the brain root", async () => {
-  const calls: Array<[string, readonly string[], { cwd: string }]> = [];
+test("the real runner launches the brain's own script, with this node, from the brain root, BOUNDED", async () => {
+  const calls: Array<[string, readonly string[], { cwd: string; timeout?: number }]> = [];
   const runner = buildScriptRunner({
     brainRoot: join("/brains", "mind-palace"),
     nodeExec: "/usr/local/bin/node",
@@ -102,11 +102,19 @@ test("the real runner launches the brain's own script, with this node, from the 
 
   // `process.execPath`, never a bare "node": the MCP server may well run under a
   // node that is not on the PATH the desktop app hands us.
+  //
+  // `timeout` is the load-bearing one, and it is spelled out here rather than read
+  // from the module so that changing it stays a deliberate decision. `auto-push.mjs`
+  // reaches the NETWORK; `ReindexScheduler` holds `running = true` for this whole
+  // await and only records later writes as `pending`. So an unbounded child that
+  // hangs — unreachable remote, a credential helper waiting on input — stops the
+  // vault being indexed at all until the MCP server restarts. Bounded, the child is
+  // killed, `persistCampaign` reports "failed", and the next campaign retries.
   assert.deepEqual(calls, [
     [
       "/usr/local/bin/node",
       [join("/brains", "mind-palace", "scripts", "auto-commit.mjs")],
-      { cwd: join("/brains", "mind-palace") },
+      { cwd: join("/brains", "mind-palace"), timeout: 120_000 },
     ],
   ]);
 });

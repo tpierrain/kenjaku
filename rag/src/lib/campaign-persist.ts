@@ -52,8 +52,20 @@ export const PERSIST_SCRIPTS = ["auto-commit.mjs", "auto-push.mjs"] as const;
 export type ChildRunner = (
   command: string,
   args: readonly string[],
-  options: { cwd: string },
+  options: { cwd: string; timeout: number },
 ) => Promise<unknown>;
+
+/**
+ * How long a persistence script may run before it is killed.
+ *
+ * Not a performance knob — a liveness one. `auto-push.mjs` talks to the network
+ * (plus its own blocking 3 s retry), and the caller, `ReindexScheduler`, keeps
+ * `running = true` for the whole await while later vault writes merely set
+ * `pending`. An unbounded child that never resolves therefore stops the vault being
+ * indexed for the rest of the session, with no error anywhere. Generous enough for a
+ * slow push over a bad connection, finite enough that a hung one is a blip.
+ */
+export const PERSIST_TIMEOUT_MS = 120_000;
 
 export interface ScriptRunnerDeps {
   /** The brain's root — the folder holding `scripts/`, `vault/` and the `.git`. */
@@ -74,7 +86,10 @@ export function buildScriptRunner({
   run,
 }: ScriptRunnerDeps): (script: string) => Promise<void> {
   return async (script) => {
-    await run(nodeExec, [join(brainRoot, "scripts", script)], { cwd: brainRoot });
+    await run(nodeExec, [join(brainRoot, "scripts", script)], {
+      cwd: brainRoot,
+      timeout: PERSIST_TIMEOUT_MS,
+    });
   };
 }
 
