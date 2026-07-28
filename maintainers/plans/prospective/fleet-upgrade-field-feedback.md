@@ -469,6 +469,40 @@ repairing a hook payload, not a conversation.
 
 ---
 
+## 🎁 The capture flow PRE-FILLS itself, and that is emergent, not specified *(2026-07-28)*
+
+Accepting the offer loaded the `switch` skill and produced the seven questions **as one batch, all
+declared optional** — as specified. What is **not** specified is what made it work: the agent spent 28 s
+researching the vault and **answered five of the seven itself**, turning a questionnaire into a
+proof-reading task. The owner's reply was one line: *"c'est bon pour tout, sauf mon rôle : Principal
+Engineer."*
+
+- [x] **And it pre-filled without fabricating** _(2026-07-28)_. On the role: *"je vois un rôle de
+      leadership tech transverse …, **mais pas le titre**"*, prefaced with *"je ne veux pas l'inventer"*.
+      On the dates: `3. Depuis quand ? → ?`, left visibly blank. **It filled what it knew and showed the
+      holes as holes** — the exact discipline the presumption defect (F7) asks for, applied
+      spontaneously on the surface where inventing would have been easiest.
+- [ ] **Owner's open question, worth answering deliberately** _(Thomas, on this screen)_: *"faudra qu'on
+      voie si c'est la meilleure ergonomie possible de tout afficher upfront comme ça."* ~30 lines do
+      look like homework, and question 5 is the densest (twelve names plus three sub-questions at once:
+      *"Qui manque ? Qui est de trop ? lesquels sont tes managés vs tes pairs ?"*).
+- [ ] **Recommendation: keep the single batch, and SPECIFY the pre-fill.** The batch is not the problem
+      — the alternative is seven round-trips, which the skill already rejects as an interrogation
+      (`SKILL.md:136`, *"Do not interrogate"*). What rescued this screen is the pre-fill, and **the
+      pre-fill is currently luck**: nothing in `SKILL.md:134-147` asks for it, so another vault, another
+      day, the same flow yields seven bare questions and the owner meets exactly the wall he fears.
+  - [ ] Write it into the skill's `Describe a universe — its profile` section: **research first, propose
+        answers, ask for corrections** — with the two rules this run demonstrated (never invent; show an
+        unknown as an explicit blank rather than a plausible guess).
+  - [ ] Then the density question mostly dissolves: a pre-filled batch is skimmed, not filled in. If it
+        still reads long, the lever is **question 5's triple ask**, not the number of questions.
+- [ ] **Consequence to keep in view:** answering *"c'est bon pour tout"* records the agent's inferences
+      as the owner's stated facts, in a note injected as ambient truth at every session start. Consented
+      here (he read them) and repairable (it is a plain note he edits in Obsidian), but the skill's copy
+      should keep saying so, since accepting a pre-fill is cheaper than writing one.
+
+---
+
 ## F6 — The owner reaches for `/rag` and the product answers "did you mean /run?"
 
 - [ ] **Give the RAG a front door under the name people actually reach for**
