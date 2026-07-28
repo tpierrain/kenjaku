@@ -18,11 +18,11 @@
 
 ## ▶️ START HERE
 
-**The next track to CODE is Track 6** _(as of 2026-07-28 · `25b0335`)_. Track 1 stays unticked in
+**The next track to CODE is Track 7** _(as of 2026-07-28 · `7ec088b`)_. Track 1 stays unticked in
 `## Tracking` for what it still owes, and it is **not code**: its release-note copy is due at **Track 9**,
-and its remaining check needs an **installed brain**, which the launcher deliberately is not. Tracks 4
-and 5 owe a release-note line each, also at Track 9. So resume at Track 6 — do not reopen the
-implementation of Tracks 1-5.
+and its remaining check needs an **installed brain**, which the launcher deliberately is not. Tracks 4,
+5 and 6 owe a release-note line each, also at Track 9. So resume at Track 7 — do not reopen the
+implementation of Tracks 1-6.
 
 The QA is **closed**. Do not re-run it, do not re-read `mind-palace`, do not re-investigate any entry:
 each one in the field log states observation → root cause → fix, and **every one was verified on disk**.
@@ -63,7 +63,9 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
       `6e0101b`)_ — writer **and** reader shipped; only the **release-note line** is owed, at Track 9.
 - [x] **Track 5 — An installed brain follows the launcher when it moves** *(F1)* _(2026-07-28 ·
       `2eb6fad`, `25b0335`)_ — code green; only the **release-note line** is owed, at Track 9.
-- [ ] **Track 6 — The first screen speaks to you, not to the machine** *(F5)*
+- [x] **Track 6 — The first screen speaks to you, not to the machine** *(F5)* _(2026-07-28 · `2243b83`,
+      `43f25dc`, `f63d8ac`, `7ec088b`)_ — four emitters shrunk (the audit found one the field log had
+      missed), a guard added; only the **release-note line** is owed, at Track 9.
 - [ ] **Track 7 — `/rag` answers instead of suggesting `/run`** *(F6)*
 - [ ] **Track 8 — The profile pre-fill reads the notes you wrote** *(retrieval)*
 - [ ] **Track 9 — Cut the release**
@@ -379,34 +381,51 @@ command with a flag, `Offer ONCE, in the user's language`, `PAST the disclosure 
 thing an owner meets**, before typing a word, on a product sold to non-developers, in a language that is
 not theirs. Thomas, on that screen: *"bcp trop verbeux je trouve pour les gens"*.
 
-- [ ] **Progressive disclosure — Thomas's design.** Split the payload by the moment it becomes useful:
-  - [ ] **Upfront (the trigger)**: the **fact** only, small enough to be harmless even when echoed —
+- [x] **Progressive disclosure — Thomas's design** _(2026-07-28 · `2243b83`)_. Split the payload by the
+      moment it becomes useful:
+  - [x] **Upfront (the trigger)**: the **fact** only, small enough to be harmless even when echoed —
         which universe is active, that it has no profile, that an offer is due once, in the user's
         language. **Nothing about how to run it.**
-  - [ ] **On acceptance (the detail)**: the seven questions, the skill section, the write command, the
+  - [x] **On acceptance (the detail)**: the seven questions, the skill section, the write command, the
         decline command. **The agent already loads the `switch` skill at that point**, which is where
         all of it lives.
-- [ ] **This deletes a duplication, it does not move it.** The trigger currently recites the question
-      themes **and** says to load the skill whose `Describe a universe — its profile` section holds the
-      canonical seven (`.claude/skills/switch/SKILL.md:134-147`). That redundancy is the bulk of the
-      eight lines.
+- [x] **This deletes a duplication, it does not move it** _(2026-07-28 · `2243b83`)_. The trigger recited
+      the question themes **and** said to load the skill whose `Describe a universe — its profile`
+      section holds the canonical seven (`.claude/skills/switch/SKILL.md:134-147`). That redundancy was
+      the bulk of the eight lines.
+  - [x] **The deletion needed a guard the old design did not** _(2026-07-28)_. The offer no longer names
+        the section or the decline command, so both now depend on the `switch` skill still owning them —
+        including the word `declines` in its **description**, which is what routes a refusal there at
+        all. `session-universe.test.mjs` asserts all three: lose one and an accepted offer writes a note
+        of the wrong shape, while a refusal is never recorded and a one-shot offer becomes nagging.
 - [x] **Field-validated, and it is the argument for the whole decision** _(2026-07-28)_. Given only the
       fact, the agent closed a real answer with **exactly the sentence Thomas described** — unprompted,
       last, in French, in one line, with both ways out named. **It composes the offer well from the fact
       alone**; the upfront detail buys nothing.
-- [ ] **Audit all three emitters** — each hook's `additionalContext` gets its own prefix, so **the leak
-      scales with the number of hooks we add**: `scripts/session-universe.mjs:141-146`,
-      `scripts/session-wiki-health.mjs:64`, `scripts/session-self-heal.mjs:88`. The middle one shows the
-      owner the directive verb itself: `(offer /consolidate)`, `(offer /lint)`.
-- [ ] **Target: one line that says the brain is ready** — which the `systemMessage` line already does,
-      cleanly and without a prefix. Everything else is either plumbing that must stop being echoed, or
-      an offer the agent should make **in its own words, in the flow of the conversation**.
-- [ ] **Defence in depth, which is why this is worth doing even after the echo is fixed.** A one-line
-      trigger that leaks is survivable; eight lines of protocol is not. The host's behaviour is not ours
-      to control — nothing in the matrix was inferable from the docs.
-- [ ] **Watch the double delivery**: the agent still relays the offer as intended, so the owner meets it
-      twice — raw English backstage, then polished French. **The fix must not mute the agent's version,
-      which is the good one.**
+- [x] **Audit the emitters — there are FOUR, not three** _(2026-07-28 · `43f25dc`, `f63d8ac`)_. The field
+      log named `session-universe.mjs`, `session-wiki-health.mjs`, `session-self-heal.mjs`; the audit
+      also found **`scripts/lib/actions-log-seed.mjs`**, which nobody had counted. All four now say the
+      fact and stop.
+  - [x] **The housekeeping line stopped showing the owner our own directive verb** — `2 consolidation
+        candidates (offer /consolidate)`. That parenthesis rode the **clean `systemMessage` channel**
+        too, so it reached them twice over. The line states counts; the wrapper names the commands.
+  - [x] **The restart warning stays LOUD** — a half-applied update must never pass for live. It lost the
+        stage direction around an already owner-readable sentence, not its urgency.
+- [x] **Target: what the owner meets at startup** _(2026-07-28)_. Roughly **1000 characters of English
+      protocol → 590**, fact plus one sentence of direction per block. The honest bound: the echo itself
+      is the **host's** behaviour and not ours to remove, so the last prefixed lines stay. What we own is
+      how much they say, and the `systemMessage` line (`🧠 RAG up to date`) still lands clean.
+- [x] **Defence in depth — and it is now a guard, not a habit** _(2026-07-28 · `f63d8ac`)_. Each emitter
+      bounds its own payload in its own test, since only that test knows what the block is for. What no
+      such test can notice is a **fifth** emitter appearing — so `scripts/lib/startup-payload-guard.test.mjs`
+      **finds** the emitters instead of being told about them, and fails the suite on one that arrives
+      without a bound. The leak scales with the hooks we add; the guard scales with them too.
+- [x] **The double delivery is intact** _(2026-07-28)_. Every block still DIRECTS the agent (`tell them
+      once, in their language`), so the polished relay — the good one — is untouched. Only the backstage
+      copy shrank.
+- [x] **It reaches the deployed fleet** _(2026-07-28)_: everything landed in `scripts/*.mjs` and
+      `scripts/lib/**`, both engine-owned `replace`. No `settings.json` change, so nothing here is
+      new-installs-only.
 
 ---
 
@@ -521,7 +540,10 @@ brain's own account.** The fixes owe the same.
 - [ ] **Track 3**: plant a note with broken front-matter, run a campaign, confirm `watcher.log`,
       `last-run.json` and `vault_stats` now **agree**, and that the arithmetic invariant fails loudly.
 - [ ] **Track 4**: run `/consolidate` on a page and diff its front-matter — one `updated:` key, in place.
-- [ ] **Track 6**: open a CLI session and read the first screen as a non-developer would.
+- [ ] **Track 6**: open a CLI session and read the first screen as a non-developer would. **Still owed,
+      and it needs a real brain** — the payloads only appear on a vault with a universe, a missing
+      profile and pending housekeeping. What IS pinned without one: the exact rendered screen (590 chars
+      against roughly 1000), asserted by the length bounds in each emitter's test.
 - [ ] **Track 8**: on a universe holding a `type: person` note tagged `cto`, run the capture flow and
       check it proposes that person.
 
