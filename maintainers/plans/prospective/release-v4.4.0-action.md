@@ -52,7 +52,7 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [x] **Track 2 — Your own status line survives opening your brain** *(F2, F4, ADR 0036)*
       _(2026-07-28 · `84e4038`, `65202ba`, `44cdd24`)_ — code, ADR and copy done; the on-a-real-brain
       check stays owed in the Verification section.
-- [ ] **Track 3 — A note the engine cannot read is reported, not swallowed** *(F10)*
+- [x] **Track 3 — A note the engine cannot read is reported, not swallowed** *(F10)* _(2026-07-28 · `631b0ae`)_
 - [ ] **Track 4 — Consolidating a page can no longer damage it** *(F12)*
 - [ ] **Track 5 — An installed brain follows the launcher when it moves** *(F1)*
 - [ ] **Track 6 — The first screen speaks to you, not to the machine** *(F5)*
@@ -252,21 +252,23 @@ answer over an incomplete index**. Three of our own channels disagreed about the
 the owner sees is the optimistic one — `watcher.log` said `1 errors`, `last-run.json` said `"errors":[]`,
 and the brain told the owner *"0 erreur, index à jour"*. The brain was **faithful to what it was given**.
 
-- [ ] **Root cause, exact and readable in three lines.** `reporter.start()` **resets** `errors: []`
+- [x] **Root cause, exact and readable in three lines** _(2026-07-28)_ — confirmed on disk, unchanged. `reporter.start()` **resets** `errors: []`
       (`rag/src/lib/reindex-reporter.ts:54`) and runs **after phase 1**
       (`rag/src/lib/index-manager.ts:260`, inside `runIndexingPhase`). `reporter.finish()` then merges
       **only** `runResult.errors`, the phase-**2** errors (`:271`). Phase-1 read errors are pushed to
       `result.errors` (`:201`) and **never handed to the reporter** — so `last-run.json`, `last-run.md`
       and `vault_stats`, i.e. everything the owner and the agent can see, under-report.
-- [ ] **Fix**: hand phase-1 errors to the reporter — seed `reporter.start({errors})` instead of
-      resetting, or call `recordError()` per read failure. **That method already exists**
-      (`reindex-reporter.ts:67`) and has **no caller on this path**.
-- [ ] **Ship the invariant test: `scanned == indexed + skipped + errors`.** Not a nice-to-have — it was
-      **validated in both directions on real data** during the QA: the broken run read
-      `414 ≠ 0 + 413`, the repaired one `415 = 2 + 413`. It detects the incident **from the numbers
-      alone, with no knowledge of the cause**.
-- [ ] Optional, and explicitly not required to establish the defect: reproduce with a CLI reindex and
-      print the error strings, to name what was failing in `mind-palace` all afternoon.
+- [x] **Fixed by seeding** `reporter.start({errors})` _(2026-07-28 · `631b0ae`)_ rather than looping on
+      `recordError()`: one write instead of N, and `finish()` already appends phase 2's on top of
+      whatever `start()` seeded, so the merge order needed no change.
+- [x] **The invariant SHIPPED, not just as a test** _(2026-07-28 · `631b0ae`)_: `unaccountedNotes()`
+      runs on every completed run and the warning rides on the line everyone reads (`last-run.md`,
+      hence the agent). Both QA numbers are pinned as tests (`414 ≠ 0 + 413` → 1 lost;
+      `415 = 2 + 413` → 0). **One exemption, deliberate**: a run cut off by a quota wall — its notes
+      are not lost, they resume, and a detector that cries wolf on every capped run is one nobody reads.
+- [x] **Not reproduced on `mind-palace`** (no access to that brain from here) — and it turned out not to
+      be needed: a completed run now **names** its errors instead of only counting them, which is the
+      thing the QA lacked. Knowing "1 errors" without knowing *which note* is what cost it an afternoon.
 
 ---
 
