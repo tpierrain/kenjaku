@@ -33,10 +33,34 @@ review and do not re-derive those six.**
 **The cut line is DECIDED: nothing is cut.** All of Tracks 1-8 ship. No finding lived in Tracks 5-8,
 so cutting them would have dropped working code without removing a single defect.
 
-**▶️ The next real step is `git push -u` + open the PR** — the branch has **never been pushed** (no
-`origin/feat/v4.4.0-field-fixes`, no PR, no CI run), so the "CI is the arbiter" box has nothing to
-read until it exists. Pushing is what makes the 7/7 arbiter real. After that, in order: the mutation
-snapshot, the marketing-surface pass, then the release note.
+**⏸️ ONE DECISION IS OPEN, raised by Thomas 2026-07-28 and NOT found by the review: the push
+cadence on the watcher path.** He asked what stops a commit/reindex storm while someone types in
+Obsidian. The answer, verified in code, is four locks: the watcher ignores `.obsidian`
+(`vault-watcher.ts:21`); `ReindexScheduler.notify` is a **re-arming** 5 s debounce, so writes closer
+together than 5 s trigger nothing at all; indexing is incremental by sha256, so only the changed note
+is re-embedded; and persistence is gated on `indexed > 0 || removed > 0`, with `git add .` folding a
+whole burst into ONE commit. Typing is therefore safe.
+
+**The gap is the PUSH, not the commit.** Every campaign that changed something also runs
+`auto-push.mjs`, so with `secondbrain.autopush` on, a pause longer than 5 s means a network push.
+`auto-commit.mjs:5-7` states the push was deliberately moved to the Stop hook precisely to avoid "a
+network push per edit + its blocking retry pause" — Track 1 partly reintroduces that on the watcher
+path. Local commits are cheap and the "a note is safe within seconds" promise only needs the COMMIT;
+the push does not have to share its cadence. **Options: (a) ship as is; (b) decouple — commit per
+campaign, push on a much longer quiet window or left to the Stop hook; (c) lengthen the global
+debounce, which also delays search.** Recommendation: **(b)**. Decide before the release note, since
+it changes what we promise about a vault with a remote.
+
+**▶️ The branch IS pushed and PR #53 is open** _(2026-07-28)_ — https://github.com/tpierrain/kenjaku/pull/53,
+CI running. What remains, in order: **settle the push-cadence decision above**, read the CI verdict
+(7/7 is the arbiter, never a local green), the mutation snapshot, the marketing-surface pass, then
+the release note.
+
+**The release TITLE is settled in substance: Thomas picked the "saved while you write it" angle**
+(2026-07-28). Exact wording still to confirm against the series, which is `The One Where …`:
+`v4.4.0 — The One Where a Note Is Saved While You Write It`. Note the claim is about the **local
+commit**, which is what the four locks actually deliver — do not let the copy imply the push shares
+that cadence, especially if option (a) is chosen above.
 
 **One decision is waiting on Thomas, and it does not block Track 9.** Track 7 shipped `rag` as the
 **only** new slash command; `/index` and `/reindex` route there in plain language rather than each
