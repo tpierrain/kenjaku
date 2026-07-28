@@ -353,6 +353,39 @@ looked at*, and the next release should not have to re-derive it.
 > section that sold tweaking without saying what tweaking costs). None of them would have been caught by
 > a test. Hence the standing pass.
 
+## 11. A release note is written for the non-developer first
+
+**Most Kenjaku users are not developers.** The release note is the most-read artifact we publish, so
+its top must be readable by someone who will never open a terminal. The mechanism is not the news —
+what they gain is.
+
+**The shape, every time:**
+
+1. **A two-sentence lead** saying what the reader gains, in their words. No `git`, no file names, no
+   internal vocabulary. Not what we built: what changes for them.
+2. **`What you get`** — one-line bullets, an emoji + a bold claim + at most one sentence of plain
+   language. Six bullets is already a lot. If a bullet needs a paragraph, the paragraph belongs in
+   *Under the hood* and the bullet keeps only the outcome.
+3. **`What you have to do`** — the shortest section, the command and the cost.
+4. **`---`, then `Under the hood`** and everything technical: the mechanics, the ADRs, the review,
+   CI, the mutation snapshot. **Nothing is cut** — depth is kept, it is *moved below the fold*, where
+   the readers who want it will go and the others will not trip over it.
+
+**Be brief on purpose.** We are in an era where machines generate a lot of text and humans are tired
+of reading it. Length is not thoroughness — the technical sections carry the thoroughness. Every
+sentence above the `---` earns its place or goes.
+
+**Do not alarm.** State a fix without dramatizing the defect ("notes that could come out damaged,
+don't" — not "notes were destroyed"), scope it to what actually happened, and **never advertise bugs
+that never shipped**: findings caught by `/code-review` before merge are evidence the net works, so
+frame them as the quality of what ships, not as a list of near-misses the reader should worry about.
+
+> Origin (2026-07-28, Thomas, re-reading the v4.3.0 note): the note opened on the *breakage* and on
+> the git mechanism, in dense paragraphs, and told users their brain "was quietly not syncing and
+> nothing told you". Rewritten top-down for a non-dev reader, technical depth preserved under
+> *Under the hood*. Complements §10, which says the note is a marketing artifact and must lead with
+> *why this matters to you* — this section says how.
+
 ## See also (operative rules already homed in the repo)
 
 - [`../DEVELOPING.md`](../DEVELOPING.md) — manual commits, neutrality (+ the Thomas-Pierrain
