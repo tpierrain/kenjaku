@@ -52,8 +52,18 @@ export function runRefresh(argv, deps = realRefreshDeps) {
     return 1;
   }
 
+  // Parsing succeeded, which says nothing about the SHAPE: `null`, `"x"` and `[]` are
+  // all valid JSON, and reaching for `.path` on the first threw a TypeError — a node
+  // stack trace at an owner, from a script whose contract is "exit 1, and say why".
+  if (typeof spec?.path !== "string" || !spec.path) {
+    deps.error(
+      `✗ The refresh spec needs a "path" (a note under vault/), e.g. {"path": "topics/x.md", "section": "…"}.`,
+    );
+    return 1;
+  }
+
   const vaultDir = toPosix(join(deps.cwd(), "vault"));
-  const absPath = toPosix(join(vaultDir, spec.path ?? ""));
+  const absPath = toPosix(join(vaultDir, spec.path));
   // Containment, not politeness: a `..` in the spec would otherwise let a refresh
   // rewrite any file the brain can reach.
   if (!absPath.startsWith(`${vaultDir}/`)) {

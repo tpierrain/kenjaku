@@ -75,6 +75,23 @@ test("a path escaping the vault is refused", () => {
   assert.match(d.errs[0], /vault/i);
 });
 
+test("valid JSON that is not a refresh spec is refused, not crashed on", () => {
+  // `null`, `"x"` and `[]` all PARSE, so they sail past the try/catch around
+  // JSON.parse and reach `spec.path` — where `null` threw a TypeError and printed a
+  // node stack trace at an owner, breaking the skill's stated contract ("Exit 1 =
+  // refused, and it says why"). Three shapes, because one would not distinguish "is
+  // an object" from "is not null".
+  for (const payload of ["null", '"x"', "[]"]) {
+    const d = deps();
+    d.readInput = () => payload;
+
+    assert.doesNotThrow(() => runRefresh([], d), `payload ${payload} must not throw`);
+    assert.equal(runRefresh([], d), 1, `payload ${payload} must be refused`);
+    assert.equal(d.written.length, 0);
+    assert.match(d.errs[0], /path/i, `payload ${payload} must say what is missing`);
+  }
+});
+
 test("invalid JSON on stdin is refused, loudly", () => {
   const d = deps();
   d.readInput = () => "{ not json";
