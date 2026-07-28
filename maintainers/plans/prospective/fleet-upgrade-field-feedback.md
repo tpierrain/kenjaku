@@ -38,10 +38,10 @@ right often and wrong three times. **Do not re-investigate; the evidence is in t
 - [ ] `vault/inqom/universe.md` was **untracked** (the third-path proof, see F8's "Third path CONFIRMED").
       The owner was about to ask the brain to commit it — harmless either way, the next SessionStart sweep
       catches it.
-- [ ] `vault/inqom/topics/crise-kandor-clemence.md` had a **duplicate `updated:` key** (F12) and the owner
-      was about to have it fixed (keep `2026-07-28`). **Two things to check after that fix**: the section
-      `## 2026-06-25 — Continuité produit post-départ` becomes searchable, and `1 errors` stops appearing
-      in `watcher.log` campaigns. If either is still wrong, F12's root cause is not fully understood.
+- [x] `vault/inqom/topics/crise-kandor-clemence.md` had a **duplicate `updated:` key** (F12). **Fixed and
+      verified** _(2026-07-28 · `67f30e0`)_: the missing section is indexed, the `1 errors` is gone, the
+      counters' arithmetic closes again. Both files landed in the same commit — see F12's repair block,
+      which also validates F10's invariant on real data.
 
 **The decision already taken with Thomas (2026-07-28): F8 ships as its own release.** It does not merely
 add a feature, it **makes true a sentence v4.3.0 already published to the fleet** ("les notes tapées
@@ -992,6 +992,29 @@ trigger reaches the network.
 4. **The note answers from before the consolidation.** Its indexed sections stop at `## Sources`; the
    section the consolidation added, `## 2026-06-25 — Continuité produit post-départ (sync Supermen)`
    (file line 91), **is absent from `chunks`**. The page is searchable and confidently out of date.
+
+### ✅ Repaired and verified, and the repair VALIDATES F10's proposed invariant *(2026-07-28)*
+
+The owner had the header fixed (one `updated: 2026-07-28`, back under `created:`). Checked on disk after:
+
+- [x] The section that was missing, `## 2026-06-25 — Continuité produit post-départ (sync Supermen)`,
+      **is now in `chunks`**. The note answers with its real content again.
+- [x] `watcher.log`: `✅ catch-up done: **2 indexed, 413 unchanged**` — the trailing `1 errors` that had
+      followed every campaign of the afternoon is **gone**.
+- [x] **And the arithmetic closes.** `last-run.json` now reads `scanned:415, indexed:2, skipped:413,
+      errors:[]` → `415 = 2 + 413`. The broken run read `scanned:414, indexed:0, skipped:413` → `414 ≠ 413`,
+      **off by exactly the dropped file**. So the invariant proposed under F10
+      (`scanned == indexed + skipped + errors`) **does detect this incident, from the numbers alone, with
+      no knowledge of the cause** — verified in both directions on real data rather than argued. Build it.
+- [x] **The commit mechanism confirmed itself too.** The header fix was an `Edit`, so `PostToolUse` fired
+      and `git add .` swept **both** files into `67f30e0` — including the untracked `universe.md` the
+      engine had written. That is precisely why F8/F9 are *delayed, not lost*: **an unrelated edit is what
+      rescues them**, which is not a guarantee, it is a coincidence with good odds.
+- [x] **Unprompted cross-check, worth recording as the product working**: the brain then noted that
+      `universe.md` files Damien Breck as taking over Head of Product while the vault also has him
+      covering the Kandor PM interim since 23/06, *"surcharge déjà notée dans tes notes, ça vaut peut-être
+      un point à ton retour de congés"*. **That is the brain earning its keep** — a tension across two
+      notes, surfaced as an actionable point, on its own initiative.
 
 **The irony is the whole point.** Consolidation exists so fresh captures become findable on the page
 that owns them. Here **the act of consolidating made its own output unfindable**, and the alarm that
