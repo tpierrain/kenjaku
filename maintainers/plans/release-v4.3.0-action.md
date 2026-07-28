@@ -185,7 +185,7 @@
         `slice(3).startsWith("vault/")` test missed them. Measured on a real repo: **4 uncommitted
         notes, counted as 1.** Fixed by unquoting, and renames are read as the two paths they are
         (proven by a hand-applied mutant). _(`fd7ae79`)_
-  - [ ] **A note whose body starts with `---` is written DESTROYED — at sync time**
+  - [x] **A note whose body starts with `---` is written DESTROYED — at sync time**
         (`markdown.ts`). `matter.stringify` re-parses a string body, so a Notion page whose first
         block is a divider has its characters scattered into the frontmatter (`'0': r`, `'1': e`…)
         and its body emptied. **Pre-existing (v4.2.0), fixed here on purpose** (decided with Thomas,
@@ -193,14 +193,22 @@
         victims. Also: a missing key currently stringifies to the literal `undefined`
         (`source_url: undefined` → a dead citation), and any frontmatter key the engine does not know
         is silently dropped by the move's rebuild.
-    - [ ] **⬅️ THE ONE STILL OPEN — resume here.** Reproduced with a probe against the real
-          `toLocalMirrorMarkdown`: `matter.stringify(body, data)` treats a string body that starts
-          with `---` as a file to PARSE, so the body's characters come back as `'0': r, '1': e, …`
-          inside the frontmatter and the body is `"\n"`. Fix at the write path (build the
-          frontmatter block instead of handing gray-matter a re-parseable string), then make
-          `reuniverseLocalMirrorMarkdown` preserve unknown keys and refuse a note whose required
-          frontmatter is missing rather than stringifying `undefined`. Byte-identity with what a
-          sync writes is the constraint that must survive (there is already a test for it).
+    - [x] **Fixed in three baby-steps** _(2026-07-28)_, each seen red first, each its own commit:
+      - [x] The body is handed to gray-matter as `{ content }`, never as a bare string, so it is
+            appended instead of re-parsed. A divider-first page now keeps its body and its
+            frontmatter stays clean. _(`1ca6066`)_
+      - [x] The move's rebuild **keeps every key the note carries** (a `tags:` added in Obsidian, a
+            key a later engine stamps) and re-stamps `universe` alone, last. Both write paths go
+            through one `renderNote`, so the byte-identity a move relies on cannot drift between
+            them. _(`600463a`)_
+      - [x] A note stripped of its citation frontmatter is **refused, naming every missing key**,
+            instead of writing `source_url: undefined`. The throw lands inside phase 1 of the move,
+            which already rolls the new copies back. _(`6318257`)_
+      - [x] Byte-identity survives (the acceptance test that syncs right after a move still
+            reports `written: 0, unchanged: 2`). Two mutants hand-applied on the full suite
+            (`missing.length > 0` → `> 1`, `source_url` dropped from the required list): both
+            killed. 254 pass / 0 fail in `local-mirror`, `tsc --noEmit` clean, harness suite
+            989 pass / 0 fail / 1 skipped (Windows-only).
   - [x] **A guard whose name lies** (`mcp-tools.test.ts`): "exactly the **7** tools" asserted a list
         of 8. _(`84a5d87`)_
   - [ ] **After the last fix:** re-run the mutation snapshot on what changed (`repo-status.mjs`,
