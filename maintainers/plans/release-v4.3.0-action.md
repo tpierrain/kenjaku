@@ -1,7 +1,7 @@
 # Release v4.3.0 — a brain that stopped syncing, an upgrade that warns, and a mirror that can move
 
-- **STATUS:** 🚧 IN PROGRESS — track 1 (the sync fix) is merged-ready (PR #50, CI fully green);
-  tracks A/B/C opened 2026-07-28 and not started.
+- **STATUS:** 🚧 IN PROGRESS — all four tracks are green locally; what remains is the
+  `/code-review` Thomas asked for, then the merge and the tag.
 - **Scope:** Second brain (runtime) — startup sync, engine update persistence, index-schema
   honesty, and a mirror's universe placement.
 - **Branch:** `fix/pull-failure-says-why` · **PR:** <https://github.com/tpierrain/kenjaku/pull/50>
@@ -13,9 +13,9 @@
 ## Tracking
 
 - [x] **Track 1 — the startup sync fix** (details below, all boxes ticked)
-- [ ] **Track A — an upgrade that warns about the reindex it owes** (§Track A)
-- [ ] **Track B — a mirror re-declaration cannot silently duplicate a corpus** (§Track B)
-- [ ] **Track C — a mirror can be MOVED to another universe** (§Track C)
+- [x] **Track A — an upgrade that warns about the reindex it owes** (§Track A) _(`a3943e9`)_
+- [x] **Track B — a mirror re-declaration cannot silently duplicate a corpus** (§Track B) _(`5259851`)_
+- [x] **Track C — a mirror can be MOVED to another universe** (§Track C) _(`9acc21f` → `3ca3c31`)_
 - [ ] **Cut the release** (§Cutting the release)
 
 ## Track 1 — the startup sync fix (shipped into the branch)
@@ -124,22 +124,34 @@
 
 ## Track C — a mirror can be MOVED to another universe
 
-- [ ] **An owner can re-file an existing mirror into another universe**, files and config and
-      sidecar together, with nothing left behind
-  - [ ] Decide the surface before coding: a dedicated MCP tool (`move_source`) vs a flag on
-        `setup_source`. Write the choice into the plan with its reason.
-  - [ ] Amend **ADR 0034 in place** (CONVENTIONS §6bis/§6ter): the universe is still frozen at
-        declaration for the **sync** path, but a deliberate move now exists; say what it costs
-        (a full re-embed of that mirror's notes) and why that price is acceptable when it is
-        asked for explicitly.
-  - [ ] Outside-in TDD in the `local-mirror` module: the move relocates every produced `.md`,
-        rewrites the `universe:` frontmatter, updates each tracked `vaultPath` in the state
-        sidecar, updates the config, and removes the now-empty old folder.
-  - [ ] The corpus is never at risk: a failed move must leave the mirror consistent (either the
-        old placement or the new one, never half of each).
-  - [ ] Drive it from the `local-mirror` skill in the owner's own words, and keep the
-        progressive-disclosure gate: below two universes the word never appears.
-  - [ ] Mutation-check the touched files.
+- [x] **An owner can re-file an existing mirror into another universe**, files and config and
+      sidecar together, with nothing left behind _(2026-07-28 · `9acc21f`, `dc37b7e`, `3ca3c31`)_
+  - [x] **Surface decided: a dedicated `move_source` tool**, not a flag on `setup_source`. Why:
+        the intent is different (re-file an existing corpus vs declare a new one), the guardrails
+        are different (a move re-embeds; a declaration pulls), and a move must not have to
+        re-supply the token and the root page it already knows.
+  - [x] Amend **ADR 0034 in place** (CONVENTIONS §6bis/§6ter): point 5 now carries the rule — the
+        universe stays frozen for the sync path, one deliberate local move changes it, and
+        re-declaring is refused. Written timeless, no "we first did X" scar.
+  - [x] Outside-in TDD in the `local-mirror` module, one acceptance test at a time, each seen red
+        first: the move relocates every produced `.md`, restamps the `universe:` frontmatter,
+        follows every tracked `vaultPath` **and hash** in the sidecar, and updates the config.
+  - [x] **It is LOCAL** — read, rebuild, write, delete — so no token and no network: a mirror can
+        be re-filed while the source is unreachable. The `IVaultWriter` port gained `read` for it.
+  - [x] A moved page is **byte-identical to what a sync would write there**, so the next refresh
+        rewrites nothing (proven by a test, and by hand-mutating the rebuild with one newline).
+  - [x] The corpus is never at risk: writes all land **before** any delete, and a failure rolls
+        the new copies back — the mirror is left exactly as it was, config and sidecar untouched.
+  - [x] A universe nobody created is **refused**, as at declaration; an undeclared mirror too.
+  - [x] Moving onto the universe it already lives in is a **no-op that keeps every page** (phase 2
+        would otherwise delete the file phase 1 just wrote) — guard proven by a hand-applied mutant.
+  - [x] Drive it from the `local-mirror` skill (Maintenance tools + trigger phrases + version
+        1.2.0), which says what it costs, never moves on its own initiative, and stays silent
+        below the disclosure gate. Copy in `.claude/` kept in sync.
+  - [x] Mutation-checked: `markdown.ts` **100 %**, `local-mirror.ts` **96.16 %** with the single
+        survivor inside this change killed afterwards (hand-verified). Recorded in
+        [`../mutation/RESULTS.md`](../mutation/RESULTS.md).
+  - [x] 245 pass / 0 fail in `local-mirror`, `tsc --noEmit` clean, harness suite 982/0.
 
 ## Cutting the release
 
