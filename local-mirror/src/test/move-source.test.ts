@@ -199,8 +199,14 @@ test('a move whose old copy cannot be deleted still completes, and says what it 
 
   assert.equal(result.ok, true, 'the pages ARE under the new universe — that is a move');
   assert.equal(result.moved, 2);
-  assert.match(result.message, /mirrors\/team-a\/page-1\.md/, 'the leftover is named');
-  assert.match(result.message, /could not be deleted|delete by hand|remove it yourself/i);
+  // Asserted WHOLE: matched on a fragment, the clause naming the cost (an indexed stale twin) and
+  // the one telling the owner what to do about it could both be blanked with the suite green.
+  assert.equal(
+    result.message,
+    'Moved "team-a" to acme: 2 page(s) now live under acme/mirrors/team-a/. ' +
+      '⚠️ 1 old copy could not be deleted and is still on disk: mirrors/team-a/page-1.md — ' +
+      'delete by hand, or your brain will index the same page twice.',
+  );
   // The config and the sidecar agree with the disk: that is what keeps the next sync sane.
   const [declared] = await harness.declaredSources();
   assert.equal(declared.universe, 'acme');
@@ -212,6 +218,31 @@ test('a move whose old copy cannot be deleted still completes, and says what it 
     [...harness.vaultFiles().keys()].sort(),
     ['acme/mirrors/team-a/page-1.md', 'acme/mirrors/team-a/page-2.md', 'mirrors/team-a/page-1.md'],
     'both new copies, plus the one stale file the vault refused to remove',
+  );
+});
+
+// Two leftovers, not one: a vault that refuses one delete usually refuses the next (a locked
+// folder, a read-only volume), and that is the case the single-leftover fixture can never tell
+// apart. It is also the only one that proves the leftovers are named ONE BY ONE — with a single
+// path, a separator that joined nothing would read exactly the same.
+test('a move that could not delete two old copies names them both', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror())
+    .withNotionPages(aNotionPage({ id: 'page-1' }), aNotionPage({ id: 'page-2' }));
+  const gss = harness.build();
+  await gss.sync('team-a');
+  harness.withFailingDeletionOf('mirrors/team-a/page-1.md');
+  harness.withFailingDeletionOf('mirrors/team-a/page-2.md');
+
+  const result = await gss.moveSource('team-a', 'acme');
+
+  assert.equal(
+    result.message,
+    'Moved "team-a" to acme: 2 page(s) now live under acme/mirrors/team-a/. ' +
+      '⚠️ 2 old copies could not be deleted and are still on disk: ' +
+      'mirrors/team-a/page-1.md, mirrors/team-a/page-2.md — ' +
+      'delete by hand, or your brain will index the same page twice.',
   );
 });
 
