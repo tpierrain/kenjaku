@@ -38,3 +38,22 @@ test('a named universe travels with the note', () => {
   assert.equal(data.universe, 'acme');
   assert.equal(content.trim(), 'body');
 });
+
+// A Notion page whose FIRST block is a divider renders a body starting with `---`. Handed to
+// gray-matter as a string, that body is re-parsed as if it were a whole file: its characters
+// come back scattered into the frontmatter (`'0': r`, `'1': e`…) and the note is written empty.
+// The body is a payload here, never a document to parse.
+test('a body that opens with a divider survives the write', () => {
+  const raw = toLocalMirrorMarkdown('team-a', anItem, '---\n\nreal content\n', 'acme');
+
+  const { data, content } = parseLocalMirrorMarkdown(raw);
+  assert.deepEqual(data, {
+    mirror: 'team-a',
+    source_id: 'page-1',
+    title: 'Team A — invoices',
+    source_url: 'https://www.notion.so/acme/Page-0123abc',
+    last_edited_time: '2026-07-28T10:00:00.000Z',
+    universe: 'acme',
+  });
+  assert.equal(content.trim(), '---\n\nreal content');
+});

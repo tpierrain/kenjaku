@@ -52,7 +52,11 @@ export function toLocalMirrorMarkdown(
     last_edited_time: item.lastEditedTime,
   };
   if (universe) frontmatter.universe = universe;
-  return matter.stringify(body, frontmatter, YAML_ENGINE);
+  // `{ content }`, never the bare string: handed a string, gray-matter PARSES it as a whole
+  // file, so a body opening with `---` (a Notion page whose first block is a divider) comes
+  // back as characters scattered into the frontmatter and an emptied note. The body is a
+  // payload to append, not a document to re-read.
+  return matter.stringify({ content: body }, frontmatter, YAML_ENGINE);
 }
 
 /**
