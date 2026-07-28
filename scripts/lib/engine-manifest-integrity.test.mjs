@@ -29,6 +29,25 @@ const trackedFiles = execFileSync("git", ["ls-files"], { cwd: repoRoot, encoding
 // (from .template / by the launcher self-heal), never tracked source → excluded.
 const GENERATED = new Set([".claude/settings.json"]);
 
+// The regimes that actually WRITE a file into an upgrading brain. `merge` is absent on
+// purpose: a script the brain runs must arrive whole, not 3-way merged.
+const CARRY_GLOBS = [...(manifest.regimes.replace ?? []), ...(manifest.regimes.regenerate ?? [])];
+
+// Which of `refs` no carry glob matches — i.e. which the brain is told to run but never
+// receives. Shared by the two ways a brain comes to run an engine script: a wired hook,
+// and a skill's instructions.
+const notCarried = (refs) =>
+  refs.filter((rel) => !CARRY_GLOBS.some((glob) => matchesAny([glob], rel)));
+
+// Every `scripts/<name>.mjs` a file names, deduplicated and ordered.
+const scriptsNamedIn = (files) => [
+  ...new Set(
+    files.flatMap(
+      (file) => readFileSync(join(repoRoot, file), "utf8").match(/scripts\/[\w.-]+\.mjs/g) ?? [],
+    ),
+  ),
+].sort();
+
 test("engine-manifest — every `replace`/`merge` glob resolves to a real tracked file (no dead inventory entries)", () => {
   const globs = [...(manifest.regimes.replace ?? []), ...(manifest.regimes.merge ?? [])].filter(
     (glob) => !GENERATED.has(glob),
@@ -53,12 +72,34 @@ test("engine-manifest — every SessionStart hook script is carried to upgraders
         .flatMap((cmd) => cmd.match(/scripts\/[\w.-]+\.mjs/g) ?? []),
     ),
   ];
-  const carryGlobs = [...(manifest.regimes.replace ?? []), ...(manifest.regimes.regenerate ?? [])];
-  const undeclared = hookScripts.filter((rel) => !carryGlobs.some((glob) => matchesAny([glob], rel)));
+  const undeclared = notCarried(hookScripts);
   assert.deepEqual(
     undeclared,
     [],
     `SessionStart hook scripts not carried by the manifest (upgraders keep stale copies): ${undeclared.join(", ")}`,
+  );
+});
+
+// The same reverse guard, for the OTHER way a brain runs an engine script: a skill
+// that tells it to. `engine-skills/**` is `replace`, so an upgrade always delivers the
+// INSTRUCTION; if the script it names is in no regime, `computeApplyPlan` (a strict
+// write-allowlist) never copies it, and the brain gets `Cannot find module` on the one
+// path the skill calls mandatory. That is how `scripts/refresh-note.mjs` shipped to
+// nobody while `engine-skills/consolidate/SKILL.md` shipped to everybody — masked by
+// its helper `scripts/lib/note-refresh.mjs`, which `scripts/lib/**` did carry.
+//
+// Deliberately scoped to scripts a DELIVERED SKILL invokes, not "every script in
+// scripts/": `clear-example-notes.mjs`, `pick-folder.mjs` and `run-eval.mjs` are
+// install-time / maintainer-only on purpose, and no skill names them.
+test("engine-manifest — every script a delivered skill invokes is itself carried to upgraders", () => {
+  const skillFiles = trackedFiles.filter((file) => file.startsWith("engine-skills/"));
+
+  const undeclared = notCarried(scriptsNamedIn(skillFiles));
+
+  assert.deepEqual(
+    undeclared,
+    [],
+    `scripts named by a delivered skill but carried by no regime — upgraders get the instruction and no script: ${undeclared.join(", ")}`,
   );
 });
 
