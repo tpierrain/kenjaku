@@ -25,9 +25,23 @@ graduate straight into Gate 4's plan without a second investigation.
 
 ## ▶️ RESUME HERE (written 2026-07-28 before a `/clear` — read this first)
 
-**Where we got to.** The QA run is **done and green**: `mind-palace` is on v4.3.0, 415 notes indexed,
-`a98921f` + follow-ups committed. Eight field entries (F1-F8) are recorded below, each with its own
-root cause and fix list. Nothing is implemented yet.
+**Where we got to.** The upgrade itself is **done and green** (`mind-palace` on v4.3.0). The QA then
+**kept running all afternoon** and is what produced most of this file: **twelve field entries (F1-F12)**,
+each with observation → root cause → fix. **Nothing is implemented yet.**
+
+Every entry below was **verified on disk** at the time it was written (git state, the SQLite index,
+`watcher.log`, `last-run.json`, the engine sources) — never taken from the brain's own account, which was
+right often and wrong three times. **Do not re-investigate; the evidence is in the entries.**
+
+**Live state of the QA when this was written** (a session was open on the CLI in `~/mind-palace`):
+
+- [ ] `vault/inqom/universe.md` was **untracked** (the third-path proof, see F8's "Third path CONFIRMED").
+      The owner was about to ask the brain to commit it — harmless either way, the next SessionStart sweep
+      catches it.
+- [ ] `vault/inqom/topics/crise-kandor-clemence.md` had a **duplicate `updated:` key** (F12) and the owner
+      was about to have it fixed (keep `2026-07-28`). **Two things to check after that fix**: the section
+      `## 2026-06-25 — Continuité produit post-départ` becomes searchable, and `1 errors` stops appearing
+      in `watcher.log` campaigns. If either is still wrong, F12's root cause is not fully understood.
 
 **The decision already taken with Thomas (2026-07-28): F8 ships as its own release.** It does not merely
 add a feature, it **makes true a sentence v4.3.0 already published to the fleet** ("les notes tapées
@@ -54,13 +68,38 @@ F8/P1 rather than beside it:
   (deletion, not just creation) and it pins the trigger condition (`indexed > 0 || removed > 0`).
 - **F11 is one line and P1 depends on it**: campaigns fire on `.obsidian/` UI churn, so P1's trigger
   must be written knowing that. Ship it with P1.
+- ⏳ **TWO DECISIONS PENDING — asked, not yet answered** (both found *after* the scope was frozen, both
+  put to Thomas on 2026-07-28; **ask again before writing the release plan**):
+  - [ ] **F12 — consolidation corrupts front-matter.** My recommendation: **non-negotiable**. It is our
+        code silently damaging the owner's notes, and the damage is invisible because F10 hides it.
+  - [ ] **The pre-fill that never reads the person notes** (inside the universe-capture section). Wider
+        in scope, but it is the only defect that makes the brain state a **falsehood about a fact the
+        owner wrote himself**. Cheapest form is a skill edit: pre-fill from `type: person` notes.
 - **F10 joins the release** _(Thomas, 2026-07-28)_. The engine drops unreadable notes and reports
   "0 error" to the owner. Small (the reporter never receives phase-1 errors), and it is the trust defect
   F7 is about, one layer down: a brain that answers confidently over an incomplete index is the failure
   mode this product cannot afford. Ships with the `scanned == indexed + skipped + errors` invariant test.
 
-**Next step when picking this up:** write the release's action plan, then implement **F8/P1 in TDD** —
-it is the most structural, and its propagation trap deserves a test that locks it.
+**Next step when picking this up, in this order:**
+
+- [ ] 1. **Settle the two pending decisions above** (F12, and the pre-fill retrieval defect). They change
+      what the release contains, so they come before the plan, not after.
+- [ ] 2. **Write the release's action plan** from the agreed scope.
+- [ ] 3. **Implement F8/P1 in TDD.** It is the most structural, and its propagation trap deserves a test
+      that locks it. Its three field-proven cases, all in this file: a note written **outside** Claude
+      (F8), a note **deleted** via `rm` (F9), and — the primary one, because an owner meets it without
+      doing anything unusual — a note written by **the engine's own script** (F8 → "Third path CONFIRMED").
+      Trigger on `indexed > 0 || removed > 0`, never on "a campaign ended" (F11).
+
+**Two things this run taught that are easy to lose in a summary:**
+
+1. **The channel matrix and the sacred-files constraint are the two facts everything else hangs off.**
+   Both are written down below, both were field-verified, neither is inferable from documentation.
+2. **The agent is not the weak part.** It found F12 unprompted, refused a self-fix, ran `git status`
+   before answering, and wrote a better universe offer than our own protocol describes. The recurring
+   failures are **engine-side** (a tool-shaped commit trigger, a swallowed error counter, a freehand
+   front-matter write) plus one **agent** habit: stating a diagnosis one notch stronger than it checked
+   it (F7, and three dated instances).
 
 > Everything below is the evidence. Do not re-investigate what is already written; each entry states
 > observation → root cause → fix.
