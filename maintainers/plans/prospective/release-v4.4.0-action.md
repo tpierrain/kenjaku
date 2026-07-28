@@ -102,16 +102,20 @@ is not what is missing** — they do converge, at the next session start. What i
   - [ ] If a settings change turns out to be needed after all, it **must** go through `reconcileHooks`
         (`scripts/lib/hooks-reconcile.mjs:53-73` — add-only, dedup by script identity), never a
         hand-edit of the sacred `settings.json`, or the release delivers nothing to deployed brains.
-- [ ] **`.obsidian` joins the watcher's ignore list** *(F11, one line)*.
-      `rag/src/lib/vault-watcher.ts:16` reads `IGNORED_SEGMENTS = [".cache", ".git", "node_modules"]`
-      while `.gitignore:34` has excluded `vault/.obsidian/` from day one. Two filters expressing the
-      same intent ("this is UI state, not notes"), and only one of them knows it. Today an owner with
-      Obsidian open pays a 414-file scan for moving a pane.
-- [ ] **TDD, red first** (`tdd-discipline`), four cases — three field-proven writers plus the regression:
+- [x] **`.obsidian` joins the watcher's ignore list** *(F11)* _(2026-07-28 · `a138ee4`)_.
+      Red seen for the right reason (`false !== true`), plus the boundary decoy so a note *about*
+      Obsidian stays a note. 12/12 green in `vault-watcher.test.ts`.
+- [x] **The pure decider exists and is triangulated** _(2026-07-28)_:
+      `rag/src/lib/campaign-persist.ts` → `shouldPersistCampaign({indexed, removed})`. Three baby-steps,
+      each red-then-green: indexed alone, **removed alone (F9)**, and the `0/0` boundary that separates
+      `> 0` from `>= 0` and locks F11. **Still to do: wire it into `index.ts`'s campaign end and spawn
+      `auto-commit.mjs` + `auto-push.mjs` behind an injectable seam.**
+- [ ] **TDD, red first** (`tdd-discipline`), four cases — three field-proven writers plus the regression.
+      The decider's half is done; these are the **wiring** cases, at the `index.ts` seam:
   - [ ] a file written by the **engine's own script** → committed;
   - [ ] a note created **outside Claude** → committed;
-  - [ ] a note **deleted** via `rm` → committed *(proves `removed > 0` is in the gate)*;
-  - [ ] a `.obsidian/workspace.json` churn campaign → **no commit** *(F11's lock)*.
+  - [ ] a note **deleted** via `rm` → committed *(the decider already proves `removed > 0` is in the gate)*;
+  - [ ] a `.obsidian/workspace.json` churn campaign → **no commit** *(F11's lock, both layers)*.
 - [x] **No loop risk — verified 2026-07-28.** The watcher watches `VAULT_DIR` only and `.cache` is
       deliberately outside it; a commit writes to `.git/`. It cannot wake itself. Recorded so nobody
       re-opens it.
