@@ -73,8 +73,49 @@ function extractTitle(
   return filename.replace(/\.md$/, "");
 }
 
+/**
+ * The one damage our own consolidation inflicted on a real note (F12): a second
+ * `updated:` appended instead of the first being replaced. js-yaml refuses the file —
+ * rightly — but says "duplicated mapping key (6:1)", which names neither the key nor
+ * the way out. We only look once the YAML has ALREADY failed, so this can never turn
+ * a note the parser accepts into an error: it upgrades a message, it adds no verdict.
+ */
+export function findDuplicateKey(
+  raw: string
+): { key: string; first: number; second: number } | null {
+  const lines = raw.split("\n");
+  if (lines[0]?.trim() !== "---") return null;
+  const seenAtLine = new Map<string, number>();
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === "---") break;
+    // Top-level keys only (anchored, unindented): a nested `updated:` under another
+    // key is a different mapping, and YAML accepts it.
+    const key = lines[i].match(/^([^\s:#][^:]*):/)?.[1];
+    if (key === undefined) continue;
+    const first = seenAtLine.get(key);
+    if (first !== undefined) return { key, first, second: i + 1 };
+    seenAtLine.set(key, i + 1);
+  }
+  return null;
+}
+
+function parseRaw(raw: string): { data: Record<string, unknown>; content: string } {
+  try {
+    return matter(raw, GRAY_MATTER_OPTIONS);
+  } catch (err) {
+    const duplicate = findDuplicateKey(raw);
+    if (!duplicate) throw err;
+    throw new Error(
+      `damaged front-matter key "${duplicate.key}": declared twice, on lines ` +
+        `${duplicate.first} and ${duplicate.second}. A note can only carry one — ` +
+        `until one of them is removed, this note keeps answering from the content ` +
+        `it was last indexed with.`
+    );
+  }
+}
+
 export function parseDocument(raw: string, relativePath: string): ParsedDocument {
-  const { data: frontmatter, content } = matter(raw, GRAY_MATTER_OPTIONS);
+  const { data: frontmatter, content } = parseRaw(raw);
   const universe =
     typeof frontmatter.universe === "string" && frontmatter.universe.trim()
       ? frontmatter.universe.trim()

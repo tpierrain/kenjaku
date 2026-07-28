@@ -353,6 +353,42 @@ test("reindex: a doc that fails to read is recorded as an error, others proceed"
   assert.match(result.errors[0], /Read error: bad\.md/);
 });
 
+test("reindex: a note damaged by consolidation is reported by key and line (F12)", async () => {
+  // The owner reads this string in `last-run.json`, in the reindex report and through
+  // vault_stats. It is the whole difference between a defect that announces itself and
+  // one that does not — so it names the key, both lines, and carries no class name.
+  const { lock } = unlockedLock();
+  const { embedder } = spyEmbedder();
+  const { ports } = fakePorts({
+    scan: async () => [{ absolutePath: "/v/crise.md", relativePath: "crise.md" }],
+    readFile: async () =>
+      "---\ntitle: Crise\ncreated: 2026-06-01\nupdated: 2026-06-12\ntype: topic\nupdated: 2026-07-28\n---\n# Crise\n",
+  });
+
+  const result = await reindex(false, { lock, embedder, reporter: memReporter(), ports });
+
+  assert.deepEqual(result.errors, [
+    'Read error: crise.md: damaged front-matter key "updated": declared twice, on ' +
+      "lines 4 and 6. A note can only carry one — until one of them is removed, this " +
+      "note keeps answering from the content it was last indexed with.",
+  ]);
+});
+
+test("reindex: a thrown non-Error is still reported, as its own text", async () => {
+  const { lock } = unlockedLock();
+  const { embedder } = spyEmbedder();
+  const { ports } = fakePorts({
+    scan: async () => [{ absolutePath: "/v/odd.md", relativePath: "odd.md" }],
+    readFile: async () => {
+      throw "the disk shrugged";
+    },
+  });
+
+  const result = await reindex(false, { lock, embedder, reporter: memReporter(), ports });
+
+  assert.deepEqual(result.errors, ["Read error: odd.md: the disk shrugged"]);
+});
+
 test("reindex on an already-stamped index (incremental): does NOT re-stamp identity", async () => {
   const { lock } = unlockedLock();
   const { embedder } = spyEmbedder();

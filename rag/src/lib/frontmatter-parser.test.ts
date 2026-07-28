@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseDocument } from "./frontmatter-parser.js";
+import { findDuplicateKey, parseDocument } from "./frontmatter-parser.js";
 import { DEFAULT_UNIVERSE } from "./universe.js";
 
 test("prefers the frontmatter title over the filename fallback", () => {
@@ -167,6 +167,65 @@ test("a blank universe does not win (falls back to the default)", () => {
 test("trims surrounding whitespace from an explicit universe", () => {
   const parsed = parseDocument("---\nuniverse: '  acme  '\n---\n", "topics/x.md");
   assert.equal(parsed.universe, "acme");
+});
+
+// --- damaged front-matter (F12) ---------------------------------------------
+
+test("names the duplicated front-matter key, and both of its lines (F12)", () => {
+  // The exact shape consolidation produced on a real note: a second `updated:`
+  // appended instead of the first being replaced. js-yaml refuses it — but with
+  // "duplicated mapping key (5:1)", which names neither the key nor the way out.
+  const raw = "---\ntitle: Crise\ncreated: 2026-06-01\nupdated: 2026-06-12\ntype: topic\nupdated: 2026-07-28\n---\n# Crise\n";
+
+  assert.throws(
+    () => parseDocument(raw, "topics/crise.md"),
+    /front-matter key "updated".*lines 4 and 6/s
+  );
+});
+
+test("reads the key and the lines from the note, rather than assuming F12's shape", () => {
+  const raw = "---\ntags: [a]\ntags: [b]\ntitle: T\n---\nbody\n";
+
+  assert.throws(
+    () => parseDocument(raw, "topics/x.md"),
+    /front-matter key "tags".*lines 2 and 3/s
+  );
+});
+
+test("a YAML failure that is NOT a duplicate key keeps its original error", () => {
+  // We upgrade one message; we must not relabel every unreadable note as "damaged
+  // key", which would send the owner looking for a duplicate that isn't there.
+  const raw = "---\ntitle: [unclosed\n---\nbody\n";
+
+  assert.throws(() => parseDocument(raw, "topics/x.md"), /YAMLException/);
+});
+
+test("indented lines are not keys: repeated text inside a block scalar is no duplicate", () => {
+  // Only unindented, top-level keys count. Two `updated:` lines that are the TEXT of
+  // a block scalar must not be reported as a duplicated key — that would send the
+  // owner deleting a line of their own prose.
+  const raw = "---\ntitle: [unclosed\nsummary: |\n  updated: yesterday\n  updated: today\n---\nbody\n";
+
+  assert.throws(() => parseDocument(raw, "topics/x.md"), /YAMLException/);
+});
+
+test("the scan stops at the closing delimiter: the body holds no keys", () => {
+  // `updated:` written twice in the note's own body is ordinary prose, not a
+  // duplicated front-matter key.
+  const raw = "---\ntitle: [unclosed\n---\nupdated: a\nupdated: b\n";
+
+  assert.throws(() => parseDocument(raw, "topics/x.md"), /YAMLException/);
+});
+
+test("a note with no front-matter has no front-matter key, horizontal rules included", () => {
+  // Read directly: a note whose YAML never parses in the first place cannot reach the
+  // catch, so this contract is only observable here. A hand-written note may well open
+  // on `key: value` prose (attendees, here) and carry a Markdown rule further down;
+  // scanning it as front-matter would report a "duplicated key" the owner cannot find,
+  // in a note that has no front-matter at all.
+  const raw = "# Meeting\nAttendee: Alice\nAttendee: Bob\n\n---\n\nnotes\n";
+
+  assert.equal(findDuplicateKey(raw), null);
 });
 
 // --- passthrough ------------------------------------------------------------

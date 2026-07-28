@@ -198,7 +198,10 @@ async function runReindex(
         })),
       });
     } catch (err) {
-      result.errors.push(`Read error: ${file.relativePath}: ${err}`);
+      // The message alone: an owner reading `last-run.json` gains nothing from the
+      // class name in front of it, and a diagnosis we wrote for them reads worse for it.
+      const reason = err instanceof Error ? err.message : String(err);
+      result.errors.push(`Read error: ${file.relativePath}: ${reason}`);
     }
   }
 
