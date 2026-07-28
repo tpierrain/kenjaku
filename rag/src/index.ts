@@ -41,11 +41,8 @@ import { ReindexLock } from "./lib/reindex-lock.js";
 import { buildStatusReport, incompleteIndexWarning, formatWatcherLiveness } from "./lib/status-report.js";
 import { ReindexScheduler } from "./lib/reindex-scheduler.js";
 import { startVaultWatcher } from "./lib/vault-watcher.js";
-import {
-  buildScriptRunner,
-  persistCampaign,
-  persistenceApplies,
-} from "./lib/campaign-persist.js";
+import { buildScriptRunner, persistenceApplies } from "./lib/campaign-persist.js";
+import { runCatchUpCampaign } from "./lib/campaign-run.js";
 import { FileProgressStorage } from "./lib/reindex-reporter.js";
 import { formatLastRunMarkdown } from "./lib/progress-report.js";
 import { writeFileSync, appendFileSync, existsSync } from "fs";
@@ -431,46 +428,35 @@ function startFileWatcher(): void {
     // the watcher settles, with the burst TOTAL — never a premature "done — 8"
     // mid-flight (Obs 3 / F5).
     const burst = new IndexingBurst();
-    const scheduler = new ReindexScheduler({
-      run: async () => {
-        traceWatcher("⚙️  catch-up triggered (debounce elapsed) — indexing in progress…");
-        const result = await reindex(false);
-        writeLastRunMarkdown();
-        traceWatcher(
-          `✅ catch-up done: ${result.indexed} indexed, ${result.skipped} unchanged` +
-            (result.skippedLocked ? " (skipped: reindex already in progress)" : "") +
-            (result.errors.length > 0 ? `, ${result.errors.length} errors` : "")
-        );
-        // The live path that completes an import done WHILE the server runs: the
-        // CLI reindex is locked out by this watcher, so THIS is where a bulk
-        // pickup finishes. Only toast once the burst has SETTLED (nothing pending
-        // or scheduled) — with the accumulated total, and the word "complete".
-        const st = scheduler.state();
-        const decision = burst.record(
-          result.indexed,
-          st.pending || st.scheduled,
-          LIVE_WATCHER_NOTIFY_MIN,
-        );
-        if (decision.notify) {
-          notifyDone({
-            platform: process.platform,
-            env: process.env,
-            title: "Second brain",
-            body: `Indexing complete — ${decision.total} note${decision.total > 1 ? "s" : ""} ready to search.`,
-            spawn,
-          });
-        }
-
-        // git ≥ index. A campaign that CHANGED something is the moment the engine
-        // already knows its own result, so this is where the vault gets committed
-        // — whoever wrote the file: Claude, Obsidian, `rm`, or one of our own
-        // scripts. Gated on `indexed || removed` (a deletion indexes nothing, and
-        // a campaign alone can be pure `.obsidian/` churn).
-        if (vaultIsOurs) {
-          const persisted = await persistCampaign(result, { runScript: persistRunner });
-          if (persisted !== "skipped") traceWatcher(`💾 vault persistence: ${persisted}`);
-        }
-      },
+    // The campaign's body lives in campaign-run.ts (unit-tested with in-memory
+    // fakes); here we only hand it the real seams. `scheduler` is read lazily
+    // inside `moreComing`, so the mutual reference resolves at call time.
+    const scheduler: ReindexScheduler = new ReindexScheduler({
+      run: () =>
+        runCatchUpCampaign({
+          reindex: () => reindex(false),
+          writeLastRun: writeLastRunMarkdown,
+          trace: traceWatcher,
+          // The live path that completes an import done WHILE the server runs: the
+          // CLI reindex is locked out by this watcher, so THIS is where a bulk
+          // pickup finishes — announced with the accumulated total and the word
+          // "complete", once the burst has settled.
+          notify: (total) =>
+            notifyDone({
+              platform: process.platform,
+              env: process.env,
+              title: "Second brain",
+              body: `Indexing complete — ${total} note${total > 1 ? "s" : ""} ready to search.`,
+              spawn,
+            }),
+          moreComing: () => {
+            const st = scheduler.state();
+            return st.pending || st.scheduled;
+          },
+          burst,
+          notifyMin: LIVE_WATCHER_NOTIFY_MIN,
+          persist: vaultIsOurs ? { runScript: persistRunner } : null,
+        }),
     });
     startVaultWatcher({
       onChange: (path) => {
