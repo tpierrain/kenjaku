@@ -17,7 +17,7 @@ test("wikiHealthNudge — both reports empty → null (quiet, no session-start n
   assert.equal(nudge, null);
 });
 
-test("wikiHealthNudge — dangling links only → names the count and offers /lint", () => {
+test("wikiHealthNudge — dangling links only → names the count", () => {
   const lintReport = {
     ...emptyLint,
     danglingLinks: [
@@ -26,11 +26,10 @@ test("wikiHealthNudge — dangling links only → names the count and offers /li
     ],
   };
   const nudge = wikiHealthNudge({ lintReport, consolidationReport: emptyConsolidation });
-  assert.match(nudge, /2 dangling/);
-  assert.match(nudge, /\/lint/);
+  assert.equal(nudge, "2 dangling links");
 });
 
-test("wikiHealthNudge — consolidation candidates only → names the count and offers /consolidate", () => {
+test("wikiHealthNudge — consolidation candidates only → names the count", () => {
   const consolidationReport = {
     newPages: [{ target: "Acme Corp", sources: [{ path: "meetings/2026-07-10.md" }] }],
     refreshes: [
@@ -39,21 +38,22 @@ test("wikiHealthNudge — consolidation candidates only → names the count and 
     ],
   };
   const nudge = wikiHealthNudge({ lintReport: emptyLint, consolidationReport });
-  assert.match(nudge, /3 consolidation/);
-  assert.match(nudge, /\/consolidate/);
+  assert.equal(nudge, "3 consolidation candidates");
 });
 
-test("wikiHealthNudge — both signals present → names both, offers both", () => {
+test("wikiHealthNudge — both signals present → names both, and nothing else (F5)", () => {
+  // The nudge IS the systemMessage, which the CLI prints clean to the owner. It used
+  // to read `1 consolidation candidates (offer /consolidate) and 1 dangling links
+  // (offer /lint)` — showing them the instruction we give the agent, and duplicating
+  // two command names the wrapper below already spells out. It states counts now.
   const lintReport = { ...emptyLint, danglingLinks: [{ from: "daily/x.md", target: "Nowhere" }] };
   const consolidationReport = {
     newPages: [{ target: "Acme Corp", sources: [{ path: "meetings/2026-07-10.md" }] }],
     refreshes: [],
   };
   const nudge = wikiHealthNudge({ lintReport, consolidationReport });
-  assert.match(nudge, /1 consolidation candidates/);
-  assert.match(nudge, /1 dangling links/);
-  assert.match(nudge, /\/consolidate/);
-  assert.match(nudge, /\/lint/);
+
+  assert.equal(nudge, "1 consolidation candidates and 1 dangling links");
 });
 
 test("wikiHealthNudge — orphans/stale/frontmatter but no dangling & no candidates → null (noise guardrail)", () => {
@@ -78,13 +78,26 @@ test("buildWikiHealthHookOutput — non-null → SessionStart directive on the D
   assert.equal(out.hookSpecificOutput.hookEventName, "SessionStart");
   const ctx = out.hookSpecificOutput.additionalContext;
   // The directive must DIRECT the agent to tell the USER in the chat (additionalContext is agent-facing).
-  assert.match(ctx, /tell the user/i);
+  assert.match(ctx, /tell (the user|them)/i);
   // It must carry the concrete facts, so the agent surfaces the real numbers.
   assert.match(ctx, /3 consolidation candidates/);
   assert.match(ctx, /1 dangling links/);
+  // The wrapper is now the ONE place naming the commands, since the nudge stopped.
+  assert.match(ctx, /\/consolidate/);
+  assert.match(ctx, /\/lint/);
   // It must frame the write posture: optional housekeeping, never auto-file.
   assert.match(ctx, /optional/i);
   assert.match(ctx, /never (auto-file|write)|confirm/i);
   // systemMessage carries the raw nudge (dropped on Desktop, shown on CLI).
   assert.equal(out.systemMessage, nudge);
+});
+
+test("buildWikiHealthHookOutput keeps the echoed payload short — volume IS the defect (F5)", () => {
+  // The CLI echoes additionalContext verbatim, prefixed `SessionStart:startup says:`,
+  // before the owner types a word. Housekeeping is the least urgent of the startup
+  // blocks, so it gets the least room.
+  const ctx = buildWikiHealthHookOutput("3 consolidation candidates and 1 dangling links")
+    .hookSpecificOutput.additionalContext;
+
+  assert.ok(ctx.length <= 320, `the housekeeping payload grew back to ${ctx.length} chars:\n${ctx}`);
 });

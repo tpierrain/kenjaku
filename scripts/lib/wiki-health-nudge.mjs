@@ -17,9 +17,13 @@ export function wikiHealthNudge({ lintReport, consolidationReport }) {
   const candidates = consolidationReport.newPages.length + consolidationReport.refreshes.length;
   if (dangling === 0 && candidates === 0) return null;
 
+  // Counts, and nothing else. This string IS the `systemMessage`, which the CLI prints
+  // clean to the owner — so it must read as a fact about THEIR vault, never as the
+  // instruction we hand the agent (F5: `(offer /consolidate)` was on their first screen).
+  // The two command names live in the wrapper below, which already spells both out.
   const parts = [];
-  if (candidates > 0) parts.push(`${candidates} consolidation candidates (offer /consolidate)`);
-  if (dangling > 0) parts.push(`${dangling} dangling links (offer /lint)`);
+  if (candidates > 0) parts.push(`${candidates} consolidation candidates`);
+  if (dangling > 0) parts.push(`${dangling} dangling links`);
   return parts.join(" and ");
 }
 
@@ -36,11 +40,9 @@ export function buildWikiHealthHookOutput(nudge) {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
       additionalContext:
-        `[wiki-health] The vault has pending housekeeping: ${nudge}. Early in your next reply, ` +
-        `briefly and in the user's language, tell the user and offer to run the relevant command ` +
-        `(/consolidate to promote raw captures into entity/topic pages, /lint for the full health ` +
-        `report). This is OPTIONAL housekeeping — mention it once, do not nag, and NEVER auto-file: ` +
-        `any consolidation write stays confirmed (propose → the user says yes).`,
+        `[wiki-health] Pending housekeeping: ${nudge}. Tell them once, in their language, and ` +
+        `offer to run it: /consolidate promotes raw captures into entity/topic pages, /lint gives ` +
+        `the full report. Optional, and every write stays confirmed — never auto-file.`,
     },
     systemMessage: nudge,
   };

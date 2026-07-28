@@ -41,8 +41,9 @@ test("sessionWikiHealth — a capture citing a page-less entity → emits the co
   const { args, calls } = seams();
   sessionWikiHealth(args);
   assert.equal(calls.emitted.length, 1);
-  assert.match(calls.emitted[0], /1 consolidation candidates/);
-  assert.match(calls.emitted[0], /\/consolidate/);
+  // A count, not a command: this line is the systemMessage the CLI prints clean to
+  // the owner (F5). `/consolidate` is named by the wrapper, which speaks to the agent.
+  assert.equal(calls.emitted[0], "1 consolidation candidates and 1 dangling links");
 });
 
 test("sessionWikiHealth — reads FROM the given vaultDir", () => {
