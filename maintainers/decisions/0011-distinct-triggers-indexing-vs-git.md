@@ -3,7 +3,8 @@
 - **STATUS:** ACCEPTED (2026-06-14), **AMENDED on one point by
   [`0037-indexing-campaign-is-a-persistence-trigger.md`](0037-indexing-campaign-is-a-persistence-trigger.md)
   (2026-07-28)**: the rejected alternative below — *drive `git commit` from the watcher* — is now
-  ADOPTED as an **additional** rung (the end of an indexing campaign that changed something commits),
+  ADOPTED as an **additional** rung (an indexing campaign that changed something makes the vault due
+  for a commit, which then fires on its own quiet window rather than the indexer's),
   because the field showed three writers the hooks never see. Everything else here stands: no rung is
   removed, and ADR 0037 re-examines each of the four costs listed under *"Why not unify on `chokidar`"*.
 - **Scope:** Second brain (runtime) — the generated brain's two background mechanisms (indexing + git persistence) in daily use.

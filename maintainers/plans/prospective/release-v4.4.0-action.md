@@ -18,9 +18,9 @@
 
 ## ▶️ START HERE
 
-**The next track is Track 10 — giving persistence its own quiet window** _(decided with Thomas
-2026-07-28; it runs **before** Track 9, which cuts the release)_. Tracks 1-8 are code-complete
-_(`8d2e2c4`)_. Track 1 stays unticked in `## Tracking` for what it still owes, and it is **not code**: its
+**All the code is written, Track 10 included. The next track is Track 9 — cutting the release**
+_(as of 2026-07-28)_. Tracks 1-8 are code-complete _(`8d2e2c4`)_; Track 10 shipped the push cadence
+and amended ADR 0037 in place. Track 1 stays unticked in `## Tracking` for what it still owes, and it is **not code**: its
 release-note copy is due at **Track 9**, and its remaining check needs an **installed brain**, which the
 launcher deliberately is not. Tracks 4, 5, 6, 7 and 8 owe a release-note line each, also at Track 9.
 **Do not reopen the implementation of Tracks 1-8.**
@@ -145,8 +145,9 @@ never matched. Four Windows jobs failed on a suite that had been green on macOS 
 paid for: CI is the arbiter, never a local green** — and the branch had gone 52 commits without ever
 being pushed, so nothing could tell us.
 
-**What remains, in order:** **Track 10** (the push cadence, decided, one cap sub-question open), the
-mutation snapshot, the marketing-surface pass, then the release note.
+**What remains, in order:** the **mutation snapshot**, the **marketing-surface pass** (Track 10 left
+it two specific claims to re-read — see its last box), then the **release note**. The push-cadence
+question that was blocking is **answered and shipped**.
 
 **The release TITLE is NOT frozen** — Thomas said so explicitly (2026-07-28) when the cadence change
 came up: *the copy follows the behaviour, never the reverse*. The "saved while you write it" angle he
@@ -207,9 +208,9 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [x] **Track 8 — The profile pre-fill reads the notes you wrote** *(retrieval)* _(2026-07-28 · `8d2e2c4`)_ —
       skill + guard test + the Gate 4 fixture written out; only the **release-note line** is owed, at
       Track 9. **Source-level guard only**: the behaviour itself is Gate 4's fixture to run.
-- [ ] **Track 10 — Commits stop tracking every pause** *(the push-cadence decision, runs **BEFORE**
-      Track 9)* — persistence gets its own ~2-minute quiet window on the watcher path; indexing keeps
-      its 5 s debounce. Numbered last, ordered first: it is the last blocker on the release note.
+- [x] **Track 10 — Commits stop tracking every pause** *(the push-cadence decision)* _(2026-07-28 ·
+      `f0f4b3f`, `0a1c9d2`)_ — persistence has its own window (2 min quiet, 10 min cap); indexing keeps
+      its 5 s debounce. ADR 0037 amended in place. Only the **release-note line** is owed, at Track 9.
 - [ ] **Track 9 — Cut the release**
 
 > **Cut line, if the release grows too long.** Tracks 1-4 **are** the release. Tracks 5-8 are mutually
@@ -652,7 +653,7 @@ manager**. There is **no person note for the name it proposed at all**.
 
 ---
 
-## Track 10 — Commits stop tracking every pause *(runs BEFORE Track 9)*
+## Track 10 — Commits stop tracking every pause
 
 **Why**: today one 5 s re-arming debounce governs **both** indexing and persistence, so on the watcher
 path every pause longer than 5 s costs a commit **and a network push** (with `auto-push.mjs`'s blocking
@@ -664,16 +665,37 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
 
 - [x] **CAP settled** _(2026-07-28, Thomas)_: quiet window **2 min**, hard cap **10 min** since the
       first write not yet persisted. Whichever comes first.
-- [ ] **Split the two timers.** Indexing keeps its 5 s debounce **untouched** (search freshness is the
-      part that already works and must not be sacrificed); persistence gets its own ~2-minute window.
-      Prefer a second scheduler over a flag on `ReindexScheduler` if that keeps the class honest.
-- [ ] **TDD, red first**, with injected timers — `reindex-scheduler.test.ts` already drives the clock
-      that way, so the new window is testable without a single real `setTimeout`.
-- [ ] **The behaviour to pin in tests**: writes 30 s apart index ~6 times and commit **zero** times;
-      the commit fires once, after the quiet window; a campaign that changed nothing still commits
-      nothing (`shouldPersistCampaign`).
-- [ ] **Re-run both suites** (rag + scripts) and let the branch push so CI speaks (CONVENTIONS §9).
-- [ ] **Release-note line**, owed at Track 9, stating the **honest number** we land on.
+- [x] **The two timers are split.** New `rag/src/lib/persistence-scheduler.ts`; `ReindexScheduler` is
+      **untouched**, so search freshness is unchanged. A second class rather than a flag: the two
+      windows race, and that logic has no business inside the indexer's debounce.
+- [x] **TDD, red first**, five tests on a virtual clock (the sibling's fake fires everything at once,
+      which cannot tell a 2-minute window from a 10-minute one, so this one honours durations).
+- [x] **The behaviour is pinned**: writing every 30 s commits **0** times, not 13 (the red run said
+      13); the cap fires at exactly 10 min and gives **3** commits over 30 min of unbroken writing;
+      an idle vault commits nothing and leaves **no timer armed**; a write during a slow push
+      coalesces into one rerun instead of contending for `.git/index.lock`.
+  - [x] **The one test that passed first try was mutation-checked by hand** (drop the cap-timer clear
+        in `disarm()` → 2 tests go red). A guard that has never been seen to fail is not a guard.
+- [x] **The campaign hands off instead of running git.** `requestPersist` is **required**, not
+      optional, so the composition root cannot silently forget it — the compiler asked for the wiring.
+      `persistCampaign` → `persistVaultNow` (the gate moved up to the campaign; what is left is the
+      named seam where the scripts actually run, tracing what it did).
+- [x] **Both suites green + CI spoke on the push** _(run `30391966991`, 1 m 11 s)_: rag **447**,
+      harness **1042**, local-mirror **257**.
+- [x] **ADR 0037 amended in place** (CONVENTIONS §6bis/§6ter, written clean for a fresh reader):
+      whether-vs-when, the two windows, and cost #3 rewritten to **own the timer** against ADR 0009
+      rather than dodge it — the writers this rung serves emit no event, so a timer is not a stand-in
+      for a better mechanism, it is the mechanism. ADR 0011's header and `maintainers/README.md`
+      follow. The sync fast-path is recorded there as **deferred, not rejected**.
+- [ ] **Release-note line**, owed at Track 9, stating **two numbers, not one**: searchable in seconds,
+      committed within a couple of minutes (ten at the outside). ⚠️ **Do not let the seconds figure
+      stand for both** — search freshness and durability stopped being the same promise.
+- [ ] ⚠️ **For the marketing pass at Track 9** — this track makes two published claims imprecise:
+      (a) `README.md:368` *"only the delta is re-embedded, **within seconds** of an edit"* stays true
+      for indexing, but the reliability board (`README.md:325`, `docs/marketing-image-prompts.md:140`)
+      sells **"real event triggers, not timers"**, and persistence is now deliberately a timer;
+      (b) `SETUP.md:164` describes the push as *"debounced, once per turn"* — still true of the hook
+      path, no longer the whole story now the watcher pushes on its own window.
 
 ---
 

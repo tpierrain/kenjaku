@@ -4,8 +4,9 @@
   on one point: its rejected alternative *"drive `git commit` from the watcher"* is **adopted, as an
   ADDITIONAL rung** — everything else in ADR 0011 stands.
 - **Scope:** Second brain (runtime) only — the live watcher's campaign end
-  (`rag/src/lib/campaign-run.ts`, `rag/src/lib/campaign-persist.ts`, `rag/src/index.ts`). **No hook
-  change**, no settings change, no installer change, no index schema change.
+  (`rag/src/lib/campaign-run.ts`, `rag/src/lib/campaign-persist.ts`,
+  `rag/src/lib/persistence-scheduler.ts`, `rag/src/index.ts`). **No hook change**, no settings change,
+  no installer change, no index schema change.
 - **Related:** [`0011-distinct-triggers-indexing-vs-git.md`](0011-distinct-triggers-indexing-vs-git.md)
   (the decision this amends); [`0010-debounce-auto-push-to-stop-hook.md`](0010-debounce-auto-push-to-stop-hook.md)
   (the push stays opt-in and debounced — reused verbatim, not reimplemented);
@@ -35,9 +36,24 @@ was already telling the fleet these notes were committed.
 
 ## Decision
 
-**The end of an indexing campaign that CHANGED something commits the vault (then pushes, under the
-existing opt-in).** It is a **fourth rung**, added to ADR 0011's three; none of them is removed.
+**The end of an indexing campaign that CHANGED something makes the vault DUE for a commit (then a
+push, under the existing opt-in).** It is a **fourth rung**, added to ADR 0011's three; none of them
+is removed.
 
+- **The campaign decides WHETHER, a separate window decides WHEN.** These are two different questions
+  and they want two different answers: indexing wants to be quick (search must be fresh), git wants to
+  be quiet. Sharing one trigger means picking a single cadence that is wrong for one of them — and
+  since the indexer's 5 s debounce is the fast one, the shared answer was a commit *and a network
+  push* for every pause longer than five seconds. Half an hour of writing in Obsidian with twenty
+  ordinary pauses bought twenty of each. So persistence gets its own cadence
+  (`persistence-scheduler.ts`), and the campaign merely signals it.
+- **That cadence is a race between two windows: 2 minutes of quiet, or 10 minutes flat.** The quiet
+  window is the intent — commit once the writing has actually stopped, folding a whole session into
+  one commit. The cap is what keeps the quiet window honest: it re-arms on every write, so a session
+  that never pauses for two minutes would never commit at all, and the rungs that would otherwise
+  cover it (`PostToolUse`, `Stop`) fire on a **Claude turn** — while the scenario this whole ADR
+  exists for is Claude sitting **idle** as someone types in Obsidian. Whichever window fires first
+  commits; the other is disarmed.
 - **The gate is `indexed > 0 || removed > 0`**, never *"a campaign ended"*. Both halves are pinned by
   a field finding: a **deletion** runs a campaign that indexes nothing (F9 — gating on `indexed`
   alone would reproduce F9 inside its own fix), and campaigns fire on churn git cannot see (F11 —
@@ -65,11 +81,19 @@ Each is re-examined against *adding* a rung rather than *replacing* the hooks:
    intent-bearing message to lose. Where intent *is* carried (the updater's own
    `engine: update to vX.Y.Z`), that writer still owns its commit — ADR 0011's "whoever writes owns
    the durability of that write" is unchanged.
-3. **"It re-introduces a timer into the commit path"** — mid-write commits, bundled edits. Bundling is
-   what `git add .` already does on every rung. The mid-write window is real and **bounded by the same
-   debounce the indexer already trusts**: the commit fires *after* the campaign that read those files,
-   so a file too fresh to be committed was also too fresh to be indexed — and the next write starts
-   another campaign, which commits again.
+3. **"It re-introduces a timer into the commit path"** — mid-write commits, bundled edits. This one we
+   accept rather than dissolve, and it is worth saying plainly, because ADR 0009 prefers real events
+   to timers and this rung is a timer. The reason the preference does not decide it here: **there is
+   no event to prefer.** ADR 0009's rule earns its keep where an exact event exists and a timer would
+   be a lazy stand-in for it (`Stop` instead of polling, ADR 0010). The writers this rung exists for
+   — Obsidian, `rm`, an engine script — emit no event at all; a filesystem write is the only signal,
+   and "the writing has stopped" is not observable, only inferable from silence. A timer is not the
+   approximation of a better mechanism here, it **is** the mechanism. So we make it an honest one: the
+   quiet window is the inference, and the cap is the admission that the inference can fail.
+   As for bundling, that is what `git add .` already does on every rung. The mid-write window is real
+   and bounded the same way it always was: the commit fires *after* the campaign that read those
+   files, so a file too fresh to be committed was also too fresh to be indexed — and the next write
+   starts another campaign.
 4. **"It amplifies the multi-window race."** Real, and benign in practice: N brain windows = N
    watchers, and a racing `git commit` either finds a **clean tree** (the other window won — no-op by
    `treeState`) or loses the `index.lock` and reports `failed`, best-effort, to be caught by the next
@@ -77,10 +101,12 @@ Each is re-examined against *adding* a rung rather than *replacing* the hooks:
 
 ## Consequences
 
-- **The bound we can now state honestly: "your notes are saved as you write them, as long as your
-  brain is open."** Three layers (index → local git → remote); this rung guarantees the first two
-  within a session, and `secondbrain.autopush` stays opt-in, off by default. The release note says
-  this plainly instead of implying continuous backup.
+- **The bound we can now state honestly, and it is two different numbers.** Three layers (index →
+  local git → remote). A note becomes **searchable within seconds** of you stopping typing, and
+  **committed within a couple of minutes** — at the latest ten, if you never stop. Both hold only
+  *while your brain is open*, and `secondbrain.autopush` stays opt-in, off by default. The release
+  note says exactly this instead of implying continuous backup, and it must not let the seconds figure
+  stand for both: search freshness and durability are no longer the same promise.
 - **The gap ADR 0011 documented is narrowed, not closed.** An Obsidian edit with **no** Claude session
   open still waits for the next session's sweep: no session, no MCP, no watcher. ADR 0011's own
   analysis of that ("`chokidar` only half-closes it") remains exactly right.
@@ -107,3 +133,14 @@ Each is re-examined against *adding* a rung rather than *replacing* the hooks:
   would carry that to the network. Harmless today only *by accident* (`.obsidian/` is gitignored).
 - **Commit without pushing, ever (rejected).** The push gates already exist and are already opt-in;
   re-deciding them here would fork ADR 0010 for no reason.
+- **One shared cadence for indexing and persistence (rejected).** Whichever value you pick is wrong
+  for one of the two: fast enough for search means a network push per pause, slow enough for git means
+  a stale index. The two questions are separate, so they get separate windows.
+- **A quiet window with no cap (rejected).** Simpler by a dozen lines, and it silently does nothing
+  for the one user it was built for: someone deep in a writing session, who is exactly the person
+  least likely to pause for two minutes.
+- **Telling a sync "the batch is done" so it commits at once, instead of waiting out a quiet window
+  (deferred, not rejected).** The right shape — a bulk import knows when it has finished, and should
+  not be inferred about. It needs an explicit end-of-batch signal on the `reindex` MCP tool, which
+  today indexes without persisting, plus the two skills that drive it. That is a new capability with
+  its own contract, not a cadence tweak, so it is its own decision.

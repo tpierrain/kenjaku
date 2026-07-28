@@ -151,10 +151,12 @@
     reconciler's write to the sacred `settings.json` additive **plus one nominative removal**.
     **Scope: Second brain (runtime).**
   - [`0037-indexing-campaign-is-a-persistence-trigger.md`](decisions/0037-indexing-campaign-is-a-persistence-trigger.md) —
-    **amends ADR 0011**: the end of an indexing campaign that CHANGED something now commits the vault,
+    **amends ADR 0011**: an indexing campaign that CHANGED something makes the vault due for a commit,
     as an **additional** rung (no hook removed), so a note is saved whoever wrote it — Claude, Obsidian,
-    `rm`, or the engine's own scripts. Re-examines each of ADR 0011's four costs, and states the bound
-    plainly: *saved as you write them, as long as your brain is open*.
+    `rm`, or the engine's own scripts. The campaign decides *whether*, a separate window decides *when*
+    (2 min of quiet, or a 10 min cap), because search wants to be quick and git wants to be quiet.
+    Re-examines each of ADR 0011's four costs — including owning the timer against ADR 0009 — and states
+    the bound plainly: *searchable in seconds, committed within minutes, as long as your brain is open*.
     **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
