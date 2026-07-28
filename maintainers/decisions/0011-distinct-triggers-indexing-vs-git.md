@@ -1,6 +1,11 @@
 # ADR 0011 — Indexing and git auto-save use distinct triggers (don't unify on the file-watcher)
 
-- **STATUS:** ACCEPTED (2026-06-14).
+- **STATUS:** ACCEPTED (2026-06-14), **AMENDED on one point by
+  [`0037-indexing-campaign-is-a-persistence-trigger.md`](0037-indexing-campaign-is-a-persistence-trigger.md)
+  (2026-07-28)**: the rejected alternative below — *drive `git commit` from the watcher* — is now
+  ADOPTED as an **additional** rung (the end of an indexing campaign that changed something commits),
+  because the field showed three writers the hooks never see. Everything else here stands: no rung is
+  removed, and ADR 0037 re-examines each of the four costs listed under *"Why not unify on `chokidar`"*.
 - **Scope:** Second brain (runtime) — the generated brain's two background mechanisms (indexing + git persistence) in daily use.
 - **Related:** [`0006-rag-mcp-is-stable-contract.md`](0006-rag-mcp-is-stable-contract.md)
   (the RAG/MCP hexagon's job is **retrieval**, not version control — this ADR keeps git *out* of it),
@@ -172,7 +177,10 @@ daemon** (launchd/cron) or a **git-side hook** — heavier, against the "zero da
 
 - **Unify on `chokidar` (drive `git commit` from the watcher)** — the three costs above (timer in the
   commit path / RAG↔git coupling / amplified multi-window race), for a coverage win that the watcher's
-  own lifecycle only **half** delivers. Refused.
+  own lifecycle only **half** delivers. Refused. **⚠️ Amended by ADR 0037 (2026-07-28):** refused as a
+  *replacement* — which is what this ADR was weighing — but ADOPTED as an *addition*. The coupling
+  cost was the decisive one, and it only applies to a design that moves persistence into the MCP; with
+  the hooks left in place, the new rung can only add commits, never remove one.
 - **An always-on OS daemon or a git-side hook** (to commit even with no Claude session) — would close
   the gap fully, but adds an always-running process against the "zero daemon" simplicity and the
   non-dev bare-machine target. Deferred / out of scope.

@@ -140,6 +140,22 @@
     declares first-class **local mirrors** and synchronizes their content into the vault as Markdown;
     the FileWatcher + hook do indexing/commit. Hexagonal ports & adapters (MVP Notion-only).
     **Scope: Second brain (runtime) + Installer.**
+  - _⚠️ **ADRs 0023–0035 are not listed here** — the list above drifted behind the directory. Until it
+    is backfilled, [`decisions/`](decisions/) itself is the authoritative index; the two most recent
+    are called out below because they change behaviour an owner can see._
+  - [`0036-deterministic-channels-differ-by-surface.md`](decisions/0036-deterministic-channels-differ-by-surface.md) —
+    the **field-verified channel matrix** (CLI vs Claude Desktop's Code tab): `statusLine` and
+    `systemMessage` reach the terminal only, `additionalContext` is **echoed to the CLI user**, and the
+    **agent's chat message is the only channel reaching both**. The engine therefore **stops occupying
+    the owner's status line** (removed from deployed brains, provenance-guarded), which makes the
+    reconciler's write to the sacred `settings.json` additive **plus one nominative removal**.
+    **Scope: Second brain (runtime).**
+  - [`0037-indexing-campaign-is-a-persistence-trigger.md`](decisions/0037-indexing-campaign-is-a-persistence-trigger.md) —
+    **amends ADR 0011**: the end of an indexing campaign that CHANGED something now commits the vault,
+    as an **additional** rung (no hook removed), so a note is saved whoever wrote it — Claude, Obsidian,
+    `rm`, or the engine's own scripts. Re-examines each of ADR 0011's four costs, and states the bound
+    plainly: *saved as you write them, as long as your brain is open*.
+    **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local

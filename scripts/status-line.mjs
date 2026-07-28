@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// status-line.mjs — produces ONE status line for Claude Code's `statusLine`
-// (cf. .claude/settings.json). DETERMINISTIC and PERSISTENT display, rendered
-// natively on both surfaces (CLI terminal AND Claude Desktop's Code tab) —
-// unlike the SessionStart hook's `systemMessage`, ignored by Desktop.
+// status-line.mjs — produces ONE status line for Claude Code's `statusLine`.
+//
+// ⚠️ OPT-IN SINCE v4.4.0 — THE BRAIN NO LONGER INSTALLS THIS (ADR 0036). It is
+// kept, working and delivered, for an owner who WANTS it: point your own
+// `statusLine.command` at this script. What changed is that we stopped occupying
+// a surface that is the owner's, for a gain that turned out to be CLI-only:
+// `statusLine` is rendered in the terminal and NOT in Claude Desktop's Code tab
+// (field-verified, F4 — see ADR 0036's channel matrix), while it is a SINGLE
+// value, so ours evicted the line of every owner who had configured one.
 //
 // statusLine contract: reads a session JSON on stdin (ignored here), writes ONE
 // line to stdout. Re-run continuously → must stay FAST, READ-ONLY and
@@ -113,10 +118,11 @@ function readEngineSeg() {
 }
 const engineSeg = readEngineSeg();
 
-// ─── Restart nudge (A2, F-B7d): the PERSISTENT, Desktop-visible "⚠️ RESTART Claude" the
-// SessionStart self-heal can't deliver (Desktop drops its systemMessage). statusLine re-runs
-// continuously and reads THIS file fresh each time, so the new version runs even inside a
-// stale session — the moment an update delivers it. Pending iff EITHER signal holds:
+// ─── Restart nudge (A2, F-B7d): "⚠️ RESTART Claude", PERSISTENT because statusLine
+// re-runs continuously and reads THIS file fresh each time — so the new version runs
+// even inside a stale session, the moment an update delivers it. It reaches the
+// TERMINAL only: this surface is not rendered on Desktop (ADR 0036's channel matrix
+// — the header's older claim was wrong, F4). Pending iff EITHER signal holds:
 //   • an on-disk GAP (engine-delivered skill/MCP not yet installed) — the signal that fires
 //     in the SAME session after a silent (old-orchestrator) update, with no fresh session;
 //   • the explicit FLAG (self-heal / new core wrote it for converged-but-not-loaded).

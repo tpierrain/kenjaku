@@ -4,10 +4,11 @@
 // them via the SessionStart hook's JSON `systemMessage` field, which DISPLAYS
 // them DIRECTLY in the CLI terminal, without relying on Claude to copy them.
 // Deterministic startup: all the computation AND the display happen here.
-// NB: `systemMessage` is NOT rendered by the Code tab of Claude Desktop — it's
-// `statusLine` (cf. scripts/status-line.mjs) that covers the deterministic
-// display on the Desktop side and the persistent status. The hook also keeps its
-// side effect: the startup sync `git pull --rebase` (which statusLine NEVER does).
+// NB: `systemMessage` is NOT rendered by the Code tab of Claude Desktop. Nor is
+// `statusLine` — NOTHING deterministic reaches Desktop, which is why the agent's
+// own chat message is the only universal channel (ADR 0036's channel matrix; this
+// note used to claim statusLine covered Desktop, and it did not). The hook also
+// keeps its side effect: the startup sync `git pull --rebase`.
 //
 // Called by the SessionStart hook (cf. .claude/settings.json).
 // Cross-OS: pure Node, no bash/jq/sqlite3-CLI dependency.

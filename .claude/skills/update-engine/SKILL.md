@@ -105,7 +105,14 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 > 🛑 **MANDATORY — whenever ANY engine file changed, you MUST end your chat message by telling
 > the user, LOUDLY and in their language, to FULLY RESTART Claude.** This is the **only**
 > Desktop-visible channel: Claude Desktop's Code tab renders **no status bar** — just the chat —
-> so if you don't say it in the chat, the user never sees it. The core already prints a loud
+> so if you don't say it in the chat, the user never sees it.
+>
+> ⚠️ **This rule is the ONLY harness on Desktop — do not trim it as a duplicate.** Since ADR 0036
+> the brain no longer occupies the terminal's `statusLine`, so on Desktop *nothing else* carries
+> the restart instruction: `systemMessage` is dropped there, and the status line was never
+> rendered there in the first place (field-verified, F4). On the CLI a second belt exists (the
+> SessionStart message), but a future cleanup that reads this as redundant with it would leave
+> Desktop owners with **no** restart cue at all. The core already prints a loud
 > **`⚠️ ACTION NEEDED … FULL RESTART`** banner on any swap; **reproduce that intent in the chat,
 > don't bury it.** Make it impossible to miss — e.g.:
 >
@@ -137,10 +144,11 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 >
 > _**Honest one-restart blind spot (F-B7c, the restart NUDGE itself).** The loud "restart
 > Claude" cues added in v3.3.0 — the steady-state banner at the end of this report (A1) and the
-> persistent `status-line` nudge (A2) — are themselves engine code (`update-engine.mjs`,
-> `status-line.mjs`, `scripts/lib/restart-nudge.mjs`). A brain on a **pre-3.3** engine runs the
+> persistent nudge (A2, carried by the SessionStart message since ADR 0036 retired the status
+> line) — are themselves engine code (`update-engine.mjs`, `scripts/session-status.mjs`,
+> `scripts/lib/restart-nudge.mjs`). A brain on a **pre-3.3** engine runs the
 > **OLD** versions on its **first** `/update-engine`: that first run's report may be silent about
-> the restart, and the status-line shows no nudge — we cannot rewrite already-installed code
+> the restart, and no nudge shows — we cannot rewrite already-installed code
 > retroactively. The fix is self-healing by construction: that first update DELIVERS the new
 > versions to disk, so after **one** restart the loud report + the persistent nudge take over and
 > every subsequent update is loud. Tell a pre-3.3 upgrader plainly: "restart once after this
