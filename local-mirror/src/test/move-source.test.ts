@@ -329,6 +329,25 @@ test('a move refuses while another window is syncing that mirror, rather than ra
   assert.equal('universe' in declared, false, 'and the mirror still belongs where it did');
 });
 
+// The other half of that guarantee: a move GIVES THE LOCK BACK. Leaking it is invisible in the
+// move's own result — the pages are where they belong and it says so — but on a real brain the
+// lockfile stays until the stale timeout, and every refresh in every open window skips that mirror
+// in the meantime. A brain that quietly stopped syncing is exactly the failure this release exists
+// to end, so it is pinned by the operation that comes NEXT, not by the move itself.
+test('a move gives the lock back: the mirror can be refreshed straight after', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror())
+    .withNotionPages(aNotionPage({ id: 'page-1' }));
+  const gss = harness.build();
+  await gss.sync('team-a');
+  await gss.moveSource('team-a', 'acme');
+
+  const report = await gss.sync('team-a');
+
+  assert.deepEqual(report, { name: 'team-a', status: 'ok', written: 0, deleted: 0, unchanged: 1 });
+});
+
 // A name that matches no mirror is a typo or a mirror already removed. Silently succeeding would
 // let an owner believe a corpus was re-filed when nothing exists to re-file.
 test('moving a mirror that was never declared is refused, and the real ones are named', async () => {

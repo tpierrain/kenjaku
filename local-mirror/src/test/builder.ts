@@ -364,14 +364,21 @@ class MutableClock implements IClock {
 }
 
 /**
- * In-memory single-flight lock. A source in `heldByOthers` is owned by another live window
- * (acquire fails → the caller skips); everything else is free to acquire. Release is a no-op:
- * a source held by another window stays held for the whole test.
+ * In-memory single-flight lock, and a FAITHFUL one: what it takes, it keeps until released. A
+ * no-op `release` made every "the lock is given back" claim untestable — an operation that leaked
+ * its lock looked exactly like one that returned it, while on a real brain the lockfile would sit
+ * there blocking every later refresh until the stale timeout. A source in `heldByOthers` is owned
+ * by another live window and stays held for the whole test.
  */
 class FakeSyncLock implements ISyncLock {
+  private readonly held = new Set<string>();
   constructor(private readonly heldByOthers: Set<string>) {}
   acquire(name: string): boolean {
-    return !this.heldByOthers.has(name);
+    if (this.heldByOthers.has(name) || this.held.has(name)) return false;
+    this.held.add(name);
+    return true;
   }
-  release(): void {}
+  release(name: string): void {
+    this.held.delete(name);
+  }
 }
