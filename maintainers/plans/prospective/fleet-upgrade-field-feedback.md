@@ -35,9 +35,9 @@ right often and wrong three times. **Do not re-investigate; the evidence is in t
 
 **Live state of the QA when this was written** (a session was open on the CLI in `~/mind-palace`):
 
-- [ ] `vault/inqom/universe.md` was **untracked** (the third-path proof, see F8's "Third path CONFIRMED").
-      The owner was about to ask the brain to commit it — harmless either way, the next SessionStart sweep
-      catches it.
+- [x] `vault/inqom/universe.md` was **untracked** — the third-path proof, see F8's "Third path CONFIRMED".
+      **Committed since** _(`67f30e0`)_, swept in by an unrelated `Edit`, which is itself part of the
+      evidence. **`mind-palace` is now clean and needs nothing**: the QA is closed, the work is here.
 - [x] `vault/inqom/topics/crise-kandor-clemence.md` had a **duplicate `updated:` key** (F12). **Fixed and
       verified** _(2026-07-28 · `67f30e0`)_: the missing section is indexed, the `1 errors` is gone, the
       counters' arithmetic closes again. Both files landed in the same commit — see F12's repair block,
@@ -79,6 +79,10 @@ F8/P1 rather than beside it:
   "0 error" to the owner. Small (the reporter never receives phase-1 errors), and it is the trust defect
   F7 is about, one layer down: a brain that answers confidently over an incomplete index is the failure
   mode this product cannot afford. Ships with the `scanned == indexed + skipped + errors` invariant test.
+
+> 🎯 **Picked up straight after a `/clear` on 2026-07-28, to plan the release WITH Thomas.** The QA is
+> **over** — do not re-run it, do not re-investigate any entry, do not re-read `mind-palace`. Start at
+> step 1 below: **ask him the two pending decisions**, then draft the release plan from the agreed scope.
 
 **Next step when picking this up, in this order:**
 
