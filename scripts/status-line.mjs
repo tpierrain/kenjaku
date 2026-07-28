@@ -23,9 +23,9 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { geminiKeyWarning } from "./lib/gemini-key.mjs";
 import { formatEngineVersion } from "./lib/engine-version.mjs";
-import { restartNudgeSegment, isRestartPending, RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
+import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
-import { detectSelfHealGap } from "./lib/self-heal-detect.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, "..");
@@ -121,25 +121,11 @@ const engineSeg = readEngineSeg();
 //     in the SAME session after a silent (old-orchestrator) update, with no fresh session;
 //   • the explicit FLAG (self-heal / new core wrote it for converged-but-not-loaded).
 // Both reads are fail-soft: a hiccup must never break or freeze the status line.
-function onDiskGapNeeded() {
-  try {
-    const { wantedSkillDirs, wantedServerIds } = deriveWanted(REPO);
-    const mcpPath = join(REPO, ".mcp.json");
-    const registered = existsSync(mcpPath)
-      ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
-      : new Set();
-    return detectSelfHealGap({
-      wantedSkillDirs,
-      wantedServerIds,
-      skillDirExists: (dir) => existsSync(join(REPO, dir)),
-      mcpServerRegistered: (id) => registered.has(id),
-    }).needed;
-  } catch {
-    return false;
-  }
-}
-const flagExists = existsSync(join(REPO, RESTART_FLAG_REL));
-const restartSeg = restartNudgeSegment(isRestartPending({ flagExists, gapNeeded: onDiskGapNeeded() }));
+// The reads themselves live in lib/restart-signal.mjs — shared, and unit-tested —
+// since session-status.mjs now carries the same nudge on the CLI (ADR 0036).
+const restartSeg = restartNudgeSegment(
+  restartPendingOnDisk({ repo: REPO, deriveWanted, existsSync, readFileSync }),
+);
 
 // ─── A single line, segments separated by "·" — the restart nudge leads (unmissable) ─
 process.stdout.write([restartSeg, gitSeg, ragSeg, engineSeg, keySeg].filter(Boolean).join(" · "));

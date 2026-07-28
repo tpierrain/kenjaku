@@ -26,6 +26,9 @@ import { repoStatusLine, countVaultUncommitted, countUnmerged } from "./lib/repo
 import { sweepThenPull } from "./lib/startup-sync.mjs";
 import { bootstrapSessionHooks } from "./lib/hook-bootstrap.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
+import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
+import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
+import { deriveWanted } from "./session-self-heal.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, "..");
@@ -174,8 +177,21 @@ try {
   bootstrapLine = null; // fail-soft: never block session start over a bootstrap hiccup
 }
 
+// ─── Restart nudge (ADR 0036): the channel of last resort on the CLI ─────────
+// It used to be surfaced ONLY by the status line, which this release retires — so
+// it moves here, from the SAME two on-disk signals (the `.cache/restart-needed`
+// flag and an engine-delivered skill/MCP not yet installed). It LEADS the message:
+// until the owner restarts, nothing else they read is from the engine they now have.
+// On Desktop, where `systemMessage` is dropped, the 🛑 MANDATORY chat rule in the
+// update-engine skill remains the delivery — as it always was.
+const restartLine = restartNudgeSegment(
+  restartPendingOnDisk({ repo: REPO, deriveWanted, existsSync, readFileSync }),
+);
+
 // ─── Emission via systemMessage: displays directly in the terminal ───────────
-const systemMessage = [bootstrapLine, keyLine, repoLine, ragLine].filter(Boolean).join("\n");
+const systemMessage = [restartLine, bootstrapLine, keyLine, repoLine, ragLine]
+  .filter(Boolean)
+  .join("\n");
 process.stdout.write(
   JSON.stringify({
     hookSpecificOutput: { hookEventName: "SessionStart" },
