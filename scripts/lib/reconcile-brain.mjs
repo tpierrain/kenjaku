@@ -29,6 +29,7 @@ import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
+import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { reseedProvenance } from "./engine-source.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
@@ -166,11 +167,13 @@ export async function reconcileBrain({
   //    settings.json.template (ADR 0026): the THIRD additive surface, twin of the
   //    .mcp.json reconcile (2.ter). settings.json is SACRED to the write-allowlist
   //    (`computeApplyPlan` never lists it), so this is a surgical SIDE-CHANNEL: the ONLY
-  //    write the reconciler ever makes to it, and purely ADDITIVE — wire the engine-owned
-  //    hook entries the brain is MISSING (e.g. a v3.1.0 brain that never got
-  //    session-self-heal / session-health / session-obsidian-hint), dedup by the engine
-  //    script each hook runs, with the brain's OWN node interpreter + dir substituted into
-  //    the template placeholders. Never overwrite, never remove, never touch a user entry;
+  //    write the reconciler ever makes to it. It was purely ADDITIVE until ADR 0036, and is
+  //    now additive PLUS exactly ONE nominative removal: the `statusLine` WE installed, and
+  //    only that one (provenance-guarded — see status-line-retreat.mjs). The additive half is
+  //    unchanged: wire the engine-owned hook entries the brain is MISSING (e.g. a v3.1.0
+  //    brain that never got session-self-heal / session-health / session-obsidian-hint),
+  //    dedup by the engine script each hook runs, with the brain's OWN node interpreter + dir
+  //    substituted into the template placeholders. Never overwrite, never touch a user entry;
   //    WRITE ONLY when something is actually added → a converged brain is byte-identical
   //    (no auto-commit churn). settings.json.template is itself an engine-delivered file
   //    (`replace` regime), so a brain that received the engine code CARRIES it — which means
@@ -180,6 +183,9 @@ export async function reconcileBrain({
   //    needed). Upgraders from v3.3.0+ converge the same way in-band via auto-finalize.
   const hooksAdded = [];
   const hooksRepaired = [];
+  // ADR 0036: set when the retreat removed the statusLine WE installed, so the
+  // caller can tell the owner their own line is back.
+  let statusLineWasRemoved = false;
   const settingsTemplatePath = join(sourceDir, ".claude", "settings.json.template");
   const brainSettingsPath = join(brainDir, ".claude", "settings.json");
   if (existsSync(settingsTemplatePath) && existsSync(brainSettingsPath)) {
@@ -197,17 +203,27 @@ export async function reconcileBrain({
     // (a no-op on posix and on already-fixed brains), so a converged brain stays
     // byte-identical and the deployed fleet self-heals at the next restart's reconcile.
     const { hooks: healedHooks, repaired } = repairEngineHookCommands({ hooks: addedHooks, platform, projectRoot });
-    const healedStatusLine = brainSettings.statusLine?.command
-      ? repairWin32NodePrefix(brainSettings.statusLine.command, projectRoot)
-      : brainSettings.statusLine?.command;
-    const statusLineRepaired = healedStatusLine !== brainSettings.statusLine?.command;
-    if (added.length > 0 || repaired.length > 0 || statusLineRepaired) {
-      const nextSettings = { ...brainSettings, hooks: healedHooks };
-      if (statusLineRepaired) nextSettings.statusLine = { ...brainSettings.statusLine, command: healedStatusLine };
+    // ADR 0036 — the status line RETREATS, which makes this write no longer purely
+    // additive: it can now REMOVE one key, and one only. `statusLine` is a single
+    // value, not a merged list, so a brain that still declares OURS keeps evicting
+    // the owner's own line whatever ours prints. Guarded by provenance: we remove it
+    // only when the command names our own scripts/status-line.mjs — anything they
+    // wrote by hand survives untouched. The win32 prefix repair below therefore no
+    // longer applies to ours (it is gone); it stays for a line that is not.
+    const { settings: retreatedSettings, removed: statusLineRemoved } =
+      withoutEngineStatusLine(brainSettings);
+    const healedStatusLine = retreatedSettings.statusLine?.command
+      ? repairWin32NodePrefix(retreatedSettings.statusLine.command, projectRoot)
+      : retreatedSettings.statusLine?.command;
+    const statusLineRepaired = healedStatusLine !== retreatedSettings.statusLine?.command;
+    if (added.length > 0 || repaired.length > 0 || statusLineRepaired || statusLineRemoved) {
+      const nextSettings = { ...retreatedSettings, hooks: healedHooks };
+      if (statusLineRepaired) nextSettings.statusLine = { ...retreatedSettings.statusLine, command: healedStatusLine };
       writeFileSync(brainSettingsPath, JSON.stringify(nextSettings, null, 2) + "\n");
       hooksAdded.push(...added);
       hooksRepaired.push(...repaired, ...(statusLineRepaired ? ["statusLine"] : []));
     }
+    statusLineWasRemoved = statusLineRemoved;
   }
 
   // 2.quater Ensure the engine-owned health-check note is present AND indexed (ADR 0026
@@ -265,6 +281,7 @@ export async function reconcileBrain({
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
+    statusLineRemoved: statusLineWasRemoved,
   };
 }
 

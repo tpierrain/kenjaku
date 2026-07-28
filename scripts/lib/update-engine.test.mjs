@@ -1630,3 +1630,32 @@ test("updateEngine — a refreshed skill's provenance base is re-seeded by step 
     "step 7 must re-seed the base of what the reconcile just refreshed",
   );
 });
+
+// ADR 0036 — the status line retreats. The removal is a change the owner SEES the
+// next time they open a terminal (their own line is back where ours used to be), so
+// an update that stays silent about it reads as a bug in Claude Code, not as a
+// deliberate gift. Phrased as what they GAIN, never as what we removed.
+test("formatReport — a retired status line is announced as the owner's own line coming back", () => {
+  const out = formatReport({
+    ref: "v4.4.0",
+    engineVersion: { rag: "1.1.5" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    statusLineRemoved: true,
+  });
+  assert.match(out, /status line/i);
+  assert.match(out, /your own|back/i);
+});
+
+test("formatReport — a brain that had no status line of ours hears nothing about it", () => {
+  const out = formatReport({
+    ref: "v4.4.0",
+    engineVersion: { rag: "1.1.5" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    statusLineRemoved: false,
+  });
+  assert.doesNotMatch(out, /status line/i);
+});

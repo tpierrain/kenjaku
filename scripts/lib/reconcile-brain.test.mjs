@@ -726,10 +726,10 @@ test("reconcileBrain (win32) — a repair with nothing added and no statusLine s
   assert.equal("statusLine" in settings, false, "a brain with no statusLine must not acquire an empty one");
 });
 
-// The mirror: ONLY the statusLine is broken. It is not a hook, it lives at the top level
-// of settings.json, and it is repaired through its own separate path — so it needs its own
-// reason-to-write and its own line in the report, named exactly.
-test("reconcileBrain (win32) — a broken statusLine alone is reason enough to write, and is named as such", async (t) => {
+// The mirror: ONLY the statusLine is ours to deal with. It is not a hook, it lives at the
+// top level of settings.json, and since ADR 0036 it is REMOVED rather than repaired — so
+// it still needs its own reason-to-write, and its own line in the report.
+test("reconcileBrain (win32) — retiring our statusLine is reason enough to write, on its own", async (t) => {
   const brainDir = buildBrain();
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   const rootPosix = toPosixPath(brainDir);
@@ -754,10 +754,11 @@ test("reconcileBrain (win32) — a broken statusLine alone is reason enough to w
   });
 
   assert.deepEqual(report.hooksAdded, []);
-  assert.deepEqual(report.hooksRepaired, ["statusLine"], "the statusLine is the sole repair, and is reported under that exact name");
+  assert.deepEqual(report.hooksRepaired, [], "nothing is repaired: the one broken thing is retired instead");
+  assert.equal(report.statusLineRemoved, true, "and the retreat is reported on its own field");
   const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
-  assert.doesNotMatch(settings.statusLine.command, /cmd \/c/i);
-  assert.equal(settings.statusLine.type, "command", "the rest of the statusLine entry survives the repair");
+  assert.equal("statusLine" in settings, false, "a broken line of ours is not worth healing — it is worth giving back");
+  assert.equal(settings.mine, true, "the rest of the sacred file is untouched");
 });
 
 // A DEPLOYED Windows brain generated before the issue-#31 fix: every engine hook
@@ -783,7 +784,7 @@ function brokenWin32Settings(rootPosix) {
 //    hook + statusLine commands are HEALED in place (self-heal reconcile). The additive
 //    merge never rewrites an existing command, so without this repair those brains stay
 //    broken forever. Idempotent: a second pass leaves settings.json byte-identical.
-test("reconcileBrain (win32) — heals the issue-#31 broken hook + statusLine commands in place", async (t) => {
+test("reconcileBrain (win32) — heals the issue-#31 broken hook commands in place, and retires our statusLine", async (t) => {
   const brainDir = buildBrain();
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   const rootPosix = brainDir.split("\\").join("/");
@@ -797,17 +798,22 @@ test("reconcileBrain (win32) — heals the issue-#31 broken hook + statusLine co
   const report = await reconcile({ brainDir, platform: "win32", sourceDir: brainDir, target, local, ...s1 });
 
   const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
-  const allCmds = [
-    settings.statusLine.command,
-    ...Object.values(settings.hooks).flatMap((groups) => groups.flatMap((g) => g.hooks.map((h) => h.command))),
-  ];
+  // ADR 0036: this brain's statusLine was OURS, so the same pass that heals the hooks
+  // REMOVES it — there is nothing left to repair at the top level, and the owner's own
+  // line runs again. Only the hook commands are healed in place.
+  assert.equal("statusLine" in settings, false, "ours is removed, not repaired");
+  assert.equal(report.statusLineRemoved, true);
+  const allCmds = Object.values(settings.hooks).flatMap((groups) =>
+    groups.flatMap((g) => g.hooks.map((h) => h.command)),
+  );
   for (const cmd of allCmds) {
     assert.doesNotMatch(cmd, /cmd \/c/i, "no nested cmd /c must remain after the repair");
     assert.doesNotMatch(cmd, /\\/, "no backslash must remain (Git Bash would eat it)");
     assert.match(cmd, new RegExp(`^${rootPosix}/scripts/run-node\\.cmd `), "the fixed forward-slash run-node.cmd prefix");
   }
-  // The whole list, in one assertion: the Stop hook and the top-level statusLine are
-  // healed alongside the SessionStart ones, and nothing else is claimed.
+  // The whole list, in one assertion: the Stop hook is healed alongside the SessionStart
+  // ones, and nothing else is claimed — `statusLine` is no longer among them, because it
+  // is gone rather than fixed.
   assert.deepEqual(
     [...report.hooksRepaired].sort(),
     [
@@ -817,7 +823,6 @@ test("reconcileBrain (win32) — heals the issue-#31 broken hook + statusLine co
       "scripts/session-obsidian-hint.mjs",
       "scripts/session-self-heal.mjs",
       "scripts/session-status.mjs",
-      "statusLine",
     ],
   );
   assert.equal(settings.mine, true, "a user-owned settings key survives the repair");
@@ -826,6 +831,7 @@ test("reconcileBrain (win32) — heals the issue-#31 broken hook + statusLine co
   const hash = sha256(join(brainDir, ".claude/settings.json"));
   const second = await reconcile({ brainDir, platform: "win32", sourceDir: brainDir, target, local, ...seams() });
   assert.deepEqual(second.hooksRepaired, [], "a converged brain repairs nothing");
+  assert.equal(second.statusLineRemoved, false, "and has nothing left to retreat from");
   assert.equal(sha256(join(brainDir, ".claude/settings.json")), hash, "no churn on the 2nd pass");
 });
 
@@ -1793,4 +1799,84 @@ test("the CLI entry point actually runs the reconcile (and fails LOUDLY, never s
   assert.equal(r.status, 1, "a script whose entry guard never fires would exit 0");
   assert.equal(r.stderr, "\n❌ reconcile-brain failed.\nreconcile-brain: --brainDir and --sourceDir are required\n");
   assert.equal(r.stdout, "", "a failed reconcile must not print anything to stdout");
+});
+
+// ── Test 14: ADR 0036 — the status line RETREATS. `statusLine` is a single value,
+//    not a merged list, so as long as the brain declares ours the owner's own line
+//    never runs — however silent ours becomes. The retreat therefore has to REMOVE
+//    the key from a deployed brain, and the reconciler is the only write we ever make
+//    to that sacred file. The provenance guard is the whole discipline: ours goes,
+//    theirs stays.
+test("reconcileBrain — removes the statusLine WE installed, and reports it", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const settingsIn = {
+    ...v310Settings(brainDir),
+    statusLine: { type: "command", command: `/usr/local/bin/node "${brainDir}/scripts/status-line.mjs"`, padding: 0 },
+  };
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(settingsIn, null, 2) + "\n");
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  const target = manifest();
+
+  const report = await reconcile({
+    brainDir, platform: "posix", sourceDir, target, local: manifest({ ragVersion: "1.0.0" }), ...seams(),
+  });
+
+  assert.equal(report.statusLineRemoved, true, "the owner must be told their own line is back");
+  const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
+  assert.equal("statusLine" in settings, false, "ours is gone entirely — a silent line would still evict theirs");
+  assert.equal(settings.mine, true, "and nothing else in the sacred file is disturbed");
+});
+
+// The mirror, and the one that matters most: a line the OWNER configured is not ours
+// to touch. Same discipline as engine-skill-refresh — overwrite only what we delivered.
+test("reconcileBrain — a hand-customized statusLine is PRESERVED", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const mine = { type: "command", command: "starship prompt --terminal-width 120" };
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify({ ...v310Settings(brainDir), statusLine: mine }, null, 2) + "\n");
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  const target = manifest();
+
+  const report = await reconcile({
+    brainDir, platform: "posix", sourceDir, target, local: manifest({ ragVersion: "1.0.0" }), ...seams(),
+  });
+
+  assert.equal(report.statusLineRemoved, false);
+  const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
+  assert.deepEqual(settings.statusLine, mine, "their line, byte for byte");
+});
+
+// A converged brain that never had one: the reconcile must stay a no-op, or every
+// update leaves an `auto:` commit behind and the byte-identical guarantee is lost.
+test("reconcileBrain — a brain with no statusLine is not written for the retreat's sake", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const settingsPath = join(brainDir, ".claude/settings.json");
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(v310Settings(brainDir), null, 2) + "\n");
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  const target = manifest();
+  // Converge first (this write is the hook wiring), then re-run: the second pass has
+  // nothing left to do, and the retreat must not invent a reason to write.
+  await reconcile({ brainDir, platform: "posix", sourceDir, target, local: manifest({ ragVersion: "1.0.0" }), ...seams() });
+  const before = readFileSync(settingsPath, "utf8");
+
+  const report = await reconcile({
+    brainDir, platform: "posix", sourceDir, target, local: manifest({ ragVersion: "1.0.0" }), ...seams(),
+  });
+
+  assert.equal(report.statusLineRemoved, false);
+  assert.equal(readFileSync(settingsPath, "utf8"), before, "byte-identical");
 });
