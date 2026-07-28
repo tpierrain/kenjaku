@@ -529,6 +529,36 @@ employer-or-client, and his role is **Head of Engineering since February 2026**.
       engaged *more* because of it (he wrote a rich, specific answer instead of skipping). The lesson is
       that **its cost is concentrated in the one interaction that costs nothing: agreeing.**
 
+#### 🔎 Root cause, verified on disk: it never read the person notes
+
+The vault was **not** ambiguous, and it was **not** stale. It held the answer, structured and obvious:
+
+- `vault/inqom/people/michael-aboumelhem.md`, front-matter `tags: [cto, …, manager-thomas]`, updated
+  `2026-07-19`. **First line**: *"**CTO d'Inqom** depuis le seminaire du 2026-05-19"*. **Second**:
+  *"**N+1 (manager/boss) de Thomas** (Head of Engineering)"*.
+- There is **no person note for Toubia at all** — the attribution the pre-fill proposed was inferred
+  from scattered mentions, not read from anywhere.
+
+So the two things the batch got wrong are the two things that note answers outright, and one of them it
+had explicitly declined to guess (*"je vois un rôle de leadership tech transverse …, mais pas le titre"*)
+**while the owner's title sat in the note about his own manager**.
+
+- [ ] **The fix is retrieval, not phrasing.** When pre-filling `people` and `role`, query the
+      **structured source** — notes with `type: person` (and `type: universe`) scoped to the universe —
+      instead of synthesising from whatever a similarity search surfaces. The vault has a shape; the
+      pre-fill ignored it and paid for it.
+- [ ] **This outranks the safeguards proposed above.** Citing provenance and arbitrating by date are
+      still right, but they repair a *guess*. Here there was no need to guess at all. **A brain that
+      cannot answer "who is your CTO" from a note tagged `cto` has a retrieval problem, and it is the
+      same faculty every answer depends on.**
+- [ ] Worth a fixture in Gate 4: *"the vault states X in a `type: person` note; does the capture flow
+      propose X?"* — cheap, deterministic, and it locks the behaviour this run got wrong.
+
+**On *"deux points que j'ai corrigés dans mes notes au passage"*.** Ambiguous, and worth resolving rather
+than trusting: on disk **no note changed** — `git status` shows only `?? vault/inqom/universe.md`, with
+nothing modified. Charitably it meant the profile it was writing, which is true. But **nothing in the
+vault needed correcting**: the person note was right all along. That is the whole finding in one line.
+
 ---
 
 ## F6 — The owner reaches for `/rag` and the product answers "did you mean /run?"
@@ -742,6 +772,24 @@ there is nothing to push. **The deletion waits for the next SessionStart sweep**
 **Index ahead of git again — this time on a deletion, within a session.** Index: 414 documents / 4501
 chunks (queried read-only in `rag/.cache/vault.db`), the note gone. Git: still holding it. **P1's exact
 scenario, second instance, opposite direction.**
+
+### ✅ Third path CONFIRMED — the engine writes a file the engine does not commit *(2026-07-28)*
+
+Predicted before the run, verified after it. Accepting the universe-profile offer made
+`set-universe-profile.mjs` write `vault/inqom/universe.md` **in Node**, not through a `Write`/`Edit`
+tool call. Result, checked on disk the moment the flow ended:
+
+- **Index**: picked it up on its own, status line `🧠 RAG 414/415 (1⏳)` mid-catch-up.
+- **Git**: `?? vault/inqom/universe.md` — untracked. Status line `main 74383b4*`, dirty marker and all.
+
+So the tool-shaped trigger misses a **third** class of writer, and it is the worst of the three: not the
+owner in Obsidian (F8), not a shell command (F9), but **the engine's own script**. The product writes a
+file and then fails to persist it, in the one flow whose entire purpose is to record something durable.
+
+- [ ] Add this as the **primary** test case for P1 (it is the one an owner meets without doing anything
+      unusual), alongside creation and deletion.
+
+---
 
 ### The aftermath, and it is the trap P1 must not fall into *(2026-07-28, same session)*
 
