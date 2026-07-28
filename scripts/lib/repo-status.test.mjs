@@ -17,6 +17,36 @@ test("countVaultUncommitted: clean tree → 0", () => {
   assert.equal(countVaultUncommitted(""), 0);
 });
 
+// THE case a French-first product lives in: git QUOTES any path that carries a space
+// or a non-ASCII byte, and escapes the bytes (` M "vault/r\303\251union.md"`). Read as
+// an unquoted path, every one of those notes disappears from the count — and the
+// startup banner then shows a reassuring ✅ over unversioned notes, which is the exact
+// failure this guard exists to catch. Verified against a real git before being written.
+test("countVaultUncommitted: counts the QUOTED paths git emits for accented and spaced names", () => {
+  const porcelain = [
+    ' M "vault/r\\303\\251union.md"', //        accented → git quotes AND escapes it
+    ' M "vault/1-1 avec Marie.md"', //          a space is enough to get quoted
+    " M vault/plain.md", //                     the unquoted twin still counts
+    ' M "rag/caché.db"', //                     quoted but OUTSIDE vault → ignored
+    ' ?? "notes perso.md"', //                  quoted, no vault/ prefix → ignored
+  ].join("\n");
+
+  assert.equal(countVaultUncommitted(porcelain), 3);
+});
+
+// A rename names TWO paths, and the asymmetric case is the one that discriminates: a
+// note dragged INTO the vault (in Obsidian, from a scratch folder) has a source that
+// is not under vault/, so reading the entry as a single path misses it entirely.
+test("countVaultUncommitted: a rename counts when EITHER endpoint is in the vault", () => {
+  const porcelain = [
+    'R  "brouillons/note é.md" -> "vault/note é.md"', // moved IN  → concerns the vault
+    'R  "vault/note é.md" -> "archive/note é.md"', //   moved OUT → concerns it too
+    'R  "docs/a é.md" -> "docs/b é.md"', //             neither side → ignored
+  ].join("\n");
+
+  assert.equal(countVaultUncommitted(porcelain), 2);
+});
+
 test("countUnmerged: counts the paths git left unmerged, including the two U-less codes", () => {
   // Two conflicts, deliberately unsorted and mixed with ordinary dirt: the codes
   // WITHOUT a U ('AA' both added, 'DD' both deleted) are conflicts just the same.

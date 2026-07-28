@@ -14,10 +14,26 @@
 // "  M vault/y.md") → we isolate the path (slice 3) and keep those under vault/.
 // No blank-line filter is needed: a blank (or whitespace-only) line cannot start
 // with "vault/" once sliced, so the path test already drops it.
+//
+// …but git does NOT always hand back a bare path. Any path carrying a space or a
+// non-ASCII byte comes back QUOTED, its bytes escaped:
+//   ` M "vault/r\303\251union.md"` · ` M "vault/1-1 avec Marie.md"`
+// On a French-first product that is the NORMAL case, not the exotic one, and read
+// literally every such note vanished from the count — the banner then showed a
+// reassuring ✅ over unversioned notes, the very thing this guard exists to catch.
+// Only the `vault/` prefix is tested, so the escaped bytes need no decoding.
+const stripQuotes = (path) => (path.startsWith('"') ? path.slice(1, -1) : path);
+
+// A rename/copy entry names TWO paths (`R  old -> new`), and either endpoint makes
+// it a vault change: a note moved into the vault, or out of it, both concern it.
+// An unquoted path can never contain " -> " (git quotes anything with a space), so
+// the split is unambiguous.
+const pathsIn = (line) => line.slice(3).split(" -> ").map(stripQuotes);
+
 export function countVaultUncommitted(porcelainOut) {
   return porcelainOut
     .split("\n")
-    .filter((l) => l.slice(3).startsWith("vault/"))
+    .filter((line) => pathsIn(line).some((path) => path.startsWith("vault/")))
     .length;
 }
 
