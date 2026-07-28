@@ -87,6 +87,9 @@ it is the most structural, and its propagation trap deserves a test that locks i
       three of our own channels disagree about the same run; **the one the owner sees is the optimistic one**
 - [ ] **F11 — the watcher watches `.obsidian/`, which git deliberately ignores** *(found 2026-07-28)* — UI churn
       triggers full scan campaigns; **constrains how F8/P1 may trigger its commit**
+- [ ] **F12 — consolidation broke a note's front-matter; it has answered from stale content ever since**
+      *(found 2026-07-28)* — **the incident that proves F10 is load-bearing**, four defects chained, none of
+      them audible
 - [ ] Field-log the rest of the run (entries appended below as they are met)
 - [ ] Triage the log into Gate 4's canonical plan once the run is over
 
@@ -920,4 +923,55 @@ trigger reaches the network.
 
 ---
 
-## F12 — *(next entry: appended during the run)*
+## F12 — Consolidation broke a note's front-matter, and the note has been answering from stale content ever since
+
+> **The incident that proves F10 is load-bearing.** Four defects chained in one afternoon, on a real
+> note, in the owner's real vault. None of them shouted. Found only because the owner happened to be
+> reading the reindex output during a QA.
+
+- [ ] **Fix the writer, not the file.** `engine-skills/consolidate/SKILL.md:113` instructs the agent to
+      *"append a dated section … **and bump the page's `updated:`**"* — freehand, with **no deterministic
+      writer and no validation**. Here the agent **appended a second `updated:` key** instead of
+      replacing the first, which is invalid YAML.
+  - [ ] Give the refresh path the same treatment every other durable write already gets (ADR 0009): a
+        core that rewrites front-matter **by key**, so "bump `updated:`" cannot become "add a second
+        `updated:`". The skill already delegates *creation* to a script; only the **refresh** is freehand.
+  - [ ] Add a front-matter validation at the seam that already reads every note: a duplicate key is a
+        one-line check, and it is the difference between a defect that announces itself and one that
+        does not.
+
+**The chain, verified on disk (2026-07-28).**
+
+1. **Consolidation wrote the malformed header.** `vault/inqom/topics/crise-kandor-clemence.md` now has
+   `updated: 2026-06-12` at line 5 **and** `updated: 2026-07-28` at line 7 — today's date, added by
+   today's consolidation run.
+2. **The indexer's re-read fails**, every campaign since. That is the phase-1 read error recorded in
+   `watcher.log` as `1 errors` all afternoon.
+3. **F10 swallowed it**: `last-run.json` said `"errors":[]`, so `vault_stats` said `0 error` and the
+   brain reported *"Watcher actif (idle), 0 erreur, index à jour"* — **the exact sentence, on the exact
+   run, hiding this exact file**. F10 stops being a hypothesis here.
+4. **The note answers from before the consolidation.** Its indexed sections stop at `## Sources`; the
+   section the consolidation added, `## 2026-06-25 — Continuité produit post-départ (sync Supermen)`
+   (file line 91), **is absent from `chunks`**. The page is searchable and confidently out of date.
+
+**The irony is the whole point.** Consolidation exists so fresh captures become findable on the page
+that owns them. Here **the act of consolidating made its own output unfindable**, and the alarm that
+should have said so was disabled by a separate defect. A brain whose repair mechanism silently breaks
+what it repairs is worse than one that never repaired anything.
+
+- [x] **The brain's report was overstated, and the truth is worse** _(2026-07-28)_. It said *"cette note
+      n'est pas indexée, elle est invisible pour la recherche sémantique"*. Verified: the note **is** in
+      `documents` (415 files on disk, 415 indexed) — it is **stale**, not absent. Worth stating plainly
+      because the two failure modes are not equivalent: **a missing note can be noticed; a note that
+      answers with outdated content cannot.** Same F7 shape once more: a diagnosis delivered one notch
+      stronger than it was checked.
+- [x] **Credit where it is due, and it is substantial** _(2026-07-28)_. Asked *"tout est commit ?"*, the
+      brain ran `git status` **first**, answered *"Non"*, named the exact root cause unprompted (*"le hook
+      d'auto-commit ne l'a pas vu parce que la fiche a été écrite par le script `set-universe-profile.mjs`,
+      pas par mes outils Write/Edit"*), **refused to self-fix** (*"les règles du repo me disent de laisser
+      le hook faire, donc je ne le fais pas de moi-même"*) and surfaced this front-matter defect on its own
+      initiative. **The engine hid the error; the agent found it anyway.**
+
+---
+
+## F13 — *(next entry: appended during the run)*
