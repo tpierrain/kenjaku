@@ -36,6 +36,7 @@ directement dans Obsidian sont enfin commitées/synchronisées"). Scope agreed:
 - **Headline: F8 / P1 only** (see F8 → "P1 vs P2"). P2 is **rejected**, on Thomas's call.
 - **Ride along:** F1 (ships sooner = fleet stops depending on a GitHub redirect), F5 (most visible),
   F6 (small and isolated), and the **F4 ADR** (costs nothing, and without it F2/F5 get fixed wrongly).
+- **Added 2026-07-28 (Thomas):** F9 + F11 (inside F8/P1, see the scope update below) and **F10**.
 - **Deferred to Gate 4:** F2, F3, F7.
 
 **The constraint that decides WHERE each fix lands — do not re-derive it.** `CLAUDE.md` and
@@ -53,9 +54,10 @@ F8/P1 rather than beside it:
   (deletion, not just creation) and it pins the trigger condition (`indexed > 0 || removed > 0`).
 - **F11 is one line and P1 depends on it**: campaigns fire on `.obsidian/` UI churn, so P1's trigger
   must be written knowing that. Ship it with P1.
-- **F10 is a genuine new candidate and NOT in the frozen scope — Thomas's call.** The engine drops
-  unreadable notes and reports "0 error" to the owner. It is small (the reporter never receives phase-1
-  errors) and it is the trust defect F7 is about, one layer down. **Ask before widening the release.**
+- **F10 joins the release** _(Thomas, 2026-07-28)_. The engine drops unreadable notes and reports
+  "0 error" to the owner. Small (the reporter never receives phase-1 errors), and it is the trust defect
+  F7 is about, one layer down: a brain that answers confidently over an incomplete index is the failure
+  mode this product cannot afford. Ships with the `scanned == indexed + skipped + errors` invariant test.
 
 **Next step when picking this up:** write the release's action plan, then implement **F8/P1 in TDD** —
 it is the most structural, and its propagation trap deserves a test that locks it.
