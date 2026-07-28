@@ -18,10 +18,11 @@
 
 ## ▶️ START HERE
 
-**The next track to CODE is Track 5** _(as of 2026-07-28 · `fbec194`)_. Tracks 1 and 4 stay unticked in
-`## Tracking` for what they still owe, and **neither is code**: Track 1's release-note copy and Track 4's
-irony line are both due at **Track 9**, and Track 1's remaining check needs an **installed brain**, which
-the launcher deliberately is not. So resume at Track 5 — do not reopen Track 1's implementation.
+**The next track to CODE is Track 6** _(as of 2026-07-28 · `25b0335`)_. Track 1 stays unticked in
+`## Tracking` for what it still owes, and it is **not code**: its release-note copy is due at **Track 9**,
+and its remaining check needs an **installed brain**, which the launcher deliberately is not. Tracks 4
+and 5 owe a release-note line each, also at Track 9. So resume at Track 6 — do not reopen the
+implementation of Tracks 1-5.
 
 The QA is **closed**. Do not re-run it, do not re-read `mind-palace`, do not re-investigate any entry:
 each one in the field log states observation → root cause → fix, and **every one was verified on disk**.
@@ -60,7 +61,8 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [x] **Track 3 — A note the engine cannot read is reported, not swallowed** *(F10)* _(2026-07-28 · `631b0ae`)_
 - [x] **Track 4 — Consolidating a page can no longer damage it** *(F12)* _(2026-07-28 · `541028b`,
       `6e0101b`)_ — writer **and** reader shipped; only the **release-note line** is owed, at Track 9.
-- [ ] **Track 5 — An installed brain follows the launcher when it moves** *(F1)*
+- [x] **Track 5 — An installed brain follows the launcher when it moves** *(F1)* _(2026-07-28 ·
+      `2eb6fad`, `25b0335`)_ — code green; only the **release-note line** is owed, at Track 9.
 - [ ] **Track 6 — The first screen speaks to you, not to the machine** *(F5)*
 - [ ] **Track 7 — `/rag` answers instead of suggesting `/run`** *(F6)*
 - [ ] **Track 8 — The profile pre-fill reads the notes you wrote** *(retrieval)*
@@ -323,20 +325,44 @@ date**, its newest section absent from `chunks`. Four defects chained, none of t
 
 ## Track 5 — An installed brain follows the launcher when it moves *(F1)*
 
-- [ ] **Root cause.** `recordSourceAndProvenance()` (`scripts/lib/engine-source.mjs:75`) stamps
+- [x] **Root cause.** `recordSourceAndProvenance()` (`scripts/lib/engine-source.mjs:75`) stamps
       `source: {repo, ref}` into the brain's `engine-manifest.json` **at install time**;
       `scripts/update-engine.mjs:298` writes back `source: { ...source, ref }` — the **ref** is refreshed
       on every update, the **repo never is**. A repository rename propagates to **no already-installed
       brain, ever**. Every brain installed before the v4.0.0 rename still clones
       `tpierrain/second-brain-generator`.
-- [ ] Have the launcher declare its own canonical repo URL in `engine-manifest.json` (the **fetched**
+- [x] Have the launcher declare its own canonical repo URL in `engine-manifest.json` (the **fetched**
       target), so the source of truth is the launcher, not the brain's install-day memory.
-- [ ] Carry that URL through at `update-engine.mjs:298`. **Keep the recorded URL when the fetched
+      _(2026-07-28 · `2eb6fad`)_ — new top-level key **`canonicalRepo`**, deliberately NOT `source`:
+      the committed launcher manifest must keep pinning **no `source` at all**, a guard that exists to
+      catch a leaked QA repoint (`engine-manifest-integrity.test.mjs`). Its sibling guard now fails
+      loud if `canonicalRepo` goes missing, blank, or non-https — an `ssh://` / `git@` form would
+      exclude every machine without a deploy key, and a local path would be that same QA leak.
+- [x] Carry that URL through at `update-engine.mjs:298`. **Keep the recorded URL when the fetched
       manifest declares none** (older launchers), so the change can never blank a working source.
-- [ ] Test the redirect-free path: a brain recording the OLD URL + a fetched manifest declaring the NEW
-      one → the brain ends up on the new one, and a second run is a **no-op**.
-- [ ] Decide whether an unreachable recorded URL earns an actionable message (*"your brain points at a
-      repository that no longer answers"*) rather than a raw `git clone` failure.
+      _(2026-07-28 · `2eb6fad`)_ — pure decider `resolveSourceRepo({recorded, declared})`
+      (`scripts/lib/engine-source.mjs`), triangulated in three baby-steps: declared wins, absent keeps
+      the recorded one, and the blank/padded twin (a blank declaration declares nothing; a padded URL
+      is adopted trimmed, since a URL with a stray newline is not clone-able).
+- [x] Test the redirect-free path: a brain recording the OLD URL + a fetched manifest declaring the NEW
+      one → the brain ends up on the new one, and a second run is a **no-op**. _(2026-07-28 · `2eb6fad`)_
+      Two gates in `update-engine.test.mjs`. The first pins what the fix does **not** claim: the first
+      update still travels the old name (the new one is only knowable from the manifest it is about to
+      fetch), so **exactly one hop** still rides the redirect — the second run resolves the tag AND
+      clones on the new name. The second gate is the older-launcher half.
+- [x] Decide whether an unreachable recorded URL earns an actionable message (*"your brain points at a
+      repository that no longer answers"*) rather than a raw `git clone` failure. **Decided: yes, in its
+      cheap form** _(2026-07-28 · `25b0335`)_ — the message now names the address, says **the address
+      did not answer** (one sentence that stays true for both a moved project and a train with no
+      signal — no classifying of git's stderr, which would be fragile), and names `source.repo` in
+      `engine-manifest.json`. **No detection logic was added**, on purpose.
+- [x] **The one case the launcher's declaration cannot repair, and why it needs no code**
+      _(2026-07-28)_. A brain whose recorded URL is **already unusable** never gets far enough to read
+      what the launcher declares (the fetch dies first). That is exactly the hand-edit the message
+      above now points at. Concretely it is the maintainer wrinkle: installing from an **SSH** clone
+      bakes `git@github.com:…` into the brain, so that brain updates only on a machine with keys —
+      until its first successful update adopts the https canonical URL. A user installing over https
+      (the documented path) never meets it, so the installer side was **left alone**.
 - [ ] **Why it is not cosmetic.** GitHub's redirect makes it work today, which is not reassuring: the
       entire update path of every deployed brain depends on an alias in a namespace **we no longer own**.
       The day a repository named `tpierrain/second-brain-generator` exists again — recreation, a
