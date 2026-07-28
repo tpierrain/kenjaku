@@ -49,7 +49,9 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [ ] **Track 1 — A note is saved while you are still writing it** *(headline — F8/P1, F9, F11)*
       — **code complete and green** _(2026-07-28 · `9f45561`, `f274a01`, `97652d7`)_; what is left is
       the **release-note copy** (the honest bound, the refused plaster) and the **real-brain check**.
-- [ ] **Track 2 — Your own status line survives opening your brain** *(F2, F4, ADR 0036)*
+- [x] **Track 2 — Your own status line survives opening your brain** *(F2, F4, ADR 0036)*
+      _(2026-07-28 · `84e4038`, `65202ba`, `44cdd24`)_ — code, ADR and copy done; the on-a-real-brain
+      check stays owed in the Verification section.
 - [ ] **Track 3 — A note the engine cannot read is reported, not swallowed** *(F10)*
 - [ ] **Track 4 — Consolidating a page can no longer damage it** *(F12)*
 - [ ] **Track 5 — An installed brain follows the launcher when it moves** *(F1)*
@@ -144,6 +146,14 @@ is not what is missing** — they do converge, at the next session start. What i
       re-opens it.
 - [x] **The reverse direction already holds.** After a pull, files land on disk and the watcher (or the
       startup catch-up) indexes them. Nothing to build.
+- [x] **A second thing the plan had not foreseen: this contradicts ADR 0011** _(2026-07-28 · `44cdd24`)_.
+      *"Drive `git commit` from the watcher"* is listed there under **Rejected alternatives**. It owed an
+      explicit amendment, not a silent contradiction → **ADR 0037**, which re-examines the four costs one
+      by one. The decisive one (coupling git to the RAG's failure domain) applies to a design that
+      **moves** persistence into the MCP; here the hooks stay, so the new rung can only **add** commits.
+      And the intent-bearing commit message ADR 0011 feared losing was never implemented —
+      `auto-commit.mjs` writes a fixed line. ADR 0011's status and its rejected-alternatives entry now
+      carry the amendment.
 - [ ] **The release note owes an honest bound.** P2 — committing while Claude is never open — was
       **rejected** by Thomas: it needs something running outside any session (LaunchAgent, cron, git
       hook), *"trop de choses et un côté immersif qui ne va pas plaire aux gens"*, on a product whose
@@ -175,35 +185,39 @@ configured one. Eviction has lost its argument.
 > line**. And that file is sacred, so an update cannot simply rewrite it. **The retreat has to remove
 > the key, in a deployed brain, through the reconciler.**
 
-- [ ] **Reroute what would otherwise be lost — BEFORE removing anything.**
-  - [ ] **The restart nudge is the only genuine loss.** `scripts/lib/restart-nudge.mjs` is surfaced
-        *only* by `status-line.mjs:116-142`; `scripts/session-status.mjs` never imports it. Emit it from
-        `session-status.mjs`'s `systemMessage` (it already joins its lines at `:177-184`), from the same
-        two inputs: the `.cache/restart-needed` flag and `onDiskGapNeeded()`.
+- [x] **Reroute what would otherwise be lost — BEFORE removing anything.** _(2026-07-28 · `84e4038`)_
+  - [x] **The restart nudge is the only genuine loss** _(2026-07-28 · `84e4038`)_. Confirmed on disk:
+        surfaced *only* by `status-line.mjs`; `session-status.mjs` never imported it. It now **leads**
+        that hook's `systemMessage`, from the same two inputs. The two on-disk reads left status-line for
+        `scripts/lib/restart-signal.mjs` — shared, and unit-tested including the **fail-soft** case: a
+        phantom nudge costs a pointless restart and teaches the owner to ignore the real one.
   - [x] **Already covered — verified, nothing to build.** The Gemini-key warning
         (`session-status.mjs:124-137`) and the RAG staleness counter (`:76-122`) are already duplicated
         there in prose.
-  - [ ] Keep the 🛑 MANDATORY chat rule at `.claude/skills/update-engine/SKILL.md:105-115` and **mark it
-        as the only harness**, not as a redundant belt — so no future cleanup trims it as duplication.
-        On Desktop it is, and always was, the sole delivery of the restart instruction.
-- [ ] **New installs: stop setting it.** Remove the `statusLine` block from
-      `.claude/settings.json.template:46-50`. A brain with no `statusLine` never acquires one — pinned
-      by `scripts/lib/reconcile-brain.test.mjs:627` and `:726`.
-- [ ] **Deployed fleet: remove the key we installed, and only that one.**
-  - [ ] Extend `scripts/lib/reconcile-brain.mjs:200-209`, today the **only** write to `statusLine`
-        inside a sacred `settings.json` (the Windows prefix repair via `repairWin32NodePrefix`).
-  - [ ] **Provenance guard, non-negotiable**: remove the key **only** when its `command` points at our
-        own `scripts/status-line.mjs`. Anything the owner set by hand is left untouched. Same discipline
-        as `scripts/lib/engine-skill-refresh.mjs` — overwrite only what is byte-identical to what the
-        engine delivered.
-  - [ ] ⚠️ **This makes the reconciler's write no longer purely additive.** Its section comment
-        (`reconcile-brain.mjs:165-180`) currently says it is. Update it, and **report the removal in the
-        update's output** — the owner should read something like *"your own status line is back"*.
-  - [ ] Tests: engine-installed `statusLine` → **removed**; hand-customized → **preserved**; brain with
-        none → **unchanged, byte-identical** (the converged-brain guarantee at `:204`).
-- [ ] **Decide the fate of `scripts/status-line.mjs`** — deleted with its now-unused seams, or kept as a
-      documented opt-in. Decide **once**, in the ADR, and say it where an owner reads it.
-- [ ] **ADR 0036 — the channel matrix** *(next free number; `Scope: Second brain (runtime)`)*.
+  - [x] Keep the 🛑 MANDATORY chat rule and **mark it as the only harness** _(2026-07-28 · `65202ba`)_ —
+        an explicit ⚠️ warns a future cleanup not to read it as duplication. The stale F-B7c paragraph
+        below it, which still credited the status line, now names the SessionStart message instead.
+- [x] **New installs: stop setting it** _(2026-07-28 · `65202ba`)_. The `statusLine` block is gone from
+      `.claude/settings.json.template`; a brain with no `statusLine` never acquires one, still pinned by
+      the two existing reconcile tests.
+- [x] **Deployed fleet: remove the key we installed, and only that one.** _(2026-07-28 · `65202ba`)_
+  - [x] Extended at that exact seam — the only write to `statusLine` inside a sacred `settings.json`.
+        The pure decision lives in `scripts/lib/status-line-retreat.mjs`.
+  - [x] **Provenance guard, non-negotiable** — matched on the script name, so a moved brain and a
+        Windows `cmd /c …run-node.cmd` wrapper both still read as ours, while anything unrecognised is
+        **kept**: a cosmetic leftover of ours is cheap, deleting their configuration is not.
+  - [x] ⚠️ **The reconciler's write is no longer purely additive**, and its section comment now says so:
+        additive **plus exactly one nominative removal**. The update reports it as what the owner gains —
+        *"your own status line is back: the brain no longer occupies it"*.
+  - [x] Tests: engine-installed → **removed**; hand-customized → **preserved**; none → **byte-identical**.
+        Plus the two pre-existing win32 tests, **rewritten**: they pinned the prefix repair of our own
+        status line, which the retreat makes moot — a broken line of ours is not worth healing, it is
+        worth giving back.
+- [x] **Fate of `scripts/status-line.mjs`: KEPT as a documented opt-in** _(2026-07-28 · ADR 0036 §5)_.
+      It works, it ships like any engine script, and an owner who wants it back only points their own
+      `statusLine.command` at it. Its header says so, in the first lines anyone opening it reads.
+- [x] **ADR 0036 — the channel matrix** _(2026-07-28 · `44cdd24`)_ —
+      `decisions/0036-deterministic-channels-differ-by-surface.md`, `Scope: Second brain (runtime)`.
       This is the point of F4: **a fact living only in comments rots and gets built upon.** Four source
       comments asserted Desktop renders a status line (`status-line.mjs:4-6` and `:116-118`,
       `restart-nudge.mjs:6`, `session-status.mjs:7-9`) while our own skill asserted the opposite. Carry
@@ -216,12 +230,18 @@ configured one. Eviction has lost its argument.
       | SessionStart `additionalContext` | ⚠️ **echoed verbatim to the user** | ✅ agent-only, as designed |
       | The agent's chat text | ✅ | ✅ **the only channel reaching both** |
 
-  - [ ] State the three consequences: the **chat is the only universal channel**, so anything an owner
-        MUST see belongs in the agent's message; `additionalContext` is **not backstage on the CLI**;
-        and **nothing here is inferable from the documentation**, which never mentions Desktop and is
-        framed entirely in terminal terms. Verify, date, record — do not re-derive.
-  - [ ] Have the surviving comments **point at the ADR** instead of asserting on their own authority.
-  - [ ] List it in `maintainers/README.md`'s `decisions/` section, one bullet ending in `**Scope: …**`.
+  - [x] The three consequences are stated: the **chat is the only universal channel**;
+        `additionalContext` is **not backstage on the CLI**; and **nothing here is inferable from the
+        documentation**. Plus one the plan had not asked for: the deterministic-mechanisms rule
+        (ADR 0009) is **bounded by the surface** — where the host renders nothing, an instruction to
+        the agent is not the weaker option, it is the only one.
+  - [x] The surviving comments **point at the ADR** _(2026-07-28 · `65202ba`)_: the three that asserted
+        the opposite (`status-line.mjs` header and its nudge block, `session-status.mjs`'s NB,
+        `restart-nudge.mjs`'s header) now name the matrix and say plainly which channel reaches what.
+  - [x] Listed in `maintainers/README.md`'s `decisions/` section, one bullet ending in `**Scope: …**` —
+        alongside a second one for ADR 0037. **Drift found on the way, recorded not hidden:** that list
+        had stopped at ADR 0022, so **0023-0035 are unlisted**; the README now says the directory is the
+        authoritative index until someone backfills it.
 
 ---
 
