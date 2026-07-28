@@ -132,6 +132,15 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
   - [ ] (C) Pre-flight preview: apply plan **and** reindex decision, shown before applying.
   - [ ] QA fixtures reproduced from the release **tag(s)** + synthetic personal edits; first enumerate
         the versions actually deployed.
+  - [ ] **Fixture handed over by v4.4.0's Track 8 — "does the capture flow propose what the vault
+        states?"** _(written 2026-07-28, ready to build)_. Seed a universe with **one** person note,
+        `type: person`, whose **first line** states a title and a relationship (the shape
+        `michael-aboumelhem.md` had), and **no** note for a decoy name that appears only in scattered
+        mentions. Run the profile capture. **Pass** = the pre-fill proposes the note's person and
+        title; **fail** = it proposes the decoy, or leaves the title unproposed while the note states
+        it. Deterministic, and it locks the exact behaviour the field run got wrong — the release
+        shipped the retrieval fix and its guard (`scripts/lib/switch-skill-prefill.test.mjs`), but a
+        source-level guard cannot prove the flow *behaves*; only this fixture can.
   - [x] (D) **Field feedback from a real big-jump upgrade** _(opened and closed 2026-07-28)_:
         `mind-palace` v4.0.0 → v4.3.0, defects logged as met — **F1-F12**, each verified on disk.
         **Field log (evidence):** `prospective/fleet-upgrade-field-feedback.md`. Cheaper than fixtures

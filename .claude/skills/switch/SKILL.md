@@ -131,6 +131,37 @@ profile yet; or whenever the user asks to describe / update their context. **Nev
 session, never after a refusal.** Offer *after* dealing with what the user actually asked — an offer
 that interrupts their real question is not an offer, it is an interruption.
 
+**Before asking anything, READ what the vault already says.** The vault has a shape — typed notes —
+and the answers to several of these questions are usually already written in it, by the owner, in
+their own words. Query that **structured source**, never a similarity ranking: a ranking returns
+what looks related, a typed listing returns **the roster**, and proposing a person the vault never
+recorded is exactly how this flow once named the wrong CTO while the right one sat in a note.
+
+1. **`list_documents` with `type: person`** → the exhaustive roster. Keep the notes under the
+   universe's folder (`vault/<slug>/…`) plus the owner's cross-cutting ones at the root; the path
+   carries the scope.
+2. **`get_document`** on the ones that matter → the opening lines of a person note usually carry
+   the title and the relationship. This is where `people` comes from, and very often `role` (the
+   owner's own title is frequently stated in the note about their manager).
+3. **`get_document` on the universe note** (`type: universe`, `vault/<slug>/universe.md`) when one
+   exists — a re-description starts from what is already recorded, not from zero.
+4. **`search_vault` is a complement, never the source of a proposed fact.** Use it to find a note,
+   then read the note. What gets proposed is what was **read**.
+
+**Then propose, and ask for corrections** — do not open with seven bare questions. Show the values
+you found, in the same batch, so the owner answers by correcting rather than by composing. Two
+disciplines make this safe, and they are not optional:
+
+- **Never invent.** A value nobody wrote does not get proposed. Retrieval feeds this flow; inference
+  does not.
+- **An unknown is an explicit blank**, never a plausible guess. `role: (I did not find it — what is
+  your title here?)` is a better answer than a title that reads exactly like the four correct ones.
+
+Say what accepting costs, once, plainly: **accepting a proposed batch records it as the owner's own
+facts**, in a note whose digest is injected at every session start. It is consented and it stays
+correctable (it is a plain note), but a one-word "yes" is the cheapest interaction there is — so the
+weight of it has to be visible before it is given, not discovered later.
+
 **The questions.** Ask them as ONE short batch, in the user's language, and say up front that
 every one of them is skippable and that the page stays editable afterwards (it is a plain note).
 Do not interrogate: if they answer three out of seven, write those three.
