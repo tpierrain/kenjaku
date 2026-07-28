@@ -12,6 +12,19 @@ export function shouldPersistCampaign(outcome: CampaignOutcome): boolean {
 }
 
 /**
+ * Does this checkout own a vault worth committing? True only for an INSTALLED
+ * brain: `provenance` is stamped into the manifest at install time
+ * (`scripts/lib/engine-source.mjs`) and is never present in the launcher's own.
+ * Run the engine from the generator — a maintainer's dev session — and this stays
+ * false, so the launcher's working tree is never swept into an `auto:` commit.
+ * Fails CLOSED on anything unreadable: not committing is the status quo, while
+ * committing a repository we cannot identify is damage.
+ */
+export function persistenceApplies(manifest: unknown): boolean {
+  return typeof manifest === "object" && manifest !== null && "provenance" in manifest;
+}
+
+/**
  * Runs one brain-side persistence script (`scripts/<name>`) to completion.
  * Asynchronous on purpose: a push can wait on the network (and on `auto-push.mjs`'s
  * own blocking retry), and this runs inside the MCP server — a synchronous wait

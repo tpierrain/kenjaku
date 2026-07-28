@@ -73,6 +73,20 @@ const ENGINE_MANIFEST = resolve(
 );
 
 /**
+ * Loads the WHOLE brain-root manifest, parsed. Fail-silent like its sibling
+ * below: absent or unreadable → null, never throws. Callers that need a key the
+ * version report ignores (e.g. `provenance`, which tells an installed brain apart
+ * from the launcher) read it from here rather than re-resolving the path.
+ */
+export function loadEngineManifest(): unknown {
+  try {
+    return JSON.parse(readFileSync(ENGINE_MANIFEST, "utf-8"));
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Loads the user-facing engine version (the install-time git TAG) from the
  * brain-root `engine-manifest.json`. Fail-silent: if the manifest is absent or
  * unreadable (e.g. a bare launcher with no manifest at that path) → null, never

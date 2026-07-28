@@ -61,6 +61,11 @@ export const DB_PATH = resolve(CACHE_DIR, "vault.db");
 // pointer. Anchored on the brain root (NOT CACHE_DIR), env-independent, so the
 // engine and the brain-side scripts resolve the exact same directory by construction.
 export const VAULT_RAG_DIR = resolve(projectRoot, ".vault-rag");
+// The brain's root: the folder holding `vault/`, `scripts/` and the `.git` the
+// vault is committed to. Deliberately NOT env-overridable — VAULT_DIR can be
+// relocated, but the brain-side scripts (auto-commit, auto-push) live next to
+// this engine, by construction.
+export const BRAIN_ROOT = projectRoot;
 export const GEMINI_API_KEY = process.env.GOOGLE_GEMINI_API_KEY ?? "";
 
 // Picks the Gemini key to use, PURE (testable): if a non-empty key is already

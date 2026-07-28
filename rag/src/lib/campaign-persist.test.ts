@@ -4,6 +4,7 @@ import { join } from "node:path";
 import {
   buildScriptRunner,
   persistCampaign,
+  persistenceApplies,
   shouldPersistCampaign,
 } from "./campaign-persist.js";
 
@@ -106,4 +107,20 @@ test("the real runner launches the brain's own script, with this node, from the 
       { cwd: join("/brains", "mind-palace") },
     ],
   ]);
+});
+
+test("vault persistence belongs to an INSTALLED brain, never to the launcher", () => {
+  // The launcher's own manifest carries no `provenance`: that key is stamped into
+  // the copy at install time (scripts/lib/engine-source.mjs). Running the engine
+  // from the launcher (a maintainer's `npm run dev`) must never commit the
+  // generator's working tree.
+  assert.equal(persistenceApplies({ manifestVersion: 1, provenance: {} }), true);
+  assert.equal(persistenceApplies({ manifestVersion: 1 }), false);
+});
+
+test("an unreadable manifest fails CLOSED — no commit over a repo we cannot identify", () => {
+  // Both shapes a failed read produces. Not committing is the status quo the
+  // release improves on; committing the wrong repo is damage.
+  assert.equal(persistenceApplies(null), false);
+  assert.equal(persistenceApplies("{ not json"), false);
 });

@@ -22,6 +22,7 @@ import {
 } from "./lib/index-freshness.js";
 import {
   loadEngineVersion,
+  loadEngineManifest,
   loadManifestEngineVersion,
   formatEngineVersionReport,
 } from "./lib/engine-version.js";
@@ -31,6 +32,7 @@ import {
   MAX_EMBED_REQUESTS_PER_DAY,
   QUERY_RESERVE,
   CACHE_DIR,
+  BRAIN_ROOT,
 } from "./lib/config.js";
 import { reindex as reindexFn } from "./lib/index-manager.js";
 import { scanVault } from "./lib/document-scanner.js";
@@ -39,10 +41,16 @@ import { ReindexLock } from "./lib/reindex-lock.js";
 import { buildStatusReport, incompleteIndexWarning, formatWatcherLiveness } from "./lib/status-report.js";
 import { ReindexScheduler } from "./lib/reindex-scheduler.js";
 import { startVaultWatcher } from "./lib/vault-watcher.js";
+import {
+  buildScriptRunner,
+  persistCampaign,
+  persistenceApplies,
+} from "./lib/campaign-persist.js";
 import { FileProgressStorage } from "./lib/reindex-reporter.js";
 import { formatLastRunMarkdown } from "./lib/progress-report.js";
 import { writeFileSync, appendFileSync, existsSync } from "fs";
-import { spawn } from "child_process";
+import { spawn, execFile } from "child_process";
+import { promisify } from "util";
 import { capExceededSearchMessage } from "./lib/search-degradation.js";
 import { formatSearchCitations } from "./lib/citation-renderer.js";
 import { runHealthCheck, HEALTH_CHECK_NOTE_RELPATH } from "./lib/health-check.js";
@@ -405,6 +413,17 @@ function traceWatcher(msg: string): void {
   }
 }
 
+// The production persistence seam: the brain's own hook scripts, run with THIS
+// node (the desktop app's PATH is not ours to assume), output buffered so it
+// never reaches the MCP stdio channel. Read once at startup: the manifest that
+// tells an installed brain from the launcher does not change under our feet.
+const persistRunner = buildScriptRunner({
+  brainRoot: BRAIN_ROOT,
+  nodeExec: process.execPath,
+  run: promisify(execFile),
+});
+const vaultIsOurs = persistenceApplies(loadEngineManifest());
+
 function startFileWatcher(): void {
   try {
     // One local-mirror sync / import lands in waves → several debounced catch-up
@@ -440,6 +459,16 @@ function startFileWatcher(): void {
             body: `Indexing complete — ${decision.total} note${decision.total > 1 ? "s" : ""} ready to search.`,
             spawn,
           });
+        }
+
+        // git ≥ index. A campaign that CHANGED something is the moment the engine
+        // already knows its own result, so this is where the vault gets committed
+        // — whoever wrote the file: Claude, Obsidian, `rm`, or one of our own
+        // scripts. Gated on `indexed || removed` (a deletion indexes nothing, and
+        // a campaign alone can be pure `.obsidian/` churn).
+        if (vaultIsOurs) {
+          const persisted = await persistCampaign(result, { runScript: persistRunner });
+          if (persisted !== "skipped") traceWatcher(`💾 vault persistence: ${persisted}`);
         }
       },
     });

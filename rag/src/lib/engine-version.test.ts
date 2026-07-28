@@ -8,6 +8,7 @@ import {
   loadEngineVersion,
   formatEngineVersionReport,
   manifestEngineVersion,
+  loadEngineManifest,
   loadManifestEngineVersion,
 } from "./engine-version.js";
 
@@ -112,4 +113,13 @@ test("engine report: an index stamped before schema versioning is not shown as \
   );
 
   assert.ok(!/undefined|null/.test(report), "no raw undefined/null in the prose");
+});
+
+test("loadEngineManifest: returns the parsed brain-root manifest, and never throws", () => {
+  // Same path and same fail-silent contract as loadManifestEngineVersion — the
+  // whole manifest this time, because the persistence gate reads a key the
+  // version report does not care about (`provenance`).
+  const manifest = loadEngineManifest() as { manifestVersion?: unknown };
+  assert.equal(typeof manifest?.manifestVersion, "number");
+  assert.doesNotThrow(() => loadEngineManifest());
 });
