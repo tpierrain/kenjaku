@@ -171,6 +171,13 @@ node installer.mjs --non-interactive --name "second-brain" --owner "Jane Doe" --
   appear in your history. It is **local only** (push stays opt-in, as above). Without it those files
   would sit uncommitted, and the startup `git pull --rebase` refuses to run on a dirty repo — your
   brain would quietly stop syncing between machines.
+- **And a sweep at every session start, to catch what the two above miss.** Before its startup
+  `git pull --rebase`, your brain commits anything still uncommitted: notes you typed **directly in
+  Obsidian** (Claude never saw them, so no hook fired), or engine files left over by an update. You
+  will see an `auto: session-start sweep …` commit when that happens. It is **local only**, and it is
+  what keeps your sync from silently blocking. **One exception, on purpose:** if git stopped on a
+  **conflict** (the same note changed on two machines), nothing is committed for you — the startup
+  banner asks you to open the file, keep what you want, then run `git rebase --continue`.
 - **Remote repo: decided afterwards, never imposed.** The install creates no remote. You can wire
   one up whenever you want (see §7) — remembering to enable `secondbrain.autopush`. In assisted
   startup, Claude will **offer** to create one (backup + multi-machine) — answering no is risk-free.
