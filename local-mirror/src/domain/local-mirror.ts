@@ -465,6 +465,34 @@ export class LocalMirror implements ILocalMirror {
       };
     }
 
+    // A move rewrites what a sync rewrites — the pages and the sidecar — and a sync starts on its
+    // own, on the freshness timer, in every open brain window. Racing one would let a refresh write
+    // pages at the OLD paths between phase 1 and the save that re-points the sidecar, leaving disk
+    // and sidecar disagreeing with no failure anywhere. Same single-flight lock as `sync`.
+    if (!this.deps.syncLock.acquire(config.name)) {
+      return {
+        name,
+        ok: false,
+        moved: 0,
+        message:
+          `"${name}" is being refreshed right now (another brain window, or its background ` +
+          `timer), so it was not moved — a move and a refresh rewrite the same files. Try again ` +
+          `in a moment.`,
+      };
+    }
+    try {
+      return await this.moveLocked(name, config, universe);
+    } finally {
+      this.deps.syncLock.release(config.name);
+    }
+  }
+
+  /** The critical section of a move — runs while holding the source's single-flight lock. */
+  private async moveLocked(
+    name: string,
+    config: LocalMirrorConfig,
+    universe: string,
+  ): Promise<MoveResult> {
     // The cross-cutting universe is the ABSENCE of the key, on disk as in the config — the same
     // implicit-when-default rule `configFromRequest` applies at declaration time.
     const moved = withUniverse(config, universe);

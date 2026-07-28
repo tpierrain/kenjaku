@@ -261,6 +261,35 @@ test('a move that cannot be recorded deletes nothing — the corpus survives the
   );
 });
 
+// A move rewrites the same two things a sync rewrites: the pages and the sidecar. And a sync can
+// start on its own — the mirror server re-checks freshness on a timer (300 s by default) in every
+// open brain window. A refresh landing between the move's phase 1 and its `stateStore.save` writes
+// pages at the OLD paths and saves a sidecar the move then overwrites, so the sidecar and the disk
+// disagree with no failure anywhere. `sync` takes the cross-process lock for exactly this reason;
+// the move has to hold the same one.
+test('a move refuses while another window is syncing that mirror, rather than racing it', async () => {
+  const harness = aLocalMirror()
+    .withActiveUniverse('acme')
+    .withDeclaredSources(aNotionLocalMirror())
+    .withNotionPages(aNotionPage({ id: 'page-1' }));
+  const gss = harness.build();
+  await gss.sync('team-a');
+  harness.withSourceBeingSyncedByAnotherWindow('team-a');
+
+  const result = await gss.moveSource('team-a', 'acme');
+
+  assert.equal(result.ok, false);
+  assert.equal(result.moved, 0);
+  assert.match(result.message, /refresh|syncing/i);
+  assert.deepEqual(
+    [...harness.vaultFiles().keys()],
+    ['mirrors/team-a/page-1.md'],
+    'not a single page was touched',
+  );
+  const [declared] = await harness.declaredSources();
+  assert.equal('universe' in declared, false, 'and the mirror still belongs where it did');
+});
+
 // A name that matches no mirror is a typo or a mirror already removed. Silently succeeding would
 // let an owner believe a corpus was re-filed when nothing exists to re-file.
 test('moving a mirror that was never declared is refused, and the real ones are named', async () => {
