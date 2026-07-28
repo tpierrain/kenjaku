@@ -18,11 +18,16 @@
 
 ## ▶️ START HERE
 
-**The next track to CODE is Track 7** _(as of 2026-07-28 · `7ec088b`)_. Track 1 stays unticked in
+**The next track to CODE is Track 8** _(as of 2026-07-28 · `3b8c0a6`)_. Track 1 stays unticked in
 `## Tracking` for what it still owes, and it is **not code**: its release-note copy is due at **Track 9**,
 and its remaining check needs an **installed brain**, which the launcher deliberately is not. Tracks 4,
-5 and 6 owe a release-note line each, also at Track 9. So resume at Track 7 — do not reopen the
-implementation of Tracks 1-6.
+5, 6 and 7 owe a release-note line each, also at Track 9. So resume at Track 8 — do not reopen the
+implementation of Tracks 1-7.
+
+**One decision is waiting on Thomas, and it does not block Track 8.** Track 7 shipped `rag` as the
+**only** new slash command; `/index` and `/reindex` route there in plain language rather than each
+costing a staged directory (a description loaded in every session). The reasoning is written in
+Track 7 and reversing it is one commit. If he wants the aliases, do it there — do not re-derive it.
 
 The QA is **closed**. Do not re-run it, do not re-read `mind-palace`, do not re-investigate any entry:
 each one in the field log states observation → root cause → fix, and **every one was verified on disk**.
@@ -66,7 +71,9 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [x] **Track 6 — The first screen speaks to you, not to the machine** *(F5)* _(2026-07-28 · `2243b83`,
       `43f25dc`, `f63d8ac`, `7ec088b`)_ — four emitters shrunk (the audit found one the field log had
       missed), a guard added; only the **release-note line** is owed, at Track 9.
-- [ ] **Track 7 — `/rag` answers instead of suggesting `/run`** *(F6)*
+- [x] **Track 7 — `/rag` answers instead of suggesting `/run`** *(F6)* _(2026-07-28 · `3b8c0a6`)_ —
+      skill + guard test + SETUP row; only the **release-note line** is owed, at Track 9. The alias
+      sweep is decided **in the track** (`rag` alone gets a directory) — re-open it only to overrule.
 - [ ] **Track 8 — The profile pre-fill reads the notes you wrote** *(retrieval)*
 - [ ] **Track 9 — Cut the release**
 
@@ -435,11 +442,25 @@ not theirs. Thomas, on that screen: *"bcp trop verbeux je trouve pour les gens"*
       language worked fine, so nothing is broken — an **affordance is missing at the exact word an owner
       of a RAG-backed brain reaches for first**. Worse than absence: the nearest-match points at `/run`,
       an unrelated built-in, so a curious owner lands somewhere with nothing to do with their index.
-- [ ] Cheapest fix that fits the product: a thin `rag` skill reporting what the natural-language path
+- [x] Cheapest fix that fits the product: a thin `rag` skill reporting what the natural-language path
       already produces — files/chunks, watcher liveness, embedder identity, engine + schema versions.
-      **The surface exists; only its name is missing.**
-- [ ] Sweep the neighbouring guesses (`/status`, `/index`, `/reindex`) and decide which are worth
-      aliasing. **A name nobody guesses is a feature nobody finds.**
+      **The surface exists; only its name is missing.** _(2026-07-28 · `3b8c0a6`)_ — the skill ROUTES
+      to `vault_stats` / `health_check` / `reindex` and derives nothing itself; a figure it computed
+      would be a second source of truth free to drift (F7, one layer down). Guarded by
+      `scripts/lib/rag-skill.test.mjs`.
+- [x] **It reaches the deployed fleet** _(2026-07-28)_: shipped staged at `engine-skills/rag/`, a
+      `replace` glob (ADR 0026) — the sacred scrub forbids writing under `.claude/skills/`, so staging
+      is the only path that reaches both a fresh install (`installer.mjs:340`) and an upgrader
+      (`reconcile-brain.mjs:119`). No new manifest entry needed: `engine-skills/**` already covers it.
+- [x] Sweep the neighbouring guesses (`/status`, `/index`, `/reindex`) and decide which are worth
+      aliasing. **A name nobody guesses is a feature nobody finds.** _(2026-07-28 · `3b8c0a6`)_
+      → **Decision: `rag` is the only directory, hence the only new slash command.**
+      - `/status` **cannot be claimed** — it is Claude Code's own built-in; the skill says so, and
+        plain words route here instead.
+      - `/index` and `/reindex` route here **through the description**, not through a directory of
+        their own: a slash alias costs a whole SKILL.md whose description is loaded into **every**
+        session, and what failed in the field was the *destination* (`/run`), not the plural.
+      - ↩️ **Cheap to reverse** if Thomas disagrees: one staged directory per alias, one commit.
 
 ---
 
