@@ -45,6 +45,15 @@ export function pointerHealNotice({ healed, from, active }) {
  * when there is already a profile or the offer was declined. Says nothing about
  * universes: it reaches single-universe brains, which must not meet the machinery
  * before they own a second one (ADR 0034). Pure.
+ *
+ * THE TRIGGER, NOT THE DETAIL (F5, Thomas 2026-07-28). This text is echoed VERBATIM
+ * to a CLI owner, prefixed `SessionStart:startup says:` — so it states the FACT and
+ * stops. The seven questions, the write command and the decline command live in the
+ * `switch` skill, which the agent loads when the user accepts *or* declines; naming
+ * them here duplicated a document that gets read anyway, and was the bulk of the
+ * eight lines of protocol an owner met before typing a word. Field-validated: given
+ * the fact alone the agent composes a better offer, in the owner's language, at the
+ * right moment — the upfront detail bought nothing.
  */
 export function profileCaptureOffer({ hasProfile, declined, multiverse = false }) {
   if (hasProfile || declined) return null;
@@ -53,24 +62,11 @@ export function profileCaptureOffer({ hasProfile, declined, multiverse = false }
   // vocabulary they already switch with. The CORE decides which, because deciding
   // requires counting universes, and counting is not the LLM's job (ADR 0009).
   const vocabulary = multiverse
-    ? `This brain is PAST the disclosure gate: say \`universe\` plainly — you are ` +
-      `describing the one currently active.`
-    : `This brain is BELOW the disclosure gate: never use the word \`universe\` with ` +
-      `this user — say their context, their world, this place. They have never met ` +
-      `the notion and must not meet it here.`;
+    ? "say `universe` plainly — the active one"
+    : "never use the word `universe`: they have never met the notion, say their context";
   return (
-    `Your brain does not know your context yet — what you do, where, with whom. ` +
-    `${vocabulary} ` +
-    `Offer ONCE, in the user's language, to spend two minutes on it (a handful of ` +
-    `questions: what this place is, your role there, the people who matter, which ` +
-    `accounts your tools use). Say plainly that they can skip it, now or forever. ` +
-    // Both answers route to a deterministic surface (ADR 0009): left to improvise,
-    // a session would hand-write a note of the wrong shape, and would forget the
-    // refusal by the next session — which is how a one-shot offer becomes nagging.
-    `If they accept, load the \`switch\` skill and follow its ` +
-    `\`Describe a universe — its profile\` section. If they decline, run ` +
-    `\`node scripts/set-universe-profile.mjs --decline\` so they are never asked ` +
-    `again, and tell them it is recorded.`
+    `No profile yet for this owner's context, and no refusal on file. Offer once, in ` +
+    `their language, to describe it, and say plainly it is skippable (${vocabulary}).`
   );
 }
 
@@ -85,10 +81,8 @@ export function buildUniverseHookOutput({ nudge = null, digest = null, offer = n
   const parts = [];
   if (nudge) {
     parts.push(
-      `[universe] ${nudge} Early in your next reply, briefly and in the user's language, ` +
-        `remind the user which universe is active and that searches stay scoped to it plus ` +
-        `their cross-cutting (default) notes. They can say "search all universes" to span them, ` +
-        `or /switch to change universe. Mention it once, do not nag.`,
+      `[universe] ${nudge} Searches are scoped to it plus their cross-cutting notes; ` +
+        `"search all universes" spans them, /switch changes it. Say so once, in their language.`,
     );
   }
   if (digest) {
@@ -97,9 +91,8 @@ export function buildUniverseHookOutput({ nudge = null, digest = null, offer = n
     // not meet the word before it owns two of them. This block is about THEIR world.
     parts.push(
       `[working context]\n${digest}\n` +
-        `That is background on the sphere this owner works in — their role, their people, ` +
-        `the accounts their tools use. USE it silently when it helps (who someone is, which ` +
-        `account to reach for); do not repeat it back to them and do not treat it as a task.`,
+        `Background on this owner's world — use it silently when it helps; do not repeat it ` +
+        `back to them, and do not treat it as a task.`,
     );
   }
   if (offer) parts.push(`[onboarding] ${offer}`);

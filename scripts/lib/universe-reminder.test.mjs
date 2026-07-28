@@ -41,14 +41,17 @@ test("profileCaptureOffer invites the owner to describe their context when there
   assert.match(offer, /(skip|decline|no thanks|not now)/i);
 });
 
-test("profileCaptureOffer routes BOTH answers to the deterministic surface", () => {
-  // Left to improvise, a session would hand-write the profile note (wrong shape,
-  // unindexed) and forget the refusal by the next session. Both answers must land
-  // on the skill / the CLI that own them (ADR 0009).
+test("profileCaptureOffer carries the FACT only — never how to run it (F5)", () => {
+  // This payload is echoed VERBATIM to a CLI owner, prefixed `SessionStart:startup says:`
+  // (field-verified 2026-07-28). So the trigger states the fact and stops: the seven
+  // questions, the skill section, the write command and the decline command all live in
+  // the `switch` skill, which the agent loads when the user accepts — or declines. Reciting
+  // them upfront duplicates a document that gets read anyway, and it IS the eight lines.
   const offer = profileCaptureOffer({ hasProfile: false, declined: false });
 
-  assert.match(offer, /switch/);
-  assert.match(offer, /set-universe-profile\.mjs --decline/);
+  assert.doesNotMatch(offer, /switch/i);
+  assert.doesNotMatch(offer, /set-universe-profile/);
+  assert.doesNotMatch(offer, /skill/i);
 });
 
 test("profileCaptureOffer never says 'universe' in the words meant for the user", () => {
@@ -131,6 +134,33 @@ test("buildUniverseHookOutput returns an envelope for a lone offer (no reminder,
   const out = buildUniverseHookOutput({ offer: "Your brain does not know your context yet." });
 
   assert.match(out.hookSpecificOutput.additionalContext, /does not know your context yet/);
+});
+
+test("buildUniverseHookOutput keeps the whole startup payload short — volume IS the defect (F5)", () => {
+  // The CLI echoes additionalContext VERBATIM, prefixed `SessionStart:startup says:`,
+  // before the owner has typed a word. What triggered this fix was that screen: eight
+  // lines of English protocol on a product sold to non-developers. So bound what WE
+  // author. The digest is excluded on purpose — it is the owner's own prose, and its
+  // length is theirs, not ours.
+  const payload = buildUniverseHookOutput({
+    nudge: universeReminder({ registry: ["acme", "blue"], active: "acme" }),
+    offer: profileCaptureOffer({ hasProfile: false, declined: false, multiverse: true }),
+  }).hookSpecificOutput.additionalContext;
+
+  assert.ok(
+    payload.length <= 420,
+    `the startup payload grew back to ${payload.length} chars:\n${payload}`,
+  );
+});
+
+test("buildUniverseHookOutput frames the digest in one line, not a paragraph (F5)", () => {
+  // Same echo, same bound, applied to the block we wrap the owner's profile in. The
+  // digest itself is theirs; everything we add around it is startup noise they read.
+  const digest = "Acme Corp (employer) — your role: Head of Engineering.\nPeople: Zoe (CTO).";
+  const payload = buildUniverseHookOutput({ digest }).hookSpecificOutput.additionalContext;
+  const framing = payload.length - digest.length;
+
+  assert.ok(framing <= 180, `the digest framing grew back to ${framing} chars:\n${payload}`);
 });
 
 test("buildUniverseHookOutput carries the reminder AND the digest when both apply", () => {
