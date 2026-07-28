@@ -69,10 +69,9 @@ export function buildActionsLogHookOutput(seeded) {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
       additionalContext:
-        `[activity-log] I just created your append-only activity ledger at ${ACTIONS_LOG_REL}. ` +
-        `Early in your next reply, briefly and in the user's language, mention it once: it is where ` +
-        `sync-sources appends one grep-able line per action taken through the brain (and where you ` +
-        `can file actions by hand). Mention it a single time, do not nag.`,
+        `[activity-log] Just created their append-only activity ledger at ${ACTIONS_LOG_REL}: ` +
+        `one grep-able line per action taken through the brain, hand-written entries welcome. ` +
+        `Mention it once, in their language, then let it be.`,
     },
     systemMessage: `Created the append-only activity ledger (${ACTIONS_LOG_REL}).`,
   };

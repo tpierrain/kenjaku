@@ -86,11 +86,9 @@ export function buildSelfHealHookOutput(lines) {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
       additionalContext:
-        `[engine self-heal — RESTART REQUIRED] An engine update is finishing in the background ` +
-        `and Claude must be restarted to pick up the new capabilities. You MUST now tell the user, ` +
-        `in their language, LOUDLY and unmissably (emoji + a clear heading), to FULLY restart ` +
-        `Claude (close it and reopen, then resume THIS conversation). Never imply the update is ` +
-        `already live, never say "nothing to do". Relay these specifics:\n${detail}`,
+        `[engine self-heal — RESTART REQUIRED] Tell the user NOW, in their language, loudly ` +
+        `(emoji + a heading): they must FULLY restart Claude (close it, reopen, resume here) for ` +
+        `an update finishing in the background. Never imply it is already live. Relay:\n${detail}`,
     },
     systemMessage: detail,
   };
