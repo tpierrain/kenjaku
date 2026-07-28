@@ -236,7 +236,11 @@ test("formatProgressReport: a completed run that adds up stays quiet about accou
     },
     "2026-07-28T12:01:00Z",
   );
-  assert.doesNotMatch(out, /incomplete/i);
+  // Asserted whole, not by the absence of one word: this is the line an owner
+  // reads after every catch-up, and "does not say incomplete" leaves room for it
+  // to say anything else at all — including an accounting warning on a run whose
+  // numbers add up.
+  assert.equal(out, "Last catch-up: completed in 1 min, 2 docs indexed, 0 error(s).");
 });
 
 test("formatProgressReport: a completed run NAMES its errors, it does not just count them", () => {

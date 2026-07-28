@@ -123,3 +123,11 @@ test("loadEngineManifest: returns the parsed brain-root manifest, and never thro
   assert.equal(typeof manifest?.manifestVersion, "number");
   assert.doesNotThrow(() => loadEngineManifest());
 });
+
+test("loadEngineManifest: no manifest there → null, and null is the answer, not silence", () => {
+  // The whole point of the fail-silent half. `persistenceApplies` reads what comes
+  // back to decide whether a checkout is an installed brain, so a loader that
+  // swallowed the failure and fell off its own end would be handing the guard a
+  // value it never meant to return.
+  assert.strictEqual(loadEngineManifest("/nowhere/engine-manifest.json"), null);
+});

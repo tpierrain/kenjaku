@@ -65,6 +65,22 @@ test("moving an Obsidian pane commits NOTHING", async () => {
     "⚙️  catch-up triggered (debounce elapsed) — indexing in progress…",
     "✅ catch-up done: 0 indexed, 12 unchanged",
   ]);
+  // The toast is gated too, and nothing said so: a campaign that indexed
+  // nothing has nothing to announce, and a desktop notification reading
+  // "done — 0" for a pane someone moved is the noise F5 is about.
+  assert.deepEqual(rec.notified, [], "and no toast for a campaign that changed nothing");
+});
+
+test("a campaign that found the reindex already running says so, in that same line", async () => {
+  // `skippedLocked` is the honest half of the catch-up line: the campaign ran,
+  // found the lock held, and indexed nothing THROUGH NO FAULT of the vault. Read
+  // without that clause, "0 indexed, 0 unchanged" reads as an empty vault.
+  const rec = await runWith(campaign({ scanned: 0, skippedLocked: true }));
+  assert.deepEqual(rec.traced, [
+    "⚙️  catch-up triggered (debounce elapsed) — indexing in progress…",
+    "✅ catch-up done: 0 indexed, 0 unchanged (skipped: reindex already in progress)",
+  ]);
+  assert.equal(rec.asked, 0, "nothing changed → nothing to commit");
 });
 
 test("the launcher's own vault is never committed", async () => {

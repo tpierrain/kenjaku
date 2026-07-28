@@ -84,7 +84,9 @@ export function findDuplicateKey(
   raw: string
 ): { key: string; first: number; second: number } | null {
   const lines = raw.split("\n");
-  if (lines[0]?.trim() !== "---") return null;
+  // `split` always yields at least one string, even on "" — no optional chain
+  // needed, and one there would be a branch no note can take.
+  if (lines[0].trim() !== "---") return null;
   const seenAtLine = new Map<string, number>();
   for (let i = 1; i < lines.length; i++) {
     if (lines[i].trim() === "---") break;

@@ -74,13 +74,18 @@ const ENGINE_MANIFEST = resolve(
 
 /**
  * Loads the WHOLE brain-root manifest, parsed. Fail-silent like its sibling
- * below: absent or unreadable → null, never throws. Callers that need a key the
- * version report ignores (e.g. `provenance`, which tells an installed brain apart
- * from the launcher) read it from here rather than re-resolving the path.
+ * below: absent or unreadable → **null**, never throws (and null on purpose, not
+ * a bare `return` — the persistence gate keys on what it gets back). Callers that
+ * need a key the version report ignores (e.g. `source`, which tells an installed
+ * brain apart from the launcher) read it from here rather than re-resolving the
+ * path.
+ *
+ * The path is a parameter only so the absent-manifest half of that contract can
+ * be exercised; production always calls it with none.
  */
-export function loadEngineManifest(): unknown {
+export function loadEngineManifest(path: string = ENGINE_MANIFEST): unknown {
   try {
-    return JSON.parse(readFileSync(ENGINE_MANIFEST, "utf-8"));
+    return JSON.parse(readFileSync(path, "utf-8"));
   } catch {
     return null;
   }

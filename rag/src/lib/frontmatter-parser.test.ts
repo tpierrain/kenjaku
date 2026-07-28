@@ -237,6 +237,35 @@ test("a genuinely duplicated key is still named, with both of its lines", () => 
   assert.deepEqual(findDuplicateKey(raw), { key: "updated", first: 3, second: 5 });
 });
 
+test("a trailing space after the opening `---` still opens front-matter", () => {
+  // A fence typed by hand carries whatever whitespace the editor left. Reading it
+  // literally, this note has no front-matter at all — so the duplicate below goes
+  // unnamed, and the owner is left with a raw YAML exception on a note whose real
+  // defect we could see.
+  const raw = "--- \ntitle: [unclosed\nupdated: a\nupdated: b\n---\nbody\n";
+
+  assert.deepEqual(findDuplicateKey(raw), { key: "updated", first: 3, second: 4 });
+});
+
+test("a trailing space on the CLOSING `---` still closes it: the body is not scanned", () => {
+  // The same whitespace at the other fence, and it fails the other way round: the
+  // scan runs on past the front-matter and reports ordinary prose from the body as
+  // a duplicated key — sending the owner to delete a line of their own note.
+  const raw = "---\ntitle: [unclosed\n--- \nupdated: a\nupdated: b\n";
+
+  assert.equal(findDuplicateKey(raw), null);
+});
+
+test("front-matter that is never closed ends at the last line, it does not run off it", () => {
+  // A truncated note (an interrupted write, a botched hand-edit) has an opening
+  // fence and no closing one. Walking one line past the end reads `undefined`, and
+  // the scan would throw a TypeError while REPORTING on a damaged note — a crash
+  // where a plain "no duplicate here" was the answer.
+  const raw = "---\ntitle: [unclosed\nupdated: a\n";
+
+  assert.equal(findDuplicateKey(raw), null);
+});
+
 test("a note with no front-matter has no front-matter key, horizontal rules included", () => {
   // Read directly: a note whose YAML never parses in the first place cannot reach the
   // catch, so this contract is only observable here. A hand-written note may well open

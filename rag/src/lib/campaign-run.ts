@@ -69,6 +69,6 @@ export async function runCatchUpCampaign(deps: CampaignDeps): Promise<void> {
   // changed. Only the CADENCE moved out: a campaign that changed nothing asks
   // for nothing, and one that did hands off to the persistence window.
   if (!shouldPersistCampaign(result)) return;
-  deps.requestPersist?.();
+  deps.requestPersist();
   deps.trace("💾 vault persistence requested — committing once the vault is still");
 }
