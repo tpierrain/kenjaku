@@ -158,7 +158,8 @@
 - [x] ⚠️ **`/code-review` BEFORE the merge** — Thomas asked for it explicitly (2026-07-28), and he
       launched it. **8 findings, every one reproduced against the real code before being accepted.**
       They are the work list below.
-- [ ] **Fix what the review raised** (each one TDD, red first, its own commit)
+- [x] **Fix what the review raised** (each one TDD, red first, its own commit) — **all 8 done**
+      _(2026-07-28)_, plus the mutation re-measure and the PR body they owed
   - [x] **A move can DELETE the pages it was asked to re-file** (`local-mirror.ts` rollback). On a
         same-universe move the "landed" paths **are** the originals, so a phase-1 failure makes the
         rollback delete real notes — and the sidecar's matching hash then reports them `unchanged`
@@ -231,7 +232,9 @@
           **97.44 %**, `auto-commit.mjs` **98.04 %**. Nothing to harden: the three survivors are
           equivalents, two already accepted, the third being `stripQuotes`'s `startsWith`/`endsWith`
           (git quotes a path at both ends or neither).
-  - [ ] **Also update the PR #50 body**: it describes the four tracks but not the review fixes.
+  - [x] **PR #50's body now carries the review fixes** _(2026-07-28)_: a "What the code review found"
+        section naming the three content-losing ones, and a Tests block quoting the post-fix mutation
+        figures instead of the pre-review ones.
 - [ ] merge the PR into `main` once tracks A, B and C are green (PR #50 grows to carry them, or
       each track lands as its own PR onto the same branch — decide when A is done)
   - [ ] tag + publish `v4.3.0`, title in the house style (`v4.3.0 — The One Where …`);
