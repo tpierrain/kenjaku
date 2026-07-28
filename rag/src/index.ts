@@ -41,7 +41,12 @@ import { ReindexLock } from "./lib/reindex-lock.js";
 import { buildStatusReport, incompleteIndexWarning, formatWatcherLiveness } from "./lib/status-report.js";
 import { ReindexScheduler } from "./lib/reindex-scheduler.js";
 import { startVaultWatcher } from "./lib/vault-watcher.js";
-import { buildScriptRunner, persistenceApplies } from "./lib/campaign-persist.js";
+import {
+  buildScriptRunner,
+  persistenceApplies,
+  persistVaultNow,
+} from "./lib/campaign-persist.js";
+import { PersistenceScheduler } from "./lib/persistence-scheduler.js";
 import { runCatchUpCampaign } from "./lib/campaign-run.js";
 import { FileProgressStorage } from "./lib/reindex-reporter.js";
 import { formatLastRunMarkdown } from "./lib/progress-report.js";
@@ -428,6 +433,12 @@ function startFileWatcher(): void {
     // the watcher settles, with the burst TOTAL — never a premature "done — 8"
     // mid-flight (Obs 3 / F5).
     const burst = new IndexingBurst();
+    // Persistence runs on its OWN cadence, deliberately slower than indexing:
+    // search wants the 5 s debounce, git does not. Committing at the same beat
+    // meant a commit AND a network push per pause longer than five seconds.
+    const persistScheduler = new PersistenceScheduler({
+      persist: () => persistVaultNow({ runScript: persistRunner }, traceWatcher),
+    });
     // The campaign's body lives in campaign-run.ts (unit-tested with in-memory
     // fakes); here we only hand it the real seams. `scheduler` is read lazily
     // inside `moreComing`, so the mutual reference resolves at call time.
@@ -456,6 +467,7 @@ function startFileWatcher(): void {
           burst,
           notifyMin: LIVE_WATCHER_NOTIFY_MIN,
           persist: vaultIsOurs ? { runScript: persistRunner } : null,
+          requestPersist: () => persistScheduler.notify(),
         }),
     });
     startVaultWatcher({

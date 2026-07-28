@@ -10,13 +10,14 @@ function campaign(partial: Partial<IndexResult>): IndexResult {
 }
 
 interface Recorded {
-  ran: string[];
+  /** How many times the campaign asked for the vault to be committed. */
+  asked: number;
   traced: string[];
   notified: number[];
 }
 
 function runWith(result: IndexResult, opts: { ourVault?: boolean } = {}) {
-  const rec: Recorded = { ran: [], traced: [], notified: [] };
+  const rec: Recorded = { asked: 0, traced: [], notified: [] };
   const promise = runCatchUpCampaign({
     reindex: async () => result,
     writeLastRun: () => {},
@@ -26,7 +27,8 @@ function runWith(result: IndexResult, opts: { ourVault?: boolean } = {}) {
     burst: new IndexingBurst(),
     notifyMin: 5,
     persist:
-      opts.ourVault === false ? null : { runScript: (s) => { rec.ran.push(s); } },
+      opts.ourVault === false ? null : { runScript: () => {} },
+    requestPersist: () => { rec.asked++; },
   });
   return promise.then(() => rec);
 }
@@ -35,21 +37,21 @@ test("a note written by the engine's OWN script is committed", async () => {
   // The primary field case (F8/P1): `set-universe-profile.mjs` wrote a note in
   // Node, so no Write/Edit tool fired and the PostToolUse hook never ran.
   const rec = await runWith(campaign({ scanned: 1, indexed: 1 }));
-  assert.deepEqual(rec.ran, ["auto-commit.mjs", "auto-push.mjs"]);
+  assert.equal(rec.asked, 1);
 });
 
 test("a note typed OUTSIDE Claude, in Obsidian, is committed", async () => {
   // F8: no tool call fires at all — the file just appears in the vault, the
   // watcher indexes it, and until now git heard about it at the next session start.
   const rec = await runWith(campaign({ scanned: 12, indexed: 1, skipped: 11 }));
-  assert.deepEqual(rec.ran, ["auto-commit.mjs", "auto-push.mjs"]);
+  assert.equal(rec.asked, 1);
 });
 
 test("a note DELETED with `rm` is committed, though the campaign indexed nothing", async () => {
   // F9, field-observed as `indexed:0, removed:1`. Gating on `indexed` alone would
   // reproduce F9 inside its own fix.
   const rec = await runWith(campaign({ scanned: 11, skipped: 11, removed: 1 }));
-  assert.deepEqual(rec.ran, ["auto-commit.mjs", "auto-push.mjs"]);
+  assert.equal(rec.asked, 1);
 });
 
 test("moving an Obsidian pane commits NOTHING", async () => {
@@ -58,7 +60,7 @@ test("moving an Obsidian pane commits NOTHING", async () => {
   // nothing — which is the gate. Harmless today only by accident (`.obsidian/`
   // is gitignored); with `autopush` on, a needless commit reaches the network.
   const rec = await runWith(campaign({ scanned: 12, skipped: 12 }));
-  assert.deepEqual(rec.ran, []);
+  assert.equal(rec.asked, 0);
   assert.deepEqual(rec.traced, [
     "⚙️  catch-up triggered (debounce elapsed) — indexing in progress…",
     "✅ catch-up done: 0 indexed, 12 unchanged",
@@ -69,27 +71,50 @@ test("the launcher's own vault is never committed", async () => {
   // `persist: null` is what a checkout with no install provenance yields. The
   // campaign still indexes and traces — it just does not touch git.
   const rec = await runWith(campaign({ scanned: 1, indexed: 1 }), { ourVault: false });
-  assert.deepEqual(rec.ran, []);
+  assert.equal(rec.asked, 0);
   assert.equal(rec.traced.length, 2);
 });
 
-test("the campaign traces what it RAN, not an outcome it never checked", async () => {
-  // The scripts are separate processes whose stdout we discard, and both exit 0 by
-  // design (the hook convention). So completing them proves they ran — it does NOT
-  // prove git committed anything: an `.git/index.lock` contention with the
-  // PostToolUse hook commits nothing and still exits 0. Saying "persisted" there was
-  // the trace asserting a fact it had no way to know, in a repo whose rule is not to
-  // pretend. It now reports the action, which is exactly what it observed.
+test("the campaign traces what it DID, not an outcome it never checked", async () => {
+  // The rule this test has always defended: never trace a fact we had no way to
+  // observe. It used to say "commit + push ran" — true then, because the campaign
+  // ran them. It no longer does, so claiming a commit here would be exactly the
+  // pretence the test exists to prevent. It reports the request, which is all it
+  // did; the line about the scripts now lives where they actually run
+  // (`persistVaultNow`, campaign-persist.ts).
   const rec = await runWith(campaign({ scanned: 1, indexed: 1, errors: ["boom"] }));
   assert.deepEqual(rec.traced, [
     "⚙️  catch-up triggered (debounce elapsed) — indexing in progress…",
     "✅ catch-up done: 1 indexed, 0 unchanged, 1 errors",
-    "💾 vault persistence: commit + push ran",
+    "💾 vault persistence requested — committing once the vault is still",
   ]);
+});
+
+test("the campaign asks for a commit, it does not run git on the spot", async () => {
+  // The cadence is not the campaign's business: indexing must stay on its 5 s
+  // debounce so search is fresh, while the commit waits for the vault to be
+  // still (PersistenceScheduler). Running git here would tie the two together
+  // again — one push per pause longer than five seconds.
+  const rec: string[] = [];
+  const asked: number[] = [];
+  await runCatchUpCampaign({
+    reindex: async () => campaign({ scanned: 1, indexed: 1 }),
+    writeLastRun: () => {},
+    trace: () => {},
+    notify: () => {},
+    moreComing: () => false,
+    burst: new IndexingBurst(),
+    notifyMin: 5,
+    persist: { runScript: (s) => { rec.push(s); } },
+    requestPersist: () => asked.push(1),
+  });
+
+  assert.deepEqual(asked, [1], "persistence was requested, exactly once");
+  assert.deepEqual(rec, [], "and no git ran inside the campaign");
 });
 
 test("a bulk pickup toasts once the burst settled, and still commits", async () => {
   const rec = await runWith(campaign({ scanned: 40, indexed: 7 }));
   assert.deepEqual(rec.notified, [7]);
-  assert.deepEqual(rec.ran, ["auto-commit.mjs", "auto-push.mjs"]);
+  assert.equal(rec.asked, 1);
 });

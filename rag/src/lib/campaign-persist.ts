@@ -106,22 +106,27 @@ export function buildScriptRunner({
 export type PersistResult = "ran" | "skipped" | "failed";
 
 /**
- * Persists the vault when a campaign changed something: commit, then push. Reuses
- * the brain's own hook scripts rather than reimplementing git — `auto-push.mjs`
- * already gates on `secondbrain.autopush`, a remote and an upstream.
+ * Persists the vault, now: commit, then push. Reuses the brain's own hook scripts
+ * rather than reimplementing git — `auto-push.mjs` already gates on
+ * `secondbrain.autopush`, a remote and an upstream.
+ *
+ * WHETHER to call this is decided by the campaign ({@link shouldPersistCampaign});
+ * WHEN, by the persistence window (`PersistenceScheduler`). This function is the
+ * composition root's named seam so neither decision has to be tested through it.
  */
-export async function persistCampaign(
-  outcome: CampaignOutcome,
+export async function persistVaultNow(
   { runScript }: PersistDeps,
+  trace: (msg: string) => void,
 ): Promise<PersistResult> {
-  if (!shouldPersistCampaign(outcome)) return "skipped";
   try {
     for (const script of PERSIST_SCRIPTS) await runScript(script);
+    trace("💾 vault persistence: commit + push ran");
     return "ran";
   } catch {
     // Best-effort, like every other persistence path: the watcher must survive a
     // missing git, a locked index or a hook that exits non-zero. The next campaign
     // that changes something retries, and `git add .` catches up whatever was left.
+    trace("💾 vault persistence: failed to run");
     return "failed";
   }
 }

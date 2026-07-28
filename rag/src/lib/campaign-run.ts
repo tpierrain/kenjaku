@@ -7,7 +7,7 @@
 
 import type { IndexResult } from "./index-manager.js";
 import type { IndexingBurst } from "./notify.js";
-import { persistCampaign, type PersistDeps } from "./campaign-persist.js";
+import { shouldPersistCampaign, type PersistDeps } from "./campaign-persist.js";
 
 export interface CampaignDeps {
   /** Runs the incremental catch-up and reports what it changed. */
@@ -27,6 +27,15 @@ export interface CampaignDeps {
    * brain (the launcher), where committing would sweep a maintainer's working tree.
    */
   persist: PersistDeps | null;
+  /**
+   * Signals that this campaign left something worth committing. WHEN that commit
+   * happens is not the campaign's business — see `PersistenceScheduler`.
+   *
+   * Required on purpose, even though `persist: null` already covers the launcher:
+   * a campaign that can persist but has nowhere to say so would index forever and
+   * commit nothing, silently. The composition root must not be able to forget it.
+   */
+  requestPersist: () => void;
 }
 
 /** The `✅ catch-up done` line: what the campaign found, in the owner's log. */
@@ -56,10 +65,10 @@ export async function runCatchUpCampaign(deps: CampaignDeps): Promise<void> {
   if (decision.notify) deps.notify(decision.total);
 
   if (!deps.persist) return;
-  // Report the ACTION, not a verdict on git we never read back: the scripts are
-  // separate processes that exit 0 by the hook convention, so "they ran" is the
-  // whole of what completing them proves. See `PersistResult`.
-  const persisted = await persistCampaign(result, deps.persist);
-  if (persisted === "ran") deps.trace("💾 vault persistence: commit + push ran");
-  if (persisted === "failed") deps.trace("💾 vault persistence: failed to run");
+  // The gate stays here — it is the moment the engine knows what the campaign
+  // changed. Only the CADENCE moved out: a campaign that changed nothing asks
+  // for nothing, and one that did hands off to the persistence window.
+  if (!shouldPersistCampaign(result)) return;
+  deps.requestPersist?.();
+  deps.trace("💾 vault persistence requested — committing once the vault is still");
 }
