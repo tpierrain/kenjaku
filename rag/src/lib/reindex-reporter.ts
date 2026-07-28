@@ -19,6 +19,13 @@ export interface StartInput {
   scanned: number;
   skipped: number;
   removed: number;
+  /**
+   * Errors the caller ALREADY collected before this phase — phase-1 read failures
+   * (F10). `start()` runs after the scan, so resetting to `[]` here erased them
+   * before anyone could see them: `last-run.json`, `last-run.md` and `vault_stats`
+   * all under-reported, and the brain answered "0 erreur" over an index missing a note.
+   */
+  errors?: string[];
 }
 
 export interface FinishInput {
@@ -51,7 +58,7 @@ export class ReindexReporter {
       indexed: 0,
       skipped: input.skipped,
       removed: input.removed,
-      errors: [],
+      errors: [...(input.errors ?? [])],
       hitCap: false,
       wallReason: null,
     });

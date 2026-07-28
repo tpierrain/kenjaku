@@ -524,3 +524,35 @@ test("runIndexingPhase: Google wall (429) → finish incomplete + hitCap (not a 
   assert.equal(final?.hitCap, true);
   assert.equal(final?.wallReason, "google-rate-limit");
 });
+
+// F10, the wiring half: the reporter is primed AFTER the scan, so phase-1 read
+// errors have to be handed to it explicitly or they vanish. The chain that hid a
+// damaged note for a whole afternoon: consolidation wrote a second `updated:` key →
+// every re-read failed → the error was swallowed here → the note stayed searchable
+// and confidently out of date.
+test("runIndexingPhase: phase-1 read errors reach last-run instead of being reset away", async () => {
+  const storage = memProgressStorage();
+  const reporter = new ReindexReporter({
+    storage,
+    now: () => new Date("2026-07-28T18:00:00Z"),
+  });
+
+  await runIndexingPhase(
+    [doc("a.md", 2)],
+    { embed: fakeEmbed, persist: () => {} },
+    reporter,
+    {
+      scanned: 3,
+      skipped: 1,
+      removed: 0,
+      errors: ["Read error: topics/crise.md: duplicate key 'updated'"],
+    },
+  );
+
+  const final = storage.load();
+  assert.deepEqual(final?.errors, [
+    "Read error: topics/crise.md: duplicate key 'updated'",
+  ]);
+  // And the phase-2 errors still land on top of them, not instead of them.
+  assert.equal(final?.status, "done");
+});

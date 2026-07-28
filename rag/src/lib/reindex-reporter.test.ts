@@ -159,3 +159,32 @@ test("C.10 — FileProgressStorage: corrupt file → absent state (null)", () =>
     rmSync(path, { force: true });
   }
 });
+
+// F10 — the worst failure mode this product has, in its quietest form: a confident
+// answer over an incomplete index. `start()` runs AFTER phase 1 and used to reset
+// `errors` to [], so every phase-1 read failure was erased before anyone could see
+// it — `watcher.log` said "1 errors" while `last-run.json` said `"errors": []` and
+// the brain told its owner "0 erreur, index à jour".
+test("start: carries the errors the caller ALREADY knows about (phase-1 read failures)", () => {
+  const storage = memoryStorage();
+  const reporter = new ReindexReporter({ storage, now: fixedNow });
+
+  reporter.start({
+    totalChunks: 660,
+    scanned: 211,
+    skipped: 103,
+    removed: 0,
+    errors: ["Read error: topics/crise.md: duplicate key 'updated'"],
+  });
+
+  assert.deepEqual(storage.load()!.errors, [
+    "Read error: topics/crise.md: duplicate key 'updated'",
+  ]);
+});
+
+test("start: no errors passed still starts clean — a fresh run inherits nothing", () => {
+  const storage = memoryStorage();
+  const reporter = new ReindexReporter({ storage, now: fixedNow });
+  reporter.start({ totalChunks: 1, scanned: 1, skipped: 0, removed: 0 });
+  assert.deepEqual(storage.load()!.errors, []);
+});

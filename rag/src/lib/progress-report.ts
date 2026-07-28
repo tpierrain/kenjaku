@@ -26,6 +26,31 @@ export interface RunProgress {
   wallReason?: WallReason;
 }
 
+export interface AccountingInput {
+  scanned: number;
+  indexed: number;
+  skipped: number;
+  errors: number;
+  hitCap: boolean;
+}
+
+/**
+ * How many scanned notes ended up in NO bucket — neither indexed, nor skipped as
+ * unchanged, nor reported as an error. The arithmetic that detects F10 from the
+ * numbers alone, with no knowledge of the cause: a note the engine could not read
+ * is scanned, is not indexed, is not skipped, and — before the fix — was not
+ * reported either, so it simply disappeared from the count while the brain kept
+ * answering over an index that no longer contained it.
+ *
+ * A run cut off by a wall (`hitCap`) is exempt: its remaining notes are not lost,
+ * they resume on the next run. A detector that cries wolf on every capped run is a
+ * detector nobody reads.
+ */
+export function unaccountedNotes(input: AccountingInput): number {
+  if (input.hitCap) return 0;
+  return Math.max(0, input.scanned - input.indexed - input.skipped - input.errors);
+}
+
 /** Human-readable markdown document (openable/tailable) summarizing the last catch-up run. */
 export function formatLastRunMarkdown(state: RunProgress, now: string): string {
   return `# Last RAG catch-up run\n\n_Generated on ${now}_\n\n${formatProgressReport(state, now)}\n`;
@@ -60,7 +85,25 @@ function formatDone(state: RunProgress): string {
   const durationMin = state.finishedAt
     ? Math.round(minutesBetween(state.startedAt, state.finishedAt))
     : 0;
-  return `Last catch-up: completed in ${durationMin} min, ${state.indexed} docs indexed, ${state.errors.length} error(s).`;
+  // The accounting check rides on the line everyone reads. A run that "completed"
+  // while losing notes is the exact shape of F10, and silence here is what let the
+  // brain answer "0 erreur, index à jour" over an index missing a damaged note.
+  const lost = unaccountedNotes({
+    scanned: state.scanned,
+    indexed: state.indexed,
+    skipped: state.skipped,
+    errors: state.errors.length,
+    hitCap: state.hitCap,
+  });
+  const accounting =
+    lost > 0
+      ? ` ⚠️ ${lost} note(s) scanned but neither indexed, unchanged, nor reported as an error` +
+        ` — the index is INCOMPLETE and this run cannot say why.`
+      : "";
+  return (
+    `Last catch-up: completed in ${durationMin} min, ${state.indexed} docs indexed, ` +
+    `${state.errors.length} error(s).${formatErrors(state.errors)}${accounting}`
+  );
 }
 
 /** Minutes elapsed between two ISO instants (may be fractional). */
