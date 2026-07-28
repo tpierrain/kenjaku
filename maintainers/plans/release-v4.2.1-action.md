@@ -34,6 +34,9 @@
         `repo-status.mjs` **98.21 %** — sole survivor = the `pullOut ?? ""` equivalent already
         accepted. Recorded in [`../mutation/RESULTS.md`](../mutation/RESULTS.md).
 - [ ] 🚧 **RESUME HERE — cut the release.** Thomas's call.
+  - [ ] ⛔️ **HOLD on the merge (2026-07-28).** Thomas wants to check something first about
+        **universe handling when one or more local mirrors are already installed**. Nothing to
+        change here until that check is done — the branch is pushed and green-tested, it can wait.
   - [ ] merge PR #50 into `main`
   - [ ] tag + publish `v4.2.1`, title in the house style (`v4.2.1 — The One Where …`);
         draft title on the table: *The One Where the Update Cleans Up After Itself*
