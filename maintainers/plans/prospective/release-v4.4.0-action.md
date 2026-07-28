@@ -149,6 +149,11 @@ being pushed, so nothing could tell us.
 it two specific claims to re-read — see its last box), then the **release note**. The push-cadence
 question that was blocking is **answered and shipped**.
 
+**▶️ IN FLIGHT — the mutation snapshot** _(2026-07-28)_. Its scope is **settled in Track 9's box**
+(10 rag files, 13 `scripts/**` files in a disposable worktree, local-mirror untouched so its 90.44 %
+carries over) — read it there, do not re-derive it from the diff. The runs are slow and must not
+overlap; a `/clear` mid-run costs only the run, not the decision.
+
 **The release TITLE is NOT frozen** — Thomas said so explicitly (2026-07-28) when the cadence change
 came up: *the copy follows the behaviour, never the reverse*. The "saved while you write it" angle he
 picked survives, because the **indexing** stays at 5 s; what the note must state honestly is the
@@ -765,6 +770,20 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
 - [ ] **Mutation snapshot pinned to the tag** (CONVENTIONS §5ter), recorded in
       `maintainers/mutation/RESULTS.md` and carried in the release note. Baseline at v4.3.0:
       scripts **97.27 %**, local-mirror **90.44 %**, rag **90.42 %**.
+      **Scope decided on the diff** (`main...HEAD`), the usual targeted run, not a full re-audit:
+  - [ ] **rag** — the 10 changed `rag/src/lib/**` prod files: `campaign-persist`, `campaign-run`,
+        `config`, `engine-version`, `frontmatter-parser`, `index-manager`, `persistence-scheduler`,
+        `progress-report`, `reindex-reporter`, `vault-watcher`. Command: the `stryker.rag.config.mjs`
+        run narrowed with `--mutate "<the 10 paths>"`.
+  - [ ] **scripts** — the 13 changed `scripts/**` prod files, in a **disposable worktree**
+        (`inPlace` on the real tree once wiped the demo vault; recipe in RESULTS.md), narrowed to
+        their covering tests because `engine-manifest-integrity.test.mjs` still breaks the dry run.
+  - [ ] **local-mirror** — ⛔️ **nothing to run**: this release touches no `local-mirror/src/**` file.
+        Its **90.44 %** carries over from v4.2.0 unchanged; say so rather than re-measuring.
+  - [ ] Kill every survivor that sits **inside this release's own code**, or record it as an accepted
+        equivalent with the reason. Pre-existing survivors stay out of scope, but name them.
+  - [ ] ⚠️ **The two runs must not overlap** — the CPU oversubscription gotcha turns genuine kills
+        into false timeouts and inflates the score. One package at a time.
 - [ ] **Marketing-surface pass** (CONVENTIONS §10), **before** writing the release note, in this order:
       *what did this release make false, or merely imprecise?* (hunt the absolutes — *never*, *only*,
       *always*, *untouched*, *sacred*, *it can only add*), then *what did it make true that we do not
