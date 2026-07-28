@@ -47,6 +47,8 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 
 - [x] **Track 0 — This plan exists in the repo, and the pointers agree with it** _(2026-07-28)_
 - [ ] **Track 1 — A note is saved while you are still writing it** *(headline — F8/P1, F9, F11)*
+      — **code complete and green** _(2026-07-28 · `9f45561`, `f274a01`, `97652d7`)_; what is left is
+      the **release-note copy** (the honest bound, the refused plaster) and the **real-brain check**.
 - [ ] **Track 2 — Your own status line survives opening your brain** *(F2, F4, ADR 0036)*
 - [ ] **Track 3 — A note the engine cannot read is reported, not swallowed** *(F10)*
 - [ ] **Track 4 — Consolidating a page can no longer damage it** *(F12)*
@@ -84,38 +86,59 @@ git-ahead-of-index (after a pull) is benign and already repaired by the startup 
 is not what is missing** — they do converge, at the next session start. What is missing is a **bound**:
 *"the next time you happen to open Claude"* is not a duration.
 
-- [ ] **Trigger: the end of an indexing campaign that CHANGED something → commit (+ push).**
-      Design agreed with Thomas. The campaign is already debounced, so this yields **one commit per
-      burst**, at the moment the engine already knows its own result.
-  - [ ] Gate on **`indexed > 0 || removed > 0`**, never on *"a campaign ended"*. Both halves are pinned
+- [x] **Trigger: the end of an indexing campaign that CHANGED something → commit (+ push).**
+      _(2026-07-28 · `9f45561`, `f274a01`, `97652d7`)_ Design agreed with Thomas. The campaign is
+      already debounced, so this yields **one commit per burst**, at the moment the engine already
+      knows its own result.
+  - [x] Gate on **`indexed > 0 || removed > 0`**, never on *"a campaign ended"*. Both halves are pinned
         by a field finding:
-    - [ ] **F9** — a deletion runs a campaign that indexes **nothing** (`last-run.json`:
+    - [x] **F9** — a deletion runs a campaign that indexes **nothing** (`last-run.json`:
           `indexed:0, removed:1`). Gating on `indexed` alone reproduces F9 **inside its own fix**.
-    - [ ] **F11** — campaigns also fire on `.obsidian/` UI churn. Gating on "a campaign ended" fires
+    - [x] **F11** — campaigns also fire on `.obsidian/` UI churn. Gating on "a campaign ended" fires
           the commit when the owner moves a pane. Harmless today only **by accident** (`.obsidian/` is
           gitignored, so `git add .` finds nothing) — and `autopush` would carry it to the network.
-  - [ ] Implement it **watcher-side** (`rag/**` is engine-owned `replace`, so it reaches the fleet), not
+  - [x] Implement it **watcher-side** (`rag/**` is engine-owned `replace`, so it reaches the fleet), not
         as a new hook. A hook is session/tool-shaped, which **is** the defect.
-  - [ ] **Reuse, do not reimplement git**: spawn `scripts/auto-commit.mjs` then `scripts/auto-push.mjs`.
+  - [x] **Reuse, do not reimplement git**: spawn `scripts/auto-commit.mjs` then `scripts/auto-push.mjs`.
         `auto-push.mjs` already gates on `secondbrain.autopush` + remote + upstream + unpushed count
         (`scripts/lib/git-push.mjs:7`), and `auto-commit.mjs:51` already does `git add .`.
-  - [ ] If a settings change turns out to be needed after all, it **must** go through `reconcileHooks`
-        (`scripts/lib/hooks-reconcile.mjs:53-73` — add-only, dedup by script identity), never a
-        hand-edit of the sacred `settings.json`, or the release delivers nothing to deployed brains.
+  - [x] **No settings change was needed** _(2026-07-28)_ — so `reconcileHooks` was never touched, and
+        the fix reaches deployed brains through `rag/**` alone. Had one been needed it would have gone
+        through `scripts/lib/hooks-reconcile.mjs:53-73` (add-only, dedup by script identity), never a
+        hand-edit of the sacred `settings.json`.
+  - [x] **A guard the plan had not foreseen: the launcher is not a brain** _(2026-07-28 · `f274a01`)_.
+        Run the engine from the generator (a maintainer's `npm run dev`) and this would have swept the
+        launcher's working tree into an `auto:` commit. `persistenceApplies` reads the manifest's
+        `provenance`, stamped at install (`scripts/lib/engine-source.mjs`) and absent from the
+        launcher's own. **Fails closed** on an unreadable manifest.
+  - [x] **Deliberately watcher-only** _(2026-07-28)_: the startup catch-up and the `reindex` tool are
+        NOT wired to persistence. The session-start sweep already covers the first, and a session's
+        own writes go through the `Write|Edit` hook. One trigger, one commit per burst.
 - [x] **`.obsidian` joins the watcher's ignore list** *(F11)* _(2026-07-28 · `a138ee4`)_.
       Red seen for the right reason (`false !== true`), plus the boundary decoy so a note *about*
       Obsidian stays a note. 12/12 green in `vault-watcher.test.ts`.
 - [x] **The pure decider exists and is triangulated** _(2026-07-28)_:
       `rag/src/lib/campaign-persist.ts` → `shouldPersistCampaign({indexed, removed})`. Three baby-steps,
       each red-then-green: indexed alone, **removed alone (F9)**, and the `0/0` boundary that separates
-      `> 0` from `>= 0` and locks F11. **Still to do: wire it into `index.ts`'s campaign end and spawn
-      `auto-commit.mjs` + `auto-push.mjs` behind an injectable seam.**
-- [ ] **TDD, red first** (`tdd-discipline`), four cases — three field-proven writers plus the regression.
-      The decider's half is done; these are the **wiring** cases, at the `index.ts` seam:
-  - [ ] a file written by the **engine's own script** → committed;
-  - [ ] a note created **outside Claude** → committed;
-  - [ ] a note **deleted** via `rm` → committed *(the decider already proves `removed > 0` is in the gate)*;
-  - [ ] a `.obsidian/workspace.json` churn campaign → **no commit** *(F11's lock, both layers)*.
+      `> 0` from `>= 0` and locks F11.
+- [x] **The orchestration around it** _(2026-07-28 · `9f45561`)_: `persistCampaign` runs commit **then**
+      push behind an injectable `runScript`. **Asynchronous on purpose** — a push waits on the network
+      (and on `auto-push.mjs`'s own blocking retry) inside the MCP server, where a synchronous wait
+      would freeze every search for its duration. Best-effort like every other persistence path: a
+      failure reports `"failed"` instead of taking down the live-update loop, and the `await` that makes
+      an async rejection catchable is pinned by its own test (hand-mutated, mutant killed).
+      `buildScriptRunner` keeps the child's output **buffered, never inherited** — the MCP server's
+      stdio IS the protocol channel.
+- [x] **TDD, red first** (`tdd-discipline`), four cases — three field-proven writers plus the regression
+      _(2026-07-28 · `97652d7`)_. The `index.ts` seam was untested glue, so the campaign's body moved to
+      `rag/src/lib/campaign-run.ts` (the repo's own rule: *test the glue too*); index.ts now only hands
+      it the real seams. The four cases live there, against in-memory fakes:
+  - [x] a file written by the **engine's own script** → committed;
+  - [x] a note created **outside Claude** → committed;
+  - [x] a note **deleted** via `rm` → committed *(the decider already proves `removed > 0` is in the gate)*;
+  - [x] a `.obsidian/workspace.json` churn campaign → **no commit** *(F11's lock, both layers)*.
+  - [x] Bonus, from the extraction: the `✅ catch-up done` trace line is now pinned by a test instead of
+        by nothing, and the launcher path (`persist: null`) has its own case.
 - [x] **No loop risk — verified 2026-07-28.** The watcher watches `VAULT_DIR` only and `.cache` is
       deliberately outside it; a commit writes to `.git/`. It cannot wake itself. Recorded so nobody
       re-opens it.
@@ -413,7 +436,15 @@ brain's own account.** The fixes owe the same.
 
 - [ ] **Track 1, on a real brain**, three writers, `git log` checked after each: a note typed in
       Obsidian; `rm` of a note from inside a session; a run of `set-universe-profile.mjs`. Then move an
-      Obsidian pane and confirm **no** commit fires.
+      Obsidian pane and confirm **no** commit fires. **Still owed** — it needs an installed brain with a
+      live watcher, which the launcher deliberately is not (`persistenceApplies` refuses it).
+  - [x] **The process-level half is proven** _(2026-07-28, disposable repo, not a real brain)_: a
+        brain-shaped git repo holding the real `scripts/`, with a note that was **never in git** →
+        `persistCampaign` through the REAL runner (real `node`, real `git`, real `auto-commit.mjs` +
+        `auto-push.mjs`) → `persisted`, the note committed as `auto: vault/claude sync`, working tree
+        clean. Push correctly **skipped**: no remote, `autopush` unset. Pointed at a non-existent brain
+        it returns `failed` and **exits 0** — the failure path does not throw. What this does NOT cover,
+        and why the box above stays open: the chokidar → debounce → campaign chain on a live vault.
 - [ ] **Track 2**: open a CLI session in a brain and confirm the owner's own status line is back; run
       `update-engine` on a brain whose `statusLine` was hand-customized and confirm it is **preserved**;
       confirm the restart nudge still reaches the owner after an update that needs one.
