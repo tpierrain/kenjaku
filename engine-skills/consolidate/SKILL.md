@@ -109,19 +109,28 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
 - Exit **0** = written (prints `✓ Filed back: vault/<path>`); relay the path.
 - Exit **1** = refused (already exists) or invalid → it's a living page, go to 5b.
 
-### 5b. Existing page (refresh) → append a dated section
-Filing never overwrites. Append a dated section that folds in what's new and bump the page's `updated:`,
-mirroring the builder's shape (this is the brain's normal confirmed write; the auto-commit hook persists it).
-Append **only** the parts the user accepted: a flagged contradiction goes in solely as the user adjudicated
-it (e.g. a dated `As of 2026-07-18, X is now Y (was Z)` line), never as a silent replacement of the old fact:
-```markdown
-
-## 2026-07-17 — <what the fresher captures add>
-
-<the distilled update>
-
-- [[meetings/2026-07-15-revue]]
+### 5b. Existing page (refresh) → pipe the dated section to the deterministic writer
+Filing never overwrites: a living page is REFRESHED by appending a dated section and bumping its
+`updated:`. **Do not perform that edit by hand** — pipe it to `/refresh-note`, which rewrites the
+frontmatter **by key**:
+```bash
+echo '{"path":"topics/capacity-management.md","section":"## 2026-07-17 — <what the fresher captures add>\n\n<the distilled update>\n\n- [[meetings/2026-07-15-revue]]"}' \
+  | node scripts/refresh-note.mjs
 ```
+- Exit **0** = refreshed (prints `✓ Refreshed: vault/<path>`); relay the path.
+- Exit **1** = refused, and it says why: the page does not exist (→ 5a, refreshing never creates), it
+  sits outside `vault/`, or **its frontmatter is already damaged** — in which case it names the
+  duplicate key and touches nothing, because appending to an unreadable page hides the damage one
+  refresh longer.
+
+> ⚠️ **Why a script and not prose (F12).** Freehand, *"bump the page's `updated:`"* once became
+> *"add a second `updated:`"* on a real page. Two keys is invalid YAML → the indexer could no longer
+> read the note → it stayed searchable and confidently **out of date**, its newest section missing
+> from the index. Creation was already deterministic; the refresh was the half left to prose, and it
+> is the half that damaged a page.
+
+Append **only** the parts the user accepted: a flagged contradiction goes in solely as the user adjudicated
+it (e.g. a dated `As of 2026-07-18, X is now Y (was Z)` line), never as a silent replacement of the old fact.
 
 ### 6. Report what changed + resumability
 List the pages created/refreshed and what you deliberately skipped. Because detection is stateless,
