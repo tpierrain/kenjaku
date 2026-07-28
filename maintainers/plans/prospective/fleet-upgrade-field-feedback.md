@@ -290,6 +290,42 @@ exactly among the people most likely to have configured one.
 
 and, right after it, `6 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`.
 
+### The full startup screen, captured verbatim *(2026-07-28, CLI, `claude` in `~/mind-palace`)*
+
+The earlier quote was partial. Here is everything a CLI owner meets **before typing a single word**:
+
+```
+SessionStart:startup says: Active universe: 'inqom' (of 3: default, inqom, shodo).
+Your brain does not know your context yet — what you do, where, with whom. This brain is PAST the
+disclosure gate: say `universe` plainly — you are describing the one currently active. Offer ONCE, in
+the user's language, to spend two minutes on it (a handful of questions: what this place is, your role
+there, the people who matter, which accounts your tools use). Say plainly that they can skip it, now or
+forever. If they accept, load the `switch` skill and follow its `Describe a universe — its profile`
+section. If they decline, run `node scripts/set-universe-profile.mjs --decline` so they are never asked
+again, and tell them it is recorded.
+SessionStart:startup says: 2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)
+SessionStart:startup says: ✅ Repo up to date (commit 74383b4).
+🧠 RAG up to date — 414/414 files indexed.
+```
+
+- [ ] **It is not one emitter, it is three — the audit list is confirmed by observation.** Each hook's
+      `additionalContext` gets its own `SessionStart:startup says:` prefix, so the leak **scales with
+      the number of hooks we add**. Visible above: the universe offer (`session-universe.mjs`), the
+      housekeeping counts (`session-wiki-health.mjs`), the repo status (`session-self-heal.mjs`). The
+      middle one even shows the directive verb to the owner: `(offer /consolidate)`, `(offer /lint)`.
+- [x] **The channel matrix is confirmed in a single screenshot** _(2026-07-28)_. The last line,
+      `🧠 RAG up to date — 414/414 files indexed.`, is rendered **without** the prefix: it is the
+      `systemMessage` channel, displayed clean on the CLI (and dropped on Desktop). Everything above it
+      carries the `SessionStart:startup says:` prefix: `additionalContext`, echoed verbatim. **One
+      screen, both behaviours, exactly as the matrix predicts.**
+- [ ] **Volume is a defect in its own right, and the owner said so first**: *"bcp trop verbeux je trouve
+      pour les gens"* (Thomas, on this screen). Eight lines of internal prose plus three prefixed blocks,
+      before the first prompt, on a product sold to non-developers. The fix is not only *rewriting* the
+      payloads (below) but **deciding how much an owner should meet at startup at all**. The honest
+      target is what the last line already does: **one line that says the brain is ready**. Everything
+      else is either agent plumbing (must stop being echoed) or an offer the agent should make **in its
+      own words, in the flow of the conversation**, which is precisely what it already does well.
+
 **Root cause.** `scripts/session-universe.mjs:141-146` writes **only**
 `hookSpecificOutput.additionalContext` — it emits no `systemMessage` at all — and its text nonetheless
 appeared on screen word for word. So the host renders that channel to the user. Our comments call it
