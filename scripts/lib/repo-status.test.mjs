@@ -51,7 +51,10 @@ test("repoStatusLine: pull failed → condenses git's noisy multi-line output to
     pullOut: [
       "From github.com:someone/their-brain",
       " * branch            main       -> FETCH_HEAD",
-      "error: cannot pull with rebase: You have unstaged changes.",
+      // Noise that MENTIONS a diagnostic word mid-line: only a line that STARTS with
+      // one is a diagnostic, otherwise git's hints get quoted back as the reason.
+      "hint: see 'git help rebase' if this error: keeps happening",
+      "  error: cannot pull with rebase: You have unstaged changes.", // git may indent
       "error: Please commit or stash them.",
       "",
     ].join("\n"),
@@ -113,9 +116,16 @@ test("repoStatusLine: UNcommitted vault changes → ⚠️ fail-loud (silent aut
     changedCount: 0,
     uncommittedVault: 2,
   });
-  assert.match(line, /^⚠️/); // shouts instead of the green ✅
-  assert.match(line, /2/); // number of notes at stake
-  assert.match(line, /auto-commit/i); // names the cause (the hook didn't run)
+  // The WHOLE message, not a fragment of it: this line is the only warning a user
+  // gets that their notes are unversioned, so every clause of it — the count, the
+  // cause, the reassurance that the notes still exist, and the way out — is part of
+  // the contract, not decoration.
+  assert.equal(
+    line,
+    "⚠️ 2 vault note(s) NOT committed — the auto-commit didn't run (silent hooks?). " +
+      "Your notes are ON DISK but not versioned. Check the hooks (can scripts/run-node.sh " +
+      "find node?), or commit by hand: git add -A && git commit."
+  );
 });
 
 test("repoStatusLine: the vault fail-loud TAKES PRIORITY over 'up to date'", () => {

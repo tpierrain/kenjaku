@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent) |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The two files touched on [2026-07-28](#pr-50-startup-pull--engine-commit--2026-07-28) were measured the same way: `engine-commit.mjs` **100 %**, `repo-status.mjs` **97.73 %** |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -526,3 +526,35 @@ git worktree remove /tmp/sbg-mut-scripts --force
 ```
 
 Generated HTML reports + run logs land under `reports/` (git-ignored).
+
+## PR 50 (startup pull + engine commit) — 2026-07-28
+
+Targeted run over the two files the change owns. **98.53 % overall** —
+`engine-commit.mjs` **100 %** (24/24), `repo-status.mjs` **97.73 %** (43/44).
+
+The run had to be **narrowed to the covering tests** rather than the full harness command:
+`stryker.scripts.config.mjs` cannot complete its dry run any more, because
+`engine-manifest-integrity.test.mjs` asks `git ls-files` and the Stryker **sandbox copy has no
+`.git`** — every manifest glob reads as dead and the test fails before a single mutant runs. Narrowing
+can only make a score **pessimistic** (fewer tests available to kill a mutant), never inflate it.
+Restoring the full `mutate:scripts` run needs that integrity test to tolerate a repo-less checkout.
+
+Killed here, worth keeping as patterns:
+
+- **A blank-line filter that could not change anything.** `countVaultUncommitted` filtered out empty
+  lines before testing `slice(3).startsWith("vault/")` — but a blank line fails that test anyway. Four
+  mutants lived in that dead guard. Deleting it says the same thing in less code (the "simplify the
+  production rather than excuse the mutant" reflex), and takes all four with it.
+- **A warning asserted by fragments.** The uncommitted-notes alert was checked with three `match`es on
+  pieces of itself, so three of its clauses could be blanked with the suite still green — on the one
+  line that tells a user their notes are unversioned. Now asserted whole.
+- **Regex anchors need a mid-line decoy.** `/^(error|fatal|erreur)\s*:/` survived losing its `^` until
+  a fixture line *mentioned* `error:` mid-sentence (a git `hint:`); the indent-tolerating `.trim()`
+  survived until a fixture indented one of its diagnostic lines, as git does.
+- **`\s*` after the colon was deleted, not fed.** Rather than invent a `error:no-space` fixture no git
+  emits, the trailing `\s*` moved out of the regex into a `.trim()` on the extracted reason — same
+  behaviour, one fewer indistinguishable mutant.
+
+**Accepted equivalent (1).** `pullOut ?? ""` → `?? "Stryker was here!"`: any replacement string with no
+`error:`/`fatal:`/`erreur :` prefix yields the same empty reason and the same fallback line, so no test
+can distinguish it.

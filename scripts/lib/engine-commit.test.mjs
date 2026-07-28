@@ -30,6 +30,16 @@ test("commitEngineUpdate: an already-clean tree commits NOTHING (no empty commit
   assert.deepEqual(calls, ["status --porcelain"]); // it looked, and stopped there
 });
 
+test("commitEngineUpdate: a clean tree reported as a bare newline is still CLEAN", () => {
+  // `git status --porcelain` on a clean tree can hand back a lone newline rather than
+  // an empty string. Read literally that is "dirty", and the update would land an
+  // empty commit on every run.
+  const { git, calls } = fakeGit({ porcelain: "\n" });
+
+  assert.equal(commitEngineUpdate({ git, ref: "v4.2.0" }), "clean");
+  assert.deepEqual(calls, ["status --porcelain"]);
+});
+
 test("commitEngineUpdate: a dirty tree is staged and committed, naming the engine version", () => {
   const { git, calls } = fakeGit({ porcelain: " M engine-manifest.json\n M scripts/lib/tracked-files.mjs\n" });
 

@@ -9,10 +9,11 @@
 // Counts the `git status --porcelain` entries that concern the vault. The
 // porcelain format = 2 status chars + space + path (e.g. "?? vault/x.md",
 // "  M vault/y.md") → we isolate the path (slice 3) and keep those under vault/.
+// No blank-line filter is needed: a blank (or whitespace-only) line cannot start
+// with "vault/" once sliced, so the path test already drops it.
 export function countVaultUncommitted(porcelainOut) {
   return porcelainOut
     .split("\n")
-    .filter((l) => l.trim().length > 0)
     .filter((l) => l.slice(3).startsWith("vault/"))
     .length;
 }
@@ -20,7 +21,7 @@ export function countVaultUncommitted(porcelainOut) {
 // git speaks the user's locale, so the diagnostic prefix is not always English
 // ("erreur : " under a French git). Same reason the "up to date" detection below
 // carries its French twin.
-const DIAGNOSTIC_PREFIX = /^(error|fatal|erreur)\s*:\s*/i;
+const DIAGNOSTIC_PREFIX = /^(error|fatal|erreur)\s*:/i;
 
 // Condenses git's raw stdout+stderr into ONE readable reason, because the
 // startup banner is a single line. Git prefixes its diagnostics with `error:` /
@@ -31,7 +32,7 @@ export function pullFailureReason(pullOut) {
     .split("\n")
     .map((l) => l.trim())
     .filter((l) => DIAGNOSTIC_PREFIX.test(l))
-    .map((l) => l.replace(DIAGNOSTIC_PREFIX, ""))
+    .map((l) => l.replace(DIAGNOSTIC_PREFIX, "").trim())
     .join(" ");
 }
 
