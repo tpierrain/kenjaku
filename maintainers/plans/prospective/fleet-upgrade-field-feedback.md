@@ -23,6 +23,36 @@ graduate straight into Gate 4's plan without a second investigation.
 
 ---
 
+## ▶️ RESUME HERE (written 2026-07-28 before a `/clear` — read this first)
+
+**Where we got to.** The QA run is **done and green**: `mind-palace` is on v4.3.0, 415 notes indexed,
+`a98921f` + follow-ups committed. Eight field entries (F1-F8) are recorded below, each with its own
+root cause and fix list. Nothing is implemented yet.
+
+**The decision already taken with Thomas (2026-07-28): F8 ships as its own release.** It does not merely
+add a feature, it **makes true a sentence v4.3.0 already published to the fleet** ("les notes tapées
+directement dans Obsidian sont enfin commitées/synchronisées"). Scope agreed:
+
+- **Headline: F8 / P1 only** (see F8 → "P1 vs P2"). P2 is **rejected**, on Thomas's call.
+- **Ride along:** F1 (ships sooner = fleet stops depending on a GitHub redirect), F5 (most visible),
+  F6 (small and isolated), and the **F4 ADR** (costs nothing, and without it F2/F5 get fixed wrongly).
+- **Deferred to Gate 4:** F2, F3, F7.
+
+**The constraint that decides WHERE each fix lands — do not re-derive it.** `CLAUDE.md` and
+`.claude/settings.json` are `SACRED_FILES`: never rewritten by an update, so **anything landing there
+reaches new installs only, never the deployed fleet.** This directly bites F8 (the hook lives in
+`settings.json` → must go through `reconcileHooks`, cf. `hooks-reconcile.mjs`, or the release delivers
+nothing), F7 (must live in an engine skill, not the constitution) and F2 (logic must live inside
+`status-line.mjs`, engine-owned `replace`).
+
+**Next step when picking this up:** write the release's action plan, then implement **F8/P1 in TDD** —
+it is the most structural, and its propagation trap deserves a test that locks it.
+
+> Everything below is the evidence. Do not re-investigate what is already written; each entry states
+> observation → root cause → fix.
+
+---
+
 ## Tracking
 
 - [ ] **F1 — A renamed launcher repo never reaches an installed brain** *(found 2026-07-28, before the run)*
@@ -398,6 +428,57 @@ qu'il voit dans `vault/`, même non commité), mais côté git il reste non suiv
 
 The right invariant to state in the fix: **anything the index knows, git must know too**, and the gap
 between the two must be bounded by an exchange, not by a session.
+
+### The invariant is ASYMMETRIC — `git ≥ index`, not `git = index`
+
+The two directions of divergence do not cost the same, and stating equality would over-correct the
+harmless one:
+
+- **Index ahead of git** (what was observed): machines silently disagree, and a disk failure takes a
+  note the brain was citing. **Serious.**
+- **Git ahead of index** (after a pull): a momentarily incomplete search, which the startup catch-up
+  already repairs on its own ("0 doc en retard"). **Benign, and already handled.**
+
+**Convergence is not what is missing** — they *do* converge, at the next session start. What is missing
+is a **bound**: "the next time you happen to open Claude" is not a duration. The fix owes a stated bound,
+not a convergence goal.
+
+**Rejected: making indexing wait for the commit.** It would make alignment true by construction, and it
+**couples two failure modes that are independent today**: a missing git identity or a conflict would then
+also break search. Today git can jam and the brain still answers, which is a property worth keeping.
+Correct direction is the mirror: keep indexing eager, make the **commit as eager as the indexing**,
+driven by the same disk event.
+
+### P1 vs P2 — two problems that were fused, and only P1 ships
+
+Established 2026-07-28, and it **corrects an earlier framing in this very file**: the "a week writing in
+Obsidian without opening Claude" scenario does **not** produce an index ahead of git. The watcher lives
+in the MCP server, which lives and dies with the session — no session, no watcher, no campaign, **so
+nothing runs at all** and both lag *together*, then both catch up at the next start.
+
+- **P1 — index ahead of git, WITHIN a session.** What was actually measured. Engine-side, bounded,
+  testable, no product decision. **This is what ships.**
+  - [ ] **Design agreed with Thomas: end of an indexing campaign → commit (+ push).** The campaign is
+        already debounced, so this yields **one commit per burst**, not one per file, at the moment the
+        engine already knows its own result ("1 doc indexé, 0 erreur").
+  - [x] **No loop risk — verified 2026-07-28**: the watcher watches `VAULT_DIR` only and `.cache` is
+        deliberately outside it (`rag/src/index.ts`), while a commit writes to `.git/`. It cannot wake
+        itself.
+  - [x] **The reverse direction already holds**: after a pull, files land on disk and the watcher (or the
+        startup catch-up) indexes them. Nothing to build there.
+  - [ ] Reuse `auto-push.mjs` rather than reimplementing a push; it already gates on
+        `secondbrain.autopush` + remote + upstream + unpushed count (`git-push.mjs:7`).
+  - [ ] Remember the `sacred` trap: the trigger must reach **deployed** brains, so it goes through
+        `reconcileHooks`, not through a hand-edit of `.claude/settings.json`.
+- **P2 — nothing is committed or pushed at all while Claude is never opened.** ❌ **REJECTED
+  (Thomas, 2026-07-28).** It would require something running **outside** any session (LaunchAgent, cron,
+  git hook): *"P2 implique trop de choses et un côté immersif qui ne va pas plaire aux gens"* — a
+  background daemon on someone's machine is a real commitment, operationally and privacy-wise, on a
+  product whose pitch is that nothing leaves the machine.
+  - [ ] Consequence the release note **must** own rather than hide: the guaranteed bound is *"your notes
+        are backed up the next time you open your brain"*. Say it plainly instead of implying continuous
+        backup. There are three layers (index → local git → remote) and this release guarantees the first
+        two, within a session; `secondbrain.autopush` is opt-in and **off by default** for the fleet.
 
 **Credit where due, and it is the counter-example to F7.** Asked "tout est commit ?", the brain **ran
 `git status` and listed the untracked files** before answering, distinguished what it had produced from
