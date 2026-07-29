@@ -820,8 +820,42 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
             to ~370 files, and under `inPlace` that lands on the real worktree. These are plain
             `.mjs` with nothing to type-check. The CLI has no flag for it, so the batch run uses a
             tiny `stryker.scripts.batch.config.mjs` that spreads the base config and turns it off.
+    - [x] **Measured, all five batches** _(2026-07-28/29)_. Per file, worst last:
+          `auto-commit` **98.31 %** · `update-engine` **96.94 %** · `engine-source` **94.00 %** ·
+          `reconcile-brain` **93.02 %** · `universe-reminder` **90.91 %** ·
+          `status-line-retreat` **86.96 %** · `actions-log-seed` **83.33 %** ·
+          `note-refresh` **80.26 %** · `refresh-note` **57.41 %** · `engine-fetch` **53.52 %** ·
+          `restart-signal` **37.50 %** · `session-self-heal` **34.51 %** ·
+          **`session-status` 0.00 %** · **`status-line` 0.00 %**.
+          At **100 %**: `restart-nudge`, `wiki-health-nudge`.
+    - [ ] ⚠️ **THE FINDING, and it is not a regression — verified, not assumed.**
+          `session-status.mjs` and `status-line.mjs` scored **0 %**: 250 mutants, **zero killed**.
+          Both are top-level scripts that RUN on import, so nothing can import them and no test
+          observes them — `git log --diff-filter=A` shows `scripts/status-line.test.mjs` and
+          `scripts/session-status.test.mjs` have **never existed** in this repo's history. The
+          **logic** they wire is fully tested (it lives in `scripts/lib/**`); the **wiring** is not.
+          This release rewrote 50 lines of one (Track 2) and 27 of the other (Track 6) **without
+          creating the hole** — every published tag so far carries it.
+          CONVENTIONS §5ter item 2 prescribes the cure (`BootDeps` + an `import.meta.url` guard,
+          earned back with one subprocess test), but that is a refactor of two **fleet-deployed**
+          scripts on the eve of a tag. **⏸️ PUT TO THOMAS 2026-07-29, not yet answered** — options:
+          (a) record as named debt and ship, (b) do the BootDeps refactor now, (c) cover only the six
+          survivors on lines THIS release added. **Do not decide this alone.**
     - [ ] Same discipline as rag: cross-reference every survivor against the lines
           `git diff main...HEAD` actually adds, kill what is ours, name what is not.
+      - [ ] **In scope and worth killing** (this release's own code): `note-refresh.mjs` — the
+            front-matter regex (3), the duplicate-key refusal message, `if (!today) throw`, the
+            `updated:` finder, the body-trim; `refresh-note.mjs` — the **vault-containment refusal**
+            and the "does not exist — refreshing never creates" message, i.e. the write guard of a
+            script that edits notes; `reconcile-brain.mjs` — the four on Track 2's retreat wiring,
+            including the owner's OWN status line being win32-repaired (`if (statusLineRepaired)`),
+            which is exactly what ADR 0036 promises to preserve; `update-engine.mjs` — the
+            `skillsPreserved = []` default nobody feeds absent.
+      - [ ] **A systematic equivalent to record ONCE, not per file**: every
+            `readFileSync(p, "utf8")` → `readFileSync(p, "")` survivor. Node returns a **Buffer** for
+            an empty encoding and `JSON.parse` decodes it to the same string. Same finding as
+            `engine-version.ts:83` on the rag side; it accounts for a large share of the
+            pre-existing survivors in `reconcile-brain`, `engine-fetch` and `update-engine`.
   - [ ] **local-mirror** — ⛔️ **nothing to run**: this release touches no `local-mirror/src/**` file.
         Its **90.44 %** carries over from v4.2.0 unchanged; say so rather than re-measuring.
   - [ ] Kill every survivor that sits **inside this release's own code**, or record it as an accepted
