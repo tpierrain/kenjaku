@@ -949,3 +949,25 @@ brain's own account.** The fixes owe the same.
       number the engine never wrote down.
 - [x] **P2** — committing while Claude is never open. ❌ **REJECTED** (Thomas, 2026-07-28): it needs a
       daemon outside any session, *"trop de choses et un côté immersif qui ne va pas plaire aux gens"*.
+
+## ⏸️ Parked until after this release — the two drive-by dependency PRs
+
+Raised 2026-07-29 (Thomas asked why three PRs were open), then **parked by Thomas: "on verra ça à mon
+retour"** (he is travelling). **No decision was taken, nothing was closed, nothing was pushed.** PR #53
+is this release and is the only legitimate one of the three.
+
+- [ ] **#52 — `adm-zip` in `rag/`, from an external contributor. The fix does not work.** `adm-zip` is
+      transitive only, pulled by `onnxruntime-node`, which pins `^0.5.16`. Adding `adm-zip: ^0.6.0` as a
+      **direct** dependency of `rag/package.json` does not remove the vulnerable copy — the PR's own
+      lockfile diff **adds** a nested `node_modules/onnxruntime-node/node_modules/adm-zip@0.5.18`. Net
+      effect: one unused direct dependency, and the flagged version still on disk. **Recommendation:
+      close with a polite explanation.**
+- [ ] **#48 — `fast-uri` in `local-mirror/`, same contributor, same anti-pattern, milder.** `fast-uri`
+      comes from `ajv` (`^3.0.1`), and 3.1.3 satisfies that range, so the hoisted copy genuinely moves;
+      but `npm update fast-uri` did the job without touching the manifest. Its base is **stale**: it
+      would put the lock's `version` field back to `0.2.0` while `main` is at `0.3.0`.
+      **Recommendation: close, same reason.**
+- [ ] **Then do the real pass, in its own PR, after v4.4.0 has shipped** — each PR addresses one
+      advisory out of many: `npm audit` reports **12** vulnerabilities in `rag/` (including
+      sharp/libvips, **no fix available**) and **5** in `local-mirror/` (js-yaml, hono…). Do not fold
+      this into the release branch.
