@@ -459,11 +459,38 @@ git push -u origin main
 git config secondbrain.autopush true   # ← enables the hook's automatic push
 ```
 The brain will then push **once per turn** (the `Stop` hook), bundling that turn's commits; a failed
-push is non-blocking and retried at the next turn. On the other machine: `git clone <your-private-repo>`
-then, **in the cloned folder**, `cd rag && npm install` and re-enter the key in `.env` (the index
-rebuilds at the 1st startup). *(No need for the installer here: it serves to **generate** a brain,
-not to re-hydrate an already-existing brain.)* During a session, the `/sync` skill retrieves the
-changes from the other machine.
+push is non-blocking and retried at the next turn.
+
+### On the second machine — clone, then **rehydrate**
+
+A clone is **not** a working brain yet, and that is normal: two of the files your brain runs on
+(`.mcp.json` and `.claude/settings.json`) hold **absolute paths belonging to one machine**, so they
+are deliberately gitignored and git never carries them. Without them there is no `vault-rag` search
+server, no hooks (no auto-commit, no auto-push) and no permission allowlist. One command rebuilds
+them, from the `.template` files that *did* travel in the clone:
+
+```bash
+git clone <url-of-your-private-repo>
+cd <your-brain-folder>
+node scripts/rehydrate.mjs      # ← rebuilds this machine's wiring
+```
+
+It regenerates both files, re-seeds the health note, and installs **both** dependency trees
+(`rag/` *and* `local-mirror/` — two `package.json`, a `cd rag && npm install` alone leaves the
+local-mirror server unable to start). It works **offline**, it overwrites nothing, and running it on
+an already-wired brain simply prints "nothing to do".
+
+Then two things it cannot do for you:
+
+- **Your key, if your brain uses an API embedder** (Gemini/OpenAI/…): `.env` is never committed, so
+  re-enter it on this machine. A 100 % local brain (`in-process` / Ollama) has nothing to re-enter.
+- **Open a NEW conversation rooted in the brain folder.** Claude loads the MCP servers and the hooks
+  when a session *starts*, so a session already open keeps running on the old (absent) wiring.
+
+That first rooted session is also what **indexes the vault** — a clone carries your notes but not the
+index (`rag/.cache` is local). So a first-session banner announcing an empty index is expected, not a
+defect: let the indexing run. Afterwards, during a session, the `/sync` skill brings in the changes
+made on the other machine.
 
 > ⚠️ **Never** commit `.env` (gitignored). On a new machine, re-enter the key.
 
@@ -477,8 +504,8 @@ changes from the other machine.
 | Empty searches | Index not built / no key | `cd rag && npm run index` after setting the key |
 | `RESOURCE_EXHAUSTED` / 429 | Today's Gemini quota reached | auto-resume at reset (Pacific midnight), or raise `MAX_EMBED_REQUESTS_PER_DAY` |
 | RAG status "unavailable" at startup | RAG engine not yet installed / DB being written | `cd rag && npm install`; the status recovers once the index is built |
-| The MCP server doesn't appear | `.mcp.json` missing / wrong path | re-run `node installer.mjs`, accept the server in Claude Code |
-| **MCP smoke-test ❌** at the end of installation ("MCP connection KO") | `rag/` not installed, `.mcp.json` poorly generated, or `npx`/`tsx` unavailable | `cd rag && npm install` then re-run `node installer.mjs`; check that `.mcp.json` points to `npx tsx rag/src/index.ts` with the right `cwd`. Manual test: `npx tsx rag/src/index.ts` should start without crashing (the Gemini key is **not** required for this test). |
+| The MCP server doesn't appear | `.mcp.json` missing (typically a **freshly cloned** brain — the file is gitignored) or its paths point at another machine | From the brain folder: `node scripts/rehydrate.mjs`, then **open a new conversation** rooted there and accept the server in Claude Code. *(Not the installer: it refuses an existing folder, by design.)* |
+| **MCP smoke-test ❌** at the end of installation ("MCP connection KO") | `rag/` not installed, `.mcp.json` poorly generated, or `npx`/`tsx` unavailable | Your brain folder exists now, so the repair runs **from inside it**, not from the installer (which refuses an existing folder): `node scripts/rehydrate.mjs` reinstalls the dependency trees and rebuilds any missing wiring. Check that `.mcp.json` points to `npx tsx rag/src/index.ts` with the right `cwd`. Manual test: `npx tsx rag/src/index.ts` should start without crashing (the Gemini key is **not** required for this test). |
 | Memory feels tight with several brains open in **Claude Desktop** | Each open brain keeps **one warm search engine** in RAM (the MCP server lives with the parent session, not your typing) | Close the brain conversations you're not using — each open brain conversation holds one warm embedder in RAM. |
 
 ## 9. Data privacy
