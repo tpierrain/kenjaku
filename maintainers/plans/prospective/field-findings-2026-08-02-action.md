@@ -64,7 +64,11 @@
 >    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
 >    editor. Added to v4.5.0's scope, see its P0 entry — it repairs three surfaces that disagree
 >    today, one of which already promises the behaviour to the user.
-> 10. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
+> 10. **F1 — the universe banner** _(moved up from v4.7.0 the same evening, at the owner's request)_:
+>    a **short synthesis** plus, in parentheses, `/switch` for the full description. Its P3 entry
+>    carries the closed sub-decision and the one design knot left (the digest serves the agent and
+>    the human through a single, verbatim-echoed channel).
+> 11. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
 >    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
 >    constitution half (an engine-managed file only reaches brains that never customized it).
 >
@@ -338,8 +342,24 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   - [ ] **And only when more than one universe exists.** With a single universe there is nothing to
         disambiguate, so the profile earns no banner space at all. This makes the fix consistent with
         ADR 0034's "invisible until a second universe exists" rule, instead of being only a leak fix.
-  - [ ] Open sub-decision: what exactly a "synthesis" contains (name alone? name + role + top
-        recurring topics?), and whether the single-universe case prints the universe **name** or
+  - [x] **Sub-decision CLOSED by the owner (2026-08-02 evening): the banner carries a SHORT synthesis
+        plus, in parentheses, how to get the rest** — *"for more detail on the universe and its
+        description, ask `/switch`"*. `/switch` is the right door: it already owns the profile
+        (`SETUP.md:698`), even though its name says "change". So the banner states the fact, and the
+        detail is **pulled on request** instead of pushed at everyone, every session.
+  - [x] **The owner had asked for this before, and half of it shipped** _(2026-07-28, `2243b83`,
+        `f63d8ac`, `7ec088b`)_: that pass shrank the **framing** around the universe reminder and the
+        profile digest. What it did not touch is the **payload** — `renderUniverseDigest`
+        (`universe-profile.mjs:103`) still quotes About / People / Topics / Connector accounts up to
+        `DIGEST_MAX_LINES = 12`. That is the part that leaks 🔒 material into every screenshot.
+  - [ ] **The design knot to resolve when coding this** (found while re-reading, do not discover it
+        again): the digest serves **two different audiences through one channel** — the AGENT (it needs
+        people/topics/accounts to reason well, ADR 0035) and the HUMAN (who needs one line). And on the
+        CLI `additionalContext` is **echoed verbatim** (`2243b83`'s whole lesson), so there is no
+        "inject without showing". Either the human line is all we inject and the agent reads the
+        profile note on demand (RAG / direct read), or the leak stays. This is the plan's reframe once
+        more: *what the agent must know* and *what the owner must read* are not the same thing.
+  - [ ] Still open, and small: whether the single-universe case prints the universe **name** or
         strictly nothing.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
@@ -399,15 +419,21 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       owner's request the same evening — *"ideally with the next release"*. It fits the release's own
       theme: a promise the product already prints and does not keep. _(2026-08-02)_
 
+- [x] **F1 MOVES UP from v4.7.0 into v4.5.0**, same request, same evening. The owner had already asked
+      for a summarised universe banner on 2026-07-28; only the framing shrank then. It also stops
+      being purely "visibility": what the banner prints at every session is 🔒 vault-only material.
+      **Cost, stated so the owner can still say no:** v4.5.0 was three findings, it is now five, so it
+      lands later than it would have. _(2026-08-02)_
+
 - [x] **Sequencing: three releases**, plus the freeze trap running alongside on its own track.
       _(2026-08-02)_ Rationale: the four priorities differ in risk and in audience, so bundling them
       would make one indivisible field verification where a single sticking point blocks everything.
 
 | Release | Theme | Findings |
 | --- | --- | --- |
-| **v4.5.0** | promises kept | F14, F11/F12, F15, **F17** (+ F16 into `CONVENTIONS.md`) |
+| **v4.5.0** | promises kept | F14, F11/F12, F15, **F17**, **F1** (+ F16 into `CONVENTIONS.md`) |
 | **v4.6.0** | the vault's identity | F7, F6, homonymy block, reliability/confidence block |
-| **v4.7.0** | visibility | F1, F13, F3, F10, F8, F9, F2 |
+| **v4.7.0** | visibility | F13, F3, F10, F8, F9, F2 |
 | _in parallel_ | the freeze trap | F5 defects 1+2 — defect 3 gets its own ADR + plan |
 
 ### Still owed (ordering, not scope)
