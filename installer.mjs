@@ -37,6 +37,7 @@ import { parseLsFilesZ, filterCopyable } from "./scripts/lib/tracked-files.mjs";
 import { resolveLocale, chooseLocale } from "./scripts/lib/locale.mjs";
 import { overlayLocale } from "./scripts/lib/locale-overlay.mjs";
 import { installStagedSkills } from "./scripts/lib/staged-skills.mjs";
+import { machineReplacements } from "./scripts/lib/brain-rehydrate.mjs";
 import { seedHealthNote } from "./scripts/lib/staged-health-note.mjs";
 import { seedActionsLog } from "./scripts/lib/actions-log-seed.mjs";
 import {
@@ -45,7 +46,6 @@ import {
   applyRagLauncher,
   buildNodeRunnerSh,
   buildNodeRunnerCmd,
-  nodeHookCommand,
   minimalPathEnv,
   buildRagInstallInvocation,
   buildLocalMirrorShLauncher,
@@ -482,18 +482,15 @@ ok(`embedder selected: ${c.B}${providerKey}${c.X}${embedderCfg.needsGeminiKey ? 
 // ── 4. File generation ──────────────────────────────────────────────────────
 step("4/10 · Generating customized files");
 const replacements = {
-  // {{NODE}} = prefix of the hook commands (cf. .claude/settings.json.template).
-  // Points to the self-heal launcher run-node.* (generated below) instead of `node`
-  // directly: the desktop app launches the hooks with a minimal PATH where a node
-  // installed via nvm/Homebrew is not found → silent hooks (including auto-commit).
-  // The brain path is already baked in, so it does NOT contain {{PROJECT_ROOT}}
-  // (no dependency on the order of the substitutions below).
-  "{{NODE}}": nodeHookCommand(process.platform, toPosix(TARGET)),
-  "{{PROJECT_ROOT}}": toPosix(TARGET),
+  // The placeholders describing the MACHINE come from brain-rehydrate.mjs, which is
+  // also what a second machine runs to regenerate the two gitignored files (F14).
+  // Two tables would mean an installed brain and a rehydrated one differ.
+  ...machineReplacements({ brainDir: TARGET, platform: process.platform, tmpDir: tmpdir() }),
+  // The rest describes the OWNER: baked into files that DO survive a clone, so a
+  // rehydrate never has to resolve them.
   "{{PROJECT_NAME}}": projectName,
   "{{OWNER_NAME}}": ownerName,
   "{{LANGUAGE}}": language,
-  "{{TMP_DIR}}": toPosix(tmpdir()),
   "{{SOURCE_1}}": "(your source)",
 };
 // `canOverwrite(existingContent)` (optional): if the file already exists but
