@@ -49,10 +49,32 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   - [ ] Evidence: `SETUP.md` §8 troubleshooting says "MCP server doesn't appear → re-run
         `node installer.mjs`", but the installer **refuses an existing folder**. The documented escape
         hatch cannot work.
+  - [x] **Code read 2026-08-02, three things the finding did not know:**
+    - [x] **The material is already in the clone** (the good news, and it shrinks the fix). The
+          installer copies the templates into the brain (`installer.mjs:518-520` reads them from
+          `TARGET`), and `.gitignore` ignores only the *generated* `.mcp.json` / `.claude/settings.json`
+          — **not** the `.template` siblings. So a second machine has both templates locally. A
+          rehydrate needs **no network, no installer, no source repo**: only the local substitution.
+    - [x] **Only two placeholders carry the machine**: `{{PROJECT_ROOT}}` (the `cwd` of both MCP
+          servers) and `{{NODE}}` (`nodeHookCommand`, `rag-launcher.mjs:220`, the absolute path to
+          `scripts/run-node.sh`). The launchers themselves are **path-free** (`rag/launch.sh` is
+          invoked with a relative arg, `applyRagLauncher:230`) and travel fine. The blast radius is
+          two files and two substitutions.
+    - [x] **`SETUP.md` §7 also under-installs.** It says `cd rag && npm install`, but the installer
+          installs **two** dependency trees (`installer.mjs:773` and `:789` — `local-mirror/` has its
+          own `package.json`, 7 deps). So even after regenerating `.mcp.json`, the `local-mirror`
+          server would fail to start on the second machine. Same PR.
   - [ ] Decide the fix: a `rehydrate`/`bootstrap` command that generates both files from the shipped
-        `.mcp.json.template` / `.claude/settings.json.template` (substituting `{{PROJECT_ROOT}}`), vs.
-        letting the reconciler create-if-absent, vs. committing machine-relative variants.
-  - [ ] Whatever is chosen, fix `SETUP.md` §7 **and** the §8 troubleshooting row in the same PR.
+        templates, vs. letting the reconciler create-if-absent, vs. removing the absolute paths
+        altogether so the two files become committable.
+  - [ ] **If rehydrate wins: it must SHARE the substitution code with `installer.mjs`, not re-implement
+        it.** Two generators that substitute differently produce two different brains — the same defect
+        shape as F16 (a checker that parses differently from the engine measures a fiction).
+  - [ ] **Open: how does the second machine LEARN the command?** With no `settings.json` there are no
+        hooks, so nothing can detect the situation and say so — the discovery path is human-only
+        (`SETUP.md`) or via the constitution, which travels but is a frozen-on-edit engine file (F5).
+  - [ ] Whatever is chosen, fix `SETUP.md` §7 **and** the §8 troubleshooting row ("re-run
+        `node installer.mjs`", which cannot work) in the same PR.
 - [ ] **F11 / F12 — an indexing failure is displayed as a wait.** A note was written, committed, and
       **absent from the index**, i.e. invisible to search, for as long as it existed.
   - [ ] Evidence (field): `vault/inqom/briefings/2026-08-02.md` — unquoted YAML value containing `": "`
