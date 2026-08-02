@@ -1926,3 +1926,29 @@ test("reconcileBrain — a brain with no statusLine is not written for the retre
   assert.equal(report.statusLineRemoved, false);
   assert.equal(readFileSync(settingsPath, "utf8"), before, "byte-identical");
 });
+
+// The retreat's report defaults to FALSE, and that default is load-bearing. A source
+// with no settings.json.template — a pre-ADR-0026 fetch, or a brain self-healing before
+// it ever received one — skips the whole settings pass, so nothing is examined and
+// nothing is removed. Reporting `true` there would have `update-engine` announce "your
+// own status line is back" to an owner whose settings were never opened: an unverified
+// outcome stated in the measured voice, which is the one failure mode this release is
+// otherwise busy closing.
+test("reconcileBrain — with no settings template to read, the retreat is not CLAIMED", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource(); // deliberately carries no .claude/settings.json.template
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const settingsPath = join(brainDir, ".claude/settings.json");
+  const before = readFileSync(settingsPath, "utf8");
+
+  const report = await reconcile({
+    brainDir, platform: "posix", sourceDir, target: manifest(), local: manifest({ ragVersion: "1.0.0" }), ...seams(),
+  });
+
+  assert.equal(report.statusLineRemoved, false, "nothing was examined, so nothing may be claimed");
+  assert.deepEqual(report.hooksAdded, [], "and no hook was wired either");
+  assert.equal(readFileSync(settingsPath, "utf8"), before, "the sacred file is untouched");
+});
