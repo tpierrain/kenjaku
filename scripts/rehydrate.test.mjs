@@ -5,8 +5,14 @@
 // the command is asserted on what it DID, not on a disk left behind.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
 
-import { runRehydrate } from "./rehydrate.mjs";
+import { runRehydrate, realRehydrateDeps } from "./rehydrate.mjs";
+import { seedHealthNote } from "./lib/staged-health-note.mjs";
+import { buildRagInstallInvocation } from "./lib/rag-launcher.mjs";
 
 function fakeDeps({ spawnStatus = 0, ...overrides } = {}) {
   const calls = { writes: [], spawns: [], invocations: [], cleanups: [], log: [], error: [] };
@@ -53,6 +59,10 @@ const MCP_TEMPLATE = `{
     }
   }
 }`;
+
+// What the run reports it REBUILT. The closing hand-off line (pinned in full by the
+// end-to-end test) is dropped here so each artifact test stays about its artifact.
+const rebuilt = (calls) => calls.log.slice(0, calls.log.indexOf(""));
 
 // Compact on purpose: a settings file is copied through verbatim, so an assertion
 // on the exact bytes proves the command substitutes rather than re-serialises.
@@ -108,7 +118,7 @@ test("a missing .mcp.json is rebuilt from the template that travelled in the clo
       },
     },
   });
-  assert.deepEqual(calls.log, ["✓ regenerated .mcp.json"]);
+  assert.deepEqual(rebuilt(calls), ["✓ regenerated .mcp.json"]);
 });
 
 // Same story for the hooks + allowlist file — and it carries all three machine
@@ -132,7 +142,7 @@ test("a missing .claude/settings.json is rebuilt with the hooks pointed at this 
         '"root":"/brains/mind-palace","tmp":"/tmp"}',
     },
   ]);
-  assert.deepEqual(calls.log, ["✓ regenerated .claude/settings.json"]);
+  assert.deepEqual(rebuilt(calls), ["✓ regenerated .claude/settings.json"]);
 });
 
 // `vault/engine-health/` is gitignored and the installer alone seeds the canary, so
@@ -156,7 +166,7 @@ test("a missing health canary note is reseeded from the source staged in the clo
   ]);
   assert.deepEqual(calls.writes, []);
   assert.deepEqual(calls.error, []);
-  assert.deepEqual(calls.log, ["✓ reseeded vault/engine-health/health-check.md"]);
+  assert.deepEqual(rebuilt(calls), ["✓ reseeded vault/engine-health/health-check.md"]);
 });
 
 // `node_modules/` never travels either, and rag/ carries a NATIVE binding: the
@@ -181,7 +191,7 @@ test("missing rag dependencies are installed through the launcher's own PATH", (
   // The win32 branch materialises a temp script inside rag/ — cleaned up pass or fail.
   assert.deepEqual(calls.cleanups, [1]);
   assert.deepEqual(calls.error, []);
-  assert.deepEqual(calls.log, ["✓ installed the rag/ dependencies"]);
+  assert.deepEqual(rebuilt(calls), ["✓ installed the rag/ dependencies"]);
 });
 
 // The clone lost BOTH dependency trees, and the second one is the one `SETUP.md`
@@ -204,7 +214,32 @@ test("missing local-mirror dependencies are installed too", () => {
     },
   ]);
   assert.deepEqual(calls.error, []);
-  assert.deepEqual(calls.log, ["✓ installed the local-mirror/ dependencies"]);
+  assert.deepEqual(rebuilt(calls), ["✓ installed the local-mirror/ dependencies"]);
+});
+
+// The real second-machine case, end to end: nothing is there. Beyond doing the
+// work, the command has to end on the step that no artifact can carry — the one
+// the install hand-off exists for. A rehydrated folder is still inert until a NEW
+// conversation is started IN it, since that is when the MCP servers and the hooks
+// are loaded; a session already open keeps its old, empty wiring.
+test("a freshly cloned brain gets everything back, then is told what only a human can do", () => {
+  const { deps, calls } = fakeDeps({
+    exists: () => false,
+    readFile: (path) => (path.endsWith(".mcp.json.template") ? MCP_TEMPLATE : SETTINGS_TEMPLATE),
+  });
+
+  assert.equal(runRehydrate([], deps), 0);
+
+  assert.deepEqual(calls.error, []);
+  assert.deepEqual(calls.log, [
+    "✓ regenerated .mcp.json",
+    "✓ regenerated .claude/settings.json",
+    "✓ reseeded vault/engine-health/health-check.md",
+    "✓ installed the rag/ dependencies",
+    "✓ installed the local-mirror/ dependencies",
+    "",
+    "→ Now open a NEW conversation rooted in this folder: the MCP servers and the hooks are loaded when a session starts, so an already-open one still runs on the old wiring.",
+  ]);
 });
 
 // The other half of §10's lesson: on a posix CI, `npm` and the win32 `npm.cmd`
@@ -277,4 +312,52 @@ test("the machine's real platform reaches the install invocation", () => {
   assert.deepEqual(calls.invocations, [
     { platform: "win32", ragDir: "/brains/mind-palace/rag" },
   ]);
+});
+
+// ── realRehydrateDeps (the real wiring, used when runRehydrate is called w/o deps)
+// Named and asserted rather than inlined: this is where a command usually stops
+// being testable, and where a mis-wire (the canary seeded by nothing, the install
+// built without the self-heal PATH) would pass every test above.
+test("realRehydrateDeps wires the real machine", () => {
+  assert.equal(realRehydrateDeps.seedHealthNote, seedHealthNote);
+  assert.equal(realRehydrateDeps.installInvocation, buildRagInstallInvocation);
+  assert.equal(realRehydrateDeps.spawnSync, spawnSync);
+  assert.equal(realRehydrateDeps.platform, process.platform);
+  assert.equal(realRehydrateDeps.cwd(), process.cwd());
+  assert.equal(realRehydrateDeps.tmpDir(), tmpdir());
+});
+
+// A brain missing `.claude/settings.json` may be missing the folder around it too
+// (nothing else in there is guaranteed on a partial clone), so writing must create
+// the parent rather than throw.
+test("realRehydrateDeps writes through a missing parent folder, and reads it back", () => {
+  const root = mkdtempSync(join(tmpdir(), "rehydrate-wiring-"));
+  try {
+    const target = join(root, "nested", "settings.json");
+    assert.equal(realRehydrateDeps.exists(target), false);
+
+    realRehydrateDeps.writeFile(target, '{"hooks":{}}\n');
+
+    assert.equal(realRehydrateDeps.exists(target), true);
+    assert.equal(realRehydrateDeps.readFile(target), '{"hooks":{}}\n');
+  } finally {
+    rmSync(root, { recursive: true });
+  }
+});
+
+test("realRehydrateDeps.log/error forward to console.log/console.error", () => {
+  const [origLog, origErr] = [console.log, console.error];
+  const logged = [];
+  const errored = [];
+  console.log = (line) => logged.push(line);
+  console.error = (line) => errored.push(line);
+  try {
+    realRehydrateDeps.log("rebuilt");
+    realRehydrateDeps.error("nope");
+  } finally {
+    console.log = origLog;
+    console.error = origErr;
+  }
+  assert.deepEqual(logged, ["rebuilt"]);
+  assert.deepEqual(errored, ["nope"]);
 });

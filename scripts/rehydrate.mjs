@@ -11,15 +11,39 @@
 //
 //   node scripts/rehydrate.mjs
 // ─────────────────────────────────────────────────────────────────────────────
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
 
 import { CANARY_NOTE, machineReplacements, rehydrationPlan } from "./lib/brain-rehydrate.mjs";
-import { applyLaunchers } from "./lib/rag-launcher.mjs";
+import { applyLaunchers, buildRagInstallInvocation } from "./lib/rag-launcher.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
+import { seedHealthNote } from "./lib/staged-health-note.mjs";
+import { isEntrypoint } from "./lib/entrypoint.mjs";
+
+// The real wiring for runRehydrate — every side effect of the command, named so the
+// glue itself stays under test (a mis-wire here would pass every behaviour test).
+export const realRehydrateDeps = {
+  cwd: () => process.cwd(),
+  platform: process.platform,
+  tmpDir: () => tmpdir(),
+  exists: (path) => existsSync(path),
+  readFile: (path) => readFileSync(path, "utf8"),
+  writeFile: (path, content) => {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, content);
+  },
+  seedHealthNote,
+  installInvocation: buildRagInstallInvocation,
+  spawnSync,
+  log: (line) => console.log(line),
+  error: (line) => console.error(line),
+};
 
 // Deletes nothing, overwrites nothing: only what is MISSING gets rebuilt.
 // Returns the process exit code; every side effect comes through `deps`.
-export function runRehydrate(argv, deps) {
+export function runRehydrate(argv, deps = realRehydrateDeps) {
   const root = deps.cwd();
   const missing = rehydrationPlan({ exists: (relPath) => deps.exists(join(root, relPath)) });
 
@@ -67,6 +91,14 @@ export function runRehydrate(argv, deps) {
       return 1;
   }
 
+  // The one step no file can carry: Claude freezes its working directory, its MCP
+  // servers and its hooks when a session STARTS, so the freshly rebuilt wiring only
+  // exists for a conversation opened after this point.
+  deps.log("");
+  deps.log(
+    "→ Now open a NEW conversation rooted in this folder: the MCP servers and the hooks are loaded when a session starts, so an already-open one still runs on the old wiring.",
+  );
+
   return 0;
 }
 
@@ -93,4 +125,8 @@ function substitute(content, replacements) {
   let out = content;
   for (const [k, v] of Object.entries(replacements)) out = out.split(k).join(v);
   return out;
+}
+
+if (isEntrypoint(import.meta.url, process.argv[1])) {
+  process.exit(runRehydrate(process.argv.slice(2)));
 }
