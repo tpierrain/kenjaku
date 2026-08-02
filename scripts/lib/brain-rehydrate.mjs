@@ -22,10 +22,23 @@ const UNTRAVELLABLE = [
   "local-mirror/node_modules",
 ];
 
+// The two files that make a machine WIRED: they name the MCP servers and the hooks,
+// and they are the only ones baking an absolute path. Miss them and nothing engine-side
+// runs, so nothing engine-side can self-repair — only the owner can, by running the
+// command. Every other untravellable artifact heals on its own (the launcher rebuilds a
+// dependency tree, the reconcile re-seeds), so it must not be read as an unwired machine.
+const MACHINE_WIRING = [".mcp.json", ".claude/settings.json"];
+
 // What this brain is missing, on THIS machine. Pure: `exists(relPath)` is the only
 // I/O, injected by the caller.
 export function rehydrationPlan({ exists }) {
   return UNTRAVELLABLE.filter((relPath) => !exists(relPath));
+}
+
+// Which of those missing artifacts mean "this machine was never wired" (subset of a
+// `rehydrationPlan`, order preserved). Empty = whatever is missing, something else fixes.
+export function unwiredFiles(missing) {
+  return MACHINE_WIRING.filter((relPath) => missing.includes(relPath));
 }
 
 // The placeholders that describe the MACHINE, and therefore the only ones a

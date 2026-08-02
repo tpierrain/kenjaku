@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { CANARY_NOTE, machineReplacements, rehydrationPlan } from "./brain-rehydrate.mjs";
+import { CANARY_NOTE, machineReplacements, rehydrationPlan, unwiredFiles } from "./brain-rehydrate.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const installerSource = () => readFileSync(join(REPO_ROOT, "installer.mjs"), "utf8");
@@ -103,6 +103,21 @@ test("the canary path the launcher seeds is the one the engine reads", () => {
 // that needs nothing and it must do nothing, not re-generate over live files.
 test("a brain that already has everything is left alone", () => {
   assert.deepEqual(rehydrationPlan({ exists: () => true }), []);
+});
+
+// Not every gap means "this machine was never wired". Only the two files that carry an
+// absolute path do: without them there is no MCP server and no hook, so nothing engine-side
+// can repair itself and only the OWNER can (by running the command). A missing dependency
+// tree or canary is a different story — the launcher and the reconcile heal those on their
+// own — and must NOT make the engine shout for a rehydrate.
+test("only the two files a machine bakes its paths into mean 'this machine is unwired'", () => {
+  assert.deepEqual(unwiredFiles([".mcp.json", "rag/node_modules"]), [".mcp.json"]);
+  assert.deepEqual(unwiredFiles([".claude/settings.json"]), [".claude/settings.json"]);
+  assert.deepEqual(
+    unwiredFiles(["vault/engine-health/health-check.md", "rag/node_modules", "local-mirror/node_modules"]),
+    [],
+  );
+  assert.deepEqual(unwiredFiles([]), []);
 });
 
 // The field case: a brain rehydrated by hand, everything back EXCEPT the canary note

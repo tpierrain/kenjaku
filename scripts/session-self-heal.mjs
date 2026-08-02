@@ -27,6 +27,7 @@ import { fileURLToPath } from "node:url";
 import { detectSelfHealGap } from "./lib/self-heal-detect.mjs";
 import { computeApplyPlan } from "./lib/engine-apply-plan.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { rehydrationPlan, unwiredFiles } from "./lib/brain-rehydrate.mjs";
 
 export async function sessionSelfHeal({
   brainDir,
@@ -36,8 +37,25 @@ export async function sessionSelfHeal({
   spawnReconcile,
   emit,
   setRestartPending = () => {},
+  missingWiring = () => [],
 }) {
   try {
+    // F14 — before anything else: is this machine WIRED at all? An absent `.mcp.json`
+    // registers no server, so the gate below would read a convergence gap and this hook
+    // would promise a background heal that CANNOT land (the reconcile only edits files
+    // that already exist). A clone is not a half-finished update: it needs one command,
+    // run by the owner, and the only useful thing to do here is name it.
+    const unwired = missingWiring();
+    if (unwired.length > 0) {
+      emit(
+        `⚠️ This machine isn't wired for your brain yet — missing ${unwired.join(" and ")} ` +
+          `(gitignored: they hold this machine's absolute paths, so a clone never has them). ` +
+          `From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation ` +
+          `rooted here (servers and hooks are loaded when a session starts).`,
+      );
+      return { healed: false, needsRehydrate: true, missingWiring: unwired };
+    }
+
     const { wantedSkillDirs, wantedServerIds } = readWanted();
     const gap = detectSelfHealGap({ wantedSkillDirs, wantedServerIds, skillDirExists, mcpServerRegistered });
     if (!gap.needed) {
@@ -145,6 +163,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     // (F-B7 2g): wanted skills = engine merge skills ∪ staged `engine-skills/`;
     // wanted MCP servers = keys of the delivered `.mcp.json.template`.
     readWanted: () => deriveWanted(brainDir),
+    // F14: the two files a machine bakes its own paths into. Absent → this is a clone
+    // nobody has rehydrated yet, not a brain mid-update.
+    missingWiring: () =>
+      unwiredFiles(rehydrationPlan({ exists: (rel) => existsSync(join(brainDir, rel)) })),
     skillDirExists: (dir) => existsSync(join(brainDir, dir)),
     mcpServerRegistered: (() => {
       const mcpPath = join(brainDir, ".mcp.json");

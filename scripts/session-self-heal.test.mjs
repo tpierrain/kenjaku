@@ -70,6 +70,46 @@ test("sessionSelfHeal — converged brain → CLEARS any pending restart nudge",
   assert.deepEqual(calls.restartPending, [false]);
 });
 
+// F14 — the same absent `.mcp.json` reads as a convergence gap (no `vault-rag` registered),
+// so this hook used to promise "an engine update finishing in the background" and spawn a
+// reconcile that CANNOT land: the reconcile only ever edits files that already exist. A second
+// machine therefore heard the same false promise at every session start, forever. An unwired
+// machine is not a half-finished update — it is a clone waiting for ONE command, and the hook's
+// job is to name it.
+test("sessionSelfHeal — an unwired machine is told to rehydrate, not promised an update", async () => {
+  const { args, calls } = seams({
+    missingWiring: () => [".mcp.json"],
+    mcpServerRegistered: () => false, // the absent file is exactly what fakes the gap
+  });
+
+  const result = await sessionSelfHeal(args);
+
+  assert.equal(result.needsRehydrate, true);
+  assert.equal(result.healed, false);
+  assert.deepEqual(calls.spawned, [], "the reconcile cannot create a file that does not exist");
+  assert.equal(calls.emitted.length, 1);
+  assert.match(calls.emitted[0], /node scripts\/rehydrate\.mjs/);
+  assert.match(calls.emitted[0], /\.mcp\.json/);
+  assert.doesNotMatch(calls.emitted[0], /update/i, "nothing is updating — say what is true");
+});
+
+// The boundary of the branch above: a brain whose wiring IS there has a real convergence gap,
+// and must keep the reconcile + restart nudge it always had (a mutant reading any missing
+// artifact as "unwired" would silence the engine's real self-heal).
+test("sessionSelfHeal — a wired brain with a real gap still self-heals in the background", async () => {
+  const { args, calls } = seams({
+    missingWiring: () => [],
+    mcpServerRegistered: (id) => id !== "local-mirror",
+  });
+
+  const result = await sessionSelfHeal(args);
+
+  assert.equal(result.healed, true);
+  assert.equal(result.needsRehydrate, undefined);
+  assert.deepEqual(calls.spawned, [{ brainDir: "/brain" }]);
+  assert.match(calls.emitted[0], /restart/i);
+});
+
 test("sessionSelfHeal — fail-open: a throwing seam never propagates, logs loudly, spawns nothing", async () => {
   const { args, calls } = seams({
     readWanted: () => {
