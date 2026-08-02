@@ -56,28 +56,67 @@ test("engine-manifest — every `replace`/`merge` glob resolves to a real tracke
   assert.deepEqual(dead, [], `manifest globs matching no tracked file (renamed/removed?): ${dead.join(", ")}`);
 });
 
-// The reverse guard: an engine-owned script wired as a SessionStart hook but ABSENT
-// from the manifest is the "update-engine must self-carry its libs" bug class — the
-// brain runs it, yet an upgrade never refreshes it (settings.json is sacred/merge, so
-// the hook stays wired, pointing at a stale script). Every SessionStart hook script
-// must be carried (declared in replace/regenerate; merge would be wrong for these).
-test("engine-manifest — every SessionStart hook script is carried to upgraders (declared in replace/regenerate)", () => {
-  const settings = JSON.parse(
-    readFileSync(join(repoRoot, ".claude", "settings.json.template"), "utf8"),
+// The reverse guard: an engine-owned script wired as a hook but ABSENT from the
+// manifest is the "update-engine must self-carry its libs" bug class — the brain runs
+// it, yet an upgrade never refreshes it (settings.json is sacred/merge, so the hook
+// stays wired, pointing at a stale script). Every hook script must be carried
+// (declared in replace/regenerate; merge would be wrong for these).
+//
+// Scoped to EVERY hook event, not just SessionStart: the guard was written when the
+// template only wired SessionStart, so the day a `PreToolUse` entry landed it would
+// have been waved through by a guard that looked like it covered hooks. The event a
+// script is wired under says nothing about whether an upgrade owes it.
+const templateHooks = () =>
+  JSON.parse(readFileSync(join(repoRoot, ".claude", "settings.json.template"), "utf8")).hooks ?? {};
+
+const wiredHookScripts = () => [
+  ...new Set(
+    Object.values(templateHooks())
+      .flatMap((groups) => groups.flatMap((entry) => entry.hooks.map((h) => h.command)))
+      .flatMap((cmd) => cmd.match(/scripts\/[\w.-]+\.mjs/g) ?? []),
+  ),
+];
+
+test("engine-manifest — every hook script, under EVERY event, is in SOME regime (a wired script an upgrade never delivers reaches nobody)", () => {
+  const allRegimes = Object.values(manifest.regimes ?? {}).flat();
+  const undeclared = wiredHookScripts().filter(
+    (rel) => !allRegimes.some((glob) => matchesAny([glob], rel)),
   );
-  const hookScripts = [
-    ...new Set(
-      (settings.hooks?.SessionStart ?? [])
-        .flatMap((entry) => entry.hooks.map((h) => h.command))
-        .flatMap((cmd) => cmd.match(/scripts\/[\w.-]+\.mjs/g) ?? []),
-    ),
-  ];
-  const undeclared = notCarried(hookScripts);
   assert.deepEqual(
     undeclared,
     [],
-    `SessionStart hook scripts not carried by the manifest (upgraders keep stale copies): ${undeclared.join(", ")}`,
+    `hook scripts in no regime at all (the brain runs what an upgrade never sends): ${undeclared.join(", ")}`,
   );
+});
+
+// The stricter half, and the reason the guard above is not enough. A hook script under
+// `merge` is only OFFERED as a diff (ADR 0012) — a brain that ever touched it keeps its own
+// copy forever. That is a deliberate call for the two persistence hooks, whose commit/push
+// policy the owner is invited to tune; it is the WRONG default for anything new, which is why
+// the exception is a named list rather than a regime-wide allowance. A third name appearing
+// here means someone chose "user-editable" for a hook — deliberately, or by copy-paste.
+const USER_EDITABLE_HOOKS = ["scripts/auto-commit.mjs", "scripts/auto-push.mjs"];
+
+test("engine-manifest — every hook script arrives WHOLE (replace/regenerate), bar the two persistence hooks the owner may tune", () => {
+  const merged = wiredHookScripts().filter((rel) => notCarried([rel]).length > 0);
+
+  assert.deepEqual(
+    merged.sort(),
+    [...USER_EDITABLE_HOOKS].sort(),
+    "a hook script is carried by `merge` — an upgrade will only OFFER it, so a brain that edited it " +
+      "keeps a stale copy for good. Put it in `replace` unless the owner is genuinely meant to fork it",
+  );
+});
+
+// …and the scan must be reading real entries: a template whose events stopped matching
+// (renamed key, restructured groups) would make the guard above pass on an empty list
+// forever. Both the write-time guard and the persistence hook are wired under events
+// OTHER than SessionStart, so their presence proves the sweep is not SessionStart-shaped.
+test("engine-manifest — the hook sweep reads every event, so an empty scan cannot pass for a clean one", () => {
+  const events = Object.keys(templateHooks());
+
+  assert.ok(events.includes("PreToolUse") && events.includes("PostToolUse") && events.includes("SessionStart"),
+    `the template lost a hook event the guard above relies on: ${events.join(", ")}`);
 });
 
 // The same reverse guard, for the OTHER way a brain runs an engine script: a skill

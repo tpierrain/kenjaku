@@ -1,5 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { reconcileHooks, detectHookGap, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
 
@@ -86,6 +89,44 @@ test("reconcileHooks — a USER hook entry is preserved (never removed, never cl
   assert.equal(hooks.SessionStart[0].hooks[0].command, '/usr/local/bin/node "/brains/foo/scripts/session-status.mjs"');
   assert.equal(hooks.SessionStart.length, 4, "the 3 missing engine hooks are appended, the user's stays in place");
   assert.equal(hooksAdded.length, 3);
+});
+
+// ── The REAL template, and a whole EVENT a deployed brain has never heard of ──────
+// Every brain installed before v4.5.0 has no `PreToolUse` key at all, so the write-time
+// frontmatter guard (F11/F12) reaches them only if the reconcile can create an event, not
+// just append inside one. It is the same additive path, but nothing pinned it — and the
+// guard is worth exactly as much as the number of brains that actually run it. Read from
+// disk on purpose: this asserts what SHIPS, so removing the template entry fails here.
+const realTemplateHooks = () =>
+  JSON.parse(
+    readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", ".claude", "settings.json.template"), "utf8"),
+  ).hooks;
+
+test("reconcileHooks — a brain with no PreToolUse at all is given the write guard, beside any hook of its own", () => {
+  const userGuard = {
+    matcher: "Bash",
+    hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/my-own-precheck.mjs"', timeout: 5000 }],
+  };
+  const brainHooks = { ...v310BrainHooks(), PreToolUse: [userGuard] };
+
+  const { hooks, hooksAdded } = reconcileHooks({
+    brainHooks: { SessionStart: brainHooks.SessionStart },
+    templateHooks: realTemplateHooks(),
+    projectRoot: "/brains/foo",
+  });
+  const withUserHook = reconcileHooks({ brainHooks, templateHooks: realTemplateHooks(), projectRoot: "/brains/foo" });
+
+  assert.deepEqual(
+    hooks.PreToolUse,
+    [{ matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/vault-write-guard.mjs"', timeout: 10000 }] }],
+    "the event must be CREATED, matcher and timeout intact, with the brain's own node + dir substituted",
+  );
+  assert.ok(hooksAdded.includes("scripts/vault-write-guard.mjs"), "the newly-wired guard must be named in hooksAdded");
+  assert.deepEqual(
+    withUserHook.hooks.PreToolUse,
+    [userGuard, hooks.PreToolUse[0]],
+    "a brain that already had its OWN PreToolUse hook keeps it, first, with the engine's appended after",
+  );
 });
 
 // ── Cross-OS parity (ADR 0015): the REAL brain hook command is not a bare `node` but

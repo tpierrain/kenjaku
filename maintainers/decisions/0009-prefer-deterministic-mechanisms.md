@@ -70,6 +70,7 @@ Grouped along the same axis as this ADR's **Scope** field (the launcher↔brain 
 
 | Mechanism (file) | What it guarantees | Why deterministic — how tested |
 |---|---|---|
+| `vault-write-guard.mjs` (PreToolUse) | a note is never BORN with frontmatter the indexer refuses (F11/F12) | runs the engine's **own** parse path (gray-matter + js-yaml 4, resolved from `rag/node_modules`) rather than a lookalike, so it cannot measure a fiction; pure `guardDecision`, fail-open on anything it cannot judge |
 | `auto-commit.mjs` (PostToolUse) | every note edit → a local commit | edit-event-triggered, pure git, `exit 0`; `auto-commit.test.mjs` on a real tmp repo |
 | `auto-push.mjs` + `lib/git-push.mjs` (Stop) | the turn's commits pushed **once**, best-effort | the `Stop` event *is* the debounce (no timer/state); pure `shouldPush` + injectable `attemptPush({git, sleep})` — **10/10** tests |
 | `reindex-scheduler.ts` (MCP process) | a write burst → **one** incremental reindex | bounded 5 s coalescing, **injected** `setTimer`; `reindex-scheduler.test.ts` with a fake clock |
