@@ -81,6 +81,26 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         conversationally. Known limit, to state in the PR: the constitution is an engine-managed file,
         so this half only reaches brains whose constitution was not customized (F5's freeze).
   - [ ] The engine must also **fail by naming the command** instead of failing into the void.
+  - [ ] **Second field run, 2026-08-02 evening — the owner rehydrated `mind-palace` BY HAND on a
+        second laptop.** It worked (436/436 indexed, repo up to date), and its SessionStart banner
+        proved the scope above is too narrow. Screenshot evidence, verified against the code:
+    - [ ] **The rehydrate must also reseed the health canary note.** `vault/engine-health/` is
+          gitignored and the note is seeded **only** by `installer.mjs:347` (`seedHealthNote`), so a
+          rehydrated brain never has it — permanently. The banner reports it and prescribes
+          "ask me to reindex your vault", which **cannot** recreate a note. Add it to the command's
+          job, next to the two files, the launchers and the two `npm install`.
+    - [ ] **The banner contradicted itself, by design.** It printed `index empty → ask me to reindex`
+          and, three lines below, `RAG up to date — 436/436 files indexed`. `session-health.mjs`
+          reports the **last known** verdict (an instant file read) and re-probes detached for the
+          *next* session, so a stale verdict is rendered with the same authority as the live status
+          line it contradicts, and nothing reconciles them. **This is the plan's own reframe, on a
+          surface it did not list**: "measured just now" and "measured some time ago" render
+          identically. Candidate: date the cached verdict, or suppress a cached check the live line
+          already contradicts.
+    - [ ] **An `unknown` check is rendered as a problem.** `health-check.ts:147` classes the missing
+          canary as `unknown`, not `broken` — but `health-probe.mjs` `bulletsFor()` lists every
+          non-`ok` check as a bullet under "⚠️ Last health-check found a problem", as soon as **one**
+          sibling check is broken. "We could not tell" is displayed as "it is broken".
   - [ ] Whatever is chosen, fix `SETUP.md` §7 **and** the §8 troubleshooting row ("re-run
         `node installer.mjs`", which cannot work) in the same PR.
 - [ ] **F11 / F12 — an indexing failure is displayed as a wait.** A note was written, committed, and
