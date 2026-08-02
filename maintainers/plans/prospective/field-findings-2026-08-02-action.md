@@ -36,10 +36,23 @@
 > carried by nothing — so the **v3.4.1 Windows fix to it reached nobody** who installed before that
 > release. Also in `replace` now. Suites green (1071 scripts, 454 rag).
 >
-> **Resume here — the command is carried, the DOCS still lie.** In order:
-> 3. **`SETUP.md` §7** (rewrite: it under-installs and says "no need for the installer") **and the §8
->    troubleshooting row** ("re-run `node installer.mjs`", which cannot work).
-> 4. **The engine must fail by NAMING the command** instead of failing into the void.
+> **✅ Steps 3 and 4 done too** _(2026-08-02 · `262b571`, `9175d53`)_ — `SETUP.md` §7 rewritten
+> (why a clone is not a working brain, the command, the two things it cannot do, the expected
+> first-session "empty index"), the two §8 remedies that prescribed re-running `installer.mjs`
+> repointed, both locked by doc guards. And the engine stopped failing into the void: the
+> SessionStart self-heal used to read an absent `.mcp.json` as a convergence gap and promise "an
+> engine update finishing in the background" **at every session start, forever**, spawning a
+> reconcile that cannot create a file; it now names the rehydrate instead.
+>
+> **Resume here — F14 is functionally complete; what is left is the wrapper's wording and the PR.**
+> 5. **`buildSelfHealHookOutput` still frames every emitted line as `[engine self-heal — RESTART
+>    REQUIRED] … an update finishing in the background`** (`session-self-heal.mjs`). On the
+>    rehydrate branch that directive contradicts its own payload — the same "two opposite things
+>    rendered identically" this plan is about. Make the directive follow the line it carries
+>    (needs its own red test: the existing wording is asserted by two tests).
+> 6. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
+>    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
+>    constitution half.
 >
 > One thing to check when writing §7: the rehydrate deliberately does **not** index (a clone has no
 > `rag/.cache`), so the first rooted session is what indexes the vault — including the just-reseeded
@@ -123,7 +136,19 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
     - [ ] Left alone on purpose: `engineVersion.scripts` (still `1.9.0`). The apply plan is
           glob-driven, not version-gated, so delivery does not need it; the bump belongs to the
           v4.5.0 release step.
-  - [ ] The engine must also **fail by naming the command** instead of failing into the void.
+  - [x] The engine must also **fail by naming the command** instead of failing into the void.
+        _(2026-08-02 · `9175d53`)_ Worse than a void, it turned out: an absent `.mcp.json` registers
+        no server, so `session-self-heal.mjs` read it as a convergence gap and announced **"an engine
+        update finishing in the background"** at every session start, spawning a reconcile that
+        cannot create a missing file. A second machine heard that false promise forever. It now
+        checks wiring FIRST (`unwiredFiles`, a pure predicate over the rehydration plan) and names
+        the command; a wired brain with a real gap keeps its background heal.
+    - [ ] **Left open:** `buildSelfHealHookOutput` wraps every emitted line in
+          `[engine self-heal — RESTART REQUIRED] … an update finishing in the background`, which now
+          contradicts the rehydrate line it carries. The directive must follow its payload.
+  - [x] **The docs stopped lying** _(2026-08-02 · `262b571`)_ — `SETUP.md` §7 rewritten around the
+        command (+ the key, the NEW rooted conversation, and the expected first-session indexing),
+        the two §8 remedies pointing at `installer.mjs` repointed, and two doc guards to keep it so.
   - [ ] **Second field run, 2026-08-02 evening — the owner rehydrated `mind-palace` BY HAND on a
         second laptop.** It worked (436/436 indexed, repo up to date), and its SessionStart banner
         proved the scope above is too narrow. Screenshot evidence, verified against the code:
