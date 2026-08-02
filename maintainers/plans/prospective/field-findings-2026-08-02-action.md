@@ -54,12 +54,14 @@
 > `needsRehydrate` and emits a `SETUP NEEDED` directive naming the command. Suite green
 > (1077 pass, 1 skipped Windows-only).
 >
-> **Resume here — v4.5.0, in this order. F11/F12 is IN PROGRESS: fix A shipped, fix B half-built.**
-> 6. **F11 / F12** — an indexing failure displayed as a wait. **Fix A is done**
->    _(2026-08-02 · `68ea034`)_ and **fix B's decision layer is done** _(2026-08-02 · `524c580`)_.
->    **The one thing left: WIRE the guard** — see the F11/F12 entry in P0 for the exact remaining
->    step (a `PreToolUse(Write|Edit)` entry, `scripts/vault-write-guard.mjs`, the settings template,
->    and the delivery regime). Nothing else in F11/F12 is open.
+> **✅ Step 6 done — F11/F12 IS COMPLETE** _(2026-08-02 · `68ea034`, `524c580`, `a52b813`)_. Both
+> halves shipped: the banner tells a failure from a wait, and the write-time guard is WIRED — a
+> `PreToolUse(Write|Edit)` hook running `scripts/vault-write-guard.mjs`, carried by the manifest, and
+> reconciled onto brains that have no `PreToolUse` key at all. Suite green (1100 pass, 1 skipped
+> Windows-only). Its P0 entry carries what was decided and what the wiring turned up (a manifest guard
+> that only watched `SessionStart`); do not re-open it.
+>
+> **Resume here — v4.5.0, in this order.**
 > 7. **F15** — a note still answering from stale content, with nothing watching it (P0).
 > 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
 >    the engine measures a fiction).
@@ -212,7 +214,7 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           every brain, not just a rehydrated one.
   - [ ] Whatever is chosen, fix `SETUP.md` §7 **and** the §8 troubleshooting row ("re-run
         `node installer.mjs`", which cannot work) in the same PR.
-- [ ] **F11 / F12 — an indexing failure is displayed as a wait.** A note was written, committed, and
+- [x] **F11 / F12 — an indexing failure is displayed as a wait. ✅ COMPLETE** _(2026-08-02)_. A note was written, committed, and
       **absent from the index**, i.e. invisible to search, for as long as it existed.
   - [ ] Evidence (field): `vault/inqom/briefings/2026-08-02.md` — unquoted YAML value containing `": "`
         → `bad indentation of a mapping entry (6:45)`. The status line read `435/436 … 1 pending —
@@ -227,8 +229,9 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         note silences its stale error (the run state is only rewritten by the next run, and a checker
         is judged on its false positives — F16); two failures named, the rest counted; and the
         run-state path is pinned to the engine's own constants by a guard test.
-  - [ ] Fix B: **validate frontmatter at write time** with the engine's own parser and refuse to write.
-        The writer currently emits YAML its own indexer rejects; the note is born broken and nothing says so.
+  - [x] **Fix B DONE** — **validate frontmatter at write time** with the engine's own parser and refuse
+        to write. The writer emitted YAML its own indexer rejects; the note was born broken and nothing
+        said so. Decision layer + wiring both shipped (below).
     - [x] **The decision layer is built and tested** _(2026-08-02 · `524c580`)_ —
           `scripts/lib/vault-write-guard.mjs`: `guardDecision({ toolName, toolInput, brainDir, parse,
           readFile })` → `{ allow }` / `{ allow: false, reason }`. It runs the **engine's own parse
@@ -238,14 +241,23 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           `duplicated mapping key (5:1)` into the key + both lines. That scan now has **three** callers
           across two packages → their agreement is a test, no longer a comment. **Fail-open**
           everywhere else (no parser, unreadable file, missing anchor, anything outside `vault/*.md`).
-    - [ ] **← RESUME HERE. Left to do: wire it.** A `PreToolUse` matcher `Write|Edit` entry in
-          `.claude/settings.json.template` running a new `scripts/vault-write-guard.mjs` entry script
-          that reads the hook JSON on **stdin**, calls `guardDecision`, and emits the deny payload
-          (`hookSpecificOutput.permissionDecision`). Then: add the script to the manifest's `replace`
-          list (an unwired script reaches nobody — the `clear-example-notes.mjs` lesson), and let
-          `reconcileHooks` carry the new entry to existing brains (it is additive and dedups by
-          script name, so no extra work there beyond a test).
-    - [ ] Decided while building, do not re-open: the guard **denies** rather than warns (it only
+    - [x] **WIRED** _(2026-08-02 · `a52b813`)_ — `scripts/vault-write-guard.mjs` (the entry script:
+          hook JSON on stdin → `guardDecision` → `hookSpecificOutput.permissionDecision`), a
+          `PreToolUse` / `Write|Edit` entry in `.claude/settings.json.template`, the script in the
+          manifest's `replace`, and `reconcileHooks` proven to CREATE the event on a brain that has no
+          `PreToolUse` key at all (every brain installed before v4.5.0) — pinned against the real
+          template, so deleting the entry fails that test. Verified end to end by hand on the field
+          payload: denied with the parser's own cause, the quoted note allowed, anything outside
+          `vault/` untouched. The entry script always exits 0 and **fails open silently** on unusable
+          stdin: a guard that throws its own stack at the owner once is a guard they disable.
+    - [x] Found while wiring, worth keeping: the manifest guard that was supposed to cover "a wired
+          hook script an upgrade never delivers" only ever looked at **`SessionStart`**, so this
+          `PreToolUse` entry would have sailed past it. Now swept across **every** event, in two
+          claims: in *some* regime (else it reaches nobody), and specifically in `replace` — with
+          `auto-commit` / `auto-push` named as the deliberate `merge` exceptions (ADR 0012: the owner
+          is invited to tune their commit/push policy), so a third user-editable hook has to be a
+          choice rather than a copy-paste. Row added to ADR 0009's mechanism table.
+    - [x] Decided while building, do not re-open: the guard **denies** rather than warns (it only
           ever fires on bytes the engine's parser has actually rejected, so the note would be
           invisible anyway), and it is scoped to `vault/**/*.md` only (a guard that creeps beyond the
           vault is a guard that gets disabled).
