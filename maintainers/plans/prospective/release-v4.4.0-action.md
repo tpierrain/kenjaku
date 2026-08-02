@@ -179,11 +179,20 @@ a **foundation** for that study, not an obstacle. The reasoning is in the study'
 carries over) — read it there, do not re-derive it from the diff. The runs are slow and must not
 overlap; a `/clear` mid-run costs only the run, not the decision.
 
-**▶️ BOTH RUNS ARE MEASURED — no Stryker left to launch.** rag: **93.93 %** after killing 18 of its 20
-own survivors. scripts: five batches done, per-file scores in Track 9's box. **What is left is
-write-up, not measurement**: fold the results and the two new worktree traps into
-`maintainers/mutation/RESULTS.md`, then kill the handful of survivors that sit on lines THIS branch
-added (`note-refresh`, `refresh-note`, `reconcile-brain`, `update-engine` — enumerated in Track 9).
+**✅ THE MUTATION WORK IS FINISHED — measured, swept, and re-measured. Do not launch Stryker again.**
+rag **93.93 %**; scripts measured in five batches, then the four in-scope files swept and a
+**confirmation re-run** done _(2026-08-02)_: `note-refresh` **80.26 → 98.68 %**, `reconcile-brain`
+**93.02 → 95.93 %**, `refresh-note` **57.41 → 68.52 %** (all 17 remaining survivors are its I/O
+lambda object and its boot guard — `runRefresh` itself is fully killed). Harness **1048 green**.
+The batch config is now **committed** at `maintainers/mutation/stryker.scripts.batch.config.mjs`
+(it used to live in a scratchpad, which is how the first run's reports were lost).
+
+**▶️ THE NEXT STEP IS `RESULTS.md`, and it is pure write-up — no measurement left.** Fold in: the
+per-file scores above, the **two new worktree traps** (the `auto-commit` mutant that COMMITS the
+instrumented tree → reset with `git reset --hard` + `git clean -fd`, never `checkout -- .`; and
+`disableTypeChecks: false`), the **0 % boot-script debt** in its own section, and the systematic
+`readFileSync(p, "utf8")` equivalent recorded ONCE. Then: **bump `engineVersion`** (the defect
+below), the release note, codenames, merge + tag.
 
 **✅ DECIDED 2026-08-02 — the two 0 % boot scripts ship as NAMED DEBT.** `session-status.mjs` and
 `status-line.mjs` score 0 % because they run on import, so no test can observe them; the hole predates
@@ -858,6 +867,17 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
             to ~370 files, and under `inPlace` that lands on the real worktree. These are plain
             `.mjs` with nothing to type-check. The CLI has no flag for it, so the batch run uses a
             tiny `stryker.scripts.batch.config.mjs` that spreads the base config and turns it off.
+    - [x] ✅ **CONFIRMATION RE-RUN DONE** _(2026-08-02, worktree, two batches, ~7 min total)_.
+          The three files whose survivors were ours moved:
+          `note-refresh.mjs` **80.26 → 98.68 %** (1 survivor, a recorded equivalent) ·
+          `reconcile-brain.mjs` **93.02 → 95.93 %** (7 survivors, **6 out of scope**) ·
+          `refresh-note.mjs` **57.41 → 68.52 %**.
+          **Read `refresh-note`'s number correctly, and say so in `RESULTS.md`:** all 17 remaining
+          survivors sit at lines **28-39** (`realRefreshDeps`, the I/O lambda object) and **98-99**
+          (the `isEntrypoint` boot guard). **Nothing between 46 and 96 survives** — `runRefresh`,
+          the whole decision logic, is fully killed. What is left is the same *observed-by-nothing
+          boot/IO seam* as `session-status` / `status-line`, i.e. **the named debt**, not a gap in
+          this release's logic. Logs: `maintainers/mutation/reports/confirm-batch{1,2}.log`.
     - [x] **Measured, all five batches** _(2026-07-28/29)_. Per file, worst last:
           `auto-commit` **98.31 %** · `update-engine` **96.94 %** · `engine-source` **94.00 %** ·
           `reconcile-brain` **93.02 %** · `universe-reminder` **90.91 %** ·
@@ -923,6 +943,28 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
               on the same line (`installedSkills = []`, `statusLineRemoved = false`) **die** against
               the existing minimal-report test. Killing it would mean changing production to reject
               a shape the producer cannot emit. **Record it, do not chase it.**
+      - [x] **The confirmation run's OWN survivors, swept the same way** _(2026-08-02 · `794058a`,
+            `d1a9d07`)_ — and two of them were **live defects**, not merely unwatched lines:
+        - [x] **The duplicate-key check refused a VALID page.** Unanchored, `authors:` followed by
+              two `  - name:` list entries reads as one key declared twice → the page is named as
+              damaged and the owner has nothing to fix. Exactly what the check's own comment warns
+              about (rag's looser twin invented `- https` out of a list of URLs).
+        - [x] **The no-frontmatter refusal was asserted with `/frontmatter/i`** — which also matches
+              *"Cannot read properties of null (reading 'frontmatter')"*, so deleting the refusal and
+              letting a TypeError escape kept the test green. Now asserted whole.
+        - [x] Four narrower kills: frontmatter that does not open the file is not frontmatter; a stub
+              with no body and no trailing newline is still a living page; a blank or `#` line inside
+              frontmatter declares no key; a section arriving with trailing blank lines is
+              normalised. Plus `toPosix` on Windows — flattening `\` to nothing yields
+              `C:brainvault`, so a refresh reports *"does not exist"* for a note sitting right there.
+        - [x] `reconcile-brain`'s one in-scope survivor: `statusLineWasRemoved`'s `false`
+              initialiser. With no `settings.json.template` to read, the settings pass is skipped
+              entirely — reporting `true` would have `update-engine` announce *"your own status line
+              is back"* to an owner whose settings were never opened. **The F7 shape, inside the
+              release that closes F7's siblings.**
+      - [x] **Recorded EQUIVALENT (note-refresh's last survivor)**: dropping the trailing `$` from
+            `FRONTMATTER_RE`. `[\s\S]*` is greedy to the end already, so the anchor buys nothing at
+            runtime; keeping it is documentation of intent, not behaviour.
       - [ ] **A systematic equivalent to record ONCE, not per file**: every
             `readFileSync(p, "utf8")` → `readFileSync(p, "")` survivor. Node returns a **Buffer** for
             an empty encoding and `JSON.parse` decodes it to the same string. Same finding as
