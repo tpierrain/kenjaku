@@ -7,8 +7,15 @@
 > repo's code** before being written down. This file is that evidence, organised into candidate
 > work.
 >
-> ⚠️ **Scope is NOT decided.** The owner asked to analyse and cut the release scope **together**,
-> after a `/clear`. Nothing here is committed to a version. Priorities below are a *proposal*.
+> ✅ **Scope IS decided** _(2026-08-02, with the owner, see `## Decisions taken`)_: **everything below
+> ships**, P0 through P3, including the freeze trap. The reframe below is accepted as **the**
+> organising axis. Only the upstream-path piece (F5 defect 3) leaves this plan, into its own ADR +
+> plan.
+>
+> **Next real step** (the Tracking boxes are not the right marker yet): the release is large and has
+> no ordering. Agree the **sequencing and the release cut** with the owner — which findings land in
+> one version vs. several — then start at P0/F14, which is the only finding whose fix shape is still
+> an open choice (see its `Decide the fix` box).
 
 ## The one pattern behind most of it (the reframe)
 
@@ -129,6 +136,14 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       `🔒 CONFIDENTIEL, ne jamais sortir du vault`. It therefore lands in every screenshot, screen
       share and transcript. (It reached this very conversation that way.) Also ~30 lines before the
       first prompt.
+  - [ ] **Decided (2026-08-02): a product fix, not a documentation one.** The banner prints a
+        **synthesis** of the active universe, never the verbatim profile.
+  - [ ] **And only when more than one universe exists.** With a single universe there is nothing to
+        disambiguate, so the profile earns no banner space at all. This makes the fix consistent with
+        ADR 0034's "invisible until a second universe exists" rule, instead of being only a leak fix.
+  - [ ] Open sub-decision: what exactly a "synthesis" contains (name alone? name + role + top
+        recurring topics?), and whether the single-universe case prints the universe **name** or
+        strictly nothing.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
@@ -168,14 +183,28 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         positive.
   - [ ] Candidate: add this to `maintainers/CONVENTIONS.md` next to the mutation-testing rules.
 
-## Decisions owed (to take WITH the owner, after the `/clear`)
+## Decisions taken (2026-08-02, with the owner)
 
-- [ ] Which of P0/P1/P2 enters the next release, and what is deliberately deferred.
-- [ ] Whether the "conflated opposites" reframe is accepted as **the** organising root cause.
-- [ ] F5 defect 3 (path back upstream) is the largest piece of design here and may deserve its own
-      ADR + plan rather than a release line.
-- [ ] Whether F1 (confidential in the banner) is a product decision (truncate/summarise the profile)
-      or a documentation one.
+- [x] **Scope: everything ships** — P0, P1, P2 and P3, the freeze trap included. Nothing is
+      deliberately deferred at finding level. _(2026-08-02)_
+- [x] **The "conflated opposites" reframe is accepted as THE organising root cause.** The work is cut
+      along that axis: wherever two semantically opposite acts or states render identically, separate
+      them. It is not a filing convenience, it is the shape of the fix. _(2026-08-02)_
+- [x] **F5 defect 3 (the path back upstream) gets its own ADR + plan**, not a release line. Reason:
+      it changes the model itself (personalizing an engine skill vs. fixing an engine defect are two
+      different intents, only the first is modelled) and the brain↔engine relationship. It stays in
+      scope, it just does not live in this plan. _(2026-08-02)_
+- [x] **F1 is a product decision**: the banner prints a **synthesis** of the active universe, and only
+      when there is **more than one universe**. See the F1 entry in P3 for the sub-decision still open
+      (what the synthesis contains, and the single-universe rendering). _(2026-08-02)_
+
+### Still owed (ordering, not scope)
+
+- [ ] **Sequencing and release cut.** "Everything ships" is a scope answer, not a plan: agree how many
+      versions this becomes and in what order, so no release carries all four priorities at once.
+- [ ] **F14's fix shape** is the only finding whose solution is still an open choice (rehydrate
+      command vs. create-if-absent reconciler vs. committed machine-relative variants). It is also the
+      natural first move, being a broken documented promise with no workaround.
 
 ## Evidence trail
 
