@@ -15,6 +15,7 @@ import { join } from "node:path";
 
 import { CANARY_NOTE, machineReplacements, rehydrationPlan } from "./lib/brain-rehydrate.mjs";
 import { applyLaunchers } from "./lib/rag-launcher.mjs";
+import { needsShell } from "./lib/spawn-shell.mjs";
 
 // Deletes nothing, overwrites nothing: only what is MISSING gets rebuilt.
 // Returns the process exit code; every side effect comes through `deps`.
@@ -51,7 +52,41 @@ export function runRehydrate(argv, deps) {
     deps.log(`✓ reseeded ${CANARY_NOTE}`);
   }
 
+  if (missing.includes("rag/node_modules")) {
+    // Native binding (better-sqlite3): built through the launcher's own self-heal
+    // PATH, so it is moulded for the Node that will later load it (ADR 0021-A).
+    const invocation = deps.installInvocation(deps.platform, join(root, "rag"));
+    if (!installTree(deps, root, "rag", invocation)) return 1;
+  }
+
+  if (missing.includes("local-mirror/node_modules")) {
+    // Pure JS server: no native binding, so no self-heal build — a plain install.
+    // npm.cmd needs a shell since Node ≥ 18.20 (CVE-2024-27980) or EINVAL; no-op POSIX (ADR 0031).
+    const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
+    if (!installTree(deps, root, "local-mirror", { command: NPM, args: ["install", "--silent"] }))
+      return 1;
+  }
+
   return 0;
+}
+
+// One dependency tree, installed and reported the way a second machine needs to
+// hear it: on failure, the exact command to run by hand — never a silent stop.
+// Returns whether it succeeded. `cleanup` removes the temp win32 install script,
+// pass or fail (absent / a no-op everywhere else).
+function installTree(deps, root, dirName, { command, args, cleanup = () => {} }) {
+  const { status } = deps.spawnSync(command, args, {
+    cwd: join(root, dirName),
+    stdio: "inherit",
+    shell: needsShell(command, deps.platform),
+  });
+  cleanup();
+  if (status !== 0) {
+    deps.error(`✗ npm install failed in ${dirName}/ — run it by hand:  cd ${dirName} && npm install`);
+    return false;
+  }
+  deps.log(`✓ installed the ${dirName}/ dependencies`);
+  return true;
 }
 
 function substitute(content, replacements) {
