@@ -19,21 +19,23 @@
 
 ## ▶️ START HERE
 
-**NEXT STEP, as of 2026-08-02 — write the RELEASE NOTE.** Everything upstream of it in Track 9 is
-done and ticked: the code review and its six fixes, the cut line (nothing is cut), CI 7/7, the
-**mutation snapshot written into `maintainers/mutation/RESULTS.md`** _(`5a66510`)_, and the
-marketing-surface pass. **Do not re-measure, do not re-review, do not re-read the marketing surfaces.**
-What the release note owes, beyond the usual §11 shape, is **three lines that are already decided and
-must not be re-litigated**:
+**NEXT STEP, as of 2026-08-02 — BUMP THE MODULE VERSIONS, then merge / tag / publish.** Everything
+before it in Track 9 is done and ticked: the code review and its six fixes, the cut line (nothing is
+cut), CI 7/7, the **mutation snapshot** in `maintainers/mutation/RESULTS.md` _(`5a66510`)_, the
+marketing-surface pass, and the **release note**, written and committed at
+**[`release-v4.4.0-note.md`](release-v4.4.0-note.md)**. **Do not re-measure, do not re-review, do not
+rewrite the note** — Thomas picked its title (*The One Where It Saves What You Wrote Elsewhere*) and
+its three claims are settled: the two numbers, the named 0 % debt, one line per track.
 
-1. **the two numbers, never one** (searchable in seconds · committed within ~2 min, 10 at the outside);
-2. **one honest line on the named debt** — two boot scripts no test can observe (0 % mutation), a hole
-   every published tag already carries, with its cure scheduled as a release of its own;
-3. **a release-note line for each of Tracks 1 and 4-8** (each track's box says which).
+So, in order, and nothing else:
 
-After the note: 3-4 `v4.4.0 — The One Where …` codenames for **Thomas to pick**, then merge/tag/publish,
-then archive the plan. The **Verification** section stays owed and needs a real installed brain — it is
-not a blocker for the note, only for calling those boxes done.
+1. **The version bump** — `engine-manifest.json` still says `rag 1.1.5` / `scripts 1.8.0` for a release
+   that rewrote both. See its box below for the suggested numbers and why nothing else catches it.
+2. **Merge, tag, publish** with `--notes-file` on the note above, and rewrite the PR title/body.
+3. **Archive the plan**, refresh the memory pointer, update `ROADMAP.md` Gate 4 (D).
+
+The **Verification** section stays owed and needs a real installed brain — it never blocked the note,
+only its own boxes.
 
 **All the code is written, Track 10 included. The next track is Track 9 — cutting the release**
 _(as of 2026-07-28)_. Tracks 1-8 are code-complete _(`8d2e2c4`)_; Track 10 shipped the push cadence
@@ -755,9 +757,11 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       rather than dodge it — the writers this rung serves emit no event, so a timer is not a stand-in
       for a better mechanism, it is the mechanism. ADR 0011's header and `maintainers/README.md`
       follow. The sync fast-path is recorded there as **deferred, not rejected**.
-- [ ] **Release-note line**, owed at Track 9, stating **two numbers, not one**: searchable in seconds,
+- [x] **Release-note line**, owed at Track 9, stating **two numbers, not one**: searchable in seconds,
       committed within a couple of minutes (ten at the outside). ⚠️ **Do not let the seconds figure
       stand for both** — search freshness and durability stopped being the same promise.
+      _(2026-08-02 · written in `release-v4.4.0-note.md`: the two numbers are in the headline bullet
+      AND under the hood, with 0 commits for a 30 s cadence and 3 over 30 min of unbroken writing.)_
 - [ ] ⚠️ **For the marketing pass at Track 9** — this track makes two published claims imprecise:
       (a) `README.md:368` *"only the delta is re-embedded, **within seconds** of an edit"* stays true
       for indexing, but the reliability board (`README.md:325`, `docs/marketing-image-prompts.md:140`)
@@ -934,7 +938,9 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
             baseline had no way to show it, and the section names the whole boot/IO tier
             (`engine-fetch`, `restart-signal`, `session-self-heal`, `refresh-note`'s 17) as the
             package's largest remaining debt.
-      - [ ] Carry one honest line about it into the release note (Track 9's release-note box).
+      - [x] Carry one honest line about it into the release note (Track 9's release-note box).
+            _(2026-08-02 — its own paragraph under the snapshot table: 0 %, why, what IS covered, that
+            every published tag carries it, and the cure as a release of its own.)_
     - [x] Same discipline as rag: cross-reference every survivor against the lines
           `git diff main...HEAD` actually adds, kill what is ours, name what is not.
           ⚠️ **The Stryker HTML reports are GONE** — both run worktrees lived under the session
@@ -1046,12 +1052,24 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
     - [x] **The boring verdicts, worth writing**: `EN-QUOI-C-EST-DIFFERENT.md` needs nothing — "every
           change is committed automatically" only became **more** true. `CONNECTORS.md` is untouched by
           this release. No absolute broken in either.
-- [ ] **Release note** (CONVENTIONS §11, English): a two-sentence lead saying what the reader gains, in
-      their words; `What you get` (≤ 6 emoji bullets); `What you have to do` (the command and the cost);
-      then `---` and `Under the hood` with everything technical — nothing cut, moved below the fold.
-      **Do not alarm**: state each fix without dramatizing the defect, and never advertise a bug that
-      never shipped.
-- [ ] Draft 3-4 `v4.4.0 — The One Where …` codenames; **Thomas picks**.
+- [x] **Release note** (CONVENTIONS §11, English) _(2026-08-02)_ →
+      **[`release-v4.4.0-note.md`](release-v4.4.0-note.md)**, kept in the repo so a `/clear` cannot lose
+      it. Shape held: two-sentence lead, 6 bullets, `What you have to do`, then everything technical
+      below the `---`. Every track has its line, the two numbers are stated as two, and the 0 % debt is
+      named. **This is the file `gh release create --notes-file` will take** (minus its maintainer-only
+      header quote).
+- [x] Draft 3-4 `v4.4.0 — The One Where …` codenames; **Thomas picks**. _(2026-08-02 — he picked
+      **`v4.4.0 — The One Where It Saves What You Wrote Elsewhere`**; the three others were
+      *Nothing You Write Slips Through*, *It Gives You Your Screen Back*, *the Brain Stops Talking to
+      Itself*.)_
+- [ ] ⚠️ **Bump the module versions BEFORE tagging — found 2026-08-02, nothing else does it.**
+      `engine-manifest.json` still declares `rag 1.1.5` / `scripts 1.8.0` on this branch, while it
+      changed **11 `rag/src/**` files** (one of them new) and **16 `scripts/**` files**. Nothing gates
+      the update on that vector (`computeApplyPlan` copies by regime), so the fleet still upgrades —
+      but `/update-engine` would report *"updated to … (rag 1.1.5)"* for a release that rewrote rag.
+      Suggest **rag 1.2.0** (a feature: the persistence scheduler) + **scripts 1.9.0**, and keep
+      `rag/package.json` in step. `indexSchemaVersion` stays **2** — verified, hence **no reindex**,
+      which is what the note promises.
 - [ ] Merge, tag, publish; rewrite the PR title and body to the release scope.
 - [ ] **Archive this plan on ship** (CONVENTIONS §7), refresh the memory **pointer** (not a copy), and
       update `ROADMAP.md` Gate 4 (D) + the field log's Tracking with what shipped.
