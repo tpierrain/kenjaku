@@ -13,7 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { join } from "node:path";
 
-import { machineReplacements, rehydrationPlan } from "./lib/brain-rehydrate.mjs";
+import { CANARY_NOTE, machineReplacements, rehydrationPlan } from "./lib/brain-rehydrate.mjs";
 import { applyLaunchers } from "./lib/rag-launcher.mjs";
 
 // Deletes nothing, overwrites nothing: only what is MISSING gets rebuilt.
@@ -38,6 +38,17 @@ export function runRehydrate(argv, deps) {
     const mcp = applyLaunchers(JSON.parse(rendered), deps.platform);
     deps.writeFile(join(root, ".mcp.json"), JSON.stringify(mcp, null, 2) + "\n");
     deps.log("✓ regenerated .mcp.json");
+  }
+
+  if (missing.includes(".claude/settings.json")) {
+    const template = deps.readFile(join(root, ".claude", "settings.json.template"));
+    deps.writeFile(join(root, ".claude", "settings.json"), substitute(template, replacements));
+    deps.log("✓ regenerated .claude/settings.json");
+  }
+
+  if (missing.includes(CANARY_NOTE)) {
+    deps.seedHealthNote({ sourceDir: root, brainDir: root });
+    deps.log(`✓ reseeded ${CANARY_NOTE}`);
   }
 
   return 0;

@@ -5,6 +5,9 @@
 // clone can regenerate them offline — it only has to know THIS machine.
 import { toPosix } from "./reconcile-brain.mjs";
 import { nodeHookCommand } from "./rag-launcher.mjs";
+import { VAULT_NOTE as CANARY_NOTE } from "./staged-health-note.mjs";
+
+export { CANARY_NOTE };
 
 // Everything the install generates that CANNOT travel through git, in the order a
 // rehydrate must restore it: the two files baking an absolute path, the health
@@ -14,7 +17,7 @@ import { nodeHookCommand } from "./rag-launcher.mjs";
 const UNTRAVELLABLE = [
   ".mcp.json",
   ".claude/settings.json",
-  "vault/engine-health/health-check.md",
+  CANARY_NOTE,
   "rag/node_modules",
   "local-mirror/node_modules",
 ];

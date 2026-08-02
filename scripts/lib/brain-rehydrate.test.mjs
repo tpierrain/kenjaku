@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { machineReplacements, rehydrationPlan } from "./brain-rehydrate.mjs";
+import { CANARY_NOTE, machineReplacements, rehydrationPlan } from "./brain-rehydrate.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const installerSource = () => readFileSync(join(REPO_ROOT, "installer.mjs"), "utf8");
@@ -79,6 +79,24 @@ test("a freshly cloned brain needs everything that cannot travel through git", (
     "rag/node_modules",
     "local-mirror/node_modules",
   ]);
+});
+
+// The canary is written by the launcher at a BRAIN-relative path and read by the
+// engine at <vault dir>/<engine constant> — two spellings of one file, in two
+// languages, neither able to see the other. Let them drift and the note is seeded
+// where nothing looks for it: the health check then goes quiet forever, which is
+// precisely the failure this rehydrate exists to end. So the engine's own sources
+// are the reference here, not a second copy of the string.
+test("the canary path the launcher seeds is the one the engine reads", () => {
+  const engineSource = (relPath) => readFileSync(join(REPO_ROOT, "rag", "src", "lib", relPath), "utf8");
+  const [, engineRelPath] = engineSource("health-check.ts").match(
+    /HEALTH_CHECK_NOTE_RELPATH = "([^"]+)"/,
+  );
+  const [, vaultDirName] = engineSource("config.ts").match(
+    /VAULT_DIR = resolvePath\(process\.env\.VAULT_DIR, resolve\(projectRoot, "([^"]+)"\)\)/,
+  );
+
+  assert.equal(CANARY_NOTE, `${vaultDirName}/${engineRelPath}`);
 });
 
 // Idempotence is what makes the command safe to suggest blindly: run it on a brain

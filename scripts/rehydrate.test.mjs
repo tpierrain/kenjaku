@@ -44,6 +44,11 @@ const MCP_TEMPLATE = `{
   }
 }`;
 
+// Compact on purpose: a settings file is copied through verbatim, so an assertion
+// on the exact bytes proves the command substitutes rather than re-serialises.
+const SETTINGS_TEMPLATE =
+  '{"hooks":{"cmd":"{{NODE}} scripts/auto-commit.mjs"},"root":"{{PROJECT_ROOT}}","tmp":"{{TMP_DIR}}"}';
+
 // Idempotence first: the command is meant to be suggested blindly (by the doc, by
 // Claude), so on a brain that needs nothing it must touch nothing — not regenerate
 // over a live `.mcp.json` the owner may have added connectors to.
@@ -94,4 +99,52 @@ test("a missing .mcp.json is rebuilt from the template that travelled in the clo
     },
   });
   assert.deepEqual(calls.log, ["✓ regenerated .mcp.json"]);
+});
+
+// Same story for the hooks + allowlist file — and it carries all three machine
+// placeholders, including the hook runner that differs per OS.
+test("a missing .claude/settings.json is rebuilt with the hooks pointed at this machine", () => {
+  const { deps, calls } = fakeDeps({
+    exists: (path) => !path.endsWith("/.claude/settings.json"),
+    readFile: (path) => {
+      assert.equal(path, "/brains/mind-palace/.claude/settings.json.template");
+      return SETTINGS_TEMPLATE;
+    },
+  });
+
+  assert.equal(runRehydrate([], deps), 0);
+
+  assert.deepEqual(calls.writes, [
+    {
+      path: "/brains/mind-palace/.claude/settings.json",
+      content:
+        '{"hooks":{"cmd":"/bin/sh \\"/brains/mind-palace/scripts/run-node.sh\\" scripts/auto-commit.mjs"},' +
+        '"root":"/brains/mind-palace","tmp":"/tmp"}',
+    },
+  ]);
+  assert.deepEqual(calls.log, ["✓ regenerated .claude/settings.json"]);
+});
+
+// `vault/engine-health/` is gitignored and the installer alone seeds the canary, so
+// a cloned brain never has it — and without it the health check can never again
+// prove the index answers, silently. Reseeding it is why this step exists.
+test("a missing health canary note is reseeded from the source staged in the clone", () => {
+  const seeded = [];
+  const { deps, calls } = fakeDeps({
+    exists: (path) => !path.endsWith("/vault/engine-health/health-check.md"),
+    seedHealthNote: (args) => {
+      seeded.push(args);
+      return { present: true };
+    },
+  });
+
+  assert.equal(runRehydrate([], deps), 0);
+
+  // Both dirs are the brain itself: the staged source travelled in the same clone.
+  assert.deepEqual(seeded, [
+    { sourceDir: "/brains/mind-palace", brainDir: "/brains/mind-palace" },
+  ]);
+  assert.deepEqual(calls.writes, []);
+  assert.deepEqual(calls.error, []);
+  assert.deepEqual(calls.log, ["✓ reseeded vault/engine-health/health-check.md"]);
 });

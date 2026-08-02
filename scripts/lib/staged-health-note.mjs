@@ -17,7 +17,10 @@ import { mkdirSync, copyFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 
 const STAGED_NOTE = "engine-health/health-check.md";
-const VAULT_NOTE = "vault/engine-health/health-check.md";
+// Where the canary lives once seeded, brain-relative. Exported because whoever
+// REBUILDS a brain has to know it too (the rehydrate command, F14) — and a second
+// spelling of this path is a canary that silently stops being found.
+export const VAULT_NOTE = "vault/engine-health/health-check.md";
 
 export function seedHealthNote({ sourceDir, brainDir }) {
   const src = join(sourceDir, STAGED_NOTE);
