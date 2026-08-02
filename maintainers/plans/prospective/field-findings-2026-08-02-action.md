@@ -13,8 +13,21 @@
 > plan.
 >
 > **Next real step** (the Tracking boxes are not the right marker yet, the work is ordered by the
-> release table in `## Decisions taken`): **v4.5.0, starting at F14** — and its first move is a
-> decision, not code, because F14's fix shape is still an open choice (see its `Decide the fix` box).
+> release table in `## Decisions taken`): **v4.5.0 / F14, the rehydrate command — in progress on
+> `main`**, TDD, suite green (1055 pass).
+>
+> Landed so far: `scripts/lib/brain-rehydrate.mjs` with `machineReplacements()` (the three
+> placeholders describing the machine, now the installer's single source too — guarded at source
+> level against a second table) and `rehydrationPlan({ exists })` (what a second machine is missing;
+> pure, idempotent). Commits `71e1d00`, `ff76609`, `97f9b22`.
+>
+> **Resume here:** the command itself — `scripts/rehydrate.mjs` — driving that plan: render both
+> templates through `machineReplacements`, reseed the canary note, run both `npm install`, print what
+> it did. Then `SETUP.md` §7 + the §8 row, then the constitution line that lets Claude offer the
+> repair. Two things to settle while writing it: the canary path is duplicated here (`rag/src/lib/
+> health-check.ts:56` owns `HEALTH_CHECK_NOTE_RELPATH`, and the vault dir name is assumed `vault/`) —
+> decide whether to cross-check it in a test rather than let the two drift; and the launchers /
+> `run-node.*` are path-free and DO travel, so they are deliberately out of the plan list.
 
 ## The one pattern behind most of it (the reframe)
 
