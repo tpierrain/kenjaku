@@ -13,21 +13,36 @@
 > plan.
 >
 > **Next real step** (the Tracking boxes are not the right marker yet, the work is ordered by the
-> release table in `## Decisions taken`): **v4.5.0 / F14, the rehydrate command — in progress on
-> `main`**, TDD, suite green (1055 pass).
+> release table in `## Decisions taken`): **v4.5.0 / F14, the rehydrate — in progress on `main`**,
+> TDD, suite green (1071 pass).
 >
-> Landed so far: `scripts/lib/brain-rehydrate.mjs` with `machineReplacements()` (the three
-> placeholders describing the machine, now the installer's single source too — guarded at source
-> level against a second table) and `rehydrationPlan({ exists })` (what a second machine is missing;
-> pure, idempotent). Commits `71e1d00`, `ff76609`, `97f9b22`.
+> **The command WORKS and is committed** _(2026-08-02, `d0147bc` → `7abd2b3`)_: `node
+> scripts/rehydrate.mjs`, run from a freshly cloned brain, rebuilds the two gitignored files from
+> the templates that travelled in the clone, reseeds the health canary, installs **both** dependency
+> trees, and ends by asking for a NEW conversation rooted in the folder (the wiring only loads at
+> session start). Offline, idempotent, exits non-zero naming the command to run by hand. Underneath:
+> `scripts/lib/brain-rehydrate.mjs` (`machineReplacements()`, `rehydrationPlan({ exists })`) and a
+> shared `applyLaunchers()` so the installer and the rehydrate cannot wire a brain differently.
+> Settled while writing it: the canary path now has ONE owner (`staged-health-note.mjs`) plus a test
+> deriving it from the engine's own TS sources, so a rename in `health-check.ts` / `config.ts` fails
+> here instead of seeding the note where nothing reads it; and the launchers / `run-node.*` stay out
+> of the plan list on purpose (path-free, they travel through git untouched).
 >
-> **Resume here:** the command itself — `scripts/rehydrate.mjs` — driving that plan: render both
-> templates through `machineReplacements`, reseed the canary note, run both `npm install`, print what
-> it did. Then `SETUP.md` §7 + the §8 row, then the constitution line that lets Claude offer the
-> repair. Two things to settle while writing it: the canary path is duplicated here (`rag/src/lib/
-> health-check.ts:56` owns `HEALTH_CHECK_NOTE_RELPATH`, and the vault dir name is assumed `vault/`) —
-> decide whether to cross-check it in a test rather than let the two drift; and the launchers /
-> `run-node.*` are path-free and DO travel, so they are deliberately out of the plan list.
+> **Resume here — the command exists but NOTHING points at it yet.** In order:
+> 1. **Carry it.** `scripts/rehydrate.mjs` is absent from `engine-manifest.json` → it reaches no brain
+>    and no upgrade. Add it to `replace`. Worth a guard while there: the integrity test already proves
+>    "every script a HOOK names is carried" and "every script a SKILL names is carried" — the
+>    constitution is the third door, and it is the one this feature uses.
+> 2. **The constitution line** (`CLAUDE.md.template`): teach Claude to offer the rehydrate when both
+>    files are missing (decided above; known limit to state in the PR — F5's freeze means it only
+>    reaches brains whose constitution was never customized).
+> 3. **`SETUP.md` §7** (rewrite: it under-installs and says "no need for the installer") **and the §8
+>    troubleshooting row** ("re-run `node installer.mjs`", which cannot work).
+> 4. **The engine must fail by NAMING the command** instead of failing into the void.
+>
+> One thing to check when writing §7: the rehydrate deliberately does **not** index (a clone has no
+> `rag/.cache`), so the first rooted session is what indexes the vault — including the just-reseeded
+> canary. Say so, rather than let a first session's health banner read as a defect.
 
 ## The one pattern behind most of it (the reframe)
 
@@ -84,7 +99,8 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         in the very `settings.json` that is missing, so it would need this command underneath anyway);
         and removing the absolute paths (better in principle, but it depends on what Claude Code
         actually resolves and it touches every deployed brain — kept as a possible later cleanup).
-  - [ ] **It must SHARE the substitution code with `installer.mjs`, not re-implement it.** Two
+  - [x] **It must SHARE the substitution code with `installer.mjs`, not re-implement it.**
+        _(2026-08-02 · `ff76609` for the placeholder table, `d0147bc` for `applyLaunchers`)_ Two
         generators that substitute differently produce two different brains — the same defect shape as
         F16 (a checker that parses differently from the engine measures a fiction). Extract
         `gen()` + the `replacements` table (`installer.mjs:484-520`) into a lib both call.
@@ -97,7 +113,7 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   - [ ] **Second field run, 2026-08-02 evening — the owner rehydrated `mind-palace` BY HAND on a
         second laptop.** It worked (436/436 indexed, repo up to date), and its SessionStart banner
         proved the scope above is too narrow. Screenshot evidence, verified against the code:
-    - [ ] **The rehydrate must also reseed the health canary note.** `vault/engine-health/` is
+    - [x] **The rehydrate must also reseed the health canary note.** _(2026-08-02 · `7f10185`)_ `vault/engine-health/` is
           gitignored and the note is seeded **only** by `installer.mjs:347` (`seedHealthNote`), so a
           rehydrated brain never has it — permanently. The banner reports it and prescribes
           "ask me to reindex your vault", which **cannot** recreate a note. Add it to the command's
