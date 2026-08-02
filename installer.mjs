@@ -43,14 +43,13 @@ import { seedActionsLog } from "./scripts/lib/actions-log-seed.mjs";
 import {
   buildShLauncher,
   buildCmdLauncher,
-  applyRagLauncher,
+  applyLaunchers,
   buildNodeRunnerSh,
   buildNodeRunnerCmd,
   minimalPathEnv,
   buildRagInstallInvocation,
   buildLocalMirrorShLauncher,
   buildLocalMirrorCmdLauncher,
-  applyLocalMirrorLauncher,
 } from "./scripts/lib/rag-launcher.mjs";
 import { DEMO_BY_LOCALE } from "./scripts/lib/demo.mjs";
 import {
@@ -527,8 +526,7 @@ writeFileSync(join(TARGET, "local-mirror", "launch.sh"), buildLocalMirrorShLaunc
 writeFileSync(join(TARGET, "local-mirror", "launch.cmd"), buildLocalMirrorCmdLauncher());
 {
   const mcpPath = join(TARGET, ".mcp.json");
-  let mcp = applyRagLauncher(JSON.parse(readFileSync(mcpPath, "utf8")), process.platform);
-  mcp = applyLocalMirrorLauncher(mcp, process.platform);
+  const mcp = applyLaunchers(JSON.parse(readFileSync(mcpPath, "utf8")), process.platform);
   writeFileSync(mcpPath, JSON.stringify(mcp, null, 2) + "\n");
   ok("self-heal launchers generated (rag + local-mirror, .sh + .cmd), .mcp.json adapted to the OS");
 }

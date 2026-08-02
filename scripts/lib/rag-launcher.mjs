@@ -239,3 +239,11 @@ export function applyRagLauncher(mcp, platform) {
   }
   return mcp;
 }
+
+// Both servers at once: everything a freshly generated `.mcp.json` owes the CURRENT
+// machine. Whoever writes that file — the installer, or the rehydrate command on a
+// second machine (F14) — routes through here, so an installed brain and a rehydrated
+// one cannot end up wired differently.
+export function applyLaunchers(mcp, platform) {
+  return applyLocalMirrorLauncher(applyRagLauncher(mcp, platform), platform);
+}
