@@ -101,6 +101,10 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           canary as `unknown`, not `broken` — but `health-probe.mjs` `bulletsFor()` lists every
           non-`ok` check as a bullet under "⚠️ Last health-check found a problem", as soon as **one**
           sibling check is broken. "We could not tell" is displayed as "it is broken".
+    - [ ] **Routing (my call, open to challenge):** the canary reseed ships in **v4.5.0** (it is part
+          of rehydrating, and without it the multi-machine path still ends on a false alarm); the two
+          banner defects ship in **v4.7.0** with the rest of the visibility work, since they affect
+          every brain, not just a rehydrated one.
   - [ ] Whatever is chosen, fix `SETUP.md` §7 **and** the §8 troubleshooting row ("re-run
         `node installer.mjs`", which cannot work) in the same PR.
 - [ ] **F11 / F12 — an indexing failure is displayed as a wait.** A note was written, committed, and
