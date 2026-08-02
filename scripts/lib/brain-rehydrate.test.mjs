@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { machineReplacements } from "./brain-rehydrate.mjs";
+import { machineReplacements, rehydrationPlan } from "./brain-rehydrate.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const installerSource = () => readFileSync(join(REPO_ROOT, "installer.mjs"), "utf8");
@@ -65,5 +65,35 @@ test("the installer still declares the OWNER placeholders itself (positive contr
   assert.deepEqual(
     ["{{PROJECT_NAME}}", "{{OWNER_NAME}}", "{{LANGUAGE}}"].filter((k) => source.includes(`"${k}":`)),
     ["{{PROJECT_NAME}}", "{{OWNER_NAME}}", "{{LANGUAGE}}"],
+  );
+});
+
+// What a rehydrate owes the second machine = everything the install generates that
+// cannot travel through git. `exists` is injected so the decision stays a pure
+// function, testable without a brain on disk.
+test("a freshly cloned brain needs everything that cannot travel through git", () => {
+  assert.deepEqual(rehydrationPlan({ exists: () => false }), [
+    ".mcp.json",
+    ".claude/settings.json",
+    "vault/engine-health/health-check.md",
+    "rag/node_modules",
+    "local-mirror/node_modules",
+  ]);
+});
+
+// Idempotence is what makes the command safe to suggest blindly: run it on a brain
+// that needs nothing and it must do nothing, not re-generate over live files.
+test("a brain that already has everything is left alone", () => {
+  assert.deepEqual(rehydrationPlan({ exists: () => true }), []);
+});
+
+// The field case: a brain rehydrated by hand, everything back EXCEPT the canary note
+// (its folder is gitignored and only the installer seeds it). Green on arrival — it
+// is here to kill a plausible mutant: consulting `exists` once instead of per
+// artifact passes both tests above and fails this one.
+test("a hand-rehydrated brain is asked for the canary note, and nothing else", () => {
+  assert.deepEqual(
+    rehydrationPlan({ exists: (relPath) => relPath !== "vault/engine-health/health-check.md" }),
+    ["vault/engine-health/health-check.md"],
   );
 });
