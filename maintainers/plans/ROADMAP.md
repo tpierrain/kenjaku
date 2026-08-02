@@ -124,6 +124,12 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
   - [ ] **Ordering note (2026-07-27):** Gate 3 is **independent** of 2.5 / 2.6 (different surfaces, no
         shared file). It was "NEXT TO EXECUTE" before 2.5 was pulled forward. If the personal migration
         becomes the priority again, flip the order here in one line: nothing in 2.5 / 2.6 blocks it.
+  - [ ] **Ordering note (2026-08-02): the v4.5.0 → v4.7.0 field-findings trilogy runs FIRST.** Gate 3
+        remains the first unchecked *gate*, and nothing in the trilogy blocks it — but the trilogy
+        fixes defects a deployed brain hits **today** (a documented multi-machine path that cannot
+        work, an indexing failure displayed as a wait, a note answering from stale content), so it
+        takes precedence over migrating more notes into a brain whose promises do not hold yet.
+        Canonical plan: `prospective/field-findings-2026-08-02-action.md`.
   - [ ] Track D: generate brain → `/import --universe` ~405 notes → layer private capabilities.
   - [ ] **Canonical plan:** `prospective/second-brain-migration-and-engine-upstream-action.md` → Track D.
 - [ ] **Gate 4 — 🔴 Fleet re-layering + big-jump upgrade experience (deferred until after Gate 3).**
@@ -171,6 +177,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
 | `archived/universes-progressive-disclosure-action.md` | A soft, progressively-disclosed per-universe retrieval scope over one shared vault/index (ADR 0034). | 2 | ✅ Shipped (PR #38 in v3.6.0, then write-path trilogy + `/switch` flag in v3.6.2, 2026-07-21). Plan archived; field-verify folds into Gate 3. |
 | `prospective/fleet-upgrade-field-feedback.md` | Defects observed on a real deployed brain crossing three versions, captured live. | 4 | 🔬 **Run CLOSED (2026-07-28)** — F1-F12 recorded, each verified on disk. Now the **evidence**, not the work list: the fixes shipped in **v4.4.0** (`archived/release-v4.4.0-action.md`). Only F3 (silent reindex) and F7 (unverified outcome reported in the measured voice) remain here, both deferred to Gate 4 on purpose. |
 | `archived/release-v4.4.0-action.md` | Turns the field log into shipped code: a commit that follows the index instead of the session, a status line that yields to the owner's, an indexer that reports what it could not read, a consolidation that cannot damage a page. | 4 | ✅ Shipped as **v4.4.0** (2026-08-02, PR #53, CI 7/7) — all ten tracks, nothing cut. Plan archived beside its published note. Still owed: the on-a-real-brain verification (needs an installed brain, which the launcher is not). |
+| `prospective/field-findings-2026-08-02-action.md` | 16 findings from one evening on a real brain, cut into three releases: **v4.5.0** promises kept (multi-machine clone, failure ≠ wait, disk↔index crosscheck), **v4.6.0** the vault's identity (resolve before writing, homonymy), **v4.7.0** visibility (banner, offers, target version, commit messages). | ahead of 3 | 🟢 **ACTIVE, scope decided 2026-08-02.** Executing v4.5.0, first move = F14's fix shape (still an open choice). The freeze trap runs alongside; its "path back upstream" half leaves for its own ADR. |
 | `prospective/second-brain-migration-and-engine-upstream-action.md` | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | 3 | In progress: Tracks A/B/C DONE (PR #29/#30/#32); **Track D now unblocked (Gate 2 shipped)**; F post-migration. |
 
 > Other in-flight plans on their own branches (e.g. wiki-health axis 1, marketing page) are **not

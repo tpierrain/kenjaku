@@ -12,10 +12,9 @@
 > organising axis. Only the upstream-path piece (F5 defect 3) leaves this plan, into its own ADR +
 > plan.
 >
-> **Next real step** (the Tracking boxes are not the right marker yet): the release is large and has
-> no ordering. Agree the **sequencing and the release cut** with the owner — which findings land in
-> one version vs. several — then start at P0/F14, which is the only finding whose fix shape is still
-> an open choice (see its `Decide the fix` box).
+> **Next real step** (the Tracking boxes are not the right marker yet, the work is ordered by the
+> release table in `## Decisions taken`): **v4.5.0, starting at F14** — and its first move is a
+> decision, not code, because F14's fix shape is still an open choice (see its `Decide the fix` box).
 
 ## The one pattern behind most of it (the reframe)
 
@@ -198,13 +197,22 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       when there is **more than one universe**. See the F1 entry in P3 for the sub-decision still open
       (what the synthesis contains, and the single-universe rendering). _(2026-08-02)_
 
+- [x] **Sequencing: three releases**, plus the freeze trap running alongside on its own track.
+      _(2026-08-02)_ Rationale: the four priorities differ in risk and in audience, so bundling them
+      would make one indivisible field verification where a single sticking point blocks everything.
+
+| Release | Theme | Findings |
+| --- | --- | --- |
+| **v4.5.0** | promises kept | F14, F11/F12, F15 (+ F16 into `CONVENTIONS.md`) |
+| **v4.6.0** | the vault's identity | F7, F6, homonymy block, reliability/confidence block |
+| **v4.7.0** | visibility | F1, F13, F3, F10, F8, F9, F2 |
+| _in parallel_ | the freeze trap | F5 defects 1+2 — defect 3 gets its own ADR + plan |
+
 ### Still owed (ordering, not scope)
 
-- [ ] **Sequencing and release cut.** "Everything ships" is a scope answer, not a plan: agree how many
-      versions this becomes and in what order, so no release carries all four priorities at once.
 - [ ] **F14's fix shape** is the only finding whose solution is still an open choice (rehydrate
       command vs. create-if-absent reconciler vs. committed machine-relative variants). It is also the
-      natural first move, being a broken documented promise with no workaround.
+      first move of v4.5.0, being a broken documented promise with no workaround.
 
 ## Evidence trail
 
