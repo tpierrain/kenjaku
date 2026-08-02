@@ -101,6 +101,18 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           canary as `unknown`, not `broken` — but `health-probe.mjs` `bulletsFor()` lists every
           non-`ok` check as a bullet under "⚠️ Last health-check found a problem", as soon as **one**
           sibling check is broken. "We could not tell" is displayed as "it is broken".
+    - [ ] **Measured the next morning — the stale verdict is a ONE-SESSION LAG, not a frozen one.**
+          `engine-health.json` was present and rewritten (870 B, same day 22:35), and the next
+          session's banner carried **no health alarm at all** (437/437 indexed, repo up to date). So
+          the detached re-probe does run: the contradiction was a display lag. Severity downgraded,
+          the fix stays in v4.7.0.
+    - [ ] **But the silence hides worse, and this is the finding that matters.** With the index
+          non-empty, `index` goes `ok` and the missing canary stays `unknown` → the module is no
+          longer `broken` → `formatHealthBanner` returns `null`. On that rehydrated brain the health
+          check therefore **can never again prove the index answers**, and says nothing about it:
+          **"verified healthy" and "could not verify" render as the same silence.** The reframe
+          again, and the strongest argument yet for reseeding the canary in v4.5.0 — without it, the
+          brain's own health check is decorative, permanently and invisibly.
     - [ ] **Routing (my call, open to challenge):** the canary reseed ships in **v4.5.0** (it is part
           of rehydrating, and without it the multi-machine path still ends on a false alarm); the two
           banner defects ship in **v4.7.0** with the rest of the visibility work, since they affect
