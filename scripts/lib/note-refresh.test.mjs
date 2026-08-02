@@ -117,6 +117,66 @@ test("a healthy page has no duplicate keys, and a bodyless one does not crash th
   assert.deepEqual(duplicateFrontmatterKeys("no frontmatter at all\n"), []);
 });
 
+test("only a line's FIRST column declares a key — a nested one is not a duplicate", () => {
+  // The exact defect this check's own comment warns about: rag's looser twin invented
+  // a key (`- https`) out of a list of URLs. Unanchored, the two `- name:` entries
+  // below read as one key declared twice, and a perfectly valid page would be REFUSED
+  // as damaged — the worst outcome available, since the owner has nothing to fix.
+  const nested = `---
+type: topic
+authors:
+  - name: alice
+  - name: bob
+updated: 2026-07-19
+---
+
+# T
+`;
+  assert.deepEqual(duplicateFrontmatterKeys(nested), []);
+  assert.doesNotThrow(() => refreshNote({ content: nested, today: "2026-07-28", section: "## s\n" }));
+});
+
+test("a frontmatter line that declares nothing is skipped, not crashed on", () => {
+  // A blank separator line and a `#` comment are both legal YAML and both appear in
+  // hand-written notes. Neither matches the key pattern, so the loop must move on
+  // rather than reach into a null match.
+  const spaced = "---\ntype: topic\n\n# a comment\nupdated: 2026-07-19\n---\n\n# T\n";
+  assert.deepEqual(duplicateFrontmatterKeys(spaced), []);
+  const out = refreshNote({ content: spaced, today: "2026-07-28", section: "## s\n" });
+  assert.equal(out, "---\ntype: topic\n\n# a comment\nupdated: 2026-07-28\n---\n\n# T\n\n## s\n");
+});
+
+test("frontmatter must be the FIRST thing in the file — a leading blank line is not frontmatter", () => {
+  // Neither YAML nor Obsidian reads a block that does not open the file. Matching it
+  // anyway would silently drop whatever came before it on the way back out.
+  assert.throws(
+    () => refreshNote({ content: "\n---\ntype: topic\n---\n\nbody\n", today: "2026-07-28", section: "## s\n" }),
+    {
+      message:
+        "this page has no frontmatter — refreshing expects a living vault page, not a loose file",
+    },
+  );
+});
+
+test("a stub with no body and no trailing newline is still a living page", () => {
+  // `---\ntype: topic\n---` with nothing after it: what a hand-created placeholder
+  // looks like, and what an editor that does not add a final newline leaves behind.
+  const stub = "---\ntype: topic\nupdated: 2026-07-19\n---";
+  const out = refreshNote({ content: stub, today: "2026-07-28", section: "## s\n" });
+  assert.equal(out, "---\ntype: topic\nupdated: 2026-07-28\n---\n\n## s\n");
+});
+
+test("a section arriving with trailing blank lines is normalised to exactly one newline", () => {
+  // Callers assemble sections by concatenation, so trailing blank lines are routine.
+  // Left in, they accumulate at the bottom of a page that is refreshed every week.
+  const out = refreshNote({ content: PAGE, today: "2026-07-28", section: "## s\n\n\n" });
+  assert.equal(
+    out,
+    "---\ntype: topic\ncreated: 2026-06-02\nupdated: 2026-07-28\ntags: [crise, kandor]\n---\n\n" +
+      "# Crise Kandor\n\nSome earlier body.\n\n## s\n",
+  );
+});
+
 test("a `---` rule INSIDE the body does not swallow the body into the frontmatter", () => {
   // A horizontal rule is ordinary Markdown, and consolidation writes them. A
   // frontmatter match that runs to the LAST `---` instead of the first would treat
@@ -173,8 +233,14 @@ test("a note with no frontmatter is refused rather than silently given one", () 
   // Refreshing implies a living page the vault already owns. A file with no
   // frontmatter is not that, and inventing one would guess its type and its
   // creation date.
+  // Asserted WHOLE: `/frontmatter/i` also matches "Cannot read properties of null
+  // (reading 'frontmatter')", so the loose matcher stayed green on a version that
+  // deleted the refusal and let a TypeError escape in its place.
   assert.throws(
     () => refreshNote({ content: "# Loose\n\ntext\n", today: "2026-07-28", section: "## s\n" }),
-    /frontmatter/i,
+    {
+      message:
+        "this page has no frontmatter — refreshing expects a living vault page, not a loose file",
+    },
   );
 });

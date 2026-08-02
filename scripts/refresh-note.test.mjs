@@ -83,6 +83,19 @@ test("a path escaping the vault is refused", () => {
   ]);
 });
 
+test("on a WINDOWS brain the path is normalised, not flattened", () => {
+  // `cwd()` there hands back `C:\brain`, and every comparison in this script is made in
+  // POSIX form. Replacing the backslash with nothing instead of `/` yields `C:brainvault`
+  // — a path that exists nowhere, so a refresh on Windows would report "does not exist"
+  // for a note sitting right there. The CI matrix runs Windows (CONVENTIONS §9).
+  const d = deps({ files: { "C:/brain/vault/topics/crise.md": PAGE } });
+  d.cwd = () => "C:\\brain";
+
+  assert.equal(runRefresh([], d), 0, d.errs[0]);
+  assert.equal(d.written.length, 1);
+  assert.equal(d.written[0][0], "C:/brain/vault/topics/crise.md");
+});
+
 test("a SIBLING of the vault is refused too — the separator is the whole guard", () => {
   // `../secrets/x.md` does not climb far enough to look like an escape: it resolves
   // to /brain/secrets/x.md, which still starts with the string "/brain/vault" minus
