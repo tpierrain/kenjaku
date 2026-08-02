@@ -49,14 +49,15 @@
 > it ahead of v4.5.0. The owner's call: **no reordering** — v4.5.0 ships whole, F7 stays the head of
 > v4.6.0 right behind it. Do not re-open this at the next session.
 >
-> **Resume here — v4.5.0, in this order. F14 is done except its last wording step.**
-> 5. **`buildSelfHealHookOutput` still frames every emitted line as `[engine self-heal — RESTART
->    REQUIRED] … an update finishing in the background`** (`session-self-heal.mjs`). On the
->    rehydrate branch that directive contradicts its own payload — the same "two opposite things
->    rendered identically" this plan is about. Make the directive follow the line it carries
->    (needs its own red test: the existing wording is asserted by two tests, one of them a ≤260-char
->    budget on the framing).
-> 6. **F11 / F12** — an indexing failure displayed as a wait (see its entry in P0).
+> **✅ Step 5 done — F14 IS COMPLETE** _(2026-08-02 · `e236b35`)_. The wrapper no longer frames an
+> unwired machine as "RESTART REQUIRED … an update finishing in the background": it takes
+> `needsRehydrate` and emits a `SETUP NEEDED` directive naming the command. Suite green
+> (1077 pass, 1 skipped Windows-only).
+>
+> **Resume here — v4.5.0, in this order. Next real step: F11 / F12 (item 6).**
+> 6. **F11 / F12** — an indexing failure displayed as a wait (see its entry in P0). Nothing started
+>    yet; the entry carries both candidate fixes (counter wording + write-time frontmatter
+>    validation) and no code has been read for them.
 > 7. **F15** — a note still answering from stale content, with nothing watching it (P0).
 > 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
 >    the engine measures a fiction).
@@ -161,9 +162,13 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         cannot create a missing file. A second machine heard that false promise forever. It now
         checks wiring FIRST (`unwiredFiles`, a pure predicate over the rehydration plan) and names
         the command; a wired brain with a real gap keeps its background heal.
-    - [ ] **Left open:** `buildSelfHealHookOutput` wraps every emitted line in
-          `[engine self-heal — RESTART REQUIRED] … an update finishing in the background`, which now
-          contradicts the rehydrate line it carries. The directive must follow its payload.
+    - [x] **Closed** _(2026-08-02 · `e236b35`)_ — `buildSelfHealHookOutput` used to wrap every
+          emitted line in `[engine self-heal — RESTART REQUIRED] … an update finishing in the
+          background`, which contradicted the rehydrate line it carried. It now takes
+          `needsRehydrate` and emits a **`SETUP NEEDED`** framing that names the command instead
+          (no "restart", no "update" — a red test asserts their absence), with the **same ≤260-char
+          volume budget on both framings**. Wired at the call site from `sessionSelfHeal`'s own
+          `needsRehydrate`. **F14 is now complete.**
   - [x] **The docs stopped lying** _(2026-08-02 · `262b571`)_ — `SETUP.md` §7 rewritten around the
         command (+ the key, the NEW rooted conversation, and the expected first-session indexing),
         the two §8 remedies pointing at `installer.mjs` repointed, and two doc guards to keep it so.
