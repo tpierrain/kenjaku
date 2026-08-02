@@ -60,7 +60,11 @@
 > 7. **F15** — a note still answering from stale content, with nothing watching it (P0).
 > 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
 >    the engine measures a fiction).
-> 9. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
+> 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
+>    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
+>    editor. Added to v4.5.0's scope, see its P0 entry — it repairs three surfaces that disagree
+>    today, one of which already promises the behaviour to the user.
+> 10. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
 >    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
 >    constitution half (an engine-managed file only reaches brains that never customized it).
 >
@@ -221,6 +225,47 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   - [ ] **TDD on promotion** (owner's standing rule): the brain-side script has no tests. The pure diff
         logic is the test subject when it lands here.
 
+- [ ] **F17 — opening a note: three surfaces, three different answers, and a promise nobody keeps.**
+      Asked by the owner (2026-08-02 evening, *"ideally with the next release"*): a note **inside
+      `vault/`** should open in **Obsidian when it is available**, and any Markdown **outside the
+      vault** in the **default editor**. Verified against the code before writing this down — the
+      request is not a preference, it repairs a contradiction that is already on disk.
+  - [ ] Evidence — the three surfaces disagree **today**:
+    - [ ] `CLAUDE.engine.md:123-132` (and `templates/fr/CLAUDE.engine.md:133`): open through the OS
+          opener, and *"Obsidian … is never the mechanism for opening a single note"*.
+    - [ ] `engine-skills/open-note/SKILL.md:21,42,73`: **always** `open -a "Obsidian" <path>`. Also
+          **macOS-only**, which breaks the cross-platform rule (ADR 0015, `DEVELOPING.md:161`) — on
+          Windows and Linux that skill's one deterministic step does not run at all.
+    - [ ] `scripts/lib/obsidian-health.mjs:44,50` already **promises the user**, twice, that
+          registering the vault makes *"🧠 citation links open straight in it"*. Nothing in the engine
+          does that: ADR 0027 routes every citation through the OS opener. The nudge sells a behaviour
+          the product does not have.
+  - [ ] **This is the plan's own reframe**: "a note that belongs to the vault" and "any Markdown file
+        on the machine" are two different things rendered identically (one opener for both) — while the
+        skill and the constitution render *the same* act two opposite ways.
+  - [ ] **The trigger is already written, pure and tested**: `obsidianHealth(vaultPath).status === "ok"`
+        means *installed **and** this vault registered*. That is the right condition, not "installed":
+        `open -a Obsidian` on a file of an unregistered vault lands on the vault-picker / welcome screen
+        (the first-launch caveat, ADR 0029 §Consequences). Anything else → OS opener, unchanged.
+  - [ ] **Decided while reading the code** (challenge these before coding, not after):
+    - [ ] **🧠 citations follow the same rule.** Otherwise the two gestures that open the very same
+          vault note — clicking a citation, and asking *"open my note about X"* — would land in two
+          different apps. It also finally makes `obsidian-health`'s existing promise true.
+    - [ ] **Mechanism must be cross-platform**, so it cannot be `open -a`. Obsidian's URL scheme
+          (`obsidian://open?path=<url-encoded absolute path>`) is one call on all three OSes, and we
+          only ever reach it when the vault IS registered. To verify on a real machine before shipping.
+    - [ ] **Deterministic, not prose.** A pure `buildOpenNoteCommand({ platform, absPath, insideVault,
+          obsidianOk })` in `scripts/lib/`, TDD, next to `open-env.mjs` — the three doc surfaces then
+          describe one function instead of each inventing its own rule.
+  - [ ] Surfaces to change once the function exists: `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md`
+        (the §"Opening / viewing / editing a note"), `engine-skills/open-note/SKILL.md` (stop hard-coding
+        macOS Obsidian), `SETUP.md:250`, and an **ADR amending 0029** (its *"Obsidian is never the
+        mechanism"* line) + a note on 0027. Next free number: **0038**.
+  - [ ] **Reach, stated honestly** (F5): `engine-skills/**` is in `replace` and a staged skill the owner
+        never edited **is** refreshed on `update-engine` (base = the brain's own staging copy,
+        `reconcile-brain.test.mjs:1189`). So this reaches an existing brain — **unless** that brain
+        customized `open-note` or `CLAUDE.md`, which is exactly the freeze trap (P2, v4.6.0).
+
 ### P1 — the vault poisons itself (identity)
 
 - [ ] **F7 — `sync-sources` writes into the vault without ever reading it.** Zero `search_vault`, zero
@@ -350,13 +395,17 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       when there is **more than one universe**. See the F1 entry in P3 for the sub-decision still open
       (what the synthesis contains, and the single-universe rendering). _(2026-08-02)_
 
+- [x] **F17 (opening a note in Obsidian when the note belongs to the vault) joins v4.5.0**, at the
+      owner's request the same evening — *"ideally with the next release"*. It fits the release's own
+      theme: a promise the product already prints and does not keep. _(2026-08-02)_
+
 - [x] **Sequencing: three releases**, plus the freeze trap running alongside on its own track.
       _(2026-08-02)_ Rationale: the four priorities differ in risk and in audience, so bundling them
       would make one indivisible field verification where a single sticking point blocks everything.
 
 | Release | Theme | Findings |
 | --- | --- | --- |
-| **v4.5.0** | promises kept | F14, F11/F12, F15 (+ F16 into `CONVENTIONS.md`) |
+| **v4.5.0** | promises kept | F14, F11/F12, F15, **F17** (+ F16 into `CONVENTIONS.md`) |
 | **v4.6.0** | the vault's identity | F7, F6, homonymy block, reliability/confidence block |
 | **v4.7.0** | visibility | F1, F13, F3, F10, F8, F9, F2 |
 | _in parallel_ | the freeze trap | F5 defects 1+2 — defect 3 gets its own ADR + plan |
