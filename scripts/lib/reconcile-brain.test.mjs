@@ -1832,6 +1832,52 @@ test("reconcileBrain — removes the statusLine WE installed, and reports it", a
   assert.equal(settings.mine, true, "and nothing else in the sacred file is disturbed");
 });
 
+// ── ADR 0036's other half, and the one the retreat is FOR: a line that is theirs and
+//    BROKEN. Every test above has either our line (retired) or a clean custom one, so
+//    the healing branch — the only place we ever write into someone else's statusLine —
+//    was never exercised. The retreat promises the owner's own line runs again; on a
+//    deployed Windows brain that promise is worth nothing if the line Git Bash eats is
+//    handed back unhealed. And with the hooks already converged, this repair is the ONLY
+//    reason to write: a reconciler that did not count it would leave the file untouched.
+test("reconcileBrain (win32) — the OWNER'S broken status line is healed in place, and that alone is worth a write", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const rootPosix = brainDir.split("\\").join("/");
+  const rootWin = rootPosix.split("/").join("\\");
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(brokenWin32Settings(rootPosix), null, 2) + "\n");
+  writeFile(brainDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  const target = manifest();
+  const local = manifest({ ragVersion: "1.0.0" });
+  // Pass 1 converges the hooks and retires OURS, so pass 2 has nothing else left to do.
+  await reconcile({ brainDir, platform: "win32", sourceDir: brainDir, target, local, ...seams() });
+
+  // The owner then sets THEIR OWN line — with the same `cmd /c` prefix the pre-fix
+  // installer taught them, because on Windows that was the only recipe they ever saw.
+  const converged = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
+  const theirs = {
+    type: "command",
+    command: `cmd /c "${rootWin}\\scripts\\run-node.cmd" "${rootPosix}/my-own-prompt.mjs"`,
+    padding: 0,
+  };
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify({ ...converged, statusLine: theirs }, null, 2) + "\n");
+
+  const report = await reconcile({ brainDir, platform: "win32", sourceDir: brainDir, target, local, ...seams() });
+
+  const settings = JSON.parse(readFileSync(join(brainDir, ".claude/settings.json"), "utf8"));
+  assert.equal(report.statusLineRemoved, false, "theirs is not ours to retire");
+  assert.deepEqual(
+    settings.statusLine,
+    {
+      type: "command",
+      command: `${rootPosix}/scripts/run-node.cmd "${rootPosix}/my-own-prompt.mjs"`,
+      padding: 0,
+    },
+    "healed in place — and the rest of THEIR object survives, padding included",
+  );
+  assert.deepEqual(report.hooksRepaired, ["statusLine"], "the repair is reported, and nothing else is claimed");
+  assert.equal(settings.mine, true, "the rest of the sacred file is untouched");
+});
+
 // The mirror, and the one that matters most: a line the OWNER configured is not ours
 // to touch. Same discipline as engine-skill-refresh — overwrite only what we delivered.
 test("reconcileBrain — a hand-customized statusLine is PRESERVED", async (t) => {
