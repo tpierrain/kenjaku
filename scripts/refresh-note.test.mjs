@@ -54,7 +54,13 @@ test("a page that does not exist is refused — refreshing never CREATES", () =>
   const d = deps({ files: {} });
   assert.equal(runRefresh([], d), 1);
   assert.equal(d.written.length, 0);
-  assert.match(d.errs[0], /does not exist|file-back/i);
+  // Asserted WHOLE, not `/does not exist|file-back/`: an OR lets either half of the
+  // message disappear while the test stays green, and the second half is the only
+  // thing that tells the owner where to go instead.
+  assert.deepEqual(d.errs, [
+    "✗ vault/topics/crise.md does not exist — refreshing never creates. " +
+      "File a new page with scripts/file-back-note.mjs instead.",
+  ]);
 });
 
 test("a page whose frontmatter is already damaged is named, and left alone", () => {
@@ -72,7 +78,27 @@ test("a path escaping the vault is refused", () => {
   d.readInput = () => JSON.stringify({ path: "../../.ssh/config", section: "## s\n" });
   assert.equal(runRefresh([], d), 1);
   assert.equal(d.written.length, 0);
-  assert.match(d.errs[0], /vault/i);
+  assert.deepEqual(d.errs, [
+    '✗ "../../.ssh/config" is outside the vault — a refresh only ever touches vault/.',
+  ]);
+});
+
+test("a SIBLING of the vault is refused too — the separator is the whole guard", () => {
+  // `../secrets/x.md` does not climb far enough to look like an escape: it resolves
+  // to /brain/secrets/x.md, which still starts with the string "/brain/vault" minus
+  // its trailing slash... and any neighbour named vault-something starts with it
+  // outright. Without the separator, a refresh reaches straight out of the vault it
+  // is supposed to be confined to.
+  for (const escape of ["../vault-secrets/x.md", "../vaultkeys.md"]) {
+    const d = deps();
+    d.readInput = () => JSON.stringify({ path: escape, section: "## s\n" });
+
+    assert.equal(runRefresh([], d), 1, `${escape} must be refused`);
+    assert.equal(d.written.length, 0, `${escape} must not be written`);
+    assert.deepEqual(d.errs, [
+      `✗ "${escape}" is outside the vault — a refresh only ever touches vault/.`,
+    ]);
+  }
 });
 
 test("valid JSON that is not a refresh spec is refused, not crashed on", () => {
