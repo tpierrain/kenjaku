@@ -7,7 +7,8 @@
 
 # Release v4.4.0 — a note is saved as you write it, and your own status line survives
 
-- **STATUS:** 🚧 Not started. Plan written 2026-07-28, scope settled with Thomas the same day.
+- **STATUS:** 🚧 In flight. All ten tracks are code-complete; **Track 9 (cut the release) is the only
+  one left**, and inside it the mutation snapshot is the box being written up.
 - **Scope:** Second brain (runtime) + Installer — the commit trigger, the status line, the indexer's
   error reporting, the consolidation writer, the update source, the startup screen, an engine skill.
 - **Branch:** currently `docs/fleet-upgrade-field-feedback` (documentation-shaped). Cut
@@ -34,7 +35,9 @@ review and do not re-derive those six.**
 **The cut line is DECIDED: nothing is cut.** All of Tracks 1-8 ship. No finding lived in Tracks 5-8,
 so cutting them would have dropped working code without removing a single defect.
 
-**⏸️ ONE DECISION IS OPEN — the push cadence on the watcher path.** Raised by Thomas 2026-07-28,
+**✅ ANSWERED AND SHIPPED as Track 10 — the push cadence on the watcher path.** _(kept below because
+the four locks are the analysis, and they are still the reference; the decision itself is closed.)_
+Raised by Thomas 2026-07-28,
 **not found by the code review**, and it is the last thing blocking the release note. He asked what
 stops a commit/reindex storm while someone types in Obsidian: *"on passe notre temps à écrire des
 mots, à faire une mini pause, à continuer"*.
@@ -172,9 +175,22 @@ it, 2026-08-02). Seven of the ten tracks have no relationship to the background 
 a **foundation** for that study, not an obstacle. The reasoning is in the study's last section.
 
 **▶️ IN FLIGHT — the mutation snapshot** _(2026-07-28)_. Its scope is **settled in Track 9's box**
-(10 rag files, 13 `scripts/**` files in a disposable worktree, local-mirror untouched so its 90.44 %
+(10 rag files, 16 `scripts/**` files in a disposable worktree, local-mirror untouched so its 90.44 %
 carries over) — read it there, do not re-derive it from the diff. The runs are slow and must not
 overlap; a `/clear` mid-run costs only the run, not the decision.
+
+**▶️ BOTH RUNS ARE MEASURED — no Stryker left to launch.** rag: **93.93 %** after killing 18 of its 20
+own survivors. scripts: five batches done, per-file scores in Track 9's box. **What is left is
+write-up, not measurement**: fold the results and the two new worktree traps into
+`maintainers/mutation/RESULTS.md`, then kill the handful of survivors that sit on lines THIS branch
+added (`note-refresh`, `refresh-note`, `reconcile-brain`, `update-engine` — enumerated in Track 9).
+
+**✅ DECIDED 2026-08-02 — the two 0 % boot scripts ship as NAMED DEBT.** `session-status.mjs` and
+`status-line.mjs` score 0 % because they run on import, so no test can observe them; the hole predates
+every published tag and this release did not widen it. Thomas chose **(a) name it and ship**: write it
+into `RESULTS.md` and state it once, honestly, in the release note. The `BootDeps` refactor §5ter
+prescribes is **a release of its own** — not done on the eve of a tag on two fleet-deployed scripts.
+**Do not re-open it here.**
 
 **The release TITLE is NOT frozen** — Thomas said so explicitly (2026-07-28) when the cadence change
 came up: *the copy follows the behaviour, never the reverse*. The "saved while you write it" angle he
@@ -850,7 +866,7 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
           `restart-signal` **37.50 %** · `session-self-heal` **34.51 %** ·
           **`session-status` 0.00 %** · **`status-line` 0.00 %**.
           At **100 %**: `restart-nudge`, `wiki-health-nudge`.
-    - [ ] ⚠️ **THE FINDING, and it is not a regression — verified, not assumed.**
+    - [x] ⚠️ **THE FINDING, and it is not a regression — verified, not assumed.**
           `session-status.mjs` and `status-line.mjs` scored **0 %**: 250 mutants, **zero killed**.
           Both are top-level scripts that RUN on import, so nothing can import them and no test
           observes them — `git log --diff-filter=A` shows `scripts/status-line.test.mjs` and
@@ -860,9 +876,17 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
           creating the hole** — every published tag so far carries it.
           CONVENTIONS §5ter item 2 prescribes the cure (`BootDeps` + an `import.meta.url` guard,
           earned back with one subprocess test), but that is a refactor of two **fleet-deployed**
-          scripts on the eve of a tag. **⏸️ PUT TO THOMAS 2026-07-29, not yet answered** — options:
-          (a) record as named debt and ship, (b) do the BootDeps refactor now, (c) cover only the six
-          survivors on lines THIS release added. **Do not decide this alone.**
+          scripts on the eve of a tag.
+          **✅ DECIDED with Thomas 2026-08-02 — option (a): record it as NAMED DEBT and ship.** Not
+          "we'll get to it": the hole is written into `RESULTS.md` (its own section, with the reason
+          the score is 0 and the cure §5ter prescribes) and stated in the release note's honest
+          bounds, so the next tag inherits a named debt rather than a silent one. **The BootDeps
+          refactor is a release of its own**, deliberately NOT done on the eve of a tag on two
+          fleet-deployed scripts. **Do not re-open this** — re-raise it only when planning that
+          refactor.
+      - [ ] Write the 0 % debt into `RESULTS.md` (own section: why 0, what is actually covered in
+            `scripts/lib/**`, the §5ter cure, and that every published tag carries it).
+      - [ ] Carry one honest line about it into the release note (Track 9's release-note box).
     - [ ] Same discipline as rag: cross-reference every survivor against the lines
           `git diff main...HEAD` actually adds, kill what is ours, name what is not.
       - [ ] **In scope and worth killing** (this release's own code): `note-refresh.mjs` — the
