@@ -757,11 +757,19 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       rather than dodge it — the writers this rung serves emit no event, so a timer is not a stand-in
       for a better mechanism, it is the mechanism. ADR 0011's header and `maintainers/README.md`
       follow. The sync fast-path is recorded there as **deferred, not rejected**.
-- [x] **Release-note line**, owed at Track 9, stating **two numbers, not one**: searchable in seconds,
-      committed within a couple of minutes (ten at the outside). ⚠️ **Do not let the seconds figure
-      stand for both** — search freshness and durability stopped being the same promise.
-      _(2026-08-02 · written in `release-v4.4.0-note.md`: the two numbers are in the headline bullet
-      AND under the hood, with 0 commits for a 30 s cadence and 3 over 30 min of unbroken writing.)_
+- [x] **Release-note line**, owed at Track 9, stating **two speeds, not one**: search is immediate,
+      saving is patient. ⚠️ **Do not let the seconds figure stand for both** — search freshness and
+      durability stopped being the same promise.
+      ⚠️ **SUPERSEDED IN PART, and this is the version that ships**: the box originally asked for the
+      two **numbers** (2 min / 10 min cap). The background-consolidation study then decided
+      **not to publish those figures as a contract** — it will move that cadence, and two contradictory
+      timing promises one release apart is the one real risk it named. _(2026-08-02 · the note carries a
+      plain-language **`How it works now`** section instead — write, indexed within seconds, saved once
+      you stop, and saved anyway if you never do — plus an explicit "the exact delays are not a promise".
+      Under the hood keeps the mechanism, `quiet window + hard cap`, without the durations. Asked for
+      directly by Thomas: *"décris clairement et simplement le nouveau mode de fonctionnement"*.)_
+      **`SETUP.md` keeps the two numbers on purpose** — it is versioned and travels with the engine, so
+      the release that moves the cadence updates it; a published release note is frozen forever.
 - [ ] ⚠️ **For the marketing pass at Track 9** — this track makes two published claims imprecise:
       (a) `README.md:368` *"only the delta is re-embedded, **within seconds** of an edit"* stays true
       for indexing, but the reliability board (`README.md:325`, `docs/marketing-image-prompts.md:140`)
@@ -1062,7 +1070,9 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       **`v4.4.0 — The One Where It Saves What You Wrote Elsewhere`**; the three others were
       *Nothing You Write Slips Through*, *It Gives You Your Screen Back*, *the Brain Stops Talking to
       Itself*.)_
-- [ ] ⚠️ **Bump the module versions BEFORE tagging — found 2026-08-02, nothing else does it.**
+- [ ] ⚠️ **Bump the module versions BEFORE tagging** — the defect START HERE §1 already records, from
+      the background-consolidation conversation (2026-08-02); the detail below is the how, not a
+      second find. **In this product merging IS shipping**, so it happens before the merge.
       `engine-manifest.json` still declares `rag 1.1.5` / `scripts 1.8.0` on this branch, while it
       changed **11 `rag/src/**` files** (one of them new) and **16 `scripts/**` files**. Nothing gates
       the update on that vector (`computeApplyPlan` copies by regime), so the fleet still upgrades —

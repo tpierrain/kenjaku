@@ -14,9 +14,8 @@ opens is written for you, not for the machine.
 ### What you get
 
 - ✍️ **Nothing you write is left behind, wherever you write it.** Notes typed in Obsidian, deleted from
-  a terminal, or written by your brain itself are now saved on their own. They are **searchable within
-  seconds**, and **committed once your vault has been still for about two minutes** — ten at the very
-  outside if you never pause.
+  a terminal, or written by your brain itself are now saved on their own, without waiting for a
+  conversation to happen.
 - 🖥️ **Your own status line is back.** If you had configured one, your brain no longer takes its place.
 - 👋 **The first screen speaks to you, not to the machine.** Shorter, in your language, and it explains
   itself only when you say yes.
@@ -28,6 +27,25 @@ opens is written for you, not for the machine.
 - 🧩 **Three smaller ones**: `/rag` now answers instead of pointing at an unrelated command; when your
   brain pre-fills your profile it reads the notes **you** wrote about the people around you; and updates
   keep reaching you even if the project is ever renamed again.
+
+### How it works now, in plain words
+
+Two things happen at two different speeds, and that is deliberate.
+
+1. **You write a note** — in Obsidian, in a conversation, anywhere in your brain's folder.
+2. **Your brain reads it almost immediately**, so a search finds it **within seconds**. This is the part
+   you notice.
+3. **Saving it to your history waits until you stop writing.** Pausing to think is not finishing, so
+   your brain lets your writing session settle before recording it. A whole session becomes **one entry
+   in your history**, not one per pause. And if you simply never stop, it stops waiting and saves
+   anyway, so nothing sits unsaved for long.
+
+Nothing here is something you run or configure: it happens while a Claude session is open. Write with
+your brain closed, and the sweep at the next session start still catches everything.
+
+> The exact delays are **not a promise** — they are tuned, and they will be tuned again as the brain
+> learns to work more in the background. What is stable is the shape: **search is immediate, saving is
+> patient, and neither one waits for you to ask.**
 
 ### What you have to do
 
@@ -47,14 +65,16 @@ modified.
   indexing campaign that actually changed something now commits (and pushes), so the invariant is
   `git ≥ index`. Index-ahead-of-git is the serious direction; git-ahead-of-index, after a pull, was
   already repaired at session start.
-- **Two windows on purpose, not one.** Search freshness and durability stopped being the same promise:
-  indexing keeps its 5 s debounce, while persistence gets its own scheduler — **2 minutes of quiet, with
-  a 10-minute cap** since the first write not yet saved. Writing every 30 seconds therefore commits
-  **nothing** until you stop, and 30 minutes of unbroken typing yields **3** commits — one per cap,
-  never one per pause. Both numbers are pinned by tests on a virtual clock. Moving a
-  pane in Obsidian fires nothing at all: the watcher ignores `.obsidian`. **ADR 0037** was amended in
-  place to own that timer against ADR 0009 rather than dodge it — the writers this serves emit no event,
-  so a timer is not a stand-in for a better mechanism, it *is* the mechanism.
+- **Two windows on purpose, not one.** Search freshness and durability stopped being the same promise,
+  so they stopped sharing a timer: indexing keeps its short debounce, while persistence gets its own
+  scheduler — a **quiet window**, plus a **hard cap** since the first write not yet saved, whichever
+  comes first. Writing at a steady clip therefore commits **nothing** until you stop, and a long
+  unbroken session yields a handful of commits, one per cap, never one per pause. Both windows are
+  pinned by tests on a virtual clock (the sibling's fake fires everything at once, which cannot tell one
+  duration from another). Moving a pane in Obsidian fires nothing at all: the watcher ignores
+  `.obsidian`. **The exact durations are deliberately not published as a contract** — they will move.
+  **ADR 0037** was amended in place to own that timer against ADR 0009 rather than dodge it: the writers
+  this serves emit no event, so a timer is not a stand-in for a better mechanism, it *is* the mechanism.
 - **The status line is a retreat, and it had to remove a key to be one.** Claude Desktop renders no
   status line at all, so ours was a CLI-only surface that delivered nothing to the readers it was built
   for while evicting the line of the people most likely to have configured one. Making our script print
