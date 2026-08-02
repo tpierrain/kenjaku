@@ -97,16 +97,24 @@ export async function sessionSelfHeal({
 // context, so the agent relays it into the chat. So the restart nudge MUST ride additionalContext,
 // phrased as a DIRECTIVE the agent surfaces to the user (not raw user prose Desktop would drop).
 // `systemMessage` is kept too — harmless on Desktop (dropped), useful on the CLI (shown).
-export function buildSelfHealHookOutput(lines) {
+// F14: the framing must follow the line it CARRIES. An unwired machine is not a half-applied
+// update — nothing is converging in the background and no restart heals it; a command has to be
+// run first. Framing both alike was this plan's own defect shape (two opposite states, rendered
+// identically), on the last surface still doing it.
+export function buildSelfHealHookOutput(lines, { needsRehydrate = false } = {}) {
   if (!lines || lines.length === 0) return null;
   const detail = lines.join("\n");
+  const framing = needsRehydrate
+    ? `[engine self-heal — SETUP NEEDED] Tell the user NOW, in their language, loudly ` +
+      `(emoji + a heading): this machine is not wired for their brain yet, and the command ` +
+      `below is what wires it — they run it themselves, from this folder. Relay:\n`
+    : `[engine self-heal — RESTART REQUIRED] Tell the user NOW, in their language, loudly ` +
+      `(emoji + a heading): they must FULLY restart Claude (close it, reopen, resume here) for ` +
+      `an update finishing in the background. Never imply it is already live. Relay:\n`;
   return {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
-      additionalContext:
-        `[engine self-heal — RESTART REQUIRED] Tell the user NOW, in their language, loudly ` +
-        `(emoji + a heading): they must FULLY restart Claude (close it, reopen, resume here) for ` +
-        `an update finishing in the background. Never imply it is already live. Relay:\n${detail}`,
+      additionalContext: `${framing}${detail}`,
     },
     systemMessage: detail,
   };
@@ -202,8 +210,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     },
     emit: (msg) => lines.push(msg),
   })
-    .then(() => {
-      const output = buildSelfHealHookOutput(lines);
+    .then((result) => {
+      // F14: the wrapper's directive follows the payload — an unwired machine gets "run this",
+      // never "restart for an update finishing in the background".
+      const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
       if (output) {
         // additionalContext is the ONLY Desktop-visible channel (chat) — see buildSelfHealHookOutput.
         process.stdout.write(JSON.stringify(output) + "\n");

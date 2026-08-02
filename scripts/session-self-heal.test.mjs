@@ -150,6 +150,32 @@ test("buildSelfHealHookOutput keeps the echoed directive short — volume IS the
   const framing = ctx.length - detail.length;
 
   assert.ok(framing <= 260, `the restart directive grew back to ${framing} chars:\n${ctx}`);
+
+  // Same budget for the rehydrate variant — a second framing is a second place to grow.
+  const rehydrateCtx = buildSelfHealHookOutput([detail], { needsRehydrate: true }).hookSpecificOutput
+    .additionalContext;
+  const rehydrateFraming = rehydrateCtx.length - detail.length;
+  assert.ok(
+    rehydrateFraming <= 260,
+    `the rehydrate directive grew to ${rehydrateFraming} chars:\n${rehydrateCtx}`,
+  );
+});
+
+// F14 — the wrapper was the last surface still conflating the two: it framed EVERY emitted line
+// as "RESTART REQUIRED … an update finishing in the background". Carrying the rehydrate line, that
+// directive contradicts its own payload (nothing is updating, and a restart fixes nothing — a
+// command has to be run). The framing must follow the line it carries.
+test("buildSelfHealHookOutput — an unwired machine: the directive names the command, never a restart", () => {
+  const detail =
+    "⚠️ This machine isn't wired for your brain yet — missing .mcp.json. " +
+    "From this folder, run:  node scripts/rehydrate.mjs";
+  const ctx = buildSelfHealHookOutput([detail], { needsRehydrate: true }).hookSpecificOutput.additionalContext;
+  const framing = ctx.slice(0, ctx.length - detail.length);
+
+  assert.doesNotMatch(framing, /restart/i, "a restart heals nothing here");
+  assert.doesNotMatch(framing, /update/i, "nothing is updating — say what is true");
+  assert.match(framing, /tell the user/i, "additionalContext is agent-facing: it must direct the relay");
+  assert.match(ctx, /node scripts\/rehydrate\.mjs/, "the detail line is preserved for the relay");
 });
 
 test("settings.json.template wires session-self-heal as a SessionStart hook, BEFORE session-status", () => {
