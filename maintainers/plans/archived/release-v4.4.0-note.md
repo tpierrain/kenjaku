@@ -1,9 +1,10 @@
 # v4.4.0 — The One Where It Saves What You Wrote Elsewhere
 
-> **Draft of the GitHub release note** (CONVENTIONS §11), kept in the repo so it survives a `/clear`.
-> Publish with `gh release create v4.4.0 --title "v4.4.0 — The One Where It Saves What You Wrote
-> Elsewhere" --notes-file maintainers/plans/prospective/release-v4.4.0-note.md` — **minus this
-> quote block**, which is maintainer-only. Title picked by Thomas, 2026-08-02.
+> ✅ **PUBLISHED 2026-08-02** as the body of
+> [`v4.4.0`](https://github.com/tpierrain/kenjaku/releases/tag/v4.4.0) (everything below this quote
+> block, which is maintainer-only and was stripped). Title picked by Thomas. Kept here as the source
+> of what that frozen release says — in particular the deliberate absence of the cadence figures, which
+> the background-consolidation study will move.
 
 **Your brain now saves what you write outside a conversation.** A note typed straight into Obsidian, one
 deleted from a terminal, one written by your brain's own scripts: all of it is kept and synced like the

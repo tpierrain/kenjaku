@@ -26,7 +26,7 @@ graduate straight into Gate 4's plan without a second investigation.
 ## ⛔️ THIS FILE IS THE EVIDENCE — the WORK lives elsewhere *(2026-07-28)*
 
 **The run is over and the release is planned.** Do not resume here: the fixes moved to
-**`prospective/release-v4.4.0-action.md`**, which owns the work list, the tracks and the tests. This
+**`archived/release-v4.4.0-action.md`** (shipped as **v4.4.0**, 2026-08-02), which owned the work list, the tracks and the tests. This
 file keeps what it was always for — **observation → root cause → fix, each verified on disk** — so the
 release plan can cite it instead of re-investigating.
 
@@ -111,7 +111,7 @@ F8/P1 rather than beside it:
 - [x] 1. **Settle the two pending decisions above** (F12, and the pre-fill retrieval defect) _(2026-07-28)_.
       Both ship; F2 was pulled forward at the same time. See the answered block above.
 - [x] 2. **Write the release's action plan** from the agreed scope _(2026-07-28)_ →
-      **`prospective/release-v4.4.0-action.md`**, which is now the canonical work list.
+      **`archived/release-v4.4.0-action.md`**, which was the canonical work list and shipped as **v4.4.0**.
 - [ ] 3. **Implement F8/P1 in TDD** — tracked as **Track 1** of the release plan, not here.
       It is the most structural, and its propagation trap deserves a test
       that locks it. Its three field-proven cases, all in this file: a note written **outside** Claude
@@ -136,29 +136,35 @@ F8/P1 rather than beside it:
 
 ## Tracking
 
-- [ ] **F1 — A renamed launcher repo never reaches an installed brain** *(found 2026-07-28, before the run)*
-- [ ] **F2 — The brain's status line silently evicts the owner's own** *(found 2026-07-28, during the run)*
-- [ ] **F3 — A 10-minute reindex reports nothing while it runs** *(found 2026-07-28, during the run)*
-- [ ] **F4 — The engine holds two opposite beliefs about whether Desktop renders a status bar** *(found 2026-07-28)* — ✅ **fact SETTLED 2026-07-28: Desktop renders NO status line**; the cleanup + ADR remain to do
-- [ ] **F5 — `additionalContext` is printed verbatim to the owner: backstage directives on stage** *(found 2026-07-28, first session after the restart)* — **the most user-visible defect of the batch**
+- [x] **F1 — A renamed launcher repo never reaches an installed brain** *(found 2026-07-28, before the run)* — ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [x] **F2 — The brain's status line silently evicts the owner's own** *(found 2026-07-28, during the run)* — ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [ ] **F3 — A 10-minute reindex reports nothing while it runs** *(found 2026-07-28, during the run)* —
+      ⏸️ **deliberately NOT in v4.4.0: deferred to Gate 4**, frozen scope
+- [x] **F4 — The engine holds two opposite beliefs about whether Desktop renders a status bar** *(found 2026-07-28)* — ✅ **fact SETTLED 2026-07-28: Desktop renders NO status line**; the cleanup + ADR 0036 shipped with F2 ✅ **in v4.4.0** _(2026-08-02)_
+- [x] **F5 — `additionalContext` is printed verbatim to the owner: backstage directives on stage** *(found 2026-07-28, first session after the restart)* — **the most user-visible defect of the batch** — ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
 - [x] ~~F-watch — the `*` dirty marker after the swap~~ **Not a defect** _(2026-07-28)_: the restart's
       auto-commit absorbed the 314 engine files as `a98921f` (73 files changed) and the marker cleared on
       its own. Recorded so nobody re-opens it.
-- [ ] **F6 — `/rag` does not exist; the host suggests `/run`** *(found 2026-07-28)*
-- [ ] **F7 — the brain reports an unverified outcome in the measured voice** *(found 2026-07-28)*
+- [x] **F6 — `/rag` does not exist; the host suggests `/run`** *(found 2026-07-28)* — ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [ ] **F7 — the brain reports an unverified outcome in the measured voice** *(found 2026-07-28)* —
+      ⏸️ **deliberately NOT in v4.4.0: deferred to Gate 4.** Its engine-side half DID ship, as Track 3:
+      an agent cannot be disciplined into surfacing a number the engine never wrote down
 - [x] **v4.3.0 watcher claim: VALIDATED** _(2026-07-28 · 413→414, 4442→4499 chunks, 0 error, no manual reindex)_
-- [ ] **F8 — an Obsidian note is indexed live but committed only at the next session start** *(found 2026-07-28)* — **the defect this QA was built to find**
-- [ ] **F9 — a note DELETED inside Claude (via `rm`) is not committed either** *(found 2026-07-28)* — same root
-      cause as F8, from *inside* a session; **no separate fix, it is F8/P1's second test case**
-- [ ] **F10 — a note the indexer cannot read is dropped silently: the owner is told "0 error"** *(found 2026-07-28)* —
-      three of our own channels disagree about the same run; **the one the owner sees is the optimistic one**
-- [ ] **F11 — the watcher watches `.obsidian/`, which git deliberately ignores** *(found 2026-07-28)* — UI churn
-      triggers full scan campaigns; **constrains how F8/P1 may trigger its commit**
-- [ ] **F12 — consolidation broke a note's front-matter; it has answered from stale content ever since**
+- [x] **F8 — an Obsidian note is indexed live but committed only at the next session start** *(found 2026-07-28)* — **the defect this QA was built to find** — ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [x] **F9 — a note DELETED inside Claude (via `rm`) is not committed either** *(found 2026-07-28)* — same root
+      cause as F8, from *inside* a session; **no separate fix, it is F8/P1's second test case**. ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [x] **F10 — a note the indexer cannot read is dropped silently: the owner is told "0 error"** *(found 2026-07-28)* —
+      three of our own channels disagree about the same run; **the one the owner sees is the optimistic one**. ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [x] **F11 — the watcher watches `.obsidian/`, which git deliberately ignores** *(found 2026-07-28)* — UI churn
+      triggers full scan campaigns; **constrained how F8/P1 triggers its commit**. ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [x] **F12 — consolidation broke a note's front-matter; it has answered from stale content ever since**
       *(found 2026-07-28)* — **the incident that proves F10 is load-bearing**, four defects chained, none of
-      them audible
-- [ ] Field-log the rest of the run (entries appended below as they are met)
-- [ ] Triage the log into Gate 4's canonical plan once the run is over
+      them audible. ✅ **SHIPPED in v4.4.0** _(2026-08-02)_
+- [x] Field-log the rest of the run (entries appended below as they are met) _(closed 2026-07-28 with the
+      run; F1-F12 is the whole batch)_
+- [x] Triage the log into Gate 4's canonical plan once the run is over _(2026-07-28 → shipped
+      2026-08-02 as **v4.4.0**; the WORK lived in `archived/release-v4.4.0-action.md`, this file kept
+      the evidence)_
 
 ---
 

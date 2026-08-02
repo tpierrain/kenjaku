@@ -19,8 +19,10 @@
 ## Tracking
 
 - [x] **S0 — The study exists in the repo and records the decisions** _(2026-08-02)_
-- [ ] **S1 — Land the v4.4.0 release properly** (see § Relationship to v4.4.0 — it is NOT parked,
-      and it now has a **known defect to fix first**)
+- [x] **S1 — Land the v4.4.0 release properly** _(2026-08-02 · shipped as tag **`v4.4.0`**, PR #53 →
+      `a0ea5d8`, CI 7/7)_. The version-vector defect below was fixed first (`1f5c502`: rag **1.2.0**,
+      scripts **1.9.0**), and the release note deliberately does **not** publish the cadence figures —
+      it describes the behaviour, so this study stays free to move the durations.
 - [ ] **S2 — Measure before designing** (the one gate: § Open questions, first box)
 - [ ] **S3 — Decide reader/writer separation on the measurement, not on intuition**
 - [ ] **S4 — Write the action plan** (only once S2 has a number)
@@ -237,6 +239,11 @@ Thomas floated treating PR #53 as a POC to cherry-pick from later. **Recommendat
   10-minute cap" as a contract in the release note: this study will move that cadence. Describe the
   behaviour instead ("your notes are committed on their own, shortly after you stop writing"). One
   paragraph, and we keep the freedom.
+  > ✅ **HONOURED 2026-08-02.** The published note carries a plain-language `How it works now` section
+  > (write → searchable within seconds → saving waits until you stop, and happens anyway if you never
+  > do) plus an explicit *"the exact delays are not a promise"*. No figure is published. `SETUP.md`
+  > keeps the two numbers on purpose: it is versioned and travels with the engine, so the release that
+  > moves the cadence updates it — a published release note is frozen forever.
 
 ### ⚠️ Defect found while discussing this — fix it BEFORE the merge
 
@@ -253,3 +260,7 @@ manifest change on the branch is the addition of `canonicalRepo`.
 Consequence in both directions: a new install would carry v4.4.0 code with a version that does not
 describe it, **and** a deployed brain already on `scripts 1.8.0` gets no signal that anything changed.
 **The version vector stops describing reality.** The bump belongs in Track 9, before the merge.
+
+> ✅ **CLOSED 2026-08-02** — bumped in `1f5c502` before the merge: rag **1.2.0**, scripts **1.9.0**,
+> with `rag/package.json` and its lockfile in step. `indexSchemaVersion` stayed **2**, so v4.4.0 does
+> not reindex.

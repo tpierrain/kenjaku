@@ -205,6 +205,17 @@
       Thomas's go/no-go + answers to the open questions** (default freshness window, concurrency lock,
       who commits the background-written notes). No code started.
   - **`plans/archived/`** — shipped/closed plans (kept for the detail of the steps):
+    - [`release-v4.4.0-action.md`](plans/archived/release-v4.4.0-action.md) — **v4.4.0**: the field
+      feedback from a real fleet upgrade turned into code — a note is saved while you are still writing
+      it, wherever you wrote it (the watcher persists what no `Write|Edit` hook ever sees, on its own
+      quiet-window cadence — ADR 0037, amended); the brain's status line **retreats** and gives the
+      owner theirs back (ADR 0036); a note the indexer cannot read is reported instead of swallowed;
+      consolidation can no longer damage a page; an installed brain follows a renamed launcher; the
+      first screen is written for a human; `/rag` answers; and the profile pre-fill reads the vault's
+      person notes. Carries the `/code-review` work list (6 findings, all fixed), the mutation snapshot
+      and the **named 0 % debt** on the two boot scripts. Its published note sits next to it:
+      [`release-v4.4.0-note.md`](plans/archived/release-v4.4.0-note.md).
+      **STATUS: ✅ SHIPPED (2026-08-02, PR #53 → `v4.4.0`).**
     - [`release-v4.3.0-action.md`](plans/archived/release-v4.3.0-action.md) — **v4.3.0**: a brain
       that stopped syncing (the startup banner says why a pull failed; an engine update commits what
       it wrote; a SessionStart sweep picks up Obsidian edits — ADR 0011, amended), an upgrade that

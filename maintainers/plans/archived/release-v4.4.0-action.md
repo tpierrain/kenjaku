@@ -1,14 +1,15 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🚧 ACTION PLAN (opened 2026-07-28) — the release that turns the      -->
-<!-- `mind-palace` field log (F1-F12) into shipped code. Nothing implemented yet. -->
-<!-- Evidence lives in `prospective/fleet-upgrade-field-feedback.md`; this file   -->
-<!-- owns the WORK. Do not re-investigate the entries — they were verified on disk.-->
+<!-- STATUS: ✅ SHIPPED as v4.4.0 (2026-08-02) — the release that turned the      -->
+<!-- `mind-palace` field log (F1-F12) into shipped code. Archived.               -->
+<!-- Evidence lives in `../prospective/fleet-upgrade-field-feedback.md`; this    -->
+<!-- file owns the WORK. F3 + F7 stayed deferred to Gate 4, on purpose.          -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
-# Release v4.4.0 — a note is saved as you write it, and your own status line survives
+# Release v4.4.0 — The One Where It Saves What You Wrote Elsewhere
 
-- **STATUS:** 🚧 In flight. All ten tracks are code-complete; **Track 9 (cut the release) is the only
-  one left**, and inside it the mutation snapshot is the box being written up.
+- **STATUS:** ✅ **SHIPPED 2026-08-02** — tag `v4.4.0`, PR #53 merged as `a0ea5d8`, CI 7/7. What is
+  still owed is listed in the ✅ SHIPPED block below (the on-a-real-brain verification, F3/F7, the two
+  parked dependency PRs).
 - **Scope:** Second brain (runtime) + Installer — the commit trigger, the status line, the indexer's
   error reporting, the consolidation writer, the update source, the startup screen, an engine skill.
 - **Branch:** currently `docs/fleet-upgrade-field-feedback` (documentation-shaped). Cut
@@ -17,7 +18,22 @@
   that follows the index instead of the session, and a status line that yields to the owner's. Semver
   says minor.
 
-## ▶️ START HERE
+## ✅ SHIPPED — v4.4.0, 2026-08-02
+
+**Tag [`v4.4.0`](https://github.com/tpierrain/kenjaku/releases/tag/v4.4.0) — *The One Where It Saves
+What You Wrote Elsewhere*.** PR #53 merged as `a0ea5d8`, CI 7/7 on `1f5c502`, engine vector bumped to
+rag **1.2.0** / scripts **1.9.0**, `indexSchemaVersion` unchanged so **no reindex**. The published note
+is [`release-v4.4.0-note.md`](release-v4.4.0-note.md), next to this plan.
+
+**What did NOT ship, deliberately, and where it lives now:** **F3** and **F7** stay deferred to Gate 4
+(see *Out of scope*), the **Verification** section below is still owed and needs a real installed brain,
+and the two drive-by dependency PRs (**#52**, **#48**) are still parked, with a recommendation each.
+Everything else in this plan is closed.
+
+---
+
+<details>
+<summary>The pre-ship START HERE, kept for the record</summary>
 
 **NEXT STEP, as of 2026-08-02 — BUMP THE MODULE VERSIONS, then merge / tag / publish.** Everything
 before it in Track 9 is done and ticked: the code review and its six fixes, the cut line (nothing is
@@ -36,6 +52,8 @@ So, in order, and nothing else:
 
 The **Verification** section stays owed and needs a real installed brain — it never blocked the note,
 only its own boxes.
+
+</details>
 
 **All the code is written, Track 10 included. The next track is Track 9 — cutting the release**
 _(as of 2026-07-28)_. Tracks 1-8 are code-complete _(`8d2e2c4`)_; Track 10 shipped the push cadence
@@ -281,7 +299,7 @@ including `status-line.mjs`), plus `scripts/lib/**`, `rag/**` and the engine ski
 - [x] **Track 10 — Commits stop tracking every pause** *(the push-cadence decision)* _(2026-07-28 ·
       `aeda895`, `d828af6`, `c023ac3`)_ — persistence has its own window (2 min quiet, 10 min cap); indexing keeps
       its 5 s debounce. ADR 0037 amended in place. Only the **release-note line** is owed, at Track 9.
-- [ ] **Track 9 — Cut the release**
+- [x] **Track 9 — Cut the release** _(2026-08-02 · tag `v4.4.0`, PR #53 → `a0ea5d8`)_
 
 > **Cut line, if the release grows too long.** Tracks 1-4 **are** the release. Tracks 5-8 are mutually
 > independent and each can be dropped to a follow-up without touching the others. Decide at the
@@ -1070,7 +1088,8 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       **`v4.4.0 — The One Where It Saves What You Wrote Elsewhere`**; the three others were
       *Nothing You Write Slips Through*, *It Gives You Your Screen Back*, *the Brain Stops Talking to
       Itself*.)_
-- [ ] ⚠️ **Bump the module versions BEFORE tagging** — the defect START HERE §1 already records, from
+- [x] ⚠️ **Bump the module versions BEFORE tagging** _(2026-08-02 · `1f5c502` — rag **1.2.0**,
+      scripts **1.9.0**, `rag/package.json` + lockfile in step; rag 454 / harness 1057 green)_ — the defect START HERE §1 already records, from
       the background-consolidation conversation (2026-08-02); the detail below is the how, not a
       second find. **In this product merging IS shipping**, so it happens before the merge.
       `engine-manifest.json` still declares `rag 1.1.5` / `scripts 1.8.0` on this branch, while it
@@ -1080,9 +1099,11 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       Suggest **rag 1.2.0** (a feature: the persistence scheduler) + **scripts 1.9.0**, and keep
       `rag/package.json` in step. `indexSchemaVersion` stays **2** — verified, hence **no reindex**,
       which is what the note promises.
-- [ ] Merge, tag, publish; rewrite the PR title and body to the release scope.
-- [ ] **Archive this plan on ship** (CONVENTIONS §7), refresh the memory **pointer** (not a copy), and
-      update `ROADMAP.md` Gate 4 (D) + the field log's Tracking with what shipped.
+- [x] Merge, tag, publish; rewrite the PR title and body to the release scope. _(2026-08-02 · CI **7/7**
+      green on `1f5c502`, PR #53 merged as `a0ea5d8`, tag **`v4.4.0`**, release published as
+      **The One Where It Saves What You Wrote Elsewhere**.)_
+- [x] **Archive this plan on ship** (CONVENTIONS §7), refresh the memory **pointer** (not a copy), and
+      update `ROADMAP.md` Gate 4 (D) + the field log's Tracking with what shipped. _(2026-08-02)_
       **F3 and F7 stay deferred to Gate 4** — frozen scope, unchanged.
 
 ---
