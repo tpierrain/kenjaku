@@ -54,10 +54,12 @@
 > `needsRehydrate` and emits a `SETUP NEEDED` directive naming the command. Suite green
 > (1077 pass, 1 skipped Windows-only).
 >
-> **Resume here — v4.5.0, in this order. Next real step: F11 / F12 (item 6).**
-> 6. **F11 / F12** — an indexing failure displayed as a wait (see its entry in P0). Nothing started
->    yet; the entry carries both candidate fixes (counter wording + write-time frontmatter
->    validation) and no code has been read for them.
+> **Resume here — v4.5.0, in this order. F11/F12 is IN PROGRESS: fix A shipped, fix B half-built.**
+> 6. **F11 / F12** — an indexing failure displayed as a wait. **Fix A is done**
+>    _(2026-08-02 · `68ea034`)_ and **fix B's decision layer is done** _(2026-08-02 · `524c580`)_.
+>    **The one thing left: WIRE the guard** — see the F11/F12 entry in P0 for the exact remaining
+>    step (a `PreToolUse(Write|Edit)` entry, `scripts/vault-write-guard.mjs`, the settings template,
+>    and the delivery regime). Nothing else in F11/F12 is open.
 > 7. **F15** — a note still answering from stale content, with nothing watching it (P0).
 > 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
 >    the engine measures a fiction).
@@ -217,9 +219,36 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         auto catch-up in the background`, which **asserts a recovery that could never happen**.
   - [ ] Root cause is **layout, not ignorance**: the engine *did* count it, on a different line
         (`Last catch-up … 1 error(s)`), away from the counter the eye is drawn to.
-  - [ ] Fix A: `1 failed` ≠ `1 pending`; put **file + cause on the same line as the counter**.
+  - [x] **Fix A DONE** _(2026-08-02 · `68ea034`)_ — `1 failed` ≠ `1 pending`, file + cause on the
+        counter's own line. The banner's RAG line left `session-status.mjs` for a pure, tested
+        `ragStatusLine({ docs, scanned, lastRun })` (`scripts/lib/rag-status.mjs`) which now reads the
+        engine's `last-run.json`. Decisions worth not re-deriving: the rest of the shortfall still
+        reads as `pending` (a real wait must stay a wait); **no shortfall ⇒ no alarm**, so a repaired
+        note silences its stale error (the run state is only rewritten by the next run, and a checker
+        is judged on its false positives — F16); two failures named, the rest counted; and the
+        run-state path is pinned to the engine's own constants by a guard test.
   - [ ] Fix B: **validate frontmatter at write time** with the engine's own parser and refuse to write.
         The writer currently emits YAML its own indexer rejects; the note is born broken and nothing says so.
+    - [x] **The decision layer is built and tested** _(2026-08-02 · `524c580`)_ —
+          `scripts/lib/vault-write-guard.mjs`: `guardDecision({ toolName, toolInput, brainDir, parse,
+          readFile })` → `{ allow }` / `{ allow: false, reason }`. It runs the **engine's own parse
+          path** (gray-matter + js-yaml 4 `load`, resolved from `rag/node_modules`, tests exercise the
+          real parser on the real field payload — F16), **composes the note an Edit WOULD produce**
+          before judging (else the second-`updated:` gesture walks past), and upgrades js-yaml's
+          `duplicated mapping key (5:1)` into the key + both lines. That scan now has **three** callers
+          across two packages → their agreement is a test, no longer a comment. **Fail-open**
+          everywhere else (no parser, unreadable file, missing anchor, anything outside `vault/*.md`).
+    - [ ] **← RESUME HERE. Left to do: wire it.** A `PreToolUse` matcher `Write|Edit` entry in
+          `.claude/settings.json.template` running a new `scripts/vault-write-guard.mjs` entry script
+          that reads the hook JSON on **stdin**, calls `guardDecision`, and emits the deny payload
+          (`hookSpecificOutput.permissionDecision`). Then: add the script to the manifest's `replace`
+          list (an unwired script reaches nobody — the `clear-example-notes.mjs` lesson), and let
+          `reconcileHooks` carry the new entry to existing brains (it is additive and dedups by
+          script name, so no extra work there beyond a test).
+    - [ ] Decided while building, do not re-open: the guard **denies** rather than warns (it only
+          ever fires on bytes the engine's parser has actually rejected, so the note would be
+          invisible anyway), and it is scoped to `vault/**/*.md` only (a guard that creeps beyond the
+          vault is a guard that gets disabled).
 - [ ] **F15 — a note can keep ANSWERING from stale content, and nothing watches it.**
   - [ ] Evidence: `rag/src/lib/frontmatter-parser.ts:117` — *"until one of them is removed, this note
         keeps answering from the content it was last indexed with"*; asserted in
