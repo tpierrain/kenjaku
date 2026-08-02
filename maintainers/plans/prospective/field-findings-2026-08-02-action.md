@@ -222,6 +222,15 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         a `search_vault` before calling any fact "new".
   - [ ] ⚠️ This fix must land **here**, not brain-side: patching `sync-sources` in a brain freezes it
         (see F5).
+  - [ ] **It recurred the same evening, on the OTHER laptop** _(2026-08-02, `prepare-1-1` for Michael,
+        screenshot)_: "Hossam qui deviendrait CTO Visma France (non confirmé)" — while the vault's own
+        `people/hossam-laanait.md` says *"CTO Visma France (confirmé 04/06)"* and that morning's
+        briefing had already ruled it *"un rappel, pas une annonce"*. Two things this proves, and they
+        raise F7's priority: (a) the defect is **in the engine skill, not in a machine or a note** —
+        the vault carried the right answer to both laptops and the skill read neither; (b) **correcting
+        a note does not stop it**, so it will fire at every briefing / 1-1 prep until F7 ships. It also
+        travels **downstream of `sync-sources`**: `prepare-1-1` consumes that fan-out, so the control
+        `search_vault` has to sit where the facts are produced, not in each consumer.
 - [ ] **F6 — repairing a link and asserting a person exists are conflated.** `people/stephanie-music.md`
       was created 19/07 *"to resolve an incoming link"* from a mis-resolved link; "Stéphanie Music"
       occurred **once in the whole vault: in its own title** (Stéphanie Glad: 382 times).
