@@ -24,6 +24,7 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { hasGeminiKey, geminiKeyRequired } from "./lib/gemini-key.mjs";
 import { repoStatusLine, countVaultUncommitted, countUnmerged } from "./lib/repo-status.mjs";
+import { ragStatusLine, LAST_RUN_REL } from "./lib/rag-status.mjs";
 import { sweepThenPull } from "./lib/startup-sync.mjs";
 import { bootstrapSessionHooks } from "./lib/hook-bootstrap.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
@@ -109,21 +110,18 @@ if (existsSync(DB_PATH)) {
   }
 }
 
-let ragLine;
-if (docs === null || scanned === 0) {
-  if (scanned === 0) {
-    ragLine =
-      "🧠 RAG: empty vault — add Markdown notes in vault/ then run 'cd rag && npm run reindex'.";
-  } else {
-    ragLine = "🧠 RAG: status unavailable (server starting up, or engine not installed).";
-  }
-} else {
-  const remaining = scanned - docs;
-  ragLine =
-    remaining <= 0
-      ? `🧠 RAG up to date — ${docs}/${scanned} files indexed.`
-      : `🧠 RAG: ${docs}/${scanned} files indexed, ${remaining} pending — auto catch-up in the background.`;
+// F11/F12: the shortfall alone cannot tell a queued note from a REFUSED one, and the
+// engine already knows which is which — it records the file and the cause in the last
+// run's state. Read it here so the counter and its explanation share one line.
+// Fail-soft: an unreadable/corrupt run state just means "nothing recorded" (a wait).
+let lastRun = null;
+try {
+  const lastRunPath = join(REPO, LAST_RUN_REL);
+  if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+} catch {
+  lastRun = null;
 }
+const ragLine = ragStatusLine({ docs, scanned, lastRun });
 
 // ─── Gemini key line: flag if it's missing (the RAG can't answer) ────────────
 // Read on every startup: if the user launched Claude Code BEFORE pasting their
