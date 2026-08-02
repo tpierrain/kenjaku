@@ -28,14 +28,15 @@
 > here instead of seeding the note where nothing reads it; and the launchers / `run-node.*` stay out
 > of the plan list on purpose (path-free, they travel through git untouched).
 >
-> **Resume here — the command exists but NOTHING points at it yet.** In order:
-> 1. **Carry it.** `scripts/rehydrate.mjs` is absent from `engine-manifest.json` → it reaches no brain
->    and no upgrade. Add it to `replace`. Worth a guard while there: the integrity test already proves
->    "every script a HOOK names is carried" and "every script a SKILL names is carried" — the
->    constitution is the third door, and it is the one this feature uses.
-> 2. **The constitution line** (`CLAUDE.md.template`): teach Claude to offer the rehydrate when both
->    files are missing (decided above; known limit to state in the PR — F5's freeze means it only
->    reaches brains whose constitution was never customized).
+> **✅ Steps 1 and 2 done** _(2026-08-02 · `ce4c7bf`)_ — the command is now **carried** and
+> **announced**. `scripts/rehydrate.mjs` is in `replace`, both constitutions (EN + FR) teach Claude to
+> spot the second-machine shape and offer it, and a new manifest guard covers **the third door onto an
+> engine script** (constitution, next to hook and skill). That guard went red on **two**, not one:
+> `scripts/clear-example-notes.mjs` had been named by the engine constitution since forever while
+> carried by nothing — so the **v3.4.1 Windows fix to it reached nobody** who installed before that
+> release. Also in `replace` now. Suites green (1071 scripts, 454 rag).
+>
+> **Resume here — the command is carried, the DOCS still lie.** In order:
 > 3. **`SETUP.md` §7** (rewrite: it under-installs and says "no need for the installer") **and the §8
 >    troubleshooting row** ("re-run `node installer.mjs`", which cannot work).
 > 4. **The engine must fail by NAMING the command** instead of failing into the void.
@@ -109,6 +110,19 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         Claude to offer the rehydrate when both files are missing, so the second machine self-repairs
         conversationally. Known limit, to state in the PR: the constitution is an engine-managed file,
         so this half only reaches brains whose constitution was not customized (F5's freeze).
+    - [x] **The constitution half is written** _(2026-08-02 · `ce4c7bf`)_ — EN + FR thin templates:
+          the second-machine shape (no `.mcp.json` / `.claude/settings.json`, no `vault-rag`, no
+          auto-commit), the command, and the closing "open a NEW conversation rooted here". It also
+          says **never** to suggest re-running `installer.mjs` (it refuses an existing folder).
+    - [x] **The command is CARRIED** _(2026-08-02 · `ce4c7bf`)_ — `scripts/rehydrate.mjs` added to
+          `replace`, driven by a new integrity guard over **the constitution as the third door** onto
+          an engine script (the two existing ones: a wired hook, a skill's instructions). The guard
+          found a second, older gap: **`scripts/clear-example-notes.mjs`** is named by
+          `CLAUDE.engine.md` and was carried by no regime, so its **v3.4.1 Windows fix reached nobody
+          who installed before v3.4.1**. Now in `replace` too.
+    - [ ] Left alone on purpose: `engineVersion.scripts` (still `1.9.0`). The apply plan is
+          glob-driven, not version-gated, so delivery does not need it; the bump belongs to the
+          v4.5.0 release step.
   - [ ] The engine must also **fail by naming the command** instead of failing into the void.
   - [ ] **Second field run, 2026-08-02 evening — the owner rehydrated `mind-palace` BY HAND on a
         second laptop.** It worked (436/436 indexed, repo up to date), and its SessionStart banner
