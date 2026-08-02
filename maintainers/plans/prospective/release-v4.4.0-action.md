@@ -149,6 +149,28 @@ being pushed, so nothing could tell us.
 it two specific claims to re-read — see its last box), then the **release note**. The push-cadence
 question that was blocking is **answered and shipped**.
 
+**⚠️ TWO THINGS ADDED TO TRACK 9 on 2026-08-02, both from a design conversation with Thomas
+(recorded in `background-consolidation-mode-study.md` — read it there, do not re-derive):**
+
+1. **A DEFECT: the engine version vector was never bumped.** `engine-manifest.json` on this branch
+   still carries `engineVersion.scripts` = **1.8.0** and `engineVersion.rag` = **1.1.5**, identical to
+   `main`, while the branch changes ~5400 lines under `scripts/**` and `rag/src/**` (its only manifest
+   change is adding `canonicalRepo`). So a new install would run v4.4.0 code under a version that does
+   not describe it, **and** a deployed brain already on `scripts 1.8.0` would get no signal that
+   anything changed. **Bump before the merge.** Reminder of why it is not optional: **in this product
+   merging IS shipping** — the launcher repo is the artifact, so anyone installing from `main` gets
+   `main`. Merge and release are one event.
+2. **Do NOT publish Track 10's numbers as a contract.** The release note must not state "2 minutes of
+   silence, 10-minute cap": the background-consolidation study will move that cadence, and we would be
+   publishing two contradictory timing promises one release apart. Describe the **behaviour** instead
+   ("your notes are committed on their own, shortly after you stop writing"). The honest bound stays
+   worth stating; the mechanism does not.
+
+**And the release SHIPS — the "treat it as a POC" option was weighed and rejected** (Thomas floated
+it, 2026-08-02). Seven of the ten tracks have no relationship to the background study; cherry-picking
+81 commits over 74 files months later costs more than merging, for zero new value; and Tracks 1/10 are
+a **foundation** for that study, not an obstacle. The reasoning is in the study's last section.
+
 **▶️ IN FLIGHT — the mutation snapshot** _(2026-07-28)_. Its scope is **settled in Track 9's box**
 (10 rag files, 13 `scripts/**` files in a disposable worktree, local-mirror untouched so its 90.44 %
 carries over) — read it there, do not re-derive it from the diff. The runs are slow and must not
