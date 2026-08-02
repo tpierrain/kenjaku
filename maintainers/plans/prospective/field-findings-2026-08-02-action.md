@@ -44,15 +44,25 @@
 > engine update finishing in the background" **at every session start, forever**, spawning a
 > reconcile that cannot create a file; it now names the rehydrate instead.
 >
-> **Resume here — F14 is functionally complete; what is left is the wrapper's wording and the PR.**
+> **Decided in conversation, 2026-08-02 evening: FINISH v4.5.0 FIRST.** F7 fired again the same
+> evening on the owner's second laptop (see F7's own entry), which was reason to consider promoting
+> it ahead of v4.5.0. The owner's call: **no reordering** — v4.5.0 ships whole, F7 stays the head of
+> v4.6.0 right behind it. Do not re-open this at the next session.
+>
+> **Resume here — v4.5.0, in this order. F14 is done except its last wording step.**
 > 5. **`buildSelfHealHookOutput` still frames every emitted line as `[engine self-heal — RESTART
 >    REQUIRED] … an update finishing in the background`** (`session-self-heal.mjs`). On the
 >    rehydrate branch that directive contradicts its own payload — the same "two opposite things
 >    rendered identically" this plan is about. Make the directive follow the line it carries
->    (needs its own red test: the existing wording is asserted by two tests).
-> 6. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
+>    (needs its own red test: the existing wording is asserted by two tests, one of them a ≤260-char
+>    budget on the framing).
+> 6. **F11 / F12** — an indexing failure displayed as a wait (see its entry in P0).
+> 7. **F15** — a note still answering from stale content, with nothing watching it (P0).
+> 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
+>    the engine measures a fiction).
+> 9. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
 >    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
->    constitution half.
+>    constitution half (an engine-managed file only reaches brains that never customized it).
 >
 > One thing to check when writing §7: the rehydrate deliberately does **not** index (a clone has no
 > `rag/.cache`), so the first rooted session is what indexes the vault — including the just-reseeded
