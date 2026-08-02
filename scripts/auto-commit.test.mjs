@@ -112,6 +112,39 @@ test("attemptCommit — UNMERGED tree: hands off, so the conflict markers are ne
   assert.deepEqual(calls, ["status --porcelain"]);
 });
 
+// `buildGit` maps a git that blew up to `{ok: false}` — and nobody read it, so a
+// refused commit was reported as "committed" all the same. The realistic trigger is
+// contention on `.git/index.lock` with the PostToolUse hook: the notes stay
+// uncommitted, and every caller is told they are safe. In a brain whose whole point
+// is that a note is not lost, a false "committed" is worse than a loud failure.
+test("attemptCommit — a commit git REFUSED is reported as failed, never as committed", () => {
+  const calls = [];
+  const git = (args) => {
+    calls.push(args.join(" "));
+    if (args[0] === "status") return { out: " M note.md\n", ok: true };
+    if (args[0] === "commit") return { out: "fatal: Unable to create '.git/index.lock'", ok: false };
+    return { out: "", ok: true };
+  };
+
+  assert.equal(attemptCommit({ git }), "failed");
+  assert.deepEqual(calls, ["status --porcelain", "add .", `commit -m ${COMMIT_MESSAGE}`]);
+});
+
+test("attemptCommit — a staging git REFUSED is failed too, and never reaches commit", () => {
+  // The twin: `add` is the half that can fail on its own (a lock, a permission), and
+  // committing after a failed stage would record an incomplete tree as a success.
+  const calls = [];
+  const git = (args) => {
+    calls.push(args.join(" "));
+    if (args[0] === "status") return { out: " M note.md\n", ok: true };
+    if (args[0] === "add") return { out: "fatal: Unable to create '.git/index.lock'", ok: false };
+    return { out: "", ok: true };
+  };
+
+  assert.equal(attemptCommit({ git }), "failed");
+  assert.deepEqual(calls, ["status --porcelain", "add ."]);
+});
+
 test("attemptCommit — clean tree: no add, no commit → clean (idempotent)", () => {
   const { git, calls } = fakeGit({ status: "" });
   assert.equal(attemptCommit({ git }), "clean");

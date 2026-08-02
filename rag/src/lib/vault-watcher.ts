@@ -12,8 +12,13 @@ export interface VaultWatcherOptions {
  * Segments never watched. `vault/` contains neither `.git`, nor `node_modules`,
  * nor `.cache` (the RAG cache lives in `rag/.cache`, outside the vault) → the
  * anti-loop guard is already ensured by the scope, but we make it explicit for safety.
+ *
+ * `.obsidian` is the same intent one directory further: it is UI state, not notes.
+ * `.gitignore` has excluded `vault/.obsidian/` from day one, and Obsidian rewrites
+ * `workspace.json` on ordinary gestures — so watching it bought a full-vault scan
+ * per pane move, and would fire a commit on a change git cannot even see.
  */
-const IGNORED_SEGMENTS = [".cache", ".git", "node_modules"];
+const IGNORED_SEGMENTS = [".cache", ".git", ".obsidian", "node_modules"];
 
 /**
  * True when `p` sits inside (or terminates on) an ignored segment — matched on

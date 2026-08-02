@@ -22,6 +22,7 @@ import {
 } from "./lib/index-freshness.js";
 import {
   loadEngineVersion,
+  loadEngineManifest,
   loadManifestEngineVersion,
   formatEngineVersionReport,
 } from "./lib/engine-version.js";
@@ -31,6 +32,7 @@ import {
   MAX_EMBED_REQUESTS_PER_DAY,
   QUERY_RESERVE,
   CACHE_DIR,
+  BRAIN_ROOT,
 } from "./lib/config.js";
 import { reindex as reindexFn } from "./lib/index-manager.js";
 import { scanVault } from "./lib/document-scanner.js";
@@ -39,10 +41,18 @@ import { ReindexLock } from "./lib/reindex-lock.js";
 import { buildStatusReport, incompleteIndexWarning, formatWatcherLiveness } from "./lib/status-report.js";
 import { ReindexScheduler } from "./lib/reindex-scheduler.js";
 import { startVaultWatcher } from "./lib/vault-watcher.js";
+import {
+  buildScriptRunner,
+  persistenceApplies,
+  persistVaultNow,
+} from "./lib/campaign-persist.js";
+import { PersistenceScheduler } from "./lib/persistence-scheduler.js";
+import { runCatchUpCampaign } from "./lib/campaign-run.js";
 import { FileProgressStorage } from "./lib/reindex-reporter.js";
 import { formatLastRunMarkdown } from "./lib/progress-report.js";
 import { writeFileSync, appendFileSync, existsSync } from "fs";
-import { spawn } from "child_process";
+import { spawn, execFile } from "child_process";
+import { promisify } from "util";
 import { capExceededSearchMessage } from "./lib/search-degradation.js";
 import { formatSearchCitations } from "./lib/citation-renderer.js";
 import { runHealthCheck, HEALTH_CHECK_NOTE_RELPATH } from "./lib/health-check.js";
@@ -405,6 +415,17 @@ function traceWatcher(msg: string): void {
   }
 }
 
+// The production persistence seam: the brain's own hook scripts, run with THIS
+// node (the desktop app's PATH is not ours to assume), output buffered so it
+// never reaches the MCP stdio channel. Read once at startup: the manifest that
+// tells an installed brain from the launcher does not change under our feet.
+const persistRunner = buildScriptRunner({
+  brainRoot: BRAIN_ROOT,
+  nodeExec: process.execPath,
+  run: promisify(execFile),
+});
+const vaultIsOurs = persistenceApplies(loadEngineManifest());
+
 function startFileWatcher(): void {
   try {
     // One local-mirror sync / import lands in waves → several debounced catch-up
@@ -412,36 +433,42 @@ function startFileWatcher(): void {
     // the watcher settles, with the burst TOTAL — never a premature "done — 8"
     // mid-flight (Obs 3 / F5).
     const burst = new IndexingBurst();
-    const scheduler = new ReindexScheduler({
-      run: async () => {
-        traceWatcher("⚙️  catch-up triggered (debounce elapsed) — indexing in progress…");
-        const result = await reindex(false);
-        writeLastRunMarkdown();
-        traceWatcher(
-          `✅ catch-up done: ${result.indexed} indexed, ${result.skipped} unchanged` +
-            (result.skippedLocked ? " (skipped: reindex already in progress)" : "") +
-            (result.errors.length > 0 ? `, ${result.errors.length} errors` : "")
-        );
-        // The live path that completes an import done WHILE the server runs: the
-        // CLI reindex is locked out by this watcher, so THIS is where a bulk
-        // pickup finishes. Only toast once the burst has SETTLED (nothing pending
-        // or scheduled) — with the accumulated total, and the word "complete".
-        const st = scheduler.state();
-        const decision = burst.record(
-          result.indexed,
-          st.pending || st.scheduled,
-          LIVE_WATCHER_NOTIFY_MIN,
-        );
-        if (decision.notify) {
-          notifyDone({
-            platform: process.platform,
-            env: process.env,
-            title: "Second brain",
-            body: `Indexing complete — ${decision.total} note${decision.total > 1 ? "s" : ""} ready to search.`,
-            spawn,
-          });
-        }
-      },
+    // Persistence runs on its OWN cadence, deliberately slower than indexing:
+    // search wants the 5 s debounce, git does not. Committing at the same beat
+    // meant a commit AND a network push per pause longer than five seconds.
+    const persistScheduler = new PersistenceScheduler({
+      persist: () => persistVaultNow({ runScript: persistRunner }, traceWatcher),
+    });
+    // The campaign's body lives in campaign-run.ts (unit-tested with in-memory
+    // fakes); here we only hand it the real seams. `scheduler` is read lazily
+    // inside `moreComing`, so the mutual reference resolves at call time.
+    const scheduler: ReindexScheduler = new ReindexScheduler({
+      run: () =>
+        runCatchUpCampaign({
+          reindex: () => reindex(false),
+          writeLastRun: writeLastRunMarkdown,
+          trace: traceWatcher,
+          // The live path that completes an import done WHILE the server runs: the
+          // CLI reindex is locked out by this watcher, so THIS is where a bulk
+          // pickup finishes — announced with the accumulated total and the word
+          // "complete", once the burst has settled.
+          notify: (total) =>
+            notifyDone({
+              platform: process.platform,
+              env: process.env,
+              title: "Second brain",
+              body: `Indexing complete — ${total} note${total > 1 ? "s" : ""} ready to search.`,
+              spawn,
+            }),
+          moreComing: () => {
+            const st = scheduler.state();
+            return st.pending || st.scheduled;
+          },
+          burst,
+          notifyMin: LIVE_WATCHER_NOTIFY_MIN,
+          persist: vaultIsOurs ? { runScript: persistRunner } : null,
+          requestPersist: () => persistScheduler.notify(),
+        }),
     });
     startVaultWatcher({
       onChange: (path) => {

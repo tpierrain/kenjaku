@@ -198,7 +198,10 @@ async function runReindex(
         })),
       });
     } catch (err) {
-      result.errors.push(`Read error: ${file.relativePath}: ${err}`);
+      // The message alone: an owner reading `last-run.json` gains nothing from the
+      // class name in front of it, and a diagnosis we wrote for them reads worse for it.
+      const reason = err instanceof Error ? err.message : String(err);
+      result.errors.push(`Read error: ${file.relativePath}: ${reason}`);
     }
   }
 
@@ -237,7 +240,12 @@ async function runReindex(
         ),
     },
     reporter,
-    { scanned: result.scanned, skipped: result.skipped, removed: result.removed }
+    {
+      scanned: result.scanned,
+      skipped: result.skipped,
+      removed: result.removed,
+      errors: result.errors,
+    }
   );
 
   result.indexed += runResult.indexed;
@@ -254,10 +262,20 @@ export async function runIndexingPhase(
   toIndex: PreparedDoc[],
   ports: IndexPorts,
   reporter: ReindexReporter,
-  meta: { scanned: number; skipped: number; removed: number }
+  meta: { scanned: number; skipped: number; removed: number; errors?: string[] }
 ): Promise<IndexRunResult> {
   const totalChunks = toIndex.reduce((sum, d) => sum + d.chunks.length, 0);
-  reporter.start({ totalChunks, scanned: meta.scanned, skipped: meta.skipped, removed: meta.removed });
+  // `meta.errors` are phase 1's read failures. They MUST be seeded here: `start()`
+  // runs after the scan, so anything it does not receive is erased from
+  // `last-run.json` — and with it from `last-run.md` and `vault_stats`, i.e. from
+  // everything the owner and the agent can see (F10).
+  reporter.start({
+    totalChunks,
+    scanned: meta.scanned,
+    skipped: meta.skipped,
+    removed: meta.removed,
+    errors: meta.errors,
+  });
 
   const result = await indexPreparedDocs(toIndex, ports, (chunks) => reporter.tick(chunks));
 

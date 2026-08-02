@@ -923,10 +923,18 @@ function fp(content) {
   return "sha256:" + createHash("sha256").update(content).digest("hex");
 }
 
-function manifest({ ragVersion, indexSchemaVersion, ref, provenance = {}, extraMerge = [] }) {
+function manifest({
+  ragVersion,
+  indexSchemaVersion,
+  ref,
+  provenance = {},
+  extraMerge = [],
+  canonicalRepo,
+}) {
   return JSON.stringify(
     {
       manifestVersion: 1,
+      ...(canonicalRepo === undefined ? {} : { canonicalRepo }),
       engineVersion: { rag: ragVersion, constitutionTemplate: "1.0.0", scripts: "1.0.0" },
       indexSchemaVersion,
       regimes: {
@@ -983,10 +991,14 @@ function buildBrain() {
 
 // A freshly-cloned launcher source at vB: engine files (vB) + its manifest. (It does
 // NOT carry the brain's sacred files — those belong to the brain alone.)
-function buildSource({ indexSchemaVersion }) {
+function buildSource({ indexSchemaVersion, canonicalRepo }) {
   const dir = mkdtempSync(join(tmpdir(), "sbg-source-"));
   for (const [rel, content] of Object.entries(flat(engineFiles("vB")))) writeFile(dir, rel, content);
-  writeFile(dir, "engine-manifest.json", manifest({ ragVersion: "1.1.0", indexSchemaVersion, ref: "v1.1.0" }));
+  writeFile(
+    dir,
+    "engine-manifest.json",
+    manifest({ ragVersion: "1.1.0", indexSchemaVersion, ref: "v1.1.0", canonicalRepo }),
+  );
   return dir;
 }
 
@@ -1142,6 +1154,75 @@ for (const platform of ["posix", "win32"]) {
     );
   });
 }
+
+// ── F1 — a repository RENAME reaches an already-installed brain ──────────────
+//    The brain writes `source.repo` once, at install, and never revises it: every
+//    brain installed before the v4.0.0 rename still clones the OLD name and works
+//    only thanks to the host's redirect — an alias in a namespace we no longer own.
+//    The day a repo with that old name exists again (recreation, transferred fork),
+//    those brains fetch someone else's code. So the LAUNCHER declares its canonical
+//    URL and the brain adopts it: the fleet converges on the real repository.
+test("gate — the fetched launcher's canonical URL replaces the brain's install-day repo, and the next run is a no-op", async (t) => {
+  const brainDir = buildBrain(); // records https://example.test/launcher.git (the OLD name)
+  const sourceDir = buildSource({
+    indexSchemaVersion: 1, // same schema as the brain: this test is about the URL, nothing else
+    canonicalRepo: "https://example.test/renamed.git",
+  });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+
+  const first = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  // The FIRST update still travels the old name — unavoidably: the new one is only
+  // knowable from the manifest we are about to fetch. That is the one and only hop
+  // still riding the redirect, and this assertion is what pins it to exactly one.
+  assert.deepEqual(
+    first.calls.fetch,
+    { repo: "https://example.test/launcher.git", ref: "v1.1.0" },
+    "the first update can only reach the launcher by the name the brain recorded",
+  );
+  const afterFirst = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    afterFirst.source.repo,
+    "https://example.test/renamed.git",
+    "the brain must adopt the canonical URL the fetched launcher declares",
+  );
+
+  // …and the adoption STICKS: the next update resolves the tag and clones on the new
+  // name, with no redirect involved anywhere, and records the same URL again.
+  const second = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+  assert.deepEqual(
+    second.calls.resolveTag,
+    { repo: "https://example.test/renamed.git" },
+    "the tag lookup must follow the adopted URL, not the install-day one",
+  );
+  assert.deepEqual(
+    second.calls.fetch,
+    { repo: "https://example.test/renamed.git", ref: "v1.1.0" },
+    "the second update must clone the new name directly — no redirect left in the path",
+  );
+  const afterSecond = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(afterSecond.source.repo, "https://example.test/renamed.git", "a second run must be a no-op");
+});
+
+// The other half of the same decision: a launcher published BEFORE this field existed
+// declares nothing. The brain must keep the URL it has — adopting the absence would
+// blank its only way to update, making the fix worse than the defect it repairs.
+test("gate — a launcher declaring no canonical URL leaves the brain's recorded repo untouched", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 }); // no canonicalRepo at all
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+
+  await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  const m = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(m.source.repo, "https://example.test/launcher.git", "an absent declaration must change nothing");
+});
 
 // ── Auto-finalize (ADR 0026, Layer A): after a successful update, update-engine
 //    re-execs the freshly-written reconciler in a fresh child process — given the SAME
@@ -1629,4 +1710,33 @@ test("updateEngine — a refreshed skill's provenance base is re-seeded by step 
     fp(improved),
     "step 7 must re-seed the base of what the reconcile just refreshed",
   );
+});
+
+// ADR 0036 — the status line retreats. The removal is a change the owner SEES the
+// next time they open a terminal (their own line is back where ours used to be), so
+// an update that stays silent about it reads as a bug in Claude Code, not as a
+// deliberate gift. Phrased as what they GAIN, never as what we removed.
+test("formatReport — a retired status line is announced as the owner's own line coming back", () => {
+  const out = formatReport({
+    ref: "v4.4.0",
+    engineVersion: { rag: "1.1.5" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    statusLineRemoved: true,
+  });
+  assert.match(out, /status line/i);
+  assert.match(out, /your own|back/i);
+});
+
+test("formatReport — a brain that had no status line of ours hears nothing about it", () => {
+  const out = formatReport({
+    ref: "v4.4.0",
+    engineVersion: { rag: "1.1.5" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    statusLineRemoved: false,
+  });
+  assert.doesNotMatch(out, /status line/i);
 });

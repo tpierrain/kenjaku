@@ -5,7 +5,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { sessionUniverseReminder } from "./session-universe.mjs";
-import { profileCaptureOffer } from "./lib/universe-reminder.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -174,8 +173,8 @@ test("sessionUniverseReminder tells the offer which vocabulary this brain is all
   const alone = seams({ readState: () => ({ registry: [], active: "default" }) });
   const many = seams({ readState: () => ({ registry: ["acme", "blue"], active: "acme" }) });
 
-  assert.match(sessionUniverseReminder(alone.args).offer, /BELOW the disclosure gate/);
-  assert.match(sessionUniverseReminder(many.args).offer, /PAST the disclosure gate/);
+  assert.match(sessionUniverseReminder(alone.args).offer, /never use the word `universe`/);
+  assert.match(sessionUniverseReminder(many.args).offer, /say `universe` plainly/);
 });
 
 test("sessionUniverseReminder makes no offer when the profile could not be READ", () => {
@@ -192,21 +191,24 @@ test("sessionUniverseReminder makes no offer when the profile could not be READ"
 
 // --- the offer must land somewhere that exists ------------------------------
 
-test("the capture offer points at a section the /switch skill actually has", () => {
-  // The offer tells the session to follow a NAMED section of a skill. Rename that
-  // heading and the directive becomes a dead end that no test would otherwise
-  // notice — the offer would still be emitted, and still lead nowhere.
+test("the /switch skill still owns the detail the startup offer stopped reciting", () => {
+  // F5 shrank the offer to the FACT alone: it no longer names the section, the write
+  // command or the decline command, because the agent loads the `switch` skill when
+  // the user accepts — or declines. That deletion only holds while the destination
+  // exists. Rename the heading or drop the decline command and the offer becomes an
+  // invitation with nowhere to land, silently: the accept path writes a note of the
+  // wrong shape, and the refusal is never recorded, so a one-shot offer starts nagging.
   const skill = readFileSync(join(REPO_ROOT, ".claude", "skills", "switch", "SKILL.md"), "utf8");
-  const offer = profileCaptureOffer({ hasProfile: false, declined: false });
-  const [, section] = offer.match(/follow its `([^`]+)` section/);
-  const [, command] = offer.match(/run `node ([^`]+)`/);
+  const headings = skill.split("\n").filter((line) => line.startsWith("#"));
 
   assert.ok(
-    skill.split("\n").some((line) => line.startsWith("#") && line.includes(section)),
-    `no heading named "${section}" in the switch skill`,
+    headings.some((line) => line.includes("Describe a universe — its profile")),
+    "the switch skill lost the section the startup offer now relies on",
   );
-  // And the decline command must be the real script, spelled the way it is called.
-  assert.match(skill, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(skill, /node scripts\/set-universe-profile\.mjs --decline/);
+  // The skill's DESCRIPTION is what routes a decline to it, since the offer no longer
+  // spells the command out. Lose the word and a refusal never reaches the recorder.
+  assert.match(skill, /declines/);
 });
 
 test("settings.json.template wires session-universe as a SessionStart hook, AFTER session-self-heal", () => {

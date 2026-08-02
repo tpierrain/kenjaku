@@ -65,6 +65,15 @@ test("buildActionsLogHookOutput — surfaces a one-time note when it just seeded
   assert.match(output.systemMessage, /ledger/i);
 });
 
+test("buildActionsLogHookOutput keeps the echoed note short — volume IS the defect (F5)", () => {
+  // The fourth additionalContext emitter, found by the F5 audit (the field log named
+  // three). It fires once in a brain's life, but the CLI echoes it verbatim like the
+  // rest — and the leak scales with every hook we add, so it takes the same bound.
+  const ctx = buildActionsLogHookOutput(true).hookSpecificOutput.additionalContext;
+
+  assert.ok(ctx.length <= 260, `the ledger note grew back to ${ctx.length} chars:\n${ctx}`);
+});
+
 test("buildActionsLogHookOutput — stays silent (null) when nothing was seeded", () => {
   assert.equal(buildActionsLogHookOutput(false), null);
 });

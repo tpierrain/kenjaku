@@ -43,11 +43,6 @@
       "{{TMP_DIR}}"
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/status-line.mjs\"",
-    "padding": 0
-  },
   "hooks": {
     "PostToolUse": [
       {

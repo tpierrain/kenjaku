@@ -14,9 +14,9 @@
 
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
-| **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent) |
-| **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %** |
+| **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %** |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag |
+| **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**. **v4.4.0 touches no `src/**` file here — the number carries over, deliberately not re-measured** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
 its tag-time snapshot; the B4 + optional-weak-tier gains below land in `main` after v3.4.2).
@@ -38,7 +38,9 @@ local-mirror  90.44 %  ██████████████░░░░░
 ```
 
 **Distribution of the 41 re-audited production files** (rag 24 + local-mirror 17; scripts counted
-separately — 97.27 %, `lib/**` all 100 %, 3 side-effect scripts at 92–100 %):
+separately — 97.27 %, `lib/**` all 100 %, 3 side-effect scripts at 92–100 %. ⚠️ That last figure is the
+2026-06-23 photo of **three** top-level scripts; the 2026-08-02 run measured 16 of them and the
+top-level tier reaches **down to 0 %** — see the [named debt](#the-two-0--files--named-debt-and-not-a-regression)):
 
 ```
 🟢 100 %      ███████████  11 files   (perfect — 0 survivor)
@@ -136,6 +138,186 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## v4.4.0 — the field-fixes release (`rag` + `scripts`) — 2026-07-28 → 2026-08-02
+
+**Scope decided on the diff** (`main...HEAD`, branch `feat/v4.4.0-field-fixes`): the targeted run
+§5ter prescribes before a tag, **not** a full re-audit. Two packages ran.
+
+**`local-mirror` did not run, deliberately** — this release touches no `local-mirror/src/**` file, so
+its **90.44 %** from v4.2.0 carries over unchanged. A published tag is frozen; re-measuring an
+untouched package would move a number without a change behind it.
+
+### `rag` — the 10 changed files: **90.39 % → 93.93 %**
+
+`campaign-persist`, `campaign-run`, `config`, `engine-version`, `frontmatter-parser`, `index-manager`,
+`persistence-scheduler`, `progress-report`, `reindex-reporter`, `vault-watcher` — the
+`stryker.rag.config.mjs` run narrowed with `--mutate` to those ten paths.
+
+**First run: 90.39 %** (562 mutants, 54 survivors) — and **the aggregate hid the problem**. Read
+per file, the weakest of the ten was `persistence-scheduler.ts`, at **76.32 %**: the file this release
+*adds*. **20 of the 54 survivors sat on lines this branch wrote**; the other 34 predate it.
+
+| File | First run | After | What moved |
+|---|---|---|---|
+| `persistence-scheduler.ts` | 76.32 % | **100 %** | new in this release, and the worst score of the ten |
+| `campaign-run.ts` | 86.96 % | **100 %** | new in this release |
+| `frontmatter-parser.ts` | 95.07 % | **97.87 %** | |
+| `progress-report.ts` | 89.61 % | **93.51 %** | |
+| `engine-version.ts` | 81.63 % | **83.67 %** | the one left is a recorded equivalent |
+
+**18 of the 20 killed** _(`bebce0c`, `474d09a`)_, each mutant hand-applied and **watched red** before
+the fix, then reverted; rag **454** green. **2 recorded as equivalents** (below). The confirmation
+re-run over the same ten files then read **93.93 %**, and its 34 remaining survivors were checked
+line by line against `git diff main...HEAD`: **nothing of this release's own is left standing.**
+
+### `scripts` — the 16 changed files, in five batches
+
+Run in a **disposable worktree** (`inPlace` on the real tree once wiped the demo vault), split into
+five batches because the whole run is ~30 min for ~1230 mutants and a background command is capped at
+10 min — a first attempt was killed at 40 %.
+
+> **Correction to what this file said before.** The `scripts` runs of 2026-07-28 (PR 50, v4.3.0) were
+> **narrowed to the covering tests**, on the grounds that `stryker.scripts.config.mjs` could not
+> dry-run because `engine-manifest-integrity.test.mjs` asks `git ls-files`. That is true of the
+> Stryker **sandbox**, which has no `.git` — it is **not** true of a worktree, which has one. The full
+> harness command dry-runs fine there (**1033 green**). So the scores below are **not** pessimistic
+> from narrowing: every mutant faced the whole suite.
+
+Per file, worst last. No package aggregate is quoted, and that is on purpose: each batch reports its
+own `All files` line over a different subset, and averaging them without the per-file mutant counts —
+which went with the reports, see below — would be arithmetic, not a measurement.
+
+| File | Score | |
+|---|---|---|
+| `restart-nudge.mjs`, `wiki-health-nudge.mjs` | **100 %** | |
+| `auto-commit.mjs` | 98.31 % | |
+| `update-engine.mjs` | 96.94 % | 1 recorded equivalent |
+| `engine-source.mjs` | 94.00 % | |
+| `reconcile-brain.mjs` | 93.02 % → **95.93 %** | 7 survivors left, **6 out of scope** |
+| `universe-reminder.mjs` | 90.91 % | |
+| `status-line-retreat.mjs` | 86.96 % | |
+| `actions-log-seed.mjs` | 83.33 % | |
+| `note-refresh.mjs` | 80.26 % → **98.68 %** | 1 survivor, a recorded equivalent |
+| `refresh-note.mjs` | 57.41 % → **68.52 %** | read the number correctly — see below |
+| `engine-fetch.mjs` | 53.52 % | pre-existing boot/IO seam |
+| `restart-signal.mjs` | 37.50 % | pre-existing boot/IO seam |
+| `session-self-heal.mjs` | 34.51 % | pre-existing boot/IO seam |
+| **`session-status.mjs`**, **`status-line.mjs`** | **0.00 %** | named debt, own section below |
+
+Confirmation re-run _(2026-08-02, worktree, two batches, ~7 min; logs in
+`reports/confirm-batch{1,2}.log`)_: `note-refresh` **98.68 %** (75 killed / 76),
+`refresh-note` **68.52 %** (36 killed + 1 t/o / 54), `reconcile-brain` **95.93 %** (164 killed + 1 t/o
+/ 172).
+
+**Read `refresh-note.mjs`'s 68.52 % correctly.** All 17 remaining survivors sit at lines **28-39**
+(`realRefreshDeps`, the I/O lambda object) and **98-99** (the `isEntrypoint` boot guard). **Nothing
+between 46 and 96 survives** — `runRefresh`, the whole decision logic, is fully killed. What is left
+is the same *observed-by-nothing boot/IO seam* as `session-status` / `status-line`: the named debt
+below, not a gap in this release's logic.
+
+**Four mutants were live defects, not merely unwatched lines.** Worth keeping, because each was found
+by the run and by nothing else:
+
+- **A `---` rule inside the body swallowed half the page into the frontmatter** (greedy match), and a
+  **CRLF** note — Windows, which is in the CI matrix, and what Obsidian writes there — was refused as
+  "having no frontmatter". _(`5e21587`, 7 tests → 13.)_
+- **The duplicate-key check refused a VALID page**: unanchored, `authors:` followed by two
+  `  - name:` entries reads as one key declared twice, so the owner is told their page is damaged and
+  has nothing to fix. Exactly what the check's own comment warns about — rag's looser twin invented a
+  key called `- https` out of a list of URLs. _(`794058a`.)_
+- **The no-frontmatter refusal was asserted with `/frontmatter/i`**, which also matches *"Cannot read
+  properties of null (reading 'frontmatter')"* — so deleting the refusal and letting a TypeError
+  escape kept the test green. _(`794058a`.)_
+- **`toPosix` on Windows**: flattening `\` to nothing yields `C:brainvault`, so a refresh reports
+  *"does not exist"* for a note sitting right there. _(`794058a`.)_
+
+And two shapes already named in [`RETROSPECTIVE.md`](RETROSPECTIVE.md), met again:
+
+- **The containment guard's trailing slash IS the guard** — without it `../vault-secrets/x.md`
+  resolves outside `vault/` and passes. The "does not exist" message was matched with
+  `/does not exist|file-back/i`, **an OR that let either half vanish**, including the half naming
+  `file-back-note.mjs`. Both now asserted whole. _(`8458ce1`, 6 tests → 8.)_
+- **One cause, one test** in `reconcile-brain.mjs`: every existing test had either OUR status line
+  (retired) or a clean custom one, so the **healing** branch — the only place we ever write into
+  someone else's `statusLine` — was never exercised. _(`c72e20a`, 54 → 55.)_ Its sibling survivor,
+  `statusLineWasRemoved`'s `false` initialiser, is the **F7 shape inside the release that closes F7's
+  siblings**: with no `settings.json.template` to read the settings pass is skipped entirely, and
+  reporting `true` would have `update-engine` announce *"your own status line is back"* to an owner
+  whose settings were never opened. _(`d1a9d07`.)_
+
+### The two 0 % files — named debt, and **not** a regression
+
+`session-status.mjs` and `status-line.mjs` scored **0.00 %**: 250 mutants, **zero killed**.
+
+**Why the score is 0.** Both are top-level scripts that RUN on import, so nothing can import them and
+no test observes them. Verified, not assumed: `git log --diff-filter=A` shows `scripts/status-line.test.mjs`
+and `scripts/session-status.test.mjs` have **never existed** in this repo's history.
+
+**What IS covered.** The **logic** these two wire is fully tested — it lives in `scripts/lib/**`,
+which is at 100 %. It is the **wiring** that no test observes.
+
+**Not created here.** This release rewrote 50 lines of one (Track 2) and 27 of the other (Track 6)
+**without creating the hole**: every published tag so far carries it.
+
+**The cure, and why it is not in this tag.** §5ter item 2 prescribes it exactly — `BootDeps` + an
+`import.meta.url` guard, with the entry guard earned back by **one** subprocess test. That is a
+refactor of two **fleet-deployed** scripts, and doing it on the eve of a tag is how you ship a broken
+first screen. **Decided with Thomas 2026-08-02: record it as named debt and ship.** Not "we'll get to
+it" — it is written here, and stated in the release note's honest bounds, so the next tag inherits a
+**named** debt rather than a silent one. The BootDeps refactor is a release of its own.
+
+The same seam accounts for `engine-fetch` (53.52 %), `restart-signal` (37.50 %),
+`session-self-heal` (34.51 %) and the 17 survivors of `refresh-note`. It is now the single largest
+mutation debt in the `scripts` package, and the natural next hardening pass.
+
+### Recorded equivalents (this release)
+
+One systematic, four local. Documented rather than chased — "effective 100 % on non-equivalents".
+
+- ⭐ **Systematic, recorded ONCE for the whole repo: every `readFileSync(p, "utf8")` → `readFileSync(p, "")`
+  survivor.** Node returns a **Buffer** for an empty encoding, and `JSON.parse` decodes it to the same
+  string. Same finding on both sides (`engine-version.ts:83` in rag), and it accounts for a large share
+  of the pre-existing survivors in `reconcile-brain`, `engine-fetch` and `update-engine`. **Do not
+  re-derive it per file.**
+- `campaign-persist.ts:30` — `typeof manifest !== "object"` is only observable with a *function*
+  carrying a `.source` object, and `JSON.parse` cannot produce one.
+- `note-refresh.mjs` — dropping the trailing `$` from `FRONTMATTER_RE`. `[\s\S]*` is greedy to the end
+  already, so the anchor buys nothing at runtime; keeping it is documentation of intent.
+- `update-engine.mjs` — `skillsPreserved = []`. **Verified equivalent, not a coverage gap**: Stryker's
+  array mutant injects a *string*, the loop destructures `{ reason }` off it → `undefined !== "customized"`
+  → `continue`, so nothing is observable. Proof it is the mutant and not the test: the sibling defaults
+  on the same line (`installedSkills = []`, `statusLineRemoved = false`) **die** against the existing
+  minimal-report test. Killing it would mean changing production to reject a shape its producer cannot emit.
+
+### Two worktree traps, both paid for — neither was in the gotchas
+
+1. **A mutant of `auto-commit.mjs` COMMITS the instrumented tree.** The worktree came back sitting on
+   an `auto: vault/claude sync` commit of its own, so `git checkout -- .` faithfully restored
+   *Stryker's instrumentation*, and every later dry run died on `SyntaxError: Identifier 'stryNS_…' has
+   already been declared`. **The reset has to be `git reset --hard <sha>` + `git clean -fd`, never
+   `checkout -- .`.** This is the worktree doing its job: the same mutant on the real tree would have
+   committed **there**.
+2. **`disableTypeChecks` must be OFF for this package.** Stryker prepends `// @ts-nocheck` to ~370
+   files, and under `inPlace` that lands on the real worktree. These are plain `.mjs` with nothing to
+   type-check. The CLI has no flag for it, so the batch runs use a tiny
+   [`stryker.scripts.batch.config.mjs`](stryker.scripts.batch.config.mjs) that spreads the base config
+   and turns it off.
+
+Both are folded into [Gotchas learned](#gotchas-learned) so the next run meets them there.
+
+### ⚠️ What was lost, and the rule it earns
+
+**The Stryker HTML reports for both `scripts` runs are GONE**: both worktrees lived under the session
+scratchpad, and macOS's temp cleanup emptied them (2026-08-02, `git worktree prune`). **This cost
+nothing here** — the survivors were enumerated in the release plan while the reports were still open,
+and that enumeration is what this section is written from.
+
+**Rule for the next release: copy the per-file scores AND the survivor list into the plan the moment a
+run ends.** A scratchpad worktree is not storage. The only surviving artefacts of these runs are the
+two confirmation logs under `reports/`, because they were written outside it.
 
 ---
 
@@ -511,6 +693,26 @@ StrykerJS `node:test` runner). Scores are the durable test-quality signal the pr
   spinning at 100 % CPU after the run. Kill leftovers: `pkill -f stub-mcp-server.mjs`.
 - **Stryker only mutates files under its project root** → all configs run from the **repo root**
   (cwd), invoked via `npm --prefix maintainers/mutation run mutate:{rag,local-mirror,scripts,all}`.
+- **Reset a `scripts` worktree with `git reset --hard` + `git clean -fd`, NEVER `git checkout -- .`**
+  _(2026-08-02)_. A mutant of `auto-commit.mjs` **commits the instrumented tree**, so the worktree comes
+  back sitting on an `auto: vault/claude sync` commit of Stryker's own instrumentation — which
+  `checkout -- .` then faithfully restores, and every later dry run dies on `SyntaxError: Identifier
+  'stryNS_…' has already been declared`.
+- **`disableTypeChecks: false` for `scripts`** _(2026-08-02)_. Stryker otherwise prepends `// @ts-nocheck`
+  to ~370 plain `.mjs` files with nothing to type-check, and under `inPlace` that lands on the real
+  worktree. No CLI flag for it → [`stryker.scripts.batch.config.mjs`](stryker.scripts.batch.config.mjs)
+  spreads the base config and turns it off.
+- **Batch the `scripts` run** _(2026-08-02)_. ~1230 mutants ≈ 30 min, and a background command is capped
+  at 10 min; `setsid` does not exist on macOS, so detaching is not the way out. Five batches of < 9 min,
+  resetting the worktree between each.
+- **The full harness command DOES dry-run in a worktree** _(2026-08-02, correcting the 2026-07-28
+  sections below)_. `engine-manifest-integrity.test.mjs` asks `git ls-files` and only fails in the
+  Stryker **sandbox**, which has no `.git`; a worktree has one (**1033 green**). Narrowing to the
+  covering tests is therefore no longer required — and it made the earlier scores pessimistic, never
+  inflated.
+- **Copy the per-file scores AND the survivor list out of the report the moment a run ends**
+  _(2026-08-02)_. Both v4.4.0 `scripts` worktrees lived under the session scratchpad, and macOS's temp
+  cleanup emptied them — HTML reports included. A scratchpad worktree is not storage.
 
 ## Reproduce
 

@@ -100,6 +100,18 @@ test("buildSelfHealHookOutput — carries the nudge in additionalContext (the De
   assert.match(ctx, /local-mirror/);
 });
 
+test("buildSelfHealHookOutput keeps the echoed directive short — volume IS the defect (F5)", () => {
+  // The CLI echoes additionalContext verbatim to the owner. This one has to stay LOUD
+  // (a half-applied update must not pass for live), so it earns more room than the
+  // other startup blocks — but not four lines of stage direction. The detail line is
+  // excluded: it is already owner-readable prose, and it is the part worth reading.
+  const detail = "⚠️ ACTION NEEDED — restart Claude (MCP: local-mirror).";
+  const ctx = buildSelfHealHookOutput([detail]).hookSpecificOutput.additionalContext;
+  const framing = ctx.length - detail.length;
+
+  assert.ok(framing <= 260, `the restart directive grew back to ${framing} chars:\n${ctx}`);
+});
+
 test("settings.json.template wires session-self-heal as a SessionStart hook, BEFORE session-status", () => {
   const settings = JSON.parse(readFileSync(join(REPO_ROOT, ".claude", "settings.json.template"), "utf8"));
   const commands = settings.hooks.SessionStart.flatMap((entry) => entry.hooks.map((h) => h.command));

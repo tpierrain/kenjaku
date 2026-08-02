@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseDocument } from "./frontmatter-parser.js";
+import { findDuplicateKey, parseDocument } from "./frontmatter-parser.js";
 import { DEFAULT_UNIVERSE } from "./universe.js";
 
 test("prefers the frontmatter title over the filename fallback", () => {
@@ -167,6 +167,114 @@ test("a blank universe does not win (falls back to the default)", () => {
 test("trims surrounding whitespace from an explicit universe", () => {
   const parsed = parseDocument("---\nuniverse: '  acme  '\n---\n", "topics/x.md");
   assert.equal(parsed.universe, "acme");
+});
+
+// --- damaged front-matter (F12) ---------------------------------------------
+
+test("names the duplicated front-matter key, and both of its lines (F12)", () => {
+  // The exact shape consolidation produced on a real note: a second `updated:`
+  // appended instead of the first being replaced. js-yaml refuses it — but with
+  // "duplicated mapping key (5:1)", which names neither the key nor the way out.
+  const raw = "---\ntitle: Crise\ncreated: 2026-06-01\nupdated: 2026-06-12\ntype: topic\nupdated: 2026-07-28\n---\n# Crise\n";
+
+  assert.throws(
+    () => parseDocument(raw, "topics/crise.md"),
+    /front-matter key "updated".*lines 4 and 6/s
+  );
+});
+
+test("reads the key and the lines from the note, rather than assuming F12's shape", () => {
+  const raw = "---\ntags: [a]\ntags: [b]\ntitle: T\n---\nbody\n";
+
+  assert.throws(
+    () => parseDocument(raw, "topics/x.md"),
+    /front-matter key "tags".*lines 2 and 3/s
+  );
+});
+
+test("a YAML failure that is NOT a duplicate key keeps its original error", () => {
+  // We upgrade one message; we must not relabel every unreadable note as "damaged
+  // key", which would send the owner looking for a duplicate that isn't there.
+  const raw = "---\ntitle: [unclosed\n---\nbody\n";
+
+  assert.throws(() => parseDocument(raw, "topics/x.md"), /YAMLException/);
+});
+
+test("indented lines are not keys: repeated text inside a block scalar is no duplicate", () => {
+  // Only unindented, top-level keys count. Two `updated:` lines that are the TEXT of
+  // a block scalar must not be reported as a duplicated key — that would send the
+  // owner deleting a line of their own prose.
+  const raw = "---\ntitle: [unclosed\nsummary: |\n  updated: yesterday\n  updated: today\n---\nbody\n";
+
+  assert.throws(() => parseDocument(raw, "topics/x.md"), /YAMLException/);
+});
+
+test("the scan stops at the closing delimiter: the body holds no keys", () => {
+  // `updated:` written twice in the note's own body is ordinary prose, not a
+  // duplicated front-matter key.
+  const raw = "---\ntitle: [unclosed\n---\nupdated: a\nupdated: b\n";
+
+  assert.throws(() => parseDocument(raw, "topics/x.md"), /YAMLException/);
+});
+
+test("a list of URLs is not a duplicated key: `- ` items are values, not keys", () => {
+  // The shape a person/source note actually has. An unindented block-sequence item
+  // whose VALUE holds a colon (`- https://…`) looks like `<something>:` to a loose
+  // scan, so two of them were reported as the key `- https` "declared twice" — and
+  // the owner was sent to two perfectly valid lines to delete one. We only look once
+  // the YAML has already failed for its own reason, so the wrong verdict lands
+  // exactly when someone is already confused.
+  const raw = "---\ntitle: [unclosed\nlinks:\n- https://a.com\n- https://b.com\n---\nbody\n";
+
+  assert.equal(findDuplicateKey(raw), null);
+});
+
+test("a genuinely duplicated key is still named, with both of its lines", () => {
+  // F12's own damage — the reason this scan exists. Assert the WHOLE verdict: a
+  // check on the key alone would not notice the line numbers pointing elsewhere.
+  const raw = "---\ntitle: [unclosed\nupdated: 2026-07-01\ntags: [a]\nupdated: 2026-07-28\n---\nbody\n";
+
+  assert.deepEqual(findDuplicateKey(raw), { key: "updated", first: 3, second: 5 });
+});
+
+test("a trailing space after the opening `---` still opens front-matter", () => {
+  // A fence typed by hand carries whatever whitespace the editor left. Reading it
+  // literally, this note has no front-matter at all — so the duplicate below goes
+  // unnamed, and the owner is left with a raw YAML exception on a note whose real
+  // defect we could see.
+  const raw = "--- \ntitle: [unclosed\nupdated: a\nupdated: b\n---\nbody\n";
+
+  assert.deepEqual(findDuplicateKey(raw), { key: "updated", first: 3, second: 4 });
+});
+
+test("a trailing space on the CLOSING `---` still closes it: the body is not scanned", () => {
+  // The same whitespace at the other fence, and it fails the other way round: the
+  // scan runs on past the front-matter and reports ordinary prose from the body as
+  // a duplicated key — sending the owner to delete a line of their own note.
+  const raw = "---\ntitle: [unclosed\n--- \nupdated: a\nupdated: b\n";
+
+  assert.equal(findDuplicateKey(raw), null);
+});
+
+test("front-matter that is never closed ends at the last line, it does not run off it", () => {
+  // A truncated note (an interrupted write, a botched hand-edit) has an opening
+  // fence and no closing one. Walking one line past the end reads `undefined`, and
+  // the scan would throw a TypeError while REPORTING on a damaged note — a crash
+  // where a plain "no duplicate here" was the answer.
+  const raw = "---\ntitle: [unclosed\nupdated: a\n";
+
+  assert.equal(findDuplicateKey(raw), null);
+});
+
+test("a note with no front-matter has no front-matter key, horizontal rules included", () => {
+  // Read directly: a note whose YAML never parses in the first place cannot reach the
+  // catch, so this contract is only observable here. A hand-written note may well open
+  // on `key: value` prose (attendees, here) and carry a Markdown rule further down;
+  // scanning it as front-matter would report a "duplicated key" the owner cannot find,
+  // in a note that has no front-matter at all.
+  const raw = "# Meeting\nAttendee: Alice\nAttendee: Bob\n\n---\n\nnotes\n";
+
+  assert.equal(findDuplicateKey(raw), null);
 });
 
 // --- passthrough ------------------------------------------------------------

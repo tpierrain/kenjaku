@@ -5,6 +5,7 @@ import {
   etaMinutes,
   formatProgressReport,
   formatLastRunMarkdown,
+  unaccountedNotes,
   type RunProgress,
 } from "./progress-report.js";
 
@@ -155,4 +156,112 @@ test("C.14 — last-run.md: markdown title + report line", () => {
   assert.match(md, /^#\s/m); // a markdown title
   assert.match(md, /108\s*doc/i); // the run summary
   assert.match(md, /complet/i);
+});
+
+// F10's detector. It was validated in BOTH directions on real data during the QA:
+// the broken run read `414 ≠ 0 + 413`, the repaired one `415 = 2 + 413`. Every note
+// the scan found must end up in exactly one bucket — indexed, skipped, or errored —
+// so a run whose numbers do not add up has lost notes silently, whatever the cause.
+test("unaccountedNotes: a complete run whose numbers add up reports nothing", () => {
+  assert.equal(
+    unaccountedNotes({ scanned: 415, indexed: 2, skipped: 413, errors: 0, hitCap: false }),
+    0,
+  );
+});
+
+test("unaccountedNotes: the exact shape of the F10 incident — one note vanished", () => {
+  // The broken run: 414 scanned, 413 skipped, 0 indexed, and the one read error
+  // erased before it reached last-run.json.
+  assert.equal(
+    unaccountedNotes({ scanned: 414, indexed: 0, skipped: 413, errors: 0, hitCap: false }),
+    1,
+  );
+});
+
+test("unaccountedNotes: the same run, once the error is reported, adds up again", () => {
+  assert.equal(
+    unaccountedNotes({ scanned: 414, indexed: 0, skipped: 413, errors: 1, hitCap: false }),
+    0,
+  );
+});
+
+test("unaccountedNotes: a run cut off by the quota wall is NOT an accounting failure", () => {
+  // Legitimately incomplete: hundreds of notes are neither indexed nor errored, they
+  // are simply not done yet and resume on the next run. Counting them as lost would
+  // cry wolf on every capped run — and a detector that cries wolf gets ignored.
+  assert.equal(
+    unaccountedNotes({ scanned: 900, indexed: 12, skipped: 100, errors: 1, hitCap: true }),
+    0,
+  );
+});
+
+test("formatProgressReport: a completed run that lost notes says so, instead of reading as a success", () => {
+  // The line the brain reads before telling its owner "index à jour". With the same
+  // numbers and no warning, three of our own channels disagreed and the owner was
+  // shown the optimistic one.
+  const out = formatProgressReport(
+    {
+      status: "done",
+      startedAt: "2026-07-28T12:00:00Z",
+      finishedAt: "2026-07-28T12:01:00Z",
+      totalChunks: 4,
+      doneChunks: 4,
+      scanned: 414,
+      indexed: 0,
+      skipped: 413,
+      removed: 0,
+      errors: [],
+      hitCap: false,
+    },
+    "2026-07-28T12:01:00Z",
+  );
+  assert.match(out, /1 note/);
+  assert.match(out, /incomplete/i);
+});
+
+test("formatProgressReport: a completed run that adds up stays quiet about accounting", () => {
+  const out = formatProgressReport(
+    {
+      status: "done",
+      startedAt: "2026-07-28T12:00:00Z",
+      finishedAt: "2026-07-28T12:01:00Z",
+      totalChunks: 4,
+      doneChunks: 4,
+      scanned: 415,
+      indexed: 2,
+      skipped: 413,
+      removed: 0,
+      errors: [],
+      hitCap: false,
+    },
+    "2026-07-28T12:01:00Z",
+  );
+  // Asserted whole, not by the absence of one word: this is the line an owner
+  // reads after every catch-up, and "does not say incomplete" leaves room for it
+  // to say anything else at all — including an accounting warning on a run whose
+  // numbers add up.
+  assert.equal(out, "Last catch-up: completed in 1 min, 2 docs indexed, 0 error(s).");
+});
+
+test("formatProgressReport: a completed run NAMES its errors, it does not just count them", () => {
+  // Counting alone is what the QA met: "1 errors" with no way to know which note.
+  // The incomplete report already named them; the completed one did not.
+  const out = formatProgressReport(
+    {
+      status: "done",
+      startedAt: "2026-07-28T12:00:00Z",
+      finishedAt: "2026-07-28T12:01:00Z",
+      totalChunks: 4,
+      doneChunks: 4,
+      scanned: 414,
+      indexed: 0,
+      skipped: 413,
+      removed: 0,
+      errors: ["Read error: topics/crise.md: duplicate key 'updated'"],
+      hitCap: false,
+    },
+    "2026-07-28T12:01:00Z",
+  );
+  assert.match(out, /topics\/crise\.md/);
+  assert.match(out, /duplicate key/);
 });

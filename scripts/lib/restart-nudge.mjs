@@ -1,10 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// restart-nudge.mjs — the PERSISTENT "restart Claude" nudge for the statusLine
-// (ship-blocker A2, F-B7d). The SessionStart self-heal converges a brain in the
-// background, but its `systemMessage` nudge is DROPPED by Claude Desktop's Code tab
-// (cf. session-status.mjs:7) — so a Desktop user never learns they must restart to
-// pick up the freshly-installed skills/MCP. statusLine IS rendered on Desktop and is
-// re-run continuously, so it is the channel that can show a PERSISTENT nudge.
+// restart-nudge.mjs — the "restart Claude" nudge (ship-blocker A2, F-B7d). The
+// SessionStart self-heal converges a brain in the background; without a nudge, a user
+// never learns they must restart to pick up the freshly-installed skills/MCP.
+//
+// ⚠️ Which channel carries it — corrected by ADR 0036 (see its matrix; the claim that
+// used to sit here, "statusLine IS rendered on Desktop", was false, F4):
+//   • CLI      → the SessionStart `systemMessage` (session-status.mjs), plus the
+//                opt-in status line for an owner who wired one.
+//   • Desktop  → NOTHING deterministic. The 🛑 MANDATORY chat rule in the
+//                update-engine skill is the sole delivery, and always was.
 //
 // Mechanism (deterministic, ADR 0009): the self-heal writes a flag the moment it
 // detects the brain's on-disk engine state is AHEAD of what this session loaded (a

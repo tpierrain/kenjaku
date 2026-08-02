@@ -46,6 +46,17 @@ export function buildSource({ repo, tag, branch, commit }) {
   return { repo: trimmed || null, ref: tag || branch || commit };
 }
 
+// Where a brain should pull its NEXT update from. `recorded` is the repo the brain
+// wrote at install (its install-day memory); `declared` is the `canonicalRepo` the
+// launcher we just fetched states about ITSELF. The launcher wins: that is the only
+// way a repository RENAME ever reaches an already-installed brain (F1) — otherwise
+// every brain keeps cloning its install-day name forever, alive only on the host's
+// redirect from a namespace we no longer own.
+export function resolveSourceRepo({ recorded, declared }) {
+  const trimmed = (declared ?? "").trim();
+  return trimmed || recorded;
+}
+
 // Returns a NEW manifest with `source` and `provenance` set, every other field
 // preserved. Never mutates the input (the brain's freshly-copied manifest).
 export function enrichManifest(manifest, { source, provenance }) {

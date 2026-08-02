@@ -132,6 +132,24 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
   - [ ] (C) Pre-flight preview: apply plan **and** reindex decision, shown before applying.
   - [ ] QA fixtures reproduced from the release **tag(s)** + synthetic personal edits; first enumerate
         the versions actually deployed.
+  - [ ] **Fixture handed over by v4.4.0's Track 8 — "does the capture flow propose what the vault
+        states?"** _(written 2026-07-28, ready to build)_. Seed a universe with **one** person note,
+        `type: person`, whose **first line** states a title and a relationship (the shape
+        `michael-aboumelhem.md` had), and **no** note for a decoy name that appears only in scattered
+        mentions. Run the profile capture. **Pass** = the pre-fill proposes the note's person and
+        title; **fail** = it proposes the decoy, or leaves the title unproposed while the note states
+        it. Deterministic, and it locks the exact behaviour the field run got wrong — the release
+        shipped the retrieval fix and its guard (`scripts/lib/switch-skill-prefill.test.mjs`), but a
+        source-level guard cannot prove the flow *behaves*; only this fixture can.
+  - [x] (D) **Field feedback from a real big-jump upgrade** _(opened and closed 2026-07-28)_:
+        `mind-palace` v4.0.0 → v4.3.0, defects logged as met — **F1-F12**, each verified on disk.
+        **Field log (evidence):** `prospective/fleet-upgrade-field-feedback.md`. Cheaper than fixtures
+        and it said which fixtures are worth building.
+  - [ ] **(D) graduated into its own release** _(2026-07-28)_: **`prospective/release-v4.4.0-action.md`**
+        now owns the WORK (the field log keeps the evidence). Ten entries ship there — F8/P1 as the
+        headline, plus F1, F2, F4, F5, F6, F9, F10, F11, F12 and the profile-prefill retrieval fix.
+        **F3 and F7 stay in this gate**, unshipped, together with the fixtures F12 and the prefill
+        defect each earned.
   - [ ] Likely graduates to its own plan ("engine upgrade experience for the deployed fleet");
         F-B7e (constitution re-layering) becomes one component of it.
   - [ ] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Sequencing decision" (deferred half).
@@ -149,6 +167,8 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
 | `prospective/engine-managed-file-merge-strategy.md` | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. | 1, **2.5** & 4 | 🟢 Increment 2.5 (skills half) shipped in **v4.1.0**; the constitution half stays prospective in Gate 4. |
 | `archived/universes-profiles-lifecycle-action.md` | Per-universe profiles (captured + injected), rename, guarded delete. | 2.6 | ✅ Shipped in **v4.2.0** (PR #49, 2026-07-28) — profiles + lifecycle + the mirror's universe choice, one release. Plan archived. |
 | `archived/universes-progressive-disclosure-action.md` | A soft, progressively-disclosed per-universe retrieval scope over one shared vault/index (ADR 0034). | 2 | ✅ Shipped (PR #38 in v3.6.0, then write-path trilogy + `/switch` flag in v3.6.2, 2026-07-21). Plan archived; field-verify folds into Gate 3. |
+| `prospective/fleet-upgrade-field-feedback.md` | Defects observed on a real deployed brain crossing three versions, captured live. | 4 | 🔬 **Run CLOSED (2026-07-28)** — F1-F12 recorded, each verified on disk. Now the **evidence**, not the work list: the fixes moved to `release-v4.4.0-action.md`. Only F3 (silent reindex) and F7 (unverified outcome reported in the measured voice) remain here. |
+| `prospective/release-v4.4.0-action.md` | Turns the field log into shipped code: a commit that follows the index instead of the session, a status line that yields to the owner's, an indexer that reports what it could not read, a consolidation that cannot damage a page. | 4 | 🚧 Opened 2026-07-28, scope settled with Thomas. Headline **F8/P1**; nine riders; Tracks 1-4 are the release, 5-8 droppable at `/code-review`. |
 | `prospective/second-brain-migration-and-engine-upstream-action.md` | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | 3 | In progress: Tracks A/B/C DONE (PR #29/#30/#32); **Track D now unblocked (Gate 2 shipped)**; F post-migration. |
 
 > Other in-flight plans on their own branches (e.g. wiki-health axis 1, marketing page) are **not

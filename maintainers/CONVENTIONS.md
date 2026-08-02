@@ -311,6 +311,17 @@ Node 22/24/26 × macOS + Windows). Use it as the source of truth.
     `realpathSync` both sides (`/var`→`/private/var`), CRLF, drive letters, case-insensitive FS.
 - **No lint for this** — legitimate `/` are everywhere (URLs, regex, comments), so a path-separator lint
   is all false positives. The **CI matrix is the deterministic net**; this section is the written reflex.
+- **The net now fires DURING the work, not only at the PR** (added 2026-07-28, v4.4.0). For a long time
+  this section was true in principle and useless in practice: `ci.yml` triggered on `pull_request` and
+  on pushes to `main` only, while our PRs open at the **end** of a release (Track 9). So the
+  "deterministic net" could not physically fire while a branch was being written — v4.4.0 reached
+  **52 commits** before Windows ever spoke, and then failed on a fixture path spelled `` `/brain/${REL}` ``
+  where production `join`s. That is why this class kept coming back every few releases: **not a weak
+  reflex, an unwired net.** `ci.yml` now runs on `push` to **any** branch, with a single cheap
+  `early-windows` job (one cell, Node 24 × windows-latest, the dependency-free harness suites, ~40 s).
+  The expensive matrix stays gated to pull requests and `main`, so an ordinary push costs one short job.
+  **Reflex + tripwire + arbiter**: the written reflex above, the tripwire on every push, the 7/7 matrix
+  before merge.
 
 Full rationale: ADR [`0015`](decisions/0015-cross-platform-parity.md) (cross-platform parity).
 

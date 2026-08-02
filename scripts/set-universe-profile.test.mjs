@@ -176,7 +176,7 @@ test("runSetUniverseProfile --digest OFFERS to describe the universe you just sw
   assert.equal(calls.logged.length, 1);
   assert.match(calls.logged[0], /^\[ask the owner\]\n/);
   // Past the gate, so the offer is allowed to name the thing it is describing.
-  assert.match(calls.logged[0], /PAST the disclosure gate/);
+  assert.match(calls.logged[0], /say `universe` plainly/);
 });
 
 test("runSetUniverseProfile --digest stays silent once that universe's offer was declined", () => {

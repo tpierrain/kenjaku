@@ -71,7 +71,15 @@ export async function fetchSource({
   const { ok, out } = git(buildCloneArgs({ repo, ref, dir }));
   if (!ok) {
     removeDir(dir); // never leave a half-cloned temp dir behind
-    throw new Error(`update-engine: git clone of ${repo}@${ref} failed.\n${out}`);
+    // Actionable, because this is the ONLY screen a failed update leaves an owner:
+    // name the address, blame the ADDRESS rather than declare the project dead (the
+    // same failure covers "moved" and "no signal"), and name the one line that
+    // repairs a move — `source.repo`, in a file nobody would think to open.
+    throw new Error(
+      `update-engine: git clone of ${repo}@${ref} failed — that address did not answer.\n${out}\n` +
+        `If the project moved, correct \`source.repo\` in your brain's engine-manifest.json; ` +
+        `otherwise check your internet connection and try again.`,
+    );
   }
   return dir;
 }

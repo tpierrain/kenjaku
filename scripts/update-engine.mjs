@@ -33,7 +33,7 @@ import {
   readTargetManifest,
 } from "./lib/engine-fetch.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
-import { reseedProvenance } from "./lib/engine-source.mjs";
+import { reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
 import {
   defaultRunInstall,
   defaultRunReindex,
@@ -81,7 +81,7 @@ export function bareHookName(command) {
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -176,6 +176,14 @@ export function formatReport(report) {
   if (healedHooks.length > 0) {
     lines.push(`   • repaired Windows hook command(s) (issue #31 — 'laude' error): ${healedHooks.join(", ")}`);
   }
+  // ADR 0036: we stopped occupying the terminal's status line. Said as what the owner
+  // GAINS — the next terminal session shows THEIR line again, where ours used to be —
+  // because a silent change of something they look at reads as a bug, not as a gift.
+  if (statusLineRemoved) {
+    lines.push(
+      `   • your own status line is back: the brain no longer occupies it (nothing else changed)`,
+    );
+  }
   // F1.6 (ADR 0026, point 4): a freshly-installed skill/MCP is on disk but Claude
   // loads skills/MCP/hooks when a conversation STARTS (Layer B config-freeze), so it
   // is NOT yet live in THIS conversation. Say so LOUDLY (silence reads as "ready to
@@ -261,6 +269,7 @@ export async function updateEngine({
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
+    statusLineRemoved,
   } = await reconcileBrain({
       brainDir,
       platform,
@@ -295,7 +304,12 @@ export async function updateEngine({
     ...local,
     engineVersion: target.engineVersion,
     indexSchemaVersion: target.indexSchemaVersion,
-    source: { ...source, ref },
+    //    F1: the repo is re-read from the launcher we just fetched, not carried over
+    //    from install day. `source.repo` was written once, at install, and revised
+    //    never — so a repository RENAME reached no deployed brain and they all kept
+    //    cloning the old name, alive on a redirect in a namespace we no longer own.
+    //    The launcher declaring its own canonical URL is what lets the fleet follow.
+    source: { ...source, repo: resolveSourceRepo({ recorded: source.repo, declared: target.canonicalRepo }), ref },
     provenance: reseedProvenance({
       priorProvenance: local.provenance ?? {},
       manifest: target,
@@ -358,6 +372,7 @@ export async function updateEngine({
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
+    statusLineRemoved,
   };
 }
 

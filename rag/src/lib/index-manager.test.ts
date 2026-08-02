@@ -353,6 +353,42 @@ test("reindex: a doc that fails to read is recorded as an error, others proceed"
   assert.match(result.errors[0], /Read error: bad\.md/);
 });
 
+test("reindex: a note damaged by consolidation is reported by key and line (F12)", async () => {
+  // The owner reads this string in `last-run.json`, in the reindex report and through
+  // vault_stats. It is the whole difference between a defect that announces itself and
+  // one that does not — so it names the key, both lines, and carries no class name.
+  const { lock } = unlockedLock();
+  const { embedder } = spyEmbedder();
+  const { ports } = fakePorts({
+    scan: async () => [{ absolutePath: "/v/crise.md", relativePath: "crise.md" }],
+    readFile: async () =>
+      "---\ntitle: Crise\ncreated: 2026-06-01\nupdated: 2026-06-12\ntype: topic\nupdated: 2026-07-28\n---\n# Crise\n",
+  });
+
+  const result = await reindex(false, { lock, embedder, reporter: memReporter(), ports });
+
+  assert.deepEqual(result.errors, [
+    'Read error: crise.md: damaged front-matter key "updated": declared twice, on ' +
+      "lines 4 and 6. A note can only carry one — until one of them is removed, this " +
+      "note keeps answering from the content it was last indexed with.",
+  ]);
+});
+
+test("reindex: a thrown non-Error is still reported, as its own text", async () => {
+  const { lock } = unlockedLock();
+  const { embedder } = spyEmbedder();
+  const { ports } = fakePorts({
+    scan: async () => [{ absolutePath: "/v/odd.md", relativePath: "odd.md" }],
+    readFile: async () => {
+      throw "the disk shrugged";
+    },
+  });
+
+  const result = await reindex(false, { lock, embedder, reporter: memReporter(), ports });
+
+  assert.deepEqual(result.errors, ["Read error: odd.md: the disk shrugged"]);
+});
+
 test("reindex on an already-stamped index (incremental): does NOT re-stamp identity", async () => {
   const { lock } = unlockedLock();
   const { embedder } = spyEmbedder();
@@ -523,4 +559,36 @@ test("runIndexingPhase: Google wall (429) → finish incomplete + hitCap (not a 
   assert.equal(final?.status, "incomplete");
   assert.equal(final?.hitCap, true);
   assert.equal(final?.wallReason, "google-rate-limit");
+});
+
+// F10, the wiring half: the reporter is primed AFTER the scan, so phase-1 read
+// errors have to be handed to it explicitly or they vanish. The chain that hid a
+// damaged note for a whole afternoon: consolidation wrote a second `updated:` key →
+// every re-read failed → the error was swallowed here → the note stayed searchable
+// and confidently out of date.
+test("runIndexingPhase: phase-1 read errors reach last-run instead of being reset away", async () => {
+  const storage = memProgressStorage();
+  const reporter = new ReindexReporter({
+    storage,
+    now: () => new Date("2026-07-28T18:00:00Z"),
+  });
+
+  await runIndexingPhase(
+    [doc("a.md", 2)],
+    { embed: fakeEmbed, persist: () => {} },
+    reporter,
+    {
+      scanned: 3,
+      skipped: 1,
+      removed: 0,
+      errors: ["Read error: topics/crise.md: duplicate key 'updated'"],
+    },
+  );
+
+  const final = storage.load();
+  assert.deepEqual(final?.errors, [
+    "Read error: topics/crise.md: duplicate key 'updated'",
+  ]);
+  // And the phase-2 errors still land on top of them, not instead of them.
+  assert.equal(final?.status, "done");
 });

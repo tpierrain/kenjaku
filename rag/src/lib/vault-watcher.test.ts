@@ -17,6 +17,14 @@ test("ignores paths nested under a .git / .cache / node_modules segment", () => 
   assert.equal(isIgnoredPath("/vault/a/.cache/b.md"), true);
 });
 
+test("ignores Obsidian's UI state, which git has excluded from day one", () => {
+  // `.obsidian/workspace.json` is rewritten on ordinary UI gestures (moving a
+  // pane). Watching it made an owner pay a full-vault scan for a pane move, and
+  // it would fire the campaign-end commit trigger on a change git cannot see.
+  assert.equal(isIgnoredPath("/vault/.obsidian/workspace.json"), true);
+  assert.equal(isIgnoredPath("/vault/.obsidian/graph.json"), true);
+});
+
 test("ignores a path that ends on an ignored segment", () => {
   assert.equal(isIgnoredPath("/vault/.git"), true);
   assert.equal(isIgnoredPath("/vault/sub/node_modules"), true);
@@ -30,6 +38,9 @@ test("does not ignore a segment merely containing an ignored name", () => {
   // `.gitignore` contains ".git" but is a real note path, not the .git dir.
   assert.equal(isIgnoredPath("/vault/.gitignore"), false);
   assert.equal(isIgnoredPath("/vault/my-node_modules-notes.md"), false);
+  // Same boundary rule for the newest segment: a note ABOUT Obsidian is a note.
+  assert.equal(isIgnoredPath("/vault/topics/.obsidian-setup.md"), false);
+  assert.equal(isIgnoredPath("/vault/topics/obsidian.md"), false);
 });
 
 type Handler = (p: string) => void;
