@@ -887,16 +887,42 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       - [ ] Write the 0 % debt into `RESULTS.md` (own section: why 0, what is actually covered in
             `scripts/lib/**`, the §5ter cure, and that every published tag carries it).
       - [ ] Carry one honest line about it into the release note (Track 9's release-note box).
-    - [ ] Same discipline as rag: cross-reference every survivor against the lines
+    - [x] Same discipline as rag: cross-reference every survivor against the lines
           `git diff main...HEAD` actually adds, kill what is ours, name what is not.
-      - [ ] **In scope and worth killing** (this release's own code): `note-refresh.mjs` — the
-            front-matter regex (3), the duplicate-key refusal message, `if (!today) throw`, the
-            `updated:` finder, the body-trim; `refresh-note.mjs` — the **vault-containment refusal**
-            and the "does not exist — refreshing never creates" message, i.e. the write guard of a
-            script that edits notes; `reconcile-brain.mjs` — the four on Track 2's retreat wiring,
-            including the owner's OWN status line being win32-repaired (`if (statusLineRepaired)`),
-            which is exactly what ADR 0036 promises to preserve; `update-engine.mjs` — the
-            `skillsPreserved = []` default nobody feeds absent.
+          ⚠️ **The Stryker HTML reports are GONE** — both run worktrees lived under the session
+          scratchpad and macOS's temp cleanup emptied them (2026-08-02, `git worktree prune`).
+          **This cost nothing**, because the survivors were enumerated in this box while the
+          reports were open; that enumeration is now the record. **Lesson for the next release:
+          copy the per-file scores AND the survivor list into the plan the moment a run ends** — a
+          scratchpad worktree is not storage.
+      - [x] **In scope and worth killing** (this release's own code) — **DONE 2026-08-02**, every
+            mutant hand-applied and watched red before being reverted, each file its own commit:
+        - [x] `note-refresh.mjs` — the front-matter regex (3), the duplicate-key refusal message,
+              `if (!today) throw`, the `updated:` finder, the body-trim. _(`5e21587`)_ **Two were
+              real defects, not just unwatched lines**: a `---` rule in the body swallowed half the
+              page into the frontmatter under a greedy match, and a **CRLF** note (Windows, which is
+              in the CI matrix, and Obsidian writes CRLF there) was refused as "having no
+              frontmatter". The `^updated:` anchor turned out to protect a page carrying
+              `last_updated:` from having the WRONG key overwritten. 7 tests → 13.
+        - [x] `refresh-note.mjs` — the **vault-containment refusal** and the "does not exist"
+              message. _(`8458ce1`)_ The containment guard's trailing slash is the whole guard:
+              without it `../vault-secrets/x.md` resolves outside `vault/` and passes. The
+              does-not-exist message was matched with `/does not exist|file-back/i`, an **OR that
+              let either half vanish** — including the half naming `file-back-note.mjs`. Both now
+              asserted whole. 6 tests → 8.
+        - [x] `reconcile-brain.mjs` — the four on Track 2's retreat wiring. _(`c72e20a`)_ **One
+              cause, one test**: every existing test had either OUR line (retired) or a clean
+              custom one, so the **healing** branch — the only place we ever write into someone
+              else's `statusLine` — was never exercised, and with the hooks converged that repair is
+              the ONLY reason to write. Two passes: converge, then the owner sets THEIR line with
+              the `cmd /c` prefix the pre-fix installer taught them. 54 tests → 55.
+        - [x] `update-engine.mjs` — `skillsPreserved = []`. **NOT a coverage gap: a genuine
+              EQUIVALENT, verified by hand.** Stryker's array mutant injects a *string*, the loop
+              destructures `{ reason }` off it → `undefined !== "customized"` → `continue`, so
+              nothing is observable. Proof it is the mutant and not the test: the sibling defaults
+              on the same line (`installedSkills = []`, `statusLineRemoved = false`) **die** against
+              the existing minimal-report test. Killing it would mean changing production to reject
+              a shape the producer cannot emit. **Record it, do not chase it.**
       - [ ] **A systematic equivalent to record ONCE, not per file**: every
             `readFileSync(p, "utf8")` → `readFileSync(p, "")` survivor. Node returns a **Buffer** for
             an empty encoding and `JSON.parse` decodes it to the same string. Same finding as
