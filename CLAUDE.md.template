@@ -43,6 +43,16 @@ When the user asks to "back up to GitHub" / "put the brain on a remote" / "have 
 - **NEVER editorialize about the vault's content** ("it's thin", "it looks like a template", "few notes"). It's neither asked for nor relevant, and it undermines trust. The only filter that matters is the checklist above (secrets/PII/NDA) — already covered by `.gitignore`.
 - After creating the remote, enable auto-push: `git config secondbrain.autopush true` (otherwise commits stay local). Once enabled, the brain pushes **once per turn** (the `Stop` hook bundles that turn's commits — not a push per edit); a failed push is non-blocking and retried next turn.
 
+> 🖥️ **A brain freshly cloned onto a SECOND machine — offer the rehydrate.** Signs: no `.mcp.json`
+> and/or no `.claude/settings.json` in the folder, no `vault-rag` in `/mcp`, no auto-commit. Those two
+> files bake **this machine's** absolute paths, so they are gitignored and a clone simply has none:
+> nothing is broken, the machine is just not wired yet. Offer to run, **from the brain folder**:
+> `node scripts/rehydrate.mjs`. It rebuilds both files from the `.template` siblings already in the
+> clone, reseeds the health canary note and installs the two dependency trees — offline, idempotent,
+> nothing overwritten. Then say the one thing no file can do: **open a NEW conversation rooted in this
+> folder** (the MCP servers and hooks load when a session starts). Never suggest re-running
+> `installer.mjs`: it refuses an existing folder, by design.
+
 ## Tone
 
 - **Factual, concise, direct.** No empty jargon.

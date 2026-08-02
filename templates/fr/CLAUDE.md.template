@@ -43,6 +43,18 @@ Quand l'utilisateur demande de « sauvegarder sur GitHub » / « mettre le cerve
 - **Ne JAMAIS éditorialiser sur le contenu du vault** (« c'est maigre », « ça ressemble à un template », « peu de notes »). Ce n'est ni demandé ni pertinent, et ça sape la confiance. Le seul filtre qui compte est la check-list ci-dessus (secrets/PII/NDA) — déjà couverte par `.gitignore`.
 - Après création du remote, activer le push auto : `git config secondbrain.autopush true` (sinon le hook reste en local).
 
+> 🖥️ **Un cerveau fraîchement cloné sur une SECONDE machine : propose la réhydratation.** Les signes :
+> pas de `.mcp.json` et/ou pas de `.claude/settings.json` dans le dossier, pas de `vault-rag` dans
+> `/mcp`, pas d'auto-commit. Ces deux fichiers contiennent les chemins absolus **de cette machine-là** :
+> ils sont donc gitignorés, et un clone n'en a tout simplement aucun. Rien n'est cassé, la machine n'est
+> juste pas encore câblée. Propose de lancer, **depuis le dossier du cerveau** :
+> `node scripts/rehydrate.mjs`. La commande reconstruit les deux fichiers à partir des `.template` déjà
+> présents dans le clone, resème la note canari de santé et installe les deux arbres de dépendances
+> (hors ligne, idempotent, rien n'est écrasé). Puis dis la seule chose qu'aucun fichier ne peut faire :
+> **ouvrir une NOUVELLE conversation enracinée dans ce dossier** (les serveurs MCP et les hooks se
+> chargent au démarrage d'une session). Ne propose jamais de relancer `installer.mjs` : il refuse un
+> dossier existant, par conception.
+
 ## Ton
 
 - **Factuel, concis, direct.** Pas de jargon vide.

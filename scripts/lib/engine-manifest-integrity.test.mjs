@@ -103,6 +103,30 @@ test("engine-manifest — every script a delivered skill invokes is itself carri
   );
 });
 
+// The THIRD door onto an engine script, alongside a wired hook and a skill: the
+// CONSTITUTION. Claude re-reads it every session, so a script it names is a script the
+// brain will be told to run — `node scripts/rehydrate.mjs` on a second machine, `node
+// scripts/clear-example-notes.mjs` to purge the demo notes. Named-but-not-carried is the
+// same failure as for a skill, with a worse blast radius: the instruction is what an
+// upgrade refreshes, so the brain is confidently told to run a file it never received (or
+// keeps a copy stale since install — that is how the v3.4.1 Windows fix to
+// `clear-example-notes.mjs` reached nobody who installed before it).
+// Scoped to the DELIVERED constitution (the two layers, every locale); the repo-root
+// CLAUDE.md is the launcher's install stub, addressed to a session that has no brain yet.
+test("engine-manifest — every script the delivered constitution names is itself carried to upgraders", () => {
+  const constitutions = trackedFiles.filter((file) =>
+    /(^|\/)CLAUDE\.(engine\.md|md\.template)$/.test(file),
+  );
+
+  const undeclared = notCarried(scriptsNamedIn(constitutions));
+
+  assert.deepEqual(
+    undeclared,
+    [],
+    `scripts named by the constitution but carried by no regime — the brain is told to run what it never got: ${undeclared.join(", ")}`,
+  );
+});
+
 // F-B2 (ADR 0026): settings.json.template must be CARRIED to upgraders (declared in
 // `replace`). It is the desired-state SOURCE the hook reconcile / SessionStart bootstrap
 // tick reads to detect drift — a brain comparing its settings.json against its OWN STALE

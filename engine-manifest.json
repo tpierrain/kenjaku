@@ -20,6 +20,8 @@
       "local-mirror/package-lock.json",
       "local-mirror/tsconfig.json",
       "scripts/update-engine.mjs",
+      "scripts/rehydrate.mjs",
+      "scripts/clear-example-notes.mjs",
       "scripts/import-brain.mjs",
       "scripts/set-active-universe.mjs",
       "scripts/set-universe-profile.mjs",
