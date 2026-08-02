@@ -19,6 +19,22 @@
 
 ## ▶️ START HERE
 
+**NEXT STEP, as of 2026-08-02 — write the RELEASE NOTE.** Everything upstream of it in Track 9 is
+done and ticked: the code review and its six fixes, the cut line (nothing is cut), CI 7/7, the
+**mutation snapshot written into `maintainers/mutation/RESULTS.md`** _(`5a66510`)_, and the
+marketing-surface pass. **Do not re-measure, do not re-review, do not re-read the marketing surfaces.**
+What the release note owes, beyond the usual §11 shape, is **three lines that are already decided and
+must not be re-litigated**:
+
+1. **the two numbers, never one** (searchable in seconds · committed within ~2 min, 10 at the outside);
+2. **one honest line on the named debt** — two boot scripts no test can observe (0 % mutation), a hole
+   every published tag already carries, with its cure scheduled as a release of its own;
+3. **a release-note line for each of Tracks 1 and 4-8** (each track's box says which).
+
+After the note: 3-4 `v4.4.0 — The One Where …` codenames for **Thomas to pick**, then merge/tag/publish,
+then archive the plan. The **Verification** section stays owed and needs a real installed brain — it is
+not a blocker for the note, only for calling those boxes done.
+
 **All the code is written, Track 10 included. The next track is Track 9 — cutting the release**
 _(as of 2026-07-28)_. Tracks 1-8 are code-complete _(`8d2e2c4`)_; Track 10 shipped the push cadence
 and amended ADR 0037 in place. Track 1 stays unticked in `## Tracking` for what it still owes, and it is **not code**: its
@@ -814,8 +830,15 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       plus the Windows installer e2e. _(2026-07-28 · PR #53, run `30388758449`, all green)_ — the
       first run was **red on all four Windows jobs** (a fixture path built by hand instead of joined,
       `b4b627d`); see START HERE for what that cost and why the rule exists.
-- [ ] **Mutation snapshot pinned to the tag** (CONVENTIONS §5ter), recorded in
-      `maintainers/mutation/RESULTS.md` and carried in the release note. Baseline at v4.3.0:
+- [x] **Mutation snapshot pinned to the tag** (CONVENTIONS §5ter), recorded in
+      `maintainers/mutation/RESULTS.md` _(2026-08-02 · `5a66510`)_ — measured, killed, and now
+      **written down**: the v4.4.0 section carries the rag before/after table, the 16 scripts per file,
+      the 0 % named debt in its own section, the two worktree traps (also folded into the file's
+      Gotchas), the `readFileSync("utf8")` equivalent recorded **once for the repo**, the correction
+      that a worktree dry-runs the FULL harness command (so the old narrowing was never needed), and
+      local-mirror carried over rather than re-measured. **What it still owes is the release note's
+      own lines**, tracked in the release-note box below — do not re-open the measurement.
+      Baseline at v4.3.0:
       scripts **97.27 %**, local-mirror **90.44 %**, rag **90.42 %**.
       **Scope decided on the diff** (`main...HEAD`), the usual targeted run, not a full re-audit:
   - [x] **rag** — the 10 changed `rag/src/lib/**` prod files: `campaign-persist`, `campaign-run`,
@@ -839,13 +862,13 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
           89.61 → **93.51 %**, `engine-version` 81.63 → **83.67 %**. The 34 remaining survivors are
           pre-existing lines plus the two recorded equivalents — **verified line by line**, nothing of
           this release's own is left standing.
-  - [ ] **scripts** — the 16 changed `scripts/**` prod files, in a **disposable worktree**
+  - [x] **scripts** — the 16 changed `scripts/**` prod files, in a **disposable worktree**
         (`inPlace` on the real tree once wiped the demo vault; recipe in RESULTS.md).
         **Good news, correcting RESULTS.md**: the FULL harness command dry-runs fine in a worktree
         (**1033 green**) — `engine-manifest-integrity.test.mjs` only broke in the *sandbox*, which has
         no `.git`. So this run is **not narrowed**, and its score is not pessimistic. Fold that back
         into `RESULTS.md` when writing the snapshot.
-    - [ ] **Run it in BATCHES of < 9 min.** ⚠️ Learned twice on 2026-07-28: the whole run is ~30 min
+    - [x] **Run it in BATCHES of < 9 min.** ⚠️ Learned twice on 2026-07-28: the whole run is ~30 min
           for ~1230 mutants, and a background command is **capped at 10 min** — the first attempt was
           killed at 40 %. `setsid` does not exist on macOS, so detaching is not the way out.
           Driver: `scratchpad/run-batch.sh <name> "<comma-separated files>"`, which **resets the
@@ -855,15 +878,16 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
           `session-self-heal`, `status-line` · **D** `universe-reminder`, `engine-fetch`,
           `engine-source`, `refresh-note`, `auto-commit`, `note-refresh` · **E** `actions-log-seed`,
           `wiki-health-nudge`, `restart-signal`, `restart-nudge`, `status-line-retreat`.
-    - [ ] ⚠️ **Two worktree traps, both paid for on 2026-07-28 — write them into `RESULTS.md`, they
-          are new and neither is in the existing gotchas.**
-      - [ ] **A mutant of `auto-commit.mjs` COMMITS the instrumented tree.** The worktree came back
+    - [x] ⚠️ **Two worktree traps, both paid for on 2026-07-28 — write them into `RESULTS.md`, they
+          are new and neither is in the existing gotchas.** _(2026-08-02 · `5a66510`: both in the
+          v4.4.0 section AND in the file's `Gotchas learned`, where the next run will meet them.)_
+      - [x] **A mutant of `auto-commit.mjs` COMMITS the instrumented tree.** The worktree came back
             sitting on an `auto: vault/claude sync` commit of its own, so `git checkout -- .`
             faithfully restored *Stryker's instrumentation* and every later dry run died on
             `SyntaxError: Identifier 'stryNS_…' has already been declared`. The reset has to be
             `git reset --hard <sha>` + `git clean -fd`, never `checkout -- .`. This is the worktree
             doing its job — the same mutant on the real tree would have committed **there**.
-      - [ ] **`disableTypeChecks` must be OFF for this package.** Stryker prepends `// @ts-nocheck`
+      - [x] **`disableTypeChecks` must be OFF for this package.** Stryker prepends `// @ts-nocheck`
             to ~370 files, and under `inPlace` that lands on the real worktree. These are plain
             `.mjs` with nothing to type-check. The CLI has no flag for it, so the batch run uses a
             tiny `stryker.scripts.batch.config.mjs` that spreads the base config and turns it off.
@@ -904,8 +928,12 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
           refactor is a release of its own**, deliberately NOT done on the eve of a tag on two
           fleet-deployed scripts. **Do not re-open this** — re-raise it only when planning that
           refactor.
-      - [ ] Write the 0 % debt into `RESULTS.md` (own section: why 0, what is actually covered in
+      - [x] Write the 0 % debt into `RESULTS.md` (own section: why 0, what is actually covered in
             `scripts/lib/**`, the §5ter cure, and that every published tag carries it).
+            _(2026-08-02 · `5a66510`)_ — plus a ⚠️ on the `Current scores` row, because the 97.27 %
+            baseline had no way to show it, and the section names the whole boot/IO tier
+            (`engine-fetch`, `restart-signal`, `session-self-heal`, `refresh-note`'s 17) as the
+            package's largest remaining debt.
       - [ ] Carry one honest line about it into the release note (Track 9's release-note box).
     - [x] Same discipline as rag: cross-reference every survivor against the lines
           `git diff main...HEAD` actually adds, kill what is ours, name what is not.
@@ -965,18 +993,26 @@ and pushing per turn (Stop). This track can only make the watcher quieter.
       - [x] **Recorded EQUIVALENT (note-refresh's last survivor)**: dropping the trailing `$` from
             `FRONTMATTER_RE`. `[\s\S]*` is greedy to the end already, so the anchor buys nothing at
             runtime; keeping it is documentation of intent, not behaviour.
-      - [ ] **A systematic equivalent to record ONCE, not per file**: every
+      - [x] **A systematic equivalent to record ONCE, not per file** _(2026-08-02 · `5a66510`, its own
+            ⭐ bullet in the equivalents list, flagged "do not re-derive it per file")_: every
             `readFileSync(p, "utf8")` → `readFileSync(p, "")` survivor. Node returns a **Buffer** for
             an empty encoding and `JSON.parse` decodes it to the same string. Same finding as
             `engine-version.ts:83` on the rag side; it accounts for a large share of the
             pre-existing survivors in `reconcile-brain`, `engine-fetch` and `update-engine`.
-  - [ ] **local-mirror** — ⛔️ **nothing to run**: this release touches no `local-mirror/src/**` file.
+  - [x] **local-mirror** — ⛔️ **nothing to run**: this release touches no `local-mirror/src/**` file.
         Its **90.44 %** carries over from v4.2.0 unchanged; say so rather than re-measuring.
-  - [ ] Kill every survivor that sits **inside this release's own code**, or record it as an accepted
+        _(2026-08-02 · `5a66510` — written as such in both the `Current scores` row and the v4.4.0
+        section: an untouched package must not get a new number.)_
+  - [x] Kill every survivor that sits **inside this release's own code**, or record it as an accepted
         equivalent with the reason. Pre-existing survivors stay out of scope, but name them.
-  - [ ] ⚠️ **The two runs must not overlap** — the CPU oversubscription gotcha turns genuine kills
-        into false timeouts and inflates the score. One package at a time.
-- [ ] **Marketing-surface pass** (CONVENTIONS §10), **before** writing the release note, in this order:
+        _(2026-08-02 — done on both sides; the five equivalents are listed in `RESULTS.md`.)_
+  - [x] ⚠️ **The two runs must not overlap** — the CPU oversubscription gotcha turns genuine kills
+        into false timeouts and inflates the score. One package at a time. _(Honoured: rag first,
+        then the scripts batches, sequentially in a worktree.)_
+- [x] **Marketing-surface pass** (CONVENTIONS §10) _(2026-07-28 · `17fb75f`; re-verified on disk
+      2026-08-02 — `SETUP.md:163-175` states the two numbers as two, the reliability prompt reads
+      "commits on a quiet window, pushes once per turn", and both claims Track 10 flagged are settled)_,
+      **before** writing the release note, in this order:
       *what did this release make false, or merely imprecise?* (hunt the absolutes — *never*, *only*,
       *always*, *untouched*, *sacred*, *it can only add*), then *what did it make true that we do not
       sell yet?*
