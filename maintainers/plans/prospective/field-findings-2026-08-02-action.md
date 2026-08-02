@@ -64,15 +64,23 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           installs **two** dependency trees (`installer.mjs:773` and `:789` — `local-mirror/` has its
           own `package.json`, 7 deps). So even after regenerating `.mcp.json`, the `local-mirror`
           server would fail to start on the second machine. Same PR.
-  - [ ] Decide the fix: a `rehydrate`/`bootstrap` command that generates both files from the shipped
-        templates, vs. letting the reconciler create-if-absent, vs. removing the absolute paths
-        altogether so the two files become committable.
-  - [ ] **If rehydrate wins: it must SHARE the substitution code with `installer.mjs`, not re-implement
-        it.** Two generators that substitute differently produce two different brains — the same defect
-        shape as F16 (a checker that parses differently from the engine measures a fiction).
-  - [ ] **Open: how does the second machine LEARN the command?** With no `settings.json` there are no
-        hooks, so nothing can detect the situation and say so — the discovery path is human-only
-        (`SETUP.md`) or via the constitution, which travels but is a frozen-on-edit engine file (F5).
+  - [x] **Decided (2026-08-02): a rehydrate command.** It replays the installer's generation step
+        **locally**: the two files from the templates already in the clone, the launchers, and **both**
+        `npm install`. Offline, idempotent, no source repo. Rejected: create-if-absent in the
+        reconciler (it does not stand alone — the reconciler is fired by the SessionStart hook declared
+        in the very `settings.json` that is missing, so it would need this command underneath anyway);
+        and removing the absolute paths (better in principle, but it depends on what Claude Code
+        actually resolves and it touches every deployed brain — kept as a possible later cleanup).
+  - [ ] **It must SHARE the substitution code with `installer.mjs`, not re-implement it.** Two
+        generators that substitute differently produce two different brains — the same defect shape as
+        F16 (a checker that parses differently from the engine measures a fiction). Extract
+        `gen()` + the `replacements` table (`installer.mjs:484-520`) into a lib both call.
+  - [x] **Decided (2026-08-02): discovery = the doc AND the constitution.** `SETUP.md` §7 + the §8 row
+        carry the command for a human; **and** the constitution — which travels through git — teaches
+        Claude to offer the rehydrate when both files are missing, so the second machine self-repairs
+        conversationally. Known limit, to state in the PR: the constitution is an engine-managed file,
+        so this half only reaches brains whose constitution was not customized (F5's freeze).
+  - [ ] The engine must also **fail by naming the command** instead of failing into the void.
   - [ ] Whatever is chosen, fix `SETUP.md` §7 **and** the §8 troubleshooting row ("re-run
         `node installer.mjs`", which cannot work) in the same PR.
 - [ ] **F11 / F12 — an indexing failure is displayed as a wait.** A note was written, committed, and
