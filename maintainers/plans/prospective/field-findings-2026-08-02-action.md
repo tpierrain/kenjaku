@@ -164,7 +164,11 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — step 11, the v4.5.0 release. Nothing else is left.** Nothing of it is started. What it needs is in the
+> **⏭️ THE RESUME POINT — step 11, the v4.5.0 release, IN PROGRESS. Nothing else is left.** Its first
+> item — the mutation pass the owner asked for mid-release — is under way: `rag` is done, and in
+> `scripts` batch 1 the two weak files are hardened and committed (`verify-index.mjs` 40.54 % →
+> **92.31 %**, `rag-status.mjs`'s 7 survivors all fixed). **Resume at batch 2** of `## Step 11`.
+> What the rest of the release needs is in the
 > numbered list below — the `engineVersion.scripts` bump and the PR body stating F5's known limit (a
 > first draft of that body is already on PR #54) — plus the §7 caveat at the end of this header (the
 > rehydrate does not index, so the first rooted session is what indexes the vault, canary included). _(Side work done 2026-08-03 and finished, unrelated to the release:
@@ -231,17 +235,37 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
     - [x] **Batch 1 done** _(2026-08-03, 3 min 10 s, 147 mutants, `All files` 80.27 %)_:
           `brain-rehydrate.mjs` **100 %**, `open-note.mjs` **100 %**, `staged-health-note.mjs` **100 %**,
           `rag-status.mjs` 86.79 % (7 survivors), **`verify-index.mjs` 40.54 % (22 survivors)**.
-      - [ ] **`verify-index.mjs`'s 22 survivors are ALL boot/IO wiring, and none is in the decision
-            logic**: lines 32-41 (`defaultRunCrosscheck`, the real spawn), 43-47 (`realVerifyIndexDeps`),
-            67-68 (the `isEntrypoint` guard). `runVerifyIndex` itself — the exit-code decision — is fully
-            killed. Same shape RESULTS.md names as the package's known debt.
-      - [ ] **But do NOT file it as debt without trying the fix that just worked.** The identical shape in
-            `index-crosscheck-scan.ts` went 70.59 % → **100 %** an hour earlier, and `rehydrate.mjs`
-            already carries the remedy this repo invented: a `realRehydrateDeps wires the real machine`
-            test asserting the wired functions by identity. `realVerifyIndexDeps` has no such test — a
-            plain asymmetry, not a law. **Next action on this file: write it, re-mutate, and only record
-            what genuinely survives as equivalent.**
-      - [ ] `rag-status.mjs`'s 7 survivors: not yet looked at.
+      - [x] **`verify-index.mjs` 40.54 % → 92.31 %, re-measured** _(2026-08-03 · `b6c55d3`)_. The 22
+            survivors were all boot/IO wiring — `defaultRunCrosscheck` (the real spawn),
+            `realVerifyIndexDeps`, the `isEntrypoint` guard — and **19 of them died to the fix that had
+            just worked on `index-crosscheck-scan.ts`**, so filing them as debt would have been a habit
+            rather than a measurement. What the spawn asks the OS for is a pure value and is now one:
+            `buildCrosscheckInvocation` returns `{command, args, options}`, asserted **whole** on both
+            platforms (win32 fed on purpose — CI runs macOS, so nothing else tells the `.cmd` branch from
+            the identity) plus the called-with-nothing twin; `defaultRunCrosscheck` keeps the real
+            `spawnSync` as its default and takes it as a seam only so the forwarding is assertable (the
+            fake returns a shape no spawn produces); `realVerifyIndexDeps` is pinned by identity like
+            `realRehydrateDeps`.
+      - [ ] **The 3 that remain are the `isEntrypoint` block, and it is a PACKAGE-WIDE shape, not this
+            file's debt** — `if (false)`, the empty block, and `process.argv.slice(2)` → `process.argv`
+            (that last one has a real behaviour behind it: the engine CLI would receive node's own argv).
+            **10+ scripts carry the identical three-mutant guard**, so the honest fix is one shared
+            `runAsEntrypoint(meta, argv, fn)` tested once — a v4.6.0 candidate, deliberately NOT done
+            mid-release. Record it in RESULTS.md as such, not as a verify-index gap.
+      - [x] **`rag-status.mjs`'s 7 survivors: all fixed** _(2026-08-03 · `051a002`)_, and none was
+            exotic. **Five were loose assertions** (§2): the separator could become `""`, the remedy
+            sentence — the only part telling the owner this will NOT fix itself — could vanish, and the
+            empty string where the wait used to be could become arbitrary junk, all with every
+            `assert.match` still green. The three lines carrying the F11/F12 fix are now asserted whole.
+            **The two others were the classic pair**: the boundary where the truncation flips (exactly
+            two failures — nothing distinguished `rest > 0` from `rest >= 0`, i.e. the owner reading
+            `(+0 other(s))`), and the absence (no test reached the failure lookup with `lastRun` missing,
+            which is exactly a freshly rehydrated machine, F14 — its shortfall must read as the plain
+            wait it is). Every mutant applied by hand before and after.
+      - [ ] **Re-measurement of `rag-status.mjs` PENDING** — the first attempt was killed by the 10-min
+            cap (worktree reset afterwards, per the config's own warning). Relaunched in the background,
+            log at `maintainers/mutation/reports/v450-rag-status-recheck.log`. **Copy the score here when
+            it lands**; the fix itself is committed and the suite is green either way.
     - [ ] **Batch 2, not started** — `scripts/lib/health-probe.mjs, scripts/lib/rag-launcher.mjs,
           scripts/lib/universe-profile.mjs, scripts/lib/universe-reminder.mjs,
           scripts/lib/vault-write-guard.mjs`.
