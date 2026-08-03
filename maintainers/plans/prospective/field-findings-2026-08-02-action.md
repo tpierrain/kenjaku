@@ -720,23 +720,60 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [ ] **Mutation batches** (worktree `/Users/tpierrain/Dev/kenjaku-mut-v460`, `rag/node_modules`
         symlinked and **verified** — 31 pass / 0 skipped before starting, or the write-guard mutants
         face a suite that cannot judge them).
-    - [ ] **Batch 1** — `lib/filed-note.mjs` + `file-back-note.mjs` (the confidence + homonymy code).
-          Log: `maintainers/mutation/reports/v460-scripts-batch1.log`.
-    - [ ] **Batch 2** — `lib/engine-version.mjs` + `lib/status-hook-output.mjs` (the version segment).
-    - [ ] **Batch 3** — `lib/note-refresh.mjs` + `refresh-note.mjs` + `lib/doc-section.mjs`.
-    - [ ] Treat survivors the way v4.5.0 did: fix what a test can honestly reach, record only genuine
-          equivalents, **re-measure every hardened file** (a hardened-but-unmeasured file has an
-          unknown score, which is the same silence this trilogy is about).
-  - [ ] **Version vector** — bump to `4.6.0` wherever the release number lives, and check
-        `engineVersion.scripts` (left at `1.9.0` deliberately at v4.5.0's step; decide again here).
-  - [ ] **§10 marketing re-read** — README, EN-QUOI-C-EST-DIFFERENT, SETUP, CONNECTORS, the boards
-        through their alt texts. **Record the verdict even when it is boring.** Two known inputs: this
-        release makes the brain *refuse* to write a person card in cases where it used to write one
-        (a new user-visible refusal), and v4.5.0's startup version segment is still unsold.
-  - [ ] **Release note + PR body** — §11 shape (non-dev first), no finding codes, and it must cover
-        the `⚙️ Kenjaku engine v4.5.0` startup segment left over from Step 12.0.
-  - [ ] **The title is the owner's call** — do not mint one alone (v4.5.0's was chosen by them).
+    - [x] **Batch 1 done and TREATED** _(2026-08-03 · `7879454`, log `…/v460-scripts-batch1.log`)_ —
+          `filed-note.mjs` **96.00 %** (5), `file-back-note.mjs` **72.81 %** (31 + 1 timeout). Both
+          families this release keeps meeting: the real deps observed by nothing (fixed by one real
+          child process against a throwaway brain, which is also the only thing that reaches the stdin
+          read, the recursive mkdir and the entrypoint guard) and refusal text asserted by fragments
+          (now asserted whole — that text IS the product here).
+    - [x] **Batch 2 done and TREATED** _(2026-08-03 · `bd6f995`, log `…/v460-scripts-batch2.log`)_ —
+          `doc-section.mjs` **53.33 %** (14), `refresh-note.mjs` **68.52 %** (17 + 1 timeout),
+          `note-refresh.mjs` **92.31 %** (7), `engine-version.mjs` **95.24 %** (2),
+          `status-hook-output.mjs` **92.86 %** (1). **The finding: `doc-section.mjs` had no test file
+          at all** — the slicer that decides what every doc guard reads, exercised only through those
+          guards, against documents where a degraded slice still contained the words they look for.
+          Both "return the whole document" mutants survived, which silently turns every sliced guard
+          back into the flat search it was extracted to replace. It has its own tests now (14/14 dead).
+    - [ ] **Re-measure** (running): batch 1's two files, then batch 2's five. A hardened-but-unmeasured
+          file has an unknown score, which is the same silence this trilogy is about.
+    - [x] **Equivalents, established by hand and NOT to be chased** _(each mutant applied, run, and
+          reverted)_: `readFileSync(0, "")` in both CLIs (returns a Buffer, `JSON.parse` coerces it —
+          already recorded at v4.5.0 for the guard hook); the slug's `^-+|-+$` quantifiers (the
+          preceding `[^a-z0-9]+` collapse makes two leading hyphens unreachable — verified on six
+          titles); `/\.md$/` unanchored in `firstNameSegment` (the first name is the first hyphen
+          segment, and no vault path carries `.md` inside it); `typeof manifest !== "object"` (a
+          truthy non-object yields null through both paths anyway); and two regex tails where `$` is
+          redundant without the `s` flag (`.*$` and `([\s\S]*)$`).
+    - [ ] **Still open, and NOT this release's debt**: the shared `runAsEntrypoint(meta, argv, fn)`
+          (3 mutants × 10+ scripts, named at v4.5.0). Two of the three now die per file thanks to the
+          child-process tests; what remains is `process.argv.slice(2)` → `process.argv`, a true
+          equivalent in both CLIs here since both take their spec on **stdin** and ignore argv.
+  - [x] **Version vector done** _(2026-08-03 · `e4d2110`)_ — measured first: `rag/` and
+        `local-mirror/` are untouched by this branch, so only `scripts` 1.10.0 → **1.11.0** and
+        `constitutionTemplate` 1.1.0 → **1.2.0**. `indexSchemaVersion` stays **2** — no reindex, which
+        is what the note promises.
+  - [x] **§10 marketing re-read done** _(2026-08-03 · `e4d2110`)_. **Made TRUE and now sold**: the
+        brain no longer invents a colleague (README §A, next to "silence is reported as silence" —
+        same defect family, identity half; §C's builder bullet; EN-QUOI's hole-by-hole table + §4.4),
+        and the startup version segment (SETUP §10 answers "which version am I on", including the two
+        deliberate silences). **Made FALSE: nothing** — no promise this release contradicts.
+        **Found stale while re-reading**: 34 ADRs → 37, and local-mirror's mutation score quoted at
+        95.6 % while RESULTS.md has read 90.4 % since v4.2.0 (an overclaim by five points, now
+        corrected and framed as "each package's last package-wide audit"). **Boards: re-read through
+        their alt texts, NOT re-rendered** — `board-reliability` shows "34 ADRs", a snapshot that now
+        under-claims, which is not a false promise; nothing on any board asserts something the code
+        stopped doing.
+  - [x] **Release note drafted** _(2026-08-03 · `f507942`)_ —
+        `maintainers/plans/prospective/release-v4.6.0-note.md`, §11 shape, no finding codes, and it
+        carries the startup version segment left over from Step 12.0. Two placeholders on purpose: the
+        title, and the mutation/CI blocks (filled from measurements, not from intent).
+  - [ ] **PR body** — same shape as `archived/release-v4.5.0-pr-body.md`.
+  - [ ] **The title is the owner's call** — do not mint one alone (v4.5.0's was chosen by them). The
+        series shape is *"The One Where …"*. Three candidates to put to them, none picked unilaterally:
+        **The One Where It Stops Inventing People** · **The One Where It Asks Which One You Mean** ·
+        **The One Where a Name Has to Be Earned**.
   - [ ] **CI must speak before the tag** (§9): push, watch the full matrix, 7/7 green.
+  - [ ] **RESULTS.md § v4.6.0** — the per-file numbers, the two findings, and the equivalents above.
 
 ## The one pattern behind most of it (the reframe)
 
