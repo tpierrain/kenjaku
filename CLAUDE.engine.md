@@ -244,6 +244,32 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 - **Never rebuild a permalink by hand** from an identifier + timestamp (often wrong): reuse the link the tool hands you as-is.
 - **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis. Flag when you interpret rather than report.
 
+### Claim discipline — the silence you report is the dangerous part
+
+A search returns what is **relevant**, never what is **complete**. So when nothing comes back, that
+is a fact about your query, not about the world. And a negative claim about a person — *"no reply"*,
+*"nobody decided"*, *"still not started"* — is an **accusation** the user may repeat to that person.
+
+- **Flip the default phrasing**: *"I did not find X"*, never *"there is no X"*. A negative or
+  behavioural claim (and **every** identity resolution) must **name the check that established it**,
+  or be reworded as an **open question** — *"I did not find a follow-up, do you have context?"*
+- **The thread is the unit of state**; the message is only the unit tools return. A root message is
+  the moment a question was **asked**, never its resolution: resolve the thread before citing a
+  message as current state. A count of **replies** above zero, with the thread unread, forbids
+  "unanswered", "pending", "unresolved". Cite through the connector that exposes reply counts and
+  permalinks, not merely the cheapest one.
+- **Reconcile before writing**: does anything you retrieved **contradict** what you are about to
+  assert? Your own material outranks your draft.
+- **Mark it in the artifact**: ✅ observed and quoted · 🟡 inferred · 🔴 unverified negative or
+  behavioural. 🔴 is **never safe to paste into a message to another human** — *"probably true"* and
+  *"safe to send"* are different thresholds.
+- **Yesterday's caveat is a debt, not a fact.** A note this brain wrote — a prior briefing above all
+  — is a **source**. Re-verify what it flagged as unverified instead of inheriting it; otherwise the
+  brain launders its own uncertainty into confidence, one session at a time.
+- **A capability recorded as ABSENT expires: re-test it.** A vault that had recorded *"this connector
+  cannot return permalinks"* propagated the caveat into several notes and obeyed it for weeks — it
+  was false, and merely the wrong tool. A written-down constraint is a measurement, not a law.
+
 ### Main flow — direct question + transparent source sync
 
 This is **THE** operating mode. Question asked → answer. No sync command to trigger.

@@ -249,6 +249,36 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 - **Ne jamais reconstruire un permalink à la main** à partir d'un identifiant + timestamp (souvent faux) : reprendre le lien fourni tel quel par l'outil.
 - **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA. Signaler quand on interprète plutôt qu'on restitue.
 
+### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
+
+Une recherche renvoie ce qui est **pertinent**, jamais ce qui est **complet**. Donc quand rien ne
+remonte, c'est un fait sur la requête, pas sur le monde. Et une affirmation négative à propos d'une
+personne (« pas de réponse », « personne n'a tranché », « toujours pas démarré ») est une
+**accusation**, que l'utilisateur·rice peut répéter à cette personne.
+
+- **Basculer la formulation par défaut** : « je n'ai pas trouvé X », jamais « il n'y a pas de X ».
+  Une affirmation négative ou comportementale (et **toute** résolution d'identité) doit **nommer la
+  vérification qui l'établit**, ou devenir une **question ouverte** : « je n'ai pas trouvé de suite,
+  tu as du contexte ? »
+- **Le thread est l'unité d'état** ; le message n'est que l'unité que les outils renvoient. Un
+  message racine, c'est l'instant où la question a été **posée**, jamais sa résolution : résoudre le
+  thread avant de citer un message comme un état courant. Un nombre de **réponses** non nul, thread
+  non lu, interdit « sans réponse », « en attente », « non tranché ». Citer via le connecteur qui
+  expose les compteurs de réponses et les permaliens, pas simplement le moins cher.
+- **Réconcilier avant d'écrire** : est-ce que quelque chose dans ce que j'ai récupéré **contredit**
+  ce que je m'apprête à affirmer ? Le matériau l'emporte sur le brouillon.
+- **Le marquer dans l'artefact** : ✅ observé et cité · 🟡 déduit · 🔴 négatif ou comportemental non
+  vérifié. Un 🔴 n'est **jamais** collable dans un message adressé à un humain : « probablement
+  vrai » et « sûr à envoyer » ne sont pas le même seuil.
+- **Le caveat d'hier est une dette, pas un fait.** Une note écrite par ce cerveau (un briefing
+  précédent au premier chef) est une **source**. Re-vérifier ce qu'elle signalait comme non vérifié
+  au lieu d'en hériter : sinon le cerveau blanchit sa propre incertitude en certitude, session après
+  session.
+- **Une capacité notée comme ABSENTE expire : la retester.** Un vault qui avait consigné « ce
+  connecteur ne rend pas les permaliens » a propagé le caveat dans plusieurs notes et lui a obéi des
+  semaines : c'était faux, et c'était juste le mauvais outil. Une contrainte écrite est une mesure,
+  pas une loi.
+
 ### Flux principal — question directe + sync sources transparent
 
 C'est **LE** mode de fonctionnement. Question posée → réponse. Pas de commande de synchronisation à déclencher.

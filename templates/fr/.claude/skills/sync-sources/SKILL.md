@@ -70,6 +70,84 @@ s'appuient sur les fiches de `vault/people/`. Règle : **kebab-case, sans accent
 (`[[people/jane-doe]]`). **Jamais de prénom seul** (`[[people/jane]]` est interdit). Créer les
 backlinks même si la page cible n'existe pas (*dangling links* OK) ; ne pas créer les pages cibles.
 
+## Discipline d'affirmation
+
+> **La sortie dangereuse d'un second cerveau, ce n'est pas le fait qu'il invente : c'est le SILENCE
+> qu'il rapporte.** Deux échecs réels, à un jour d'intervalle : « pas de réponse depuis jeudi » à
+> propos d'un thread qui avait **12 réponses le jour même** (bug ouvert, analyse postée), et
+> « personne n'a tranché » sur une réouverture qui était **tranchée et planifiée**, responsable et
+> back-up nommés. Les deux étaient à un clic d'être postés à l'équipe. Aucune hallucination :
+> chaque fait avait bien été récupéré. Le défaut est entièrement dans le pas entre **récupérer** et
+> **affirmer**.
+
+Une recherche renvoie ce qui est **pertinent**, jamais ce qui est **complet**. Donc quand rien ne
+remonte, c'est une propriété de ta requête, pas du monde. Trois niveaux, trois barres différentes :
+
+| Niveau | De quoi il s'agit | La barre à franchir |
+|---|---|---|
+| **Observé** | contenu cité + source + date + lien | rien de plus que la citation |
+| **Déduit** | une agrégation, une chronologie, une comparaison | traçable jusqu'aux observations listées |
+| **Négatif ou comportemental** | « pas de réponse », « personne n'a tranché », « toujours pas démarré », « X n'a pas fait Y », **et toute résolution d'identité** | **nommer la vérification qui l'établit, ou ne pas l'écrire** |
+
+Le troisième niveau, c'est tout l'enjeu : une affirmation négative sur une personne est une
+**accusation**, et c'est exactement la formulation vers laquelle un briefing penche.
+
+1. **Basculer la formulation par défaut.** Écrire « je n'ai pas trouvé X », jamais « il n'y a pas de
+   X ». Ça coûte un mot et ça supprime toute la classe d'accusations.
+2. **Une affirmation négative nomme sa vérification, ou devient une question ouverte** : « je n'ai
+   pas trouvé de suite, quelqu'un a du contexte ? » plutôt que « personne n'a relancé ».
+3. **Le thread est l'unité d'état** ; le message n'est que l'unité que les outils renvoient. Un
+   message racine, c'est l'instant où la question a été **posée**, jamais sa résolution. Résoudre le
+   thread avant de citer un message comme un état courant.
+4. **Un nombre de réponses non nul bloque tout.** Réponses présentes et thread non lu : interdiction
+   d'écrire « sans réponse », « en attente », « non tranché », « toujours en attente » sur ce
+   message. Point.
+5. **Citer via le connecteur qui expose l'état.** La découverte peut passer par le connecteur large
+   et pas cher ; ce que tu cites vraiment est re-résolu via celui qui rend les **compteurs de
+   réponses et les permaliens**.
+6. **Réconcilier avant d'écrire.** Une passe sur ta propre récolte : est-ce que quelque chose dedans
+   **contredit** ce que je m'apprête à affirmer ? Le pire des deux échecs tenait sa propre réfutation
+   dans la même réponse d'outil (un message plus tardif de l'auteur qui commençait par « merci pour
+   ta réponse très complète ») et a affirmé le contraire quand même.
+7. **L'urgence est une propriété de l'état, pas du ton.** « Urgent », « bloquant », « pour le 1er »
+   sont des mots à l'intérieur d'un message ; un message qui *sonne* urgent et qui est déjà traité
+   n'est pas urgent. Trier par ton ne demande aucun thread, trier par état si.
+8. **Doser l'effort au coût de l'erreur.** Se tromper sur un module livré ne coûte rien ; se tromper
+   sur « P a démissionné » ou « l'équipe T n'a jamais répondu » coûte une relation. Mettre la
+   diligence là où l'erreur est chère, pas uniformément.
+
+### Le marquer dans l'artefact, pas seulement dans ta tête
+
+La personne qui lit doit voir **d'un coup d'œil** quelles lignes sont sûres à répéter à voix haute.
+Marquer toute affirmation de niveau 2 et 3 :
+
+| Marqueur | Sens | Collable dans un message à un humain ? |
+|---|---|---|
+| ✅ | observé, cité | oui, tel quel |
+| 🟡 | déduit ou probable | seulement en disant la déduction à voix haute |
+| 🔴 | négatif ou comportemental, non vérifié | **jamais** : le reformuler en question d'abord |
+
+« Probablement vrai » et « sûr à envoyer à la personne concernée » ne sont **pas** le même seuil, et
+c'est le second qui compte.
+
+### Le caveat d'hier est une dette, jamais la prémisse d'aujourd'hui
+
+Un briefing précédent est une **source**, pas un fait, y compris le tien. C'est le mode de défaillance
+propre à un cerveau *persistant* : il indexe sa propre incertitude et la relit comme une certitude.
+Une des deux sessions ratées a démarré en héritant du caveat de la veille (« aucun signal sur la
+facturation électronique, ce silence mérite d'être creusé »), qui était faux : il y en avait au moins
+quatre. Avant de réutiliser quoi que ce soit d'un briefing précédent, **re-vérifier ce qu'il signalait
+comme non vérifié** ; ne jamais le propager comme établi.
+
+### Une capacité notée comme absente doit être retestée
+
+Ce même vault avait consigné, comme limitation permanente, que « le connecteur Slack ne rend pas les
+permaliens », l'avait propagé dans plusieurs notes, et lui obéissait. C'était faux : un mauvais choix
+d'outil, pas une contrainte de plateforme, et le connecteur natif a rendu les permaliens au premier
+appel. **Le cerveau avait écrit une fausse contrainte et lui obéissait.** Traiter une absence
+consignée comme une mesure avec péremption : la retester avant de la laisser façonner une réponse, et
+corriger la note quand l'outil sait finalement le faire.
+
 ## Procédure
 
 ### Étape 1 — Découverte des sources (contexte principal)
@@ -129,6 +207,13 @@ TÂCHE :
 
 RÈGLES :
 - Ne PAS inventer d'information absente du transcript.
+- Un transcript enregistre ce qui a été DIT dans une réunion, jamais l'état courant de ce dont
+  elle parle. Donc pas de « personne n'a tranché » / « toujours pas démarré » / « X n'a pas fait
+  Y » tiré d'un transcript : écrire « je n'ai pas trouvé de décision dans ce transcript », et le
+  marquer 🔴 (🟡 déduit, ✅ observé et cité) pour que le contexte principal sache que ce n'est pas
+  répétable.
+- Un prénom seul reste un prénom seul. Ne jamais le résoudre en identité complète : c'est une
+  affirmation sur QUI est quelqu'un, et ça a déjà attribué une démission à la mauvaise personne.
 - Créer les backlinks même si la page cible n'existe pas.
 - Backlinks via vault/people/ (kebab-case sans accents, jamais de prénom seul).
 - JAMAIS de shell (python3 -c, node -e, awk, sed, jq, grep, cat…) pour lire/charger/découper le
@@ -158,6 +243,31 @@ EXTRAIRE un résumé structuré (~500 tokens max), regroupé par THÈME (pas par
 ### À escalader        # 🔧 adapte
 ### À partager         # 🔧 adapte
 ### Alertes            # incidents, escalades, urgences
+
+THREADS : À LIRE DEUX FOIS, c'est là que cet agent s'est planté sur le terrain.
+- L'unité de sens est le THREAD ; l'unité que ta recherche renvoie est le MESSAGE. Un message
+  racine, c'est l'instant où la question a été POSÉE, jamais sa résolution. Échec terrain :
+  « pas de réponse depuis jeudi » rapporté sur un thread qui avait 12 réponses le jour même,
+  bug ouvert et analyse postée.
+- Avant de rapporter TOUT message comme un état courant, et systématiquement avant les mots
+  « sans réponse », « en attente », « non tranché », « toujours en attente », « personne n'a
+  répondu » : OUVRIR SON THREAD.
+- Un nombre de réponses non nul avec le thread non lu interdit tous ces mots.
+- Si ton connecteur n'expose pas les compteurs de réponses, le dire dans ton retour ; ne pas
+  lire son silence comme « pas de réponses ».
+- Trier par ÉTAT, pas par ton : un message qui sonne urgent et qui est déjà traité n'est pas
+  urgent.
+
+AFFIRMATIONS NÉGATIVES :
+- Écrire « je n'ai pas trouvé X », jamais « il n'y a pas de X ». Une affirmation négative nomme
+  la vérification qui l'établit, ou se reformule en question ouverte.
+- Marquer 🔴 toute affirmation négative ou comportementale dans ton retour, pour que le contexte
+  principal sache qu'elle n'est PAS collable dans un message à un humain. ✅ = observé et cité,
+  🟡 = déduit.
+- Avant de rendre : relis ta propre récolte. Est-ce que quelque chose que tu as récupéré
+  CONTREDIT ce que tu t'apprêtes à affirmer ? (Un échec réel a affirmé « pas de réponse » alors
+  que le même jeu de résultats contenait un message plus tardif remerciant l'auteur pour sa
+  réponse complète.)
 
 RÈGLES :
 - Ignorer le conversationnel pur (bonjour/merci/emoji) et les bots/notifications.
@@ -201,6 +311,18 @@ Le contexte principal reçoit les résumés compacts de tous les sous-agents + l
 (~3-5k tokens). **Trier et croiser** : un même sujet vu dans un transcript ET dans le chat = signal
 fort. C'est aussi ici qu'on décide si le delta **amende la réponse en cours** (Phase 3 du flux).
 
+**Réconcilier avant d'écrire la moindre ligne** (voir *Discipline d'affirmation* plus haut). Les
+retours forment un corpus à rendre cohérent avec lui-même, **pas** un sac de citations pour étayer
+une synthèse déjà décidée. Deux passes, les deux peu coûteuses :
+
+1. **Est-ce que quelque chose que j'ai récupéré contredit ce que je m'apprête à affirmer ?** Une
+   contradiction dans ton propre matériau l'emporte sur l'affirmation, toujours.
+2. **Chaque ligne 🔴 est soit vérifiée maintenant, soit reformulée en question ouverte.** Un 🔴 qui
+   atteint le briefing tel quel, c'est celui que la personne va coller dans un canal.
+
+Un sous-agent qui a signalé ne pas voir les compteurs de réponses t'a dit que son silence n'est
+**pas mesuré** : le porter jusqu'au briefing, au lieu de l'arrondir en « il ne s'est rien passé ».
+
 ### Étape 4 — Écriture du briefing (si briefing du matin)
 
 Écrire dans `vault/briefings/YYYY-MM-DD.md` :
@@ -211,33 +333,49 @@ type: briefing
 date: YYYY-MM-DD
 architecture: fan-out/fan-in
 sources: ["[[raw-sources/transcripts/...]]", "chat (24h)", "calendar (jour)"]
+unverified: true          # vrai tant qu'un caveat ci-dessous reste décoché (voir Caveats)
 tags: [briefing]
 ---
 
 # Briefing — YYYY-MM-DD
 
-## ✅ Ce que tu as fait depuis le dernier briefing
+## Ce que tu as fait depuis le dernier briefing
 - [YYYY-MM-DD] [action] — #canal [[people/destinataire]]
 
-## 🔴 Tes engagements (ce que tu as promis)
-- **[engagement]** — contexte, source [[raw-sources/...]]
+## Tes engagements (ce que tu as promis)
+- **[engagement]** : contexte, source [[raw-sources/...]]
 
-## 🟡 Ce qu'on attend de toi
-- ⚠️ Urgent : [deadlines du jour]
-- Pending : [[people/prenom-nom]] : [attente]
+## Ce qu'on attend de toi
+- Échéance du jour : [ce qui tombe, et le message qui le dit]
+- ✅ [[people/prenom-nom]] a demandé X le [date], thread résolu, toujours ouvert
+- 🔴 Je n'ai pas trouvé de réponse de [[people/prenom-nom]] sur X, **thread non lu** : ne pas le
+  répéter à voix haute, demander plutôt « où en est-on sur X ? »
 
-## 🔵 À escalader / 🟢 À partager   # 🔧 sections à adapter à ton organisation
+## À escalader / À partager   # 🔧 sections à adapter à ton organisation
 
-## 📅 Agenda du jour
+## Agenda du jour
 | Heure | Réunion | Préparation |
 |---|---|---|
 | HH:MM | **[réunion]** | [contexte/action] |
 
-## Caveats
-- [qualité des transcripts, confusions de noms, contexte manquant]
+## Caveats : des DETTES, pas des faits. Re-vérifier avant réemploi, ne jamais hériter comme établi.
+- [ ] 🔴 [ce qui n'est pas vérifié] : la vérification qui trancherait, [la nommer]
+- [ ] 🟡 [ce qui a été déduit plutôt qu'observé, et à partir de quoi]
 ```
 
-Pas de section vide — l'omettre. Chaque signal cite sa source (crochets ou backlink).
+**Lire cette dernière section attentivement, ce n'est pas de la décoration.** Ce sont les lignes
+qu'une session future va retrouver et, si elles sont en prose, promouvoir silencieusement en
+prémisses : c'est exactement comme ça que le second échec a commencé. Donc une **case à cocher** par
+dette (visible par la machine, greppable, cochable quand c'est réglé) et `unverified: true` dans le
+frontmatter tant qu'une seule reste décochée. Retirer la clé quand elles sont toutes réglées, et
+seulement là.
+
+Les marqueurs sont **obligatoires** sur toute affirmation concernant une personne : ✅ observé et
+cité, 🟡 déduit, 🔴 négatif ou comportemental non vérifié, **jamais** collable dans un message à un
+humain. (Ce sont des marqueurs de *confiance*, pas de priorité : ne pas les recycler en code couleur
+d'urgence, sinon le seul signal qui protège une relation se perd dans la décoration.)
+
+Pas de section vide, l'omettre. Chaque signal cite sa source (crochets ou backlink).
 
 ### Étape 5 — Append dans `vault/actions-log.md`
 
@@ -259,6 +397,12 @@ référencés.
 Si `vault/briefings/YYYY-MM-DD.md` existe déjà : le relire, re-scanner les sources, et n'ajouter
 qu'une section `## 🔄 Mise à jour HH:MM` en tête s'il y a du nouveau. Sinon afficher
 « Pas de nouveauté » sans modifier le fichier.
+
+**Relire un briefing, c'est lire une SOURCE, pas récolter des faits**, et ça vaut aussi pour celui
+d'hier et pour toute note que ce cerveau a écrite sur lui-même. Ses caveats décochés sont des
+**dettes dont tu viens d'hériter** : les régler, ou les reporter en tant que dettes, et ne cocher une
+case que quand une vérification l'a vraiment levée. Un caveat qui perd sa case en silence a été
+blanchi en fait.
 
 ## Conventions backlinks
 

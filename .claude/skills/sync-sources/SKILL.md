@@ -70,6 +70,81 @@ rely on the cards in `vault/people/`. Rule: **kebab-case, no accents**
 (`[[people/jane-doe]]`). **Never a first name alone** (`[[people/jane]]` is forbidden). Create the
 backlinks even if the target page doesn't exist (*dangling links* OK); do not create the target pages.
 
+## Claim discipline
+
+> **The dangerous output of a second brain is not the fact it invents, it is the SILENCE it
+> reports.** Two real failures, one day apart: *"no reply since Thursday"* about a thread that had
+> **12 replies that same day** (a bug filed, an analysis posted), and *"nobody has decided"* about a
+> reopening that had been **decided and scheduled**, owner and backup named. Both were one click from
+> being posted to the owner's team. Neither was a hallucination — every fact was really retrieved.
+> The defect lives entirely in the step between **retrieving** and **asserting**.
+
+A search index returns what is **relevant**, never what is **complete**. So when nothing comes back,
+that is a property of your query, not a property of the world. Three tiers, three different bars:
+
+| Tier | What it is | The bar to clear |
+|---|---|---|
+| **Observed** | quoted content + source + date + link | nothing beyond the citation |
+| **Derived** | an aggregation, a timeline, a comparison | traceable to observations you listed |
+| **Negative or behavioural** | "no reply", "nobody decided", "not started", "X hasn't done Y" — **and every identity resolution** | **name the check that established it, or don't write it** |
+
+The third tier is the whole game: a negative claim about a person is an **accusation**, and it is
+exactly the phrasing a briefing pulls toward.
+
+1. **Flip the default phrasing.** Write *"I did not find X"* — never *"there is no X"*. It costs one
+   word and removes the entire accusation class.
+2. **A negative claim names its verification, or becomes an open question.** *"I did not find a
+   follow-up — does anyone have context?"* instead of *"nobody followed up"*.
+3. **The thread is the unit of state; the message is only the unit the tools return.** A root message
+   is the moment a question was **asked**, never its resolution. Resolve the thread before citing any
+   chat message as **current state**.
+4. **A reply count above zero is a hard block.** With replies present and the thread unread, you may
+   not write "unanswered", "pending", "unresolved" or "still waiting" about that message. At all.
+5. **Cite through the connector that exposes state.** Discovery may use the cheap wide one; anything
+   you actually cite is re-resolved through the one returning **reply counts and permalinks**.
+6. **Reconcile before you write.** One pass over your own retrieved output: *does anything in it
+   contradict what I am about to assert?* The worst of the two failures held its own refutation in
+   the very same tool response — a later message from the author opening *"thanks for your very
+   complete answer"* — and asserted the opposite anyway.
+7. **Urgency is a property of state, not of tone.** "Urgent", "blocking", "by the 1st" are words
+   inside a message; one that *sounds* urgent and is already handled is not urgent. Ranking by tone
+   needs no thread, ranking by state does.
+8. **Scale the effort to the cost of being wrong.** Being wrong about a shipped module costs nothing;
+   being wrong about *"P resigned"* or *"team T never answered"* costs a relationship. Spend the
+   diligence where a mistake is expensive, not evenly.
+
+### Mark it in the artifact, not only in your head
+
+The reader must see **at a glance** which lines are safe to repeat out loud. Mark every claim of the
+second and third tier:
+
+| Marker | Meaning | Safe to paste into a message to another human? |
+|---|---|---|
+| ✅ | observed — quoted and sourced | yes, as-is |
+| 🟡 | derived or probable | only with the inference said out loud |
+| 🔴 | negative or behavioural, unverified | **never** — reword it as a question first |
+
+*"Probably true"* and *"safe to send to the person concerned"* are **not** the same threshold, and
+the second is the one that matters.
+
+### Yesterday's caveat is a debt, never today's premise
+
+A prior briefing is a **source**, not a fact — including your own. This is the failure mode specific
+to a *persistent* brain: it indexes its own uncertainty and reads it back as confidence. One of the
+two failing sessions opened by inheriting the previous day's caveat (*"no signal on e-invoicing, this
+silence is itself worth probing"*) — which was false; there were at least four signals. Before
+reusing anything from a prior briefing, **re-verify what it flagged as unverified**; never propagate
+it as established.
+
+### A capability recorded as absent must be re-tested
+
+That same vault had recorded, as a permanent limitation, that *"the Slack connector does not expose
+permalinks"*, propagated it into several notes, and obeyed it. It was false — a wrong tool choice,
+not a platform constraint; the native connector returned permalinks on the first call. **The brain
+had written down a false constraint and was obeying it.** Treat a recorded absence as a measurement
+with an expiry: re-test it before letting it shape an answer, and correct the note when the tool
+turns out to do it after all.
+
 ## Procedure
 
 ### Step 1 — Source discovery (main context)
@@ -129,6 +204,12 @@ TASK:
 
 RULES:
 - Do NOT invent information absent from the transcript.
+- A transcript records what was SAID in one meeting — never the current state of what it
+  discusses. So no "nobody decided" / "still not started" / "X hasn't done Y" out of a
+  transcript: write "I did not find a decision in this transcript", and mark it 🔴 (🟡
+  inferred, ✅ observed and quoted) so the main context knows it is not safe to repeat.
+- A bare first name stays a bare first name. Never resolve it into a full identity — that is a
+  claim about who someone IS, and it has already attributed a resignation to the wrong person.
 - Create the backlinks even if the target page doesn't exist.
 - Backlinks via vault/people/ (kebab-case no accents, never a first name alone).
 - NEVER a shell (python3 -c, node -e, awk, sed, jq, grep, cat…) to read/load/split the
@@ -158,6 +239,27 @@ EXTRACT a structured summary (~500 tokens max), grouped by THEME (not by channel
 ### To escalate        # 🔧 adapt
 ### To share           # 🔧 adapt
 ### Alerts             # incidents, escalations, emergencies
+
+THREADS — READ THIS TWICE, it is where this agent has failed in the field:
+- The unit of meaning is the THREAD; the unit your search returns is the MESSAGE. A root
+  message is the moment a question was ASKED, never its resolution. Field failure: "no reply
+  since Thursday" reported about a thread that had 12 replies the same day, bug filed and
+  analysis posted.
+- Before reporting ANY message as current state — and always before the words "unanswered",
+  "pending", "unresolved", "still waiting", "nobody replied" — OPEN ITS THREAD.
+- A reply count above zero with the thread unread is a HARD BLOCK on all of those words.
+- If your connector does not expose reply counts, say so in your return; do not read its
+  silence as "no replies".
+- Rank by STATE, not by tone: a message that sounds urgent and is already handled is not urgent.
+
+NEGATIVE CLAIMS:
+- Write "I did not find X", never "there is no X". A negative claim names the check that
+  established it, or it is reworded as an open question.
+- Mark every negative or behavioural claim 🔴 in your return so the main context knows it is
+  NOT safe to paste into a message to a human. ✅ = observed and quoted, 🟡 = inferred.
+- Before returning, re-read your own findings: does anything you retrieved CONTRADICT what you
+  are about to assert? (A real failure asserted "no answer" while the same result set held a
+  later message thanking the author for a complete answer.)
 
 RULES:
 - Ignore pure conversational noise (hello/thanks/emoji) and bots/notifications.
@@ -201,6 +303,18 @@ The main context receives the compact summaries from all the sub-agents + the ag
 (~3-5k tokens). **Sort and cross-reference**: the same topic seen in a transcript AND in the chat = strong
 signal. This is also where we decide whether the delta **amends the answer in progress** (Phase 3 of the flow).
 
+**Reconcile before writing a single line** (see *Claim discipline* above). The returns are a corpus
+to be made internally consistent, **not** a bag of quotes to support a synthesis you have already
+decided on. Two passes, both cheap:
+
+1. **Does anything I retrieved contradict what I am about to assert?** A contradiction in your own
+   material outranks the claim, always.
+2. **Every 🔴 line either gets verified now, or is reworded as an open question.** A 🔴 that reaches
+   the briefing unchanged is the one the owner pastes into a channel.
+
+A sub-agent that reported it could not see reply counts has told you its silence is **unmeasured** —
+carry that through to the briefing rather than rounding it to "nothing happened".
+
 ### Step 4 — Writing the briefing (if morning briefing)
 
 Write to `vault/briefings/YYYY-MM-DD.md`:
@@ -211,31 +325,46 @@ type: briefing
 date: YYYY-MM-DD
 architecture: fan-out/fan-in
 sources: ["[[raw-sources/transcripts/...]]", "chat (24h)", "calendar (day)"]
+unverified: true          # true as long as one caveat below is unticked — see Caveats
 tags: [briefing]
 ---
 
 # Briefing — YYYY-MM-DD
 
-## ✅ What you did since the last briefing
+## What you did since the last briefing
 - [YYYY-MM-DD] [action] — #channel [[people/recipient]]
 
-## 🔴 Your commitments (what you promised)
+## Your commitments (what you promised)
 - **[commitment]** — context, source [[raw-sources/...]]
 
-## 🟡 What's expected of you
-- ⚠️ Urgent: [today's deadlines]
-- Pending: [[people/firstname-lastname]]: [expectation]
+## What's expected of you
+- Deadline today: [what falls due, and the message that says so]
+- ✅ [[people/firstname-lastname]] asked for X on [date] — thread resolved, still open
+- 🔴 I did not find a reply from [[people/firstname-lastname]] on X — **thread not read**, do not
+  repeat this out loud; ask instead: "where are we on X?"
 
-## 🔵 To escalate / 🟢 To share   # 🔧 sections to adapt to your organization
+## To escalate / To share   # 🔧 sections to adapt to your organization
 
-## 📅 Today's agenda
+## Today's agenda
 | Time | Meeting | Preparation |
 |---|---|---|
 | HH:MM | **[meeting]** | [context/action] |
 
-## Caveats
-- [transcript quality, name confusions, missing context]
+## Caveats — DEBTS, not facts. Re-verify before reusing; never inherit as established.
+- [ ] 🔴 [what is unverified] — the check that would settle it: [name it]
+- [ ] 🟡 [what was inferred rather than observed, and from what]
 ```
+
+**Read that last section carefully, it is not decoration.** These are the lines a future session
+will find and, if they are prose, silently promote into premises — that is exactly how the second
+failure began. So: one **checkbox** per debt (machine-visible, grep-able, tickable when settled) and
+`unverified: true` in the frontmatter for as long as one is unticked. Drop the key when they are all
+settled, and only then.
+
+Markers are **mandatory** on every claim about a person: ✅ observed and quoted · 🟡 inferred ·
+🔴 negative or behavioural and unverified — **never** safe to paste into a message to a human.
+(Note they are markers of *confidence*, not of priority: don't recycle them as a colour code for
+urgency, or the one signal that protects a relationship gets lost in decoration.)
 
 No empty section — omit it. Each signal cites its source (brackets or backlink).
 
@@ -258,6 +387,11 @@ X?" → `grep -i "X" vault/actions-log.md` then enrich via the referenced briefi
 If `vault/briefings/YYYY-MM-DD.md` already exists: re-read it, re-scan the sources, and only add
 a `## 🔄 Update HH:MM` section at the top if there's something new. Otherwise show
 "Nothing new" without modifying the file.
+
+**Re-reading a briefing is reading a SOURCE, not collecting facts** — the same applies to yesterday's
+briefing, and to any note this brain wrote about itself. Its unticked caveats are **debts you have
+now inherited**: settle them or carry them forward as debts, and tick a box only when a check
+actually cleared it. A caveat that silently loses its checkbox has been laundered into a fact.
 
 ## Backlink conventions
 
