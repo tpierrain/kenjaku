@@ -55,6 +55,10 @@ const RULES_EN = [
     why: 'a bare first name stays plain text — never a [[people/…]] link, never a surname you supplied ("Jérémy" → "Jérémy Hinard")',
     pattern: /never invent the missing half/i,
   },
+  {
+    why: 'nothing is "new" until the vault has been asked — and the check must be NAMED, not implied (tier 3 of the claim discipline)',
+    pattern: [/before you call anything new/i, /search_vault/],
+  },
 ];
 
 const RULES_FR = [
@@ -66,6 +70,10 @@ const RULES_FR = [
     why: "un prénom seul reste du texte, jamais un lien, jamais un nom de famille fourni par le modèle",
     pattern: /n'invente jamais la moitié manquante/i,
   },
+  {
+    why: "rien n'est « nouveau » tant que le vault n'a pas été interrogé — et la vérification doit être NOMMÉE",
+    pattern: [/avant de qualifier quoi que ce soit de nouveau/i, /search_vault/],
+  },
 ];
 
 for (const { name, locale, path } of SKILLS.filter((s) => s.name === "sync-sources")) {
@@ -76,7 +84,10 @@ for (const { name, locale, path } of SKILLS.filter((s) => s.name === "sync-sourc
   });
   for (const { why, pattern } of rules) {
     test(`${locale} ${name} carries the identity discipline: ${why}`, () => {
-      assert.match(docSection(read(path), heading), pattern, `${path} lost the rule — ${why}`);
+      const section = docSection(read(path), heading);
+      for (const one of [pattern].flat()) {
+        assert.match(section, one, `${path} lost the rule — ${why}`);
+      }
     });
   }
 }
@@ -104,6 +115,32 @@ for (const { locale, path } of SKILLS.filter((s) => s.name === "sync-sources")) 
       section,
       locale === "FR" ? /Discipline d'identité/ : /Identity discipline/,
       "the registry must send the reader to the discipline that says what to do with an unresolved name",
+    );
+  });
+}
+
+// ── The novelty check must sit in the OPERATIVE step, not only in the prose ──
+// The sub-agents never see the vault — they read external sources. "This is new"
+// is asserted in the main context, at the synthesis, which is also the only place
+// holding both the delta and the ability to run a `search_vault`. A rule stated in
+// the discipline section but absent from the reconcile passes is a rule nothing
+// executes: that is how a two-month-old fact was republished as a scoop.
+const SYNTHESIS_EN = /^#+ Step 3 — Synthesis/m;
+const SYNTHESIS_FR = /^#+ Étape 3 — Synthèse/m;
+
+for (const { locale, path } of SKILLS.filter((s) => s.name === "sync-sources")) {
+  test(`${locale} the synthesis step runs the novelty check, and counts its own passes`, () => {
+    const section = docSection(read(path), locale === "FR" ? SYNTHESIS_FR : SYNTHESIS_EN);
+    assert.match(section, /search_vault/, "the reconcile must name the check, not imply it");
+    assert.match(
+      section,
+      locale === "FR" ? /^3\. \*\*/m : /^3\. \*\*/m,
+      "the novelty check must be a numbered pass like the other two, not a footnote",
+    );
+    assert.doesNotMatch(
+      section,
+      locale === "FR" ? /Deux passes/i : /Two passes/i,
+      "the intro still promises two passes while three are listed — the third reads as optional",
     );
   });
 }

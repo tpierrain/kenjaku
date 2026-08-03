@@ -89,6 +89,12 @@ one. See "Identity discipline" just below: the name stays plain text. This secti
    source did not give you. *"Jérémy (front Candor)"* is written *"Jérémy (front Candor)"*. Losing a
    backlink costs a click; a fabricated identity is permanent, gets indexed, and becomes what the
    next resolution resolves against.
+3. **Ask the vault before you call anything new.** A fact is only *new* relative to what the vault
+   already holds, so run a `search_vault` on it before presenting it as news — and read what comes
+   back. A briefing once republished a two-month-old fact as a scoop, and wrote *"Hossam, who would
+   become CTO Visma France (unconfirmed)"* while `people/hossam-laanait.md` already said *"CTO Visma
+   France (confirmed 04/06)"* — a dated record downgraded into a rumour. The vault's answer wins;
+   if you contradict it, say so and say on what.
 
 ## Claim discipline
 
@@ -325,12 +331,17 @@ signal. This is also where we decide whether the delta **amends the answer in pr
 
 **Reconcile before writing a single line** (see *Claim discipline* above). The returns are a corpus
 to be made internally consistent, **not** a bag of quotes to support a synthesis you have already
-decided on. Two passes, both cheap:
+decided on. Three passes, all cheap:
 
 1. **Does anything I retrieved contradict what I am about to assert?** A contradiction in your own
    material outranks the claim, always.
 2. **Every 🔴 line either gets verified now, or is reworded as an open question.** A 🔴 that reaches
    the briefing unchanged is the one the owner pastes into a channel.
+3. **Anything I am about to present as new, and every person I am about to name, gets a
+   `search_vault` first.** You are the only step that holds both the delta and the vault — the
+   sub-agents read external sources and never see it. What comes back outranks the delta's framing
+   (see *Identity discipline* above): it is how a two-month-old fact stops being republished as a
+   scoop, and how a *"(confirmed 04/06)"* card stops being downgraded to *"(unconfirmed)"*.
 
 A sub-agent that reported it could not see reply counts has told you its silence is **unmeasured** —
 carry that through to the briefing rather than rounding it to "nothing happened".

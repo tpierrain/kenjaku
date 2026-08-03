@@ -462,14 +462,23 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > - Guard: `scripts/lib/identity-discipline.test.mjs`, 12 assertions, sharing `scripts/lib/doc-section.mjs`
 >   with the claim guard so the two cannot judge different documents.
 >
+> **✅ The novelty check is IN** _(2026-08-03)_ — F7's last rule with no carrier now has two, and the
+> second one is the finding of this pass. The prose rule went into `## Identity discipline` (EN + FR):
+> nothing is *new* until the vault has been asked, with the Hossam case verbatim (a *"(confirmed
+> 04/06)"* card downgraded to *"(unconfirmed)"*). But a rule stated only there is a rule **nothing
+> executes** — so it also went into the **operative** step, as a third numbered reconcile pass in
+> `Step 3 — Synthesis`. That step is the only one that can run it: the sub-agents read external
+> sources and **never see the vault**, so "this is new" is asserted in the main context or nowhere.
+> The guard pins the intro count too (`Two passes` must be gone), because a promise of two passes
+> above a list of three is how the third one reads as optional. 16 assertions, suite green (1251 pass,
+> 1 skipped Windows-only).
+>
 > **The next bullets of Step 12.1, in order** (each one red-first, same shape as above):
-> 1. **`search_vault` before calling any fact "new"** — the field note republished a two-month-old fact
->    as a scoop. Not yet written anywhere; it is the last F7 rule with no carrier.
-> 2. **The constitutions (EN + FR)** — the identity discipline exists only in the two skills so far. Add
+> 1. **The constitutions (EN + FR)** — the identity discipline exists only in the two skills so far. Add
 >    it to `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md` and extend the guard's table to them
 >    (the claim guard's `CONSTITUTIONS` array is the model). Reach caveat, unchanged: the constitution is
 >    in **no** regime, so it reaches new installs only — never the only carrier.
-> 3. **`prepare-1-1` must POINT at the producer's identity section** rather than paraphrase it, exactly
+> 2. **`prepare-1-1` must POINT at the producer's identity section** rather than paraphrase it, exactly
 >    as the claim guard already forces for the claim discipline (`sync-sources/SKILL.md#` anchor test).
 > Then Step 12.2 (F6), 12.3 (homonymy), 12.4 (confidence block), 12.5 (release).
 
@@ -547,9 +556,11 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         path against the universes layout) and the organisation notes. Resolution is already tier-3 in
         F18's table (*"and every identity resolution"*), so this is that tier's missing procedure, not a
         new doctrine.
-  - [ ] A `search_vault` before calling any fact **new** — the field note republished a two-month-old
+  - [x] A `search_vault` before calling any fact **new** — the field note republished a two-month-old
         fact as a scoop, and asserted *"Hossam, CTO Visma France (non confirmé)"* while
-        `people/hossam-laanait.md` said *"confirmé 04/06"*.
+        `people/hossam-laanait.md` said *"confirmé 04/06"*. ✅ _(2026-08-03)_ — shipped on **two**
+        surfaces, the prose rule and the third reconcile pass of `Step 3 — Synthesis`, because the
+        sub-agents never see the vault. See the header note for what that split turned up.
   - [ ] The control sits in the **producer** (`sync-sources`), not in each consumer: `prepare-1-1` reuses
         that fan-out, and two paraphrases are two disciplines (the rule F18 already locked by test).
   - [ ] Guard: extend the `claim-discipline` family with an identity guard, EN + FR, skills + both
