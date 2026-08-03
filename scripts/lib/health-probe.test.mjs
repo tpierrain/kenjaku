@@ -98,3 +98,27 @@ test("formatHealthBanner — core AND optional broken → both sections, each wi
   assert.match(banner, /index empty/);
   assert.match(banner, /mirror store unreachable/);
 });
+
+test("formatHealthBanner — a note the engine cannot bring in step → the repair gesture, not a restart", () => {
+  // F15: the note is NAMED and the gesture is to repair it. "restart the brain" (the
+  // default gesture) would be actively wrong here — nothing about a session restart
+  // fixes a frontmatter the parser refuses.
+  const banner = formatHealthBanner([
+    {
+      capability: "vault-rag",
+      status: "broken",
+      checks: [
+        {
+          name: "notes",
+          status: "broken",
+          detail:
+            '1 note the engine cannot bring in step — topics/crise.md: damaged front-matter key "updated"',
+        },
+      ],
+    },
+  ]);
+  assert.ok(banner, "expected a banner string");
+  assert.match(banner, /topics\/crise\.md/, "must name the note");
+  assert.match(banner, /repair/i, "must point at repairing the note");
+  assert.doesNotMatch(banner, /restart the brain/, "a restart fixes nothing here");
+});

@@ -24,6 +24,10 @@ function gestureForCheck(name, detail = "") {
         : "check your network and the API key in your .env";
     case "store":
       return "check the mirror's path, or refresh it";
+    case "notes":
+      // F15: the note is named in the detail, and the only thing that clears it is an
+      // edit to that note. A restart or a reindex would leave it exactly as it is.
+      return "ask me to repair that note";
     default:
       return "restart the brain";
   }
