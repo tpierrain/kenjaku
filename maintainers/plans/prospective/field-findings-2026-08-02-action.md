@@ -164,27 +164,16 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — step 11, the v4.5.0 release, IN PROGRESS. Nothing else is left.** Its first
-> item — the mutation pass the owner asked for mid-release — is under way: `rag` is done, and in
-> `scripts` batch 1 the two weak files are hardened and committed (`verify-index.mjs` 40.54 % →
-> **92.31 %**, `rag-status.mjs`'s 7 survivors all fixed). **Resume at batch 2** of `## Step 11`.
-> What the rest of the release needs is in the
-> numbered list below — the `engineVersion.scripts` bump and the PR body stating F5's known limit (a
-> first draft of that body is already on PR #54) — plus the §7 caveat at the end of this header (the
-> rehydrate does not index, so the first rooted session is what indexes the vault, canary included). _(Side work done 2026-08-03 and finished, unrelated to the release:
-> `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
-> convention extracted standalone to be shared outside this repo. Nothing pending there.)_
+> **⏭️ THE RESUME POINT — v4.6.0, the vault's identity. Steps 1-11 (all of v4.5.0) are HISTORY.**
+> v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7) — see `## Step 11` for what
+> that means and where its artefacts live. **The live work is now `## Step 12 — v4.6.0`**, whose ordered
+> steps are there and whose evidence stays in the **P1** entries. _(Side work done 2026-08-03 and
+> finished, unrelated: `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the
+> plan/`/clear` convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
-> **Resume here — v4.5.0, in this order.**
-> 10. ~~**F1 — the universe banner**~~ ✅ done, see above.
-> 10bis. ~~**Get Windows green on PR #54**~~ ✅ done, see above — CI is 7/7 on `fc8949b`.
-> 11. **← START HERE.** The **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
->    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
->    constitution half (an engine-managed file only reaches brains that never customized it).
->
-> One thing to check when writing §7: the rehydrate deliberately does **not** index (a clone has no
-> `rag/.cache`), so the first rooted session is what indexes the vault — including the just-reseeded
-> canary. Say so, rather than let a first session's health banner read as a defect.
+> **v4.7.0 (visibility) stays behind v4.6.0** and keeps its own findings: F13, F3, F10, F8, F9, F2, plus
+> the two banner defects routed there from P0 (a cached verdict rendered with live authority; an
+> `unknown` check displayed under "found a problem" — the latter already pinned by a test that names it).
 
 ## Step 11 — the v4.5.0 release — ✅ SHIPPED (2026-08-03, tag `v4.5.0`, PR #54, CI 7/7)
 
@@ -429,10 +418,88 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           construction, once per release, forever. Its `mutation 90–97%` claim is fine and will be
           re-checked against RESULTS.md when the pass ends.
     - [x] Every other board: re-read, copy still accurate, no re-render.
-- [ ] Write the release note (non-dev first, §11 shape) into `maintainers/plans/prospective/release-v4.5.0-note.md`,
-      with the pinned mutation snapshot.
-- [ ] PR body stating F5's known limit on the constitution half (an engine-managed file only reaches
-      brains that never customized it).
+- [x] Release note written (non-dev first, §11 shape) with the pinned mutation snapshot — published, and
+      archived as `archived/release-v4.5.0-note.md`.
+- [x] PR body stating F5's known limit on the constitution half (an engine-managed file only reaches
+      brains that never customized it) — archived as `archived/release-v4.5.0-pr-body.md`.
+
+## Step 12 — v4.6.0, the vault's identity — 🔜 THE LIVE WORK
+
+> **What this release is about.** v4.5.0 stopped silence from passing for good news. This one stops the
+> vault from **poisoning itself**: today the brain writes *about people* into the vault without ever
+> reading what the vault already says about them. Its evidence lives in the **P1** entries (F7, F6, the
+> homonymy block, the reliability/confidence block) — read them there, they are not restated here.
+>
+> **Same carrier as F18, and that is deliberate.** What fails is what the model is *told*, and the
+> telling lives in the same six files F18 just proved reach a deployed brain: the two skills
+> `sync-sources` (the producer) + `prepare-1-1` (its consumer), **EN and FR**, and both constitutions.
+> Reach recorded at F18 and still true: the skills are in the `merge` regime and DO reach the fleet;
+> `CLAUDE.engine.md` is in no regime, so the constitution half is worth writing but must never be the
+> only carrier. The guard shape is `scripts/lib/claim-discipline.test.mjs` (section-sliced doc guard) —
+> reuse it, do not invent a second one.
+>
+> **The vocabulary is already settled — reuse it, do not mint a second scale.** F18 shipped ✅ observed /
+> 🟡 derived or probable / 🔴 negative-or-behavioural-unverified, with *"safe to paste into a message to
+> another human"* as the threshold that matters. v4.6.0's confidence block marks a **people note born
+> from a probable resolution**; it must speak that same three-marker language (decided at F18, §4.5).
+
+- [ ] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START.** _(asked by the owner, 2026-08-03:
+      « j'aimerai que tu rajoutes la version de Kenjaku au démarrage … à la prochaine release »)_ Small,
+      independent of the identity work, so it goes first and cannot be squeezed out by it.
+  - [ ] **Do NOT invent a version, and do not mint a second helper.** `scripts/lib/engine-version.mjs`
+        already turns the brain's `engine-manifest.json` into the user-facing label (ADR 0017): the git
+        **tag** the brain was installed/updated from (`source.ref`), falling back to `engineVersion.rag`,
+        and **null** when nothing is usable → then no segment at all, rather than a made-up number.
+  - [ ] **Why it is invisible today, and this is the actual finding**: that label's only surface was the
+        **statusLine**, and ADR 0036 had the engine *retreat* from the statusLine (it was clobbering the
+        owner's own). `scripts/status-line.mjs` still computes it; nothing renders it. So the version did
+        not "never exist" — it **stopped being shown** and nobody noticed. Say it that way in the note.
+  - [ ] **Both channels or it is half-shipped**: `systemMessage` (CLI terminal only) **and**
+        `hookSpecificOutput.additionalContext` (the ONLY channel the Code tab of Claude Desktop renders,
+        via the agent's chat relay — ADR 0036's channel matrix). Shipping the CLI half alone would
+        reproduce this release's own reframe: "shown" and "not shown" rendered identically to us.
+  - [ ] Sibling to watch, **not** to merge: **F3** (v4.7.0) separates *"no engine update available"* from
+        *"the target version is simply unknown"*. That one is about the **target**; this one is about the
+        **installed** version. They must share one vocabulary — settle the wording here, since this ships
+        first, exactly as F18's confidence scale was settled before v4.6.0 reuses it.
+- [ ] **Step 12.1 — F7: resolve against the vault BEFORE writing.** The first move, because the exposure
+      is live: it fires at every briefing and every 1-1 prep until it ships, and correcting the note does
+      not stop it (proven — it recurred the same evening on the other laptop, against a vault that
+      carried the right answer).
+  - [ ] **The mechanism is IN THE SKILL, not in the model's imagination** _(read 2026-08-03,
+        `.claude/skills/sync-sources/SKILL.md:66-71`)_. Its "People registry" section says, in the same
+        breath, **"never a first name alone — `[[people/jane]]` is forbidden"** *and* **"create the
+        backlinks even if the target page doesn't exist"**. Handed *"Jérémy (front Candor)"*, a sub-agent
+        obeying both has exactly two exits: drop the link, or **invent a surname**. It invented
+        (*"Jérémy Hinard"*). So this is not a fix bolted onto a neutral rule — it **repairs a rule the
+        engine ships**, which is why the fix must land here and not brain-side (patching it in a brain
+        freezes that brain, F5).
+  - [ ] A bare first name stays **plain text, no link** — never `[[people/…]]`, never a surname supplied
+        by the model. Losing a backlink is cheap; a fabricated identity is permanent and gets indexed.
+  - [ ] Before writing a person, **read the vault**: resolve each cited person against
+        `vault/*/people/` (universe subtrees included — the skill still says `vault/people/`, check that
+        path against the universes layout) and the organisation notes. Resolution is already tier-3 in
+        F18's table (*"and every identity resolution"*), so this is that tier's missing procedure, not a
+        new doctrine.
+  - [ ] A `search_vault` before calling any fact **new** — the field note republished a two-month-old
+        fact as a scoop, and asserted *"Hossam, CTO Visma France (non confirmé)"* while
+        `people/hossam-laanait.md` said *"confirmé 04/06"*.
+  - [ ] The control sits in the **producer** (`sync-sources`), not in each consumer: `prepare-1-1` reuses
+        that fan-out, and two paraphrases are two disciplines (the rule F18 already locked by test).
+  - [ ] Guard: extend the `claim-discipline` family with an identity guard, EN + FR, skills + both
+        constitutions. **Red first**, and check what the red run teaches — F18's first pass went green on
+        prose that was already there for other reasons.
+- [ ] **Step 12.2 — F6: repairing a link is not asserting a person exists.** Never create a `people/`
+      note merely to satisfy an incoming link. Evidence and the feedback loop are in P1; the field cost
+      was `people/stephanie-music.md`, a person who occurs **once in the whole vault: in her own title**.
+- [ ] **Step 12.3 — the homonymy block.** A `people/` note only makes the resolution rule usable if it
+      says **which** Romain (3 of them on the field brain, plus 3 Marie, 2 Karim, 2 Caroline, 2 Michael).
+      Without it, the notes only move the ambiguity.
+- [ ] **Step 12.4 — the reliability/confidence block** on any note born from a **probable** rather than
+      confirmed resolution, in F18's vocabulary (see the header note above).
+- [ ] **Step 12.5 — the release**: mutation pass on what changed, version vector, §10 marketing re-read,
+      note + PR body. Same shape as Step 11; its recipe (worktree, batch sizes, the `rag/node_modules`
+      symlink) is written there and stays valid.
 
 ## The one pattern behind most of it (the reframe)
 
