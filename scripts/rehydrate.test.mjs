@@ -11,8 +11,21 @@ import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 
 import { runRehydrate, realRehydrateDeps } from "./rehydrate.mjs";
+import { CANARY_NOTE } from "./lib/brain-rehydrate.mjs";
 import { seedHealthNote } from "./lib/staged-health-note.mjs";
 import { buildRagInstallInvocation } from "./lib/rag-launcher.mjs";
+
+// The brain the fakes describe, spelled the way PRODUCTION spells it — `join`, not a
+// hand-written literal. CONVENTIONS §9's exact trap, and the one that made this suite
+// red on Windows for 67 commits: production keys every path through `join(root, rel)`,
+// so on `D:\brains\…` a fake keyed on `/brains/…` is never hit and the command silently
+// does nothing (`0 !== 1`, no write). A fixture must be keyed the way the code is.
+const BRAIN = join("/brains", "mind-palace");
+const at = (...parts) => join(BRAIN, ...parts);
+
+// …except inside a GENERATED file, where `{{PROJECT_ROOT}}` is substituted
+// POSIX-normalised on every OS (`toPosix`, ADR 0015): there the literal IS the contract.
+const BRAIN_POSIX = "/brains/mind-palace";
 
 function fakeDeps({ spawnStatus = 0, ...overrides } = {}) {
   const calls = { writes: [], spawns: [], invocations: [], cleanups: [], log: [], error: [] };
@@ -27,7 +40,7 @@ function fakeDeps({ spawnStatus = 0, ...overrides } = {}) {
         cleanup: () => calls.cleanups.push(calls.invocations.length),
       };
     },
-    cwd: () => "/brains/mind-palace",
+    cwd: () => BRAIN,
     platform: "darwin",
     tmpDir: () => "/tmp",
     exists: () => true,
@@ -87,9 +100,9 @@ test("a brain already wired for this machine is left untouched", () => {
 // path). Rebuilding it is what gives the second machine its `vault-rag` server back.
 test("a missing .mcp.json is rebuilt from the template that travelled in the clone", () => {
   const { deps, calls } = fakeDeps({
-    exists: (path) => !path.endsWith("/.mcp.json"),
+    exists: (path) => path !== at(".mcp.json"),
     readFile: (path) => {
-      assert.equal(path, "/brains/mind-palace/.mcp.json.template");
+      assert.equal(path, at(".mcp.json.template"));
       return MCP_TEMPLATE;
     },
   });
@@ -97,7 +110,7 @@ test("a missing .mcp.json is rebuilt from the template that travelled in the clo
   assert.equal(runRehydrate([], deps), 0);
 
   assert.equal(calls.writes.length, 1);
-  assert.equal(calls.writes[0].path, "/brains/mind-palace/.mcp.json");
+  assert.equal(calls.writes[0].path, at(".mcp.json"));
   // Both servers: the machine's path baked in, and the command routed through the
   // OS-appropriate self-heal launcher — exactly what the installer produces.
   assert.deepEqual(JSON.parse(calls.writes[0].content), {
@@ -106,14 +119,14 @@ test("a missing .mcp.json is rebuilt from the template that travelled in the clo
         type: "stdio",
         command: "/bin/sh",
         args: ["rag/launch.sh"],
-        cwd: "/brains/mind-palace",
+        cwd: BRAIN_POSIX,
         env: {},
       },
       "local-mirror": {
         type: "stdio",
         command: "/bin/sh",
         args: ["local-mirror/launch.sh"],
-        cwd: "/brains/mind-palace",
+        cwd: BRAIN_POSIX,
         env: {},
       },
     },
@@ -125,9 +138,9 @@ test("a missing .mcp.json is rebuilt from the template that travelled in the clo
 // placeholders, including the hook runner that differs per OS.
 test("a missing .claude/settings.json is rebuilt with the hooks pointed at this machine", () => {
   const { deps, calls } = fakeDeps({
-    exists: (path) => !path.endsWith("/.claude/settings.json"),
+    exists: (path) => path !== at(".claude", "settings.json"),
     readFile: (path) => {
-      assert.equal(path, "/brains/mind-palace/.claude/settings.json.template");
+      assert.equal(path, at(".claude", "settings.json.template"));
       return SETTINGS_TEMPLATE;
     },
   });
@@ -136,10 +149,10 @@ test("a missing .claude/settings.json is rebuilt with the hooks pointed at this 
 
   assert.deepEqual(calls.writes, [
     {
-      path: "/brains/mind-palace/.claude/settings.json",
+      path: at(".claude", "settings.json"),
       content:
-        '{"hooks":{"cmd":"/bin/sh \\"/brains/mind-palace/scripts/run-node.sh\\" scripts/auto-commit.mjs"},' +
-        '"root":"/brains/mind-palace","tmp":"/tmp"}',
+        `{"hooks":{"cmd":"/bin/sh \\"${BRAIN_POSIX}/scripts/run-node.sh\\" scripts/auto-commit.mjs"},` +
+        `"root":"${BRAIN_POSIX}","tmp":"/tmp"}`,
     },
   ]);
   assert.deepEqual(rebuilt(calls), ["✓ regenerated .claude/settings.json"]);
@@ -151,7 +164,7 @@ test("a missing .claude/settings.json is rebuilt with the hooks pointed at this 
 test("a missing health canary note is reseeded from the source staged in the clone", () => {
   const seeded = [];
   const { deps, calls } = fakeDeps({
-    exists: (path) => !path.endsWith("/vault/engine-health/health-check.md"),
+    exists: (path) => path !== at(CANARY_NOTE),
     seedHealthNote: (args) => {
       seeded.push(args);
       return { present: true };
@@ -161,9 +174,7 @@ test("a missing health canary note is reseeded from the source staged in the clo
   assert.equal(runRehydrate([], deps), 0);
 
   // Both dirs are the brain itself: the staged source travelled in the same clone.
-  assert.deepEqual(seeded, [
-    { sourceDir: "/brains/mind-palace", brainDir: "/brains/mind-palace" },
-  ]);
+  assert.deepEqual(seeded, [{ sourceDir: BRAIN, brainDir: BRAIN }]);
   assert.deepEqual(calls.writes, []);
   assert.deepEqual(calls.error, []);
   assert.deepEqual(rebuilt(calls), ["✓ reseeded vault/engine-health/health-check.md"]);
@@ -173,18 +184,16 @@ test("a missing health canary note is reseeded from the source staged in the clo
 // install has to go through the launcher's own self-heal PATH (ADR 0021-A), which
 // is what `installInvocation` builds. The command only has to hand it the machine.
 test("missing rag dependencies are installed through the launcher's own PATH", () => {
-  const { deps, calls } = fakeDeps({ exists: (path) => !path.endsWith("/rag/node_modules") });
+  const { deps, calls } = fakeDeps({ exists: (path) => path !== at("rag/node_modules") });
 
   assert.equal(runRehydrate([], deps), 0);
 
-  assert.deepEqual(calls.invocations, [
-    { platform: "darwin", ragDir: "/brains/mind-palace/rag" },
-  ]);
+  assert.deepEqual(calls.invocations, [{ platform: "darwin", ragDir: at("rag") }]);
   assert.deepEqual(calls.spawns, [
     {
       command: "/fake/self-heal-sh",
       args: ["--fake-install"],
-      cwd: "/brains/mind-palace/rag",
+      cwd: at("rag"),
       shell: false,
     },
   ]);
@@ -199,7 +208,7 @@ test("missing rag dependencies are installed through the launcher's own PATH", (
 // fails to boot. Pure JS, so a plain npm install is enough — no self-heal build.
 test("missing local-mirror dependencies are installed too", () => {
   const { deps, calls } = fakeDeps({
-    exists: (path) => !path.endsWith("/local-mirror/node_modules"),
+    exists: (path) => path !== at("local-mirror/node_modules"),
   });
 
   assert.equal(runRehydrate([], deps), 0);
@@ -209,7 +218,7 @@ test("missing local-mirror dependencies are installed too", () => {
     {
       command: "npm",
       args: ["install", "--silent"],
-      cwd: "/brains/mind-palace/local-mirror",
+      cwd: at("local-mirror"),
       shell: false,
     },
   ]);
@@ -248,7 +257,7 @@ test("a freshly cloned brain gets everything back, then is told what only a huma
 test("on Windows the local-mirror install goes through the npm shim, in a shell", () => {
   const { deps, calls } = fakeDeps({
     platform: "win32",
-    exists: (path) => !path.endsWith("/local-mirror/node_modules"),
+    exists: (path) => path !== at("local-mirror/node_modules"),
   });
 
   assert.equal(runRehydrate([], deps), 0);
@@ -257,7 +266,7 @@ test("on Windows the local-mirror install goes through the npm shim, in a shell"
     {
       command: "npm.cmd",
       args: ["install", "--silent"],
-      cwd: "/brains/mind-palace/local-mirror",
+      cwd: at("local-mirror"),
       shell: true,
     },
   ]);
@@ -268,7 +277,7 @@ test("on Windows the local-mirror install goes through the npm shim, in a shell"
 // names the command to run by hand.
 test("a failed rag install stops the command and says what to re-run", () => {
   const { deps, calls } = fakeDeps({
-    exists: (path) => !path.endsWith("/rag/node_modules"),
+    exists: (path) => path !== at("rag/node_modules"),
     spawnStatus: 1,
   });
 
@@ -286,7 +295,7 @@ test("a failed rag install stops the command and says what to re-run", () => {
 // nothing about the other branch, which would happily stay silent and exit 0.
 test("a failed local-mirror install stops the command and says what to re-run", () => {
   const { deps, calls } = fakeDeps({
-    exists: (path) => !path.endsWith("/local-mirror/node_modules"),
+    exists: (path) => path !== at("local-mirror/node_modules"),
     spawnStatus: 1,
   });
 
@@ -304,14 +313,12 @@ test("a failed local-mirror install stops the command and says what to re-run", 
 test("the machine's real platform reaches the install invocation", () => {
   const { deps, calls } = fakeDeps({
     platform: "win32",
-    exists: (path) => !path.endsWith("/rag/node_modules"),
+    exists: (path) => path !== at("rag/node_modules"),
   });
 
   assert.equal(runRehydrate([], deps), 0);
 
-  assert.deepEqual(calls.invocations, [
-    { platform: "win32", ragDir: "/brains/mind-palace/rag" },
-  ]);
+  assert.deepEqual(calls.invocations, [{ platform: "win32", ragDir: at("rag") }]);
 });
 
 // ── realRehydrateDeps (the real wiring, used when runRehydrate is called w/o deps)

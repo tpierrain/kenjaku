@@ -1,7 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { join } from "node:path";
 
 import { runVerifyIndex } from "./verify-index.mjs";
+
+// Spelled with `join`, like production: the command derives `rag/` from the cwd, so on
+// Windows a fixture hand-written with `/` compares `\brain\rag` against `/brain/rag`
+// and fails for a reason that has nothing to do with the behaviour (CONVENTIONS §9).
+const BRAIN = join("/brain");
 
 function deps(over = {}) {
   const errors = [];
@@ -9,7 +15,7 @@ function deps(over = {}) {
   return {
     errors,
     calls,
-    cwd: () => "/brain",
+    cwd: () => BRAIN,
     runCrosscheck: (opts) => {
       calls.push(opts);
       return { status: 0 };
@@ -26,7 +32,7 @@ test("the crosscheck runs from the brain's rag/ folder, and its arguments travel
 
   const code = runVerifyIndex(["--json"], d);
 
-  assert.deepEqual(d.calls, [{ ragDir: "/brain/rag", argv: ["--json"] }]);
+  assert.deepEqual(d.calls, [{ ragDir: join(BRAIN, "rag"), argv: ["--json"] }]);
   assert.equal(code, 0);
 });
 
