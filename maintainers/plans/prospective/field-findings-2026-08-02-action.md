@@ -493,9 +493,22 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > the room, so a wrong surname is said to their face. 26 assertions, suite green (1261 pass, 1 skipped
 > Windows-only).
 >
-> **⏭️ RESUME AT STEP 12.2 (F6)** — never create a `people/` note merely to satisfy an incoming link.
-> Nothing is half-written on disk; no decision is pending. Then 12.3 (homonymy), 12.4 (confidence
-> block), 12.5 (release).
+> **✅ Step 12.2 done — F6 IS COMPLETE** _(2026-08-03 · `de2e658`)_. The rule ships on **three**
+> carriers, and the third one is the finding of this pass. The discipline gained its fourth rule
+> (*a link is not a person*) in `sync-sources` EN + FR and both constitutions. But the rule had to
+> land where the gesture is actually **offered**: `/lint` ordered *"Dangling → fix the target
+> spelling, or CREATE THE MISSING NOTE"* with no carve-out, which IS how `stephanie-music.md` came to
+> exist — so the gesture now keeps its topic case and excludes a person target. **And `/lint` hands
+> off to `/consolidate`**, which proposes *"a person `[[mentioned]]` in captures but with no page
+> yet"* ranked by mention count: a fabricated `[[people/…]]` cited three times reads as **signal**,
+> because the count measures how often a link was written, never whether the person exists. Both
+> skills **point at** the producer's section instead of paraphrasing it (two paraphrases are two
+> disciplines). Reach checked, not assumed: `engine-skills/**` is in `replace` and staged skills are
+> provenance-refreshed, so an untouched `/lint` and `/consolidate` reach the deployed fleet.
+> 6 assertions, each red first; suite green (1268 tests, 1267 pass, 1 skipped Windows-only).
+>
+> **⏭️ RESUME AT STEP 12.3 (homonymy)** — a `people/` card must say **which** Romain. Nothing is
+> half-written on disk; no decision is pending. Then 12.4 (confidence block), 12.5 (release).
 
 - [x] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START. ✅ CODE-COMPLETE** _(2026-08-03 ·
       `22de9a2` → `807b9aa`, suite green 1236 pass / 1 skipped Windows-only)_. _(asked by the owner,
@@ -584,9 +597,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         prose that was already there for other reasons. ✅ _(2026-08-03)_ —
         `scripts/lib/identity-discipline.test.mjs`, 24 assertions, sharing `doc-section.mjs` with the
         claim guard. Every step was red first; what the red runs taught is in the header note.
-- [ ] **Step 12.2 — F6: repairing a link is not asserting a person exists.** Never create a `people/`
-      note merely to satisfy an incoming link. Evidence and the feedback loop are in P1; the field cost
-      was `people/stephanie-music.md`, a person who occurs **once in the whole vault: in her own title**.
+- [x] **Step 12.2 — F6: repairing a link is not asserting a person exists. ✅ COMPLETE**
+      _(2026-08-03 · `de2e658`)_. Never create a `people/` note merely to satisfy an incoming link.
+      Evidence and the feedback loop are in P1; the field cost was `people/stephanie-music.md`, a
+      person who occurs **once in the whole vault: in her own title**.
+  - [x] The fourth rule of the identity discipline, EN + FR skills + both constitutions.
+  - [x] `/lint`'s dangling remedy: the create-the-note gesture keeps its **topic** case and excludes a
+        `[[people/…]]` target. This is the rule that MANUFACTURED the defect, same shape as F7's
+        "People registry" — the fix repairs an order the engine ships, it does not add a caveat to a
+        neutral one.
+  - [x] `/consolidate`, the door `/lint` hands off to: a person candidate's mention count is a
+        **priority signal, not evidence the person exists**. Resolve first, leave the page unwritten
+        when the name will not resolve.
+  - [x] Both skills **point** at `sync-sources#identity-discipline`; neither restates it.
 - [ ] **Step 12.3 — the homonymy block.** A `people/` note only makes the resolution rule usable if it
       says **which** Romain (3 of them on the field brain, plus 3 Marie, 2 Karim, 2 Caroline, 2 Michael).
       Without it, the notes only move the ambiguity.
@@ -1070,14 +1093,21 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         implication: a capability recorded as absent needs an expiry and a re-test, never inheritance.
         Note this is the **mirror image of F10** (a recorded value frozen at capture time), so the two
         may share one mechanism — check before designing.
-- [ ] **F6 — repairing a link and asserting a person exists are conflated.** `people/stephanie-music.md`
+- [x] **F6 — repairing a link and asserting a person exists are conflated.** ✅ **DONE**
+      _(2026-08-03 · `de2e658`)_ — see Step 12.2 for what shipped and where.
+      `people/stephanie-music.md`
       was created 19/07 *"to resolve an incoming link"* from a mis-resolved link; "Stéphanie Music"
       occurred **once in the whole vault: in its own title** (Stéphanie Glad: 382 times).
-  - [ ] The feedback loop: mis-resolved link → note created to satisfy it → that note becomes the
+  - [x] The feedback loop: mis-resolved link → note created to satisfy it → that note becomes the
         vault's truth about who exists → the next resolution resolves **against the fabrication**.
         It survived three weeks and would have corrupted every future resolution.
-  - [ ] Companion rule to F7: **never create a `people/` note merely to satisfy an incoming link.**
-  - [ ] Measured degradation before repair: banner said 28 dangling links, `/lint` reported **36** after
+  - [x] Companion rule to F7: **never create a `people/` note merely to satisfy an incoming link.**
+  - [x] **The engine ORDERED it, in two places.** `/lint` said *"Dangling → … or create the missing
+        note"* with no carve-out; `/consolidate`, the skill `/lint` explicitly hands one-off mentions
+        to, ranks person candidates by **mention count** — so a name F7 invented once and cited three
+        times reads as signal rather than as the defect it is. Both are fixed; both point at the
+        producer's section rather than carrying their own wording.
+  - [x] Measured degradation before repair: banner said 28 dangling links, `/lint` reported **36** after
         one sync session, for **21** existing people notes.
 - [ ] **Presence is not enough — disambiguation is the precondition** (design advance found in the
       field, worth adopting upstream). A `people/` note only makes the resolution rule usable if it
