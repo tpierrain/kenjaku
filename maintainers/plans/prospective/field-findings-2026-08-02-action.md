@@ -507,8 +507,34 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > provenance-refreshed, so an untouched `/lint` and `/consolidate` reach the deployed fleet.
 > 6 assertions, each red first; suite green (1268 tests, 1267 pass, 1 skipped Windows-only).
 >
-> **⏭️ RESUME AT STEP 12.3 (homonymy)** — a `people/` card must say **which** Romain. Then 12.4
-> (confidence block), 12.5 (release).
+> **✅ Step 12.3 done — THE HOMONYMY BLOCK IS COMPLETE** _(2026-08-03 · `c0187a5` → `9b6c64c`)_. Both
+> halves shipped, and the finding of the pass is where the deterministic half could sit: **both doors
+> that create a `people/` card write through ONE script**, so the check is a single choke point rather
+> than a caveat repeated in two skills. `scripts/file-back-note.mjs` now refuses a new `person` whose
+> first name the vault already holds unless the spec carries `distinguish`, and the refusal **names
+> the homonym cards it found** (root **and** every universe subtree — the same reach the resolution
+> rule reads). The answer lands in the card itself, above the body, as `> **Which one** — …`.
+> The prose half is the discipline's fifth rule, *say which one*, on the four carriers F7 and F6 used;
+> its second half is what makes the block worth writing: a bare first name matching several cards is
+> **unresolved**, so rule 2 applies (plain text, no link) instead of resolving to the nearest one.
+> Reach checked, not assumed: `scripts/file-back-note.mjs`, `scripts/lib/**` and `engine-skills/**`
+> are all in `replace`, `sync-sources` in `merge` — the fleet gets every carrier but the constitution.
+> Suite green (1285 tests, 1284 pass, 1 skipped Windows-only).
+>
+> Two things worth not re-learning:
+> - **`type === "person"` was never the SOLE cause in any test** — a hand-applied mutant dropping it
+>   survived, because every fixture that reached the guard was already a person. Killed by filing a
+>   **topic** whose slug shares that first segment (`topics/romain-rolland.md` next to
+>   `people/romain-durand.md`), which is also the honest statement of the rule's scope: nothing is
+>   ever resolved to a topic. Same shape as the TDD skill's §9.
+> - **A doc-guard pattern that spans a wrapped line goes red for typography, not for meaning.** The FR
+>   constitution lost `/non résolu/i` to a line break between the two words. Keep a guarded phrase on
+>   one line when writing the carrier.
+>
+> **⏭️ RESUME AT STEP 12.4** — the reliability/confidence block on a note born from a **probable**
+> rather than confirmed resolution, in F18's vocabulary (✅ observed / 🟡 derived or probable / 🔴
+> unverified; see the vocabulary paragraph at the top of Step 12). Nothing is half-written on disk and
+> no decision is pending. Then 12.5 (release).
 >
 > **✅ DECIDED (2026-08-03, by the owner): 12.3 ships PROSE + A DETERMINISTIC GUARD.** The scope was
 > put to the owner with three options and this is the one chosen — **do not re-open it**. Both doors
@@ -620,19 +646,20 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         **priority signal, not evidence the person exists**. Resolve first, leave the page unwritten
         when the name will not resolve.
   - [x] Both skills **point** at `sync-sources#identity-discipline`; neither restates it.
-- [ ] **Step 12.3 — the homonymy block.** A `people/` note only makes the resolution rule usable if it
+- [x] **Step 12.3 — the homonymy block. ✅ COMPLETE** _(2026-08-03 · `c0187a5` → `9b6c64c`)_.
+      A `people/` note only makes the resolution rule usable if it
       says **which** Romain (3 of them on the field brain, plus 3 Marie, 2 Karim, 2 Caroline, 2 Michael).
       Without it, the notes only move the ambiguity. Scope decided by the owner — see the header note.
-  - [ ] **The prose half** — the identity discipline's fifth rule (*say which one*), `sync-sources`
+  - [x] **The prose half** — the identity discipline's fifth rule (*say which one*), `sync-sources`
         EN + FR, plus both constitutions, in the guard family already shared with the claim discipline.
         Two sides, and the second is what makes the first usable: a card **says** what distinguishes
         this person, and a bare first name matching several cards is **unresolved** (so rule 2 applies:
         plain text, no link) rather than resolved to the nearest one.
-  - [ ] **The deterministic half** — `scripts/file-back-note.mjs` (+ its pure core `lib/filed-note.mjs`):
+  - [x] **The deterministic half** — `scripts/file-back-note.mjs` (+ its pure core `lib/filed-note.mjs`):
         a new `person` card whose first name is already borne by another card is refused until the spec
         carries what tells them apart; the refusal names the homonyms. Covers `/file-back` **and**
         `/consolidate`, which both write through it.
-  - [ ] **The two skills document the field** (`file-back`, `consolidate`), pointing at the producer's
+  - [x] **The two skills document the field** (`file-back`, `consolidate`), pointing at the producer's
         section rather than restating the rule — the shape F6 and F7 both landed on.
 - [ ] **Step 12.4 — the reliability/confidence block** on any note born from a **probable** rather than
       confirmed resolution, in F18's vocabulary (see the header note above).
@@ -1130,7 +1157,8 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         producer's section rather than carrying their own wording.
   - [x] Measured degradation before repair: banner said 28 dangling links, `/lint` reported **36** after
         one sync session, for **21** existing people notes.
-- [ ] **Presence is not enough — disambiguation is the precondition** (design advance found in the
+- [x] **Presence is not enough — disambiguation is the precondition** ✅ **DONE** _(2026-08-03 ·
+      `c0187a5` → `9b6c64c`)_ — see Step 12.3 for what shipped and where. (design advance found in the
       field, worth adopting upstream). A `people/` note only makes the resolution rule usable if it
       carries an explicit **homonymy block**: the brain had 3 Romain, 3 Marie, 2 Karim, 2 Caroline,
       2 Michael. Without it, notes only move the ambiguity.
