@@ -708,6 +708,35 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 - [ ] **Step 12.5 — the release**: mutation pass on what changed, version vector, §10 marketing re-read,
       note + PR body. Same shape as Step 11; its recipe (worktree, batch sizes, the `rag/node_modules`
       symlink) is written there and stays valid.
+  - [x] **Suite green at the tip before starting** _(2026-08-03 · `c53dd5a`)_ — 1297 tests, 1296 pass,
+        1 skipped Windows-only.
+  - [x] **What this release changed, measured** _(`git diff --stat main...HEAD`)_: **no `rag/src` file
+        at all**, so the mutation pass is `scripts` only. Eight production files —
+        `file-back-note.mjs`, `refresh-note.mjs`, `session-status.mjs`, and under `lib/`
+        `filed-note.mjs`, `note-refresh.mjs`, `engine-version.mjs`, `status-hook-output.mjs`,
+        `doc-section.mjs`. `session-status.mjs` is the **named 0 % top-level tier** (no test can import
+        it — that is exactly why `status-hook-output.mjs` exists); it is **not** mutated here, and
+        RESULTS.md says so rather than leaving a silent hole.
+  - [ ] **Mutation batches** (worktree `/Users/tpierrain/Dev/kenjaku-mut-v460`, `rag/node_modules`
+        symlinked and **verified** — 31 pass / 0 skipped before starting, or the write-guard mutants
+        face a suite that cannot judge them).
+    - [ ] **Batch 1** — `lib/filed-note.mjs` + `file-back-note.mjs` (the confidence + homonymy code).
+          Log: `maintainers/mutation/reports/v460-scripts-batch1.log`.
+    - [ ] **Batch 2** — `lib/engine-version.mjs` + `lib/status-hook-output.mjs` (the version segment).
+    - [ ] **Batch 3** — `lib/note-refresh.mjs` + `refresh-note.mjs` + `lib/doc-section.mjs`.
+    - [ ] Treat survivors the way v4.5.0 did: fix what a test can honestly reach, record only genuine
+          equivalents, **re-measure every hardened file** (a hardened-but-unmeasured file has an
+          unknown score, which is the same silence this trilogy is about).
+  - [ ] **Version vector** — bump to `4.6.0` wherever the release number lives, and check
+        `engineVersion.scripts` (left at `1.9.0` deliberately at v4.5.0's step; decide again here).
+  - [ ] **§10 marketing re-read** — README, EN-QUOI-C-EST-DIFFERENT, SETUP, CONNECTORS, the boards
+        through their alt texts. **Record the verdict even when it is boring.** Two known inputs: this
+        release makes the brain *refuse* to write a person card in cases where it used to write one
+        (a new user-visible refusal), and v4.5.0's startup version segment is still unsold.
+  - [ ] **Release note + PR body** — §11 shape (non-dev first), no finding codes, and it must cover
+        the `⚙️ Kenjaku engine v4.5.0` startup segment left over from Step 12.0.
+  - [ ] **The title is the owner's call** — do not mint one alone (v4.5.0's was chosen by them).
+  - [ ] **CI must speak before the tag** (§9): push, watch the full matrix, 7/7 green.
 
 ## The one pattern behind most of it (the reframe)
 
