@@ -182,6 +182,60 @@
 > `rag/.cache`), so the first rooted session is what indexes the vault — including the just-reseeded
 > canary. Say so, rather than let a first session's health banner read as a defect.
 
+## Step 11 — the v4.5.0 release (IN PROGRESS)
+
+**Title, chosen by the owner (2026-08-03): `v4.5.0 — The One Where Silence Stops Passing for Good News`.**
+It carries both halves of this plan's reframe — the failures that looked like waits (F11/F12, F14, F15)
+and the "I found nothing" that came out as "nothing exists" (F18). Do not re-open the title.
+
+- [ ] **Mutation testing on what this release changed** — asked for by the owner mid-release. 23 production
+      files changed (8 `rag/src`, 15 `scripts`). Two real gaps found, both in NEW code, both fixed:
+  - [x] **`rag`, the 6 files under `src/lib/`: 93.81 % → 94.67 %** _(2026-08-03)_.
+    - [x] **`index-crosscheck-scan.ts` 70.59 % → 100 %** _(`cd66ac3`'s parent)_ — the worst of the six,
+          and a file this release CREATED. All five survivors sat in `defaultScanPorts`: every existing
+          test injects its own ports, so the default wiring was observed by nothing. One survivor,
+          `parse: () => {}`, IS F15's failure mode (the crosscheck stops reporting damaged notes,
+          permanently, suite green). The file's comment swore these defaults are the engine's own eyes
+          (F16) — it was a comment, not a claim. Three tests now aim at the survivors: `parse` throws on
+          the real field payload and stays quiet on a healthy note, `readFile` returns the exact UTF-8
+          string (asserted whole — a loose `/Réunion/` passes on the wrong encoding), `scan` hands back
+          the engine scanner's shape. 17/17 killed.
+    - [x] **`health-check.ts` 90.00 % → 92.67 %** _(`cd66ac3`)_ — `outOfStep.length === 1` was never
+          exercised, so both ternaries could be dropped green: the owner would read *"1 notes … — e.g.
+          `<the only note there is>`"*. One boundary test kills all three mutants.
+    - [x] **Two survivors left in F15's code are recorded EQUIVALENTS, not gaps** — do not chase them:
+          `if (seams.crosscheck)` → `if (true)` throws a TypeError the enclosing catch swallows into the
+          same `null`; `catch { x = null }` → `catch {}` lands on the declaration's own value. Both
+          behaviours ARE tested (`health-check.test.ts:451` and `:481`).
+    - [x] Others, untouched and fine: `citation-renderer.ts` **100 %**, `index-crosscheck.ts` 98.77 %,
+          `frontmatter-parser.ts` 97.87 %, `vector-store.ts` 92.50 %.
+    - [ ] Out of the tool's scope, stated rather than implied: `rag/src/crosscheck-cli.ts` and
+          `health-check-cli.ts` are **not** under `src/lib/`, so `mutate-changed.mjs` never matched them.
+          Same class as the top-level `scripts/*.mjs` boot seams (named debt in RESULTS.md).
+  - [ ] **`scripts`, the 15 changed files** — running in a disposable worktree (`inPlace` is destructive),
+        batched. ⚠️ **`rag/node_modules` must be symlinked into the worktree first**, or
+        `vault-write-guard.test.mjs`'s four parser assertions SKIP there and its mutants face a suite that
+        cannot judge them — measuring exactly the fiction F16 is about. Verified before starting: 9 pass,
+        0 skipped in the worktree.
+  - [ ] Copy the per-file scores AND the survivor list here **the moment each batch ends** — RESULTS.md's
+        own rule, earned by losing two reports to a scratchpad cleanup.
+- [ ] Bump `engineVersion.scripts` (still `1.9.0`; the apply plan is glob-driven so delivery never needed
+      it) and re-decide the whole vector — `rag`, `local-mirror`, `constitutionTemplate` — the way v4.4.0
+      did in `1f5c502`. `indexSchemaVersion` stays `2` **iff** the note promises no reindex.
+- [ ] **§10, the marketing-surface re-read.** Started, and it already found the finding of the pass:
+  - [x] **`README.md:100-102` was selling a promise F14 made false.** *"a lost, stolen or dead laptop
+        costs you nothing — restore your whole brain on a new machine from the backup"* — which is
+        exactly what did NOT work before this release (a clone has neither `.mcp.json` nor
+        `.claude/settings.json`, and nothing regenerated them). So this is not §10's usual "true but
+        unsold": it was **sold and untrue**, and v4.5.0 is what makes it honest. The README never
+        mentions the rehydrate; `SETUP.md` §7 does.
+  - [ ] Finish the pass: `EN-QUOI-C-EST-DIFFERENT.md`, `CONNECTORS.md`, the board alt texts, and record
+        the boring verdicts too ("re-read, still accurate, no re-render").
+- [ ] Write the release note (non-dev first, §11 shape) into `maintainers/plans/prospective/release-v4.5.0-note.md`,
+      with the pinned mutation snapshot.
+- [ ] PR body stating F5's known limit on the constitution half (an engine-managed file only reaches
+      brains that never customized it).
+
 ## The one pattern behind most of it (the reframe)
 
 Nearly every serious finding is the same shape: **two semantically opposite things are rendered
