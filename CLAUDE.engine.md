@@ -158,6 +158,16 @@ The RAG (`rag/`) splits each Markdown file into **chunks** (one per `#`/`##`/`##
 - **Safe by construction**: a single process indexes at a time (single-writer lock), so a forced rebuild during an active session never doubles the work. With an API embedder (daily quota), a reserve of requests is kept for search: querying the brain is never blocked by an ongoing indexing.
 - **"Which engine version do I have?"** → the engine **TAG** is the answer: the **"Version"** line of `vault_stats` (= the brain's pinned `source.ref`, the same value the status-line shows). The `rag X.Y.Z` / index-schema numbers on the `vault_stats` "internal build" line are **internal mechanics**, *not* the version — never report them as "the version" (ADR 0017).
 
+**🔎 "Is my brain answering from ALL my notes?" → `node scripts/verify-index.mjs`** (from the brain
+folder, read-only, no reindex). The counters answer *"did the last run work?"*, which is a different
+question: a note whose frontmatter broke **after** it was indexed stays in the index and keeps
+**answering from the content it was last indexed with**, while every counter reads green. This
+command compares the notes on disk with the rows in the index and **names each note they disagree
+about** (exit 0 they agree · 1 they disagree · 2 the check could not run). Run it when the user
+doubts an answer's freshness, when a note "should have been found", or after a bulk import / a pull
+from another machine. When a note is named as unreadable, **offer to repair its frontmatter** — that
+edit is the only thing that clears it; a restart or a reindex changes nothing.
+
 **⚠️ Fail-loud — never a disguised out-of-vault answer.** If the `mcp__vault-rag__*` tools are **unavailable, missing, or return an error** (MCP server not loaded, missing Gemini key, empty index…), you must **SAY IT LOUDLY** — "⚠️ RAG unavailable: I can't query the vault" — and **REFUSE to fabricate an answer** from the Internet or your general knowledge. A second brain that answers beside the vault *while appearing to work* is worse than a brain that frankly says it's down. This applies **in particular to the demo question** (the user's first contact): no plausible but out-of-vault answer. Instead, indicate how to fix it (key in `.env`, restart Claude Code, `/mcp`).
 
 ### Universes — a soft retrieval scope (advanced, opt-in)

@@ -161,6 +161,18 @@ Le RAG (`rag/`) découpe chaque fichier Markdown en **chunks** (un par section `
 - **Sûr par construction** : un seul process indexe à la fois (lock single-writer), donc lancer un rebuild forcé pendant une session active ne double jamais le travail. Avec un embedder via API (quota journalier), une réserve de requêtes est gardée pour la recherche : interroger le cerveau n'est jamais bloqué par une indexation en cours.
 - **« Quelle version du moteur ai-je ? »** → la réponse est le **TAG** du moteur : la ligne **« Version »** de `vault_stats` (= le `source.ref` figé du cerveau, la même valeur que la status-line). Les numéros `rag X.Y.Z` / schéma d'index de la ligne **« internal build »** de `vault_stats` sont de la **mécanique interne**, *pas* la version — ne jamais les présenter comme « la version » (ADR 0017).
 
+**🔎 « Est-ce que mon cerveau répond depuis TOUTES mes notes ? » → `node scripts/verify-index.mjs`**
+(depuis le dossier du cerveau, lecture seule, sans ré-indexation). Les compteurs répondent à *« est-ce
+que la dernière passe a marché ? »*, ce qui est une autre question : une note dont l'en-tête s'est
+abîmé **après** son indexation reste dans l'index et continue de **répondre depuis le contenu avec
+lequel elle a été indexée la dernière fois**, pendant que tous les compteurs sont au vert. Cette
+commande compare les notes sur le disque aux lignes de l'index et **nomme chaque note sur laquelle
+ils divergent** (sortie 0 ils concordent · 1 ils divergent · 2 la vérification n'a pas pu tourner).
+Lance-la quand l'utilisateur·rice doute de la fraîcheur d'une réponse, quand une note « aurait dû
+être trouvée », ou après un import massif / une récupération depuis une autre machine. Quand une note
+est signalée illisible, **propose de réparer son en-tête** : cette correction est la seule chose qui
+lève le problème, un redémarrage ou une ré-indexation n'y changent rien.
+
 **⚠️ Échec bruyant — jamais de réponse hors-vault déguisée.** Si les outils `mcp__vault-rag__*` sont **indisponibles, absents ou renvoient une erreur** (serveur MCP non chargé, clé Gemini manquante, index vide…), tu dois le **DIRE FORT** — « ⚠️ RAG indisponible : je ne peux pas interroger le vault » — et **REFUSER de fabriquer une réponse** depuis Internet ou tes connaissances générales. Un second cerveau qui répond à côté du vault *en ayant l'air de marcher* est pire qu'un cerveau qui dit franchement qu'il est en panne. Cela vaut **en particulier pour la question de démo** (premier contact de l'utilisateur) : pas de réponse plausible mais hors-vault. Indique plutôt comment réparer (clé dans `.env`, redémarrage de Claude Code, `/mcp`).
 
 ### Univers — un périmètre de recherche souple (avancé, optionnel)

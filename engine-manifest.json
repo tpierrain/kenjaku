@@ -41,6 +41,7 @@
       "scripts/consolidate-scan.mjs",
       "scripts/refresh-note.mjs",
       "scripts/vault-write-guard.mjs",
+      "scripts/verify-index.mjs",
       "scripts/lib/**",
       ".claude/settings.json.template",
       ".mcp.json.template",
