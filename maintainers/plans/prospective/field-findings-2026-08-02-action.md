@@ -557,15 +557,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME AT STEP 12.5 — THE RELEASE IS ASSEMBLED AND WAITING ON TWO THINGS THAT ARE THE OWNER'S.**
-> Done and pushed _(2026-08-03, `e57fc6f` → `5b57c7e`)_: the mutation pass (7 files, measured, treated
+> **⏭️ RESUME AT STEP 12.5 — THE RELEASE IS ASSEMBLED, CI IS 7/7, AND IT IS WAITING ON ONE THING:
+> THE OWNER'S `/code-review ultra 55`.** They chose to run it (2026-08-03); I cannot trigger it.
+> **On resume: if the review has landed, treat its findings; if not, ask whether it ran — do not
+> re-do the release work, and do not re-ask the title question.**
+>
+> Done and pushed _(2026-08-03, `e57fc6f` → `2f16a1b`)_: the mutation pass (7 files, measured, treated
 > and **re-measured** — all ≥ 96 %, two at 100 %, every survivor a pre-listed equivalent), the version
 > vector, the §10 marketing re-read **with its verdict recorded**, RESULTS.md § v4.6.0, the user-facing
-> note and the PR body. **Draft PR #55 is open and the full matrix is running on it.**
+> note, the PR body, **draft PR #55**, and **CI green on the branch head** (Node 22/24/26 × macOS +
+> Windows + the Windows installer e2e, checked against the head SHA rather than the PR's colour).
 >
-> **What is left, and why it is not mine:** the **release title** (three candidates are in Step 12.5 —
-> v4.5.0's was chosen by the owner, so this one is too), and whether to run `/code-review ultra` on
-> #55. Then the mechanical tail: undraft, merge, tag, publish, archive.
+> **The title is settled — the owner chose `v4.6.0 — The One Where It Asks Which One You Mean`.** It
+> still has to be written into the note's H1 and the PR title, which both carry a placeholder.
 >
 > **Nothing is half-written on disk**, the suite is green (1316 tests, 1315 pass, 1 skipped
 > Windows-only), and the note already covers the `⚙️ Kenjaku engine` startup segment that Step 12.0
@@ -780,20 +784,26 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [x] **PR body written and PR OPEN** _(2026-08-03 · `1eb6c7b`)_ — **draft PR #55**,
         `prospective/release-v4.6.0-pr-body.md`. Its title is a placeholder on purpose (the release
         title is the owner's call, below) and must be rewritten before the merge.
-  - [ ] **The title is the owner's call** — do not mint one alone (v4.5.0's was chosen by them). The
-        series shape is *"The One Where …"*. Three candidates to put to them, none picked unilaterally:
-        **The One Where It Stops Inventing People** · **The One Where It Asks Which One You Mean** ·
-        **The One Where a Name Has to Be Earned**.
-  - [ ] **CI must speak before the tag** (§9): the full matrix is running on **PR #55** (7 checks:
-        Node 22/24/26 × macOS + Windows, plus the Windows installer e2e). Every commit of this branch
-        was pushed as it was made, so the tripwire has been green throughout — the 67-commit silence
-        that preceded v4.5.0's blocker cannot repeat here.
+  - [x] **TITLE CHOSEN BY THE OWNER** _(2026-08-03)_: **`v4.6.0 — The One Where It Asks Which One You
+        Mean`**. Do not re-open it, and do not re-run the three-candidate question. It still has to be
+        written into the note's H1, the PR title (currently a placeholder) and the release itself.
+  - [x] **CI HAS SPOKEN — 7/7 GREEN on the branch head** _(2026-08-03 · `2f16a1b`, PR #55)_: Node
+        22/24/26 × macOS + Windows, plus the Windows installer e2e, plus the tripwire. Verified against
+        the head SHA, not just "the PR looks green". Every commit was pushed as it was made, so the
+        67-commit silence that preceded v4.5.0's blocker never had a chance to build.
   - [x] **RESULTS.md § v4.6.0 written** _(2026-08-03 · `5b57c7e`)_ — per-file numbers, the finding,
         and every equivalent with the reason it is one.
-  - [ ] **Left for the owner, deliberately not done alone**: the **title** (three candidates above),
-        and whether to run `/code-review ultra` on PR #55 before the merge — it is theirs to trigger,
-        not mine. Then: undraft, merge, tag `v4.6.0`, publish the note, archive this plan's release
-        artefacts next to v4.5.0's.
+  - [ ] **⏸️ WAITING ON THE OWNER'S `/code-review ultra 55`** _(they chose to run it, 2026-08-03)_.
+        It is theirs to trigger — I cannot. **When its verdict lands: treat the findings first**, then
+        the tail below. Nothing else is pending.
+  - [ ] **The tail, once the review is in** (in this order):
+    - [ ] Write the chosen title into the note's H1 **and** the PR title (both still carry a
+          `<TITLE …>` placeholder).
+    - [ ] Undraft + merge PR #55, tag `v4.6.0`, publish the release with the note's body.
+    - [ ] Move `release-v4.6.0-note.md` + `release-v4.6.0-pr-body.md` into
+          `maintainers/plans/archived/`, next to v4.5.0's, and record the merge SHA + tag here.
+    - [ ] Then the plan's live work becomes **v4.7.0 (visibility)** — its findings are already listed
+          at the end of Step 11's block.
 
 ## The one pattern behind most of it (the reframe)
 
