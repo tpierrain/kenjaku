@@ -173,7 +173,9 @@
 >
 > **v4.7.0 (visibility) stays behind v4.6.0** and keeps its own findings: F13, F3, F10, F8, F9, F2, plus
 > the two banner defects routed there from P0 (a cached verdict rendered with live authority; an
-> `unknown` check displayed under "found a problem" — the latter already pinned by a test that names it).
+> `unknown` check displayed under "found a problem" — the latter already pinned by a test that names it),
+> plus **F19, the always-loaded instruction layer that only ever grows** (raised and measured
+> 2026-08-04, filed in P3 — its numbers are there, do not re-measure them).
 
 ## Step 11 — the v4.5.0 release — ✅ SHIPPED (2026-08-03, tag `v4.5.0`, PR #54, CI 7/7)
 
@@ -1334,6 +1336,49 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
 
 ### P3 — visibility, safety and ergonomics
 
+- [ ] **F19 — the always-loaded instruction layer only ever grows, and nothing measures whether it
+      still works. 🔜 v4.7.0 CANDIDATE** _(raised by the owner, 2026-08-04: « on n'arrête pas de faire
+      grossir la constitution … est-ce qu'on n'est pas devenu un peu obèse, avec un impact sur le bon
+      fonctionnement du second brain ? ». Measured the same day: the intuition **holds on the trend**
+      and **misses on the mechanism**. The numbers below are measured, not estimated — do not
+      re-derive them.)_
+  - [ ] **What is actually always in context in a generated brain.** `CLAUDE.md` rendered ~6 KB +
+        `CLAUDE.engine.md` **31.3 KB EN / 35.2 KB FR** (pulled in by its `@` import) + **~9.7 KB** of
+        skill frontmatter descriptions + the startup banner (already bounded, see below) ≈ **51 KB for
+        an FR brain, roughly 15-17k tokens, ~8 % of a 200k window**. SKILL.md **bodies** (up to 26 KB
+        for `local-mirror`) load only on invocation, and `filterCopyable` keeps `maintainers/**` out of
+        a brain entirely — so `CONVENTIONS.md` (36 KB), this plan (1500+ lines) and the ADRs cost a
+        deployed brain **nothing**. **Capacity is NOT the problem**: say so plainly rather than letting
+        the worry stand.
+  - [ ] **The trend is real, and it is a one-way ratchet.** The engine constitution sat at **23 504
+        bytes for eight releases** (v3.6.0 → v4.4.0), then **28 391** (v4.5.0, +21 %), then **31 280**
+        (v4.6.0, +10 %) — **+33 % over this trilogy alone**. Every commit that has ever touched the
+        file is `+N -0`, with a single exception (`+14 -9`): **it has never shrunk**. And since v4.5.0
+        its text is pinned by **32 doc-guard assertions**, so deleting a sentence now goes red. The
+        ratchet is ours, built in the last two releases.
+  - [ ] **The defect is not the size, it is the missing feedback loop.** Code is judged by mutation
+        score; prose is judged by doc guards that assert **presence**. Nothing measures **effect** — a
+        guard proves a rule is written, never that the model behaves differently. So a release can only
+        add, and can never learn that an older rule stopped earning its place. **37 imperatives**
+        (`NEVER`/`ALWAYS`/`MUST`) and **133 rule lines** now compete for attention at every turn.
+  - [ ] **The discipline already exists in this repo, applied to the wrong surface** —
+        `universe-reminder.test.mjs` bounds the session-start payload at **500 characters**, with a
+        failure message reading *"the startup payload grew back to N chars"*. 500 characters are
+        watched under a microscope while 35 200 are unwatched.
+  - [ ] **Candidate work, in this order. Scope NOT decided with the owner yet** — they asked for these
+        measurements to be filed as a v4.7.0 candidate (2026-08-04), which is a filing decision, not an
+        approval of the three items below.
+    - [ ] A **size budget test on both constitutions**, pinned at today's byte count: a ratchet that
+          can only go **down**, unless an explicit decision raises it. The missing net, one test.
+    - [ ] A **subtraction pass** in place of the usual addition pass. Two targets already measured:
+          `## Expected Claude Code behaviors` (**14.8 KB**, 11 subsections, half the file), and the
+          always-loaded descriptions of `switch` (**1 550 B**) and `local-mirror` (**1 543 B**) — 3 KB
+          of permanent cost for two optional features. Note the obstacle before starting: the doc
+          guards make removal red by construction, so a subtraction pass edits guards and prose
+          together, deliberately.
+    - [ ] **The only honest test of a rule's efficacy is behavioural** — an eval run against a real
+          brain. This repo has never had one. That is a project of its own, not a line item here, and
+          it is what would let a later release *remove* with evidence instead of by taste.
 - [x] **F1 — vault-only confidential material is printed at every SessionStart. ✅ COMPLETE**
       _(2026-08-03 · `9c67ea9` → `4b7b467`)_. The universe profile
       was dumped verbatim in the banner, including a passage explicitly tagged
