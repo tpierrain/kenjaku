@@ -142,7 +142,7 @@ preuve de réalisation, **mettre à jour** la date `updated:`. Append-only sur l
 - Ne pas inventer ; signaler une source partielle ou de mauvaise qualité.
 - Pas de section vide — l'omettre (sauf « Revue de KPI » et « Axes récurrents » en cas B, à garder
   comme rappel même vides, puisque ce sont les sections que tu dois t'approprier).
-- Jamais d'URL nue : `[texte](url)`. Backlinks `[[people/prenom-nom]]` (jamais de prénom seul).
+- Jamais d'URL nue : `[texte](url)`. Backlinks `[[people/prenom-nom]]` — pas de nom complet, pas de lien : le nom reste en texte simple.
 
 ## Affiner cette skill (c'est le but d'une skill méta)
 La structure ci-dessus est un **point de départ**. Rends-la tienne : remplace les KPI d'exemple par

@@ -139,7 +139,7 @@ of completion, **update** the `updated:` date. Append-only on facts already reco
 - Do not make things up; flag a partial or low-quality source.
 - No empty section — omit it (except "KPI review" and "Recurring focus areas" in case B, to keep
   as a reminder even when empty, since these are the sections you must make your own).
-- Never a bare URL: `[text](url)`. Backlinks `[[people/firstname-lastname]]` (never a first name alone).
+- Never a bare URL: `[text](url)`. Backlinks `[[people/firstname-lastname]]` — no full name, no link: the name stays plain text.
 
 ## Refining this skill (that's the point of a meta skill)
 The structure above is a **starting point**. Make it yours: replace the example KPIs with

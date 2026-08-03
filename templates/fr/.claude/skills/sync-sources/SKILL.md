@@ -66,9 +66,30 @@ contexte principal = synthèse finale (~3-5k tokens d'input)
 ## Référentiel de personnes (backlinks)
 
 Pour des backlinks `[[people/prenom-nom]]` cohérents (pas de liens cassés), les sous-agents
-s'appuient sur les fiches de `vault/people/`. Règle : **kebab-case, sans accents**
-(`[[people/jane-doe]]`). **Jamais de prénom seul** (`[[people/jane]]` est interdit). Créer les
-backlinks même si la page cible n'existe pas (*dangling links* OK) ; ne pas créer les pages cibles.
+s'appuient sur les fiches de `vault/people/`. Forme d'un lien, quand tu as un nom complet :
+**kebab-case, sans accents** (`[[people/jane-doe]]`). Le backlink peut pointer vers une page qui
+n'existe pas encore (*dangling links* OK) ; ne pas créer les pages cibles.
+
+**Quand tu n'as qu'un prénom, tu n'as pas de lien à écrire** : ni raccourci, ni complété. Voir
+« Discipline d'identité » juste en dessous : le nom reste en texte simple. Cette section décrit la
+*forme* d'un lien une fois la personne résolue ; elle ne te demande jamais de produire un nom complet
+que tu n'as pas.
+
+## Discipline d'identité
+
+> **Lis le vault avant d'écrire sur les personnes qui s'y trouvent.** Un briefing a un jour transformé
+> le « Jérémy (front Candor) » de la source en « Jérémy Hinard », un nom de famille qui n'existe nulle
+> part ailleurs que dans cette note. La résolution suivante se fait alors contre la fabrication.
+
+1. **Résous avant d'écrire.** Avant de nommer une personne dans une note, lis ce que le vault en dit
+   déjà : les fiches `people/` (celles de l'univers actif **et** celles, transverses, de la racine) et
+   les notes d'organisation. Le vault prime sur ta mémoire de la session comme sur le raccourci de la
+   source.
+2. **N'invente jamais la moitié manquante d'une identité.** Un prénom sans nom de famille **reste un
+   prénom** : écris-le en texte simple, jamais en `[[people/…]]`, et ne le complète jamais avec un nom
+   que la source ne t'a pas donné. « Jérémy (front Candor) » s'écrit « Jérémy (front Candor) ». Perdre
+   un backlink coûte un clic ; une identité fabriquée est définitive, elle est indexée, et elle devient
+   ce contre quoi la résolution suivante se résout.
 
 ## Discipline d'affirmation
 
@@ -215,7 +236,7 @@ RÈGLES :
 - Un prénom seul reste un prénom seul. Ne jamais le résoudre en identité complète : c'est une
   affirmation sur QUI est quelqu'un, et ça a déjà attribué une démission à la mauvaise personne.
 - Créer les backlinks même si la page cible n'existe pas.
-- Backlinks via vault/people/ (kebab-case sans accents, jamais de prénom seul).
+- Backlinks via vault/people/ (kebab-case, sans accents). Pas de nom complet, pas de lien : le nom reste en texte simple.
 - JAMAIS de shell (python3 -c, node -e, awk, sed, jq, grep, cat…) pour lire/charger/découper le
   contenu : si tu dois relire un fichier (vault ou résultat déporté .../tool-results/...), utilise
   l'outil Read ; le découpage et le résumé se font par raisonnement, pas en ligne de commande.
@@ -271,7 +292,7 @@ AFFIRMATIONS NÉGATIVES :
 
 RÈGLES :
 - Ignorer le conversationnel pur (bonjour/merci/emoji) et les bots/notifications.
-- Backlinks via vault/people/ (jamais de prénom seul).
+- Backlinks via vault/people/ (kebab-case, sans accents). Pas de nom complet, pas de lien : le nom reste en texte simple.
 - JAMAIS de shell (python3 -c, node -e, awk, sed, jq, grep, cat…) pour lire/charger/découper le
   contenu : si tu dois relire un fichier (vault ou résultat déporté .../tool-results/...), utilise
   l'outil Read ; le découpage et le résumé se font par raisonnement, pas en ligne de commande.

@@ -66,9 +66,29 @@ main context = final synthesis (~3-5k tokens of input)
 ## People registry (backlinks)
 
 For consistent `[[people/firstname-lastname]]` backlinks (no broken links), the sub-agents
-rely on the cards in `vault/people/`. Rule: **kebab-case, no accents**
-(`[[people/jane-doe]]`). **Never a first name alone** (`[[people/jane]]` is forbidden). Create the
-backlinks even if the target page doesn't exist (*dangling links* OK); do not create the target pages.
+rely on the cards in `vault/people/`. Shape of a link, when you have a full name: **kebab-case, no
+accents** (`[[people/jane-doe]]`). The backlink may point at a page that doesn't exist yet
+(*dangling links* OK); do not create the target pages.
+
+**When you only have a first name, you have no link to write** — not a shortened one, not a completed
+one. See "Identity discipline" just below: the name stays plain text. This section describes the
+*shape* of a link once the person is resolved; it never asks you to produce a full name you don't have.
+
+## Identity discipline
+
+> **Read the vault before you write about the people in it.** A briefing once turned the source's
+> *"Jérémy (front Candor)"* into *"Jérémy Hinard"* — a surname that exists nowhere but in that note.
+> The next resolution then resolves against the fabrication.
+
+1. **Resolve before you write.** Before naming a person in a note, read what the vault already says
+   about them: the `people/` cards (the active universe's **and** the root's cross-cutting ones) and
+   the organisation notes. The vault outranks both your memory of this session and the source's
+   shorthand.
+2. **Never invent the missing half of an identity.** A first name with no surname **stays a first
+   name**: write it as plain text, never as `[[people/…]]`, and never complete it with a surname the
+   source did not give you. *"Jérémy (front Candor)"* is written *"Jérémy (front Candor)"*. Losing a
+   backlink costs a click; a fabricated identity is permanent, gets indexed, and becomes what the
+   next resolution resolves against.
 
 ## Claim discipline
 
@@ -211,7 +231,7 @@ RULES:
 - A bare first name stays a bare first name. Never resolve it into a full identity — that is a
   claim about who someone IS, and it has already attributed a resignation to the wrong person.
 - Create the backlinks even if the target page doesn't exist.
-- Backlinks via vault/people/ (kebab-case no accents, never a first name alone).
+- Backlinks via vault/people/ (kebab-case, no accents). No full name, no link: the name stays plain text.
 - NEVER a shell (python3 -c, node -e, awk, sed, jq, grep, cat…) to read/load/split the
   content: if you must re-read a file (vault or offloaded result .../tool-results/...), use
   the Read tool; splitting and summarizing are done by reasoning, not on the command line.
@@ -263,7 +283,7 @@ NEGATIVE CLAIMS:
 
 RULES:
 - Ignore pure conversational noise (hello/thanks/emoji) and bots/notifications.
-- Backlinks via vault/people/ (never a first name alone).
+- Backlinks via vault/people/ (kebab-case, no accents). No full name, no link: the name stays plain text.
 - NEVER a shell (python3 -c, node -e, awk, sed, jq, grep, cat…) to read/load/split the
   content: if you must re-read a file (vault or offloaded result .../tool-results/...), use
   the Read tool; splitting and summarizing are done by reasoning, not on the command line.
