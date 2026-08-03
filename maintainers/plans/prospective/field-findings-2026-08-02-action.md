@@ -212,13 +212,47 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
     - [ ] Out of the tool's scope, stated rather than implied: `rag/src/crosscheck-cli.ts` and
           `health-check-cli.ts` are **not** under `src/lib/`, so `mutate-changed.mjs` never matched them.
           Same class as the top-level `scripts/*.mjs` boot seams (named debt in RESULTS.md).
-  - [ ] **`scripts`, the 15 changed files** — running in a disposable worktree (`inPlace` is destructive),
-        batched. ⚠️ **`rag/node_modules` must be symlinked into the worktree first**, or
-        `vault-write-guard.test.mjs`'s four parser assertions SKIP there and its mutants face a suite that
-        cannot judge them — measuring exactly the fiction F16 is about. Verified before starting: 9 pass,
-        0 skipped in the worktree.
+  - [ ] **`scripts`, the 15 changed files** — in a disposable worktree (`inPlace` is destructive), batched.
+    - [x] **The exact recipe, so a `/clear` costs nothing.** Worktree at
+          `/Users/tpierrain/Dev/kenjaku-mut-v450` (NOT the scratchpad — RESULTS.md lost two reports to a
+          temp cleanup). Between batches: `git checkout --detach <HEAD of release/v4.5.0>` +
+          `git clean -qfd -e rag/node_modules` — **never `git checkout -- .`** (a mutant of
+          `auto-commit.mjs` can COMMIT the instrumented tree). Then, from the worktree:
+          ```
+          node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
+            run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate "<comma-separated paths>"
+          ```
+    - [x] ⚠️ **`rag/node_modules` must be symlinked into the worktree first**
+          (`ln -sfn /Users/tpierrain/Dev/kenjaku/rag/node_modules <wt>/rag/node_modules`), or
+          `vault-write-guard.test.mjs`'s four parser assertions SKIP there and its mutants face a suite
+          that cannot judge them — measuring exactly the fiction F16 is about. Verified before starting:
+          9 pass / 0 skipped in the worktree. **This is new since the write-guard fix; the recipe in
+          RESULTS.md predates it.**
+    - [x] **Batch 1 done** _(2026-08-03, 3 min 10 s, 147 mutants, `All files` 80.27 %)_:
+          `brain-rehydrate.mjs` **100 %**, `open-note.mjs` **100 %**, `staged-health-note.mjs` **100 %**,
+          `rag-status.mjs` 86.79 % (7 survivors), **`verify-index.mjs` 40.54 % (22 survivors)**.
+      - [ ] **`verify-index.mjs`'s 22 survivors are ALL boot/IO wiring, and none is in the decision
+            logic**: lines 32-41 (`defaultRunCrosscheck`, the real spawn), 43-47 (`realVerifyIndexDeps`),
+            67-68 (the `isEntrypoint` guard). `runVerifyIndex` itself — the exit-code decision — is fully
+            killed. Same shape RESULTS.md names as the package's known debt.
+      - [ ] **But do NOT file it as debt without trying the fix that just worked.** The identical shape in
+            `index-crosscheck-scan.ts` went 70.59 % → **100 %** an hour earlier, and `rehydrate.mjs`
+            already carries the remedy this repo invented: a `realRehydrateDeps wires the real machine`
+            test asserting the wired functions by identity. `realVerifyIndexDeps` has no such test — a
+            plain asymmetry, not a law. **Next action on this file: write it, re-mutate, and only record
+            what genuinely survives as equivalent.**
+      - [ ] `rag-status.mjs`'s 7 survivors: not yet looked at.
+    - [ ] **Batch 2, not started** — `scripts/lib/health-probe.mjs, scripts/lib/rag-launcher.mjs,
+          scripts/lib/universe-profile.mjs, scripts/lib/universe-reminder.mjs,
+          scripts/lib/vault-write-guard.mjs`.
+    - [ ] **Batch 3, not started** — `scripts/rehydrate.mjs, scripts/session-self-heal.mjs,
+          scripts/session-status.mjs, scripts/session-universe.mjs, scripts/vault-write-guard.mjs`.
+          Expect `session-status.mjs` at **0 %**: named, pre-existing debt (a top-level script no test can
+          import), NOT a regression of this release — say so rather than let the batch total imply rot.
   - [ ] Copy the per-file scores AND the survivor list here **the moment each batch ends** — RESULTS.md's
         own rule, earned by losing two reports to a scratchpad cleanup.
+  - [ ] When all batches are in: update `maintainers/mutation/RESULTS.md` (newest-first section for
+        v4.5.0) and pin the snapshot in the release note.
 - [ ] Bump `engineVersion.scripts` (still `1.9.0`; the apply plan is glob-driven so delivery never needed
       it) and re-decide the whole vector — `rag`, `local-mirror`, `constitutionTemplate` — the way v4.4.0
       did in `1f5c502`. `indexSchemaVersion` stays `2` **iff** the note promises no reindex.
