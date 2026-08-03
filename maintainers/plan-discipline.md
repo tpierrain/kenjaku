@@ -124,8 +124,9 @@ would not think to load anything. Put it in the file your agent reads at the sta
 ```
 
 **The on-demand half** — rule 1, how to write and open a plan — is genuine skill material: it
-triggers on a recognizable task ("write a plan", "open the plan", "resume this"). Package it as a
-skill if your agent supports them.
+triggers on a recognizable task ("write a plan", "open the plan", "resume this"). One is written and
+ready to copy: [`skills/plan-discipline/SKILL.md`](skills/plan-discipline/SKILL.md) — drop the folder
+into a repo's `.claude/skills/` and it activates there.
 
 Do not put the always-on half in a skill. A skill loads when a task matches, and rule 3 has to fire
 at the exact moment nothing looks like it needs loading: when the agent is about to stop and hand
