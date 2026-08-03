@@ -71,17 +71,21 @@
 > **✅ Step 8 done — F16 IS COMPLETE** _(2026-08-03)_ — `CONVENTIONS.md` §5quater: a checker must read
 > through the engine's own eyes, and is judged on what it says about a HEALTHY brain.
 >
-> **⏸️ AWAITING THE OWNER'S CALL (2026-08-03) — a NEW finding wants to ride v4.5.0.** A postmortem
-> written by the owner's own brain after **two consecutive failing sessions** was handed to this repo
-> and is recorded as **F18** in P1 (*the brain reports silence it never verified*). It is the same
-> reframe as this plan's, on the output surface. **Nothing is decided**: the proposal is to ship only
-> its **text-only half in v4.5.0** (negative-claim phrasing + thread resolution, ~30 lines in
-> `sync-sources` / `prepare-1-1` / both constitutions) and merge the structural half into v4.6.0,
-> where it overlaps the reliability/confidence block already scoped. **Read F18's own entry before
-> re-opening this** — the evidence and the reach check are there, do not re-derive them. If the owner
-> says no, F18 moves whole into v4.6.0 and the order below is unchanged.
+> **✅ DECIDED (2026-08-03, by the owner): F18 ships WHOLE in v4.5.0.** A postmortem written by the
+> owner's own brain after **two consecutive failing sessions** was handed to this repo and is recorded
+> as **F18** in P1 (*the brain reports silence it never verified*) — the same reframe as this plan's,
+> on the output surface. The staged proposal (text-only half now, structural half in v4.6.0) was put
+> to the owner and **declined in favour of shipping all of it now**: §4.1 through §4.6, confidence
+> markers included. **Do not re-open this**, and do not re-derive F18's evidence or its reach check —
+> both are in its own entry. Cost accepted: v4.5.0 goes from five findings to six, one of them
+> structural, so it lands later than it would have.
 >
 > **Resume here — v4.5.0, in this order.**
+> 8bis. **F18 — the claim discipline** _(decided 2026-08-03, ordered FIRST: it is prose-only, it blocks
+>    nothing, and its exposure is live — every briefing and every 1-1 prep can produce an accusation
+>    about a named colleague until it ships)_. See its P1 entry for the six pieces and for the reach
+>    fact that decides the carrier (`sync-sources` / `prepare-1-1` reach a deployed brain,
+>    `CLAUDE.engine.md` reaches new installs only).
 > 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
 >    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
 >    editor. Added to v4.5.0's scope, see its P0 entry — it repairs three surfaces that disagree
@@ -432,9 +436,12 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           `engine-apply-plan.test.mjs:163`) → a rule added **only** to the constitution reaches
           **new installs only, never a deployed brain**. So the constitution half is worth writing,
           but it must **not** be the carrier.
-  - [ ] **Proposed split (my call, open to challenge — this is the scope question for the owner):**
-    - [ ] **v4.5.0, text-only, ~30 lines, no code:** the two rules that kill the highest-damage class
-          at zero structural cost, in `sync-sources` (+ `prepare-1-1`) **and** both constitutions.
+  - [x] **✅ SCOPE DECIDED (2026-08-03, by the owner): ALL SIX PIECES SHIP IN v4.5.0.** The staged
+        split below was proposed and **declined** — the owner took the whole thing rather than the
+        cheap half. So the two groupings below are now **build order inside v4.5.0**, not two
+        releases. Do not re-open. Cost accepted: v4.5.0 was five findings, it is six, one structural.
+    - [ ] **First — the two prose rules** that kill the highest-damage class at zero structural cost,
+          in `sync-sources` (+ `prepare-1-1`) **and** both constitutions.
       - [ ] **Negative claims** (CR §4.1 / §4.4): default phrasing flips from *"there is no X"* to
             *"I did not find X"*; any *"no reply / nobody decided / not started / X has not done Y"*
             must **name the check that established it, or be reworded as an open question**; before
@@ -443,15 +450,17 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       - [ ] **Threads** (CR §4.2): a chat message cited as **current state** must have its thread
             resolved where the source exposes one; `replies > 0` is a **hard block** on any
             "unanswered / unresolved / pending" wording.
-      - [ ] Rationale for shipping the cheap half now rather than waiting for v4.6.0: the exposure is
-            **live and continuous** — every briefing and every 1-1 prep between now and v4.6.0 can
-            produce an accusation about a named colleague, and the fix is prose in a file that is
-            already propagated and already untouched on the affected brain.
-    - [ ] **v4.6.0, structural — it merges with what is already scoped there:**
-      - [ ] **CR §4.5 (mark confidence in the artifact) IS this plan's existing
-            "reliability/confidence block"** — generalise Session A's identity table to every
-            behavioural or negative claim, and mark specifically **what is safe to paste into a
+      - [ ] Why these two go first: the exposure is **live and continuous** — every briefing and
+            every 1-1 prep can produce an accusation about a named colleague until it ships — and the
+            fix is prose in a file already propagated and already untouched on the affected brain.
+    - [ ] **Then the structural half, same release:**
+      - [ ] **CR §4.5 — mark confidence in the artifact.** Generalise Session A's identity table to
+            every behavioural or negative claim, and mark specifically **what is safe to paste into a
             message to another human** (the real danger threshold, not the same as "probably true").
+            **Sibling, not duplicate, of v4.6.0's "reliability/confidence block"**: this one marks a
+            *produced artifact* (a briefing, a 1-1 prep), that one marks a *people note born from a
+            probable resolution*. They must share one vocabulary — settle it here, since this ships
+            first, and have v4.6.0 reuse it rather than invent a second scale.
       - [ ] **CR §4.6 (prior notes are sources, not facts)**: a prior briefing's caveated items must
             be **re-verified before propagation**; make caveats **machine-visible** (a field, not
             prose) so the next session can find them instead of absorbing them.
@@ -598,6 +607,15 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       owner's request the same evening — *"ideally with the next release"*. It fits the release's own
       theme: a promise the product already prints and does not keep. _(2026-08-02)_
 
+- [x] **F18 ships WHOLE in v4.5.0** _(2026-08-03)_. The staged option (its two prose rules now, its
+      structural half with F7/F6 in v4.6.0) was put to the owner **with the recommendation to stage**,
+      and the owner took the whole finding instead. Reason it is not reckless: the carrier is prose in
+      `merge`-regime skills that are **untouched on the affected brain**, so it reaches him; and the
+      class it removes is the only one in this plan whose failure costs a relationship rather than an
+      hour. **Cost stated and accepted:** v4.5.0 goes from five findings to six, one structural, so it
+      lands later. Build order inside the release: F18 **first** (prose-only, blocks nothing, live
+      exposure), then F17, then F1, then the release step.
+
 - [x] **F1 MOVES UP from v4.7.0 into v4.5.0**, same request, same evening. The owner had already asked
       for a summarised universe banner on 2026-07-28; only the framing shrank then. It also stops
       being purely "visibility": what the banner prints at every session is 🔒 vault-only material.
@@ -610,8 +628,8 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
 
 | Release | Theme | Findings |
 | --- | --- | --- |
-| **v4.5.0** | promises kept | F14, F11/F12, F15, **F17**, **F1** (+ F16 into `CONVENTIONS.md`) — **F18's text-only half proposed, undecided** |
-| **v4.6.0** | the vault's identity | F7, F6, homonymy block, reliability/confidence block, **F18 (the rest)** |
+| **v4.5.0** | promises kept | **F18**, F14, F11/F12, F15, **F17**, **F1** (+ F16 into `CONVENTIONS.md`) |
+| **v4.6.0** | the vault's identity | F7, F6, homonymy block, reliability/confidence block |
 | **v4.7.0** | visibility | F13, F3, F10, F8, F9, F2 |
 | _in parallel_ | the freeze trap | F5 defects 1+2 — defect 3 gets its own ADR + plan |
 
