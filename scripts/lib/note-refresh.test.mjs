@@ -294,3 +294,106 @@ Front-end at Candor.
 `,
   );
 });
+
+test("promoting a card that has NO confidence yet appends the field", () => {
+  // Every card written before this shipped is in exactly this shape, so this is
+  // the ordinary promotion, not an edge case: without the append, a re-verified
+  // pre-v4.6.0 card could never record that it was confirmed.
+  const card = `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+---
+
+# Jérémy Hinard
+
+Front-end at Candor.
+`;
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "probable", basis: "the Candor org note, 2026-06." },
+  });
+  assert.equal(
+    out,
+    `---
+type: person
+created: 2026-06-02
+updated: 2026-08-03
+tags: [candor]
+confidence: probable
+---
+
+# Jérémy Hinard
+
+Front-end at Candor.
+`,
+  );
+});
+
+test("a frontmatter VALUE mentioning confidence: is not mistaken for the field", () => {
+  // Same shape as the `updated:`-suffix test above, and the same damage: the
+  // rewrite would land on someone else's line and destroy it (F12 was one
+  // hand-edited frontmatter key away from unreadable).
+  const card = `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+note: "ask him to raise confidence: unclear so far"
+confidence: probable
+---
+
+# Jérémy Hinard
+
+Front-end at Candor.
+`;
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "observed", basis: "he introduced himself in #candor." },
+  });
+  assert.match(out, /\nnote: "ask him to raise confidence: unclear so far"\n/);
+  assert.match(out, /\nconfidence: observed\n/);
+});
+
+test("an INDENTED mention of the block does not absorb the promotion, even first", () => {
+  // These pages are edited by hand in Obsidian, so the card's own block is not
+  // guaranteed to be the first thing that looks like one. The block is the one
+  // at the START of a line: promoting an indented quotation instead would leave
+  // the real block stale, and the page would then say two different things
+  // about its own reliability — which is what the block exists to end.
+  const card = `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+confidence: probable
+---
+
+# Jérémy Hinard
+
+Noted from his manager's card, which still reads
+    > **Confidence** — 🔴 unverified · nothing but a first name, which is why we asked.
+
+> **Confidence** — 🟡 derived or probable · the surname comes from the Candor org note.
+
+Front-end at Candor.
+`;
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "observed", basis: "he introduced himself in #candor." },
+  });
+  assert.match(
+    out,
+    /^> \*\*Confidence\*\* — ✅ observed · he introduced himself in #candor\.$/m,
+    "the card's own block is promoted",
+  );
+  assert.match(
+    out,
+    /^ {4}> \*\*Confidence\*\* — 🔴 unverified · nothing but a first name, which is why we asked\.$/m,
+    "and the quoted one is left exactly as it was",
+  );
+});

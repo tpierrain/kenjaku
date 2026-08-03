@@ -92,3 +92,20 @@ test("a pending restart silences the version's chat relay, not just its rank", (
     { hookEventName: "SessionStart" },
   );
 });
+
+test("called with nothing at all — no banner, no relay, and no crash", () => {
+  // The default for `statusLines` is what a caller with nothing to report hands
+  // in; a default carrying content would put words in the engine's mouth.
+  assert.deepEqual(buildStatusHookOutput(), {
+    hookSpecificOutput: { hookEventName: "SessionStart" },
+    systemMessage: "",
+  });
+  assert.deepEqual(buildStatusHookOutput({ versionLine: "⚙️ Kenjaku engine v4.6.0" }), {
+    hookSpecificOutput: {
+      hookEventName: "SessionStart",
+      additionalContext:
+        "[engine] ⚙️ Kenjaku engine v4.6.0 — state this version once, verbatim, in your first message.",
+    },
+    systemMessage: "⚙️ Kenjaku engine v4.6.0",
+  });
+});

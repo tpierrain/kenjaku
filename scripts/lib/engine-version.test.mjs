@@ -143,3 +143,12 @@ test("readStartupVersionLine — unparseable manifest → null, never throws", (
     null,
   );
 });
+
+test("a ref made of whitespace is NOT a version — it falls back like an absent one", () => {
+  // "engine    " and "⚙️ Kenjaku engine    " are labels that look like they say
+  // something and say nothing: the exact conflation the null case exists for.
+  const manifest = { source: { ref: "   " }, engineVersion: { rag: "1.3.0" } };
+  assert.equal(startupVersionLine(manifest), null);
+  assert.equal(formatEngineVersion(manifest), "engine 1.3.0");
+  assert.equal(formatEngineVersion({ source: { ref: "\t\n" } }), null);
+});
