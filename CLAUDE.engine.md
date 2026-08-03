@@ -163,6 +163,15 @@ The RAG (`rag/`) splits each Markdown file into **chunks** (one per `#`/`##`/`##
 - **Safe by construction**: a single process indexes at a time (single-writer lock), so a forced rebuild during an active session never doubles the work. With an API embedder (daily quota), a reserve of requests is kept for search: querying the brain is never blocked by an ongoing indexing.
 - **"Which engine version do I have?"** → the engine **TAG** is the answer: the **"Version"** line of `vault_stats` (= the brain's pinned `source.ref`, the same value the status-line shows). The `rag X.Y.Z` / index-schema numbers on the `vault_stats` "internal build" line are **internal mechanics**, *not* the version — never report them as "the version" (ADR 0017).
 
+**🧭 The owner's context page — read it, it is never read to you.** `vault/universe.md` (or
+`vault/<universe>/universe.md` while a universe is active) is an optional note recording what this
+sphere is, the owner's role, the people who matter, the recurring topics, and **which account each
+tool uses here** ("Slack" meaning `acme.slack.com`). A session start does **not** carry its content —
+at most it names the page — because everything injected there is echoed verbatim onto a screen the
+owner may be sharing. So **open it yourself** the moment an answer depends on those facts: a first
+name to resolve, a workspace to post in, who someone is. Two rules: never recite it back at them, and
+if it does not exist, that is normal — offer once, through `/switch`.
+
 **🔎 "Is my brain answering from ALL my notes?" → `node scripts/verify-index.mjs`** (from the brain
 folder, read-only, no reindex). The counters answer *"did the last run work?"*, which is a different
 question: a note whose frontmatter broke **after** it was indexed stays in the index and keeps

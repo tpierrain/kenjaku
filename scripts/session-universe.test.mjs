@@ -251,6 +251,43 @@ test("readActiveProfileSynthesis reports absence as null, so the capture offer c
   assert.equal(readActiveProfileSynthesis(io, "/brain/vault", () => "acme"), null);
 });
 
+test("the door the synthesis names EXISTS: /switch can show the description on request", () => {
+  // The injected block stops carrying the profile and sends the owner to `/switch`
+  // for it. That is only honest while `/switch` can actually show it — otherwise
+  // this is F17's defect again, a promise the product prints and does not keep.
+  // What the owner types is `/switch` with no argument, so the no-argument path is
+  // the one that has to offer it.
+  const skill = readFileSync(join(REPO_ROOT, ".claude", "skills", "switch", "SKILL.md"), "utf8");
+  const menu = skill.slice(skill.indexOf("### No-argument menu"));
+  const nextSection = menu.indexOf("\n### ", 1);
+
+  assert.match(
+    nextSection > 0 ? menu.slice(0, nextSection) : menu,
+    /description|profile/i,
+    "the /switch menu no longer offers the description the session start points at",
+  );
+  // And the description it shows must come from the profile note, deterministically,
+  // not from whatever the agent remembers of a block it read at session start.
+  assert.match(skill, /set-universe-profile\.mjs --digest/);
+});
+
+test("both constitutions teach the profile page, since a session start no longer carries it", () => {
+  // The gate closed the last channel that told a single-universe brain its owner
+  // had a context page — and that is the common case. So the rule moves to where
+  // it costs no session bytes: the constitution, read once per conversation. It
+  // must name the PATH (there is nothing else left to point at) and frame the read
+  // as on-demand, or the agent learns of a page it never opens.
+  for (const layer of ["CLAUDE.engine.md", "templates/fr/CLAUDE.engine.md"]) {
+    const text = readFileSync(join(REPO_ROOT, layer), "utf8");
+    assert.match(text, /vault\/universe\.md/, `${layer} does not name the profile page`);
+    assert.match(
+      text,
+      /vault\/<universe>\/universe\.md|vault\/<univers>\/universe\.md/,
+      `${layer} does not say where the page is when a universe is active`,
+    );
+  }
+});
+
 // --- the offer must land somewhere that exists ------------------------------
 
 test("the /switch skill still owns the detail the startup offer stopped reciting", () => {

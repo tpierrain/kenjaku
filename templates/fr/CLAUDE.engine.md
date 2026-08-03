@@ -166,6 +166,15 @@ Le RAG (`rag/`) découpe chaque fichier Markdown en **chunks** (un par section `
 - **Sûr par construction** : un seul process indexe à la fois (lock single-writer), donc lancer un rebuild forcé pendant une session active ne double jamais le travail. Avec un embedder via API (quota journalier), une réserve de requêtes est gardée pour la recherche : interroger le cerveau n'est jamais bloqué par une indexation en cours.
 - **« Quelle version du moteur ai-je ? »** → la réponse est le **TAG** du moteur : la ligne **« Version »** de `vault_stats` (= le `source.ref` figé du cerveau, la même valeur que la status-line). Les numéros `rag X.Y.Z` / schéma d'index de la ligne **« internal build »** de `vault_stats` sont de la **mécanique interne**, *pas* la version — ne jamais les présenter comme « la version » (ADR 0017).
 
+**🧭 La page de contexte de la personne — on la lit, elle ne t'est pas récitée.** `vault/universe.md`
+(ou `vault/<univers>/universe.md` quand un univers est actif) est une note facultative qui consigne ce
+qu'est cette sphère, le rôle de son propriétaire, les personnes qui comptent, les sujets récurrents et
+**quel compte chaque outil utilise ici** (« Slack » = `acme.slack.com`). Un démarrage de session ne
+transporte **pas** son contenu (au mieux il nomme la page) : tout ce qui y est injecté est réaffiché
+tel quel sur un écran parfois partagé. Donc **ouvre-la toi-même** dès qu'une réponse en dépend : un
+prénom à résoudre, un workspace où publier, qui est telle personne. Deux règles : ne jamais la lui
+réciter, et si elle n'existe pas c'est normal (proposer une fois, via `/switch`).
+
 **🔎 « Est-ce que mon cerveau répond depuis TOUTES mes notes ? » → `node scripts/verify-index.mjs`**
 (depuis le dossier du cerveau, lecture seule, sans ré-indexation). Les compteurs répondent à *« est-ce
 que la dernière passe a marché ? »*, ce qui est une autre question : une note dont l'en-tête s'est

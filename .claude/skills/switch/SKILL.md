@@ -1,6 +1,6 @@
 ---
 name: switch
-description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. Switching itself does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, or asks to fill in / update it (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with'). It also RENAMES a universe ('rename acme to Acme Corp', 'renomme cet univers'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
+description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. Switching itself does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, asks to fill in / update it, or asks to SEE it — the session start names this skill as the way to read the description back (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with', 'show me my context', 'montre-moi la description de cet univers'). It also RENAMES a universe ('rename acme to Acme Corp', 'renomme cet univers'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
 version: 1.5.0
 ---
 
@@ -96,8 +96,30 @@ It prints **one of two blocks**, or nothing at all. Read the marker, they want o
    ```
 2. Present the menu in chat: **remind** the current universe, **list** the available ones, and offer
    - **switch** to one of them → fast path above,
+   - **📖 see the description** of the active universe → *Show the description* below,
    - **➕ create a new universe** (create-and-switch) → `create` below,
    - **✖️ cancel** (stay put) → do nothing.
+
+### Show the description — the owner ASKED to read it
+
+The session start no longer carries the profile: it states which sphere is active, names the note,
+and says the description itself is available by asking `/switch`. So this menu entry is the other
+end of that sentence — without it, the brain points at a door that does not open.
+
+**It is the same command as the post-switch refresh, and the OPPOSITE act.** There, the block is
+background you use silently. Here, the owner asked to see it, so you **show it**:
+
+```bash
+node scripts/set-universe-profile.mjs --digest
+```
+
+- `[working context]` → **present it to them**, in their language, as their context: what this
+  sphere is, the people, the topics, the accounts. Then name the note itself
+  (`vault/<slug>/universe.md`, or `vault/universe.md` for the cross-cutting default) — it is theirs,
+  they can open and edit it in Obsidian, and what it says is what a session start uses.
+- `[ask the owner]` → this universe has no profile yet. Offer to describe it (see below).
+- **nothing** → a profile exists but the offer was declined earlier; say the page is there and name
+  its path.
 
 ### Create a new universe — "create a universe <name>"
 
@@ -121,9 +143,10 @@ universe with no profile works exactly like one with a profile, only with less c
 
 A universe's **profile** is a normal note (`vault/<slug>/universe.md`, or `vault/universe.md` for
 the cross-cutting default) recording what this sphere **is**: an employer, a client, a personal
-space, who is in it, what it is about, which accounts its tools use. A short digest of it is
-injected at session start, because the ambient facts of a sphere are needed exactly when nobody
-thinks to search for them.
+space, who is in it, what it is about, which accounts its tools use. Its **body stays in the note**:
+a session start is told which sphere is active and where the page lives, and you open it when what
+you are asked depends on it. That page is vault-only material — what rides a session start is echoed
+into every screenshot and screen share, so it carries the pointer, never the content.
 
 **When to offer it:** right after a `create` (above); when a `--digest` after a switch prints an
 `[ask the owner]` block; when the session's start-of-conversation context says this brain has no
@@ -158,7 +181,7 @@ disciplines make this safe, and they are not optional:
   your title here?)` is a better answer than a title that reads exactly like the four correct ones.
 
 Say what accepting costs, once, plainly: **accepting a proposed batch records it as the owner's own
-facts**, in a note whose digest is injected at every session start. It is consented and it stays
+facts**, in a note their sessions read to answer. It is consented and it stays
 correctable (it is a plain note), but a one-word "yes" is the cheapest interaction there is — so the
 weight of it has to be visible before it is given, not discovered later.
 

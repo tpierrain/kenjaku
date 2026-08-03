@@ -171,8 +171,11 @@ test("buildUniverseHookOutput counts the SYNTHESIS against the budget too (F1)",
     synthesis,
   }).hookSpecificOutput.additionalContext;
 
-  // The offer never co-occurs with a synthesis (it fires only when there is NO
-  // profile), so these two blocks are the worst case a session start can print.
+  // What is bounded is OUR prose against a representative payload — the owner's own
+  // words (their display name, role, period) still float, exactly as the digest's
+  // did. A real brain measured 517 chars here because its owner filled `period` in,
+  // and that is theirs to spend. These two blocks are the worst case by COUNT: the
+  // offer never co-occurs with a synthesis, since it fires only when there is none.
   assert.ok(
     payload.length <= 500,
     `the startup payload grew back to ${payload.length} chars:\n${payload}`,

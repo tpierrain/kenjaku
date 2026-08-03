@@ -303,8 +303,11 @@ What it writes is a **normal note** (`vault/universe.md`), which means:
 - it is **versioned** with the rest of your vault, and **searchable** like any other note;
 - it is **never overwritten** — once the page exists, it is yours.
 
-A short summary of it is handed to each new conversation, so your brain starts already knowing who
-your people are. To fill it in later, or to change your mind, just ask ("describe my context").
+Your brain **opens that page when your question depends on it** — who someone is, which account a
+tool uses here. What it does *not* do is print the page at you: what you wrote there stays in the
+vault, and never lands in a screenshot or a screen share just because a conversation started. To
+fill it in later, to read it back, or to change your mind, just ask ("describe my context", "show me
+my context").
 
 > If you use several **universes** (see `/switch` below), each one gets its **own** page: the people
 > and the accounts of one sphere never leak into another's answers.
