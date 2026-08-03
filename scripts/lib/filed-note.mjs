@@ -56,7 +56,7 @@ export const CONFIDENCE = {
 // NOT rendered leniently: "— undefined · …" is a card whose reliability line
 // looks like it says something and says nothing, which is the very conflation
 // the block exists to end.
-function confidenceLine({ level, basis }) {
+export function confidenceLine({ level, basis }) {
   const marker = CONFIDENCE[level];
   if (!marker) {
     throw new Error(

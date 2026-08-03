@@ -116,6 +116,21 @@ que tu n'as pas.
    fiches et que rien dans la source ne les départage, ce nom est **non résolu** (la règle 2
    s'applique : texte simple, pas de lien). Ne résous jamais vers la fiche la plus proche, ni vers
    celle que tu viens de lire.
+6. **Dis à quel point c'est sûr.** Conforme ne veut pas dire vrai. Le builder donne à chaque fiche le
+   même frontmatter propre et le même `/lint` au vert : un nom lu sur un organigramme et un nom déduit
+   d'un surnom en ressortent identiques, et le vault lit ensuite les deux comme sa propre réponse à
+   « qui existe ». Une fiche `people/` porte donc un **bloc de confiance** : ce sur quoi cette identité
+   repose, dans l'échelle que la discipline d'affirmation utilise déjà plus bas
+   (✅ observé · 🟡 déduit ou probable · 🔴 non vérifié), jamais une seconde. Le builder l'impose :
+   `scripts/file-back-note.mjs` refuse une nouvelle fiche personne tant que la spec ne contient pas
+   `confidence` : un niveau, et la **base** sur laquelle il repose (la source, sa date, la fiche
+   trouvée). Réponds honnêtement plutôt que de choisir le niveau qui débloque l'écriture :
+   `unverified`, écrit noir sur blanc, ne coûte rien et c'est exactement ce que la passe suivante a
+   besoin de savoir. Et l'autre moitié, à la lecture, est ce qui rend le bloc utile : une fiche
+   marquée 🟡 ou 🔴 est une **piste, pas la réponse du vault** : revérifie-la avant de résoudre quoi
+   que ce soit contre elle, et ne la laisse jamais devenir un acquis au seul motif qu'elle est écrite
+   depuis un moment. C'est le « le bémol d'hier est une dette » de la discipline d'affirmation,
+   appliqué aux fiches du vault lui-même.
 
 ## Discipline d'affirmation
 

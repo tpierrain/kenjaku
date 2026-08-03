@@ -244,3 +244,53 @@ test("a note with no frontmatter is refused rather than silently given one", () 
     },
   );
 });
+
+// ── Promoting a confidence marker, when the re-verification actually happens ──
+// The identity discipline's rule 6 says a 🟡 or 🔴 card is a lead, re-verified
+// before anything is resolved against it. A marker with no supported way to
+// change is a marker that says 🟡 forever — and one readers learn to ignore,
+// which is the block rotting back into the decoration it exists to replace.
+// Freehand is not an option here: editing a frontmatter key by hand is exactly
+// what put two `updated:` keys on one page and made it unreadable (F12).
+
+const CARD = `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+confidence: probable
+---
+
+# Jérémy Hinard
+
+> **Confidence** — 🟡 derived or probable · the surname comes from the Candor org note.
+
+Front-end at Candor.
+`;
+
+test("promoting confidence rewrites the FIELD and the visible block together", () => {
+  // Rewriting one and not the other leaves the page asserting two different
+  // things about itself — this plan's own defect shape, inside the fix for it.
+  const out = refreshNote({
+    content: CARD,
+    today: "2026-08-03",
+    confidence: { level: "observed", basis: "he introduced himself in #candor, 2026-08-03." },
+  });
+  assert.equal(
+    out,
+    `---
+type: person
+created: 2026-06-02
+updated: 2026-08-03
+tags: [candor]
+confidence: observed
+---
+
+# Jérémy Hinard
+
+> **Confidence** — ✅ observed · he introduced himself in #candor, 2026-08-03.
+
+Front-end at Candor.
+`,
+  );
+});

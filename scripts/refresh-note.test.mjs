@@ -138,3 +138,41 @@ test("invalid JSON on stdin is refused, loudly", () => {
   assert.equal(d.written.length, 0);
   assert.match(d.errs[0], /JSON/i);
 });
+
+test("runRefresh — forwards a confidence promotion to the writer, so it is not a freehand edit", () => {
+  // The rule that a marked card is re-verified needs a gesture that RECORDS the
+  // outcome. Without this the only way to promote a card is hand-editing its
+  // frontmatter — the exact move that put two `updated:` keys on one page.
+  const d = deps({
+    files: {
+      "/brain/vault/people/jeremy-hinard.md": `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+confidence: probable
+---
+
+# Jérémy Hinard
+
+> **Confidence** — 🟡 derived or probable · the surname comes from the Candor org note.
+
+Front-end at Candor.
+`,
+    },
+  });
+  d.readInput = () =>
+    JSON.stringify({
+      path: "people/jeremy-hinard.md",
+      confidence: { level: "observed", basis: "he introduced himself in #candor, 2026-08-03." },
+    });
+  assert.equal(runRefresh([], d), 0);
+  assert.deepEqual(d.errs, []);
+  const [, content] = d.written[0];
+  assert.match(content, /\nconfidence: observed\n/, "the field is promoted");
+  assert.match(
+    content,
+    /^> \*\*Confidence\*\* — ✅ observed · he introduced himself in #candor, 2026-08-03\.$/m,
+    "and the visible block with it, or the page contradicts itself",
+  );
+});

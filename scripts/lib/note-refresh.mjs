@@ -15,6 +15,12 @@
 
 const FRONTMATTER_RE = /^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)([\s\S]*)$/;
 
+// The SAME renderer the builder uses (and the same refusals on a bad level or a
+// missing basis). Two renderers would let a promoted card and a fresh one word
+// their reliability differently, which is the fiction a checker with its own
+// parser measures — F16, on the writing side.
+import { confidenceLine } from "./filed-note.mjs";
+
 /** Splits a note into its frontmatter block and body, or null when it has none. Pure. */
 function splitNote(content) {
   const m = content.match(FRONTMATTER_RE);
@@ -58,7 +64,7 @@ export function duplicateFrontmatterKeys(content) {
  * instead of appended to. Appending to a damaged page would keep it unreadable and
  * hide the damage one refresh longer.
  */
-export function refreshNote({ content, today, section }) {
+export function refreshNote({ content, today, section, confidence }) {
   if (!today) throw new Error("today (YYYY-MM-DD) is required to bump `updated:`");
   const parts = splitNote(content);
   if (!parts) {
@@ -79,7 +85,20 @@ export function refreshNote({ content, today, section }) {
   if (at === -1) lines.push(`updated: ${today}`);
   else lines[at] = `updated: ${today}`;
 
-  const body = parts.body.replace(/\s*$/, "");
+  // A re-verified card is promoted in BOTH places at once. Rewriting the field
+  // and leaving the block (or the reverse) would leave the page asserting two
+  // different things about its own reliability — the conflation this whole
+  // block exists to end, reproduced inside the fix for it.
+  let body = parts.body;
+  if (confidence) {
+    const rendered = confidenceLine(confidence);
+    const key = lines.findIndex((l) => /^confidence:/.test(l));
+    if (key === -1) lines.push(`confidence: ${confidence.level}`);
+    else lines[key] = `confidence: ${confidence.level}`;
+    body = body.replace(/^> \*\*Confidence\*\* — .*$/m, `> **Confidence** — ${rendered}`);
+  }
+
+  body = body.replace(/\s*$/, "");
   const appended = section ? `${body}\n\n${section.replace(/\s*$/, "")}\n` : `${body}\n`;
   return `${parts.open}${lines.join("\n")}${parts.close}${appended}`;
 }

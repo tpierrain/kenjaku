@@ -291,6 +291,15 @@ ailleurs que dans cette note, et qui est désormais indexé.
   refuse une personne dont le vault porte déjà le prénom tant que la spec ne dit pas `distinguish`.
   Et quand un prénom seul correspond à plusieurs fiches sans rien pour les départager,
   il est **non résolu** : texte simple, pas de lien.
+- **Dis à quel point c'est sûr.** Conforme ne veut pas dire vrai : le builder donne à chaque fiche le
+  même frontmatter propre et le même `/lint` au vert, donc un nom lu sur un organigramme et un nom
+  déduit d'un surnom en ressortent identiques. Une fiche `people/` porte donc un bloc de confiance :
+  ce sur quoi l'identité repose, dans l'échelle de la discipline d'affirmation ci-dessous
+  (✅ observé · 🟡 déduit ou probable · 🔴 non vérifié), jamais une seconde. Le builder refuse une
+  nouvelle fiche personne tant que la spec ne contient pas `confidence` (un niveau **et** sa base).
+  Réponds honnêtement plutôt que de choisir le niveau qui débloque l'écriture. Une fiche marquée 🟡 ou
+  🔴 est une piste, pas la réponse du vault : revérifie-la avant de résoudre quoi que ce soit contre
+  elle, et ne la laisse jamais devenir un acquis au seul motif qu'elle est écrite depuis un moment.
 
 ### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
 

@@ -81,6 +81,22 @@ const RULES_EN = [
     why: "a person card says WHICH one (the `distinguish` block), and a first name matching several cards stays unresolved",
     pattern: [/say which one/i, /distinguish/, /unresolved/i],
   },
+  {
+    // "Conformant ≠ true." The builder hands every card the same clean
+    // frontmatter and the same green lint, so nothing on the page tells a
+    // resolution read off an org chart from one inferred out of a nickname —
+    // and the vault reads both as its own answer to who exists, forever.
+    //
+    // The scale is the claim discipline's, deliberately: v4.5.0 shipped
+    // ✅ observed / 🟡 derived or probable / 🔴 unverified, and a second
+    // vocabulary here would be a second discipline. The pattern pins the middle
+    // marker's exact words for that reason.
+    //
+    // The read half is what makes the block worth writing: a marked card is a
+    // lead, not the vault's answer, so it is re-verified rather than inherited.
+    why: "a person card says HOW SURE its identity is, in the claim discipline's own scale, and a marked card is re-verified rather than inherited",
+    pattern: [/say how sure you are/i, /🟡 derived or probable/, /re-verify/i],
+  },
 ];
 
 const RULES_FR = [
@@ -103,6 +119,10 @@ const RULES_FR = [
   {
     why: "une fiche dit DE QUI il s'agit (le bloc `distinguish`), et un prénom qui correspond à plusieurs fiches reste non résolu",
     pattern: [/dis de qui il s'agit/i, /distinguish/, /non résolu/i],
+  },
+  {
+    why: "une fiche dit À QUEL POINT son identité est sûre, dans l'échelle de la discipline de revendication, et une fiche marquée se revérifie au lieu de s'hériter",
+    pattern: [/dis à quel point c'est sûr/i, /🟡 déduit ou probable/, /revérifie/i],
   },
 ];
 

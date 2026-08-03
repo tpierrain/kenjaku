@@ -84,6 +84,10 @@ export function runRefresh(argv, deps = realRefreshDeps) {
       content: deps.readFile(absPath),
       today: deps.today(),
       section: spec.section,
+      // Promoting a re-verified card is a REFRESH, not a rewrite: it goes
+      // through the same by-key writer as `updated:`, so nobody has to hand-edit
+      // frontmatter to record that a 🟡 identity has since been confirmed.
+      confidence: spec.confidence,
     });
   } catch (err) {
     deps.error(`✗ vault/${spec.path}: ${err.message}`);

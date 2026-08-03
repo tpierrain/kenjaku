@@ -140,6 +140,10 @@ echo '{"path":"topics/capacity-management.md","section":"## 2026-07-17 — <what
   sits outside `vault/`, or **its frontmatter is already damaged** — in which case it names the
   duplicate key and touches nothing, because appending to an unreadable page hides the damage one
   refresh longer.
+- The same spec accepts `"confidence": {"level":…,"basis":…}` — how a person card whose identity was
+  only **probable** gets promoted once the captures actually confirm it. It rewrites the frontmatter
+  field and the card's visible confidence block together, so the page never asserts two different
+  things about itself. Use it when a refresh is what confirmed the name; never hand-edit that key.
 
 > ⚠️ **Why a script and not prose (F12).** Freehand, *"bump the page's `updated:`"* once became
 > *"add a second `updated:`"* on a real page. Two keys is invalid YAML → the indexer could no longer

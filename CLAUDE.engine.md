@@ -283,6 +283,15 @@ the **next** resolution resolves against. A briefing turned a source's *"Jérém
   refuses a person whose first name the vault already holds unless the spec says `distinguish`. And
   when a bare first name matches several cards with nothing to tell them apart, it is **unresolved**:
   plain text, no link.
+- **Say how sure you are.** Conformant is not true: the builder gives every card the same clean
+  frontmatter and the same green `/lint`, so a name read off an org chart and a name inferred from a
+  nickname come out identical. A `people/` card therefore carries a confidence block — what the
+  identity rests on, in the claim discipline's own scale below (✅ observed · 🟡 derived or probable ·
+  🔴 unverified), never a second one; the builder refuses a new person card until the spec carries
+  `confidence` (a level **and** its basis). Answer honestly rather than picking the level that
+  unblocks the write. A card marked 🟡 or 🔴 is a lead, not the vault's answer: re-verify it before
+  resolving anything against it, and never let it become established just for having been written
+  down a while ago.
 
 ### Claim discipline — the silence you report is the dangerous part
 

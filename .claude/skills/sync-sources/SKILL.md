@@ -112,6 +112,19 @@ one. See "Identity discipline" just below: the name stays plain text. This secti
    read-time half is what makes the block worth writing: when a bare first name matches several
    cards and nothing in the source tells them apart, that name is **unresolved** — rule 2 applies
    (plain text, no link). Never resolve to the nearest one, and never to the one you saw last.
+6. **Say how sure you are.** Conformant is not true. The builder hands every card the same clean
+   frontmatter and the same green `/lint`, so a name read off an org chart and a name inferred from a
+   nickname come out looking identical — and the vault then reads both as its own answer to who
+   exists. So a `people/` card carries a **confidence block**: what this identity rests on, in the
+   scale the claim discipline already uses below (✅ observed · 🟡 derived or probable · 🔴 unverified),
+   never a second one. The builder enforces it: `scripts/file-back-note.mjs` refuses a new person card
+   until the spec carries `confidence` — a level and the **basis** it rests on (the source, its date,
+   the card it matched). Answer it honestly rather than reaching for the level that unblocks the
+   write: `unverified`, written down, costs nothing and is exactly what the next pass needs to know.
+   And the read-time half, which is what makes the block worth writing: a card marked 🟡 or 🔴 is a
+   **lead, not the vault's answer** — re-verify it before resolving anything against it, and never
+   let it become established merely because it has been written down for a while. That is the claim
+   discipline's *"yesterday's caveat is a debt"*, applied to the vault's own cards.
 
 ## Claim discipline
 
