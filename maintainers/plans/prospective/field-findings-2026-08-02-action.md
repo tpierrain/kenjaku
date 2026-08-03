@@ -443,9 +443,35 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > another human"* as the threshold that matters. v4.6.0's confidence block marks a **people note born
 > from a probable resolution**; it must speak that same three-marker language (decided at F18, §4.5).
 >
-> **⏭️ RESUME HERE: Step 12.1, F7.** Step 12.0 (the owner's version-at-startup request) is code-complete
-> and pushed on `release/v4.6.0`; what it still owes belongs to the release step, not to now. Nothing
-> else is in flight, no decision is pending, and the branch is green (1236 pass, 1 skipped Windows-only).
+> **⏭️ RESUME HERE: Step 12.1, F7 — part 1 is DONE and pushed, resume at its remaining bullets.**
+> Branch `release/v4.6.0`, green and pushed (1248 tests, 1247 pass, 1 skipped Windows-only; CI green on
+> the version commits). Nothing is half-written on disk, no decision is pending.
+>
+> **What is already done on F7** _(2026-08-03 · `9790c90`)_ — and the correction that shrinks the rest:
+> - **A large part of F7 had ALREADY SHIPPED with v4.5.0's claim pass.** Measured, not assumed: the
+>   sub-agent prompts and `prepare-1-1` already carry *"a bare first name stays a bare first name"*,
+>   *"the vault outranks the delta on anything about a person — read `vault/people/<name>.md` before
+>   asserting who someone is"*, and the Hossam case verbatim. **EN and FR are in parity** — the drift I
+>   went looking for is not there. Do not re-derive this; do not re-write those rules.
+> - **What was genuinely missing, and now ships**: the producer's own named **`## Identity discipline`**
+>   section (EN + FR `sync-sources`), and the removal of the contradiction that MANUFACTURED the field
+>   defect — "People registry" ordered *"`[[people/jane]]` is forbidden"* next to *"create the backlinks
+>   even if the target page doesn't exist"*, so an agent handed a bare first name had one exit: invent
+>   the surname. The same pair sat in the **operative** text (the bullets handed to the sub-agents, all
+>   four files); they now state the action (*"no full name, no link"*) instead of only the ban.
+> - Guard: `scripts/lib/identity-discipline.test.mjs`, 12 assertions, sharing `scripts/lib/doc-section.mjs`
+>   with the claim guard so the two cannot judge different documents.
+>
+> **The next bullets of Step 12.1, in order** (each one red-first, same shape as above):
+> 1. **`search_vault` before calling any fact "new"** — the field note republished a two-month-old fact
+>    as a scoop. Not yet written anywhere; it is the last F7 rule with no carrier.
+> 2. **The constitutions (EN + FR)** — the identity discipline exists only in the two skills so far. Add
+>    it to `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md` and extend the guard's table to them
+>    (the claim guard's `CONSTITUTIONS` array is the model). Reach caveat, unchanged: the constitution is
+>    in **no** regime, so it reaches new installs only — never the only carrier.
+> 3. **`prepare-1-1` must POINT at the producer's identity section** rather than paraphrase it, exactly
+>    as the claim guard already forces for the claim discipline (`sync-sources/SKILL.md#` anchor test).
+> Then Step 12.2 (F6), 12.3 (homonymy), 12.4 (confidence block), 12.5 (release).
 
 - [x] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START. ✅ CODE-COMPLETE** _(2026-08-03 ·
       `22de9a2` → `807b9aa`, suite green 1236 pass / 1 skipped Windows-only)_. _(asked by the owner,
