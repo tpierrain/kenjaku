@@ -507,8 +507,18 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > provenance-refreshed, so an untouched `/lint` and `/consolidate` reach the deployed fleet.
 > 6 assertions, each red first; suite green (1268 tests, 1267 pass, 1 skipped Windows-only).
 >
-> **⏭️ RESUME AT STEP 12.3 (homonymy)** — a `people/` card must say **which** Romain. Nothing is
-> half-written on disk; no decision is pending. Then 12.4 (confidence block), 12.5 (release).
+> **⏭️ RESUME AT STEP 12.3 (homonymy)** — a `people/` card must say **which** Romain. Then 12.4
+> (confidence block), 12.5 (release).
+>
+> **✅ DECIDED (2026-08-03, by the owner): 12.3 ships PROSE + A DETERMINISTIC GUARD.** The scope was
+> put to the owner with three options and this is the one chosen — **do not re-open it**. Both doors
+> that create a `people/` card (`/file-back` and `/consolidate`) write through **one** script,
+> `scripts/file-back-note.mjs`, so the check has a single choke point. The builder **refuses** a NEW
+> person card whose first name is already borne by another card until the spec says which one, and the
+> refusal **names the homonyms it found** (so the writer does not have to go looking again). The two
+> rejected options are recorded so they are not re-derived: prose only (*a rule nothing executes* —
+> this release has met that failure twice already), and a non-blocking stderr warning (which renders a
+> caught defect and an ordinary write identically — this trilogy's own defect shape).
 
 - [x] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START. ✅ CODE-COMPLETE** _(2026-08-03 ·
       `22de9a2` → `807b9aa`, suite green 1236 pass / 1 skipped Windows-only)_. _(asked by the owner,
@@ -612,7 +622,18 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [x] Both skills **point** at `sync-sources#identity-discipline`; neither restates it.
 - [ ] **Step 12.3 — the homonymy block.** A `people/` note only makes the resolution rule usable if it
       says **which** Romain (3 of them on the field brain, plus 3 Marie, 2 Karim, 2 Caroline, 2 Michael).
-      Without it, the notes only move the ambiguity.
+      Without it, the notes only move the ambiguity. Scope decided by the owner — see the header note.
+  - [ ] **The prose half** — the identity discipline's fifth rule (*say which one*), `sync-sources`
+        EN + FR, plus both constitutions, in the guard family already shared with the claim discipline.
+        Two sides, and the second is what makes the first usable: a card **says** what distinguishes
+        this person, and a bare first name matching several cards is **unresolved** (so rule 2 applies:
+        plain text, no link) rather than resolved to the nearest one.
+  - [ ] **The deterministic half** — `scripts/file-back-note.mjs` (+ its pure core `lib/filed-note.mjs`):
+        a new `person` card whose first name is already borne by another card is refused until the spec
+        carries what tells them apart; the refusal names the homonyms. Covers `/file-back` **and**
+        `/consolidate`, which both write through it.
+  - [ ] **The two skills document the field** (`file-back`, `consolidate`), pointing at the producer's
+        section rather than restating the rule — the shape F6 and F7 both landed on.
 - [ ] **Step 12.4 — the reliability/confidence block** on any note born from a **probable** rather than
       confirmed resolution, in F18's vocabulary (see the header note above).
 - [ ] **Step 12.5 — the release**: mutation pass on what changed, version vector, §10 marketing re-read,
