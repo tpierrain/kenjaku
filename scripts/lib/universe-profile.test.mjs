@@ -5,6 +5,7 @@ import {
   universeProfilePath,
   renderUniverseProfile,
   renderUniverseDigest,
+  renderUniverseSynthesis,
   readUniverseProfile,
   writeUniverseProfile,
   declineProfileCapture,
@@ -472,4 +473,128 @@ test("renderUniverseDigest reads a HAND-EDITED profile, trailing spaces in the h
   // `*` and `-` are both Markdown bullets, and a digest that quoted one of them
   // back as part of a person's name would read as a typo the owner never made.
   assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Zoe (CTO), Alice (PM).");
+});
+
+// --- the session-start SYNTHESIS (F1) ----------------------------------------
+// The digest above is what the owner PULLS after a switch. What rides every
+// session is a different, narrower rendering: the profile's body is vault-only
+// material (a field profile carried a passage tagged "🔒 ne jamais sortir du
+// vault") and a SessionStart hook's additionalContext is echoed verbatim on the
+// CLI, so anything injected lands in every screenshot and screen share.
+
+test("renderUniverseSynthesis opens with the identity line, the way the digest does", () => {
+  const raw = renderUniverseProfile({
+    universe: "acme",
+    displayName: "Acme Corp",
+    kind: "employer",
+    role: "Head of Engineering",
+    period: "since 2024",
+    today: "2026-07-27",
+  }).content;
+
+  assert.equal(
+    renderUniverseSynthesis(raw).split("\n")[0],
+    "Acme Corp (employer) — your role: Head of Engineering, period: since 2024.",
+  );
+});
+
+test("renderUniverseSynthesis NAMES the profile note rather than quoting it", () => {
+  // The whole trade of F1: the session gets a pointer, and reads the page only
+  // when the answer actually depends on it. A path is not confidential material;
+  // the body is.
+  const raw = renderUniverseProfile({
+    universe: "acme",
+    displayName: "Acme Corp",
+    about: "Industrial widgets.",
+    people: ["Zoe (CTO)"],
+    today: "2026-07-27",
+  }).content;
+
+  assert.equal(
+    renderUniverseSynthesis(raw).split("\n")[1],
+    "Full profile: vault/acme/universe.md — read it when the answer depends " +
+      "on the people, tools or scope here.",
+  );
+});
+
+test("renderUniverseSynthesis ends by telling the OWNER where the description is", () => {
+  // The sub-decision the owner closed: the banner states the fact and stops, and
+  // the detail is PULLED. Without this line the shrunk block would just be a
+  // feature removal — the owner would have no door back to what it stopped saying.
+  const raw = renderUniverseProfile({
+    universe: "acme",
+    displayName: "Acme Corp",
+    today: "2026-07-27",
+  }).content;
+
+  assert.equal(
+    renderUniverseSynthesis(raw).split("\n").at(-1),
+    "(for the description itself, they can ask `/switch`)",
+  );
+});
+
+test("renderUniverseSynthesis carries NOTHING of the body — this is the leak F1 closes", () => {
+  // The field profile that started this: a passage tagged "🔒 ne jamais sortir du
+  // vault" rode every session start, and therefore every screenshot, screen share
+  // and transcript. Each section below is a decoy: if any of them ever shows up in
+  // the returned block, the leak is back.
+  const raw = renderUniverseProfile({
+    universe: "acme",
+    displayName: "Acme Corp",
+    kind: "employer",
+    about: "🔒 CONFIDENTIEL, ne jamais sortir du vault: the Bravo acquisition.",
+    people: ["Zoe (CTO)", "Alice (PM)"],
+    topics: ["platform migration", "hiring"],
+    connectors: [{ tool: "Slack", account: "acme.slack.com" }],
+    today: "2026-07-27",
+  }).content;
+
+  // The whole block, not a `.includes` on one forbidden word: what is asserted is
+  // everything the session receives, so a section added later cannot slip in unseen.
+  assert.equal(
+    renderUniverseSynthesis(raw),
+    [
+      "Acme Corp (employer).",
+      "Full profile: vault/acme/universe.md — read it when the answer depends " +
+      "on the people, tools or scope here.",
+      "(for the description itself, they can ask `/switch`)",
+    ].join("\n"),
+  );
+});
+
+test("renderUniverseSynthesis lets the caller state WHERE the note was read from", () => {
+  // The frontmatter is a claim; the path the reader opened is a fact. An owner
+  // editing their own page in Obsidian can drop the `universe:` key without
+  // noticing, and a pointer at a note that is not there is worse than none.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+  ].join("\n");
+
+  assert.equal(
+    renderUniverseSynthesis(raw, { universe: "acme" }).split("\n")[1],
+    "Full profile: vault/acme/universe.md — read it when the answer depends " +
+      "on the people, tools or scope here.",
+  );
+});
+
+test("renderUniverseSynthesis points at the ROOT profile when the note carries no universe", () => {
+  // The default universe writes no `universe:` key at all — its absence IS what
+  // "default" means (ADR 0034). A pointer that read that absence as a slug would
+  // send the session to `vault/undefined/universe.md`, i.e. nowhere.
+  const raw = renderUniverseProfile({
+    universe: DEFAULT_UNIVERSE,
+    displayName: "Mind Palace",
+    today: "2026-07-27",
+  }).content;
+
+  assert.equal(
+    renderUniverseSynthesis(raw).split("\n")[1],
+    "Full profile: vault/universe.md — read it when the answer depends " +
+      "on the people, tools or scope here.",
+  );
 });

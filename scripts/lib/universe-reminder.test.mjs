@@ -92,26 +92,27 @@ test("buildUniverseHookOutput returns null when there is nothing to say at all",
   // Gate closed AND no profile: the hook must print nothing, not an empty envelope.
   assert.equal(buildUniverseHookOutput({}), null);
   assert.equal(buildUniverseHookOutput(), null);
-  assert.equal(buildUniverseHookOutput({ nudge: null, digest: null }), null);
+  assert.equal(buildUniverseHookOutput({ nudge: null, synthesis: null }), null);
 });
 
-test("buildUniverseHookOutput injects a profile digest as context to USE, not to announce", () => {
-  // The digest is ambient background (who you are here, who your people are). The
-  // agent should ACT on it, never read it back at the owner like a status line.
+test("buildUniverseHookOutput injects the profile synthesis as context to USE, not to announce", () => {
+  // Ambient background (which sphere this is, where its page lives). The agent
+  // should ACT on it, never read it back at the owner like a status line.
   const out = buildUniverseHookOutput({
-    digest: "Acme Corp (employer) — your role: Head of Engineering.\nPeople: Zoe (CTO).",
+    synthesis: "Acme Corp (employer) — your role: Head of Engineering.\nFull profile: vault/acme/universe.md.",
   });
 
   assert.match(out.hookSpecificOutput.additionalContext, /Acme Corp \(employer\)/);
-  assert.match(out.hookSpecificOutput.additionalContext, /People: Zoe \(CTO\)\./);
+  assert.match(out.hookSpecificOutput.additionalContext, /vault\/acme\/universe\.md/);
   assert.match(out.hookSpecificOutput.additionalContext, /do not (repeat|recite|announce)/i);
 });
 
-test("buildUniverseHookOutput frames a lone digest WITHOUT naming universes", () => {
-  // A single-universe brain can have a profile too (that is the whole backfill
-  // case), and progressive disclosure means it must never meet the word before it
-  // has two of them. The digest is about their world, not about the machinery.
-  const out = buildUniverseHookOutput({ digest: "Acme Corp (employer)." });
+test("buildUniverseHookOutput frames the synthesis WITHOUT naming universes", () => {
+  // The reason changed with F1 and the claim survives it. It used to be that a
+  // single-universe brain could see this block; it never does now. What holds is
+  // that the `[universe]` line owns the machinery vocabulary and this block is
+  // about their WORLD — merged, the owner reads plumbing where they wanted context.
+  const out = buildUniverseHookOutput({ synthesis: "Acme Corp (employer)." });
 
   assert.doesNotMatch(out.hookSpecificOutput.additionalContext, /universe/i);
 });
@@ -154,20 +155,45 @@ test("buildUniverseHookOutput keeps the whole startup payload short — volume I
   );
 });
 
-test("buildUniverseHookOutput frames the digest in one line, not a paragraph (F5)", () => {
-  // Same echo, same bound, applied to the block we wrap the owner's profile in. The
-  // digest itself is theirs; everything we add around it is startup noise they read.
-  const digest = "Acme Corp (employer) — your role: Head of Engineering.\nPeople: Zoe (CTO).";
-  const payload = buildUniverseHookOutput({ digest }).hookSpecificOutput.additionalContext;
-  const framing = payload.length - digest.length;
+test("buildUniverseHookOutput counts the SYNTHESIS against the budget too (F1)", () => {
+  // The exclusion above ("the digest is the owner's prose, its length is theirs")
+  // died with F1: what rides a session start is now written by US — an identity
+  // line, a pointer and a door. So it goes back inside the bound, and the framing
+  // has to earn its characters next to a block that already directs the agent.
+  const synthesis = [
+    "Acme Corp (employer) — your role: Head of Engineering.",
+    "Full profile: vault/acme/universe.md — read it when the answer depends on " +
+      "the people, tools or scope here.",
+    "(for the description itself, they can ask `/switch`)",
+  ].join("\n");
+  const payload = buildUniverseHookOutput({
+    nudge: universeReminder({ registry: ["acme", "blue"], active: "acme" }),
+    synthesis,
+  }).hookSpecificOutput.additionalContext;
 
-  assert.ok(framing <= 180, `the digest framing grew back to ${framing} chars:\n${payload}`);
+  // The offer never co-occurs with a synthesis (it fires only when there is NO
+  // profile), so these two blocks are the worst case a session start can print.
+  assert.ok(
+    payload.length <= 500,
+    `the startup payload grew back to ${payload.length} chars:\n${payload}`,
+  );
 });
 
-test("buildUniverseHookOutput carries the reminder AND the digest when both apply", () => {
+test("buildUniverseHookOutput frames the synthesis in one line, not a paragraph (F5)", () => {
+  // Same echo, same bound, applied to what we wrap the block in. Tighter than it
+  // was: the synthesis now directs the agent itself, so the framing repeating that
+  // direction would be paying twice for one instruction.
+  const synthesis = "Acme Corp (employer) — your role: Head of Engineering.\nFull profile: vault/acme/universe.md.";
+  const payload = buildUniverseHookOutput({ synthesis }).hookSpecificOutput.additionalContext;
+  const framing = payload.length - synthesis.length;
+
+  assert.ok(framing <= 100, `the synthesis framing grew back to ${framing} chars:\n${payload}`);
+});
+
+test("buildUniverseHookOutput carries the reminder AND the synthesis when both apply", () => {
   const out = buildUniverseHookOutput({
     nudge: "Active universe: 'acme' (of 2: default, acme).",
-    digest: "Acme Corp (employer).",
+    synthesis: "Acme Corp (employer).",
   });
 
   assert.match(out.hookSpecificOutput.additionalContext, /Active universe: 'acme'/);

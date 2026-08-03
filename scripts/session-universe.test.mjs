@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { sessionUniverseReminder } from "./session-universe.mjs";
+import { sessionUniverseReminder, readActiveProfileSynthesis } from "./session-universe.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -13,12 +13,12 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // past the progressive-disclosure gate (>= 2 universes). Fail-open: never throws.
 
 function seams(overrides = {}) {
-  const calls = { emitted: [], healed: [], digested: [] };
+  const calls = { emitted: [], healed: [], synthesised: [] };
   const base = {
     dir: "/brain/.vault-rag",
     readState: () => ({ registry: ["acme"], active: "acme" }),
     healPointer: (dir) => (calls.healed.push(dir), { healed: false, from: "acme", active: "acme" }),
-    readDigest: (dir) => (calls.digested.push(dir), null),
+    readSynthesis: (dir) => (calls.synthesised.push(dir), null),
     readDeclined: () => false,
     emit: (msg) => calls.emitted.push(msg),
   };
@@ -99,56 +99,59 @@ test("sessionUniverseReminder — a healthy pointer adds no repair line (only th
   assert.deepEqual(calls.healed, ["/brain/.vault-rag"]); // healed against the state dir it was given
 });
 
-// --- the profile digest (universes v2, Step 3) -------------------------------
+// --- the profile synthesis (universes v2, Step 3) -------------------------------
 
-test("sessionUniverseReminder returns the active universe's profile digest for injection", () => {
+test("sessionUniverseReminder returns the active universe's profile synthesis for injection", () => {
   const { args, calls } = seams({
-    readDigest: (dir) => (calls.digested.push(dir), "Acme Corp (employer)."),
+    readSynthesis: (dir) => (calls.synthesised.push(dir), "Acme Corp (employer)."),
   });
 
   const res = sessionUniverseReminder(args);
 
-  assert.equal(res.digest, "Acme Corp (employer).");
-  assert.deepEqual(calls.digested, ["/brain/.vault-rag"]);
+  assert.equal(res.synthesis, "Acme Corp (employer).");
+  assert.deepEqual(calls.synthesised, ["/brain/.vault-rag"]);
 });
 
-test("sessionUniverseReminder returns the digest even below the gate (a lone universe has a profile too)", () => {
-  // A single-universe brain is the COMMON case, and D2 has it capturing a profile
-  // at first session. Gating the digest on a second universe would make the
-  // capture pointless for almost everyone who ever fills one in.
+test("sessionUniverseReminder injects NOTHING below the gate, profile or not (F1 — reversal)", () => {
+  // This REVERSES the previous contract ("return the synthesis even below the gate"),
+  // deliberately, on the owner's call (2026-08-03). What rides a session start is
+  // echoed verbatim by the CLI, so with a single universe there is nothing to
+  // disambiguate and the profile earns no session space at all. Stated cost: on a
+  // lone-universe brain the agent now learns of the profile only through the vault
+  // itself (the note is indexed, `type: universe`).
   const { args } = seams({
     readState: () => ({ registry: [], active: "default" }),
-    readDigest: () => "My world (personal).",
+    readSynthesis: () => "My world (personal).",
   });
 
   const res = sessionUniverseReminder(args);
 
-  assert.equal(res.digest, "My world (personal).");
+  assert.equal(res.synthesis, null);
   assert.equal(res.reported, false); // the universe reminder itself stays silent
 });
 
-test("sessionUniverseReminder reports no digest when the universe has no profile yet", () => {
-  const { args } = seams({ readDigest: () => null });
+test("sessionUniverseReminder reports no synthesis when the universe has no profile yet", () => {
+  const { args } = seams({ readSynthesis: () => null });
 
-  assert.equal(sessionUniverseReminder(args).digest, null);
+  assert.equal(sessionUniverseReminder(args).synthesis, null);
 });
 
-test("sessionUniverseReminder — fail-open: a throwing readDigest costs the session nothing", () => {
+test("sessionUniverseReminder — fail-open: a throwing readSynthesis costs the session nothing", () => {
   const { args, calls } = seams({
-    readDigest: () => {
+    readSynthesis: () => {
       throw new Error("unreadable profile");
     },
   });
 
   const res = sessionUniverseReminder(args); // must NOT throw
 
-  assert.equal(res.digest, null);
+  assert.equal(res.synthesis, null);
   // The routine reminder still made it out: one broken part must not mute the rest.
   assert.deepEqual(calls.emitted, ["Active universe: 'acme' (of 2: default, acme)."]);
 });
 
 test("sessionUniverseReminder offers the profile capture when there is none, once", () => {
-  const { args } = seams({ readDigest: () => null, readDeclined: () => false });
+  const { args } = seams({ readSynthesis: () => null, readDeclined: () => false });
 
   const res = sessionUniverseReminder(args);
 
@@ -156,13 +159,28 @@ test("sessionUniverseReminder offers the profile capture when there is none, onc
 });
 
 test("sessionUniverseReminder makes no offer once a profile exists", () => {
-  const { args } = seams({ readDigest: () => "Acme Corp (employer)." });
+  const { args } = seams({ readSynthesis: () => "Acme Corp (employer)." });
 
   assert.equal(sessionUniverseReminder(args).offer, null);
 });
 
+test("sessionUniverseReminder still SEES a profile below the gate, it just stops injecting it", () => {
+  // Presence and payload part ways here (F1). Read the profile only when it is
+  // going to be injected and a lone-universe owner who already described their
+  // context gets offered to describe it again, every session, forever.
+  const { args } = seams({
+    readState: () => ({ registry: [], active: "default" }),
+    readSynthesis: () => "My world (personal).",
+  });
+
+  const res = sessionUniverseReminder(args);
+
+  assert.equal(res.offer, null); // it exists — so no offer
+  assert.equal(res.synthesis, null); // and it is not injected below the gate
+});
+
 test("sessionUniverseReminder makes no offer once the owner declined", () => {
-  const { args } = seams({ readDigest: () => null, readDeclined: () => true });
+  const { args } = seams({ readSynthesis: () => null, readDeclined: () => true });
 
   assert.equal(sessionUniverseReminder(args).offer, null);
 });
@@ -181,12 +199,56 @@ test("sessionUniverseReminder makes no offer when the profile could not be READ"
   // An unreadable profile is not an absent one. Treating it as absent would turn a
   // broken file into an offer to write the page the owner already has, every session.
   const { args } = seams({
-    readDigest: () => {
+    readSynthesis: () => {
       throw new Error("unreadable profile");
     },
   });
 
   assert.equal(sessionUniverseReminder(args).offer, null);
+});
+
+// --- which RENDERING the session start injects (F1) --------------------------
+// The composition root is where the leak would come back: two renderings of the
+// same note exist, one of them quotes the body, and picking the wrong one is a
+// one-word edit nobody would notice in review. So the choice gets a name and a test.
+
+test("readActiveProfileSynthesis injects the synthesis, never the body-quoting synthesis", () => {
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "kind: employer",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "🔒 CONFIDENTIEL, ne jamais sortir du vault: the Bravo acquisition.",
+    "",
+    "## People",
+    "- Zoe (CTO)",
+  ].join("\n");
+  const io = {
+    existsSync: (p) => p === "/brain/vault/acme/universe.md",
+    readFileSync: () => raw,
+  };
+
+  const out = readActiveProfileSynthesis(io, "/brain/vault", () => "acme");
+
+  assert.equal(
+    out,
+    [
+      "Acme Corp (employer).",
+      "Full profile: vault/acme/universe.md — read it when the answer depends " +
+      "on the people, tools or scope here.",
+      "(for the description itself, they can ask `/switch`)",
+    ].join("\n"),
+  );
+});
+
+test("readActiveProfileSynthesis reports absence as null, so the capture offer can fire", () => {
+  const io = { existsSync: () => false, readFileSync: () => "unreachable" };
+
+  assert.equal(readActiveProfileSynthesis(io, "/brain/vault", () => "acme"), null);
 });
 
 // --- the offer must land somewhere that exists ------------------------------
