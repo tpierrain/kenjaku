@@ -186,33 +186,27 @@
 > `rag/.cache`), so the first rooted session is what indexes the vault — including the just-reseeded
 > canary. Say so, rather than let a first session's health banner read as a defect.
 
-## Step 11 — the v4.5.0 release (IN PROGRESS)
+## Step 11 — the v4.5.0 release — ✅ SHIPPED (2026-08-03, tag `v4.5.0`, PR #54, CI 7/7)
 
-> **▶️ WHERE TO RESUME — CUTTING THE RELEASE (updated 2026-08-03 evening).** The owner asked for the
-> cut. In order, and only these:
-> 1. **Re-measure `rag-launcher.mjs`** (hardened in `4e660b1`, never re-mutated) — log
->    `…/reports/v450-rag-launcher-recheck.log`.
-> 2. **Batch 3** — `rehydrate.mjs, session-self-heal.mjs, session-status.mjs, session-universe.mjs,
->    scripts/vault-write-guard.mjs` (the top-level one, NOT `lib/`). Split in two runs, ≤ 10 min each.
->    `session-status.mjs` will read **0 %**: named pre-existing debt, not a regression.
-> 3. **RESULTS.md** — a newest-first `## v4.5.0` section, modelled on the v4.4.0 one (per-file table,
->    equivalents named, the entrypoint-guard debt stated). Today's numbers live only in this plan and
->    in `maintainers/mutation/reports/v450-*.log` until then.
-> 4. **Pin the snapshot** in `release-v4.5.0-note.md` (its placeholder comment marks the spot).
-> 5. **Cut**: rewrite PR #54's title + body from `release-v4.5.0-pr-body.md`, `gh pr merge --merge`
->    (a **merge commit**, like `a0ea5d8` for PR #53 — never a squash), tag `v4.5.0`,
->    `gh release create v4.5.0 --notes-file` the release note **whole** — checked on the published
->    v4.4.0 body: it ends with the mutation snapshot, so that section ships rather than being stripped —
->    then **archive this plan**, refresh the memory pointer, and update `ROADMAP.md` (this
->    plan's row + the Gate 3 ordering note).
+> **▶️ WHERE TO RESUME — v4.5.0 IS OUT; THIS PLAN NOW OWNS v4.6.0 AND v4.7.0.**
+> Shipped 2026-08-03: merge commit `96f5999`, tag **v4.5.0**, published release, full matrix 7/7. The
+> user-facing note and the PR body live in **`archived/release-v4.5.0-note.md`** and
+> **`archived/release-v4.5.0-pr-body.md`**; the mutation numbers are pinned in
+> `maintainers/mutation/RESULTS.md` (§ v4.5.0). **This file is NOT archived** — Steps 1-11 are history,
+> and the remaining work is the rest of the trilogy: **v4.6.0, the vault's identity** (resolve before
+> writing, homonymy) and **v4.7.0, visibility** (banner, offers, target version, commit messages).
+> **Resume at the first unchecked box of the v4.6.0 section.**
 >
-> **Already done and NOT to redo**: the version vector (`9fb5d1a`), the whole §10 marketing re-read
-> (`396f1e1`), the mutation hardening of `verify-index`, `rag-status`, `health-probe`,
-> `universe-reminder`, `vault-write-guard`, `universe-profile`, `rag-launcher`, the CONVENTIONS §9
-> push rule (`8029418`), the **release note** (`3bceec3`) and the **PR body**
-> (`maintainers/plans/prospective/release-v4.5.0-pr-body.md`). Everything is **pushed**, and the full
-> matrix is **7/7 green** on this branch (run `30829456561`). Suite: 1217 pass, 1 skipped
-> (Windows-only).
+> **Carried forward, deliberately, from the v4.5.0 pass** — neither is a defect of the release, both are
+> named debt with an owner:
+> - **One shared `runAsEntrypoint(meta, argv, fn)`**, tested once. 10+ scripts carry the identical
+>   three-mutant boot guard, and it is the only thing left standing in `verify-index.mjs` (92.31 %) and
+>   `rehydrate.mjs` (95.40 %). **v4.6.0 candidate.**
+> - **The `session-*` tier** (`session-status.mjs` **0 %**, `session-universe.mjs` 39.39 %,
+>   `session-self-heal.mjs` 36.62 %): top-level scripts no test can import. Inherited, not new — already
+>   recorded at v4.4.0. Closing it is a refactor of fleet-deployed scripts, i.e. its own release.
+> - **The health banner renders an `unknown` check under "found a problem"** — a defect pinned by a test
+>   that names it, so nobody reads it as intended. **v4.7.0 item.**
 >
 > ⚠️ **No finding codes in any artifact.** The owner asked explicitly (2026-08-03): "F1, F2, Fx" mean
 > nothing to anyone but us. They are filing labels for this plan only — the note, the PR body, the
