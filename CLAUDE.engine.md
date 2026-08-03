@@ -120,16 +120,21 @@ Reference other notes with `[[relative/path/without-extension]]`:
 
 A daily note, once written, is **never edited retroactively** — you add a new daily the next day. Corrections go through topic notes or decisions. The `people/` and `topics/` files are, on the contrary, **living**: you append dated sections to them.
 
-### Opening / viewing / editing a note → my default Markdown editor
+### Opening / viewing / editing a note → Obsidian for my vault, my default editor for the rest
 
-When I ask to **open, view, browse or edit** a note (as opposed to just getting an answer in chat), open the **real file** in my **default Markdown editor** rather than pasting the raw text — these are the very `.md` files the brain reads and writes, so I can edit them in place and the change is picked up:
+When I ask to **open, view, browse or edit** a note (as opposed to just getting an answer in chat), open the **real file** rather than pasting the raw text — these are the very `.md` files the brain reads and writes, so I can edit them in place and the change is picked up. **A note that belongs to my vault and any other Markdown file on my machine are two different things** (ADR 0038):
 
-- Open the note by its **absolute file path** through the OS opener, which hands the file to whatever editor I've set as my default for Markdown (Typora, Obsidian, VS Code, …) — editable, no lock-in to one app:
-  - macOS: `open "<abs-path>"`
-  - Windows: `start "" "<abs-path>"`
-  - Linux: `xdg-open "<abs-path>"`
+- **A note of MY VAULT, when Obsidian holds this vault** → open it **in Obsidian**, by handing the OS opener Obsidian's URL scheme with the note's absolute path **url-encoded** (`/` → `%2F`), quoted:
+  - macOS: `open "obsidian://open?path=<url-encoded-abs-path>"`
+  - Windows: `start "" "obsidian://open?path=<url-encoded-abs-path>"`
+  - Linux: `xdg-open "obsidian://open?path=<url-encoded-abs-path>"`
+  - Always `?path=`, **never** `?vault=`: Obsidian names a vault after its root folder, and every brain's vault folder is called `vault` — ambiguous the moment I have a second brain. And **never** `open -a "Obsidian" <path>`: measured, it launches the app on whatever was last open and **ignores the file**.
+  - *Holds this vault* = Obsidian installed **and** THIS vault registered (merely installed lands on the vault picker, not on my note). Registered means my vault's absolute path appears in `obsidian.json` — macOS `~/Library/Application Support/obsidian/`, Windows `%APPDATA%\obsidian\`, Linux `~/.config/obsidian/`.
+  - **The first time only**, Obsidian asks me to confirm an "external link" action. That is normal: tell me to tick **"Don't ask again"** and it never comes back.
+- **Anything else** — a Markdown file outside the vault, or Obsidian not holding this vault → the OS opener **on the file itself**, which hands it to whatever I've set as my default Markdown editor (Typora, VS Code, …), editable, no lock-in:
+  - macOS: `open "<abs-path>"` · Windows: `start "" "<abs-path>"` · Linux: `xdg-open "<abs-path>"`
 - **If the open fails** (no GUI editor, headless session): **don't block** — display / `Read` the note inline instead.
-- **Obsidian (optional, recommended viewer).** To browse the vault *as a whole* — the graph, `[[wikilinks]]`, backlinks, a full read/write editor over these same files — Obsidian is the nicest companion ([obsidian.md](https://obsidian.md)); the installer can register this brain as a vault so it shows up in Obsidian's switcher. It is **recommended, never required**, and is never the *mechanism* for opening a single note — that always goes through my default editor above.
+- **Obsidian stays recommended, never required.** Without it every note still opens in my default editor; with it, browsing the vault *as a whole* (the graph, `[[wikilinks]]`, backlinks) is at its best ([obsidian.md](https://obsidian.md)), and the installer can register this brain as a vault for me.
 
 When I only want an **answer** (a fact, a synthesis), just answer with the source — no need to open anything.
 

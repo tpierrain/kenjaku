@@ -244,17 +244,30 @@ also proves search **by meaning**, not a grep.
 
 Exposed MCP tools: `search_vault`, `get_document`, `list_documents`, `vault_stats`, `reindex`.
 
-## 🪨 Reading & editing your notes (your default editor + optional Obsidian)
+## 🪨 Reading & editing your notes (Obsidian for your notes, your default editor for the rest)
 
 Your vault is a plain set of `.md` files, so it works without any extra app. When you ask Claude to
-**"open my note about X"**, it opens the **real file in your default Markdown editor** — Typora, VS Code,
-Obsidian, whatever you've set — so you can read and **edit it in place**, and your edit is picked up.
-No app is forced and there's no lock-in: it's just your file in your editor.
+**"open my note about X"**, it opens the **real file** — never a copy pasted into the chat — so you can
+read it and **edit it in place**, and your edit is picked up.
 
-**Optional — Obsidian for browsing the whole vault.** Installing **[Obsidian](https://obsidian.md)**
-(free) gives you a full graph view, `[[wikilinks]]` and backlinks over those very same files — ideal for
-*exploring* the brain rather than opening one note. The installer can register this brain as an Obsidian
-vault for you, so it shows up ready to browse in Obsidian's switcher.
+**Where it opens depends on which file it is**, because *a note of your brain* and *any Markdown file on
+your machine* are not the same thing:
+
+- **A note of your vault** opens in **Obsidian**, when Obsidian is installed and this vault is
+  registered in it (the installer can do that registration for you). That's the app built for these
+  notes: links, backlinks, graph.
+- **Anything else** — a Markdown file outside the vault, or no Obsidian on this vault — opens in **your
+  default Markdown editor** (Typora, VS Code, whatever you've set). No app is forced, no lock-in.
+
+> 🔐 **The very first time, Obsidian will ask you to confirm.** It shows *"Execute the action from an
+> external link?"* — that is Obsidian being careful about links coming from outside itself, and it is
+> **expected**, not a warning about your brain. Tick **"Don't ask again"** and it never comes back. It's
+> the same shape as the one-time "Always allow" clicks on your connectors: a handful of seconds, once.
+
+**Obsidian stays optional.** Without it, every note still opens in your default editor and nothing is
+lost. With it — **[Obsidian](https://obsidian.md)** is free — you also get a full graph view,
+`[[wikilinks]]` and backlinks over those very same files, which is what makes *exploring* the whole
+brain pleasant rather than opening one note at a time.
 
 > ⚠️ **First-launch step (Obsidian only).** On a brand-new Obsidian the first launch lands on a
 > **welcome / vault-picker screen**. If the installer didn't register the vault, open Obsidian yourself,

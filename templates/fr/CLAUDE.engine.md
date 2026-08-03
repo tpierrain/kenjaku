@@ -123,16 +123,21 @@ Référencer d'autres notes avec `[[chemin/relatif/sans-extension]]` :
 
 Une daily note, une fois écrite, n'est **jamais éditée rétroactivement** — on ajoute une nouvelle daily le lendemain. Les corrections passent par des notes de topics ou des décisions. Les fiches `people/` et `topics/` sont au contraire **vivantes** : on y append des sections datées.
 
-### Ouvrir / consulter / éditer une note → mon éditeur Markdown par défaut
+### Ouvrir / consulter / éditer une note → Obsidian pour mon vault, mon éditeur par défaut pour le reste
 
-Quand je demande d'**ouvrir, consulter, parcourir ou éditer** une note (par opposition à simplement obtenir une réponse dans le chat), ouvrir le **vrai fichier** dans mon **éditeur Markdown par défaut** plutôt que d'en coller le texte brut : ce sont les fichiers `.md` que le cerveau lit et écrit, donc je peux les éditer en place et la modification est reprise.
+Quand je demande d'**ouvrir, consulter, parcourir ou éditer** une note (par opposition à simplement obtenir une réponse dans le chat), ouvrir le **vrai fichier** plutôt que d'en coller le texte brut : ce sont les fichiers `.md` que le cerveau lit et écrit, donc je peux les éditer en place et la modification est reprise. **Une note qui appartient à mon vault et n'importe quel autre fichier Markdown de ma machine sont deux choses différentes** (ADR 0038) :
 
-- Ouvrir la note par son **chemin absolu** via l'ouvreur du système, qui confie le fichier à l'éditeur choisi par défaut pour le Markdown (Typora, Obsidian, VS Code…) : éditable, sans enfermement dans une app :
-  - macOS : `open "<chemin-absolu>"`
-  - Windows : `start "" "<chemin-absolu>"`
-  - Linux : `xdg-open "<chemin-absolu>"`
+- **Une note de MON VAULT, quand Obsidian détient ce vault** → l'ouvrir **dans Obsidian**, en confiant à l'ouvreur du système le schéma d'URL d'Obsidian avec le chemin absolu de la note **encodé pour URL** (`/` devient `%2F`), entre guillemets :
+  - macOS : `open "obsidian://open?path=<chemin-absolu-encodé>"`
+  - Windows : `start "" "obsidian://open?path=<chemin-absolu-encodé>"`
+  - Linux : `xdg-open "obsidian://open?path=<chemin-absolu-encodé>"`
+  - Toujours `?path=`, **jamais** `?vault=` : Obsidian nomme un vault d'après son dossier racine, et le dossier vault de chaque cerveau s'appelle `vault`, donc ce nom devient ambigu dès que j'ai un deuxième cerveau. Et **jamais** `open -a "Obsidian" <chemin>` : c'est mesuré, cette forme lance l'application sur ce qui était ouvert la dernière fois et **ignore le fichier**.
+  - *Détient ce vault* = Obsidian installé **et** CE vault enregistré (simplement installé, l'URL atterrit sur le sélecteur de vault, pas sur ma note). Enregistré veut dire que le chemin absolu de mon vault figure dans `obsidian.json` : macOS `~/Library/Application Support/obsidian/`, Windows `%APPDATA%\obsidian\`, Linux `~/.config/obsidian/`.
+  - **La toute première fois**, Obsidian me demande de confirmer une action « depuis un lien externe ». C'est normal : me dire de cocher **« Ne plus demander »**, et ça ne revient jamais.
+- **Tout le reste** (un fichier Markdown hors du vault, ou Obsidian qui ne détient pas ce vault) → l'ouvreur du système **sur le fichier lui-même**, qui le confie à l'éditeur choisi par défaut pour le Markdown (Typora, VS Code…), éditable, sans enfermement dans une app :
+  - macOS : `open "<chemin-absolu>"` · Windows : `start "" "<chemin-absolu>"` · Linux : `xdg-open "<chemin-absolu>"`
 - **Si l'ouverture échoue** (pas d'éditeur graphique, session headless) : **ne pas bloquer**, afficher / `Read` la note en ligne à la place.
-- **Obsidian (viewer optionnel, recommandé).** Pour parcourir le vault *dans son ensemble* (le graphe, les `[[wikilinks]]`, les backlinks, un éditeur lecture/écriture complet sur ces mêmes fichiers), Obsidian est le meilleur compagnon ([obsidian.md](https://obsidian.md)) ; l'installeur peut enregistrer ce cerveau comme vault pour qu'il apparaisse dans le sélecteur d'Obsidian. Il est **recommandé, jamais requis**, et n'est jamais le *mécanisme* d'ouverture d'une note seule : ça passe toujours par mon éditeur par défaut ci-dessus.
+- **Obsidian reste recommandé, jamais requis.** Sans lui, chaque note s'ouvre quand même dans mon éditeur par défaut ; avec lui, parcourir le vault *dans son ensemble* (le graphe, les `[[wikilinks]]`, les backlinks) est au mieux ([obsidian.md](https://obsidian.md)), et l'installeur peut enregistrer ce cerveau comme vault pour moi.
 
 Quand je veux seulement une **réponse** (un fait, une synthèse), répondre avec la source : pas besoin d'ouvrir quoi que ce soit.
 
