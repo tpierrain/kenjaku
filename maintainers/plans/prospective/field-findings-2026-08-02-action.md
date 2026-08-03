@@ -86,7 +86,7 @@
 > `scripts/lib/claim-discipline.test.mjs`. Its P1 entry carries what the red run taught and the two
 > near-misses; do not re-derive them. Suites green (1146 scripts + 1 skipped Windows-only, 480 rag).
 >
-> **⏭️ IN PROGRESS: F17 — the rule is written, the docs are not.** Its four decisions were
+> **✅ Step 9 done — F17 IS COMPLETE** _(2026-08-03 · `618ba54` → `6ee4aee`)_. Its four decisions were
 > **challenged against the code** _(2026-08-03)_ and the outcome is recorded in its P0 entry: two hold
 > as-is, decision 2 is refined (the `obsidian://` URI is handed *to* the OS opener, so it stays inside
 > the existing allowlist), and two new calls are taken there — **no entry script** (the reconciler
@@ -95,25 +95,24 @@
 > `file://` link does not). Then `scripts/lib/open-note.mjs` was built TDD and **committed green**
 > _(`618ba54`)_.
 >
-> **✅ THE MECHANISM IS SETTLED, ON MEASUREMENTS.** `obsidian://open?path=<url-encoded abs path>`,
-> everywhere, handed to the OS opener. Not a preference: the dialog-free alternative
-> (`open -a "Obsidian" <file>`) was run three times and **never opens the requested note**, cold or
-> warm — which also makes today's shipped `open-note` skill wrong, not merely macOS-only. Obsidian's
-> trust dialog is therefore a **cost of the feature**, documented like the one-time "Always allow".
-> `buildOpenNoteCommand`'s signature stands. Evidence and the `?vault=` collision trap: F17's entry.
+> The mechanism was settled **on measurements, not preference**: `obsidian://open?path=` handed to the
+> OS opener, because the dialog-free alternative (`open -a "Obsidian" <file>`) was run three times and
+> **never opens the requested note**, cold or warm. Obsidian's trust dialog is therefore a **cost of
+> the feature**, documented like the one-time "Always allow". Two things came out bigger than F17's
+> original framing, both in its entry: the shipped `open-note` skill was not merely macOS-only, it was
+> **wrong on macOS too**; and the planned **ADR 0038 was not written** — `CONVENTIONS.md` §6bis sends
+> an evolving decision back into its own ADR, and this is ADR 0027's topic, so 0027 was amended in
+> place and every reference repointed.
 >
-> **⏭️ REMAINS on F17, in order:** the three doc surfaces (`CLAUDE.engine.md` + its FR twin,
-> `engine-skills/open-note/SKILL.md`, `SETUP.md:250`), doc guards pinning them to the function, the
-> `citation-renderer.ts:77` wording, and **ADR 0038** (scoped reversal of 0027, amendment to 0029, and
-> the shipped `open -a` defect stated). _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **⏭️ NEXT STEP, NOT STARTED: F1, the universe banner.** Nothing of it is written. Its P3 entry
+> carries the closed sub-decision (short synthesis + `/switch` for the rest) and the one design knot to
+> resolve while coding: the digest serves the AGENT and the HUMAN through a single channel that the CLI
+> echoes verbatim, so "inject without showing" does not exist. After F1, only the v4.5.0 release step
+> remains. _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
 > **Resume here — v4.5.0, in this order.**
-> 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
->    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
->    editor. Added to v4.5.0's scope, see its P0 entry — it repairs three surfaces that disagree
->    today, one of which already promises the behaviour to the user.
 > 10. **F1 — the universe banner** _(moved up from v4.7.0 the same evening, at the owner's request)_:
 >    a **short synthesis** plus, in parentheses, `/switch` for the full description. Its P3 entry
 >    carries the closed sub-decision and the one design knot left (the digest serves the agent and
@@ -352,7 +351,10 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         post-flight and `verify-rag` on a mandatory `unknown`. A comparison we could not make must
         never fail an install.
 
-- [ ] **F17 — opening a note: three surfaces, three different answers, and a promise nobody keeps.**
+- [x] **F17 — opening a note: three surfaces, three different answers, and a promise nobody keeps.**
+      ✅ **DONE** _(2026-08-03 · `618ba54` → `6ee4aee`)_ — one pure rule, three surfaces pinned to it,
+      the citation affordance repaired, ADR 0027 amended. Field-verified on a real registered vault.
+      Suites green: 1156 scripts (1 skipped Windows-only), 480 rag.
       Asked by the owner (2026-08-02 evening, *"ideally with the next release"*): a note **inside
       `vault/`** should open in **Obsidian when it is available**, and any Markdown **outside the
       vault** in the **default editor**. Verified against the code before writing this down — the
@@ -461,16 +463,30 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           road: the only alternative cannot aim at a note. So the tick goes in the docs next to the
           existing "Always allow" one-time step, framed the same calm way (SETUP.md, and the Obsidian
           nudge that already promises this behaviour).
-  - [ ] **Found while checking decision 1, small and executable** (not yet done):
-        `rag/src/lib/citation-renderer.ts:77` prints *"I'll open it in your Markdown editor (Typora,
-        Obsidian, …)"*. Every `search_vault` citation IS a vault note, so under F17 that sentence
-        describes the **minority** route once Obsidian holds the vault. Reword it in the renderer (it
-        needs no `obsidianOk`: "Obsidian if you've registered this vault, otherwise your default
-        Markdown editor"). Its own test at `citation-renderer.test.ts` pins the string.
-  - [ ] Surfaces to change once the function exists: `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md`
-        (the §"Opening / viewing / editing a note"), `engine-skills/open-note/SKILL.md` (stop hard-coding
-        macOS Obsidian), `SETUP.md:250`, and an **ADR amending 0029** (its *"Obsidian is never the
-        mechanism"* line) + a note on 0027. Next free number: **0038**.
+  - [x] **The citation affordance stopped predicting the wrong app** _(2026-08-03 · `60f875f`)_.
+        `rag/src/lib/citation-renderer.ts` printed *"I'll open it in your Markdown editor (Typora,
+        Obsidian, …)"*, and its test **forbade** naming Obsidian — the very assumption F17 overturns.
+        Every `search_vault` citation IS a vault note, so it now names both routes and which applies.
+        The 🧠 link itself is untouched and stays `file://`.
+  - [x] **All three surfaces changed, and pinned** _(2026-08-03 · `23ed58d`)_ — `CLAUDE.engine.md` +
+        `templates/fr/CLAUDE.engine.md` (§"Opening / viewing / editing a note" rewritten as two acts),
+        `engine-skills/open-note/SKILL.md` (stops inventing an opener, defers to the constitution,
+        `1.0.0` → `1.1.0`), `SETUP.md` (the reading chapter, plus the one-time external-link prompt
+        framed like "Always allow"). Three guards in `scripts/lib/open-note-doc.test.mjs`: the URI
+        prefix is **read off the function**, no surface may prescribe `open -a "Obsidian"` unless the
+        same line forbids it, and `SETUP.md` must keep the prompt documented.
+  - [x] **No ADR 0038 — 0027 was amended in place instead** _(2026-08-03 · `6ee4aee`)_, and this
+        overrides the plan's earlier note. `CONVENTIONS.md` §6bis: an **evolving** decision amends its
+        own ADR, a new number is for a **genuinely new topic** — and "how a local note opens" is
+        precisely ADR 0027's topic. 0027 now carries the destination rule, the `?path=`-over-`?vault=`
+        reason, the `open -a` rejection on measurement, and (§6ter, written timelessly) its earlier
+        `obsidian://` rejection restated as what it always was: a rejection about the **rendered link**,
+        which still stands. 0029 keeps its own decision and stops claiming a single note is never
+        Obsidian's to open. Every `ADR 0038` reference in code and docs was repointed to 0027.
+  - [x] **`obsidian-health.mjs`'s promise came true by itself.** It has been telling users that
+        registering the vault makes *"🧠 citation links open straight in it"*; that was false under the
+        old rule and is now **exactly** what happens. No change needed — the defect was the behaviour,
+        not the sentence.
   - [ ] **Reach, stated honestly** (F5): `engine-skills/**` is in `replace` and a staged skill the owner
         never edited **is** refreshed on `update-engine` (base = the brain's own staging copy,
         `reconcile-brain.test.mjs:1189`). So this reaches an existing brain — **unless** that brain
