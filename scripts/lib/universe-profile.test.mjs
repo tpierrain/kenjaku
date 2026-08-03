@@ -33,11 +33,19 @@ test("universeProfilePath puts the DEFAULT universe's profile at the vault root"
 function fakeFs(initial = {}) {
   const files = new Map(Object.entries(initial));
   const writes = [];
+  // mkdir and read are RECORDED, not merely tolerated: a fake that swallows them makes
+  // "create the parent folder, recursively" and "create nothing" the same call, and
+  // makes "do not touch the disk when the marker is absent" unobservable.
+  const mkdirs = [];
+  const reads = [];
   return {
     files,
     writes,
+    mkdirs,
+    reads,
     existsSync: (p) => files.has(p),
     readFileSync: (p) => {
+      reads.push(p);
       if (!files.has(p)) throw new Error(`ENOENT: ${p}`);
       return files.get(p);
     },
@@ -45,7 +53,7 @@ function fakeFs(initial = {}) {
       writes.push({ path: p, data });
       files.set(p, data);
     },
-    mkdirSync: () => {},
+    mkdirSync: (p, options) => mkdirs.push({ path: p, options }),
   };
 }
 
@@ -80,6 +88,10 @@ test("writeUniverseProfile creates the profile note under the universe's subtree
   });
 
   assert.deepEqual(res, { ok: true, path: "acme/universe.md" });
+  // The universe's folder may not exist yet — this note is often the first thing in it —
+  // so the PARENT is created, recursively. Asserted, because on a real fs a wrong parent
+  // (or a non-recursive create) is the difference between a written note and a throw.
+  assert.deepEqual(io.mkdirs, [{ path: "/brain/vault/acme", options: { recursive: true } }]);
   assert.deepEqual(io.writes, [
     {
       path: "/brain/vault/acme/universe.md",
@@ -116,6 +128,10 @@ test("declineProfileCapture remembers a refusal, per universe", () => {
 
   declineProfileCapture(io, "/brain/.vault-rag", "acme");
 
+  assert.deepEqual(io.mkdirs, [{ path: "/brain/.vault-rag", options: { recursive: true } }]);
+  assert.deepEqual(io.writes, [
+    { path: "/brain/.vault-rag/profile-nudges.json", data: '{\n  "declined": [\n    "acme"\n  ]\n}\n' },
+  ]);
   assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "acme"), true);
   // Declining for one sphere says nothing about another: creating a universe later
   // must still get its own offer.
@@ -130,11 +146,19 @@ test("declineProfileCapture keeps the refusals it already had", () => {
   // Two entries, and the second must not erase the first: a refusal is forever.
   const io = fakeFs();
 
+  declineProfileCapture(io, "/brain/.vault-rag", "zeta");
   declineProfileCapture(io, "/brain/.vault-rag", "acme");
-  declineProfileCapture(io, "/brain/.vault-rag", "blue");
 
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "zeta"), true);
   assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "acme"), true);
-  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "blue"), true);
+  // Declined out of alphabetical order on purpose: this file is committed and travels
+  // between machines, so its order has to come from the data, not from who said no first
+  // — otherwise two machines write two different files holding the same refusals. The
+  // trailing newline is part of it: this is a text file people and git both read.
+  assert.equal(
+    io.files.get("/brain/.vault-rag/profile-nudges.json"),
+    '{\n  "declined": [\n    "acme",\n    "zeta"\n  ]\n}\n',
+  );
 });
 
 test("profileCaptureDeclined treats a corrupt marker file as 'never asked'", () => {
@@ -597,4 +621,146 @@ test("renderUniverseSynthesis points at the ROOT profile when the note carries n
     "Full profile: vault/universe.md — read it when the answer depends " +
       "on the people, tools or scope here.",
   );
+});
+
+test("profileCaptureDeclined does not read a marker file it did not find", () => {
+  // Not merely an optimisation: the `catch` below would turn a read error into "never
+  // asked" too, which is the same answer for the wrong reason. Reading nothing is the
+  // claim; a suite that only checks the answer cannot see it stop being true.
+  const io = fakeFs();
+
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "acme"), false);
+  assert.deepEqual(io.reads, []);
+});
+
+test("a corrupt marker is replaced by a clean one holding just this refusal", () => {
+  // The rebuild after corruption: whatever unreadable bytes were there, what lands is a
+  // well-formed file with exactly what we know — no invented entry riding along.
+  const io = fakeFs({ "/brain/.vault-rag/profile-nudges.json": "{ not json" });
+
+  declineProfileCapture(io, "/brain/.vault-rag", "acme");
+
+  assert.equal(
+    io.files.get("/brain/.vault-rag/profile-nudges.json"),
+    '{\n  "declined": [\n    "acme"\n  ]\n}\n',
+  );
+});
+
+test("a marker whose shape is wrong is treated as empty, not as a list of one", () => {
+  // `{"declined": "acme"}` — a hand-edit, or an older shape. It is not an array, so it
+  // says nothing about anyone, and rebuilding must not smuggle it in.
+  const io = fakeFs({ "/brain/.vault-rag/profile-nudges.json": '{"declined":"acme"}' });
+
+  assert.equal(profileCaptureDeclined(io, "/brain/.vault-rag", "acme"), false);
+
+  declineProfileCapture(io, "/brain/.vault-rag", "blue");
+
+  assert.equal(
+    io.files.get("/brain/.vault-rag/profile-nudges.json"),
+    '{\n  "declined": [\n    "blue"\n  ]\n}\n',
+  );
+});
+
+test("renderUniverseDigest leaves a section it does not know OUT of the injected block", () => {
+  // The owner's own headings stay in the note (and in the RAG) instead of riding every
+  // single session. Nothing here may crash on them either: this runs at session start.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "## Rituals",
+    "- Monday standup",
+    "",
+    "## People",
+    "- Alice (PM)",
+  ].join("\n");
+
+  assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Alice (PM).");
+});
+
+test("renderUniverseDigest treats a '##' inside a sentence as text, not as a heading", () => {
+  // A heading is a line that STARTS with ##. Without that anchor, an ordinary sentence
+  // mentioning one re-points every following line into another section.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "We tag internal docs with ## People before filing them.",
+    "",
+    "## People",
+    "- Alice (PM)",
+  ].join("\n");
+
+  assert.equal(
+    renderUniverseDigest(raw),
+    "Acme Corp.\nWe tag internal docs with ## People before filing them.\nPeople: Alice (PM).",
+  );
+});
+
+test("renderUniverseDigest ignores a line that only LOOKS empty", () => {
+  // Obsidian leaves these behind constantly. Quoted as a person, one would show up as an
+  // empty entry in a comma-separated list — "Alice (PM), , Zoe (CTO)".
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "## People",
+    "- Alice (PM)",
+    "   ",
+    "- Zoe (CTO)",
+  ].join("\n");
+
+  assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Alice (PM), Zoe (CTO).");
+});
+
+test("renderUniverseDigest strips only a LEADING bullet, never a dash inside the text", () => {
+  // "Acme - the client" is how people write. A replace that is not anchored eats the
+  // first dash it meets anywhere and quietly rewrites what the owner typed.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "## Topics",
+    "Acme - the client since 2024",
+    "- billing - the recurring one",
+  ].join("\n");
+
+  assert.equal(
+    renderUniverseDigest(raw),
+    "Acme Corp.\nTopics: Acme - the client since 2024, billing - the recurring one.",
+  );
+});
+
+test("renderUniverseDigest quotes the free text as written, bullets and all", () => {
+  // The description under the H1 is prose the owner wrote: it is quoted verbatim, where
+  // a section's items are quoted as values. Feed it a line that starts like a bullet and
+  // the two rules stop being interchangeable.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "- consulting, two days a week",
+  ].join("\n");
+
+  assert.equal(renderUniverseDigest(raw), "Acme Corp.\n- consulting, two days a week");
 });
