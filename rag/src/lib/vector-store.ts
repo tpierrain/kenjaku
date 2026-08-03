@@ -435,6 +435,26 @@ export function listDocumentsIn(
   }>;
 }
 
+export function listIndexedDocs() {
+  return listIndexedDocsIn(getDb());
+}
+
+/**
+ * DB-injectable core of {@link listIndexedDocs} — what the index really holds, one row
+ * per document with its stored hash and its REAL chunk count, for the disk↔index
+ * crosscheck (F15). LEFT JOIN on purpose: a document row with zero chunk is counted as
+ * a note and retrievable by nothing, and an INNER JOIN would hide exactly that.
+ */
+export function listIndexedDocsIn(d: Database.Database) {
+  return d
+    .prepare(
+      `SELECT d.path AS path, d.hash AS hash, COUNT(c.id) AS chunks
+       FROM documents d LEFT JOIN chunks c ON c.doc_path = d.path
+       GROUP BY d.path, d.hash ORDER BY d.path`
+    )
+    .all() as Array<{ path: string; hash: string; chunks: number }>;
+}
+
 export function getStats() {
   return getStatsIn(getDb());
 }
