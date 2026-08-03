@@ -592,6 +592,16 @@ tailored: it only writes files that `engine-manifest.json` declares Engine-owned
 > (`scripts/update-engine.mjs` + `scripts/lib/**`, both carried by every brain — so the updater can
 > even update **itself**).
 
+### Which version am I on?
+
+Your brain **says so at the start of every session**: a `⚙️ Kenjaku engine v4.6.0` segment in the
+opening banner, on the command line as well as in the Code tab of Claude Desktop. It reads the tag your
+engine was installed or last updated from (`source.ref` in `engine-manifest.json`), so it follows your
+updates instead of freezing at install day. Two silences are deliberate: when the manifest carries no
+usable tag the segment simply **doesn't appear** (rather than showing a number that isn't a Kenjaku
+release), and when a restart is pending the restart nudge takes the floor — until you restart, the
+version you'd read isn't the one answering you. `/rag` repeats the engine version at any time.
+
 ### To trigger it — just ask, in plain conversation
 
 > *"Update your engine."* · *"Is there a newer version of your engine?"* · *"Upgrade the brain's

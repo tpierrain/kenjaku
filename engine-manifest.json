@@ -4,8 +4,8 @@
   "engineVersion": {
     "rag": "1.3.0",
     "local-mirror": "0.3.0",
-    "constitutionTemplate": "1.1.0",
-    "scripts": "1.10.0"
+    "constitutionTemplate": "1.2.0",
+    "scripts": "1.11.0"
   },
   "indexSchemaVersion": 2,
   "regimes": {
