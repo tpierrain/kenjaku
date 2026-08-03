@@ -65,7 +65,30 @@ Ask for **`/update-engine`** once, then restart your session if it says so.
 
 ### Mutation-score snapshot, pinned to v4.6.0
 
-<!-- filled from maintainers/mutation/RESULTS.md § v4.6.0 once the three batches are treated -->
+Not line coverage: every number below is what survived deliberately breaking the code and re-running
+the suite. The seven files this release changed were measured one by one — no `rag` or `local-mirror`
+file changed, so those packages carry over untouched rather than being re-measured for nothing.
+
+| Package | Mutation score | What was measured |
+|---|---|---|
+| **scripts** (harness) | **all 7 changed files at 96 % or above, two at 100 %** | per file; every remaining survivor is a listed equivalent mutant |
+| **rag** | **94.67 %** | its v4.5.0 figure — untouched by this release |
+| **local-mirror** | **90.44 %** | its v4.2.0 audit — untouched by this release |
+
+**The finding is worth stating plainly, because it is the same shape as the release itself.** The small
+function that decides *which section of a document* our documentation guards read had **no test of its
+own**: it was only ever exercised through those guards, on real documents where a degraded reading
+still happened to contain the words they were looking for. Deliberately breaking it so that it returns
+the **whole document** left every guard green — which would have quietly turned each of them back into
+the loose search they were written to replace. It has its own tests now, and every injected fault dies.
+
+**The honest bound.** `session-status.mjs` scores **0 %**: it is a top-level script that runs on import,
+so no test can observe it. The logic it displays is covered — that is exactly why the version segment
+was built as a separate, testable piece — but its wiring is not. That hole is **inherited, not new**,
+and closing it is a release of its own rather than something to do on the eve of a tag.
+
+A published release is frozen, so these numbers stay true for this tag forever. Full detail:
+[`maintainers/mutation/RESULTS.md`](maintainers/mutation/RESULTS.md).
 
 ### Review & CI
 

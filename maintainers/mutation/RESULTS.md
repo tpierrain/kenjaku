@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %**. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) over its 6 changed files reads **94.67 %**, with the file it creates at **100 %** |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new) |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**. **v4.4.0 touches no `src/**` file here — the number carries over, deliberately not re-measured** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -138,6 +138,81 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## v4.6.0 — the vault's-identity release (`scripts` only) — 2026-08-03
+
+**Scope decided on the diff** (`main...release/v4.6.0`), the targeted run §5ter prescribes before a tag.
+**No `rag/src` or `local-mirror/src` file changed at all** — this release ships prose carriers (skills,
+constitutions) and harness scripts — so those two packages did not run, and their numbers carry over
+untouched. Eight production files under `scripts/`, measured one by one in two batches, then **every
+hardened file re-measured**: a hardened-but-unmeasured file has an unknown score, which is the same
+silence this trilogy is about.
+
+| File | First run | At the tag | |
+|---|---|---|---|
+| `lib/doc-section.mjs` | **53.33 %** | **100 %** | the finding of this pass — see below; 14/14 killed |
+| `refresh-note.mjs` | 68.52 % | **96.30 %** | 2 survivors, both pre-listed equivalents |
+| `file-back-note.mjs` | 72.81 % | **96.49 %** | 4 survivors, all pre-listed equivalents |
+| `lib/status-hook-output.mjs` | 92.86 % | **100 %** | |
+| `lib/note-refresh.mjs` | 92.31 % | **97.80 %** | 2 survivors, both pre-listed equivalents |
+| `lib/engine-version.mjs` | 95.24 % | **97.62 %** | 1 survivor, a pre-listed equivalent |
+| `lib/filed-note.mjs` | 96.00 % | **97.60 %** | 3 survivors, all pre-listed equivalents |
+| `session-status.mjs` | **not measured** | — | the named 0 % top-level tier (below) |
+
+**Every survivor left in the seven files is on the equivalence list written BEFORE the re-run** — which
+is what makes them equivalents rather than an excuse. Aggregates at the tag: **97.07 %** over batch 1's
+two files (239 mutants), **97.84 %** over batch 2's five (231 mutants).
+
+**The finding: `lib/doc-section.mjs` had no test file at all.** It is the slicer that decides **what**
+every doc guard reads — the claim discipline's and the identity discipline's alike — and it was
+exercised only *through* those guards, against real documents where a degraded slice still happened to
+contain the words they look for. Both "return the whole document" mutants survived. A slicer that
+quietly returns everything turns every sliced guard back into the **flat search it was extracted to
+replace**, and the failure that motivated the extraction (a rule passing on prose that was already
+there for other reasons) comes back with the suite green. This is §5quater one level up: not a checker
+parsing differently from the engine, but a checker reading a different **span** than it claims. It has
+its own tests now — exact slices asserted whole — and **14/14 mutants are dead**.
+
+**The second family is the one v4.5.0 met four times: every test injects its own deps, so the REAL
+ones are observed by nothing.** Both CLIs here (`file-back-note.mjs`, `refresh-note.mjs`) could have
+read no stdin, created no folders and logged nothing with the suite green. Each now runs as a **real
+child process** against a throwaway brain — the only test that reaches the stdin read, the recursive
+`mkdir`, the existence check, the exit code and the entrypoint guard at once.
+
+**And the refusals were asserted by fragments, while that text IS the product here**: the sentence
+saying what a *basis* is, the one saying a card that does not say WHICH one only moves the ambiguity,
+and the one naming what to do instead of overwriting could each vanish with every `assert.match` still
+green. Asserted whole now.
+
+**Equivalents, established by hand (applied, run, reverted) and NOT to be chased:**
+
+- `readFileSync(0, "")` in both CLIs — returns a Buffer, `JSON.parse` coerces it to the same string.
+  Already recorded at v4.5.0 for the guard hook; confirmed identical here.
+- The slug's `^-+|-+$` quantifiers — the preceding `[^a-z0-9]+` collapses any run into **one** hyphen,
+  so two leading hyphens are unreachable (verified on six titles).
+- `/\.md$/` unanchored in `firstNameSegment` — the first name is the first hyphen segment, and no vault
+  path carries `.md` inside it.
+- `split(/\s+/)` → `/\s/` on a **trimmed** title — index 0 is the same either way once leading
+  whitespace is gone.
+- `readFileSync(p, "utf-8")` → `""` on the universe pointer — equivalent *because* the reader was
+  hardened to accept a Buffer (`String(...)`), which is the defence, not an accident.
+- `typeof manifest !== "object"` → `false` — a truthy non-object yields `null` through both paths.
+- Two regex tails where `$` is redundant without the `s` flag (`.*$`, `([\s\S]*)$`).
+
+**The honest bound, unchanged and inherited.** `session-status.mjs` is a top-level script that runs on
+import, so no test can observe it: it stays at **0 %** and was not measured here. The logic it displays
+is covered — that is precisely why `lib/status-hook-output.mjs` exists — but the wiring is not. Closing
+it is a refactor of fleet-deployed session scripts, i.e. its own release. Same for the shared
+`runAsEntrypoint(meta, argv, fn)` named at v4.5.0: two of its three mutants now die per file thanks to
+the child-process tests, and what remains (`process.argv.slice(2)` → `process.argv`) is a true
+equivalent in both CLIs here, since both take their spec on **stdin** and ignore argv entirely.
+
+**Reproduce**: same recipe as v4.5.0 below (worktree at `/Users/tpierrain/Dev/kenjaku-mut-v460`, the
+`rag/node_modules` symlink **verified** before starting — 31 pass / 0 skipped — one or two files per
+run). Logs: `reports/v460-scripts-batch1.log`, `…-batch2.log`, `…-batch1-recheck.log`,
+`…-batch2-recheck.log`.
 
 ---
 
