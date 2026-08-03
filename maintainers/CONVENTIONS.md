@@ -19,6 +19,12 @@ repo (linked below); the rest are spelled out here because they previously lived
 
 ## 1. Plans, roadmaps, TODOs — checkboxes on every step
 
+> 📤 **§1, §3 and §3bis are also published standalone** in
+> [`plan-discipline.md`](plan-discipline.md) — the same three rules with nothing of this repo in
+> them (no ADRs, no engine regimes, no CI matrix), plus a ready-to-paste `CLAUDE.md` block, so they
+> can be handed to someone working on something else entirely. **That file is the shareable copy,
+> this one is the operative one**: change a rule here first, then carry it over.
+
 Any **plan / roadmap / TODO / progress-tracking** document I write or edit (first of all
 `maintainers/plans/**`, but **any** file listing steps to do) MUST use Markdown **checkboxes**
 `- [ ]` / `- [x]` on **every step AND every sub-step** — never plain bullets `-`, never text-only
