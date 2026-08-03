@@ -60,3 +60,35 @@ test("absent status lines are dropped, not rendered as blanks", () => {
     "⚙️ Kenjaku engine v4.5.0\n📁 Repo up to date.\n🧠 RAG up to date — 436/436 files indexed.",
   );
 });
+
+// The restart nudge KEEPS the lead it was given for a documented reason: until
+// the owner restarts, nothing else they read comes from the engine they now have
+// — and that includes this version, which is read from the manifest an update
+// just rewrote while the OLD code is still running. Version first would state,
+// with authority, a version that is not the one answering.
+test("a pending restart still leads, and the version follows it", () => {
+  assert.equal(
+    buildStatusHookOutput({
+      leadLine: "⚠️ RESTART Claude to finish the engine update",
+      versionLine: "⚙️ Kenjaku engine v4.6.0",
+      statusLines: ["📁 Repo up to date."],
+    }).systemMessage,
+    "⚠️ RESTART Claude to finish the engine update\n⚙️ Kenjaku engine v4.6.0\n📁 Repo up to date.",
+  );
+});
+
+// Same reasoning, one channel further — and this is where it bites, because the
+// CLI's restart line does NOT ride additionalContext: relayed alone in the chat,
+// "you are running v4.6.0" would be a bare false claim on a Desktop session that
+// is still executing v4.5.0. So while a restart is pending, the chat says nothing
+// about the version and the owner keeps the one message that matters.
+test("a pending restart silences the version's chat relay, not just its rank", () => {
+  assert.deepEqual(
+    buildStatusHookOutput({
+      leadLine: "⚠️ RESTART Claude to finish the engine update",
+      versionLine: "⚙️ Kenjaku engine v4.6.0",
+      statusLines: ["📁 Repo up to date."],
+    }).hookSpecificOutput,
+    { hookEventName: "SessionStart" },
+  );
+});

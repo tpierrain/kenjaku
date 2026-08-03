@@ -17,16 +17,23 @@
 // No version (a brain that cannot say which release it came from) → the key is
 // ABSENT rather than empty: an additionalContext saying "[engine] null" would be
 // relayed to the owner as fact. Silence is the honest rendering here.
+//
+// `leadLine` is the restart nudge, and it outranks the version for a documented
+// reason (ADR 0036): until the owner restarts, nothing they read comes from the
+// engine they now have — the manifest already names the NEW version while the OLD
+// code is still answering. So a pending restart both demotes the version on the
+// CLI and silences its chat relay entirely, since additionalContext would carry
+// that claim to Desktop with no restart line beside it to qualify it.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function buildStatusHookOutput({ versionLine = null, statusLines = [] } = {}) {
+export function buildStatusHookOutput({ leadLine = null, versionLine = null, statusLines = [] } = {}) {
   const hookSpecificOutput = { hookEventName: "SessionStart" };
-  if (versionLine) {
+  if (versionLine && !leadLine) {
     hookSpecificOutput.additionalContext =
       `[engine] ${versionLine} — state this version once, verbatim, in your first message.`;
   }
   return {
     hookSpecificOutput,
-    systemMessage: [versionLine, ...statusLines].filter(Boolean).join("\n"),
+    systemMessage: [leadLine, versionLine, ...statusLines].filter(Boolean).join("\n"),
   };
 }

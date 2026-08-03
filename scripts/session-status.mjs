@@ -204,8 +204,9 @@ const versionLine = readStartupVersionLine({
 process.stdout.write(
   JSON.stringify(
     buildStatusHookOutput({
+      leadLine: restartLine,
       versionLine,
-      statusLines: [restartLine, bootstrapLine, keyLine, repoLine, ragLine],
+      statusLines: [bootstrapLine, keyLine, repoLine, ragLine],
     }),
   ) + "\n"
 );
