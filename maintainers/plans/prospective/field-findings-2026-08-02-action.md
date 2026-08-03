@@ -557,13 +557,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME AT STEP 12.5 — the release.** Mutation pass on what v4.6.0 changed, version vector, §10
-> marketing re-read, note + PR body. Its recipe (worktree at `/Users/tpierrain/Dev/kenjaku-mut-v460`
-> — NOT the scratchpad, the `rag/node_modules` symlink, one-or-two files per batch ≈ 6 min under the
-> 10-min cap) is written in Step 11 and stays valid. **Also still open from Step 12.0**, and easy to
-> miss because its box is checked: the note must cover the new `⚙️ Kenjaku engine v4.5.0` startup
-> segment, and the F3 wording (v4.7.0) must share this release's vocabulary. Nothing is half-written on
-> disk and no decision is pending.
+> **⏭️ RESUME AT STEP 12.5 — THE RELEASE IS ASSEMBLED AND WAITING ON TWO THINGS THAT ARE THE OWNER'S.**
+> Done and pushed _(2026-08-03, `e57fc6f` → `5b57c7e`)_: the mutation pass (7 files, measured, treated
+> and **re-measured** — all ≥ 96 %, two at 100 %, every survivor a pre-listed equivalent), the version
+> vector, the §10 marketing re-read **with its verdict recorded**, RESULTS.md § v4.6.0, the user-facing
+> note and the PR body. **Draft PR #55 is open and the full matrix is running on it.**
+>
+> **What is left, and why it is not mine:** the **release title** (three candidates are in Step 12.5 —
+> v4.5.0's was chosen by the owner, so this one is too), and whether to run `/code-review ultra` on
+> #55. Then the mechanical tail: undraft, merge, tag, publish, archive.
+>
+> **Nothing is half-written on disk**, the suite is green (1316 tests, 1315 pass, 1 skipped
+> Windows-only), and the note already covers the `⚙️ Kenjaku engine` startup segment that Step 12.0
+> left open. Still true for later: the F3 wording (v4.7.0) must share this release's vocabulary.
 >
 > **✅ DECIDED (2026-08-03, by the owner): 12.3 ships PROSE + A DETERMINISTIC GUARD.** The scope was
 > put to the owner with three options and this is the one chosen — **do not re-open it**. Both doors
@@ -734,8 +740,12 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           guards, against documents where a degraded slice still contained the words they look for.
           Both "return the whole document" mutants survived, which silently turns every sliced guard
           back into the flat search it was extracted to replace. It has its own tests now (14/14 dead).
-    - [ ] **Re-measure** (running): batch 1's two files, then batch 2's five. A hardened-but-unmeasured
-          file has an unknown score, which is the same silence this trilogy is about.
+    - [x] **RE-MEASURED, and all seven came back clean** _(2026-08-03 · `5b57c7e`, logs
+          `…-batch1-recheck.log` + `…-batch2-recheck.log`)_ — `doc-section` 53.33 → **100 %**,
+          `refresh-note` 68.52 → **96.30 %**, `file-back-note` 72.81 → **96.49 %**,
+          `status-hook-output` 92.86 → **100 %**, `note-refresh` 92.31 → **97.80 %**,
+          `engine-version` 95.24 → **97.62 %**, `filed-note` 96.00 → **97.60 %**. **Every survivor
+          left is on the equivalence list written before the run.** Recorded in RESULTS.md § v4.6.0.
     - [x] **Equivalents, established by hand and NOT to be chased** _(each mutant applied, run, and
           reverted)_: `readFileSync(0, "")` in both CLIs (returns a Buffer, `JSON.parse` coerces it —
           already recorded at v4.5.0 for the guard hook); the slug's `^-+|-+$` quantifiers (the
@@ -767,13 +777,23 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         `maintainers/plans/prospective/release-v4.6.0-note.md`, §11 shape, no finding codes, and it
         carries the startup version segment left over from Step 12.0. Two placeholders on purpose: the
         title, and the mutation/CI blocks (filled from measurements, not from intent).
-  - [ ] **PR body** — same shape as `archived/release-v4.5.0-pr-body.md`.
+  - [x] **PR body written and PR OPEN** _(2026-08-03 · `1eb6c7b`)_ — **draft PR #55**,
+        `prospective/release-v4.6.0-pr-body.md`. Its title is a placeholder on purpose (the release
+        title is the owner's call, below) and must be rewritten before the merge.
   - [ ] **The title is the owner's call** — do not mint one alone (v4.5.0's was chosen by them). The
         series shape is *"The One Where …"*. Three candidates to put to them, none picked unilaterally:
         **The One Where It Stops Inventing People** · **The One Where It Asks Which One You Mean** ·
         **The One Where a Name Has to Be Earned**.
-  - [ ] **CI must speak before the tag** (§9): push, watch the full matrix, 7/7 green.
-  - [ ] **RESULTS.md § v4.6.0** — the per-file numbers, the two findings, and the equivalents above.
+  - [ ] **CI must speak before the tag** (§9): the full matrix is running on **PR #55** (7 checks:
+        Node 22/24/26 × macOS + Windows, plus the Windows installer e2e). Every commit of this branch
+        was pushed as it was made, so the tripwire has been green throughout — the 67-commit silence
+        that preceded v4.5.0's blocker cannot repeat here.
+  - [x] **RESULTS.md § v4.6.0 written** _(2026-08-03 · `5b57c7e`)_ — per-file numbers, the finding,
+        and every equivalent with the reason it is one.
+  - [ ] **Left for the owner, deliberately not done alone**: the **title** (three candidates above),
+        and whether to run `/code-review ultra` on PR #55 before the merge — it is theirs to trigger,
+        not mine. Then: undraft, merge, tag `v4.6.0`, publish the note, archive this plan's release
+        artefacts next to v4.5.0's.
 
 ## The one pattern behind most of it (the reframe)
 
