@@ -442,22 +442,62 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > 🟡 derived or probable / 🔴 negative-or-behavioural-unverified, with *"safe to paste into a message to
 > another human"* as the threshold that matters. v4.6.0's confidence block marks a **people note born
 > from a probable resolution**; it must speak that same three-marker language (decided at F18, §4.5).
+>
+> **⏭️ RESUME HERE: Step 12.1, F7.** Step 12.0 (the owner's version-at-startup request) is code-complete
+> and pushed on `release/v4.6.0`; what it still owes belongs to the release step, not to now. Nothing
+> else is in flight, no decision is pending, and the branch is green (1236 pass, 1 skipped Windows-only).
 
-- [ ] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START.** _(asked by the owner, 2026-08-03:
-      « j'aimerai que tu rajoutes la version de Kenjaku au démarrage … à la prochaine release »)_ Small,
-      independent of the identity work, so it goes first and cannot be squeezed out by it.
-  - [ ] **Do NOT invent a version, and do not mint a second helper.** `scripts/lib/engine-version.mjs`
+- [x] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START. ✅ CODE-COMPLETE** _(2026-08-03 ·
+      `22de9a2` → `807b9aa`, suite green 1236 pass / 1 skipped Windows-only)_. _(asked by the owner,
+      2026-08-03: « j'aimerai que tu rajoutes la version de Kenjaku au démarrage … à la prochaine
+      release »)_ Small, independent of the identity work, so it went first.
+  - [x] **The label, chosen by the owner: `⚙️ Kenjaku engine v4.5.0`.** Asked because it is a real
+        product decision, not a detail: the engine had **never** said the word "Kenjaku" to a generated
+        brain (zero occurrences in both constitutions, every script and every skill — measured, not
+        assumed), so this is the product's name entering the brain's own surface for the first time.
+        The 🧠 of the mock-up became ⚙️ because 🧠 is already the RAG line's marker, and two identical
+        markers in one banner is this trilogy's own defect shape.
+  - [x] **Do NOT invent a version, and do not mint a second helper.** `scripts/lib/engine-version.mjs`
         already turns the brain's `engine-manifest.json` into the user-facing label (ADR 0017): the git
         **tag** the brain was installed/updated from (`source.ref`), falling back to `engineVersion.rag`,
         and **null** when nothing is usable → then no segment at all, rather than a made-up number.
-  - [ ] **Why it is invisible today, and this is the actual finding**: that label's only surface was the
+  - [x] **Two labels now share ONE resolution** (`installRef`), and their difference is the point: the
+        status-line label says *"engine"*, which claims nothing about which product, so it may keep its
+        fallback to `engineVersion.rag`; the startup segment says *"Kenjaku engine"*, so it may only ever
+        show a real install ref. **`rag` 1.3.0 has never been a Kenjaku release number** — an owner
+        reading "Kenjaku engine 1.3.0" would report a version that does not exist. **No ref → no
+        segment**, and naming that state out loud stays F3's job in v4.7.0.
+  - [x] **Why it was invisible, and this is the actual finding**: that label's only surface was the
         **statusLine**, and ADR 0036 had the engine *retreat* from the statusLine (it was clobbering the
-        owner's own). `scripts/status-line.mjs` still computes it; nothing renders it. So the version did
+        owner's own). `scripts/status-line.mjs` still computes it; nothing rendered it. So the version did
         not "never exist" — it **stopped being shown** and nobody noticed. Say it that way in the note.
-  - [ ] **Both channels or it is half-shipped**: `systemMessage` (CLI terminal only) **and**
+  - [x] **Both channels, or it is half-shipped**: `systemMessage` (CLI terminal only) **and**
         `hookSpecificOutput.additionalContext` (the ONLY channel the Code tab of Claude Desktop renders,
         via the agent's chat relay — ADR 0036's channel matrix). Shipping the CLI half alone would
-        reproduce this release's own reframe: "shown" and "not shown" rendered identically to us.
+        reproduce this release's own reframe: "shown" and "not shown" rendered identically to us. Both
+        ride a pure seam, `scripts/lib/status-hook-output.mjs`, because `session-status.mjs` is one of
+        the top-level scripts no test can import (named debt).
+  - [x] **Found by field-checking it, and NOT cosmetic: a pending restart outranks the version**
+        _(`807b9aa`)_. The new segment had taken the lead from the `⚠️ RESTART Claude` nudge, which holds
+        it for a written reason — until the owner restarts, nothing they read comes from the engine they
+        now have. And that is exactly when the claim is false: `update-engine` rewrites `source.ref` to
+        the **new** tag while the **old** code is still answering (`update-engine.mjs:312`). On the CLI
+        the restart line above it qualifies the version; on Desktop it would not, since the restart nudge
+        does not ride `additionalContext`. So a pending restart demotes the segment **and drops its chat
+        relay entirely**.
+  - [x] **Field-verified on a THROWAWAY CLONE, never on this repo** — both channels carry
+        `⚙️ Kenjaku engine v4.5.0`, and the launcher itself (no `source`) stays silent, which is the
+        intended silence. ⚠️ **The lesson not to re-learn**: running `session-status.mjs` by hand here
+        first fired its own SessionStart side effects (sweep + auto-commit of the working tree, an
+        `auto: session-start sweep` commit swallowing the wiring edit — reset, nothing lost, nothing
+        pushed). The memory `never-smoke-run-sessionstart-hooks` says exactly this. **Smoke-run a
+        SessionStart hook in a clone, never in the repo you are working in.**
+  - [x] **Delivery checked, not assumed**: `scripts/lib/**` and `scripts/session-status.mjs` are both in
+        the manifest's `replace` regime, so the seam and the wiring reach the fleet on the next
+        `/update-engine`; `engine-manifest.json` is in **no** regime and is rewritten by `update-engine`
+        itself, so the displayed version follows updates instead of freezing at install day.
+  - [ ] **Left for the release step**: the note + §10 re-read (the version is a user-visible surface), and
+        deciding whether `SETUP.md` should say where the version is read from.
   - [ ] Sibling to watch, **not** to merge: **F3** (v4.7.0) separates *"no engine update available"* from
         *"the target version is simply unknown"*. That one is about the **target**; this one is about the
         **installed** version. They must share one vocabulary — settle the wording here, since this ships
