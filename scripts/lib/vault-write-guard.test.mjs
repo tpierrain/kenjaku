@@ -4,7 +4,14 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { frontmatterVerdict, engineParser, duplicateKeyDetail, guardDecision } from "./vault-write-guard.mjs";
+import {
+  duplicateKeyDetail,
+  editedNote,
+  engineParser,
+  engineRequireAnchor,
+  frontmatterVerdict,
+  guardDecision,
+} from "./vault-write-guard.mjs";
 import { duplicateFrontmatterKeys } from "./note-refresh.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -119,11 +126,24 @@ test("guardDecision — a Write that would create an unindexable vault note is r
   const decision = decide("Write", { file_path: `${BRAIN}/vault/inqom/briefings/2026-08-02.md`, content: BROKEN });
 
   assert.equal(decision.allow, false);
-  assert.match(decision.reason, /vault\/inqom\/briefings\/2026-08-02\.md/, "name the note, not just the fault");
+  // Everything WE author is asserted verbatim, around the parser's own message: the note's
+  // name, the consequence (the point of refusing rather than warning — the fix has to look
+  // obviously worth it), and the way out. A regex on the middle leaves the ends free to go.
+  assert.ok(
+    decision.reason.startsWith(
+      "vault/inqom/briefings/2026-08-02.md — the engine's own YAML parser refuses this note's frontmatter: ",
+    ),
+    decision.reason,
+  );
   assert.match(decision.reason, /bad indentation of a mapping entry/);
-  // The point of refusing rather than warning: state the consequence, so the fix is
-  // obviously worth it rather than an obstacle to argue with.
-  assert.match(decision.reason, /never be indexed|invisible/i);
+  assert.ok(
+    decision.reason.endsWith(
+      "Written as is, the note would be committed like any other and never be indexed: " +
+        "invisible to every search, with nothing to recover it. " +
+        'Fix the frontmatter (quote any value containing ": ") and write again.',
+    ),
+    decision.reason,
+  );
 });
 
 // Everything that is NOT an indexed note is the owner's to write freely. A guard that
@@ -203,5 +223,127 @@ test("CI cashes the deferral in: this file is re-run after the engine's own deps
   assert.ok(
     engineInstall < rerun,
     "the re-run must come AFTER `npm ci`, or the parser is just as absent as in the harness step",
+  );
+});
+
+// ── The seams the mutation pass found unwatched ───────────────────────────────
+
+// F16, one level down: WHERE the parser is resolved from is the whole claim. Anchored on
+// the engine's own `package.json`, resolution starts in `rag/` and finds `rag/node_modules`
+// — the engine's gray-matter. Anchored one folder up, Node walks the parent chain and can
+// bind a DIFFERENT gray-matter (or none), which is precisely the lookalike this guard
+// exists to avoid. Nothing observable from outside distinguishes the two, so the anchor is
+// asserted directly.
+test("engineParser is anchored on the ENGINE's package.json, not on the brain folder", () => {
+  assert.equal(engineRequireAnchor("/brains/mind-palace"), join("/brains/mind-palace", "rag", "package.json"));
+});
+
+test("engineParser returns null — not undefined — when the engine's deps cannot be resolved", () => {
+  // `null` is the documented "we cannot judge" value the caller compares against; a
+  // `catch {}` that falls out returning undefined reads the same in a truthiness test
+  // and differently everywhere it matters.
+  assert.equal(engineParser({ brainDir: join(REPO_ROOT, "no-such-brain") }), null);
+});
+
+// Three separate reasons an Edit cannot be composed, each fed ALONE — through
+// guardDecision they all end in the same `{ allow: true }`, so nothing there can tell
+// which one fired, or notice when one stops firing.
+test("editedNote — a fragment with no anchor, or no replacement, composes nothing", () => {
+  const read = () => ["---", "type: person", "---", "", "# Someone", ""].join("\n");
+
+  assert.equal(editedNote({ toolInput: { file_path: "a.md", new_string: "x" }, readFile: read }), null, "no old_string");
+  assert.equal(editedNote({ toolInput: { file_path: "a.md", old_string: "type" }, readFile: read }), null, "no new_string");
+  assert.equal(editedNote({ toolInput: {}, readFile: read }), null, "neither");
+  assert.equal(editedNote({ readFile: read }), null, "no tool input at all");
+});
+
+test("editedNote — an anchor the file does not contain composes nothing, rather than the file unchanged", () => {
+  // The distinction that matters: returning the file UNCHANGED would hand a note the
+  // owner never touched to the parser, so a pre-existing defect would be blamed on this
+  // edit — and an edit that is about to fail on its own would be refused first.
+  const current = ["---", "type: person", "---", ""].join("\n");
+
+  assert.equal(
+    editedNote({ toolInput: { file_path: "a.md", old_string: "absent", new_string: "x" }, readFile: () => current }),
+    null,
+  );
+});
+
+test("editedNote — an unreadable file composes nothing", () => {
+  const boom = () => {
+    throw new Error("ENOENT");
+  };
+
+  assert.equal(editedNote({ toolInput: { file_path: "a.md", old_string: "a", new_string: "b" }, readFile: boom }), null);
+});
+
+test("editedNote — composes the whole file, once or everywhere as asked", () => {
+  const current = "x\nx\n";
+  const input = (replace_all) => ({ file_path: "a.md", old_string: "x", new_string: "y", replace_all });
+
+  assert.equal(editedNote({ toolInput: input(false), readFile: () => current }), "y\nx\n");
+  assert.equal(editedNote({ toolInput: input(true), readFile: () => current }), "y\ny\n");
+});
+
+// The frontmatter fence, on both ends. This scan reads the header of a file it is about
+// to refuse, so where it thinks the header STOPS decides whether an ordinary body — a
+// changelog listing `updated:` twice, say — gets reported as damage.
+test("duplicateKeyDetail — a body is not frontmatter: repeats below the closing fence are none of its business", () => {
+  const raw = ["---", "type: note", "---", "", "updated: a", "updated: b", ""].join("\n");
+
+  assert.equal(duplicateKeyDetail(raw), null);
+});
+
+test("duplicateKeyDetail — a file that opens with anything else has no frontmatter to scan", () => {
+  const raw = ["# A plain note", "updated: a", "updated: b", ""].join("\n");
+
+  assert.equal(duplicateKeyDetail(raw), null);
+});
+
+test("duplicateKeyDetail — a fence with trailing whitespace is still a fence, top and bottom", () => {
+  // What an editor leaves behind. Both fences are compared trimmed; drop either trim and
+  // this note reads as "no frontmatter" (top) or as one that never ends (bottom).
+  const open = ["--- ", "type: note", "updated: a", "updated: b", "---", ""].join("\n");
+  const close = ["---", "type: note", "--- ", "", "updated: a", "updated: b", ""].join("\n");
+
+  assert.deepEqual(duplicateKeyDetail(open), { key: "updated", first: 3, second: 4 });
+  assert.equal(duplicateKeyDetail(close), null);
+});
+
+test("duplicateKeyDetail — a blank line inside the frontmatter does not end it", () => {
+  // js-yaml accepts one, so the scan must too: stopping there would leave the duplicate
+  // below it unnamed, on a note the parser has already refused.
+  const raw = ["---", "type: note", "", "updated: a", "updated: b", "---", ""].join("\n");
+
+  assert.deepEqual(duplicateKeyDetail(raw), { key: "updated", first: 4, second: 5 });
+});
+
+test("duplicateKeyDetail — frontmatter nobody closed is scanned to the end, and stops there", () => {
+  // The unterminated case: the loop must stop at the last line rather than walk past it.
+  const raw = ["---", "type: note", "summary: no closing fence"].join("\n");
+
+  assert.equal(duplicateKeyDetail(raw), null);
+});
+
+// The two gates on "is this call ours at all", each defeated on its own. A tool that is
+// neither Write nor Edit can still carry an anchor and a replacement (Claude has more
+// than two file tools), and a call can arrive with no path at all.
+test("guardedNotePath — another tool's write is not ours, even shaped exactly like an Edit", () => {
+  const path = `${BRAIN}/vault/notes/a.md`;
+
+  assert.deepEqual(
+    decide("NotebookEdit", { file_path: path, old_string: "x", new_string: BROKEN }, { [path]: "x\n" }),
+    { allow: true },
+  );
+});
+
+test("guardDecision — a call with no path, or no tool input at all, is let through rather than crashing", () => {
+  // This runs in front of EVERY write the brain makes: a guard that throws its own stack
+  // at the owner once is a guard they disable.
+  assert.deepEqual(decide("Write", { content: BROKEN }), { allow: true }, "no file_path");
+  assert.deepEqual(
+    guardDecision({ toolName: "Write", brainDir: BRAIN, parse, readFile: () => "" }),
+    { allow: true },
+    "no toolInput at all",
   );
 });

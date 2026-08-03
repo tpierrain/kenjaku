@@ -23,9 +23,20 @@ import { join, relative, sep } from "node:path";
  * "we cannot judge" — and the caller must then let the write through: an
  * unverifiable note is not a broken one (unknown ≠ broken).
  */
+/**
+ * Where the engine's own dependencies are resolved FROM. Anchoring on the engine's
+ * `package.json` starts resolution inside `rag/`, so `rag/node_modules` wins; anchor it
+ * one folder up and Node walks the parent chain, where a different gray-matter — or
+ * none — may answer. That is the F16 fiction in miniature, and it is invisible from
+ * outside the module, so it is named here and asserted.
+ */
+export function engineRequireAnchor(brainDir) {
+  return join(brainDir, "rag", "package.json");
+}
+
 export function engineParser({ brainDir }) {
   try {
-    const require = createRequire(join(brainDir, "rag", "package.json"));
+    const require = createRequire(engineRequireAnchor(brainDir));
     const matter = require("gray-matter");
     const { load } = require("js-yaml");
     // The same composition as frontmatter-parser.ts: gray-matter 4.x defaults to
@@ -106,8 +117,12 @@ export function frontmatterVerdict({ raw, parse }) {
  * An Edit hands over a fragment, not a file, and judging the fragment would let the
  * exact gesture that damaged the field's note (appending a second `updated:`) walk
  * straight past this guard.
+ *
+ * Exported for its tests, like every other seam here: each of its three "we cannot
+ * compose this" reasons is a separate fail-open path, and reaching them through
+ * `guardDecision` alone cannot tell one from another.
  */
-function editedNote({ toolInput, readFile }) {
+export function editedNote({ toolInput, readFile }) {
   const { file_path: filePath, old_string: oldString, new_string: newString, replace_all: replaceAll } = toolInput ?? {};
   if (typeof oldString !== "string" || typeof newString !== "string") return null;
   let current;
