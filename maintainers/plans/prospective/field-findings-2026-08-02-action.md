@@ -796,6 +796,10 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [ ] **⏸️ WAITING ON THE OWNER'S `/code-review ultra 55`** _(they chose to run it, 2026-08-03)_.
         It is theirs to trigger — I cannot. **When its verdict lands: treat the findings first**, then
         the tail below. Nothing else is pending.
+    - [ ] **Checked at a resume, 2026-08-03**: `gh pr view 55` shows **no review and no comment** on the
+          PR, so the verdict has NOT landed yet; the owner confirmed they are launching it now. **On the
+          next resume, look at the PR again before asking anything** — and if it has landed, treat the
+          findings before touching the tail. The release itself is assembled and needs no re-doing.
   - [ ] **The tail, once the review is in** (in this order):
     - [ ] Write the chosen title into the note's H1 **and** the PR title (both still carry a
           `<TITLE …>` placeholder).
