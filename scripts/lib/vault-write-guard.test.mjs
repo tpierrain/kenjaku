@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -15,9 +16,22 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 // the indexer refuses. So the real parser, on the real field payload.
 const parse = engineParser({ brainDir: REPO_ROOT });
 
+// …which lives in `rag/node_modules`, and CI's harness step runs BEFORE `npm ci` — on
+// purpose: its stated invariant is "pure .mjs seams, no deps to install". These four
+// assertions broke that invariant silently, so they had NEVER run in CI, on any OS,
+// since the guard shipped; they passed on a developer machine only because
+// `rag/node_modules` happens to exist there.
+//
+// Faking the parser is the one thing forbidden here (F16), so they DEFER instead: they
+// skip when it cannot be resolved, and CI runs this same file again after the engine's
+// `npm ci`. That second run is pinned by the last test in this file — without it a skip
+// is just a silence that reads green, which is this release's whole subject.
+const NEEDS_ENGINE_PARSER =
+  parse === null ? { skip: "engine parser absent — CI re-runs this file after `npm ci` in rag/" } : {};
+
 // The field note (F11): an unquoted YAML value containing ": ". The indexer refused it,
 // the note stayed invisible to search for as long as it existed, and nothing said so.
-test("frontmatterVerdict — the bytes the indexer refuses are refused HERE, with its own cause", () => {
+test("frontmatterVerdict — the bytes the indexer refuses are refused HERE, with its own cause", NEEDS_ENGINE_PARSER, () => {
   const raw = ["---", "type: briefing", "summary: Réunion: bilan du trimestre", "---", "", "# Briefing", ""].join("\n");
 
   const verdict = frontmatterVerdict({ raw, parse });
@@ -29,7 +43,7 @@ test("frontmatterVerdict — the bytes the indexer refuses are refused HERE, wit
 // The false-positive side, which is what decides whether a guard is kept or resented.
 // A quoted value, an accented one, a list, and a note with NO frontmatter at all — all
 // of them index fine today, so all of them must pass untouched.
-test("frontmatterVerdict — everything the indexer accepts passes, including a note with no frontmatter", () => {
+test("frontmatterVerdict — everything the indexer accepts passes, including a note with no frontmatter", NEEDS_ENGINE_PARSER, () => {
   const accepted = [
     ["---", "type: briefing", 'summary: "Réunion: bilan du trimestre"', "tags:", "  - inqom", "---", "", "# Briefing", ""].join("\n"),
     "# Just a note\n\nNo frontmatter at all, and the indexer is fine with that.\n",
@@ -101,7 +115,7 @@ const decide = (toolName, toolInput, files = {}) =>
     },
   });
 
-test("guardDecision — a Write that would create an unindexable vault note is refused, and says why", () => {
+test("guardDecision — a Write that would create an unindexable vault note is refused, and says why", NEEDS_ENGINE_PARSER, () => {
   const decision = decide("Write", { file_path: `${BRAIN}/vault/inqom/briefings/2026-08-02.md`, content: BROKEN });
 
   assert.equal(decision.allow, false);
@@ -130,7 +144,7 @@ test("guardDecision — outside the vault, or not a note, it has no opinion", ()
 // An Edit hands over a fragment, not a file, so the resulting note has to be composed
 // before it can be judged — otherwise the one gesture that produced the field's damaged
 // note (appending a second `updated:`) walks straight past the guard.
-test("guardDecision — an Edit is judged on the note it WOULD produce", () => {
+test("guardDecision — an Edit is judged on the note it WOULD produce", NEEDS_ENGINE_PARSER, () => {
   const before = ["---", "type: person", "updated: 2026-07-01", "---", "", "# Someone", ""].join("\n");
   const path = `${BRAIN}/vault/inqom/people/someone.md`;
 
@@ -170,5 +184,24 @@ test("guardDecision — what it cannot judge, it lets through", () => {
     }),
     { allow: true },
     "no engine parser (a clone nobody rehydrated yet)",
+  );
+});
+
+// ── The net under the skip above ─────────────────────────────────────────────
+// Four assertions that skip when the engine's parser is absent are worth exactly what
+// CI does about it. Nothing did, for 67 commits: they were green on a developer machine
+// and had never run in CI at all. So the second run is pinned here — a skip is a
+// deferral only as long as something actually cashes it in.
+test("CI cashes the deferral in: this file is re-run after the engine's own deps are installed", () => {
+  const ci = readFileSync(join(REPO_ROOT, ".github", "workflows", "ci.yml"), "utf8");
+
+  const engineInstall = ci.indexOf("run: npm ci");
+  const rerun = ci.indexOf('node --test "scripts/lib/vault-write-guard.test.mjs"');
+
+  assert.notEqual(rerun, -1, "ci.yml must re-run this file with the engine's parser resolvable");
+  assert.notEqual(engineInstall, -1, "ci.yml must still install the engine");
+  assert.ok(
+    engineInstall < rerun,
+    "the re-run must come AFTER `npm ci`, or the parser is just as absent as in the harness step",
   );
 });
