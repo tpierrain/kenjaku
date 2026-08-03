@@ -80,12 +80,13 @@
 > both are in its own entry. Cost accepted: v4.5.0 goes from five findings to six, one of them
 > structural, so it lands later than it would have.
 >
+> **✅ Step 8bis done — F18 IS COMPLETE** _(2026-08-03 · `2b19eee`)_. The claim discipline ships on
+> the four surfaces that assert things about colleagues (`sync-sources` and `prepare-1-1`, EN **and**
+> FR, plus both constitutions), locked by 42 guard assertions in
+> `scripts/lib/claim-discipline.test.mjs`. Its P1 entry carries what the red run taught and the two
+> near-misses; do not re-derive them. Suites green (1146 scripts + 1 skipped Windows-only, 480 rag).
+>
 > **Resume here — v4.5.0, in this order.**
-> 8bis. **F18 — the claim discipline** _(decided 2026-08-03, ordered FIRST: it is prose-only, it blocks
->    nothing, and its exposure is live — every briefing and every 1-1 prep can produce an accusation
->    about a named colleague until it ships)_. See its P1 entry for the six pieces and for the reach
->    fact that decides the carrier (`sync-sources` / `prepare-1-1` reach a deployed brain,
->    `CLAUDE.engine.md` reaches new installs only).
 > 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
 >    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
 >    editor. Added to v4.5.0's scope, see its P0 entry — it repairs three surfaces that disagree
@@ -389,30 +390,31 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         a note does not stop it**, so it will fire at every briefing / 1-1 prep until F7 ships. It also
         travels **downstream of `sync-sources`**: `prepare-1-1` consumes that fan-out, so the control
         `search_vault` has to sit where the facts are produced, not in each consumer.
-- [ ] **F18 — the brain reports SILENCE it never verified, and that is its most dangerous output.**
+- [x] **F18 — the brain reports SILENCE it never verified, and that is its most dangerous output.**
+      ✅ **DONE** _(2026-08-03 · `2b19eee`)_ — all six pieces, four surfaces, 42 guard assertions.
       New evidence, **2026-08-03**: a written postmortem produced by the owner's own brain after
       **two consecutive failing sessions** on `mind-palace` — a returning-from-leave briefing
       (2026-08-02) and a targeted four-theme scan (2026-08-03). Source (pointer, not copied):
       `~/mind-palace/vault/topics/second-brain-retrieval-reliability.md`.
-  - [ ] **Not hallucination.** Every fact was really retrieved. All seven defects sit in the step
+  - [x] **Not hallucination.** Every fact was really retrieved. All seven defects sit in the step
         between *retrieval* and *assertion*. More retrieval, a bigger window and "be more careful"
         are explicitly **not** the fix — the last one is what failed twice in two days.
-  - [ ] Field evidence, the class that costs a relationship: *"no reply since Thursday"* on a thread
+  - [x] Field evidence, the class that costs a relationship: *"no reply since Thursday"* on a thread
         that had **12 replies the same day** (bug filed, analysis posted); *"nobody has decided"* on a
         customer reopening **decided and scheduled the next day**, owner + backup named; *"waiting for
         an arbitration since 22/07"* while the product lead had **answered field by field the day
         after**. The owner was one click from posting the first two to his EM channel.
-  - [ ] **The aggravating one**: for the third, the refutation was **inside the same tool response**
+  - [x] **The aggravating one**: for the third, the refutation was **inside the same tool response**
         (a later message from the author opening *"thanks for your very complete answer"*). The brain
         held the contradiction and asserted the opposite.
-  - [ ] Root causes, ranked: (1) **absence of evidence read as evidence of absence** — a search index
+  - [x] Root causes, ranked: (1) **absence of evidence read as evidence of absence** — a search index
         is relevance-ranked, never state-complete, so "no result" is a property of the query, not of
         the world; (2) **thread-blindness** — the unit of meaning is the thread, the unit every tool
         returns is the message; (3) **result set mined, not reconciled**; (4) **urgency inferred from
         tone, not from state**; (5) **the brain's own prior output inherited as fact**; (6) **no
         distinction between observation and inference** in the rendering; (7) **verification effort
         not proportional to the cost of being wrong**.
-  - [ ] **Why it belongs in P1, next to F7.** Same producer (`sync-sources` and its consumers), same
+  - [x] **Why it belongs in P1, next to F7.** Same producer (`sync-sources` and its consumers), same
         self-poisoning loop: a caveat written yesterday becomes a premise today, gets indexed, and is
         cited by the next session. *"A generic agent's mistake dies with the context window; a second
         brain's mistake gets a permalink."* And the owner **cannot check the work** — he delegated
@@ -440,34 +442,34 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         split below was proposed and **declined** — the owner took the whole thing rather than the
         cheap half. So the two groupings below are now **build order inside v4.5.0**, not two
         releases. Do not re-open. Cost accepted: v4.5.0 was five findings, it is six, one structural.
-    - [ ] **First — the two prose rules** that kill the highest-damage class at zero structural cost,
+    - [x] **First — the two prose rules** that kill the highest-damage class at zero structural cost,
           in `sync-sources` (+ `prepare-1-1`) **and** both constitutions.
-      - [ ] **Negative claims** (CR §4.1 / §4.4): default phrasing flips from *"there is no X"* to
+      - [x] **Negative claims** (CR §4.1 / §4.4): default phrasing flips from *"there is no X"* to
             *"I did not find X"*; any *"no reply / nobody decided / not started / X has not done Y"*
             must **name the check that established it, or be reworded as an open question**; before
             writing, one reconciliation pass — *does anything in my own retrieved output contradict
             what I am about to assert?*
-      - [ ] **Threads** (CR §4.2): a chat message cited as **current state** must have its thread
+      - [x] **Threads** (CR §4.2): a chat message cited as **current state** must have its thread
             resolved where the source exposes one; `replies > 0` is a **hard block** on any
             "unanswered / unresolved / pending" wording.
-      - [ ] Why these two go first: the exposure is **live and continuous** — every briefing and
+      - [x] Why these two go first: the exposure is **live and continuous** — every briefing and
             every 1-1 prep can produce an accusation about a named colleague until it ships — and the
             fix is prose in a file already propagated and already untouched on the affected brain.
-    - [ ] **Then the structural half, same release:**
-      - [ ] **CR §4.5 — mark confidence in the artifact.** Generalise Session A's identity table to
+    - [x] **Then the structural half, same release:**
+      - [x] **CR §4.5 — mark confidence in the artifact.** Generalise Session A's identity table to
             every behavioural or negative claim, and mark specifically **what is safe to paste into a
             message to another human** (the real danger threshold, not the same as "probably true").
             **Sibling, not duplicate, of v4.6.0's "reliability/confidence block"**: this one marks a
             *produced artifact* (a briefing, a 1-1 prep), that one marks a *people note born from a
             probable resolution*. They must share one vocabulary — settle it here, since this ships
             first, and have v4.6.0 reuse it rather than invent a second scale.
-      - [ ] **CR §4.6 (prior notes are sources, not facts)**: a prior briefing's caveated items must
+      - [x] **CR §4.6 (prior notes are sources, not facts)**: a prior briefing's caveated items must
             be **re-verified before propagation**; make caveats **machine-visible** (a field, not
             prose) so the next session can find them instead of absorbing them.
-      - [ ] **CR §4.3 (route to the connector that exposes state)**: discovery may use the cheap wide
+      - [x] **CR §4.3 (route to the connector that exposes state)**: discovery may use the cheap wide
             connector, but **anything cited must be re-resolved** through the one returning reply
             counts and permalinks. Its concrete instance is its own small finding, below.
-  - [ ] **A recorded capability-absence must expire (CR §4.3, worth generalising).** The vault had
+  - [x] **A recorded capability-absence must expire (CR §4.3, worth generalising).** The vault had
         written down, as a permanent limitation, that *"the Slack connector does not expose
         permalinks"*, and had propagated that caveat into several notes. **It was false** — a wrong
         tool choice, not a platform constraint; the native connector returned permalinks on the first
