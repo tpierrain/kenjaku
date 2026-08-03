@@ -122,7 +122,7 @@ A daily note, once written, is **never edited retroactively** — you add a new 
 
 ### Opening / viewing / editing a note → Obsidian for my vault, my default editor for the rest
 
-When I ask to **open, view, browse or edit** a note (as opposed to just getting an answer in chat), open the **real file** rather than pasting the raw text — these are the very `.md` files the brain reads and writes, so I can edit them in place and the change is picked up. **A note that belongs to my vault and any other Markdown file on my machine are two different things** (ADR 0038):
+When I ask to **open, view, browse or edit** a note (as opposed to just getting an answer in chat), open the **real file** rather than pasting the raw text — these are the very `.md` files the brain reads and writes, so I can edit them in place and the change is picked up. **A note that belongs to my vault and any other Markdown file on my machine are two different things** (ADR 0027):
 
 - **A note of MY VAULT, when Obsidian holds this vault** → open it **in Obsidian**, by handing the OS opener Obsidian's URL scheme with the note's absolute path **url-encoded** (`/` → `%2F`), quoted:
   - macOS: `open "obsidian://open?path=<url-encoded-abs-path>"`

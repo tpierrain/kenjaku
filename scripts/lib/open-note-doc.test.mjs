@@ -84,7 +84,7 @@ for (const [file, heading] of CONSTITUTIONS) {
     assert.ok(
       section.includes(uriPrefix),
       `${file}'s opening section must name \`${uriPrefix}…\` for a note that belongs to the vault — ` +
-        "it is the ONLY mechanism that actually opens the requested note (ADR 0038)",
+        "it is the ONLY mechanism that actually opens the requested note (ADR 0027)",
     );
   });
 }

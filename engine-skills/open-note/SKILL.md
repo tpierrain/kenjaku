@@ -19,7 +19,7 @@ One promise only: **"open X for me" never falls into the void.**
 
 The judgment (which doc, whether to create one, where to file it) stays in the skill; the
 **opening itself is deterministic and is NOT this skill's rule to invent** — it belongs to the
-constitution's §"Opening / viewing / editing a note" (ADR 0038), which this skill obeys as-is.
+constitution's §"Opening / viewing / editing a note" (ADR 0027), which this skill obeys as-is.
 
 ## Procedure
 

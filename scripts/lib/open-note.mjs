@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// open-note.mjs — THE one rule for opening a single note (ADR 0038), pure.
+// open-note.mjs — THE one rule for opening a single note (ADR 0027), pure.
 //
 // Two acts the product used to render identically: opening a note that BELONGS to
 // the vault, and opening any Markdown file on the machine. A vault note goes to

@@ -36,7 +36,7 @@ function escapeAngleDestination(url: string): string {
  * The number matches the citation heading so "open citation 2" is unambiguous
  * (ADR 0027).
  *
- * WHERE that open lands stopped being one answer (ADR 0038): every cited note is
+ * WHERE that open lands stopped being one answer (ADR 0027): every cited note is
  * by definition a VAULT note, so it goes to Obsidian — through
  * `obsidian://open?path=` — when Obsidian holds this vault, and to the OS default
  * editor otherwise. The affordance names both, because naming only one mispredicts

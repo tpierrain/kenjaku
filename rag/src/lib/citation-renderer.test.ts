@@ -199,7 +199,7 @@ test("each citation carries an 'ask me to open citation N' affordance, numbered 
   // Claude Desktop only routes http(s), so a 🧠 file:// click can be dropped there
   // too. The block must therefore say, in plain text, how to actually open the note:
   // the user asks Claude, which opens it through the allowlisted opener.
-  // WHERE it lands is no longer one answer (ADR 0038): every cited note is BY
+  // WHERE it lands is no longer one answer (ADR 0027): every cited note is BY
   // DEFINITION a vault note, so it goes to Obsidian when Obsidian holds this vault,
   // and to the OS default Markdown editor otherwise. The affordance must name BOTH,
   // or it mispredicts the app for whichever half of the users it left out.
