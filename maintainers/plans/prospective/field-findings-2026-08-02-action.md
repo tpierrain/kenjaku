@@ -95,12 +95,14 @@
 > `file://` link does not). Then `scripts/lib/open-note.mjs` was built TDD and **committed green**
 > _(`618ba54`)_.
 >
-> **⏸️ NEXT REAL STEP: ASK THE OWNER WHAT OBSIDIAN DID.** The field check the plan itself demanded has
-> been **fired** on his own `mind-palace` (a registered vault), with the URI built by the function —
-> but the outcome is visible **only on his screen**. Everything downstream (the three doc surfaces,
-> `SETUP.md:250`, ADR 0038, the citation-renderer wording) waits on that one answer, because a failure
-> would change `buildOpenNoteCommand`'s **signature**, not merely its docs. Details and the fallback
-> to try: F17's entry. _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **⏸️ NEXT REAL STEP: ONE CHOICE, THE OWNER'S.** The field check is **done** and it half-succeeded:
+> `obsidian://open?path=` **does** resolve the right vault and the right note from an absolute path
+> (so the signature stands, no `?vault=&file=` fallback needed) — but Obsidian gates every external
+> link behind a **trust dialog**, dismissable for good only by ticking *"Ne plus demander"* once. So
+> the choice is: **URI everywhere + document that one-time tick**, or **`open -a "Obsidian"` on macOS
+> and the URI elsewhere** (dialog-free where it matters most, at the price of a rule that differs by
+> platform). Nothing downstream — the three doc surfaces, `SETUP.md:250`, ADR 0038, the
+> citation-renderer wording — should be written before that call. Full evidence in F17's entry. _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
@@ -409,17 +411,27 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           emitting `obsidian://` in the markup would buy a dead click). What changes is solely the
           command Claude runs when asked to open. State that split in 0038, or the next reader will
           take it for a plain contradiction of 0027.
-  - [ ] **⏸️ WAITING ON THE OWNER — the field check the plan demanded, fired 2026-08-03.** `mind-palace`
-        IS a registered Obsidian vault (`obsidian.json` lists `/Users/tpierrain/mind-palace/vault`), so
-        the URI was built **by the function itself** and spawned for real on
-        `vault/engine-health/health-check.md`:
-        `open "obsidian://open?path=%2FUsers%2Ftpierrain%2Fmind-palace%2Fvault%2Fengine-health%2Fhealth-check.md"`.
-        **Only the owner can see the outcome** (did Obsidian open ON that note, rather than on the
-        vault picker or the last-open note?). Until he confirms, `obsidian://open?path=` stays
-        unverified on a real machine and the doc surfaces must not be rewritten around it. **If it
-        FAILED**, the fallback to try is the vault-scoped form
-        `obsidian://open?vault=<name>&file=<vault-relative path, no .md>` — which would make
-        `buildOpenNoteCommand` need the vault name, so it changes the signature: do not paper over it.
+  - [x] **✅ FIELD-VERIFIED 2026-08-03 — the URI resolves, and it costs a confirmation dialog.** Run
+        for real on the owner's `mind-palace` (a registered vault), URI built by the function itself:
+        `open "obsidian://open?path=%2FUsers%2F…%2Fvault%2Fengine-health%2Fhealth-check.md"`.
+    - [x] **The resolution half works.** Obsidian named back, correctly, `path
+          /Users/tpierrain/mind-palace/vault/engine-health/health-check.md` **and** `file
+          /engine-health/health-check.md` — so it found the right vault AND the right note from an
+          absolute path alone. The vault-scoped fallback (`?vault=&file=`) is **not** needed, and
+          `buildOpenNoteCommand`'s signature stands.
+    - [ ] **But Obsidian gates every external link behind a trust dialog** (screenshot): *"Exécuter
+          l'action depuis un lien externe ? L'action « open » est sur le point d'être exécutée."*,
+          with **Annuler / Continuer** and a **"Ne plus demander pour « open »"** checkbox. So F17's
+          promise would land on a modal at **every** open until the owner ticks that box once. This is
+          a real cost the plan had not priced, and it is **specific to the `obsidian://` scheme**.
+    - [ ] **Being tested against it: `open -a "Obsidian" <path>`** — the form the current
+          `open-note` skill already hard-codes, which is not an external link and should raise no
+          dialog. It is **macOS-only**, so choosing it means the rule becomes platform-shaped: `open -a`
+          on darwin, the URI (+ its one-time tick) on win32/linux. Which is not a hack —
+          `osOpener` is already a per-platform table — but it does mean **Linux and Windows users get a
+          modal macOS users never see**, and the docs must say so honestly.
+    - [ ] **Owner's call, pending:** (a) URI everywhere + document the one-time tick, next to the
+          existing "Always allow" one-time step at install; or (b) the hybrid, dialog-free on macOS.
   - [ ] **Found while checking decision 1, small and executable** (not yet done):
         `rag/src/lib/citation-renderer.ts:77` prints *"I'll open it in your Markdown editor (Typora,
         Obsidian, …)"*. Every `search_vault` citation IS a vault note, so under F17 that sentence
