@@ -63,6 +63,11 @@ test("filedNotePath — an unknown type throws, naming the supported types", () 
     () => filedNotePath({ type: "recipe", title: "Whatever" }),
     /unknown type "recipe".*person.*topic.*decision.*meeting/is,
   );
+  // Whole, separators included: run together, "persontopicdecisionmeeting" is a
+  // list of four types the reader has to guess the boundaries of.
+  assert.throws(() => filedNotePath({ type: "recipe", title: "Whatever" }), {
+    message: 'unknown type "recipe": supported types are person, topic, decision, meeting',
+  });
 });
 
 test("filedNotePath — a dated type without a date throws (fail-loud)", () => {
@@ -370,6 +375,21 @@ test("renderFiledNote — a marker with no basis is refused: an unbacked marker 
       }),
     /confidence "observed" needs a basis/,
     "a level with nothing behind it must not be writable",
+  );
+  // And a basis made of spaces is nothing behind it too — it renders as
+  // "✅ observed · " , a marker whose justification is a blank the eye slides
+  // over, which is the very look the block exists to end.
+  assert.throws(
+    () =>
+      renderFiledNote({
+        type: "person",
+        title: "Jane Doe",
+        tags: ["acme"],
+        body: "…",
+        confidence: { level: "observed", basis: "   " },
+        today: "2026-08-03",
+      }),
+    /confidence "observed" needs a basis/,
   );
 });
 
