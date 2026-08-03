@@ -188,22 +188,34 @@
 
 ## Step 11 — the v4.5.0 release (IN PROGRESS)
 
-> **▶️ WHERE TO RESUME (updated 2026-08-03, after a full working session).** In order:
-> 1. **The mutation pass, batch 2d** — `rag-launcher.mjs`'s 11 survivors are measured and **not
->    treated**. See the batch-2d line below.
-> 2. **Re-measure 2b and 2c** (hardened but not re-mutated), then **batch 3** (the five top-level
->    scripts).
-> 3. **RESULTS.md** (a newest-first v4.5.0 section) — nothing is written there yet; today's numbers
->    live only in this plan and in `maintainers/mutation/reports/v450-*.log`.
-> 4. **The release note**, then the **PR body**. Neither is started.
+> **▶️ WHERE TO RESUME — CUTTING THE RELEASE (updated 2026-08-03 evening).** The owner asked for the
+> cut. In order, and only these:
+> 1. **Re-measure `rag-launcher.mjs`** (hardened in `4e660b1`, never re-mutated) — log
+>    `…/reports/v450-rag-launcher-recheck.log`.
+> 2. **Batch 3** — `rehydrate.mjs, session-self-heal.mjs, session-status.mjs, session-universe.mjs,
+>    scripts/vault-write-guard.mjs` (the top-level one, NOT `lib/`). Split in two runs, ≤ 10 min each.
+>    `session-status.mjs` will read **0 %**: named pre-existing debt, not a regression.
+> 3. **RESULTS.md** — a newest-first `## v4.5.0` section, modelled on the v4.4.0 one (per-file table,
+>    equivalents named, the entrypoint-guard debt stated). Today's numbers live only in this plan and
+>    in `maintainers/mutation/reports/v450-*.log` until then.
+> 4. **Pin the snapshot** in `release-v4.5.0-note.md` (its placeholder comment marks the spot).
+> 5. **Cut**: rewrite PR #54's title + body from `release-v4.5.0-pr-body.md`, `gh pr merge --merge`
+>    (a **merge commit**, like `a0ea5d8` for PR #53 — never a squash), tag `v4.5.0`,
+>    `gh release create v4.5.0 --notes-file` the release note **minus** the maintainer-only snapshot
+>    section, then **archive this plan**, refresh the memory pointer, and update `ROADMAP.md` (this
+>    plan's row + the Gate 3 ordering note).
 >
-> **Already done today and NOT to redo**: the version vector (`9fb5d1a`), the whole §10 marketing
-> re-read (`396f1e1`), and the mutation hardening of `verify-index`, `rag-status`, `health-probe`,
-> `universe-reminder`, `vault-write-guard`, `universe-profile`. Suite green at every commit
-> (1213 pass, 1 skipped Windows-only). **Nothing is pushed**: `origin/release/v4.5.0` is still at
-> `82f9c43`, so PR #54 shows none of it — and CI has therefore not seen today's work. **Push before
-> trusting the green** (§9: the tripwire only fires on a push, and that is exactly how Windows stayed
-> red for weeks).
+> **Already done and NOT to redo**: the version vector (`9fb5d1a`), the whole §10 marketing re-read
+> (`396f1e1`), the mutation hardening of `verify-index`, `rag-status`, `health-probe`,
+> `universe-reminder`, `vault-write-guard`, `universe-profile`, `rag-launcher`, the CONVENTIONS §9
+> push rule (`8029418`), the **release note** (`3bceec3`) and the **PR body**
+> (`maintainers/plans/prospective/release-v4.5.0-pr-body.md`). Everything is **pushed**, and the full
+> matrix is **7/7 green** on this branch (run `30829456561`). Suite: 1217 pass, 1 skipped
+> (Windows-only).
+>
+> ⚠️ **No finding codes in any artifact.** The owner asked explicitly (2026-08-03): "F1, F2, Fx" mean
+> nothing to anyone but us. They are filing labels for this plan only — the note, the PR body, the
+> release and RESULTS.md name the behaviour instead.
 
 **Title, chosen by the owner (2026-08-03): `v4.5.0 — The One Where Silence Stops Passing for Good News`.**
 It carries both halves of this plan's reframe — the failures that looked like waits (F11/F12, F14, F15)
@@ -324,19 +336,24 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           nothing" were the same call. The fake records now. Plus the refusal marker's bytes (sorted
           from the data, trailing newline, and what gets REBUILT from a damaged one), and the digest
           parser's hand-edited cases.
-    - [ ] **⚠️ Re-measure 2b and 2c** — the fixes are committed and green, but **neither file has been
-          re-mutated**, so their new scores are unknown. Do that before writing RESULTS.md. Candidate
-          **equivalents spotted while reading, to CONFIRM rather than assume**: in `vault-write-guard`,
-          `toolInput?.content` (unreachable with a null `toolInput` — `relPath` is already non-null by
-          then); in `universe-profile`, `parsed?.declined` (both paths end in `[]`), `other: []` (never
-          emitted), and the `$` / `\s+` mutants of the heading regex (neutralised by the `.trim()`).
-    - [ ] **Batch 2d MEASURED, NOT TREATED — `rag-launcher.mjs` 89.32 %, 11 survivors**
-          _(2026-08-03, log `…/v450-scripts-batch2d.log`)_. **This is the next mutation step.** The
-          survivors sit at `126:15` (×2), `141:28`, `146:23`, `147:32`, `151:30`, `152:32`, `152:41`,
-          `231:15` (×2), `232:7` — i.e. the **win32 install-script writer** and `applyRagLauncher`, which
-          is exactly the shape §10 of the TDD skill names (a platform-conditioned transformation that is
-          a no-op on the CI platform). Read the log for the exact mutants, then treat them the way 2a-2c
-          were treated.
+    - [x] **2b and 2c RE-MEASURED, and the candidate equivalents are CONFIRMED** _(2026-08-03, 6 min 59 s,
+          319 mutants, 7 survivors, log `…/v450-scripts-2bc-recheck.log`)_ —
+          **`vault-write-guard.mjs` 85.16 % → 98.45 %** (2 survivors) and
+          **`universe-profile.mjs` 87.89 % → 97.37 %** (5). Every one of the 7 is on the equivalence list
+          written before the run, which is what makes them equivalents rather than an excuse: in the guard,
+          `toolInput?.content` (a null `toolInput` cannot reach that line — `relPath` is already non-null)
+          and `typeof oldString !== "string"` → `false` (the twin term refuses the same input); in the
+          profile, `parsed?.declined` and `other: []` (both paths end in the same empty array, and `other`
+          is never emitted) plus the three heading-regex mutants the downstream `.trim()` neutralises.
+          **Do not chase them; record them as equivalents in RESULTS.md.**
+    - [x] **Batch 2d treated — `rag-launcher.mjs` 89.32 %, 11 survivors, hardened** _(2026-08-03 ·
+          `4e660b1`, log `…/v450-scripts-batch2d.log`)_. The survivors were the **win32 install-script
+          writer** and `applyRagLauncher`/`applyLocalMirrorLauncher` — §10 of the TDD skill exactly (a
+          platform-conditioned transformation that is a no-op on the CI platform, plus IO nothing fed).
+          `realInstallIo` is exported and pinned; `writeScript`/`removeScript` are exercised against a real
+          tmpdir (including remove-when-already-gone), and both `apply*` have their absence twin.
+    - [ ] **⚠️ Re-measure `rag-launcher.mjs`** — hardened but **not re-mutated**, so its new score is
+          unknown. ~110 mutants ≈ 5 min, well inside the cap. This is the next mutation command.
     - [ ] **Batch 3, not started** — `scripts/rehydrate.mjs, scripts/session-self-heal.mjs,
           scripts/session-status.mjs, scripts/session-universe.mjs, scripts/vault-write-guard.mjs`.
           Expect `session-status.mjs` at **0 %**: named, pre-existing debt (a top-level script no test can
