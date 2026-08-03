@@ -392,6 +392,21 @@ Node 22/24/26 × macOS + Windows). Use it as the source of truth.
   The expensive matrix stays gated to pull requests and `main`, so an ordinary push costs one short job.
   **Reflex + tripwire + arbiter**: the written reflex above, the tripwire on every push, the 7/7 matrix
   before merge.
+- **🛑 …which means the commits have to BE pushed. Push as you go — no asking, no batching** (added
+  2026-08-03, during v4.5.0). A tripwire wired to `push` fires exactly as often as we push, so a branch
+  that accumulates green local commits without pushing has **no net at all**, however carefully the
+  section above is followed. Two episodes now: v4.4.0 reached 52 commits before Windows spoke, and
+  `release/v4.5.0` reached **67** — after which the very next push found **14 failures that had been red
+  for weeks**. Both times the reflex was fine and the net simply never ran.
+  - **The rule: on a release/feature branch, every green commit is pushed** — as part of committing, not
+    as a separate decision, and without waiting to be asked. The cost is one ~40 s job; the thing it buys
+    is that "green" means something.
+  - **This overrides an assistant's default caution about pushing.** Claude's standing rule is to push
+    only when asked, which is right for `main` and wrong here: on a branch that already has (or will
+    have) its own PR, withholding the push is not prudence, it is disabling the net on purpose. Asking
+    every time produces the same outcome as never pushing, because the question is easy to not answer.
+  - **Scope, so this stays safe**: branches only, never a direct push to `main`; and pushing is not
+    merging — the 7/7 matrix before merge (above) is untouched.
 
 Full rationale: ADR [`0015`](decisions/0015-cross-platform-parity.md) (cross-platform parity).
 
