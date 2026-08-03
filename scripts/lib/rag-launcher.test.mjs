@@ -1,5 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import {
   buildShLauncher,
@@ -15,6 +18,7 @@ import {
   buildLocalMirrorShLauncher,
   buildLocalMirrorCmdLauncher,
   applyLocalMirrorLauncher,
+  realInstallIo,
 } from "./rag-launcher.mjs";
 
 // Reproduces installer.mjs's (gen) text substitution: .split().join() per key.
@@ -249,4 +253,57 @@ test("applyLocalMirrorLauncher: no local-mirror server → unchanged (no throw)"
   const base = { mcpServers: { "vault-rag": { command: "npx" } } };
   const out = applyLocalMirrorLauncher(structuredClone(base), "darwin");
   assert.equal(out.mcpServers["vault-rag"].command, "npx");
+});
+
+// ── the two launcher rewrites, fed what a real .mcp.json can actually be ──────
+
+test("applyRagLauncher and applyLocalMirrorLauncher leave a file that declares nothing alone", () => {
+  // Both run over a brain's .mcp.json before anyone has validated it: a file with no
+  // servers at all, or none read yet, is an ordinary state (local-mirror is opt-in, and
+  // a rehydrating brain has just written the file). Throwing here breaks the install.
+  for (const apply of [applyRagLauncher, applyLocalMirrorLauncher]) {
+    assert.equal(apply(undefined, "darwin"), undefined, "no file read at all");
+    assert.deepEqual(apply({}, "darwin"), {}, "a file with no mcpServers key");
+    assert.deepEqual(apply({ mcpServers: {} }, "darwin"), { mcpServers: {} }, "no servers declared");
+  }
+});
+
+test("applyRagLauncher touches nothing when vault-rag is not the server declared", () => {
+  // `if (!srv) return mcp` is the whole guard: without it, the rewrite would land on
+  // `undefined` — or, worse, invent a server this brain never declared.
+  const other = { mcpServers: { "local-mirror": { command: "node", args: ["x.js"], cwd: "/brain" } } };
+
+  assert.deepEqual(applyRagLauncher(structuredClone(other), "win32"), other);
+});
+
+// ── realInstallIo: the fs seam every test above injects around ────────────────
+// Every buildRagInstallInvocation test passes its own `io`, so the REAL one — the code
+// that runs on a Windows install — was observed by nothing.
+
+test("realInstallIo writes the win32 install script into rag/, and names it back", () => {
+  const ragDir = mkdtempSync(join(tmpdir(), "rag-install-io-"));
+  try {
+    const name = realInstallIo.writeScript(ragDir, "@echo off\r\nnpm install\r\n");
+
+    // The name is returned because the caller invokes it BY name, `.\`-qualified, with
+    // cwd=rag/ — so a blank or wrong one is a command Windows cannot run.
+    assert.equal(name, "sbg-rag-install.cmd");
+    assert.equal(readFileSync(join(ragDir, name), "utf8"), "@echo off\r\nnpm install\r\n");
+
+    realInstallIo.removeScript(ragDir, name);
+    assert.equal(existsSync(join(ragDir, name)), false, "the transient script does not survive the install");
+  } finally {
+    rmSync(ragDir, { recursive: true, force: true });
+  }
+});
+
+test("realInstallIo.removeScript is silent about a script that is already gone", () => {
+  // cleanup() runs on every path, including the ones where the install died before
+  // writing anything. A throw there would replace the real error with this one.
+  const ragDir = mkdtempSync(join(tmpdir(), "rag-install-io-"));
+  try {
+    realInstallIo.removeScript(ragDir, "never-written.cmd");
+  } finally {
+    rmSync(ragDir, { recursive: true, force: true });
+  }
 });

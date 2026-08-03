@@ -143,7 +143,7 @@ const WIN_INSTALL_SCRIPT = "sbg-rag-install.cmd";
 // Default fs seam for buildRagInstallInvocation: writes the win32 install script
 // into rag/ and returns its (relative) base name; removeScript deletes it.
 // Injected in tests so the seam stays pure (no implicit I/O).
-const realInstallIo = {
+export const realInstallIo = {
   writeScript(ragDir, content) {
     writeFileSync(join(ragDir, WIN_INSTALL_SCRIPT), content);
     return WIN_INSTALL_SCRIPT;
