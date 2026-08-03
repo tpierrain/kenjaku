@@ -86,14 +86,21 @@
 > `scripts/lib/claim-discipline.test.mjs`. Its P1 entry carries what the red run taught and the two
 > near-misses; do not re-derive them. Suites green (1146 scripts + 1 skipped Windows-only, 480 rag).
 >
-> **⏭️ IN PROGRESS: F17.** No code yet — no `buildOpenNoteCommand`, no ADR 0038, no doc change. But
-> its four decisions have now been **challenged against the code** _(2026-08-03)_ and the outcome is
-> recorded in its P0 entry: two hold as-is, decision 2 is refined (the `obsidian://` URI is handed
-> *to* the OS opener, so it stays inside the existing allowlist), and two new calls are taken there —
-> **no entry script** (the reconciler never wires `permissions.allow`, so `node scripts/open-note.mjs`
-> would prompt at every open on a deployed brain) and **ADR 0038 owns a scoped reversal of 0027**
-> (the command changes, the rendered `file://` link does not). Do not re-derive any of that; start at
-> the TDD of `buildOpenNoteCommand`. _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **⏭️ IN PROGRESS: F17 — the rule is written, the docs are not.** Its four decisions were
+> **challenged against the code** _(2026-08-03)_ and the outcome is recorded in its P0 entry: two hold
+> as-is, decision 2 is refined (the `obsidian://` URI is handed *to* the OS opener, so it stays inside
+> the existing allowlist), and two new calls are taken there — **no entry script** (the reconciler
+> never wires `permissions.allow`, so `node scripts/open-note.mjs` would prompt at every open on a
+> deployed brain) and **ADR 0038 owns a scoped reversal of 0027** (the command changes, the rendered
+> `file://` link does not). Then `scripts/lib/open-note.mjs` was built TDD and **committed green**
+> _(`618ba54`)_.
+>
+> **⏸️ NEXT REAL STEP: ASK THE OWNER WHAT OBSIDIAN DID.** The field check the plan itself demanded has
+> been **fired** on his own `mind-palace` (a registered vault), with the URI built by the function —
+> but the outcome is visible **only on his screen**. Everything downstream (the three doc surfaces,
+> `SETUP.md:250`, ADR 0038, the citation-renderer wording) waits on that one answer, because a failure
+> would change `buildOpenNoteCommand`'s **signature**, not merely its docs. Details and the fallback
+> to try: F17's entry. _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
@@ -369,9 +376,13 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
     - [ ] **Mechanism must be cross-platform**, so it cannot be `open -a`. Obsidian's URL scheme
           (`obsidian://open?path=<url-encoded absolute path>`) is one call on all three OSes, and we
           only ever reach it when the vault IS registered. To verify on a real machine before shipping.
-    - [ ] **Deterministic, not prose.** A pure `buildOpenNoteCommand({ platform, absPath, insideVault,
+    - [x] **Deterministic, not prose.** A pure `buildOpenNoteCommand({ platform, absPath, insideVault,
           obsidianOk })` in `scripts/lib/`, TDD, next to `open-env.mjs` — the three doc surfaces then
-          describe one function instead of each inventing its own rule.
+          describe one function instead of each inventing its own rule. **DONE** _(2026-08-03 ·
+          `618ba54`)_ — `scripts/lib/open-note.mjs` + 6 tests, each term of `insideVault && obsidianOk`
+          triangulated alone (the mutant dropping `obsidianOk` was applied by hand and dies), unknown
+          platform → `null` (show the note inline rather than guess a command). Suite green: 1152 pass,
+          1 skipped Windows-only.
   - [ ] **Re-read of the code before coding, 2026-08-03 — four decisions checked, two refined:**
     - [x] Decisions 1, 3 and 4 hold as written; nothing found that contradicts them. The one caveat on
           the trigger: `obsidianHealth` matches the registered vault by **exact string equality**
@@ -398,6 +409,23 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           emitting `obsidian://` in the markup would buy a dead click). What changes is solely the
           command Claude runs when asked to open. State that split in 0038, or the next reader will
           take it for a plain contradiction of 0027.
+  - [ ] **⏸️ WAITING ON THE OWNER — the field check the plan demanded, fired 2026-08-03.** `mind-palace`
+        IS a registered Obsidian vault (`obsidian.json` lists `/Users/tpierrain/mind-palace/vault`), so
+        the URI was built **by the function itself** and spawned for real on
+        `vault/engine-health/health-check.md`:
+        `open "obsidian://open?path=%2FUsers%2Ftpierrain%2Fmind-palace%2Fvault%2Fengine-health%2Fhealth-check.md"`.
+        **Only the owner can see the outcome** (did Obsidian open ON that note, rather than on the
+        vault picker or the last-open note?). Until he confirms, `obsidian://open?path=` stays
+        unverified on a real machine and the doc surfaces must not be rewritten around it. **If it
+        FAILED**, the fallback to try is the vault-scoped form
+        `obsidian://open?vault=<name>&file=<vault-relative path, no .md>` — which would make
+        `buildOpenNoteCommand` need the vault name, so it changes the signature: do not paper over it.
+  - [ ] **Found while checking decision 1, small and executable** (not yet done):
+        `rag/src/lib/citation-renderer.ts:77` prints *"I'll open it in your Markdown editor (Typora,
+        Obsidian, …)"*. Every `search_vault` citation IS a vault note, so under F17 that sentence
+        describes the **minority** route once Obsidian holds the vault. Reword it in the renderer (it
+        needs no `obsidianOk`: "Obsidian if you've registered this vault, otherwise your default
+        Markdown editor"). Its own test at `citation-renderer.test.ts` pins the string.
   - [ ] Surfaces to change once the function exists: `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md`
         (the §"Opening / viewing / editing a note"), `engine-skills/open-note/SKILL.md` (stop hard-coding
         macOS Obsidian), `SETUP.md:250`, and an **ADR amending 0029** (its *"Obsidian is never the
