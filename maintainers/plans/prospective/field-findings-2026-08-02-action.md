@@ -86,6 +86,13 @@
 > `scripts/lib/claim-discipline.test.mjs`. Its P1 entry carries what the red run taught and the two
 > near-misses; do not re-derive them. Suites green (1146 scripts + 1 skipped Windows-only, 480 rag).
 >
+> **⏭️ NEXT STEP, NOT STARTED: F17.** Nothing of it is written yet — no
+> `buildOpenNoteCommand`, no ADR 0038, no doc change. Start from its P0 entry, which already carries
+> the three disagreeing surfaces and the four decisions taken while reading the code (challenge them
+> before coding, not after). _(Side work done 2026-08-03 and finished, unrelated to the release:
+> `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
+> convention extracted standalone to be shared outside this repo. Nothing pending there.)_
+>
 > **Resume here — v4.5.0, in this order.**
 > 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
 >    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
