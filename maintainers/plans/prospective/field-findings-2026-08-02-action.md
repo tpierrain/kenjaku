@@ -483,10 +483,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > green (1259 pass, 1 skipped Windows-only). One deliberate FR deviation: the heading uses a colon,
 > not an em dash, per the French typography rule.
 >
-> **The next bullet of Step 12.1** (red-first, same shape as above):
-> 1. **`prepare-1-1` must POINT at the producer's identity section** rather than paraphrase it, exactly
->    as the claim guard already forces for the claim discipline (`sync-sources/SKILL.md#` anchor test).
-> Then Step 12.2 (F6), 12.3 (homonymy), 12.4 (confidence block), 12.5 (release).
+> **✅ The consumer POINTS now, and that closed Step 12.1** _(2026-08-03)_ — `prepare-1-1` (EN + FR) got
+> its own `## Identity discipline` section that links the producer's **section** (not merely the file:
+> it has linked `../sync-sources/SKILL.md` for the fan-out since long before this, so a bare file link
+> would have gone green on prose that predates the fix). The two bullets it used to carry in its own
+> words are gone: *"the vault outranks the delta…"* and *"a bare first name stays a bare first name"*
+> were **true today and free to drift tomorrow**, which is the whole reason the control sits in the
+> producer. What stays is what only a 1-1 knows: every person in that file is one of the two people in
+> the room, so a wrong surname is said to their face. 26 assertions, suite green (1261 pass, 1 skipped
+> Windows-only).
+>
+> **⏭️ RESUME AT STEP 12.2 (F6)** — never create a `people/` note merely to satisfy an incoming link.
+> Nothing is half-written on disk; no decision is pending. Then 12.3 (homonymy), 12.4 (confidence
+> block), 12.5 (release).
 
 - [x] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START. ✅ CODE-COMPLETE** _(2026-08-03 ·
       `22de9a2` → `807b9aa`, suite green 1236 pass / 1 skipped Windows-only)_. _(asked by the owner,
@@ -543,11 +552,12 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         *"the target version is simply unknown"*. That one is about the **target**; this one is about the
         **installed** version. They must share one vocabulary — settle the wording here, since this ships
         first, exactly as F18's confidence scale was settled before v4.6.0 reuses it.
-- [ ] **Step 12.1 — F7: resolve against the vault BEFORE writing.** The first move, because the exposure
+- [x] **Step 12.1 — F7: resolve against the vault BEFORE writing. ✅ COMPLETE** _(2026-08-03 · `9790c90`
+      → `cbd8818` → `861ec64` → this commit)_. The first move, because the exposure
       is live: it fires at every briefing and every 1-1 prep until it ships, and correcting the note does
       not stop it (proven — it recurred the same evening on the other laptop, against a vault that
       carried the right answer).
-  - [ ] **The mechanism is IN THE SKILL, not in the model's imagination** _(read 2026-08-03,
+  - [x] **The mechanism is IN THE SKILL, not in the model's imagination** _(read 2026-08-03,
         `.claude/skills/sync-sources/SKILL.md:66-71`)_. Its "People registry" section says, in the same
         breath, **"never a first name alone — `[[people/jane]]` is forbidden"** *and* **"create the
         backlinks even if the target page doesn't exist"**. Handed *"Jérémy (front Candor)"*, a sub-agent
@@ -555,9 +565,9 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         (*"Jérémy Hinard"*). So this is not a fix bolted onto a neutral rule — it **repairs a rule the
         engine ships**, which is why the fix must land here and not brain-side (patching it in a brain
         freezes that brain, F5).
-  - [ ] A bare first name stays **plain text, no link** — never `[[people/…]]`, never a surname supplied
+  - [x] A bare first name stays **plain text, no link** — never `[[people/…]]`, never a surname supplied
         by the model. Losing a backlink is cheap; a fabricated identity is permanent and gets indexed.
-  - [ ] Before writing a person, **read the vault**: resolve each cited person against
+  - [x] Before writing a person, **read the vault**: resolve each cited person against
         `vault/*/people/` (universe subtrees included — the skill still says `vault/people/`, check that
         path against the universes layout) and the organisation notes. Resolution is already tier-3 in
         F18's table (*"and every identity resolution"*), so this is that tier's missing procedure, not a
@@ -567,7 +577,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         `people/hossam-laanait.md` said *"confirmé 04/06"*. ✅ _(2026-08-03)_ — shipped on **two**
         surfaces, the prose rule and the third reconcile pass of `Step 3 — Synthesis`, because the
         sub-agents never see the vault. See the header note for what that split turned up.
-  - [ ] The control sits in the **producer** (`sync-sources`), not in each consumer: `prepare-1-1` reuses
+  - [x] The control sits in the **producer** (`sync-sources`), not in each consumer: `prepare-1-1` reuses
         that fan-out, and two paraphrases are two disciplines (the rule F18 already locked by test).
   - [x] Guard: extend the `claim-discipline` family with an identity guard, EN + FR, skills + both
         constitutions. **Red first**, and check what the red run teaches — F18's first pass went green on

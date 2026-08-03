@@ -178,6 +178,32 @@ for (const { locale, path } of SKILLS.filter((s) => s.name === "sync-sources")) 
   });
 }
 
+// ── The consumer POINTS, it does not paraphrase ────────────────────────────
+// F7's own lesson applied to the skills themselves: the control belongs where
+// the facts are produced. `prepare-1-1` consumes the `sync-sources` fan-out, and
+// it was already carrying its own wording of the producer's rules ("the vault
+// outranks the delta…", "a bare first name stays a bare first name") — true
+// today, and free to drift tomorrow. Two paraphrases are two disciplines.
+//
+// Anchored at the SECTION, never merely at the file: prepare-1-1 has linked
+// `../sync-sources/SKILL.md` for the fan-out architecture since long before any
+// of this, so a bare file link would go green on prose that predates the fix.
+const IDENTITY_ANCHOR_EN = /sync-sources\/SKILL\.md#identity-discipline/;
+const IDENTITY_ANCHOR_FR = /sync-sources\/SKILL\.md#discipline-didentit/;
+
+for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
+  const heading = locale === "FR" ? HEADING_FR : HEADING_EN;
+  test(`${locale} prepare-1-1 defers to the producer's identity section instead of restating it`, () => {
+    const text = read(path);
+    assert.match(text, heading, "the consumer must name the discipline it obeys, under its own heading");
+    assert.match(
+      docSection(text, heading),
+      locale === "FR" ? IDENTITY_ANCHOR_FR : IDENTITY_ANCHOR_EN,
+      "the pointer must reach the producer's identity SECTION, so the two cannot drift into two rules",
+    );
+  });
+}
+
 // ── The same trap, in the OPERATIVE text: the sub-agent prompts ─────────────
 // The prose sections are read by a human maintainer; these bullets are handed to
 // the extraction sub-agents verbatim, and they still carried the pair that has no
