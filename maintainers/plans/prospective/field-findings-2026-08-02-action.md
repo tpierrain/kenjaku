@@ -104,11 +104,12 @@
 > an evolving decision back into its own ADR, and this is ADR 0027's topic, so 0027 was amended in
 > place and every reference repointed.
 >
-> **⏭️ NEXT STEP, NOT STARTED: F1, the universe banner.** Nothing of it is written. Its P3 entry
-> carries the closed sub-decision (short synthesis + `/switch` for the rest) and the one design knot to
-> resolve while coding: the digest serves the AGENT and the HUMAN through a single channel that the CLI
-> echoes verbatim, so "inject without showing" does not exist. After F1, only the v4.5.0 release step
-> remains. _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **⏭️ IN PROGRESS: F1, the universe banner — the design is now FULLY decided, no code yet.**
+> The two remaining choices were put to the owner and closed _(2026-08-03)_: the session-start block
+> carries **the identity line + a pointer to the profile note + "(ask `/switch` for the description)"**
+> and **nothing verbatim**, and it prints **strictly nothing on a single-universe brain**. Both, plus
+> the three consequences they force on the code, are in F1's P3 entry — read them there, do not
+> re-derive. After F1, only the v4.5.0 release step remains. _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
@@ -668,8 +669,29 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         "inject without showing". Either the human line is all we inject and the agent reads the
         profile note on demand (RAG / direct read), or the leak stays. This is the plan's reframe once
         more: *what the agent must know* and *what the owner must read* are not the same thing.
-  - [ ] Still open, and small: whether the single-universe case prints the universe **name** or
-        strictly nothing.
+  - [x] **✅ BOTH REMAINING CHOICES CLOSED BY THE OWNER (2026-08-03). Do not re-open.** The knot is
+        resolved the first way: **inject the human line, and let the agent fetch the rest.**
+    - [x] **What rides every session: the identity line + a pointer, and nothing else.** Name, kind,
+          role, period (all from the frontmatter the owner typed), then the profile note's path framed
+          as *read it when you reason about the people, the tools or the scope here*, then
+          *(ask `/switch` for the description)*. **Zero verbatim body**: no About, no People, no Topics,
+          no connector accounts. Rejected: adding content-free counters ("12 people, 4 topics") — it
+          buys the agent nothing it cannot see by opening the note.
+    - [x] **Single-universe brains print STRICTLY NOTHING.** The `[working context]` block goes behind
+          the same progressive-disclosure gate as the `[universe]` line. **Cost stated to the owner and
+          accepted:** `CLAUDE.engine.md` is in **no** regime (F18), so the constitution half reaches new
+          installs only — a deployed single-universe brain therefore stops receiving the ambient facts
+          and gains no pointer. It keeps the RAG (the note is indexed, `type: universe`).
+    - [ ] **Consequences to honour while coding** (derived from the two calls above, not re-decidable):
+      - [ ] The **full** digest stays exactly as it is for `set-universe-profile.mjs --digest`: that
+            one is **pulled** by the owner after a `/switch`, so verbatim is consented there. The
+            session-start block is a **different, narrower** rendering — two functions, one note.
+      - [ ] "Has a profile" must stop being "rendered a digest": `profileCaptureOffer` needs to know a
+            profile EXISTS on a single-universe brain (that is the backfill case) while nothing is
+            injected there. Presence and payload are two questions.
+      - [ ] The parenthetical must not become F17's defect (a promise the product does not keep):
+            check that `/switch` can actually **show the description on request**, and make it so if it
+            only refreshes the digest after a switch.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
