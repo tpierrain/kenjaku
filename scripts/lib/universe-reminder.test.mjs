@@ -75,6 +75,10 @@ test("profileCaptureOffer forbids the word 'universe' to a single-universe brain
   assert.match(alone, /never use the word `universe`/i);
   assert.doesNotMatch(many, /never use the word `universe`/i);
   assert.match(many, /universe/i);
+  // Called with no `multiverse` at all — the shape every caller below the gate uses.
+  // Without this, the default could flip to `true` and the suite would not notice: the
+  // test above stripping backticks reads a mutated offer as clean prose.
+  assert.equal(profileCaptureOffer({ hasProfile: false, declined: false }), alone);
 });
 
 test("profileCaptureOffer stays silent once a profile exists", () => {
@@ -125,8 +129,21 @@ test("buildUniverseHookOutput carries the capture offer, and it survives alongsi
     offer: "Your brain does not know your context yet.",
   });
 
-  assert.match(out.hookSpecificOutput.additionalContext, /does not know your context yet/);
-  assert.match(out.hookSpecificOutput.additionalContext, /Active universe: 'acme'/);
+  // Both channels asserted whole: the blank line between the two blocks is what keeps
+  // them from reading as one run-on directive, and a match for either fragment passes
+  // just as happily when the separator is gone.
+  assert.equal(
+    out.hookSpecificOutput.additionalContext,
+    "[universe] Active universe: 'acme' (of 2: default, acme). Searches are scoped to it " +
+      'plus their cross-cutting notes; "search all universes" spans them, /switch changes ' +
+      "it. Say so once, in their language.\n\n" +
+      "[onboarding] Your brain does not know your context yet.",
+  );
+  assert.equal(
+    out.systemMessage,
+    "Active universe: 'acme' (of 2: default, acme).\n" +
+      "Your brain does not know your context yet.",
+  );
 });
 
 test("buildUniverseHookOutput returns an envelope for a lone offer (no reminder, no digest)", () => {
