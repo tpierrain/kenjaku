@@ -201,8 +201,9 @@
 > 4. **Pin the snapshot** in `release-v4.5.0-note.md` (its placeholder comment marks the spot).
 > 5. **Cut**: rewrite PR #54's title + body from `release-v4.5.0-pr-body.md`, `gh pr merge --merge`
 >    (a **merge commit**, like `a0ea5d8` for PR #53 — never a squash), tag `v4.5.0`,
->    `gh release create v4.5.0 --notes-file` the release note **minus** the maintainer-only snapshot
->    section, then **archive this plan**, refresh the memory pointer, and update `ROADMAP.md` (this
+>    `gh release create v4.5.0 --notes-file` the release note **whole** — checked on the published
+>    v4.4.0 body: it ends with the mutation snapshot, so that section ships rather than being stripped —
+>    then **archive this plan**, refresh the memory pointer, and update `ROADMAP.md` (this
 >    plan's row + the Gate 3 ordering note).
 >
 > **Already done and NOT to redo**: the version vector (`9fb5d1a`), the whole §10 marketing re-read
@@ -233,7 +234,11 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           the real field payload and stays quiet on a healthy note, `readFile` returns the exact UTF-8
           string (asserted whole — a loose `/Réunion/` passes on the wrong encoding), `scan` hands back
           the engine scanner's shape. 17/17 killed.
-    - [x] **`health-check.ts` 90.00 % → 92.67 %** _(`cd66ac3`)_ — `outOfStep.length === 1` was never
+    - [x] **`health-check.ts`: the three singular-branch mutants are dead; the file reads 90.00 % at the
+          tip** _(`cd66ac3`; measured in `…/v450-rag-changed.log`, the confirmation run — an earlier line
+          here said 92.67 %, which no log supports, so **90.00 % is what RESULTS.md quotes**. Its 15
+          remaining survivors are `catch {}` / default-init shapes that predate this release.)_ —
+          `outOfStep.length === 1` was never
           exercised, so both ternaries could be dropped green: the owner would read *"1 notes … — e.g.
           `<the only note there is>`"*. One boundary test kills all three mutants.
     - [x] **Two survivors left in F15's code are recorded EQUIVALENTS, not gaps** — do not chase them:

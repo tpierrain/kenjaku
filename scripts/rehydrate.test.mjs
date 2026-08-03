@@ -48,7 +48,10 @@ function fakeDeps({ spawnStatus = 0, ...overrides } = {}) {
     writeFile: (path, content) => calls.writes.push({ path, content }),
     seedHealthNote: () => ({ present: true }),
     spawnSync: (command, args, opts) => {
-      calls.spawns.push({ command, args, cwd: opts?.cwd, shell: opts?.shell });
+      // The WHOLE options object, not a chosen field or two: `stdio: "inherit"` is
+      // what lets the owner watch an install that takes minutes, and picking fields
+      // out of `opts` is exactly how it would go missing unnoticed.
+      calls.spawns.push({ command, args, opts });
       return { status: spawnStatus };
     },
     log: (line) => calls.log.push(line),
@@ -131,6 +134,13 @@ test("a missing .mcp.json is rebuilt from the template that travelled in the clo
       },
     },
   });
+  // …and the bytes end with a newline. A JSON file without its final newline is
+  // still valid JSON — so the assertion above cannot see the difference, while git
+  // and every POSIX tool can.
+  assert.ok(
+    calls.writes[0].content.endsWith("}\n"),
+    `the rebuilt .mcp.json must end with a newline, got …${JSON.stringify(calls.writes[0].content.slice(-3))}`,
+  );
   assert.deepEqual(rebuilt(calls), ["✓ regenerated .mcp.json"]);
 });
 
@@ -193,8 +203,7 @@ test("missing rag dependencies are installed through the launcher's own PATH", (
     {
       command: "/fake/self-heal-sh",
       args: ["--fake-install"],
-      cwd: at("rag"),
-      shell: false,
+      opts: { cwd: at("rag"), stdio: "inherit", shell: false },
     },
   ]);
   // The win32 branch materialises a temp script inside rag/ — cleaned up pass or fail.
@@ -218,8 +227,7 @@ test("missing local-mirror dependencies are installed too", () => {
     {
       command: "npm",
       args: ["install", "--silent"],
-      cwd: at("local-mirror"),
-      shell: false,
+      opts: { cwd: at("local-mirror"), stdio: "inherit", shell: false },
     },
   ]);
   assert.deepEqual(calls.error, []);
@@ -266,8 +274,7 @@ test("on Windows the local-mirror install goes through the npm shim, in a shell"
     {
       command: "npm.cmd",
       args: ["install", "--silent"],
-      cwd: at("local-mirror"),
-      shell: true,
+      opts: { cwd: at("local-mirror"), stdio: "inherit", shell: true },
     },
   ]);
 });
@@ -336,11 +343,13 @@ test("realRehydrateDeps wires the real machine", () => {
 
 // A brain missing `.claude/settings.json` may be missing the folder around it too
 // (nothing else in there is guaranteed on a partial clone), so writing must create
-// the parent rather than throw.
-test("realRehydrateDeps writes through a missing parent folder, and reads it back", () => {
+// the parent rather than throw. TWO levels deep on purpose: with a single missing
+// folder, a non-recursive mkdir succeeds too, and "recursive: true" is then
+// indistinguishable from its own absence.
+test("realRehydrateDeps writes through missing parent folders, and reads it back", () => {
   const root = mkdtempSync(join(tmpdir(), "rehydrate-wiring-"));
   try {
-    const target = join(root, "nested", "settings.json");
+    const target = join(root, "nested", "deeper", "settings.json");
     assert.equal(realRehydrateDeps.exists(target), false);
 
     realRehydrateDeps.writeFile(target, '{"hooks":{}}\n');

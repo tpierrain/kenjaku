@@ -93,7 +93,7 @@ jobs:
       # Pinned from the suite itself (`vault-write-guard.test.mjs`, last test), so deleting
       # this step goes red instead of going quiet.
       - name: Vault write-guard tests (with the engine's own parser)
-        run: node --test "scripts/lib/vault-write-guard.test.mjs"
+        run: node --test "scripts/lib/vault-write-guard.test.mjs" "scripts/vault-write-guard.test.mjs"
 
       - name: Engine tests
         working-directory: rag
