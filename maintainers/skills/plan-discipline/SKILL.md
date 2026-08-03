@@ -60,11 +60,28 @@ Three things no checkbox records on its own, and all three die at a clear:
 ## One canonical plan
 
 The living plan is the file **in the repo**. Any snapshot the tooling keeps elsewhere is throwaway
-the moment a plan is promoted there — mark it superseded and never read it again. If durable memory
-exists, it holds a **pointer** to the plan file, never a copy of its state.
+the moment a plan is promoted there — mark it superseded and never read it again.
 
 > The trap behind this rule: two copies of one plan, zero ticked boxes versus thirteen. Both looked
 > authoritative; whichever is opened first wins.
+
+### Durable memory holds no state — ever
+
+**Never write the next step into memory.** "Next: X", "what remains", "blocked on Y", any summary of
+where the work stands: that is the plan's job, always. Writing it into memory *feels* like saving it
+and is the opposite — the plan is edited and committed as the work moves, so it stays true, while a
+memory line is written once and then outlives the step it describes, still read at every session
+start with full authority. **A stale memory line is a wrong instruction, not a missing one.**
+
+Only two kinds of entry are admissible, and neither is state:
+
+- a **pointer** — which plan file holds the state, and to go open it;
+- a **reference** — something recoverable nowhere else: a published URL, a durable preference, a
+  convention with its rationale.
+
+Everything else is already in the plan, the code or the history. Memory is reloaded in full at every
+session start and is size-bounded: each surplus line spends the budget the critical instructions
+need, and pushes them out silently.
 
 ## Scope note
 

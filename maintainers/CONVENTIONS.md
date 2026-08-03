@@ -84,6 +84,19 @@ not copies**:
 
 - **State of a chantier lives in the repo plan** (§3, the single source of truth) — checkboxes,
   commits, remains-to-do. The memory keeps **one thin pointer line**, never a copy of that state.
+- **🚫 NEVER put the next step in memory. Not even once, not even "just this one".** "Next: F17",
+  "what remains is X", "blocked on Y", a summary of where the work stands — **all of it belongs in
+  the plan, always**, and nowhere else. This is the sharpest edge of the rule and the one that gets
+  bent, because writing it in memory *feels* like saving it. It is the opposite: the plan is edited
+  and committed as the work moves, so it stays true; a memory line describing the next step is
+  written once and then quietly outlives the step it describes, while still being read at every
+  session start with full authority. A stale pointer is a wrong instruction, not a missing one.
+- **Only two kinds of entry are admissible**, and neither is state:
+  - a **pointer** — which plan file holds the state, and to open it;
+  - a **reference** — something that exists nowhere else and is not recoverable from the repo (a
+    published URL, a durable preference, a convention with its rationale).
+  Everything else is either in the plan, in the code, or in git — and therefore must **not** be
+  duplicated here. Every extra line spends the same bounded budget the critical instructions need.
 - **On ship, prune it** — retire the SHIPPED pointer + its index line in the archiving change (§7).
 - **`/clear` resume ritual:** a `/clear` is *free* precisely because nothing is lost in memory —
   the state is in the plan. To resume: **follow the pointer → open the repo plan → read its header

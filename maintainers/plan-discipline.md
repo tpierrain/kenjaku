@@ -54,6 +54,23 @@ saying *which* plan file holds the state, never a restatement of that state. A m
 in full every session and duplicates the plan will, past its size bound, silently bury the
 instructions that actually matter under stale text.
 
+**Never put the next step in memory — not even once.** "Next: X", "what remains is Y", "blocked on
+Z", a summary of where the work stands: all of it belongs in the plan, always. This is the sharpest
+edge of the rule and the one that gets bent, because writing it into memory *feels* like saving it.
+It is the opposite. The plan is edited and committed as the work moves, so it stays true; a memory
+line describing the next step is written once and then quietly outlives the step it describes, while
+still being read at every session start with full authority. **A stale pointer is a wrong
+instruction, not a missing one** — worse than nothing, because it is obeyed.
+
+So only two kinds of entry are admissible, and neither is state:
+
+- a **pointer** — which plan file holds the state, and to go open it;
+- a **reference** — something that exists nowhere else and cannot be recovered from the repository:
+  a published URL, a durable preference, a convention with its rationale.
+
+Everything else already lives in the plan, in the code, or in the version history, and must not be
+duplicated. Every extra line spends the same bounded budget the critical instructions need.
+
 **Pointers, not copies** — the phrase comes from Thomas Pierrain,
 [*« Des pointeurs, pas des copies, banane »*](https://medium.com/@tpierrain/des-pointeurs-pas-des-copies-banane-56c9d197b80b).
 
@@ -120,7 +137,10 @@ would not think to load anything. Put it in the file your agent reads at the sta
 - On resuming: open the plan, read its header note and its Tracking section, restart where the
   header says (NOT at the first unticked box — constraints and rejected options are checkboxes
   too), and announce which step before writing any code.
-- If durable memory exists, it holds a POINTER to the plan file, never a copy of its state.
+- Durable memory NEVER holds work state — not the next step, not what remains, not what
+  is blocked. That is the plan's job, always. Memory holds only a POINTER to the plan
+  file, or a REFERENCE to something recoverable nowhere else (a published URL, a durable
+  preference). A stale memory line is a wrong instruction, not a missing one.
 ```
 
 **The on-demand half** — rule 1, how to write and open a plan — is genuine skill material: it
