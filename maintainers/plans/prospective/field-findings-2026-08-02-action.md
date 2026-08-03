@@ -61,10 +61,14 @@
 > Windows-only). Its P0 entry carries what was decided and what the wiring turned up (a manifest guard
 > that only watched `SessionStart`); do not re-open it.
 >
+> **✅ Step 7 done — F15 IS COMPLETE** _(2026-08-03 · `b5494d2` → `c5fae64`)_. The crosscheck ships on
+> both surfaces: `node scripts/verify-index.mjs` names every note the vault and the index disagree
+> about, and a fourth `notes` health check makes the permanent damage audible at session start without
+> ever crying wolf on ordinary editing. Its P0 entry carries the two decisions taken while building
+> (what the probe is allowed to be loud about, and why an unmeasurable crosscheck emits no check at
+> all); do not re-open them. Suites green (1104 scripts + 1 skipped Windows-only, 480 rag).
+>
 > **Resume here — v4.5.0, in this order.**
-> 7. **F15** — a note still answering from stale content, with nothing watching it (P0). **In progress
->    on `main`**; its scope was decided 2026-08-03 (the command AND the session probe, no auto-repair)
->    and is written into its P0 entry.
 > 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
 >    the engine measures a fiction).
 > 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
@@ -263,32 +267,47 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           ever fires on bytes the engine's parser has actually rejected, so the note would be
           invisible anyway), and it is scoped to `vault/**/*.md` only (a guard that creeps beyond the
           vault is a guard that gets disabled).
-- [ ] **F15 — a note can keep ANSWERING from stale content, and nothing watches it.**
-  - [ ] Evidence: `rag/src/lib/frontmatter-parser.ts:117` — *"until one of them is removed, this note
+- [x] **F15 — a note can keep ANSWERING from stale content, and nothing watches it.** ✅ DONE
+      _(2026-08-03 · `b5494d2` → `c5fae64`)_ — both surfaces ship, and both were proven on a real
+      vault (a note damaged the way the field note was: command exit 1 naming it, probe `broken`;
+      the same note merely edited: command exit 1, probe silent).
+  - [x] Evidence: `rag/src/lib/frontmatter-parser.ts` — *"until one of them is removed, this note
         keeps answering from the content it was last indexed with"*; asserted in
         `index-manager.test.ts:373`. A sibling scan already exists at `scripts/lib/note-refresh.mjs`
-        (`duplicateFrontmatterKeys`).
-  - [ ] Why it is the worst mode: F11 fails **silently** (note absent); this one fails **plausibly**
+        (`duplicateFrontmatterKeys`). That sentence now has ONE owner, `STALE_ANSWER_CLAUSE`, shared
+        by the parser and the crosscheck — they were printing it twice in a row otherwise.
+  - [x] Why it is the worst mode: F11 fails **silently** (note absent); this one fails **plausibly**
         (note answers, with old content) while the counter reads all-green.
-  - [ ] Promote a disk↔index crosscheck into an engine command. Reference implementation, written and
-        field-proven brain-side: `tools/index-vs-disk-crosscheck.mjs` in `mind-palace` (commit `1305ef1`)
-        — 4 failure modes: unparseable frontmatter, on disk but not indexed, indexed but not on disk,
-        `sha256(file) ≠ stored hash`, plus indexed-with-0-chunks. Exit codes 0/1/2.
-  - [ ] **TDD on promotion** (owner's standing rule): the brain-side script has no tests. The pure diff
-        logic is the test subject when it lands here.
+  - [x] Promoted into an engine command, `node scripts/verify-index.mjs` (exit 0 agree / 1 disagree,
+        naming each note / 2 could not run). The brain-side `tools/index-vs-disk-crosscheck.mjs`
+        (`mind-palace`, `1305ef1`) was the reference; the promoted version keeps its five modes.
+  - [x] **TDD on promotion**: 16 tests on the pure diff (`rag/src/lib/index-crosscheck.ts`), 4 on the
+        scan seam, 1 on `listIndexedDocsIn`, 5 on the health check, 4 on the brain-side door, 1 on the
+        banner gesture. Suites green: 1104 scripts (1 skipped Windows-only), 480 rag.
   - [x] **Scope DECIDED with the owner (2026-08-03), do not re-open: the command AND the session
         probe.** A command nobody runs leaves *"nothing watches it"* exactly as true as before, so the
         light per-session probe (file/DB reads only, ADR 0030 §6 — which is precisely what a crosscheck
         needs) reports the drift on its own. Rejected: auto-repair at session start (it would add an
-        automatic write where there is none today). So F15 lands in three parts:
-    - [ ] **The pure diff core**, TDD, in `rag/src/lib/` — the five modes as one pure function over
-          {what disk holds} × {what the index holds}.
-    - [ ] **The glue reuses the ENGINE's own scan/hash/parse** (`scanVault`, `sha256`,
+        automatic write where there is none today). It landed in three parts:
+    - [x] **The pure diff core**, TDD, in `rag/src/lib/index-crosscheck.ts` — the five modes as one
+          pure function over {what disk holds} × {what the index holds}.
+    - [x] **The glue reuses the ENGINE's own scan/hash/parse** (`scanVault`, `sha256`,
           `parseDocument`) rather than mirroring them. That makes F16's lesson structural instead of a
           comment: the brain-side reference already drifted (it excluded neither `_template.md` nor
           `.obsidian`, both of which `document-scanner.ts` skips, so it would have cried wolf on them).
-    - [ ] **Two surfaces**: a `node scripts/…` command (carried by the manifest, named in both
-          constitutions — the F14 guard will demand it) and the session probe/banner.
+    - [x] **Two surfaces**: the command (in `replace`, named in both constitutions — the F14 guard
+          demanded it) and a fourth `notes` check on the health contract, whose banner gesture is
+          "ask me to repair that note" (a restart fixes nothing here).
+  - [x] **Decided while building, do not re-open** — the probe is loud ONLY about damage no reindex
+        will ever clear (frontmatter the parser refuses, a 0-chunk row an incremental run skips
+        forever). Ordinary drift — a note edited in Obsidian, a pull from another machine — is
+        transient and stays silent, or the banner would fire at nearly every session start and be
+        muted within a week. ADR 0030 §6 had already required exactly this ("never a red broken
+        banner" on a freshness signal); it now says how. The command still shows everything.
+  - [x] **Also decided while building**: an unmeasurable crosscheck emits **no check at all**, never
+        `unknown` — `vault-rag` is a MANDATORY module, and `gateBlockers` fails the installer
+        post-flight and `verify-rag` on a mandatory `unknown`. A comparison we could not make must
+        never fail an install.
 
 - [ ] **F17 — opening a note: three surfaces, three different answers, and a promise nobody keeps.**
       Asked by the owner (2026-08-02 evening, *"ideally with the next release"*): a note **inside
