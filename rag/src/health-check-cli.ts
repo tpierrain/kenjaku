@@ -23,6 +23,8 @@ import { existsSync } from "fs";
 import { resolve } from "path";
 import { createEmbedder } from "./lib/embedder.js";
 import { getStats, searchSimilar } from "./lib/vector-store.js";
+import { permanentFindings } from "./lib/index-crosscheck.js";
+import { runCrosscheck } from "./lib/index-crosscheck-scan.js";
 import { DEFAULT_UNIVERSE } from "./lib/universe.js";
 import { VAULT_DIR, SEARCH_DEFAULT_LIMIT } from "./lib/config.js";
 import {
@@ -65,6 +67,11 @@ const seams: VitalsSeams = {
   // no key and its weights re-download on first embed (a loud, self-healing event, not
   // a silent degraded mode) → keyConfigured is true for it; API readiness = key set.
   weightsReady: () => keyConfigured,
+  // BOTH depths (file reads + one SQLite query, no embedding): the per-session light
+  // probe is precisely where a note that keeps answering from old content has to become
+  // audible. Only the findings the engine cannot clear by itself are reported — drift the
+  // watcher is about to fix would cry wolf at nearly every session start (F15, ADR 0028).
+  crosscheck: async () => permanentFindings(await runCrosscheck()),
 };
 
 runHealthCheck(seams, depth)

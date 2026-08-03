@@ -6,6 +6,7 @@ import {
   reportLines,
   permanentFindings,
 } from "./index-crosscheck.js";
+import { STALE_ANSWER_CLAUSE } from "./frontmatter-parser.js";
 
 test("a note edited since it was indexed is reported as answering from stale content", () => {
   const report = crosscheckIndex({
@@ -272,6 +273,33 @@ test("a 0-chunk row is permanent too: an unchanged note is skipped by every late
       reason:
         "indexed but holding no chunk — it is counted as a note and retrievable by nothing, " +
         "and an unchanged note is skipped by every later reindex",
+    },
+  ]);
+});
+
+test("a parser message that ALREADY says the note keeps answering is not made to say it twice", () => {
+  // The engine's duplicate-key message ends with that very sentence. Appending our own
+  // consequence behind it produced a paragraph that said the same thing twice — so the
+  // clause has one owner (the parser), and this is what pins them together.
+  const report = crosscheckIndex({
+    disk: [
+      {
+        path: "topics/crise.md",
+        hash: "edited-since",
+        parseError:
+          'damaged front-matter key "updated": declared twice, on lines 4 and 5. A note can ' +
+          `only carry one — until one of them is removed, this note ${STALE_ANSWER_CLAUSE}.`,
+      },
+    ],
+    indexed: [{ path: "topics/crise.md", hash: "as-indexed", chunks: 4 }],
+  });
+
+  assert.deepEqual(permanentFindings(report), [
+    {
+      path: "topics/crise.md",
+      reason:
+        'damaged front-matter key "updated": declared twice, on lines 4 and 5. A note can ' +
+        `only carry one — until one of them is removed, this note ${STALE_ANSWER_CLAUSE}.`,
     },
   ]);
 });

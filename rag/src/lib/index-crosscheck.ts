@@ -26,6 +26,8 @@
 // notes as broken because it called gray-matter with different options.
 // ═══════════════════════════════════════════════════════════════════════════
 
+import { STALE_ANSWER_CLAUSE } from "./frontmatter-parser.js";
+
 export interface DiskNote {
   path: string;
   hash: string;
@@ -92,11 +94,15 @@ export function permanentFindings(
   const unreadable = report.unreadable.map((entry) => {
     // The two halves of the same defect, and they read to the user in opposite ways:
     // one answers with old content, the other cannot be found at all.
-    const consequence = stale.has(entry.path)
-      ? "this note keeps ANSWERING from the content it was last indexed with"
-      : missing.has(entry.path)
-        ? "this note is absent from the index, so search cannot find it at all"
-        : null;
+    const consequence = entry.reason.includes(STALE_ANSWER_CLAUSE)
+      ? // The parser already spelled the consequence out (the duplicate-key message
+        // does); repeating it behind its own words helps nobody.
+        null
+      : stale.has(entry.path)
+        ? "this note keeps ANSWERING from the content it was last indexed with"
+        : missing.has(entry.path)
+          ? "this note is absent from the index, so search cannot find it at all"
+          : null;
     return {
       path: entry.path,
       reason: consequence ? `${entry.reason} — until it is fixed, ${consequence}` : entry.reason,

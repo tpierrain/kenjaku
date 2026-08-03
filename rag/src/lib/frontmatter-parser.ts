@@ -105,6 +105,14 @@ export function findDuplicateKey(
   return null;
 }
 
+/**
+ * The consequence a damaged note carries, in one place. The crosscheck (F15) appends the
+ * same warning to parser messages that do NOT already state it — so this sentence has one
+ * owner, and no report can end up saying it twice in a row.
+ */
+export const STALE_ANSWER_CLAUSE =
+  "keeps answering from the content it was last indexed with";
+
 function parseRaw(raw: string): { data: Record<string, unknown>; content: string } {
   try {
     return matter(raw, GRAY_MATTER_OPTIONS);
@@ -114,8 +122,7 @@ function parseRaw(raw: string): { data: Record<string, unknown>; content: string
     throw new Error(
       `damaged front-matter key "${duplicate.key}": declared twice, on lines ` +
         `${duplicate.first} and ${duplicate.second}. A note can only carry one — ` +
-        `until one of them is removed, this note keeps answering from the content ` +
-        `it was last indexed with.`
+        `until one of them is removed, this note ${STALE_ANSWER_CLAUSE}.`
     );
   }
 }

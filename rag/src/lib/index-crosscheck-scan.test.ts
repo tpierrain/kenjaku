@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { collectDiskNotes } from "./index-crosscheck-scan.js";
+import { collectDiskNotes, runCrosscheck } from "./index-crosscheck-scan.js";
 import { sha256 } from "./index-manager.js";
 
 const raw = "---\ntitle: Crise\n---\n\nBody.\n";
@@ -62,4 +62,25 @@ test("a note that cannot even be READ stays on the disk side, so its index row i
     { path: "topics/crise.md", hash: "", parseError: "EACCES: permission denied" },
     { path: "people/lea.md", hash: sha256(raw), parseError: null },
   ]);
+});
+
+test("runCrosscheck composes the disk scan and the index rows into one report", async () => {
+  const report = await runCrosscheck(
+    {
+      scan: async () => [
+        { absolutePath: "/brain/vault/topics/crise.md", relativePath: "topics/crise.md" },
+      ],
+      readFile: async () => raw,
+      parse: () => {},
+    },
+    () => [{ path: "topics/crise.md", hash: "indexed-long-ago", chunks: 4 }],
+  );
+
+  assert.deepEqual(report, {
+    stale: ["topics/crise.md"],
+    goneFromDisk: [],
+    missingFromIndex: [],
+    emptyInIndex: [],
+    unreadable: [],
+  });
 });

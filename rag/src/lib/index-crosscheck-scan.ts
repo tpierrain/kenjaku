@@ -1,6 +1,9 @@
-import type { ScannedFile } from "./document-scanner.js";
-import type { DiskNote } from "./index-crosscheck.js";
+import { readFile } from "fs/promises";
+import { scanVault, type ScannedFile } from "./document-scanner.js";
+import { parseDocument } from "./frontmatter-parser.js";
+import { crosscheckIndex, type CrosscheckReport, type DiskNote } from "./index-crosscheck.js";
 import { sha256 } from "./index-manager.js";
+import { listIndexedDocs } from "./vector-store.js";
 
 /**
  * The disk half of the crosscheck, behind injected ports (F15).
@@ -49,4 +52,26 @@ export async function collectDiskNotes(ports: CrosscheckScanPorts): Promise<Disk
     notes.push({ path: file.relativePath, hash: sha256(raw), parseError });
   }
   return notes;
+}
+
+/**
+ * The engine's OWN eyes, and the reason the defaults live here rather than in each
+ * caller: the command and the session probe must never be able to disagree about what
+ * the vault holds. `scanVault` skips `_template.md` and `.obsidian/` exactly as the
+ * indexer does; `parseDocument` throws exactly when the indexer refuses a note.
+ */
+export const defaultScanPorts: CrosscheckScanPorts = {
+  scan: () => scanVault(),
+  readFile: (absolutePath) => readFile(absolutePath, "utf-8"),
+  parse: (raw, relativePath) => {
+    parseDocument(raw, relativePath);
+  },
+};
+
+/** One crosscheck: what the vault holds on disk, against what the index really holds. */
+export async function runCrosscheck(
+  ports: CrosscheckScanPorts = defaultScanPorts,
+  listIndexed: () => Array<{ path: string; hash: string; chunks: number }> = listIndexedDocs,
+): Promise<CrosscheckReport> {
+  return crosscheckIndex({ disk: await collectDiskNotes(ports), indexed: listIndexed() });
 }
