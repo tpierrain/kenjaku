@@ -62,7 +62,9 @@
 > that only watched `SessionStart`); do not re-open it.
 >
 > **Resume here — v4.5.0, in this order.**
-> 7. **F15** — a note still answering from stale content, with nothing watching it (P0).
+> 7. **F15** — a note still answering from stale content, with nothing watching it (P0). **In progress
+>    on `main`**; its scope was decided 2026-08-03 (the command AND the session probe, no auto-repair)
+>    and is written into its P0 entry.
 > 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
 >    the engine measures a fiction).
 > 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
@@ -274,6 +276,19 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         `sha256(file) ≠ stored hash`, plus indexed-with-0-chunks. Exit codes 0/1/2.
   - [ ] **TDD on promotion** (owner's standing rule): the brain-side script has no tests. The pure diff
         logic is the test subject when it lands here.
+  - [x] **Scope DECIDED with the owner (2026-08-03), do not re-open: the command AND the session
+        probe.** A command nobody runs leaves *"nothing watches it"* exactly as true as before, so the
+        light per-session probe (file/DB reads only, ADR 0030 §6 — which is precisely what a crosscheck
+        needs) reports the drift on its own. Rejected: auto-repair at session start (it would add an
+        automatic write where there is none today). So F15 lands in three parts:
+    - [ ] **The pure diff core**, TDD, in `rag/src/lib/` — the five modes as one pure function over
+          {what disk holds} × {what the index holds}.
+    - [ ] **The glue reuses the ENGINE's own scan/hash/parse** (`scanVault`, `sha256`,
+          `parseDocument`) rather than mirroring them. That makes F16's lesson structural instead of a
+          comment: the brain-side reference already drifted (it excluded neither `_template.md` nor
+          `.obsidian`, both of which `document-scanner.ts` skips, so it would have cried wolf on them).
+    - [ ] **Two surfaces**: a `node scripts/…` command (carried by the manifest, named in both
+          constitutions — the F14 guard will demand it) and the session probe/banner.
 
 - [ ] **F17 — opening a note: three surfaces, three different answers, and a promise nobody keeps.**
       Asked by the owner (2026-08-02 evening, *"ideally with the next release"*): a note **inside
