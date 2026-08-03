@@ -70,3 +70,108 @@ export function crosscheckIndex(input: {
     .map((note) => ({ path: note.path, reason: note.parseError as string }));
   return { stale, goneFromDisk, missingFromIndex, emptyInIndex, unreadable };
 }
+
+/**
+ * The findings the engine CANNOT clear on its own — the only ones a per-session probe
+ * is allowed to be loud about (ADR 0028: never cry wolf).
+ *
+ * Most of the report is transient BY DESIGN: a note edited in Obsidian since the last
+ * session, or pulled from another machine, is drifted or absent for a few seconds until
+ * the watcher re-indexes it. A probe that shouted at those would fire at nearly every
+ * session start, and would be muted within a week — taking the real signal with it.
+ * A note whose frontmatter the parser REFUSES is the opposite: every re-read fails the
+ * same way, forever, so no reindex will ever clear it. That one deserves the alarm — and
+ * its reason names the F15 shape out loud, because "damaged frontmatter" reads like a
+ * cosmetic defect while the note goes on answering, plausibly, from old content.
+ */
+export function permanentFindings(
+  report: CrosscheckReport
+): Array<{ path: string; reason: string }> {
+  const stale = new Set(report.stale);
+  const missing = new Set(report.missingFromIndex);
+  const unreadable = report.unreadable.map((entry) => {
+    // The two halves of the same defect, and they read to the user in opposite ways:
+    // one answers with old content, the other cannot be found at all.
+    const consequence = stale.has(entry.path)
+      ? "this note keeps ANSWERING from the content it was last indexed with"
+      : missing.has(entry.path)
+        ? "this note is absent from the index, so search cannot find it at all"
+        : null;
+    return {
+      path: entry.path,
+      reason: consequence ? `${entry.reason} — until it is fixed, ${consequence}` : entry.reason,
+    };
+  });
+  // A 0-chunk row never heals by itself either: its content is unchanged, so the
+  // incremental diff (shouldSkip) skips it on every later run — forever unsearchable.
+  const empty = report.emptyInIndex.map((path) => ({
+    path,
+    reason:
+      "indexed but holding no chunk — it is counted as a note and retrievable by nothing, " +
+      "and an unchanged note is skipped by every later reindex",
+  }));
+  return [...unreadable, ...empty];
+}
+
+/** The report as human-readable lines — clean first, because that is the common case. */
+export function reportLines(report: CrosscheckReport): string[] {
+  const affected = affectedNotes(report);
+  if (affected.length === 0) {
+    return ["✓ The index holds exactly what the vault holds."];
+  }
+  const lines = [
+    `✗ ${affected.length} note${affected.length === 1 ? " is" : "s are"} out of step with ` +
+      `the index — this brain is not answering from all of them.`,
+  ];
+  const section = (label: string, why: string, items: string[]) => {
+    if (items.length === 0) return;
+    lines.push("", `${label} (${items.length}) — ${why}:`);
+    for (const item of items) lines.push(`  ${item}`);
+  };
+  // Worst first: a note that ANSWERS from old content is the one a reader would never
+  // suspect, so it must not sit below the modes that at least fail visibly.
+  section(
+    "Answering from STALE content",
+    "indexed, still answering, from what it held before",
+    report.stale
+  );
+  section(
+    "Frontmatter the engine REFUSES",
+    "no re-read can land until it is fixed",
+    report.unreadable.map((entry) => `${entry.path} — ${entry.reason}`)
+  );
+  section(
+    "On disk but ABSENT from the index",
+    "committed, and unfindable by search",
+    report.missingFromIndex
+  );
+  section(
+    "Indexed but holding NO chunk",
+    "counted as a note, retrievable by nothing",
+    report.emptyInIndex
+  );
+  section(
+    "In the index but GONE from disk",
+    "residue of a delete or a rename",
+    report.goneFromDisk
+  );
+  return lines;
+}
+
+/**
+ * The DISTINCT notes the report is about, sorted — one note hit by two modes at once
+ * (the canonical F15 case: damaged frontmatter AND still answering from old content)
+ * is one note out of step, not two. This is what a headline count must be built on:
+ * summing the buckets would inflate the very case the check exists for.
+ */
+export function affectedNotes(report: CrosscheckReport): string[] {
+  return [
+    ...new Set([
+      ...report.stale,
+      ...report.goneFromDisk,
+      ...report.missingFromIndex,
+      ...report.emptyInIndex,
+      ...report.unreadable.map((entry) => entry.path),
+    ]),
+  ].sort();
+}
