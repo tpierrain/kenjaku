@@ -175,8 +175,8 @@ Three paths, detailed in [SETUP §6](SETUP.md):
 > connectors, so landing in another sphere still reads the same Slack workspace or mailbox until you
 > reconnect it yourself. Your brain says so, in one line, the moment you land in a named universe. Worth
 > writing down which account each sphere actually uses, on that universe's own page
-> ([SETUP §5.1](SETUP.md#51-telling-your-brain-about-your-context-optional-2-minutes)): your brain then
-> has it at hand when it matters.
+> ([SETUP §5.1](SETUP.md#51-telling-your-brain-about-your-context-optional-2-minutes)): that line names
+> where the page is, at every session start, so your brain has it at hand when it matters.
 
 ---
 

@@ -98,8 +98,10 @@ there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFER
 > 💾 **Nothing to save, nothing to lose.** Every change is **auto-committed to your git repo** the
 > instant it's written — and whatever you typed straight into Obsidian, outside your brain, is swept
 > in at its next start. No *"did I save that?"*, ever. Connect a **remote** (optional, one setting) and
-> it **auto-pushes** there too, so a **lost, stolen or dead laptop costs you nothing** — restore your
-> whole brain on a new machine from the backup.
+> it **auto-pushes** there too, so a **lost, stolen or dead laptop costs you nothing** — clone the backup
+> onto a new machine and **one offline command puts your brain back to work** there
+> (`node scripts/rehydrate.mjs`, [SETUP §7](SETUP.md)). Same command for a second machine you simply
+> want to work from.
 
 ---
 
@@ -335,6 +337,12 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   the vault, makes `verify-rag` exit `0` only on real retrieval; a non-blocking check re-runs it each
   session. *(ADR 0028)*
 - **Index identity stamp + confirm-gate** — swapping embedders never silently corrupts the index. *(ADR 0006)*
+- **Silence is reported as silence** — when a search comes back empty, your brain says *"I found nothing,
+  here is where I looked"*, instead of turning it into *"nobody decided"*. What it observed and what it
+  inferred are told apart, on the page, every time.
+- **The index is cross-checked against your vault** — the subtler version of the same lie is a note that
+  keeps *answering* from the content it was last indexed with. A crosscheck names every note the two
+  disagree about, on demand (`verify-index`) and as a session check. *(ADR 0030)*
 
 **B · Determinism over guesswork.** *(the ladder of [ADR 0009](maintainers/decisions/0009-prefer-deterministic-mechanisms.md))*
 
@@ -357,6 +365,10 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   stale entity pages, raw captures never filed — and **propose** fixes you confirm (never a silent
   rewrite). Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
   re-introduce the very defects `/lint` reports. Self-healing at the *content* layer.
+- **A note it couldn't index is refused, not written.** Before writing into your vault, your brain checks
+  the note's header with the **engine's own parser** — the very one that indexes it. A note that parser
+  would reject is never written at all, instead of being born invisible to search while the counter says
+  it is on its way.
 - **It never overwrites your work, and it has to *prove* it**: a structural write-allowlist means the
   reconciler and the **self-upgradable engine** only add what's missing, plus two narrow moves they can
   demonstrate are about *their own* files. An engine file is refreshed **only when its fingerprint proves

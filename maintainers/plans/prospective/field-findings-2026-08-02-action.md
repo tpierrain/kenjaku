@@ -293,8 +293,33 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         `.claude/settings.json`, and nothing regenerated them). So this is not §10's usual "true but
         unsold": it was **sold and untrue**, and v4.5.0 is what makes it honest. The README never
         mentions the rehydrate; `SETUP.md` §7 does.
-  - [ ] Finish the pass: `EN-QUOI-C-EST-DIFFERENT.md`, `CONNECTORS.md`, the board alt texts, and record
-        the boring verdicts too ("re-read, still accurate, no re-render").
+  - [x] **The README sentence is repaired** _(2026-08-03)_ — it now says the clone is put back to work by
+        one offline command, and points at `SETUP.md` §7. The promise is honest for the first time.
+  - [x] **`EN-QUOI-C-EST-DIFFERENT.md` — three changes, all of them §10's own two questions.** §1's
+        hardening table (the doc's spine: "the holes where the cobbled-together version breaks, plugged
+        one by one") gained the hole this release plugged — a note whose header the indexer can't read,
+        never indexed while the counter reads *pending*; §4.4 ("it cites its sources") now says an
+        unverified silence is reported as a silence, not promoted into a fact (F18); §5's
+        backup/multi-machine line names the offline rehydrate, which is what makes it true.
+  - [x] **`README.md` — two bullets added where the release actually changed the claim**: under
+        *A · Grounded in truth*, silence-as-silence (F18) and the vault ↔ index crosscheck (F15); under
+        *C · Self-healing*, the write-time refusal (F11/F12). These are §10 question 2 — shipped, and
+        nowhere on the page.
+  - [x] **`CONNECTORS.md` — re-read whole, one precision.** Nothing became false. The universe/connector
+        passage now says the session line names *where* that universe's page is (F1 shipped exactly that).
+  - [x] **The boards — re-read through their alt texts + `docs/marketing-image-prompts.md`. Verdict: NO
+        re-render, and one drift recorded rather than silently fixed.**
+    - [x] `board-anatomy` lists hooks (*auto-commit, auto-push, reconcile*) and v4.5.0 adds a fourth (the
+          `PreToolUse` write guard) — but the copy never claims to be exhaustive, so it is **still
+          accurate**. No re-render.
+    - [x] `board-reliability` says **"34 ADRs"** and there are **37**. Measured: **this drift predates
+          v4.5.0** (there were already 37 at `v4.4.0`, and this release added none), so it is not
+          something the release made false. **Left as-is on purpose** — a board is expensive to re-render
+          for a number. **Recommendation for the owner, at the next re-render of that board: drop the
+          count** ("a written trail of every architectural decision"), because a hard number rots by
+          construction, once per release, forever. Its `mutation 90–97%` claim is fine and will be
+          re-checked against RESULTS.md when the pass ends.
+    - [x] Every other board: re-read, copy still accurate, no re-render.
 - [ ] Write the release note (non-dev first, §11 shape) into `maintainers/plans/prospective/release-v4.5.0-note.md`,
       with the pinned mutation snapshot.
 - [ ] PR body stating F5's known limit on the constitution half (an engine-managed file only reaches
