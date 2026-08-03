@@ -191,6 +191,32 @@ code). The **README** tracks moving `main`, so a static number there would rot: 
 **capability** badge (or a live dashboard badge). Cadence going forward: harden, re-measure, cut a
 release, pin that release's snapshot in its notes.
 
+## 5quater. A checker must read through the ENGINE's own eyes, or it measures a fiction
+
+A verify / health / audit surface exists to tell the truth about the engine. The moment it walks the
+vault, parses a note or hashes a file **its own way**, it stops describing the engine and starts
+describing itself — and it will be believed anyway, because it looks like a measurement.
+
+The lesson cost a first implementation of the disk↔index crosscheck (2026-08-02, on a real brain). It
+called `gray-matter` with the library's defaults; `gray-matter` 4.x routes YAML through js-yaml 3's
+`safeLoad`, removed in js-yaml 4, which this repo pins. Every note "failed to parse": **434 of 436
+healthy notes declared broken**. The vault was fine; the checker was wrong.
+
+- **Reuse the engine's path, don't mirror it.** Import the very functions the engine runs (`scanVault`,
+  `sha256`, `parseDocument`), so a change to how the engine reads notes reaches the checker by
+  construction. A mirrored constant kept "in sync by comment" drifts on the day nobody re-reads the
+  comment. `rag/src/lib/index-crosscheck-scan.ts` is the shape: injected ports whose **defaults are the
+  engine's own functions**. Mirroring drifts on details that decide the verdict — the brain-side
+  prototype also walked the vault itself, and so would have flagged `_template.md` and `.obsidian/`,
+  which `document-scanner.ts` deliberately skips.
+- **Judge a checker on its FALSE POSITIVES, not only on catching the true one.** The direction of the
+  error is what matters: an alarm on everything is indistinguishable from noise, so it gets ignored —
+  and takes the real signal with it. Before shipping one, ask *"what does it say on a perfectly healthy
+  brain, and on the ordinary transient states?"* (a note edited a second ago, a fresh clone, a reindex
+  in flight). A checker that cannot stay quiet is not stricter, it is useless.
+- **Same rule for anything that classifies user content** — a lint, a guard, a nudge. If it does not run
+  the production parser on the real payload, it is asserting about a payload nobody has.
+
 ## 6. ADRs carry a `Scope:` field
 
 Every ADR carries a `- **Scope:**` line right under `STATUS`, with an **explicit** value (never the

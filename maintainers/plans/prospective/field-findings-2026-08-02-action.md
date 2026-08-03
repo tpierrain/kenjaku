@@ -68,9 +68,10 @@
 > (what the probe is allowed to be loud about, and why an unmeasurable crosscheck emits no check at
 > all); do not re-open them. Suites green (1104 scripts + 1 skipped Windows-only, 480 rag).
 >
+> **✅ Step 8 done — F16 IS COMPLETE** _(2026-08-03)_ — `CONVENTIONS.md` §5quater: a checker must read
+> through the engine's own eyes, and is judged on what it says about a HEALTHY brain.
+>
 > **Resume here — v4.5.0, in this order.**
-> 8. **F16** — the lesson into `maintainers/CONVENTIONS.md` (a checker that parses differently from
->    the engine measures a fiction).
 > 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
 >    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
 >    editor. Added to v4.5.0's scope, see its P0 entry — it repairs three surfaces that disagree
@@ -471,14 +472,17 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
 
 ### Cross-cutting engineering lesson (F16) — for CONVENTIONS, not just for one fix
 
-- [ ] **A checker that parses differently from the engine measures a fiction.** The field crosscheck's
-      first version declared **434 of 436 notes broken** while the vault was fine: `gray-matter` 4.x
-      routes through `yaml.safeLoad` (js-yaml 3), removed in 4, and the repo pins js-yaml ≥ 4.2.0.
-  - [ ] The lesson is the **direction** of the error: a false alarm on everything is indistinguishable
+- [x] **A checker that parses differently from the engine measures a fiction.** ✅ DONE _(2026-08-03 ·
+      `CONVENTIONS.md` §5quater)_. The field crosscheck's first version declared **434 of 436 notes
+      broken** while the vault was fine: `gray-matter` 4.x routes through `yaml.safeLoad` (js-yaml 3),
+      removed in 4, and the repo pins js-yaml ≥ 4.2.0.
+  - [x] The lesson is the **direction** of the error: a false alarm on everything is indistinguishable
         from noise, therefore ignored. Any health/verify surface must (a) run the engine's **own**
         parsing path, and (b) be judged on false-positive behaviour, not only on catching the true
         positive.
-  - [ ] Candidate: add this to `maintainers/CONVENTIONS.md` next to the mutation-testing rules.
+  - [x] Landed in `maintainers/CONVENTIONS.md` §5quater, next to the mutation-testing rules — and F15
+        applied it by construction the same day (the crosscheck's default ports ARE `scanVault` /
+        `sha256` / `parseDocument`, and its probe half is judged on staying quiet).
 
 ## Decisions taken (2026-08-02, with the owner)
 
