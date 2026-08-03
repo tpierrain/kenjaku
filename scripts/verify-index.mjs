@@ -25,19 +25,30 @@ import { join } from "node:path";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
 
-// The real wiring: run the engine's headless crosscheck, letting its output through
-// untouched. Spawned from the brain's `rag/` — that is where tsx is installed, so npx
-// resolves it locally instead of fetching one; the engine's own paths are anchored on
-// its files, never on the cwd. npx is a shell-wrapped .cmd on Windows (ADR 0015 / 0031).
-function defaultRunCrosscheck({ ragDir, platform = process.platform, argv = [] }) {
+// What the command asks the OS for, as a pure value: run the engine's headless crosscheck,
+// letting its output through untouched. Spawned from the brain's `rag/` — that is where tsx
+// is installed, so npx resolves it locally instead of fetching one; the engine's own paths
+// are anchored on its files, never on the cwd. npx is a shell-wrapped .cmd on Windows
+// (ADR 0015 / 0031). Pure so that the invocation is asserted rather than trusted.
+export function buildCrosscheckInvocation({ ragDir, platform = process.platform, argv = [] }) {
   const npx = platform === "win32" ? "npx.cmd" : "npx";
-  return spawnSync(npx, ["tsx", "src/crosscheck-cli.ts", ...argv], {
-    cwd: ragDir,
-    stdio: "inherit",
-    shell: needsShell(npx, platform),
-    env: { ...process.env, SBG_NO_NOTIFY: "1" },
-    windowsHide: true,
-  });
+  return {
+    command: npx,
+    args: ["tsx", "src/crosscheck-cli.ts", ...argv],
+    options: {
+      cwd: ragDir,
+      stdio: "inherit",
+      shell: needsShell(npx, platform),
+      env: { ...process.env, SBG_NO_NOTIFY: "1" },
+      windowsHide: true,
+    },
+  };
+}
+
+// The real spawn. `spawn` is a seam only so the forwarding itself can be asserted.
+export function defaultRunCrosscheck(opts, spawn = spawnSync) {
+  const { command, args, options } = buildCrosscheckInvocation(opts);
+  return spawn(command, args, options);
 }
 
 export const realVerifyIndexDeps = {

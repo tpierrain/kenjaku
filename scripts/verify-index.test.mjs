@@ -2,7 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { join } from "node:path";
 
-import { runVerifyIndex } from "./verify-index.mjs";
+import {
+  buildCrosscheckInvocation,
+  defaultRunCrosscheck,
+  realVerifyIndexDeps,
+  runVerifyIndex,
+} from "./verify-index.mjs";
 
 // Spelled with `join`, like production: the command derives `rag/` from the cwd, so on
 // Windows a fixture hand-written with `/` compares `\brain\rag` against `/brain/rag`
@@ -62,4 +67,105 @@ test("a spawn that reports no status and no error is still exit 2, not a pass", 
     "✗ Could not run the crosscheck: the engine did not start",
     "  → From the brain folder: cd rag && npm install, then run this again.",
   ]);
+});
+
+// The default wiring is what a real `node scripts/verify-index.mjs` runs, and every test
+// above injects its own doubles — so without this, the seams that ARE the command could
+// all be emptied and the suite would stay green (mutation testing said exactly that:
+// `realVerifyIndexDeps = {}` survived).
+test("realVerifyIndexDeps wires the real machine", () => {
+  assert.equal(realVerifyIndexDeps.cwd(), process.cwd());
+  assert.equal(realVerifyIndexDeps.runCrosscheck, defaultRunCrosscheck);
+});
+
+// The only channel this command has for "I could not even run": if it silently forwards
+// nowhere, exit 2 arrives with no reason at all — the failure mode the exit codes exist
+// to prevent.
+test("realVerifyIndexDeps.error forwards to console.error, arguments and all", () => {
+  const original = console.error;
+  const errored = [];
+  console.error = (...a) => errored.push(a);
+  try {
+    realVerifyIndexDeps.error("✗ Could not run the crosscheck:", "spawn npx ENOENT");
+  } finally {
+    console.error = original;
+  }
+  assert.deepEqual(errored, [["✗ Could not run the crosscheck:", "spawn npx ENOENT"]]);
+});
+
+// The engine's crosscheck is spawned, so what the command actually asks the OS for is the
+// only thing worth asserting — and it is a pure value, not an effect. `tsx` comes from the
+// brain's own `rag/node_modules`, which is why the cwd is rag/ and not the brain root.
+test("posix: the invocation runs the engine's crosscheck through the brain's local npx", () => {
+  const invocation = buildCrosscheckInvocation({
+    ragDir: join(BRAIN, "rag"),
+    platform: "darwin",
+    argv: ["--json"],
+  });
+
+  assert.deepEqual(invocation, {
+    command: "npx",
+    args: ["tsx", "src/crosscheck-cli.ts", "--json"],
+    options: {
+      cwd: join(BRAIN, "rag"),
+      stdio: "inherit",
+      shell: false,
+      env: { ...process.env, SBG_NO_NOTIFY: "1" },
+      windowsHide: true,
+    },
+  });
+});
+
+// The other platform, fed on purpose: on Windows npx is a `.cmd`, which cannot be executed
+// without a shell — and CI runs this suite on macOS, so nothing but an explicit fixture can
+// tell this branch from the identity (ADR 0015 / 0031).
+test("win32: npx is the .cmd, and it is launched through a shell", () => {
+  const invocation = buildCrosscheckInvocation({
+    ragDir: "D:\\brains\\mind-palace\\rag",
+    platform: "win32",
+    argv: [],
+  });
+
+  assert.deepEqual(invocation, {
+    command: "npx.cmd",
+    args: ["tsx", "src/crosscheck-cli.ts"],
+    options: {
+      cwd: "D:\\brains\\mind-palace\\rag",
+      stdio: "inherit",
+      shell: true,
+      env: { ...process.env, SBG_NO_NOTIFY: "1" },
+      windowsHide: true,
+    },
+  });
+});
+
+// The absent twin of the two tests above: the command is normally called with neither a
+// platform nor arguments, and an argument list that quietly gained a value would hand the
+// engine's CLI a flag nobody asked for.
+test("called with nothing but a rag/ folder, it adds no argument of its own", () => {
+  const invocation = buildCrosscheckInvocation({ ragDir: join(BRAIN, "rag") });
+
+  assert.deepEqual(invocation.args, ["tsx", "src/crosscheck-cli.ts"]);
+  assert.equal(invocation.command, process.platform === "win32" ? "npx.cmd" : "npx");
+  assert.equal(invocation.options.shell, process.platform === "win32");
+});
+
+// The one line between the built invocation and the OS. A stub that returned `0` would be
+// indistinguishable from the real spawn's nominal result, so it hands back a shape no
+// spawnSync ever produces, and records what it was handed.
+test("defaultRunCrosscheck hands the built invocation to the spawn, and returns its result", () => {
+  const calls = [];
+  const spawn = (...a) => {
+    calls.push(a);
+    return { status: 7, marker: "not-a-real-spawn-result" };
+  };
+
+  const result = defaultRunCrosscheck({ ragDir: join(BRAIN, "rag"), platform: "darwin" }, spawn);
+
+  assert.deepEqual(result, { status: 7, marker: "not-a-real-spawn-result" });
+  const { command, args, options } = buildCrosscheckInvocation({
+    ragDir: join(BRAIN, "rag"),
+    platform: "darwin",
+  });
+  assert.deepEqual(calls, [[command, args, options]]);
 });
