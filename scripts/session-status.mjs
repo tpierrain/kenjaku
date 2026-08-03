@@ -30,6 +30,8 @@ import { bootstrapSessionHooks } from "./lib/hook-bootstrap.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
 import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
+import { readStartupVersionLine } from "./lib/engine-version.mjs";
+import { buildStatusHookOutput } from "./lib/status-hook-output.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -187,13 +189,23 @@ const restartLine = restartNudgeSegment(
   restartPendingOnDisk({ repo: REPO, deriveWanted, existsSync, readFileSync }),
 );
 
-// ─── Emission via systemMessage: displays directly in the terminal ───────────
-const systemMessage = [restartLine, bootstrapLine, keyLine, repoLine, ragLine]
-  .filter(Boolean)
-  .join("\n");
+// ─── Engine version: which Kenjaku this brain runs, read OFFLINE from the ────
+// manifest (ADR 0017). It had a surface — the status line — which ADR 0036
+// retired, so it silently stopped being shown; the owner asked for it back at
+// startup (2026-08-03). Fail-silent: no manifest / no install ref → no segment.
+const versionLine = readStartupVersionLine({
+  manifestPath: join(REPO, "engine-manifest.json"),
+  existsSync,
+  readFileSync,
+});
+
+// ─── Emission: systemMessage displays in the terminal, additionalContext is ──
+// the only channel that reaches Desktop (the agent relays it in the chat).
 process.stdout.write(
-  JSON.stringify({
-    hookSpecificOutput: { hookEventName: "SessionStart" },
-    systemMessage,
-  }) + "\n"
+  JSON.stringify(
+    buildStatusHookOutput({
+      versionLine,
+      statusLines: [restartLine, bootstrapLine, keyLine, repoLine, ragLine],
+    }),
+  ) + "\n"
 );
