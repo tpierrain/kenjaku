@@ -57,8 +57,8 @@ Ask for **`/update-engine`** once, then restart your session if it says so.
 - **Where it reaches.** The skills and scripts that carry the rules are refreshed on any brain that did
   not tailor them, so `/update-engine` is enough. The constitution half reaches new installs, as always.
 - **The version line was not missing — it had stopped being shown.** The label had been computed since
-  v4.2.0, but its only surface was the status line, which the engine deliberately gave back to you in
-  v4.4.0. It now rides both session-start channels (terminal and the Claude Desktop Code tab). Two
+  v3.0.0, but its only surface was the status line, which the engine gave back to you in v4.4.0 rather
+  than keep clobbering the one you had set. It now rides both session-start channels (terminal and the Claude Desktop Code tab). Two
   silences are on purpose: no usable tag, no line at all — rather than a number that is not a Kenjaku
   release — and a pending restart still takes the floor, because until you restart, the version you would
   read is not the one answering you.
