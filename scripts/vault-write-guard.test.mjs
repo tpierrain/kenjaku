@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -105,10 +105,12 @@ test("realGuardDeps.readFile returns the file's exact text, decoded as UTF-8", (
 // — absent in CI's harness step, whose invariant is "nothing to install". They skip
 // there, and CI re-runs this file after `npm ci` in rag/. That re-run is pinned by the
 // last test in this file: a skip is a deferral only as long as something cashes it in.
-const needsEngine =
-  realGuardDeps.parser(BRAIN_ROOT) === null
-    ? { skip: "engine parser absent — CI re-runs this file after `npm ci` in rag/" }
-    : {};
+// The condition asks the DISK, never `realGuardDeps.parser` — asking the code under
+// test whether to test it lets a broken wiring turn its own tests off: a mutation of
+// `parser` that always returns null then reads as "engine absent, skip", and survives.
+const needsEngine = existsSync(join(BRAIN_ROOT, "rag", "node_modules", "gray-matter"))
+  ? {}
+  : { skip: "engine parser absent — CI re-runs this file after `npm ci` in rag/" };
 
 test("realGuardDeps.parser builds the ENGINE's parser: it refuses the field payload, accepts a healthy note", needsEngine, () => {
   const parse = realGuardDeps.parser(BRAIN_ROOT);

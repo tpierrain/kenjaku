@@ -359,10 +359,32 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           tmpdir (including remove-when-already-gone), and both `apply*` have their absence twin.
     - [ ] **⚠️ Re-measure `rag-launcher.mjs`** — hardened but **not re-mutated**, so its new score is
           unknown. ~110 mutants ≈ 5 min, well inside the cap. This is the next mutation command.
-    - [ ] **Batch 3, not started** — `scripts/rehydrate.mjs, scripts/session-self-heal.mjs,
-          scripts/session-status.mjs, scripts/session-universe.mjs, scripts/vault-write-guard.mjs`.
-          Expect `session-status.mjs` at **0 %**: named, pre-existing debt (a top-level script no test can
-          import), NOT a regression of this release — say so rather than let the batch total imply rot.
+    - [x] **Every hardened file re-measured, and all four came back clean** _(2026-08-03)_ —
+          `rag-launcher.mjs` **100 %** (log `…/v450-rag-launcher-recheck.log`), `health-probe.mjs`
+          71.83 % → **100 %** and `verify-index.mjs` **92.31 %** confirmed (log
+          `…/v450-healthprobe-verifyindex-recheck.log`), `universe-reminder.mjs` 94.44 % → **100 %**
+          (batch 3a). `verify-index`'s 3 remaining survivors are the shared entrypoint guard, nothing else.
+    - [x] **Batch 3a done and TREATED** _(2026-08-03 · `25beef3`, log `…/v450-scripts-batch3a.log`)_ —
+          `universe-reminder.mjs` **100 %**, `rehydrate.mjs` **90.80 %** (8), `vault-write-guard.mjs`
+          (the top-level hook) **50.00 %** (12 + 1 timeout). Both scores sat on the same shape, and it is
+          the one this release keeps meeting: **every test injects its own deps, so the REAL ones were
+          observed by nothing**. Fixed rather than filed, since the same fix had just worked three times:
+          the spawn options asserted **whole** (`stdio: "inherit"` is what lets the owner watch a
+          multi-minute install), the rebuilt `.mcp.json` asserted to end with a newline (a JSON file
+          without one is still valid JSON, so the parsed assertion could not see it), the
+          write-through-missing-parents test digging **two** levels (with one, a non-recursive `mkdir`
+          succeeds too), `realGuardDeps` pinned field by field, and **the hook run once as the harness
+          runs it** — a real child process with the JSON on stdin, the only test that reaches the stdin
+          read and the entrypoint guard. Two of those need `rag/node_modules`, so they skip in CI's
+          harness step; `ci.yml` re-runs the file after `npm ci`, and **that re-run is pinned from the
+          suite itself**, like its sibling in `lib/`.
+    - [ ] **Re-measure `rehydrate.mjs` + `scripts/vault-write-guard.mjs`** off `25beef3` — the fixes are
+          committed and green (1214 pass, 1 skipped), each mutant hand-applied and watched red, but the
+          new scores are not measured yet.
+    - [ ] **Batch 3b RUNNING** — `session-self-heal.mjs, session-status.mjs, session-universe.mjs`, log
+          `…/v450-scripts-batch3b.log`. It is **massively red by construction** (≈208 survivors at 76 %):
+          these are the top-level scripts no test can import. **Named, pre-existing debt, NOT a regression
+          of this release** — write it that way in RESULTS.md rather than let a batch total imply rot.
   - [ ] Copy the per-file scores AND the survivor list here **the moment each batch ends** — RESULTS.md's
         own rule, earned by losing two reports to a scratchpad cleanup.
   - [ ] When all batches are in: update `maintainers/mutation/RESULTS.md` (newest-first section for

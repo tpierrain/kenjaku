@@ -89,7 +89,25 @@ Two small one-time clicks, both of the "and never again" kind:
 
 ### Mutation-score snapshot, pinned to v4.5.0
 
-<!-- FILLED AT THE END OF THE MUTATION PASS — see maintainers/mutation/RESULTS.md -->
+Not line coverage: every one of these numbers is what survived deliberately breaking the code and
+re-running the suite. 21 files were measured one by one, on the diff this release actually changed.
+
+| Package | Mutation score | What was measured |
+|---|---|---|
+| **rag** | **94.67 %** | the 6 changed files; the one this release *creates* went 70.59 % → **100 %** |
+| **scripts** (harness) | **10 of the 15 changed files at 100 %** | per file, because a batch average over a different subset each time is arithmetic, not a measurement |
+| **local-mirror** | **90.44 %** | its v4.2.0 audit — untouched by this release, deliberately not re-measured |
+
+**Two findings, and neither was a loose assertion.** The vault ↔ index crosscheck could be silently
+disarmed — its parser replaced by one that reads nothing — with every test still green; and the
+write-time guard could be pointed at a *different* YAML parser than the engine's, which is the exact
+fiction it exists to prevent. Both are now pinned by tests that fail when the wiring moves.
+
+**The honest bound.** `session-status.mjs` scores **0 %**: it is a top-level script that runs on import,
+so no test can observe it. The logic it displays is covered (it lives in `scripts/lib/**`, measured
+97–100 % here); the wiring is not. That hole is **inherited, not new** — it was already recorded at
+v4.4.0 — and closing it is a refactor of fleet-deployed session scripts, i.e. a release of its own
+rather than something to do on the eve of a tag. Written down rather than left silent.
 
 A published release is frozen, so these numbers stay true for this tag forever. Full detail:
 [`maintainers/mutation/RESULTS.md`](maintainers/mutation/RESULTS.md).
