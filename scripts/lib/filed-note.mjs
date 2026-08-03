@@ -87,6 +87,25 @@ export function renderFiledNote(spec) {
   ].join("\n");
   const related =
     links.length > 0 ? `\n## Related\n\n${links.map((l) => `- [[${l}]]`).join("\n")}\n` : "";
-  const content = `${frontmatter}\n\n# ${spec.title}\n\n${spec.body}\n${related}`;
+  // The homonymy block sits ABOVE the body, because it is what makes the card
+  // usable to the next resolution: a first name is rarely unique, and a card
+  // that does not say which one only moves the ambiguity.
+  const which = spec.distinguish ? `> **Which one** — ${spec.distinguish}\n\n` : "";
+  const content = `${frontmatter}\n\n# ${spec.title}\n\n${which}${spec.body}\n${related}`;
   return { path, content };
+}
+
+// The first-name segment of a people-card path: `acme/people/romain-durand.md`
+// → `romain`. Cards are named `<firstname>-<lastname>.md` (slugified, so already
+// accent-free and lowercased), which is what makes the shared first name a
+// mechanical fact rather than a judgement call.
+function firstNameSegment(cardPath) {
+  return cardPath.split("/").pop().replace(/\.md$/, "").split("-")[0];
+}
+
+// The existing `people/` cards that already bear the first name a new card is
+// about to claim. Pure: the caller hands it what it found on disk.
+export function homonymCards(path, existing) {
+  const firstName = firstNameSegment(path);
+  return existing.filter((card) => firstNameSegment(card) === firstName);
 }

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { slugify, filedNotePath, renderFiledNote } from "./filed-note.mjs";
+import { slugify, filedNotePath, renderFiledNote, homonymCards } from "./filed-note.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // filed-note — the pure, I/O-free core of Track B ("file the good answer back").
@@ -37,15 +37,16 @@ test("filedNotePath — a living page (topic) is <folder>/<slug>.md, no date", (
 });
 
 test("filedNotePath — a person page lives under people/ (folder is not a naive plural)", () => {
-  assert.equal(
-    filedNotePath({ type: "person", title: "Jane Doe" }),
-    "people/jane-doe.md",
-  );
+  assert.equal(filedNotePath({ type: "person", title: "Jane Doe" }), "people/jane-doe.md");
 });
 
 test("filedNotePath — a dated type (decision) is <folder>/<date>-<slug>.md", () => {
   assert.equal(
-    filedNotePath({ type: "decision", title: "Adopt The Hive", date: "2026-07-17" }),
+    filedNotePath({
+      type: "decision",
+      title: "Adopt The Hive",
+      date: "2026-07-17",
+    }),
     "decisions/2026-07-17-adopt-the-hive.md",
   );
 });
@@ -82,13 +83,21 @@ test("filedNotePath — an active universe prefixes the path with <universe>/", 
 
 test("filedNotePath — a dated type under a universe keeps its date, prefixed", () => {
   assert.equal(
-    filedNotePath({ type: "meeting", title: "Q3 Review", date: "2026-07-17", universe: "acme" }),
+    filedNotePath({
+      type: "meeting",
+      title: "Q3 Review",
+      date: "2026-07-17",
+      universe: "acme",
+    }),
     "acme/meetings/2026-07-17-q3-review.md",
   );
 });
 
 test("filedNotePath — the default universe (and no universe) stays at the vault root", () => {
-  assert.equal(filedNotePath({ type: "topic", title: "RAG", universe: "default" }), "topics/rag.md");
+  assert.equal(
+    filedNotePath({ type: "topic", title: "RAG", universe: "default" }),
+    "topics/rag.md",
+  );
   assert.equal(filedNotePath({ type: "topic", title: "RAG" }), "topics/rag.md");
 });
 
@@ -96,7 +105,14 @@ test("filedNotePath — the default universe (and no universe) stays at the vaul
 
 test("renderFiledNote — throws when today is missing (created/updated would be blank)", () => {
   assert.throws(
-    () => renderFiledNote({ type: "topic", title: "X", tags: ["a"], body: "b", links: [] }),
+    () =>
+      renderFiledNote({
+        type: "topic",
+        title: "X",
+        tags: ["a"],
+        body: "b",
+        links: [],
+      }),
     /today.*required/i,
   );
 });
@@ -104,7 +120,14 @@ test("renderFiledNote — throws when today is missing (created/updated would be
 test("renderFiledNote — throws on empty tags (frontmatter conformance would break)", () => {
   assert.throws(
     () =>
-      renderFiledNote({ type: "topic", title: "X", tags: [], body: "b", links: [], today: "2026-07-17" }),
+      renderFiledNote({
+        type: "topic",
+        title: "X",
+        tags: [],
+        body: "b",
+        links: [],
+        today: "2026-07-17",
+      }),
     /at least one tag|tags.*required|non-empty/i,
   );
 });
@@ -211,6 +234,72 @@ The distilled answer.
 
 - [[people/jane-doe]]
 - [[topics/rag]]
+`,
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The homonymy block — a card that does not say WHICH Romain only moves the
+// ambiguity. The field brain carried 3 Romain, 3 Marie, 2 Karim, 2 Caroline and
+// 2 Michael, and the identity discipline's "resolve against the vault before you
+// write" is unusable when the vault's own answer is three cards wide.
+//
+// This is the pure half: which existing cards already bear the first name the
+// new card is about to claim. It knows nothing of the fs — the caller hands it
+// what it found.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("homonymCards — names the existing card that already bears this first name", () => {
+  assert.deepEqual(
+    homonymCards("people/romain-lefevre.md", ["people/romain-durand.md", "people/jane-doe.md"]),
+    ["people/romain-durand.md"],
+  );
+});
+
+test("homonymCards — a card in another universe's subtree is a homonym too", () => {
+  // The resolution rule reads the active universe's people/ AND the root's
+  // cross-cutting cards, so a Romain filed under acme/ is exactly the Romain the
+  // next bare "Romain" could be resolved to. Basename-scoped on purpose.
+  assert.deepEqual(homonymCards("people/romain-lefevre.md", ["acme/people/romain-durand.md"]), [
+    "acme/people/romain-durand.md",
+  ]);
+});
+
+test("homonymCards — names EVERY homonym, not just the first, and only the homonyms", () => {
+  assert.deepEqual(
+    homonymCards("people/romain-lefevre.md", [
+      "people/marie-curie.md",
+      "acme/people/romain-durand.md",
+      "people/romain.md",
+      "people/romainville-sud.md",
+    ]),
+    ["acme/people/romain-durand.md", "people/romain.md"],
+  );
+});
+
+test("renderFiledNote — `distinguish` becomes the homonymy block, right under the title", () => {
+  const note = renderFiledNote({
+    type: "person",
+    title: "Romain Lefèvre",
+    tags: ["acme"],
+    body: "SRE, joined in March.",
+    distinguish: "SRE at Acme — not [[people/romain-durand]] (product), nor Romain the freelance.",
+    today: "2026-08-03",
+  });
+  assert.deepEqual(note, {
+    path: "people/romain-lefevre.md",
+    content: `---
+type: person
+created: 2026-08-03
+updated: 2026-08-03
+tags: [acme]
+---
+
+# Romain Lefèvre
+
+> **Which one** — SRE at Acme — not [[people/romain-durand]] (product), nor Romain the freelance.
+
+SRE, joined in March.
 `,
   });
 });
