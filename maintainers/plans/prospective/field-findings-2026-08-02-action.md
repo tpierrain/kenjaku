@@ -104,20 +104,23 @@
 > an evolving decision back into its own ADR, and this is ADR 0027's topic, so 0027 was amended in
 > place and every reference repointed.
 >
-> **⏭️ IN PROGRESS: F1, the universe banner — the design is now FULLY decided, no code yet.**
-> The two remaining choices were put to the owner and closed _(2026-08-03)_: the session-start block
-> carries **the identity line + a pointer to the profile note + "(ask `/switch` for the description)"**
-> and **nothing verbatim**, and it prints **strictly nothing on a single-universe brain**. Both, plus
-> the three consequences they force on the code, are in F1's P3 entry — read them there, do not
-> re-derive. After F1, only the v4.5.0 release step remains. _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **✅ Step 10 done — F1 IS COMPLETE** _(2026-08-03 · `9c67ea9` → `4b7b467`)_. The session start states
+> which sphere is active and where its page is; the body stays in the vault. Field-verified on a
+> throwaway two-universe brain: the block carries the identity line + the note path + the `/switch`
+> door, the `🔒` passage never appears, and a single-universe brain prints **nothing at all** without
+> reopening the capture offer. `/switch` gained the door it is now pointing at, ADR 0035 is amended in
+> place (§2, §4, §6bis), and both constitutions teach the page since the gate closed the last channel
+> that mentioned it. Suites green: 1177 scripts (1 skipped Windows-only), 480 rag.
+>
+> **⏭️ NEXT AND LAST: step 11, the v4.5.0 release.** Nothing of it is started. What it needs is in the
+> numbered list below — the `engineVersion.scripts` bump and the PR body stating F5's known limit —
+> plus the §7 caveat at the end of this header (the rehydrate does not index, so the first rooted
+> session is what indexes the vault, canary included). _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
 > **Resume here — v4.5.0, in this order.**
-> 10. **F1 — the universe banner** _(moved up from v4.7.0 the same evening, at the owner's request)_:
->    a **short synthesis** plus, in parentheses, `/switch` for the full description. Its P3 entry
->    carries the closed sub-decision and the one design knot left (the digest serves the agent and
->    the human through a single, verbatim-echoed channel).
+> 10. ~~**F1 — the universe banner**~~ ✅ done, see above.
 > 11. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
 >    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
 >    constitution half (an engine-managed file only reaches brains that never customized it).
@@ -642,14 +645,15 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
 
 ### P3 — visibility, safety and ergonomics
 
-- [ ] **F1 — vault-only confidential material is printed at every SessionStart.** The universe profile
-      is dumped verbatim in the banner, including a passage explicitly tagged
-      `🔒 CONFIDENTIEL, ne jamais sortir du vault`. It therefore lands in every screenshot, screen
+- [x] **F1 — vault-only confidential material is printed at every SessionStart. ✅ COMPLETE**
+      _(2026-08-03 · `9c67ea9` → `4b7b467`)_. The universe profile
+      was dumped verbatim in the banner, including a passage explicitly tagged
+      `🔒 CONFIDENTIEL, ne jamais sortir du vault`. It therefore landed in every screenshot, screen
       share and transcript. (It reached this very conversation that way.) Also ~30 lines before the
       first prompt.
-  - [ ] **Decided (2026-08-02): a product fix, not a documentation one.** The banner prints a
+  - [x] **Decided (2026-08-02): a product fix, not a documentation one.** The banner prints a
         **synthesis** of the active universe, never the verbatim profile.
-  - [ ] **And only when more than one universe exists.** With a single universe there is nothing to
+  - [x] **And only when more than one universe exists.** With a single universe there is nothing to
         disambiguate, so the profile earns no banner space at all. This makes the fix consistent with
         ADR 0034's "invisible until a second universe exists" rule, instead of being only a leak fix.
   - [x] **Sub-decision CLOSED by the owner (2026-08-02 evening): the banner carries a SHORT synthesis
@@ -657,13 +661,14 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         description, ask `/switch`"*. `/switch` is the right door: it already owns the profile
         (`SETUP.md:698`), even though its name says "change". So the banner states the fact, and the
         detail is **pulled on request** instead of pushed at everyone, every session.
-  - [x] **The owner had asked for this before, and half of it shipped** _(2026-07-28, `2243b83`,
+  - [x] **The other half has now shipped too.** **The owner had asked for this before, and half of it
+        shipped** _(2026-07-28, `2243b83`,
         `f63d8ac`, `7ec088b`)_: that pass shrank the **framing** around the universe reminder and the
         profile digest. What it did not touch is the **payload** — `renderUniverseDigest`
         (`universe-profile.mjs:103`) still quotes About / People / Topics / Connector accounts up to
         `DIGEST_MAX_LINES = 12`. That is the part that leaks 🔒 material into every screenshot.
-  - [ ] **The design knot to resolve when coding this** (found while re-reading, do not discover it
-        again): the digest serves **two different audiences through one channel** — the AGENT (it needs
+  - [x] **The design knot, and how it was cut** _(2026-08-03: the first road — inject the human line,
+        let the agent open the page on demand)_: the digest serves **two different audiences through one channel** — the AGENT (it needs
         people/topics/accounts to reason well, ADR 0035) and the HUMAN (who needs one line). And on the
         CLI `additionalContext` is **echoed verbatim** (`2243b83`'s whole lesson), so there is no
         "inject without showing". Either the human line is all we inject and the agent reads the
@@ -682,16 +687,38 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           accepted:** `CLAUDE.engine.md` is in **no** regime (F18), so the constitution half reaches new
           installs only — a deployed single-universe brain therefore stops receiving the ambient facts
           and gains no pointer. It keeps the RAG (the note is indexed, `type: universe`).
-    - [ ] **Consequences to honour while coding** (derived from the two calls above, not re-decidable):
-      - [ ] The **full** digest stays exactly as it is for `set-universe-profile.mjs --digest`: that
-            one is **pulled** by the owner after a `/switch`, so verbatim is consented there. The
-            session-start block is a **different, narrower** rendering — two functions, one note.
-      - [ ] "Has a profile" must stop being "rendered a digest": `profileCaptureOffer` needs to know a
-            profile EXISTS on a single-universe brain (that is the backfill case) while nothing is
-            injected there. Presence and payload are two questions.
-      - [ ] The parenthetical must not become F17's defect (a promise the product does not keep):
-            check that `/switch` can actually **show the description on request**, and make it so if it
-            only refreshes the digest after a switch.
+    - [x] **Consequences honoured** (all three, and what each one turned into):
+      - [x] The **full** digest is untouched and still serves `set-universe-profile.mjs --digest`, the
+            **pulled** form. `renderUniverseSynthesis` is the injected one, and **which of the two the
+            hook picks is now pinned by a test at the composition root** (`readActiveProfileSynthesis`)
+            — that choice is a one-word edit nobody would catch in review.
+      - [x] Presence parted from payload: the hook still READS the profile below the gate (so the
+            capture offer does not come back at an owner who already wrote their page) and injects
+            nothing. When the universe count cannot be read at all, it injects nothing either —
+            a surface echoed verbatim into screenshots fails closed.
+      - [x] `/switch` gained the door: a **"📖 see the description"** entry in the no-argument menu plus
+            its own section, framed as the OPPOSITE act of the post-switch refresh (there, background
+            used silently; here, the owner asked to read it). Guard test pins it, and it is refutable
+            (deleting the menu entry fails the suite).
+    - [x] **Found while wiring, worth keeping.** The pointer's path is now stated by the CALLER, which
+          located the file, instead of being read off `frontmatter.universe`: an owner hand-editing
+          their page in Obsidian can drop that key, and a pointer at a note that is not there is worse
+          than no pointer. Also: the identity line and the note path each got ONE owner, shared by both
+          renderings, so the two can never introduce the same universe differently.
+    - [x] **The gate closed the last channel that mentioned the page**, so the rule moved to where it
+          costs no session bytes: **both constitutions** (EN + FR) now name `vault/universe.md` /
+          `vault/<universe>/universe.md` and frame it as *open it when the answer depends on it, never
+          recite it back*. Guarded on both layers. Known limit, unchanged: `CLAUDE.engine.md` is in no
+          propagation regime, so that half reaches new installs only (F18's finding).
+    - [x] **ADR 0035 amended in place** (§2, §4, new §6bis), per `CONVENTIONS.md` §6bis — "what a
+          session is handed about a profile" is 0035's own topic, so no new number. Its 2026-07
+          rejection of gating is kept **and answered**: it was sound about the agent's needs and silent
+          about the owner holding a shared screen. `SETUP.md` stops promising a summary at every
+          conversation.
+    - [x] **Volume, measured**: the startup payload went from *(200 + up to 12 lines of profile + 126
+          of framing)* to **517 chars** on the real brain used to verify it. What the budget test bounds
+          is OUR prose against a representative payload; the owner's own words (display name, role,
+          period) still float, exactly as the digest's did.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
