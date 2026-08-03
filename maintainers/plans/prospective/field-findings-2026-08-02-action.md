@@ -86,10 +86,14 @@
 > `scripts/lib/claim-discipline.test.mjs`. Its P1 entry carries what the red run taught and the two
 > near-misses; do not re-derive them. Suites green (1146 scripts + 1 skipped Windows-only, 480 rag).
 >
-> **⏭️ NEXT STEP, NOT STARTED: F17.** Nothing of it is written yet — no
-> `buildOpenNoteCommand`, no ADR 0038, no doc change. Start from its P0 entry, which already carries
-> the three disagreeing surfaces and the four decisions taken while reading the code (challenge them
-> before coding, not after). _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **⏭️ IN PROGRESS: F17.** No code yet — no `buildOpenNoteCommand`, no ADR 0038, no doc change. But
+> its four decisions have now been **challenged against the code** _(2026-08-03)_ and the outcome is
+> recorded in its P0 entry: two hold as-is, decision 2 is refined (the `obsidian://` URI is handed
+> *to* the OS opener, so it stays inside the existing allowlist), and two new calls are taken there —
+> **no entry script** (the reconciler never wires `permissions.allow`, so `node scripts/open-note.mjs`
+> would prompt at every open on a deployed brain) and **ADR 0038 owns a scoped reversal of 0027**
+> (the command changes, the rendered `file://` link does not). Do not re-derive any of that; start at
+> the TDD of `buildOpenNoteCommand`. _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
@@ -368,6 +372,32 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
     - [ ] **Deterministic, not prose.** A pure `buildOpenNoteCommand({ platform, absPath, insideVault,
           obsidianOk })` in `scripts/lib/`, TDD, next to `open-env.mjs` — the three doc surfaces then
           describe one function instead of each inventing its own rule.
+  - [ ] **Re-read of the code before coding, 2026-08-03 — four decisions checked, two refined:**
+    - [x] Decisions 1, 3 and 4 hold as written; nothing found that contradicts them. The one caveat on
+          the trigger: `obsidianHealth` matches the registered vault by **exact string equality**
+          (`obsidian-health.mjs:24`, `v.path === vaultPath`), so a symlinked / `/private`-prefixed path
+          reads as *not registered* → we fall back to the OS opener. Safe degradation (today's
+          behaviour), not a blocker.
+    - [x] **Refinement of decision 2: the URI does not replace the opener, it is what we hand it.**
+          There is no cross-platform way to *invoke* `obsidian://…` other than the OS opener itself
+          (`open "obsidian://…"` / `start "" "…"` / `xdg-open "…"`). Good news, and it decides the next
+          point: the command stays inside the **existing** allowlist (`Bash(open:*)`,
+          `Bash(xdg-open:*)`, `Bash(start:*)`), so it costs a deployed brain nothing.
+    - [x] **NEW, decided here: NO entry script.** The tempting shape — `node scripts/open-note.mjs
+          <path>` — would need a new allowlist entry, and the reconciler wires **hook entries only**,
+          never `permissions.allow` (`reconcile-brain.mjs:166-230`). So every open on an already
+          deployed brain would raise a permission prompt: a papercut on the most frequent gesture there
+          is. `buildOpenNoteCommand` therefore stays a **pure function nobody executes**, and its
+          authority over the three doc surfaces comes from **doc guards** pinning them to it (the
+          repo's existing pattern, as with the F14 doc guards), not from being on the call path.
+    - [x] **ADR 0038 must own a scoped REVERSAL, and say so.** ADR 0027 already considered
+          `obsidian://open?path=…` and **rejected** it ("ties the local-copy open to one app… a
+          real-file link is the portable, no-lock-in choice"). F17 overrides that — but only for a note
+          **inside `vault/`**, and only when that vault **is registered**. The rendered 🧠 link itself
+          does **not** change (it stays `file://`; Desktop drops every non-`http(s)` scheme anyway, so
+          emitting `obsidian://` in the markup would buy a dead click). What changes is solely the
+          command Claude runs when asked to open. State that split in 0038, or the next reader will
+          take it for a plain contradiction of 0027.
   - [ ] Surfaces to change once the function exists: `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md`
         (the §"Opening / viewing / editing a note"), `engine-skills/open-note/SKILL.md` (stop hard-coding
         macOS Obsidian), `SETUP.md:250`, and an **ADR amending 0029** (its *"Obsidian is never the
