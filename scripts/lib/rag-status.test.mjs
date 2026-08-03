@@ -38,13 +38,17 @@ test("ragStatusLine — a recorded failure is a FAILURE, named on the counter's 
     },
   });
 
-  assert.match(line, /435\/436/);
-  assert.match(line, /1 failed/);
+  // The field line, whole: file AND cause on the counter's own line (the point of the
+  // finding), and nothing where the wait used to be — a fragment-by-fragment assertion
+  // lets any text at all sit in that slot, including the "pending" this fix removed.
+  assert.equal(
+    line,
+    "🧠 RAG: 435/436 files indexed, 1 failed — " +
+      "Read error: inqom/briefings/2026-08-02.md: bad indentation of a mapping entry (6:45). " +
+      "This will NOT resolve on its own: repair the note (or ask me to), then reindex.",
+  );
   assert.doesNotMatch(line, /pending/, "a permanent failure must not be counted as a wait");
   assert.doesNotMatch(line, /auto catch-up/, "the next run rejects the same bytes — promise nothing");
-  // File AND cause on the counter's own line: the whole point of the finding.
-  assert.match(line, /inqom\/briefings\/2026-08-02\.md/);
-  assert.match(line, /bad indentation of a mapping entry \(6:45\)/);
 });
 
 // The other half of the separation: a REAL wait must keep reading as a wait. A note
@@ -117,10 +121,58 @@ test("ragStatusLine — many failures: two named, the rest counted, never all du
     },
   });
 
-  assert.match(line, /4 failed/);
-  assert.match(line, /a\.md: boom/);
-  assert.match(line, /b\.md: bam/);
+  // Asserted whole, not by fragments: a separator that quietly became "" still matches
+  // every one of the pieces below, and the remedy sentence — the only part that tells the
+  // owner this will not fix itself — can vanish without a single match failing.
+  assert.equal(
+    line,
+    "🧠 RAG: 400/405 files indexed, 4 failed, 1 pending — " +
+      "Read error: a.md: boom; Read error: b.md: bam (+2 other(s)). " +
+      "This will NOT resolve on its own: repair the note (or ask me to), then reindex.",
+  );
   assert.doesNotMatch(line, /c\.md|d\.md/);
-  assert.match(line, /\(\+2 other\(s\)\)/);
-  assert.match(line, /1 pending/, "405 − 400 − 4 = 1 genuinely queued");
+});
+
+// The boundary of the truncation, on the value where it flips: exactly two failures are
+// exactly what fits, so the count of "others" must not appear at all. Without this case
+// nothing distinguishes `rest > 0` from `rest >= 0`, and the owner reads "(+0 other(s))"
+// — a line that invents a remainder it just told them does not exist.
+test("ragStatusLine — exactly two failures: both named, and NO count of others", () => {
+  const line = ragStatusLine({
+    docs: 434,
+    scanned: 436,
+    lastRun: { status: "done", errors: ["Read error: a.md: boom", "Read error: b.md: bam"] },
+  });
+
+  assert.equal(
+    line,
+    "🧠 RAG: 434/436 files indexed, 2 failed — " +
+      "Read error: a.md: boom; Read error: b.md: bam. " +
+      "This will NOT resolve on its own: repair the note (or ask me to), then reindex.",
+  );
+});
+
+// The absent twin of every case above: a brain that has never run a catch-up has no
+// `last-run.json` at all, so there is nothing to read the errors off. That is the state
+// of a freshly rehydrated machine (F14) — and it must read as the plain wait it is, not
+// borrow a failure from nowhere.
+test("ragStatusLine — no run state at all: the shortfall is a wait, not an invented failure", () => {
+  const line = ragStatusLine({ docs: 435, scanned: 436, lastRun: null });
+
+  assert.equal(
+    line,
+    "🧠 RAG: 435/436 files indexed, 1 pending — auto catch-up in the background.",
+  );
+});
+
+// The same absence one level in: the file exists, the run recorded no errors key. Reading
+// `.errors` off it yields undefined, which must fall back to "nothing failed" rather than
+// travel on as a value.
+test("ragStatusLine — a run state without an errors list is not a failure either", () => {
+  const line = ragStatusLine({ docs: 435, scanned: 436, lastRun: { status: "done" } });
+
+  assert.equal(
+    line,
+    "🧠 RAG: 435/436 files indexed, 1 pending — auto catch-up in the background.",
+  );
 });
