@@ -188,6 +188,23 @@
 
 ## Step 11 — the v4.5.0 release (IN PROGRESS)
 
+> **▶️ WHERE TO RESUME (updated 2026-08-03, after a full working session).** In order:
+> 1. **The mutation pass, batch 2d** — `rag-launcher.mjs`'s 11 survivors are measured and **not
+>    treated**. See the batch-2d line below.
+> 2. **Re-measure 2b and 2c** (hardened but not re-mutated), then **batch 3** (the five top-level
+>    scripts).
+> 3. **RESULTS.md** (a newest-first v4.5.0 section) — nothing is written there yet; today's numbers
+>    live only in this plan and in `maintainers/mutation/reports/v450-*.log`.
+> 4. **The release note**, then the **PR body**. Neither is started.
+>
+> **Already done today and NOT to redo**: the version vector (`9fb5d1a`), the whole §10 marketing
+> re-read (`396f1e1`), and the mutation hardening of `verify-index`, `rag-status`, `health-probe`,
+> `universe-reminder`, `vault-write-guard`, `universe-profile`. Suite green at every commit
+> (1213 pass, 1 skipped Windows-only). **Nothing is pushed**: `origin/release/v4.5.0` is still at
+> `82f9c43`, so PR #54 shows none of it — and CI has therefore not seen today's work. **Push before
+> trusting the green** (§9: the tripwire only fires on a push, and that is exactly how Windows stayed
+> red for weeks).
+
 **Title, chosen by the owner (2026-08-03): `v4.5.0 — The One Where Silence Stops Passing for Good News`.**
 It carries both halves of this plan's reframe — the failures that looked like waits (F11/F12, F14, F15)
 and the "I found nothing" that came out as "nothing exists" (F18). Do not re-open the title.
@@ -292,9 +309,34 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           site omits it, so it could not change an outcome), and one new test **pins the
           `unknown`-rendered-as-broken defect** while naming it as the v4.7.0 item it is, so nobody later
           reads it as desired behaviour.
-    - [ ] **Batch 2b RUNNING** — `scripts/lib/vault-write-guard.mjs`, log
-          `maintainers/mutation/reports/v450-scripts-batch2b.log`. Then **2c** (`universe-profile.mjs`)
-          and **2d** (`rag-launcher.mjs`), one run at a time, resetting the worktree between runs.
+    - [x] **Batch 2b done — `vault-write-guard.mjs` 85.16 %** (19 survivors), **hardened**
+          _(2026-08-03 · `4eb6478`)_. Two of the 19 said something serious: the guard resolved
+          gray-matter from a path built inline, and **moving that anchor one folder up left the suite
+          green** — nothing proved it runs the ENGINE's parser rather than whatever Node finds walking
+          the parent chain, which is F16's fiction inside the file written to avoid it.
+          `engineRequireAnchor` now names it. `editedNote` is exported (its three "cannot compose"
+          reasons all end in `{allow:true}`, so nothing could tell them apart), both ends of the
+          frontmatter fence are fed, and the refusal message is asserted verbatim around the parser's
+          own words.
+    - [x] **Batch 2c done — `universe-profile.mjs` 87.89 %** (23 survivors), **hardened**
+          _(2026-08-03 · `2007d39`)_. Half of them existed because **the fs fake swallowed what it was
+          handed**: `mkdirSync` recorded nothing, so "create the parent, recursively" and "create
+          nothing" were the same call. The fake records now. Plus the refusal marker's bytes (sorted
+          from the data, trailing newline, and what gets REBUILT from a damaged one), and the digest
+          parser's hand-edited cases.
+    - [ ] **⚠️ Re-measure 2b and 2c** — the fixes are committed and green, but **neither file has been
+          re-mutated**, so their new scores are unknown. Do that before writing RESULTS.md. Candidate
+          **equivalents spotted while reading, to CONFIRM rather than assume**: in `vault-write-guard`,
+          `toolInput?.content` (unreachable with a null `toolInput` — `relPath` is already non-null by
+          then); in `universe-profile`, `parsed?.declined` (both paths end in `[]`), `other: []` (never
+          emitted), and the `$` / `\s+` mutants of the heading regex (neutralised by the `.trim()`).
+    - [ ] **Batch 2d MEASURED, NOT TREATED — `rag-launcher.mjs` 89.32 %, 11 survivors**
+          _(2026-08-03, log `…/v450-scripts-batch2d.log`)_. **This is the next mutation step.** The
+          survivors sit at `126:15` (×2), `141:28`, `146:23`, `147:32`, `151:30`, `152:32`, `152:41`,
+          `231:15` (×2), `232:7` — i.e. the **win32 install-script writer** and `applyRagLauncher`, which
+          is exactly the shape §10 of the TDD skill names (a platform-conditioned transformation that is
+          a no-op on the CI platform). Read the log for the exact mutants, then treat them the way 2a-2c
+          were treated.
     - [ ] **Batch 3, not started** — `scripts/rehydrate.mjs, scripts/session-self-heal.mjs,
           scripts/session-status.mjs, scripts/session-universe.mjs, scripts/vault-write-guard.mjs`.
           Expect `session-status.mjs` at **0 %**: named, pre-existing debt (a top-level script no test can
@@ -303,9 +345,12 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         own rule, earned by losing two reports to a scratchpad cleanup.
   - [ ] When all batches are in: update `maintainers/mutation/RESULTS.md` (newest-first section for
         v4.5.0) and pin the snapshot in the release note.
-- [ ] Bump `engineVersion.scripts` (still `1.9.0`; the apply plan is glob-driven so delivery never needed
-      it) and re-decide the whole vector — `rag`, `local-mirror`, `constitutionTemplate` — the way v4.4.0
-      did in `1f5c502`. `indexSchemaVersion` stays `2` **iff** the note promises no reindex.
+- [x] **The version vector is bumped** _(2026-08-03 · `9fb5d1a`)_ — `rag` 1.2.0 → **1.3.0**, `scripts`
+      1.9.0 → **1.10.0**, `constitutionTemplate` 1.0.0 → **1.1.0** (both constitutions changed),
+      `local-mirror` left at 0.3.0 (nothing in it changed — checked, not assumed), `rag/package.json` and
+      its lockfile in step. `indexSchemaVersion` stays **2**: no reindex, which is what the note will
+      promise. Nothing gates on this vector (only `engineVersion.rag`, as a display fallback), so what it
+      buys is a new install not running v4.5.0 under a number that describes v4.4.0.
 - [ ] **§10, the marketing-surface re-read.** Started, and it already found the finding of the pass:
   - [x] **`README.md:100-102` was selling a promise F14 made false.** *"a lost, stolen or dead laptop
         costs you nothing — restore your whole brain on a new machine from the backup"* — which is
