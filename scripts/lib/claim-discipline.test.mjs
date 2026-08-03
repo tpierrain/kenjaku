@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { docSection } from "./doc-section.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // F18 — the claim discipline must exist on EVERY surface that produces an
@@ -31,29 +32,10 @@ import { dirname, join } from "node:path";
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (rel) => readFileSync(join(REPO_ROOT, rel), "utf8");
 
-// Slice the discipline SECTION out of a document — from its heading to the next
-// heading of the same or a higher level — and assert inside that slice only.
-//
-// This is deliberate, and the first red run is why: asserting on the whole file
-// let three rules pass on words that were already there for other reasons
-// ("your FIRST reply of the session" matched /repl(y|ies)/, "contradictory rules"
-// matched /contradict/). A rule that passes because of unrelated prose is a rule
-// nobody is actually carrying. Slicing also asserts something the flat search
-// could not: the rules live TOGETHER, as one discipline, instead of being
-// scattered where no reader meets them as a whole.
-function disciplineSection(text, heading) {
-  const start = text.search(heading);
-  if (start === -1) return "";
-  const level = (text.slice(start).match(/^#+/) ?? ["#"])[0].length;
-  // Start looking for the NEXT heading only after the current heading's own line —
-  // otherwise the very first thing found is the heading we started from, and every
-  // section slices down to a single "#".
-  const nl = text.indexOf("\n", start);
-  if (nl === -1) return text.slice(start);
-  const rest = text.slice(nl + 1);
-  const end = rest.search(new RegExp(`^#{1,${level}} `, "m"));
-  return end === -1 ? text.slice(start) : text.slice(start, nl + 1 + end);
-}
+// The discipline SECTION of a document, sliced from its heading to the next
+// heading of the same or a higher level — asserted inside that slice only, for
+// the reasons written in doc-section.mjs (the identity guard shares it).
+const disciplineSection = docSection;
 
 const HEADING_EN = /^#+ Claim discipline/m;
 const HEADING_FR = /^#+ Discipline d'affirmation/m;
