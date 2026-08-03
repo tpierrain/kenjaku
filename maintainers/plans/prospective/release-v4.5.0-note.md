@@ -95,7 +95,7 @@ re-running the suite. 21 files were measured one by one, on the diff this releas
 | Package | Mutation score | What was measured |
 |---|---|---|
 | **rag** | **94.67 %** | the 6 changed files; the one this release *creates* went 70.59 % → **100 %** |
-| **scripts** (harness) | **10 of the 15 changed files at 100 %** | per file, because a batch average over a different subset each time is arithmetic, not a measurement |
+| **scripts** (harness) | **7 of the 15 changed files at 100 %**, 12 of them at 92 % or above | per file, because a batch average over a different subset each time is arithmetic, not a measurement |
 | **local-mirror** | **90.44 %** | its v4.2.0 audit — untouched by this release, deliberately not re-measured |
 
 **Two findings, and neither was a loose assertion.** The vault ↔ index crosscheck could be silently

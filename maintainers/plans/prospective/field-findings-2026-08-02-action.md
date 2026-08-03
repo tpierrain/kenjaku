@@ -222,7 +222,7 @@
 It carries both halves of this plan's reframe — the failures that looked like waits (F11/F12, F14, F15)
 and the "I found nothing" that came out as "nothing exists" (F18). Do not re-open the title.
 
-- [ ] **Mutation testing on what this release changed** — asked for by the owner mid-release. 23 production
+- [x] **Mutation testing on what this release changed** — asked for by the owner mid-release. 23 production
       files changed (8 `rag/src`, 15 `scripts`). Two real gaps found, both in NEW code, both fixed:
   - [x] **`rag`, the 6 files under `src/lib/`: 93.81 % → 94.67 %** _(2026-08-03)_.
     - [x] **`index-crosscheck-scan.ts` 70.59 % → 100 %** _(`cd66ac3`'s parent)_ — the worst of the six,
@@ -378,17 +378,23 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           read and the entrypoint guard. Two of those need `rag/node_modules`, so they skip in CI's
           harness step; `ci.yml` re-runs the file after `npm ci`, and **that re-run is pinned from the
           suite itself**, like its sibling in `lib/`.
-    - [ ] **Re-measure `rehydrate.mjs` + `scripts/vault-write-guard.mjs`** off `25beef3` — the fixes are
-          committed and green (1214 pass, 1 skipped), each mutant hand-applied and watched red, but the
-          new scores are not measured yet.
-    - [ ] **Batch 3b RUNNING** — `session-self-heal.mjs, session-status.mjs, session-universe.mjs`, log
-          `…/v450-scripts-batch3b.log`. It is **massively red by construction** (≈208 survivors at 76 %):
+    - [x] **Re-measured off `25beef3` — `rehydrate.mjs` 90.80 % → 95.40 %** (the 4 left are the shared
+          entrypoint guard) **and the guard hook 50.00 % → 91.67 % → 95.83 %** after one more fix _(2026-08-03
+          · `fd13999`)_. That last run **found the fix's own defect**: the skip condition asked
+          `realGuardDeps.parser(...)`, i.e. the very wiring the two tests judge — mutate `parser` to return
+          null and the tests **turn themselves off**. It asks the disk now. Its single remaining survivor is a
+          true equivalent (`readFileSync(0, "")` returns a Buffer, and `JSON.parse` coerces it to the same
+          string). Logs: `…/v450-scripts-batch3a-recheck.log`, `…/v450-guard-hook-recheck.log`.
+    - [x] **Batch 3b done** — `session-self-heal.mjs, session-status.mjs, session-universe.mjs`, log
+          `…/v450-scripts-batch3b.log`: `session-self-heal.mjs` **36.62 %**, `session-status.mjs` **0.00 %**,
+          `session-universe.mjs` **39.39 %**. **Red by construction**:
           these are the top-level scripts no test can import. **Named, pre-existing debt, NOT a regression
           of this release** — write it that way in RESULTS.md rather than let a batch total imply rot.
-  - [ ] Copy the per-file scores AND the survivor list here **the moment each batch ends** — RESULTS.md's
+  - [x] Copy the per-file scores AND the survivor list here **the moment each batch ends** — RESULTS.md's
         own rule, earned by losing two reports to a scratchpad cleanup.
-  - [ ] When all batches are in: update `maintainers/mutation/RESULTS.md` (newest-first section for
-        v4.5.0) and pin the snapshot in the release note.
+  - [x] **All batches in, RESULTS.md written and the snapshot pinned in the release note** _(2026-08-03)_.
+        Correction made in passing: an earlier line here claimed `health-check.ts` at 92.67 %, which no log
+        supports — RESULTS.md publishes the measured **90.00 %**.
 - [x] **The version vector is bumped** _(2026-08-03 · `9fb5d1a`)_ — `rag` 1.2.0 → **1.3.0**, `scripts`
       1.9.0 → **1.10.0**, `constitutionTemplate` 1.0.0 → **1.1.0** (both constitutions changed),
       `local-mirror` left at 0.3.0 (nothing in it changed — checked, not assumed), `rag/package.json` and
