@@ -802,6 +802,37 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           PR, so the verdict has NOT landed yet; the owner confirmed they are launching it now. **On the
           next resume, look at the PR again before asking anything** — and if it has landed, treat the
           findings before touching the tail. The release itself is assembled and needs no re-doing.
+    - [ ] **LAUNCHED and STILL RUNNING, 2026-08-04** — session
+          `https://claude.ai/code/session_01YYtb3j4TFGN9SuP85TTZuA`. It posts **nothing to the PR**
+          (`gh pr view 55` stays at 0 reviews / 0 comments), so the PR is not the place to look: the
+          session page is. State when read: search done (**8 candidates**), verify in progress
+          (2 confirmed / 0 refuted and climbing), dedup pending. ⚠️ **`get_page_text` on that page
+          returned a stale "Révision arrêtée"** while a screenshot showed it live with a counter moving
+          — **trust the screenshot**, not the text extraction.
+    - [ ] **The 8 candidates, recorded so the list survives a `/clear`** (candidates, NOT findings —
+          only the first two are confirmed so far):
+      - [ ] ✅ *confirmed* — `scripts/lib/note-refresh.mjs:92` **the confidence line is corrupted when
+            the basis contains `$` replacement patterns**. Read the code: line 98 passes a template
+            **string** to `body.replace()`, so `$&`, `` $` ``, `$'`, `$1` in the rendered basis are
+            expanded as replacement patterns. Real, narrow, and the fix is a function replacement.
+      - [ ] ✅ *confirmed* — `scripts/lib/status-hook-output.mjs:30` **the new `additionalContext`
+            emitter bypasses the F5 audit guard**.
+      - [ ] ⏳ `scripts/lib/note-refresh.mjs:92` **promotes the `confidence:` field without adding the
+            visible block**. Worth taking seriously even before its verdict: if the body carries no
+            `> **Confidence** — ` line, the `replace` is a silent no-op, so the field moves alone —
+            **exactly** what the comment above it swears cannot happen ("promoted in BOTH places at
+            once", Step 12.4's own claim).
+      - [ ] ⏳ `scripts/lib/note-refresh.mjs:98` — `$`-sequences in the basis treated as special
+            replacements (likely the same defect as the first, a dedup candidate).
+      - [ ] ⏳ `scripts/refresh-note.mjs:84` — vault containment check bypassed by a backslash-escaped
+            path on Linux/macOS.
+      - [ ] ⏳ `engine-skills/consolidate/SKILL.md:50` — the sub-agent prompt still carries the
+            "never a first name alone" rule (a possible F6/F7 leftover).
+      - [ ] ⏳ `.claude/skills/prepare-1-1/SKILL.md:62` — missing blank line before the
+            "Markers are mandatory" paragraph (EN).
+      - [ ] ⏳ `maintainers/plans/prospective/release-v4.6.0-note.md:59` — **the note and the PR body
+            disagree on when the engine version label was first shipped**. A user-facing artifact
+            contradiction, so it belongs to the release tail whatever the verdict.
   - [ ] **The tail, once the review is in** (in this order):
     - [ ] Write the chosen title into the note's H1 **and** the PR title (both still carry a
           `<TITLE …>` placeholder).
