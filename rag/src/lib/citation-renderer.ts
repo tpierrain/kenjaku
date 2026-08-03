@@ -32,9 +32,17 @@ function escapeAngleDestination(url: string): string {
  * just like custom schemes — so the 🧠 link is best-effort, not guaranteed
  * clickable there. Each citation therefore ALSO carries a plain-text affordance
  * ("ask me to open citation N"): the user asks Claude, which opens the note via
- * the allowlisted opener (`open`/`xdg-open`/`start`) → the OS default editor.
- * That is the robust, editor-agnostic channel. The number matches the citation
- * heading so "open citation 2" is unambiguous (ADR 0027).
+ * the allowlisted opener (`open`/`xdg-open`/`start`). That is the robust channel.
+ * The number matches the citation heading so "open citation 2" is unambiguous
+ * (ADR 0027).
+ *
+ * WHERE that open lands stopped being one answer (ADR 0038): every cited note is
+ * by definition a VAULT note, so it goes to Obsidian — through
+ * `obsidian://open?path=` — when Obsidian holds this vault, and to the OS default
+ * editor otherwise. The affordance names both, because naming only one mispredicts
+ * the app for whichever half of the users it left out. The 🧠 LINK itself is
+ * unchanged and stays `file://`: Desktop drops every non-`http(s)` scheme, so
+ * emitting `obsidian://` in the markup would only buy a dead click.
  *
  * This lives in the engine-owned deterministic output (not the constitution) so
  * the links reach EVERY brain through `/update-engine`, not just new installs.
@@ -74,7 +82,7 @@ export function formatSearchCitations(
         `### ${i + 1}. ${r.title} — ${r.section}\n` +
         `**Path:** \`vault/${r.path}\` | **Type:** ${r.type} | **Score:** ${r.score.toFixed(3)}\n` +
         `${links}\n` +
-        `_Ask me to "open citation ${i + 1}" and I'll open it in your Markdown editor (Typora, Obsidian, …)._\n\n` +
+        `_Ask me to "open citation ${i + 1}" and I'll open it — in Obsidian if it holds this vault, otherwise in your default Markdown editor._\n\n` +
         `${r.content.slice(0, 500)}${r.content.length > 500 ? "…" : ""}`
       );
     })
