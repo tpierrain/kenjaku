@@ -531,10 +531,39 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   constitution lost `/non résolu/i` to a line break between the two words. Keep a guarded phrase on
 >   one line when writing the carrier.
 >
-> **⏭️ RESUME AT STEP 12.4** — the reliability/confidence block on a note born from a **probable**
-> rather than confirmed resolution, in F18's vocabulary (✅ observed / 🟡 derived or probable / 🔴
-> unverified; see the vocabulary paragraph at the top of Step 12). Nothing is half-written on disk and
-> no decision is pending. Then 12.5 (release).
+> **✅ Step 12.4 done — THE CONFIDENCE BLOCK IS COMPLETE** _(2026-08-03 · `e61002f` → `180e4de`)_.
+> Both halves shipped, in F18's vocabulary reused verbatim (✅ observed / 🟡 derived or probable / 🔴
+> unverified — the guard pins the middle marker's exact words, because a second scale here would be a
+> second discipline). The deterministic half: `renderFiledNote` renders a `> **Confidence** — …` block
+> above the body **and** a `confidence:` frontmatter field (F18 §4.6 — a caveat left in prose is one
+> the next session absorbs as confidence), a level outside the scale and a marker with no basis are
+> both refused rather than rendered leniently, and `scripts/file-back-note.mjs` **refuses a new person
+> card without it**. Required rather than offered, deliberately: left optional, its absence would mean
+> *confirmed*, which is silence rendered as confidence. The prose half is the discipline's sixth rule,
+> *say how sure you are*, on the same four carriers as rules 4 and 5. Reach unchanged and checked:
+> `scripts/**` and `engine-skills/**` in `replace`, `sync-sources` in `merge`, the constitution in no
+> regime.
+>
+> Two things worth not re-learning:
+> - **The rule needed a GESTURE, or the marker rots into the decoration it replaces.** A card marked 🟡
+>   had no supported way to ever say anything else, so "re-verify before resolving against it" had
+>   nowhere to record its outcome — and readers learn to ignore a marker that never changes.
+>   `scripts/refresh-note.mjs` now promotes a card, rewriting the **field and the visible block
+>   together** (rewriting one alone leaves the page asserting two different things about itself), through
+>   the **same renderer** as the builder. Freehand was never an option: hand-editing frontmatter is what
+>   put two `updated:` keys on one page and made it unreadable (F12).
+> - **A `ReferenceError` is not a fail-first.** The `/refresh-note` seam test first "went red" on
+>   `fakeDeps is not defined` — I had written the helper shape of a *different* test file. Re-verified by
+>   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
+>   anything.
+>
+> **⏭️ RESUME AT STEP 12.5 — the release.** Mutation pass on what v4.6.0 changed, version vector, §10
+> marketing re-read, note + PR body. Its recipe (worktree at `/Users/tpierrain/Dev/kenjaku-mut-v460`
+> — NOT the scratchpad, the `rag/node_modules` symlink, one-or-two files per batch ≈ 6 min under the
+> 10-min cap) is written in Step 11 and stays valid. **Also still open from Step 12.0**, and easy to
+> miss because its box is checked: the note must cover the new `⚙️ Kenjaku engine v4.5.0` startup
+> segment, and the F3 wording (v4.7.0) must share this release's vocabulary. Nothing is half-written on
+> disk and no decision is pending.
 >
 > **✅ DECIDED (2026-08-03, by the owner): 12.3 ships PROSE + A DETERMINISTIC GUARD.** The scope was
 > put to the owner with three options and this is the one chosen — **do not re-open it**. Both doors
@@ -661,8 +690,21 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         `/consolidate`, which both write through it.
   - [x] **The two skills document the field** (`file-back`, `consolidate`), pointing at the producer's
         section rather than restating the rule — the shape F6 and F7 both landed on.
-- [ ] **Step 12.4 — the reliability/confidence block** on any note born from a **probable** rather than
-      confirmed resolution, in F18's vocabulary (see the header note above).
+- [x] **Step 12.4 — the reliability/confidence block. ✅ COMPLETE** _(2026-08-03 · `e61002f` →
+      `180e4de`)_ on any note born from a **probable** rather than confirmed resolution, in F18's
+      vocabulary (see the header note above for what shipped and the two lessons).
+  - [x] **The prose half** — the identity discipline's sixth rule (*say how sure you are*),
+        `sync-sources` EN + FR plus both constitutions, in the guard family shared with the claim
+        discipline. Two sides again: the card **says** what its identity rests on, and at read time a
+        card marked 🟡 or 🔴 is a **lead, not the vault's answer** (re-verified, never inherited).
+  - [x] **The deterministic half** — `scripts/lib/filed-note.mjs` renders the block **and** a
+        `confidence:` frontmatter field; `scripts/file-back-note.mjs` refuses a new `person` card
+        without it; a bad level or a basis-less marker is refused, never rendered leniently.
+  - [x] **The promotion gesture** — `scripts/refresh-note.mjs` rewrites the field and the visible
+        block together, through the builder's own renderer. Without it the marker could never change,
+        which is how it would have rotted back into decoration.
+  - [x] **The two skills document the field** (`file-back`, `consolidate`), the latter saying why a
+        mention-count candidate is rarely `observed`.
 - [ ] **Step 12.5 — the release**: mutation pass on what changed, version vector, §10 marketing re-read,
       note + PR body. Same shape as Step 11; its recipe (worktree, batch sizes, the `rag/node_modules`
       symlink) is written there and stays valid.
@@ -1162,9 +1204,10 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       field, worth adopting upstream). A `people/` note only makes the resolution rule usable if it
       carries an explicit **homonymy block**: the brain had 3 Romain, 3 Marie, 2 Karim, 2 Caroline,
       2 Michael. Without it, notes only move the ambiguity.
-- [ ] **Conformant ≠ true.** A deterministic builder guarantees *form* (naming convention, green lint),
-      not *substance*. Consider requiring a reliability/confidence block on any note born from a
-      **probable** rather than confirmed resolution.
+- [x] **Conformant ≠ true.** ✅ **DONE** _(2026-08-03 · `e61002f` → `180e4de`)_ — see Step 12.4 for what
+      shipped and where. A deterministic builder guarantees *form* (naming convention, green lint), not
+      *substance*, so a person card now carries a reliability/confidence block saying what its identity
+      rests on, and the builder refuses to write one without it.
 
 ### P2 — the freeze trap, and no path back upstream
 
