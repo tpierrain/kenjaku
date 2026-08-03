@@ -277,6 +277,12 @@ the **next** resolution resolves against. A briefing turned a source's *"Jérém
 - **A link is not a person.** Never create a `people/` card merely to satisfy an incoming
   `[[people/…]]` link: a dangling link is a defect of the link, so repair it where it was written or
   drop it. Creating the target turns a mis-resolution into the vault's own answer to *who exists*.
+- **Say which one.** A first name is rarely unique (one real vault: three Romain, three Marie, two
+  Karim). A `people/` card therefore carries a homonymy block under its title — role, organisation,
+  and the other cards by name — or it moves the ambiguity instead of resolving it; the builder
+  refuses a person whose first name the vault already holds unless the spec says `distinguish`. And
+  when a bare first name matches several cards with nothing to tell them apart, it is **unresolved**:
+  plain text, no link.
 
 ### Claim discipline — the silence you report is the dangerous part
 

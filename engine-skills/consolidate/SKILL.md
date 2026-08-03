@@ -116,6 +116,11 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
 ```
 - Exit **0** = written (prints `✓ Filed back: vault/<path>`); relay the path.
 - Exit **1** = refused (already exists) or invalid → it's a living page, go to 5b.
+- Exit **1** on a `person` whose **first name the vault already holds**: the card must say which one.
+  Add `distinguish` — their role, their organisation, and the homonym cards the message names — and
+  re-run. If the captures do not tell them apart, leave the page unwritten and say so: a card that
+  does not resolve the name only moves the ambiguity into the vault, where the next resolution
+  inherits it (the identity discipline linked above).
 
 ### 5b. Existing page (refresh) → pipe the dated section to the deterministic writer
 Filing never overwrites: a living page is REFRESHED by appending a dated section and bumping its

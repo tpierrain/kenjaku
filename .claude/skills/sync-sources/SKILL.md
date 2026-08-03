@@ -102,6 +102,16 @@ one. See "Identity discipline" just below: the name stays plain text. This secti
    then resolves against it. `people/stephanie-music.md` was born exactly that way, from one
    mis-resolved link; that name occurs once in the whole vault — in its own title. A card is written
    when someone confirms the person, never to make a link report go green.
+5. **Say which one.** A first name is rarely unique: the vault this discipline was written for held
+   three Romain, three Marie, two Karim, two Caroline and two Michael. So a `people/` card carries a
+   **homonymy block** — one line under the title saying what tells this person apart from everyone
+   the vault knows by that first name (their role, their organisation, and the other cards by name).
+   Without it the card resolves nothing; it moves the ambiguity one hop, into the vault. The builder
+   enforces it: `scripts/file-back-note.mjs` refuses a new person whose first name the vault already
+   holds unless the spec carries `distinguish`, and its refusal names the homonyms it found. The
+   read-time half is what makes the block worth writing: when a bare first name matches several
+   cards and nothing in the source tells them apart, that name is **unresolved** — rule 2 applies
+   (plain text, no link). Never resolve to the nearest one, and never to the one you saw last.
 
 ## Claim discipline
 

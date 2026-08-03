@@ -285,6 +285,12 @@ ailleurs que dans cette note, et qui est désormais indexé.
   satisfaire un lien `[[people/…]]` entrant : un lien cassé est un défaut du lien, répare-le là où il
   a été écrit ou supprime-le. Créer la cible fait d'une mauvaise résolution la réponse du vault à la
   question *qui existe*.
+- **Dis de qui il s'agit.** Un prénom est rarement unique (un vault réel : trois Romain, trois Marie,
+  deux Karim). Une fiche `people/` porte donc un bloc d'homonymie sous son titre (rôle, organisation,
+  et les autres fiches nommées), sinon elle déplace l'ambiguïté au lieu de la résoudre : le builder
+  refuse une personne dont le vault porte déjà le prénom tant que la spec ne dit pas `distinguish`.
+  Et quand un prénom seul correspond à plusieurs fiches sans rien pour les départager,
+  il est **non résolu** : texte simple, pas de lien.
 
 ### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
 

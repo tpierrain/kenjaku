@@ -104,6 +104,18 @@ que tu n'as pas.
    exactement comme ça, d'un seul lien mal résolu ; ce nom n'apparaît qu'une fois dans tout le vault :
    dans son propre titre. Une fiche s'écrit quand quelqu'un confirme la personne, jamais pour faire
    passer au vert un rapport de liens.
+5. **Dis de qui il s'agit.** Un prénom est rarement unique : le vault pour lequel cette discipline a
+   été écrite contenait trois Romain, trois Marie, deux Karim, deux Caroline et deux Michael. Une
+   fiche `people/` porte donc un **bloc d'homonymie** : une ligne, sous le titre, qui dit ce qui
+   distingue cette personne de toutes celles que le vault connaît sous ce prénom (son rôle, son
+   organisation, et les autres fiches nommées). Sans lui, la fiche ne résout rien : elle déplace
+   l'ambiguïté d'un cran, à l'intérieur du vault. Le builder l'impose :
+   `scripts/file-back-note.mjs` refuse une nouvelle personne dont le vault porte déjà le prénom tant
+   que la spec ne contient pas `distinguish`, et son refus nomme les homonymes trouvés. L'autre
+   moitié, à la lecture, est ce qui rend le bloc utile : quand un prénom seul correspond à plusieurs
+   fiches et que rien dans la source ne les départage, ce nom est **non résolu** (la règle 2
+   s'applique : texte simple, pas de lien). Ne résous jamais vers la fiche la plus proche, ni vers
+   celle que tu viens de lire.
 
 ## Discipline d'affirmation
 

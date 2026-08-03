@@ -68,6 +68,19 @@ const RULES_EN = [
     why: "a dangling [[people/…]] link is repaired at the source, never by creating the person it names",
     pattern: [/a link is not a person/i, /never create a `people\/`/i],
   },
+  {
+    // The homonymy block. Rule 1 is unusable when the vault's own answer is
+    // three cards wide: the field brain held 3 Romain, 3 Marie, 2 Karim, 2
+    // Caroline and 2 Michael. A card that does not say which one does not
+    // resolve anything — it moves the ambiguity one hop, into the vault.
+    //
+    // Two sides, and the second is what makes the first usable: the card SAYS
+    // what tells this person apart (the builder refuses the write otherwise),
+    // and at read time a bare first name matching several cards is UNRESOLVED,
+    // never resolved to the nearest one.
+    why: "a person card says WHICH one (the `distinguish` block), and a first name matching several cards stays unresolved",
+    pattern: [/say which one/i, /distinguish/, /unresolved/i],
+  },
 ];
 
 const RULES_FR = [
@@ -86,6 +99,10 @@ const RULES_FR = [
   {
     why: "un lien `[[people/…]]` cassé se répare à la source, jamais en créant la personne qu'il nomme",
     pattern: [/un lien n'est pas une personne/i, /ne crée jamais une fiche `people\/`/i],
+  },
+  {
+    why: "une fiche dit DE QUI il s'agit (le bloc `distinguish`), et un prénom qui correspond à plusieurs fiches reste non résolu",
+    pattern: [/dis de qui il s'agit/i, /distinguish/, /non résolu/i],
   },
 ];
 
@@ -303,6 +320,38 @@ for (const { name, locale, path } of SKILLS) {
       text,
       locale === "FR" ? LINKLESS_FR : LINKLESS_EN,
       "the prompt must state the action (no full name → no link at all), not only the ban",
+    );
+  });
+}
+
+// ── The two doors that WRITE a person card must name the field ──────────────
+// The rule above is stated in the producer's discipline; these two skills are
+// where a `people/` card is actually created, and they both write through the
+// same builder — which now REFUSES a person whose first name the vault already
+// holds until the spec says which one. A skill that documents the builder's exit
+// codes without that one leaves the writer reading a refusal it never mentioned,
+// and the likeliest repair is to drop the card or invent a surname (F7 again).
+//
+// Same shape as `/lint` and `/consolidate` under F6: name the field, then POINT
+// at the producer's section. Two paraphrases of one discipline are two
+// disciplines.
+const WRITE_DOORS = [
+  { name: "file-back", path: "engine-skills/file-back/SKILL.md" },
+  { name: "consolidate", path: "engine-skills/consolidate/SKILL.md" },
+];
+
+for (const { name, path } of WRITE_DOORS) {
+  test(`${name} tells the writer about the homonymy block the builder demands`, () => {
+    const text = read(path);
+    assert.match(
+      text,
+      /distinguish/,
+      "the skill drives the builder — a refusal it never mentions reads as a bug in the tool",
+    );
+    assert.match(
+      text,
+      IDENTITY_ANCHOR_EN,
+      "the reason belongs to the producer's identity SECTION, not to a second wording here",
     );
   });
 }
