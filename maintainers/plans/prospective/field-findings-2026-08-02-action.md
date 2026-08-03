@@ -112,15 +112,40 @@
 > place (§2, §4, §6bis), and both constitutions teach the page since the gate closed the last channel
 > that mentioned it. Suites green: 1177 scripts (1 skipped Windows-only), 480 rag.
 >
-> **⏭️ NEXT AND LAST: step 11, the v4.5.0 release.** Nothing of it is started. What it needs is in the
-> numbered list below — the `engineVersion.scripts` bump and the PR body stating F5's known limit —
-> plus the §7 caveat at the end of this header (the rehydrate does not index, so the first rooted
-> session is what indexes the vault, canary included). _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **🛑 BLOCKER, FOUND 2026-08-03: WINDOWS IS RED — 14 failures, and they have been red for weeks.**
+> The whole release had accumulated **67 commits without a single push**, so `ci.yml`'s tripwire — which
+> fires on a push to any branch, and exists *precisely* to stop this (`CONVENTIONS.md` §9, written after
+> v4.4.0 reached 52 commits before Windows spoke) — had never run. Branch `release/v4.5.0` is now pushed
+> and **draft PR #54** is open; the tripwire went red in 34 s (1162 pass / **14 fail** / 2 skipped).
+> **Fix this before the release step.** Two distinct causes, do not treat them as one:
+> - **9 in `scripts/rehydrate.test.mjs` + 1 in the verify-index door — a real Windows defect, and the
+>   exact suspect §9 names**: the fakes are keyed on **hard-coded POSIX literals**
+>   (`/brains/mind-palace/.claude/settings.json`) while production computes its key with
+>   `resolve`/`join`, so on Windows (`D:\brains\…`) the fake is never hit and the plan writes nothing —
+>   `0 !== 1`, `[]` instead of the settings write. Same family as the v4.4.0 failure. Fix the FAKES to
+>   key the way production does; check whether production itself also needs a POSIX normalisation at
+>   the single source, rather than assuming it is only the test.
+> - **4 in `scripts/lib/vault-write-guard.test.mjs` — a job-scope mismatch, not a Windows bug**:
+>   `parse is not a function`, because the guard resolves the engine's own parser (gray-matter +
+>   js-yaml) from `rag/node_modules`, and the tripwire job deliberately installs **nothing**. So these
+>   tests are not dependency-free and never were; they pass locally only because `rag/node_modules`
+>   exists there. Decide which: install rag deps in the tripwire (it stops being the ~40 s job), or make
+>   these four skip when the parser is absent (and keep them in the full matrix, which does install).
+>   **Do not "fix" them by faking the parser** — reading through the engine's own eyes is the whole
+>   point of that guard (F16).
+> - **Not yet known**: whether the FULL matrix (which does install dependencies) is green on everything
+>   else — it was still running when this was written. **Read PR #54's checks first**, they answer it.
+>
+> **⏭️ THEN, LAST: step 11, the v4.5.0 release.** Nothing of it is started. What it needs is in the
+> numbered list below — the `engineVersion.scripts` bump and the PR body stating F5's known limit (a
+> first draft of that body is already on PR #54) — plus the §7 caveat at the end of this header (the
+> rehydrate does not index, so the first rooted session is what indexes the vault, canary included). _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
 > **Resume here — v4.5.0, in this order.**
 > 10. ~~**F1 — the universe banner**~~ ✅ done, see above.
+> 10bis. **Get Windows green on PR #54** — the blocker above. This is the real resume point.
 > 11. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
 >    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
 >    constitution half (an engine-managed file only reaches brains that never customized it).
