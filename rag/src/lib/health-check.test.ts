@@ -9,6 +9,7 @@ const HEALTHY: HealthVitals = {
   indexRows: 42,
   canaryHits: 3,
   canaryNotePresent: true,
+  outOfStepNotes: [],
 };
 
 function checkNamed(result: { checks: { name: string; status: string }[] }, name: string) {
@@ -28,11 +29,12 @@ function vitals(over: Partial<HealthVitals> = {}): HealthVitals {
 const OK_CANARY = { name: "canary", status: "ok", detail: "canary found (3)" };
 const OK_INDEX = { name: "index", status: "ok", detail: "42 rows" };
 const OK_EMBEDDER = { name: "embedder", status: "ok", detail: "in-process ready" };
+const OK_NOTES = { name: "notes", status: "ok", detail: "every note is in step with the index" };
 
 test("healthy full-depth vitals → exact { status, checks } with every detail", () => {
   assert.deepEqual(buildHealthCheck(vitals()), {
     status: "ok",
-    checks: [OK_CANARY, OK_INDEX, OK_EMBEDDER],
+    checks: [OK_CANARY, OK_INDEX, OK_EMBEDDER, OK_NOTES],
   });
 });
 
@@ -45,6 +47,7 @@ test("canary search ran but found nothing (hits 0) → broken, exact detail (the
       { name: "canary", status: "broken", detail: "canary not found in the vault" },
       OK_INDEX,
       OK_EMBEDDER,
+      OK_NOTES,
     ],
   });
 });
@@ -61,6 +64,7 @@ test("dedicated health-check note missing → canary unknown, detail names the r
       },
       OK_INDEX,
       OK_EMBEDDER,
+      OK_NOTES,
     ],
   });
 });
@@ -77,6 +81,7 @@ test("light probe (canaryHits null = not searched) → canary ok, 'not searched'
       },
       OK_INDEX,
       OK_EMBEDDER,
+      OK_NOTES,
     ],
   });
 });
@@ -90,6 +95,7 @@ test("embedder could not run the canary (ready false, hits 0) → canary unknown
       { name: "canary", status: "unknown", detail: "embedder could not run the canary search" },
       OK_INDEX,
       { name: "embedder", status: "broken", detail: "in-process could not run" },
+      OK_NOTES,
     ],
   });
 });
@@ -97,7 +103,7 @@ test("embedder could not run the canary (ready false, hits 0) → canary unknown
 test("index unreadable (rows -1) → index unknown, 'could not be read' (the < 0 sentinel)", () => {
   assert.deepEqual(buildHealthCheck(vitals({ indexRows: -1 })), {
     status: "unknown",
-    checks: [OK_CANARY, { name: "index", status: "unknown", detail: "index could not be read" }, OK_EMBEDDER],
+    checks: [OK_CANARY, { name: "index", status: "unknown", detail: "index could not be read" }, OK_EMBEDDER, OK_NOTES],
   });
 });
 
@@ -105,7 +111,7 @@ test("index empty (rows 0) → index broken, 'index empty' (the 0 boundary, not 
   // rows 0 vs -1 vs 42 triangulates both `< 0` and `> 0` and their <=/>= twins.
   assert.deepEqual(buildHealthCheck(vitals({ indexRows: 0 })), {
     status: "broken",
-    checks: [OK_CANARY, { name: "index", status: "broken", detail: "index empty" }, OK_EMBEDDER],
+    checks: [OK_CANARY, { name: "index", status: "broken", detail: "index empty" }, OK_EMBEDDER, OK_NOTES],
   });
 });
 
@@ -119,6 +125,7 @@ test("API mode, no key configured → embedder unknown, '<mode> key not configur
         { name: "canary", status: "unknown", detail: "embedder could not run the canary search" },
         OK_INDEX,
         { name: "embedder", status: "unknown", detail: "gemini key not configured" },
+        OK_NOTES,
       ],
     },
   );
@@ -133,6 +140,7 @@ test("key set but embedder cannot run → embedder broken, '<mode> could not run
         { name: "canary", status: "unknown", detail: "embedder could not run the canary search" },
         OK_INDEX,
         { name: "embedder", status: "broken", detail: "gemini could not run" },
+        OK_NOTES,
       ],
     },
   );
@@ -405,4 +413,83 @@ test("gatherVitals: a throwing canary search → embedderReady false, 0 hits", a
   });
   assert.equal(vitals.embedderReady, false);
   assert.equal(vitals.canaryHits, 0);
+});
+
+test("notes the engine cannot bring in step → broken, naming one and counting the rest", () => {
+  // The F15 shape: the index is full, the embedder is fine, every counter is green —
+  // and a note goes on answering from content it no longer has. Named, not counted.
+  assert.deepEqual(
+    checkNamed(
+      buildHealthCheck(
+        vitals({
+          outOfStepNotes: [
+            { path: "topics/crise.md", reason: "damaged front-matter — it keeps ANSWERING from old content" },
+            { path: "topics/empty.md", reason: "indexed but holding no chunk" },
+          ],
+        })
+      ),
+      "notes"
+    ),
+    {
+      name: "notes",
+      status: "broken",
+      detail:
+        "2 notes the engine cannot bring in step — e.g. topics/crise.md: damaged front-matter — " +
+        "it keeps ANSWERING from old content",
+    }
+  );
+});
+
+test("every note in step → the notes check is ok and says so", () => {
+  assert.deepEqual(checkNamed(buildHealthCheck(vitals({ outOfStepNotes: [] })), "notes"), {
+    name: "notes",
+    status: "ok",
+    detail: "every note is in step with the index",
+  });
+});
+
+test("crosscheck not measured (null) → no notes check at all, and the verdict stays ok", () => {
+  // NOT "unknown": `vault-rag` is a MANDATORY module, and gateBlockers blocks the
+  // install post-flight / verify-rag on a mandatory unknown. A crosscheck we could not
+  // run is a diagnostic we lack, never a reason to fail an install — so the check is
+  // simply absent, and the three vitals keep deciding the verdict.
+  const result = buildHealthCheck(vitals({ outOfStepNotes: null }));
+
+  assert.deepEqual(result.checks.map((c) => c.name), ["canary", "index", "embedder"]);
+  assert.equal(result.status, "ok");
+});
+
+test("gatherVitals: the crosscheck seam's findings ride along, at light depth too", async () => {
+  const found = [{ path: "topics/crise.md", reason: "damaged front-matter" }];
+
+  const v = await gatherVitals(
+    {
+      embedderMode: "in-process",
+      keyConfigured: true,
+      readIndexRows: () => 7,
+      searchCanary: async () => 2,
+      canaryNoteExists: () => true,
+      weightsReady: () => true,
+      crosscheck: async () => found,
+    },
+    "light",
+  );
+
+  assert.deepEqual(v.outOfStepNotes, found);
+});
+
+test("gatherVitals: a throwing crosscheck leaves the comparison unmade, never a false alarm", async () => {
+  const v = await gatherVitals({
+    embedderMode: "in-process",
+    keyConfigured: true,
+    readIndexRows: () => 7,
+    searchCanary: async () => 2,
+    canaryNoteExists: () => true,
+    crosscheck: async () => {
+      throw new Error("database is locked");
+    },
+  });
+
+  assert.equal(v.outOfStepNotes, null);
+  assert.equal(buildHealthCheck(v).status, "ok");
 });

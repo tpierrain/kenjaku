@@ -41,6 +41,13 @@ export interface HealthVitals {
   // user purged it (it shouldn't, but it's just a file), we cannot run the canary →
   // "unknown", never "broken" (ADR 0030 §2).
   canaryNotePresent: boolean;
+  // The notes the disk↔index crosscheck found that the engine CANNOT bring back in step
+  // on its own (F15) — a damaged frontmatter every re-read will refuse, a 0-chunk row an
+  // incremental run will skip forever. NOT the transient drift of a note edited a second
+  // ago: the watcher clears that one, and shouting about it would train the owner to
+  // ignore the banner. Absent (null / not set) = not compared → no check at all, never
+  // a false alarm and never a gate failure.
+  outOfStepNotes?: Array<{ path: string; reason: string }> | null;
 }
 
 // The dedicated canary token — a deliberately UNIQUE, INVENTED word that appears
@@ -64,6 +71,10 @@ export interface VitalsSeams {
   // Light-depth only: "is the embedder ready to run?" WITHOUT running it (in-process
   // weights present on disk / API key configured). Never called at full depth.
   weightsReady?: () => boolean;
+  // The disk↔index crosscheck (F15) — file reads + one SQLite query, no embedding, so
+  // it belongs to BOTH depths, including the per-session light probe. Optional: a caller
+  // that does not wire it simply does not get the check.
+  crosscheck?: () => Promise<Array<{ path: string; reason: string }>>;
 }
 
 // Collects the engine's raw functional vitals through injected seams (the real I/O
@@ -110,6 +121,17 @@ export async function gatherVitals(
     canaryNotePresent = false;
   }
 
+  // Fail-safe like every other seam: a crosscheck that throws (locked DB, unreadable
+  // vault) leaves the comparison UNMADE rather than reporting damage it did not see.
+  let outOfStepNotes: Array<{ path: string; reason: string }> | null = null;
+  if (seams.crosscheck) {
+    try {
+      outOfStepNotes = await seams.crosscheck();
+    } catch {
+      outOfStepNotes = null;
+    }
+  }
+
   return {
     embedderMode: seams.embedderMode,
     keyConfigured: seams.keyConfigured,
@@ -117,6 +139,7 @@ export async function gatherVitals(
     indexRows,
     canaryHits,
     canaryNotePresent,
+    outOfStepNotes,
   };
 }
 
@@ -187,5 +210,25 @@ export function buildHealthCheck(v: HealthVitals): HealthCheckResult {
           : `${v.embedderMode} could not run`,
     },
   ];
+  // The crosscheck (F15) joins the vitals only when it actually ran. Absent — not
+  // "unknown" — when it did not: `vault-rag` is a MANDATORY module, and gateBlockers
+  // fails the install post-flight / verify-rag on a mandatory unknown. A comparison we
+  // could not make is a diagnostic we lack, never a reason to fail an install.
+  if (Array.isArray(v.outOfStepNotes)) {
+    const outOfStep = v.outOfStepNotes;
+    checks.push({
+      name: "notes",
+      status: outOfStep.length > 0 ? "broken" : "ok",
+      // NAMES one note rather than only counting: "2 notes out of step" sends the owner
+      // hunting, while a path plus the parser's own reason is something they can act on.
+      // The command lists them all — a banner that grows with the damage stops being read.
+      detail:
+        outOfStep.length === 0
+          ? "every note is in step with the index"
+          : `${outOfStep.length} note${outOfStep.length === 1 ? "" : "s"} the engine cannot ` +
+            `bring in step — ${outOfStep.length === 1 ? "" : "e.g. "}` +
+            `${outOfStep[0].path}: ${outOfStep[0].reason}`,
+    });
+  }
   return { status: aggregate(checks), checks };
 }
