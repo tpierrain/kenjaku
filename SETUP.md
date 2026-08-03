@@ -244,17 +244,30 @@ also proves search **by meaning**, not a grep.
 
 Exposed MCP tools: `search_vault`, `get_document`, `list_documents`, `vault_stats`, `reindex`.
 
-## 🪨 Reading & editing your notes (your default editor + optional Obsidian)
+## 🪨 Reading & editing your notes (Obsidian for your notes, your default editor for the rest)
 
 Your vault is a plain set of `.md` files, so it works without any extra app. When you ask Claude to
-**"open my note about X"**, it opens the **real file in your default Markdown editor** — Typora, VS Code,
-Obsidian, whatever you've set — so you can read and **edit it in place**, and your edit is picked up.
-No app is forced and there's no lock-in: it's just your file in your editor.
+**"open my note about X"**, it opens the **real file** — never a copy pasted into the chat — so you can
+read it and **edit it in place**, and your edit is picked up.
 
-**Optional — Obsidian for browsing the whole vault.** Installing **[Obsidian](https://obsidian.md)**
-(free) gives you a full graph view, `[[wikilinks]]` and backlinks over those very same files — ideal for
-*exploring* the brain rather than opening one note. The installer can register this brain as an Obsidian
-vault for you, so it shows up ready to browse in Obsidian's switcher.
+**Where it opens depends on which file it is**, because *a note of your brain* and *any Markdown file on
+your machine* are not the same thing:
+
+- **A note of your vault** opens in **Obsidian**, when Obsidian is installed and this vault is
+  registered in it (the installer can do that registration for you). That's the app built for these
+  notes: links, backlinks, graph.
+- **Anything else** — a Markdown file outside the vault, or no Obsidian on this vault — opens in **your
+  default Markdown editor** (Typora, VS Code, whatever you've set). No app is forced, no lock-in.
+
+> 🔐 **The very first time, Obsidian will ask you to confirm.** It shows *"Execute the action from an
+> external link?"* — that is Obsidian being careful about links coming from outside itself, and it is
+> **expected**, not a warning about your brain. Tick **"Don't ask again"** and it never comes back. It's
+> the same shape as the one-time "Always allow" clicks on your connectors: a handful of seconds, once.
+
+**Obsidian stays optional.** Without it, every note still opens in your default editor and nothing is
+lost. With it — **[Obsidian](https://obsidian.md)** is free — you also get a full graph view,
+`[[wikilinks]]` and backlinks over those very same files, which is what makes *exploring* the whole
+brain pleasant rather than opening one note at a time.
 
 > ⚠️ **First-launch step (Obsidian only).** On a brand-new Obsidian the first launch lands on a
 > **welcome / vault-picker screen**. If the installer didn't register the vault, open Obsidian yourself,
@@ -290,8 +303,11 @@ What it writes is a **normal note** (`vault/universe.md`), which means:
 - it is **versioned** with the rest of your vault, and **searchable** like any other note;
 - it is **never overwritten** — once the page exists, it is yours.
 
-A short summary of it is handed to each new conversation, so your brain starts already knowing who
-your people are. To fill it in later, or to change your mind, just ask ("describe my context").
+Your brain **opens that page when your question depends on it** — who someone is, which account a
+tool uses here. What it does *not* do is print the page at you: what you wrote there stays in the
+vault, and never lands in a screenshot or a screen share just because a conversation started. To
+fill it in later, to read it back, or to change your mind, just ask ("describe my context", "show me
+my context").
 
 > If you use several **universes** (see `/switch` below), each one gets its **own** page: the people
 > and the accounts of one sphere never leak into another's answers.
@@ -459,11 +475,38 @@ git push -u origin main
 git config secondbrain.autopush true   # ← enables the hook's automatic push
 ```
 The brain will then push **once per turn** (the `Stop` hook), bundling that turn's commits; a failed
-push is non-blocking and retried at the next turn. On the other machine: `git clone <your-private-repo>`
-then, **in the cloned folder**, `cd rag && npm install` and re-enter the key in `.env` (the index
-rebuilds at the 1st startup). *(No need for the installer here: it serves to **generate** a brain,
-not to re-hydrate an already-existing brain.)* During a session, the `/sync` skill retrieves the
-changes from the other machine.
+push is non-blocking and retried at the next turn.
+
+### On the second machine — clone, then **rehydrate**
+
+A clone is **not** a working brain yet, and that is normal: two of the files your brain runs on
+(`.mcp.json` and `.claude/settings.json`) hold **absolute paths belonging to one machine**, so they
+are deliberately gitignored and git never carries them. Without them there is no `vault-rag` search
+server, no hooks (no auto-commit, no auto-push) and no permission allowlist. One command rebuilds
+them, from the `.template` files that *did* travel in the clone:
+
+```bash
+git clone <url-of-your-private-repo>
+cd <your-brain-folder>
+node scripts/rehydrate.mjs      # ← rebuilds this machine's wiring
+```
+
+It regenerates both files, re-seeds the health note, and installs **both** dependency trees
+(`rag/` *and* `local-mirror/` — two `package.json`, a `cd rag && npm install` alone leaves the
+local-mirror server unable to start). It works **offline**, it overwrites nothing, and running it on
+an already-wired brain simply prints "nothing to do".
+
+Then two things it cannot do for you:
+
+- **Your key, if your brain uses an API embedder** (Gemini/OpenAI/…): `.env` is never committed, so
+  re-enter it on this machine. A 100 % local brain (`in-process` / Ollama) has nothing to re-enter.
+- **Open a NEW conversation rooted in the brain folder.** Claude loads the MCP servers and the hooks
+  when a session *starts*, so a session already open keeps running on the old (absent) wiring.
+
+That first rooted session is also what **indexes the vault** — a clone carries your notes but not the
+index (`rag/.cache` is local). So a first-session banner announcing an empty index is expected, not a
+defect: let the indexing run. Afterwards, during a session, the `/sync` skill brings in the changes
+made on the other machine.
 
 > ⚠️ **Never** commit `.env` (gitignored). On a new machine, re-enter the key.
 
@@ -475,10 +518,11 @@ changes from the other machine.
 | `npm install` fails on **`better-sqlite3`** (Windows) | Native module without a prebuild for your Node version | Use an **LTS version** of Node (prebuilds available), or install the build tools: `npm install --global windows-build-tools` (old) or the *Visual Studio Build Tools* ("Desktop development with C++"). Then `cd rag && npm install`. |
 | RAG fails at startup with **`NODE_MODULE_VERSION` mismatch** / "compiled against a different Node.js version" / `ERR_DLOPEN_FAILED` | **Native-dep ABI skew** — `better-sqlite3` was built under one Node, then loaded by another (only happens on a machine with several Node versions, e.g. after switching Node). | **Self-heals since v3.1.0**: the engine detects the skew and runs **one automatic `npm rebuild better-sqlite3`** under the current Node on the next start, then retries — no action needed (the first start after a Node change just takes a few seconds longer). To force it manually: `cd rag && npm rebuild better-sqlite3`. |
 | Empty searches | Index not built / no key | `cd rag && npm run index` after setting the key |
+| An answer quotes a note but with **outdated content**, or a note you know exists is **never found** | The note is on disk, but the index no longer matches it — typically frontmatter that broke after it was indexed, so every re-read is refused while the old version keeps answering | From the brain folder: `node scripts/verify-index.mjs`. It compares your notes with the index and **names** the ones they disagree about, read-only. Fix the frontmatter it points at (your brain can do it for you) — a restart or a reindex will not clear that one. |
 | `RESOURCE_EXHAUSTED` / 429 | Today's Gemini quota reached | auto-resume at reset (Pacific midnight), or raise `MAX_EMBED_REQUESTS_PER_DAY` |
 | RAG status "unavailable" at startup | RAG engine not yet installed / DB being written | `cd rag && npm install`; the status recovers once the index is built |
-| The MCP server doesn't appear | `.mcp.json` missing / wrong path | re-run `node installer.mjs`, accept the server in Claude Code |
-| **MCP smoke-test ❌** at the end of installation ("MCP connection KO") | `rag/` not installed, `.mcp.json` poorly generated, or `npx`/`tsx` unavailable | `cd rag && npm install` then re-run `node installer.mjs`; check that `.mcp.json` points to `npx tsx rag/src/index.ts` with the right `cwd`. Manual test: `npx tsx rag/src/index.ts` should start without crashing (the Gemini key is **not** required for this test). |
+| The MCP server doesn't appear | `.mcp.json` missing (typically a **freshly cloned** brain — the file is gitignored) or its paths point at another machine | From the brain folder: `node scripts/rehydrate.mjs`, then **open a new conversation** rooted there and accept the server in Claude Code. *(Not the installer: it refuses an existing folder, by design.)* |
+| **MCP smoke-test ❌** at the end of installation ("MCP connection KO") | `rag/` not installed, `.mcp.json` poorly generated, or `npx`/`tsx` unavailable | Your brain folder exists now, so the repair runs **from inside it**, not from the installer (which refuses an existing folder): `node scripts/rehydrate.mjs` reinstalls the dependency trees and rebuilds any missing wiring. Check that `.mcp.json` points to `npx tsx rag/src/index.ts` with the right `cwd`. Manual test: `npx tsx rag/src/index.ts` should start without crashing (the Gemini key is **not** required for this test). |
 | Memory feels tight with several brains open in **Claude Desktop** | Each open brain keeps **one warm search engine** in RAM (the MCP server lives with the parent session, not your typing) | Close the brain conversations you're not using — each open brain conversation holds one warm embedder in RAM. |
 
 ## 9. Data privacy

@@ -41,6 +41,35 @@ En parallèle (architecture de [`sync-sources`](../sync-sources/SKILL.md), résu
   **prochain** 1-1 (date du fichier de sortie ; sinon date du jour).
 - **Delta depuis le dernier 1-1** : messagerie, mail, réunions partagées — selon tes connecteurs.
 
+## Discipline d'affirmation
+
+**Les règles complètes vivent à un seul endroit, [`sync-sources` § Discipline d'affirmation](../sync-sources/SKILL.md#discipline-daffirmation),
+et cette skill leur obéit au lieu d'écrire les siennes.** Deux paraphrases, ce sont deux disciplines ;
+le contrôle appartient là où les faits sont produits, et cette skill consomme ce fan-out.
+
+Va les lire là-bas. Ce qui fait d'une prep de 1-1 le **pire** endroit où les enfreindre :
+
+- **Tu vas dire ces lignes à la personne qu'elles concernent.** Un briefing faux se corrige plus
+  tard ; une prep de 1-1 fausse se prononce à voix haute, en face.
+- **« Pas fait » est une affirmation comportementale.** La section de suivi des engagements ci-dessous
+  invite `tenu / en cours / pas fait` : le troisième est une accusation tant que la vérification qui
+  l'établit n'est pas nommée. Écrire « je n'ai pas trouvé de trace de X » et marquer 🔴, ou le poser
+  en question ouverte.
+- **Le thread, encore.** Avant d'écrire que quelqu'un n'a jamais répondu, jamais livré, jamais
+  démarré : ouvrir le thread. Un message racine, c'est l'instant où la question a été **posée**. Un
+  nombre de réponses non nul avec thread non lu interdit « sans réponse », « en attente »,
+  « toujours en attente ».
+- **Réconcilier d'abord.** Est-ce que quelque chose de récupéré contredit ce que tu t'apprêtes à
+  écrire ? C'est cette skill qui a produit le défaut terrain qui le prouve : elle a annoncé un
+  changement de rôle comme « non confirmé » alors que la fiche `people/` du vault l'enregistrait
+  **confirmé deux mois plus tôt**.
+- **Le vault prime sur le delta pour tout ce qui touche à une personne.** Lire
+  `vault/people/<nom>.md` avant d'affirmer qui est quelqu'un, quel est son titre, ou ce qu'il·elle te
+  doit. Un prénom seul reste un prénom seul.
+
+Les marqueurs sont obligatoires ici aussi : ✅ observé et cité, 🟡 déduit, 🔴 négatif ou
+comportemental non vérifié, et un 🔴 n'est **jamais** sûr à dire à voix haute dans la réunion.
+
 ## Étape 2 — Écriture du briefing
 
 Écrire dans `vault/prep-1-1/YYYY-MM-DD-prep-1-1-<nom>.md` (date du prochain 1-1 ; créer le dossier

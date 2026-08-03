@@ -164,6 +164,34 @@ exhaustive enumeration: the impoverished smoke test is the **safety net** for ev
      even when the dev machine is a Mac. ⚠️ Known carve-out: **in-process embedder excludes Intel Macs**
      (`darwin/x64`) — that's a documented hardware limit (ADR 0007), not a license to drop Windows.
 
+9. **The plan is the truth, the chat is the echo — state never lives in a conversation.** *Full rules:
+   [`maintainers/CONVENTIONS.md`](maintainers/CONVENTIONS.md) §1 / §3 / §3bis (operative). Standalone,
+   project-agnostic version to read or reuse elsewhere:
+   [`maintainers/plan-discipline.md`](maintainers/plan-discipline.md), with a copy-ready skill next to
+   it in [`maintainers/skills/plan-discipline/`](maintainers/skills/plan-discipline/).* Work here spans
+   many sessions and many context wipes (rule 7's whole premise). What is not written down is not
+   saved, so:
+   - **Checkboxes on every step and sub-step** of any plan under `maintainers/plans/`, never plain
+     bullets or a text-only `DONE`. A finished step is ticked `- [x]` **with** _(date · commit)_, and
+     records what was decided while building it.
+   - **Save at every handed-back turn, not at the end of a step.** Before any reply that does not
+     chain into another tool call — every instant a `/clear` may land — the plan must already say what
+     the reply is about to say. If a message contains *"next: X"*, *"Y remains"*, *"resume at Z"*,
+     those sentences belong in the committed plan **first**. This also covers what no checkbox
+     records: a decision taken in conversation, and a blocker with what would lift it.
+   - **Resume from the plan's header note, not from the first unticked `- [ ]`** — constraints,
+     rejected options and evidence are checkboxes too — and **announce which step before writing any
+     code**.
+   - **Durable memory holds no work state.** Not the next step, not what remains, not what is blocked:
+     that is always the plan's job. An agent's memory file may hold only a **pointer** to the plan
+     that holds the state, or a **reference** to something recoverable nowhere else (a published URL,
+     a durable preference). It is reloaded in full at every session start and is size-bounded, so a
+     surplus line pushes the instructions that matter out of context — and a stale memory line is a
+     **wrong instruction, not a missing one**.
+
+   > Why it is a rule and not a tool: no hook can write *"this decision was taken, and here is why"*
+   > for you. It is a writing convention, which is why it lives here rather than in a script.
+
 ## Improvement ideas (informal backlog)
 
 - ~~Optional external connectors (Slack/Drive/Notion)~~ ✅ shipped: guided wizard at step

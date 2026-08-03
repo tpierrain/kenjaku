@@ -2,10 +2,10 @@
   "manifestVersion": 1,
   "canonicalRepo": "https://github.com/tpierrain/kenjaku.git",
   "engineVersion": {
-    "rag": "1.2.0",
+    "rag": "1.3.0",
     "local-mirror": "0.3.0",
-    "constitutionTemplate": "1.0.0",
-    "scripts": "1.9.0"
+    "constitutionTemplate": "1.1.0",
+    "scripts": "1.10.0"
   },
   "indexSchemaVersion": 2,
   "regimes": {
@@ -20,6 +20,8 @@
       "local-mirror/package-lock.json",
       "local-mirror/tsconfig.json",
       "scripts/update-engine.mjs",
+      "scripts/rehydrate.mjs",
+      "scripts/clear-example-notes.mjs",
       "scripts/import-brain.mjs",
       "scripts/set-active-universe.mjs",
       "scripts/set-universe-profile.mjs",
@@ -38,6 +40,8 @@
       "scripts/file-back-note.mjs",
       "scripts/consolidate-scan.mjs",
       "scripts/refresh-note.mjs",
+      "scripts/vault-write-guard.mjs",
+      "scripts/verify-index.mjs",
       "scripts/lib/**",
       ".claude/settings.json.template",
       ".mcp.json.template",

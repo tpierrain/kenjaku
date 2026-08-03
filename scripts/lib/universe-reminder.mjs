@@ -78,8 +78,8 @@ export function profileCaptureOffer({ hasProfile, declined, multiverse = false }
  * (the only Desktop-visible channel), phrased as a DIRECTIVE the agent relays to
  * the user; `systemMessage` carries the raw fact (dropped on Desktop, shown on CLI).
  */
-export function buildUniverseHookOutput({ nudge = null, digest = null, offer = null } = {}) {
-  if (!nudge && !digest && !offer) return null;
+export function buildUniverseHookOutput({ nudge = null, synthesis = null, offer = null } = {}) {
+  if (!nudge && !synthesis && !offer) return null;
   const parts = [];
   if (nudge) {
     parts.push(
@@ -87,19 +87,21 @@ export function buildUniverseHookOutput({ nudge = null, digest = null, offer = n
         `"search all universes" spans them, /switch changes it. Say so once, in their language.`,
     );
   }
-  if (digest) {
-    // Deliberately says nothing about universes: a single-universe brain can have a
-    // profile (that IS the backfill case), and progressive disclosure means it must
-    // not meet the word before it owns two of them. This block is about THEIR world.
+  if (synthesis) {
+    // Still says nothing about universes, for a reason F1 changed: it is no longer
+    // that a lone-universe brain might see this block (it never does now), it is
+    // that the `[universe]` line above owns the machinery vocabulary and this one is
+    // about THEIR world. Merged, the owner reads plumbing where they wanted context.
+    //
+    // The framing is one short sentence because the block it wraps now DIRECTS the
+    // agent itself (when to open the page, where to send the owner for the rest).
     parts.push(
-      `[working context]\n${digest}\n` +
-        `Background on this owner's world — use it silently when it helps; do not repeat it ` +
-        `back to them, and do not treat it as a task.`,
+      `[working context]\n${synthesis}\n` + `Ambient background: use it silently, do not recite it.`,
     );
   }
   if (offer) parts.push(`[onboarding] ${offer}`);
   return {
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
-    systemMessage: [nudge, digest, offer].filter(Boolean).join("\n"),
+    systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
   };
 }

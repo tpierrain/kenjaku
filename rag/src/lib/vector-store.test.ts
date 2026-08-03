@@ -12,6 +12,7 @@ import {
   listDocumentsIn,
   getStatsIn,
   removeDeletedDocsIn,
+  listIndexedDocsIn,
 } from "./vector-store.js";
 
 // Mutation hardening (Stryker, 2026-06-26): 33.8% → ~92%. The residual survivors
@@ -596,4 +597,27 @@ test("index_meta: applySchema migrates a pre-version table out of band", () => {
   applySchema(db);
 
   assert.ok(columnNames(db, "index_meta").includes("index_schema_version"));
+});
+
+test("listIndexedDocsIn: every document with its hash and its REAL chunk count", () => {
+  const db = new Database(":memory:");
+  applySchema(db);
+  indexDocumentIn(db, "topics/crise.md", "Crise", "topic", [], "h-crise", [
+    { section: "S", content: "a", chunkIndex: 0, embedding: [1, 0, 0] },
+    { section: "S", content: "b", chunkIndex: 1, embedding: [0, 1, 0] },
+  ]);
+  indexDocumentIn(db, "people/lea.md", "Léa", "person", [], "h-lea", [
+    { section: "S", content: "c", chunkIndex: 0, embedding: [0, 0, 1] },
+  ]);
+  // A document row holding no chunk at all — the mode the crosscheck must SEE, and
+  // the one an INNER JOIN would silently drop (F15).
+  db.prepare(
+    "INSERT INTO documents (path, title, type, hash, updated_at) VALUES (?, ?, ?, ?, datetime('now'))"
+  ).run("topics/empty.md", "Empty", "topic", "h-empty");
+
+  assert.deepEqual(listIndexedDocsIn(db), [
+    { path: "people/lea.md", hash: "h-lea", chunks: 1 },
+    { path: "topics/crise.md", hash: "h-crise", chunks: 2 },
+    { path: "topics/empty.md", hash: "h-empty", chunks: 0 },
+  ]);
 });

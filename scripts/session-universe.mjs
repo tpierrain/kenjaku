@@ -38,9 +38,23 @@ import {
 } from "./lib/universe-reminder.mjs";
 import {
   readUniverseProfile,
-  renderUniverseDigest,
+  renderUniverseSynthesis,
   profileCaptureDeclined,
 } from "./lib/universe-profile.mjs";
+
+/**
+ * The profile of the universe actually in force, rendered as the SESSION-START
+ * block — the identity line plus a pointer, never the note's body (F1). Null when
+ * this universe has no profile yet, which is how the capture offer learns it may
+ * fire. Injected fs and injected active-universe reader, so the choice of
+ * rendering — the one edit that would put vault-only material back into every
+ * screenshot — is pinned by a test instead of living in unreachable glue.
+ */
+export function readActiveProfileSynthesis(io, vaultDir, activeUniverse) {
+  const universe = activeUniverse();
+  const profile = readUniverseProfile(io, vaultDir, universe);
+  return profile ? renderUniverseSynthesis(profile, { universe }) : null;
+}
 
 // Vault paths are built and compared in POSIX form so behaviour is identical
 // across platforms (on Windows resolve() yields backslashes). Cf. file-back-note.
@@ -53,18 +67,18 @@ export function sessionUniverseReminder({
   dir,
   emit,
   healPointer = () => ({ healed: false }),
-  readDigest = () => null,
+  readSynthesis = () => null,
   readDeclined = () => false,
 }) {
   // Read in its OWN try: an unreadable profile must not cost the session its
   // universe reminder (and vice-versa). One broken part, one lost part.
-  let digest = null;
+  let synthesis = null;
   // An unreadable profile is NOT an absent one. Without this flag a broken file
   // would read as "no profile" and turn into an offer to write the page the owner
   // already has — every single session.
   let profileUnreadable = false;
   try {
-    digest = readDigest(dir) ?? null;
+    synthesis = readSynthesis(dir) ?? null;
   } catch {
     profileUnreadable = true; // fail-open; the profile is a convenience, never a blocker.
   }
@@ -94,7 +108,7 @@ export function sessionUniverseReminder({
   try {
     if (!profileUnreadable) {
       offer = profileCaptureOffer({
-        hasProfile: digest !== null,
+        hasProfile: synthesis !== null,
         declined: readDeclined(dir),
         multiverse,
       });
@@ -102,7 +116,13 @@ export function sessionUniverseReminder({
   } catch {
     // swallow — an unreadable refusal marker must not cost the session its start.
   }
-  return { reported, digest, offer };
+  // PRESENCE and PAYLOAD are two questions (F1). The offer above needed to know
+  // whether a profile exists — on a lone-universe brain especially, since that is
+  // the backfill case. What gets INJECTED is a different matter: below the gate
+  // there is nothing to disambiguate, so nothing rides the session at all. And if
+  // the count could not be read, we inject nothing either: a surface echoed
+  // verbatim into every screenshot fails closed, never open.
+  return { reported, synthesis: multiverse ? synthesis : null, offer };
 }
 
 // ── main: wire the real I/O seams (deterministic glue, not unit-tested) ───────
@@ -117,16 +137,14 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const vaultDir = `${toPosix(brainDir)}/vault`;
   const lines = [];
 
-  const { digest, offer } = sessionUniverseReminder({
+  const { synthesis, offer } = sessionUniverseReminder({
     dir: vaultRagDir(brainDir),
     // The profile of the universe actually in force. Read through
     // readActiveUniverse, which VALIDATES against the registry, so a machine whose
     // pointer is a ghost injects the default universe's profile — no dependency on
     // whether the repair below has run yet.
-    readDigest: (dir) => {
-      const profile = readUniverseProfile(io, vaultDir, readActiveUniverse(io, dir));
-      return profile ? renderUniverseDigest(profile) : null;
-    },
+    readSynthesis: (dir) =>
+      readActiveProfileSynthesis(io, vaultDir, () => readActiveUniverse(io, dir)),
     // A refusal is remembered PER UNIVERSE: saying no to describing Acme must not
     // silence the question for a universe created later, which is a different world.
     readDeclined: (dir) => profileCaptureDeclined(io, dir, readActiveUniverse(io, dir)),
@@ -140,7 +158,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     emit: (msg) => lines.push(msg),
   });
 
-  const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, digest, offer });
+  const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, synthesis, offer });
   if (output) {
     // additionalContext is the ONLY Desktop-visible channel (chat) — see buildUniverseHookOutput.
     process.stdout.write(JSON.stringify(output) + "\n");

@@ -120,16 +120,21 @@ Reference other notes with `[[relative/path/without-extension]]`:
 
 A daily note, once written, is **never edited retroactively** — you add a new daily the next day. Corrections go through topic notes or decisions. The `people/` and `topics/` files are, on the contrary, **living**: you append dated sections to them.
 
-### Opening / viewing / editing a note → my default Markdown editor
+### Opening / viewing / editing a note → Obsidian for my vault, my default editor for the rest
 
-When I ask to **open, view, browse or edit** a note (as opposed to just getting an answer in chat), open the **real file** in my **default Markdown editor** rather than pasting the raw text — these are the very `.md` files the brain reads and writes, so I can edit them in place and the change is picked up:
+When I ask to **open, view, browse or edit** a note (as opposed to just getting an answer in chat), open the **real file** rather than pasting the raw text — these are the very `.md` files the brain reads and writes, so I can edit them in place and the change is picked up. **A note that belongs to my vault and any other Markdown file on my machine are two different things** (ADR 0027):
 
-- Open the note by its **absolute file path** through the OS opener, which hands the file to whatever editor I've set as my default for Markdown (Typora, Obsidian, VS Code, …) — editable, no lock-in to one app:
-  - macOS: `open "<abs-path>"`
-  - Windows: `start "" "<abs-path>"`
-  - Linux: `xdg-open "<abs-path>"`
+- **A note of MY VAULT, when Obsidian holds this vault** → open it **in Obsidian**, by handing the OS opener Obsidian's URL scheme with the note's absolute path **url-encoded** (`/` → `%2F`), quoted:
+  - macOS: `open "obsidian://open?path=<url-encoded-abs-path>"`
+  - Windows: `start "" "obsidian://open?path=<url-encoded-abs-path>"`
+  - Linux: `xdg-open "obsidian://open?path=<url-encoded-abs-path>"`
+  - Always `?path=`, **never** `?vault=`: Obsidian names a vault after its root folder, and every brain's vault folder is called `vault` — ambiguous the moment I have a second brain. And **never** `open -a "Obsidian" <path>`: measured, it launches the app on whatever was last open and **ignores the file**.
+  - *Holds this vault* = Obsidian installed **and** THIS vault registered (merely installed lands on the vault picker, not on my note). Registered means my vault's absolute path appears in `obsidian.json` — macOS `~/Library/Application Support/obsidian/`, Windows `%APPDATA%\obsidian\`, Linux `~/.config/obsidian/`.
+  - **The first time only**, Obsidian asks me to confirm an "external link" action. That is normal: tell me to tick **"Don't ask again"** and it never comes back.
+- **Anything else** — a Markdown file outside the vault, or Obsidian not holding this vault → the OS opener **on the file itself**, which hands it to whatever I've set as my default Markdown editor (Typora, VS Code, …), editable, no lock-in:
+  - macOS: `open "<abs-path>"` · Windows: `start "" "<abs-path>"` · Linux: `xdg-open "<abs-path>"`
 - **If the open fails** (no GUI editor, headless session): **don't block** — display / `Read` the note inline instead.
-- **Obsidian (optional, recommended viewer).** To browse the vault *as a whole* — the graph, `[[wikilinks]]`, backlinks, a full read/write editor over these same files — Obsidian is the nicest companion ([obsidian.md](https://obsidian.md)); the installer can register this brain as a vault so it shows up in Obsidian's switcher. It is **recommended, never required**, and is never the *mechanism* for opening a single note — that always goes through my default editor above.
+- **Obsidian stays recommended, never required.** Without it every note still opens in my default editor; with it, browsing the vault *as a whole* (the graph, `[[wikilinks]]`, backlinks) is at its best ([obsidian.md](https://obsidian.md)), and the installer can register this brain as a vault for me.
 
 When I only want an **answer** (a fact, a synthesis), just answer with the source — no need to open anything.
 
@@ -157,6 +162,25 @@ The RAG (`rag/`) splits each Markdown file into **chunks** (one per `#`/`##`/`##
 - The index rebuilds automatically, incrementally (only modified files are re-indexed). No manual maintenance. Forced rebuild: `cd rag && npm run reindex`.
 - **Safe by construction**: a single process indexes at a time (single-writer lock), so a forced rebuild during an active session never doubles the work. With an API embedder (daily quota), a reserve of requests is kept for search: querying the brain is never blocked by an ongoing indexing.
 - **"Which engine version do I have?"** → the engine **TAG** is the answer: the **"Version"** line of `vault_stats` (= the brain's pinned `source.ref`, the same value the status-line shows). The `rag X.Y.Z` / index-schema numbers on the `vault_stats` "internal build" line are **internal mechanics**, *not* the version — never report them as "the version" (ADR 0017).
+
+**🧭 The owner's context page — read it, it is never read to you.** `vault/universe.md` (or
+`vault/<universe>/universe.md` while a universe is active) is an optional note recording what this
+sphere is, the owner's role, the people who matter, the recurring topics, and **which account each
+tool uses here** ("Slack" meaning `acme.slack.com`). A session start does **not** carry its content —
+at most it names the page — because everything injected there is echoed verbatim onto a screen the
+owner may be sharing. So **open it yourself** the moment an answer depends on those facts: a first
+name to resolve, a workspace to post in, who someone is. Two rules: never recite it back at them, and
+if it does not exist, that is normal — offer once, through `/switch`.
+
+**🔎 "Is my brain answering from ALL my notes?" → `node scripts/verify-index.mjs`** (from the brain
+folder, read-only, no reindex). The counters answer *"did the last run work?"*, which is a different
+question: a note whose frontmatter broke **after** it was indexed stays in the index and keeps
+**answering from the content it was last indexed with**, while every counter reads green. This
+command compares the notes on disk with the rows in the index and **names each note they disagree
+about** (exit 0 they agree · 1 they disagree · 2 the check could not run). Run it when the user
+doubts an answer's freshness, when a note "should have been found", or after a bulk import / a pull
+from another machine. When a note is named as unreadable, **offer to repair its frontmatter** — that
+edit is the only thing that clears it; a restart or a reindex changes nothing.
 
 **⚠️ Fail-loud — never a disguised out-of-vault answer.** If the `mcp__vault-rag__*` tools are **unavailable, missing, or return an error** (MCP server not loaded, missing Gemini key, empty index…), you must **SAY IT LOUDLY** — "⚠️ RAG unavailable: I can't query the vault" — and **REFUSE to fabricate an answer** from the Internet or your general knowledge. A second brain that answers beside the vault *while appearing to work* is worse than a brain that frankly says it's down. This applies **in particular to the demo question** (the user's first contact): no plausible but out-of-vault answer. Instead, indicate how to fix it (key in `.env`, restart Claude Code, `/mcp`).
 
@@ -233,6 +257,32 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 - **Keep the direct links to sources** (permalinks, URLs) of everything you use (message, document, email), and include them when you cite a source in an answer.
 - **Never rebuild a permalink by hand** from an identifier + timestamp (often wrong): reuse the link the tool hands you as-is.
 - **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis. Flag when you interpret rather than report.
+
+### Claim discipline — the silence you report is the dangerous part
+
+A search returns what is **relevant**, never what is **complete**. So when nothing comes back, that
+is a fact about your query, not about the world. And a negative claim about a person — *"no reply"*,
+*"nobody decided"*, *"still not started"* — is an **accusation** the user may repeat to that person.
+
+- **Flip the default phrasing**: *"I did not find X"*, never *"there is no X"*. A negative or
+  behavioural claim (and **every** identity resolution) must **name the check that established it**,
+  or be reworded as an **open question** — *"I did not find a follow-up, do you have context?"*
+- **The thread is the unit of state**; the message is only the unit tools return. A root message is
+  the moment a question was **asked**, never its resolution: resolve the thread before citing a
+  message as current state. A count of **replies** above zero, with the thread unread, forbids
+  "unanswered", "pending", "unresolved". Cite through the connector that exposes reply counts and
+  permalinks, not merely the cheapest one.
+- **Reconcile before writing**: does anything you retrieved **contradict** what you are about to
+  assert? Your own material outranks your draft.
+- **Mark it in the artifact**: ✅ observed and quoted · 🟡 inferred · 🔴 unverified negative or
+  behavioural. 🔴 is **never safe to paste into a message to another human** — *"probably true"* and
+  *"safe to send"* are different thresholds.
+- **Yesterday's caveat is a debt, not a fact.** A note this brain wrote — a prior briefing above all
+  — is a **source**. Re-verify what it flagged as unverified instead of inheriting it; otherwise the
+  brain launders its own uncertainty into confidence, one session at a time.
+- **A capability recorded as ABSENT expires: re-test it.** A vault that had recorded *"this connector
+  cannot return permalinks"* propagated the caveat into several notes and obeyed it for weeks — it
+  was false, and merely the wrong tool. A written-down constraint is a measurement, not a law.
 
 ### Main flow — direct question + transparent source sync
 

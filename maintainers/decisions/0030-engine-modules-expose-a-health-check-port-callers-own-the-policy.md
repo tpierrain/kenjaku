@@ -95,6 +95,14 @@ health_check() → {
   integrity (store opens, ≥ 1 row), embedder readiness (in-process weights loadable / API key configured →
   a missing key is `unknown`, the separately-handled state, **not** `broken`). The logic lives in one place,
   `rag/src/lib/health-check.ts`, and the server exposes it as `health_check`.
+  A fourth check, `notes`, answers the question the other three cannot: **does the index hold what the
+  vault holds?** The three above measure the machinery; this one compares its output to the notes on disk
+  (`rag/src/lib/index-crosscheck.ts`). It exists because a note whose frontmatter breaks *after* it was
+  indexed stays in the index and keeps answering, from the content it was last indexed with, while every
+  counter reads green — the one degraded mode that looks healthy from the inside. It is reported `broken`
+  only for damage the engine cannot clear by itself (see §6), and is simply **absent** from `checks[]` when
+  the comparison could not be made — never `unknown`, which on a mandatory module would fail an install
+  (see §5).
 - **`local-mirror.health_check`**: config readable, mirror store reachable, mirror metadata consistent.
   Returns `unknown` (not `broken`) when nothing is configured yet.
 
@@ -229,6 +237,15 @@ Headless reading (§4 option B) can be done at two depths. The choice is made **
 ⚠️ **Startup race to respect:** at session init the live server kicks off a background auto-reindex. If the
 light probe reads "index freshness" mid-reindex it could shout "stale" wrongly → any freshness signal must
 be **tolerant** (grace window) or surfaced only as a **soft nudge**, never a red "broken" banner.
+
+The `notes` crosscheck belongs to **both** depths (it is file reads plus one SQLite query — no embedding),
+and it settles that race by **what it reports** rather than by waiting. Most disagreement between vault and
+index is transient by design: a note edited in Obsidian, or pulled from another machine, is drifted or
+absent for the few seconds until the watcher re-indexes it. The probe stays silent on those. It is loud only
+about damage **no reindex will ever clear** — a frontmatter the parser refuses (every re-read fails the same
+way) or a document row holding zero chunk (unchanged content, so the incremental diff skips it forever).
+A banner that fired on ordinary editing would be muted within a week, taking the real signal with it. The
+manual command `node scripts/verify-index.mjs` shows the whole picture, transient rows included.
 
 ## Consequences
 

@@ -143,7 +143,7 @@ const WIN_INSTALL_SCRIPT = "sbg-rag-install.cmd";
 // Default fs seam for buildRagInstallInvocation: writes the win32 install script
 // into rag/ and returns its (relative) base name; removeScript deletes it.
 // Injected in tests so the seam stays pure (no implicit I/O).
-const realInstallIo = {
+export const realInstallIo = {
   writeScript(ragDir, content) {
     writeFileSync(join(ragDir, WIN_INSTALL_SCRIPT), content);
     return WIN_INSTALL_SCRIPT;
@@ -238,4 +238,12 @@ export function applyRagLauncher(mcp, platform) {
     srv.args = ["rag/launch.sh"];
   }
   return mcp;
+}
+
+// Both servers at once: everything a freshly generated `.mcp.json` owes the CURRENT
+// machine. Whoever writes that file — the installer, or the rehydrate command on a
+// second machine (F14) — routes through here, so an installed brain and a rehydrated
+// one cannot end up wired differently.
+export function applyLaunchers(mcp, platform) {
+  return applyLocalMirrorLauncher(applyRagLauncher(mcp, platform), platform);
 }

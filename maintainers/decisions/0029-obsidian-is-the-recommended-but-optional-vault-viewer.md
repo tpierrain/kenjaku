@@ -8,7 +8,7 @@
   [`0026-brain-self-converges-via-idempotent-reconciler.md`](0026-brain-self-converges-via-idempotent-reconciler.md)
   (why vault registration is an install-time concern the runtime reconciler must not touch),
   [`0027-local-citations-open-via-a-claude-invoked-opener.md`](0027-local-citations-open-via-a-claude-invoked-opener.md)
-  (a 🧠 citation opens the real file in the OS default Markdown editor — Obsidian only if it *is* that default),
+  (**it** owns what opens a single note: Obsidian for a note of the vault, the OS default editor for the rest),
   [`0028-brain-runs-a-non-blocking-background-health-check.md`](0028-brain-runs-a-non-blocking-background-health-check.md)
   (the soft Obsidian hint rides a channel separate from the broken-capability health banner).
 
@@ -18,11 +18,11 @@ The brain's notes are plain Markdown files. **Obsidian** is a free, open-source 
 opens a folder of Markdown as a "vault" — the *same* files Claude reads and writes, with links, a graph view
 and a real editor on top. It is the natural companion viewer for browsing the vault *as a whole*.
 
-Opening a **single** note is a different job, and it is NOT Obsidian's to own: the brain opens the real file
-through the OS default Markdown editor (`open <path>` → Typora, Obsidian, VS Code, … — whatever the user set),
-both for an ad-hoc "open my note" and for a 🧠 citation (ADR 0027). That is editor-agnostic and lock-in-free;
-routing single-note opens through an Obsidian-specific `obsidian://` scheme would tie them to one app and add
-a vault-registration precondition for no gain.
+Opening a **single** note is a different job, and **ADR 0027 owns it**, not this one: a note of the vault
+opens in Obsidian when Obsidian holds that vault, and any other Markdown file opens in the OS default editor.
+That distinction is exactly why registration matters here — it is what makes a vault note openable *as* a
+vault note — but it is also why registration must stay **offered, never imposed**: a user who declines loses
+no access at all, since every note still opens in their own editor.
 
 So Obsidian's role here is the **vault browser**, recommended but never required. Two opposite ways to get
 *that* wrong. Treating Obsidian as a **hard dependency** would break the brain's core promise: the notes are

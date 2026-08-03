@@ -58,7 +58,7 @@ test("a single plain result renders the exact citation block, byte for byte", ()
     "### 1. A note — Intro\n" +
     "**Path:** `vault/mirrors/facture/a.md` | **Type:** note | **Score:** 0.420\n" +
     `🧠 [local copy](<${localFileUrl("mirrors/facture/a.md")}>)\n` +
-    '_Ask me to "open citation 1" and I\'ll open it in your Markdown editor (Typora, Obsidian, …)._\n\n' +
+    '_Ask me to "open citation 1" and I\'ll open it — in Obsidian if it holds this vault, otherwise in your default Markdown editor._\n\n' +
     "hello world";
 
   assert.equal(text, expected);
@@ -195,11 +195,14 @@ test("two results are numbered 1./2. in their headings and joined by a '---' rul
   assert.ok(blocks[1].startsWith("### 2. Second — S2\n"), blocks[1]);
 });
 
-test("each citation carries an 'ask me to open citation N' affordance, numbered + editor-agnostic", () => {
+test("each citation carries an 'ask me to open citation N' affordance, numbered + both routes named", () => {
   // Claude Desktop only routes http(s), so a 🧠 file:// click can be dropped there
   // too. The block must therefore say, in plain text, how to actually open the note:
-  // the user asks Claude, which uses the allowlisted opener to open it in WHATEVER
-  // Markdown editor is the OS default (Typora, Obsidian, …) — never Obsidian-specific.
+  // the user asks Claude, which opens it through the allowlisted opener.
+  // WHERE it lands is no longer one answer (ADR 0027): every cited note is BY
+  // DEFINITION a vault note, so it goes to Obsidian when Obsidian holds this vault,
+  // and to the OS default Markdown editor otherwise. The affordance must name BOTH,
+  // or it mispredicts the app for whichever half of the users it left out.
   // The number matches the citation heading so "open citation 2" is unambiguous.
   const text = formatSearchCitations(
     [result(), result({ title: "Second" })],
@@ -208,7 +211,8 @@ test("each citation carries an 'ask me to open citation N' affordance, numbered 
 
   assert.ok(text.includes('open citation 1'), text);
   assert.ok(text.includes('open citation 2'), text);
-  // Editor-agnostic wording — the affordance must not promise Obsidian.
+  assert.ok(/Obsidian/.test(text), text);
   assert.ok(text.includes("Markdown editor"), text);
-  assert.ok(!/in Obsidian/.test(text), text);
+  // Neither route may be stated as the only one.
+  assert.ok(/otherwise|sinon/.test(text), text);
 });

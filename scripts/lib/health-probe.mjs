@@ -12,7 +12,10 @@
 // cause + the single corrective action, never a generic "restart + /update-engine"
 // catch-all (update-engine only matters when the engine CODE is broken, which these
 // functional checks don't diagnose).
-function gestureForCheck(name, detail = "") {
+// `detail` carries no default on purpose: every call site passes the check's own detail,
+// and an absent one already reads as "not about weights" through the regex below. A
+// default here would be code that cannot change an outcome.
+function gestureForCheck(name, detail) {
   switch (name) {
     case "index":
     case "canary":
@@ -24,6 +27,10 @@ function gestureForCheck(name, detail = "") {
         : "check your network and the API key in your .env";
     case "store":
       return "check the mirror's path, or refresh it";
+    case "notes":
+      // F15: the note is named in the detail, and the only thing that clears it is an
+      // edit to that note. A restart or a reindex would leave it exactly as it is.
+      return "ask me to repair that note";
     default:
       return "restart the brain";
   }

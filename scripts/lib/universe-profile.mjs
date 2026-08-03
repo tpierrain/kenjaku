@@ -102,16 +102,9 @@ function readDeclined(io, dir) {
  */
 export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) {
   const { frontmatter, body } = parseNote(raw);
-  const kind = frontmatter.kind ? ` (${frontmatter.kind})` : "";
-  const details = [
-    frontmatter.role ? `your role: ${frontmatter.role}` : null,
-    frontmatter.period ? `period: ${frontmatter.period}` : null,
-  ].filter(Boolean);
-  const tail = details.length ? ` — ${details.join(", ")}` : "";
-
   const sections = bodySections(body);
   const lines = [
-    `${frontmatter.displayName}${kind}${tail}.`,
+    identityLine(frontmatter),
     ...sections.about,
     ...listLine("People", sections.people),
     ...listLine("Topics", sections.topics),
@@ -120,11 +113,47 @@ export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) 
   if (lines.length <= maxLines) return lines.join("\n");
   // Truncation names the note, so the session can go read the rest on purpose
   // instead of acting on a profile it does not know is partial.
-  const notePath = `vault/${universeProfilePath(frontmatter.universe)}`;
   return [
     ...lines.slice(0, maxLines - 1),
-    `(profile truncated — the full page is ${notePath})`,
+    `(profile truncated — the full page is ${vaultNotePath(frontmatter.universe)})`,
   ].join("\n");
+}
+
+/**
+ * The short block injected at EVERY session start (F1). Deliberately NOT the
+ * digest: it states which sphere is in force and stops there. Pure.
+ */
+export function renderUniverseSynthesis(raw, { universe } = {}) {
+  const { frontmatter } = parseNote(raw);
+  // The path is stated by the caller when it knows it, because the caller LOCATED
+  // the file: that is a fact, where the frontmatter is a claim a hand-edit can lose.
+  // A pointer to a note that is not there would be worse than no pointer at all.
+  const at = universe === undefined ? frontmatter.universe : universe;
+  return [
+    identityLine(frontmatter),
+    `Full profile: ${vaultNotePath(at)} — read it when the answer depends ` +
+      `on the people, tools or scope here.`,
+    "(for the description itself, they can ask `/switch`)",
+  ].join("\n");
+}
+
+// Who this sphere is, in one line, built from the frontmatter the owner answered.
+// Shared by the pulled digest and the injected synthesis so the two renderings can
+// never introduce themselves differently for the same universe.
+function identityLine(frontmatter) {
+  const kind = frontmatter.kind ? ` (${frontmatter.kind})` : "";
+  const details = [
+    frontmatter.role ? `your role: ${frontmatter.role}` : null,
+    frontmatter.period ? `period: ${frontmatter.period}` : null,
+  ].filter(Boolean);
+  const tail = details.length ? ` — ${details.join(", ")}` : "";
+  return `${frontmatter.displayName}${kind}${tail}.`;
+}
+
+// Where this profile lives, as the owner would type it — vault-relative, so the
+// same string works whether the session reads it or the owner opens it.
+function vaultNotePath(universe) {
+  return `vault/${universeProfilePath(universe)}`;
 }
 
 // One line per list section, dropped entirely when the section is absent.

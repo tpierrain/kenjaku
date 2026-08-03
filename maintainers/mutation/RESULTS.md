@@ -14,8 +14,8 @@
 
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
-| **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %** |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag |
+| **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %**. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) over its 6 changed files reads **94.67 %**, with the file it creates at **100 %** |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new) |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**. **v4.4.0 touches no `src/**` file here — the number carries over, deliberately not re-measured** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -140,6 +140,167 @@ are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` /
 local-mirror's `fs-state-store` and `content-hash`.
 
 ---
+
+## v4.5.0 — the silence-stops-passing release (`rag` + `scripts`) — 2026-08-03
+
+**Scope decided on the diff** (`main...release/v4.5.0`): the targeted run §5ter prescribes before a
+tag, **not** a full re-audit. 23 production files changed — 8 under `rag/src`, 15 under `scripts/` —
+and the two packages that own them ran.
+
+**`local-mirror` did not run, deliberately** — this release touches no `local-mirror/src/**` file, so
+its **90.44 %** from v4.2.0 carries over unchanged. Re-measuring an untouched package would move a
+number with no change behind it.
+
+### `rag` — the 6 files under `src/lib/`: **93.81 % → 94.67 %**
+
+`citation-renderer`, `frontmatter-parser`, `health-check`, `index-crosscheck`, `index-crosscheck-scan`,
+`vector-store` — `stryker.rag.config.mjs` narrowed with `--mutate` to those six. (`crosscheck-cli.ts`
+and `health-check-cli.ts` are **not** under `src/lib/`, so the config never matched them: same
+boot-seam class as the top-level `scripts/*.mjs`, and named as debt below rather than left implied.)
+
+| File | First run | At the tag | |
+|---|---|---|---|
+| `index-crosscheck-scan.ts` | 70.59 % | **100 %** | created by this release, and the worst of the six |
+| `health-check.ts` | — | **90.00 %** | its 3 singular-branch mutants killed; 15 survivors left, all pre-existing `catch {}` / default-init shapes |
+| `citation-renderer.ts` | — | **100 %** | |
+| `index-crosscheck.ts` | — | 98.77 % | 1 survivor, a recorded equivalent |
+| `frontmatter-parser.ts` | — | 97.87 % | |
+| `vector-store.ts` | — | 92.50 % | untouched by this release |
+
+**The file this release created scored worst, and the reason is the interesting part.** All five
+survivors of `index-crosscheck-scan.ts` sat in `defaultScanPorts` — every existing test injects its own
+ports, so the **default wiring was observed by nothing**. One of them, `parse: () => {}`, is exactly the
+failure this release exists to prevent: the vault ↔ index crosscheck stops reporting damaged notes,
+permanently, with the suite green. The file's own comment swore those defaults are the engine's real
+parser, scanner and reader — a comment is not a claim. Three tests now aim at the survivors (the real
+parser throws on the payload found in the field and stays quiet on a healthy note; `readFile` returns
+the exact UTF-8 string, asserted whole, because a loose `/Réunion/` passes on the wrong encoding; `scan`
+hands back the engine scanner's shape). **17/17 killed.**
+
+**`health-check.ts`'s singular branch was a guess.** `outOfStep.length === 1` was never exercised, so
+both ternaries could be dropped green and the owner would read *"1 notes … — e.g. `<the only note there
+is>`"*. One boundary test kills all three. The 15 that remain are `catch {}` bodies and default
+initialisers that predate this release; two of them are **recorded equivalents, not gaps** — `if
+(seams.crosscheck)` → `if (true)` throws a `TypeError` the enclosing catch swallows into the same
+`null`, and `catch { x = null }` → `catch {}` lands on the declaration's own value. Both behaviours
+*are* tested (`health-check.test.ts:451` and `:481`); the mutants are indistinguishable from the
+original, which is the definition.
+
+### `scripts` — the 15 changed files, in six batches
+
+Run in a **disposable worktree** (`inPlace` is destructive) at `/Users/tpierrain/Dev/kenjaku-mut-v450`,
+reset between batches. Per file, because a batch aggregate over a different subset each time is
+arithmetic, not a measurement.
+
+| File | First run | At the tag | |
+|---|---|---|---|
+| `lib/brain-rehydrate.mjs` | **100 %** | **100 %** | created by this release |
+| `open-note.mjs` | **100 %** | **100 %** | |
+| `lib/staged-health-note.mjs` | **100 %** | **100 %** | |
+| `lib/rag-launcher.mjs` | 89.32 % | **100 %** | |
+| `lib/health-probe.mjs` | 71.83 % | **100 %** | |
+| `rag-status.mjs` | 86.79 % | **100 %** | |
+| `lib/vault-write-guard.mjs` | 85.16 % | **98.45 %** | 2 survivors, both recorded equivalents |
+| `lib/universe-profile.mjs` | 87.89 % | **97.37 %** | 5 survivors, all recorded equivalents |
+| `lib/universe-reminder.mjs` | 94.44 % | **100 %** | |
+| `verify-index.mjs` | 40.54 % | **92.31 %** | 3 survivors — the shared entrypoint guard, below |
+| `rehydrate.mjs` | 90.80 % | **95.40 %** | created by this release; the 4 left are the shared entrypoint guard |
+| `vault-write-guard.mjs` (the hook) | 50.00 % | **95.83 %** | created by this release; the 1 left is a recorded equivalent |
+
+**`verify-index.mjs` at 40.54 % was the finding of the pass, and filing it as debt would have been a
+habit rather than a measurement.** All 22 survivors were boot/IO wiring — the real `spawnSync`, the real
+dependency object, the entrypoint guard — the shape our own conventions call *a design defect, not an
+exemption*. **19 of the 22 died to the fix that had just worked on `index-crosscheck-scan.ts`**: what
+the spawn asks the OS for is a pure value, so it is one now (`buildCrosscheckInvocation` returns
+`{command, args, options}`, asserted **whole** on both platforms — win32 fed on purpose, since CI runs
+macOS and nothing else tells the `.cmd` branch from the identity function).
+
+**The 3 that remain are package-wide, not this file's debt.** `if (isEntrypoint(…))` → `if (false)`, its
+empty block, and `process.argv.slice(2)` → `process.argv` (that last one has a real behaviour behind it:
+the engine CLI would receive node's own argv). **10+ scripts carry the identical three-mutant guard**,
+so the honest fix is one shared `runAsEntrypoint(meta, argv, fn)` tested once — a **v4.6.0 candidate**,
+deliberately not done on the eve of a tag.
+
+**What the other survivors were, by family** — the same two that the 2026-07 audit named, which is why
+they are worth writing down again rather than merely fixing:
+
+- **Loose assertions** (`rag-status.mjs`, `health-probe.mjs`): the separator could become `""`, the
+  remedy sentence — the only part telling the owner *this will not fix itself* — could vanish, and the
+  whole core-⚠️ / optional-ℹ️ severity split could be dropped, with every `assert.match` still green. The
+  banner lines are asserted whole now.
+- **Branches nothing ever fed**: the boundary where the truncation flips (exactly two failures — nothing
+  distinguished `rest > 0` from `rest >= 0`, i.e. the owner reading `(+0 other(s))`), the failure lookup
+  with `lastRun` missing (which is precisely a freshly rehydrated machine), the embedder's network/key
+  gesture (the one an API user actually gets, while the suite only ever tested local weights), and the
+  win32 install-script writer (a platform-conditioned transformation that is a no-op on the CI platform).
+
+**Two survivors said something serious, and neither was a loose assertion.** In
+`lib/vault-write-guard.mjs`, the guard resolved gray-matter from a path built inline, and **moving that
+anchor one folder up left the suite green** — nothing proved the guard runs *the engine's* parser rather
+than whatever Node finds walking the parent chain, which is the exact fiction this release's guard was
+written to prevent. `engineRequireAnchor` names it now. In `lib/universe-profile.mjs`, half the survivors
+existed because **the fs fake swallowed what it was handed**: `mkdirSync` recorded nothing, so "create
+the parent, recursively" and "create nothing" were the same call.
+
+**Recorded equivalents — do not chase them.** Each was written down *before* the confirming run, which is
+what makes it an equivalence rather than an excuse: `toolInput?.content` and the twin term of
+`typeof oldString !== "string"` (both unreachable — `relPath` is already non-null there, and the other
+term refuses the same input); `parsed?.declined` and `other: []` (both paths end in the same empty array,
+and `other` is never emitted); and three heading-regex mutants the downstream `.trim()` neutralises.
+
+### The three session scripts — named debt, and not a regression
+
+`session-status.mjs` **0.00 %** (131 mutants, none killed), `session-universe.mjs` **39.39 %**,
+`session-self-heal.mjs` **36.62 %**. They are top-level scripts that **run on import**, so no test can
+observe them — verified, not assumed: none has ever had a test file in this repo's history. The
+**logic** they wire is covered (it lives in `scripts/lib/**`: `rag-status.mjs` 100 %, `health-probe.mjs`
+100 %, `universe-reminder.mjs` 100 %, `universe-profile.mjs` 97.37 %); the **wiring** is not. This
+release edits parts of them **without creating the hole** — every published tag so far carries it — and
+the cure our own conventions prescribe is a refactor of fleet-deployed session scripts, which is a
+release of its own rather than something to do on the eve of a tag. `session-status.mjs` was already
+recorded at 0 % at [v4.4.0](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02): the
+number is **inherited, not new**.
+
+**What this release did do about that tier, on the two files it created as entry points.** Batch 3a
+measured `rehydrate.mjs` at 90.80 % and the `vault-write-guard.mjs` **hook** at 50.00 %, and both sat on
+the same shape as `verify-index.mjs`: every test injects its own deps, so the **real** ones — the parser
+that must be *the engine's*, the stdin read, the single line the harness parses — were observed by
+nothing, and a mis-wire there passes the whole suite while blocking nothing. Fixed rather than filed
+(`25beef3`), each mutant hand-applied and watched red: the spawn options asserted **whole**
+(`stdio: "inherit"` is what lets the owner watch a multi-minute install), the rebuilt `.mcp.json`
+asserted to end with a newline (a JSON file without one is still valid JSON, so the parsed assertion
+could not see it), the write-through-missing-parents test digging **two** levels (with one, a
+non-recursive `mkdir` succeeds too), `realGuardDeps` pinned field by field, and **the hook run once the
+way the harness runs it** — a real child process, the JSON on its stdin, the decision on its stdout,
+which is the only test that reaches both the stdin read and the entrypoint guard.
+
+Two of those assertions need `rag/node_modules`, absent in CI's harness step (whose invariant is "nothing
+to install"), so they **skip** there and `ci.yml` re-runs the file after `npm ci` — and that re-run is
+**pinned from the suite itself**, exactly like its sibling in `lib/`: deleting the step goes red instead
+of going quiet.
+
+**And the re-measure of that fix found the fix's own defect — a new shape, worth the name.** The skip
+condition asked `realGuardDeps.parser(BRAIN_ROOT) === null`, i.e. **the very wiring the two tests exist
+to judge**. Mutate `parser` to always return `null` and the condition reads "engine absent" → both tests
+**turn themselves off** → the mutant survives with the suite green. It is the fixture rule (§7 of the TDD
+discipline) one level up: *a test must never take its verdict — nor its right to run — from the thing it
+is testing*. The condition asks the disk now (`existsSync(rag/node_modules/gray-matter)`), and the mutant
+dies. Recorded because a self-disarming skip is invisible to everything except a mutation run.
+
+### Method notes earned this time
+
+- **A batch of five files is ~546 mutants ≈ 13 min, over the 10-min background cap** — and a killed run
+  leaves Stryker's instrumentation in the worktree. **One or two files per run** (~125 mutants ≈ 6 min),
+  and reset with `git reset --hard` + `git clean -fd` between batches — **never `git checkout -- .`**,
+  since a mutant of `auto-commit.mjs` can commit the instrumented tree.
+- **`rag/node_modules` must be symlinked into the worktree** before running, or
+  `vault-write-guard.test.mjs`'s four parser assertions **skip** there and its mutants face a suite that
+  cannot judge them — measuring exactly the fiction the guard is about. Verified before starting: 9 pass,
+  0 skipped, in the worktree.
+- **Hardening claims name the files measured.** Every score above comes from a log in
+  [`reports/`](reports/) (`v450-*.log`), and every "→" is a re-run, not an estimate. One figure in the
+  working plan (`health-check.ts` at 92.67 %) had no log behind it and was corrected down to the measured
+  **90.00 %** rather than published.
 
 ## v4.4.0 — the field-fixes release (`rag` + `scripts`) — 2026-07-28 → 2026-08-02
 

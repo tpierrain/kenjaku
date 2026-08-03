@@ -1,13 +1,13 @@
 ---
 name: open-note
-description: "Open a vault note from an 'open X for me' intent. First looks for a relevant markdown in the vault (semantic + exact match) and opens it as-is in Obsidian if it exists; otherwise synthesizes the topic from the vault, writes a note that follows the conventions, and opens it. Triggered when the user says 'open X for me', 'open the note about X', 'ouvre-moi X'."
-version: 1.0.0
+description: "Open a vault note from an 'open X for me' intent. First looks for a relevant markdown in the vault (semantic + exact match) and opens it as-is if it exists; otherwise synthesizes the topic from the vault, writes a note that follows the conventions, and opens it. Triggered when the user says 'open X for me', 'open the note about X', 'ouvre-moi X'."
+version: 1.1.0
 ---
 
 # open-note — "open X for me"
 
 > Default behavior of the natural command **"open <topic> for me"**.
-> Goal: the user always has something to read in Obsidian — either the existing note,
+> Goal: the user always has something to read in front of them — either the existing note,
 > or a fresh synthesis created on the fly and persisted into the vault.
 
 ## Principle
@@ -17,8 +17,9 @@ One promise only: **"open X for me" never falls into the void.**
 - If nothing covers X → **synthesize** from the vault, write a note that follows the
   conventions, and open it.
 
-The judgment (which doc, whether to create one, where to file it) stays in the skill; the only
-deterministic part is the opening (`open -a "Obsidian" <path>`).
+The judgment (which doc, whether to create one, where to file it) stays in the skill; the
+**opening itself is deterministic and is NOT this skill's rule to invent** — it belongs to the
+constitution's §"Opening / viewing / editing a note" (ADR 0027), which this skill obeys as-is.
 
 ## Procedure
 
@@ -38,9 +39,10 @@ Extract the topic from the request. Three cases:
   mention it in passing?
 
 ### 3. If a relevant doc exists → open it as-is
-```bash
-open -a "Obsidian" <absolute-path-to-md>
-```
+Open it **exactly the way the constitution prescribes**: a note of the vault goes to Obsidian
+through `obsidian://open?path=<url-encoded-abs-path>` handed to the OS opener (`open` / `start ""` /
+`xdg-open`), anything else goes to the OS opener on the file itself. Do not restate or re-derive that
+rule here — read it there, so the two can never disagree.
 - **Do not modify it** (respect append-only for dailies, living notes for people/topics —
   never overwrite a living doc on a mere "open X for me").
 - State **which** file is being opened and its **freshness** (`updated` date).
@@ -64,15 +66,17 @@ open -a "Obsidian" <absolute-path-to-md>
    go back to step 3 and open it instead of overwriting.
 4. **Write** the markdown with compliant frontmatter (`type`, `created`, `updated`, `tags`) and
    `[[…]]` backlinks to related notes. Tone: the user's own (factual, concise).
-5. **Open** it in Obsidian.
+5. **Open** it, per step 3's rule (it is a vault note, so Obsidian when Obsidian holds this vault).
 6. **Qualify the reliability**: make clear the note was just **created by AI synthesis** from
    the vault (≠ verbatim), so the user rereads it with a critical eye.
 
 ## Guardrails
 - **Never overwrite** an existing doc on an "open X for me".
-- **Always via Obsidian** (`open -a "Obsidian" <path>`). If the file does not open (vault not
-  registered in the app), ask the user for the vault name and use
-  `obsidian://open?vault=<name>&file=<relative-path>`.
+- **The opener is the constitution's, never this skill's.**
+  In particular, **never** use `open -a "Obsidian" <path>`: measured, it launches the app on
+  whatever was last open and ignores the file entirely. If Obsidian does not hold this vault, the
+  note opens in the default Markdown editor — that is the correct outcome, not a failure to work
+  around.
 - **Timestamp**: run `date` in bash before writing a dated note (correct created/updated).
 - Persistence (commit/push) is handled by the hook — **do not run git** yourself.
 

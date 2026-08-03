@@ -123,16 +123,21 @@ Référencer d'autres notes avec `[[chemin/relatif/sans-extension]]` :
 
 Une daily note, une fois écrite, n'est **jamais éditée rétroactivement** — on ajoute une nouvelle daily le lendemain. Les corrections passent par des notes de topics ou des décisions. Les fiches `people/` et `topics/` sont au contraire **vivantes** : on y append des sections datées.
 
-### Ouvrir / consulter / éditer une note → mon éditeur Markdown par défaut
+### Ouvrir / consulter / éditer une note → Obsidian pour mon vault, mon éditeur par défaut pour le reste
 
-Quand je demande d'**ouvrir, consulter, parcourir ou éditer** une note (par opposition à simplement obtenir une réponse dans le chat), ouvrir le **vrai fichier** dans mon **éditeur Markdown par défaut** plutôt que d'en coller le texte brut : ce sont les fichiers `.md` que le cerveau lit et écrit, donc je peux les éditer en place et la modification est reprise.
+Quand je demande d'**ouvrir, consulter, parcourir ou éditer** une note (par opposition à simplement obtenir une réponse dans le chat), ouvrir le **vrai fichier** plutôt que d'en coller le texte brut : ce sont les fichiers `.md` que le cerveau lit et écrit, donc je peux les éditer en place et la modification est reprise. **Une note qui appartient à mon vault et n'importe quel autre fichier Markdown de ma machine sont deux choses différentes** (ADR 0027) :
 
-- Ouvrir la note par son **chemin absolu** via l'ouvreur du système, qui confie le fichier à l'éditeur choisi par défaut pour le Markdown (Typora, Obsidian, VS Code…) : éditable, sans enfermement dans une app :
-  - macOS : `open "<chemin-absolu>"`
-  - Windows : `start "" "<chemin-absolu>"`
-  - Linux : `xdg-open "<chemin-absolu>"`
+- **Une note de MON VAULT, quand Obsidian détient ce vault** → l'ouvrir **dans Obsidian**, en confiant à l'ouvreur du système le schéma d'URL d'Obsidian avec le chemin absolu de la note **encodé pour URL** (`/` devient `%2F`), entre guillemets :
+  - macOS : `open "obsidian://open?path=<chemin-absolu-encodé>"`
+  - Windows : `start "" "obsidian://open?path=<chemin-absolu-encodé>"`
+  - Linux : `xdg-open "obsidian://open?path=<chemin-absolu-encodé>"`
+  - Toujours `?path=`, **jamais** `?vault=` : Obsidian nomme un vault d'après son dossier racine, et le dossier vault de chaque cerveau s'appelle `vault`, donc ce nom devient ambigu dès que j'ai un deuxième cerveau. Et **jamais** `open -a "Obsidian" <chemin>` : c'est mesuré, cette forme lance l'application sur ce qui était ouvert la dernière fois et **ignore le fichier**.
+  - *Détient ce vault* = Obsidian installé **et** CE vault enregistré (simplement installé, l'URL atterrit sur le sélecteur de vault, pas sur ma note). Enregistré veut dire que le chemin absolu de mon vault figure dans `obsidian.json` : macOS `~/Library/Application Support/obsidian/`, Windows `%APPDATA%\obsidian\`, Linux `~/.config/obsidian/`.
+  - **La toute première fois**, Obsidian me demande de confirmer une action « depuis un lien externe ». C'est normal : me dire de cocher **« Ne plus demander »**, et ça ne revient jamais.
+- **Tout le reste** (un fichier Markdown hors du vault, ou Obsidian qui ne détient pas ce vault) → l'ouvreur du système **sur le fichier lui-même**, qui le confie à l'éditeur choisi par défaut pour le Markdown (Typora, VS Code…), éditable, sans enfermement dans une app :
+  - macOS : `open "<chemin-absolu>"` · Windows : `start "" "<chemin-absolu>"` · Linux : `xdg-open "<chemin-absolu>"`
 - **Si l'ouverture échoue** (pas d'éditeur graphique, session headless) : **ne pas bloquer**, afficher / `Read` la note en ligne à la place.
-- **Obsidian (viewer optionnel, recommandé).** Pour parcourir le vault *dans son ensemble* (le graphe, les `[[wikilinks]]`, les backlinks, un éditeur lecture/écriture complet sur ces mêmes fichiers), Obsidian est le meilleur compagnon ([obsidian.md](https://obsidian.md)) ; l'installeur peut enregistrer ce cerveau comme vault pour qu'il apparaisse dans le sélecteur d'Obsidian. Il est **recommandé, jamais requis**, et n'est jamais le *mécanisme* d'ouverture d'une note seule : ça passe toujours par mon éditeur par défaut ci-dessus.
+- **Obsidian reste recommandé, jamais requis.** Sans lui, chaque note s'ouvre quand même dans mon éditeur par défaut ; avec lui, parcourir le vault *dans son ensemble* (le graphe, les `[[wikilinks]]`, les backlinks) est au mieux ([obsidian.md](https://obsidian.md)), et l'installeur peut enregistrer ce cerveau comme vault pour moi.
 
 Quand je veux seulement une **réponse** (un fait, une synthèse), répondre avec la source : pas besoin d'ouvrir quoi que ce soit.
 
@@ -160,6 +165,27 @@ Le RAG (`rag/`) découpe chaque fichier Markdown en **chunks** (un par section `
 - L'index se reconstruit automatiquement, incrémental (seuls les fichiers modifiés sont ré-indexés). Pas de maintenance manuelle. Rebuild forcé : `cd rag && npm run reindex`.
 - **Sûr par construction** : un seul process indexe à la fois (lock single-writer), donc lancer un rebuild forcé pendant une session active ne double jamais le travail. Avec un embedder via API (quota journalier), une réserve de requêtes est gardée pour la recherche : interroger le cerveau n'est jamais bloqué par une indexation en cours.
 - **« Quelle version du moteur ai-je ? »** → la réponse est le **TAG** du moteur : la ligne **« Version »** de `vault_stats` (= le `source.ref` figé du cerveau, la même valeur que la status-line). Les numéros `rag X.Y.Z` / schéma d'index de la ligne **« internal build »** de `vault_stats` sont de la **mécanique interne**, *pas* la version — ne jamais les présenter comme « la version » (ADR 0017).
+
+**🧭 La page de contexte de la personne — on la lit, elle ne t'est pas récitée.** `vault/universe.md`
+(ou `vault/<univers>/universe.md` quand un univers est actif) est une note facultative qui consigne ce
+qu'est cette sphère, le rôle de son propriétaire, les personnes qui comptent, les sujets récurrents et
+**quel compte chaque outil utilise ici** (« Slack » = `acme.slack.com`). Un démarrage de session ne
+transporte **pas** son contenu (au mieux il nomme la page) : tout ce qui y est injecté est réaffiché
+tel quel sur un écran parfois partagé. Donc **ouvre-la toi-même** dès qu'une réponse en dépend : un
+prénom à résoudre, un workspace où publier, qui est telle personne. Deux règles : ne jamais la lui
+réciter, et si elle n'existe pas c'est normal (proposer une fois, via `/switch`).
+
+**🔎 « Est-ce que mon cerveau répond depuis TOUTES mes notes ? » → `node scripts/verify-index.mjs`**
+(depuis le dossier du cerveau, lecture seule, sans ré-indexation). Les compteurs répondent à *« est-ce
+que la dernière passe a marché ? »*, ce qui est une autre question : une note dont l'en-tête s'est
+abîmé **après** son indexation reste dans l'index et continue de **répondre depuis le contenu avec
+lequel elle a été indexée la dernière fois**, pendant que tous les compteurs sont au vert. Cette
+commande compare les notes sur le disque aux lignes de l'index et **nomme chaque note sur laquelle
+ils divergent** (sortie 0 ils concordent · 1 ils divergent · 2 la vérification n'a pas pu tourner).
+Lance-la quand l'utilisateur·rice doute de la fraîcheur d'une réponse, quand une note « aurait dû
+être trouvée », ou après un import massif / une récupération depuis une autre machine. Quand une note
+est signalée illisible, **propose de réparer son en-tête** : cette correction est la seule chose qui
+lève le problème, un redémarrage ou une ré-indexation n'y changent rien.
 
 **⚠️ Échec bruyant — jamais de réponse hors-vault déguisée.** Si les outils `mcp__vault-rag__*` sont **indisponibles, absents ou renvoient une erreur** (serveur MCP non chargé, clé Gemini manquante, index vide…), tu dois le **DIRE FORT** — « ⚠️ RAG indisponible : je ne peux pas interroger le vault » — et **REFUSER de fabriquer une réponse** depuis Internet ou tes connaissances générales. Un second cerveau qui répond à côté du vault *en ayant l'air de marcher* est pire qu'un cerveau qui dit franchement qu'il est en panne. Cela vaut **en particulier pour la question de démo** (premier contact de l'utilisateur) : pas de réponse plausible mais hors-vault. Indique plutôt comment réparer (clé dans `.env`, redémarrage de Claude Code, `/mcp`).
 
@@ -236,6 +262,36 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 - **Garder les liens directs vers les sources** (permalinks, URLs) de tout ce qu'on exploite (message, document, mail), et les inclure quand on cite une source dans une réponse.
 - **Ne jamais reconstruire un permalink à la main** à partir d'un identifiant + timestamp (souvent faux) : reprendre le lien fourni tel quel par l'outil.
 - **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA. Signaler quand on interprète plutôt qu'on restitue.
+
+### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
+
+Une recherche renvoie ce qui est **pertinent**, jamais ce qui est **complet**. Donc quand rien ne
+remonte, c'est un fait sur la requête, pas sur le monde. Et une affirmation négative à propos d'une
+personne (« pas de réponse », « personne n'a tranché », « toujours pas démarré ») est une
+**accusation**, que l'utilisateur·rice peut répéter à cette personne.
+
+- **Basculer la formulation par défaut** : « je n'ai pas trouvé X », jamais « il n'y a pas de X ».
+  Une affirmation négative ou comportementale (et **toute** résolution d'identité) doit **nommer la
+  vérification qui l'établit**, ou devenir une **question ouverte** : « je n'ai pas trouvé de suite,
+  tu as du contexte ? »
+- **Le thread est l'unité d'état** ; le message n'est que l'unité que les outils renvoient. Un
+  message racine, c'est l'instant où la question a été **posée**, jamais sa résolution : résoudre le
+  thread avant de citer un message comme un état courant. Un nombre de **réponses** non nul, thread
+  non lu, interdit « sans réponse », « en attente », « non tranché ». Citer via le connecteur qui
+  expose les compteurs de réponses et les permaliens, pas simplement le moins cher.
+- **Réconcilier avant d'écrire** : est-ce que quelque chose dans ce que j'ai récupéré **contredit**
+  ce que je m'apprête à affirmer ? Le matériau l'emporte sur le brouillon.
+- **Le marquer dans l'artefact** : ✅ observé et cité · 🟡 déduit · 🔴 négatif ou comportemental non
+  vérifié. Un 🔴 n'est **jamais** collable dans un message adressé à un humain : « probablement
+  vrai » et « sûr à envoyer » ne sont pas le même seuil.
+- **Le caveat d'hier est une dette, pas un fait.** Une note écrite par ce cerveau (un briefing
+  précédent au premier chef) est une **source**. Re-vérifier ce qu'elle signalait comme non vérifié
+  au lieu d'en hériter : sinon le cerveau blanchit sa propre incertitude en certitude, session après
+  session.
+- **Une capacité notée comme ABSENTE expire : la retester.** Un vault qui avait consigné « ce
+  connecteur ne rend pas les permaliens » a propagé le caveat dans plusieurs notes et lui a obéi des
+  semaines : c'était faux, et c'était juste le mauvais outil. Une contrainte écrite est une mesure,
+  pas une loi.
 
 ### Flux principal — question directe + sync sources transparent
 

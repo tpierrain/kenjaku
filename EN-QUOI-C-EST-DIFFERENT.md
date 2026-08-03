@@ -33,6 +33,7 @@ Concretely, hole by hole:
 |---|---|---|
 | No automatic persistence | Your answers/notes are **never saved**; everything is lost | **Auto-commit hook** (+ *opt-in* push) |
 | No indexing | Search **makes things up** instead of searching your notes | Automatic **incremental reindexing** of the RAG |
+| A note whose header the indexer can't read | The note is **never indexed** — invisible to search — while the counter reads *"pending"*, as if it were on its way | **Refused at write time**, by the engine's own parser, + a **vault ↔ index crosscheck** that names any note the two disagree about |
 | Conversation not "rooted" in the brain | Mute hooks, out-of-vault answers — *and it seems to work* | Onboarding that **forces opening in the right place** + `pwd` check |
 | `node` installed via nvm, invisible to GUI hooks | Auto-commit **silently broken** | **`run-node`** wrapper that re-resolves the toolchain on every run |
 | Install on a bare machine | Half-working **"Frankenstein"** state, undiagnosable | **"Fail-loud" verification** at install — proves it or fails plainly |
@@ -136,7 +137,9 @@ by using it: your notes, your rules (`CLAUDE.md`), your skills.
 4. **It cites its sources, and stays grounded.** Every answer traces back to the originating
    note/message, with its date. The demo **proves** it with a canary (a made-up fact, "Mollecuisse / Flemmr",
    not findable outside the vault): if the right answer comes out, it means the brain genuinely queried
-   **your** data and not the Internet.
+   **your** data and not the Internet. And when a search comes back empty, it tells you **"I found
+   nothing"** — never *"nobody decided"*: a silence it has not verified is reported as a silence, not
+   promoted into a fact.
 
 And a rare stance: **safe by construction.** The brain **takes no action** on your
 tools — it **reads and answers**, period. Nothing goes out in your name. (Action capabilities can be
@@ -156,7 +159,10 @@ added later, **deliberately and under your control**, never by default.)
 The **launcher** (this repo) is **reusable and never modified**: it **creates elsewhere** a fresh
 brain folder (copies the files + `git init`, **0 remotes**), so **no link** to the launcher,
 by construction. Backup/multi-machine = wire up **your** remote repository, **opt-in** (nothing is
-pushed until you ask for it).
+pushed until you ask for it). On a **second machine**, cloning that repository is not quite enough —
+the files that carry the machine's own paths are deliberately not versioned — so one **offline**
+command rebuilds them locally (`node scripts/rehydrate.mjs`): nothing is fetched from here, and the
+launcher is not needed again.
 
 > 📌 *Underlying decisions:* [`0002`](maintainers/decisions/0002-in-house-installer-vs-plugin.md)
 > (home-grown vs plugin), [`0003`](maintainers/decisions/0003-no-brain-capability-upgrade.md)

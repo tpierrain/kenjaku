@@ -41,6 +41,32 @@ In parallel ([`sync-sources`](../sync-sources/SKILL.md) architecture, ~500-token
   **next** 1-1 (date of the output file; otherwise today's date).
 - **Delta since the last 1-1**: messaging, email, shared meetings — depending on your connectors.
 
+## Claim discipline
+
+**The full rules live in one place — [`sync-sources` § Claim discipline](../sync-sources/SKILL.md#claim-discipline)
+— and this skill obeys them rather than restating its own.** Two paraphrases are two disciplines; the
+control belongs where the facts are produced, and this skill consumes that fan-out.
+
+Read them there. What makes a 1-1 prep the **worst** place to break them:
+
+- **You are about to say these lines to the person they are about.** A briefing that is wrong gets
+  corrected later; a 1-1 prep that is wrong gets spoken aloud, to their face.
+- **"Not done" is a behavioural claim.** The commitment-follow-up section below invites `status kept /
+  in progress / not done` — the third one is an accusation unless you name the check that established
+  it. Write *"I did not find a trace of X"* and mark it 🔴, or ask it as an open question.
+- **The thread, again.** Before writing that someone never replied, never delivered, never started:
+  open the thread. A root message is the moment a question was **asked**. A reply count above zero
+  with the thread unread blocks the words "unanswered", "pending", "still waiting".
+- **Reconcile first.** Does anything you retrieved contradict what you are about to write? This skill
+  produced the field defect that proves it: it announced a role change as *"unconfirmed"* while the
+  vault's own `people/` note recorded it **confirmed two months earlier**.
+- **The vault outranks the delta on anything about a person.** Read `vault/people/<name>.md` before
+  asserting who someone is, what their title is, or what they owe you. A bare first name stays a bare
+  first name.
+
+Markers are mandatory here too: ✅ observed and quoted · 🟡 inferred · 🔴 unverified negative or
+behavioural — and 🔴 is **never** safe to say out loud in the meeting.
+
 ## Step 2 — Writing the briefing
 
 Write to `vault/prep-1-1/YYYY-MM-DD-prep-1-1-<name>.md` (date of the next 1-1; create the folder

@@ -19,6 +19,12 @@ repo (linked below); the rest are spelled out here because they previously lived
 
 ## 1. Plans, roadmaps, TODOs — checkboxes on every step
 
+> 📤 **§1, §3 and §3bis are also published standalone** in
+> [`plan-discipline.md`](plan-discipline.md) — the same three rules with nothing of this repo in
+> them (no ADRs, no engine regimes, no CI matrix), plus a ready-to-paste `CLAUDE.md` block, so they
+> can be handed to someone working on something else entirely. **That file is the shareable copy,
+> this one is the operative one**: change a rule here first, then carry it over.
+
 Any **plan / roadmap / TODO / progress-tracking** document I write or edit (first of all
 `maintainers/plans/**`, but **any** file listing steps to do) MUST use Markdown **checkboxes**
 `- [ ]` / `- [x]` on **every step AND every sub-step** — never plain bullets `-`, never text-only
@@ -78,11 +84,49 @@ not copies**:
 
 - **State of a chantier lives in the repo plan** (§3, the single source of truth) — checkboxes,
   commits, remains-to-do. The memory keeps **one thin pointer line**, never a copy of that state.
+- **🚫 NEVER put the next step in memory. Not even once, not even "just this one".** "Next: F17",
+  "what remains is X", "blocked on Y", a summary of where the work stands — **all of it belongs in
+  the plan, always**, and nowhere else. This is the sharpest edge of the rule and the one that gets
+  bent, because writing it in memory *feels* like saving it. It is the opposite: the plan is edited
+  and committed as the work moves, so it stays true; a memory line describing the next step is
+  written once and then quietly outlives the step it describes, while still being read at every
+  session start with full authority. A stale pointer is a wrong instruction, not a missing one.
+- **Only two kinds of entry are admissible**, and neither is state:
+  - a **pointer** — which plan file holds the state, and to open it;
+  - a **reference** — something that exists nowhere else and is not recoverable from the repo (a
+    published URL, a durable preference, a convention with its rationale).
+  Everything else is either in the plan, in the code, or in git — and therefore must **not** be
+  duplicated here. Every extra line spends the same bounded budget the critical instructions need.
 - **On ship, prune it** — retire the SHIPPED pointer + its index line in the archiving change (§7).
 - **`/clear` resume ritual:** a `/clear` is *free* precisely because nothing is lost in memory —
-  the state is in the plan. To resume: **follow the pointer → open the repo plan → restart at the
-  first unticked `- [ ]` → announce it before writing any code.** (Ticking the plan as work
-  proceeds, §1, is what makes this pointer not lie.)
+  the state is in the plan. To resume: **follow the pointer → open the repo plan → read its header
+  note and its `## Tracking` → restart where the header says → announce it before writing any code.**
+  (Ticking the plan as work proceeds, §1, is what makes this pointer not lie.)
+- **The first unticked `- [ ]` is NOT reliably the resume point**, which is why the header note above
+  outranks it. Constraints, rejected options and evidence are checkboxes too; a step can be done bar
+  one line of doc; a check can be waiting on an environment. A plan whose header does not say what
+  the next real step is has not saved its state, however many boxes are ticked.
+
+### The save point is EVERY handed-back turn — not the end of a step
+
+**Before handing back** — that is, any reply that does not chain into another tool call, so **every
+instant the human may `/clear`** — the plan must already say what the chat message is about to say.
+The test, applied before writing the reply: **if my reply contains "next: X", "Y remains", "resume at
+Z", those sentences must already exist in the plan, committed.** Otherwise write them there first,
+and let the chat be the echo.
+
+This is what no checkbox says on its own:
+
+- **what the next real step is**, when the first unticked box is not the right marker (above);
+- **a decision taken in conversation** (a trade-off, a scope call, a "we are not doing X") — it dies
+  at the `/clear` if it lives only in the thread;
+- **a blocker or an external wait**, and what would take to lift it.
+
+Why the precision matters, given "tick as you go" was already written: its trigger is *"a step is
+finished"*. Between two steps the state therefore lived in the last reply — the one place a `/clear`
+destroys — and the human had to ask for it to be saved. The right trigger is not the end of a step,
+it is **the handed-back turn**. **Goal: `/clear` is free at every instant, never only at step
+boundaries.**
 
 This is the **all-projects** convention; the global rule
 `use-case-driven-harness/rules/plans.md` § "Mémoire & /clear" carries the same, machine-wide.
@@ -190,6 +234,32 @@ from [`maintainers/mutation/RESULTS.md`](mutation/RESULTS.md), measured against 
 code). The **README** tracks moving `main`, so a static number there would rot: keep the README on a
 **capability** badge (or a live dashboard badge). Cadence going forward: harden, re-measure, cut a
 release, pin that release's snapshot in its notes.
+
+## 5quater. A checker must read through the ENGINE's own eyes, or it measures a fiction
+
+A verify / health / audit surface exists to tell the truth about the engine. The moment it walks the
+vault, parses a note or hashes a file **its own way**, it stops describing the engine and starts
+describing itself — and it will be believed anyway, because it looks like a measurement.
+
+The lesson cost a first implementation of the disk↔index crosscheck (2026-08-02, on a real brain). It
+called `gray-matter` with the library's defaults; `gray-matter` 4.x routes YAML through js-yaml 3's
+`safeLoad`, removed in js-yaml 4, which this repo pins. Every note "failed to parse": **434 of 436
+healthy notes declared broken**. The vault was fine; the checker was wrong.
+
+- **Reuse the engine's path, don't mirror it.** Import the very functions the engine runs (`scanVault`,
+  `sha256`, `parseDocument`), so a change to how the engine reads notes reaches the checker by
+  construction. A mirrored constant kept "in sync by comment" drifts on the day nobody re-reads the
+  comment. `rag/src/lib/index-crosscheck-scan.ts` is the shape: injected ports whose **defaults are the
+  engine's own functions**. Mirroring drifts on details that decide the verdict — the brain-side
+  prototype also walked the vault itself, and so would have flagged `_template.md` and `.obsidian/`,
+  which `document-scanner.ts` deliberately skips.
+- **Judge a checker on its FALSE POSITIVES, not only on catching the true one.** The direction of the
+  error is what matters: an alarm on everything is indistinguishable from noise, so it gets ignored —
+  and takes the real signal with it. Before shipping one, ask *"what does it say on a perfectly healthy
+  brain, and on the ordinary transient states?"* (a note edited a second ago, a fresh clone, a reindex
+  in flight). A checker that cannot stay quiet is not stricter, it is useless.
+- **Same rule for anything that classifies user content** — a lint, a guard, a nudge. If it does not run
+  the production parser on the real payload, it is asserting about a payload nobody has.
 
 ## 6. ADRs carry a `Scope:` field
 
@@ -322,6 +392,21 @@ Node 22/24/26 × macOS + Windows). Use it as the source of truth.
   The expensive matrix stays gated to pull requests and `main`, so an ordinary push costs one short job.
   **Reflex + tripwire + arbiter**: the written reflex above, the tripwire on every push, the 7/7 matrix
   before merge.
+- **🛑 …which means the commits have to BE pushed. Push as you go — no asking, no batching** (added
+  2026-08-03, during v4.5.0). A tripwire wired to `push` fires exactly as often as we push, so a branch
+  that accumulates green local commits without pushing has **no net at all**, however carefully the
+  section above is followed. Two episodes now: v4.4.0 reached 52 commits before Windows spoke, and
+  `release/v4.5.0` reached **67** — after which the very next push found **14 failures that had been red
+  for weeks**. Both times the reflex was fine and the net simply never ran.
+  - **The rule: on a release/feature branch, every green commit is pushed** — as part of committing, not
+    as a separate decision, and without waiting to be asked. The cost is one ~40 s job; the thing it buys
+    is that "green" means something.
+  - **This overrides an assistant's default caution about pushing.** Claude's standing rule is to push
+    only when asked, which is right for `main` and wrong here: on a branch that already has (or will
+    have) its own PR, withholding the push is not prudence, it is disabling the net on purpose. Asking
+    every time produces the same outcome as never pushing, because the question is easy to not answer.
+  - **Scope, so this stays safe**: branches only, never a direct push to `main`; and pushing is not
+    merging — the 7/7 matrix before merge (above) is untouched.
 
 Full rationale: ADR [`0015`](decisions/0015-cross-platform-parity.md) (cross-platform parity).
 
