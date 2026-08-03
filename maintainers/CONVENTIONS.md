@@ -80,9 +80,34 @@ not copies**:
   commits, remains-to-do. The memory keeps **one thin pointer line**, never a copy of that state.
 - **On ship, prune it** — retire the SHIPPED pointer + its index line in the archiving change (§7).
 - **`/clear` resume ritual:** a `/clear` is *free* precisely because nothing is lost in memory —
-  the state is in the plan. To resume: **follow the pointer → open the repo plan → restart at the
-  first unticked `- [ ]` → announce it before writing any code.** (Ticking the plan as work
-  proceeds, §1, is what makes this pointer not lie.)
+  the state is in the plan. To resume: **follow the pointer → open the repo plan → read its header
+  note and its `## Tracking` → restart where the header says → announce it before writing any code.**
+  (Ticking the plan as work proceeds, §1, is what makes this pointer not lie.)
+- **The first unticked `- [ ]` is NOT reliably the resume point**, which is why the header note above
+  outranks it. Constraints, rejected options and evidence are checkboxes too; a step can be done bar
+  one line of doc; a check can be waiting on an environment. A plan whose header does not say what
+  the next real step is has not saved its state, however many boxes are ticked.
+
+### The save point is EVERY handed-back turn — not the end of a step
+
+**Before handing back** — that is, any reply that does not chain into another tool call, so **every
+instant the human may `/clear`** — the plan must already say what the chat message is about to say.
+The test, applied before writing the reply: **if my reply contains "next: X", "Y remains", "resume at
+Z", those sentences must already exist in the plan, committed.** Otherwise write them there first,
+and let the chat be the echo.
+
+This is what no checkbox says on its own:
+
+- **what the next real step is**, when the first unticked box is not the right marker (above);
+- **a decision taken in conversation** (a trade-off, a scope call, a "we are not doing X") — it dies
+  at the `/clear` if it lives only in the thread;
+- **a blocker or an external wait**, and what would take to lift it.
+
+Why the precision matters, given "tick as you go" was already written: its trigger is *"a step is
+finished"*. Between two steps the state therefore lived in the last reply — the one place a `/clear`
+destroys — and the human had to ask for it to be saved. The right trigger is not the end of a step,
+it is **the handed-back turn**. **Goal: `/clear` is free at every instant, never only at step
+boundaries.**
 
 This is the **all-projects** convention; the global rule
 `use-case-driven-harness/rules/plans.md` § "Mémoire & /clear" carries the same, machine-wide.
