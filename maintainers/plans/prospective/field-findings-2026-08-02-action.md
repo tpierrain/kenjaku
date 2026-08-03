@@ -275,6 +275,26 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           `maintainers/mutation/reports/v450-scripts-batch2.log`. **If a `/clear` lands here**: read that
           log, copy the per-file scores and the survivor list below, then treat each survivor the way
           batch 1 was treated (fix what a test can honestly reach; record only genuine equivalents).
+    - [x] **⚠️ Batch 2 had to be SPLIT, and this is the reproducible lesson**: the five files together are
+          **546 mutants ≈ 13 min**, over the 10-min background cap — and a killed run leaves Stryker's
+          instrumentation in the worktree (reset before re-running, per the config's own warning).
+          **One or two files per run**, ~125 mutants ≈ 6 min. Sub-batches: **2a** health-probe +
+          universe-reminder, **2b** vault-write-guard, **2c** universe-profile, **2d** rag-launcher.
+    - [x] **Batch 2a done** _(2026-08-03 · `c74662b`, log `…/v450-scripts-batch2a.log`)_ —
+          `health-probe.mjs` **71.83 %** (20 survivors), `universe-reminder.mjs` **94.44 %** (3). Same two
+          families as batch 1, so the same repair: banners checked by **fragments** (the reassurance line,
+          the newline between bullets, and the whole core-⚠️ / optional-ℹ️ severity split could all be
+          dropped with every `assert.match` still green), plus **branches nothing ever fed** — the canary
+          gesture, the embedder's network/key gesture (the one an API user actually gets, while the suite
+          only ever tested local weights), the fallback gesture for an unknown check name, a module whose
+          healthy siblings must not be listed as causes, the legacy no-detail shape. Two calls worth
+          keeping: `gestureForCheck`'s `detail = ""` default was **deleted rather than excused** (no call
+          site omits it, so it could not change an outcome), and one new test **pins the
+          `unknown`-rendered-as-broken defect** while naming it as the v4.7.0 item it is, so nobody later
+          reads it as desired behaviour.
+    - [ ] **Batch 2b RUNNING** — `scripts/lib/vault-write-guard.mjs`, log
+          `maintainers/mutation/reports/v450-scripts-batch2b.log`. Then **2c** (`universe-profile.mjs`)
+          and **2d** (`rag-launcher.mjs`), one run at a time, resetting the worktree between runs.
     - [ ] **Batch 3, not started** — `scripts/rehydrate.mjs, scripts/session-self-heal.mjs,
           scripts/session-status.mjs, scripts/session-universe.mjs, scripts/vault-write-guard.mjs`.
           Expect `session-status.mjs` at **0 %**: named, pre-existing debt (a top-level script no test can
