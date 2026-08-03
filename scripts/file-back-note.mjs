@@ -11,15 +11,17 @@
 //
 //   echo '<json spec>' | node scripts/file-back-note.mjs
 //
-// Spec: { type, title, tags[], body, links?[], date?, distinguish? } — date is
-// required for dated types (decision, meeting); `distinguish` is the homonymy
-// block, and a person whose first name the vault already holds is REFUSED until
-// it is given. Exits 0 when written, 1 when refused/error.
+// Spec: { type, title, tags[], body, links?[], date?, distinguish?, confidence? }
+// — date is required for dated types (decision, meeting); `distinguish` is the
+// homonymy block, and a person whose first name the vault already holds is
+// REFUSED until it is given; `confidence` ({level, basis}) is what the card's
+// identity rests on, and a person is REFUSED without it. Exits 0 when written,
+// 1 when refused/error.
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { renderFiledNote, homonymCards } from "./lib/filed-note.mjs";
+import { renderFiledNote, homonymCards, CONFIDENCE } from "./lib/filed-note.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 
@@ -102,6 +104,21 @@ export function runFileBack(argv, deps = realFileBackDeps) {
     spec = JSON.parse(deps.readInput());
   } catch (err) {
     deps.error(`✗ Invalid JSON spec on stdin: ${err.message}`);
+    return 1;
+  }
+
+  // A person card that does not say what its identity rests on is REFUSED, not
+  // written silently: the builder guarantees form, and a conformant card born of
+  // a guess is indistinguishable from one born of a signed source — which is how
+  // a surname that exists nowhere became the vault's answer to "who is Jérémy".
+  // Required rather than offered: left optional, absence would mean "confirmed".
+  if (spec.type === "person" && !spec.confidence) {
+    deps.error(
+      `✗ vault/ — a person card must say how sure its identity is.\n` +
+        `  Add "confidence": { "level": …, "basis": … } to the spec, where level is one of ` +
+        `${Object.keys(CONFIDENCE).join(", ")},\n` +
+        `  and basis says what the resolution rests on (the source, its date, the card it matched).`,
+    );
     return 1;
   }
 

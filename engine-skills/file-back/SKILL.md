@@ -47,6 +47,13 @@ Pick, from the vault taxonomy (see the constitution, §"Note format"):
   unique — a card that does not say *which* Romain moves the ambiguity into the vault instead of
   resolving it, and the next resolution inherits it. See the identity discipline in
   [`sync-sources`](../sync-sources/SKILL.md#identity-discipline).
+- **confidence** (`person` — **required**, the builder refuses without it) → what this card's identity
+  actually rests on: `{"level":"observed|probable|unverified","basis":"…"}`. Same scale as the claim
+  discipline, deliberately: `observed` = you read the full name at a source you can cite, `probable` =
+  you resolved it from context, `unverified` = you could not confirm it. The `basis` says on what (the
+  source, its date, the card it matched). It becomes the card's confidence block and a frontmatter
+  field. Required rather than offered because a conformant card born of a guess is indistinguishable
+  from one born of a signed source, and the vault reads both as truth forever.
 
 ### 2. Propose (never write yet)
 Show the user, plainly: the **target path**, the **type/tags**, the **[[links]]**, and the **body** you
@@ -67,6 +74,9 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
   The message names the homonym cards it found. This is not a tool failure to work around: read those
   cards, and either say which one this is (add `distinguish`, re-run) or, if the name cannot be
   resolved, say so to the user and file nothing — never re-run with a surname you supplied.
+- **Exit 1**, fourth case: a `person` with no `confidence`. Answer it honestly rather than reaching for
+  the level that unblocks the write: `unverified` written down costs nothing, and is exactly what the
+  next resolution needs to know.
 
 ### 3b. Existing living page (person / topic) → append a dated section
 Filing back never overwrites. When the target already exists, **refine it additively**: append a dated

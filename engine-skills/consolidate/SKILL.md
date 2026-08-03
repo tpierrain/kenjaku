@@ -121,6 +121,11 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
   re-run. If the captures do not tell them apart, leave the page unwritten and say so: a card that
   does not resolve the name only moves the ambiguity into the vault, where the next resolution
   inherits it (the identity discipline linked above).
+- Exit **1** on a `person` with no `confidence`: a person card must say what its identity rests on —
+  `{"level":"observed|probable|unverified","basis":"…"}`, the claim discipline's own scale. Consolidation
+  is where this bites hardest: a candidate surfaced by **mention count** has been counted, never
+  verified, so its honest level is rarely `observed`. Say `probable` or `unverified` and name the
+  captures it came from; never pick the level that unblocks the write.
 
 ### 5b. Existing page (refresh) → pipe the dated section to the deterministic writer
 Filing never overwrites: a living page is REFRESHED by appending a dated section and bumping its

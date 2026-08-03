@@ -58,6 +58,7 @@ test("runFileBack — files the note under the ACTIVE universe, stamping univers
     title: "Jane Doe",
     tags: ["team"],
     body: "b",
+    confidence: { level: "observed", basis: "her own intro in #general, 2026-07-17." },
   });
   const { deps, logs, writes } = fakeDeps({ input: spec, universe: "acme" });
   const code = runFileBack([], deps);
@@ -124,6 +125,7 @@ test("runFileBack — refuses a person whose first name the vault already holds,
     title: "Romain Lefèvre",
     tags: ["acme"],
     body: "SRE, joined in March.",
+    confidence: { level: "observed", basis: "the Acme org chart, 2026-03." },
   });
   const { deps, errors, writes } = fakeDeps({
     input: spec,
@@ -150,6 +152,7 @@ test("runFileBack — ONE homonym is refused too, and reads as one card, not '1 
     title: "Marie Dupont",
     tags: ["acme"],
     body: "b",
+    confidence: { level: "observed", basis: "the Acme org chart." },
   });
   const { deps, errors, writes } = fakeDeps({
     input: spec,
@@ -167,6 +170,7 @@ test("runFileBack — a person that DOES say which one is written, homonyms and 
     tags: ["acme"],
     body: "SRE, joined in March.",
     distinguish: "SRE at Acme — not [[people/romain-durand]] (product).",
+    confidence: { level: "observed", basis: "the Acme org chart, 2026-03." },
   });
   const { deps, logs, errors, writes } = fakeDeps({
     input: spec,
@@ -177,10 +181,37 @@ test("runFileBack — a person that DOES say which one is written, homonyms and 
   assert.equal(writes[0].path, "/brain/vault/people/romain-lefevre.md");
   assert.match(
     writes[0].content,
-    /# Romain Lefèvre\n\n> \*\*Which one\*\* — SRE at Acme — not \[\[people\/romain-durand\]\] \(product\)\.\n\nSRE, joined in March\.\n$/,
-    "the answer lands in the card itself, above the body, where the next resolution reads it",
+    /# Romain Lefèvre\n\n> \*\*Which one\*\* — SRE at Acme — not \[\[people\/romain-durand\]\] \(product\)\.\n\n> \*\*Confidence\*\* — ✅ observed · the Acme org chart, 2026-03\.\n\nSRE, joined in March\.\n$/,
+    "both answers land in the card itself, above the body, in that order: which one, then how sure",
   );
   assert.deepEqual(logs, ["✓ Filed back: vault/people/romain-lefevre.md"]);
+});
+
+// ── Conformant ≠ true: the card must say what its identity rests on ─────────
+// The builder guarantees FORM — right path, complete frontmatter, green lint —
+// and the vault then reads that form as substance. A card resolved from a bare
+// "Jérémy (front Candor)" came out looking exactly like one resolved from a
+// signed org chart, and became what every later resolution resolved against.
+// So the level is REQUIRED on a person, not offered: left optional, its absence
+// would mean "confirmed", which is silence rendered as confidence.
+
+test("runFileBack — refuses a person card that does not say how sure its identity is", () => {
+  const spec = JSON.stringify({
+    type: "person",
+    title: "Jérémy Hinard",
+    tags: ["candor"],
+    body: "Front-end at Candor.",
+  });
+  const { deps, errors, writes } = fakeDeps({ input: spec });
+  assert.equal(runFileBack([], deps), 1);
+  assert.equal(writes.length, 0, "an unbacked identity must not reach the vault at all");
+  const said = errors.join("\n");
+  assert.match(said, /confidence/, "the refusal must name the field that unblocks it");
+  assert.match(
+    said,
+    /observed.*probable.*unverified/s,
+    "and the scale it accepts, so the writer does not invent a fourth level",
+  );
 });
 
 test("runFileBack — the homonymy guard is about PEOPLE: a topic sharing that first segment is written", () => {
