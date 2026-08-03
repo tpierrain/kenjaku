@@ -116,25 +116,30 @@
 > The whole release had accumulated **67 commits without a single push**, so `ci.yml`'s tripwire — which
 > fires on a push to any branch, and exists *precisely* to stop this (`CONVENTIONS.md` §9, written after
 > v4.4.0 reached 52 commits before Windows spoke) — had never run. Branch `release/v4.5.0` is now pushed
-> and **draft PR #54** is open; the tripwire went red in 34 s (1162 pass / **14 fail** / 2 skipped).
-> **Fix this before the release step.** Two distinct causes, do not treat them as one:
-> - **9 in `scripts/rehydrate.test.mjs` + 1 in the verify-index door — a real Windows defect, and the
->   exact suspect §9 names**: the fakes are keyed on **hard-coded POSIX literals**
+> and **draft PR #54** is open; the tripwire went red in 34 s (1162 pass / **14 fail** / 2 skipped) and
+> the full matrix is red on **all six cells**. **Fix this before the release step.** Two distinct
+> causes, do not treat them as one:
+> - **9 in `scripts/rehydrate.test.mjs` + 1 in the verify-index door — a real Windows defect** (these
+>   ten are green on macOS), **and the exact suspect §9 names**: the fakes are keyed on **hard-coded POSIX literals**
 >   (`/brains/mind-palace/.claude/settings.json`) while production computes its key with
 >   `resolve`/`join`, so on Windows (`D:\brains\…`) the fake is never hit and the plan writes nothing —
 >   `0 !== 1`, `[]` instead of the settings write. Same family as the v4.4.0 failure. Fix the FAKES to
 >   key the way production does; check whether production itself also needs a POSIX normalisation at
 >   the single source, rather than assuming it is only the test.
-> - **4 in `scripts/lib/vault-write-guard.test.mjs` — a job-scope mismatch, not a Windows bug**:
->   `parse is not a function`, because the guard resolves the engine's own parser (gray-matter +
->   js-yaml) from `rag/node_modules`, and the tripwire job deliberately installs **nothing**. So these
->   tests are not dependency-free and never were; they pass locally only because `rag/node_modules`
->   exists there. Decide which: install rag deps in the tripwire (it stops being the ~40 s job), or make
->   these four skip when the parser is absent (and keep them in the full matrix, which does install).
->   **Do not "fix" them by faking the parser** — reading through the engine's own eyes is the whole
->   point of that guard (F16).
-> - **Not yet known**: whether the FULL matrix (which does install dependencies) is green on everything
->   else — it was still running when this was written. **Read PR #54's checks first**, they answer it.
+> - **4 in `scripts/lib/vault-write-guard.test.mjs` — NOT a Windows bug, and worse than a job-scope
+>   mismatch: they have never passed in CI at all, on any OS.** Confirmed by the full matrix, which
+>   fails the same four on **macOS** too (6/6 cells red, `Node 22 · macos-latest`: 1173 pass / 4 fail).
+>   The cause: the guard resolves the engine's own parser (gray-matter + js-yaml) from
+>   `rag/node_modules` → `parse is not a function`, and the **`Harness tests` step runs BEFORE
+>   `npm ci`** — its comment even states the invariant those four broke ("pure .mjs seams, no deps to
+>   install"). They pass on a developer machine only because `rag/node_modules` happens to exist there.
+>   So F11/F12's guard shipped with a suite that was green **only locally**, since `524c580`.
+>   Two honest fixes: move those four to the engine job (after `npm ci`), or have them **skip** when the
+>   parser cannot be resolved, keeping the assertion where deps exist. **Never fake the parser** —
+>   reading through the engine's own eyes is the entire point of that guard (F16).
+> - **What IS confirmed green**: `Installer e2e · windows-latest` passes (1 m 5 s). The engine, type-check
+>   and local-mirror steps never ran — the job dies on the harness step before reaching them, so
+>   **nothing is known about them yet**. They will only speak once the four above are fixed.
 >
 > **⏭️ THEN, LAST: step 11, the v4.5.0 release.** Nothing of it is started. What it needs is in the
 > numbered list below — the `engineVersion.scripts` bump and the PR body stating F5's known limit (a
