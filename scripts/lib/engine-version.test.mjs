@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { formatEngineVersion, startupVersionLine } from "./engine-version.mjs";
+import { formatEngineVersion, startupVersionLine, readStartupVersionLine } from "./engine-version.mjs";
 
 test("formatEngineVersion — semver tag ref → 'engine <tag>'", () => {
   assert.equal(
@@ -85,4 +85,61 @@ test("startupVersionLine — missing/invalid manifest → null (fail-silent, nev
   assert.equal(startupVersionLine("nope"), null);
   assert.equal(startupVersionLine(42), null);
   assert.equal(startupVersionLine({}), null);
+});
+
+// ── The reader, with its I/O injected ──────────────────────────────────────
+// The two callers are top-level scripts no test can import, so the file read +
+// JSON.parse + fail-silent catch would live where nothing can reach them (§6 of
+// the TDD discipline: "not testable here" means "extract a seam").
+test("readStartupVersionLine — reads the brain's manifest and labels what it found", () => {
+  const seen = [];
+  const line = readStartupVersionLine({
+    manifestPath: "/brains/mind-palace/engine-manifest.json",
+    existsSync: (p) => { seen.push(["exists", p]); return true; },
+    readFileSync: (p, enc) => {
+      seen.push(["read", p, enc]);
+      return JSON.stringify({ source: { ref: "v4.5.0" } });
+    },
+  });
+  assert.equal(line, "⚙️ Kenjaku engine v4.5.0");
+  assert.deepEqual(seen, [
+    ["exists", "/brains/mind-palace/engine-manifest.json"],
+    ["read", "/brains/mind-palace/engine-manifest.json", "utf8"],
+  ]);
+});
+
+// Both fail-silent twins, each as the SOLE reason (§9): a brain with no manifest
+// at all, and a manifest that is on disk but unreadable / not JSON. Either one
+// must cost the segment, never the SessionStart hook that carries the repo and
+// RAG lines with it.
+test("readStartupVersionLine — no manifest → null, and the file is never read", () => {
+  let read = 0;
+  assert.equal(
+    readStartupVersionLine({
+      manifestPath: "/brains/fresh-clone/engine-manifest.json",
+      existsSync: () => false,
+      readFileSync: () => { read += 1; return "{}"; },
+    }),
+    null,
+  );
+  assert.equal(read, 0, "a missing manifest must not be read");
+});
+
+test("readStartupVersionLine — unparseable manifest → null, never throws", () => {
+  assert.equal(
+    readStartupVersionLine({
+      manifestPath: "/brains/x/engine-manifest.json",
+      existsSync: () => true,
+      readFileSync: () => "{ this is not json",
+    }),
+    null,
+  );
+  assert.equal(
+    readStartupVersionLine({
+      manifestPath: "/brains/x/engine-manifest.json",
+      existsSync: () => true,
+      readFileSync: () => { throw new Error("EACCES"); },
+    }),
+    null,
+  );
 });

@@ -46,6 +46,17 @@ export function startupVersionLine(manifest) {
   return ref === null ? null : `⚙️ Kenjaku engine ${ref}`;
 }
 
+// The startup segment read from disk, with I/O injected so both the branch and
+// its fail-silent twin stay reachable from a test.
+export function readStartupVersionLine({ manifestPath, existsSync, readFileSync }) {
+  if (!existsSync(manifestPath)) return null;
+  try {
+    return startupVersionLine(JSON.parse(readFileSync(manifestPath, "utf8")));
+  } catch {
+    return null;
+  }
+}
+
 export function formatEngineVersion(manifest) {
   if (!manifest || typeof manifest !== "object") return null;
 
