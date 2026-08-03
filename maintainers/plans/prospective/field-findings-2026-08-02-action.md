@@ -262,13 +262,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
             `(+0 other(s))`), and the absence (no test reached the failure lookup with `lastRun` missing,
             which is exactly a freshly rehydrated machine, F14 — its shortfall must read as the plain
             wait it is). Every mutant applied by hand before and after.
-      - [ ] **Re-measurement of `rag-status.mjs` PENDING** — the first attempt was killed by the 10-min
-            cap (worktree reset afterwards, per the config's own warning). Relaunched in the background,
-            log at `maintainers/mutation/reports/v450-rag-status-recheck.log`. **Copy the score here when
-            it lands**; the fix itself is committed and the suite is green either way.
-    - [ ] **Batch 2, not started** — `scripts/lib/health-probe.mjs, scripts/lib/rag-launcher.mjs,
-          scripts/lib/universe-profile.mjs, scripts/lib/universe-reminder.mjs,
-          scripts/lib/vault-write-guard.mjs`.
+      - [x] **Re-measured: `rag-status.mjs` 86.79 % → 100.00 %** _(2026-08-03, 1 min 16 s, 53 mutants,
+            0 survivors, log `maintainers/mutation/reports/v450-rag-status-recheck.log`)_. The first
+            attempt was killed by the 10-min cap; the worktree was reset per the config's own warning
+            before re-running, so the score is off a clean checkout.
+    - [x] **Batch 1 is CLOSED**: `brain-rehydrate.mjs` 100 %, `open-note.mjs` 100 %,
+          `staged-health-note.mjs` 100 %, **`rag-status.mjs` 100 %**, **`verify-index.mjs` 92.31 %**
+          (only the package-wide entrypoint guard left).
+    - [ ] **Batch 2 RUNNING** _(2026-08-03, launched off a clean worktree at `eab823d`)_ —
+          `scripts/lib/health-probe.mjs, scripts/lib/rag-launcher.mjs, scripts/lib/universe-profile.mjs,
+          scripts/lib/universe-reminder.mjs, scripts/lib/vault-write-guard.mjs`. Log:
+          `maintainers/mutation/reports/v450-scripts-batch2.log`. **If a `/clear` lands here**: read that
+          log, copy the per-file scores and the survivor list below, then treat each survivor the way
+          batch 1 was treated (fix what a test can honestly reach; record only genuine equivalents).
     - [ ] **Batch 3, not started** — `scripts/rehydrate.mjs, scripts/session-self-heal.mjs,
           scripts/session-status.mjs, scripts/session-universe.mjs, scripts/vault-write-guard.mjs`.
           Expect `session-status.mjs` at **0 %**: named, pre-existing debt (a top-level script no test can
