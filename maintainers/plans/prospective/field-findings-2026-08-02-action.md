@@ -95,14 +95,17 @@
 > `file://` link does not). Then `scripts/lib/open-note.mjs` was built TDD and **committed green**
 > _(`618ba54`)_.
 >
-> **⏸️ NEXT REAL STEP: ONE CHOICE, THE OWNER'S.** The field check is **done** and it half-succeeded:
-> `obsidian://open?path=` **does** resolve the right vault and the right note from an absolute path
-> (so the signature stands, no `?vault=&file=` fallback needed) — but Obsidian gates every external
-> link behind a **trust dialog**, dismissable for good only by ticking *"Ne plus demander"* once. So
-> the choice is: **URI everywhere + document that one-time tick**, or **`open -a "Obsidian"` on macOS
-> and the URI elsewhere** (dialog-free where it matters most, at the price of a rule that differs by
-> platform). Nothing downstream — the three doc surfaces, `SETUP.md:250`, ADR 0038, the
-> citation-renderer wording — should be written before that call. Full evidence in F17's entry. _(Side work done 2026-08-03 and finished, unrelated to the release:
+> **✅ THE MECHANISM IS SETTLED, ON MEASUREMENTS.** `obsidian://open?path=<url-encoded abs path>`,
+> everywhere, handed to the OS opener. Not a preference: the dialog-free alternative
+> (`open -a "Obsidian" <file>`) was run three times and **never opens the requested note**, cold or
+> warm — which also makes today's shipped `open-note` skill wrong, not merely macOS-only. Obsidian's
+> trust dialog is therefore a **cost of the feature**, documented like the one-time "Always allow".
+> `buildOpenNoteCommand`'s signature stands. Evidence and the `?vault=` collision trap: F17's entry.
+>
+> **⏭️ REMAINS on F17, in order:** the three doc surfaces (`CLAUDE.engine.md` + its FR twin,
+> `engine-skills/open-note/SKILL.md`, `SETUP.md:250`), doc guards pinning them to the function, the
+> `citation-renderer.ts:77` wording, and **ADR 0038** (scoped reversal of 0027, amendment to 0029, and
+> the shipped `open -a` defect stated). _(Side work done 2026-08-03 and finished, unrelated to the release:
 > `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the plan/`/clear`
 > convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
@@ -424,14 +427,40 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           with **Annuler / Continuer** and a **"Ne plus demander pour « open »"** checkbox. So F17's
           promise would land on a modal at **every** open until the owner ticks that box once. This is
           a real cost the plan had not priced, and it is **specific to the `obsidian://` scheme**.
-    - [ ] **Being tested against it: `open -a "Obsidian" <path>`** — the form the current
-          `open-note` skill already hard-codes, which is not an external link and should raise no
-          dialog. It is **macOS-only**, so choosing it means the rule becomes platform-shaped: `open -a`
-          on darwin, the URI (+ its one-time tick) on win32/linux. Which is not a hack —
-          `osOpener` is already a per-platform table — but it does mean **Linux and Windows users get a
-          modal macOS users never see**, and the docs must say so honestly.
-    - [ ] **Owner's call, pending:** (a) URI everywhere + document the one-time tick, next to the
-          existing "Always allow" one-time step at install; or (b) the hybrid, dialog-free on macOS.
+    - [x] **❌ The dialog-free alternative is DEAD, and it takes a shipped defect down with it.**
+          `open -a "Obsidian" <path>` was run for real (screenshot) on
+          `vault/topics/second-brain-retrieval-reliability.md` with Obsidian **not running**: it
+          launched the app, restored the previous session (two `health-check` tabs from the URI runs)
+          and **ignored the file argument entirely** — the targeted note was never opened, only
+          visible in the sidebar. So the form that avoids the trust dialog **cannot aim at a note**,
+          which is the whole point of the gesture.
+      - [x] **Therefore the hybrid (option b) is off the table** and the URI is the only mechanism
+            that works. The trust dialog is a **cost of the feature**, not a choice between two roads:
+            document the one-time *"Ne plus demander"* tick, next to the existing one-time "Always
+            allow" step at install.
+      - [x] **And this is a NEW defect, bigger than the doc contradiction F17 was written for:**
+            `engine-skills/open-note/SKILL.md` hard-codes exactly this `open -a "Obsidian" <path>` as
+            its "only deterministic part" (lines 21, 42, 73). It does not do what it promises **on
+            macOS either** — the skill's one guaranteed step opens the app on whatever was last open.
+            So the three surfaces did not merely disagree: the one that was most specific was also
+            **wrong**. Say so in ADR 0038.
+      - [x] **Measured both ways: `open -a` NEVER targets the file — cold OR warm.** Three runs,
+            two screenshots: Obsidian comes up on the restored session every time, the requested note
+            only ever appears in the sidebar. So ADR 0038 words the shipped defect as **"never"**, not
+            "only on a cold start". Cross-confirmed the same evening by the owner's own brain, which
+            reported using `obsidian://open?path=` (never `open -a`) whenever he asks for Obsidian.
+      - [x] **`?path=` over `?vault=&file=`, and the reason is specific to Kenjaku.** Obsidian names a
+            vault after its **root folder**, and every brain this launcher generates roots its vault at
+            `<brain>/vault` — so on a machine with two brains, **both vaults are literally named
+            `vault`** (the owner's `obsidian.json` already lists `inqom-brain/vault` AND
+            `mind-palace/vault`). `?vault=` would therefore be ambiguous **by construction** for anyone
+            with a second brain, which is exactly the multi-brain case F14 just made easy. `?path=`
+            has no such collision.
+    - [x] **✅ DECIDED (2026-08-03, forced by the measurements, not a preference): `obsidian://open?path=`
+          everywhere, and the trust dialog is documented as a one-time step.** There is no dialog-free
+          road: the only alternative cannot aim at a note. So the tick goes in the docs next to the
+          existing "Always allow" one-time step, framed the same calm way (SETUP.md, and the Obsidian
+          nudge that already promises this behaviour).
   - [ ] **Found while checking decision 1, small and executable** (not yet done):
         `rag/src/lib/citation-renderer.ts:77` prints *"I'll open it in your Markdown editor (Typora,
         Obsidian, …)"*. Every `search_vault` citation IS a vault note, so under F17 that sentence
