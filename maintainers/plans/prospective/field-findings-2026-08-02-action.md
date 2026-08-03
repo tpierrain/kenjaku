@@ -112,6 +112,27 @@
 > place (§2, §4, §6bis), and both constitutions teach the page since the gate closed the last channel
 > that mentioned it. Suites green: 1177 scripts (1 skipped Windows-only), 480 rag.
 >
+> **✅ Step 10bis DONE — CI IS GREEN, 7/7** _(2026-08-03 · `7ea6b11`, `fc8949b`)_. Both causes fixed,
+> separately, and **proven by CI rather than by reasoning**: the Windows tripwire passes in 34 s and the
+> full matrix is green on all six cells plus the installer e2e (run `30819750747`). What each half turned
+> out to be:
+> - **The ten Windows-only failures were 100 % fixture, 0 % production.** Both `rehydrate.mjs` and
+>   `verify-index.mjs` compute every path with `join` and are correct on Windows; the fakes were keyed on
+>   hand-written POSIX literals, so on `D:\brains\…` they were never hit. Now keyed the way production
+>   keys (`BRAIN = join(…)` + an `at()` helper, equality instead of a suffix guess). The one literal kept
+>   is `BRAIN_POSIX`, because inside a **generated** file `{{PROJECT_ROOT}}` is POSIX-normalised on every
+>   OS — there the literal IS the contract. **Production needed no POSIX normalisation**: checked, not
+>   assumed.
+> - **The four write-guard failures now RUN, they were not merely silenced.** They skip (with a stated
+>   reason) when the engine's parser is unresolvable, and a **new CI step re-runs that file after
+>   `npm ci`** — measured on Windows: `tests 9 / pass 9 / skipped 0`. Six cells execute them for real,
+>   against zero before. The parser was never faked (F16). And because a skip nothing cashes in is just a
+>   silence that reads green, **the step is pinned from the suite itself**: a last test asserts `ci.yml`
+>   re-runs the file *after* `npm ci`, so deleting the step goes red instead of going quiet. Both branches
+>   were exercised — 9 pass here, 4 skipped / 0 failed on a throwaway copy with no engine deps.
+>
+> <details><summary>The blocker as it was found, kept for the record</summary>
+>
 > **🛑 BLOCKER, FOUND 2026-08-03: WINDOWS IS RED — 14 failures, and they have been red for weeks.**
 > The whole release had accumulated **67 commits without a single push**, so `ci.yml`'s tripwire — which
 > fires on a push to any branch, and exists *precisely* to stop this (`CONVENTIONS.md` §9, written after
@@ -141,7 +162,9 @@
 >   and local-mirror steps never ran — the job dies on the harness step before reaching them, so
 >   **nothing is known about them yet**. They will only speak once the four above are fixed.
 >
-> **⏭️ THEN, LAST: step 11, the v4.5.0 release.** Nothing of it is started. What it needs is in the
+> </details>
+>
+> **⏭️ THE RESUME POINT — step 11, the v4.5.0 release. Nothing else is left.** Nothing of it is started. What it needs is in the
 > numbered list below — the `engineVersion.scripts` bump and the PR body stating F5's known limit (a
 > first draft of that body is already on PR #54) — plus the §7 caveat at the end of this header (the
 > rehydrate does not index, so the first rooted session is what indexes the vault, canary included). _(Side work done 2026-08-03 and finished, unrelated to the release:
@@ -150,8 +173,8 @@
 >
 > **Resume here — v4.5.0, in this order.**
 > 10. ~~**F1 — the universe banner**~~ ✅ done, see above.
-> 10bis. **Get Windows green on PR #54** — the blocker above. This is the real resume point.
-> 11. Then the **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
+> 10bis. ~~**Get Windows green on PR #54**~~ ✅ done, see above — CI is 7/7 on `fc8949b`.
+> 11. **← START HERE.** The **v4.5.0 release**: bump `engineVersion.scripts` (deliberately left at `1.9.0` — the
 >    apply plan is glob-driven, so delivery never needed it), PR body stating F5's known limit on the
 >    constitution half (an engine-managed file only reaches brains that never customized it).
 >
