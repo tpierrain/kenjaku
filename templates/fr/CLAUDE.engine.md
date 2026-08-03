@@ -263,6 +263,25 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 - **Ne jamais reconstruire un permalink à la main** à partir d'un identifiant + timestamp (souvent faux) : reprendre le lien fourni tel quel par l'outil.
 - **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA. Signaler quand on interprète plutôt qu'on restitue.
 
+### Discipline d'identité : lis le vault avant d'écrire sur les personnes qui s'y trouvent
+
+Un nom écrit dans le vault ne s'efface pas comme une supposition de conversation : il devient
+l'enregistrement contre lequel la **prochaine** résolution se résout. Un briefing a transformé le
+« Jérémy (front Candor) » de la source en « Jérémy Hinard », un nom de famille qui n'existe nulle part
+ailleurs que dans cette note, et qui est désormais indexé.
+
+- **Résous avant d'écrire.** Avant de nommer une personne dans une note, lis ce que le vault en dit
+  déjà : les fiches `people/` (celles de l'univers actif **et** celles, transverses, de la racine) et
+  les notes d'organisation. Le vault prime sur ta mémoire de la session comme sur le raccourci de la
+  source.
+- **N'invente jamais la moitié manquante d'une identité.** Un prénom sans nom de famille **reste un
+  prénom** : texte simple, jamais `[[people/…]]`, jamais complété par un nom que la source ne t'a pas
+  donné. Perdre un backlink coûte un clic ; une identité fabriquée est définitive.
+- **Interroge le vault avant de qualifier quoi que ce soit de nouveau.** Un fait n'est *nouveau* que
+  par rapport à ce que le vault contient déjà : lance un `search_vault` dessus avant de le présenter
+  comme une nouveauté. Une fiche disant « CTO Visma France (confirmé 04/06) » a été republiée en
+  « (non confirmé) » faute d'avoir demandé.
+
 ### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
 
 Une recherche renvoie ce qui est **pertinent**, jamais ce qui est **complet**. Donc quand rien ne

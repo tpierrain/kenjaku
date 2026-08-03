@@ -258,6 +258,23 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 - **Never rebuild a permalink by hand** from an identifier + timestamp (often wrong): reuse the link the tool hands you as-is.
 - **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis. Flag when you interpret rather than report.
 
+### Identity discipline — read the vault before you write about the people in it
+
+A name you write into the vault does not fade like a guess in a conversation: it becomes the record
+the **next** resolution resolves against. A briefing turned a source's *"Jérémy (front Candor)"* into
+*"Jérémy Hinard"* — a surname that exists nowhere but in that note, and is now indexed.
+
+- **Resolve before you write.** Before naming a person in a note, read what the vault already says
+  about them: the `people/` cards (the active universe's **and** the root's cross-cutting ones) and
+  the organisation notes. The vault outranks both your memory of this session and the source's
+  shorthand.
+- **Never invent the missing half of an identity.** A first name with no surname **stays a first
+  name**: plain text, never `[[people/…]]`, never completed with a surname the source did not give
+  you. Losing a backlink costs a click; a fabricated identity is permanent.
+- **Ask the vault before you call anything new.** A fact is only *new* relative to what the vault
+  already holds, so run a `search_vault` on it before presenting it as news. A card reading *"CTO
+  Visma France (confirmed 04/06)"* was republished as *"(unconfirmed)"* because nobody asked.
+
 ### Claim discipline — the silence you report is the dangerous part
 
 A search returns what is **relevant**, never what is **complete**. So when nothing comes back, that

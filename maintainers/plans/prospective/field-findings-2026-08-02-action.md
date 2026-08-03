@@ -473,12 +473,18 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > above a list of three is how the third one reads as optional. 16 assertions, suite green (1251 pass,
 > 1 skipped Windows-only).
 >
-> **The next bullets of Step 12.1, in order** (each one red-first, same shape as above):
-> 1. **The constitutions (EN + FR)** — the identity discipline exists only in the two skills so far. Add
->    it to `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md` and extend the guard's table to them
->    (the claim guard's `CONSTITUTIONS` array is the model). Reach caveat, unchanged: the constitution is
->    in **no** regime, so it reaches new installs only — never the only carrier.
-> 2. **`prepare-1-1` must POINT at the producer's identity section** rather than paraphrase it, exactly
+> **✅ The constitutions carry it now** _(2026-08-03)_ — a condensed `### Identity discipline` in
+> `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md`, sitting immediately above the claim discipline
+> because a name is what the claim discipline's tier 3 is mostly about. Asserted against the **same
+> patterns** as the skills (the claim guard's own rule: two paraphrases of one discipline are two
+> disciplines), via a `CONSTITUTIONS` block modelled on it. Reach caveat unchanged and NOT a reason to
+> have skipped it: the skills are in `merge` and reach the fleet, the constitution is in no regime and
+> reaches new installs only, which is why the skill carriers were written first. 24 assertions, suite
+> green (1259 pass, 1 skipped Windows-only). One deliberate FR deviation: the heading uses a colon,
+> not an em dash, per the French typography rule.
+>
+> **The next bullet of Step 12.1** (red-first, same shape as above):
+> 1. **`prepare-1-1` must POINT at the producer's identity section** rather than paraphrase it, exactly
 >    as the claim guard already forces for the claim discipline (`sync-sources/SKILL.md#` anchor test).
 > Then Step 12.2 (F6), 12.3 (homonymy), 12.4 (confidence block), 12.5 (release).
 
@@ -563,9 +569,11 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         sub-agents never see the vault. See the header note for what that split turned up.
   - [ ] The control sits in the **producer** (`sync-sources`), not in each consumer: `prepare-1-1` reuses
         that fan-out, and two paraphrases are two disciplines (the rule F18 already locked by test).
-  - [ ] Guard: extend the `claim-discipline` family with an identity guard, EN + FR, skills + both
+  - [x] Guard: extend the `claim-discipline` family with an identity guard, EN + FR, skills + both
         constitutions. **Red first**, and check what the red run teaches — F18's first pass went green on
-        prose that was already there for other reasons.
+        prose that was already there for other reasons. ✅ _(2026-08-03)_ —
+        `scripts/lib/identity-discipline.test.mjs`, 24 assertions, sharing `doc-section.mjs` with the
+        claim guard. Every step was red first; what the red runs taught is in the header note.
 - [ ] **Step 12.2 — F6: repairing a link is not asserting a person exists.** Never create a `people/`
       note merely to satisfy an incoming link. Evidence and the feedback loop are in P1; the field cost
       was `people/stephanie-music.md`, a person who occurs **once in the whole vault: in her own title**.

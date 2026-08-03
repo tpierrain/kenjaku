@@ -92,6 +92,39 @@ for (const { name, locale, path } of SKILLS.filter((s) => s.name === "sync-sourc
   }
 }
 
+// ── The constitutions carry it too — same words, deliberately ──────────────
+// The two skills are the operative carriers; the constitution is what a brain
+// reads when no skill is loaded, which is most of the time. It is asserted
+// against the SAME patterns as the skills on purpose: two paraphrases of one
+// discipline are two disciplines (the rule the claim guard already enforces).
+//
+// Reach caveat, unchanged since F18 and NOT a reason to skip this: the skills
+// are in the manifest's `merge` regime and do reach deployed brains, while
+// `CLAUDE.engine.md` is in no regime and reaches new installs only. So the
+// constitution is worth writing and must never be the only carrier — which is
+// why the skill assertions above exist and come first.
+const CONSTITUTIONS = [
+  { locale: "EN", layers: ["CLAUDE.md.template", "CLAUDE.engine.md"] },
+  { locale: "FR", layers: ["templates/fr/CLAUDE.md.template", "templates/fr/CLAUDE.engine.md"] },
+];
+
+for (const { locale, layers } of CONSTITUTIONS) {
+  const heading = locale === "FR" ? HEADING_FR : HEADING_EN;
+  const rules = locale === "FR" ? RULES_FR : RULES_EN;
+  const constitution = () => layers.map(read).join("\n");
+  test(`${locale} constitution has an identity-discipline section at all`, () => {
+    assert.match(constitution(), heading, "the discipline must have its own heading");
+  });
+  for (const { why, pattern } of rules) {
+    test(`${locale} constitution carries the identity discipline: ${why}`, () => {
+      const section = docSection(constitution(), heading);
+      for (const one of [pattern].flat()) {
+        assert.match(section, one, `the ${locale} constitution lost the rule — ${why}`);
+      }
+    });
+  }
+}
+
 // ── The rule that MANUFACTURED the defect must be gone, not merely balanced ──
 // "People registry" ordered two things that cannot both hold when a source gives
 // only a first name: `[[people/jane]]` is FORBIDDEN, and create the backlink even
