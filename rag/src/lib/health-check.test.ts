@@ -440,6 +440,32 @@ test("notes the engine cannot bring in step → broken, naming one and counting 
   );
 });
 
+// The boundary the two-note test above cannot reach, and mutation testing is what
+// pointed at it: with `length === 1` never exercised, both ternaries could be dropped
+// and the suite stayed green. The banner would then read "1 notes … — e.g. <the only
+// one there is>" to an owner who is already being told something is damaged.
+test("exactly ONE note out of step → singular, and no 'e.g.' in front of the only one", () => {
+  assert.deepEqual(
+    checkNamed(
+      buildHealthCheck(
+        vitals({
+          outOfStepNotes: [
+            { path: "topics/crise.md", reason: "damaged front-matter — it keeps ANSWERING from old content" },
+          ],
+        })
+      ),
+      "notes"
+    ),
+    {
+      name: "notes",
+      status: "broken",
+      detail:
+        "1 note the engine cannot bring in step — topics/crise.md: damaged front-matter — " +
+        "it keeps ANSWERING from old content",
+    }
+  );
+});
+
 test("every note in step → the notes check is ok and says so", () => {
   assert.deepEqual(checkNamed(buildHealthCheck(vitals({ outOfStepNotes: [] })), "notes"), {
     name: "notes",
