@@ -71,6 +71,16 @@
 > **✅ Step 8 done — F16 IS COMPLETE** _(2026-08-03)_ — `CONVENTIONS.md` §5quater: a checker must read
 > through the engine's own eyes, and is judged on what it says about a HEALTHY brain.
 >
+> **⏸️ AWAITING THE OWNER'S CALL (2026-08-03) — a NEW finding wants to ride v4.5.0.** A postmortem
+> written by the owner's own brain after **two consecutive failing sessions** was handed to this repo
+> and is recorded as **F18** in P1 (*the brain reports silence it never verified*). It is the same
+> reframe as this plan's, on the output surface. **Nothing is decided**: the proposal is to ship only
+> its **text-only half in v4.5.0** (negative-claim phrasing + thread resolution, ~30 lines in
+> `sync-sources` / `prepare-1-1` / both constitutions) and merge the structural half into v4.6.0,
+> where it overlaps the reliability/confidence block already scoped. **Read F18's own entry before
+> re-opening this** — the evidence and the reach check are there, do not re-derive them. If the owner
+> says no, F18 moves whole into v4.6.0 and the order below is unchanged.
+>
 > **Resume here — v4.5.0, in this order.**
 > 9. **F17 — opening a note** _(asked by the owner 2026-08-02 evening, for THIS release)_: a note
 >    inside `vault/` opens in Obsidian when it is available, anything outside it in the default
@@ -100,6 +110,10 @@ identically**, so the user cannot tell them apart.
 | a note waiting to be indexed | a note that failed permanently | `1 pending` (F11/F12) |
 | an up-to-date indexed note | a note answering from stale content | "indexed", counter all green (F15) |
 | no engine update available | target version simply unknown | a generic `/update-engine` offer (F3) |
+| my search returned nothing | the thing does not exist | "nobody answered / nobody decided" (F18) |
+| a thread parent (a question asked) | that thread's resolution | one quoted message (F18) |
+| observed, quoted, sourced | inferred by me | the same bullet, the same bolding (F18) |
+| yesterday's caveat (a debt) | today's established fact | prose in a prior briefing (F18) |
 
 Treating that conflation as **the** root cause is what turns 16 scattered fixes into a handful of
 coherent ones. This framing is the plan's main proposal and is itself open to challenge.
@@ -371,6 +385,87 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         a note does not stop it**, so it will fire at every briefing / 1-1 prep until F7 ships. It also
         travels **downstream of `sync-sources`**: `prepare-1-1` consumes that fan-out, so the control
         `search_vault` has to sit where the facts are produced, not in each consumer.
+- [ ] **F18 — the brain reports SILENCE it never verified, and that is its most dangerous output.**
+      New evidence, **2026-08-03**: a written postmortem produced by the owner's own brain after
+      **two consecutive failing sessions** on `mind-palace` — a returning-from-leave briefing
+      (2026-08-02) and a targeted four-theme scan (2026-08-03). Source (pointer, not copied):
+      `~/mind-palace/vault/topics/second-brain-retrieval-reliability.md`.
+  - [ ] **Not hallucination.** Every fact was really retrieved. All seven defects sit in the step
+        between *retrieval* and *assertion*. More retrieval, a bigger window and "be more careful"
+        are explicitly **not** the fix — the last one is what failed twice in two days.
+  - [ ] Field evidence, the class that costs a relationship: *"no reply since Thursday"* on a thread
+        that had **12 replies the same day** (bug filed, analysis posted); *"nobody has decided"* on a
+        customer reopening **decided and scheduled the next day**, owner + backup named; *"waiting for
+        an arbitration since 22/07"* while the product lead had **answered field by field the day
+        after**. The owner was one click from posting the first two to his EM channel.
+  - [ ] **The aggravating one**: for the third, the refutation was **inside the same tool response**
+        (a later message from the author opening *"thanks for your very complete answer"*). The brain
+        held the contradiction and asserted the opposite.
+  - [ ] Root causes, ranked: (1) **absence of evidence read as evidence of absence** — a search index
+        is relevance-ranked, never state-complete, so "no result" is a property of the query, not of
+        the world; (2) **thread-blindness** — the unit of meaning is the thread, the unit every tool
+        returns is the message; (3) **result set mined, not reconciled**; (4) **urgency inferred from
+        tone, not from state**; (5) **the brain's own prior output inherited as fact**; (6) **no
+        distinction between observation and inference** in the rendering; (7) **verification effort
+        not proportional to the cost of being wrong**.
+  - [ ] **Why it belongs in P1, next to F7.** Same producer (`sync-sources` and its consumers), same
+        self-poisoning loop: a caveat written yesterday becomes a premise today, gets indexed, and is
+        cited by the next session. *"A generic agent's mistake dies with the context window; a second
+        brain's mistake gets a permalink."* And the owner **cannot check the work** — he delegated
+        precisely the reading he did not do.
+  - [x] **Verified against this repo, 2026-08-03 (three facts that decide where the fix goes):**
+    - [x] **The producer says nothing about any of this.** Zero occurrence of `thread` / `replies` in
+          `.claude/skills/sync-sources/SKILL.md` **or** `.claude/skills/prepare-1-1/SKILL.md`. The
+          chat-extractor prompt scans "the last 24h" message by message; nothing tells it a root
+          message is a question, never an answer.
+    - [x] **The templates actively invite the accusation.** The briefing template's
+          `## 🟡 What's expected of you` renders `Pending: [[people/x]]: [expectation]` — a
+          behavioural claim about a named colleague, in the same voice and bolding as an observed
+          quote. And its `## Caveats` section (the repo's **only** occurrence of the word) is exactly
+          the prose that the next session inherits as fact.
+    - [x] **Reach — this is the deciding fact.** On the owner's `mind-palace`,
+          `.claude/skills/sync-sources/SKILL.md` and `prepare-1-1/SKILL.md` are **UNTOUCHED**
+          (sha256 identical to the base recorded in the brain's own `engine-manifest.json`), and both
+          are in the **`merge`** regime → **a fix posted there reaches his brain** on the next
+          `/update-engine`. Whereas `CLAUDE.engine.md` is **in NO regime at all** (propagation
+          deferred to Gate 3 until it is locale-aware, locked by
+          `engine-apply-plan.test.mjs:163`) → a rule added **only** to the constitution reaches
+          **new installs only, never a deployed brain**. So the constitution half is worth writing,
+          but it must **not** be the carrier.
+  - [ ] **Proposed split (my call, open to challenge — this is the scope question for the owner):**
+    - [ ] **v4.5.0, text-only, ~30 lines, no code:** the two rules that kill the highest-damage class
+          at zero structural cost, in `sync-sources` (+ `prepare-1-1`) **and** both constitutions.
+      - [ ] **Negative claims** (CR §4.1 / §4.4): default phrasing flips from *"there is no X"* to
+            *"I did not find X"*; any *"no reply / nobody decided / not started / X has not done Y"*
+            must **name the check that established it, or be reworded as an open question**; before
+            writing, one reconciliation pass — *does anything in my own retrieved output contradict
+            what I am about to assert?*
+      - [ ] **Threads** (CR §4.2): a chat message cited as **current state** must have its thread
+            resolved where the source exposes one; `replies > 0` is a **hard block** on any
+            "unanswered / unresolved / pending" wording.
+      - [ ] Rationale for shipping the cheap half now rather than waiting for v4.6.0: the exposure is
+            **live and continuous** — every briefing and every 1-1 prep between now and v4.6.0 can
+            produce an accusation about a named colleague, and the fix is prose in a file that is
+            already propagated and already untouched on the affected brain.
+    - [ ] **v4.6.0, structural — it merges with what is already scoped there:**
+      - [ ] **CR §4.5 (mark confidence in the artifact) IS this plan's existing
+            "reliability/confidence block"** — generalise Session A's identity table to every
+            behavioural or negative claim, and mark specifically **what is safe to paste into a
+            message to another human** (the real danger threshold, not the same as "probably true").
+      - [ ] **CR §4.6 (prior notes are sources, not facts)**: a prior briefing's caveated items must
+            be **re-verified before propagation**; make caveats **machine-visible** (a field, not
+            prose) so the next session can find them instead of absorbing them.
+      - [ ] **CR §4.3 (route to the connector that exposes state)**: discovery may use the cheap wide
+            connector, but **anything cited must be re-resolved** through the one returning reply
+            counts and permalinks. Its concrete instance is its own small finding, below.
+  - [ ] **A recorded capability-absence must expire (CR §4.3, worth generalising).** The vault had
+        written down, as a permanent limitation, that *"the Slack connector does not expose
+        permalinks"*, and had propagated that caveat into several notes. **It was false** — a wrong
+        tool choice, not a platform constraint; the native connector returned permalinks on the first
+        call. **The brain had written down a false constraint and was obeying it.** Engine
+        implication: a capability recorded as absent needs an expiry and a re-test, never inheritance.
+        Note this is the **mirror image of F10** (a recorded value frozen at capture time), so the two
+        may share one mechanism — check before designing.
 - [ ] **F6 — repairing a link and asserting a person exists are conflated.** `people/stephanie-music.md`
       was created 19/07 *"to resolve an incoming link"* from a mis-resolved link; "Stéphanie Music"
       occurred **once in the whole vault: in its own title** (Stéphanie Glad: 382 times).
@@ -515,8 +610,8 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
 
 | Release | Theme | Findings |
 | --- | --- | --- |
-| **v4.5.0** | promises kept | F14, F11/F12, F15, **F17**, **F1** (+ F16 into `CONVENTIONS.md`) |
-| **v4.6.0** | the vault's identity | F7, F6, homonymy block, reliability/confidence block |
+| **v4.5.0** | promises kept | F14, F11/F12, F15, **F17**, **F1** (+ F16 into `CONVENTIONS.md`) — **F18's text-only half proposed, undecided** |
+| **v4.6.0** | the vault's identity | F7, F6, homonymy block, reliability/confidence block, **F18 (the rest)** |
 | **v4.7.0** | visibility | F13, F3, F10, F8, F9, F2 |
 | _in parallel_ | the freeze trap | F5 defects 1+2 — defect 3 gets its own ADR + plan |
 
@@ -534,3 +629,6 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   `[observation]` (pointer, not copied here).
 - Brain-side artefacts worth harvesting: `tools/index-vs-disk-crosscheck.mjs` (commit `1305ef1`),
   the deterministic people-note builder, the homonymy-block convention.
+- **F18's source (2026-08-03)**: `~/mind-palace/vault/topics/second-brain-retrieval-reliability.md` —
+  a postmortem the brain wrote about itself, on request, after two failing sessions. Pointer, not
+  copied: F18's entry above carries everything needed to act, already verified against this repo.
