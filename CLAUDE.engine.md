@@ -274,6 +274,9 @@ the **next** resolution resolves against. A briefing turned a source's *"Jérém
 - **Ask the vault before you call anything new.** A fact is only *new* relative to what the vault
   already holds, so run a `search_vault` on it before presenting it as news. A card reading *"CTO
   Visma France (confirmed 04/06)"* was republished as *"(unconfirmed)"* because nobody asked.
+- **A link is not a person.** Never create a `people/` card merely to satisfy an incoming
+  `[[people/…]]` link: a dangling link is a defect of the link, so repair it where it was written or
+  drop it. Creating the target turns a mis-resolution into the vault's own answer to *who exists*.
 
 ### Claim discipline — the silence you report is the dangerous part
 

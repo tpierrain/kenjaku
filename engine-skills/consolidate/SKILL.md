@@ -50,6 +50,14 @@ Do not consolidate everything blindly. Prioritise by signal: a name cited by man
 page; a one-off mention or an obvious typo is not (that is a `/lint` dangling-link fix, not a page).
 Pick a handful; tell the user what you're leaving for later.
 
+⚠️ **For a `person` candidate, the count is a priority signal, not evidence that the person exists.**
+It measures how often a link was **written**, and a name invented once and then cited three times
+reads as signal. So resolve the identity first — against the vault's `people/` cards and the
+organisation notes, per the identity discipline in
+[`sync-sources`](../sync-sources/SKILL.md#identity-discipline) — and if the name cannot be resolved,
+say so and leave the page unwritten. A page created here becomes the vault's own answer to *who
+exists*, and every later resolution resolves against it.
+
 ### 3. Fan out — one read-only sub-agent per candidate (parallel, a single message)
 Reuse the `sync-sources` architecture: each sub-agent reads **only its candidate's source captures** and
 returns a compact draft (~500 tokens), so the raw text never floods the main context. Sub-agents are

@@ -95,6 +95,13 @@ one. See "Identity discipline" just below: the name stays plain text. This secti
    become CTO Visma France (unconfirmed)"* while `people/hossam-laanait.md` already said *"CTO Visma
    France (confirmed 04/06)"* — a dated record downgraded into a rumour. The vault's answer wins;
    if you contradict it, say so and say on what.
+4. **A link is not a person.** Never create a `people/` card merely to satisfy an incoming
+   `[[people/…]]` link. A dangling link is a defect of the *link*: repair it where it was written —
+   fix the spelling, point it at the card that does exist, or drop it. Creating the target instead
+   promotes a mis-resolution into the vault's own answer to *who exists*, and the next resolution
+   then resolves against it. `people/stephanie-music.md` was born exactly that way, from one
+   mis-resolved link; that name occurs once in the whole vault — in its own title. A card is written
+   when someone confirms the person, never to make a link report go green.
 
 ## Claim discipline
 

@@ -281,6 +281,10 @@ ailleurs que dans cette note, et qui est désormais indexé.
   par rapport à ce que le vault contient déjà : lance un `search_vault` dessus avant de le présenter
   comme une nouveauté. Une fiche disant « CTO Visma France (confirmé 04/06) » a été republiée en
   « (non confirmé) » faute d'avoir demandé.
+- **Un lien n'est pas une personne.** Ne crée jamais une fiche `people/` dans le seul but de
+  satisfaire un lien `[[people/…]]` entrant : un lien cassé est un défaut du lien, répare-le là où il
+  a été écrit ou supprime-le. Créer la cible fait d'une mauvaise résolution la réponse du vault à la
+  question *qui existe*.
 
 ### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
 

@@ -59,6 +59,15 @@ const RULES_EN = [
     why: 'nothing is "new" until the vault has been asked — and the check must be NAMED, not implied (tier 3 of the claim discipline)',
     pattern: [/before you call anything new/i, /search_vault/],
   },
+  {
+    // F6, F7's companion. `people/stephanie-music.md` was created "to resolve an
+    // incoming link"; that name then occurred exactly once in the whole vault — in
+    // its own title. A dangling link is a defect OF THE LINK, and creating its
+    // target promotes a mis-resolution into the vault's answer to "who exists",
+    // which is what the next resolution then resolves against.
+    why: "a dangling [[people/…]] link is repaired at the source, never by creating the person it names",
+    pattern: [/a link is not a person/i, /never create a `people\/`/i],
+  },
 ];
 
 const RULES_FR = [
@@ -73,6 +82,10 @@ const RULES_FR = [
   {
     why: "rien n'est « nouveau » tant que le vault n'a pas été interrogé — et la vérification doit être NOMMÉE",
     pattern: [/avant de qualifier quoi que ce soit de nouveau/i, /search_vault/],
+  },
+  {
+    why: "un lien `[[people/…]]` cassé se répare à la source, jamais en créant la personne qu'il nomme",
+    pattern: [/un lien n'est pas une personne/i, /ne crée jamais une fiche `people\/`/i],
   },
 ];
 
@@ -203,6 +216,66 @@ for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
     );
   });
 }
+
+// ── F6's own carrier: the repair gesture that MANUFACTURED the fabrication ──
+// The discipline above states the rule; `/lint` is where the gesture is actually
+// OFFERED, and it offered exactly the wrong one: "Dangling → fix the target
+// spelling, or CREATE THE MISSING NOTE, or remove the dead link", with no carve-out
+// for a person. Applied to a mis-resolved `[[people/…]]`, that bullet IS how
+// `people/stephanie-music.md` came to exist — a name occurring once in the whole
+// vault, in its own title, that every later resolution would have resolved against.
+//
+// Creating the missing note stays right for a TOPIC the vault meant to hold, so the
+// assertion is not "the gesture is gone" but "the gesture excludes people". And the
+// reason is not restated here: `/lint` POINTS at the producer's section, the same way
+// prepare-1-1 does, because two paraphrases of one discipline are two disciplines.
+// The relative path holds on a deployed brain: both skills are installed siblings
+// under `.claude/skills/`.
+const LINT = "engine-skills/lint/SKILL.md";
+const LINT_FIXES = /^#+ 3\. Propose fixes/m;
+
+test("the lint skill never offers to create a person to satisfy a dangling link", () => {
+  const section = docSection(read(LINT), LINT_FIXES);
+  assert.notEqual(section, "", "the propose-fixes section must still exist");
+  assert.match(
+    section,
+    /never.*\[\[people\//is,
+    "the create-the-missing-note gesture must exclude a person target, or it repeats F6 verbatim",
+  );
+  assert.match(
+    section,
+    IDENTITY_ANCHOR_EN,
+    "the carve-out must send the reader to the producer's identity SECTION, not carry its own wording",
+  );
+});
+
+// ── The OTHER door onto a fabricated person: `/consolidate` ────────────────
+// `/lint` was the door F6 was found at; this is the one it hands off to. The scan
+// proposes "an entity/PERSON [[mentioned]] in captures but with no page yet", ranked
+// by how many captures cite it — and a fabricated `[[people/jeremy-hinard]]` that
+// F7 wrote into three captures reads as signal, not as a defect. Mention count
+// measures how often a link was written, never whether the person exists.
+//
+// This is not a duplicate of the `/lint` carve-out: creating the page IS this
+// skill's purpose, so the rule here is that a PERSON candidate gets resolved before
+// it is written, not that the gesture is refused. Same anchor, for the same reason.
+const CONSOLIDATE = "engine-skills/consolidate/SKILL.md";
+const CONSOLIDATE_BOUND = /^#+ 2\. Bound the batch/m;
+
+test("consolidate resolves a person candidate instead of trusting the mention count", () => {
+  const section = docSection(read(CONSOLIDATE), CONSOLIDATE_BOUND);
+  assert.notEqual(section, "", "the bound-the-batch section must still exist");
+  assert.match(
+    section,
+    /count[^.\n]*not[^.\n]*(evidence|proof)/i,
+    "the skill must say what the count does NOT establish, or a fabricated name reads as signal",
+  );
+  assert.match(
+    section,
+    IDENTITY_ANCHOR_EN,
+    "a person candidate must be sent to the producer's identity SECTION before a page is written",
+  );
+});
 
 // ── The same trap, in the OPERATIVE text: the sub-agent prompts ─────────────
 // The prose sections are read by a human maintainer; these bullets are handed to

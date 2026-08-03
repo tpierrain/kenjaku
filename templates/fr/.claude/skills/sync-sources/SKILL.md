@@ -96,6 +96,14 @@ que tu n'as pas.
    vieux de deux mois, et écrit « Hossam, qui deviendrait CTO Visma France (non confirmé) » alors que
    `people/hossam-laanait.md` disait déjà « CTO Visma France (confirmé 04/06) » : un enregistrement
    daté rétrogradé en rumeur. La réponse du vault prime ; si tu la contredis, dis-le et dis sur quoi.
+4. **Un lien n'est pas une personne.** Ne crée jamais une fiche `people/` dans le seul but de
+   satisfaire un lien `[[people/…]]` entrant. Un lien cassé est un défaut *du lien* : répare-le là où
+   il a été écrit (corrige l'orthographe, pointe la fiche qui existe vraiment, ou supprime-le). Créer
+   la cible, à l'inverse, promeut une mauvaise résolution en réponse du vault à la question *qui
+   existe*, et la résolution suivante se fait alors contre elle. `people/stephanie-music.md` est née
+   exactement comme ça, d'un seul lien mal résolu ; ce nom n'apparaît qu'une fois dans tout le vault :
+   dans son propre titre. Une fiche s'écrit quand quelqu'un confirme la personne, jamais pour faire
+   passer au vert un rapport de liens.
 
 ## Discipline d'affirmation
 
