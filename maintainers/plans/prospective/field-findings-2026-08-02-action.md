@@ -580,7 +580,16 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   the "Which one" block — WHICH one before HOW SURE), two reds first, and both write-door skills say
 >   so. **Do not re-open it as "left open".**
 >
-> **What remains, in order** — the plan's own tail, unchanged by the review:
+> **What remains, in order** — the plan's own tail, plus one item the fixes themselves created:
+> - [ ] **RE-MEASURE MUTATION ON WHAT THE FIXES CHANGED.** RESULTS.md § v4.6.0 was measured **before**
+>       these seven commits, and four production files changed since: `scripts/lib/note-refresh.mjs`,
+>       `scripts/refresh-note.mjs`, `scripts/lib/hooks-reconcile.mjs`, `scripts/lib/status-hook-output.mjs`.
+>       Publishing the old numbers over new lines is exactly the "a score implying coverage it does not
+>       have" failure this repo refuses. Worktree `/Users/tpierrain/Dev/kenjaku-mut-v460` (reset to the
+>       head, `rag/node_modules` symlinked and **verified** — 22 pass / 0 skipped). Batch 1
+>       (note-refresh + refresh-note) launched 2026-08-04, log
+>       `maintainers/mutation/reports/v460-review-fixes-batch1.log`; batch 2 is the other two files.
+>       Treat survivors the way every earlier batch was treated, then update RESULTS.md § v4.6.0.
 > - [ ] **CI green on the branch head** (checked against the head SHA, never the PR's colour). Running
 >       on `2fac4ee` at the time of writing; the previous head was red for the CRLF reason above.
 > - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
