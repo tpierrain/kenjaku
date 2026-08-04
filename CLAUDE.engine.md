@@ -258,6 +258,41 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 - **Never rebuild a permalink by hand** from an identifier + timestamp (often wrong): reuse the link the tool hands you as-is.
 - **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis. Flag when you interpret rather than report.
 
+### Identity discipline — read the vault before you write about the people in it
+
+A name you write into the vault does not fade like a guess in a conversation: it becomes the record
+the **next** resolution resolves against. A briefing turned a source's *"Jérémy (front Candor)"* into
+*"Jérémy Hinard"* — a surname that exists nowhere but in that note, and is now indexed.
+
+- **Resolve before you write.** Before naming a person in a note, read what the vault already says
+  about them: the `people/` cards (the active universe's **and** the root's cross-cutting ones) and
+  the organisation notes. The vault outranks both your memory of this session and the source's
+  shorthand.
+- **Never invent the missing half of an identity.** A first name with no surname **stays a first
+  name**: plain text, never `[[people/…]]`, never completed with a surname the source did not give
+  you. Losing a backlink costs a click; a fabricated identity is permanent.
+- **Ask the vault before you call anything new.** A fact is only *new* relative to what the vault
+  already holds, so run a `search_vault` on it before presenting it as news. A card reading *"CTO
+  Visma France (confirmed 04/06)"* was republished as *"(unconfirmed)"* because nobody asked.
+- **A link is not a person.** Never create a `people/` card merely to satisfy an incoming
+  `[[people/…]]` link: a dangling link is a defect of the link, so repair it where it was written or
+  drop it. Creating the target turns a mis-resolution into the vault's own answer to *who exists*.
+- **Say which one.** A first name is rarely unique (one real vault: three Romain, three Marie, two
+  Karim). A `people/` card therefore carries a homonymy block under its title — role, organisation,
+  and the other cards by name — or it moves the ambiguity instead of resolving it; the builder
+  refuses a person whose first name the vault already holds unless the spec says `distinguish`. And
+  when a bare first name matches several cards with nothing to tell them apart, it is **unresolved**:
+  plain text, no link.
+- **Say how sure you are.** Conformant is not true: the builder gives every card the same clean
+  frontmatter and the same green `/lint`, so a name read off an org chart and a name inferred from a
+  nickname come out identical. A `people/` card therefore carries a confidence block — what the
+  identity rests on, in the claim discipline's own scale below (✅ observed · 🟡 derived or probable ·
+  🔴 unverified), never a second one; the builder refuses a new person card until the spec carries
+  `confidence` (a level **and** its basis). Answer honestly rather than picking the level that
+  unblocks the write. A card marked 🟡 or 🔴 is a lead, not the vault's answer: re-verify it before
+  resolving anything against it, and never let it become established just for having been written
+  down a while ago.
+
 ### Claim discipline — the silence you report is the dangerous part
 
 A search returns what is **relevant**, never what is **complete**. So when nothing comes back, that

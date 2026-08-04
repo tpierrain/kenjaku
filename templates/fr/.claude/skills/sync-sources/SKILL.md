@@ -66,9 +66,71 @@ contexte principal = synthèse finale (~3-5k tokens d'input)
 ## Référentiel de personnes (backlinks)
 
 Pour des backlinks `[[people/prenom-nom]]` cohérents (pas de liens cassés), les sous-agents
-s'appuient sur les fiches de `vault/people/`. Règle : **kebab-case, sans accents**
-(`[[people/jane-doe]]`). **Jamais de prénom seul** (`[[people/jane]]` est interdit). Créer les
-backlinks même si la page cible n'existe pas (*dangling links* OK) ; ne pas créer les pages cibles.
+s'appuient sur les fiches de `vault/people/`. Forme d'un lien, quand tu as un nom complet :
+**kebab-case, sans accents** (`[[people/jane-doe]]`). Le backlink peut pointer vers une page qui
+n'existe pas encore (*dangling links* OK) ; ne pas créer les pages cibles.
+
+**Quand tu n'as qu'un prénom, tu n'as pas de lien à écrire** : ni raccourci, ni complété. Voir
+« Discipline d'identité » juste en dessous : le nom reste en texte simple. Cette section décrit la
+*forme* d'un lien une fois la personne résolue ; elle ne te demande jamais de produire un nom complet
+que tu n'as pas.
+
+## Discipline d'identité
+
+> **Lis le vault avant d'écrire sur les personnes qui s'y trouvent.** Un briefing a un jour transformé
+> le « Jérémy (front Candor) » de la source en « Jérémy Hinard », un nom de famille qui n'existe nulle
+> part ailleurs que dans cette note. La résolution suivante se fait alors contre la fabrication.
+
+1. **Résous avant d'écrire.** Avant de nommer une personne dans une note, lis ce que le vault en dit
+   déjà : les fiches `people/` (celles de l'univers actif **et** celles, transverses, de la racine) et
+   les notes d'organisation. Le vault prime sur ta mémoire de la session comme sur le raccourci de la
+   source.
+2. **N'invente jamais la moitié manquante d'une identité.** Un prénom sans nom de famille **reste un
+   prénom** : écris-le en texte simple, jamais en `[[people/…]]`, et ne le complète jamais avec un nom
+   que la source ne t'a pas donné. « Jérémy (front Candor) » s'écrit « Jérémy (front Candor) ». Perdre
+   un backlink coûte un clic ; une identité fabriquée est définitive, elle est indexée, et elle devient
+   ce contre quoi la résolution suivante se résout.
+3. **Interroge le vault avant de qualifier quoi que ce soit de nouveau.** Un fait n'est *nouveau* que
+   par rapport à ce que le vault contient déjà : lance un `search_vault` dessus avant de le présenter
+   comme une nouveauté, et lis ce qui revient. Un briefing a un jour republié comme un scoop un fait
+   vieux de deux mois, et écrit « Hossam, qui deviendrait CTO Visma France (non confirmé) » alors que
+   `people/hossam-laanait.md` disait déjà « CTO Visma France (confirmé 04/06) » : un enregistrement
+   daté rétrogradé en rumeur. La réponse du vault prime ; si tu la contredis, dis-le et dis sur quoi.
+4. **Un lien n'est pas une personne.** Ne crée jamais une fiche `people/` dans le seul but de
+   satisfaire un lien `[[people/…]]` entrant. Un lien cassé est un défaut *du lien* : répare-le là où
+   il a été écrit (corrige l'orthographe, pointe la fiche qui existe vraiment, ou supprime-le). Créer
+   la cible, à l'inverse, promeut une mauvaise résolution en réponse du vault à la question *qui
+   existe*, et la résolution suivante se fait alors contre elle. `people/stephanie-music.md` est née
+   exactement comme ça, d'un seul lien mal résolu ; ce nom n'apparaît qu'une fois dans tout le vault :
+   dans son propre titre. Une fiche s'écrit quand quelqu'un confirme la personne, jamais pour faire
+   passer au vert un rapport de liens.
+5. **Dis de qui il s'agit.** Un prénom est rarement unique : le vault pour lequel cette discipline a
+   été écrite contenait trois Romain, trois Marie, deux Karim, deux Caroline et deux Michael. Une
+   fiche `people/` porte donc un **bloc d'homonymie** : une ligne, sous le titre, qui dit ce qui
+   distingue cette personne de toutes celles que le vault connaît sous ce prénom (son rôle, son
+   organisation, et les autres fiches nommées). Sans lui, la fiche ne résout rien : elle déplace
+   l'ambiguïté d'un cran, à l'intérieur du vault. Le builder l'impose :
+   `scripts/file-back-note.mjs` refuse une nouvelle personne dont le vault porte déjà le prénom tant
+   que la spec ne contient pas `distinguish`, et son refus nomme les homonymes trouvés. L'autre
+   moitié, à la lecture, est ce qui rend le bloc utile : quand un prénom seul correspond à plusieurs
+   fiches et que rien dans la source ne les départage, ce nom est **non résolu** (la règle 2
+   s'applique : texte simple, pas de lien). Ne résous jamais vers la fiche la plus proche, ni vers
+   celle que tu viens de lire.
+6. **Dis à quel point c'est sûr.** Conforme ne veut pas dire vrai. Le builder donne à chaque fiche le
+   même frontmatter propre et le même `/lint` au vert : un nom lu sur un organigramme et un nom déduit
+   d'un surnom en ressortent identiques, et le vault lit ensuite les deux comme sa propre réponse à
+   « qui existe ». Une fiche `people/` porte donc un **bloc de confiance** : ce sur quoi cette identité
+   repose, dans l'échelle que la discipline d'affirmation utilise déjà plus bas
+   (✅ observé · 🟡 déduit ou probable · 🔴 non vérifié), jamais une seconde. Le builder l'impose :
+   `scripts/file-back-note.mjs` refuse une nouvelle fiche personne tant que la spec ne contient pas
+   `confidence` : un niveau, et la **base** sur laquelle il repose (la source, sa date, la fiche
+   trouvée). Réponds honnêtement plutôt que de choisir le niveau qui débloque l'écriture :
+   `unverified`, écrit noir sur blanc, ne coûte rien et c'est exactement ce que la passe suivante a
+   besoin de savoir. Et l'autre moitié, à la lecture, est ce qui rend le bloc utile : une fiche
+   marquée 🟡 ou 🔴 est une **piste, pas la réponse du vault** : revérifie-la avant de résoudre quoi
+   que ce soit contre elle, et ne la laisse jamais devenir un acquis au seul motif qu'elle est écrite
+   depuis un moment. C'est le « le bémol d'hier est une dette » de la discipline d'affirmation,
+   appliqué aux fiches du vault lui-même.
 
 ## Discipline d'affirmation
 
@@ -215,7 +277,7 @@ RÈGLES :
 - Un prénom seul reste un prénom seul. Ne jamais le résoudre en identité complète : c'est une
   affirmation sur QUI est quelqu'un, et ça a déjà attribué une démission à la mauvaise personne.
 - Créer les backlinks même si la page cible n'existe pas.
-- Backlinks via vault/people/ (kebab-case sans accents, jamais de prénom seul).
+- Backlinks via vault/people/ (kebab-case, sans accents). Pas de nom complet, pas de lien : le nom reste en texte simple.
 - JAMAIS de shell (python3 -c, node -e, awk, sed, jq, grep, cat…) pour lire/charger/découper le
   contenu : si tu dois relire un fichier (vault ou résultat déporté .../tool-results/...), utilise
   l'outil Read ; le découpage et le résumé se font par raisonnement, pas en ligne de commande.
@@ -271,7 +333,7 @@ AFFIRMATIONS NÉGATIVES :
 
 RÈGLES :
 - Ignorer le conversationnel pur (bonjour/merci/emoji) et les bots/notifications.
-- Backlinks via vault/people/ (jamais de prénom seul).
+- Backlinks via vault/people/ (kebab-case, sans accents). Pas de nom complet, pas de lien : le nom reste en texte simple.
 - JAMAIS de shell (python3 -c, node -e, awk, sed, jq, grep, cat…) pour lire/charger/découper le
   contenu : si tu dois relire un fichier (vault ou résultat déporté .../tool-results/...), utilise
   l'outil Read ; le découpage et le résumé se font par raisonnement, pas en ligne de commande.
@@ -313,12 +375,18 @@ fort. C'est aussi ici qu'on décide si le delta **amende la réponse en cours** 
 
 **Réconcilier avant d'écrire la moindre ligne** (voir *Discipline d'affirmation* plus haut). Les
 retours forment un corpus à rendre cohérent avec lui-même, **pas** un sac de citations pour étayer
-une synthèse déjà décidée. Deux passes, les deux peu coûteuses :
+une synthèse déjà décidée. Trois passes, toutes peu coûteuses :
 
 1. **Est-ce que quelque chose que j'ai récupéré contredit ce que je m'apprête à affirmer ?** Une
    contradiction dans ton propre matériau l'emporte sur l'affirmation, toujours.
 2. **Chaque ligne 🔴 est soit vérifiée maintenant, soit reformulée en question ouverte.** Un 🔴 qui
    atteint le briefing tel quel, c'est celui que la personne va coller dans un canal.
+3. **Tout ce que je m'apprête à présenter comme nouveau, et chaque personne que je m'apprête à
+   nommer, passe d'abord par un `search_vault`.** Tu es la seule étape à tenir à la fois le delta et
+   le vault : les sous-agents lisent des sources externes et ne le voient jamais. Ce qui revient
+   l'emporte sur le cadrage du delta (voir *Discipline d'identité* plus haut) : c'est ainsi qu'un
+   fait vieux de deux mois cesse d'être republié comme un scoop, et qu'une fiche « (confirmé 04/06) »
+   cesse d'être rétrogradée en « (non confirmé) ».
 
 Un sous-agent qui a signalé ne pas voir les compteurs de réponses t'a dit que son silence n'est
 **pas mesuré** : le porter jusqu'au briefing, au lieu de l'arrondir en « il ne s'est rien passé ».

@@ -43,6 +43,34 @@ const FOLDER = {
 // living pages (person/topic) do not.
 const DATED = new Set(["decision", "meeting"]);
 
+// How sure the card's own resolution is, in the words the claim discipline
+// already ships (`sync-sources`, "Mark it in the artifact"). One scale for the
+// whole brain: a second vocabulary here would be a second discipline.
+export const CONFIDENCE = {
+  observed: "✅ observed",
+  probable: "🟡 derived or probable",
+  unverified: "🔴 unverified",
+};
+
+// The rendered reliability line, or a loud refusal. A level outside the scale is
+// NOT rendered leniently: "— undefined · …" is a card whose reliability line
+// looks like it says something and says nothing, which is the very conflation
+// the block exists to end.
+export function confidenceLine({ level, basis }) {
+  const marker = CONFIDENCE[level];
+  if (!marker) {
+    throw new Error(
+      `unknown confidence level "${level}": use one of ${Object.keys(CONFIDENCE).join(", ")}`,
+    );
+  }
+  if (!basis || !String(basis).trim()) {
+    throw new Error(
+      `confidence "${level}" needs a basis: say what the resolution rests on (source, date, card)`,
+    );
+  }
+  return `${marker} · ${basis}`;
+}
+
 // The vault-relative path a filed-back note must live at, derived from its type
 // (and title, and — for dated types — its date). Pure: no clock, no fs.
 export function filedNotePath(spec) {
@@ -74,12 +102,19 @@ export function renderFiledNote(spec) {
   const links = spec.links ?? [];
   const path = filedNotePath(spec);
   const universe = activeUniverse(spec);
+  // Rendered (and validated) before the frontmatter, because the level lands in
+  // both: the field is what a later pass can FIND, the line is what a human reads.
+  const sure = spec.confidence ? `> **Confidence** — ${confidenceLine(spec.confidence)}\n\n` : "";
   const frontmatter = [
     "---",
     `type: ${spec.type}`,
     `created: ${spec.today}`,
     `updated: ${spec.today}`,
     `tags: [${spec.tags.join(", ")}]`,
+    // A caveat left in prose is a caveat the next session absorbs as confidence
+    // (the claim discipline's "yesterday's caveat is a debt"). As a field, it is
+    // findable without reading the sentence.
+    ...(spec.confidence ? [`confidence: ${spec.confidence.level}`] : []),
     // Additive scope key so retrieval travels with the file (ADR 0034), appended
     // last to match the import stamper (stamp-universe.mjs). Omitted at the root.
     ...(universe ? [`universe: ${universe}`] : []),
@@ -87,6 +122,25 @@ export function renderFiledNote(spec) {
   ].join("\n");
   const related =
     links.length > 0 ? `\n## Related\n\n${links.map((l) => `- [[${l}]]`).join("\n")}\n` : "";
-  const content = `${frontmatter}\n\n# ${spec.title}\n\n${spec.body}\n${related}`;
+  // The homonymy block sits ABOVE the body, because it is what makes the card
+  // usable to the next resolution: a first name is rarely unique, and a card
+  // that does not say which one only moves the ambiguity.
+  const which = spec.distinguish ? `> **Which one** — ${spec.distinguish}\n\n` : "";
+  const content = `${frontmatter}\n\n# ${spec.title}\n\n${which}${sure}${spec.body}\n${related}`;
   return { path, content };
+}
+
+// The first-name segment of a people-card path: `acme/people/romain-durand.md`
+// → `romain`. Cards are named `<firstname>-<lastname>.md` (slugified, so already
+// accent-free and lowercased), which is what makes the shared first name a
+// mechanical fact rather than a judgement call.
+function firstNameSegment(cardPath) {
+  return cardPath.split("/").pop().replace(/\.md$/, "").split("-")[0];
+}
+
+// The existing `people/` cards that already bear the first name a new card is
+// about to claim. Pure: the caller hands it what it found on disk.
+export function homonymCards(path, existing) {
+  const firstName = firstNameSegment(path);
+  return existing.filter((card) => firstNameSegment(card) === firstName);
 }

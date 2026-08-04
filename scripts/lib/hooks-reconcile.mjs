@@ -93,7 +93,11 @@ const BROKEN_WIN32_RUN_NODE = /^cmd \/c "[^"]*\\run-node\.cmd"/;
 // Returns the fixed command, or the original unchanged when it isn't the broken shape.
 export function repairWin32NodePrefix(command, projectRoot) {
   if (typeof command !== "string" || !BROKEN_WIN32_RUN_NODE.test(command)) return command;
-  return command.replace(BROKEN_WIN32_RUN_NODE, `${projectRoot}/scripts/run-node.cmd`);
+  // A FUNCTION replacement, never a string: the injected value is the owner's own
+  // folder path, and `$` / `&` are both legal in a Windows folder name — a string
+  // replacement expands `$$`, `$&`, `` $` `` and `$'`, silently writing a hook that
+  // points at a launcher which is not there.
+  return command.replace(BROKEN_WIN32_RUN_NODE, () => `${projectRoot}/scripts/run-node.cmd`);
 }
 
 // Repair every broken engine hook command in a settings.json `hooks` tree. Pure:

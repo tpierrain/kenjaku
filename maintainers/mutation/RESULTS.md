@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %**. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) over its 6 changed files reads **94.67 %**, with the file it creates at **100 %** |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new) |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent. It then ran a **second pass after the review fixes** (those fixes changed production code, so the first numbers no longer covered it): 4 files re-measured, 3 of them at **96.88–100 %**, plus `lib/hooks-reconcile.mjs` — a file this release only grazes — at **78.69 %**, whose 24 remaining survivors are pre-existing and named rather than implied |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**. **v4.4.0 touches no `src/**` file here — the number carries over, deliberately not re-measured** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -138,6 +138,137 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## v4.6.0 — the vault's-identity release (`scripts` only) — 2026-08-03
+
+**Scope decided on the diff** (`main...release/v4.6.0`), the targeted run §5ter prescribes before a tag.
+**No `rag/src` or `local-mirror/src` file changed at all** — this release ships prose carriers (skills,
+constitutions) and harness scripts — so those two packages did not run, and their numbers carry over
+untouched. Eight production files under `scripts/`, measured one by one in two batches, then **every
+hardened file re-measured**: a hardened-but-unmeasured file has an unknown score, which is the same
+silence this trilogy is about.
+
+| File | First run | After this pass | |
+|---|---|---|---|
+| `lib/doc-section.mjs` | **53.33 %** | **100 %** | the finding of this pass — see below; 14/14 killed |
+| `refresh-note.mjs` | 68.52 % | **96.30 %** | 2 survivors, both pre-listed equivalents |
+| `file-back-note.mjs` | 72.81 % | **96.49 %** | 4 survivors, all pre-listed equivalents |
+| `lib/status-hook-output.mjs` | 92.86 % | **100 %** | |
+| `lib/note-refresh.mjs` | 92.31 % | **97.80 %** | 2 survivors, both pre-listed equivalents |
+| `lib/engine-version.mjs` | 95.24 % | **97.62 %** | 1 survivor, a pre-listed equivalent |
+| `lib/filed-note.mjs` | 96.00 % | **97.60 %** | 3 survivors, all pre-listed equivalents |
+| `session-status.mjs` | **not measured** | — | the named 0 % top-level tier (below) |
+
+**Every survivor left in the seven files is on the equivalence list written BEFORE the re-run** — which
+is what makes them equivalents rather than an excuse. Aggregates for this pass: **97.07 %** over batch
+1's two files (239 mutants), **97.84 %** over batch 2's five (231 mutants).
+
+⚠️ **Three of those numbers are NOT the ones at the tag** — `refresh-note.mjs`, `lib/note-refresh.mjs`
+and `lib/status-hook-output.mjs` were changed again by the review fixes and re-measured; see **the
+second pass** below, which is what the tag ships.
+
+**The finding: `lib/doc-section.mjs` had no test file at all.** It is the slicer that decides **what**
+every doc guard reads — the claim discipline's and the identity discipline's alike — and it was
+exercised only *through* those guards, against real documents where a degraded slice still happened to
+contain the words they look for. Both "return the whole document" mutants survived. A slicer that
+quietly returns everything turns every sliced guard back into the **flat search it was extracted to
+replace**, and the failure that motivated the extraction (a rule passing on prose that was already
+there for other reasons) comes back with the suite green. This is §5quater one level up: not a checker
+parsing differently from the engine, but a checker reading a different **span** than it claims. It has
+its own tests now — exact slices asserted whole — and **14/14 mutants are dead**.
+
+**The second family is the one v4.5.0 met four times: every test injects its own deps, so the REAL
+ones are observed by nothing.** Both CLIs here (`file-back-note.mjs`, `refresh-note.mjs`) could have
+read no stdin, created no folders and logged nothing with the suite green. Each now runs as a **real
+child process** against a throwaway brain — the only test that reaches the stdin read, the recursive
+`mkdir`, the existence check, the exit code and the entrypoint guard at once.
+
+**And the refusals were asserted by fragments, while that text IS the product here**: the sentence
+saying what a *basis* is, the one saying a card that does not say WHICH one only moves the ambiguity,
+and the one naming what to do instead of overwriting could each vanish with every `assert.match` still
+green. Asserted whole now.
+
+**Equivalents, established by hand (applied, run, reverted) and NOT to be chased:**
+
+- `readFileSync(0, "")` in both CLIs — returns a Buffer, `JSON.parse` coerces it to the same string.
+  Already recorded at v4.5.0 for the guard hook; confirmed identical here.
+- The slug's `^-+|-+$` quantifiers — the preceding `[^a-z0-9]+` collapses any run into **one** hyphen,
+  so two leading hyphens are unreachable (verified on six titles).
+- `/\.md$/` unanchored in `firstNameSegment` — the first name is the first hyphen segment, and no vault
+  path carries `.md` inside it.
+- `split(/\s+/)` → `/\s/` on a **trimmed** title — index 0 is the same either way once leading
+  whitespace is gone.
+- `readFileSync(p, "utf-8")` → `""` on the universe pointer — equivalent *because* the reader was
+  hardened to accept a Buffer (`String(...)`), which is the defence, not an accident.
+- `typeof manifest !== "object"` → `false` — a truthy non-object yields `null` through both paths.
+- Two regex tails where `$` is redundant without the `s` flag (`.*$`, `([\s\S]*)$`).
+
+**The honest bound, unchanged and inherited.** `session-status.mjs` is a top-level script that runs on
+import, so no test can observe it: it stays at **0 %** and was not measured here. The logic it displays
+is covered — that is precisely why `lib/status-hook-output.mjs` exists — but the wiring is not. Closing
+it is a refactor of fleet-deployed session scripts, i.e. its own release. Same for the shared
+`runAsEntrypoint(meta, argv, fn)` named at v4.5.0: two of its three mutants now die per file thanks to
+the child-process tests, and what remains (`process.argv.slice(2)` → `process.argv`) is a true
+equivalent in both CLIs here, since both take their spec on **stdin** and ignore argv entirely.
+
+### The second pass — after the review fixes, because the first numbers no longer covered the code
+
+An independent review of the branch found six defects, all fixed before the tag ([the plan's Step
+12.5](../plans/prospective/field-findings-2026-08-02-action.md)). Those fixes **changed production
+code after the table above was measured**, so four files were re-measured rather than left publishing a
+score earned by earlier lines. That is the whole rule here: a number that predates the code it
+describes is the same silence this trilogy is about.
+
+| File | After the fixes | Treated | At the tag | |
+|---|---|---|---|---|
+| `refresh-note.mjs` | **96.30 %** | — | **96.30 %** | 2 survivors, both already on the equivalence list |
+| `lib/status-hook-output.mjs` | **100 %** | — | **100 %** | |
+| `lib/note-refresh.mjs` | 89.47 % | yes | **96.88 %** | 4 survivors, all equivalents (below) |
+| `lib/hooks-reconcile.mjs` | 77.05 % | yes | **78.69 %**, then the last two on the touched line killed | 24 survivors left, **all pre-existing** (below) |
+
+**`lib/note-refresh.mjs` — twelve of its fourteen survivors sat in the confidence-block insertion
+written the same day, and they all said one thing: only the tidy card was ever fed to it.** Four tests
+for the shapes a hand-edited Obsidian vault actually holds — a `# ` inside a sentence and no heading at
+all, a stub card that ends right after its title (where the walk steps off the end), a line of editor
+whitespace where a blank line is meant, and an indented quotation of someone else's homonymy block. The
+first went red, and the honest repair was to **delete the no-heading special case** rather than patch
+it: `findIndex` returns `-1`, so the walk starts at the top on its own and keeps the blank line the body
+opens with instead of doubling it. A second round then found the **second walk** — the one past the
+homonymy block — still carrying none of the assertions the first had earned; both of its boundary
+mutants were applied by hand to prove each new test kills one.
+
+**`lib/hooks-reconcile.mjs` is NOT this release's file**, and its 78.69 % is not a regression: the
+branch touches exactly one line in it (the `$`-expansion sweep). What the run did buy is the four
+survivors inside the **touched function**, and they are worth the entry:
+
+- **Nothing ever passed a `command` that is not a string**, so every mutant deleting the `typeof` guard
+  survived. `settings.json` is hand-edited by owners; a hook entry whose command is missing — or
+  written as a JSON array — is an ordinary shape, and without the guard it reaches `.replace` and
+  throws a TypeError at session start, on the path whose job is to REPAIR a brain.
+- **The fixture that matters is a non-string whose coercion LOOKS like the broken command.** With only
+  harmless non-strings, `typeof command !== "string"` and `!BROKEN.test(command)` agree on every input
+  and either term can be deleted with the suite green. That one value tells them apart, and it killed
+  the last two survivors (hand-applied, both confirmed).
+- **The `^` anchor was never observed either** — no test placed the broken prefix anywhere but at
+  position 0, and that anchor is what keeps the repair off a USER hook that merely mentions the engine
+  launcher further along.
+
+The remaining 24 survivors live elsewhere in that file (`learnNodePrefix`'s regex and its `?? []`
+defaults, `reconcileHooks`' append arithmetic), **predate this release and are untouched by it** —
+named here rather than swept in under a review fix, and rather than left implied by a package aggregate.
+
+**Equivalents from this second pass, added to the list above:** the `CONFIDENCE_BLOCK` regex `$` tail
+(same class as the two already recorded — redundant without the `s` flag), and the two boundary mutants
+on the homonymy line's own `if`, where `at === lines.length` makes `.test(undefined)` coerce to the
+string `"undefined"` and miss either way.
+
+**Reproduce**: same recipe as v4.5.0 below (worktree at `/Users/tpierrain/Dev/kenjaku-mut-v460`, the
+`rag/node_modules` symlink **verified** before starting — 31 pass / 0 skipped for the first pass, 22 for
+the second — one or two files per run). Logs: `reports/v460-scripts-batch1.log`, `…-batch2.log`,
+`…-batch1-recheck.log`, `…-batch2-recheck.log`, and for the second pass
+`…-review-fixes-batch1.log`, `…-batch2.log`, `…-batch3.log`, `v460-hooks-reconcile-recheck.log`.
 
 ---
 

@@ -235,6 +235,55 @@ test("repairWin32NodePrefix — repairs a single command string (used for status
   );
 });
 
+test("repairWin32NodePrefix — a hook with no command string is handed back, not crashed on", () => {
+  // `settings.json` is hand-edited by owners, so a hook entry whose `command` is
+  // missing (or is not a string at all) is an ordinary shape here. The typeof
+  // guard was written for it and no test ever fed it one: every mutant that
+  // removes the guard survived, and each of them turns this into a TypeError
+  // thrown at session start, on the reconcile path that is meant to REPAIR a
+  // brain.
+  // The last fixture is the one that tells the two terms of the guard apart: a
+  // non-string whose string coercion LOOKS like the broken command. With only
+  // harmless non-strings, `typeof command !== "string"` and
+  // `!BROKEN.test(command)` agree on every input, and either can be deleted with
+  // the suite green. A hook whose `command` was hand-written as a JSON array is
+  // exactly that value — and without the guard it reaches `.replace` and throws.
+  for (const notAString of [
+    undefined,
+    null,
+    42,
+    { command: "x" },
+    ['cmd /c "C:\\brain\\scripts\\run-node.cmd" "x.mjs"'],
+  ]) {
+    assert.equal(repairWin32NodePrefix(notAString, "C:/brain"), notAString);
+  }
+});
+
+test("repairWin32NodePrefix — the broken prefix is only repaired at the START of the command", () => {
+  // The anchor is what keeps this off a USER hook: an owner's own command that
+  // merely mentions the engine launcher further along is not the broken shape,
+  // and rewriting inside it would corrupt a command we do not own.
+  const userHook = 'pwsh -c "log" && cmd /c "C:\\brain\\scripts\\run-node.cmd" "x.mjs"';
+  assert.equal(repairWin32NodePrefix(userHook, "C:/brain"), userHook);
+});
+
+test("repairWin32NodePrefix — a `$` in the brain's own path survives the repair verbatim", () => {
+  // Same class as the confidence-block defect found by review: the replacement was
+  // handed to `replace` as a string, so `$&`, `` $` ``, `$'` and `$$` in it expand.
+  // Here the injected value is the OWNER'S FOLDER PATH — `$` and `&` are both legal
+  // in a Windows folder name — and the damage is silent: the hook command is written
+  // into settings.json pointing at a launcher that is not there, so every session of
+  // that brain starts with a broken hook.
+  assert.equal(
+    repairWin32NodePrefix('cmd /c "C:\\Users\\x\\my$$brain\\scripts\\run-node.cmd" "x.mjs"', "C:/Users/x/my$$brain"),
+    'C:/Users/x/my$$brain/scripts/run-node.cmd "x.mjs"',
+  );
+  assert.equal(
+    repairWin32NodePrefix('cmd /c "C:\\Users\\x\\a$&b\\scripts\\run-node.cmd" "x.mjs"', "C:/Users/x/a$&b"),
+    'C:/Users/x/a$&b/scripts/run-node.cmd "x.mjs"',
+  );
+});
+
 // ── detectHookGap — the pure bootstrap drift gate (mirrors detectSelfHealGap) ──
 // session-status uses it to decide whether to spawn the one-time reconcile on a
 // pre-3.2 brain. A converged brain → not needed → the hook stays a TRUE no-op.

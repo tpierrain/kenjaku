@@ -50,6 +50,14 @@ Do not consolidate everything blindly. Prioritise by signal: a name cited by man
 page; a one-off mention or an obvious typo is not (that is a `/lint` dangling-link fix, not a page).
 Pick a handful; tell the user what you're leaving for later.
 
+⚠️ **For a `person` candidate, the count is a priority signal, not evidence that the person exists.**
+It measures how often a link was **written**, and a name invented once and then cited three times
+reads as signal. So resolve the identity first — against the vault's `people/` cards and the
+organisation notes, per the identity discipline in
+[`sync-sources`](../sync-sources/SKILL.md#identity-discipline) — and if the name cannot be resolved,
+say so and leave the page unwritten. A page created here becomes the vault's own answer to *who
+exists*, and every later resolution resolves against it.
+
 ### 3. Fan out — one read-only sub-agent per candidate (parallel, a single message)
 Reuse the `sync-sources` architecture: each sub-agent reads **only its candidate's source captures** and
 returns a compact draft (~500 tokens), so the raw text never floods the main context. Sub-agents are
@@ -83,7 +91,7 @@ TASK:
 
 RULES:
 - Do NOT invent anything absent from the captures.
-- Backlinks kebab-case, no accents, never a first name alone.
+- Backlinks kebab-case, no accents. No full name, no link: the name stays plain text.
 - NEVER a shell (grep/cat/node -e/awk/sed/jq…) to read or split content — use the Read tool; summarise by reasoning.
 """
 )
@@ -108,6 +116,16 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
 ```
 - Exit **0** = written (prints `✓ Filed back: vault/<path>`); relay the path.
 - Exit **1** = refused (already exists) or invalid → it's a living page, go to 5b.
+- Exit **1** on a `person` whose **first name the vault already holds**: the card must say which one.
+  Add `distinguish` — their role, their organisation, and the homonym cards the message names — and
+  re-run. If the captures do not tell them apart, leave the page unwritten and say so: a card that
+  does not resolve the name only moves the ambiguity into the vault, where the next resolution
+  inherits it (the identity discipline linked above).
+- Exit **1** on a `person` with no `confidence`: a person card must say what its identity rests on —
+  `{"level":"observed|probable|unverified","basis":"…"}`, the claim discipline's own scale. Consolidation
+  is where this bites hardest: a candidate surfaced by **mention count** has been counted, never
+  verified, so its honest level is rarely `observed`. Say `probable` or `unverified` and name the
+  captures it came from; never pick the level that unblocks the write.
 
 ### 5b. Existing page (refresh) → pipe the dated section to the deterministic writer
 Filing never overwrites: a living page is REFRESHED by appending a dated section and bumping its
@@ -122,6 +140,10 @@ echo '{"path":"topics/capacity-management.md","section":"## 2026-07-17 — <what
   sits outside `vault/`, or **its frontmatter is already damaged** — in which case it names the
   duplicate key and touches nothing, because appending to an unreadable page hides the damage one
   refresh longer.
+- The same spec accepts `"confidence": {"level":…,"basis":…}` — how a person card whose identity was
+  only **probable** gets promoted once the captures actually confirm it. It rewrites the frontmatter
+  field and the card's visible confidence block together (writing that block for the first time on a
+  card that predates it), so the page never asserts two different things about itself. Use it when a refresh is what confirmed the name; never hand-edit that key.
 
 > ⚠️ **Why a script and not prose (F12).** Freehand, *"bump the page's `updated:`"* once became
 > *"add a second `updated:`"* on a real page. Two keys is invalid YAML → the indexer could no longer

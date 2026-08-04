@@ -66,9 +66,65 @@ main context = final synthesis (~3-5k tokens of input)
 ## People registry (backlinks)
 
 For consistent `[[people/firstname-lastname]]` backlinks (no broken links), the sub-agents
-rely on the cards in `vault/people/`. Rule: **kebab-case, no accents**
-(`[[people/jane-doe]]`). **Never a first name alone** (`[[people/jane]]` is forbidden). Create the
-backlinks even if the target page doesn't exist (*dangling links* OK); do not create the target pages.
+rely on the cards in `vault/people/`. Shape of a link, when you have a full name: **kebab-case, no
+accents** (`[[people/jane-doe]]`). The backlink may point at a page that doesn't exist yet
+(*dangling links* OK); do not create the target pages.
+
+**When you only have a first name, you have no link to write** — not a shortened one, not a completed
+one. See "Identity discipline" just below: the name stays plain text. This section describes the
+*shape* of a link once the person is resolved; it never asks you to produce a full name you don't have.
+
+## Identity discipline
+
+> **Read the vault before you write about the people in it.** A briefing once turned the source's
+> *"Jérémy (front Candor)"* into *"Jérémy Hinard"* — a surname that exists nowhere but in that note.
+> The next resolution then resolves against the fabrication.
+
+1. **Resolve before you write.** Before naming a person in a note, read what the vault already says
+   about them: the `people/` cards (the active universe's **and** the root's cross-cutting ones) and
+   the organisation notes. The vault outranks both your memory of this session and the source's
+   shorthand.
+2. **Never invent the missing half of an identity.** A first name with no surname **stays a first
+   name**: write it as plain text, never as `[[people/…]]`, and never complete it with a surname the
+   source did not give you. *"Jérémy (front Candor)"* is written *"Jérémy (front Candor)"*. Losing a
+   backlink costs a click; a fabricated identity is permanent, gets indexed, and becomes what the
+   next resolution resolves against.
+3. **Ask the vault before you call anything new.** A fact is only *new* relative to what the vault
+   already holds, so run a `search_vault` on it before presenting it as news — and read what comes
+   back. A briefing once republished a two-month-old fact as a scoop, and wrote *"Hossam, who would
+   become CTO Visma France (unconfirmed)"* while `people/hossam-laanait.md` already said *"CTO Visma
+   France (confirmed 04/06)"* — a dated record downgraded into a rumour. The vault's answer wins;
+   if you contradict it, say so and say on what.
+4. **A link is not a person.** Never create a `people/` card merely to satisfy an incoming
+   `[[people/…]]` link. A dangling link is a defect of the *link*: repair it where it was written —
+   fix the spelling, point it at the card that does exist, or drop it. Creating the target instead
+   promotes a mis-resolution into the vault's own answer to *who exists*, and the next resolution
+   then resolves against it. `people/stephanie-music.md` was born exactly that way, from one
+   mis-resolved link; that name occurs once in the whole vault — in its own title. A card is written
+   when someone confirms the person, never to make a link report go green.
+5. **Say which one.** A first name is rarely unique: the vault this discipline was written for held
+   three Romain, three Marie, two Karim, two Caroline and two Michael. So a `people/` card carries a
+   **homonymy block** — one line under the title saying what tells this person apart from everyone
+   the vault knows by that first name (their role, their organisation, and the other cards by name).
+   Without it the card resolves nothing; it moves the ambiguity one hop, into the vault. The builder
+   enforces it: `scripts/file-back-note.mjs` refuses a new person whose first name the vault already
+   holds unless the spec carries `distinguish`, and its refusal names the homonyms it found. The
+   read-time half is what makes the block worth writing: when a bare first name matches several
+   cards and nothing in the source tells them apart, that name is **unresolved** — rule 2 applies
+   (plain text, no link). Never resolve to the nearest one, and never to the one you saw last.
+6. **Say how sure you are.** Conformant is not true. The builder hands every card the same clean
+   frontmatter and the same green `/lint`, so a name read off an org chart and a name inferred from a
+   nickname come out looking identical — and the vault then reads both as its own answer to who
+   exists. So a `people/` card carries a **confidence block**: what this identity rests on, in the
+   scale the claim discipline already uses below (✅ observed · 🟡 derived or probable · 🔴 unverified),
+   never a second one. The builder enforces it: `scripts/file-back-note.mjs` refuses a new person card
+   until the spec carries `confidence` — a level and the **basis** it rests on (the source, its date,
+   the card it matched). Answer it honestly rather than reaching for the level that unblocks the
+   write: `unverified`, written down, costs nothing and is exactly what the next pass needs to know.
+   And the read-time half, which is what makes the block worth writing: a card marked 🟡 or 🔴 is a
+   **lead, not the vault's answer** — re-verify it before resolving anything against it, and never
+   let it become established merely because it has been written down for a while. That is the claim
+   discipline's *"yesterday's caveat is a debt"*, applied to the vault's own cards.
 
 ## Claim discipline
 
@@ -211,7 +267,7 @@ RULES:
 - A bare first name stays a bare first name. Never resolve it into a full identity — that is a
   claim about who someone IS, and it has already attributed a resignation to the wrong person.
 - Create the backlinks even if the target page doesn't exist.
-- Backlinks via vault/people/ (kebab-case no accents, never a first name alone).
+- Backlinks via vault/people/ (kebab-case, no accents). No full name, no link: the name stays plain text.
 - NEVER a shell (python3 -c, node -e, awk, sed, jq, grep, cat…) to read/load/split the
   content: if you must re-read a file (vault or offloaded result .../tool-results/...), use
   the Read tool; splitting and summarizing are done by reasoning, not on the command line.
@@ -263,7 +319,7 @@ NEGATIVE CLAIMS:
 
 RULES:
 - Ignore pure conversational noise (hello/thanks/emoji) and bots/notifications.
-- Backlinks via vault/people/ (never a first name alone).
+- Backlinks via vault/people/ (kebab-case, no accents). No full name, no link: the name stays plain text.
 - NEVER a shell (python3 -c, node -e, awk, sed, jq, grep, cat…) to read/load/split the
   content: if you must re-read a file (vault or offloaded result .../tool-results/...), use
   the Read tool; splitting and summarizing are done by reasoning, not on the command line.
@@ -305,12 +361,17 @@ signal. This is also where we decide whether the delta **amends the answer in pr
 
 **Reconcile before writing a single line** (see *Claim discipline* above). The returns are a corpus
 to be made internally consistent, **not** a bag of quotes to support a synthesis you have already
-decided on. Two passes, both cheap:
+decided on. Three passes, all cheap:
 
 1. **Does anything I retrieved contradict what I am about to assert?** A contradiction in your own
    material outranks the claim, always.
 2. **Every 🔴 line either gets verified now, or is reworded as an open question.** A 🔴 that reaches
    the briefing unchanged is the one the owner pastes into a channel.
+3. **Anything I am about to present as new, and every person I am about to name, gets a
+   `search_vault` first.** You are the only step that holds both the delta and the vault — the
+   sub-agents read external sources and never see it. What comes back outranks the delta's framing
+   (see *Identity discipline* above): it is how a two-month-old fact stops being republished as a
+   scoop, and how a *"(confirmed 04/06)"* card stops being downgraded to *"(unconfirmed)"*.
 
 A sub-agent that reported it could not see reply counts has told you its silence is **unmeasured** —
 carry that through to the briefing rather than rounding it to "nothing happened".

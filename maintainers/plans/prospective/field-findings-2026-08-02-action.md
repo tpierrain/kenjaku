@@ -173,7 +173,9 @@
 >
 > **v4.7.0 (visibility) stays behind v4.6.0** and keeps its own findings: F13, F3, F10, F8, F9, F2, plus
 > the two banner defects routed there from P0 (a cached verdict rendered with live authority; an
-> `unknown` check displayed under "found a problem" — the latter already pinned by a test that names it).
+> `unknown` check displayed under "found a problem" — the latter already pinned by a test that names it),
+> plus **F19, the always-loaded instruction layer that only ever grows** (raised and measured
+> 2026-08-04, filed in P3 — its numbers are there, do not re-measure them).
 
 ## Step 11 — the v4.5.0 release — ✅ SHIPPED (2026-08-03, tag `v4.5.0`, PR #54, CI 7/7)
 
@@ -442,31 +444,304 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > 🟡 derived or probable / 🔴 negative-or-behavioural-unverified, with *"safe to paste into a message to
 > another human"* as the threshold that matters. v4.6.0's confidence block marks a **people note born
 > from a probable resolution**; it must speak that same three-marker language (decided at F18, §4.5).
+>
+> **⏭️ RESUME HERE: Step 12.1, F7 — part 1 is DONE and pushed, resume at its remaining bullets.**
+> Branch `release/v4.6.0`, green and pushed (1248 tests, 1247 pass, 1 skipped Windows-only; CI green on
+> the version commits). Nothing is half-written on disk, no decision is pending.
+>
+> **What is already done on F7** _(2026-08-03 · `9790c90`)_ — and the correction that shrinks the rest:
+> - **A large part of F7 had ALREADY SHIPPED with v4.5.0's claim pass.** Measured, not assumed: the
+>   sub-agent prompts and `prepare-1-1` already carry *"a bare first name stays a bare first name"*,
+>   *"the vault outranks the delta on anything about a person — read `vault/people/<name>.md` before
+>   asserting who someone is"*, and the Hossam case verbatim. **EN and FR are in parity** — the drift I
+>   went looking for is not there. Do not re-derive this; do not re-write those rules.
+> - **What was genuinely missing, and now ships**: the producer's own named **`## Identity discipline`**
+>   section (EN + FR `sync-sources`), and the removal of the contradiction that MANUFACTURED the field
+>   defect — "People registry" ordered *"`[[people/jane]]` is forbidden"* next to *"create the backlinks
+>   even if the target page doesn't exist"*, so an agent handed a bare first name had one exit: invent
+>   the surname. The same pair sat in the **operative** text (the bullets handed to the sub-agents, all
+>   four files); they now state the action (*"no full name, no link"*) instead of only the ban.
+> - Guard: `scripts/lib/identity-discipline.test.mjs`, 12 assertions, sharing `scripts/lib/doc-section.mjs`
+>   with the claim guard so the two cannot judge different documents.
+>
+> **✅ The novelty check is IN** _(2026-08-03)_ — F7's last rule with no carrier now has two, and the
+> second one is the finding of this pass. The prose rule went into `## Identity discipline` (EN + FR):
+> nothing is *new* until the vault has been asked, with the Hossam case verbatim (a *"(confirmed
+> 04/06)"* card downgraded to *"(unconfirmed)"*). But a rule stated only there is a rule **nothing
+> executes** — so it also went into the **operative** step, as a third numbered reconcile pass in
+> `Step 3 — Synthesis`. That step is the only one that can run it: the sub-agents read external
+> sources and **never see the vault**, so "this is new" is asserted in the main context or nowhere.
+> The guard pins the intro count too (`Two passes` must be gone), because a promise of two passes
+> above a list of three is how the third one reads as optional. 16 assertions, suite green (1251 pass,
+> 1 skipped Windows-only).
+>
+> **✅ The constitutions carry it now** _(2026-08-03)_ — a condensed `### Identity discipline` in
+> `CLAUDE.engine.md` + `templates/fr/CLAUDE.engine.md`, sitting immediately above the claim discipline
+> because a name is what the claim discipline's tier 3 is mostly about. Asserted against the **same
+> patterns** as the skills (the claim guard's own rule: two paraphrases of one discipline are two
+> disciplines), via a `CONSTITUTIONS` block modelled on it. Reach caveat unchanged and NOT a reason to
+> have skipped it: the skills are in `merge` and reach the fleet, the constitution is in no regime and
+> reaches new installs only, which is why the skill carriers were written first. 24 assertions, suite
+> green (1259 pass, 1 skipped Windows-only). One deliberate FR deviation: the heading uses a colon,
+> not an em dash, per the French typography rule.
+>
+> **✅ The consumer POINTS now, and that closed Step 12.1** _(2026-08-03)_ — `prepare-1-1` (EN + FR) got
+> its own `## Identity discipline` section that links the producer's **section** (not merely the file:
+> it has linked `../sync-sources/SKILL.md` for the fan-out since long before this, so a bare file link
+> would have gone green on prose that predates the fix). The two bullets it used to carry in its own
+> words are gone: *"the vault outranks the delta…"* and *"a bare first name stays a bare first name"*
+> were **true today and free to drift tomorrow**, which is the whole reason the control sits in the
+> producer. What stays is what only a 1-1 knows: every person in that file is one of the two people in
+> the room, so a wrong surname is said to their face. 26 assertions, suite green (1261 pass, 1 skipped
+> Windows-only).
+>
+> **✅ Step 12.2 done — F6 IS COMPLETE** _(2026-08-03 · `de2e658`)_. The rule ships on **three**
+> carriers, and the third one is the finding of this pass. The discipline gained its fourth rule
+> (*a link is not a person*) in `sync-sources` EN + FR and both constitutions. But the rule had to
+> land where the gesture is actually **offered**: `/lint` ordered *"Dangling → fix the target
+> spelling, or CREATE THE MISSING NOTE"* with no carve-out, which IS how `stephanie-music.md` came to
+> exist — so the gesture now keeps its topic case and excludes a person target. **And `/lint` hands
+> off to `/consolidate`**, which proposes *"a person `[[mentioned]]` in captures but with no page
+> yet"* ranked by mention count: a fabricated `[[people/…]]` cited three times reads as **signal**,
+> because the count measures how often a link was written, never whether the person exists. Both
+> skills **point at** the producer's section instead of paraphrasing it (two paraphrases are two
+> disciplines). Reach checked, not assumed: `engine-skills/**` is in `replace` and staged skills are
+> provenance-refreshed, so an untouched `/lint` and `/consolidate` reach the deployed fleet.
+> 6 assertions, each red first; suite green (1268 tests, 1267 pass, 1 skipped Windows-only).
+>
+> **✅ Step 12.3 done — THE HOMONYMY BLOCK IS COMPLETE** _(2026-08-03 · `c0187a5` → `9b6c64c`)_. Both
+> halves shipped, and the finding of the pass is where the deterministic half could sit: **both doors
+> that create a `people/` card write through ONE script**, so the check is a single choke point rather
+> than a caveat repeated in two skills. `scripts/file-back-note.mjs` now refuses a new `person` whose
+> first name the vault already holds unless the spec carries `distinguish`, and the refusal **names
+> the homonym cards it found** (root **and** every universe subtree — the same reach the resolution
+> rule reads). The answer lands in the card itself, above the body, as `> **Which one** — …`.
+> The prose half is the discipline's fifth rule, *say which one*, on the four carriers F7 and F6 used;
+> its second half is what makes the block worth writing: a bare first name matching several cards is
+> **unresolved**, so rule 2 applies (plain text, no link) instead of resolving to the nearest one.
+> Reach checked, not assumed: `scripts/file-back-note.mjs`, `scripts/lib/**` and `engine-skills/**`
+> are all in `replace`, `sync-sources` in `merge` — the fleet gets every carrier but the constitution.
+> Suite green (1285 tests, 1284 pass, 1 skipped Windows-only).
+>
+> Two things worth not re-learning:
+> - **`type === "person"` was never the SOLE cause in any test** — a hand-applied mutant dropping it
+>   survived, because every fixture that reached the guard was already a person. Killed by filing a
+>   **topic** whose slug shares that first segment (`topics/romain-rolland.md` next to
+>   `people/romain-durand.md`), which is also the honest statement of the rule's scope: nothing is
+>   ever resolved to a topic. Same shape as the TDD skill's §9.
+> - **A doc-guard pattern that spans a wrapped line goes red for typography, not for meaning.** The FR
+>   constitution lost `/non résolu/i` to a line break between the two words. Keep a guarded phrase on
+>   one line when writing the carrier.
+>
+> **✅ Step 12.4 done — THE CONFIDENCE BLOCK IS COMPLETE** _(2026-08-03 · `e61002f` → `180e4de`)_.
+> Both halves shipped, in F18's vocabulary reused verbatim (✅ observed / 🟡 derived or probable / 🔴
+> unverified — the guard pins the middle marker's exact words, because a second scale here would be a
+> second discipline). The deterministic half: `renderFiledNote` renders a `> **Confidence** — …` block
+> above the body **and** a `confidence:` frontmatter field (F18 §4.6 — a caveat left in prose is one
+> the next session absorbs as confidence), a level outside the scale and a marker with no basis are
+> both refused rather than rendered leniently, and `scripts/file-back-note.mjs` **refuses a new person
+> card without it**. Required rather than offered, deliberately: left optional, its absence would mean
+> *confirmed*, which is silence rendered as confidence. The prose half is the discipline's sixth rule,
+> *say how sure you are*, on the same four carriers as rules 4 and 5. Reach unchanged and checked:
+> `scripts/**` and `engine-skills/**` in `replace`, `sync-sources` in `merge`, the constitution in no
+> regime.
+>
+> Two things worth not re-learning:
+> - **The rule needed a GESTURE, or the marker rots into the decoration it replaces.** A card marked 🟡
+>   had no supported way to ever say anything else, so "re-verify before resolving against it" had
+>   nowhere to record its outcome — and readers learn to ignore a marker that never changes.
+>   `scripts/refresh-note.mjs` now promotes a card, rewriting the **field and the visible block
+>   together** (rewriting one alone leaves the page asserting two different things about itself), through
+>   the **same renderer** as the builder. Freehand was never an option: hand-editing frontmatter is what
+>   put two `updated:` keys on one page and made it unreadable (F12).
+> - **A `ReferenceError` is not a fail-first.** The `/refresh-note` seam test first "went red" on
+>   `fakeDeps is not defined` — I had written the helper shape of a *different* test file. Re-verified by
+>   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
+>   anything.
+>
+> **⏭️ RESUME HERE — ALL SIX REVIEW FIXES ARE DONE AND PUSHED. WHAT IS LEFT IS THE RELEASE TAIL, AND
+> ITS PUBLIC HALF IS THE OWNER'S CALL.** Done autonomously 2026-08-04, each in TDD with the red verified
+> first, each its own green pushed commit: ① `e34c3ae`, ② `53b0560`, ③ `6c5a072`, ④ `9377c17` (+ the
+> class sweep `41cf186`), ⑤ `f7a00fc`, ⑥ `b3cabf9`. The chosen title is now in the note's H1, in the PR
+> body and in the **PR title on GitHub** (`cc0a3ae`); the live PR body was re-synced, so the surface a
+> reviewer reads no longer carries the disproved number.
+>
+> **Two things landed AFTER the six, both worth not re-deriving:**
+> - **The guard shipped with ⑤ was CRLF-blind, and Windows caught it** _(`6d3d7c8`)_. It compared
+>   against `"\n\n"`; git checks these files out with CRLF, so all three Windows cells went red on
+>   typography while macOS stayed green. **Third time this repo meets that shape** — the tripwire on
+>   the push is what found it, which is exactly §9's purpose. Line endings are normalised before the
+>   comparison now, verified against a CRLF string directly rather than through the LF checkout.
+> - **The seventh review candidate is SETTLED, and the verdict is that it WAS a defect** _(`2fac4ee`)_.
+>   "The promotion moves the confidence field without adding the visible block": real, and it matters
+>   because every card written before v4.6.0 has no block — promoting one produced a card that says how
+>   sure it is to a `grep` and nothing at all to a human in Obsidian, while every card the builder
+>   writes shows the marker. The block is now written in the builder's own slot (under the H1, **after**
+>   the "Which one" block — WHICH one before HOW SURE), two reds first, and both write-door skills say
+>   so. **Do not re-open it as "left open".**
+>
+> **What remains, in order** — the plan's own tail, plus one item the fixes themselves created:
+> - [x] **RE-MEASURE MUTATION ON WHAT THE FIXES CHANGED — DONE** _(2026-08-04)_. RESULTS.md § v4.6.0 was measured **before**
+>       these seven commits, and four production files changed since: `scripts/lib/note-refresh.mjs`,
+>       `scripts/refresh-note.mjs`, `scripts/lib/hooks-reconcile.mjs`, `scripts/lib/status-hook-output.mjs`.
+>       Publishing the old numbers over new lines is exactly the "a score implying coverage it does not
+>       have" failure this repo refuses. Worktree `/Users/tpierrain/Dev/kenjaku-mut-v460` (reset to the
+>       head, `rag/node_modules` symlinked and **verified** — 22 pass / 0 skipped). Batch 1
+>       (note-refresh + refresh-note) done, log `…/v460-review-fixes-batch1.log`: **`refresh-note.mjs`
+>       96.30 %** — its 2 survivors are the equivalents already on record (`readFileSync(0, "")`, the
+>       argv guard) — and **`note-refresh.mjs` 89.47 %**, whose 12 of 14 survivors sat in the block
+>       insertion written the same day. **Treated** _(`6ff9915`)_: four tests for the shapes a
+>       hand-edited vault holds (a `# ` inside a sentence / no heading at all, a stub card ending right
+>       after its title, a line of editor whitespace, an indented quotation of a homonymy block). The
+>       first went red and the repair was to **delete** the no-heading special case, not patch it.
+>       - [x] **Batch 2 done** _(log `…/v460-review-fixes-batch2.log`)_ — **`status-hook-output.mjs`
+>             100 %**, **`note-refresh.mjs` 89.47 → 94.53 %**. Three of its seven survivors were
+>             reachable, all in the SECOND walk (past the homonymy block), which had been left without
+>             the assertions the first walk got. **Treated** _(`3e0d362`)_, both mutants hand-applied to
+>             prove each new test kills one.
+>       - [x] **The four survivors left in `note-refresh.mjs` are EQUIVALENTS** — do not chase them: the
+>             two regex `$` tails (redundant without the `s` flag; the `FRONTMATTER_RE` one was already
+>             on record) and the two boundary mutants on the homonymy line's own `if`, where
+>             `at === lines.length` makes `.test(undefined)` coerce to the string "undefined" and miss
+>             either way.
+>       - [x] **Batch 3 done and TREATED** _(`5194a9e`, logs `…/v460-review-fixes-batch3.log`,
+>             `…/v460-hooks-reconcile-recheck.log`)_ — `note-refresh.mjs` confirmed at **96.88 %**, and
+>             **`hooks-reconcile.mjs` 77.05 → 78.69 %**, then its last two survivors on the touched line
+>             killed. That file is **not this release's** (the branch grazes one line of it), so its 24
+>             remaining survivors are recorded as pre-existing rather than swept in. What the run bought:
+>             nothing had ever fed the repair a non-string `command`, nor placed the broken prefix
+>             anywhere but at position 0 — and the fixture that tells the guard's two terms apart is a
+>             non-string whose coercion LOOKS like the broken command.
+>       - [x] **RESULTS.md § v4.6.0 updated** _(`75d0d5a`)_ — the second pass is its own section, and the
+>             three superseded numbers in the first table are marked as NOT the ones at the tag rather
+>             than left for a reader to reconcile.
+> - [x] **CI green**, checked against the head SHA rather than the PR's colour: 7/7 on `1e807d6` (all six
+>       fixes + the CRLF repair + the promotion) and again on `75d0d5a` (the mutation hardening + the
+>       re-measure). The commits after it are documentation only; re-check the tip before tagging.
+> - [x] **The release note and the PR body are finished** _(`085b225`, and the live PR body + PR title
+>       are synced on GitHub)_ — the note's `Review & CI` section is written (six defects, all fixed, told
+>       through the two checks that had stopped watching, no finding codes), its mutation table names the
+>       78.69 % file instead of implying everything touched is ≥ 96 %, and two overclaims are repaired in
+>       both artifacts (the producer/consumer reuse, and the promotion writing the visible block on cards
+>       you already have).
+> - [ ] **⏭️ THE ONLY REMAINING STEP — the public tail. Ask the owner first; it is outward-facing and
+>       effectively irreversible, which is why it was deliberately NOT done autonomously.** In order,
+>       and nothing here needs re-deriving:
+>   - [ ] **Re-check CI on the tip** (`gh run list --branch release/v4.6.0`), against the head SHA, never
+>         the PR's colour. It was green on `701b45b`; only documentation commits followed the last code
+>         change.
+>   - [ ] `gh pr ready 55` (undraft), then merge. The PR title and body are already correct on GitHub.
+>   - [ ] Tag **`v4.6.0`** on the merge commit and publish the release, whose text is
+>         `maintainers/plans/prospective/release-v4.6.0-note.md` (its H1 already carries the chosen
+>         title, `The One Where It Asks Which One You Mean`).
+>   - [ ] **Archive** both artifacts into `maintainers/plans/archived/` as
+>         `release-v4.6.0-note.md` and `release-v4.6.0-pr-body.md` — the shape Step 11 used for v4.5.0.
+>   - [ ] **This plan file is NOT archived**: v4.7.0 (visibility) still lives in it — F13, F3, F10, F8,
+>         F9, F2, the two banner defects routed from P0, and F19. Update the header note to make v4.7.0
+>         the live work once v4.6.0 is out.
+>
+> **HISTORY, kept because it explains the six fixes above.** The review landed 2026-08-04 with six
+> findings, each verified against the code before being written down (the traversal was reproduced, not
+> reasoned about). They are listed one by one, with their verification and their fix, in Step 12.5's
+> checkbox *"The six findings, in the order to treat them"* — all six are now ticked there. **Do NOT
+> re-run the review and do not re-verify them.**
+>
+> **✅ DECIDED (2026-08-04, by the owner), two calls — do not re-open either:**
+> - **The traversal (③) ships INSIDE v4.6.0**, not as a follow-up. It is pre-existing, but the branch
+>   touches that very function and widens what an escaped write can carry.
+> - **All six are treated in TDD**, red first. For ① and ② that means **two reds each**: the defect
+>   itself, *and* the guard that should have caught it and did not (`identity-discipline.test.mjs`'s
+>   `SKILLS` array never iterates `consolidate`; the F5 audit filters on the literal
+>   `"additionalContext:"` and so cannot see an assignment). Fixing the defect without fixing its
+>   guard would leave this release repeating, a fourth time, the failure it is named after.
+>
+> **Then, and only then, the release tail** (title into the note H1 + PR title, undraft, merge, tag,
+> publish, archive) — it is the last checkbox of Step 12.5 and is unchanged by the review.
+>
+> Done and pushed _(2026-08-03, `e57fc6f` → `2f16a1b`)_: the mutation pass (7 files, measured, treated
+> and **re-measured** — all ≥ 96 %, two at 100 %, every survivor a pre-listed equivalent), the version
+> vector, the §10 marketing re-read **with its verdict recorded**, RESULTS.md § v4.6.0, the user-facing
+> note, the PR body, **draft PR #55**, and **CI green on the branch head** (Node 22/24/26 × macOS +
+> Windows + the Windows installer e2e, checked against the head SHA rather than the PR's colour).
+>
+> **The title is settled — the owner chose `v4.6.0 — The One Where It Asks Which One You Mean`.** It
+> still has to be written into the note's H1 and the PR title, which both carry a placeholder.
+>
+> **Nothing is half-written on disk**, the suite is green (1316 tests, 1315 pass, 1 skipped
+> Windows-only), and the note already covers the `⚙️ Kenjaku engine` startup segment that Step 12.0
+> left open. Still true for later: the F3 wording (v4.7.0) must share this release's vocabulary.
+>
+> **✅ DECIDED (2026-08-03, by the owner): 12.3 ships PROSE + A DETERMINISTIC GUARD.** The scope was
+> put to the owner with three options and this is the one chosen — **do not re-open it**. Both doors
+> that create a `people/` card (`/file-back` and `/consolidate`) write through **one** script,
+> `scripts/file-back-note.mjs`, so the check has a single choke point. The builder **refuses** a NEW
+> person card whose first name is already borne by another card until the spec says which one, and the
+> refusal **names the homonyms it found** (so the writer does not have to go looking again). The two
+> rejected options are recorded so they are not re-derived: prose only (*a rule nothing executes* —
+> this release has met that failure twice already), and a non-blocking stderr warning (which renders a
+> caught defect and an ordinary write identically — this trilogy's own defect shape).
 
-- [ ] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START.** _(asked by the owner, 2026-08-03:
-      « j'aimerai que tu rajoutes la version de Kenjaku au démarrage … à la prochaine release »)_ Small,
-      independent of the identity work, so it goes first and cannot be squeezed out by it.
-  - [ ] **Do NOT invent a version, and do not mint a second helper.** `scripts/lib/engine-version.mjs`
+- [x] **Step 12.0 — SHOW KENJAKU'S VERSION AT SESSION START. ✅ CODE-COMPLETE** _(2026-08-03 ·
+      `22de9a2` → `807b9aa`, suite green 1236 pass / 1 skipped Windows-only)_. _(asked by the owner,
+      2026-08-03: « j'aimerai que tu rajoutes la version de Kenjaku au démarrage … à la prochaine
+      release »)_ Small, independent of the identity work, so it went first.
+  - [x] **The label, chosen by the owner: `⚙️ Kenjaku engine v4.5.0`.** Asked because it is a real
+        product decision, not a detail: the engine had **never** said the word "Kenjaku" to a generated
+        brain (zero occurrences in both constitutions, every script and every skill — measured, not
+        assumed), so this is the product's name entering the brain's own surface for the first time.
+        The 🧠 of the mock-up became ⚙️ because 🧠 is already the RAG line's marker, and two identical
+        markers in one banner is this trilogy's own defect shape.
+  - [x] **Do NOT invent a version, and do not mint a second helper.** `scripts/lib/engine-version.mjs`
         already turns the brain's `engine-manifest.json` into the user-facing label (ADR 0017): the git
         **tag** the brain was installed/updated from (`source.ref`), falling back to `engineVersion.rag`,
         and **null** when nothing is usable → then no segment at all, rather than a made-up number.
-  - [ ] **Why it is invisible today, and this is the actual finding**: that label's only surface was the
+  - [x] **Two labels now share ONE resolution** (`installRef`), and their difference is the point: the
+        status-line label says *"engine"*, which claims nothing about which product, so it may keep its
+        fallback to `engineVersion.rag`; the startup segment says *"Kenjaku engine"*, so it may only ever
+        show a real install ref. **`rag` 1.3.0 has never been a Kenjaku release number** — an owner
+        reading "Kenjaku engine 1.3.0" would report a version that does not exist. **No ref → no
+        segment**, and naming that state out loud stays F3's job in v4.7.0.
+  - [x] **Why it was invisible, and this is the actual finding**: that label's only surface was the
         **statusLine**, and ADR 0036 had the engine *retreat* from the statusLine (it was clobbering the
-        owner's own). `scripts/status-line.mjs` still computes it; nothing renders it. So the version did
+        owner's own). `scripts/status-line.mjs` still computes it; nothing rendered it. So the version did
         not "never exist" — it **stopped being shown** and nobody noticed. Say it that way in the note.
-  - [ ] **Both channels or it is half-shipped**: `systemMessage` (CLI terminal only) **and**
+  - [x] **Both channels, or it is half-shipped**: `systemMessage` (CLI terminal only) **and**
         `hookSpecificOutput.additionalContext` (the ONLY channel the Code tab of Claude Desktop renders,
         via the agent's chat relay — ADR 0036's channel matrix). Shipping the CLI half alone would
-        reproduce this release's own reframe: "shown" and "not shown" rendered identically to us.
+        reproduce this release's own reframe: "shown" and "not shown" rendered identically to us. Both
+        ride a pure seam, `scripts/lib/status-hook-output.mjs`, because `session-status.mjs` is one of
+        the top-level scripts no test can import (named debt).
+  - [x] **Found by field-checking it, and NOT cosmetic: a pending restart outranks the version**
+        _(`807b9aa`)_. The new segment had taken the lead from the `⚠️ RESTART Claude` nudge, which holds
+        it for a written reason — until the owner restarts, nothing they read comes from the engine they
+        now have. And that is exactly when the claim is false: `update-engine` rewrites `source.ref` to
+        the **new** tag while the **old** code is still answering (`update-engine.mjs:312`). On the CLI
+        the restart line above it qualifies the version; on Desktop it would not, since the restart nudge
+        does not ride `additionalContext`. So a pending restart demotes the segment **and drops its chat
+        relay entirely**.
+  - [x] **Field-verified on a THROWAWAY CLONE, never on this repo** — both channels carry
+        `⚙️ Kenjaku engine v4.5.0`, and the launcher itself (no `source`) stays silent, which is the
+        intended silence. ⚠️ **The lesson not to re-learn**: running `session-status.mjs` by hand here
+        first fired its own SessionStart side effects (sweep + auto-commit of the working tree, an
+        `auto: session-start sweep` commit swallowing the wiring edit — reset, nothing lost, nothing
+        pushed). The memory `never-smoke-run-sessionstart-hooks` says exactly this. **Smoke-run a
+        SessionStart hook in a clone, never in the repo you are working in.**
+  - [x] **Delivery checked, not assumed**: `scripts/lib/**` and `scripts/session-status.mjs` are both in
+        the manifest's `replace` regime, so the seam and the wiring reach the fleet on the next
+        `/update-engine`; `engine-manifest.json` is in **no** regime and is rewritten by `update-engine`
+        itself, so the displayed version follows updates instead of freezing at install day.
+  - [ ] **Left for the release step**: the note + §10 re-read (the version is a user-visible surface), and
+        deciding whether `SETUP.md` should say where the version is read from.
   - [ ] Sibling to watch, **not** to merge: **F3** (v4.7.0) separates *"no engine update available"* from
         *"the target version is simply unknown"*. That one is about the **target**; this one is about the
         **installed** version. They must share one vocabulary — settle the wording here, since this ships
         first, exactly as F18's confidence scale was settled before v4.6.0 reuses it.
-- [ ] **Step 12.1 — F7: resolve against the vault BEFORE writing.** The first move, because the exposure
+- [x] **Step 12.1 — F7: resolve against the vault BEFORE writing. ✅ COMPLETE** _(2026-08-03 · `9790c90`
+      → `cbd8818` → `861ec64` → this commit)_. The first move, because the exposure
       is live: it fires at every briefing and every 1-1 prep until it ships, and correcting the note does
       not stop it (proven — it recurred the same evening on the other laptop, against a vault that
       carried the right answer).
-  - [ ] **The mechanism is IN THE SKILL, not in the model's imagination** _(read 2026-08-03,
+  - [x] **The mechanism is IN THE SKILL, not in the model's imagination** _(read 2026-08-03,
         `.claude/skills/sync-sources/SKILL.md:66-71`)_. Its "People registry" section says, in the same
         breath, **"never a first name alone — `[[people/jane]]` is forbidden"** *and* **"create the
         backlinks even if the target page doesn't exist"**. Handed *"Jérémy (front Candor)"*, a sub-agent
@@ -474,32 +749,278 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         (*"Jérémy Hinard"*). So this is not a fix bolted onto a neutral rule — it **repairs a rule the
         engine ships**, which is why the fix must land here and not brain-side (patching it in a brain
         freezes that brain, F5).
-  - [ ] A bare first name stays **plain text, no link** — never `[[people/…]]`, never a surname supplied
+  - [x] A bare first name stays **plain text, no link** — never `[[people/…]]`, never a surname supplied
         by the model. Losing a backlink is cheap; a fabricated identity is permanent and gets indexed.
-  - [ ] Before writing a person, **read the vault**: resolve each cited person against
+  - [x] Before writing a person, **read the vault**: resolve each cited person against
         `vault/*/people/` (universe subtrees included — the skill still says `vault/people/`, check that
         path against the universes layout) and the organisation notes. Resolution is already tier-3 in
         F18's table (*"and every identity resolution"*), so this is that tier's missing procedure, not a
         new doctrine.
-  - [ ] A `search_vault` before calling any fact **new** — the field note republished a two-month-old
+  - [x] A `search_vault` before calling any fact **new** — the field note republished a two-month-old
         fact as a scoop, and asserted *"Hossam, CTO Visma France (non confirmé)"* while
-        `people/hossam-laanait.md` said *"confirmé 04/06"*.
-  - [ ] The control sits in the **producer** (`sync-sources`), not in each consumer: `prepare-1-1` reuses
+        `people/hossam-laanait.md` said *"confirmé 04/06"*. ✅ _(2026-08-03)_ — shipped on **two**
+        surfaces, the prose rule and the third reconcile pass of `Step 3 — Synthesis`, because the
+        sub-agents never see the vault. See the header note for what that split turned up.
+  - [x] The control sits in the **producer** (`sync-sources`), not in each consumer: `prepare-1-1` reuses
         that fan-out, and two paraphrases are two disciplines (the rule F18 already locked by test).
-  - [ ] Guard: extend the `claim-discipline` family with an identity guard, EN + FR, skills + both
+  - [x] Guard: extend the `claim-discipline` family with an identity guard, EN + FR, skills + both
         constitutions. **Red first**, and check what the red run teaches — F18's first pass went green on
-        prose that was already there for other reasons.
-- [ ] **Step 12.2 — F6: repairing a link is not asserting a person exists.** Never create a `people/`
-      note merely to satisfy an incoming link. Evidence and the feedback loop are in P1; the field cost
-      was `people/stephanie-music.md`, a person who occurs **once in the whole vault: in her own title**.
-- [ ] **Step 12.3 — the homonymy block.** A `people/` note only makes the resolution rule usable if it
+        prose that was already there for other reasons. ✅ _(2026-08-03)_ —
+        `scripts/lib/identity-discipline.test.mjs`, 24 assertions, sharing `doc-section.mjs` with the
+        claim guard. Every step was red first; what the red runs taught is in the header note.
+- [x] **Step 12.2 — F6: repairing a link is not asserting a person exists. ✅ COMPLETE**
+      _(2026-08-03 · `de2e658`)_. Never create a `people/` note merely to satisfy an incoming link.
+      Evidence and the feedback loop are in P1; the field cost was `people/stephanie-music.md`, a
+      person who occurs **once in the whole vault: in her own title**.
+  - [x] The fourth rule of the identity discipline, EN + FR skills + both constitutions.
+  - [x] `/lint`'s dangling remedy: the create-the-note gesture keeps its **topic** case and excludes a
+        `[[people/…]]` target. This is the rule that MANUFACTURED the defect, same shape as F7's
+        "People registry" — the fix repairs an order the engine ships, it does not add a caveat to a
+        neutral one.
+  - [x] `/consolidate`, the door `/lint` hands off to: a person candidate's mention count is a
+        **priority signal, not evidence the person exists**. Resolve first, leave the page unwritten
+        when the name will not resolve.
+  - [x] Both skills **point** at `sync-sources#identity-discipline`; neither restates it.
+- [x] **Step 12.3 — the homonymy block. ✅ COMPLETE** _(2026-08-03 · `c0187a5` → `9b6c64c`)_.
+      A `people/` note only makes the resolution rule usable if it
       says **which** Romain (3 of them on the field brain, plus 3 Marie, 2 Karim, 2 Caroline, 2 Michael).
-      Without it, the notes only move the ambiguity.
-- [ ] **Step 12.4 — the reliability/confidence block** on any note born from a **probable** rather than
-      confirmed resolution, in F18's vocabulary (see the header note above).
+      Without it, the notes only move the ambiguity. Scope decided by the owner — see the header note.
+  - [x] **The prose half** — the identity discipline's fifth rule (*say which one*), `sync-sources`
+        EN + FR, plus both constitutions, in the guard family already shared with the claim discipline.
+        Two sides, and the second is what makes the first usable: a card **says** what distinguishes
+        this person, and a bare first name matching several cards is **unresolved** (so rule 2 applies:
+        plain text, no link) rather than resolved to the nearest one.
+  - [x] **The deterministic half** — `scripts/file-back-note.mjs` (+ its pure core `lib/filed-note.mjs`):
+        a new `person` card whose first name is already borne by another card is refused until the spec
+        carries what tells them apart; the refusal names the homonyms. Covers `/file-back` **and**
+        `/consolidate`, which both write through it.
+  - [x] **The two skills document the field** (`file-back`, `consolidate`), pointing at the producer's
+        section rather than restating the rule — the shape F6 and F7 both landed on.
+- [x] **Step 12.4 — the reliability/confidence block. ✅ COMPLETE** _(2026-08-03 · `e61002f` →
+      `180e4de`)_ on any note born from a **probable** rather than confirmed resolution, in F18's
+      vocabulary (see the header note above for what shipped and the two lessons).
+  - [x] **The prose half** — the identity discipline's sixth rule (*say how sure you are*),
+        `sync-sources` EN + FR plus both constitutions, in the guard family shared with the claim
+        discipline. Two sides again: the card **says** what its identity rests on, and at read time a
+        card marked 🟡 or 🔴 is a **lead, not the vault's answer** (re-verified, never inherited).
+  - [x] **The deterministic half** — `scripts/lib/filed-note.mjs` renders the block **and** a
+        `confidence:` frontmatter field; `scripts/file-back-note.mjs` refuses a new `person` card
+        without it; a bad level or a basis-less marker is refused, never rendered leniently.
+  - [x] **The promotion gesture** — `scripts/refresh-note.mjs` rewrites the field and the visible
+        block together, through the builder's own renderer. Without it the marker could never change,
+        which is how it would have rotted back into decoration.
+  - [x] **The two skills document the field** (`file-back`, `consolidate`), the latter saying why a
+        mention-count candidate is rarely `observed`.
 - [ ] **Step 12.5 — the release**: mutation pass on what changed, version vector, §10 marketing re-read,
       note + PR body. Same shape as Step 11; its recipe (worktree, batch sizes, the `rag/node_modules`
       symlink) is written there and stays valid.
+  - [x] **Suite green at the tip before starting** _(2026-08-03 · `c53dd5a`)_ — 1297 tests, 1296 pass,
+        1 skipped Windows-only.
+  - [x] **What this release changed, measured** _(`git diff --stat main...HEAD`)_: **no `rag/src` file
+        at all**, so the mutation pass is `scripts` only. Eight production files —
+        `file-back-note.mjs`, `refresh-note.mjs`, `session-status.mjs`, and under `lib/`
+        `filed-note.mjs`, `note-refresh.mjs`, `engine-version.mjs`, `status-hook-output.mjs`,
+        `doc-section.mjs`. `session-status.mjs` is the **named 0 % top-level tier** (no test can import
+        it — that is exactly why `status-hook-output.mjs` exists); it is **not** mutated here, and
+        RESULTS.md says so rather than leaving a silent hole.
+  - [ ] **Mutation batches** (worktree `/Users/tpierrain/Dev/kenjaku-mut-v460`, `rag/node_modules`
+        symlinked and **verified** — 31 pass / 0 skipped before starting, or the write-guard mutants
+        face a suite that cannot judge them).
+    - [x] **Batch 1 done and TREATED** _(2026-08-03 · `7879454`, log `…/v460-scripts-batch1.log`)_ —
+          `filed-note.mjs` **96.00 %** (5), `file-back-note.mjs` **72.81 %** (31 + 1 timeout). Both
+          families this release keeps meeting: the real deps observed by nothing (fixed by one real
+          child process against a throwaway brain, which is also the only thing that reaches the stdin
+          read, the recursive mkdir and the entrypoint guard) and refusal text asserted by fragments
+          (now asserted whole — that text IS the product here).
+    - [x] **Batch 2 done and TREATED** _(2026-08-03 · `bd6f995`, log `…/v460-scripts-batch2.log`)_ —
+          `doc-section.mjs` **53.33 %** (14), `refresh-note.mjs` **68.52 %** (17 + 1 timeout),
+          `note-refresh.mjs` **92.31 %** (7), `engine-version.mjs` **95.24 %** (2),
+          `status-hook-output.mjs` **92.86 %** (1). **The finding: `doc-section.mjs` had no test file
+          at all** — the slicer that decides what every doc guard reads, exercised only through those
+          guards, against documents where a degraded slice still contained the words they look for.
+          Both "return the whole document" mutants survived, which silently turns every sliced guard
+          back into the flat search it was extracted to replace. It has its own tests now (14/14 dead).
+    - [x] **RE-MEASURED, and all seven came back clean** _(2026-08-03 · `5b57c7e`, logs
+          `…-batch1-recheck.log` + `…-batch2-recheck.log`)_ — `doc-section` 53.33 → **100 %**,
+          `refresh-note` 68.52 → **96.30 %**, `file-back-note` 72.81 → **96.49 %**,
+          `status-hook-output` 92.86 → **100 %**, `note-refresh` 92.31 → **97.80 %**,
+          `engine-version` 95.24 → **97.62 %**, `filed-note` 96.00 → **97.60 %**. **Every survivor
+          left is on the equivalence list written before the run.** Recorded in RESULTS.md § v4.6.0.
+    - [x] **Equivalents, established by hand and NOT to be chased** _(each mutant applied, run, and
+          reverted)_: `readFileSync(0, "")` in both CLIs (returns a Buffer, `JSON.parse` coerces it —
+          already recorded at v4.5.0 for the guard hook); the slug's `^-+|-+$` quantifiers (the
+          preceding `[^a-z0-9]+` collapse makes two leading hyphens unreachable — verified on six
+          titles); `/\.md$/` unanchored in `firstNameSegment` (the first name is the first hyphen
+          segment, and no vault path carries `.md` inside it); `typeof manifest !== "object"` (a
+          truthy non-object yields null through both paths anyway); and two regex tails where `$` is
+          redundant without the `s` flag (`.*$` and `([\s\S]*)$`).
+    - [ ] **Still open, and NOT this release's debt**: the shared `runAsEntrypoint(meta, argv, fn)`
+          (3 mutants × 10+ scripts, named at v4.5.0). Two of the three now die per file thanks to the
+          child-process tests; what remains is `process.argv.slice(2)` → `process.argv`, a true
+          equivalent in both CLIs here since both take their spec on **stdin** and ignore argv.
+  - [x] **Version vector done** _(2026-08-03 · `e4d2110`)_ — measured first: `rag/` and
+        `local-mirror/` are untouched by this branch, so only `scripts` 1.10.0 → **1.11.0** and
+        `constitutionTemplate` 1.1.0 → **1.2.0**. `indexSchemaVersion` stays **2** — no reindex, which
+        is what the note promises.
+  - [x] **§10 marketing re-read done** _(2026-08-03 · `e4d2110`)_. **Made TRUE and now sold**: the
+        brain no longer invents a colleague (README §A, next to "silence is reported as silence" —
+        same defect family, identity half; §C's builder bullet; EN-QUOI's hole-by-hole table + §4.4),
+        and the startup version segment (SETUP §10 answers "which version am I on", including the two
+        deliberate silences). **Made FALSE: nothing** — no promise this release contradicts.
+        **Found stale while re-reading**: 34 ADRs → 37, and local-mirror's mutation score quoted at
+        95.6 % while RESULTS.md has read 90.4 % since v4.2.0 (an overclaim by five points, now
+        corrected and framed as "each package's last package-wide audit"). **Boards: re-read through
+        their alt texts, NOT re-rendered** — `board-reliability` shows "34 ADRs", a snapshot that now
+        under-claims, which is not a false promise; nothing on any board asserts something the code
+        stopped doing.
+  - [x] **Release note drafted** _(2026-08-03 · `f507942`)_ —
+        `maintainers/plans/prospective/release-v4.6.0-note.md`, §11 shape, no finding codes, and it
+        carries the startup version segment left over from Step 12.0. Two placeholders on purpose: the
+        title, and the mutation/CI blocks (filled from measurements, not from intent).
+  - [x] **PR body written and PR OPEN** _(2026-08-03 · `1eb6c7b`)_ — **draft PR #55**,
+        `prospective/release-v4.6.0-pr-body.md`. Its title is a placeholder on purpose (the release
+        title is the owner's call, below) and must be rewritten before the merge.
+  - [x] **TITLE CHOSEN BY THE OWNER** _(2026-08-03)_: **`v4.6.0 — The One Where It Asks Which One You
+        Mean`**. Do not re-open it, and do not re-run the three-candidate question. It still has to be
+        written into the note's H1, the PR title (currently a placeholder) and the release itself.
+  - [x] **CI HAS SPOKEN — 7/7 GREEN on the branch head** _(2026-08-03 · `2f16a1b`, PR #55)_: Node
+        22/24/26 × macOS + Windows, plus the Windows installer e2e, plus the tripwire. Verified against
+        the head SHA, not just "the PR looks green". Every commit was pushed as it was made, so the
+        67-commit silence that preceded v4.5.0's blocker never had a chance to build.
+  - [x] **RESULTS.md § v4.6.0 written** _(2026-08-03 · `5b57c7e`)_ — per-file numbers, the finding,
+        and every equivalent with the reason it is one.
+  - [x] **✅ THE REVIEW HAS LANDED** _(2026-08-04)_ — 8 candidates, **6 findings** after verification
+        and dedup. **I re-ran every one of them against the code myself: all six are REAL** (the
+        traversal was reproduced, not reasoned about). Session
+        `https://claude.ai/code/session_01YYtb3j4TFGN9SuP85TTZuA`; it posted **nothing to the PR**.
+        The one candidate that did NOT survive: *"refreshNote promotes the confidence field without
+        adding the visible block"*. Mechanically the no-op IS there (no `> **Confidence** — ` line in
+        the body → the `replace` does nothing while the frontmatter field moves), but it needs a card
+        that lacks the block, and no verdict backs it. **Left open, not silently dropped** — settle it
+        with a test before claiming either way.
+  - [x] **The six findings, in the order to treat them — ALL SIX DONE** _(2026-08-04)_. **✅ ORDER AND SCOPE APPROVED BY THE OWNER
+        (2026-08-04): all six, TDD, red first, and ③ ships in THIS release.** ① and ② each need **two**
+        reds: the defect, and the guard that missed it. Tick each box with its commit as it lands, so a
+        `/clear` mid-sequence resumes at the first unticked one.
+    - [x] **① DONE** _(2026-08-04 · `e34c3ae`)_ — the wording is the producer's own action form, and
+          the guard's carrier list is now **derived from the repo**: every `SKILL.md` under the three
+          skill roots that hands a fenced `prompt="""` to a sub-agent must be listed, or it goes red.
+          Two reds, both verified fail-first: the coverage assertion named
+          `engine-skills/consolidate/SKILL.md` before the fix, then the phrasing assertion failed on it.
+          Suite green (1318 tests, 1317 pass, 1 skipped Windows-only). Original entry, kept:
+          **`engine-skills/consolidate/SKILL.md:94` — the other write-door still carries the
+          wording that MANUFACTURED F7.** Verified: the file still reads *"Backlinks kebab-case, no
+          accents, never a first name alone."*, inside a fenced `Agent(prompt=…)` block handed
+          verbatim to sub-agents, and it holds **no** *"no full name, no link"*. So a sub-agent handed
+          a bare first name is still ordered to produce a `[[people/…]]` link and forbidden from the
+          short form: inventing the surname stays the only exit. **This makes the PR body's claim
+          false** (*"the producer, which every consumer reuses"*). The guard's own comment predicted
+          this drift and its `SKILLS` array simply never iterates the file (`WRITE_DOORS` does, but
+          only checks `distinguish` and the section anchor). Fix = the sync-sources phrasing + add the
+          file to `SKILLS`. **This is the one that matters; it reopens the release's headline defect.**
+    - [x] **② DONE** _(2026-08-04 · `53b0560`)_ — the detector is broadened (`/additionalContext\s*[:=]/`,
+          still a pure textual scan, no parse), the pinned list is at **five**, and the version relay
+          carries its own bound (framing **measured** at 69 chars, capped at 90) marked with the audit's
+          own marker. **The emitter kept its assignment form** rather than being bent into an object
+          literal: the key must be ABSENT when a brain cannot name its version, and the guard is what was
+          broken. Two reds, both verified: the detector named the fifth emitter, then the coverage test
+          reported it unbounded. Suite green (1319 tests, 1318 pass, 1 skipped Windows-only). Original
+          entry, kept: **`scripts/lib/status-hook-output.mjs:30` — the new emitter escapes the F5 audit.**
+          Verified: `grep -c "additionalContext:"` on the file returns **0**, because it assigns
+          (`obj.additionalContext = …`) while the guard filters on the literal `"additionalContext:"`.
+          The pinned list stays at four and goes green. No runtime leak (the payload is ~90 chars) —
+          **what breaks is the guard**, exactly as its own header warns ("a guard that silently stops
+          matching is worse than no guard"). Fix = object-literal form + add to the pinned list + a
+          bound test carrying the `volume IS the defect (F5)` marker.
+    - [x] **③ DONE** _(2026-08-04 · `6c5a072`)_ — fixed with `posix.normalize` **before** the comparison,
+          not `resolve`: the Windows brain is simulated on macOS through string-level POSIX form, so
+          `resolve` would have broken that test. The red was a **real child process** (the injected fakes
+          key on literal strings and would have reported the escape as "does not exist" — passing for the
+          wrong reason); it printed `✓ Refreshed: vault/..\outside.md` and overwrote the outside file.
+          Checked, not assumed: the twin door `file-back-note.mjs` derives its path from a slug stripping
+          every non-alphanumeric, so it carries no such hole. Suite green (1320 tests, 1319 pass, 1 skipped
+          Windows-only). Original entry, kept: **`scripts/refresh-note.mjs:66` — vault containment
+          bypassed by a backslash path, and I
+          REPRODUCED it.** `join("/brain/vault", "..\\outside.md")` leaves the backslash literal on
+          POSIX; `toPosix()` then turns it into `/brain/vault/../outside.md`, which **passes**
+          `startsWith(vaultDir + "/")` and is resolved by `fs` to the escaped target. Read AND write.
+          **Pre-existing** (the branch does not introduce it) but the branch widens the payload by
+          forwarding the free-form `confidence.basis` into the written file, and the spec arrives on
+          stdin from an LLM invocation — the injection surface this very release names. Fix =
+          `resolve` + `relative` re-check, plus a backslash test next to the existing `../../` one.
+          **Scope call for the owner: ship it here or as a follow-up.**
+    - [x] **④ DONE** _(2026-08-04 · `9377c17`, plus the class sweep `41cf186`)_ — function replacement.
+          The red printed the corruption in full (the ✅ block containing the old 🟡 block). Then the
+          **class** was swept rather than the instance patched: `repairWin32NodePrefix` injects the
+          owner's own folder path (`$` and `&` are legal in a Windows folder name) and was fixed the same
+          way, red first on `my$$brain` → `my$brain`; `restampUniverse` looks identical but is **not
+          reachable** (its only caller normalises the name, stripping every non-alphanumeric) — checked,
+          recorded, not "fixed". Suite green (1322 tests, 1321 pass, 1 skipped Windows-only). Original
+          entry, kept: **`scripts/lib/note-refresh.mjs:98` — `$` sequences in the basis corrupt the
+          block.** The
+          template **string** handed to `body.replace()` expands `$&`, `` $` ``, `$'`, `$$`. Narrow
+          (needs those characters in prose) but silent, and it lands the page in the exact
+          two-different-things state the comment four lines above swears it prevents. Fix = function
+          replacement.
+    - [x] **⑤ DONE** _(2026-08-04 · `f7a00fc`)_ — the blank line is in, and the rule is **guarded in both
+          locales** rather than merely repaired (the two files are meant to be each other's mirror): the
+          assertion was red on EN and green on FR before the fix. Original entry, kept:
+          **`.claude/skills/prepare-1-1/SKILL.md:63` — a missing blank line, EN only.** Verified
+          against the FR sibling, which has it. Under CommonMark the "Markers are mandatory" paragraph
+          becomes a lazy continuation of the previous bullet instead of applying to the whole section.
+          Cosmetic for an LLM reader, real EN/FR drift for a human one.
+    - [x] **⑥ DONE** _(2026-08-04 · `b3cabf9`, synced to GitHub)_ — v4.2.0 → **v3.0.0** (with the first
+          commit named), plus two corrections the fixes above made necessary: the wording rule is stated
+          in the producer **and** in `/consolidate` (so the body no longer claims a reuse the second
+          write-door never performed), and Verification now carries the review's six findings, guards
+          first. The **live PR body was updated**, not just the file. Original entry, kept:
+          **`release-v4.6.0-pr-body.md:31` — the PR body contradicts the note it points at.** The
+          body still says the label *"had been computed since v4.2.0"*; commit `2f16a1b` looked this
+          up in git and corrected the **note** to v3.0.0, without carrying the fix across. A
+          reviewer-facing marketing surface asserting a number the author already disproved.
+    - [ ] **Checked at a resume, 2026-08-03**: `gh pr view 55` shows **no review and no comment** on the
+          PR, so the verdict has NOT landed yet; the owner confirmed they are launching it now. **On the
+          next resume, look at the PR again before asking anything** — and if it has landed, treat the
+          findings before touching the tail. The release itself is assembled and needs no re-doing.
+    - [ ] **LAUNCHED and STILL RUNNING, 2026-08-04** — session
+          `https://claude.ai/code/session_01YYtb3j4TFGN9SuP85TTZuA`. It posts **nothing to the PR**
+          (`gh pr view 55` stays at 0 reviews / 0 comments), so the PR is not the place to look: the
+          session page is. State when read: search done (**8 candidates**), verify in progress
+          (2 confirmed / 0 refuted and climbing), dedup pending. ⚠️ **`get_page_text` on that page
+          returned a stale "Révision arrêtée"** while a screenshot showed it live with a counter moving
+          — **trust the screenshot**, not the text extraction.
+    - [ ] **The 8 candidates, recorded so the list survives a `/clear`** (candidates, NOT findings —
+          only the first two are confirmed so far):
+      - [ ] ✅ *confirmed* — `scripts/lib/note-refresh.mjs:92` **the confidence line is corrupted when
+            the basis contains `$` replacement patterns**. Read the code: line 98 passes a template
+            **string** to `body.replace()`, so `$&`, `` $` ``, `$'`, `$1` in the rendered basis are
+            expanded as replacement patterns. Real, narrow, and the fix is a function replacement.
+      - [ ] ✅ *confirmed* — `scripts/lib/status-hook-output.mjs:30` **the new `additionalContext`
+            emitter bypasses the F5 audit guard**.
+      - [ ] ⏳ `scripts/lib/note-refresh.mjs:92` **promotes the `confidence:` field without adding the
+            visible block**. Worth taking seriously even before its verdict: if the body carries no
+            `> **Confidence** — ` line, the `replace` is a silent no-op, so the field moves alone —
+            **exactly** what the comment above it swears cannot happen ("promoted in BOTH places at
+            once", Step 12.4's own claim).
+      - [ ] ⏳ `scripts/lib/note-refresh.mjs:98` — `$`-sequences in the basis treated as special
+            replacements (likely the same defect as the first, a dedup candidate).
+      - [ ] ⏳ `scripts/refresh-note.mjs:84` — vault containment check bypassed by a backslash-escaped
+            path on Linux/macOS.
+      - [ ] ⏳ `engine-skills/consolidate/SKILL.md:50` — the sub-agent prompt still carries the
+            "never a first name alone" rule (a possible F6/F7 leftover).
+      - [ ] ⏳ `.claude/skills/prepare-1-1/SKILL.md:62` — missing blank line before the
+            "Markers are mandatory" paragraph (EN).
+      - [ ] ⏳ `maintainers/plans/prospective/release-v4.6.0-note.md:59` — **the note and the PR body
+            disagree on when the engine version label was first shipped**. A user-facing artifact
+            contradiction, so it belongs to the release tail whatever the verdict.
+  - [ ] **The tail, once the review is in** (in this order):
+    - [ ] Write the chosen title into the note's H1 **and** the PR title (both still carry a
+          `<TITLE …>` placeholder).
+    - [ ] Undraft + merge PR #55, tag `v4.6.0`, publish the release with the note's body.
+    - [ ] Move `release-v4.6.0-note.md` + `release-v4.6.0-pr-body.md` into
+          `maintainers/plans/archived/`, next to v4.5.0's, and record the merge SHA + tag here.
+    - [ ] Then the plan's live work becomes **v4.7.0 (visibility)** — its findings are already listed
+          at the end of Step 11's block.
 
 ## The one pattern behind most of it (the reframe)
 
@@ -975,22 +1496,31 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         implication: a capability recorded as absent needs an expiry and a re-test, never inheritance.
         Note this is the **mirror image of F10** (a recorded value frozen at capture time), so the two
         may share one mechanism — check before designing.
-- [ ] **F6 — repairing a link and asserting a person exists are conflated.** `people/stephanie-music.md`
+- [x] **F6 — repairing a link and asserting a person exists are conflated.** ✅ **DONE**
+      _(2026-08-03 · `de2e658`)_ — see Step 12.2 for what shipped and where.
+      `people/stephanie-music.md`
       was created 19/07 *"to resolve an incoming link"* from a mis-resolved link; "Stéphanie Music"
       occurred **once in the whole vault: in its own title** (Stéphanie Glad: 382 times).
-  - [ ] The feedback loop: mis-resolved link → note created to satisfy it → that note becomes the
+  - [x] The feedback loop: mis-resolved link → note created to satisfy it → that note becomes the
         vault's truth about who exists → the next resolution resolves **against the fabrication**.
         It survived three weeks and would have corrupted every future resolution.
-  - [ ] Companion rule to F7: **never create a `people/` note merely to satisfy an incoming link.**
-  - [ ] Measured degradation before repair: banner said 28 dangling links, `/lint` reported **36** after
+  - [x] Companion rule to F7: **never create a `people/` note merely to satisfy an incoming link.**
+  - [x] **The engine ORDERED it, in two places.** `/lint` said *"Dangling → … or create the missing
+        note"* with no carve-out; `/consolidate`, the skill `/lint` explicitly hands one-off mentions
+        to, ranks person candidates by **mention count** — so a name F7 invented once and cited three
+        times reads as signal rather than as the defect it is. Both are fixed; both point at the
+        producer's section rather than carrying their own wording.
+  - [x] Measured degradation before repair: banner said 28 dangling links, `/lint` reported **36** after
         one sync session, for **21** existing people notes.
-- [ ] **Presence is not enough — disambiguation is the precondition** (design advance found in the
+- [x] **Presence is not enough — disambiguation is the precondition** ✅ **DONE** _(2026-08-03 ·
+      `c0187a5` → `9b6c64c`)_ — see Step 12.3 for what shipped and where. (design advance found in the
       field, worth adopting upstream). A `people/` note only makes the resolution rule usable if it
       carries an explicit **homonymy block**: the brain had 3 Romain, 3 Marie, 2 Karim, 2 Caroline,
       2 Michael. Without it, notes only move the ambiguity.
-- [ ] **Conformant ≠ true.** A deterministic builder guarantees *form* (naming convention, green lint),
-      not *substance*. Consider requiring a reliability/confidence block on any note born from a
-      **probable** rather than confirmed resolution.
+- [x] **Conformant ≠ true.** ✅ **DONE** _(2026-08-03 · `e61002f` → `180e4de`)_ — see Step 12.4 for what
+      shipped and where. A deterministic builder guarantees *form* (naming convention, green lint), not
+      *substance*, so a person card now carries a reliability/confidence block saying what its identity
+      rests on, and the builder refuses to write one without it.
 
 ### P2 — the freeze trap, and no path back upstream
 
@@ -1017,6 +1547,49 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
 
 ### P3 — visibility, safety and ergonomics
 
+- [ ] **F19 — the always-loaded instruction layer only ever grows, and nothing measures whether it
+      still works. 🔜 v4.7.0 CANDIDATE** _(raised by the owner, 2026-08-04: « on n'arrête pas de faire
+      grossir la constitution … est-ce qu'on n'est pas devenu un peu obèse, avec un impact sur le bon
+      fonctionnement du second brain ? ». Measured the same day: the intuition **holds on the trend**
+      and **misses on the mechanism**. The numbers below are measured, not estimated — do not
+      re-derive them.)_
+  - [ ] **What is actually always in context in a generated brain.** `CLAUDE.md` rendered ~6 KB +
+        `CLAUDE.engine.md` **31.3 KB EN / 35.2 KB FR** (pulled in by its `@` import) + **~9.7 KB** of
+        skill frontmatter descriptions + the startup banner (already bounded, see below) ≈ **51 KB for
+        an FR brain, roughly 15-17k tokens, ~8 % of a 200k window**. SKILL.md **bodies** (up to 26 KB
+        for `local-mirror`) load only on invocation, and `filterCopyable` keeps `maintainers/**` out of
+        a brain entirely — so `CONVENTIONS.md` (36 KB), this plan (1500+ lines) and the ADRs cost a
+        deployed brain **nothing**. **Capacity is NOT the problem**: say so plainly rather than letting
+        the worry stand.
+  - [ ] **The trend is real, and it is a one-way ratchet.** The engine constitution sat at **23 504
+        bytes for eight releases** (v3.6.0 → v4.4.0), then **28 391** (v4.5.0, +21 %), then **31 280**
+        (v4.6.0, +10 %) — **+33 % over this trilogy alone**. Every commit that has ever touched the
+        file is `+N -0`, with a single exception (`+14 -9`): **it has never shrunk**. And since v4.5.0
+        its text is pinned by **32 doc-guard assertions**, so deleting a sentence now goes red. The
+        ratchet is ours, built in the last two releases.
+  - [ ] **The defect is not the size, it is the missing feedback loop.** Code is judged by mutation
+        score; prose is judged by doc guards that assert **presence**. Nothing measures **effect** — a
+        guard proves a rule is written, never that the model behaves differently. So a release can only
+        add, and can never learn that an older rule stopped earning its place. **37 imperatives**
+        (`NEVER`/`ALWAYS`/`MUST`) and **133 rule lines** now compete for attention at every turn.
+  - [ ] **The discipline already exists in this repo, applied to the wrong surface** —
+        `universe-reminder.test.mjs` bounds the session-start payload at **500 characters**, with a
+        failure message reading *"the startup payload grew back to N chars"*. 500 characters are
+        watched under a microscope while 35 200 are unwatched.
+  - [ ] **Candidate work, in this order. Scope NOT decided with the owner yet** — they asked for these
+        measurements to be filed as a v4.7.0 candidate (2026-08-04), which is a filing decision, not an
+        approval of the three items below.
+    - [ ] A **size budget test on both constitutions**, pinned at today's byte count: a ratchet that
+          can only go **down**, unless an explicit decision raises it. The missing net, one test.
+    - [ ] A **subtraction pass** in place of the usual addition pass. Two targets already measured:
+          `## Expected Claude Code behaviors` (**14.8 KB**, 11 subsections, half the file), and the
+          always-loaded descriptions of `switch` (**1 550 B**) and `local-mirror` (**1 543 B**) — 3 KB
+          of permanent cost for two optional features. Note the obstacle before starting: the doc
+          guards make removal red by construction, so a subtraction pass edits guards and prose
+          together, deliberately.
+    - [ ] **The only honest test of a rule's efficacy is behavioural** — an eval run against a real
+          brain. This repo has never had one. That is a project of its own, not a line item here, and
+          it is what would let a later release *remove* with evidence instead of by taste.
 - [x] **F1 — vault-only confidential material is printed at every SessionStart. ✅ COMPLETE**
       _(2026-08-03 · `9c67ea9` → `4b7b467`)_. The universe profile
       was dumped verbatim in the banner, including a passage explicitly tagged

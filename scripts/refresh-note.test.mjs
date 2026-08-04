@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runRefresh } from "./refresh-note.mjs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { runRefresh, realRefreshDeps } from "./refresh-note.mjs";
 
 const PAGE = `---
 type: topic
@@ -114,6 +120,39 @@ test("a SIBLING of the vault is refused too — the separator is the whole guard
   }
 });
 
+test("a BACKSLASH escape is refused too — the guard normalises before it compares", () => {
+  // Found by review, and reproduced against a real brain before being fixed here.
+  // `join("/brain/vault", "..\\outside.md")` leaves the backslash literal on POSIX;
+  // `toPosix` then turns it into "/brain/vault/../outside.md", which starts with
+  // "/brain/vault/" and sailed through the containment check — while `fs` resolved
+  // it to the escaped target. Read AND write: the spec arrives on stdin from an LLM
+  // invocation, and this release widened what it carries (a free-form basis).
+  //
+  // Run as a real process on purpose: the injected `exists`/`readFile` fakes key on
+  // literal strings, so they cannot tell a path `fs` would resolve elsewhere from
+  // one it would not — the fake would report the escape as "does not exist" and the
+  // test would pass on the wrong reason.
+  const brain = mkdtempSync(join(tmpdir(), "refresh-escape-"));
+  mkdirSync(join(brain, "vault", "topics"), { recursive: true });
+  writeFileSync(join(brain, "vault", "topics", "crise.md"), PAGE);
+  const outside = join(brain, "outside.md");
+  writeFileSync(outside, PAGE);
+
+  const escaped = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("./refresh-note.mjs", import.meta.url))],
+    {
+      cwd: brain,
+      input: JSON.stringify({ path: "..\\outside.md", section: "## Escaped\n\nx" }),
+      encoding: "utf8",
+    },
+  );
+
+  assert.equal(escaped.status, 1, escaped.stdout);
+  assert.match(escaped.stderr, /is outside the vault — a refresh only ever touches vault\//);
+  assert.equal(readFileSync(outside, "utf8"), PAGE, "the file outside the vault must be untouched");
+});
+
 test("valid JSON that is not a refresh spec is refused, not crashed on", () => {
   // `null`, `"x"` and `[]` all PARSE, so they sail past the try/catch around
   // JSON.parse and reach `spec.path` — where `null` threw a TypeError and printed a
@@ -137,4 +176,93 @@ test("invalid JSON on stdin is refused, loudly", () => {
   assert.equal(runRefresh([], d), 1);
   assert.equal(d.written.length, 0);
   assert.match(d.errs[0], /JSON/i);
+});
+
+test("runRefresh — forwards a confidence promotion to the writer, so it is not a freehand edit", () => {
+  // The rule that a marked card is re-verified needs a gesture that RECORDS the
+  // outcome. Without this the only way to promote a card is hand-editing its
+  // frontmatter — the exact move that put two `updated:` keys on one page.
+  const d = deps({
+    files: {
+      "/brain/vault/people/jeremy-hinard.md": `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+confidence: probable
+---
+
+# Jérémy Hinard
+
+> **Confidence** — 🟡 derived or probable · the surname comes from the Candor org note.
+
+Front-end at Candor.
+`,
+    },
+  });
+  d.readInput = () =>
+    JSON.stringify({
+      path: "people/jeremy-hinard.md",
+      confidence: { level: "observed", basis: "he introduced himself in #candor, 2026-08-03." },
+    });
+  assert.equal(runRefresh([], d), 0);
+  assert.deepEqual(d.errs, []);
+  const [, content] = d.written[0];
+  assert.match(content, /\nconfidence: observed\n/, "the field is promoted");
+  assert.match(
+    content,
+    /^> \*\*Confidence\*\* — ✅ observed · he introduced himself in #candor, 2026-08-03\.$/m,
+    "and the visible block with it, or the page contradicts itself",
+  );
+});
+
+// ── The real wiring, run the way the brain runs it ─────────────────────────
+// Every test above injects its own deps, so `realRefreshDeps` and the
+// entrypoint guard were observed by nothing: this script could read no stdin,
+// write nowhere and log nothing with the suite still green. One real child
+// process against a throwaway brain closes it — and it is the only test here
+// that proves a refresh REWRITES the page on disk rather than describing it.
+
+test("refresh-note, as a real process — rewrites the page and bumps updated:", () => {
+  const brain = mkdtempSync(join(tmpdir(), "refresh-e2e-"));
+  mkdirSync(join(brain, "vault", "topics"), { recursive: true });
+  const page = join(brain, "vault", "topics", "crise.md");
+  writeFileSync(page, PAGE);
+  const run = (input) =>
+    spawnSync(process.execPath, [fileURLToPath(new URL("./refresh-note.mjs", import.meta.url))], {
+      cwd: brain,
+      input,
+      encoding: "utf8",
+    });
+
+  const today = new Date().toISOString().slice(0, 10);
+  const ok = run(JSON.stringify({ path: "topics/crise.md", section: "## New\n\nAdded." }));
+  assert.equal(ok.status, 0, ok.stderr);
+  assert.equal(ok.stdout.trim(), `✓ Refreshed: vault/topics/crise.md (updated: ${today})`);
+  const after = readFileSync(page, "utf8");
+  assert.match(after, new RegExp(`\\nupdated: ${today}\\n`), "the date is stamped, not described");
+  assert.match(after, /\n## New\n\nAdded\.\n$/);
+  assert.match(after, /created: 2026-06-02/, "creation date untouched");
+
+  // And it never creates: a page that is not there is a refusal, not a write.
+  const missing = run(JSON.stringify({ path: "topics/nope.md", section: "x" }));
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /does not exist — refreshing never creates/);
+  assert.equal(existsSync(join(brain, "vault", "topics", "nope.md")), false);
+});
+
+test("realRefreshDeps — the real ports are what they claim, field by field", () => {
+  const dir = mkdtempSync(join(tmpdir(), "refresh-deps-"));
+  const file = join(dir, "note.md");
+  writeFileSync(file, "Réunion\n");
+  assert.equal(realRefreshDeps.cwd(), process.cwd());
+  assert.equal(realRefreshDeps.today(), new Date().toISOString().slice(0, 10));
+  assert.match(realRefreshDeps.today(), /^\d{4}-\d{2}-\d{2}$/, "a date stamp, not an instant");
+  assert.equal(realRefreshDeps.exists(file), true);
+  assert.equal(realRefreshDeps.exists(join(dir, "nope.md")), false);
+  // The exact string, accents and all: a loose match passes on the wrong encoding.
+  assert.equal(realRefreshDeps.readFile(file), "Réunion\n");
+  // Two levels missing, so a non-recursive mkdir cannot do this one.
+  realRefreshDeps.writeFile(join(dir, "a", "b", "written.md"), "body\n");
+  assert.equal(readFileSync(join(dir, "a", "b", "written.md"), "utf8"), "body\n");
 });

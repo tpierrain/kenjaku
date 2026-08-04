@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { docSection } from "./doc-section.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // F18 — the claim discipline must exist on EVERY surface that produces an
@@ -31,29 +32,10 @@ import { dirname, join } from "node:path";
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (rel) => readFileSync(join(REPO_ROOT, rel), "utf8");
 
-// Slice the discipline SECTION out of a document — from its heading to the next
-// heading of the same or a higher level — and assert inside that slice only.
-//
-// This is deliberate, and the first red run is why: asserting on the whole file
-// let three rules pass on words that were already there for other reasons
-// ("your FIRST reply of the session" matched /repl(y|ies)/, "contradictory rules"
-// matched /contradict/). A rule that passes because of unrelated prose is a rule
-// nobody is actually carrying. Slicing also asserts something the flat search
-// could not: the rules live TOGETHER, as one discipline, instead of being
-// scattered where no reader meets them as a whole.
-function disciplineSection(text, heading) {
-  const start = text.search(heading);
-  if (start === -1) return "";
-  const level = (text.slice(start).match(/^#+/) ?? ["#"])[0].length;
-  // Start looking for the NEXT heading only after the current heading's own line —
-  // otherwise the very first thing found is the heading we started from, and every
-  // section slices down to a single "#".
-  const nl = text.indexOf("\n", start);
-  if (nl === -1) return text.slice(start);
-  const rest = text.slice(nl + 1);
-  const end = rest.search(new RegExp(`^#{1,${level}} `, "m"));
-  return end === -1 ? text.slice(start) : text.slice(start, nl + 1 + end);
-}
+// The discipline SECTION of a document, sliced from its heading to the next
+// heading of the same or a higher level — asserted inside that slice only, for
+// the reasons written in doc-section.mjs (the identity guard shares it).
+const disciplineSection = docSection;
 
 const HEADING_EN = /^#+ Claim discipline/m;
 const HEADING_FR = /^#+ Discipline d'affirmation/m;
@@ -187,6 +169,31 @@ for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
       section,
       /sync-sources\/SKILL\.md#/,
       "prepare-1-1 must point at the producer's discipline section itself, so the two cannot drift into two different rules",
+    );
+  });
+}
+
+// ── The markers rule applies to the SECTION, not to the last bullet ────────
+// Found by review, EN only, verified against the FR sibling which had it right:
+// a missing blank line makes "Markers are mandatory here too…" a lazy
+// continuation of the preceding list item under CommonMark, so the rule that
+// governs the whole section renders as a tail of one bullet about reconciling.
+// Cosmetic to an LLM reader, real EN/FR drift to a human one — and this file is
+// read by both.
+for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
+  test(`${locale} prepare-1-1: the markers rule stands on its own, not as a bullet's tail`, () => {
+    const marker = locale === "FR" ? /^Les marqueurs sont obligatoires/m : /^Markers are mandatory/m;
+    // Line endings normalised FIRST: git checks these files out with CRLF on
+    // Windows, so a guard comparing against "\n\n" fails there on typography
+    // rather than on meaning — the failure this repo has now met three times
+    // (CONVENTIONS §9). What is asserted is the blank line, not its bytes.
+    const text = read(path).split("\r\n").join("\n");
+    const at = text.search(marker);
+    assert.notEqual(at, -1, "the markers rule must still be there at the start of a line");
+    assert.equal(
+      text.slice(0, at).endsWith("\n\n"),
+      true,
+      "without a blank line above it, CommonMark folds the rule into the previous bullet",
     );
   });
 }

@@ -41,6 +41,19 @@ Pick, from the vault taxonomy (see the constitution, §"Note format"):
 - **body** → the distilled synthesis, in the user's language. Be concise and self-contained.
 - **links** → the existing notes this connects to, as `[[people/jane-doe]]`, `[[topics/rag]]` paths.
   Prefer targets that **already exist** (run `/lint` if unsure) so you don't create dangling links.
+- **distinguish** (`person` only) → what tells this person apart from everyone the vault already
+  knows by that first name: their role, their organisation, and the other cards by name. It becomes
+  the card's homonymy block, under the title. Give it whenever the first name is not obviously
+  unique — a card that does not say *which* Romain moves the ambiguity into the vault instead of
+  resolving it, and the next resolution inherits it. See the identity discipline in
+  [`sync-sources`](../sync-sources/SKILL.md#identity-discipline).
+- **confidence** (`person` — **required**, the builder refuses without it) → what this card's identity
+  actually rests on: `{"level":"observed|probable|unverified","basis":"…"}`. Same scale as the claim
+  discipline, deliberately: `observed` = you read the full name at a source you can cite, `probable` =
+  you resolved it from context, `unverified` = you could not confirm it. The `basis` says on what (the
+  source, its date, the card it matched). It becomes the card's confidence block and a frontmatter
+  field. Required rather than offered because a conformant card born of a guess is indistinguishable
+  from one born of a signed source, and the vault reads both as truth forever.
 
 ### 2. Propose (never write yet)
 Show the user, plainly: the **target path**, the **type/tags**, the **[[links]]**, and the **body** you
@@ -57,6 +70,13 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
 - Exit **0** = written (it prints `✓ Filed back: vault/<path>`); relay that path.
 - Exit **1** = refused (note already exists) or invalid spec; read the message verbatim — if it already
   exists, this is a *living page*, so go to 3b instead.
+- Exit **1**, third case: a `person` whose **first name the vault already holds** and no `distinguish`.
+  The message names the homonym cards it found. This is not a tool failure to work around: read those
+  cards, and either say which one this is (add `distinguish`, re-run) or, if the name cannot be
+  resolved, say so to the user and file nothing — never re-run with a surname you supplied.
+- **Exit 1**, fourth case: a `person` with no `confidence`. Answer it honestly rather than reaching for
+  the level that unblocks the write: `unverified` written down costs nothing, and is exactly what the
+  next resolution needs to know.
 
 ### 3b. Existing living page (person / topic) → append a dated section
 Filing back never overwrites. When the target already exists, **refine it additively**: append a dated
@@ -70,6 +90,15 @@ section and bump its `updated:`. Keep it conformant, mirroring the builder's sha
 - [[people/jane-doe]]
 ```
 This edit is the brain's normal confirmed write (the auto-commit hook persists it).
+
+**Promoting a confidence marker.** When a card marked 🟡 or 🔴 is later confirmed, do **not** hand-edit
+its frontmatter (that is how a page ended up with two `updated:` keys and became unreadable). Pipe the
+new level to `/refresh-note`, which rewrites the field **and** the visible block together — and writes
+that block for the first time on a card that predates it, in the builder's own slot:
+```bash
+echo '{"path":"people/jane-doe.md","confidence":{"level":"observed","basis":"her own intro in #general, 2026-08-03."}}' \
+  | node scripts/refresh-note.mjs
+```
 
 ## Guardrails
 - **Propose first, write on yes.** This skill never files a note the user hasn't agreed to.

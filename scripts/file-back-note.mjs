@@ -11,13 +11,17 @@
 //
 //   echo '<json spec>' | node scripts/file-back-note.mjs
 //
-// Spec: { type, title, tags[], body, links?[], date? } — date required for
-// dated types (decision, meeting). Exits 0 when written, 1 when refused/error.
+// Spec: { type, title, tags[], body, links?[], date?, distinguish?, confidence? }
+// — date is required for dated types (decision, meeting); `distinguish` is the
+// homonymy block, and a person whose first name the vault already holds is
+// REFUSED until it is given; `confidence` ({level, basis}) is what the card's
+// identity rests on, and a person is REFUSED without it. Exits 0 when written,
+// 1 when refused/error.
 // ─────────────────────────────────────────────────────────────────────────────
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { renderFiledNote } from "./lib/filed-note.mjs";
+import { renderFiledNote, homonymCards, CONFIDENCE } from "./lib/filed-note.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 
@@ -26,6 +30,41 @@ import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 // break the string match against the vault path and the existence check. Cf.
 // installer toPosix / document-scanner.
 const toPosix = (p) => p.split("\\").join("/");
+
+// Every `people/` card the vault holds, vault-relative: the root's cross-cutting
+// ones AND each universe's own subtree — the same reach the identity discipline
+// asks a resolution to read, so the guard sees what the reader would see. The
+// listing is injected (`io.list` → [{ name, isDirectory }], empty when absent).
+export function listPeopleCards(io, vaultDir) {
+  const cards = [];
+  const collect = (prefix) => {
+    for (const entry of io.list(`${vaultDir}/${prefix}people`)) {
+      if (!entry.isDirectory && entry.name.endsWith(".md"))
+        cards.push(`${prefix}people/${entry.name}`);
+    }
+  };
+  collect("");
+  for (const entry of io.list(vaultDir)) {
+    if (entry.isDirectory && entry.name !== "people") collect(`${entry.name}/`);
+  }
+  return cards;
+}
+
+// The real directory listing. A folder that is not there is "no cards", never a
+// crash: a brain whose vault holds no people/ yet is the ordinary first-week
+// state, and the guard must stay silent then rather than block every write.
+export const realListIo = {
+  list: (dir) => {
+    try {
+      return readdirSync(dir, { withFileTypes: true }).map((entry) => ({
+        name: entry.name,
+        isDirectory: entry.isDirectory(),
+      }));
+    } catch {
+      return [];
+    }
+  },
+};
 
 // Real wiring — the side effects, injected so runFileBack stays unit-testable.
 export const realFileBackDeps = {
@@ -44,6 +83,11 @@ export const realFileBackDeps = {
     ),
   readInput: () => readFileSync(0, "utf8"),
   exists: (p) => existsSync(p),
+  // What the vault already says about who exists — read at write time, because
+  // the model demonstrably does not check (a bare "Jérémy" became a surname that
+  // exists nowhere else). POSIX-formed like the write path, for one comparison
+  // shape across platforms.
+  peopleCards: () => listPeopleCards(realListIo, toPosix(join(process.cwd(), "vault"))),
   writeFile: (p, content) => {
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, content);
@@ -63,6 +107,21 @@ export function runFileBack(argv, deps = realFileBackDeps) {
     return 1;
   }
 
+  // A person card that does not say what its identity rests on is REFUSED, not
+  // written silently: the builder guarantees form, and a conformant card born of
+  // a guess is indistinguishable from one born of a signed source — which is how
+  // a surname that exists nowhere became the vault's answer to "who is Jérémy".
+  // Required rather than offered: left optional, absence would mean "confirmed".
+  if (spec.type === "person" && !spec.confidence) {
+    deps.error(
+      `✗ vault/ — a person card must say how sure its identity is.\n` +
+        `  Add "confidence": { "level": …, "basis": … } to the spec, where level is one of ` +
+        `${Object.keys(CONFIDENCE).join(", ")},\n` +
+        `  and basis says what the resolution rests on (the source, its date, the card it matched).`,
+    );
+    return 1;
+  }
+
   let note;
   try {
     note = renderFiledNote({ ...spec, today: deps.today(), universe: deps.universe() });
@@ -78,6 +137,25 @@ export function runFileBack(argv, deps = realFileBackDeps) {
         `Refine that living page by appending a dated section instead.`,
     );
     return 1;
+  }
+
+  // A person filed under a first name the vault already holds must say WHICH
+  // one, or the card only moves the ambiguity: the identity discipline's
+  // "resolve against the vault" then meets an answer several cards wide.
+  if (spec.type === "person" && !spec.distinguish) {
+    const homonyms = homonymCards(note.path, deps.peopleCards());
+    if (homonyms.length > 0) {
+      const firstName = String(spec.title).trim().split(/\s+/)[0];
+      const many = homonyms.length > 1;
+      deps.error(
+        `✗ vault/${note.path} — ${homonyms.length} ${many ? "cards" : "card"} ` +
+          `already ${many ? "carry" : "carries"} the first name "${firstName}":\n` +
+          homonyms.map((c) => `    ${c}`).join("\n") +
+          `\n  A card that does not say WHICH ${firstName} only moves the ambiguity.` +
+          `\n  Add "distinguish" to the spec (role, org, and what tells them apart), then re-run.`,
+      );
+      return 1;
+    }
   }
 
   deps.writeFile(absPath, note.content);

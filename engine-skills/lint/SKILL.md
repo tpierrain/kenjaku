@@ -45,8 +45,14 @@ node scripts/lint-vault.mjs
 ### 3. Propose fixes (never apply silently)
 Group the findings and, for the ones worth acting on, **suggest the concrete gesture** and ask
 before writing:
-- **Dangling** → fix the target spelling, or create the missing note (offer to synthesize it
-  from the vault, like `open-note` does), or remove the dead link.
+- **Dangling** → fix the target spelling, point the link at the note that does exist, or remove the
+  dead link. Creating the missing note is a fine outcome for a **topic** the vault meant to hold
+  (offer to synthesize it from the vault, like `open-note` does).
+  ⚠️ **Never for a `[[people/…]]` target.** A card created to satisfy an incoming link becomes the
+  vault's own answer to *who exists*, and every later resolution resolves against it — see the
+  identity discipline in [`sync-sources`](../sync-sources/SKILL.md#identity-discipline). Repair the
+  link where it was written, or leave it dangling and say why: a dangling link costs a click, a
+  fabricated person is permanent.
 - **Orphan** → propose where to weave it in: which existing note(s) should gain a `[[link]]` to
   it, or which entity/topic page it belongs under.
 - **Stale entity page** → offer to refresh it from the fresher notes that cite it (a Track-C

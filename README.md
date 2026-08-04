@@ -340,6 +340,10 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **Silence is reported as silence** — when a search comes back empty, your brain says *"I found nothing,
   here is where I looked"*, instead of turning it into *"nobody decided"*. What it observed and what it
   inferred are told apart, on the page, every time.
+- **It never invents a colleague** — before writing about someone, it looks them up in *your* notes. A
+  first name it can't resolve stays plain text instead of becoming a page for a person who doesn't exist;
+  when your notes hold three Romains, the page says **which** one; and a name it worked out rather than
+  read is written as *probable*, not as fact.
 - **The index is cross-checked against your vault** — the subtler version of the same lie is a note that
   keeps *answering* from the content it was last indexed with. A crosscheck names every note the two
   disagree about, on demand (`verify-index`) and as a session check. *(ADR 0030)*
@@ -364,7 +368,8 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   `/consolidate` and `/file-back` skills watch the wiki for decay — dangling `[[links]]`, orphan notes,
   stale entity pages, raw captures never filed — and **propose** fixes you confirm (never a silent
   rewrite). Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
-  re-introduce the very defects `/lint` reports. Self-healing at the *content* layer.
+  re-introduce the very defects `/lint` reports — and repairing a broken link is no longer allowed to
+  invent the person it points at. Self-healing at the *content* layer.
 - **A note it couldn't index is refused, not written.** Before writing into your vault, your brain checks
   the note's header with the **engine's own parser** — the very one that indexes it. A note that parser
   would reject is never written at all, instead of being born invisible to search while the counter says
@@ -395,7 +400,7 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **TDD baby-steps**, **green-only commits** (never commit red); **outside-in diamond TDD** for the harness.
 - **Measured, not asserted** — an **eval-set** for retrieval quality (below) and **mutation testing**
   (Stryker) scoring the *tests themselves* **90–97%** across the three engine packages.
-- **ADR-governed** — 34 decisions, each with an explicit `Scope:` and a `Crux`.
+- **ADR-governed** — 37 decisions, each with an explicit `Scope:` and a `Crux`.
 - **QA'd like a product** — the **upgrade/migration path is a release gate** (Windows parity · reconciler ·
   mutation score), so a new engine is proven on existing brains before it ships.
 
@@ -408,9 +413,11 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   leaderboards. The local **"Gemma inside"** embedder scores **90%**, equal to Ollama and **above the
   Gemini cloud baseline (80%)**: going fully local is **no quality trade-off**.
 - **Test-suite strength**: a **mutation-testing** run (Stryker) scores **90–97%** across the three engine
-  packages — rag **90.4%**, local-mirror **95.6%**, harness scripts **97.3%** — i.e. the share of
-  injected faults the tests actually catch (line coverage can't tell you that). *(pinned to v3.6.2; detail
-  in [`maintainers/mutation/RESULTS.md`](maintainers/mutation/RESULTS.md))*
+  packages — rag **90.4%**, local-mirror **90.4%**, harness scripts **97.3%** — i.e. the share of
+  injected faults the tests actually catch (line coverage can't tell you that). Each figure is that
+  package's last **package-wide** audit; on top of it, **every release re-runs the files it changed**.
+  *(detail, per-release runs and the named debt in
+  [`maintainers/mutation/RESULTS.md`](maintainers/mutation/RESULTS.md))*
 
 ---
 

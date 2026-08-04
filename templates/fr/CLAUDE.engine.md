@@ -263,6 +263,44 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 - **Ne jamais reconstruire un permalink à la main** à partir d'un identifiant + timestamp (souvent faux) : reprendre le lien fourni tel quel par l'outil.
 - **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA. Signaler quand on interprète plutôt qu'on restitue.
 
+### Discipline d'identité : lis le vault avant d'écrire sur les personnes qui s'y trouvent
+
+Un nom écrit dans le vault ne s'efface pas comme une supposition de conversation : il devient
+l'enregistrement contre lequel la **prochaine** résolution se résout. Un briefing a transformé le
+« Jérémy (front Candor) » de la source en « Jérémy Hinard », un nom de famille qui n'existe nulle part
+ailleurs que dans cette note, et qui est désormais indexé.
+
+- **Résous avant d'écrire.** Avant de nommer une personne dans une note, lis ce que le vault en dit
+  déjà : les fiches `people/` (celles de l'univers actif **et** celles, transverses, de la racine) et
+  les notes d'organisation. Le vault prime sur ta mémoire de la session comme sur le raccourci de la
+  source.
+- **N'invente jamais la moitié manquante d'une identité.** Un prénom sans nom de famille **reste un
+  prénom** : texte simple, jamais `[[people/…]]`, jamais complété par un nom que la source ne t'a pas
+  donné. Perdre un backlink coûte un clic ; une identité fabriquée est définitive.
+- **Interroge le vault avant de qualifier quoi que ce soit de nouveau.** Un fait n'est *nouveau* que
+  par rapport à ce que le vault contient déjà : lance un `search_vault` dessus avant de le présenter
+  comme une nouveauté. Une fiche disant « CTO Visma France (confirmé 04/06) » a été republiée en
+  « (non confirmé) » faute d'avoir demandé.
+- **Un lien n'est pas une personne.** Ne crée jamais une fiche `people/` dans le seul but de
+  satisfaire un lien `[[people/…]]` entrant : un lien cassé est un défaut du lien, répare-le là où il
+  a été écrit ou supprime-le. Créer la cible fait d'une mauvaise résolution la réponse du vault à la
+  question *qui existe*.
+- **Dis de qui il s'agit.** Un prénom est rarement unique (un vault réel : trois Romain, trois Marie,
+  deux Karim). Une fiche `people/` porte donc un bloc d'homonymie sous son titre (rôle, organisation,
+  et les autres fiches nommées), sinon elle déplace l'ambiguïté au lieu de la résoudre : le builder
+  refuse une personne dont le vault porte déjà le prénom tant que la spec ne dit pas `distinguish`.
+  Et quand un prénom seul correspond à plusieurs fiches sans rien pour les départager,
+  il est **non résolu** : texte simple, pas de lien.
+- **Dis à quel point c'est sûr.** Conforme ne veut pas dire vrai : le builder donne à chaque fiche le
+  même frontmatter propre et le même `/lint` au vert, donc un nom lu sur un organigramme et un nom
+  déduit d'un surnom en ressortent identiques. Une fiche `people/` porte donc un bloc de confiance :
+  ce sur quoi l'identité repose, dans l'échelle de la discipline d'affirmation ci-dessous
+  (✅ observé · 🟡 déduit ou probable · 🔴 non vérifié), jamais une seconde. Le builder refuse une
+  nouvelle fiche personne tant que la spec ne contient pas `confidence` (un niveau **et** sa base).
+  Réponds honnêtement plutôt que de choisir le niveau qui débloque l'écriture. Une fiche marquée 🟡 ou
+  🔴 est une piste, pas la réponse du vault : revérifie-la avant de résoudre quoi que ce soit contre
+  elle, et ne la laisse jamais devenir un acquis au seul motif qu'elle est écrite depuis un moment.
+
 ### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
 
 Une recherche renvoie ce qui est **pertinent**, jamais ce qui est **complet**. Donc quand rien ne

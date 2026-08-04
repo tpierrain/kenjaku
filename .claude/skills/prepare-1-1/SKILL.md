@@ -60,12 +60,19 @@ Read them there. What makes a 1-1 prep the **worst** place to break them:
 - **Reconcile first.** Does anything you retrieved contradict what you are about to write? This skill
   produced the field defect that proves it: it announced a role change as *"unconfirmed"* while the
   vault's own `people/` note recorded it **confirmed two months earlier**.
-- **The vault outranks the delta on anything about a person.** Read `vault/people/<name>.md` before
-  asserting who someone is, what their title is, or what they owe you. A bare first name stays a bare
-  first name.
 
 Markers are mandatory here too: ✅ observed and quoted · 🟡 inferred · 🔴 unverified negative or
 behavioural — and 🔴 is **never** safe to say out loud in the meeting.
+
+## Identity discipline
+
+**Same arrangement, same reason — [`sync-sources` § Identity discipline](../sync-sources/SKILL.md#identity-discipline)
+holds the rules; this skill obeys them.** Resolve against the vault before writing a person, never
+invent the missing half of a name, and ask the vault before calling anything new. Read them there.
+
+A 1-1 prep is where getting this wrong costs the most: every person in the file is **one of the two
+people in the room**. Getting their surname, their title or their reporting line wrong is not a
+broken backlink here — it is said to their face, or to their manager's.
 
 ## Step 2 — Writing the briefing
 
@@ -139,7 +146,7 @@ of completion, **update** the `updated:` date. Append-only on facts already reco
 - Do not make things up; flag a partial or low-quality source.
 - No empty section — omit it (except "KPI review" and "Recurring focus areas" in case B, to keep
   as a reminder even when empty, since these are the sections you must make your own).
-- Never a bare URL: `[text](url)`. Backlinks `[[people/firstname-lastname]]` (never a first name alone).
+- Never a bare URL: `[text](url)`. Backlinks `[[people/firstname-lastname]]` — no full name, no link: the name stays plain text.
 
 ## Refining this skill (that's the point of a meta skill)
 The structure above is a **starting point**. Make it yours: replace the example KPIs with

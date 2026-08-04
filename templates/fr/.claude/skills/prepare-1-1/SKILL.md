@@ -63,12 +63,20 @@ Va les lire là-bas. Ce qui fait d'une prep de 1-1 le **pire** endroit où les e
   écrire ? C'est cette skill qui a produit le défaut terrain qui le prouve : elle a annoncé un
   changement de rôle comme « non confirmé » alors que la fiche `people/` du vault l'enregistrait
   **confirmé deux mois plus tôt**.
-- **Le vault prime sur le delta pour tout ce qui touche à une personne.** Lire
-  `vault/people/<nom>.md` avant d'affirmer qui est quelqu'un, quel est son titre, ou ce qu'il·elle te
-  doit. Un prénom seul reste un prénom seul.
 
 Les marqueurs sont obligatoires ici aussi : ✅ observé et cité, 🟡 déduit, 🔴 négatif ou
 comportemental non vérifié, et un 🔴 n'est **jamais** sûr à dire à voix haute dans la réunion.
+
+## Discipline d'identité
+
+**Même dispositif, même raison : [`sync-sources` § Discipline d'identité](../sync-sources/SKILL.md#discipline-didentité)
+porte les règles, cette skill leur obéit.** Résoudre contre le vault avant d'écrire une personne, ne
+jamais inventer la moitié manquante d'un nom, et interroger le vault avant de qualifier quoi que ce
+soit de nouveau. Va les lire là-bas.
+
+Une prep de 1-1 est l'endroit où se tromper coûte le plus cher : chaque personne du fichier est
+**l'une des deux personnes présentes dans la pièce**. Se tromper de nom de famille, de titre ou de
+lien hiérarchique, ce n'est pas un backlink cassé ici : c'est dit en face, ou dit à son manager.
 
 ## Étape 2 — Écriture du briefing
 
@@ -142,7 +150,7 @@ preuve de réalisation, **mettre à jour** la date `updated:`. Append-only sur l
 - Ne pas inventer ; signaler une source partielle ou de mauvaise qualité.
 - Pas de section vide — l'omettre (sauf « Revue de KPI » et « Axes récurrents » en cas B, à garder
   comme rappel même vides, puisque ce sont les sections que tu dois t'approprier).
-- Jamais d'URL nue : `[texte](url)`. Backlinks `[[people/prenom-nom]]` (jamais de prénom seul).
+- Jamais d'URL nue : `[texte](url)`. Backlinks `[[people/prenom-nom]]` — pas de nom complet, pas de lien : le nom reste en texte simple.
 
 ## Affiner cette skill (c'est le but d'une skill méta)
 La structure ci-dessus est un **point de départ**. Rends-la tienne : remplace les KPI d'exemple par

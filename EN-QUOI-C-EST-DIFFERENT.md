@@ -34,6 +34,7 @@ Concretely, hole by hole:
 | No automatic persistence | Your answers/notes are **never saved**; everything is lost | **Auto-commit hook** (+ *opt-in* push) |
 | No indexing | Search **makes things up** instead of searching your notes | Automatic **incremental reindexing** of the RAG |
 | A note whose header the indexer can't read | The note is **never indexed** — invisible to search — while the counter reads *"pending"*, as if it were on its way | **Refused at write time**, by the engine's own parser, + a **vault ↔ index crosscheck** that names any note the two disagree about |
+| A colleague mentioned by first name only | The model **supplies the surname** it doesn't have, and that invented identity is indexed like any fact — then quoted back to you as one | The name is **resolved against your notes before anything is written**; unresolved, it stays plain text; a card says **which** homonym it is, and how sure that identity is |
 | Conversation not "rooted" in the brain | Mute hooks, out-of-vault answers — *and it seems to work* | Onboarding that **forces opening in the right place** + `pwd` check |
 | `node` installed via nvm, invisible to GUI hooks | Auto-commit **silently broken** | **`run-node`** wrapper that re-resolves the toolchain on every run |
 | Install on a bare machine | Half-working **"Frankenstein"** state, undiagnosable | **"Fail-loud" verification** at install — proves it or fails plainly |
@@ -139,7 +140,8 @@ by using it: your notes, your rules (`CLAUDE.md`), your skills.
    not findable outside the vault): if the right answer comes out, it means the brain genuinely queried
    **your** data and not the Internet. And when a search comes back empty, it tells you **"I found
    nothing"** — never *"nobody decided"*: a silence it has not verified is reported as a silence, not
-   promoted into a fact.
+   promoted into a fact. The same rule applies to **people**: a first name it cannot resolve against
+   your notes stays a first name, never a surname it filled in for you.
 
 And a rare stance: **safe by construction.** The brain **takes no action** on your
 tools — it **reads and answers**, period. Nothing goes out in your name. (Action capabilities can be
