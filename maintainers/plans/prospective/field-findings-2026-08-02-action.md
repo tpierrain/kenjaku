@@ -559,7 +559,11 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME HERE — THE REVIEW HAS LANDED, AND THE NEXT ACT IS TO FIX ITS SIX FINDINGS, TDD, IN
+> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ① IS DONE AND PUSHED (`e34c3ae`), RESUME AT ②.**
+> The owner asked for autonomous work (2026-08-04); each fix lands as its own green, pushed commit and
+> its box is ticked here as it lands, so a `/clear` resumes at the first unticked one.
+>
+> **THE REVIEW HAS LANDED, AND THE ACT IS TO FIX ITS SIX FINDINGS, TDD, IN
 > ORDER ①→⑥.** They are listed with their verification, their fix and their order in Step 12.5's
 > checkbox *"The six findings, in the order I recommend treating them"* — **read them there, they are
 > not restated here, and do NOT re-run the review or re-verify them: each was already re-run against
@@ -822,7 +826,13 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         (2026-08-04): all six, TDD, red first, and ③ ships in THIS release.** ① and ② each need **two**
         reds: the defect, and the guard that missed it. Tick each box with its commit as it lands, so a
         `/clear` mid-sequence resumes at the first unticked one.
-    - [ ] **① `engine-skills/consolidate/SKILL.md:94` — the other write-door still carries the
+    - [x] **① DONE** _(2026-08-04 · `e34c3ae`)_ — the wording is the producer's own action form, and
+          the guard's carrier list is now **derived from the repo**: every `SKILL.md` under the three
+          skill roots that hands a fenced `prompt="""` to a sub-agent must be listed, or it goes red.
+          Two reds, both verified fail-first: the coverage assertion named
+          `engine-skills/consolidate/SKILL.md` before the fix, then the phrasing assertion failed on it.
+          Suite green (1318 tests, 1317 pass, 1 skipped Windows-only). Original entry, kept:
+          **`engine-skills/consolidate/SKILL.md:94` — the other write-door still carries the
           wording that MANUFACTURED F7.** Verified: the file still reads *"Backlinks kebab-case, no
           accents, never a first name alone."*, inside a fenced `Agent(prompt=…)` block handed
           verbatim to sub-agents, and it holds **no** *"no full name, no link"*. So a sub-agent handed
