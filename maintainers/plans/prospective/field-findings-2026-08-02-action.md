@@ -795,9 +795,55 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         67-commit silence that preceded v4.5.0's blocker never had a chance to build.
   - [x] **RESULTS.md § v4.6.0 written** _(2026-08-03 · `5b57c7e`)_ — per-file numbers, the finding,
         and every equivalent with the reason it is one.
-  - [ ] **⏸️ WAITING ON THE OWNER'S `/code-review ultra 55`** _(they chose to run it, 2026-08-03)_.
-        It is theirs to trigger — I cannot. **When its verdict lands: treat the findings first**, then
-        the tail below. Nothing else is pending.
+  - [x] **✅ THE REVIEW HAS LANDED** _(2026-08-04)_ — 8 candidates, **6 findings** after verification
+        and dedup. **I re-ran every one of them against the code myself: all six are REAL** (the
+        traversal was reproduced, not reasoned about). Session
+        `https://claude.ai/code/session_01YYtb3j4TFGN9SuP85TTZuA`; it posted **nothing to the PR**.
+        The one candidate that did NOT survive: *"refreshNote promotes the confidence field without
+        adding the visible block"*. Mechanically the no-op IS there (no `> **Confidence** — ` line in
+        the body → the `replace` does nothing while the frontmatter field moves), but it needs a card
+        that lacks the block, and no verdict backs it. **Left open, not silently dropped** — settle it
+        with a test before claiming either way.
+  - [ ] **The six findings, in the order I recommend treating them.** Fix each one TDD, red first.
+    - [ ] **① `engine-skills/consolidate/SKILL.md:94` — the other write-door still carries the
+          wording that MANUFACTURED F7.** Verified: the file still reads *"Backlinks kebab-case, no
+          accents, never a first name alone."*, inside a fenced `Agent(prompt=…)` block handed
+          verbatim to sub-agents, and it holds **no** *"no full name, no link"*. So a sub-agent handed
+          a bare first name is still ordered to produce a `[[people/…]]` link and forbidden from the
+          short form: inventing the surname stays the only exit. **This makes the PR body's claim
+          false** (*"the producer, which every consumer reuses"*). The guard's own comment predicted
+          this drift and its `SKILLS` array simply never iterates the file (`WRITE_DOORS` does, but
+          only checks `distinguish` and the section anchor). Fix = the sync-sources phrasing + add the
+          file to `SKILLS`. **This is the one that matters; it reopens the release's headline defect.**
+    - [ ] **② `scripts/lib/status-hook-output.mjs:30` — the new emitter escapes the F5 audit.**
+          Verified: `grep -c "additionalContext:"` on the file returns **0**, because it assigns
+          (`obj.additionalContext = …`) while the guard filters on the literal `"additionalContext:"`.
+          The pinned list stays at four and goes green. No runtime leak (the payload is ~90 chars) —
+          **what breaks is the guard**, exactly as its own header warns ("a guard that silently stops
+          matching is worse than no guard"). Fix = object-literal form + add to the pinned list + a
+          bound test carrying the `volume IS the defect (F5)` marker.
+    - [ ] **③ `scripts/refresh-note.mjs:66` — vault containment bypassed by a backslash path, and I
+          REPRODUCED it.** `join("/brain/vault", "..\\outside.md")` leaves the backslash literal on
+          POSIX; `toPosix()` then turns it into `/brain/vault/../outside.md`, which **passes**
+          `startsWith(vaultDir + "/")` and is resolved by `fs` to the escaped target. Read AND write.
+          **Pre-existing** (the branch does not introduce it) but the branch widens the payload by
+          forwarding the free-form `confidence.basis` into the written file, and the spec arrives on
+          stdin from an LLM invocation — the injection surface this very release names. Fix =
+          `resolve` + `relative` re-check, plus a backslash test next to the existing `../../` one.
+          **Scope call for the owner: ship it here or as a follow-up.**
+    - [ ] **④ `scripts/lib/note-refresh.mjs:98` — `$` sequences in the basis corrupt the block.** The
+          template **string** handed to `body.replace()` expands `$&`, `` $` ``, `$'`, `$$`. Narrow
+          (needs those characters in prose) but silent, and it lands the page in the exact
+          two-different-things state the comment four lines above swears it prevents. Fix = function
+          replacement.
+    - [ ] **⑤ `.claude/skills/prepare-1-1/SKILL.md:63` — a missing blank line, EN only.** Verified
+          against the FR sibling, which has it. Under CommonMark the "Markers are mandatory" paragraph
+          becomes a lazy continuation of the previous bullet instead of applying to the whole section.
+          Cosmetic for an LLM reader, real EN/FR drift for a human one.
+    - [ ] **⑥ `release-v4.6.0-pr-body.md:31` — the PR body contradicts the note it points at.** The
+          body still says the label *"had been computed since v4.2.0"*; commit `2f16a1b` looked this
+          up in git and corrected the **note** to v3.0.0, without carrying the fix across. A
+          reviewer-facing marketing surface asserting a number the author already disproved.
     - [ ] **Checked at a resume, 2026-08-03**: `gh pr view 55` shows **no review and no comment** on the
           PR, so the verdict has NOT landed yet; the owner confirmed they are launching it now. **On the
           next resume, look at the PR again before asking anything** — and if it has landed, treat the
