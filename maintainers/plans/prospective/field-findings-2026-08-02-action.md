@@ -559,7 +559,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ①②③ ARE DONE AND PUSHED (`e34c3ae`, `53b0560`, `6c5a072`), RESUME AT ④.**
+> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ①②③④ ARE DONE AND PUSHED (`e34c3ae`, `53b0560`, `6c5a072`, `9377c17` + `41cf186`), RESUME AT ⑤ (the two doc findings).**
 > The owner asked for autonomous work (2026-08-04); each fix lands as its own green, pushed commit and
 > its box is ticked here as it lands, so a `/clear` resumes at the first unticked one.
 >
@@ -873,7 +873,15 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           stdin from an LLM invocation — the injection surface this very release names. Fix =
           `resolve` + `relative` re-check, plus a backslash test next to the existing `../../` one.
           **Scope call for the owner: ship it here or as a follow-up.**
-    - [ ] **④ `scripts/lib/note-refresh.mjs:98` — `$` sequences in the basis corrupt the block.** The
+    - [x] **④ DONE** _(2026-08-04 · `9377c17`, plus the class sweep `41cf186`)_ — function replacement.
+          The red printed the corruption in full (the ✅ block containing the old 🟡 block). Then the
+          **class** was swept rather than the instance patched: `repairWin32NodePrefix` injects the
+          owner's own folder path (`$` and `&` are legal in a Windows folder name) and was fixed the same
+          way, red first on `my$$brain` → `my$brain`; `restampUniverse` looks identical but is **not
+          reachable** (its only caller normalises the name, stripping every non-alphanumeric) — checked,
+          recorded, not "fixed". Suite green (1322 tests, 1321 pass, 1 skipped Windows-only). Original
+          entry, kept: **`scripts/lib/note-refresh.mjs:98` — `$` sequences in the basis corrupt the
+          block.** The
           template **string** handed to `body.replace()` expands `$&`, `` $` ``, `$'`, `$$`. Narrow
           (needs those characters in prose) but silent, and it lands the page in the exact
           two-different-things state the comment four lines above swears it prevents. Fix = function
