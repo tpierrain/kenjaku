@@ -332,6 +332,25 @@ Front-end at Candor.
   );
 });
 
+test("a basis carrying `$` sequences lands verbatim, not expanded by the replace", () => {
+  // Found by review. The replacement was handed to `String.prototype.replace` as a
+  // STRING, so `$&`, `` $` ``, `$'` and `$$` in it are replacement patterns: the
+  // basis is free-form prose written by an LLM about a source, and a rate quoted
+  // as "$500" next to a "$&" would splice the OLD block back into the new one.
+  // Silent, and it lands the page in the exact two-different-things state the
+  // comment four lines above the replace swears it prevents.
+  const basis = "he quoted $500/day in #candor, and the thread cites $& and $` verbatim.";
+  const out = refreshNote({
+    content: CARD,
+    today: "2026-08-03",
+    confidence: { level: "observed", basis },
+  });
+
+  assert.match(out, new RegExp(`^> \\*\\*Confidence\\*\\* — ✅ observed · ${basis.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"));
+  assert.equal(out.match(/^> \*\*Confidence\*\*/gm).length, 1, "exactly one block, not a spliced pair");
+  assert.doesNotMatch(out, /derived or probable/, "the old marker must be gone, not re-injected by `$&`");
+});
+
 test("a frontmatter VALUE mentioning confidence: is not mistaken for the field", () => {
   // Same shape as the `updated:`-suffix test above, and the same damage: the
   // rewrite would land on someone else's line and destroy it (F12 was one

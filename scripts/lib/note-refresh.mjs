@@ -95,7 +95,11 @@ export function refreshNote({ content, today, section, confidence }) {
     const key = lines.findIndex((l) => /^confidence:/.test(l));
     if (key === -1) lines.push(`confidence: ${confidence.level}`);
     else lines[key] = `confidence: ${confidence.level}`;
-    body = body.replace(/^> \*\*Confidence\*\* — .*$/m, `> **Confidence** — ${rendered}`);
+    // A FUNCTION replacement, never a string: the basis is free-form prose about a
+    // source, and a string replacement expands `$&`, `` $` ``, `$'` and `$$` — a
+    // basis quoting a rate as "$500" beside a "$&" spliced the OLD block back into
+    // the new one, which is the two-different-things state this block exists to end.
+    body = body.replace(/^> \*\*Confidence\*\* — .*$/m, () => `> **Confidence** — ${rendered}`);
   }
 
   body = body.replace(/\s*$/, "");
