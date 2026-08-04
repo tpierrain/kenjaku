@@ -235,6 +235,23 @@ test("repairWin32NodePrefix — repairs a single command string (used for status
   );
 });
 
+test("repairWin32NodePrefix — a `$` in the brain's own path survives the repair verbatim", () => {
+  // Same class as the confidence-block defect found by review: the replacement was
+  // handed to `replace` as a string, so `$&`, `` $` ``, `$'` and `$$` in it expand.
+  // Here the injected value is the OWNER'S FOLDER PATH — `$` and `&` are both legal
+  // in a Windows folder name — and the damage is silent: the hook command is written
+  // into settings.json pointing at a launcher that is not there, so every session of
+  // that brain starts with a broken hook.
+  assert.equal(
+    repairWin32NodePrefix('cmd /c "C:\\Users\\x\\my$$brain\\scripts\\run-node.cmd" "x.mjs"', "C:/Users/x/my$$brain"),
+    'C:/Users/x/my$$brain/scripts/run-node.cmd "x.mjs"',
+  );
+  assert.equal(
+    repairWin32NodePrefix('cmd /c "C:\\Users\\x\\a$&b\\scripts\\run-node.cmd" "x.mjs"', "C:/Users/x/a$&b"),
+    'C:/Users/x/a$&b/scripts/run-node.cmd "x.mjs"',
+  );
+});
+
 // ── detectHookGap — the pure bootstrap drift gate (mirrors detectSelfHealGap) ──
 // session-status uses it to decide whether to spawn the one-time reconcile on a
 // pre-3.2 brain. A converged brain → not needed → the hook stays a TRUE no-op.
