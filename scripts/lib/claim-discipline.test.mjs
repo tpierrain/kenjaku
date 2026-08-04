@@ -183,7 +183,11 @@ for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
 for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
   test(`${locale} prepare-1-1: the markers rule stands on its own, not as a bullet's tail`, () => {
     const marker = locale === "FR" ? /^Les marqueurs sont obligatoires/m : /^Markers are mandatory/m;
-    const text = read(path);
+    // Line endings normalised FIRST: git checks these files out with CRLF on
+    // Windows, so a guard comparing against "\n\n" fails there on typography
+    // rather than on meaning — the failure this repo has now met three times
+    // (CONVENTIONS §9). What is asserted is the blank line, not its bytes.
+    const text = read(path).split("\r\n").join("\n");
     const at = text.search(marker);
     assert.notEqual(at, -1, "the markers rule must still be there at the start of a line");
     assert.equal(
