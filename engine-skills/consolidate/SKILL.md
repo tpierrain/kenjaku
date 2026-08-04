@@ -91,7 +91,7 @@ TASK:
 
 RULES:
 - Do NOT invent anything absent from the captures.
-- Backlinks kebab-case, no accents, never a first name alone.
+- Backlinks kebab-case, no accents. No full name, no link: the name stays plain text.
 - NEVER a shell (grep/cat/node -e/awk/sed/jq…) to read or split content — use the Read tool; summarise by reasoning.
 """
 )

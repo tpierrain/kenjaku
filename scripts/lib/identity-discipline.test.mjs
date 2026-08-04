@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, sep } from "node:path";
 import { docSection } from "./doc-section.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -328,7 +328,39 @@ test("consolidate resolves a person candidate instead of trusting the mention co
 const LINKLESS_EN = /no full name[^.\n]*no link/i;
 const LINKLESS_FR = /pas de nom complet[^.\n]*pas de lien/i;
 
-for (const { name, locale, path } of SKILLS) {
+// Every skill that hands a fenced prompt to a sub-agent is a carrier of this
+// trap, and the list below must be DERIVED from the repo rather than kept by
+// hand: `engine-skills/consolidate` spawned sub-agents from the day it shipped,
+// carried the banned phrasing verbatim, and this guard iterated `SKILLS` — four
+// files that never included it. The rule read green for a release while the
+// other write-door still ordered the invention.
+const PROMPT_CARRIERS = [
+  ...SKILLS,
+  { name: "consolidate", locale: "EN", path: CONSOLIDATE },
+];
+
+const SKILL_ROOTS = [".claude/skills", "templates/fr/.claude/skills", "engine-skills"];
+const SPAWNS_SUBAGENTS = /^\s*prompt="""/m;
+
+const skillFilesUnder = (root) =>
+  readdirSync(join(REPO_ROOT, root), { recursive: true, encoding: "utf8" })
+    .filter((rel) => rel.endsWith("SKILL.md"))
+    .map((rel) => `${root}/${rel.split(sep).join("/")}`);
+
+test("every skill that spawns sub-agents is covered by the prompt-text guard", () => {
+  const carriers = SKILL_ROOTS.flatMap(skillFilesUnder).filter((path) =>
+    SPAWNS_SUBAGENTS.test(read(path)),
+  );
+  assert.ok(carriers.length > 0, "the discovery itself must find something, or this guard proves nothing");
+  const uncovered = carriers.filter((path) => !PROMPT_CARRIERS.some((c) => c.path === path));
+  assert.deepEqual(
+    uncovered,
+    [],
+    "a skill handing a prompt to a sub-agent and unlisted here is exactly how the wording that manufactured the invention survived a release",
+  );
+});
+
+for (const { name, locale, path } of PROMPT_CARRIERS) {
   test(`${locale} ${name}: an unresolved first name yields NO link, and the old ban is gone`, () => {
     const text = read(path);
     assert.doesNotMatch(
