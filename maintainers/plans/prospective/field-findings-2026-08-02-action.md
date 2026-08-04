@@ -559,10 +559,24 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME AT STEP 12.5 — THE RELEASE IS ASSEMBLED, CI IS 7/7, AND IT IS WAITING ON ONE THING:
-> THE OWNER'S `/code-review ultra 55`.** They chose to run it (2026-08-03); I cannot trigger it.
-> **On resume: if the review has landed, treat its findings; if not, ask whether it ran — do not
-> re-do the release work, and do not re-ask the title question.**
+> **⏭️ RESUME HERE — THE REVIEW HAS LANDED, AND THE NEXT ACT IS TO FIX ITS SIX FINDINGS, TDD, IN
+> ORDER ①→⑥.** They are listed with their verification, their fix and their order in Step 12.5's
+> checkbox *"The six findings, in the order I recommend treating them"* — **read them there, they are
+> not restated here, and do NOT re-run the review or re-verify them: each was already re-run against
+> the code, and the traversal was reproduced.** Nothing is started on disk; the branch is at
+> `335817b`, green and pushed.
+>
+> **✅ DECIDED (2026-08-04, by the owner), two calls — do not re-open either:**
+> - **The traversal (③) ships INSIDE v4.6.0**, not as a follow-up. It is pre-existing, but the branch
+>   touches that very function and widens what an escaped write can carry.
+> - **All six are treated in TDD**, red first. For ① and ② that means **two reds each**: the defect
+>   itself, *and* the guard that should have caught it and did not (`identity-discipline.test.mjs`'s
+>   `SKILLS` array never iterates `consolidate`; the F5 audit filters on the literal
+>   `"additionalContext:"` and so cannot see an assignment). Fixing the defect without fixing its
+>   guard would leave this release repeating, a fourth time, the failure it is named after.
+>
+> **Then, and only then, the release tail** (title into the note H1 + PR title, undraft, merge, tag,
+> publish, archive) — it is the last checkbox of Step 12.5 and is unchanged by the review.
 >
 > Done and pushed _(2026-08-03, `e57fc6f` → `2f16a1b`)_: the mutation pass (7 files, measured, treated
 > and **re-measured** — all ≥ 96 %, two at 100 %, every survivor a pre-listed equivalent), the version
@@ -804,7 +818,10 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         the body → the `replace` does nothing while the frontmatter field moves), but it needs a card
         that lacks the block, and no verdict backs it. **Left open, not silently dropped** — settle it
         with a test before claiming either way.
-  - [ ] **The six findings, in the order I recommend treating them.** Fix each one TDD, red first.
+  - [ ] **The six findings, in the order to treat them. ✅ ORDER AND SCOPE APPROVED BY THE OWNER
+        (2026-08-04): all six, TDD, red first, and ③ ships in THIS release.** ① and ② each need **two**
+        reds: the defect, and the guard that missed it. Tick each box with its commit as it lands, so a
+        `/clear` mid-sequence resumes at the first unticked one.
     - [ ] **① `engine-skills/consolidate/SKILL.md:94` — the other write-door still carries the
           wording that MANUFACTURED F7.** Verified: the file still reads *"Backlinks kebab-case, no
           accents, never a first name alone."*, inside a fenced `Agent(prompt=…)` block handed
