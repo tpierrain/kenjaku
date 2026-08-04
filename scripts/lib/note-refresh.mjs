@@ -53,6 +53,34 @@ export function duplicateFrontmatterKeys(content) {
   return dupes;
 }
 
+const CONFIDENCE_BLOCK = /^> \*\*Confidence\*\* — .*$/m;
+
+/**
+ * Returns `body` with the confidence block written in the builder's own slot: under
+ * the H1, after the homonymy block when there is one, above the prose. Used only
+ * when the page carries no block yet — every card written before this shipped is in
+ * exactly that shape, and moving the field alone would leave a card that says how
+ * sure it is to a `grep` and nothing at all to the human reading it in Obsidian.
+ * Pure.
+ */
+function insertConfidenceBlock(body, line) {
+  const lines = body.split("\n");
+  const h1 = lines.findIndex((l) => /^# /.test(l));
+  if (h1 === -1) return `${line}\n\n${body}`;
+  let at = h1 + 1;
+  // Past the blank line, then past the homonymy block if the card has one: WHICH
+  // one comes before HOW SURE, because it is what makes the card usable to the
+  // next resolution. Inserting higher would rewrite, one refresh at a time, a
+  // layout the builder guarantees on every new card.
+  while (at < lines.length && lines[at].trim() === "") at += 1;
+  if (at < lines.length && /^> \*\*Which one\*\* — /.test(lines[at])) {
+    at += 1;
+    while (at < lines.length && lines[at].trim() === "") at += 1;
+  }
+  lines.splice(at, 0, line, "");
+  return lines.join("\n");
+}
+
 /**
  * Returns the page's content with `updated:` set to `today` (replaced in place, or
  * appended to the frontmatter when the page had none) and `section` appended to the
@@ -99,7 +127,10 @@ export function refreshNote({ content, today, section, confidence }) {
     // source, and a string replacement expands `$&`, `` $` ``, `$'` and `$$` — a
     // basis quoting a rate as "$500" beside a "$&" spliced the OLD block back into
     // the new one, which is the two-different-things state this block exists to end.
-    body = body.replace(/^> \*\*Confidence\*\* — .*$/m, () => `> **Confidence** — ${rendered}`);
+    const line = `> **Confidence** — ${rendered}`;
+    body = CONFIDENCE_BLOCK.test(body)
+      ? body.replace(CONFIDENCE_BLOCK, () => line)
+      : insertConfidenceBlock(body, line);
   }
 
   body = body.replace(/\s*$/, "");

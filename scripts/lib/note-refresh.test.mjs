@@ -295,10 +295,18 @@ Front-end at Candor.
   );
 });
 
-test("promoting a card that has NO confidence yet appends the field", () => {
+test("promoting a card that has NO confidence yet appends the field AND writes the block", () => {
   // Every card written before this shipped is in exactly this shape, so this is
   // the ordinary promotion, not an edge case: without the append, a re-verified
   // pre-v4.6.0 card could never record that it was confirmed.
+  //
+  // The block is written too — the review raised this as a candidate and it was
+  // left open, so here is the answer. A promotion that moves only the field leaves
+  // a card that says how sure it is to a `grep` and says nothing at all to the
+  // human reading it in Obsidian, while every card the builder writes shows the
+  // marker. The rule this release ships is that the card SAYS how sure it is, so
+  // the two halves move together, in the builder's own slot: under the H1, after
+  // the "Which one" block when there is one, above the body.
   const card = `---
 type: person
 created: 2026-06-02
@@ -327,7 +335,53 @@ confidence: probable
 
 # Jérémy Hinard
 
+> **Confidence** — 🟡 derived or probable · the Candor org note, 2026-06.
+
 Front-end at Candor.
+`,
+  );
+});
+
+test("the promoted block lands under the homonymy block, never above it", () => {
+  // The builder's own order: "Which one" first (it is what makes the card usable
+  // to the next resolution), then how sure that resolution is. A promotion that
+  // inserted itself higher would rewrite, one refresh at a time, a layout the
+  // builder guarantees on every new card.
+  const card = `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+---
+
+# Romain Durand
+
+> **Which one** — back-end at Candor, not the Romain at Acme.
+
+Back-end at Candor.
+`;
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "probable", basis: "the Candor org note, 2026-06." },
+  });
+  assert.equal(
+    out,
+    `---
+type: person
+created: 2026-06-02
+updated: 2026-08-03
+tags: [candor]
+confidence: probable
+---
+
+# Romain Durand
+
+> **Which one** — back-end at Candor, not the Romain at Acme.
+
+> **Confidence** — 🟡 derived or probable · the Candor org note, 2026-06.
+
+Back-end at Candor.
 `,
   );
 });

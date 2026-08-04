@@ -93,7 +93,8 @@ This edit is the brain's normal confirmed write (the auto-commit hook persists i
 
 **Promoting a confidence marker.** When a card marked 🟡 or 🔴 is later confirmed, do **not** hand-edit
 its frontmatter (that is how a page ended up with two `updated:` keys and became unreadable). Pipe the
-new level to `/refresh-note`, which rewrites the field **and** the visible block together:
+new level to `/refresh-note`, which rewrites the field **and** the visible block together — and writes
+that block for the first time on a card that predates it, in the builder's own slot:
 ```bash
 echo '{"path":"people/jane-doe.md","confidence":{"level":"observed","basis":"her own intro in #general, 2026-08-03."}}' \
   | node scripts/refresh-note.mjs
