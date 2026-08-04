@@ -7,7 +7,7 @@ surname that exists nowhere, a fact confirmed two months earlier was republished
 created for a colleague who occurs exactly once in the whole vault: in her own title.
 
 **The user-facing note is the source of truth for what ships:**
-[`maintainers/plans/prospective/release-v4.6.0-note.md`](maintainers/plans/prospective/release-v4.6.0-note.md).
+[`maintainers/plans/archived/release-v4.6.0-note.md`](release-v4.6.0-note.md).
 
 ### What is in it
 

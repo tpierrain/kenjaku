@@ -164,18 +164,19 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — v4.6.0, the vault's identity. Steps 1-11 (all of v4.5.0) are HISTORY.**
-> v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7) — see `## Step 11` for what
-> that means and where its artefacts live. **The live work is now `## Step 12 — v4.6.0`**, whose ordered
-> steps are there and whose evidence stays in the **P1** entries. _(Side work done 2026-08-03 and
-> finished, unrelated: `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the
+> **⏭️ THE RESUME POINT — v4.7.0, visibility. Steps 1-12 (all of v4.5.0 AND v4.6.0) are HISTORY.**
+> v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7) and **v4.6.0 shipped
+> 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`, release published) — see
+> `## Step 11` and `## Step 12` for what they mean and where their artefacts live. **The live work is
+> now `## Step 13 — v4.7.0`**, whose findings stay in the **P1/P3** entries. _(Side work done 2026-08-03
+> and finished, unrelated: `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the
 > plan/`/clear` convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
-> **v4.7.0 (visibility) stays behind v4.6.0** and keeps its own findings: F13, F3, F10, F8, F9, F2, plus
-> the two banner defects routed there from P0 (a cached verdict rendered with live authority; an
-> `unknown` check displayed under "found a problem" — the latter already pinned by a test that names it),
-> plus **F19, the always-loaded instruction layer that only ever grows** (raised and measured
-> 2026-08-04, filed in P3 — its numbers are there, do not re-measure them).
+> **v4.7.0 (visibility) is the last leg of the trilogy** and keeps its own findings: F13, F3, F10, F8,
+> F9, F2, plus the two banner defects routed there from P0 (a cached verdict rendered with live
+> authority; an `unknown` check displayed under "found a problem" — the latter already pinned by a test
+> that names it), plus **F19, the always-loaded instruction layer that only ever grows** (raised and
+> measured 2026-08-04, filed in P3 — its numbers are there, do not re-measure them).
 
 ## Step 11 — the v4.5.0 release — ✅ SHIPPED (2026-08-03, tag `v4.5.0`, PR #54, CI 7/7)
 
@@ -559,8 +560,8 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME HERE — ALL SIX REVIEW FIXES ARE DONE AND PUSHED. WHAT IS LEFT IS THE RELEASE TAIL, AND
-> ITS PUBLIC HALF IS THE OWNER'S CALL.** Done autonomously 2026-08-04, each in TDD with the red verified
+> **✅ STEP 12.5 IS CLOSED — the six review fixes shipped and so did the release** _(v4.6.0, 2026-08-04)_.
+> Nothing below is pending; it is kept because it explains what the tag contains. Done autonomously 2026-08-04, each in TDD with the red verified
 > first, each its own green pushed commit: ① `e34c3ae`, ② `53b0560`, ③ `6c5a072`, ④ `9377c17` (+ the
 > class sweep `41cf186`), ⑤ `f7a00fc`, ⑥ `b3cabf9`. The chosen title is now in the note's H1, in the PR
 > body and in the **PR title on GitHub** (`cc0a3ae`); the live PR body was re-synced, so the surface a
@@ -580,7 +581,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   the "Which one" block — WHICH one before HOW SURE), two reds first, and both write-door skills say
 >   so. **Do not re-open it as "left open".**
 >
-> **What remains, in order** — the plan's own tail, plus one item the fixes themselves created:
+> **The tail, as it was run** — the plan's own, plus one item the fixes themselves created. All done:
 > - [x] **RE-MEASURE MUTATION ON WHAT THE FIXES CHANGED — DONE** _(2026-08-04)_. RESULTS.md § v4.6.0 was measured **before**
 >       these seven commits, and four production files changed since: `scripts/lib/note-refresh.mjs`,
 >       `scripts/refresh-note.mjs`, `scripts/lib/hooks-reconcile.mjs`, `scripts/lib/status-hook-output.mjs`.
@@ -624,21 +625,23 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       78.69 % file instead of implying everything touched is ≥ 96 %, and two overclaims are repaired in
 >       both artifacts (the producer/consumer reuse, and the promotion writing the visible block on cards
 >       you already have).
-> - [ ] **⏭️ THE ONLY REMAINING STEP — the public tail. Ask the owner first; it is outward-facing and
->       effectively irreversible, which is why it was deliberately NOT done autonomously.** In order,
->       and nothing here needs re-deriving:
->   - [ ] **Re-check CI on the tip** (`gh run list --branch release/v4.6.0`), against the head SHA, never
->         the PR's colour. It was green on `701b45b`; only documentation commits followed the last code
->         change.
->   - [ ] `gh pr ready 55` (undraft), then merge. The PR title and body are already correct on GitHub.
->   - [ ] Tag **`v4.6.0`** on the merge commit and publish the release, whose text is
->         `maintainers/plans/prospective/release-v4.6.0-note.md` (its H1 already carries the chosen
->         title, `The One Where It Asks Which One You Mean`).
->   - [ ] **Archive** both artifacts into `maintainers/plans/archived/` as
->         `release-v4.6.0-note.md` and `release-v4.6.0-pr-body.md` — the shape Step 11 used for v4.5.0.
->   - [ ] **This plan file is NOT archived**: v4.7.0 (visibility) still lives in it — F13, F3, F10, F8,
->         F9, F2, the two banner defects routed from P0, and F19. Update the header note to make v4.7.0
->         the live work once v4.6.0 is out.
+> - [x] **✅ THE PUBLIC TAIL IS DONE — v4.6.0 IS OUT** _(2026-08-04)_. The owner was asked first, as
+>       planned (it is outward-facing and effectively irreversible), and said go. What happened:
+>   - [x] **CI re-checked on the tip**, against the head SHA rather than the PR's colour: **7/7 green on
+>         `7ab8f82`** (Node 22/24/26 × macOS + Windows, plus the Windows installer e2e).
+>   - [x] **Title re-opened by the owner and re-settled** _(2026-08-04)_ — three candidates were put up
+>         (the homonymy one in place, "The One Where It Stops Making People Up", "The One Where Your
+>         Notes Get the Last Word") and the owner **kept `v4.6.0 — The One Where It Asks Which One You
+>         Mean`**. Nothing to resynchronise: it was already correct on the note's H1, the PR body and the
+>         PR title. **Do not re-open it.**
+>   - [x] `gh pr ready 55` (undraft), then merged — merge commit **`c0b2b16`** on `main`.
+>   - [x] Tag **`v4.6.0`** on `c0b2b16`, pushed, and the **release is published**:
+>         <https://github.com/tpierrain/kenjaku/releases/tag/v4.6.0>. Body = the note minus its H1 (the
+>         title lives in the release title), the shape v4.5.0 used.
+>   - [x] **Both artifacts archived** into `maintainers/plans/archived/` as `release-v4.6.0-note.md` and
+>         `release-v4.6.0-pr-body.md`, next to v4.5.0's.
+>   - [x] **This plan file is NOT archived**: v4.7.0 (visibility) still lives in it, and the header now
+>         says so — see `## Step 13`.
 >
 > **HISTORY, kept because it explains the six fixes above.** The review landed 2026-08-04 with six
 > findings, each verified against the code before being written down (the traversal was reproduced, not
@@ -874,11 +877,11 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         under-claims, which is not a false promise; nothing on any board asserts something the code
         stopped doing.
   - [x] **Release note drafted** _(2026-08-03 · `f507942`)_ —
-        `maintainers/plans/prospective/release-v4.6.0-note.md`, §11 shape, no finding codes, and it
+        `maintainers/plans/archived/release-v4.6.0-note.md`, §11 shape, no finding codes, and it
         carries the startup version segment left over from Step 12.0. Two placeholders on purpose: the
         title, and the mutation/CI blocks (filled from measurements, not from intent).
   - [x] **PR body written and PR OPEN** _(2026-08-03 · `1eb6c7b`)_ — **draft PR #55**,
-        `prospective/release-v4.6.0-pr-body.md`. Its title is a placeholder on purpose (the release
+        `archived/release-v4.6.0-pr-body.md`. Its title is a placeholder on purpose (the release
         title is the owner's call, below) and must be rewritten before the merge.
   - [x] **TITLE CHOSEN BY THE OWNER** _(2026-08-03)_: **`v4.6.0 — The One Where It Asks Which One You
         Mean`**. Do not re-open it, and do not re-run the three-candidate question. It still has to be
@@ -978,49 +981,93 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           body still says the label *"had been computed since v4.2.0"*; commit `2f16a1b` looked this
           up in git and corrected the **note** to v3.0.0, without carrying the fix across. A
           reviewer-facing marketing surface asserting a number the author already disproved.
-    - [ ] **Checked at a resume, 2026-08-03**: `gh pr view 55` shows **no review and no comment** on the
+    - [x] **Checked at a resume, 2026-08-03**: `gh pr view 55` shows **no review and no comment** on the
           PR, so the verdict has NOT landed yet; the owner confirmed they are launching it now. **On the
           next resume, look at the PR again before asking anything** — and if it has landed, treat the
           findings before touching the tail. The release itself is assembled and needs no re-doing.
-    - [ ] **LAUNCHED and STILL RUNNING, 2026-08-04** — session
+    - [x] **LAUNCHED and STILL RUNNING, 2026-08-04** — session
           `https://claude.ai/code/session_01YYtb3j4TFGN9SuP85TTZuA`. It posts **nothing to the PR**
           (`gh pr view 55` stays at 0 reviews / 0 comments), so the PR is not the place to look: the
           session page is. State when read: search done (**8 candidates**), verify in progress
           (2 confirmed / 0 refuted and climbing), dedup pending. ⚠️ **`get_page_text` on that page
           returned a stale "Révision arrêtée"** while a screenshot showed it live with a counter moving
           — **trust the screenshot**, not the text extraction.
-    - [ ] **The 8 candidates, recorded so the list survives a `/clear`** (candidates, NOT findings —
-          only the first two are confirmed so far):
-      - [ ] ✅ *confirmed* — `scripts/lib/note-refresh.mjs:92` **the confidence line is corrupted when
+    - [x] **The 8 candidates, recorded so the list survives a `/clear`** — **ALL EIGHT ARE NOW SETTLED**
+          _(2026-08-04)_: six became findings ① to ⑥ above and are fixed; the two `note-refresh.mjs`
+          `$`-sequence entries were the same defect (deduped into ④); and the ninth-hour candidate
+          *"promotes the field without adding the visible block"* was settled as a **real defect** and
+          fixed in `2fac4ee`. Nothing here is open. _(Original list, kept as the trail:)_
+      - [x] ✅ *confirmed* — `scripts/lib/note-refresh.mjs:92` **the confidence line is corrupted when
             the basis contains `$` replacement patterns**. Read the code: line 98 passes a template
             **string** to `body.replace()`, so `$&`, `` $` ``, `$'`, `$1` in the rendered basis are
             expanded as replacement patterns. Real, narrow, and the fix is a function replacement.
-      - [ ] ✅ *confirmed* — `scripts/lib/status-hook-output.mjs:30` **the new `additionalContext`
+      - [x] ✅ *confirmed* — `scripts/lib/status-hook-output.mjs:30` **the new `additionalContext`
             emitter bypasses the F5 audit guard**.
-      - [ ] ⏳ `scripts/lib/note-refresh.mjs:92` **promotes the `confidence:` field without adding the
+      - [x] ⏳ `scripts/lib/note-refresh.mjs:92` **promotes the `confidence:` field without adding the
             visible block**. Worth taking seriously even before its verdict: if the body carries no
             `> **Confidence** — ` line, the `replace` is a silent no-op, so the field moves alone —
             **exactly** what the comment above it swears cannot happen ("promoted in BOTH places at
             once", Step 12.4's own claim).
-      - [ ] ⏳ `scripts/lib/note-refresh.mjs:98` — `$`-sequences in the basis treated as special
+      - [x] ⏳ `scripts/lib/note-refresh.mjs:98` — `$`-sequences in the basis treated as special
             replacements (likely the same defect as the first, a dedup candidate).
-      - [ ] ⏳ `scripts/refresh-note.mjs:84` — vault containment check bypassed by a backslash-escaped
+      - [x] ⏳ `scripts/refresh-note.mjs:84` — vault containment check bypassed by a backslash-escaped
             path on Linux/macOS.
-      - [ ] ⏳ `engine-skills/consolidate/SKILL.md:50` — the sub-agent prompt still carries the
+      - [x] ⏳ `engine-skills/consolidate/SKILL.md:50` — the sub-agent prompt still carries the
             "never a first name alone" rule (a possible F6/F7 leftover).
-      - [ ] ⏳ `.claude/skills/prepare-1-1/SKILL.md:62` — missing blank line before the
+      - [x] ⏳ `.claude/skills/prepare-1-1/SKILL.md:62` — missing blank line before the
             "Markers are mandatory" paragraph (EN).
-      - [ ] ⏳ `maintainers/plans/prospective/release-v4.6.0-note.md:59` — **the note and the PR body
+      - [x] ⏳ `maintainers/plans/archived/release-v4.6.0-note.md:59` — **the note and the PR body
             disagree on when the engine version label was first shipped**. A user-facing artifact
             contradiction, so it belongs to the release tail whatever the verdict.
-  - [ ] **The tail, once the review is in** (in this order):
-    - [ ] Write the chosen title into the note's H1 **and** the PR title (both still carry a
-          `<TITLE …>` placeholder).
-    - [ ] Undraft + merge PR #55, tag `v4.6.0`, publish the release with the note's body.
-    - [ ] Move `release-v4.6.0-note.md` + `release-v4.6.0-pr-body.md` into
-          `maintainers/plans/archived/`, next to v4.5.0's, and record the merge SHA + tag here.
-    - [ ] Then the plan's live work becomes **v4.7.0 (visibility)** — its findings are already listed
-          at the end of Step 11's block.
+  - [x] **The tail — DONE, in this order** _(2026-08-04)_:
+    - [x] The chosen title written into the note's H1 **and** the PR title (`cc0a3ae`), then re-put to
+          the owner at the tail and **kept unchanged**.
+    - [x] Undrafted + merged PR #55 (merge `c0b2b16`), tagged `v4.6.0`, release published from the
+          note's body.
+    - [x] `release-v4.6.0-note.md` + `release-v4.6.0-pr-body.md` moved into
+          `maintainers/plans/archived/`, next to v4.5.0's; merge SHA and tag recorded above.
+    - [x] The plan's live work is now **v4.7.0 (visibility)** — see `## Step 13`, and the header says so.
+
+## Step 13 — v4.7.0, visibility — 🔜 THE LIVE WORK
+
+> **What this release is about.** It is the third leg of the trilogy. v4.5.0 stopped silence from passing
+> for good news; v4.6.0 stopped the vault from poisoning itself; **v4.7.0 is about what the brain SHOWS**
+> — the banner, the offers it makes, the version it says it is targeting, and the trail its own commits
+> leave behind.
+>
+> **⏭️ RESUME HERE — NOTHING HAS BEEN STARTED.** No branch, no code, nothing half-written on disk.
+> `main` is at the v4.6.0 merge (`c0b2b16`, tag `v4.6.0` published).
+>
+> **The first real step is NOT code, it is a scope call with the owner.** Unlike v4.5.0 and v4.6.0 —
+> whose scope was fixed on 2026-08-02 and recorded in `## Decisions taken` — v4.7.0 has a **list** of
+> findings but no decided **order** and no decided **cut**. Put the list below to the owner, get the cut,
+> write it here, and only then open `release/v4.7.0`.
+>
+> **Its findings — read each one at its own entry, they are deliberately not restated here:**
+> - [ ] **F13** (`### P3`) — discoverability regression, directly comparable across the update.
+> - [ ] **F3** (`### P3`) — the engine-update offer is version-blind. _(Its wording must share v4.6.0's
+>       vocabulary — decided at Step 12, still true.)_
+> - [ ] **F10** (`### P3`) — the recorded source is frozen at install time.
+> - [ ] **F8** (`### P3`) — auto-commit history is unusable as a landmark.
+> - [ ] **F9** (`### P3`) — auto-commit coverage of out-of-band deletions is observed, not guaranteed.
+> - [ ] **F2** (`### P3`) — "update the brain" covers only one of three axes.
+> - [ ] **F19** (`### P3`) — the always-loaded instruction layer only ever grows. **Its numbers were
+>       measured 2026-08-04 and are in its entry: do not re-measure them.**
+> - [ ] **The two banner defects routed here from P0** — a cached verdict rendered with live authority,
+>       and an `unknown` check displayed under "found a problem". The second is **already pinned by a
+>       test that names it as this release's item**, so it cannot be read as intended behaviour.
+>
+> **Named debt that is a candidate here, not a finding** (carried forward from v4.5.0, restated at the
+> v4.6.0 tail):
+> - [ ] **One shared `runAsEntrypoint(meta, argv, fn)`, tested once.** 10+ scripts carry the identical
+>       three-mutant boot guard; it is the only thing left standing in `verify-index.mjs` (92.31 %) and
+>       `rehydrate.mjs` (95.40 %).
+> - [ ] **The `session-*` tier** (`session-status.mjs` **0 %**, `session-universe.mjs`,
+>       `session-self-heal.mjs`): top-level scripts no test can import. **Inherited, not new** — recorded
+>       since v4.4.0, and closing it is a refactor of fleet-deployed scripts, i.e. its own release.
+>
+> ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F13, F3, Fx" are filing labels for
+> this plan only. The note, the PR body and the release name the behaviour instead.
 
 ## The one pattern behind most of it (the reframe)
 
