@@ -624,16 +624,27 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       78.69 % file instead of implying everything touched is ≥ 96 %, and two overclaims are repaired in
 >       both artifacts (the producer/consumer reuse, and the promotion writing the visible block on cards
 >       you already have).
-> - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
->       `maintainers/plans/archived/`. **Deliberately NOT done autonomously**: publishing is outward-facing
->       and effectively irreversible, so it waits for the owner's explicit go.
+> - [ ] **⏭️ THE ONLY REMAINING STEP — the public tail. Ask the owner first; it is outward-facing and
+>       effectively irreversible, which is why it was deliberately NOT done autonomously.** In order,
+>       and nothing here needs re-deriving:
+>   - [ ] **Re-check CI on the tip** (`gh run list --branch release/v4.6.0`), against the head SHA, never
+>         the PR's colour. It was green on `701b45b`; only documentation commits followed the last code
+>         change.
+>   - [ ] `gh pr ready 55` (undraft), then merge. The PR title and body are already correct on GitHub.
+>   - [ ] Tag **`v4.6.0`** on the merge commit and publish the release, whose text is
+>         `maintainers/plans/prospective/release-v4.6.0-note.md` (its H1 already carries the chosen
+>         title, `The One Where It Asks Which One You Mean`).
+>   - [ ] **Archive** both artifacts into `maintainers/plans/archived/` as
+>         `release-v4.6.0-note.md` and `release-v4.6.0-pr-body.md` — the shape Step 11 used for v4.5.0.
+>   - [ ] **This plan file is NOT archived**: v4.7.0 (visibility) still lives in it — F13, F3, F10, F8,
+>         F9, F2, the two banner defects routed from P0, and F19. Update the header note to make v4.7.0
+>         the live work once v4.6.0 is out.
 >
-> **THE REVIEW HAS LANDED, AND THE ACT IS TO FIX ITS SIX FINDINGS, TDD, IN
-> ORDER ①→⑥.** They are listed with their verification, their fix and their order in Step 12.5's
-> checkbox *"The six findings, in the order I recommend treating them"* — **read them there, they are
-> not restated here, and do NOT re-run the review or re-verify them: each was already re-run against
-> the code, and the traversal was reproduced.** Nothing is started on disk; the branch is at
-> `335817b`, green and pushed.
+> **HISTORY, kept because it explains the six fixes above.** The review landed 2026-08-04 with six
+> findings, each verified against the code before being written down (the traversal was reproduced, not
+> reasoned about). They are listed one by one, with their verification and their fix, in Step 12.5's
+> checkbox *"The six findings, in the order to treat them"* — all six are now ticked there. **Do NOT
+> re-run the review and do not re-verify them.**
 >
 > **✅ DECIDED (2026-08-04, by the owner), two calls — do not re-open either:**
 > - **The traversal (③) ships INSIDE v4.6.0**, not as a follow-up. It is pre-existing, but the branch
