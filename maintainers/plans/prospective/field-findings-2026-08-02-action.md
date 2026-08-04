@@ -566,9 +566,23 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > body and in the **PR title on GitHub** (`cc0a3ae`); the live PR body was re-synced, so the surface a
 > reviewer reads no longer carries the disproved number.
 >
+> **Two things landed AFTER the six, both worth not re-deriving:**
+> - **The guard shipped with ⑤ was CRLF-blind, and Windows caught it** _(`6d3d7c8`)_. It compared
+>   against `"\n\n"`; git checks these files out with CRLF, so all three Windows cells went red on
+>   typography while macOS stayed green. **Third time this repo meets that shape** — the tripwire on
+>   the push is what found it, which is exactly §9's purpose. Line endings are normalised before the
+>   comparison now, verified against a CRLF string directly rather than through the LF checkout.
+> - **The seventh review candidate is SETTLED, and the verdict is that it WAS a defect** _(`2fac4ee`)_.
+>   "The promotion moves the confidence field without adding the visible block": real, and it matters
+>   because every card written before v4.6.0 has no block — promoting one produced a card that says how
+>   sure it is to a `grep` and nothing at all to a human in Obsidian, while every card the builder
+>   writes shows the marker. The block is now written in the builder's own slot (under the H1, **after**
+>   the "Which one" block — WHICH one before HOW SURE), two reds first, and both write-door skills say
+>   so. **Do not re-open it as "left open".**
+>
 > **What remains, in order** — the plan's own tail, unchanged by the review:
 > - [ ] **CI green on the branch head** (checked against the head SHA, never the PR's colour). Running
->       on `cc0a3ae` at the time of writing.
+>       on `2fac4ee` at the time of writing; the previous head was red for the CRLF reason above.
 > - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
 >       `maintainers/plans/archived/`. **Deliberately NOT done autonomously**: publishing is outward-facing
 >       and effectively irreversible, so it waits for the owner's explicit go.
