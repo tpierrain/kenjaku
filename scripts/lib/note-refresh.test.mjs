@@ -386,6 +386,112 @@ Back-end at Candor.
   );
 });
 
+// ── Where the block goes when the page is not the tidy shape ───────────────
+// The mutation pass on the insertion above left twelve survivors, all of them the
+// same admission: only the tidy card was ever fed to it. These four feed the
+// shapes a vault written by hand in Obsidian actually holds.
+
+test("no H1 at all — the block leads the page instead of hunting for a heading", () => {
+  // `# ` must be matched at the START of a line: this body carries "# " inside a
+  // sentence, and treating that as the title would bury the marker mid-prose.
+  const card = `---
+type: person
+created: 2026-06-02
+updated: 2026-07-19
+tags: [candor]
+---
+
+He filed issue # 12 about the Candor rollout.
+`;
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "unverified", basis: "a single mention, no source." },
+  });
+  assert.equal(
+    out,
+    `---
+type: person
+created: 2026-06-02
+updated: 2026-08-03
+tags: [candor]
+confidence: unverified
+---
+
+> **Confidence** — 🔴 unverified · a single mention, no source.
+
+He filed issue # 12 about the Candor rollout.
+`,
+  );
+});
+
+test("a card with a title and no body yet — the block lands, nothing throws", () => {
+  // The insertion walks forward past blank lines, so a page that ENDS right after
+  // its heading is where it can walk off the end. A stub card is ordinary: the
+  // builder writes the page, the prose comes later.
+  const out = refreshNote({
+    content: "---\ntype: person\nupdated: 2026-07-19\ntags: [candor]\n---\n\n# Jérémy Hinard\n",
+    today: "2026-08-03",
+    confidence: { level: "probable", basis: "the Candor org note, 2026-06." },
+  });
+  assert.equal(
+    out,
+    `---
+type: person
+updated: 2026-08-03
+tags: [candor]
+confidence: probable
+---
+
+# Jérémy Hinard
+
+> **Confidence** — 🟡 derived or probable · the Candor org note, 2026-06.
+`,
+  );
+});
+
+test("a line of spaces is a blank line — an editor's trailing whitespace does not split the card", () => {
+  // Obsidian and most editors leave these behind. Treating "   " as content would
+  // wedge the block between the heading and its own blank line.
+  const card = "---\ntype: person\nupdated: 2026-07-19\ntags: [c]\n---\n\n# Jérémy Hinard\n   \nFront-end.\n";
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "probable", basis: "the org note." },
+  });
+  assert.match(
+    out,
+    /# Jérémy Hinard\n {3}\n> \*\*Confidence\*\* — 🟡 derived or probable · the org note\.\n\nFront-end\.\n/,
+  );
+});
+
+test("an INDENTED homonymy line is not the homonymy block, so the marker stays above it", () => {
+  // The twin of the indented-Confidence test: the block is the one at the START of
+  // a line. A quotation of someone else's card must not push this card's marker
+  // below it, or the page reads as if the quote were its own answer to "which one".
+  const card = `---
+type: person
+updated: 2026-07-19
+tags: [c]
+---
+
+# Romain Durand
+
+    > **Which one** — the Romain at Acme, quoted from his card.
+
+Back-end at Candor.
+`;
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "probable", basis: "the Candor org note." },
+  });
+  assert.match(
+    out,
+    /# Romain Durand\n\n> \*\*Confidence\*\* — 🟡 derived or probable · the Candor org note\.\n\n {4}> \*\*Which one\*\*/,
+  );
+});
+
 test("a basis carrying `$` sequences lands verbatim, not expanded by the replace", () => {
   // Found by review. The replacement was handed to `String.prototype.replace` as a
   // STRING, so `$&`, `` $` ``, `$'` and `$$` in it are replacement patterns: the

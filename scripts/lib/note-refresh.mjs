@@ -65,8 +65,11 @@ const CONFIDENCE_BLOCK = /^> \*\*Confidence\*\* — .*$/m;
  */
 function insertConfidenceBlock(body, line) {
   const lines = body.split("\n");
+  // The title is a heading at the START of a line — a "# " inside a sentence is
+  // prose, and burying the marker under it would hide the very thing it states.
+  // No heading at all is not a special case: the walk simply starts at the top,
+  // which keeps the blank line the body opens with rather than doubling it.
   const h1 = lines.findIndex((l) => /^# /.test(l));
-  if (h1 === -1) return `${line}\n\n${body}`;
   let at = h1 + 1;
   // Past the blank line, then past the homonymy block if the card has one: WHICH
   // one comes before HOW SURE, because it is what makes the card usable to the
