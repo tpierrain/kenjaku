@@ -242,7 +242,19 @@ test("repairWin32NodePrefix — a hook with no command string is handed back, no
   // removes the guard survived, and each of them turns this into a TypeError
   // thrown at session start, on the reconcile path that is meant to REPAIR a
   // brain.
-  for (const notAString of [undefined, null, 42, { command: "x" }, ["cmd /c"]]) {
+  // The last fixture is the one that tells the two terms of the guard apart: a
+  // non-string whose string coercion LOOKS like the broken command. With only
+  // harmless non-strings, `typeof command !== "string"` and
+  // `!BROKEN.test(command)` agree on every input, and either can be deleted with
+  // the suite green. A hook whose `command` was hand-written as a JSON array is
+  // exactly that value — and without the guard it reaches `.replace` and throws.
+  for (const notAString of [
+    undefined,
+    null,
+    42,
+    { command: "x" },
+    ['cmd /c "C:\\brain\\scripts\\run-node.cmd" "x.mjs"'],
+  ]) {
     assert.equal(repairWin32NodePrefix(notAString, "C:/brain"), notAString);
   }
 });
