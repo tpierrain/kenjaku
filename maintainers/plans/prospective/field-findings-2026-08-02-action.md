@@ -587,9 +587,17 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       Publishing the old numbers over new lines is exactly the "a score implying coverage it does not
 >       have" failure this repo refuses. Worktree `/Users/tpierrain/Dev/kenjaku-mut-v460` (reset to the
 >       head, `rag/node_modules` symlinked and **verified** — 22 pass / 0 skipped). Batch 1
->       (note-refresh + refresh-note) launched 2026-08-04, log
->       `maintainers/mutation/reports/v460-review-fixes-batch1.log`; batch 2 is the other two files.
->       Treat survivors the way every earlier batch was treated, then update RESULTS.md § v4.6.0.
+>       (note-refresh + refresh-note) done, log `…/v460-review-fixes-batch1.log`: **`refresh-note.mjs`
+>       96.30 %** — its 2 survivors are the equivalents already on record (`readFileSync(0, "")`, the
+>       argv guard) — and **`note-refresh.mjs` 89.47 %**, whose 12 of 14 survivors sat in the block
+>       insertion written the same day. **Treated** _(`6ff9915`)_: four tests for the shapes a
+>       hand-edited vault holds (a `# ` inside a sentence / no heading at all, a stub card ending right
+>       after its title, a line of editor whitespace, an indented quotation of a homonymy block). The
+>       first went red and the repair was to **delete** the no-heading special case, not patch it.
+>       - [ ] **Batch 2 running**: `note-refresh.mjs` (re-measure) + `status-hook-output.mjs`, log
+>             `…/v460-review-fixes-batch2.log`.
+>       - [ ] **Batch 3 still to run**: `scripts/lib/hooks-reconcile.mjs`.
+>       - [ ] **Then update RESULTS.md § v4.6.0** with the per-file numbers and the survivor verdicts.
 > - [ ] **CI green on the branch head** (checked against the head SHA, never the PR's colour). Running
 >       on `2fac4ee` at the time of writing; the previous head was red for the CRLF reason above.
 > - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
