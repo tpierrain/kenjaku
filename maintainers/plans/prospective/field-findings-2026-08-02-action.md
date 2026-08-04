@@ -559,9 +559,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ①②③④ ARE DONE AND PUSHED (`e34c3ae`, `53b0560`, `6c5a072`, `9377c17` + `41cf186`), RESUME AT ⑤ (the two doc findings).**
-> The owner asked for autonomous work (2026-08-04); each fix lands as its own green, pushed commit and
-> its box is ticked here as it lands, so a `/clear` resumes at the first unticked one.
+> **⏭️ RESUME HERE — ALL SIX REVIEW FIXES ARE DONE AND PUSHED. WHAT IS LEFT IS THE RELEASE TAIL, AND
+> ITS PUBLIC HALF IS THE OWNER'S CALL.** Done autonomously 2026-08-04, each in TDD with the red verified
+> first, each its own green pushed commit: ① `e34c3ae`, ② `53b0560`, ③ `6c5a072`, ④ `9377c17` (+ the
+> class sweep `41cf186`), ⑤ `f7a00fc`, ⑥ `b3cabf9`. The chosen title is now in the note's H1, in the PR
+> body and in the **PR title on GitHub** (`cc0a3ae`); the live PR body was re-synced, so the surface a
+> reviewer reads no longer carries the disproved number.
+>
+> **What remains, in order** — the plan's own tail, unchanged by the review:
+> - [ ] **CI green on the branch head** (checked against the head SHA, never the PR's colour). Running
+>       on `cc0a3ae` at the time of writing.
+> - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
+>       `maintainers/plans/archived/`. **Deliberately NOT done autonomously**: publishing is outward-facing
+>       and effectively irreversible, so it waits for the owner's explicit go.
 >
 > **THE REVIEW HAS LANDED, AND THE ACT IS TO FIX ITS SIX FINDINGS, TDD, IN
 > ORDER ①→⑥.** They are listed with their verification, their fix and their order in Step 12.5's
@@ -822,7 +832,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         the body → the `replace` does nothing while the frontmatter field moves), but it needs a card
         that lacks the block, and no verdict backs it. **Left open, not silently dropped** — settle it
         with a test before claiming either way.
-  - [ ] **The six findings, in the order to treat them. ✅ ORDER AND SCOPE APPROVED BY THE OWNER
+  - [x] **The six findings, in the order to treat them — ALL SIX DONE** _(2026-08-04)_. **✅ ORDER AND SCOPE APPROVED BY THE OWNER
         (2026-08-04): all six, TDD, red first, and ③ ships in THIS release.** ① and ② each need **two**
         reds: the defect, and the guard that missed it. Tick each box with its commit as it lands, so a
         `/clear` mid-sequence resumes at the first unticked one.
@@ -886,11 +896,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           (needs those characters in prose) but silent, and it lands the page in the exact
           two-different-things state the comment four lines above swears it prevents. Fix = function
           replacement.
-    - [ ] **⑤ `.claude/skills/prepare-1-1/SKILL.md:63` — a missing blank line, EN only.** Verified
+    - [x] **⑤ DONE** _(2026-08-04 · `f7a00fc`)_ — the blank line is in, and the rule is **guarded in both
+          locales** rather than merely repaired (the two files are meant to be each other's mirror): the
+          assertion was red on EN and green on FR before the fix. Original entry, kept:
+          **`.claude/skills/prepare-1-1/SKILL.md:63` — a missing blank line, EN only.** Verified
           against the FR sibling, which has it. Under CommonMark the "Markers are mandatory" paragraph
           becomes a lazy continuation of the previous bullet instead of applying to the whole section.
           Cosmetic for an LLM reader, real EN/FR drift for a human one.
-    - [ ] **⑥ `release-v4.6.0-pr-body.md:31` — the PR body contradicts the note it points at.** The
+    - [x] **⑥ DONE** _(2026-08-04 · `b3cabf9`, synced to GitHub)_ — v4.2.0 → **v3.0.0** (with the first
+          commit named), plus two corrections the fixes above made necessary: the wording rule is stated
+          in the producer **and** in `/consolidate` (so the body no longer claims a reuse the second
+          write-door never performed), and Verification now carries the review's six findings, guards
+          first. The **live PR body was updated**, not just the file. Original entry, kept:
+          **`release-v4.6.0-pr-body.md:31` — the PR body contradicts the note it points at.** The
           body still says the label *"had been computed since v4.2.0"*; commit `2f16a1b` looked this
           up in git and corrected the **note** to v3.0.0, without carrying the fix across. A
           reviewer-facing marketing surface asserting a number the author already disproved.
