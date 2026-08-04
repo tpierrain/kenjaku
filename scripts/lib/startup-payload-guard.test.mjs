@@ -9,9 +9,9 @@ import { fileURLToPath } from "node:url";
 // .additionalContext` is echoed to a CLI owner VERBATIM, prefixed
 // `SessionStart:startup says:`, before they have typed a word (field-verified
 // 2026-07-28, Claude Code v2.1.220). The field log named three emitters; the audit
-// found four. So the leak does not scale with our care — it scales with the number
-// of hooks we add, and the next one will be written by someone who never read this
-// story.
+// found four, and a fifth then arrived and escaped it (see `EMITS` below). So the
+// leak does not scale with our care — it scales with the number of hooks we add,
+// and the next one will be written by someone who never read this story.
 //
 // Each emitter bounds its own payload, in its own test, because only that test
 // knows what the block is for (housekeeping gets less room than a RESTART REQUIRED
@@ -28,21 +28,36 @@ const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), "..");
 // and a guard that silently stops matching is worse than no guard.
 const BOUND_MARKER = "volume IS the defect (F5)";
 
+// …which is exactly what this guard then did to itself. It matched the literal
+// `additionalContext:`, so `status-hook-output.mjs` — which ASSIGNS the key
+// (`hookSpecificOutput.additionalContext = …`) because the key must be ABSENT
+// rather than empty when there is no version — was invisible to it: a fifth
+// emitter shipped, the pinned list stayed at four, and every test here went green.
+// The scan is still purely textual (no parse); it just no longer assumes the
+// object-literal shape.
+const EMITS = /additionalContext\s*[:=]/;
+
 function emitters() {
   return [SCRIPTS, join(SCRIPTS, "lib")].flatMap((dir) =>
     readdirSync(dir)
       .filter((name) => name.endsWith(".mjs") && !name.endsWith(".test.mjs"))
       .map((name) => ({ name, path: join(dir, name), test: join(dir, name.replace(/\.mjs$/, ".test.mjs")) }))
-      .filter(({ path }) => readFileSync(path, "utf8").includes("additionalContext:")),
+      .filter(({ path }) => EMITS.test(readFileSync(path, "utf8"))),
   );
 }
 
-test("the F5 audit knows every additionalContext emitter — the field log named three, there are four", () => {
+test("the F5 audit knows every additionalContext emitter — the field log named three, there are five", () => {
   // Pin the list. A new startup hook lands here first, which is the moment to ask
   // whether the owner should be reading its prose at all.
   assert.deepEqual(
     emitters().map(({ name }) => name).sort(),
-    ["actions-log-seed.mjs", "session-self-heal.mjs", "universe-reminder.mjs", "wiki-health-nudge.mjs"],
+    [
+      "actions-log-seed.mjs",
+      "session-self-heal.mjs",
+      "status-hook-output.mjs",
+      "universe-reminder.mjs",
+      "wiki-health-nudge.mjs",
+    ],
   );
 });
 
@@ -63,7 +78,7 @@ test("the scan reads real sources, so an empty result cannot pass for a clean on
   // vacuously forever — the quietest way there is to lose a guard.
   const found = emitters();
 
-  assert.equal(found.length, 4);
+  assert.equal(found.length, 5);
   assert.ok(
     found.every(({ path }) => readFileSync(path, "utf8").includes("hookEventName")),
     "an emitter was matched that does not build a hook output at all",

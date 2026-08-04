@@ -93,6 +93,20 @@ test("a pending restart silences the version's chat relay, not just its rank", (
   );
 });
 
+// The F5 bound, and this emitter shipped without one: the audit that pins every
+// additionalContext emitter filtered on the literal `additionalContext:`, while
+// this file ASSIGNS the key — so it was the fifth emitter and the list stayed at
+// four. The CLI echoes this payload verbatim, prefixed `SessionStart:startup
+// says:`, before the owner types a word; the version itself is a fact about their
+// brain, so only OUR framing around it is bounded here.
+test("the version relay stays one short directive — volume IS the defect (F5)", () => {
+  const versionLine = "⚙️ Kenjaku engine v4.6.0";
+  const ctx = buildStatusHookOutput({ versionLine }).hookSpecificOutput.additionalContext;
+  const framing = ctx.length - versionLine.length;
+
+  assert.ok(framing <= 90, `the version framing grew back to ${framing} chars:\n${ctx}`);
+});
+
 test("called with nothing at all — no banner, no relay, and no crash", () => {
   // The default for `statusLines` is what a caller with nothing to report hands
   // in; a default carrying content would put words in the engine's mouth.
