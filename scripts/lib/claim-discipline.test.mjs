@@ -173,6 +173,27 @@ for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
   });
 }
 
+// ── The markers rule applies to the SECTION, not to the last bullet ────────
+// Found by review, EN only, verified against the FR sibling which had it right:
+// a missing blank line makes "Markers are mandatory here too…" a lazy
+// continuation of the preceding list item under CommonMark, so the rule that
+// governs the whole section renders as a tail of one bullet about reconciling.
+// Cosmetic to an LLM reader, real EN/FR drift to a human one — and this file is
+// read by both.
+for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
+  test(`${locale} prepare-1-1: the markers rule stands on its own, not as a bullet's tail`, () => {
+    const marker = locale === "FR" ? /^Les marqueurs sont obligatoires/m : /^Markers are mandatory/m;
+    const text = read(path);
+    const at = text.search(marker);
+    assert.notEqual(at, -1, "the markers rule must still be there at the start of a line");
+    assert.equal(
+      text.slice(0, at).endsWith("\n\n"),
+      true,
+      "without a blank line above it, CommonMark folds the rule into the previous bullet",
+    );
+  });
+}
+
 // ── A recorded absence is a measurement, and measurements expire ───────────
 // The vault had written down, as a PERMANENT limitation, that "the Slack
 // connector does not expose permalinks", propagated it into several notes, and

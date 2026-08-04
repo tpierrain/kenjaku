@@ -60,6 +60,7 @@ Read them there. What makes a 1-1 prep the **worst** place to break them:
 - **Reconcile first.** Does anything you retrieved contradict what you are about to write? This skill
   produced the field defect that proves it: it announced a role change as *"unconfirmed"* while the
   vault's own `people/` note recorded it **confirmed two months earlier**.
+
 Markers are mandatory here too: ✅ observed and quoted · 🟡 inferred · 🔴 unverified negative or
 behavioural — and 🔴 is **never** safe to say out loud in the meeting.
 
