@@ -14,8 +14,8 @@ created for a colleague who occurs exactly once in the whole vault: in her own t
 - **The defect was an order the engine shipped.** `sync-sources` said, in the same breath, *"never a
   first name alone, `[[people/jane]]` is forbidden"* and *"create the backlinks even if the target page
   doesn't exist"*. An agent obeying both had two exits: drop the link, or invent the surname. It
-  invented. The rule now states the action — *no full name, no link* — in the **producer**, which every
-  consumer reuses.
+  invented. The rule now states the action — *no full name, no link* — in the **producer** and in the
+  second write-door, `/consolidate`, which handed its own sub-agents the same forbidding pair.
 - **Resolve before writing, and ask the vault whether it is even new.** The novelty check is a third
   reconcile pass in the synthesis step, the only place that can run it: the sub-agents read external
   sources and never see the vault.
@@ -28,7 +28,8 @@ created for a colleague who occurs exactly once in the whole vault: in her own t
   refuses one that does not say what its identity rests on. `/refresh-note` promotes a card later,
   rewriting the field and the visible block together through the builder's own renderer.
 - **The engine says which version it is**, on both session-start channels — a label that had been
-  computed since v4.2.0 and rendered nowhere since the engine gave the status line back to its owner.
+  computed since v3.0.0 (first commit `aaa0f64`) and rendered nowhere since v4.4.0, when the engine
+  gave the status line back to its owner.
 
 ### Choices worth reviewing
 
@@ -52,3 +53,13 @@ created for a colleague who occurs exactly once in the whole vault: in her own t
   replace. Fixed, 14/14 dead.
 - Suites green at every commit; the marketing surface re-read per §10, with its verdict recorded in the
   plan (including the boring half: the boards were re-read and deliberately not re-rendered).
+- **An independent review of this branch found six defects, and all six are fixed here**, each in TDD
+  with the red verified first. Two of them were **guards that had stopped watching**, which is the more
+  useful half: the identity guard iterated a hand-written list of four files that never included
+  `/consolidate` — so the release's headline rule read green while the other write-door still ordered
+  the invention — and the F5 startup-payload audit filtered on a literal `additionalContext:`, so an
+  emitter that *assigns* the key was its invisible fifth. Both now derive what they watch from the repo.
+  The other four: a vault-containment check a backslash path walked straight out of (reproduced against
+  a real brain, and its class swept — one sibling fixed, one shown unreachable), a `$` sequence in
+  free-form prose that spliced the old confidence block into the new one, and a missing blank line that
+  made a section-wide rule render as one bullet's tail in EN only.
