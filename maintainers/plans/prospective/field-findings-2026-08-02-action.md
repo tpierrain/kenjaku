@@ -615,8 +615,15 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       - [x] **RESULTS.md § v4.6.0 updated** _(`75d0d5a`)_ — the second pass is its own section, and the
 >             three superseded numbers in the first table are marked as NOT the ones at the tag rather
 >             than left for a reader to reconcile.
-> - [ ] **CI green on the branch head** (checked against the head SHA, never the PR's colour). Running
->       on `2fac4ee` at the time of writing; the previous head was red for the CRLF reason above.
+> - [x] **CI green**, checked against the head SHA rather than the PR's colour: 7/7 on `1e807d6` (all six
+>       fixes + the CRLF repair + the promotion) and again on `75d0d5a` (the mutation hardening + the
+>       re-measure). The commits after it are documentation only; re-check the tip before tagging.
+> - [x] **The release note and the PR body are finished** _(`085b225`, and the live PR body + PR title
+>       are synced on GitHub)_ — the note's `Review & CI` section is written (six defects, all fixed, told
+>       through the two checks that had stopped watching, no finding codes), its mutation table names the
+>       78.69 % file instead of implying everything touched is ≥ 96 %, and two overclaims are repaired in
+>       both artifacts (the producer/consumer reuse, and the promotion writing the visible block on cards
+>       you already have).
 > - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
 >       `maintainers/plans/archived/`. **Deliberately NOT done autonomously**: publishing is outward-facing
 >       and effectively irreversible, so it waits for the owner's explicit go.
