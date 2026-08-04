@@ -559,7 +559,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ① IS DONE AND PUSHED (`e34c3ae`), RESUME AT ②.**
+> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ① AND ② ARE DONE AND PUSHED (`e34c3ae`, `53b0560`), RESUME AT ③.**
 > The owner asked for autonomous work (2026-08-04); each fix lands as its own green, pushed commit and
 > its box is ticked here as it lands, so a `/clear` resumes at the first unticked one.
 >
@@ -842,7 +842,14 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           this drift and its `SKILLS` array simply never iterates the file (`WRITE_DOORS` does, but
           only checks `distinguish` and the section anchor). Fix = the sync-sources phrasing + add the
           file to `SKILLS`. **This is the one that matters; it reopens the release's headline defect.**
-    - [ ] **② `scripts/lib/status-hook-output.mjs:30` — the new emitter escapes the F5 audit.**
+    - [x] **② DONE** _(2026-08-04 · `53b0560`)_ — the detector is broadened (`/additionalContext\s*[:=]/`,
+          still a pure textual scan, no parse), the pinned list is at **five**, and the version relay
+          carries its own bound (framing **measured** at 69 chars, capped at 90) marked with the audit's
+          own marker. **The emitter kept its assignment form** rather than being bent into an object
+          literal: the key must be ABSENT when a brain cannot name its version, and the guard is what was
+          broken. Two reds, both verified: the detector named the fifth emitter, then the coverage test
+          reported it unbounded. Suite green (1319 tests, 1318 pass, 1 skipped Windows-only). Original
+          entry, kept: **`scripts/lib/status-hook-output.mjs:30` — the new emitter escapes the F5 audit.**
           Verified: `grep -c "additionalContext:"` on the file returns **0**, because it assigns
           (`obj.additionalContext = …`) while the guard filters on the literal `"additionalContext:"`.
           The pinned list stays at four and goes green. No runtime leak (the payload is ~90 chars) —
