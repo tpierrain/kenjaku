@@ -465,6 +465,49 @@ test("a line of spaces is a blank line — an editor's trailing whitespace does 
   );
 });
 
+test("a card that is a homonymy block and nothing else — the marker lands under it, nothing throws", () => {
+  // The twin of the stub-card test, one branch deeper: the walk past the homonymy
+  // block is its own loop, and this is where IT can step off the end. Asserting
+  // the first loop's boundary and not this one is how a guard half-holds.
+  const out = refreshNote({
+    content: "---\ntype: person\nupdated: 2026-07-19\ntags: [c]\n---\n\n# Romain Durand\n\n> **Which one** — back-end at Candor.\n",
+    today: "2026-08-03",
+    confidence: { level: "probable", basis: "the Candor org note." },
+  });
+  assert.equal(
+    out,
+    `---
+type: person
+updated: 2026-08-03
+tags: [c]
+confidence: probable
+---
+
+# Romain Durand
+
+> **Which one** — back-end at Candor.
+
+> **Confidence** — 🟡 derived or probable · the Candor org note.
+`,
+  );
+});
+
+test("editor whitespace under the homonymy block is a blank line there too", () => {
+  // Same reason as under the title: "   " is a blank line to a reader, so the
+  // marker belongs after it, not wedged between the block and its own spacing.
+  const card =
+    "---\ntype: person\nupdated: 2026-07-19\ntags: [c]\n---\n\n# Romain Durand\n\n> **Which one** — back-end at Candor.\n   \nBack-end.\n";
+  const out = refreshNote({
+    content: card,
+    today: "2026-08-03",
+    confidence: { level: "probable", basis: "the Candor org note." },
+  });
+  assert.match(
+    out,
+    /> \*\*Which one\*\* — back-end at Candor\.\n {3}\n> \*\*Confidence\*\* — 🟡 derived or probable · the Candor org note\.\n\nBack-end\.\n/,
+  );
+});
+
 test("an INDENTED homonymy line is not the homonymy block, so the marker stays above it", () => {
   // The twin of the indented-Confidence test: the block is the one at the START of
   // a line. A quotation of someone else's card must not push this card's marker
