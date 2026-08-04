@@ -559,7 +559,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   hand-removing the forwarding: it then failed on the assertion, which is the only red that proves
 >   anything.
 >
-> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ① AND ② ARE DONE AND PUSHED (`e34c3ae`, `53b0560`), RESUME AT ③.**
+> **⏭️ RESUME HERE — THE SIX FIXES ARE UNDER WAY: ①②③ ARE DONE AND PUSHED (`e34c3ae`, `53b0560`, `6c5a072`), RESUME AT ④.**
 > The owner asked for autonomous work (2026-08-04); each fix lands as its own green, pushed commit and
 > its box is ticked here as it lands, so a `/clear` resumes at the first unticked one.
 >
@@ -856,7 +856,15 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           **what breaks is the guard**, exactly as its own header warns ("a guard that silently stops
           matching is worse than no guard"). Fix = object-literal form + add to the pinned list + a
           bound test carrying the `volume IS the defect (F5)` marker.
-    - [ ] **③ `scripts/refresh-note.mjs:66` — vault containment bypassed by a backslash path, and I
+    - [x] **③ DONE** _(2026-08-04 · `6c5a072`)_ — fixed with `posix.normalize` **before** the comparison,
+          not `resolve`: the Windows brain is simulated on macOS through string-level POSIX form, so
+          `resolve` would have broken that test. The red was a **real child process** (the injected fakes
+          key on literal strings and would have reported the escape as "does not exist" — passing for the
+          wrong reason); it printed `✓ Refreshed: vault/..\outside.md` and overwrote the outside file.
+          Checked, not assumed: the twin door `file-back-note.mjs` derives its path from a slug stripping
+          every non-alphanumeric, so it carries no such hole. Suite green (1320 tests, 1319 pass, 1 skipped
+          Windows-only). Original entry, kept: **`scripts/refresh-note.mjs:66` — vault containment
+          bypassed by a backslash path, and I
           REPRODUCED it.** `join("/brain/vault", "..\\outside.md")` leaves the backslash literal on
           POSIX; `toPosix()` then turns it into `/brain/vault/../outside.md`, which **passes**
           `startsWith(vaultDir + "/")` and is resolved by `fs` to the escaped target. Read AND write.
