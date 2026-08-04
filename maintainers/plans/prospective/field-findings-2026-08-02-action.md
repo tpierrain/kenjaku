@@ -594,10 +594,20 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       hand-edited vault holds (a `# ` inside a sentence / no heading at all, a stub card ending right
 >       after its title, a line of editor whitespace, an indented quotation of a homonymy block). The
 >       first went red and the repair was to **delete** the no-heading special case, not patch it.
->       - [ ] **Batch 2 running**: `note-refresh.mjs` (re-measure) + `status-hook-output.mjs`, log
->             `…/v460-review-fixes-batch2.log`.
->       - [ ] **Batch 3 still to run**: `scripts/lib/hooks-reconcile.mjs`.
->       - [ ] **Then update RESULTS.md § v4.6.0** with the per-file numbers and the survivor verdicts.
+>       - [x] **Batch 2 done** _(log `…/v460-review-fixes-batch2.log`)_ — **`status-hook-output.mjs`
+>             100 %**, **`note-refresh.mjs` 89.47 → 94.53 %**. Three of its seven survivors were
+>             reachable, all in the SECOND walk (past the homonymy block), which had been left without
+>             the assertions the first walk got. **Treated** _(`3e0d362`)_, both mutants hand-applied to
+>             prove each new test kills one.
+>       - [x] **The four survivors left in `note-refresh.mjs` are EQUIVALENTS** — do not chase them: the
+>             two regex `$` tails (redundant without the `s` flag; the `FRONTMATTER_RE` one was already
+>             on record) and the two boundary mutants on the homonymy line's own `if`, where
+>             `at === lines.length` makes `.test(undefined)` coerce to the string "undefined" and miss
+>             either way.
+>       - [ ] **Batch 3 running**: `hooks-reconcile.mjs` (never mutated in this release) +
+>             `note-refresh.mjs` (confirmation run), log `…/v460-review-fixes-batch3.log`.
+>       - [ ] **Then update RESULTS.md § v4.6.0** with the per-file numbers and the survivor verdicts,
+>             saying plainly that these four files were re-measured AFTER the review fixes.
 > - [ ] **CI green on the branch head** (checked against the head SHA, never the PR's colour). Running
 >       on `2fac4ee` at the time of writing; the previous head was red for the CRLF reason above.
 > - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
