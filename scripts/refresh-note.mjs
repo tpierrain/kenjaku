@@ -16,7 +16,7 @@
 // it names the damage instead. Exits 0 when written, 1 when refused/error.
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, posix } from "node:path";
 
 import { refreshNote } from "./lib/note-refresh.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
@@ -63,9 +63,15 @@ export function runRefresh(argv, deps = realRefreshDeps) {
   }
 
   const vaultDir = toPosix(join(deps.cwd(), "vault"));
-  const absPath = toPosix(join(vaultDir, spec.path));
+  // NORMALISE, then compare. `join` on POSIX leaves a Windows-style `..\x.md`
+  // untouched, and `toPosix` then hands back `<vault>/../x.md` — a string that
+  // starts with the vault and that `fs` resolves outside it. So the escape passed
+  // the check and the refresh rewrote the target (reproduced before it was fixed).
+  // `posix.normalize` collapses the climb first, on both platforms.
+  const absPath = posix.normalize(toPosix(join(vaultDir, spec.path)));
   // Containment, not politeness: a `..` in the spec would otherwise let a refresh
-  // rewrite any file the brain can reach.
+  // rewrite any file the brain can reach — and the spec arrives on stdin, from an
+  // LLM invocation, carrying free-form text.
   if (!absPath.startsWith(`${vaultDir}/`)) {
     deps.error(`✗ "${spec.path}" is outside the vault — a refresh only ever touches vault/.`);
     return 1;

@@ -120,6 +120,39 @@ test("a SIBLING of the vault is refused too — the separator is the whole guard
   }
 });
 
+test("a BACKSLASH escape is refused too — the guard normalises before it compares", () => {
+  // Found by review, and reproduced against a real brain before being fixed here.
+  // `join("/brain/vault", "..\\outside.md")` leaves the backslash literal on POSIX;
+  // `toPosix` then turns it into "/brain/vault/../outside.md", which starts with
+  // "/brain/vault/" and sailed through the containment check — while `fs` resolved
+  // it to the escaped target. Read AND write: the spec arrives on stdin from an LLM
+  // invocation, and this release widened what it carries (a free-form basis).
+  //
+  // Run as a real process on purpose: the injected `exists`/`readFile` fakes key on
+  // literal strings, so they cannot tell a path `fs` would resolve elsewhere from
+  // one it would not — the fake would report the escape as "does not exist" and the
+  // test would pass on the wrong reason.
+  const brain = mkdtempSync(join(tmpdir(), "refresh-escape-"));
+  mkdirSync(join(brain, "vault", "topics"), { recursive: true });
+  writeFileSync(join(brain, "vault", "topics", "crise.md"), PAGE);
+  const outside = join(brain, "outside.md");
+  writeFileSync(outside, PAGE);
+
+  const escaped = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("./refresh-note.mjs", import.meta.url))],
+    {
+      cwd: brain,
+      input: JSON.stringify({ path: "..\\outside.md", section: "## Escaped\n\nx" }),
+      encoding: "utf8",
+    },
+  );
+
+  assert.equal(escaped.status, 1, escaped.stdout);
+  assert.match(escaped.stderr, /is outside the vault — a refresh only ever touches vault\//);
+  assert.equal(readFileSync(outside, "utf8"), PAGE, "the file outside the vault must be untouched");
+});
+
 test("valid JSON that is not a refresh spec is refused, not crashed on", () => {
   // `null`, `"x"` and `[]` all PARSE, so they sail past the try/catch around
   // JSON.parse and reach `spec.path` — where `null` threw a TypeError and printed a
