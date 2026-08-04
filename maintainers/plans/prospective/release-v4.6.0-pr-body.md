@@ -1,4 +1,4 @@
-## v4.6.0 — <TITLE: the owner's call>
+## v4.6.0 — The One Where It Asks Which One You Mean
 
 Second of the trilogy that came out of one evening on a real deployed brain. v4.5.0 stopped silence from
 passing for good news; this one stops the vault from **poisoning itself**. The brain was writing *about

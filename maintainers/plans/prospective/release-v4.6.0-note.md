@@ -1,4 +1,4 @@
-# v4.6.0 — <TITLE: the owner's call, see the three candidates in the plan>
+# v4.6.0 — The One Where It Asks Which One You Mean
 
 **Your brain stops inventing the people it writes about.** When a colleague comes up by first name only,
 it now looks them up in *your* notes before writing a word — and when it cannot tell which one you mean,
