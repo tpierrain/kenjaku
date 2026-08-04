@@ -581,7 +581,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   so. **Do not re-open it as "left open".**
 >
 > **What remains, in order** — the plan's own tail, plus one item the fixes themselves created:
-> - [ ] **RE-MEASURE MUTATION ON WHAT THE FIXES CHANGED.** RESULTS.md § v4.6.0 was measured **before**
+> - [x] **RE-MEASURE MUTATION ON WHAT THE FIXES CHANGED — DONE** _(2026-08-04)_. RESULTS.md § v4.6.0 was measured **before**
 >       these seven commits, and four production files changed since: `scripts/lib/note-refresh.mjs`,
 >       `scripts/refresh-note.mjs`, `scripts/lib/hooks-reconcile.mjs`, `scripts/lib/status-hook-output.mjs`.
 >       Publishing the old numbers over new lines is exactly the "a score implying coverage it does not
@@ -604,10 +604,17 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >             on record) and the two boundary mutants on the homonymy line's own `if`, where
 >             `at === lines.length` makes `.test(undefined)` coerce to the string "undefined" and miss
 >             either way.
->       - [ ] **Batch 3 running**: `hooks-reconcile.mjs` (never mutated in this release) +
->             `note-refresh.mjs` (confirmation run), log `…/v460-review-fixes-batch3.log`.
->       - [ ] **Then update RESULTS.md § v4.6.0** with the per-file numbers and the survivor verdicts,
->             saying plainly that these four files were re-measured AFTER the review fixes.
+>       - [x] **Batch 3 done and TREATED** _(`5194a9e`, logs `…/v460-review-fixes-batch3.log`,
+>             `…/v460-hooks-reconcile-recheck.log`)_ — `note-refresh.mjs` confirmed at **96.88 %**, and
+>             **`hooks-reconcile.mjs` 77.05 → 78.69 %**, then its last two survivors on the touched line
+>             killed. That file is **not this release's** (the branch grazes one line of it), so its 24
+>             remaining survivors are recorded as pre-existing rather than swept in. What the run bought:
+>             nothing had ever fed the repair a non-string `command`, nor placed the broken prefix
+>             anywhere but at position 0 — and the fixture that tells the guard's two terms apart is a
+>             non-string whose coercion LOOKS like the broken command.
+>       - [x] **RESULTS.md § v4.6.0 updated** _(`75d0d5a`)_ — the second pass is its own section, and the
+>             three superseded numbers in the first table are marked as NOT the ones at the tag rather
+>             than left for a reader to reconcile.
 > - [ ] **CI green on the branch head** (checked against the head SHA, never the PR's colour). Running
 >       on `2fac4ee` at the time of writing; the previous head was red for the CRLF reason above.
 > - [ ] **Undraft, merge, tag `v4.6.0`, publish the release, archive the note + PR body** into
