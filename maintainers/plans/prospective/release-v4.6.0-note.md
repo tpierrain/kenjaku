@@ -38,8 +38,9 @@ Ask for **`/update-engine`** once, then restart your session if it says so.
   backlinks even if the target page doesn't exist"*. Handed *"Jérémy (front Candor)"*, an agent obeying
   both had exactly two exits: drop the link, or invent a surname. It invented. The fix repairs the order
   itself — *no full name, no link* — rather than adding a caveat next to it, and it lands in the
-  **producer** (`sync-sources`), which every consumer already reuses: two paraphrases of one discipline
-  are two disciplines that drift.
+  **producer** (`sync-sources`) as well as in the second door that writes a person's page, which was
+  still handing its own helpers the forbidding pair. Every other consumer points at the producer rather
+  than restating it: two paraphrases of one discipline are two disciplines that drift.
 - **A rule stated only in prose is a rule nothing executes.** So each half of this release has a carrier
   that runs. *Is this really new?* became a third reconcile pass in the synthesis step — the only place
   that can run it, since the sub-agents read external sources and never see the vault. *Which one?* and
@@ -51,7 +52,9 @@ Ask for **`/update-engine`** once, then restart your session if it says so.
   rather than offered: left optional, its absence would come to mean *confirmed*, which is silence
   rendered as certainty — this trilogy's own defect shape. And it can change: `/refresh-note` promotes a
   page through the same renderer that built it, rewriting field and block together, because a marker that
-  can never move is decoration and readers learn to ignore it.
+  can never move is decoration and readers learn to ignore it. On a card written **before** this release
+  — every card you already have — the promotion writes that visible block for the first time, so the
+  page tells you how sure it is instead of keeping it in the header where only a search would find it.
 - **The same vocabulary as v4.5.0, deliberately.** ✅ observed / 🟡 probable / 🔴 unverified is the scale
   that release introduced for claims; a second scale for identity would have been a second discipline.
 - **Where it reaches.** The skills and scripts that carry the rules are refreshed on any brain that did
@@ -71,7 +74,8 @@ file changed, so those packages carry over untouched rather than being re-measur
 
 | Package | Mutation score | What was measured |
 |---|---|---|
-| **scripts** (harness) | **all 7 changed files at 96 % or above, two at 100 %** | per file; every remaining survivor is a listed equivalent mutant |
+| **scripts** (harness) | **all 7 changed files at 96 % or above, two at 100 %** | per file; every remaining survivor is a listed equivalent mutant. Re-measured **after** the review fixes below, because those fixes changed code the first numbers no longer described |
+| ↳ one file this release only grazes | **78.69 %** | `hooks-reconcile.mjs`, changed by a single line here. Named rather than hidden in an average: its remaining gaps pre-date this release |
 | **rag** | **94.67 %** | its v4.5.0 figure — untouched by this release |
 | **local-mirror** | **90.44 %** | its v4.2.0 audit — untouched by this release |
 
@@ -92,4 +96,21 @@ A published release is frozen, so these numbers stay true for this tag forever. 
 
 ### Review & CI
 
-<!-- filled once /code-review and the full matrix have spoken -->
+**An independent review of this release found six defects, and all six were fixed before the tag** —
+each one reproduced first, so nothing was repaired on a hunch. Two of them are the ones worth telling
+you about, because they are the same shape as the release itself: **two of our own automatic checks had
+quietly stopped watching**. One was reading a hand-written list of files that never included the second
+place where your brain writes a person's page — so the headline rule of this very release was passing
+while that other door still told the assistant to invent the missing surname. The other was looking for
+a phrase that a newer piece of code no longer spells the same way, so a fifth source of session-start
+text was invisible to it. Both now work out for themselves what they are supposed to watch, instead of
+being told once and trusting the list forever.
+
+The other four: a page-refresh could be walked **outside your vault** by a path written with Windows
+backslashes (reproduced on a real brain, and the same class of mistake was then searched for and fixed
+wherever it could be reached), a `$` in a quoted source could corrupt the confidence line it was being
+written into, and an English page had a missing blank line its French twin did not.
+
+**CI**: the full matrix — Node 22, 24 and 26 on macOS and Windows, plus the Windows install
+end-to-end — green on the commit being tagged, checked against that commit rather than against the
+colour of a page.
