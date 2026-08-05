@@ -5,9 +5,13 @@
 // delivered this one). The policy itself stays in restart-nudge.mjs; here we only
 // read the disk, with the reads injected so the glue is testable.
 // ─────────────────────────────────────────────────────────────────────────────
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { isRestartPending, RESTART_FLAG_REL } from "./restart-nudge.mjs";
 import { detectSelfHealGap } from "./self-heal-detect.mjs";
+
+// What the flag file says. Read by nobody — its existence IS the signal — but a human
+// who opens it deserves a sentence, and the three writers must not each invent one.
+const FLAG_BODY = "restart needed to finish the engine update\n";
 
 /**
  * True when the brain's on-disk engine state is AHEAD of what this session loaded,
@@ -44,4 +48,22 @@ export function restartPendingOnDisk({ repo, deriveWanted, existsSync, readFileS
   }
 
   return isRestartPending({ flagExists, gapNeeded });
+}
+
+/**
+ * Arm the "a restart is pending" flag under the brain's gitignored `.cache/`. Returns
+ * whether it was actually written. FAIL-SOFT — a write that blows up yields `false` and
+ * never breaks the hook it runs on: the nudge is a convenience, never a blocker.
+ *
+ * The fs writes are injected so the arming is assertable without a real disk.
+ */
+export function armRestartPending({ repo, mkdirSync, writeFileSync }) {
+  try {
+    const flagPath = join(repo, RESTART_FLAG_REL);
+    mkdirSync(dirname(flagPath), { recursive: true });
+    writeFileSync(flagPath, FLAG_BODY);
+    return true;
+  } catch {
+    return false;
+  }
 }

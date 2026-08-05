@@ -27,6 +27,7 @@ import { fileURLToPath } from "node:url";
 import { detectSelfHealGap } from "./lib/self-heal-detect.mjs";
 import { computeApplyPlan } from "./lib/engine-apply-plan.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { armRestartPending } from "./lib/restart-signal.mjs";
 import { rehydrationPlan, unwiredFiles } from "./lib/brain-rehydrate.mjs";
 
 export async function sessionSelfHeal({
@@ -196,14 +197,15 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     // (status-line.mjs) can show the Desktop-visible nudge. Fail-soft: a flag-write hiccup
     // must never break self-heal, so swallow errors (the systemMessage line still ships).
     setRestartPending: (pending) => {
-      const flagPath = join(brainDir, RESTART_FLAG_REL);
+      // Arming goes through restart-signal.mjs — the one owner of the flag's path and body,
+      // now that three surfaces write it (this self-heal, the updater, and the pull detection
+      // of F20). Clearing stays here: it is this hook's own job, and only its own.
+      if (pending) {
+        armRestartPending({ repo: brainDir, mkdirSync, writeFileSync });
+        return;
+      }
       try {
-        if (pending) {
-          mkdirSync(dirname(flagPath), { recursive: true });
-          writeFileSync(flagPath, "restart needed to finish the engine update\n");
-        } else {
-          rmSync(flagPath, { force: true });
-        }
+        rmSync(join(brainDir, RESTART_FLAG_REL), { force: true });
       } catch {
         /* fail-soft: the nudge is a convenience, never a blocker */
       }
