@@ -172,11 +172,14 @@
 > and finished, unrelated: `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the
 > plan/`/clear` convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
-> **v4.7.0 (visibility) is the last leg of the trilogy** and keeps its own findings: F13, F3, F10, F8,
-> F9, F2, plus the two banner defects routed there from P0 (a cached verdict rendered with live
-> authority; an `unknown` check displayed under "found a problem" — the latter already pinned by a test
-> that names it), plus **F19, the always-loaded instruction layer that only ever grows** (raised and
-> measured 2026-08-04, filed in P3 — its numbers are there, do not re-measure them).
+> **✅ v4.7.0's SCOPE IS DECIDED (2026-08-05, by the owner) AND IT IS DELIBERATELY SHORT.** It ships
+> **only what that morning's field session raised** — **F20**, **F21**, **F22** — plus **PR #56**, the
+> dependency pins we wrote ourselves after closing two drive-by PRs from a fork. **Everything else moves
+> to v4.8.0**: F13, F3, F10, F8, F9, F2, F19 (the always-loaded instruction layer that only ever grows —
+> raised and measured 2026-08-04, its numbers are in its entry, do not re-measure them) and the two
+> banner defects routed from P0. Their entries stay exactly as they are; nothing is re-analysed when they
+> come back. **F22's naming call is closed too: option A**, two thin aliases `universe` + `univers`.
+> Read `## Step 13` for the ordered boxes; do not widen the cut.
 
 ## Step 11 — the v4.5.0 release — ✅ SHIPPED (2026-08-03, tag `v4.5.0`, PR #54, CI 7/7)
 
@@ -198,7 +201,8 @@
 >   `session-self-heal.mjs` 36.62 %): top-level scripts no test can import. Inherited, not new — already
 >   recorded at v4.4.0. Closing it is a refactor of fleet-deployed scripts, i.e. its own release.
 > - **The health banner renders an `unknown` check under "found a problem"** — a defect pinned by a test
->   that names it, so nobody reads it as intended. **v4.7.0 item.**
+>   that names it, so nobody reads it as intended. **Was a v4.7.0 item; moved to v4.8.0 by the
+>   2026-08-05 scope call** (see `## Step 13`), along with the rest of the visibility list.
 >
 > ⚠️ **No finding codes in any artifact.** The owner asked explicitly (2026-08-03): "F1, F2, Fx" mean
 > nothing to anyone but us. They are filing labels for this plan only — the note, the PR body, the
@@ -1028,69 +1032,77 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           `maintainers/plans/archived/`, next to v4.5.0's; merge SHA and tag recorded above.
     - [x] The plan's live work is now **v4.7.0 (visibility)** — see `## Step 13`, and the header says so.
 
-## Step 13 — v4.7.0, visibility — 🔜 THE LIVE WORK
+## Step 13 — v4.7.0, the short one: this morning's field session — 🔜 THE LIVE WORK
 
-> **What this release is about.** It is the third leg of the trilogy. v4.5.0 stopped silence from passing
-> for good news; v4.6.0 stopped the vault from poisoning itself; **v4.7.0 is about what the brain SHOWS**
-> — the banner, the offers it makes, the version it says it is targeting, and the trail its own commits
-> leave behind.
+> **What this release is about — and what it deliberately is NOT.** v4.7.0 was filed as the third leg of
+> the trilogy (*everything the brain SHOWS*: banner, offers, target version, commit trail). **The owner
+> cut it down on 2026-08-05: it ships ONLY what that morning's field session raised**, plus the
+> dependency pins we wrote ourselves. Everything else keeps its entry and moves to **v4.8.0**. The
+> trilogy framing survives — v4.7.0 is simply its short leg, not its whole one.
 >
-> **⏭️ RESUME HERE — NOTHING HAS BEEN STARTED.** No branch, no code, nothing half-written on disk.
-> `main` is at the v4.6.0 merge (`c0b2b16`, tag `v4.6.0` published).
+> ### ✅ THE SCOPE, DECIDED BY THE OWNER (2026-08-05). Do not re-open it, do not widen it.
 >
-> **The first real step is NOT code, it is a scope call with the owner.** Unlike v4.5.0 and v4.6.0 —
-> whose scope was fixed on 2026-08-02 and recorded in `## Decisions taken` — v4.7.0 has a **list** of
-> findings but no decided **order** and no decided **cut**. Put the list below to the owner, get the cut,
-> write it here, and only then open `release/v4.7.0`.
+> **In — four items, and nothing else:**
+> - [ ] **PR #56, the dependency pins** — ours, replacing two drive-by PRs from a fork. Merge it first so
+>       `release/v4.7.0` branches off a clean `main`. Detail below; do not re-derive it.
+> - [ ] **F20** (`### P3`) — a machine that is behind runs the old engine all session and never says so,
+>       so **F1's privacy fix silently does not apply there**. The pull is already first; the gap is that
+>       the restart nudge is blind to an engine that arrived **by pull**. Its entry carries the
+>       verification, the fix shape, and the owner's follow-up (inject on `UserPromptSubmit`, never
+>       block; a SessionStart hook cannot abort a session): **do not re-derive any of it.**
+> - [ ] **F21** (`### P3`) — the index says *19 pending, auto-resume on the next session* while the
+>       watcher is idle and there is no quota to wait for. **Same root as F20** (session start is a race
+>       between what arrives and what reads it), so scope them together even if they ship as two changes.
+> - [ ] **F22** (`### P3`) — `/univers` is an unknown command: the command is named after the verb while
+>       it owns the noun.
+>   - [x] **✅ The naming call is CLOSED by the owner (2026-08-05): option A — two thin aliases at the
+>         root, `universe` AND `univers`, both locales get both.** It covers the English guess as well as
+>         the French one that was actually reported. Option C (renaming `/switch`) stays dominated and
+>         must not be revisited: the reconciler installs skills by directory name and never removes one,
+>         so on a deployed brain a rename **is** an alias plus a stale duplicate.
 >
-> **Its findings — read each one at its own entry, they are deliberately not restated here:**
-> - [ ] **F13** (`### P3`) — discoverability regression, directly comparable across the update.
-> - [ ] **F3** (`### P3`) — the engine-update offer is version-blind. _(Its wording must share v4.6.0's
->       vocabulary — decided at Step 12, still true.)_
-> - [ ] **F10** (`### P3`) — the recorded source is frozen at install time.
-> - [ ] **F8** (`### P3`) — auto-commit history is unusable as a landmark.
-> - [ ] **F9** (`### P3`) — auto-commit coverage of out-of-band deletions is observed, not guaranteed.
-> - [ ] **F2** (`### P3`) — "update the brain" covers only one of three axes.
-> - [ ] **F19** (`### P3`) — the always-loaded instruction layer only ever grows. **Its numbers were
->       measured 2026-08-04 and are in its entry: do not re-measure them.**
-> - [ ] **F20** (`### P3`) — **NEW, field report 2026-08-05**: a machine that is behind runs the old
->       engine for the whole session and never says so, so **F1's privacy fix silently does not apply
->       there**. The pull is already first; the gap is that the restart nudge cannot see an engine that
->       arrived by pull. Its entry carries the verification and the fix shape: **do not re-derive them.**
-> - [ ] **F22** (`### P3`) — **NEW, field 2026-08-05**: `/univers` is an unknown command, so the owner
->       reaches for a door that does not open. The command is named after the verb (`/switch`) while it
->       owns the noun. Its entry carries the mechanism check (a FR-only skill is NOT deliverable today)
->       and three options, one of them dominated. **A naming call is open for the owner: A or B.**
-> - [ ] **F21** (`### P3`) — **NEW, same field session**: the index says *19 pending, auto-resume on the
->       next session* while the watcher is idle and there is no quota to wait for. The engine promises a
->       resume it cannot know is coming, and F11/F12's failure-is-not-a-wait fix never reached this
->       surface. **F20 and F21 share one root** (session start is a race between what arrives and what
->       reads it), so scope them together even if they ship as two changes.
-> - [ ] **The two banner defects routed here from P0** — a cached verdict rendered with live authority,
->       and an `unknown` check displayed under "found a problem". The second is **already pinned by a
->       test that names it as this release's item**, so it cannot be read as intended behaviour.
+> **Out — moved to v4.8.0, entries untouched, nothing re-analysed when they come back:** F13, F3, F10,
+> F8, F9, F2, F19, **and the two banner defects routed here from P0** (a cached verdict rendered with
+> live authority; an `unknown` check displayed under "found a problem" — the latter is already pinned by
+> a test that names it, so it cannot be read as intended behaviour, only as deferred).
 >
-> **Named debt that is a candidate here, not a finding** (carried forward from v4.5.0, restated at the
-> v4.6.0 tail):
-> - [ ] **One shared `runAsEntrypoint(meta, argv, fn)`, tested once.** 10+ scripts carry the identical
->       three-mutant boot guard; it is the only thing left standing in `verify-index.mjs` (92.31 %) and
->       `rehydrate.mjs` (95.40 %).
-> - [ ] **The `session-*` tier** (`session-status.mjs` **0 %**, `session-universe.mjs`,
->       `session-self-heal.mjs`): top-level scripts no test can import. **Inherited, not new** — recorded
->       since v4.4.0, and closing it is a refactor of fleet-deployed scripts, i.e. its own release.
+> **Also out, and it was already named debt rather than a finding:** the shared
+> `runAsEntrypoint(meta, argv, fn)` (10+ scripts carry the identical three-mutant boot guard; it is all
+> that is left standing in `verify-index.mjs` 92.31 % and `rehydrate.mjs` 95.40 %), and the `session-*`
+> tier (`session-status.mjs` **0 %**, `session-universe.mjs`, `session-self-heal.mjs` — top-level scripts
+> no test can import, inherited since v4.4.0, a refactor of fleet-deployed scripts and therefore its own
+> release).
 >
-> **⏸️ ONE THING IS WAITING ON A MERGE DECISION, unrelated to the findings** _(2026-08-05)_:
-> **PR #56, `chore/pin-vulnerable-transitive-deps`** — CI **green, 7/7 on `b88ca51`**, ready to merge.
-> It replaces two drive-by PRs from a fork (#48 fast-uri, #52 adm-zip), **both closed** with an
-> explanation after each was applied to a throwaway copy and re-audited: neither closed its advisory.
-> Ours pins both through `overrides` in **both** packages (`rag` carries `fast-uri` too, via its own
-> `ajv` — that is what the drive-by PRs missed). Measured: `rag` 12 → 9 vulnerabilities,
-> `local-mirror` 6 → 5. **Deliberately NOT addressed there**, and a candidate for its own pass:
-> the rest of the audit (`sharp`/libvips with no fix available, `js-yaml`, `protobufjs`, the hono
-> chain). Do not re-derive any of this; the PR body carries it.
+> ### PR #56 — what it is, so nobody re-audits it
 >
-> ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F13, F3, Fx" are filing labels for
+> **`chore/pin-vulnerable-transitive-deps`, CI green 7/7 on `b88ca51`.** It replaces two drive-by PRs
+> from a fork (#48 fast-uri, #52 adm-zip), **both closed** with an explanation after each was applied to
+> a throwaway copy and re-audited: neither closed its advisory. Ours pins both through `overrides` in
+> **both** packages (`rag` carries `fast-uri` too, via its own `ajv` — that is what the drive-by PRs
+> missed). Measured: `rag` 12 → 9 vulnerabilities, `local-mirror` 6 → 5. **Deliberately NOT addressed,
+> and a candidate for its own pass:** the rest of the audit (`sharp`/libvips with no fix available,
+> `js-yaml`, `protobufjs`, the hono chain). The PR body carries all of this.
+>
+> ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
+>
+> ### ⏭️ THE RESUME POINT — the scope call is DONE; the next act is to merge PR #56, then open the branch
+>
+> Nothing is half-written on disk. `main` is at the v4.6.0 merge (`c0b2b16`, tag `v4.6.0` published) plus
+> the plan commits. Work the four boxes below in order.
+>
+> - [ ] **13.1 — merge PR #56 into `main`**, then branch `release/v4.7.0` off it.
+> - [ ] **13.2 — F20 + F21 together** (one root, two changes). Start with F20's detection, since F21's
+>       "notes that simply arrived after the scan" is the same window.
+> - [ ] **13.3 — F22**, option A: two thin alias skills, `universe` and `univers`.
+> - [ ] **13.4 — the release tail** (§10 marketing re-read, mutation on what changed, version vector,
+>       note + PR body, tag) — same shape as v4.5.0 and v4.6.0, whose tails are Steps 11 and 12.
+>   - [ ] **Bookkeeping the cut created, do it on the release branch, not on `main`:** three code
+>         comments still send a reader to v4.7.0 for work that now lands in **v4.8.0** —
+>         `scripts/lib/engine-version.mjs:19` and `scripts/lib/engine-version.test.mjs:73` (the
+>         `unknown` version state, F3) and `scripts/lib/health-probe.test.mjs:219`. A comment naming
+>         the wrong release is the same class of defect this plan keeps fixing: a marker that reads as
+>         a promise. Repoint them; do not touch the assertions themselves.
 
 ## The one pattern behind most of it (the reframe)
 
@@ -1618,7 +1630,7 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
 ### P3 — visibility, safety and ergonomics
 
 - [ ] **F19 — the always-loaded instruction layer only ever grows, and nothing measures whether it
-      still works. 🔜 v4.7.0 CANDIDATE** _(raised by the owner, 2026-08-04: « on n'arrête pas de faire
+      still works. 🔜 v4.8.0 — deferred by the 2026-08-05 scope call, entry untouched** _(raised by the owner, 2026-08-04: « on n'arrête pas de faire
       grossir la constitution … est-ce qu'on n'est pas devenu un peu obèse, avec un impact sur le bon
       fonctionnement du second brain ? ». Measured the same day: the intuition **holds on the trend**
       and **misses on the mechanism**. The numbers below are measured, not estimated — do not
@@ -1735,7 +1747,7 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           is OUR prose against a representative payload; the owner's own words (display name, role,
           period) still float, exactly as the digest's did.
 - [ ] **F20 — a session on a machine that is BEHIND runs the old engine and never says so, and the
-      first casualty is F1's own privacy fix. 🔜 v4.7.0 CANDIDATE** _(field report, owner, 2026-08-05:
+      first casualty is F1's own privacy fix. ✅ IN v4.7.0 (scope call, 2026-08-05)** _(field report, owner, 2026-08-05:
       `mind-palace` opened on the Shodo Mac after being updated on the Inqom Mac the day before; the
       startup banner was the PRE-v4.5.0 one. Screenshot kept in the conversation. Verified against the
       code the same day — everything below is read, not supposed.)_
@@ -1801,7 +1813,7 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   - [ ] **Why it belongs to v4.7.0 rather than a hotfix**: it is a *visibility* finding in the exact
         sense of that release, and it is the first field report on the multi-machine path v4.5.0 opened.
 - [ ] **F21 — the index reports a shortfall it never tries to close, and promises a resume it cannot
-      know is coming. 🔜 v4.7.0 CANDIDATE** _(same field session as F20, owner, 2026-08-05: after the
+      know is coming. ✅ IN v4.7.0 (scope call, 2026-08-05)** _(same field session as F20, owner, 2026-08-05: after the
       startup pull, `vault_stats` answered « l'index n'est pas complet : 439/458 fichiers, 19 en attente
       (reprise auto à la prochaine session) », with the watcher **idle** and **local embeddings**. His
       question — « ça devrait reprendre en auto dès lors qu'il constate qu'il est en retard, non ? » —
@@ -1839,7 +1851,7 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         is a race between what arrives and what reads it**. The pull delivers code and notes at the
         same instant the hooks and the MCP server read them. F20 is the code half, F21 the notes half.
 - [ ] **F22 — the command is named after the verb, and the owner reaches for the noun.
-      🔜 v4.7.0 CANDIDATE** _(field, owner, 2026-08-05: typed `/univers`, twice, got
+      ✅ IN v4.7.0, option A decided (scope call, 2026-08-05)** _(field, owner, 2026-08-05: typed `/univers`, twice, got
       `Unknown command: /univers` and `Args from unknown skill: shodo`, then had to type `/switch`
       himself. His ask: an alias `/univers` → `/switch`, or failing that a message pointing at it.)_
   - [ ] **Why it happens, and it is not a typo.** `/switch` does far more than switching: it creates a
@@ -1868,7 +1880,10 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           pick it for the fleet.** The reconciler installs skills by directory name and never removes
           one, so on every deployed brain a rename **is** an alias *plus* a stale duplicate of the old
           command. Strictly worse than A.
-  - [ ] **Open for the owner, since it is a naming decision on the product's own surface**: A or B.
+  - [x] **✅ CLOSED by the owner (2026-08-05): option A.** Two thin aliases at the root, `universe` AND
+        `univers`, both locales getting both — it covers the English guess as well as the French one that
+        was actually reported. **Do not re-open the naming**, and do not drift toward C: on a deployed
+        brain a rename is an alias *plus* a stale duplicate.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
