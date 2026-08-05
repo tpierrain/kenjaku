@@ -216,8 +216,9 @@ test("formatHealthBanner — an unknown check name still gets a gesture, not an 
 //
 // ⚠️ This test PINS a known defect, it does not bless it: the `unknown` check is listed
 // under "found a problem", i.e. "we could not tell" is rendered as "it is broken" — the
-// finding already recorded for v4.7.0 (field-findings-2026-08-02-action.md, F14's second
-// field run). When that ships, this expectation changes on purpose.
+// finding already recorded in field-findings-2026-08-02-action.md (F14's second field run),
+// and deferred to v4.8.0 by the 2026-08-05 scope call. When it ships, this expectation
+// changes on purpose.
 test("formatHealthBanner — a module's healthy checks are not reported as causes", () => {
   const banner = formatHealthBanner([
     {

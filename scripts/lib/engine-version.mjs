@@ -16,7 +16,8 @@
 //     ref: `engineVersion.rag` (1.3.0) has never been a Kenjaku release number
 //     (v4.5.0), and an owner reading "Kenjaku engine 1.3.0" would report a version
 //     that does not exist. No ref → no segment. Naming that state out loud
-//     ("version unknown") belongs to F3, in v4.7.0.
+//     ("version unknown") belongs to F3, deferred to v4.8.0 (v4.7.0 was cut down to
+//     one morning's field session, 2026-08-05).
 //
 // Fallbacks (never invent a version):
 //   • `source.ref` present (any string — semver tag OR a branch/commit) → show it
