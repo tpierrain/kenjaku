@@ -40,6 +40,51 @@ export function renderConnectorAccounts(entries) {
 // does), so only the FIRST one separates the tool from what it names.
 const toolOf = (entry) => String(entry).split(":")[0];
 
+/**
+ * The whole verdict for `--check-slack`, from the profile's own bullets and the
+ * workspace the model observed. Pure, and the ONE place every outcome is worded:
+ * a caller that composed its own sentence for one of them would be a second
+ * opinion on what "verified" means.
+ */
+export function checkSlackAccount({ entries, observed, profilePath }) {
+  // No page at all is the normal state of every brain installed before profiles
+  // existed — told apart from a page that simply declares no Slack, because the
+  // gesture that fixes them is not the same one.
+  if (entries === null) {
+    return {
+      status: "undeclared",
+      line:
+        `This universe has no profile page yet, so it declares no accounts to check ` +
+        `against. Slack is on '${slackWorkspace(observed ?? "")}'. ` +
+        "`/switch` can describe this sphere, accounts included.",
+    };
+  }
+  const declared = declaredAccountFor(entries, "Slack");
+  // Nothing declared is not a mismatch: there is no claim to contradict. It is the
+  // moment to OFFER the declaration, since the workspace is right there.
+  if (declared === null) {
+    const workspace = slackWorkspace(observed ?? "");
+    return {
+      status: "undeclared",
+      line:
+        `This universe declares no Slack account, so there is nothing to check against. ` +
+        `Slack is on '${workspace}'; if that is the right workspace here, add ` +
+        `\`- Slack: ${workspace}\` under \`## Connector accounts\` in ${profilePath}.`,
+    };
+  }
+  return compareConnectorAccount({ tool: "Slack", declared, observed });
+}
+
+/**
+ * What a profile's `## Connector accounts` bullets declare for one tool, or null
+ * when that tool is not declared at all. Pure.
+ */
+export function declaredAccountFor(entries, tool) {
+  const wanted = String(tool).trim().toLowerCase();
+  const hit = entries.find((entry) => toolOf(entry).trim().toLowerCase() === wanted);
+  return hit === undefined ? null : hit.slice(hit.indexOf(":") + 1).trim();
+}
+
 // The connectors that can answer "which account am I on?" cleanly enough to build
 // a verdict on. Slack is the whole list ON PURPOSE (owner, 2026-08-05): it is where
 // the mistake costs the most and the one that answers without ambiguity. Widening
@@ -94,7 +139,7 @@ export function compareConnectorAccount({ tool, declared, observed }) {
 // `https://acme.slack.com/archives/…`, an API field says `acme`. All three are the
 // same workspace, and a comparison that cannot see that would cry divergence on a
 // correctly connected brain — the failure mode CONVENTIONS.md §5quater is about.
-function slackWorkspace(value) {
+export function slackWorkspace(value) {
   return String(value)
     .trim()
     .toLowerCase()

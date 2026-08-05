@@ -124,6 +124,16 @@ export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) 
 }
 
 /**
+ * The `## Connector accounts` bullets of a profile note, as written (`Slack:
+ * acme.slack.com`), or [] when the page declares none. Pure — the same reader the
+ * digest uses, so what gets CHECKED can never be a different list from what gets
+ * shown.
+ */
+export function profileConnectorEntries(raw) {
+  return bodySections(parseNote(raw).body).connectors;
+}
+
+/**
  * The short block injected at EVERY session start (F1). Deliberately NOT the
  * digest: it states which sphere is in force and stops there. Pure.
  */

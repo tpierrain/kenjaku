@@ -190,3 +190,107 @@ test("runSetUniverseProfile --digest stays silent once that universe's offer was
   assert.equal(runSetUniverseProfile(["--digest"], args), 0);
   assert.deepEqual(calls.logged, []);
 });
+
+// ── --check-slack: a declared connector is not a verified one (14.6) ─────────
+// The native connectors are single-account and do NOT follow a `/switch`, so the
+// declaration on the page can be right on screen while the connector is still
+// authenticated on the sphere the owner just left. Only the model can ask Slack;
+// this door does the comparing, because a string comparison is not its job.
+
+const ACME_WITH_SLACK =
+  "---\ntype: universe\ndisplayName: Acme Corp\n---\n\n# Acme Corp\n\n" +
+  "## Connector accounts\n\n- Slack: acme.slack.com\n";
+
+test("runSetUniverseProfile --check-slack refuses when the connector is on another workspace", () => {
+  const { args, calls } = deps({ files: { "/brain/vault/acme/universe.md": ACME_WITH_SLACK } });
+
+  const code = runSetUniverseProfile(
+    ["--check-slack", "https://globex.slack.com/archives/C0123/p1712345678"],
+    args,
+  );
+
+  assert.equal(code, 1);
+  assert.deepEqual(calls.logged, []);
+  assert.deepEqual(calls.errored, [
+    "✗ Slack is on 'globex' — this universe declares 'acme'. " +
+      "Do not read or file Slack data here until the connector is reconnected to 'acme'.",
+  ]);
+});
+
+test("runSetUniverseProfile --check-slack says out loud when the connector matches", () => {
+  // Silence here would be the defect wearing a different hat: "I checked and it is
+  // fine" and "nothing ran" must not reach the session as the same nothing.
+  const { args, calls } = deps({ files: { "/brain/vault/acme/universe.md": ACME_WITH_SLACK } });
+
+  const code = runSetUniverseProfile(["--check-slack", "acme"], args);
+
+  assert.equal(code, 0);
+  assert.deepEqual(calls.errored, []);
+  assert.deepEqual(calls.logged, [
+    "✓ Slack is on 'acme', which is what this universe declares (observed, not assumed).",
+  ]);
+});
+
+test("runSetUniverseProfile --check-slack does not cry divergence when nothing is declared", () => {
+  // A page that declares no Slack account has no claim to contradict. Reporting
+  // that as a mismatch would send the owner to reconnect a connector that is fine
+  // — and teach them to stop reading the check (CONVENTIONS.md §5quater).
+  const { args, calls } = deps({
+    files: {
+      "/brain/vault/acme/universe.md":
+        "---\ntype: universe\ndisplayName: Acme Corp\n---\n\n# Acme Corp\n\n## People\n\n- Zoe (CTO)\n",
+    },
+  });
+
+  const code = runSetUniverseProfile(["--check-slack", "globex"], args);
+
+  assert.equal(code, 0);
+  assert.deepEqual(calls.errored, []);
+  assert.deepEqual(calls.logged, [
+    "? This universe declares no Slack account, so there is nothing to check against. " +
+      "Slack is on 'globex'; if that is the right workspace here, add `- Slack: globex` " +
+      "under `## Connector accounts` in vault/acme/universe.md.",
+  ]);
+});
+
+test("runSetUniverseProfile --check-slack survives a universe with no profile page at all", () => {
+  // The normal state of every brain installed before profiles existed. An
+  // exception here would take down the check the moment it is most plausible.
+  const { args, calls } = deps();
+
+  const code = runSetUniverseProfile(["--check-slack", "globex.slack.com"], args);
+
+  assert.equal(code, 0);
+  assert.deepEqual(calls.errored, []);
+  assert.deepEqual(calls.logged, [
+    "? This universe has no profile page yet, so it declares no accounts to check against. " +
+      "Slack is on 'globex'. `/switch` can describe this sphere, accounts included.",
+  ]);
+});
+
+test("runSetUniverseProfile --check-slack with nothing observed says so, and never reads as a match", () => {
+  // The model calls this after a Slack tool call that may have returned nothing
+  // usable. "I could not find out" is its own answer, and it still exits 0: a
+  // non-zero would have the skill report a failed check (14.2's call).
+  const { args, calls } = deps({ files: { "/brain/vault/acme/universe.md": ACME_WITH_SLACK } });
+
+  const code = runSetUniverseProfile(["--check-slack"], args);
+
+  assert.equal(code, 0);
+  assert.deepEqual(calls.errored, []);
+  assert.deepEqual(calls.logged, [
+    "? Slack: this universe declares 'acme' — I could not find out which workspace " +
+      "the connector is actually on. Treat it as a claim.",
+  ]);
+});
+
+test("runSetUniverseProfile --check-slack is read-only: it never writes and never reindexes", () => {
+  // It runs before every Slack read, which is several times a session. A side
+  // effect here would be the most frequently fired one in the whole engine.
+  const { args, calls } = deps({ files: { "/brain/vault/acme/universe.md": ACME_WITH_SLACK } });
+
+  runSetUniverseProfile(["--check-slack", "globex"], args);
+
+  assert.deepEqual(calls.written, []);
+  assert.deepEqual(calls.spawned, []);
+});
