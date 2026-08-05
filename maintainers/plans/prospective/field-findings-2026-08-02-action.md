@@ -1350,7 +1350,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         question), plus the `--check` command in the "run it yourself" block.
 - [ ] **14.5 — the release tail — 🛑 BLOCKED ON THE OWNER, BY HIS OWN ASK, AND THAT IS THE RESUME
       POINT.** F3 and its sibling are **done** (14.1 → 14.4, all green and pushed, PR #58 open as a
-      draft). Nothing else in this plan is in v4.8.0's scope **until the owner adds it on his return** —
+      draft; **full matrix 7/7 on `c91d303`**, suite 1419 tests / 1 skipped Windows-only). Nothing else in this plan is in v4.8.0's scope **until the owner adds it on his return** —
       he said so explicitly while handing the branch over. So do **not** start the tail, and do **not**
       pull the next P0/P1/P3 entry in on your own initiative.
   - [ ] **What is left to do, once he has spoken**: whatever he adds, then the usual tail — §10 marketing
