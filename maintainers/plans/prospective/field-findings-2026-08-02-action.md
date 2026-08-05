@@ -1710,6 +1710,28 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           `scripts/upstream-check-run.mjs`. **Nothing under `rag/src` changed.** Recipe and traps: Step 11
           (disposable worktree — NOT the scratchpad, `rag/node_modules` symlinked and **verified**, one or
           two files per run to stay inside the 10-min cap, reset between batches).
+    - [x] **The worktree is up and verified** _(2026-08-05)_: `/Users/tpierrain/Dev/kenjaku-mut-v480`,
+          detached at `e51cf40`, `rag/node_modules` symlinked → `vault-write-guard.test.mjs`
+          **22 pass / 0 skipped** there (the invariant is *0 skipped*, not the old count of 9).
+          Between batches: `git reset --hard e51cf40` + `git clean -qfd -e rag/node_modules` from the
+          worktree — **never `git checkout -- .`** (an `auto-commit.mjs` mutant can commit the
+          instrumented tree). Command: the batch config, `--mutate "<comma-separated paths>"`.
+    - [ ] **Batch 1 RUNNING** _(2026-08-05)_ — the update-check core, i.e. the code the release is named
+          after: `scripts/lib/engine-fetch.mjs, scripts/lib/upstream-cache.mjs,
+          scripts/lib/semver-tag.mjs, scripts/upstream-check-run.mjs`. Log:
+          `maintainers/mutation/reports/v480-batch1-upstream.log`. **If a `/clear` lands here**: read that
+          log, write the per-file scores and each survivor below, then treat every survivor as a suite
+          defect first (§2 assertion quality), debt only when it is a package-wide shape.
+    - [ ] **Batch 2, not started** — `scripts/lib/engine-update-check.mjs, scripts/update-engine.mjs`
+          (the two biggest, and the consent path).
+    - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
+    - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
+          scripts/lib/filed-note.mjs` (14.7's three layers).
+    - [ ] **Batch 5, not started** — `scripts/lib/connector-accounts.mjs,
+          scripts/lib/consolidation-candidates.mjs, scripts/lib/wiki-lint.mjs`.
+    - [ ] **Batch 6, not started** — `scripts/lib/universe-profile.mjs, scripts/set-universe-profile.mjs`.
+    - [ ] **Then**: record the pass in `maintainers/mutation/RESULTS.md` under a `v4.8.0` section, and
+          remove the worktree (`git worktree remove`) once the last batch is read.
     - [ ] **§10, the marketing-surface re-read** (`README.md`, `EN-QUOI-C-EST-DIFFERENT.md`,
           `CONNECTORS.md`, the boards through their alt texts): what this release made false, and what it
           shipped that no surface sells. The update check's *"what it is not"* belongs here too.
