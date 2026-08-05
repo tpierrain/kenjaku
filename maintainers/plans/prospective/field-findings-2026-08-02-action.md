@@ -164,7 +164,9 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.6 (the Slack account check), on `release/v4.8.0`.**
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.6 (the Slack account check), on `release/v4.8.0`.** Its
+> code has been READ and its design is CLOSED in its own entry (the surface moved from session start to
+> the `/switch` digest); resume at its first unchecked box, and do not re-open the reading.
 > F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
 > came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
 > brain's backlog: **14.5** ✅ done (two `/lint` defects), **14.6** (the Slack account check), **14.7**
@@ -1432,9 +1434,38 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [ ] **Fail-soft, always.** A connector that is absent, logged out, slow or expired must not break
         session start. Same discipline as the health probe (ADR 0028): the user-facing path stays cheap,
         the network work does not block it.
-  - [ ] **Read before building**: how the digest is composed today (`renderUniverseDigest`), and whether
-        the check belongs at session start, at `/switch`, or both. Do not add a new `node scripts/*.mjs`
-        door without checking the allowlist — that is the F17 lesson recorded at 14.2.
+  - [x] **Read before building — DONE, and it MOVED the surface** _(2026-08-05)_. Two corrections to the
+        framing above, both verified in code, neither of which changes the defect:
+    - [x] **Session start does NOT carry the connector accounts.** What rides every session is
+          `renderUniverseSynthesis` (`universe-profile.mjs:126`) — the identity line plus the note's path,
+          and nothing else (F1 deliberately took the body out). The declared accounts live in the
+          **digest**, and the digest is printed by `node scripts/set-universe-profile.mjs --digest`, which
+          the `/switch` skill runs **right after a switch** and again when the owner asks to see their
+          description. So the leak surface **is** the switch moment the entry describes — the check belongs
+          **at `/switch` (the digest), not at session start**, and no session-start work is needed.
+    - [x] **The generic reminder already exists and is not enough**: `universes.mjs:175` appends
+          *"native connectors are single-account and don't follow this switch"* on landing in a named
+          universe. It is a warning nobody can act on and nothing verifies; the declared account was meant
+          to sharpen it, and instead it added a printed claim.
+    - [x] **Allowlist re-checked, not assumed**: `.claude/settings.json.template` still allowlists no
+          `node scripts/*.mjs` at all, so **every** engine-script door already prompts and a NEW file would
+          add one more. **Same shape as 14.2: a flag on the EXISTING `set-universe-profile.mjs`.**
+  - [ ] **The split, which the tooling forces and which is also the honest one**: only the **model** can
+        ask Slack (an MCP call is the one door), so the model **observes** and the **deterministic core
+        classifies, compares and words the verdict** (ADR 0009 — a string comparison is not the LLM's job).
+        The observation is taken as whatever names the workspace in a Slack result (a permalink host, a
+        domain, a bare slug), because which Slack connector is installed is not the engine's business.
+    - [ ] **`scripts/lib/connector-accounts.mjs`** (pure): which tools can answer at all, the
+          three-state comparison, and the rendering the digest uses so a declaration can no longer be
+          printed in the shape of an observation.
+    - [ ] **The door**: `--check-slack "<observed>"` on `set-universe-profile.mjs`. **Exit 1 only on
+          divergence** (the one state where the next act must not happen); matching **and** "cannot say"
+          both exit 0 — 14.2's lesson, a non-zero would make the skill report a failed check where the
+          honest sentence is *"I could not find out"*.
+    - [ ] **Prose carriers + a section-sliced doc guard** (`doc-section.mjs`, as the claim, identity and
+          consent guards): `/switch` (the surface that prints the digest) and `sync-sources` EN + FR (the
+          surface that actually reads Slack). Mind the FR trap: a guarded phrase wrapping across two lines
+          goes red for typography, not for meaning.
 - [ ] **14.7 — an AI summary served as a source while the verbatim sat in the same file.** _(owner,
       2026-08-05: "dans v4.8.0, maintenant" — the three layers)_ **The important part, and the reason a
       fourth prose rule would be a waste**: the rule **already exists in both constitutions**
