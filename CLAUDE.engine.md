@@ -398,10 +398,14 @@ On each ingestion of external data, cross-reference with `vault/backlog/*.md`:
 
 Never present an action as "to do" without having checked that it hasn't already been done. Checked actions stay in the file (tracking register, no deletion).
 
-**Proactive action-item verification (question-first).** When you list actions from external sources, follow the same flow as the main flow:
-1. **Phase 1**: present the actions from the vault right away (fast answer, even if statuses aren't verified yet).
+**Proactive action-item verification (question-first).** The trigger is **displaying** an unchecked action, not ingesting a source — reading the vault back is enough, so *"show me what I'm expected to deliver"*, answered from `vault/backlog/*.md` alone, is this case. Same flow as the main flow:
+1. **Phase 1**: present the actions from the vault right away (fast answer), saying on the line that the statuses are not verified yet.
 2. **Phase 2**: in the background, look for **execution traces** (message sent, commit, email, meeting confirmation) that would show an action is already done.
 3. **Phase 3**: amend — check `[x]` what's done, drop it from the "to do" list, add any newly detected actions.
+
+**Never a mute `- [ ]`.** An unchecked box means *not re-verified*, never *not done*: it records when someone last wrote that line, not the state of the world. A box whose execution trace you did not look for is displayed as **status not verified**, on the line itself. Passing a stale checkbox off as a fact is the same defect as reporting a silence you never checked.
+
+**Cap what you display — backlogs and action items only, not long answers in general.** ~3 at the head, the rest folded, and say both: **how many** you folded, and **on what basis** you picked the head (what is most at stake or most overdue, never the file's order). Dumping the list is not exhaustiveness, it hands the triage back to the person who asked you to do it; folding it in silence is the same defect wearing the other mask.
 
 The user should never have to correct "careful, that's already done": it's on Claude to verify upfront.
 
