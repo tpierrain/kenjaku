@@ -66,7 +66,41 @@ of itself on the same shape elsewhere: **something asserted without ever being c
 
 ### Measured, not asserted
 
-<!-- MUTATION SNAPSHOT — filled from RESULTS.md § v4.8.0 once the pass is complete -->
+The largest targeted pass this project has run: **16 production files** (the whole `main...HEAD` diff —
+nothing under `rag/src` or `local-mirror/src` changed, measured not assumed), six batches in a disposable
+worktree, **every hardened file re-measured**. Full detail and the equivalence lists:
+[`RESULTS.md` § v4.8.0](maintainers/mutation/RESULTS.md).
+
+**Thirteen of the sixteen end at 94 % or above, one at 100 %.** Highlights:
+`lib/consolidation-candidates.mjs` **100 %**, `lib/connector-accounts.mjs` 89.72 → **98.26 %**,
+`update-engine.mjs` 93.20 → **97.60 %**, `lib/engine-update-check.mjs` 86.07 → **97.03 %**,
+`lib/ai-summary-guard.mjs` **58.41 → 96.33 %**, `lib/wiki-lint.mjs` 88.50 → **96.31 %**,
+`set-universe-profile.mjs` 80.00 → **94.00 %**.
+
+- **The finding — 28 of 47 survivors sat in four regexes**, and **both anchors of every one** could be
+  dropped green. An unanchored heading match is not a wider net, it is a **different** one: it fires on
+  any line that merely *mentions* the transcript, so the notice points its reader at a "Transcription
+  section" of a document whose whole point is that the transcript was never kept. Three pieces of **dead
+  code** came out with it (a subsumed Gemini signature, two unreachable `spec.sources` branches, and a
+  `typeof === "string"` that reads as belt-and-braces and is not).
+- **The recurring family everywhere else: the absent case and the second element** — the freshest-citation
+  contest was never fed a contest, a presence check reaching for `.length` reported YAML `Date` values as
+  missing keys, and `realProfileDeps` / `realIo` (the seams every flow test replaces) were observed by
+  nothing at all.
+- **Three files are NOT hardened, and they are named as debt rather than implied**:
+  `upstream-check-run.mjs` **0 %** and `session-status.mjs` **0 %** (the latter inherited, carried by
+  every tag since v4.4.0 — written that way so the batch totals cannot read as rot this release caused)
+  and `lib/engine-fetch.mjs` **54.05 %**, whose 21 `defaultGit` mutants are the shape v4.5.0 already
+  solved once in `verify-index.mjs` and never propagated. Both remedies were **arbitrated to v4.9.0** by
+  the owner, with the risk stated out loud: it is the same locally-right deferral as v4.5.0 and v4.6.0.
+  The **third** remedy shipped here instead — `CONVENTIONS.md` §5quinquies, a new production file is
+  mutated the **day it is written**, which is the direct answer to this release's two new lib files
+  landing at 84-87 % on their first pass.
+- **One measurement anomaly, proven twice, and it is the tool's**: `wiki-lint.mjs:194`'s
+  `freshest && updated → ||` mutant is reported *Survived* but **fails the suite when applied by hand**,
+  before and after hardening; targeted re-runs reproduce it. The mutant Stryker activates is not the one
+  its reporter prints. Stated in the direction it runs: the published score is **conservative, never
+  flattering** — and it is why every batch-5/6 survivor was re-applied by hand before a test was written.
 
 ### CI
 

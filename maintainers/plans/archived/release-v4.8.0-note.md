@@ -64,6 +64,32 @@ a note that does not say what it was built from, and the refusal names the field
 
 ---
 
+### Measured, not asserted
+
+The **sixteen** files this release changed went through a mutation pass — code deliberately broken, one
+change at a time, to check the tests notice. It is the largest pass this project has run, and the one
+that taught the most.
+
+The worst first score, **58 %**, was the guard that tells you a document holds both an AI recap and the
+real transcript. Nearly two thirds of what it missed sat in **four small patterns** used to recognise a
+heading: matched loosely, they fire on any line that merely *mentions* the transcript — so the notice
+would have sent you "to the Transcription section" of a document whose whole point is that the
+transcript was never kept. After the pass: **96 %**, and three pieces of dead code deleted rather than
+excused. The same shape came back everywhere else: the case nobody had fed was the **absent** one (no
+date, no answer, nothing observed) and the **second** element (one citation instead of two, one bullet
+instead of a list).
+
+**Thirteen of the sixteen files end at 94 % or above, one at 100 %.** The three that do not share one
+old weakness, named in writing here for three releases now: a couple of files are *launchers*, which no
+test can load, and one of them is the piece that actually runs `git`. Two of the three have been that
+way for months; the third is new here and fell into the same shape, which is the honest part of the
+story. The repair was designed, written down and **scheduled for the next release** rather than quietly
+left — with a new rule aimed at the cause: from now on a new file is checked this way **the day it is
+written**, instead of months later at the end of a release.
+
+A published release is frozen, so these numbers stay true for this tag forever. Full detail:
+[`maintainers/mutation/RESULTS.md`](maintainers/mutation/RESULTS.md).
+
 ### Under the hood
 
 - **The target was knowable all along.** The check is one `git ls-remote --tags` — the very call the real
