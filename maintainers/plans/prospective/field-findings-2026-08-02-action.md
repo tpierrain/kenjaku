@@ -1057,6 +1057,10 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       engine for the whole session and never says so, so **F1's privacy fix silently does not apply
 >       there**. The pull is already first; the gap is that the restart nudge cannot see an engine that
 >       arrived by pull. Its entry carries the verification and the fix shape: **do not re-derive them.**
+> - [ ] **F22** (`### P3`) — **NEW, field 2026-08-05**: `/univers` is an unknown command, so the owner
+>       reaches for a door that does not open. The command is named after the verb (`/switch`) while it
+>       owns the noun. Its entry carries the mechanism check (a FR-only skill is NOT deliverable today)
+>       and three options, one of them dominated. **A naming call is open for the owner: A or B.**
 > - [ ] **F21** (`### P3`) — **NEW, same field session**: the index says *19 pending, auto-resume on the
 >       next session* while the watcher is idle and there is no quota to wait for. The engine promises a
 >       resume it cannot know is coming, and F11/F12's failure-is-not-a-wait fix never reached this
@@ -1834,6 +1838,37 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   - [ ] **The root it shares with F20, worth stating once**: on a multi-machine brain, **session start
         is a race between what arrives and what reads it**. The pull delivers code and notes at the
         same instant the hooks and the MCP server read them. F20 is the code half, F21 the notes half.
+- [ ] **F22 — the command is named after the verb, and the owner reaches for the noun.
+      🔜 v4.7.0 CANDIDATE** _(field, owner, 2026-08-05: typed `/univers`, twice, got
+      `Unknown command: /univers` and `Args from unknown skill: shodo`, then had to type `/switch`
+      himself. His ask: an alias `/univers` → `/switch`, or failing that a message pointing at it.)_
+  - [ ] **Why it happens, and it is not a typo.** `/switch` does far more than switching: it creates a
+        universe, records and shows a profile, lists, renames. Someone thinking about the **thing**
+        (*univers*) does not guess a command named after the **action**. The startup block does name
+        `/switch`, and it still did not carry — a pointer is not a lookup.
+  - [ ] **No hook can catch it**: an unknown slash command fails in the CLI, before any model turn. So
+        the only mechanism is *the command existing*.
+  - [ ] **Mechanism, checked in the code — two facts that shape the options.**
+    - [ ] **A command IS a skill directory name** (`.claude/skills/<name>/SKILL.md`); this repo has no
+          `.claude/commands/` at all. So an alias = a directory, and its cost against **F19** is only
+          its **frontmatter description** (the body loads on invocation). A stub alias is deliberately
+          ~2 lines: the routing for a typed `/x` is literal, so it needs no trigger prose.
+    - [ ] **A FR-ONLY skill is NOT deliverable today.** The locale overlay is per-file
+          (`templates/<locale>/<rel>` replaces the same `<rel>`, `engine-copy-select.mjs`), and the copy
+          list is driven by manifest globs over paths that exist at the **root**. A file living only
+          under `templates/fr/` is in no copy list. So "ship `/univers` to FR brains only" would need a
+          new delivery mechanism — do not assume it is free.
+  - [ ] **The three options, with the one that is strictly dominated marked as such.**
+    - [ ] **A. Two thin aliases at the root, `universe` + `univers`** — both locales get both;
+          cost = two short descriptions in the always-loaded layer. **Recommended**: cheap, reversible,
+          no rename, and it covers the English guess as well as the French one.
+    - [ ] **B. One alias, `universe` only** — cheapest, respects English-only command names, and
+          **does not fix the case that was actually reported**.
+    - [ ] **C. Rename `/switch` → `/universe`, keeping `/switch` as the alias. DOMINATED — do not
+          pick it for the fleet.** The reconciler installs skills by directory name and never removes
+          one, so on every deployed brain a rename **is** an alias *plus* a stale duplicate of the old
+          command. Strictly worse than A.
+  - [ ] **Open for the owner, since it is a naming decision on the product's own surface**: A or B.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
