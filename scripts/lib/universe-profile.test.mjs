@@ -510,6 +510,27 @@ test("renderUniverseDigest reads a HAND-EDITED profile, trailing spaces in the h
   assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Zoe (CTO), Alice (PM).");
 });
 
+test("renderUniverseDigest reads a bullet written TIGHT against its dash", () => {
+  // `-Alice` with no space is not valid Markdown and Obsidian renders it as plain
+  // text — but it is still what a hurried hand types, and the digest is built from
+  // the page as it IS. Left unstripped, the dash rides into the sentence and the
+  // owner reads "People: -Alice (PM)" — a typo they never made, in the one block
+  // the session quotes about their own world.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "## People",
+    "-Alice (PM)",
+  ].join("\n");
+
+  assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Alice (PM).");
+});
+
 // --- the session-start SYNTHESIS (F1) ----------------------------------------
 // The digest above is what the owner PULLS after a switch. What rides every
 // session is a different, narrower rendering: the profile's body is vault-only

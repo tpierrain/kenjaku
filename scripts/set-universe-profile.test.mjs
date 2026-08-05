@@ -1,7 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { runSetUniverseProfile } from "./set-universe-profile.mjs";
+import { runSetUniverseProfile, realProfileDeps } from "./set-universe-profile.mjs";
 
 // The deterministic surface behind the profile questions (ADR 0009): the skill
 // gathers answers conversationally, this CLI is what actually writes the note, so
@@ -284,6 +287,40 @@ test("runSetUniverseProfile --check-slack with nothing observed says so, and nev
   ]);
 });
 
+// ── the answers arrive on stdin, and stdin is written by a model ─────────────
+
+test("runSetUniverseProfile refuses answers that are not JSON, and says what was wrong", () => {
+  // stdin is composed by the session, so a truncated or half-quoted payload is a
+  // shape that WILL occur. Swallowed, the run would fall through into writing a
+  // profile out of `undefined`; silent, the caller would be told nothing it could
+  // act on. So: exit 1, and the parser's own message quoted rather than summarised.
+  const { args, calls } = deps({ readInput: () => '{"displayName": "Acme Corp"' });
+
+  const code = runSetUniverseProfile(["--no-reindex"], args);
+
+  assert.equal(code, 1);
+  assert.deepEqual(calls.written, []);
+  assert.equal(calls.errored.length, 1);
+  assert.match(calls.errored[0], /^✗ Invalid JSON answers on stdin: .+/);
+});
+
+test("runSetUniverseProfile reindexes through npm.cmd on Windows, npm everywhere else", () => {
+  // Spawning bare `npm` on Windows finds nothing (the executable is `npm.cmd`), so
+  // the profile would be written and never indexed — the page exists, the brain
+  // cannot answer from it, and nothing on screen says so. The shell flag rides with
+  // it: npm.cmd needs one since Node 18.20 (CVE-2024-27980) or the spawn is EINVAL.
+  const windows = deps({ platform: "win32" });
+  runSetUniverseProfile([], windows.args);
+  assert.deepEqual(windows.calls.spawned, [
+    ["npm.cmd", ["run", "--silent", "reindex"], { cwd: "/brain/rag", stdio: "inherit", shell: true }],
+  ]);
+
+  const linux = deps({ platform: "linux" });
+  runSetUniverseProfile([], linux.args);
+  assert.equal(linux.calls.spawned[0][0], "npm");
+  assert.equal(linux.calls.spawned[0][2].shell, false);
+});
+
 test("runSetUniverseProfile --check-slack is read-only: it never writes and never reindexes", () => {
   // It runs before every Slack read, which is several times a session. A side
   // effect here would be the most frequently fired one in the whole engine.
@@ -293,4 +330,68 @@ test("runSetUniverseProfile --check-slack is read-only: it never writes and neve
 
   assert.deepEqual(calls.written, []);
   assert.deepEqual(calls.spawned, []);
+});
+
+// ── the REAL wiring, not the fake one ────────────────────────────────────────
+// Every test above injects `deps`, which is what makes the flow readable — and it
+// also means the real seams below were observed by nothing at all. They decide
+// what the deployed script actually reads and writes, so they are read here
+// through the real fs, exactly the way batch 2b read the real manifest.
+
+test("realProfileDeps.io round-trips a note through the real filesystem, as TEXT", () => {
+  // `readFileSync` without an encoding returns a Buffer, and a Buffer is what made
+  // the pointer read throw in the field: the cores below expect a string, and a
+  // Buffer only reveals itself once someone calls a string method on it.
+  const dir = mkdtempSync(join(tmpdir(), "sbg-profile-io-"));
+  try {
+    const path = join(dir, "nested", "universe.md");
+    const io = realProfileDeps.io;
+
+    assert.equal(io.existsSync(path), false);
+    io.mkdirSync(join(dir, "nested"), { recursive: true });
+    io.writeFileSync(path, "# Acme Corp\n");
+
+    assert.equal(io.existsSync(path), true);
+    const read = io.readFileSync(path);
+    assert.equal(typeof read, "string");
+    assert.equal(read, "# Acme Corp\n");
+    assert.equal(readFileSync(path, "utf-8"), "# Acme Corp\n"); // and really on disk
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("realProfileDeps.today is the DAY, in the form the note's frontmatter carries", () => {
+  // A full ISO timestamp here would land `created: 2026-08-05T19:41:02.114Z` in the
+  // frontmatter of every profile — a lint violation on the very page the engine
+  // writes, and a date nobody can compare against the other notes' dates.
+  const today = realProfileDeps.today();
+
+  assert.match(today, /^\d{4}-\d{2}-\d{2}$/);
+  assert.equal(today, new Date().toISOString().slice(0, 10));
+});
+
+test("realProfileDeps.cwd is the process's own directory — the brain the run stands in", () => {
+  assert.equal(realProfileDeps.cwd(), process.cwd());
+});
+
+test("realProfileDeps.log and .error write to the two streams, and not to the same one", () => {
+  // The refusal path exits non-zero and its sentence must reach stderr: a check
+  // whose complaint lands on stdout gets swallowed by a caller reading only the
+  // one stream it expected, and the divergence goes quiet.
+  const seen = { out: [], err: [] };
+  const realLog = console.log;
+  const realError = console.error;
+  console.log = (...a) => seen.out.push(a.join(" "));
+  console.error = (...a) => seen.err.push(a.join(" "));
+  try {
+    realProfileDeps.log("✓ written", "vault/acme/universe.md");
+    realProfileDeps.error("✗ diverging");
+  } finally {
+    console.log = realLog;
+    console.error = realError;
+  }
+
+  assert.deepEqual(seen.out, ["✓ written vault/acme/universe.md"]);
+  assert.deepEqual(seen.err, ["✗ diverging"]);
 });
