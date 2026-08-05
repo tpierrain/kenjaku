@@ -157,10 +157,16 @@ export function extractWhatYouGet(body) {
 // metadata only (no vault content ever leaves), a short timeout, and EVERY failure
 // — offline, rate limit, private repo, a body that is not the list we expected —
 // answered with null so the caller degrades to the versions instead of failing the
-// check. `fetchImpl` is injected so this stays reachable from a test offline.
-export async function defaultFetchReleases(url, { fetchImpl = fetch, timeoutMs = 5000 } = {}) {
+// check. `fetchImpl` is injected so this stays reachable from a test offline, and
+// `timers` because clearing the abort timer changes nothing an owner can see, so
+// only a named seam can assert it happens (this runs in a detached child that must
+// finish and exit, and a live 5-second timer keeps its event loop alive).
+export async function defaultFetchReleases(
+  url,
+  { fetchImpl = fetch, timeoutMs = 5000, timers = realTimers } = {},
+) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = timers.setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetchImpl(url, {
       headers: { accept: "application/vnd.github+json", "user-agent": "kenjaku-update-check" },
@@ -172,9 +178,13 @@ export async function defaultFetchReleases(url, { fetchImpl = fetch, timeoutMs =
   } catch {
     return null;
   } finally {
-    clearTimeout(timer);
+    timers.clearTimeout(timer);
   }
 }
+
+// Node's own timers, named for the same reason `realCheckDeps` is: every test
+// overrides them, so the real pair needs an assertion of its own.
+export const realTimers = { setTimeout, clearTimeout };
 
 // The check as an owner reads it, in the terminal. The three states each get their
 // own shape on purpose — this is the whole finding: a generic offer rendered "no

@@ -8,6 +8,7 @@ import {
   formatUpdateCheck,
   githubReleasesApiUrl,
   realCheckDeps,
+  realTimers,
   releasesAhead,
 } from "./engine-update-check.mjs";
 import { defaultGit } from "./engine-fetch.mjs";
@@ -172,6 +173,19 @@ test("githubReleasesApiUrl — anything that is not GitHub has no endpoint, and 
   assert.equal(githubReleasesApiUrl(null), null);
 });
 
+test("githubReleasesApiUrl — the address must BE the remote, not merely contain it", () => {
+  // The anchor is what stops a stray sentence, a path with the remote embedded in it
+  // or a look-alike host from being read as our repo and queried as if it were.
+  assert.equal(githubReleasesApiUrl("see git@github.com:tpierrain/kenjaku.git"), null);
+  assert.equal(githubReleasesApiUrl("https://notgithub.com/tpierrain/kenjaku.git"), null);
+  // A plain-http remote is unusual but legal, and it is the same repo.
+  assert.equal(
+    githubReleasesApiUrl("http://github.com/tpierrain/kenjaku.git"),
+    "https://api.github.com/repos/tpierrain/kenjaku/releases?per_page=100",
+    "the endpoint is always https, whatever spelling the remote uses",
+  );
+});
+
 // The real shape of a Kenjaku release note (§11): a lead, the `### What you get`
 // bullets written for a non-developer, then sections nobody consents on.
 const RELEASE_BODY = [
@@ -210,6 +224,66 @@ test("extractWhatYouGet — a note without that section yields null, so layer C 
   assert.equal(extractWhatYouGet("### What you get\n\n\n### What you have to do\n\nrun it"), null);
   assert.equal(extractWhatYouGet(""), null);
   assert.equal(extractWhatYouGet(null), null);
+});
+
+test("extractWhatYouGet — the section runs to the end of the note, last line included", () => {
+  // A release note that ends on its bullets has no terminator to stop at. Nothing
+  // may be shaved off the end: the last bullet is a promise the owner consents to.
+  assert.equal(
+    extractWhatYouGet("### What you get\n\n- first thing\n- the very last thing"),
+    "- first thing\n- the very last thing",
+  );
+});
+
+test("extractWhatYouGet — the heading must BE the heading: whole line, whole words", () => {
+  // Each of these is a way a note can merely TALK about the section. Reading one as
+  // the section itself would quote arbitrary prose into a consent prompt.
+  assert.equal(extractWhatYouGet("read the release note: ### What you get\n\n- not a section"), null);
+  assert.equal(extractWhatYouGet("### What you gettable\n\n- another section entirely"), null);
+  assert.equal(extractWhatYouGet("### What you get later\n\n- another section entirely"), null);
+  // And these ARE the heading, spelled the way real notes spell it.
+  assert.equal(extractWhatYouGet("###   What you get\n\n- extra spaces are still the heading"),
+    "- extra spaces are still the heading");
+  assert.equal(extractWhatYouGet("  ### What you get\n\n- an indented heading is still the heading"),
+    "- an indented heading is still the heading");
+  assert.equal(extractWhatYouGet("## WHAT YOU GET\n\n- any level, any case"), "- any level, any case");
+});
+
+test("extractWhatYouGet — a note that is prose all the way down yields null, not the whole note", () => {
+  // No section AND no heading to stop at: the failure to find must return null on
+  // its own, not fall through to "well, take everything then".
+  assert.equal(extractWhatYouGet("just a paragraph\n\nand another one"), null);
+});
+
+test("extractWhatYouGet — the section can be anywhere, including the second line", () => {
+  assert.equal(extractWhatYouGet("A lead sentence.\n### What you get\n- the goods"), "- the goods");
+});
+
+test("extractWhatYouGet — what ENDS the section: a heading or a rule, on a line of its own", () => {
+  const withRule = ["### What you get", "", "- a bullet", "", "---", "", "### Under the hood", "- internals"];
+  assert.equal(extractWhatYouGet(withRule.join("\n")), "- a bullet", "a horizontal rule ends it");
+
+  const withHeading = ["### What you get", "", "- a bullet", "### What you have to do", "run it"];
+  assert.equal(extractWhatYouGet(withHeading.join("\n")), "- a bullet", "the next heading ends it");
+
+  const indented = ["### What you get", "", "- a bullet", "  ### What you have to do", "run it"];
+  assert.equal(extractWhatYouGet(indented.join("\n")), "- a bullet", "even indented, a heading is a heading");
+
+  // …and what does NOT end it: the same characters inside a sentence, which is how
+  // ordinary bullets are written. Truncating there would drop half the promises.
+  const insideBullets = [
+    "### What you get",
+    "",
+    "- it now reads issue # 3 the way you would",
+    "- a long dash --- like this one --- is just punctuation",
+    "- ---not a rule either",
+    "- the last promise",
+  ];
+  assert.equal(
+    extractWhatYouGet(insideBullets.join("\n")),
+    insideBullets.slice(2).join("\n"),
+    "the whole section, verbatim, bullets that merely contain # or --- included",
+  );
 });
 
 test("checkUpstream — each release carries its own title and its own prose, when they exist", async () => {
@@ -281,6 +355,47 @@ test("checkUpstream — no notes to be had: the versions still answer, and nothi
   assert.deepEqual(elsewhere.releases, [{ version: "v4.7.0", title: null, whatYouGet: null }]);
 });
 
+test("checkUpstream — a malformed release list degrades, it never crashes the check", async () => {
+  // The endpoint is public and outside our control: a null entry, an entry with no
+  // tag at all, and a title that is only whitespace are all shapes it can return.
+  // None of them may throw, and a blank title must read as "no title" rather than
+  // being printed as an empty line where the release name belongs.
+  const report = await checkUpstream({
+    repo: "git@github.com:tpierrain/kenjaku.git",
+    installedRef: "v4.6.0",
+    git: fakeGit({ out: lsRemoteOutput(["v4.6.0", "v4.7.0", "v4.8.0"]) }).git,
+    fetchReleases: async () => [
+      null,
+      { name: "no tag on this one", body: RELEASE_BODY },
+      { tag_name: "v4.7.0", name: "   ", body: "### What you get\n\n- something" },
+    ],
+  });
+
+  assert.deepEqual(report.releases, [
+    { version: "v4.7.0", title: null, whatYouGet: "- something" },
+    { version: "v4.8.0", title: null, whatYouGet: null },
+  ]);
+});
+
+test("checkUpstream — a brain with no source recorded asks the network nothing at all", async () => {
+  // "No address to check" is answered from what the brain knows about itself. Running
+  // the git call anyway would be an outbound call made on behalf of a brain that
+  // never declared a remote to talk to.
+  const { git, calls } = fakeGit({ out: lsRemoteOutput(["v4.8.0"]) });
+  let fetched = 0;
+
+  const report = await checkUpstream({
+    repo: null,
+    installedRef: "v4.7.0",
+    git,
+    fetchReleases: async () => (fetched++, []),
+  });
+
+  assert.deepEqual(calls, [], "no source recorded → not one outbound call");
+  assert.equal(fetched, 0);
+  assert.equal(report.state, "unknown");
+});
+
 test("checkUpstream — with nothing to install, the notes are never fetched", async () => {
   let called = 0;
   const report = await checkUpstream({
@@ -350,6 +465,34 @@ test("defaultFetchReleases — a hung endpoint is abandoned, and the check moves
   });
 
   assert.equal(hung, null, "it gave up on its own timeout instead of waiting for the endpoint");
+});
+
+test("defaultFetchReleases — the abort timer is cleared, whatever the answer was", async () => {
+  // Nothing an owner sees changes when the timer survives — which is exactly why it
+  // needs its own assertion. A stray 5-second timer keeps the event loop alive, and
+  // this call runs inside a DETACHED child whose only job is to finish and exit.
+  const cleared = [];
+  const timers = {
+    setTimeout: (fn, ms) => ({ fn, ms }),
+    clearTimeout: (handle) => cleared.push(handle),
+  };
+
+  const ok = await defaultFetchReleases("https://api.github.com/x", {
+    timers,
+    fetchImpl: async () => ({ ok: true, json: async () => [{ tag_name: "v4.8.0" }] }),
+  });
+  assert.deepEqual(ok, [{ tag_name: "v4.8.0" }]);
+
+  await defaultFetchReleases("https://api.github.com/x", {
+    timers,
+    fetchImpl: async () => { throw new Error("getaddrinfo ENOTFOUND"); },
+  });
+
+  assert.deepEqual(
+    cleared.map((handle) => handle.ms),
+    [5000, 5000],
+    "cleared on the happy path AND on the failing one — the `finally` is the point",
+  );
 });
 
 test("formatUpdateCheck — an available update leads with the target, then quotes each release", () => {
@@ -475,4 +618,10 @@ test("the real seams are wired, and they are the engine's own — not a second g
   assert.equal(realCheckDeps.git, defaultGit);
   assert.equal(realCheckDeps.fetchReleases, defaultFetchReleases);
   assert.deepEqual(Object.keys(realCheckDeps).sort(), ["fetchReleases", "git"]);
+
+  // Same reasoning one level down: the timer seam exists for the tests, so the pair
+  // the CHILD PROCESS actually runs on is Node's own, asserted by identity.
+  assert.equal(realTimers.setTimeout, setTimeout);
+  assert.equal(realTimers.clearTimeout, clearTimeout);
+  assert.deepEqual(Object.keys(realTimers).sort(), ["clearTimeout", "setTimeout"]);
 });
