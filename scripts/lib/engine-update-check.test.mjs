@@ -284,6 +284,24 @@ test("extractWhatYouGet — what ENDS the section: a heading or a rule, on a lin
     insideBullets.slice(2).join("\n"),
     "the whole section, verbatim, bullets that merely contain # or --- included",
   );
+
+  // …nor at the START of a line, which is the harder half: a heading is hashes
+  // followed by a SPACE, and a rule is three dashes ALONE. `#42` opening a line is
+  // an issue reference, `---and` is a dash-run opening a sentence. Ending the
+  // section on either would silently shorten the very text the owner consents on —
+  // and shorten it from the bottom, where the last promises are.
+  const lineStarts = [
+    "### What you get",
+    "",
+    "#42 is closed at last, and you will notice",
+    "---and this dash-run merely opens a sentence",
+    "- the last promise",
+  ];
+  assert.equal(
+    extractWhatYouGet(lineStarts.join("\n")),
+    lineStarts.slice(2).join("\n"),
+    "a line may BEGIN with # or --- without being a heading or a rule",
+  );
 });
 
 test("checkUpstream — each release carries its own title and its own prose, when they exist", async () => {
