@@ -164,10 +164,11 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7 (an AI summary served as a source), on
-> `release/v4.8.0`.** **14.6 is DONE** (the Slack account check: built, green, field-verified on six
-> states, pushed). 14.7 is three layers and its entry says to build **layer 1 first** (the source header
-> as a builder output) because it is the only one that cannot be talked out of firing. The release
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7 **layer 2** (the non-blocking `PostToolUse` hook), on
+> `release/v4.8.0`.** **14.6 is DONE** (the Slack account check) and **14.7's layer 1 is DONE**
+> _(2026-08-05 · `f333b3d`, pushed)_ — the source header is a builder output, required on every note,
+> and its entry carries the six calls taken while building **plus what it deliberately does not reach**
+> (hand-written notes and the 3b/`refresh-note` append path). Do not re-derive them. The release
 > **tail is 14.8 and still must not be started without the owner**.
 > F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
 > came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
@@ -1516,11 +1517,43 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
       verbatim > human synthesis > AI synthesis"*) **and the defect happened anyway**. It is passive: it
       says how to *rank* sources, never *when* to stop and go read the raw one. This is the
       `repeated-ask-means-unwired-net` pattern — the net exists and never ran.
-  - [ ] **Layer 1, deterministic (the load-bearing one): a source header as a BUILDER OUTPUT.**
-        Same shape as v4.6.0's confidence block, which worked: `scripts/lib/filed-note.mjs` refuses a card
-        whose confidence has no basis. A filed note should likewise be unable to exist without stating
-        **what it was built from** — and an AI synthesis must be nameable as such. Build this one first;
-        it is the only layer that cannot be talked out of firing.
+  - [x] **Layer 1 — ✅ DONE, the source header IS a builder output** _(2026-08-05 · `f333b3d`, pushed;
+        suite 1461 tests, 1 skipped Windows-only)_. `renderFiledNote` refuses a note that declares no
+        source, and renders what it declares above the body. What was decided while building, so it is
+        not re-litigated:
+    - [x] **Required on EVERY note, not only on `person`** (which is where `confidence` stops). The
+          failing session never *chose* the summary over the verbatim — it never met a moment where the
+          question was asked. An optional field is not a net. Cost accepted and paid: 11 existing tests
+          went red and were updated, and a fleet brain whose `/file-back` skill was customized will meet
+          the refusal before it meets the new prose (the message names the field and the scale, same as
+          v4.6.0's confidence refusal did).
+    - [x] **One scale, four tiers, and the key order IS the ranking** (`SOURCE_TIERS`): `verbatim` >
+          `conversation` > `human-summary` > `ai-summary`. `conversation` exists so the ordinary
+          "keep this answer we just worked out" note can say what it is instead of lying about a document
+          or staying silent; it ranks under `verbatim` because a transcript can be re-read and an exchange
+          is gone at the next `/clear`.
+    - [x] **A search-result snippet is refused AS a snippet** (`snippet`, `search-result`,
+          `search-snippet`, `contentSnippet`), naming the gesture that fixes it — open the document. It is
+          not a low tier, it is not a source: it is mechanism (1) of the field defect, the summary that
+          arrives in context before any document is opened. A tier with no `ref` is refused too.
+    - [x] **`source_tier:` stamps the WEAKEST declared tier**, so a note quoting both a transcript and a
+          Gemini block does not launder the summary — and "which notes here rest on an AI synthesis?"
+          stays a query. Triangulated: the stamp follows the scale's order, not the listing order.
+    - [x] **The prose that makes it usable shipped with it**: `/file-back` (the field, the four tiers, the
+          both-in-one-document case, the fifth exit-1) and `/consolidate` (a promoted capture is only
+          `verbatim` when it holds raw material). `/consolidate`'s drafting agent already returned a
+          `### sources` field meaning *backlinks* — two meanings of one word in one skill — so it now
+          returns a tier per capture. Versions bumped (file-back 1.1.0, consolidate 1.2.0).
+    - [x] **Field-verified end to end** on a throwaway brain, not as a unit-test claim: the four refusals
+          as an owner reads them, the written note with both tiers, and `/lint` clean on it (§5quater).
+    - [x] **⚠️ WHAT LAYER 1 DOES NOT REACH, so nobody reads it as an oversight.** The field defect's own
+          note (`shodo/backlog/julien`) was **not** written through the builder — the builder covers
+          *creation through `/file-back` and `/consolidate`* only. Two paths stay uncovered: a hand-written
+          vault note, and `/file-back` step 3b / `refresh-note.mjs` (appending a dated section to a living
+          page, where the section's prose is freehand). 3b now *says* to write the header by hand, which is
+          prose, not a net. **Layer 2 is what reaches those**, and if a fourth surface is ever wanted, the
+          candidate is a `sources` twin of `refresh-note`'s confidence promotion (a card that predates the
+          header can otherwise never gain one, since the skill forbids hand-editing frontmatter).
   - [ ] **Layer 2: a non-blocking `PostToolUse` hook** that notices a summary being consumed as a source
         when a verbatim is reachable. Non-blocking on purpose (ADR 0009's spirit: deterministic, but a
         false positive must cost a line of text, not a refused write). Shape it after
