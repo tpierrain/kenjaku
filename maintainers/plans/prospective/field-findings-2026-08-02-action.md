@@ -1097,15 +1097,28 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > (`archived/release-v4.7.0-note.md`, `archived/release-v4.7.0-pr-body.md`); the mutation numbers for
 > **both halves** are pinned in `mutation/RESULTS.md` § v4.7.0.
 >
-> **⏭️ THE RESUME POINT IS NOW v4.8.0**, whose scope is the list this release deliberately did not take:
-> F13, F3, F10, F8, F9, F2, F19 and the two banner defects routed from P0 (a cached verdict rendered with
-> live authority; an `unknown` check displayed under "found a problem"). **Their entries are untouched and
-> nothing is re-analysed when they come back** — read them where they are, in `### P0`/`### P1`/`### P3`.
-> Two pieces of named debt wait with them and are each a release of their own: the shared
-> `runAsEntrypoint(meta, argv, fn)` (10+ scripts carry the identical three-mutant boot guard) and the
-> `session-*` tier (`session-status.mjs` **0 %** — top-level scripts no test can import). **No branch is
-> open for v4.8.0, and its scope has NOT been decided with the owner yet** — that conversation comes
-> first, exactly as it did on 2026-08-05 for this one.
+> **⏭️ THE RESUME POINT IS `## Step 14` — v4.8.0, SHORT AGAIN, and its scope is DECIDED.**
+>
+> **✅ Decided 2026-08-05, by the owner, right after v4.7.0 shipped** (do not re-open, do not widen):
+> - **v4.8.0 ships F3 and its sibling, and nothing else.** The same cut as v4.7.0: one subject, out fast.
+>   Trigger: the owner's own `/update-engine` prompt that same day said *"je ne sais pas ce qui est
+>   disponible en amont"* and asked for a yes anyway.
+> - **All three layers ship** (the "what you gain" question in F3's entry is CLOSED): versions from
+>   `ls-remote`, **plus** the annotated tag titles, **plus** the release notes' own `### What you get`
+>   section through the GitHub API — each one falling back to the one below it on a fork, a non-GitHub
+>   host, an offline machine or a rate limit, and never to a blank.
+> - **The model does not summarise it** (ADR 0009): the notes are already prose for humans, the skill
+>   quotes them, the deterministic script produces the data.
+>
+> **Everything else keeps waiting, entries untouched, nothing re-analysed when it comes back:** F13, F10,
+> F8, F9, F2, F19 and the two banner defects routed from P0 (a cached verdict rendered with live
+> authority; an `unknown` check displayed under "found a problem"). Two pieces of named debt wait with
+> them and are each a release of their own: the shared `runAsEntrypoint(meta, argv, fn)` (10+ scripts
+> carry the identical three-mutant boot guard) and the `session-*` tier (`session-status.mjs` **0 %** —
+> top-level scripts no test can import).
+>
+> **No branch is open yet.** First step: cut `release/v4.8.0` off `main` (`68785c9` or later), then work
+> `## Step 14`'s boxes in order, TDD, green-only commits, pushing as you go so the Windows tripwire runs.
 >
 > **✅ F20 IS COMPLETE** _(2026-08-05 · `82f49cd`, `ee1c373`)_. Both halves shipped, and the two calls
 > the entry left open are taken below; do not re-open them.
@@ -1235,6 +1248,48 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >         `unknown` version state, F3) and `scripts/lib/health-probe.test.mjs:219`. A comment naming
 >         the wrong release is the same class of defect this plan keeps fixing: a marker that reads as
 >         a promise. Repoint them; do not touch the assertions themselves.
+
+## Step 14 — v4.8.0, short again: consent that can answer "what for?" — 🔜 THE LIVE WORK
+
+> **Scope decided 2026-08-05 by the owner** (see the header): **F3 and its sibling, nothing else.** The
+> full evidence, the code read and the closed design call live in **F3's entry** (`### P3`) — read it
+> there, do not re-derive it. What follows is only the ordered work.
+>
+> **What is already known, so it is not rediscovered:**
+> - **`resolveLatestTag()` is a `git ls-remote`** (`scripts/lib/engine-fetch.mjs`) — no clone, no auth,
+>   one round-trip — and `update-engine.mjs` calls it at **step 1 of the run**, after the confirmation.
+>   The target version is knowable **before** the prompt for free, and the same output already carries
+>   **every intermediate tag**.
+> - **⚠️ `node scripts/*.mjs` is NOT in the allowlist** (`.claude/settings.json.template` allowlists
+>   `git`, `ls`, `grep`, `node --import tsx --test`, … but no engine script), and **the reconciler never
+>   wires `permissions.allow`** — the F17 lesson that killed the "entry script" option there. So a NEW
+>   probe script would prompt on every open of a deployed brain.
+>   **Recommended shape, to confirm rather than trust: a `--check` flag on the EXISTING
+>   `scripts/update-engine.mjs`**, not a new file. One script, one door, and the dry-run cannot drift
+>   from the real run because it IS the real run's first steps. Check what the prompt actually matches
+>   before committing to it.
+> - **The three layers are layers** (owner's call, closed): versions → annotated tag titles → the release
+>   notes' `### What you get` via the GitHub API, each falling back to the one below, never to a blank.
+> - **The model does not summarise** (ADR 0009): the script produces the data, the skill quotes the
+>   prose that was already written for humans (§11).
+
+- [ ] **14.1 — cut `release/v4.8.0` off `main`** (at `68785c9` or later) and push it, so the Windows
+      tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and Windows had
+      been red for weeks).
+- [ ] **14.2 — the probe, TDD.** What is upstream, read-only, fail-soft: the installed version, the
+      target, how many releases apart, and the per-version prose when it can be had. Layered sources,
+      each degrading into the next; **an unknowable answer says "unknown", never a reassuring blank** —
+      that conflation IS this plan's reframe, and F3 sits in the same table row.
+- [ ] **14.3 — the skill asks AFTER it knows.** `update-engine`'s Étape 1 currently states the installed
+      version and asks for a yes; it must state the **target** and what the jump contains, **then** ask.
+      Both locales (`.claude/skills/update-engine/SKILL.md` **and** `templates/fr/…`) — and check which
+      manifest regime carries that skill before assuming the fleet gets it (F14's third-door lesson: a
+      carrier nobody declared reaches nobody).
+- [ ] **14.4 — the sibling: the SessionStart offer is version-blind too.** One probe feeds both surfaces
+      or they drift. It is also the half that must tell **"already up to date"** from **"I could not
+      find out"** — today both render as a generic offer.
+- [ ] **14.5 — the release tail** (§10 marketing re-read, mutation on what changed, version vector, note
+      + PR body, tag), same shape as Steps 11, 12 and 13. The owner is asked **before** the public half.
 
 ## The one pattern behind most of it (the reframe)
 
@@ -2036,8 +2091,9 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         the confirmation. So the target version is knowable **before** the prompt, for free. **The same
         output already carries every intermediate tag**: "you are 3 releases behind, here they are" costs
         nothing more. This is not a missing capability, it is a call made too late.
-  - [ ] **The open call — where the "what you gain" text comes from.** Three sources, degrading into
-        each other, and the fix should layer them rather than pick one:
+  - [x] **✅ CLOSED by the owner (2026-08-05): all three layers ship, as layers.** Each falls back to
+        the one below it, never to a blank. Do not re-open this, and do not drop C for being the
+        expensive one — it is the half the owner actually asked for.
     - [ ] **(A) versions only** — free, from the `ls-remote` above; works on any git host, any fork, and
           says nothing it cannot know.
     - [ ] **(B) + the one-line title per release** — our tags are annotated (`v4.7.0 — The One Where It
