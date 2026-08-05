@@ -1306,11 +1306,21 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [x] Two shared owners extracted rather than re-spelled: `parseTagRefs` (the `ls-remote` parse) and
         `compareSemverTags` (the ordering) — a second spelling of either is a second opinion on which
         releases exist.
-- [ ] **14.3 — the skill asks AFTER it knows.** `update-engine`'s Étape 1 currently states the installed
-      version and asks for a yes; it must state the **target** and what the jump contains, **then** ask.
-      Both locales (`.claude/skills/update-engine/SKILL.md` **and** `templates/fr/…`) — and check which
-      manifest regime carries that skill before assuming the fleet gets it (F14's third-door lesson: a
-      carrier nobody declared reaches nobody).
+- [x] **14.3 — the skill asks AFTER it knows** _(2026-08-05)_. Step 1 / Étape 1 rewritten in **both
+      locales**: run `--check` first, then present **three answers as three different conversations** —
+      available (target + how far ahead + each release's `What you get`, quoted), latest (say it and
+      **stop**, rather than swap the same code and charge a restart), could-not-find-out (said as itself,
+      never as "there is no update"). The two downstream prose spots that contradicted it were repointed
+      (the proactive-offer bullet, the "Already up to date" edge case), and both `version:` fields bumped.
+  - [x] **Locked by a section-sliced doc guard** — `scripts/lib/update-consent-discipline.test.mjs`,
+        15 assertions, sharing `doc-section.mjs` with the claim and identity guards. One of them is not
+        a phrase check: it asserts the `--check` command appears **before** the real command in each
+        file, so a future edit cannot leave the reader meeting the swap first.
+  - [x] **Regime checked, not assumed**: `.claude/skills/update-engine/**` is in **`merge`**, so a brain
+        that never edited this skill IS brought up to date (ADR 0026 §8) and the fleet gets it; a brain
+        that tailored it keeps its own with the new text beside it as `.new`.
+  - [x] Met the known FR trap twice: **a guarded phrase that wraps across two lines goes red for
+        typography, not for meaning** (already recorded at Step 12.3). Both were kept on one line.
 - [ ] **14.4 — the sibling: the SessionStart offer is version-blind too.** One probe feeds both surfaces
       or they drift. It is also the half that must tell **"already up to date"** from **"I could not
       find out"** — today both render as a generic offer.
