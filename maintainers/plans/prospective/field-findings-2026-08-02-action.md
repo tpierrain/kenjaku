@@ -164,9 +164,11 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.6 (the Slack account check), on `release/v4.8.0`.** Its
-> code has been READ and its design is CLOSED in its own entry (the surface moved from session start to
-> the `/switch` digest); resume at its first unchecked box, and do not re-open the reading.
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7 (an AI summary served as a source), on
+> `release/v4.8.0`.** **14.6 is DONE** (the Slack account check: built, green, field-verified on six
+> states, pushed). 14.7 is three layers and its entry says to build **layer 1 first** (the source header
+> as a builder output) because it is the only one that cannot be talked out of firing. The release
+> **tail is 14.8 and still must not be started without the owner**.
 > F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
 > came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
 > brain's backlog: **14.5** ✅ done (two `/lint` defects), **14.6** (the Slack account check), **14.7**
@@ -1418,7 +1420,11 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         No FR twin exists for this skill, so nothing to mirror.
   - [ ] For 14.8: say this in the release note (§11) in the owner's words, not the checker's — what he
         will notice is six phantom orphans and one permanent complaint disappearing.
-- [ ] **14.6 — the Slack account check: a declared connector is not a verified one.**
+        **14.6 has a line to write there too**: what he will notice is his brain refusing to file Slack
+        material when the connector is on the wrong workspace, instead of filing it silently under the
+        right-looking name.
+- [x] **14.6 — ✅ COMPLETE. The Slack account check: a declared connector is not a verified one.**
+      _(2026-08-05 · `34fd06a` → `2c3b83a`; suite 1453 tests, 1 skipped Windows-only)_
       _(owner, 2026-08-05: "Slack seulement, dans v4.8.0")_ **The defect**: a universe profile carries a
       hand-typed `## Connector accounts` section (`- Slack: acme.slack.com`), and session start **injects
       that prose verbatim** into the digest (`scripts/lib/universe-profile.mjs:111`, built at `:242`).
@@ -1426,14 +1432,50 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
       to another with the MCP connector still authenticated on the previous workspace, the brain fetches
       one organisation's data and files it under another's, while displaying the right answer on screen.
       A silent cross-universe leak, wearing the confidence of a printed declaration.
-  - [ ] **Scope is deliberately ONE connector.** Slack: it is where the mistake costs the most, and it is
+  - [x] **What shipped, and the two things worth not re-learning.**
+    - [x] **`scripts/lib/connector-accounts.mjs`** (pure) + **`--check-slack "<observed>"`** on
+          `set-universe-profile.mjs`, and the digest now renders a declaration AS a declaration plus
+          the gesture that settles it. Four answers, four different situations — matching, diverging,
+          *"I could not find out"*, *"this universe declares no Slack account"* — and a fifth path for
+          a universe with no profile page at all, which is the normal state of every brain installed
+          before profiles existed and which **threw** before this (found by the test, not by reading).
+          Exit **1 only on divergence**; the other three exit 0 and carry their answer in a marker
+          (`✓` / `?`), per 14.2's call.
+    - [x] **The prose half is where the check actually gets RUN**: `sync-sources` EN + FR gained a
+          named `## Connector discipline` / `## Discipline de connecteur`, the chat sub-agent is told
+          to return a `WORKSPACE:` line (it never sees the vault, so it observes and nothing else),
+          and Step 3's reconcile list went from **three passes to four** — the fourth runs the check
+          before a single line is written. `/switch` **points at** the producer's section instead of
+          paraphrasing it. Guard: `scripts/lib/connector-discipline.test.mjs`, 21 assertions sharing
+          `doc-section.mjs` with the claim, identity and consent guards. Every carrier was **deleted in
+          turn** to prove the guard is load-bearing (9 reds on either discipline section, 1 each on the
+          sub-agent, the synthesis step and `/switch`).
+    - [x] **A checker that cries wolf gets ignored (§5quater), and here that risk is the design.**
+          `acme.slack.com`, `https://acme.slack.com/archives/…` and `  ACME  ` are one workspace; a
+          false divergence would send someone to reconnect a connector that is fine. Hence the
+          normaliser — and hence the rule *"do not compare the two strings yourself"* in both locales.
+    - [x] **A mutant applied by hand is not a mutant until you check it LANDED.** Two of the five
+          hand-applied here were silent no-ops (a `perl` substitution that matched nothing, and one
+          that hit the wrong `.trim()` of two), and both read as *survivor* — i.e. as coverage this
+          suite did not have. Re-applied precisely, all five die. The `.trim()` misfire was worth it:
+          it exposed that **nothing fed the tool name a hand-edited shape**, which is how ` Slack `
+          would have been demoted to the unverifiable tier by a space.
+    - [x] **Field-verified end to end** on a throwaway brain, all six states, including a **named**
+          universe (the offer names `vault/acme/universe.md`, not the root's). Not a unit-test claim.
+  - [x] **Deliberately NOT done, so nobody reads it as an oversight**: no condensed copy in the two
+        constitutions. `CLAUDE.engine.md` is in **no** manifest regime (new installs only), the two
+        carriers that matter are in `merge` and reach the fleet, and **14.7 opens the constitutions
+        anyway** — a second paraphrase written now would be a second discipline to keep in step.
+  - [x] **Scope is deliberately ONE connector.** Slack: it is where the mistake costs the most, and it is
         the one that answers the question cleanly. Every other connector exposes identity differently
         (Miro has a `who am I`, Notion partially, Drive not really) — so the rendering must distinguish
         **verified-matching**, **verified-diverging** and **not verifiable**, and must never render the
         third as the first. The unverified ones say they are unverified.
-  - [ ] **Fail-soft, always.** A connector that is absent, logged out, slow or expired must not break
-        session start. Same discipline as the health probe (ADR 0028): the user-facing path stays cheap,
-        the network work does not block it.
+  - [x] **Fail-soft, always — and the reading is what made it FREE.** The check is not on the session-start
+        path at all (see below): it is a read-only command the model runs when it is about to touch Slack,
+        so an absent, logged-out, slow or expired connector costs nothing at start-up. Its own three
+        non-blocking answers carry the rest: no observation, no declaration, no page → each says what it
+        is and exits 0. Nothing in it can break a session.
   - [x] **Read before building — DONE, and it MOVED the surface** _(2026-08-05)_. Two corrections to the
         framing above, both verified in code, neither of which changes the defect:
     - [x] **Session start does NOT carry the connector accounts.** What rides every session is
@@ -1450,19 +1492,19 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
     - [x] **Allowlist re-checked, not assumed**: `.claude/settings.json.template` still allowlists no
           `node scripts/*.mjs` at all, so **every** engine-script door already prompts and a NEW file would
           add one more. **Same shape as 14.2: a flag on the EXISTING `set-universe-profile.mjs`.**
-  - [ ] **The split, which the tooling forces and which is also the honest one**: only the **model** can
+  - [x] **The split, which the tooling forces and which is also the honest one**: only the **model** can
         ask Slack (an MCP call is the one door), so the model **observes** and the **deterministic core
         classifies, compares and words the verdict** (ADR 0009 — a string comparison is not the LLM's job).
         The observation is taken as whatever names the workspace in a Slack result (a permalink host, a
         domain, a bare slug), because which Slack connector is installed is not the engine's business.
-    - [ ] **`scripts/lib/connector-accounts.mjs`** (pure): which tools can answer at all, the
+    - [x] **`scripts/lib/connector-accounts.mjs`** (pure): which tools can answer at all, the
           three-state comparison, and the rendering the digest uses so a declaration can no longer be
           printed in the shape of an observation.
-    - [ ] **The door**: `--check-slack "<observed>"` on `set-universe-profile.mjs`. **Exit 1 only on
+    - [x] **The door**: `--check-slack "<observed>"` on `set-universe-profile.mjs`. **Exit 1 only on
           divergence** (the one state where the next act must not happen); matching **and** "cannot say"
           both exit 0 — 14.2's lesson, a non-zero would make the skill report a failed check where the
           honest sentence is *"I could not find out"*.
-    - [ ] **Prose carriers + a section-sliced doc guard** (`doc-section.mjs`, as the claim, identity and
+    - [x] **Prose carriers + a section-sliced doc guard** (`doc-section.mjs`, as the claim, identity and
           consent guards): `/switch` (the surface that prints the digest) and `sync-sources` EN + FR (the
           surface that actually reads Slack). Mind the FR trap: a guarded phrase wrapping across two lines
           goes red for typography, not for meaning.
