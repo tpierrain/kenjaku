@@ -608,6 +608,25 @@ not find out — no network, a source that didn't answer — it says **that**, a
 date"*: those are opposite answers, and only one of them is good news. The look-up runs in the
 background (once a day at most), so your session start never waits on it.
 
+> 🔎 **What that daily look-up is — and, more importantly, what it is NOT.** It is **one anonymous
+> request a day** to the engine's public repository — the address written in your own
+> `engine-manifest.json` (`source.repo`) — asking a single question: *"which versions have been
+> published?"* (`git ls-remote --tags`). Then, **only if your brain turns out to be behind**, a **single**
+> request to GitHub's public release list, to read the title and the `What you get` section of the
+> releases you are missing — so the offer can tell you what it is for. **A brain that is already up to
+> date makes no HTTP call at all**, and a brain hosted anywhere but GitHub simply stops at the versions.
+>
+> What it is **not**: it does **not** add a git remote to your brain, does **not** push or send anything
+> anywhere, and has **nothing to do with your own backup repository** (§7) — that one stays yours, and
+> stays untouched. **Nothing of your notes, your vault or your usage ever leaves.** Nothing is
+> downloaded or installed either: finding out and updating are two separate steps, and the second one
+> still waits for your yes. Offline, the check simply fails quietly and your session carries on.
+>
+> There is **no switch to turn it off** — deliberately, and documented here rather than hidden: knowing
+> that a fix exists is part of the engine being trustworthy. If you would rather it never looked, remove
+> `source.repo` from your `engine-manifest.json`; your brain will then say it has no source to check, and
+> updating becomes a manual affair.
+
 ### To trigger it — just ask, in plain conversation
 
 > *"Update your engine."* · *"Is there a newer version of your engine?"* · *"Upgrade the brain's
