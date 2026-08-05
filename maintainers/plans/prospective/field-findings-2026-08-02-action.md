@@ -1806,6 +1806,13 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           and `What you get`; **a brain that is up to date makes no HTTP call at all**. Nothing from the
           vault leaves. Once per 24 h, in a detached child (`upstream-check-run.mjs`), failing soft and
           silent when offline.
+  - [ ] **✅ THE TAIL RUNS IN AUTONOMY, ALL THE WAY** _(owner, 2026-08-05: "continue avec le batch 6
+        quand batch 5 est fini", then "en autonomie car je vais aller diner. va jusqu'au bout")_. So the
+        whole checklist below is authorised without stopping to ask, **including the tag, the merge and
+        the published release** — which he had already opened with "on cut la release". **The one gate
+        that stays a gate is CI 7/7 on the tagged commit**: if it is not green, stop and report rather
+        than publish. Same for any red suite or any decision this plan does not already record: stop,
+        write what is blocking here, and hand back.
   - [ ] **The tail, in order** (nothing here is started):
     - [ ] **The mutation pass on what this branch changed.** Now is the right moment — the branch has
           stopped moving (that was the reason for waiting; measuring early bought a re-measure at
@@ -2049,6 +2056,9 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           empty, checked not assumed), `rag/node_modules` symlink re-created after the `git clean`, and
           `vault-write-guard.test.mjs` verified at **22 pass / 0 skipped** before the run.
     - [ ] **Batch 6, not started** — `scripts/lib/universe-profile.mjs, scripts/set-universe-profile.mjs`.
+          **✅ The owner said to CHAIN it without asking** _(2026-08-05: "continue avec le batch 6 quand
+          batch 5 est fini")_ — so the sequence measure → harden → next batch runs on its own; do not
+          stop to ask between them.
     - [ ] **⚠️ THE RE-MEASURES STILL OWED, in ONE run** — each hardened file is at an **unknown** score
           until re-mutated, and RESULTS.md must publish measured numbers, never hoped-for ones:
           `engine-update-check.mjs` (was 86.07 %), `update-engine.mjs` (93.20 %), `engine-version.mjs`
