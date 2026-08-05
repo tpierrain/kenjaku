@@ -1810,10 +1810,34 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
             ~200 mutants ≈ 5 min. Suite green at the fix: **1517 tests, 1516 pass, 1 skipped
             Windows-only** (baseline measured at `HEAD` before the fix: **1508** — the header's earlier
             "1517 tests" figure does not match this command, so 1508 + 9 new tests is what is true).
-      - [ ] **2b `scripts/update-engine.mjs` RUNNING** _(2026-08-05, log
-            `maintainers/mutation/reports/v480-batch2b-update-engine.log`)_ — 250 mutants, and at 74 % it
-            was carrying only 6 survivors, so this one looks healthy. **If a `/clear` lands here**: read
-            the log, copy the score and the survivor list, treat each survivor as batch 1 was treated.
+      - [x] **2b done — `update-engine.mjs` 93.20 %** _(2026-08-05, 6 min 30 s, 250 mutants, 17
+            survivors, log `maintainers/mutation/reports/v480-batch2b-update-engine.log`)_, **and
+            hardened** _(`9d375b3`)_. Two families were real, the rest are equivalents (below).
+        - [x] **The conflicted and refused commit blocks were matched by a fragment** (`/conflict/i`),
+              so the three lines that carry the **remedy** and the **consequence** could each be blanked
+              green — a brain left with pending `<<<<<<<` markers, or staged-and-uncommitted because git
+              has no identity, and nothing on screen saying what to do. Asserted **whole** now.
+        - [x] **`defaultReadInstalledSource` had no test at all** — every `--check` test injects the
+              seam, so the reader that decides **which address the daily check talks to** was observed by
+              nothing (the release's own recurring shape). Read against a real manifest now: the normal
+              one, one with **no `source` key** (the fleet's oldest brains), one with an empty `source`,
+              and a missing file that must **raise** so `--check` says "could not be read".
+        - [x] **The rest are recorded EQUIVALENTS — do not chase them**, and one is a known deferral:
+              the three `readFileSync(path, "utf8")` → `""` mutants (an empty encoding returns a
+              **Buffer**, and both `JSON.parse` and the fingerprint coerce it identically — the same
+              equivalent already recorded at v4.5.0); `skillsPreserved = []` → a junk array (the loop
+              filters on `reason === "customized"`, and a destructured string yields `undefined`);
+              `releases: []` in the unreadable-manifest fallback (the `unknown` state returns from
+              `formatUpdateCheck` before releases are ever rendered); and
+              `runUpdateCli(…, argv = process.argv.slice(2))` → `process.argv`, which here feeds only an
+              `includes("--check")` — `argv[0]`/`argv[1]` cannot equal `--check`, so unlike v4.5.0's
+              forwarding case it changes nothing. **The entrypoint-guard family stays the v4.9.0 debt
+              the owner arbitrated**, not a gap to pay here.
+      - [ ] **Batch 3 RUNNING** _(2026-08-05, log `…/v480-batch3-session-version.log`)_ —
+            `scripts/session-status.mjs, scripts/lib/engine-version.mjs`, 257 mutants.
+            `session-status.mjs` is **expected at 0 %** (top-level script, no test sibling): that is the
+            named pre-existing debt, not a regression of this release. **If a `/clear` lands here**: read
+            the log, copy the scores and survivors, treat them as batch 1 was treated.
     - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
     - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
           scripts/lib/filed-note.mjs` (14.7's three layers).
