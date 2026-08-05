@@ -1373,6 +1373,66 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   **already routed out of this plan**: it is F5 defect 3, living in
 >   `maintainers/plans/prospective/second-brain-migration-and-engine-upstream-action.md` (tracks D/F not
 >   started). Do not re-litigate it here.
+>
+> ---
+>
+> ## ⏸️ A SECOND EXTRA ITEM, PROPOSED BY THE MIND-PALACE — AWAITING THE OWNER'S SCOPE CALL (2026-08-05)
+>
+> **Status: NOT decided, NOT started.** The owner brought a fix his brain proposed and asked whether it
+> is worth folding into v4.8.0. This block records the analysis so the answer is not re-derived; **the
+> scope call itself is his.**
+>
+> **The incident.** On a brain running v4.7.0, *"affiche-moi les choses sur lesquelles je suis attendu"*
+> produced a near-raw dump of two backlogs: items already done presented as to-do, and the most important
+> chantier at the bottom of the list.
+>
+> **What the code actually says** (checked, and it refines the brain's own diagnosis): the § Backlogs
+> section carries the rule **twice**. `CLAUDE.engine.md:399` states it broadly and unconditionally
+> (*"Never present an action as 'to do' without having checked that it hasn't already been done"*), but it
+> sits under the *"On each ingestion of external data"* heading, so it reads as scoped to ingestion. Then
+> `:401` gives the operational three-phase flow, and **that** one is explicitly triggered by *"When you
+> list actions from external sources"*. So the broad rule has no procedure attached, and the procedure has
+> a narrow trigger — a plain vault recall fires neither. Same defect shape as the plans rule whose trigger
+> moved from *"step finished"* to *"hand rendered"*.
+>
+> **The proposal, three parts**: (1) re-trigger on **displaying an unchecked action**, not on ingesting a
+> source; (2) **no mute `- [ ]`** — an unchecked box means *not re-verified*, never *not done*, and a line
+> whose execution trace was not looked for must say so; (3) a **display cap** (~3 at the head, the rest
+> folded), scoped to backlog / action-item restitution only, never a general rule about long answers.
+>
+> **What was verified before answering:**
+> - **Only one locale exists** — `templates/` holds `fr/` and `README.md`, nothing else. Two mirror files,
+>   not more.
+> - **`constitutionTemplate` is ALREADY bumped this release** (1.2.0 → **1.3.0**, `b329d8a`), so a further
+>   constitution edit costs **no** version-vector change. Nothing in the engine-version tests pins the
+>   constitution's content; they pin the vector's shape.
+> - **The constitution is Markdown, so it is not mutated** — this edit cannot disturb batches 4-6 nor the
+>   owed re-measures.
+> - 🛑 **THE REACH IS THE CATCH, and it must not be glossed over.** `CLAUDE.md` is in the `merge` regime,
+>   but `engine-apply-plan.mjs:18` is explicit: of `merge`, only the top-level scripts and the skills are
+>   refreshed — *"the rest of `merge` — CLAUDE.md, .claude/settings.json, .claude/skills/\*\* — is"* left
+>   alone. The 3-way merge that would change this is the **prospective** plan
+>   `engine-managed-file-merge-strategy.md`, not shipped. **So a constitution-only fix reaches NEW INSTALLS
+>   ONLY** — not the mind-palace where the defect fired.
+> - **There is no skill carrier for this surface.** The failing question is the main flow, not a skill; no
+>   skill in `merge` covers generic backlog restitution (`prepare-1-1` and `improve` mention backlogs but
+>   answer other questions). Building a carrier is real work, not a doc edit. The F18 precedent
+>   (`claim-discipline.test.mjs` header) says the constitution half *"must never be the only carrier"* —
+>   here it would be, and that is a v4.9.0 debt, not a v4.8.0 one.
+> - **Consequence for the release note**, and it is the same register this release is about: v4.8.0 speaks
+>   to people who **update**. Selling this in `What you get` would be a claim the product does not hold.
+>   Either keep it out of the note entirely, or state the new-installs-only reach plainly.
+>
+> **Recommendation put to the owner** (his to accept or refuse): take (1) and (2) as-is; take (3) **only
+> reworded** — a silent fold is the same defect wearing the other mask, so the rule must say how many
+> lines were folded and on what criterion the head was chosen (the second half of the incident was the
+> ordering, not only the volume). Carry it with a `backlog-discipline.test.mjs` guard on the model of the
+> five existing `*-discipline.test.mjs`, EN/FR parity already covered by
+> `constitution-mirror-citations.test.mjs`. One already-ticked box reopens: §10's second question (what
+> shipped and is sold nowhere), `7eb133d`.
+>
+> **If accepted → the tail gains**: the two constitution edits, one guard file, one §10 re-check, and a
+> named v4.9.0 debt line (the missing carrier) beside the two remedies already deferred there.
 
 - [x] **14.1 — `release/v4.8.0` is cut off `main` and pushed** _(2026-08-05, off `1c4b2ff`)_, so the
       Windows tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and
@@ -1872,14 +1932,21 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
               same catch), the `readFileSync(path, "")` encoding twin (Buffer → `JSON.parse` coerces),
               and `typeof manifest !== "object"` in `formatEngineVersion` (a string manifest reaches the
               same two `?.` and yields the same null).
-      - [ ] **Batch 4 WAS RUNNING when the session ended** _(2026-08-05, log
-            `maintainers/mutation/reports/v480-batch4-ai-summary.log`, 325 mutants ≈ 8 min)_ —
-            `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs, scripts/lib/filed-note.mjs`
-            (14.7's three layers). **On resume it is almost certainly finished**: read the log's last
-            table, copy the per-file scores and the survivor list here, then treat each survivor the way
-            batches 1-3 were treated (fix what a test can honestly reach; record only genuine
-            equivalents). At 18 % it was carrying 30 survivors **and one timeout** — the timeout is worth
-            a look, the config's `timeoutMS: 30000` is tuned to make genuine ones rare.
+      - [x] **Batch 4 has FINISHED — measured, not yet hardened** _(2026-08-05, 8 min 44 s, 325 mutants,
+            log `maintainers/mutation/reports/v480-batch4-ai-summary.log`)_. **Total 80.92 %** (262
+            killed, 1 timeout, 62 survivors), and the total hides the one number that matters:
+            - `scripts/lib/filed-note.mjs` — **94.12 %** (11 survivors), fine.
+            - `scripts/ai-summary-guard.mjs` (the hook entrypoint) — **84.00 %** (4 survivors + **the
+              timeout**).
+            - `scripts/lib/ai-summary-guard.mjs` — **58.41 %, 47 survivors**. The worst file of the pass
+              so far, and it is **shipped by this release** (14.7 layer 2). Known survivor shapes from the
+              log tail: `typeof toolName === "string"` → `true`, and the two `input?.tool_response` /
+              `input?.tool_name` optional chains — i.e. the guard's own defence against a malformed hook
+              payload is observed by nothing.
+            - [ ] **Still owed on batch 4**: read the full survivor list, harden what a test can honestly
+                  reach (start with the 47), look at the timeout (`timeoutMS: 30000` is tuned to make
+                  genuine ones rare), record only genuine equivalents, then add
+                  `scripts/lib/ai-summary-guard.mjs` to the re-measure run below.
     - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
     - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
           scripts/lib/filed-note.mjs` (14.7's three layers).
