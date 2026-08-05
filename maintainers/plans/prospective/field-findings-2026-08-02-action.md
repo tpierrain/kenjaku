@@ -1087,7 +1087,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 >
-> ### ⏭️ THE RESUME POINT — 13.2 IS DONE (F20 + F21); the live work is **13.3, F22**
+> ### ⏭️ THE RESUME POINT — the three findings are DONE; the live work is **13.4, the release tail**
 >
 > **✅ F20 IS COMPLETE** _(2026-08-05 · `82f49cd`, `ee1c373`)_. Both halves shipped, and the two calls
 > the entry left open are taken below; do not re-open them.
@@ -1138,7 +1138,17 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   a permanently stalled gap is named by F15's crosscheck instead, which already exists for exactly
 >   that.
 >
-> **Next: 13.3 — F22**, option A: two thin alias skills, `universe` and `univers`.
+> **✅ F22 IS COMPLETE** _(2026-08-05 · `c229cab`)_. Option A as decided: `engine-skills/universe/`
+> and `engine-skills/univers/`, both locales getting both. They **point** at `switch` and explain
+> nothing — the reconciler never removes a skill, so a second copy of the rules would outlive any
+> repair. Delivery checked, not assumed: `engine-skills/**` is `replace`, `installStagedSkills`
+> install-if-absents any new directory, and both doors run it (the installer for a fresh brain,
+> the reconcile for the fleet). Guarded by `scripts/lib/skill-aliases.test.mjs` on the four things
+> that break an alias silently: the folder (the CLI routes on it), the declared `name:`, the target
+> still existing, and the description's cost in the always-loaded layer (F19).
+>
+> **Next: 13.4 — the release tail.** Start with the bookkeeping the scope cut created (three code
+> comments still send a reader to v4.7.0 for work that now lands in v4.8.0), then the usual shape.
 >
 > Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
 > exists and is pushed** off that commit. Work the remaining boxes below in order.
@@ -1148,7 +1158,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > - [ ] **13.2 — F20 + F21 together** (one root, two changes).
 >   - [x] **F20 — DONE** _(2026-08-05 · `82f49cd`, `ee1c373`)_, both halves; see the resume point above.
 >   - [x] **F21 — DONE** _(2026-08-05 · `25057b0`)_, both halves; see the resume point above.
-> - [ ] **13.3 — F22**, option A: two thin alias skills, `universe` and `univers`.
+> - [x] **13.3 — F22 — DONE** _(2026-08-05 · `c229cab`)_, option A; see the resume point above.
 > - [ ] **13.4 — the release tail** (§10 marketing re-read, mutation on what changed, version vector,
 >       note + PR body, tag) — same shape as v4.5.0 and v4.6.0, whose tails are Steps 11 and 12.
 >   - [ ] **Bookkeeping the cut created, do it on the release branch, not on `main`:** three code
