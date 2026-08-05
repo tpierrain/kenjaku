@@ -1057,6 +1057,11 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       engine for the whole session and never says so, so **F1's privacy fix silently does not apply
 >       there**. The pull is already first; the gap is that the restart nudge cannot see an engine that
 >       arrived by pull. Its entry carries the verification and the fix shape: **do not re-derive them.**
+> - [ ] **F21** (`### P3`) — **NEW, same field session**: the index says *19 pending, auto-resume on the
+>       next session* while the watcher is idle and there is no quota to wait for. The engine promises a
+>       resume it cannot know is coming, and F11/F12's failure-is-not-a-wait fix never reached this
+>       surface. **F20 and F21 share one root** (session start is a race between what arrives and what
+>       reads it), so scope them together even if they ship as two changes.
 > - [ ] **The two banner defects routed here from P0** — a cached verdict rendered with live authority,
 >       and an `unknown` check displayed under "found a problem". The second is **already pinned by a
 >       test that names it as this release's item**, so it cannot be read as intended behaviour.
@@ -1754,6 +1759,44 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
         a brain with **no remote** shows (the pull is a silent no-op there — it must stay silent).
   - [ ] **Why it belongs to v4.7.0 rather than a hotfix**: it is a *visibility* finding in the exact
         sense of that release, and it is the first field report on the multi-machine path v4.5.0 opened.
+- [ ] **F21 — the index reports a shortfall it never tries to close, and promises a resume it cannot
+      know is coming. 🔜 v4.7.0 CANDIDATE** _(same field session as F20, owner, 2026-08-05: after the
+      startup pull, `vault_stats` answered « l'index n'est pas complet : 439/458 fichiers, 19 en attente
+      (reprise auto à la prochaine session) », with the watcher **idle** and **local embeddings**. His
+      question — « ça devrait reprendre en auto dès lors qu'il constate qu'il est en retard, non ? » —
+      is the right one. Verified in the code the same day.)_
+  - [ ] **The sentence is the engine's, not the agent's**: `RESUME_HINT = "auto-resume on the next
+        session"` (`rag/src/lib/progress-report.ts:12`), pasted into the shortfall line by
+        `incompleteIndexWarning` (`status-report.ts:65-72`). So it is a **product claim**, and it is
+        made unconditionally, from two numbers (`docCount` vs `scannedCount`) and nothing else.
+  - [ ] **Why it was written that way, and where the reasoning stops holding.** `index.ts:372-374` says
+        it out loud: *"if the index is not complete after the run (quota wall, errors), say so
+        explicitly — auto-resumes on the next session, nothing to do by hand"*. That is sound for the
+        **two causes it names**, where retrying now would hit the same wall. It is false for the two it
+        does not:
+    - [ ] **Notes that simply arrived after the scan** — the normal multi-machine case. The session's
+          `git pull` (F20) lands notes at the same instant the MCP server runs its startup `reindex`
+          and only THEN arms the watcher (`index.ts:390`). Anything landing inside that window is
+          neither failed nor queued: it is **unseen**, by nobody's fault, and the machinery that could
+          close it (scheduler + watcher, idle, **no quota on a local embedder** — checked: the daily cap
+          lives in the Gemini path, `embedder.ts:162`, not in `in-process-embedder.ts`) sits there
+          waiting for an event that has already happened.
+    - [ ] **Notes the indexer REFUSED** — for those, "auto-resume on the next session" is precisely the
+          *failure displayed as a wait* that F11/F12 fixed **on the banner**, from the run state. That
+          fix never reached this surface: the RAG's own status line still renders both as one number.
+          **This is the same defect on the other channel, and it is the channel the agent quotes when
+          the owner asks a question.**
+  - [ ] **The fix has two halves, and the second is what the owner actually asked for.**
+    - [ ] **Say which** — make the shortfall line cause-aware by reading the run state F11/F12 already
+          reads (`scripts/lib/rag-status.mjs` side). **Do not mint a second cause model**: one truth
+          about why notes are missing, rendered on both surfaces.
+    - [ ] **Then act** — when the cause is neither a cap nor a refusal, schedule a catch-up **now**
+          through the existing `ReindexScheduler`, instead of rendering a sentence about the next
+          session. **Bound it by progress** (stop as soon as a run indexes nothing new) so a refused
+          note cannot loop forever — that bound is exactly what tells the two causes apart at runtime.
+  - [ ] **The root it shares with F20, worth stating once**: on a multi-machine brain, **session start
+        is a race between what arrives and what reads it**. The pull delivers code and notes at the
+        same instant the hooks and the MCP server read them. F20 is the code half, F21 the notes half.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
