@@ -164,11 +164,12 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.5, and it is BLOCKED ON THE OWNER by his own ask.**
-> v4.8.0's decided scope (F3 + its sibling) is **built, green and pushed** on `release/v4.8.0`, draft
-> **PR #58**; steps 14.1 → 14.4 are ticked. The owner asked that this release **not be shipped without
-> him** and said he has more to hand over on his return, so the correct next move is to **wait**, not to
-> start the release tail and not to pull another finding in. **Steps 1-13 (all of v4.5.0, v4.6.0
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.5 (the two `/lint` defects), on `release/v4.8.0`.**
+> F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
+> came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
+> brain's backlog: **14.5** (two `/lint` defects), **14.6** (the Slack account check), **14.7** (an AI
+> summary served as a source — three layers). Build them in that order, each green and pushed. The
+> release **tail is 14.8 and still must not be started without him**. **Steps 1-13 (all of v4.5.0, v4.6.0
 > AND v4.7.0) are HISTORY.** v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7),
 > **v4.6.0 shipped 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`) and
 > **v4.7.0 shipped 2026-08-05** (tag `v4.7.0`, PR #57, merge `556f950`, CI 7/7 on the tagged commit,
@@ -1279,9 +1280,41 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >
 > **🛑 DO NOT SHIP THIS RELEASE ALONE** _(owner, 2026-08-05, while handing the branch over for autonomous
 > work)_: *"ne pousse pas la release seul, j'aurai des trucs à te confier en plus pour celle-ci à mon
-> retour"*. So **14.2 → 14.4 are done autonomously**, each green and pushed on the branch (§9), and the
-> work then **STOPS at 14.5**: no tag, no merge, no published release, and the scope stays open for what
-> the owner adds on his return. The branch and its draft PR are the hand-over surface.
+> retour"*. **Still in force for the tail (14.8)**, even though the extra scope has now arrived: build
+> and push freely, but no tag, no merge, no published release without him. The branch and its draft PR
+> are the hand-over surface.
+>
+> ---
+>
+> ## 🆕 THE EXTRA SCOPE ARRIVED (2026-08-05, decided point by point with the owner)
+>
+> **Where it came from.** The owner asked this repo to go and read **his own brain's backlog** —
+> `~/mind-palace/vault/backlog/harnais.md`, the file where he had told his brain, each time, *not* to fix
+> a defect but to **write it down**. It is the same evidence class as this plan's field findings, only
+> collected by the brain about itself. **Pointer, not a copy** — what follows is the triage and the
+> decisions, each one **verified against this repo's code first**, not taken on the note's word.
+>
+> **Already shipped, verified, and therefore NOT work** (do not re-open, do not re-derive):
+> - *"writing to the vault without reading it"* → **v4.6.0**, whole. Including the part the note cared
+>   about most: the confidence block is a **builder output**, `scripts/lib/filed-note.mjs:59` refuses an
+>   unknown level and refuses a level with no basis. What remains there is **brain-side data** (extend the
+>   block to ~20 older cards, fix two person cards), not engine work.
+> - *"a note written, committed, and absent from the index"* → **v4.5.0**, all three halves
+>   (`vault-write-guard.mjs`, `verify-index.mjs`, failure told from a wait), refined by **v4.7.0**
+>   (`25057b0`: the index says *why* it is behind).
+> - *"a manual clone does not seed the canary"* → **v4.5.0**, `scripts/rehydrate.mjs` + `SETUP.md` §7.
+>
+> **Deferred by the owner, on purpose:**
+> - [ ] **The organisation is relational data, get it out of the RAG** (`domains/organisation.yml`, a
+>       deterministic `org who/team/squad` resolver, confidence). **Backlog, not now** _(owner, 2026-08-05)_.
+>       Worth recording because the note **froze it pending an engine update touching `people/`** — and
+>       **that freeze is now lifted**, v4.6.0 did exactly that. So the next time it comes up it is a live
+>       design decision, not a blocked one. Nothing exists yet (no `domains/`, no resolver).
+> - The recurring signal the note repeats **six times** — *"il manque un chemin de contribution du cerveau
+>   vers le moteur"* (an engine fix made in the brain gets frozen as "customized" by `/update-engine`) — is
+>   **already routed out of this plan**: it is F5 defect 3, living in
+>   `maintainers/plans/prospective/second-brain-migration-and-engine-upstream-action.md` (tracks D/F not
+>   started). Do not re-litigate it here.
 
 - [x] **14.1 — `release/v4.8.0` is cut off `main` and pushed** _(2026-08-05, off `1c4b2ff`)_, so the
       Windows tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and
@@ -1348,11 +1381,75 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         smoke-run (running it by hand sweeps and auto-commits the working tree).
   - [x] `SETUP.md` §10 rewritten where it described the old order (the check happens **before** the
         question), plus the `--check` command in the "run it yourself" block.
-- [ ] **14.5 — the release tail — 🛑 BLOCKED ON THE OWNER, BY HIS OWN ASK, AND THAT IS THE RESUME
-      POINT.** F3 and its sibling are **done** (14.1 → 14.4, all green and pushed, PR #58 open as a
-      draft; **full matrix 7/7 on `c91d303`**, suite 1419 tests / 1 skipped Windows-only). Nothing else in this plan is in v4.8.0's scope **until the owner adds it on his return** —
-      he said so explicitly while handing the branch over. So do **not** start the tail, and do **not**
-      pull the next P0/P1/P3 entry in on your own initiative.
+- [ ] **14.5 — ⏭️ RESUME HERE. The two `/lint` defects: the checker lies about the engine's own files.**
+      _(owner, 2026-08-05: "dans v4.8.0, maintenant")_ Same family as the rest of this release — a checker
+      that renders a healthy thing as a defect — and it falls squarely under **`CONVENTIONS.md` §5quater**
+      (a checker is judged on what it says about a HEALTHY brain). Both are launcher-only, both are small.
+      Six false orphans per pass plus one permanently unfixable complaint is how a lint teaches its owner
+      to stop reading it.
+  - [ ] **(a) `/lint` excludes `inbox/` but not `_inbox/`.** **Verified**: `scripts/lib/wiki-lint.mjs:83`,
+        `RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "actions-log.md"]`. The owner's brain
+        uses `_inbox/`, so every capture in it is reported as an orphan (6 per pass on his vault).
+        Regime is **`replace`**, so the fix reaches every brain on the next update. Decide while doing it
+        whether the right fix is *"add `_inbox/`"* or *"any leading-underscore folder is a raw zone"* —
+        prefer the narrower one unless a test proves otherwise, and pin the choice with a test that fails
+        on the current list.
+  - [ ] **(b) the health canary reports a frontmatter defect nobody can fix.** **Verified**:
+        `engine-health/health-check.md`'s frontmatter is `type` / `created` / `tags` — **no `updated`
+        key** — so the lint's frontmatter rule fires on it forever, on an engine file the owner is told
+        never to touch. Two candidate fixes: give the canary an `updated` key, or teach the lint that
+        `type: engine` notes are the engine's own and not curated wiki nodes. **The second is the better
+        shape** (it generalises to every engine-owned note and cannot go stale the way a hard-coded date
+        does), but check what else carries `type: engine` before choosing.
+  - [ ] Both surfaces green, pushed (§9). If either fix changes what a brain sees, say so in the release
+        note (§11) in the owner's words, not in the checker's.
+- [ ] **14.6 — the Slack account check: a declared connector is not a verified one.**
+      _(owner, 2026-08-05: "Slack seulement, dans v4.8.0")_ **The defect**: a universe profile carries a
+      hand-typed `## Connector accounts` section (`- Slack: acme.slack.com`), and session start **injects
+      that prose verbatim** into the digest (`scripts/lib/universe-profile.mjs:111`, built at `:242`).
+      **Nothing ever asks Slack which workspace it is actually on.** So after a `/switch` from one sphere
+      to another with the MCP connector still authenticated on the previous workspace, the brain fetches
+      one organisation's data and files it under another's, while displaying the right answer on screen.
+      A silent cross-universe leak, wearing the confidence of a printed declaration.
+  - [ ] **Scope is deliberately ONE connector.** Slack: it is where the mistake costs the most, and it is
+        the one that answers the question cleanly. Every other connector exposes identity differently
+        (Miro has a `who am I`, Notion partially, Drive not really) — so the rendering must distinguish
+        **verified-matching**, **verified-diverging** and **not verifiable**, and must never render the
+        third as the first. The unverified ones say they are unverified.
+  - [ ] **Fail-soft, always.** A connector that is absent, logged out, slow or expired must not break
+        session start. Same discipline as the health probe (ADR 0028): the user-facing path stays cheap,
+        the network work does not block it.
+  - [ ] **Read before building**: how the digest is composed today (`renderUniverseDigest`), and whether
+        the check belongs at session start, at `/switch`, or both. Do not add a new `node scripts/*.mjs`
+        door without checking the allowlist — that is the F17 lesson recorded at 14.2.
+- [ ] **14.7 — an AI summary served as a source while the verbatim sat in the same file.** _(owner,
+      2026-08-05: "dans v4.8.0, maintenant" — the three layers)_ **The important part, and the reason a
+      fourth prose rule would be a waste**: the rule **already exists in both constitutions**
+      (`CLAUDE.engine.md:259` EN, `templates/fr/CLAUDE.engine.md:264` FR — *"qualify source reliability:
+      verbatim > human synthesis > AI synthesis"*) **and the defect happened anyway**. It is passive: it
+      says how to *rank* sources, never *when* to stop and go read the raw one. This is the
+      `repeated-ask-means-unwired-net` pattern — the net exists and never ran.
+  - [ ] **Layer 1, deterministic (the load-bearing one): a source header as a BUILDER OUTPUT.**
+        Same shape as v4.6.0's confidence block, which worked: `scripts/lib/filed-note.mjs` refuses a card
+        whose confidence has no basis. A filed note should likewise be unable to exist without stating
+        **what it was built from** — and an AI synthesis must be nameable as such. Build this one first;
+        it is the only layer that cannot be talked out of firing.
+  - [ ] **Layer 2: a non-blocking `PostToolUse` hook** that notices a summary being consumed as a source
+        when a verbatim is reachable. Non-blocking on purpose (ADR 0009's spirit: deterministic, but a
+        false positive must cost a line of text, not a refused write). Shape it after
+        `scripts/vault-write-guard.mjs`, which is the working precedent for a hook on the write path.
+  - [ ] **Layer 3: turn the passive rule ACTIVE, in both locales.** Not another ranking sentence — an
+        **ordering** one: a search-result snippet is never a source; when a verbatim exists in the same
+        file, it is read before anything derived from it is quoted. Lock it with a section-sliced doc
+        guard (`scripts/lib/doc-section.mjs`, same as the claim, identity and consent guards), and mind
+        the FR trap recorded at 12.3 and hit twice at 14.3: **a guarded phrase that wraps across two lines
+        goes red for typography, not for meaning.**
+  - [ ] Bump both `version:` fields if a constitution changes, and remember the version vector at 14.8.
+- [ ] **14.8 — the release tail — 🛑 STILL BLOCKED ON THE OWNER, BY HIS OWN ASK.** F3 and its sibling are
+      **done** (14.1 → 14.4, all green and pushed, PR #58 open as a
+      draft; **full matrix 7/7 on `c91d303`**, suite 1419 tests / 1 skipped Windows-only). The extra scope
+      he announced has now arrived and is 14.5 → 14.7. Do **not** start the tail without him, and do
+      **not** pull a further finding in on your own initiative.
   - [ ] **What is left to do, once he has spoken**: whatever he adds, then the usual tail — §10 marketing
         re-read, mutation on what this branch changed (`engine-update-check.mjs`, `upstream-cache.mjs`,
         `engine-version.mjs`, `update-engine.mjs`, `session-status.mjs`), the version vector bump
