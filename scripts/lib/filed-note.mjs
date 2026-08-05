@@ -71,6 +71,64 @@ export function confidenceLine({ level, basis }) {
   return `${marker} · ${basis}`;
 }
 
+// What a note can be built from, in the order the constitution already states
+// ("verbatim > human synthesis > AI synthesis"). One scale for the whole brain,
+// like CONFIDENCE above: a second vocabulary would be a second discipline.
+// ⚠️ THE KEY ORDER IS THE RANKING, best first — it is what the frontmatter stamp
+// reads to name a note's weakest source. `conversation` sits under `verbatim`
+// (a transcript can be re-read; an exchange is gone at the next /clear) and over
+// anything that re-tells someone else's words.
+export const SOURCE_TIERS = {
+  verbatim: "📄 verbatim",
+  conversation: "💬 this conversation",
+  "human-summary": "📝 human synthesis",
+  "ai-summary": "🤖 AI synthesis",
+};
+
+// A search hit is not a tier of the scale, it is BELOW it: the snippet arrives
+// unasked, before any document is opened, so no ranking rule ever gets a moment
+// to apply. Named here so the refusal can say which door to take instead of
+// reading as a spelling mistake.
+const SNIPPET_TIERS = new Set(["snippet", "search-result", "search-snippet", "contentsnippet"]);
+
+// The weakest of the declared tiers — the one a note's reliability is actually
+// capped by. Read from SOURCE_TIERS' own key order (best first), so the ranking
+// has exactly one owner: adding a tier in the right place is all it takes.
+export function weakestSourceTier(sources) {
+  const rank = Object.keys(SOURCE_TIERS);
+  return sources
+    .map(({ tier }) => tier)
+    .reduce((worst, tier) => (rank.indexOf(tier) > rank.indexOf(worst) ? tier : worst));
+}
+
+// The rendered source header: what this note rests on, one declared source per
+// line. Rendered as a list even for a single source, so the shape a reader (and
+// a later pass) meets is always the same one.
+export function sourcesBlock(sources) {
+  const lines = sources.map(({ tier, ref }) => {
+    const marker = SOURCE_TIERS[tier];
+    if (!marker && SNIPPET_TIERS.has(String(tier).toLowerCase())) {
+      throw new Error(
+        `"${tier}": a search-result snippet is never a source — open the document, read it, ` +
+          `and declare the tier you actually read (${Object.keys(SOURCE_TIERS).join(", ")}).`,
+      );
+    }
+    if (!marker) {
+      throw new Error(
+        `unknown source tier "${tier}": use one of ${Object.keys(SOURCE_TIERS).join(", ")}`,
+      );
+    }
+    if (!ref || !String(ref).trim()) {
+      throw new Error(
+        `source "${tier}" needs a reference: name the document, the section and the date, ` +
+          `so the reading can be gone back to.`,
+      );
+    }
+    return `> - ${marker} · ${ref}`;
+  });
+  return `> **Sources**\n${lines.join("\n")}`;
+}
+
 // The vault-relative path a filed-back note must live at, derived from its type
 // (and title, and — for dated types — its date). Pure: no clock, no fs.
 export function filedNotePath(spec) {
@@ -99,12 +157,25 @@ export function renderFiledNote(spec) {
   if (!spec.tags || spec.tags.length === 0) {
     throw new Error("at least one tag is required (frontmatter conformance: tags must be non-empty)");
   }
+  // A note that does not say what it rests on is refused, not written silently.
+  // The rule it enforces existed in prose long before this line and never fired:
+  // ranking sources is advice you consult when citing, whereas the tier is
+  // decided far earlier, when a summary lands in context unasked and already has
+  // the shape of the deliverable. Asked here, the question cannot be skipped.
+  if (!spec.sources || spec.sources.length === 0) {
+    throw new Error(
+      `at least one source is required: say what this note was built from, as ` +
+        `"sources": [{ "tier": …, "ref": … }] — tier is one of ` +
+        `${Object.keys(SOURCE_TIERS).join(", ")}, ref names the document, section and date.`,
+    );
+  }
   const links = spec.links ?? [];
   const path = filedNotePath(spec);
   const universe = activeUniverse(spec);
   // Rendered (and validated) before the frontmatter, because the level lands in
   // both: the field is what a later pass can FIND, the line is what a human reads.
   const sure = spec.confidence ? `> **Confidence** — ${confidenceLine(spec.confidence)}\n\n` : "";
+  const built = spec.sources ? `${sourcesBlock(spec.sources)}\n\n` : "";
   const frontmatter = [
     "---",
     `type: ${spec.type}`,
@@ -115,6 +186,9 @@ export function renderFiledNote(spec) {
     // (the claim discipline's "yesterday's caveat is a debt"). As a field, it is
     // findable without reading the sentence.
     ...(spec.confidence ? [`confidence: ${spec.confidence.level}`] : []),
+    // What the note rests on, as a field: "which notes here were built on an AI
+    // synthesis?" must be answerable without re-reading every one of them.
+    ...(spec.sources ? [`source_tier: ${weakestSourceTier(spec.sources)}`] : []),
     // Additive scope key so retrieval travels with the file (ADR 0034), appended
     // last to match the import stamper (stamp-universe.mjs). Omitted at the root.
     ...(universe ? [`universe: ${universe}`] : []),
@@ -126,7 +200,7 @@ export function renderFiledNote(spec) {
   // usable to the next resolution: a first name is rarely unique, and a card
   // that does not say which one only moves the ambiguity.
   const which = spec.distinguish ? `> **Which one** — ${spec.distinguish}\n\n` : "";
-  const content = `${frontmatter}\n\n# ${spec.title}\n\n${which}${sure}${spec.body}\n${related}`;
+  const content = `${frontmatter}\n\n# ${spec.title}\n\n${which}${sure}${built}${spec.body}\n${related}`;
   return { path, content };
 }
 

@@ -17,6 +17,11 @@ import { runFileBack, listPeopleCards, realListIo, realFileBackDeps } from "./fi
 // Binary exit: 0 written / 1 refused-or-error.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Every note now declares what it was built from (the source header, filed-note
+// core). These tests are about the CLI glue, so they declare the plainest source
+// there is — the exchange itself — rather than restating that scale each time.
+const SAID_HERE = [{ tier: "conversation", ref: "worked out with the user in this session" }];
+
 function fakeDeps(overrides = {}) {
   const logs = [];
   const errors = [];
@@ -43,6 +48,7 @@ test("runFileBack — writes a conformant note under vault/, logs the path, exit
     tags: ["rag"],
     body: "The distilled answer.",
     links: ["topics/rag"],
+    sources: SAID_HERE,
   });
   const { deps, logs, writes } = fakeDeps({ input: spec });
   const code = runFileBack([], deps);
@@ -61,6 +67,7 @@ test("runFileBack — files the note under the ACTIVE universe, stamping univers
     tags: ["team"],
     body: "b",
     confidence: { level: "observed", basis: "her own intro in #general, 2026-07-17." },
+    sources: SAID_HERE,
   });
   const { deps, logs, writes } = fakeDeps({ input: spec, universe: "acme" });
   const code = runFileBack([], deps);
@@ -76,6 +83,7 @@ test("runFileBack — refuses to overwrite an existing note, writes nothing, exi
     title: "RAG",
     tags: ["x"],
     body: "b",
+    sources: SAID_HERE,
   });
   const { deps, errors, writes } = fakeDeps({
     input: spec,
@@ -98,7 +106,13 @@ test("runFileBack — a Windows brain path is compared and written in POSIX form
   // and handed to the existence check, so one mixed form on either side is a
   // note written where nothing looks for it. Fed on purpose here: CI runs the
   // suite on macOS too, where nothing else tells this apart from the identity.
-  const spec = JSON.stringify({ type: "topic", title: "RAG", tags: ["x"], body: "b" });
+  const spec = JSON.stringify({
+    type: "topic",
+    title: "RAG",
+    tags: ["x"],
+    body: "b",
+    sources: SAID_HERE,
+  });
   const { deps, writes } = fakeDeps({ input: spec });
   deps.cwd = () => "C:\\brains\\mind-palace";
   assert.equal(runFileBack([], deps), 0);
@@ -146,6 +160,7 @@ test("runFileBack — refuses a person whose first name the vault already holds,
     tags: ["acme"],
     body: "SRE, joined in March.",
     confidence: { level: "observed", basis: "the Acme org chart, 2026-03." },
+    sources: SAID_HERE,
   });
   const { deps, errors, writes } = fakeDeps({
     input: spec,
@@ -187,6 +202,7 @@ test("runFileBack — the first name it quotes back survives a stray leading spa
     tags: ["acme"],
     body: "b",
     confidence: { level: "observed", basis: "the Acme org chart, 2026-03." },
+    sources: SAID_HERE,
   });
   const { deps, errors } = fakeDeps({
     input: spec,
@@ -204,6 +220,7 @@ test("runFileBack — ONE homonym is refused too, and reads as one card, not '1 
     tags: ["acme"],
     body: "b",
     confidence: { level: "observed", basis: "the Acme org chart." },
+    sources: SAID_HERE,
   });
   const { deps, errors, writes } = fakeDeps({
     input: spec,
@@ -222,6 +239,7 @@ test("runFileBack — a person that DOES say which one is written, homonyms and 
     body: "SRE, joined in March.",
     distinguish: "SRE at Acme — not [[people/romain-durand]] (product).",
     confidence: { level: "observed", basis: "the Acme org chart, 2026-03." },
+    sources: SAID_HERE,
   });
   const { deps, logs, errors, writes } = fakeDeps({
     input: spec,
@@ -232,8 +250,8 @@ test("runFileBack — a person that DOES say which one is written, homonyms and 
   assert.equal(writes[0].path, "/brain/vault/people/romain-lefevre.md");
   assert.match(
     writes[0].content,
-    /# Romain Lefèvre\n\n> \*\*Which one\*\* — SRE at Acme — not \[\[people\/romain-durand\]\] \(product\)\.\n\n> \*\*Confidence\*\* — ✅ observed · the Acme org chart, 2026-03\.\n\nSRE, joined in March\.\n$/,
-    "both answers land in the card itself, above the body, in that order: which one, then how sure",
+    /# Romain Lefèvre\n\n> \*\*Which one\*\* — SRE at Acme — not \[\[people\/romain-durand\]\] \(product\)\.\n\n> \*\*Confidence\*\* — ✅ observed · the Acme org chart, 2026-03\.\n\n> \*\*Sources\*\*\n> - 💬 this conversation · worked out with the user in this session\n\nSRE, joined in March\.\n$/,
+    "all three answers land in the card, above the body, in that order: which one, how sure, built from what",
   );
   assert.deepEqual(logs, ["✓ Filed back: vault/people/romain-lefevre.md"]);
 });
@@ -283,6 +301,7 @@ test("runFileBack — the homonymy guard is about PEOPLE: a topic sharing that f
     title: "Romain Rolland",
     tags: ["x"],
     body: "b",
+    sources: SAID_HERE,
   });
   const { deps, errors, writes } = fakeDeps({
     input: spec,
@@ -383,6 +402,7 @@ test("file-back-note, as a real process — reads stdin, creates the folders, ex
     title: "Capacity Management",
     tags: ["rag"],
     body: "The distilled answer.",
+    sources: SAID_HERE,
   });
   const run = (input) =>
     spawnSync(process.execPath, [fileURLToPath(new URL("./file-back-note.mjs", import.meta.url))], {
@@ -399,7 +419,11 @@ test("file-back-note, as a real process — reads stdin, creates the folders, ex
   const written = readFileSync(join(brain, "vault", "topics", "capacity-management.md"), "utf8");
   const today = new Date().toISOString().slice(0, 10);
   assert.match(written, new RegExp(`^---\\ntype: topic\\ncreated: ${today}\\nupdated: ${today}\\n`));
-  assert.match(written, /\n# Capacity Management\n\nThe distilled answer\.\n$/);
+  assert.match(
+    written,
+    /\n# Capacity Management\n\n> \*\*Sources\*\*\n> - 💬 this conversation · worked out with the user in this session\n\nThe distilled answer\.\n$/,
+    "the source header travels through the real process too, not only the injected one",
+  );
 
   // And the same spec twice does not overwrite the first one.
   const second = run(spec);
@@ -420,7 +444,13 @@ test("file-back-note, as a real process — files under the universe the pointer
     [fileURLToPath(new URL("./file-back-note.mjs", import.meta.url))],
     {
       cwd: brain,
-      input: JSON.stringify({ type: "topic", title: "Billing", tags: ["x"], body: "b" }),
+      input: JSON.stringify({
+        type: "topic",
+        title: "Billing",
+        tags: ["x"],
+        body: "b",
+        sources: SAID_HERE,
+      }),
       encoding: "utf8",
     },
   );

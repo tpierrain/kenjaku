@@ -1,7 +1,7 @@
 ---
 name: consolidate
 description: "Consolidate raw captures into durable entity/topic pages (Axis 1, Track C): review recent meetings / daily / transcripts and PROMOTE their substance into the higher-order wiki — create the page for a person mentioned but never filed, refresh a topic page a fresher note left behind, weave the backlinks. A deterministic scan surfaces WHAT needs consolidating; parallel read-only sub-agents draft each merge; you PROPOSE, the user confirms, and the write reuses the /file-back builder (never overwrites). Triggered by '/consolidate', 'consolidate my captures', 'promote my raw notes', 'update my entity pages', 'compile my wiki', 'consolide mes captures', 'mets à jour mes pages', 'promeus mes notes brutes'."
-version: 1.1.0
+version: 1.2.0
 ---
 
 # consolidate — promote raw captures into the durable wiki ("compile the notes")
@@ -86,7 +86,10 @@ TASK:
 ### tags          # at least one
 ### body          # the distilled synthesis, in the user's language, self-contained
 ### links         # existing notes to weave in as [[people/...]] / [[topics/...]] paths (prefer targets that EXIST)
-### sources       # [[raw-sources/...]] / [[meetings/...]] backlinks this was distilled from
+### sources       # one line per capture read, as `<tier> · [[raw-sources/...]]`, tier being
+                  # verbatim | human-summary | ai-summary — a capture holding the raw material is
+                  # verbatim; one that already summarises a meeting is a human-summary; a meeting
+                  # export's Gemini/Noota block is an ai-summary even inside our own vault
 ### contradictions # (refresh only) each conflict as: PAGE SAYS "<x>" / CAPTURE SAYS "<y>" [source]; empty if none
 
 RULES:
@@ -111,7 +114,7 @@ additive part of the refresh. A contradicting claim is **never** appended withou
 Once confirmed, pipe a JSON spec to the `/file-back` builder (it stamps today's date, writes under
 `vault/`, and **refuses to overwrite**):
 ```bash
-echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"…","links":["topics/rag","raw-sources/2026-07-15-revue"]}' \
+echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"…","links":["topics/rag","raw-sources/2026-07-15-revue"],"sources":[{"tier":"verbatim","ref":"vault/raw-sources/2026-07-15-revue.md, the capture itself"}]}' \
   | node scripts/file-back-note.mjs
 ```
 - Exit **0** = written (prints `✓ Filed back: vault/<path>`); relay the path.
@@ -126,6 +129,14 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
   is where this bites hardest: a candidate surfaced by **mention count** has been counted, never
   verified, so its honest level is rarely `observed`. Say `probable` or `unverified` and name the
   captures it came from; never pick the level that unblocks the write.
+- Exit **1** with no `sources`: every note says what it was **built from** —
+  `[{"tier":"verbatim|conversation|human-summary|ai-summary","ref":"…"}]`, see
+  [`/file-back`](../file-back/SKILL.md#1-decide-the-shape-judgment). Consolidation promotes captures,
+  so the `ref` is the capture: name the note and the passage, not "the vault". And a capture is only
+  `verbatim` when it holds the raw material — a daily note that already summarises a meeting is a
+  `human-summary`, and a meeting export's Gemini block is an `ai-summary` even though it sits in your
+  own vault. Promoting a summary silently is how a synthesis becomes the vault's own memory of what
+  was said.
 
 ### 5b. Existing page (refresh) → pipe the dated section to the deterministic writer
 Filing never overwrites: a living page is REFRESHED by appending a dated section and bumping its
