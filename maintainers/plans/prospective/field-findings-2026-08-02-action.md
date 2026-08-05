@@ -164,16 +164,22 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7: **layer 3**, the last box of the release's build
-> phase. On `release/v4.8.0`.** Turn the passive constitution rule ACTIVE in both locales (an *ordering*
-> sentence, not another ranking one), locked by a section-sliced doc guard — the box says what it must
-> say and which trap to mind.
-> **14.6 is DONE**; **14.7's layers 1 and 2 are DONE and CLOSED** — layer 1 _(`f333b3d`)_, the source
-> header as a builder output required on every note; layer 2 _(`4b9eca7`)_, the read-path notice, three
-> states, three silence pins, now finished by its two remaining boxes _(`483ac2e` + the wired field
-> run, 2026-08-05)_. Their entries carry the calls taken while building **and what they deliberately do
-> not reach**; do not re-derive them, and do not re-open the scope. The release
-> **tail is 14.8 and still must not be started without the owner**.
+> **⏭️ THE RESUME POINT — `## Step 14`, step **14.8, the release tail — and it is BLOCKED ON THE
+> OWNER by his own ask** _("ne pousse pas la release seul")_. **The build phase of v4.8.0 is DONE**:
+> 14.1 → 14.7 are all ticked, green and pushed on `release/v4.8.0` (draft **PR #58**). **Do not tag, do
+> not merge, do not publish, and do not pull a further finding in on your own initiative.** What the
+> tail holds is listed at 14.8, plus the version vector (both constitutions changed at 14.7 layer 3, so
+> `constitutionTemplate` moves too) and the one open question to put to him (the daily outbound update
+> check, and whether it deserves an opt-out).
+> **While waiting, the only useful autonomous work is verification, not scope**: the full matrix on the
+> branch tip (the Windows tripwire is what caught three CRLF/path defects in this trilogy) and the
+> mutation pass on what this branch changed.
+> **14.7 is DONE and CLOSED, all three layers** — layer 1 _(`f333b3d`)_, the source header as a builder
+> output required on every note; layer 2 _(`4b9eca7`)_, the read-path notice, three states, three
+> silence pins, finished by its two remaining boxes _(`483ac2e` + the wired field run)_; layer 3
+> _(`1b5eb56`)_, the passive ranking rule turned into an order of operations on four carriers. Their
+> entries carry the calls taken while building **and what they deliberately do not reach**; do not
+> re-derive them, and do not re-open the scope.
 > F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
 > came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
 > brain's backlog: **14.5** ✅ done (two `/lint` defects), **14.6** (the Slack account check), **14.7**
@@ -1514,7 +1520,9 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           consent guards): `/switch` (the surface that prints the digest) and `sync-sources` EN + FR (the
           surface that actually reads Slack). Mind the FR trap: a guarded phrase wrapping across two lines
           goes red for typography, not for meaning.
-- [ ] **14.7 — an AI summary served as a source while the verbatim sat in the same file.** _(owner,
+- [x] **14.7 — ✅ COMPLETE, all three layers** _(2026-08-05 · `f333b3d`, `4b9eca7`, `483ac2e`,
+      `1b5eb56`; suite 1517 tests, 1 skipped Windows-only)_ — **an AI summary served as a source while
+      the verbatim sat in the same file.** _(owner,
       2026-08-05: "dans v4.8.0, maintenant" — the three layers)_ **The important part, and the reason a
       fourth prose rule would be a waste**: the rule **already exists in both constitutions**
       (`CLAUDE.engine.md:259` EN, `templates/fr/CLAUDE.engine.md:264` FR — *"qualify source reliability:
@@ -1614,13 +1622,36 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
             (`search_files` / `slack_read_file`) and a throwaway brain has no connector, so that state
             stays unit-pinned. Its matcher, though, **was** field-proven: the shipped five-tool alternation
             fires on a plain `Read`.
-  - [ ] **Layer 3: turn the passive rule ACTIVE, in both locales.** Not another ranking sentence — an
-        **ordering** one: a search-result snippet is never a source; when a verbatim exists in the same
-        file, it is read before anything derived from it is quoted. Lock it with a section-sliced doc
-        guard (`scripts/lib/doc-section.mjs`, same as the claim, identity and consent guards), and mind
-        the FR trap recorded at 12.3 and hit twice at 14.3: **a guarded phrase that wraps across two lines
-        goes red for typography, not for meaning.**
-  - [ ] Bump both `version:` fields if a constitution changes, and remember the version vector at 14.8.
+  - [x] **Layer 3 — ✅ DONE, the rule is an ORDER OF OPERATIONS now** _(2026-08-05 · `1b5eb56`; suite
+        1517 tests, 1 skipped Windows-only)_. Four rules with a gesture in each: a search-result snippet
+        is never a source (open the document); when one file holds both, the verbatim is read **before**
+        anything derived from it, and the decisions come from the transcript, never from the summary's
+        own action list; a partial read that stops inside the summary is not a read of the document; and
+        the tier declared is the one actually read (no verbatim is written down, not rounded up).
+    - [x] **Four carriers, chosen by reach rather than by symmetry**: the full rule in `sync-sources`
+          EN + FR (the surface that actually reads exports, and the one in **`merge`** that reaches the
+          deployed fleet), a **condensed** copy in both constitutions (in no regime, so new installs
+          only — which is why the skill holds the long version, never the reverse). The constitution
+          half is deliberately four lines: that layer is always loaded and only ever grows (F19).
+    - [x] **The passive rule was not left standing beside the active one.** The ranking bullet keeps its
+          place — it is still true, and those tiers are the builder's own — but it now **points at** the
+          ordering. Two rules about one thing, one of which never fires, is how a reader learns which to
+          obey. Pinned by its own assertion, and the mutant that reverts the bullet to its old standalone
+          form goes red.
+    - [x] **Guard**: `scripts/lib/source-discipline.test.mjs`, 29 assertions, sharing `doc-section.mjs`
+          with the claim, identity, consent and connector guards (sliced, because "verbatim" and "source"
+          appear all over both carriers for other reasons). Written red first — 29/29 failing before a
+          word of prose existed — then **each of the four carrier sections was deleted in turn** to prove
+          it is load-bearing: 9 reds for either skill, 5 for either constitution.
+    - [x] Both skills' `version:` → **1.2.0**. The FR wrap trap (12.3, hit twice at 14.3, again at 14.6)
+          was met and kept in the prose: every guarded phrase sits on one line.
+    - [x] **Deliberately NOT extended to `/file-back` and `/consolidate`**, so nobody reads it as an
+          oversight: layer 1 already put the `source` field and the four tiers there, and that is the
+          builder's contract, not this ordering. A pointer would be worth adding only if a third surface
+          starts restating the rule.
+  - [ ] **For 14.8: the version vector.** Both constitutions changed here, so `constitutionTemplate`
+        must be bumped with the rest of the vector (`scripts` too — this branch changed it). The two
+        skill `version:` fields are already done.
 - [ ] **14.8 — the release tail — 🛑 STILL BLOCKED ON THE OWNER, BY HIS OWN ASK.** F3 and its sibling are
       **done** (14.1 → 14.4, all green and pushed, PR #58 open as a
       draft; **full matrix 7/7 on `c91d303`**, suite 1419 tests / 1 skipped Windows-only). The extra scope
