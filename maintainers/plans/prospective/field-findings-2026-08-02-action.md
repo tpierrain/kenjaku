@@ -2020,10 +2020,40 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
       not truncation. Cosmetic bonus: "1 consolidation candidate**s**".
-- [ ] **F3 — the engine-update offer is version-blind.** The opt-in prompt states the *installed*
-      version and asks "Je lance ?" **without ever naming the target version**: the owner consents
-      blind to a code swap. One `git ls-remote --tags` on the recorded source fixes both halves
-      ("is there an update" and "what am I installing").
+- [ ] **F3 — the engine-update offer is version-blind, and the consent is therefore uninformed.** The
+      opt-in prompt states the *installed* version and asks "Je lance ?" **without ever naming the
+      target version**: the owner consents blind to a code swap. One `git ls-remote --tags` on the
+      recorded source fixes both halves ("is there an update" and "what am I installing").
+  - [ ] **Field evidence, 2026-08-05 (the owner's own brain, `mind-palace` on v4.6.0).** The prompt
+        said it out loud: *"Tu es en v4.6.0. **Je ne sais pas ce qui est disponible en amont** : c'est
+        le script qui le dira."* The skill asks for a yes **before calling anything**.
+  - [ ] **The owner's ask, same day, and it widens the finding:** show the version that is about to be
+        installed **and a synthesis of what you gain** — features and fixes — **between your version and
+        that one**, *before* the yes/no. Consent to a code swap should be able to answer "what for?".
+  - [ ] **Read in the code 2026-08-05, so nothing is re-derived:** `resolveLatestTag({ repo })`
+        (`scripts/lib/engine-fetch.mjs`) is a **`git ls-remote --refs --tags`** — no clone, no auth,
+        one network round-trip — and `update-engine.mjs` calls it at **step 1 of the run**, i.e. after
+        the confirmation. So the target version is knowable **before** the prompt, for free. **The same
+        output already carries every intermediate tag**: "you are 3 releases behind, here they are" costs
+        nothing more. This is not a missing capability, it is a call made too late.
+  - [ ] **The open call — where the "what you gain" text comes from.** Three sources, degrading into
+        each other, and the fix should layer them rather than pick one:
+    - [ ] **(A) versions only** — free, from the `ls-remote` above; works on any git host, any fork, and
+          says nothing it cannot know.
+    - [ ] **(B) + the one-line title per release** — our tags are annotated (`v4.7.0 — The One Where It
+          Knows You Haven't Restarted Yet`), which is already a human synthesis. Needs a tag-object
+          fetch, not just `ls-remote`.
+    - [ ] **(C) + the real synthesis** — every release note carries a `### What you get` section written
+          for non-devs (§11). That is **exactly** the requested text, already written and reviewed.
+          Reachable through the GitHub Releases API (public metadata, no vault content leaves), which a
+          fork, a private host, an offline machine or a rate limit can all refuse → must fall back to B
+          then A, never to a blank.
+    - [ ] **⚠️ The model must not summarise it** (ADR 0009): the notes are already prose for humans, so
+          the skill **quotes** them and the deterministic script produces the data. A generated summary
+          of a code swap is a non-deterministic step on a load-bearing consent.
+  - [ ] **Sibling surface, same defect:** the SessionStart *offer* is version-blind too, which is what
+        the "no update available vs. target simply unknown" row of the reframe table is about. One probe
+        should feed both, or they will drift.
 - [ ] **F10 — the recorded source is frozen at install time.** The prompt showed
       `source: tpierrain/second-brain-generator` while the launcher's remote is
       `git@github.com:tpierrain/kenjaku.git` (renamed at v4.0.0). ADR 0026 states `update-engine`
