@@ -81,6 +81,18 @@ test("pulledPaths — the raw diff becomes paths, blank lines and CRLF included"
   );
 });
 
+// The other ending, and the majority one: git on macOS/Linux emits bare LF. Fed as its own
+// case because a split that only knows CRLF still passes the test above — it would return
+// the whole stdout as ONE path, which matches no prefix, and the machine that is behind goes
+// silent on every Unix. The whitespace-only line is the second half of the same guard: a
+// blank that is not empty must not survive as a path either.
+test("pulledPaths — LF-only stdout, and a line that is blank without being empty", () => {
+  assert.deepEqual(
+    pulledPaths("scripts/session-status.mjs\n   \nvault/inbox/note.md\n"),
+    ["scripts/session-status.mjs", "vault/inbox/note.md"],
+  );
+});
+
 // A brain with no remote pulls nothing, and a brain that is already up to date pulls
 // nothing either — session-status hands an empty list in both cases. It is the majority
 // of all sessions, so it is the one that must cost nothing and say nothing.

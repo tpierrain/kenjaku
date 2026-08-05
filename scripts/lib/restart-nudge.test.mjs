@@ -65,6 +65,12 @@ test("restartPromptDirective — pending → the agent is told to raise the rest
   // sends the owner away from the thread they were working in.
   assert.match(directive, /do not .{0,30}new conversation/i);
   assert.match(directive, /their own language|owner's language/i);
+  // The WHY, and the place to put it. Both are load-bearing copy, not decoration: an owner
+  // told to restart with no reason reads it as a glitch and ignores the next one, and a
+  // directive that does not say "open your reply with it" gets buried under the answer to
+  // whatever they actually asked — on a channel whose whole point is that it repeats.
+  assert.match(directive, /only at start/i, "the reason a restart is what fixes it");
+  assert.match(directive, /open your reply/i, "led with, not appended after the answer");
 });
 
 test("restartPromptDirective — nothing pending → nothing injected, on every prompt of every session", () => {

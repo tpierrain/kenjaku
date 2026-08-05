@@ -23,31 +23,34 @@ const FLAG_BODY = "restart needed to finish the engine update\n";
  * `deriveWanted` is injected (it belongs to the self-heal), as are the two fs reads.
  */
 export function restartPendingOnDisk({ repo, deriveWanted, existsSync, readFileSync }) {
-  let gapNeeded = false;
-  try {
+  const gapNeeded = noSignalIfItBlowsUp(() => {
     const { wantedSkillDirs, wantedServerIds } = deriveWanted(repo);
     const mcpPath = join(repo, ".mcp.json");
     const registered = existsSync(mcpPath)
       ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
       : new Set();
-    gapNeeded = detectSelfHealGap({
+    return detectSelfHealGap({
       wantedSkillDirs,
       wantedServerIds,
       skillDirExists: (dir) => existsSync(join(repo, dir)),
       mcpServerRegistered: (id) => registered.has(id),
     }).needed;
-  } catch {
-    gapNeeded = false;
-  }
+  });
 
-  let flagExists = false;
-  try {
-    flagExists = existsSync(join(repo, RESTART_FLAG_REL));
-  } catch {
-    flagExists = false;
-  }
+  const flagExists = noSignalIfItBlowsUp(() => existsSync(join(repo, RESTART_FLAG_REL)));
 
   return isRestartPending({ flagExists, gapNeeded });
+}
+
+// The fail-soft above, with ONE owner. Written twice (an initializer AND a catch per signal)
+// it was unobservable both times: each half silently covered for the other, so neither could
+// be shown to work. Here the fallback is stated once and a test can hold it.
+function noSignalIfItBlowsUp(read) {
+  try {
+    return read();
+  } catch {
+    return false;
+  }
 }
 
 /**

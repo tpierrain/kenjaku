@@ -13,7 +13,14 @@ function deps({ files = [], servers = [], wanted = { wantedSkillDirs: [], wanted
     repo: "/brain",
     deriveWanted: () => wanted,
     existsSync: (p) => present.has(p),
-    readFileSync: () => JSON.stringify({ mcpServers: Object.fromEntries(servers.map((s) => [s, {}])) }),
+    // Reads the way node's `fs` reads, on both counts: an encoding it does not know is an
+    // ERROR (not a silently-returned Buffer), and an absent file throws. A call that forgot
+    // `utf8`, or read a path nothing wrote, therefore fails here instead of passing by luck.
+    readFileSync: (p, encoding) => {
+      if (encoding !== "utf8") throw new Error(`Unknown encoding: ${encoding}`);
+      if (!present.has(p)) throw new Error(`ENOENT: no such file, open '${p}'`);
+      return JSON.stringify({ mcpServers: Object.fromEntries(servers.map((s) => [s, {}])) });
+    },
   };
 }
 
@@ -38,6 +45,32 @@ test("an engine-delivered skill sitting on disk, uninstalled, means it too", () 
   const d = deps({
     wanted: { wantedSkillDirs: [".claude/skills/switch"], wantedServerIds: [] },
   });
+  assert.equal(restartPendingOnDisk(d), true);
+});
+
+// The converged brain of the test above, but with something to converge: the engine wants a
+// skill and a server, and BOTH are already there. It is the case that says the two probes are
+// really read — an "is it installed?" that answers nothing at all would report a gap here, and
+// nudge a restart at every session start on a brain that has nothing to finish.
+test("what the engine wants is installed and registered — still no restart", () => {
+  const d = deps({
+    files: [join("/brain", ".mcp.json"), join("/brain", ".claude/skills/switch")],
+    servers: ["vault-rag"],
+    wanted: { wantedSkillDirs: [".claude/skills/switch"], wantedServerIds: ["vault-rag"] },
+  });
+
+  assert.equal(restartPendingOnDisk(d), false);
+});
+
+// The other half of the same read: `.mcp.json` is there and parses, and what it registers is
+// NOT what the engine delivered. The server exists on disk, this session never spawned it.
+test("an engine-delivered MCP server that .mcp.json does not register means a restart too", () => {
+  const d = deps({
+    files: [join("/brain", ".mcp.json")],
+    servers: ["vault-rag"],
+    wanted: { wantedSkillDirs: [], wantedServerIds: ["local-mirror"] },
+  });
+
   assert.equal(restartPendingOnDisk(d), true);
 });
 
