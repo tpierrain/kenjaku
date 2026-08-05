@@ -177,6 +177,12 @@ Three paths, detailed in [SETUP §6](SETUP.md):
 > writing down which account each sphere actually uses, on that universe's own page
 > ([SETUP §5.1](SETUP.md#51-telling-your-brain-about-your-context-optional-2-minutes)): that line names
 > where the page is, at every session start, so your brain has it at hand when it matters.
+>
+> **Since v4.8.0 that line is checked rather than trusted — for Slack.** What you wrote on the page is a
+> *declaration*; before filing anything from Slack, your brain asks Slack **which workspace it is really
+> on** and compares the two. They match → it carries on. They differ → it **stops and tells you**,
+> instead of filing one organisation's material under another's name. It cannot find out → it says that
+> too, rather than assuming. The other connectors still go on the declaration alone.
 
 ---
 

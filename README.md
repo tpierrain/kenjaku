@@ -266,7 +266,14 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   answering you is no longer the one on disk** — a session loads its wiring once, at start, so an update
   that lands mid-session (typically pulled from your remote when you open your brain on a **second
   machine**) used to be answered by the old code, silently, for the rest of the session. Now it says so,
-  in the terminal and in Desktop, until you close and reopen.
+  in the terminal and in Desktop, until you close and reopen. **Since v4.8.0 it tells you when an update
+  is *waiting*, and what it is for**: before, your brain could update itself but never knew there was
+  anything to update, so the offer was a generic *"you can run an update"*. Now it names the version and
+  quotes what that release actually gives you — you decide with the answer in front of you, and *"not
+  now"* remains a complete answer. **What this is not**: no remote repository is added to your brain,
+  nothing of yours is sent or pushed, and your own backup repo plays no part. It is **one anonymous
+  look at the engine's public repo, once a day** — asking only *"is there a newer version?"* — skipped
+  entirely when you are already up to date, and silently given up on when you are offline.
   *(mental model + hands-on steps: [SETUP §10](SETUP.md#10-keeping-your-engine-up-to-date-update-engine))*
 - **🧬 Already have a brain from *before* v3.0.0? Bring your notes over.** Install a fresh brain, then
   say *"importe mes anciennes notes depuis `<path>`"* — it shows a **safe plan**, confirms, copies your
@@ -351,6 +358,13 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **The index is cross-checked against your vault** — the subtler version of the same lie is a note that
   keeps *answering* from the content it was last indexed with. A crosscheck names every note the two
   disagree about, on demand (`verify-index`) and as a session check. *(ADR 0030)*
+- **It says what a note was built from.** A meeting recap written by an AI is not the meeting: every note
+  records its source, a note derived from an automatic summary **says so when it is cited**, and the raw
+  material is read first, the summary only after. A summary's own mistakes stop being stored as facts.
+- **A connector it *declares* is not a connector it *checked*.** Your notes may say this sphere uses the
+  Acme Slack — that is a declaration you typed. Before filing anything from Slack, your brain now asks
+  Slack **which workspace it is actually on**, and stops rather than file one organisation's material
+  under another's name.
 
 **B · Determinism over guesswork.** *(the ladder of [ADR 0009](maintainers/decisions/0009-prefer-deterministic-mechanisms.md))*
 
@@ -380,7 +394,9 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   stale entity pages, raw captures never filed — and **propose** fixes you confirm (never a silent
   rewrite). Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
   re-introduce the very defects `/lint` reports — and repairing a broken link is no longer allowed to
-  invent the person it points at. Self-healing at the *content* layer.
+  invent the person it points at. Self-healing at the *content* layer. **And the checker is held to the
+  same standard as the vault**: it no longer reports your raw captures as orphans, nor complains about
+  the engine's own files — a checklist that cries wolf is one you learn to stop reading.
 - **A note it couldn't index is refused, not written.** Before writing into your vault, your brain checks
   the note's header with the **engine's own parser** — the very one that indexes it. A note that parser
   would reject is never written at all, instead of being born invisible to search while the counter says
