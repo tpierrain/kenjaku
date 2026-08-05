@@ -1075,6 +1075,16 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       `session-self-heal.mjs`): top-level scripts no test can import. **Inherited, not new** — recorded
 >       since v4.4.0, and closing it is a refactor of fleet-deployed scripts, i.e. its own release.
 >
+> **⏸️ ONE THING IS WAITING ON A MERGE DECISION, unrelated to the findings** _(2026-08-05)_:
+> **PR #56, `chore/pin-vulnerable-transitive-deps`** — CI **green, 7/7 on `b88ca51`**, ready to merge.
+> It replaces two drive-by PRs from a fork (#48 fast-uri, #52 adm-zip), **both closed** with an
+> explanation after each was applied to a throwaway copy and re-audited: neither closed its advisory.
+> Ours pins both through `overrides` in **both** packages (`rag` carries `fast-uri` too, via its own
+> `ajv` — that is what the drive-by PRs missed). Measured: `rag` 12 → 9 vulnerabilities,
+> `local-mirror` 6 → 5. **Deliberately NOT addressed there**, and a candidate for its own pass:
+> the rest of the audit (`sharp`/libvips with no fix available, `js-yaml`, `protobufjs`, the hono
+> chain). Do not re-derive any of this; the PR body carries it.
+>
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F13, F3, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 
@@ -1757,6 +1767,33 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
   - [ ] **Two things to settle when it is built, not before:** whether the nudge must also name the
         privacy case explicitly (a banner that already leaked is not un-leaked by a restart), and what
         a brain with **no remote** shows (the pull is a silent no-op there — it must stay silent).
+  - [ ] **The owner's follow-up (2026-08-05): "shouldn't it ASK to restart, or exit, when it sees it
+        was upgraded? A version check at the very start?" — the intent is right, the exit is not
+        available, and the CHANNEL matters more than the force.** Recorded so the design is not
+        re-derived:
+    - [ ] **A SessionStart hook cannot abort a session.** It emits `systemMessage` /
+          `additionalContext`; there is no deny verb (unlike `PreToolUse`). So "exit at startup" is not
+          a thing this harness offers, and forcibly killing someone's session would be hostile anyway.
+    - [ ] **The lever that DOES exist is `UserPromptSubmit`** — it can block a prompt outright (exit 2)
+          or inject context. **Recommended: inject, do not block.** It repeats on every prompt until the
+          restart happens, so it cannot be missed, and it never locks the owner out of their own brain
+          on a false positive. The repo's own rule applies (`restart-signal.mjs`): a phantom restart
+          costs a pointless one and teaches people to ignore the real one.
+    - [ ] **And it is the only channel that reaches Desktop** (ADR 0036's matrix: `systemMessage` and
+          `statusLine` are terminal-only). Today the Desktop cue is a 🛑 chat rule inside the
+          `update-engine` skill, which only fires when the update ran **here** — precisely the case F20
+          is NOT about. So the pull-detected nudge would give Desktop its first deterministic cue.
+    - [ ] **On "a version check at the very start": prefer git to a version string.** The hook performs
+          the pull itself, so it holds both ends — `ORIG_HEAD` (what this session loaded) and `HEAD`
+          (what is now on disk). That is exact, needs no bookkeeping, and covers a manifest that did not
+          move while files did. **The problem is bounded**: any *new* session loads whatever is on disk,
+          so the only stale window is code arriving *inside* a running session.
+  - [ ] **The Desktop question, answered from the repo rather than invented** — the `update-engine`
+        skill already prescribes it (`.claude/skills/update-engine/SKILL.md:119-133`): **fully close
+        Claude and reopen it, then come back to THIS same conversation.** Explicitly **not** a
+        brand-new conversation (that is the distinct *initial-rooting* rule, for a session not yet
+        rooted in the brain). Reuse that wording for the pull-detected case; do not mint a second one.
+        _(Worth a field check when built: that instruction is a documented claim, not a measured one.)_
   - [ ] **Why it belongs to v4.7.0 rather than a hotfix**: it is a *visibility* finding in the exact
         sense of that release, and it is the first field report on the multi-machine path v4.5.0 opened.
 - [ ] **F21 — the index reports a shortfall it never tries to close, and promises a resume it cannot
