@@ -1,7 +1,7 @@
 ---
 name: sync-sources
 description: "Fan-out/fan-in architecture to pull in the DELTA of external sources (Slack, Google Drive / transcripts, Calendar, mail…) via parallel READ-ONLY sub-agents. Internal technical reference — it's the engine of Phase 2 of the main flow (question → sync sources in background) and of a possible morning briefing. Not a user command: it's your questions that trigger the pull."
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Sync sources — Fan-out/fan-in architecture (internal reference)
@@ -73,6 +73,39 @@ accents** (`[[people/jane-doe]]`). The backlink may point at a page that doesn't
 **When you only have a first name, you have no link to write** — not a shortened one, not a completed
 one. See "Identity discipline" just below: the name stays plain text. This section describes the
 *shape* of a link once the person is resolved; it never asks you to produce a full name you don't have.
+
+## Connector discipline
+
+> **Before anything you say about the data can be true, the data has to come from the right
+> organisation.** The native connectors are single-account and do **not** follow a `/switch`: after
+> moving from one sphere to another, Slack is still authenticated on the workspace you left while the
+> profile page on screen declares the new one. The brain then reads one organisation's messages and
+> files them under another's name — with every rule below applied, correctly, to the wrong company's
+> data. Nothing in the vault reveals it afterwards: the note looks right.
+
+1. **A declared account is a claim, never an observation.** The `## Connector accounts` section of a
+   universe profile is hand-typed by its owner. It tells you which workspace this sphere is *meant*
+   to use; it says nothing about where the connector actually is right now.
+2. **The observation is the sub-agent's, the check is yours.** The sub-agents read external sources
+   and never see the vault, so they cannot compare anything — exactly like the novelty check. The
+   chat sub-agent **returns the workspace it was on**; the main context is the only step holding both
+   that and the profile, so it is the one that checks.
+3. **Do not compare the two strings yourself — run the check.** `acme.slack.com`,
+   `https://acme.slack.com/archives/…` and `acme` are one workspace, and an alarm raised on a
+   correctly connected brain teaches its owner to stop reading the check:
+   ```bash
+   node scripts/set-universe-profile.mjs --check-slack "<workspace the sub-agent reported>"
+   ```
+   It answers in one line and **exits non-zero only on a divergence**. Its four answers are four
+   different situations: matching, diverging, *"I could not find out"*, and *"this universe declares
+   no Slack account"*. Relay the one you got; never round the last three up to the first.
+4. **A divergence is a hard block on filing.** Do not write the fetched material into the vault, and
+   do not answer from it as if it were this sphere's. Say which workspace the connector is on, name
+   the one the universe declares, and stop there — reconnecting Slack is the owner's move, not yours.
+5. **The connectors nobody can interrogate stay unverified, and say so.** Slack is the only tool this
+   check covers, on purpose: it is where the mistake costs the most and the one that answers cleanly.
+   Notion, Drive, mail and the rest are **declared and unverified** — usable, but never presented as
+   confirmed, and never quietly promoted to "checked" because Slack passed.
 
 ## Identity discipline
 
@@ -317,6 +350,15 @@ NEGATIVE CLAIMS:
   are about to assert? (A real failure asserted "no answer" while the same result set held a
   later message thanking the author for a complete answer.)
 
+WHICH WORKSPACE YOU WERE ON — return this, it is not optional:
+- End your return with one line: `WORKSPACE: <what you actually saw>` — a permalink host
+  (https://<workspace>.slack.com/...), the workspace/team field, whatever your results carry.
+- If nothing in your results names it, return `WORKSPACE: unknown`. Never guess it from the
+  channel names or from what the conversation is about.
+- You cannot check it yourself: you never see the vault. The main context compares it against
+  what this universe declares — the connector is single-account and does NOT follow a switch,
+  so it may be authenticated on a completely different organisation.
+
 RULES:
 - Ignore pure conversational noise (hello/thanks/emoji) and bots/notifications.
 - Backlinks via vault/people/ (kebab-case, no accents). No full name, no link: the name stays plain text.
@@ -361,7 +403,7 @@ signal. This is also where we decide whether the delta **amends the answer in pr
 
 **Reconcile before writing a single line** (see *Claim discipline* above). The returns are a corpus
 to be made internally consistent, **not** a bag of quotes to support a synthesis you have already
-decided on. Three passes, all cheap:
+decided on. Four passes, all cheap:
 
 1. **Does anything I retrieved contradict what I am about to assert?** A contradiction in your own
    material outranks the claim, always.
@@ -372,6 +414,13 @@ decided on. Three passes, all cheap:
    sub-agents read external sources and never see it. What comes back outranks the delta's framing
    (see *Identity discipline* above): it is how a two-month-old fact stops being republished as a
    scoop, and how a *"(confirmed 04/06)"* card stops being downgraded to *"(unconfirmed)"*.
+
+4. **The `WORKSPACE:` line the chat sub-agent returned gets checked, before any of it is written.**
+   Run `node scripts/set-universe-profile.mjs --check-slack "<that workspace>"` (see *Connector
+   discipline* above). You are the only step that holds both the sub-agent's observation and the
+   profile that declares what this sphere should be using. **A divergence stops the write**: the
+   material belongs to another organisation, and it is a cross-universe leak nothing downstream can
+   detect — the note will look perfectly well-formed.
 
 A sub-agent that reported it could not see reply counts has told you its silence is **unmeasured** —
 carry that through to the briefing rather than rounding it to "nothing happened".
