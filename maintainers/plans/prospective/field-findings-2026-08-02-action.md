@@ -1147,8 +1147,23 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > that break an alias silently: the folder (the CLI routes on it), the declared `name:`, the target
 > still existing, and the description's cost in the always-loaded layer (F19).
 >
-> **Next: 13.4 — the release tail.** Start with the bookkeeping the scope cut created (three code
-> comments still send a reader to v4.7.0 for work that now lands in v4.8.0), then the usual shape.
+> **13.4 — the release tail, in progress.** Done so far, both pushed and green locally:
+> - [x] **The bookkeeping the scope cut created** _(`421121f`)_ — the three comments that still sent
+>       a reader to v4.7.0 for F3's unknown-version state and the `unknown` health check now name
+>       **v4.8.0**. The assertions themselves were not touched.
+> - [x] **The version vector** _(`b529369`)_ — `rag` 1.3.0 → **1.4.0**, `scripts` 1.11.0 → **1.12.0**,
+>       `rag/package.json` + lockfile in step. `local-mirror` (0.3.0) and `constitutionTemplate`
+>       (1.2.0) left alone: nothing in them changed, checked rather than assumed.
+>       `indexSchemaVersion` stays **2** — no reindex, which is what the note will promise.
+> - [ ] **§10, the marketing-surface re-read** — not started.
+> - [ ] **Mutation on what this release changed** — not started. Production files touched:
+>       `scripts/lib/frozen-wiring.mjs`, `scripts/lib/restart-nudge.mjs`,
+>       `scripts/lib/restart-signal.mjs`, `scripts/prompt-restart-nudge.mjs`,
+>       `scripts/session-status.mjs`, `scripts/session-self-heal.mjs`, `scripts/update-engine.mjs`,
+>       `rag/src/lib/index-shortfall.ts`, `rag/src/lib/status-report.ts`, `rag/src/index.ts`.
+>       Recipe and the batching lesson: Step 11's mutation section (worktree, NOT the scratchpad;
+>       one or two files per run; `rag/node_modules` symlinked and verified first).
+> - [ ] **Release note + PR body + tag** — the owner is asked BEFORE the public tail, as at v4.6.0.
 >
 > Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
 > exists and is pushed** off that commit. Work the remaining boxes below in order.
