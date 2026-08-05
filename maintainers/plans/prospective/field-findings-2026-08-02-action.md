@@ -189,7 +189,20 @@
 > new production file is mutated the day it is written, engraved in `CONVENTIONS.md`. Both are checklist
 > items in 14.8; do not re-open or re-propose them (an 11th written reflex was explicitly declined).
 >
-> **▶️ RESUME AT: the mutation pass, batch 4** _(state as of 2026-08-05, end of session — everything
+> **▶️ RESUME AT: the RE-MEASURES, then `RESULTS.md`** _(state as of 2026-08-05, evening — the owner
+> handed the tail over to run in autonomy, "va jusqu'au bout", with **CI 7/7 on the tagged commit** as
+> the one gate that still stops the line)_. **Batches 5 and 6 are measured, hardened, green and pushed**
+> (`1f352eb`, `103eb05`) — read their entries in 14.8, do not re-derive them. The four chained
+> re-measure passes were launched on the tip `103eb05` and write to
+> `maintainers/mutation/reports/v480-recheck-{a,b,c,d}-*.log`: **read those logs rather than re-running
+> them**. What remains after them, in order: **RESULTS.md § v4.8.0** (with the two deferred remedies as
+> numbered debt and `session-status.mjs`'s 0 % written as inherited), remove the worktree, **pin the
+> snapshot into the release note**, re-read it, **the PR body**, re-check the boards' `mutation 90–97%`
+> claim, then **tag, merge, publish**.
+>
+> <details><summary>The earlier resume point, kept for the record: the mutation pass, batch 4</summary>
+>
+> _(state as of 2026-08-05, end of session — everything
 > below is committed and pushed on `release/v4.8.0`, nothing is half-written on disk)_. What is **done**
 > in 14.8, so it is never re-done: the two decisions, the **version vector**, the **`CONVENTIONS.md`
 > §5quinquies** paragraph (the adopted process remedy), the **whole §10 marketing re-read** including
@@ -217,6 +230,9 @@
 > as it ships, and this branch is expected to move again when the owner returns — measuring now buys a
 > re-measure, which is exactly the v4.6.0 lesson (RESULTS.md § v4.6.0 had to be redone after seven
 > later commits).
+>
+> </details>
+>
 > **14.7 is DONE and CLOSED, all three layers** — layer 1 _(`f333b3d`)_, the source header as a builder
 > output required on every note; layer 2 _(`4b9eca7`)_, the read-path notice, three states, three
 > silence pins, finished by its two remaining boxes _(`483ac2e` + the wired field run)_; layer 3
@@ -2049,16 +2065,67 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
                     survived**, so this file needs no second pass.
     - [x] ~~**Batch 3, not started**~~ — done and hardened above.
     - [x] ~~**Batch 4, not started**~~ — done, hardened AND re-measured above (96.54 %).
-    - [ ] **▶️ RESUME HERE: Batch 5 — LAUNCHED 2026-08-05, running** — `scripts/lib/connector-accounts.mjs,
-          scripts/lib/consolidation-candidates.mjs, scripts/lib/wiki-lint.mjs`. **On resume, read the log
-          rather than re-running it**: `maintainers/mutation/reports/v480-batch5-lint-accounts.log`.
-          Worktree reset to `d9bdb7c` (the three files are **unchanged** since — `git diff` on them is
-          empty, checked not assumed), `rag/node_modules` symlink re-created after the `git clean`, and
-          `vault-write-guard.test.mjs` verified at **22 pass / 0 skipped** before the run.
-    - [ ] **Batch 6, not started** — `scripts/lib/universe-profile.mjs, scripts/set-universe-profile.mjs`.
-          **✅ The owner said to CHAIN it without asking** _(2026-08-05: "continue avec le batch 6 quand
-          batch 5 est fini")_ — so the sequence measure → harden → next batch runs on its own; do not
-          stop to ask between them.
+    - [x] **Batch 5 DONE and HARDENED** _(2026-08-05, 10 min 56 s, 425 mutants, log
+          `maintainers/mutation/reports/v480-batch5-lint-accounts.log`; hardened in `1f352eb`)_. **Total
+          90.12 %**, 42 survivors: `wiki-lint.mjs` **88.50 %** (26), `connector-accounts.mjs` **89.72 %**
+          (11), `consolidation-candidates.mjs` **94.57 %** (5).
+      - [x] **Two pieces of DEAD CODE, deleted rather than excused** (five mutants lived in them):
+            the resolver's second, `.md`-stripped lookup — every suffix is already registered in both
+            spellings, so it could only ever fire on a doubled `[[note.md.md]]` — and `isUnderZone`'s
+            `firstSlash !== -1` guard, refuted one line above by the same string.
+      - [x] **The recurring shape was the ABSENT case and the SECOND element**: the freshest-citation
+            contest was never fed a contest (one citation, one order, none undated), so four mutants
+            could keep the OLDEST date or let an undated capture erase a real one and **silently clear a
+            page's staleness**; both entity-type lists were proven on `person` alone; a presence check
+            reaching for `.length` reported a note whose YAML dates parse as `Date` objects as missing
+            **every** key; and a hand-typed `- Slack : acme ` or a Slack bullet that is not the first
+            one was fed by nothing.
+      - [x] **One production change beyond the deletions**: a universe that declares no Slack **and**
+            observed nothing was offering `- Slack: ` to paste into the profile — a claim about a tool
+            made out of thin air, from the check whose whole job is to stop those. It now names both
+            unknowns and offers nothing.
+      - [x] **Recorded EQUIVALENTS, verified by hand — do not re-chase**: `Date.parse(when) >=` (equal
+            dates re-set the same value), `if (true && daysBetween(…))` (an absent date yields `NaN`,
+            and `NaN > staleDays` is already false), the four `stripCode` replacement mutants (only the
+            replacement's *length* differs, and every input that could show it produces a bogus target
+            either way), `/\.md$/ → /\.md/` in `register` (a vault path carries `.md` once), and both
+            `slackWorkspace` regex anchors (a workspace name cannot contain a second `://`, and `.trim()`
+            has already removed the trailing newline `$` would guard).
+      - [x] **⚠️ ONE MEASUREMENT ANOMALY, proven twice, and it is Stryker's — not the suite's.** The
+            `freshest && updated` → `freshest || updated` mutant is reported **Survived**, but applied by
+            hand it **fails the suite** (the pre-existing threshold test catches it, `exit 1`). Re-run
+            targeted on lines 186-188, it survives again — so the applied mutant is not the one the
+            reporter prints. Consequence: the published score is **conservative**, never flattering. It
+            is why every survivor in this batch was re-applied by hand before a test was written for it.
+    - [x] **Batch 6 DONE and HARDENED** _(2026-08-05, 7 min 24 s, 289 mutants, log
+          `maintainers/mutation/reports/v480-batch6-universe-profile.log`; hardened in `103eb05`)_.
+          **Total 91.38 %**: `lib/universe-profile.mjs` **97.37 %** (5, all equivalents),
+          `set-universe-profile.mjs` **80.00 %** (20).
+      - [x] **Fifteen of the twenty sat in code every test replaces** — `realProfileDeps` / `realIo`.
+            The seams that decide what the DEPLOYED script reads and writes were observed by nothing: the
+            fs port could stop returning text (a Buffer is what made the pointer read throw in the field),
+            `today()` could hand back a full ISO timestamp (a lint violation in the frontmatter of the
+            very page the engine writes), and `error` could print to **stdout**, where a divergence goes
+            quiet. Read through the real fs and the real streams now, the way batch 2b read the real
+            manifest. Also fed: a Windows spawn (`npm.cmd` + `shell: true`, or the profile is written and
+            never indexed), a truncated JSON payload on stdin, and `-Alice` written tight against its dash.
+      - [x] **The six left are the entrypoint/boot tier** — the `isEntrypoint` guard, `readInput` off fd
+            0, `activeUniverse` off the process cwd: the **named debt** whose shared `runAsEntrypoint` fix
+            the owner deferred to v4.9.0, not a gap to pay here.
+      - [x] **`universe-profile.mjs`'s five are EQUIVALENTS, verified by hand**: `parsed?.declined`
+            (dropping it throws into the same `catch` that already returns `[]`), the `other: []` bucket
+            (a deliberate **sink** — nothing reads it, which is the point: a hand-written section must not
+            leak into every session's context), `/^##\s+/ → /^##\s/` and the dropped `$` (the capture is
+            `.trim()`-ed on the next line, and the body is already split per line).
+    - [x] ~~**Batch 6, not started**~~ — done and hardened above. _(The owner said to chain it without
+          asking, 2026-08-05: "continue avec le batch 6 quand batch 5 est fini".)_
+    - [ ] **▶️ RUNNING NOW: the re-measures, chained in four passes** _(launched 2026-08-05 on the tip
+          `103eb05`, script `scratchpad/remeasure.sh`, ~35 min total)_. Four logs under
+          `maintainers/mutation/reports/`: `v480-recheck-a-update-check` (`engine-update-check` +
+          `engine-version`), `-b-update-engine`, `-c-batch5` (the three lint/connector files),
+          `-d-batch6`. **On resume, read those logs rather than re-running them.** Each pass resets the
+          worktree to the tip, re-creates the `rag/node_modules` symlink and prints the write-guard's
+          `skipped` count, so a pass measured against a crippled suite is visible in the log itself.
     - [ ] **⚠️ THE RE-MEASURES STILL OWED, in ONE run** — each hardened file is at an **unknown** score
           until re-mutated, and RESULTS.md must publish measured numbers, never hoped-for ones:
           `engine-update-check.mjs` (was 86.07 %), `update-engine.mjs` (93.20 %), `engine-version.mjs`
