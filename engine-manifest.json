@@ -42,6 +42,7 @@
       "scripts/consolidate-scan.mjs",
       "scripts/refresh-note.mjs",
       "scripts/vault-write-guard.mjs",
+      "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",
       "scripts/verify-index.mjs",
       "scripts/lib/**",
