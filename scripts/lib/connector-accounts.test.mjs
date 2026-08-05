@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { compareConnectorAccount, renderConnectorAccounts } from "./connector-accounts.mjs";
+import {
+  checkSlackAccount,
+  compareConnectorAccount,
+  declaredAccountFor,
+  renderConnectorAccounts,
+} from "./connector-accounts.mjs";
 
 // The defect this file exists for: a universe profile DECLARES `Slack:
 // acme.slack.com`, the connector is still authenticated on the sphere the owner
@@ -164,4 +169,123 @@ test("a universe that declares nothing says nothing", () => {
   // Most profiles have no `## Connector accounts` section at all. A block
   // announcing an empty claim would put plumbing in every switch, for nothing.
   assert.deepEqual(renderConnectorAccounts([]), []);
+});
+
+test("Slack among OTHER connectors still gets its gesture — one checkable tool is enough", () => {
+  // The realistic page declares several tools and only one of them can answer.
+  // Keyed on "all of them are checkable", the gesture would vanish the day an
+  // owner adds a Notion line under their Slack one — the check silently lost to
+  // an edit that has nothing to do with it.
+  const lines = renderConnectorAccounts(["Notion: Acme workspace", "Slack: acme.slack.com"]);
+
+  assert.deepEqual(lines, [
+    "Connector accounts, as DECLARED on this page (a claim, never verified): " +
+      "Notion: Acme workspace, Slack: acme.slack.com.",
+    "Slack can be checked, and here it must be: before reading or filing anything from Slack " +
+      "in this universe, observe the workspace a Slack result names, then run " +
+      '`node scripts/set-universe-profile.mjs --check-slack "<workspace>"`.',
+  ]);
+});
+
+// --- reading the declaration off a hand-edited page ---------------------------
+// The profile is a note its owner edits in Obsidian, so every bullet below is a
+// shape that exists in the field. Read strictly, each one silently demotes the one
+// connector that CAN be verified into "declared, never verified".
+
+test("declaredAccountFor picks the asked-for tool out of a list, not simply the first bullet", () => {
+  const entries = ["Notion: Acme workspace", "Slack: acme.slack.com", "Drive: acme.com"];
+
+  assert.equal(declaredAccountFor(entries, "Slack"), "acme.slack.com");
+  assert.equal(declaredAccountFor(entries, "Notion"), "Acme workspace");
+  assert.equal(declaredAccountFor(entries, "Miro"), null); // not declared at all
+});
+
+test("declaredAccountFor reads through the spaces and capitals a person types", () => {
+  // `- Slack : acme.slack.com ` — a space before the colon, padding after it, and
+  // the tool asked for in another case than it was written in.
+  assert.equal(declaredAccountFor(["Slack : acme.slack.com "], " sLaCk "), "acme.slack.com");
+});
+
+// --- checkSlackAccount: the whole verdict, including the two undeclared shapes --
+
+test("a universe with NO profile page at all is undeclared, and points at the door that fixes it", () => {
+  // Every brain installed before profiles existed is in this state. It is not a
+  // mismatch (there is no claim to contradict) and not a match either.
+  const verdict = checkSlackAccount({
+    entries: null,
+    observed: "https://acme.slack.com/archives/C0123",
+    profilePath: "vault/acme/universe.md",
+  });
+
+  assert.deepEqual(verdict, {
+    status: "undeclared",
+    line:
+      "This universe has no profile page yet, so it declares no accounts to check against. " +
+      "Slack is on 'acme'. `/switch` can describe this sphere, accounts included.",
+  });
+});
+
+test("no page AND nothing observed still answers, with an empty workspace rather than a fake one", () => {
+  // Both unknowns at once is the state of a brain that has neither a profile nor a
+  // reachable Slack. The sentence must not invent a workspace name to fill the hole.
+  const verdict = checkSlackAccount({ entries: null, profilePath: "vault/acme/universe.md" });
+
+  assert.deepEqual(verdict, {
+    status: "undeclared",
+    line:
+      "This universe has no profile page yet, so it declares no accounts to check against. " +
+      "Slack is on ''. `/switch` can describe this sphere, accounts included.",
+  });
+});
+
+test("a page that declares no Slack offers the declaration, quoting the workspace it just saw", () => {
+  // Nothing declared is not a divergence: there is no claim to contradict. It is
+  // the one moment where the right answer is an offer, since the workspace is right
+  // there — and the offer names the file and the exact line to add.
+  const verdict = checkSlackAccount({
+    entries: ["Notion: Acme workspace"],
+    observed: "  ACME.slack.com  ",
+    profilePath: "vault/acme/universe.md",
+  });
+
+  assert.deepEqual(verdict, {
+    status: "undeclared",
+    line:
+      "This universe declares no Slack account, so there is nothing to check against. " +
+      "Slack is on 'acme'; if that is the right workspace here, add " +
+      "`- Slack: acme` under `## Connector accounts` in vault/acme/universe.md.",
+  });
+});
+
+test("nothing declared AND nothing observed offers nothing — an empty bullet is not a suggestion", () => {
+  // Both halves unknown at once: a Notion-only profile, and a Slack that did not
+  // answer. The offer branch would then hand the owner `- Slack: ` to paste into
+  // their page — a declaration of nothing, which is exactly the kind of claim this
+  // whole check exists to stop. So the two unknowns are said, and nothing is offered.
+  const verdict = checkSlackAccount({
+    entries: ["Notion: Acme workspace"],
+    profilePath: "vault/acme/universe.md",
+  });
+
+  assert.deepEqual(verdict, {
+    status: "undeclared",
+    line:
+      "This universe declares no Slack account, and I could not find out which workspace " +
+      "the connector is on either — so there is nothing to check, and nothing to record.",
+  });
+});
+
+test("a declared Slack goes through the full comparison, divergence and all", () => {
+  const verdict = checkSlackAccount({
+    entries: ["Slack: acme.slack.com"],
+    observed: "globex",
+    profilePath: "vault/acme/universe.md",
+  });
+
+  assert.deepEqual(verdict, {
+    status: "diverging",
+    line:
+      "Slack is on 'globex' — this universe declares 'acme'. " +
+      "Do not read or file Slack data here until the connector is reconnected to 'acme'.",
+  });
 });

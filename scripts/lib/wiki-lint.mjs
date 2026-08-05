@@ -56,7 +56,11 @@ export function buildResolver(notes) {
     }
   }
   // Resolve a raw link target to a canonical note path, or null if it points nowhere.
-  return (target) => byKey.get(target) ?? byKey.get(target.replace(/\.md$/, "")) ?? null;
+  // ONE lookup on purpose: both spellings of every suffix are registered above, so a
+  // second, `.md`-stripped lookup could only ever fire on a doubled `[[note.md.md]]`
+  // — an unreachable branch is a design defect, not a safety net (three mutants lived
+  // in it, v4.8.0 batch 5).
+  return (target) => byKey.get(target) ?? null;
 }
 
 // Whether `path` falls under a zone `prefix` (`daily/`, `actions-log.md`),
@@ -68,8 +72,11 @@ export function buildResolver(notes) {
 // spot. POSIX paths at the source (cf. the Windows toPosix fix).
 export function isUnderZone(path, prefix) {
   if (path.startsWith(prefix)) return true;
+  // No guard on a missing slash: `indexOf` then returns -1, the slice starts at 0,
+  // and the line above has already refuted that exact string. Guarding it would be
+  // a branch no input can take (two mutants lived there, v4.8.0 batch 5).
   const firstSlash = path.indexOf("/");
-  return firstSlash !== -1 && path.slice(firstSlash + 1).startsWith(prefix);
+  return path.slice(firstSlash + 1).startsWith(prefix);
 }
 
 // Zones whose notes are legitimately unlinked by design, so they are excluded

@@ -64,6 +64,18 @@ export function checkSlackAccount({ entries, observed, profilePath }) {
   // moment to OFFER the declaration, since the workspace is right there.
   if (declared === null) {
     const workspace = slackWorkspace(observed ?? "");
+    // Both halves unknown at once (a page that names other tools, and a Slack that
+    // did not answer): offering `- Slack: ` would hand the owner a declaration of
+    // nothing to paste into their profile — a claim about a tool, made out of thin
+    // air, which is the very thing this check exists to stop.
+    if (!workspace) {
+      return {
+        status: "undeclared",
+        line:
+          `This universe declares no Slack account, and I could not find out which workspace ` +
+          `the connector is on either — so there is nothing to check, and nothing to record.`,
+      };
+    }
     return {
       status: "undeclared",
       line:
