@@ -164,7 +164,8 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — v4.8.0, whose scope is NOT decided yet. Steps 1-13 (all of v4.5.0, v4.6.0
+> **⏭️ THE RESUME POINT — `## Step 14`, v4.8.0: its scope IS decided (F3 + its sibling) and the branch
+> `release/v4.8.0` is cut, pushed and carrying its draft PR. Steps 1-13 (all of v4.5.0, v4.6.0
 > AND v4.7.0) are HISTORY.** v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7),
 > **v4.6.0 shipped 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`) and
 > **v4.7.0 shipped 2026-08-05** (tag `v4.7.0`, PR #57, merge `556f950`, CI 7/7 on the tagged commit,
@@ -1272,10 +1273,16 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   notes' `### What you get` via the GitHub API, each falling back to the one below, never to a blank.
 > - **The model does not summarise** (ADR 0009): the script produces the data, the skill quotes the
 >   prose that was already written for humans (§11).
+>
+> **🛑 DO NOT SHIP THIS RELEASE ALONE** _(owner, 2026-08-05, while handing the branch over for autonomous
+> work)_: *"ne pousse pas la release seul, j'aurai des trucs à te confier en plus pour celle-ci à mon
+> retour"*. So **14.2 → 14.4 are done autonomously**, each green and pushed on the branch (§9), and the
+> work then **STOPS at 14.5**: no tag, no merge, no published release, and the scope stays open for what
+> the owner adds on his return. The branch and its draft PR are the hand-over surface.
 
-- [ ] **14.1 — cut `release/v4.8.0` off `main`** (at `68785c9` or later) and push it, so the Windows
-      tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and Windows had
-      been red for weeks).
+- [x] **14.1 — `release/v4.8.0` is cut off `main` and pushed** _(2026-08-05, off `1c4b2ff`)_, so the
+      Windows tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and
+      Windows had been red for weeks).
 - [ ] **14.2 — the probe, TDD.** What is upstream, read-only, fail-soft: the installed version, the
       target, how many releases apart, and the per-version prose when it can be had. Layered sources,
       each degrading into the next; **an unknowable answer says "unknown", never a reassuring blank** —
