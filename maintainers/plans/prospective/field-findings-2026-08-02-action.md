@@ -1785,11 +1785,35 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
               its insufficiency.
     - [ ] **Batch 2 — SPLIT IN TWO, and the split is not optional**: `engine-update-check.mjs` (210 lines)
           and `update-engine.mjs` (**464 lines**, the biggest file of the sixteen) together would blow the
-          10-min cap, which is the batch-2 lesson of v4.5.0. **2a `scripts/lib/engine-update-check.mjs` is
-          RUNNING** _(2026-08-05, log `maintainers/mutation/reports/v480-batch2a-update-check.log`)_;
-          **2b `scripts/update-engine.mjs` not started**. The worktree was reset to `e51cf40` before it —
-          verified representative, `git diff e51cf40..HEAD` outside `maintainers/plans` is **empty**, so the
-          four plan commits since do not need a rebase of the worktree.
+          10-min cap, which is the batch-2 lesson of v4.5.0. The worktree was reset to `e51cf40` before
+          each — verified representative, `git diff e51cf40..HEAD` outside `maintainers/plans` is
+          **empty**, so the plan commits since do not need a rebase of the worktree.
+      - [x] **2a done — `engine-update-check.mjs` 86.07 %** _(2026-08-05, 5 min, 201 mutants, 28
+            survivors, log `maintainers/mutation/reports/v480-batch2a-update-check.log`)_, **and
+            hardened** _(`346b464`)_. **Where the survivors were is the useful part: 20 of the 28 sat in
+            the two regexes of `extractWhatYouGet`** — i.e. in the code that decides which prose the owner
+            reads *before consenting to a code swap*. Nothing fed a heading that merely **mentions** the
+            section (`read the release note: ### What you get`), a heading with trailing words
+            (`### What you gettable`), an indented one, a bullet **containing** `#` or `---`, or a note
+            whose section runs to the **last line** — where `end === -1 ? rest : rest.slice(0, end)` could
+            be dropped and silently shave the final bullet off the consent text. Also fed now: a
+            malformed release list (a `null` entry, an entry with no tag, a whitespace-only title → the
+            title must read as *absent*, not as a blank line), and a brain with **no source recorded**,
+            which must make **zero** outbound calls (the `if (!repo)` guard was observed by nothing).
+      - [x] **The `finally { clearTimeout(timer) }` survivor was NOT an equivalent, and it needed a
+            seam.** Clearing the abort timer changes nothing an owner can see — which is exactly why no
+            behavioural assertion could reach it — but this call runs inside a **detached child whose job
+            is to finish and exit**, and a live 5-second timer keeps its event loop alive. So `timers` is
+            now a named seam (§5ter rule 2) with `realTimers` pinned by identity, like `realCheckDeps`.
+            Written test-first; the red was on the assertion, not a `ReferenceError`.
+      - [ ] **⚠️ 2a must be RE-MEASURED** — hardened but not re-mutated, so its new score is unknown.
+            ~200 mutants ≈ 5 min. Suite green at the fix: **1517 tests, 1516 pass, 1 skipped
+            Windows-only** (baseline measured at `HEAD` before the fix: **1508** — the header's earlier
+            "1517 tests" figure does not match this command, so 1508 + 9 new tests is what is true).
+      - [ ] **2b `scripts/update-engine.mjs` RUNNING** _(2026-08-05, log
+            `maintainers/mutation/reports/v480-batch2b-update-engine.log`)_ — 250 mutants, and at 74 % it
+            was carrying only 6 survivors, so this one looks healthy. **If a `/clear` lands here**: read
+            the log, copy the score and the survivor list, treat each survivor as batch 1 was treated.
     - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
     - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
           scripts/lib/filed-note.mjs` (14.7's three layers).
