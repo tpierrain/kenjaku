@@ -245,3 +245,41 @@ test("engine-manifest — the launcher declares its own canonical repo URL, anon
       "rename ever reaches an already-installed brain (F1), and ssh/local forms exclude keyless machines",
   );
 });
+
+// The FOURTH door onto an engine script, and until F3 nobody was watching it: an
+// engine script that SPAWNS another one. The three guards above see a hook command,
+// a skill's instructions and the constitution's prose — all of which name their
+// script as `scripts/<name>.mjs`. A spawn does not: it computes the path
+// (`join(__dirname, "health-probe-run.mjs")`), so the sibling is invisible to every
+// text scan, and an uncarried child would fail with `Cannot find module` inside a
+// DETACHED background process — i.e. with no error anyone ever sees, the session
+// line simply saying "checking…" forever.
+const SPAWN_RE = /join\(__dirname,\s*((?:"[^"]+"\s*,\s*)*"[\w.-]+\.mjs")\s*\)/g;
+
+const spawnedScriptsIn = (files) => [
+  ...new Set(
+    files.flatMap((file) =>
+      [...readFileSync(join(repoRoot, file), "utf8").matchAll(SPAWN_RE)].map(
+        (m) => "scripts/" + [...m[1].matchAll(/"([^"]+)"/g)].map((s) => s[1]).join("/"),
+      ),
+    ),
+  ),
+].sort();
+
+test("engine-manifest — every script an engine script SPAWNS is itself carried (a detached child fails silently)", () => {
+  const carriedScripts = trackedFiles.filter(
+    (file) => file.startsWith("scripts/") && file.endsWith(".mjs") && !file.endsWith(".test.mjs"),
+  );
+
+  const spawned = spawnedScriptsIn(carriedScripts);
+  assert.ok(
+    spawned.includes("scripts/lib/reconcile-brain.mjs") && spawned.includes("scripts/health-probe-run.mjs"),
+    `the spawn scan found nothing it should have (${spawned.join(", ")}) — an empty scan reads green forever`,
+  );
+
+  assert.deepEqual(
+    notCarried(spawned),
+    [],
+    "a script an engine script spawns, carried by no regime: the parent arrives, the child never does",
+  );
+});

@@ -36,6 +36,7 @@
       "scripts/session-universe.mjs",
       "scripts/session-actions-log.mjs",
       "scripts/health-probe-run.mjs",
+    "scripts/upstream-check-run.mjs",
       "scripts/lint-vault.mjs",
       "scripts/file-back-note.mjs",
       "scripts/consolidate-scan.mjs",
