@@ -1087,7 +1087,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 >
-> ### ⏭️ THE RESUME POINT — F20 IS DONE; the live work is **13.2's second half, F21**
+> ### ⏭️ THE RESUME POINT — 13.2 IS DONE (F20 + F21); the live work is **13.3, F22**
 >
 > **✅ F20 IS COMPLETE** _(2026-08-05 · `82f49cd`, `ee1c373`)_. Both halves shipped, and the two calls
 > the entry left open are taken below; do not re-open them.
@@ -1112,8 +1112,33 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   guards is now "every prompt", not "one session start". Its bound lives with the emitter, per that
 >   guard's own convention.
 >
-> **Next: F21**, whose entry is in `### P3`. Same root (session start is a race between what arrives
-> and what reads it); F20 was the code half, F21 is the notes half.
+> **✅ F21 IS COMPLETE** _(2026-08-05 · `25057b0`)_. Both halves shipped, and the second one is what
+> the owner actually asked for.
+> - **Say which** — `rag/src/lib/index-shortfall.ts` reads the run state the SessionStart banner
+>   already reads (the same `last-run` record, not a second opinion) and separates **five** states
+>   that were rendered as one sentence: notes the indexer **refused** (never resolves itself), a
+>   **quota wall** (does — and it keeps the resume promise, the one case it was written for), a run
+>   **still in flight**, notes that simply **arrived** after the scan, and a gap a catch-up has
+>   already **failed to close**.
+> - **Then act** — the arrival case now schedules a catch-up through the `ReindexScheduler` that was
+>   sitting idle, armed for an event that had already happened. Both surfaces do it: the startup path
+>   (after the watcher exists, since it owns the scheduler) and `vault_stats` (the question IS the
+>   moment — the line says "catching up now", so the ask has to happen there or the sentence would be
+>   the old promise in newer words). Bounded by progress, in memory, per server process.
+> - **The fifth state was found by an existing test, not by design.** `C.13` asserted the old
+>   sentence for a run whose status is `running`; under the new model that would have read "they
+>   arrived after the last scan" about work being done as the owner reads it. A run in flight is the
+>   one wait nobody has to be told about.
+> - **Three existing expectations were repointed, deliberately** (`3.1b`, `4.2`, `C.13`): they
+>   encoded the promise this finding is about. The cap case gained a test of its own so the fix
+>   cannot swap one wrong cause for another.
+> - **Not changed, and why:** the SessionStart banner (`scripts/lib/rag-status.mjs`) still says
+>   "auto catch-up in the background" for an unexplained shortfall — a sentence F21 makes **true**
+>   for the first time. It cannot know about the process-local bound (it runs before the server), so
+>   a permanently stalled gap is named by F15's crosscheck instead, which already exists for exactly
+>   that.
+>
+> **Next: 13.3 — F22**, option A: two thin alias skills, `universe` and `univers`.
 >
 > Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
 > exists and is pushed** off that commit. Work the remaining boxes below in order.
@@ -1122,7 +1147,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       (merge `b414766`, CI was 7/7 on `b88ca51`; branch pushed and tracking).
 > - [ ] **13.2 — F20 + F21 together** (one root, two changes).
 >   - [x] **F20 — DONE** _(2026-08-05 · `82f49cd`, `ee1c373`)_, both halves; see the resume point above.
->   - [ ] **F21** — the shortfall line that promises a resume it cannot know is coming.
+>   - [x] **F21 — DONE** _(2026-08-05 · `25057b0`)_, both halves; see the resume point above.
 > - [ ] **13.3 — F22**, option A: two thin alias skills, `universe` and `univers`.
 > - [ ] **13.4 — the release tail** (§10 marketing re-read, mutation on what changed, version vector,
 >       note + PR body, tag) — same shape as v4.5.0 and v4.6.0, whose tails are Steps 11 and 12.
