@@ -365,6 +365,11 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   Acme Slack — that is a declaration you typed. Before filing anything from Slack, your brain now asks
   Slack **which workspace it is actually on**, and stops rather than file one organisation's material
   under another's name.
+- **An unticked box is not a fact.** When you ask what you are expected to deliver, your brain looks for
+  proof that a line is already done **before** it shows it to you, and says plainly where it has not
+  managed to look yet — an unticked box means *not re-verified*, never *not done*. It leads with the few
+  that matter and tells you how many it set aside: a list handed over whole is the sorting handed back
+  to you.
 
 **B · Determinism over guesswork.** *(the ladder of [ADR 0009](maintainers/decisions/0009-prefer-deterministic-mechanisms.md))*
 

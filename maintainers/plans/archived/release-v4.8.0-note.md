@@ -40,6 +40,16 @@ notes that say what they were actually built from.
   is named `_inbox`, and it complained, every single pass, about a frontmatter defect in one of the
   engine's **own** files — the one file you are told never to touch. Both are gone. A checklist that
   reports healthy things is one you learn to stop reading, and the real problems go with it.
+- 📋 **Your backlog is checked before it is shown to you.** Ask *"what am I expected to deliver?"* and
+  the raw list is rarely the honest answer: things you had already done came back as still to do, and
+  the one that mattered most sat at the bottom. Now your brain goes looking for proof that a line is
+  already done **before** it shows it to you, says plainly when it has not managed to check one yet (an
+  unticked box means *not re-verified*, never *not done*), and leads with about three of them, telling
+  you how many it set aside and why those three came first. A list handed over whole is not
+  thoroughness; it is the sorting handed back to you.
+  *This one lives in your brain's written instructions rather than in its code, and an update
+  deliberately never rewrites instructions you may have made your own — so it travels with brains
+  installed from this release onwards, while an existing brain keeps the instructions it has.*
 - 🌌 **Small ones**: `/universe` and `/univers` already worked as of the last release; this one keeps
   them and adds nothing you have to learn.
 
@@ -79,6 +89,14 @@ a note that does not say what it was built from, and the refusal names the field
   sources, never *when* to stop and go read the raw one. It is an order of operations now, with a
   gesture in each rule, and the ranking bullet points at it instead of standing beside it — two rules
   about one thing, one of which never fires, is how a reader learns which one to obey.
+- **The backlog rule existed too, and its trigger was drawn in the wrong place.** The section already
+  said never to present an action as to-do without checking — twice over, in fact — but the broad
+  statement sat under an *"on each ingestion of external data"* heading, and the operational flow was
+  triggered by *"when you list actions from external sources"*. A plain recall from the vault fired
+  neither: the broad rule had no procedure attached, the procedure had a narrow trigger. It is keyed on
+  **displaying** an unchecked action now, whatever the origin. Same shape as the source-ranking rule
+  above, and as a plan-tracking rule fixed the same way days earlier — a net drawn around where the data
+  came from, rather than around what is about to be said, is a net that never runs.
 - **The Slack check is designed around not crying wolf.** `acme.slack.com`, a message permalink and
   `  ACME  ` are one workspace; a false divergence would send someone to reconnect a connector that is
   perfectly fine. Hence a normaliser, and an explicit *"do not compare the two strings yourself"* in
