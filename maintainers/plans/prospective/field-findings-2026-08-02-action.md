@@ -2023,23 +2023,36 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
                     makes a run of two hyphens impossible by construction); and `/\.md$/ → /\.md/` in
                     `firstNameSegment` (a card path is `<slug>.md` and `slugify` turns every dot into a
                     hyphen, so `.md` cannot occur earlier).
-            - [ ] **The re-measure of batch 4 is RUNNING** _(2026-08-05, worktree reset to `d9bdb7c`,
-                  `rag/node_modules` symlink recreated — `git clean` had taken it — and re-verified at
-                  **22 pass / 0 skipped**; suite in the worktree 1531 tests / 1530 pass / 1 skipped)_.
-                  Log: `maintainers/mutation/reports/v480-batch4-ai-summary-recheck.log`. On resume: read
-                  its last table and write the three per-file scores below, then fold them into the
-                  combined re-measure run.
-    - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
-    - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
-          scripts/lib/filed-note.mjs` (14.7's three layers).
-    - [ ] **Batch 5, not started** — `scripts/lib/connector-accounts.mjs,
+            - [x] **BATCH 4 RE-MEASURED — 80.92 % → 96.54 %** _(2026-08-05, 8 min 14 s, 318 mutants,
+                  306 killed + 1 timeout, **11 survivors** left, log
+                  `maintainers/mutation/reports/v480-batch4-ai-summary-recheck.log`)_. Measured on the
+                  worktree reset to `d9bdb7c`, `rag/node_modules` symlink recreated (`git clean` had
+                  taken it) and re-verified at **22 pass / 0 skipped**. **Still valid at HEAD, checked
+                  not assumed**: `git diff d9bdb7c..HEAD` on the three files is empty — the later
+                  commits are the constitution and the marketing surfaces, which this batch does not
+                  mutate.
+              - [x] `scripts/lib/ai-summary-guard.mjs` **58.41 % → 96.33 %** (47 → **4** survivors).
+              - [x] `scripts/lib/filed-note.mjs` **94.12 % → 97.83 %** (11 → **4**).
+              - [x] `scripts/ai-summary-guard.mjs` **84.00 % → 88.00 %** (4 → **3**, plus the timeout,
+                    which is a kill).
+              - [x] **The 11 survivors are EXACTLY the equivalents recorded above, one for one** — read
+                    against the log, not assumed: the `?? []` fallback, `Array.isArray` and its block,
+                    `value && true`, the two `slugify` hyphen quantifiers, `weakestSourceTier`'s `>=`,
+                    `/\.md$/`, `readFileSync(0, "")`, and the two `input?.tool_*` chains. **Nothing new
+                    survived**, so this file needs no second pass.
+    - [x] ~~**Batch 3, not started**~~ — done and hardened above.
+    - [x] ~~**Batch 4, not started**~~ — done, hardened AND re-measured above (96.54 %).
+    - [ ] **▶️ RESUME HERE: Batch 5, not started** — `scripts/lib/connector-accounts.mjs,
           scripts/lib/consolidation-candidates.mjs, scripts/lib/wiki-lint.mjs`.
     - [ ] **Batch 6, not started** — `scripts/lib/universe-profile.mjs, scripts/set-universe-profile.mjs`.
-    - [ ] **⚠️ THE RE-MEASURES OWED, in one run each** — every hardened file below is at an **unknown**
-          score until re-mutated, and RESULTS.md must publish measured numbers, never hoped-for ones:
+    - [ ] **⚠️ THE RE-MEASURES STILL OWED, in ONE run** — each hardened file is at an **unknown** score
+          until re-mutated, and RESULTS.md must publish measured numbers, never hoped-for ones:
           `engine-update-check.mjs` (was 86.07 %), `update-engine.mjs` (93.20 %), `engine-version.mjs`
-          (91.07 %), plus whatever batches 4-6 harden. Cheapest shape: one run with the three paths
-          comma-separated once the branch has stopped changing again.
+          (91.07 %), plus whatever batches 5-6 harden. **Batch 4 is already off this list** (re-measured
+          at 96.54 %). Cheapest shape: one run with the paths comma-separated once the branch has stopped
+          changing again. The worktree recipe, verified this session: reset to the tip, then
+          `git clean -qfd -e rag/node_modules` — and **re-create `rag/node_modules` afterwards anyway**,
+          the exclude did not save it, with `vault-write-guard.test.mjs` at **0 skipped** as the proof.
     - [ ] **Then**: record the pass in `maintainers/mutation/RESULTS.md` under a `v4.8.0` section, and
           remove the worktree (`git worktree remove`) once the last batch is read. That section owes the
           **two deferred remedies** a named, numbered debt line each (the guard test, the two generators)
