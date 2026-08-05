@@ -1053,6 +1053,10 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > - [ ] **F2** (`### P3`) — "update the brain" covers only one of three axes.
 > - [ ] **F19** (`### P3`) — the always-loaded instruction layer only ever grows. **Its numbers were
 >       measured 2026-08-04 and are in its entry: do not re-measure them.**
+> - [ ] **F20** (`### P3`) — **NEW, field report 2026-08-05**: a machine that is behind runs the old
+>       engine for the whole session and never says so, so **F1's privacy fix silently does not apply
+>       there**. The pull is already first; the gap is that the restart nudge cannot see an engine that
+>       arrived by pull. Its entry carries the verification and the fix shape: **do not re-derive them.**
 > - [ ] **The two banner defects routed here from P0** — a cached verdict rendered with live authority,
 >       and an `unknown` check displayed under "found a problem". The second is **already pinned by a
 >       test that names it as this release's item**, so it cannot be read as intended behaviour.
@@ -1711,6 +1715,45 @@ coherent ones. This framing is the plan's main proposal and is itself open to ch
           of framing)* to **517 chars** on the real brain used to verify it. What the budget test bounds
           is OUR prose against a representative payload; the owner's own words (display name, role,
           period) still float, exactly as the digest's did.
+- [ ] **F20 — a session on a machine that is BEHIND runs the old engine and never says so, and the
+      first casualty is F1's own privacy fix. 🔜 v4.7.0 CANDIDATE** _(field report, owner, 2026-08-05:
+      `mind-palace` opened on the Shodo Mac after being updated on the Inqom Mac the day before; the
+      startup banner was the PRE-v4.5.0 one. Screenshot kept in the conversation. Verified against the
+      code the same day — everything below is read, not supposed.)_
+  - [ ] **The owner's first hypothesis was "we should `git pull` before printing the banner", and the
+        pull IS already first** — `session-status.mjs:65` runs `sweepThenPull` (sweep the tree, then
+        `git pull --rebase`) **before** any emission at `:204`. So the missing piece is not the pull.
+  - [ ] **The real mechanism: the session that pulls the new engine always runs the OLD one.** Every
+        SessionStart hook is a node process reading the code **on disk at that instant**, and Claude
+        Code freezes `CLAUDE.md`, `settings.json`, the skills and the MCP servers at the same instant.
+        Code that lands mid-start cannot retroactively change what is already running —
+        `startup-sync.mjs`'s own header states this rule for the sweep ("live at the first restart
+        after the update that installs it"). **The new banner is a next-session thing, by construction.**
+  - [ ] **Why it is not merely cosmetic: what the stale banner PRINTED.** The offending line comes from
+        the sibling hook `session-universe.mjs`, and the old version dumps the active universe's whole
+        profile body — About, People, Topics, connector accounts — including the passage marked
+        `🔒 CONFIDENTIEL, ne jamais sortir du vault`. **F1 shipped in v4.5.0 exactly to stop that** (see
+        its entry: identity line + pointer, zero verbatim body). So a machine that is behind **silently
+        keeps a privacy defect the product has already fixed**, and nothing on screen hints at it.
+  - [ ] **The actual gap: the restart nudge is BLIND to an engine that arrives by pull.** Read, not
+        assumed: `.cache/restart-needed` is written only by `update-engine.mjs:385` and
+        `session-self-heal.mjs:199` (an update performed **on this machine**), and `.cache/` is
+        gitignored (`.gitignore:73`) — correctly, it is machine-local — so machine A's flag never
+        travels. The second signal, `detectSelfHealGap`, only sees a **missing skill directory** or an
+        **unregistered MCP server** (`deriveWanted`, `session-self-heal.mjs:136`); a hook script or a
+        skill body whose **content** changed trips neither. Hence: engine updated by pull, zero nudge.
+  - [ ] **The fix shape, reusing what is already there — no new channel, no new network call.**
+        `session-status.mjs:76-80` **already computes** the pulled file list
+        (`git diff --name-only ORIG_HEAD HEAD`) and then throws it away to keep a count. Filter it for
+        engine-managed paths (`scripts/**`, `.claude/**`, `engine-skills/**`, `CLAUDE*.md`,
+        `.mcp.json.template`, `engine-manifest.json`); if the intersection is non-empty, **write the
+        restart flag and lead with the existing nudge**, whose wording already says the right thing
+        ("until you restart, nothing else you read is from the engine you now have", ADR 0036).
+  - [ ] **Two things to settle when it is built, not before:** whether the nudge must also name the
+        privacy case explicitly (a banner that already leaked is not un-leaked by a restart), and what
+        a brain with **no remote** shows (the pull is a silent no-op there — it must stay silent).
+  - [ ] **Why it belongs to v4.7.0 rather than a hotfix**: it is a *visibility* finding in the exact
+        sense of that release, and it is the first field report on the multi-machine path v4.5.0 opened.
 - [ ] **F13 — discoverability regression, directly comparable across the update.** v4.3.0 banner:
       `2 consolidation candidates (offer /consolidate) and 28 dangling links (offer /lint)`. v4.4.0:
       `1 consolidation candidates and 27 dangling links` — both offers **gone**, same line width, so
