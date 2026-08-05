@@ -129,6 +129,56 @@ test("reconcileHooks — a brain with no PreToolUse at all is given the write gu
   );
 });
 
+// ── The other half of the same question: an event the brain DOES have, gaining a SECOND
+//    engine group. Every brain installed before v4.8.0 has a `PostToolUse` key already —
+//    auto-commit lives there — so the AI-summary read guard reaches them only by being
+//    appended BESIDE an existing engine group, not by creating the event. Sibling of the
+//    PreToolUse case above, and the one shape nothing pinned: F11's own manifest guard once
+//    watched a single event, so "the mechanism is generic" is asserted here, not assumed.
+
+test("reconcileHooks — a brain that already HAS PostToolUse (auto-commit) gains the read guard beside it", () => {
+  const autoCommit = {
+    matcher: "Write|Edit",
+    hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/auto-commit.mjs"', timeout: 30000 }],
+  };
+  const brainHooks = { ...v310BrainHooks(), PostToolUse: [autoCommit] };
+
+  const { hooks, hooksAdded } = reconcileHooks({
+    brainHooks,
+    templateHooks: realTemplateHooks(),
+    projectRoot: "/brains/foo",
+  });
+
+  assert.deepEqual(
+    hooks.PostToolUse,
+    [
+      autoCommit,
+      {
+        matcher: "Read|read_file_content|download_file_content|search_files|slack_read_file",
+        hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/ai-summary-guard.mjs"', timeout: 10000 }],
+      },
+    ],
+    "auto-commit stays first and byte-identical; the read guard is appended after it, matcher and timeout intact",
+  );
+  assert.ok(hooksAdded.includes("scripts/ai-summary-guard.mjs"), "the newly-wired read guard must be named in hooksAdded");
+  assert.ok(!hooksAdded.includes("scripts/auto-commit.mjs"), "the hook the brain already runs must NOT be re-added");
+});
+
+test("reconcileHooks — idempotent on that second group: a brain already running the read guard adds nothing", () => {
+  const converged = {
+    ...v310BrainHooks(),
+    PostToolUse: [
+      { matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/auto-commit.mjs"', timeout: 30000 }] },
+      // a brain that wired the guard itself, on a matcher of its OWN choosing:
+      { matcher: "Read", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/ai-summary-guard.mjs"', timeout: 10000 }] },
+    ],
+  };
+  const { hooks, hooksAdded } = reconcileHooks({ brainHooks: converged, templateHooks: realTemplateHooks(), projectRoot: "/brains/foo" });
+
+  assert.deepEqual(hooks.PostToolUse, converged.PostToolUse, "a second pass must not append a duplicate, nor widen the owner's matcher");
+  assert.ok(!hooksAdded.includes("scripts/ai-summary-guard.mjs"), "dedup is by the engine SCRIPT, not by the matcher");
+});
+
 // ── Cross-OS parity (ADR 0015): the REAL brain hook command is not a bare `node` but
 //    a QUOTED launcher invocation — `/bin/sh "<…>/run-node.sh" "<…>/X.mjs"` on posix,
 //    `cmd /c "<…>\run-node.cmd" "<…>\X.mjs"` on win32 (the run-node PATH self-heal). The
