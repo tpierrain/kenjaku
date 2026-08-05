@@ -1087,15 +1087,42 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 >
-> ### ⏭️ THE RESUME POINT — the branch is OPEN; the live work is **13.2, F20's detection**
+> ### ⏭️ THE RESUME POINT — F20 IS DONE; the live work is **13.2's second half, F21**
+>
+> **✅ F20 IS COMPLETE** _(2026-08-05 · `82f49cd`, `ee1c373`)_. Both halves shipped, and the two calls
+> the entry left open are taken below; do not re-open them.
+> - **Detection** — `scripts/lib/frozen-wiring.mjs` names what a session freezes at start (hooks,
+>   skills, settings, the constitution, both MCP servers, the version vector) out of the pull's own
+>   file list, which `session-status.mjs` already computed and threw away to keep a count. A match
+>   arms `.cache/restart-needed`, so the nudge that already exists leads the banner. The flag's path
+>   and body now have ONE owner (`restart-signal.mjs`), since three surfaces arm it.
+> - **Delivery** — a `UserPromptSubmit` hook, `scripts/prompt-restart-nudge.mjs`, injects the
+>   directive on **every prompt** while the flag is armed. It **injects, never blocks** (the event
+>   can refuse a prompt outright; a wrong verdict must cost a sentence, not a locked-out owner), and
+>   it is the first deterministic **Desktop** cue for a stale engine. Carried by the manifest,
+>   reconciled onto brains that have no `UserPromptSubmit` key at all — i.e. every brain there is.
+> - **✅ Settled: the nudge does NOT name the privacy case.** A banner that already printed the
+>   profile is not un-leaked by a restart, so naming it buys the owner nothing actionable and dates
+>   the copy to one release. The generic wording (ADR 0036) is what ships.
+> - **✅ Settled: a brain with no remote stays silent, by construction** — no pull, no file list, no
+>   arming. Pinned by a test rather than left to the reader.
+> - **What the pass turned up, worth not re-learning:** the F5 emitter audit
+>   (`startup-payload-guard.test.mjs`) went red on the new hook **before its bound existed** — the net
+>   works. It is the **sixth** emitter and the first that is NOT a startup hook, so the channel it
+>   guards is now "every prompt", not "one session start". Its bound lives with the emitter, per that
+>   guard's own convention.
+>
+> **Next: F21**, whose entry is in `### P3`. Same root (session start is a race between what arrives
+> and what reads it); F20 was the code half, F21 is the notes half.
 >
 > Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
 > exists and is pushed** off that commit. Work the remaining boxes below in order.
 >
 > - [x] **13.1 — merge PR #56 into `main`**, then branch `release/v4.7.0` off it. **✅ DONE 2026-08-05**
 >       (merge `b414766`, CI was 7/7 on `b88ca51`; branch pushed and tracking).
-> - [ ] **13.2 — F20 + F21 together** (one root, two changes). Start with F20's detection, since F21's
->       "notes that simply arrived after the scan" is the same window.
+> - [ ] **13.2 — F20 + F21 together** (one root, two changes).
+>   - [x] **F20 — DONE** _(2026-08-05 · `82f49cd`, `ee1c373`)_, both halves; see the resume point above.
+>   - [ ] **F21** — the shortfall line that promises a resume it cannot know is coming.
 > - [ ] **13.3 — F22**, option A: two thin alias skills, `universe` and `univers`.
 > - [ ] **13.4 — the release tail** (§10 marketing re-read, mutation on what changed, version vector,
 >       note + PR body, tag) — same shape as v4.5.0 and v4.6.0, whose tails are Steps 11 and 12.

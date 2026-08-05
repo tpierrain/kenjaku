@@ -80,3 +80,10 @@ test("pulledPaths — the raw diff becomes paths, blank lines and CRLF included"
     ["scripts/session-status.mjs", "vault/inbox/note.md"],
   );
 });
+
+// A brain with no remote pulls nothing, and a brain that is already up to date pulls
+// nothing either — session-status hands an empty list in both cases. It is the majority
+// of all sessions, so it is the one that must cost nothing and say nothing.
+test("frozenWiringIn — nothing pulled, nothing to say", () => {
+  assert.deepEqual(frozenWiringIn([]), []);
+});
