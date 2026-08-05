@@ -180,10 +180,19 @@
 > re-proposed as new ideas: *"…Looks Before It Tells You"*, *"…Reads the Transcript, Not the Summary"*,
 > *"…Declared Stops Meaning Verified"*.)_
 >
-> **Both decisions the tail was waiting on are TAKEN** (title, and the daily upstream check: it ships
-> as is, documented, **no opt-out** — see 14.8, including the misreading the release note must answer).
-> **Nothing is pending on the owner any more; resume at the first unchecked box of "The tail, in
-> order" — the mutation pass.**
+> **Every decision the tail was waiting on is TAKEN** (title; the daily upstream check ships as is,
+> documented, **no opt-out**; and the batch-1 arbitration below). **Nothing is pending on the owner.**
+>
+> **✅ The batch-1 arbitration, by the owner (2026-08-05)** — the two code remedies (the deterministic
+> guard test, and the two structural generators `runAsEntrypoint` / `defaultGit`) are **deferred whole to
+> v4.9.0**: none of it is built here. The **process remedy is adopted and belongs to this release** — a
+> new production file is mutated the day it is written, engraved in `CONVENTIONS.md`. Both are checklist
+> items in 14.8; do not re-open or re-propose them (an 11th written reflex was explicitly declined).
+>
+> **▶️ RESUME: the 14.8 checklist, in order.** The mutation pass is the long pole and it is running —
+> **batch 1 done, 2a running, 2b → 6 to go** — but the release is NOT gated on finishing it before the
+> other tail items: §10, the version vector, the `CONVENTIONS.md` paragraph, the note and the PR body can
+> be written while batches run. **The tag is gated** on all of it plus CI 7/7 on the tagged commit.
 > **While waiting, the only useful autonomous work is verification, not scope.** The **full matrix is
 > already 7/7 green on the tip `1b5eb56`** (run `31017981223`, both Windows cells + the installer e2e),
 > so that box is closed. The **mutation pass is deliberately NOT run yet**: it must measure the branch
@@ -1752,18 +1761,35 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
             release is pressing. A lesson that only ever arrives after the writing can tax it, never
             teach it. Second-order: every lesson is recorded in RESULTS.md as a **story about the file
             just fixed**; a story does not generalise, a constraint does.
-      - [ ] **⏸️ AWAITING THE OWNER — the three remedies proposed 2026-08-05, in this order** (he asked
-            *"comment on améliore ça sérieusement ?"*; he has NOT arbitrated the timing yet):
-            **(1)** a **deterministic guard test** in the harness suite — red when a top-level
-            `scripts/*.mjs` has no `.test.mjs` sibling, and when a module builds and executes a child
-            process in the same function — carrying an **explicit allowlist that may only shrink**, so
-            the 19 inherited files are a numbered debt instead of a story; **(2)** pay the two
-            generators: shared `runAsEntrypoint` tested once, and `defaultGit` turned into a pure value;
-            **(3)** mutate a **new** file the day it is written (1-3 min for one file) instead of at the
-            tail — the "the branch still moves" reason does not apply to a finished new file.
-            **Explicitly NOT proposed: an 11th written reflex.** That is what the last month did.
-    - [ ] **Batch 2, not started** — `scripts/lib/engine-update-check.mjs, scripts/update-engine.mjs`
-          (the two biggest, and the consent path).
+      - [x] **✅ ARBITRATED BY THE OWNER (2026-08-05). Do not re-open, do not re-propose.** The three
+            remedies were put to him (he had asked *"comment on améliore ça sérieusement ?"*), and the
+            split he chose is: **the process change now, the code changes in v4.9.0.**
+        - [x] **(1) the deterministic guard test and (2) the two generators → BOTH DEFERRED TO v4.9.0**,
+              *nothing of them is built in v4.8.0*. (1) is the harness-suite test that goes red when a
+              top-level `scripts/*.mjs` has no `.test.mjs` sibling, and when a module builds and executes
+              a child process in the same function, carrying an **allowlist that may only shrink**;
+              (2) is the shared `runAsEntrypoint` tested once plus `defaultGit` turned into a pure value.
+              The owner took this with the risk stated out loud: it is the **same locally-right deferral**
+              as v4.5.0 and v4.6.0, and nothing ever brought those back. **What must carry it this time is
+              not memory** — record both in RESULTS.md § v4.8.0 *and* as the head of the v4.9.0 plan when
+              it opens, not as a story about a file.
+        - [x] **(3) mutate a NEW production file the day it is written → ADOPTED, and engraved in
+              `CONVENTIONS.md`** (his words: *"oui, et je le grave dans CONVENTIONS.md"*). This IS
+              v4.8.0 work — it is a convention, not a refactor, so it costs the release a paragraph. The
+              rule to write: a finished new production file is mutated the same day (1-3 min for one
+              file), because the reason to wait for the tail (*the branch still moves*) does not apply to
+              a file that is done. **Where it goes: its own numbered section next to §5quater**, and it
+              must say what it replaces — the tail pass stays, this is an addition, not a substitution.
+              **Explicitly NOT adopted, and not to be re-proposed: an 11th written reflex** in
+              `tdd-discipline`. That is what the last month already did, and this pass is what measured
+              its insufficiency.
+    - [ ] **Batch 2 — SPLIT IN TWO, and the split is not optional**: `engine-update-check.mjs` (210 lines)
+          and `update-engine.mjs` (**464 lines**, the biggest file of the sixteen) together would blow the
+          10-min cap, which is the batch-2 lesson of v4.5.0. **2a `scripts/lib/engine-update-check.mjs` is
+          RUNNING** _(2026-08-05, log `maintainers/mutation/reports/v480-batch2a-update-check.log`)_;
+          **2b `scripts/update-engine.mjs` not started**. The worktree was reset to `e51cf40` before it —
+          verified representative, `git diff e51cf40..HEAD` outside `maintainers/plans` is **empty**, so the
+          four plan commits since do not need a rebase of the worktree.
     - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
     - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
           scripts/lib/filed-note.mjs` (14.7's three layers).
@@ -1771,7 +1797,13 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           scripts/lib/consolidation-candidates.mjs, scripts/lib/wiki-lint.mjs`.
     - [ ] **Batch 6, not started** — `scripts/lib/universe-profile.mjs, scripts/set-universe-profile.mjs`.
     - [ ] **Then**: record the pass in `maintainers/mutation/RESULTS.md` under a `v4.8.0` section, and
-          remove the worktree (`git worktree remove`) once the last batch is read.
+          remove the worktree (`git worktree remove`) once the last batch is read. That section owes the
+          **two deferred remedies** a named, numbered debt line each (the guard test, the two generators)
+          — not a story about `engine-fetch.mjs`.
+    - [ ] **Engrave remedy (3) in `CONVENTIONS.md`** — a new production file is mutated the **day it is
+          written**, not at the release tail; the tail pass stays as it is. Own numbered section next to
+          §5quater. Decided 2026-08-05 (see the batch-1 arbitration above); the *why* is the finding,
+          so write the why, not only the rule.
     - [ ] **§10, the marketing-surface re-read** (`README.md`, `EN-QUOI-C-EST-DIFFERENT.md`,
           `CONNECTORS.md`, the boards through their alt texts): what this release made false, and what it
           shipped that no surface sells. The update check's *"what it is not"* belongs here too.
