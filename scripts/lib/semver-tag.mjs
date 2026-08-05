@@ -28,9 +28,16 @@ export function pickLatestSemverTag(tags) {
   return best;
 }
 
-// Numeric (not lexical) comparison: v3.10.0 > v3.2.0.
+// Numeric (not lexical) ordering of two PARSED tags: v3.10.0 > v3.2.0. Negative /
+// zero / positive, so it doubles as a sort comparator — `engine-update-check` needs
+// the releases BETWEEN two versions, not merely the highest one, and a second
+// spelling of this ordering is a second opinion on what "newer" means.
+export function compareSemverTags(a, b) {
+  if (a.major !== b.major) return a.major - b.major;
+  if (a.minor !== b.minor) return a.minor - b.minor;
+  return a.patch - b.patch;
+}
+
 function isHigher(a, b) {
-  if (a.major !== b.major) return a.major > b.major;
-  if (a.minor !== b.minor) return a.minor > b.minor;
-  return a.patch > b.patch;
+  return compareSemverTags(a, b) > 0;
 }
