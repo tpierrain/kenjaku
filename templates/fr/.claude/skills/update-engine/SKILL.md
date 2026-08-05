@@ -1,7 +1,7 @@
 ---
 name: update-engine
 description: "Met à jour le MOTEUR de ton second cerveau (le code de recherche RAG, les launchers et les scripts du moteur) vers une version plus récente, sur opt-in et sans jamais toucher à tes notes, ton .env, ta constitution, tes réglages, tes skills à toi ni aucun skill du moteur que tu as personnalisé. Réindexe uniquement si le format d'index a changé. À utiliser quand l'utilisateur demande de mettre à jour le moteur de son cerveau, ou de vérifier si une mise à jour est disponible."
-version: 1.1.0
+version: 1.2.0
 ---
 
 # /update-engine — Mets à jour le moteur de ton cerveau (opt-in, non destructif)
@@ -24,7 +24,9 @@ version: 1.1.0
   jour ton moteur », « y a-t-il une nouvelle version de mon cerveau ? »).
 - De façon proactive : parce que le moteur est **observable** (il enregistre sa version + où
   aller chercher une mise à jour dans `engine-manifest.json`), tu peux **proposer** une mise
-  à jour — mais **jamais la lancer sans le feu vert explicite de l'utilisateur**.
+  à jour, mais **jamais la lancer sans le feu vert explicite de la personne**, et **jamais la
+  proposer à l'aveugle** : le `--check` en lecture seule de l'Étape 1 est ce qui transforme
+  « il y a peut-être quelque chose » en « voilà ce que c'est ».
 
 ## Règle d'or — OPT-IN, JAMAIS automatique
 
@@ -46,8 +48,43 @@ toujours être une action consciente et acceptée.
 
 ## Procédure
 
-### Étape 1 — Confirmer avec l'utilisateur (obligatoire, opt-in)
-Explique, simplement :
+### Étape 1 : savoir ce que la mise à jour apporte, PUIS demander (obligatoire, opt-in)
+
+🛑 **Ne jamais demander un oui avant de pouvoir dire ce que ce oui apporte.** Annoncer la
+version que la personne a déjà et demander « je lance ? », c'est faire consentir à un
+remplacement de code qui ne sait pas répondre à « pour quoi faire ? ». Donc **lance d'abord
+la vérification en lecture seule**, depuis le **dossier du cerveau** :
+
+```bash
+node scripts/update-engine.mjs --check
+```
+
+Elle ne change **rien** (pas de clone, pas d'installation, pas de réindexation), c'est la
+première étape de la vraie mise à jour, et elle sort toujours en `0`, y compris quand elle
+n'a pas pu savoir : c'est une **réponse**, pas un échec. Relaie ensuite ce qu'elle a affiché,
+**dans la langue de la personne**.
+
+**Cite la prose des releases, ne la résume jamais.** Les puces `What you get` affichées
+viennent de notes de version déjà écrites pour un public non technique et déjà relues ; un
+résumé glisserait une étape générée sous une décision prise sur parole (ADR 0009). Traduis-les
+si besoin, garde les puces, n'ajoute rien.
+
+**Trois réponses, trois conversations différentes :**
+
+- **`📦 … is available`** : dis **quelle version la personne s'apprête à installer** et de
+  combien de releases elle est en retard, puis cite le `What you get` de chacune. Seulement
+  après, explique ce que fait une mise à jour (ci-dessous) et demande un **oui** explicite.
+- **`✅ That is the latest release`** : dis-le et **arrête-toi là**, il n'y a **rien à installer**.
+  Ne lance **pas** la mise à jour « au cas où » : elle reposerait le même code, afficherait une
+  bannière de redémarrage, et coûterait un redémarrage pour rien.
+- **`❓ I could not find out`** : dis-le tel quel, **avec la raison affichée** :
+  « **je n'ai pas pu savoir** ce qui est disponible en amont, parce que … ».
+  Jamais sous la forme « il n'y a pas de mise à jour » : ce sont deux réponses opposées.
+  Mettre à jour reste possible, mais le consentement ne serait **pas éclairé** : dis-le
+  simplement et laisse la personne décider. Si elle y va, la mise à jour résout la cible
+  elle-même et installe ce que la source contient.
+
+Ensuite, avant le oui, explique simplement :
 - ça récupère un moteur plus récent et remplace le nouveau code, les launchers et les scripts
   du moteur ;
 - **tes notes, ton `.env`, ta constitution, tes réglages et tes skills à toi restent
@@ -112,5 +149,7 @@ applique exactement les fichiers du moteur, régénère les launchers, lance `np
   moteur plus récent devrait être récupéré, ou qu'il faut d'abord brancher un remote.
 - **Réseau / git / npm indisponible** → le cœur échoue bruyamment ; relaie-le. Rien n'est laissé
   à moitié appliqué au-delà de l'échec.
-- **Déjà à jour** → re-récupérer la même version est sans danger ; le moteur est de nouveau
-  remplacé et, comme le format d'index n'a pas bougé, **aucune réindexation** n'a lieu.
+- **Déjà à jour** → la vérification de l'Étape 1 le dit (`✅`) et la conversation s'arrête là.
+  Si la personne insiste quand même, re-récupérer la même version est sans danger : le moteur
+  est de nouveau remplacé et, comme le format d'index n'a pas bougé, **aucune réindexation**
+  n'a lieu, mais un redémarrage lui sera quand même demandé, pour aucun changement.

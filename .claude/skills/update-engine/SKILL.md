@@ -1,7 +1,7 @@
 ---
 name: update-engine
 description: "Updates your second brain's ENGINE (the RAG search code, launchers and engine-owned scripts) to a newer version, opt-in and without ever touching your notes, .env, constitution, settings, your own skills or any engine skill you tailored. Reindexes only if the index format changed. Use when the user asks to update/upgrade their brain's engine, or to check whether an engine update is available."
-version: 1.2.0
+version: 1.3.0
 ---
 
 # /update-engine — Upgrade your brain's engine (opt-in, non-destructive)
@@ -23,7 +23,8 @@ version: 1.2.0
   "is there a new version of my brain?").
 - Proactively: because the engine is **observable** (it records its version + where to
   pull from in `engine-manifest.json`), you may **offer** an update — but **never run it
-  without the user's explicit go-ahead**.
+  without the user's explicit go-ahead**, and **never offer one blind**: the read-only
+  `--check` in Step 1 is what turns "there might be something" into "here is what it is".
 
 > **Reporting the current version?** The engine version is the brain's pinned git **TAG** —
 > the manifest's `source.ref` (surfaced as the **"Version"** line of `vault_stats` and on the
@@ -48,8 +49,39 @@ code on disk and may trigger a reindex; it must always be a conscious, accepted 
 
 ## Procedure
 
-### Step 1 — Confirm with the user (mandatory, opt-in)
-Explain, plainly:
+### Step 1 — Find out what the update contains, THEN ask (mandatory, opt-in)
+
+🛑 **Never ask for a yes before you can say what the yes buys.** Stating the version the
+user already runs and asking "shall I?" is consent to a code swap that cannot answer
+*"what for?"*. So **run the read-only check first**, from the **brain folder**:
+
+```bash
+node scripts/update-engine.mjs --check
+```
+
+It changes **nothing** (no clone, no install, no reindex), it is the real run's own first
+step, and it always exits `0` — including when it could not find out, because that is an
+*answer*, not a failure. Then relay what it printed, **in the user's language**.
+
+**Quote the release prose, never summarise it.** The `What you get` bullets it prints come
+from release notes already written for a non-developer and already reviewed; a paraphrase
+would put a generated step under a decision the user is about to take on trust (ADR 0009).
+Translate them if the user's language is not English, keep the bullets, add nothing.
+
+**Three answers, three different conversations:**
+
+- **`📦 … is available`** → tell them **which version they are about to install** and how many
+  releases ahead it is, then quote each release's `What you get`. Only then explain what an
+  update does (below) and ask for an explicit **yes**.
+- **`✅ That is the latest release`** → say so and **stop there**: there is nothing to install.
+  Do **not** run the update "just to be sure" — it would swap the same code, print a restart
+  banner, and cost the user a restart for nothing.
+- **`❓ I could not find out`** → say exactly that, **with the reason it printed**, and never as
+  *"there is no update available"*: those are opposite answers. Updating is still possible, but
+  the consent would be **uninformed** — say so plainly and let the user decide. If they go
+  ahead, the update itself resolves the target and installs whatever the source holds.
+
+Then, before the yes, explain plainly:
 - it pulls a newer engine and swaps in the new code, launchers and engine scripts;
 - **your notes, `.env`, constitution, settings and your own skills stay untouched**;
 - it will **bring up to date the engine skills you never edited**, so improvements shipped
@@ -160,8 +192,10 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
   from, or that a remote must be wired first.
 - **Network / git / npm unavailable** → the core fails loud; relay it. Nothing is left
   half-applied past the failure.
-- **Already up to date** → re-pulling the same version is harmless; the engine is swapped
-  again and, since the index format didn't move, **no reindex** runs.
+- **Already up to date** → Step 1's check says so (`✅`) and that is where the conversation
+  ends. If the user insists anyway, re-pulling the same version is harmless: the engine is
+  swapped again and, since the index format didn't move, **no reindex** runs — but they will
+  still be asked to restart, for no change at all.
 - **A new engine skill/server doesn't appear after a single update on a pre-3.2.1 brain**
   (ADR 0025) → expected. The apply runs from the brain's **installed** code, and the skill/MCP
   install logic only landed *during* this update. Simply **run the update once more** (or it
