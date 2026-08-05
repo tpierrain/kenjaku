@@ -5,6 +5,7 @@ import {
   checkUpstream,
   defaultFetchReleases,
   extractWhatYouGet,
+  formatUpdateCheck,
   githubReleasesApiUrl,
   releasesAhead,
 } from "./engine-update-check.mjs";
@@ -347,4 +348,119 @@ test("defaultFetchReleases — a hung endpoint is abandoned, and the check moves
   });
 
   assert.equal(hung, null, "it gave up on its own timeout instead of waiting for the endpoint");
+});
+
+test("formatUpdateCheck — an available update leads with the target, then quotes each release", () => {
+  assert.equal(
+    formatUpdateCheck({
+      state: "available",
+      installed: "v4.5.0",
+      target: "v4.7.0",
+      ahead: 2,
+      releases: [
+        { version: "v4.6.0", title: "v4.6.0 — The Vault's Identity", whatYouGet: "- 🧭 **It reads before it writes.**" },
+        { version: "v4.7.0", title: "v4.7.0 — The One Where It Knows", whatYouGet: null },
+      ],
+      reason: null,
+    }),
+    [
+      "⚙️ Your brain runs v4.5.0.",
+      "📦 v4.7.0 is available — 2 releases ahead.",
+      "",
+      "── v4.6.0 — The Vault's Identity",
+      "- 🧭 **It reads before it writes.**",
+      "",
+      "── v4.7.0 — The One Where It Knows",
+      "(this release published no summary)",
+    ].join("\n"),
+  );
+});
+
+test("formatUpdateCheck — one release ahead is not 'releases', and a bare version still names itself", () => {
+  assert.equal(
+    formatUpdateCheck({
+      state: "available",
+      installed: "v4.6.0",
+      target: "v4.7.0",
+      ahead: 1,
+      releases: [{ version: "v4.7.0", title: null, whatYouGet: null }],
+      reason: null,
+    }),
+    [
+      "⚙️ Your brain runs v4.6.0.",
+      "📦 v4.7.0 is available — 1 release ahead.",
+      "",
+      "── v4.7.0",
+      "(this release published no summary)",
+    ].join("\n"),
+  );
+});
+
+test("formatUpdateCheck — up to date says so out loud; it is not the same answer as silence", () => {
+  assert.equal(
+    formatUpdateCheck({
+      state: "up-to-date",
+      installed: "v4.7.0",
+      target: "v4.7.0",
+      ahead: 0,
+      releases: [],
+      reason: null,
+    }),
+    ["⚙️ Your brain runs v4.7.0.", "✅ That is the latest release — there is nothing to install."].join("\n"),
+  );
+});
+
+test("formatUpdateCheck — not knowing is stated, with which unknown it was and what it costs", () => {
+  assert.equal(
+    formatUpdateCheck({
+      state: "unknown",
+      installed: "v4.6.0",
+      target: null,
+      ahead: null,
+      releases: [],
+      reason: "the source did not answer — no network, or the address moved",
+    }),
+    [
+      "⚙️ Your brain runs v4.6.0.",
+      "❓ I could not find out what is available: the source did not answer — no network, or the address moved.",
+      "   Updating is still possible, but I cannot tell you what it would install.",
+    ].join("\n"),
+  );
+});
+
+test("formatUpdateCheck — an unknown DISTANCE still reports the target it does know", () => {
+  assert.equal(
+    formatUpdateCheck({
+      state: "unknown",
+      installed: "main",
+      target: "v4.7.0",
+      ahead: null,
+      releases: [],
+      reason: 'this brain is pinned to "main", not to a release',
+    }),
+    [
+      "⚙️ Your brain runs main.",
+      '❓ I could not find out what is available: this brain is pinned to "main", not to a release.',
+      "   The newest release upstream is v4.7.0.",
+      "   Updating is still possible, but I cannot tell you what it would install.",
+    ].join("\n"),
+  );
+});
+
+test("formatUpdateCheck — a brain that cannot even name its own engine says that too", () => {
+  assert.equal(
+    formatUpdateCheck({
+      state: "unknown",
+      installed: null,
+      target: null,
+      ahead: null,
+      releases: [],
+      reason: "this brain records no source to check",
+    }),
+    [
+      "⚙️ Your brain does not record which engine version it runs.",
+      "❓ I could not find out what is available: this brain records no source to check.",
+      "   Updating is still possible, but I cannot tell you what it would install.",
+    ].join("\n"),
+  );
 });

@@ -164,3 +164,36 @@ export async function defaultFetchReleases(url, { fetchImpl = fetch, timeoutMs =
     clearTimeout(timer);
   }
 }
+
+// The check as an owner reads it, in the terminal. The three states each get their
+// own shape on purpose — this is the whole finding: a generic offer rendered "no
+// update available" and "target simply unknown" identically, so a yes meant
+// nothing. Pure, so the wording is unit-tested (the skill translates it; it does
+// not rewrite it).
+export function formatUpdateCheck(report) {
+  const lines = [
+    report.installed === null
+      ? "⚙️ Your brain does not record which engine version it runs."
+      : `⚙️ Your brain runs ${report.installed}.`,
+  ];
+
+  if (report.state === "up-to-date") {
+    lines.push("✅ That is the latest release — there is nothing to install.");
+    return lines.join("\n");
+  }
+
+  if (report.state === "unknown") {
+    lines.push(`❓ I could not find out what is available: ${report.reason}.`);
+    // Degrade, never blank: a distance we cannot count does not erase a target we can.
+    if (report.target !== null) lines.push(`   The newest release upstream is ${report.target}.`);
+    lines.push("   Updating is still possible, but I cannot tell you what it would install.");
+    return lines.join("\n");
+  }
+
+  const noun = report.ahead === 1 ? "release" : "releases";
+  lines.push(`📦 ${report.target} is available — ${report.ahead} ${noun} ahead.`);
+  for (const { version, title, whatYouGet } of report.releases) {
+    lines.push("", `── ${title ?? version}`, whatYouGet ?? "(this release published no summary)");
+  }
+  return lines.join("\n");
+}
