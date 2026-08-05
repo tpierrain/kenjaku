@@ -189,10 +189,28 @@
 > new production file is mutated the day it is written, engraved in `CONVENTIONS.md`. Both are checklist
 > items in 14.8; do not re-open or re-propose them (an 11th written reflex was explicitly declined).
 >
-> **▶️ RESUME: the 14.8 checklist, in order.** The mutation pass is the long pole and it is running —
-> **batch 1 done, 2a running, 2b → 6 to go** — but the release is NOT gated on finishing it before the
-> other tail items: §10, the version vector, the `CONVENTIONS.md` paragraph, the note and the PR body can
-> be written while batches run. **The tag is gated** on all of it plus CI 7/7 on the tagged commit.
+> **▶️ RESUME AT: the mutation pass, batch 4** _(state as of 2026-08-05, end of session — everything
+> below is committed and pushed on `release/v4.8.0`, nothing is half-written on disk)_. What is **done**
+> in 14.8, so it is never re-done: the two decisions, the **version vector**, the **`CONVENTIONS.md`
+> §5quinquies** paragraph (the adopted process remedy), the **whole §10 marketing re-read** including
+> `SETUP.md`'s *what-it-is-not* block, the **release-note draft**, and mutation **batches 1, 2a, 2b and
+> 3 — measured, hardened and pushed**. What **remains**, in order:
+>
+> 1. **Batch 4** — it was **launched and left running** (log
+>    `maintainers/mutation/reports/v480-batch4-ai-summary.log`); on resume, read that log rather than
+>    re-running it.
+> 2. **Batches 5 and 6**, then the **re-measures owed** on every hardened file (see the ⚠️ box in the
+>    batch list — RESULTS.md publishes measured numbers, never hoped-for ones).
+> 3. **RESULTS.md § v4.8.0**, which owes two things beyond the scores: the **two deferred remedies as
+>    numbered debt** (not a story about `engine-fetch.mjs`), and `session-status.mjs`'s **0 %** written as
+>    the inherited debt it is, so the batch total does not read as rot this release caused.
+> 4. **Pin the mutation snapshot into the release note**, re-read the note, write the **PR body**.
+> 5. **Re-check the boards' `mutation 90–97%` claim** against the finished RESULTS.md.
+> 6. **The tag, the merge, the published release** — gated on **CI 7/7 on the tagged commit**.
+>
+> Suite green at the last commit: **1520 tests, 1519 pass, 1 skipped (Windows-only)**. The **worktree**
+> `/Users/tpierrain/Dev/kenjaku-mut-v480` is still up, detached at `e51cf40`, `rag/node_modules`
+> symlinked — reset it (`git reset --hard e51cf40` + `git clean -qfd -e rag/node_modules`) between runs.
 > **While waiting, the only useful autonomous work is verification, not scope.** The **full matrix is
 > already 7/7 green on the tip `1b5eb56`** (run `31017981223`, both Windows cells + the installer e2e),
 > so that box is closed. The **mutation pass is deliberately NOT run yet**: it must measure the branch
@@ -1833,17 +1851,46 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
               `includes("--check")` — `argv[0]`/`argv[1]` cannot equal `--check`, so unlike v4.5.0's
               forwarding case it changes nothing. **The entrypoint-guard family stays the v4.9.0 debt
               the owner arbitrated**, not a gap to pay here.
-      - [ ] **Batch 3 RUNNING** _(2026-08-05, log `…/v480-batch3-session-version.log`)_ —
-            `scripts/session-status.mjs, scripts/lib/engine-version.mjs`, 257 mutants.
-            `session-status.mjs` is **expected at 0 %** (top-level script, no test sibling): that is the
-            named pre-existing debt, not a regression of this release. **If a `/clear` lands here**: read
-            the log, copy the scores and survivors, treat them as batch 1 was treated.
+      - [x] **Batch 3 done** _(2026-08-05, 7 min, 257 mutants, log
+            `…/v480-batch3-session-version.log`)_ — **`engine-version.mjs` 91.07 %** (10 survivors),
+            **`session-status.mjs` 0.00 %** (145). The 0 % is the **named pre-existing debt**, exactly as
+            predicted: a top-level script no test can import, the tier whose fix (shared
+            `runAsEntrypoint`) the owner deferred to v4.9.0. **Write it that way in RESULTS.md** — a batch
+            total of 39.69 % here would otherwise read as rot this release caused.
+        - [x] **`engine-version.mjs` hardened** _(`8a106f0`)_. The survivors were the **date guard** and
+              the **fall-through**, and both matter for the same reason: the upstream cache is a JSON file
+              on the owner's disk (hand-editable, half-writable, left over from another engine), and the
+              date is what tells a **remembered** verdict from a live one. A wrong date is worse than
+              none, so `checked at 2026-08-05`, `2026-08-0`, an array, a number and `null` must all
+              degrade to no-date. And a cache state that is none of the three named ones must read as
+              *checking*, never as a failed check that never happened — the old test fed
+              `{state:"nonsense"}` with **no `installed`**, so it returned at the version-mismatch guard
+              and never reached the fall-through at all.
+        - [x] **Its remaining survivors are equivalents, listed so nobody re-chases them**: the two
+              `catch { return null }` blocks (falling through returns `undefined`, which the callers read
+              exactly as `null`), `if (!existsSync(path))` in `readJson` (a missing file throws into the
+              same catch), the `readFileSync(path, "")` encoding twin (Buffer → `JSON.parse` coerces),
+              and `typeof manifest !== "object"` in `formatEngineVersion` (a string manifest reaches the
+              same two `?.` and yields the same null).
+      - [ ] **Batch 4 WAS RUNNING when the session ended** _(2026-08-05, log
+            `maintainers/mutation/reports/v480-batch4-ai-summary.log`, 325 mutants ≈ 8 min)_ —
+            `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs, scripts/lib/filed-note.mjs`
+            (14.7's three layers). **On resume it is almost certainly finished**: read the log's last
+            table, copy the per-file scores and the survivor list here, then treat each survivor the way
+            batches 1-3 were treated (fix what a test can honestly reach; record only genuine
+            equivalents). At 18 % it was carrying 30 survivors **and one timeout** — the timeout is worth
+            a look, the config's `timeoutMS: 30000` is tuned to make genuine ones rare.
     - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
     - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
           scripts/lib/filed-note.mjs` (14.7's three layers).
     - [ ] **Batch 5, not started** — `scripts/lib/connector-accounts.mjs,
           scripts/lib/consolidation-candidates.mjs, scripts/lib/wiki-lint.mjs`.
     - [ ] **Batch 6, not started** — `scripts/lib/universe-profile.mjs, scripts/set-universe-profile.mjs`.
+    - [ ] **⚠️ THE RE-MEASURES OWED, in one run each** — every hardened file below is at an **unknown**
+          score until re-mutated, and RESULTS.md must publish measured numbers, never hoped-for ones:
+          `engine-update-check.mjs` (was 86.07 %), `update-engine.mjs` (93.20 %), `engine-version.mjs`
+          (91.07 %), plus whatever batches 4-6 harden. Cheapest shape: one run with the three paths
+          comma-separated once the branch has stopped changing again.
     - [ ] **Then**: record the pass in `maintainers/mutation/RESULTS.md` under a `v4.8.0` section, and
           remove the worktree (`git worktree remove`) once the last batch is read. That section owes the
           **two deferred remedies** a named, numbered debt line each (the guard test, the two generators)
@@ -1852,19 +1899,42 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           written**, not at the release tail; the tail pass stays as it is. Own numbered section next to
           §5quater. Decided 2026-08-05 (see the batch-1 arbitration above); the *why* is the finding,
           so write the why, not only the rule.
-    - [ ] **§10, the marketing-surface re-read** (`README.md`, `EN-QUOI-C-EST-DIFFERENT.md`,
-          `CONNECTORS.md`, the boards through their alt texts): what this release made false, and what it
-          shipped that no surface sells. The update check's *"what it is not"* belongs here too.
-    - [ ] **The version vector** — `scripts` 1.12.0 → **1.13.0** and `constitutionTemplate` 1.2.0 →
-          **1.3.0** (both constitutions changed at 14.7 layer 3). `rag` **1.4.0 — check, do not assume**:
-          nothing under `rag/src` changed on this branch, so it should stay. `indexSchemaVersion`
-          unchanged → the note can promise no reindex (verify before promising).
+    - [x] **§10, the marketing-surface re-read — DONE** _(2026-08-05 · `7eb133d`, `SETUP` in its own
+          commit)_. What it turned up, so it is not re-derived:
+      - [x] **What the release made FALSE, and is now honest**: `EN-QUOI` §5 sold *"Upstream dependency:
+            **none**"* and §7 *"each is frozen at its install version"* — a brain that looks upstream once
+            a day needs those sentences qualified, and they are (it looks; it never pulls, pushes or adds
+            a remote).
+      - [x] **What was shipped and sold NOWHERE** (§10's second question): a note says what it was built
+            from, a declared Slack account is now checked, and `/lint` stopped crying wolf. All three are
+            on the README's reliability list now; the AI-summary one is also a new row in `EN-QUOI` §1's
+            hardening table (the doc's spine).
+      - [x] **The owner's own misreading is answered in `SETUP.md` §10**, in plain words and at length:
+            what the daily look-up **is** (one anonymous `git ls-remote` to the engine's public repo, one
+            single API request only when behind, **no HTTP at all when up to date**) and above all what it
+            **is not** (no remote added, nothing pushed, his backup repo untouched, nothing from the vault
+            leaving). The **absence of an off switch is documented rather than hidden**, with the one
+            lever that does exist (remove `source.repo`).
+      - [x] **The boards: NO re-render, and the drift is unchanged.** `board-reliability` still says
+            *"34 ADRs"* against **37** — measured again: it already predated v4.5.0 and this release adds
+            none, so it is not something v4.8.0 made false. Standing recommendation at the next re-render
+            of that board: **drop the count** (a hard number rots once per release, forever). Its
+            `mutation 90–97%` claim is **still to be re-checked against RESULTS.md when the pass ends**.
+    - [x] **The version vector — DONE** _(2026-08-05 · `b329d8a`)_: `scripts` 1.12.0 → **1.13.0**,
+          `constitutionTemplate` 1.2.0 → **1.3.0**. `rag` stays **1.4.0** and `local-mirror` **0.3.0** —
+          **checked, not assumed**: `git diff --name-only main...HEAD` matches nothing under `rag/` or
+          `local-mirror/`. `indexSchemaVersion` stays **2**, so the note may promise **no reindex**.
     - [ ] **The release note (§11, non-devs first) + the PR body**, then archive both under
           `archived/`. **No finding codes** (F3, F14…) in any artifact — they mean nothing to anyone but
-          us. The note has five things to tell: **the brain that now tells you an update is waiting, and
-          what it is for** (title's half first, then the consent half), `/lint` that stops
-          crying wolf, Slack checked instead of declared, notes that say what they were built from, and
-          the AI-summary notice. Plus the update check's plain-words paragraph.
+          us.
+      - [x] **The note is DRAFTED and committed** at `maintainers/plans/archived/release-v4.8.0-note.md`
+            _(`8a106f0`)_ — title, lead, the six `What you get` bullets (the update that says what it is
+            for, then the *what it is not* paragraph, the source header, the Slack check, `/lint`), the
+            *What you have to do*, and six `Under the hood` items. **Re-read it before publishing**; it
+            was written before batches 4-6 landed.
+      - [ ] **PIN THE MUTATION SNAPSHOT INTO IT** (§5ter: every release note carries one, pinned to the
+            tag) — the note has **no numbers in it yet**, on purpose, because the pass is unfinished.
+      - [ ] **The PR body**, not started.
     - [ ] **The tag, the merge, the published release** — and CI 7/7 on the tagged commit before
           publishing.
 
