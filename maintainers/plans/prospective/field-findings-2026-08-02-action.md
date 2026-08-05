@@ -1087,7 +1087,10 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 >
-> ### ⏭️ THE RESUME POINT — the three findings are DONE; the live work is **13.4, the release tail**
+> ### ⏭️ THE RESUME POINT — the three findings are DONE and pushed; the live work is **13.4, the
+> release tail**, whose next command is the `scripts` mutation batch (spelled out below, worktree
+> already prepared). Branch `release/v4.7.0`, CI green through `55128d9`'s predecessors, nothing
+> half-written in the main checkout.
 >
 > **✅ F20 IS COMPLETE** _(2026-08-05 · `82f49cd`, `ee1c373`)_. Both halves shipped, and the two calls
 > the entry left open are taken below; do not re-open them.
@@ -1155,15 +1158,38 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       `rag/package.json` + lockfile in step. `local-mirror` (0.3.0) and `constitutionTemplate`
 >       (1.2.0) left alone: nothing in them changed, checked rather than assumed.
 >       `indexSchemaVersion` stays **2** — no reindex, which is what the note will promise.
-> - [ ] **§10, the marketing-surface re-read** — not started.
-> - [ ] **Mutation on what this release changed** — not started. Production files touched:
->       `scripts/lib/frozen-wiring.mjs`, `scripts/lib/restart-nudge.mjs`,
->       `scripts/lib/restart-signal.mjs`, `scripts/prompt-restart-nudge.mjs`,
->       `scripts/session-status.mjs`, `scripts/session-self-heal.mjs`, `scripts/update-engine.mjs`,
->       `rag/src/lib/index-shortfall.ts`, `rag/src/lib/status-report.ts`, `rag/src/index.ts`.
->       Recipe and the batching lesson: Step 11's mutation section (worktree, NOT the scratchpad;
->       one or two files per run; `rag/node_modules` symlinked and verified first).
+> - [x] **Mutation, the `rag` half — DONE and CLOSED at 100 %** _(2026-08-05 · `55128d9`, logs
+>       `…/v470-rag-changed.log` then `…/v470-rag-recheck.log`)_. First pass **94.44 %**, nine
+>       survivors, all in code written the same day; two familiar families (an absent case nothing
+>       fed — a shortfall whose failures ARE the whole gap — and a truncation nothing exercised:
+>       three refusals against a bound of two). The ninth was **simplified away rather than
+>       excused** (`!== null && !== undefined` → `typeof asked === "number"`). Re-measured:
+>       **`index-shortfall.ts` 100 %**, **`status-report.ts` 100 %**, 0 survivors.
+>       `rag/src/index.ts` is out of the tool's scope (not under `src/lib/`) — same class as the
+>       top-level scripts, already named debt. **Do not re-run this half.**
+> - [ ] **⏭️ THE NEXT COMMAND — mutation, the `scripts` half.** The worktree is ALREADY prepared
+>       and verified: `/Users/tpierrain/Dev/kenjaku-mut-v470` (detached at `55128d9`),
+>       `rag/node_modules` symlinked, `scripts/vault-write-guard.test.mjs` checked there at
+>       **9 pass / 0 skipped** (it must not skip, or the mutants face a suite that cannot judge
+>       them). From that worktree, run:
+>       ```
+>       node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
+>         run maintainers/mutation/stryker.scripts.batch.config.mjs \
+>         --mutate "scripts/lib/frozen-wiring.mjs,scripts/lib/restart-nudge.mjs,scripts/lib/restart-signal.mjs,scripts/prompt-restart-nudge.mjs"
+>       ```
+>       Those four are what this release wrote. `session-status.mjs` / `session-self-heal.mjs` /
+>       `update-engine.mjs` were also touched but are the **known top-level tier** (no test can
+>       import them) — record, do not chase. ⚠️ It mutates **in place**: never run it in the main
+>       checkout, and reset the worktree between batches per Step 11's recipe.
+>       **When done: `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v470`.**
+> - [ ] **§10, the marketing-surface re-read** — started, nothing written yet. What the reading so
+>       far suggests, to be confirmed rather than trusted: nothing became FALSE (question 1); the
+>       candidate for question 2 is that `README.md:94-96` (*"freshness catches up behind the
+>       scenes"*) and the *Zero-chore* row were **partly unearned** — the arrival case never caught
+>       up — and this release is what makes them true, the same shape as v4.5.0's rehydrate repair.
+>       The `board-reliability` **"34 ADRs"** drift is pre-existing and deliberately left.
 > - [ ] **Release note + PR body + tag** — the owner is asked BEFORE the public tail, as at v4.6.0.
+>       No PR is open for `release/v4.7.0` yet.
 >
 > Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
 > exists and is pushed** off that commit. Work the remaining boxes below in order.
