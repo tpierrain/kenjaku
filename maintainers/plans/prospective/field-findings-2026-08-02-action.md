@@ -164,11 +164,12 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7 **layer 2** (the non-blocking `PostToolUse` hook), on
-> `release/v4.8.0`.** **14.6 is DONE** (the Slack account check) and **14.7's layer 1 is DONE**
-> _(2026-08-05 · `f333b3d`, pushed)_ — the source header is a builder output, required on every note,
-> and its entry carries the six calls taken while building **plus what it deliberately does not reach**
-> (hand-written notes and the 3b/`refresh-note` append path). Do not re-derive them. The release
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7: finish **layer 2's two open boxes** (a targeted
+> `PostToolUse` reconcile test, then a wired field run), then **layer 3**. On `release/v4.8.0`.**
+> **14.6 is DONE**; **14.7's layer 1 is DONE** _(`f333b3d`)_ — the source header is a builder output,
+> required on every note — and **layer 2 is built, green and pushed** _(`4b9eca7`)_ — the read-path
+> notice, three states, three silence pins. Both entries carry the calls taken while building **and what
+> they deliberately do not reach**; do not re-derive them, and do not re-open the scope. The release
 > **tail is 14.8 and still must not be started without the owner**.
 > F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
 > came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
@@ -1554,10 +1555,38 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           prose, not a net. **Layer 2 is what reaches those**, and if a fourth surface is ever wanted, the
           candidate is a `sources` twin of `refresh-note`'s confidence promotion (a card that predates the
           header can otherwise never gain one, since the skill forbids hand-editing frontmatter).
-  - [ ] **Layer 2: a non-blocking `PostToolUse` hook** that notices a summary being consumed as a source
-        when a verbatim is reachable. Non-blocking on purpose (ADR 0009's spirit: deterministic, but a
-        false positive must cost a line of text, not a refused write). Shape it after
-        `scripts/vault-write-guard.mjs`, which is the working precedent for a hook on the write path.
+  - [x] **Layer 2 — ✅ BUILT, GREEN AND PUSHED** _(2026-08-05 · `4b9eca7`; suite 1477 tests, 1 skipped
+        Windows-only)_. `scripts/ai-summary-guard.mjs` (harness contract) over
+        `scripts/lib/ai-summary-guard.mjs` (pure), wired as a `PostToolUse` group on
+        `Read|read_file_content|download_file_content|search_files|slack_read_file`. What is worth not
+        re-deriving:
+    - [x] **Three states, because they are three different situations** (the plan's own reframe): summary
+          **and** verbatim in the payload → says WHERE the verbatim starts (by heading, or "the speaker
+          turns further down" for a Noota-style export that labels nothing); summary **alone** → look
+          further first, since these exports put the summary on top and a partial read lands on it, and
+          if there is none, say so in the note; a **search hit** → a snippet is never a source, open the
+          document. That last one is the mechanism nothing else catches.
+    - [x] **It cries wolf on nothing** (§5quater), pinned by three silence tests: an ordinary document, a
+          **pure verbatim** (the RIGHT tier — a notice there would train its reader to dismiss the one
+          that matters), and a page that merely NAMES a note-taker. Detection needs a signature
+          (`notes par <taker>`, `résumé … par <taker>`, "les notes de Gemini"), never a bare product name.
+    - [x] **`payloadText` keeps the LINE STRUCTURE** while flattening whatever shape a tool answered with.
+          A `JSON.stringify` would have handed every line-anchored regex one long line with literal `\n`:
+          green tests, and the notice silently degrading to its weakest state forever.
+    - [x] **Registered as the SEVENTH `additionalContext` emitter** in the F5 audit
+          (`startup-payload-guard.test.mjs`) with its own volume bound on all three states. It is the
+          first emitter on the READ path — the most-walked path there is — which it answers by staying
+          silent unless a signature is present. **Deliberate cost, named**: one node spawn per matched
+          read (~50 ms), the same shape as the write guard's.
+    - [x] **The manifest guard was proven load-bearing on the way in**: it went red on the uncarried hook
+          script (two of its assertions) before `scripts/ai-summary-guard.mjs` was added to `replace`.
+    - [ ] **What layer 2 still needs, and is the next thing to do** _(2026-08-05)_: (a) a **targeted
+          reconcile test** — `hooks-reconcile.test.mjs` covers a brain gaining a **`PreToolUse`** group,
+          not a brain that already HAS a `PostToolUse` key (auto-commit) gaining a second group beside it.
+          The mechanism is generic and should hold, but F11's guard once watched only `SessionStart`, so
+          **assert it rather than assume it**; (b) a **field run on a throwaway brain** with the hook
+          actually wired, on a real Meet-shaped export, to see the notice arrive as an owner/model sees it
+          (every check so far is a unit or a spawned process, not a wired session).
   - [ ] **Layer 3: turn the passive rule ACTIVE, in both locales.** Not another ranking sentence — an
         **ordering** one: a search-result snippet is never a source; when a verbatim exists in the same
         file, it is read before anything derived from it is quoted. Lock it with a section-sliced doc
