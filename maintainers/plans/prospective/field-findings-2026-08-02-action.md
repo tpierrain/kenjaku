@@ -164,12 +164,15 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7: finish **layer 2's two open boxes** (a targeted
-> `PostToolUse` reconcile test, then a wired field run), then **layer 3**. On `release/v4.8.0`.**
-> **14.6 is DONE**; **14.7's layer 1 is DONE** _(`f333b3d`)_ — the source header is a builder output,
-> required on every note — and **layer 2 is built, green and pushed** _(`4b9eca7`)_ — the read-path
-> notice, three states, three silence pins. Both entries carry the calls taken while building **and what
-> they deliberately do not reach**; do not re-derive them, and do not re-open the scope. The release
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.7: **layer 3**, the last box of the release's build
+> phase. On `release/v4.8.0`.** Turn the passive constitution rule ACTIVE in both locales (an *ordering*
+> sentence, not another ranking one), locked by a section-sliced doc guard — the box says what it must
+> say and which trap to mind.
+> **14.6 is DONE**; **14.7's layers 1 and 2 are DONE and CLOSED** — layer 1 _(`f333b3d`)_, the source
+> header as a builder output required on every note; layer 2 _(`4b9eca7`)_, the read-path notice, three
+> states, three silence pins, now finished by its two remaining boxes _(`483ac2e` + the wired field
+> run, 2026-08-05)_. Their entries carry the calls taken while building **and what they deliberately do
+> not reach**; do not re-derive them, and do not re-open the scope. The release
 > **tail is 14.8 and still must not be started without the owner**.
 > F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
 > came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
@@ -1580,13 +1583,37 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           read (~50 ms), the same shape as the write guard's.
     - [x] **The manifest guard was proven load-bearing on the way in**: it went red on the uncarried hook
           script (two of its assertions) before `scripts/ai-summary-guard.mjs` was added to `replace`.
-    - [ ] **What layer 2 still needs, and is the next thing to do** _(2026-08-05)_: (a) a **targeted
-          reconcile test** — `hooks-reconcile.test.mjs` covers a brain gaining a **`PreToolUse`** group,
-          not a brain that already HAS a `PostToolUse` key (auto-commit) gaining a second group beside it.
-          The mechanism is generic and should hold, but F11's guard once watched only `SessionStart`, so
-          **assert it rather than assume it**; (b) a **field run on a throwaway brain** with the hook
-          actually wired, on a real Meet-shaped export, to see the notice arrive as an owner/model sees it
-          (every check so far is a unit or a spawned process, not a wired session).
+    - [x] **(a) The targeted reconcile test is IN** _(2026-08-05 · `483ac2e`)_ — a brain that already HAS
+          a `PostToolUse` key (auto-commit, i.e. every brain installed before v4.8.0) gaining the read
+          guard **beside** it, plus its idempotence twin (dedup is by the engine SCRIPT, so a brain that
+          wired the guard on a matcher of its own is left alone). The mechanism is generic, so both were
+          green on arrival and were **proven load-bearing instead**: dropping the group from the shipped
+          template, making the reconcile create-only, and removing the dedup each turn the file red, and
+          each mutant was checked to have LANDED (14.6's lesson). Checked while there, not assumed:
+          `reconcile-brain.mjs:195` hands the reconciler the **whole** template tree — there is no event
+          allowlist upstream that could keep this group from ever being wired.
+    - [x] **(b) The wired field run is DONE, and it is the first check that was neither a unit nor a
+          spawned process** _(2026-08-05)_. A throwaway brain whose `PostToolUse` group is the **shipped**
+          one (placeholders substituted the way the installer does), a real Meet/Noota-shaped export whose
+          Gemini summary **contradicts its own verbatim** (nothing frozen, Marc owns the audit, no report
+          announced), and real `claude -p` sessions in that folder. **All three states arrived**: the
+          summary+verbatim notice (the model quoted it back word for word, `"Transcription"` named as
+          where the source starts), the summary-alone notice, and **silence** on a page that merely names
+          Gemini / Otter / Fireflies (§5quater, field-confirmed, not just unit-pinned). Behaviourally the
+          first run answered **from the verbatim** and flagged that the summary disagreed with it — worth
+          noting but not isolated proof, since that fixture is short enough to be read whole.
+      - [x] **⚠️ The instrument lies, and a future field run must not repeat this.** `additionalContext`
+            **never appears in `--output-format stream-json`** (PostToolUse hook events are not surfaced
+            there at all — only `SessionStart` is). Grepping the stream for the notice returned **zero on
+            a hook that was working perfectly**, which reads exactly like a dead hook. Two things settle
+            it honestly: a `/bin/sh` probe group that touches a file (proving the harness runs
+            `PostToolUse` here, and that the five-tool matcher is matched), and **asking the model to
+            quote back what it received**. That last one is also the only check that sees what the hook is
+            FOR.
+      - [ ] **Not field-run, deliberately named**: the **search-hit** state. It needs an MCP search tool
+            (`search_files` / `slack_read_file`) and a throwaway brain has no connector, so that state
+            stays unit-pinned. Its matcher, though, **was** field-proven: the shipped five-tool alternation
+            fires on a plain `Read`.
   - [ ] **Layer 3: turn the passive rule ACTIVE, in both locales.** Not another ranking sentence — an
         **ordering** one: a search-result snippet is never a source; when a verbatim exists in the same
         file, it is read before anything derived from it is quoted. Lock it with a section-sliced doc
