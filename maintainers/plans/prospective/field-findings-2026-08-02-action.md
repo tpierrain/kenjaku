@@ -164,22 +164,25 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — v4.7.0, visibility. Steps 1-12 (all of v4.5.0 AND v4.6.0) are HISTORY.**
-> v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7) and **v4.6.0 shipped
-> 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`, release published) — see
-> `## Step 11` and `## Step 12` for what they mean and where their artefacts live. **The live work is
-> now `## Step 13 — v4.7.0`**, whose findings stay in the **P1/P3** entries. _(Side work done 2026-08-03
+> **⏭️ THE RESUME POINT — v4.8.0, whose scope is NOT decided yet. Steps 1-13 (all of v4.5.0, v4.6.0
+> AND v4.7.0) are HISTORY.** v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7),
+> **v4.6.0 shipped 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`) and
+> **v4.7.0 shipped 2026-08-05** (tag `v4.7.0`, PR #57, merge `556f950`, CI 7/7 on the tagged commit,
+> release published) — see `## Step 11`, `## Step 12` and `## Step 13` for what they mean and where their
+> artefacts live. **What is left are the entries v4.7.0's cut moved to v4.8.0**, which stay in the
+> **P0/P1/P3** sections exactly as they are. _(Side work done 2026-08-03
 > and finished, unrelated: `maintainers/plan-discipline.md` + `maintainers/skills/plan-discipline/` — the
 > plan/`/clear` convention extracted standalone to be shared outside this repo. Nothing pending there.)_
 >
-> **✅ v4.7.0's SCOPE IS DECIDED (2026-08-05, by the owner) AND IT IS DELIBERATELY SHORT.** It ships
+> **✅ v4.7.0's SCOPE WAS DECIDED (2026-08-05, by the owner) AND IT WAS DELIBERATELY SHORT** — kept here
+> because it is what routed everything else into v4.8.0. It shipped
 > **only what that morning's field session raised** — **F20**, **F21**, **F22** — plus **PR #56**, the
 > dependency pins we wrote ourselves after closing two drive-by PRs from a fork. **Everything else moves
 > to v4.8.0**: F13, F3, F10, F8, F9, F2, F19 (the always-loaded instruction layer that only ever grows —
 > raised and measured 2026-08-04, its numbers are in its entry, do not re-measure them) and the two
 > banner defects routed from P0. Their entries stay exactly as they are; nothing is re-analysed when they
-> come back. **F22's naming call is closed too: option A**, two thin aliases `universe` + `univers`.
-> Read `## Step 13` for the ordered boxes; do not widen the cut.
+> come back. **F22's naming call was closed too: option A**, two thin aliases `universe` + `univers`.
+> `## Step 13` carries what each box turned out to be.
 
 ## Step 11 — the v4.5.0 release — ✅ SHIPPED (2026-08-03, tag `v4.5.0`, PR #54, CI 7/7)
 
@@ -1032,7 +1035,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           `maintainers/plans/archived/`, next to v4.5.0's; merge SHA and tag recorded above.
     - [x] The plan's live work is now **v4.7.0 (visibility)** — see `## Step 13`, and the header says so.
 
-## Step 13 — v4.7.0, the short one: this morning's field session — 🔜 THE LIVE WORK
+## Step 13 — v4.7.0, the short one: this morning's field session — ✅ SHIPPED (2026-08-05, tag `v4.7.0`, PR #57, CI 7/7)
 
 > **What this release is about — and what it deliberately is NOT.** v4.7.0 was filed as the third leg of
 > the trilogy (*everything the brain SHOWS*: banner, offers, target version, commit trail). **The owner
@@ -1087,12 +1090,22 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 >
-> ### ⏭️ THE RESUME POINT — everything that does not need the owner is DONE and pushed. **The only
-> box left is the PUBLIC half: the release note, the PR body and the tag** — and §10 says the owner is
-> asked **before** it, as at v4.6.0. Drafts are written and waiting for that read
-> (`maintainers/plans/prospective/release-v4.7.0-note.draft.md` and `…-pr-body.draft.md`); nothing is
-> published, no PR is open, no tag exists. Branch `release/v4.7.0`, pushed through `794a52b`, working
-> tree clean, mutation worktree removed.
+> ### ✅ v4.7.0 IS OUT — SHIPPED 2026-08-05 (tag `v4.7.0`, PR #57, merge `556f950`, CI 7/7, release
+> published). Title chosen by the owner: **The One Where It Knows You Haven't Restarted Yet** — it names
+> the concrete gesture without claiming the release *forces* it, which the nudge deliberately does not do
+> (F20 injects, never blocks). The published note and the PR body are archived beside this plan
+> (`archived/release-v4.7.0-note.md`, `archived/release-v4.7.0-pr-body.md`); the mutation numbers for
+> **both halves** are pinned in `mutation/RESULTS.md` § v4.7.0.
+>
+> **⏭️ THE RESUME POINT IS NOW v4.8.0**, whose scope is the list this release deliberately did not take:
+> F13, F3, F10, F8, F9, F2, F19 and the two banner defects routed from P0 (a cached verdict rendered with
+> live authority; an `unknown` check displayed under "found a problem"). **Their entries are untouched and
+> nothing is re-analysed when they come back** — read them where they are, in `### P0`/`### P1`/`### P3`.
+> Two pieces of named debt wait with them and are each a release of their own: the shared
+> `runAsEntrypoint(meta, argv, fn)` (10+ scripts carry the identical three-mutant boot guard) and the
+> `session-*` tier (`session-status.mjs` **0 %** — top-level scripts no test can import). **No branch is
+> open for v4.8.0, and its scope has NOT been decided with the owner yet** — that conversation comes
+> first, exactly as it did on 2026-08-05 for this one.
 >
 > **✅ F20 IS COMPLETE** _(2026-08-05 · `82f49cd`, `ee1c373`)_. Both halves shipped, and the two calls
 > the entry left open are taken below; do not re-open them.
@@ -1198,24 +1211,23 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       about external sources rather than the index and still holds; `board-reliability`'s **"34
 >       ADRs"** (37 today) is the pre-existing under-claim, deliberately left as decided at v4.6.0.
 >       No finding codes on the surface, as agreed.
-> - [ ] **⏭️ Release note + PR body + tag — THE ONLY BOX LEFT, and it needs the owner.** Drafts are
->       written and committed, deliberately NOT published: `release-v4.7.0-note.draft.md` and
->       `release-v4.7.0-pr-body.draft.md`, next to this plan. **Read them with the owner first**, then
->       open the PR, wait for 7/7, merge, tag, publish — the v4.6.0 sequence. No PR is open for
->       `release/v4.7.0`, and no tag exists.
+> - [x] **Release note + PR body + tag — DONE** _(2026-08-05)_. Read with the owner, who chose the
+>       title; PR **#57** opened as a draft then readied, full matrix **7/7** on `65cc168` **and** on the
+>       merge commit `556f950` (the one actually tagged, checked against that commit rather than against
+>       the colour of a page), merged, tag `v4.7.0` pushed, release published, both files archived.
 >
 > Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
 > exists and is pushed** off that commit. Work the remaining boxes below in order.
 >
 > - [x] **13.1 — merge PR #56 into `main`**, then branch `release/v4.7.0` off it. **✅ DONE 2026-08-05**
 >       (merge `b414766`, CI was 7/7 on `b88ca51`; branch pushed and tracking).
-> - [ ] **13.2 — F20 + F21 together** (one root, two changes).
+> - [x] **13.2 — F20 + F21 together — DONE** (one root, two changes).
 >   - [x] **F20 — DONE** _(2026-08-05 · `82f49cd`, `ee1c373`)_, both halves; see the resume point above.
 >   - [x] **F21 — DONE** _(2026-08-05 · `25057b0`)_, both halves; see the resume point above.
 > - [x] **13.3 — F22 — DONE** _(2026-08-05 · `c229cab`)_, option A; see the resume point above.
-> - [ ] **13.4 — the release tail** (§10 marketing re-read, mutation on what changed, version vector,
->       note + PR body, tag) — same shape as v4.5.0 and v4.6.0, whose tails are Steps 11 and 12.
->       **Everything except the public half is done** _(2026-08-05)_; see the boxes above.
+> - [x] **13.4 — the release tail — DONE** _(2026-08-05)_ (§10 marketing re-read, mutation on what
+>       changed, version vector, note + PR body, tag) — same shape as v4.5.0 and v4.6.0, whose tails are
+>       Steps 11 and 12. See the boxes above for each verdict.
 >   - [x] **DONE** _(2026-08-05 · `421121f`, verified in the files)_ — **bookkeeping the cut created,
 >         done on the release branch, not on `main`:** three code
 >         comments still send a reader to v4.7.0 for work that now lands in **v4.8.0** —
