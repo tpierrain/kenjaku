@@ -27,7 +27,12 @@ const SUMMARY_SIGNS = [
     `(?:résumé|resumé|summary|compte[- ]rendu)[^\\n]{0,60}\\b(?:par|by|de|from)\\s+(?:${NOTE_TAKERS})\\b`,
     "i",
   ),
-  /\bnotes\s+de\s+Gemini\b/i,
+  // "Gemini's notes" — the same claim with the words the other way round, which
+  // is why no pattern above sees it. There WAS a third Gemini line here,
+  // `/\bnotes\s+de\s+Gemini\b/`, and the mutation pass is what exposed it: every
+  // one of its mutants survived, because the first signature already matches
+  // every string it could ("de" is one of its connectors). A second spelling of
+  // a rule is a second opinion on it, so it is gone rather than tested.
   /\bGemini['’]s\s+notes\b/i,
 ];
 
