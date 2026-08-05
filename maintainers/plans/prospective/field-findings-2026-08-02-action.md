@@ -1716,12 +1716,52 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           Between batches: `git reset --hard e51cf40` + `git clean -qfd -e rag/node_modules` from the
           worktree — **never `git checkout -- .`** (an `auto-commit.mjs` mutant can commit the
           instrumented tree). Command: the batch config, `--mutate "<comma-separated paths>"`.
-    - [ ] **Batch 1 RUNNING** _(2026-08-05)_ — the update-check core, i.e. the code the release is named
-          after: `scripts/lib/engine-fetch.mjs, scripts/lib/upstream-cache.mjs,
-          scripts/lib/semver-tag.mjs, scripts/upstream-check-run.mjs`. Log:
-          `maintainers/mutation/reports/v480-batch1-upstream.log`. **If a `/clear` lands here**: read that
-          log, write the per-file scores and each survivor below, then treat every survivor as a suite
-          defect first (§2 assertion quality), debt only when it is a package-wide shape.
+    - [x] **Batch 1 DONE** _(2026-08-05, 4 min 58 s, 179 mutants, log
+          `maintainers/mutation/reports/v480-batch1-upstream.log`)_ — the update-check core, i.e. the code
+          the release is named after. **All files 65.92 %**, the worst first pass of any release so far:
+          `upstream-cache.mjs` **87.23 %** (6), `semver-tag.mjs` **84.09 %** (7),
+          `engine-fetch.mjs` **54.05 %** (34), **`upstream-check-run.mjs` 0.00 %** (14).
+      - [ ] **⚠️ 35 of the 61 survivors (57 %) are TWO shapes we already diagnosed AND already fixed
+            once, elsewhere. This is the finding, not the score.** Written down here because the owner
+            asked the right question — *"on n'apprend pas nos erreurs?"* — and the answer must survive
+            a `/clear`.
+        - [ ] **21 survivors sit in `defaultGit` (`engine-fetch.mjs:104-109`)**, the real git runner.
+              It is the SAME shape solved at v4.5.0 in `verify-index.mjs`, where the spawn's request was
+              turned into a **pure value** (`buildCrosscheckInvocation` → `{command, args, options}`,
+              asserted whole, win32 fed on purpose) and killed 19 survivors. Never propagated. Worse:
+              the code **documents its own exemption** — *"Used by the core's CLI wiring, never by the
+              unit tests"* (`engine-fetch.mjs:101`) — which is exactly what `tdd-discipline` rule 6
+              forbids ("« pure glue, pas testable » n'est jamais une excuse, c'est le diagnostic").
+        - [ ] **14 survivors are `upstream-check-run.mjs`, which has NO `.test.mjs` sibling at all.**
+              That is the tier named as debt since v4.4.0 (`session-status.mjs`, `status-line.mjs` at
+              **0 %**), whose fix was **designed and named** at v4.5.0 — one shared
+              `runAsEntrypoint(meta, argv, fn)` tested once — and scheduled for v4.6.0. It is v4.8.0,
+              **20 files** carry the shape, and `session-status.mjs` (in this branch's 16, batch 3) will
+              read 0 % again. Each deferral was locally right ("not mid-release"); nothing ever brought
+              it back.
+        - [ ] **What the data does NOT say**: it is not a flat line. Past releases' new *lib* files
+              landed at **100 %** (v4.4.0, v4.5.0) and v4.6.0's seven at ≥96 %. Today's two new lib
+              files land at 84-87 %: real slippage, but ordinary §2 looseness. The collapse is the two
+              structural generators above, so "our tests are globally bad" would be the wrong fix.
+      - [ ] **The mechanism, and it matches [[repeated-ask-means-unwired-net]]**: the knowledge is
+            complete and versioned (`tdd-discipline` §"Qualité des assertions", 10 reflexes; its own
+            second audit already noted the first six "pourtant déjà gravés" had not sufficed, and the
+            answer was to add four more). What is missing is a net that **fires while the code is being
+            written**. The only detector is this pass, run deliberately **at the release tail** so the
+            branch has stopped moving — i.e. at the moment restructuring is most expensive and the
+            release is pressing. A lesson that only ever arrives after the writing can tax it, never
+            teach it. Second-order: every lesson is recorded in RESULTS.md as a **story about the file
+            just fixed**; a story does not generalise, a constraint does.
+      - [ ] **⏸️ AWAITING THE OWNER — the three remedies proposed 2026-08-05, in this order** (he asked
+            *"comment on améliore ça sérieusement ?"*; he has NOT arbitrated the timing yet):
+            **(1)** a **deterministic guard test** in the harness suite — red when a top-level
+            `scripts/*.mjs` has no `.test.mjs` sibling, and when a module builds and executes a child
+            process in the same function — carrying an **explicit allowlist that may only shrink**, so
+            the 19 inherited files are a numbered debt instead of a story; **(2)** pay the two
+            generators: shared `runAsEntrypoint` tested once, and `defaultGit` turned into a pure value;
+            **(3)** mutate a **new** file the day it is written (1-3 min for one file) instead of at the
+            tail — the "the branch still moves" reason does not apply to a finished new file.
+            **Explicitly NOT proposed: an 11th written reflex.** That is what the last month did.
     - [ ] **Batch 2, not started** — `scripts/lib/engine-update-check.mjs, scripts/update-engine.mjs`
           (the two biggest, and the consent path).
     - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
