@@ -1376,11 +1376,12 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >
 > ---
 >
-> ## ⏸️ A SECOND EXTRA ITEM, PROPOSED BY THE MIND-PALACE — AWAITING THE OWNER'S SCOPE CALL (2026-08-05)
+> ## ✅ A SECOND EXTRA ITEM, PROPOSED BY THE MIND-PALACE — TAKEN, AND SHIPPED IN v4.8.0 (2026-08-05)
 >
-> **Status: NOT decided, NOT started.** The owner brought a fix his brain proposed and asked whether it
-> is worth folding into v4.8.0. This block records the analysis so the answer is not re-derived; **the
-> scope call itself is his.**
+> **Status: DECIDED by the owner ("intègre le fix maintenant") and DONE** _(`004d208`, `3b55461`)_ —
+> including the reworded cap. He also settled the note: *"il faudra modifier la release note pour inclure
+> le fix ; mais pas dans le titre"*, so it is a `What you get` bullet plus an `Under the hood` item, and
+> the title is untouched. **Do not re-open the analysis below**; it is kept because it is the evidence.
 >
 > **The incident.** On a brain running v4.7.0, *"affiche-moi les choses sur lesquelles je suis attendu"*
 > produced a near-raw dump of two backlogs: items already done presented as to-do, and the most important
@@ -1431,8 +1432,30 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > `constitution-mirror-citations.test.mjs`. One already-ticked box reopens: §10's second question (what
 > shipped and is sold nowhere), `7eb133d`.
 >
-> **If accepted → the tail gains**: the two constitution edits, one guard file, one §10 re-check, and a
-> named v4.9.0 debt line (the missing carrier) beside the two remedies already deferred there.
+> **What shipped** _(2026-08-05)_, so it is not re-derived:
+> - [x] **Both constitutions, inside the existing § Backlogs**, in strict mirror: the trigger is
+>       **displaying** an unchecked action whatever its origin; **never a mute `- [ ]`** (an unchecked box
+>       means *not re-verified*, never *not done*, and a box whose execution trace was not looked for says
+>       **status not verified** on the line); and the **cap, reworded as recommended** — backlogs and
+>       action items only, ~3 at the head, with **both** the number folded and the basis for the head
+>       spoken, because a silent fold is the same defect wearing the other mask and the ordering was half
+>       the incident.
+> - [x] **`scripts/lib/backlog-discipline.test.mjs`**, 23 assertions, written **red first** (19 of 23
+>       failing) and sliced with the shared `docSection` like the claim / identity / source / consent
+>       guards, plus a rule-count parity assertion so a rule cannot land in one locale only.
+> - [x] **The FR half carries no em dash**, per the standing typography rule; the 56 that predate this
+>       edit elsewhere in that file were left alone rather than churned at a release tail.
+> - [x] **No version-vector change owed** — `constitutionTemplate` was already bumped 1.2.0 → **1.3.0**
+>       this cycle (`b329d8a`) for the earlier constitution edits, and it covers these too.
+> - [x] **§10 re-checked for this addition**: it is now sold in the release note (`What you get` +
+>       `Under the hood`) and on the README's grounded-in-truth list, **with its reach stated in the
+>       note itself** rather than implied — the sentence a reader who updates would otherwise be owed.
+> - [ ] **THE DEBT THIS LEAVES, for the head of the v4.9.0 plan** (beside the guard test and the two
+>       generators): **this rule has ONE carrier, and it is the one that does not travel.** F18's own
+>       guard says the constitution half "must never be the only carrier"; here it is. What would fix it
+>       is either the 3-way merge of `engine-managed-file-merge-strategy` (which would let a constitution
+>       edit reach the fleet at last, and is the general answer) or a carrier in the `merge` regime for
+>       backlog restitution. Neither is a doc edit, which is why neither was done here.
 
 - [x] **14.1 — `release/v4.8.0` is cut off `main` and pushed** _(2026-08-05, off `1c4b2ff`)_, so the
       Windows tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and
