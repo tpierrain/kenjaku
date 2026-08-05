@@ -1043,8 +1043,9 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ### ✅ THE SCOPE, DECIDED BY THE OWNER (2026-08-05). Do not re-open it, do not widen it.
 >
 > **In — four items, and nothing else:**
-> - [ ] **PR #56, the dependency pins** — ours, replacing two drive-by PRs from a fork. Merge it first so
->       `release/v4.7.0` branches off a clean `main`. Detail below; do not re-derive it.
+> - [x] **PR #56, the dependency pins** — ours, replacing two drive-by PRs from a fork. **✅ MERGED
+>       2026-08-05** (`b414766` on `main`); `release/v4.7.0` is branched off it and pushed. Detail below;
+>       do not re-derive it.
 > - [ ] **F20** (`### P3`) — a machine that is behind runs the old engine all session and never says so,
 >       so **F1's privacy fix silently does not apply there**. The pull is already first; the gap is that
 >       the restart nudge is blind to an engine that arrived **by pull**. Its entry carries the
@@ -1086,12 +1087,13 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 >
-> ### ⏭️ THE RESUME POINT — the scope call is DONE; the next act is to merge PR #56, then open the branch
+> ### ⏭️ THE RESUME POINT — the branch is OPEN; the live work is **13.2, F20's detection**
 >
-> Nothing is half-written on disk. `main` is at the v4.6.0 merge (`c0b2b16`, tag `v4.6.0` published) plus
-> the plan commits. Work the four boxes below in order.
+> Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
+> exists and is pushed** off that commit. Work the remaining boxes below in order.
 >
-> - [ ] **13.1 — merge PR #56 into `main`**, then branch `release/v4.7.0` off it.
+> - [x] **13.1 — merge PR #56 into `main`**, then branch `release/v4.7.0` off it. **✅ DONE 2026-08-05**
+>       (merge `b414766`, CI was 7/7 on `b88ca51`; branch pushed and tracking).
 > - [ ] **13.2 — F20 + F21 together** (one root, two changes). Start with F20's detection, since F21's
 >       "notes that simply arrived after the scan" is the same window.
 > - [ ] **13.3 — F22**, option A: two thin alias skills, `universe` and `univers`.
