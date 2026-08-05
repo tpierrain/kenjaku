@@ -1283,10 +1283,29 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 - [x] **14.1 — `release/v4.8.0` is cut off `main` and pushed** _(2026-08-05, off `1c4b2ff`)_, so the
       Windows tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and
       Windows had been red for weeks).
-- [ ] **14.2 — the probe, TDD.** What is upstream, read-only, fail-soft: the installed version, the
-      target, how many releases apart, and the per-version prose when it can be had. Layered sources,
-      each degrading into the next; **an unknowable answer says "unknown", never a reassuring blank** —
-      that conflation IS this plan's reframe, and F3 sits in the same table row.
+- [x] **14.2 — the probe is IN, and it answers "what for?"** _(2026-08-05 · `scripts/lib/engine-update-check.mjs`
+      + `--check` on `scripts/update-engine.mjs`)_. Read-only, fail-soft, three states that used to render
+      as one generic offer: **available** (target + how many releases ahead + each release's own prose),
+      **up to date** (said out loud), **unknown** (with *which* of the five unknowns it hit). 23 assertions.
+  - [x] **The recommended shape held**: `--check` on the existing script, not a new file. `runUpdateCli`
+        takes `argv` now; the real run is untouched (a test pins that the check is never called without
+        the flag). Exit **0 even on unknown**, deliberately: a non-zero would have the skill say "the
+        check failed" where the honest sentence is "I could not find out".
+  - [x] **The three layers, as decided**: (A) `git ls-remote --tags` — the call `update-engine` already
+        makes, now made *before* the prompt; (B) the release title; (C) the note's `### What you get`,
+        **quoted verbatim** (ADR 0009). B and C ride ONE public GitHub request, so a brain that is
+        already current makes **no HTTP call at all**, and a release the API does not cover keeps its
+        version rather than borrowing another's prose. Non-GitHub host → no endpoint, no guess, layer A.
+  - [x] **Field-verified end to end against the real repo** (a throwaway manifest pinned to `v4.5.0`):
+        it prints v4.6.0's and v4.7.0's real `What you get` bullets. Not a unit-test claim.
+  - [x] **What running it found that reading it could not**: `checkUpstream` shipped with **no default
+        git runner** — every test injected its own, so the real wiring was observed by nothing and it
+        threw on the first real call. Now `engine-fetch`'s own `defaultGit`, pinned by identity in a
+        `realCheckDeps` (the check and the update must ask git the same way). Same family as the
+        v4.5.0 mutation lesson; here a 20-second real run beat the reasoning.
+  - [x] Two shared owners extracted rather than re-spelled: `parseTagRefs` (the `ls-remote` parse) and
+        `compareSemverTags` (the ordering) — a second spelling of either is a second opinion on which
+        releases exist.
 - [ ] **14.3 — the skill asks AFTER it knows.** `update-engine`'s Étape 1 currently states the installed
       version and asks for a yes; it must state the **target** and what the jump contains, **then** ask.
       Both locales (`.claude/skills/update-engine/SKILL.md` **and** `templates/fr/…`) — and check which
