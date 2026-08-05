@@ -42,3 +42,22 @@ export function isRestartPending({ flagExists, gapNeeded }) {
 export function restartNudgeSegment(pending) {
   return pending ? "⚠️ RESTART Claude to finish the engine update" : null;
 }
+
+// The SAME nudge, on the channel that reaches Desktop and repeats: injected as
+// `additionalContext` by a `UserPromptSubmit` hook, so it is re-stated on every prompt until
+// the owner actually restarts (ADR 0036's matrix — `systemMessage` and `statusLine` are both
+// CLI-only). It INJECTS, it never blocks: a wrong verdict must cost one sentence, never lock
+// someone out of their own brain. Returns null when nothing is pending — the normal case, and
+// the one that must add exactly nothing to a prompt.
+//
+// Wording deliberately reuses the update-engine skill's: a FULL close + reopen, then back to
+// THIS conversation — never a new one, which is the distinct initial-rooting rule.
+export function restartPromptDirective(pending) {
+  if (!pending) return null;
+  return (
+    "🛑 This conversation is running the OLD engine: newer code is on disk, and a session " +
+    "loads its hooks, skills and servers only at start. Open your reply by telling the " +
+    "owner, calmly and in their own language: fully CLOSE Claude and REOPEN it, then come " +
+    "back to THIS same conversation — do not open a new conversation. Then answer them."
+  );
+}

@@ -115,8 +115,10 @@ test("engine-manifest — every hook script arrives WHOLE (replace/regenerate), 
 test("engine-manifest — the hook sweep reads every event, so an empty scan cannot pass for a clean one", () => {
   const events = Object.keys(templateHooks());
 
-  assert.ok(events.includes("PreToolUse") && events.includes("PostToolUse") && events.includes("SessionStart"),
-    `the template lost a hook event the guard above relies on: ${events.join(", ")}`);
+  assert.ok(
+    ["PreToolUse", "PostToolUse", "SessionStart", "UserPromptSubmit"].every((e) => events.includes(e)),
+    `the template lost a hook event the guard above relies on: ${events.join(", ")}`,
+  );
 });
 
 // The same reverse guard, for the OTHER way a brain runs an engine script: a skill
