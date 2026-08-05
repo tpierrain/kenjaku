@@ -46,15 +46,19 @@ function emitters() {
   );
 }
 
-test("the F5 audit knows every additionalContext emitter — the field log named three, there are six", () => {
+test("the F5 audit knows every additionalContext emitter — the field log named three, there are seven", () => {
   // Pin the list. A new hook lands here first, which is the moment to ask whether the
   // owner should be reading its prose at all. The sixth (F20) is the first that is NOT a
   // startup hook: it rides `UserPromptSubmit`, i.e. EVERY prompt rather than one session
   // start — so the question this guard asks gets harder as the channel widens, not easier.
+  // The seventh (the AI-summary notice) widens it again: `PostToolUse` on the READ path,
+  // the most-walked path there is. It answers the question by being silent unless a
+  // note-taker's signature is in the payload — but it still bounds what it says.
   assert.deepEqual(
     emitters().map(({ name }) => name).sort(),
     [
       "actions-log-seed.mjs",
+      "ai-summary-guard.mjs",
       "prompt-restart-nudge.mjs",
       "session-self-heal.mjs",
       "status-hook-output.mjs",
@@ -81,7 +85,7 @@ test("the scan reads real sources, so an empty result cannot pass for a clean on
   // vacuously forever — the quietest way there is to lose a guard.
   const found = emitters();
 
-  assert.equal(found.length, 6);
+  assert.equal(found.length, 7);
   assert.ok(
     found.every(({ path }) => readFileSync(path, "utf8").includes("hookEventName")),
     "an emitter was matched that does not build a hook output at all",

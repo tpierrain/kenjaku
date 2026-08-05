@@ -78,6 +78,16 @@
             "timeout": 30000
           }
         ]
+      },
+      {
+        "matcher": "Read|read_file_content|download_file_content|search_files|slack_read_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/ai-summary-guard.mjs\"",
+            "timeout": 10000
+          }
+        ]
       }
     ],
     "SessionStart": [

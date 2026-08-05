@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { DEFAULT_UNIVERSE } from "./universes.mjs";
 import { parseNote } from "./note-parse.mjs";
+import { renderConnectorAccounts } from "./connector-accounts.mjs";
 
 // The profile note's filename. No leading underscore ON PURPOSE: the scanner
 // excludes `_template.md` BY NAME, so an `_`-prefixed file would never be indexed
@@ -108,7 +109,10 @@ export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) 
     ...sections.about,
     ...listLine("People", sections.people),
     ...listLine("Topics", sections.topics),
-    ...listLine("Connector accounts", sections.connectors),
+    // NOT a listLine like the two above, and that asymmetry is the point (14.6):
+    // people and topics are the owner's own words about their own world, where a
+    // connector account is a claim about a LIVE tool that may have moved since.
+    ...renderConnectorAccounts(sections.connectors),
   ];
   if (lines.length <= maxLines) return lines.join("\n");
   // Truncation names the note, so the session can go read the rest on purpose
@@ -117,6 +121,16 @@ export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) 
     ...lines.slice(0, maxLines - 1),
     `(profile truncated — the full page is ${vaultNotePath(frontmatter.universe)})`,
   ].join("\n");
+}
+
+/**
+ * The `## Connector accounts` bullets of a profile note, as written (`Slack:
+ * acme.slack.com`), or [] when the page declares none. Pure — the same reader the
+ * digest uses, so what gets CHECKED can never be a different list from what gets
+ * shown.
+ */
+export function profileConnectorEntries(raw) {
+  return bodySections(parseNote(raw).body).connectors;
 }
 
 /**

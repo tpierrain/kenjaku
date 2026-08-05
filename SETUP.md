@@ -602,14 +602,45 @@ usable tag the segment simply **doesn't appear** (rather than showing a number t
 release), and when a restart is pending the restart nudge takes the floor — until you restart, the
 version you'd read isn't the one answering you. `/rag` repeats the engine version at any time.
 
+**And it says whether that version is the latest**, right on the same line: `· up to date (checked
+2026-08-05)`, or `· v4.8.0 available (1 release ahead) — ask me to update your engine`. When it could
+not find out — no network, a source that didn't answer — it says **that**, and never *"you're up to
+date"*: those are opposite answers, and only one of them is good news. The look-up runs in the
+background (once a day at most), so your session start never waits on it.
+
+> 🔎 **What that daily look-up is — and, more importantly, what it is NOT.** It is **one anonymous
+> request a day** to the engine's public repository — the address written in your own
+> `engine-manifest.json` (`source.repo`) — asking a single question: *"which versions have been
+> published?"* (`git ls-remote --tags`). Then, **only if your brain turns out to be behind**, a **single**
+> request to GitHub's public release list, to read the title and the `What you get` section of the
+> releases you are missing — so the offer can tell you what it is for. **A brain that is already up to
+> date makes no HTTP call at all**, and a brain hosted anywhere but GitHub simply stops at the versions.
+>
+> What it is **not**: it does **not** add a git remote to your brain, does **not** push or send anything
+> anywhere, and has **nothing to do with your own backup repository** (§7) — that one stays yours, and
+> stays untouched. **Nothing of your notes, your vault or your usage ever leaves.** Nothing is
+> downloaded or installed either: finding out and updating are two separate steps, and the second one
+> still waits for your yes. Offline, the check simply fails quietly and your session carries on.
+>
+> There is **no switch to turn it off** — deliberately, and documented here rather than hidden: knowing
+> that a fix exists is part of the engine being trustworthy. If you would rather it never looked, remove
+> `source.repo` from your `engine-manifest.json`; your brain will then say it has no source to check, and
+> updating becomes a manual affair.
+
 ### To trigger it — just ask, in plain conversation
 
 > *"Update your engine."* · *"Is there a newer version of your engine?"* · *"Upgrade the brain's
 > search engine."*
 
-The brain confirms with you first (**opt-in, never automatic**), runs the update, then reports what
-changed: **new version · files swapped · skills brought up to date (and those left as you tailored
-them) · whether a reindex ran · "your files were untouched".**
+**It finds out before it asks you anything.** A read-only check names the version you would be
+installing, how many releases you are behind, and — quoted from each release note — what you'd
+actually gain. Nothing is downloaded or changed at that point; you decide with the answer in front of
+you. If you are already on the latest release, it says so and stops there, instead of reinstalling the
+same code and charging you a restart for it.
+
+Then, and only if you say yes, it runs the update and reports what changed: **new version · files
+swapped · skills brought up to date (and those left as you tailored them) · whether a reindex ran ·
+"your files were untouched".**
 Because the engine is **observable** (it knows its own version), the brain may also **proactively
 offer** the update.
 
@@ -646,10 +677,12 @@ offer** the update.
 
 > 🛠️ **Run it yourself** (technical, optional). From the brain folder:
 > ```bash
-> node scripts/update-engine.mjs
+> node scripts/update-engine.mjs --check   # read-only: what is upstream, and what it contains
+> node scripts/update-engine.mjs           # the update itself
 > ```
-> Same deterministic core the skill drives; exits non-zero on failure. (Day to day you don't need
-> this — just ask your brain.)
+> Same deterministic core the skill drives. `--check` writes nothing and always exits `0` (including
+> when it could not find out — that's an answer, not a failure); the update exits non-zero on failure.
+> (Day to day you don't need either — just ask your brain.)
 
 ## 11. Importing a previous brain's notes (`import`)
 

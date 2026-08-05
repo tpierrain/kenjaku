@@ -28,7 +28,10 @@ import {
   profileCaptureDeclined,
   readUniverseProfile,
   renderUniverseDigest,
+  profileConnectorEntries,
+  universeProfilePath,
 } from "./lib/universe-profile.mjs";
+import { checkSlackAccount } from "./lib/connector-accounts.mjs";
 import { readActiveUniverse, vaultRagDir, readRegistry, isMultiverse } from "./lib/universes.mjs";
 import { profileCaptureOffer } from "./lib/universe-reminder.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
@@ -98,6 +101,30 @@ export function runSetUniverseProfile(argv, deps = realProfileDeps) {
     // Two different markers, because the two blocks want opposite things: one is
     // background to use silently, the other is a question to actually ask.
     if (offer) deps.log(`[ask the owner]\n${offer}`);
+    return 0;
+  }
+
+  // A DECLARED connector account is not a VERIFIED one (14.6). Only the model can
+  // ask Slack which workspace it is on, so it observes and hands the answer here:
+  // the comparison, and the wording of the verdict, stay deterministic (ADR 0009).
+  const checkFlag = argv.indexOf("--check-slack");
+  if (checkFlag !== -1) {
+    const observed = argv[checkFlag + 1];
+    const universe = deps.activeUniverse();
+    const profile = readUniverseProfile(deps.io, `${root}/vault`, universe);
+    const verdict = checkSlackAccount({
+      entries: profile === null ? null : profileConnectorEntries(profile),
+      observed,
+      profilePath: `vault/${universeProfilePath(universe)}`,
+    });
+    if (verdict.status === "diverging") {
+      deps.error(`✗ ${verdict.line}`);
+      return 1;
+    }
+    // Exit 0 on "matching" AND on "could not find out", deliberately (14.2's call):
+    // a non-zero would make the skill report a failed check where the honest
+    // sentence is "I could not find out". The MARKER carries the difference.
+    deps.log(`${verdict.status === "matching" ? "✓" : "?"} ${verdict.line}`);
     return 0;
   }
 

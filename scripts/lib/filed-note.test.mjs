@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { slugify, filedNotePath, renderFiledNote, homonymCards } from "./filed-note.mjs";
+import { slugify, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // filed-note — the pure, I/O-free core of Track B ("file the good answer back").
@@ -108,6 +108,14 @@ test("filedNotePath — the default universe (and no universe) stays at the vaul
 
 // ── renderFiledNote: a taxonomy-conformant { path, content } by construction ───
 
+// Every note declares what it was built from (see the source header section at
+// the bottom of this file). The tests below are about something else, so they
+// declare the plainest source there is — the exchange itself — rather than
+// re-stating the header's own scale each time.
+const SAID_HERE = [{ tier: "conversation", ref: "worked out with the user in this session" }];
+const SAID_HERE_BLOCK = `> **Sources**
+> - 💬 this conversation · worked out with the user in this session`;
+
 test("renderFiledNote — throws when today is missing (created/updated would be blank)", () => {
   assert.throws(
     () =>
@@ -143,6 +151,7 @@ test("renderFiledNote — omitted links default to no Related section (not a cra
     title: "X",
     tags: ["a"],
     body: "b",
+    sources: SAID_HERE,
     today: "2026-07-17",
   });
   assert.equal(note.content.includes("## Related"), false);
@@ -155,6 +164,7 @@ test("renderFiledNote — with no links, omits the Related section entirely", ()
     tags: ["architecture"],
     body: "We go modular monolith.",
     links: [],
+    sources: SAID_HERE,
     date: "2026-07-17",
     today: "2026-07-17",
   });
@@ -165,9 +175,12 @@ type: decision
 created: 2026-07-17
 updated: 2026-07-17
 tags: [architecture]
+source_tier: conversation
 ---
 
 # Adopt The Hive
+
+${SAID_HERE_BLOCK}
 
 We go modular monolith.
 `,
@@ -180,6 +193,7 @@ test("renderFiledNote — under an active universe, prefixes the path and stamps
     title: "Capacity Management",
     tags: ["rag"],
     body: "The distilled answer.",
+    sources: SAID_HERE,
     today: "2026-07-17",
     universe: "acme",
   });
@@ -190,10 +204,13 @@ type: topic
 created: 2026-07-17
 updated: 2026-07-17
 tags: [rag]
+source_tier: conversation
 universe: acme
 ---
 
 # Capacity Management
+
+${SAID_HERE_BLOCK}
 
 The distilled answer.
 `,
@@ -206,6 +223,7 @@ test("renderFiledNote — the default universe stamps no universe: key (root beh
     title: "X",
     tags: ["a"],
     body: "b",
+    sources: SAID_HERE,
     today: "2026-07-17",
     universe: "default",
   });
@@ -220,6 +238,7 @@ test("renderFiledNote — builds path + conformant frontmatter, body, and woven 
     tags: ["rag", "retrieval"],
     body: "The distilled answer.",
     links: ["people/jane-doe", "topics/rag"],
+    sources: SAID_HERE,
     today: "2026-07-17",
   });
   assert.deepEqual(note, {
@@ -229,9 +248,12 @@ type: topic
 created: 2026-07-17
 updated: 2026-07-17
 tags: [rag, retrieval]
+source_tier: conversation
 ---
 
 # Capacity Management
+
+${SAID_HERE_BLOCK}
 
 The distilled answer.
 
@@ -301,8 +323,13 @@ test("renderFiledNote — a probable resolution says so, in the claim discipline
       level: "probable",
       basis: 'source said "Jérémy (front Candor)"; the surname comes from the Candor org note.',
     },
+    sources: [{ tier: "ai-summary", ref: "the Gemini notes of the 08-02 sync" }],
     today: "2026-08-03",
   });
+  // The two blocks answer two different questions and both belong on the card:
+  // how sure the resolution is, and what it was resolved FROM. This card is the
+  // field case itself — a name welded together inside an AI synthesis — and it
+  // now says both, in that order.
   assert.deepEqual(note, {
     path: "people/jeremy-hinard.md",
     content: `---
@@ -311,11 +338,15 @@ created: 2026-08-03
 updated: 2026-08-03
 tags: [candor]
 confidence: probable
+source_tier: ai-summary
 ---
 
 # Jérémy Hinard
 
 > **Confidence** — 🟡 derived or probable · source said "Jérémy (front Candor)"; the surname comes from the Candor org note.
+
+> **Sources**
+> - 🤖 AI synthesis · the Gemini notes of the 08-02 sync
 
 Front-end at Candor.
 `,
@@ -331,6 +362,7 @@ test("renderFiledNote — a confirmed resolution reads as observed, not as the p
     tags: ["visma"],
     body: "CTO Visma France.",
     confidence: { level: "observed", basis: "his own announcement, 04/06, quoted in the note." },
+    sources: SAID_HERE,
     today: "2026-08-03",
   });
   assert.match(
@@ -352,6 +384,7 @@ test("renderFiledNote — a level outside the scale is refused, never rendered a
         tags: ["acme"],
         body: "…",
         confidence: { level: "pretty sure", basis: "a hunch" },
+        sources: SAID_HERE,
         today: "2026-08-03",
       }),
     /confidence level "pretty sure".*observed, probable, unverified/s,
@@ -371,6 +404,7 @@ test("renderFiledNote — a marker with no basis is refused: an unbacked marker 
         tags: ["acme"],
         body: "…",
         confidence: { level: "observed" },
+        sources: SAID_HERE,
         today: "2026-08-03",
       }),
     /confidence "observed" needs a basis/,
@@ -387,6 +421,7 @@ test("renderFiledNote — a marker with no basis is refused: an unbacked marker 
         tags: ["acme"],
         body: "…",
         confidence: { level: "observed", basis: "   " },
+        sources: SAID_HERE,
         today: "2026-08-03",
       }),
     /confidence "observed" needs a basis/,
@@ -403,11 +438,12 @@ test("renderFiledNote — the level is ALSO a frontmatter field, not only prose"
     tags: ["acme"],
     body: "…",
     confidence: { level: "unverified", basis: "no source names her team." },
+    sources: SAID_HERE,
     today: "2026-08-03",
   });
   assert.match(
     note.content,
-    /^tags: \[acme\]\nconfidence: unverified\n---$/m,
+    /^tags: \[acme\]\nconfidence: unverified\n/m,
     "the field belongs in the frontmatter, right after tags",
   );
 });
@@ -419,6 +455,7 @@ test("renderFiledNote — `distinguish` becomes the homonymy block, right under 
     tags: ["acme"],
     body: "SRE, joined in March.",
     distinguish: "SRE at Acme — not [[people/romain-durand]] (product), nor Romain the freelance.",
+    sources: SAID_HERE,
     today: "2026-08-03",
   });
   assert.deepEqual(note, {
@@ -428,13 +465,233 @@ type: person
 created: 2026-08-03
 updated: 2026-08-03
 tags: [acme]
+source_tier: conversation
 ---
 
 # Romain Lefèvre
 
 > **Which one** — SRE at Acme — not [[people/romain-durand]] (product), nor Romain the freelance.
 
+${SAID_HERE_BLOCK}
+
 SRE, joined in March.
 `,
   });
+});
+
+// ── The source header: what this note was BUILT FROM, and at which tier ───────
+// A meeting export held a Gemini summary AND, further down the same file, the
+// verbatim transcript. A backlog was built on the summary: a surname welded onto
+// a first name, an open question rendered as settled, a fact inverted, three
+// names lost that the verbatim resolved. The rule that would have stopped it
+// EXISTED in both constitutions ("verbatim > human synthesis > AI synthesis")
+// and never fired — it says how to RANK sources when citing, never when to stop
+// and go read the raw one. So the builder asks the question instead: a note
+// cannot be born without naming what it rests on, and an AI synthesis has to be
+// written down AS an AI synthesis, which is what makes the mistake visible the
+// second it is made.
+
+test("renderFiledNote — the note says what it was built from, in the tier's own words", () => {
+  const note = renderFiledNote({
+    type: "meeting",
+    title: "Julien sync",
+    tags: ["shodo"],
+    body: "What was actually said.",
+    sources: [{ tier: "verbatim", ref: 'Meet export 2026-08-05, section "Transcription"' }],
+    date: "2026-08-05",
+    today: "2026-08-05",
+  });
+  assert.match(
+    note.content,
+    /^> \*\*Sources\*\*\n> - 📄 verbatim · Meet export 2026-08-05, section "Transcription"$/m,
+    "the block names the tier it was built at, then what it was built from",
+  );
+});
+
+test("renderFiledNote — a tier outside the scale is refused, never rendered as `undefined`", () => {
+  // Fail-loud (ADR 0009), and for the same reason the confidence scale is:
+  // "undefined · a Meet export" is a header that LOOKS like it declares a tier
+  // and declares nothing, which is the conflation the header exists to end.
+  assert.throws(
+    () =>
+      renderFiledNote({
+        type: "topic",
+        title: "X",
+        tags: ["a"],
+        body: "b",
+        sources: [{ tier: "a document", ref: "the Meet export" }],
+        today: "2026-08-05",
+      }),
+    /source tier "a document".*verbatim, conversation, human-summary, ai-summary/s,
+    "the refusal must name the offending tier AND the scale that would be accepted",
+  );
+});
+
+test("renderFiledNote — a search-result snippet is refused AS a snippet, not as a typo", () => {
+  // The first mechanism of the field defect: Drive's `search_files` returned a
+  // `contentSnippet` that already held the summary and its "Next steps" list, so
+  // the summary was in context BEFORE any document was opened — there was never
+  // a "verbatim or summary?" moment at which a ranking rule could apply. A
+  // snippet is not a low tier, it is not a source at all, and the refusal has to
+  // say which door to take instead: open the document.
+  for (const tier of ["snippet", "search-result", "search-snippet", "contentSnippet"]) {
+    assert.throws(
+      () =>
+        renderFiledNote({
+          type: "topic",
+          title: "X",
+          tags: ["a"],
+          body: "b",
+          sources: [{ tier, ref: "Drive search hit on the Meet export" }],
+          today: "2026-08-05",
+        }),
+      {
+        // Asserted whole, not by fragment: every sentence of a refusal is doing
+        // work, and the mutation pass showed the last one — the four tiers to
+        // answer with — could be blanked with the suite still green. A refusal
+        // that names no way forward is a wall.
+        message:
+          `"${tier}": a search-result snippet is never a source — open the document, read it, ` +
+          `and declare the tier you actually read (verbatim, conversation, human-summary, ai-summary).`,
+      },
+      `"${tier}" must be refused as a snippet, with the gesture that fixes it`,
+    );
+  }
+});
+
+test("renderFiledNote — a tier with no reference is refused: a tier alone names nothing", () => {
+  // "📄 verbatim ·" is a header that asserts a reading nobody can go back to.
+  // The reference is what makes the declaration checkable — which document,
+  // which section, which date — and it is the half a future reader needs when
+  // the note turns out to be wrong.
+  for (const ref of [undefined, "", "   "]) {
+    assert.throws(
+      () =>
+        renderFiledNote({
+          type: "topic",
+          title: "X",
+          tags: ["a"],
+          body: "b",
+          sources: [{ tier: "verbatim", ref }],
+          today: "2026-08-05",
+        }),
+      {
+        message:
+          `source "verbatim" needs a reference: name the document, the section and the date, ` +
+          `so the reading can be gone back to.`,
+      },
+      `a ref of ${JSON.stringify(ref)} is nothing behind the tier`,
+    );
+  }
+});
+
+test("renderFiledNote — a note born of the exchange itself has a tier of its own to say so", () => {
+  // Not every filed note comes from a document: the ordinary `/file-back` case
+  // is "keep this answer we just worked out". Without a tier for it, the header
+  // would force that note to either lie about a document or stay silent — and
+  // silence is what the header exists to end. It ranks under `verbatim` (a
+  // transcript can be re-read; this exchange is gone at the next /clear) and
+  // above anything that re-tells someone else's words.
+  const note = renderFiledNote({
+    type: "topic",
+    title: "Capacity Management",
+    tags: ["rag"],
+    body: "The distilled answer.",
+    sources: [{ tier: "conversation", ref: "worked out with Thomas in this session, 2026-08-05" }],
+    today: "2026-08-05",
+  });
+  assert.match(
+    note.content,
+    /^> - 💬 this conversation · worked out with Thomas in this session, 2026-08-05$/m,
+  );
+});
+
+test("renderFiledNote — the WEAKEST declared tier is also a frontmatter field", () => {
+  // Same reason as the confidence field: a caveat that lives only in prose is a
+  // caveat the next session absorbs as fact. As a field it is findable — "which
+  // notes in this vault rest on an AI synthesis?" is a query, not a re-read.
+  // The weakest of the declared tiers, not the best: a note that quotes a
+  // transcript AND a Gemini summary carries the summary's risk, and stamping
+  // `verbatim` there would launder it.
+  const note = renderFiledNote({
+    type: "meeting",
+    title: "Julien sync",
+    tags: ["shodo"],
+    body: "…",
+    sources: [
+      { tier: "verbatim", ref: 'Meet export 2026-08-05, section "Transcription"' },
+      { tier: "ai-summary", ref: "the Gemini notes at the top of that same export" },
+    ],
+    date: "2026-08-05",
+    today: "2026-08-05",
+  });
+  assert.match(
+    note.content,
+    /^tags: \[shodo\]\nsource_tier: ai-summary\n---$/m,
+    "the field belongs in the frontmatter, and names the weakest source",
+  );
+});
+
+test("renderFiledNote — the stamp is the scale's own order, not the order they were listed", () => {
+  // Triangulates the previous test: taking the last entry, or the first, would
+  // both have passed it. Here the weakest is listed FIRST and the strongest last.
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: [
+      { tier: "human-summary", ref: "Marie's recap in #general, 2026-08-04" },
+      { tier: "verbatim", ref: "the thread she recapped" },
+    ],
+    today: "2026-08-05",
+  });
+  assert.match(note.content, /^source_tier: human-summary$/m);
+});
+
+test("renderFiledNote — a note that declares no source cannot be born at all", () => {
+  // THE load-bearing assertion of the whole header. Left optional, the field is
+  // not a net: the failing session never chose the summary over the verbatim —
+  // it never met a moment where the question was asked. Required, the question
+  // is asked at the one moment that cannot be skipped, the write itself. An
+  // undeclared note and a note built on nothing external must not look alike.
+  for (const sources of [undefined, []]) {
+    assert.throws(
+      () =>
+        renderFiledNote({
+          type: "topic",
+          title: "X",
+          tags: ["a"],
+          body: "b",
+          sources,
+          today: "2026-08-05",
+        }),
+      {
+        message:
+          `at least one source is required: say what this note was built from, as ` +
+          `"sources": [{ "tier": …, "ref": … }] — tier is one of ` +
+          `verbatim, conversation, human-summary, ai-summary, ref names the document, section and date.`,
+      },
+      `sources: ${JSON.stringify(sources)} must be refused, naming the scale to answer with`,
+    );
+  }
+});
+
+test("sourcesBlock — several sources are several LINES, not one run-on line", () => {
+  // The block is what a human reads to know what the note rests on. Joined with
+  // nothing instead of a newline it still contains every word, every fragment
+  // match still passes, and the header renders as one unreadable line inside a
+  // blockquote. So it is pinned as the exact block, markers included — the
+  // markers being the only part a reader takes in at a glance.
+  assert.equal(
+    sourcesBlock([
+      { tier: "verbatim", ref: "Meet export 2026-08-05, Transcription section" },
+      { tier: "ai-summary", ref: "same export, Gemini notes at the top" },
+    ]),
+    [
+      "> **Sources**",
+      "> - 📄 verbatim · Meet export 2026-08-05, Transcription section",
+      "> - 🤖 AI synthesis · same export, Gemini notes at the top",
+    ].join("\n"),
+  );
 });

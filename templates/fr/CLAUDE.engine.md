@@ -261,7 +261,23 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 
 - **Garder les liens directs vers les sources** (permalinks, URLs) de tout ce qu'on exploite (message, document, mail), et les inclure quand on cite une source dans une réponse.
 - **Ne jamais reconstruire un permalink à la main** à partir d'un identifiant + timestamp (souvent faux) : reprendre le lien fourni tel quel par l'outil.
-- **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA. Signaler quand on interprète plutôt qu'on restitue.
+- **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA (ce classement dit quoi citer ; l'ordre dans lequel on *lit*, c'est la **Discipline de source**, juste en dessous). Signaler quand on interprète plutôt qu'on restitue.
+
+### Discipline de source : lis le verbatim avant de citer ce qui en a été tiré
+
+L'export d'un preneur de notes automatique s'ouvre sur son résumé et sa liste d'actions (exactement la
+forme du livrable demandé) et garde la transcription plus bas dans le *même* fichier. Le classement
+ci-dessus ne joue jamais, parce que le choix n'est jamais présenté : la synthèse arrive sans qu'on la
+demande, et une lecture partielle se pose dessus.
+
+- **Un extrait de recherche n'est jamais une source.** C'est un extrait choisi par l'outil, le plus
+  souvent celui du résumé. **Ouvre le document** avant d'en écrire quoi que ce soit.
+- **Quand un même fichier contient les deux, lis le verbatim avant de citer ce qui en dérive**, et
+  prends les décisions dans la transcription, jamais dans la liste d'actions du résumé.
+- **Déclare le palier que tu as réellement lu.** Toute note porte un champ `source` (`verbatim` >
+  `conversation` > `human-summary` > `ai-summary`), est estampillée du palier le plus faible qu'elle
+  déclare, et est refusée sans lui. « Cet export ne contient pas de verbatim » s'écrit, ça ne
+  s'arrondit pas.
 
 ### Discipline d'identité : lis le vault avant d'écrire sur les personnes qui s'y trouvent
 
@@ -396,10 +412,14 @@ compose jamais `cd … &&` avec une écriture.
 
 Ne jamais présenter une action comme « à faire » sans avoir vérifié qu'elle n'a pas déjà été réalisée. Les actions cochées restent dans le fichier (registre de suivi, pas de suppression).
 
-**Vérification proactive des action items (question-first).** Quand on liste des actions issues de sources externes, suivre le même flux que le flux principal :
-1. **Phase 1** : présenter tout de suite les actions depuis le vault (réponse rapide, même si les statuts ne sont pas encore vérifiés).
+**Vérification proactive des action items (question-first).** Le déclencheur, c'est **afficher** une action non cochée, pas ingérer une source : une simple relecture du vault suffit, donc « affiche-moi les choses sur lesquelles je suis attendu », répondu depuis `vault/backlog/*.md` seul, est exactement ce cas. Même flux que le flux principal :
+1. **Phase 1** : présenter tout de suite les actions depuis le vault (réponse rapide), en disant sur la ligne que les statuts ne sont pas encore vérifiés.
 2. **Phase 2** : en tâche de fond, chercher des **traces d'exécution** (message envoyé, commit, mail, confirmation en réunion) qui montreraient qu'une action est déjà faite.
 3. **Phase 3** : amender, cocher `[x]` ce qui est fait, retirer de la liste « à faire », ajouter les nouvelles actions détectées.
+
+**Jamais de `- [ ]` muet.** Une case non cochée veut dire « pas revérifié », jamais « pas fait » : elle enregistre le moment où quelqu'un a écrit la ligne, pas l'état du monde. Une case dont tu n'as pas cherché la trace d'exécution s'affiche avec la mention **statut non vérifié**, sur la ligne elle-même. Faire passer une case périmée pour un fait, c'est le même défaut que rapporter un silence qu'on n'a jamais vérifié.
+
+**Plafonne ce que tu affiches, pour les backlogs et les action items uniquement, pas pour les réponses longues en général.** Environ 3 en tête, le reste replié, et dis les deux : **combien** ont été repliés, et **sur quel critère** la tête a été choisie (le plus engageant ou le plus en retard, jamais l'ordre du fichier). Déverser la liste, ce n'est pas de l'exhaustivité, c'est repasser le tri à la personne qui te l'a demandé ; et la replier en silence, c'est le même défaut avec l'autre masque.
 
 La personne ne devrait jamais avoir à corriger « attention, c'est déjà fait » : c'est à Claude de vérifier en amont.
 

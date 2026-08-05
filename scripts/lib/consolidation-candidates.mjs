@@ -15,7 +15,11 @@ import { extractWikiLinks, buildResolver, isUnderZone } from "./wiki-lint.mjs";
 
 // Path prefixes whose notes are raw captures — the inputs consolidation promotes
 // FROM (meeting notes, daily logs, transcripts, inbox dumps).
-const DEFAULT_CAPTURE_ZONES = ["meetings/", "daily/", "raw-sources/", "inbox/"];
+// `_inbox/` is the same zone as `inbox/` (the Obsidian habit of an underscore to
+// sort a folder to the top). Both spellings live here AND in wiki-lint's
+// RAW_CAPTURE_ZONES: knowing about the underscored inbox on only one of the two
+// surfaces would not fix the defect, it would halve it.
+const DEFAULT_CAPTURE_ZONES = ["meetings/", "daily/", "raw-sources/", "inbox/", "_inbox/"];
 
 // Frontmatter `type` values that make a note a curated entity/topic page — the
 // pages consolidation promotes INTO (and the only ones a fresher capture can

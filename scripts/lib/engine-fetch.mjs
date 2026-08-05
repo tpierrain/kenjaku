@@ -41,15 +41,21 @@ export function resolveLatestTag({ repo, git = defaultGit }) {
   if (!repo) return null;
   const { ok, out } = git(buildLsRemoteArgs(repo));
   if (!ok) return null;
-  // Each line: "<sha>\trefs/tags/<name>". --refs already dropped the ^{} peels.
-  const tags = out
+  return pickLatestSemverTag(parseTagRefs(out));
+}
+
+// The tag names in a `ls-remote --tags --refs` payload — each line is
+// "<sha>\trefs/tags/<name>", and --refs already dropped the ^{} peels. Exported
+// because the update CHECK reads the very same output for every intermediate tag:
+// two spellings of this parse would be two opinions on which releases exist.
+export function parseTagRefs(out) {
+  return (out ?? "")
     .split("\n")
     .map((line) => {
       const m = /\srefs\/tags\/(.+)$/.exec(line);
       return m ? m[1].trim() : null;
     })
     .filter(Boolean);
-  return pickLatestSemverTag(tags);
 }
 
 // Shallow-clone the recorded launcher at the pinned ref into a fresh temp dir and
@@ -92,8 +98,10 @@ export function readTargetManifest(dir, read = (p) => readFileSync(p, "utf8")) {
 }
 
 // Real git runner (args[] → {out, ok}), shared convention with auto-push.mjs. Used
-// by the core's CLI wiring, never by the unit tests (which inject `git`).
-function defaultGit(args) {
+// by the core's CLI wiring, never by the unit tests (which inject `git`). Exported
+// so the update CHECK runs the very same runner: two spellings of "ask git" would
+// be two behaviours to keep in step forever.
+export function defaultGit(args) {
   try {
     const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     return { out: out ?? "", ok: true };

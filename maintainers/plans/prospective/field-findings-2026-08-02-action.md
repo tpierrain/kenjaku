@@ -164,7 +164,86 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — v4.8.0, whose scope is NOT decided yet. Steps 1-13 (all of v4.5.0, v4.6.0
+> **⏭️ THE RESUME POINT — `## Step 14`, step **14.8, the release tail — UNBLOCKED, the owner said
+> "on cut la release"** _(2026-08-05)_. The build phase (14.1 → 14.7) is done, green and pushed on
+> `release/v4.8.0` (draft **PR #58**), full matrix 7/7 on `1b5eb56`. Work the 14.8 checklist in order.
+>
+> **✅ THE TITLE IS CHOSEN, BY THE OWNER (2026-08-05, revised the same day): `v4.8.0 — The One Where It
+> Tells You an Update Is Waiting`.** Do not re-open it. It names the **detection** half, which is the
+> capability this branch actually creates: before it, the brain could update itself but never knew there
+> was anything to update (the prompt said so out loud — *"Je ne sais pas ce qui est disponible en
+> amont"*). The informed-consent half (naming the target version, quoting `What you get`) is told in the
+> note's body, as is the rest of the release. Titles are also read **upstream** by other brains — that is
+> mechanism B of this very release — so one that announces the detection reads well in that list.
+> _(Superseded, do not restore: `…The Update Says What It's For`, chosen first, then set aside by the
+> owner because it presupposes the detection without ever saying it. Also declined earlier, and not to be
+> re-proposed as new ideas: *"…Looks Before It Tells You"*, *"…Reads the Transcript, Not the Summary"*,
+> *"…Declared Stops Meaning Verified"*.)_
+>
+> **Every decision the tail was waiting on is TAKEN** (title; the daily upstream check ships as is,
+> documented, **no opt-out**; and the batch-1 arbitration below). **Nothing is pending on the owner.**
+>
+> **✅ The batch-1 arbitration, by the owner (2026-08-05)** — the two code remedies (the deterministic
+> guard test, and the two structural generators `runAsEntrypoint` / `defaultGit`) are **deferred whole to
+> v4.9.0**: none of it is built here. The **process remedy is adopted and belongs to this release** — a
+> new production file is mutated the day it is written, engraved in `CONVENTIONS.md`. Both are checklist
+> items in 14.8; do not re-open or re-propose them (an 11th written reflex was explicitly declined).
+>
+> **▶️ RESUME AT: the RE-MEASURES, then `RESULTS.md`** _(state as of 2026-08-05, evening — the owner
+> handed the tail over to run in autonomy, "va jusqu'au bout", with **CI 7/7 on the tagged commit** as
+> the one gate that still stops the line)_. **Batches 5 and 6 are measured, hardened, green and pushed**
+> (`1f352eb`, `103eb05`) — read their entries in 14.8, do not re-derive them. The four chained
+> re-measure passes were launched on the tip `103eb05` and write to
+> `maintainers/mutation/reports/v480-recheck-{a,b,c,d}-*.log`: **read those logs rather than re-running
+> them**. What remains after them, in order: **RESULTS.md § v4.8.0** (with the two deferred remedies as
+> numbered debt and `session-status.mjs`'s 0 % written as inherited), remove the worktree, **pin the
+> snapshot into the release note**, re-read it, **the PR body**, re-check the boards' `mutation 90–97%`
+> claim, then **tag, merge, publish**.
+>
+> <details><summary>The earlier resume point, kept for the record: the mutation pass, batch 4</summary>
+>
+> _(state as of 2026-08-05, end of session — everything
+> below is committed and pushed on `release/v4.8.0`, nothing is half-written on disk)_. What is **done**
+> in 14.8, so it is never re-done: the two decisions, the **version vector**, the **`CONVENTIONS.md`
+> §5quinquies** paragraph (the adopted process remedy), the **whole §10 marketing re-read** including
+> `SETUP.md`'s *what-it-is-not* block, the **release-note draft**, and mutation **batches 1, 2a, 2b and
+> 3 — measured, hardened and pushed**. What **remains**, in order:
+>
+> 1. **Batch 4** — it was **launched and left running** (log
+>    `maintainers/mutation/reports/v480-batch4-ai-summary.log`); on resume, read that log rather than
+>    re-running it.
+> 2. **Batches 5 and 6**, then the **re-measures owed** on every hardened file (see the ⚠️ box in the
+>    batch list — RESULTS.md publishes measured numbers, never hoped-for ones).
+> 3. **RESULTS.md § v4.8.0**, which owes two things beyond the scores: the **two deferred remedies as
+>    numbered debt** (not a story about `engine-fetch.mjs`), and `session-status.mjs`'s **0 %** written as
+>    the inherited debt it is, so the batch total does not read as rot this release caused.
+> 4. **Pin the mutation snapshot into the release note**, re-read the note, write the **PR body**.
+> 5. **Re-check the boards' `mutation 90–97%` claim** against the finished RESULTS.md.
+> 6. **The tag, the merge, the published release** — gated on **CI 7/7 on the tagged commit**.
+>
+> Suite green at the last commit: **1520 tests, 1519 pass, 1 skipped (Windows-only)**. The **worktree**
+> `/Users/tpierrain/Dev/kenjaku-mut-v480` is still up, detached at `e51cf40`, `rag/node_modules`
+> symlinked — reset it (`git reset --hard e51cf40` + `git clean -qfd -e rag/node_modules`) between runs.
+> **While waiting, the only useful autonomous work is verification, not scope.** The **full matrix is
+> already 7/7 green on the tip `1b5eb56`** (run `31017981223`, both Windows cells + the installer e2e),
+> so that box is closed. The **mutation pass is deliberately NOT run yet**: it must measure the branch
+> as it ships, and this branch is expected to move again when the owner returns — measuring now buys a
+> re-measure, which is exactly the v4.6.0 lesson (RESULTS.md § v4.6.0 had to be redone after seven
+> later commits).
+>
+> </details>
+>
+> **14.7 is DONE and CLOSED, all three layers** — layer 1 _(`f333b3d`)_, the source header as a builder
+> output required on every note; layer 2 _(`4b9eca7`)_, the read-path notice, three states, three
+> silence pins, finished by its two remaining boxes _(`483ac2e` + the wired field run)_; layer 3
+> _(`1b5eb56`)_, the passive ranking rule turned into an order of operations on four carriers. Their
+> entries carry the calls taken while building **and what they deliberately do not reach**; do not
+> re-derive them, and do not re-open the scope.
+> F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
+> came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
+> brain's backlog: **14.5** ✅ done (two `/lint` defects), **14.6** (the Slack account check), **14.7**
+> (an AI summary served as a source — three layers). Build them in that order, each green and pushed. The
+> release **tail is 14.8 and still must not be started without him**. **Steps 1-13 (all of v4.5.0, v4.6.0
 > AND v4.7.0) are HISTORY.** v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7),
 > **v4.6.0 shipped 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`) and
 > **v4.7.0 shipped 2026-08-05** (tag `v4.7.0`, PR #57, merge `556f950`, CI 7/7 on the tagged commit,
@@ -1272,24 +1351,856 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >   notes' `### What you get` via the GitHub API, each falling back to the one below, never to a blank.
 > - **The model does not summarise** (ADR 0009): the script produces the data, the skill quotes the
 >   prose that was already written for humans (§11).
+>
+> **🛑 DO NOT SHIP THIS RELEASE ALONE** _(owner, 2026-08-05, while handing the branch over for autonomous
+> work)_: *"ne pousse pas la release seul, j'aurai des trucs à te confier en plus pour celle-ci à mon
+> retour"*. **Still in force for the tail (14.8)**, even though the extra scope has now arrived: build
+> and push freely, but no tag, no merge, no published release without him. The branch and its draft PR
+> are the hand-over surface.
+>
+> ---
+>
+> ## 🆕 THE EXTRA SCOPE ARRIVED (2026-08-05, decided point by point with the owner)
+>
+> **Where it came from.** The owner asked this repo to go and read **his own brain's backlog** —
+> `~/mind-palace/vault/backlog/harnais.md`, the file where he had told his brain, each time, *not* to fix
+> a defect but to **write it down**. It is the same evidence class as this plan's field findings, only
+> collected by the brain about itself. **Pointer, not a copy** — what follows is the triage and the
+> decisions, each one **verified against this repo's code first**, not taken on the note's word.
+>
+> **Already shipped, verified, and therefore NOT work** (do not re-open, do not re-derive):
+> - *"writing to the vault without reading it"* → **v4.6.0**, whole. Including the part the note cared
+>   about most: the confidence block is a **builder output**, `scripts/lib/filed-note.mjs:59` refuses an
+>   unknown level and refuses a level with no basis. What remains there is **brain-side data** (extend the
+>   block to ~20 older cards, fix two person cards), not engine work.
+> - *"a note written, committed, and absent from the index"* → **v4.5.0**, all three halves
+>   (`vault-write-guard.mjs`, `verify-index.mjs`, failure told from a wait), refined by **v4.7.0**
+>   (`25057b0`: the index says *why* it is behind).
+> - *"a manual clone does not seed the canary"* → **v4.5.0**, `scripts/rehydrate.mjs` + `SETUP.md` §7.
+>
+> **Deferred by the owner, on purpose:**
+> - [ ] **The organisation is relational data, get it out of the RAG** (`domains/organisation.yml`, a
+>       deterministic `org who/team/squad` resolver, confidence). **Backlog, not now** _(owner, 2026-08-05)_.
+>       Worth recording because the note **froze it pending an engine update touching `people/`** — and
+>       **that freeze is now lifted**, v4.6.0 did exactly that. So the next time it comes up it is a live
+>       design decision, not a blocked one. Nothing exists yet (no `domains/`, no resolver).
+> - The recurring signal the note repeats **six times** — *"il manque un chemin de contribution du cerveau
+>   vers le moteur"* (an engine fix made in the brain gets frozen as "customized" by `/update-engine`) — is
+>   **already routed out of this plan**: it is F5 defect 3, living in
+>   `maintainers/plans/prospective/second-brain-migration-and-engine-upstream-action.md` (tracks D/F not
+>   started). Do not re-litigate it here.
+>
+> ---
+>
+> ## ✅ A SECOND EXTRA ITEM, PROPOSED BY THE MIND-PALACE — TAKEN, AND SHIPPED IN v4.8.0 (2026-08-05)
+>
+> **Status: DECIDED by the owner ("intègre le fix maintenant") and DONE** _(`004d208`, `3b55461`)_ —
+> including the reworded cap. He also settled the note: *"il faudra modifier la release note pour inclure
+> le fix ; mais pas dans le titre"*, so it is a `What you get` bullet plus an `Under the hood` item, and
+> the title is untouched. **Do not re-open the analysis below**; it is kept because it is the evidence.
+>
+> **The incident.** On a brain running v4.7.0, *"affiche-moi les choses sur lesquelles je suis attendu"*
+> produced a near-raw dump of two backlogs: items already done presented as to-do, and the most important
+> chantier at the bottom of the list.
+>
+> **What the code actually says** (checked, and it refines the brain's own diagnosis): the § Backlogs
+> section carries the rule **twice**. `CLAUDE.engine.md:399` states it broadly and unconditionally
+> (*"Never present an action as 'to do' without having checked that it hasn't already been done"*), but it
+> sits under the *"On each ingestion of external data"* heading, so it reads as scoped to ingestion. Then
+> `:401` gives the operational three-phase flow, and **that** one is explicitly triggered by *"When you
+> list actions from external sources"*. So the broad rule has no procedure attached, and the procedure has
+> a narrow trigger — a plain vault recall fires neither. Same defect shape as the plans rule whose trigger
+> moved from *"step finished"* to *"hand rendered"*.
+>
+> **The proposal, three parts**: (1) re-trigger on **displaying an unchecked action**, not on ingesting a
+> source; (2) **no mute `- [ ]`** — an unchecked box means *not re-verified*, never *not done*, and a line
+> whose execution trace was not looked for must say so; (3) a **display cap** (~3 at the head, the rest
+> folded), scoped to backlog / action-item restitution only, never a general rule about long answers.
+>
+> **What was verified before answering:**
+> - **Only one locale exists** — `templates/` holds `fr/` and `README.md`, nothing else. Two mirror files,
+>   not more.
+> - **`constitutionTemplate` is ALREADY bumped this release** (1.2.0 → **1.3.0**, `b329d8a`), so a further
+>   constitution edit costs **no** version-vector change. Nothing in the engine-version tests pins the
+>   constitution's content; they pin the vector's shape.
+> - **The constitution is Markdown, so it is not mutated** — this edit cannot disturb batches 4-6 nor the
+>   owed re-measures.
+> - 🛑 **THE REACH IS THE CATCH, and it must not be glossed over.** `CLAUDE.md` is in the `merge` regime,
+>   but `engine-apply-plan.mjs:18` is explicit: of `merge`, only the top-level scripts and the skills are
+>   refreshed — *"the rest of `merge` — CLAUDE.md, .claude/settings.json, .claude/skills/\*\* — is"* left
+>   alone. The 3-way merge that would change this is the **prospective** plan
+>   `engine-managed-file-merge-strategy.md`, not shipped. **So a constitution-only fix reaches NEW INSTALLS
+>   ONLY** — not the mind-palace where the defect fired.
+> - **There is no skill carrier for this surface.** The failing question is the main flow, not a skill; no
+>   skill in `merge` covers generic backlog restitution (`prepare-1-1` and `improve` mention backlogs but
+>   answer other questions). Building a carrier is real work, not a doc edit. The F18 precedent
+>   (`claim-discipline.test.mjs` header) says the constitution half *"must never be the only carrier"* —
+>   here it would be, and that is a v4.9.0 debt, not a v4.8.0 one.
+> - **Consequence for the release note**, and it is the same register this release is about: v4.8.0 speaks
+>   to people who **update**. Selling this in `What you get` would be a claim the product does not hold.
+>   Either keep it out of the note entirely, or state the new-installs-only reach plainly.
+>
+> **Recommendation put to the owner** (his to accept or refuse): take (1) and (2) as-is; take (3) **only
+> reworded** — a silent fold is the same defect wearing the other mask, so the rule must say how many
+> lines were folded and on what criterion the head was chosen (the second half of the incident was the
+> ordering, not only the volume). Carry it with a `backlog-discipline.test.mjs` guard on the model of the
+> five existing `*-discipline.test.mjs`, EN/FR parity already covered by
+> `constitution-mirror-citations.test.mjs`. One already-ticked box reopens: §10's second question (what
+> shipped and is sold nowhere), `7eb133d`.
+>
+> **What shipped** _(2026-08-05)_, so it is not re-derived:
+> - [x] **Both constitutions, inside the existing § Backlogs**, in strict mirror: the trigger is
+>       **displaying** an unchecked action whatever its origin; **never a mute `- [ ]`** (an unchecked box
+>       means *not re-verified*, never *not done*, and a box whose execution trace was not looked for says
+>       **status not verified** on the line); and the **cap, reworded as recommended** — backlogs and
+>       action items only, ~3 at the head, with **both** the number folded and the basis for the head
+>       spoken, because a silent fold is the same defect wearing the other mask and the ordering was half
+>       the incident.
+> - [x] **`scripts/lib/backlog-discipline.test.mjs`**, 23 assertions, written **red first** (19 of 23
+>       failing) and sliced with the shared `docSection` like the claim / identity / source / consent
+>       guards, plus a rule-count parity assertion so a rule cannot land in one locale only.
+> - [x] **The FR half carries no em dash**, per the standing typography rule; the 56 that predate this
+>       edit elsewhere in that file were left alone rather than churned at a release tail.
+> - [x] **No version-vector change owed** — `constitutionTemplate` was already bumped 1.2.0 → **1.3.0**
+>       this cycle (`b329d8a`) for the earlier constitution edits, and it covers these too.
+> - [x] **§10 re-checked for this addition**: it is now sold in the release note (`What you get` +
+>       `Under the hood`) and on the README's grounded-in-truth list, **with its reach stated in the
+>       note itself** rather than implied — the sentence a reader who updates would otherwise be owed.
+> - [ ] **THE DEBT THIS LEAVES, for the head of the v4.9.0 plan** (beside the guard test and the two
+>       generators): **this rule has ONE carrier, and it is the one that does not travel.** F18's own
+>       guard says the constitution half "must never be the only carrier"; here it is. What would fix it
+>       is either the 3-way merge of `engine-managed-file-merge-strategy` (which would let a constitution
+>       edit reach the fleet at last, and is the general answer) or a carrier in the `merge` regime for
+>       backlog restitution. Neither is a doc edit, which is why neither was done here.
 
-- [ ] **14.1 — cut `release/v4.8.0` off `main`** (at `68785c9` or later) and push it, so the Windows
-      tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and Windows had
-      been red for weeks).
-- [ ] **14.2 — the probe, TDD.** What is upstream, read-only, fail-soft: the installed version, the
-      target, how many releases apart, and the per-version prose when it can be had. Layered sources,
-      each degrading into the next; **an unknowable answer says "unknown", never a reassuring blank** —
-      that conflation IS this plan's reframe, and F3 sits in the same table row.
-- [ ] **14.3 — the skill asks AFTER it knows.** `update-engine`'s Étape 1 currently states the installed
-      version and asks for a yes; it must state the **target** and what the jump contains, **then** ask.
-      Both locales (`.claude/skills/update-engine/SKILL.md` **and** `templates/fr/…`) — and check which
-      manifest regime carries that skill before assuming the fleet gets it (F14's third-door lesson: a
-      carrier nobody declared reaches nobody).
-- [ ] **14.4 — the sibling: the SessionStart offer is version-blind too.** One probe feeds both surfaces
-      or they drift. It is also the half that must tell **"already up to date"** from **"I could not
-      find out"** — today both render as a generic offer.
-- [ ] **14.5 — the release tail** (§10 marketing re-read, mutation on what changed, version vector, note
-      + PR body, tag), same shape as Steps 11, 12 and 13. The owner is asked **before** the public half.
+- [x] **14.1 — `release/v4.8.0` is cut off `main` and pushed** _(2026-08-05, off `1c4b2ff`)_, so the
+      Windows tripwire runs from the first commit (§9 — v4.5.0 reached 67 commits without a push and
+      Windows had been red for weeks).
+- [x] **14.2 — the probe is IN, and it answers "what for?"** _(2026-08-05 · `scripts/lib/engine-update-check.mjs`
+      + `--check` on `scripts/update-engine.mjs`)_. Read-only, fail-soft, three states that used to render
+      as one generic offer: **available** (target + how many releases ahead + each release's own prose),
+      **up to date** (said out loud), **unknown** (with *which* of the five unknowns it hit). 23 assertions.
+  - [x] **The recommended shape held**: `--check` on the existing script, not a new file. `runUpdateCli`
+        takes `argv` now; the real run is untouched (a test pins that the check is never called without
+        the flag). Exit **0 even on unknown**, deliberately: a non-zero would have the skill say "the
+        check failed" where the honest sentence is "I could not find out".
+  - [x] **The three layers, as decided**: (A) `git ls-remote --tags` — the call `update-engine` already
+        makes, now made *before* the prompt; (B) the release title; (C) the note's `### What you get`,
+        **quoted verbatim** (ADR 0009). B and C ride ONE public GitHub request, so a brain that is
+        already current makes **no HTTP call at all**, and a release the API does not cover keeps its
+        version rather than borrowing another's prose. Non-GitHub host → no endpoint, no guess, layer A.
+  - [x] **Field-verified end to end against the real repo** (a throwaway manifest pinned to `v4.5.0`):
+        it prints v4.6.0's and v4.7.0's real `What you get` bullets. Not a unit-test claim.
+  - [x] **What running it found that reading it could not**: `checkUpstream` shipped with **no default
+        git runner** — every test injected its own, so the real wiring was observed by nothing and it
+        threw on the first real call. Now `engine-fetch`'s own `defaultGit`, pinned by identity in a
+        `realCheckDeps` (the check and the update must ask git the same way). Same family as the
+        v4.5.0 mutation lesson; here a 20-second real run beat the reasoning.
+  - [x] Two shared owners extracted rather than re-spelled: `parseTagRefs` (the `ls-remote` parse) and
+        `compareSemverTags` (the ordering) — a second spelling of either is a second opinion on which
+        releases exist.
+- [x] **14.3 — the skill asks AFTER it knows** _(2026-08-05)_. Step 1 / Étape 1 rewritten in **both
+      locales**: run `--check` first, then present **three answers as three different conversations** —
+      available (target + how far ahead + each release's `What you get`, quoted), latest (say it and
+      **stop**, rather than swap the same code and charge a restart), could-not-find-out (said as itself,
+      never as "there is no update"). The two downstream prose spots that contradicted it were repointed
+      (the proactive-offer bullet, the "Already up to date" edge case), and both `version:` fields bumped.
+  - [x] **Locked by a section-sliced doc guard** — `scripts/lib/update-consent-discipline.test.mjs`,
+        15 assertions, sharing `doc-section.mjs` with the claim and identity guards. One of them is not
+        a phrase check: it asserts the `--check` command appears **before** the real command in each
+        file, so a future edit cannot leave the reader meeting the swap first.
+  - [x] **Regime checked, not assumed**: `.claude/skills/update-engine/**` is in **`merge`**, so a brain
+        that never edited this skill IS brought up to date (ADR 0026 §8) and the fleet gets it; a brain
+        that tailored it keeps its own with the new text beside it as `.new`.
+  - [x] Met the known FR trap twice: **a guarded phrase that wraps across two lines goes red for
+        typography, not for meaning** (already recorded at Step 12.3). Both were kept on one line.
+- [x] **14.4 — the sibling is IN: the session-start line knows about upstream** _(2026-08-05)_. It named
+      the engine this brain runs and stopped there, so *"you are current"* and *"nobody looked"* reached
+      the owner as the same sentence. **Four states, four sentences** — available (target + how far ahead
+      + the door), up to date (**dated**: a cached verdict is not a live one), could not check (said as
+      itself), nothing measured yet (`checking for updates…`, which lasts exactly one session).
+  - [x] **Same probe as the skill's `--check`** — `checkUpstream` is shared, so the two surfaces cannot
+        drift. The verdict is written by a **detached child** (`scripts/upstream-check-run.mjs`, ADR
+        0028's shape), so session start stays a single file read, **throttled to once a day**: this is
+        the one outbound call a brain makes on its own behalf, and engine releases are not hourly.
+  - [x] **A verdict about another version is not a verdict about this one** — right after an update the
+        cache still describes the engine that was replaced; reporting it would tell the owner to install
+        what they already have. It falls back to `checking…` instead.
+  - [x] **Only the verdict is cached, never the release prose** (`.cache/`, gitignored like the restart
+        flag): the line quotes none of it, and a vault repo is not a place to park release notes.
+  - [x] **The manifest guard gained a FOURTH door, and it was blind before this** — a carried engine
+        script that **spawns** another names it by a computed path (`join(__dirname, "…")`), so the three
+        existing scans (hook, skill, constitution) could not see it. An uncarried child fails inside a
+        **detached** process: no error anyone ever sees, the line just saying `checking…` forever. The
+        new guard asserts it finds the two spawns that predate it before it is allowed to pass.
+  - [x] **Field-verified on four throwaway brains**: available (the real v4.6.0 + v4.7.0 bullets), up to
+        date, a source that does not answer, and never-measured. `session-status.mjs` itself was NOT
+        smoke-run (running it by hand sweeps and auto-commits the working tree).
+  - [x] `SETUP.md` §10 rewritten where it described the old order (the check happens **before** the
+        question), plus the `--check` command in the "run it yourself" block.
+- [x] **14.5 — ✅ COMPLETE. The two `/lint` defects: the checker lies about the engine's own files.**
+      _(2026-08-05 · `fix(lint): the checker stops crying on two shapes it is meant to allow`; suite
+      1424 tests, 1 skipped Windows-only)_ _(owner, 2026-08-05: "dans v4.8.0, maintenant")_ Same family as the rest of this release — a checker
+      that renders a healthy thing as a defect — and it falls squarely under **`CONVENTIONS.md` §5quater**
+      (a checker is judged on what it says about a HEALTHY brain). Both are launcher-only, both are small.
+      Six false orphans per pass plus one permanently unfixable complaint is how a lint teaches its owner
+      to stop reading it.
+  - [x] **⚠️ THE ZONE LIST EXISTED TWICE, and reading only the reported file would have missed it.**
+        `wiki-lint.mjs` owns `RAW_CAPTURE_ZONES`, **and `consolidation-candidates.mjs:18` owns its own
+        `DEFAULT_CAPTURE_ZONES`** — two spellings of "what a capture zone is". Fixing only the lint
+        would have stopped the false orphans while leaving every note in an `_inbox/` **invisible to
+        consolidation**: the same defect, moved one surface over, and harder to see because nothing
+        complains. Both learned it, each with its own red test first.
+  - [x] **(a) `/lint` excludes `inbox/` but not `_inbox/`.** **Verified**: `scripts/lib/wiki-lint.mjs:83`,
+        `RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "actions-log.md"]`. The owner's brain
+        uses `_inbox/`, so every capture in it is reported as an orphan (6 per pass on his vault).
+        Regime is **`replace`**, so the fix reaches every brain on the next update. **Chosen: the narrow
+        one** (`"_inbox/"` beside `"inbox/"`), not "any leading-underscore folder" — nothing observed
+        justifies the wider rule, and a wider rule would silently exempt folders nobody meant to exempt.
+  - [x] **(b) the health canary reports a frontmatter defect nobody can fix.** **Verified**:
+        `engine-health/health-check.md`'s frontmatter is `type` / `created` / `tags` — **no `updated`
+        key** — so the lint's frontmatter rule fires on it forever, on an engine file the owner is told
+        never to touch. Two candidate fixes: give the canary an `updated` key, or teach the lint that
+        `type: engine` notes are the engine's own and not curated wiki nodes. **The second was taken**,
+        and reading the code made it more clearly right than the note suggested: **the canary was ALSO
+        being reported as an orphan** (nothing links to it, `engine-health/` is in no zone list), so the
+        note's own account of the defect was half of it. An `updated:` key would have silenced one
+        complaint of two. `DEFAULT_ENGINE_OWNED_TYPES = ["engine"]` now skips both rules.
+  - [x] **Keyed on the TYPE, never the folder**, pinned by its own test: a note the owner files under
+        `engine-health/` is still theirs and stays held. The folder-keyed version would have handed
+        anyone a silent opt-out of the entire lint by choosing where to save.
+  - [x] `engine-skills/lint/SKILL.md` says what is exempt and **why** (both categories), `version:` 1.1.0.
+        No FR twin exists for this skill, so nothing to mirror.
+  - [ ] For 14.8: say this in the release note (§11) in the owner's words, not the checker's — what he
+        will notice is six phantom orphans and one permanent complaint disappearing.
+        **14.6 has a line to write there too**: what he will notice is his brain refusing to file Slack
+        material when the connector is on the wrong workspace, instead of filing it silently under the
+        right-looking name.
+- [x] **14.6 — ✅ COMPLETE. The Slack account check: a declared connector is not a verified one.**
+      _(2026-08-05 · `34fd06a` → `2c3b83a`; suite 1453 tests, 1 skipped Windows-only;
+      **full matrix 7/7 green on `6ae28b2`**, both Windows cells included)_
+      _(owner, 2026-08-05: "Slack seulement, dans v4.8.0")_ **The defect**: a universe profile carries a
+      hand-typed `## Connector accounts` section (`- Slack: acme.slack.com`), and session start **injects
+      that prose verbatim** into the digest (`scripts/lib/universe-profile.mjs:111`, built at `:242`).
+      **Nothing ever asks Slack which workspace it is actually on.** So after a `/switch` from one sphere
+      to another with the MCP connector still authenticated on the previous workspace, the brain fetches
+      one organisation's data and files it under another's, while displaying the right answer on screen.
+      A silent cross-universe leak, wearing the confidence of a printed declaration.
+  - [x] **What shipped, and the two things worth not re-learning.**
+    - [x] **`scripts/lib/connector-accounts.mjs`** (pure) + **`--check-slack "<observed>"`** on
+          `set-universe-profile.mjs`, and the digest now renders a declaration AS a declaration plus
+          the gesture that settles it. Four answers, four different situations — matching, diverging,
+          *"I could not find out"*, *"this universe declares no Slack account"* — and a fifth path for
+          a universe with no profile page at all, which is the normal state of every brain installed
+          before profiles existed and which **threw** before this (found by the test, not by reading).
+          Exit **1 only on divergence**; the other three exit 0 and carry their answer in a marker
+          (`✓` / `?`), per 14.2's call.
+    - [x] **The prose half is where the check actually gets RUN**: `sync-sources` EN + FR gained a
+          named `## Connector discipline` / `## Discipline de connecteur`, the chat sub-agent is told
+          to return a `WORKSPACE:` line (it never sees the vault, so it observes and nothing else),
+          and Step 3's reconcile list went from **three passes to four** — the fourth runs the check
+          before a single line is written. `/switch` **points at** the producer's section instead of
+          paraphrasing it. Guard: `scripts/lib/connector-discipline.test.mjs`, 21 assertions sharing
+          `doc-section.mjs` with the claim, identity and consent guards. Every carrier was **deleted in
+          turn** to prove the guard is load-bearing (9 reds on either discipline section, 1 each on the
+          sub-agent, the synthesis step and `/switch`).
+    - [x] **A checker that cries wolf gets ignored (§5quater), and here that risk is the design.**
+          `acme.slack.com`, `https://acme.slack.com/archives/…` and `  ACME  ` are one workspace; a
+          false divergence would send someone to reconnect a connector that is fine. Hence the
+          normaliser — and hence the rule *"do not compare the two strings yourself"* in both locales.
+    - [x] **A mutant applied by hand is not a mutant until you check it LANDED.** Two of the five
+          hand-applied here were silent no-ops (a `perl` substitution that matched nothing, and one
+          that hit the wrong `.trim()` of two), and both read as *survivor* — i.e. as coverage this
+          suite did not have. Re-applied precisely, all five die. The `.trim()` misfire was worth it:
+          it exposed that **nothing fed the tool name a hand-edited shape**, which is how ` Slack `
+          would have been demoted to the unverifiable tier by a space.
+    - [x] **Field-verified end to end** on a throwaway brain, all six states, including a **named**
+          universe (the offer names `vault/acme/universe.md`, not the root's). Not a unit-test claim.
+  - [x] **Deliberately NOT done, so nobody reads it as an oversight**: no condensed copy in the two
+        constitutions. `CLAUDE.engine.md` is in **no** manifest regime (new installs only), the two
+        carriers that matter are in `merge` and reach the fleet, and **14.7 opens the constitutions
+        anyway** — a second paraphrase written now would be a second discipline to keep in step.
+  - [x] **Scope is deliberately ONE connector.** Slack: it is where the mistake costs the most, and it is
+        the one that answers the question cleanly. Every other connector exposes identity differently
+        (Miro has a `who am I`, Notion partially, Drive not really) — so the rendering must distinguish
+        **verified-matching**, **verified-diverging** and **not verifiable**, and must never render the
+        third as the first. The unverified ones say they are unverified.
+  - [x] **Fail-soft, always — and the reading is what made it FREE.** The check is not on the session-start
+        path at all (see below): it is a read-only command the model runs when it is about to touch Slack,
+        so an absent, logged-out, slow or expired connector costs nothing at start-up. Its own three
+        non-blocking answers carry the rest: no observation, no declaration, no page → each says what it
+        is and exits 0. Nothing in it can break a session.
+  - [x] **Read before building — DONE, and it MOVED the surface** _(2026-08-05)_. Two corrections to the
+        framing above, both verified in code, neither of which changes the defect:
+    - [x] **Session start does NOT carry the connector accounts.** What rides every session is
+          `renderUniverseSynthesis` (`universe-profile.mjs:126`) — the identity line plus the note's path,
+          and nothing else (F1 deliberately took the body out). The declared accounts live in the
+          **digest**, and the digest is printed by `node scripts/set-universe-profile.mjs --digest`, which
+          the `/switch` skill runs **right after a switch** and again when the owner asks to see their
+          description. So the leak surface **is** the switch moment the entry describes — the check belongs
+          **at `/switch` (the digest), not at session start**, and no session-start work is needed.
+    - [x] **The generic reminder already exists and is not enough**: `universes.mjs:175` appends
+          *"native connectors are single-account and don't follow this switch"* on landing in a named
+          universe. It is a warning nobody can act on and nothing verifies; the declared account was meant
+          to sharpen it, and instead it added a printed claim.
+    - [x] **Allowlist re-checked, not assumed**: `.claude/settings.json.template` still allowlists no
+          `node scripts/*.mjs` at all, so **every** engine-script door already prompts and a NEW file would
+          add one more. **Same shape as 14.2: a flag on the EXISTING `set-universe-profile.mjs`.**
+  - [x] **The split, which the tooling forces and which is also the honest one**: only the **model** can
+        ask Slack (an MCP call is the one door), so the model **observes** and the **deterministic core
+        classifies, compares and words the verdict** (ADR 0009 — a string comparison is not the LLM's job).
+        The observation is taken as whatever names the workspace in a Slack result (a permalink host, a
+        domain, a bare slug), because which Slack connector is installed is not the engine's business.
+    - [x] **`scripts/lib/connector-accounts.mjs`** (pure): which tools can answer at all, the
+          three-state comparison, and the rendering the digest uses so a declaration can no longer be
+          printed in the shape of an observation.
+    - [x] **The door**: `--check-slack "<observed>"` on `set-universe-profile.mjs`. **Exit 1 only on
+          divergence** (the one state where the next act must not happen); matching **and** "cannot say"
+          both exit 0 — 14.2's lesson, a non-zero would make the skill report a failed check where the
+          honest sentence is *"I could not find out"*.
+    - [x] **Prose carriers + a section-sliced doc guard** (`doc-section.mjs`, as the claim, identity and
+          consent guards): `/switch` (the surface that prints the digest) and `sync-sources` EN + FR (the
+          surface that actually reads Slack). Mind the FR trap: a guarded phrase wrapping across two lines
+          goes red for typography, not for meaning.
+- [x] **14.7 — ✅ COMPLETE, all three layers** _(2026-08-05 · `f333b3d`, `4b9eca7`, `483ac2e`,
+      `1b5eb56`; suite 1517 tests, 1 skipped Windows-only)_ — **an AI summary served as a source while
+      the verbatim sat in the same file.** _(owner,
+      2026-08-05: "dans v4.8.0, maintenant" — the three layers)_ **The important part, and the reason a
+      fourth prose rule would be a waste**: the rule **already exists in both constitutions**
+      (`CLAUDE.engine.md:259` EN, `templates/fr/CLAUDE.engine.md:264` FR — *"qualify source reliability:
+      verbatim > human synthesis > AI synthesis"*) **and the defect happened anyway**. It is passive: it
+      says how to *rank* sources, never *when* to stop and go read the raw one. This is the
+      `repeated-ask-means-unwired-net` pattern — the net exists and never ran.
+  - [x] **Layer 1 — ✅ DONE, the source header IS a builder output** _(2026-08-05 · `f333b3d`, pushed;
+        suite 1461 tests, 1 skipped Windows-only)_. `renderFiledNote` refuses a note that declares no
+        source, and renders what it declares above the body. What was decided while building, so it is
+        not re-litigated:
+    - [x] **Required on EVERY note, not only on `person`** (which is where `confidence` stops). The
+          failing session never *chose* the summary over the verbatim — it never met a moment where the
+          question was asked. An optional field is not a net. Cost accepted and paid: 11 existing tests
+          went red and were updated, and a fleet brain whose `/file-back` skill was customized will meet
+          the refusal before it meets the new prose (the message names the field and the scale, same as
+          v4.6.0's confidence refusal did).
+    - [x] **One scale, four tiers, and the key order IS the ranking** (`SOURCE_TIERS`): `verbatim` >
+          `conversation` > `human-summary` > `ai-summary`. `conversation` exists so the ordinary
+          "keep this answer we just worked out" note can say what it is instead of lying about a document
+          or staying silent; it ranks under `verbatim` because a transcript can be re-read and an exchange
+          is gone at the next `/clear`.
+    - [x] **A search-result snippet is refused AS a snippet** (`snippet`, `search-result`,
+          `search-snippet`, `contentSnippet`), naming the gesture that fixes it — open the document. It is
+          not a low tier, it is not a source: it is mechanism (1) of the field defect, the summary that
+          arrives in context before any document is opened. A tier with no `ref` is refused too.
+    - [x] **`source_tier:` stamps the WEAKEST declared tier**, so a note quoting both a transcript and a
+          Gemini block does not launder the summary — and "which notes here rest on an AI synthesis?"
+          stays a query. Triangulated: the stamp follows the scale's order, not the listing order.
+    - [x] **The prose that makes it usable shipped with it**: `/file-back` (the field, the four tiers, the
+          both-in-one-document case, the fifth exit-1) and `/consolidate` (a promoted capture is only
+          `verbatim` when it holds raw material). `/consolidate`'s drafting agent already returned a
+          `### sources` field meaning *backlinks* — two meanings of one word in one skill — so it now
+          returns a tier per capture. Versions bumped (file-back 1.1.0, consolidate 1.2.0).
+    - [x] **Field-verified end to end** on a throwaway brain, not as a unit-test claim: the four refusals
+          as an owner reads them, the written note with both tiers, and `/lint` clean on it (§5quater).
+    - [x] **⚠️ WHAT LAYER 1 DOES NOT REACH, so nobody reads it as an oversight.** The field defect's own
+          note (`shodo/backlog/julien`) was **not** written through the builder — the builder covers
+          *creation through `/file-back` and `/consolidate`* only. Two paths stay uncovered: a hand-written
+          vault note, and `/file-back` step 3b / `refresh-note.mjs` (appending a dated section to a living
+          page, where the section's prose is freehand). 3b now *says* to write the header by hand, which is
+          prose, not a net. **Layer 2 is what reaches those**, and if a fourth surface is ever wanted, the
+          candidate is a `sources` twin of `refresh-note`'s confidence promotion (a card that predates the
+          header can otherwise never gain one, since the skill forbids hand-editing frontmatter).
+  - [x] **Layer 2 — ✅ BUILT, GREEN AND PUSHED** _(2026-08-05 · `4b9eca7`; suite 1477 tests, 1 skipped
+        Windows-only)_. `scripts/ai-summary-guard.mjs` (harness contract) over
+        `scripts/lib/ai-summary-guard.mjs` (pure), wired as a `PostToolUse` group on
+        `Read|read_file_content|download_file_content|search_files|slack_read_file`. What is worth not
+        re-deriving:
+    - [x] **Three states, because they are three different situations** (the plan's own reframe): summary
+          **and** verbatim in the payload → says WHERE the verbatim starts (by heading, or "the speaker
+          turns further down" for a Noota-style export that labels nothing); summary **alone** → look
+          further first, since these exports put the summary on top and a partial read lands on it, and
+          if there is none, say so in the note; a **search hit** → a snippet is never a source, open the
+          document. That last one is the mechanism nothing else catches.
+    - [x] **It cries wolf on nothing** (§5quater), pinned by three silence tests: an ordinary document, a
+          **pure verbatim** (the RIGHT tier — a notice there would train its reader to dismiss the one
+          that matters), and a page that merely NAMES a note-taker. Detection needs a signature
+          (`notes par <taker>`, `résumé … par <taker>`, "les notes de Gemini"), never a bare product name.
+    - [x] **`payloadText` keeps the LINE STRUCTURE** while flattening whatever shape a tool answered with.
+          A `JSON.stringify` would have handed every line-anchored regex one long line with literal `\n`:
+          green tests, and the notice silently degrading to its weakest state forever.
+    - [x] **Registered as the SEVENTH `additionalContext` emitter** in the F5 audit
+          (`startup-payload-guard.test.mjs`) with its own volume bound on all three states. It is the
+          first emitter on the READ path — the most-walked path there is — which it answers by staying
+          silent unless a signature is present. **Deliberate cost, named**: one node spawn per matched
+          read (~50 ms), the same shape as the write guard's.
+    - [x] **The manifest guard was proven load-bearing on the way in**: it went red on the uncarried hook
+          script (two of its assertions) before `scripts/ai-summary-guard.mjs` was added to `replace`.
+    - [x] **(a) The targeted reconcile test is IN** _(2026-08-05 · `483ac2e`)_ — a brain that already HAS
+          a `PostToolUse` key (auto-commit, i.e. every brain installed before v4.8.0) gaining the read
+          guard **beside** it, plus its idempotence twin (dedup is by the engine SCRIPT, so a brain that
+          wired the guard on a matcher of its own is left alone). The mechanism is generic, so both were
+          green on arrival and were **proven load-bearing instead**: dropping the group from the shipped
+          template, making the reconcile create-only, and removing the dedup each turn the file red, and
+          each mutant was checked to have LANDED (14.6's lesson). Checked while there, not assumed:
+          `reconcile-brain.mjs:195` hands the reconciler the **whole** template tree — there is no event
+          allowlist upstream that could keep this group from ever being wired.
+    - [x] **(b) The wired field run is DONE, and it is the first check that was neither a unit nor a
+          spawned process** _(2026-08-05)_. A throwaway brain whose `PostToolUse` group is the **shipped**
+          one (placeholders substituted the way the installer does), a real Meet/Noota-shaped export whose
+          Gemini summary **contradicts its own verbatim** (nothing frozen, Marc owns the audit, no report
+          announced), and real `claude -p` sessions in that folder. **All three states arrived**: the
+          summary+verbatim notice (the model quoted it back word for word, `"Transcription"` named as
+          where the source starts), the summary-alone notice, and **silence** on a page that merely names
+          Gemini / Otter / Fireflies (§5quater, field-confirmed, not just unit-pinned). Behaviourally the
+          first run answered **from the verbatim** and flagged that the summary disagreed with it — worth
+          noting but not isolated proof, since that fixture is short enough to be read whole.
+      - [x] **⚠️ The instrument lies, and a future field run must not repeat this.** `additionalContext`
+            **never appears in `--output-format stream-json`** (PostToolUse hook events are not surfaced
+            there at all — only `SessionStart` is). Grepping the stream for the notice returned **zero on
+            a hook that was working perfectly**, which reads exactly like a dead hook. Two things settle
+            it honestly: a `/bin/sh` probe group that touches a file (proving the harness runs
+            `PostToolUse` here, and that the five-tool matcher is matched), and **asking the model to
+            quote back what it received**. That last one is also the only check that sees what the hook is
+            FOR.
+      - [ ] **Not field-run, deliberately named**: the **search-hit** state. It needs an MCP search tool
+            (`search_files` / `slack_read_file`) and a throwaway brain has no connector, so that state
+            stays unit-pinned. Its matcher, though, **was** field-proven: the shipped five-tool alternation
+            fires on a plain `Read`.
+  - [x] **Layer 3 — ✅ DONE, the rule is an ORDER OF OPERATIONS now** _(2026-08-05 · `1b5eb56`; suite
+        1517 tests, 1 skipped Windows-only)_. Four rules with a gesture in each: a search-result snippet
+        is never a source (open the document); when one file holds both, the verbatim is read **before**
+        anything derived from it, and the decisions come from the transcript, never from the summary's
+        own action list; a partial read that stops inside the summary is not a read of the document; and
+        the tier declared is the one actually read (no verbatim is written down, not rounded up).
+    - [x] **Four carriers, chosen by reach rather than by symmetry**: the full rule in `sync-sources`
+          EN + FR (the surface that actually reads exports, and the one in **`merge`** that reaches the
+          deployed fleet), a **condensed** copy in both constitutions (in no regime, so new installs
+          only — which is why the skill holds the long version, never the reverse). The constitution
+          half is deliberately four lines: that layer is always loaded and only ever grows (F19).
+    - [x] **The passive rule was not left standing beside the active one.** The ranking bullet keeps its
+          place — it is still true, and those tiers are the builder's own — but it now **points at** the
+          ordering. Two rules about one thing, one of which never fires, is how a reader learns which to
+          obey. Pinned by its own assertion, and the mutant that reverts the bullet to its old standalone
+          form goes red.
+    - [x] **Guard**: `scripts/lib/source-discipline.test.mjs`, 29 assertions, sharing `doc-section.mjs`
+          with the claim, identity, consent and connector guards (sliced, because "verbatim" and "source"
+          appear all over both carriers for other reasons). Written red first — 29/29 failing before a
+          word of prose existed — then **each of the four carrier sections was deleted in turn** to prove
+          it is load-bearing: 9 reds for either skill, 5 for either constitution.
+    - [x] Both skills' `version:` → **1.2.0**. The FR wrap trap (12.3, hit twice at 14.3, again at 14.6)
+          was met and kept in the prose: every guarded phrase sits on one line.
+    - [x] **Deliberately NOT extended to `/file-back` and `/consolidate`**, so nobody reads it as an
+          oversight: layer 1 already put the `source` field and the four tiers there, and that is the
+          builder's contract, not this ordering. A pointer would be worth adding only if a third surface
+          starts restating the rule.
+  - [ ] **For 14.8: the version vector.** Both constitutions changed here, so `constitutionTemplate`
+        must be bumped with the rest of the vector (`scripts` too — this branch changed it). The two
+        skill `version:` fields are already done.
+- [ ] **14.8 — the release tail — ✅ UNBLOCKED, THE OWNER SAID "on cut la release"** _(2026-08-05)_.
+      The build phase 14.1 → 14.7 is done, green and pushed, draft **PR #58**; **full matrix 7/7 on the
+      tip `1b5eb56`**, suite 1517 tests / 1 skipped Windows-only. The two decisions the tail was waiting
+      on are both taken (below). **Nothing is half-written on disk.** Work the checklist in order.
+  - [x] **✅ DECISION 1 — the title, by the owner: `v4.8.0 — The One Where It Tells You an Update Is
+        Waiting`** _(revised 2026-08-05, same day, by the owner himself)_. It replaces `…The Update Says
+        What It's For`, which described the consent half and presupposed the detection half without ever
+        naming it — and the detection is what this branch newly builds (`upstream-check-run.mjs`,
+        `upstream-cache.mjs`, `engine-update-check.mjs` are all created here, `43560e4` + `d8b98b9`).
+        See the header for the superseded and declined candidates; do not re-propose them.
+  - [x] **✅ DECISION 2 — the daily upstream check ships AS IS, documented, with NO opt-out**
+        _(owner, 2026-08-05)_. He asked for the capability in his own words — *"j'ai besoin que tu
+        puisses aller vérifier les versions disponibles sur internet et sur GitHub"* — and chose
+        *"documenté, sans interrupteur"* over building `git config secondbrain.updatecheck false`.
+        **Do not build the switch**, and do not re-open this. What the tail owes it is documentation.
+    - [x] **⚠️ AND HIS QUESTION IS THE ONE THE RELEASE NOTE MUST ANSWER FIRST.** He read "one outbound
+          call a day" as possibly meaning *a git remote link wired into his brain*, and said so:
+          *"ça ne veut pas dire qu'on veut un lien… en termes de repo git remote etc."* If the **owner**
+          read it that way, users will. So the note (and `SETUP.md`) must say, in plain words, **what it
+          is not**: no remote is added, nothing is pushed, his own backup repo plays no part.
+    - [x] **The facts to write it from, verified in code rather than recalled** — the address is
+          `source.repo` in the **brain's own** `engine-manifest.json`, written at install: the **public
+          repo of the ENGINE**. The call is `git ls-remote --tags --refs <repo>`
+          (`engine-fetch.mjs:31`) — no clone, no auth, one round-trip asking only for the tag list. Then
+          **only if the brain is behind**, one request to the public GitHub API for each release's title
+          and `What you get`; **a brain that is up to date makes no HTTP call at all**. Nothing from the
+          vault leaves. Once per 24 h, in a detached child (`upstream-check-run.mjs`), failing soft and
+          silent when offline.
+  - [ ] **✅ THE TAIL RUNS IN AUTONOMY, ALL THE WAY** _(owner, 2026-08-05: "continue avec le batch 6
+        quand batch 5 est fini", then "en autonomie car je vais aller diner. va jusqu'au bout")_. So the
+        whole checklist below is authorised without stopping to ask, **including the tag, the merge and
+        the published release** — which he had already opened with "on cut la release". **The one gate
+        that stays a gate is CI 7/7 on the tagged commit**: if it is not green, stop and report rather
+        than publish. Same for any red suite or any decision this plan does not already record: stop,
+        write what is blocking here, and hand back.
+  - [ ] **The tail, in order** (nothing here is started):
+    - [ ] **The mutation pass on what this branch changed.** Now is the right moment — the branch has
+          stopped moving (that was the reason for waiting; measuring early bought a re-measure at
+          v4.6.0). **The 16 changed production files, computed 2026-08-05 with
+          `git diff --name-only main...HEAD`, so they are not re-derived**: `scripts/ai-summary-guard.mjs`,
+          `scripts/lib/ai-summary-guard.mjs`, `scripts/lib/connector-accounts.mjs`,
+          `scripts/lib/consolidation-candidates.mjs`, `scripts/lib/engine-fetch.mjs`,
+          `scripts/lib/engine-update-check.mjs`, `scripts/lib/engine-version.mjs`,
+          `scripts/lib/filed-note.mjs`, `scripts/lib/semver-tag.mjs`, `scripts/lib/universe-profile.mjs`,
+          `scripts/lib/upstream-cache.mjs`, `scripts/lib/wiki-lint.mjs`, `scripts/session-status.mjs`,
+          `scripts/set-universe-profile.mjs`, `scripts/update-engine.mjs`,
+          `scripts/upstream-check-run.mjs`. **Nothing under `rag/src` changed.** Recipe and traps: Step 11
+          (disposable worktree — NOT the scratchpad, `rag/node_modules` symlinked and **verified**, one or
+          two files per run to stay inside the 10-min cap, reset between batches).
+    - [x] **The worktree is up and verified** _(2026-08-05)_: `/Users/tpierrain/Dev/kenjaku-mut-v480`,
+          detached at `e51cf40`, `rag/node_modules` symlinked → `vault-write-guard.test.mjs`
+          **22 pass / 0 skipped** there (the invariant is *0 skipped*, not the old count of 9).
+          Between batches: `git reset --hard e51cf40` + `git clean -qfd -e rag/node_modules` from the
+          worktree — **never `git checkout -- .`** (an `auto-commit.mjs` mutant can commit the
+          instrumented tree). Command: the batch config, `--mutate "<comma-separated paths>"`.
+    - [x] **Batch 1 DONE** _(2026-08-05, 4 min 58 s, 179 mutants, log
+          `maintainers/mutation/reports/v480-batch1-upstream.log`)_ — the update-check core, i.e. the code
+          the release is named after. **All files 65.92 %**, the worst first pass of any release so far:
+          `upstream-cache.mjs` **87.23 %** (6), `semver-tag.mjs` **84.09 %** (7),
+          `engine-fetch.mjs` **54.05 %** (34), **`upstream-check-run.mjs` 0.00 %** (14).
+      - [ ] **⚠️ 35 of the 61 survivors (57 %) are TWO shapes we already diagnosed AND already fixed
+            once, elsewhere. This is the finding, not the score.** Written down here because the owner
+            asked the right question — *"on n'apprend pas nos erreurs?"* — and the answer must survive
+            a `/clear`.
+        - [ ] **21 survivors sit in `defaultGit` (`engine-fetch.mjs:104-109`)**, the real git runner.
+              It is the SAME shape solved at v4.5.0 in `verify-index.mjs`, where the spawn's request was
+              turned into a **pure value** (`buildCrosscheckInvocation` → `{command, args, options}`,
+              asserted whole, win32 fed on purpose) and killed 19 survivors. Never propagated. Worse:
+              the code **documents its own exemption** — *"Used by the core's CLI wiring, never by the
+              unit tests"* (`engine-fetch.mjs:101`) — which is exactly what `tdd-discipline` rule 6
+              forbids ("« pure glue, pas testable » n'est jamais une excuse, c'est le diagnostic").
+        - [ ] **14 survivors are `upstream-check-run.mjs`, which has NO `.test.mjs` sibling at all.**
+              That is the tier named as debt since v4.4.0 (`session-status.mjs`, `status-line.mjs` at
+              **0 %**), whose fix was **designed and named** at v4.5.0 — one shared
+              `runAsEntrypoint(meta, argv, fn)` tested once — and scheduled for v4.6.0. It is v4.8.0,
+              **20 files** carry the shape, and `session-status.mjs` (in this branch's 16, batch 3) will
+              read 0 % again. Each deferral was locally right ("not mid-release"); nothing ever brought
+              it back.
+        - [ ] **What the data does NOT say**: it is not a flat line. Past releases' new *lib* files
+              landed at **100 %** (v4.4.0, v4.5.0) and v4.6.0's seven at ≥96 %. Today's two new lib
+              files land at 84-87 %: real slippage, but ordinary §2 looseness. The collapse is the two
+              structural generators above, so "our tests are globally bad" would be the wrong fix.
+      - [ ] **The mechanism, and it matches [[repeated-ask-means-unwired-net]]**: the knowledge is
+            complete and versioned (`tdd-discipline` §"Qualité des assertions", 10 reflexes; its own
+            second audit already noted the first six "pourtant déjà gravés" had not sufficed, and the
+            answer was to add four more). What is missing is a net that **fires while the code is being
+            written**. The only detector is this pass, run deliberately **at the release tail** so the
+            branch has stopped moving — i.e. at the moment restructuring is most expensive and the
+            release is pressing. A lesson that only ever arrives after the writing can tax it, never
+            teach it. Second-order: every lesson is recorded in RESULTS.md as a **story about the file
+            just fixed**; a story does not generalise, a constraint does.
+      - [x] **✅ ARBITRATED BY THE OWNER (2026-08-05). Do not re-open, do not re-propose.** The three
+            remedies were put to him (he had asked *"comment on améliore ça sérieusement ?"*), and the
+            split he chose is: **the process change now, the code changes in v4.9.0.**
+        - [x] **(1) the deterministic guard test and (2) the two generators → BOTH DEFERRED TO v4.9.0**,
+              *nothing of them is built in v4.8.0*. (1) is the harness-suite test that goes red when a
+              top-level `scripts/*.mjs` has no `.test.mjs` sibling, and when a module builds and executes
+              a child process in the same function, carrying an **allowlist that may only shrink**;
+              (2) is the shared `runAsEntrypoint` tested once plus `defaultGit` turned into a pure value.
+              The owner took this with the risk stated out loud: it is the **same locally-right deferral**
+              as v4.5.0 and v4.6.0, and nothing ever brought those back. **What must carry it this time is
+              not memory** — record both in RESULTS.md § v4.8.0 *and* as the head of the v4.9.0 plan when
+              it opens, not as a story about a file.
+        - [x] **(3) mutate a NEW production file the day it is written → ADOPTED, and engraved in
+              `CONVENTIONS.md`** (his words: *"oui, et je le grave dans CONVENTIONS.md"*). This IS
+              v4.8.0 work — it is a convention, not a refactor, so it costs the release a paragraph. The
+              rule to write: a finished new production file is mutated the same day (1-3 min for one
+              file), because the reason to wait for the tail (*the branch still moves*) does not apply to
+              a file that is done. **Where it goes: its own numbered section next to §5quater**, and it
+              must say what it replaces — the tail pass stays, this is an addition, not a substitution.
+              **Explicitly NOT adopted, and not to be re-proposed: an 11th written reflex** in
+              `tdd-discipline`. That is what the last month already did, and this pass is what measured
+              its insufficiency.
+    - [ ] **Batch 2 — SPLIT IN TWO, and the split is not optional**: `engine-update-check.mjs` (210 lines)
+          and `update-engine.mjs` (**464 lines**, the biggest file of the sixteen) together would blow the
+          10-min cap, which is the batch-2 lesson of v4.5.0. The worktree was reset to `e51cf40` before
+          each — verified representative, `git diff e51cf40..HEAD` outside `maintainers/plans` is
+          **empty**, so the plan commits since do not need a rebase of the worktree.
+      - [x] **2a done — `engine-update-check.mjs` 86.07 %** _(2026-08-05, 5 min, 201 mutants, 28
+            survivors, log `maintainers/mutation/reports/v480-batch2a-update-check.log`)_, **and
+            hardened** _(`346b464`)_. **Where the survivors were is the useful part: 20 of the 28 sat in
+            the two regexes of `extractWhatYouGet`** — i.e. in the code that decides which prose the owner
+            reads *before consenting to a code swap*. Nothing fed a heading that merely **mentions** the
+            section (`read the release note: ### What you get`), a heading with trailing words
+            (`### What you gettable`), an indented one, a bullet **containing** `#` or `---`, or a note
+            whose section runs to the **last line** — where `end === -1 ? rest : rest.slice(0, end)` could
+            be dropped and silently shave the final bullet off the consent text. Also fed now: a
+            malformed release list (a `null` entry, an entry with no tag, a whitespace-only title → the
+            title must read as *absent*, not as a blank line), and a brain with **no source recorded**,
+            which must make **zero** outbound calls (the `if (!repo)` guard was observed by nothing).
+      - [x] **The `finally { clearTimeout(timer) }` survivor was NOT an equivalent, and it needed a
+            seam.** Clearing the abort timer changes nothing an owner can see — which is exactly why no
+            behavioural assertion could reach it — but this call runs inside a **detached child whose job
+            is to finish and exit**, and a live 5-second timer keeps its event loop alive. So `timers` is
+            now a named seam (§5ter rule 2) with `realTimers` pinned by identity, like `realCheckDeps`.
+            Written test-first; the red was on the assertion, not a `ReferenceError`.
+      - [ ] **⚠️ 2a must be RE-MEASURED** — hardened but not re-mutated, so its new score is unknown.
+            ~200 mutants ≈ 5 min. Suite green at the fix: **1517 tests, 1516 pass, 1 skipped
+            Windows-only** (baseline measured at `HEAD` before the fix: **1508** — the header's earlier
+            "1517 tests" figure does not match this command, so 1508 + 9 new tests is what is true).
+      - [x] **2b done — `update-engine.mjs` 93.20 %** _(2026-08-05, 6 min 30 s, 250 mutants, 17
+            survivors, log `maintainers/mutation/reports/v480-batch2b-update-engine.log`)_, **and
+            hardened** _(`9d375b3`)_. Two families were real, the rest are equivalents (below).
+        - [x] **The conflicted and refused commit blocks were matched by a fragment** (`/conflict/i`),
+              so the three lines that carry the **remedy** and the **consequence** could each be blanked
+              green — a brain left with pending `<<<<<<<` markers, or staged-and-uncommitted because git
+              has no identity, and nothing on screen saying what to do. Asserted **whole** now.
+        - [x] **`defaultReadInstalledSource` had no test at all** — every `--check` test injects the
+              seam, so the reader that decides **which address the daily check talks to** was observed by
+              nothing (the release's own recurring shape). Read against a real manifest now: the normal
+              one, one with **no `source` key** (the fleet's oldest brains), one with an empty `source`,
+              and a missing file that must **raise** so `--check` says "could not be read".
+        - [x] **The rest are recorded EQUIVALENTS — do not chase them**, and one is a known deferral:
+              the three `readFileSync(path, "utf8")` → `""` mutants (an empty encoding returns a
+              **Buffer**, and both `JSON.parse` and the fingerprint coerce it identically — the same
+              equivalent already recorded at v4.5.0); `skillsPreserved = []` → a junk array (the loop
+              filters on `reason === "customized"`, and a destructured string yields `undefined`);
+              `releases: []` in the unreadable-manifest fallback (the `unknown` state returns from
+              `formatUpdateCheck` before releases are ever rendered); and
+              `runUpdateCli(…, argv = process.argv.slice(2))` → `process.argv`, which here feeds only an
+              `includes("--check")` — `argv[0]`/`argv[1]` cannot equal `--check`, so unlike v4.5.0's
+              forwarding case it changes nothing. **The entrypoint-guard family stays the v4.9.0 debt
+              the owner arbitrated**, not a gap to pay here.
+      - [x] **Batch 3 done** _(2026-08-05, 7 min, 257 mutants, log
+            `…/v480-batch3-session-version.log`)_ — **`engine-version.mjs` 91.07 %** (10 survivors),
+            **`session-status.mjs` 0.00 %** (145). The 0 % is the **named pre-existing debt**, exactly as
+            predicted: a top-level script no test can import, the tier whose fix (shared
+            `runAsEntrypoint`) the owner deferred to v4.9.0. **Write it that way in RESULTS.md** — a batch
+            total of 39.69 % here would otherwise read as rot this release caused.
+        - [x] **`engine-version.mjs` hardened** _(`8a106f0`)_. The survivors were the **date guard** and
+              the **fall-through**, and both matter for the same reason: the upstream cache is a JSON file
+              on the owner's disk (hand-editable, half-writable, left over from another engine), and the
+              date is what tells a **remembered** verdict from a live one. A wrong date is worse than
+              none, so `checked at 2026-08-05`, `2026-08-0`, an array, a number and `null` must all
+              degrade to no-date. And a cache state that is none of the three named ones must read as
+              *checking*, never as a failed check that never happened — the old test fed
+              `{state:"nonsense"}` with **no `installed`**, so it returned at the version-mismatch guard
+              and never reached the fall-through at all.
+        - [x] **Its remaining survivors are equivalents, listed so nobody re-chases them**: the two
+              `catch { return null }` blocks (falling through returns `undefined`, which the callers read
+              exactly as `null`), `if (!existsSync(path))` in `readJson` (a missing file throws into the
+              same catch), the `readFileSync(path, "")` encoding twin (Buffer → `JSON.parse` coerces),
+              and `typeof manifest !== "object"` in `formatEngineVersion` (a string manifest reaches the
+              same two `?.` and yields the same null).
+      - [x] **Batch 4 has FINISHED — measured, not yet hardened** _(2026-08-05, 8 min 44 s, 325 mutants,
+            log `maintainers/mutation/reports/v480-batch4-ai-summary.log`)_. **Total 80.92 %** (262
+            killed, 1 timeout, 62 survivors), and the total hides the one number that matters:
+            - `scripts/lib/filed-note.mjs` — **94.12 %** (11 survivors), fine.
+            - `scripts/ai-summary-guard.mjs` (the hook entrypoint) — **84.00 %** (4 survivors + **the
+              timeout**).
+            - `scripts/lib/ai-summary-guard.mjs` — **58.41 %, 47 survivors**. The worst file of the pass
+              so far, and it is **shipped by this release** (14.7 layer 2). Known survivor shapes from the
+              log tail: `typeof toolName === "string"` → `true`, and the two `input?.tool_response` /
+              `input?.tool_name` optional chains — i.e. the guard's own defence against a malformed hook
+              payload is observed by nothing.
+            - [x] **The timeout is NOT a gap — it is a kill.** Arithmetic settles it: 20 killed + 1
+                  timeout + 4 survived = 25 mutants at **84.00 %**, i.e. `(20+1)/25`. It sits on the
+                  entrypoint, the one file with a `spawnSync` real-process test, so a mutant that breaks
+                  stdin reading hangs the child rather than failing it. Nothing to chase.
+            - [x] **Batch 4 HARDENED** _(2026-08-05 · `3bab51e`, `d9bdb7c`)_. The 47 were not spread
+                  evenly: **28 of them sat in the four detection regexes**, where **both anchors of every
+                  one** could be dropped green. That is the finding, not the score — an unanchored
+                  heading match is not a wider net, it is a **different** one: it fires on any line that
+                  merely *contains* the word, so the notice sends its reader "to the Transcription
+                  section" of a document whose whole point is that the transcript was never kept.
+              - [x] **Fed now, from the shapes real exports have**: the heading through its cosmetic
+                    noise (indentation, the Markdown hard break's trailing double space, one-to-six
+                    hashes, a hash written tight against the word), a document that only *talks* about
+                    the transcript, Markdown speaker turns **including the French space before the
+                    colon**, an hour-long meeting's `hh:mm:ss` headers with their trailing whitespace and
+                    no blank line between turns, and the **three false positives** an unanchored turn
+                    shape produces — an actions list with bold owners, a chapter index, timestamps cited
+                    in prose. Each mutant was applied by hand and the suite watched go red before the
+                    test was kept.
+              - [x] **The three notices and the three refusals are asserted WHOLE.** Every blanked
+                    string survivor was the same half: the sentence that says what **not** to do (do not
+                    lift the summary's action list out of the snippet; do not take the actions from the
+                    summary's own list) or the one that names the way forward (the four tiers). Same
+                    lesson as batch 2b's consent blocks, on a different surface.
+              - [x] **`payloadText`'s two silent failure modes**: a `null` anywhere in a tool response
+                    (`typeof null === "object"`, so losing the `value &&` guard throws into the hook's
+                    **fail-open catch** — the notice would simply stop existing, for that whole tool,
+                    silently), and the 400k cap, which nothing exercised at all.
+              - [x] **Three production changes, all of them dead code the mutants exposed** — not
+                    coverage theatre:
+                - [x] **A third Gemini signature was unreachable.** `/\bnotes\s+de\s+Gemini\b/` matched
+                      nothing the general *"notes by &lt;taker&gt;"* pattern did not already match (`de`
+                      is one of its connectors) — hence all four of its mutants surviving. **Deleted**,
+                      with the subsumption pinned by a test so nobody adds it back.
+                - [x] **Two `spec.sources ? … : …` branches in `renderFiledNote` could never be taken** —
+                      the guard above them already refuses a note with no sources, so a mutant could put
+                      anything in the `else` and stay green. Removed. An unreachable branch is a design
+                      defect, not an exemption.
+                - [x] **`typeof toolName === "string"` reads like belt-and-braces and is not**: dropped,
+                      the regex coerces whatever it is given, so an array payload of
+                      `["…search_files"]` stringifies straight back into a match and the brain is told
+                      *"open the document"* about bytes that **were** a document.
+              - [x] **Recorded EQUIVALENTS — do not re-chase them**, each with the reason it cannot be
+                    observed: `readFileSync(0, "")` (Buffer → `JSON.parse` coerces, the family already
+                    recorded at v4.5.0 and batch 2b); the two `input?.tool_*` optional chains (dropping
+                    them throws, and the **fail-open catch already makes throwing and not-throwing the
+                    same observable** — the `?.` is redundant with the catch, which is worth knowing but
+                    not worth churning at a release tail); `(text.match(re) ?? ["Stryker was here"])` (a
+                    one-element fallback can never reach `MIN_TURNS = 3`); `Array.isArray` and its block
+                    in the payload walker (`Object.values` of an array yields the same items, so the
+                    branch is a shortcut, not a behaviour); `if (value && true)` (`Object.values` never
+                    throws on a non-null primitive); `rank.indexOf(tier) >= ` in `weakestSourceTier`
+                    (equal ranks imply the same tier string, so both arms return the same value); both
+                    hyphen-trim `+` quantifiers in `slugify` (the preceding `[^a-z0-9]+ → "-"` collapse
+                    makes a run of two hyphens impossible by construction); and `/\.md$/ → /\.md/` in
+                    `firstNameSegment` (a card path is `<slug>.md` and `slugify` turns every dot into a
+                    hyphen, so `.md` cannot occur earlier).
+            - [x] **BATCH 4 RE-MEASURED — 80.92 % → 96.54 %** _(2026-08-05, 8 min 14 s, 318 mutants,
+                  306 killed + 1 timeout, **11 survivors** left, log
+                  `maintainers/mutation/reports/v480-batch4-ai-summary-recheck.log`)_. Measured on the
+                  worktree reset to `d9bdb7c`, `rag/node_modules` symlink recreated (`git clean` had
+                  taken it) and re-verified at **22 pass / 0 skipped**. **Still valid at HEAD, checked
+                  not assumed**: `git diff d9bdb7c..HEAD` on the three files is empty — the later
+                  commits are the constitution and the marketing surfaces, which this batch does not
+                  mutate.
+              - [x] `scripts/lib/ai-summary-guard.mjs` **58.41 % → 96.33 %** (47 → **4** survivors).
+              - [x] `scripts/lib/filed-note.mjs` **94.12 % → 97.83 %** (11 → **4**).
+              - [x] `scripts/ai-summary-guard.mjs` **84.00 % → 88.00 %** (4 → **3**, plus the timeout,
+                    which is a kill).
+              - [x] **The 11 survivors are EXACTLY the equivalents recorded above, one for one** — read
+                    against the log, not assumed: the `?? []` fallback, `Array.isArray` and its block,
+                    `value && true`, the two `slugify` hyphen quantifiers, `weakestSourceTier`'s `>=`,
+                    `/\.md$/`, `readFileSync(0, "")`, and the two `input?.tool_*` chains. **Nothing new
+                    survived**, so this file needs no second pass.
+    - [x] ~~**Batch 3, not started**~~ — done and hardened above.
+    - [x] ~~**Batch 4, not started**~~ — done, hardened AND re-measured above (96.54 %).
+    - [x] **Batch 5 DONE and HARDENED** _(2026-08-05, 10 min 56 s, 425 mutants, log
+          `maintainers/mutation/reports/v480-batch5-lint-accounts.log`; hardened in `1f352eb`)_. **Total
+          90.12 %**, 42 survivors: `wiki-lint.mjs` **88.50 %** (26), `connector-accounts.mjs` **89.72 %**
+          (11), `consolidation-candidates.mjs` **94.57 %** (5).
+      - [x] **Two pieces of DEAD CODE, deleted rather than excused** (five mutants lived in them):
+            the resolver's second, `.md`-stripped lookup — every suffix is already registered in both
+            spellings, so it could only ever fire on a doubled `[[note.md.md]]` — and `isUnderZone`'s
+            `firstSlash !== -1` guard, refuted one line above by the same string.
+      - [x] **The recurring shape was the ABSENT case and the SECOND element**: the freshest-citation
+            contest was never fed a contest (one citation, one order, none undated), so four mutants
+            could keep the OLDEST date or let an undated capture erase a real one and **silently clear a
+            page's staleness**; both entity-type lists were proven on `person` alone; a presence check
+            reaching for `.length` reported a note whose YAML dates parse as `Date` objects as missing
+            **every** key; and a hand-typed `- Slack : acme ` or a Slack bullet that is not the first
+            one was fed by nothing.
+      - [x] **One production change beyond the deletions**: a universe that declares no Slack **and**
+            observed nothing was offering `- Slack: ` to paste into the profile — a claim about a tool
+            made out of thin air, from the check whose whole job is to stop those. It now names both
+            unknowns and offers nothing.
+      - [x] **Recorded EQUIVALENTS, verified by hand — do not re-chase**: `Date.parse(when) >=` (equal
+            dates re-set the same value), `if (true && daysBetween(…))` (an absent date yields `NaN`,
+            and `NaN > staleDays` is already false), the four `stripCode` replacement mutants (only the
+            replacement's *length* differs, and every input that could show it produces a bogus target
+            either way), `/\.md$/ → /\.md/` in `register` (a vault path carries `.md` once), and both
+            `slackWorkspace` regex anchors (a workspace name cannot contain a second `://`, and `.trim()`
+            has already removed the trailing newline `$` would guard).
+      - [x] **⚠️ ONE MEASUREMENT ANOMALY, proven twice, and it is Stryker's — not the suite's.** The
+            `freshest && updated` → `freshest || updated` mutant is reported **Survived**, but applied by
+            hand it **fails the suite** (the pre-existing threshold test catches it, `exit 1`). Re-run
+            targeted on lines 186-188, it survives again — so the applied mutant is not the one the
+            reporter prints. Consequence: the published score is **conservative**, never flattering. It
+            is why every survivor in this batch was re-applied by hand before a test was written for it.
+    - [x] **Batch 6 DONE and HARDENED** _(2026-08-05, 7 min 24 s, 289 mutants, log
+          `maintainers/mutation/reports/v480-batch6-universe-profile.log`; hardened in `103eb05`)_.
+          **Total 91.38 %**: `lib/universe-profile.mjs` **97.37 %** (5, all equivalents),
+          `set-universe-profile.mjs` **80.00 %** (20).
+      - [x] **Fifteen of the twenty sat in code every test replaces** — `realProfileDeps` / `realIo`.
+            The seams that decide what the DEPLOYED script reads and writes were observed by nothing: the
+            fs port could stop returning text (a Buffer is what made the pointer read throw in the field),
+            `today()` could hand back a full ISO timestamp (a lint violation in the frontmatter of the
+            very page the engine writes), and `error` could print to **stdout**, where a divergence goes
+            quiet. Read through the real fs and the real streams now, the way batch 2b read the real
+            manifest. Also fed: a Windows spawn (`npm.cmd` + `shell: true`, or the profile is written and
+            never indexed), a truncated JSON payload on stdin, and `-Alice` written tight against its dash.
+      - [x] **The six left are the entrypoint/boot tier** — the `isEntrypoint` guard, `readInput` off fd
+            0, `activeUniverse` off the process cwd: the **named debt** whose shared `runAsEntrypoint` fix
+            the owner deferred to v4.9.0, not a gap to pay here.
+      - [x] **`universe-profile.mjs`'s five are EQUIVALENTS, verified by hand**: `parsed?.declined`
+            (dropping it throws into the same `catch` that already returns `[]`), the `other: []` bucket
+            (a deliberate **sink** — nothing reads it, which is the point: a hand-written section must not
+            leak into every session's context), `/^##\s+/ → /^##\s/` and the dropped `$` (the capture is
+            `.trim()`-ed on the next line, and the body is already split per line).
+    - [x] ~~**Batch 6, not started**~~ — done and hardened above. _(The owner said to chain it without
+          asking, 2026-08-05: "continue avec le batch 6 quand batch 5 est fini".)_
+    - [x] **✅ ALL RE-MEASURES DONE — six passes, logs `v480-recheck-{a..f}-*.log`** _(2026-08-05)_. Each
+          reset the worktree to the tip, re-created the `rag/node_modules` symlink and verified the
+          write-guard at **22 pass / 0 skipped** first. Final numbers, first pass → after:
+          `engine-update-check` 86.07 → 96.04 → **97.03 %** (a second fix, see below), `update-engine`
+          93.20 → **97.60 %**, `engine-version` 91.07 → **95.54 %**, `wiki-lint` 88.50 → **96.31 %**,
+          `connector-accounts` 89.72 → **98.26 %**, `consolidation-candidates` 94.57 → **100.00 %**,
+          `universe-profile` 97.37 → **97.89 %**, `set-universe-profile` 80.00 → **94.00 %**.
+      - [x] **Two extra fixes the re-measure itself surfaced, both worth the trip.** (1) In
+            `extractWhatYouGet`, a line **beginning** with `#42` or `---and` ended the consent section:
+            a heading is hashes plus a SPACE, a rule is three dashes ALONE, and truncating there shortens
+            the very prose the owner consents on, from the bottom where the last promises are
+            _(`86d9e9d`)_. (2) **Batch 1's two NEW lib files were hardened after all** _(`55782fc`)_ —
+            `semver-tag` 84.09 → **95.45 %**, `upstream-cache` 87.23 → **95.74 %**. The arbitration
+            deferred the two *structural* remedies; it said nothing about these, and a repo standard of
+            96-100 % for a new lib file made 84-87 % the odd number out. What they were: an ordering read
+            only in the direction where a sum and a difference agree, a non-strict "higher" that would
+            report whichever spelling of an equal tag the remote listed last, a single-digit major that
+            would make `v10.0.0` parse as nothing, and a **non-idempotent `mkdir`** in a probe that runs
+            once a day forever inside a catch-everything — it would have frozen the verdict at day one,
+            silently.
+      - [x] **`engine-fetch.mjs` (54.05 %) and `upstream-check-run.mjs` (0 %) stay unhardened ON
+            PURPOSE** — they are the two structural remedies the owner arbitrated into v4.9.0.
+    - [x] **✅ RESULTS.md § v4.8.0 written** _(2026-08-05 · `0abae0a`)_ — the 16-file table, the finding,
+          the recurring family, the equivalence lists, **the two deferred remedies as numbered debt**,
+          `session-status.mjs`'s 0 % named as **inherited** (so the totals cannot read as rot this release
+          caused), and the Stryker measurement anomaly stated in the direction it runs (the published
+          score is conservative). The top "Current scores" row for `scripts` points at it.
+    - [x] **✅ The boards' `mutation 90–97%` claim RE-CHECKED against the finished RESULTS.md** — it
+          **holds**: the claim is about the three packages' last **package-wide** audits (rag 90.4 %,
+          local-mirror 90.4 %, scripts 97.3 %), which this release does not move (it is a targeted,
+          per-file pass). Nothing to re-render. The `34 ADRs` drift on `board-reliability` is unchanged
+          and pre-dates v4.5.0; the standing recommendation stays **drop the count** at the next
+          re-render.
+    - [x] **✅ Worktree removed** _(2026-08-05)_ — `kenjaku-mut-v480` is gone; `-v450` and `-v460` remain
+          from earlier releases, untouched.
+    - [x] **Engrave remedy (3) in `CONVENTIONS.md` — DONE** _(2026-08-05)_: **§5quinquies**, right after
+          §5quater. A new production file is mutated the **day it is written**, not at the release tail;
+          it carries the *why*, both commands, the worktree-is-not-ceremony reason, the `0 skipped`
+          proof, and it states it is an **addition, not a substitution** (the tail pass stays).
+    - [x] **§10, the marketing-surface re-read — DONE** _(2026-08-05 · `7eb133d`, `SETUP` in its own
+          commit)_. What it turned up, so it is not re-derived:
+      - [x] **What the release made FALSE, and is now honest**: `EN-QUOI` §5 sold *"Upstream dependency:
+            **none**"* and §7 *"each is frozen at its install version"* — a brain that looks upstream once
+            a day needs those sentences qualified, and they are (it looks; it never pulls, pushes or adds
+            a remote).
+      - [x] **What was shipped and sold NOWHERE** (§10's second question): a note says what it was built
+            from, a declared Slack account is now checked, and `/lint` stopped crying wolf. All three are
+            on the README's reliability list now; the AI-summary one is also a new row in `EN-QUOI` §1's
+            hardening table (the doc's spine).
+      - [x] **The owner's own misreading is answered in `SETUP.md` §10**, in plain words and at length:
+            what the daily look-up **is** (one anonymous `git ls-remote` to the engine's public repo, one
+            single API request only when behind, **no HTTP at all when up to date**) and above all what it
+            **is not** (no remote added, nothing pushed, his backup repo untouched, nothing from the vault
+            leaving). The **absence of an off switch is documented rather than hidden**, with the one
+            lever that does exist (remove `source.repo`).
+      - [x] **The boards: NO re-render, and the drift is unchanged.** `board-reliability` still says
+            *"34 ADRs"* against **37** — measured again: it already predated v4.5.0 and this release adds
+            none, so it is not something v4.8.0 made false. Standing recommendation at the next re-render
+            of that board: **drop the count** (a hard number rots once per release, forever). Its
+            `mutation 90–97%` claim is **still to be re-checked against RESULTS.md when the pass ends**.
+    - [x] **The version vector — DONE** _(2026-08-05 · `b329d8a`)_: `scripts` 1.12.0 → **1.13.0**,
+          `constitutionTemplate` 1.2.0 → **1.3.0**. `rag` stays **1.4.0** and `local-mirror` **0.3.0** —
+          **checked, not assumed**: `git diff --name-only main...HEAD` matches nothing under `rag/` or
+          `local-mirror/`. `indexSchemaVersion` stays **2**, so the note may promise **no reindex**.
+    - [ ] **The release note (§11, non-devs first) + the PR body**, then archive both under
+          `archived/`. **No finding codes** (F3, F14…) in any artifact — they mean nothing to anyone but
+          us.
+      - [x] **The note is DRAFTED and committed** at `maintainers/plans/archived/release-v4.8.0-note.md`
+            _(`8a106f0`)_ — title, lead, the six `What you get` bullets (the update that says what it is
+            for, then the *what it is not* paragraph, the source header, the Slack check, `/lint`), the
+            *What you have to do*, and six `Under the hood` items. **Re-read it before publishing**; it
+            was written before batches 4-6 landed.
+      - [x] **✅ THE MUTATION SNAPSHOT IS PINNED IN** _(2026-08-05 · `5f14bd9`)_ — a *Measured, not
+            asserted* section written for non-devs: the worst first score and what it would have done to
+            a reader, the recurring shape in plain words, thirteen of sixteen at ≥94 %, and the three
+            that are not, named as an old weakness with **one of the three new here and fallen into the
+            same shape** (the honest half), plus the repair scheduled and the new day-of rule.
+      - [x] **✅ The PR body is written** _(`ebe3b84` + `5f14bd9`)_ —
+            `maintainers/plans/archived/release-v4.8.0-pr-body.md`. What ships, the choices worth
+            reviewing, the measured pass with its two named debts, and the CI line.
+    - [ ] **The tag, the merge, the published release** — and CI 7/7 on the tagged commit before
+          publishing.
 
 ## The one pattern behind most of it (the reframe)
 

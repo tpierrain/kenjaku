@@ -56,7 +56,11 @@ export function buildResolver(notes) {
     }
   }
   // Resolve a raw link target to a canonical note path, or null if it points nowhere.
-  return (target) => byKey.get(target) ?? byKey.get(target.replace(/\.md$/, "")) ?? null;
+  // ONE lookup on purpose: both spellings of every suffix are registered above, so a
+  // second, `.md`-stripped lookup could only ever fire on a doubled `[[note.md.md]]`
+  // — an unreachable branch is a design defect, not a safety net (three mutants lived
+  // in it, v4.8.0 batch 5).
+  return (target) => byKey.get(target) ?? null;
 }
 
 // Whether `path` falls under a zone `prefix` (`daily/`, `actions-log.md`),
@@ -68,8 +72,11 @@ export function buildResolver(notes) {
 // spot. POSIX paths at the source (cf. the Windows toPosix fix).
 export function isUnderZone(path, prefix) {
   if (path.startsWith(prefix)) return true;
+  // No guard on a missing slash: `indexOf` then returns -1, the slice starts at 0,
+  // and the line above has already refuted that exact string. Guarding it would be
+  // a branch no input can take (two mutants lived there, v4.8.0 batch 5).
   const firstSlash = path.indexOf("/");
-  return firstSlash !== -1 && path.slice(firstSlash + 1).startsWith(prefix);
+  return path.slice(firstSlash + 1).startsWith(prefix);
 }
 
 // Zones whose notes are legitimately unlinked by design, so they are excluded
@@ -80,7 +87,11 @@ export function isUnderZone(path, prefix) {
 //   - engine work-zones: folders the shipped skills write, that nobody links back
 //     to (a meeting write-up, a sync-sources briefing, a 1-1 prep, a coaching note).
 // Brain-specific work folders (e.g. `prep-day/`) stay per-brain via options.orphanExclude.
-const RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "actions-log.md"];
+// `_inbox/` sits here beside `inbox/` because it is the SAME zone under the
+// widespread Obsidian habit of prefixing an underscore to sort a folder to the top
+// of the file tree. Keeping only the bare spelling made every capture in an
+// underscored inbox an orphan — six per pass on the owner's own brain.
+const RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "_inbox/", "actions-log.md"];
 const ENGINE_WORK_ZONES = ["meetings/", "briefings/", "prep-1-1/", "coaching/"];
 // A universe's profile page (`universe.md` at the root, `<universe>/universe.md`
 // in a subtree — isUnderZone matches both) describes a whole sphere: nothing links
@@ -88,6 +99,18 @@ const ENGINE_WORK_ZONES = ["meetings/", "briefings/", "prep-1-1/", "coaching/"];
 // keeps its frontmatter obligations, being a curated page.
 const ENGINE_STATE_NOTES = ["universe.md"];
 const DEFAULT_ORPHAN_EXCLUDE = [...RAW_CAPTURE_ZONES, ...ENGINE_WORK_ZONES, ...ENGINE_STATE_NOTES];
+
+// Notes the ENGINE owns, not the owner: the RAG canary
+// (`vault/engine-health/health-check.md`) is the one shipping today. They are held
+// to neither rule, because the owner cannot satisfy either — the canary is linked
+// by nothing by design, and it carries no `updated` key. Reporting them told the
+// one person being shown the report to fix a file they are explicitly told never to
+// touch: a permanent, unclearable complaint (CONVENTIONS §5quater).
+//
+// Keyed on the frontmatter `type`, deliberately, not on the folder: a hand-written
+// note filed under `engine-health/` is still the owner's note and stays held, so
+// this cannot become a silent opt-out of the whole lint.
+const DEFAULT_ENGINE_OWNED_TYPES = ["engine"];
 
 // A raw dump is not a curated wiki node: an imported transcript, an inbox scratch,
 // the append-only ledger arrive without the taxonomy frontmatter and shouldn't be
@@ -130,6 +153,8 @@ export function lintVault(notes, options = {}) {
   const staleDays = options.staleDays ?? DEFAULT_STALE_DAYS;
   const requiredFrontmatter = options.requiredFrontmatter ?? DEFAULT_REQUIRED_FRONTMATTER;
   const frontmatterExempt = options.frontmatterExempt ?? DEFAULT_FRONTMATTER_EXEMPT;
+  const engineOwnedTypes = options.engineOwnedTypes ?? DEFAULT_ENGINE_OWNED_TYPES;
+  const isEngineOwned = (note) => engineOwnedTypes.includes(note.frontmatter.type);
 
   const resolve = buildResolver(notes);
   const danglingLinks = [];
@@ -158,6 +183,7 @@ export function lintVault(notes, options = {}) {
   const orphans = notes
     .filter((n) => !inbound.has(n.path))
     .filter((n) => !orphanExclude.some((prefix) => isUnderZone(n.path, prefix)))
+    .filter((n) => !isEngineOwned(n))
     .map((n) => n.path);
 
   const staleEntityPages = [];
@@ -172,6 +198,7 @@ export function lintVault(notes, options = {}) {
   const frontmatterViolations = [];
   for (const note of notes) {
     if (frontmatterExempt.some((prefix) => isUnderZone(note.path, prefix))) continue;
+    if (isEngineOwned(note)) continue;
     const missing = requiredFrontmatter.filter((key) => !isPresent(note.frontmatter[key]));
     if (missing.length > 0) frontmatterViolations.push({ path: note.path, missing });
   }

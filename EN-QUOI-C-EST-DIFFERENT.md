@@ -35,6 +35,7 @@ Concretely, hole by hole:
 | No indexing | Search **makes things up** instead of searching your notes | Automatic **incremental reindexing** of the RAG |
 | A note whose header the indexer can't read | The note is **never indexed** — invisible to search — while the counter reads *"pending"*, as if it were on its way | **Refused at write time**, by the engine's own parser, + a **vault ↔ index crosscheck** that names any note the two disagree about |
 | A colleague mentioned by first name only | The model **supplies the surname** it doesn't have, and that invented identity is indexed like any fact — then quoted back to you as one | The name is **resolved against your notes before anything is written**; unresolved, it stays plain text; a card says **which** homonym it is, and how sure that identity is |
+| A note written from an **AI-generated summary** (a meeting recap, an auto-transcript) | The summary's own mistakes are stored as facts and **quoted back to you as sources**, indistinguishable from what was actually said | Every note **says what it was built from**; a summary-derived one is **flagged when it is cited**, and the raw source is read **first**, the summary only after |
 | Conversation not "rooted" in the brain | Mute hooks, out-of-vault answers — *and it seems to work* | Onboarding that **forces opening in the right place** + `pwd` check |
 | `node` installed via nvm, invisible to GUI hooks | Auto-commit **silently broken** | **`run-node`** wrapper that re-resolves the toolchain on every run |
 | Install on a bare machine | Half-working **"Frankenstein"** state, undiagnosable | **"Fail-loud" verification** at install — proves it or fails plainly |
@@ -155,8 +156,8 @@ added later, **deliberately and under your control**, never by default.)
 |---|---|---|
 | **Distribution** | Plugin/marketplace, or a SaaS account to create | **Home-grown installer** driven **in chat** by Claude: "ask me questions, I'll install myself" — designed **non-tech** |
 | **What gets created** | A space at the vendor's | An **owned git repository**, with its custom-generated `CLAUDE.md` constitution |
-| **Upstream dependency** | The app can change/break/shut down under you | **None**: the brain is **self-sufficient**, works **offline forever**, as generated |
-| **Evolution** | Update forced by the vendor | **Local iteration**: you add/modify your own skills, in your brain. Engine improvements reach you **only when you ask for an update**, and only on the skills you never edited: anything you tailored is preserved, never overwritten |
+| **Upstream dependency** | The app can change/break/shut down under you | **None**: the brain is **self-sufficient**, works **offline forever**, as generated. Since v4.8.0 it does take **one anonymous look a day** at the engine's public repo — only to *tell* you a newer version exists; nothing of yours is sent, nothing is installed, and offline it simply stays quiet |
+| **Evolution** | Update forced by the vendor | **Local iteration**: you add/modify your own skills, in your brain. Engine improvements reach you **only when you ask for an update**, and only on the skills you never edited: anything you tailored is preserved, never overwritten. Since v4.8.0 the offer **names the version and quotes what that release gives you**, so "yes" is an informed yes |
 
 The **launcher** (this repo) is **reusable and never modified**: it **creates elsewhere** a fresh
 brain folder (copies the files + `git init`, **0 remotes**), so **no link** to the launcher,
@@ -220,8 +221,10 @@ Honesty is part of the approach:
   hooks, skills, constitution). The vault and the engine stay agnostic so as not to close the
   door — but cross-platform isn't shipped.
 - **It's not a synced fleet.** No central update pushed onto the generated brains:
-  each is frozen at its install version and **evolves locally**. It's a choice
-  (self-sufficiency), not an oversight.
+  each stays on its own version and **evolves locally**. It's a choice
+  (self-sufficiency), not an oversight. Since v4.8.0 a brain *does* **notice** when a newer
+  engine exists and tells you — but it is still **you** who says go: no remote is added to
+  your brain, nothing is pushed anywhere, and your own backup repository plays no part in it.
 
 ---
 

@@ -32,6 +32,7 @@ import {
   resolveLatestTag as defaultResolveLatestTag,
   readTargetManifest,
 } from "./lib/engine-fetch.mjs";
+import { checkUpstream, formatUpdateCheck } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
 import { reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
 import {
@@ -396,14 +397,52 @@ export const realUpdateDeps = {
   brainDir: resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   updateEngine,
   armRestartFlag,
+  readInstalledSource: defaultReadInstalledSource,
+  checkUpstream,
   log: (s) => process.stdout.write(s),
   error: (s) => process.stderr.write(s),
 };
 
+// What this brain records about where its engine comes from — the same two fields
+// `updateEngine` reads at step 1, read here BEFORE anything is asked of the user.
+export function defaultReadInstalledSource(brainDir) {
+  const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  return { repo: source?.repo ?? null, ref: source?.ref ?? null };
+}
+
+// `--check`: the read-only first step of the real run. F3 — the opt-in prompt used
+// to state the version the owner ALREADY runs and ask for a yes, so consent to a
+// code swap could not answer "what for?". This resolves the target and what the
+// jump contains, changes nothing, and hands back 0 whatever it finds: "I could not
+// find out" is an ANSWER, and reporting it as a failed command would be the same
+// conflation this fixes. The real update keeps its fail-loud exit 1.
+async function runUpdateCheck(deps) {
+  let source;
+  try {
+    source = deps.readInstalledSource(deps.brainDir);
+  } catch {
+    source = null;
+  }
+  const report =
+    source === null
+      ? {
+          state: "unknown",
+          installed: null,
+          target: null,
+          ahead: null,
+          releases: [],
+          reason: "this brain's engine-manifest.json could not be read",
+        }
+      : await deps.checkUpstream({ repo: source.repo, installedRef: source.ref });
+  deps.log(formatUpdateCheck(report) + "\n");
+  return 0;
+}
+
 // The command the brain-side `update-engine` skill runs, minus the process. Returns
 // the exit code. FAIL LOUD (the project's strategy): on any error, print it to stderr
 // and hand back a non-zero — never pretend it worked.
-export async function runUpdateCli(deps = realUpdateDeps) {
+export async function runUpdateCli(deps = realUpdateDeps, argv = process.argv.slice(2)) {
+  if (argv.includes("--check")) return runUpdateCheck(deps);
   try {
     const report = await deps.updateEngine({ brainDir: deps.brainDir });
     if (needsRestart(report)) deps.armRestartFlag(deps.brainDir);

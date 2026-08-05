@@ -1,7 +1,7 @@
 ---
 name: switch
 description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. Switching itself does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, asks to fill in / update it, or asks to SEE it — the session start names this skill as the way to read the description back (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with', 'show me my context', 'montre-moi la description de cet univers'). It also RENAMES a universe ('rename acme to Acme Corp', 'renomme cet univers'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
-version: 1.5.0
+version: 1.6.0
 ---
 
 # /switch — Change or create the active universe (opt-in, no reindex)
@@ -82,6 +82,12 @@ It prints **one of two blocks**, or nothing at all. Read the marker, they want o
 
 - `[working context]` → **background for you**, never a message for the user. Use it silently (who
   someone is, which account to reach for); do **not** read it back to them.
+  ⚠️ **The connector accounts in that block are DECLARED, not verified** — the native connectors are
+  single-account and have just *not* followed this switch, so Slack may still be authenticated on the
+  sphere you left. The block itself carries the gesture that settles it
+  (`node scripts/set-universe-profile.mjs --check-slack "<workspace>"`); run it before reading or
+  filing anything from Slack here. The rule and its four answers live in the `sync-sources` skill,
+  section **Connector discipline** — read it there rather than reasoning it out again.
 - `[ask the owner]` → the profile **offer** for the universe you just landed in, which has none. Act
   on it: answer whatever the user was doing first, then make the offer in a line or two, in their
   language. It appears **once** per universe — accept and it is written, decline and it is recorded.

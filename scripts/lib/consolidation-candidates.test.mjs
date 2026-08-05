@@ -158,6 +158,35 @@ test("consolidationCandidates — refreshes group multiple fresher captures per 
   });
 });
 
+test("consolidationCandidates — EVERY entity type a page can carry is refreshable, not just person and topic", () => {
+  // The five types are one list and are only proven by feeding all of it. Dropped
+  // silently, `company` would mean a whole class of curated pages quietly stopping
+  // to be proposed for refresh — invisible, since the gesture simply says nothing.
+  const capture = {
+    path: "meetings/2026-07-15.md",
+    frontmatter: { type: "meeting", updated: "2026-07-15" },
+    body: "[[pages/alice]] [[pages/rag]] [[pages/acme]] [[pages/atlas]] [[pages/hexagonal]]",
+  };
+  const page = (type, slug) => ({
+    path: `pages/${slug}.md`,
+    frontmatter: { type, updated: "2026-04-01" },
+    body: "",
+  });
+  const report = consolidationCandidates([
+    capture,
+    page("person", "alice"),
+    page("topic", "rag"),
+    page("company", "acme"),
+    page("project", "atlas"),
+    page("concept", "hexagonal"),
+  ]);
+  assert.deepEqual(report.newPages, []);
+  assert.deepEqual(
+    report.refreshes.map((r) => r.page),
+    ["pages/acme.md", "pages/alice.md", "pages/atlas.md", "pages/hexagonal.md", "pages/rag.md"],
+  );
+});
+
 test("consolidationCandidates — a capture with no updated date can't be proven fresher, so it's no refresh (fail-safe)", () => {
   const notes = [
     {
@@ -241,6 +270,32 @@ test("consolidationCandidates — a capture's unresolved mention is a new-page c
   });
 });
 
+test("consolidationCandidates — an `_inbox/` capture drives candidates like an `inbox/` one", () => {
+  // The lint and the consolidation keep TWO spellings of "what a capture zone is"
+  // (this list and wiki-lint's RAW_CAPTURE_ZONES). Teaching only the lint about the
+  // underscored inbox would have stopped the false orphans while leaving every note
+  // in it invisible to consolidation — the same defect, moved one surface over.
+  const notes = [
+    {
+      path: "_inbox/2026-08-05-note.md",
+      frontmatter: { updated: "2026-08-05" },
+      body: "[[Marie Dupont]] a tranché.",
+    },
+    {
+      path: "acme/_inbox/capture.md",
+      frontmatter: { updated: "2026-08-05" },
+      body: "[[Jean Dujardin]] aussi.",
+    },
+  ];
+  assert.deepEqual(consolidationCandidates(notes), {
+    newPages: [
+      { target: "Jean Dujardin", sources: [{ path: "acme/_inbox/capture.md", updated: "2026-08-05" }] },
+      { target: "Marie Dupont", sources: [{ path: "_inbox/2026-08-05-note.md", updated: "2026-08-05" }] },
+    ],
+    refreshes: [],
+  });
+});
+
 // ── universe-aware (ADR 0034): paths gain a leading <universe>/ segment ────────
 
 test("consolidationCandidates — a capture under <universe>/meetings/… still drives candidates, universe-relative links resolve", () => {
@@ -316,5 +371,43 @@ test("reportLines — renders both sections with counts, sources, and a titled h
     "",
     "Entity pages to refresh (1):",
     "  topics/rag.md (updated 2026-04-01) — 1 fresher: meetings/2026-07-15-revue.md",
+  ]);
+});
+
+test("reportLines — a category with nothing in it gets NO header, not a header reading (0)", () => {
+  // An empty section printed as `Entity pages to refresh (0):` is a finding that
+  // isn't one: the reader scans the headers, not the counts. Same discipline as the
+  // clean line above — say only what is true (CONVENTIONS §5quater).
+  const report = {
+    newPages: [{ target: "Marie Dupont", sources: [{ path: "daily/2026-07-15.md" }] }],
+    refreshes: [],
+  };
+  assert.deepEqual(reportLines(report), [
+    "✗ Consolidation candidates found",
+    "",
+    "New pages to create (1):",
+    "  [[Marie Dupont]] — cited by 1: daily/2026-07-15.md",
+  ]);
+});
+
+test("reportLines — a page with SEVERAL fresher sources lists them comma-separated, not run together", () => {
+  // Two sources is the smallest list that can prove a separator exists at all; with
+  // one, `join(", ")` and `join("")` render identically and the reader would be
+  // handed `daily/a.mddaily/b.md` the first time a page had two captures behind it.
+  const report = {
+    newPages: [],
+    refreshes: [
+      {
+        page: "topics/rag.md",
+        updated: "2026-04-01",
+        sources: [{ path: "daily/2026-07-15.md" }, { path: "daily/2026-07-16.md" }],
+      },
+    ],
+  };
+  assert.deepEqual(reportLines(report), [
+    "✗ Consolidation candidates found",
+    "",
+    "Entity pages to refresh (1):",
+    "  topics/rag.md (updated 2026-04-01) — 2 fresher: daily/2026-07-15.md, daily/2026-07-16.md",
   ]);
 });

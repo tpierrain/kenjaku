@@ -49,6 +49,13 @@ test("extractWikiLinks — ignores [[links]] inside a fenced ``` code block, kee
   assert.deepEqual(extractWikiLinks(body), ["Keep", "AlsoKeep"]);
 });
 
+test("extractWikiLinks — a target padded inside the brackets is the same target", () => {
+  // `[[ Alice ]]` is what a hand-edit produces, and Obsidian resolves it to Alice.
+  // Untrimmed, it would resolve to nothing and be reported as a dangling link on a
+  // note that is perfectly well linked — a complaint its owner cannot act on.
+  assert.deepEqual(extractWikiLinks("met [[ Alice ]] today"), ["Alice"]);
+});
+
 // ── isUnderZone: a zone prefix, insensitive to a leading <universe>/ segment ───
 
 test("isUnderZone — matches at the vault root and at a universe root, but not one level deeper", () => {
@@ -56,6 +63,15 @@ test("isUnderZone — matches at the vault root and at a universe root, but not 
   assert.equal(isUnderZone("acme/daily/x.md", "daily/"), true); //   universe root
   assert.equal(isUnderZone("acme/foo/daily/x.md", "daily/"), false); // nested deeper → not a zone
   assert.equal(isUnderZone("acme/notes/mydaily.md", "daily/"), false); // substring, not a segment
+});
+
+test("isUnderZone — a ONE-CHARACTER universe segment is still a universe segment", () => {
+  // The boundary of "only the first segment is optional": a universe slug is free
+  // text, so `a/daily/x.md` is as legal as `acme/daily/x.md`. Read strictly by
+  // position rather than by segment, a one-letter sphere would have every capture
+  // in it come back as an orphan, and nowhere else.
+  assert.equal(isUnderZone("a/daily/x.md", "daily/"), true);
+  assert.equal(isUnderZone("a/actions-log.md", "actions-log.md"), true);
 });
 
 test("isUnderZone — a file-basename zone matches at both roots (actions-log.md)", () => {
@@ -79,6 +95,34 @@ test("lintVault — the same broken link repeated in one note is reported once",
     { path: "a.md", frontmatter: {}, body: "[[Missing]] and again [[Missing]]" },
   ]);
   assert.deepEqual(report.danglingLinks, [{ from: "a.md", target: "Missing" }]);
+});
+
+test("lintVault — TWO different broken links are two findings, not one", () => {
+  // The de-dup key is per (note, target). Keyed on anything coarser — or on a
+  // constant — the first broken link in the vault would be the only one ever
+  // reported, and a lint that shows one issue per run is a lint that never ends.
+  const report = lintVault([
+    { path: "a.md", frontmatter: {}, body: "[[Missing]] and [[AlsoMissing]]" },
+    { path: "b.md", frontmatter: {}, body: "[[Missing]] too" },
+  ]);
+  assert.deepEqual(report.danglingLinks, [
+    { from: "a.md", target: "Missing" },
+    { from: "a.md", target: "AlsoMissing" },
+    { from: "b.md", target: "Missing" },
+  ]);
+});
+
+test("lintVault — when two notes share a basename, the FIRST one claims the short spelling", () => {
+  // Two `alice.md` in different folders is an ordinary vault. The short link then
+  // has to mean ONE of them; last-wins would make the meaning of `[[alice]]` depend
+  // on the order the vault happened to be read in. The longer path disambiguates.
+  const report = lintVault([
+    { path: "people/alice.md", frontmatter: {}, body: "" },
+    { path: "archive/alice.md", frontmatter: {}, body: "" },
+    { path: "notes/x.md", frontmatter: {}, body: "[[alice]] and [[archive/alice]]" },
+  ]);
+  assert.deepEqual(report.danglingLinks, []);
+  assert.deepEqual(report.orphans, ["notes/x.md"]); // both alices received their link
 });
 
 test("lintVault — resolves path-form links [[folder/note]] and [[folder/note.md]]", () => {
@@ -134,6 +178,59 @@ test("lintVault — raw-capture zones stay excluded under a universe prefix (<un
   assert.deepEqual(report.orphans, ["acme/topic.md"]);
 });
 
+test("lintVault — `_inbox/` is the same capture zone as `inbox/`, at either root", () => {
+  // Field defect (owner's brain, 2026-08-05): the capture folder is named `_inbox/`
+  // — the Obsidian habit of an underscore to sort it to the top — and the zone list
+  // only knew `inbox/`. So every capture sitting in it came back as an orphan, six
+  // per pass, on notes that are unlinked BY DESIGN. A checker that cries on the
+  // healthy shape is how its owner learns to stop reading it (CONVENTIONS §5quater).
+  const report = lintVault([
+    { path: "_inbox/scratch.md", frontmatter: {}, body: "" },
+    { path: "acme/_inbox/capture.md", frontmatter: {}, body: "" },
+    { path: "topic.md", frontmatter: {}, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["topic.md"]);
+});
+
+test("lintVault — `_inbox/` is exempt from required frontmatter too, being a raw dump", () => {
+  // The two rules must agree about what a zone IS: exempting it from orphans while
+  // still demanding taxonomy of it would just move the same false positive.
+  const report = lintVault([
+    { path: "_inbox/scratch.md", frontmatter: {}, body: "" },
+    { path: "acme/_inbox/capture.md", frontmatter: {}, body: "" },
+  ]);
+  assert.deepEqual(report.frontmatterViolations, []);
+});
+
+test("lintVault — an engine-owned note (type: engine) is neither an orphan nor frontmatter rot", () => {
+  // Field defect (owner's brain, 2026-08-05): `vault/engine-health/health-check.md`,
+  // the RAG canary, carries type/created/tags and no `updated`, and nothing links to
+  // it. So the lint reported two defects on a file the owner is explicitly told never
+  // to touch — permanently unfixable by the only person being shown them.
+  //
+  // Keyed on `type: engine`, not on the canary's path: the class is "notes the engine
+  // owns", and pinning the path would need a second edit the day a second one ships.
+  const report = lintVault([
+    { path: "engine-health/health-check.md", frontmatter: { type: "engine", created: "2026-06-20" }, body: "" },
+    { path: "acme/engine-health/health-check.md", frontmatter: { type: "engine", created: "2026-06-20" }, body: "" },
+    { path: "topic.md", frontmatter: {}, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["topic.md"]);
+  assert.deepEqual(report.frontmatterViolations, [{ path: "topic.md", missing: ["type", "created", "updated", "tags"] }]);
+});
+
+test("lintVault — the engine exemption is the TYPE, not the folder: a hand-written note under engine-health/ is still held", () => {
+  // Otherwise the fix would hand anyone a silent opt-out of the whole lint by
+  // filing a note in the engine's folder.
+  const report = lintVault([
+    { path: "engine-health/notes-i-put-here.md", frontmatter: { type: "topic" }, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["engine-health/notes-i-put-here.md"]);
+  assert.deepEqual(report.frontmatterViolations, [
+    { path: "engine-health/notes-i-put-here.md", missing: ["created", "updated", "tags"] },
+  ]);
+});
+
 test("lintVault — the engine's own work-zones (meetings/, briefings/, prep-1-1/, coaching/) are never orphans", () => {
   // The shipped skills write these and nobody links back to a meeting write-up or
   // a 1-1 prep — legitimately unlinked by design, so not rot. Universe-insensitive.
@@ -179,6 +276,71 @@ test("lintVault — flags an entity page older than the freshest note linking to
   ]);
 });
 
+test("lintVault — every entity type is held to the stale rule, not just the first one", () => {
+  // The five types are one list, and a list is only proven by feeding all of it:
+  // with only `person` exercised, dropping `company` from it would go unnoticed
+  // until someone's company page quietly stopped being checked.
+  const cited = (type, slug) => [
+    { path: `pages/${slug}.md`, frontmatter: { type, updated: "2026-01-01" }, body: "" },
+    { path: `notes/${slug}-note.md`, frontmatter: { updated: "2026-06-01" }, body: `[[${slug}]]` },
+  ];
+  const report = lintVault([
+    ...cited("person", "alice"),
+    ...cited("topic", "rag"),
+    ...cited("company", "acme"),
+    ...cited("project", "atlas"),
+    ...cited("concept", "hexagonal"),
+  ]);
+  assert.deepEqual(
+    report.staleEntityPages.map((s) => s.path),
+    ["pages/alice.md", "pages/rag.md", "pages/acme.md", "pages/atlas.md", "pages/hexagonal.md"],
+  );
+});
+
+test("lintVault — the FRESHEST citation wins, whichever order the notes are read in", () => {
+  // "Freshest" is a comparison, so it has to be fed a contest — and in both
+  // directions. Fed only ascending, keeping the first would pass; fed only
+  // descending, keeping the last would. Each page below is 151 days behind its
+  // freshest citation and 31 behind its oldest, so ONLY the freshest makes it stale.
+  const report = lintVault([
+    { path: "pages/asc.md", frontmatter: { type: "person", updated: "2026-01-01" }, body: "" },
+    { path: "notes/asc-old.md", frontmatter: { updated: "2026-02-01" }, body: "[[asc]]" },
+    { path: "notes/asc-new.md", frontmatter: { updated: "2026-06-01" }, body: "[[asc]]" },
+    { path: "pages/desc.md", frontmatter: { type: "person", updated: "2026-01-01" }, body: "" },
+    { path: "notes/desc-new.md", frontmatter: { updated: "2026-06-01" }, body: "[[desc]]" },
+    { path: "notes/desc-old.md", frontmatter: { updated: "2026-02-01" }, body: "[[desc]]" },
+  ]);
+  assert.deepEqual(report.staleEntityPages, [
+    { path: "pages/asc.md", updated: "2026-01-01", freshestReference: "2026-06-01" },
+    { path: "pages/desc.md", updated: "2026-01-01", freshestReference: "2026-06-01" },
+  ]);
+});
+
+test("lintVault — a citation with NO date does not erase the dated one it follows", () => {
+  // Raw captures often carry no `updated:` at all. Letting an undated citation
+  // overwrite the freshest known date would silently clear the page's staleness —
+  // the worst direction for a checker to be wrong in, because it goes quiet.
+  const report = lintVault([
+    { path: "pages/alice.md", frontmatter: { type: "person", updated: "2026-01-01" }, body: "" },
+    { path: "notes/dated.md", frontmatter: { updated: "2026-06-01" }, body: "[[alice]]" },
+    { path: "inbox/undated.md", frontmatter: {}, body: "[[alice]]" },
+  ]);
+  assert.deepEqual(report.staleEntityPages, [
+    { path: "pages/alice.md", updated: "2026-01-01", freshestReference: "2026-06-01" },
+  ]);
+});
+
+test("lintVault — an entity cited by a FRESHER note within the window is not stale at all", () => {
+  // The healthy shape (CONVENTIONS §5quater): a page updated a fortnight before the
+  // note citing it is a page being kept up, not one left behind. Reported, it would
+  // put every well-tended entity in the list and teach its owner to skip the section.
+  const report = lintVault([
+    { path: "people/alice.md", frontmatter: { type: "person", updated: "2026-06-01" }, body: "" },
+    { path: "notes/meeting.md", frontmatter: { updated: "2026-06-15" }, body: "met [[alice]]" },
+  ]);
+  assert.deepEqual(report.staleEntityPages, []);
+});
+
 test("lintVault — exactly at the threshold is not stale, and non-entities never are", () => {
   const report = lintVault([
     // entity, freshest reference exactly 90 days later (Jan1→Apr1) — on the border, not past it
@@ -214,6 +376,26 @@ test("lintVault — an empty string or empty array counts as a missing required 
   assert.deepEqual(report.frontmatterViolations, [
     { path: "empties.md", missing: ["updated", "tags"] },
   ]);
+});
+
+test("lintVault — a required key holding a DATE or a number is present, not missing", () => {
+  // YAML is typed: `created: 2026-01-01` unquoted parses to a Date, and a bare
+  // year to a number. Neither has a `.length`, so a presence test that reaches for
+  // one reports full frontmatter as missing — and the owner is sent to fix a note
+  // that is already correct, with nothing they can change to clear it.
+  const report = lintVault([
+    {
+      path: "typed.md",
+      frontmatter: {
+        type: "topic",
+        created: new Date("2026-01-01T00:00:00Z"),
+        updated: 2026,
+        tags: ["x"],
+      },
+      body: "",
+    },
+  ]);
+  assert.deepEqual(report.frontmatterViolations, []);
 });
 
 test("lintVault — raw-capture zones are exempt from required frontmatter, curated notes still held", () => {

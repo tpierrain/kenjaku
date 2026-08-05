@@ -256,7 +256,23 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 
 - **Keep the direct links to sources** (permalinks, URLs) of everything you use (message, document, email), and include them when you cite a source in an answer.
 - **Never rebuild a permalink by hand** from an identifier + timestamp (often wrong): reuse the link the tool hands you as-is.
-- **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis. Flag when you interpret rather than report.
+- **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis — that ranking says what to cite; the order in which you *read* is **Source discipline**, just below. Flag when you interpret rather than report.
+
+### Source discipline — read the verbatim before you quote what was made from it
+
+An automatic note-taker's export opens with its summary and its action list — the exact shape of the
+deliverable you were asked for — and keeps the transcript further down the *same* file. The ranking
+above never fires, because nothing ever presents the choice: the synthesis arrives unasked, and a
+partial read lands on it alone.
+
+- **A search-result snippet is never a source.** It is an extract the tool chose, usually of the
+  summary. **Open the document** before you write anything from it.
+- **When one file holds both, read the verbatim before quoting anything derived from it** — and take
+  the decisions from the transcript, never from the summary's own list of actions.
+- **Declare the tier you actually read.** Every note carries a `source` field (`verbatim` >
+  `conversation` > `human-summary` > `ai-summary`), is stamped with the weakest tier it declares, and
+  is refused without one. "This export has no verbatim" is something you write down, not something
+  you round up.
 
 ### Identity discipline — read the vault before you write about the people in it
 
@@ -382,10 +398,14 @@ On each ingestion of external data, cross-reference with `vault/backlog/*.md`:
 
 Never present an action as "to do" without having checked that it hasn't already been done. Checked actions stay in the file (tracking register, no deletion).
 
-**Proactive action-item verification (question-first).** When you list actions from external sources, follow the same flow as the main flow:
-1. **Phase 1**: present the actions from the vault right away (fast answer, even if statuses aren't verified yet).
+**Proactive action-item verification (question-first).** The trigger is **displaying** an unchecked action, not ingesting a source — reading the vault back is enough, so *"show me what I'm expected to deliver"*, answered from `vault/backlog/*.md` alone, is this case. Same flow as the main flow:
+1. **Phase 1**: present the actions from the vault right away (fast answer), saying on the line that the statuses are not verified yet.
 2. **Phase 2**: in the background, look for **execution traces** (message sent, commit, email, meeting confirmation) that would show an action is already done.
 3. **Phase 3**: amend — check `[x]` what's done, drop it from the "to do" list, add any newly detected actions.
+
+**Never a mute `- [ ]`.** An unchecked box means *not re-verified*, never *not done*: it records when someone last wrote that line, not the state of the world. A box whose execution trace you did not look for is displayed as **status not verified**, on the line itself. Passing a stale checkbox off as a fact is the same defect as reporting a silence you never checked.
+
+**Cap what you display — backlogs and action items only, not long answers in general.** ~3 at the head, the rest folded, and say both: **how many** you folded, and **on what basis** you picked the head (what is most at stake or most overdue, never the file's order). Dumping the list is not exhaustiveness, it hands the triage back to the person who asked you to do it; folding it in silence is the same defect wearing the other mask.
 
 The user should never have to correct "careful, that's already done": it's on Claude to verify upfront.
 

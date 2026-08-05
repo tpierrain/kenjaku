@@ -1,7 +1,7 @@
 ---
 name: file-back
 description: "File a hard-won answer back into the vault as a durable note (Axis 1): after a substantive exchange, PROPOSE distilling it into a topic / decision / person / meeting page — with a suggested target zone, tags and [[links]] — then write it only once the user says yes. The write goes through a deterministic builder so the note is taxonomy-conformant by construction (never re-introduces the defects /lint reports). Triggered by '/file-back', 'file this back', 'save this answer', 'turn this into a note', 'garde cette réponse', 'classe ça dans mon cerveau', 'fais-en une note durable'."
-version: 1.0.0
+version: 1.1.0
 ---
 
 # file-back — file the good answer back ("don't let this evaporate")
@@ -47,6 +47,19 @@ Pick, from the vault taxonomy (see the constitution, §"Note format"):
   unique — a card that does not say *which* Romain moves the ambiguity into the vault instead of
   resolving it, and the next resolution inherits it. See the identity discipline in
   [`sync-sources`](../sync-sources/SKILL.md#identity-discipline).
+- **sources** (**required on every note**, the builder refuses without it) → what this note was
+  **built from**, as `[{"tier":…,"ref":…}]`, one entry per source actually read:
+  - `verbatim` → the raw thing itself: a transcript's own turns, the message as sent, the document.
+  - `conversation` → this exchange, when the note distils what was worked out here and nothing external.
+  - `human-summary` → someone's recap of something they attended or read.
+  - `ai-summary` → a note-taker's synthesis (Gemini, Noota, Fathom, tl;dv, Otter, Fireflies, Read.ai…).
+  The `ref` names the document, the section and the date, so the reading can be gone back to.
+  **A search-result snippet is not a source** and is refused as such: open the document and declare
+  the tier you actually read. **When a document holds both a summary and the verbatim** — a Meet
+  export is exactly that, the AI notes first, the transcription below — the verbatim is the source;
+  read it, and declare the summary too only if you leaned on it. The weakest declared tier is stamped
+  as `source_tier:` in the frontmatter, so "which notes here rest on an AI synthesis?" stays a query
+  rather than a re-read.
 - **confidence** (`person` — **required**, the builder refuses without it) → what this card's identity
   actually rests on: `{"level":"observed|probable|unverified","basis":"…"}`. Same scale as the claim
   discipline, deliberately: `observed` = you read the full name at a source you can cite, `probable` =
@@ -63,7 +76,7 @@ intend to file. Ask for a yes. Adjust to their edits.
 Once confirmed, from the brain folder, pipe a JSON spec to the builder (it stamps today's date, writes
 under `vault/`, and **refuses to overwrite**):
 ```bash
-echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"…","links":["topics/rag"]}' \
+echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"…","links":["topics/rag"],"sources":[{"tier":"conversation","ref":"worked out with you in this session, 2026-08-05"}]}' \
   | node scripts/file-back-note.mjs
 ```
 - `date` is required for dated types (`decision`, `meeting`), e.g. `"date":"2026-07-17"`.
@@ -77,6 +90,11 @@ echo '{"type":"topic","title":"Capacity Management","tags":["capacity"],"body":"
 - **Exit 1**, fourth case: a `person` with no `confidence`. Answer it honestly rather than reaching for
   the level that unblocks the write: `unverified` written down costs nothing, and is exactly what the
   next resolution needs to know.
+- **Exit 1**, fifth case: no `sources`. Same posture — do not reach for the tier that unblocks the
+  write. If what you have is an AI synthesis, say `ai-summary`; a note that says so is a note whose
+  reader can go and check, and a backlog built on a Gemini recap once welded a surname onto a first
+  name, rendered an unanswered question as settled and inverted a fact, with the verbatim sitting
+  further down the very same file.
 
 ### 3b. Existing living page (person / topic) → append a dated section
 Filing back never overwrites. When the target already exists, **refine it additively**: append a dated
@@ -85,11 +103,19 @@ section and bump its `updated:`. Keep it conformant, mirroring the builder's sha
 
 ## 2026-07-17 — <short heading>
 
+> **Sources**
+> - 📄 verbatim · <the document, its section, its date>
+
 <the distilled synthesis>
 
 - [[people/jane-doe]]
 ```
 This edit is the brain's normal confirmed write (the auto-commit hook persists it).
+⚠️ **This path does not go through the builder**, so nothing here *refuses* an undeclared section —
+the header is yours to write, in the builder's own shape and with the same four tiers
+(`📄 verbatim` / `💬 this conversation` / `📝 human synthesis` / `🤖 AI synthesis`). An addition
+that does not say what it rests on is the same defect as a note that does not, only on a page the
+vault already trusts.
 
 **Promoting a confidence marker.** When a card marked 🟡 or 🔴 is later confirmed, do **not** hand-edit
 its frontmatter (that is how a page ended up with two `updated:` keys and became unreadable). Pipe the

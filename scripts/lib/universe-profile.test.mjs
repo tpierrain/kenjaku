@@ -209,7 +209,14 @@ test("renderUniverseDigest carries the people and the connector accounts", () =>
       "Acme Corp.",
       "Industrial widgets.",
       "People: Zoe (CTO), Alice (PM).",
-      "Connector accounts: Slack: acme.slack.com.",
+      // A declared account is a claim (14.6): the connectors are single-account and
+      // do NOT follow a switch, so quoting the page as a fact is how the brain reads
+      // one organisation and files it under another's name.
+      "Connector accounts, as DECLARED on this page (a claim, never verified): " +
+        "Slack: acme.slack.com.",
+      "Slack can be checked, and here it must be: before reading or filing anything from Slack " +
+        "in this universe, observe the workspace a Slack result names, then run " +
+        '`node scripts/set-universe-profile.mjs --check-slack "<workspace>"`.',
     ].join("\n"),
   );
 });
@@ -462,7 +469,10 @@ test("renderUniverseDigest carries the topics, in the note's order, after the pe
     displayName: "Acme Corp",
     people: ["Zoe (CTO)"],
     topics: ["platform migration", "hiring"],
-    connectors: [{ tool: "Slack", account: "acme.slack.com" }],
+    // Notion rather than Slack: this test is about ORDER, and a connector nobody can
+    // interrogate keeps the block to its one declaration line (the Slack gesture has
+    // its own tests). It also pins that the digest carries the unverifiable tier too.
+    connectors: [{ tool: "Notion", account: "Acme workspace" }],
     today: "2026-07-27",
   }).content;
 
@@ -472,7 +482,8 @@ test("renderUniverseDigest carries the topics, in the note's order, after the pe
       "Acme Corp.",
       "People: Zoe (CTO).",
       "Topics: platform migration, hiring.",
-      "Connector accounts: Slack: acme.slack.com.",
+      "Connector accounts, as DECLARED on this page (a claim, never verified): " +
+        "Notion: Acme workspace.",
     ].join("\n"),
   );
 });
@@ -497,6 +508,27 @@ test("renderUniverseDigest reads a HAND-EDITED profile, trailing spaces in the h
   // `*` and `-` are both Markdown bullets, and a digest that quoted one of them
   // back as part of a person's name would read as a typo the owner never made.
   assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Zoe (CTO), Alice (PM).");
+});
+
+test("renderUniverseDigest reads a bullet written TIGHT against its dash", () => {
+  // `-Alice` with no space is not valid Markdown and Obsidian renders it as plain
+  // text — but it is still what a hurried hand types, and the digest is built from
+  // the page as it IS. Left unstripped, the dash rides into the sentence and the
+  // owner reads "People: -Alice (PM)" — a typo they never made, in the one block
+  // the session quotes about their own world.
+  const raw = [
+    "---",
+    "type: universe",
+    "displayName: Acme Corp",
+    "---",
+    "",
+    "# Acme Corp",
+    "",
+    "## People",
+    "-Alice (PM)",
+  ].join("\n");
+
+  assert.equal(renderUniverseDigest(raw), "Acme Corp.\nPeople: Alice (PM).");
 });
 
 // --- the session-start SYNTHESIS (F1) ----------------------------------------

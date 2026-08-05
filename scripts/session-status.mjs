@@ -32,6 +32,7 @@ import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
 import { restartPendingOnDisk, armRestartPending } from "./lib/restart-signal.mjs";
 import { pulledPaths, frozenWiringIn } from "./lib/frozen-wiring.mjs";
 import { readStartupVersionLine } from "./lib/engine-version.mjs";
+import { UPSTREAM_CACHE_REL, shouldReprobe } from "./lib/upstream-cache.mjs";
 import { buildStatusHookOutput } from "./lib/status-hook-output.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
 
@@ -205,11 +206,33 @@ const restartLine = restartNudgeSegment(
 // manifest (ADR 0017). It had a surface — the status line — which ADR 0036
 // retired, so it silently stopped being shown; the owner asked for it back at
 // startup (2026-08-03). Fail-silent: no manifest / no install ref → no segment.
-const versionLine = readStartupVersionLine({
-  manifestPath: join(REPO, "engine-manifest.json"),
-  existsSync,
-  readFileSync,
-});
+// F3: the line now also says what is UPSTREAM, from the verdict a previous
+// session's detached child wrote — still a single file read, still zero latency.
+const manifestPath = join(REPO, "engine-manifest.json");
+const upstreamPath = join(REPO, UPSTREAM_CACHE_REL);
+const versionLine = readStartupVersionLine({ manifestPath, upstreamPath, existsSync, readFileSync });
+
+// ...and refreshes that verdict for NEXT time, in a detached child (ADR 0028's
+// shape): the network call must never sit between the owner and their session.
+// Throttled by `shouldReprobe` — once a day, or whenever the verdict on disk is
+// about an engine this brain no longer runs.
+try {
+  const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null);
+  if (shouldReprobe({
+    cached: readJson(upstreamPath),
+    installedRef: readJson(manifestPath)?.source?.ref ?? null,
+    now: Date.now(),
+  })) {
+    const child = spawn(
+      process.execPath,
+      [join(__dirname, "upstream-check-run.mjs"), "--brainDir", REPO],
+      { detached: true, stdio: "ignore", windowsHide: true },
+    );
+    child.unref();
+  }
+} catch {
+  // fail-soft: a session start is never blocked by an update check.
+}
 
 // ─── Emission: systemMessage displays in the terminal, additionalContext is ──
 // the only channel that reaches Desktop (the agent relays it in the chat).

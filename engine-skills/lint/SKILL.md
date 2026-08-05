@@ -1,7 +1,7 @@
 ---
 name: lint
 description: "Health-check the vault's wiki (Axis 1): report where it bleeds — dangling [[links]], orphan notes nobody links to, stale entity pages left behind by fresher notes, and malformed frontmatter. Runs a deterministic scanner and reads its binary report, then proposes (never silently applies) fixes. Triggered by '/lint', 'lint my vault', 'check my wiki health', 'what links are broken', 'où mon wiki fuit', 'vérifie la santé de mes notes'."
-version: 1.0.0
+version: 1.1.0
 ---
 
 # lint — wiki-health check ("where is my wiki bleeding?")
@@ -34,13 +34,16 @@ node scripts/lint-vault.mjs
 - **Dangling links** `from → [[target]]`: a `[[link]]` whose target note does not exist.
   Usually a typo, a renamed/moved note, or a note that was meant to be written and never was.
 - **Orphans**: a note with **zero inbound links** (raw-capture zones `daily/`, `raw-sources/`,
-  `inbox/` are already excluded — they are legitimately unlinked). An orphan is knowledge that
-  is filed but never woven in, so the wiki (and the RAG's neighbourhood signal) can't reach it.
+  `inbox/` and `_inbox/` are already excluded — they are legitimately unlinked, and so are the
+  engine's own notes, `type: engine`). An orphan is knowledge that is filed but never woven in, so
+  the wiki (and the RAG's neighbourhood signal) can't reach it.
 - **Stale entity pages**: a curated entity page (`type: person|topic|company|project|concept`)
   whose `updated:` trails the freshest note that cites it by more than the threshold (default
   90 days). The world moved on; the canonical page didn't.
 - **Frontmatter issues**: a note missing a required key (`type` / `created` / `updated` /
-  `tags`), so it indexes and sorts poorly.
+  `tags`), so it indexes and sorts poorly. Raw-capture zones and the engine's own notes
+  (`type: engine`, e.g. the RAG canary) are exempt: neither is a curated wiki node, and telling the
+  owner to fix a file they are told never to touch is a complaint they can never clear.
 
 ### 3. Propose fixes (never apply silently)
 Group the findings and, for the ones worth acting on, **suggest the concrete gesture** and ask

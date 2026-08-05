@@ -261,6 +261,58 @@ healthy notes declared broken**. The vault was fine; the checker was wrong.
 - **Same rule for anything that classifies user content** — a lint, a guard, a nudge. If it does not run
   the production parser on the real payload, it is asserting about a payload nobody has.
 
+## 5quinquies. Mutate a NEW production file the day it is written — not at the release tail
+
+**The rule.** When a new production file is finished — the tests are green and you are about to move on
+to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. The two commands,
+both run from the repo root:
+
+```
+# a rag/src/lib file — sandbox-free inPlace on the real tree is this config's own recipe
+node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
+  run maintainers/mutation/stryker.rag.config.mjs --mutate "rag/src/lib/<the-one-file>.ts"
+
+# a scripts file — from a DISPOSABLE WORKTREE, with rag/node_modules symlinked into it
+node <repo>/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
+  run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate "scripts/<the-one-file>.mjs"
+```
+
+The worktree is not ceremony you can skip for a one-file run: `inPlace` on the real tree lets a mutant of
+vault-mutating code (`clear-example-notes.mjs`, `auto-commit.mjs`) act for real, and the sandbox
+alternative has no git, which `engine-manifest-integrity` needs. Set it up **once per branch** and reset
+it between runs (`git reset --hard <sha>` + `git clean -qfd -e rag/node_modules`, **never**
+`git checkout -- .`); then each day-of run really is 1-3 minutes. Verify the symlink bought what it was
+for — `vault-write-guard.test.mjs` must report **0 skipped** in the worktree — or the mutants face a
+suite that cannot judge them, which is §5quater's fiction with a mutation score on top.
+
+This is an **addition, not a substitution**: the release-tail pass over everything the branch changed
+stays exactly as it is (§10's sibling in the release checklist). What changes is that the tail stops
+being the *first* time anyone looks.
+
+**Why the tail alone cannot work.** The tail pass is deliberately run once the branch has **stopped
+moving** — that is the right call for a *measurement* (measuring earlier buys a re-measure; v4.6.0's
+RESULTS.md had to be redone after seven later commits). But it makes the pass arrive at the exact moment
+when restructuring is most expensive and the release is most pressing. **A lesson that only ever arrives
+after the writing can tax it; it can never teach it.** So the honest answer is not to move the tail pass
+— it is to add a cheap detector that fires while the code is still soft.
+
+**What made this a convention rather than a preference** (v4.8.0, 2026-08-05). The tail pass on that
+branch scored its first batch at **65.92 %**, the worst first pass of any release, and **57 % of the
+survivors were two shapes this repo had already diagnosed *and already fixed once, elsewhere*** — a real
+child-process runner nothing observed (solved at v4.5.0 by turning the spawn's request into a pure value,
+never propagated), and a top-level script with no test sibling (a fix designed and named at v4.5.0, then
+deferred three releases running). The knowledge was complete, versioned and written down. What was
+missing was a net that fires **while the file is being written**.
+
+Two corollaries, both earned the same day:
+
+- **Do not answer a recurring shape with one more written reflex.** `tdd-discipline`'s assertion section
+  already carries ten of them, and its own second audit noted the first six "pourtant déjà gravés" had
+  not sufficed. Another line of prose is the move that was already measured as insufficient.
+- **A lesson recorded as a story about the file just fixed does not generalise.** RESULTS.md entries read
+  *"`rag-status.mjs` had five loose assertions"* — true, useful, and inert. Record the **constraint**
+  (this section, a guard test, a numbered debt line that may only shrink), not the anecdote.
+
 ## 6. ADRs carry a `Scope:` field
 
 Every ADR carries a `- **Scope:**` line right under `STATUS`, with an **explicit** value (never the
