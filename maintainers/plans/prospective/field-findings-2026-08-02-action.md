@@ -2042,8 +2042,12 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
                     survived**, so this file needs no second pass.
     - [x] ~~**Batch 3, not started**~~ — done and hardened above.
     - [x] ~~**Batch 4, not started**~~ — done, hardened AND re-measured above (96.54 %).
-    - [ ] **▶️ RESUME HERE: Batch 5, not started** — `scripts/lib/connector-accounts.mjs,
-          scripts/lib/consolidation-candidates.mjs, scripts/lib/wiki-lint.mjs`.
+    - [ ] **▶️ RESUME HERE: Batch 5 — LAUNCHED 2026-08-05, running** — `scripts/lib/connector-accounts.mjs,
+          scripts/lib/consolidation-candidates.mjs, scripts/lib/wiki-lint.mjs`. **On resume, read the log
+          rather than re-running it**: `maintainers/mutation/reports/v480-batch5-lint-accounts.log`.
+          Worktree reset to `d9bdb7c` (the three files are **unchanged** since — `git diff` on them is
+          empty, checked not assumed), `rag/node_modules` symlink re-created after the `git clean`, and
+          `vault-write-guard.test.mjs` verified at **22 pass / 0 skipped** before the run.
     - [ ] **Batch 6, not started** — `scripts/lib/universe-profile.mjs, scripts/set-universe-profile.mjs`.
     - [ ] **⚠️ THE RE-MEASURES STILL OWED, in ONE run** — each hardened file is at an **unknown** score
           until re-mutated, and RESULTS.md must publish measured numbers, never hoped-for ones:
