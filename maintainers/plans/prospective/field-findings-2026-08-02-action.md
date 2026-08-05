@@ -1087,10 +1087,12 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > ⚠️ **No finding codes in any artifact** (the owner, 2026-08-03): "F20, F21, Fx" are filing labels for
 > this plan only. The note, the PR body and the release name the behaviour instead.
 >
-> ### ⏭️ THE RESUME POINT — the three findings are DONE and pushed; the live work is **13.4, the
-> release tail**, whose next command is the `scripts` mutation batch (spelled out below, worktree
-> already prepared). Branch `release/v4.7.0`, CI green through `55128d9`'s predecessors, nothing
-> half-written in the main checkout.
+> ### ⏭️ THE RESUME POINT — everything that does not need the owner is DONE and pushed. **The only
+> box left is the PUBLIC half: the release note, the PR body and the tag** — and §10 says the owner is
+> asked **before** it, as at v4.6.0. Drafts are written and waiting for that read
+> (`maintainers/plans/prospective/release-v4.7.0-note.draft.md` and `…-pr-body.draft.md`); nothing is
+> published, no PR is open, no tag exists. Branch `release/v4.7.0`, pushed through `794a52b`, working
+> tree clean, mutation worktree removed.
 >
 > **✅ F20 IS COMPLETE** _(2026-08-05 · `82f49cd`, `ee1c373`)_. Both halves shipped, and the two calls
 > the entry left open are taken below; do not re-open them.
@@ -1167,29 +1169,40 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >       **`index-shortfall.ts` 100 %**, **`status-report.ts` 100 %**, 0 survivors.
 >       `rag/src/index.ts` is out of the tool's scope (not under `src/lib/`) — same class as the
 >       top-level scripts, already named debt. **Do not re-run this half.**
-> - [ ] **⏭️ THE NEXT COMMAND — mutation, the `scripts` half.** The worktree is ALREADY prepared
->       and verified: `/Users/tpierrain/Dev/kenjaku-mut-v470` (detached at `55128d9`),
->       `rag/node_modules` symlinked, `scripts/vault-write-guard.test.mjs` checked there at
->       **9 pass / 0 skipped** (it must not skip, or the mutants face a suite that cannot judge
->       them). From that worktree, run:
->       ```
->       node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
->         run maintainers/mutation/stryker.scripts.batch.config.mjs \
->         --mutate "scripts/lib/frozen-wiring.mjs,scripts/lib/restart-nudge.mjs,scripts/lib/restart-signal.mjs,scripts/prompt-restart-nudge.mjs"
->       ```
->       Those four are what this release wrote. `session-status.mjs` / `session-self-heal.mjs` /
->       `update-engine.mjs` were also touched but are the **known top-level tier** (no test can
->       import them) — record, do not chase. ⚠️ It mutates **in place**: never run it in the main
->       checkout, and reset the worktree between batches per Step 11's recipe.
->       **When done: `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v470`.**
-> - [ ] **§10, the marketing-surface re-read** — started, nothing written yet. What the reading so
->       far suggests, to be confirmed rather than trusted: nothing became FALSE (question 1); the
->       candidate for question 2 is that `README.md:94-96` (*"freshness catches up behind the
->       scenes"*) and the *Zero-chore* row were **partly unearned** — the arrival case never caught
->       up — and this release is what makes them true, the same shape as v4.5.0's rehydrate repair.
->       The `board-reliability` **"34 ADRs"** drift is pre-existing and deliberately left.
-> - [ ] **Release note + PR body + tag** — the owner is asked BEFORE the public tail, as at v4.6.0.
->       No PR is open for `release/v4.7.0` yet.
+> - [x] **Mutation, the `scripts` half — DONE, 83.33 % → 97.56 %** _(2026-08-05 · `7239caf`, logs
+>       `…/v470-scripts-changed.log` then `…/v470-scripts-recheck.log`)_. Fourteen survivors, and the
+>       low number was **a design defect, not thin tests**: in `restart-signal.mjs` (58.33 %) the
+>       fail-soft is written **twice per signal** — an initializer *and* a `catch` — so each half
+>       silently covered for the other and **neither could be shown to work**. Stated once now
+>       (`noSignalIfItBlowsUp`). Two cases were missing outright (a `.mcp.json` registering exactly
+>       what the engine delivered — the converged case that proves both probes are read — and one
+>       registering something else), and the fake now reads the way node's `fs` reads, so a read that
+>       passes by luck fails in the test. `frozen-wiring` had only ever been fed **CRLF**: on Unix the
+>       whole stdout would have come back as one path and the machine that is behind would have gone
+>       silent everywhere **but** Windows. `restart-nudge`'s reason clause and its *"open your reply"*
+>       instruction were both deletable with the suite green. Both at **100 %** now; `restart-signal`
+>       **95.45 %**. Two survivors left, both **pre-listed equivalents** (§5ter): the `isEntrypoint`
+>       boot guard (already named debt → `runAsEntrypoint`, v4.8.0) and a `catch { return false; }`
+>       that `isRestartPending`'s `Boolean(…)` normalises. Numbers pinned in
+>       `maintainers/mutation/RESULTS.md` (§ v4.7.0, **both halves**). **Do not re-run this half**;
+>       the worktree `kenjaku-mut-v470` has been removed.
+> - [x] **§10, the marketing-surface re-read — DONE** _(2026-08-05 · `794a52b`)_. **Question 1:
+>       nothing became FALSE.** The only stale thing found is an illustration, not a promise —
+>       `SETUP.md` §10 showed the version segment as `v4.6.0` (bumped). **Question 2: two, both
+>       shipped in the copy.** (a) The **stale engine**: the self-upgrade bullet now says the brain
+>       tells you when the engine answering you is no longer the one on disk — the second-machine
+>       pull case, terminal *and* Desktop. (b) **"Always catches up"** was partly unearned, the same
+>       shape as v4.5.0's rehydrate repair: §C now names the **five** kinds of pending, says which one
+>       resolves itself, and says the arrival case is caught up **on the spot**. **Boards: re-read
+>       through their alt texts, NOT re-rendered** — `board-flow`'s "catch up in the background" is
+>       about external sources rather than the index and still holds; `board-reliability`'s **"34
+>       ADRs"** (37 today) is the pre-existing under-claim, deliberately left as decided at v4.6.0.
+>       No finding codes on the surface, as agreed.
+> - [ ] **⏭️ Release note + PR body + tag — THE ONLY BOX LEFT, and it needs the owner.** Drafts are
+>       written and committed, deliberately NOT published: `release-v4.7.0-note.draft.md` and
+>       `release-v4.7.0-pr-body.draft.md`, next to this plan. **Read them with the owner first**, then
+>       open the PR, wait for 7/7, merge, tag, publish — the v4.6.0 sequence. No PR is open for
+>       `release/v4.7.0`, and no tag exists.
 >
 > Nothing is half-written on disk. `main` is at the PR #56 merge (`b414766`), and **`release/v4.7.0`
 > exists and is pushed** off that commit. Work the remaining boxes below in order.
@@ -1202,7 +1215,9 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 > - [x] **13.3 — F22 — DONE** _(2026-08-05 · `c229cab`)_, option A; see the resume point above.
 > - [ ] **13.4 — the release tail** (§10 marketing re-read, mutation on what changed, version vector,
 >       note + PR body, tag) — same shape as v4.5.0 and v4.6.0, whose tails are Steps 11 and 12.
->   - [ ] **Bookkeeping the cut created, do it on the release branch, not on `main`:** three code
+>       **Everything except the public half is done** _(2026-08-05)_; see the boxes above.
+>   - [x] **DONE** _(2026-08-05 · `421121f`, verified in the files)_ — **bookkeeping the cut created,
+>         done on the release branch, not on `main`:** three code
 >         comments still send a reader to v4.7.0 for work that now lands in **v4.8.0** —
 >         `scripts/lib/engine-version.mjs:19` and `scripts/lib/engine-version.test.mjs:73` (the
 >         `unknown` version state, F3) and `scripts/lib/health-probe.test.mjs:219`. A comment naming
