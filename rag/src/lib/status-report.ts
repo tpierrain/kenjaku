@@ -1,6 +1,7 @@
 import type { LockState } from "./reindex-lock.js";
 import { formatProgressReport, RESUME_HINT, type RunProgress } from "./progress-report.js";
 import type { SchedulerState } from "./reindex-scheduler.js";
+import { describeShortfall, type ShortfallInput } from "./index-shortfall.js";
 
 /**
  * Liveness line for the live-stream watcher (real-time in-memory state of the
@@ -38,6 +39,12 @@ export interface StatusReportInput {
   providerId?: string;
   /** State of the last catch-up run (or the in-progress one), if any. */
   progress?: RunProgress | null;
+  /**
+   * The shortfall the server last asked a catch-up to close (F21). Passed so the LINE and
+   * the ACTION read the same state: without it the report would keep saying "catching up
+   * now" about a gap the engine has already given up on.
+   */
+  lastCatchUpRemaining?: number | null;
   /** Current ISO instant (required for the ETA of a `running` run). */
   now?: string;
 }
@@ -62,13 +69,42 @@ function progressLine(input: StatusReportInput): string | null {
  * docs remain to be indexed, `null` if the index is complete (nothing to
  * surface). Single source of the "index incomplete" phrasing.
  */
-export function incompleteIndexWarning(input: {
-  docCount: number;
-  scannedCount: number;
-}): string | null {
-  const remaining = input.scannedCount - input.docCount;
-  if (remaining <= 0) return null;
-  return `Index incomplete: ${input.docCount}/${input.scannedCount} files indexed, ${remaining} pending — ${RESUME_HINT}.`;
+export function incompleteIndexWarning(input: ShortfallInput): string | null {
+  const shortfall = describeShortfall(input);
+  if (!shortfall) return null;
+
+  const head = `Index incomplete: ${input.docCount}/${input.scannedCount} files indexed`;
+  if (shortfall.cause === "failures") {
+    const waiting = shortfall.queued > 0 ? `, ${shortfall.queued} pending` : "";
+    return (
+      `${head}, ${shortfall.failures.length} failed${waiting} — ${describeFailures(shortfall.failures)}. ` +
+      `This will NOT resolve on its own: repair the note (or ask me to), then reindex.`
+    );
+  }
+  if (shortfall.cause === "arrived") {
+    return `${head}, ${shortfall.remaining} pending — they arrived after the last scan; catching up now.`;
+  }
+  if (shortfall.cause === "running") {
+    return `${head}, ${shortfall.remaining} pending — a catch-up is running right now.`;
+  }
+  if (shortfall.cause === "stalled") {
+    return (
+      `${head}, ${shortfall.remaining} pending — a catch-up just ran and closed none of them. ` +
+      "This will NOT resolve on its own: run `node scripts/verify-index.mjs` to see which notes disagree."
+    );
+  }
+  // A wall: the one case the resume promise was written for, and the only one where it holds.
+  return `${head}, ${shortfall.remaining} pending — ${RESUME_HINT}.`;
+}
+
+/**
+ * The failures worth naming, truncated (2 max + a count of the rest) — same bound, and the
+ * same reason, as the SessionStart banner's: a wall of stack-like strings is skipped as noise.
+ */
+function describeFailures(errors: string[], max = 2): string {
+  const shown = errors.slice(0, max).join("; ");
+  const rest = errors.length - max;
+  return rest > 0 ? `${shown} (+${rest} other(s))` : shown;
 }
 
 function indexLine(input: StatusReportInput): string {

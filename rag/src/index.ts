@@ -39,6 +39,7 @@ import { scanVault } from "./lib/document-scanner.js";
 import { UsageTracker } from "./lib/usage-tracker.js";
 import { ReindexLock } from "./lib/reindex-lock.js";
 import { buildStatusReport, incompleteIndexWarning, formatWatcherLiveness } from "./lib/status-report.js";
+import { CatchUpBound, describeShortfall, type Shortfall } from "./lib/index-shortfall.js";
 import { ReindexScheduler } from "./lib/reindex-scheduler.js";
 import { startVaultWatcher } from "./lib/vault-watcher.js";
 import {
@@ -70,6 +71,17 @@ const server = new McpServer({
 // (which sets them at startup) and `vault_stats` (which reads the scheduler's in-memory state).
 let liveScheduler: ReindexScheduler | null = null;
 let watcherActive = false;
+
+// F21: the engine's own catch-up, and the memory that keeps it from looping. A shortfall the
+// run state cannot explain is notes that landed after the scan — the ordinary multi-machine
+// case, where the pull delivers them at the very instant the startup reindex reads the vault.
+// Nothing was waiting for them: the scheduler sits idle, armed for an event that has already
+// happened. So we ask, once, and only ask again if the previous ask actually closed part of it.
+const catchUpBound = new CatchUpBound();
+
+function catchUpIfNotesArrived(shortfall: Shortfall | null): void {
+  if (catchUpBound.request(shortfall)) liveScheduler?.notify();
+}
 
 server.tool(
   "search_vault",
@@ -230,8 +242,21 @@ server.tool(
       // quota in local mode (in-process / OpenAI-compatible endpoint).
       providerId: createEmbedder().identity.providerId,
       progress,
+      lastCatchUpRemaining: catchUpBound.lastCatchUpRemaining(),
       now: new Date().toISOString(),
     });
+
+    // The question the owner asks IS the moment to close the gap: they are looking at the
+    // number. The line above says "catching up now" for exactly this cause, so the ask has to
+    // happen here, or that sentence would be the old promise wearing newer words.
+    catchUpIfNotesArrived(
+      describeShortfall({
+        docCount: stats.docCount,
+        scannedCount: scanned.length,
+        progress,
+        lastCatchUpRemaining: catchUpBound.lastCatchUpRemaining(),
+      }),
+    );
 
     const watcherLine = formatWatcherLiveness({
       active: watcherActive,
@@ -369,13 +394,17 @@ async function main() {
         `[vault-rag] Auto-reindex done: ${result.indexed} indexed, ${result.skipped} unchanged` +
           (result.errors.length > 0 ? `, ${result.errors.length} errors` : "")
       );
-      // Surface incompleteness: if the index is not complete after the run
-      // (quota wall, errors), say so explicitly — auto-resumes on the next
-      // session, nothing to do by hand.
-      const warning = incompleteIndexWarning({
+      // Surface incompleteness, and say WHICH of the causes it is (F21): a refusal never
+      // resolves itself, a quota wall does, and notes that landed during this very run are
+      // closed by asking again — which is what `catchUpIfNotesArrived` does, a few lines
+      // below, once the watcher that owns the scheduler exists.
+      const shortfallInput = {
         docCount: getStats().docCount,
         scannedCount: result.scanned,
-      });
+        progress: new FileProgressStorage().load(),
+        lastCatchUpRemaining: catchUpBound.lastCatchUpRemaining(),
+      };
+      const warning = incompleteIndexWarning(shortfallInput);
       if (warning) console.error(`[vault-rag] ${warning}`);
 
       // The background path that fires after an import: tell the user the new
@@ -387,6 +416,11 @@ async function main() {
       // serializes in-process runs; each run rewrites last-run.md → observable like
       // the others (F.5).
       startFileWatcher();
+
+      // AFTER the watcher, because it is what owns the scheduler: this is the exact window
+      // the field report walked into — the session's `git pull` lands notes while this run is
+      // already reading the vault, so they are neither failed nor queued, just unseen.
+      catchUpIfNotesArrived(describeShortfall(shortfallInput));
     })
     .catch((err) =>
       console.error("[vault-rag] Auto-reindex failed (non-blocking):", err)

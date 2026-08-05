@@ -86,7 +86,10 @@ test("3.1a — complete index, gemini/default provider → exact 2-line report",
   );
 });
 
-test("3.1b — incomplete index → exact Y/X indexed + Z pending + auto-resume line", () => {
+// F21 repointed the expectation of this test and of `4.2` below, deliberately: with NO run
+// recorded, "auto-resume on the next session" was a promise made from two numbers. Absent is
+// not "nothing failed" — it is "nothing is recorded", and asking now costs one run.
+test("3.1b — incomplete index → exact Y/X indexed + Z pending + the cause it can actually support", () => {
   const report = buildStatusReport({
     docCount: 30,
     scannedCount: 42,
@@ -98,7 +101,7 @@ test("3.1b — incomplete index → exact Y/X indexed + Z pending + auto-resume 
 
   assert.equal(
     report,
-    "Index incomplete: 30/42 files indexed, 12 pending — auto-resume on the next session.\n" +
+    "Index incomplete: 30/42 files indexed, 12 pending — they arrived after the last scan; catching up now.\n" +
       "Quota: 0/950 used today, 950 remaining (reserve 50 for search).",
   );
 });
@@ -173,9 +176,22 @@ test("3.1d — no lock → no mention of reindex in progress", () => {
 
 // ─── incompleteIndexWarning (leaf) ───
 
-test("4.2 — incompleteIndexWarning: incomplete index → exact resume message", () => {
+test("4.2 — incompleteIndexWarning: incomplete index → the cause, not a resume it cannot know", () => {
   assert.equal(
     incompleteIndexWarning({ docCount: 30, scannedCount: 42 }),
+    "Index incomplete: 30/42 files indexed, 12 pending — they arrived after the last scan; catching up now.",
+  );
+});
+
+test("4.2 — incompleteIndexWarning: a wall IS a wait, and keeps the resume promise it earns", () => {
+  // The one case the original sentence was written for. It has to keep saying it, or F21's
+  // fix would have swapped one wrong cause for another.
+  assert.equal(
+    incompleteIndexWarning({
+      docCount: 30,
+      scannedCount: 42,
+      progress: finishedRun({ hitCap: true, scanned: 42 }),
+    }),
     "Index incomplete: 30/42 files indexed, 12 pending — auto-resume on the next session.",
   );
 });
@@ -215,7 +231,9 @@ test("C.13 — progress running with `now` → exact 3-line report (now, not sta
   // elapsed time → "~0/min, ETA unknown".
   assert.equal(
     report,
-    "Index incomplete: 120/211 files indexed, 91 pending — auto-resume on the next session.\n" +
+    // F21: the run is `status: "running"`, so the shortfall is being closed as it is read —
+    // the one wait nobody has to be told to wait for.
+    "Index incomplete: 120/211 files indexed, 91 pending — a catch-up is running right now.\n" +
       "Quota: 200/950 used today, 750 remaining (reserve 50 for search).\n" +
       "Catch-up in progress: 120/660 chunks (18 %), ~120/min, ETA ~5 min, 0 error(s).",
   );
@@ -319,5 +337,67 @@ test("3.1g — any other provider → exact generic \"Embeddings via <id>\" fall
     report,
     "Index up to date: 7/7 files indexed.\n" +
       "Embeddings via mistral-embed: no Gemini quota tracked.",
+  );
+});
+
+// ─── F21: the shortfall line stops promising a resume it cannot know is coming ───
+// It was made from two numbers and nothing else, so `vault_stats` answered "19 pending —
+// auto-resume on the next session" with the watcher idle, a local embedder (no quota to wait
+// for) and nothing failed. The cause model is `describeShortfall`, read from the run state
+// the engine already writes — the SAME state the SessionStart banner reads (F11/F12), not a
+// second opinion.
+const finishedRun = (over: Partial<RunProgress> = {}): RunProgress => ({
+  status: "done",
+  startedAt: "2026-08-05T06:00:00Z",
+  finishedAt: "2026-08-05T06:02:00Z",
+  totalChunks: 100,
+  doneChunks: 100,
+  scanned: 458,
+  indexed: 12,
+  skipped: 427,
+  removed: 0,
+  errors: [],
+  hitCap: false,
+  ...over,
+});
+
+test("F21 — notes the indexer refused are named, and the line says it will NOT fix itself", () => {
+  assert.equal(
+    incompleteIndexWarning({
+      docCount: 439,
+      scannedCount: 441,
+      progress: finishedRun({ errors: ["a.md: bad frontmatter"] }),
+    }),
+    "Index incomplete: 439/441 files indexed, 1 failed, 1 pending — a.md: bad frontmatter. " +
+      "This will NOT resolve on its own: repair the note (or ask me to), then reindex.",
+  );
+});
+
+test("F21 — notes that arrived after the scan are caught up NOW, not promised to a next session", () => {
+  assert.equal(
+    incompleteIndexWarning({ docCount: 439, scannedCount: 458, progress: finishedRun() }),
+    "Index incomplete: 439/458 files indexed, 19 pending — they arrived after the last scan; catching up now.",
+  );
+});
+
+test("F21 — a run still in flight is the one wait that needs no explaining", () => {
+  assert.equal(
+    incompleteIndexWarning({ docCount: 120, scannedCount: 211, progress: finishedRun({ status: "running" }) }),
+    "Index incomplete: 120/211 files indexed, 91 pending — a catch-up is running right now.",
+  );
+});
+
+test("F21 — a catch-up that closed nothing stops promising, and names the tool that can look", () => {
+  // The bound, on the surface: the engine has already asked once and the gap did not move, so
+  // repeating "catching up now" would be the same false promise in a newer coat.
+  assert.equal(
+    incompleteIndexWarning({
+      docCount: 439,
+      scannedCount: 458,
+      progress: finishedRun(),
+      lastCatchUpRemaining: 19,
+    }),
+    "Index incomplete: 439/458 files indexed, 19 pending — a catch-up just ran and closed none of them. " +
+      "This will NOT resolve on its own: run `node scripts/verify-index.mjs` to see which notes disagree.",
   );
 });
