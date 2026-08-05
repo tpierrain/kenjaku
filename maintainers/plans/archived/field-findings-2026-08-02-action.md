@@ -1,5 +1,24 @@
-# Action plan — field findings from a real brain, 2026-08-02 (candidate scope for the next release)
+# Action plan — field findings from a real brain, 2026-08-02 — ✅ FINISHED, ARCHIVED
 
+> # 🏁 THIS PLAN IS DONE. Its whole scope shipped, in four releases.
+>
+> **v4.5.0** _(2026-08-03, tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7)_ · **v4.6.0** _(2026-08-04,
+> tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7)_ · **v4.7.0** _(2026-08-05, tag `v4.7.0`, PR #57,
+> merge `556f950`, CI 7/7)_ · **v4.8.0** _(2026-08-05, tag `v4.8.0`, PR #58, merge `e0dbb7b`, **CI 7/7
+> on the tagged commit**, release published:
+> <https://github.com/tpierrain/kenjaku/releases/tag/v4.8.0>)_.
+>
+> Each release's published note and PR body are archived beside this file
+> (`release-v4.X.0-note.md`, `release-v4.8.0-pr-body.md`); the mutation numbers are pinned in
+> `maintainers/mutation/RESULTS.md`, one section per release.
+>
+> **What LEAVES this plan, and where it went** — the two structural mutation remedies the owner
+> arbitrated into v4.9.0 on 2026-08-05 (the shared `runAsEntrypoint` + its guard test, and `defaultGit`
+> as a pure value). They are the head of **`prospective/v4.9.0-mutation-debt-plan.md`**, and they are
+> also written as numbered debt in `RESULTS.md § v4.8.0`. **Nothing else is outstanding here**: the
+> unticked boxes below are the evidence and the rejected options, not remaining work — read them as the
+> record of how each finding was settled.
+>
 > **Why this plan exists.** One evening of real use on the owner's own brain (`mind-palace`,
 > 436 notes, 3 universes, `in-process` embedder), across a full `v4.3.0 → v4.4.0` engine update,
 > surfaced **16 distinct findings** — from cosmetics to *a documented feature that does not work*.
@@ -189,16 +208,13 @@
 > new production file is mutated the day it is written, engraved in `CONVENTIONS.md`. Both are checklist
 > items in 14.8; do not re-open or re-propose them (an 11th written reflex was explicitly declined).
 >
-> **▶️ RESUME AT: the RE-MEASURES, then `RESULTS.md`** _(state as of 2026-08-05, evening — the owner
-> handed the tail over to run in autonomy, "va jusqu'au bout", with **CI 7/7 on the tagged commit** as
-> the one gate that still stops the line)_. **Batches 5 and 6 are measured, hardened, green and pushed**
-> (`1f352eb`, `103eb05`) — read their entries in 14.8, do not re-derive them. The four chained
-> re-measure passes were launched on the tip `103eb05` and write to
-> `maintainers/mutation/reports/v480-recheck-{a,b,c,d}-*.log`: **read those logs rather than re-running
-> them**. What remains after them, in order: **RESULTS.md § v4.8.0** (with the two deferred remedies as
-> numbered debt and `session-status.mjs`'s 0 % written as inherited), remove the worktree, **pin the
-> snapshot into the release note**, re-read it, **the PR body**, re-check the boards' `mutation 90–97%`
-> claim, then **tag, merge, publish**.
+> **✅ THE TAIL RAN TO THE END, IN AUTONOMY** _(2026-08-05 evening — the owner handed it over: "en
+> autonomie car je vais aller diner. va jusqu'au bout")_. Batches 5 and 6 measured, hardened and pushed;
+> **six re-measure passes** (`v480-recheck-{a..f}-*.log`); two extra fixes the re-measure itself
+> surfaced; `RESULTS.md § v4.8.0` written with the two deferred remedies as **numbered debt**; the
+> worktree removed; the snapshot pinned into the note; the PR body written; the boards' `mutation
+> 90–97%` claim re-checked (it holds); then **merge, tag, CI 7/7 on the tagged commit, release
+> published**. The one gate stayed a gate and was passed, not assumed.
 >
 > <details><summary>The earlier resume point, kept for the record: the mutation pass, batch 4</summary>
 >
@@ -1328,7 +1344,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
 >         the wrong release is the same class of defect this plan keeps fixing: a marker that reads as
 >         a promise. Repoint them; do not touch the assertions themselves.
 
-## Step 14 — v4.8.0, short again: consent that can answer "what for?" — 🔜 THE LIVE WORK
+## Step 14 — v4.8.0, short again: consent that can answer "what for?" — ✅ SHIPPED (2026-08-05, tag `v4.8.0`, PR #58, merge `e0dbb7b`, CI 7/7 on the tagged commit, release published)
 
 > **Scope decided 2026-08-05 by the owner** (see the header): **F3 and its sibling, nothing else.** The
 > full evidence, the code read and the closed design call live in **F3's entry** (`### P3`) — read it
@@ -1794,7 +1810,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [ ] **For 14.8: the version vector.** Both constitutions changed here, so `constitutionTemplate`
         must be bumped with the rest of the vector (`scripts` too — this branch changed it). The two
         skill `version:` fields are already done.
-- [ ] **14.8 — the release tail — ✅ UNBLOCKED, THE OWNER SAID "on cut la release"** _(2026-08-05)_.
+- [x] **14.8 — the release tail — ✅ DONE, RAN TO THE END IN AUTONOMY** _(2026-08-05)_.
       The build phase 14.1 → 14.7 is done, green and pushed, draft **PR #58**; **full matrix 7/7 on the
       tip `1b5eb56`**, suite 1517 tests / 1 skipped Windows-only. The two decisions the tail was waiting
       on are both taken (below). **Nothing is half-written on disk.** Work the checklist in order.
@@ -2183,8 +2199,7 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           `constitutionTemplate` 1.2.0 → **1.3.0**. `rag` stays **1.4.0** and `local-mirror` **0.3.0** —
           **checked, not assumed**: `git diff --name-only main...HEAD` matches nothing under `rag/` or
           `local-mirror/`. `indexSchemaVersion` stays **2**, so the note may promise **no reindex**.
-    - [ ] **The release note (§11, non-devs first) + the PR body**, then archive both under
-          `archived/`. **No finding codes** (F3, F14…) in any artifact — they mean nothing to anyone but
+    - [x] **✅ The release note (§11, non-devs first) + the PR body — DONE**, both under `archived/`. **No finding codes** (F3, F14…) in any artifact — they mean nothing to anyone but
           us.
       - [x] **The note is DRAFTED and committed** at `maintainers/plans/archived/release-v4.8.0-note.md`
             _(`8a106f0`)_ — title, lead, the six `What you get` bullets (the update that says what it is
@@ -2199,8 +2214,13 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
       - [x] **✅ The PR body is written** _(`ebe3b84` + `5f14bd9`)_ —
             `maintainers/plans/archived/release-v4.8.0-pr-body.md`. What ships, the choices worth
             reviewing, the measured pass with its two named debts, and the CI line.
-    - [ ] **The tag, the merge, the published release** — and CI 7/7 on the tagged commit before
-          publishing.
+    - [x] **✅ The tag, the merge, the published release — DONE** _(2026-08-05)_. PR #58 taken out of
+          draft, titled and bodied from `archived/release-v4.8.0-pr-body.md`, **merged** into `main`
+          (`e0dbb7b`); tag **`v4.8.0`** on that merge commit; **CI 7/7 GREEN ON THE TAGGED COMMIT**
+          (run `31044557607` — six matrix cells + the Windows installer e2e; the tripwire skips on that
+          event by design), checked against the commit and not against the colour of a page; release
+          **published** with the note's body:
+          <https://github.com/tpierrain/kenjaku/releases/tag/v4.8.0>.
 
 ## The one pattern behind most of it (the reframe)
 

@@ -417,7 +417,7 @@ equivalent in both CLIs here, since both take their spec on **stdin** and ignore
 ### The second pass — after the review fixes, because the first numbers no longer covered the code
 
 An independent review of the branch found six defects, all fixed before the tag ([the plan's Step
-12.5](../plans/prospective/field-findings-2026-08-02-action.md)). Those fixes **changed production
+12.5](../plans/archived/field-findings-2026-08-02-action.md)). Those fixes **changed production
 code after the table above was measured**, so four files were re-measured rather than left publishing a
 score earned by earlier lines. That is the whole rule here: a number that predates the code it
 describes is the same silence this trilogy is about.
