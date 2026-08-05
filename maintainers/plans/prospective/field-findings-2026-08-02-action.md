@@ -2119,25 +2119,41 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
             `.trim()`-ed on the next line, and the body is already split per line).
     - [x] ~~**Batch 6, not started**~~ — done and hardened above. _(The owner said to chain it without
           asking, 2026-08-05: "continue avec le batch 6 quand batch 5 est fini".)_
-    - [ ] **▶️ RUNNING NOW: the re-measures, chained in four passes** _(launched 2026-08-05 on the tip
-          `103eb05`, script `scratchpad/remeasure.sh`, ~35 min total)_. Four logs under
-          `maintainers/mutation/reports/`: `v480-recheck-a-update-check` (`engine-update-check` +
-          `engine-version`), `-b-update-engine`, `-c-batch5` (the three lint/connector files),
-          `-d-batch6`. **On resume, read those logs rather than re-running them.** Each pass resets the
-          worktree to the tip, re-creates the `rag/node_modules` symlink and prints the write-guard's
-          `skipped` count, so a pass measured against a crippled suite is visible in the log itself.
-    - [ ] **⚠️ THE RE-MEASURES STILL OWED, in ONE run** — each hardened file is at an **unknown** score
-          until re-mutated, and RESULTS.md must publish measured numbers, never hoped-for ones:
-          `engine-update-check.mjs` (was 86.07 %), `update-engine.mjs` (93.20 %), `engine-version.mjs`
-          (91.07 %), plus whatever batches 5-6 harden. **Batch 4 is already off this list** (re-measured
-          at 96.54 %). Cheapest shape: one run with the paths comma-separated once the branch has stopped
-          changing again. The worktree recipe, verified this session: reset to the tip, then
-          `git clean -qfd -e rag/node_modules` — and **re-create `rag/node_modules` afterwards anyway**,
-          the exclude did not save it, with `vault-write-guard.test.mjs` at **0 skipped** as the proof.
-    - [ ] **Then**: record the pass in `maintainers/mutation/RESULTS.md` under a `v4.8.0` section, and
-          remove the worktree (`git worktree remove`) once the last batch is read. That section owes the
-          **two deferred remedies** a named, numbered debt line each (the guard test, the two generators)
-          — not a story about `engine-fetch.mjs`.
+    - [x] **✅ ALL RE-MEASURES DONE — six passes, logs `v480-recheck-{a..f}-*.log`** _(2026-08-05)_. Each
+          reset the worktree to the tip, re-created the `rag/node_modules` symlink and verified the
+          write-guard at **22 pass / 0 skipped** first. Final numbers, first pass → after:
+          `engine-update-check` 86.07 → 96.04 → **97.03 %** (a second fix, see below), `update-engine`
+          93.20 → **97.60 %**, `engine-version` 91.07 → **95.54 %**, `wiki-lint` 88.50 → **96.31 %**,
+          `connector-accounts` 89.72 → **98.26 %**, `consolidation-candidates` 94.57 → **100.00 %**,
+          `universe-profile` 97.37 → **97.89 %**, `set-universe-profile` 80.00 → **94.00 %**.
+      - [x] **Two extra fixes the re-measure itself surfaced, both worth the trip.** (1) In
+            `extractWhatYouGet`, a line **beginning** with `#42` or `---and` ended the consent section:
+            a heading is hashes plus a SPACE, a rule is three dashes ALONE, and truncating there shortens
+            the very prose the owner consents on, from the bottom where the last promises are
+            _(`86d9e9d`)_. (2) **Batch 1's two NEW lib files were hardened after all** _(`55782fc`)_ —
+            `semver-tag` 84.09 → **95.45 %**, `upstream-cache` 87.23 → **95.74 %**. The arbitration
+            deferred the two *structural* remedies; it said nothing about these, and a repo standard of
+            96-100 % for a new lib file made 84-87 % the odd number out. What they were: an ordering read
+            only in the direction where a sum and a difference agree, a non-strict "higher" that would
+            report whichever spelling of an equal tag the remote listed last, a single-digit major that
+            would make `v10.0.0` parse as nothing, and a **non-idempotent `mkdir`** in a probe that runs
+            once a day forever inside a catch-everything — it would have frozen the verdict at day one,
+            silently.
+      - [x] **`engine-fetch.mjs` (54.05 %) and `upstream-check-run.mjs` (0 %) stay unhardened ON
+            PURPOSE** — they are the two structural remedies the owner arbitrated into v4.9.0.
+    - [x] **✅ RESULTS.md § v4.8.0 written** _(2026-08-05 · `0abae0a`)_ — the 16-file table, the finding,
+          the recurring family, the equivalence lists, **the two deferred remedies as numbered debt**,
+          `session-status.mjs`'s 0 % named as **inherited** (so the totals cannot read as rot this release
+          caused), and the Stryker measurement anomaly stated in the direction it runs (the published
+          score is conservative). The top "Current scores" row for `scripts` points at it.
+    - [x] **✅ The boards' `mutation 90–97%` claim RE-CHECKED against the finished RESULTS.md** — it
+          **holds**: the claim is about the three packages' last **package-wide** audits (rag 90.4 %,
+          local-mirror 90.4 %, scripts 97.3 %), which this release does not move (it is a targeted,
+          per-file pass). Nothing to re-render. The `34 ADRs` drift on `board-reliability` is unchanged
+          and pre-dates v4.5.0; the standing recommendation stays **drop the count** at the next
+          re-render.
+    - [x] **✅ Worktree removed** _(2026-08-05)_ — `kenjaku-mut-v480` is gone; `-v450` and `-v460` remain
+          from earlier releases, untouched.
     - [x] **Engrave remedy (3) in `CONVENTIONS.md` — DONE** _(2026-08-05)_: **§5quinquies**, right after
           §5quater. A new production file is mutated the **day it is written**, not at the release tail;
           it carries the *why*, both commands, the worktree-is-not-ceremony reason, the `0 skipped`
@@ -2175,9 +2191,14 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
             for, then the *what it is not* paragraph, the source header, the Slack check, `/lint`), the
             *What you have to do*, and six `Under the hood` items. **Re-read it before publishing**; it
             was written before batches 4-6 landed.
-      - [ ] **PIN THE MUTATION SNAPSHOT INTO IT** (§5ter: every release note carries one, pinned to the
-            tag) — the note has **no numbers in it yet**, on purpose, because the pass is unfinished.
-      - [ ] **The PR body**, not started.
+      - [x] **✅ THE MUTATION SNAPSHOT IS PINNED IN** _(2026-08-05 · `5f14bd9`)_ — a *Measured, not
+            asserted* section written for non-devs: the worst first score and what it would have done to
+            a reader, the recurring shape in plain words, thirteen of sixteen at ≥94 %, and the three
+            that are not, named as an old weakness with **one of the three new here and fallen into the
+            same shape** (the honest half), plus the repair scheduled and the new day-of rule.
+      - [x] **✅ The PR body is written** _(`ebe3b84` + `5f14bd9`)_ —
+            `maintainers/plans/archived/release-v4.8.0-pr-body.md`. What ships, the choices worth
+            reviewing, the measured pass with its two named debts, and the CI line.
     - [ ] **The tag, the merge, the published release** — and CI 7/7 on the tagged commit before
           publishing.
 
