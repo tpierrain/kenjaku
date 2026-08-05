@@ -164,11 +164,11 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step 14.5 (the two `/lint` defects), on `release/v4.8.0`.**
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.6 (the Slack account check), on `release/v4.8.0`.**
 > F3 and its sibling are **built, green and pushed** (14.1 → 14.4 ticked, draft **PR #58**). The owner
 > came back on 2026-08-05 and **handed over the extra scope he had announced**, taken from his own
-> brain's backlog: **14.5** (two `/lint` defects), **14.6** (the Slack account check), **14.7** (an AI
-> summary served as a source — three layers). Build them in that order, each green and pushed. The
+> brain's backlog: **14.5** ✅ done (two `/lint` defects), **14.6** (the Slack account check), **14.7**
+> (an AI summary served as a source — three layers). Build them in that order, each green and pushed. The
 > release **tail is 14.8 and still must not be started without him**. **Steps 1-13 (all of v4.5.0, v4.6.0
 > AND v4.7.0) are HISTORY.** v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7),
 > **v4.6.0 shipped 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`) and
@@ -1381,28 +1381,41 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         smoke-run (running it by hand sweeps and auto-commits the working tree).
   - [x] `SETUP.md` §10 rewritten where it described the old order (the check happens **before** the
         question), plus the `--check` command in the "run it yourself" block.
-- [ ] **14.5 — ⏭️ RESUME HERE. The two `/lint` defects: the checker lies about the engine's own files.**
-      _(owner, 2026-08-05: "dans v4.8.0, maintenant")_ Same family as the rest of this release — a checker
+- [x] **14.5 — ✅ COMPLETE. The two `/lint` defects: the checker lies about the engine's own files.**
+      _(2026-08-05 · `fix(lint): the checker stops crying on two shapes it is meant to allow`; suite
+      1424 tests, 1 skipped Windows-only)_ _(owner, 2026-08-05: "dans v4.8.0, maintenant")_ Same family as the rest of this release — a checker
       that renders a healthy thing as a defect — and it falls squarely under **`CONVENTIONS.md` §5quater**
       (a checker is judged on what it says about a HEALTHY brain). Both are launcher-only, both are small.
       Six false orphans per pass plus one permanently unfixable complaint is how a lint teaches its owner
       to stop reading it.
-  - [ ] **(a) `/lint` excludes `inbox/` but not `_inbox/`.** **Verified**: `scripts/lib/wiki-lint.mjs:83`,
+  - [x] **⚠️ THE ZONE LIST EXISTED TWICE, and reading only the reported file would have missed it.**
+        `wiki-lint.mjs` owns `RAW_CAPTURE_ZONES`, **and `consolidation-candidates.mjs:18` owns its own
+        `DEFAULT_CAPTURE_ZONES`** — two spellings of "what a capture zone is". Fixing only the lint
+        would have stopped the false orphans while leaving every note in an `_inbox/` **invisible to
+        consolidation**: the same defect, moved one surface over, and harder to see because nothing
+        complains. Both learned it, each with its own red test first.
+  - [x] **(a) `/lint` excludes `inbox/` but not `_inbox/`.** **Verified**: `scripts/lib/wiki-lint.mjs:83`,
         `RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "actions-log.md"]`. The owner's brain
         uses `_inbox/`, so every capture in it is reported as an orphan (6 per pass on his vault).
-        Regime is **`replace`**, so the fix reaches every brain on the next update. Decide while doing it
-        whether the right fix is *"add `_inbox/`"* or *"any leading-underscore folder is a raw zone"* —
-        prefer the narrower one unless a test proves otherwise, and pin the choice with a test that fails
-        on the current list.
-  - [ ] **(b) the health canary reports a frontmatter defect nobody can fix.** **Verified**:
+        Regime is **`replace`**, so the fix reaches every brain on the next update. **Chosen: the narrow
+        one** (`"_inbox/"` beside `"inbox/"`), not "any leading-underscore folder" — nothing observed
+        justifies the wider rule, and a wider rule would silently exempt folders nobody meant to exempt.
+  - [x] **(b) the health canary reports a frontmatter defect nobody can fix.** **Verified**:
         `engine-health/health-check.md`'s frontmatter is `type` / `created` / `tags` — **no `updated`
         key** — so the lint's frontmatter rule fires on it forever, on an engine file the owner is told
         never to touch. Two candidate fixes: give the canary an `updated` key, or teach the lint that
-        `type: engine` notes are the engine's own and not curated wiki nodes. **The second is the better
-        shape** (it generalises to every engine-owned note and cannot go stale the way a hard-coded date
-        does), but check what else carries `type: engine` before choosing.
-  - [ ] Both surfaces green, pushed (§9). If either fix changes what a brain sees, say so in the release
-        note (§11) in the owner's words, not in the checker's.
+        `type: engine` notes are the engine's own and not curated wiki nodes. **The second was taken**,
+        and reading the code made it more clearly right than the note suggested: **the canary was ALSO
+        being reported as an orphan** (nothing links to it, `engine-health/` is in no zone list), so the
+        note's own account of the defect was half of it. An `updated:` key would have silenced one
+        complaint of two. `DEFAULT_ENGINE_OWNED_TYPES = ["engine"]` now skips both rules.
+  - [x] **Keyed on the TYPE, never the folder**, pinned by its own test: a note the owner files under
+        `engine-health/` is still theirs and stays held. The folder-keyed version would have handed
+        anyone a silent opt-out of the entire lint by choosing where to save.
+  - [x] `engine-skills/lint/SKILL.md` says what is exempt and **why** (both categories), `version:` 1.1.0.
+        No FR twin exists for this skill, so nothing to mirror.
+  - [ ] For 14.8: say this in the release note (§11) in the owner's words, not the checker's — what he
+        will notice is six phantom orphans and one permanent complaint disappearing.
 - [ ] **14.6 — the Slack account check: a declared connector is not a verified one.**
       _(owner, 2026-08-05: "Slack seulement, dans v4.8.0")_ **The defect**: a universe profile carries a
       hand-typed `## Connector accounts` section (`- Slack: acme.slack.com`), and session start **injects
