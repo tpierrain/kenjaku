@@ -175,7 +175,12 @@ export function renderFiledNote(spec) {
   // Rendered (and validated) before the frontmatter, because the level lands in
   // both: the field is what a later pass can FIND, the line is what a human reads.
   const sure = spec.confidence ? `> **Confidence** — ${confidenceLine(spec.confidence)}\n\n` : "";
-  const built = spec.sources ? `${sourcesBlock(spec.sources)}\n\n` : "";
+  // Unconditional, and it has to be: the guard above already refused a note with
+  // no sources, so a `spec.sources ? … : ""` here (and on the frontmatter stamp
+  // below) was a branch nothing could reach — the mutation pass could put
+  // anything in the else and stay green. An unreachable branch is a design
+  // defect, not an exemption.
+  const built = `${sourcesBlock(spec.sources)}\n\n`;
   const frontmatter = [
     "---",
     `type: ${spec.type}`,
@@ -188,7 +193,7 @@ export function renderFiledNote(spec) {
     ...(spec.confidence ? [`confidence: ${spec.confidence.level}`] : []),
     // What the note rests on, as a field: "which notes here were built on an AI
     // synthesis?" must be answerable without re-reading every one of them.
-    ...(spec.sources ? [`source_tier: ${weakestSourceTier(spec.sources)}`] : []),
+    `source_tier: ${weakestSourceTier(spec.sources)}`,
     // Additive scope key so retrieval travels with the file (ADR 0034), appended
     // last to match the import stamper (stamp-universe.mjs). Omitted at the root.
     ...(universe ? [`universe: ${universe}`] : []),

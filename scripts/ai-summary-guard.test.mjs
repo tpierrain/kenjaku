@@ -92,6 +92,24 @@ test("runSummaryGuard — anything it cannot make sense of costs nothing", () =>
   }
 });
 
+test("runSummaryGuard — a tool_name that is not a string is not a search tool", () => {
+  // `typeof toolName === "string"` reads like belt-and-braces, and it is not:
+  // dropped, the regex test coerces whatever it is, so an array payload of
+  // `["…search_files"]` stringifies straight back into a match. The brain would
+  // then be told "open the document" about bytes that were, in fact, a document
+  // — the one notice whose whole job is to tell those two apart.
+  const { deps, emitted } = fakeDeps({
+    tool_name: ["mcp__claude_ai_Google_Drive__search_files"],
+    tool_response: { file: { content: MEET_EXPORT } },
+  });
+  assert.equal(runSummaryGuard(deps), 0);
+  assert.doesNotMatch(
+    emitted[0].hookSpecificOutput.additionalContext,
+    /search hit/i,
+    "an unrecognisable tool name falls back to the document answer, never the snippet one",
+  );
+});
+
 test("ai-summary-guard, as a real process — stdin in, one JSON line out, exit 0", () => {
   // Every test above injects its ports, so `realSummaryGuardDeps` and the
   // entrypoint guard are observed by nothing: the file could read no stdin and

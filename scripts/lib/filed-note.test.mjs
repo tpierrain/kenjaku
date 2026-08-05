@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { slugify, filedNotePath, renderFiledNote, homonymCards } from "./filed-note.mjs";
+import { slugify, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // filed-note — the pure, I/O-free core of Track B ("file the good answer back").
@@ -545,7 +545,15 @@ test("renderFiledNote — a search-result snippet is refused AS a snippet, not a
           sources: [{ tier, ref: "Drive search hit on the Meet export" }],
           today: "2026-08-05",
         }),
-      /search-result snippet is never a source.*open the document/s,
+      {
+        // Asserted whole, not by fragment: every sentence of a refusal is doing
+        // work, and the mutation pass showed the last one — the four tiers to
+        // answer with — could be blanked with the suite still green. A refusal
+        // that names no way forward is a wall.
+        message:
+          `"${tier}": a search-result snippet is never a source — open the document, read it, ` +
+          `and declare the tier you actually read (verbatim, conversation, human-summary, ai-summary).`,
+      },
       `"${tier}" must be refused as a snippet, with the gesture that fixes it`,
     );
   }
@@ -567,7 +575,11 @@ test("renderFiledNote — a tier with no reference is refused: a tier alone name
           sources: [{ tier: "verbatim", ref }],
           today: "2026-08-05",
         }),
-      /source "verbatim" needs a reference/,
+      {
+        message:
+          `source "verbatim" needs a reference: name the document, the section and the date, ` +
+          `so the reading can be gone back to.`,
+      },
       `a ref of ${JSON.stringify(ref)} is nothing behind the tier`,
     );
   }
@@ -654,8 +666,32 @@ test("renderFiledNote — a note that declares no source cannot be born at all",
           sources,
           today: "2026-08-05",
         }),
-      /at least one source is required.*verbatim, conversation, human-summary, ai-summary/s,
+      {
+        message:
+          `at least one source is required: say what this note was built from, as ` +
+          `"sources": [{ "tier": …, "ref": … }] — tier is one of ` +
+          `verbatim, conversation, human-summary, ai-summary, ref names the document, section and date.`,
+      },
       `sources: ${JSON.stringify(sources)} must be refused, naming the scale to answer with`,
     );
   }
+});
+
+test("sourcesBlock — several sources are several LINES, not one run-on line", () => {
+  // The block is what a human reads to know what the note rests on. Joined with
+  // nothing instead of a newline it still contains every word, every fragment
+  // match still passes, and the header renders as one unreadable line inside a
+  // blockquote. So it is pinned as the exact block, markers included — the
+  // markers being the only part a reader takes in at a glance.
+  assert.equal(
+    sourcesBlock([
+      { tier: "verbatim", ref: "Meet export 2026-08-05, Transcription section" },
+      { tier: "ai-summary", ref: "same export, Gemini notes at the top" },
+    ]),
+    [
+      "> **Sources**",
+      "> - 📄 verbatim · Meet export 2026-08-05, Transcription section",
+      "> - 🤖 AI synthesis · same export, Gemini notes at the top",
+    ].join("\n"),
+  );
 });
