@@ -25,7 +25,9 @@
     "zod": "^4.4.3"
   },
   "overrides": {
-    "js-yaml": "^4.2.0"
+    "js-yaml": "^4.2.0",
+    "adm-zip": "^0.6.0",
+    "fast-uri": "^3.1.5"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.0",
