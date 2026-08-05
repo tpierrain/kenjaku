@@ -401,3 +401,31 @@ test("F21 — a catch-up that closed nothing stops promising, and names the tool
       "This will NOT resolve on its own: run `node scripts/verify-index.mjs` to see which notes disagree.",
   );
 });
+
+test("F21 — when the failures ARE the whole shortfall, nothing is described as pending", () => {
+  // The boundary the `, N pending` suffix turns on: two missing notes, two refusals, so
+  // there is no queue at all. Without it, a reader is told to wait for zero notes.
+  assert.equal(
+    incompleteIndexWarning({
+      docCount: 439,
+      scannedCount: 441,
+      progress: finishedRun({ errors: ["a.md: bad frontmatter", "b.md: unreadable"] }),
+    }),
+    "Index incomplete: 439/441 files indexed, 2 failed — a.md: bad frontmatter; b.md: unreadable. " +
+      "This will NOT resolve on its own: repair the note (or ask me to), then reindex.",
+  );
+});
+
+test("F21 — a long list of refusals is truncated, and says how many it is not showing", () => {
+  // Three failures against a bound of two: the only fixture that tells the truncation from
+  // the whole list, the separator from nothing, and `+N other(s)` from silence.
+  assert.equal(
+    incompleteIndexWarning({
+      docCount: 438,
+      scannedCount: 441,
+      progress: finishedRun({ errors: ["a.md: bad", "b.md: worse", "c.md: worst"] }),
+    }),
+    "Index incomplete: 438/441 files indexed, 3 failed — a.md: bad; b.md: worse (+1 other(s)). " +
+      "This will NOT resolve on its own: repair the note (or ask me to), then reindex.",
+  );
+});

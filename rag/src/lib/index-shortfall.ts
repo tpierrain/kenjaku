@@ -57,8 +57,10 @@ function causeOf(remaining: number, failures: number, input: ShortfallInput): Sh
   if (failures > 0) return "failures";
   if (input.progress?.status === "running") return "running";
   if (input.progress?.hitCap) return "cap";
+  // One term, not two: `!== null && !== undefined` reads as a pair of reasons while only
+  // ever meaning "a number was recorded", and nothing can tell the halves apart.
   const asked = input.lastCatchUpRemaining;
-  if (asked !== null && asked !== undefined && remaining >= asked) return "stalled";
+  if (typeof asked === "number" && remaining >= asked) return "stalled";
   return "arrived";
 }
 
