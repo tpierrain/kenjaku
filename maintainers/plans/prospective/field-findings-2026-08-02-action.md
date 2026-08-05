@@ -164,8 +164,11 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, v4.8.0: its scope IS decided (F3 + its sibling) and the branch
-> `release/v4.8.0` is cut, pushed and carrying its draft PR. Steps 1-13 (all of v4.5.0, v4.6.0
+> **⏭️ THE RESUME POINT — `## Step 14`, step 14.5, and it is BLOCKED ON THE OWNER by his own ask.**
+> v4.8.0's decided scope (F3 + its sibling) is **built, green and pushed** on `release/v4.8.0`, draft
+> **PR #58**; steps 14.1 → 14.4 are ticked. The owner asked that this release **not be shipped without
+> him** and said he has more to hand over on his return, so the correct next move is to **wait**, not to
+> start the release tail and not to pull another finding in. **Steps 1-13 (all of v4.5.0, v4.6.0
 > AND v4.7.0) are HISTORY.** v4.5.0 shipped 2026-08-03 (tag `v4.5.0`, PR #54, merge `96f5999`, CI 7/7),
 > **v4.6.0 shipped 2026-08-04** (tag `v4.6.0`, PR #55, merge `c0b2b16`, CI 7/7 on `7ab8f82`) and
 > **v4.7.0 shipped 2026-08-05** (tag `v4.7.0`, PR #57, merge `556f950`, CI 7/7 on the tagged commit,
@@ -1321,11 +1324,45 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         that tailored it keeps its own with the new text beside it as `.new`.
   - [x] Met the known FR trap twice: **a guarded phrase that wraps across two lines goes red for
         typography, not for meaning** (already recorded at Step 12.3). Both were kept on one line.
-- [ ] **14.4 — the sibling: the SessionStart offer is version-blind too.** One probe feeds both surfaces
-      or they drift. It is also the half that must tell **"already up to date"** from **"I could not
-      find out"** — today both render as a generic offer.
-- [ ] **14.5 — the release tail** (§10 marketing re-read, mutation on what changed, version vector, note
-      + PR body, tag), same shape as Steps 11, 12 and 13. The owner is asked **before** the public half.
+- [x] **14.4 — the sibling is IN: the session-start line knows about upstream** _(2026-08-05)_. It named
+      the engine this brain runs and stopped there, so *"you are current"* and *"nobody looked"* reached
+      the owner as the same sentence. **Four states, four sentences** — available (target + how far ahead
+      + the door), up to date (**dated**: a cached verdict is not a live one), could not check (said as
+      itself), nothing measured yet (`checking for updates…`, which lasts exactly one session).
+  - [x] **Same probe as the skill's `--check`** — `checkUpstream` is shared, so the two surfaces cannot
+        drift. The verdict is written by a **detached child** (`scripts/upstream-check-run.mjs`, ADR
+        0028's shape), so session start stays a single file read, **throttled to once a day**: this is
+        the one outbound call a brain makes on its own behalf, and engine releases are not hourly.
+  - [x] **A verdict about another version is not a verdict about this one** — right after an update the
+        cache still describes the engine that was replaced; reporting it would tell the owner to install
+        what they already have. It falls back to `checking…` instead.
+  - [x] **Only the verdict is cached, never the release prose** (`.cache/`, gitignored like the restart
+        flag): the line quotes none of it, and a vault repo is not a place to park release notes.
+  - [x] **The manifest guard gained a FOURTH door, and it was blind before this** — a carried engine
+        script that **spawns** another names it by a computed path (`join(__dirname, "…")`), so the three
+        existing scans (hook, skill, constitution) could not see it. An uncarried child fails inside a
+        **detached** process: no error anyone ever sees, the line just saying `checking…` forever. The
+        new guard asserts it finds the two spawns that predate it before it is allowed to pass.
+  - [x] **Field-verified on four throwaway brains**: available (the real v4.6.0 + v4.7.0 bullets), up to
+        date, a source that does not answer, and never-measured. `session-status.mjs` itself was NOT
+        smoke-run (running it by hand sweeps and auto-commits the working tree).
+  - [x] `SETUP.md` §10 rewritten where it described the old order (the check happens **before** the
+        question), plus the `--check` command in the "run it yourself" block.
+- [ ] **14.5 — the release tail — 🛑 BLOCKED ON THE OWNER, BY HIS OWN ASK, AND THAT IS THE RESUME
+      POINT.** F3 and its sibling are **done** (14.1 → 14.4, all green and pushed, PR #58 open as a
+      draft). Nothing else in this plan is in v4.8.0's scope **until the owner adds it on his return** —
+      he said so explicitly while handing the branch over. So do **not** start the tail, and do **not**
+      pull the next P0/P1/P3 entry in on your own initiative.
+  - [ ] **What is left to do, once he has spoken**: whatever he adds, then the usual tail — §10 marketing
+        re-read, mutation on what this branch changed (`engine-update-check.mjs`, `upstream-cache.mjs`,
+        `engine-version.mjs`, `update-engine.mjs`, `session-status.mjs`), the version vector bump
+        (`scripts` 1.12.0 → 1.13.0 and `constitutionTemplate` only if a constitution changes; `rag`
+        untouched so far — **check, do not assume**), the release note + PR body, the tag.
+  - [ ] **One open question worth putting to him** (do not decide it alone): the session-start line now
+        makes **one outbound call a day** to the engine's repo, which is new for a product that sells
+        "nothing leaves your machine". It is public metadata and no vault content, and the alternative
+        is a brain that cannot know it is behind — but it deserves a conscious yes, and possibly an
+        opt-out (`git config secondbrain.updatecheck false`), which is NOT built.
 
 ## The one pattern behind most of it (the reframe)
 
