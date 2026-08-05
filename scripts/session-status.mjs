@@ -19,7 +19,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync, spawn } from "node:child_process";
 import { createRequire } from "node:module";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { hasGeminiKey, geminiKeyRequired } from "./lib/gemini-key.mjs";
@@ -29,7 +29,8 @@ import { sweepThenPull } from "./lib/startup-sync.mjs";
 import { bootstrapSessionHooks } from "./lib/hook-bootstrap.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
 import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
-import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
+import { restartPendingOnDisk, armRestartPending } from "./lib/restart-signal.mjs";
+import { pulledPaths, frozenWiringIn } from "./lib/frozen-wiring.mjs";
 import { readStartupVersionLine } from "./lib/engine-version.mjs";
 import { buildStatusHookOutput } from "./lib/status-hook-output.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
@@ -72,12 +73,23 @@ const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
 const porcelain = git(["status", "--porcelain"]).out;
 const uncommittedVault = countVaultUncommitted(porcelain);
 const conflictedCount = countUnmerged(porcelain);
-const changedCount =
+const pulled =
   pullOk && !/already up to date|déjà à jour/i.test(pullOut)
-    ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
-        .split("\n")
-        .filter((l) => l.trim().length > 0).length
-    : 0;
+    ? pulledPaths(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out)
+    : [];
+const changedCount = pulled.length;
+
+// F20: the pull that just ran can land the ENGINE itself — the case of a second machine,
+// updated elsewhere yesterday. Every hook, skill, MCP server and CLAUDE.md this session
+// uses was frozen a few milliseconds ago, so the code that just arrived will not answer a
+// single question today, and until now nothing said so: `.cache/restart-needed` is written
+// only by an update that ran HERE, and it is gitignored, so machine A's flag never travels.
+// The pull's own file list is the missing signal — arm the flag, and the nudge below (read
+// from disk, a few lines further) leads the banner as it already does for the other causes.
+// A brain with no remote pulls nothing, so this stays silent there, by construction.
+if (frozenWiringIn(pulled).length > 0) {
+  armRestartPending({ repo: REPO, mkdirSync, writeFileSync });
+}
 const repoLine = repoStatusLine({ pullOk, pullOut, short, changedCount, uncommittedVault, conflictedCount });
 
 // ─── RAG line: docCount (db) vs .md files on disk ────────────────────────────

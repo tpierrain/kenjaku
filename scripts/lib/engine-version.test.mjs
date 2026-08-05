@@ -70,7 +70,7 @@ test("startupVersionLine — a non-semver ref (branch/commit) is shown verbatim,
 // "Kenjaku engine 1.3.0" would send an owner to report a version that does not
 // exist — so the segment is DROPPED instead. (The status-line label keeps that
 // fallback: it says "engine", claiming nothing about the product's release.)
-// Naming that state out loud belongs to F3 in v4.7.0, which owns "unknown".
+// Naming that state out loud belongs to F3, which owns "unknown" — deferred to v4.8.0.
 test("startupVersionLine — no ref → NO segment, never the rag package number dressed as a release", () => {
   assert.equal(startupVersionLine({ engineVersion: { rag: "1.3.0" } }), null);
   assert.equal(startupVersionLine({ source: { repo: "https://x", ref: "" } , engineVersion: { rag: "1.3.0" } }), null);

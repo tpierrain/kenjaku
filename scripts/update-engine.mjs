@@ -24,7 +24,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { armRestartPending } from "./lib/restart-signal.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
 
 import {
@@ -381,13 +381,10 @@ export async function updateEngine({
 // alone scrolls away). The next fresh, converged session clears it
 // (session-self-heal). Fail-soft: the nudge is a convenience, never a blocker.
 export function armRestartFlag(brainDir) {
-  try {
-    const flagPath = join(brainDir, RESTART_FLAG_REL);
-    mkdirSync(dirname(flagPath), { recursive: true });
-    writeFileSync(flagPath, "restart needed to finish the engine update\n");
-  } catch {
-    /* fail-soft */
-  }
+  // One owner for the flag's path and body (restart-signal.mjs): three surfaces arm it —
+  // this updater, the self-heal, and the pull detection (F20) — and a fourth spelling of
+  // the same file is a signal nobody reads.
+  armRestartPending({ repo: brainDir, mkdirSync, writeFileSync });
 }
 
 // The real I/O the CLI runs on: the brain the script lives in

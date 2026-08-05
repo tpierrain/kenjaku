@@ -262,7 +262,11 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   notes** (your `.env`, `CLAUDE.md`, settings and custom skills are sacred too). No terminal, no
   re-install. **Since v4.1.0 its ready-made skills come along too**: the ones you never edited are
   brought up to date, and any skill you've tailored is left exactly as you wrote it, with the new
-  version parked beside it for you to take or ignore.
+  version parked beside it for you to take or ignore. **Since v4.7.0 it also tells you when the engine
+  answering you is no longer the one on disk** — a session loads its wiring once, at start, so an update
+  that lands mid-session (typically pulled from your remote when you open your brain on a **second
+  machine**) used to be answered by the old code, silently, for the rest of the session. Now it says so,
+  in the terminal and in Desktop, until you close and reopen.
   *(mental model + hands-on steps: [SETUP §10](SETUP.md#10-keeping-your-engine-up-to-date-update-engine))*
 - **🧬 Already have a brain from *before* v3.0.0? Bring your notes over.** Install a fresh brain, then
   say *"importe mes anciennes notes depuis `<path>`"* — it shows a **safe plan**, confirms, copies your
@@ -364,6 +368,13 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   session: the brain **reconciles on its own** (re-indexes the delta, auto-saves, auto-commits) — nothing
   to replay by hand. An **idempotent reconciler** converges it to its desired state, the pattern behind
   Kubernetes / GitOps / Terraform. *(ADR 0026)*
+- **And when notes are still waiting, it says *what kind* of waiting.** *"A few notes pending, they'll
+  catch up next session"* covered five different situations with one sentence — some that do resolve
+  themselves, one that never will. Your brain now tells them apart: notes it **refused** (a header it
+  can't read — those need a fix), a **daily quota** reached (that one genuinely does resume on its own),
+  a run **still going** as you read, notes that simply **arrived** after the last look — and a catch-up
+  that has already **tried and failed**. The "just arrived" case is now caught up **on the spot**,
+  instead of being promised for next time.
 - **Keeps its *knowledge* healthy, not just its infra.** A SessionStart nudge and the `/lint`,
   `/consolidate` and `/file-back` skills watch the wiki for decay — dangling `[[links]]`, orphan notes,
   stale entity pages, raw captures never filed — and **propose** fixes you confirm (never a silent

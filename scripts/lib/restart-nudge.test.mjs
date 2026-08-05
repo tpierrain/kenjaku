@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { restartNudgeSegment, isRestartPending, RESTART_FLAG_REL } from "./restart-nudge.mjs";
+import { restartNudgeSegment, restartPromptDirective, isRestartPending, RESTART_FLAG_REL } from "./restart-nudge.mjs";
 
 // F-B7d (A2, hardened after Thomas's rig QA): a pre-3.3 brain's FIRST /update-engine runs
 // the OLD orchestrator → silent report → the user doesn't restart → the new skill/MCP stay
@@ -45,3 +45,38 @@ test("restartNudgeSegment — not pending → no segment (null), so the status l
 test("RESTART_FLAG_REL — a stable, gitignored .cache-relative path", () => {
   assert.match(RESTART_FLAG_REL, /^\.cache\//);
 });
+
+// ─── F20: the channel that reaches Desktop, and repeats until it is acted on ──
+// `systemMessage` is CLI-only and is printed once, at the top of a session that may run for
+// hours; on Desktop it is dropped outright, and a pending restart even SILENCES the version
+// relay (status-hook-output.mjs). So the only deterministic Desktop cue for "you are running
+// the old engine" was a chat rule inside the update-engine skill — which fires when the update
+// ran HERE, precisely the case F20 is not about. `UserPromptSubmit` can inject on every prompt.
+// Inject, never block (exit 2): a false positive must cost a sentence, never lock an owner out
+// of their own brain.
+test("restartPromptDirective — pending → the agent is told to raise the restart, in the owner's language", () => {
+  const directive = restartPromptDirective(true);
+
+  assert.match(directive, /old engine/i);
+  assert.match(directive, /close .*reopen/i);
+  assert.match(directive, /same conversation/i, "a full restart resumes THIS conversation");
+  // Not merely absent — FORBIDDEN, the way the update-engine skill forbids it: "open a new
+  // conversation" is the distinct initial-rooting rule, and an agent that reaches for it here
+  // sends the owner away from the thread they were working in.
+  assert.match(directive, /do not .{0,30}new conversation/i);
+  assert.match(directive, /their own language|owner's language/i);
+  // The WHY, and the place to put it. Both are load-bearing copy, not decoration: an owner
+  // told to restart with no reason reads it as a glitch and ignores the next one, and a
+  // directive that does not say "open your reply with it" gets buried under the answer to
+  // whatever they actually asked — on a channel whose whole point is that it repeats.
+  assert.match(directive, /only at start/i, "the reason a restart is what fixes it");
+  assert.match(directive, /open your reply/i, "led with, not appended after the answer");
+});
+
+test("restartPromptDirective — nothing pending → nothing injected, on every prompt of every session", () => {
+  assert.equal(restartPromptDirective(false), null);
+});
+
+// Its LENGTH is bounded where it is emitted (`scripts/prompt-restart-nudge.test.mjs`),
+// per the F5 audit's convention: the bound belongs to the file that puts the text in the
+// owner's channel, so the guard that hunts unbounded emitters can find it.

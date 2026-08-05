@@ -46,13 +46,16 @@ function emitters() {
   );
 }
 
-test("the F5 audit knows every additionalContext emitter — the field log named three, there are five", () => {
-  // Pin the list. A new startup hook lands here first, which is the moment to ask
-  // whether the owner should be reading its prose at all.
+test("the F5 audit knows every additionalContext emitter — the field log named three, there are six", () => {
+  // Pin the list. A new hook lands here first, which is the moment to ask whether the
+  // owner should be reading its prose at all. The sixth (F20) is the first that is NOT a
+  // startup hook: it rides `UserPromptSubmit`, i.e. EVERY prompt rather than one session
+  // start — so the question this guard asks gets harder as the channel widens, not easier.
   assert.deepEqual(
     emitters().map(({ name }) => name).sort(),
     [
       "actions-log-seed.mjs",
+      "prompt-restart-nudge.mjs",
       "session-self-heal.mjs",
       "status-hook-output.mjs",
       "universe-reminder.mjs",
@@ -61,7 +64,7 @@ test("the F5 audit knows every additionalContext emitter — the field log named
   );
 });
 
-test("every startup hook that writes into the channel the owner reads bounds what it writes", () => {
+test("every hook that writes into the channel the owner reads bounds what it writes", () => {
   const unbounded = emitters()
     .filter(({ test: sibling }) => !existsSync(sibling) || !readFileSync(sibling, "utf8").includes(BOUND_MARKER))
     .map(({ name }) => name);
@@ -78,7 +81,7 @@ test("the scan reads real sources, so an empty result cannot pass for a clean on
   // vacuously forever — the quietest way there is to lose a guard.
   const found = emitters();
 
-  assert.equal(found.length, 5);
+  assert.equal(found.length, 6);
   assert.ok(
     found.every(({ path }) => readFileSync(path, "utf8").includes("hookEventName")),
     "an emitter was matched that does not build a hook output at all",

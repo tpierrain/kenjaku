@@ -306,3 +306,33 @@ test("detectHookGap — a converged brain → not needed (steady-state no-op)", 
   };
   assert.equal(detectHookGap({ brainHooks: converged, templateHooks }).needed, false);
 });
+
+// The same door, one release later, for the OTHER whole event a deployed brain has never
+// heard of: `UserPromptSubmit`. It is F20's only Desktop-visible channel, so a brain that
+// never receives the entry gets the fix on paper and nothing on screen — and EVERY brain
+// installed before v4.7.0 is in that state. Read from the real template, like its sibling.
+test("reconcileHooks — a brain with no UserPromptSubmit at all is given the restart nudge", () => {
+  const { hooks, hooksAdded } = reconcileHooks({
+    brainHooks: v310BrainHooks(),
+    templateHooks: realTemplateHooks(),
+    projectRoot: "/brains/foo",
+  });
+
+  assert.deepEqual(
+    hooks.UserPromptSubmit,
+    [
+      {
+        matcher: "",
+        hooks: [
+          {
+            type: "command",
+            command: '/usr/local/bin/node "/brains/foo/scripts/prompt-restart-nudge.mjs"',
+            timeout: 10000,
+          },
+        ],
+      },
+    ],
+    "the event must be CREATED, matcher and timeout intact, with the brain's own node + dir substituted",
+  );
+  assert.ok(hooksAdded.includes("scripts/prompt-restart-nudge.mjs"), "the newly-wired nudge must be named in hooksAdded");
+});
