@@ -1,7 +1,7 @@
 ---
 name: sync-sources
 description: "Architecture fan-out/fan-in pour aspirer le DELTA des sources externes (Slack, Google Drive / transcripts, Calendar, mail…) via des sous-agents parallèles en LECTURE SEULE. Référence technique interne — c'est le moteur de la Phase 2 du flux principal (question → sync sources en background) et d'un éventuel briefing du matin. Pas une commande utilisateur : ce sont tes questions qui déclenchent l'aspiration."
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Sync sources — Architecture fan-out/fan-in (référence interne)
@@ -114,6 +114,42 @@ que tu n'as pas.
    Notion, Drive, le mail et les autres sont **déclarés et non vérifiés** :
    utilisables, mais jamais présentés comme confirmés, et jamais promus discrètement en
    « vérifiés » parce que Slack, lui, est passé.
+
+## Discipline de source
+
+> **Le verbatim est la source. Tout ce qui se trouve au-dessus de lui dans le fichier en a été tiré.**
+> Les preneurs de notes automatiques (Gemini, Noota, Fathom, tl;dv, Otter…) ouvrent leur export par un
+> résumé et une liste d'actions, exactement dans la forme du livrable qu'on t'a demandé, et placent la
+> transcription plus bas dans le *même* fichier. Une session a lu les 140 premières lignes d'un export
+> de 110 000 caractères, a écrit à partir de ce qu'elle y trouvait, et a servi une synthèse IA comme
+> source alors que le verbatim était vingt écrans plus bas. La règle « verbatim > synthèse humaine >
+> synthèse IA » était déjà écrite, et elle n'a pas joué : elle dit comment **classer** les sources
+> quand on les cite, jamais quand **s'arrêter et aller lire** la source brute. Celle-ci est donc un
+> ordre des opérations, pas un classement.
+
+1. **Un extrait de recherche n'est jamais une source.** Un résultat est un extrait choisi par l'outil,
+   et quand le document est un export de preneur de notes, cet extrait est presque toujours *celui du
+   résumé* : deux crans plus loin que ce qui a réellement été dit. Avant d'en écrire quoi que ce soit,
+   **ouvre le document** et lis ce qu'il cite. Ne sors jamais la liste d'actions du résumé d'un extrait.
+2. **Quand un même document contient les deux, lis le verbatim avant de citer quoi que ce soit qui en dérive.**
+   Pas après, pour vérifier : avant, parce que le résumé est convaincant, d'apparence complète, et
+   déjà rédigé comme ta réponse. Et la liste d'actions du résumé est la liste d'actions du résumé, jamais la liste des décisions :
+   elle est produite à partir de la transcription que tu n'as pas encore lue, et c'est là que se logent
+   les désaccords (une action attribuée à la mauvaise personne, une date donnée pour arrêtée que la
+   réunion a justement refusé d'arrêter).
+3. **Une lecture partielle qui s'arrête dans le résumé n'est pas une lecture du document.** Ces exports
+   font six chiffres de caractères et tous les outils de lecture tronquent. Si ce qui revient s'arrête
+   avant les tours de parole, retournes-y (par le titre `Transcription`, `Transcript`, ou par les tours
+   eux-mêmes) plutôt que d'écrire à partir de ce qui tenait dans la fenêtre.
+4. **Déclare le palier que tu as réellement lu.** Toute note écrite par le builder porte un champ
+   `source` et est refusée sans lui : `verbatim` > `conversation` > `human-summary` > `ai-summary`, et
+   la note est estampillée du palier le **plus faible** qu'elle déclare. Nomme le palier que tu as eu
+   entre les mains, jamais celui que le document aurait pu te donner. Si l'export ne contient aucun
+   verbatim, **dis-le dans la note** et déclare `ai-summary` : une synthèse honnêtement étiquetée est
+   utilisable ; une synthèse étiquetée `verbatim` est une fabrication munie d'une citation.
+5. **La notice de lecture est un rappel, pas la règle.** Un hook peut te signaler, juste après une
+   lecture, que ce qui revient est une synthèse. Il se déclenche sur les signatures qu'il connaît, donc son silence ne vaut pas permission :
+   un export qu'il n'a jamais vu reste un export, et les règles 1 à 4 s'appliquent avec ou sans lui.
 
 ## Discipline d'identité
 

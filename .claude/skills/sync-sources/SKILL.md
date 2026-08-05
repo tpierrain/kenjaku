@@ -1,7 +1,7 @@
 ---
 name: sync-sources
 description: "Fan-out/fan-in architecture to pull in the DELTA of external sources (Slack, Google Drive / transcripts, Calendar, mail…) via parallel READ-ONLY sub-agents. Internal technical reference — it's the engine of Phase 2 of the main flow (question → sync sources in background) and of a possible morning briefing. Not a user command: it's your questions that trigger the pull."
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Sync sources — Fan-out/fan-in architecture (internal reference)
@@ -106,6 +106,41 @@ one. See "Identity discipline" just below: the name stays plain text. This secti
    check covers, on purpose: it is where the mistake costs the most and the one that answers cleanly.
    Notion, Drive, mail and the rest are **declared and unverified** — usable, but never presented as
    confirmed, and never quietly promoted to "checked" because Slack passed.
+
+## Source discipline
+
+> **The verbatim is the source. Everything above it in the file was made from it.** Automatic
+> note-takers (Gemini, Noota, Fathom, tl;dv, Otter…) open their export with a summary and an action
+> list — in the exact shape of the deliverable you were asked for — and put the transcript further
+> down the *same* file. One session read the first 140 lines of a 110k-character export, wrote from
+> what it found there, and served an AI synthesis as the source while the verbatim sat twenty screens
+> lower. The rule *"verbatim > human synthesis > AI synthesis"* was already written, and did not
+> fire: it says how to **rank** sources when you cite them, never when to **stop and go read** the
+> raw one. So this one is an order of operations, not a ranking.
+
+1. **A search-result snippet is never a source.** A hit is an extract the tool chose, and when the
+   document is a note-taker export that extract is almost always *of the summary* — two removes from
+   what was actually said. Before you write anything from it, **open the document** and read what it
+   quotes. Never lift the summary's list of actions out of a snippet.
+2. **When one document holds both, read the verbatim before quoting anything derived from it.** Not
+   afterwards, to check: before, because the summary is persuasive, complete-looking, and already
+   phrased as your answer. And the summary's action list is the summary's own list of actions, never the list of decisions —
+   it is generated from the same transcript you have not read yet, and it is where the disagreements
+   land: a name attributed to the wrong person, a date reported as settled that the room refused to
+   settle.
+3. **A partial read that stops inside the summary is not a read of the document.** These exports run
+   to six figures of characters and every reading tool truncates. If what came back ends before the
+   speaker turns, go back for them — by heading (`Transcript`, `Transcription`) or by the turns
+   themselves — instead of writing from what happened to fit.
+4. **Declare the tier you actually read.** Every note the builder writes carries a `source` field and
+   is refused without one: `verbatim` > `conversation` > `human-summary` > `ai-summary`, and the note
+   is stamped with the **weakest** tier it declares. Name the tier your hands were on, never the one
+   the document could have given you. If the export has no verbatim at all, **say so in the note** and
+   declare `ai-summary` — a synthesis honestly labelled is usable; a synthesis labelled `verbatim` is
+   a fabrication with a citation.
+5. **The read-path notice is a reminder, not the rule.** A hook may tell you, right after a read, that
+   what came back is a synthesis. It fires on the signatures it knows, so its silence is not permission —
+   an export it has never seen is still an export, and rules 1 to 4 hold with or without it.
 
 ## Identity discipline
 

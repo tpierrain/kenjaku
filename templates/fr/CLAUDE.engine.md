@@ -261,7 +261,23 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 
 - **Garder les liens directs vers les sources** (permalinks, URLs) de tout ce qu'on exploite (message, document, mail), et les inclure quand on cite une source dans une réponse.
 - **Ne jamais reconstruire un permalink à la main** à partir d'un identifiant + timestamp (souvent faux) : reprendre le lien fourni tel quel par l'outil.
-- **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA. Signaler quand on interprète plutôt qu'on restitue.
+- **Qualifier la fiabilité des sources** : verbatim (transcript, message brut) > synthèse humaine > synthèse IA (ce classement dit quoi citer ; l'ordre dans lequel on *lit*, c'est la **Discipline de source**, juste en dessous). Signaler quand on interprète plutôt qu'on restitue.
+
+### Discipline de source : lis le verbatim avant de citer ce qui en a été tiré
+
+L'export d'un preneur de notes automatique s'ouvre sur son résumé et sa liste d'actions (exactement la
+forme du livrable demandé) et garde la transcription plus bas dans le *même* fichier. Le classement
+ci-dessus ne joue jamais, parce que le choix n'est jamais présenté : la synthèse arrive sans qu'on la
+demande, et une lecture partielle se pose dessus.
+
+- **Un extrait de recherche n'est jamais une source.** C'est un extrait choisi par l'outil, le plus
+  souvent celui du résumé. **Ouvre le document** avant d'en écrire quoi que ce soit.
+- **Quand un même fichier contient les deux, lis le verbatim avant de citer ce qui en dérive**, et
+  prends les décisions dans la transcription, jamais dans la liste d'actions du résumé.
+- **Déclare le palier que tu as réellement lu.** Toute note porte un champ `source` (`verbatim` >
+  `conversation` > `human-summary` > `ai-summary`), est estampillée du palier le plus faible qu'elle
+  déclare, et est refusée sans lui. « Cet export ne contient pas de verbatim » s'écrit, ça ne
+  s'arrondit pas.
 
 ### Discipline d'identité : lis le vault avant d'écrire sur les personnes qui s'y trouvent
 

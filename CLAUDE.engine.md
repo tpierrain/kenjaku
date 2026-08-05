@@ -256,7 +256,23 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 
 - **Keep the direct links to sources** (permalinks, URLs) of everything you use (message, document, email), and include them when you cite a source in an answer.
 - **Never rebuild a permalink by hand** from an identifier + timestamp (often wrong): reuse the link the tool hands you as-is.
-- **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis. Flag when you interpret rather than report.
+- **Qualify source reliability**: verbatim (transcript, raw message) > human synthesis > AI synthesis — that ranking says what to cite; the order in which you *read* is **Source discipline**, just below. Flag when you interpret rather than report.
+
+### Source discipline — read the verbatim before you quote what was made from it
+
+An automatic note-taker's export opens with its summary and its action list — the exact shape of the
+deliverable you were asked for — and keeps the transcript further down the *same* file. The ranking
+above never fires, because nothing ever presents the choice: the synthesis arrives unasked, and a
+partial read lands on it alone.
+
+- **A search-result snippet is never a source.** It is an extract the tool chose, usually of the
+  summary. **Open the document** before you write anything from it.
+- **When one file holds both, read the verbatim before quoting anything derived from it** — and take
+  the decisions from the transcript, never from the summary's own list of actions.
+- **Declare the tier you actually read.** Every note carries a `source` field (`verbatim` >
+  `conversation` > `human-summary` > `ai-summary`), is stamped with the weakest tier it declares, and
+  is refused without one. "This export has no verbatim" is something you write down, not something
+  you round up.
 
 ### Identity discipline — read the vault before you write about the people in it
 
