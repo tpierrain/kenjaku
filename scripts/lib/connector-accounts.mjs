@@ -1,0 +1,76 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// connector-accounts.mjs — a DECLARED connector account is not a VERIFIED one.
+//
+// A universe profile carries a hand-typed `## Connector accounts` section
+// (`- Slack: acme.slack.com`), and the digest used to quote it as if it were a
+// fact. It is a claim: the native MCP connectors are single-account and do NOT
+// follow a `/switch` (ADR 0034), so after switching spheres the brain can fetch
+// one organisation's data and file it under another's while displaying the right
+// answer on screen.
+//
+// Only the model can ask Slack (an MCP call is the one door), so the split is:
+// the model OBSERVES, this module CLASSIFIES, COMPARES and WORDS the verdict —
+// a string comparison is not the LLM's job (ADR 0009).
+// ─────────────────────────────────────────────────────────────────────────────
+
+// The connectors that can answer "which account am I on?" cleanly enough to build
+// a verdict on. Slack is the whole list ON PURPOSE (owner, 2026-08-05): it is where
+// the mistake costs the most and the one that answers without ambiguity. Widening
+// this list is a decision, not a detail — every tool added here must have a cheap,
+// unambiguous way to name the account, or the check starts inventing certainty.
+const VERIFIABLE_TOOLS = ["slack"];
+
+const isVerifiable = (tool) => VERIFIABLE_TOOLS.includes(String(tool).trim().toLowerCase());
+
+/**
+ * Compares what a universe DECLARES against what the connector was observed to
+ * be on. Pure.
+ */
+export function compareConnectorAccount({ tool, declared, observed }) {
+  if (!isVerifiable(tool)) {
+    return {
+      status: "unverified",
+      line:
+        `${tool}: this universe declares '${declared}' — declared, never verified ` +
+        `(nothing asks ${tool} which account it is on). Treat it as a claim.`,
+    };
+  }
+  const want = slackWorkspace(declared);
+  const got = slackWorkspace(observed ?? "");
+  // Nothing observed is NOT a divergence: it would send the owner to reconnect a
+  // connector that may be perfectly fine. "I could not find out" is its own answer
+  // (the same call taken for `--check` at 14.2), and it is said out loud.
+  if (!got) {
+    return {
+      status: "unverified",
+      line:
+        `Slack: this universe declares '${want}' — I could not find out which workspace ` +
+        `the connector is actually on. Treat it as a claim.`,
+    };
+  }
+  if (got === want) {
+    return {
+      status: "matching",
+      line: `Slack is on '${want}', which is what this universe declares (observed, not assumed).`,
+    };
+  }
+  return {
+    status: "diverging",
+    line:
+      `Slack is on '${got}' — this universe declares '${want}'. ` +
+      `Do not read or file Slack data here until the connector is reconnected to '${want}'.`,
+  };
+}
+
+// A Slack workspace names itself in as many shapes as the places it is read from:
+// a person types `acme.slack.com`, a permalink carries
+// `https://acme.slack.com/archives/…`, an API field says `acme`. All three are the
+// same workspace, and a comparison that cannot see that would cry divergence on a
+// correctly connected brain — the failure mode CONVENTIONS.md §5quater is about.
+function slackWorkspace(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/^[a-z][a-z0-9+.-]*:\/\//, "")
+    .replace(/\.slack\.com.*$/, "");
+}
