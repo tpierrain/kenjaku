@@ -594,7 +594,7 @@ tailored: it only writes files that `engine-manifest.json` declares Engine-owned
 
 ### Which version am I on?
 
-Your brain **says so at the start of every session**: a `⚙️ Kenjaku engine v4.6.0` segment in the
+Your brain **says so at the start of every session**: a `⚙️ Kenjaku engine v4.7.0` segment in the
 opening banner, on the command line as well as in the Code tab of Claude Desktop. It reads the tag your
 engine was installed or last updated from (`source.ref` in `engine-manifest.json`), so it follows your
 updates instead of freezing at install day. Two silences are deliberate: when the manifest carries no
