@@ -164,13 +164,20 @@
 >
 > </details>
 >
-> **⏭️ THE RESUME POINT — `## Step 14`, step **14.8, the release tail — and it is BLOCKED ON THE
-> OWNER by his own ask** _("ne pousse pas la release seul")_. **The build phase of v4.8.0 is DONE**:
-> 14.1 → 14.7 are all ticked, green and pushed on `release/v4.8.0` (draft **PR #58**). **Do not tag, do
-> not merge, do not publish, and do not pull a further finding in on your own initiative.** What the
-> tail holds is listed at 14.8, plus the version vector (both constitutions changed at 14.7 layer 3, so
-> `constitutionTemplate` moves too) and the one open question to put to him (the daily outbound update
-> check, and whether it deserves an opt-out).
+> **⏭️ THE RESUME POINT — `## Step 14`, step **14.8, the release tail — UNBLOCKED, the owner said
+> "on cut la release"** _(2026-08-05)_. The build phase (14.1 → 14.7) is done, green and pushed on
+> `release/v4.8.0` (draft **PR #58**), full matrix 7/7 on `1b5eb56`. Work the 14.8 checklist in order.
+>
+> **✅ THE TITLE IS CHOSEN, BY THE OWNER (2026-08-05): `v4.8.0 — The One Where the Update Says What
+> It's For`.** Do not re-open it. It names the scope the release started from (F3, the consent that can
+> answer *"what for?"*), which is also its most visible change. The rest of the release is told in the
+> note's body, not in the title. Four candidates were put to him; the ones he declined are recorded
+> here only so nobody re-proposes them as new ideas: *"…Looks Before It Tells You"*, *"…Reads the
+> Transcript, Not the Summary"*, *"…Declared Stops Meaning Verified"*.
+>
+> **Still to put to him before publishing**: the one open question at the end of 14.8 (the daily
+> outbound update check, and whether it deserves an opt-out). And the version vector must move
+> `constitutionTemplate` too — both constitutions changed at 14.7 layer 3.
 > **While waiting, the only useful autonomous work is verification, not scope.** The **full matrix is
 > already 7/7 green on the tip `1b5eb56`** (run `31017981223`, both Windows cells + the installer e2e),
 > so that box is closed. The **mutation pass is deliberately NOT run yet**: it must measure the branch
