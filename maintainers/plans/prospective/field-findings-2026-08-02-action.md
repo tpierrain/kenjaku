@@ -171,9 +171,12 @@
 > tail holds is listed at 14.8, plus the version vector (both constitutions changed at 14.7 layer 3, so
 > `constitutionTemplate` moves too) and the one open question to put to him (the daily outbound update
 > check, and whether it deserves an opt-out).
-> **While waiting, the only useful autonomous work is verification, not scope**: the full matrix on the
-> branch tip (the Windows tripwire is what caught three CRLF/path defects in this trilogy) and the
-> mutation pass on what this branch changed.
+> **While waiting, the only useful autonomous work is verification, not scope.** The **full matrix is
+> already 7/7 green on the tip `1b5eb56`** (run `31017981223`, both Windows cells + the installer e2e),
+> so that box is closed. The **mutation pass is deliberately NOT run yet**: it must measure the branch
+> as it ships, and this branch is expected to move again when the owner returns — measuring now buys a
+> re-measure, which is exactly the v4.6.0 lesson (RESULTS.md § v4.6.0 had to be redone after seven
+> later commits).
 > **14.7 is DONE and CLOSED, all three layers** — layer 1 _(`f333b3d`)_, the source header as a builder
 > output required on every note; layer 2 _(`4b9eca7`)_, the read-path notice, three states, three
 > silence pins, finished by its two remaining boxes _(`483ac2e` + the wired field run)_; layer 3
