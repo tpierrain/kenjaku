@@ -1943,10 +1943,69 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
               log tail: `typeof toolName === "string"` → `true`, and the two `input?.tool_response` /
               `input?.tool_name` optional chains — i.e. the guard's own defence against a malformed hook
               payload is observed by nothing.
-            - [ ] **Still owed on batch 4**: read the full survivor list, harden what a test can honestly
-                  reach (start with the 47), look at the timeout (`timeoutMS: 30000` is tuned to make
-                  genuine ones rare), record only genuine equivalents, then add
-                  `scripts/lib/ai-summary-guard.mjs` to the re-measure run below.
+            - [x] **The timeout is NOT a gap — it is a kill.** Arithmetic settles it: 20 killed + 1
+                  timeout + 4 survived = 25 mutants at **84.00 %**, i.e. `(20+1)/25`. It sits on the
+                  entrypoint, the one file with a `spawnSync` real-process test, so a mutant that breaks
+                  stdin reading hangs the child rather than failing it. Nothing to chase.
+            - [x] **Batch 4 HARDENED** _(2026-08-05 · `3bab51e`, `d9bdb7c`)_. The 47 were not spread
+                  evenly: **28 of them sat in the four detection regexes**, where **both anchors of every
+                  one** could be dropped green. That is the finding, not the score — an unanchored
+                  heading match is not a wider net, it is a **different** one: it fires on any line that
+                  merely *contains* the word, so the notice sends its reader "to the Transcription
+                  section" of a document whose whole point is that the transcript was never kept.
+              - [x] **Fed now, from the shapes real exports have**: the heading through its cosmetic
+                    noise (indentation, the Markdown hard break's trailing double space, one-to-six
+                    hashes, a hash written tight against the word), a document that only *talks* about
+                    the transcript, Markdown speaker turns **including the French space before the
+                    colon**, an hour-long meeting's `hh:mm:ss` headers with their trailing whitespace and
+                    no blank line between turns, and the **three false positives** an unanchored turn
+                    shape produces — an actions list with bold owners, a chapter index, timestamps cited
+                    in prose. Each mutant was applied by hand and the suite watched go red before the
+                    test was kept.
+              - [x] **The three notices and the three refusals are asserted WHOLE.** Every blanked
+                    string survivor was the same half: the sentence that says what **not** to do (do not
+                    lift the summary's action list out of the snippet; do not take the actions from the
+                    summary's own list) or the one that names the way forward (the four tiers). Same
+                    lesson as batch 2b's consent blocks, on a different surface.
+              - [x] **`payloadText`'s two silent failure modes**: a `null` anywhere in a tool response
+                    (`typeof null === "object"`, so losing the `value &&` guard throws into the hook's
+                    **fail-open catch** — the notice would simply stop existing, for that whole tool,
+                    silently), and the 400k cap, which nothing exercised at all.
+              - [x] **Three production changes, all of them dead code the mutants exposed** — not
+                    coverage theatre:
+                - [x] **A third Gemini signature was unreachable.** `/\bnotes\s+de\s+Gemini\b/` matched
+                      nothing the general *"notes by &lt;taker&gt;"* pattern did not already match (`de`
+                      is one of its connectors) — hence all four of its mutants surviving. **Deleted**,
+                      with the subsumption pinned by a test so nobody adds it back.
+                - [x] **Two `spec.sources ? … : …` branches in `renderFiledNote` could never be taken** —
+                      the guard above them already refuses a note with no sources, so a mutant could put
+                      anything in the `else` and stay green. Removed. An unreachable branch is a design
+                      defect, not an exemption.
+                - [x] **`typeof toolName === "string"` reads like belt-and-braces and is not**: dropped,
+                      the regex coerces whatever it is given, so an array payload of
+                      `["…search_files"]` stringifies straight back into a match and the brain is told
+                      *"open the document"* about bytes that **were** a document.
+              - [x] **Recorded EQUIVALENTS — do not re-chase them**, each with the reason it cannot be
+                    observed: `readFileSync(0, "")` (Buffer → `JSON.parse` coerces, the family already
+                    recorded at v4.5.0 and batch 2b); the two `input?.tool_*` optional chains (dropping
+                    them throws, and the **fail-open catch already makes throwing and not-throwing the
+                    same observable** — the `?.` is redundant with the catch, which is worth knowing but
+                    not worth churning at a release tail); `(text.match(re) ?? ["Stryker was here"])` (a
+                    one-element fallback can never reach `MIN_TURNS = 3`); `Array.isArray` and its block
+                    in the payload walker (`Object.values` of an array yields the same items, so the
+                    branch is a shortcut, not a behaviour); `if (value && true)` (`Object.values` never
+                    throws on a non-null primitive); `rank.indexOf(tier) >= ` in `weakestSourceTier`
+                    (equal ranks imply the same tier string, so both arms return the same value); both
+                    hyphen-trim `+` quantifiers in `slugify` (the preceding `[^a-z0-9]+ → "-"` collapse
+                    makes a run of two hyphens impossible by construction); and `/\.md$/ → /\.md/` in
+                    `firstNameSegment` (a card path is `<slug>.md` and `slugify` turns every dot into a
+                    hyphen, so `.md` cannot occur earlier).
+            - [ ] **The re-measure of batch 4 is RUNNING** _(2026-08-05, worktree reset to `d9bdb7c`,
+                  `rag/node_modules` symlink recreated — `git clean` had taken it — and re-verified at
+                  **22 pass / 0 skipped**; suite in the worktree 1531 tests / 1530 pass / 1 skipped)_.
+                  Log: `maintainers/mutation/reports/v480-batch4-ai-summary-recheck.log`. On resume: read
+                  its last table and write the three per-file scores below, then fold them into the
+                  combined re-measure run.
     - [ ] **Batch 3, not started** — `scripts/session-status.mjs, scripts/lib/engine-version.mjs`.
     - [ ] **Batch 4, not started** — `scripts/ai-summary-guard.mjs, scripts/lib/ai-summary-guard.mjs,
           scripts/lib/filed-note.mjs` (14.7's three layers).
