@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, existsSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 
 import { UPSTREAM_CACHE_REL, shouldReprobe, probeUpstream } from "./upstream-cache.mjs";
 
@@ -140,4 +140,53 @@ test("probeUpstream — a probe that throws leaves no half-written verdict behin
     { state: "up-to-date", installed: "v1.0.0" },
     "the previous verdict survives — a crashed probe must not erase what was known",
   );
+});
+
+test("probeUpstream — the SECOND probe of the day still writes: making the cache folder is idempotent", async () => {
+  // This runs once a day, forever, on a folder that exists after the first time.
+  // A non-idempotent mkdir throws EEXIST from the second probe onwards — and this
+  // function catches everything, so the failure would be perfectly silent: the
+  // verdict on disk would freeze at day one and quietly go stale for good.
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-upstream-twice-"));
+  writeFileSync(join(brainDir, "engine-manifest.json"), JSON.stringify({ source: { repo: "r", ref: "v1.0.0" } }));
+  const verdict = async () => ({
+    state: "available", installed: "v1.0.0", target: "v1.1.0", ahead: 1, releases: [], reason: null,
+  });
+
+  const first = await probeUpstream({ brainDir, now: () => NOW, checkUpstream: verdict });
+  const second = await probeUpstream({ brainDir, now: () => NOW + DAY, checkUpstream: verdict });
+
+  assert.equal(first.checkedAt, "2026-08-05T10:00:00.000Z");
+  assert.equal(second.checkedAt, "2026-08-06T10:00:00.000Z", "the second probe wrote, it did not die quietly");
+  assert.equal(
+    JSON.parse(readFileSync(join(brainDir, UPSTREAM_CACHE_REL), "utf8")).checkedAt,
+    "2026-08-06T10:00:00.000Z",
+  );
+});
+
+test("probeUpstream — with no clock injected it stamps the REAL now, not an empty date", async () => {
+  // Every test above hands it a clock, which is what makes them readable — and it
+  // means the default was observed by nothing. It is the field's only clock, and
+  // the stamp is what `shouldReprobe` reads to tell a day-old verdict from a fresh
+  // one: an unparseable one would make the brain probe upstream on every session.
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-upstream-realclock-"));
+  writeFileSync(join(brainDir, "engine-manifest.json"), JSON.stringify({ source: { repo: "r", ref: "v1.0.0" } }));
+  const before = Date.now();
+
+  const written = await probeUpstream({
+    brainDir,
+    checkUpstream: async () => ({ state: "up-to-date", installed: "v1.0.0", target: "v1.0.0", ahead: 0, releases: [], reason: null }),
+  });
+
+  const stamped = Date.parse(written.checkedAt);
+  assert.ok(!Number.isNaN(stamped), "the stamp is a date");
+  assert.ok(stamped >= before && stamped <= Date.now(), "and it is THIS moment");
+  assert.equal(shouldReprobe({ cached: written, installedRef: "v1.0.0", now: Date.now() }), false);
+});
+
+test("the cache file sits under .cache/, which every brain gitignores", () => {
+  // Not a detail: this is a per-machine, transient verdict about one laptop's
+  // network luck. Written anywhere else in the brain it would be committed by the
+  // auto-commit hook and pulled by the other machine as if it were vault content.
+  assert.deepEqual(UPSTREAM_CACHE_REL.split(sep), [".cache", "engine-upstream.json"]);
 });
