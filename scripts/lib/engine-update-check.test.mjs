@@ -7,8 +7,10 @@ import {
   extractWhatYouGet,
   formatUpdateCheck,
   githubReleasesApiUrl,
+  realCheckDeps,
   releasesAhead,
 } from "./engine-update-check.mjs";
+import { defaultGit } from "./engine-fetch.mjs";
 
 // A scripted git seam, same convention as engine-fetch's tests: args[] → {out, ok},
 // recording every argv so a test asserts the command AND the effect.
@@ -463,4 +465,14 @@ test("formatUpdateCheck — a brain that cannot even name its own engine says th
       "   Updating is still possible, but I cannot tell you what it would install.",
     ].join("\n"),
   );
+});
+
+test("the real seams are wired, and they are the engine's own — not a second git runner", () => {
+  // Every test above injects its own git + fetch, so the REAL wiring was observed by
+  // nothing: `checkUpstream` shipped with no default git at all and threw the moment
+  // it ran outside a test. Pinned by identity, and pinned to `engine-fetch`'s runner
+  // so the check and the update can never ask git differently.
+  assert.equal(realCheckDeps.git, defaultGit);
+  assert.equal(realCheckDeps.fetchReleases, defaultFetchReleases);
+  assert.deepEqual(Object.keys(realCheckDeps).sort(), ["fetchReleases", "git"]);
 });

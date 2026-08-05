@@ -1740,3 +1740,88 @@ test("formatReport — a brain that had no status line of ours hears nothing abo
   });
   assert.doesNotMatch(out, /status line/i);
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// --check (F3): the SAME script, a read-only first step. The target version was
+// always knowable before the prompt — `update-engine` simply asked for a yes and
+// resolved the tag afterwards. A separate probe script was rejected: `node
+// scripts/*.mjs` is not in a brain's allowlist and the reconciler never writes
+// `permissions.allow`, so a new file would prompt at every open (the F17 lesson).
+// One script, one door, and the dry run cannot drift from the real run.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("runUpdateCli --check — reports what is upstream and CHANGES NOTHING", async () => {
+  const out = [];
+  const code = await runUpdateCli(
+    {
+      brainDir: "/brains/mine",
+      readInstalledSource: (brainDir) => {
+        assert.equal(brainDir, "/brains/mine");
+        return { repo: "git@github.com:tpierrain/kenjaku.git", ref: "v4.6.0" };
+      },
+      checkUpstream: async ({ repo, installedRef }) => {
+        assert.equal(repo, "git@github.com:tpierrain/kenjaku.git");
+        assert.equal(installedRef, "v4.6.0", "the check compares against what THIS brain runs");
+        return { state: "available", installed: "v4.6.0", target: "v4.7.0", ahead: 1, releases: [], reason: null };
+      },
+      updateEngine: async () => assert.fail("--check must never run the update"),
+      armRestartFlag: () => assert.fail("--check installs nothing, so nothing needs a restart"),
+      log: (s) => out.push(s),
+      error: (s) => assert.fail(`a read-only check has nothing to say on stderr, got: ${s}`),
+    },
+    ["--check"],
+  );
+
+  assert.equal(code, 0);
+  assert.deepEqual(out, [
+    "⚙️ Your brain runs v4.6.0.\n📦 v4.7.0 is available — 1 release ahead.\n",
+  ]);
+});
+
+test("runUpdateCli --check — an unreadable manifest is an UNKNOWN answer, not a failed command", async () => {
+  // Exit 0 with a stated unknown, deliberately: a non-zero would have the skill tell
+  // the owner "the check failed" when the honest sentence is "I could not find out".
+  // The real update keeps its fail-loud exit 1 — that one changes a brain.
+  const out = [];
+  const code = await runUpdateCli(
+    {
+      brainDir: "/brains/mine",
+      readInstalledSource: () => {
+        throw new Error("ENOENT: no such file or directory, open 'engine-manifest.json'");
+      },
+      checkUpstream: async () => assert.fail("with no manifest there is no source to ask"),
+      updateEngine: async () => assert.fail("--check must never run the update"),
+      armRestartFlag: () => assert.fail("--check installs nothing"),
+      log: (s) => out.push(s),
+      error: (s) => assert.fail(`nothing should reach stderr, got: ${s}`),
+    },
+    ["--check"],
+  );
+
+  assert.equal(code, 0);
+  assert.deepEqual(out, [
+    "⚙️ Your brain does not record which engine version it runs.\n" +
+      "❓ I could not find out what is available: this brain's engine-manifest.json could not be read.\n" +
+      "   Updating is still possible, but I cannot tell you what it would install.\n",
+  ]);
+});
+
+test("runUpdateCli — with no --check, the real update still runs and the check is never called", async () => {
+  const out = [];
+  const code = await runUpdateCli(
+    {
+      brainDir: "/brains/mine",
+      readInstalledSource: () => assert.fail("the real run reads its own manifest, as it always did"),
+      checkUpstream: async () => assert.fail("the real run resolves its target itself"),
+      updateEngine: async () => ({ ref: "v4.7.0", engineVersion: { rag: "1.4.0" }, copied: [], regenerated: false, reindexed: false }),
+      armRestartFlag: () => assert.fail("a no-op update must not arm the restart nudge"),
+      log: (s) => out.push(s),
+      error: (s) => assert.fail(`nothing should reach stderr, got: ${s}`),
+    },
+    [],
+  );
+
+  assert.equal(code, 0);
+  assert.equal(out.length, 1);
+  assert.match(out[0], /^✅ Engine updated to v4\.7\.0/);
+});

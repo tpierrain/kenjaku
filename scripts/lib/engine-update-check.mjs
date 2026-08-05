@@ -12,7 +12,7 @@
 // could not find out" are opposite answers and must never render the same way.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { buildLsRemoteArgs, parseTagRefs } from "./engine-fetch.mjs";
+import { buildLsRemoteArgs, defaultGit, parseTagRefs } from "./engine-fetch.mjs";
 import { compareSemverTags, parseSemverTag, pickLatestSemverTag } from "./semver-tag.mjs";
 
 // The releases strictly newer than the one this brain runs, oldest first — i.e.
@@ -33,7 +33,12 @@ export function releasesAhead({ installed, tags }) {
 // already runs. Works on any git host, any fork, needs no auth, and says nothing
 // it cannot know. Everything richer is layered on top of this answer, never
 // instead of it.
-export async function checkUpstream({ repo, installedRef, git, fetchReleases = defaultFetchReleases }) {
+export async function checkUpstream({
+  repo,
+  installedRef,
+  git = realCheckDeps.git,
+  fetchReleases = realCheckDeps.fetchReleases,
+}) {
   const tags = readRemoteTags({ repo, git });
   const latest = pickLatestSemverTag(tags ?? []);
 
@@ -105,6 +110,12 @@ async function describeReleases({ versions, repo, fetchReleases }) {
 function nonEmpty(value) {
   return typeof value === "string" && value.trim() !== "" ? value : null;
 }
+
+// The real I/O this check runs on, named rather than inlined so a test can pin it:
+// git is `engine-fetch`'s own runner (the update asks git exactly this way), and the
+// notes come from the public releases endpoint. Both are overridden in every unit
+// test — which is precisely why the real pair needs an assertion of its own.
+export const realCheckDeps = { git: defaultGit, fetchReleases: defaultFetchReleases };
 
 // The remote's tag names, or null when the remote did not answer — the difference
 // between "no releases" and "no answer" is the whole point of this module.

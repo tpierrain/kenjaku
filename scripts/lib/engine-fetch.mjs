@@ -98,8 +98,10 @@ export function readTargetManifest(dir, read = (p) => readFileSync(p, "utf8")) {
 }
 
 // Real git runner (args[] → {out, ok}), shared convention with auto-push.mjs. Used
-// by the core's CLI wiring, never by the unit tests (which inject `git`).
-function defaultGit(args) {
+// by the core's CLI wiring, never by the unit tests (which inject `git`). Exported
+// so the update CHECK runs the very same runner: two spellings of "ask git" would
+// be two behaviours to keep in step forever.
+export function defaultGit(args) {
   try {
     const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     return { out: out ?? "", ok: true };
