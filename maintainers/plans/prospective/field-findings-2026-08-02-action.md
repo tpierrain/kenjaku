@@ -1424,7 +1424,8 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
         material when the connector is on the wrong workspace, instead of filing it silently under the
         right-looking name.
 - [x] **14.6 — ✅ COMPLETE. The Slack account check: a declared connector is not a verified one.**
-      _(2026-08-05 · `34fd06a` → `2c3b83a`; suite 1453 tests, 1 skipped Windows-only)_
+      _(2026-08-05 · `34fd06a` → `2c3b83a`; suite 1453 tests, 1 skipped Windows-only;
+      **full matrix 7/7 green on `6ae28b2`**, both Windows cells included)_
       _(owner, 2026-08-05: "Slack seulement, dans v4.8.0")_ **The defect**: a universe profile carries a
       hand-typed `## Connector accounts` section (`- Slack: acme.slack.com`), and session start **injects
       that prose verbatim** into the digest (`scripts/lib/universe-profile.mjs:111`, built at `:242`).
