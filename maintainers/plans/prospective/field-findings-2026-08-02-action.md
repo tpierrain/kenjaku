@@ -175,9 +175,10 @@
 > here only so nobody re-proposes them as new ideas: *"…Looks Before It Tells You"*, *"…Reads the
 > Transcript, Not the Summary"*, *"…Declared Stops Meaning Verified"*.
 >
-> **Still to put to him before publishing**: the one open question at the end of 14.8 (the daily
-> outbound update check, and whether it deserves an opt-out). And the version vector must move
-> `constitutionTemplate` too — both constitutions changed at 14.7 layer 3.
+> **Both decisions the tail was waiting on are TAKEN** (title, and the daily upstream check: it ships
+> as is, documented, **no opt-out** — see 14.8, including the misreading the release note must answer).
+> **Nothing is pending on the owner any more; resume at the first unchecked box of "The tail, in
+> order" — the mutation pass.**
 > **While waiting, the only useful autonomous work is verification, not scope.** The **full matrix is
 > already 7/7 green on the tip `1b5eb56`** (run `31017981223`, both Windows cells + the installer e2e),
 > so that box is closed. The **mutation pass is deliberately NOT run yet**: it must measure the branch
@@ -1662,21 +1663,58 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
   - [ ] **For 14.8: the version vector.** Both constitutions changed here, so `constitutionTemplate`
         must be bumped with the rest of the vector (`scripts` too — this branch changed it). The two
         skill `version:` fields are already done.
-- [ ] **14.8 — the release tail — 🛑 STILL BLOCKED ON THE OWNER, BY HIS OWN ASK.** F3 and its sibling are
-      **done** (14.1 → 14.4, all green and pushed, PR #58 open as a
-      draft; **full matrix 7/7 on `c91d303`**, suite 1419 tests / 1 skipped Windows-only). The extra scope
-      he announced has now arrived and is 14.5 → 14.7. Do **not** start the tail without him, and do
-      **not** pull a further finding in on your own initiative.
-  - [ ] **What is left to do, once he has spoken**: whatever he adds, then the usual tail — §10 marketing
-        re-read, mutation on what this branch changed (`engine-update-check.mjs`, `upstream-cache.mjs`,
-        `engine-version.mjs`, `update-engine.mjs`, `session-status.mjs`), the version vector bump
-        (`scripts` 1.12.0 → 1.13.0 and `constitutionTemplate` only if a constitution changes; `rag`
-        untouched so far — **check, do not assume**), the release note + PR body, the tag.
-  - [ ] **One open question worth putting to him** (do not decide it alone): the session-start line now
-        makes **one outbound call a day** to the engine's repo, which is new for a product that sells
-        "nothing leaves your machine". It is public metadata and no vault content, and the alternative
-        is a brain that cannot know it is behind — but it deserves a conscious yes, and possibly an
-        opt-out (`git config secondbrain.updatecheck false`), which is NOT built.
+- [ ] **14.8 — the release tail — ✅ UNBLOCKED, THE OWNER SAID "on cut la release"** _(2026-08-05)_.
+      The build phase 14.1 → 14.7 is done, green and pushed, draft **PR #58**; **full matrix 7/7 on the
+      tip `1b5eb56`**, suite 1517 tests / 1 skipped Windows-only. The two decisions the tail was waiting
+      on are both taken (below). **Nothing is half-written on disk.** Work the checklist in order.
+  - [x] **✅ DECISION 1 — the title, by the owner: `v4.8.0 — The One Where the Update Says What It's
+        For`** (see the header for the three candidates he declined; do not re-propose them).
+  - [x] **✅ DECISION 2 — the daily upstream check ships AS IS, documented, with NO opt-out**
+        _(owner, 2026-08-05)_. He asked for the capability in his own words — *"j'ai besoin que tu
+        puisses aller vérifier les versions disponibles sur internet et sur GitHub"* — and chose
+        *"documenté, sans interrupteur"* over building `git config secondbrain.updatecheck false`.
+        **Do not build the switch**, and do not re-open this. What the tail owes it is documentation.
+    - [x] **⚠️ AND HIS QUESTION IS THE ONE THE RELEASE NOTE MUST ANSWER FIRST.** He read "one outbound
+          call a day" as possibly meaning *a git remote link wired into his brain*, and said so:
+          *"ça ne veut pas dire qu'on veut un lien… en termes de repo git remote etc."* If the **owner**
+          read it that way, users will. So the note (and `SETUP.md`) must say, in plain words, **what it
+          is not**: no remote is added, nothing is pushed, his own backup repo plays no part.
+    - [x] **The facts to write it from, verified in code rather than recalled** — the address is
+          `source.repo` in the **brain's own** `engine-manifest.json`, written at install: the **public
+          repo of the ENGINE**. The call is `git ls-remote --tags --refs <repo>`
+          (`engine-fetch.mjs:31`) — no clone, no auth, one round-trip asking only for the tag list. Then
+          **only if the brain is behind**, one request to the public GitHub API for each release's title
+          and `What you get`; **a brain that is up to date makes no HTTP call at all**. Nothing from the
+          vault leaves. Once per 24 h, in a detached child (`upstream-check-run.mjs`), failing soft and
+          silent when offline.
+  - [ ] **The tail, in order** (nothing here is started):
+    - [ ] **The mutation pass on what this branch changed.** Now is the right moment — the branch has
+          stopped moving (that was the reason for waiting; measuring early bought a re-measure at
+          v4.6.0). **The 16 changed production files, computed 2026-08-05 with
+          `git diff --name-only main...HEAD`, so they are not re-derived**: `scripts/ai-summary-guard.mjs`,
+          `scripts/lib/ai-summary-guard.mjs`, `scripts/lib/connector-accounts.mjs`,
+          `scripts/lib/consolidation-candidates.mjs`, `scripts/lib/engine-fetch.mjs`,
+          `scripts/lib/engine-update-check.mjs`, `scripts/lib/engine-version.mjs`,
+          `scripts/lib/filed-note.mjs`, `scripts/lib/semver-tag.mjs`, `scripts/lib/universe-profile.mjs`,
+          `scripts/lib/upstream-cache.mjs`, `scripts/lib/wiki-lint.mjs`, `scripts/session-status.mjs`,
+          `scripts/set-universe-profile.mjs`, `scripts/update-engine.mjs`,
+          `scripts/upstream-check-run.mjs`. **Nothing under `rag/src` changed.** Recipe and traps: Step 11
+          (disposable worktree — NOT the scratchpad, `rag/node_modules` symlinked and **verified**, one or
+          two files per run to stay inside the 10-min cap, reset between batches).
+    - [ ] **§10, the marketing-surface re-read** (`README.md`, `EN-QUOI-C-EST-DIFFERENT.md`,
+          `CONNECTORS.md`, the boards through their alt texts): what this release made false, and what it
+          shipped that no surface sells. The update check's *"what it is not"* belongs here too.
+    - [ ] **The version vector** — `scripts` 1.12.0 → **1.13.0** and `constitutionTemplate` 1.2.0 →
+          **1.3.0** (both constitutions changed at 14.7 layer 3). `rag` **1.4.0 — check, do not assume**:
+          nothing under `rag/src` changed on this branch, so it should stay. `indexSchemaVersion`
+          unchanged → the note can promise no reindex (verify before promising).
+    - [ ] **The release note (§11, non-devs first) + the PR body**, then archive both under
+          `archived/`. **No finding codes** (F3, F14…) in any artifact — they mean nothing to anyone but
+          us. The note has five things to tell: the update that says what it is for, `/lint` that stops
+          crying wolf, Slack checked instead of declared, notes that say what they were built from, and
+          the AI-summary notice. Plus the update check's plain-words paragraph.
+    - [ ] **The tag, the merge, the published release** — and CI 7/7 on the tagged commit before
+          publishing.
 
 ## The one pattern behind most of it (the reframe)
 
