@@ -2057,10 +2057,10 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           remove the worktree (`git worktree remove`) once the last batch is read. That section owes the
           **two deferred remedies** a named, numbered debt line each (the guard test, the two generators)
           — not a story about `engine-fetch.mjs`.
-    - [ ] **Engrave remedy (3) in `CONVENTIONS.md`** — a new production file is mutated the **day it is
-          written**, not at the release tail; the tail pass stays as it is. Own numbered section next to
-          §5quater. Decided 2026-08-05 (see the batch-1 arbitration above); the *why* is the finding,
-          so write the why, not only the rule.
+    - [x] **Engrave remedy (3) in `CONVENTIONS.md` — DONE** _(2026-08-05)_: **§5quinquies**, right after
+          §5quater. A new production file is mutated the **day it is written**, not at the release tail;
+          it carries the *why*, both commands, the worktree-is-not-ceremony reason, the `0 skipped`
+          proof, and it states it is an **addition, not a substitution** (the tail pass stays).
     - [x] **§10, the marketing-surface re-read — DONE** _(2026-08-05 · `7eb133d`, `SETUP` in its own
           commit)_. What it turned up, so it is not re-derived:
       - [x] **What the release made FALSE, and is now honest**: `EN-QUOI` §5 sold *"Upstream dependency:
