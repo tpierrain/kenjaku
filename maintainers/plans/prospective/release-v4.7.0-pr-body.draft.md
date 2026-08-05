@@ -1,7 +1,7 @@
 <!-- DRAFT, written 2026-08-05 while the owner was away. NOT published, no PR is open.
      Before it ships: the owner reads it, and the CI line is checked against the head commit. -->
 
-## v4.7.0 — The One Where It Admits It's Behind
+## v4.7.0 — The One Where It Knows You Haven't Restarted Yet
 
 The short leg of the trilogy, and the only one whose scope was cut rather than grown: it ships **what one
 morning's field session raised**, plus the dependency pins we wrote ourselves. Everything else moves to

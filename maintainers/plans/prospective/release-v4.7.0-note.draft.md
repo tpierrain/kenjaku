@@ -3,7 +3,7 @@
      commit actually being tagged — it is written in the past tense and is not true yet, (3) this
      comment and the `.draft` in the filename go away, and the file moves to `plans/archived/`. -->
 
-# v4.7.0 — The One Where It Admits It's Behind
+# v4.7.0 — The One Where It Knows You Haven't Restarted Yet
 
 **Your brain stops answering as if it were up to date when it isn't.** When newer code has landed but the
 conversation you are in still runs the old one, it says so. When notes are waiting to be indexed, it says
