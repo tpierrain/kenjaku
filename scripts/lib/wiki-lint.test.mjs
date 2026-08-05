@@ -134,6 +134,59 @@ test("lintVault — raw-capture zones stay excluded under a universe prefix (<un
   assert.deepEqual(report.orphans, ["acme/topic.md"]);
 });
 
+test("lintVault — `_inbox/` is the same capture zone as `inbox/`, at either root", () => {
+  // Field defect (owner's brain, 2026-08-05): the capture folder is named `_inbox/`
+  // — the Obsidian habit of an underscore to sort it to the top — and the zone list
+  // only knew `inbox/`. So every capture sitting in it came back as an orphan, six
+  // per pass, on notes that are unlinked BY DESIGN. A checker that cries on the
+  // healthy shape is how its owner learns to stop reading it (CONVENTIONS §5quater).
+  const report = lintVault([
+    { path: "_inbox/scratch.md", frontmatter: {}, body: "" },
+    { path: "acme/_inbox/capture.md", frontmatter: {}, body: "" },
+    { path: "topic.md", frontmatter: {}, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["topic.md"]);
+});
+
+test("lintVault — `_inbox/` is exempt from required frontmatter too, being a raw dump", () => {
+  // The two rules must agree about what a zone IS: exempting it from orphans while
+  // still demanding taxonomy of it would just move the same false positive.
+  const report = lintVault([
+    { path: "_inbox/scratch.md", frontmatter: {}, body: "" },
+    { path: "acme/_inbox/capture.md", frontmatter: {}, body: "" },
+  ]);
+  assert.deepEqual(report.frontmatterViolations, []);
+});
+
+test("lintVault — an engine-owned note (type: engine) is neither an orphan nor frontmatter rot", () => {
+  // Field defect (owner's brain, 2026-08-05): `vault/engine-health/health-check.md`,
+  // the RAG canary, carries type/created/tags and no `updated`, and nothing links to
+  // it. So the lint reported two defects on a file the owner is explicitly told never
+  // to touch — permanently unfixable by the only person being shown them.
+  //
+  // Keyed on `type: engine`, not on the canary's path: the class is "notes the engine
+  // owns", and pinning the path would need a second edit the day a second one ships.
+  const report = lintVault([
+    { path: "engine-health/health-check.md", frontmatter: { type: "engine", created: "2026-06-20" }, body: "" },
+    { path: "acme/engine-health/health-check.md", frontmatter: { type: "engine", created: "2026-06-20" }, body: "" },
+    { path: "topic.md", frontmatter: {}, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["topic.md"]);
+  assert.deepEqual(report.frontmatterViolations, [{ path: "topic.md", missing: ["type", "created", "updated", "tags"] }]);
+});
+
+test("lintVault — the engine exemption is the TYPE, not the folder: a hand-written note under engine-health/ is still held", () => {
+  // Otherwise the fix would hand anyone a silent opt-out of the whole lint by
+  // filing a note in the engine's folder.
+  const report = lintVault([
+    { path: "engine-health/notes-i-put-here.md", frontmatter: { type: "topic" }, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["engine-health/notes-i-put-here.md"]);
+  assert.deepEqual(report.frontmatterViolations, [
+    { path: "engine-health/notes-i-put-here.md", missing: ["created", "updated", "tags"] },
+  ]);
+});
+
 test("lintVault — the engine's own work-zones (meetings/, briefings/, prep-1-1/, coaching/) are never orphans", () => {
   // The shipped skills write these and nobody links back to a meeting write-up or
   // a 1-1 prep — legitimately unlinked by design, so not rot. Universe-insensitive.

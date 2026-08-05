@@ -241,6 +241,32 @@ test("consolidationCandidates — a capture's unresolved mention is a new-page c
   });
 });
 
+test("consolidationCandidates — an `_inbox/` capture drives candidates like an `inbox/` one", () => {
+  // The lint and the consolidation keep TWO spellings of "what a capture zone is"
+  // (this list and wiki-lint's RAW_CAPTURE_ZONES). Teaching only the lint about the
+  // underscored inbox would have stopped the false orphans while leaving every note
+  // in it invisible to consolidation — the same defect, moved one surface over.
+  const notes = [
+    {
+      path: "_inbox/2026-08-05-note.md",
+      frontmatter: { updated: "2026-08-05" },
+      body: "[[Marie Dupont]] a tranché.",
+    },
+    {
+      path: "acme/_inbox/capture.md",
+      frontmatter: { updated: "2026-08-05" },
+      body: "[[Jean Dujardin]] aussi.",
+    },
+  ];
+  assert.deepEqual(consolidationCandidates(notes), {
+    newPages: [
+      { target: "Jean Dujardin", sources: [{ path: "acme/_inbox/capture.md", updated: "2026-08-05" }] },
+      { target: "Marie Dupont", sources: [{ path: "_inbox/2026-08-05-note.md", updated: "2026-08-05" }] },
+    ],
+    refreshes: [],
+  });
+});
+
 // ── universe-aware (ADR 0034): paths gain a leading <universe>/ segment ────────
 
 test("consolidationCandidates — a capture under <universe>/meetings/… still drives candidates, universe-relative links resolve", () => {
