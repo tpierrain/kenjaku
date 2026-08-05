@@ -168,12 +168,17 @@
 > "on cut la release"** _(2026-08-05)_. The build phase (14.1 → 14.7) is done, green and pushed on
 > `release/v4.8.0` (draft **PR #58**), full matrix 7/7 on `1b5eb56`. Work the 14.8 checklist in order.
 >
-> **✅ THE TITLE IS CHOSEN, BY THE OWNER (2026-08-05): `v4.8.0 — The One Where the Update Says What
-> It's For`.** Do not re-open it. It names the scope the release started from (F3, the consent that can
-> answer *"what for?"*), which is also its most visible change. The rest of the release is told in the
-> note's body, not in the title. Four candidates were put to him; the ones he declined are recorded
-> here only so nobody re-proposes them as new ideas: *"…Looks Before It Tells You"*, *"…Reads the
-> Transcript, Not the Summary"*, *"…Declared Stops Meaning Verified"*.
+> **✅ THE TITLE IS CHOSEN, BY THE OWNER (2026-08-05, revised the same day): `v4.8.0 — The One Where It
+> Tells You an Update Is Waiting`.** Do not re-open it. It names the **detection** half, which is the
+> capability this branch actually creates: before it, the brain could update itself but never knew there
+> was anything to update (the prompt said so out loud — *"Je ne sais pas ce qui est disponible en
+> amont"*). The informed-consent half (naming the target version, quoting `What you get`) is told in the
+> note's body, as is the rest of the release. Titles are also read **upstream** by other brains — that is
+> mechanism B of this very release — so one that announces the detection reads well in that list.
+> _(Superseded, do not restore: `…The Update Says What It's For`, chosen first, then set aside by the
+> owner because it presupposes the detection without ever saying it. Also declined earlier, and not to be
+> re-proposed as new ideas: *"…Looks Before It Tells You"*, *"…Reads the Transcript, Not the Summary"*,
+> *"…Declared Stops Meaning Verified"*.)_
 >
 > **Both decisions the tail was waiting on are TAKEN** (title, and the daily upstream check: it ships
 > as is, documented, **no opt-out** — see 14.8, including the misreading the release note must answer).
@@ -1667,8 +1672,12 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
       The build phase 14.1 → 14.7 is done, green and pushed, draft **PR #58**; **full matrix 7/7 on the
       tip `1b5eb56`**, suite 1517 tests / 1 skipped Windows-only. The two decisions the tail was waiting
       on are both taken (below). **Nothing is half-written on disk.** Work the checklist in order.
-  - [x] **✅ DECISION 1 — the title, by the owner: `v4.8.0 — The One Where the Update Says What It's
-        For`** (see the header for the three candidates he declined; do not re-propose them).
+  - [x] **✅ DECISION 1 — the title, by the owner: `v4.8.0 — The One Where It Tells You an Update Is
+        Waiting`** _(revised 2026-08-05, same day, by the owner himself)_. It replaces `…The Update Says
+        What It's For`, which described the consent half and presupposed the detection half without ever
+        naming it — and the detection is what this branch newly builds (`upstream-check-run.mjs`,
+        `upstream-cache.mjs`, `engine-update-check.mjs` are all created here, `43560e4` + `d8b98b9`).
+        See the header for the superseded and declined candidates; do not re-propose them.
   - [x] **✅ DECISION 2 — the daily upstream check ships AS IS, documented, with NO opt-out**
         _(owner, 2026-08-05)_. He asked for the capability in his own words — *"j'ai besoin que tu
         puisses aller vérifier les versions disponibles sur internet et sur GitHub"* — and chose
@@ -1710,7 +1719,8 @@ and the "I found nothing" that came out as "nothing exists" (F18). Do not re-ope
           unchanged → the note can promise no reindex (verify before promising).
     - [ ] **The release note (§11, non-devs first) + the PR body**, then archive both under
           `archived/`. **No finding codes** (F3, F14…) in any artifact — they mean nothing to anyone but
-          us. The note has five things to tell: the update that says what it is for, `/lint` that stops
+          us. The note has five things to tell: **the brain that now tells you an update is waiting, and
+          what it is for** (title's half first, then the consent half), `/lint` that stops
           crying wolf, Slack checked instead of declared, notes that say what they were built from, and
           the AI-summary notice. Plus the update check's plain-words paragraph.
     - [ ] **The tag, the merge, the published release** — and CI 7/7 on the tagged commit before
