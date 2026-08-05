@@ -46,7 +46,7 @@ async function loadCore() {
 // ── formatReport: the human summary the brain-side skill prints (Step 6) ──────
 // Pure (report object → string) so the wording is unit-tested; the CLI entry holds
 // only the untestable I/O wiring (ADR 0009).
-import { formatReport, countNewCapabilities, needsRestart, bareHookName, runUpdateCli, realUpdateDeps, armRestartFlag, defaultCountVaultNotes } from "../update-engine.mjs";
+import { formatReport, countNewCapabilities, needsRestart, bareHookName, runUpdateCli, realUpdateDeps, armRestartFlag, defaultCountVaultNotes, defaultReadInstalledSource } from "../update-engine.mjs";
 import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
 
 // F2: the default count must match what the indexer actually treats as a note —
@@ -131,8 +131,21 @@ test("formatReport — a 'conflicted' update says the engine files were NOT comm
     committed: "conflicted",
   });
   assert.match(out, /not committed|couldn't commit|could not commit/i);
-  assert.match(out, /conflict/i);
   assert.doesNotMatch(out, /were committed locally/i);
+  // Asserted WHOLE, not by a /conflict/ fragment: the two lines below are the only
+  // place the owner is told what to do about it, and a fragment match leaves them
+  // free to disappear. A brain left with pending markers and no instructions is
+  // exactly the silence this release is about.
+  assert.ok(
+    out.includes(
+      [
+        "   ⚠️ the engine files were NOT committed: a merge conflict is pending in your brain's",
+        "   repo, and committing would have buried the <<<<<<< markers in it. Resolve that",
+        "   conflict, then commit — your engine is updated on disk either way.",
+      ].join("\n"),
+    ),
+    `the conflict block must be printed verbatim; got:\n${out}`,
+  );
 });
 
 // And the fourth: git was asked, and said no (a machine with no `user.email` is the
@@ -149,6 +162,18 @@ test("formatReport — a 'refused' commit is reported as a failure to commit, no
   });
   assert.match(out, /git refused|could not commit|couldn't commit/i);
   assert.doesNotMatch(out, /were committed locally/i);
+  // Same reason as the conflicted case: the remedy (configure git, then commit) and
+  // the consequence (the startup pull stays blocked) are the whole point of the block.
+  assert.ok(
+    out.includes(
+      [
+        "   ⚠️ git refused to commit the engine files (often: no name/email configured yet —",
+        '   git config --global user.email "you@example.com"). They are staged and waiting;',
+        "   commit them once git is happy, or your brain's startup pull stays blocked.",
+      ].join("\n"),
+    ),
+    `the refusal block must be printed verbatim; got:\n${out}`,
+  );
 });
 
 test("formatReport — schema unchanged → states no reindex was needed (never a misleading 'reindexed')", () => {
@@ -1824,4 +1849,39 @@ test("runUpdateCli — with no --check, the real update still runs and the check
   assert.equal(code, 0);
   assert.equal(out.length, 1);
   assert.match(out[0], /^✅ Engine updated to v4\.7\.0/);
+});
+
+test("defaultReadInstalledSource — reads the brain's OWN manifest, and survives every shape of it", () => {
+  // Every `--check` test above injects this seam, so the real reader was observed by
+  // nothing — and it is what decides which address the daily check talks to. Three
+  // shapes, all of them real: a brain installed normally, a manifest that predates
+  // `source` entirely (the fleet's oldest brains), and one with an empty `source`.
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-installed-source-"));
+  const writeManifest = (manifest) =>
+    writeFileSync(join(brainDir, "engine-manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+
+  try {
+    writeManifest({ source: { repo: "https://github.com/tpierrain/kenjaku.git", ref: "v4.7.0" } });
+    assert.deepEqual(defaultReadInstalledSource(brainDir), {
+      repo: "https://github.com/tpierrain/kenjaku.git",
+      ref: "v4.7.0",
+    });
+
+    writeManifest({ engineVersion: { rag: "1.0.0" } });
+    assert.deepEqual(
+      defaultReadInstalledSource(brainDir),
+      { repo: null, ref: null },
+      "no source recorded is an ANSWER (→ 'this brain records no source to check'), never a crash",
+    );
+
+    writeManifest({ source: {} });
+    assert.deepEqual(defaultReadInstalledSource(brainDir), { repo: null, ref: null });
+
+    // And it reads the manifest, not the folder: a brain whose manifest is gone must
+    // raise, so `--check` reports "could not be read" instead of a silent null answer.
+    rmSync(join(brainDir, "engine-manifest.json"));
+    assert.throws(() => defaultReadInstalledSource(brainDir), /ENOENT/);
+  } finally {
+    rmSync(brainDir, { recursive: true, force: true });
+  }
 });
