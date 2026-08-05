@@ -209,7 +209,14 @@ test("renderUniverseDigest carries the people and the connector accounts", () =>
       "Acme Corp.",
       "Industrial widgets.",
       "People: Zoe (CTO), Alice (PM).",
-      "Connector accounts: Slack: acme.slack.com.",
+      // A declared account is a claim (14.6): the connectors are single-account and
+      // do NOT follow a switch, so quoting the page as a fact is how the brain reads
+      // one organisation and files it under another's name.
+      "Connector accounts, as DECLARED on this page (a claim, never verified): " +
+        "Slack: acme.slack.com.",
+      "Slack can be checked, and here it must be: before reading or filing anything from Slack " +
+        "in this universe, observe the workspace a Slack result names, then run " +
+        '`node scripts/set-universe-profile.mjs --check-slack "<workspace>"`.',
     ].join("\n"),
   );
 });
@@ -462,7 +469,10 @@ test("renderUniverseDigest carries the topics, in the note's order, after the pe
     displayName: "Acme Corp",
     people: ["Zoe (CTO)"],
     topics: ["platform migration", "hiring"],
-    connectors: [{ tool: "Slack", account: "acme.slack.com" }],
+    // Notion rather than Slack: this test is about ORDER, and a connector nobody can
+    // interrogate keeps the block to its one declaration line (the Slack gesture has
+    // its own tests). It also pins that the digest carries the unverifiable tier too.
+    connectors: [{ tool: "Notion", account: "Acme workspace" }],
     today: "2026-07-27",
   }).content;
 
@@ -472,7 +482,8 @@ test("renderUniverseDigest carries the topics, in the note's order, after the pe
       "Acme Corp.",
       "People: Zoe (CTO).",
       "Topics: platform migration, hiring.",
-      "Connector accounts: Slack: acme.slack.com.",
+      "Connector accounts, as DECLARED on this page (a claim, never verified): " +
+        "Notion: Acme workspace.",
     ].join("\n"),
   );
 });

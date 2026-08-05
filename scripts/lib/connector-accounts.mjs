@@ -13,6 +13,33 @@
 // a string comparison is not the LLM's job (ADR 0009).
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * The connector-accounts block of the `[working context]` digest, built from the
+ * profile's own `## Connector accounts` bullets (already stripped of their dash by
+ * the digest's section reader). Pure; returns 0, 1 or 2 lines.
+ *
+ * Two lines rather than one, deliberately: the first says WHAT the page claims and
+ * that it is only a claim, the second is the GESTURE that settles it. A rule with
+ * no gesture is a rule nothing ever runs — the pattern this release keeps meeting.
+ */
+export function renderConnectorAccounts(entries) {
+  if (!entries.length) return [];
+  const declared = [
+    `Connector accounts, as DECLARED on this page (a claim, never verified): ${entries.join(", ")}.`,
+  ];
+  if (!entries.some((entry) => isVerifiable(toolOf(entry)))) return declared;
+  return [
+    ...declared,
+    "Slack can be checked, and here it must be: before reading or filing anything from Slack " +
+      "in this universe, observe the workspace a Slack result names, then run " +
+      '`node scripts/set-universe-profile.mjs --check-slack "<workspace>"`.',
+  ];
+}
+
+// `Slack: acme.slack.com` → `Slack`. The account may itself contain a colon (a URL
+// does), so only the FIRST one separates the tool from what it names.
+const toolOf = (entry) => String(entry).split(":")[0];
+
 // The connectors that can answer "which account am I on?" cleanly enough to build
 // a verdict on. Slack is the whole list ON PURPOSE (owner, 2026-08-05): it is where
 // the mistake costs the most and the one that answers without ambiguity. Widening

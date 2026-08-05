@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { compareConnectorAccount } from "./connector-accounts.mjs";
+import { compareConnectorAccount, renderConnectorAccounts } from "./connector-accounts.mjs";
 
 // The defect this file exists for: a universe profile DECLARES `Slack:
 // acme.slack.com`, the connector is still authenticated on the sphere the owner
@@ -131,4 +131,37 @@ test("a declaration written as a full domain matches a bare workspace slug", () 
     status: "matching",
     line: "Slack is on 'acme', which is what this universe declares (observed, not assumed).",
   });
+});
+
+// --- what the digest is allowed to say ---------------------------------------
+// The digest is `[working context]`: background the agent uses SILENTLY, printed
+// right after a `/switch`. That is precisely the moment the connectors have not
+// followed, so this is where a declaration must stop wearing the clothes of a fact.
+
+test("a declared Slack account is rendered as a claim, with the gesture that settles it", () => {
+  const lines = renderConnectorAccounts(["Slack: acme.slack.com"]);
+
+  assert.deepEqual(lines, [
+    "Connector accounts, as DECLARED on this page (a claim, never verified): Slack: acme.slack.com.",
+    "Slack can be checked, and here it must be: before reading or filing anything from Slack " +
+      "in this universe, observe the workspace a Slack result names, then run " +
+      '`node scripts/set-universe-profile.mjs --check-slack "<workspace>"`.',
+  ]);
+});
+
+test("a universe that declares no Slack gets no Slack gesture", () => {
+  // Two entries, unsorted, one of them a decoy: the gesture must key on WHICH
+  // tools are declared, not on the section being non-empty.
+  const lines = renderConnectorAccounts(["Notion: Acme workspace", "Drive: acme.com"]);
+
+  assert.deepEqual(lines, [
+    "Connector accounts, as DECLARED on this page (a claim, never verified): " +
+      "Notion: Acme workspace, Drive: acme.com.",
+  ]);
+});
+
+test("a universe that declares nothing says nothing", () => {
+  // Most profiles have no `## Connector accounts` section at all. A block
+  // announcing an empty claim would put plumbing in every switch, for nothing.
+  assert.deepEqual(renderConnectorAccounts([]), []);
 });
