@@ -8,12 +8,15 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: Defect 1, "fail fast on a locked index"** — the last piece of defect 1 (the shutdown
-> AND the committed lifecycle test that proves the process dies are both done and pushed). It is a
-> **judgement call to make first, out loud**: with the leak fixed, a locked index should no longer
-> happen, so this is a *diagnostic* (say "another instance holds the index" instead of hanging until
-> the client's 30 s timeout), not a fix. Decide keep-or-drop for this hotfix, say why, then move on to
-> **Defect 3**. Branch **`hotfix/v4.8.1-rag-server-shutdown`**, **PR #59** — the resumption anchor
+> **Resume at: Defect 3** (`npx tsx` → the direct `tsx/dist/cli.mjs` call). **Defect 1 is closed**:
+> the shutdown, the committed lifecycle test that proves the process dies, and the last open question
+> — "fail fast on a locked index" — which was **dropped on evidence, not on scope**: measured, it
+> would fire on nothing and would break parallel Desktop + CLI sessions, which work today. Read that
+> box before reviving the idea.
+> **Defect 3 matters more than the report thought**: the lock mechanism it proposed does not survive
+> measurement, which leaves `npx`'s 9.8 s startup as the thing that actually blows the client's 30 s
+> ceiling. See the ⚠️ box under Defect 1.
+> Branch **`hotfix/v4.8.1-rag-server-shutdown`**, **PR #59** — the resumption anchor
 > (DEVELOPING.md §7), whose body mirrors what is left.
 > Do **not** re-diagnose and do **not** re-read the source report: the fix sites were already named
 > from a verification pass against HEAD, and the ones that are done are ticked with their commit.
@@ -86,12 +89,23 @@
   - [ ] **The archaeology matters** (the reporters spotted it): before the live-watcher feature the
         process would have exited by event-loop exhaustion. **Adding liveness turned an implicit
         shutdown into a leak** — nothing was removed, so nothing looked like a regression.
-  - [ ] **Why it degrades instead of failing**: each survivor keeps the exclusive better-sqlite3 lock on
-        `rag/.cache/vault.db`. The next session contends for it, exceeds the client's 30 s handshake
-        ceiling, times out, **and leaves another orphan**. Measured in the field: **21 orphaned node
-        processes** accumulated over one day (12:00 → 18:15), four consecutive dead sessions. The
-        failure makes the next failure more likely, which is why it went from "occasionally slow" to
-        "permanently dead" with no warning in between.
+  - [ ] **Why it degrades instead of failing.** The field facts stand: **21 orphaned node processes**
+        over one day (12:00 → 18:15), four consecutive dead sessions, each failure making the next
+        likelier — "occasionally slow" to "permanently dead" with no warning in between.
+  - [ ] **⚠️ But the MECHANISM the report proposed does not survive measurement, and we repeated it.**
+        The report said each survivor keeps an exclusive lock on `vault.db`, so the next session
+        contends for it and blows the client's 30 s handshake ceiling. Measured on 2026-08-07 (see the
+        dropped fail-fast box): the index is **WAL**, the transport opens **before** any indexing —
+        already true in **v4.6.0**, their own version — and a server starting against a **held write
+        lock** still handshakes in **291 ms**. The startup path never waits on that lock.
+        **The reading that fits the evidence**: the orphans starve the machine (21 live node
+        processes, each with a watcher and, on an in-process embedder, model weights in RAM), and what
+        actually blows the 30 s ceiling is what runs **before our code does** — `npx`'s resolution
+        with its registry round-trip, **9.8 s warm on an idle machine** by their own measurement.
+        Which **promotes Defect 3 from "aggravator" to proximate cause**, and leaves Defect 1 as the
+        root cause it always was: the leak is what makes the machine slow enough for `npx` to lose.
+        _(Not provable from here — it needs their machines. It is the reason to ask them to re-time
+        `npx` versus the direct call on the tagged build, which the verification box already does.)_
   - [ ] **The control experiment is what makes this airtight**: both servers time out under the same
         conditions, yet all 21 orphans were `rag`, **zero** were `local-mirror`. Measured — start,
         close stdin after 8 s, count survivors: `rag` 2 → 2 (leaks), `local-mirror` 2 → 0 (exits).
@@ -104,10 +118,28 @@
         (`rag/src/lib/vector-store.ts:497`, already exists), then exit. Releasing the lock is the half
         that stops the pile-up. _(Done: `rag/src/lib/shutdown-plan.ts` — and it closes the index even
         when the watcher throws, since the lock is released by dying, not by tidying up well.)_
-  - [ ] **Fail fast on a locked index** (their defensive complement, and it fits our doctrine): if
-        `vault.db` is already locked at startup, say *"another instance holds the index"* instead of
-        blocking silently until the client's timeout. A server that says why is debuggable; one that
-        hangs for 30 s is not.
+  - [x] **Fail fast on a locked index — DROPPED, and not for scope reasons: it has no premise.**
+        _(2026-08-07, measured, Thomas asked what it would actually do)_ The index runs in
+        **WAL** (`vector-store.ts:181`) and the MCP transport is opened **before** any indexing — in
+        v4.6.0 too, so this is not something we fixed since. Measured on this branch:
+        - a server starting **while another process holds a real `BEGIN IMMEDIATE` write lock**
+          handshakes in **291 ms** and arms its watcher. The startup path never asks for the lock, so
+          a fail-fast check on it would fire on **nothing**;
+        - **two servers on the same vault and the same cache** both come up (~300 ms), both arm, both
+          exit 0. Refusing to start on "someone else holds the index" would **break a case that works
+          today** — Claude Desktop and the CLI on the same brain (see the next box);
+        - only a concurrent **write** collides: it waits ~5 s (better-sqlite3's default busy timeout,
+          we set none) and then raises `SQLITE_BUSY`. That is a **visible indexing error**, not a
+          silent hang, and it is not the startup path.
+        Also worth knowing before anyone revives the idea: **SQLite never names the holder** — you get
+        `SQLITE_BUSY`, never a PID. A message could only say *"someone else"*. Naming (and a fortiori
+        killing) needs a PID we wrote ourselves, which is what `ReindexLock` already does for the
+        reindex (pid + acquiredAt + `isAlive` + 30-min stale reclaim). Killing on the user's behalf is
+        the **reaper the plan already refuses**, two boxes down.
+  - [ ] **Parallel sessions (Desktop + CLI on one brain) are a supported case, and now a clean one.**
+        Measured above: they coexist. Before the fix each one also left a survivor behind; with the
+        shutdown wired, each server dies with its own session. Nothing to build here — recorded so the
+        next person does not "protect" the index and break it.
   - [ ] **Do NOT ship the reaper instead of the fix.** The report itself pre-empts it: reaping orphans
         from `session-self-heal.mjs` is *"a net, not a fix — with Defect 1 corrected it should become
         unnecessary, and shipping the net instead would just hide the leak."* Their words, and they are
