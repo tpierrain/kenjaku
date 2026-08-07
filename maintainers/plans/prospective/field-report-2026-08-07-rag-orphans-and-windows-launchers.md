@@ -8,7 +8,12 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: Defect 3**. The wording review is now **fully CLOSED**: items 2, 3, 4 and 5 are
+> **Resume at: the remaining `npx tsx` spawns of Defect 3** (`headless-health-check.mjs`,
+> `health-probe-run.mjs`) — the four launchers are done, but the live-health section is costed on
+> the direct call, so those two must follow before the banner can go synchronous. **Then Defect 2**
+> (CRLF in the generated `.cmd`), which is the last code item of the release.
+>
+> The wording review is now **fully CLOSED**: items 2, 3, 4 and 5 are
 > shipped; item 1 keeps the "RAG" vocabulary (Thomas declined de-jargoning it) and its one remaining
 > open string — `up to date` — was arbitrated on 2026-08-07 in favour of *claim only what was
 > measured* (`🧠 RAG — 112/112 files indexed.`). Nothing left to ask there.
@@ -169,6 +174,31 @@
         CRLF fix is trivially undone. A generator-side assertion on the emitted `.cmd` bytes is what
         makes it stick — same reflex as the Windows tripwire (`CONVENTIONS.md` §9).
 - [ ] **Defect 3 — `npx tsx` resolves tsx from the npx cache, not from `node_modules`. Windows, medium.**
+  - [x] **The four launchers are fixed and pushed** _(2026-08-07 · see git log)_. One shared pair,
+        `tsxRunSh` / `tsxRunCmd` in `scripts/lib/rag-launcher.mjs`, is now the single way any launcher
+        starts tsx — `rag` and `local-mirror`, POSIX and Windows, all four routed through it, with a
+        test that fails if any one of them keeps a bare `npx tsx` or drops the fallback. Fixing them
+        one at a time is the drift this report is made of.
+    - [x] **POSIX gets the same treatment — decided, and it was not a close call.** The resolution
+          path is identical everywhere, the live-health section depends on the direct call being
+          cheap **on the maintainer's Mac too**, and a one-sided fix is exactly how the two launchers
+          drifted apart in the first place.
+    - [x] **Measured here before believing the string tests** (the report's own lesson: our launcher
+          tests assert strings, cmd.exe reads offsets). The generated `launch.sh` was written into
+          `rag/` and `local-mirror/` and **actually run** the way `.mcp.json` invokes it
+          (`/bin/sh <dir>/launch.sh`, cwd = brain root, vault and cache on temp dirs, no `.env`):
+          both reach `running on stdio` and both **exit 0 when stdin closes** — defect 1's fix still
+          holds through the new invocation. Three warm runs, time to that line:
+          **592-810 ms via `npx` versus 278-283 ms direct**. Smaller than Windows' 9.8 s → 2.8 s,
+          because this Mac's npx cache never had to reach the registry; the ratio is the floor, not
+          the ceiling.
+    - [ ] **Still open — the OTHER `npx tsx` spawns, and the live-health section needs them.**
+          The launchers were only the loudest caller. `scripts/lib/headless-health-check.mjs` (l. 18)
+          and `scripts/health-probe-run.mjs` (l. 101) still spawn through `npx`, and the live-health
+          plan below is costed on the **direct** call (~0.3 s, not ~1.55 s). Fix them the same way
+          before making the banner synchronous, or that section's arithmetic is wrong.
+          `scripts/verify-index.mjs` and `scripts/run-eval.mjs` are maintainer paths, not session
+          startup — lower stakes, same reflex.
   - [ ] **Confirmed at HEAD**: the launchers end with `npx tsx rag/src/index.ts`, and
         `.mcp.json.template` sets `cwd` to `{{PROJECT_ROOT}}` — but `tsx` is a devDependency of **`rag/`**,
         and there is no root `node_modules`. npx cannot resolve it locally and falls back to its own
