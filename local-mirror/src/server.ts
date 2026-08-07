@@ -33,6 +33,11 @@ import {
 } from './lib/config.js';
 import { resolveSyncIntervalSeconds } from './lib/sync-interval.js';
 import { AutoSyncSupervisor } from './auto-sync-supervisor.js';
+import {
+  installShutdown,
+  realShutdownHooks,
+  type ShutdownPlan,
+} from '../../shared/mcp-shutdown.js';
 
 /** Wire the real driven adapters — the ONE place bound to the concrete fs/Notion SPI. */
 export function buildDeps(): LocalMirrorDeps {
@@ -121,7 +126,10 @@ export async function bootReal(): Promise<void> {
     log: console.error,
   });
   await supervisor.ensureRunning();
-  installShutdown(supervisor);
+  installShutdown(
+    shutdownPlanFor(supervisor),
+    realShutdownHooks((message) => console.error(`[local-mirror] ${message}`)),
+  );
 }
 
 /** Fail-soft arm after a setup_source: a supervisor hiccup must never break the tool response. */
@@ -133,45 +141,13 @@ async function armAfterSetup(supervisor: AutoSyncSupervisor): Promise<void> {
   }
 }
 
-/** Injectable seams for the shutdown wiring, so the signal/EOF handling is unit-testable. */
-export interface ShutdownHooks {
-  onSignal: (signal: NodeJS.Signals, handler: () => void) => void;
-  onStdinEnd: (handler: () => void) => void;
-  exit: (code: number) => void;
-}
-
-/** The real shutdown wiring: process signals, stdin EOF/close, and process.exit. */
-const realShutdownHooks: ShutdownHooks = {
-  onSignal: (signal, handler) => {
-    process.once(signal, handler);
-  },
-  onStdinEnd: (handler) => {
-    process.stdin.once('end', handler);
-    process.stdin.once('close', handler);
-  },
-  exit: (code) => process.exit(code),
-};
-
 /**
- * Stop the supervisor cleanly when the session ends — no orphan timer. On stdin EOF/close the
- * session ended on its own, so we only cancel the tick and let the process wind down naturally.
- * On a SIGNAL we must ALSO terminate: registering a SIGINT/SIGTERM listener overrides Node's
- * default terminate-on-signal, so without an explicit exit here Ctrl-C / SIGTERM would merely
- * cancel the scheduler and leave an orphaned server holding stdio. Exit code = 128 + signal number.
+ * What this server must release when its session ends: the auto-sync timer, which would
+ * otherwise keep ticking against a vault nobody is reading any more. WHEN to release it — signals,
+ * stdin EOF/close, exit codes — is `shared/mcp-shutdown.ts`, common to both MCP servers.
  */
-export function installShutdown(
-  supervisor: Pick<AutoSyncSupervisor, 'stop'>,
-  hooks: ShutdownHooks = realShutdownHooks,
-): void {
-  hooks.onStdinEnd(() => supervisor.stop());
-  hooks.onSignal('SIGINT', () => {
-    supervisor.stop();
-    hooks.exit(130);
-  });
-  hooks.onSignal('SIGTERM', () => {
-    supervisor.stop();
-    hooks.exit(143);
-  });
+export function shutdownPlanFor(supervisor: Pick<AutoSyncSupervisor, 'stop'>): ShutdownPlan {
+  return { cleanup: () => supervisor.stop() };
 }
 
 // Boot only when run as the entry point — importing for tests stays side-effect-free.

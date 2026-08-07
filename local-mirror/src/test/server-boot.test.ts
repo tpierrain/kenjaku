@@ -10,9 +10,8 @@ import {
   createRealServer,
   createRealTransport,
   realBootDeps,
-  installShutdown,
+  shutdownPlanFor,
   type BootServer,
-  type ShutdownHooks,
 } from '../server.js';
 import { LocalMirror } from '../domain/local-mirror.js';
 import { FsConfigStore } from '../adapters/fs-config-store.js';
@@ -100,51 +99,14 @@ test('realBootDeps wires the named real factories (not inline arrows)', () => {
   assert.equal(realBootDeps.log, console.error);
 });
 
-// installShutdown must not just cancel the timer on a signal: adding a SIGINT/SIGTERM listener
-// overrides Node's default terminate-on-signal, so it MUST also exit — otherwise Ctrl-C / SIGTERM
-// would leave an orphaned server holding stdio (regression the auto-sync wiring introduced).
-function fakeHooks() {
-  const signals = new Map<NodeJS.Signals, () => void>();
-  const stdinHandlers: Array<() => void> = [];
-  const exits: number[] = [];
-  const hooks: ShutdownHooks = {
-    onSignal: (signal, handler) => signals.set(signal, handler),
-    onStdinEnd: (handler) => stdinHandlers.push(handler),
-    exit: (code) => exits.push(code),
-  };
-  return { hooks, signals, stdinHandlers, exits };
-}
-
-test('installShutdown: SIGINT stops the scheduler AND terminates the process (130)', () => {
-  const { hooks, signals, exits } = fakeHooks();
+// WHEN to shut down (signals, stdin EOF, exit codes) now lives in `shared/mcp-shutdown.ts`, so
+// both servers obey the same exit instead of one of them merely happening to. What stays this
+// server's own business is WHAT it must release: its auto-sync timer, which would otherwise
+// outlive the session.
+test('the shutdown plan releases what outlives the session — the auto-sync timer', () => {
   const stops: string[] = [];
-  installShutdown({ stop: () => stops.push('stop') }, hooks);
 
-  signals.get('SIGINT')!();
+  shutdownPlanFor({ stop: () => stops.push('stop') }).cleanup();
 
   assert.deepEqual(stops, ['stop']);
-  assert.deepEqual(exits, [130]);
-});
-
-test('installShutdown: SIGTERM stops the scheduler AND terminates the process (143)', () => {
-  const { hooks, signals, exits } = fakeHooks();
-  const stops: string[] = [];
-  installShutdown({ stop: () => stops.push('stop') }, hooks);
-
-  signals.get('SIGTERM')!();
-
-  assert.deepEqual(stops, ['stop']);
-  assert.deepEqual(exits, [143]);
-});
-
-test('installShutdown: stdin end/close stops the scheduler but does NOT force-exit', () => {
-  const { hooks, stdinHandlers, exits } = fakeHooks();
-  const stops: string[] = [];
-  installShutdown({ stop: () => stops.push('stop') }, hooks);
-
-  assert.ok(stdinHandlers.length >= 1);
-  for (const h of stdinHandlers) h();
-
-  assert.equal(stops.length, stdinHandlers.length);
-  assert.deepEqual(exits, []); // natural EOF winds down on its own — no forced exit
 });
