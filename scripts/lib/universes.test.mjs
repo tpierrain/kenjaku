@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
+import { copyFileSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
+  defaultBrainRoot,
   normalizeUniverseName,
   addToRegistry,
   listAllUniverses,
@@ -682,4 +687,32 @@ test("planUniverseRename refuses an empty SOURCE (the gate it now shares with de
     reason: "empty",
     name: "",
   });
+});
+
+// ── The pointer travels with the owner: it must NOT be gitignored (ADR 0034) ──
+// A universe is the OWNER's context, not the machine's. The connector half of a
+// context (Slack, Notion, Gmail, Drive) is authenticated at the account level and
+// already follows the owner everywhere, so a machine-local retrieval scope makes
+// the brain contradict itself across machines — silently, by returning the wrong
+// scope with no error. The pointer is therefore committed alongside its registry,
+// and this test is what stops someone from restoring the ignore line "to be
+// consistent with the caches". The question is put to git itself, in a throwaway
+// repo carrying ONLY the shipped file, so no dev machine's global excludes and no
+// already-tracked state can answer in its place.
+test("the shipped .gitignore does NOT ignore the active-universe pointer", () => {
+  const repo = mkdtempSync(join(tmpdir(), "sbg-gitignore-pointer-"));
+  execFileSync("git", ["init", "-q"], { cwd: repo });
+  copyFileSync(join(defaultBrainRoot(), ".gitignore"), join(repo, ".gitignore"));
+  const isIgnored = (path) => spawnSync("git", ["check-ignore", "-q", path], { cwd: repo }).status === 0;
+
+  assert.equal(
+    isIgnored(".vault-rag/active-universe"),
+    false,
+    "the active universe is owner state: it must travel between the owner's machines, like its registry",
+  );
+  assert.equal(isIgnored(".vault-rag/universes.json"), false, "and so does the registry it points into");
+  // Control: a genuinely machine-bound path IS ignored — without it, a broken git
+  // invocation would answer "not ignored" to everything and this test would pass
+  // while guarding nothing.
+  assert.equal(isIgnored("rag/.cache/anything"), true, "while the per-machine caches stay out of git");
 });
