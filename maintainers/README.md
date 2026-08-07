@@ -194,6 +194,13 @@
       **refreshed** watch (EmbeddingGemma, bge-m3, Qwen3, E2GraphRAG…), **privacy scale by
       provider**, plain-language "embedder ≠ chat LLM", eval-first. **STATUS: 🔬 STUDY — nothing
       enacted.** *(feeds the SPI plan + ADR 0007)*
+    - [`active-universe-follows-the-owner-action.md`](plans/prospective/active-universe-follows-the-owner-action.md) —
+      **🗺️ action plan**: make the **active universe travel between machines** instead of staying
+      machine-local. The native connectors are account-global, so half the "which context am I in"
+      already follows the owner and half does not — and the half that does not fails **silently** (the
+      wrong retrieval scope, no error). Commits the pointer beside its registry, migrates the deployed
+      fleet (`.gitignore` reaches no brain through any engine regime), and fixes the conflict path.
+      **STATUS: 🟢 OPEN — opened 2026-08-07, nothing started.** *(amends ADR 0034 in place)*
     - [`post-v3.1.0-ux-backlog.md`](plans/prospective/post-v3.1.0-ux-backlog.md) — **💡 backlog** of
       post-v3.1.0 UX ideas (custom notification icon, a `doctor` / "am I OK?" self-check…). Captured,
       **not committed work** — promote one to a real `*-action.md` when it's picked up.
