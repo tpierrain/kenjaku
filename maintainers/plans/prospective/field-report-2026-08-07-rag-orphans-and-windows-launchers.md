@@ -8,10 +8,11 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: the remaining `npx tsx` spawns of Defect 3** (`headless-health-check.mjs`,
-> `health-probe-run.mjs`) — the four launchers are done, but the live-health section is costed on
-> the direct call, so those two must follow before the banner can go synchronous. **Then Defect 2**
-> (CRLF in the generated `.cmd`), which is the last code item of the release.
+> **Resume at: Defect 2** (CRLF in the generated `.cmd` files) — **Defect 3 is CLOSED**, launchers
+> and health probes alike. Defect 2 is the last code item of the release; after it come the
+> mutation pass, the release note and the Windows verification with the two reporters.
+> Note that Defect 3 also **unblocked** the live-health section (its synchronous banner is now
+> affordable) — that is a v4.9.0 subject, not this hotfix, unless Thomas decides otherwise.
 >
 > The wording review is now **fully CLOSED**: items 2, 3, 4 and 5 are
 > shipped; item 1 keeps the "RAG" vocabulary (Thomas declined de-jargoning it) and its one remaining
@@ -192,13 +193,18 @@
           **592-810 ms via `npx` versus 278-283 ms direct**. Smaller than Windows' 9.8 s → 2.8 s,
           because this Mac's npx cache never had to reach the registry; the ratio is the floor, not
           the ceiling.
-    - [ ] **Still open — the OTHER `npx tsx` spawns, and the live-health section needs them.**
-          The launchers were only the loudest caller. `scripts/lib/headless-health-check.mjs` (l. 18)
-          and `scripts/health-probe-run.mjs` (l. 101) still spawn through `npx`, and the live-health
-          plan below is costed on the **direct** call (~0.3 s, not ~1.55 s). Fix them the same way
-          before making the banner synchronous, or that section's arithmetic is wrong.
-          `scripts/verify-index.mjs` and `scripts/run-eval.mjs` are maintainer paths, not session
-          startup — lower stakes, same reflex.
+    - [x] **The OTHER `npx tsx` spawns are done too** _(2026-08-07 · see git log)_ — the health
+          probe (`headless-health-check.mjs`) and its OS notification (`health-probe-run.mjs`).
+          Both are **values now**, built by a new `scripts/lib/tsx-invocation.mjs`, not spawns
+          composed in place: a real child-process runner nothing observes is the shape
+          `CONVENTIONS.md` §5quinquies names as already-paid-for twice. Measured here, three runs
+          each, identical JSON out: **538-577 ms via npx versus 219 ms direct**. Six tests go red if
+          the direct call is lost.
+          **This is what unblocks the live-health section below** — its synchronous banner is priced
+          at the direct call, and at npx's price the same design would *worsen* the bug this release
+          fixes.
+          _(Left alone on purpose: `scripts/verify-index.mjs` and `scripts/run-eval.mjs` are
+          maintainer paths, not session startup. Same reflex, no urgency.)_
   - [ ] **Confirmed at HEAD**: the launchers end with `npx tsx rag/src/index.ts`, and
         `.mcp.json.template` sets `cwd` to `{{PROJECT_ROOT}}` — but `tsx` is a devDependency of **`rag/`**,
         and there is no root `node_modules`. npx cannot resolve it locally and falls back to its own
