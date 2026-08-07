@@ -12,8 +12,8 @@
 > defects are code-complete** (1: shutdown + lifecycle test · 3: launchers + health probes ·
 > 2: CRLF + `.gitattributes` + an execution test). What is left is not new code:
 >
-> 1. **Windows CI must go green** — the `.cmd` half of `scripts/launcher-exec.test.mjs` runs *only*
->    there, so defect 2 is currently fixed by construction, not by observation.
+> 1. ~~Windows CI~~ — **done**: 7/7 green, and the `.cmd` tests were checked to have *run* there,
+>    not skipped (run 31205865890).
 > 2. **One judgement call still owed to Thomas**: the `MCP_TIMEOUT` headroom (see its box — the
 >    honest answer may well be "not at all", now that both causes are fixed).
 > 3. **Mutation pass** on everything the branch touched (`CONVENTIONS.md` §5quinquies + §10). A
@@ -189,9 +189,13 @@
           are anchored on the launcher's own directory now (`CDPATH= cd -- "$(dirname -- "$0")" && pwd`
           / `%~dp0`), which removes the last cwd assumption — the same assumption that made
           `npx tsx rag/src/index.ts` look local when it was not.
-    - [ ] **Not yet proven where it actually broke.** Everything above is green on macOS; the `.cmd`
-          half runs only on the Windows CI cell and, really, on the reporters' machines. Until that
-          cell is seen green, defect 2 is fixed *by construction*, not *by observation*.
+    - [x] **Proven where it actually broke** _(2026-08-07 · CI run 31205865890, PR #59, 7/7 green)_.
+          Not merely "the build passed": the Windows job log was read to check the `.cmd` tests
+          **ran** rather than skipped — `ok 119` / `ok 120`, real `cmd.exe` executing the real
+          generated launchers, on **Node 22, 24 and 26 × windows-latest**. This repo has twice paid
+          for a test that ran nowhere, so a green tick is not accepted as evidence on its own.
+          _(The `Windows tripwire · harness` job shows as skipped: by design it is `push`-only, since
+          the full matrix already covers it on a `pull_request`. Nothing to chase.)_
   - [ ] **Confirmed at HEAD**: `buildCmdLauncher`, `buildNodeRunnerCmd` and `buildLocalMirrorCmdLauncher`
         (`scripts/lib/rag-launcher.mjs`) are template literals with plain `\n`. cmd.exe reads batch files
         **by byte offset**, re-seeking as it goes; with LF-only endings the accounting drifts and cmd
