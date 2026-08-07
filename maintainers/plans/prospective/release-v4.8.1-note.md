@@ -43,13 +43,20 @@ Ask for **`/update-engine`** once, then close and reopen Claude when it tells yo
 If you are on Windows and someone gave you a hand-patched start-up file, you can drop it: this release
 carries the real fix, and the update would have overwritten the patch anyway.
 
+### Thanks
+
+**This release exists because of Daniel MARTIN.** Daniel hit the failure on Windows, then did the work
+nobody owes anyone: reproduced it, read our source to find the cause, ran a control experiment, and sent
+the whole thing over. Every fix above starts from that report. Thank you.
+
 ---
 
 ### Where this came from
 
-Two colleagues running Kenjaku on Windows sent in a report that is the reason this release exists at all:
-symptoms, a root cause read in our own source, a control experiment, and a reproducer. Nothing here was
-found by us noticing. It is worth saying plainly, because the failure mode was designed to be unnoticeable.
+Daniel MARTIN and a colleague, both running Kenjaku on Windows, sent in a report with symptoms, a root
+cause read in our own source, a measured control experiment, and a reproducer. Nothing here was found by
+us noticing. It is worth saying plainly, because the failure mode was designed to be unnoticeable — and
+because the one number that turned out to matter most was measured on their machines, not ours.
 
 ### Under the hood
 
