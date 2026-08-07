@@ -8,9 +8,21 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: Defect 2** (CRLF in the generated `.cmd` files) — **Defect 3 is CLOSED**, launchers
-> and health probes alike. Defect 2 is the last code item of the release; after it come the
-> mutation pass, the release note and the Windows verification with the two reporters.
+> **Resume at: watch the Windows CI cell on PR #59**, then work the release tail. **All three
+> defects are code-complete** (1: shutdown + lifecycle test · 3: launchers + health probes ·
+> 2: CRLF + `.gitattributes` + an execution test). What is left is not new code:
+>
+> 1. **Windows CI must go green** — the `.cmd` half of `scripts/launcher-exec.test.mjs` runs *only*
+>    there, so defect 2 is currently fixed by construction, not by observation.
+> 2. **One judgement call still owed to Thomas**: the `MCP_TIMEOUT` headroom (see its box — the
+>    honest answer may well be "not at all", now that both causes are fixed).
+> 3. **Mutation pass** on everything the branch touched (`CONVENTIONS.md` §5quinquies + §10). A
+>    disposable worktree for this branch does **not** exist yet — set it up once, per §5quinquies.
+> 4. **Release note** in the non-devs-first voice (§11), saying plainly what the symptom was: *your
+>    brain could not reach its own notes, and said nothing.*
+> 5. **Ask the two reporters to re-run their own reproducer** on the tagged build (see the
+>    verification box).
+>
 > Note that Defect 3 also **unblocked** the live-health section (its synchronous banner is now
 > affordable) — that is a v4.9.0 subject, not this hotfix, unless Thomas decides otherwise.
 >
@@ -156,6 +168,30 @@
         unnecessary, and shipping the net instead would just hide the leak."* Their words, and they are
         right.
 - [ ] **Defect 2 — generated `.cmd` launchers are LF-only. Windows, high, latent.**
+  - [x] **Fixed and pushed** _(2026-08-07 · see git log)_. Every `.cmd` we emit now goes through one
+        `asCmdFile()` in `scripts/lib/rag-launcher.mjs` — `buildRagInstallInvocation` included, so the
+        one file that already knew is part of the family instead of a lonely exception. The `→` is
+        gone from the `local-mirror` REM.
+    - [x] **Three nets, because a generator-side assertion alone was not enough**:
+          (a) a test on the **emitted bytes** (no lone LF in any `.cmd`), plus its mirror asserting
+          the `.sh` side stays **LF** — sh dies on a trailing CR, so the two families need opposite
+          things and that is precisely how one rule gets wrongly applied to both;
+          (b) **`.gitattributes`**, tracked so the installer's `git ls-files` copy carries it into
+          every brain. **This was a genuine hole, found while fixing**: the brain **commits its own**
+          launchers and `rehydrate.mjs` does **not** regenerate them on a second machine — it only
+          rewires `.mcp.json`. So a clone onto a second Windows machine gets whatever `core.autocrlf`
+          decides, and the defect returns **with the generator's test still green**;
+          (c) **`scripts/launcher-exec.test.mjs`** — the test the report asks for: it **executes** the
+          real generated launcher against a stub tsx CLI that reports the path it was handed.
+          `.sh` everywhere, `.cmd` on the Windows cell (§9's tripwire is what makes that non-optional).
+    - [x] **That execution test earned itself on its first run**: it caught the POSIX launcher passing
+          a **cwd-relative** path where Windows passed an absolute one. Both branches of both platforms
+          are anchored on the launcher's own directory now (`CDPATH= cd -- "$(dirname -- "$0")" && pwd`
+          / `%~dp0`), which removes the last cwd assumption — the same assumption that made
+          `npx tsx rag/src/index.ts` look local when it was not.
+    - [ ] **Not yet proven where it actually broke.** Everything above is green on macOS; the `.cmd`
+          half runs only on the Windows CI cell and, really, on the reporters' machines. Until that
+          cell is seen green, defect 2 is fixed *by construction*, not *by observation*.
   - [ ] **Confirmed at HEAD**: `buildCmdLauncher`, `buildNodeRunnerCmd` and `buildLocalMirrorCmdLauncher`
         (`scripts/lib/rag-launcher.mjs`) are template literals with plain `\n`. cmd.exe reads batch files
         **by byte offset**, re-seeking as it goes; with LF-only endings the accounting drifts and cmd
