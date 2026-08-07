@@ -147,10 +147,14 @@ const ragLine = ragStatusLine({ docs, scanned, lastRun });
 let keyLine = null;
 const envContent = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, "utf8") : null;
 if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
+  // Plain words for a gesture the owner can actually perform (Thomas, 2026-08-07). The literal
+  // `GOOGLE_GEMINI_API_KEY` stays — it is the text they have to type; `/mcp` and "reconnect the
+  // MCP" go, because that is our vocabulary and not theirs. Closing on "your notes are untouched"
+  // is what turns a scary line into an informative one.
   keyLine =
-    "⚠️ Gemini key missing from .env → the RAG can't answer. Paste it into " +
-    ".env (GOOGLE_GEMINI_API_KEY=…) then re-ask your question (the server re-reads " +
-    "it on its own). If it persists, reconnect the MCP (/mcp) or restart Claude Code.";
+    "⚠️ Your brain needs its Gemini key before it can search your notes. Ask me to open " +
+    "your .env file, paste the key after GOOGLE_GEMINI_API_KEY=, save it, and ask your " +
+    "question again — it picks the key up on its own. Your notes themselves are untouched.";
 }
 
 // ─── Bootstrap tick (ADR 0026): the one-time pre-3.2 → v3.3.0 hook wiring ─────

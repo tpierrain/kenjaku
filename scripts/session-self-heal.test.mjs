@@ -44,10 +44,14 @@ test("sessionSelfHeal — a gap → spawns reconcile in the background + emits o
   assert.deepEqual(calls.spawned, [{ brainDir: "/brain" }]);
   assert.equal(calls.emitted.length, 1);
   assert.match(calls.emitted[0], /local-mirror/);
-  // Strong framing (Thomas): the line must make the restart non-optional in tone —
-  // an explicit "until you restart, your brain can't use it", not a polite hint.
-  assert.match(calls.emitted[0], /action needed/i);
-  assert.match(calls.emitted[0], /restart/i);
+  // Strong framing (Thomas): the line must make the gesture non-optional in tone —
+  // an explicit "until you do it, your brain can't use it", not a polite hint.
+  // The SHOUTING is deliberate and confined to the gesture itself (Thomas, 2026-08-07):
+  // owners skim this banner, and the one thing they must not skim past is the restart.
+  // Everything around it stays calm — a pending update is not an emergency, and a wall
+  // of capitals teaches people to fear a banner that is usually harmless.
+  assert.match(calls.emitted[0], /PLEASE CLOSE CLAUDE AND REOPEN IT/);
+  assert.doesNotMatch(calls.emitted[0], /ACTION NEEDED|CAN'T|MUST/);
   assert.match(calls.emitted[0], /can(?:no|')?t use|won't work/i);
 });
 
@@ -107,7 +111,7 @@ test("sessionSelfHeal — a wired brain with a real gap still self-heals in the 
   assert.equal(result.healed, true);
   assert.equal(result.needsRehydrate, undefined);
   assert.deepEqual(calls.spawned, [{ brainDir: "/brain" }]);
-  assert.match(calls.emitted[0], /restart/i);
+  assert.match(calls.emitted[0], /reopen/i);
 });
 
 test("sessionSelfHeal — fail-open: a throwing seam never propagates, logs loudly, spawns nothing", async () => {
