@@ -4,8 +4,9 @@
 
 # Action plan — the active universe follows the owner, not the machine
 
-> **Next real step: S1** (amend ADR 0034 in place, so the decision is recorded before any code moves).
-> Nothing has been implemented yet; the whole Tracking below is unticked and truthful.
+> **Next real step: S2** (un-ignore the pointer + its anti-regression guard + the nine prose sites that
+> still assert the old semantics). S1 is done: the decision is recorded in ADR 0034. No code has moved
+> yet — nothing outside `maintainers/` has been touched.
 >
 > **Why this plan exists.** The owner (2026-08-07) found the current behaviour confusing: switching
 > universe on one machine leaves the other machine in the previous scope, **silently**. The native
@@ -51,20 +52,24 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
 
 ## Tracking
 
-- [ ] **S1 — Record the decision: the active universe is owner state, and it travels.**
-  - [ ] Amend **ADR 0034 in place** (CONVENTIONS §6bis — no new ADR, no "AMENDED" scar in the prose,
+- [x] **S1 — Record the decision: the active universe is owner state, and it travels.** _(2026-08-07 · `1ec87ad`, branch `feat/active-universe-travels`)_
+  - [x] Amend **ADR 0034 in place** (CONVENTIONS §6bis — no new ADR, no "AMENDED" scar in the prose,
         §6ter: write it as one timeless decision, for a fresh reader).
-  - [ ] Decision §1: say that the pointer is **committed alongside the registry**, and why — the
+  - [x] Decision §1: say that the pointer is **committed alongside the registry**, and why — the
         connector half of a context is account-global, so a machine-local retrieval scope makes the
         brain contradict itself; a single owner is in one context at a time.
-  - [ ] Consequences: convergence is **eventual** (at the next pull), not real-time like connectors;
+  - [x] Consequences: convergence is **eventual** (at the next pull), not real-time like connectors;
         the rename/delete divergence disappears by construction (the self-heal survives as
         belt-and-braces); a switch now produces one commit, which doubles as a history of *when the
         owner changed context*.
-  - [ ] Alternatives considered: **per-machine override** (a gitignored `active-universe.local` that
+  - [x] Alternatives considered: **per-machine override** (a gitignored `active-universe.local` that
         wins, mirroring `settings.json` / `settings.local.json`) — rejected as YAGNI until a
         dedicated-machine case is actually lived; **real-time propagation** — out of scope, git is
         the transport.
+  - [x] Extra consequence written while doing it, because the ADR is where it belongs: the shipped
+        `.gitignore` is carried by no engine regime, so the migration (S3) is the only route to a
+        deployed brain — including the "commit an untracked pointer" part that keeps the first pull
+        from hitting git's untracked-overwrite refusal.
 
 - [ ] **S2 — The active universe travels with the brain (and cannot be re-ignored by accident).**
   - [ ] Remove the `.vault-rag/active-universe` entry from `.gitignore`; keep a short comment saying
