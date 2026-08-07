@@ -247,3 +247,33 @@
 - [x] **The model to align on already exists in the repo**: `formatHealthBanner` — name the cause,
       give one gesture in plain words, and close with *"Your notes themselves are untouched."* That
       last clause is the whole difference between informing someone and frightening them.
+
+### Live health, not a cached verdict (Thomas, 2026-08-07) — and the correction I owed him
+
+> Thomas's principle, and it is the right one: **a health STATUS must be live.** A stale index is a
+> data-freshness question; a stale *verdict on whether the brain works* is a different kind of claim,
+> and reporting it from a file is not acceptable.
+
+- [x] **First, two corrections to what I told him** _(measured / read, 2026-08-07)_:
+      **(a) the banner never affirms health.** `formatHealthBanner` returns `null` when nothing is
+      broken, so a stale-healthy cache produces **silence**, not a false green. The failure mode is a
+      *missed warning*, not a lie.
+      **(b) a fresh break IS signalled in the current session**, out of band: the detached probe runs
+      at every session start and **OS-notifies on a newly-broken capability** (`health-probe-run.mjs`),
+      within seconds. What is one session late is the **chat banner**, not the detection.
+      So the "one session in the dark" I described was overstated. The genuinely misleading surface is
+      **finding A** — and note that A is **already live**; it simply measures the wrong thing (the
+      index file on disk, never whether the server answers). Making things "live" does not fix A;
+      measuring the right thing does.
+- [ ] **Then the real trade, with numbers.** The probe is deliberately detached because it costs a
+      process spawn: `npx tsx rag/src/health-check-cli.ts --depth light` (read-only, no server boot,
+      no ONNX). Measured on the maintainer's Mac, warm: **1.55 s via `npx`** versus **0.30 s calling
+      `tsx/dist/cli.mjs` directly**. On the reporters' Windows machines `npx` measured **9.8 s**.
+  - [ ] **Which means the sequencing is forced, and the two subjects converge: fix Defect 3 first.**
+        Making the banner live *today* would add ~1.5 s to every session start here and up to ~10 s on
+        the very Windows machines already blowing the client's 30 s ceiling — i.e. it would worsen the
+        bug this release exists to fix. Fix Defect 3 (direct `tsx`, no registry round-trip) and the
+        live probe costs ~0.3 s, which is affordable at every session start.
+  - [ ] **Then, and only then**: run the probe **synchronously** and render the fresh verdict, keeping
+        the detached write for the cache. Fail-open stays non-negotiable (a probe that errors or
+        overruns must never block a session start — render nothing and let the notification carry it).
