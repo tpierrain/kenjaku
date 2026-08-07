@@ -14,10 +14,14 @@
 >
 > 1. ~~Windows CI~~ — **done**: 7/7 green, and the `.cmd` tests were checked to have *run* there,
 >    not skipped (run 31205865890).
-> 2. **One judgement call still owed to Thomas**: the `MCP_TIMEOUT` headroom (see its box — the
->    honest answer may well be "not at all", now that both causes are fixed).
+> 2. ~~MCP_TIMEOUT~~ — **decided by Thomas: ship nothing.** See its box; do not re-propose it.
 > 3. **Mutation pass** on everything the branch touched (`CONVENTIONS.md` §5quinquies + §10). A
 >    disposable worktree for this branch does **not** exist yet — set it up once, per §5quinquies.
+>    **This is the next actual step.** Files the branch touched, harness side:
+>    `scripts/lib/rag-launcher.mjs`, `scripts/lib/tsx-invocation.mjs` (new),
+>    `scripts/lib/rag-status.mjs`, `scripts/lib/headless-health-check.mjs`,
+>    `scripts/health-probe-run.mjs` — plus the `rag`/`shared` files already mutated at 100 %
+>    when defect 1 shipped.
 > 4. **Release note** in the non-devs-first voice (§11), saying plainly what the symptom was: *your
 >    brain could not reach its own notes, and said nothing.*
 > 5. **Ask the two reporters to re-run their own reproducer** on the tagged build (see the
@@ -261,11 +265,14 @@
   - [ ] Decide whether the POSIX launchers get the same treatment. The defect was measured on Windows,
         but the resolution path is the same everywhere; a one-sided fix is how the two launchers drifted
         in the first place.
-- [ ] **Secondary — `MCP_TIMEOUT` headroom.** `.mcp.json.template` ships `"env": {}`. Emitting
-      `"MCP_TIMEOUT": "60000"` is cheap headroom on cold starts and slow corporate machines. **Judgement
-      call to make explicitly**: with Defects 1 and 3 fixed the ceiling stops being the binding
-      constraint, and raising a timeout to hide a slow start is the kind of net this repo refuses. Take
-      it as comfort for slow machines, or not at all.
+- [x] **Secondary — `MCP_TIMEOUT` headroom. DECIDED: ship nothing.** _(2026-08-07, Thomas)_
+      `.mcp.json.template` keeps `"env": {}`. With defects 1 and 3 fixed, startup is ~2.8 s on the
+      reporters' machines against a 30 s ceiling and the servers no longer pile up, so the ceiling
+      has stopped being the binding constraint. Raising it now would cost the only signal we ever
+      had: **the timeout blowing is what told us anything was wrong at all.** A silent slow creep
+      with a 60 s ceiling would simply take longer to surface.
+      Do not re-propose it as "cheap comfort" — the argument was heard and declined. If a genuinely
+      slow corporate machine shows up with a measurement, that is a new premise and a new decision.
 - [ ] **Release shape — decide, then say it out loud.** Defect 1 is critical, cross-platform, and
       **self-aggravating on every already-deployed brain**; the two reporters are running locally
       patched launchers that **`/update-engine` will overwrite**, reintroducing the problem. That argues
