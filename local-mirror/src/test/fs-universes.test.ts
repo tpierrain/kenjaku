@@ -6,8 +6,8 @@ import { join } from 'node:path';
 import { readUniverses } from '../adapters/fs-universes.js';
 
 // The brain's universe state (ADR 0034) lives in two files under `<brainRoot>/.vault-rag/`,
-// both written by the `/switch` skill: the COMMITTED registry (`universes.json`, the created
-// universes) and the PER-MACHINE, gitignored pointer (`active-universe`). `setup_source` reads
+// both written by the `/switch` skill and both COMMITTED: the registry (`universes.json`, the
+// created universes) and the pointer (`active-universe`). `setup_source` reads
 // both — the registry to know what exists (and to disqualify a ghost pointer), the pointer to
 // pre-select the universe the owner is working in. The pure rules live in `lib/universe.ts`;
 // this adapter only does the I/O, and every read failure degrades to the default scope rather
@@ -41,9 +41,9 @@ test('readUniverses: a single-universe brain has neither file — the default sc
   assert.deepEqual(state, { active: 'default', registry: [] });
 });
 
-// The pointer is gitignored, the registry is committed: a universe renamed or deleted on another
-// machine leaves this one naming a ghost. Freezing that ghost into a new mirror would file its
-// notes into a scope no search ever reaches.
+// Pointer and registry travel together, so an ordinary rename/delete can no longer leave this
+// one naming a ghost — but a brain can still arrive with the two out of step, and freezing that
+// ghost into a new mirror would file its notes into a scope no search ever reaches.
 test('readUniverses: a pointer naming a universe the registry no longer holds is disqualified', () => {
   const state = readUniverses(
     POINTER,

@@ -9,11 +9,13 @@
 // as today (progressive disclosure). The SURFACE is an additionalContext directive
 // the agent relays in the chat (the only Desktop-visible channel).
 //
-// It also SELF-HEALS the pointer (universes v2, Step 0): the pointer is per-machine
-// and gitignored while the registry is committed, so pulling a rename/delete made on
-// another machine leaves this one aimed at a universe that no longer exists — which
-// the engine would silently turn into "zero hits". The single write this hook can
-// ever do is that repair, and it is always announced.
+// It also SELF-HEALS the pointer (universes v2, Step 0). Pointer and registry now
+// travel together (both committed), so an ordinary rename/delete can no longer aim
+// this machine at a universe that no longer exists; the repair stays as a fail-open
+// net for a brain that arrives with the two out of step anyway (an old brain, a
+// conflict resolved the wrong way) — which the engine would silently turn into
+// "zero hits". The single write this hook can ever do is that repair, and it is
+// always announced.
 //
 // Contract: quiet below the gate, fail-open (never throws, ALWAYS exits 0).
 // Wired as a SessionStart hook AFTER session-self-heal.mjs (cf. .claude/settings.json).

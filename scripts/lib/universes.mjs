@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // universes.mjs — brain-side core for the "universes" soft retrieval scope
-// (ADR 0034). Owns the per-machine active-universe pointer and the committed
-// registry of created universes, plus the pure name/slug rules that keep a
+// (ADR 0034). Owns the active-universe pointer and the registry of created
+// universes — both committed, both the owner's state, travelling between the
+// owner's machines — plus the pure name/slug rules that keep a
 // universe name safe as a folder, a frontmatter value and a SQL value.
 //
 // Deterministic (ADR 0009): the engine reads the active pointer to inject the
@@ -57,9 +58,11 @@ export function listAllUniverses(registry) {
 /**
  * Resolves the active-universe pointer AGAINST the registry: a pointer naming a
  * universe that no longer exists is an orphan and resolves to the default scope.
- * The pointer is per-machine and gitignored while the registry is committed, so a
- * rename/delete on one machine leaves the others pointing at a ghost — which the
- * engine would happily turn into "zero hits, silently". Pure.
+ * Pointer and registry now travel together, so this can no longer be produced by
+ * an ordinary rename/delete; it stays as a fail-open net for a pointer that
+ * outlives its universe by any other route (an old brain, a hand-edited file,
+ * a conflict resolved the wrong way) — which the engine would otherwise turn
+ * into "zero hits, silently". Pure.
  *
  * The implicit default needs no membership test: it is never stored in the
  * registry (addToRegistry refuses it) and it IS the fallback, so checking the raw
@@ -186,7 +189,7 @@ export function registryPath(dir) {
   return toPosix(join(dir, "universes.json"));
 }
 
-/** Path of the per-machine active-universe pointer, inside the .vault-rag dir. */
+/** Path of the active-universe pointer (committed), inside the .vault-rag dir. */
 export function activeUniversePath(dir) {
   return toPosix(join(dir, "active-universe"));
 }
@@ -256,7 +259,7 @@ export function healActiveUniversePointer(io, dir) {
   return { healed: true, from, active };
 }
 
-/** Persists the active-universe pointer (per-machine), creating the dir. */
+/** Persists the active-universe pointer, creating the dir. Auto-commit stages it. */
 export function writeActiveUniverse(io, dir, name) {
   io.mkdirSync(dir, { recursive: true });
   io.writeFileSync(activeUniversePath(dir), name + "\n");
