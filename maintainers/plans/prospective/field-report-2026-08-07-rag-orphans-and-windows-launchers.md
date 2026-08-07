@@ -10,7 +10,8 @@
 >
 > **Resume at: Defect 1, the lifecycle test** — the shutdown itself is written, wired into BOTH servers
 > and pushed; what is missing is the committed test that proves the process dies (see the first
-> unchecked box under Defect 1). Branch: **`hotfix/v4.8.1-rag-server-shutdown`** (no PR opened yet).
+> unchecked box under Defect 1). Branch **`hotfix/v4.8.1-rag-server-shutdown`**, **PR #59** — the
+> resumption anchor (DEVELOPING.md §7), whose body mirrors what is left.
 > Do **not** re-diagnose and do **not** re-read the source report: the fix sites were already named
 > from a verification pass against HEAD, and the ones that are done are ticked with their commit.
 >
