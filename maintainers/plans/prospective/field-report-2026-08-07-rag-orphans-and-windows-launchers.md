@@ -8,10 +8,13 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: Defect 1, the lifecycle test** — the shutdown itself is written, wired into BOTH servers
-> and pushed; what is missing is the committed test that proves the process dies (see the first
-> unchecked box under Defect 1). Branch **`hotfix/v4.8.1-rag-server-shutdown`**, **PR #59** — the
-> resumption anchor (DEVELOPING.md §7), whose body mirrors what is left.
+> **Resume at: Defect 1, "fail fast on a locked index"** — the last piece of defect 1 (the shutdown
+> AND the committed lifecycle test that proves the process dies are both done and pushed). It is a
+> **judgement call to make first, out loud**: with the leak fixed, a locked index should no longer
+> happen, so this is a *diagnostic* (say "another instance holds the index" instead of hanging until
+> the client's 30 s timeout), not a fix. Decide keep-or-drop for this hotfix, say why, then move on to
+> **Defect 3**. Branch **`hotfix/v4.8.1-rag-server-shutdown`**, **PR #59** — the resumption anchor
+> (DEVELOPING.md §7), whose body mirrors what is left.
 > Do **not** re-diagnose and do **not** re-read the source report: the fix sites were already named
 > from a verification pass against HEAD, and the ones that are done are ticked with their commit.
 >
@@ -44,36 +47,24 @@
   - [x] **Fixed and pushed** _(2026-08-07 · e363ac4 shared helper, dbf4dc5 local-mirror, e4299ba rag)_.
         Proven by hand against a throwaway vault, both trees, same probe (wait for
         `Live-update watcher active`, close stdin, count): **main = alive at 10 s, killed** ·
-        **branch = exit 0, 8 ms after the pipe closes**. That probe is NOT yet a committed test —
-        which is the next box.
-  - [ ] **⏭️ NEXT — turn the probe into the lifecycle test `rag` never had.** Spawn the real server
-        with `VAULT_DIR` / `CACHE_DIR` pointed at a temp dir and `SBG_ENV_PATH` at a nonexistent file
-        (so no `.env`, no key, no embedder needed — an empty vault indexes 0 notes in ~230 ms), wait
-        for `Live-update watcher active` on stderr, close stdin, assert **exit 0 within a few
-        seconds**. Waiting for that exact line is what makes it a real test: close stdin at the
-        earlier `running on stdio` line and even the BROKEN server exits, because the watcher that
-        holds the loop open has not armed yet. Decide where it runs: it spawns a process, so it is
-        heavier than the `src/lib/*.test.ts` unit suite it would join. The probe that produced the
-        measurements above, verbatim (run from `rag/`, `node probe.cjs <vault> <cache> <label>`):
-
-        ```js
-        const { spawn } = require('child_process');
-        const [vault, cache, label] = process.argv.slice(2);
-        const t0 = Date.now();
-        const child = spawn(process.execPath, ['--import', 'tsx', 'src/index.ts'], {
-          env: { ...process.env, VAULT_DIR: vault, CACHE_DIR: cache, SBG_ENV_PATH: '/nonexistent/.env' },
-          stdio: ['pipe', 'pipe', 'pipe'],
-        });
-        let err = '', armed = false;
-        child.stderr.on('data', (d) => {
-          err += d;
-          if (!armed && err.includes('watcher active')) { armed = true; child.stdin.end(); }
-        });
-        child.on('exit', (code) => console.log(`[${label}] EXITED code=${code} after ${Date.now()-t0}ms`));
-        setTimeout(() => {
-          if (child.exitCode === null) { console.log(`[${label}] STILL ALIVE after 10s (armed=${armed}) — orphan`); child.kill('SIGKILL'); }
-        }, 10000);
-        ```
+        **branch = exit 0, 8 ms after the pipe closes**. That probe has since become the committed
+        test in the next box.
+  - [x] **The lifecycle test `rag` never had is committed** _(2026-08-07 · 3318fc7)_ —
+        `rag/src/test/server-lifecycle.test.ts`. The throwaway probe is gone: the repo carries the
+        real thing now, so read it there rather than re-deriving it here. It spawns the actual server
+        (`VAULT_DIR`/`CACHE_DIR` on temp dirs, `SBG_ENV_PATH` at a nonexistent file → no key, no
+        embedder, 0 notes), waits for `Live-update watcher active`, closes stdin, asserts a clean
+        `exit 0`. **Checked both ways before committing**: wiring disarmed → SIGKILLed as an orphan
+        at 20 s; wiring in place → **exit 0 in 247 ms**.
+    - [x] **Where it runs, decided**: a new `rag/src/test/` (the `local-mirror` convention), kept
+          out of the `src/lib/*` unit suite because it spawns a process. It joins `npm test`, so it
+          runs on **every CI cell — macOS *and* Windows, Node 22/24/26** — i.e. the platform the leak
+          was reported on.
+    - [x] **The glob was the trap, so it is now guarded**: `npm test` did not cover `src/test/`, and
+          a test that runs nowhere asserts nothing (this repo has paid that bill twice: `rag/*.test.mjs`,
+          and the write-guard suite green-on-one-machine for 67 commits). `lib-coverage-guard.test.ts`
+          now checks the `package.json` glob against the directories actually holding tests — adding
+          one goes **red** instead of going quiet.
   - [ ] **Decisions taken while fixing** (recorded so they are not re-litigated):
         (a) the shared helper lives in a NEW top-level **`shared/`** package-less folder, imported by
         both servers by relative path — both `tsconfig.json` drop `"rootDir": "src"` (nothing consumes
