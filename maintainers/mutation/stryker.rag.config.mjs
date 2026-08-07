@@ -10,12 +10,21 @@ export default {
   // root, and inPlace needs the real source tree. Invoke via package.json scripts.
   testRunner: 'command',
   commandRunner: {
-    command: 'cd rag && node --import tsx --test src/lib/*.test.ts',
+    command: 'cd rag && node --import tsx --test src/lib/*.test.ts ../shared/*.test.ts',
   },
   // Exclude fake-embedder.ts: a deterministic test double for the Embedder port
   // (imported only by its own test, never wired into a production path). Mutating a
   // test helper measures the wrong thing — it drags the honest signal, not the score.
-  mutate: ['rag/src/lib/*.ts', '!rag/src/lib/*.test.ts', '!rag/src/lib/fake-embedder.ts'],
+  // `shared/` rides with the rag suite: the cross-server helpers (shutdown wiring) are imported
+  // by BOTH servers, and rag is the package whose suite runs them. Mutating them anywhere else
+  // would leave the one module neither server owns as the one module nobody judges.
+  mutate: [
+    'rag/src/lib/*.ts',
+    '!rag/src/lib/*.test.ts',
+    '!rag/src/lib/fake-embedder.ts',
+    'shared/*.ts',
+    '!shared/*.test.ts',
+  ],
   inPlace: true,
   coverageAnalysis: 'off',
   // Tuned like the scripts config: the command runner re-runs the WHOLE rag suite per
