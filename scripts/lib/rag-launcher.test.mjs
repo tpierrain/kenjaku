@@ -19,6 +19,8 @@ import {
   buildLocalMirrorCmdLauncher,
   applyLocalMirrorLauncher,
   realInstallIo,
+  tsxRunSh,
+  tsxRunCmd,
 } from "./rag-launcher.mjs";
 
 // Reproduces installer.mjs's (gen) text substitution: .split().join() per key.
@@ -28,10 +30,51 @@ function substitute(tpl, reps) {
   return out;
 }
 
-test("buildShLauncher: sh shebang + starts the RAG server via npx tsx", () => {
+test("buildShLauncher: sh shebang + starts the RAG server", () => {
   const sh = buildShLauncher();
   assert.match(sh, /^#!\/bin\/sh/);
-  assert.match(sh, /exec npx tsx rag\/src\/index\.ts/);
+  assert.equal(sh.includes(tsxRunSh("rag", "src/index.ts")), true);
+});
+
+// ─── The tsx invocation (field report 2026-08-07, defect 3) ──────────────────────────
+// `npx tsx …` resolved tsx from the npx CACHE, not from node_modules: tsx is a
+// devDependency of rag/ and local-mirror/, the launchers run with cwd = the brain root,
+// and there is no root node_modules. So npx could not resolve it locally and fell back to
+// its own cache WITH A REGISTRY ROUND-TRIP — measured at 9.8 s on the reporters' Windows
+// machines against the client's 30 s handshake ceiling, versus 2.6-2.8 s calling
+// tsx/dist/cli.mjs directly. 3× headroom instead of 10×, on a startup already starved by
+// defect 1's orphans. Anchor on the launcher's own directory (`$0` / `%~dp0`), never on
+// the cwd, and keep npx as the fallback so a half-installed tree still boots.
+
+test("tsxRunSh: runs tsx from the launcher's OWN directory, not from the cwd and not via npx", () => {
+  const sh = tsxRunSh("rag", "src/index.ts");
+
+  assert.match(sh, /d=\$\(dirname "\$0"\)/); // anchored on the script, cwd-independent
+  assert.match(sh, /exec node "\$d\/node_modules\/tsx\/dist\/cli\.mjs" "\$d\/src\/index\.ts"/);
+});
+
+test("tsxRunSh: npx survives as a fallback, so a tree without node_modules still boots", () => {
+  const sh = tsxRunSh("rag", "src/index.ts");
+
+  assert.match(sh, /\[ -f "\$d\/node_modules\/tsx\/dist\/cli\.mjs" \]/); // guarded, not assumed
+  assert.match(sh, /exec npx tsx rag\/src\/index\.ts/); // the old behaviour, demoted
+});
+
+test("tsxRunCmd: %~dp0 anchors on the launcher, and the whole if/else stays on ONE line", () => {
+  const cmd = tsxRunCmd("rag", "src/index.ts");
+
+  assert.match(cmd, /if exist "%~dp0node_modules\\tsx\\dist\\cli\.mjs" \(node "%~dp0node_modules\\tsx\\dist\\cli\.mjs" "%~dp0src\\index\.ts"\) else \(npx tsx rag\/src\/index\.ts\)/);
+  // Defect 2 of the same report: cmd.exe re-seeks batch files BY BYTE OFFSET, and a
+  // multi-line `if ( … ) else ( … )` is exactly what made it resume mid-token on our
+  // LF-only launchers. One line has no second line to mis-seek into.
+  assert.equal(cmd.includes("\n"), false);
+});
+
+test("tsxRunCmd: the path handed to cmd.exe is backslashed, the npx fallback is not", () => {
+  const cmd = tsxRunCmd("local-mirror", "src/server.ts");
+
+  assert.match(cmd, /"%~dp0src\\server\.ts"/); // cmd resolves a native path
+  assert.match(cmd, /npx tsx local-mirror\/src\/server\.ts/); // node's own arg, unchanged
 });
 
 test("buildShLauncher: self-heal of node locations invisible in GUI (homebrew, nvm)", () => {
@@ -60,7 +103,7 @@ test("buildCmdLauncher: @echo off + Windows self-heal + starts the RAG server", 
   const cmd = buildCmdLauncher();
   assert.match(cmd, /@echo off/);
   assert.match(cmd, /%ProgramFiles%\\nodejs/); // official Windows installer
-  assert.match(cmd, /npx tsx rag\/src\/index\.ts/);
+  assert.equal(cmd.includes(tsxRunCmd("rag", "src/index.ts")), true);
 });
 
 test("buildNodeRunnerSh: PATH self-heal then exec node on the hook's arguments", () => {
@@ -212,18 +255,36 @@ test("applyRagLauncher: rewrites the vault-rag command per OS, preserves cwd/env
   assert.deepEqual(win.mcpServers["vault-rag"].args, ["/c", "rag\\launch.cmd"]);
 });
 
-test("buildLocalMirrorShLauncher: sh shebang + self-heal + starts the server via npx tsx", () => {
+test("buildLocalMirrorShLauncher: sh shebang + self-heal + starts the server", () => {
   const sh = buildLocalMirrorShLauncher();
   assert.match(sh, /^#!\/bin\/sh/);
   assert.match(sh, /\/opt\/homebrew\/bin/); // same PATH self-heal as the RAG launcher
-  assert.match(sh, /exec npx tsx local-mirror\/src\/server\.ts/);
+  assert.equal(sh.includes(tsxRunSh("local-mirror", "src/server.ts")), true);
 });
 
 test("buildLocalMirrorCmdLauncher: @echo off + Windows self-heal + starts the server", () => {
   const cmd = buildLocalMirrorCmdLauncher();
   assert.match(cmd, /@echo off/);
   assert.match(cmd, /%ProgramFiles%\\nodejs/);
-  assert.match(cmd, /npx tsx local-mirror\/src\/server\.ts/);
+  assert.equal(cmd.includes(tsxRunCmd("local-mirror", "src/server.ts")), true);
+});
+
+// The drift that caused this whole report is the two launchers being edited one at a
+// time — `buildRagInstallInvocation` learned about CRLF ten lines away and the launchers
+// never did. Four launchers, ONE way to start tsx: no launcher may keep the bare npx
+// call the direct invocation replaced.
+test("no launcher keeps a bare `npx tsx` — the four of them start tsx the same way", () => {
+  const launchers = {
+    "rag/launch.sh": buildShLauncher(),
+    "rag/launch.cmd": buildCmdLauncher(),
+    "local-mirror/launch.sh": buildLocalMirrorShLauncher(),
+    "local-mirror/launch.cmd": buildLocalMirrorCmdLauncher(),
+  };
+
+  for (const [name, body] of Object.entries(launchers)) {
+    assert.match(body, /node_modules[\\/]tsx[\\/]dist[\\/]cli\.mjs/, `${name} still resolves tsx through npx alone`);
+    assert.match(body, /npx tsx /, `${name} dropped the npx fallback a half-installed tree needs`);
+  }
 });
 
 test("applyLocalMirrorLauncher: rewrites the local-mirror command per OS, preserves cwd/env", () => {
