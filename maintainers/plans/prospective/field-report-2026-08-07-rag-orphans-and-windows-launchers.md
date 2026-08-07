@@ -8,10 +8,11 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: Defect 1**, first unchecked box. Nothing has been coded yet — every box below is still
-> `- [ ]` on purpose. The whole plan was written from a **verification pass against HEAD**, so the fix
-> sites are already named; do **not** re-diagnose, do **not** re-read the source report to re-derive
-> what is already written here.
+> **Resume at: Defect 1, the lifecycle test** — the shutdown itself is written, wired into BOTH servers
+> and pushed; what is missing is the committed test that proves the process dies (see the first
+> unchecked box under Defect 1). Branch: **`hotfix/v4.8.1-rag-server-shutdown`** (no PR opened yet).
+> Do **not** re-diagnose and do **not** re-read the source report: the fix sites were already named
+> from a verification pass against HEAD, and the ones that are done are ticked with their commit.
 >
 > **The order to work in** (defect 1 alone justifies the release; 2 and 3 ride along because they touch
 > the same startup path): **1 → 3 → 2**. Defect 3 removes the `npx` wrapper, which shortens the process
@@ -39,6 +40,32 @@
 ## Tracking
 
 - [ ] **Defect 1 — the RAG server never exits when the client disconnects. CRITICAL, self-aggravating.**
+  - [x] **Fixed and pushed** _(2026-08-07 · e363ac4 shared helper, dbf4dc5 local-mirror, e4299ba rag)_.
+        Proven by hand against a throwaway vault, both trees, same probe (wait for
+        `Live-update watcher active`, close stdin, count): **main = alive at 10 s, killed** ·
+        **branch = exit 0, 8 ms after the pipe closes**. That probe is NOT yet a committed test —
+        which is the next box.
+  - [ ] **⏭️ NEXT — turn the probe into the lifecycle test `rag` never had.** Spawn the real server
+        with `VAULT_DIR` / `CACHE_DIR` pointed at a temp dir and `SBG_ENV_PATH` at a nonexistent file
+        (so no `.env`, no key, no embedder needed — an empty vault indexes 0 notes in ~230 ms), wait
+        for `Live-update watcher active` on stderr, close stdin, assert **exit 0 within a few
+        seconds**. Waiting for that exact line is what makes it a real test: close stdin at the
+        earlier `running on stdio` line and even the BROKEN server exits, because the watcher that
+        holds the loop open has not armed yet. Working probe kept verbatim in the scratchpad
+        (`probe.cjs`) — it is 20 lines. Decide where it runs: it spawns a process, so it is heavier
+        than the `src/lib/*.test.ts` unit suite it would join.
+  - [ ] **Decisions taken while fixing** (recorded so they are not re-litigated):
+        (a) the shared helper lives in a NEW top-level **`shared/`** package-less folder, imported by
+        both servers by relative path — both `tsconfig.json` drop `"rootDir": "src"` (nothing consumes
+        `dist/`, `tsx` runs the sources), `shared/**` is added to the manifest's `replace` regime **so
+        an updating brain actually receives it**, and it rides with the rag suite + rag mutation config
+        (100 % — 24/24 mutants killed);
+        (b) **stdin EOF now exits explicitly for BOTH servers**, `local-mirror` included, replacing its
+        "natural EOF winds down on its own" behaviour. Relying on an idle event loop is precisely the
+        implicit contract that broke here, and it was never a property `local-mirror` had either — only
+        of how little it happened to hold open;
+        (c) `local-mirror`'s own `installShutdown` is **deleted**, not kept in sync: it now supplies
+        only WHAT to release (`shutdownPlanFor`), never WHEN.
   - [ ] **Confirmed at HEAD.** `rag/src/index.ts` opens the transport (`server.connect`, l. 386-387)
         and later starts the live vault watcher (`startVaultWatcher`, `rag/src/lib/vault-watcher.ts`).
         A grep over `rag/src` for `stdin.once` / `stdin.on` / `SIGINT` / `SIGTERM` / `onSignal` returns
@@ -57,14 +84,15 @@
   - [ ] **The control experiment is what makes this airtight**: both servers time out under the same
         conditions, yet all 21 orphans were `rag`, **zero** were `local-mirror`. Measured — start,
         close stdin after 8 s, count survivors: `rag` 2 → 2 (leaks), `local-mirror` 2 → 0 (exits).
-  - [ ] **The fix already exists in this repo**, in `local-mirror/src/server.ts:136-176`
+  - [x] **The fix already exists in this repo**, in `local-mirror/src/server.ts:136-176`
         (`installShutdown` + `realShutdownHooks`, injectable seams, unit-tested in
         `local-mirror/src/test/server-boot.test.ts`), comment included on why a SIGINT/SIGTERM listener
         must **also** exit. **Extract it into a shared helper** rather than copy it: the two servers
         drifting apart is the whole reason we are here.
-  - [ ] rag's shutdown has one more job than local-mirror's: **stop the watcher, then `closeDb()`**
+  - [x] rag's shutdown has one more job than local-mirror's: **stop the watcher, then `closeDb()`**
         (`rag/src/lib/vector-store.ts:497`, already exists), then exit. Releasing the lock is the half
-        that stops the pile-up.
+        that stops the pile-up. _(Done: `rag/src/lib/shutdown-plan.ts` — and it closes the index even
+        when the watcher throws, since the lock is released by dying, not by tidying up well.)_
   - [ ] **Fail fast on a locked index** (their defensive complement, and it fits our doctrine): if
         `vault.db` is already locked at startup, say *"another instance holds the index"* instead of
         blocking silently until the client's timeout. A server that says why is debuggable; one that
