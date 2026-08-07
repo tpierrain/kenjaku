@@ -1,12 +1,18 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 done (decision recorded), S2 next.  -->
+<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 + S2 done, S3 next (the real engineering). -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the active universe follows the owner, not the machine
 
-> **Next real step: S2** (un-ignore the pointer + its anti-regression guard + the nine prose sites that
-> still assert the old semantics). S1 is done: the decision is recorded in ADR 0034. No code has moved
-> yet — nothing outside `maintainers/` has been touched.
+> **Next real step: S3** — the fleet migration (strip the ignore line from a deployed brain's own
+> `.gitignore`, stage an untracked pointer so the first pull cannot hit git's untracked-overwrite
+> refusal) and the conflict rule taught to `/sync`. This is where the actual engineering is; S1–S2
+> were the record and a two-line change behind a guard.
+>
+> **Done so far.** S1: the decision is recorded in ADR 0034. S2: the pointer is un-ignored in THIS
+> repo, a test asks git itself that the line never comes back, and the nine prose sites now say the
+> pointer is the owner's, not the machine's. **A deployed brain is still unchanged** — its own
+> `.gitignore` is carried by no engine regime, which is exactly what S3 exists to fix.
 >
 > **Why this plan exists.** The owner (2026-08-07) found the current behaviour confusing: switching
 > universe on one machine leaves the other machine in the previous scope, **silently**. The native
@@ -71,22 +77,27 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
         deployed brain — including the "commit an untracked pointer" part that keeps the first pull
         from hitting git's untracked-overwrite refusal.
 
-- [ ] **S2 — The active universe travels with the brain (and cannot be re-ignored by accident).**
-  - [ ] Remove the `.vault-rag/active-universe` entry from `.gitignore`; keep a short comment saying
+- [x] **S2 — The active universe travels with the brain (and cannot be re-ignored by accident).** _(2026-08-07 · `5cc247c` + `c44f5e1`)_
+  - [x] Remove the `.vault-rag/active-universe` entry from `.gitignore`; keep a short comment saying
         the pointer is committed **on purpose** (owner state), so nobody restores the line "to be
-        consistent with the caches".
-  - [ ] **Deterministic guard**: a test asserting the pointer is **not** ignored by the shipped
+        consistent with the caches". _(the comment now says nothing under `.vault-rag/` is ignored,
+        and names the test that enforces it)_
+  - [x] **Deterministic guard**: a test asserting the pointer is **not** ignored by the shipped
         `.gitignore` — the twin of the existing "the cache file sits under `.cache/`, which every
         brain gitignores" test (`scripts/lib/upstream-cache.test.mjs:187`). Fail-loud if the line
-        ever comes back.
-  - [ ] Correct every comment/test that asserts the old semantics in prose: `rag/src/lib/active-universe.ts`,
+        ever comes back. _(`scripts/lib/universes.test.mjs`, last test: asks **git itself** in a
+        throwaway repo carrying only the shipped file — no dev machine's global excludes can answer
+        in its place — plus a control on `rag/.cache/` so a broken invocation cannot pass vacuously)_
+  - [x] Correct every comment/test that asserts the old semantics in prose: `rag/src/lib/active-universe.ts`,
         `rag/src/lib/active-universe.test.ts`, `scripts/lib/universes.mjs` (~L60),
         `scripts/lib/universes.test.mjs` (~L423), `scripts/session-universe.mjs` (header),
         `local-mirror/src/adapters/fs-universes.ts`, `local-mirror/src/lib/config.ts`,
         `local-mirror/src/test/fs-universes.test.ts`, `local-mirror/src/test/universes.test.ts`.
-  - [ ] Verify **progressive disclosure is untouched**: below the gate no pointer file is written at
+  - [x] Verify **progressive disclosure is untouched**: below the gate no pointer file is written at
         all (only `/switch`, create, rename and delete write it), so a single-universe brain commits
-        nothing new and behaves exactly as today.
+        nothing new and behaves exactly as today. _(the only other writer is the self-heal, and a
+        test already pins that it creates no pointer on a brain that never had one)_
+  - [x] Full suites green: harness 1624, engine 515, local-mirror 255.
 
 - [ ] **S3 — A brain that pulls a switch made elsewhere lands on it cleanly (fleet + conflicts).**
   - [ ] **One-shot, idempotent migration for deployed brains**, run by the engine update: if the
