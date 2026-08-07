@@ -15,17 +15,14 @@
 > 1. ~~Windows CI~~ — **done**: 7/7 green, and the `.cmd` tests were checked to have *run* there,
 >    not skipped (run 31205865890).
 > 2. ~~MCP_TIMEOUT~~ — **decided by Thomas: ship nothing.** See its box; do not re-propose it.
-> 3. **Mutation pass** on everything the branch touched (`CONVENTIONS.md` §5quinquies + §10). A
->    disposable worktree for this branch does **not** exist yet — set it up once, per §5quinquies.
->    **This is the next actual step.** Files the branch touched, harness side:
->    `scripts/lib/rag-launcher.mjs`, `scripts/lib/tsx-invocation.mjs` (new),
->    `scripts/lib/rag-status.mjs`, `scripts/lib/headless-health-check.mjs`,
->    `scripts/health-probe-run.mjs` — plus the `rag`/`shared` files already mutated at 100 %
->    when defect 1 shipped.
+> 3. ~~Mutation pass~~ — **done** on all five harness files (three at 100 %, two lifted; see the
+>    verification box for the table and for what was deliberately left to the v4.9.0 mutation-debt
+>    plan). The worktree `/Users/tpierrain/Dev/kenjaku-mut-v481` is **kept on purpose** so the §10
+>    release-tail pass does not have to rebuild it.
 > 4. **Release note** in the non-devs-first voice (§11), saying plainly what the symptom was: *your
->    brain could not reach its own notes, and said nothing.*
+>    brain could not reach its own notes, and said nothing.* **← THE NEXT ACTUAL STEP.**
 > 5. **Ask the two reporters to re-run their own reproducer** on the tagged build (see the
->    verification box).
+>    verification box). This is the only remaining item that needs someone else's machine.
 >
 > Note that Defect 3 also **unblocked** the live-health section (its synchronous banner is now
 > affordable) — that is a v4.9.0 subject, not this hotfix, unless Thomas decides otherwise.
@@ -283,7 +280,32 @@
       `if ( … ) else ( … )` block to a generated launcher and run it; (3) time `npx tsx` versus the
       direct `tsx/dist/cli.mjs` call. Ask the two reporters to re-run (1) and (2) on the tagged build:
       they have the machines, the vault, and they already know what right looks like.
-  - [ ] Mutate every file touched, the day it is written (`CONVENTIONS.md` §5quinquies).
+  - [x] **Mutation pass done on every harness file the branch touched** _(2026-08-07 · worktree
+        `/Users/tpierrain/Dev/kenjaku-mut-v481`, symlinked `rag/node_modules`, `vault-write-guard`
+        verified at **0 skipped** so the mutants faced a suite that could judge them)_:
+        | file | score | note |
+        |---|---|---|
+        | `scripts/lib/rag-launcher.mjs` | **100 %** (117/117) | |
+        | `scripts/lib/tsx-invocation.mjs` (new) | **100 %** (19/19) | |
+        | `scripts/lib/rag-status.mjs` | **100 %** (53/53) | |
+        | `scripts/lib/headless-health-check.mjs` | 50 % → **63.27 %** | remainder pre-existing |
+        | `scripts/health-probe-run.mjs` | 32.53 % → **38.10 %** | remainder pre-existing |
+    - [x] **The pass earned its keep on code written an hour earlier.** It found that the spawn
+          requests were **half** values: command and args were returned, the **options object was
+          still composed inside the runner** where no test could see it — and the options are the
+          load-bearing half (`cwd` makes the relative script path resolve at all; `SBG_NO_NOTIFY`
+          stops a per-session probe toasting every session; `detached` is what lets the warning
+          outlive the child that raised it). Fixed and pinned; that is what moved both scores.
+    - [ ] **What is left is NOT this release's, and saying so plainly**: the survivors that remain
+          are `callHeadlessHealthCheck`'s literals and, above all, the whole
+          `if (process.argv[1] === …)` **main block** of `health-probe-run.mjs` — which its own header
+          already calls *"deterministic glue, not unit-tested"*. That is precisely §5quinquies's
+          named shape (*a top-level script with no test sibling*, a fix designed at v4.5.0 and never
+          propagated). Extracting a testable `main()` is a real piece of work, not a hotfix item →
+          **hand it to `v4.9.0-mutation-debt-plan.md`**, do not smuggle it in here.
+    - [ ] **Still owed**: `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v481` once the
+          release-tail §10 pass is done (it is kept for now precisely so the tail does not have to
+          rebuild it).
 
 ## What this report changes about how we test
 
