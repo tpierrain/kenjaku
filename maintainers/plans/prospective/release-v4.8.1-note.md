@@ -45,9 +45,9 @@ carries the real fix, and the update would have overwritten the patch anyway.
 
 ### Thanks
 
-**This release exists because of Daniel MARTIN.** Daniel hit the failure on Windows, then did the work
-nobody owes anyone: reproduced it, read our source to find the cause, ran a control experiment, and sent
-the whole thing over. Every fix above starts from that report. Thank you.
+**This release exists because of Daniel MARTIN.** He hit the failure on Windows, then did the work nobody
+owes anyone: he reproduced it, read our source to find the cause, ran a control experiment, and sent the
+whole thing over. Every fix above starts from his report. Thank you, Daniel.
 
 ---
 

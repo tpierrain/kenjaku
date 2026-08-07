@@ -310,6 +310,31 @@
           release-tail §10 pass is done (it is kept for now precisely so the tail does not have to
           rebuild it).
 
+## Marketing-surface re-read (`CONVENTIONS.md` §10) — done 2026-08-07, verdict recorded
+
+> Ordered as §10 asks: what did this release make **false**, then what did it make **true** that we do
+> not sell yet. Recorded including the boring answers, so the next release does not re-derive them.
+
+- [x] **One sentence was false, and is fixed**: `SETUP.md` §8 troubleshooting told the reader to check
+      that `.mcp.json` points to `npx tsx rag/src/index.ts`, and to test that command by hand. It points
+      at the **launcher** (`rag/launch.sh` / `rag\launch.cmd`), and after Defect 3 the launcher does not
+      go through `npx` at all. It was already imprecise before this release; it is now simply wrong, so
+      it names the launcher and the real manual test.
+- [x] **One sentence was quietly false and this release makes it TRUE** — worth knowing, because nobody
+      would have gone looking for it: `SETUP.md`'s memory row says each open brain keeps one warm engine
+      in RAM and advises closing the conversations you are not using. With Defect 1 live, closing them
+      **freed nothing** — the server stayed. The advice now does what it says. Left as written.
+- [x] **Boards re-read** (`docs/img/board-*.png` via their README alt texts and
+      `docs/marketing-image-prompts.md`): none of them asserts anything about process lifetime, startup
+      time or launchers. **Copy still accurate, no re-render.**
+- [x] **`README.md`, `EN-QUOI-C-EST-DIFFERENT.md`, `CONNECTORS.md`**: swept for the absolutes §10 warns
+      about (*never / only / always / untouched*). Nothing this release touched is promised there — the
+      startup strings are quoted nowhere, and no page makes a claim about background processes.
+      **Nothing to change.**
+- [x] **Nothing newly true is being undersold.** The speed-up restores intended behaviour rather than
+      adding a capability; the release note is the right and sufficient home for it. Deliberately **not**
+      added to the marketing page.
+
 ## What this report changes about how we test
 
 - [ ] Both defects 2 and 3 are **generated-artifact** defects: the generator was tested for its
