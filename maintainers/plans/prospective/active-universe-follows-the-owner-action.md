@@ -52,7 +52,7 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
 
 ## Tracking
 
-- [x] **S1 — Record the decision: the active universe is owner state, and it travels.** _(2026-08-07 · `1ec87ad`, branch `feat/active-universe-travels`)_
+- [x] **S1 — Record the decision: the active universe is owner state, and it travels.** _(2026-08-07 · `edda5af`, branch `feat/active-universe-travels`)_
   - [x] Amend **ADR 0034 in place** (CONVENTIONS §6bis — no new ADR, no "AMENDED" scar in the prose,
         §6ter: write it as one timeless decision, for a fresh reader).
   - [x] Decision §1: say that the pointer is **committed alongside the registry**, and why — the
