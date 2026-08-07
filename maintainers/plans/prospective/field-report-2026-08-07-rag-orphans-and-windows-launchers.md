@@ -205,3 +205,45 @@
       assert strings; cmd.exe reads offsets.
 - [ ] Defect 1 is a **lifecycle** defect: every existing rag test exercises the server's *answers*, none
       exercises its *death*. `local-mirror` has that test and did not leak. That is not luck.
+
+## Startup wording, reviewed for non-technical owners (asked by Thomas, 2026-08-07)
+
+> Thomas's worry, verbatim in intent: *do not leave people with a brain that says "I can't work"
+> without telling them what to do, and without a way out.* The review below is of the **seven
+> SessionStart hooks** actually wired in `.claude/settings.json.template`, in order:
+> self-heal → health → obsidian-hint → wiki-health → universe → actions-log → status.
+> **Reference tone: `CONVENTIONS.md` §11** (non-devs first, never alarmist).
+
+- [ ] **⚠️ A — the green line that lies. This is a defect, not wording, and it is our own cardinal sin.**
+      `session-status.mjs` reads `rag/.cache/vault.db` **directly** (l. 115-126) and never checks that
+      the `vault-rag` server is reachable. So in the exact field scenario — server never started, no
+      `mcp__vault-rag__*` tool in the session — the owner is greeted with
+      `🧠 RAG up to date — 112/112 files indexed.` Green, reassuring, and wrong: the brain cannot read
+      a single one of those notes. The health banner does catch it, but from the **previous** session's
+      cached verdict, so the first broken session says nothing (`session-health.mjs`: instant read of
+      the cache + a detached re-probe that refreshes for **next** time — a deliberate zero-latency
+      trade, but a real one-session blind spot).
+  - [ ] Two ways out, to choose: **(i)** the line only claims what it actually knows (describe the
+        index on disk, never pronounce the brain healthy), a wording change that fits this hotfix; or
+        **(ii)** a real reachability check at session start, which is bigger than a hotfix and belongs
+        with the v4.9.0 silent-freeze subject. (i) is honest immediately; (ii) is the actual cure.
+- [ ] **B — "RAG" is jargon, on the line shown at EVERY session start.** `🧠 RAG: …`
+      (`scripts/lib/rag-status.mjs`) means nothing to a non-technical owner. Say what it is: their
+      notes, and whether they are searchable.
+- [ ] **C — terminal commands handed to people who do not use a terminal.** `cd rag && npm run reindex`
+      (empty-vault line), `/mcp`, `node scripts/rehydrate.mjs`. The brain can do the first one itself,
+      so the gesture is *"ask me to reindex"* — the shape the health banner already uses
+      (`gestureForCheck`). Keep a literal command only where the owner genuinely must run it.
+- [ ] **D — jargon in the alarming lines**: `.env`, `GOOGLE_GEMINI_API_KEY`, `MCP`, `gitignored`,
+      "this machine's absolute paths". These land in the messages the owner reads when something is
+      already wrong, i.e. the worst moment to make them feel out of their depth.
+- [ ] **E — an alarm on something harmless.** `⚠️ Brain self-heal skipped (non-blocking): {error}`
+      shows a warning triangle plus a raw error string for a condition we ourselves call
+      non-blocking. Either it matters (then say what it means for them) or it does not (then it is not
+      a ⚠️ and probably not shown at all).
+- [ ] **F — shouty capitals**: `ACTION NEEDED`, `CAN'T`, `will NOT resolve`. The information is right
+      and worth keeping; the volume is not. §11 asks for calm and plain, and a restart is not an
+      emergency.
+- [x] **The model to align on already exists in the repo**: `formatHealthBanner` — name the cause,
+      give one gesture in plain words, and close with *"Your notes themselves are untouched."* That
+      last clause is the whole difference between informing someone and frightening them.
