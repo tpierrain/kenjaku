@@ -19,10 +19,12 @@
 >    verification box for the table and for what was deliberately left to the v4.9.0 mutation-debt
 >    plan). The worktree `/Users/tpierrain/Dev/kenjaku-mut-v481` is **kept on purpose** so the §10
 >    release-tail pass does not have to rebuild it.
-> 4. **Release note** in the non-devs-first voice (§11), saying plainly what the symptom was: *your
->    brain could not reach its own notes, and said nothing.* **← THE NEXT ACTUAL STEP.**
+> 4. ~~Release note~~ — **drafted** at `maintainers/plans/prospective/release-v4.8.1-note.md`
+>    (title: *v4.8.1 — The One Where It Stops Outliving Your Session*). **Awaiting Thomas's read.**
+>    Archive it to `archived/` when the release is cut.
 > 5. **Ask the two reporters to re-run their own reproducer** on the tagged build (see the
 >    verification box). This is the only remaining item that needs someone else's machine.
+>    **← THE NEXT ACTUAL STEP**, together with cutting the release itself once the note is approved.
 >
 > Note that Defect 3 also **unblocked** the live-health section (its synchronous banner is now
 > affordable) — that is a v4.9.0 subject, not this hotfix, unless Thomas decides otherwise.
