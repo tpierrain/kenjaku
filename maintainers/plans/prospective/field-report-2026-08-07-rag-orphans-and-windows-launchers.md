@@ -1,5 +1,28 @@
 # Action plan — the RAG server that never leaves, and two Windows launchers that were never tested as text
 
+> 🔴 **THIS IS THE LIVE PLAN. START HERE.**
+>
+> **Owner's decision (2026-08-07, Thomas): ship it as a `v4.8.1` hotfix, AHEAD of both v4.9.0 subjects**
+> (`v4.9.0-mutation-debt-plan.md` and `field-finding-2026-08-05-silent-skill-freeze.md`, both of which
+> stay open and untouched). Rationale, already argued below: defect 1 is critical, cross-platform and
+> **self-aggravating on every deployed brain**, and the two reporters are running locally patched
+> launchers that the next `/update-engine` will overwrite.
+>
+> **Resume at: Defect 1**, first unchecked box. Nothing has been coded yet — every box below is still
+> `- [ ]` on purpose. The whole plan was written from a **verification pass against HEAD**, so the fix
+> sites are already named; do **not** re-diagnose, do **not** re-read the source report to re-derive
+> what is already written here.
+>
+> **The order to work in** (defect 1 alone justifies the release; 2 and 3 ride along because they touch
+> the same startup path): **1 → 3 → 2**. Defect 3 removes the `npx` wrapper, which shortens the process
+> chain defect 1's shutdown has to cover, so doing it before 2 keeps the launcher edited once.
+>
+> **Standing constraints for this release**: TDD baby-steps with a failing test first (the lifecycle test
+> `rag` never had); green-only commits, pushed as they go; `CONVENTIONS.md` §9 (Windows tripwire) and
+> §5quinquies (mutate what you write, the day you write it); a release note in the non-devs-first voice
+> (§11) that says plainly what the symptom was — *your brain could not reach its own notes, and said
+> nothing*.
+
 > **Source.** A runtime report from two Windows colleagues of Thomas's, on **v4.6.0** (`rag` 1.3.0,
 > index schema 2, Windows 11, Node 22.23.0, a 112-note vault). Original kept as evidence beside this
 > plan (`archived/field-report-2026-08-07-source.md`). It is unusually good: symptoms, root cause read
