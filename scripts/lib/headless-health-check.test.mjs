@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { callHeadlessHealthCheck, buildHeadlessHealthCheckCaller } from "./headless-health-check.mjs";
+import { join } from "node:path";
+import { callHeadlessHealthCheck, buildHeadlessHealthCheckCaller, healthCliInvocation } from "./headless-health-check.mjs";
 
 // callHeadlessHealthCheck (ADR 0030 §4/§6, F7-ter) is the runtime probe's HEADLESS
 // `callHealthCheck`: it reads a module's on-disk state read-only (light depth) instead
@@ -57,4 +58,34 @@ test("buildHeadlessHealthCheckCaller — isRegistered reads .mcp.json; callHealt
   assert.equal(isRegistered("local-mirror"), false);
   const verdict = await callHealthCheck("vault-rag");
   assert.equal(verdict.status, "ok");
+});
+
+// ─── The spawn nothing observed (field report 2026-08-07, defect 3) ──────────────────
+// The real runner used to build its own `npx tsx …` inline, so no test ever saw the one
+// thing that mattered about it: which tsx it reached for. It reached for none — cwd is
+// the brain root, tsx is a devDependency of rag/, so npx fell back to its cache and a
+// registry round-trip (1.55 s here, 9.8 s on the reporters' machines). The request is a
+// value now, and this is the test that watches it.
+
+test("healthCliInvocation — the probe runs rag's OWN tsx, and stays read-only light", () => {
+  const brainDir = join("/brains", "mine");
+
+  const inv = healthCliInvocation({ brainDir, platform: "darwin", depth: "light", exists: () => true });
+
+  assert.equal(inv.command, process.execPath);
+  assert.deepEqual(inv.args, [
+    join(brainDir, "rag", "node_modules", "tsx", "dist", "cli.mjs"),
+    "rag/src/health-check-cli.ts",
+    "--depth",
+    "light",
+  ]);
+});
+
+// The probe is deliberately cheap so it can run at every session start; the depth is the
+// knob that keeps it cheap (light = disk reads, zero ONNX — ADR 0030 §6). It must reach
+// the CLI, not be dropped on the way through the new indirection.
+test("healthCliInvocation — the requested depth reaches the CLI, whatever it is", () => {
+  const inv = healthCliInvocation({ brainDir: "/brains/mine", platform: "darwin", depth: "full", exists: () => true });
+
+  assert.deepEqual(inv.args.slice(-2), ["--depth", "full"]);
 });
