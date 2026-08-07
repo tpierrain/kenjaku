@@ -23,12 +23,16 @@ import { notionConnectorFactory } from '../adapters/notion-gateway.js';
 // The composition root (server.ts) is boot glue, so its seams are extracted and exported:
 // buildDeps wires the real driven adapters, buildApi assembles the Domain Service,
 // createRealServer/createRealTransport/realBootDeps name the real wiring, boot() connects
-// the tool surface over a transport, fatal() reports + exits. Mutation: 0 % → 85.71 %
-// (10 killed + 2 timeout / 14). The 2 residual survivors are documented equivalents — the
-// `if (process.argv[1] === fileURLToPath(import.meta.url))` entry-point guard and its
-// `boot(realBootDeps).catch(fatal)` body: they run ONLY when server.ts IS the process, so
-// they are integration-only (the real stdio connect can't run under the unit suite without
-// hanging). Effective 12/12 = 100 % on non-equivalents.
+// the tool surface over a transport, fatal() reports + exits, shutdownPlanFor says what the
+// end of a session must release.
+//
+// Mutation (2026-08-07, whole file): 51.61 %. Every survivor sits in the integration-only
+// remainder — the `bootReal` body, `armAfterSetup`, and the
+// `if (process.argv[1] === fileURLToPath(import.meta.url))` entry guard — which run ONLY when
+// server.ts IS the process (a real stdio connect hangs a unit suite). Each named seam it calls
+// is judged on its own here, and `shutdownPlanFor` survives nothing. Stated plainly rather than
+// as a headline score: `bootReal` has grown since the 85.71 % this comment used to claim, and a
+// figure that flatters is worse than no figure.
 
 test('buildDeps wires each driven adapter to its concrete implementation', () => {
   const deps = buildDeps();
