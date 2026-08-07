@@ -8,7 +8,11 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: Defect 3** (`npx tsx` → the direct `tsx/dist/cli.mjs` call). **Defect 1 is closed**:
+> **Resume at: item 5 of the wording review** (one string + one yes/no from Thomas — see the ⏭️ box
+> in "Proposed before / after"), **then Defect 3**. Items 2, 3 and 4 are done and pushed; item 1 was
+> declined (keep the "RAG" wording) except for one un-arbitrated string named in its box.
+>
+> **Then: Defect 3** (`npx tsx` → the direct `tsx/dist/cli.mjs` call). **Defect 1 is closed**:
 > the shutdown, the committed lifecycle test that proves the process dies, and the last open question
 > — "fail fast on a locked index" — which was **dropped on evidence, not on scope**: measured, it
 > would fire on nothing and would break parallel Desktop + CLI sessions, which work today. Read that
@@ -284,7 +288,12 @@
 > throughout: keep a literal command **only** where the owner genuinely has to type it, and close a
 > worrying message with the reassurance the health banner already uses (*their notes are untouched*).
 
-- [ ] **1. `rag-status.mjs` — the line shown at EVERY session start** (finding A + B)
+- [x] **1. `rag-status.mjs` — KEPT AS IS. Thomas's call, 2026-08-07: "laisse le wording actuel qui
+      parle de RAG."** The RAG vocabulary stays; do not re-propose de-jargoning it.
+      **⚠️ Still open, and NOT what he declined**: the *honesty* half of this item, i.e. `up to date`
+      reading as a verdict on the whole brain when the line only ever read the index file. His answer
+      was about the word "RAG", so the "up to date" phrasing was never actually arbitrated. Ask him,
+      do not assume either way. Proposal below, unchanged, for that one string:
       - healthy · before: `🧠 RAG up to date — 112/112 files indexed.`
         · after: `🧠 Your notes: 112 of 112 ready to search.`
         **Why it matters most**: "up to date" reads as a verdict on the whole brain, which this line
@@ -298,27 +307,40 @@
         · after: `🧠 Your notes: 100 of 112 ready to search, 12 still being prepared in the background.`
       - failed · before: `🧠 RAG: 100/112 files indexed, 2 failed, 10 pending — <errors>. This will NOT resolve on its own: repair the note (or ask me to), then reindex.`
         · after: `🧠 Your notes: 100 of 112 ready to search — 10 still being prepared, and 2 I couldn't read (<errors>). Those 2 won't sort themselves out: ask me to repair them.`
-- [ ] **2. `session-status.mjs` — the missing Gemini key** (findings C + D)
+- [x] **2. `session-status.mjs` — the missing Gemini key. DONE** _(2026-08-07 · see git log)_
       before: `⚠️ Gemini key missing from .env → the RAG can't answer. Paste it into .env (GOOGLE_GEMINI_API_KEY=…) then re-ask your question (the server re-reads it on its own). If it persists, reconnect the MCP (/mcp) or restart Claude Code.`
       after: `⚠️ Your brain needs its Gemini key before it can search your notes. Ask me to open your .env file, paste the key after GOOGLE_GEMINI_API_KEY=, save it, and ask your question again — it picks the key up on its own. Your notes themselves are untouched.`
       `GOOGLE_GEMINI_API_KEY` stays: it is the literal text they must type. `/mcp` and "reconnect the
       MCP" go: that is our vocabulary, not theirs, and "ask me to open your .env" is a gesture they
       can actually perform.
-- [ ] **3. `session-self-heal.mjs` — an update waiting for a restart** (finding F)
+- [x] **3. `session-self-heal.mjs` — an update waiting for a restart. DONE** _(2026-08-07)_, with
+      Thomas's amendment: the gesture is **SHOUTED** (`PLEASE CLOSE CLAUDE AND REOPEN IT`) so owners
+      do not skim past it, and nothing else is. The test now pins both halves — the capitals verbatim,
+      and a `doesNotMatch` forbidding shouting anywhere else in the line.
       before: `⚠️ ACTION NEEDED — finishing an engine update in the background (skills: …; MCP: …). Until you RESTART Claude (close it and reopen) once this completes, your brain CAN'T use these new capabilities. Restart, then come back here.`
       after: `⚠️ An update to your brain is finishing in the background (…). Please close Claude and reopen it once — until then your brain can't use what the update added. Your notes are untouched.`
       Same instruction, same urgency, without three shouted words. A restart is not an emergency.
-- [ ] **4. `session-self-heal.mjs` — this machine is not set up** (finding D)
+- [x] **4. `session-self-heal.mjs` — this machine is not set up. DONE** _(2026-08-07)_, file names kept.
       before: `⚠️ This machine isn't wired for your brain yet — missing <files> (gitignored: they hold this machine's absolute paths, so a clone never has them). From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation rooted here (servers and hooks are loaded when a session starts).`
       after: `⚠️ This computer isn't set up for your brain yet — a copy never carries the settings, because they point to folders on this particular machine. From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation here. Your notes are untouched.`
       The command stays (they really must run it). "gitignored" and "absolute paths" go.
-- [ ] **5. `session-self-heal.mjs` — the harmless failure** (finding E)
+- [ ] **⏭️ NEXT — 5. `session-self-heal.mjs` — the failure I wrongly called harmless.**
+      **Thomas challenged the premise and was right.** The `catch` wraps the WHOLE detection
+      (`missingWiring` → `readWanted` → `detectSelfHealGap` → `spawnReconcile`), so when it fires
+      **nothing is reconciled** — `session-self-heal.test.mjs` ("fail-open") asserts exactly that:
+      `spawned.length === 0`. "Non-blocking" means *does not block session start*, NOT *no
+      consequence*: a missing skill or MCP server stays missing, silently, which is this release's own
+      bug family. So "show nothing" was the wrong answer and is withdrawn.
+      **New proposal, to arbitrate**: say what it means for them and what to do —
+      `ℹ️ I couldn't check whether your brain is fully set up this time. Your notes are untouched, and I'll check again next session — if something seems missing, close Claude and reopen it.`
+      Open sub-question: whether it stays a ⚠️ (it can hide a real gap) or an ℹ️ (it retries by
+      itself next session). The old text is untouched until Thomas says.
       before: `⚠️ Brain self-heal skipped (non-blocking): <raw error text>`
       after: **show nothing.** We call it non-blocking ourselves; a warning triangle plus a raw error
       string, for something that changes nothing for the owner, teaches them to fear the banner. Keep
       it as a log line for us. *(If it must stay visible: `ℹ️ A routine self-check didn't run this
       time — nothing is broken, it will retry next session.`)*
-- [ ] **Test impact, so it is not a surprise**: these strings are asserted in
-      `rag-status.test.mjs`, `session-status.test.mjs` and `session-self-heal.test.mjs`. Updating the
-      wording means updating those expectations in the same commit — which is the net doing its job,
-      not an obstacle.
+- [x] **Test impact — and one correction**: there is **no `session-status.test.mjs`** (that script is
+      unpinned glue, so item 2's new string is asserted nowhere; worth knowing before editing it
+      again). `session-self-heal.test.mjs` did pin items 3 and 4, and was updated first, red before
+      green. Full harness suite after the change: **1596 green**.
