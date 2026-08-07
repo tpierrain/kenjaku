@@ -19,20 +19,33 @@ import { tsxInvocation } from "./tsx-invocation.mjs";
  * 9.8 s on the reporters' Windows machines (field report 2026-08-07, defect 3).
  */
 export function healthCliInvocation({ brainDir, platform = process.platform, depth = "light", ...seams }) {
-  return tsxInvocation({ brainDir, platform, script: "rag/src/health-check-cli.ts", args: ["--depth", depth], ...seams });
+  const { command, args, shell } = tsxInvocation({
+    brainDir,
+    platform,
+    script: "rag/src/health-check-cli.ts",
+    args: ["--depth", depth],
+    ...seams,
+  });
+  return {
+    command,
+    args,
+    // The OPTIONS are part of the request, not of the runner. Two of them are load-bearing:
+    // `cwd` is what makes the relative script path resolve at all, and SBG_NO_NOTIFY is what
+    // stops a probe that runs at every session start from raising a toast every time. Left
+    // inside the runner they were unobservable — the mutation pass killed nothing there.
+    options: {
+      cwd: brainDir,
+      encoding: "utf8",
+      shell,
+      env: { ...process.env, SBG_NO_NOTIFY: "1" },
+      windowsHide: true,
+    },
+  };
 }
 
 function defaultRunCli({ brainDir, platform = process.platform, depth = "light" }) {
-  const { command, args, shell } = healthCliInvocation({ brainDir, platform, depth });
-  const res = spawnSync(command, args, {
-    cwd: brainDir,
-    encoding: "utf8",
-    shell,
-    // Light depth never loads ONNX, but keep parity with the loud gates: no startup toast.
-    env: { ...process.env, SBG_NO_NOTIFY: "1" },
-    windowsHide: true,
-  });
-  return res.stdout ?? "";
+  const { command, args, options } = healthCliInvocation({ brainDir, platform, depth });
+  return spawnSync(command, args, options).stdout ?? "";
 }
 
 // Modules that expose a HEADLESS reader (no MCP boot needed). Today only vault-rag —

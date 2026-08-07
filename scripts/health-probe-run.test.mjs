@@ -144,7 +144,7 @@ test("notifyInvocation — runs rag's OWN tsx, carrying the title and body throu
     "Second brain — health check",
     "rag is broken: canary missing",
   ]);
-  assert.equal(inv.shell, false);
+  assert.equal(inv.options.shell, false);
 });
 
 // A brain whose rag/ deps were never installed still deserves its warning — slowly beats
@@ -160,5 +160,24 @@ test("notifyInvocation — no local tsx: npx still carries the warning, shell an
 
   assert.equal(inv.command, "npx.cmd");
   assert.deepEqual(inv.args, ["tsx", "rag/src/notify-cli.ts", "t", "b"]);
-  assert.equal(inv.shell, true);
+  assert.equal(inv.options.shell, true);
+});
+
+// Same lesson as the health CLI, found by the same mutation pass: the command was a value
+// but the spawn OPTIONS were still composed inside the runner, where nothing could see
+// them. Here they are the whole point of the call — `detached` + `unref` are what let the
+// warning outlive the probe child that raised it, and losing them would turn a notified
+// break back into a silent one, which is this release's own bug family.
+test("notifyInvocation — the spawn options are part of the request, detachment included", () => {
+  const brainDir = join("/brains", "mine");
+
+  const inv = notifyInvocation({ brainDir, platform: "darwin", title: "t", body: "b", exists: () => true });
+
+  assert.deepEqual(inv.options, {
+    cwd: brainDir,
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true,
+    shell: false,
+  });
 });

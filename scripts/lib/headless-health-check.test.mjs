@@ -89,3 +89,31 @@ test("healthCliInvocation — the requested depth reaches the CLI, whatever it i
 
   assert.deepEqual(inv.args.slice(-2), ["--depth", "full"]);
 });
+
+// The mutation pass on this file (2026-08-07) killed nothing in the spawn OPTIONS: the
+// request was half a value — command and args were returned, the options object was still
+// composed inside the runner where no test could see it. Two of those options are load-
+// bearing: `cwd` is what makes the relative script path resolve at all, and SBG_NO_NOTIFY
+// is what stops a per-session probe from raising a toast every time a session starts.
+test("healthCliInvocation — the WHOLE spawn request is a value, options included", () => {
+  const brainDir = join("/brains", "mine");
+
+  const inv = healthCliInvocation({ brainDir, platform: "darwin", depth: "light", exists: () => true });
+
+  assert.deepEqual(inv.options, {
+    cwd: brainDir,
+    encoding: "utf8",
+    shell: false,
+    env: { ...process.env, SBG_NO_NOTIFY: "1" },
+    windowsHide: true,
+  });
+});
+
+// Light depth is the default because this probe runs at EVERY session start: light means
+// disk reads and zero ONNX (ADR 0030 §6). A caller that forgets to ask must not silently
+// get the expensive one.
+test("healthCliInvocation — the depth defaults to light, the cheap one", () => {
+  const inv = healthCliInvocation({ brainDir: "/brains/mine", platform: "darwin", exists: () => true });
+
+  assert.deepEqual(inv.args.slice(-2), ["--depth", "light"]);
+});
