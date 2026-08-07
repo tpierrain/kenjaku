@@ -277,3 +277,48 @@
   - [ ] **Then, and only then**: run the probe **synchronously** and render the fresh verdict, keeping
         the detached write for the cache. Fail-open stays non-negotiable (a probe that errors or
         overruns must never block a session start — render nothing and let the notification carry it).
+
+### Proposed before / after, string by string (for Thomas's arbitration, 2026-08-07)
+
+> Every "before" below is the **exact current string**, with its source. Two rules applied
+> throughout: keep a literal command **only** where the owner genuinely has to type it, and close a
+> worrying message with the reassurance the health banner already uses (*their notes are untouched*).
+
+- [ ] **1. `rag-status.mjs` — the line shown at EVERY session start** (finding A + B)
+      - healthy · before: `🧠 RAG up to date — 112/112 files indexed.`
+        · after: `🧠 Your notes: 112 of 112 ready to search.`
+        **Why it matters most**: "up to date" reads as a verdict on the whole brain, which this line
+        cannot know (it reads the index file, never the server). The "after" claims only what it
+        measured. *Mitigation, not cure — the cure is the liveness check, see the live-health section.*
+      - unreadable · before: `🧠 RAG: status unavailable (server starting up, or engine not installed).`
+        · after: `🧠 I couldn't read your notes' index just now — it may still be starting up. Ask me to check your brain if this keeps happening.`
+      - empty · before: `🧠 RAG: empty vault — add Markdown notes in vault/ then run 'cd rag && npm run reindex'.`
+        · after: `🧠 No notes yet. Add Markdown files in vault/, then ask me to index them.`
+      - pending · before: `🧠 RAG: 100/112 files indexed, 12 pending — auto catch-up in the background.`
+        · after: `🧠 Your notes: 100 of 112 ready to search, 12 still being prepared in the background.`
+      - failed · before: `🧠 RAG: 100/112 files indexed, 2 failed, 10 pending — <errors>. This will NOT resolve on its own: repair the note (or ask me to), then reindex.`
+        · after: `🧠 Your notes: 100 of 112 ready to search — 10 still being prepared, and 2 I couldn't read (<errors>). Those 2 won't sort themselves out: ask me to repair them.`
+- [ ] **2. `session-status.mjs` — the missing Gemini key** (findings C + D)
+      before: `⚠️ Gemini key missing from .env → the RAG can't answer. Paste it into .env (GOOGLE_GEMINI_API_KEY=…) then re-ask your question (the server re-reads it on its own). If it persists, reconnect the MCP (/mcp) or restart Claude Code.`
+      after: `⚠️ Your brain needs its Gemini key before it can search your notes. Ask me to open your .env file, paste the key after GOOGLE_GEMINI_API_KEY=, save it, and ask your question again — it picks the key up on its own. Your notes themselves are untouched.`
+      `GOOGLE_GEMINI_API_KEY` stays: it is the literal text they must type. `/mcp` and "reconnect the
+      MCP" go: that is our vocabulary, not theirs, and "ask me to open your .env" is a gesture they
+      can actually perform.
+- [ ] **3. `session-self-heal.mjs` — an update waiting for a restart** (finding F)
+      before: `⚠️ ACTION NEEDED — finishing an engine update in the background (skills: …; MCP: …). Until you RESTART Claude (close it and reopen) once this completes, your brain CAN'T use these new capabilities. Restart, then come back here.`
+      after: `⚠️ An update to your brain is finishing in the background (…). Please close Claude and reopen it once — until then your brain can't use what the update added. Your notes are untouched.`
+      Same instruction, same urgency, without three shouted words. A restart is not an emergency.
+- [ ] **4. `session-self-heal.mjs` — this machine is not set up** (finding D)
+      before: `⚠️ This machine isn't wired for your brain yet — missing <files> (gitignored: they hold this machine's absolute paths, so a clone never has them). From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation rooted here (servers and hooks are loaded when a session starts).`
+      after: `⚠️ This computer isn't set up for your brain yet — a copy never carries the settings, because they point to folders on this particular machine. From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation here. Your notes are untouched.`
+      The command stays (they really must run it). "gitignored" and "absolute paths" go.
+- [ ] **5. `session-self-heal.mjs` — the harmless failure** (finding E)
+      before: `⚠️ Brain self-heal skipped (non-blocking): <raw error text>`
+      after: **show nothing.** We call it non-blocking ourselves; a warning triangle plus a raw error
+      string, for something that changes nothing for the owner, teaches them to fear the banner. Keep
+      it as a log line for us. *(If it must stay visible: `ℹ️ A routine self-check didn't run this
+      time — nothing is broken, it will retry next session.`)*
+- [ ] **Test impact, so it is not a surprise**: these strings are asserted in
+      `rag-status.test.mjs`, `session-status.test.mjs` and `session-self-heal.test.mjs`. Updating the
+      wording means updating those expectations in the same commit — which is the net doing its job,
+      not an obstacle.
