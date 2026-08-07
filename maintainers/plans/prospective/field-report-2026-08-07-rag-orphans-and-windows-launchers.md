@@ -51,9 +51,28 @@
         for `Live-update watcher active` on stderr, close stdin, assert **exit 0 within a few
         seconds**. Waiting for that exact line is what makes it a real test: close stdin at the
         earlier `running on stdio` line and even the BROKEN server exits, because the watcher that
-        holds the loop open has not armed yet. Working probe kept verbatim in the scratchpad
-        (`probe.cjs`) — it is 20 lines. Decide where it runs: it spawns a process, so it is heavier
-        than the `src/lib/*.test.ts` unit suite it would join.
+        holds the loop open has not armed yet. Decide where it runs: it spawns a process, so it is
+        heavier than the `src/lib/*.test.ts` unit suite it would join. The probe that produced the
+        measurements above, verbatim (run from `rag/`, `node probe.cjs <vault> <cache> <label>`):
+
+        ```js
+        const { spawn } = require('child_process');
+        const [vault, cache, label] = process.argv.slice(2);
+        const t0 = Date.now();
+        const child = spawn(process.execPath, ['--import', 'tsx', 'src/index.ts'], {
+          env: { ...process.env, VAULT_DIR: vault, CACHE_DIR: cache, SBG_ENV_PATH: '/nonexistent/.env' },
+          stdio: ['pipe', 'pipe', 'pipe'],
+        });
+        let err = '', armed = false;
+        child.stderr.on('data', (d) => {
+          err += d;
+          if (!armed && err.includes('watcher active')) { armed = true; child.stdin.end(); }
+        });
+        child.on('exit', (code) => console.log(`[${label}] EXITED code=${code} after ${Date.now()-t0}ms`));
+        setTimeout(() => {
+          if (child.exitCode === null) { console.log(`[${label}] STILL ALIVE after 10s (armed=${armed}) — orphan`); child.kill('SIGKILL'); }
+        }, 10000);
+        ```
   - [ ] **Decisions taken while fixing** (recorded so they are not re-litigated):
         (a) the shared helper lives in a NEW top-level **`shared/`** package-less folder, imported by
         both servers by relative path — both `tsconfig.json` drop `"rootDir": "src"` (nothing consumes
