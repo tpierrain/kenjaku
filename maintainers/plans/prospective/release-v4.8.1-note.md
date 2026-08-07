@@ -1,4 +1,4 @@
-# v4.8.1 — The One Where It Stops Outliving Your Session
+# v4.8.1 — The One Where Closing It Actually Closes It
 
 > Draft of the GitHub release body. Written per `CONVENTIONS.md` §11: non-developer first, depth kept
 > but moved below the `---`. Archive this file to `maintainers/plans/archived/` once the release is cut.
