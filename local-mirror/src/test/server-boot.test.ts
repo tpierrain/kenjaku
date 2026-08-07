@@ -10,9 +10,8 @@ import {
   createRealServer,
   createRealTransport,
   realBootDeps,
-  installShutdown,
+  shutdownPlanFor,
   type BootServer,
-  type ShutdownHooks,
 } from '../server.js';
 import { LocalMirror } from '../domain/local-mirror.js';
 import { FsConfigStore } from '../adapters/fs-config-store.js';
@@ -24,12 +23,16 @@ import { notionConnectorFactory } from '../adapters/notion-gateway.js';
 // The composition root (server.ts) is boot glue, so its seams are extracted and exported:
 // buildDeps wires the real driven adapters, buildApi assembles the Domain Service,
 // createRealServer/createRealTransport/realBootDeps name the real wiring, boot() connects
-// the tool surface over a transport, fatal() reports + exits. Mutation: 0 % → 85.71 %
-// (10 killed + 2 timeout / 14). The 2 residual survivors are documented equivalents — the
-// `if (process.argv[1] === fileURLToPath(import.meta.url))` entry-point guard and its
-// `boot(realBootDeps).catch(fatal)` body: they run ONLY when server.ts IS the process, so
-// they are integration-only (the real stdio connect can't run under the unit suite without
-// hanging). Effective 12/12 = 100 % on non-equivalents.
+// the tool surface over a transport, fatal() reports + exits, shutdownPlanFor says what the
+// end of a session must release.
+//
+// Mutation (2026-08-07, whole file): 51.61 %. Every survivor sits in the integration-only
+// remainder — the `bootReal` body, `armAfterSetup`, and the
+// `if (process.argv[1] === fileURLToPath(import.meta.url))` entry guard — which run ONLY when
+// server.ts IS the process (a real stdio connect hangs a unit suite). Each named seam it calls
+// is judged on its own here, and `shutdownPlanFor` survives nothing. Stated plainly rather than
+// as a headline score: `bootReal` has grown since the 85.71 % this comment used to claim, and a
+// figure that flatters is worse than no figure.
 
 test('buildDeps wires each driven adapter to its concrete implementation', () => {
   const deps = buildDeps();
@@ -100,51 +103,14 @@ test('realBootDeps wires the named real factories (not inline arrows)', () => {
   assert.equal(realBootDeps.log, console.error);
 });
 
-// installShutdown must not just cancel the timer on a signal: adding a SIGINT/SIGTERM listener
-// overrides Node's default terminate-on-signal, so it MUST also exit — otherwise Ctrl-C / SIGTERM
-// would leave an orphaned server holding stdio (regression the auto-sync wiring introduced).
-function fakeHooks() {
-  const signals = new Map<NodeJS.Signals, () => void>();
-  const stdinHandlers: Array<() => void> = [];
-  const exits: number[] = [];
-  const hooks: ShutdownHooks = {
-    onSignal: (signal, handler) => signals.set(signal, handler),
-    onStdinEnd: (handler) => stdinHandlers.push(handler),
-    exit: (code) => exits.push(code),
-  };
-  return { hooks, signals, stdinHandlers, exits };
-}
-
-test('installShutdown: SIGINT stops the scheduler AND terminates the process (130)', () => {
-  const { hooks, signals, exits } = fakeHooks();
+// WHEN to shut down (signals, stdin EOF, exit codes) now lives in `shared/mcp-shutdown.ts`, so
+// both servers obey the same exit instead of one of them merely happening to. What stays this
+// server's own business is WHAT it must release: its auto-sync timer, which would otherwise
+// outlive the session.
+test('the shutdown plan releases what outlives the session — the auto-sync timer', () => {
   const stops: string[] = [];
-  installShutdown({ stop: () => stops.push('stop') }, hooks);
 
-  signals.get('SIGINT')!();
+  shutdownPlanFor({ stop: () => stops.push('stop') }).cleanup();
 
   assert.deepEqual(stops, ['stop']);
-  assert.deepEqual(exits, [130]);
-});
-
-test('installShutdown: SIGTERM stops the scheduler AND terminates the process (143)', () => {
-  const { hooks, signals, exits } = fakeHooks();
-  const stops: string[] = [];
-  installShutdown({ stop: () => stops.push('stop') }, hooks);
-
-  signals.get('SIGTERM')!();
-
-  assert.deepEqual(stops, ['stop']);
-  assert.deepEqual(exits, [143]);
-});
-
-test('installShutdown: stdin end/close stops the scheduler but does NOT force-exit', () => {
-  const { hooks, stdinHandlers, exits } = fakeHooks();
-  const stops: string[] = [];
-  installShutdown({ stop: () => stops.push('stop') }, hooks);
-
-  assert.ok(stdinHandlers.length >= 1);
-  for (const h of stdinHandlers) h();
-
-  assert.equal(stops.length, stdinHandlers.length);
-  assert.deepEqual(exits, []); // natural EOF winds down on its own — no forced exit
 });

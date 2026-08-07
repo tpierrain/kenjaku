@@ -11,6 +11,7 @@ import {
   currentIndexIdentity,
   currentIndexSchemaVersion,
   INDEX_SCHEMA_VERSION,
+  closeDb,
 } from "./lib/vector-store.js";
 import { readActiveUniverse } from "./lib/active-universe.js";
 import { DEFAULT_UNIVERSE } from "./lib/universe.js";
@@ -42,6 +43,9 @@ import { buildStatusReport, incompleteIndexWarning, formatWatcherLiveness } from
 import { CatchUpBound, describeShortfall, type Shortfall } from "./lib/index-shortfall.js";
 import { ReindexScheduler } from "./lib/reindex-scheduler.js";
 import { startVaultWatcher } from "./lib/vault-watcher.js";
+import type { FSWatcher } from "chokidar";
+import { vaultShutdownPlan } from "./lib/shutdown-plan.js";
+import { installShutdown, realShutdownHooks } from "../../shared/mcp-shutdown.js";
 import {
   buildScriptRunner,
   persistenceApplies,
@@ -71,6 +75,10 @@ const server = new McpServer({
 // (which sets them at startup) and `vault_stats` (which reads the scheduler's in-memory state).
 let liveScheduler: ReindexScheduler | null = null;
 let watcherActive = false;
+// The watcher handle itself, kept for ONE reason: it is what keeps this process alive after the
+// client is gone. Before it existed the server died of an idle event loop; adding liveness turned
+// that implicit shutdown into a leak, so the shutdown has to be explicit now.
+let liveWatcher: FSWatcher | null = null;
 
 // F21: the engine's own catch-up, and the memory that keeps it from looping. A shortfall the
 // run state cannot explain is notes that landed after the scan — the ordinary multi-machine
@@ -387,6 +395,20 @@ async function main() {
   await server.connect(transport);
   console.error("[vault-rag] MCP server running on stdio");
 
+  // Wired BEFORE the first indexing run, not after: the sessions that died in the field died
+  // during startup, waiting on a lock held by the previous survivor. A shutdown that only arms
+  // once indexing is done would miss exactly the sessions that need it most.
+  installShutdown(
+    vaultShutdownPlan({
+      stopWatcher: () => {
+        void liveWatcher?.close();
+      },
+      closeIndex: closeDb,
+      trace: traceWatcher,
+    }),
+    realShutdownHooks((message) => console.error(`[vault-rag] ${message}`))
+  );
+
   reindex(false)
     .then((result) => {
       writeLastRunMarkdown();
@@ -504,7 +526,7 @@ function startFileWatcher(): void {
           requestPersist: () => persistScheduler.notify(),
         }),
     });
-    startVaultWatcher({
+    liveWatcher = startVaultWatcher({
       onChange: (path) => {
         traceWatcher(`📝 write detected: ${relative(VAULT_DIR, path)}`);
         scheduler.notify();

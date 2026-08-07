@@ -48,11 +48,14 @@ export async function sessionSelfHeal({
     // run by the owner, and the only useful thing to do here is name it.
     const unwired = missingWiring();
     if (unwired.length > 0) {
+      // The file names stay (they are what support asks for), but the explanation is in plain
+      // words: "gitignored" and "absolute paths" are our vocabulary, and this message lands at the
+      // exact moment the owner is already unsure whether they broke something.
       emit(
-        `⚠️ This machine isn't wired for your brain yet — missing ${unwired.join(" and ")} ` +
-          `(gitignored: they hold this machine's absolute paths, so a clone never has them). ` +
-          `From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation ` +
-          `rooted here (servers and hooks are loaded when a session starts).`,
+        `⚠️ This computer isn't set up for your brain yet (missing ${unwired.join(" and ")}) — ` +
+          `a copy never carries those settings, because they point to folders on this particular ` +
+          `machine. From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW ` +
+          `conversation here. Your notes are untouched.`,
       );
       return { healed: false, needsRehydrate: true, missingWiring: unwired };
     }
@@ -78,16 +81,29 @@ export async function sessionSelfHeal({
       gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join(", ")}` : null,
       gap.missingServers.length ? `MCP: ${gap.missingServers.join(", ")}` : null,
     ].filter(Boolean);
+    // Calm sentence, one shouted gesture (Thomas, 2026-08-07). The owner is not a developer and
+    // skims this banner; the single thing they must not skim past is the restart, so THAT is in
+    // capitals and nothing else is. A wall of shouting on a pending update — which is routine and
+    // harmless — is how people learn to ignore the banner that one day matters.
     emit(
-      `⚠️ ACTION NEEDED — finishing an engine update in the background (${parts.join("; ")}). ` +
-        `Until you RESTART Claude (close it and reopen) once this completes, your brain ` +
-        `CAN'T use these new capabilities. Restart, then come back here.`,
+      `⚠️ An update to your brain is finishing in the background (${parts.join("; ")}). ` +
+        `PLEASE CLOSE CLAUDE AND REOPEN IT once this is done — until then, your brain ` +
+        `can't use what the update added. Your notes are untouched.`,
     );
     spawnReconcile({ brainDir });
     return { healed: true, ...gap };
   } catch (e) {
     const error = e?.message ?? String(e);
-    emit(`⚠️ Brain self-heal skipped (non-blocking): ${error}`);
+    // Keeps its ⚠️ deliberately (Thomas, 2026-08-07). This catch wraps the WHOLE detection, so
+    // when it fires nothing is reconciled and a missing skill or MCP server stays missing in
+    // silence — the very failure family this engine exists to refuse. "Non-blocking" describes
+    // the session start, not the consequence. The raw error stays ours (it rides `result.error`);
+    // what the owner gets is what it means for them, and one gesture.
+    emit(
+      `⚠️ I couldn't check whether your brain is fully set up this time. Your notes are ` +
+        `untouched, and I'll check again next session — if something seems missing, close ` +
+        `Claude and reopen it.`,
+    );
     return { healed: false, error };
   }
 }

@@ -7,24 +7,45 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { spawnSync } from "node:child_process";
-import { needsShell } from "./spawn-shell.mjs";
+import { tsxInvocation } from "./tsx-invocation.mjs";
 
-// The real headless reader: run rag/src/health-check-cli.ts (read-only, no server, no
-// reindex, no watcher — ADR 0030 §4) from the brain folder and capture its JSON line.
-// Mirrors how health-probe-run.mjs spawns notify-cli (`npx tsx rag/src/<cli>.ts`); npx
-// is a shell-wrapped .cmd on Windows (ADR 0015).
-function defaultRunCli({ brainDir, platform = process.platform, depth = "light" }) {
-  const npx = platform === "win32" ? "npx.cmd" : "npx";
-  const res = spawnSync(npx, ["tsx", "rag/src/health-check-cli.ts", "--depth", depth], {
-    cwd: brainDir,
-    encoding: "utf8",
-    // npx.cmd needs a shell since Node ≥ 18.20 (CVE-2024-27980) or EINVAL; no-op POSIX (ADR 0031).
-    shell: needsShell(npx, platform),
-    // Light depth never loads ONNX, but keep parity with the loud gates: no startup toast.
-    env: { ...process.env, SBG_NO_NOTIFY: "1" },
-    windowsHide: true,
+/**
+ * What to spawn for the headless read — a pure value, so the request can be asserted
+ * without spawning (the runner below is the only unobservable part left).
+ *
+ * Runs rag/src/health-check-cli.ts (read-only, no server, no reindex, no watcher —
+ * ADR 0030 §4) from the brain folder. Through the tsx installed in rag/, not through
+ * npx: this probe's whole design rests on being cheap, and npx costs 1.55 s here and
+ * 9.8 s on the reporters' Windows machines (field report 2026-08-07, defect 3).
+ */
+export function healthCliInvocation({ brainDir, platform = process.platform, depth = "light", ...seams }) {
+  const { command, args, shell } = tsxInvocation({
+    brainDir,
+    platform,
+    script: "rag/src/health-check-cli.ts",
+    args: ["--depth", depth],
+    ...seams,
   });
-  return res.stdout ?? "";
+  return {
+    command,
+    args,
+    // The OPTIONS are part of the request, not of the runner. Two of them are load-bearing:
+    // `cwd` is what makes the relative script path resolve at all, and SBG_NO_NOTIFY is what
+    // stops a probe that runs at every session start from raising a toast every time. Left
+    // inside the runner they were unobservable — the mutation pass killed nothing there.
+    options: {
+      cwd: brainDir,
+      encoding: "utf8",
+      shell,
+      env: { ...process.env, SBG_NO_NOTIFY: "1" },
+      windowsHide: true,
+    },
+  };
+}
+
+function defaultRunCli({ brainDir, platform = process.platform, depth = "light" }) {
+  const { command, args, options } = healthCliInvocation({ brainDir, platform, depth });
+  return spawnSync(command, args, options).stdout ?? "";
 }
 
 // Modules that expose a HEADLESS reader (no MCP boot needed). Today only vault-rag —

@@ -19,6 +19,7 @@
       "local-mirror/package.json",
       "local-mirror/package-lock.json",
       "local-mirror/tsconfig.json",
+      "shared/**",
       "scripts/update-engine.mjs",
       "scripts/rehydrate.mjs",
       "scripts/clear-example-notes.mjs",

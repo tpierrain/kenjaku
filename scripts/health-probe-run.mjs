@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 
 import { runActivatedHealthChecks } from "./lib/health-check-runner.mjs";
 import { buildHeadlessHealthCheckCaller } from "./lib/headless-health-check.mjs";
-import { needsShell } from "./lib/spawn-shell.mjs";
+import { tsxInvocation } from "./lib/tsx-invocation.mjs";
 
 export async function runProbeChild({ runProbes, readPriorVerdict, writeVerdict, notify }) {
   const verdict = await runProbes();
@@ -36,9 +36,25 @@ export async function runProbeChild({ runProbes, readPriorVerdict, writeVerdict,
   return { verdict, newlyBroken };
 }
 
-// npx is a shell-wrapped `.cmd` on Windows (unlike a real .exe) → platform switch,
-// mirroring engine-seams.mjs's npm handling (ADR 0015).
-const npxExe = (platform) => (platform === "win32" ? "npx.cmd" : "npx");
+/**
+ * What to spawn to raise the OS notification — a pure value, asserted without spawning.
+ * Goes through the tsx installed in rag/ rather than npx (field report 2026-08-07,
+ * defect 3): this fires when a capability has just broken, i.e. exactly when the machine
+ * is least likely to have a spare 9.8 s for a registry round-trip.
+ */
+export function notifyInvocation({ brainDir, platform, title, body, ...seams }) {
+  const { command, args, shell } = tsxInvocation({
+    brainDir,
+    platform,
+    script: "rag/src/notify-cli.ts",
+    args: [title, body],
+    ...seams,
+  });
+  // `detached` (with the caller's unref) is what lets the warning outlive the probe child
+  // that raised it. Composed inside the runner it was unobservable; losing it would turn a
+  // notified break back into a silent one, which is this release's own bug family.
+  return { command, args, options: { cwd: brainDir, detached: true, stdio: "ignore", windowsHide: true, shell } };
+}
 
 // Map the runner's per-module verdict onto the persisted shape session-health.mjs +
 // formatHealthBanner read ({ capability, status, detail }). The structured `checks` are
@@ -97,13 +113,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
         existsSync(healthFile) ? JSON.parse(readFileSync(healthFile, "utf8")).verdict ?? null : null,
       writeVerdict: (verdict) => writeFileSync(healthFile, JSON.stringify({ verdict }, null, 2) + "\n"),
       notify: (probe) => {
-        const child = spawn(
-          npxExe(platform),
-          ["tsx", "rag/src/notify-cli.ts", "Second brain — health check", `${probe.capability} is broken: ${probe.detail}`],
-          // npx.cmd needs a shell since Node ≥ 18.20 (CVE-2024-27980) or EINVAL; no-op POSIX (ADR 0031).
-          { cwd: brainDir, detached: true, stdio: "ignore", windowsHide: true, shell: needsShell(npxExe(platform), platform) },
-        );
-        child.unref();
+        const { command, args, options } = notifyInvocation({
+          brainDir,
+          platform,
+          title: "Second brain — health check",
+          body: `${probe.capability} is broken: ${probe.detail}`,
+        });
+        spawn(command, args, options).unref();
       },
     });
   } catch {

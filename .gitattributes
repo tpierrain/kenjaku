@@ -1,0 +1,19 @@
+# Line endings for the GENERATED launchers (field report 2026-08-07, defect 2).
+#
+# This file is tracked, so the installer's `git ls-files` copy carries it into every brain
+# it creates — which is where it does its work: the brain commits its own launch.cmd /
+# launch.sh, and `rehydrate.mjs` does not regenerate them on a second machine. Without a
+# stated rule, a clone gets whatever the machine's core.autocrlf happens to be, and the
+# generator's careful bytes are rewritten behind its back.
+#
+# The two families need OPPOSITE things, which is exactly how one rule ends up wrongly
+# applied to both:
+#
+#   .cmd — cmd.exe re-seeks a batch file BY BYTE OFFSET as it runs. With LF-only endings
+#          the accounting drifts and it resumes MID-TOKEN: the field stderr showed `REM`
+#          executed as 'M', plus 'lf-heal' and 'epends', fragments of our own comments.
+#
+#   .sh  — sh treats a trailing CR as part of the token, so a CRLF launcher dies on an
+#          invisible byte with an unreadable "command not found".
+*.cmd text eol=crlf
+*.sh text eol=lf

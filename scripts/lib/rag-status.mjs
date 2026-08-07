@@ -58,5 +58,11 @@ export function ragStatusLine({ docs, scanned, lastRun }) {
     return `🧠 RAG: ${docs}/${scanned} files indexed, ${remaining} pending — auto catch-up in the background.`;
   }
 
-  return `🧠 RAG up to date — ${docs}/${scanned} files indexed.`;
+  // Everything above this line was read from the index FILE on disk. Nothing here has
+  // asked whether the server that serves those notes is reachable — so this line states
+  // the count it measured and stops there. "Up to date" used to close it, and in the
+  // field it greeted an owner whose server had never started: green, reassuring, and
+  // wrong about the only thing they cared about. A verdict on the brain needs a liveness
+  // check; until there is one, silence beats a promise we cannot keep.
+  return `🧠 RAG — ${docs}/${scanned} files indexed.`;
 }
