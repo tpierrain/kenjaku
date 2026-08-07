@@ -8,19 +8,21 @@ session ended, the part of your brain that searches your notes did not always st
 piled up until a later session could not start its search at all — and it did not say so, it simply
 answered without ever looking in your vault.
 
-Your notes were never at risk: nothing was written, changed or lost. What was lost was the *reading* of
-them, and the fact that nothing told you is the part we consider the real defect.
+Your notes themselves came through untouched. Not one file was modified, none disappeared, and your
+brain went on filing new ones normally — everything you had written was still there, exactly as you left
+it. What broke was its ability to *read* your vault back, and the fact that it never said so is the part
+we consider the real defect.
 
 ### What you get
 
-- 🧠 **Your brain lets go of your notes when you close it.** The search engine now stops with the session
-  that started it, instead of staying behind and holding your index open. That is what made the problem
-  grow on its own: each leftover made the next start slower, until one of them ran out of time and the
-  session came up with no access to your vault at all — silently, because an absence looks like nothing.
 - ⚡ **Sessions start about three times faster.** Your brain was fetching its own runner over the network
   at every start, instead of using the copy sitting in its own folder. Measured on the machines where
   this was reported: **9.8 s down to 2.8 s**. That margin is also what had been standing between a slow
   start and a start that never finished.
+- 🧠 **Your brain lets go of your notes when you close it.** The search engine now stops with the session
+  that started it, instead of staying behind and holding your index open. That is what made the problem
+  grow on its own: each leftover made the next start slower, until one of them ran out of time and the
+  session came up with no access to your vault at all — silently, because an absence looks like nothing.
 - 🪟 **Two Windows launchers that had never really been read by Windows.** The small start-up files your
   brain generates were written with the wrong kind of line break. Windows reads those files by counting
   bytes, so it lost its place mid-word and tried to run fragments of our own comments. They are written
