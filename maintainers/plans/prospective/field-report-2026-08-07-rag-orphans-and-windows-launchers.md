@@ -8,9 +8,10 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: Defect 3**. The wording review is CLOSED: items 2, 3, 4 and 5 are shipped, item 1 was
-> declined (the "RAG" wording stays) except for one string its box flags as never actually arbitrated
-> — ask, do not assume.
+> **Resume at: Defect 3**. The wording review is now **fully CLOSED**: items 2, 3, 4 and 5 are
+> shipped; item 1 keeps the "RAG" vocabulary (Thomas declined de-jargoning it) and its one remaining
+> open string — `up to date` — was arbitrated on 2026-08-07 in favour of *claim only what was
+> measured* (`🧠 RAG — 112/112 files indexed.`). Nothing left to ask there.
 >
 > **Defect 3** (`npx tsx` → the direct `tsx/dist/cli.mjs` call). **Defect 1 is closed**:
 > the shutdown, the committed lifecycle test that proves the process dies, and the last open question
@@ -288,17 +289,18 @@
 > throughout: keep a literal command **only** where the owner genuinely has to type it, and close a
 > worrying message with the reassurance the health banner already uses (*their notes are untouched*).
 
-- [x] **1. `rag-status.mjs` — KEPT AS IS. Thomas's call, 2026-08-07: "laisse le wording actuel qui
-      parle de RAG."** The RAG vocabulary stays; do not re-propose de-jargoning it.
-      **⚠️ Still open, and NOT what he declined**: the *honesty* half of this item, i.e. `up to date`
-      reading as a verdict on the whole brain when the line only ever read the index file. His answer
-      was about the word "RAG", so the "up to date" phrasing was never actually arbitrated. Ask him,
-      do not assume either way. Proposal below, unchanged, for that one string:
+- [x] **1. `rag-status.mjs` — the RAG vocabulary is KEPT. Thomas's call, 2026-08-07: "laisse le
+      wording actuel qui parle de RAG."** Do not re-propose de-jargoning it.
+      **The honesty half is now ARBITRATED too** _(2026-08-07, Thomas: "ne revendiquer que le
+      mesuré")_ — it was a separate question from the word "RAG", and it is settled: the healthy line
+      **drops the verdict and keeps the count**. Only that one string changes; every other string in
+      this item stays as proposed below.
       - healthy · before: `🧠 RAG up to date — 112/112 files indexed.`
-        · after: `🧠 Your notes: 112 of 112 ready to search.`
-        **Why it matters most**: "up to date" reads as a verdict on the whole brain, which this line
-        cannot know (it reads the index file, never the server). The "after" claims only what it
-        measured. *Mitigation, not cure — the cure is the liveness check, see the live-health section.*
+        · after: `🧠 RAG — 112/112 files indexed.`
+        **Why**: "up to date" reads as a verdict on the whole brain, which this line cannot know (it
+        reads the index file, never the server). The "after" claims only what it measured — the count
+        it actually read. *Mitigation, not cure — the cure is the liveness check, see the live-health
+        section.*
       - unreadable · before: `🧠 RAG: status unavailable (server starting up, or engine not installed).`
         · after: `🧠 I couldn't read your notes' index just now — it may still be starting up. Ask me to check your brain if this keeps happening.`
       - empty · before: `🧠 RAG: empty vault — add Markdown notes in vault/ then run 'cd rag && npm run reindex'.`
