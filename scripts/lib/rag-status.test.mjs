@@ -88,7 +88,19 @@ test("ragStatusLine — a repaired vault silences a stale error instead of re-al
     lastRun: { status: "done", errors: ["Read error: inqom/briefings/2026-08-02.md: boom"] },
   });
 
-  assert.equal(line, "🧠 RAG up to date — 436/436 files indexed.");
+  assert.equal(line, "🧠 RAG — 436/436 files indexed.");
+});
+
+// The line reads `rag/.cache/vault.db` and NOTHING else — never whether the server that
+// serves those notes is reachable. So it may not pronounce on the brain: in this
+// release's own field scenario (server never started, no `mcp__vault-rag__*` tool in the
+// session) the owner was greeted with "up to date" while the brain could not read a
+// single note. Claim the count, which was measured; never a verdict, which was not.
+test("ragStatusLine — a healthy count is stated, never turned into a verdict on the brain", () => {
+  const line = ragStatusLine({ docs: 436, scanned: 436, lastRun: { status: "done", errors: [] } });
+
+  assert.match(line, /436\/436 files indexed/);
+  assert.doesNotMatch(line, /up to date|healthy|all good|operational|ready to (search|answer)/i);
 });
 
 // The two degenerate states the banner already handled inline, kept verbatim by the
