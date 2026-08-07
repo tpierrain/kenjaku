@@ -1,6 +1,22 @@
 # Action plan — the RAG server that never leaves, and two Windows launchers that were never tested as text
 
-> 🔴 **THIS IS THE LIVE PLAN. START HERE.**
+> ✅ **SHIPPED as v4.8.1 (2026-08-07)** — *The One Where Closing It Actually Closes It*, PR #59 merged,
+> tag on `main`. All three defects fixed, CI 7/7 including three Windows cells, §10 marketing re-read
+> done, mutation pass recorded below. **This plan is history now**: read it for the decisions and the
+> measurements it preserves, not as a work order.
+>
+> **The one thing still open, and it needs someone else's machine**: Daniel MARTIN and his colleague
+> re-running their own reproducer on the tag (see the verification section). Everything else is done.
+>
+> **What this plan deliberately handed to a later release**, so it is not lost: the **live health
+> banner** (Defect 3 made it affordable at ~0.3 s — a v4.9.0 subject), and the **mutation debt** of
+> `health-probe-run.mjs` / `headless-health-check.mjs` (a top-level script with no test sibling →
+> `v4.9.0-mutation-debt-plan.md`).
+
+<details>
+<summary>The live-plan header as it stood while the work was running (kept for the record)</summary>
+
+> 🔴 **THIS WAS THE LIVE PLAN.**
 >
 > **Owner's decision (2026-08-07, Thomas): ship it as a `v4.8.1` hotfix, AHEAD of both v4.9.0 subjects**
 > (`v4.9.0-mutation-debt-plan.md` and `field-finding-2026-08-05-silent-skill-freeze.md`, both of which
@@ -57,6 +73,9 @@
 > §5quinquies (mutate what you write, the day you write it); a release note in the non-devs-first voice
 > (§11) that says plainly what the symptom was — *your brain could not reach its own notes, and said
 > nothing*.
+
+</details>
+
 
 > **Source.** A runtime report from two Windows colleagues of Thomas's, on **v4.6.0** (`rag` 1.3.0,
 > index schema 2, Windows 11, Node 22.23.0, a 112-note vault). Original kept as evidence beside this
