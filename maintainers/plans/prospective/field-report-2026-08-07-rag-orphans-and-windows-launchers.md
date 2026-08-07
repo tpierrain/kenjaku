@@ -8,11 +8,11 @@
 > **self-aggravating on every deployed brain**, and the two reporters are running locally patched
 > launchers that the next `/update-engine` will overwrite.
 >
-> **Resume at: item 5 of the wording review** (one string + one yes/no from Thomas — see the ⏭️ box
-> in "Proposed before / after"), **then Defect 3**. Items 2, 3 and 4 are done and pushed; item 1 was
-> declined (keep the "RAG" wording) except for one un-arbitrated string named in its box.
+> **Resume at: Defect 3**. The wording review is CLOSED: items 2, 3, 4 and 5 are shipped, item 1 was
+> declined (the "RAG" wording stays) except for one string its box flags as never actually arbitrated
+> — ask, do not assume.
 >
-> **Then: Defect 3** (`npx tsx` → the direct `tsx/dist/cli.mjs` call). **Defect 1 is closed**:
+> **Defect 3** (`npx tsx` → the direct `tsx/dist/cli.mjs` call). **Defect 1 is closed**:
 > the shutdown, the committed lifecycle test that proves the process dies, and the last open question
 > — "fail fast on a locked index" — which was **dropped on evidence, not on scope**: measured, it
 > would fire on nothing and would break parallel Desktop + CLI sessions, which work today. Read that
@@ -324,7 +324,7 @@
       before: `⚠️ This machine isn't wired for your brain yet — missing <files> (gitignored: they hold this machine's absolute paths, so a clone never has them). From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation rooted here (servers and hooks are loaded when a session starts).`
       after: `⚠️ This computer isn't set up for your brain yet — a copy never carries the settings, because they point to folders on this particular machine. From this folder, run:  node scripts/rehydrate.mjs  — then open a NEW conversation here. Your notes are untouched.`
       The command stays (they really must run it). "gitignored" and "absolute paths" go.
-- [ ] **⏭️ NEXT — 5. `session-self-heal.mjs` — the failure I wrongly called harmless.**
+- [x] **5. `session-self-heal.mjs` — the failure I wrongly called harmless. DONE** _(2026-08-07)_
       **Thomas challenged the premise and was right.** The `catch` wraps the WHOLE detection
       (`missingWiring` → `readWanted` → `detectSelfHealGap` → `spawnReconcile`), so when it fires
       **nothing is reconciled** — `session-self-heal.test.mjs` ("fail-open") asserts exactly that:
@@ -333,8 +333,9 @@
       bug family. So "show nothing" was the wrong answer and is withdrawn.
       **New proposal, to arbitrate**: say what it means for them and what to do —
       `ℹ️ I couldn't check whether your brain is fully set up this time. Your notes are untouched, and I'll check again next session — if something seems missing, close Claude and reopen it.`
-      Open sub-question: whether it stays a ⚠️ (it can hide a real gap) or an ℹ️ (it retries by
-      itself next session). The old text is untouched until Thomas says.
+      **Thomas's call: it keeps the ⚠️** — it can hide a real gap, and that outweighs the fact that it
+      retries by itself next session. Shipped with that wording; the raw error no longer reaches the
+      owner (it survives on `result.error`, and a test forbids it in the emitted line).
       before: `⚠️ Brain self-heal skipped (non-blocking): <raw error text>`
       after: **show nothing.** We call it non-blocking ourselves; a warning triangle plus a raw error
       string, for something that changes nothing for the owner, teaches them to fear the banner. Keep

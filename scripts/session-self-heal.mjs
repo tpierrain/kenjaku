@@ -94,7 +94,16 @@ export async function sessionSelfHeal({
     return { healed: true, ...gap };
   } catch (e) {
     const error = e?.message ?? String(e);
-    emit(`⚠️ Brain self-heal skipped (non-blocking): ${error}`);
+    // Keeps its ⚠️ deliberately (Thomas, 2026-08-07). This catch wraps the WHOLE detection, so
+    // when it fires nothing is reconciled and a missing skill or MCP server stays missing in
+    // silence — the very failure family this engine exists to refuse. "Non-blocking" describes
+    // the session start, not the consequence. The raw error stays ours (it rides `result.error`);
+    // what the owner gets is what it means for them, and one gesture.
+    emit(
+      `⚠️ I couldn't check whether your brain is fully set up this time. Your notes are ` +
+        `untouched, and I'll check again next session — if something seems missing, close ` +
+        `Claude and reopen it.`,
+    );
     return { healed: false, error };
   }
 }

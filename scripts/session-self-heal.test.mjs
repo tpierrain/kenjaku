@@ -125,7 +125,14 @@ test("sessionSelfHeal — fail-open: a throwing seam never propagates, logs loud
   assert.match(result.error, /manifest unreadable/);
   assert.equal(calls.spawned.length, 0);
   assert.equal(calls.emitted.length, 1);
-  assert.match(calls.emitted[0], /self-heal/i);
+  // NOT "harmless": this catch wraps the WHOLE detection, so when it fires nothing is
+  // reconciled (the empty `spawned` above) and a missing skill or MCP server stays missing,
+  // silently. "Non-blocking" means it does not block session start, not that it does not
+  // matter — so the line keeps its ⚠️ and says what it means for the owner. The raw error
+  // is OURS (it survives on `result.error`); what reaches them is a gesture.
+  assert.match(calls.emitted[0], /couldn't check/i);
+  assert.match(calls.emitted[0], /close claude and reopen/i);
+  assert.doesNotMatch(calls.emitted[0], /manifest unreadable/, "the raw error is not the owner's problem");
 });
 
 // ⛔ CRITICAL (Thomas's Desktop QA, 2026-06-21): Claude Desktop's Code tab renders NEITHER a
