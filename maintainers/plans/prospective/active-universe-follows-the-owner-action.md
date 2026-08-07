@@ -1,5 +1,5 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN — opened 2026-08-07. Not started.                          -->
+<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 done (decision recorded), S2 next.  -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the active universe follows the owner, not the machine
