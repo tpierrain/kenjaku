@@ -247,9 +247,16 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
         no production behaviour changed, so no number moves and re-measuring would buy nothing.
         `session-status.mjs` is expected at **0 %** (the named top-level-script debt, inherited, whose
         remedy is Debt 1 of the unfreeze release) — record it as inherited, never as new.
-    - [ ] Set up the disposable worktree the convention requires (`inPlace` on the real tree would let a
-          mutant of vault-mutating code act for real), with `rag/node_modules` symlinked in, and check
-          `vault-write-guard.test.mjs` reports **0 skipped** there before trusting a single number.
+    - [x] **Worktree ready** _(2026-08-08)_: `../kenjaku-mut-v490`, detached at the branch head, with
+          `rag/node_modules` symlinked in. `vault-write-guard.test.mjs` reports **0 skipped** there, so
+          the mutants face a suite that can actually judge them. The two stale worktrees the plan owed
+          (`kenjaku-mut-v450`, `kenjaku-mut-v460`) were removed first — inspected before forcing, and
+          they held nothing but leftovers (a modified `package-lock.json`, a `node_modules` symlink).
+    - [ ] **Batches.** Batch 1 = the two NEW libs (`lib/startup-sync-gate.mjs`, `lib/unignore-pointer.mjs`)
+          — in flight at the hand-back of 2026-08-08. Then batch 2 = `lib/reconcile-brain.mjs`, batch 3 =
+          the three top-level scripts. Reset the worktree between batches with `git reset --hard` +
+          `git clean -qfd -e rag/node_modules`, **never** `git checkout -- .` (Stryker instrumentation
+          can otherwise be restored faithfully and poison every later run).
     - [ ] Record the run in `maintainers/mutation/RESULTS.md` as a `v4.9.0` section + the *Current
           scores* line, survivors either killed or **named** as equivalents (§5ter: the constraint, not
           the anecdote).
@@ -322,8 +329,9 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
       (v4.8.1's hand-off) changes what **every** session start prints and deserves its own note; the
       **silent skill freeze** is a provenance change, and it now folds into the unfreeze release as a
       symptom rather than being fixed alone.
-- [ ] Housekeeping that can ride with anything: two stale mutation worktrees are still on disk
-      (`kenjaku-mut-v450`, `kenjaku-mut-v460`) — `git worktree remove` them.
+- [x] Housekeeping, done at the cut _(2026-08-08)_: the two stale mutation worktrees
+      (`kenjaku-mut-v450`, `kenjaku-mut-v460`) are gone, replaced by the one this release's tail pass
+      runs in (`kenjaku-mut-v490`).
 
 ## Deliberately deferred (recorded so it is not re-litigated)
 
