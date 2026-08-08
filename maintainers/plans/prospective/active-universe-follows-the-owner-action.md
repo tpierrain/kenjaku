@@ -1,5 +1,5 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 + S2 done, S3 next (the real engineering). -->
+<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 + S2 done; S3 in flight (ordering defect fixed, fleet migration next). -->
 <!-- Release shape ARBITRATED 2026-08-08: universes only → cut → then the unfreeze release. -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
@@ -9,14 +9,16 @@
 > pushed, clean. The owner has arbitrated the release: **universes only**, then cut, then the unfreeze
 > release (`update-regime-owns-what-it-shipped-action.md`). No code has been written for S3.
 >
-> **Next real step: S3**, and its **first item is the 🔴 ordering defect** found on 2026-08-08 — it is
-> the only item in this plan that is a *defect this branch creates*, so it leads. **Read its 🧭
-> CORRECTION bullet first**: hooks run in **parallel**, so the defect is a race and "reorder the hooks"
-> is a non-fix; the shape retained is a **single-flight startup sync**. Then the fleet
-> migration (strip the ignore line from a deployed brain's own `.gitignore`, stage an untracked pointer
-> so the first pull cannot hit git's untracked-overwrite refusal) and the conflict rule taught to
-> `/sync`. This is where the actual engineering is; S1–S2 were the record and a two-line change behind
-> a guard.
+> **In S3, the 🔴 ordering defect is DONE** (2026-08-08 · `97149a5`): hooks run in **parallel**, so it
+> was a race and "reorder the hooks" would have been a non-fix; shipped as a session-keyed barrier
+> (`scripts/lib/startup-sync-gate.mjs`) the universe hook blocks on before reading. Full harness suite
+> green (1642).
+>
+> **Next real step: the FLEET MIGRATION** — strip the ignore line from a deployed brain's own
+> `.gitignore`, and stage an untracked pointer so the first pull cannot hit git's untracked-overwrite
+> refusal. Then the conflict rule taught to `/sync`, then its mid-session announcement line, then S4
+> (docs). One S3 item stays deliberately open and is NOT a blocker: the general smell (do wiki-health
+> and self-heal read pre-pull state too).
 >
 > **Standing constraints**: TDD baby-steps with a failing test first, green-only commits pushed as they
 > go (CONVENTIONS §5), artifacts in English (§4), CRLF care on any line-wise file edit (§9).
@@ -50,10 +52,12 @@
   silently. That is precisely why `scripts/session-universe.mjs` self-heals the pointer at session
   start (its header comment says so). Ship this plan and that divergence can no longer be produced:
   `rename-universe.mjs` rewrites pointer **and** registry, and both travel together.
-- **The announcement channel already exists.** Past the progressive-disclosure gate,
-  `session-universe.mjs` names the active universe at every session start. So a pointer arriving by
-  `git pull` is **not** a silent scope change: the next session says which universe it is in, in one
-  line.
+- **The announcement channel already exists, and it now waits for the pull.** Past the
+  progressive-disclosure gate, `session-universe.mjs` names the active universe at every session
+  start. On its own that only covered the session **after** the pull — the arriving machine's first
+  session announced the universe it went to sleep in (hooks run in parallel; see S3's ordering
+  defect). Since `startup-sync-gate.mjs`, that hook waits for the startup pull before reading, so a
+  pointer arriving by `git pull` is **not** a silent scope change even in the session that pulls it.
 - **Auto-commit stages everything** (`scripts/auto-commit.mjs:56`, `git add .`), so an un-ignored
   pointer is committed by the ordinary vault persistence — no new writer to build.
 - **`.gitignore` is carried by NO engine regime** (`engine-manifest.json`: `replace` / `regenerate` /
@@ -112,8 +116,9 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
   - [x] Full suites green: harness 1624, engine 515, local-mirror 255.
 
 - [ ] **S3 — A brain that pulls a switch made elsewhere lands on it cleanly (fleet + conflicts).**
-  - [ ] **🔴 ORDERING DEFECT — found by the owner's question (2026-08-08), and this branch is what makes
-        it reachable. Must be fixed inside S3, not filed elsewhere.** Measured: the SessionStart hooks
+  - [x] **🔴 ORDERING DEFECT — found by the owner's question (2026-08-08), and this branch is what makes
+        it reachable. Must be fixed inside S3, not filed elsewhere.** _(fixed 2026-08-08 · `97149a5`)_
+        Measured: the SessionStart hooks
         run **universe 5th (`session-universe.mjs`) and status 7th (`session-status.mjs`)**, and the
         **pull lives in status** (`sweepThenPull`). Meanwhile the server reads the pointer **per query**,
         not at boot (`rag/src/index.ts:136`). So on the second machine's first session after a switch
@@ -124,13 +129,14 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
         3. every `search_vault` for the rest of that session silently scopes to the **new** universe.
         The session therefore runs with **the context of one sphere and the retrieval of another**, and
         the single line meant to make the change non-silent **announces the wrong one**.
-    - [ ] **It invalidates a claim written above in this plan** (*"a pointer arriving by `git pull` is
+    - [x] **It invalidates a claim written above in this plan** (*"a pointer arriving by `git pull` is
           not a silent scope change: the next session says which universe it is in"*): true only for the
           session **after** the pull. The session **in which** the pull happens is precisely the arriving
-          machine's first one, i.e. the entire use case. Correct that paragraph when fixing this.
-    - [ ] **Not a production bug today** — the pointer is gitignored, so it never travels and the
+          machine's first one, i.e. the entire use case. _(paragraph corrected in *What is true today*;
+          the claim now holds because the hook waits for the pull)_
+    - [x] **Not a production bug today** — the pointer is gitignored, so it never travels and the
           ordering is harmless. **S2 makes it reachable**, which is why it is this branch's to fix.
-    - [ ] **🧭 CORRECTION, verified 2026-08-08 before writing a line of code: SessionStart hooks do NOT
+    - [x] **🧭 CORRECTION, verified 2026-08-08 before writing a line of code: SessionStart hooks do NOT
           run in declared order — they run in PARALLEL.** The Claude Code hooks reference says it
           plainly: *"All matching hooks run in parallel."* So the "5th vs 7th" measured above is the
           **declaration** order in `.claude/settings.json.template`, not an execution order, and
@@ -139,18 +145,28 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           network round-trip, so the stale read wins nearly every time — but nothing guarantees it (the
           announcement is non-deterministic), and two hooks touching the same repo can additionally
           collide on git's `index.lock`.
-    - [ ] Fix — the reading hook must **wait for the pull**, which under parallel execution means a
-          **single-flight startup sync**: the first hook that needs post-pull state performs the
-          sweep+pull behind a lockfile and **memoises** the outcome; any other hook that needs it waits
-          on that lock and reads the memoised result instead of pulling a second time. `sweepThenPull`
-          moves behind that gate, and `session-status.mjs` **reports** the outcome instead of owning it.
-          Fail-open: if the wait times out, behave exactly as today (pre-pull state) — a session start is
-          never blocked. Precedent already in this repo: the local-mirror single-flight `*.sync.lock`.
-    - [ ] **Plus** a correction line if the pull changed the pointer — the session-start twin of the
-          `/sync` line already required below.
-    - [ ] **The general smell, recorded once**: the pull races **every** other hook, so **any** hook can
-          read pre-pull state. The universe pointer is the case that now bites; check whether wiki-health
-          and self-heal have the same staleness before assuming they do not.
+    - [x] Fix — the reading hook **waits for the pull**. Shipped as a **session-keyed barrier**
+          (`scripts/lib/startup-sync-gate.mjs`), simpler than the single-flight lock first sketched: the
+          pull keeps ONE owner (`session-status.mjs`, which is also the hook that reports it), and it
+          brackets `sweepThenPull` with a `running` / `done` marker under `.cache/`, keyed on the session
+          id the harness hands every hook on stdin. `session-universe.mjs` blocks on that flip before
+          reading a byte of universe state. No lock, no second puller, no contention on git's
+          `index.lock` — the two roles never both pull. Fail-open on every branch (no puller wired, no
+          session id, a puller that dies before speaking → 3 s grace, a pull that never lands → 12 s
+          ceiling): read what is on disk, exactly as before. Proven end-to-end by a **real child
+          process** whose pointer changes under it mid-run (`scripts/session-universe.test.mjs`,
+          verified red without the barrier).
+    - [x] **Plus a correction line if the pull changed the pointer** — MOOT at session start, and
+          deliberately not built: the barrier means the announcement is already the post-pull truth, so
+          a "correction" would correct a line nobody was ever shown. The **mid-session** `/sync` case is
+          untouched and still owed (its own bullet below).
+    - [ ] **The general smell, still open**: the pull races **every** other hook, so **any** hook can
+          read pre-pull state. The universe pointer is the case that bit; the barrier is now a reusable
+          `waitForStartupSync` any hook can call. Still to check before assuming they are fine:
+          **wiki-health** (reads the vault the pull can change) and **self-heal** — the latter with a
+          second question, since it and `session-status`'s bootstrap tick BOTH detect a wiring gap and
+          BOTH spawn `reconcile-brain`, which parallel execution means can now happen at once.
+          Found while correcting a test that claimed `settings.json` could order hook execution.
   - [ ] **One-shot, idempotent migration for deployed brains**, run by the engine update: if the
         brain's `.gitignore` still carries the pointer line, remove **that line only** (never rewrite
         the file — owners add their own entries), and announce it in one line.
