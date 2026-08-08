@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
+import { copyFileSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
+  defaultBrainRoot,
   normalizeUniverseName,
   addToRegistry,
   listAllUniverses,
@@ -171,13 +176,15 @@ test("healActiveUniversePointer creates no pointer file on a brain that never ha
 });
 
 test("cross-machine: a universe renamed elsewhere heals here instead of searching a ghost", () => {
-  // Machine B, working in 'acme'. The registry is COMMITTED, the pointer is
-  // per-machine and GITIGNORED — that asymmetry is the whole bug.
+  // Machine B, working in 'acme'. Pointer and registry now travel together, so
+  // this state is no longer reachable by an ordinary rename — it is the fail-open
+  // net for a brain that arrives with the two out of step anyway (an old brain, a
+  // hand-edited file, a conflict resolved the wrong way).
   const io = fakeFs();
   writeRegistry(io, DIR, ["acme"]);
   writeActiveUniverse(io, DIR, "acme");
 
-  // git pull: the rename made on machine A lands in the registry alone.
+  // The registry moves on without the pointer, by whatever route.
   writeRegistry(io, DIR, ["acme-corp"]);
 
   // The read side already refuses to hand the ghost to anyone (filing a note,
@@ -420,10 +427,10 @@ test("runSwitchCli list marks the active universe among all", () => {
 });
 
 // ── resolveActiveUniverse: the pointer can outlive the universe it names ──────
-// The pointer is per-machine and gitignored; the registry is committed. So a
-// rename/delete on machine A leaves machine B pointing at a universe that no
-// longer exists — and an unvalidated pointer silently filters every search down
-// to zero hits. An orphan pointer resolves to the default scope instead.
+// Pointer and registry are committed together, so an ordinary rename/delete can
+// no longer split them. But a pointer that names a universe which no longer
+// exists silently filters every search down to zero hits, so the read side stays
+// defensive: an orphan pointer resolves to the default scope instead.
 
 test("resolveActiveUniverse falls back to the default when the pointer names an unknown universe", () => {
   assert.equal(resolveActiveUniverse("acme", ["blue"]), DEFAULT_UNIVERSE);
@@ -682,4 +689,32 @@ test("planUniverseRename refuses an empty SOURCE (the gate it now shares with de
     reason: "empty",
     name: "",
   });
+});
+
+// ── The pointer travels with the owner: it must NOT be gitignored (ADR 0034) ──
+// A universe is the OWNER's context, not the machine's. The connector half of a
+// context (Slack, Notion, Gmail, Drive) is authenticated at the account level and
+// already follows the owner everywhere, so a machine-local retrieval scope makes
+// the brain contradict itself across machines — silently, by returning the wrong
+// scope with no error. The pointer is therefore committed alongside its registry,
+// and this test is what stops someone from restoring the ignore line "to be
+// consistent with the caches". The question is put to git itself, in a throwaway
+// repo carrying ONLY the shipped file, so no dev machine's global excludes and no
+// already-tracked state can answer in its place.
+test("the shipped .gitignore does NOT ignore the active-universe pointer", () => {
+  const repo = mkdtempSync(join(tmpdir(), "sbg-gitignore-pointer-"));
+  execFileSync("git", ["init", "-q"], { cwd: repo });
+  copyFileSync(join(defaultBrainRoot(), ".gitignore"), join(repo, ".gitignore"));
+  const isIgnored = (path) => spawnSync("git", ["check-ignore", "-q", path], { cwd: repo }).status === 0;
+
+  assert.equal(
+    isIgnored(".vault-rag/active-universe"),
+    false,
+    "the active universe is owner state: it must travel between the owner's machines, like its registry",
+  );
+  assert.equal(isIgnored(".vault-rag/universes.json"), false, "and so does the registry it points into");
+  // Control: a genuinely machine-bound path IS ignored — without it, a broken git
+  // invocation would answer "not ignored" to everything and this test would pass
+  // while guarding nothing.
+  assert.equal(isIgnored("rag/.cache/anything"), true, "while the per-machine caches stay out of git");
 });

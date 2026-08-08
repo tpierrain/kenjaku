@@ -4,12 +4,13 @@ import { VAULT_RAG_DIR } from "./config.js";
 import { DEFAULT_UNIVERSE } from "./universe.js";
 
 /**
- * The active universe (ADR 0034) is a per-machine session pointer: a plain-text
+ * The active universe (ADR 0034) is the owner's context pointer: a plain-text
  * file holding a single universe name. It lives in <brain>/.vault-rag/ (the same
  * dir the brain-side `/switch` writer uses) so the engine and the writer agree on
- * the path by construction. The file itself is gitignored (per-machine session
- * state: "which context am I in on THIS machine"), while the sibling registry is
- * committed. A missing file means the single-universe default → today's behaviour.
+ * the path by construction. The file is committed, like its sibling registry: a
+ * universe is the owner's context, not the machine's, so it travels between the
+ * owner's machines and converges at the next pull. A missing file means the
+ * single-universe default → today's behaviour.
  */
 export const ACTIVE_UNIVERSE_PATH = resolve(VAULT_RAG_DIR, "active-universe");
 

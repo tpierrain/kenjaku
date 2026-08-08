@@ -247,7 +247,10 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   brain answers from *that* universe's notes (plus the handful you keep cross-cutting). It stays
   **invisible until you create a second one**. A plain *"switch to my Acme universe"* changes the scope,
   and *"rename it to Acme Corp"* renames it everywhere — folder, notes, Obsidian and all — after telling
-  you what that will cost and waiting for your go.
+  you what that will cost and waiting for your go. **Since v4.9.0 the universe you are working in
+  follows you**: switch on one computer and your other ones land in it too, the next time they sync —
+  your connectors were already tied to your accounts rather than to a laptop, so your notes now agree
+  with them instead of contradicting them.
   *([skill `switch`](.claude/skills/switch/SKILL.md) · [SETUP §5.2](SETUP.md#52-renaming-a-universe))*
 - **🪪 It learns *your* context, once, in two minutes.** Your brain knows your notes — it doesn't know
   that you run engineering at Acme, that Zoe is the CTO, or that *"Slack"* here means the Acme

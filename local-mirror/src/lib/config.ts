@@ -70,7 +70,7 @@ export const CONFIG_PATH = resolvePath(
 );
 
 /**
- * Per-machine active-universe pointer (ADR 0034), written by the `/switch` skill under the
+ * The owner's active-universe pointer (ADR 0034), written by the `/switch` skill under the
  * brain's `.vault-rag/` state dir. `setup_source` reads it to freeze a new mirror's universe.
  * Absent (the single-universe case) → the reader falls back to the default universe.
  */

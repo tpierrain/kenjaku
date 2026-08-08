@@ -31,6 +31,7 @@ import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
 import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
+import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
 import { reseedProvenance } from "./engine-source.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
@@ -226,6 +227,26 @@ export async function reconcileBrain({
     statusLineWasRemoved = statusLineRemoved;
   }
 
+  // 2.quinquies FLEET MIGRATION — stop ignoring the active-universe pointer (ADR 0034).
+  //    A universe is the owner's context, not the machine's, so the pointer travels with
+  //    the registry it points into. `.gitignore` is carried by NO engine regime, so the
+  //    launcher's own change reaches no deployed brain: this is the only route to the
+  //    fleet, and it runs on both paths (update AND SessionStart self-heal). Surgical and
+  //    idempotent — see unignore-pointer.mjs. Nothing is created: a brain with no
+  //    `.gitignore` has nothing to migrate. No `git add` is needed either, and none is
+  //    written: the pointer simply becomes untracked, which makes the tree dirty, and BOTH
+  //    persistence paths commit it before anything can pull — the update's own
+  //    `commitEngineUpdate` (`add -A`) and the session-start sweep, which commits before
+  //    `git pull --rebase` by construction. That is what keeps a first pull from hitting
+  //    git's "untracked working tree file would be overwritten" dead end.
+  let pointerUnignored = false;
+  const gitignorePath = join(brainDir, ".gitignore");
+  if (existsSync(gitignorePath)) {
+    const { text, changed } = unignoreActiveUniverse(readFileSync(gitignorePath, "utf8"));
+    if (changed) writeFileSync(gitignorePath, text);
+    pointerUnignored = changed;
+  }
+
   // 2.quater Ensure the engine-owned health-check note is present AND indexed (ADR 0026
   //    amended): the ONE narrow, nominative carve-out to the vault-sacred invariant. The
   //    note's runtime home `vault/engine-health/health-check.md` is SACRED, so its source
@@ -282,6 +303,7 @@ export async function reconcileBrain({
     hooksAdded,
     hooksRepaired,
     statusLineRemoved: statusLineWasRemoved,
+    pointerUnignored,
   };
 }
 

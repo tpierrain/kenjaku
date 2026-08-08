@@ -9,7 +9,7 @@ import {
 
 // The committed universe registry (ADR 0034) lives at `<brainRoot>/.vault-rag/universes.json`
 // and holds the CREATED universes only — the implicit default is never stored, its absence IS
-// what "default" means. local-mirror reads it for two reasons: to resolve the per-machine active
+// what "default" means. local-mirror reads it for two reasons: to resolve the owner's active
 // pointer against reality (a ghost pointer must never freeze a ghost universe into a mirror), and
 // to let the owner pick the universe a new mirror belongs to.
 
@@ -39,8 +39,8 @@ test('parseUniverseRegistry: keeps only usable names, trimmed (a blank entry is 
 });
 
 // ── The active pointer, resolved AGAINST the registry ────────────────────────
-// The pointer is per-machine and gitignored; the registry is committed. So a universe renamed
-// or deleted on another machine leaves this one pointing at a ghost. Trusting that pointer here
+// Pointer and registry are committed together, so an ordinary rename/delete can no longer split
+// them — but a brain can still arrive pointing at a ghost. Trusting that pointer here
 // would FREEZE a ghost universe into a brand-new mirror: its notes would land under
 // `vault/<ghost>/mirrors/…` and be filtered out of every search, silently. Same rule as the
 // brain-side `resolveActiveUniverse` (scripts/lib/universes.mjs), in the package that writes

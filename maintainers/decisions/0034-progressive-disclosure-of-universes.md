@@ -54,6 +54,17 @@ plan's own strategy is "migrate early, explore later"). A soft default scope pre
    acceptable. A genuine data-at-rest requirement is answered by disk/repo encryption, which is
    orthogonal to universes.
 
+   **The active universe is the owner's state, not the machine's, so it travels.** The pointer
+   `.vault-rag/active-universe` is **committed**, beside the registry it is resolved against. A context
+   is not only a set of notes: the connectors a brain queries (Slack, Notion, mail, calendar) are
+   authenticated at the **account** level, and therefore already follow the owner from machine to
+   machine. A machine-local retrieval scope would set the two halves of one context against each other,
+   and it would fail **quietly** — the wrong scope answers, nothing errors. One owner stands in one
+   context at a time, so the last switch is the truth everywhere. Convergence is **eventual**: it
+   arrives with the next pull, and the machine that pulls **names its active universe at session
+   start**, so an incoming switch is announced rather than silent. When two machines switch before
+   they sync, the machine the owner is sitting at keeps its value, and the next switch propagates it.
+
 2. **Progressive disclosure governs the UX.** The mechanism is always on in the data layer, but the
    concept is **invisible and non-constraining until a second universe exists**. The visibility gate is
    deterministic: **universe count >= 2**. Below it, no `/switch` prompt, no SessionStart mention,
@@ -108,6 +119,17 @@ plan's own strategy is "migrate early, explore later"). A soft default scope pre
   it no longer writes), so an index that reaches the new engine by any other route still self-heals. This is a Gate-4 (fleet) concern, not a blocker here.
 - **Type detection must ignore a leading universe segment** (folder-to-type keyed on `daily/` etc. now
   sees `inqom/daily/...`).
+- **A switch is a commit, and rename/delete cannot desynchronize.** The pointer is written by the
+  deterministic `/switch` core and picked up by the ordinary vault persistence, so changing context
+  leaves one line in the history — a free record of *when* the owner moved. Because pointer and
+  registry travel together, a rename or a delete performed on one machine can no longer leave another
+  aimed at a universe that no longer exists; the session-start repair of an orphan pointer survives as
+  a fail-open net for a pointer that arrives stale by some other route.
+- **The shipped `.gitignore` is part of the decision, and reaches deployed brains only on purpose.**
+  No engine regime carries that file (it is the owner's to extend), so a brain created before this
+  decision keeps ignoring its pointer until a one-shot, idempotent migration removes exactly that
+  entry — and commits an already-present untracked pointer, so the first pull meets an ordinary
+  one-line conflict instead of git's refusal to overwrite an untracked file.
 - **Multi-window concurrency is deferred.** A single global active-universe state file means two Desktop
   windows share one active universe. For a single user this is acceptable; per-session state is YAGNI
   until proven.
@@ -123,6 +145,15 @@ plan's own strategy is "migrate early, explore later"). A soft default scope pre
 - **Option 3 (separate vault trees + indices):** closes the file-level readers too, but fragments the
   wiki graph, forces a single embedder, turns every source/skill into a per-universe routing problem,
   and delays the migration. Rejected as a concrete, heavy answer to a possible, mild risk.
+- **A per-machine override for the active universe** (a gitignored `active-universe.local` winning over
+  the committed pointer, the way `settings.local.json` wins over `settings.json` here): it would serve a
+  machine dedicated to one sphere — work laptop in one universe, personal desktop in another. Rejected
+  for now: it is a second source of truth for a question that, for a single owner, has one answer at a
+  time, and the pattern stays cheap to add the day that case is actually lived.
+- **Real-time propagation of a switch:** git is the transport, so a switch converges at the next pull.
+  A push channel would be a new always-on mechanism serving a rare event, on a brain whose whole
+  portability story is already the repository. Rejected; the session-start announcement is what makes
+  eventual convergence safe to live with.
 - **Model B (separate brains / repos):** maximal isolation, but the switch becomes "reopen another
   brain," cross-cutting synthesis is lost, and the owner admits cross-universe queries are rare, which
   removes the main reason to keep one brain. Rejected; kept as the escape hatch a created-universe

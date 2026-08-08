@@ -189,12 +189,18 @@ test("buildSelfHealHookOutput — an unwired machine: the directive names the co
   assert.match(ctx, /node scripts\/rehydrate\.mjs/, "the detail line is preserved for the relay");
 });
 
-test("settings.json.template wires session-self-heal as a SessionStart hook, BEFORE session-status", () => {
+// ⚠️ This test used to end on "self-heal must RUN before the status banner", and that
+// is not a thing settings.json can promise: the Claude Code hooks reference says "all
+// matching hooks run in parallel". Declaration order buys the order their lines are
+// READ, not the order they execute — so anything that genuinely must happen after
+// another hook's work needs a barrier, not a position in this array (the universe hook
+// and the startup pull are the case in point: scripts/lib/startup-sync-gate.mjs).
+test("settings.json.template wires session-self-heal as a SessionStart hook, and declares it ahead of the status banner", () => {
   const settings = JSON.parse(readFileSync(join(REPO_ROOT, ".claude", "settings.json.template"), "utf8"));
   const commands = settings.hooks.SessionStart.flatMap((entry) => entry.hooks.map((h) => h.command));
   const selfHealIdx = commands.findIndex((c) => c.includes("session-self-heal.mjs"));
   const statusIdx = commands.findIndex((c) => c.includes("session-status.mjs"));
   assert.ok(selfHealIdx >= 0, "session-self-heal.mjs must be wired on SessionStart");
   assert.ok(statusIdx >= 0, "session-status.mjs must stay wired on SessionStart");
-  assert.ok(selfHealIdx < statusIdx, "self-heal must run before the status banner");
+  assert.ok(selfHealIdx < statusIdx, "the self-heal's lines are declared ahead of the status banner's");
 });

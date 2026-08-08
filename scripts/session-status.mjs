@@ -26,6 +26,7 @@ import { hasGeminiKey, geminiKeyRequired } from "./lib/gemini-key.mjs";
 import { repoStatusLine, countVaultUncommitted, countUnmerged } from "./lib/repo-status.mjs";
 import { ragStatusLine, LAST_RUN_REL } from "./lib/rag-status.mjs";
 import { sweepThenPull } from "./lib/startup-sync.mjs";
+import { hookSessionId, markSyncDone, markSyncRunning, readHookPayload } from "./lib/startup-sync-gate.mjs";
 import { bootstrapSessionHooks } from "./lib/hook-bootstrap.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
 import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
@@ -64,7 +65,20 @@ function git(args) {
 // update's own files, an Obsidian edit). Being a HOOK is the point — a fresh
 // node process reading the code off disk, so the fix is live at the first restart
 // after the update that installs it, unlike the updater's own end-of-run commit.
+//
+// This hook OWNS the pull, and SessionStart hooks run in PARALLEL (Claude Code's
+// hooks reference: "all matching hooks run in parallel"). So the pull races every
+// other hook, including those that read state it can change — the active-universe
+// pointer first among them, now that it travels between machines. Bracketing the
+// pull with a session-keyed marker is what lets such a hook WAIT for it instead of
+// announcing the scope this machine happened to wake up in. Fail-soft throughout:
+// no hook payload on stdin (run by hand) means no id, no marker, and readers simply
+// carry on as they did before this gate existed.
+const sessionId = hookSessionId(readHookPayload());
+const markerIo = { existsSync, readFileSync: (p) => readFileSync(p, "utf8"), writeFileSync, mkdirSync };
+markSyncRunning({ repo: REPO, sessionId, io: markerIo, now: Date.now });
 const { pullOk, pullOut } = sweepThenPull({ git });
+markSyncDone({ repo: REPO, sessionId, io: markerIo, now: Date.now });
 const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
 
 // Fail-loud guardrails, read AFTER the pull (which can itself leave conflicts):

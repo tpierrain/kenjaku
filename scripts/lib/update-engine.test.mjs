@@ -1754,6 +1754,41 @@ test("formatReport — a retired status line is announced as the owner's own lin
   assert.match(out, /your own|back/i);
 });
 
+// ADR 0034 — the fleet migration that un-ignores the active-universe pointer. What
+// changed for the owner is that their context follows them between computers; the
+// gitignore line we actually edited is plumbing, and naming it would explain a
+// mechanism to someone who never asked for one.
+test("formatReport — the un-ignored pointer is announced as a context that follows you, not as a gitignore edit", () => {
+  const out = formatReport({
+    ref: "v4.9.0",
+    engineVersion: { rag: "1.1.5" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    pointerUnignored: true,
+  });
+  // Both lines, verbatim: the first one alone reads as a claim without its promise
+  // ("follows you" — where to?), and a matcher on one of them lets the other be
+  // blanked without a single test noticing.
+  assert.match(
+    out,
+    /^   • the universe you are working in now follows you: switch context on one computer,\n     and your other ones land in it too, the next time they sync$/m,
+  );
+  assert.doesNotMatch(out, /gitignore|ignore line|pointer/i, "our plumbing is not the owner's news");
+});
+
+test("formatReport — a brain that never ignored its pointer hears nothing about universes", () => {
+  const out = formatReport({
+    ref: "v4.9.0",
+    engineVersion: { rag: "1.1.5" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    pointerUnignored: false,
+  });
+  assert.doesNotMatch(out, /follows you/i);
+});
+
 test("formatReport — a brain that had no status line of ours hears nothing about it", () => {
   const out = formatReport({
     ref: "v4.4.0",

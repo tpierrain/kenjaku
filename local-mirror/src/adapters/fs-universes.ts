@@ -1,6 +1,7 @@
 // Driven adapter: reads the brain's universe state (ADR 0034) from the two files the `/switch`
-// skill maintains under `<brainRoot>/.vault-rag/` — the COMMITTED registry (`universes.json`)
-// and the PER-MACHINE, gitignored pointer (`active-universe`). Used ONLY by `setup_source`, to
+// skill maintains under `<brainRoot>/.vault-rag/` — the registry (`universes.json`) and the
+// pointer (`active-universe`), both COMMITTED (a universe is the owner's context, so it travels
+// between the owner's machines). Used ONLY by `setup_source`, to
 // decide (and freeze) which universe a new mirror belongs to — never on the hot sync path.
 //
 // The pure rules (parsing, and resolving the pointer against the registry) live in

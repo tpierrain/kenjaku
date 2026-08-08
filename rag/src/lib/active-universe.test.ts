@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readActiveUniverseWith } from "./active-universe.js";
 import { DEFAULT_UNIVERSE } from "./universe.js";
 
-// The active universe is a per-machine session pointer read by the MCP server to
+// The active universe is the owner's context pointer, read by the MCP server to
 // inject the search scope (ADR 0034). Absent/blank → the default universe, so a
 // single-universe brain (no state file yet) behaves exactly as today.
 
