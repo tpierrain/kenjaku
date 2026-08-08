@@ -348,10 +348,14 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           Travels With You`**, chosen from four candidates (*Your Context Follows You* · *Your Other
           Laptop Catches Up* · *It Knows Which Chapter You're In* · the one picked). Do not re-open it;
           it keeps the product's own word, and the lead carries the plain-words version underneath.
-  - [ ] **PR → merge → tag → GitHub release.** One open PR of mine at a time (DEVELOPING §7); the PR body
-        mirrors the plan; tag `v4.9.0` on `main` after the merge, then `gh release create` with the note.
-        CI matrix is the cross-platform arbiter (§9) — the branch edits a text file line-wise, so let it
-        speak before the tag.
+  - [x] **PR opened** _(2026-08-08)_: <https://github.com/tpierrain/kenjaku/pull/60>, body from
+        `prospective/release-v4.9.0-pr-body.md`. It was the only open PR of mine (DEVELOPING §7).
+  - [ ] **Waiting on the CI matrix** — §9's arbiter, and this branch edits a text file line-wise, so it
+        speaks before the tag, not after.
+  - [ ] **⏸️ STOPS HERE FOR THE OWNER.** Merging, tagging `v4.9.0` and publishing the GitHub release are
+        outward-facing and effectively irreversible: **do not do them unasked**. The next session's job
+        is to report CI and ask, not to ship. Everything else in this plan is done.
+    - [ ] After the merge: tag `v4.9.0` on `main`, then `gh release create` with the note body.
   - [ ] **After the tag**: archive this plan (`maintainers/README.md`: plan done = archived), tick the
         ROADMAP, and rewrite the memory pointer to name whatever becomes live next (the unfreeze plan).
 
