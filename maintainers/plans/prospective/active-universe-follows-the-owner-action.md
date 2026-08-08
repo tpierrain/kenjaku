@@ -101,6 +101,30 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
   - [x] Full suites green: harness 1624, engine 515, local-mirror 255.
 
 - [ ] **S3 — A brain that pulls a switch made elsewhere lands on it cleanly (fleet + conflicts).**
+  - [ ] **🔴 ORDERING DEFECT — found by the owner's question (2026-08-08), and this branch is what makes
+        it reachable. Must be fixed inside S3, not filed elsewhere.** Measured: the SessionStart hooks
+        run **universe 5th (`session-universe.mjs`) and status 7th (`session-status.mjs`)**, and the
+        **pull lives in status** (`sweepThenPull`). Meanwhile the server reads the pointer **per query**,
+        not at boot (`rag/src/index.ts:136`). So on the second machine's first session after a switch
+        made elsewhere:
+        1. the universe hook reads the **stale** pointer, announces the **old** universe **and injects
+           the old universe's profile synthesis** (its people, topics, connector accounts);
+        2. the pull then lands the **new** pointer;
+        3. every `search_vault` for the rest of that session silently scopes to the **new** universe.
+        The session therefore runs with **the context of one sphere and the retrieval of another**, and
+        the single line meant to make the change non-silent **announces the wrong one**.
+    - [ ] **It invalidates a claim written above in this plan** (*"a pointer arriving by `git pull` is
+          not a silent scope change: the next session says which universe it is in"*): true only for the
+          session **after** the pull. The session **in which** the pull happens is precisely the arriving
+          machine's first one, i.e. the entire use case. Correct that paragraph when fixing this.
+    - [ ] **Not a production bug today** — the pointer is gitignored, so it never travels and the
+          ordering is harmless. **S2 makes it reachable**, which is why it is this branch's to fix.
+    - [ ] Fix: the pull must happen **before** anything reads state it can change (reorder, or hoist the
+          pull out of `session-status.mjs`), **plus** a correction line if the pull changed the pointer —
+          the session-start twin of the `/sync` line already required below.
+    - [ ] **The general smell, recorded once**: the pull is the **last** of seven hooks, so **every**
+          hook reads pre-pull state. The universe pointer is the case that now bites; check whether
+          wiki-health and self-heal have the same staleness before assuming they do not.
   - [ ] **One-shot, idempotent migration for deployed brains**, run by the engine update: if the
         brain's `.gitignore` still carries the pointer line, remove **that line only** (never rewrite
         the file — owners add their own entries), and announce it in one line.
