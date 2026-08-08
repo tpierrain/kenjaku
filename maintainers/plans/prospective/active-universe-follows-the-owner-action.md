@@ -252,11 +252,26 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           the mutants face a suite that can actually judge them. The two stale worktrees the plan owed
           (`kenjaku-mut-v450`, `kenjaku-mut-v460`) were removed first — inspected before forcing, and
           they held nothing but leftovers (a modified `package-lock.json`, a `node_modules` symlink).
-    - [ ] **Batches.** Batch 1 = the two NEW libs (`lib/startup-sync-gate.mjs`, `lib/unignore-pointer.mjs`)
-          — in flight at the hand-back of 2026-08-08. Then batch 2 = `lib/reconcile-brain.mjs`, batch 3 =
-          the three top-level scripts. Reset the worktree between batches with `git reset --hard` +
+    - [ ] **Batches.** Batch 1 = the two NEW libs (`lib/startup-sync-gate.mjs`,
+          `lib/unignore-pointer.mjs`). Then batch 2 = `lib/reconcile-brain.mjs`, batch 3 = the three
+          top-level scripts. Reset the worktree between batches with `git reset --hard` +
           `git clean -qfd -e rag/node_modules`, **never** `git checkout -- .` (Stryker instrumentation
           can otherwise be restored faithfully and poison every later run).
+    - [x] **Batch 1, first pass** _(2026-08-08)_: `startup-sync-gate.mjs` **87.74 %**,
+          `unignore-pointer.mjs` **84.62 %** — 21 survivors, and they were **not noise**.
+          ⚠️ **Operational lesson, worth more than the numbers**: the run was piped through `tail -60`,
+          which threw away 12 of the 21 survivors and cost a full 4m39s re-run. **Redirect a Stryker run
+          to a file** (`> …/mut-batchN.log 2>&1`), never pipe it to `tail`.
+    - [x] **`unignore-pointer.mjs` hardened** _(2026-08-08 · `96a4050`)_ — four real gaps, each now a
+          test that fails on its mutant: nothing asserted the replacement comment the migration **writes
+          into someone else's file** (blanking it passed), nothing put the engine's block at index 0
+          (the `>= 0` boundary), nothing gave the owner three comment lines of their own above the
+          pointer (so *"is this prose still ours?"* was never actually read), and the CRLF case never
+          exercised the line we put back. The `\r` strip in `bare()` went too: `.trim()` already handles
+          it, so it was dead code — and dead code is a mutant nothing can kill. Harness **1661**.
+    - [ ] **`startup-sync-gate.mjs` — its 13 survivors still to be read and answered** (only 2 were
+          visible before the truncation: `mkdirSync`'s `{ recursive: true }`, twice).
+    - [ ] Re-measure both files after hardening — a hardened-but-unmeasured file has an unknown score.
     - [ ] Record the run in `maintainers/mutation/RESULTS.md` as a `v4.9.0` section + the *Current
           scores* line, survivors either killed or **named** as equivalents (§5ter: the constraint, not
           the anecdote).
