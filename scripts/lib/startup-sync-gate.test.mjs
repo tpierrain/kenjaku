@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 import {
   SYNC_MARKER_REL,
@@ -17,15 +17,19 @@ import {
 // In-memory fs with the four calls the gate is allowed to make. Keyed on the real
 // `join`, so the assertions hold on Windows too (the CI matrix is the arbiter, §9).
 function fakeIo(files = new Map()) {
+  const mkdirs = [];
   return {
     files,
+    mkdirs,
     existsSync: (p) => files.has(p),
     readFileSync: (p) => {
       if (!files.has(p)) throw new Error(`ENOENT: ${p}`);
       return files.get(p);
     },
     writeFileSync: (p, body) => files.set(p, body),
-    mkdirSync: () => {},
+    // Recorded, arguments and all: a fake that swallows its call lets every option
+    // of it drift unobserved (CONVENTIONS §5ter, cluster 1).
+    mkdirSync: (...args) => mkdirs.push(args),
   };
 }
 
@@ -45,6 +49,21 @@ function fakeClock(start = 0) {
     slept,
   };
 }
+
+test("the marker's home is .cache/ — the dir every brain gitignores, so a session's marker is never committed", () => {
+  // Asserted as a literal, not recomputed from the constant: every test below builds
+  // its path FROM SYNC_MARKER_REL, so without this one the marker could move
+  // anywhere — including somewhere auto-commit would sweep into the owner's history.
+  assert.equal(SYNC_MARKER_REL, join(".cache", "startup-sync.json"));
+});
+
+test("markSync*: the .cache dir is created, recursively — a brain that never had one still writes its first marker", () => {
+  const io = fakeIo();
+
+  markSyncRunning({ repo: "/brain", sessionId: "s-42", io, now: () => 0 });
+
+  assert.deepEqual(io.mkdirs, [[dirname(MARKER), { recursive: true }]]);
+});
 
 test("markSyncRunning: BEFORE pulling, the puller names this session — so a hook that must wait knows a writer exists", () => {
   const io = fakeIo();
@@ -253,6 +272,32 @@ test("pullerIsWired: a brain with no hooks at all, or unreadable settings, expec
   assert.equal(pullerIsWired(null), false);
 });
 
+test("pullerIsWired: the puller sharing an entry with other hooks, in settings a hand has dented", () => {
+  // Three things at once, because they are the same question — is this file READ, or
+  // merely glanced at? An entry the owner blanked, a hook slot left null, and the
+  // puller declared SECOND on its entry alongside another command. A reader that
+  // stops at the first hook of an entry, or that assumes every slot is an object,
+  // answers "nobody pulls here" — and every hook on that brain then waits 3 s for a
+  // pull that was, in fact, going to happen.
+  const dented = {
+    hooks: {
+      SessionStart: [
+        null,
+        { matcher: "", hooks: [null, { type: "command", command: 'node "/b/scripts/session-health.mjs"' }] },
+        {
+          matcher: "",
+          hooks: [
+            { type: "command", command: 'node "/b/scripts/session-universe.mjs"' },
+            { type: "command", command: 'node "/b/scripts/session-status.mjs"' },
+          ],
+        },
+      ],
+    },
+  };
+
+  assert.equal(pullerIsWired(dented), true);
+});
+
 test("markSync*: without a session id there is nothing to key a marker on — none is written, and the puller carries on", () => {
   const io = fakeIo();
 
@@ -294,6 +339,28 @@ test("readHookPayload: run by hand at a terminal, it reads NOTHING — fd 0 ther
 
   assert.equal(payload, "");
   assert.equal(read, false, "fd 0 must not even be touched at a terminal");
+});
+
+test("readHookPayload: the TTY guard is wired to the REAL stdin — not only to the stub the tests hand it", () => {
+  // Every other test injects `isTTY`, so the default could be wired to anything and
+  // stay green. It is the default that runs on the owner's machine, and if it stops
+  // answering "this is a terminal", running the hook by hand blocks on the keyboard.
+  const wasTTY = process.stdin.isTTY;
+  process.stdin.isTTY = true;
+  try {
+    let read = false;
+    const payload = readHookPayload({
+      readInput: () => {
+        read = true;
+        return "typed by a human";
+      },
+    });
+
+    assert.equal(payload, "");
+    assert.equal(read, false, "the real stdin said terminal — fd 0 must not be touched");
+  } finally {
+    process.stdin.isTTY = wasTTY;
+  }
 });
 
 test("readHookPayload: an unreadable fd 0 is silence, never a thrown hook", () => {
