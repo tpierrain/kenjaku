@@ -46,6 +46,14 @@ test("git itself agrees: on a rebase, --theirs is THIS machine's value and --our
   const git = (...args) => execFileSync("git", args, { cwd: repo, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   const pointer = join(repo, "active-universe");
   git("init", "--quiet", "--initial-branch=main");
+  // What this test measures is WHICH SIDE of a rebase wins, and nothing else. On a
+  // Windows machine — the CI runners included — `core.autocrlf` defaults to true, so
+  // git rewrites the checked-out pointer to CRLF and the assertion below reads
+  // `acme\r\n`: a red that says nothing about --theirs. Pinned here rather than
+  // absorbed by a looser assertion, because the exact bytes ARE the claim.
+  // (The pointer itself is unaffected in the field: every reader trims it, and a test
+  // pins that — this is the test's own confound, not the product's.)
+  git("config", "core.autocrlf", "false");
   git("config", "user.email", "test@example.invalid");
   git("config", "user.name", "Test");
   writeFileSync(pointer, "default\n");
