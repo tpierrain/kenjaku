@@ -1,5 +1,9 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1–S4 done (bar one open smell); S5 = cutting v4.9.0, in flight. -->
+<!-- STATUS: 🏁 DONE, ARCHIVED 2026-08-08. Shipped as v4.9.0 — The One Where the Universe Travels With You. -->
+<!-- PR #60 (merge 6f8b830), tag v4.9.0, release published, CI 8/8 green on the tagged commit. -->
+<!-- What LEAVES this plan, and must not die with it: (1) the general smell — wiki-health and self-heal -->
+<!-- may also read pre-pull state, and two hooks can now both spawn reconcile-brain at once; (2) the -->
+<!-- per-machine override (active-universe.local), deliberately deferred, see below. -->
 <!-- Release shape ARBITRATED 2026-08-08: universes only → cut → then the unfreeze release. -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
@@ -367,10 +371,13 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           `universes`, `auto-commit`): none compares file bytes the way this one does.
   - [x] **CI GREEN on the fix** _(2026-08-08)_: the whole matrix passes — Node 22 / 24 / 26 on both
         macos-latest and windows-latest, plus the Windows tripwire and the Windows installer e2e.
-  - [ ] **⏸️ STOPS HERE FOR THE OWNER.** Merging, tagging `v4.9.0` and publishing the GitHub release are
-        outward-facing and effectively irreversible: **do not do them unasked**. The next session's job
-        is to report CI and ask, not to ship. Everything else in this plan is done.
-    - [ ] After the merge: tag `v4.9.0` on `main`, then `gh release create` with the note body.
+  - [x] **SHIPPED on the owner's go-ahead** _(2026-08-08)_: PR #60 merged (`6f8b830`), tag `v4.9.0`
+        pushed, GitHub release published at
+        <https://github.com/tpierrain/kenjaku/releases/tag/v4.9.0>. CI **8/8 green** on the tagged
+        commit. The ADR link in the published body is absolute — a relative one does not resolve from a
+        release page.
+  - [x] **After the tag** _(2026-08-08)_: this plan, its note and its PR body archived; the ROADMAP row
+        closed; the memory pointer rewritten onto the unfreeze plan, which is what becomes live next.
   - [ ] **After the tag**: archive this plan (`maintainers/README.md`: plan done = archived), tick the
         ROADMAP, and rewrite the memory pointer to name whatever becomes live next (the unfreeze plan).
 
