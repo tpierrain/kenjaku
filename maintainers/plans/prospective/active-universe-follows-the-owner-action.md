@@ -1,5 +1,6 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 + S2 done, S3 next (the real engineering). -->
+<!-- Release shape (scope + version number) is OPEN and waiting on the owner: see its section. -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the active universe follows the owner, not the machine
@@ -125,6 +126,32 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
   - [ ] `CLAUDE.engine.md` (~L193) — the engine-side sentence describing the pointer's provenance.
   - [ ] Release note (CONVENTIONS §11 — written for the non-developer first): *"switch context on one
         laptop, your other one picks it up"*, never a paragraph about a gitignore line.
+
+## Release shape — OPEN, waiting on the owner (raised 2026-08-08)
+
+> The owner asked whether this ships as a small release of its own, and whether other small items
+> should ride along. Recorded here because the answer changes S3/S4's tail, and because one of the
+> options silently breaks a promise another plan made.
+
+- [ ] **Decide the scope.** Default proposed: **this alone** (S3 + S4 + note). S3 edits a deployed
+      brain's own `.gitignore` and creates the first-pull path for a file that never travelled before;
+      a release whose whole content is that migration is the one that can be explained in a line and
+      rolled back without collateral.
+- [ ] **Decide the version number, and with it a debt.** A behaviour change on the fleet reads as a
+      **minor** (`v4.9.0`). But `prospective/v4.9.0-mutation-debt-plan.md` declares itself the **floor
+      of v4.9.0** (the `runAsEntrypoint` helper + its guard test, `defaultGit` as a pure value), opened
+      precisely because the same deferral was already taken twice and memory never brought it back.
+      So: either that floor is honoured in this release, or the deferral is **re-arbitrated in writing**
+      (in that plan) and the number is chosen deliberately. Letting it slip unnamed is the third
+      occurrence of a failure this repo already documented.
+- [ ] **Riders considered, and why they are NOT proposed here** (so they are not re-proposed blind):
+      the **live health banner** (v4.8.1's hand-off, affordable now at ~0.3 s) is the *cure* for the
+      green line that lies, and it changes what **every** session start prints, so it deserves its own
+      note rather than a paragraph inside a migration release; the **silent skill freeze**
+      (`prospective/field-finding-2026-08-05-silent-skill-freeze.md`) is a provenance change, not a
+      small item.
+- [ ] Housekeeping that can ride with anything: two stale mutation worktrees are still on disk
+      (`kenjaku-mut-v450`, `kenjaku-mut-v460`) — `git worktree remove` them.
 
 ## Deliberately deferred (recorded so it is not re-litigated)
 
