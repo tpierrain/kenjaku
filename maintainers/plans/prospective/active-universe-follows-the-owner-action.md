@@ -365,7 +365,8 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           which is the reflex this very plan diagnosed twice.
     - [x] Swept the other tests that build throwaway git repos (`engine-commit`, `startup-sync`,
           `universes`, `auto-commit`): none compares file bytes the way this one does.
-  - [ ] **CI re-run on the fix** — waiting.
+  - [x] **CI GREEN on the fix** _(2026-08-08)_: the whole matrix passes — Node 22 / 24 / 26 on both
+        macos-latest and windows-latest, plus the Windows tripwire and the Windows installer e2e.
   - [ ] **⏸️ STOPS HERE FOR THE OWNER.** Merging, tagging `v4.9.0` and publishing the GitHub release are
         outward-facing and effectively irreversible: **do not do them unasked**. The next session's job
         is to report CI and ask, not to ship. Everything else in this plan is done.
