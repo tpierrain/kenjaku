@@ -23,20 +23,21 @@
 > (1657). **S3 is therefore complete except one item deliberately left open, which is NOT a blocker**:
 > the general smell (do wiki-health and self-heal read pre-pull state too).
 >
-> **S4's prose is done too** (2026-08-08 · `8341e18`). **Everything in this plan is now shipped except
-> two things, and both need the OWNER**:
+> **S4's prose is done too** (2026-08-08 · `8341e18`), and **the version question is ARBITRATED**: the
+> owner chose (2026-08-08) to **re-arbitrate the mutation-debt floor in writing** and cut **`v4.9.0`**
+> with the universes work alone. That re-arbitration is **already written** — in
+> `prospective/v4.9.0-mutation-debt-plan.md` (the floor moves to the unfreeze release) and carried in
+> `prospective/update-regime-owns-what-it-shipped-action.md` **S0bis** (so it arrives with its release).
+> Do not re-open that question.
 >
-> 1. **The version number, with its debt** (see *Release shape* below): a fleet behaviour change reads
->    as a minor (`v4.9.0`), but `prospective/v4.9.0-mutation-debt-plan.md` declares itself the FLOOR of
->    v4.9.0. Honour that floor here, or **re-arbitrate the deferral in writing in that plan** and pick
->    the number deliberately. Letting it slip unnamed is the third occurrence of a failure this repo
->    has already documented — so this is a decision to put to Thomas, not one to infer.
-> 2. **The release note itself** (CONVENTIONS §11, written for a non-developer first): *"switch context
->    on one laptop, your other one picks it up"* — never a paragraph about a gitignore line. Written at
->    cut time, once the number is settled.
+> **So the ONLY thing left in this plan is to CUT THE RELEASE**: write the release note (CONVENTIONS
+> §11, for a non-developer first — *"switch context on one laptop, your other one picks it up"*, never a
+> paragraph about a gitignore line), then tag `v4.9.0` the way the repo cuts releases. Branch
+> `feat/active-universe-travels` is pushed and green (harness 1657); the engine and local-mirror suites
+> were not touched by this work but are worth one confirming run before the tag.
 >
-> Also still open, deliberately, and NOT a blocker: the general smell (do wiki-health and self-heal
-> read pre-pull state too), and the two stale mutation worktrees to remove.
+> Also still open, deliberately, and NOT blockers: the general smell (do wiki-health and self-heal read
+> pre-pull state too), and the two stale mutation worktrees to remove.
 >
 > **Standing constraints**: TDD baby-steps with a failing test first, green-only commits pushed as they
 > go (CONVENTIONS §5), artifacts in English (§4), CRLF care on any line-wise file edit (§9).
@@ -241,12 +242,12 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
       that is about to close, in a repo that has just diagnosed exactly that reflex.
       → carried by `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`, shipped with
       `update-regime-owns-what-it-shipped-action.md`.
-- [ ] **Still to decide at cut time: the version number, and with it a debt.** A behaviour change on the
-      fleet reads as a **minor** (`v4.9.0`). But `prospective/v4.9.0-mutation-debt-plan.md` declares
-      itself the **floor of v4.9.0**, opened precisely because the same deferral was already taken twice
-      and memory never brought it back. Either that floor is honoured here, or the deferral is
-      **re-arbitrated in writing** in that plan and the number is chosen deliberately. Letting it slip
-      unnamed is the third occurrence of a failure this repo has already documented.
+- [x] **The version number, and with it a debt — ✅ ARBITRATED 2026-08-08.** The release is **`v4.9.0`**
+      (a behaviour change on the fleet is a minor), and the mutation-debt **floor was re-arbitrated in
+      writing** rather than honoured here: it now falls due with the **unfreeze release**, recorded in
+      `v4.9.0-mutation-debt-plan.md` (the 🔁 RE-ARBITRATION block, with its terms) and carried as
+      **S0bis** in `update-regime-owns-what-it-shipped-action.md`. Third due date named as such: cutting
+      the unfreeze release without paying it is a defect, not a re-arbitration.
 - [x] **Riders considered and declined** (so they are not re-proposed blind): the **live health banner**
       (v4.8.1's hand-off) changes what **every** session start prints and deserves its own note; the
       **silent skill freeze** is a provenance change, and it now folds into the unfreeze release as a

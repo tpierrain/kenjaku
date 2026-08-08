@@ -72,6 +72,16 @@ Three consequences, each already logged as its own field finding:
       (`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`) as its demonstration: the
       release whose subject is *the doctrine finally arrives* is where new doctrine should arrive.
       Nothing here starts before the universes release is cut.
+- [ ] **S0bis — INHERITED FLOOR: the v4.8.0 mutation debt is due WITH this release** _(owner,
+      2026-08-08)_. It was the declared floor of v4.9.0; the owner re-arbitrated it in writing onto this
+      release when v4.9.0 was scoped to universes alone. It is carried here so it arrives with its
+      release instead of relying on someone re-opening the other file.
+  - [ ] Pay both debts from `prospective/v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
+        `runAsEntrypoint` + the guard test whose allowlist may only shrink; Debt 2: `defaultGit` as a
+        pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`.
+  - [ ] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
+        release without paying it is a **defect**, not a candidate for a second re-arbitration.
+
 - [ ] **S1 — An immutable base per `merge` file.** Freeze the staged copy at **the version actually
       delivered to the installed file**, instead of overwriting it with the newest one. That one change
       makes the existing comparison correct and kills the silent-freeze false positive by construction.
