@@ -32,6 +32,34 @@ const POLL_MS = 50;
 // look before the puller's `node` has finished booting. Only a puller that dies
 // before writing ever pays it in full.
 const GRACE_MS = 3_000;
+// The one hook that owns the sweep+pull (session-status.mjs). Named here rather
+// than at each call site: the puller and the readers must not drift apart.
+const PULLER_SCRIPT = "session-status.mjs";
+
+/**
+ * The session id the harness hands every hook on stdin — the one key the puller
+ * and its readers can agree on. Unusable stdin yields null, and a null id opens
+ * the barrier: guessing would be worse than not having one (see the wait below).
+ */
+export function hookSessionId(input) {
+  try {
+    return JSON.parse(input).session_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Will anyone actually pull this session? Read from the brain's OWN settings, so a
+ * brain that predates the puller — or an owner who removed it — is never made to
+ * wait for a marker that cannot appear. Anything unreadable answers "no".
+ */
+export function pullerIsWired(settings) {
+  const entries = settings?.hooks?.SessionStart ?? [];
+  return entries.some((entry) =>
+    (entry?.hooks ?? []).some((hook) => String(hook?.command ?? "").includes(PULLER_SCRIPT)),
+  );
+}
 
 /** Announce that THIS session's startup sync is under way. */
 export function markSyncRunning({ repo, sessionId, io, now }) {

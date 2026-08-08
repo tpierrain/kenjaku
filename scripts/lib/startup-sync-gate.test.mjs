@@ -4,8 +4,10 @@ import { join } from "node:path";
 
 import {
   SYNC_MARKER_REL,
+  hookSessionId,
   markSyncDone,
   markSyncRunning,
+  pullerIsWired,
   waitForStartupSync,
 } from "./startup-sync-gate.mjs";
 
@@ -199,4 +201,51 @@ test("waitForStartupSync: the harness handed this hook no session id — no key,
 
   assert.deepEqual(outcome, { status: "unknown-session", waitedMs: 0 });
   assert.deepEqual(clock.slept, []);
+});
+
+test("hookSessionId: the id every SessionStart hook is handed on stdin — the one key both sides share", () => {
+  assert.equal(
+    hookSessionId('{"session_id":"a1b2","transcript_path":"/t.jsonl","source":"startup"}'),
+    "a1b2",
+  );
+});
+
+test("hookSessionId: unusable stdin is no id — the barrier opens rather than guessing", () => {
+  assert.equal(hookSessionId(""), null);
+  assert.equal(hookSessionId("not json"), null);
+  assert.equal(hookSessionId('{"source":"startup"}'), null);
+  assert.equal(hookSessionId(null), null);
+});
+
+test("pullerIsWired: the brain's own settings say whether anyone will pull this session", () => {
+  const wired = {
+    hooks: {
+      SessionStart: [
+        { matcher: "", hooks: [{ type: "command", command: 'node "/b/scripts/session-universe.mjs"' }] },
+        { matcher: "", hooks: [{ type: "command", command: 'node "/b/scripts/session-status.mjs"' }] },
+      ],
+    },
+  };
+
+  assert.equal(pullerIsWired(wired), true);
+});
+
+test("pullerIsWired: session-status wired on ANOTHER event does not pull at session start", () => {
+  const elsewhere = {
+    hooks: {
+      SessionStart: [
+        { matcher: "", hooks: [{ type: "command", command: 'node "/b/scripts/session-universe.mjs"' }] },
+      ],
+      SessionEnd: [
+        { matcher: "", hooks: [{ type: "command", command: 'node "/b/scripts/session-status.mjs"' }] },
+      ],
+    },
+  };
+
+  assert.equal(pullerIsWired(elsewhere), false);
+});
+
+test("pullerIsWired: a brain with no hooks at all, or unreadable settings, expects no puller", () => {
+  assert.equal(pullerIsWired({}), false);
+  assert.equal(pullerIsWired(null), false);
 });
