@@ -98,7 +98,18 @@ still accurate, no re-render.
 (§9): this branch edits a text file line-wise, so CRLF handling is pinned by test and arbitrated by the
 matrix.
 
-**Mutation snapshot** (pinned to this tag, per §5ter) — _to be filled from the release-tail pass._
+**Mutation snapshot** (pinned to this tag, per §5ter). The release-tail pass measured the **6
+production files this branch changed**, all under `scripts/` — the other changed files are comment-only.
+The two files this release **wrote** end at **100.00 %** (`lib/unignore-pointer.mjs`) and **95.28 %**
+(`lib/startup-sync-gate.mjs`); `update-engine.mjs` **98.44 %**, `lib/reconcile-brain.mjs` **96.11 %**.
+The two entrypoint-tier scripts it merely grazed both **rose** — `session-universe.mjs` 39.39 % →
+**66.18 %**, `session-status.mjs` 0.00 % → **8.67 %** — and remain the named structural debt below,
+not new rot. Detail, survivors and listed equivalents: `maintainers/mutation/RESULTS.md` § v4.9.0.
+
+The first pass on the two new files scored 87.74 % and 84.62 %, and its 21 survivors were **contracts
+nothing read** rather than thin assertions — among them a constant only ever recomputed from itself, and
+the prose this migration writes into someone else's `.gitignore`, which could have been blanked entirely
+with the suite still green. All 21 are now killed or named.
 
 **The debt this release does not pay, said out loud.** v4.8.0 left two named structural debts (a shared
 `runAsEntrypoint` plus the guard test that makes it stick, and `defaultGit` turned into a pure value).

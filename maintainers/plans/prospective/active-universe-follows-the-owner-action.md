@@ -238,7 +238,7 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
       the real checklist rather than the short version.)_
   - [x] **Confirming green run of the three suites** _(2026-08-08, on `7447ab5`)_: harness **1657**
         (1654 pass, 3 skipped), engine **515**, local-mirror **255**.
-  - [ ] **Release-tail mutation pass (§5ter + §5quinquies), `scripts` only.** The branch's diff decides
+  - [x] **Release-tail mutation pass (§5ter + §5quinquies), `scripts` only — DONE 2026-08-08.** The branch's diff decides
         the scope, and it reads: **new** — `lib/startup-sync-gate.mjs`, `lib/unignore-pointer.mjs`;
         **changed** — `lib/reconcile-brain.mjs`, `session-universe.mjs`, `session-status.mjs`,
         `update-engine.mjs`. **Deliberately out of scope, verified file by file rather than assumed**:
@@ -302,8 +302,14 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           meant to catch (split in two — one where every entry has two hooks and none is empty); and the
           update report's **second** line, the one saying WHERE your context follows you to, which could
           be blanked with the matcher on the first line still green. Harness **1667**.
-    - [ ] Final re-measure of the three files whose tests changed (`startup-sync-gate`,
-          `unignore-pointer`, `update-engine`) — running at the hand-back; log `scratchpad/mut-final.log`.
+    - [x] **Final re-measure** _(2026-08-08)_ of the three files whose tests changed:
+          `unignore-pointer.mjs` **100.00 %** (0 survivors), `startup-sync-gate.mjs` **95.28 %** (5 left,
+          all listed equivalents), `update-engine.mjs` **98.44 %** (4 left, pre-existing real-I/O tier).
+    - [x] **`RESULTS.md` § v4.9.0 written** _(2026-08-08)_ — the table, the debt split said out loud, the
+          six lessons recorded as **constraints** rather than as a story about one file (§5quinquies's
+          own corollary), and the listed equivalents so the next release does not re-chase them. The
+          *Current scores* `scripts` row now points at it.
+    - [x] **Snapshot carried into the note** (§5ter: every release note pins its own numbers).
     - [ ] Record the run in `maintainers/mutation/RESULTS.md` as a `v4.9.0` section + the *Current
           scores* line, survivors either killed or **named** as equivalents (§5ter: the constraint, not
           the anecdote).
