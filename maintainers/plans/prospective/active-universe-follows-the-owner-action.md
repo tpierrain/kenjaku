@@ -1,5 +1,5 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 + S2 done; S3 in flight (ordering defect fixed, fleet migration next). -->
+<!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1–S4 done (bar one open smell); S5 = cutting v4.9.0, in flight. -->
 <!-- Release shape ARBITRATED 2026-08-08: universes only → cut → then the unfreeze release. -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
@@ -30,11 +30,17 @@
 > `prospective/update-regime-owns-what-it-shipped-action.md` **S0bis** (so it arrives with its release).
 > Do not re-open that question.
 >
-> **So the ONLY thing left in this plan is to CUT THE RELEASE**: write the release note (CONVENTIONS
-> §11, for a non-developer first — *"switch context on one laptop, your other one picks it up"*, never a
-> paragraph about a gitignore line), then tag `v4.9.0` the way the repo cuts releases. Branch
-> `feat/active-universe-travels` is pushed and green (harness 1657); the engine and local-mirror suites
-> were not touched by this work but are worth one confirming run before the tag.
+> **So the ONLY thing left in this plan is to CUT THE RELEASE — which is S5 below, and it is more than
+> a note plus a tag.** Re-read at the resume of 2026-08-08: the header used to say *"write the release
+> note, then tag"*, and that under-described what the repo's own conventions attach to a cut. A cut is
+> **four things, in this order**: the release-tail mutation pass over what the branch changed (§5ter /
+> §5quinquies, whose snapshot the note must carry), the marketing-surface re-read (§10, explicitly
+> *before* writing the note), the note itself (§11), then the PR → merge → tag → GitHub release.
+> ⚠️ **The mutation floor that moved is NOT this pass**: what moved to the unfreeze release is v4.8.0's
+> two named debts; this branch still owes the measurement of the files **it** wrote.
+>
+> **The three suites are confirmed green at the resume** (2026-08-08, on `7447ab5`): harness **1657**
+> (1654 pass, 3 skipped), engine **515**, local-mirror **255**.
 >
 > Also still open, deliberately, and NOT blockers: the general smell (do wiki-health and self-heal read
 > pre-pull state too), and the two stale mutation worktrees to remove.
@@ -224,7 +230,49 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
         version: your connectors already follow you, and now your notes agree.
   - [x] `CLAUDE.engine.md` — the pointer is described as committed, following the owner (ADR 0034).
   - [ ] Release note (CONVENTIONS §11 — written for the non-developer first): *"switch context on one
-        laptop, your other one picks it up"*, never a paragraph about a gitignore line.
+        laptop, your other one picks it up"*, never a paragraph about a gitignore line. **Its home is
+        S5**, with the rest of the cut.
+
+- [ ] **S5 — Cut `v4.9.0`.** _(opened 2026-08-08 at the resume, because the header said "note + tag" and
+      the repo's conventions attach more than that to a cut — written here so the next `/clear` inherits
+      the real checklist rather than the short version.)_
+  - [x] **Confirming green run of the three suites** _(2026-08-08, on `7447ab5`)_: harness **1657**
+        (1654 pass, 3 skipped), engine **515**, local-mirror **255**.
+  - [ ] **Release-tail mutation pass (§5ter + §5quinquies), `scripts` only.** The branch's diff decides
+        the scope, and it reads: **new** — `lib/startup-sync-gate.mjs`, `lib/unignore-pointer.mjs`;
+        **changed** — `lib/reconcile-brain.mjs`, `session-universe.mjs`, `session-status.mjs`,
+        `update-engine.mjs`. **Deliberately out of scope, verified file by file rather than assumed**:
+        `scripts/lib/universes.mjs`, `rag/src/lib/active-universe.ts`,
+        `local-mirror/src/{adapters/fs-universes.ts,lib/config.ts}` are **comment-only** in this diff —
+        no production behaviour changed, so no number moves and re-measuring would buy nothing.
+        `session-status.mjs` is expected at **0 %** (the named top-level-script debt, inherited, whose
+        remedy is Debt 1 of the unfreeze release) — record it as inherited, never as new.
+    - [ ] Set up the disposable worktree the convention requires (`inPlace` on the real tree would let a
+          mutant of vault-mutating code act for real), with `rag/node_modules` symlinked in, and check
+          `vault-write-guard.test.mjs` reports **0 skipped** there before trusting a single number.
+    - [ ] Record the run in `maintainers/mutation/RESULTS.md` as a `v4.9.0` section + the *Current
+          scores* line, survivors either killed or **named** as equivalents (§5ter: the constraint, not
+          the anecdote).
+  - [ ] **Marketing-surface re-read (§10) — BEFORE writing the note**, and its verdict written down even
+        if it is the boring one. The surface: `README.md`, `EN-QUOI-C-EST-DIFFERENT.md`, `SETUP.md`,
+        `CONNECTORS.md`, the boards via their README alt texts + `docs/marketing-image-prompts.md`.
+        The two questions in order: what did this release make **false or imprecise** (hunt the absolutes
+        — this one touches *"per-machine"*, *"nothing leaves your machine"*, *"your brain is local"*
+        claims and anything promising a machine-local scope), and what did it make **true that we do not
+        sell yet** (a context that follows you across computers is a newcomer-facing capability).
+  - [ ] **Write the note (§11)**: two-sentence lead in the owner's words, `What you get` (few bullets),
+        `What you have to do` (`/update-engine`, no reindex — this release does not touch the index),
+        then `---` and `Under the hood` with the mechanics, ADR 0034, the mutation snapshot.
+        Home: `maintainers/plans/archived/release-v4.9.0-note.md`, mirroring how v4.7.0 / v4.8.0 /
+        v4.8.1 were kept.
+    - [ ] **The title is the owner's call** (the `— The One Where …` series). Propose candidates, do not
+          pick one alone: v4.8.1's title was an explicit arbitration.
+  - [ ] **PR → merge → tag → GitHub release.** One open PR of mine at a time (DEVELOPING §7); the PR body
+        mirrors the plan; tag `v4.9.0` on `main` after the merge, then `gh release create` with the note.
+        CI matrix is the cross-platform arbiter (§9) — the branch edits a text file line-wise, so let it
+        speak before the tag.
+  - [ ] **After the tag**: archive this plan (`maintainers/README.md`: plan done = archived), tick the
+        ROADMAP, and rewrite the memory pointer to name whatever becomes live next (the unfreeze plan).
 
 ## Release shape — ✅ ARBITRATED by the owner, 2026-08-08
 
