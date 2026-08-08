@@ -283,10 +283,27 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           `readFileSync(0, …)`, which is the default wiring of an injected port and only runs in a real
           I/O run; and the two `?? []` array defaults in `pullerIsWired`, whose replacement array is
           immediately `.some`-ed back to the same `false`.
-    - [ ] Re-measure everything after hardening — a hardened-but-unmeasured file has an unknown score.
-          Running as three sequential batches at the hand-back of 2026-08-08 (script:
-          `scratchpad/run-batches.sh`, logs `scratchpad/mut-batch*.log`): batch 1 re-measure, then
-          `reconcile-brain.mjs`, then the three top-level scripts.
+    - [x] **Re-measured, all six files** _(2026-08-08)_ — a hardened-but-unmeasured file has an unknown
+          score, so nothing here is inferred:
+          `unignore-pointer.mjs` **84.62 → 98.00 %**, `startup-sync-gate.mjs` **87.74 → 94.34 %**,
+          `lib/reconcile-brain.mjs` **96.11 %**, `update-engine.mjs` **97.27 %**,
+          `session-universe.mjs` **66.18 %**, `session-status.mjs` **8.67 %**.
+    - [x] **The two low numbers are the NAMED debt, and both went UP — say it that way or it reads as a
+          regression.** `session-universe.mjs` was **39.39 %** at v4.5.0 and is **66.18 %** here; every
+          one of its 23 survivors sits in the entrypoint tier (the `import.meta.url` guard at L140 and
+          the composition root under it) or is an injected-port default. `session-status.mjs` was
+          **0.00 %** from v4.4.0 through v4.8.0 and is **8.67 %** here. Both are **Debt 1** of the
+          unfreeze release (a shared `runAsEntrypoint` + the guard test), whose floor was re-arbitrated
+          in writing; this release grazing them is what makes them measurable, not what makes them low.
+    - [x] **Three more real survivors closed after the re-measure** _(2026-08-08 · `5f1ee56`)_, each still
+          this branch's own code: an owner who **partly** rewrote our comment (`every` vs `some` decides
+          whether the migration then deletes the sentences they wrote); the puller-detection test whose
+          null entry made *"all my hooks match"* **vacuously true**, shielding the very mutant it was
+          meant to catch (split in two — one where every entry has two hooks and none is empty); and the
+          update report's **second** line, the one saying WHERE your context follows you to, which could
+          be blanked with the matcher on the first line still green. Harness **1667**.
+    - [ ] Final re-measure of the three files whose tests changed (`startup-sync-gate`,
+          `unignore-pointer`, `update-engine`) — running at the hand-back; log `scratchpad/mut-final.log`.
     - [ ] Record the run in `maintainers/mutation/RESULTS.md` as a `v4.9.0` section + the *Current
           scores* line, survivors either killed or **named** as equivalents (§5ter: the constraint, not
           the anecdote).
