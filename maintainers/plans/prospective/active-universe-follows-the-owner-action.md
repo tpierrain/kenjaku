@@ -23,11 +23,20 @@
 > (1657). **S3 is therefore complete except one item deliberately left open, which is NOT a blocker**:
 > the general smell (do wiki-health and self-heal read pre-pull state too).
 >
-> **Next real step: S4 — the docs say the universe follows you** (switch skill's "On another machine"
-> note, SETUP §5.2 + §7, `CLAUDE.engine.md`, and the release note written for a non-developer). Then
-> the release shape's one open question: **the version number and the v4.9.0 mutation-debt floor**,
-> which must be honoured or re-arbitrated IN WRITING (third occurrence of a documented failure
-> otherwise).
+> **S4's prose is done too** (2026-08-08 · `8341e18`). **Everything in this plan is now shipped except
+> two things, and both need the OWNER**:
+>
+> 1. **The version number, with its debt** (see *Release shape* below): a fleet behaviour change reads
+>    as a minor (`v4.9.0`), but `prospective/v4.9.0-mutation-debt-plan.md` declares itself the FLOOR of
+>    v4.9.0. Honour that floor here, or **re-arbitrate the deferral in writing in that plan** and pick
+>    the number deliberately. Letting it slip unnamed is the third occurrence of a failure this repo
+>    has already documented — so this is a decision to put to Thomas, not one to infer.
+> 2. **The release note itself** (CONVENTIONS §11, written for a non-developer first): *"switch context
+>    on one laptop, your other one picks it up"* — never a paragraph about a gitignore line. Written at
+>    cut time, once the number is settled.
+>
+> Also still open, deliberately, and NOT a blocker: the general smell (do wiki-health and self-heal
+> read pre-pull state too), and the two stale mutation worktrees to remove.
 >
 > **Standing constraints**: TDD baby-steps with a failing test first, green-only commits pushed as they
 > go (CONVENTIONS §5), artifacts in English (§4), CRLF care on any line-wise file edit (§9).
@@ -206,13 +215,13 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
         sides of the rebase and names it in one line when it changed — silent when it did not, so a
         single-context brain still never hears of the feature.
 
-- [ ] **S4 — The docs say the universe follows you.**
-  - [ ] `.claude/skills/switch/SKILL.md` — the *"On another machine"* note (~L261) currently explains
-        the divergence + the self-heal. Rewrite it as: your universe follows you, it arrives with the
-        next pull, and your brain names it at session start.
-  - [ ] `SETUP.md` §5.2 (the rename note ~L336) and §7 (backup & multi-machine) — add the one-liner:
-        the active universe is part of what travels.
-  - [ ] `CLAUDE.engine.md` (~L193) — the engine-side sentence describing the pointer's provenance.
+- [ ] **S4 — The docs say the universe follows you.** _(prose done 2026-08-08 · `8341e18`; only the
+      release note is left, and it belongs to the cut)_
+  - [x] `.claude/skills/switch/SKILL.md` — the *"On another machine"* note now says the universe
+        follows you and is named at session start; the self-heal stays as the net it now is.
+  - [x] `SETUP.md` §5.2 (the rename note) and §7 (backup & multi-machine) — §7 carries the plain-words
+        version: your connectors already follow you, and now your notes agree.
+  - [x] `CLAUDE.engine.md` — the pointer is described as committed, following the owner (ADR 0034).
   - [ ] Release note (CONVENTIONS §11 — written for the non-developer first): *"switch context on one
         laptop, your other one picks it up"*, never a paragraph about a gitignore line.
 
