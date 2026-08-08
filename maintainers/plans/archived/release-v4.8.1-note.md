@@ -15,10 +15,11 @@ we consider the real defect.
 
 ### What you get
 
-- ⚡ **Sessions start about three times faster.** Your brain was fetching its own runner over the network
-  at every start, instead of using the copy sitting in its own folder. Measured on the machines where
-  this was reported: **9.8 s down to 2.8 s**. That margin is also what had been standing between a slow
-  start and a start that never finished.
+- ⚡ **Sessions start about three times faster.** At every start your brain went out over the network to
+  locate one of its own tools, instead of using the copy already sitting in its folder — a detour worth a
+  fraction of a second on a fast personal machine, and **9.8 s down to 2.8 s** on the work laptops where
+  this was reported. That gap is also what stood between a slow start and a start that never finished,
+  and it is why the same version felt instant for some people and unusable for others.
 - 🧠 **Your brain lets go of your notes when you close it.** The search engine now stops with the session
   that started it, instead of staying behind and holding your index open. That is what made the problem
   grow on its own: each leftover made the next start slower, until one of them ran out of time and the
@@ -81,6 +82,27 @@ because the one number that turned out to matter most was measured on their mach
   reading that fits the evidence: the orphans starve the machine, and what actually overruns the ceiling is
   what runs *before* our code does. Hence the second fix, which was filed as a mere aggravator and turned
   out to be the proximate cause.
+- **The command looked local, and only half of it was.** The line that started the search engine read
+  `npx tsx rag/src/index.ts`. The path at the end is ours — our own file, in the brain's own folder — and
+  that is exactly what made the whole line read as self-contained. It was not. `tsx`, the small tool that
+  runs that file, was never taken from the folder next door where the install had put it. `npx`'s job is
+  to find a tool *by name*: it looks in the folder it was started from, then in the folders above it, and
+  if it finds nothing there it falls back to its own separate store and asks the online package registry
+  which version to use. The server is started from the brain's root; the tool lives one level down, inside
+  `rag/`. So the search always failed upward and always ended on the network, with a perfectly good copy
+  sitting one directory below. Nothing was ever re-downloaded — those files were already cached — but the
+  *question* was asked over the internet at every single start.
+- **That one question is the whole difference between the machines it ruined and the machines it spared.**
+  Where the local store already had the answer, it comes back in well under a second (measured on a
+  maintainer's Mac: 0.6–0.8 s, against 0.28 s calling the tool's file directly). On a corporate Windows
+  laptop the same question means DNS, TLS, a round-trip to the registry, one extra wrapper process, and an
+  antivirus pass over everything it touches: **9.8 s**, measured warm, by the people it was happening to.
+  Against the 30-second ceiling a client gives a server to start, that is ten times the headroom on one
+  machine and three on the other — and the three vanished entirely once the leaked servers above were
+  starving the machine. Same defect on every machine; only one kind of machine had no margin left to
+  absorb it, which is also why it never surfaced on ours. The launcher now runs the tool's file directly,
+  so that path touches the network zero times, and `npx` survives only as a fallback for a brain whose
+  install never finished.
 - **A design was blocked on that, and is now affordable.** Reporting whether your brain is *working* — as
   opposed to how fresh its index is — should be measured live, not read from last session's cached verdict.
   It was priced out at a network round-trip per session start. At the direct call's cost it is about
