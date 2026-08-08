@@ -15,11 +15,14 @@
 > marker, and the universe hook blocks on that flip before reading any universe state. Full harness
 > suite green (1642).
 >
-> **Next real step: the FLEET MIGRATION** — strip the ignore line from a deployed brain's own
-> `.gitignore`, and stage an untracked pointer so the first pull cannot hit git's untracked-overwrite
-> refusal. Then the conflict rule taught to `/sync`, then its mid-session announcement line, then S4
-> (docs). One S3 item stays deliberately open and is NOT a blocker: the general smell (do wiki-health
-> and self-heal read pre-pull state too).
+> **The FLEET MIGRATION is also done** (2026-08-08 · `20ac23e`): it lives in `reconcileBrain`, so it
+> reaches a deployed brain by update AND by self-heal. Full harness suite green (1654).
+>
+> **Next real step: the CONFLICT RULE for `/sync`** — when the pointer conflicts on a `pull --rebase`,
+> the machine you are sitting at wins, taught to `.claude/skills/sync/SKILL.md`; then `/sync` says out
+> loud, in one line, when the pull changed which universe is active (mid-session only — session start
+> is already covered by the barrier). Then S4 (docs). One S3 item stays deliberately open and is NOT a
+> blocker: the general smell (do wiki-health and self-heal read pre-pull state too).
 >
 > **Standing constraints**: TDD baby-steps with a failing test first, green-only commits pushed as they
 > go (CONVENTIONS §5), artifacts in English (§4), CRLF care on any line-wise file edit (§9).
@@ -168,15 +171,26 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           second question, since it and `session-status`'s bootstrap tick BOTH detect a wiring gap and
           BOTH spawn `reconcile-brain`, which parallel execution means can now happen at once.
           Found while correcting a test that claimed `settings.json` could order hook execution.
-  - [ ] **One-shot, idempotent migration for deployed brains**, run by the engine update: if the
-        brain's `.gitignore` still carries the pointer line, remove **that line only** (never rewrite
-        the file — owners add their own entries), and announce it in one line.
-  - [ ] **The migration must also stage the pointer if it exists untracked.** Otherwise the first
-        pull that brings another machine's pointer fails hard with git's *"untracked working tree
-        file would be overwritten"* — a dead end for a non-developer. Committing it locally turns
-        that into an ordinary one-line conflict.
-  - [ ] Tests for the migration: line present → removed; line absent → no-op; the owner's own ignore
-        entries preserved byte-for-byte; running it twice changes nothing.
+  - [x] **One-shot, idempotent migration for deployed brains** _(2026-08-08 · `20ac23e`)_ — it lives in
+        `reconcileBrain` (`scripts/lib/unignore-pointer.mjs`), not in `update-engine` alone: the
+        reconciler is the one path that reaches a deployed brain on BOTH routes (an update AND a
+        SessionStart self-heal). It removes the entry, plus the engine's own comment when that comment
+        is still verbatim ours — a comment arguing "never commit it" beside a committed pointer is
+        worse than none — and leaves the owner's entries, notes and line endings byte for byte. The
+        update report announces it as what they gain (their context follows them between computers),
+        never as a gitignore edit.
+  - [x] **The migration must also stage the pointer if it exists untracked** — VERIFIED as already
+        guaranteed, so no `git add` was written. Un-ignored, the pointer makes the tree dirty
+        (`treeState` counts untracked as dirty), and both persistence paths commit before anything can
+        pull: the update's own `commitEngineUpdate` (`add -A`), and the session-start sweep, which
+        sweeps BEFORE `git pull --rebase` in the same process (`sweepThenPull`). So git's *"untracked
+        working tree file would be overwritten"* dead end is unreachable on the engine's own pulls.
+        _(Recorded rather than built: a redundant `git add` would have been mechanism bought against a
+        hazard the existing invariant already closes.)_
+  - [x] Tests for the migration: line present → removed; line absent → no-op; the owner's own ignore
+        entries preserved byte-for-byte; running it twice changes nothing. _(plus: a look-alike entry
+        the owner invented is never touched, a duplicated entry goes too, CRLF stays CRLF, and at the
+        reconciler level a brain with no `.gitignore` never gets one invented.)_
   - [ ] **Conflict rule, written once and applied everywhere**: when the pointer conflicts on a
         `pull --rebase`, **the machine you are sitting at wins** (its current value is kept), and the
         next switch propagates. Teach it to `/sync` (`.claude/skills/sync/SKILL.md`) so the
