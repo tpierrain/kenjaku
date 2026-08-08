@@ -272,18 +272,20 @@ test("pullerIsWired: a brain with no hooks at all, or unreadable settings, expec
   assert.equal(pullerIsWired(null), false);
 });
 
-test("pullerIsWired: the puller sharing an entry with other hooks, in settings a hand has dented", () => {
-  // Three things at once, because they are the same question — is this file READ, or
-  // merely glanced at? An entry the owner blanked, a hook slot left null, and the
-  // puller declared SECOND on its entry alongside another command. A reader that
-  // stops at the first hook of an entry, or that assumes every slot is an object,
-  // answers "nobody pulls here" — and every hook on that brain then waits 3 s for a
-  // pull that was, in fact, going to happen.
-  const dented = {
+test("pullerIsWired: the puller declared SECOND on its entry, beside another command — one matching hook is enough", () => {
+  // Deliberately no empty and no absent hooks list anywhere: an entry with none
+  // answers "all of mine match" vacuously, which would let a reader that demands
+  // ALL of them pass this test for the wrong reason. Every entry here has two.
+  const sharedEntries = {
     hooks: {
       SessionStart: [
-        null,
-        { matcher: "", hooks: [null, { type: "command", command: 'node "/b/scripts/session-health.mjs"' }] },
+        {
+          matcher: "",
+          hooks: [
+            { type: "command", command: 'node "/b/scripts/session-health.mjs"' },
+            { type: "command", command: 'node "/b/scripts/session-universe.mjs"' },
+          ],
+        },
         {
           matcher: "",
           hooks: [
@@ -291,6 +293,22 @@ test("pullerIsWired: the puller sharing an entry with other hooks, in settings a
             { type: "command", command: 'node "/b/scripts/session-status.mjs"' },
           ],
         },
+      ],
+    },
+  };
+
+  assert.equal(pullerIsWired(sharedEntries), true);
+});
+
+test("pullerIsWired: settings a hand has dented — a blanked entry, a null hook slot — still answer, never throw", () => {
+  // A hook that throws at session start costs the owner their start. This file is
+  // the owner's to edit, so half-shapes are not hypothetical.
+  const dented = {
+    hooks: {
+      SessionStart: [
+        null,
+        { matcher: "", hooks: [null, { type: "command", command: 'node "/b/scripts/session-health.mjs"' }] },
+        { matcher: "", hooks: [{ type: "command", command: 'node "/b/scripts/session-status.mjs"' }] },
       ],
     },
   };

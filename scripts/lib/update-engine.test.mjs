@@ -1767,8 +1767,13 @@ test("formatReport — the un-ignored pointer is announced as a context that fol
     reindexed: false,
     pointerUnignored: true,
   });
-  assert.match(out, /follows you/i);
-  assert.match(out, /computer/i);
+  // Both lines, verbatim: the first one alone reads as a claim without its promise
+  // ("follows you" — where to?), and a matcher on one of them lets the other be
+  // blanked without a single test noticing.
+  assert.match(
+    out,
+    /^   • the universe you are working in now follows you: switch context on one computer,\n     and your other ones land in it too, the next time they sync$/m,
+  );
   assert.doesNotMatch(out, /gitignore|ignore line|pointer/i, "our plumbing is not the owner's news");
 });
 

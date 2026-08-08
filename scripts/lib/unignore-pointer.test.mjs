@@ -47,6 +47,32 @@ test("the engine's block at the very TOP of the file is still the engine's — n
   );
 });
 
+test("the engine's comment the owner PARTLY rewrote is theirs now — all three lines, or none of them", () => {
+  // The half-way case, and the one that decides between `every` and `some`: our
+  // opening line kept, the rest replaced by their own words. Retracting that block
+  // would delete a sentence the owner wrote, which is the one thing this migration
+  // must never do.
+  const before = [
+    "# Universes (ADR 0034): the active-universe pointer is per-machine session state",
+    "# and I keep it that way on purpose — this box is shared.",
+    "# ask me before touching this.",
+    ".vault-rag/active-universe",
+    "*.log",
+    "",
+  ].join("\n");
+
+  const { text, changed } = unignoreActiveUniverse(before);
+
+  assert.equal(changed, true);
+  assert.equal(
+    text,
+    "# Universes (ADR 0034): the active-universe pointer is per-machine session state\n" +
+      "# and I keep it that way on purpose — this box is shared.\n" +
+      "# ask me before touching this.\n" +
+      "*.log\n",
+  );
+});
+
 test("three lines of the OWNER's own above the pointer are not our comment, however well placed", () => {
   // Same shape as the engine's block (three comment lines, immediately above), so
   // only reading them tells the difference. Rewriting an owner's prose is worse
