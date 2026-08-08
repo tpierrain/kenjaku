@@ -276,13 +276,19 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           purpose (§10). None of `board-hero`, `board-affordance` or `board-privacy` asserts anything
           about universes or about a scope belonging to one computer, so none of them stopped being
           true. Recorded so the next release does not re-derive it.
-  - [ ] **Write the note (§11)**: two-sentence lead in the owner's words, `What you get` (few bullets),
-        `What you have to do` (`/update-engine`, no reindex — this release does not touch the index),
-        then `---` and `Under the hood` with the mechanics, ADR 0034, the mutation snapshot.
-        Home: `maintainers/plans/archived/release-v4.9.0-note.md`, mirroring how v4.7.0 / v4.8.0 /
-        v4.8.1 were kept.
-    - [ ] **The title is the owner's call** (the `— The One Where …` series). Propose candidates, do not
-          pick one alone: v4.8.1's title was an explicit arbitration.
+  - [x] **Note DRAFTED (§11)** _(2026-08-08)_ — `prospective/release-v4.9.0-note.md`, which is where the
+        series is drafted; it moves to `archived/` at publish time, rewritten to mirror the **published
+        body verbatim** (that is how v4.8.1's file traced). Four bullets, deliberately: the context that
+        travels, the arriving machine that names the right one, `/sync` speaking mid-session, and
+        existing brains getting it by update. The lead says up front that a single-universe brain sees
+        nothing, so nobody reads a feature they do not have.
+    - [ ] **Mutation snapshot still to be filled into it** from the tail pass (§5ter) — the note carries
+          a placeholder line rather than a number invented ahead of the measurement.
+    - [ ] **The title is the owner's call** (the `— The One Where …` series; v4.8.1's was an explicit
+          arbitration, so it is not mine to settle). Draft carries *The One Where Your Context Follows
+          You* as a placeholder. Candidates to put to the owner: **Your Context Follows You** ·
+          **It Knows Which Chapter You're In** · **Your Other Laptop Catches Up** ·
+          **The Universe Travels With You**.
   - [ ] **PR → merge → tag → GitHub release.** One open PR of mine at a time (DEVELOPING §7); the PR body
         mirrors the plan; tag `v4.9.0` on `main` after the merge, then `gh release create` with the note.
         CI matrix is the cross-platform arbiter (§9) — the branch edits a text file line-wise, so let it
