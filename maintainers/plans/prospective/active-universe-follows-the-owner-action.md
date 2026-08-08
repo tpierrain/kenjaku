@@ -10,7 +10,9 @@
 > release (`update-regime-owns-what-it-shipped-action.md`). No code has been written for S3.
 >
 > **Next real step: S3**, and its **first item is the 🔴 ordering defect** found on 2026-08-08 — it is
-> the only item in this plan that is a *defect this branch creates*, so it leads. Then the fleet
+> the only item in this plan that is a *defect this branch creates*, so it leads. **Read its 🧭
+> CORRECTION bullet first**: hooks run in **parallel**, so the defect is a race and "reorder the hooks"
+> is a non-fix; the shape retained is a **single-flight startup sync**. Then the fleet
 > migration (strip the ignore line from a deployed brain's own `.gitignore`, stage an untracked pointer
 > so the first pull cannot hit git's untracked-overwrite refusal) and the conflict rule taught to
 > `/sync`. This is where the actual engineering is; S1–S2 were the record and a two-line change behind
@@ -128,12 +130,27 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           machine's first one, i.e. the entire use case. Correct that paragraph when fixing this.
     - [ ] **Not a production bug today** — the pointer is gitignored, so it never travels and the
           ordering is harmless. **S2 makes it reachable**, which is why it is this branch's to fix.
-    - [ ] Fix: the pull must happen **before** anything reads state it can change (reorder, or hoist the
-          pull out of `session-status.mjs`), **plus** a correction line if the pull changed the pointer —
-          the session-start twin of the `/sync` line already required below.
-    - [ ] **The general smell, recorded once**: the pull is the **last** of seven hooks, so **every**
-          hook reads pre-pull state. The universe pointer is the case that now bites; check whether
-          wiki-health and self-heal have the same staleness before assuming they do not.
+    - [ ] **🧭 CORRECTION, verified 2026-08-08 before writing a line of code: SessionStart hooks do NOT
+          run in declared order — they run in PARALLEL.** The Claude Code hooks reference says it
+          plainly: *"All matching hooks run in parallel."* So the "5th vs 7th" measured above is the
+          **declaration** order in `.claude/settings.json.template`, not an execution order, and
+          **reordering that array fixes nothing.** The defect is in fact *worse* than first described: it
+          is a **race**, not a sequence. The universe hook is a handful of file reads and the pull is a
+          network round-trip, so the stale read wins nearly every time — but nothing guarantees it (the
+          announcement is non-deterministic), and two hooks touching the same repo can additionally
+          collide on git's `index.lock`.
+    - [ ] Fix — the reading hook must **wait for the pull**, which under parallel execution means a
+          **single-flight startup sync**: the first hook that needs post-pull state performs the
+          sweep+pull behind a lockfile and **memoises** the outcome; any other hook that needs it waits
+          on that lock and reads the memoised result instead of pulling a second time. `sweepThenPull`
+          moves behind that gate, and `session-status.mjs` **reports** the outcome instead of owning it.
+          Fail-open: if the wait times out, behave exactly as today (pre-pull state) — a session start is
+          never blocked. Precedent already in this repo: the local-mirror single-flight `*.sync.lock`.
+    - [ ] **Plus** a correction line if the pull changed the pointer — the session-start twin of the
+          `/sync` line already required below.
+    - [ ] **The general smell, recorded once**: the pull races **every** other hook, so **any** hook can
+          read pre-pull state. The universe pointer is the case that now bites; check whether wiki-health
+          and self-heal have the same staleness before assuming they do not.
   - [ ] **One-shot, idempotent migration for deployed brains**, run by the engine update: if the
         brain's `.gitignore` still carries the pointer line, remove **that line only** (never rewrite
         the file — owners add their own entries), and announce it in one line.
