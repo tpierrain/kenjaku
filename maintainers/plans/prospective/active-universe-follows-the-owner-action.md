@@ -291,11 +291,10 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
         nothing, so nobody reads a feature they do not have.
     - [ ] **Mutation snapshot still to be filled into it** from the tail pass (§5ter) — the note carries
           a placeholder line rather than a number invented ahead of the measurement.
-    - [ ] **The title is the owner's call** (the `— The One Where …` series; v4.8.1's was an explicit
-          arbitration, so it is not mine to settle). Draft carries *The One Where Your Context Follows
-          You* as a placeholder. Candidates to put to the owner: **Your Context Follows You** ·
-          **It Knows Which Chapter You're In** · **Your Other Laptop Catches Up** ·
-          **The Universe Travels With You**.
+    - [x] **Title — ✅ ARBITRATED by the owner, 2026-08-08**: **`v4.9.0 — The One Where the Universe
+          Travels With You`**, chosen from four candidates (*Your Context Follows You* · *Your Other
+          Laptop Catches Up* · *It Knows Which Chapter You're In* · the one picked). Do not re-open it;
+          it keeps the product's own word, and the lead carries the plain-words version underneath.
   - [ ] **PR → merge → tag → GitHub release.** One open PR of mine at a time (DEVELOPING §7); the PR body
         mirrors the plan; tag `v4.9.0` on `main` after the merge, then `gh release create` with the note.
         CI matrix is the cross-platform arbiter (§9) — the branch edits a text file line-wise, so let it

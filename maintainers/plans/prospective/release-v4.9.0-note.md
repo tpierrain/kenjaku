@@ -1,10 +1,11 @@
-# v4.9.0 — The One Where Your Context Follows You
+# v4.9.0 — The One Where the Universe Travels With You
 
 > **DRAFT** — written per `CONVENTIONS.md` §11 (non-developer first, depth kept but moved below the
-> `---`) and §10 (marketing surface re-read before a line of this was written). The **title is the
-> owner's call** and is a placeholder until arbitrated; candidates are listed at the bottom of the plan
-> discussion, not here. Once published, this file is rewritten to mirror the **published body verbatim**
-> and moved to `archived/`, as v4.7.0, v4.8.0 and v4.8.1 were.
+> `---`) and §10 (marketing surface re-read before a line of this was written). **Title arbitrated by
+> the owner, 2026-08-08**, from four candidates: it keeps the product's own word (*universe*), which the
+> reader who has two of them already knows, and the lead below carries the plain-words version for
+> everyone else. Once published, this file is rewritten to mirror the **published body verbatim** and
+> moved to `archived/`, as v4.7.0, v4.8.0 and v4.8.1 were.
 
 **The sphere you are working in now follows you from one computer to the next.** Switch to a client, a
 new employer, a side of your life on your laptop, and the machine you open next lands in that same
