@@ -190,7 +190,9 @@ edit is the only thing that clears it; a restart or a reindex changes nothing.
 
 A **universe** is a *soft* retrieval scope over the one shared vault: successive employers, clients or spheres kept as **separate default corpora** inside the same brain. While a universe is active, `search_vault` returns **that universe's notes plus your cross-cutting (default) notes**, and nothing from the others — so a question about your current context isn't diluted by an old one.
 
-- **The engine scopes the search, not you.** The active universe is read from persisted state (`.vault-rag/active-universe`) and injected **server-side**; you never pass it. To deliberately search **across every universe**, set the `search_vault` tool's `allUniverses` parameter — surface this only when the user explicitly asks for "all universes" / "every context".
+- **The engine scopes the search, not you.** The active universe is read from persisted state
+  (`.vault-rag/active-universe` — **committed**, so it follows the owner between their machines, ADR
+  0034) and injected **server-side**; you never pass it. To deliberately search **across every universe**, set the `search_vault` tool's `allUniverses` parameter — surface this only when the user explicitly asks for "all universes" / "every context".
 - **Relevance, not security.** It is a relevance boundary, never an isolation wall: a `grep`, Obsidian, or `get_document` by path can still cross it, and for a private brain that is fine. **Never** describe it as confidentiality.
 - **Switching / creating** goes through the **`/switch`** skill; new notes then file under `vault/<universe>/` (see *Universes — where a note files* under Note format). Re-home a whole external sphere into its own universe with **`/import --universe <name>`**.
 

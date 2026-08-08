@@ -333,9 +333,10 @@ Two things it will refuse: renaming onto a name you already use (that would be *
 universes, a different question), and renaming your cross-cutting scope, which has no folder of its
 own.
 
-> 💻 **On another machine**, the new name arrives with your next `git pull`. Your brain notices that
-> the universe you were in there has been renamed and puts you back on solid ground on its own, with
-> a one-line notice. Nothing to do.
+> 💻 **On another machine**, the new name arrives with your next `git pull` — and so does the universe
+> you are working in (see §7). Nothing to do: your brain names the universe it is in when the session
+> starts. If that other machine somehow arrives pointing at a universe that no longer exists, it puts
+> you back on solid ground on its own, with a one-line notice.
 
 ### 5.3 Deleting a universe — the one operation you run yourself
 
@@ -507,6 +508,13 @@ That first rooted session is also what **indexes the vault** — a clone carries
 index (`rag/.cache` is local). So a first-session banner announcing an empty index is expected, not a
 defect: let the indexing run. Afterwards, during a session, the `/sync` skill brings in the changes
 made on the other machine.
+
+> 🧭 **The universe you are working in travels too** (if you use several — see §5). Switch context on
+> one computer and the others land in it at their next sync, and say which one they are in when the
+> session starts. Your connectors (Slack, Notion, Gmail, Drive) already follow you that way, being
+> tied to your account, so your notes now match instead of contradicting them. Two computers, one
+> context. If both switch before syncing, the one you are sitting at keeps its own, and your next
+> switch settles it.
 
 > ⚠️ **Never** commit `.env` (gitignored). On a new machine, re-enter the key.
 

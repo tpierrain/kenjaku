@@ -258,9 +258,11 @@ node scripts/rename-universe.mjs "<old>" "<new>"
   target), `unknown` / `empty`. A `reindex failed` here means the rename **did** happen on disk and
   only the index is behind: relay the `cd rag && npm run reindex` it prints.
 
-> 💻 **On another machine**, the pointer is per-machine and gitignored while the registry is
-> committed, so a pull lands the new name with a pointer still naming the old one. That machine
-> **heals itself** at its next session start and says so in one line — nothing to do.
+> 💻 **On another machine**, nothing to do: which universe you are in **follows you**. It is committed
+> alongside the registry, so the owner's other computers land in it at their next sync, and the brain
+> **names the universe it is in** at that session's start, in one line. (Mid-session, `/sync` says the
+> same thing.) A machine that somehow arrives with a pointer naming a universe that no longer exists
+> still **heals itself** at session start and says so — a net, not the normal path.
 
 ### Delete a universe — ONLY when the user explicitly asks for it
 
