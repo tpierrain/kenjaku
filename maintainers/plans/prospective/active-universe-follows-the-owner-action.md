@@ -144,6 +144,11 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
       So: either that floor is honoured in this release, or the deferral is **re-arbitrated in writing**
       (in that plan) and the number is chosen deliberately. Letting it slip unnamed is the third
       occurrence of a failure this repo already documented.
+- [x] **One rider is IN, by the owner's call (2026-08-08)**: the *source-first* field finding —
+      `prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md`. Its rule is one
+      paragraph; **its carrier is an open arbitration** (a `UserPromptSubmit` hook that reaches the
+      fleet, versus unfreezing the constitution layer for the fleet), and option B would change what
+      this release is. Read that plan's S2 before sizing this one.
 - [ ] **Riders considered, and why they are NOT proposed here** (so they are not re-proposed blind):
       the **live health banner** (v4.8.1's hand-off, affordable now at ~0.3 s) is the *cure* for the
       green line that lies, and it changes what **every** session start prints, so it deserves its own
