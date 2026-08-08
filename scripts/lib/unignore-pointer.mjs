@@ -29,7 +29,10 @@ const ENGINE_COMMENT = [
 // What replaces it: one line, saying the thing that is now true.
 const REPLACEMENT = "# Universes (ADR 0034): nothing under .vault-rag/ is ignored — which universe you are in is the OWNER's state, and it travels.";
 
-const bare = (line) => line.replace(/\r$/, "").trim();
+// `.trim()` already strips a CRLF file's trailing `\r` (it is whitespace), so the
+// explicit `\r` strip this used to carry was dead code — and dead code is a mutant
+// nothing can kill. Trailing spaces are git's own rule for a `.gitignore` entry.
+const bare = (line) => line.trim();
 
 /**
  * Returns the `.gitignore` with the pointer un-ignored, and whether anything moved.

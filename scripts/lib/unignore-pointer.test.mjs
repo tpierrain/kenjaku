@@ -22,10 +22,64 @@ test("the deployed brain's stale block goes as a whole — the ignore line AND t
   const { text, changed } = unignoreActiveUniverse(before);
 
   assert.equal(changed, true);
-  assert.doesNotMatch(text, /^\.vault-rag\/active-universe$/m, "the ignore line must be gone");
-  assert.doesNotMatch(text, /per-machine session state/, "a comment that now lies is worse than none");
-  assert.match(text, /^engine-health\.json$/m, "everything around it is untouched");
-  assert.match(text, /^\*\.log$/m);
+  // The WHOLE file, not three matchers: what replaces the retracted comment is
+  // prose we ship into someone else's file, so a blanked or reworded replacement
+  // must fail here rather than pass because "the old line is gone".
+  assert.equal(
+    text,
+    "engine-health.json\n" +
+      "# Universes (ADR 0034): nothing under .vault-rag/ is ignored — which universe you are in is the OWNER's state, and it travels.\n" +
+      "\n# ── Misc ──\n*.log\n",
+  );
+});
+
+test("the engine's block at the very TOP of the file is still the engine's — no line above it to lean on", () => {
+  // The boundary: the comment starts at index 0. An off-by-one here leaves the
+  // stale "never commit it" comment sitting above a pointer that is now committed.
+  const before = `${SHIPPED_BEFORE}\n*.log\n`;
+
+  const { text, changed } = unignoreActiveUniverse(before);
+
+  assert.equal(changed, true);
+  assert.equal(
+    text,
+    "# Universes (ADR 0034): nothing under .vault-rag/ is ignored — which universe you are in is the OWNER's state, and it travels.\n*.log\n",
+  );
+});
+
+test("three lines of the OWNER's own above the pointer are not our comment, however well placed", () => {
+  // Same shape as the engine's block (three comment lines, immediately above), so
+  // only reading them tells the difference. Rewriting an owner's prose is worse
+  // than leaving ours behind.
+  const before = "# why I ignore this\n# (asked ops, 2026)\n# do not remove\n.vault-rag/active-universe\n*.log\n";
+
+  const { text, changed } = unignoreActiveUniverse(before);
+
+  assert.equal(changed, true);
+  assert.equal(text, "# why I ignore this\n# (asked ops, 2026)\n# do not remove\n*.log\n");
+});
+
+test("a Windows brain carrying the engine's block keeps CRLF on the line we put back", () => {
+  // The CRLF case where the replacement is actually written: the line we introduce
+  // must carry the file's own ending, or a Windows .gitignore ends up mixed.
+  const before = `${SHIPPED_BEFORE.split("\n").join("\r\n")}\r\n*.log\r\n`;
+
+  const { text, changed } = unignoreActiveUniverse(before);
+
+  assert.equal(changed, true);
+  assert.equal(
+    text,
+    "# Universes (ADR 0034): nothing under .vault-rag/ is ignored — which universe you are in is the OWNER's state, and it travels.\r\n*.log\r\n",
+  );
+});
+
+test("the entry as a careless hand left it — trailing spaces, which git ignores and so must we", () => {
+  const before = ".vault-rag/active-universe   \n*.log\n";
+
+  const { text, changed } = unignoreActiveUniverse(before);
+
+  assert.equal(changed, true);
+  assert.equal(text, "*.log\n");
 });
 
 test("only the comment the ENGINE wrote is removed — an owner's own note beside the line survives", () => {
