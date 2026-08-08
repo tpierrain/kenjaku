@@ -253,13 +253,29 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
     - [ ] Record the run in `maintainers/mutation/RESULTS.md` as a `v4.9.0` section + the *Current
           scores* line, survivors either killed or **named** as equivalents (§5ter: the constraint, not
           the anecdote).
-  - [ ] **Marketing-surface re-read (§10) — BEFORE writing the note**, and its verdict written down even
-        if it is the boring one. The surface: `README.md`, `EN-QUOI-C-EST-DIFFERENT.md`, `SETUP.md`,
-        `CONNECTORS.md`, the boards via their README alt texts + `docs/marketing-image-prompts.md`.
-        The two questions in order: what did this release make **false or imprecise** (hunt the absolutes
-        — this one touches *"per-machine"*, *"nothing leaves your machine"*, *"your brain is local"*
-        claims and anything promising a machine-local scope), and what did it make **true that we do not
-        sell yet** (a context that follows you across computers is a newcomer-facing capability).
+  - [x] **Marketing-surface re-read (§10) — done 2026-08-08, before a line of the note was written.**
+        Whole surface re-read: `README.md`, `EN-QUOI-C-EST-DIFFERENT.md`, `SETUP.md`, `CONNECTORS.md`,
+        and the boards through their README alt texts + `docs/marketing-image-prompts.md`.
+    - [x] **Q1 — what did this release make false or imprecise? Nothing.** The absolutes were hunted
+          where they live (anything promising a machine-bound scope) and **no marketing surface ever
+          claimed the universe was per-machine** — that framing only ever existed in code comments,
+          which S2 already corrected. `CONNECTORS.md`'s *"a connector is wired once, for the whole
+          brain … switching universe re-scopes your notes, not your live connectors"* is not merely
+          still true, it is **more** coherent now: it was describing exactly the divergence this
+          release removes. `SETUP.md` §5.2 and §7 were already rewritten in S4. The multi-machine
+          paragraph in `EN-QUOI-C-EST-DIFFERENT.md` (*"the files that carry the machine's own paths
+          are deliberately not versioned"*) stays true — the pointer was never one of those files, it
+          was ignored for a reason that was assumed rather than argued.
+    - [x] **Q2 — what did it make true that we do not sell yet? One thing, and it was the headline.**
+          The README's universes bullet was silent on machines, so a newcomer reading the page could
+          not learn that their context travels. Fixed in place: the bullet now carries *"Since v4.9.0
+          the universe you are working in follows you"*, in the `Since vX` idiom the surrounding
+          bullets already use, and it names **why** it matters (the connectors were always account-wide;
+          the notes now agree with them instead of contradicting them).
+    - [x] **Boards: re-read, copy still accurate, NO re-render** — the boring verdict, written down on
+          purpose (§10). None of `board-hero`, `board-affordance` or `board-privacy` asserts anything
+          about universes or about a scope belonging to one computer, so none of them stopped being
+          true. Recorded so the next release does not re-derive it.
   - [ ] **Write the note (§11)**: two-sentence lead in the owner's words, `What you get` (few bullets),
         `What you have to do` (`/update-engine`, no reindex — this release does not touch the index),
         then `---` and `Under the hood` with the mechanics, ADR 0034, the mutation snapshot.
