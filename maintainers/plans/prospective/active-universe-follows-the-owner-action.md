@@ -269,9 +269,24 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           pointer (so *"is this prose still ours?"* was never actually read), and the CRLF case never
           exercised the line we put back. The `\r` strip in `bare()` went too: `.trim()` already handles
           it, so it was dead code — and dead code is a mutant nothing can kill. Harness **1661**.
-    - [ ] **`startup-sync-gate.mjs` — its 13 survivors still to be read and answered** (only 2 were
-          visible before the truncation: `mkdirSync`'s `{ recursive: true }`, twice).
-    - [ ] Re-measure both files after hardening — a hardened-but-unmeasured file has an unknown score.
+    - [x] **`startup-sync-gate.mjs` hardened** _(2026-08-08 · `e116f43`)_ — **8 of its 11 survivors were
+          real**, and they all said the same thing: the barrier's own contract was never read.
+          `SYNC_MARKER_REL` was only ever **recomputed from the constant** by the tests, so the marker
+          could have moved out of `.cache/` — the one dir every brain gitignores — with the suite still
+          green; it is now asserted as a literal. The fake fs **swallowed `mkdirSync`**, leaving
+          *"recursively"* unobserved. The settings reader was only ever shown **tidy** settings (one
+          hook per entry, no null slots, the puller always first), which is exactly why `some`-vs-`every`
+          and **both** optional chains survived — now one dented-settings test covers the three. And the
+          **TTY guard**, the thing that keeps a hand-run hook off the keyboard, was only exercised
+          through the stub the tests inject; the default wiring is now driven for real.
+    - [x] **3 named equivalents on that file, not chased** (§5ter's own list): the `"utf8"` encoding in
+          `readFileSync(0, …)`, which is the default wiring of an injected port and only runs in a real
+          I/O run; and the two `?? []` array defaults in `pullerIsWired`, whose replacement array is
+          immediately `.some`-ed back to the same `false`.
+    - [ ] Re-measure everything after hardening — a hardened-but-unmeasured file has an unknown score.
+          Running as three sequential batches at the hand-back of 2026-08-08 (script:
+          `scratchpad/run-batches.sh`, logs `scratchpad/mut-batch*.log`): batch 1 re-measure, then
+          `reconcile-brain.mjs`, then the three top-level scripts.
     - [ ] Record the run in `maintainers/mutation/RESULTS.md` as a `v4.9.0` section + the *Current
           scores* line, survivors either killed or **named** as equivalents (§5ter: the constraint, not
           the anecdote).
