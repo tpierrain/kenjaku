@@ -18,11 +18,16 @@
 > **The FLEET MIGRATION is also done** (2026-08-08 · `20ac23e`): it lives in `reconcileBrain`, so it
 > reaches a deployed brain by update AND by self-heal. Full harness suite green (1654).
 >
-> **Next real step: the CONFLICT RULE for `/sync`** — when the pointer conflicts on a `pull --rebase`,
-> the machine you are sitting at wins, taught to `.claude/skills/sync/SKILL.md`; then `/sync` says out
-> loud, in one line, when the pull changed which universe is active (mid-session only — session start
-> is already covered by the barrier). Then S4 (docs). One S3 item stays deliberately open and is NOT a
-> blocker: the general smell (do wiki-health and self-heal read pre-pull state too).
+> **`/sync` is done too** (2026-08-08 · `435c164`): the conflict rule (the machine you sit at wins,
+> `--theirs`, proven against real git) and the mid-session announcement line. Full harness suite green
+> (1657). **S3 is therefore complete except one item deliberately left open, which is NOT a blocker**:
+> the general smell (do wiki-health and self-heal read pre-pull state too).
+>
+> **Next real step: S4 — the docs say the universe follows you** (switch skill's "On another machine"
+> note, SETUP §5.2 + §7, `CLAUDE.engine.md`, and the release note written for a non-developer). Then
+> the release shape's one open question: **the version number and the v4.9.0 mutation-debt floor**,
+> which must be honoured or re-arbitrated IN WRITING (third occurrence of a documented failure
+> otherwise).
 >
 > **Standing constraints**: TDD baby-steps with a failing test first, green-only commits pushed as they
 > go (CONVENTIONS §5), artifacts in English (§4), CRLF care on any line-wise file edit (§9).
@@ -191,12 +196,15 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
         entries preserved byte-for-byte; running it twice changes nothing. _(plus: a look-alike entry
         the owner invented is never touched, a duplicated entry goes too, CRLF stays CRLF, and at the
         reconciler level a brain with no `.gitignore` never gets one invented.)_
-  - [ ] **Conflict rule, written once and applied everywhere**: when the pointer conflicts on a
-        `pull --rebase`, **the machine you are sitting at wins** (its current value is kept), and the
-        next switch propagates. Teach it to `/sync` (`.claude/skills/sync/SKILL.md`) so the
-        resolution is not improvised.
-  - [ ] `/sync` **says it out loud**: if the pull changed the pointer, name the universe now active,
-        in one line. Session start already covers the session-boundary case; this covers mid-session.
+  - [x] **Conflict rule, written once and applied everywhere** _(2026-08-08 · `435c164`)_: the machine
+        you are sitting at wins, taught to `/sync` with its command. ⚠️ That command is
+        `git checkout --theirs`, which reads backwards: a rebase replays YOUR commits onto origin's, so
+        `--ours` is the OTHER machine. **Verified against real git** in a repo that actually conflicts
+        (`scripts/lib/sync-skill-discipline.test.mjs`), so nobody "fixes" the direction and silently
+        hands the session to the other laptop.
+  - [x] `/sync` **says it out loud** _(2026-08-08 · `435c164`)_: it reads the active universe on BOTH
+        sides of the rebase and names it in one line when it changed — silent when it did not, so a
+        single-context brain still never hears of the feature.
 
 - [ ] **S4 — The docs say the universe follows you.**
   - [ ] `.claude/skills/switch/SKILL.md` — the *"On another machine"* note (~L261) currently explains
