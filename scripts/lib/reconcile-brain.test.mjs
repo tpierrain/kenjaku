@@ -1952,3 +1952,84 @@ test("reconcileBrain — with no settings template to read, the retreat is not C
   assert.deepEqual(report.hooksAdded, [], "and no hook was wired either");
   assert.equal(readFileSync(settingsPath, "utf8"), before, "the sacred file is untouched");
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The fleet migration: un-ignore the active-universe pointer (ADR 0034).
+// A brain's `.gitignore` is carried by NO engine regime, so the launcher's own
+// change reaches nobody. The reconciler is the one path that does — it runs at
+// every update AND at every SessionStart self-heal, and it is idempotent.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const STALE_IGNORE_BLOCK = [
+  "# Universes (ADR 0034): the active-universe pointer is per-machine session state",
+  "# (never commit it). Its sibling .vault-rag/universes.json registry IS committed on",
+  "# purpose (structural: which universes exist) — only the pointer is transient.",
+  ".vault-rag/active-universe",
+].join("\n");
+
+test("reconcileBrain — a deployed brain stops ignoring its universe pointer, and its own entries survive", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  t.after(() => rmSync(sourceDir, { recursive: true, force: true }));
+  writeFile(brainDir, ".gitignore", `.env\n${STALE_IGNORE_BLOCK}\n# mine\nscratch/\n`);
+  const before = {};
+  for (const rel of Object.keys(SACRED)) before[rel] = sha256(join(brainDir, rel));
+
+  const report = await reconcile({
+    brainDir,
+    platform: "darwin",
+    sourceDir,
+    target: manifest(),
+    local: manifest(),
+    ...seams(),
+  });
+
+  const gitignore = readFileSync(join(brainDir, ".gitignore"), "utf8");
+  assert.equal(report.pointerUnignored, true, "the report must say the fleet migration ran");
+  assert.doesNotMatch(gitignore, /^\.vault-rag\/active-universe$/m);
+  assert.match(gitignore, /^scratch\/$/m, "the owner's own entries are untouched");
+  assert.match(gitignore, /^# mine$/m, "including their own comments");
+  assert.match(gitignore, /^\.env$/m, "and the secrets they must keep ignoring");
+  assertSacredUntouched(brainDir, before);
+});
+
+test("reconcileBrain — a brain already migrated is not touched again, and does not claim it was", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  t.after(() => rmSync(sourceDir, { recursive: true, force: true }));
+  writeFile(brainDir, ".gitignore", ".env\nscratch/\n");
+  const args = {
+    brainDir,
+    platform: "darwin",
+    sourceDir,
+    target: manifest(),
+    local: manifest(),
+    ...seams(),
+  };
+
+  const report = await reconcile(args);
+
+  assert.equal(report.pointerUnignored, false, "nothing to migrate must not read as a migration");
+  assert.equal(readFileSync(join(brainDir, ".gitignore"), "utf8"), ".env\nscratch/\n");
+});
+
+test("reconcileBrain — a brain with no .gitignore at all migrates nothing, and never creates one", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  t.after(() => rmSync(sourceDir, { recursive: true, force: true }));
+
+  const report = await reconcile({
+    brainDir,
+    platform: "darwin",
+    sourceDir,
+    target: manifest(),
+    local: manifest(),
+    ...seams(),
+  });
+
+  assert.equal(report.pointerUnignored, false);
+  assert.equal(existsSync(join(brainDir, ".gitignore")), false, "we write files, we do not invent them");
+});

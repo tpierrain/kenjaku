@@ -82,7 +82,7 @@ export function bareHookName(command) {
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -185,6 +185,15 @@ export function formatReport(report) {
       `   • your own status line is back: the brain no longer occupies it (nothing else changed)`,
     );
   }
+  // ADR 0034: said as what the owner GAINS, on the one surface where they live it —
+  // two computers. The gitignore line this actually removed is our plumbing, and
+  // naming it here would explain the mechanism to someone who never asked for one.
+  if (pointerUnignored) {
+    lines.push(
+      `   • the universe you are working in now follows you: switch context on one computer,`,
+      `     and your other ones land in it too, the next time they sync`,
+    );
+  }
   // F1.6 (ADR 0026, point 4): a freshly-installed skill/MCP is on disk but Claude
   // loads skills/MCP/hooks when a conversation STARTS (Layer B config-freeze), so it
   // is NOT yet live in THIS conversation. Say so LOUDLY (silence reads as "ready to
@@ -271,6 +280,7 @@ export async function updateEngine({
     hooksAdded,
     hooksRepaired,
     statusLineRemoved,
+    pointerUnignored,
   } = await reconcileBrain({
       brainDir,
       platform,
@@ -374,6 +384,7 @@ export async function updateEngine({
     hooksAdded,
     hooksRepaired,
     statusLineRemoved,
+    pointerUnignored,
   };
 }
 
