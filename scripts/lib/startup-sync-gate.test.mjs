@@ -4,10 +4,13 @@ import { join } from "node:path";
 
 import {
   SYNC_MARKER_REL,
+  blockingSleep,
   hookSessionId,
   markSyncDone,
   markSyncRunning,
   pullerIsWired,
+  pullerWiredIn,
+  readHookPayload,
   waitForStartupSync,
 } from "./startup-sync-gate.mjs";
 
@@ -270,4 +273,62 @@ test("markSync*: the ordinary path reports that the marker was actually written"
 
   assert.equal(markSyncRunning({ repo: "/brain", sessionId: "s-42", io, now: () => 0 }), true);
   assert.equal(markSyncDone({ repo: "/brain", sessionId: "s-42", io, now: () => 1 }), true);
+});
+
+test("readHookPayload: the hook payload is read from fd 0, where the harness pipes it", () => {
+  assert.equal(
+    readHookPayload({ readInput: () => '{"session_id":"a1b2"}', isTTY: () => false }),
+    '{"session_id":"a1b2"}',
+  );
+});
+
+test("readHookPayload: run by hand at a terminal, it reads NOTHING — fd 0 there is a keyboard, and would hang", () => {
+  let read = false;
+  const payload = readHookPayload({
+    readInput: () => {
+      read = true;
+      return "typed by a human";
+    },
+    isTTY: () => true,
+  });
+
+  assert.equal(payload, "");
+  assert.equal(read, false, "fd 0 must not even be touched at a terminal");
+});
+
+test("readHookPayload: an unreadable fd 0 is silence, never a thrown hook", () => {
+  assert.equal(
+    readHookPayload({ readInput: () => { throw new Error("EAGAIN"); }, isTTY: () => false }),
+    "",
+  );
+});
+
+test("blockingSleep: it really blocks the thread — a poll loop that does not is a spin", () => {
+  const before = Date.now();
+
+  blockingSleep(30);
+
+  assert.ok(Date.now() - before >= 25, "the wait must be a real one, not a no-op");
+});
+
+test("pullerWiredIn: the question is answered from the brain's OWN settings file, on disk", () => {
+  const settingsPath = join("/brain", ".claude", "settings.json");
+  const io = fakeIo(
+    new Map([
+      [
+        settingsPath,
+        JSON.stringify({
+          hooks: { SessionStart: [{ hooks: [{ command: 'node "/b/scripts/session-status.mjs"' }] }] },
+        }),
+      ],
+    ]),
+  );
+
+  assert.equal(pullerWiredIn({ repo: "/brain", io }), true);
+});
+
+test("pullerWiredIn: no settings file, or bytes that are not JSON — nobody is expected to pull", () => {
+  assert.equal(pullerWiredIn({ repo: "/brain", io: fakeIo() }), false);
+  const corrupt = fakeIo(new Map([[join("/brain", ".claude", "settings.json"), "{ not json"]]));
+  assert.equal(pullerWiredIn({ repo: "/brain", io: corrupt }), false);
 });

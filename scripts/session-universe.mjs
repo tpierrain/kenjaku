@@ -18,7 +18,9 @@
 // always announced.
 //
 // Contract: quiet below the gate, fail-open (never throws, ALWAYS exits 0).
-// Wired as a SessionStart hook AFTER session-self-heal.mjs (cf. .claude/settings.json).
+// Wired as a SessionStart hook (cf. .claude/settings.json). Hooks run in PARALLEL,
+// not in the order they are declared, so this one holds itself back until the
+// startup pull has landed — see the barrier in main() and startup-sync-gate.mjs.
 // Cross-OS: pure Node.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -43,6 +45,13 @@ import {
   renderUniverseSynthesis,
   profileCaptureDeclined,
 } from "./lib/universe-profile.mjs";
+import {
+  blockingSleep,
+  hookSessionId,
+  pullerWiredIn,
+  readHookPayload,
+  waitForStartupSync,
+} from "./lib/startup-sync-gate.mjs";
 
 /**
  * The profile of the universe actually in force, rendered as the SESSION-START
@@ -138,6 +147,23 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const vaultDir = `${toPosix(brainDir)}/vault`;
   const lines = [];
+
+  // WAIT FOR THE PULL BEFORE READING A SINGLE BYTE OF UNIVERSE STATE. SessionStart
+  // hooks run in parallel and the startup pull lives in session-status.mjs, so this
+  // hook — a handful of file reads — normally wins that race. It would then announce
+  // the universe this machine went to sleep in, and inject THAT sphere's profile,
+  // while the pointer arriving milliseconds later scopes every search of the session
+  // to the other one: the context of one sphere, the retrieval of another.
+  // Fail-open on every branch (no puller wired, no session id, a pull that never
+  // lands): we read what is on disk, exactly as the brain did before this barrier.
+  waitForStartupSync({
+    repo: brainDir,
+    sessionId: hookSessionId(readHookPayload()),
+    io,
+    now: Date.now,
+    sleep: blockingSleep,
+    pullerWired: pullerWiredIn({ repo: brainDir, io }),
+  });
 
   const { synthesis, offer } = sessionUniverseReminder({
     dir: vaultRagDir(brainDir),

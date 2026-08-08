@@ -16,6 +16,7 @@
 // every one of them means "carry on with what is on disk", i.e. exactly today's
 // behaviour. A session start is never blocked by this file.
 // ─────────────────────────────────────────────────────────────────────────────
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 // Under the brain's gitignored `.cache/`, alongside `restart-needed` and the
@@ -35,6 +36,32 @@ const GRACE_MS = 3_000;
 // The one hook that owns the sweep+pull (session-status.mjs). Named here rather
 // than at each call site: the puller and the readers must not drift apart.
 const PULLER_SCRIPT = "session-status.mjs";
+
+/**
+ * The raw hook payload, from fd 0 where the harness pipes it. A TTY is left alone
+ * on purpose: run by hand, fd 0 is a keyboard and the read would hang the hook.
+ * Both deps are injected so that guard is assertable without a terminal.
+ */
+export function readHookPayload({
+  readInput = () => readFileSync(0, "utf8"),
+  isTTY = () => Boolean(process.stdin.isTTY),
+} = {}) {
+  try {
+    return isTTY() ? "" : readInput();
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * A REAL blocking wait, with no event loop to lend us: a SessionStart hook is a
+ * straight-line script, and `await` would let it fall off the end before the pull
+ * lands. `Atomics.wait` on a lock nobody notifies parks the thread for exactly the
+ * requested time, on every platform.
+ */
+export function blockingSleep(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
 
 /**
  * The session id the harness hands every hook on stdin — the one key the puller
@@ -59,6 +86,16 @@ export function pullerIsWired(settings) {
   return entries.some((entry) =>
     (entry?.hooks ?? []).some((hook) => String(hook?.command ?? "").includes(PULLER_SCRIPT)),
   );
+}
+
+/** The same question, asked of the settings file on disk. Unreadable → "no". */
+export function pullerWiredIn({ repo, io }) {
+  const path = join(repo, ".claude", "settings.json");
+  try {
+    return io.existsSync(path) ? pullerIsWired(JSON.parse(io.readFileSync(path))) : false;
+  } catch {
+    return false;
+  }
 }
 
 /** Announce that THIS session's startup sync is under way. */

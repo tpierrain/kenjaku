@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -320,4 +322,62 @@ test("settings.json.template wires session-universe as a SessionStart hook, AFTE
   assert.ok(universeIdx >= 0, "session-universe.mjs must be wired on SessionStart");
   assert.ok(selfHealIdx >= 0, "session-self-heal.mjs must stay wired on SessionStart");
   assert.ok(selfHealIdx < universeIdx, "universe reminder must run after self-heal (the restart nudge keeps priority)");
+});
+
+// ── The ordering defect (2026-08-08), end to end ─────────────────────────────
+// SessionStart hooks run in PARALLEL, and the startup pull — which can land a
+// universe switch made on the owner's other machine — lives in another hook. This
+// one used to win that race and announce the universe this machine went to sleep
+// in, while every search of the session scoped to the one that had just arrived.
+// A real child process is the only honest proof: the pointer changes UNDER it,
+// exactly as a pull does, and what it prints must be the universe that arrived.
+test("the universe hook waits for the startup pull, and announces the universe that ARRIVED — not the one this machine woke up in", async (t) => {
+  // realpath: on macOS the temp dir is a symlink, and the hook only runs its main
+  // block when argv[1] matches its own resolved module path.
+  const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-universe-race-")));
+  t.after(() => rmSync(brain, { recursive: true, force: true }));
+  cpSync(join(REPO_ROOT, "scripts"), join(brain, "scripts"), { recursive: true });
+  mkdirSync(join(brain, ".vault-rag"), { recursive: true });
+  mkdirSync(join(brain, ".claude"), { recursive: true });
+  mkdirSync(join(brain, ".cache"), { recursive: true });
+  writeFileSync(
+    join(brain, ".vault-rag", "universes.json"),
+    JSON.stringify({ universes: ["acme", "blue-team"] }),
+  );
+  writeFileSync(join(brain, ".vault-rag", "active-universe"), "acme"); // yesterday's scope
+  // A puller IS wired, so the barrier is expected to hold.
+  writeFileSync(
+    join(brain, ".claude", "settings.json"),
+    JSON.stringify({
+      hooks: { SessionStart: [{ hooks: [{ command: `node "${brain}/scripts/session-status.mjs"` }] }] },
+    }),
+  );
+  const marker = join(brain, ".cache", "startup-sync.json");
+  writeFileSync(marker, JSON.stringify({ sessionId: "s-race", phase: "running", at: Date.now() }));
+
+  const child = spawn(process.execPath, [join(brain, "scripts", "session-universe.mjs")], {
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  child.stdin.end(JSON.stringify({ session_id: "s-race", source: "startup" }));
+  let stdout = "";
+  child.stdout.on("data", (chunk) => (stdout += chunk));
+  // Listen BEFORE the flip: a hook that does not wait is already gone by then, and
+  // a close listener attached afterwards would hang instead of failing.
+  const closed = new Promise((resolve) => child.on("close", resolve));
+
+  // …meanwhile, in the other hook: the pull lands the switch made elsewhere.
+  await new Promise((r) => setTimeout(r, 250));
+  writeFileSync(join(brain, ".vault-rag", "active-universe"), "blue-team");
+  writeFileSync(marker, JSON.stringify({ sessionId: "s-race", phase: "done", at: Date.now() }));
+
+  const code = await closed;
+
+  assert.equal(code, 0, "the hook is fail-open: it always exits 0");
+  // The message lists every universe, so only the ACTIVE one is evidence here.
+  assert.match(stdout, /Active universe: 'blue-team'/, "the session must be told the universe that ARRIVED");
+  assert.doesNotMatch(
+    stdout,
+    /Active universe: 'acme'/,
+    "announcing the pre-pull universe is the defect: one sphere's context, another's retrieval",
+  );
 });
