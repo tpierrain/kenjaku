@@ -5,14 +5,15 @@
 
 # Action plan — the active universe follows the owner, not the machine
 
-> **RESUME HERE (state at 2026-08-08, nothing coded yet on S3).** Branch `feat/active-universe-travels`,
-> pushed, clean. The owner has arbitrated the release: **universes only**, then cut, then the unfreeze
-> release (`update-regime-owns-what-it-shipped-action.md`). No code has been written for S3.
+> **RESUME HERE (state at 2026-08-08, S3 under way).** Branch `feat/active-universe-travels`, pushed,
+> clean. The owner has arbitrated the release: **universes only**, then cut, then the unfreeze release
+> (`update-regime-owns-what-it-shipped-action.md`).
 >
 > **In S3, the 🔴 ordering defect is DONE** (2026-08-08 · `97149a5`): hooks run in **parallel**, so it
-> was a race and "reorder the hooks" would have been a non-fix; shipped as a session-keyed barrier
-> (`scripts/lib/startup-sync-gate.mjs`) the universe hook blocks on before reading. Full harness suite
-> green (1642).
+> was a race and "reorder the hooks" would have been a non-fix. Shipped as a session-keyed barrier
+> (`scripts/lib/startup-sync-gate.mjs`): the puller brackets its sweep+pull with a `running`/`done`
+> marker, and the universe hook blocks on that flip before reading any universe state. Full harness
+> suite green (1642).
 >
 > **Next real step: the FLEET MIGRATION** — strip the ignore line from a deployed brain's own
 > `.gitignore`, and stage an untracked pointer so the first pull cannot hit git's untracked-overwrite
@@ -23,8 +24,8 @@
 > **Standing constraints**: TDD baby-steps with a failing test first, green-only commits pushed as they
 > go (CONVENTIONS §5), artifacts in English (§4), CRLF care on any line-wise file edit (§9).
 >
-> **Done so far.** S1: the decision is recorded in ADR 0034. S2: the pointer is un-ignored in THIS
-> repo, a test asks git itself that the line never comes back, and the nine prose sites now say the
+> **Done so far.** S1: the decision is recorded in ADR 0034. S3: the ordering defect is fixed (above).
+> S2: the pointer is un-ignored in THIS repo, a test asks git itself that the line never comes back, and the nine prose sites now say the
 > pointer is the owner's, not the machine's. **A deployed brain is still unchanged** — its own
 > `.gitignore` is carried by no engine regime, which is exactly what S3 exists to fix.
 >
