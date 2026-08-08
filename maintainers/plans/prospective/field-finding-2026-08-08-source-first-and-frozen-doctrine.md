@@ -84,8 +84,14 @@ release on: **shipping something the fleet never receives**, silently.
   - [ ] **Guard test** modelled on `claim-discipline.test.mjs` (same `docSection` slicing, same EN/FR
         parity, one entry per rule naming the field defect it prevents), extended to whichever carrier
         S2 chooses.
-- [ ] **S2 — 🛑 THE CARRIER. Owner's arbitration required before any code; the two options are not the
-      same release.**
+- [x] **S2 — ✅ RESOLVED 2026-08-08 by the owner's sequencing, without having to choose.** The unfreeze
+      becomes **the very next release** (`update-regime-owns-what-it-shipped-action.md`), so the rule
+      goes where doctrine belongs — S1 above, one paragraph in both constitutions plus its guard test —
+      and **that release delivers it to the fleet**. **The hook is NOT built** (option A below): it
+      would be mechanism bought to bridge a gap that is about to close, which is the very reflex this
+      repo has just diagnosed. The options are kept below as the record of what was weighed, not as
+      work.
+- [ ] ~~**S2 — the carrier.**~~ _(kept for the reasoning; superseded by the box above)_
   - [ ] **Option A — a `UserPromptSubmit` hook.** Regex-detect URLs and file paths in the prompt and
         re-inject them as `additionalContext`: *"sources the owner designated, to open before
         answering: …"*, annotated for local paths with *exists / not found* (which also kills the
@@ -111,10 +117,10 @@ release on: **shipping something the fleet never receives**, silently.
   - [ ] **Recorded so it is not re-argued**: A and B are not exclusive, and A alone leaves the doctrine
         frozen for everyone. The minimal honest package is **S1 + A**; the one that actually fixes the
         class is **S1 + B**.
-- [ ] **S4 — Release shape.** The owner wants this in the **next small version**, i.e. riding with
-      `active-universe-follows-the-owner-action.md`. Note the convergence, which is a real release
-      story rather than a bundle: both halves are *something the engine ships that the fleet never
-      receives* (a `.gitignore` line there, the doctrine here).
+- [x] **S4 — Release shape: ✅ DECIDED 2026-08-08 — it does NOT ride with the universes release.** The
+      owner scoped that one to universes only. This finding ships with the **unfreeze release**, which
+      is the coherent home: that release's whole subject is *the doctrine finally arrives*, so the new
+      doctrine rule arriving with it is the demonstration, not a bundle.
   - [ ] Release note per §11: what the owner gains is *"when you hand your brain a link or a file, it
         reads it before answering"* — never a paragraph about regimes and manifests.
 

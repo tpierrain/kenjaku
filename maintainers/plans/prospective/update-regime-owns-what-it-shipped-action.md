@@ -65,11 +65,13 @@ Three consequences, each already logged as its own field finding:
 
 ## Tracking
 
-- [ ] **S0 — 🛑 SEQUENCING, owner's call, blocks everything below.** Does this precede the small
-      universes release, ride after it, or replace Gate 4's F-B7e outright? Recommendation on record:
-      **ship the small release** (its migration is unrelated and 90 % done), then make **this** the next
-      real subject rather than a Gate 4 line, and **fold `field-finding-2026-08-05-silent-skill-freeze.md`
-      into it as a symptom** rather than fixing it separately.
+- [x] **S0 — ✅ SEQUENCED 2026-08-08 by the owner**: the small universes release ships and is cut
+      **first**, then **this becomes the next release, and it is the imposing one**. It supersedes
+      Gate 4's F-B7e in scope, **absorbs `field-finding-2026-08-05-silent-skill-freeze.md`** as a
+      symptom rather than fixing it separately, and **carries the source-first rule**
+      (`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`) as its demonstration: the
+      release whose subject is *the doctrine finally arrives* is where new doctrine should arrive.
+      Nothing here starts before the universes release is cut.
 - [ ] **S1 — An immutable base per `merge` file.** Freeze the staged copy at **the version actually
       delivered to the installed file**, instead of overwriting it with the newest one. That one change
       makes the existing comparison correct and kills the silent-freeze false positive by construction.

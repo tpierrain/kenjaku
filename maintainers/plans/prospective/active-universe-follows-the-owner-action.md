@@ -1,14 +1,23 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- STATUS: 🟢 OPEN — opened 2026-08-07. S1 + S2 done, S3 next (the real engineering). -->
-<!-- Release shape (scope + version number) is OPEN and waiting on the owner: see its section. -->
+<!-- Release shape ARBITRATED 2026-08-08: universes only → cut → then the unfreeze release. -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the active universe follows the owner, not the machine
 
-> **Next real step: S3** — the fleet migration (strip the ignore line from a deployed brain's own
-> `.gitignore`, stage an untracked pointer so the first pull cannot hit git's untracked-overwrite
-> refusal) and the conflict rule taught to `/sync`. This is where the actual engineering is; S1–S2
-> were the record and a two-line change behind a guard.
+> **RESUME HERE (state at 2026-08-08, nothing coded yet on S3).** Branch `feat/active-universe-travels`,
+> pushed, clean. The owner has arbitrated the release: **universes only**, then cut, then the unfreeze
+> release (`update-regime-owns-what-it-shipped-action.md`). No code has been written for S3.
+>
+> **Next real step: S3**, and its **first item is the 🔴 ordering defect** found on 2026-08-08 — it is
+> the only item in this plan that is a *defect this branch creates*, so it leads. Then the fleet
+> migration (strip the ignore line from a deployed brain's own `.gitignore`, stage an untracked pointer
+> so the first pull cannot hit git's untracked-overwrite refusal) and the conflict rule taught to
+> `/sync`. This is where the actual engineering is; S1–S2 were the record and a two-line change behind
+> a guard.
+>
+> **Standing constraints**: TDD baby-steps with a failing test first, green-only commits pushed as they
+> go (CONVENTIONS §5), artifacts in English (§4), CRLF care on any line-wise file edit (§9).
 >
 > **Done so far.** S1: the decision is recorded in ADR 0034. S2: the pointer is un-ignored in THIS
 > repo, a test asks git itself that the line never comes back, and the nine prose sites now say the
@@ -151,34 +160,32 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
   - [ ] Release note (CONVENTIONS §11 — written for the non-developer first): *"switch context on one
         laptop, your other one picks it up"*, never a paragraph about a gitignore line.
 
-## Release shape — OPEN, waiting on the owner (raised 2026-08-08)
+## Release shape — ✅ ARBITRATED by the owner, 2026-08-08
 
-> The owner asked whether this ships as a small release of its own, and whether other small items
-> should ride along. Recorded here because the answer changes S3/S4's tail, and because one of the
-> options silently breaks a promise another plan made.
+> *"Ok pour faire une petite version centrée sur les univers (avec le suivi du contexte cross machine +
+> le correctif que tu viens de me décrire), puis on cut la release, et on partira ensuite sur la release
+> plus imposante sur le dégel."*
 
-- [ ] **Decide the scope.** Default proposed: **this alone** (S3 + S4 + note). S3 edits a deployed
-      brain's own `.gitignore` and creates the first-pull path for a file that never travelled before;
-      a release whose whole content is that migration is the one that can be explained in a line and
-      rolled back without collateral.
-- [ ] **Decide the version number, and with it a debt.** A behaviour change on the fleet reads as a
-      **minor** (`v4.9.0`). But `prospective/v4.9.0-mutation-debt-plan.md` declares itself the **floor
-      of v4.9.0** (the `runAsEntrypoint` helper + its guard test, `defaultGit` as a pure value), opened
-      precisely because the same deferral was already taken twice and memory never brought it back.
-      So: either that floor is honoured in this release, or the deferral is **re-arbitrated in writing**
-      (in that plan) and the number is chosen deliberately. Letting it slip unnamed is the third
-      occurrence of a failure this repo already documented.
-- [x] **One rider is IN, by the owner's call (2026-08-08)**: the *source-first* field finding —
-      `prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md`. Its rule is one
-      paragraph; **its carrier is an open arbitration** (a `UserPromptSubmit` hook that reaches the
-      fleet, versus unfreezing the constitution layer for the fleet), and option B would change what
-      this release is. Read that plan's S2 before sizing this one.
-- [ ] **Riders considered, and why they are NOT proposed here** (so they are not re-proposed blind):
-      the **live health banner** (v4.8.1's hand-off, affordable now at ~0.3 s) is the *cure* for the
-      green line that lies, and it changes what **every** session start prints, so it deserves its own
-      note rather than a paragraph inside a migration release; the **silent skill freeze**
-      (`prospective/field-finding-2026-08-05-silent-skill-freeze.md`) is a provenance change, not a
-      small item.
+- [x] **Scope: universes ONLY.** S3 (fleet migration + conflicts + the ordering defect) → S4 (docs) →
+      cut the release. Nothing else rides along.
+- [x] **The source-first rider MOVES OUT**, and the sequencing is what dissolves its open question. Its
+      carrier arbitration (a `UserPromptSubmit` hook versus unfreezing the doctrine layer) only existed
+      because the unfreeze was far away. It is now **the very next release**, so the rule goes where
+      doctrine belongs — one paragraph in both constitutions plus its guard test — and **the unfreeze
+      release delivers it**. **Do not build the hook**: it would be mechanism bought to bridge a gap
+      that is about to close, in a repo that has just diagnosed exactly that reflex.
+      → carried by `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`, shipped with
+      `update-regime-owns-what-it-shipped-action.md`.
+- [ ] **Still to decide at cut time: the version number, and with it a debt.** A behaviour change on the
+      fleet reads as a **minor** (`v4.9.0`). But `prospective/v4.9.0-mutation-debt-plan.md` declares
+      itself the **floor of v4.9.0**, opened precisely because the same deferral was already taken twice
+      and memory never brought it back. Either that floor is honoured here, or the deferral is
+      **re-arbitrated in writing** in that plan and the number is chosen deliberately. Letting it slip
+      unnamed is the third occurrence of a failure this repo has already documented.
+- [x] **Riders considered and declined** (so they are not re-proposed blind): the **live health banner**
+      (v4.8.1's hand-off) changes what **every** session start prints and deserves its own note; the
+      **silent skill freeze** is a provenance change, and it now folds into the unfreeze release as a
+      symptom rather than being fixed alone.
 - [ ] Housekeeping that can ride with anything: two stale mutation worktrees are still on disk
       (`kenjaku-mut-v450`, `kenjaku-mut-v460`) — `git worktree remove` them.
 
