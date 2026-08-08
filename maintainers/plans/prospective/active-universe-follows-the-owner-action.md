@@ -350,8 +350,22 @@ and the per-machine escape hatch is deliberately **not** built (see *Deliberatel
           it keeps the product's own word, and the lead carries the plain-words version underneath.
   - [x] **PR opened** _(2026-08-08)_: <https://github.com/tpierrain/kenjaku/pull/60>, body from
         `prospective/release-v4.9.0-pr-body.md`. It was the only open PR of mine (DEVELOPING §7).
-  - [ ] **Waiting on the CI matrix** — §9's arbiter, and this branch edits a text file line-wise, so it
-        speaks before the tag, not after.
+  - [x] **The CI matrix caught one, and this is why it runs before the tag** _(2026-08-08 · `fe33d3a`)_.
+        macOS green, **Windows red on all three Node versions**: `core.autocrlf` defaults to true there,
+        so git rewrote the checked-out pointer and the rebase-direction proof read `acme\r\n` — a red
+        saying nothing about `--theirs`, on the one test whose whole job is to stop a future reader
+        "fixing" that flag to `--ours`. The throwaway repo now **pins `core.autocrlf=false`** rather than
+        inheriting the machine's; pinned rather than absorbed by a looser assertion, because the exact
+        bytes **are** the claim. Reproduced red locally with a machine-level `autocrlf=true`, green with
+        the pin. **This branch had never seen CI before** (no PR, and §9 says local green ≠ green).
+    - [x] **Checked, not assumed: the pointer itself is fine in the field.** Both readers `.trim()`
+          (`rag/src/lib/active-universe.ts`, `scripts/lib/universes.mjs`) and a test already pins it, so
+          a CRLF pointer arriving on a Windows machine resolves normally. **No `.gitattributes` rule was
+          added for it** — that would be mechanism bought against a hazard the readers already close,
+          which is the reflex this very plan diagnosed twice.
+    - [x] Swept the other tests that build throwaway git repos (`engine-commit`, `startup-sync`,
+          `universes`, `auto-commit`): none compares file bytes the way this one does.
+  - [ ] **CI re-run on the fix** — waiting.
   - [ ] **⏸️ STOPS HERE FOR THE OWNER.** Merging, tagging `v4.9.0` and publishing the GitHub release are
         outward-facing and effectively irreversible: **do not do them unasked**. The next session's job
         is to report CI and ask, not to ship. Everything else in this plan is done.
