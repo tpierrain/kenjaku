@@ -38,10 +38,14 @@ Read off this repo and off the deployed brain. It is evidence, not analysis to r
 - **🔴 The deployed brain never received the constitution half, and it is up to date.**
   `~/mind-palace` pins `source.ref` **v4.8.1** (the latest tag). Its `.claude/skills/sync-sources/` and
   `prepare-1-1/` **do** carry the claim discipline, so the `merge` regime works. But its
-  `CLAUDE.engine.md` is dated **19 July 21:02 — install day**, weighs **26 223 bytes** against this
-  repo's **33 451**, and contains **zero** occurrences of *"I did not find"*. **12 commits** have
-  touched that file since install (identity discipline, backlogs, source ordering, universes wording…)
-  and **none of them ever arrived.**
+  `CLAUDE.engine.md` is dated **19 July 21:02 — install day**, and contains **zero** occurrences of the
+  claim discipline in either language. **12 commits** have touched that file since install (identity
+  discipline, backlogs, source ordering, universes wording…) and **none of them ever arrived.**
+  - **The brain is FRENCH, so the reference is `templates/fr/CLAUDE.engine.md`** — a first pass of this
+    plan compared it against the EN root file and understated the gap. Measured against the right
+    source: **26 223 bytes on the brain against 37 614 shipped today = 11 391 bytes, +43 %, never
+    delivered.** The locale trap is the same one `claim-discipline.test.mjs` records at its `SKILLS`
+    list; it is worth meeting only once.
 - **Why: `CLAUDE.engine.md` is in NO regime** (`replace` / `regenerate` / `merge` — only `CLAUDE.md` is,
   under `merge`). A rule written there today reaches **fresh installs only**. `engine-apply-plan.test.mjs`
   even goes red if someone wires it into `replace`, on purpose (ROADMAP Gate 1).
