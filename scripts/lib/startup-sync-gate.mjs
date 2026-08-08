@@ -63,12 +63,12 @@ export function pullerIsWired(settings) {
 
 /** Announce that THIS session's startup sync is under way. */
 export function markSyncRunning({ repo, sessionId, io, now }) {
-  writeMarker({ repo, io, marker: { sessionId, phase: "running", at: now() } });
+  return writeMarker({ repo, sessionId, io, phase: "running", now });
 }
 
 /** Announce that it has landed — the flip every waiter is polling for. */
 export function markSyncDone({ repo, sessionId, io, now }) {
-  writeMarker({ repo, io, marker: { sessionId, phase: "done", at: now() } });
+  return writeMarker({ repo, sessionId, io, phase: "done", now });
 }
 
 /**
@@ -123,8 +123,17 @@ function readMarker({ repo, io }) {
   }
 }
 
-function writeMarker({ repo, io, marker }) {
-  const path = join(repo, SYNC_MARKER_REL);
-  io.mkdirSync(dirname(path), { recursive: true });
-  io.writeFileSync(path, JSON.stringify(marker));
+// Says whether the marker really landed. FAIL-SOFT, like every side-channel this
+// brain writes at startup: the marker exists to spare other hooks a stale read, and
+// a disk that refuses it must never cost the owner the pull itself.
+function writeMarker({ repo, sessionId, io, phase, now }) {
+  if (!sessionId) return false; // nothing to key it on — see hookSessionId.
+  try {
+    const path = join(repo, SYNC_MARKER_REL);
+    io.mkdirSync(dirname(path), { recursive: true });
+    io.writeFileSync(path, JSON.stringify({ sessionId, phase, at: now() }));
+    return true;
+  } catch {
+    return false;
+  }
 }

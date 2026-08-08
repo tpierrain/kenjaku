@@ -249,3 +249,25 @@ test("pullerIsWired: a brain with no hooks at all, or unreadable settings, expec
   assert.equal(pullerIsWired({}), false);
   assert.equal(pullerIsWired(null), false);
 });
+
+test("markSync*: without a session id there is nothing to key a marker on — none is written, and the puller carries on", () => {
+  const io = fakeIo();
+
+  assert.equal(markSyncRunning({ repo: "/brain", sessionId: null, io, now: () => 0 }), false);
+  assert.equal(markSyncDone({ repo: "/brain", sessionId: null, io, now: () => 0 }), false);
+  assert.equal(io.files.size, 0);
+});
+
+test("markSync*: a disk that refuses the marker never costs the owner their pull", () => {
+  const broken = { ...fakeIo(), writeFileSync: () => { throw new Error("EROFS"); } };
+
+  assert.equal(markSyncRunning({ repo: "/brain", sessionId: "s-42", io: broken, now: () => 0 }), false);
+  assert.equal(markSyncDone({ repo: "/brain", sessionId: "s-42", io: broken, now: () => 0 }), false);
+});
+
+test("markSync*: the ordinary path reports that the marker was actually written", () => {
+  const io = fakeIo();
+
+  assert.equal(markSyncRunning({ repo: "/brain", sessionId: "s-42", io, now: () => 0 }), true);
+  assert.equal(markSyncDone({ repo: "/brain", sessionId: "s-42", io, now: () => 1 }), true);
+});
