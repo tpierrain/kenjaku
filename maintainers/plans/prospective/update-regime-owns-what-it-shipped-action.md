@@ -142,6 +142,36 @@ Three consequences, each already logged as its own field finding:
   - [ ] **Invite the tailoring.** A first-week prompt to write the personal layer would close more of
         this owner's gap than any engine change listed above.
 
+## The QA instrument — decided 2026-08-08, do not re-open
+
+> Offered: hand-unfreeze `mind-palace` today, as an experiment separating the two failure halves.
+> **The owner refused, and he is right**: it is the only deployed brain he has, therefore the only place
+> where a structural change to Kenjaku can be observed on a real installation. Hand-patching it is the
+> thing this repo tells its own users not to do (v4.8.1's note: *drop the hand-patched launcher*), and it
+> is the reaper-instead-of-the-fix shape the previous plan already refused.
+
+- [x] **`mind-palace` is NOT touched.** Its frozen state is evidence, and it becomes the **acceptance
+      test** of S1-S5: the doctrine must arrive there **through the mechanism**, or the mechanism does
+      not work. The owner keeps a degraded ambient doctrine until then — a real cost, and the reason
+      this plan should not sit in a queue.
+- [x] **But a live brain is a SINGLE-USE test**, which is the argument the refusal did not need but has:
+      the moment anything unfreezes it — hand or mechanism — the frozen state is consumed, permanently.
+      One observation, non-reproducible, and a bug in the mechanism burns the only sample. So a
+      replayable fixture is **not optional**, whichever way the live brain is used.
+- [ ] **The fixture needs none of his files — the drift is reproducible from public tags.** Measured:
+      the brain was installed **19 July** (tags of that day: `v3.6.0`, `v3.6.1`) and its own git history
+      carries the engine updates it then took (`v4.5.0` → `v4.8.1`). Replaying *install at the 19-July
+      tag, then update through each tag* reproduces **exactly** the state observed: skills refreshed,
+      `CLAUDE.engine.md` untouched since install. Deterministic, CI-able on every commit, and free of
+      one byte of personal data.
+  - [ ] Home + convention already exist: `maintainers/qa/release-fixtures/<version>/` (`.claude/` +
+        `engine-manifest.json`, built from tags — same shape, new use).
+  - [ ] **If the drift turns out NOT to reproduce**, that is itself a finding: something in his install
+        is doing the freezing, and we would have been debugging the wrong mechanism.
+- [x] **Never copy the brain into this repo.** `tpierrain/kenjaku` is **public**; his `CLAUDE.md` carries
+      his name, and `settings.json` / `.mcp.json` carry this machine's absolute paths. What is captured
+      here is **measurements**, not files — see the § above, which is the acceptance target.
+
 ## The counter-argument, kept because it is the real constraint
 
 "Everything engine-born is updatable like a product" is right **as an ownership rule** and wrong **as an
