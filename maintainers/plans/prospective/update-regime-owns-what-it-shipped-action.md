@@ -119,12 +119,27 @@ Three consequences, each already logged as its own field finding:
       another paragraph is added. **This repo already knows this shape**: it is `plans.md`'s own rule
       about `MEMORY.md` and context rot, applied to memory and never to the constitution the launcher
       ships.
-- [ ] **A third factor the owner did not name, and it may dominate his own experience.** His homemade
-      brain was entirely his; `mind-palace`'s personal layer has **2 commits on `CLAUDE.md`, both from
-      install day** — it was never tailored. The install generates a deliberately neutral constitution
-      *for the owner to tailor afterwards*, and nothing ever invites them to. So the comparison is
-      "a brain built around me" versus "a brain built for nobody in particular, whose personalization
-      layer is empty". That is an **onboarding** defect, not an engineering one, and it is cheap to fix.
+- [x] **A third factor was proposed and then WITHDRAWN on measurement — recorded because the mistake is
+      instructive.** First claim: *his personal layer was never tailored* (`CLAUDE.md`: 2 commits, both
+      from install day), so he compares a brain built around him with a generic one. **False, and the
+      owner caught it**: personalization moved to the universes. Measured: `vault/shodo/universe.md`
+      **14 063 bytes** and `vault/inqom/universe.md` **3 788** — 18 KB of real context (his rhythm,
+      people, topics, connector accounts, the Slack channels and Notion references that matter), even
+      carrying its own *"reliability of this page"* section. **The tailoring was done, in the place the
+      product now says to do it.** The defect was measuring a file instead of a function.
+  - [ ] **What genuinely remains for the personal layer is narrower, and the axis is not
+        personal-vs-generic**: `universe.md` is **fetched on demand and scoped to one sphere** (the
+        engine states it plainly: *"read it, it is never read to you"* — a session start at most names
+        the page), while `CLAUDE.md` is the **only thing always in context, across every universe**:
+        tone, the privacy non-negotiables, standing preferences about how the owner wants to be answered
+        and challenged. If he has nothing he wants true in **every** sphere, that layer legitimately
+        stays thin and there is no gap to close. Do not manufacture one.
+  - [x] **The trap he did NOT fall into, worth keeping as a rule**: a behavioural instruction written
+        into `universe.md` applies only when that page happens to be retrieved, so it fires
+        intermittently and looks like the brain "forgetting". Checked on his: it is descriptive, with
+        one or two incidental occurrences of *toujours / jamais*. **Standing behaviour belongs in the
+        always-loaded layer; context belongs in the universe page.** That distinction is currently
+        written nowhere a user reads.
 
 - [ ] **What follows from it, to arbitrate with S0.**
   - [ ] **A budget on always-loaded doctrine**, enforced like `MEMORY.md`'s: a test that fails when the
