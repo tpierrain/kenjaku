@@ -47,7 +47,8 @@ index, so there is nothing to wait for.
 ### Under the hood
 
 **The decision.** A universe is the **owner's** context, not the machine's — recorded by amending
-[ADR 0034](../../decisions/0034-progressive-disclosure-of-universes.md) in place rather than spinning off
+[ADR 0034](https://github.com/tpierrain/kenjaku/blob/main/maintainers/decisions/0034-progressive-disclosure-of-universes.md)
+in place rather than spinning off
 a new ADR (CONVENTIONS §6bis). The active-universe pointer (`.vault-rag/active-universe`) is now
 **committed alongside its sibling registry** (`.vault-rag/universes.json`), which was already committed.
 Convergence is **eventual** — at the next pull — not real-time like the connectors; git is the transport
@@ -94,9 +95,12 @@ universe was per-machine — that framing lived only in code comments, which thi
 undersell found and fixed: the README's universes bullet was silent on machines. Boards re-read, copy
 still accurate, no re-render.
 
-**Tests.** Harness 1657, engine 515, local-mirror 255 — all green. Cross-platform parity is CI's call
-(§9): this branch edits a text file line-wise, so CRLF handling is pinned by test and arbitrated by the
-matrix.
+**Tests.** Harness 1667, engine 515, local-mirror 255 — all green, and the full CI matrix with them
+(Node 22 / 24 / 26 on macOS and Windows, plus the Windows tripwire and the Windows installer e2e).
+Cross-platform parity is CI's call (§9), and it earned its keep on this branch: the test that proves the
+conflict direction against real git was reading the *runner's* line endings rather than git's answer, so
+it went red on Windows and green everywhere else. Its throwaway repo now pins its own line-ending
+config. Nothing in a brain was affected — every reader of the pointer trims it, and a test pins that.
 
 **Mutation snapshot** (pinned to this tag, per §5ter). The release-tail pass measured the **6
 production files this branch changed**, all under `scripts/` — the other changed files are comment-only.
