@@ -26,18 +26,20 @@
 > example that the carrier works. The release also **pays the v4.9.0 mutation debt**
 > (`v4.9.0-mutation-debt-plan.md`, third named due date; cutting without paying is a defect).
 
-> ## ⏳ NEXT STEP — read this before the Tracking, the first unticked box is NOT the landmark
+> ## ⏳ NEXT STEP — read this before the Tracking
 >
-> **Waiting on Thomas, not on work: the S6 rider's acceptance test** (jump to S6, last box). The
-> harness rewrite that rider needed is **done, English and pushed** (`use-case-driven-harness`,
-> branch `chore/test-first-discipline` — pushed but with **no PR and `main` untouched**, so GitHub
-> shows nothing; opening it is the owner's call). What is left is one 5-minute manual check in a
-> **non-Kenjaku** session, and **its protocol must never be shown to the session under test** —
-> briefing it destroys the measurement. Everything else on that rider is ticked.
+> **Nothing waits on Thomas any more.** The S6 rider's acceptance test **ran and passed on 2026-08-15**
+> (a `Diverse` session, unbriefed: it loaded `test-first-discipline` on its own and wrote its tests
+> before the production file). The harness half is **done, English and pushed**
+> (`use-case-driven-harness`, branch `chore/test-first-discipline`).
 >
-> **The check is HALF DONE as of 2026-08-15**: a `Diverse` session loaded `test-first-discipline`
-> unprompted, before any code (routing proven, the doubtful half). What remains is to watch that same
-> session write **the test before the production code** and not preach *one test at a time*.
+> **The first unticked box is now the landmark again: S0bis**, the inherited mutation debt. Two smaller
+> things are open and neither blocks it:
+> - the harness branch has **no PR and `main` is untouched**, so GitHub shows nothing of it — opening
+>   the PR (or merging) is the owner's call, not a default;
+> - S6's **Kenjaku-side delivery** (manifest `merge` regime, the explicit retirement of
+>   `tdd-discipline`, the `templates/fr/` version, `CONVENTIONS.md` §5) is release work, and it needs
+>   the power S1-S5 build — it belongs in the cut, not before it.
 >
 > The Tracking's first unticked box is **S0bis** (the inherited mutation debt). That is the next box
 > to *work*, and it is correct — but it is not where a resume should start, because S6 is **blocked on
@@ -221,39 +223,50 @@ Three consequences, each already logged as its own field finding:
           So the repo's landing page, which shows `main` and would otherwise advertise a PR, shows no
           trace of any of it. Nothing is lost; it is only invisible. **Open the PR (or merge) — the
           owner's call, not a default.**
-    - [ ] **⏳ NEXT STEP ON THIS RIDER, and the only one left — acceptance test, not an assumption.**
-          **It needs Thomas at the keyboard**: a fresh session in another project, which is exactly
-          what a session inside Kenjaku cannot fake. **The protocol below is written FOR HIM, and must
+    - [x] **✅ DONE 2026-08-15 — acceptance test, not an assumption.**
+          **It needed Thomas at the keyboard**: a fresh session in another project, which is exactly
+          what a session inside Kenjaku cannot fake. **The protocol below was written FOR HIM, and must
           never be shown to the session under test** — a briefed session loads the right skill because
           it was told to, which measures nothing. Do not paste it, do not summarize it, do not
-          announce that a test is running.
+          announce that a test is running. **It ran unbriefed in `Diverse` and passed on both halves;
+          the constraint held to the end — the verdict was read from mtimes and from the session's own
+          plan file, never by asking it what it had done.**
       - [x] **The static wiring is already verified, so the remaining test is purely behavioural**
             _(2026-08-15)_: `~/.claude/skills/` holds `test-first-discipline` + `outside-in-diamond-tdd`
             and **no `tdd-discipline` at all**; `~/.claude/rules` symlinks into the harness. The
             surviving `tdd-discipline` tombstone lives **only** in Kenjaku's own `.claude/skills/`,
             which is precisely why the test has to run elsewhere.
-      - [ ] **The protocol** (5 minutes, no Kenjaku involved):
+      - [x] **The protocol** (5 minutes, no Kenjaku involved) — **ran and PASSED 2026-08-15**:
         - [x] 1. Open a session in **any project that is neither Kenjaku nor the harness**.
               _(2026-08-15 · ran in `Diverse`, branch `fix/11-defer-seed-logging-and-per-instance-logger`)_
         - [x] 2. Ask for **ordinary code work** in the normal way: *"add function X"*, *"fix this bug"*.
               **Never say** test, TDD, test-first, discipline, or the name of any skill. The whole
               question is what it reaches for **unprompted**. _(2026-08-15 · the ask was a logging fix
               for issue 11, plus its release framing; nothing about testing.)_
-        - [ ] 3. **PASS** = it loads **`test-first-discipline`** (a visible Skill call) **and** writes
-              the test before the code.
-              **HALF OBSERVED, and it is the half that was in doubt** _(2026-08-15, screenshot from the
-              owner)_: the session announced *"Je charge d'abord ma discipline de test"* and a visible
-              `Skill(test-first-discipline)` → **Successfully loaded skill** followed, **before touching
-              any code** — no `tdd-discipline` anywhere. **Routing outside the harness is proven**:
-              `rules/testing.md`, always loaded, now carries sessions to the new skill. Still owed: the
-              **test-before-code** half of the criterion, and the absence of the retired *one test at a
-              time* framing — only the rest of that session shows it.
-        - [ ] 4. **FAIL**, any one of these: it loads `tdd-discipline` (it should no longer exist
+        - [x] 3. **PASS** = it loads **`test-first-discipline`** (a visible Skill call) **and** writes
+              the test before the code. **BOTH HALVES OBSERVED, 2026-08-15.**
+              **The skill**: the session announced *"Je charge d'abord ma discipline de test"* and a
+              visible `Skill(test-first-discipline)` → *Successfully loaded skill* followed, **before
+              touching any code**, with no `tdd-discipline` anywhere. Routing beyond the harness is
+              proven: `rules/testing.md`, always loaded, carries a fresh session to the new skill.
+              **The order**, read from the working tree rather than taken on trust (the session was
+              never asked, which would have briefed it): `Diverse.Tests/Utils/LogSpy.cs` 17:02:28 →
+              its two stubs 17:02:34 → `Diverse.Tests/FuzzerLoggingShould.cs` 17:04:30 → **then**
+              `Diverse/Fuzzer.cs` 17:04:35. Tests first, production after.
+        - [x] 4. **FAIL**, any one of these: it loads `tdd-discipline` (it should no longer exist
               anywhere outside Kenjaku); it writes production code first; or it announces *one test at
               a time / baby-steps* as the standing rule — the retired ritual resurfacing means a
-              carrier somewhere still teaches it.
-        - [ ] 5. Report the outcome here. On FAIL, the useful evidence is **which** skill it named and
+              carrier somewhere still teaches it. **None of the three fired.**
+        - [x] 5. Report the outcome here. On FAIL, the useful evidence is **which** skill it named and
               **what it said about step size** — that names the guilty carrier without re-deriving.
+              **PASS, and the step-size evidence is the strong part.** Its own plan
+              (`Diverse/maintainers/plans/issue-11-fuzzer-log-xunit.md`) is the relaxed mode exactly as
+              the new skill defines it: a design stated first, then a **batch** T1→T15 each carrying
+              **the reason it must go red** (*"🔴 4 lines logged in the ctor"*, *"red for the right
+              reason"*), then implement → 🟢. Not one occurrence of *baby-steps* or *one test at a time*.
+              The skill's assertion-quality habits show up unprompted too: a matcher **and** a message
+              check on every `Throws<>`, `ContainsExactly` over a whole sequence, T8/T9 paired to pin
+              the resolution order, a `CallCount` proving the user's sink was really called.
       - [x] **Weak evidence already in hand, worth recording so it is not mistaken for the test**:
             during the translation pass the edited skills' descriptions were re-read **live** by the
             running session (the harness symlinks resolve). That proves the *symlinks* carry, not that
