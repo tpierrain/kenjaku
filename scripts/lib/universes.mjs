@@ -177,7 +177,7 @@ export function nativeConnectorsReminder({ from, to }) {
   if (to === from) return "";
   if (to === DEFAULT_UNIVERSE) return "";
   return (
-    `\nHeads-up: native connectors (Slack, Notion, Google, mail…) are single-account and ` +
+    `\n⚠️ Heads-up: native connectors (Slack, Notion, Google, mail…) are single-account and ` +
     `don't follow this switch. If '${to}' uses different accounts, disconnect/reconnect them to match.`
   );
 }

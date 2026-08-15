@@ -489,6 +489,9 @@ test("nativeConnectorsReminder warns when switching between two named universes"
   assert.match(msg, /single-account/i);
   // Names the target so the user knows which universe's accounts to line up.
   assert.match(msg, /'blue'/);
+  // ⚠️ prefix (issue #65): the reminder was read as informational and skimmed
+  // past; the warning glyph makes the accounts-don't-follow part land.
+  assert.match(msg, /\n⚠️ Heads-up:/u);
 });
 
 test("nativeConnectorsReminder stays silent when switching back to the default scope", () => {

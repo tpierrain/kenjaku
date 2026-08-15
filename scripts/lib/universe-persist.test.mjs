@@ -160,7 +160,9 @@ test("runSwitchCliPersisted persists a successful switch and keeps the message i
 
   assert.equal(res.code, 0);
   assert.match(res.message, /switched to 'blue'/);
-  assert.doesNotMatch(res.message, /⚠️/u);
+  // No PERSISTENCE warning (the connectors reminder may carry its own ⚠️).
+  assert.ok(!res.message.includes(SWITCH_NOT_COMMITTED_WARNING));
+  assert.ok(!res.message.includes(PUSH_FAILED_WARNING));
   assert.equal(readActiveUniverse(io, DIR), "blue");
   assert.ok(has(git.calls, "commit", "-m", "auto: switch active universe to 'blue'"));
 });
