@@ -97,3 +97,10 @@ lock-in**.
 - **A lower value (e.g. < 200k) to also benefit small-context users.** Would clobber the 1M advantage (clamp big
   contexts far too small) and a single absolute value can't serve both tiers; 200k users' default (~166k) is
   already lean enough.
+
+## Amendment — v4.9.1 (issue #63)
+
+The baked default is raised **350000 → 450000**: 350k compacted too early on long capture sessions,
+and the absolute variable still self-clamps on smaller-window models (the no-op guarantee above is
+unchanged). Same regime, same overridability — **new brains only**, deployed brains keep their own
+`settings.json`. Guard test updated (`scripts/lib/settings-template.test.mjs`).

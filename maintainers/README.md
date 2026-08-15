@@ -120,8 +120,9 @@
     file, no phone-home). The "update available" check is **deferred** (opt-in, non-blocking, cache-decoupled).
     First semver tag = `v3.0.0`. **Scope: Second brain (runtime) + Installer.**
   - [`0018-force-autocompaction-350k-out-of-the-box.md`](decisions/0018-force-autocompaction-350k-out-of-the-box.md) —
-    **every brain forces aggressive auto-compaction**: bakes `CLAUDE_CODE_AUTO_COMPACT_WINDOW=350000` so **no
-    brain exceeds a 350k effective context out of the box** ("levier 2"). Absolute `…WINDOW` var (reliable, self-
+    **every brain forces aggressive auto-compaction**: bakes `CLAUDE_CODE_AUTO_COMPACT_WINDOW` so **no
+    brain exceeds the calibrated effective context out of the box** ("levier 2"; 350k at decision time,
+    raised to 450k in v4.9.1 — issue #63, amendment in the ADR). Absolute `…WINDOW` var (reliable, self-
     clamps ≤ model limit → inert/harmless on 200k plans) over the buggy percentage override. **Scope: Second
     brain (runtime) + Installer.**
   - [`0019-import-previous-brain-is-a-keyword-skill.md`](decisions/0019-import-previous-brain-is-a-keyword-skill.md) —
