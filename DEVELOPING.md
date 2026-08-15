@@ -107,9 +107,10 @@ exhaustive enumeration: the impoverished smoke test is the **safety net** for ev
    ```
 5. **Keep the engine syncable** with the source second brain: `rag/` has stayed nearly
    identical to the original → fixes can be ported back and forth either way.
-6. **Strict TDD on all code — engine AND harness.** Detailed, actionable discipline
-   in the **`tdd-discipline`** skill (`.claude/skills/tdd-discipline/`, loaded as soon as you write
-   code): baby-steps, fail-first, triangulation, mandatory refactor. It applies to
+6. **Test-first on all code — engine AND harness.** Detailed, actionable discipline
+   in the **`test-first-discipline`** skill (`.claude/skills/test-first-discipline/`, loaded as soon
+   as you write code): test before code, fail-first, mandatory refactor, small batches by default,
+   baby-steps kept as a tool, and the mutation score as the judge. It applies to
    **all the repo's logic**, not just the engine:
    - **RAG engine** (`rag/`): tests `rag/src/lib/*.test.ts`, green suite `cd rag && npm test`
      + typecheck `cd rag && npx tsc --noEmit`.

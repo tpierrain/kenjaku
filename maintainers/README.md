@@ -327,5 +327,5 @@ This folder replaces the old Claude "memory" (which lived outside the repo, in
 `~/.claude/projects/…/memory/`, tied to the machine's absolute path → not portable across laptops).
 The durable content was brought back here to be **versioned and syncable**. The reusable working
 rules, for their part, have joined their natural home:
-- test discipline (non-brittle asserts on strings) → skill `tdd-discipline`;
+- test discipline (non-brittle asserts on strings) → skill `test-first-discipline`;
 - neutrality exception (Thomas Pierrain's name) → [`DEVELOPING.md`](../DEVELOPING.md).

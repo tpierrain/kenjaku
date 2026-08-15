@@ -1,11 +1,21 @@
 ---
 name: tdd-discipline
-description: "Universal TDD discipline — baby-steps (one test at a time, complete red→green→refactor at each step, NOT test-first batch), make sure the test fails first (fail-first), triangulation, refactor never optional, plus assertion quality (the mutation-testing lessons). Language-agnostic, for ALL code (libs, tools, helpers, algos, services). To load as soon as you write or modify code in TDD."
+description: "⛔ SUPERSEDED — DO NOT LOAD, DO NOT FOLLOW. Replaced by the `test-first-discipline` skill (2026-08-15). This file is kept ONLY so the update regime can retire it from already-deployed brains; it is not the discipline any more."
 version: 1.1.0
 origin: use-case-driven-harness
 ---
 
-# TDD discipline (universal)
+# ⛔ SUPERSEDED — see `test-first-discipline`
+
+> **Do not follow this file.** It was replaced on **2026-08-15** by the **`test-first-discipline`**
+> skill, after its opening rule (*one test at a time, never a test-first batch*) was measured on
+> Kenjaku v4.9.1 and did not survive. It is kept in the tree for ONE reason: the update regime cannot
+> retire a skill it already delivered (`refreshUntouchedSkills` only walks skills present in the
+> source), so the release that unfreezes the engine must remove it from deployed brains explicitly.
+> That step is `S6` of `maintainers/plans/prospective/update-regime-owns-what-it-shipped-action.md`.
+> Everything worth keeping here was carried over verbatim into the new skill.
+
+# TDD discipline (universal, superseded)
 
 > Skill vendored from the `use-case-driven-harness` harness (**manual** re-sync, last done
 > **2026-07-27**). Deliberately reduced to the **universal foundation**: the specialized variants

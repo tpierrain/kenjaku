@@ -147,13 +147,22 @@ stopwords, proper nouns, quotes, and historical records kept on purpose in anoth
 thumb: **I write it** (code, doc, commit, PR) → English; **the product speaks to a user in their
 language** → respect the locale. A PR or comment left in French is a **defect to fix**, not a choice.
 
-## 5. TDD baby-steps + green-only commits
+## 5. Test-first + green-only commits
 
-- **Strict TDD on all code — engine AND harness.** One test at a time, **red → green → refactor**
-  fully for each test (no test-first batch), fail-first, triangulation, mandatory refactor. The
-  actionable discipline lives in the **`tdd-discipline`** skill (`.claude/skills/tdd-discipline/`).
-  Operative repo rule: [`../DEVELOPING.md`](../DEVELOPING.md) §6. Back-ends/services use
-  `outside-in-diamond-tdd`.
+- **Test-first on all code — engine AND harness.** The test comes before the code, always, and it is
+  seen **red for the right reason** before a line of implementation (fail-first is the load-bearing
+  rule: it is the only mechanical guard against the tautological test). The refactor is part of the
+  step. The **default mode** is design-first then test-first **in small batches**; classic **baby-steps
+  + triangulation stay available as a tool** — genuinely unknown design, or when the owner wants the
+  step-by-step narrative. **The judge is the mutation score, not the ritual.** The actionable
+  discipline lives in the **`test-first-discipline`** skill
+  (`.claude/skills/test-first-discipline/`). Operative repo rule:
+  [`../DEVELOPING.md`](../DEVELOPING.md) §6. Back-ends/services use `outside-in-diamond-tdd`.
+  > **Why this changed (2026-08-15, owner's call).** The rule used to forbid test-first batches.
+  > v4.9.1 measured the relaxed mode: **91.80 %** first-pass mutation score on the file it wrote,
+  > against **84.62 / 87.74 %** for v4.9.0's strict baby-steps. What was dropped is TDD's own thesis
+  > (design emerging one example at a time), not a ceremony, hence the rename. The 87 % vs 51 % figure
+  > long quoted against this compared **test-first with test-after**, never step sizes.
 - **Commit only green.** Never commit a red suite. An outside-in acceptance test that is RED by design
   is marked `{ todo }` / skipped (executed + fail-first internally, but reported `todo`, not `fail`) so
   the suite stays green at `exit 0`; the flag is removed at the apply step. No history rewriting —
@@ -179,6 +188,13 @@ dismissal is the bug. I/O glue still hides logic — a `.md` filter, a `.obsidia
   top-level script: extract an injectable core (`runX(argv, deps)` + a `realXDeps` default) and shrink
   the entry guard to one line; keep **one subprocess integration test** to kill the entry-body mutants a
   pure import cannot.
+- **Every executable entry point is tested by RUNNING it as a process (hardened 2026-08-15).** Not
+  "keep one subprocess test where convenient": a module's exported functions can be green while the
+  **file** does nothing, because no import-based test ever executes the composition root. v4.9.1 paid
+  for this: `/switch`'s CLI wiring sat at a **25 %** mutation score while everything it called was
+  above 92 %, and the subprocess test that closed it immediately found a defect nothing else could see
+  — a brain reached through a **symlinked path** ran the switch **without persisting it**, a silent
+  no-op on the exact promise that release existed to keep. The file ended at **100 %**.
 - **Coverage ≠ verification.** A suite can show high line coverage and still kill ~0 % of mutants. The
   objective signal is the **mutation score**, not coverage. See the plan
   [`plans/prospective/mutation-testing-stryker.md`](plans/prospective/mutation-testing-stryker.md).
@@ -195,7 +211,7 @@ Step 6) found **recurring shapes** of surviving mutant. Two homes:
 - **The 5 language-agnostic assertion habits** (assert the message not the fact; assert the whole
   object/call-sequence not one field; triangulate boundaries **and** operators; feed the null/absent
   twin of every `?.`/`??`/default-arg; test collections with ≥2 unsorted elements + a decoy) live in
-  the **global `tdd-discipline` skill** (§ "Qualité des assertions") — they apply to every project.
+  the **global `test-first-discipline` skill** (§ "Assertion quality") — they apply to every project.
 - **The repo-specific / infra-shaped ones** are recorded **here**:
 
   1. **CLI/script fakes must key on the FULL command, and assert the whole call sequence.** A fake git
@@ -306,7 +322,7 @@ missing was a net that fires **while the file is being written**.
 
 Two corollaries, both earned the same day:
 
-- **Do not answer a recurring shape with one more written reflex.** `tdd-discipline`'s assertion section
+- **Do not answer a recurring shape with one more written reflex.** `test-first-discipline`'s assertion section
   already carries ten of them, and its own second audit noted the first six "pourtant déjà gravés" had
   not sufficed. Another line of prose is the move that was already measured as insufficient.
 - **A lesson recorded as a story about the file just fixed does not generalise.** RESULTS.md entries read
