@@ -106,10 +106,19 @@
       (2026-08-15 · e2b5cb3 — `release-v4.9.1-note.md`; two things left to the owner IN the file: the
       title, 3 candidates, and the mutation figures pass 3 pins), then release note
       (non-dev-first tone, cf. memory), merge to main, tag **v4.9.1**, close #69/#63/#65;
-      (6) `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v491 --force`; (7) debrief the two
+      (6) ✅ DONE — worktree `kenjaku-mut-v491` removed (2026-08-15). *(`kenjaku-mut-v490` still exists,
+      left over from the previous release — not this plan's business, but worth a `worktree remove` next
+      time someone passes.)* (7) debrief the two
       experiments in this plan (data so far: reviews found 1 blocker-class silent-no-op (symlink
       entrypoint), 2 real defects fixed pre-tag, mutation floor HELD (pass 3: 95.92–100 % per file) under test-first
       small batches; inline survivor triage beat fan-out at this size)._
+- [ ] **THE ONLY THING LEFT — the owner's go to publish.** Everything upstream of the tag is done:
+      branch green (harness suite **1714 pass / 0 fail**, CI green on every pushed commit), mutation
+      pinned, §10 done, manifest bumped, note written. **Waiting on Thomas for two calls**: (i) the
+      release **title** (3 candidates in `release-v4.9.1-note.md`, my pick: *"The One Where the Switch
+      Actually Leaves"*), and (ii) the **go to merge `hotfix/v4.9.1-universe-pointer` into `main`, tag
+      v4.9.1, publish the note and close #69/#63/#65** — a publish is his call, not mine. Nothing else
+      blocks; on his go this is one sequence with no thinking left in it.
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
