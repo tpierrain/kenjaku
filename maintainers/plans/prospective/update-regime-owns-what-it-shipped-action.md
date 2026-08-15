@@ -15,6 +15,17 @@
 > **This plan agrees, and makes the flaw precise.** The engine already records a merge **base** and
 > never merges with it. That single fact produces every symptom we have logged.
 
+> **Sequencing + cargo arbitrated by the owner (2026-08-15, in conversation — recorded here the same
+> day):** this chantier starts **after** the small `v4.9.1` hotfix
+> (`hotfix-v4.9.1-universe-pointer-action.md` — lived cross-machine defect, cuts first). And its
+> release **carries the doctrine cargo** waiting in the issue tracker: **#61** (announce
+> signal-triggered rituals before the silence), **#67** (the Outillage rule becomes conditional and
+> self-describing), **#64's rule half** (size-guarded delegation guidance; the hook half stays in the
+> backlog), alongside the already-planned source-first rule. Rationale: these are text changes to
+> `CLAUDE.engine.md`, the very file this release unfreezes — shipping them inside it is the proof by
+> example that the carrier works. The release also **pays the v4.9.0 mutation debt**
+> (`v4.9.0-mutation-debt-plan.md`, third named due date; cutting without paying is a defect).
+
 ## The four categories we actually have (measured 2026-08-08)
 
 | Regime | What it does | Files |
