@@ -20,8 +20,12 @@
 
 ## Tracking
 
-- [ ] **(a) Close the reported case in the `/switch` path**: after the pointer is written, commit and
+- [x] **(a) Close the reported case in the `/switch` path**: after the pointer is written, commit and
       push it explicitly (deterministic, in `set-active-universe.mjs` or its caller). TDD baby-steps.
+      _(2026-08-15 · 7220b3a, branch `hotfix/v4.9.1-universe-pointer`)_ — new
+      `scripts/lib/universe-persist.mjs`: scoped commit of `.vault-rag/` + push via the Stop hook's
+      `attemptPush` (autopush opt-in respected); `runSwitchCli` reports `wrote`; loud warnings on
+      commit/push failure. Test-first batch (experiment mode), suite 1683 green.
 - [ ] **(b) Remove the class**: the Stop hook (`auto-push.mjs`) becomes **sweep-commit then push**, so
       any out-of-band engine write (today's pointer, tomorrow's whatever) leaves the machine at session
       end instead of waiting for the next session's sweep.
