@@ -20,23 +20,135 @@
 
 ## Tracking
 
-- [ ] **(a) Close the reported case in the `/switch` path**: after the pointer is written, commit and
+- [x] **(a) Close the reported case in the `/switch` path**: after the pointer is written, commit and
       push it explicitly (deterministic, in `set-active-universe.mjs` or its caller). TDD baby-steps.
-- [ ] **(b) Remove the class**: the Stop hook (`auto-push.mjs`) becomes **sweep-commit then push**, so
+      _(2026-08-15 · 7220b3a, branch `hotfix/v4.9.1-universe-pointer`)_ — new
+      `scripts/lib/universe-persist.mjs`: scoped commit of `.vault-rag/` + push via the Stop hook's
+      `attemptPush` (autopush opt-in respected); `runSwitchCli` reports `wrote`; loud warnings on
+      commit/push failure. Test-first batch (experiment mode), suite 1683 green.
+- [x] **(b) Remove the class**: the Stop hook (`auto-push.mjs`) becomes **sweep-commit then push**, so
       any out-of-band engine write (today's pointer, tomorrow's whatever) leaves the machine at session
-      end instead of waiting for the next session's sweep.
-- [ ] **Decide (not necessarily ship): the stale-wins regression.** Should the SessionStart sweep
+      end instead of waiting for the next session's sweep. _(2026-08-15 · 88499d3)_ — reuses
+      `attemptCommit` (same message, same unmerged-tree refusal), best-effort wrapped; the test fake
+      now counts commits so `rev-list` answers like real git (kills the push-before-sweep mutant).
+- [x] **Decide (not necessarily ship): the stale-wins regression.** Should the SessionStart sweep
       refuse — or at least warn — before committing a pointer that is *behind* the remote? (Issue #69's
-      closing note.) If deferred, say so here with the reason.
-- [ ] **Rider #63**: raise default `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to `450000` in
+      closing note.) If deferred, say so here with the reason. _(2026-08-15 · owner's call, in
+      conversation)_ — **DEFERRED, nothing ships.** Reason: (a)+(b) remove the dirty-pointer state the
+      regression needs (the switch commits+pushes itself; the Stop hook sweeps any leftover), so the
+      SessionStart sweep can no longer meet a stale *uncommitted* pointer except once, on a pre-fix
+      brain. The residual committed-but-behind case already fails loud: `git pull --rebase` conflicts
+      on the one-line pointer file and stops for the interactive rule ("the machine you sit at wins").
+      A further guard would be noise for a window that no longer exists.
+- [x] **Rider #63**: raise default `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to `450000` in
       `.claude/settings.json.template` + its guard test (`settings-template.test.mjs`). New brains only.
-- [ ] **Rider #65**: `⚠️ ` prefix on `nativeConnectorsReminder()` (`scripts/lib/universes.mjs`) + its
-      test.
+      _(2026-08-15 · 44c5482)_ — plus an amendment in ADR 0018 and a de-hardcoded maintainers index line.
+- [x] **Rider #65**: `⚠️ ` prefix on `nativeConnectorsReminder()` (`scripts/lib/universes.mjs`) + its
+      test. _(2026-08-15 · 3412882)_
 - [ ] **Release tail**: mutation pass on touched files (pin numbers in `mutation/RESULTS.md`), §10
       marketing-surface re-read, release note, tag **v4.9.1**, close issues #69/#63/#65.
+      _In flight (2026-08-15): work-mode pilot engaged — 3 adversarial review subagents on the branch
+      diff (lenses: git semantics / fleet deployment via manifest regimes / test quality) + targeted
+      mutation batch on the 4 touched prod files, running in disposable worktree `kenjaku-mut-v491`
+      (log: `mutation/reports/v491-batch1.log`). On resume: read both results, fix what they teach,
+      then pin numbers and release._
+      _Fleet review landed (2026-08-15 · fixes b471e57): merge regime DOES deliver auto-push.mjs to
+      the fleet (verified, engine-apply-plan carve-out) — the class-removal claim holds. Two real
+      findings fixed: the Stop sweep now shouts on "failed" (SWEEP_FAILED_WARNING), and the switch
+      commit is pathspec-scoped so pre-staged work stays out and stays staged. To do at tag time
+      (review NIT): bump `engineVersion.scripts` in `engine-manifest.json`._
+      _Correctness + test-quality reviews landed (2026-08-15 · fixes fff4ca1): mid-merge partial-commit
+      refusal → calm DEFER to the Stop sweep; push gated on committed; buildGit timeout 10s; realpath
+      entry guards (auto-push + the shared lib/entrypoint.mjs — the subprocess wiring test the review
+      demanded immediately caught that a symlinked brain path ran /switch WITHOUT persisting). Declined
+      as NIT, on record: detached-HEAD switch reports success while its commit can orphan (broken-brain
+      tier, SessionStart machinery already complains there)._
+      _Mutation pass 1 (on 37029b8, log `mutation/reports/v491-batch1.log`): overall 89.15 % —
+      universe-persist 91.80 %, auto-push 92.55 %, universes 89.26 % (32 survivors), set-active-universe
+      25 % (the untested wiring)._
+      _Mutation pass 2 post-review-fixes (on fff4ca1, log `v491-batch2-postreview.log`): **97.71 %** —
+      universe-persist **100 %**, entrypoint **100 %**, set-active-universe **25 → 100 %** (the
+      subprocess test), auto-commit 98.31 %, auto-push 94.90 %. Of its 6 survivors, 5 are the
+      documented equivalent tier (entry guards ×4, `.trim()` under Number()); the 6th
+      (SWEEP_FAILED_WARNING half-blankable) is killed by 2500b52's whole-text pin. universes.mjs's 32
+      survivors triaged and killed in 2500b52 (whole-result asserts, multi-word parse, corrupt
+      registry, byte-pinned newline, defensive copies, idempotent create) + dead regex quantifier
+      simplified out; a couple of readRegistry catch-net mutants are equivalents (ENOENT path)._
+      _Item (3) DONE (2026-08-15 · 0163b55): `engineVersion.scripts` 1.13.0 → **1.13.1** (patch — this
+      closes a hole in a shipped promise rather than adding a capability); rag / local-mirror /
+      constitutionTemplate verified untouched, `indexSchemaVersion` stays 2. The two new files ship
+      under the existing `scripts/lib/**` replace regime — nothing to add to the manifest._
+      _Item (4) DONE — §10 marketing-surface re-read (2026-08-15 · 56be05f). **Verdict, including the
+      boring half.** (Q1, made false or imprecise) **one** finding, fixed: SETUP §"Commit per edit, push
+      once per turn" described the `Stop` hook as push-only, which is precisely what this release
+      changes; its session-start-sweep bullet was re-positioned with it. (Q2, made true and unsold)
+      **nothing to add** — and the notable point is *why*: v4.9.1 changes no marketing sentence because
+      it **repairs two already-published ones**. README's "since v4.9.0 the universe you are working in
+      follows you" and the "Nothing to save, nothing to lose / auto-committed the instant it's written"
+      blurb were both half-true while the pointer stayed on the machine; the code now matches the copy,
+      so the copy stands. **Boards re-read** (`board-flow` "Save & back up", `board-anatomy` hooks list,
+      via their README alt texts + `marketing-image-prompts.md`): still accurate, **no re-render**.
+      EN-QUOI-C-EST-DIFFERENT and CONNECTORS: nothing touched by this release. **Decided no-change, on
+      record**: README's two technical bullets ("auto-push on the Stop event") are not false and adding
+      the sweep there would buy mechanism at the cost of §11 brevity — SETUP is where that contract
+      lives._
+      **RESUME HERE after `/clear`:** (1) mutation pass 3 in the worktree `kenjaku-mut-v491` (advance
+      it to 2500b52 first: `git reset --hard 2500b52 && git clean -fd`) over `scripts/lib/universes.mjs
+      + scripts/auto-push.mjs` (both changed after pass 2 — universes prod regex + the warning pin),
+      **✅ DONE (2026-08-15)**: `universes.mjs` **89.26 → 99.66 %** (1 survivor) and `auto-push.mjs`
+      **94.90 → 95.92 %** (4 survivors) — **every survivor left across the whole release is a named
+      equivalent**. Logs `mutation/reports/v491-batch3a-universes.log` + `…-batch3b-auto-push.log`;
+      `rag/node_modules` symlinked into the worktree and `vault-write-guard.test.mjs` verified at
+      22 pass / 0 skipped there first; (2) **✅ DONE (2026-08-15 · 25b6ea6)** — `mutation/RESULTS.md`
+      has its v4.9.1 section (newest-first, the three passes, every equivalent named including the
+      `parsed?.universes` production simplification considered and declined), and the head table's
+      `scripts` row now mentions the run; (3) ✅ done, see above; (4) ✅ done, see above; (5) **drafted**
+      (2026-08-15 · e2b5cb3 — `release-v4.9.1-note.md`; two things left to the owner IN the file: the
+      title, 3 candidates, and the mutation figures pass 3 pins), then release note
+      (non-dev-first tone, cf. memory), merge to main, tag **v4.9.1**, close #69/#63/#65;
+      (6) ✅ DONE — worktree `kenjaku-mut-v491` removed (2026-08-15). *(`kenjaku-mut-v490` still exists,
+      left over from the previous release — not this plan's business, but worth a `worktree remove` next
+      time someone passes.)* (7) debrief the two
+      experiments in this plan (data so far: reviews found 1 blocker-class silent-no-op (symlink
+      entrypoint), 2 real defects fixed pre-tag, mutation floor HELD (pass 3: 95.92–100 % per file) under test-first
+      small batches; inline survivor triage beat fan-out at this size)._
+- [ ] **THE ONLY THING LEFT — the owner's go to publish.** Everything upstream of the tag is done:
+      branch green (harness suite **1714 pass / 0 fail**, CI green on every pushed commit), mutation
+      pinned, §10 done, manifest bumped, note written. **Waiting on Thomas for two calls**: (i) the
+      release **title** (3 candidates in `release-v4.9.1-note.md`, my pick: *"The One Where the Switch
+      Actually Leaves"*), and (ii) the **go to merge `hotfix/v4.9.1-universe-pointer` into `main`, tag
+      v4.9.1, publish the note and close #69/#63/#65** — a publish is his call, not mine. Nothing else
+      blocks; on his go this is one sequence with no thinking left in it.
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
+      _Draft verdict (2026-08-15, written before pass 3 closed — the one number it waits on is whether
+      pass 3 confirms the floor; everything else is already observed):_
+
+      **1. The process experiment (test-first small batches instead of strict baby-steps): PASSED on
+      its own terms, and the terms were the point.** The deal was "process discipline traded for
+      outcome measurement", judged by the mutation score against the `v4.9.0` floor. Measured:
+      pass 1 **89.15 %** on first writing, then **97.71 %** after the reviews — with the two files this
+      release WROTE (`universe-persist.mjs`, `entrypoint.mjs`) at **100 %**, and `set-active-universe.mjs`
+      going 25 % → 100 % once the wiring got a real test. That is at or above the v4.9.0 comparison
+      (its two new files: 100.00 % / 95.28 %). **What it does NOT prove**: that the mode is free. The
+      first pass left the wiring untested at 25 % — a small-batch blind spot a baby-step on that seam
+      would likely have caught — and it took an external review to demand the subprocess test that
+      closed it. Honest reading: **the mode holds the floor when the review and mutation nets are
+      actually run**, not on its own.
+      **2. The work-mode pilot (delegate the edges, keep the TDD core in the main session): PASSED, with
+      one sizing rule earned.** Three adversarial reviews on the branch diff returned **one
+      blocker-class finding** (a symlinked brain path ran `/switch` **without** persisting — a silent
+      no-op that no existing test could see) plus **two real defects** fixed before the tag (the silent
+      sweep failure, the un-scoped commit that swallowed pre-staged work). That is the pilot paying for
+      itself in one release. The sizing rule: **inline survivor triage beat fan-out at this size** —
+      32 survivors on one file were faster read and killed in the main session than dispatched one
+      judge per survivor. Fan-out earns its keep on *independent lenses*, not on *many small
+      look-alikes*.
+      **3. What the owner has to decide** (not decided here): whether the relaxed TDD mode graduates
+      into the `tdd-discipline` skill (his signature, per this plan's own rule that the skill stays
+      untouched until the debrief), and whether the review-fan-out becomes standing QA for the
+      unfreeze chantier, where fixtures × versions is the natural fan-out shape.
 
 ## Work-mode experiment (owner's ask, 2026-08-15 — decide at kickoff)
 

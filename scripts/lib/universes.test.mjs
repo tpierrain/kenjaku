@@ -320,6 +320,61 @@ test("parseSwitchArgs: explicit create / switch / list / current verbs", () => {
   assert.deepEqual(parseSwitchArgs(["current"]), { action: "current" });
 });
 
+test("parseSwitchArgs keeps multi-word names intact, on every verb and on the bare path", () => {
+  // join("") survived on the explicit verb + bare paths (mutation pass, v4.9.1):
+  // "Blue Team" would silently become the DIFFERENT slug 'blueteam'.
+  assert.deepEqual(parseSwitchArgs(["switch", "Blue", "Team"]), { action: "switch", name: "Blue Team" });
+  assert.deepEqual(parseSwitchArgs(["create", "Blue", "Team"]), { action: "create", name: "Blue Team" });
+  assert.deepEqual(parseSwitchArgs(["Blue", "Team"]), { action: "switch", name: "Blue Team" });
+});
+
+test("addToRegistry returns a COPY even when it refuses (default or empty name)", () => {
+  // The refusal path returned [...registry]; a mutant returning [] would ERASE
+  // the caller's registry view on a no-op. Non-empty registry, both refusals.
+  const registry = ["acme"];
+  for (const refused of [DEFAULT_UNIVERSE, ""]) {
+    const out = addToRegistry(registry, refused);
+    assert.deepEqual(out, ["acme"]);
+    assert.notEqual(out, registry, "a fresh copy, not the same array");
+  }
+});
+
+test("readRegistry survives a CORRUPT registry file (malformed JSON → empty, not a crash)", () => {
+  const io = fakeFs({ [registryPath(DIR)]: "{ this is not json" });
+  assert.deepEqual(readRegistry(io, DIR), []);
+});
+
+test("readRegistry ignores a registry whose universes is not an array", () => {
+  const io = fakeFs({ [registryPath(DIR)]: JSON.stringify({ universes: "acme" }) });
+  assert.deepEqual(readRegistry(io, DIR), []);
+});
+
+test("writeRegistry writes pretty JSON with a trailing newline, byte for byte", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+  assert.equal(
+    io.files.get(registryPath(DIR)),
+    JSON.stringify({ universes: ["acme"] }, null, 2) + "\n"
+  );
+});
+
+test("switchToUniverse refuses a name that normalizes to empty", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+  assert.deepEqual(switchToUniverse(io, DIR, "!!"), { ok: false, reason: "empty" });
+});
+
+test("createAndSwitch on an existing universe does NOT rewrite the registry file", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+  const writesBefore = io.writes.filter((w) => w.path === registryPath(DIR)).length;
+
+  createAndSwitch(io, DIR, "acme");
+
+  const writesAfter = io.writes.filter((w) => w.path === registryPath(DIR)).length;
+  assert.equal(writesAfter, writesBefore, "an idempotent create must not touch the registry");
+});
+
 test("vaultRagDir joins the .vault-rag state dir onto the brain root", () => {
   assert.equal(vaultRagDir("/brain"), "/brain/.vault-rag");
 });
@@ -349,12 +404,19 @@ test("runSwitchCli create: registers, switches, exits 0, and gives the one-time 
 
   const res = runSwitchCli(io, DIR, ["create", "Acme"]);
 
-  assert.equal(res.code, 0);
-  assert.match(res.message, /created and switched to 'acme'/);
   // The FIRST created universe opens the gate → the CLI surfaces the onboarding
   // line deterministically (the skill relays it; the LLM never counts universes).
-  assert.match(res.message, /two universes/i);
-  assert.match(res.message, /all universes/i);
+  // Asserted WHOLE (mutation pass, v4.9.1): fragment matches let single clauses
+  // of the user-facing onboarding be blanked with the suite green.
+  assert.deepEqual(res, {
+    code: 0,
+    wrote: "acme",
+    message:
+      "created and switched to 'acme'\n" +
+      "You now have two universes. Searches stay in the active one plus your " +
+      'cross-cutting (default) notes; say "search all universes" to span them. ' +
+      "New notes you capture here will file under vault/acme/.",
+  });
   assert.equal(readActiveUniverse(io, DIR), "acme");
 });
 
@@ -364,9 +426,53 @@ test("runSwitchCli create of a SECOND universe: no onboarding line (gate already
 
   const res = runSwitchCli(io, DIR, ["create", "Blue"]);
 
-  assert.equal(res.code, 0);
-  assert.match(res.message, /created and switched to 'blue'/);
-  assert.doesNotMatch(res.message, /two universes/i);
+  // Exact equality: an appended stray suffix must fail this, not slip past a
+  // doesNotMatch on the onboarding fragment alone.
+  assert.deepEqual(res, { code: 0, message: "created and switched to 'blue'", wrote: "blue" });
+});
+
+test("runSwitchCli create of an EXISTING universe says switched, not created — exactly", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme", "blue"]);
+  writeActiveUniverse(io, DIR, "blue");
+
+  const res = runSwitchCli(io, DIR, ["create", "acme"]);
+
+  assert.deepEqual(res, { code: 0, message: "switched to 'acme'", wrote: "acme" });
+});
+
+test("runSwitchCli create with an unusable name says why, in full", () => {
+  const io = fakeFs();
+
+  assert.deepEqual(runSwitchCli(io, DIR, ["create", "!!"]), {
+    code: 1,
+    message: "cannot create universe (empty)",
+  });
+  assert.deepEqual(runSwitchCli(io, DIR, ["create", "Default"]), {
+    code: 1,
+    message: "cannot create universe (reserved)",
+  });
+});
+
+test("runSwitchCli with no args prints the whole menu: active + available", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+  writeActiveUniverse(io, DIR, "acme");
+
+  assert.deepEqual(runSwitchCli(io, DIR, []), {
+    code: 0,
+    message: "active: acme\navailable: default, acme",
+  });
+});
+
+test("runSwitchCli explicit switch with NO name says so, in full", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.deepEqual(runSwitchCli(io, DIR, ["switch"]), {
+    code: 1,
+    message: "no universe name given",
+  });
 });
 
 test("runSwitchCli switch to an unknown universe exits 1 and lists the available ones", () => {
@@ -426,6 +532,26 @@ test("runSwitchCli list marks the active universe among all", () => {
   assert.match(res.message, / {2}default/);
 });
 
+// The CLI's caller (set-active-universe.mjs) must commit+push a pointer write
+// (issue #69: a Bash-side write is invisible to the PostToolUse net), so the
+// result SAYS when — and what — was written, instead of the caller parsing prose.
+test("runSwitchCli reports the written slug so the caller can persist it", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.equal(runSwitchCli(io, DIR, ["Acme"]).wrote, "acme");
+  assert.equal(runSwitchCli(io, DIR, ["create", "Blue Team"]).wrote, "blue-team");
+});
+
+test("runSwitchCli reports no write on read-only commands and refused switches", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  for (const argv of [["list"], ["current"], [], ["ghost"], ["create", "!!"]]) {
+    assert.equal(runSwitchCli(io, DIR, argv).wrote, undefined, JSON.stringify(argv));
+  }
+});
+
 // ── resolveActiveUniverse: the pointer can outlive the universe it names ──────
 // Pointer and registry are committed together, so an ordinary rename/delete can
 // no longer split them. But a pointer that names a universe which no longer
@@ -469,6 +595,9 @@ test("nativeConnectorsReminder warns when switching between two named universes"
   assert.match(msg, /single-account/i);
   // Names the target so the user knows which universe's accounts to line up.
   assert.match(msg, /'blue'/);
+  // ⚠️ prefix (issue #65): the reminder was read as informational and skimmed
+  // past; the warning glyph makes the accounts-don't-follow part land.
+  assert.match(msg, /\n⚠️ Heads-up:/u);
 });
 
 test("nativeConnectorsReminder stays silent when switching back to the default scope", () => {

@@ -8,8 +8,9 @@
 //   node scripts/set-active-universe.mjs create <name>     # create-and-switch
 //   node scripts/set-active-universe.mjs list | current    # inspect
 //
-// All logic + tests live in scripts/lib/universes.mjs; this file only wires the
-// real fs and prints the result. Natural-language "create a universe X" routes
+// All logic + tests live in scripts/lib/universes.mjs (+ universe-persist.mjs
+// for the commit+push of the written pointer); this file only wires the real fs
+// and git and prints the result. Natural-language "create a universe X" routes
 // here too, so there is ONE canonical, deterministic surface (ADR 0009).
 // ─────────────────────────────────────────────────────────────────────────────
 import {
@@ -18,8 +19,11 @@ import {
   writeFileSync,
   mkdirSync,
 } from "node:fs";
-import { runSwitchCli, vaultRagDir } from "./lib/universes.mjs";
+import { vaultRagDir } from "./lib/universes.mjs";
+import { runSwitchCliPersisted } from "./lib/universe-persist.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { buildGit, repoRoot } from "./auto-commit.mjs";
+import { realSleep } from "./auto-push.mjs";
 
 // The fs surface universes.mjs expects — readFileSync always as UTF-8 text.
 export const realIo = {
@@ -30,7 +34,12 @@ export const realIo = {
 };
 
 if (isEntrypoint(import.meta.url, process.argv[1])) {
-  const { code, message } = runSwitchCli(realIo, vaultRagDir(), process.argv.slice(2));
+  // Persisted variant (issue #69): a pointer write commits + pushes itself —
+  // written through Bash, it is invisible to the PostToolUse/Stop hook net.
+  const { code, message } = runSwitchCliPersisted(realIo, vaultRagDir(), process.argv.slice(2), {
+    git: buildGit(repoRoot(import.meta.url)),
+    sleep: realSleep,
+  });
   console.log(message);
   process.exit(code);
 }

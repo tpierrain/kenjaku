@@ -24,9 +24,12 @@ function generatedSettings() {
   return JSON.parse(content);
 }
 
-test("settings template bakes CLAUDE_CODE_AUTO_COMPACT_WINDOW=350000 into env", () => {
+// 450000 since v4.9.1 (issue #63): 350k compacted too early for long capture
+// sessions; the ceiling leaves headroom while staying under the model window.
+// New brains only — deployed brains keep their own settings.json.
+test("settings template bakes CLAUDE_CODE_AUTO_COMPACT_WINDOW=450000 into env", () => {
   const settings = generatedSettings();
-  assert.equal(settings.env?.CLAUDE_CODE_AUTO_COMPACT_WINDOW, "350000");
+  assert.equal(settings.env?.CLAUDE_CODE_AUTO_COMPACT_WINDOW, "450000");
 });
 
 test("the autocompact threshold is a STRING (env values must be strings)", () => {

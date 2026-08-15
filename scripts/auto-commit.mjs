@@ -24,6 +24,9 @@ export function buildGit(repo, execFile = execFileSync) {
         cwd: repo,
         encoding: "utf8",
         stdio: ["ignore", "pipe", "pipe"],
+        // A hung git maps to a plain {ok:false} instead of stalling the hook
+        // indefinitely (review, v4.9.1); same guard as auto-push's buildGit.
+        timeout: 10000,
       });
       return { out: out ?? "", ok: true };
     } catch (e) {

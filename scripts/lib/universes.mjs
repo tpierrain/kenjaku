@@ -34,7 +34,9 @@ export function normalizeUniverseName(raw) {
     .replace(/[̀-ͯ]/g, "") // strip combining accent marks
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-") // any non-alphanumeric run → one hyphen
-    .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
+    // Single `-`, not `-+`: runs are already collapsed above, so an edge can
+    // only carry ONE hyphen — the quantifier was dead regex (mutation pass).
+    .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
 }
 
 /**
@@ -143,7 +145,9 @@ export function runSwitchCli(io, dir, argv) {
         `cross-cutting (default) notes; say "search all universes" to span them. ` +
         `New notes you capture here will file under vault/${res.name}/.`
       : "";
-    return { code: 0, message: head + onboarding };
+    // `wrote` carries the written slug so the caller can persist the pointer
+    // (commit + push — issue #69: a Bash-side write is invisible to the hooks).
+    return { code: 0, message: head + onboarding, wrote: res.name };
   }
 
   // switch (fast path / explicit)
@@ -152,7 +156,7 @@ export function runSwitchCli(io, dir, argv) {
     // Landing in a named universe? Deterministically remind that the single-account
     // native connectors don't follow the switch (empty for the trivial toggles).
     const reminder = nativeConnectorsReminder({ from: current, to: res.name });
-    return { code: 0, message: `switched to '${res.name}'` + reminder };
+    return { code: 0, message: `switched to '${res.name}'` + reminder, wrote: res.name };
   }
   if (res.reason === "unknown") {
     return {
@@ -175,7 +179,7 @@ export function nativeConnectorsReminder({ from, to }) {
   if (to === from) return "";
   if (to === DEFAULT_UNIVERSE) return "";
   return (
-    `\nHeads-up: native connectors (Slack, Notion, Google, mail…) are single-account and ` +
+    `\n⚠️ Heads-up: native connectors (Slack, Notion, Google, mail…) are single-account and ` +
     `don't follow this switch. If '${to}' uses different accounts, disconnect/reconnect them to match.`
   );
 }
