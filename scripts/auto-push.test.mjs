@@ -263,9 +263,13 @@ test("runHook — a conflicted tree stays silent here (the SessionStart banner o
   assert.deepEqual(writes, []);
 });
 
-test("SWEEP_FAILED_WARNING — names the failure and points at git status", () => {
-  assert.match(SWEEP_FAILED_WARNING, /SWEEP FAILED/);
-  assert.match(SWEEP_FAILED_WARNING, /git status/);
+test("SWEEP_FAILED_WARNING — whole-text pin (fragment matches let half of it blank)", () => {
+  assert.equal(
+    SWEEP_FAILED_WARNING,
+    "\n⚠️  SWEEP FAILED — some changes stay uncommitted on this machine. Run " +
+      "`git status` in your brain to see what stopped the commit (a stale " +
+      ".git/index.lock or a missing git identity are the usual causes).\n"
+  );
 });
 
 test("runHook — a clean tree sweeps nothing (no add, no commit)", () => {

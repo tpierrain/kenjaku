@@ -34,7 +34,9 @@ export function normalizeUniverseName(raw) {
     .replace(/[̀-ͯ]/g, "") // strip combining accent marks
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-") // any non-alphanumeric run → one hyphen
-    .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
+    // Single `-`, not `-+`: runs are already collapsed above, so an edge can
+    // only carry ONE hyphen — the quantifier was dead regex (mutation pass).
+    .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
 }
 
 /**
