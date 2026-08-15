@@ -1,8 +1,22 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN — 2026-08-08. Design finding raised by the owner. The     -->
-<!-- sequencing (does this precede the small universes release?) is HIS call   -->
-<!-- and is the first unchecked box.                                          -->
+<!-- STATUS: ⏸️ PAUSED 2026-08-15 by the owner, before its first line of code. -->
+<!-- He diverted to explore Graph Engineering, to be FRAMED WITH HIM first.     -->
+<!-- Nothing is cut: this plan keeps its cargo and resumes where it stands.     -->
+<!-- See ROADMAP.md § DIVERSION IN FORCE.                                       -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+> ## ⏸️ PAUSED — do NOT start work from this plan without asking (owner, 2026-08-15)
+>
+> The owner **diverted to Graph Engineering** (start at
+> `llm-wiki-vs-embedding-rag-karpathy-graphify.md`, whose header now carries the diversion), and wants
+> that exploration **framed and discussed with him before any work**. Everything below stays true and
+> owed; only its **start date** moved.
+>
+> **State at the pause**: one branch was started before he stopped it —
+> `fix/mutation-debt-entrypoint-and-git-value` (pushed, `ec339dd`). It contains **documentation only**:
+> the S0bis re-measurement, which stands and is worth keeping (28 of 32 top-level scripts carry an
+> entry guard, not 20; nine have no test sibling; the two 0 % files carry no guard at all). **No
+> production code was written.**
 
 # Action plan — the engine updates what it shipped, and only stops for what the owner really wrote
 

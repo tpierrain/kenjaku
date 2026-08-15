@@ -1,6 +1,29 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🔬 STUDY / WATCH (created 2026-07-17) — NOTHING DECIDED, capture only. -->
+<!-- STATUS: 🔭 THE LIVE SUBJECT since 2026-08-15 — the owner diverted here from    -->
+<!-- the big unfreeze release, to explore "Graph Engineering". Still nothing        -->
+<!-- decided: the framing conversation has to happen FIRST, with him.               -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+> ## 🔭 WHY THIS NOTE IS SUDDENLY THE LIVE ONE (owner, 2026-08-15)
+>
+> He **paused the big unfreeze release before its first line of code** to explore **Graph
+> Engineering**, and asked that it be **framed and discussed with him before any work starts**.
+>
+> **Do not treat this note as the framing.** It is the July capture, and the owner's term is not the
+> one it uses: it says *compiled-wiki retrieval* / *Graphify*, he says **Graph Engineering**. Whether
+> that is this note's §4 consolidation layer, an actual graph structure over the vault, or something
+> wider is **his to state** — ask, do not infer, and do not re-derive a subject from these pages.
+>
+> What this note legitimately gives the conversation: the **two-axis grid** (§3 compile vs retrieve,
+> which dissolves the false "wiki vs RAG" opposition), the **audit** that said Axis 1 was
+> under-invested (§8), and the **open items nobody has done** (§7): does this warrant an ADR, read
+> Graphify's extraction pipeline for reusable ideas, spike an ingestion-time consolidation layer
+> **measured** against today's RAG, and confirm-or-kill the token-efficiency claim against Kenjaku
+> rather than against raw-file reading. The Axis-1 half of §8's implication **shipped** in the
+> meantime: `wiki-health-axis1-mechanisms-action.md`, Tracks A-F.
+>
+> **Paused, not cancelled**: `update-regime-owns-what-it-shipped-action.md` keeps everything it
+> carries and resumes where it stands.
 
 # Study — "LLM Wiki" (Karpathy) / Graphify: compiled-wiki retrieval as an alternative (or complement) to embedding-RAG
 

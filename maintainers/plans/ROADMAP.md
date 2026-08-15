@@ -18,6 +18,31 @@ to know the **order**.
 
 ---
 
+## ⏸️ DIVERSION IN FORCE — read this before picking any gate (owner, 2026-08-15)
+
+**The big unfreeze release is PAUSED before its first line of code.** The owner is diverting to
+**explore Graph Engineering** first, and he wants that exploration **framed and discussed with him
+before any work starts**. Nothing is cut, nothing is abandoned: `update-regime-owns-what-it-shipped`
+keeps everything it carries (the doctrine cargo, the mutation floor, the S6 rider) and resumes where
+it stands.
+
+**Where the exploration starts from**: `prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`
+(§7 still open: whether it warrants an ADR, the ingestion-time consolidation spike measured against
+today's RAG, and the token-efficiency claim to confirm or kill). Its Axis-1 half already shipped
+(`prospective/wiki-health-axis1-mechanisms-action.md`, Tracks A-F). **The subject is not re-derivable
+from these files** — the owner's own framing is what the conversation must produce, and it belongs in
+a plan of its own once held.
+
+> 🛑 **This entry exists because the decision was taken in conversation and written NOWHERE.** A
+> session resuming after a `/clear` on 2026-08-15 read the pointer, the ROADMAP and the release plan,
+> found *"NEXT TO EXECUTE"* everywhere, and started the release the owner had already diverted from —
+> until he stopped it by hand. This is exactly the failure `rules/plans.md` names (*a decision taken in
+> conversation dies at the `/clear` if it only lives in the thread*), and the rule did not fire: the
+> save point is **every hand-back**, not the end of a step. Cost: one branch of work started on a
+> paused chantier, and the owner having to remember for the repo.
+
+---
+
 ## The invariant (the one order not to re-invert)
 
 Decided with Thomas 2026-07-18, extended 2026-07-19 (universes). When juggling plans, keep this sequence:
