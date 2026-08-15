@@ -99,7 +99,9 @@
       `mutation/reports/v491-batch3a-universes.log` (296 mutants) and `…-batch3b-auto-push.log`;
       `rag/node_modules` symlinked into the worktree and `vault-write-guard.test.mjs` verified at
       22 pass / 0 skipped there first; (2) pin all numbers in `mutation/RESULTS.md` (new v4.9.1 section,
-      newest-first, name the equivalents); (3) ✅ done, see above; (4) ✅ done, see above; (5) release note
+      newest-first, name the equivalents); (3) ✅ done, see above; (4) ✅ done, see above; (5) **drafted**
+      (2026-08-15 · e2b5cb3 — `release-v4.9.1-note.md`; two things left to the owner IN the file: the
+      title, 3 candidates, and the mutation figures pass 3 pins), then release note
       (non-dev-first tone, cf. memory), merge to main, tag **v4.9.1**, close #69/#63/#65;
       (6) `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v491 --force`; (7) debrief the two
       experiments in this plan (data so far: reviews found 1 blocker-class silent-no-op (symlink
