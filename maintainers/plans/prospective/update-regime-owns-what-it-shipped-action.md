@@ -120,6 +120,32 @@ Three consequences, each already logged as its own field finding:
       belong in `CLAUDE.md`, so a divergence in the engine layer is nearly always **an accident to
       surface**, not work to protect. Flip `engine-apply-plan.test.mjs`'s deliberate lock with its
       comment rewritten, never deleted quietly.
+- [ ] **S6 — RIDER, decided 2026-08-15: deliver `test-first-discipline` and RETIRE `tdd-discipline`.**
+      The skill is **already written and committed** (`.claude/skills/test-first-discipline/SKILL.md`),
+      deliberately parked here rather than shipped alone, because retiring its predecessor needs
+      exactly the power this release builds. Why it exists: v4.9.1 measured the relaxed mode and the
+      old skill's opening rule (*one test at a time, never a test-first batch*) did not survive — and
+      what was dropped is TDD's own thesis, not a ceremony, so the name had to change too (owner's
+      call, both the decision and the name).
+  - [ ] Add `.claude/skills/test-first-discipline/**` to the manifest's **`merge`** regime.
+  - [ ] ⚠️ **Retirement is NOT automatic — verified in code on 2026-08-15**: `refreshUntouchedSkills`
+        only walks skills present in the **source**, and its single `rmSync` targets `.new` sidecars.
+        A skill dropped from the engine is **never visited**, so `tdd-discipline` would sit on every
+        deployed brain forever, contradicting its replacement. This release must remove it
+        **explicitly** — and that retirement path is itself a piece of "the update regime owns what it
+        shipped", so it belongs here on the merits, not only by convenience.
+  - [ ] Guard the retirement the way this release guards everything else: a brain that **customized**
+        `tdd-discipline` must not have it deleted silently (preserve + say so), a brain that never
+        touched it may lose it cleanly.
+  - [ ] Write the `templates/fr/` version (the locale falls back to English until it exists —
+        `resolveLocaleSource`, verified — so this is a quality debt, not a breakage).
+  - [ ] Re-sync the **source harness** copy (`use-case-driven-harness/skills/`): the vendoring
+        direction is temporarily **inverted** for this rewrite, and its `rules/testing.md` still
+        describes the old ritual ("baby-steps, fail-first, triangulation"). Left to the owner: it is
+        his private harness and its skills are written in French, so the language is his call.
+  - [ ] Align `CONVENTIONS.md` §5 ("TDD baby-steps + green-only commits") and harden §5bis with the
+        **entry-point seam rule** (every executable entry point is tested by running it as a process —
+        earned on v4.9.1's 25 % CLI wiring).
 
 ## The owner's second worry, and it is a different failure (2026-08-08)
 

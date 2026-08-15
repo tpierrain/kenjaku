@@ -1,12 +1,16 @@
 ---
-name: testing-strategy
-description: "How to test, language-agnostic, for ALL code (libs, tools, helpers, algos, services): the mutation score is the judge, not the ritual. Tests before code and fail-first are non-negotiable; the default mode is design-first then test-first in small batches; classic TDD baby-steps + triangulation stay available as a tool. Also carries assertion quality (the mutation-testing lessons) and the entry-point seam rule. To load as soon as you write or modify code."
+name: test-first-discipline
+description: "How to test, language-agnostic, for ALL code (libs, tools, helpers, algos, services): tests before code and fail-first are non-negotiable, and the mutation score is the judge, not the ritual. Default mode is design-first then test-first in small batches; classic TDD baby-steps + triangulation stay available as a tool. Also carries assertion quality (the mutation-testing lessons) and the entry-point seam rule. To load as soon as you write or modify code."
 version: 2.0.0
 origin: use-case-driven-harness
 ---
 
-# Testing strategy (universal)
+# Test-first discipline (universal)
 
+> **The name states what SURVIVED the measurement**, not what was dropped: the test comes before the
+> code, and it is seen red for the right reason first. Everything else in here is a mode, a reflex or
+> a judge.
+>
 > **This skill replaces `tdd-discipline` (v1.1.0), and the replacement is not cosmetic.** That skill
 > opened on a rule — *"one test at a time, complete red→green→refactor at each step; writing several
 > tests ahead then implementing is forbidden"* — which was **measured and did not survive**. Everything
