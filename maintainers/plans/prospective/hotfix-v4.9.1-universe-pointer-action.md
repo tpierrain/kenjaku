@@ -26,9 +26,11 @@
       `scripts/lib/universe-persist.mjs`: scoped commit of `.vault-rag/` + push via the Stop hook's
       `attemptPush` (autopush opt-in respected); `runSwitchCli` reports `wrote`; loud warnings on
       commit/push failure. Test-first batch (experiment mode), suite 1683 green.
-- [ ] **(b) Remove the class**: the Stop hook (`auto-push.mjs`) becomes **sweep-commit then push**, so
+- [x] **(b) Remove the class**: the Stop hook (`auto-push.mjs`) becomes **sweep-commit then push**, so
       any out-of-band engine write (today's pointer, tomorrow's whatever) leaves the machine at session
-      end instead of waiting for the next session's sweep.
+      end instead of waiting for the next session's sweep. _(2026-08-15 · 88499d3)_ — reuses
+      `attemptCommit` (same message, same unmerged-tree refusal), best-effort wrapped; the test fake
+      now counts commits so `rev-list` answers like real git (kills the push-before-sweep mutant).
 - [ ] **Decide (not necessarily ship): the stale-wins regression.** Should the SessionStart sweep
       refuse — or at least warn — before committing a pointer that is *behind* the remote? (Issue #69's
       closing note.) If deferred, say so here with the reason.
