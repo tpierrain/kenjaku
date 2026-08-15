@@ -1,7 +1,11 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🔴 LIVE — NEXT TO EXECUTE. Arbitrated by the owner 2026-08-15:    -->
-<!-- this small hotfix cuts BEFORE the unfreeze chantier, because the defect   -->
-<!-- is lived today on the shipped headline promise (the universe travels).    -->
+<!-- STATUS: 🏁 DONE, ARCHIVED (2026-08-15). Shipped as v4.9.1 — "The One      -->
+<!-- Where Your Context Stops Coming Back" (PR #70, merge df5d353, full CI     -->
+<!-- matrix green, release published, #69/#63/#65 closed).                     -->
+<!-- ONE THING SURVIVES THIS PLAN, and it is the owner's signature, not work:  -->
+<!-- deciding what graduates from the two pilots (see the debrief below) — the -->
+<!-- relaxed TDD mode into the `tdd-discipline` skill, and the review fan-out  -->
+<!-- into the unfreeze chantier's standing QA. Carried on ROADMAP.md's row.    -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the switch that stayed on the machine (v4.9.1 hotfix)
@@ -45,8 +49,9 @@
       _(2026-08-15 · 44c5482)_ — plus an amendment in ADR 0018 and a de-hardcoded maintainers index line.
 - [x] **Rider #65**: `⚠️ ` prefix on `nativeConnectorsReminder()` (`scripts/lib/universes.mjs`) + its
       test. _(2026-08-15 · 3412882)_
-- [ ] **Release tail**: mutation pass on touched files (pin numbers in `mutation/RESULTS.md`), §10
+- [x] **Release tail**: mutation pass on touched files (pin numbers in `mutation/RESULTS.md`), §10
       marketing-surface re-read, release note, tag **v4.9.1**, close issues #69/#63/#65.
+      _(2026-08-15 · PR #70, merge `df5d353`, tag v4.9.1, release published, all three issues closed.)_
       _In flight (2026-08-15): work-mode pilot engaged — 3 adversarial review subagents on the branch
       diff (lenses: git semantics / fleet deployment via manifest regimes / test quality) + targeted
       mutation batch on the 4 touched prod files, running in disposable worktree `kenjaku-mut-v491`
@@ -112,18 +117,20 @@
       experiments in this plan (data so far: reviews found 1 blocker-class silent-no-op (symlink
       entrypoint), 2 real defects fixed pre-tag, mutation floor HELD (pass 3: 95.92–100 % per file) under test-first
       small batches; inline survivor triage beat fan-out at this size)._
-- [ ] **THE ONLY THING LEFT — the owner's go to publish.** Everything upstream of the tag is done:
+- [x] **THE ONLY THING LEFT — the owner's go to publish.** _(2026-08-15 · given in conversation; title
+      arbitrated to "The One Where Your Context Stops Coming Back"; published.)_ Everything upstream of the tag is done:
       branch green (harness suite **1714 pass / 0 fail**, CI green on every pushed commit), mutation
       pinned, §10 done, manifest bumped, note written. **Waiting on Thomas for two calls**: (i) the
       release **title** (3 candidates in `release-v4.9.1-note.md`, my pick: *"The One Where the Switch
       Actually Leaves"*), and (ii) the **go to merge `hotfix/v4.9.1-universe-pointer` into `main`, tag
       v4.9.1, publish the note and close #69/#63/#65** — a publish is his call, not mine. Nothing else
       blocks; on his go this is one sequence with no thinking left in it.
-- [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
+- [x] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
-      _Draft verdict (2026-08-15, written before pass 3 closed — the one number it waits on is whether
-      pass 3 confirms the floor; everything else is already observed):_
+      _Verdict (2026-08-15 — pass 3 CONFIRMED the floor: 95.92–99.66 % on the two re-measured files, every
+      survivor a named equivalent). What is written below stands as the debrief; what it asks of the
+      owner is a decision, not more measurement:_
 
       **1. The process experiment (test-first small batches instead of strict baby-steps): PASSED on
       its own terms, and the terms were the point.** The deal was "process discipline traded for
