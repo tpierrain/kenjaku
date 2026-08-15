@@ -95,17 +95,20 @@
       **RESUME HERE after `/clear`:** (1) mutation pass 3 in the worktree `kenjaku-mut-v491` (advance
       it to 2500b52 first: `git reset --hard 2500b52 && git clean -fd`) over `scripts/lib/universes.mjs
       + scripts/auto-push.mjs` (both changed after pass 2 — universes prod regex + the warning pin),
-      expect ≥ pass-2 numbers — **IN FLIGHT (2026-08-15)**: two batches, logs
-      `mutation/reports/v491-batch3a-universes.log` (296 mutants) and `…-batch3b-auto-push.log`;
+      **✅ DONE (2026-08-15)**: `universes.mjs` **89.26 → 99.66 %** (1 survivor) and `auto-push.mjs`
+      **94.90 → 95.92 %** (4 survivors) — **every survivor left across the whole release is a named
+      equivalent**. Logs `mutation/reports/v491-batch3a-universes.log` + `…-batch3b-auto-push.log`;
       `rag/node_modules` symlinked into the worktree and `vault-write-guard.test.mjs` verified at
-      22 pass / 0 skipped there first; (2) pin all numbers in `mutation/RESULTS.md` (new v4.9.1 section,
-      newest-first, name the equivalents); (3) ✅ done, see above; (4) ✅ done, see above; (5) **drafted**
+      22 pass / 0 skipped there first; (2) **✅ DONE (2026-08-15 · 25b6ea6)** — `mutation/RESULTS.md`
+      has its v4.9.1 section (newest-first, the three passes, every equivalent named including the
+      `parsed?.universes` production simplification considered and declined), and the head table's
+      `scripts` row now mentions the run; (3) ✅ done, see above; (4) ✅ done, see above; (5) **drafted**
       (2026-08-15 · e2b5cb3 — `release-v4.9.1-note.md`; two things left to the owner IN the file: the
       title, 3 candidates, and the mutation figures pass 3 pins), then release note
       (non-dev-first tone, cf. memory), merge to main, tag **v4.9.1**, close #69/#63/#65;
       (6) `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v491 --force`; (7) debrief the two
       experiments in this plan (data so far: reviews found 1 blocker-class silent-no-op (symlink
-      entrypoint), 2 real defects fixed pre-tag, mutation floor HELD at 97.71 % under test-first
+      entrypoint), 2 real defects fixed pre-tag, mutation floor HELD (pass 3: 95.92–100 % per file) under test-first
       small batches; inline survivor triage beat fan-out at this size)._
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let

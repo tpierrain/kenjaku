@@ -1,8 +1,8 @@
 # v4.9.1 — release note (draft)
 
 > Draft for the GitHub release body, written per `CONVENTIONS.md` §11: non-developer first, technical
-> depth kept but moved below the `---`. **Two things are still the owner's call**: the title (three
-> candidates below) and the mutation figures in *Under the hood*, which are pinned from pass 3.
+> depth kept but moved below the `---`. The mutation figures are **pinned** (pass 3, 2026-08-15).
+> **One thing is still the owner's call**: the title — three candidates below.
 
 **Title candidates** (the series uses *"The One Where…"*):
 
@@ -85,8 +85,11 @@ was fixed on the branch. The most useful of them demanded a test that runs the r
 point in a subprocess — which immediately showed that a brain reached through a symlinked path would run
 the switch *without* persisting it. That is the net doing its job.
 
-**Mutation snapshot** (targeted run over the files this release changed, `maintainers/mutation/RESULTS.md`
-§ v4.9.1): _TO PIN from pass 3 — pass 2 read **97.71 %** overall, with `universe-persist.mjs`,
-`entrypoint.mjs` and `set-active-universe.mjs` at **100 %**._
+**Mutation snapshot** (targeted run over the six production files this release changed, three passes —
+one per time production moved; `maintainers/mutation/RESULTS.md` § v4.9.1): **the two files this release
+wrote both end at 100 %**, the CLI wiring that no test imported goes **25 % → 100 %**, and the four
+others land between **95.92 % and 99.66 %**. Every survivor left is a named equivalent — the entry-point
+guard, a `.trim()` no git output can distinguish, and one optional chain whose `catch` already returns
+the same value.
 
 Closes #69, #63, #65.
