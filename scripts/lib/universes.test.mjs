@@ -426,6 +426,26 @@ test("runSwitchCli list marks the active universe among all", () => {
   assert.match(res.message, / {2}default/);
 });
 
+// The CLI's caller (set-active-universe.mjs) must commit+push a pointer write
+// (issue #69: a Bash-side write is invisible to the PostToolUse net), so the
+// result SAYS when — and what — was written, instead of the caller parsing prose.
+test("runSwitchCli reports the written slug so the caller can persist it", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  assert.equal(runSwitchCli(io, DIR, ["Acme"]).wrote, "acme");
+  assert.equal(runSwitchCli(io, DIR, ["create", "Blue Team"]).wrote, "blue-team");
+});
+
+test("runSwitchCli reports no write on read-only commands and refused switches", () => {
+  const io = fakeFs();
+  writeRegistry(io, DIR, ["acme"]);
+
+  for (const argv of [["list"], ["current"], [], ["ghost"], ["create", "!!"]]) {
+    assert.equal(runSwitchCli(io, DIR, argv).wrote, undefined, JSON.stringify(argv));
+  }
+});
+
 // ── resolveActiveUniverse: the pointer can outlive the universe it names ──────
 // Pointer and registry are committed together, so an ordinary rename/delete can
 // no longer split them. But a pointer that names a universe which no longer
