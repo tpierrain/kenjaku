@@ -154,21 +154,46 @@ Three consequences, each already logged as its own field finding:
           `tdd-discipline` as the discipline they specialize.
     - [x] _(2026-08-15, verified resolving)_ The **installed symlink**: `~/.claude/skills/tdd-discipline` → replaced by
           `test-first-discipline` (it is a symlink into the harness, so the rename breaks it).
-    - [ ] **The rest of the harness is still in FRENCH, and the owner asked for English (2026-08-15).**
-          Done in English: `rules/testing.md` + the new skill. **NOT done, deliberately, and it is not a
-          half-job to discover later**: `rules/{language,plans,architecture,inclusive-writing,`
-          `style-typographie,dotnet-conventions,README}.md`, `skills/outside-in-diamond-tdd`,
-          `skills/the-hive-pattern`, plus the harness `README.md` / `CLAUDE.md` — **≈1 100 lines**.
-          Reason for stopping: translating them in the same pass (at ~240k context) risked a
-          half-translated harness, which is worse than a coherent French one with correct pointers.
-          It is a **mechanical pass with no dependency on this release** — do it on a fresh session,
-          branch `chore/test-first-discipline` in `~/Dev/use-case-driven-harness` (committed, **not
-          pushed**: it sits on that repo's `main` otherwise).
-    - [ ] **⏳ THE ONE THING LEFT BEFORE THIS RIDER IS TRUSTWORTHY — acceptance test, not an assumption**: open a session
-          in a project that is **NOT** Kenjaku, ask for code, and check which skill actually loads. If
-          it is still the old one, the wiring lied. _(Everything else is done and verified: the
-          harness carriers are switched, and Kenjaku's own copy of the old skill is a **tombstone**
-          whose description reads "DO NOT LOAD" — the routing surface, not just the prose.)_
+    - [x] **The rest of the harness spoke FRENCH; the owner asked for English (2026-08-15).** Done on a
+          fresh session as planned, in four commits on `chore/test-first-discipline`, now **pushed**
+          (`61b4e3e` rules · `c2eee7c` skills · `ff10c49` docs+bootstrap · `a31cb39` .gitignore).
+          Everything is English: the seven `rules/*.md`, both remaining skills **including their
+          `description:` frontmatter** (the routing surface, the half that decides whether a skill
+          loads at all), `README.md`, `CLAUDE.md`, and `bootstrap.sh` — comments **and** its on-screen
+          output, which `language.md` counts as end-user-facing. `bash -n` clean and `--check` replays
+          identically.
+      - [x] `rules/style-typographie.md` → **renamed** `style-typography.md` (the last French
+            filename; `rules/` is symlinked as a whole directory, so no basename pointed at it).
+      - [x] Kept non-English on purpose, both under `language.md`'s own carve-out: the *« Des
+            pointeurs, pas des copies, banane »* article title in `plans.md`, and the French sample
+            forms in `inclusive-writing.md` — those forms **are** its subject matter.
+      - [x] Three staleness defects fixed in passing, none of them translation: `outside-in-diamond`'s
+            inner loop still ordered *« toujours en baby-steps, un test à la fois »* (the exact rule
+            retired on 2026-08-15); the README listed `rules/` as four files when it holds eight;
+            `bootstrap.sh` said "ces 3 blocs" over four mappings. `dotnet-conventions.md` also called
+            Diverse "ma propre librairie" **in a file written in Claude's first person** — it is
+            Thomas's library, and it now says so.
+      - [ ] **Left alone, flagged rather than done — the owner's call, not mine:**
+            `docs/archive/PLAN.md` (82 lines, French) is the **archived, executed** commissioning plan.
+            Translating it would rewrite the record of what was actually run, and its value is being
+            what it was. Say the word and it takes one pass.
+      - [ ] **Pre-existing wart, NOT introduced here and NOT fixed here**: `bootstrap.sh --check`
+            compares the symlink target as a literal string, so links recorded as `~/dev/…` are
+            reported *"points elsewhere"* against a repo resolved at `~/Dev/…`. macOS is
+            case-insensitive, so they are the same directory and everything genuinely works (proved
+            live: editing a skill here changed the loaded description mid-session) — **only the report
+            lies.** One-line fix, out of scope for a translation pass.
+    - [ ] **⏳ NEXT STEP ON THIS RIDER, and the only one left — acceptance test, not an assumption**:
+          open a session in a project that is **NOT** Kenjaku, ask for code, and check which skill
+          actually loads. If it is still the old one, the wiring lied. **This one needs Thomas at the
+          keyboard**: it is a fresh session elsewhere, which is exactly what a session inside Kenjaku
+          cannot fake. _(Everything else is done and verified: the harness is switched **and now fully
+          English**, and Kenjaku's own copy of the old skill is a **tombstone** whose description
+          reads "DO NOT LOAD" — the routing surface, not just the prose.)_
+      - [x] **Weak evidence already in hand, worth recording so it is not mistaken for the test**:
+            during the translation pass the edited skills' descriptions were re-read **live** by the
+            running session (the harness symlinks resolve). That proves the *symlinks* carry, not that
+            a **fresh session in another project** routes to `test-first-discipline`. Still owed.
   - [ ] Align `CONVENTIONS.md` §5 ("TDD baby-steps + green-only commits") and harden §5bis with the
         **entry-point seam rule** (every executable entry point is tested by running it as a process —
         earned on v4.9.1's 25 % CLI wiring).
