@@ -56,9 +56,19 @@
       the fleet (verified, engine-apply-plan carve-out) — the class-removal claim holds. Two real
       findings fixed: the Stop sweep now shouts on "failed" (SWEEP_FAILED_WARNING), and the switch
       commit is pathspec-scoped so pre-staged work stays out and stays staged. To do at tag time
-      (review NIT): bump `engineVersion.scripts` in `engine-manifest.json`. Since prod code changed
-      after the mutation batch started, re-measure `auto-push.mjs` + `universe-persist.mjs` off the
-      fixes before pinning. Correctness + test-quality reviews still pending._
+      (review NIT): bump `engineVersion.scripts` in `engine-manifest.json`._
+      _Correctness + test-quality reviews landed (2026-08-15 · fixes fff4ca1): mid-merge partial-commit
+      refusal → calm DEFER to the Stop sweep; push gated on committed; buildGit timeout 10s; realpath
+      entry guards (auto-push + the shared lib/entrypoint.mjs — the subprocess wiring test the review
+      demanded immediately caught that a symlinked brain path ran /switch WITHOUT persisting). Declined
+      as NIT, on record: detached-HEAD switch reports success while its commit can orphan (broken-brain
+      tier, SessionStart machinery already complains there)._
+      _Mutation pass 1 (on 37029b8, log `mutation/reports/v491-batch1.log`): overall 89.15 % —
+      universe-persist 91.80 %, auto-push 92.55 %, universes 89.26 % (32 survivors to triage),
+      set-active-universe 25 % (the untested wiring — since covered by the subprocess test). Next:
+      re-measure the 5 prod files changed by the review fixes (universe-persist, auto-push,
+      auto-commit, entrypoint, set-active-universe) in the worktree, triage universes.mjs survivors,
+      pin RESULTS.md, then §10 re-read, release note, tag._
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
