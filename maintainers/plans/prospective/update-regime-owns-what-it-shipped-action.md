@@ -173,16 +173,30 @@ Three consequences, each already logged as its own field finding:
             `bootstrap.sh` said "ces 3 blocs" over four mappings. `dotnet-conventions.md` also called
             Diverse "ma propre librairie" **in a file written in Claude's first person** — it is
             Thomas's library, and it now says so.
-      - [ ] **Left alone, flagged rather than done — the owner's call, not mine:**
-            `docs/archive/PLAN.md` (82 lines, French) is the **archived, executed** commissioning plan.
-            Translating it would rewrite the record of what was actually run, and its value is being
-            what it was. Say the word and it takes one pass.
-      - [ ] **Pre-existing wart, NOT introduced here and NOT fixed here**: `bootstrap.sh --check`
-            compares the symlink target as a literal string, so links recorded as `~/dev/…` are
-            reported *"points elsewhere"* against a repo resolved at `~/Dev/…`. macOS is
-            case-insensitive, so they are the same directory and everything genuinely works (proved
-            live: editing a skill here changed the loaded description mid-session) — **only the report
-            lies.** One-line fix, out of scope for a translation pass.
+      - [x] **`docs/archive/PLAN.md` translated too** _(2026-08-15 · harness `50861b2`)_, after the
+            owner approved. It was flagged as "leave it, its value is being the record of what ran";
+            **that argument was wrong and was withdrawn**: git keeps the French original forever, so
+            translating **moves** the record instead of destroying it. Added an `ARCHIVED` banner (the
+            file opens with *"This plan is your mission. Execute it end to end"*, addressed to a Claude
+            instance) and ticked P1-P3 + 1-8, which the journal had asserted since 2026-05-31 while
+            every box stood empty — `plans.md`'s own defect, in the harness's own archive. Left
+            deliberately un-modernized: it still names `skills/hexagonal-dotnet`, the `tdd-diamond`
+            agent and a clone at `~/dev` (lowercase) — that last one being **the origin of the inode
+            bug below**.
+      - [x] **The `bootstrap.sh --check` wart is fixed, test-first** _(2026-08-15 · harness `8fda08f`)_.
+            It compared the symlink target as a **literal string**, so links spelled `~/dev/…` were
+            declared *"points elsewhere"* against a repo resolved at `~/Dev/…` — and that branch
+            `return`s, so a healthy install reported four warnings and did nothing. Safe behaviour,
+            lying report: once the dry-run cries wolf, a genuinely broken link is indistinguishable
+            from the noise. Now `[[ -ef ]]` (device + inode), so any equivalent spelling counts.
+        - [x] **`test/bootstrap-check.sh` is this repo's first mechanical net**, and it exists because
+              `CLAUDE.md` rule 4 (*never break bootstrap.sh's idempotence*) had **nothing enforcing
+              it**. It drives the script **as a process** against a fake `$HOME` — the entry-point seam
+              rule, and the seam was already there since the script reads `$HOME`. Three cases: exact
+              path, equivalent path via an alias symlink, genuinely foreign target. **Red on case 2
+              only, before the fix.** The third case is load-bearing: without it, *"always report
+              fine"* passes the other two. Wired into `CLAUDE.md` rule 4 + the README, because a net
+              nobody knows to run is not a net.
     - [ ] **⏳ NEXT STEP ON THIS RIDER, and the only one left — acceptance test, not an assumption**:
           open a session in a project that is **NOT** Kenjaku, ask for code, and check which skill
           actually loads. If it is still the old one, the wiring lied. **This one needs Thomas at the
