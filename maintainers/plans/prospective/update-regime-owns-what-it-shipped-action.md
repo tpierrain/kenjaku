@@ -140,9 +140,23 @@ Three consequences, each already logged as its own field finding:
   - [ ] Write the `templates/fr/` version (the locale falls back to English until it exists —
         `resolveLocaleSource`, verified — so this is a quality debt, not a breakage).
   - [ ] Re-sync the **source harness** copy (`use-case-driven-harness/skills/`): the vendoring
-        direction is temporarily **inverted** for this rewrite, and its `rules/testing.md` still
-        describes the old ritual ("baby-steps, fail-first, triangulation"). Left to the owner: it is
-        his private harness and its skills are written in French, so the language is his call.
+        direction is temporarily **inverted** for this rewrite.
+        **⚠️ THE HARNESS HALF IS THE ONE THAT CHANGES MY BEHAVIOUR, and the owner said GO on
+        2026-08-15 ("everything in English").** Without it the new skill is Kenjaku-only and
+        `rules/testing.md` — always loaded, every project — keeps pointing at `tdd-discipline`, so
+        the old ritual stays the default everywhere. Exact checklist, in `~/Dev/use-case-driven-harness`
+        (branch `chore/test-first-discipline`, since committing on its `main` is not done):
+    - [ ] `git mv skills/tdd-discipline skills/test-first-discipline` + the new content (English).
+    - [ ] `rules/testing.md` **rewritten in English**, pointing at `test-first-discipline`, with the
+          baby-steps enumeration replaced by the three non-negotiables. This file is THE switch.
+    - [ ] `bootstrap.sh` line ~30 (the symlink list) + `README.md` + `CLAUDE.md` references.
+    - [ ] `skills/outside-in-diamond-tdd/SKILL.md` and `rules/dotnet-conventions.md`: both name
+          `tdd-discipline` as the discipline they specialize.
+    - [ ] The **installed symlink**: `~/.claude/skills/tdd-discipline` → replaced by
+          `test-first-discipline` (it is a symlink into the harness, so the rename breaks it).
+    - [ ] **Acceptance test, not an assumption**: open a session in a project that is NOT Kenjaku,
+          ask for code, and check which skill actually loads. If it is still the old one, the wiring
+          lied.
   - [ ] Align `CONVENTIONS.md` §5 ("TDD baby-steps + green-only commits") and harden §5bis with the
         **entry-point seam rule** (every executable entry point is tested by running it as a process —
         earned on v4.9.1's 25 % CLI wiring).
