@@ -74,12 +74,32 @@
       survivors triaged and killed in 2500b52 (whole-result asserts, multi-word parse, corrupt
       registry, byte-pinned newline, defensive copies, idempotent create) + dead regex quantifier
       simplified out; a couple of readRegistry catch-net mutants are equivalents (ENOENT path)._
+      _Item (3) DONE (2026-08-15 · 0163b55): `engineVersion.scripts` 1.13.0 → **1.13.1** (patch — this
+      closes a hole in a shipped promise rather than adding a capability); rag / local-mirror /
+      constitutionTemplate verified untouched, `indexSchemaVersion` stays 2. The two new files ship
+      under the existing `scripts/lib/**` replace regime — nothing to add to the manifest._
+      _Item (4) DONE — §10 marketing-surface re-read (2026-08-15 · 56be05f). **Verdict, including the
+      boring half.** (Q1, made false or imprecise) **one** finding, fixed: SETUP §"Commit per edit, push
+      once per turn" described the `Stop` hook as push-only, which is precisely what this release
+      changes; its session-start-sweep bullet was re-positioned with it. (Q2, made true and unsold)
+      **nothing to add** — and the notable point is *why*: v4.9.1 changes no marketing sentence because
+      it **repairs two already-published ones**. README's "since v4.9.0 the universe you are working in
+      follows you" and the "Nothing to save, nothing to lose / auto-committed the instant it's written"
+      blurb were both half-true while the pointer stayed on the machine; the code now matches the copy,
+      so the copy stands. **Boards re-read** (`board-flow` "Save & back up", `board-anatomy` hooks list,
+      via their README alt texts + `marketing-image-prompts.md`): still accurate, **no re-render**.
+      EN-QUOI-C-EST-DIFFERENT and CONNECTORS: nothing touched by this release. **Decided no-change, on
+      record**: README's two technical bullets ("auto-push on the Stop event") are not false and adding
+      the sweep there would buy mechanism at the cost of §11 brevity — SETUP is where that contract
+      lives._
       **RESUME HERE after `/clear`:** (1) mutation pass 3 in the worktree `kenjaku-mut-v491` (advance
       it to 2500b52 first: `git reset --hard 2500b52 && git clean -fd`) over `scripts/lib/universes.mjs
       + scripts/auto-push.mjs` (both changed after pass 2 — universes prod regex + the warning pin),
-      expect ≥ pass-2 numbers; (2) pin all numbers in `mutation/RESULTS.md` (new v4.9.1 section,
-      newest-first, name the equivalents); (3) bump `engineVersion.scripts` in `engine-manifest.json`
-      (fleet-review NIT); (4) §10 marketing-surface re-read (CONVENTIONS); (5) release note
+      expect ≥ pass-2 numbers — **IN FLIGHT (2026-08-15)**: two batches, logs
+      `mutation/reports/v491-batch3a-universes.log` (296 mutants) and `…-batch3b-auto-push.log`;
+      `rag/node_modules` symlinked into the worktree and `vault-write-guard.test.mjs` verified at
+      22 pass / 0 skipped there first; (2) pin all numbers in `mutation/RESULTS.md` (new v4.9.1 section,
+      newest-first, name the equivalents); (3) ✅ done, see above; (4) ✅ done, see above; (5) release note
       (non-dev-first tone, cf. memory), merge to main, tag **v4.9.1**, close #69/#63/#65;
       (6) `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v491 --force`; (7) debrief the two
       experiments in this plan (data so far: reviews found 1 blocker-class silent-no-op (symlink
