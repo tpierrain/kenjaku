@@ -41,8 +41,8 @@
 ## Work-mode experiment (owner's ask, 2026-08-15 — decide at kickoff)
 
 The owner wants to pilot a **subagent-orchestrated mode** on this release, to keep the main context
-lean instead of `/clear`-ing every ~200k tokens. Agreed shape of the pilot (proposed, pending his go
-at kickoff): the TDD core stays in the main session's hands (baby-steps are sequential by nature);
+lean instead of `/clear`-ing every ~200k tokens. **GO given by the owner at kickoff (2026-08-15), as
+proposed.** Agreed shape of the pilot: the TDD core stays in the main session's hands (baby-steps are sequential by nature);
 delegation applies to the **edges** — adversarial diff review (multi-agent), mutation-survivor
 triage (one judge per survivor, parallel), and large reads returned as digests. Debrief after the
 release; if conclusive, scale it to the unfreeze chantier's QA (fixtures × versions = natural
