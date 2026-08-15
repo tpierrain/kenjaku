@@ -64,11 +64,27 @@
       as NIT, on record: detached-HEAD switch reports success while its commit can orphan (broken-brain
       tier, SessionStart machinery already complains there)._
       _Mutation pass 1 (on 37029b8, log `mutation/reports/v491-batch1.log`): overall 89.15 % —
-      universe-persist 91.80 %, auto-push 92.55 %, universes 89.26 % (32 survivors to triage),
-      set-active-universe 25 % (the untested wiring — since covered by the subprocess test). Next:
-      re-measure the 5 prod files changed by the review fixes (universe-persist, auto-push,
-      auto-commit, entrypoint, set-active-universe) in the worktree, triage universes.mjs survivors,
-      pin RESULTS.md, then §10 re-read, release note, tag._
+      universe-persist 91.80 %, auto-push 92.55 %, universes 89.26 % (32 survivors), set-active-universe
+      25 % (the untested wiring)._
+      _Mutation pass 2 post-review-fixes (on fff4ca1, log `v491-batch2-postreview.log`): **97.71 %** —
+      universe-persist **100 %**, entrypoint **100 %**, set-active-universe **25 → 100 %** (the
+      subprocess test), auto-commit 98.31 %, auto-push 94.90 %. Of its 6 survivors, 5 are the
+      documented equivalent tier (entry guards ×4, `.trim()` under Number()); the 6th
+      (SWEEP_FAILED_WARNING half-blankable) is killed by 2500b52's whole-text pin. universes.mjs's 32
+      survivors triaged and killed in 2500b52 (whole-result asserts, multi-word parse, corrupt
+      registry, byte-pinned newline, defensive copies, idempotent create) + dead regex quantifier
+      simplified out; a couple of readRegistry catch-net mutants are equivalents (ENOENT path)._
+      **RESUME HERE after `/clear`:** (1) mutation pass 3 in the worktree `kenjaku-mut-v491` (advance
+      it to 2500b52 first: `git reset --hard 2500b52 && git clean -fd`) over `scripts/lib/universes.mjs
+      + scripts/auto-push.mjs` (both changed after pass 2 — universes prod regex + the warning pin),
+      expect ≥ pass-2 numbers; (2) pin all numbers in `mutation/RESULTS.md` (new v4.9.1 section,
+      newest-first, name the equivalents); (3) bump `engineVersion.scripts` in `engine-manifest.json`
+      (fleet-review NIT); (4) §10 marketing-surface re-read (CONVENTIONS); (5) release note
+      (non-dev-first tone, cf. memory), merge to main, tag **v4.9.1**, close #69/#63/#65;
+      (6) `git worktree remove /Users/tpierrain/Dev/kenjaku-mut-v491 --force`; (7) debrief the two
+      experiments in this plan (data so far: reviews found 1 blocker-class silent-no-op (symlink
+      entrypoint), 2 real defects fixed pre-tag, mutation floor HELD at 97.71 % under test-first
+      small batches; inline survivor triage beat fan-out at this size)._
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
