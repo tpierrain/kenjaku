@@ -209,6 +209,13 @@ Three consequences, each already logged as its own field finding:
               only, before the fix.** The third case is load-bearing: without it, *"always report
               fine"* passes the other two. Wired into `CLAUDE.md` rule 4 + the README, because a net
               nobody knows to run is not a net.
+    - [ ] **The work is pushed but has NO surface on GitHub — asked by the owner 2026-08-15, verified
+          against the real remote, not the tracking ref.** `git ls-remote` says
+          `refs/heads/chore/test-first-discipline` = `50861b2` (the seven commits, `test/bootstrap-check.sh`
+          included), while `refs/heads/main` = `0ebe5ab`, untouched, and `gh pr list` returns **nothing**.
+          So the repo's landing page, which shows `main` and would otherwise advertise a PR, shows no
+          trace of any of it. Nothing is lost; it is only invisible. **Open the PR (or merge) — the
+          owner's call, not a default.**
     - [ ] **⏳ NEXT STEP ON THIS RIDER, and the only one left — acceptance test, not an assumption.**
           **It needs Thomas at the keyboard**: a fresh session in another project, which is exactly
           what a session inside Kenjaku cannot fake. **The protocol below is written FOR HIM, and must
