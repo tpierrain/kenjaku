@@ -154,7 +154,17 @@ Three consequences, each already logged as its own field finding:
           `tdd-discipline` as the discipline they specialize.
     - [x] _(2026-08-15, verified resolving)_ The **installed symlink**: `~/.claude/skills/tdd-discipline` → replaced by
           `test-first-discipline` (it is a symlink into the harness, so the rename breaks it).
-    - [ ] **⏳ THE ONE THING LEFT ON THIS RIDER — acceptance test, not an assumption**: open a session
+    - [ ] **The rest of the harness is still in FRENCH, and the owner asked for English (2026-08-15).**
+          Done in English: `rules/testing.md` + the new skill. **NOT done, deliberately, and it is not a
+          half-job to discover later**: `rules/{language,plans,architecture,inclusive-writing,`
+          `style-typographie,dotnet-conventions,README}.md`, `skills/outside-in-diamond-tdd`,
+          `skills/the-hive-pattern`, plus the harness `README.md` / `CLAUDE.md` — **≈1 100 lines**.
+          Reason for stopping: translating them in the same pass (at ~240k context) risked a
+          half-translated harness, which is worse than a coherent French one with correct pointers.
+          It is a **mechanical pass with no dependency on this release** — do it on a fresh session,
+          branch `chore/test-first-discipline` in `~/Dev/use-case-driven-harness` (committed, **not
+          pushed**: it sits on that repo's `main` otherwise).
+    - [ ] **⏳ THE ONE THING LEFT BEFORE THIS RIDER IS TRUSTWORTHY — acceptance test, not an assumption**: open a session
           in a project that is **NOT** Kenjaku, ask for code, and check which skill actually loads. If
           it is still the old one, the wiring lied. _(Everything else is done and verified: the
           harness carriers are switched, and Kenjaku's own copy of the old skill is a **tombstone**
