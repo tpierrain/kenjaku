@@ -151,6 +151,9 @@ test("buildGit — maps a successful execFile to {out, ok:true} with the right g
   assert.equal(seen[0].opts.cwd, "/repo");
   assert.equal(seen[0].opts.encoding, "utf8");
   assert.deepEqual(seen[0].opts.stdio, ["ignore", "pipe", "pipe"]);
+  // A hung git (dead network mount, wedged credential helper) must not eat the
+  // Stop hook's whole 30s budget — nor block a /switch (review finding, v4.9.1).
+  assert.equal(seen[0].opts.timeout, 10000);
 });
 
 test("buildGit — null execFile output becomes '' (ok:true)", () => {

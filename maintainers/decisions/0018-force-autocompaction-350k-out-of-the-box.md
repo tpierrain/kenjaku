@@ -1,6 +1,6 @@
 # ADR 0018 — Every brain forces aggressive auto-compaction: no second brain exceeds a 350k effective context out of the box
 
-- **STATUS:** ACCEPTED (2026-06-14).
+- **STATUS:** ACCEPTED (2026-06-14) · AMENDED (2026-08-15 — window raised 350000 → 450000, see _Amendment_ below).
 - **Scope:** Second brain (runtime) + Installer — the installer bakes the `env` block into the brain's
   `settings.json` (from the template); Claude Code (the runtime) consumes the variable to cap the effective
   context and trigger compaction earlier.
@@ -98,7 +98,7 @@ lock-in**.
   contexts far too small) and a single absolute value can't serve both tiers; 200k users' default (~166k) is
   already lean enough.
 
-## Amendment — v4.9.1 (issue #63)
+## Amendment — 2026-08-15, v4.9.1 (issue #63)
 
 The baked default is raised **350000 → 450000**: 350k compacted too early on long capture sessions,
 and the absolute variable still self-clamps on smaller-window models (the no-op guarantee above is
