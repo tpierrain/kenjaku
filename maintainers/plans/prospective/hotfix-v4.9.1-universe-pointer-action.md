@@ -34,6 +34,9 @@
       test.
 - [ ] **Release tail**: mutation pass on touched files (pin numbers in `mutation/RESULTS.md`), §10
       marketing-surface re-read, release note, tag **v4.9.1**, close issues #69/#63/#65.
+- [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
+      mutation floor held or not, what the owner's review caught; write the verdict here, then let
+      the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
 
 ## Work-mode experiment (owner's ask, 2026-08-15 — decide at kickoff)
 
@@ -44,6 +47,32 @@ delegation applies to the **edges** — adversarial diff review (multi-agent), m
 triage (one judge per survivor, parallel), and large reads returned as digests. Debrief after the
 release; if conclusive, scale it to the unfreeze chantier's QA (fixtures × versions = natural
 fan-out). Same instinct as issue #64, brain-side.
+
+## Process experiment (owner VALIDATED, 2026-08-15): test-first small batches, not strict baby-steps
+
+This release also pilots a **relaxation of the TDD discipline**, validated by the owner in
+conversation on 2026-08-15. His framing: TDD was his means to make design emerge; for a generative
+agent that can hold a whole design at once, strict one-test-at-a-time baby-steps may cost more than
+it earns. The counter-evidence on record: the second mutation audit measured baby-steps core at 87 %
+vs after-the-fact glue at 51 % — so "no quality loss" is a claim to demonstrate, not assume. Hence a
+deal that swaps **process discipline for outcome measurement**:
+
+1. **The judge is the mutation score, not the ritual.** The release's mutation pass must hold the
+   floor pinned in `mutation/RESULTS.md` (§ v4.9.0 is the baseline). If the new mode drops it, the
+   experiment has answered and the discipline comes back.
+2. **The mode: design first, then test-first in small batches, fail-first kept.** Sketch the design,
+   write a small batch of tests describing intended behaviour, see them **all red for the right
+   reason**, implement, green, refactor. **Fail-first is non-negotiable** — it is the mechanical
+   guard against tautological tests (the agent's #1 failure mode, asserting what the code does
+   rather than what it should do). Test-after remains out. The outside-in acceptance layer stays
+   first in all cases.
+3. **Strict baby-steps stays available on criteria**: genuinely unknown design, tricky algorithms
+   where triangulation earns its keep, or when the owner wants the step-by-step narrative for
+   review. A tool to reach for, no longer a standing ritual.
+
+The global `tdd-discipline` skill stays **untouched** until this experiment renders its verdict
+(this plan is release-scoped; amending the harness rule is the owner's signature, made AFTER the
+debrief, not before).
 
 ## Sequencing
 
