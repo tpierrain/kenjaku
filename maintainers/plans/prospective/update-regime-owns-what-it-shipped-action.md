@@ -146,17 +146,19 @@ Three consequences, each already logged as its own field finding:
         `rules/testing.md` — always loaded, every project — keeps pointing at `tdd-discipline`, so
         the old ritual stays the default everywhere. Exact checklist, in `~/Dev/use-case-driven-harness`
         (branch `chore/test-first-discipline`, since committing on its `main` is not done):
-    - [ ] `git mv skills/tdd-discipline skills/test-first-discipline` + the new content (English).
-    - [ ] `rules/testing.md` **rewritten in English**, pointing at `test-first-discipline`, with the
+    - [x] `git mv skills/tdd-discipline skills/test-first-discipline` + the new content (English). _(2026-08-15 · harness `5d08fb9`, branch `chore/test-first-discipline`)_
+    - [x] _(2026-08-15 · same commit)_ `rules/testing.md` **rewritten in English**, pointing at `test-first-discipline`, with the
           baby-steps enumeration replaced by the three non-negotiables. This file is THE switch.
-    - [ ] `bootstrap.sh` line ~30 (the symlink list) + `README.md` + `CLAUDE.md` references.
-    - [ ] `skills/outside-in-diamond-tdd/SKILL.md` and `rules/dotnet-conventions.md`: both name
+    - [x] `bootstrap.sh` (the symlink list) + `README.md` + `CLAUDE.md` references. _(2026-08-15)_
+    - [x] _(2026-08-15)_ `skills/outside-in-diamond-tdd/SKILL.md` and `rules/dotnet-conventions.md`: both named
           `tdd-discipline` as the discipline they specialize.
-    - [ ] The **installed symlink**: `~/.claude/skills/tdd-discipline` → replaced by
+    - [x] _(2026-08-15, verified resolving)_ The **installed symlink**: `~/.claude/skills/tdd-discipline` → replaced by
           `test-first-discipline` (it is a symlink into the harness, so the rename breaks it).
-    - [ ] **Acceptance test, not an assumption**: open a session in a project that is NOT Kenjaku,
-          ask for code, and check which skill actually loads. If it is still the old one, the wiring
-          lied.
+    - [ ] **⏳ THE ONE THING LEFT ON THIS RIDER — acceptance test, not an assumption**: open a session
+          in a project that is **NOT** Kenjaku, ask for code, and check which skill actually loads. If
+          it is still the old one, the wiring lied. _(Everything else is done and verified: the
+          harness carriers are switched, and Kenjaku's own copy of the old skill is a **tombstone**
+          whose description reads "DO NOT LOAD" — the routing surface, not just the prose.)_
   - [ ] Align `CONVENTIONS.md` §5 ("TDD baby-steps + green-only commits") and harden §5bis with the
         **entry-point seam rule** (every executable entry point is tested by running it as a process —
         earned on v4.9.1's 25 % CLI wiring).
