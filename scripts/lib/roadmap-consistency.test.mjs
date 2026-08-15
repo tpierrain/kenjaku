@@ -14,6 +14,11 @@ import { findMissingPlanReferences } from "./roadmap-consistency.mjs";
 // fact arrives from OUTSIDE (a release tail on another branch, work done
 // brain-side). This guard mechanises the detectable half: a reference whose
 // target no longer exists where the row says it is.
+//
+// Deliberately NO local pre-push hook (owner's call, 2026-08-15): CI plus the
+// green-only commit ritual (full suite before every commit) fire early enough,
+// and a committed .githooks/ + core.hooksPath would tax every clone for the
+// rare hand-edit-then-push case. Do not re-propose it without new evidence.
 // ═══════════════════════════════════════════════════════════════════════════
 
 test("a prospective reference whose file no longer exists is reported", () => {
