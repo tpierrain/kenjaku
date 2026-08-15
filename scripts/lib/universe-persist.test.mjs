@@ -62,6 +62,37 @@ test("commitUniverseState stages the .vault-rag state and commits with the switc
   assert.ok(has(git.calls, "commit", "-m", "auto: switch active universe to 'acme'"));
 });
 
+test("commitUniverseState scopes BOTH the emptiness gate and the commit to .vault-rag (review finding, v4.9.1)", () => {
+  // Proved on a throwaway repo: an unscoped `git commit -m` swept the owner's
+  // PRE-STAGED work (e.g. half-finished conflict resolutions, a staged draft)
+  // under the switch message. The pathspec keeps the commit surgical and leaves
+  // anything else exactly as staged.
+  const git = fakeGit({
+    "status --porcelain": { out: " M .vault-rag/active-universe\nM  vault/secret-draft.md\n" },
+    "diff --cached --quiet -- .vault-rag": { ok: false },
+  });
+
+  const result = commitUniverseState({ git, name: "acme" });
+
+  assert.equal(result, "committed");
+  assert.ok(
+    git.calls.some((args) =>
+      assertDeepEqualLoose(args, ["diff", "--cached", "--quiet", "--", ".vault-rag"])),
+    `the emptiness gate must be scoped, got: ${JSON.stringify(git.calls)}`
+  );
+  assert.ok(
+    git.calls.some((args) =>
+      assertDeepEqualLoose(args, ["commit", "-m", "auto: switch active universe to 'acme'", "--", ".vault-rag"])),
+    `the commit must carry the pathspec, got: ${JSON.stringify(git.calls)}`
+  );
+});
+
+// Exact-args comparison used by the scoping test (a prefix match would pass on
+// the very unscoped calls the test exists to refuse).
+function assertDeepEqualLoose(a, b) {
+  return a.length === b.length && a.every((x, i) => x === b[i]);
+}
+
 test("switchCommitMessage names the universe it switched to", () => {
   assert.equal(switchCommitMessage("blue-team"), "auto: switch active universe to 'blue-team'");
 });

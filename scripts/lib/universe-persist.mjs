@@ -38,8 +38,14 @@ export function commitUniverseState({ git, name }) {
   const state = treeState(git(["status", "--porcelain"]).out);
   if (state !== "dirty") return state;
   if (!git(["add", "-A", "--", ".vault-rag"]).ok) return "failed";
-  if (git(["diff", "--cached", "--quiet"]).ok) return "clean";
-  return git(["commit", "-m", switchCommitMessage(name)]).ok ? "committed" : "failed";
+  // The gate AND the commit both carry the pathspec (review finding, v4.9.1):
+  // unscoped, work the owner had already staged — a draft, a half-finished
+  // conflict resolution — rode along under the switch message. Scoped, it stays
+  // exactly where they left it: staged, uncommitted, theirs.
+  if (git(["diff", "--cached", "--quiet", "--", ".vault-rag"]).ok) return "clean";
+  return git(["commit", "-m", switchCommitMessage(name), "--", ".vault-rag"]).ok
+    ? "committed"
+    : "failed";
 }
 
 // The whole persistence: commit, then push through the Stop hook's own logic

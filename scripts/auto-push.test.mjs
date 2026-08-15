@@ -11,6 +11,7 @@ import {
   realWrite,
   realHookDeps,
   PUSH_FAILED_WARNING,
+  SWEEP_FAILED_WARNING,
 } from "./auto-push.mjs";
 import { COMMIT_MESSAGE } from "./auto-commit.mjs";
 
@@ -229,6 +230,39 @@ test("runHook — refuses to sweep an unmerged tree but still pushes what is com
   assert.equal(code, 0);
   assert.ok(!calls.includes("add ."), "an unmerged tree is never staged (conflict markers)");
   assert.ok(calls.includes("push"), "the already-committed work still leaves the machine");
+});
+
+test("runHook — a sweep that git refuses is said OUT LOUD (review finding, v4.9.1)", () => {
+  // A stale .git/index.lock or a missing git identity makes attemptCommit return
+  // "failed" at EVERY Stop — silently swallowed, that is issue #69's silent-
+  // persistence class relocated into the hook itself.
+  const { git } = makeGit({
+    remote: "origin", autopush: true, upstream: true, unpushed: 0,
+    status: " M .vault-rag/active-universe\n",
+  });
+  const gitRefusingCommit = (args) =>
+    args[0] === "commit" ? { out: "fatal: no user.email", ok: false } : git(args);
+  const writes = [];
+  const code = runHook({ git: gitRefusingCommit, sleep: () => {}, write: (s) => writes.push(s) });
+
+  assert.equal(code, 0);
+  assert.deepEqual(writes, [SWEEP_FAILED_WARNING]);
+});
+
+test("runHook — a conflicted tree stays silent here (the SessionStart banner owns that shout)", () => {
+  const { git } = makeGit({
+    remote: "origin", autopush: true, upstream: true, unpushed: 0,
+    status: "UU vault/note.md\n",
+  });
+  const writes = [];
+  runHook({ git, sleep: () => {}, write: (s) => writes.push(s) });
+
+  assert.deepEqual(writes, []);
+});
+
+test("SWEEP_FAILED_WARNING — names the failure and points at git status", () => {
+  assert.match(SWEEP_FAILED_WARNING, /SWEEP FAILED/);
+  assert.match(SWEEP_FAILED_WARNING, /git status/);
 });
 
 test("runHook — a clean tree sweeps nothing (no add, no commit)", () => {

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { realIo } from "./set-active-universe.mjs";
@@ -48,6 +48,35 @@ test("realIo + real git: a switch commits the pointer it wrote", () => {
     assert.match(log, /auto: switch active universe to 'acme'/);
     assert.match(log, /\.vault-rag\/active-universe/);
     assert.match(log, /\.vault-rag\/universes\.json/);
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
+});
+
+// Review finding (v4.9.1), proved here on REAL git because it is exactly the kind
+// of semantics a fake cannot vouch for: work the owner had STAGED before the
+// switch must neither ride along in the switch commit nor lose its staged state.
+test("realIo + real git: a switch leaves the owner's pre-staged work alone", () => {
+  const repo = mkdtempSync(join(tmpdir(), "universe-repo-"));
+  try {
+    const raw = (args) => execFileSync("git", args, { cwd: repo, encoding: "utf8" });
+    raw(["init"]);
+    raw(["config", "user.email", "test@example.com"]);
+    raw(["config", "user.name", "Test"]);
+    writeFileSync(join(repo, "secret-draft.md"), "not the switch's business\n");
+    raw(["add", "secret-draft.md"]);
+
+    const res = runSwitchCliPersisted(realIo, join(repo, ".vault-rag"), ["create", "Acme"], {
+      git: buildGit(repo),
+      sleep: () => {},
+    });
+
+    assert.equal(res.code, 0);
+    const show = raw(["show", "--stat", "--format=%s", "HEAD"]);
+    assert.match(show, /auto: switch active universe to 'acme'/);
+    assert.doesNotMatch(show, /secret-draft\.md/);
+    // …and it is still exactly where the owner left it: staged, uncommitted.
+    assert.match(raw(["diff", "--cached", "--name-only"]), /secret-draft\.md/);
   } finally {
     rmSync(repo, { recursive: true, force: true });
   }

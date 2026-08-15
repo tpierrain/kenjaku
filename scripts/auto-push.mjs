@@ -75,6 +75,14 @@ export const PUSH_FAILED_WARNING =
   "\n⚠️  PUSH FAILED — local commits OK but not pushed. Check your network; " +
   "the next turn will retry automatically (or run: git push).\n";
 
+// Said out loud because the silent version IS issue #69's failure class: a git
+// that refuses every sweep (stale .git/index.lock, missing identity) would
+// otherwise leave changes uncommitted at every turn end with no signal at all.
+export const SWEEP_FAILED_WARNING =
+  "\n⚠️  SWEEP FAILED — some changes stay uncommitted on this machine. Run " +
+  "`git status` in your brain to see what stopped the commit (a stale " +
+  ".git/index.lock or a missing git identity are the usual causes).\n";
+
 // Runs the hook: SWEEP-commit, then push (issue #69, class removal). A file
 // written through Bash — yesterday the universe pointer, tomorrow anything —
 // never fires the PostToolUse net; the Stop hook is the turn's last hand, so it
@@ -86,9 +94,12 @@ export const PUSH_FAILED_WARNING =
 // warning on push failure. ALWAYS returns 0. `write` is injected for testing.
 export function runHook({ git, sleep, write }) {
   try {
-    attemptCommit({ git });
+    // "failed" is worth a shout (review finding, v4.9.1) — "conflicted" is not:
+    // the SessionStart banner already owns the unmerged-tree alarm.
+    if (attemptCommit({ git }) === "failed") write(SWEEP_FAILED_WARNING);
   } catch {
-    // Best-effort: the push below still ships whatever is already committed.
+    // A THROWING runner means git itself is broken — the push below fails too
+    // and its warning already says "check"; one shout per turn is enough.
   }
   if (attemptPush({ git, sleep }) === "failed") write(PUSH_FAILED_WARNING);
   return 0;
