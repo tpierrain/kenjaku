@@ -110,6 +110,33 @@
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
+      _Draft verdict (2026-08-15, written before pass 3 closed — the one number it waits on is whether
+      pass 3 confirms the floor; everything else is already observed):_
+
+      **1. The process experiment (test-first small batches instead of strict baby-steps): PASSED on
+      its own terms, and the terms were the point.** The deal was "process discipline traded for
+      outcome measurement", judged by the mutation score against the `v4.9.0` floor. Measured:
+      pass 1 **89.15 %** on first writing, then **97.71 %** after the reviews — with the two files this
+      release WROTE (`universe-persist.mjs`, `entrypoint.mjs`) at **100 %**, and `set-active-universe.mjs`
+      going 25 % → 100 % once the wiring got a real test. That is at or above the v4.9.0 comparison
+      (its two new files: 100.00 % / 95.28 %). **What it does NOT prove**: that the mode is free. The
+      first pass left the wiring untested at 25 % — a small-batch blind spot a baby-step on that seam
+      would likely have caught — and it took an external review to demand the subprocess test that
+      closed it. Honest reading: **the mode holds the floor when the review and mutation nets are
+      actually run**, not on its own.
+      **2. The work-mode pilot (delegate the edges, keep the TDD core in the main session): PASSED, with
+      one sizing rule earned.** Three adversarial reviews on the branch diff returned **one
+      blocker-class finding** (a symlinked brain path ran `/switch` **without** persisting — a silent
+      no-op that no existing test could see) plus **two real defects** fixed before the tag (the silent
+      sweep failure, the un-scoped commit that swallowed pre-staged work). That is the pilot paying for
+      itself in one release. The sizing rule: **inline survivor triage beat fan-out at this size** —
+      32 survivors on one file were faster read and killed in the main session than dispatched one
+      judge per survivor. Fan-out earns its keep on *independent lenses*, not on *many small
+      look-alikes*.
+      **3. What the owner has to decide** (not decided here): whether the relaxed TDD mode graduates
+      into the `tdd-discipline` skill (his signature, per this plan's own rule that the skill stays
+      untouched until the debrief), and whether the review-fan-out becomes standing QA for the
+      unfreeze chantier, where fixtures × versions is the natural fan-out shape.
 
 ## Work-mode experiment (owner's ask, 2026-08-15 — decide at kickoff)
 
