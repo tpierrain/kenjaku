@@ -236,9 +236,20 @@ this edit. Proposed EN/FR wording drafted 2026-07-19; apply once approved.
       verified live.)_
 - [ ] Reindex; verify with a canary query (`node scripts/verify-rag.mjs` → exit 0). _(reindex ran in the
       background via the live watcher; canary still to confirm once the index reaches the full count.)_
+      _(2026-08-15 status: still never formally recorded — but the brain has answered from the vault in
+      daily use for ~4 weeks, so this is a for-the-record run on the owner's machine, or a waive.)_
 - [ ] Layer the **private** skills (Track B) and the **merged** constitution (Track C) into the new
       brain (these are the parts that never go through the launcher). _(next, AFTER the `/lint` linter
       fix — see the backlog regression entry, resumed first post-`/clear`.)_
+      _(2026-08-15 status: measured ABSENT from `mind-palace` (`ls .claude/skills` shows no `refresh-*`,
+      no `scripts/data/*.json`). They were classified for the PREVIOUS sphere (inqom), and the owner has
+      since moved on — so this tail may be obsolete rather than pending. **Owner's call: layer them, or
+      strike this box as no-longer-wanted.** Do not layer without asking.)_
+
+> **Reality-check (2026-08-15).** The owner corrected the map in conversation: the migration's core —
+> generate + import — shipped **2026-07-19** and `mind-palace` has been their daily brain since,
+> replacing the ad-hoc `inqom-brain`. This plan already said so above; the ROADMAP's Gate 3 row did
+> not, and lagged reality by almost a month. Only the two tails above remain open.
 
 > **Not a fleet fixture.** The source brain is **not** a Kenjaku brain (it only supplies the notes to
 > `/import`), so it is **not** a legacy-upgrade fixture. Re-layering the brains already deployed from an

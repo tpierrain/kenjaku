@@ -133,7 +133,15 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         Canonical plan (now finished and archived): `archived/field-findings-2026-08-02-action.md`.
         Its one leftover is **not** in Track D: it is the head of
         `prospective/v4.9.0-mutation-debt-plan.md`.
-  - [ ] Track D: generate brain → `/import --universe` ~405 notes → layer private capabilities.
+  - [x] Track D **core**: generate brain + `/import --universe` — ✅ **done 2026-07-19** (~422 notes
+        imported universe-stamped, `/switch` + scoped search verified live; the brain — `mind-palace` —
+        has been the owner's daily brain ever since, replacing the ad-hoc `inqom-brain`). _(Recorded
+        2026-08-15: this row lagged reality by almost a month — the owner had to correct the map.)_
+  - [ ] Track D **tail — owner's call needed**: layer the private capabilities (`refresh-*` skills +
+        KPI data files). Measured absent from `mind-palace` on 2026-08-15; they were classified for the
+        **previous** sphere (inqom), so they may be obsolete rather than missing. Ask, don't assume.
+  - [ ] Track D tail: formal canary (`node scripts/verify-rag.mjs` → exit 0) never recorded; daily use
+        answers from the vault, so run it once on the owner's machine for the record, or waive it.
   - [ ] **Canonical plan:** `prospective/second-brain-migration-and-engine-upstream-action.md` → Track D.
 - [ ] **Gate 4 — 🔴 Fleet re-layering + big-jump upgrade experience (deferred until after Gate 3).**
   - [ ] (A) Completeness across a big jump (frozen files: constitution + shipped user-skills).
