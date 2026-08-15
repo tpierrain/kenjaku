@@ -33,13 +33,13 @@
 > before the production file). The harness half is **done, English and pushed**
 > (`use-case-driven-harness`, branch `chore/test-first-discipline`).
 >
-> **The first unticked box is now the landmark again: S0bis**, the inherited mutation debt. Two smaller
-> things are open and neither blocks it:
-> - the harness branch has **no PR and `main` is untouched**, so GitHub shows nothing of it — opening
->   the PR (or merging) is the owner's call, not a default;
-> - S6's **Kenjaku-side delivery** (manifest `merge` regime, the explicit retirement of
->   `tdd-discipline`, the `templates/fr/` version, `CONVENTIONS.md` §5) is release work, and it needs
->   the power S1-S5 build — it belongs in the cut, not before it.
+> The harness side is **fully closed**: PR #1 merged into `main` (`9f843dc`) on the owner's call, and
+> the local clone put back on `main` (the `~/.claude` symlinks read that working tree).
+>
+> **The first unticked box is now the landmark again: S0bis**, the inherited mutation debt. One thing
+> is still open on S6 and does not block it: its **Kenjaku-side delivery** (manifest `merge` regime,
+> the explicit retirement of `tdd-discipline`, the `templates/fr/` version, `CONVENTIONS.md` §5) is
+> release work, and it needs the power S1-S5 build — it belongs in the cut, not before it.
 >
 > The Tracking's first unticked box is **S0bis** (the inherited mutation debt). That is the next box
 > to *work*, and it is correct — but it is not where a resume should start, because S6 is **blocked on
@@ -216,13 +216,17 @@ Three consequences, each already logged as its own field finding:
               only, before the fix.** The third case is load-bearing: without it, *"always report
               fine"* passes the other two. Wired into `CLAUDE.md` rule 4 + the README, because a net
               nobody knows to run is not a net.
-    - [ ] **The work is pushed but has NO surface on GitHub — asked by the owner 2026-08-15, verified
-          against the real remote, not the tracking ref.** `git ls-remote` says
-          `refs/heads/chore/test-first-discipline` = `50861b2` (the seven commits, `test/bootstrap-check.sh`
-          included), while `refs/heads/main` = `0ebe5ab`, untouched, and `gh pr list` returns **nothing**.
-          So the repo's landing page, which shows `main` and would otherwise advertise a PR, shows no
-          trace of any of it. Nothing is lost; it is only invisible. **Open the PR (or merge) — the
-          owner's call, not a default.**
+    - [x] **✅ MERGED INTO `main` 2026-08-15 — PR
+          [tpierrain/use-case-driven-harness#1](https://github.com/tpierrain/use-case-driven-harness/pull/1),
+          merge commit `9f843dc`.** The owner asked whether anything had been pushed at all: it had,
+          but with **no PR and `main` untouched** (`ls-remote` against the real remote, not the tracking
+          ref), so the repo's landing page showed no trace of the seven commits. He called it — open
+          and merge. The local clone was **switched back to `main` and fast-forwarded**, which matters
+          beyond tidiness: `~/.claude/rules` and `~/.claude/skills` are symlinks **into this working
+          tree**, so leaving it parked on a feature branch would have served every project on this
+          machine from an unmerged branch. Verified after: `~/.claude/skills/` holds
+          `test-first-discipline` and no `tdd-discipline`, `~/.claude/rules/testing.md` opens on
+          *"Testing — test-first, always"*.
     - [x] **✅ DONE 2026-08-15 — acceptance test, not an assumption.**
           **It needed Thomas at the keyboard**: a fresh session in another project, which is exactly
           what a session inside Kenjaku cannot fake. **The protocol below was written FOR HIM, and must
