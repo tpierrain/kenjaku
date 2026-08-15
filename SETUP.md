@@ -163,6 +163,9 @@ node installer.mjs --non-interactive --name "second-brain" --owner "Jane Doe" --
 - **Commit per edit, push once per turn.** Each file change is committed locally and instantly
   (the `Write|Edit` hook). The actual **push is debounced**: it runs **once per turn**, at the end
   (the `Stop` hook), pushing all the turn's commits in one go — instead of a network push per edit.
+  **That end-of-turn pass first commits anything still uncommitted**, then pushes: a file one of your
+  brain's own scripts wrote is not something Claude *edited*, so no `Write|Edit` hook saw it — it
+  leaves with the rest of the turn instead of lingering on this machine until the next session.
   A failed push is non-blocking: your commits stay local and the **next turn catches up**. For
   syncing changes made on *another* machine mid-session, use the `/sync` skill.
 - **A note you write yourself is committed too, without waiting for Claude.** Type a note straight
@@ -181,7 +184,8 @@ node installer.mjs --non-interactive --name "second-brain" --owner "Jane Doe" --
   brain would quietly stop syncing between machines.
 - **And a sweep at every session start, to catch what the others miss.** Before its startup
   `git pull --rebase`, your brain commits anything still uncommitted: notes you wrote **with your brain
-  closed**, so no hook and no watcher was there to see them, or engine files left over by an update. You
+  closed**, so neither hook nor watcher was there to see them, or engine files left behind by a session
+  that never reached its end-of-turn pass (a crash, a window closed mid-run). You
   will see an `auto: session-start sweep …` commit when that happens. It is **local only**, and it is
   what keeps your sync from silently blocking. **One exception, on purpose:** if git stopped on a
   **conflict** (the same note changed on two machines), nothing is committed for you — the startup
