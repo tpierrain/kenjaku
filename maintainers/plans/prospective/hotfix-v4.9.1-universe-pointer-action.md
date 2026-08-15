@@ -31,9 +31,15 @@
       end instead of waiting for the next session's sweep. _(2026-08-15 · 88499d3)_ — reuses
       `attemptCommit` (same message, same unmerged-tree refusal), best-effort wrapped; the test fake
       now counts commits so `rev-list` answers like real git (kills the push-before-sweep mutant).
-- [ ] **Decide (not necessarily ship): the stale-wins regression.** Should the SessionStart sweep
+- [x] **Decide (not necessarily ship): the stale-wins regression.** Should the SessionStart sweep
       refuse — or at least warn — before committing a pointer that is *behind* the remote? (Issue #69's
-      closing note.) If deferred, say so here with the reason.
+      closing note.) If deferred, say so here with the reason. _(2026-08-15 · owner's call, in
+      conversation)_ — **DEFERRED, nothing ships.** Reason: (a)+(b) remove the dirty-pointer state the
+      regression needs (the switch commits+pushes itself; the Stop hook sweeps any leftover), so the
+      SessionStart sweep can no longer meet a stale *uncommitted* pointer except once, on a pre-fix
+      brain. The residual committed-but-behind case already fails loud: `git pull --rebase` conflicts
+      on the one-line pointer file and stops for the interactive rule ("the machine you sit at wins").
+      A further guard would be noise for a window that no longer exists.
 - [ ] **Rider #63**: raise default `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to `450000` in
       `.claude/settings.json.template` + its guard test (`settings-template.test.mjs`). New brains only.
 - [ ] **Rider #65**: `⚠️ ` prefix on `nativeConnectorsReminder()` (`scripts/lib/universes.mjs`) + its
