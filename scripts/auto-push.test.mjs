@@ -12,6 +12,7 @@ import {
   realHookDeps,
   PUSH_FAILED_WARNING,
 } from "./auto-push.mjs";
+import { COMMIT_MESSAGE } from "./auto-commit.mjs";
 
 // auto-push.mjs is the Stop hook: it pushes the pending commits ONCE per turn,
 // best-effort. attemptPush() is the testable core — the git runner is injected,
@@ -29,24 +30,33 @@ import {
 // so mutating ANY arg string (e.g. "--get", "@{u}..HEAD") yields an unknown
 // command → a broken/neutral {ok:false} answer that fails the happy path → the
 // mutant is caught. Records every call so tests can assert push discipline.
-function makeGit({ remote = "", autopush = false, upstream = false, unpushed = 0, pushOk = true } = {}) {
+function makeGit({ remote = "", autopush = false, upstream = false, unpushed = 0, pushOk = true, status = "" } = {}) {
   const calls = [];
   // Real git output carries trailing newlines → the code must .trim(); we mirror
   // that so trim-removing mutants change the outcome.
-  const responses = {
+  // Commits are COUNTED so `rev-list` answers like real git: a commit the sweep
+  // just made becomes pending. A mutant pushing BEFORE the sweep reads 0 pending
+  // → skips the push → the ordering test fails it.
+  let commits = 0;
+  const responses = () => ({
+    "status --porcelain": { out: status, ok: true },
+    "add .": { out: "", ok: true },
+    [`commit -m ${COMMIT_MESSAGE}`]: { out: "", ok: true },
     "remote": { out: remote, ok: true },
     "config --get secondbrain.autopush": { out: autopush ? "true\n" : "", ok: true },
     "rev-parse --abbrev-ref --symbolic-full-name @{u}": {
       out: upstream ? "origin/main\n" : "",
       ok: upstream,
     },
-    "rev-list --count @{u}..HEAD": { out: `${unpushed}\n`, ok: true },
+    "rev-list --count @{u}..HEAD": { out: `${unpushed + commits}\n`, ok: true },
     "push": { out: pushOk ? "" : "fatal: unable to access", ok: pushOk },
-  };
+  });
   const git = (args) => {
     const key = args.join(" ");
     calls.push(key);
-    return responses[key] ?? { out: "", ok: false };
+    const res = responses()[key] ?? { out: "", ok: false };
+    if (key.startsWith("commit ") && res.ok) commits += 1;
+    return res;
   };
   return { git, calls };
 }
@@ -184,6 +194,51 @@ test("runHook — successful push → no warning, returns 0", () => {
   const code = runHook({ git, sleep: () => {}, write: (s) => writes.push(s) });
   assert.equal(code, 0);
   assert.equal(writes.length, 0);
+});
+
+// ── Stop-hook sweep (issue #69, class removal): commit out-of-band writes ────
+// A file written through Bash (yesterday the universe pointer, tomorrow anything)
+// never fires the PostToolUse net. The Stop hook is the last hand of the turn, so
+// it sweeps: commit whatever is dirty, THEN push — instead of leaving the dirt to
+// a next-session sweep that can lose to another machine's stale state.
+
+test("runHook — sweeps out-of-band dirt into a commit BEFORE pushing", () => {
+  const { git, calls } = makeGit({
+    remote: "origin", autopush: true, upstream: true, unpushed: 0,
+    status: " M .vault-rag/active-universe\n",
+  });
+  const code = runHook({ git, sleep: () => {}, write: () => {} });
+
+  assert.equal(code, 0);
+  const add = calls.indexOf("add .");
+  const commit = calls.indexOf(`commit -m ${COMMIT_MESSAGE}`);
+  const push = calls.indexOf("push");
+  assert.ok(add !== -1, "the dirt is staged");
+  assert.ok(commit !== -1, "the dirt is committed");
+  assert.ok(push !== -1, "then pushed");
+  assert.ok(add < commit && commit < push, `sweep before push, got: ${calls.join(" | ")}`);
+});
+
+test("runHook — refuses to sweep an unmerged tree but still pushes what is committed", () => {
+  const { git, calls } = makeGit({
+    remote: "origin", autopush: true, upstream: true, unpushed: 2,
+    status: "UU vault/note.md\n",
+  });
+  const code = runHook({ git, sleep: () => {}, write: () => {} });
+
+  assert.equal(code, 0);
+  assert.ok(!calls.includes("add ."), "an unmerged tree is never staged (conflict markers)");
+  assert.ok(calls.includes("push"), "the already-committed work still leaves the machine");
+});
+
+test("runHook — a clean tree sweeps nothing (no add, no commit)", () => {
+  const { git, calls } = makeGit({
+    remote: "origin", autopush: true, upstream: true, unpushed: 3, status: "",
+  });
+  runHook({ git, sleep: () => {}, write: () => {} });
+
+  assert.ok(!calls.includes("add ."));
+  assert.ok(!calls.some((c) => c.startsWith("commit")));
 });
 
 test("PUSH_FAILED_WARNING — mentions the push failure and the retry", () => {
