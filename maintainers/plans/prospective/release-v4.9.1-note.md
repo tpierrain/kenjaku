@@ -1,14 +1,12 @@
-# v4.9.1 — release note (draft)
+# v4.9.1 — The One Where Your Context Stops Coming Back
 
-> Draft for the GitHub release body, written per `CONVENTIONS.md` §11: non-developer first, technical
-> depth kept but moved below the `---`. The mutation figures are **pinned** (pass 3, 2026-08-15).
-> **One thing is still the owner's call**: the title — three candidates below.
-
-**Title candidates** (the series uses *"The One Where…"*):
-
-1. **v4.9.1 — The One Where the Switch Actually Leaves** ⭐ (says what was wrong, in the user's terms)
-2. v4.9.1 — The One Where It Really Does Travel
-3. v4.9.1 — The One Where Your Context Stops Coming Back
+> **This file mirrors the PUBLISHED release body.** Written per `CONVENTIONS.md` §11: non-developer
+> first, technical depth kept but moved below the `---`. Mutation figures pinned from pass 3
+> (2026-08-15). **Title arbitrated by the owner** (2026-08-15) among three candidates: he took the one
+> naming the symptom people actually lived — the old context coming back on its own — over my pick
+> (*"The One Where the Switch Actually Leaves"*, which named the mechanism) and over the self-
+> deprecating echo of v4.9.0 (*"The One Where It Really Does Travel"*). Recorded so it is not
+> re-litigated. Everything below this note is the body verbatim.
 
 ---
 
