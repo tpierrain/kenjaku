@@ -26,6 +26,18 @@
 > example that the carrier works. The release also **pays the v4.9.0 mutation debt**
 > (`v4.9.0-mutation-debt-plan.md`, third named due date; cutting without paying is a defect).
 
+> ## ⏳ NEXT STEP — read this before the Tracking, the first unticked box is NOT the landmark
+>
+> **Waiting on Thomas, not on work: the S6 rider's acceptance test** (jump to S6, last box). The
+> harness rewrite that rider needed is **done, English and pushed** (`use-case-driven-harness`,
+> branch `chore/test-first-discipline`); what is left is one 5-minute manual check in a **non-Kenjaku**
+> session, and **its protocol must never be shown to the session under test** — briefing it destroys
+> the measurement. Everything else on that rider is ticked.
+>
+> The Tracking's first unticked box is **S0bis** (the inherited mutation debt). That is the next box
+> to *work*, and it is correct — but it is not where a resume should start, because S6 is **blocked on
+> a human** and would otherwise sit unnoticed. Take S0bis if Thomas is not at the keyboard.
+
 ## The four categories we actually have (measured 2026-08-08)
 
 | Regime | What it does | Files |
@@ -197,13 +209,30 @@ Three consequences, each already logged as its own field finding:
               only, before the fix.** The third case is load-bearing: without it, *"always report
               fine"* passes the other two. Wired into `CLAUDE.md` rule 4 + the README, because a net
               nobody knows to run is not a net.
-    - [ ] **⏳ NEXT STEP ON THIS RIDER, and the only one left — acceptance test, not an assumption**:
-          open a session in a project that is **NOT** Kenjaku, ask for code, and check which skill
-          actually loads. If it is still the old one, the wiring lied. **This one needs Thomas at the
-          keyboard**: it is a fresh session elsewhere, which is exactly what a session inside Kenjaku
-          cannot fake. _(Everything else is done and verified: the harness is switched **and now fully
-          English**, and Kenjaku's own copy of the old skill is a **tombstone** whose description
-          reads "DO NOT LOAD" — the routing surface, not just the prose.)_
+    - [ ] **⏳ NEXT STEP ON THIS RIDER, and the only one left — acceptance test, not an assumption.**
+          **It needs Thomas at the keyboard**: a fresh session in another project, which is exactly
+          what a session inside Kenjaku cannot fake. **The protocol below is written FOR HIM, and must
+          never be shown to the session under test** — a briefed session loads the right skill because
+          it was told to, which measures nothing. Do not paste it, do not summarize it, do not
+          announce that a test is running.
+      - [x] **The static wiring is already verified, so the remaining test is purely behavioural**
+            _(2026-08-15)_: `~/.claude/skills/` holds `test-first-discipline` + `outside-in-diamond-tdd`
+            and **no `tdd-discipline` at all**; `~/.claude/rules` symlinks into the harness. The
+            surviving `tdd-discipline` tombstone lives **only** in Kenjaku's own `.claude/skills/`,
+            which is precisely why the test has to run elsewhere.
+      - [ ] **The protocol** (5 minutes, no Kenjaku involved):
+        - [ ] 1. Open a session in **any project that is neither Kenjaku nor the harness**.
+        - [ ] 2. Ask for **ordinary code work** in the normal way: *"add function X"*, *"fix this bug"*.
+              **Never say** test, TDD, test-first, discipline, or the name of any skill. The whole
+              question is what it reaches for **unprompted**.
+        - [ ] 3. **PASS** = it loads **`test-first-discipline`** (a visible Skill call) **and** writes
+              the test before the code.
+        - [ ] 4. **FAIL**, any one of these: it loads `tdd-discipline` (it should no longer exist
+              anywhere outside Kenjaku); it writes production code first; or it announces *one test at
+              a time / baby-steps* as the standing rule — the retired ritual resurfacing means a
+              carrier somewhere still teaches it.
+        - [ ] 5. Report the outcome here. On FAIL, the useful evidence is **which** skill it named and
+              **what it said about step size** — that names the guilty carrier without re-deriving.
       - [x] **Weak evidence already in hand, worth recording so it is not mistaken for the test**:
             during the translation pass the edited skills' descriptions were re-read **live** by the
             running session (the harness symlinks resolve). That proves the *symlinks* carry, not that
