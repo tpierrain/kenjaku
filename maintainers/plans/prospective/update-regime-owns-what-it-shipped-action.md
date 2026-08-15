@@ -30,9 +30,14 @@
 >
 > **Waiting on Thomas, not on work: the S6 rider's acceptance test** (jump to S6, last box). The
 > harness rewrite that rider needed is **done, English and pushed** (`use-case-driven-harness`,
-> branch `chore/test-first-discipline`); what is left is one 5-minute manual check in a **non-Kenjaku**
-> session, and **its protocol must never be shown to the session under test** — briefing it destroys
-> the measurement. Everything else on that rider is ticked.
+> branch `chore/test-first-discipline` — pushed but with **no PR and `main` untouched**, so GitHub
+> shows nothing; opening it is the owner's call). What is left is one 5-minute manual check in a
+> **non-Kenjaku** session, and **its protocol must never be shown to the session under test** —
+> briefing it destroys the measurement. Everything else on that rider is ticked.
+>
+> **The check is HALF DONE as of 2026-08-15**: a `Diverse` session loaded `test-first-discipline`
+> unprompted, before any code (routing proven, the doubtful half). What remains is to watch that same
+> session write **the test before the production code** and not preach *one test at a time*.
 >
 > The Tracking's first unticked box is **S0bis** (the inherited mutation debt). That is the next box
 > to *work*, and it is correct — but it is not where a resume should start, because S6 is **blocked on
@@ -228,12 +233,21 @@ Three consequences, each already logged as its own field finding:
             surviving `tdd-discipline` tombstone lives **only** in Kenjaku's own `.claude/skills/`,
             which is precisely why the test has to run elsewhere.
       - [ ] **The protocol** (5 minutes, no Kenjaku involved):
-        - [ ] 1. Open a session in **any project that is neither Kenjaku nor the harness**.
-        - [ ] 2. Ask for **ordinary code work** in the normal way: *"add function X"*, *"fix this bug"*.
+        - [x] 1. Open a session in **any project that is neither Kenjaku nor the harness**.
+              _(2026-08-15 · ran in `Diverse`, branch `fix/11-defer-seed-logging-and-per-instance-logger`)_
+        - [x] 2. Ask for **ordinary code work** in the normal way: *"add function X"*, *"fix this bug"*.
               **Never say** test, TDD, test-first, discipline, or the name of any skill. The whole
-              question is what it reaches for **unprompted**.
+              question is what it reaches for **unprompted**. _(2026-08-15 · the ask was a logging fix
+              for issue 11, plus its release framing; nothing about testing.)_
         - [ ] 3. **PASS** = it loads **`test-first-discipline`** (a visible Skill call) **and** writes
               the test before the code.
+              **HALF OBSERVED, and it is the half that was in doubt** _(2026-08-15, screenshot from the
+              owner)_: the session announced *"Je charge d'abord ma discipline de test"* and a visible
+              `Skill(test-first-discipline)` → **Successfully loaded skill** followed, **before touching
+              any code** — no `tdd-discipline` anywhere. **Routing outside the harness is proven**:
+              `rules/testing.md`, always loaded, now carries sessions to the new skill. Still owed: the
+              **test-before-code** half of the criterion, and the absence of the retired *one test at a
+              time* framing — only the rest of that session shows it.
         - [ ] 4. **FAIL**, any one of these: it loads `tdd-discipline` (it should no longer exist
               anywhere outside Kenjaku); it writes production code first; or it announces *one test at
               a time / baby-steps* as the standing rule — the retired ritual resurfacing means a
