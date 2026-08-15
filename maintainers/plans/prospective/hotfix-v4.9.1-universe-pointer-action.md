@@ -40,10 +40,11 @@
       brain. The residual committed-but-behind case already fails loud: `git pull --rebase` conflicts
       on the one-line pointer file and stops for the interactive rule ("the machine you sit at wins").
       A further guard would be noise for a window that no longer exists.
-- [ ] **Rider #63**: raise default `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to `450000` in
+- [x] **Rider #63**: raise default `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to `450000` in
       `.claude/settings.json.template` + its guard test (`settings-template.test.mjs`). New brains only.
-- [ ] **Rider #65**: `⚠️ ` prefix on `nativeConnectorsReminder()` (`scripts/lib/universes.mjs`) + its
-      test.
+      _(2026-08-15 · 44c5482)_ — plus an amendment in ADR 0018 and a de-hardcoded maintainers index line.
+- [x] **Rider #65**: `⚠️ ` prefix on `nativeConnectorsReminder()` (`scripts/lib/universes.mjs`) + its
+      test. _(2026-08-15 · 3412882)_
 - [ ] **Release tail**: mutation pass on touched files (pin numbers in `mutation/RESULTS.md`), §10
       marketing-surface re-read, release note, tag **v4.9.1**, close issues #69/#63/#65.
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
