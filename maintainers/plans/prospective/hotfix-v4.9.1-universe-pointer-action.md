@@ -47,6 +47,11 @@
       test. _(2026-08-15 · 3412882)_
 - [ ] **Release tail**: mutation pass on touched files (pin numbers in `mutation/RESULTS.md`), §10
       marketing-surface re-read, release note, tag **v4.9.1**, close issues #69/#63/#65.
+      _In flight (2026-08-15): work-mode pilot engaged — 3 adversarial review subagents on the branch
+      diff (lenses: git semantics / fleet deployment via manifest regimes / test quality) + targeted
+      mutation batch on the 4 touched prod files, running in disposable worktree `kenjaku-mut-v491`
+      (log: `mutation/reports/v491-batch1.log`). On resume: read both results, fix what they teach,
+      then pin numbers and release._
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
