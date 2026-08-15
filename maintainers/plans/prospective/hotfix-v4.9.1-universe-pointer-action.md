@@ -52,6 +52,13 @@
       mutation batch on the 4 touched prod files, running in disposable worktree `kenjaku-mut-v491`
       (log: `mutation/reports/v491-batch1.log`). On resume: read both results, fix what they teach,
       then pin numbers and release._
+      _Fleet review landed (2026-08-15 · fixes b471e57): merge regime DOES deliver auto-push.mjs to
+      the fleet (verified, engine-apply-plan carve-out) — the class-removal claim holds. Two real
+      findings fixed: the Stop sweep now shouts on "failed" (SWEEP_FAILED_WARNING), and the switch
+      commit is pathspec-scoped so pre-staged work stays out and stays staged. To do at tag time
+      (review NIT): bump `engineVersion.scripts` in `engine-manifest.json`. Since prod code changed
+      after the mutation batch started, re-measure `auto-push.mjs` + `universe-persist.mjs` off the
+      fixes before pinning. Correctness + test-quality reviews still pending._
 - [ ] **Debrief the two experiments** (work-mode pilot + process experiment below): wall-clock felt,
       mutation floor held or not, what the owner's review caught; write the verdict here, then let
       the owner decide what graduates (to the unfreeze QA, and/or to the harness TDD rule).
