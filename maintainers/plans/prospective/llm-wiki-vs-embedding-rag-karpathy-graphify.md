@@ -24,6 +24,33 @@
 >
 > **Paused, not cancelled**: `update-regime-owns-what-it-shipped-action.md` keeps everything it
 > carries and resumes where it stands.
+>
+> ### ⏳ THE FRAMING CONVERSATION — asked 2026-08-15, waiting on Thomas's answers
+>
+> **Do not start any work before these are answered**, and do not answer them on his behalf.
+>
+> - [ ] **1. Which end is "Graph Engineering"?** Retrieval **by traversal** (the graph becomes a search
+>       mode beside the vector index, or instead of it), or **building the graph** as a first-class
+>       ingestion artifact (entity pages, typed edges, computed neighbourhoods), or something else
+>       entirely. His term is not this note's term; ask, never infer.
+> - [ ] **2. What triggered it now** — something he read, or a question his own brain answered badly?
+>       If it is the second, **that failure is the best specification available** and the work should
+>       start from it rather than from a public pattern.
+> - [ ] **3. What ambition** — a spike measured against the eval-set to settle the question, or an
+>       assumed engine direction that earns its ADR (§5 already says any real decision belongs in one)?
+>
+> **The analysis those questions rest on, so it is not re-derived** _(2026-08-15)_:
+> - Axis 1 is **no longer the gap** — it got real mechanics in July
+>   (`wiki-health-axis1-mechanisms-action.md`, Tracks A-F: `/lint`, `/file-back`, `/consolidate`,
+>   contradiction surfacing, the append-only ledger, a SessionStart trigger), all proven on the real
+>   405-note vault. §8's audit verdict is **stale on that point**.
+> - **What is genuinely virgin is the graph itself.** The links exist as `[[wikilinks]]`, but the graph
+>   **is an object for nobody**: nothing traverses it, nothing computes a neighbourhood, nothing
+>   answers from it. `/lint` inspects its *health* (orphans, dangling links), never its *structure*.
+> - **We do not have to believe anyone**: `scripts/run-eval.mjs` already scores retrieval with a Claude
+>   judge over the real MCP server, so "graph beats vector" is **measurable here, on his own vault**.
+>   Keep §4's discipline: the famous token multiplier is measured against re-reading raw files, never
+>   against a competent RAG — against ours the delta is **unknown**.
 
 # Study — "LLM Wiki" (Karpathy) / Graphify: compiled-wiki retrieval as an alternative (or complement) to embedding-RAG
 
