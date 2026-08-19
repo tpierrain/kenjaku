@@ -209,11 +209,74 @@ here**, which is what `v4.9.0-mutation-debt-plan.md` demanded anyway.
 immediately, so they are handled in the orchestrating session, never fanned out, and their existing
 behaviour is asserted **before** it is moved.
 
+## Step 0 — the deterministic inventory (measured 2026-08-20, `chore/s0bis-entrypoint-mutation-debt`)
+
+Counted by static text analysis over the 32 top-level `scripts/*.mjs`. **These numbers replace every
+earlier estimate** (the plan's own "~30 files / ~16 + ~14" and the repo's "28 of 32 guarded").
+
+| Guard spelling | Count | Files |
+|---|---|---|
+| `isEntrypoint(meta, argv1)` — the shared helper | **16** | ai-summary-guard, clear-example-notes, consolidate-scan, delete-universe, file-back-note, lint-vault, prompt-restart-nudge, refresh-note, rehydrate, rename-universe, set-active-universe, set-universe-profile, update-engine, upstream-check-run, vault-write-guard, verify-index |
+| `isEntryPoint(argv1, meta)` — the **duplicate** predicate, reversed args | **2** | auto-commit (defines it), auto-push (imports it) |
+| `isMain()` — a **third** local spelling, previously unrecorded | **1** | import-brain |
+| inline `resolve(argv[1]) === fileURLToPath(import.meta.url)` | **7** | health-probe-run, session-actions-log, session-obsidian-hint, session-self-heal, session-universe, session-wiki-health |
+| **no guard at all** — the whole body runs at import | **6** | open-env, pick-folder, run-eval, session-status, status-line, verify-rag |
+| **Total** | **32** | 26 guarded, 6 unguarded |
+
+- **Three spellings, not two.** `import-brain.mjs`'s `isMain()` is a third hand-rolled predicate the
+  reconnaissance had not seen. It folds into the shared helper with the other two.
+- **Nine files have NO `.test.mjs` sibling** — which confirms the repo's earlier figure, and it is the
+  expensive half: import-brain, open-env, pick-folder, run-eval, session-status, status-line,
+  update-engine, upstream-check-run, verify-rag.
+- **Guard body size** splits cleanly into the three tiers: **16 files at 3 lines** (thin,
+  `process.exit(fn(argv))`), **6 files at 9–35 lines** (inline argv parsing), **4 files at 52–64 lines
+  or unguarded-and-session-critical** (fat).
+- Baseline suite before any change: **1723 pass / 0 fail / 3 skipped**.
+
+## The design, settled in session before any fan-out (2026-08-20)
+
+**`runAsEntrypoint(metaUrl, argv, fn, { exit })`** in `scripts/lib/entrypoint.mjs`:
+
+- returns `false` and does nothing when the module is not the entry point;
+- otherwise calls `fn(argv.slice(2))` — so the per-script body becomes an **exported, importable
+  function** and stops being 0 %-scored dead weight;
+- **exits only on a numeric result** (`process.exit(code)`), injectable as `exit`. A non-numeric
+  result exits nothing — that is what keeps `auto-commit.mjs`'s fall-through behaviour identical;
+- **awaits a thenable result** before exiting, which is what `delete-universe` and `update-engine` need.
+
+**The guard test** `scripts/lib/entrypoint-discipline.test.mjs` carries three checks over the
+top-level `scripts/*.mjs`:
+
+1. no `.test.mjs` sibling → red;
+2. a **hand-rolled entry guard** (any of the three spellings, or an inline comparison) instead of
+   `runAsEntrypoint` → red;
+3. a module that **builds and executes a child process in the same call** → red. Mechanical rule: a
+   child-process runner (`spawn`/`spawnSync`/`execFile`/`execFileSync`/`execSync`) called with an
+   **inline array literal for `args` or an inline object literal for `options`**. That is exactly the
+   Debt-2 shape (`defaultGit`), and exactly what `buildCrosscheckInvocation` passes by returning the
+   request as a value.
+
+**The shrink-only mechanic, made mechanical rather than written.** The allowlist is seeded with
+today's offenders, and a second assertion states that **every exempt entry must still BE an
+offender** — so an exemption that has been paid off turns the suite **red** until it is deleted. A
+list that can only go stale is a list that shrinks by itself.
+
+> **Granularity call taken in session, not a scope change** _(2026-08-20)_: the nine files with no
+> test sibling are **seeded into the allowlist** rather than all fixed in this run. The debt plan asks
+> for a guard test *"whose allowlist may only shrink"*, not for an empty allowlist on day one. This
+> run shrinks it wherever the conversion makes the body importable; whatever survives is recorded
+> here as remaining debt with its file names, so it cannot go quiet.
+
 ## 📓 Run log — the running trace (the owner reads THIS, not the thread)
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- **2026-08-20 — step 0 done, on branch `chore/s0bis-entrypoint-mutation-debt`.** The inventory is
+  measured and written above; it corrects three earlier figures (32 files not ~30, **26** guarded not
+  28, and a **third** guard spelling nobody had recorded — `import-brain.mjs`'s `isMain()`). The
+  design of `runAsEntrypoint` and of the guard test is settled in session, as the contract requires,
+  before anything is fanned out. Baseline suite: 1723 pass / 0 fail. **Next: step 1, the judge.**
 - **2026-08-20 — mode framed, contract approved, run not yet started.** The three parameters are
   approved (above), the scope is all of S0bis including Debt 2, the reconnaissance is recorded, and
   the test discipline was re-confirmed as **design-first / test-first in batches**, not TDD
@@ -231,8 +294,9 @@ arbitration goes here as a question, and the run continues on other slices.
 - [x] **Get the three arbitrations answered** _(2026-08-20)_ — approved as proposed; scope set to all
       of S0bis, Debt 2 included; test discipline re-confirmed as batches, not baby-steps.
 - [ ] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
-  - [ ] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
-        spelling, test sibling present, guard body line count. **Write the numbers here.**
+  - [x] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
+        spelling, test sibling present, guard body line count. **Written above** _(2026-08-20 ·
+        branch `chore/s0bis-entrypoint-mutation-debt`)_.
   - [ ] **Step 1 — the judge, not delegated**: the guard test and `runAsEntrypoint(meta, argv, fn)` in
         `scripts/lib/entrypoint.mjs`, under the discipline above. Allowlist may only SHRINK.
   - [ ] **Step 2 — one canary file**, a thin guard, converted end to end and verified.
