@@ -290,6 +290,27 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🛑 **2026-08-20 — ARBITRATION, taken and NOT resolved autonomously: `session-status.mjs` is left
+  for a session with the owner at the keyboard.** It is the third and largest of the named 0 % files
+  (measured **8.67 %** at v4.9.0, up from a flat 0.00 % carried since v4.4.0 — `RESULTS.md` § v4.9.0),
+  so leaving it is leaving the head of the debt. The reason it is nonetheless the right call:
+  - **It has no `.test.mjs` sibling**, so there is no existing net to catch a mistake.
+  - **Its whole body is top-level and side-effecting**: `sweepThenPull` runs a real `git pull`,
+    `markSyncRunning`/`markSyncDone` write marker files, `armRestartPending` writes, and it spawns
+    detached children. ~190 of its 265 lines are that body.
+  - **It cannot be executed to check the work.** It is the SessionStart hook of every generated brain;
+    running it here sweeps and auto-commits the working tree. So the usual proof — run the CLI before
+    and after, see the behaviour unchanged — is unavailable, and a wrong guard is felt by every user
+    at their next session start rather than by a red test.
+  - The logic is already delegated to tested `lib/*` modules; what is top-level is composition and I/O
+    wiring, which is exactly the part with no net.
+  - **The safe recipe for next time, so this is not re-derived**: wrap the body into
+    `export function runSessionStatus(argv, deps)` behind the shared tail **without restructuring**,
+    then prove the guard by running the import probe **inside a disposable git worktree**, where a
+    sweep-and-commit is harmless, and by asserting the working tree is untouched afterwards. Only then
+    split the composition into pure pieces.
+  - Everything else in S0bis was completed around it, per the owner's standing instruction to write a
+    blocking arbitration down and keep the other slices moving.
 - **2026-08-20 — two of the three 0 %-scored files are paid, and the duplicate predicate is gone.**
   Commits eb8b0fb and bc2a8bf. Suite **1796 pass / 0 fail**. Ceilings **15/10**.
   - `status-line.mjs`: every segment was a top-level `const`, so **importing it printed a status
