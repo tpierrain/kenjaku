@@ -104,16 +104,120 @@ lives one level down, in implementation.
 - [ ] **Trigger for reconsidering**: one genuinely hard, isolated design decision (the three-way merge
       engine is the candidate). Fable 5 one-shot for that, then back.
 
-## ⏳ Waiting on the owner — three arbitrations, and no loop starts before them
+## ✅ The three arbitrations — APPROVED by the owner 2026-08-20
 
-- [ ] **1. The quota.** What does one autonomous loop get before it stops and reports — a token
-      budget, a wall-clock, a number of dispatched agents? "Until the objective is met" needs a second
-      bound or it has none.
-- [ ] **2. The autonomy perimeter.** Inside a loop, may the session **commit and push on a branch** on
-      its own (the standing `push-as-you-go-on-branches` reflex says yes) and **open a pull request**?
-      Merging stays his either way.
-- [ ] **3. The granularity of the stop points.** Does he want a hand-back at each ticked box of the
-      release plan, or only at the release cut, with the plan's checkboxes as the running trace?
+> **The binding constraint, stated by the owner 2026-08-19**: *"faudrait qu'on arrive à trouver un truc
+> qui tienne en 200 000 tokens max par tentative … j'ai pas envie qu'on génère du code un peu merdique
+> à cause du contexte rot."* Everything below is derived from it. And: **baby steps**, explicitly asked
+> for.
+
+- [ ] **1. The quota — a CONTEXT ceiling, not a spend.** The question is not *how much may be spent*,
+      it is *how large one unit of work may grow*. Therefore:
+  - [ ] One dispatched agent = one slice, with its files **named in the prompt** (never "go find
+        them") and its judge command supplied. A slice needing more than ~3 files read is **mis-cut**:
+        re-cut it rather than let it grow.
+  - [ ] The orchestrating session **delegates all bulk reading** (see the rule above) and hands back at
+        **~170k** rather than riding into auto-compaction, which is the very degradation being avoided.
+  - [ ] Loop mode is what makes this structural rather than vigilant: **each agent starts on a fresh
+        context**, so the 200k ceiling holds by construction.
+  - [ ] The run stops at whichever comes first: **objective met**, **~25 agents dispatched**, or a
+        **blocking arbitration**.
+- [ ] **2. The autonomy perimeter.**
+  - [ ] **Allowed unasked**: create a branch, commit green-only, push as it goes, open a **draft** pull
+        request so the owner wakes to a reviewable diff.
+  - [ ] **Never**: merge, tag, publish, write to `main`, anything destructive, any scope change.
+  - [ ] **On hitting an arbitration**: stop that slice, write the question in this file, keep the other
+        slices moving.
+- [ ] **3. The granularity of the stop points.** No hand-back per box. **The plan is the running
+      trace**: each slice ticks its box with _(date · commit)_, and a **Run log** section records what
+      the last agent did and what comes next. The owner reads the plan, not the thread. Hand back only
+      on objective reached, quota spent, or blocking arbitration.
+
+## 🛑 The test discipline in force — read this before writing a line
+
+> **Confirmed with the owner 2026-08-20, because the wording below could be misread.** The slicing
+> discipline (small slices, a canary before any fan-out) is about **DELIVERY GRANULARITY**. It is
+> **not** a licence to revert to classic TDD baby-steps and triangulation, which were retired on
+> 2026-08-15 after being measured.
+
+The mode in force is **design-first, then test-first in coherent batches**:
+
+- [ ] State the design, then write a **coherent batch of tests** for it — not one test at a time.
+- [ ] See them **all red for the RIGHT reason** (an unsatisfied assertion, never a loading error).
+      This is the load-bearing rule and it is not optional.
+- [ ] Implement, then **refactor as part of the step** — never optional, never weakening an assertion.
+- [ ] **The judge is the mutation score, not the ritual.** Assertion quality applies: a matcher on
+      every throw/reject, assert the whole object or sequence, triangulate bounds and operators, feed
+      the absent case, collections ≥2 unsorted, a fixture never produced by the code it tests.
+- [ ] Classic baby-steps + triangulation stay **available as a tool** for a genuinely unknown design;
+      they are not the standing ritual. On S0bis the design is known (settled at v4.5.0), so batches.
+
+## The slicing shape of the first run (S0bis) — delivery granularity, not TDD steps
+
+This is where the real risk sits: a wrong judge, fanned out, is a wrong diff in thirty files.
+
+- [ ] **The judge first, NOT delegated**: the shared `runAsEntrypoint` helper and its guard test,
+      written in the orchestrating session under the discipline above.
+- [ ] **One canary file** converted against that judge, verified end to end. If the judge is wrong it
+      is wrong on **one** file.
+- [ ] **Only then the fan-out**: one agent per remaining file, judged by the suite.
+- [ ] **Debt 2 (`engine-fetch.mjs`'s `defaultGit`) is a separate slice**, mirroring the v4.5.0
+      `buildCrosscheckInvocation` shape rather than inventing a second one.
+
+## Reconnaissance for S0bis — established 2026-08-20, DO NOT re-derive
+
+Scope approved by the owner the same day: **all of S0bis, Debt 2 included.**
+
+- `isEntrypoint(metaUrl, argv1)` lives in `scripts/lib/entrypoint.mjs`. **No `runAsEntrypoint`-style
+  wrapper exists** — confirmed absent, so it is genuinely new code.
+- ~30 top-level `scripts/*.mjs` carry an entry guard in **two spellings**: ~16 via `isEntrypoint`,
+  ~14 via an inline `resolve(process.argv[1]) === fileURLToPath(import.meta.url)` comparison.
+- **A duplicate predicate exists**: `scripts/auto-commit.mjs` defines its own `isEntryPoint(argv1,
+  metaUrl)` — different casing, **reversed argument order** — re-exported and reused by
+  `auto-push.mjs`. Fold it into the shared helper.
+- The three 0 %-scored files: `upstream-check-run.mjs` is guarded; `session-status.mjs` and
+  `status-line.mjs` carry **no guard at all**, their whole body runs at import, which is exactly why
+  no test can reach them.
+- **Guard-test precedent to mirror**: `scripts/lib/assert-matcher-lint.test.mjs` — walks `SCAN_ROOTS`,
+  asserts `deepEqual(offenders, [])`, allowlist as `const EXEMPT = new Set([SELF])`. Same shape, plus
+  the **shrink-only** discipline the debt plan requires.
+- **Debt 2's model to mirror**: `buildCrosscheckInvocation` in `scripts/verify-index.mjs` returns a
+  pure `{command, args, options}` consumed by a thin `defaultRunCrosscheck`. Apply the same split to
+  `defaultGit` in `scripts/lib/engine-fetch.mjs` (~line 100), and **delete its self-exempting
+  comment** (*"Used by the core's CLI wiring, never by the unit tests"*).
+- **Test command** (there is no root `package.json`):
+  `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`.
+- **Mutation is NOT a per-slice judge.** `maintainers/mutation/mutate-changed.mjs` deliberately skips
+  `scripts/**` and defers to a manual Stryker run in a disposable worktree
+  (`stryker.scripts.batch.config.mjs`, `--mutate "<file>"`). So: **suite = per-slice judge, mutation =
+  one batched gate at the end of the run.**
+
+⚠️ **The counts above disagree with what this repo previously recorded** (28 of 32 guarded, nine
+without a test sibling). Neither figure is trusted: **step 0 is a deterministic re-count written down
+here**, which is what `v4.9.0-mutation-debt-plan.md` demanded anyway.
+
+**The three tiers the fan-out follows** (produced by that inventory):
+1. **Thin guards** (`process.exit(fn(argv))` and friends) — fully mechanical, one agent per file.
+2. **Guards with inline argv parsing** — one agent per file; the parsing moves into a tested pure
+   function first.
+3. **Fat guards** (`session-universe.mjs` and kin, ~50 lines of I/O wiring inside the guard) — **never
+   fanned out**, handled in the orchestrating session, because the body must be extracted before it
+   can be passed as `fn`. **If a design choice is genuinely ambiguous, do not guess: write the question
+   in the § Run log below, skip that slice, keep the others moving.**
+
+⚠️ `session-status.mjs` and `status-line.mjs` run at **every session start**. A mistake there is felt
+immediately, so they are handled in the orchestrating session, never fanned out, and their existing
+behaviour is asserted **before** it is moved.
+
+## 📓 Run log — the running trace (the owner reads THIS, not the thread)
+
+Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
+arbitration goes here as a question, and the run continues on other slices.
+
+- **2026-08-20 — mode framed, contract approved, run not yet started.** The three parameters are
+  approved (above), the scope is all of S0bis including Debt 2, the reconnaissance is recorded, and
+  the test discipline was re-confirmed as **design-first / test-first in batches**, not TDD
+  baby-steps. **Next: step 0, the deterministic inventory**, then the judge, then the canary.
 
 ## Tracking
 
@@ -124,14 +228,23 @@ lives one level down, in implementation.
       `update-regime-owns-what-it-shipped-action.md` _(2026-08-19)_.
 - [x] **Write the delegability map, the deterministic-check rule and the stop points** — this file
       _(2026-08-19)_.
-- [ ] **Get the three arbitrations above answered**, and write the answers into this section.
-- [ ] **Dry-run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we
-      have. Slice per file, one agent per slice, mutation score as the judge.
-  - [ ] Re-confirm the S0bis measurement recorded on `fix/mutation-debt-entrypoint-and-git-value`
-        before slicing (28 of 32 scripts carry the guard, nine have no test sibling).
-  - [ ] Write the shared `runAsEntrypoint` helper and its guard test **first**, in the main session —
-        they are the judge, so they are not delegated.
-  - [ ] Fan out the per-file conversions against that judge.
+- [x] **Get the three arbitrations answered** _(2026-08-20)_ — approved as proposed; scope set to all
+      of S0bis, Debt 2 included; test discipline re-confirmed as batches, not baby-steps.
+- [ ] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
+  - [ ] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
+        spelling, test sibling present, guard body line count. **Write the numbers here.**
+  - [ ] **Step 1 — the judge, not delegated**: the guard test and `runAsEntrypoint(meta, argv, fn)` in
+        `scripts/lib/entrypoint.mjs`, under the discipline above. Allowlist may only SHRINK.
+  - [ ] **Step 2 — one canary file**, a thin guard, converted end to end and verified.
+  - [ ] **Step 3 — fan out by tier** (1 and 2 delegated, 3 kept in session).
+  - [ ] **Step 4 — Debt 2**: `defaultGit` split into a pure invocation builder plus a thin runner,
+        asserted whole, `win32` fed on purpose, self-exempting comment deleted.
+  - [ ] **Step 5 — the batched mutation gate** in a disposable worktree over the touched files; numbers
+        into `maintainers/mutation/RESULTS.md`, plus the line in its § v4.8.0 naming the release that
+        paid each debt.
+  - [ ] Tick the matching boxes in `v4.9.0-mutation-debt-plan.md` and the S0bis box in
+        `update-regime-owns-what-it-shipped-action.md`.
+  - [ ] Push the branch and open a **draft** PR. Nothing merged, nothing tagged.
 - [ ] **Debrief the mode after S0bis**, before applying it to S1–S5: what the fan-out actually cost,
       what it caught, what it broke. If it does not pay, say so here and go back to a single session.
 - [ ] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
