@@ -56,14 +56,19 @@
 > The harness side is **fully closed**: PR #1 merged into `main` (`9f843dc`) on the owner's call, and
 > the local clone put back on `main` (the `~/.claude` symlinks read that working tree).
 >
-> **The first unticked box is now the landmark again: S0bis**, the inherited mutation debt. One thing
-> is still open on S6 and does not block it: its **Kenjaku-side delivery** (manifest `merge` regime,
-> the explicit retirement of `tdd-discipline`, the `templates/fr/` version, `CONVENTIONS.md` §5) is
-> release work, and it needs the power S1-S5 build — it belongs in the cut, not before it.
+> **S0bis is done and is no longer the landmark** _(2026-08-20, branch
+> `chore/s0bis-entrypoint-mutation-debt`, draft PR)_: both v4.8.0 debts are paid and measured
+> (`RESULTS.md` § S0bis). It stays `[~]` for **one** reason, and that reason is an arbitration, not
+> leftover work: `session-status.mjs` needs a session **with the owner present** — see its sub-box.
 >
-> The Tracking's first unticked box is **S0bis** (the inherited mutation debt). That is the next box
-> to *work*, and it is correct — but it is not where a resume should start, because S6 is **blocked on
-> a human** and would otherwise sit unnoticed. Take S0bis if Thomas is not at the keyboard.
+> **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
+> this plan exists for. One thing is still open on S6 and does not block it: its **Kenjaku-side
+> delivery** (manifest `merge` regime, the explicit retirement of `tdd-discipline`, the
+> `templates/fr/` version, `CONVENTIONS.md` §5) is release work, and it needs the power S1-S5 build —
+> it belongs in the cut, not before it.
+>
+> A resume should still **surface S6 first**, because it is **blocked on a human** and would otherwise
+> sit unnoticed; then take **S1** if Thomas is not at the keyboard.
 
 ## The four categories we actually have (measured 2026-08-08)
 
@@ -122,14 +127,22 @@ Three consequences, each already logged as its own field finding:
       (`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`) as its demonstration: the
       release whose subject is *the doctrine finally arrives* is where new doctrine should arrive.
       Nothing here starts before the universes release is cut.
-- [ ] **S0bis — INHERITED FLOOR: the v4.8.0 mutation debt is due WITH this release** _(owner,
-      2026-08-08)_. It was the declared floor of v4.9.0; the owner re-arbitrated it in writing onto this
+- [~] **S0bis — INHERITED FLOOR: the v4.8.0 mutation debt is due WITH this release** _(owner,
+      2026-08-08)_ — **run done 2026-08-20**, branch `chore/s0bis-entrypoint-mutation-debt` (draft PR).
+      It was the declared floor of v4.9.0; the owner re-arbitrated it in writing onto this
       release when v4.9.0 was scoped to universes alone. It is carried here so it arrives with its
       release instead of relying on someone re-opening the other file.
-  - [ ] Pay both debts from `prospective/v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
+  - [x] Pay both debts from `prospective/v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
         `runAsEntrypoint` + the guard test whose allowlist may only shrink; Debt 2: `defaultGit` as a
-        pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`.
-  - [ ] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
+        pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`
+        _(2026-08-20 — both paid; the two 0 % files end at **100.00 %**, `engine-fetch.mjs`
+        **54.05 % → 84.21 %**, numbers in `RESULTS.md` § S0bis, ceilings **32/26 → 14/9**)_.
+  - [ ] **One piece left, and it is an arbitration, not an oversight**: `session-status.mjs` — the last
+        entry-guard file, the only one that **cannot be verified by running it** (executing it sweeps
+        and auto-commits the working tree). Needs a session **with the owner present**; the safe recipe
+        is written in `agent-orchestrated-release-mode-action.md` § Run log. **Does not block this
+        release**: it is measured, named, and no worse than the tag before it.
+  - [x] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
         release without paying it is a **defect**, not a candidate for a second re-arbitration.
 
 - [ ] **S1 — An immutable base per `merge` file.** Freeze the staged copy at **the version actually

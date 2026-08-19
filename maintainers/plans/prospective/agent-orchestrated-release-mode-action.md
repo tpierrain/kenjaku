@@ -290,6 +290,34 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ✅ **2026-08-20 — S0BIS IS DONE. Both v4.8.0 debts are paid and measured; one arbitration is left
+  standing, in writing.** Branch `chore/s0bis-entrypoint-mutation-debt`, draft PR, nothing merged and
+  nothing tagged. **14 agents used of the ~25 the contract allows.**
+  - **The numbers** (`RESULTS.md` § S0bis, worktree `kenjaku-mut-s0bis`, logs `reports/s0bis-batch{1,2}.log`):
+    `lib/entrypoint.mjs` **100.00 %**, `status-line.mjs` **0 % → 100.00 %**, `upstream-check-run.mjs`
+    **0 % → 100.00 %**, `lib/engine-fetch.mjs` **54.05 % → 84.21 %**, and the new guard
+    `lib/entrypoint-discipline.mjs` **71.82 % → 81.44 %** after one hardening round.
+  - **Suite 1723 → 1813 pass / 0 fail. Ceilings 32/26 → 14/9.** Fifteen of the twenty-six guarded
+    files converted.
+  - **What the mode actually bought, judged honestly.** The 12-file tier-1 fan-out is where it paid:
+    twelve mechanical conversions, each with a machine-evaluable pass/fail, none of which needed my
+    context. Where it did **not** pay is everything with judgement in it — the judge, the canary, the
+    three tier-3 files, Debt 2 — all kept in session, all of them the parts that found real defects.
+    **The rule that made it safe is the one to keep**: nothing was dispatched without a deterministic
+    check, and no agent wrote a test.
+  - **The two orchestration mistakes are recorded above, both the same mistake twice**: `git add -A`
+    and then `git add scripts/` while a wave was in flight, sweeping unfinished agent work into a
+    docs commit. Both happened to be green, verified after the fact — by luck, not by design. **Stage
+    explicit paths while a wave runs.** This is the single most important line for the debrief.
+  - **What the guard proved on day one**: switched on before the conversions, it went red on exactly
+    one production file — `engine-fetch.mjs`, the Debt-2 file. The debt did not have to be
+    remembered; it was reported. That is the difference between a fix and a ratchet.
+  - **What is left, and it is named rather than implied**: `session-status.mjs` (the arbitration
+    below), and the guard's own **81.44 %**, which is under the repo norm (~94 %) — its 54 survivors
+    live in the hand-rolled comment/quote state machine. Both are written into `RESULTS.md` § S0bis
+    as follow-ups, not rounded away.
+  - **Next: the draft PR, then the mode debrief** — and, when the owner is at the keyboard,
+    `session-status.mjs` by the recipe below.
 - 🛑 **2026-08-20 — ARBITRATION, taken and NOT resolved autonomously: `session-status.mjs` is left
   for a session with the owner at the keyboard.** It is the third and largest of the named 0 % files
   (measured **8.67 %** at v4.9.0, up from a flat 0.00 % carried since v4.4.0 — `RESULTS.md` § v4.9.0),
@@ -394,24 +422,33 @@ arbitration goes here as a question, and the run continues on other slices.
     - [x] **Tier 1 — thin guards**: 12 files, one agent each _(2026-08-20 · 62246c6)_.
     - [x] `upstream-check-run.mjs` — kept in session (new test sibling = new test authorship)
           _(2026-08-20 · bb21a36)_.
-    - [ ] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
+    - [~] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
           Never fanned out: they run at EVERY session start.
-    - [ ] The duplicate predicate: fold `auto-commit.mjs`'s `isEntryPoint` (reversed arguments,
+      - [x] `status-line.mjs` _(2026-08-20 · eb8b0fb — **0 % → 100.00 %**)_.
+      - [ ] 🛑 `session-status.mjs` — **BLOCKING ARBITRATION, written not skipped**. Needs a session
+            **with the owner present**: it cannot be verified by running it (executing it sweeps and
+            auto-commits the working tree), it has no test sibling, and its top-level body is ~190
+            side-effecting lines. The safe recipe is in the Run log below.
+    - [x] The duplicate predicate: fold `auto-commit.mjs`'s `isEntryPoint` (reversed arguments,
           re-exported to `auto-push.mjs`) into the shared tail. Kept in session — the two files are
-          coupled, and `auto-commit` runs on every single edit.
-    - [ ] Remaining inline guards (`session-*.mjs`, `health-probe-run.mjs`, `set-active-universe.mjs`,
+          coupled, and `auto-commit` runs on every single edit _(2026-08-20 · bc2a8bf)_.
+    - [~] Remaining inline guards (`session-*.mjs`, `health-probe-run.mjs`, `set-active-universe.mjs`,
           `import-brain.mjs`, `update-engine.mjs`) — fat bodies, recorded as remaining debt if the run
-          ends before them.
+          ends before them. _(2026-08-20 — `set-active-universe.mjs` done (4fdb91b); the rest are the
+          **recorded remaining debt**, held by the ceilings at **14 / 9**, down from 32 / 26.)_
   - [x] **Step 4 — Debt 2**: `defaultGit` split into a pure invocation builder plus a thin runner,
         asserted whole, self-exempting comment deleted _(2026-08-20 · a3faa2a — brought forward, since
         the new guard went red on it the moment it was switched on)_. No `win32` case to feed: git is a
         real executable on Windows too, so the invocation is byte-identical everywhere — that absence
         is asserted as the design, in a comment, rather than faked with a vacuous test.
-  - [ ] **Step 5 — the batched mutation gate** in a disposable worktree over the touched files; numbers
+  - [x] **Step 5 — the batched mutation gate** in a disposable worktree over the touched files; numbers
         into `maintainers/mutation/RESULTS.md`, plus the line in its § v4.8.0 naming the release that
-        paid each debt.
-  - [ ] Tick the matching boxes in `v4.9.0-mutation-debt-plan.md` and the S0bis box in
-        `update-regime-owns-what-it-shipped-action.md`.
+        paid each debt _(2026-08-20 — two batches in `kenjaku-mut-s0bis`, logs
+        `reports/s0bis-batch{1,2}.log`, written up as `RESULTS.md` § S0bis; the v4.8.0 debt section
+        now carries a ✅ callout naming what paid it)_.
+  - [x] Tick the matching boxes in `v4.9.0-mutation-debt-plan.md` and the S0bis box in
+        `update-regime-owns-what-it-shipped-action.md` _(2026-08-20)_ — including moving that plan's
+        landmark off S0bis and onto **S1**, so the next resume does not restart on delivered work.
   - [ ] Push the branch and open a **draft** PR. Nothing merged, nothing tagged.
 - [ ] **Debrief the mode after S0bis**, before applying it to S1–S5: what the fan-out actually cost,
       what it caught, what it broke. If it does not pay, say so here and go back to a single session.
