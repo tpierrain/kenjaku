@@ -147,8 +147,8 @@ const SCRIPTS = join(REPO_ROOT, "scripts");
 
 // Ceilings measured on 2026-08-20, before the first conversion. LOWER THEM as the
 // conversion lands; never raise one — raising it is what turned this into debt.
-const NO_TAIL_CEILING = 19;
-const HAND_ROLLED_CEILING = 13;
+const NO_TAIL_CEILING = 18;
+const HAND_ROLLED_CEILING = 12;
 
 // Top-level CLIs with no `.test.mjs` sibling. Nine of them, inherited; paying
 // them off is not this run's cargo, so they are named rather than counted.
@@ -160,7 +160,6 @@ const NO_SIBLING_EXEMPT = new Set([
   "scripts/session-status.mjs",
   "scripts/status-line.mjs",
   "scripts/update-engine.mjs",
-  "scripts/upstream-check-run.mjs",
   "scripts/verify-rag.mjs",
 ]);
 
