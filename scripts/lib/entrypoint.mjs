@@ -20,6 +20,37 @@ import { realpathSync } from "node:fs";
 // main module, so a SYMLINKED argv1 (macOS /var → /private/var, any aliased
 // brain path) never matched and the guarded block silently skipped. A path that
 // does not resolve (unit tests use fictional ones) is compared as spelled.
+// The shared tail of every top-level scripts/*.mjs: runs `fn` only when this
+// module IS the process entry point, and turns its result into the exit code.
+//
+// Why it exists (debt 1 of the v4.8.0 mutation pass): the hand-rolled
+// `if (isEntrypoint(…)) { …body… }` block is code no test can import, so it
+// scores 0 % — the files whose WHOLE body is that shape scored exactly that.
+// Passing the body in as a function makes it an ordinary exported function, and
+// leaves one mechanical line here, tested once.
+//
+// The exit contract, deliberately narrow: a NUMERIC result exits with it,
+// anything else exits nothing. The bodies that already fall through to the
+// natural exit 0 (auto-commit's hook) must keep doing exactly that — an
+// unconditional exit would change their behaviour. A thenable result is awaited
+// first, so an async body is never killed mid-flight.
+export function runAsEntrypoint(metaUrl, argv, fn, { exit = process.exit } = {}) {
+  if (!isEntrypoint(metaUrl, argv?.[1])) return false;
+  const outcome = fn(argv.slice(2));
+  if (typeof outcome?.then === "function") {
+    return outcome.then((code) => {
+      exitWith(code, exit);
+      return true;
+    });
+  }
+  exitWith(outcome, exit);
+  return true;
+}
+
+function exitWith(code, exit) {
+  if (typeof code === "number") exit(code);
+}
+
 export function isEntrypoint(metaUrl, argv1) {
   if (!argv1) return false;
   let path = argv1;
