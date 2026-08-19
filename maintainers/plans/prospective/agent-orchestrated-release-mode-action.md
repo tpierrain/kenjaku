@@ -290,6 +290,22 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- **2026-08-20 — two of the three 0 %-scored files are paid, and the duplicate predicate is gone.**
+  Commits eb8b0fb and bc2a8bf. Suite **1796 pass / 0 fail**. Ceilings **15/10**.
+  - `status-line.mjs`: every segment was a top-level `const`, so **importing it printed a status
+    line**. Its "importing fires nothing" test was **red against the old file** — the only new test in
+    this run that was, and the proof the defect was real rather than theoretical. The line itself is
+    unchanged, asserted by running the real CLI against this repo before and after.
+  - `auto-commit.mjs` / `auto-push.mjs`: the second predicate (`isEntryPoint`, reversed arguments,
+    re-exported) is deleted, its four tests with it. **Kept in session, not fanned out**: two coupled
+    files, and one of them is the hook that fires on every edit.
+  - The scanner learned a rule while doing it: a predicate named only in a **comment** is not a
+    hand-rolled guard. Without that, a file cannot explain the debt it used to carry without being
+    counted as still carrying it, and the ceiling could never reach zero.
+  - ⚠️ **A deliberate exception to fail-first, recorded rather than hidden**: `session-status.mjs`
+    cannot have its "importing fires nothing" test seen red first. Seeing it red means **importing the
+    module**, and this module is a SessionStart hook that sweeps the working tree and auto-commits it.
+    Its pure extractions get the normal treatment; that one test is written after the guard exists.
 - **2026-08-20 — tier 1 is done: 12 CLIs converted by 12 agents, plus `upstream-check-run` in
   session.** Commits 62246c6 and bb21a36. Suite **1786 pass / 0 fail** (baseline was 1723). Ceilings
   32/26 → **18/12**, and the sibling allowlist lost its first entry.
