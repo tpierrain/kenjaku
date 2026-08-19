@@ -18,28 +18,30 @@ to know the **order**.
 
 ---
 
-## ⏸️ DIVERSION IN FORCE — read this before picking any gate (owner, 2026-08-15)
+## ▶️ DIVERSION LIFTED — the unfreeze release is LIVE again (owner, 2026-08-19)
 
-**The big unfreeze release is PAUSED before its first line of code.** The owner is diverting to
-**explore Graph Engineering** first, and he wants that exploration **framed and discussed with him
-before any work starts**. Nothing is cut, nothing is abandoned: `update-regime-owns-what-it-shipped`
-keeps everything it carries (the doctrine cargo, the mutation floor, the S6 rider) and resumes where
-it stands.
+**The framing conversation happened, and it sent the subject elsewhere than expected.** By *Graph
+Engineering* the owner meant **orchestrating subagents to BUILD the next release**, not a graph inside
+Kenjaku's runtime (*"c'est aucune de ces deux options"*). So:
 
-**Where the exploration starts from**: `prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`
-(§7 still open: whether it warrants an ADR, the ingestion-time consolidation spike measured against
-today's RAG, and the token-efficiency claim to confirm or kill). Its Axis-1 half already shipped
-(`prospective/wiki-health-axis1-mechanisms-action.md`, Tracks A-F). **The subject is not re-derivable
-from these files** — the owner's own framing is what the conversation must produce, and it belongs in
-a plan of its own once held.
+- **`prospective/update-regime-owns-what-it-shipped-action.md` is UNPAUSED** and is the next chantier.
+  It never lost its cargo (the doctrine issues, the mutation floor, the S6 rider).
+- **How it gets built is itself a subject**, with its own plan and its own open arbitrations:
+  `prospective/agent-orchestrated-release-mode-action.md` — the working contract (what is delegable,
+  the deterministic-check rule, the human stop points, the loop quota). **Read it before dispatching
+  anything to a subagent.**
+- **`prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md` goes back to a WATCH note.** The
+  runtime-graph question survives and is **deferred, on his explicit ask, to AFTER this release** — it
+  is a study to do *with* him, not work to pick up. He also **ruled out** building this release on top
+  of a knowledge graph of the codebase (too long, too little code for the payoff).
 
-> 🛑 **This entry exists because the decision was taken in conversation and written NOWHERE.** A
-> session resuming after a `/clear` on 2026-08-15 read the pointer, the ROADMAP and the release plan,
-> found *"NEXT TO EXECUTE"* everywhere, and started the release the owner had already diverted from —
-> until he stopped it by hand. This is exactly the failure `rules/plans.md` names (*a decision taken in
-> conversation dies at the `/clear` if it only lives in the thread*), and the rule did not fire: the
-> save point is **every hand-back**, not the end of a step. Cost: one branch of work started on a
-> paused chantier, and the owner having to remember for the repo.
+> 🛑 **Why the previous entry existed, kept because the lesson is not spent.** The 2026-08-15 diversion
+> was taken in conversation and written NOWHERE. A session resuming after a `/clear` read the pointer,
+> the ROADMAP and the release plan, found *"NEXT TO EXECUTE"* everywhere, and started the release the
+> owner had already diverted from — until he stopped it by hand. That is exactly the failure
+> `rules/plans.md` names (*a decision taken in conversation dies at the `/clear` if it only lives in
+> the thread*), and the rule did not fire: the save point is **every hand-back**, not the end of a
+> step. This unpause is written the same day it was decided, for the same reason.
 
 ---
 

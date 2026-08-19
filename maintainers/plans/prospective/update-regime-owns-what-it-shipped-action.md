@@ -1,22 +1,28 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: ⏸️ PAUSED 2026-08-15 by the owner, before its first line of code. -->
-<!-- He diverted to explore Graph Engineering, to be FRAMED WITH HIM first.     -->
-<!-- Nothing is cut: this plan keeps its cargo and resumes where it stands.     -->
-<!-- See ROADMAP.md § DIVERSION IN FORCE.                                       -->
+<!-- STATUS: ▶️ LIVE again since 2026-08-19 — the diversion was lifted after the -->
+<!-- framing conversation. This is THE next chantier, and it is the one being    -->
+<!-- built in the orchestrated/subagent mode described in                        -->
+<!-- agent-orchestrated-release-mode-action.md. Read that plan before any        -->
+<!-- delegation. See ROADMAP.md § DIVERSION LIFTED.                              -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
-> ## ⏸️ PAUSED — do NOT start work from this plan without asking (owner, 2026-08-15)
+> ## ▶️ UNPAUSED — this plan is live again (owner, 2026-08-19)
 >
-> The owner **diverted to Graph Engineering** (start at
-> `llm-wiki-vs-embedding-rag-karpathy-graphify.md`, whose header now carries the diversion), and wants
-> that exploration **framed and discussed with him before any work**. Everything below stays true and
-> owed; only its **start date** moved.
+> The Graph-Engineering framing happened and turned out to be about **how this release gets built**
+> (subagent orchestration), not about Kenjaku's runtime. Everything below stayed true and owed the
+> whole time; only its start date had moved, and it has now arrived.
 >
-> **State at the pause**: one branch was started before he stopped it —
+> **⚠️ Read the companion plan first**:
+> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md). It carries
+> the working contract for this chantier — what may be dispatched to a subagent, the rule that nothing
+> ships without a machine-checkable pass/fail, and the points where the owner is required. It does not
+> change a single item of the cargo below.
+>
+> **State at resume**: one branch exists from the aborted 2026-08-15 start —
 > `fix/mutation-debt-entrypoint-and-git-value` (pushed, `ec339dd`). It contains **documentation only**:
 > the S0bis re-measurement, which stands and is worth keeping (28 of 32 top-level scripts carry an
 > entry guard, not 20; nine have no test sibling; the two 0 % files carry no guard at all). **No
-> production code was written.**
+> production code was written**, so the first unticked box is still the real landmark.
 
 # Action plan — the engine updates what it shipped, and only stops for what the owner really wrote
 

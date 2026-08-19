@@ -1,13 +1,30 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🔭 THE LIVE SUBJECT since 2026-08-15 — the owner diverted here from    -->
-<!-- the big unfreeze release, to explore "Graph Engineering". Still nothing        -->
-<!-- decided: the framing conversation has to happen FIRST, with him.               -->
+<!-- STATUS: 🔬 BACK TO WATCH since 2026-08-19 — the framing happened, and it       -->
+<!-- sent the subject ELSEWHERE. "Graph Engineering" meant agent orchestration      -->
+<!-- for BUILDING the next release, not a graph inside Kenjaku's runtime. This      -->
+<!-- note keeps the runtime question, deferred to AFTER that release, on his ask.   -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
-> ## 🔭 WHY THIS NOTE IS SUDDENLY THE LIVE ONE (owner, 2026-08-15)
+> ## ✅ THE FRAMING HAPPENED — and this note is NOT the subject (owner, 2026-08-19)
 >
-> He **paused the big unfreeze release before its first line of code** to explore **Graph
-> Engineering**, and asked that it be **framed and discussed with him before any work starts**.
+> The three questions below were **asked and answered**. The answer moved the subject off this note
+> entirely: by *Graph Engineering* he meant **orchestrating subagents to build the next Kenjaku
+> release**, not a graph structure inside the product. The working contract that came out of it lives
+> in its own plan: [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).
+>
+> **What this note keeps**: the *runtime* graph question — a graph as a retrieval or ingestion object
+> inside Kenjaku — which he says he does have in mind and wants to **study with me, but AFTER the
+> unfreeze release, which is more important**. Until then this is a **watch note**, not a live one.
+>
+> **What he explicitly ruled out** _(2026-08-19)_, so it is not re-proposed: **building the unfreeze
+> release on top of a knowledge graph of the codebase**. His reasoning, and it holds: *"ça va être trop
+> long"*, and there is not enough code for the cost/benefit to land. Measured the same day: **61
+> top-level `scripts/*.mjs`, ~11 300 non-test lines** across `rag/src` + `scripts` — a volume an agent
+> reads directly. A graph over it would cost more to build than it saves in navigation.
+>
+> _(Historical, kept because it is what the diversion said at the time.)_ He **paused the big unfreeze
+> release before its first line of code** to explore **Graph Engineering**, and asked that it be
+> **framed and discussed with him before any work starts**.
 >
 > **Do not treat this note as the framing.** It is the July capture, and the owner's term is not the
 > one it uses: it says *compiled-wiki retrieval* / *Graphify*, he says **Graph Engineering**. Whether
@@ -22,22 +39,32 @@
 > rather than against raw-file reading. The Axis-1 half of §8's implication **shipped** in the
 > meantime: `wiki-health-axis1-mechanisms-action.md`, Tracks A-F.
 >
-> **Paused, not cancelled**: `update-regime-owns-what-it-shipped-action.md` keeps everything it
-> carries and resumes where it stands.
+> **UNPAUSED 2026-08-19**: `update-regime-owns-what-it-shipped-action.md` kept everything it carried
+> and is live again, to be built in the orchestrated mode described in
+> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).
 >
-> ### ⏳ THE FRAMING CONVERSATION — asked 2026-08-15, waiting on Thomas's answers
+> ### ✅ THE FRAMING CONVERSATION — asked 2026-08-15, ANSWERED 2026-08-19
 >
-> **Do not start any work before these are answered**, and do not answer them on his behalf.
->
-> - [ ] **1. Which end is "Graph Engineering"?** Retrieval **by traversal** (the graph becomes a search
->       mode beside the vector index, or instead of it), or **building the graph** as a first-class
->       ingestion artifact (entity pages, typed edges, computed neighbourhoods), or something else
->       entirely. His term is not this note's term; ask, never infer.
-> - [ ] **2. What triggered it now** — something he read, or a question his own brain answered badly?
->       If it is the second, **that failure is the best specification available** and the work should
->       start from it rather than from a public pattern.
-> - [ ] **3. What ambition** — a spike measured against the eval-set to settle the question, or an
->       assumed engine direction that earns its ADR (§5 already says any real decision belongs in one)?
+> - [x] **1. Which end is "Graph Engineering"?** _(2026-08-19)_ **Neither end of this note.** Not
+>       retrieval by traversal, not the graph as an ingestion artifact: **"du graph engineering mais
+>       orienté orchestration d'agents avec des sous-agents, pour réaliser la prochaine version de
+>       Kenjaku"**. The graph he means is the **work graph** — tasks cut small and dispatched to
+>       subagents — not a graph over the vault. The correcting words were his: *"c'est aucune de ces
+>       deux options"*, after I had offered exactly the two readings this note carried.
+> - [x] **2. What triggered it now** _(2026-08-19)_ — **neither a reading nor a retrieval failure.** It
+>       is a **working-mode** intent: *"être un peu moins derrière toi et te laisser bosser, mais de
+>       manière efficace"* — no more sitting behind me pressing buttons and clearing the context. It is
+>       the thesis of his own article, *What if `/clear` was no longer our job?*
+>       (<https://medium.com/@tpierrain/what-if-clear-was-no-longer-our-job-16fe571ae206>).
+>       ⚠️ **The article could not be read** on 2026-08-19: Medium answers **403** to WebFetch and to a
+>       browser user-agent, and the Chrome extension did not respond. The framing above is taken from
+>       his own words in chat, **not** from the article. If a later session needs its detail, ask him to
+>       paste it rather than re-attempting the fetch.
+> - [x] **3. What ambition** _(2026-08-19)_ — **not a spike against the eval-set, and not an engine
+>       direction.** The ambition is a **way of working, tried on a real release**: the unfreeze one.
+>       So it earns a **working-contract plan**, not an ADR about the product. The *runtime* graph
+>       question keeps its original ambition (a spike, measured, that may earn an ADR) and keeps its
+>       due date: **after that release**.
 >
 > **The analysis those questions rest on, so it is not re-derived** _(2026-08-15)_:
 > - Axis 1 is **no longer the gap** — it got real mechanics in July
