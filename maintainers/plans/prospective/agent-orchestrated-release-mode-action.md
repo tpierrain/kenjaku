@@ -316,8 +316,9 @@ arbitration goes here as a question, and the run continues on other slices.
     below), and the guard's own **81.44 %**, which is under the repo norm (~94 %) — its 54 survivors
     live in the hand-rolled comment/quote state machine. Both are written into `RESULTS.md` § S0bis
     as follow-ups, not rounded away.
-  - **Next: the draft PR, then the mode debrief** — and, when the owner is at the keyboard,
-    `session-status.mjs` by the recipe below.
+  - **Draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75) is open** (e0f740c). **Next, and
+    both need the owner**: the **mode debrief** (the next Tracking box — is the fan-out worth keeping
+    for S1–S5?), and `session-status.mjs` by the recipe below. Nothing else in S0bis is pending.
 - 🛑 **2026-08-20 — ARBITRATION, taken and NOT resolved autonomously: `session-status.mjs` is left
   for a session with the owner at the keyboard.** It is the third and largest of the named 0 % files
   (measured **8.67 %** at v4.9.0, up from a flat 0.00 % carried since v4.4.0 — `RESULTS.md` § v4.9.0),
@@ -409,7 +410,10 @@ arbitration goes here as a question, and the run continues on other slices.
       _(2026-08-19)_.
 - [x] **Get the three arbitrations answered** _(2026-08-20)_ — approved as proposed; scope set to all
       of S0bis, Debt 2 included; test discipline re-confirmed as batches, not baby-steps.
-- [ ] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
+- [~] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
+      _(2026-08-20 — **delivered**, draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75). The
+      only thing left under it is the `session-status.mjs` arbitration, which needs the owner at the
+      keyboard; it is not remaining work this run could have done.)_
   - [x] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
         spelling, test sibling present, guard body line count. **Written above** _(2026-08-20 ·
         branch `chore/s0bis-entrypoint-mutation-debt`)_.
@@ -449,7 +453,8 @@ arbitration goes here as a question, and the run continues on other slices.
   - [x] Tick the matching boxes in `v4.9.0-mutation-debt-plan.md` and the S0bis box in
         `update-regime-owns-what-it-shipped-action.md` _(2026-08-20)_ — including moving that plan's
         landmark off S0bis and onto **S1**, so the next resume does not restart on delivered work.
-  - [ ] Push the branch and open a **draft** PR. Nothing merged, nothing tagged.
+  - [x] Push the branch and open a **draft** PR. Nothing merged, nothing tagged _(2026-08-20 · e0f740c
+        — [PR #75](https://github.com/tpierrain/kenjaku/pull/75), draft)_.
 - [ ] **Debrief the mode after S0bis**, before applying it to S1–S5: what the fan-out actually cost,
       what it caught, what it broke. If it does not pay, say so here and go back to a single session.
 - [ ] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
