@@ -261,6 +261,24 @@ today's offenders, and a second assertion states that **every exempt entry must 
 offender** — so an exemption that has been paid off turns the suite **red** until it is deleted. A
 list that can only go stale is a list that shrinks by itself.
 
+> **The anti-tautology protocol for the fan-out, decided in session 2026-08-20.** The contract forbids
+> an agent writing both the test and the code it judges. A guard conversion is a **pure refactor**, so
+> the rule becomes mechanically checkable and every dispatched prompt carries it as a hard gate:
+> *the new test must be GREEN against the STILL-UNCONVERTED file*. A test that only passes after the
+> refactor is a wrong test, not a caught bug — and the agent is told to fix its test, never the module.
+> That inverts the tautology risk: the test cannot have been written by the implementation, because it
+> had to pass before the implementation existed.
+>
+> **What each converted file gains**: a process-level test that **importing** the module fires nothing
+> (safe for every CLI, and it is the only thing that proves the body is no longer top-level), plus —
+> only where a genuinely harmless invocation exists (a usage error, no writes, no git, no network) — a
+> test that running it as a process still exits as it did. Agents are told to skip the second rather
+> than invent a side-effecting invocation.
+>
+> **Ceiling ownership**: agents never touch `entrypoint-discipline.test.mjs`. The orchestrating session
+> lowers the ceilings between waves. That is what lets several agents convert several files at once
+> without contending on a single shared file.
+
 > **Granularity call taken in session, not a scope change** _(2026-08-20)_: the nine files with no
 > test sibling are **seeded into the allowlist** rather than all fixed in this run. The debt plan asks
 > for a guard test *"whose allowlist may only shrink"*, not for an empty allowlist on day one. This
@@ -272,6 +290,19 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- **2026-08-20 — steps 1, 2 and 4 landed; the fan-out has started.** Three commits, branch pushed:
+  - `runAsEntrypoint` + 9 unit tests (5b17338). Its exit contract is deliberately narrow so the
+    fall-through bodies keep behaving exactly as they do.
+  - The repo-wide guard + **Debt 2 paid** (a3faa2a). Turning the guard on named exactly one file the
+    allowlist deliberately does not carry — `engine-fetch.mjs`'s `defaultGit` — so step 4 came forward
+    to keep the commit green. Its request is now a value mirroring `buildCrosscheckInvocation`, and the
+    comment that documented its own exemption is deleted.
+  - The **canary** (480dcd7): `lint-vault.mjs` converted end to end, its behaviour asserted by running
+    the CLI as a process **before** it moved, and that net then **checked for being discriminating** —
+    pointed at a tail that can never fire, it goes red. Ceilings 32/26 → 31/25.
+  - Suite: **1760 pass / 0 fail** (from 1723 at baseline).
+  - **Next: wave 1 of the fan-out** (clear-example-notes, consolidate-scan, vault-write-guard), then
+    the rest of tier 1.
 - **2026-08-20 — step 0 done, on branch `chore/s0bis-entrypoint-mutation-debt`.** The inventory is
   measured and written above; it corrects three earlier figures (32 files not ~30, **26** guarded not
   28, and a **third** guard spelling nobody had recorded — `import-brain.mjs`'s `isMain()`). The
@@ -297,12 +328,17 @@ arbitration goes here as a question, and the run continues on other slices.
   - [x] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
         spelling, test sibling present, guard body line count. **Written above** _(2026-08-20 ·
         branch `chore/s0bis-entrypoint-mutation-debt`)_.
-  - [ ] **Step 1 — the judge, not delegated**: the guard test and `runAsEntrypoint(meta, argv, fn)` in
-        `scripts/lib/entrypoint.mjs`, under the discipline above. Allowlist may only SHRINK.
-  - [ ] **Step 2 — one canary file**, a thin guard, converted end to end and verified.
+  - [x] **Step 1 — the judge, not delegated**: the guard test and `runAsEntrypoint(meta, argv, fn)` in
+        `scripts/lib/entrypoint.mjs`, under the discipline above. Allowlist may only SHRINK
+        _(2026-08-20 · 5b17338 + a3faa2a)_.
+  - [x] **Step 2 — one canary file**, a thin guard, converted end to end and verified
+        _(2026-08-20 · 480dcd7 — `lint-vault.mjs`, and the net proved discriminating)_.
   - [ ] **Step 3 — fan out by tier** (1 and 2 delegated, 3 kept in session).
-  - [ ] **Step 4 — Debt 2**: `defaultGit` split into a pure invocation builder plus a thin runner,
-        asserted whole, `win32` fed on purpose, self-exempting comment deleted.
+  - [x] **Step 4 — Debt 2**: `defaultGit` split into a pure invocation builder plus a thin runner,
+        asserted whole, self-exempting comment deleted _(2026-08-20 · a3faa2a — brought forward, since
+        the new guard went red on it the moment it was switched on)_. No `win32` case to feed: git is a
+        real executable on Windows too, so the invocation is byte-identical everywhere — that absence
+        is asserted as the design, in a comment, rather than faked with a vacuous test.
   - [ ] **Step 5 — the batched mutation gate** in a disposable worktree over the touched files; numbers
         into `maintainers/mutation/RESULTS.md`, plus the line in its § v4.8.0 naming the release that
         paid each debt.
