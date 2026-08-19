@@ -23,7 +23,7 @@ import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
 import { needsShell } from "./lib/spawn-shell.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 // What the command asks the OS for, as a pure value: run the engine's headless crosscheck,
 // letting its output through untouched. Spawned from the brain's `rag/` — that is where tsx
@@ -75,6 +75,4 @@ export function runVerifyIndex(argv, deps = realVerifyIndexDeps) {
   return result.status;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runVerifyIndex(process.argv.slice(2)));
-}
+runAsEntrypoint(import.meta.url, process.argv, runVerifyIndex);

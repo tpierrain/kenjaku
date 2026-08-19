@@ -1,10 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { runSetUniverseProfile, realProfileDeps } from "./set-universe-profile.mjs";
+
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "set-universe-profile.mjs");
 
 // The deterministic surface behind the profile questions (ADR 0009): the skill
 // gathers answers conversationally, this CLI is what actually writes the note, so
@@ -394,4 +398,33 @@ test("realProfileDeps.log and .error write to the two streams, and not to the sa
 
   assert.deepEqual(seen.out, ["✓ written vault/acme/universe.md"]);
   assert.deepEqual(seen.err, ["✗ diverging"]);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by RUNNING the CLI as a process, which is the
+// only thing that proves the tail actually fires. Same shape as lint-vault's
+// canary: if the shared tail is wrong it is wrong HERE first, on one file.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("the CLI, run as a process with invalid stdin — exits 1 without writing, no crash", () => {
+  // Harmless on purpose: invalid JSON is rejected before any fs write, git spawn
+  // or network reach, and the input is given explicitly so stdin never blocks.
+  const brain = mkdtempSync(join(tmpdir(), "set-universe-profile-invalid-"));
+  const run = spawnSync(process.execPath, [CLI], {
+    cwd: brain,
+    input: "not json",
+    encoding: "utf8",
+  });
+  assert.equal(run.status, 1, `invalid answers must exit 1 — stderr: ${run.stderr}`);
+  assert.match(run.stderr, /Invalid JSON answers on stdin/i);
+});
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const probe = `import("${pathToFileURL(CLI).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
 });

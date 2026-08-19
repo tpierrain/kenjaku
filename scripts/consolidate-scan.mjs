@@ -17,7 +17,7 @@ import { join } from "node:path";
 
 import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
 import { consolidationCandidates, reportLines, hasCandidates } from "./lib/consolidation-candidates.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 // The scanned vault dir is displayed (and passed to the reader) in POSIX form so
 // the output is identical across platforms — on Windows join() yields backslashes
@@ -43,6 +43,4 @@ export function runConsolidateScan(argv, deps = realConsolidateDeps) {
   return hasCandidates(report) ? 1 : 0;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runConsolidateScan(process.argv.slice(2)));
-}
+runAsEntrypoint(import.meta.url, process.argv, runConsolidateScan);

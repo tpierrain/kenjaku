@@ -18,7 +18,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { engineParser, guardDecision } from "./lib/vault-write-guard.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 export const realGuardDeps = {
   readInput: () => readFileSync(0, "utf8"),
@@ -65,6 +65,4 @@ export function runGuard(deps = realGuardDeps) {
   return 0;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runGuard());
-}
+runAsEntrypoint(import.meta.url, process.argv, () => runGuard());

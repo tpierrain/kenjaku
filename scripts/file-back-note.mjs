@@ -22,7 +22,7 @@ import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 
 import { dirname, join } from "node:path";
 
 import { renderFiledNote, homonymCards, CONFIDENCE } from "./lib/filed-note.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 
 // Vault paths are displayed, compared and written in POSIX form so behaviour is
@@ -163,6 +163,4 @@ export function runFileBack(argv, deps = realFileBackDeps) {
   return 0;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runFileBack(process.argv.slice(2)));
-}
+runAsEntrypoint(import.meta.url, process.argv, runFileBack);

@@ -20,7 +20,7 @@ import { CANARY_NOTE, machineReplacements, rehydrationPlan } from "./lib/brain-r
 import { applyLaunchers, buildRagInstallInvocation } from "./lib/rag-launcher.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { seedHealthNote } from "./lib/staged-health-note.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 // The real wiring for runRehydrate — every side effect of the command, named so the
 // glue itself stays under test (a mis-wire here would pass every behaviour test).
@@ -127,6 +127,4 @@ function substitute(content, replacements) {
   return out;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runRehydrate(process.argv.slice(2)));
-}
+runAsEntrypoint(import.meta.url, process.argv, runRehydrate);

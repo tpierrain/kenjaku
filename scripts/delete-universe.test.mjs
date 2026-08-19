@@ -1,7 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+import { spawnSync } from "node:child_process";
+import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
 import { runDeleteUniverse } from "./delete-universe.mjs";
+
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "delete-universe.mjs");
 
 // The only irreversible universe operation (D3). Two guarantees are tested here
 // rather than trusted: it cannot run unless a HUMAN is at the keyboard, and it
@@ -227,4 +233,21 @@ test("runDeleteUniverse wants the slug RETYPED, not merely mentioned", async () 
   // assistant paraphrasing on their behalf — produces. Only the exact word counts.
   assert.equal(await runDeleteUniverse(["blue"], args), 1);
   assert.deepEqual(calls.removed, []);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by IMPORTING the CLI as a process, which is
+// the only thing that proves the tail does NOT fire on import. This is the one
+// process-level test for this file (deliberately no invocation test: this CLI
+// deletes a universe and must never be spawned with an argument, by anyone).
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const probe = `import("${pathToFileURL(CLI).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
 });
