@@ -290,6 +290,26 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- **2026-08-20 — tier 1 is done: 12 CLIs converted by 12 agents, plus `upstream-check-run` in
+  session.** Commits 62246c6 and bb21a36. Suite **1786 pass / 0 fail** (baseline was 1723). Ceilings
+  32/26 → **18/12**, and the sibling allowlist lost its first entry.
+  - **The fan-out's real risk was the arguments, not the tail.** Four of the twelve needed an arrow
+    rather than a direct pass: two whose body takes `deps` first (a direct pass would have handed it
+    the argument array), and two whose deps are **required and built at invocation time** (hoisting
+    that call out of the arrow would have reinstated the very import-time side effect being removed).
+    All four came back right, and each was flagged in its own prompt — the prompts were **not** a
+    single template, they named the specific trap per file.
+  - `upstream-check-run.mjs` was kept in session because it needed a **new test sibling**, i.e. new
+    test authorship rather than a refactor. Its extraction immediately caught a real defect: a
+    trailing `--brainDir` with no value resolved to `undefined`, which would have written the verdict
+    cache to a garbage path.
+  - ⚠️ **Orchestration lesson, learned by making the mistake**: `git add -A` while agents are in
+    flight swept three files of half-finished agent work into a docs commit (b4bd7a4). It happened to
+    be green — verified after the fact in a throwaway worktree — but only by luck. **While a wave is
+    running, stage explicit paths, never `-A`.** This belongs in the mode debrief.
+  - **Next: the two remaining 0 %-scored files** (`status-line.mjs`, `session-status.mjs`, both
+    session-critical, both kept in session), then the duplicate `isEntryPoint` predicate shared by
+    `auto-commit.mjs` / `auto-push.mjs`, then the batched mutation gate.
 - **2026-08-20 — steps 1, 2 and 4 landed; the fan-out has started.** Three commits, branch pushed:
   - `runAsEntrypoint` + 9 unit tests (5b17338). Its exit contract is deliberately narrow so the
     fall-through bodies keep behaving exactly as they do.
@@ -333,7 +353,18 @@ arbitration goes here as a question, and the run continues on other slices.
         _(2026-08-20 · 5b17338 + a3faa2a)_.
   - [x] **Step 2 — one canary file**, a thin guard, converted end to end and verified
         _(2026-08-20 · 480dcd7 — `lint-vault.mjs`, and the net proved discriminating)_.
-  - [ ] **Step 3 — fan out by tier** (1 and 2 delegated, 3 kept in session).
+  - [~] **Step 3 — fan out by tier** (1 and 2 delegated, 3 kept in session).
+    - [x] **Tier 1 — thin guards**: 12 files, one agent each _(2026-08-20 · 62246c6)_.
+    - [x] `upstream-check-run.mjs` — kept in session (new test sibling = new test authorship)
+          _(2026-08-20 · bb21a36)_.
+    - [ ] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
+          Never fanned out: they run at EVERY session start.
+    - [ ] The duplicate predicate: fold `auto-commit.mjs`'s `isEntryPoint` (reversed arguments,
+          re-exported to `auto-push.mjs`) into the shared tail. Kept in session — the two files are
+          coupled, and `auto-commit` runs on every single edit.
+    - [ ] Remaining inline guards (`session-*.mjs`, `health-probe-run.mjs`, `set-active-universe.mjs`,
+          `import-brain.mjs`, `update-engine.mjs`) — fat bodies, recorded as remaining debt if the run
+          ends before them.
   - [x] **Step 4 — Debt 2**: `defaultGit` split into a pure invocation builder plus a thin runner,
         asserted whole, self-exempting comment deleted _(2026-08-20 · a3faa2a — brought forward, since
         the new guard went red on it the moment it was switched on)_. No `win32` case to feed: git is a
