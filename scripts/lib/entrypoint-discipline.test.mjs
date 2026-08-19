@@ -133,6 +133,111 @@ test("a runner mentioned only in a comment is not an invocation", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// The comment/quote state machine. These scanners read source WITHOUT a JS
+// parser, so the only thing standing between them and a false report is the
+// hand-rolled skipping of strings and comments. Each case below is a way that
+// skipping can go wrong on real repo source.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("a // inside a STRING does not start a comment", () => {
+  // A URL in an argument is the everyday case. Treated as a comment, the rest of
+  // the line vanishes and the invocation stops being reported at all.
+  assert.deepEqual(findInlineInvocations('spawn("https://host/x", args, { cwd });'), [
+    { line: 1, runner: "spawn", kind: "options-object" },
+  ]);
+});
+
+test("an ESCAPED quote does not end the string it sits in", () => {
+  // Lose the backslash handling and the quote state inverts: everything after is
+  // read as being inside a string, and nothing downstream is ever seen.
+  assert.deepEqual(findInlineInvocations('spawn("a\\"b", args, { cwd });'), [
+    { line: 1, runner: "spawn", kind: "options-object" },
+  ]);
+});
+
+test("a template literal is a string too, braces and all", () => {
+  assert.deepEqual(findInlineInvocations("spawn(`${bin}-cli`, args, { cwd });"), [
+    { line: 1, runner: "spawn", kind: "options-object" },
+  ]);
+});
+
+test("an apostrophe inside a COMMENT does not leave the scanner stuck in a string", () => {
+  // "don't" in a comment is ordinary prose. A scanner that tracks quotes inside
+  // comments swallows the whole rest of the file from there.
+  const src = "// don't compose the invocation here\nspawn(cmd, args, { cwd });\n";
+  assert.deepEqual(findInlineInvocations(src), [
+    { line: 2, runner: "spawn", kind: "options-object" },
+  ]);
+});
+
+test("a block comment MID-LINE is skipped without shifting the arguments", () => {
+  assert.deepEqual(findInlineInvocations("spawn(cmd, /* the argv */ args, { cwd });"), [
+    { line: 1, runner: "spawn", kind: "options-object" },
+  ]);
+});
+
+test("line numbers survive the comments that precede the finding", () => {
+  // Both comment forms must emit their newlines, or every reported line number
+  // drifts upward by however much prose sits above it — and a report that points
+  // at the wrong line is a report nobody trusts.
+  const lineComments = "// one\n// two\n// three\nexecSync(cmd, { cwd });\n";
+  assert.deepEqual(findInlineInvocations(lineComments), [
+    { line: 4, runner: "execSync", kind: "options-object" },
+  ]);
+
+  const blockComment = "/* one\n   two\n   three */\nexecSync(cmd, { cwd });\n";
+  assert.deepEqual(findInlineInvocations(blockComment), [
+    { line: 4, runner: "execSync", kind: "options-object" },
+  ]);
+});
+
+test("whitespace and newlines between the runner and its ( still make it a call", () => {
+  assert.deepEqual(findInlineInvocations("spawnSync\n  (cmd, [], opts);"), [
+    { line: 1, runner: "spawnSync", kind: "args-array" },
+  ]);
+  // …and a bare mention that is NOT a call is not one.
+  assert.deepEqual(findInlineInvocations("const runner = spawnSync;\n"), []);
+});
+
+test("a runner at the very first character of the file is still a runner", () => {
+  // There is no character before it to inspect — the boundary check must treat
+  // "nothing" as a valid separator rather than as part of a longer name.
+  assert.deepEqual(findInlineInvocations("fork(mod, [], opts);"), [
+    { line: 1, runner: "fork", kind: "args-array" },
+  ]);
+});
+
+test("an UNTERMINATED block comment swallows the rest, and does not crash", () => {
+  assert.deepEqual(findInlineInvocations("/* opened and never closed\nspawn(a, [], {});\n"), []);
+});
+
+test("a trailing comma does not invent an extra argument", () => {
+  assert.deepEqual(findInlineInvocations("spawn(cmd, args, { cwd },);"), [
+    { line: 1, runner: "spawn", kind: "options-object" },
+  ]);
+});
+
+test("a call with NO arguments reports nothing", () => {
+  assert.deepEqual(findInlineInvocations("spawn();"), []);
+});
+
+test("the hand-rolled scanner skips comments — and, deliberately, NOT strings", () => {
+  // Comments are blanked, which is what lets a file explain the debt it used to
+  // carry (auto-commit.mjs does exactly that).
+  const commented = "// the old guard read process.argv[1] directly\nrunAsEntrypoint(import.meta.url, process.argv, main);\n";
+  assert.deepEqual(findHandRolledGuards(commented), []);
+
+  // A guard token inside a STRING is still reported, and that is a deliberate
+  // limitation rather than an oversight: blanking string bodies would take a
+  // second pass, no top-level CLI in this tree puts a guard token in a string,
+  // and the failure mode is a loud false positive whose message says what to do
+  // — never a guard that goes unnoticed. Pinned here so the choice is visible if
+  // it ever needs revisiting.
+  const quoted = 'const help = "pass process.argv[1] yourself";\n';
+  assert.deepEqual(findHandRolledGuards(quoted), [{ line: 1, token: "process.argv[1]" }]);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // The repo-wide guard — debt 1's second half, the one that makes the fix stick.
 // Without it the next new script re-creates the shape and the debt comes back.
 //
