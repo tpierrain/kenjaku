@@ -21,14 +21,18 @@ const GUARD_TOKENS = ["isEntrypoint(", "isEntryPoint(", "process.argv[1]"];
 // Returns [{ line, token }] for every hand-rolled entry-detection token, in
 // source order — a file's own line order is what makes the report readable.
 export function findHandRolledGuards(source) {
+  // Comments are blanked first: a file that documents the predicate it used to
+  // carry must not be counted as still carrying it, or the ceiling could never
+  // reach zero without silencing the history that explains the fix.
+  const clean = stripComments(source);
   const findings = [];
   for (const token of GUARD_TOKENS) {
     let from = 0;
     for (;;) {
-      const at = source.indexOf(token, from);
+      const at = clean.indexOf(token, from);
       if (at === -1) break;
       from = at + token.length;
-      findings.push({ line: lineOf(source, at), token, at });
+      findings.push({ line: lineOf(clean, at), token, at });
     }
   }
   return findings

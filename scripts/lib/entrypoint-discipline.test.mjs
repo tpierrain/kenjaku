@@ -37,6 +37,14 @@ test("flags the inline comparison, whatever it is wrapped in", () => {
   ]);
 });
 
+test("a predicate named only in a COMMENT is not a hand-rolled guard", () => {
+  // A file that documents the predicate it used to carry (auto-commit.mjs does)
+  // must not be counted as still carrying it — otherwise the ceiling can never
+  // reach zero and the history has to be silenced to keep the guard honest.
+  const src = "// This file used to carry isEntryPoint(argv1, meta), now shared.\n/* see isEntrypoint(a, b) */\nrunAsEntrypoint(import.meta.url, process.argv, main);\n";
+  assert.deepEqual(findHandRolledGuards(src), []);
+});
+
 test("the shared tail is clean — process.argv goes through WHOLE, never indexed", () => {
   const src = 'runAsEntrypoint(import.meta.url, process.argv, main);\nconst rest = process.argv.slice(2);\n';
   assert.deepEqual(findHandRolledGuards(src), []);
@@ -147,8 +155,8 @@ const SCRIPTS = join(REPO_ROOT, "scripts");
 
 // Ceilings measured on 2026-08-20, before the first conversion. LOWER THEM as the
 // conversion lands; never raise one — raising it is what turned this into debt.
-const NO_TAIL_CEILING = 17;
-const HAND_ROLLED_CEILING = 12;
+const NO_TAIL_CEILING = 15;
+const HAND_ROLLED_CEILING = 10;
 
 // Top-level CLIs with no `.test.mjs` sibling. Nine of them, inherited; paying
 // them off is not this run's cargo, so they are named rather than counted.
