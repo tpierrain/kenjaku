@@ -290,6 +290,25 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ❓ **2026-08-20 — an unreproduced flake in `session-universe.test.mjs`, reported by an agent and
+  NOT diagnosed. Written down so the next person does not burn the same hour.** The tier-1 agent that
+  converted `set-active-universe.mjs` saw the race test — *"the universe hook waits for the startup
+  pull"* — fail once **inside a full-suite run** while the fan-out was saturating the machine, then
+  pass alone and on a clean re-run.
+  - **I could not reproduce it: 20 solo runs and 10 full-suite runs, all green.** So it is rare, and
+    load is the only correlate we have.
+  - **The obvious explanation is WRONG, and that is the useful part.** The test gives the child a
+    250 ms head start before flipping the pointer, which reads like a too-tight wall-clock margin —
+    but it writes the marker as `phase: "running"` **before** spawning, so the barrier sees its own
+    session immediately and gets the **full 12 s ceiling** (`WAIT_MS` in `lib/startup-sync-gate.mjs`),
+    not the 3 s grace. 250 ms against 12 s is not a tight race. Do not "fix" it by raising the sleep.
+  - **The one mechanism left standing, unverified**: the test rewrites the marker file
+    (`.cache/startup-sync.json`) *while* the child polls it every 50 ms, so a loaded machine could
+    hand the reader a **torn read** of a file mid-rewrite. That is a real cross-process hazard the
+    test itself creates. Confirming it means instrumenting `readMarker`, not re-running the suite.
+  - **Not touched**: out of S0bis scope, and a timing test is exactly the thing not to change blind at
+    the end of an autonomous run. It is a **debrief input**: if the flake is load-induced, the
+    orchestration mode manufactures its own false reds, and that is a cost of the mode, not of the test.
 - ✅ **2026-08-20 — S0BIS IS DONE. Both v4.8.0 debts are paid and measured; one arbitration is left
   standing, in writing.** Branch `chore/s0bis-entrypoint-mutation-debt`, draft PR, nothing merged and
   nothing tagged. **14 agents used of the ~25 the contract allows.**
