@@ -15,7 +15,7 @@
 //     sha256 becomes the proof, checked before any merge, instead of an equality
 //     test between two live files.
 // ─────────────────────────────────────────────────────────────────────────────
-import { fingerprint } from "./engine-source.mjs";
+import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
 
 // The single tree. Named once, here, so no caller can grow a second convention.
 export const BASE_PREFIX = ".engine-base/";
@@ -40,6 +40,35 @@ export const normalizeEol = (content) => content.split("\r\n").join("\n");
 //   • absent — recorded, but no bytes: an incomplete tree, to re-seed.
 //   • mismatch — bytes that hash elsewhere: the tree drifted, and feeding those to
 //     a three-way merge would silently pick the wrong ancestor.
+// WHEN the base moves, and to what. The rule S1 is named after, in one line: the base
+// moves to what the update **delivered** to the installed file, never to the newest
+// content it fetched. So the only input is the DELIVERY MAP the reconcile already
+// returns ({rel: the bytes actually written}); reading the source tree instead is the
+// false positive itself — `engine-skills/**` is a `replace` target whose bytes advance
+// at every update while the installed skill stands still, and a base that ran ahead
+// makes an untouched file look customized forever.
+//
+// A file the update did NOT deliver is simply absent from the map, so its base stands
+// where it was: that is what makes "preserve" keep an ancestor worth merging from.
+// Selection stays the manifest's `merge` regime — the rule provenance has always
+// followed, restated here because this is the planner that could break it.
+//
+// Each entry carries everything the fs orchestrator needs and nothing it must
+// recompute: where the bytes go, the bytes, and the sha that will PROVE them. The
+// content and its digest leave here as one object so the tree and the record can never
+// be advanced apart — the drift `verifyBase` would then report as a mismatch.
+export function planBaseAdvance({ manifest, deliveredFileMap }) {
+  return selectMergeFiles(manifest, Object.keys(deliveredFileMap)).map((rel) => ({
+    rel,
+    baseRel: baseRelPath(rel),
+    content: deliveredFileMap[rel],
+    // Hashed as delivered, never normalized: `buildProvenance` records the raw bytes at
+    // install, and the two paths must agree or a Windows brain would flip its recorded
+    // digest at its first update, for content nobody touched.
+    sha: fingerprint(deliveredFileMap[rel]),
+  }));
+}
+
 export function verifyBase({ recorded, baseContent }) {
   if (!recorded) return { usable: false, reason: "no-provenance" };
   if (baseContent === null || baseContent === undefined) return { usable: false, reason: "absent" };

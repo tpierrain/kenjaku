@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { baseRelPath, verifyBase } from "./engine-base.mjs";
+import { baseRelPath, planBaseAdvance, verifyBase } from "./engine-base.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-base — the IMMUTABLE BASE: the bytes the engine last DELIVERED to an
@@ -19,6 +19,8 @@ import { baseRelPath, verifyBase } from "./engine-base.mjs";
 //     that the ancestor we are about to merge from is the one the engine wrote.
 //     A base we cannot prove is not a base: the caller must be able to tell that
 //     apart from "no base recorded", they lead to different repairs.
+//   • WHEN a base MOVES — the sentence S1 is named after: to what was DELIVERED
+//     to the installed file, never to the newest fetched content.
 //
 // Fixtures: sha256 digests computed OUTSIDE this codebase (`shasum -a 256`), never
 // through `fingerprint()`, so "the proof holds" cannot be true by construction.
@@ -119,4 +121,141 @@ test("verifyBase — a base rewritten CRLF by a Windows checkout still proves ou
 test("verifyBase — a base whose sha was RECORDED over CRLF bytes proves out too", () => {
   const SHA_ENGINE_V1_CRLF = "sha256:ad736b9c544c7c10b30d9547157c498eacf8e8494393269b651c70a60d380ad7";
   assert.deepEqual(verifyBase({ recorded: SHA_ENGINE_V1_CRLF, baseContent: "engine v1\r\n" }), { usable: true });
+});
+
+// ─── When the base moves — the ADVANCE rule ──────────────────────────────────
+// The one sentence S1 exists for: the base moves to what was **delivered** to the
+// installed file, never to the newest content the update fetched. The planner is
+// therefore driven by the DELIVERY MAP the reconcile already returns
+// (`installedFileMap` / `refreshedFileMap` — {rel: the bytes actually written}),
+// and by nothing else. Feeding it a source tree instead is not a shortcut, it IS
+// the false positive this step kills: `engine-skills/**` is a `replace` target, so
+// its bytes advance at every update while the installed skill stands still — and a
+// base that ran ahead makes an untouched file look customized, forever.
+
+const MANIFEST = {
+  regimes: {
+    merge: ["CLAUDE.md", ".claude/skills/coach/**", "scripts/auto-commit.mjs"],
+    replace: ["engine-skills/**", "rag/src/**"],
+  },
+};
+
+const CONSTITUTION_V2 = "# constitution v2\n";
+const SHA_CONSTITUTION_V2 = "sha256:9f3062e79301831bdd211605d6aed10b03ff86b7ef3fcea02c895dd378eed913";
+const COACH_V2 = "coach skill v2\n";
+const SHA_COACH_V2 = "sha256:c8fb41884c1c0046be0cc556c59fe44021f797dcbdf18f9dc62fd5252264875c";
+const AUTO_COMMIT_V2 = "auto-commit v2\n";
+const SHA_AUTO_COMMIT_V2 = "sha256:93f71e680574fe1f11969a2816eb7fdc0fb6ece2469946c595f89a0e2d02a49a";
+
+// The nominal move, asserted as a COMPLETE list over three of the four families at
+// once (the constitution, a skill, an engine script) — one family checked alone
+// would leave a per-family special case alive. Each entry carries everything the
+// orchestrator needs so it never recomputes anything: where the bytes go, the bytes
+// themselves, and the sha that will PROVE them. Order is the delivery map's, not
+// sorted: nothing downstream may depend on an ordering we do not control.
+test("planBaseAdvance — the base moves to the bytes DELIVERED, one plan for every family", () => {
+  const plan = planBaseAdvance({
+    manifest: MANIFEST,
+    deliveredFileMap: {
+      "scripts/auto-commit.mjs": AUTO_COMMIT_V2,
+      "CLAUDE.md": CONSTITUTION_V2,
+      ".claude/skills/coach/SKILL.md": COACH_V2,
+    },
+  });
+  assert.deepEqual(plan, [
+    {
+      rel: "scripts/auto-commit.mjs",
+      baseRel: ".engine-base/scripts/auto-commit.mjs",
+      content: AUTO_COMMIT_V2,
+      sha: SHA_AUTO_COMMIT_V2,
+    },
+    {
+      rel: "CLAUDE.md",
+      baseRel: ".engine-base/CLAUDE.md",
+      content: CONSTITUTION_V2,
+      sha: SHA_CONSTITUTION_V2,
+    },
+    {
+      rel: ".claude/skills/coach/SKILL.md",
+      baseRel: ".engine-base/.claude/skills/coach/SKILL.md",
+      content: COACH_V2,
+      sha: SHA_COACH_V2,
+    },
+  ]);
+});
+
+// The half that makes "preserve" mean something: a `merge` file the update did NOT
+// deliver (the owner customized it, so their copy stood) is absent from the delivery
+// map — and its base must stay exactly where it was, at the version the engine last
+// delivered. That base is the ancestor S2's three-way merge will diff against; move
+// it to the new content and the owner's edits vanish from the diff, silently.
+// Two undelivered merge files, so a planner that returned "everything the manifest
+// declares" would have to fake both.
+test("planBaseAdvance — a merge file the update PRESERVED does not move", () => {
+  const plan = planBaseAdvance({
+    manifest: MANIFEST,
+    deliveredFileMap: { ".claude/skills/coach/SKILL.md": COACH_V2 },
+  });
+  assert.deepEqual(plan, [
+    {
+      rel: ".claude/skills/coach/SKILL.md",
+      baseRel: ".engine-base/.claude/skills/coach/SKILL.md",
+      content: COACH_V2,
+      sha: SHA_COACH_V2,
+    },
+  ]);
+});
+
+// A base belongs to the `merge` regime alone — the same rule provenance has always
+// followed, restated here because this planner is the one that could break it. The
+// decoy is deliberate: `engine-skills/coach/SKILL.md` is the STAGED source of the
+// very skill delivered above, and it is a `replace` target. Give it a base and the
+// tree records what was fetched instead of what was installed, which is the exact
+// false positive named in the step.
+test("planBaseAdvance — a file outside the `merge` regime never gets a base", () => {
+  const plan = planBaseAdvance({
+    manifest: MANIFEST,
+    deliveredFileMap: {
+      "engine-skills/coach/SKILL.md": COACH_V2,
+      "rag/src/index.mjs": "compiled\n",
+    },
+  });
+  assert.deepEqual(plan, []);
+});
+
+// An update that delivered nothing (a converged brain: every file `unchanged`) moves
+// no base and writes nothing. Pinned because "nothing to do" is the common case on a
+// fleet that updates often, and the orchestrator downstream must be able to tell it
+// apart from work.
+test("planBaseAdvance — an update that delivered nothing moves nothing", () => {
+  assert.deepEqual(planBaseAdvance({ manifest: MANIFEST, deliveredFileMap: {} }), []);
+});
+
+// Emptiness is content: a release that empties an engine file DELIVERED those zero
+// bytes, and the base has to follow, or the next update reads a stale ancestor and
+// the emptying looks like the owner's edit. The trap is a falsy-content skip, which
+// no other case here can see.
+test("planBaseAdvance — a file delivered EMPTY advances the base to the empty bytes", () => {
+  assert.deepEqual(planBaseAdvance({ manifest: MANIFEST, deliveredFileMap: { "CLAUDE.md": "" } }), [
+    {
+      rel: "CLAUDE.md",
+      baseRel: ".engine-base/CLAUDE.md",
+      content: "",
+      sha: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    },
+  ]);
+});
+
+// The sha is taken over the delivered bytes AS THEY ARE, never over a normalized
+// copy — the same rule `buildProvenance` follows at install. Both paths must record
+// the same sha for the same file, or a Windows brain would flip its recorded digest
+// between install day and its first update, for content nobody touched.
+// (`verifyBase` accepts either form, so only this assertion can hold the two ends
+// of the fleet to one convention.)
+test("planBaseAdvance — CRLF bytes are hashed as delivered, like the installer records them", () => {
+  const SHA_ENGINE_V1_CRLF = "sha256:ad736b9c544c7c10b30d9547157c498eacf8e8494393269b651c70a60d380ad7";
+  const plan = planBaseAdvance({ manifest: MANIFEST, deliveredFileMap: { "CLAUDE.md": "engine v1\r\n" } });
+  assert.deepEqual(plan, [
+    { rel: "CLAUDE.md", baseRel: ".engine-base/CLAUDE.md", content: "engine v1\r\n", sha: SHA_ENGINE_V1_CRLF },
+  ]);
 });
