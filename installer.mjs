@@ -66,7 +66,7 @@ import {
 } from "./scripts/lib/obsidian-register.mjs";
 import { formatObsidianHint } from "./scripts/lib/obsidian-health.mjs";
 import { buildHandoff } from "./scripts/lib/install-handoff.mjs";
-import { recordSourceAndProvenance } from "./scripts/lib/engine-source.mjs";
+import { recordSourceProvenanceAndBase } from "./scripts/lib/engine-base-fs.mjs";
 import { resolveLatestTag } from "./scripts/lib/engine-fetch.mjs";
 import {
   checkNode,
@@ -621,7 +621,7 @@ function setEnvVar(env, key, value) {
     (repo ? resolveLatestTag({ repo, git: gitSeam }) : null) ||
     refOf(["describe", "--tags", "--exact-match"]) ||
     null;
-  recordSourceAndProvenance({
+  recordSourceProvenanceAndBase({
     brainDir: TARGET,
     git: {
       repo,
@@ -630,7 +630,7 @@ function setEnvVar(env, key, value) {
       commit: refOf(["rev-parse", "HEAD"]) || null,
     },
   });
-  ok("engine source + provenance recorded in engine-manifest.json");
+  ok("engine source + provenance recorded, base tree seeded (.engine-base/)");
 }
 
 // Git repo OF THE BRAIN — foundation of auto-commit. NEW folder → `git init`

@@ -76,6 +76,9 @@
       "scripts/auto-push.mjs",
       "scripts/status-line.mjs",
       "scripts/verify-rag.mjs"
+    ],
+    "local": [
+      ".engine-base/**"
     ]
   },
   "engineMcpServers": [

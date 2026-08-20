@@ -33,6 +33,7 @@ import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
 import { reseedProvenance } from "./engine-source.mjs";
+import { syncBaseTree } from "./engine-base-fs.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
 import {
@@ -351,14 +352,24 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // recorded base → the next update calls it "user-modified" and never refreshes it
   // again: the feature would work exactly once per brain, silently.
   const delivered = { ...report.installedFileMap, ...report.refreshedFileMap };
+  const provenance = reseedProvenance({
+    priorProvenance: manifest.provenance ?? {},
+    manifest,
+    deliveredFileMap: delivered,
+  });
   if (Object.keys(delivered).length > 0) {
-    const provenance = reseedProvenance({
-      priorProvenance: manifest.provenance ?? {},
-      manifest,
-      deliveredFileMap: delivered,
-    });
     writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance }, null, 2) + "\n");
   }
+
+  // S1 — the base TREE, beside that record, and for the same reason the re-seed above
+  // lives here: the child is the LAST writer on the update path, and on the first update
+  // carrying this feature the parent ran the OLD code. A tree written only by step 7
+  // would arrive one update late, on the very brains being migrated.
+  //
+  // Run even when nothing was delivered — that is precisely the migration case (a
+  // self-heal converging a brain from its own code delivers nothing, and can still seed
+  // every ancestor the brain is able to prove).
+  syncBaseTree({ brainDir, manifest, provenance, deliveredFileMap: delivered });
   return report;
 }
 

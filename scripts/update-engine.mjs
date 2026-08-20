@@ -35,6 +35,7 @@ import {
 import { checkUpstream, formatUpdateCheck } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
 import { reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
+import { syncBaseTree } from "./lib/engine-base-fs.mjs";
 import {
   defaultRunInstall,
   defaultRunReindex,
@@ -328,6 +329,15 @@ export async function updateEngine({
     }),
   };
   writeFileSync(manifestPath, JSON.stringify(updated, null, 2) + "\n");
+
+  //    S1 — and the base's BYTES, beside the digest that has always been recorded
+  //    without them. The tree advances to what this update DELIVERED (never to what it
+  //    fetched), and seeds whatever the brain can still prove about itself — which is
+  //    the migration: no deployed brain holds a tree, so every update is also its first
+  //    one. Driven by the SAME manifest as the re-seed above (`target`, not the brain's
+  //    older copy), or a `merge` glob this release adds would reach the record and not
+  //    the bytes.
+  syncBaseTree({ brainDir, manifest: target, provenance: updated.provenance, deliveredFileMap });
 
   // 8. Auto-finalize (ADR 0026, Layer A): re-exec the FRESHLY-WRITTEN reconciler in a
   //    fresh child process, handing it the same source we fetched. A new process reads

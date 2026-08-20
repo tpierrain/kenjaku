@@ -1737,6 +1737,54 @@ test("updateEngine — a refreshed skill's provenance base is re-seeded by step 
   );
 });
 
+// ── S1 — the base TREE, beside the record ────────────────────────────────────
+// Provenance has always recorded a base's DIGEST and never kept its bytes, so the
+// only thing an update could do with it was an equality test: clobber or abandon.
+// Step 7 now also lays the bytes down, in the brain's own `.engine-base/` tree, and
+// the two halves of an update are visible in one pass here: a re-delivered engine
+// script ADVANCES to what it was handed, while an untouched merge file the brain
+// already matches SEEDS from itself — which is the whole fleet's migration, since
+// no deployed brain holds a tree today.
+test("updateEngine — step 7 lays down the `.engine-base/` tree: advanced for what it delivered, seeded for what it did not", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+
+  await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  // Read through absence rather than into it: a tree that was never written must fail
+  // this test on its assertion, saying what is missing, not on an ENOENT from a reader.
+  const baseOrNull = (rel) => {
+    const abs = join(brainDir, ".engine-base", rel);
+    return existsSync(abs) ? readFileSync(abs, "utf8") : null;
+  };
+
+  assert.equal(
+    baseOrNull("scripts/auto-commit.mjs"),
+    engineFiles("vB").engineScripts["scripts/auto-commit.mjs"],
+    "a re-delivered engine script's base must advance to the bytes the update delivered",
+  );
+  assert.equal(
+    baseOrNull("CLAUDE.md"),
+    SACRED["CLAUDE.md"],
+    "an untouched merge file still matching its record seeds its own base — the fleet's migration",
+  );
+  assert.equal(
+    existsSync(join(brainDir, ".engine-base/rag/src/index.ts")),
+    false,
+    "a `replace` file has no base: the tree follows the `merge` regime, exactly as provenance does",
+  );
+  const m = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    m.provenance["scripts/auto-commit.mjs"],
+    fp(engineFiles("vB").engineScripts["scripts/auto-commit.mjs"]),
+    "the tree and the record advance together, or `verifyBase` calls the ancestor a mismatch",
+  );
+});
+
 // ADR 0036 — the status line retreats. The removal is a change the owner SEES the
 // next time they open a terminal (their own line is back where ours used to be), so
 // an update that stays silent about it reads as a bug in Claude Code, not as a

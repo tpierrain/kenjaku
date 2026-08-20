@@ -199,3 +199,33 @@ test("planTouches — NEVER touches the user's files; DOES touch the engine's", 
     assert.equal(planTouches(plan, enginePath), true, `the plan MUST cover ${enginePath}`);
   }
 });
+
+// ── S1 — the base tree is inert to the apply plan ─────────────────────────────
+// `.engine-base/` is declared under a fourth regime, `local`: written by the engine
+// inside the brain, never delivered from the source. The plan is an allowlist built
+// from named keys, so an unknown one contributes nothing — but "it happens to be
+// ignored today" is not the guarantee this needs. The day someone reads the manifest
+// and files the tree under `replace` for tidiness, the ancestor is overwritten with
+// the newest fetched content at every update: this release's bug, one level up, on
+// the very mechanism built to end it.
+test("computeApplyPlan — a `local` regime contributes to NO bucket: an update never writes the brain's own base tree", () => {
+  const target = {
+    regimes: {
+      ...fullTarget().regimes,
+      local: [".engine-base/**"],
+    },
+  };
+
+  const plan = computeApplyPlan(target);
+
+  assert.deepEqual(plan, computeApplyPlan(fullTarget()), "declaring `local` changes not one bucket");
+  for (const basePath of [
+    ".engine-base/CLAUDE.md",
+    ".engine-base/.claude/settings.json",
+    ".engine-base/.claude/skills/coach/SKILL.md",
+    ".engine-base/scripts/auto-commit.mjs",
+    ".engine-base/rag/src/index.ts",
+  ]) {
+    assert.equal(planTouches(plan, basePath), false, `the plan must NOT touch ${basePath}`);
+  }
+});

@@ -1375,6 +1375,70 @@ test("runReconcileCli — re-seeds the provenance base of what it refreshed (T1)
   );
 });
 
+// ── S1 — the LAST writer on the update path also lays down the base TREE ──────
+// The child is where the tree must land as much as the record: on the first update
+// carrying this feature the parent runs the OLD code, so a tree written only by
+// step 7 would arrive one update late — on the very brains being migrated. Both
+// halves are visible here: the refreshed skill ADVANCES to what was delivered, and
+// a merge file the update never touched SEEDS from itself.
+test("runReconcileCli — writes the `.engine-base/` tree beside the record: advanced for the refresh, seeded for the untouched", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: [".claude/skills/switch/**"] }),
+        provenance: {
+          ".claude/skills/switch/SKILL.md": base(delivered),
+          ".claude/skills/zzz-mine/SKILL.md": base(SACRED[".claude/skills/zzz-mine/SKILL.md"]),
+        },
+      },
+      null,
+      2,
+    ),
+  );
+
+  const { ...s } = seams();
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  // Read through absence rather than into it: a tree that was never written must fail
+  // this test on its assertion, saying what is missing, not on an ENOENT from a reader.
+  const baseOrNull = (rel) => {
+    const abs = join(brainDir, ".engine-base", rel);
+    return existsSync(abs) ? readFileSync(abs, "utf8") : null;
+  };
+
+  assert.equal(
+    baseOrNull(".claude/skills/switch/SKILL.md"),
+    improved,
+    "the refreshed skill's ancestor is the content the child just delivered",
+  );
+  assert.equal(
+    baseOrNull(".claude/skills/zzz-mine/SKILL.md"),
+    SACRED[".claude/skills/zzz-mine/SKILL.md"],
+    "a merge file still matching its record seeds its own ancestor, with nothing fetched",
+  );
+  assert.equal(
+    existsSync(join(brainDir, ".engine-base/rag/src/index.ts")),
+    false,
+    "a `replace` file has no base: the tree follows the `merge` regime",
+  );
+});
+
 test("runReconcileCli — refreshing twice in a row is a clean no-op, NOT a 'customized' verdict (T1)", async (t) => {
   const brainDir = buildBrain();
   const sourceDir = buildSource();
