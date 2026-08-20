@@ -138,12 +138,21 @@
 > because one slice writing a pure core, spawning git **and** rewiring the refresher is this chantier's
 > own definition of mis-cut. Numbers owned by `RESULTS.md`.
 >
+> ⚠️ **The table was CORRECTED before it shipped** _(2026-08-20 · `8d4da37`)_ — nine rows now, not
+> eight. Starting the rewiring exposed that it asked the base's **bytes** for questions the recorded
+> **sha** answers, which would have frozen every skill on the fleet at its first update (the reasoning
+> is in the S2 design block below, and it is worth reading before touching the table again).
+>
 > **▶️ RESUME AT: S2a-3 — the skills rewired onto the merge.** `refreshUntouchedSkills` drops
-> `refreshVerdict` for `mergeVerdict`; the report gains `skillsMerged` and `conflicts`. ⚠️ **The two
-> traps, both already written down**: `deliveredFileMap` must carry the verdict's **`deliver`** (the
-> candidate) and never what was written to disk, and a throw from the git seam must **degrade that file
-> to `preserve`** rather than take down the whole update. Then S2b. **S2c is the only part that waits on
-> Thomas** (the box at the top), and nothing else does — so the loop never idles on it.
+> `refreshVerdict` for `mergeVerdict`, reading each ancestor itself from `.engine-base/<rel>` (it is
+> already an fs orchestrator and already holds `brainDir`, so **no caller signature changes**). The
+> report gains `skillsMerged` and `conflicts` — that half is **S2a-3b**, in `formatReport`, so the
+> rewiring stays two files. ⚠️ **The three traps, all already written down**: `deliveredFileMap` must
+> carry the verdict's **`deliver`** (the candidate) and never what was written to disk; a throw from the
+> git seam must **degrade that one file to `preserve`** rather than take down the whole update; and the
+> `.new` sidecar now has **two sources** — the candidate on row 7, the marked merge on row 9. Then S2b.
+> **S2c is the only part that waits on Thomas** (the box at the top), and nothing else does — so the
+> loop never idles on it.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG

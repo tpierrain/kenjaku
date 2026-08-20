@@ -183,9 +183,17 @@ S1 put on disk. The merge itself arrives as an injected function, so what this r
 *decision*, not git. State owned by
 [`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
 
-| File | First pass | Survivors left |
-|---|---|---|
-| `lib/engine-merge.mjs` | **100.00 %** — 47 killed, 0 survived, 0 timeout | none |
+| File | First pass | After the table was corrected | Survivors left |
+|---|---|---|---|
+| `lib/engine-merge.mjs` | **100.00 %** — 47 killed, 0 survived | **100.00 %** — 57 killed, 0 survived | none |
+
+⚠️ **And a 100 % that was measuring the wrong thing — worth more than the score.** Both passes are
+clean, yet the design under the first one carried a defect that would have **frozen every skill on the
+fleet**: it asked the base's BYTES for questions the recorded sha answers, and `reconcileBrain` runs the
+skill refresh *before* `syncBaseTree` lays the tree down. Every mutant died against a table that was
+internally consistent and wrong at its only real call site. **A mutation score judges the tests against
+the code, never the code against the world** — what caught this was wiring the module to its caller,
+three commits later. Filed here beside the number so the number is not read as more than it is.
 
 **Why a first pass at 100 % is credible here rather than flattering.** The pattern measured on S1
 stands: pure code flatters a test batch, and this slice is pure. What kept the batch honest is that the

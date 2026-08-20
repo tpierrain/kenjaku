@@ -404,6 +404,25 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-20 (night, loop iteration 5) — the wiring caught the DESIGN wrong, before it shipped.**
+  Commit `8d4da37`, pushed, suite **1915 pass / 0 fail**, mutation still **100 %** (57 mutants now).
+  No rewiring landed: the iteration was spent on the defect the rewiring exposed, which was the right
+  trade.
+  - 🛑 **The defect, stated plainly**: the verdict table asked the base's BYTES for every question, and
+    `reconcileBrain` runs the skill refresh at `update-engine.mjs:285` while `syncBaseTree` only lays
+    the tree down at `:340`. On the first update of every brain installed before S1 there is **no
+    ancestor on disk yet** — so every skill, *including untouched ones that must fast-forward*, would
+    have fallen to `preserve`. **The engine would have stopped refreshing skills across the whole
+    fleet, on the release that exists to unfreeze them.**
+  - ⚠️ **A 100 % mutation score did not see it, and could not.** Both passes were clean: every mutant
+    died against a table that was internally consistent and **wrong at its only real call site**. *A
+    mutation score judges the tests against the code, never the code against the world.* Recorded in
+    `RESULTS.md` beside the number so the number is not read as more than it is.
+  - ➡️ **What this changes for the mode**: writing the design into the plan first is what made the
+    defect **findable** (it is a paragraph, re-readable against the call order) rather than a wrong
+    intuition buried in a window. But a design is only validated by **contact with its caller** — so a
+    design-bearing slice is not finished when its own tests are green, it is finished when something
+    downstream has tried to use it. Pull the wiring forward rather than saving it for last.
 - 🌙 **2026-08-20 (night, loop iteration 4) — S2a-2 landed: the merge actually merges.** Commits
   `de19cd9` + `ead71d0`, pushed, suite **1912 pass / 0 fail**, mutation **75 % → 100 %** (numbers in
   `RESULTS.md`). The merge itself now exists end to end: a pure decision and a git seam.
