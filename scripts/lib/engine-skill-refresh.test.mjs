@@ -142,6 +142,41 @@ test("no sidecar for an update that never came, and a stale one is cleared", (t)
   assert.ok(!existsSync(join(trees.brainDir, `${REL}.new`)), "a sidecar nothing backs any more is a lie");
 });
 
+// ── One line per SKILL, not per file ─────────────────────────────────────────
+
+// A skill is a SUBTREE, and an owner who edited two of its files edited ONE skill.
+// What they need to hear is "your coach kept your edits", not a path list — and a
+// conflict named twice reads as two problems to resolve. Both new outcomes are
+// asserted here because each keeps its own list, so each can lose the rule alone.
+test("a skill whose two files both merge, then both clash, is named exactly once", (t) => {
+  const OTHER = ".claude/skills/coach/references/notes.md";
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-refresh-brain-"));
+  const sourceDir = mkdtempSync(join(tmpdir(), "sbg-refresh-src-"));
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const provenance = { [REL]: fp(BASE), [OTHER]: fp(BASE) };
+  const sourceFiles = [REL, OTHER];
+  for (const rel of sourceFiles) {
+    writeInto(brainDir, rel, OWNER);
+    writeInto(brainDir, `.engine-base/${rel}`, BASE);
+  }
+
+  for (const rel of sourceFiles) writeInto(sourceDir, rel, ENGINE);
+  const merged = refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manifest: MANIFEST, provenance });
+  assert.deepEqual(merged.skillsMerged, ["coach"]);
+
+  const clashing = "# Coach\n\nthe intro paragraph, rewritten by the engine\n\nthe body paragraph\n";
+  for (const rel of sourceFiles) {
+    writeInto(brainDir, rel, OWNER);
+    writeInto(sourceDir, rel, clashing);
+  }
+  const clashed = refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manifest: MANIFEST, provenance });
+  assert.deepEqual(clashed.conflicts, [{ skill: "coach", newVersionPath: `${REL}.new` }]);
+  assert.deepEqual(clashed.skillsMerged, []);
+});
+
 // ── When git itself fails ────────────────────────────────────────────────────
 
 // The seam THROWS on a technical failure rather than returning a conflict. If that
