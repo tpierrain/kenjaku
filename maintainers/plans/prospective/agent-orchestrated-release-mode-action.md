@@ -404,6 +404,35 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 10) — S2b-2: a merge that would not parse is never written.**
+  Commit `6ba4348`, pushed, suite **1945 pass / 0 fail**, **100 % on both files, first pass, no
+  survivor** (the carrier went 86 → 106 mutants for four lines of gate, all killed).
+  - 📚 **A lesson written down is a lesson that names the inputs for you next time.** This module is
+    impure — it spawns — and it scored 100 % on its first pass, where the two earlier impure ones
+    landed near 75 %. Nothing about it is easier: **S2a-2's lesson had already been paid**, so the
+    failure shapes went into the batch from the start (a runner that cannot spawn, a null status met
+    *alone* so it cannot hide behind the `error` guard, a status outside `{0, 1}`). The refined rule
+    from iteration 9 predicted this, and it held.
+  - 🧭 **A slice can inherit a risk from what its files ARE, not from what it does to them.** S2a merged
+    documents; S2b merges files the brain **executes**. Nothing in the merge changed — the danger came
+    from the destination. Worth asking of every slice that reuses a mechanism on a new kind of file.
+  - 📐 **The subprocess contract was measured before it was relied on**, the same way `git merge-file`
+    was at S2a-2: `0` parses, `1` does not, `9` means node itself is unhappy. That last one is why
+    *"non-zero means broken"* would have been a bug — read as a verdict it condemns a good file for
+    ever. **A binary-looking exit code is rarely binary**, and the cost of checking was one shell loop.
+  - 🗣️ **Two failure reasons that could have been one, kept apart.** `merge-unsafe` (the merged bytes
+    would not parse) and `merge-failed` (the tool could not answer) are the same *outcome* and
+    different *news*. Merging them would have the engine accuse the owner of breaking something it has
+    no evidence they broke. Third time this chantier has made that call, and it keeps paying.
+  - 🔇 **A verdict with no sentence is a defect, so the sentence shipped in the same slice** — and the
+    part of it that is still wrong (it says *"skill"* about a script) is **pinned as an expectation**
+    rather than left as a note. A known lie that fails a test is a deadline; a known lie in a comment
+    is a wish.
+  - 🪤 **The same too-loose test filter as two iterations ago**: `startsWith("   • ")` also matches the
+    report's furniture. The sibling test already had the right predicate.
+    ➡️ **For the mode**: when a new test asserts on the same output as an existing one, **copy its
+    filter** rather than writing a fresh one. A filter is a claim about the subject, and rewriting it
+    re-opens a question already answered.
 - 🌙 **2026-08-21 (night, loop iteration 9) — S2b-1: the merge's journey to the disk stops belonging
   to the skills.** Commits `3395e1a` + `211cfc5`, pushed, suite **1927 pass / 0 fail**, **100 % on both
   files, first pass, no survivor**.

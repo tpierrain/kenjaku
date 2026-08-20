@@ -169,6 +169,41 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S2b's syntax gate — `engine-script-check.mjs`, on bytes that exist nowhere else — 2026-08-21
+
+Second slice of S2b: the merge's output is parsed before it is written, because S2b's four files are
+**executed** at every session. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors |
+|---|---|---|
+| `lib/engine-script-check.mjs` | **100.00 %** — 26 killed, 0 survived | none |
+| `lib/engine-merge-apply.mjs` (the gate's wiring) | **100.00 %** — 106 killed, 0 survived | none |
+
+The carrier went **86 → 106 mutants**: twenty new ones for a gate that is four lines, and all twenty
+killed. That ratio is the point of measuring the whole file — a branch this small is exactly the kind
+a diff-shaped review waves through, and it is the branch standing between a merged `auto-commit.mjs`
+and a brain that quietly stops saving itself.
+
+✅ **The refined rule from S2b-1 held, and this is the run that confirms it.** This module is impure by
+construction — it spawns a subprocess — and it scored **100 % on its first pass**, where S1's fs
+orchestrator and S2a-2's git seam both landed near 75 %. The difference is not purity: **S2a-2's
+lesson had already been paid**, so the failure shapes were enumerated in the batch from the start (a
+runner that cannot spawn, a null status met *alone* so it cannot hide behind the `error` guard, and a
+status outside `{0, 1}`). *A first pass measures how well the inputs were named* — and a lesson written
+down is a lesson that names them for you the next time.
+
+- 🧭 **The exit-code contract was measured before being relied on.** `0` parses, `1` does not, and an
+  unknown flag exits `9`. Treating "non-zero" as "broken" would have condemned a good file for ever the
+  day node itself complained, so anything outside `{0, 1}` throws. **A binary-looking exit code is
+  rarely binary**, and the cost of finding out was one shell loop.
+- ⚠️ **Three tests in the batch pass against a skeleton returning a constant `false`** (the "does not
+  parse" cases). They are not weak: their *positive* twins sit beside them and are red against the same
+  skeleton, so the pair is what discriminates. A negative contract asserted alone is the shape to
+  distrust.
+
+---
+
 ## S2b's extraction — `engine-merge-apply.mjs`, the merge's journey to the disk — 2026-08-21
 
 First slice of S2b: `refreshUntouchedSkills`'s inner loop becomes a carrier that knows nothing about

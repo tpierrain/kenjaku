@@ -161,14 +161,17 @@
 > engine-owned file; the skills are its first client. **100 % on both files, first pass**, and the
 > mutant count (113 → 86 + 28) is what proves it was a move and not a rewrite.
 >
-> **▶️ RESUME AT: S2b-2 — the syntax gate.** `engine-script-check.mjs` against a **real**
-> `node --check --input-type=module -` (a subprocess contract proven by a stub proves nothing), plus
-> the carrier's `verifyWrite` seam and the `merge-unsafe` degradation, driven through an injected merge
-> that returns broken bytes. It exists because S2b's four files are **executed** at every session: a
-> clean line-based merge can produce bytes that parse to nothing, and those bytes exist nowhere but
-> that one machine. Skills pass no gate, so they stay untouched. Then S2b-3 (the switch, in ONE commit)
-> and S2b-4 (the named debt) — both detailed in § S2b below. **S2c is the only part that waits on
-> Thomas** (the box at the top), and nothing else does.
+> ✅ **S2b-2 IS DONE — a merge that would not parse is never written** _(2026-08-21 · `6ba4348`)_. The
+> merge's OUTPUT is parsed under the brain's own node before it reaches the disk, and only the merge's
+> output; `merge-unsafe` and `merge-failed` say different things, and the report can say both.
+>
+> **▶️ RESUME AT: S2b-3 — the switch, and it is ONE commit.** `computeApplyPlan`'s bucket renames
+> (`replaceScripts` → `mergeScripts`) and **leaves `copyGlobs`**, the script refresh is wired into
+> `reconcileBrain` with the syntax gate as its `verifyWrite`, and the report gains sentences that say
+> *file*, not *skill* (the known lie S2b-2 pinned). ⚠️ **Split across two commits there would exist a
+> commit in which the four scripts are delivered by nobody** — a fleet that silently stops receiving
+> `auto-commit` fixes. Then S2b-4 (the named debt, now four lines) — detailed in § S2b below. **S2c is
+> the only part that waits on Thomas** (the box at the top), and nothing else does.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -781,10 +784,30 @@ audible divergence.
         - [x] `mergeWithGit` takes its temp root as a seam now; the test hands it a private one and
               asserts it EMPTY first, so a passing sweep means the merges cleaned up rather than that
               the directory was never theirs.
-    - [ ] **S2b-2 — the syntax gate.** `engine-script-check.mjs` against a **real** `node --check` (a
-          subprocess contract proven by a stub proves nothing — S2a-2's lesson), plus the core's
-          `verifyWrite` seam and the `merge-unsafe` degradation, driven through an injected merge that
-          returns broken bytes. Skills pass no gate, so they are untouched.
+    - [x] **S2b-2 — the syntax gate** _(2026-08-21 · `6ba4348`)_ — `engine-script-check.mjs` against a
+          **real** `node --check --input-type=module -`, plus the carrier's `verifyWrite` seam and the
+          `merge-unsafe` degradation. Skills pass no gate, so they are untouched, and that default is
+          asserted rather than assumed. **100 % on both files, first pass, no survivor** _(numbers owned
+          by [`RESULTS.md` § S2b's syntax gate](../../mutation/RESULTS.md#s2bs-syntax-gate--engine-script-checkmjs-on-bytes-that-exist-nowhere-else--2026-08-21))_ —
+          and the carrier went **86 → 106 mutants** for four lines of gate, every one of them killed.
+      - [x] **The exit-code contract was measured, not assumed**: `0` parses, `1` does not, and
+            **every other code means node itself is unhappy** (an unknown flag exits `9`). Read as a
+            verdict a `9` would condemn a good file for ever, so anything outside `{0, 1}` **throws** —
+            the same shape, and the same reason, as the git seam's failures.
+      - [x] **`merge-unsafe` and `merge-failed` stay separate.** One says the merged file would not have
+            parsed; the other says the tool could not answer. Folded together, the engine accuses the
+            owner of breaking something it has no evidence they broke, and sends them hunting through a
+            file that is fine.
+      - [x] **The report gained its sentence in the SAME slice**: a verdict nobody can hear is a defect,
+            and shipping the gate without one would have S2b-3 preserving an owner's script in silence.
+            ⚠️ That sentence still says *"skill"* — a **known lie, pinned as a failing expectation**
+            until S2b-3 gives the scripts their own wording.
+      - [x] **The gate runs under the brain's OWN node** (`process.execPath`), not whatever is first on
+            `PATH`: a brain on an older interpreter would otherwise be told its files are fine by a
+            parser it never runs.
+      - [x] **A test filter caught being too loose, again**: a bare `startsWith("   • ")` also matches
+            the standard report's furniture. Same defect as the one S2a-3b already paid for — the
+            sibling test's predicate is the one to copy.
     - [ ] **S2b-3 — the switch, and it is ONE commit.** The bucket renames and leaves `copyGlobs`, the
           script refresh is wired into `reconcileBrain`, and the report gains its sentences. ⚠️ **Split
           across two commits there would exist a commit in which the four scripts are delivered by
