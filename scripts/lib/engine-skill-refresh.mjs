@@ -10,12 +10,12 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
-import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
-// Line endings are NOT authorship: a Windows checkout/editor can rewrite LF→CRLF
-// without anyone touching a word, and the recorded base was fingerprinted on the LF
-// content the engine delivered. ONE definition, shared with the base's own proof —
-// the two must never drift apart, they answer the same question about the same sha.
-import { normalizeEol } from "./engine-base.mjs";
+import { selectMergeFiles } from "./engine-source.mjs";
+// WHERE the ancestor lives. The proof itself, and every question asked of it, belong
+// to `engine-merge.mjs` — this module reads bytes and writes bytes, nothing more.
+import { baseRelPath } from "./engine-base.mjs";
+import { mergeVerdict } from "./engine-merge.mjs";
+import { mergeWithGit } from "./engine-merge-git.mjs";
 import { resolveLocaleSource } from "./engine-copy-select.mjs";
 import { readBrainLocale } from "./brain-locale.mjs";
 // SKILLS_PREFIX = the runtime home of the skills a brain uses; STAGING_PREFIX = where a
@@ -47,29 +47,6 @@ export function refreshableSkillPairs({ sourceFiles, manifest }) {
   return [...merge, ...staged];
 }
 
-function matchesBase(installed, base) {
-  return fingerprint(installed) === base || fingerprint(normalizeEol(installed)) === base;
-}
-
-// The verdict for ONE file, given what the brain has on disk (`installed`, null/undefined
-// when absent), the provenance base the engine recorded when it last delivered it
-// (`base`), and the content the update would deliver (`candidate`):
-//   • absent-install — nothing on disk → deliver it;
-//   • preserve (reason: customized | no-provenance) — the owner's copy stands;
-//   • unchanged — provably untouched and already up to date → write nothing;
-//   • refresh — provably untouched and outdated → overwrite.
-export function refreshVerdict({ installed, base, candidate }) {
-  if (installed === null || installed === undefined) return { verdict: "absent-install" };
-  // No base recorded → "untouched" is UNPROVABLE (not "customized"): keep the owner's
-  // copy either way, but the two deserve different prose in the update report.
-  if (!base) return { verdict: "preserve", reason: "no-provenance" };
-  if (!matchesBase(installed, base)) return { verdict: "preserve", reason: "customized" };
-  // Untouched AND already the candidate → write nothing: a converged brain must stay
-  // byte-identical, or every update would churn the auto-commit history for a no-op.
-  if (normalizeEol(installed) === normalizeEol(candidate)) return { verdict: "unchanged" };
-  return { verdict: "refresh" };
-}
-
 // The skill a rel path belongs to: `.claude/skills/switch/SKILL.md` → `switch`.
 const skillNameOf = (rel) => rel.slice(SKILLS_PREFIX.length).split("/")[0];
 
@@ -80,50 +57,94 @@ const skillNameOf = (rel) => rel.slice(SKILLS_PREFIX.length).split("/")[0];
 // ⚠️ GUARD: `sourceDir === brainDir` means SessionStart self-heal — no new content, and
 // nobody asked for anything. A skill is only ever overwritten during an update the owner
 // explicitly requested (auto-finalize hands the reconciler the FETCHED source).
-export function refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manifest, provenance = {} }) {
+export function refreshUntouchedSkills({
+  brainDir,
+  sourceDir,
+  sourceFiles,
+  manifest,
+  provenance = {},
+  merge = mergeWithGit,
+}) {
   const skillsRefreshed = [];
   const skillsPreserved = [];
+  const skillsMerged = [];
+  const conflicts = [];
   const refreshedFileMap = {};
-  if (resolve(sourceDir) === resolve(brainDir)) return { skillsRefreshed, skillsPreserved, refreshedFileMap };
+  const report = { skillsRefreshed, skillsPreserved, skillsMerged, conflicts, refreshedFileMap };
+  if (resolve(sourceDir) === resolve(brainDir)) return report;
 
   const locale = readBrainLocale(brainDir);
+  // Reported per SKILL, not per file: what the owner needs to hear is "your prepare-1-1
+  // stands as you wrote it", not a list of paths.
+  const noteOnce = (list, entry) => {
+    if (!list.some((seen) => seen.skill === entry.skill)) list.push(entry);
+  };
+
   for (const { rel, sourceRel } of refreshableSkillPairs({ sourceFiles, manifest })) {
     const candidate = readFileSync(join(sourceDir, resolveLocaleSource({ rel: sourceRel, locale, sourceFiles })), "utf8");
     const installedPath = join(brainDir, rel);
     const installed = existsSync(installedPath) ? readFileSync(installedPath, "utf8") : null;
-    const { verdict, reason } = refreshVerdict({ installed, base: provenance[rel], candidate });
+    // The ancestor is read HERE rather than handed in: this module already holds
+    // `brainDir` and already reads the disk, so the merge reaches the skills without a
+    // single caller signature changing. A brain that has never held a tree simply reads
+    // `null`, which is `verifyBase`'s `absent` — and the verdict degrades accordingly.
+    const basePath = join(brainDir, baseRelPath(rel));
+    const baseContent = existsSync(basePath) ? readFileSync(basePath, "utf8") : null;
     const skill = skillNameOf(rel);
+
+    let outcome;
+    try {
+      outcome = mergeVerdict({ installed, recorded: provenance[rel], baseContent, candidate, merge });
+    } catch {
+      // The merge seam throws on a TECHNICAL failure (a git that cannot run), never on a
+      // conflict. Letting that escape would take a whole update down over one skill, so
+      // this file degrades to what a brain with no ancestor gets — the owner's copy
+      // stands, the engine's version waits beside it — and the run goes on.
+      outcome = { verdict: "preserve", reason: "merge-failed", sidecar: candidate };
+    }
+    const { verdict, reason, write, deliver, sidecar } = outcome;
+
     // A sidecar left by a previous update is a claim ("a newer version awaits") that only
-    // ONE verdict still backs: `preserve: customized`. Any other verdict makes it a lie —
-    // the owner already adopted it, or we just refreshed the file under it — so it goes.
-    // Cleared UNCONDITIONALLY, and the customized branch below re-drops it: guarding this
-    // on the verdict would be redundant with that write (rm-then-write and write-alone
-    // leave the same bytes), i.e. a condition no test could ever tell apart.
+    // two verdicts still back: a preserved customization, and a real conflict. Any other
+    // makes it a lie — the owner adopted it, or we just merged under it — so it goes.
+    // Cleared UNCONDITIONALLY, and the branches below re-drop it where it is still true:
+    // guarding this on the verdict would be redundant with that write (rm-then-write and
+    // write-alone leave the same bytes), i.e. a condition no test could tell apart.
     rmSync(`${installedPath}.new`, { force: true });
-    // `absent-install` writes down the SAME path as `refresh`: a skill is a SUBTREE, and
-    // install-if-absent decides at the skill-DIR level (`reconcile-brain.mjs` step 2.bis),
-    // so a `references/`/`examples/` file a release adds under a skill the brain ALREADY
-    // has is invisible to it. Dropping the verdict here would leave that file unreachable
-    // by any number of updates — the core/skill drift of this increment, one level down.
-    if (verdict === "refresh" || verdict === "absent-install") {
+
+    // ONE place decides whether bytes reach the disk, and it is byte equality: a merge
+    // whose result is what was already installed must not churn the auto-commit history
+    // for a no-op, and neither must a converged brain.
+    if (write !== undefined && write !== installed) {
       mkdirSync(dirname(installedPath), { recursive: true });
-      writeFileSync(installedPath, candidate);
-      refreshedFileMap[rel] = candidate;
+      writeFileSync(installedPath, write);
+    }
+    // 🛑 What the engine DELIVERED, never what was written. On a clean merge those are
+    // different bytes, and this map feeds `reseedProvenance` and `syncBaseTree`: recording
+    // the merged file as the ancestor would make it read untouched at the next update, and
+    // the fast-forward would clobber the edit that was just preserved.
+    if (deliver !== undefined) refreshedFileMap[rel] = deliver;
+    // "Never overwritten" must not mean "never offered": the engine's version (or, on a
+    // conflict, the marked-up merge — everything mergeable already merged) lands BESIDE
+    // the owner's so adopting it stays their call. `.new` is not a `SKILL.md`: nothing
+    // loads it. A `no-provenance` preserve gets none: it says we cannot PROVE anything,
+    // and littering an older brain with unexplained sidecars would be noise, not a choice.
+    if (sidecar !== undefined) writeFileSync(`${installedPath}.new`, sidecar);
+
+    // `absent-install` reports down the SAME path as `refresh`: a skill is a SUBTREE, and
+    // install-if-absent decides at the skill-DIR level (`reconcile-brain.mjs` step 2.bis),
+    // so a `references/` file a release adds under a skill the brain ALREADY has is
+    // invisible to it. Dropping it here would leave that file unreachable by any number of
+    // updates — the core/skill drift of increment 2.5, one level down.
+    if (verdict === "refresh" || verdict === "absent-install") {
       if (!skillsRefreshed.includes(skill)) skillsRefreshed.push(skill);
+    } else if (verdict === "merge") {
+      if (!skillsMerged.includes(skill)) skillsMerged.push(skill);
+    } else if (verdict === "conflict") {
+      noteOnce(conflicts, { skill, newVersionPath: `${rel}.new` });
     } else if (verdict === "preserve") {
-      // "Never overwritten" must not mean "never offered": drop the engine's version
-      // BESIDE the owner's (conffile fallback) so adopting it stays their call. Only
-      // when they actually customized it — a `no-provenance` preserve says we cannot
-      // PROVE anything, and littering an older brain with 9 unexplained `.new` files
-      // would be noise, not a choice. `.new` is not a `SKILL.md`: nothing loads it.
-      const newVersionPath = reason === "customized" ? `${rel}.new` : undefined;
-      if (newVersionPath) writeFileSync(join(brainDir, newVersionPath), candidate);
-      // Reported per SKILL, not per file: what the owner needs to hear is "your
-      // prepare-1-1 stands as you wrote it", not a list of paths.
-      if (!skillsPreserved.some((p) => p.skill === skill)) {
-        skillsPreserved.push(newVersionPath ? { skill, reason, newVersionPath } : { skill, reason });
-      }
+      noteOnce(skillsPreserved, sidecar === undefined ? { skill, reason } : { skill, reason, newVersionPath: `${rel}.new` });
     }
   }
-  return { skillsRefreshed, skillsPreserved, refreshedFileMap };
+  return report;
 }

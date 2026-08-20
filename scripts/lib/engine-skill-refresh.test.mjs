@@ -1,119 +1,172 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 
-import { fingerprint } from "./engine-source.mjs";
-import { refreshableSkillPairs, refreshVerdict, selectRefreshableSkillFiles } from "./engine-skill-refresh.mjs";
+import { refreshUntouchedSkills, refreshableSkillPairs, selectRefreshableSkillFiles } from "./engine-skill-refresh.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// engine-skill-refresh — the PURE verdict behind "refresh an engine skill only
-// if we can PROVE nobody touched it" (plan Increment 2.5, Step 1). Given what the
-// brain has on disk, the provenance base the engine recorded when it last delivered
-// the file, and the candidate new content, it answers: install it / refresh it /
-// preserve the owner's version. No fs, no side effects.
+// engine-skill-refresh — the I/O orchestrator that carries S2's verdict to the
+// skills (plan S2a-3). The DECISION itself moved out to `engine-merge.mjs` and is
+// tested there against its nine rows; what is tested here is what reaches the
+// disk, since that is all this module does.
+//
+// Until this slice, "the owner touched it" had exactly one outcome: preserve, and
+// drop the engine's version beside it forever. Now the common case — they edited
+// one region, the engine another — MERGES, and only a real clash still costs
+// anyone anything.
+//
+// House pattern for an fs-touching lib module: real `node:fs` against a temp dir,
+// and real git for the merges. A double that ignores its arguments certifies
+// nothing, and this module's whole job IS its arguments reaching the disk.
 // ═══════════════════════════════════════════════════════════════════════════
 
-test("a file the brain does not have yet → install it", () => {
-  assert.deepEqual(
-    refreshVerdict({ installed: null, base: undefined, candidate: "# new skill\n" }),
-    { verdict: "absent-install" },
-  );
+const fp = (content) => "sha256:" + createHash("sha256").update(content).digest("hex");
+
+const REL = ".claude/skills/coach/SKILL.md";
+const BASE = "# Coach\n\nthe intro paragraph\n\nthe body paragraph\n";
+const OWNER = "# Coach\n\nthe intro paragraph, extended by the owner\n\nthe body paragraph\n";
+const ENGINE = "# Coach\n\nthe intro paragraph\n\nthe body paragraph\n\n## A section the engine added\n\nnew\n";
+const MERGED = "# Coach\n\nthe intro paragraph, extended by the owner\n\nthe body paragraph\n\n## A section the engine added\n\nnew\n";
+
+const MANIFEST = { regimes: { merge: [".claude/skills/coach/**"], local: [".engine-base/**"] } };
+
+function writeInto(root, rel, content) {
+  const abs = join(root, rel);
+  mkdirSync(dirname(abs), { recursive: true });
+  writeFileSync(abs, content);
+  return abs;
+}
+
+// One brain, one source tree, both real. `sourceDir === brainDir` is the
+// SessionStart self-heal guard, so they must never be the same directory.
+function twoTrees(t, { installed, base, candidate = ENGINE, extra = {} }) {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-refresh-brain-"));
+  const sourceDir = mkdtempSync(join(tmpdir(), "sbg-refresh-src-"));
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  if (installed !== undefined) writeInto(brainDir, REL, installed);
+  if (base !== undefined) writeInto(brainDir, `.engine-base/${REL}`, base);
+  writeInto(sourceDir, REL, candidate);
+  for (const [rel, content] of Object.entries(extra)) writeInto(sourceDir, rel, content);
+  return { brainDir, sourceDir, sourceFiles: [REL, ...Object.keys(extra)] };
+}
+
+const run = ({ brainDir, sourceDir, sourceFiles }, { provenance, ...rest } = {}) =>
+  refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manifest: MANIFEST, provenance, ...rest });
+
+const onDisk = (brainDir, rel = REL) => readFileSync(join(brainDir, rel), "utf8");
+
+// ── The case this whole chantier exists for ──────────────────────────────────
+
+// The owner edited one paragraph, the engine added a section. Today this costs the
+// owner the update, permanently and silently; here both land, through real git.
+test("the owner's edit and the engine's update both land, and the BASE gets the candidate", (t) => {
+  const trees = twoTrees(t, { installed: OWNER, base: BASE });
+  const report = run(trees, { provenance: { [REL]: fp(BASE) } });
+
+  assert.equal(onDisk(trees.brainDir), MERGED);
+  assert.deepEqual(report.skillsMerged, ["coach"]);
+  assert.deepEqual(report.skillsRefreshed, []);
+  assert.deepEqual(report.skillsPreserved, []);
+  // THE trap, at its only real call site: the map feeds `reseedProvenance` and
+  // `syncBaseTree`, so it must carry what the ENGINE delivered. Carrying the merged
+  // bytes would make the file read untouched at the next update, and the
+  // fast-forward would clobber the very edit that was just preserved.
+  assert.deepEqual(report.refreshedFileMap, { [REL]: ENGINE });
+  assert.ok(!existsSync(join(trees.brainDir, `${REL}.new`)), "a clean merge asks the owner for nothing");
 });
 
-test("installed file still byte-identical to the recorded base → refresh it", () => {
-  const delivered = "# switch (v3.6.0)\n";
-  assert.deepEqual(
-    refreshVerdict({
-      installed: delivered,
-      base: fingerprint(delivered),
-      candidate: "# switch (v3.6.2)\n",
-    }),
-    { verdict: "refresh" },
-  );
+// The one case that costs a human anything: both sides rewrote the same line. The
+// engine keeps its hands off the file entirely, and hands over a marked-up copy —
+// which is worth more than the bare candidate, since everything mergeable is
+// already merged in it.
+test("a real clash leaves the file alone and hands over a MARKED merge, not the bare candidate", (t) => {
+  const theirs = "# Coach\n\nthe intro paragraph, rewritten by the engine\n\nthe body paragraph\n";
+  const trees = twoTrees(t, { installed: OWNER, base: BASE, candidate: theirs });
+  const report = run(trees, { provenance: { [REL]: fp(BASE) } });
+
+  assert.equal(onDisk(trees.brainDir), OWNER, "the owner's file is never touched on a conflict");
+  assert.deepEqual(report.conflicts, [{ skill: "coach", newVersionPath: `${REL}.new` }]);
+  assert.deepEqual(report.skillsMerged, []);
+  // Absent from the map: the engine delivered nothing, so the base must stand where
+  // it is. An advanced base would claim content this file never received.
+  assert.deepEqual(report.refreshedFileMap, {});
+  const sidecar = onDisk(trees.brainDir, `${REL}.new`);
+  assert.ok(sidecar.includes("<<<<<<< your version"), "the markers name the sides");
+  assert.ok(sidecar.includes("extended by the owner") && sidecar.includes("rewritten by the engine"));
 });
 
-test("CRLF copy of the candidate itself → still nothing to do", () => {
-  // Same content, Windows line endings: rewriting it would flip the file to LF at
-  // every single update (autocrlf puts the CRLFs back) — pure churn, zero gain.
-  const candidate = "# switch (v3.6.2)\nline two\n";
-  const installed = candidate.split("\n").join("\r\n");
-  assert.deepEqual(
-    refreshVerdict({ installed, base: fingerprint(candidate), candidate }),
-    { verdict: "unchanged" },
-  );
+// ── The fleet, which holds no ancestor yet ───────────────────────────────────
+
+// `reconcileBrain` runs this refresh BEFORE `syncBaseTree` lays the tree down, so
+// on the first update of every brain installed before S1 there is no ancestor at
+// all. Both halves of today's behaviour must survive that, or the release that
+// exists to unfreeze skills would freeze them instead.
+test("with no ancestor on disk, a customized skill degrades to exactly today's behaviour", (t) => {
+  const trees = twoTrees(t, { installed: OWNER });
+  const report = run(trees, { provenance: { [REL]: fp(BASE) } });
+
+  assert.equal(onDisk(trees.brainDir), OWNER);
+  assert.deepEqual(report.skillsPreserved, [{ skill: "coach", reason: "customized", newVersionPath: `${REL}.new` }]);
+  assert.equal(onDisk(trees.brainDir, `${REL}.new`), ENGINE, "the sidecar is the engine's version, as before");
+  assert.deepEqual(report.refreshedFileMap, {});
 });
 
-test("owner customized the file (hash no longer matches the base) → preserve it", () => {
-  const delivered = "# prepare-1-1 (v3.6.0)\n";
-  assert.deepEqual(
-    refreshVerdict({
-      installed: delivered + "\nMy own KPIs section.\n", // the documented customization case
-      base: fingerprint(delivered),
-      candidate: "# prepare-1-1 (v3.6.2)\n",
-    }),
-    { verdict: "preserve", reason: "customized" },
-  );
+test("with no ancestor on disk, an UNTOUCHED skill still fast-forwards", (t) => {
+  const trees = twoTrees(t, { installed: BASE });
+  const report = run(trees, { provenance: { [REL]: fp(BASE) } });
+
+  assert.equal(onDisk(trees.brainDir), ENGINE);
+  assert.deepEqual(report.skillsRefreshed, ["coach"]);
+  assert.deepEqual(report.refreshedFileMap, { [REL]: ENGINE });
 });
 
-test("no provenance base recorded (pre-provenance brain) → preserve, but say WHY", () => {
-  // Nothing was ever fingerprinted for this file, so "untouched" is UNPROVABLE — we
-  // still keep the owner's copy, but the report must not call them a customizer.
-  assert.deepEqual(
-    refreshVerdict({ installed: "# switch\n", base: undefined, candidate: "# switch v2\n" }),
-    { verdict: "preserve", reason: "no-provenance" },
-  );
+// ── The noise this slice removes ─────────────────────────────────────────────
+
+// Today a customized skill is handed a `.new` at EVERY update, even when the engine
+// has shipped nothing new — a sidecar byte-identical to the base. It teaches owners
+// to ignore the one sidecar that will matter when a real conflict comes.
+test("no sidecar for an update that never came, and a stale one is cleared", (t) => {
+  const trees = twoTrees(t, { installed: OWNER, base: BASE, candidate: BASE });
+  writeInto(trees.brainDir, `${REL}.new`, "a claim left by a previous run\n");
+  const report = run(trees, { provenance: { [REL]: fp(BASE) } });
+
+  assert.equal(onDisk(trees.brainDir), OWNER);
+  assert.deepEqual(report.skillsPreserved, []);
+  assert.deepEqual(report.conflicts, []);
+  assert.ok(!existsSync(join(trees.brainDir, `${REL}.new`)), "a sidecar nothing backs any more is a lie");
 });
 
-test("a base is recorded but the file is gone from disk → install it back", () => {
-  // Absence is whatever the fs seam reports for "no content" (null OR undefined) —
-  // a recorded base must never turn a missing file into a "preserve".
-  const delivered = "# switch (v3.6.0)\n";
-  for (const missing of [null, undefined]) {
-    assert.deepEqual(
-      refreshVerdict({ installed: missing, base: fingerprint(delivered), candidate: "# switch (v3.6.2)\n" }),
-      { verdict: "absent-install" },
-    );
-  }
-});
+// ── When git itself fails ────────────────────────────────────────────────────
 
-test("already carrying the candidate content → nothing to do (no write, no churn)", () => {
-  // The steady state of an up-to-date brain: re-running the update must NOT rewrite
-  // the file, or every session would produce auto-commit noise for a no-op.
-  const current = "# switch (v3.6.2)\n";
-  assert.deepEqual(
-    refreshVerdict({ installed: current, base: fingerprint(current), candidate: current }),
-    { verdict: "unchanged" },
-  );
-});
+// The seam THROWS on a technical failure rather than returning a conflict. If that
+// throw escaped, one hiccup on one skill would take down the whole update — so it
+// degrades this file to what a brain without an ancestor gets, and the run goes on.
+test("a git that cannot run costs one skill its merge, not the whole update", (t) => {
+  const trees = twoTrees(t, {
+    installed: OWNER,
+    base: BASE,
+    extra: { ".claude/skills/coach/references/notes.md": "a reference file the engine adds\n" },
+  });
+  const report = run(trees, {
+    provenance: { [REL]: fp(BASE) },
+    merge: () => {
+      throw new Error("git merge-file could not run: ENOENT");
+    },
+  });
 
-test("a base RECORDED on CRLF bytes still matches its own file → refresh, not 'customized'", () => {
-  // The mirror image of the drift case below. On Windows, `git clone` with autocrlf hands
-  // the engine CRLF bytes, so what it DELIVERED — and therefore fingerprinted as the base —
-  // is CRLF. At the next update the file still matches that base RAW, but no longer once
-  // normalized. Comparing the normalized form alone would freeze the whole Windows fleet as
-  // "customized"; the raw comparison is what keeps them refreshable.
-  const deliveredCrlf = "# switch (v3.6.0)\r\nline two\r\n";
+  assert.equal(onDisk(trees.brainDir), OWNER, "the owner's file is never the casualty of a broken tool");
+  assert.deepEqual(report.skillsPreserved, [{ skill: "coach", reason: "merge-failed", newVersionPath: `${REL}.new` }]);
+  assert.equal(onDisk(trees.brainDir, `${REL}.new`), ENGINE);
   assert.deepEqual(
-    refreshVerdict({
-      installed: deliveredCrlf,
-      base: fingerprint(deliveredCrlf),
-      candidate: "# switch (v3.6.2)\nline two\n",
-    }),
-    { verdict: "refresh" },
-  );
-});
-
-test("Windows CRLF drift is NOT a customization → still refresh it", () => {
-  // A Windows brain whose checkout/editor rewrote the line endings differs from the
-  // base BYTE-wise while nobody edited a word. Freezing those brains forever would
-  // hand the whole Windows fleet the very bug this increment fixes.
-  const delivered = "# switch (v3.6.0)\nline two\n";
-  assert.deepEqual(
-    refreshVerdict({
-      installed: delivered.split("\n").join("\r\n"),
-      base: fingerprint(delivered),
-      candidate: "# switch (v3.6.2)\nline two\n",
-    }),
-    { verdict: "refresh" },
+    report.refreshedFileMap,
+    { ".claude/skills/coach/references/notes.md": "a reference file the engine adds\n" },
+    "the other file of the same run still gets delivered",
   );
 });
 
