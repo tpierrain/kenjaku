@@ -404,6 +404,23 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-20 (night, loop iteration 2) — S2's DESIGN is written and committed. No code, on
+  purpose.** The heaviest design of the chantier now lives in the owning plan (verdict table, merge
+  engine, module boundaries, three slices, what is out) instead of in a window that a compaction would
+  empty. **Next: S2a**, the merge core, test-first — the eight rows of the table are its test list.
+  - **One arbitration raised, and it blocks one slice out of three.** *May the engine write
+    `CLAUDE.md`?* Written as a blocking box at the top of the owning plan; S2a and S2b do not wait on
+    it, so the loop keeps moving — which is the perimeter rule doing exactly its job.
+  - **What was dispatched: the reading, again.** One `Explore` subagent returned the ordered update
+    path, the manifest's four regimes verbatim, where the `.new` sidecar is written and where the
+    report is printed. `update-engine.mjs` (485 lines) and the manifest never entered this window; the
+    four modules the design actually reasons about (~420 lines, all small) were read here, where the
+    design was being made. **The split held: bulk out, substance in.**
+  - 🔬 **A design slice can still be MEASURED, and this one was**: `git merge-file -p --diff3` was run
+    on real fixtures before being chosen — clean on the paragraph-vs-appended-section case, conflicting
+    on adjacent lines. Three commands, and the design stopped being an opinion. **The lesson for the
+    mode**: "no tests and no mutation score" is not "no evidence" — a design slice's cheapest guard is
+    a five-minute experiment on the mechanism it is about to commit to.
 - 🌙 **2026-08-20 (night, loop iteration 1) — S1's LAST slice landed: the base tree exists on disk.**
   Commit `74de7e8`, pushed on `feat/engine-base-unfreeze`, suite **1883 pass / 0 fail**. The slice was
   kept **in session**, correctly: it is the one that decides the tree's own regime (a design call), and

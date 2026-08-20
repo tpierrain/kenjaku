@@ -6,6 +6,34 @@
 <!-- delegation. See ROADMAP.md § DIVERSION LIFTED.                              -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
+> ## 🛑 WAITING ON THOMAS — one arbitration, and it blocks **S2c ONLY** (raised 2026-08-20)
+>
+> **Nothing else waits.** S2a (the merge core) and S2b (the four engine scripts) are unblocked and are
+> where the work continues; this box exists so the question is not guessed in his place.
+>
+> **May the engine write `CLAUDE.md`?** S2 turns the sacred scrub from *"never written"* into *"never
+> written **blind**"* — a merge-governed door that can only ever lay down the output of a three-way
+> merge from a **provable** base, and never on a conflict. The two files behind that door are
+> `.claude/settings.json` (already engine-written today, surgically: hooks, status line) and
+> **`CLAUDE.md`, the constitution — the most personal file in the product**. Opening it is a doctrine
+> call, not a technical one, so it is his.
+>
+> - [ ] 🛑 **The question**: is the engine allowed to land its own updates inside a brain's `CLAUDE.md`
+>       (owner's edits preserved, conflicts never written and reported instead)? Or does the
+>       constitution stay untouchable **by policy**, with the engine's own doctrine reaching brains only
+>       through `CLAUDE.engine.md` (S5's file, the layer built exactly for that)?
+> - [ ] **What is already measured, so the answer is not abstract** _(2026-08-20)_: on the live brain
+>       `CLAUDE.md` is **diverged from its recorded base**, so S1's seeding defers it — the fleet holds
+>       **no ancestor** for it and cannot merge it today whatever the answer. An ancestor is
+>       *reconstructible* (a brain keeps `CLAUDE.md.template` **and** `installer.mjs` on disk, both frozen
+>       at its install version and, like `CLAUDE.engine.md`, **in no regime at all**), but that
+>       reconstruction is a machine to build, not a line to flip.
+> - [ ] **If the answer is "no"**: S2c shrinks to `.claude/settings.json` + the wording of the scrub, and
+>       the constitution's freeze becomes a stated policy instead of an accident — which is itself worth
+>       shipping, since today's silence reads as the second.
+> - [ ] **If the answer is "yes"**: S2c keeps the door, and the ancestor-reconstruction machine becomes
+>       its own slice (it is bigger than the merge itself).
+
 > ## ▶️ UNPAUSED — this plan is live again (owner, 2026-08-19)
 >
 > The Graph-Engineering framing happened and turned out to be about **how this release gets built**
@@ -99,14 +127,18 @@
 > [PR #76](https://github.com/tpierrain/kenjaku/pull/76), based on the S0bis branch so **#75 keeps its
 > own perimeter**. Nothing merged, nothing tagged.)_
 >
-> **▶️ RESUME AT: S2 — the three-way merge itself. START BY WRITING ITS DESIGN INTO THIS PLAN**, before
-> a line of test: a design that lives only in a session's window does not survive the compaction it will
-> meet, and S2 is the heaviest design of the chantier. S1 is complete: the ancestor now exists on disk,
-> which was the one input S2 was missing. ⚠️ Before designing it, note what S1 deliberately did **not**
-> change: `CLAUDE.md` and `.claude/settings.json` are still **SACRED** in `engine-apply-plan.mjs`, so
-> even with a perfect merge the engine may not write them. **That scrub is S2's real subject**, not the
-> diff algorithm.
+> ✅ **S2's DESIGN IS WRITTEN AND COMMITTED** _(2026-08-20)_ — the whole shape lives in the S2 block of
+> the Tracking below: the verdict table, the merge engine's choice and its measurement, the rule that
+> **the base advances to what the engine DELIVERED while the disk receives the MERGE**, the three slices
+> (S2a / S2b / S2c) and what is deliberately out. Nothing of it is left in a session's window.
 >
+> **▶️ RESUME AT: S2a — the merge core, test-first.** `scripts/lib/engine-merge.mjs` (pure) +
+> `scripts/lib/engine-merge-git.mjs` (the one impure seam), then `mergeVerdict` replacing
+> `refreshVerdict`, then the skill refresher wired onto it. The eight rows of S2's verdict table are the
+> test list; write them red on their assertions first. **S2c is the only part that waits on Thomas**
+> (the box below), and S2a/S2b do not — so the loop never idles on it.
+>
+
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
 > (the indexer walks `vault/` only, and `.engine-base/` is its sibling at the brain root), to
 > `lint-vault.mjs` and to `consolidate-scan.mjs` (same, they default to `vault/`); it **is** swept by
@@ -444,6 +476,126 @@ audible divergence.
   - [ ] both changed the same region → a **real conflict**, the only case that costs a human anything,
         and the only one that should produce a sidecar or a question.
   - [ ] Markdown-aware where it pays (doctrine and skills are section-structured), line-based otherwise.
+
+  - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-20)_.
+        Written into this file rather than held in a window, because a compaction costs a session its
+        reasoning and never its files. Everything below is decided unless a line says otherwise; the
+        single open question is the arbitration box at the top of this plan, and it blocks **S2c only**.
+
+  - [x] **The sentence S2 is named after — and the trap inside it.**
+        **The disk receives the MERGE; the base advances to the CANDIDATE.** The two are *different
+        bytes*, and S1's plumbing calls both "delivered", so this is where S2 could silently destroy
+        exactly what it exists to protect:
+    - [x] If the base were advanced to the **merged** file, then at the next update `ours` and `base`
+          would be identical, the file would read **untouched**, and the fast-forward would **clobber
+          the owner's edit** — the very outcome this chantier exists to end, reintroduced by the fix.
+    - [x] So `deliveredFileMap`'s definition sharpens from *"the bytes written"* to **"the engine
+          content this pass brought the file up to"**. It carries the **candidate** for a merged file,
+          and a **conflicted file is absent from it** (the engine delivered nothing, so its base must
+          stand — S1 already made "absent from the map" mean exactly that).
+    - [x] Consequence to state out loud: after a clean merge the file reads `customized` at the next
+          update, **and that is correct** — the owner's edit is still there, on top of a newer ancestor.
+    - [x] The invariant to pin with a test, since it is the one that kills brains silently:
+          `provenance[rel] === sha(base bytes) === sha(candidate)` for every merged file. S1 already
+          asserts tree-and-record agreement; S2 extends it to the merge path.
+
+  - [x] **The merge engine: `git merge-file`, behind one seam.** _(revisable when the first test makes
+        it concrete, the way `.engine-base/` was — but decided now, not left open.)_
+    - [x] **Why not hand-rolled diff3**: it would be the highest-risk code of the chantier (a subtle
+          bug destroys an owner's work), for an algorithm that is already solved.
+    - [x] **Why git is legitimate here**: a brain **is** a git repository (the installer runs
+          `git init`, the auto-commit hook runs `git` at every session), so this adds no dependency —
+          and `scripts/` ships as plain files with no install step, so an npm dependency was never an
+          option. Bonus: the conflict markers are the ones people already recognise.
+    - [x] **Measured on 2026-08-20, git 2.52.0** — `git merge-file -p --diff3 -L … ours base theirs`
+          writes the result to stdout and **exits with the conflict count** (0 = clean). Verified clean
+          on a Markdown case where the owner edits one paragraph and the engine appends a section;
+          verified conflicting when the two edits sit on **adjacent lines with no blank line between**.
+          That adjacency rule is diff3's, not git's — a hand-rolled implementation would conflict there
+          too — and on section-structured Markdown the blank lines give exactly the granularity wanted.
+    - [x] **The `-L` labels are user-facing text**: `your version` / `engine base` / `engine <version>`.
+          Wording is Thomas's call at release time (`release-notes-tone`), not a blocker for the code.
+
+  - [x] **The verdict table — the test list for S2a, eight rows.** Inputs: `I` = installed bytes,
+        `B` = the base tree's bytes with its recorded sha, `C` = the candidate the update would deliver.
+        All comparisons EOL-normalised, as `refreshVerdict` already does.
+
+        | # | state | verdict | writes to the file | sidecar | in `deliveredFileMap` |
+        |---|---|---|---|---|---|
+        | 1 | `I` absent | `absent-install` | `C` | — | yes |
+        | 2 | base unusable, `I === C` | `unchanged` (`no-base`) | — | — | no |
+        | 3 | base unusable, `I ≠ C` | `preserve` (`no-provenance` / `absent` / `mismatch`) | — | — | no |
+        | 4 | `I === B`, `C === B` | `unchanged` | — | — | no |
+        | 5 | `I === B`, `C ≠ B` | `refresh` (fast-forward) | `C` | — | yes |
+        | 6 | `I ≠ B`, `C === B` | `unchanged` (`owner-edit-stands`) | — | — | no |
+        | 7 | `I ≠ B`, `C ≠ B`, merge clean | `merge` | the merged bytes | — | **yes, with `C`** |
+        | 8 | `I ≠ B`, `C ≠ B`, conflict | `conflict` | — (owner's copy stands) | marked merge | **no** |
+
+    - [x] **Rows 2 and 6 are defects being fixed, not new behaviour.** Today `refreshVerdict` returns
+          `preserve: no-provenance` **before** testing equality (row 2: a brain outside the regime
+          holding the engine's exact bytes is reported "preserved"), and returns `preserve: customized`
+          with a `.new` sidecar whenever the owner edited — **even when the engine shipped nothing new**
+          (row 6), dropping a sidecar byte-identical to the base at every single update. Pure noise,
+          removed by construction.
+    - [x] **Row 8 never writes the installed file.** A conflict is the one case that costs a human
+          anything, and the engine's answer to it is to keep its hands off and say so.
+    - [x] **`.new` narrows its meaning, and gains value**: from *"you customized this"* to **"this one
+          needs your hand"**, and its content stops being the bare candidate — it becomes the
+          **conflict-marked three-way merge**, so everything that could be merged already is and only
+          the clashing region is left to decide. Nothing loads a `.new`, so markers are harmless there.
+    - [x] **Fast paths must agree with the merge.** Rows 4, 5 and 6 are what a real three-way merge
+          would return anyway; keeping them explicit is an optimisation, so each one is triangulated
+          against the merge's own output rather than trusted.
+
+  - [x] **Module boundaries** (so the mutation score keeps meaning something):
+    - [x] `scripts/lib/engine-merge.mjs` — **pure**: the table above, plus the merge *decision*. Takes
+          the merge function as an argument. This is the file the mutation run judges.
+    - [x] `scripts/lib/engine-merge-git.mjs` — the **only** impure part: temp files + `spawnSync`, exit
+          code → `{ clean, merged, conflicts }`. One seam, one owner, mirroring how `engine-base.mjs`
+          and `engine-base-fs.mjs` already split.
+    - [x] `refreshVerdict` is **superseded by `mergeVerdict`** and its tests move with it — not kept
+          side by side. Its home also stops being `engine-skill-refresh.mjs`: the verdict now serves
+          skills **and** scripts (S2b) and later the constitution, so it is no longer a skill's business.
+
+  - [ ] **S2a — the merge core and its first client (the skills).** The eight rows red on their
+        assertions first, then the pure module, then `refreshUntouchedSkills` rewired onto it, then the
+        full suite green, then mutation on `engine-merge.mjs`. Report gains `skillsMerged` (kept your
+        edits **and** received the update) and `conflicts` (needs your hand + the sidecar path) beside
+        today's `skillsPreserved`, in `formatReport`.
+  - [ ] **S2b — the four engine scripts stop being overwritten blind.** `auto-commit`, `auto-push`,
+        `status-line`, `verify-rag` are declared `merge` and applied `replace` (`computeApplyPlan` puts
+        them in `replaceScripts`) — the mirror image of the skills' bug, and the one that can destroy an
+        owner's edit **today**. They leave `replaceScripts` for the merge-governed path. ⚠️
+        `update-engine.mjs` matches the same `ENGINE_SCRIPT` regex and **must keep replacing itself**:
+        the self-update path is not a merge subject.
+  - [ ] **S2c — the scrub is reformulated: never written *blind*.** `SACRED` splits in two, and the
+        words matter because this is the invariant ADR 0003/0012 is built on:
+    - [ ] **Inviolable, and it stays that way**: `.env` (secrets), `vault/` (the owner's notes — the
+          product's whole promise), and every skill the manifest does **not** declare.
+    - [ ] **Merge-governed**: `.claude/settings.json` and `CLAUDE.md` — writable only through a
+          three-way merge from a **provable** base, never by copy, never on conflict.
+    - [ ] Needs a **new ADR amending 0003/0012** (`Scope:` field per the repo's convention): the
+          allowlist stays an allowlist, and a second, narrower door is added beside it.
+    - [ ] 🛑 **Waits on the arbitration box at the top of this plan** — see it for what is already
+          measured about `CLAUDE.md`'s missing ancestor.
+    - [ ] `.claude/settings.json` is **deliberately not a text merge**: the engine already writes it
+          surgically today (hook entries, status line, via `reconcileBrain`), which is the better
+          mechanism for a JSON file whose two sides both append to the same arrays. S2c's job on it is
+          to say so out loud, not to replace it with a line-based diff.
+
+  - [x] **Deliberately OUT of S2** — named so no slice quietly grows:
+    - [ ] **Markdown-aware merging.** Line-based only, on the measurement above (blank lines already
+          give section granularity). The trigger to revisit is a **measured** conflict rate, replayed
+          against real deployed-brain content — not an intuition.
+    - [ ] **The 9 staged skills** (`consolidate`, `file-back`, `lint`, `local-mirror`,
+          `mcp-token-expired`, `open-note`, `rag`, `univers`, `universe`) stay unmergeable: no `merge`
+          glob names their installed path, so they have no provenance and S1 seeds them no base. **A
+          merge with no ancestor is not a merge** — widening the manifest to bring them in is a scope
+          call and belongs to the release's cargo discussion, not to S2's code.
+    - [ ] **Seeding a base for a no-record file that holds the engine's exact bytes** (row 2). Cheap and
+          correct, but it is S1's planner's business — noted here so it is not lost, not done here.
+    - [ ] Interactive conflict resolution. An update **never** prompts: it writes, or it reports.
+    - [ ] The audible divergence report (S4), the write guard (S3), `CLAUDE.engine.md`'s regime (S5).
 - [ ] **S3 — Keep the owner's intent out of engine files, by construction.** A write guard on
       engine-owned paths that redirects to the layer built for it (`CLAUDE.md`, the owner's own skills)
       and asks before letting an edit land in an engine file. Precedent and shape:
