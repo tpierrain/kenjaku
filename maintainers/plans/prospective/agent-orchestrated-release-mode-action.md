@@ -404,6 +404,27 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 9) — S2b-1: the merge's journey to the disk stops belonging
+  to the skills.** Commits `3395e1a` + `211cfc5`, pushed, suite **1927 pass / 0 fail**, **100 % on both
+  files, first pass, no survivor**.
+  - 📏 **A refactor can be AUDITED by its mutant count, and that is worth keeping.** 113 mutants before
+    the extraction, **86 + 28 = 114** after, across the two files. Moved code conserves its mutants;
+    copied code inflates the total and lost code shrinks it. One number, and it answers *"is this
+    really a refactor?"* without reading a diff or trusting a commit message.
+    ➡️ **For the mode**: when a slice claims *"no behaviour change"*, that claim is measurable. Measure it.
+  - 🔇 **A rename does not break a predicate, it silences one.** `skill` → `name` turned a
+    `.filter((p) => p.skill === "switch")` into a filter that matches nothing — and its assertion
+    expected `[]`, so it would have gone on passing for ever. The **failing** siblings are what led to
+    it; a rename sweep that only chases red misses exactly the assertions that went quiet.
+  - 🧪 **A flaky test is not a nuisance here, it is a missing measurement.** The merge's *"nothing left
+    behind"* sweep read the **shared** system temp dir, so under Stryker's parallel workers it saw other
+    workers mid-merge and failed the initial run: the mutation score for `update-engine.mjs` was simply
+    **not obtainable**. Fixed at the source (a temp-root seam), not retried.
+    ➡️ **For the mode**: a test that depends on what else is running will fail first under the tool that
+    runs the most things at once. The mutation runner is this repo's earliest detector of that.
+  - ✍️ **One test in the new batch could not be red first**, and it is written down as such rather than
+    dressed up: *"self-heal writes nothing"* is a contract a skeleton satisfies by doing nothing. What
+    judges it is the mutation run, and that is said in `RESULTS.md` where the number lives.
 - 🌙 **2026-08-21 (night, loop iteration 8) — S2b is DESIGNED, and the design found the plan lying.**
   A **design slice**: no test, no mutation score, and it is finished because the design is written into
   the owning plan and committed (§ S2b there). Cut into four sub-slices; S2b-1 is next.

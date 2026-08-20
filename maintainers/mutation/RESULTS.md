@@ -141,6 +141,47 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S2b's extraction — `engine-merge-apply.mjs`, the merge's journey to the disk — 2026-08-21
+
+First slice of S2b: `refreshUntouchedSkills`'s inner loop becomes a carrier that knows nothing about
+the kind of file it carries, so the engine scripts (S2b-3) and the constitution (S2c) can use the same
+journey. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors |
+|---|---|---|
+| `lib/engine-merge-apply.mjs` | **100.00 %** — 86 killed, 0 survived | none |
+| `lib/engine-skill-refresh.mjs` (what is left of it) | **100.00 %** — 28 killed, 0 survived | none |
+
+**The mutant count is the extraction's own audit.** S2a-3 measured 113 mutants in
+`engine-skill-refresh.mjs`; the same code now measures **86 + 28 = 114** across the two files. Code
+that MOVED conserves its mutants; code that was copied would have inflated the total, and code that
+was lost would have shrunk it. One number, and it answers "is this a refactor?" without reading a diff.
+
+⚠️ **This run breaks the pattern this file has been recording, and the break is the lesson.** Twice now
+(S1's fs orchestrator, S2's git seam) an **impure** module scored ~75 % on its first pass while every
+**pure** one scored 100 %, and the stated reason was that a pure module's inputs are all visible in its
+signature. `engine-merge-apply.mjs` is as impure as they come — `readFileSync`, `writeFileSync`,
+`rmSync`, `mkdirSync` — and it scored **100 % first pass**. What actually separates the two cases is
+not purity: it is whether the author had **already been forced to name every input**. This code arrived
+with its tests already written against it, at a call site that had already paid for three survivors.
+So the rule to keep is the narrower one: *a first pass measures how well the inputs were named, and
+impurity is merely the most common way to leave one unnamed.*
+
+The nine verdict rows are not re-litigated here (`engine-merge.mjs` owns them) and the skills' end-to-end
+proof stays in `engine-skill-refresh.test.mjs`. What the new file's own tests pin is what only it
+decides: the grouping, the (installed ← source) pairing, the self-heal guard, and the four ways bytes do
+or do not reach the disk.
+
+- ⚠️ **One test in that batch could not be red before the code existed**, and it is written down rather
+  than dressed up: *"sourceDir === brainDir writes nothing and reports nothing"* is a contract a
+  skeleton satisfies by doing nothing. It is the mutation run that judges it — drop the guard and the
+  brain reads itself as its own candidate, landing `preserve: customized` in the report and overwriting
+  the stale sidecar with the owner's own bytes. Both assertions catch that; neither would if they only
+  counted files.
+
+---
+
 ## S2's report — `update-engine.mjs`, where the merge stops being silent — 2026-08-21
 
 Fourth slice of S2 (S2a-3b): `skillsMerged` and `conflicts` travel from the refresher to the sentence

@@ -156,13 +156,19 @@
 > ✅ **S2b IS DESIGNED, and the design corrected a fact this plan had wrong** _(2026-08-21 · design
 > slice, no code)_. The full block is below (§ S2b); its four sub-slices are the work queue.
 >
-> **▶️ RESUME AT: S2b-1 — the refresher generalises, with no behaviour change.** Extract from
-> `engine-skill-refresh.mjs` the per-file merge application into a group-agnostic core
-> (`engine-merge-apply.mjs`); the skills become its first caller, and the report entries' `skill` field
-> becomes `name` (three clients are coming, and in two of them "skill" is a lie). Nothing moves in the
-> apply plan, nothing changes on disk for a brain. Then S2b-2 (the syntax gate), S2b-3 (the switch, in
-> ONE commit), S2b-4 (the named debt) — all four detailed in § S2b below. **S2c is the only part that
-> waits on Thomas** (the box at the top), and nothing else does.
+> ✅ **S2b-1 IS DONE — the merge's journey to the disk stops belonging to the skills** _(2026-08-21 ·
+> `3395e1a` + `211cfc5`)_. `engine-merge-apply.mjs` carries a verdict for **any** family of
+> engine-owned file; the skills are its first client. **100 % on both files, first pass**, and the
+> mutant count (113 → 86 + 28) is what proves it was a move and not a rewrite.
+>
+> **▶️ RESUME AT: S2b-2 — the syntax gate.** `engine-script-check.mjs` against a **real**
+> `node --check --input-type=module -` (a subprocess contract proven by a stub proves nothing), plus
+> the carrier's `verifyWrite` seam and the `merge-unsafe` degradation, driven through an injected merge
+> that returns broken bytes. It exists because S2b's four files are **executed** at every session: a
+> clean line-based merge can produce bytes that parse to nothing, and those bytes exist nowhere but
+> that one machine. Skills pass no gate, so they stay untouched. Then S2b-3 (the switch, in ONE commit)
+> and S2b-4 (the named debt) — both detailed in § S2b below. **S2c is the only part that waits on
+> Thomas** (the box at the top), and nothing else does.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -739,11 +745,29 @@ audible divergence.
             (the only locale-owned engine file is `scripts/lib/demo-locale.mjs`, which is `replace` and
             not top-level). One code path beats one branch.
 
-    - [ ] **S2b-1 — the refresher generalises, no behaviour change.** `engine-merge-apply.mjs` is
-          extracted; `refreshUntouchedSkills` becomes a caller of it; `skill` becomes `name` through
-          `formatReport` and its fixtures. **The proof it changed nothing**: the ten existing skill
-          tests stay green untouched except for the field rename, and the new core carries its own
-          cases. Nothing in `computeApplyPlan` moves.
+    - [x] **S2b-1 — the refresher generalises, no behaviour change** _(2026-08-21 · `3395e1a` +
+          `211cfc5`)_ — `engine-merge-apply.mjs` extracted, `refreshUntouchedSkills` reduced to which
+          files are eligible and how they are grouped, `skill` → `name` through `formatReport` and its
+          fixtures. **100 % on both files, first pass, no survivor** _(numbers owned by
+          [`RESULTS.md` § S2b's extraction](../../mutation/RESULTS.md#s2bs-extraction--engine-merge-applymjs-the-merges-journey-to-the-disk--2026-08-21))_.
+      - [x] **The proof it changed nothing is the mutant COUNT.** S2a-3 measured 113 mutants in
+            `engine-skill-refresh.mjs`; the same code now measures **86 + 28 = 114** across the two
+            files. Moved code conserves its mutants — copied code would have inflated the total, lost
+            code would have shrunk it. One number, and it answers *"is this a refactor?"* without
+            reading a diff. Six of the ten skill tests also stayed green untouched.
+      - [x] **The rename found a test it had already weakened**: a
+            `.filter((p) => p.skill === "switch")` that, left alone, would have gone on passing against
+            `[]` for ever. A predicate on a renamed field does not fail, it goes quiet.
+      - [x] **Two defects the extraction laid bare, fixed rather than left**: the header of
+            `engine-skill-refresh.mjs` still claimed a *"PURE decision core, no fs, no side effects"*
+            (untrue since S2a-3), and `mergeWithGit` had become the default of `merge` in **two**
+            modules at once — the `gitBin` lesson, one owner per default.
+      - [x] ⚠️ **A flaky test was blocking the measurement, and it was a real defect** _(`211cfc5`)_:
+            the merge's *"nothing is left behind"* sweep read the **shared** system temp dir, so it saw
+            every other process mid-merge. Under a mutation run's parallel workers that is an initial
+            test-run failure, i.e. **no measurement at all**. `mergeWithGit` takes its temp root as a
+            seam now; the test hands it a private one and asserts it EMPTY first, so a passing sweep
+            means the merges cleaned up rather than that the directory was never theirs.
     - [ ] **S2b-2 — the syntax gate.** `engine-script-check.mjs` against a **real** `node --check` (a
           subprocess contract proven by a stub proves nothing — S2a-2's lesson), plus the core's
           `verifyWrite` seam and the `merge-unsafe` degradation, driven through an injected merge that
