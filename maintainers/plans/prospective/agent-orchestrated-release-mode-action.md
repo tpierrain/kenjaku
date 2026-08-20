@@ -16,15 +16,23 @@
 > `chore/s0bis-entrypoint-mutation-debt`, pushed, under draft
 > [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — **nothing merged, nothing tagged**.
 >
-> ## ▶️ RESUME HERE — the next slice, in order
+> ## ▶️ RESUME HERE — the next slices, in order
 >
-> 1. **Write the `mutation-testing` skill** — the owner asked for it mid-run on 2026-08-20 and chose
->    "right after session-status". Its Tracking box below carries the diagnosis, the eight traps and
->    the split with the existing carriers. ⚠️ **Read that box before writing**: §5quinquies of
->    `CONVENTIONS.md` already carries part of the recipe *and* warns that another written reflex is
->    the move already measured as insufficient — so the box records a refinement to put to the owner
->    first (a **script** for the mechanics, the skill for the judgement).
-> 2. **Then S1** of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only verdict.
+> 1. **The stale-plan net** — owner's call 2026-08-20: *"les deux, le hook d'abord"*. See the box
+>    **"Plans go stale because their state is COPIED"** below; it carries the measurement, the
+>    diagnosis and what to build. First because it is cheap and the bleeding is live.
+> 2. **Write the `mutation-testing` skill** — the owner asked for it mid-run the same day. Its
+>    Tracking box carries the diagnosis, the eight traps and the split with the existing carriers.
+>    ⚠️ **Read that box before writing**: §5quinquies of `CONVENTIONS.md` already carries part of the
+>    recipe *and* warns that another written reflex is the move already measured as insufficient — so
+>    the box records a refinement to put to the owner first (a **script** for the mechanics, the skill
+>    for the judgement).
+> 3. **Deduplicate the plan corpus** — the second half of slice 1, guided by what the hook actually
+>    reports as redundant carriers.
+> 4. **Then S1** of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only verdict.
+>
+> _(This ordering is mine, from the owner's "hook first". Slices 2 and 3 are interchangeable; say so
+> if you want the skill before the deduplication.)_
 >
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
 > adversarial-review question is deferred to the **S1 debrief**, on S1's figures.
@@ -568,7 +576,41 @@ arbitration goes here as a question, and the run continues on other slices.
         under load (the unreproduced flake above), and the two staging mistakes were the same mistake
         twice. The staging one now has a deterministic net; the false-reds one does not, and a red
         seen during a saturated fan-out is to be re-run solo before it is believed.
-- [ ] ▶️ **NEXT — write a `mutation-testing` skill** _(owner asked for it 2026-08-20, mid-run: "on
+- [ ] ▶️ **NEXT — plans go stale because their state is COPIED, not because the rule is forgotten.**
+      _(Owner asked "pourquoi tu n'arrêtes pas d'oublier de mettre à jour le plan ? il y a un truc qui
+      ne va pas dans mon harnais", 2026-08-20. His call on the fix: **"les deux, le hook d'abord"**.)_
+  - [ ] **The measurement, taken before answering, so this is not a feeling.** Four files name the
+        branch `chore/s0bis-entrypoint-mutation-debt` (this plan, the chantier plan, the debt plan,
+        `RESULTS.md`); eight mention `session-status`. The session made **8 commits, 4 of which wrote
+        to plans** — and each one updated *the plan that was open*, never its siblings. **The rule
+        fires; what it cannot reach is the duplicates.**
+  - [ ] **Three causes, and only the third is about me.** (a) One work item's status is restated in
+        four repo files with no link between them, so every change needs 3-4 hand-synchronised edits
+        and nothing checks. (b) The rule is written in the **singular** — `plans.md` says "*the* plan
+        must already say…", and `CONVENTIONS.md` §3's "one canonical plan" is about repo-vs-tooling
+        snapshot, **not** about a status copied across four repo files. It has literally nothing to
+        say about this case. (c) The save point is "every handed-back turn", and this session chained
+        ~60 tool calls between two hand-backs: **the autonomous mode rarefies the trigger exactly
+        when there is most state to record.** That is an interaction between two harness parts, new
+        since 2026-08-19, and it will get worse in S1–S5, not better.
+  - [ ] **Why prose cannot be the answer, in the repo's own words**: everything that stopped
+        recurring here got a mechanical guard (the entry-guard shape → a guard test with shrink-only
+        allowlists; `git add -A` mid-wave → `wave-staging-guard.mjs`). Plan staleness has only prose,
+        and §5quinquies says outright that answering a recurring shape with one more written reflex
+        is the move already measured as insufficient.
+  - [ ] **Build (1): the hook that NAMES THE CARRIERS.** On hand-back: read the current branch, grep
+        `maintainers/plans/prospective/*.md` + `ROADMAP.md` for that branch name, compare against what
+        the session actually committed, and say *"4 files name this branch, you touched 2"*. It judges
+        **no content** — it names carriers. Same shape and same home as `wave-staging-guard.mjs`
+        (`~/.claude/hooks/`), with the same accepted limit: **machine-local, it does not travel**, so
+        `CONVENTIONS.md` § See also names it rather than versioning it.
+  - [ ] **Build (2): fix the rule at its source** — `use-case-driven-harness/rules/plans.md`. The save
+        point must speak of **carriers, plural**: before handing back, every file that restates this
+        item's status must already say it. That repo owns the rule; Kenjaku only suffers it.
+  - [ ] **Build (3): deduplicate the corpus** — one item, one **owning** plan; the others LINK instead
+        of restating a status. Attack the cause, not the symptom. Sequenced after the hook on purpose:
+        let the hook report which carriers are actually redundant rather than guessing.
+- [ ] ▶️ **THEN — write a `mutation-testing` skill** _(owner asked for it 2026-08-20, mid-run: "on
       découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait pas le coup
       de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**, deliberately: the
       traps are fresh and checkable against the run that just happened.
