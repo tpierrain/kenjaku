@@ -251,6 +251,59 @@ test("syncBaseTree — a DRIFTED base is repaired from the installed file, and t
   assert.equal(existsSync(join(dir, ".engine-base/.engine-base")), false, "the base tree is not a candidate for a base");
 });
 
+// The fold that makes the two passes agree: a file this call just advanced is provable
+// by the digest the ADVANCE computed, not by whatever record the caller was holding when
+// it called. Without it, the seeding pass looks at a freshly-advanced base through a
+// stale sha, calls it a mismatch, and reports the file as the owner's customization —
+// the exact false positive this whole chantier exists to remove.
+test("syncBaseTree — a file it JUST advanced is never re-seeded nor called customized, whatever record the caller handed in", (t) => {
+  const previous = "// auto-commit v1\n";
+  const delivered = "// auto-commit v2\n";
+  const dir = brain(t, {
+    "scripts/auto-commit.mjs": delivered,
+    ".engine-base/scripts/auto-commit.mjs": previous,
+  });
+
+  const report = syncBaseTree({
+    brainDir: dir,
+    manifest: MANIFEST,
+    provenance: { "scripts/auto-commit.mjs": fp(previous) }, // the record as it was BEFORE the re-seed
+    deliveredFileMap: { "scripts/auto-commit.mjs": delivered },
+  });
+
+  assert.deepEqual(report, { advanced: ["scripts/auto-commit.mjs"], seeded: [], deferred: [] });
+  assert.equal(read(dir, ".engine-base/scripts/auto-commit.mjs"), delivered);
+});
+
+test("syncBaseTree — its lists are ordered by PATH, not by the order the delivery and the record happened to be written in", (t) => {
+  const autoCommit = "// auto-commit as delivered\n";
+  const constitution = "# constitution as delivered\n";
+  const dir = brain(t, { "scripts/auto-commit.mjs": autoCommit, "CLAUDE.md": constitution });
+
+  const report = syncBaseTree({
+    brainDir: dir,
+    manifest: MANIFEST,
+    // Both maps below are written in REVERSE path order, so a list that simply echoed its
+    // input would come out backwards.
+    provenance: {
+      "scripts/auto-commit.mjs": fp(autoCommit),
+      "CLAUDE.md": fp(constitution),
+      ".claude/skills/coach/SKILL.md": fp("coach, once\n"),
+      ".claude/settings.json": fp("{}\n"),
+    },
+    deliveredFileMap: { "scripts/auto-commit.mjs": autoCommit, "CLAUDE.md": constitution },
+  });
+
+  assert.deepEqual(report, {
+    advanced: ["CLAUDE.md", "scripts/auto-commit.mjs"],
+    seeded: [],
+    deferred: [
+      { rel: ".claude/settings.json", reason: "not-installed" },
+      { rel: ".claude/skills/coach/SKILL.md", reason: "not-installed" },
+    ],
+  });
+});
+
 // ── The cross-check: one fact, two writers, and they must agree ───────────────
 // The tree holds the bytes and the manifest holds their digest. They are computed by
 // two independent code paths (`planBaseAdvance` here, `reseedProvenance` in the

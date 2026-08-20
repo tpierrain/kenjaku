@@ -86,7 +86,9 @@ export function syncBaseTree({ brainDir, manifest, provenance = {}, deliveredFil
 
   // Reported by path, never in the order a directory walk happened to return: this is
   // read by a human, and from S4 on it is said out loud to the owner.
-  const byPath = (a, b) => (a.rel < b.rel ? -1 : a.rel > b.rel ? 1 : 0);
+  // No equal case: a rel appears at most once, so a comparator that spells one out is a
+  // branch no input can reach — and an unreachable branch is a survivor by construction.
+  const byPath = (a, b) => (a.rel < b.rel ? -1 : 1);
   return {
     advanced: advance.map((entry) => entry.rel).sort(),
     seeded: seeds.map((seed) => seed.rel).sort(),
