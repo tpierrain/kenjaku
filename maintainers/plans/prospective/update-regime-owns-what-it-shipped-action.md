@@ -84,14 +84,29 @@
 >   own tree **from itself**, because a file still matching its recorded sha **is** the last delivery.
 >   Seeds whenever the tree cannot be **proven** (so a drifted base is repaired), never when it can.
 >
-> **▶️ RESUME AT: the fs ORCHESTRATOR and its WIRING** — the first slice that touches the disk, and the
-> last one S1 owes. The three planners above are pure and complete; what is missing is the thin I/O
-> around them: seed at install (`recordSourceAndProvenance`, which already walks the brain and writes
-> the manifest) and advance at update (beside `reseedProvenance`, in **both** writers —
-> `update-engine.mjs` step 7 *and* `reconcile-brain.mjs`'s `runReconcileCli`, which is the LAST writer
-> on the update path). ⚠️ **And it decides the tree's own regime**: `.engine-base/**` must **never** be a
-> `replace` target — that would recreate this whole bug one level up — nor a `merge` one. It is
-> engine-written, never hand-edited, and it needs its own answer in `engine-manifest.json`.
+> - **the fs ORCHESTRATOR and its WIRING** _(2026-08-20 · `74de7e8`)_ — `scripts/lib/engine-base-fs.mjs`,
+>   the only writer of `.engine-base/`, wired into **all three** writers: the installer (one call now
+>   records source, provenance **and** the tree, so an install cannot ship a brain without an ancestor),
+>   `update-engine.mjs` step 7, and `reconcile-brain.mjs`'s `runReconcileCli` — the LAST writer on the
+>   update path, and the one that runs when the old parent performs its first upgrade. One function
+>   serves both moments: **advance** to what the update delivered, then **seed** whatever the brain can
+>   still prove about itself, always both, because no deployed brain holds a tree so every update is
+>   also that brain's migration. ✅ **The tree's own regime is answered**: a fourth key, **`local`**,
+>   beside replace/merge/regenerate — guarded twice (no delivery glob may reach into the tree; the apply
+>   plan may never touch it).
+>
+> **▶️ RESUME AT: S2 — the three-way merge itself.** S1 is complete: the ancestor now exists on disk,
+> which was the one input S2 was missing. ⚠️ Before designing it, note what S1 deliberately did **not**
+> change: `CLAUDE.md` and `.claude/settings.json` are still **SACRED** in `engine-apply-plan.mjs`, so
+> even with a perfect merge the engine may not write them. **That scrub is S2's real subject**, not the
+> diff algorithm.
+>
+> ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
+> (the indexer walks `vault/` only, and `.engine-base/` is its sibling at the brain root), to
+> `lint-vault.mjs` and to `consolidate-scan.mjs` (same, they default to `vault/`); it **is** swept by
+> `auto-commit.mjs`'s `git add .` with no `.gitignore` entry, which is the versioning the owner asked
+> for; and it does **not** trip `vault-write-guard.mjs` (which judges `vault/` paths only). No
+> collateral to pay anywhere.
 >
 > ✅ **The tree IS VERSIONED in the brain's own git repo** _(owner, 2026-08-20)_ — the auto-commit hook
 > sweeps it like everything else, no `.gitignore` entry. **The argument that decided it**: a brain is
@@ -392,10 +407,27 @@ audible divergence.
     - [x] **Candidates are the recorded entries UNION what the brain holds**, so a file the owner
           DELETED is named rather than invisible — a planner walking only the disk would report nothing
           about it at all. Feeds S4's audible divergence.
-  - [ ] **NEXT — the fs orchestrator + the wiring**: write `.engine-base/` at install
-        (`recordSourceAndProvenance`) and at update (beside `reseedProvenance`), and decide what regime
-        the tree itself answers to (it must never be a `replace` target — that would recreate the bug
-        one level up).
+  - [x] **The fs orchestrator + the wiring** _(2026-08-20 · `74de7e8`)_ — `engine-base-fs.mjs`, the
+        single writer of the tree, wired at install and in **both** update writers. 12 cases red on
+        their assertions first (a skeleton module, so the red was never a loading error), plus one
+        wiring test per writer.
+    - [x] **One function for both moments**, not two: `syncBaseTree` advances what was delivered, then
+          seeds what the brain can still prove. Running the seed on **every** pass is what makes the
+          fleet's migration happen at all — including on a self-heal that delivers nothing.
+    - [x] **The advance lands BEFORE the seed, and its digests are folded into the record the seed
+          reads.** Otherwise a file just advanced would look unprovable and be seeded a second time,
+          from an installed file that may already have moved on.
+    - [x] **One fact, one owner**: this module writes bytes, `reseedProvenance` writes shas, and a test
+          asserts the tree it wrote is **provable** against the record its neighbour wrote — the
+          `mismatch` that would otherwise surface only later, as a three-way merge picking the wrong
+          ancestor.
+    - [x] 🛑 **The tree's regime is ANSWERED: `local`**, a fourth key beside replace/merge/regenerate.
+          `replace` would overwrite the ancestor with the newest fetched content (this release's bug,
+          one level up), `merge` would ask a three-way merge to merge its own input, `regenerate`
+          describes what a launcher rebuilds. Guarded twice: no delivery glob may reach a
+          `.engine-base/…` path, and `computeApplyPlan` may never touch one. A `local` glob must also
+          match **no tracked source file** — it names what a brain produces, never what the launcher
+          ships.
 - [ ] **S2 — A real three-way merge, so "preserve" stops meaning "abandon".**
   - [ ] untouched → fast-forward (today's behaviour, unchanged);
   - [ ] owner's edit in a region the update does not touch → **merge**: they keep their edit **and**

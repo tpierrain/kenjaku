@@ -373,6 +373,20 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-20 (night, loop iteration 1) — S1's LAST slice landed: the base tree exists on disk.**
+  Commit `74de7e8`, pushed on `feat/engine-base-unfreeze`, suite **1883 pass / 0 fail**. The slice was
+  kept **in session**, correctly: it is the one that decides the tree's own regime (a design call), and
+  the mechanical-only verdict keeps deciding in session.
+  - **What WAS dispatched: the reading, twice.** Two `Explore` subagents returned (a) the exact call
+    sites, signatures and DI seams of the four wiring points and (b) the answer to "does anything else
+    in the engine see a new dotted directory at the brain root?" — the RAG indexer, the two vault
+    scanners, auto-commit, `.gitignore`, the write guard. Neither file entered this window; both
+    answers are now written into the owning plan. **This is the second rule working as designed.**
+  - ⏳ **In flight when this line was written**: the mutation run on `engine-base-fs.mjs`
+    (`maintainers/mutation/mutate-one.mjs`). Its number belongs to `RESULTS.md`, not here.
+  - 🪤 **The `git add -A` guard fired, and it was right to.** Two subagents had been dispatched nine
+    minutes earlier; the staging was redone file by file. The hook is doing exactly the job the S0bis
+    run's two sweeps paid for.
 - ✅ **2026-08-20 — `session-status.mjs`: 8.67 % → 96.10 %. S0BIS IS COMPLETE, and the 0 % tier is
   closed for the first time since v4.4.0.** Three measured rounds — **70.89 % → 90.12 % → 96.10 %** —
   commits a72755b, cbd01c0, e458cb6, 72912c3. Log `reports/s0bis-session-status.log`, full write-up
