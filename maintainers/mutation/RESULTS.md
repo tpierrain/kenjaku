@@ -141,6 +141,41 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S2's git seam — `engine-merge-git.mjs`, the merge's one impure half — 2026-08-20
+
+Second slice of S2, and impure by design: the three texts handed to `git merge-file -p --diff3`. State
+owned by [`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the survivors were paid | Survivors left |
+|---|---|---|---|
+| `lib/engine-merge-git.mjs` | **75.00 %** — 42 killed, 14 survived | **100.00 %** — 55 killed, 0 survived | none |
+
+**The same 100 % / 75 % split as S1, on the same fault line, one slice apart.** The pure verdict table
+scored 100 % on its first pass; the moment the identical design met a subprocess, the tests stopped
+being sufficient. Twice now, and it is no longer a coincidence to file under care: **a pure module's
+inputs are all visible in its signature, so a batch written from a design covers them; an impure one
+has inputs the author never names — a status code, a stderr, an `error` field — and a test batch
+reaches only the ones it happened to think of.**
+
+**Fourteen survivors, one hole.** A missing binary sets **both** `error` **and** a null status, so the
+single failure test covered two guards at once and each was free to vanish behind the other. Every
+guard is now met alone, through an injected runner — and only there: the merges themselves stay on real
+git, because a subprocess contract proven by a stub proves nothing.
+
+- **The boundary was asserted from one side only.** `status >= 128` survived becoming `>`. Triangulated
+  now: **127 is still a conflict COUNT** (treating it as a crash would hand the owner a preserved file
+  for a merge that worked), **128 and up is git refusing to run**.
+- **The failure message was never read.** Three survivors lived inside it (`throw new Error("")`, the
+  `?? ""` fallback, the `.trim()`). It is asserted whole now, because it is the diagnosis an owner
+  sends back: git pads its stderr with a newline, and a message carrying that padding reads as a
+  truncated sentence.
+- **One survivor died by simplifying the production**, as on `session-status.mjs` and
+  `engine-base-fs.mjs` before it: `buildMergeFileInvocation` carried its own `gitBin` default, which no
+  call site can reach since `mergeWithGit` always passes one. An unreachable branch is a survivor by
+  construction, not a missing test.
+
+---
+
 ## S2's merge core — `engine-merge.mjs`, the verdict table — 2026-08-20
 
 **First production slice of S2**, and pure again on purpose: the decision that finally uses the bytes

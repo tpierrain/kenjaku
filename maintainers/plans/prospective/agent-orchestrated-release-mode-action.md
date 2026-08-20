@@ -404,6 +404,21 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-20 (night, loop iteration 4) — S2a-2 landed: the merge actually merges.** Commits
+  `de19cd9` + `ead71d0`, pushed, suite **1912 pass / 0 fail**, mutation **75 % → 100 %** (numbers in
+  `RESULTS.md`). The merge itself now exists end to end: a pure decision and a git seam.
+  - 📉 **The 100 % / 75 % split repeated itself, one slice apart, on the same fault line.** S1 measured
+    it once (three pure planners at 100 %, the fs orchestrator at 75 %); S2 has now reproduced it
+    exactly (pure table 100 %, git seam 75 %). **Twice is a rule, not a coincidence**, and the honest
+    statement of it is in `RESULTS.md`: a pure module's inputs are all visible in its signature, so a
+    batch written from a design covers them; an impure one has inputs the author never names — a status
+    code, a stderr, an `error` field — and a batch reaches only the ones it thought of.
+    ➡️ **What this changes for the mode**: on an impure slice, plan the survivor-paying round **into**
+    the slice instead of hoping for a first-pass 100 %. It is not a failure of care, it is the shape.
+  - 🧱 **An architectural discipline test caught the production code, and it was right.** The suite
+    refused a `spawnSync` composed at the call site (CONVENTIONS.md §5ter). The fix improved the design
+    rather than appeasing a linter: the **argument order IS the ours/theirs contract**, and as a value
+    it is asserted whole instead of being inferred from conflict markers.
 - 🌙 **2026-08-20 (night, loop iteration 3) — S2a-1 landed: the verdict table, pure, 100 % on its
   first pass.** Commit `acabcc8`, pushed, suite **1899 pass / 0 fail**, mutation **47 killed / 0
   survived** (number in `RESULTS.md`). Eleven cases red on their assertions first, against a skeleton

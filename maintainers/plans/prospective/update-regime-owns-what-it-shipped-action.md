@@ -132,16 +132,18 @@
 > **the base advances to what the engine DELIVERED while the disk receives the MERGE**, the three slices
 > (S2a / S2b / S2c) and what is deliberately out. Nothing of it is left in a session's window.
 >
-> ✅ **S2a-1 IS DONE — the verdict table exists and is pure** _(2026-08-20 · `acabcc8`,
-> `scripts/lib/engine-merge.mjs`, 100 % mutation on its first pass, number owned by `RESULTS.md`)_. S2a
-> was **re-cut into three** on contact (core / git seam / rewiring): one slice that wrote a pure core,
-> spawned git and rewired the refresher would have broken this chantier's own mis-cut rule.
+> ✅ **THE MERGE ITSELF EXISTS — S2a-1 and S2a-2 are done** _(2026-08-20)_. The pure verdict table
+> (`engine-merge.mjs`, `acabcc8`, 100 % first pass) and the git seam (`engine-merge-git.mjs`, `de19cd9`
+> + `ead71d0`, 75 % → 100 %). S2a was **re-cut into three** on contact (core / git seam / rewiring),
+> because one slice writing a pure core, spawning git **and** rewiring the refresher is this chantier's
+> own definition of mis-cut. Numbers owned by `RESULTS.md`.
 >
-> **▶️ RESUME AT: S2a-2 — the git seam.** `scripts/lib/engine-merge-git.mjs`: temp files +
-> `spawnSync("git", ["merge-file", "-p", "--diff3", "-L", …])`, exit code → `{ clean, merged }`. It is
-> the one impure half, so its judge is an end-to-end test on real fixtures, not a double. Then S2a-3
-> (the skills rewired onto `mergeVerdict`), then S2b. **S2c is the only part that waits on Thomas** (the
-> box at the top), and nothing else does — so the loop never idles on it.
+> **▶️ RESUME AT: S2a-3 — the skills rewired onto the merge.** `refreshUntouchedSkills` drops
+> `refreshVerdict` for `mergeVerdict`; the report gains `skillsMerged` and `conflicts`. ⚠️ **The two
+> traps, both already written down**: `deliveredFileMap` must carry the verdict's **`deliver`** (the
+> candidate) and never what was written to disk, and a throw from the git seam must **degrade that file
+> to `preserve`** rather than take down the whole update. Then S2b. **S2c is the only part that waits on
+> Thomas** (the box at the top), and nothing else does — so the loop never idles on it.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -575,9 +577,21 @@ audible divergence.
             clobber-the-owner bug returning by the front door.
       - [x] The merge arrives as an **injected function** — the module stays pure, git stays next door,
             and the mutation score keeps judging the decision instead of a subprocess.
-    - [ ] **S2a-2 — the git seam.** `scripts/lib/engine-merge-git.mjs`: temp files + `spawnSync`, exit
-          code → `{ clean, merged }`, with the `-L` labels. Its own judge is an end-to-end test on real
-          fixtures (clean merge, conflict, and the marked output actually carrying the owner's side).
+    - [x] **S2a-2 — the git seam** _(2026-08-20 · `de19cd9` + `ead71d0`)_ — `engine-merge-git.mjs`.
+          13 cases red on their assertions first, against **real git** (a subprocess contract proven by
+          a stub proves nothing). **75 % → 100 %** on the mutation run _(number owned by
+          [`RESULTS.md` § S2's git seam](../../mutation/RESULTS.md#s2s-git-seam--engine-merge-gitmjs-the-merges-one-impure-half--2026-08-20))_.
+      - [x] **The request is a VALUE** (`buildMergeFileInvocation`, CONVENTIONS.md §5ter) — the
+            discipline suite caught it being composed inline, and the rule earned its keep on the
+            spot: the **argument order is the ours/theirs contract**, and as a value it is asserted
+            whole instead of being read back out of marker lines.
+      - [x] **All three sides are normalised to LF before they reach git.** Left as they are, a Windows
+            brain holding its file in CRLF sees every line changed on both sides: every merge a total
+            conflict, the whole fleet handed sidecars for whitespace.
+      - [x] **A git that cannot run THROWS**, never returns a conflict. A false conflict tells the owner
+            they have work to do **and** holds the base back, so the file would quietly leave the update
+            regime. ⚠️ **S2a-3 owes the other half**: catch it and degrade to `preserve`, so one
+            hiccup on one skill cannot take down a whole update.
     - [ ] **S2a-3 — the skills rewired onto it.** `refreshUntouchedSkills` drops `refreshVerdict` for
           `mergeVerdict`, and the report gains `skillsMerged` (kept your edits **and** received the
           update) and `conflicts` (needs your hand + the sidecar path) beside today's `skillsPreserved`,

@@ -1,0 +1,31 @@
+[32m23:18:06 (25342) INFO ProjectReader[39m Found 1 of 768 file(s) to be mutated.
+[32m23:18:06 (25342) INFO Instrumenter[39m Instrumented 1 source file(s) with 55 mutant(s)
+[32m23:18:06 (25342) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m23:18:06 (25342) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-sLzk33
+[32m23:18:06 (25342) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m23:18:06 (25342) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m23:18:08 (25342) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2195 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/55 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~3m) 5/55 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: <1m, remaining: ~2m) 10/55 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: <1m, remaining: ~1m) 15/55 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: ~1m) 21/55 tested (0 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~1m, remaining: ~1m) 27/55 tested (0 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~1m, remaining: <1m) 32/55 tested (0 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~1m, remaining: <1m) 39/55 tested (0 survived, 0 timed out)
+Mutation testing 81% (elapsed: ~1m, remaining: <1m) 45/55 tested (0 survived, 0 timed out)
+Mutation testing 90% (elapsed: ~1m, remaining: <1m) 50/55 tested (0 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 55)
+
+Ran 1.00 tests per mutant on average.
+----------------------|------------------|----------|-----------|------------|----------|----------|
+                      | % Mutation score |          |           |            |          |          |
+File                  |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files             | 100.00 |  100.00 |       55 |         0 |          0 |        0 |        0 |
+ engine-merge-git.mjs | 100.00 |  100.00 |       55 |         0 |          0 |        0 |        0 |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m23:19:55 (25342) INFO MutationTestExecutor[39m Done in 1 minute and 49 seconds.
+[32m23:19:55 (25342) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-sLzk33.
