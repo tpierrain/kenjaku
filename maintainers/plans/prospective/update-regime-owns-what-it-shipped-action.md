@@ -147,10 +147,36 @@ Three consequences, each already logged as its own field finding:
 > **Status: PROPOSED, not signed** (2026-08-20). The header note carries the state; this section
 > carries the reasoning so it is not re-derived at cut time, when the pressure is highest.
 
-**The case for v5.0.0 is the promise, not the diff.** Every 4.x told an installed brain the same
-thing: *the engine does not touch what you have.* It was a timid promise, it produced the frozen
-doctrine this plan exists to fix — and it is a promise owners have been relying on. This release
-replaces it. Three things happen on machines that already run, and no 4.x did any of them:
+**The owner's framing, 2026-08-20, and it is sharper than the first draft of this section**: *"le
+breaking change, c'est sur le comportement qu'on a vis-à-vis de la Constitution, et sur comment on met
+à jour le second cerveau désormais."* Not the feature list — **the update model itself**, whose most
+visible face is the constitution. Three facts back it, read in the code rather than recalled:
+
+- **The sacred perimeter shrinks.** `engine-apply-plan.mjs` declares untouchable, whatever the manifest
+  says: `CLAUDE.md`, `.claude/settings.json`, `.env`, and two whole **trees**, `.claude/skills/` and
+  `vault/`. That tree is why more than half of an installed brain's skills have never received
+  anything — they are not badly configured, they are **inside a perimeter declared sacred**. This
+  release moves part of that boundary.
+- **The ownership axis is replaced.** From *"you modified it, so it is yours"* — which mostly catches
+  **Claude's own past edits**, in a product whose agent edits files for a living — to *origin decides
+  who owns it, and a real merge delivers both sides*. Everything else in this plan is a consequence.
+- **A test that says NEVER becomes a test that says HOW.** The lock in `engine-apply-plan.test.mjs`
+  spells out its own reason: do not propagate `CLAUDE.engine.md` until delivery is locale-aware, *"else
+  a FR brain is re-anglicized on upgrade"*. **That reason expired** — locale-aware delivery has been in
+  production since v4.1.0. S5 flips it with the comment rewritten, never deleted quietly.
+
+**Where the line is drawn, and it is not negotiable**: what the owner writes stays the owner's.
+`CLAUDE.md`, `.env` and `vault/` remain sacred — the **two-layer design exists precisely so the engine
+never needs to write in their constitution**: it owns `CLAUDE.engine.md`, they own `CLAUDE.md`. A
+release that touched the personal layer would spend a promise we could not make twice. `settings.json`
+is the one genuinely open case (it grows with every "always allow"), and it is S3's business.
+
+⚠️ **Two populations, and the release note must not address them as one**: two-layer brains get their
+doctrine unfrozen; **monolithic brains** (pre-layering, ~v3.2.x line) simply lack `CLAUDE.engine.md`
+and **stay frozen** — retro-fitting them is *fleet re-layering*, a different subject with its own
+carrier (`engine-managed-file-merge-strategy.md`, ROADMAP item 4). Not in this cut.
+
+And on machines that already run, three things happen that no 4.x did:
 
 - **engine files start moving again.** The staged skills (more than half of an installed brain's
   skills), the four `merge` scripts, and `CLAUDE.engine.md` — which is in no regime **at all** — enter
