@@ -141,6 +141,40 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S2's report — `update-engine.mjs`, where the merge stops being silent — 2026-08-21
+
+Fourth slice of S2 (S2a-3b): `skillsMerged` and `conflicts` travel from the refresher to the sentence
+the owner reads. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | Score | Survivors |
+|---|---|---|
+| `update-engine.mjs` | **98.95 %** — 282 killed, 3 survived | 3, all **pre-existing**, none in this slice's code |
+
+**None of the three is in the lines this slice added**, and saying so is the point of measuring a whole
+file rather than a diff: the run judged 285 mutants and the new report block killed every one of its
+own. The three are named below rather than left implied.
+
+- 🔴 **A real gap, and it is in this chantier's own subject.** `readFileSync(join(brainDir, rel),
+  "utf8")` at the `deliveredFileMap` construction survives being given an invalid encoding — which can
+  only mean **that line never runs under test**: no integration case reaches it with a non-empty
+  `copied`. That map feeds `reseedProvenance` **and** `syncBaseTree`, so the bytes recorded as the
+  ancestor for every `replace`-copied file are unproven. **Routed to S2b**, which reworks exactly that
+  path when the four engine scripts leave `replaceScripts` — the test belongs where the behaviour is
+  being changed, not bolted onto a report slice.
+- ⚪ **An equivalent mutant, kept as such.** The `skillsPreserved = []` default survives being given a
+  junk array: only its *iterability* is observable (a string entry destructures to `undefined` fields
+  and is skipped by the same filter that skips `no-provenance`). The default is load-bearing — without
+  it a report omitting the key would throw — but its value cannot be asserted. Contorting a test to
+  pin an unobservable is how a suite starts lying.
+- ⚪ **An equivalent mutant that names a duplication.** `releases: []` in `runUpdateCli`'s "unknown"
+  report is never read: `formatUpdateCheck` ignores the field on that branch. The survivor is the
+  symptom; the defect is that this literal **hand-rolls a second copy** of the report shape
+  `checkUpstream`'s own `unknown()` helper already builds. Cleanup named, not improvised at the end of
+  another slice.
+
+---
+
 ## S2's rewiring — `engine-skill-refresh.mjs`, where the merge reaches a real brain — 2026-08-20
 
 Third slice of S2: the refresher drops its own verdict for `mergeVerdict` and carries the result to

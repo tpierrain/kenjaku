@@ -404,6 +404,18 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 7) — S2a is COMPLETE: the merge works and says so.** Commit
+  `ecd8d6c`, pushed, suite **1918 pass / 0 fail**, `update-engine.mjs` at **98.95 %** with 3 survivors,
+  **none of them in this slice's code**.
+  - 🧭 **Measuring a whole FILE, not a diff, is what made that sentence sayable.** The run judged 285
+    mutants; the new report block killed every one of its own, and the three survivors are pre-existing.
+    Two are equivalent mutants (named as such rather than fake-killed — contorting a test to pin an
+    unobservable is how a suite starts lying); **one is a real gap in this chantier's own subject** and
+    was **routed to S2b**, which reworks that exact path. *Kill the survivors* does not mean *kill them
+    here*: it means none stays anonymous.
+  - 🪞 **A test whose name had stopped being true.** *"prints every optional line, in order, byte for
+    byte"* did not know the two lines this slice added. A test name that lies is a defect, not a
+    cosmetic — it is the assertion the next author will trust instead of reading.
 - 🌙 **2026-08-20 (night, loop iteration 6) — S2a-3: "preserve" stops meaning "abandon".** Commits
   `d7867fd` + `2ec18a5` + `5dc470b`, pushed, suite **1914 pass / 0 fail**, mutation **98 % → 100 %**
   (numbers in `RESULTS.md`). The merge reaches a real brain: an owner's edit and the engine's update

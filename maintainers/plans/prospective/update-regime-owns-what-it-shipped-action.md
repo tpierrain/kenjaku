@@ -149,12 +149,17 @@
 > the skills: the owner's edit and the engine's update both land, and only a real clash still costs
 > anyone anything.
 >
-> **▶️ RESUME AT: S2a-3b — the report says it out loud.** `skillsMerged` and `conflicts` are produced
-> and then **dropped**: `reconcileBrain` still destructures only `{skillsRefreshed, skillsPreserved,
-> refreshedFileMap}`, so `formatReport` never sees them. **A conflict nobody is told about is a `.new`
-> file appearing beside a skill with no explanation** — so this is the half that makes the merge honest.
-> Two files (`reconcile-brain.mjs`, `update-engine.mjs`) plus their tests. Then S2b. **S2c is the only
-> part that waits on Thomas** (the box at the top), and nothing else does — so the loop never idles.
+> ✅ **S2a IS COMPLETE — the merge works AND says so** _(2026-08-21 · `ecd8d6c`)_. `skillsMerged` and
+> `conflicts` reach `formatReport`: a merge announces that the owner's edits were kept **and** the
+> update landed, a failed merge says so apart, and a clash is the loudest line in the report.
+>
+> **▶️ RESUME AT: S2b — the four engine scripts stop being overwritten blind.** `auto-commit`,
+> `auto-push`, `status-line`, `verify-rag` are declared `merge` and applied `replace`: the mirror image
+> of the skills' bug, and **the one that can destroy an owner's edit today**. They leave
+> `replaceScripts` for the merge-governed path. ⚠️ `update-engine.mjs` matches the same `ENGINE_SCRIPT`
+> regex and **must keep replacing itself** — the self-update path is not a merge subject. Pay S2b's
+> named debt in the same slice (the untested `deliveredFileMap` read, in the S2b block below). **S2c is
+> the only part that waits on Thomas** (the box at the top), and nothing else does.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -641,16 +646,35 @@ audible divergence.
             file is never the casualty of a broken tool. Reason `merge-failed`, sidecar offered.
       - [x] `refreshVerdict` is **gone**, not kept beside its replacement; its cases live in
             `engine-merge.test.mjs` as the table's own rows.
-    - [ ] **S2a-3b — the report says it out loud.** `skillsMerged` and `conflicts` stop at
-          `reconcileBrain`, which still destructures only the three old fields, so `formatReport` never
-          sees them. **A conflict nobody is told about is a `.new` file appearing with no explanation**
-          — this is the half that makes the merge honest, and it is the last piece of S2a.
+    - [x] **S2a-3b — the report says it out loud** _(2026-08-21 · `ecd8d6c`)_ — `skillsMerged` and
+          `conflicts` were produced and then dropped: `reconcileBrain` destructured three fields and
+          returned three. Three sentences now, saying different things on purpose (the merge is the
+          news; `merge-failed` is said apart, because *"could not be merged this time"* is not *"there
+          was nothing to merge from"*; the clash is the loudest and the last, being the only one that
+          asks the owner for anything). **98.95 %** on the whole file, 3 pre-existing survivors, none in
+          this slice's code _(named in
+          [`RESULTS.md` § S2's report](../../mutation/RESULTS.md#s2s-report--update-enginemjs-where-the-merge-stops-being-silent--2026-08-21))_.
+      - [x] **A merged skill arms the restart nudge**, exactly as a refreshed one does: the file the
+            next session loads is not the file this one loaded. Left out, the whole merge path would
+            take effect at some later restart nobody asked for.
+      - [x] The *"everything-on update prints every optional line"* test did not know the two new ones.
+            **A test name that lies is a defect**, so it carries them now.
+      - [ ] ⚠️ **Wording**: these three sentences are user-facing. The tone is Thomas's at release time
+            (`release-notes-tone`); what is committed is factual and neutral, not final.
   - [ ] **S2b — the four engine scripts stop being overwritten blind.** `auto-commit`, `auto-push`,
         `status-line`, `verify-rag` are declared `merge` and applied `replace` (`computeApplyPlan` puts
         them in `replaceScripts`) — the mirror image of the skills' bug, and the one that can destroy an
         owner's edit **today**. They leave `replaceScripts` for the merge-governed path. ⚠️
         `update-engine.mjs` matches the same `ENGINE_SCRIPT` regex and **must keep replacing itself**:
         the self-update path is not a merge subject.
+  - [ ] **A debt S2a-3b's mutation run uncovered, and S2b is where it is paid** _(2026-08-21)_: the
+        `deliveredFileMap` line that reads back every **copied** file's bytes is **never executed under
+        test** (a mutant giving it an invalid encoding survives). That map feeds `reseedProvenance` and
+        `syncBaseTree`, so the ancestor recorded for every `replace`-copied file is unproven — and S2b
+        reworks exactly that path. Detail in `RESULTS.md` § S2's report.
+  - [ ] **A small cleanup named by the same run**: `runUpdateCli`'s "unknown" report hand-rolls a second
+        copy of the shape `checkUpstream`'s `unknown()` helper already builds, which is why one of its
+        fields is dead and unassertable. Reuse the helper.
   - [ ] **S2c — the scrub is reformulated: never written *blind*.** `SACRED` splits in two, and the
         words matter because this is the invariant ADR 0003/0012 is built on:
     - [ ] **Inviolable, and it stays that way**: `.env` (secrets), `vault/` (the owner's notes — the
