@@ -109,3 +109,14 @@ test("verifyBase — neither sha nor bytes reports the missing record, not the m
 test("verifyBase — a base rewritten CRLF by a Windows checkout still proves out", () => {
   assert.deepEqual(verifyBase({ recorded: SHA_ENGINE_V1, baseContent: "engine v1\r\n" }), { usable: true });
 });
+
+// The OTHER side of the same fleet, and the one that makes the raw comparison
+// load-bearing rather than redundant: a brain installed on Windows fingerprints
+// whatever it copied, so the RECORD itself can be taken over CRLF bytes. Normalizing
+// then hashes LF and misses — the base is proven only by comparing the bytes as they
+// are. Dropping either term condemns one half of the fleet, and each half needs its
+// own case to say so.
+test("verifyBase — a base whose sha was RECORDED over CRLF bytes proves out too", () => {
+  const SHA_ENGINE_V1_CRLF = "sha256:ad736b9c544c7c10b30d9547157c498eacf8e8494393269b651c70a60d380ad7";
+  assert.deepEqual(verifyBase({ recorded: SHA_ENGINE_V1_CRLF, baseContent: "engine v1\r\n" }), { usable: true });
+});
