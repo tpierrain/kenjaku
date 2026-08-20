@@ -301,26 +301,34 @@ healthy notes declared broken**. The vault was fine; the checker was wrong.
 ## 5quinquies. Mutate a NEW production file the day it is written — not at the release tail
 
 **The rule.** When a new production file is finished — the tests are green and you are about to move on
-to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. The two commands,
-both run from the repo root:
+to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. Both commands run
+from the repo root:
 
 ```
+# a scripts file — the runner does the whole recipe, and refuses what it cannot measure
+node maintainers/mutation/mutate-one.mjs scripts/<the-one-file>.mjs
+
 # a rag/src/lib file — sandbox-free inPlace on the real tree is this config's own recipe
 node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
   run maintainers/mutation/stryker.rag.config.mjs --mutate "rag/src/lib/<the-one-file>.ts"
-
-# a scripts file — from a DISPOSABLE WORKTREE, with rag/node_modules symlinked into it
-node <repo>/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
-  run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate "scripts/<the-one-file>.mjs"
 ```
 
-The worktree is not ceremony you can skip for a one-file run: `inPlace` on the real tree lets a mutant of
-vault-mutating code (`clear-example-notes.mjs`, `auto-commit.mjs`) act for real, and the sandbox
-alternative has no git, which `engine-manifest-integrity` needs. Set it up **once per branch** and reset
-it between runs (`git reset --hard <sha>` + `git clean -qfd -e rag/node_modules`, **never**
-`git checkout -- .`); then each day-of run really is 1-3 minutes. Verify the symlink bought what it was
-for — `vault-write-guard.test.mjs` must report **0 skipped** in the worktree — or the mutants face a
-suite that cannot judge them, which is §5quater's fiction with a mutation score on top.
+**Belt and braces, and the braces came first** _(2026-08-20)_.
+[`mutate-one.mjs`](mutation/mutate-one.mjs) is the **braces**: it prunes stale worktree registrations
+before adding one, creates and resets the **disposable worktree** (`git reset --hard` + `git clean -qfd
+-e rag/node_modules`, **never** `git checkout -- .`), symlinks `rag/node_modules`, proves
+`vault-write-guard.test.mjs` reports **0 skipped** there, checks the config's tuning before the run and
+the timeout share after it, discards any stale log, and **fails loudly rather than report a score it
+did not measure**. The [`mutation-testing`](skills/mutation-testing/SKILL.md) skill is the **belt**: it
+holds what a script cannot — when a pass is due, how to read the survivors, when to simplify the
+production instead of writing a case, and when a named equivalent is honest.
+
+Why the worktree is not ceremony you can skip for a one-file run: `inPlace` on the real tree lets a
+mutant of vault-mutating code (`clear-example-notes.mjs`, `auto-commit.mjs`) act for real, and the
+sandbox alternative has no git, which `engine-manifest-integrity` needs. A suite that reports skipped
+cases in the worktree is §5quater's fiction with a mutation score on top. All of that is now the
+runner's job rather than yours to remember — which is the point: this section had carried the recipe
+in prose since v4.8.0 and the traps kept being paid anyway.
 
 This is an **addition, not a substitution**: the release-tail pass over everything the branch changed
 stays exactly as it is (§10's sibling in the release checklist). What changes is that the tail stops
@@ -630,6 +638,12 @@ it is the orchestrator — not the agents — who writes it.
   "one open PR of mine" resume convention (ADR 0013), §8 cross-platform parity (ADR 0015).
 - [`README.md`](README.md) — what `maintainers/` is, the ADR `Scope:` convention, the
   plan-done = archived convention.
+- [`skills/`](skills/) — the **maintainer skills**, which live here rather than in `.claude/skills/`
+  precisely because `maintainers/` never travels to a generated brain:
+  [`plan-discipline`](skills/plan-discipline/SKILL.md) (write, open, resume or tick a plan) and
+  [`mutation-testing`](skills/mutation-testing/SKILL.md) (run and **read** a mutation pass — §5quinquies'
+  belt, whose braces are [`mutation/mutate-one.mjs`](mutation/mutate-one.mjs)). They are loaded by being
+  named here; nothing else advertises them.
 - ADR [`0009-prefer-deterministic-mechanisms.md`](decisions/0009-prefer-deterministic-mechanisms.md) —
   at equal reliability, prefer a deterministic mechanism over a probabilistic / LLM / in-memory-timer one.
 - `~/.claude/hooks/wave-staging-guard.mjs` — the net under §12's staging rule (machine-local, not in
