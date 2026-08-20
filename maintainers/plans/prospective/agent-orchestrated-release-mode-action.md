@@ -39,12 +39,15 @@
 >    entry-tier debt, held by the S0bis ceilings.
 > 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
 > 4. ▶️ **S1 IS UNDER WAY** in [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
->    under the mechanical-only verdict — **its first slice landed 2026-08-20 and was kept in session,
->    correctly**: design + tests are exactly what the verdict forbids dispatching. That plan owns the
->    release's state and its own resume marker — open it and start where **its** header says, not here.
->    S1 is also what has to produce the **contrast** the deferred adversarial-review question needs
->    (one slice reviewed adversarially, one not) — **still unproduced**, since nothing has been
->    dispatched on S1 yet.
+>    under the mechanical-only verdict — **its first TWO slices landed 2026-08-20 and were both kept in
+>    session, correctly**: design + tests are exactly what the verdict forbids dispatching. That plan
+>    owns the release's state and its own resume marker — open it and start where **its** header says,
+>    not here. S1 is also what has to produce the **contrast** the deferred adversarial-review question
+>    needs (one slice reviewed adversarially, one not) — **still unproduced**, since nothing has been
+>    dispatched on S1 yet. ⚠️ **Two pure planners in, the mechanical-only verdict has cost the mode its
+>    own subject**: every S1 slice so far was design + tests, i.e. exactly the class the verdict keeps
+>    in session, so there is still nothing to debrief. If the contrast is to exist at all, the candidate
+>    is the **fs orchestrator + wiring** slice — the first one that is mostly mechanical.
 >
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
 > adversarial-review question is deferred to the **S1 debrief**, on S1's figures. **And the release's

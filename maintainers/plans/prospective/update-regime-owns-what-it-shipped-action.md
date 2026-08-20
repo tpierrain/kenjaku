@@ -66,25 +66,37 @@
 > keeps no copy of a number.
 >
 > **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
-> this plan exists for. ▶️ **S1 IS UNDER WAY: its first production slice landed** _(2026-08-20 ·
-> `411d4d7` + `40743c1`)_ — `scripts/lib/engine-base.mjs`, pure, carrying the two facts nothing else
-> owns: **where** a base lives (`.engine-base/<rel>`, one tree for the four families) and **whether it
-> is provable** (the recorded sha256 becomes the proof, with `no-provenance` / `absent` / `mismatch`
-> named apart because their repairs differ). Test-first, 8 cases red on their assertions first,
-> **100 % mutation score** the same hour _(number owned by
-> [`RESULTS.md` § S1's first slice](../../mutation/RESULTS.md#s1s-first-slice--libengine-basemjs-measured-the-day-it-was-written--2026-08-20))_.
+> this plan exists for. ▶️ **S1 IS UNDER WAY: two pure slices have landed**, both test-first and both
+> at **100 % mutation** the hour they were written _(numbers owned by `RESULTS.md`, §§
+> [S1's first slice](../../mutation/RESULTS.md#s1s-first-slice--libengine-basemjs-measured-the-day-it-was-written--2026-08-20)
+> and [S1's advance rule](../../mutation/RESULTS.md#s1s-advance-rule--planbaseadvance-same-file-same-day--2026-08-20))_:
 >
-> **▶️ RESUME AT: the base's ADVANCE rule** — the sentence S1 is actually named after, and the only one
-> that kills the false positive: *the base moves to what was **delivered** to the installed file, never
-> to the newest fetched content.* A pure `planBaseAdvance` driven by the delivery map
-> (`refreshUntouchedSkills`'s `refreshedFileMap`, the shape that already exists), then the seeding
-> planner (installed matches its recorded sha → seed from the brain itself, the cheap migration), then
-> the fs orchestrator and its wiring at install and at update. ⚠️ **One question for the owner is now
-> RIPE, and it is the only thing on this step that needs him**: the fork below was *"une inclination,
-> pas une signature"* and the plan reserved the re-ask for the moment the first test made the shape
-> concrete. That moment is now — `.engine-base/CLAUDE.md`, `.engine-base/scripts/auto-commit.mjs`,
-> `.engine-base/.claude/skills/coach/SKILL.md`. It does **not** block the advance rule, which is
-> home-agnostic.
+> - **the base's HOME and its PROOF** _(2026-08-20 · `411d4d7` + `40743c1`)_ — `scripts/lib/engine-base.mjs`:
+>   **where** a base lives (`.engine-base/<rel>`, one tree for the four families) and **whether it is
+>   provable** (the recorded sha256, with `no-provenance` / `absent` / `mismatch` named apart because
+>   their repairs differ);
+> - **the ADVANCE rule** _(2026-08-20 · `184ce2e`)_ — `planBaseAdvance`, the sentence S1 is named after:
+>   *the base moves to what was **delivered** to the installed file, never to the newest fetched
+>   content.* Driven by the delivery map that already exists, so `engine-skills/**` (a `replace` target)
+>   can no longer run the base ahead of a file that stood still.
+>
+> **▶️ RESUME AT: the SEEDING planner** — the cheap migration, and it falls out of the ground truth
+> below: a file whose installed bytes still match its recorded sha **is** the engine's last delivered
+> content, so the tree seeds **from the brain itself, with no fetch** (13 of 15 entries qualified on the
+> live brain; `CLAUDE.md` and `settings.json` seed from the fetched copy at the next update). Pure
+> planner first, same shape as the two slices above. **Then** the fs orchestrator and its wiring at
+> install (`recordSourceAndProvenance`) and at update (beside `reseedProvenance`), which is also where
+> the tree's own regime gets decided — it must never be a `replace` target, that would recreate the bug
+> one level up.
+>
+> ⚠️ **One question for the owner is RIPE, and it is the only thing on this step that needs him**: the
+> fork below was *"une inclination, pas une signature"* and the plan reserved the re-ask for the moment
+> the first test made the shape concrete. That moment came with the first slice, and **it was surfaced
+> in chat on 2026-08-20 without an answer yet** — `.engine-base/CLAUDE.md`,
+> `.engine-base/scripts/auto-commit.mjs`, `.engine-base/.claude/skills/coach/SKILL.md`. It did **not**
+> block the advance rule (home-agnostic), and it does **not** block the seeding planner either — but it
+> **does** block the fs orchestrator, which is the first slice that writes the tree to disk. Ask it
+> again before that one.
 >
 > ⏸️ **S1 was SCOUTED and its one blocking decision TAKEN** _(2026-08-20)_: the
 > base lives in a single **`.engine-base/`** (owner's call, "la seconde a priori"). Its ground truth is
@@ -333,12 +345,22 @@ audible divergence.
         fingerprints CRLF bytes at install records a CRLF sha). ♻️ `normalizeEol` had a second copy in
         `engine-skill-refresh.mjs`; one definition now, since both answer the same question about the
         same sha.
-  - [ ] **NEXT — the ADVANCE rule, the sentence this step is named after.** A pure `planBaseAdvance`:
-        the base moves to what was **delivered** to the installed file, never to the newest fetched
-        content. Drive it from the delivery map that already exists (`refreshedFileMap`), not from the
-        source tree — that substitution *is* the false positive (`engine-skills/**` sits in `replace`,
-        so today the base runs ahead while the installed file stands still).
-  - [ ] **Then the seeding planner**, on the measurement above: installed content matching its recorded
+  - [x] **The ADVANCE rule, the sentence this step is named after** _(2026-08-20 · `184ce2e`)_ — a pure
+        `planBaseAdvance`: the base moves to what was **delivered** to the installed file, never to the
+        newest fetched content. Driven by the delivery map that already exists (`installedFileMap` +
+        `refreshedFileMap`), not by the source tree — that substitution *is* the false positive
+        (`engine-skills/**` sits in `replace`, so the base would run ahead while the installed file
+        stands still). 6 cases red on their assertions first, **100 % mutation, no survivor**
+        _(number owned by [`RESULTS.md` § S1's advance rule](../../mutation/RESULTS.md#s1s-advance-rule--planbaseadvance-same-file-same-day--2026-08-20))_.
+    - [x] **Decided while building it, worth keeping**: an entry leaves with its path, its bytes **and**
+          its sha in **one object**. The tree and the record can then never be advanced apart — that
+          drift is exactly what `verifyBase` would report as a `mismatch`, and the orchestrator has
+          nothing left to recompute. The digest is taken over the delivered bytes **as they are** (like
+          `buildProvenance` at install), or a Windows brain would flip its recorded sha at its first
+          update for content nobody touched.
+    - [x] **A file the update did NOT deliver is absent from the map, so its base stands.** That is what
+          makes "preserve" finally keep an ancestor worth merging from — the input S2's three-way needs.
+  - [ ] **NEXT — the seeding planner**, on the measurement above: installed content matching its recorded
         sha **is** the engine's last delivered content → seed the tree from the brain itself, no fetch
         (13 of 15 entries qualified on the live brain). The other two seed from the fetched copy at the
         next update.

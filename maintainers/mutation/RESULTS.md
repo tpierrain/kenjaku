@@ -141,6 +141,35 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S1's advance rule — `planBaseAdvance`, same file, same day — 2026-08-20
+
+**Still not a release: the second production slice of the unfreeze chantier** (the base moves to what
+was *delivered*, never to what was fetched). Same branch, same file as the section below; the step's
+state is owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors left |
+|---|---|---|
+| `lib/engine-base.mjs` *(+ `planBaseAdvance`)* | **100.00 %** — 38 killed, 0 survived | 0 |
+
+**No survivor, first pass** — 3 mutants more than the 35 the file carried before the function, all
+killed. The cases that earned it are the two a green suite would not have needed: a file delivered
+**empty** (the falsy-content skip, invisible to every other case) and a `replace`-regime path in the
+delivery map (the false positive S1 exists to kill).
+
+> ⚠️ **The runner measures `HEAD`, not the working tree — and it will happily hand you a green score
+> about code you have not written yet.** Measured live the same day: the first run on this slice
+> returned **100 %, 35 killed** while `planBaseAdvance` sat uncommitted; `mutate-one.mjs` resets its
+> disposable worktree to `git rev-parse HEAD`, so the number was the *previous* commit's, re-measured.
+> Nothing in the output says so. **Commit green, then measure** — the reflex is now written into
+> [`../skills/mutation-testing/SKILL.md`](../skills/mutation-testing/SKILL.md) §2.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs` (log
+[`reports/mutate-one-engine-base.log`](reports/mutate-one-engine-base.log) — one log per file, so this
+run overwrote the one below; the numbers, not the log, are the record).
+
+---
+
 ## S1's first slice — `lib/engine-base.mjs`, measured the day it was written — 2026-08-20
 
 **Not a release: the first production file of the unfreeze chantier** (the immutable base per `merge`

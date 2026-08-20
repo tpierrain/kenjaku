@@ -48,6 +48,14 @@ It prunes stale worktree registrations, creates or resets the disposable worktre
 runs Stryker, and refuses a score it did not really measure. Its log lands in
 `maintainers/mutation/reports/` — in the **real** repo, so it outlives the worktree.
 
+> 🛑 **It measures `HEAD`, never your working tree. COMMIT GREEN FIRST, then run.** The disposable
+> worktree is reset to `git rev-parse HEAD`, so uncommitted work is simply **not in the run** — and
+> nothing in the output says so: you get a confident green score **about the previous commit**. This
+> is the runner's one way of lying to you, and it lies loudest exactly when you have just written the
+> code you want judged. Measured live 2026-08-20 on S1's advance rule (100 %, 35 killed, with the new
+> function still uncommitted; 38 killed once it was in). A **jumped mutant count** between two runs of
+> the same file is the tell — the only one there is.
+
 **`rag/**` and `local-mirror/**` — their own npm scripts, no worktree needed:**
 
 ```bash
