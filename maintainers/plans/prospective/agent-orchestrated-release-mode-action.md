@@ -29,13 +29,12 @@
 >    propagating the rule to the **public extract / published page** (outward-facing), and the unmerged
 >    doctrine branch `chore/plan-discipline-points-at-the-harness` (no PR). ⚠️ The hook loads at
 >    **session start**, so it never watched the session that wrote it.
-> 2. 🛑 **NEXT, AND IT NEEDS THE OWNER FIRST — the `mutation-testing` skill.** He asked for it mid-run
->    the same day. Its Tracking box carries the diagnosis, the eight traps and the split with the
->    existing carriers. **Do not start writing**: §5quinquies of `CONVENTIONS.md` already carries part
->    of the recipe *and* warns that another written reflex is the move already measured as
->    insufficient. The box therefore records **a question to put to him** — a **script**
->    (`maintainers/mutation/mutate-one.mjs`) for the mechanics **plus** a skill for the judgement, which
->    is more work than the skill alone. **Asked on 2026-08-20 and awaiting his answer.**
+> 2. ▶️ **RESUME HERE — the `mutation-testing` pair. The arbitration is ANSWERED** _(2026-08-20, owner:
+>    **"script + skill"**, do not re-open it)_: build **`maintainers/mutation/mutate-one.mjs`** for the
+>    mechanics **and** **`maintainers/skills/mutation-testing/SKILL.md`** for the judgement. **Nothing
+>    exists yet** — no script, no test, no skill folder. **Start with the script, test-first**, and read
+>    `mutate-changed.mjs` first: it is the existing sibling and sets the shape. Its Tracking box carries
+>    the eight traps it must make unrepeatable and the split with the existing carriers.
 > 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
 > 4. **Then S1** of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only verdict.
 >    **This is what to pick up if the owner is not at the keyboard** and slice 2 is still unanswered.
@@ -663,18 +662,35 @@ arbitration goes here as a question, and the run continues on other slices.
           `maintainers/plan-discipline.md`. On **this** branch those files still describe the old
           shape, so §3bis was worded to be true either way. **Two branches touching the same doctrine
           is the next duplication to close** — merge order is the owner's call.
-- [ ] ▶️ **THEN — write a `mutation-testing` skill** _(owner asked for it 2026-08-20, mid-run: "on
-      découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait pas le coup
-      de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**, deliberately: the
-      traps are fresh and checkable against the run that just happened.
+- [ ] ▶️ **NEXT — the `mutation-testing` pair: a SCRIPT *and* a skill** _(owner asked for it 2026-08-20,
+      mid-run: "on découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait
+      pas le coup de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**,
+      deliberately: the traps are fresh and checkable against the run that just happened.
+  - [x] 🟢 **THE ARBITRATION BELOW IS ANSWERED — 2026-08-20, owner: "script + skill".** Do **not**
+        re-open it, and do not write the skill alone. Build **both**:
+        `maintainers/mutation/mutate-one.mjs` for the mechanics (the braces) and
+        `maintainers/skills/mutation-testing/SKILL.md` for the judgement (the belt). The reasoning he
+        endorsed is §5quinquies': answering a recurring shape with one more written reflex is the move
+        already measured as insufficient.
+  - [ ] **START HERE — the script first**, test-first as always, and nothing exists yet: not a line of
+        `mutate-one.mjs`, not a test, not the skill folder. What it must make unrepeatable, each trap
+        having cost a real run: `git worktree prune` before re-adding a worktree that was `rm -rf`'d
+        (otherwise `add` refuses, the run silently never happens, and a STALE log gets read as the
+        result), the disposable worktree itself (`inPlace` on the real tree once wiped the vault's demo
+        notes), the `rag/node_modules` symlink the worktree needs, verifying
+        `vault-write-guard.test.mjs` reports **0 skipped**, concurrency 5 + 30 s timeout (or the run
+        returns a **fake 99.97 %** made of bogus timeouts), `disableTypeChecks: false`, and a **loud
+        failure** instead of a stale log. Read `mutate-changed.mjs` first — it is the existing sibling
+        and sets the shape (repo-root resolution, the Stryker bin path, `--mutate` as ONE
+        comma-separated list).
   - [ ] **The diagnosis, so the skill is not written against the wrong problem.** What we keep
         re-deriving is **not** assertion quality — that already lives in `test-first-discipline` and
         it works. It is **how to OPERATE Stryker on this repo**, and it is scattered across three
         carriers that are only read once opened: comments inside the config files, `RESULTS.md`
         § Reproduce, and `RETROSPECTIVE.md`. Same carrier defect §12 fixed for orchestration: the
         knowledge is read when a file is opened, while the mistakes are made **while acting**.
-  - [ ] 🛑 **A REFINEMENT to put to the owner before writing — found while checking the carriers, and
-        it is not a small one.** `CONVENTIONS.md` **§5quinquies already carries part of this recipe**
+  - [x] 🛑 **The refinement that was put to him, and that he took** _(kept for its reasoning; the
+        decision is the green box above)_. `CONVENTIONS.md` **§5quinquies already carries part of this recipe**
         (the worktree, the reset incantation, the symlink, the two commands) — so the skill would not
         fill a void, it would consolidate. And that same section ends with the corollary that argues
         against it: *"do not answer a recurring shape with one more written reflex"*, because the
