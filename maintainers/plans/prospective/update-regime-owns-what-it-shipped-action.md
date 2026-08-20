@@ -83,6 +83,16 @@
 >
 > A resume should still **surface S6 first**, because it is **blocked on a human** and would otherwise
 > sit unnoticed; then take **S1** if Thomas is not at the keyboard.
+>
+> ## 🔢 THE VERSION NUMBER — proposed **v5.0.0**, awaiting the owner's signature (2026-08-20)
+>
+> Raised by the owner: *"avec cette version des gels c'est vraiment une version majeure"*. **My
+> recommendation is yes, v5.0.0**, and the reason is the **promise**, not the size of the diff — see
+> § *Why this release is a MAJOR* below for the argument, the counter-argument and what a major
+> obliges. **Checked, not assumed**: a major costs the fleet **nothing** — `pickLatestSemverTag`
+> compares numerically with **no major gate**, so `update-engine` and the "N releases ahead" line
+> cross 4 → 5 like any other tag (`scripts/lib/semver-tag.mjs`). **Not signed yet**: until it is, no
+> file, note or banner states a number.
 
 ## The four categories we actually have (measured 2026-08-08)
 
@@ -131,6 +141,47 @@ Three consequences, each already logged as its own field finding:
   byte-identical). The mechanism is built — it is only **clobbered at each update** and used for `===`.
 - **Locale-aware delivery is solved and in production since v4.1.0** (`resolveLocaleSource` +
   `readBrainLocale`), which was the stated reason the doctrine layer was frozen in ROADMAP Gate 1.
+
+## Why this release is a MAJOR — the argument, and its counter-argument
+
+> **Status: PROPOSED, not signed** (2026-08-20). The header note carries the state; this section
+> carries the reasoning so it is not re-derived at cut time, when the pressure is highest.
+
+**The case for v5.0.0 is the promise, not the diff.** Every 4.x told an installed brain the same
+thing: *the engine does not touch what you have.* It was a timid promise, it produced the frozen
+doctrine this plan exists to fix — and it is a promise owners have been relying on. This release
+replaces it. Three things happen on machines that already run, and no 4.x did any of them:
+
+- **engine files start moving again.** The staged skills (more than half of an installed brain's
+  skills), the four `merge` scripts, and `CLAUDE.engine.md` — which is in no regime **at all** — enter
+  one. Better outcomes, but files the owner never saw change will change.
+- **the brain starts pushing back.** S3's write guard asks before an edit lands in an engine file: a
+  new, visible interaction in daily use, not an internal detail.
+- **something shipped goes away.** S6 retires `tdd-discipline` from deployed brains — the first
+  deliberate **removal** from a brain the engine had already furnished.
+
+Plus a **one-time migration**: `.engine-base/` is seeded inside the owner's folder at the first update
+(13 of 15 entries from the brain itself, 2 from the fetched copy). A new tree appears in a directory
+the owner considers theirs. That alone is a major-shaped event.
+
+**The counter-argument, and it is honest**: strictly, semver majors mark a **broken** contract, and
+nothing here breaks — every owner edit is preserved *better* than before, so this could be read as a
+large minor (`v4.10.0`). **Why it loses**: the contract that changes is *"the engine leaves your files
+alone"*, and the version number is the only signal in the series that says **read before you update**.
+This is the first release that will write into files an owner may have edited by hand. Precedent is
+consistent, too: `v4.0.0 — The One Where It Becomes Kenjaku` was a **meaning** shift, not a breakage.
+
+**What calling it 5.0.0 obliges** (all of it belongs to the cut, none of it to S1):
+
+- a release note with a plain *"what changes for you, and what you have to do"* — non-devs first, no
+  alarm (`CONVENTIONS.md` §11);
+- the QA instrument exercised **across the boundary**: an update **4.x → 5.0.0** replayed on the frozen
+  `mind-palace` fixture, not only same-major updates;
+- a stated answer to *"and if it goes wrong?"* — what the owner does to get their file back.
+
+**What it does NOT oblige**: any code change. The version is a git tag (ADR 0017); the number is a
+message to owners, never a protection. What protects them is S2's real merge, S3's guard and S4's
+audible divergence.
 
 ## Tracking
 
