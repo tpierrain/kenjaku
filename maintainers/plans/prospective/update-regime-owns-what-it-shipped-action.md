@@ -95,7 +95,13 @@
 >   beside replace/merge/regenerate — guarded twice (no delivery glob may reach into the tree; the apply
 >   plan may never touch it).
 >
-> **▶️ RESUME AT: S2 — the three-way merge itself.** S1 is complete: the ancestor now exists on disk,
+> _(All of S1 is on `feat/engine-base-unfreeze`, draft
+> [PR #76](https://github.com/tpierrain/kenjaku/pull/76), based on the S0bis branch so **#75 keeps its
+> own perimeter**. Nothing merged, nothing tagged.)_
+>
+> **▶️ RESUME AT: S2 — the three-way merge itself. START BY WRITING ITS DESIGN INTO THIS PLAN**, before
+> a line of test: a design that lives only in a session's window does not survive the compaction it will
+> meet, and S2 is the heaviest design of the chantier. S1 is complete: the ancestor now exists on disk,
 > which was the one input S2 was missing. ⚠️ Before designing it, note what S1 deliberately did **not**
 > change: `CLAUDE.md` and `.claude/settings.json` are still **SACRED** in `engine-apply-plan.mjs`, so
 > even with a perfect merge the engine may not write them. **That scrub is S2's real subject**, not the

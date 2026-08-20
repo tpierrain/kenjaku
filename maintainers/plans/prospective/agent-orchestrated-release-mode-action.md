@@ -401,6 +401,14 @@ arbitration goes here as a question, and the run continues on other slices.
     (`63598d7`), 2 named survivors. Numbers in `RESULTS.md`. **The lesson is about the mode, not the
     file**: the three PURE planners each scored 100 % first pass, and the moment the same design met a
     filesystem the same tests stopped being sufficient. *Pure code flatters a test batch.*
+  - 📬 **Draft [PR #76](https://github.com/tpierrain/kenjaku/pull/76)**, based on
+    `chore/s0bis-entrypoint-mutation-debt` so **#75 keeps its S0bis perimeter**. Nothing merged, nothing
+    tagged — the perimeter's "a reviewable diff to wake up to", paid.
+  - ⏹️ **The loop STOPPED itself here, deliberately, and this is the rule above being applied for the
+    first time.** S1 was closed (code, mutation, numbers, plans, PR), and the next slice is **S2, the
+    heaviest design work of the chantier**, on a window already past the ~170k hand-back ceiling. Since
+    a session cannot clear itself, the ceiling can only be honoured by stopping. **S2 must therefore
+    begin by writing its DESIGN into the plan**, before a line of test.
   - 🪤 **The `git add -A` guard fired, and it was right to.** Two subagents had been dispatched nine
     minutes earlier; the staging was redone file by file. The hook is doing exactly the job the S0bis
     run's two sweeps paid for.
