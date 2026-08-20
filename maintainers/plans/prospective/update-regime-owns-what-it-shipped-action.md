@@ -248,6 +248,16 @@ Three consequences, each already logged as its own field finding:
       what was dropped is TDD's own thesis, not a ceremony, so the name had to change too (owner's
       call, both the decision and the name).
   - [ ] Add `.claude/skills/test-first-discipline/**` to the manifest's **`merge`** regime.
+  - [ ] 🔎 **The inverted vendoring has to be flipped BACK, and it is already costing** _(measured
+        2026-08-20)_. The two files have **diverged**: Kenjaku's copy is the 2026-08-15 rewrite
+        (frontmatter `origin: use-case-driven-harness`, wording about *"this repo"*, `rag/`,
+        `installer.mjs`), while the harness source has moved on since. **The harness is the owner
+        again** — Kenjaku's copy is the shipped artefact, not the source. ⚠️ It is the **only** copy of
+        this doctrine that reaches end users, so a hand edit here widens the gap while looking like
+        closing it: the refresh is this rider's job. **Waiting on it right now**: the harness's
+        [T8](../../../../use-case-driven-harness/docs/plans/harness-consolidation-action.md) (how a
+        mutation run lies to you) is written upstream first and must reach the brains through this
+        path, not by copy-paste.
   - [ ] ⚠️ **Retirement is NOT automatic — verified in code on 2026-08-15**: `refreshUntouchedSkills`
         only walks skills present in the **source**, and its single `rmSync` targets `.new` sidecars.
         A skill dropped from the engine is **never visited**, so `tdd-discipline` would sit on every
