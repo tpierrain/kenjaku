@@ -951,6 +951,54 @@ test("reconcileBrain — an UNTOUCHED engine skill is refreshed to the source's 
   assert.deepEqual(report.skillsPreserved, []);
 });
 
+// S2a-3b: the merge produced its verdicts one layer down, and this is the layer that
+// used to drop them — `reconcileBrain` destructured three fields and returned three.
+// A merge nobody is told about lands silently; a conflict nobody is told about is a
+// `.new` file appearing beside a skill with no explanation.
+test("reconcileBrain — a merged skill and a clashing one both reach the report", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\n\nSwitch universes.\n\nThe closing note.\n";
+  const owners = "---\nname: switch\n---\n\nSwitch universes, my way.\n\nThe closing note.\n";
+  const engines = delivered.replace("The closing note.\n", "The closing note.\n\nA paragraph the engine added.\n");
+  const clashing = "---\nname: coach\n---\n\nThe engine's own rewrite.\n";
+  const coachDelivered = "---\nname: coach\n---\n\nThe original line.\n";
+  const coachOwners = "---\nname: coach\n---\n\nThe owner's own rewrite.\n";
+
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", owners);
+  writeFile(brainDir, ".engine-base/.claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", engines);
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", coachOwners);
+  writeFile(brainDir, ".engine-base/.claude/skills/coach/SKILL.md", coachDelivered);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", clashing);
+
+  const extraMerge = [".claude/skills/switch/**", ".claude/skills/coach/**"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: {
+      ".claude/skills/switch/SKILL.md": base(delivered),
+      ".claude/skills/coach/SKILL.md": base(coachDelivered),
+    },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.deepEqual(report.skillsMerged, ["switch"]);
+  assert.deepEqual(report.conflicts, [
+    { skill: "coach", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+  ]);
+  assert.match(
+    readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"),
+    /my way[\s\S]*A paragraph the engine added/,
+    "the owner's edit and the engine's addition both survive the round trip",
+  );
+});
+
 test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and reported as such", async (t) => {
   const brainDir = buildBrain();
   const sourceDir = buildSource();

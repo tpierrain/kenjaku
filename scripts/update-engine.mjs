@@ -68,7 +68,10 @@ export function needsRestart(report) {
     report.copied?.length > 0 ||
     Boolean(report.regenerated) ||
     countNewCapabilities(report) > 0 ||
-    report.skillsRefreshed?.length > 0
+    report.skillsRefreshed?.length > 0 ||
+    // A MERGED skill changed on disk exactly as a refreshed one did: the file the next
+    // session loads is not the file this one loaded (plan S2a-3b).
+    report.skillsMerged?.length > 0
   );
 }
 
@@ -83,7 +86,7 @@ export function bareHookName(command) {
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -139,11 +142,36 @@ export function formatReport(report) {
   // ever WITH a `newVersionPath` (engine-skill-refresh.mjs — the sidecar is written on
   // that same branch), so a "no path" fallback here would be a state the producer cannot
   // emit — a dead branch to maintain and mutation-test forever, not a safety net.
+  // S2's headline, and the one an owner has been owed since the first frozen skill:
+  // they edited it, the engine moved it, and BOTH landed. Named per skill, and in the
+  // singular when there is one — "your skills" for a single one is the tell of a
+  // template nobody re-read.
+  if (skillsMerged.length > 0) {
+    const named = skillsMerged.map((skill) => `"${skill}"`).join(" and ");
+    const plural = skillsMerged.length > 1 ? "skills" : "skill";
+    lines.push(`   • your ${named} ${plural} kept your edits AND received this update`);
+  }
+  // ...and the mirror promise when no merge was possible: the owner's file is left
+  // ALONE. `merge-failed` is a customization too — the ancestor was there but the tool
+  // could not run — and it is said out loud rather than folded into the plain case,
+  // because "your edits could not be merged THIS time" is a different piece of news
+  // from "there was nothing to merge from".
+  const PRESERVED_ASIDE = { customized: "", "merge-failed": " (the merge could not run here)" };
   for (const { skill, reason, newVersionPath } of skillsPreserved) {
-    if (reason !== "customized") continue;
+    const aside = PRESERVED_ASIDE[reason];
+    if (aside === undefined) continue;
     lines.push(
-      `   • your customized "${skill}" skill was kept exactly as you wrote it` +
+      `   • your customized "${skill}" skill was kept exactly as you wrote it${aside}` +
         ` — the newer engine version sits next to it as ${newVersionPath}`,
+    );
+  }
+  // The one case that costs a human anything, so it is the loudest line in the report
+  // and the last of the skill block. Everything mergeable is already merged in that
+  // sidecar: what is left is the region the two sides both rewrote.
+  for (const { skill, newVersionPath } of conflicts) {
+    lines.push(
+      `   • ⚠️ "${skill}": your version and this update changed the same lines.` +
+        ` Yours is untouched; a merged copy marking both is at ${newVersionPath}`,
     );
   }
   // The engine files this update rewrote are VERSIONED, so we committed them (step 9) —
@@ -276,6 +304,8 @@ export async function updateEngine({
     installedFileMap,
     skillsRefreshed,
     skillsPreserved,
+    skillsMerged,
+    conflicts,
     refreshedFileMap,
     mcpServersAdded,
     hooksAdded,
@@ -390,6 +420,8 @@ export async function updateEngine({
     installedSkills,
     skillsRefreshed,
     skillsPreserved,
+    skillsMerged,
+    conflicts,
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,

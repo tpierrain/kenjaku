@@ -130,7 +130,7 @@ export async function reconcileBrain({
   //    update the owner explicitly asked for (auto-finalize hands us the FETCHED source),
   //    NEVER at SessionStart self-heal (which passes the brain as its own source — no new
   //    content, and nobody asked). ADR 0026's "additive" invariant holds where it matters.
-  const { skillsRefreshed, skillsPreserved, refreshedFileMap } = refreshUntouchedSkills({
+  const { skillsRefreshed, skillsPreserved, skillsMerged, conflicts, refreshedFileMap } = refreshUntouchedSkills({
     brainDir,
     sourceDir,
     sourceFiles,
@@ -299,6 +299,12 @@ export async function reconcileBrain({
     installedFileMap,
     skillsRefreshed,
     skillsPreserved,
+    // S2: a skill that kept the owner's edits AND took this update's changes, and one
+    // where the two touched the same lines. Both travel to `formatReport` — a merge
+    // nobody is told about lands silently, and a conflict nobody is told about is a
+    // `.new` file appearing beside a skill with no explanation.
+    skillsMerged,
+    conflicts,
     refreshedFileMap,
     mcpServersAdded,
     hooksAdded,

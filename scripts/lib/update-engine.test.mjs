@@ -90,6 +90,55 @@ test("formatReport — schema moved → reports the new version, the swap, and t
 // The update commits the versioned engine files it rewrote (otherwise they sit dirty
 // and block the next SessionStart pull). The user WILL see that commit land in their
 // history, so the report says it — and says it stayed local, since push is opt-in.
+// The three sentences S2 adds, asserted as the WHOLE block so their order and their
+// wording are pinned together (plan S2a-3b). Until this slice the merge landed and
+// the report said nothing — and a `.new` file appearing beside a skill with no
+// explanation is worse than no sidecar at all.
+test("formatReport — a merge, a clash and a merge that could not run each get their own sentence", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    vaultNoteCount: 0,
+    skillsMerged: ["coach", "switch"],
+    // The discriminating trio for the `reason` filter: a plain customization (no
+    // ancestor yet), a merge the tool could not run, and a no-provenance preserve that
+    // stays silent by design.
+    skillsPreserved: [
+      { skill: "import", reason: "customized", newVersionPath: ".claude/skills/import/SKILL.md.new" },
+      { skill: "sync", reason: "merge-failed", newVersionPath: ".claude/skills/sync/SKILL.md.new" },
+      { skill: "improve", reason: "no-provenance" },
+    ],
+    conflicts: [{ skill: "prepare-1-1", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
+  });
+  // The bulleted lines that name a skill by name — the block S2 owns. The footer
+  // ("your notes … were left untouched") mentions skills too, and it is not one.
+  const skillLines = out.split("\n").filter((line) => line.startsWith("   • ") && line.includes('"'));
+  assert.deepEqual(skillLines, [
+    '   • your "coach" and "switch" skills kept your edits AND received this update',
+    '   • your customized "import" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/import/SKILL.md.new',
+    '   • your customized "sync" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as .claude/skills/sync/SKILL.md.new',
+    '   • ⚠️ "prepare-1-1": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/prepare-1-1/SKILL.md.new',
+  ]);
+});
+
+// One merged skill must not be announced in the plural. The report is read by a
+// person, and "your skills" for a single one is the tell of a template nobody
+// re-read.
+test("formatReport — a single merged skill is announced in the singular", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    skillsMerged: ["coach"],
+  });
+  assert.match(out, /• your "coach" skill kept your edits AND received this update\n/);
+});
+
 test("formatReport — a committed update says so, and says nothing was pushed", () => {
   const out = formatReport({
     ref: "v1.1.0",
@@ -408,12 +457,14 @@ test("formatReport — an everything-on update prints every optional line, in or
     installedSkills: ["local-mirror", "coach"],
     mcpServersAdded: ["local-mirror", "vault-rag"],
     skillsRefreshed: ["switch", "coach"],
+    skillsMerged: ["sync", "improve"],
     // A customized preserve (reported, with its sidecar) next to a no-provenance one
     // (silent by design) — the discriminating pair for the `reason` filter.
     skillsPreserved: [
       { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
       { skill: "import", reason: "no-provenance" },
     ],
+    conflicts: [{ skill: "univers", newVersionPath: ".claude/skills/univers/SKILL.md.new" }],
     hooksAdded: ["scripts/session-health.mjs", "scripts/session-self-heal.mjs"],
     // "statusLine" is the decoy: it carries neither the `scripts/` prefix nor the
     // `.mjs` suffix, so it must pass through the stripping untouched.
@@ -429,7 +480,9 @@ test("formatReport — an everything-on update prints every optional line, in or
       "   • new engine skill(s) installed: local-mirror, coach",
       "   • new MCP server(s) registered: local-mirror, vault-rag",
       "   • engine skill(s) brought up to date: switch, coach",
+      '   • your "sync" and "improve" skills kept your edits AND received this update',
       '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
+      '   • ⚠️ "univers": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/univers/SKILL.md.new',
       "   • new runtime hook(s) wired: session-health, session-self-heal",
       "   • repaired Windows hook command(s) (issue #31 — 'laude' error): auto-push, statusLine",
       "   ⚠️ ACTION NEEDED — 6 new capabilities are installed on disk but NOT active in THIS conversation.",
@@ -676,6 +729,14 @@ test("needsRestart — a refresh-only update still arms the nudge", () => {
     needsRestart({ copied: [], regenerated: false, skillsRefreshed: ["switch"] }),
     true,
   );
+});
+
+// A MERGED skill changed on disk exactly as a refreshed one did — the file the next
+// session loads is not the file this one loaded. Left out of this list, the whole
+// merge path would land silently and take effect only at some later restart nobody
+// asked for (plan S2a-3b).
+test("needsRestart — a merged skill arms the nudge, like a refreshed one", () => {
+  assert.equal(needsRestart({ copied: [], regenerated: false, skillsRefreshed: [], skillsMerged: ["coach"] }), true);
 });
 
 // The don't-cry-wolf boundary, same as the report banner's: an update that changed
