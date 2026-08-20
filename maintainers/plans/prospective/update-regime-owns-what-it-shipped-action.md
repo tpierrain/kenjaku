@@ -89,14 +89,12 @@
 > the tree's own regime gets decided — it must never be a `replace` target, that would recreate the bug
 > one level up.
 >
-> ⚠️ **One question for the owner is RIPE, and it is the only thing on this step that needs him**: the
-> fork below was *"une inclination, pas une signature"* and the plan reserved the re-ask for the moment
-> the first test made the shape concrete. That moment came with the first slice, and **it was surfaced
-> in chat on 2026-08-20 without an answer yet** — `.engine-base/CLAUDE.md`,
-> `.engine-base/scripts/auto-commit.mjs`, `.engine-base/.claude/skills/coach/SKILL.md`. It did **not**
-> block the advance rule (home-agnostic), and it does **not** block the seeding planner either — but it
-> **does** block the fs orchestrator, which is the first slice that writes the tree to disk. Ask it
-> again before that one.
+> ✅ **THE FORK IS NOW SIGNED, not merely inclined** _(owner, 2026-08-20: "oui, `.engine-base/` à la
+> racine me va")_. The re-ask the plan had reserved was made once the first test showed the concrete
+> shape (`.engine-base/CLAUDE.md`, `.engine-base/scripts/auto-commit.mjs`,
+> `.engine-base/.claude/skills/coach/SKILL.md`), and the answer confirmed the leaning: **one tree, at
+> the brain's root, beside the notes**. Nothing on this step needs the owner any more, and **the fs
+> orchestrator is unblocked** — it was the only slice the open question held. Do not re-open it.
 >
 > ⏸️ **S1 was SCOUTED and its one blocking decision TAKEN** _(2026-08-20)_: the
 > base lives in a single **`.engine-base/`** (owner's call, "la seconde a priori"). Its ground truth is
@@ -308,6 +306,10 @@ audible divergence.
   - [x] 🛑 **THE FORK — ANSWERED 2026-08-20: a single `.engine-base/`**, the recommended option
         _(owner, in conversation: "la seconde a priori" — a leaning, not a signature; he may revisit it
         when the first test makes the shape concrete, and that is the moment to re-ask, not before)_.
+    - [x] ✅ **RE-ASKED AND SIGNED the same day**, once `baseRelPath`'s tests showed the literal paths:
+          *"oui, `.engine-base/` à la racine me va"*. The leaning became a decision, the tree sits at the
+          **brain's root beside the notes** (not hidden under `.claude/`), and the fs orchestrator is
+          unblocked. **Do not re-open.**
         The rejected option was generalizing `engine-skills/` (one staging tree per family). **The
         reason to keep**: the problem is not skills — three of the four families have **no base at
         all**, and `engine-skills/` cannot host `CLAUDE.md` or `settings.json` without becoming a
