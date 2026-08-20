@@ -161,7 +161,10 @@ own. The three are named below rather than left implied.
   `copied`. That map feeds `reseedProvenance` **and** `syncBaseTree`, so the bytes recorded as the
   ancestor for every `replace`-copied file are unproven. **Routed to S2b**, which reworks exactly that
   path when the four engine scripts leave `replaceScripts` — the test belongs where the behaviour is
-  being changed, not bolted onto a report slice.
+  being changed, not bolted onto a report slice. ➡️ **Narrowed 2026-08-21 by S2b's design to the
+  sub-slice `S2b-4`, deliberately LAST**: the four scripts leaving the copy bucket changes what `copied`
+  contains, so a test pinned before that switch would be rewritten by the very slice it was meant to
+  guard. Line located while designing: `update-engine.mjs:341`.
 - ⚪ **An equivalent mutant, kept as such.** The `skillsPreserved = []` default survives being given a
   junk array: only its *iterability* is observable (a string entry destructures to `undefined` fields
   and is skipped by the same filter that skips `no-provenance`). The default is load-bearing — without

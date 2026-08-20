@@ -153,13 +153,16 @@
 > `conflicts` reach `formatReport`: a merge announces that the owner's edits were kept **and** the
 > update landed, a failed merge says so apart, and a clash is the loudest line in the report.
 >
-> **▶️ RESUME AT: S2b — the four engine scripts stop being overwritten blind.** `auto-commit`,
-> `auto-push`, `status-line`, `verify-rag` are declared `merge` and applied `replace`: the mirror image
-> of the skills' bug, and **the one that can destroy an owner's edit today**. They leave
-> `replaceScripts` for the merge-governed path. ⚠️ `update-engine.mjs` matches the same `ENGINE_SCRIPT`
-> regex and **must keep replacing itself** — the self-update path is not a merge subject. Pay S2b's
-> named debt in the same slice (the untested `deliveredFileMap` read, in the S2b block below). **S2c is
-> the only part that waits on Thomas** (the box at the top), and nothing else does.
+> ✅ **S2b IS DESIGNED, and the design corrected a fact this plan had wrong** _(2026-08-21 · design
+> slice, no code)_. The full block is below (§ S2b); its four sub-slices are the work queue.
+>
+> **▶️ RESUME AT: S2b-1 — the refresher generalises, with no behaviour change.** Extract from
+> `engine-skill-refresh.mjs` the per-file merge application into a group-agnostic core
+> (`engine-merge-apply.mjs`); the skills become its first caller, and the report entries' `skill` field
+> becomes `name` (three clients are coming, and in two of them "skill" is a lie). Nothing moves in the
+> apply plan, nothing changes on disk for a brain. Then S2b-2 (the syntax gate), S2b-3 (the switch, in
+> ONE commit), S2b-4 (the named debt) — all four detailed in § S2b below. **S2c is the only part that
+> waits on Thomas** (the box at the top), and nothing else does.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -664,17 +667,112 @@ audible divergence.
   - [ ] **S2b — the four engine scripts stop being overwritten blind.** `auto-commit`, `auto-push`,
         `status-line`, `verify-rag` are declared `merge` and applied `replace` (`computeApplyPlan` puts
         them in `replaceScripts`) — the mirror image of the skills' bug, and the one that can destroy an
-        owner's edit **today**. They leave `replaceScripts` for the merge-governed path. ⚠️
-        `update-engine.mjs` matches the same `ENGINE_SCRIPT` regex and **must keep replacing itself**:
-        the self-update path is not a merge subject.
-  - [ ] **A debt S2a-3b's mutation run uncovered, and S2b is where it is paid** _(2026-08-21)_: the
-        `deliveredFileMap` line that reads back every **copied** file's bytes is **never executed under
-        test** (a mutant giving it an invalid encoding survives). That map feeds `reseedProvenance` and
-        `syncBaseTree`, so the ancestor recorded for every `replace`-copied file is unproven — and S2b
-        reworks exactly that path. Detail in `RESULTS.md` § S2's report.
-  - [ ] **A small cleanup named by the same run**: `runUpdateCli`'s "unknown" report hand-rolls a second
-        copy of the shape `checkUpstream`'s `unknown()` helper already builds, which is why one of its
-        fields is dead and unassertable. Reuse the helper.
+        owner's edit **today**.
+
+    - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-21)_. Same reason as S2a's: a
+          design held in a window dies at the next compaction, and S2a proved that a re-readable
+          paragraph is what catches the defect a green test never would.
+
+    - [x] 🛑 **THE FIRST THING THE DESIGN FOUND IS THAT THIS PLAN WAS WRONG.** Every earlier note here
+          (and the header comment of `engine-apply-plan.mjs`, and the title of its test) warned that
+          `update-engine.mjs` **matches `ENGINE_SCRIPT` and must keep replacing itself**. It does match
+          the regex — but the regex is applied to `regimes.merge`, and **`scripts/update-engine.mjs` has
+          never been declared `merge`**. Swept: **all 48 revisions of `engine-manifest.json`, zero**
+          declare it there; it sits in `regimes.replace` (line 23), so it reaches a brain through
+          `overwrite`, and the shipped `replaceScripts` bucket has always held **exactly the four
+          scripts** — the four this slice removes from it.
+      - [ ] **Consequence for the code**: there is **no split to make**. The bucket is not "the engine
+            scripts including the self-updater", it is *"the merge-declared top-level scripts"*, and once
+            those go through the merge it is **empty on every manifest that exists**. So it is renamed
+            (`replaceScripts` → `mergeScripts`), it leaves `copyGlobs`, and it stays inside
+            `planTouches` — the engine still writes those files, just no longer blind.
+      - [ ] **Consequence for the prose**: three artefacts assert the false claim and must stop —
+            `engine-apply-plan.mjs`'s header comment (lines 7–8), the test title at
+            `engine-apply-plan.test.mjs:31`, and the note at `:42` ("self-update → MUST be present"),
+            which is true of that **synthetic fixture** and of nothing the product ships. A comment that
+            lies is a defect, exactly like a test name that lies.
+      - [ ] **What must not change**: the self-update path itself. `update-engine.mjs` keeps arriving by
+            copy through `overwrite`, and `planTouches(shippedPlan, "scripts/update-engine.mjs")` stays
+            true — pinned already by `engine-apply-plan.test.mjs:148`.
+
+    - [x] ⚠️ **The risk that is NEW here, and that the skills never carried: these four files are
+          EXECUTED.** `auto-commit.mjs` runs at every Stop hook, `status-line.mjs` at every prompt. A
+          broken `SKILL.md` degrades an answer; a broken `auto-commit.mjs` **silently stops committing
+          the brain**, which is the product's whole promise. Row 9 already forbids writing on a conflict,
+          so markers can never land — but a *clean* line-based merge of two valid edits can still produce
+          bytes that parse to nothing valid, and those bytes **exist nowhere but that one machine**: no
+          engine test ever ran them.
+      - [x] **Decision — the merge output is syntax-gated before it is written**, and only the merge
+            output. A fast-forward (row 5) writes the engine's own candidate, which the suite already
+            tested; the gate exists for bytes the engine has never seen. A failed gate degrades to
+            `preserve` with reason `merge-unsafe` and the sidecar — the owner's working script stands.
+      - [x] **The alternative was named and rejected**: accept the risk, on the grounds that today's
+            behaviour destroys the edit outright and is therefore worse. It is worse in one way and
+            better in another — today's overwrite always leaves a **working** script — and "we made your
+            brain stop saving itself" is not a trade this chantier gets to make silently.
+      - [x] **Measured 2026-08-21, node v25.6.0** (the repo requires `>=22`): `node --check
+            --input-type=module -` reads the candidate **on stdin** and exits `0` clean / `1` on a parse
+            failure — verified on conflict markers, on a truncated function, and on a duplicate `export
+            const`. No temp file, so the gate is simpler than `mergeWithGit`. ⚠️ **Its honest limit**: it
+            catches SYNTAX, not sense — `require("fs")` inside an `.mjs` passes. And per CONVENTIONS.md
+            §5ter the request is a **value** (`buildSyntaxCheckInvocation`), handed to a thin runner, in
+            its own impure module beside `engine-merge-git.mjs`.
+      - [x] **A gate that cannot run degrades like a git that cannot run** — `preserve`, never a false
+            "unsafe" and never a write. That is what makes the node-version question non-fatal by
+            construction rather than by measurement.
+
+    - [x] **Module boundaries** (so each mutation run keeps judging one thing):
+      - [x] `scripts/lib/engine-merge-apply.mjs` — **new, group-agnostic**: the per-file loop that
+            `refreshUntouchedSkills` holds today (read candidate → read installed → read ancestor →
+            `mergeVerdict` → clear the stale sidecar → write → record `deliver` → drop the sidecar →
+            classify). It takes the (installed ← source) **pairs**, a `groupOf(rel)` for the report, and
+            the optional `verifyWrite` gate. Skills and scripts then differ only in what they hand it.
+      - [x] `scripts/lib/engine-script-check.mjs` — the syntax gate's one impure half.
+      - [x] **The report entries' key becomes `name`, not `skill`.** Three clients are coming (skills,
+            scripts, and the constitution at S2c) and in two of them `skill` is simply false. Blast
+            radius measured: `formatReport`'s two loops (`update-engine.mjs:160` and `:171`) and the
+            fixtures that feed them. `skillsRefreshed` / `skillsMerged` stay arrays of plain strings.
+      - [x] **The self-heal guard is unchanged and shared**: `sourceDir === brainDir` returns an empty
+            report. Today `copyInto` skips a self-copy, so the four scripts are untouched at self-heal;
+            with the merge behind the same guard they stay untouched. No behaviour moves.
+      - [x] **The locale resolution stays in the shared core**, where it is a no-op for the four scripts
+            (the only locale-owned engine file is `scripts/lib/demo-locale.mjs`, which is `replace` and
+            not top-level). One code path beats one branch.
+
+    - [ ] **S2b-1 — the refresher generalises, no behaviour change.** `engine-merge-apply.mjs` is
+          extracted; `refreshUntouchedSkills` becomes a caller of it; `skill` becomes `name` through
+          `formatReport` and its fixtures. **The proof it changed nothing**: the ten existing skill
+          tests stay green untouched except for the field rename, and the new core carries its own
+          cases. Nothing in `computeApplyPlan` moves.
+    - [ ] **S2b-2 — the syntax gate.** `engine-script-check.mjs` against a **real** `node --check` (a
+          subprocess contract proven by a stub proves nothing — S2a-2's lesson), plus the core's
+          `verifyWrite` seam and the `merge-unsafe` degradation, driven through an injected merge that
+          returns broken bytes. Skills pass no gate, so they are untouched.
+    - [ ] **S2b-3 — the switch, and it is ONE commit.** The bucket renames and leaves `copyGlobs`, the
+          script refresh is wired into `reconcileBrain`, and the report gains its sentences. ⚠️ **Split
+          across two commits there would exist a commit in which the four scripts are delivered by
+          nobody** — a fleet that silently stops receiving `auto-commit` fixes. The branch never holds
+          that state.
+      - [ ] The report sentences are the skills' three, said about a file instead of a skill. Wording is
+            Thomas's at release time (`release-notes-tone`), like S2a-3b's.
+    - [ ] **S2b-4 — the named debt, paid on the final shape.** The `deliveredFileMap` line at
+          `update-engine.mjs:341` that reads back every **copied** file's bytes is **never executed under
+          test** (a mutant giving it an invalid encoding survives). That map feeds `reseedProvenance` and
+          `syncBaseTree`, so the ancestor recorded for every `replace`-copied file is unproven. Detail in
+          `RESULTS.md` § S2's report. **Deliberately last**: pinning it before S2b-3 would pin a `copied`
+          list that S2b-3 then changes, so the test would be rewritten by the slice it was meant to
+          guard.
+      - [ ] Same slice, same run's other finding: `runUpdateCli`'s "unknown" report hand-rolls a second
+            copy of the shape `checkUpstream`'s `unknown()` helper already builds, which is why one of
+            its fields is dead and unassertable. Reuse the helper.
+
+    - [ ] **Deliberately OUT of S2b** — named so the slice does not grow:
+      - [ ] **Semantic validation of a merged script** (running it, linting it, type-checking it). The
+            gate parses; judging whether a merged `auto-commit.mjs` still *behaves* is a different
+            product, and the honest answer to it is the conflict report, not a cleverer check.
+      - [ ] **`scripts/lib/**`** — declared `replace`, and it stays there. It is engine internals, not
+            a file an owner is invited to edit; making it merge-governed would offer a promise nobody
+            asked for.
   - [ ] **S2c — the scrub is reformulated: never written *blind*.** `SACRED` splits in two, and the
         words matter because this is the invariant ADR 0003/0012 is built on:
     - [ ] **Inviolable, and it stays that way**: `.env` (secrets), `vault/` (the owner's notes — the

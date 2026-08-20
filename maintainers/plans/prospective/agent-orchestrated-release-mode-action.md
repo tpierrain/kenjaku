@@ -404,6 +404,26 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 8) — S2b is DESIGNED, and the design found the plan lying.**
+  A **design slice**: no test, no mutation score, and it is finished because the design is written into
+  the owning plan and committed (§ S2b there). Cut into four sub-slices; S2b-1 is next.
+  - 🛑 **The plan had warned, in four places, about a danger that does not exist.** *"`update-engine.mjs`
+    matches the same `ENGINE_SCRIPT` regex and must keep replacing itself"* — it matches, but the regex
+    is applied to `regimes.merge`, and a sweep of **all 48 revisions of `engine-manifest.json` found
+    zero** that declare it there. The bucket S2b empties has always held exactly the four scripts, so
+    there is **no split to make**, only a rename and a removal.
+    ➡️ **For the mode**: the warning had been copied from a **code comment** (`engine-apply-plan.mjs:7`)
+    into a plan, into a test title, into a fixture note. **A comment is not a measurement**, and copying
+    one four times does not make it one. Cost to check: a two-line `git show` loop over 48 revisions.
+  - 🛡️ **A slice can inherit a risk its predecessor did not carry.** S2a merged **skills**; S2b merges
+    files the brain **executes** at every session (this plan already singles `status-line.mjs` out for
+    that reason, § Step 0's warning). A clean line-based merge can produce bytes that parse to nothing —
+    bytes that **exist nowhere but that one machine**. Hence a syntax gate on the merge output only, and
+    a degradation to `preserve` when it fails. Measured, not assumed: `node --check --input-type=module -`
+    reads stdin and exits 1 on conflict markers, on a truncated function, on a duplicate `export const`.
+  - 🔗 **The sub-slice cut is driven by what must never exist in a commit**, not by size: S2b-3 wires
+    the bucket and the refresh **in one commit**, because splitting them would leave a commit in which
+    the four scripts are delivered by nobody.
 - 🌙 **2026-08-21 (night, loop iteration 7) — S2a is COMPLETE: the merge works and says so.** Commit
   `ecd8d6c`, pushed, suite **1918 pass / 0 fail**, `update-engine.mjs` at **98.95 %** with 3 survivors,
   **none of them in this slice's code**.
