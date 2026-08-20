@@ -66,13 +66,31 @@
 > keeps no copy of a number.
 >
 > **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
-> this plan exists for. ⏸️ **S1 is SCOUTED and its one blocking decision is TAKEN** _(2026-08-20)_: the
+> this plan exists for. ▶️ **S1 IS UNDER WAY: its first production slice landed** _(2026-08-20 ·
+> `411d4d7` + `40743c1`)_ — `scripts/lib/engine-base.mjs`, pure, carrying the two facts nothing else
+> owns: **where** a base lives (`.engine-base/<rel>`, one tree for the four families) and **whether it
+> is provable** (the recorded sha256 becomes the proof, with `no-provenance` / `absent` / `mismatch`
+> named apart because their repairs differ). Test-first, 8 cases red on their assertions first,
+> **100 % mutation score** the same hour _(number owned by
+> [`RESULTS.md` § S1's first slice](../../mutation/RESULTS.md#s1s-first-slice--libengine-basemjs-measured-the-day-it-was-written--2026-08-20))_.
+>
+> **▶️ RESUME AT: the base's ADVANCE rule** — the sentence S1 is actually named after, and the only one
+> that kills the false positive: *the base moves to what was **delivered** to the installed file, never
+> to the newest fetched content.* A pure `planBaseAdvance` driven by the delivery map
+> (`refreshUntouchedSkills`'s `refreshedFileMap`, the shape that already exists), then the seeding
+> planner (installed matches its recorded sha → seed from the brain itself, the cheap migration), then
+> the fs orchestrator and its wiring at install and at update. ⚠️ **One question for the owner is now
+> RIPE, and it is the only thing on this step that needs him**: the fork below was *"une inclination,
+> pas une signature"* and the plan reserved the re-ask for the moment the first test made the shape
+> concrete. That moment is now — `.engine-base/CLAUDE.md`, `.engine-base/scripts/auto-commit.mjs`,
+> `.engine-base/.claude/skills/coach/SKILL.md`. It does **not** block the advance rule, which is
+> home-agnostic.
+>
+> ⏸️ **S1 was SCOUTED and its one blocking decision TAKEN** _(2026-08-20)_: the
 > base lives in a single **`.engine-base/`** (owner's call, "la seconde a priori"). Its ground truth is
 > measured on the deployed brains and written into its box — `merge` is **four** behaviours, not one,
 > three of the four have **no base at all**, and `CLAUDE.engine.md` has **no regime at all**, which is
-> why a fully-up-to-date brain is still 10 KB of doctrine behind. **Still no test written and no
-> production line touched.** Resume by writing S1's first test against the `.engine-base/` shape; do
-> **not** re-measure, and do not re-open the fork. ✅ **The slice that came before it is DONE**
+> why a fully-up-to-date brain is still 10 KB of doctrine behind. Do **not** re-measure any of it. ✅ **The slice that came before it is DONE**
 > _(2026-08-20)_ — the `mutation-testing` pair (script + skill), so **S1 is the live work now**. Its
 > record, and the working mode that governs how S1 may be dispatched, stay in
 > [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking;
@@ -302,8 +320,32 @@ audible divergence.
           engine's last delivered content — so the base tree can be seeded **from the brain itself**,
           with no fetch. 13 of 15 entries qualified on the live brain; the two that did not
           (`CLAUDE.md`, `settings.json`) seed from the fetched engine copy at the next update.
-    - [ ] Not started, deliberately: no test written and no production line touched until the fork is
-          answered — the shape of the base decides the shape of the first test.
+  - [x] **The base's HOME and its PROOF are built** _(2026-08-20 · `411d4d7` + `40743c1`)_ —
+        `scripts/lib/engine-base.mjs`, pure and fs-free: `baseRelPath` (one `.engine-base/` tree, a
+        deliberately unconditional prefix, no per-family case) and `verifyBase`, which turns the
+        recorded sha256 into the **proof checked before any merge** and names its three failures apart
+        because their repairs differ — `no-provenance` (never entered the regime: the 9 staged skills,
+        `CLAUDE.engine.md`), `absent` (incomplete tree, re-seed), `mismatch` (the tree drifted; feeding
+        those bytes to a three-way merge would silently pick the **wrong ancestor**, which is the
+        failure this tree exists to make impossible). 8 cases red on their assertions first, **100 %
+        mutation**, and the run earned its keep: the survivor it found was the raw-vs-normalized half
+        of the proof, i.e. **a real Windows case the suite had no example of** (a brain that
+        fingerprints CRLF bytes at install records a CRLF sha). ♻️ `normalizeEol` had a second copy in
+        `engine-skill-refresh.mjs`; one definition now, since both answer the same question about the
+        same sha.
+  - [ ] **NEXT — the ADVANCE rule, the sentence this step is named after.** A pure `planBaseAdvance`:
+        the base moves to what was **delivered** to the installed file, never to the newest fetched
+        content. Drive it from the delivery map that already exists (`refreshedFileMap`), not from the
+        source tree — that substitution *is* the false positive (`engine-skills/**` sits in `replace`,
+        so today the base runs ahead while the installed file stands still).
+  - [ ] **Then the seeding planner**, on the measurement above: installed content matching its recorded
+        sha **is** the engine's last delivered content → seed the tree from the brain itself, no fetch
+        (13 of 15 entries qualified on the live brain). The other two seed from the fetched copy at the
+        next update.
+  - [ ] **Then the fs orchestrator + the wiring**: write `.engine-base/` at install
+        (`recordSourceAndProvenance`) and at update (beside `reseedProvenance`), and decide what regime
+        the tree itself answers to (it must never be a `replace` target — that would recreate the bug
+        one level up).
 - [ ] **S2 — A real three-way merge, so "preserve" stops meaning "abandon".**
   - [ ] untouched → fast-forward (today's behaviour, unchanged);
   - [ ] owner's edit in a region the update does not touch → **merge**: they keep their edit **and**

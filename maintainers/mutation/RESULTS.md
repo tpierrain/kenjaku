@@ -141,6 +141,35 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S1's first slice — `lib/engine-base.mjs`, measured the day it was written — 2026-08-20
+
+**Not a release: the first production file of the unfreeze chantier** (the immutable base per `merge`
+file). Same branch as S0bis below; the step's own state is owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md),
+this section owns only the number.
+
+| File | First pass | After the survivor | Survivors left |
+|---|---|---|---|
+| `lib/engine-base.mjs` *(new)* | 97.14 % | **100.00 %** | 0 |
+
+**This is the day-of runner's first use on the work it was built for**, one commit after it shipped:
+the file was mutated the same hour it was written, not at the release tail, and the whole round cost
+two runs of ~70 s.
+
+**The single first-pass survivor was worth the run, and it was NOT an equivalent.** Stryker dropped the
+raw `fingerprint(baseContent) === recorded` half of the base's proof, keeping only the EOL-normalized
+one — green, because normalizing LF content is the identity. The case it silently gave up is real and
+Windows-only: a brain installed on Windows fingerprints whatever it copied, so **the recorded sha
+itself can be taken over CRLF bytes**, and there the normalized comparison hashes LF and misses. The
+two terms serve **opposite halves of the fleet**, and the suite had a case for one half only —
+reflex 9 (a condition with N reasons needs N tests, one per reason alone). Mutant applied by hand
+before and after the new case, per the skill.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs` (log
+[`reports/mutate-one-engine-base.log`](reports/mutate-one-engine-base.log)).
+
+---
+
 ## The day-of runner, and its first two runs — 2026-08-20
 
 **Not a release either: the tooling.** Same branch as S0bis below. §5quinquies had carried the

@@ -38,10 +38,13 @@
 >    **70.00 %** on the tool's first real use, its 3 survivors all in its composition root — remaining
 >    entry-tier debt, held by the S0bis ceilings.
 > 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
-> 4. ▶️ **RESUME HERE — S1** of [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
->    under the mechanical-only verdict. That plan owns the release's state and its own resume marker —
->    open it and start there. S1 is also what has to produce the **contrast** the deferred
->    adversarial-review question needs (one slice reviewed adversarially, one not).
+> 4. ▶️ **S1 IS UNDER WAY** in [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+>    under the mechanical-only verdict — **its first slice landed 2026-08-20 and was kept in session,
+>    correctly**: design + tests are exactly what the verdict forbids dispatching. That plan owns the
+>    release's state and its own resume marker — open it and start where **its** header says, not here.
+>    S1 is also what has to produce the **contrast** the deferred adversarial-review question needs
+>    (one slice reviewed adversarially, one not) — **still unproduced**, since nothing has been
+>    dispatched on S1 yet.
 >
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
 > adversarial-review question is deferred to the **S1 debrief**, on S1's figures. **And the release's
@@ -588,6 +591,18 @@ arbitration goes here as a question, and the run continues on other slices.
         under load (the unreproduced flake above), and the two staging mistakes were the same mistake
         twice. The staging one now has a deterministic net; the false-reds one does not, and a red
         seen during a saturated fan-out is to be re-run solo before it is believed.
+- [~] **Run the mode on S1** — the first slice of substance, and the first test of the mechanical-only
+      verdict on work that is *not* a repetitive conversion.
+  - [x] **Slice 1 — the base's home and its proof: KEPT IN SESSION, and that was the verdict working**
+        _(2026-08-20 · `411d4d7` + `40743c1`)_. Nothing here was dispatchable: the design decides what
+        `merge` will mean afterwards, and the tests are the judge every later slice will be measured
+        against — the two things the verdict names first. The day-of runner then judged it
+        mechanically (**100 %**), which is the shape to keep: **the human keeps the judgement, the
+        machine keeps the score.**
+  - [ ] **Where a fan-out becomes legitimate on S1**, and it is not yet: once the advance rule and the
+        seeding planner have their tests written **in session**, seeding the base tree across the
+        families is repetitive work against a written judge. That is also the slice to run
+        **adversarially reviewed**, to produce the contrast the deferred question needs.
 - [x] **DONE — plans go stale because their state is COPIED, not because the rule is forgotten.**
       _(Owner asked "pourquoi tu n'arrêtes pas d'oublier de mettre à jour le plan ? il y a un truc qui
       ne va pas dans mon harnais", 2026-08-20. His call on the fix: **"les deux, le hook d'abord"**.)_
