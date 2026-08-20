@@ -15,6 +15,12 @@ below has already cost a real run at least once, and a written reflex was measur
 > **Not here**: how to write a killing assertion. That is `test-first-discipline` (a matcher on every
 > `throws`, assert the whole object, triangulate bounds, collections ≥2 unsorted, a double's answer as
 > a fingerprint). This skill starts once the run has produced a number.
+>
+> **Nor the portable version of the traps below.** Since 2026-08-20, `test-first-discipline` §*"A
+> mutation run LIES to you"* carries the five ways any run hands back a number that measures nothing,
+> and the survivor triage that precedes writing a test — tool- and language-agnostic. **This file owns
+> the local answer**: which command, which worktree, which package. Read the doctrine there, run it
+> here.
 
 ## 1. When a pass is due
 

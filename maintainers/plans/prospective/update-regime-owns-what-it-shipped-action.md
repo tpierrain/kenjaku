@@ -254,10 +254,11 @@ Three consequences, each already logged as its own field finding:
         `installer.mjs`), while the harness source has moved on since. **The harness is the owner
         again** — Kenjaku's copy is the shipped artefact, not the source. ⚠️ It is the **only** copy of
         this doctrine that reaches end users, so a hand edit here widens the gap while looking like
-        closing it: the refresh is this rider's job. **Waiting on it right now**: the harness's
-        [T8](../../../../use-case-driven-harness/docs/plans/harness-consolidation-action.md) (how a
-        mutation run lies to you) is written upstream first and must reach the brains through this
-        path, not by copy-paste.
+        closing it: the refresh is this rider's job. **No longer waiting — the payload exists**: the
+        harness's [T8](../../../../use-case-driven-harness/docs/plans/harness-consolidation-action.md)
+        landed upstream on 2026-08-20 (`29abfa8`, skill **v2.1.0**, the section *"A mutation run LIES
+        to you"*). It must reach the brains **through this path**, not by copy-paste, so the gap this
+        rider has to close is now one version wider and fully described upstream.
   - [ ] ⚠️ **Retirement is NOT automatic — verified in code on 2026-08-15**: `refreshUntouchedSkills`
         only walks skills present in the **source**, and its single `rmSync` targets `.new` sidecars.
         A skill dropped from the engine is **never visited**, so `tdd-discipline` would sit on every
