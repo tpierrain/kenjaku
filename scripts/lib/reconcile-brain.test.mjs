@@ -990,7 +990,7 @@ test("reconcileBrain — a merged skill and a clashing one both reach the report
 
   assert.deepEqual(report.skillsMerged, ["switch"]);
   assert.deepEqual(report.conflicts, [
-    { skill: "coach", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+    { name: "coach", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
   ]);
   assert.match(
     readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"),
@@ -1027,7 +1027,7 @@ test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and repor
   );
   assert.deepEqual(report.skillsRefreshed, []);
   assert.deepEqual(report.skillsPreserved, [
-    { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+    { name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
   ]);
 });
 
@@ -1062,7 +1062,7 @@ test("reconcileBrain — the new version of a customized skill is dropped alongs
     "the engine version is available, verbatim, next to the owner's",
   );
   assert.deepEqual(report.skillsPreserved, [
-    { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+    { name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
   ]);
 });
 
@@ -1137,7 +1137,7 @@ test("reconcileBrain — an UNPROVABLE skill is preserved WITHOUT a .new, and a 
   assert.deepEqual(report.skillsRefreshed, []);
   assert.deepEqual(
     report.skillsPreserved,
-    [{ skill: "coach", reason: "no-provenance" }],
+    [{ name: "coach", reason: "no-provenance" }],
     "reported as unprovable, NOT as a customization, and with no .new to point at",
   );
   assert.equal(
@@ -1216,8 +1216,8 @@ test("reconcileBrain — TWO customized files in ONE skill are reported once, bu
 
   assert.equal(report.skillsPreserved.length, 1, "one line per SKILL, not per file");
   assert.deepEqual(
-    report.skillsPreserved.map(({ skill, reason }) => ({ skill, reason })),
-    [{ skill: "coach", reason: "customized" }],
+    report.skillsPreserved.map(({ name, reason }) => ({ name, reason })),
+    [{ name: "coach", reason: "customized" }],
   );
   // Reporting once must not mean delivering once: every customized file still gets its own
   // sidecar, or the owner silently loses the engine's newer version of the unnamed one.
@@ -1289,7 +1289,7 @@ test("reconcileBrain — a CUSTOMIZED staged skill is preserved too (the staging
   assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md"), "utf8"), mine);
   assert.deepEqual(report.skillsRefreshed, []);
   assert.deepEqual(report.skillsPreserved, [
-    { skill: "lint", reason: "customized", newVersionPath: ".claude/skills/lint/SKILL.md.new" },
+    { name: "lint", reason: "customized", newVersionPath: ".claude/skills/lint/SKILL.md.new" },
   ]);
   assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md.new"), "utf8"), next);
 });
@@ -1643,7 +1643,7 @@ test("reconcileBrain — a reconcile with no `local` manifest at all still conve
   const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, ...s });
 
   assert.deepEqual(report.skillsRefreshed, [], "no base on record → nothing may be overwritten");
-  assert.deepEqual(report.skillsPreserved, [{ skill: "coach", reason: "no-provenance" }]);
+  assert.deepEqual(report.skillsPreserved, [{ name: "coach", reason: "no-provenance" }]);
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), skill, "the brain's copy is left alone");
   assert.deepEqual(calls.install, [join(brainDir, "rag")], "the rest of the converge still runs");
 });

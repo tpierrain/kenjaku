@@ -107,11 +107,11 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     // ancestor yet), a merge the tool could not run, and a no-provenance preserve that
     // stays silent by design.
     skillsPreserved: [
-      { skill: "import", reason: "customized", newVersionPath: ".claude/skills/import/SKILL.md.new" },
-      { skill: "sync", reason: "merge-failed", newVersionPath: ".claude/skills/sync/SKILL.md.new" },
-      { skill: "improve", reason: "no-provenance" },
+      { name: "import", reason: "customized", newVersionPath: ".claude/skills/import/SKILL.md.new" },
+      { name: "sync", reason: "merge-failed", newVersionPath: ".claude/skills/sync/SKILL.md.new" },
+      { name: "improve", reason: "no-provenance" },
     ],
-    conflicts: [{ skill: "prepare-1-1", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
+    conflicts: [{ name: "prepare-1-1", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
   });
   // The bulleted lines that name a skill by name — the block S2 owns. The footer
   // ("your notes … were left untouched") mentions skills too, and it is not one.
@@ -461,10 +461,10 @@ test("formatReport — an everything-on update prints every optional line, in or
     // A customized preserve (reported, with its sidecar) next to a no-provenance one
     // (silent by design) — the discriminating pair for the `reason` filter.
     skillsPreserved: [
-      { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
-      { skill: "import", reason: "no-provenance" },
+      { name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+      { name: "import", reason: "no-provenance" },
     ],
-    conflicts: [{ skill: "univers", newVersionPath: ".claude/skills/univers/SKILL.md.new" }],
+    conflicts: [{ name: "univers", newVersionPath: ".claude/skills/univers/SKILL.md.new" }],
     hooksAdded: ["scripts/session-health.mjs", "scripts/session-self-heal.mjs"],
     // "statusLine" is the decoy: it carries neither the `scripts/` prefix nor the
     // `.mjs` suffix, so it must pass through the stripping untouched.
@@ -526,7 +526,7 @@ test("formatReport — a steady-state upgrade prints the incremental-reindex + g
     reindexed: true,
     reindexReason: "health-note-seed",
     vaultNoteCount: 1,
-    skillsPreserved: [{ skill: "coach", reason: "no-provenance" }],
+    skillsPreserved: [{ name: "coach", reason: "no-provenance" }],
   });
   assert.equal(
     out,
@@ -604,7 +604,7 @@ test("formatReport — says which customized skill was preserved, and where its 
     regenerated: false,
     reindexed: false,
     skillsPreserved: [
-      { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+      { name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
     ],
   });
   assert.match(out, /prepare-1-1/);
@@ -623,7 +623,7 @@ test("formatReport — a preserve with no provenance is NOT reported as a custom
     copied: ["rag/src/index.ts"],
     regenerated: false,
     reindexed: false,
-    skillsPreserved: [{ skill: "coach", reason: "no-provenance" }],
+    skillsPreserved: [{ name: "coach", reason: "no-provenance" }],
   });
   assert.doesNotMatch(out, /customized/i);
   assert.doesNotMatch(out, /coach/);

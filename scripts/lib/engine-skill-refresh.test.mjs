@@ -93,7 +93,7 @@ test("a real clash leaves the file alone and hands over a MARKED merge, not the 
   const report = run(trees, { provenance: { [REL]: fp(BASE) } });
 
   assert.equal(onDisk(trees.brainDir), OWNER, "the owner's file is never touched on a conflict");
-  assert.deepEqual(report.conflicts, [{ skill: "coach", newVersionPath: `${REL}.new` }]);
+  assert.deepEqual(report.conflicts, [{ name: "coach", newVersionPath: `${REL}.new` }]);
   assert.deepEqual(report.skillsMerged, []);
   // Absent from the map: the engine delivered nothing, so the base must stand where
   // it is. An advanced base would claim content this file never received.
@@ -114,7 +114,7 @@ test("with no ancestor on disk, a customized skill degrades to exactly today's b
   const report = run(trees, { provenance: { [REL]: fp(BASE) } });
 
   assert.equal(onDisk(trees.brainDir), OWNER);
-  assert.deepEqual(report.skillsPreserved, [{ skill: "coach", reason: "customized", newVersionPath: `${REL}.new` }]);
+  assert.deepEqual(report.skillsPreserved, [{ name: "coach", reason: "customized", newVersionPath: `${REL}.new` }]);
   assert.equal(onDisk(trees.brainDir, `${REL}.new`), ENGINE, "the sidecar is the engine's version, as before");
   assert.deepEqual(report.refreshedFileMap, {});
 });
@@ -175,7 +175,7 @@ test("a skill whose two files both merge, then both clash, is named exactly once
     writeInto(sourceDir, rel, clashing);
   }
   const clashed = refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manifest: MANIFEST, provenance });
-  assert.deepEqual(clashed.conflicts, [{ skill: "coach", newVersionPath: `${REL}.new` }]);
+  assert.deepEqual(clashed.conflicts, [{ name: "coach", newVersionPath: `${REL}.new` }]);
   assert.deepEqual(clashed.skillsMerged, []);
 
   // The other half of "named once": a DIFFERENT skill must still be named. Deduping
@@ -195,8 +195,8 @@ test("a skill whose two files both merge, then both clash, is named exactly once
     provenance: { ...provenance, [secondRel]: fp(BASE) },
   });
   assert.deepEqual(both.conflicts, [
-    { skill: "coach", newVersionPath: `${REL}.new` },
-    { skill: "switch", newVersionPath: `${secondRel}.new` },
+    { name: "coach", newVersionPath: `${REL}.new` },
+    { name: "switch", newVersionPath: `${secondRel}.new` },
   ]);
 });
 
@@ -238,7 +238,7 @@ test("a git that cannot run costs one skill its merge, not the whole update", (t
   });
 
   assert.equal(onDisk(trees.brainDir), OWNER, "the owner's file is never the casualty of a broken tool");
-  assert.deepEqual(report.skillsPreserved, [{ skill: "coach", reason: "merge-failed", newVersionPath: `${REL}.new` }]);
+  assert.deepEqual(report.skillsPreserved, [{ name: "coach", reason: "merge-failed", newVersionPath: `${REL}.new` }]);
   assert.equal(onDisk(trees.brainDir, `${REL}.new`), ENGINE);
   assert.deepEqual(
     report.refreshedFileMap,

@@ -157,20 +157,23 @@ export function formatReport(report) {
   // because "your edits could not be merged THIS time" is a different piece of news
   // from "there was nothing to merge from".
   const PRESERVED_ASIDE = { customized: "", "merge-failed": " (the merge could not run here)" };
-  for (const { skill, reason, newVersionPath } of skillsPreserved) {
+  // ⚠️ The entries are keyed `name`, not `skill`: the same carrier serves the engine
+  // scripts (S2b) and the constitution (S2c), and in those a field called `skill` would
+  // simply be false. What stays skill-specific is this SENTENCE, not the data.
+  for (const { name, reason, newVersionPath } of skillsPreserved) {
     const aside = PRESERVED_ASIDE[reason];
     if (aside === undefined) continue;
     lines.push(
-      `   • your customized "${skill}" skill was kept exactly as you wrote it${aside}` +
+      `   • your customized "${name}" skill was kept exactly as you wrote it${aside}` +
         ` — the newer engine version sits next to it as ${newVersionPath}`,
     );
   }
   // The one case that costs a human anything, so it is the loudest line in the report
   // and the last of the skill block. Everything mergeable is already merged in that
   // sidecar: what is left is the region the two sides both rewrote.
-  for (const { skill, newVersionPath } of conflicts) {
+  for (const { name, newVersionPath } of conflicts) {
     lines.push(
-      `   • ⚠️ "${skill}": your version and this update changed the same lines.` +
+      `   • ⚠️ "${name}": your version and this update changed the same lines.` +
         ` Yours is untouched; a merged copy marking both is at ${newVersionPath}`,
     );
   }

@@ -111,7 +111,7 @@ test("QA v3.6.0 → HEAD — the untouched `switch` skill ends up at the release
   assert.match(readBrain(brainDir, ".claude/skills/switch/SKILL.md"), /single-account/);
   assert.ok(report.skillsRefreshed.includes("switch"), "and the owner is told which skill moved");
   // Silent delivery is the bug we are fixing, so an untouched skill is never "preserved".
-  assert.deepEqual(report.skillsPreserved.filter((p) => p.skill === "switch"), []);
+  assert.deepEqual(report.skillsPreserved.filter((p) => p.name === "switch"), []);
 });
 
 // The promise made to anyone who tailored a skill (the documented `prepare-1-1` "refine to
@@ -133,8 +133,8 @@ test("QA v3.6.0 → HEAD — a customized skill is kept byte-identical, with the
     "the engine's version is offered alongside, not imposed",
   );
   assert.deepEqual(
-    report.skillsPreserved.filter((p) => p.skill === "prepare-1-1"),
-    [{ skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
+    report.skillsPreserved.filter((p) => p.name === "prepare-1-1"),
+    [{ name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
   );
   assert.ok(!report.skillsRefreshed.includes("prepare-1-1"));
   // The sacred trio is untouched by the same run.
