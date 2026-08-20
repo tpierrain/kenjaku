@@ -404,6 +404,22 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-20 (night, loop iteration 6) — S2a-3: "preserve" stops meaning "abandon".** Commits
+  `d7867fd` + `2ec18a5` + `5dc470b`, pushed, suite **1914 pass / 0 fail**, mutation **98 % → 100 %**
+  (numbers in `RESULTS.md`). The merge reaches a real brain: an owner's edit and the engine's update
+  both land, through real git, on real files. **This is the sentence the whole release was written to
+  be able to say.**
+  - 🔎 **A survivor named the failure an owner could not have recovered from.** The per-skill dedup was,
+    as far as the tests could tell, keyed on *"have I said anything yet"* rather than *"have I said
+    THIS"*. Mutated that way it **silences every conflict after the first** — they resolve one file and
+    never learn the rest exist. The rule had been asserted since increment 2.5 on **one** list, and this
+    slice added two more that could each lose it alone.
+    ➡️ **For the mode**: when a slice adds a list beside an existing one, the existing one's invariants
+    do not travel. Re-ask them of the newcomer, or the mutation run will.
+  - ⏱️ **A contract with no observable output still has one.** "A merge that changes nothing must not
+    rewrite the file" cannot be seen in the bytes, so the assertion moved to the **mtime**. Worth
+    keeping as a reflex: *no-op* contracts are not untestable, they are testable somewhere other than
+    the content.
 - 🌙 **2026-08-20 (night, loop iteration 5) — the wiring caught the DESIGN wrong, before it shipped.**
   Commit `8d4da37`, pushed, suite **1915 pass / 0 fail**, mutation still **100 %** (57 mutants now).
   No rewiring landed: the iteration was spent on the defect the rewiring exposed, which was the right

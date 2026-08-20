@@ -143,16 +143,18 @@
 > **sha** answers, which would have frozen every skill on the fleet at its first update (the reasoning
 > is in the S2 design block below, and it is worth reading before touching the table again).
 >
-> **▶️ RESUME AT: S2a-3 — the skills rewired onto the merge.** `refreshUntouchedSkills` drops
-> `refreshVerdict` for `mergeVerdict`, reading each ancestor itself from `.engine-base/<rel>` (it is
-> already an fs orchestrator and already holds `brainDir`, so **no caller signature changes**). The
-> report gains `skillsMerged` and `conflicts` — that half is **S2a-3b**, in `formatReport`, so the
-> rewiring stays two files. ⚠️ **The three traps, all already written down**: `deliveredFileMap` must
-> carry the verdict's **`deliver`** (the candidate) and never what was written to disk; a throw from the
-> git seam must **degrade that one file to `preserve`** rather than take down the whole update; and the
-> `.new` sidecar now has **two sources** — the candidate on row 7, the marked merge on row 9. Then S2b.
-> **S2c is the only part that waits on Thomas** (the box at the top), and nothing else does — so the
-> loop never idles on it.
+> ✅ **THE MERGE REACHES A REAL BRAIN — S2a-3 is done** _(2026-08-20 · `d7867fd` + `2ec18a5` +
+> `5dc470b`, 98 % → 100 %)_. `refreshUntouchedSkills` runs on `mergeVerdict`, reads each ancestor itself
+> from `.engine-base/<rel>` (no caller signature changed), and "preserve" stops meaning "abandon" for
+> the skills: the owner's edit and the engine's update both land, and only a real clash still costs
+> anyone anything.
+>
+> **▶️ RESUME AT: S2a-3b — the report says it out loud.** `skillsMerged` and `conflicts` are produced
+> and then **dropped**: `reconcileBrain` still destructures only `{skillsRefreshed, skillsPreserved,
+> refreshedFileMap}`, so `formatReport` never sees them. **A conflict nobody is told about is a `.new`
+> file appearing beside a skill with no explanation** — so this is the half that makes the merge honest.
+> Two files (`reconcile-brain.mjs`, `update-engine.mjs`) plus their tests. Then S2b. **S2c is the only
+> part that waits on Thomas** (the box at the top), and nothing else does — so the loop never idles.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -624,11 +626,25 @@ audible divergence.
             they have work to do **and** holds the base back, so the file would quietly leave the update
             regime. ⚠️ **S2a-3 owes the other half**: catch it and degrade to `preserve`, so one
             hiccup on one skill cannot take down a whole update.
-    - [ ] **S2a-3 — the skills rewired onto it.** `refreshUntouchedSkills` drops `refreshVerdict` for
-          `mergeVerdict`, and the report gains `skillsMerged` (kept your edits **and** received the
-          update) and `conflicts` (needs your hand + the sidecar path) beside today's `skillsPreserved`,
-          in `formatReport`. ⚠️ This is the slice where `deliveredFileMap` must start carrying
-          **`deliver`**, not what was written — the whole trap, at its only real call site.
+    - [x] **S2a-3 — the skills rewired onto it** _(2026-08-20 · `d7867fd` + `2ec18a5` + `5dc470b`)_ —
+          `refreshUntouchedSkills` drops `refreshVerdict` for `mergeVerdict`. **The merge now reaches a
+          real brain**: the owner's edit and the engine's update both land, and only a real clash still
+          costs anyone anything. 10 cases, real fs and **real git**, **98 % → 100 %** _(number owned by
+          [`RESULTS.md` § S2's rewiring](../../mutation/RESULTS.md#s2s-rewiring--engine-skill-refreshmjs-where-the-merge-reaches-a-real-brain--2026-08-20))_.
+      - [x] **The ancestor is read by this module itself**, from `.engine-base/<rel>` — it already holds
+            `brainDir` and already reads the disk, so **no caller signature changed**. A brain with no
+            tree reads `null`, which is `verifyBase`'s `absent`, and the verdict degrades to today's
+            behaviour.
+      - [x] **The trap is pinned at its only real call site**: `refreshedFileMap` carries `deliver`, and
+            a conflicted file is absent from it.
+      - [x] **A throw from the git seam costs ONE skill its merge**, not the whole update: the owner's
+            file is never the casualty of a broken tool. Reason `merge-failed`, sidecar offered.
+      - [x] `refreshVerdict` is **gone**, not kept beside its replacement; its cases live in
+            `engine-merge.test.mjs` as the table's own rows.
+    - [ ] **S2a-3b — the report says it out loud.** `skillsMerged` and `conflicts` stop at
+          `reconcileBrain`, which still destructures only the three old fields, so `formatReport` never
+          sees them. **A conflict nobody is told about is a `.new` file appearing with no explanation**
+          — this is the half that makes the merge honest, and it is the last piece of S2a.
   - [ ] **S2b — the four engine scripts stop being overwritten blind.** `auto-commit`, `auto-push`,
         `status-line`, `verify-rag` are declared `merge` and applied `replace` (`computeApplyPlan` puts
         them in `replaceScripts`) — the mirror image of the skills' bug, and the one that can destroy an

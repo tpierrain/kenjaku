@@ -141,6 +141,37 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S2's rewiring — `engine-skill-refresh.mjs`, where the merge reaches a real brain — 2026-08-20
+
+Third slice of S2: the refresher drops its own verdict for `mergeVerdict` and carries the result to
+disk. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the survivors were paid | Survivors left |
+|---|---|---|---|
+| `lib/engine-skill-refresh.mjs` | **98.23 %** — 111 killed, 2 survived | **100.00 %** — 113 killed, 0 survived | none |
+
+**Three survivors across two rounds, and each named a hole worth more than the score.**
+
+- **The dedup was keyed on the wrong question.** `noteOnce` survived being mutated to *"have I said
+  anything yet"* instead of *"have I said THIS"* — because no test ever had two **different** skills on
+  the same list. Mutated that way it **silences every conflict after the first**, which is the one
+  failure an owner cannot recover from: they resolve one file and never learn the rest exist. The rule
+  had been asserted on `skillsRefreshed` since increment 2.5 and on nothing else, so the two lists this
+  slice adds could each lose it alone.
+- **A merge that changes nothing was free to rewrite the file.** Identical bytes cannot tell a write
+  from a skipped one, so the assertion had to move to the **mtime**: a brain auto-commits at every
+  session, and rewriting a converged file would leave a trail of empty *"updated coach"* commits for
+  merges that changed nothing.
+
+**What the batch got right first time is the trap it was written against**: `refreshedFileMap` carries
+the verdict's `deliver` — what the **engine** delivered — never the merged bytes. That map feeds
+`reseedProvenance` and `syncBaseTree`, so recording the merge as the ancestor would make the file read
+untouched at the next update, and the fast-forward would clobber the edit just preserved. Asserted as
+a whole object on the merge row, where the two differ.
+
+---
+
 ## S2's git seam — `engine-merge-git.mjs`, the merge's one impure half — 2026-08-20
 
 Second slice of S2, and impure by design: the three texts handed to `git merge-file -p --diff3`. State
