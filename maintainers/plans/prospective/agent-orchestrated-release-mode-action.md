@@ -9,16 +9,12 @@
 
 > ## ⏳ WHERE THIS RESUMES — read before the Tracking
 >
-> **In progress right now** _(2026-08-20, owner at the keyboard)_: `session-status.mjs`, the last
-> blocking arbitration of S0bis — answered **yes, now**. It is the head of the entry-point debt,
-> carried by every published tag since v4.4.0 and reported at **8.67 %**. The safe recipe is in the
-> Run log and is **not** to be re-derived: wrap the body into `export function runSessionStatus(argv,
-> deps)` behind the shared tail **without restructuring**, prove the guard by running the import probe
-> **inside a disposable git worktree** (where a sweep-and-commit is harmless), assert the working tree
-> is untouched, and only then split the composition. **Never run this file, or its test, in this
-> working tree.**
+> **`session-status.mjs` is CONVERTED** _(2026-08-20 · a72755b + cbd01c0)_ — the last blocking
+> arbitration of S0bis, answered "yes, now" and done. Output proved byte-identical in a disposable
+> worktree; see the Run log's top entry for what it cost and the instrumentation trap it uncovered.
 >
-> **After it**: S1 of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only
+> **Next, and it is a NEW slice the owner asked for the same day**: write a **`mutation-testing`
+> skill**. Then S1 of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only
 > verdict. **Two things are decided and must not be re-asked**: the mode is kept but mechanical only,
 > and the adversarial-review question is deferred to the S1 debrief, on S1's figures.
 
@@ -305,6 +301,28 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🛠️ **2026-08-20 — `session-status.mjs` is converted, and the measurement found a trap in the
+  MEASURING, not in the code.** Commits a72755b and cbd01c0, branch pushed, PR #75 still draft.
+  - **The red was taken where it is safe.** In a disposable worktree, importing the unconverted file
+    ran the whole SessionStart hook — pull, markers, detached child, banner on stdout. That is the
+    defect, demonstrated rather than argued, and it is why this file could never be seen red in the
+    working tree. The body then moved into `runSessionStatus(argv, deps)` behind the shared tail
+    **without restructuring**, and the real hook was run as a process before and after: **output
+    byte-identical, tree untouched**. The new sibling pins the composition through injected seams
+    only — no real git, no real disk, no real child.
+  - 🪤 **The trap, and it is new: a mutation run over a file that a SOURCE SCANNER reads breaks its
+    own dry run.** Stryker instruments in place, so the literals `lib/entrypoint-discipline.mjs`
+    scans for are rewritten under it; `session-status.mjs` stopped reading as an inline-invocation
+    offender, and the shrink-only allowlist assertion went red — correctly, on a file that was still
+    an offender when clean. **Anyone mutating a file named in one of those allowlists will hit this.**
+  - **Paid rather than worked around**: the git call and the two detached children became named
+    values (`buildGitInvocation`, `buildReconcileInvocation`, `buildUpstreamProbeInvocation`), each
+    asserted whole, and the file **left `INLINE_INVOCATION_EXEMPT`**. A named value is stable under
+    instrumentation as well as assertable.
+  - ⚠️ **One self-inflicted hole, caught and closed**: the first commit bound the injected `spawn` to
+    `spawnChild`, which hid both spawn calls from the scanner's token list. **A rename must not be
+    able to buy silence from a guard.**
+  - Ceiling **14 → 13**, `session-status.mjs` leaves the no-sibling allowlist, suite **1813 → 1839**.
 - 🧭 **2026-08-20 — the debrief happened, and the three open questions are now two decisions and one
   dated deferral.** Owner's calls, in conversation, recorded here the moment they were taken:
   - **The mode is kept for S1–S5, mechanical only.** Dispatch needs a machine-evaluable pass/fail
@@ -479,11 +497,14 @@ arbitration goes here as a question, and the run continues on other slices.
     - [~] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
           Never fanned out: they run at EVERY session start.
       - [x] `status-line.mjs` _(2026-08-20 · eb8b0fb — **0 % → 100.00 %**)_.
-      - [~] 🛑 `session-status.mjs` — **arbitration ANSWERED 2026-08-20: yes, now, with the owner at
-            the keyboard.** ▶️ **IN PROGRESS.** The reasons it was blocking are unchanged and are the
-            constraints of the work: it cannot be verified by running it (executing it sweeps and
-            auto-commits the working tree), it has no test sibling, and its top-level body is ~190
-            side-effecting lines. The safe recipe is in the Run log below and is the plan of record.
+      - [x] 🛑 `session-status.mjs` — **arbitration ANSWERED 2026-08-20 (yes, now, owner at the
+            keyboard), and DONE the same day** _(a72755b + cbd01c0)_. The three reasons it was
+            blocking held throughout and shaped the work: no test sibling, ~190 side-effecting
+            top-level lines, and no way to verify it by running it here. The recipe worked exactly as
+            written — the disposable worktree is what restored fail-first on a file that had none.
+        - [x] Debt 2 paid on this file too, unplanned: its three child processes are values now, and
+              it leaves `INLINE_INVOCATION_EXEMPT` _(cbd01c0)_. Not scope creep — the mutation run
+              could not even dry-run without it (see the Run log's trap).
     - [x] The duplicate predicate: fold `auto-commit.mjs`'s `isEntryPoint` (reversed arguments,
           re-exported to `auto-push.mjs`) into the shared tail. Kept in session — the two files are
           coupled, and `auto-commit` runs on every single edit _(2026-08-20 · bc2a8bf)_.
@@ -522,6 +543,32 @@ arbitration goes here as a question, and the run continues on other slices.
         under load (the unreproduced flake above), and the two staging mistakes were the same mistake
         twice. The staging one now has a deterministic net; the false-reds one does not, and a red
         seen during a saturated fan-out is to be re-run solo before it is believed.
+- [ ] ▶️ **NEXT — write a `mutation-testing` skill** _(owner asked for it 2026-08-20, mid-run: "on
+      découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait pas le coup
+      de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**, deliberately: the
+      traps are fresh and checkable against the run that just happened.
+  - [ ] **The diagnosis, so the skill is not written against the wrong problem.** What we keep
+        re-deriving is **not** assertion quality — that already lives in `test-first-discipline` and
+        it works. It is **how to OPERATE Stryker on this repo**, and it is scattered across three
+        carriers that are only read once opened: comments inside the config files, `RESULTS.md`
+        § Reproduce, and `RETROSPECTIVE.md`. Same carrier defect §12 fixed for orchestration: the
+        knowledge is read when a file is opened, while the mistakes are made **while acting**.
+  - [ ] **The six operational traps it must carry**, every one of which has already cost a real run:
+        the sandbox has no `.git` so the manifest-integrity test dies before the first mutant (hence
+        `inPlace`); `inPlace` on the real tree is destructive (a mutant once wiped the vault's demo
+        notes), hence the **disposable worktree**; reset between batches with `git reset --hard` +
+        `git clean -fd` and **never** `git checkout -- .`; concurrency 5 + a 30 s timeout, or the run
+        returns a **fake 99.97 %** made of bogus timeouts; `disableTypeChecks: false`, or `@ts-nocheck`
+        lands on the worktree; and the new one — **mutating a file that a source scanner reads breaks
+        the dry run**, because instrumentation rewrites the literals under the scanner.
+  - [ ] Plus the two that cost time this very session and are pure operations: `git worktree prune`
+        before re-adding a worktree that was `rm -rf`'d (otherwise `add` refuses and the run silently
+        never happens, leaving a STALE log to be misread as the result), and the `rag/node_modules`
+        symlink the worktree needs.
+  - [ ] **The split with the existing carriers, so nothing is duplicated**: the skill owns the
+        **how-to** (when to run a pass, the worktree recipe, batching, the traps, where results go);
+        `RESULTS.md` stays the **measurement register**; `RETROSPECTIVE.md` keeps the **design
+        lessons** mined from survivors.
 - [ ] **The adversarial-review fan-out as standing QA — DEFERRED WITH ITS DESTINATION, not left
       hanging** _(owner, 2026-08-20)_. The question came out of v4.9.1 (its verdict is in
       `archived/hotfix-v4.9.1-universe-pointer-action.md`) and asked whether every slice must pass a
