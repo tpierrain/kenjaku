@@ -385,9 +385,14 @@ arbitration goes here as a question, and the run continues on other slices.
     All four came back right, and each was flagged in its own prompt — the prompts were **not** a
     single template, they named the specific trap per file.
   - `upstream-check-run.mjs` was kept in session because it needed a **new test sibling**, i.e. new
-    test authorship rather than a refactor. Its extraction immediately caught a real defect: a
-    trailing `--brainDir` with no value resolved to `undefined`, which would have written the verdict
-    cache to a garbage path.
+    test authorship rather than a refactor.
+    - ❌ **CORRECTION (2026-08-20, re-read on the diff)**: this entry first claimed the extraction
+      *"caught a real defect: a trailing `--brainDir` with no value resolved to `undefined`"*. **That
+      is false.** `main` already guarded it (`flag !== -1 && process.argv[flag + 1]`); the fallback
+      was correct before the run and is unchanged after it. What the extraction did was make that
+      branch **reachable by a test** and **state the intent in a comment** — worth doing, and not a
+      bug fix. Left visible rather than quietly deleted: a run log that claims a defect it did not
+      find is exactly the kind of inflation this file exists to prevent.
   - ⚠️ **Orchestration lesson, learned by making the mistake**: `git add -A` while agents are in
     flight swept three files of half-finished agent work into a docs commit (b4bd7a4). It happened to
     be green — verified after the fact in a throwaway worktree — but only by luck. **While a wave is
