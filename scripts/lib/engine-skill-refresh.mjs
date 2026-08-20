@@ -11,6 +11,11 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { dirname, join, resolve } from "node:path";
 
 import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
+// Line endings are NOT authorship: a Windows checkout/editor can rewrite LF→CRLF
+// without anyone touching a word, and the recorded base was fingerprinted on the LF
+// content the engine delivered. ONE definition, shared with the base's own proof —
+// the two must never drift apart, they answer the same question about the same sha.
+import { normalizeEol } from "./engine-base.mjs";
 import { resolveLocaleSource } from "./engine-copy-select.mjs";
 import { readBrainLocale } from "./brain-locale.mjs";
 // SKILLS_PREFIX = the runtime home of the skills a brain uses; STAGING_PREFIX = where a
@@ -41,12 +46,6 @@ export function refreshableSkillPairs({ sourceFiles, manifest }) {
     .map((sourceRel) => ({ rel: SKILLS_PREFIX + sourceRel.slice(STAGING_PREFIX.length), sourceRel }));
   return [...merge, ...staged];
 }
-
-// Line endings are NOT authorship: a Windows checkout/editor can rewrite LF→CRLF
-// without anyone touching a word, and the recorded base was fingerprinted on the LF
-// content the engine delivered. Comparing the normalized content too keeps the whole
-// Windows fleet eligible for refresh instead of being frozen as "customized".
-const normalizeEol = (content) => content.split("\r\n").join("\n");
 
 function matchesBase(installed, base) {
   return fingerprint(installed) === base || fingerprint(normalizeEol(installed)) === base;
