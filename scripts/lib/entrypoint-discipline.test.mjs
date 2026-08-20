@@ -52,7 +52,9 @@ test("the shared tail is clean — process.argv goes through WHOLE, never indexe
 
 // ─────────────────────────────────────────────────────────────────────────────
 // hasEntrypointTail — a top-level script with no tail runs its whole body at
-// import, which is why no test can reach it (status-line.mjs, session-status.mjs).
+// import, which is why no test can reach it. The three files that shape named at
+// v4.8.0 — status-line.mjs, upstream-check-run.mjs and session-status.mjs — are
+// all converted now; what the ceiling still holds is the inherited remainder.
 // ─────────────────────────────────────────────────────────────────────────────
 
 test("a script is 'tailed' when it calls the shared runner, and only then", () => {
@@ -260,17 +262,16 @@ const SCRIPTS = join(REPO_ROOT, "scripts");
 
 // Ceilings measured on 2026-08-20, before the first conversion. LOWER THEM as the
 // conversion lands; never raise one — raising it is what turned this into debt.
-const NO_TAIL_CEILING = 14;
+const NO_TAIL_CEILING = 13;
 const HAND_ROLLED_CEILING = 9;
 
-// Top-level CLIs with no `.test.mjs` sibling. Nine of them, inherited; paying
-// them off is not this run's cargo, so they are named rather than counted.
+// Top-level CLIs with no `.test.mjs` sibling. Inherited; paying them off is not
+// this run's cargo, so they are named rather than counted.
 const NO_SIBLING_EXEMPT = new Set([
   "scripts/import-brain.mjs",
   "scripts/open-env.mjs",
   "scripts/pick-folder.mjs",
   "scripts/run-eval.mjs",
-  "scripts/session-status.mjs",
   "scripts/update-engine.mjs",
   "scripts/verify-rag.mjs",
 ]);
