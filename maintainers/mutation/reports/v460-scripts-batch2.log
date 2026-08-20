@@ -1,0 +1,248 @@
+21:24:18 (9387) INFO ProjectReader Found 5 of 633 file(s) to be mutated.
+21:24:18 (9387) INFO Instrumenter Instrumented 5 source file(s) with 231 mutant(s)
+21:24:18 (9387) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:24:18 (9387) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-74mpIe
+21:24:18 (9387) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:24:18 (9387) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:24:20 (9387) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1751 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 189)
+
+[Survived] UnaryOperator
+scripts/lib/doc-section.mjs:19:17
+-     if (start === -1) return "";
++     if (start === +1) return "";
+
+[Survived] ConditionalExpression
+scripts/lib/doc-section.mjs:19:7
+-     if (start === -1) return "";
++     if (false) return "";
+
+[Survived] StringLiteral
+scripts/lib/doc-section.mjs:19:28
+-     if (start === -1) return "";
++     if (start === -1) return "Stryker was here!";
+
+[Survived] Regex
+scripts/lib/doc-section.mjs:20:42
+-     const level = (text.slice(start).match(/^#+/) ?? ["#"])[0].length;
++     const level = (text.slice(start).match(/#+/) ?? ["#"])[0].length;
+
+[Survived] ArrayDeclaration
+scripts/lib/doc-section.mjs:20:52
+-     const level = (text.slice(start).match(/^#+/) ?? ["#"])[0].length;
++     const level = (text.slice(start).match(/^#+/) ?? [])[0].length;
+
+[Survived] StringLiteral
+scripts/lib/doc-section.mjs:20:53
+-     const level = (text.slice(start).match(/^#+/) ?? ["#"])[0].length;
++     const level = (text.slice(start).match(/^#+/) ?? [""])[0].length;
+
+[Survived] ConditionalExpression
+scripts/lib/doc-section.mjs:25:7
+-     if (nl === -1) return text.slice(start);
++     if (false) return text.slice(start);
+
+[Survived] UnaryOperator
+scripts/lib/doc-section.mjs:25:14
+-     if (nl === -1) return text.slice(start);
++     if (nl === +1) return text.slice(start);
+
+[Survived] MethodExpression
+scripts/lib/doc-section.mjs:25:25
+-     if (nl === -1) return text.slice(start);
++     if (nl === -1) return text;
+
+[Survived] ArithmeticOperator
+scripts/lib/doc-section.mjs:26:27
+-     const rest = text.slice(nl + 1);
++     const rest = text.slice(nl - 1);
+
+[Survived] ConditionalExpression
+scripts/lib/doc-section.mjs:28:10
+-     return end === -1 ? text.slice(start) : text.slice(start, nl + 1 + end);
++     return false ? text.slice(start) : text.slice(start, nl + 1 + end);
+
+[Survived] UnaryOperator
+scripts/lib/doc-section.mjs:28:18
+-     return end === -1 ? text.slice(start) : text.slice(start, nl + 1 + end);
++     return end === +1 ? text.slice(start) : text.slice(start, nl + 1 + end);
+
+[Survived] MethodExpression
+scripts/lib/doc-section.mjs:28:23
+-     return end === -1 ? text.slice(start) : text.slice(start, nl + 1 + end);
++     return end === -1 ? text : text.slice(start, nl + 1 + end);
+
+[Survived] ArithmeticOperator
+scripts/lib/doc-section.mjs:28:61
+-     return end === -1 ? text.slice(start) : text.slice(start, nl + 1 + end);
++     return end === -1 ? text.slice(start) : text.slice(start, nl - 1 + end);
+
+[Survived] MethodExpression
+scripts/lib/engine-version.mjs:32:39
+-     return typeof value === "string" && value.trim() !== "";
++     return typeof value === "string" && value !== "";
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:61:20
+-     if (!manifest || typeof manifest !== "object") return null;
++     if (!manifest || false) return null;
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:16:24
+-   const FRONTMATTER_RE = /^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)([\s\S]*)$/;
++   const FRONTMATTER_RE = /^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)([\s\S]*)/;
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:95:40
+-       const key = lines.findIndex((l) => /^confidence:/.test(l));
++       const key = lines.findIndex((l) => /confidence:/.test(l));
+
+[Survived] ConditionalExpression
+scripts/lib/note-refresh.mjs:96:9
+-       if (key === -1) lines.push(`confidence: ${confidence.level}`);
++       if (false) lines.push(`confidence: ${confidence.level}`);
+
+[Survived] UnaryOperator
+scripts/lib/note-refresh.mjs:96:17
+-       if (key === -1) lines.push(`confidence: ${confidence.level}`);
++       if (key === +1) lines.push(`confidence: ${confidence.level}`);
+
+[Survived] StringLiteral
+scripts/lib/note-refresh.mjs:96:32
+-       if (key === -1) lines.push(`confidence: ${confidence.level}`);
++       if (key === -1) lines.push(``);
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:98:25
+-       body = body.replace(/^> \*\*Confidence\*\* — .*$/m, `> **Confidence** — ${rendered}`);
++       body = body.replace(/> \*\*Confidence\*\* — .*$/m, `> **Confidence** — ${rendered}`);
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:98:25
+-       body = body.replace(/^> \*\*Confidence\*\* — .*$/m, `> **Confidence** — ${rendered}`);
++       body = body.replace(/^> \*\*Confidence\*\* — .*/m, `> **Confidence** — ${rendered}`);
+
+[Survived] ArrayDeclaration
+scripts/lib/status-hook-output.mjs:29:92
+-   export function buildStatusHookOutput({ leadLine = null, versionLine = null, statusLines = [] } = {}) {
++   export function buildStatusHookOutput({ leadLine = null, versionLine = null, statusLines = ["Stryker was here"] } = {}) {
+
+[Survived] ObjectLiteral
+scripts/refresh-note.mjs:28:32
+-   export const realRefreshDeps = {
+-     cwd: () => process.cwd(),
+-     today: () => new Date().toISOString().slice(0, 10),
+-     readInput: () => readFileSync(0, "utf8"),
+-     exists: (p) => existsSync(p),
+-     readFile: (p) => readFileSync(p, "utf8"),
+-     writeFile: (p, content) => {
+-       mkdirSync(dirname(p), { recursive: true });
+-       writeFileSync(p, content);
+-     },
+-     log: (...a) => console.log(...a),
+-     error: (...a) => console.error(...a),
+-   };
++   export const realRefreshDeps = {};
+
+[Survived] ArrowFunction
+scripts/refresh-note.mjs:29:8
+-     cwd: () => process.cwd(),
++     cwd: () => undefined,
+
+[Survived] ArrowFunction
+scripts/refresh-note.mjs:30:10
+-     today: () => new Date().toISOString().slice(0, 10),
++     today: () => undefined,
+
+[Survived] MethodExpression
+scripts/refresh-note.mjs:30:16
+-     today: () => new Date().toISOString().slice(0, 10),
++     today: () => new Date().toISOString(),
+
+[Survived] ArrowFunction
+scripts/refresh-note.mjs:31:14
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => undefined,
+
+[Survived] StringLiteral
+scripts/refresh-note.mjs:31:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] ArrowFunction
+scripts/refresh-note.mjs:32:11
+-     exists: (p) => existsSync(p),
++     exists: () => undefined,
+
+[Survived] ArrowFunction
+scripts/refresh-note.mjs:33:13
+-     readFile: (p) => readFileSync(p, "utf8"),
++     readFile: () => undefined,
+
+[Survived] StringLiteral
+scripts/refresh-note.mjs:33:36
+-     readFile: (p) => readFileSync(p, "utf8"),
++     readFile: (p) => readFileSync(p, ""),
+
+[Survived] BlockStatement
+scripts/refresh-note.mjs:34:30
+-     writeFile: (p, content) => {
+-       mkdirSync(dirname(p), { recursive: true });
+-       writeFileSync(p, content);
+-     },
++     writeFile: (p, content) => {},
+
+[Survived] ObjectLiteral
+scripts/refresh-note.mjs:35:27
+-       mkdirSync(dirname(p), { recursive: true });
++       mkdirSync(dirname(p), {});
+
+[Survived] BooleanLiteral
+scripts/refresh-note.mjs:35:40
+-       mkdirSync(dirname(p), { recursive: true });
++       mkdirSync(dirname(p), { recursive: false });
+
+[Survived] ArrowFunction
+scripts/refresh-note.mjs:38:8
+-     log: (...a) => console.log(...a),
++     log: () => undefined,
+
+[Survived] ArrowFunction
+scripts/refresh-note.mjs:39:10
+-     error: (...a) => console.error(...a),
++     error: () => undefined,
+
+[Survived] ConditionalExpression
+scripts/refresh-note.mjs:102:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/refresh-note.mjs:102:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runRefresh(process.argv.slice(2)));
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] MethodExpression
+scripts/refresh-note.mjs:103:27
+-     process.exit(runRefresh(process.argv.slice(2)));
++     process.exit(runRefresh(process.argv));
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  82.25 |   82.25 |      189 |         1 |         41 |        0 |        0 |
+ lib                     |  86.44 |   86.44 |      153 |         0 |         24 |        0 |        0 |
+  doc-section.mjs        |  53.33 |   53.33 |       16 |         0 |         14 |        0 |        0 |
+  engine-version.mjs     |  95.24 |   95.24 |       40 |         0 |          2 |        0 |        0 |
+  note-refresh.mjs       |  92.31 |   92.31 |       84 |         0 |          7 |        0 |        0 |
+  status-hook-output.mjs |  92.86 |   92.86 |       13 |         0 |          1 |        0 |        0 |
+ refresh-note.mjs        |  68.52 |   68.52 |       36 |         1 |         17 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:29:55 (9387) INFO MutationTestExecutor Done in 5 minutes and 37 seconds.
+21:29:55 (9387) INFO Sandbox Resetting your original files from .stryker-tmp/backup-74mpIe.

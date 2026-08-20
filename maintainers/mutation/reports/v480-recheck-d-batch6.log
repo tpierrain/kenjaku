@@ -1,0 +1,75 @@
+22:08:09 (6655) INFO ProjectReader Found 2 of 662 file(s) to be mutated.
+22:08:09 (6655) INFO Instrumenter Instrumented 2 source file(s) with 290 mutant(s)
+22:08:09 (6655) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+22:08:09 (6655) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-aa1P4a
+22:08:09 (6655) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+22:08:09 (6655) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+22:08:11 (6655) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1744 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 279)
+
+[Survived] OptionalChaining
+scripts/lib/universe-profile.mjs:93:26
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
++       return Array.isArray(parsed.declined) ? parsed.declined : [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:188:75
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: [], topics: [], connectors: [], other: ["Stryker was here"] };
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:191:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s+(.*)/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:191:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s(.*)$/);
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:59:19
+-     activeUniverse: () => readActiveUniverse(realIo, vaultRagDir(process.cwd())),
++     activeUniverse: () => undefined,
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:60:14
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => undefined,
+
+[Survived] StringLiteral
+scripts/set-universe-profile.mjs:60:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] ConditionalExpression
+scripts/set-universe-profile.mjs:175:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] MethodExpression
+scripts/set-universe-profile.mjs:176:38
+-     process.exit(runSetUniverseProfile(process.argv.slice(2)));
++     process.exit(runSetUniverseProfile(process.argv));
+
+[Survived] BlockStatement
+scripts/set-universe-profile.mjs:175:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runSetUniverseProfile(process.argv.slice(2)));
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+Ran 1.00 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  96.55 |   96.55 |      279 |         1 |         10 |        0 |        0 |
+ lib                      |  97.89 |   97.89 |      186 |         0 |          4 |        0 |        0 |
+  universe-profile.mjs    |  97.89 |   97.89 |      186 |         0 |          4 |        0 |        0 |
+ set-universe-profile.mjs |  94.00 |   94.00 |       93 |         1 |          6 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+22:15:35 (6655) INFO MutationTestExecutor Done in 7 minutes and 26 seconds.
+22:15:35 (6655) INFO Sandbox Resetting your original files from .stryker-tmp/backup-aa1P4a.

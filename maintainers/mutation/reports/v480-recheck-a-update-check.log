@@ -1,0 +1,91 @@
+21:36:03 (26329) INFO ProjectReader Found 2 of 662 file(s) to be mutated.
+21:36:03 (26329) INFO Instrumenter Instrumented 2 source file(s) with 314 mutant(s)
+21:36:03 (26329) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:36:03 (26329) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-amzfrC
+21:36:03 (26329) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:36:03 (26329) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:36:05 (26329) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1892 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 301)
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-update-check.mjs:24:19
+-     return (tags ?? [])
++     return (tags ?? ["Stryker was here"])
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-update-check.mjs:43:46
+-     const latest = pickLatestSemverTag(tags ?? []);
++     const latest = pickLatestSemverTag(tags ?? ["Stryker was here"]);
+
+[Survived] ConditionalExpression
+scripts/lib/engine-update-check.mjs:80:13
+-       target: ahead.length > 0 ? ahead[ahead.length - 1] : latest,
++       target: false ? ahead[ahead.length - 1] : latest,
+
+[Survived] StringLiteral
+scripts/lib/engine-update-check.mjs:136:13
+-       repo ?? "",
++       repo ?? "Stryker was here!",
+
+[Survived] StringLiteral
+scripts/lib/engine-update-check.mjs:147:26
+-     const lines = (body ?? "").split("\n");
++     const lines = (body ?? "Stryker was here!").split("\n");
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*)/.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\S|---\s*$)/.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\s|---\S*$)/.test(line.trim()));
+
+[Survived] BlockStatement
+scripts/lib/engine-version.mjs:90:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:101:7
+-     if (!existsSync(path)) return null;
++     if (false) return null;
+
+[Survived] StringLiteral
+scripts/lib/engine-version.mjs:103:42
+-       return JSON.parse(readFileSync(path, "utf8"));
++       return JSON.parse(readFileSync(path, ""));
+
+[Survived] BlockStatement
+scripts/lib/engine-version.mjs:104:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:110:20
+-     if (!manifest || typeof manifest !== "object") return null;
++     if (!manifest || false) return null;
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  95.86 |   95.86 |      301 |         0 |         13 |        0 |        0 |
+ engine-update-check.mjs |  96.04 |   96.04 |      194 |         0 |          8 |        0 |        0 |
+ engine-version.mjs      |  95.54 |   95.54 |      107 |         0 |          5 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:44:13 (26329) INFO MutationTestExecutor Done in 8 minutes and 10 seconds.
+21:44:13 (26329) INFO Sandbox Resetting your original files from .stryker-tmp/backup-amzfrC.

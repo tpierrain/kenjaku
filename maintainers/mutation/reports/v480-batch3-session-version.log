@@ -1,0 +1,990 @@
+20:17:37 (24386) INFO ProjectReader Found 2 of 660 file(s) to be mutated.
+20:17:37 (24386) INFO Instrumenter Instrumented 2 source file(s) with 257 mutant(s)
+20:17:37 (24386) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+20:17:37 (24386) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-HQQDvf
+20:17:37 (24386) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+20:17:37 (24386) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+20:17:39 (24386) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1922 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 102)
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:73:7
+-     if (cached.state === "unknown") return dated("could not check for updates");
++     if (true) return dated("could not check for updates");
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:78:10
+-     return typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
++     return true && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
+
+[Survived] Regex
+scripts/lib/engine-version.mjs:78:39
+-     return typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
++     return typeof value === "string" && /\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
+
+[Survived] Regex
+scripts/lib/engine-version.mjs:78:39
+-     return typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
++     return typeof value === "string" && /^\d{4}-\d{2}-\d/.test(value) ? value.slice(0, 10) : null;
+
+[Survived] BlockStatement
+scripts/lib/engine-version.mjs:90:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:94:7
+-     if (line === null || upstreamPath === undefined) return line;
++     if (false || upstreamPath === undefined) return line;
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:101:7
+-     if (!existsSync(path)) return null;
++     if (false) return null;
+
+[Survived] StringLiteral
+scripts/lib/engine-version.mjs:103:42
+-       return JSON.parse(readFileSync(path, "utf8"));
++       return JSON.parse(readFileSync(path, ""));
+
+[Survived] BlockStatement
+scripts/lib/engine-version.mjs:104:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:110:20
+-     if (!manifest || typeof manifest !== "object") return null;
++     if (!manifest || false) return null;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:40:33
+-   const REPO = resolve(__dirname, "..");
++   const REPO = resolve(__dirname, "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:41:26
+-   const VAULT = join(REPO, "vault");
++   const VAULT = join(REPO, "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:42:28
+-   const DB_PATH = join(REPO, "rag", ".cache", "vault.db");
++   const DB_PATH = join(REPO, "", ".cache", "vault.db");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:42:35
+-   const DB_PATH = join(REPO, "rag", ".cache", "vault.db");
++   const DB_PATH = join(REPO, "rag", "", "vault.db");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:42:45
+-   const DB_PATH = join(REPO, "rag", ".cache", "vault.db");
++   const DB_PATH = join(REPO, "rag", ".cache", "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:43:29
+-   const ENV_PATH = join(REPO, ".env");
++   const ENV_PATH = join(REPO, "");
+
+[Survived] BlockStatement
+scripts/session-status.mjs:46:20
+-   function git(args) {
+-     try {
+-       const out = execFileSync("git", args, {
+-         cwd: REPO,
+-         encoding: "utf8",
+-         stdio: ["ignore", "pipe", "pipe"],
+-       });
+-       return { out: out ?? "", ok: true };
+-     } catch (e) {
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
+-       return { out, ok: false };
+-     }
+-   }
++   function git(args) {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:47:7
+-     try {
+-       const out = execFileSync("git", args, {
+-         cwd: REPO,
+-         encoding: "utf8",
+-         stdio: ["ignore", "pipe", "pipe"],
+-       });
+-       return { out: out ?? "", ok: true };
+-     } catch (e) {
++     try {} catch (e) {
+
+[Survived] StringLiteral
+scripts/session-status.mjs:48:30
+-       const out = execFileSync("git", args, {
++       const out = execFileSync("", args, {
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:48:43
+-       const out = execFileSync("git", args, {
+-         cwd: REPO,
+-         encoding: "utf8",
+-         stdio: ["ignore", "pipe", "pipe"],
+-       });
++       const out = execFileSync("git", args, {});
+
+[Survived] StringLiteral
+scripts/session-status.mjs:50:17
+-         encoding: "utf8",
++         encoding: "",
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:51:14
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: [],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:51:15
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: ["", "pipe", "pipe"],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:51:25
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: ["ignore", "", "pipe"],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:51:33
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: ["ignore", "pipe", ""],
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:53:12
+-       return { out: out ?? "", ok: true };
++       return {};
+
+[Survived] StringLiteral
+scripts/session-status.mjs:53:26
+-       return { out: out ?? "", ok: true };
++       return { out: out ?? "Stryker was here!", ok: true };
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:53:19
+-       return { out: out ?? "", ok: true };
++       return { out: out && "", ok: true };
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:53:34
+-       return { out: out ?? "", ok: true };
++       return { out: out ?? "", ok: false };
+
+[Survived] BlockStatement
+scripts/session-status.mjs:54:15
+-     } catch (e) {
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
+-       return { out, ok: false };
+-     }
++     } catch (e) {}
+
+[Survived] StringLiteral
+scripts/session-status.mjs:55:17
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = ``;
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:55:20
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout && ""}${e.stderr ?? ""}`;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:55:32
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout ?? "Stryker was here!"}${e.stderr ?? ""}`;
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:55:37
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout ?? ""}${e.stderr && ""}`;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:55:49
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout ?? ""}${e.stderr ?? "Stryker was here!"}`;
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:56:12
+-       return { out, ok: false };
++       return {};
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:56:23
+-       return { out, ok: false };
++       return { out, ok: true };
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:67:43
+-   const { pullOk, pullOut } = sweepThenPull({ git });
++   const { pullOk, pullOut } = sweepThenPull({});
+
+[Survived] MethodExpression
+scripts/session-status.mjs:68:15
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["rev-parse", "--short", "HEAD"]).out;
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:68:19
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git([]).out.trim();
+
+[Survived] StringLiteral
+scripts/session-status.mjs:68:20
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["", "--short", "HEAD"]).out.trim();
+
+[Survived] StringLiteral
+scripts/session-status.mjs:68:33
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["rev-parse", "", "HEAD"]).out.trim();
+
+[Survived] StringLiteral
+scripts/session-status.mjs:68:44
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["rev-parse", "--short", ""]).out.trim();
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:74:23
+-   const porcelain = git(["status", "--porcelain"]).out;
++   const porcelain = git([]).out;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:74:24
+-   const porcelain = git(["status", "--porcelain"]).out;
++   const porcelain = git(["", "--porcelain"]).out;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:74:34
+-   const porcelain = git(["status", "--porcelain"]).out;
++   const porcelain = git(["status", ""]).out;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:78:3
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     true
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:78:3
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     false
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:78:3
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     pullOk || !/already up to date|déjà à jour/i.test(pullOut)
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:78:13
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     pullOk && /already up to date|déjà à jour/i.test(pullOut)
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:79:23
+-       ? pulledPaths(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out)
++       ? pulledPaths(git([]).out)
+
+[Survived] StringLiteral
+scripts/session-status.mjs:79:24
+-       ? pulledPaths(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out)
++       ? pulledPaths(git(["", "--name-only", "ORIG_HEAD", "HEAD"]).out)
+
+[Survived] StringLiteral
+scripts/session-status.mjs:79:32
+-       ? pulledPaths(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out)
++       ? pulledPaths(git(["diff", "", "ORIG_HEAD", "HEAD"]).out)
+
+[Survived] StringLiteral
+scripts/session-status.mjs:79:47
+-       ? pulledPaths(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out)
++       ? pulledPaths(git(["diff", "--name-only", "", "HEAD"]).out)
+
+[Survived] StringLiteral
+scripts/session-status.mjs:79:60
+-       ? pulledPaths(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out)
++       ? pulledPaths(git(["diff", "--name-only", "ORIG_HEAD", ""]).out)
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:80:7
+-       : [];
++       : ["Stryker was here"];
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:91:5
+-   if (frozenWiringIn(pulled).length > 0) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:91:5
+-   if (frozenWiringIn(pulled).length > 0) {
++   if (false) {
+
+[Survived] EqualityOperator
+scripts/session-status.mjs:91:5
+-   if (frozenWiringIn(pulled).length > 0) {
++   if (frozenWiringIn(pulled).length >= 0) {
+
+[Survived] BlockStatement
+scripts/session-status.mjs:91:40
+-   if (frozenWiringIn(pulled).length > 0) {
+-     armRestartPending({ repo: REPO, mkdirSync, writeFileSync });
+-   }
++   if (frozenWiringIn(pulled).length > 0) {}
+
+[Survived] EqualityOperator
+scripts/session-status.mjs:91:5
+-   if (frozenWiringIn(pulled).length > 0) {
++   if (frozenWiringIn(pulled).length <= 0) {
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:92:21
+-     armRestartPending({ repo: REPO, mkdirSync, writeFileSync });
++     armRestartPending({});
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:94:33
+-   const repoLine = repoStatusLine({ pullOk, pullOut, short, changedCount, uncommittedVault, conflictedCount });
++   const repoLine = repoStatusLine({});
+
+[Survived] BlockStatement
+scripts/session-status.mjs:97:29
+-   function countMarkdown(dir) {
+-     let n = 0;
+-     let entries;
+-     try {
+-       entries = readdirSync(dir, { withFileTypes: true });
+-     } catch {
+-       return 0;
+-     }
+-     for (const e of entries) {
+-       const p = join(dir, e.name);
+-       if (e.isDirectory()) n += countMarkdown(p);
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
+-     }
+-     return n;
+-   }
++   function countMarkdown(dir) {}
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:101:32
+-       entries = readdirSync(dir, { withFileTypes: true });
++       entries = readdirSync(dir, {});
+
+[Survived] BlockStatement
+scripts/session-status.mjs:100:7
+-     try {
+-       entries = readdirSync(dir, { withFileTypes: true });
+-     } catch {
++     try {} catch {
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:101:49
+-       entries = readdirSync(dir, { withFileTypes: true });
++       entries = readdirSync(dir, { withFileTypes: false });
+
+[Survived] BlockStatement
+scripts/session-status.mjs:102:11
+-     } catch {
+-       return 0;
+-     }
++     } catch {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:105:28
+-     for (const e of entries) {
+-       const p = join(dir, e.name);
+-       if (e.isDirectory()) n += countMarkdown(p);
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
+-     }
++     for (const e of entries) {}
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:107:9
+-       if (e.isDirectory()) n += countMarkdown(p);
++       if (true) n += countMarkdown(p);
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:107:9
+-       if (e.isDirectory()) n += countMarkdown(p);
++       if (false) n += countMarkdown(p);
+
+[Survived] AssignmentOperator
+scripts/session-status.mjs:107:26
+-       if (e.isDirectory()) n += countMarkdown(p);
++       if (e.isDirectory()) n -= countMarkdown(p);
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:108:14
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (true) n++;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:108:14
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (false) n++;
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:108:14
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() || e.name.toLowerCase().endsWith(".md")) n++;
+
+[Survived] MethodExpression
+scripts/session-status.mjs:108:28
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toLowerCase().startsWith(".md")) n++;
+
+[Survived] MethodExpression
+scripts/session-status.mjs:108:28
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toUpperCase().endsWith(".md")) n++;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:108:58
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toLowerCase().endsWith("")) n++;
+
+[Survived] UpdateOperator
+scripts/session-status.mjs:108:66
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n--;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:115:5
+-   if (existsSync(DB_PATH)) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:115:5
+-   if (existsSync(DB_PATH)) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/session-status.mjs:115:26
+-   if (existsSync(DB_PATH)) {
+-     try {
+-       // better-sqlite3 lives in rag/node_modules → require resolved from rag/.
+-       const require = createRequire(join(REPO, "rag", "package.json"));
+-       const Database = require("better-sqlite3");
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
+-       docs = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
+-       db.close();
+-     } catch {
+-       docs = null; // degrades: module absent, DB being written, etc.
+-     }
+-   }
++   if (existsSync(DB_PATH)) {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:116:7
+-     try {
+-       // better-sqlite3 lives in rag/node_modules → require resolved from rag/.
+-       const require = createRequire(join(REPO, "rag", "package.json"));
+-       const Database = require("better-sqlite3");
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
+-       docs = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
+-       db.close();
+-     } catch {
++     try {} catch {
+
+[Survived] StringLiteral
+scripts/session-status.mjs:118:46
+-       const require = createRequire(join(REPO, "rag", "package.json"));
++       const require = createRequire(join(REPO, "", "package.json"));
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:120:38
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
++       const db = new Database(DB_PATH, {});
+
+[Survived] StringLiteral
+scripts/session-status.mjs:118:53
+-       const require = createRequire(join(REPO, "rag", "package.json"));
++       const require = createRequire(join(REPO, "rag", ""));
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:120:50
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
++       const db = new Database(DB_PATH, { readonly: false, fileMustExist: true });
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:120:71
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
++       const db = new Database(DB_PATH, { readonly: true, fileMustExist: false });
+
+[Survived] StringLiteral
+scripts/session-status.mjs:121:23
+-       docs = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
++       docs = db.prepare("").get().n;
+
+[Survived] BlockStatement
+scripts/session-status.mjs:123:11
+-     } catch {
+-       docs = null; // degrades: module absent, DB being written, etc.
+-     }
++     } catch {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:133:5
+-   try {
+-     const lastRunPath = join(REPO, LAST_RUN_REL);
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+-   } catch {
++   try {} catch {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:135:7
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
++     if (true) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:135:7
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
++     if (false) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+
+[Survived] StringLiteral
+scripts/session-status.mjs:135:79
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
++     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, ""));
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:139:31
+-   const ragLine = ragStatusLine({ docs, scanned, lastRun });
++   const ragLine = ragStatusLine({});
+
+[Survived] BlockStatement
+scripts/session-status.mjs:136:9
+-   } catch {
+-     lastRun = null;
+-   }
++   } catch {}
+
+[Survived] StringLiteral
+scripts/session-status.mjs:148:66
+-   const envContent = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, "utf8") : null;
++   const envContent = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, "") : null;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:149:5
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:149:5
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (false) {
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:149:5
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (geminiKeyRequired(envContent) || !hasGeminiKey(envContent)) {
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:149:38
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (geminiKeyRequired(envContent) && hasGeminiKey(envContent)) {
+
+[Survived] BlockStatement
+scripts/session-status.mjs:149:65
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
+-     keyLine =
+-       "⚠️ Gemini key missing from .env → the RAG can't answer. Paste it into " +
+-       ".env (GOOGLE_GEMINI_API_KEY=…) then re-ask your question (the server re-reads " +
+-       "it on its own). If it persists, reconnect the MCP (/mcp) or restart Claude Code.";
+-   }
++   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {}
+
+[Survived] StringLiteral
+scripts/session-status.mjs:151:5
+-       "⚠️ Gemini key missing from .env → the RAG can't answer. Paste it into " +
++       "" +
+
+[Survived] StringLiteral
+scripts/session-status.mjs:152:5
+-       ".env (GOOGLE_GEMINI_API_KEY=…) then re-ask your question (the server re-reads " +
++       "" +
+
+[Survived] StringLiteral
+scripts/session-status.mjs:153:5
+-       "it on its own). If it persists, reconnect the MCP (/mcp) or restart Claude Code.";
++       "";
+
+[Survived] BlockStatement
+scripts/session-status.mjs:165:5
+-   try {
+-     const settingsPath = join(REPO, ".claude", "settings.json");
+-     const templatePath = join(REPO, ".claude", "settings.json.template");
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
+-       const r = bootstrapSessionHooks({
+-         brainHooks,
+-         templateHooks,
+-         brainDir: REPO,
+-         message: bootstrapReassuranceMessage(),
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
+-         emit: (msg) => (bootstrapLine = msg),
+-       });
+-       void r;
+-     }
+-   } catch {
++   try {} catch {
+
+[Survived] StringLiteral
+scripts/session-status.mjs:166:35
+-     const settingsPath = join(REPO, ".claude", "settings.json");
++     const settingsPath = join(REPO, "", "settings.json");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:166:46
+-     const settingsPath = join(REPO, ".claude", "settings.json");
++     const settingsPath = join(REPO, ".claude", "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:167:35
+-     const templatePath = join(REPO, ".claude", "settings.json.template");
++     const templatePath = join(REPO, "", "settings.json.template");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:167:46
+-     const templatePath = join(REPO, ".claude", "settings.json.template");
++     const templatePath = join(REPO, ".claude", "");
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:168:7
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:168:7
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
++     if (false) {
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:168:7
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
++     if (existsSync(settingsPath) || existsSync(templatePath)) {
+
+[Survived] BlockStatement
+scripts/session-status.mjs:168:61
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
+-       const r = bootstrapSessionHooks({
+-         brainHooks,
+-         templateHooks,
+-         brainDir: REPO,
+-         message: bootstrapReassuranceMessage(),
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
+-         emit: (msg) => (bootstrapLine = msg),
+-       });
+-       void r;
+-     }
++     if (existsSync(settingsPath) && existsSync(templatePath)) {}
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:169:24
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
++       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks && {};
+
+[Survived] StringLiteral
+scripts/session-status.mjs:169:62
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
++       const brainHooks = JSON.parse(readFileSync(settingsPath, "")).hooks ?? {};
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:170:27
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
++       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks && {};
+
+[Survived] StringLiteral
+scripts/session-status.mjs:170:65
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
++       const templateHooks = JSON.parse(readFileSync(templatePath, "")).hooks ?? {};
+
+[Survived] StringLiteral
+scripts/session-status.mjs:171:42
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
++       const reconcileCli = join(__dirname, "", "reconcile-brain.mjs");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:171:49
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
++       const reconcileCli = join(__dirname, "lib", "");
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:172:37
+-       const r = bootstrapSessionHooks({
+-         brainHooks,
+-         templateHooks,
+-         brainDir: REPO,
+-         message: bootstrapReassuranceMessage(),
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
+-         emit: (msg) => (bootstrapLine = msg),
+-       });
++       const r = bootstrapSessionHooks({});
+
+[Survived] BlockStatement
+scripts/session-status.mjs:177:41
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
++         spawnReconcile: ({ brainDir }) => {},
+
+[Survived] StringLiteral
+scripts/session-status.mjs:180:26
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [reconcileCli, "", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:180:11
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:180:50
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [reconcileCli, "--brainDir", brainDir, "", brainDir, "--platform", process.platform],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:180:75
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "", process.platform],
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:182:11
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             {},
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:182:23
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             { detached: false, stdio: "ignore", windowsHide: true },
+
+[Survived] StringLiteral
+scripts/session-status.mjs:182:36
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             { detached: true, stdio: "", windowsHide: true },
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:182:59
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             { detached: true, stdio: "ignore", windowsHide: false },
+
+[Survived] ArrowFunction
+scripts/session-status.mjs:186:13
+-         emit: (msg) => (bootstrapLine = msg),
++         emit: () => undefined,
+
+[Survived] BlockStatement
+scripts/session-status.mjs:190:9
+-   } catch {
+-     bootstrapLine = null; // fail-soft: never block session start over a bootstrap hiccup
+-   }
++   } catch {}
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:202:24
+-     restartPendingOnDisk({ repo: REPO, deriveWanted, existsSync, readFileSync }),
++     restartPendingOnDisk({}),
+
+[Survived] StringLiteral
+scripts/session-status.mjs:211:33
+-   const manifestPath = join(REPO, "engine-manifest.json");
++   const manifestPath = join(REPO, "");
+
+[Survived] BlockStatement
+scripts/session-status.mjs:219:5
+-   try {
+-     const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null);
+-     if (shouldReprobe({
+-       cached: readJson(upstreamPath),
+-       installedRef: readJson(manifestPath)?.source?.ref ?? null,
+-       now: Date.now(),
+-     })) {
+-       const child = spawn(
+-         process.execPath,
+-         [join(__dirname, "upstream-check-run.mjs"), "--brainDir", REPO],
+-         { detached: true, stdio: "ignore", windowsHide: true },
+-       );
+-       child.unref();
+-     }
+-   } catch {
++   try {} catch {
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:213:44
+-   const versionLine = readStartupVersionLine({ manifestPath, upstreamPath, existsSync, readFileSync });
++   const versionLine = readStartupVersionLine({});
+
+[Survived] ArrowFunction
+scripts/session-status.mjs:220:20
+-     const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null);
++     const readJson = () => undefined;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:220:71
+-     const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null);
++     const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "")) : null);
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:221:7
+-     if (shouldReprobe({
+-       cached: readJson(upstreamPath),
+-       installedRef: readJson(manifestPath)?.source?.ref ?? null,
+-       now: Date.now(),
+-     })) {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:221:7
+-     if (shouldReprobe({
+-       cached: readJson(upstreamPath),
+-       installedRef: readJson(manifestPath)?.source?.ref ?? null,
+-       now: Date.now(),
+-     })) {
++     if (false) {
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:221:21
+-     if (shouldReprobe({
+-       cached: readJson(upstreamPath),
+-       installedRef: readJson(manifestPath)?.source?.ref ?? null,
+-       now: Date.now(),
+-     })) {
++     if (shouldReprobe({})) {
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:223:19
+-       installedRef: readJson(manifestPath)?.source?.ref ?? null,
++       installedRef: readJson(manifestPath)?.source?.ref && null,
+
+[Survived] OptionalChaining
+scripts/session-status.mjs:223:19
+-       installedRef: readJson(manifestPath)?.source?.ref ?? null,
++       installedRef: readJson(manifestPath).source?.ref ?? null,
+
+[Survived] OptionalChaining
+scripts/session-status.mjs:223:19
+-       installedRef: readJson(manifestPath)?.source?.ref ?? null,
++       installedRef: readJson(manifestPath)?.source.ref ?? null,
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:228:7
+-         [join(__dirname, "upstream-check-run.mjs"), "--brainDir", REPO],
++         [],
+
+[Survived] BlockStatement
+scripts/session-status.mjs:225:7
+-     })) {
+-       const child = spawn(
+-         process.execPath,
+-         [join(__dirname, "upstream-check-run.mjs"), "--brainDir", REPO],
+-         { detached: true, stdio: "ignore", windowsHide: true },
+-       );
+-       child.unref();
+-     }
++     })) {}
+
+[Survived] StringLiteral
+scripts/session-status.mjs:228:24
+-         [join(__dirname, "upstream-check-run.mjs"), "--brainDir", REPO],
++         [join(__dirname, ""), "--brainDir", REPO],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:228:51
+-         [join(__dirname, "upstream-check-run.mjs"), "--brainDir", REPO],
++         [join(__dirname, "upstream-check-run.mjs"), "", REPO],
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:229:7
+-         { detached: true, stdio: "ignore", windowsHide: true },
++         {},
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:229:19
+-         { detached: true, stdio: "ignore", windowsHide: true },
++         { detached: false, stdio: "ignore", windowsHide: true },
+
+[Survived] StringLiteral
+scripts/session-status.mjs:229:32
+-         { detached: true, stdio: "ignore", windowsHide: true },
++         { detached: true, stdio: "", windowsHide: true },
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:229:55
+-         { detached: true, stdio: "ignore", windowsHide: true },
++         { detached: true, stdio: "ignore", windowsHide: false },
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:241:27
+-       buildStatusHookOutput({
+-         leadLine: restartLine,
+-         versionLine,
+-         statusLines: [bootstrapLine, keyLine, repoLine, ragLine],
+-       }),
++       buildStatusHookOutput({}),
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:244:20
+-         statusLines: [bootstrapLine, keyLine, repoLine, ragLine],
++         statusLines: [],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:246:7
+-     ) + "\n"
++     ) + ""
+
+Ran 1.00 tests per mutant on average.
+---------------------|------------------|----------|-----------|------------|----------|----------|
+                     | % Mutation score |          |           |            |          |          |
+File                 |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files            |  39.69 |   39.69 |      102 |         0 |        155 |        0 |        0 |
+ lib                 |  91.07 |   91.07 |      102 |         0 |         10 |        0 |        0 |
+  engine-version.mjs |  91.07 |   91.07 |      102 |         0 |         10 |        0 |        0 |
+ session-status.mjs  |   0.00 |    0.00 |        0 |         0 |        145 |        0 |        0 |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+20:24:41 (24386) INFO MutationTestExecutor Done in 7 minutes and 3 seconds.
+20:24:41 (24386) INFO Sandbox Resetting your original files from .stryker-tmp/backup-HQQDvf.

@@ -1,0 +1,2740 @@
+16:57:01 (10598) INFO ProjectReader Found 5 of 629 file(s) to be mutated.
+16:57:01 (10598) INFO Instrumenter Instrumented 5 source file(s) with 546 mutant(s)
+16:57:01 (10598) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+16:57:02 (10598) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Qk3diW
+16:57:02 (10598) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+16:57:02 (10598) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+16:57:03 (10598) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1640 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 98)
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:15:41
+-   function gestureForCheck(name, detail = "") {
++   function gestureForCheck(name, detail = "Stryker was here!") {
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:18:10
+-       case "canary":
++       case "":
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:24:11
+-           : "check your network and the API key in your .env";
++           : "";
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:25:5
+-       case "store":
+-         return "check the mirror's path, or refresh it";
++       case "store":
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:25:10
+-       case "store":
++       case "":
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:26:14
+-         return "check the mirror's path, or refresh it";
++         return "";
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:31:5
+-       default:
+-         return "restart the brain";
++       default:
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:32:14
+-         return "restart the brain";
++         return "";
+
+[Survived] MethodExpression
+scripts/lib/health-probe.mjs:44:19
+-     const failing = (mod.checks ?? []).filter((c) => c.status !== "ok");
++     const failing = mod.checks ?? [];
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:44:52
+-     const failing = (mod.checks ?? []).filter((c) => c.status !== "ok");
++     const failing = (mod.checks ?? []).filter((c) => true);
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:44:65
+-     const failing = (mod.checks ?? []).filter((c) => c.status !== "ok");
++     const failing = (mod.checks ?? []).filter((c) => c.status !== "");
+
+[Survived] LogicalOperator
+scripts/lib/health-probe.mjs:45:64
+-     if (failing.length === 0) return [`   • ${mod.capability} (${mod.detail ?? mod.status}) → restart the brain.`];
++     if (failing.length === 0) return [`   • ${mod.capability} (${mod.detail && mod.status}) → restart the brain.`];
+
+[Survived] MethodExpression
+scripts/lib/health-probe.mjs:61:26
+-     const optionalBroken = broken.filter((m) => OPTIONAL_MODULES.has(m.capability));
++     const optionalBroken = broken;
+
+[Survived] ArrayDeclaration
+scripts/lib/health-probe.mjs:63:20
+-     const sections = [];
++     const sections = ["Stryker was here"];
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:69:9
+-           "   Your notes themselves are untouched.",
++           "",
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:70:14
+-         ].join("\n"),
++         ].join(""),
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:73:7
+-     if (optionalBroken.length > 0) {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:73:7
+-     if (optionalBroken.length > 0) {
++     if (false) {
+
+[Survived] EqualityOperator
+scripts/lib/health-probe.mjs:73:7
+-     if (optionalBroken.length > 0) {
++     if (optionalBroken.length >= 0) {
+
+[Survived] EqualityOperator
+scripts/lib/health-probe.mjs:73:7
+-     if (optionalBroken.length > 0) {
++     if (optionalBroken.length <= 0) {
+
+[Survived] BlockStatement
+scripts/lib/health-probe.mjs:73:34
+-     if (optionalBroken.length > 0) {
+-       sections.push(
+-         [
+-           "ℹ️ A mirrored source is behind (your brain still answers):",
+-           ...optionalBroken.flatMap(bulletsFor),
+-         ].join("\n"),
+-       );
+-     }
++     if (optionalBroken.length > 0) {}
+
+[Survived] ArrayDeclaration
+scripts/lib/health-probe.mjs:75:7
+-         [
+-           "ℹ️ A mirrored source is behind (your brain still answers):",
+-           ...optionalBroken.flatMap(bulletsFor),
+-         ].join("\n"),
++         [].join("\n"),
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:78:14
+-         ].join("\n"),
++         ].join(""),
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:81:24
+-     return sections.join("\n");
++     return sections.join("");
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:112:10
+-     return `@echo off
+-   REM Self-heal launcher for the local-mirror server (Windows). Generated by the installer.
+-   REM Prepends the usual node locations to PATH before starting the server, so that npx is found even
+-   REM if the app has a minimal PATH. Pure JS server (no native deps) → no rebuild, just the PATH self-heal.
+-   ${pathPrependCmd()}
+-   npx tsx local-mirror/src/server.ts
+-   `;
++     return ``;
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:177:23
+-       return { command: "cmd", args: ["/c", `.\\${name}`], cleanup: () => io.removeScript(ragDir, name) };
++       return { command: "", args: ["/c", `.\\${name}`], cleanup: () => io.removeScript(ragDir, name) };
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:177:43
+-       return { command: "cmd", args: ["/c", `.\\${name}`], cleanup: () => io.removeScript(ragDir, name) };
++       return { command: "cmd", args: ["/c", ``], cleanup: () => io.removeScript(ragDir, name) };
+
+[Survived] ArrowFunction
+scripts/lib/rag-launcher.mjs:177:67
+-       return { command: "cmd", args: ["/c", `.\\${name}`], cleanup: () => io.removeScript(ragDir, name) };
++       return { command: "cmd", args: ["/c", `.\\${name}`], cleanup: () => undefined };
+
+[Survived] ObjectLiteral
+scripts/lib/rag-launcher.mjs:179:10
+-     return {
+-       command: "/bin/sh",
+-       args: ["-c", `${pathPrependSh()}\nexec npm install --silent`],
+-       cleanup: () => {},
+-     };
++     return {};
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:180:14
+-       command: "/bin/sh",
++       command: "",
+
+[Survived] ArrayDeclaration
+scripts/lib/rag-launcher.mjs:181:11
+-       args: ["-c", `${pathPrependSh()}\nexec npm install --silent`],
++       args: [],
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:181:12
+-       args: ["-c", `${pathPrependSh()}\nexec npm install --silent`],
++       args: ["", `${pathPrependSh()}\nexec npm install --silent`],
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:181:18
+-       args: ["-c", `${pathPrependSh()}\nexec npm install --silent`],
++       args: ["-c", ``],
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:191:51
+-   export function minimalPathEnv(platform, baseEnv) {
+-     if (platform === "win32") {
+-       // cmd.exe must stay findable (the smoke-test invokes it) → we keep just
+-       // System32; node will come from run-node.cmd's self-heal.
+-       const systemRoot = baseEnv.SystemRoot || "C:\\Windows";
+-       return { ...baseEnv, PATH: `${systemRoot}\\System32` };
+-     }
+-     // posix: sh is launched by absolute path (/bin/sh) → empty PATH, node will come
+-     // ONLY from the self-heal → proof that the wrapper is self-sufficient.
+-     return { ...baseEnv, PATH: "" };
+-   }
++   export function minimalPathEnv(platform, baseEnv) {}
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:192:7
+-     if (platform === "win32") {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:192:7
+-     if (platform === "win32") {
++     if (false) {
+
+[Survived] EqualityOperator
+scripts/lib/rag-launcher.mjs:192:7
+-     if (platform === "win32") {
++     if (platform !== "win32") {
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:192:20
+-     if (platform === "win32") {
++     if (platform === "") {
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:192:29
+-     if (platform === "win32") {
+-       // cmd.exe must stay findable (the smoke-test invokes it) → we keep just
+-       // System32; node will come from run-node.cmd's self-heal.
+-       const systemRoot = baseEnv.SystemRoot || "C:\\Windows";
+-       return { ...baseEnv, PATH: `${systemRoot}\\System32` };
+-     }
++     if (platform === "win32") {}
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:195:24
+-       const systemRoot = baseEnv.SystemRoot || "C:\\Windows";
++       const systemRoot = true;
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:195:24
+-       const systemRoot = baseEnv.SystemRoot || "C:\\Windows";
++       const systemRoot = false;
+
+[Survived] LogicalOperator
+scripts/lib/rag-launcher.mjs:195:24
+-       const systemRoot = baseEnv.SystemRoot || "C:\\Windows";
++       const systemRoot = baseEnv.SystemRoot && "C:\\Windows";
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:195:46
+-       const systemRoot = baseEnv.SystemRoot || "C:\\Windows";
++       const systemRoot = baseEnv.SystemRoot || "";
+
+[Survived] ObjectLiteral
+scripts/lib/rag-launcher.mjs:196:12
+-       return { ...baseEnv, PATH: `${systemRoot}\\System32` };
++       return {};
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:196:32
+-       return { ...baseEnv, PATH: `${systemRoot}\\System32` };
++       return { ...baseEnv, PATH: `` };
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:200:30
+-     return { ...baseEnv, PATH: "" };
++     return { ...baseEnv, PATH: "Stryker was here!" };
+
+[Survived] ObjectLiteral
+scripts/lib/rag-launcher.mjs:200:10
+-     return { ...baseEnv, PATH: "" };
++     return {};
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:220:61
+-   export function nodeHookCommand(platform, projectRootPosix) {
+-     if (platform === "win32") {
+-       return `${projectRootPosix}/scripts/run-node.cmd`;
+-     }
+-     return `/bin/sh \\"${projectRootPosix}/scripts/run-node.sh\\"`;
+-   }
++   export function nodeHookCommand(platform, projectRootPosix) {}
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:221:7
+-     if (platform === "win32") {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:221:7
+-     if (platform === "win32") {
++     if (false) {
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:221:20
+-     if (platform === "win32") {
++     if (platform === "") {
+
+[Survived] EqualityOperator
+scripts/lib/rag-launcher.mjs:221:7
+-     if (platform === "win32") {
++     if (platform !== "win32") {
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:221:29
+-     if (platform === "win32") {
+-       return `${projectRootPosix}/scripts/run-node.cmd`;
+-     }
++     if (platform === "win32") {}
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:222:12
+-       return `${projectRootPosix}/scripts/run-node.cmd`;
++       return ``;
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:224:10
+-     return `/bin/sh \\"${projectRootPosix}/scripts/run-node.sh\\"`;
++     return ``;
+
+[Survived] OptionalChaining
+scripts/lib/rag-launcher.mjs:231:15
+-     const srv = mcp?.mcpServers?.["vault-rag"];
++     const srv = mcp?.mcpServers["vault-rag"];
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:230:49
+-   export function applyRagLauncher(mcp, platform) {
+-     const srv = mcp?.mcpServers?.["vault-rag"];
+-     if (!srv) return mcp;
+-     if (platform === "win32") {
+-       srv.command = "cmd";
+-       srv.args = ["/c", "rag\\launch.cmd"];
+-     } else {
+-       srv.command = "/bin/sh";
+-       srv.args = ["rag/launch.sh"];
+-     }
+-     return mcp;
+-   }
++   export function applyRagLauncher(mcp, platform) {}
+
+[Survived] OptionalChaining
+scripts/lib/rag-launcher.mjs:231:15
+-     const srv = mcp?.mcpServers?.["vault-rag"];
++     const srv = mcp.mcpServers?.["vault-rag"];
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:231:33
+-     const srv = mcp?.mcpServers?.["vault-rag"];
++     const srv = mcp?.mcpServers?.[""];
+
+[Survived] BooleanLiteral
+scripts/lib/rag-launcher.mjs:232:7
+-     if (!srv) return mcp;
++     if (srv) return mcp;
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:232:7
+-     if (!srv) return mcp;
++     if (true) return mcp;
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:232:7
+-     if (!srv) return mcp;
++     if (false) return mcp;
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:233:7
+-     if (platform === "win32") {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:233:7
+-     if (platform === "win32") {
++     if (false) {
+
+[Survived] EqualityOperator
+scripts/lib/rag-launcher.mjs:233:7
+-     if (platform === "win32") {
++     if (platform !== "win32") {
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:233:20
+-     if (platform === "win32") {
++     if (platform === "") {
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:234:19
+-       srv.command = "cmd";
++       srv.command = "";
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:233:29
+-     if (platform === "win32") {
+-       srv.command = "cmd";
+-       srv.args = ["/c", "rag\\launch.cmd"];
+-     } else {
++     if (platform === "win32") {} else {
+
+[Survived] ArrayDeclaration
+scripts/lib/rag-launcher.mjs:235:16
+-       srv.args = ["/c", "rag\\launch.cmd"];
++       srv.args = [];
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:235:17
+-       srv.args = ["/c", "rag\\launch.cmd"];
++       srv.args = ["", "rag\\launch.cmd"];
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:235:23
+-       srv.args = ["/c", "rag\\launch.cmd"];
++       srv.args = ["/c", ""];
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:237:19
+-       srv.command = "/bin/sh";
++       srv.command = "";
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:236:10
+-     } else {
+-       srv.command = "/bin/sh";
+-       srv.args = ["rag/launch.sh"];
+-     }
++     } else {}
+
+[Survived] ArrayDeclaration
+scripts/lib/rag-launcher.mjs:238:16
+-       srv.args = ["rag/launch.sh"];
++       srv.args = [];
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:238:17
+-       srv.args = ["rag/launch.sh"];
++       srv.args = [""];
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:247:47
+-   export function applyLaunchers(mcp, platform) {
+-     return applyLocalMirrorLauncher(applyRagLauncher(mcp, platform), platform);
+-   }
++   export function applyLaunchers(mcp, platform) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:16:26
+-   const PROFILE_FILENAME = "universe.md";
++   const PROFILE_FILENAME = "";
+
+[Survived] ArrowFunction
+scripts/lib/universe-profile.mjs:26:27
+-   const isDefaultUniverse = (universe) => !universe || universe === DEFAULT_UNIVERSE;
++   const isDefaultUniverse = () => undefined;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:26:41
+-   const isDefaultUniverse = (universe) => !universe || universe === DEFAULT_UNIVERSE;
++   const isDefaultUniverse = (universe) => true;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:26:41
+-   const isDefaultUniverse = (universe) => !universe || universe === DEFAULT_UNIVERSE;
++   const isDefaultUniverse = (universe) => false;
+
+[Survived] LogicalOperator
+scripts/lib/universe-profile.mjs:26:41
+-   const isDefaultUniverse = (universe) => !universe || universe === DEFAULT_UNIVERSE;
++   const isDefaultUniverse = (universe) => !universe && universe === DEFAULT_UNIVERSE;
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:26:41
+-   const isDefaultUniverse = (universe) => !universe || universe === DEFAULT_UNIVERSE;
++   const isDefaultUniverse = (universe) => universe || universe === DEFAULT_UNIVERSE;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:26:54
+-   const isDefaultUniverse = (universe) => !universe || universe === DEFAULT_UNIVERSE;
++   const isDefaultUniverse = (universe) => !universe || false;
+
+[Survived] EqualityOperator
+scripts/lib/universe-profile.mjs:26:54
+-   const isDefaultUniverse = (universe) => !universe || universe === DEFAULT_UNIVERSE;
++   const isDefaultUniverse = (universe) => !universe || universe !== DEFAULT_UNIVERSE;
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:33:47
+-   export function universeProfilePath(universe) {
+-     return isDefaultUniverse(universe) ? PROFILE_FILENAME : `${universe}/${PROFILE_FILENAME}`;
+-   }
++   export function universeProfilePath(universe) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:34:59
+-     return isDefaultUniverse(universe) ? PROFILE_FILENAME : `${universe}/${PROFILE_FILENAME}`;
++     return isDefaultUniverse(universe) ? PROFILE_FILENAME : ``;
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:42:61
+-   export function readUniverseProfile(io, vaultDir, universe) {
+-     const path = `${vaultDir}/${universeProfilePath(universe)}`;
+-     return io.existsSync(path) ? io.readFileSync(path) : null;
+-   }
++   export function readUniverseProfile(io, vaultDir, universe) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:43:16
+-     const path = `${vaultDir}/${universeProfilePath(universe)}`;
++     const path = ``;
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:53:61
+-   export function writeUniverseProfile(io, vaultDir, answers) {
+-     const { path, content } = renderUniverseProfile(answers);
+-     const absolute = `${vaultDir}/${path}`;
+-     if (io.existsSync(absolute)) return { ok: false, reason: "exists", path };
+-     io.mkdirSync(dirnamePosix(absolute), { recursive: true });
+-     io.writeFileSync(absolute, content);
+-     return { ok: true, path };
+-   }
++   export function writeUniverseProfile(io, vaultDir, answers) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:55:20
+-     const absolute = `${vaultDir}/${path}`;
++     const absolute = ``;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:56:7
+-     if (io.existsSync(absolute)) return { ok: false, reason: "exists", path };
++     if (true) return { ok: false, reason: "exists", path };
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:56:7
+-     if (io.existsSync(absolute)) return { ok: false, reason: "exists", path };
++     if (false) return { ok: false, reason: "exists", path };
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:56:39
+-     if (io.existsSync(absolute)) return { ok: false, reason: "exists", path };
++     if (io.existsSync(absolute)) return {};
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:56:45
+-     if (io.existsSync(absolute)) return { ok: false, reason: "exists", path };
++     if (io.existsSync(absolute)) return { ok: true, reason: "exists", path };
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:56:60
+-     if (io.existsSync(absolute)) return { ok: false, reason: "exists", path };
++     if (io.existsSync(absolute)) return { ok: false, reason: "", path };
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:57:40
+-     io.mkdirSync(dirnamePosix(absolute), { recursive: true });
++     io.mkdirSync(dirnamePosix(absolute), {});
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:57:53
+-     io.mkdirSync(dirnamePosix(absolute), { recursive: true });
++     io.mkdirSync(dirnamePosix(absolute), { recursive: false });
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:59:10
+-     return { ok: true, path };
++     return {};
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:64:29
+-   function dirnamePosix(path) {
+-     return path.slice(0, path.lastIndexOf("/"));
+-   }
++   function dirnamePosix(path) {}
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:59:16
+-     return { ok: true, path };
++     return { ok: false, path };
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:65:10
+-     return path.slice(0, path.lastIndexOf("/"));
++     return path;
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:65:41
+-     return path.slice(0, path.lastIndexOf("/"));
++     return path.slice(0, path.lastIndexOf(""));
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:71:26
+-   const NUDGE_STATE_FILE = "profile-nudges.json";
++   const NUDGE_STATE_FILE = "";
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:74:59
+-   export function profileCaptureDeclined(io, dir, universe) {
+-     return readDeclined(io, dir).includes(universe);
+-   }
++   export function profileCaptureDeclined(io, dir, universe) {}
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:79:58
+-   export function declineProfileCapture(io, dir, universe) {
+-     const declined = [...new Set([...readDeclined(io, dir), universe])].sort();
+-     io.mkdirSync(dir, { recursive: true });
+-     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "\n");
+-   }
++   export function declineProfileCapture(io, dir, universe) {}
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:80:20
+-     const declined = [...new Set([...readDeclined(io, dir), universe])].sort();
++     const declined = [...new Set([...readDeclined(io, dir), universe])];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:80:32
+-     const declined = [...new Set([...readDeclined(io, dir), universe])].sort();
++     const declined = [...new Set([])].sort();
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:80:20
+-     const declined = [...new Set([...readDeclined(io, dir), universe])].sort();
++     const declined = [].sort();
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:81:21
+-     io.mkdirSync(dir, { recursive: true });
++     io.mkdirSync(dir, {});
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:81:34
+-     io.mkdirSync(dir, { recursive: true });
++     io.mkdirSync(dir, { recursive: false });
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:82:20
+-     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "\n");
++     io.writeFileSync(``, JSON.stringify({ declined }, null, 2) + "\n");
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:82:65
+-     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "\n");
++     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({}, null, 2) + "\n");
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:82:90
+-     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "\n");
++     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "");
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:87:32
+-   function readDeclined(io, dir) {
+-     const path = `${dir}/${NUDGE_STATE_FILE}`;
+-     if (!io.existsSync(path)) return [];
+-     try {
+-       const parsed = JSON.parse(io.readFileSync(path));
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
+-     } catch {
+-       return [];
+-     }
+-   }
++   function readDeclined(io, dir) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:88:16
+-     const path = `${dir}/${NUDGE_STATE_FILE}`;
++     const path = ``;
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:89:7
+-     if (!io.existsSync(path)) return [];
++     if (io.existsSync(path)) return [];
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:89:7
+-     if (!io.existsSync(path)) return [];
++     if (true) return [];
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:89:7
+-     if (!io.existsSync(path)) return [];
++     if (false) return [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:89:36
+-     if (!io.existsSync(path)) return [];
++     if (!io.existsSync(path)) return ["Stryker was here"];
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:90:7
+-     try {
+-       const parsed = JSON.parse(io.readFileSync(path));
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
+-     } catch {
++     try {} catch {
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:92:64
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
++       return Array.isArray(parsed?.declined) ? parsed.declined : ["Stryker was here"];
+
+[Survived] OptionalChaining
+scripts/lib/universe-profile.mjs:92:26
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
++       return Array.isArray(parsed.declined) ? parsed.declined : [];
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:93:11
+-     } catch {
+-       return [];
+-     }
++     } catch {}
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:94:12
+-       return [];
++       return ["Stryker was here"];
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:103:81
+-   export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) {
+-     const { frontmatter, body } = parseNote(raw);
+-     const sections = bodySections(body);
+-     const lines = [
+-       identityLine(frontmatter),
+-       ...sections.about,
+-       ...listLine("People", sections.people),
+-       ...listLine("Topics", sections.topics),
+-       ...listLine("Connector accounts", sections.connectors),
+-     ];
+-     if (lines.length <= maxLines) return lines.join("\n");
+-     // Truncation names the note, so the session can go read the rest on purpose
+-     // instead of acting on a profile it does not know is partial.
+-     return [
+-       ...lines.slice(0, maxLines - 1),
+-       `(profile truncated — the full page is ${vaultNotePath(frontmatter.universe)})`,
+-     ].join("\n");
+-   }
++   export function renderUniverseDigest(raw, { maxLines = DIGEST_MAX_LINES } = {}) {}
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:106:17
+-     const lines = [
+-       identityLine(frontmatter),
+-       ...sections.about,
+-       ...listLine("People", sections.people),
+-       ...listLine("Topics", sections.topics),
+-       ...listLine("Connector accounts", sections.connectors),
+-     ];
++     const lines = [];
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:109:17
+-       ...listLine("People", sections.people),
++       ...listLine("", sections.people),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:110:17
+-       ...listLine("Topics", sections.topics),
++       ...listLine("", sections.topics),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:111:17
+-       ...listLine("Connector accounts", sections.connectors),
++       ...listLine("", sections.connectors),
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:113:7
+-     if (lines.length <= maxLines) return lines.join("\n");
++     if (true) return lines.join("\n");
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:113:7
+-     if (lines.length <= maxLines) return lines.join("\n");
++     if (false) return lines.join("\n");
+
+[Survived] EqualityOperator
+scripts/lib/universe-profile.mjs:113:7
+-     if (lines.length <= maxLines) return lines.join("\n");
++     if (lines.length < maxLines) return lines.join("\n");
+
+[Survived] EqualityOperator
+scripts/lib/universe-profile.mjs:113:7
+-     if (lines.length <= maxLines) return lines.join("\n");
++     if (lines.length > maxLines) return lines.join("\n");
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:113:51
+-     if (lines.length <= maxLines) return lines.join("\n");
++     if (lines.length <= maxLines) return lines.join("");
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:116:10
+-     return [
+-       ...lines.slice(0, maxLines - 1),
+-       `(profile truncated — the full page is ${vaultNotePath(frontmatter.universe)})`,
+-     ].join("\n");
++     return [].join("\n");
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:117:8
+-       ...lines.slice(0, maxLines - 1),
++       ...lines,
+
+[Survived] ArithmeticOperator
+scripts/lib/universe-profile.mjs:117:23
+-       ...lines.slice(0, maxLines - 1),
++       ...lines.slice(0, maxLines + 1),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:118:5
+-       `(profile truncated — the full page is ${vaultNotePath(frontmatter.universe)})`,
++       ``,
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:119:10
+-     ].join("\n");
++     ].join("");
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:126:65
+-   export function renderUniverseSynthesis(raw, { universe } = {}) {
+-     const { frontmatter } = parseNote(raw);
+-     // The path is stated by the caller when it knows it, because the caller LOCATED
+-     // the file: that is a fact, where the frontmatter is a claim a hand-edit can lose.
+-     // A pointer to a note that is not there would be worse than no pointer at all.
+-     const at = universe === undefined ? frontmatter.universe : universe;
+-     return [
+-       identityLine(frontmatter),
+-       `Full profile: ${vaultNotePath(at)} — read it when the answer depends ` +
+-         `on the people, tools or scope here.`,
+-       "(for the description itself, they can ask `/switch`)",
+-     ].join("\n");
+-   }
++   export function renderUniverseSynthesis(raw, { universe } = {}) {}
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:131:14
+-     const at = universe === undefined ? frontmatter.universe : universe;
++     const at = true ? frontmatter.universe : universe;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:131:14
+-     const at = universe === undefined ? frontmatter.universe : universe;
++     const at = false ? frontmatter.universe : universe;
+
+[Survived] EqualityOperator
+scripts/lib/universe-profile.mjs:131:14
+-     const at = universe === undefined ? frontmatter.universe : universe;
++     const at = universe !== undefined ? frontmatter.universe : universe;
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:134:5
+-       `Full profile: ${vaultNotePath(at)} — read it when the answer depends ` +
++       `` +
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:132:10
+-     return [
+-       identityLine(frontmatter),
+-       `Full profile: ${vaultNotePath(at)} — read it when the answer depends ` +
+-         `on the people, tools or scope here.`,
+-       "(for the description itself, they can ask `/switch`)",
+-     ].join("\n");
++     return [].join("\n");
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:135:7
+-         `on the people, tools or scope here.`,
++         ``,
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:136:5
+-       "(for the description itself, they can ask `/switch`)",
++       "",
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:137:10
+-     ].join("\n");
++     ].join("");
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:143:36
+-   function identityLine(frontmatter) {
+-     const kind = frontmatter.kind ? ` (${frontmatter.kind})` : "";
+-     const details = [
+-       frontmatter.role ? `your role: ${frontmatter.role}` : null,
+-       frontmatter.period ? `period: ${frontmatter.period}` : null,
+-     ].filter(Boolean);
+-     const tail = details.length ? ` — ${details.join(", ")}` : "";
+-     return `${frontmatter.displayName}${kind}${tail}.`;
+-   }
++   function identityLine(frontmatter) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:144:35
+-     const kind = frontmatter.kind ? ` (${frontmatter.kind})` : "";
++     const kind = frontmatter.kind ? `` : "";
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:144:62
+-     const kind = frontmatter.kind ? ` (${frontmatter.kind})` : "";
++     const kind = frontmatter.kind ? ` (${frontmatter.kind})` : "Stryker was here!";
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:145:19
+-     const details = [
+-       frontmatter.role ? `your role: ${frontmatter.role}` : null,
+-       frontmatter.period ? `period: ${frontmatter.period}` : null,
+-     ].filter(Boolean);
++     const details = [frontmatter.role ? `your role: ${frontmatter.role}` : null, frontmatter.period ? `period: ${frontmatter.period}` : null];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:145:19
+-     const details = [
+-       frontmatter.role ? `your role: ${frontmatter.role}` : null,
+-       frontmatter.period ? `period: ${frontmatter.period}` : null,
+-     ].filter(Boolean);
++     const details = [].filter(Boolean);
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:146:24
+-       frontmatter.role ? `your role: ${frontmatter.role}` : null,
++       frontmatter.role ? `` : null,
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:147:26
+-       frontmatter.period ? `period: ${frontmatter.period}` : null,
++       frontmatter.period ? `` : null,
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:149:33
+-     const tail = details.length ? ` — ${details.join(", ")}` : "";
++     const tail = details.length ? `` : "";
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:149:52
+-     const tail = details.length ? ` — ${details.join(", ")}` : "";
++     const tail = details.length ? ` — ${details.join("")}` : "";
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:149:62
+-     const tail = details.length ? ` — ${details.join(", ")}` : "";
++     const tail = details.length ? ` — ${details.join(", ")}` : "Stryker was here!";
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:150:10
+-     return `${frontmatter.displayName}${kind}${tail}.`;
++     return ``;
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:155:34
+-   function vaultNotePath(universe) {
+-     return `vault/${universeProfilePath(universe)}`;
+-   }
++   function vaultNotePath(universe) {}
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:160:33
+-   function listLine(title, items) {
+-     return items.length ? [`${title}: ${items.join(", ")}.`] : [];
+-   }
++   function listLine(title, items) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:156:10
+-     return `vault/${universeProfilePath(universe)}`;
++     return ``;
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:161:25
+-     return items.length ? [`${title}: ${items.join(", ")}.`] : [];
++     return items.length ? [] : [];
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:161:26
+-     return items.length ? [`${title}: ${items.join(", ")}.`] : [];
++     return items.length ? [``] : [];
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:161:50
+-     return items.length ? [`${title}: ${items.join(", ")}.`] : [];
++     return items.length ? [`${title}: ${items.join("")}.`] : [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:161:62
+-     return items.length ? [`${title}: ${items.join(", ")}.`] : [];
++     return items.length ? [`${title}: ${items.join(", ")}.`] : ["Stryker was here"];
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:167:18
+-   const SECTIONS = { People: "people", Topics: "topics", "Connector accounts": "connectors" };
++   const SECTIONS = {};
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:167:78
+-   const SECTIONS = { People: "people", Topics: "topics", "Connector accounts": "connectors" };
++   const SECTIONS = { People: "people", Topics: "topics", "Connector accounts": "" };
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:167:28
+-   const SECTIONS = { People: "people", Topics: "topics", "Connector accounts": "connectors" };
++   const SECTIONS = { People: "", Topics: "topics", "Connector accounts": "connectors" };
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:167:46
+-   const SECTIONS = { People: "people", Topics: "topics", "Connector accounts": "connectors" };
++   const SECTIONS = { People: "people", Topics: "", "Connector accounts": "connectors" };
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:173:29
+-   function bodySections(body) {
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
+-     let current = "about";
+-     for (const line of body.split("\n")) {
+-       const heading = line.match(/^##\s+(.*)$/);
+-       if (heading) {
+-         current = SECTIONS[heading[1].trim()] ?? "other";
+-         continue;
+-       }
+-       if (line.startsWith("# ") || line.trim() === "") continue;
+-       // The free text is quoted as written; list sections are quoted as values, so
+-       // the digest can join them into one line instead of a bullet list.
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
+-     }
+-     return out;
+-   }
++   function bodySections(body) {}
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:174:48
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: [], topics: ["Stryker was here"], connectors: [], other: [] };
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:174:24
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: ["Stryker was here"], people: [], topics: [], connectors: [], other: [] };
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:174:15
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = {};
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:174:36
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: ["Stryker was here"], topics: [], connectors: [], other: [] };
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:174:64
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: [], topics: [], connectors: ["Stryker was here"], other: [] };
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:175:17
+-     let current = "about";
++     let current = "";
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:176:40
+-     for (const line of body.split("\n")) {
+-       const heading = line.match(/^##\s+(.*)$/);
+-       if (heading) {
+-         current = SECTIONS[heading[1].trim()] ?? "other";
+-         continue;
+-       }
+-       if (line.startsWith("# ") || line.trim() === "") continue;
+-       // The free text is quoted as written; list sections are quoted as values, so
+-       // the digest can join them into one line instead of a bullet list.
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
+-     }
++     for (const line of body.split("\n")) {}
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:174:75
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: [], topics: [], connectors: [], other: ["Stryker was here"] };
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:176:33
+-     for (const line of body.split("\n")) {
++     for (const line of body.split("")) {
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/##\s+(.*)$/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s+(.*)/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\S+(.*)$/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s(.*)$/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s+(.)$/);
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:178:9
+-       if (heading) {
++       if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:178:9
+-       if (heading) {
++       if (false) {
+
+[Survived] LogicalOperator
+scripts/lib/universe-profile.mjs:179:17
+-         current = SECTIONS[heading[1].trim()] ?? "other";
++         current = SECTIONS[heading[1].trim()] && "other";
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:178:18
+-       if (heading) {
+-         current = SECTIONS[heading[1].trim()] ?? "other";
+-         continue;
+-       }
++       if (heading) {}
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:179:26
+-         current = SECTIONS[heading[1].trim()] ?? "other";
++         current = SECTIONS[heading[1]] ?? "other";
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:179:48
+-         current = SECTIONS[heading[1].trim()] ?? "other";
++         current = SECTIONS[heading[1].trim()] ?? "";
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:182:9
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (true) continue;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:182:9
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (false) continue;
+
+[Survived] LogicalOperator
+scripts/lib/universe-profile.mjs:182:9
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.startsWith("# ") && line.trim() === "") continue;
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:182:9
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.endsWith("# ") || line.trim() === "") continue;
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:182:25
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.startsWith("") || line.trim() === "") continue;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:182:34
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.startsWith("# ") || false) continue;
+
+[Survived] EqualityOperator
+scripts/lib/universe-profile.mjs:182:34
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.startsWith("# ") || line.trim() !== "") continue;
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:182:34
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.startsWith("# ") || line === "") continue;
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:182:50
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.startsWith("# ") || line.trim() === "Stryker was here!") continue;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:185:23
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(true ? line : line.replace(/^[-*]\s*/, ""));
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:185:23
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(false ? line : line.replace(/^[-*]\s*/, ""));
+
+[Survived] EqualityOperator
+scripts/lib/universe-profile.mjs:185:23
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current !== "about" ? line : line.replace(/^[-*]\s*/, ""));
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:185:35
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "" ? line : line.replace(/^[-*]\s*/, ""));
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:185:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/[-*]\s*/, ""));
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:185:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/^[^-*]\s*/, ""));
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:185:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/^[-*]\s/, ""));
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:185:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/^[-*]\S*/, ""));
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:185:77
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, "Stryker was here!"));
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:196:48
+-   export function renderUniverseProfile(answers) {
+-     const { universe, displayName, kind, role, period, today } = answers;
+-     if (!today) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
+-     if (!displayName) throw new Error("displayName is required: it is the profile note's title");
+-     // An unanswered question writes NO key at all: a profile half-filled today and
+-     // completed later must not carry empty keys in between (they read as facts).
+-     const optional = (key, value) => (value ? [`${key}: ${value}`] : []);
+-     const frontmatter = [
+-       "---",
+-       "type: universe",
+-       `created: ${today}`,
+-       `updated: ${today}`,
+-       "tags: [universe]",
+-       // Additive scope key, omitted at the root exactly like every other note: the
+-       // ABSENCE of `universe:` is what "default" means (ADR 0034), so stamping it
+-       // would make the default universe's own profile the one note that lies.
+-       ...(isDefaultUniverse(universe) ? [] : [`universe: ${universe}`]),
+-       `displayName: ${displayName}`,
+-       ...optional("kind", kind),
+-       ...optional("role", role),
+-       ...optional("period", period),
+-       "---",
+-     ];
+-     // A section is written only when it has content: an empty "## People" heading
+-     // would claim the question was answered with "nobody".
+-     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : []);
+-     // People stay in the ANSWERED order, never sorted: the owner named the most
+-     // present ones first, and that ordering is itself information.
+-     const people = answers.people ?? [];
+-     // The recurring subjects of this sphere. They answer a different question from
+-     // People ("is this note about my work HERE?"), which is what lets an ambiguous
+-     // ask resolve without a round-trip.
+-     const topics = answers.topics ?? [];
+-     // Which account each single-account connector uses HERE. Those connectors do not
+-     // follow a universe switch, so this is what turns the switch reminder from a
+-     // generic warning into "reconnect Slack to acme.slack.com".
+-     const connectors = answers.connectors ?? [];
+-     return {
+-       path: universeProfilePath(universe),
+-       content: [
+-         ...frontmatter,
+-         "",
+-         `# ${displayName}`,
+-         ...(answers.about ? ["", answers.about] : []),
+-         ...section("People", people.map((p) => `- ${p}`)),
+-         ...section("Topics", topics.map((t) => `- ${t}`)),
+-         ...section("Connector accounts", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
+-         "",
+-       ].join("\n"),
+-     };
+-   }
++   export function renderUniverseProfile(answers) {}
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:198:7
+-     if (!today) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
++     if (today) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:198:7
+-     if (!today) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
++     if (true) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:198:7
+-     if (!today) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
++     if (false) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:198:31
+-     if (!today) throw new Error("today (YYYY-MM-DD) is required to stamp created/updated");
++     if (!today) throw new Error("");
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:199:7
+-     if (!displayName) throw new Error("displayName is required: it is the profile note's title");
++     if (displayName) throw new Error("displayName is required: it is the profile note's title");
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:199:7
+-     if (!displayName) throw new Error("displayName is required: it is the profile note's title");
++     if (true) throw new Error("displayName is required: it is the profile note's title");
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:199:7
+-     if (!displayName) throw new Error("displayName is required: it is the profile note's title");
++     if (false) throw new Error("displayName is required: it is the profile note's title");
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:199:37
+-     if (!displayName) throw new Error("displayName is required: it is the profile note's title");
++     if (!displayName) throw new Error("");
+
+[Survived] ArrowFunction
+scripts/lib/universe-profile.mjs:202:20
+-     const optional = (key, value) => (value ? [`${key}: ${value}`] : []);
++     const optional = () => undefined;
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:202:45
+-     const optional = (key, value) => (value ? [`${key}: ${value}`] : []);
++     const optional = (key, value) => (value ? [] : []);
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:202:46
+-     const optional = (key, value) => (value ? [`${key}: ${value}`] : []);
++     const optional = (key, value) => (value ? [``] : []);
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:203:23
+-     const frontmatter = [
+-       "---",
+-       "type: universe",
+-       `created: ${today}`,
+-       `updated: ${today}`,
+-       "tags: [universe]",
+-       // Additive scope key, omitted at the root exactly like every other note: the
+-       // ABSENCE of `universe:` is what "default" means (ADR 0034), so stamping it
+-       // would make the default universe's own profile the one note that lies.
+-       ...(isDefaultUniverse(universe) ? [] : [`universe: ${universe}`]),
+-       `displayName: ${displayName}`,
+-       ...optional("kind", kind),
+-       ...optional("role", role),
+-       ...optional("period", period),
+-       "---",
+-     ];
++     const frontmatter = [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:202:68
+-     const optional = (key, value) => (value ? [`${key}: ${value}`] : []);
++     const optional = (key, value) => (value ? [`${key}: ${value}`] : ["Stryker was here"]);
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:204:5
+-       "---",
++       "",
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:205:5
+-       "type: universe",
++       "",
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:206:5
+-       `created: ${today}`,
++       ``,
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:207:5
+-       `updated: ${today}`,
++       ``,
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:212:39
+-       ...(isDefaultUniverse(universe) ? [] : [`universe: ${universe}`]),
++       ...(isDefaultUniverse(universe) ? ["Stryker was here"] : [`universe: ${universe}`]),
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:212:44
+-       ...(isDefaultUniverse(universe) ? [] : [`universe: ${universe}`]),
++       ...(isDefaultUniverse(universe) ? [] : []),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:208:5
+-       "tags: [universe]",
++       "",
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:212:45
+-       ...(isDefaultUniverse(universe) ? [] : [`universe: ${universe}`]),
++       ...(isDefaultUniverse(universe) ? [] : [``]),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:213:5
+-       `displayName: ${displayName}`,
++       ``,
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:214:17
+-       ...optional("kind", kind),
++       ...optional("", kind),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:215:17
+-       ...optional("role", role),
++       ...optional("", role),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:216:17
+-       ...optional("period", period),
++       ...optional("", period),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:217:5
+-       "---",
++       "",
+
+[Survived] ArrowFunction
+scripts/lib/universe-profile.mjs:221:19
+-     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : []);
++     const section = () => undefined;
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:221:53
+-     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : []);
++     const section = (title, lines) => (lines.length ? [] : []);
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:221:58
+-     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : []);
++     const section = (title, lines) => (lines.length ? ["", ``, "", ...lines] : []);
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:221:54
+-     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : []);
++     const section = (title, lines) => (lines.length ? ["Stryker was here!", `## ${title}`, "", ...lines] : []);
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:221:73
+-     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : []);
++     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "Stryker was here!", ...lines] : []);
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:221:89
+-     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : []);
++     const section = (title, lines) => (lines.length ? ["", `## ${title}`, "", ...lines] : ["Stryker was here"]);
+
+[Survived] LogicalOperator
+scripts/lib/universe-profile.mjs:224:18
+-     const people = answers.people ?? [];
++     const people = answers.people && [];
+
+[Survived] LogicalOperator
+scripts/lib/universe-profile.mjs:228:18
+-     const topics = answers.topics ?? [];
++     const topics = answers.topics && [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:224:36
+-     const people = answers.people ?? [];
++     const people = answers.people ?? ["Stryker was here"];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:228:36
+-     const topics = answers.topics ?? [];
++     const topics = answers.topics ?? ["Stryker was here"];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:232:44
+-     const connectors = answers.connectors ?? [];
++     const connectors = answers.connectors ?? ["Stryker was here"];
+
+[Survived] LogicalOperator
+scripts/lib/universe-profile.mjs:232:22
+-     const connectors = answers.connectors ?? [];
++     const connectors = answers.connectors && [];
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:233:10
+-     return {
+-       path: universeProfilePath(universe),
+-       content: [
+-         ...frontmatter,
+-         "",
+-         `# ${displayName}`,
+-         ...(answers.about ? ["", answers.about] : []),
+-         ...section("People", people.map((p) => `- ${p}`)),
+-         ...section("Topics", topics.map((t) => `- ${t}`)),
+-         ...section("Connector accounts", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
+-         "",
+-       ].join("\n"),
+-     };
++     return {};
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:235:14
+-       content: [
+-         ...frontmatter,
+-         "",
+-         `# ${displayName}`,
+-         ...(answers.about ? ["", answers.about] : []),
+-         ...section("People", people.map((p) => `- ${p}`)),
+-         ...section("Topics", topics.map((t) => `- ${t}`)),
+-         ...section("Connector accounts", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
+-         "",
+-       ].join("\n"),
++       content: [].join("\n"),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:237:7
+-         "",
++         "Stryker was here!",
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:238:7
+-         `# ${displayName}`,
++         ``,
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:239:27
+-         ...(answers.about ? ["", answers.about] : []),
++         ...(answers.about ? [] : []),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:239:28
+-         ...(answers.about ? ["", answers.about] : []),
++         ...(answers.about ? ["Stryker was here!", answers.about] : []),
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:239:49
+-         ...(answers.about ? ["", answers.about] : []),
++         ...(answers.about ? ["", answers.about] : ["Stryker was here"]),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:240:18
+-         ...section("People", people.map((p) => `- ${p}`)),
++         ...section("", people.map((p) => `- ${p}`)),
+
+[Survived] ArrowFunction
+scripts/lib/universe-profile.mjs:240:39
+-         ...section("People", people.map((p) => `- ${p}`)),
++         ...section("People", people.map(() => undefined)),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:240:46
+-         ...section("People", people.map((p) => `- ${p}`)),
++         ...section("People", people.map((p) => ``)),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:241:18
+-         ...section("Topics", topics.map((t) => `- ${t}`)),
++         ...section("", topics.map((t) => `- ${t}`)),
+
+[Survived] ArrowFunction
+scripts/lib/universe-profile.mjs:241:39
+-         ...section("Topics", topics.map((t) => `- ${t}`)),
++         ...section("Topics", topics.map(() => undefined)),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:241:46
+-         ...section("Topics", topics.map((t) => `- ${t}`)),
++         ...section("Topics", topics.map((t) => ``)),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:242:18
+-         ...section("Connector accounts", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
++         ...section("", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
+
+[Survived] ArrowFunction
+scripts/lib/universe-profile.mjs:242:55
+-         ...section("Connector accounts", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
++         ...section("Connector accounts", connectors.map(() => undefined)),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:242:62
+-         ...section("Connector accounts", connectors.map((c) => `- ${c.tool}: ${c.account}`)),
++         ...section("Connector accounts", connectors.map((c) => ``)),
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:243:7
+-         "",
++         "Stryker was here!",
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:244:12
+-       ].join("\n"),
++       ].join(""),
+
+[Survived] BlockStatement
+scripts/lib/universe-reminder.mjs:19:56
+-   export function universeReminder({ registry, active }) {
+-     if (!isMultiverse(registry)) return null;
+-     const current = active || DEFAULT_UNIVERSE;
+-     const all = listAllUniverses(registry);
+-     return `Active universe: '${current}' (of ${all.length}: ${all.join(", ")}).`;
+-   }
++   export function universeReminder({ registry, active }) {}
+
+[Survived] BooleanLiteral
+scripts/lib/universe-reminder.mjs:20:7
+-     if (!isMultiverse(registry)) return null;
++     if (isMultiverse(registry)) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:20:7
+-     if (!isMultiverse(registry)) return null;
++     if (true) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:20:7
+-     if (!isMultiverse(registry)) return null;
++     if (false) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:21:19
+-     const current = active || DEFAULT_UNIVERSE;
++     const current = true;
+
+[Survived] LogicalOperator
+scripts/lib/universe-reminder.mjs:21:19
+-     const current = active || DEFAULT_UNIVERSE;
++     const current = active && DEFAULT_UNIVERSE;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:21:19
+-     const current = active || DEFAULT_UNIVERSE;
++     const current = false;
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:23:10
+-     return `Active universe: '${current}' (of ${all.length}: ${all.join(", ")}).`;
++     return ``;
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:23:71
+-     return `Active universe: '${current}' (of ${all.length}: ${all.join(", ")}).`;
++     return `Active universe: '${current}' (of ${all.length}: ${all.join("")}).`;
+
+[Survived] BlockStatement
+scripts/lib/universe-reminder.mjs:35:61
+-   export function pointerHealNotice({ healed, from, active }) {
+-     if (!healed) return null;
+-     return (
+-       `The universe '${from}' this machine was working in no longer exists ` +
+-       `(deleted or renamed elsewhere), so the scope is back to '${active}'.`
+-     );
+-   }
++   export function pointerHealNotice({ healed, from, active }) {}
+
+[Survived] BooleanLiteral
+scripts/lib/universe-reminder.mjs:36:7
+-     if (!healed) return null;
++     if (healed) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:36:7
+-     if (!healed) return null;
++     if (true) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:36:7
+-     if (!healed) return null;
++     if (false) return null;
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:38:5
+-       `The universe '${from}' this machine was working in no longer exists ` +
++       `` +
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:39:5
+-       `(deleted or renamed elsewhere), so the scope is back to '${active}'.`
++       ``
+
+[Survived] BooleanLiteral
+scripts/lib/universe-reminder.mjs:58:74
+-   export function profileCaptureOffer({ hasProfile, declined, multiverse = false }) {
++   export function profileCaptureOffer({ hasProfile, declined, multiverse = true }) {
+
+[Survived] BlockStatement
+scripts/lib/universe-reminder.mjs:58:83
+-   export function profileCaptureOffer({ hasProfile, declined, multiverse = false }) {
+-     if (hasProfile || declined) return null;
+-     // THE dichotomy (ADR 0034). Below the gate the machinery does not exist yet, so
+-     // the word would name a thing this owner has never met; past it, the word IS the
+-     // vocabulary they already switch with. The CORE decides which, because deciding
+-     // requires counting universes, and counting is not the LLM's job (ADR 0009).
+-     const vocabulary = multiverse
+-       ? "say `universe` plainly — the active one"
+-       : "never use the word `universe`: they have never met the notion, say their context";
+-     // No mention of the refusal already checked above: the core gated on it, so saying
+-     // so again is bookkeeping the agent cannot act on and the owner should not read.
+-     return (
+-       `No profile yet for this owner's context. Offer once, in their language, to ` +
+-       `describe it, and say it is skippable (${vocabulary}).`
+-     );
+-   }
++   export function profileCaptureOffer({ hasProfile, declined, multiverse = false }) {}
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:59:7
+-     if (hasProfile || declined) return null;
++     if (true) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:59:7
+-     if (hasProfile || declined) return null;
++     if (false) return null;
+
+[Survived] LogicalOperator
+scripts/lib/universe-reminder.mjs:59:7
+-     if (hasProfile || declined) return null;
++     if (hasProfile && declined) return null;
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:65:7
+-       ? "say `universe` plainly — the active one"
++       ? ""
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:66:7
+-       : "never use the word `universe`: they have never met the notion, say their context";
++       : "";
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:70:5
+-       `No profile yet for this owner's context. Offer once, in their language, to ` +
++       `` +
+
+[Survived] BlockStatement
+scripts/lib/universe-reminder.mjs:81:96
+-   export function buildUniverseHookOutput({ nudge = null, synthesis = null, offer = null } = {}) {
+-     if (!nudge && !synthesis && !offer) return null;
+-     const parts = [];
+-     if (nudge) {
+-       parts.push(
+-         `[universe] ${nudge} Searches are scoped to it plus their cross-cutting notes; ` +
+-           `"search all universes" spans them, /switch changes it. Say so once, in their language.`,
+-       );
+-     }
+-     if (synthesis) {
+-       // Still says nothing about universes, for a reason F1 changed: it is no longer
+-       // that a lone-universe brain might see this block (it never does now), it is
+-       // that the `[universe]` line above owns the machinery vocabulary and this one is
+-       // about THEIR world. Merged, the owner reads plumbing where they wanted context.
+-       //
+-       // The framing is one short sentence because the block it wraps now DIRECTS the
+-       // agent itself (when to open the page, where to send the owner for the rest).
+-       parts.push(
+-         `[working context]\n${synthesis}\n` + `Ambient background: use it silently, do not recite it.`,
+-       );
+-     }
+-     if (offer) parts.push(`[onboarding] ${offer}`);
+-     return {
+-       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
+-       systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
+-     };
+-   }
++   export function buildUniverseHookOutput({ nudge = null, synthesis = null, offer = null } = {}) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:71:5
+-       `describe it, and say it is skippable (${vocabulary}).`
++       ``
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:82:7
+-     if (!nudge && !synthesis && !offer) return null;
++     if (true) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:82:7
+-     if (!nudge && !synthesis && !offer) return null;
++     if (false) return null;
+
+[Survived] LogicalOperator
+scripts/lib/universe-reminder.mjs:82:7
+-     if (!nudge && !synthesis && !offer) return null;
++     if (!nudge && !synthesis || !offer) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:82:7
+-     if (!nudge && !synthesis && !offer) return null;
++     if (true && !offer) return null;
+
+[Survived] LogicalOperator
+scripts/lib/universe-reminder.mjs:82:7
+-     if (!nudge && !synthesis && !offer) return null;
++     if (!nudge || !synthesis && !offer) return null;
+
+[Survived] BooleanLiteral
+scripts/lib/universe-reminder.mjs:82:7
+-     if (!nudge && !synthesis && !offer) return null;
++     if (nudge && !synthesis && !offer) return null;
+
+[Survived] BooleanLiteral
+scripts/lib/universe-reminder.mjs:82:17
+-     if (!nudge && !synthesis && !offer) return null;
++     if (!nudge && synthesis && !offer) return null;
+
+[Survived] BooleanLiteral
+scripts/lib/universe-reminder.mjs:82:31
+-     if (!nudge && !synthesis && !offer) return null;
++     if (!nudge && !synthesis && offer) return null;
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-reminder.mjs:83:17
+-     const parts = [];
++     const parts = ["Stryker was here"];
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:84:7
+-     if (nudge) {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:84:7
+-     if (nudge) {
++     if (false) {
+
+[Survived] BlockStatement
+scripts/lib/universe-reminder.mjs:84:14
+-     if (nudge) {
+-       parts.push(
+-         `[universe] ${nudge} Searches are scoped to it plus their cross-cutting notes; ` +
+-           `"search all universes" spans them, /switch changes it. Say so once, in their language.`,
+-       );
+-     }
++     if (nudge) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:86:7
+-         `[universe] ${nudge} Searches are scoped to it plus their cross-cutting notes; ` +
++         `` +
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:87:9
+-           `"search all universes" spans them, /switch changes it. Say so once, in their language.`,
++           ``,
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:90:7
+-     if (synthesis) {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:90:7
+-     if (synthesis) {
++     if (false) {
+
+[Survived] BlockStatement
+scripts/lib/universe-reminder.mjs:90:18
+-     if (synthesis) {
+-       // Still says nothing about universes, for a reason F1 changed: it is no longer
+-       // that a lone-universe brain might see this block (it never does now), it is
+-       // that the `[universe]` line above owns the machinery vocabulary and this one is
+-       // about THEIR world. Merged, the owner reads plumbing where they wanted context.
+-       //
+-       // The framing is one short sentence because the block it wraps now DIRECTS the
+-       // agent itself (when to open the page, where to send the owner for the rest).
+-       parts.push(
+-         `[working context]\n${synthesis}\n` + `Ambient background: use it silently, do not recite it.`,
+-       );
+-     }
++     if (synthesis) {}
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:99:7
+-         `[working context]\n${synthesis}\n` + `Ambient background: use it silently, do not recite it.`,
++         `` + `Ambient background: use it silently, do not recite it.`,
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:99:45
+-         `[working context]\n${synthesis}\n` + `Ambient background: use it silently, do not recite it.`,
++         `[working context]\n${synthesis}\n` + ``,
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:102:7
+-     if (offer) parts.push(`[onboarding] ${offer}`);
++     if (true) parts.push(`[onboarding] ${offer}`);
+
+[Survived] ConditionalExpression
+scripts/lib/universe-reminder.mjs:102:7
+-     if (offer) parts.push(`[onboarding] ${offer}`);
++     if (false) parts.push(`[onboarding] ${offer}`);
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:102:25
+-     if (offer) parts.push(`[onboarding] ${offer}`);
++     if (offer) parts.push(``);
+
+[Survived] ObjectLiteral
+scripts/lib/universe-reminder.mjs:103:10
+-     return {
+-       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
+-       systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
+-     };
++     return {};
+
+[Survived] ObjectLiteral
+scripts/lib/universe-reminder.mjs:104:25
+-       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
++       hookSpecificOutput: {},
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:104:42
+-       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
++       hookSpecificOutput: { hookEventName: "", additionalContext: parts.join("\n\n") },
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:104:88
+-       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
++       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("") },
+
+[Survived] MethodExpression
+scripts/lib/universe-reminder.mjs:105:20
+-       systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
++       systemMessage: [nudge, synthesis, offer].join("\n"),
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-reminder.mjs:105:20
+-       systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
++       systemMessage: [].filter(Boolean).join("\n"),
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:105:67
+-       systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
++       systemMessage: [nudge, synthesis, offer].filter(Boolean).join(""),
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:26:44
+-   export function engineParser({ brainDir }) {
+-     try {
+-       const require = createRequire(join(brainDir, "rag", "package.json"));
+-       const matter = require("gray-matter");
+-       const { load } = require("js-yaml");
+-       // The same composition as frontmatter-parser.ts: gray-matter 4.x defaults to
+-       // js-yaml 3's removed `safeLoad`, so the yaml engine is forced onto `load`.
+-       return (raw) => matter(raw, { engines: { yaml: (input) => load(input) } });
+-     } catch {
+-       return null;
+-     }
+-   }
++   export function engineParser({ brainDir }) {}
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:28:50
+-       const require = createRequire(join(brainDir, "rag", "package.json"));
++       const require = createRequire(join(brainDir, "", "package.json"));
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:27:7
+-     try {
+-       const require = createRequire(join(brainDir, "rag", "package.json"));
+-       const matter = require("gray-matter");
+-       const { load } = require("js-yaml");
+-       // The same composition as frontmatter-parser.ts: gray-matter 4.x defaults to
+-       // js-yaml 3's removed `safeLoad`, so the yaml engine is forced onto `load`.
+-       return (raw) => matter(raw, { engines: { yaml: (input) => load(input) } });
+-     } catch {
++     try {} catch {
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:28:57
+-       const require = createRequire(join(brainDir, "rag", "package.json"));
++       const require = createRequire(join(brainDir, "rag", ""));
+
+[Survived] ArrowFunction
+scripts/lib/vault-write-guard.mjs:33:12
+-       return (raw) => matter(raw, { engines: { yaml: (input) => load(input) } });
++       return () => undefined;
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:33:33
+-       return (raw) => matter(raw, { engines: { yaml: (input) => load(input) } });
++       return (raw) => matter(raw, {});
+
+[Survived] ArrowFunction
+scripts/lib/vault-write-guard.mjs:33:52
+-       return (raw) => matter(raw, { engines: { yaml: (input) => load(input) } });
++       return (raw) => matter(raw, { engines: { yaml: () => undefined } });
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:33:44
+-       return (raw) => matter(raw, { engines: { yaml: (input) => load(input) } });
++       return (raw) => matter(raw, { engines: {} });
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:34:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:54:41
+-   export function duplicateKeyDetail(raw) {
+-     const lines = raw.split("\n");
+-     if (lines[0].trim() !== "---") return null;
+-     const seenAtLine = new Map();
+-     for (let i = 1; i < lines.length; i++) {
+-       if (lines[i].trim() === "---") break;
+-       const key = lines[i].match(/^([A-Za-z0-9_-]+):/)?.[1];
+-       if (key === undefined) continue;
+-       const first = seenAtLine.get(key);
+-       if (first !== undefined) return { key, first, second: i + 1 };
+-       seenAtLine.set(key, i + 1);
+-     }
+-     return null;
+-   }
++   export function duplicateKeyDetail(raw) {}
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:55:27
+-     const lines = raw.split("\n");
++     const lines = raw.split("");
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:56:7
+-     if (lines[0].trim() !== "---") return null;
++     if (lines[0].trim() === "---") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:56:7
+-     if (lines[0].trim() !== "---") return null;
++     if (false) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:56:7
+-     if (lines[0].trim() !== "---") return null;
++     if (true) return null;
+
+[Survived] MethodExpression
+scripts/lib/vault-write-guard.mjs:56:7
+-     if (lines[0].trim() !== "---") return null;
++     if (lines[0] !== "---") return null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:56:27
+-     if (lines[0].trim() !== "---") return null;
++     if (lines[0].trim() !== "") return null;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:58:19
+-     for (let i = 1; i < lines.length; i++) {
++     for (let i = 1; i <= lines.length; i++) {
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:58:19
+-     for (let i = 1; i < lines.length; i++) {
++     for (let i = 1; false; i++) {
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:58:19
+-     for (let i = 1; i < lines.length; i++) {
++     for (let i = 1; i >= lines.length; i++) {
+
+[Survived] UpdateOperator
+scripts/lib/vault-write-guard.mjs:58:37
+-     for (let i = 1; i < lines.length; i++) {
++     for (let i = 1; i < lines.length; i--) {
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:58:42
+-     for (let i = 1; i < lines.length; i++) {
+-       if (lines[i].trim() === "---") break;
+-       const key = lines[i].match(/^([A-Za-z0-9_-]+):/)?.[1];
+-       if (key === undefined) continue;
+-       const first = seenAtLine.get(key);
+-       if (first !== undefined) return { key, first, second: i + 1 };
+-       seenAtLine.set(key, i + 1);
+-     }
++     for (let i = 1; i < lines.length; i++) {}
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:59:9
+-       if (lines[i].trim() === "---") break;
++       if (true) break;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:59:9
+-       if (lines[i].trim() === "---") break;
++       if (false) break;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:59:9
+-       if (lines[i].trim() === "---") break;
++       if (lines[i].trim() !== "---") break;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:59:29
+-       if (lines[i].trim() === "---") break;
++       if (lines[i].trim() === "") break;
+
+[Survived] MethodExpression
+scripts/lib/vault-write-guard.mjs:59:9
+-       if (lines[i].trim() === "---") break;
++       if (lines[i] === "---") break;
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:60:17
+-       const key = lines[i].match(/^([A-Za-z0-9_-]+):/)?.[1];
++       const key = lines[i].match(/^([A-Za-z0-9_-]+):/)[1];
+
+[Survived] Regex
+scripts/lib/vault-write-guard.mjs:60:32
+-       const key = lines[i].match(/^([A-Za-z0-9_-]+):/)?.[1];
++       const key = lines[i].match(/([A-Za-z0-9_-]+):/)?.[1];
+
+[Survived] Regex
+scripts/lib/vault-write-guard.mjs:60:32
+-       const key = lines[i].match(/^([A-Za-z0-9_-]+):/)?.[1];
++       const key = lines[i].match(/^([A-Za-z0-9_-]):/)?.[1];
+
+[Survived] Regex
+scripts/lib/vault-write-guard.mjs:60:32
+-       const key = lines[i].match(/^([A-Za-z0-9_-]+):/)?.[1];
++       const key = lines[i].match(/^([^A-Za-z0-9_-]+):/)?.[1];
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:61:9
+-       if (key === undefined) continue;
++       if (true) continue;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:61:9
+-       if (key === undefined) continue;
++       if (false) continue;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:61:9
+-       if (key === undefined) continue;
++       if (key !== undefined) continue;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:63:9
+-       if (first !== undefined) return { key, first, second: i + 1 };
++       if (true) return { key, first, second: i + 1 };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:63:9
+-       if (first !== undefined) return { key, first, second: i + 1 };
++       if (false) return { key, first, second: i + 1 };
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:63:9
+-       if (first !== undefined) return { key, first, second: i + 1 };
++       if (first === undefined) return { key, first, second: i + 1 };
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:63:37
+-       if (first !== undefined) return { key, first, second: i + 1 };
++       if (first !== undefined) return {};
+
+[Survived] ArithmeticOperator
+scripts/lib/vault-write-guard.mjs:63:59
+-       if (first !== undefined) return { key, first, second: i + 1 };
++       if (first !== undefined) return { key, first, second: i - 1 };
+
+[Survived] ArithmeticOperator
+scripts/lib/vault-write-guard.mjs:64:25
+-       seenAtLine.set(key, i + 1);
++       seenAtLine.set(key, i - 1);
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:74:67
+-   export function guardedNotePath({ toolName, filePath, brainDir }) {
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
+-     const rel = relative(brainDir, filePath).split(sep).join("/");
+-     return rel.startsWith("vault/") ? rel : null;
+-   }
++   export function guardedNotePath({ toolName, filePath, brainDir }) {}
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:75:7
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (true) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:75:7
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (false) return null;
+
+[Survived] LogicalOperator
+scripts/lib/vault-write-guard.mjs:75:7
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (toolName !== "Write" || toolName !== "Edit") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:75:7
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (true && toolName !== "Edit") return null;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:75:7
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (toolName === "Write" && toolName !== "Edit") return null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:75:20
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (toolName !== "" && toolName !== "Edit") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:75:31
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (toolName !== "Write" && true) return null;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:75:31
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (toolName !== "Write" && toolName === "Edit") return null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:75:44
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (toolName !== "Write" && toolName !== "") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:76:7
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (true) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:76:7
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (false) return null;
+
+[Survived] LogicalOperator
+scripts/lib/vault-write-guard.mjs:76:7
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (typeof filePath !== "string" && !filePath.toLowerCase().endsWith(".md")) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:76:7
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (false || !filePath.toLowerCase().endsWith(".md")) return null;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:76:7
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (typeof filePath === "string" || !filePath.toLowerCase().endsWith(".md")) return null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:76:27
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (typeof filePath !== "" || !filePath.toLowerCase().endsWith(".md")) return null;
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:76:39
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (typeof filePath !== "string" || filePath.toLowerCase().endsWith(".md")) return null;
+
+[Survived] MethodExpression
+scripts/lib/vault-write-guard.mjs:76:40
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (typeof filePath !== "string" || !filePath.toLowerCase().startsWith(".md")) return null;
+
+[Survived] MethodExpression
+scripts/lib/vault-write-guard.mjs:76:40
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (typeof filePath !== "string" || !filePath.toUpperCase().endsWith(".md")) return null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:76:72
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith("")) return null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:77:60
+-     const rel = relative(brainDir, filePath).split(sep).join("/");
++     const rel = relative(brainDir, filePath).split(sep).join("");
+
+[Survived] MethodExpression
+scripts/lib/vault-write-guard.mjs:78:10
+-     return rel.startsWith("vault/") ? rel : null;
++     return rel.endsWith("vault/") ? rel : null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:78:25
+-     return rel.startsWith("vault/") ? rel : null;
++     return rel.startsWith("") ? rel : null;
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:82:52
+-   export function frontmatterVerdict({ raw, parse }) {
+-     try {
+-       parse(raw);
+-       return { ok: true };
+-     } catch (err) {
+-       // Only ever consulted once the parser has ALREADY refused: this upgrades a
+-       // message, it never adds a verdict of its own.
+-       const duplicate = duplicateKeyDetail(raw);
+-       if (duplicate) {
+-         return {
+-           ok: false,
+-           reason:
+-             `damaged front-matter key "${duplicate.key}": declared twice, on lines ` +
+-             `${duplicate.first} and ${duplicate.second}. A note can only carry one — ` +
+-             `the engine's parser refuses the file, so the note would never be indexed.`,
+-         };
+-       }
+-       return { ok: false, reason: err instanceof Error ? err.message : String(err) };
+-     }
+-   }
++   export function frontmatterVerdict({ raw, parse }) {}
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:83:7
+-     try {
+-       parse(raw);
+-       return { ok: true };
+-     } catch (err) {
++     try {} catch (err) {
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:85:12
+-       return { ok: true };
++       return {};
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:85:18
+-       return { ok: true };
++       return { ok: false };
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:86:17
+-     } catch (err) {
+-       // Only ever consulted once the parser has ALREADY refused: this upgrades a
+-       // message, it never adds a verdict of its own.
+-       const duplicate = duplicateKeyDetail(raw);
+-       if (duplicate) {
+-         return {
+-           ok: false,
+-           reason:
+-             `damaged front-matter key "${duplicate.key}": declared twice, on lines ` +
+-             `${duplicate.first} and ${duplicate.second}. A note can only carry one — ` +
+-             `the engine's parser refuses the file, so the note would never be indexed.`,
+-         };
+-       }
+-       return { ok: false, reason: err instanceof Error ? err.message : String(err) };
+-     }
++     } catch (err) {}
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:90:9
+-       if (duplicate) {
++       if (true) {
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:90:9
+-       if (duplicate) {
++       if (false) {
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:90:20
+-       if (duplicate) {
+-         return {
+-           ok: false,
+-           reason:
+-             `damaged front-matter key "${duplicate.key}": declared twice, on lines ` +
+-             `${duplicate.first} and ${duplicate.second}. A note can only carry one — ` +
+-             `the engine's parser refuses the file, so the note would never be indexed.`,
+-         };
+-       }
++       if (duplicate) {}
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:91:14
+-         return {
+-           ok: false,
+-           reason:
+-             `damaged front-matter key "${duplicate.key}": declared twice, on lines ` +
+-             `${duplicate.first} and ${duplicate.second}. A note can only carry one — ` +
+-             `the engine's parser refuses the file, so the note would never be indexed.`,
+-         };
++         return {};
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:92:13
+-           ok: false,
++           ok: true,
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:94:11
+-             `damaged front-matter key "${duplicate.key}": declared twice, on lines ` +
++             `` +
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:96:11
+-             `the engine's parser refuses the file, so the note would never be indexed.`,
++             ``,
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:95:11
+-             `${duplicate.first} and ${duplicate.second}. A note can only carry one — ` +
++             `` +
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:99:12
+-       return { ok: false, reason: err instanceof Error ? err.message : String(err) };
++       return {};
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:99:18
+-       return { ok: false, reason: err instanceof Error ? err.message : String(err) };
++       return { ok: true, reason: err instanceof Error ? err.message : String(err) };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (true) return null;
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:110:46
+-   function editedNote({ toolInput, readFile }) {
+-     const { file_path: filePath, old_string: oldString, new_string: newString, replace_all: replaceAll } = toolInput ?? {};
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
+-     let current;
+-     try {
+-       current = readFile(filePath);
+-     } catch {
+-       return null;
+-     }
+-     if (!current.includes(oldString)) return null;
+-     return replaceAll ? current.split(oldString).join(newString) : current.replace(oldString, newString);
+-   }
++   function editedNote({ toolInput, readFile }) {}
+
+[Survived] LogicalOperator
+scripts/lib/vault-write-guard.mjs:111:106
+-     const { file_path: filePath, old_string: oldString, new_string: newString, replace_all: replaceAll } = toolInput ?? {};
++     const { file_path: filePath, old_string: oldString, new_string: newString, replace_all: replaceAll } = toolInput && {};
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (false) return null;
+
+[Survived] LogicalOperator
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString !== "string" && typeof newString !== "string") return null;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:112:28
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString !== "" || typeof newString !== "string") return null;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString === "string" || typeof newString !== "string") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (false || typeof newString !== "string") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:112:40
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString !== "string" || false) return null;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:112:40
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString !== "string" || typeof newString === "string") return null;
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:116:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:114:7
+-     try {
+-       current = readFile(filePath);
+-     } catch {
++     try {} catch {
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:112:61
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString !== "string" || typeof newString !== "") return null;
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:119:7
+-     if (!current.includes(oldString)) return null;
++     if (current.includes(oldString)) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:119:7
+-     if (!current.includes(oldString)) return null;
++     if (true) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:119:7
+-     if (!current.includes(oldString)) return null;
++     if (false) return null;
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:131:83
+-   export function guardDecision({ toolName, toolInput, brainDir, parse, readFile }) {
+-     const relPath = guardedNotePath({ toolName, filePath: toolInput?.file_path, brainDir });
+-     if (relPath === null || parse === null) return { allow: true };
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
+-     if (typeof raw !== "string") return { allow: true };
+-     const verdict = frontmatterVerdict({ raw, parse });
+-     if (verdict.ok) return { allow: true };
+-     return {
+-       allow: false,
+-       reason:
+-         `${relPath} — the engine's own YAML parser refuses this note's frontmatter: ` +
+-         `${verdict.reason} Written as is, the note would be committed like any other and ` +
+-         `never be indexed: invisible to every search, with nothing to recover it. ` +
+-         `Fix the frontmatter (quote any value containing ": ") and write again.`,
+-     };
+-   }
++   export function guardDecision({ toolName, toolInput, brainDir, parse, readFile }) {}
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:132:35
+-     const relPath = guardedNotePath({ toolName, filePath: toolInput?.file_path, brainDir });
++     const relPath = guardedNotePath({});
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:132:57
+-     const relPath = guardedNotePath({ toolName, filePath: toolInput?.file_path, brainDir });
++     const relPath = guardedNotePath({ toolName, filePath: toolInput.file_path, brainDir });
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:133:7
+-     if (relPath === null || parse === null) return { allow: true };
++     if (true) return { allow: true };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:133:7
+-     if (relPath === null || parse === null) return { allow: true };
++     if (false) return { allow: true };
+
+[Survived] LogicalOperator
+scripts/lib/vault-write-guard.mjs:133:7
+-     if (relPath === null || parse === null) return { allow: true };
++     if (relPath === null && parse === null) return { allow: true };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:133:7
+-     if (relPath === null || parse === null) return { allow: true };
++     if (false || parse === null) return { allow: true };
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:133:7
+-     if (relPath === null || parse === null) return { allow: true };
++     if (relPath !== null || parse === null) return { allow: true };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:133:27
+-     if (relPath === null || parse === null) return { allow: true };
++     if (relPath === null || false) return { allow: true };
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:133:27
+-     if (relPath === null || parse === null) return { allow: true };
++     if (relPath === null || parse !== null) return { allow: true };
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:133:50
+-     if (relPath === null || parse === null) return { allow: true };
++     if (relPath === null || parse === null) return {};
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:133:59
+-     if (relPath === null || parse === null) return { allow: true };
++     if (relPath === null || parse === null) return { allow: false };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:135:15
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = true ? toolInput?.content : editedNote({ toolInput, readFile });
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:135:15
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = false ? toolInput?.content : editedNote({ toolInput, readFile });
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:135:15
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = toolName !== "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:135:28
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = toolName === "" ? toolInput?.content : editedNote({ toolInput, readFile });
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:135:38
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = toolName === "Write" ? toolInput.content : editedNote({ toolInput, readFile });
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:135:70
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = toolName === "Write" ? toolInput?.content : editedNote({});
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:136:7
+-     if (typeof raw !== "string") return { allow: true };
++     if (true) return { allow: true };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:136:7
+-     if (typeof raw !== "string") return { allow: true };
++     if (false) return { allow: true };
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:136:7
+-     if (typeof raw !== "string") return { allow: true };
++     if (typeof raw === "string") return { allow: true };
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:136:22
+-     if (typeof raw !== "string") return { allow: true };
++     if (typeof raw !== "") return { allow: true };
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:136:39
+-     if (typeof raw !== "string") return { allow: true };
++     if (typeof raw !== "string") return {};
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:136:48
+-     if (typeof raw !== "string") return { allow: true };
++     if (typeof raw !== "string") return { allow: false };
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:138:38
+-     const verdict = frontmatterVerdict({ raw, parse });
++     const verdict = frontmatterVerdict({});
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:139:26
+-     if (verdict.ok) return { allow: true };
++     if (verdict.ok) return {};
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:139:7
+-     if (verdict.ok) return { allow: true };
++     if (true) return { allow: true };
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:139:7
+-     if (verdict.ok) return { allow: true };
++     if (false) return { allow: true };
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:139:35
+-     if (verdict.ok) return { allow: true };
++     if (verdict.ok) return { allow: false };
+
+[Survived] ObjectLiteral
+scripts/lib/vault-write-guard.mjs:141:10
+-     return {
+-       allow: false,
+-       reason:
+-         `${relPath} — the engine's own YAML parser refuses this note's frontmatter: ` +
+-         `${verdict.reason} Written as is, the note would be committed like any other and ` +
+-         `never be indexed: invisible to every search, with nothing to recover it. ` +
+-         `Fix the frontmatter (quote any value containing ": ") and write again.`,
+-     };
++     return {};
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:144:7
+-         `${relPath} — the engine's own YAML parser refuses this note's frontmatter: ` +
++         `` +
+
+[Survived] BooleanLiteral
+scripts/lib/vault-write-guard.mjs:142:12
+-       allow: false,
++       allow: true,
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:145:7
+-         `${verdict.reason} Written as is, the note would be committed like any other and ` +
++         `` +
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:146:7
+-         `never be indexed: invisible to every search, with nothing to recover it. ` +
++         `` +
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:147:7
+-         `Fix the frontmatter (quote any value containing ": ") and write again.`,
++         ``,
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  17.95 |   17.95 |       98 |         0 |        448 |        0 |        0 |
+ health-probe.mjs      |  66.20 |   66.20 |       47 |         0 |         24 |        0 |        0 |
+ rag-launcher.mjs      |  49.51 |   49.51 |       51 |         0 |         52 |        0 |        0 |
+ universe-profile.mjs  |   0.00 |    0.00 |        0 |         0 |        190 |        0 |        0 |
+ universe-reminder.mjs |   0.00 |    0.00 |        0 |         0 |         54 |        0 |        0 |
+ vault-write-guard.mjs |   0.00 |    0.00 |        0 |         0 |        128 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+17:18:29 (10598) INFO MutationTestExecutor Done in 21 minutes and 27 seconds.
+17:18:29 (10598) INFO Sandbox Resetting your original files from .stryker-tmp/backup-Qk3diW.

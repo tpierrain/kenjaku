@@ -1,0 +1,216 @@
+
+▶ Mutating 6 changed rag file(s):
+   rag/src/lib/citation-renderer.ts
+   rag/src/lib/frontmatter-parser.ts
+   rag/src/lib/health-check.ts
+   rag/src/lib/index-crosscheck-scan.ts
+   rag/src/lib/index-crosscheck.ts
+   rag/src/lib/vector-store.ts
+16:06:18 (28455) INFO ProjectReader Found 6 of 770 file(s) to be mutated.
+16:06:19 (28455) INFO Instrumenter Instrumented 6 source file(s) with 582 mutant(s)
+16:06:19 (28455) INFO ConcurrencyTokenProvider Creating 4 test runner process(es).
+16:06:19 (28455) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: maintainers/mutation/.stryker-tmp/backup-TrlfAg
+16:06:20 (28455) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+16:06:20 (28455) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+16:06:20 (28455) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 0 seconds (net 626 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 550)
+
+[Survived] ConditionalExpression
+rag/src/lib/frontmatter-parser.ts:53:5
+-       universe !== DEFAULT_UNIVERSE && relativePath.startsWith(`${universe}/`)
++       true && relativePath.startsWith(`${universe}/`)
+
+[Survived] Regex
+rag/src/lib/frontmatter-parser.ts:70:31
+-     const match = content.match(/^#\s+(.+)$/m);
++     const match = content.match(/^#\s+(.+)/m);
+
+[Survived] Regex
+rag/src/lib/frontmatter-parser.ts:70:31
+-     const match = content.match(/^#\s+(.+)$/m);
++     const match = content.match(/^#\s(.+)$/m);
+
+[Survived] StringLiteral
+rag/src/lib/health-check.ts:86:24
+-     depth: HealthDepth = "full",
++     depth: HealthDepth = "",
+
+[Survived] UnaryOperator
+rag/src/lib/health-check.ts:88:19
+-     let indexRows = -1;
++     let indexRows = +1;
+
+[Survived] BlockStatement
+rag/src/lib/health-check.ts:91:11
+-     } catch {
+-       indexRows = -1;
+-     }
++     } catch {}
+
+[Survived] BooleanLiteral
+rag/src/lib/health-check.ts:95:23
+-     let embedderReady = false;
++     let embedderReady = true;
+
+[Survived] BlockStatement
+rag/src/lib/health-check.ts:104:13
+-       } catch {
+-         embedderReady = false;
+-       }
++       } catch {}
+
+[Survived] BlockStatement
+rag/src/lib/health-check.ts:111:13
+-       } catch {
+-         embedderReady = false;
+-         canaryHits = 0;
+-       }
++       } catch {}
+
+[Survived] BooleanLiteral
+rag/src/lib/health-check.ts:117:27
+-     let canaryNotePresent = false;
++     let canaryNotePresent = true;
+
+[Survived] BlockStatement
+rag/src/lib/health-check.ts:120:11
+-     } catch {
+-       canaryNotePresent = false;
+-     }
++     } catch {}
+
+[Survived] ConditionalExpression
+rag/src/lib/health-check.ts:127:7
+-     if (seams.crosscheck) {
++     if (true) {
+
+[Survived] BlockStatement
+rag/src/lib/health-check.ts:130:13
+-       } catch {
+-         outOfStepNotes = null;
+-       }
++       } catch {}
+
+[Survived] StringLiteral
+rag/src/lib/health-check.ts:156:24
+-     depth: HealthDepth = "full",
++     depth: HealthDepth = "",
+
+[Survived] ConditionalExpression
+rag/src/lib/health-check.ts:228:40
+-             : `${outOfStep.length} note${outOfStep.length === 1 ? "" : "s"} the engine cannot ` +
++             : `${outOfStep.length} note${false ? "" : "s"} the engine cannot ` +
+
+[Survived] StringLiteral
+rag/src/lib/health-check.ts:228:65
+-             : `${outOfStep.length} note${outOfStep.length === 1 ? "" : "s"} the engine cannot ` +
++             : `${outOfStep.length} note${outOfStep.length === 1 ? "Stryker was here!" : "s"} the engine cannot ` +
+
+[Survived] ConditionalExpression
+rag/src/lib/health-check.ts:229:32
+-               `bring in step — ${outOfStep.length === 1 ? "" : "e.g. "}` +
++               `bring in step — ${false ? "" : "e.g. "}` +
+
+[Survived] StringLiteral
+rag/src/lib/health-check.ts:229:57
+-               `bring in step — ${outOfStep.length === 1 ? "" : "e.g. "}` +
++               `bring in step — ${outOfStep.length === 1 ? "Stryker was here!" : "e.g. "}` +
+
+[Survived] ConditionalExpression
+rag/src/lib/index-crosscheck.ts:133:9
+-       if (items.length === 0) return;
++       if (false) return;
+
+[Survived] BlockStatement
+rag/src/lib/vector-store.ts:19:28
+-   function ragRoot(): string {
+-     return resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+-   }
++   function ragRoot(): string {}
+
+[Survived] StringLiteral
+rag/src/lib/vector-store.ts:20:59
+-     return resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
++     return resolve(dirname(fileURLToPath(import.meta.url)), "", "..");
+
+[Survived] StringLiteral
+rag/src/lib/vector-store.ts:20:65
+-     return resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
++     return resolve(dirname(fileURLToPath(import.meta.url)), "..", "");
+
+[Survived] BlockStatement
+rag/src/lib/vector-store.ts:28:38
+-   function rebuildBetterSqlite(): void {
+-     const { command, args } = buildRebuildInvocation(process.platform);
+-     execFileSync(command, args, { cwd: ragRoot(), stdio: "inherit" });
+-   }
++   function rebuildBetterSqlite(): void {}
+
+[Survived] ObjectLiteral
+rag/src/lib/vector-store.ts:30:31
+-     execFileSync(command, args, { cwd: ragRoot(), stdio: "inherit" });
++     execFileSync(command, args, {});
+
+[Survived] StringLiteral
+rag/src/lib/vector-store.ts:30:56
+-     execFileSync(command, args, { cwd: ragRoot(), stdio: "inherit" });
++     execFileSync(command, args, { cwd: ragRoot(), stdio: "" });
+
+[Survived] ConditionalExpression
+rag/src/lib/vector-store.ts:178:7
+-     if (!db) {
++     if (true) {
+
+[Survived] BlockStatement
+rag/src/lib/vector-store.ts:438:35
+-   export function listIndexedDocs() {
+-     return listIndexedDocsIn(getDb());
+-   }
++   export function listIndexedDocs() {}
+
+[Survived] BlockStatement
+rag/src/lib/vector-store.ts:497:33
+-   export function closeDb(): void {
+-     if (db) {
+-       db.close();
+-       db = null;
+-     }
+-   }
++   export function closeDb(): void {}
+
+[Survived] ConditionalExpression
+rag/src/lib/vector-store.ts:498:7
+-     if (db) {
++     if (true) {
+
+[Survived] ConditionalExpression
+rag/src/lib/vector-store.ts:498:7
+-     if (db) {
++     if (false) {
+
+[Survived] BlockStatement
+rag/src/lib/vector-store.ts:498:11
+-     if (db) {
+-       db.close();
+-       db = null;
+-     }
++     if (db) {}
+
+Ran 1.00 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  94.67 |   94.67 |      550 |         1 |         31 |        0 |        0 |
+ citation-renderer.ts     | 100.00 |  100.00 |       33 |         0 |          0 |        0 |        0 |
+ frontmatter-parser.ts    |  97.87 |   97.87 |      138 |         0 |          3 |        0 |        0 |
+ health-check.ts          |  90.00 |   90.00 |      135 |         0 |         15 |        0 |        0 |
+ index-crosscheck-scan.ts | 100.00 |  100.00 |       17 |         0 |          0 |        0 |        0 |
+ index-crosscheck.ts      |  98.77 |   98.77 |       80 |         0 |          1 |        0 |        0 |
+ vector-store.ts          |  92.50 |   92.50 |      147 |         1 |         12 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+16:11:28 (28455) INFO HtmlReporter Your report can be found at: file:///Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutation-rag.html
+16:11:28 (28455) INFO MutationTestExecutor Done in 5 minutes and 9 seconds.
+16:11:28 (28455) INFO Sandbox Resetting your original files from maintainers/mutation/.stryker-tmp/backup-TrlfAg.

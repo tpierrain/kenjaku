@@ -1,0 +1,151 @@
+07:54:17 (87185) INFO ProjectReader Found 1 of 635 file(s) to be mutated.
+07:54:17 (87185) INFO Instrumenter Instrumented 1 source file(s) with 122 mutant(s)
+07:54:17 (87185) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+07:54:17 (87185) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-0thZ5f
+07:54:17 (87185) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+07:54:17 (87185) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+07:54:19 (87185) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1664 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 96)
+
+[Survived] ConditionalExpression
+scripts/lib/hooks-reconcile.mjs:19:13
+-     const m = typeof command === "string" ? command.match(/scripts\/[^/"]+\.mjs/) : null;
++     const m = true ? command.match(/scripts\/[^/"]+\.mjs/) : null;
+
+[Survived] Regex
+scripts/lib/hooks-reconcile.mjs:29:24
+-   const NODE_PREFIX_RE = /^(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
++   const NODE_PREFIX_RE = /(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
+
+[Survived] Regex
+scripts/lib/hooks-reconcile.mjs:29:24
+-   const NODE_PREFIX_RE = /^(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
++   const NODE_PREFIX_RE = /^(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\s*/;
+
+[Survived] Regex
+scripts/lib/hooks-reconcile.mjs:29:24
+-   const NODE_PREFIX_RE = /^(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
++   const NODE_PREFIX_RE = /^(.*?)\s"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
+
+[Survived] Regex
+scripts/lib/hooks-reconcile.mjs:29:24
+-   const NODE_PREFIX_RE = /^(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
++   const NODE_PREFIX_RE = /^(.*?)\S*"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
+
+[Survived] Regex
+scripts/lib/hooks-reconcile.mjs:29:24
+-   const NODE_PREFIX_RE = /^(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\s*$/;
++   const NODE_PREFIX_RE = /^(.*?)\s*"[^"]*scripts[/\\][^"]*\.mjs"\S*$/;
+
+[Survived] ArrayDeclaration
+scripts/lib/hooks-reconcile.mjs:32:35
+-       for (const group of groups ?? []) {
++       for (const group of groups ?? ["Stryker was here"]) {
+
+[Survived] ArrayDeclaration
+scripts/lib/hooks-reconcile.mjs:33:38
+-         for (const h of group.hooks ?? []) {
++         for (const h of group.hooks ?? ["Stryker was here"]) {
+
+[Survived] ConditionalExpression
+scripts/lib/hooks-reconcile.mjs:34:19
+-           const m = typeof h.command === "string" ? h.command.match(NODE_PREFIX_RE) : null;
++           const m = true ? h.command.match(NODE_PREFIX_RE) : null;
+
+[Survived] ConditionalExpression
+scripts/lib/hooks-reconcile.mjs:35:13
+-           if (m) return m[1].trim();
++           if (true) return m[1].trim();
+
+[Survived] MethodExpression
+scripts/lib/hooks-reconcile.mjs:35:23
+-           if (m) return m[1].trim();
++           if (m) return m[1];
+
+[Survived] StringLiteral
+scripts/lib/hooks-reconcile.mjs:39:10
+-     return "{{NODE}}"; // no learnable command → leave the placeholder (caller's belt)
++     return ""; // no learnable command → leave the placeholder (caller's belt)
+
+[Survived] ArrayDeclaration
+scripts/lib/hooks-reconcile.mjs:49:28
+-       hooks: (group.hooks ?? []).map((h) => ({ ...h, command: substituteCommand(h.command, ctx) })), // preserve type + timeout
++       hooks: (group.hooks ?? ["Stryker was here"]).map((h) => ({ ...h, command: substituteCommand(h.command, ctx) })), // preserve type + timeout
+
+[Survived] MethodExpression
+scripts/lib/hooks-reconcile.mjs:60:37
+-         existingGroups.flatMap((g) => (g.hooks ?? []).map((h) => hookScript(h.command)).filter(Boolean)),
++         existingGroups.flatMap((g) => (g.hooks ?? []).map(h => hookScript(h.command))),
+
+[Survived] ArrayDeclaration
+scripts/lib/hooks-reconcile.mjs:60:49
+-         existingGroups.flatMap((g) => (g.hooks ?? []).map((h) => hookScript(h.command)).filter(Boolean)),
++         existingGroups.flatMap((g) => (g.hooks ?? ["Stryker was here"]).map((h) => hookScript(h.command)).filter(Boolean)),
+
+[Survived] ArrayDeclaration
+scripts/lib/hooks-reconcile.mjs:64:38
+-         const script = (group.hooks ?? []).map((h) => hookScript(h.command)).find(Boolean);
++         const script = (group.hooks ?? ["Stryker was here"]).map((h) => hookScript(h.command)).find(Boolean);
+
+[Survived] ConditionalExpression
+scripts/lib/hooks-reconcile.mjs:70:9
+-       if (toAppend.length > 0) result[event] = [...existingGroups, ...toAppend];
++       if (true) result[event] = [...existingGroups, ...toAppend];
+
+[Survived] EqualityOperator
+scripts/lib/hooks-reconcile.mjs:70:9
+-       if (toAppend.length > 0) result[event] = [...existingGroups, ...toAppend];
++       if (toAppend.length >= 0) result[event] = [...existingGroups, ...toAppend];
+
+[Survived] LogicalOperator
+scripts/lib/hooks-reconcile.mjs:95:7
+-     if (typeof command !== "string" || !BROKEN_WIN32_RUN_NODE.test(command)) return command;
++     if (typeof command !== "string" && !BROKEN_WIN32_RUN_NODE.test(command)) return command;
+
+[Survived] ConditionalExpression
+scripts/lib/hooks-reconcile.mjs:95:7
+-     if (typeof command !== "string" || !BROKEN_WIN32_RUN_NODE.test(command)) return command;
++     if (false || !BROKEN_WIN32_RUN_NODE.test(command)) return command;
+
+[Survived] ConditionalExpression
+scripts/lib/hooks-reconcile.mjs:108:7
+-     if (platform !== "win32") return { hooks: hooks ?? {}, repaired };
++     if (false) return { hooks: hooks ?? {}, repaired };
+
+[Survived] ArrayDeclaration
+scripts/lib/hooks-reconcile.mjs:111:32
+-       result[event] = (groups ?? []).map((group) => ({
++       result[event] = (groups ?? ["Stryker was here"]).map((group) => ({
+
+[Survived] ArrayDeclaration
+scripts/lib/hooks-reconcile.mjs:113:30
+-         hooks: (group.hooks ?? []).map((h) => {
++         hooks: (group.hooks ?? ["Stryker was here"]).map((h) => {
+
+[Survived] ConditionalExpression
+scripts/lib/hooks-reconcile.mjs:117:15
+-             if (script) repaired.push(script);
++             if (true) repaired.push(script);
+
+[Survived] StringLiteral
+scripts/lib/hooks-reconcile.mjs:132:83
+-     const { hooksAdded } = reconcileHooks({ brainHooks, templateHooks, projectRoot: "", nodePrefix: "node" });
++     const { hooksAdded } = reconcileHooks({ brainHooks, templateHooks, projectRoot: "Stryker was here!", nodePrefix: "node" });
+
+[Survived] StringLiteral
+scripts/lib/hooks-reconcile.mjs:132:99
+-     const { hooksAdded } = reconcileHooks({ brainHooks, templateHooks, projectRoot: "", nodePrefix: "node" });
++     const { hooksAdded } = reconcileHooks({ brainHooks, templateHooks, projectRoot: "", nodePrefix: "" });
+
+Ran 1.00 tests per mutant on average.
+---------------------|------------------|----------|-----------|------------|----------|----------|
+                     | % Mutation score |          |           |            |          |          |
+File                 |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files            |  78.69 |   78.69 |       96 |         0 |         26 |        0 |        0 |
+ hooks-reconcile.mjs |  78.69 |   78.69 |       96 |         0 |         26 |        0 |        0 |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+07:57:03 (87185) INFO MutationTestExecutor Done in 2 minutes and 46 seconds.
+07:57:03 (87185) INFO Sandbox Resetting your original files from .stryker-tmp/backup-0thZ5f.

@@ -1,0 +1,89 @@
+17:20:38 (93154) INFO ProjectReader Found 1 of 629 file(s) to be mutated.
+17:20:38 (93154) INFO Instrumenter Instrumented 1 source file(s) with 103 mutant(s)
+17:20:38 (93154) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+17:20:39 (93154) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-rOZyxs
+17:20:39 (93154) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+17:20:39 (93154) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+17:20:41 (93154) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2642 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 92)
+
+[Survived] OptionalChaining
+scripts/lib/rag-launcher.mjs:126:15
+-     const srv = mcp?.mcpServers?.["local-mirror"];
++     const srv = mcp?.mcpServers["local-mirror"];
+
+[Survived] OptionalChaining
+scripts/lib/rag-launcher.mjs:126:15
+-     const srv = mcp?.mcpServers?.["local-mirror"];
++     const srv = mcp.mcpServers?.["local-mirror"];
+
+[Survived] StringLiteral
+scripts/lib/rag-launcher.mjs:141:28
+-   const WIN_INSTALL_SCRIPT = "sbg-rag-install.cmd";
++   const WIN_INSTALL_SCRIPT = "";
+
+[Survived] ObjectLiteral
+scripts/lib/rag-launcher.mjs:146:23
+-   const realInstallIo = {
+-     writeScript(ragDir, content) {
+-       writeFileSync(join(ragDir, WIN_INSTALL_SCRIPT), content);
+-       return WIN_INSTALL_SCRIPT;
+-     },
+-     removeScript(ragDir, name) {
+-       rmSync(join(ragDir, name), { force: true });
+-     },
+-   };
++   const realInstallIo = {};
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:147:32
+-     writeScript(ragDir, content) {
+-       writeFileSync(join(ragDir, WIN_INSTALL_SCRIPT), content);
+-       return WIN_INSTALL_SCRIPT;
+-     },
++     writeScript(ragDir, content) {},
+
+[Survived] BlockStatement
+scripts/lib/rag-launcher.mjs:151:30
+-     removeScript(ragDir, name) {
+-       rmSync(join(ragDir, name), { force: true });
+-     },
++     removeScript(ragDir, name) {},
+
+[Survived] ObjectLiteral
+scripts/lib/rag-launcher.mjs:152:32
+-       rmSync(join(ragDir, name), { force: true });
++       rmSync(join(ragDir, name), {});
+
+[Survived] BooleanLiteral
+scripts/lib/rag-launcher.mjs:152:41
+-       rmSync(join(ragDir, name), { force: true });
++       rmSync(join(ragDir, name), { force: false });
+
+[Survived] OptionalChaining
+scripts/lib/rag-launcher.mjs:231:15
+-     const srv = mcp?.mcpServers?.["vault-rag"];
++     const srv = mcp?.mcpServers["vault-rag"];
+
+[Survived] OptionalChaining
+scripts/lib/rag-launcher.mjs:231:15
+-     const srv = mcp?.mcpServers?.["vault-rag"];
++     const srv = mcp.mcpServers?.["vault-rag"];
+
+[Survived] ConditionalExpression
+scripts/lib/rag-launcher.mjs:232:7
+-     if (!srv) return mcp;
++     if (false) return mcp;
+
+Ran 1.00 tests per mutant on average.
+------------------|------------------|----------|-----------|------------|----------|----------|
+                  | % Mutation score |          |           |            |          |          |
+File              |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files         |  89.32 |   89.32 |       92 |         0 |         11 |        0 |        0 |
+ rag-launcher.mjs |  89.32 |   89.32 |       92 |         0 |         11 |        0 |        0 |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+17:23:09 (93154) INFO MutationTestExecutor Done in 2 minutes and 30 seconds.
+17:23:09 (93154) INFO Sandbox Resetting your original files from .stryker-tmp/backup-rOZyxs.
