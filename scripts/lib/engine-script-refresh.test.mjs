@@ -73,6 +73,12 @@ test("selectMergeGovernedScripts — the merge-declared top-level scripts, and n
         ".claude/skills/coach/**",       // a merge file, and a skill's business
         "scripts/auto-commit.mjs",
         "scripts/verify-rag.mjs",
+        // ⚠️ Two shapes that a LOOSER anchor would swallow, and both are reachable:
+        // a skill that ships helper code of its own (the tail must be anchored to the
+        // start), and the engine's own sidecar (`.mjs` must be the END of the path —
+        // merging a `.new` file would hand the owner a merge of a merge).
+        ".claude/skills/coach/scripts/helper.mjs",
+        "scripts/auto-commit.mjs.new",
       ],
     },
   };
@@ -82,6 +88,8 @@ test("selectMergeGovernedScripts — the merge-declared top-level scripts, and n
     "scripts/update-engine.mjs", // 🛑 `replace` — the self-update path is not a merge subject
     "scripts/session-status.mjs", // `replace` — engine internals, copied as before
     "scripts/lib/engine-merge.mjs", // `replace`, and not top-level either
+    ".claude/skills/coach/scripts/helper.mjs", // ends in `scripts/<x>.mjs`, is not one
+    "scripts/auto-commit.mjs.new", // starts like one, is not one
     "CLAUDE.md",
     ".claude/skills/coach/SKILL.md",
   ];
