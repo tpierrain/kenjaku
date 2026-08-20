@@ -44,7 +44,9 @@
 >    adversarial-review question needs (one slice reviewed adversarially, one not).
 >
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
-> adversarial-review question is deferred to the **S1 debrief**, on S1's figures.
+> adversarial-review question is deferred to the **S1 debrief**, on S1's figures. **And the release's
+> version number was settled and signed on 2026-08-20** — the release plan states it and owns the
+> argument; this file deliberately keeps no copy. Do not re-open that question either.
 
 > **This plan owns HOW, not WHAT.** The what is
 > [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md), which

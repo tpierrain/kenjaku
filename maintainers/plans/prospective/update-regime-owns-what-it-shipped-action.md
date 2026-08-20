@@ -84,15 +84,20 @@
 > A resume should still **surface S6 first**, because it is **blocked on a human** and would otherwise
 > sit unnoticed; then take **S1** if Thomas is not at the keyboard.
 >
-> ## 🔢 THE VERSION NUMBER — proposed **v5.0.0**, awaiting the owner's signature (2026-08-20)
+> ## 🔢 THE VERSION NUMBER — **v5.0.0, SIGNED by the owner** (2026-08-20, in conversation: *"oui, on
+> part sur la 5.0.0"*). Do not re-litigate it.
 >
-> Raised by the owner: *"avec cette version des gels c'est vraiment une version majeure"*. **My
-> recommendation is yes, v5.0.0**, and the reason is the **promise**, not the size of the diff — see
-> § *Why this release is a MAJOR* below for the argument, the counter-argument and what a major
-> obliges. **Checked, not assumed**: a major costs the fleet **nothing** — `pickLatestSemverTag`
-> compares numerically with **no major gate**, so `update-engine` and the "N releases ahead" line
-> cross 4 → 5 like any other tag (`scripts/lib/semver-tag.mjs`). **Not signed yet**: until it is, no
-> file, note or banner states a number.
+> This release is **v5.0.0**, the first major since the rename. The reason is the **promise, not the
+> diff**, and the owner's own framing is the one retained: what breaks is *the behaviour towards the
+> Constitution, and how a brain is updated from now on*. Argument, counter-argument and the three
+> obligations a major carries: § *Why this release is a MAJOR* below — read it at cut time rather than
+> re-deriving it. **Checked, not assumed**: the number costs the fleet **nothing**
+> (`pickLatestSemverTag` compares numerically, **no major gate**, so `update-engine` and the "N
+> releases ahead" line cross 4 → 5 like any other tag — `scripts/lib/semver-tag.mjs`).
+>
+> **This plan OWNS the number.** No other file states it — `RESULTS.md` and
+> `v4.9.0-mutation-debt-plan.md` deliberately say *"the unfreeze release"* and stay true whatever
+> happens; the ROADMAP row links here. Do not spread it: at cut time, one file to read.
 
 ## The four categories we actually have (measured 2026-08-08)
 
@@ -144,8 +149,9 @@ Three consequences, each already logged as its own field finding:
 
 ## Why this release is a MAJOR — the argument, and its counter-argument
 
-> **Status: PROPOSED, not signed** (2026-08-20). The header note carries the state; this section
-> carries the reasoning so it is not re-derived at cut time, when the pressure is highest.
+> **Status: SIGNED — this release is `v5.0.0`** (owner, 2026-08-20). The header note carries the
+> decision; this section carries the reasoning, so it is not re-derived at cut time, when the pressure
+> is highest.
 
 **The owner's framing, 2026-08-20, and it is sharper than the first draft of this section**: *"le
 breaking change, c'est sur le comportement qu'on a vis-à-vis de la Constitution, et sur comment on met
