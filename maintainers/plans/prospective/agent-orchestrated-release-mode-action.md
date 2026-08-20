@@ -481,8 +481,21 @@ arbitration goes here as a question, and the run continues on other slices.
         — [PR #75](https://github.com/tpierrain/kenjaku/pull/75), draft)_.
 - [ ] **Debrief the mode after S0bis**, before applying it to S1–S5: what the fan-out actually cost,
       what it caught, what it broke. If it does not pay, say so here and go back to a single session.
-- [ ] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
+- [~] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
       kill this file), and rewrite the memory pointer to whatever becomes live next.
+  - [x] **Folded EARLY, on purpose** _(2026-08-20 — `CONVENTIONS.md` **§12**)_: the two delegation
+        rules, "judgement does not parallelize", the staging rule, the false-reds warning, and the
+        run-log-is-evidence rule. **Why not wait for the ship date, as this box said**: this file is
+        scheduled to be archived at that date, so its doctrine had an expiry — and "we will do it when
+        the release ships" is the exact mechanism that slipped the mutation debt three times. The
+        lessons were also in the worst possible carrier: a run log, read when opened, while the
+        mistakes happen **while acting**.
+  - [x] **The one lesson that repeated got a deterministic net, not a sentence** _(2026-08-20)_:
+        `~/.claude/hooks/wave-staging-guard.mjs` stamps every agent dispatch and **blocks** a broad
+        `git add` for 20 min afterwards. 20 self-test cases, five end-to-end payloads verified.
+        Machine-local, so it is named in `CONVENTIONS.md` § See also rather than versioned here.
+  - [ ] What is deliberately NOT folded yet, because it is still a question and not a rule: whether
+        the mode is worth keeping for S1–S5 (the debrief box above), and the unreproduced flake.
 
 ---
 

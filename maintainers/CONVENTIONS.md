@@ -550,6 +550,54 @@ frame them as the quality of what ships, not as a list of near-misses the reader
 > *Under the hood*. Complements §10, which says the note is a marketing artifact and must lead with
 > *why this matters to you* — this section says how.
 
+## 12. Orchestrating subagents — what may be delegated, and what a wave costs
+
+Measured on the **first real run** of the mode (S0bis, 2026-08-20: two structural mutation debts paid,
+14 agents, ~1 h). Homed here rather than left in
+[`plans/prospective/agent-orchestrated-release-mode-action.md`](plans/prospective/agent-orchestrated-release-mode-action.md)
+because that file is scheduled to be **archived when the release ships** — and a doctrine kept in a
+file with an expiry date is how the same lesson gets re-learned. The plan keeps the run's narrative;
+what survived the measurement lives here.
+
+**The two rules that made delegation safe. Neither is negotiable.**
+
+1. **Nothing is dispatched without a machine-evaluable pass/fail.** If success can only be judged by
+   reading the result, the task is not delegable — it is yours. This is what kept 14 parallel agents
+   from producing 14 plausible-looking regressions.
+2. **No agent writes a test.** Tests are written before the fan-out, by the session that holds the
+   design. An agent that authors its own judge grades its own homework; the tautological test is the
+   dominant failure mode of test-first work (see §5), and parallelism multiplies it.
+
+**What the fan-out actually bought, and what it did not.** It paid on the twelve mechanical
+conversions: same gesture, twelve files, no shared context needed. It bought **nothing** anywhere
+judgement was involved — the guard test, the canary, the session-critical files, the second debt were
+all kept in session, and those are precisely the parts that found the real problems. **Judgement does
+not parallelize.** Delegate volume, never design.
+
+**A wave is a shared working tree, and that is its real cost.**
+
+- 🛑 **While agents are in flight, stage explicit paths. Never `git add -A`, `.`, `-u`, a bare
+  directory, or `git commit -a`.** During S0bis this exact mistake was made **twice in one night**
+  (`b4bd7a4`, then `4fdb91b`), sweeping half-finished agent work into unrelated commits. Both landed
+  green *by luck*. **Deterministic net (ADR 0009)**: a `PreToolUse` hook,
+  `~/.claude/hooks/wave-staging-guard.mjs`, stamps every agent dispatch and **blocks** a broad stage
+  for 20 minutes afterwards. The hook is the braces, this line is the belt.
+- **A saturated machine can manufacture false reds.** A timing-sensitive test failed once during the
+  run under full load and never reproduced afterwards (30 attempts). Treat an isolated red during a
+  wave as *suspect* rather than as fact: re-run it alone before acting on it, and never "fix" a
+  timing margin on the strength of a single loaded-machine failure.
+
+**The run log is evidence, not a trophy.** Every claim written into a run log must be checked against
+the diff before it is committed. S0bis's log credited a refactor with catching a defect the run had
+never found (`main` already guarded that case); it was corrected in place, **visibly**, rather than
+quietly deleted. A log that inflates refactoring into bugs-found makes the whole trace worthless, and
+it is the orchestrator — not the agents — who writes it.
+
+> Origin: Thomas, 2026-08-20, on reading the S0bis debrief — *"comment peux-tu en tenir compte pour la
+> suite ?"*. The honest answer was that the lessons sat in a run log, which is where behaviour goes to
+> die: the mistakes were made **while acting**, not while reading a plan. Hence a rule with a carrier
+> that loads when it is needed, plus a hook for the one lesson that repeated.
+
 ## See also (operative rules already homed in the repo)
 
 - [`../DEVELOPING.md`](../DEVELOPING.md) — manual commits, neutrality (+ the Thomas-Pierrain
@@ -559,3 +607,5 @@ frame them as the quality of what ships, not as a list of near-misses the reader
   plan-done = archived convention.
 - ADR [`0009-prefer-deterministic-mechanisms.md`](decisions/0009-prefer-deterministic-mechanisms.md) —
   at equal reliability, prefer a deterministic mechanism over a probabilistic / LLM / in-memory-timer one.
+- `~/.claude/hooks/wave-staging-guard.mjs` — the net under §12's staging rule (machine-local, not in
+  this repo; `node wave-staging-guard.mjs --selftest` is its own suite, 20 cases).
