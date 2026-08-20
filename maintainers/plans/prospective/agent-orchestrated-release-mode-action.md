@@ -63,6 +63,21 @@
 >   perimeter rather than swallow the release.
 > - **Mechanism: `/loop` with no interval** (self-paced), with the prompt below.
 >
+> 🛑 **The loop CANNOT refresh its own window, and a rule that assumes otherwise is a lie**
+> _(owner caught this on the night's first iteration, 2026-08-20)_. The session had written that it
+> would "start S2 on a fresh window": there is **no mechanism for that**. A session can neither `/clear`
+> itself, nor trigger a compaction, nor refuse one — auto-compaction fires on its own, at its own
+> threshold. The only levers that actually exist:
+>
+> - **STOPPING the loop is in the session's hands, cleaning is not.** So the honest form of "this slice
+>   deserves a fresh window" is: **stop the loop**, leave the plan pointing at the next step, and let the
+>   owner restart. Riding on and hoping is the failure mode; asking for a clear the session cannot
+>   perform is the *pretending* version of it.
+> - **Write the DESIGN into the plan before writing the code.** What survives a compaction is a file,
+>   never the reasoning held in the window. A design slice whose design is already committed costs, at
+>   worst, the tranche in flight. This is the one preparation that makes a compaction cheap instead of
+>   expensive, and it is now the standing rule for every design-bearing slice (S2 first).
+>
 > **Why this shape beats one long session, stated honestly.** `/loop` does **not** clear the window
 > between iterations, and nothing does. What it buys is that **every iteration can be restarted from the
 > plan alone** — so a compaction, a crash or a `/clear` costs at most the slice in flight, never the
