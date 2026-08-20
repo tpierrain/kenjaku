@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -31,7 +31,9 @@ const OWNER = "# Coach\n\nthe intro paragraph, extended by the owner\n\nthe body
 const ENGINE = "# Coach\n\nthe intro paragraph\n\nthe body paragraph\n\n## A section the engine added\n\nnew\n";
 const MERGED = "# Coach\n\nthe intro paragraph, extended by the owner\n\nthe body paragraph\n\n## A section the engine added\n\nnew\n";
 
-const MANIFEST = { regimes: { merge: [".claude/skills/coach/**"], local: [".engine-base/**"] } };
+const MANIFEST = {
+  regimes: { merge: [".claude/skills/coach/**", ".claude/skills/switch/**"], local: [".engine-base/**"] },
+};
 
 function writeInto(root, rel, content) {
   const abs = join(root, rel);
@@ -175,6 +177,46 @@ test("a skill whose two files both merge, then both clash, is named exactly once
   const clashed = refreshUntouchedSkills({ brainDir, sourceDir, sourceFiles, manifest: MANIFEST, provenance });
   assert.deepEqual(clashed.conflicts, [{ skill: "coach", newVersionPath: `${REL}.new` }]);
   assert.deepEqual(clashed.skillsMerged, []);
+
+  // The other half of "named once": a DIFFERENT skill must still be named. Deduping
+  // on "have I said anything yet" instead of "have I said THIS" would silence every
+  // conflict after the first, which is the one failure an owner cannot recover from
+  // — they would resolve one file and never learn about the rest.
+  const secondRel = ".claude/skills/switch/SKILL.md";
+  writeInto(brainDir, secondRel, OWNER);
+  writeInto(brainDir, `.engine-base/${secondRel}`, BASE);
+  writeInto(sourceDir, secondRel, clashing);
+  for (const rel of sourceFiles) writeInto(brainDir, rel, OWNER);
+  const both = refreshUntouchedSkills({
+    brainDir,
+    sourceDir,
+    sourceFiles: [...sourceFiles, secondRel],
+    manifest: MANIFEST,
+    provenance: { ...provenance, [secondRel]: fp(BASE) },
+  });
+  assert.deepEqual(both.conflicts, [
+    { skill: "coach", newVersionPath: `${REL}.new` },
+    { skill: "switch", newVersionPath: `${secondRel}.new` },
+  ]);
+});
+
+// ── The write that must not happen ───────────────────────────────────────────
+
+// A merge whose result is what was already installed is still a merge — the base
+// moves — but the file must not be touched. Rewriting identical bytes churns the
+// auto-commit history for a no-op, and a brain that commits at every session would
+// carry a trail of empty "updated coach" commits. Observed on the MTIME, since
+// identical content cannot tell the two apart.
+test("a merge that changes nothing on disk does not touch the file at all", (t) => {
+  const trees = twoTrees(t, { installed: OWNER, base: BASE });
+  const long_ago = new Date("2020-01-01T00:00:00Z");
+  utimesSync(join(trees.brainDir, REL), long_ago, long_ago);
+
+  const report = run(trees, { provenance: { [REL]: fp(BASE) }, merge: () => ({ clean: true, merged: OWNER }) });
+
+  assert.deepEqual(report.skillsMerged, ["coach"], "it IS a merge");
+  assert.deepEqual(report.refreshedFileMap, { [REL]: ENGINE }, "and the base moves all the same");
+  assert.equal(statSync(join(trees.brainDir, REL)).mtimeMs, long_ago.getTime(), "but nothing was written");
 });
 
 // ── When git itself fails ────────────────────────────────────────────────────
