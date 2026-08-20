@@ -141,6 +141,51 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## The day-of runner, and its first two runs — 2026-08-20
+
+**Not a release either: the tooling.** Same branch as S0bis below. §5quinquies had carried the
+one-file recipe **in prose** since v4.8.0 and the traps kept being paid anyway, so the recipe became a
+script — [`mutate-one.mjs`](mutate-one.mjs) — with the [`mutation-testing`](../skills/mutation-testing/SKILL.md)
+skill beside it for the judgement half.
+
+| Run | Score | Survivors left |
+|---|---|---|
+| `mutate-one.mjs` **on itself**, first pass | 80.95 % | 64 |
+| `mutate-one.mjs` **on itself**, after one hardening round | **99.11 %** | 3, all named below |
+| `scripts/lint-vault.mjs` *(the S0bis canary, never measured until now)* | **70.00 %** | 3 |
+
+**The tool's own 64 first-pass survivors sorted into the three families the skill names**, which is
+the first evidence that those families generalise beyond `session-status.mjs`: ~30 in the composition
+root (every case drove the run through doubles, so `run`, `symlink`, `writeFile` and `say` could each
+be emptied whole with the suite green), ~25 message literals blanked to `""` on output that is the
+run's only account of itself, and the rest genuine missing cases — a git step failing mid-plan, a
+write-guard exiting non-zero while printing a clean summary, a Stryker threshold break that prints a
+perfect table and exits non-zero.
+
+**The 3 survivors left are equivalents, named rather than rounded up:**
+
+- `cells.length >= 8` → `> 8` — a Stryker clear-text row always splits into **9** cells, so no log can
+  distinguish the two bounds.
+- `encoding: "utf8"` → `""` — the captured output is built in a template string, which coerces a
+  Buffer to exactly the same text.
+- the entry tail `runAsEntrypoint(…)` — killed only by the two `^entry point` cases that
+  [`stryker.maintainers.config.mjs`](stryker.maintainers.config.mjs) deliberately **skips**: they spawn
+  the real file, so a mutant flipping `dryRun` to false would run `git worktree add` for real from
+  inside a test. Excluding tests can only make a score pessimistic, never inflate it.
+
+**What the first real run found, on its first use** — `scripts/lint-vault.mjs`, the S0bis canary,
+converted and ticked but whose score was never recorded: **70.00 %**, and all 3 survivors sit in its
+**composition root** (`realLintDeps.cwd`, `realLintDeps.error`, and `toPosix`'s `"/"`). Family 1
+again, on a file everyone considered done. **Recorded as remaining entry-tier debt, not fixed here**:
+it belongs to the S0bis ceilings, not to the tooling slice.
+
+**Reproduce**: `npm --prefix maintainers/mutation run mutate:maintainers` (logs
+[`reports/mutate-one-self.log`](reports/mutate-one-self.log)) and
+`node maintainers/mutation/mutate-one.mjs scripts/lint-vault.mjs` (log
+[`reports/mutate-one-lint-vault.log`](reports/mutate-one-lint-vault.log)).
+
+---
+
 ## S0bis — the two structural debts, paid (`scripts` only) — 2026-08-20
 
 **Not a release: the debt run itself.** Branch `chore/s0bis-entrypoint-mutation-debt`, working contract

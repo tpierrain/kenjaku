@@ -72,10 +72,11 @@
 > three of the four have **no base at all**, and `CLAUDE.engine.md` has **no regime at all**, which is
 > why a fully-up-to-date brain is still 10 KB of doctrine behind. **Still no test written and no
 > production line touched.** Resume by writing S1's first test against the `.engine-base/` shape; do
-> **not** re-measure, and do not re-open the fork. ⚠️ **One slice comes BEFORE it**, and it is not in this file: the
-> **`mutation-testing` skill** the owner asked for on 2026-08-20, carried by
-> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking.
-> Read that plan's header first — it is the landmark for the whole chantier. One thing is still open on S6 and does not block it: its **Kenjaku-side
+> **not** re-measure, and do not re-open the fork. ✅ **The slice that came before it is DONE**
+> _(2026-08-20)_ — the `mutation-testing` pair (script + skill), so **S1 is the live work now**. Its
+> record, and the working mode that governs how S1 may be dispatched, stay in
+> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking;
+> read that plan's header first, it is still the landmark for the chantier. One thing is still open on S6 and does not block it: its **Kenjaku-side
 > delivery** (manifest `merge` regime, the explicit retirement of `tdd-discipline`, the
 > `templates/fr/` version, `CONVENTIONS.md` §5) is release work, and it needs the power S1-S5 build —
 > it belongs in the cut, not before it.

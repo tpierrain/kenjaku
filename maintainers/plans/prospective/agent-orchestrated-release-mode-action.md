@@ -29,15 +29,19 @@
 >    propagating the rule to the **public extract / published page** (outward-facing), and the unmerged
 >    doctrine branch `chore/plan-discipline-points-at-the-harness` (no PR). ⚠️ The hook loads at
 >    **session start**, so it never watched the session that wrote it.
-> 2. ▶️ **RESUME HERE — the `mutation-testing` pair. The arbitration is ANSWERED** _(2026-08-20, owner:
->    **"script + skill"**, do not re-open it)_: build **`maintainers/mutation/mutate-one.mjs`** for the
->    mechanics **and** **`maintainers/skills/mutation-testing/SKILL.md`** for the judgement. **Nothing
->    exists yet** — no script, no test, no skill folder. **Start with the script, test-first**, and read
->    `mutate-changed.mjs` first: it is the existing sibling and sets the shape. Its Tracking box carries
->    the eight traps it must make unrepeatable and the split with the existing carriers.
+> 2. ~~**The `mutation-testing` pair**~~ — **DONE 2026-08-20** (`59a4ec4` the script, `9126179` the
+>    skill, `0f43037` the hardening). Both halves shipped: `mutate-one.mjs` (the braces) and
+>    `maintainers/skills/mutation-testing/SKILL.md` (the belt), plus a config that measures the runner
+>    itself — **80.95 % → 99.11 %**, 3 named equivalents left. Numbers in
+>    [`RESULTS.md` § The day-of runner](../../mutation/RESULTS.md#the-day-of-runner-and-its-first-two-runs--2026-08-20).
+>    **Do not re-open.** One tail is recorded there, not here: `scripts/lint-vault.mjs` measured
+>    **70.00 %** on the tool's first real use, its 3 survivors all in its composition root — remaining
+>    entry-tier debt, held by the S0bis ceilings.
 > 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
-> 4. **Then S1** of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only verdict.
->    **This is what to pick up if the owner is not at the keyboard** and slice 2 is still unanswered.
+> 4. ▶️ **RESUME HERE — S1** of [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+>    under the mechanical-only verdict. That plan owns the release's state and its own resume marker —
+>    open it and start there. S1 is also what has to produce the **contrast** the deferred
+>    adversarial-review question needs (one slice reviewed adversarially, one not).
 >
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
 > adversarial-review question is deferred to the **S1 debrief**, on S1's figures.
@@ -662,7 +666,7 @@ arbitration goes here as a question, and the run continues on other slices.
           `maintainers/plan-discipline.md`. On **this** branch those files still describe the old
           shape, so §3bis was worded to be true either way. **Two branches touching the same doctrine
           is the next duplication to close** — merge order is the owner's call.
-- [ ] ▶️ **NEXT — the `mutation-testing` pair: a SCRIPT *and* a skill** _(owner asked for it 2026-08-20,
+- [x] ✅ **DONE 2026-08-20 — the `mutation-testing` pair: a SCRIPT *and* a skill** _(owner asked for it 2026-08-20,
       mid-run: "on découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait
       pas le coup de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**,
       deliberately: the traps are fresh and checkable against the run that just happened.
@@ -672,9 +676,29 @@ arbitration goes here as a question, and the run continues on other slices.
         `maintainers/skills/mutation-testing/SKILL.md` for the judgement (the belt). The reasoning he
         endorsed is §5quinquies': answering a recurring shape with one more written reflex is the move
         already measured as insufficient.
-  - [ ] **START HERE — the script first**, test-first as always, and nothing exists yet: not a line of
-        `mutate-one.mjs`, not a test, not the skill folder. What it must make unrepeatable, each trap
-        having cost a real run: `git worktree prune` before re-adding a worktree that was `rm -rf`'d
+  - [x] **The script** _(2026-08-20 · `59a4ec4`, hardened in `0f43037`)_ —
+        [`maintainers/mutation/mutate-one.mjs`](../../mutation/mutate-one.mjs), test-first: 30 cases
+        seen red for the right reason on stubs first, 38 after the hardening round. Every trap listed
+        below is now a step in an ordered **plan of values**, so the ORDER itself is asserted rather
+        than described. Three decisions taken while building it, none of which need re-opening:
+    - [x] **The worktree is a SIBLING of the repo and is REUSED** (`../kenjaku-mut-one`), never a
+          scratchpad path: both v4.4.0 worktrees lived under the session scratchpad and macOS's temp
+          cleanup took their reports. It is reset, never removed — the runner offers no teardown.
+    - [x] **The log is written into the REAL repo**, not the worktree, and discarded **before** the
+          run rather than after: a stale log is the most convincing way to be told a number that was
+          never measured.
+    - [x] **The tuning is checked twice**: on the config before the run (concurrency ≤ 5, timeout
+          ≥ 30 s, `inPlace`, `disableTypeChecks`) and on the report after it (a run whose mutants
+          mostly timed out is REFUSED, not reported). The fake 99.97 % cannot come back silently.
+    - [x] **The runner is measured by its own rule** _(`0f43037`)_ — `stryker.maintainers.config.mjs`,
+          **80.95 % → 99.11 %**, 3 named equivalents. It runs in the sandbox and **skips the two
+          `^entry point` cases**: they spawn the real file, so a mutant flipping `dryRun` would run
+          `git worktree add` for real from inside a test.
+    - [x] **Wired into CI on macOS only** — the suite would otherwise run in **no job at all**
+          (nothing under `maintainers/` was ever tested by CI). Windows is excluded deliberately: it
+          is a maintainer's machine tool with POSIX path fixtures.
+  - [x] ~~**START HERE — the script first**~~ _(kept for the trap list it carries)_. What it had to
+        make unrepeatable, each trap having cost a real run: `git worktree prune` before re-adding a worktree that was `rm -rf`'d
         (otherwise `add` refuses, the run silently never happens, and a STALE log gets read as the
         result), the disposable worktree itself (`inPlace` on the real tree once wiped the vault's demo
         notes), the `rag/node_modules` symlink the worktree needs, verifying
@@ -683,7 +707,7 @@ arbitration goes here as a question, and the run continues on other slices.
         failure** instead of a stale log. Read `mutate-changed.mjs` first — it is the existing sibling
         and sets the shape (repo-root resolution, the Stryker bin path, `--mutate` as ONE
         comma-separated list).
-  - [ ] **The diagnosis, so the skill is not written against the wrong problem.** What we keep
+  - [x] **The diagnosis, so the skill is not written against the wrong problem.** What we keep
         re-deriving is **not** assertion quality — that already lives in `test-first-discipline` and
         it works. It is **how to OPERATE Stryker on this repo**, and it is scattered across three
         carriers that are only read once opened: comments inside the config files, `RESULTS.md`
@@ -706,7 +730,7 @@ arbitration goes here as a question, and the run continues on other slices.
         because `maintainers/` is excluded from install while `.claude/skills/` ships to every
         generated brain — a maintainer skill must never travel there. It gets loaded by being named
         from `CONVENTIONS.md`, which `CLAUDE.md`'s maintainer note points at.)_
-  - [ ] **The six operational traps it must carry**, every one of which has already cost a real run:
+  - [x] **The six operational traps it must carry**, every one of which has already cost a real run:
         the sandbox has no `.git` so the manifest-integrity test dies before the first mutant (hence
         `inPlace`); `inPlace` on the real tree is destructive (a mutant once wiped the vault's demo
         notes), hence the **disposable worktree**; reset between batches with `git reset --hard` +
@@ -714,15 +738,15 @@ arbitration goes here as a question, and the run continues on other slices.
         returns a **fake 99.97 %** made of bogus timeouts; `disableTypeChecks: false`, or `@ts-nocheck`
         lands on the worktree; and the new one — **mutating a file that a source scanner reads breaks
         the dry run**, because instrumentation rewrites the literals under the scanner.
-  - [ ] Plus, from the `session-status` rounds: **how to read the survivors** — the three families
+  - [x] Plus, from the `session-status` rounds: **how to read the survivors** — the three families
         (a real adapter layer judged by nothing, doubles that ignore their arguments, genuine missing
         cases), the **simplify-the-production-instead** reflex, and what makes a **named equivalent**
         honest rather than a rounding-up. Written up with real numbers in `RESULTS.md` § S0bis.
-  - [ ] Plus the two that cost time this very session and are pure operations: `git worktree prune`
+  - [x] Plus the two that cost time this very session and are pure operations: `git worktree prune`
         before re-adding a worktree that was `rm -rf`'d (otherwise `add` refuses and the run silently
         never happens, leaving a STALE log to be misread as the result), and the `rag/node_modules`
         symlink the worktree needs.
-  - [ ] **The split with the existing carriers, so nothing is duplicated**: the skill owns the
+  - [x] **The split with the existing carriers, so nothing is duplicated**: the skill owns the
         **how-to** (when to run a pass, the worktree recipe, batching, the traps, where results go);
         `RESULTS.md` stays the **measurement register**; `RETROSPECTIVE.md` keeps the **design
         lessons** mined from survivors.
