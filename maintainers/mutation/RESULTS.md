@@ -141,6 +141,50 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S1's fs orchestrator — `engine-base-fs.mjs`, the first slice that touches the disk — 2026-08-20
+
+**Fourth and last production slice of S1**, and the first that is not pure: the thin I/O that carries
+the three planners to disk, plus its wiring into the installer and both update writers. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the survivors were paid | Survivors left |
+|---|---|---|---|
+| `lib/engine-base-fs.mjs` | **75.00 %** — 33 killed, 11 survived | **95.00 %** — 38 killed, 2 survived | 2, both named below |
+
+**The first pass under 100 % of this chantier, and the run earned its keep twice.** The three pure
+planners had all scored 100 % on their first pass; the moment the same design met a filesystem, the
+tests stopped being sufficient — which is the honest reading, not a regression in care.
+
+- **The advance's own digests were load-bearing in the production and inert in every test.**
+  `syncBaseTree` folds the shas it just computed into the record its seeding pass reads. Every case had
+  handed in a provenance that *already* described the delivery, so the fold changed nothing and a mutant
+  emptying it survived. The case that kills it hands in the record **as it stood before the re-seed**,
+  and pins the contract that fold exists for: **a file just advanced is never reported back as the
+  owner's customization.** That is precisely the false positive this release exists to remove, so the
+  hole was in the middle of the subject.
+- **An ordering guarantee asserted only on inputs that were already ordered.** Ten of the eleven
+  survivors were the three `.sort()` calls and the comparator: every fixture happened to be in path
+  order, so removing the sort changed nothing. Both maps of the new case are written in **reverse** path
+  order.
+- **One survivor died by simplifying the production**, as on `session-status.mjs` before it: the
+  comparator spelled out an equal case (`? 0`) that no input can reach, since a rel appears once. An
+  unreachable branch is a survivor by construction, not a missing test.
+
+**The 2 left, named rather than implied:**
+
+1. `a.rel <= b.rel` for `a.rel < b.rel` — **a true equivalent**: the two differ only on equal paths, and
+   a path appears at most once in the list being sorted.
+2. Dropping `.sort()` on the **`seeded`** list — **not killable without controlling the filesystem's
+   own order.** Seeds come out in the order `readInstalledMergeFiles` returns, i.e. the order
+   `readdirSync` walked the brain, which is neither sorted nor guaranteed across platforms. A test
+   proving the sort would have to assume a walk order it cannot fix, so it would be a test about macOS,
+   not about this code. Recorded here instead. *(The same guarantee IS proven for `advanced` and
+   `deferred`, whose pre-sort order comes from the caller's maps.)*
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base-fs.mjs`.
+
+---
+
 ## S1's seeding planner — `planBaseSeed`, same file, same day — 2026-08-20
 
 **Third production slice of the unfreeze chantier** (the migration: a brain seeds its own base tree

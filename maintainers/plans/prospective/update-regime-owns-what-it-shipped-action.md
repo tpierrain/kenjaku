@@ -410,7 +410,10 @@ audible divergence.
   - [x] **The fs orchestrator + the wiring** _(2026-08-20 · `74de7e8`)_ — `engine-base-fs.mjs`, the
         single writer of the tree, wired at install and in **both** update writers. 12 cases red on
         their assertions first (a skeleton module, so the red was never a loading error), plus one
-        wiring test per writer.
+        wiring test per writer. **75 % → 95 %** on the mutation run, 2 named survivors _(number owned by
+        [`RESULTS.md` § S1's fs orchestrator](../../mutation/RESULTS.md#s1s-fs-orchestrator--engine-base-fsmjs-the-first-slice-that-touches-the-disk--2026-08-20))_ —
+        the first pass under 100 % of this chantier, and it found a real hole: the digests the advance
+        computes were load-bearing in the production and inert in every test.
     - [x] **One function for both moments**, not two: `syncBaseTree` advances what was delivered, then
           seeds what the brain can still prove. Running the seed on **every** pass is what makes the
           fleet's migration happen at all — including on a self-heal that delivers nothing.

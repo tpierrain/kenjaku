@@ -397,8 +397,10 @@ arbitration goes here as a question, and the run continues on other slices.
     in the engine see a new dotted directory at the brain root?" — the RAG indexer, the two vault
     scanners, auto-commit, `.gitignore`, the write guard. Neither file entered this window; both
     answers are now written into the owning plan. **This is the second rule working as designed.**
-  - ⏳ **In flight when this line was written**: the mutation run on `engine-base-fs.mjs`
-    (`maintainers/mutation/mutate-one.mjs`). Its number belongs to `RESULTS.md`, not here.
+  - 📉 **The first slice of this chantier to score under 100 % on its first pass: 75 %, paid to 95 %**
+    (`63598d7`), 2 named survivors. Numbers in `RESULTS.md`. **The lesson is about the mode, not the
+    file**: the three PURE planners each scored 100 % first pass, and the moment the same design met a
+    filesystem the same tests stopped being sufficient. *Pure code flatters a test batch.*
   - 🪤 **The `git add -A` guard fired, and it was right to.** Two subagents had been dispatched nine
     minutes earlier; the staging was redone file by file. The hook is doing exactly the job the S0bis
     run's two sweeps paid for.
