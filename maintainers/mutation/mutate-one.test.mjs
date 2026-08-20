@@ -17,9 +17,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { dirname, join } from "node:path";
+import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  defaultDeps,
   parseArgs,
   planRun,
   parseTestCounts,
@@ -285,6 +288,17 @@ test("parseTestCounts — output with no summary at all is null, never a green g
   assert.equal(parseTestCounts(""), null);
 });
 
+test("parseTestCounts — a summary cut short is null too, whichever line is missing", () => {
+  // A run killed mid-print leaves a PARTIAL summary. Each of the three counts is
+  // singly necessary: without a case per missing line, two thirds of the guard
+  // could be deleted with the suite green.
+  const without = (label) => NODE_TEST_TAIL.split("\n").filter((l) => !l.includes(`ℹ ${label} `)).join("\n");
+
+  assert.equal(parseTestCounts(without("pass")), null);
+  assert.equal(parseTestCounts(without("fail")), null);
+  assert.equal(parseTestCounts(without("skipped")), null);
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // parseMutationReport — the score, and the timeout tell
 // ─────────────────────────────────────────────────────────────────────────────
@@ -334,6 +348,50 @@ test("parseMutationReport — a run made of bogus timeouts is NOT trustworthy", 
   assert.equal(report.score, 99.97);
   assert.equal(report.trustworthy, false);
   assert.ok(report.timeoutShare > 0.9, `timeoutShare was ${report.timeoutShare}`);
+});
+
+test("parseMutationReport — a `.ts` package's table reads the same way", () => {
+  // rag/ and local-mirror/ are TypeScript: their rows must be recognised as file
+  // rows too, or a run of theirs reports an overall score and no files.
+  const tsTable = `----------------|------------------|----------|-----------|------------|----------|----------|
+File            |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------|--------|---------|----------|-----------|------------|----------|----------|
+All files       |  96.00 |   96.00 |       48 |         0 |          2 |        0 |        0 |
+ markdown.ts    | 100.00 |  100.00 |        8 |         0 |          0 |        0 |        0 |
+ search.ts      |  94.00 |   94.00 |       40 |         0 |          2 |        0 |        0 |
+`;
+
+  assert.deepEqual(parseMutationReport(tsTable).files, [
+    { file: "markdown.ts", score: 100, survived: 0, timeout: 0 },
+    { file: "search.ts", score: 94, survived: 2, timeout: 0 },
+  ]);
+});
+
+test("parseMutationReport — a filename OUTSIDE the table is not a file row", () => {
+  // Stryker prints every survivor's location above the table, one bare path per
+  // line. Without the table-row filter those lines read as files with a NaN score.
+  const withSurvivors = `[Survived] StringLiteral\nscripts/lint-vault.mjs\n${STRYKER_TAIL}`;
+
+  assert.deepEqual(
+    parseMutationReport(withSurvivors).files.map((f) => f.file),
+    ["entrypoint-discipline.mjs", "entrypoint.mjs", "status-line.mjs", "upstream-check-run.mjs"]
+  );
+});
+
+test("parseMutationReport — the trust boundary is inclusive: a quarter of timeouts still counts", () => {
+  // 25 % exactly is the last trustworthy run; one mutant more and it is not.
+  const atBoundary = STRYKER_TAIL.replace(
+    "All files                   |  81.57 |   81.57 |      331 |        32 |         82 |        0 |        0 |",
+    "All files                   |  81.57 |   81.57 |      285 |       100 |         15 |        0 |        0 |"
+  );
+  const over = STRYKER_TAIL.replace(
+    "All files                   |  81.57 |   81.57 |      331 |        32 |         82 |        0 |        0 |",
+    "All files                   |  81.57 |   81.57 |      284 |       101 |         15 |        0 |        0 |"
+  );
+
+  assert.equal(parseMutationReport(atBoundary).timeoutShare, 0.25);
+  assert.equal(parseMutationReport(atBoundary).trustworthy, true);
+  assert.equal(parseMutationReport(over).trustworthy, false);
 });
 
 test("parseMutationReport — no table means no result, and that is not a zero", () => {
@@ -404,7 +462,88 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
       bytes: STRYKER_TAIL.length,
     },
   ]);
-  assert.match(h.out.join("\n"), /81\.57/);
+  // The account of the run, asserted WHOLE: this output is the only thing a
+  // human reads, and a clause blanked here is a clause nobody notices missing.
+  assert.deepEqual(h.out, [
+    "▶ git worktree prune   (in /Users/dev/kenjaku)",
+    "▶ git reset --hard bd9277d1c0ffee0000000000000000000000beef   (in /Users/dev/kenjaku-mut-one)",
+    "▶ git clean -qfd -e rag/node_modules   (in /Users/dev/kenjaku-mut-one)",
+    "▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/dev/kenjaku-mut-one)",
+    "   ✓ write guard: 22 pass, 0 skipped",
+    "▶ discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+    `▶ node ${MUTATE_KEY()}   (in /Users/dev/kenjaku-mut-one)`,
+    "✅ Mutation score 81.57 % — 331 killed, 82 survived, 32 timeout",
+    "   entrypoint-discipline.mjs: 71.82 % (82 survived, 28 timeout)",
+    "   entrypoint.mjs: 100 % (0 survived, 4 timeout)",
+    "   status-line.mjs: 100 % (0 survived, 0 timeout)",
+    "   upstream-check-run.mjs: 100 % (0 survived, 0 timeout)",
+    "   log: /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+  ]);
+});
+
+test("runMutateOne — a git step that fails stops the run there, with git's own words", () => {
+  // `worktree add` refusing (the pruned-registration trap, when prune did not
+  // cure it) must not fall through to a mutation run over a tree that is not
+  // there. Nothing checked this: the whole `if (result.code !== 0)` tail could be
+  // deleted with the suite green.
+  const h = harness({
+    worktreeExists: false,
+    ragLinkExists: false,
+    results: {
+      "worktree add --detach /Users/dev/kenjaku-mut-one bd9277d1c0ffee0000000000000000000000beef": {
+        code: 128,
+        output: "fatal: '/Users/dev/kenjaku-mut-one' already exists\n",
+      },
+    },
+  });
+
+  const code = runMutateOne(["scripts/lint-vault.mjs"], h.deps);
+
+  assert.equal(code, 1);
+  assert.deepEqual(h.calls.filter((c) => c.fn === "run").map((c) => c.args[0]), ["worktree", "worktree"]);
+  assert.deepEqual(h.out.slice(-2), [
+    "❌ `git worktree add --detach /Users/dev/kenjaku-mut-one bd9277d1c0ffee0000000000000000000000beef   (in /Users/dev/kenjaku)` failed:",
+    "fatal: '/Users/dev/kenjaku-mut-one' already exists",
+  ]);
+});
+
+test("runMutateOne — the write-guard gate reads BOTH the exit code and the counts", () => {
+  // Two independent reasons to refuse, each needing its own case: a run that
+  // exits non-zero while still printing a clean summary (a crash after the
+  // summary), and a run that exits 0 while reporting failures.
+  const crashed = harness({
+    results: { [GUARD_KEY]: { code: 1, output: NODE_TEST_TAIL } },
+  });
+  const failing = harness({
+    results: { [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL.replace("fail 0", "fail 1") } },
+  });
+
+  assert.equal(runMutateOne(["scripts/lint-vault.mjs"], crashed.deps), 1);
+  assert.equal(runMutateOne(["scripts/lint-vault.mjs"], failing.deps), 1);
+  assert.equal(crashed.calls.some((c) => c.fn === "run" && c.args.includes("--mutate")), false);
+  assert.equal(failing.calls.some((c) => c.fn === "run" && c.args.includes("--mutate")), false);
+  assert.deepEqual(failing.out.slice(-1), [
+    "❌ scripts/lib/vault-write-guard.test.mjs reports 0 skipped and 1 failed in the worktree — " +
+      "mutants would face a suite that cannot judge them. Check the rag/node_modules symlink.",
+  ]);
+});
+
+test("runMutateOne — Stryker exiting non-zero is a failure EVEN with a full table", () => {
+  // A threshold break prints a perfectly good table and exits non-zero. Reading
+  // the table and announcing a score would turn a failed run into a green one.
+  const h = harness({
+    results: {
+      [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
+      [MUTATE_KEY()]: { code: 1, output: STRYKER_TAIL },
+    },
+  });
+
+  const code = runMutateOne(["scripts/lint-vault.mjs"], h.deps);
+
+  assert.equal(code, 1);
+  assert.deepEqual(h.out.slice(-1), [
+    "❌ Stryker failed and measured nothing — full output in /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+  ]);
 });
 
 test("runMutateOne — a skipped write-guard aborts BEFORE a single mutant runs", () => {
@@ -419,8 +558,10 @@ test("runMutateOne — a skipped write-guard aborts BEFORE a single mutant runs"
 
   assert.equal(code, 1);
   assert.equal(h.calls.some((c) => c.fn === "run" && c.args.includes("--mutate")), false);
-  assert.match(h.out.join("\n"), /22 skipped/);
-  assert.match(h.out.join("\n"), /rag\/node_modules/);
+  assert.deepEqual(h.out.slice(-1), [
+    "❌ scripts/lib/vault-write-guard.test.mjs reports 22 skipped and 0 failed in the worktree — " +
+      "mutants would face a suite that cannot judge them. Check the rag/node_modules symlink.",
+  ]);
 });
 
 test("runMutateOne — a write-guard run that says nothing at all is refused too", () => {
@@ -430,6 +571,10 @@ test("runMutateOne — a write-guard run that says nothing at all is refused too
 
   assert.equal(code, 1);
   assert.equal(h.calls.some((c) => c.fn === "run" && c.args.includes("--mutate")), false);
+  assert.deepEqual(h.out.slice(-2), [
+    "❌ scripts/lib/vault-write-guard.test.mjs did not report a result in /Users/dev/kenjaku-mut-one — the worktree is not usable:",
+    "Cannot find module",
+  ]);
 });
 
 test("runMutateOne — a failed Stryker run fails LOUDLY, and no score is claimed", () => {
@@ -444,9 +589,12 @@ test("runMutateOne — a failed Stryker run fails LOUDLY, and no score is claime
 
   assert.equal(code, 1);
   // The output IS written: it is the diagnosis. What must not happen is a score.
-  assert.equal(h.calls.some((c) => c.fn === "writeFile"), true);
-  assert.doesNotMatch(h.out.join("\n"), /Mutation score/);
-  assert.match(h.out.join("\n"), /failed/i);
+  assert.deepEqual(h.calls.filter((c) => c.fn === "writeFile").map((c) => c.path), [
+    "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+  ]);
+  assert.deepEqual(h.out.slice(-1), [
+    "❌ Stryker failed and measured nothing — full output in /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+  ]);
 });
 
 test("runMutateOne — a run whose score is made of timeouts is reported as untrustworthy", () => {
@@ -461,9 +609,12 @@ test("runMutateOne — a run whose score is made of timeouts is reported as untr
   const code = runMutateOne(["scripts/lint-vault.mjs"], h.deps);
 
   assert.equal(code, 1);
-  assert.match(h.out.join("\n"), /3564 of 3735 mutants TIMED OUT \(95 %\)/);
   // The number is still shown — it is evidence of the failure — but never as a result.
-  assert.doesNotMatch(h.out.join("\n"), /✅/);
+  assert.deepEqual(h.out.slice(-1), [
+    "❌ 3564 of 3735 mutants TIMED OUT (95 %) — the 99.97 % is starved CPU, not killed mutants. " +
+      "Re-run with nothing else running. Full output in /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+  ]);
+  assert.equal(h.out.some((line) => line.includes("✅")), false);
 });
 
 test("runMutateOne — a drifted config stops the run before it costs 15 minutes", () => {
@@ -473,18 +624,28 @@ test("runMutateOne — a drifted config stops the run before it costs 15 minutes
 
   assert.equal(code, 1);
   assert.equal(h.calls.some((c) => c.fn === "run"), false);
-  assert.match(h.out.join("\n"), /concurrency is 13/);
+  assert.deepEqual(h.out, [
+    "❌ maintainers/mutation/stryker.scripts.batch.config.mjs has drifted — refusing to run:",
+    "   • concurrency is 13, must be at most 5 (higher oversubscribes the CPU and manufactures false timeouts)",
+  ]);
 });
 
-test("runMutateOne — --dry-run prints the plan and runs nothing", () => {
+test("runMutateOne — --dry-run prints the plan, whole, and runs nothing", () => {
   const h = harness();
 
-  const code = runMutateOne(["--dry-run", "scripts/lint-vault.mjs"], h.deps);
+  const code = runMutateOne(["--dry-run", "scripts/a.mjs", "scripts/lib/b.mjs"], h.deps);
 
   assert.equal(code, 0);
   assert.deepEqual(h.calls.filter((c) => c.fn === "run" || c.fn === "removeFile" || c.fn === "symlink"), []);
-  assert.match(h.out.join("\n"), /worktree prune/);
-  assert.match(h.out.join("\n"), /--mutate scripts\/lint-vault\.mjs/);
+  assert.deepEqual(h.out, [
+    "▶ plan for scripts/a.mjs, scripts/lib/b.mjs (worktree /Users/dev/kenjaku-mut-one):",
+    "   git worktree prune   (in /Users/dev/kenjaku)",
+    "   git reset --hard bd9277d1c0ffee0000000000000000000000beef   (in /Users/dev/kenjaku-mut-one)",
+    "   git clean -qfd -e rag/node_modules   (in /Users/dev/kenjaku-mut-one)",
+    "   node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/dev/kenjaku-mut-one)",
+    "   discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-a+1.log",
+    `   node ${MUTATE_KEY("scripts/a.mjs,scripts/lib/b.mjs")}   (in /Users/dev/kenjaku-mut-one)`,
+  ]);
 });
 
 test("runMutateOne — a usage error prints the usage and never touches the repo", () => {
@@ -494,7 +655,14 @@ test("runMutateOne — a usage error prints the usage and never touches the repo
 
   assert.equal(code, 2);
   assert.deepEqual(h.calls, []);
-  assert.match(h.out.join("\n"), /no target file given/);
+  // Spelled out rather than interpolated from USAGE: a fixture produced by the
+  // code under test cannot fail when that code is wrong.
+  assert.deepEqual(h.out, [
+    "no target file given\n" +
+      "usage: node maintainers/mutation/mutate-one.mjs <scripts/file.mjs> [more files…] " +
+      "[--worktree <name>] [--log <name>] [--dry-run]",
+  ]);
+  assert.equal(h.out[0].endsWith(USAGE), true);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -506,6 +674,79 @@ test("runMutateOne — a usage error prints the usage and never touches the repo
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SELF = join(HERE, "mutate-one.mjs");
 const spawnSelf = (...args) => spawnSync(process.execPath, [SELF, ...args], { encoding: "utf8" });
+
+// The composition root, seam by seam, against the REAL primitives. Without this
+// the whole adapter layer is judged by nothing: every case above drives the run
+// through doubles, so `run`, `symlink`, `writeFile` and friends could each be
+// emptied whole with the suite green. Everything it writes goes to a throwaway
+// directory; the only real-world call it makes is read-only.
+test("defaultDeps — every seam is wired to the real primitive it names", async () => {
+  const deps = await defaultDeps();
+  const dir = mkdtempSync(join(tmpdir(), "mutate-one-"));
+
+  try {
+    assert.equal(deps.repoRoot, resolve(HERE, "../.."));
+    assert.match(deps.sha, /^[0-9a-f]{40}$/);
+    // The config really is the batch one, read from disk rather than described here.
+    assert.equal(deps.config.inPlace, true);
+    assert.equal(deps.config.concurrency, 5);
+
+    assert.equal(deps.exists(SELF), true);
+    assert.equal(deps.exists(join(dir, "nothing-here")), false);
+
+    // run — a real child process: its exit code, and BOTH its streams.
+    assert.deepEqual(
+      deps.run({
+        command: process.execPath,
+        args: ["-e", "process.stdout.write('out');process.stderr.write('err')"],
+        cwd: dir,
+      }),
+      { code: 0, output: "outerr" }
+    );
+    assert.deepEqual(deps.run({ command: process.execPath, args: ["-e", "process.exit(3)"], cwd: dir }), {
+      code: 3,
+      output: "",
+    });
+    // The child really runs in the cwd it was given — the steps' `cwd` is the
+    // difference between mutating the worktree and mutating the real tree.
+    assert.deepEqual(
+      deps.run({ command: process.execPath, args: ["-e", "process.stdout.write(process.cwd())"], cwd: dir }),
+      { code: 0, output: realpathSync(dir) }
+    );
+    // A Stryker log is hundreds of KB: a buffer sized in bytes rather than MB
+    // truncates the run's own evidence, and the score with it.
+    const long = "x".repeat(200_000);
+    assert.deepEqual(
+      deps.run({ command: process.execPath, args: ["-e", `process.stdout.write("x".repeat(200000))`], cwd: dir }),
+      { code: 0, output: long }
+    );
+    // A command that cannot even be spawned has no status and no streams — it
+    // must not read as a successful run with empty output.
+    assert.deepEqual(deps.run({ command: "kenjaku-no-such-binary", args: [], cwd: dir }), { code: 1, output: "" });
+
+    const log = join(dir, "run.log");
+    deps.writeFile(log, "measured\n");
+    assert.equal(readFileSync(log, "utf8"), "measured\n");
+    deps.removeFile(log);
+    assert.equal(existsSync(log), false);
+    deps.removeFile(log); // discarding a log that is not there is not an error
+
+    deps.symlink(HERE, join(dir, "link"));
+    assert.equal(existsSync(join(dir, "link", "mutate-one.mjs")), true);
+
+    const said = [];
+    const realLog = console.log;
+    console.log = (line) => said.push(line);
+    try {
+      deps.say("hello");
+    } finally {
+      console.log = realLog;
+    }
+    assert.deepEqual(said, ["hello"]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 test("entry point — `--dry-run` prints a plan built from the REAL repo and config", () => {
   const { status, stdout, stderr } = spawnSelf("--dry-run", "scripts/lint-vault.mjs");
@@ -539,6 +780,11 @@ test("runMutateOne — a missing worktree is created, and the rag link with it",
   assert.deepEqual(h.calls.filter((c) => c.fn === "symlink"), [
     { fn: "symlink", from: "/Users/dev/kenjaku/rag/node_modules", to: "/Users/dev/kenjaku-mut-one/rag/node_modules" },
   ]);
+  // Both silent steps say so: the first real run printed a log in which the
+  // symlink and the discarded log were INVISIBLE, which reads as "it never
+  // linked anything" on the one output anybody keeps.
+  assert.match(h.out.join("\n"), /symlink \/Users\/dev\/kenjaku\/rag\/node_modules → \/Users\/dev\/kenjaku-mut-one\/rag\/node_modules/);
+  assert.match(h.out.join("\n"), /discard stale log \/Users\/dev\/kenjaku\/maintainers\/mutation\/reports\/mutate-one-lint-vault\.log/);
   assert.deepEqual(
     h.calls.filter((c) => c.fn === "run").map((c) => c.args.slice(0, 3).join(" ")),
     [

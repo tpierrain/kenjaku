@@ -1,0 +1,39 @@
+[32m20:03:48 (45534) INFO ProjectReader[39m Found 1 of 900 file(s) to be mutated.
+[32m20:03:48 (45534) INFO Instrumenter[39m Instrumented 1 source file(s) with 336 mutant(s)
+[32m20:03:48 (45534) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m20:03:49 (45534) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m20:03:49 (45534) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m20:03:49 (45534) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 295 ms, overhead 2 ms).
+Mutation testing 13% (elapsed: <1m, remaining: ~1m) 47/336 tested (0 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~1m) 77/336 tested (0 survived, 0 timed out)
+Mutation testing 31% (elapsed: <1m, remaining: ~1m) 106/336 tested (0 survived, 0 timed out)
+Mutation testing 67% (elapsed: <1m, remaining: <1m) 226/336 tested (1 survived, 4 timed out)
+
+All tests
+  ✓ All tests (killed 329)
+
+[Survived] EqualityOperator
+maintainers/mutation/mutate-one.mjs:194:24
+-       .filter((cells) => cells.length >= 8);
++       .filter((cells) => cells.length > 8);
+
+[Survived] StringLiteral
+maintainers/mutation/mutate-one.mjs:346:62
+-         const done = spawnSync(command, args, { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
++         const done = spawnSync(command, args, { cwd, encoding: "", maxBuffer: 64 * 1024 * 1024 });
+
+[Survived] ArrowFunction
+maintainers/mutation/mutate-one.mjs:356:48
+-   runAsEntrypoint(import.meta.url, process.argv, async (argv) => runMutateOne(argv, await defaultDeps()));
++   runAsEntrypoint(import.meta.url, process.argv, () => undefined);
+
+Ran 0.99 tests per mutant on average.
+----------------|------------------|----------|-----------|------------|----------|----------|
+                | % Mutation score |          |           |            |          |          |
+File            |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------|--------|---------|----------|-----------|------------|----------|----------|
+All files       |  99.11 |   99.11 |      329 |         4 |          3 |        0 |        0 |
+ mutate-one.mjs |  99.11 |   99.11 |      329 |         4 |          3 |        0 |        0 |
+----------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m20:04:36 (45534) INFO HtmlReporter[39m Your report can be found at: file:///Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutation-maintainers.html
+[32m20:04:36 (45534) INFO MutationTestExecutor[39m Done in 47 seconds.

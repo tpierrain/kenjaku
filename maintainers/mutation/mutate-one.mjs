@@ -256,6 +256,11 @@ export function runMutateOne(argv, deps) {
   }
 
   for (const step of steps) {
+    // EVERY step announces itself, processes and the two file operations alike:
+    // this output is the run's account of itself, and a symlink that happened
+    // silently reads exactly like a symlink that never happened.
+    say(`▶ ${renderStep(step)}`);
+
     if (step.step === "link-rag-node-modules") {
       symlink(step.from, step.to);
       continue;
@@ -267,7 +272,6 @@ export function runMutateOne(argv, deps) {
       continue;
     }
 
-    say(`▶ ${renderStep(step)}`);
     const result = run(step);
 
     if (step.step === "verify-write-guard") {
@@ -329,7 +333,7 @@ function renderStep(step) {
 
 // ── The composition root ─────────────────────────────────────────────────────
 
-async function defaultDeps() {
+export async function defaultDeps() {
   const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
   return {
     repoRoot,
