@@ -404,6 +404,21 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-20 (night, loop iteration 3) — S2a-1 landed: the verdict table, pure, 100 % on its
+  first pass.** Commit `acabcc8`, pushed, suite **1899 pass / 0 fail**, mutation **47 killed / 0
+  survived** (number in `RESULTS.md`). Eleven cases red on their assertions first, against a skeleton
+  module so the red was never a loading error.
+  - ✂️ **The slice re-cut itself on contact, and that is the rule working.** The plan named S2a as
+    "core + first client"; writing a pure core, spawning git and rewiring the refresher in one go is
+    exactly the >3-files shape this file calls **mis-cut**. Split into S2a-1 / S2a-2 / S2a-3 and written
+    back into the owning plan before any code was committed.
+  - 🔁 **A design written the iteration before paid for itself immediately.** The eleven test cases are
+    the plan's own eight rows plus three triangulations — so the batch could not be a retelling of an
+    implementation that did not exist yet. **This is the mechanism behind the 100 %**, not care: the
+    fail mode of a big test-first batch is describing the code you already hold, and a committed design
+    is what removes the code from the author's hands.
+  - **Nothing was dispatched this iteration**: the reading was already in the window from iteration 2,
+    and the slice is a design-bearing one, which the mechanical-only verdict keeps in session.
 - 🌙 **2026-08-20 (night, loop iteration 2) — S2's DESIGN is written and committed. No code, on
   purpose.** The heaviest design of the chantier now lives in the owning plan (verdict table, merge
   engine, module boundaries, three slices, what is out) instead of in a window that a compaction would

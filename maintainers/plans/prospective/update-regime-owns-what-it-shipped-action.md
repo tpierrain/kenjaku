@@ -132,11 +132,16 @@
 > **the base advances to what the engine DELIVERED while the disk receives the MERGE**, the three slices
 > (S2a / S2b / S2c) and what is deliberately out. Nothing of it is left in a session's window.
 >
-> **▶️ RESUME AT: S2a — the merge core, test-first.** `scripts/lib/engine-merge.mjs` (pure) +
-> `scripts/lib/engine-merge-git.mjs` (the one impure seam), then `mergeVerdict` replacing
-> `refreshVerdict`, then the skill refresher wired onto it. The eight rows of S2's verdict table are the
-> test list; write them red on their assertions first. **S2c is the only part that waits on Thomas**
-> (the box below), and S2a/S2b do not — so the loop never idles on it.
+> ✅ **S2a-1 IS DONE — the verdict table exists and is pure** _(2026-08-20 · `acabcc8`,
+> `scripts/lib/engine-merge.mjs`, 100 % mutation on its first pass, number owned by `RESULTS.md`)_. S2a
+> was **re-cut into three** on contact (core / git seam / rewiring): one slice that wrote a pure core,
+> spawned git and rewired the refresher would have broken this chantier's own mis-cut rule.
+>
+> **▶️ RESUME AT: S2a-2 — the git seam.** `scripts/lib/engine-merge-git.mjs`: temp files +
+> `spawnSync("git", ["merge-file", "-p", "--diff3", "-L", …])`, exit code → `{ clean, merged }`. It is
+> the one impure half, so its judge is an end-to-end test on real fixtures, not a double. Then S2a-3
+> (the skills rewired onto `mergeVerdict`), then S2b. **S2c is the only part that waits on Thomas** (the
+> box at the top), and nothing else does — so the loop never idles on it.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -557,11 +562,27 @@ audible divergence.
           side by side. Its home also stops being `engine-skill-refresh.mjs`: the verdict now serves
           skills **and** scripts (S2b) and later the constitution, so it is no longer a skill's business.
 
-  - [ ] **S2a — the merge core and its first client (the skills).** The eight rows red on their
-        assertions first, then the pure module, then `refreshUntouchedSkills` rewired onto it, then the
-        full suite green, then mutation on `engine-merge.mjs`. Report gains `skillsMerged` (kept your
-        edits **and** received the update) and `conflicts` (needs your hand + the sidecar path) beside
-        today's `skillsPreserved`, in `formatReport`.
+  - [ ] **S2a — the merge core and its first client (the skills).** Cut into three on contact, because
+        one slice that writes a pure core, spawns git **and** rewires the refresher is a mis-cut slice
+        by this chantier's own rule:
+    - [x] **S2a-1 — the verdict table, pure** _(2026-08-20 · `acabcc8`)_ — `scripts/lib/engine-merge.mjs`.
+          Eleven cases red on their assertions first (a skeleton module, so the red was never a loading
+          error), **100 % mutation, 47 killed, no survivor** _(number owned by
+          [`RESULTS.md` § S2's merge core](../../mutation/RESULTS.md#s2s-merge-core--engine-mergemjs-the-verdict-table--2026-08-20))_.
+      - [x] **Decided while building it, and it is the part a later reader must not undo**: a verdict
+            carries **`write`** and **`deliver`** as two separate fields. They differ on exactly one
+            row, so folding them back into one would look like a simplification and would be the
+            clobber-the-owner bug returning by the front door.
+      - [x] The merge arrives as an **injected function** — the module stays pure, git stays next door,
+            and the mutation score keeps judging the decision instead of a subprocess.
+    - [ ] **S2a-2 — the git seam.** `scripts/lib/engine-merge-git.mjs`: temp files + `spawnSync`, exit
+          code → `{ clean, merged }`, with the `-L` labels. Its own judge is an end-to-end test on real
+          fixtures (clean merge, conflict, and the marked output actually carrying the owner's side).
+    - [ ] **S2a-3 — the skills rewired onto it.** `refreshUntouchedSkills` drops `refreshVerdict` for
+          `mergeVerdict`, and the report gains `skillsMerged` (kept your edits **and** received the
+          update) and `conflicts` (needs your hand + the sidecar path) beside today's `skillsPreserved`,
+          in `formatReport`. ⚠️ This is the slice where `deliveredFileMap` must start carrying
+          **`deliver`**, not what was written — the whole trap, at its only real call site.
   - [ ] **S2b — the four engine scripts stop being overwritten blind.** `auto-commit`, `auto-push`,
         `status-line`, `verify-rag` are declared `merge` and applied `replace` (`computeApplyPlan` puts
         them in `replaceScripts`) — the mirror image of the skills' bug, and the one that can destroy an

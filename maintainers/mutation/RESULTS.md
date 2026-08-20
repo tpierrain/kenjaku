@@ -141,6 +141,33 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S2's merge core — `engine-merge.mjs`, the verdict table — 2026-08-20
+
+**First production slice of S2**, and pure again on purpose: the decision that finally uses the bytes
+S1 put on disk. The merge itself arrives as an injected function, so what this run judges is the
+*decision*, not git. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors left |
+|---|---|---|
+| `lib/engine-merge.mjs` | **100.00 %** — 47 killed, 0 survived, 0 timeout | none |
+
+**Why a first pass at 100 % is credible here rather than flattering.** The pattern measured on S1
+stands: pure code flatters a test batch, and this slice is pure. What kept the batch honest is that the
+table was written into the plan *before* any test, so the eleven cases are the design's own rows and
+not a retelling of the implementation. Two assertions carry more than their weight:
+
+- **`write` and `deliver` are asserted as one whole object, on every row.** They differ on exactly one
+  (a clean merge writes the merged bytes, delivers the candidate), so an implementation that delivered
+  the merge would pass any test checking only what lands on disk — and would silently reintroduce the
+  clobber this chantier exists to end, one update later.
+- **The merge double's result is a sentinel string no other input can produce**, and its call is
+  asserted as `{base, ours, theirs}` by name. The ours/theirs inversion is a three-way merge's silent
+  catastrophe: swapped, the merge still returns a plausible file in which the engine wins every hunk the
+  owner touched. Only the roles, asserted by name, catch that.
+
+---
+
 ## S1's fs orchestrator — `engine-base-fs.mjs`, the first slice that touches the disk — 2026-08-20
 
 **Fourth and last production slice of S1**, and the first that is not pure: the thin I/O that carries
