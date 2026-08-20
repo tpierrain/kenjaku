@@ -523,20 +523,43 @@ audible divergence.
     - [x] **The `-L` labels are user-facing text**: `your version` / `engine base` / `engine <version>`.
           Wording is Thomas's call at release time (`release-notes-tone`), not a blocker for the code.
 
-  - [x] **The verdict table — the test list for S2a, eight rows.** Inputs: `I` = installed bytes,
-        `B` = the base tree's bytes with its recorded sha, `C` = the candidate the update would deliver.
-        All comparisons EOL-normalised, as `refreshVerdict` already does.
+  - [x] 🛑 **THE TABLE WAS WRONG ON ITS FIRST WRITING, and S2a-3 caught it before it shipped**
+        _(2026-08-20)_. The original eight rows asked **every** question of the base's BYTES. But
+        `reconcileBrain` — which runs the skill refresh — happens at
+        [`update-engine.mjs:285`](../../../scripts/update-engine.mjs), and `syncBaseTree` only at
+        **line 340**: on the first update of any brain installed before S1, **the tree does not exist
+        yet when the refresh runs**. Every skill would have fallen to `preserve` — *including untouched
+        ones that must fast-forward* — so **the engine would have stopped refreshing skills across the
+        whole fleet, on the very release that exists to unfreeze them.**
+    - [x] **The fix is a separation, not a patch**: the base's **bytes** are needed only to MERGE. The
+          recorded **sha** alone answers the two questions that come first — *did the owner touch it?*
+          and *did the engine ship anything new?* So a brain with no tree degrades exactly to today's
+          behaviour (fast-forward when untouched, preserve + `.new` when customized) instead of
+          freezing, and it gains the merge at its **second** update, once the tree exists.
+    - [x] **One predicate answers all three questions**, so there is no second definition to keep in
+          step: `verifyBase({ recorded, baseContent: X })` asked of the installed file, of the
+          candidate, and of the base itself. `planBaseSeed` already uses it that way.
+
+  - [x] **The verdict table — the test list for S2a, nine rows.** Inputs: `I` = installed bytes,
+        `C` = the candidate the update would deliver, `recorded` = the provenance sha, `B` = the base
+        tree's bytes (which may not exist). "untouched" = `I` matches `recorded`; "engine stood still" =
+        `C` matches `recorded`. All comparisons EOL-normalised, as `refreshVerdict` already did.
 
         | # | state | verdict | writes to the file | sidecar | in `deliveredFileMap` |
         |---|---|---|---|---|---|
         | 1 | `I` absent | `absent-install` | `C` | — | yes |
-        | 2 | base unusable, `I === C` | `unchanged` (`no-base`) | — | — | no |
-        | 3 | base unusable, `I ≠ C` | `preserve` (`no-provenance` / `absent` / `mismatch`) | — | — | no |
-        | 4 | `I === B`, `C === B` | `unchanged` | — | — | no |
-        | 5 | `I === B`, `C ≠ B` | `refresh` (fast-forward) | `C` | — | yes |
-        | 6 | `I ≠ B`, `C === B` | `unchanged` (`owner-edit-stands`) | — | — | no |
-        | 7 | `I ≠ B`, `C ≠ B`, merge clean | `merge` | the merged bytes | — | **yes, with `C`** |
-        | 8 | `I ≠ B`, `C ≠ B`, conflict | `conflict` | — (owner's copy stands) | marked merge | **no** |
+        | 2 | no `recorded`, `I === C` | `unchanged` (`no-base`) | — | — | no |
+        | 3 | no `recorded`, `I ≠ C` | `preserve` (`no-provenance`) | — | — | no |
+        | 4 | untouched, `I === C` | `unchanged` | — | — | no |
+        | 5 | untouched, `I ≠ C` | `refresh` (fast-forward) | `C` | — | yes |
+        | 6 | edited, engine stood still | `unchanged` (`owner-edit-stands`) | — | — | no |
+        | 7 | edited, engine moved, **`B` unusable** | `preserve` (`customized`) | — | `C` | no |
+        | 8 | edited, engine moved, `B` usable, merge clean | `merge` | the merged bytes | — | **yes, with `C`** |
+        | 9 | edited, engine moved, `B` usable, conflict | `conflict` | — (owner's copy stands) | marked merge | **no** |
+
+    - [x] **Row 7 is the fleet's first update, and it is today's behaviour exactly** — preserve the
+          owner's file, offer the engine's version beside it. It is the row that makes this release
+          safe to ship to brains that have never held an ancestor.
 
     - [x] **Rows 2 and 6 are defects being fixed, not new behaviour.** Today `refreshVerdict` returns
           `preserve: no-provenance` **before** testing equality (row 2: a brain outside the regime
@@ -544,7 +567,7 @@ audible divergence.
           with a `.new` sidecar whenever the owner edited — **even when the engine shipped nothing new**
           (row 6), dropping a sidecar byte-identical to the base at every single update. Pure noise,
           removed by construction.
-    - [x] **Row 8 never writes the installed file.** A conflict is the one case that costs a human
+    - [x] **Row 9 never writes the installed file.** A conflict is the one case that costs a human
           anything, and the engine's answer to it is to keep its hands off and say so.
     - [x] **`.new` narrows its meaning, and gains value**: from *"you customized this"* to **"this one
           needs your hand"**, and its content stops being the bare candidate — it becomes the
