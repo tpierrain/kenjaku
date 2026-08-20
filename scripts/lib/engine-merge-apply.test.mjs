@@ -318,6 +318,124 @@ test("a merge that throws costs ONE file its merge, not the whole run", (t) => {
   assert.deepEqual(report.deliveredFileMap, { [spared]: ENGINE });
 });
 
+// ── The gate on bytes that exist nowhere but this machine ───────────────────
+//
+// A caller whose files are EXECUTED (S2b's four engine scripts) hands in a
+// `verifyWrite`. It is asked about the merge OUTPUT and nothing else: a
+// fast-forward writes the engine's own candidate, which the suite already tested.
+
+// The case the gate exists for. Both sides were valid; the merge of them is not,
+// and it is about to be written into a file the brain runs at every session.
+test("a merge whose bytes fail the gate is preserved, not written", (t) => {
+  const { brainDir, sourceDir } = trees(t);
+  const rel = "scripts/auto-commit.mjs";
+  writeInto(brainDir, rel, OWNER);
+  writeInto(brainDir, `.engine-base/${rel}`, BASE);
+  writeInto(sourceDir, rel, ENGINE);
+
+  const report = applyMergeGoverned({
+    brainDir,
+    sourceDir,
+    sourceFiles: [rel],
+    pairs: [pairOf(rel)],
+    provenance: { [rel]: fp(BASE) },
+    groupOf: byPath,
+    verifyWrite: () => false,
+  });
+
+  assert.equal(onDisk(brainDir, rel), OWNER, "the owner's working file stands");
+  assert.deepEqual(report.preserved, [{ name: rel, reason: "merge-unsafe", newVersionPath: `${rel}.new` }]);
+  assert.deepEqual(report.merged, [], "a merge that cannot be written is not a merge");
+  assert.equal(onDisk(brainDir, `${rel}.new`), ENGINE, "the engine's version still waits beside it");
+  // Absent from the map: nothing was delivered, so the ancestor must stand where it
+  // is. Advanced here, the next update would read the file as untouched and
+  // fast-forward over the very edit this verdict was protecting.
+  assert.deepEqual(report.deliveredFileMap, {});
+});
+
+// The gate must be asked about the merge and NOTHING else. Asked about a
+// fast-forward it would be judging the engine's own shipped file — and one bad
+// answer there would freeze that file across the whole fleet at once.
+test("the gate sees the merged bytes, and is never asked about a fast-forward", (t) => {
+  const { brainDir, sourceDir } = trees(t);
+  const mergedFile = "scripts/auto-commit.mjs";
+  const fastForwarded = "scripts/auto-push.mjs";
+  writeInto(brainDir, mergedFile, OWNER);
+  writeInto(brainDir, `.engine-base/${mergedFile}`, BASE);
+  writeInto(brainDir, fastForwarded, BASE);
+  for (const rel of [mergedFile, fastForwarded]) writeInto(sourceDir, rel, ENGINE);
+
+  const asked = [];
+  const report = applyMergeGoverned({
+    brainDir,
+    sourceDir,
+    sourceFiles: [mergedFile, fastForwarded],
+    pairs: [mergedFile, fastForwarded].map(pairOf),
+    provenance: { [mergedFile]: fp(BASE), [fastForwarded]: fp(BASE) },
+    groupOf: byPath,
+    verifyWrite: (question) => (asked.push(question), true),
+  });
+
+  assert.deepEqual(asked, [{ rel: mergedFile, content: MERGED }], "asked once, about the merge, by name");
+  assert.deepEqual(report.merged, [mergedFile]);
+  assert.deepEqual(report.refreshed, [fastForwarded]);
+  assert.equal(onDisk(brainDir, mergedFile), MERGED, "a gate that says yes changes nothing");
+  assert.equal(onDisk(brainDir, fastForwarded), ENGINE);
+});
+
+// A gate that cannot RUN is not a gate that says no, and the two must not report
+// the same thing: `merge-unsafe` tells the owner their merged file was broken,
+// `merge-failed` tells them the tool was. Saying the first when the second is true
+// is an accusation the engine has no evidence for.
+test("a gate that throws degrades to merge-failed, never to merge-unsafe", (t) => {
+  const { brainDir, sourceDir } = trees(t);
+  const rel = "scripts/status-line.mjs";
+  writeInto(brainDir, rel, OWNER);
+  writeInto(brainDir, `.engine-base/${rel}`, BASE);
+  writeInto(sourceDir, rel, ENGINE);
+
+  const report = applyMergeGoverned({
+    brainDir,
+    sourceDir,
+    sourceFiles: [rel],
+    pairs: [pairOf(rel)],
+    provenance: { [rel]: fp(BASE) },
+    groupOf: byPath,
+    verifyWrite: () => {
+      throw new Error("node --check could not run: spawn ENOENT");
+    },
+  });
+
+  assert.equal(onDisk(brainDir, rel), OWNER);
+  assert.deepEqual(report.preserved, [{ name: rel, reason: "merge-failed", newVersionPath: `${rel}.new` }]);
+  assert.deepEqual(report.deliveredFileMap, {});
+});
+
+// A caller with no gate — the skills, whose files are read and not run — must be
+// completely unaffected. Every other test in this file passes no `verifyWrite`;
+// this one says so on purpose, because "the default is off" is the contract that
+// keeps S2b-2 from reaching the skills at all.
+test("with no gate supplied, a merge is written exactly as before", (t) => {
+  const { brainDir, sourceDir } = trees(t);
+  const rel = ".claude/skills/coach/SKILL.md";
+  writeInto(brainDir, rel, OWNER);
+  writeInto(brainDir, `.engine-base/${rel}`, BASE);
+  writeInto(sourceDir, rel, ENGINE);
+
+  const report = applyMergeGoverned({
+    brainDir,
+    sourceDir,
+    sourceFiles: [rel],
+    pairs: [pairOf(rel)],
+    provenance: { [rel]: fp(BASE) },
+    groupOf: byPath,
+  });
+
+  assert.equal(onDisk(brainDir, rel), MERGED);
+  assert.deepEqual(report.merged, [rel]);
+  assert.deepEqual(report.preserved, []);
+});
+
 // A brain outside the regime (no recorded sha) gets NO sidecar: `no-provenance`
 // says we cannot PROVE anything, and littering an older brain with unexplained
 // `.new` files would be noise, not a choice. It is reported all the same, so the

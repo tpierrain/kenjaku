@@ -156,7 +156,17 @@ export function formatReport(report) {
   // could not run — and it is said out loud rather than folded into the plain case,
   // because "your edits could not be merged THIS time" is a different piece of news
   // from "there was nothing to merge from".
-  const PRESERVED_ASIDE = { customized: "", "merge-failed": " (the merge could not run here)" };
+  // Three asides, three different pieces of news, and every other reason is silence
+  // by design (`no-provenance` says we can PROVE nothing, so it claims nothing).
+  // `merge-failed` = the tool could not answer; `merge-unsafe` = it answered, and the
+  // merged bytes would not have parsed (S2b-2's gate, on files the brain EXECUTES).
+  // Folding the last two together would tell an owner their file is broken when it is
+  // the tool that is, and send them hunting through a file that is fine.
+  const PRESERVED_ASIDE = {
+    customized: "",
+    "merge-failed": " (the merge could not run here)",
+    "merge-unsafe": " (merging the two would not have produced a working file)",
+  };
   // ⚠️ The entries are keyed `name`, not `skill`: the same carrier serves the engine
   // scripts (S2b) and the constitution (S2c), and in those a field called `skill` would
   // simply be false. What stays skill-specific is this SENTENCE, not the data.

@@ -109,6 +109,7 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     skillsPreserved: [
       { name: "import", reason: "customized", newVersionPath: ".claude/skills/import/SKILL.md.new" },
       { name: "sync", reason: "merge-failed", newVersionPath: ".claude/skills/sync/SKILL.md.new" },
+      { name: "scripts/auto-commit.mjs", reason: "merge-unsafe", newVersionPath: "scripts/auto-commit.mjs.new" },
       { name: "improve", reason: "no-provenance" },
     ],
     conflicts: [{ name: "prepare-1-1", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
@@ -120,8 +121,49 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     '   • your "coach" and "switch" skills kept your edits AND received this update',
     '   • your customized "import" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/import/SKILL.md.new',
     '   • your customized "sync" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as .claude/skills/sync/SKILL.md.new',
+    '   • your customized "scripts/auto-commit.mjs" skill was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as scripts/auto-commit.mjs.new',
     '   • ⚠️ "prepare-1-1": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/prepare-1-1/SKILL.md.new',
   ]);
+});
+
+// A verdict the report drops is a verdict nobody can act on. `merge-unsafe` cannot
+// happen for a skill (skills pass no gate — S2b-2), but shipping the gate without a
+// sentence for it would leave the engine silently preserving an owner's script with
+// no explanation the day S2b-3 wires the four of them.
+//
+// ⚠️ The sentence still says "skill", and that is a KNOWN lie waiting for S2b-3 —
+// which is where the scripts get a sentence of their own. Pinned here so the lie is
+// a failing expectation the moment it ships, rather than a surprise in a report.
+test("formatReport — a merge the gate refused says so, and says it apart", () => {
+  const asideOf = (reason) =>
+    formatReport({
+      ref: "v9.9.9",
+      engineVersion: {},
+      copied: [],
+      regenerated: false,
+      reindexed: false,
+      vaultNoteCount: 0,
+      skillsPreserved: [{ name: "x", reason, newVersionPath: "x.new" }],
+    })
+      // Same predicate as the sibling test above: the bulleted lines that NAME
+      // something. A bare `startsWith("   • ")` also matches the standard report
+      // ("0 engine file(s) swapped", the note count) — a filter that catches the
+      // furniture is a filter that stops being about the subject.
+      .split("\n")
+      .filter((line) => line.startsWith("   • ") && line.includes('"'));
+
+  // The three asides are three different pieces of news, and the fourth reason is
+  // silence by design. Asserted together so none can quietly collapse into another.
+  assert.deepEqual(asideOf("customized"), [
+    '   • your customized "x" skill was kept exactly as you wrote it — the newer engine version sits next to it as x.new',
+  ]);
+  assert.deepEqual(asideOf("merge-failed"), [
+    '   • your customized "x" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as x.new',
+  ]);
+  assert.deepEqual(asideOf("merge-unsafe"), [
+    '   • your customized "x" skill was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as x.new',
+  ]);
+  assert.deepEqual(asideOf("no-provenance"), [], "no proof, no claim, no line");
 });
 
 // One merged skill must not be announced in the plural. The report is read by a

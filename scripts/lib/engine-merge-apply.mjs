@@ -34,6 +34,7 @@ export function applyMergeGoverned({
   provenance = {},
   merge = mergeWithGit,
   groupOf,
+  verifyWrite,
 }) {
   const refreshed = [];
   const preserved = [];
@@ -82,6 +83,26 @@ export function applyMergeGoverned({
       // file, so this one degrades to what a brain with no ancestor gets — the
       // owner's copy stands, the engine's version waits beside it — and the run goes on.
       outcome = { verdict: "preserve", reason: "merge-failed", sidecar: candidate };
+    }
+
+    // 🛑 THE GATE, and it is asked about the MERGE and nothing else. A fast-forward
+    // writes the engine's own candidate, which the suite already tested; the merge's
+    // output exists nowhere but this machine, and for a caller whose files are
+    // EXECUTED (S2b's four engine scripts) those unseen bytes run at every session.
+    // A caller with no gate — the skills, which are read and not run — is untouched.
+    //
+    // The two failures say DIFFERENT things on purpose: `merge-unsafe` tells the owner
+    // their merged file would not have parsed, `merge-failed` tells them the tool could
+    // not answer. Saying the first when the second is true is an accusation the engine
+    // has no evidence for, and it would send them hunting through a file that is fine.
+    if (outcome.verdict === "merge" && verifyWrite) {
+      try {
+        if (!verifyWrite({ rel, content: outcome.write })) {
+          outcome = { verdict: "preserve", reason: "merge-unsafe", sidecar: candidate };
+        }
+      } catch {
+        outcome = { verdict: "preserve", reason: "merge-failed", sidecar: candidate };
+      }
     }
     const { verdict, reason, write, deliver, sidecar } = outcome;
 
