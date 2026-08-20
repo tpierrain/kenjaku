@@ -174,11 +174,17 @@ test("computeApplyPlan — SAFETY CORE: the sacred TREES themselves are refused,
       // one spelling a prefix test gets wrong if it forgets to re-append the separator.
       replace: ["rag/src/**", ".claude/skills", "vault/**"],
       regenerate: ["vault", ".claude/skills/**"],
+      // 🛑 `installSkills` is the ONE bucket the scrub does not filter (a declared skill
+      // is exactly what the additive install path is for), so the pattern's own anchor
+      // is its only defence. A skills path buried under another root must not read as a
+      // skill, or the engine install-if-absents its way into the owner's vault.
+      merge: ["vault/.claude/skills/smuggled/**", ".claude/skills/coach/**"],
     },
   };
   const plan = computeApplyPlan(hostile);
   assert.deepEqual(plan.overwrite, ["rag/src/**"], "neither the skills tree nor the whole vault");
   assert.deepEqual(plan.regenerate, [], "and a launcher bucket claiming the vault regenerates nothing");
+  assert.deepEqual(plan.installSkills, [".claude/skills/coach/**"], "a skills path under another root is not a skill");
 });
 
 // ─── SELF-CARRY guard (plan Step 4) ─────────────────────────────────────────
