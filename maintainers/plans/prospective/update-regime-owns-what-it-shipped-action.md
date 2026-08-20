@@ -93,6 +93,14 @@
 > `replace` target — that would recreate this whole bug one level up — nor a `merge` one. It is
 > engine-written, never hand-edited, and it needs its own answer in `engine-manifest.json`.
 >
+> ✅ **The tree IS VERSIONED in the brain's own git repo** _(owner, 2026-08-20)_ — the auto-commit hook
+> sweeps it like everything else, no `.gitignore` entry. **The argument that decided it**: a brain is
+> synchronised across machines (the `/sync` skill). An ignored base would simply not travel, so the
+> second machine would hold none — every `merge` file would read `no-provenance` there, and the unfreeze
+> this whole chantier exists for would never happen on that machine. The cost is a few dozen KB and some
+> noise in the history; the `.` prefix already keeps the folder out of Obsidian's and Finder's way. Do
+> not re-open.
+>
 > ✅ **THE FORK IS NOW SIGNED, not merely inclined** _(owner, 2026-08-20: "oui, `.engine-base/` à la
 > racine me va")_. The re-ask the plan had reserved was made once the first test showed the concrete
 > shape (`.engine-base/CLAUDE.md`, `.engine-base/scripts/auto-commit.mjs`,

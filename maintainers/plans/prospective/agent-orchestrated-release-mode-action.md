@@ -50,6 +50,41 @@
 >    is the **fs orchestrator + wiring** slice — the first one that is mostly mechanical, and the one S1
 >    resumes at.
 >
+> ## 🌙 THE OVERNIGHT LOOP — framed by the owner 2026-08-20, before a `/clear`
+>
+> He asked to let the session work through the night *"en pleine autonomie"*, and asked the right
+> question with it: how to keep it from rotting its context. **Three answers, all his, do not re-ask:**
+>
+> - **Scope: as far as the quota takes it.** S1's last slice, then S2, then S3/S4 if it keeps moving.
+>   Any decision that is his becomes a **blocking box at the top of the owning plan**, and the loop moves
+>   to the next slice that does not need him — it never guesses in his place.
+> - **Branch: `feat/engine-base-unfreeze`**, cut from `chore/s0bis-entrypoint-mutation-debt` at `a730d20`
+>   and pushed. The old name stopped describing what it carried, and draft PR #75 must keep its S0bis
+>   perimeter rather than swallow the release.
+> - **Mechanism: `/loop` with no interval** (self-paced), with the prompt below.
+>
+> **Why this shape beats one long session, stated honestly.** `/loop` does **not** clear the window
+> between iterations, and nothing does. What it buys is that **every iteration can be restarted from the
+> plan alone** — so a compaction, a crash or a `/clear` costs at most the slice in flight, never the
+> chantier. The window is protected by the two standing rules of this file, not by care: **delegate the
+> READING to subagents** (a bulk read never touches the main window), and **nothing is dispatched
+> without a pass/fail a machine can evaluate**.
+>
+> **The prompt to paste** (it is written here so it survives the `/clear` that follows it):
+>
+> ```
+> Open maintainers/plans/prospective/update-regime-owns-what-it-shipped-action.md and read its
+> header (WHERE THIS RESUMES / RESUME AT). Do the ONE slice it names, and only that one.
+> Test-first: see the tests fail on their assertions before any production code. Then the full
+> suite green (node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"), then COMMIT, then
+> measure mutation on HEAD (node maintainers/mutation/mutate-one.mjs <file>) and kill the
+> survivors. Never commit red. Then tick the carriers -- the owning plan, RESULTS.md for any
+> number, this mode plan if the mode learned something -- commit and push on
+> feat/engine-base-unfreeze. If the slice needs a decision that is Thomas's, write it as a
+> blocking box at the top of the plan and move to the next slice that does not need him. Bulk
+> reads go to a subagent. Then stop, so the loop can restart you from the plan.
+> ```
+
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
 > adversarial-review question is deferred to the **S1 debrief**, on S1's figures. **And the release's
 > version number was settled and signed on 2026-08-20** — the release plan states it and owns the
