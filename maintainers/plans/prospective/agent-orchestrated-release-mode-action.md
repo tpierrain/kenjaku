@@ -1,11 +1,26 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟠 PROPOSED 2026-08-19 — the working CONTRACT for building the      -->
-<!-- unfreeze release with subagents. The map and the rules below are written;   -->
-<!-- the three arbitrations in § Waiting on the owner are NOT, and no autonomous -->
-<!-- loop starts before they are answered.                                       -->
+<!-- STATUS: 🟢 IN FORCE since 2026-08-20 — the working CONTRACT for building    -->
+<!-- the unfreeze release with subagents. The three arbitrations are APPROVED,   -->
+<!-- S0bis ran under it, and the mode was DEBRIEFED the same day: kept for       -->
+<!-- S1–S5, MECHANICAL ONLY. Read § Tracking's debrief box before delegating.    -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Working contract — building the unfreeze release with orchestrated subagents
+
+> ## ⏳ WHERE THIS RESUMES — read before the Tracking
+>
+> **In progress right now** _(2026-08-20, owner at the keyboard)_: `session-status.mjs`, the last
+> blocking arbitration of S0bis — answered **yes, now**. It is the head of the entry-point debt,
+> carried by every published tag since v4.4.0 and reported at **8.67 %**. The safe recipe is in the
+> Run log and is **not** to be re-derived: wrap the body into `export function runSessionStatus(argv,
+> deps)` behind the shared tail **without restructuring**, prove the guard by running the import probe
+> **inside a disposable git worktree** (where a sweep-and-commit is harmless), assert the working tree
+> is untouched, and only then split the composition. **Never run this file, or its test, in this
+> working tree.**
+>
+> **After it**: S1 of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only
+> verdict. **Two things are decided and must not be re-asked**: the mode is kept but mechanical only,
+> and the adversarial-review question is deferred to the S1 debrief, on S1's figures.
 
 > **This plan owns HOW, not WHAT.** The what is
 > [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md), which
@@ -290,6 +305,17 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🧭 **2026-08-20 — the debrief happened, and the three open questions are now two decisions and one
+  dated deferral.** Owner's calls, in conversation, recorded here the moment they were taken:
+  - **The mode is kept for S1–S5, mechanical only.** Dispatch needs a machine-evaluable pass/fail
+    **and** no design judgement; everything that decides stays in session. This ratifies what S0bis
+    measured rather than widening the bet — see the debrief box in § Tracking for the full wording.
+  - **`session-status.mjs`: yes, now.** The arbitration is answered with the owner at the keyboard,
+    on the fourth time this debt has come due. The recipe below stands as written.
+  - **The adversarial-review fan-out is deferred to the S1 debrief, with a destination and a
+    condition** — S0bis ran no adversarial pass, so there is nothing to judge it on; S1 must produce
+    one slice reviewed that way and one not. Deferring without those two is how it comes back
+    undecided a third time.
 - ❓ **2026-08-20 — an unreproduced flake in `session-universe.test.mjs`, reported by an agent and
   NOT diagnosed. Written down so the next person does not burn the same hour.** The tier-1 agent that
   converted `set-active-universe.mjs` saw the race test — *"the universe hook waits for the startup
@@ -453,10 +479,11 @@ arbitration goes here as a question, and the run continues on other slices.
     - [~] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
           Never fanned out: they run at EVERY session start.
       - [x] `status-line.mjs` _(2026-08-20 · eb8b0fb — **0 % → 100.00 %**)_.
-      - [ ] 🛑 `session-status.mjs` — **BLOCKING ARBITRATION, written not skipped**. Needs a session
-            **with the owner present**: it cannot be verified by running it (executing it sweeps and
+      - [~] 🛑 `session-status.mjs` — **arbitration ANSWERED 2026-08-20: yes, now, with the owner at
+            the keyboard.** ▶️ **IN PROGRESS.** The reasons it was blocking are unchanged and are the
+            constraints of the work: it cannot be verified by running it (executing it sweeps and
             auto-commits the working tree), it has no test sibling, and its top-level body is ~190
-            side-effecting lines. The safe recipe is in the Run log below.
+            side-effecting lines. The safe recipe is in the Run log below and is the plan of record.
     - [x] The duplicate predicate: fold `auto-commit.mjs`'s `isEntryPoint` (reversed arguments,
           re-exported to `auto-push.mjs`) into the shared tail. Kept in session — the two files are
           coupled, and `auto-commit` runs on every single edit _(2026-08-20 · bc2a8bf)_.
@@ -479,8 +506,32 @@ arbitration goes here as a question, and the run continues on other slices.
         landmark off S0bis and onto **S1**, so the next resume does not restart on delivered work.
   - [x] Push the branch and open a **draft** PR. Nothing merged, nothing tagged _(2026-08-20 · e0f740c
         — [PR #75](https://github.com/tpierrain/kenjaku/pull/75), draft)_.
-- [ ] **Debrief the mode after S0bis**, before applying it to S1–S5: what the fan-out actually cost,
-      what it caught, what it broke. If it does not pay, say so here and go back to a single session.
+- [x] **Debrief the mode after S0bis** — done _(2026-08-20, owner's call in conversation)_: what the
+      fan-out cost, caught and broke is the S0bis run-log entry above; the verdict on it is here.
+  - [x] **VERDICT — the mode is kept for S1–S5, but MECHANICAL ONLY.** A slice is dispatchable when
+        it has a machine-evaluable pass/fail **and** no design judgement in it: repetitive
+        conversions, bulk reference reads, wide codebase sweeps. **Everything that decides stays in
+        session** — the design, the judge, the canary, anything session-critical, anything whose
+        failure is felt by a user rather than by a red test. This is exactly the split that paid on
+        S0bis (12 mechanical conversions cost no context; every real defect was found in the parts
+        kept in session), so the verdict ratifies the measurement instead of widening the bet.
+  - [x] **What the mode is NOT allowed to buy**: no agent writes a test, and no slice is dispatched
+        because it is merely large. Size is not the criterion — judgement is. _(Already `CONVENTIONS.md`
+        §12; restated here because this box is where the verdict lives.)_
+  - [ ] **The costs kept on the ledger, not waved away**: the mode manufactures its own false reds
+        under load (the unreproduced flake above), and the two staging mistakes were the same mistake
+        twice. The staging one now has a deterministic net; the false-reds one does not, and a red
+        seen during a saturated fan-out is to be re-run solo before it is believed.
+- [ ] **The adversarial-review fan-out as standing QA — DEFERRED WITH ITS DESTINATION, not left
+      hanging** _(owner, 2026-08-20)_. The question came out of v4.9.1 (its verdict is in
+      `archived/hotfix-v4.9.1-universe-pointer-action.md`) and asked whether every slice must pass a
+      multi-agent adversarial review before it counts as finished. **Not answered now, deliberately:
+      S0bis produced no figure on it** — it ran no adversarial pass, so answering today would be
+      taste, not measurement. **Decided at the S1 debrief, with S1's figures.** Until then it stays
+      case-by-case (sensitive code, rewrites), never a standing gate.
+  - [ ] What S1 has to produce for this to be answerable: at least one slice reviewed adversarially
+        and one not, with what each caught. Without that contrast the next debrief re-deals the same
+        undecided question.
 - [~] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
       kill this file), and rewrite the memory pointer to whatever becomes live next.
   - [x] **Folded EARLY, on purpose** _(2026-08-20 — `CONVENTIONS.md` **§12**)_: the two delegation
@@ -494,8 +545,11 @@ arbitration goes here as a question, and the run continues on other slices.
         `~/.claude/hooks/wave-staging-guard.mjs` stamps every agent dispatch and **blocks** a broad
         `git add` for 20 min afterwards. 20 self-test cases, five end-to-end payloads verified.
         Machine-local, so it is named in `CONVENTIONS.md` § See also rather than versioned here.
-  - [ ] What is deliberately NOT folded yet, because it is still a question and not a rule: whether
-        the mode is worth keeping for S1–S5 (the debrief box above), and the unreproduced flake.
+  - [ ] What is deliberately NOT folded yet, because it is still a question and not a rule: the
+        unreproduced flake, and the adversarial-review question below.
+  - [ ] **Ready to fold once S1 confirms it**: the mechanical-only verdict above. It is a rule now,
+        but it is one release old — fold it into `CONVENTIONS.md` §12 when S1 has run under it, so
+        what travels is a measured rule rather than a fresh opinion.
 
 ---
 
