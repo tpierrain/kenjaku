@@ -9,14 +9,25 @@
 
 > ## ⏳ WHERE THIS RESUMES — read before the Tracking
 >
-> **`session-status.mjs` is CONVERTED** _(2026-08-20 · a72755b + cbd01c0)_ — the last blocking
-> arbitration of S0bis, answered "yes, now" and done. Output proved byte-identical in a disposable
-> worktree; see the Run log's top entry for what it cost and the instrumentation trap it uncovered.
+> **S0BIS IS COMPLETE** _(2026-08-20)_. `session-status.mjs`, its last blocking arbitration, was
+> answered "yes, now" by the owner and paid: **8.67 % → 96.10 %** over three measured rounds, red
+> taken inside a disposable worktree, output proved byte-identical before and after. **No
+> `scripts/*.mjs` sits in the 0 % tier any more, for the first time since v4.4.0.** Everything is on
+> `chore/s0bis-entrypoint-mutation-debt`, pushed, under draft
+> [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — **nothing merged, nothing tagged**.
 >
-> **Next, and it is a NEW slice the owner asked for the same day**: write a **`mutation-testing`
-> skill**. Then S1 of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only
-> verdict. **Two things are decided and must not be re-asked**: the mode is kept but mechanical only,
-> and the adversarial-review question is deferred to the S1 debrief, on S1's figures.
+> ## ▶️ RESUME HERE — the next slice, in order
+>
+> 1. **Write the `mutation-testing` skill** — the owner asked for it mid-run on 2026-08-20 and chose
+>    "right after session-status". Its Tracking box below carries the diagnosis, the eight traps and
+>    the split with the existing carriers. ⚠️ **Read that box before writing**: §5quinquies of
+>    `CONVENTIONS.md` already carries part of the recipe *and* warns that another written reflex is
+>    the move already measured as insufficient — so the box records a refinement to put to the owner
+>    first (a **script** for the mechanics, the skill for the judgement).
+> 2. **Then S1** of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only verdict.
+>
+> **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
+> adversarial-review question is deferred to the **S1 debrief**, on S1's figures.
 
 > **This plan owns HOW, not WHAT.** The what is
 > [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md), which
@@ -301,6 +312,20 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ✅ **2026-08-20 — `session-status.mjs`: 8.67 % → 96.10 %. S0BIS IS COMPLETE, and the 0 % tier is
+  closed for the first time since v4.4.0.** Three measured rounds — **70.89 % → 90.12 % → 96.10 %** —
+  commits a72755b, cbd01c0, e458cb6, 72912c3. Log `reports/s0bis-session-status.log`, full write-up
+  in `RESULTS.md` § S0bis. **6 survivors left, all named equivalents**, not rounding.
+  - **What the first pass exposed was the TESTS, not the file.** 46 survivors in three families: a
+    real adapter layer judged by nothing (every case drove the hook through doubles, so `realGit` and
+    the DB read were never executed at all), **doubles that ignored their arguments** (the fake fs
+    took `(p)` and dropped the rest, so six `readFileSync(p, "utf8")` mutants could drop the encoding
+    unseen), and genuine missing cases. The middle one is the lesson to carry: **a double's answer
+    has to be a fingerprint of what it was asked, or it certifies nothing.**
+  - **Five of the second round's survivors died by SIMPLIFYING the production**, not by another test:
+    two reads guarded themselves with `existsSync` **and** a `try/catch`, which is the catch written
+    twice, and both catch bodies re-assigned `null` to something already `null`.
+  - **Nothing merged, nothing tagged.** The branch is pushed under draft PR #75, as the contract says.
 - 🛠️ **2026-08-20 — `session-status.mjs` is converted, and the measurement found a trap in the
   MEASURING, not in the code.** Commits a72755b and cbd01c0, branch pushed, PR #75 still draft.
   - **The red was taken where it is safe.** In a disposable worktree, importing the unconverted file
@@ -478,10 +503,10 @@ arbitration goes here as a question, and the run continues on other slices.
       _(2026-08-19)_.
 - [x] **Get the three arbitrations answered** _(2026-08-20)_ — approved as proposed; scope set to all
       of S0bis, Debt 2 included; test discipline re-confirmed as batches, not baby-steps.
-- [~] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
-      _(2026-08-20 — **delivered**, draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75). The
-      only thing left under it is the `session-status.mjs` arbitration, which needs the owner at the
-      keyboard; it is not remaining work this run could have done.)_
+- [x] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
+      _(2026-08-20 — **COMPLETE**, draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75).
+      `session-status.mjs`, the last item under it, was arbitrated and paid the same day: 8.67 % →
+      **96.10 %**. Nothing merged, nothing tagged.)_
   - [x] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
         spelling, test sibling present, guard body line count. **Written above** _(2026-08-20 ·
         branch `chore/s0bis-entrypoint-mutation-debt`)_.
@@ -494,8 +519,8 @@ arbitration goes here as a question, and the run continues on other slices.
     - [x] **Tier 1 — thin guards**: 12 files, one agent each _(2026-08-20 · 62246c6)_.
     - [x] `upstream-check-run.mjs` — kept in session (new test sibling = new test authorship)
           _(2026-08-20 · bb21a36)_.
-    - [~] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
-          Never fanned out: they run at EVERY session start.
+    - [x] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
+          Never fanned out: they run at EVERY session start. _(2026-08-20 — both done.)_
       - [x] `status-line.mjs` _(2026-08-20 · eb8b0fb — **0 % → 100.00 %**)_.
       - [x] 🛑 `session-status.mjs` — **arbitration ANSWERED 2026-08-20 (yes, now, owner at the
             keyboard), and DONE the same day** _(a72755b + cbd01c0)_. The three reasons it was
@@ -553,6 +578,23 @@ arbitration goes here as a question, and the run continues on other slices.
         carriers that are only read once opened: comments inside the config files, `RESULTS.md`
         § Reproduce, and `RETROSPECTIVE.md`. Same carrier defect §12 fixed for orchestration: the
         knowledge is read when a file is opened, while the mistakes are made **while acting**.
+  - [ ] 🛑 **A REFINEMENT to put to the owner before writing — found while checking the carriers, and
+        it is not a small one.** `CONVENTIONS.md` **§5quinquies already carries part of this recipe**
+        (the worktree, the reset incantation, the symlink, the two commands) — so the skill would not
+        fill a void, it would consolidate. And that same section ends with the corollary that argues
+        against it: *"do not answer a recurring shape with one more written reflex"*, because the
+        prose move was already measured as insufficient. **The stronger answer is a SPLIT**: a
+        **script** (`maintainers/mutation/mutate-one.mjs`) that makes the mechanical traps
+        unrepeatable — prune, worktree, symlink, verify `vault-write-guard.test.mjs` reports 0
+        skipped, run, normalise the log, print the score, fail loudly instead of leaving a stale log
+        to be misread — plus a **skill** for what a script cannot hold: when to run a pass, how to
+        read the survivors, when to simplify the production instead of writing a case, and when to
+        name an equivalent. **The script is the braces, the skill is the belt** — the same shape
+        `language.md` uses. Note it is MORE work than the skill alone, hence the owner's call.
+        _(Where it lives is already settled: `maintainers/skills/`, precedent `plan-discipline`,
+        because `maintainers/` is excluded from install while `.claude/skills/` ships to every
+        generated brain — a maintainer skill must never travel there. It gets loaded by being named
+        from `CONVENTIONS.md`, which `CLAUDE.md`'s maintainer note points at.)_
   - [ ] **The six operational traps it must carry**, every one of which has already cost a real run:
         the sandbox has no `.git` so the manifest-integrity test dies before the first mutant (hence
         `inPlace`); `inPlace` on the real tree is destructive (a mutant once wiped the vault's demo
@@ -561,6 +603,10 @@ arbitration goes here as a question, and the run continues on other slices.
         returns a **fake 99.97 %** made of bogus timeouts; `disableTypeChecks: false`, or `@ts-nocheck`
         lands on the worktree; and the new one — **mutating a file that a source scanner reads breaks
         the dry run**, because instrumentation rewrites the literals under the scanner.
+  - [ ] Plus, from the `session-status` rounds: **how to read the survivors** — the three families
+        (a real adapter layer judged by nothing, doubles that ignore their arguments, genuine missing
+        cases), the **simplify-the-production-instead** reflex, and what makes a **named equivalent**
+        honest rather than a rounding-up. Written up with real numbers in `RESULTS.md` § S0bis.
   - [ ] Plus the two that cost time this very session and are pure operations: `git worktree prune`
         before re-adding a worktree that was `rm -rf`'d (otherwise `add` refuses and the run silently
         never happens, leaving a STALE log to be misread as the result), and the `rag/node_modules`
