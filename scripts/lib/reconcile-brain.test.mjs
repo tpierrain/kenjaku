@@ -66,9 +66,13 @@ function manifest({ ragVersion = "1.1.0", indexSchemaVersion = 1, extraMerge = [
     engineVersion: { rag: ragVersion, constitutionTemplate: "1.0.0", scripts: "1.0.0" },
     indexSchemaVersion,
     regimes: {
-      replace: ["rag/src/**", "rag/package.json", ...extraReplace],
+      // ⚠️ `scripts/update-engine.mjs` sits in `replace`, where every one of the 48
+      // shipped manifests has always put it. This fixture used to declare it `merge`,
+      // and that single wrong line was the whole evidence behind a claim copied into a
+      // plan, a comment and a test title (see engine-apply-plan.mjs's header).
+      replace: ["rag/src/**", "rag/package.json", "scripts/update-engine.mjs", ...extraReplace],
       regenerate: ["rag/launch.sh", "rag/launch.cmd", "scripts/run-node.sh", "scripts/run-node.cmd"],
-      merge: [".claude/skills/zzz-mine/**", "scripts/update-engine.mjs", ...extraMerge],
+      merge: [".claude/skills/zzz-mine/**", ...extraMerge],
     },
     engineMcpServers,
     source: { repo: "https://example.test/launcher.git", ref: "v1.1.0" },
@@ -997,6 +1001,168 @@ test("reconcileBrain — a merged skill and a clashing one both reach the report
     /my way[\s\S]*A paragraph the engine added/,
     "the owner's edit and the engine's addition both survive the round trip",
   );
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S2b-3 — the four engine SCRIPTS stop arriving by copy.
+// `auto-commit`, `auto-push`, `status-line` and `verify-rag` are declared `merge`
+// in every shipped manifest, and the reconciler copied them anyway: an owner who
+// tuned their auto-commit hook lost the tuning at the next update, silently. What
+// is asserted here is the WIRING — that `reconcileBrain` routes them through the
+// merge rather than through `copyGlobs`, and hands the verdicts back up.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ⚠️ The pairing that makes this slice one commit and not two: the moment a
+// merge-declared script leaves the copy bucket, SOMETHING has to deliver it. A
+// brain that never touched its auto-commit must still receive the engine's fix.
+test("reconcileBrain — an untouched engine script is delivered by the merge, not the copy", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "export const hook = 1;\n";
+  const improved = "export const hook = 1;\nexport const fixed = true;\n";
+  writeFile(brainDir, "scripts/auto-commit.mjs", delivered);
+  writeFile(sourceDir, "scripts/auto-commit.mjs", improved);
+  const extraMerge = ["scripts/auto-commit.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/auto-commit.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/auto-commit.mjs"), "utf8"), improved);
+  assert.deepEqual(report.scriptsRefreshed, ["scripts/auto-commit.mjs"]);
+  // ...and NOT through the copy bucket, or it would be counted twice in the report
+  // and, worse, written before the merge ever got to look at it.
+  assert.deepEqual(report.copied, ["rag/package.json", "rag/src/index.ts"]);
+  // The delivered bytes are the CANDIDATE, so `runReconcileCli` can re-seed the base.
+  assert.equal(report.refreshedFileMap["scripts/auto-commit.mjs"], improved);
+});
+
+// The bug in one test: the owner tuned their commit-message prefix, the engine fixed
+// something else in the same file, and until this slice the tuning was gone.
+test("reconcileBrain — an EDITED engine script keeps the edit AND takes the update", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "export const prefix = \"chore\";\n\nexport function run() {\n  return prefix;\n}\n";
+  const mine = delivered.replace('"chore"', '"brain"');
+  const engines = delivered + "\nexport const fixed = true;\n";
+  writeFile(brainDir, "scripts/auto-push.mjs", mine);
+  writeFile(brainDir, ".engine-base/scripts/auto-push.mjs", delivered);
+  writeFile(sourceDir, "scripts/auto-push.mjs", engines);
+  const extraMerge = ["scripts/auto-push.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/auto-push.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.match(
+    readFileSync(join(brainDir, "scripts/auto-push.mjs"), "utf8"),
+    /"brain"[\s\S]*export const fixed = true;/,
+    "both sides landed in a file the brain will RUN",
+  );
+  assert.deepEqual(report.scriptsMerged, ["scripts/auto-push.mjs"]);
+  assert.deepEqual(report.scriptsPreserved, []);
+  assert.deepEqual(report.scriptConflicts, []);
+});
+
+// The verdicts a script can reach that a skill cannot, and the fields that carry
+// them: `scriptConflicts` is its own list, so a clashing script can never be
+// mistaken for a clashing skill in the report.
+test("reconcileBrain — a clashing engine script gets its OWN conflict list", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "export const mode = \"a\";\n";
+  const mine = "export const mode = \"mine\";\n";
+  const engines = "export const mode = \"engine\";\n";
+  writeFile(brainDir, "scripts/verify-rag.mjs", mine);
+  writeFile(brainDir, ".engine-base/scripts/verify-rag.mjs", delivered);
+  writeFile(sourceDir, "scripts/verify-rag.mjs", engines);
+  const extraMerge = ["scripts/verify-rag.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/verify-rag.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/verify-rag.mjs"), "utf8"), mine, "no markers in a file we RUN");
+  assert.deepEqual(report.scriptConflicts, [
+    { name: "scripts/verify-rag.mjs", newVersionPath: "scripts/verify-rag.mjs.new" },
+  ]);
+  assert.deepEqual(report.conflicts, [], "and the skills' list stays the skills'");
+});
+
+// 🛑 The gate, end to end, and the reason the scripts are not simply a second call to
+// the skills' refresher. `reconcileBrain` must hand `refreshEngineScripts` no gate at
+// all — the module's own default is the gate — so a merge whose bytes do not parse
+// leaves the brain running the script it was already running.
+test("reconcileBrain — a merged script that would not parse never reaches the disk", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // Both sides edit DIFFERENT lines, so git merges them cleanly — and the result is
+  // an unbalanced brace. A textually clean merge that does not parse is exactly the
+  // failure mode the syntax gate exists for.
+  const delivered = "export function run() {\n  return 1;\n}\n\nexport const tail = 0;\n";
+  const mine = "export function run( {\n  return 1;\n}\n\nexport const tail = 0;\n";
+  const engines = delivered.replace("export const tail = 0;", "export const tail = 42;");
+  writeFile(brainDir, "scripts/status-line.mjs", mine);
+  writeFile(brainDir, ".engine-base/scripts/status-line.mjs", delivered);
+  writeFile(sourceDir, "scripts/status-line.mjs", engines);
+  const extraMerge = ["scripts/status-line.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/status-line.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/status-line.mjs"), "utf8"), mine);
+  assert.deepEqual(report.scriptsPreserved, [
+    { name: "scripts/status-line.mjs", reason: "merge-unsafe", newVersionPath: "scripts/status-line.mjs.new" },
+  ]);
+  assert.deepEqual(report.scriptsMerged, []);
+});
+
+// The self-heal path passes the brain as its own source, and nobody asked for an
+// update there. The skills already hold this line; the scripts must hold it too, or
+// a SessionStart tick would start writing sidecars beside files nobody touched.
+test("reconcileBrain — self-heal touches no engine script and reports none", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const mine = "export const hook = \"mine\";\n";
+  writeFile(brainDir, "scripts/auto-commit.mjs", mine);
+  const extraMerge = ["scripts/auto-commit.mjs"];
+  const target = manifest({ extraMerge });
+  const local = { ...manifest({ extraMerge }), provenance: {} };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir: brainDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/auto-commit.mjs"), "utf8"), mine);
+  assert.deepEqual(report.scriptsRefreshed, []);
+  assert.deepEqual(report.scriptsPreserved, []);
 });
 
 test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and reported as such", async (t) => {

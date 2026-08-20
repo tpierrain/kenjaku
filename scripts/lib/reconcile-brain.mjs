@@ -26,6 +26,7 @@ import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
 import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
 import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
+import { refreshEngineScripts } from "./engine-script-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
@@ -88,7 +89,12 @@ export async function reconcileBrain({
   // the STAGED skills (Increment 2.5), and `engine-skills/**` is a `replace` glob — one
   // line later it holds the NEW content and every staged skill would read as untouched.
   const stagedProvenance = readStagedProvenance(brainDir);
-  const copyGlobs = [...plan.overwrite, ...plan.replaceScripts];
+  // ⚠️ `plan.mergeScripts` is NOT here since S2b-3. Those four (auto-commit, auto-push,
+  // status-line, verify-rag) are declared `merge` and were copied anyway — an owner who
+  // tuned their commit hook lost the tuning at every update, silently. They now go
+  // through step 2.bis-scripts below, which is why this slice is ONE commit: the moment
+  // they leave this bucket, something else has to deliver them.
+  const copyGlobs = [...plan.overwrite];
   const copied = [];
   for (const rel of selectEngineFilesToCopy({ sourceFiles, copyGlobs })) {
     if (copyInto(sourceDir, brainDir, rel)) copied.push(rel);
@@ -142,6 +148,32 @@ export async function reconcileBrain({
     // change a byte (mutation lesson — a guard that cannot matter is noise). The `?.`,
     // on the other hand, is load-bearing: a caller may legitimately have no `local`.
     provenance: { ...local?.provenance, ...stagedProvenance },
+  });
+
+  // 2.bis-scripts THE ENGINE SCRIPTS, same journey (plan S2b-3). The mirror image of the
+  //    skills' freeze, and the half that could DESTROY rather than merely withhold: the
+  //    four merge-declared top-level scripts were applied `replace`, so an owner's edit
+  //    to their own auto-commit hook was overwritten at every update with no trace.
+  //    Same provenance base, same three-way merge, same sidecars — the difference is the
+  //    SYNTAX GATE, which `engine-script-refresh` wires itself (these files are EXECUTED,
+  //    and a clean merge that does not parse would leave a brain that stops committing).
+  //    Guarded on `sourceDir !== brainDir` by the shared carrier, like the skills.
+  const {
+    scriptsRefreshed,
+    scriptsPreserved,
+    scriptsMerged,
+    scriptConflicts,
+    refreshedFileMap: refreshedScriptMap,
+  } = refreshEngineScripts({
+    brainDir,
+    sourceDir,
+    sourceFiles,
+    manifest: target,
+    // No staged family here: an engine script ships AT its runtime path, always. So the
+    // manifest's recorded sha256 is the only base there is. No `?? {}` either: absent,
+    // this reads `undefined` and the callee's own default takes over — a fallback that
+    // cannot change a byte is noise (the mutation lesson the skills' call already carries).
+    provenance: local?.provenance,
   });
 
   // 2.ter Reconcile .mcp.json against the engine's MCP servers (ADR 0025): register a
@@ -305,7 +337,17 @@ export async function reconcileBrain({
     // `.new` file appearing beside a skill with no explanation.
     skillsMerged,
     conflicts,
-    refreshedFileMap,
+    // S2b-3: the same four verdicts for the engine SCRIPTS, in lists of their own. A
+    // script is a path the owner opens, not a skill they know by name, so the report
+    // says "file" about these — and their conflicts stay separable from a skill's.
+    scriptsRefreshed,
+    scriptsPreserved,
+    scriptsMerged,
+    scriptConflicts,
+    // ONE delivered map, because it feeds ONE thing: the provenance re-seed in
+    // `runReconcileCli`. A script left out of it would be called "user-modified" at the
+    // very next update and frozen again — the feature working exactly once per brain.
+    refreshedFileMap: { ...refreshedFileMap, ...refreshedScriptMap },
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,

@@ -109,7 +109,6 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     skillsPreserved: [
       { name: "import", reason: "customized", newVersionPath: ".claude/skills/import/SKILL.md.new" },
       { name: "sync", reason: "merge-failed", newVersionPath: ".claude/skills/sync/SKILL.md.new" },
-      { name: "scripts/auto-commit.mjs", reason: "merge-unsafe", newVersionPath: "scripts/auto-commit.mjs.new" },
       { name: "improve", reason: "no-provenance" },
     ],
     conflicts: [{ name: "prepare-1-1", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
@@ -121,21 +120,126 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     '   • your "coach" and "switch" skills kept your edits AND received this update',
     '   • your customized "import" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/import/SKILL.md.new',
     '   • your customized "sync" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as .claude/skills/sync/SKILL.md.new',
-    '   • your customized "scripts/auto-commit.mjs" skill was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as scripts/auto-commit.mjs.new',
     '   • ⚠️ "prepare-1-1": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/prepare-1-1/SKILL.md.new',
   ]);
 });
 
-// A verdict the report drops is a verdict nobody can act on. `merge-unsafe` cannot
-// happen for a skill (skills pass no gate — S2b-2), but shipping the gate without a
-// sentence for it would leave the engine silently preserving an owner's script with
-// no explanation the day S2b-3 wires the four of them.
-//
-// ⚠️ The sentence still says "skill", and that is a KNOWN lie waiting for S2b-3 —
-// which is where the scripts get a sentence of their own. Pinned here so the lie is
-// a failing expectation the moment it ships, rather than a surprise in a report.
-test("formatReport — a merge the gate refused says so, and says it apart", () => {
-  const asideOf = (reason) =>
+// S2b-3 — the same three promises, for the family that is NOT a skill. An engine
+// script is a FILE the owner opens by path, so "your scripts/auto-commit.mjs file"
+// is what the sentence must say; calling it a skill would send them looking under
+// .claude/skills for something that is not there. The conflict line names no noun
+// at all, so it is the one sentence the two families share verbatim.
+test("formatReport — an engine SCRIPT gets the same three sentences, saying file", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    vaultNoteCount: 0,
+    scriptsMerged: ["scripts/auto-commit.mjs", "scripts/auto-push.mjs"],
+    scriptsPreserved: [
+      { name: "scripts/status-line.mjs", reason: "customized", newVersionPath: "scripts/status-line.mjs.new" },
+      { name: "scripts/verify-rag.mjs", reason: "merge-unsafe", newVersionPath: "scripts/verify-rag.mjs.new" },
+    ],
+    scriptConflicts: [{ name: "scripts/auto-commit.mjs", newVersionPath: "scripts/auto-commit.mjs.new" }],
+  });
+  const named = out.split("\n").filter((line) => line.startsWith("   • ") && line.includes('"'));
+  assert.deepEqual(named, [
+    '   • your "scripts/auto-commit.mjs" and "scripts/auto-push.mjs" files kept your edits AND received this update',
+    '   • your customized "scripts/status-line.mjs" file was kept exactly as you wrote it — the newer engine version sits next to it as scripts/status-line.mjs.new',
+    '   • your customized "scripts/verify-rag.mjs" file was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as scripts/verify-rag.mjs.new',
+    '   • ⚠️ "scripts/auto-commit.mjs": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at scripts/auto-commit.mjs.new',
+  ]);
+});
+
+// One merged script, one noun. The mirror of the skills' singular test: two families
+// share the helper, so a plural leaking back in would be invisible on one of them.
+test("formatReport — a single merged script is announced in the singular", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    scriptsMerged: ["scripts/auto-commit.mjs"],
+  });
+  assert.match(out, /• your "scripts\/auto-commit\.mjs" file kept your edits AND received this update\n/);
+});
+
+// ⚠️ ORDER, and it is the point of the block: the conflict lines are the only ones
+// that cost a human anything, so they stay LAST — after both families' merged and
+// preserved sentences, never interleaved between them. Appending each family's
+// conflicts next to its own sentences would bury a skill clash mid-report.
+test("formatReport — every conflict lands last, whichever family it came from", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    conflicts: [{ name: "coach", newVersionPath: ".claude/skills/coach/SKILL.md.new" }],
+    scriptsMerged: ["scripts/auto-push.mjs"],
+    scriptConflicts: [{ name: "scripts/verify-rag.mjs", newVersionPath: "scripts/verify-rag.mjs.new" }],
+  });
+  const named = out.split("\n").filter((line) => line.startsWith("   • ") && line.includes('"'));
+  assert.deepEqual(named, [
+    '   • your "scripts/auto-push.mjs" file kept your edits AND received this update',
+    '   • ⚠️ "coach": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/coach/SKILL.md.new',
+    '   • ⚠️ "scripts/verify-rag.mjs": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at scripts/verify-rag.mjs.new',
+  ]);
+});
+
+// ⚠️ The restart banner asked its OWN question — `copied || regenerated ||
+// skillsRefreshed` — a near-copy of `needsRestart` that had already drifted from it
+// (a merged skill armed the persistent nudge but printed no banner), and that S2b-3
+// would have drifted further the moment the four scripts left `copied`. One question,
+// one answer: the banner now asks `needsRestart`, and every shape below is a change
+// this conversation is still running the OLD version of.
+test("formatReport — anything that changed on disk warns THIS conversation is stale", () => {
+  const quiet = { ref: "v5.0.0", engineVersion: {}, copied: [], regenerated: false, reindexed: false };
+  const warns = (extra) => /ACTION NEEDED — your engine was updated on disk/.test(formatReport({ ...quiet, ...extra }));
+
+  assert.equal(warns({ copied: ["rag/src/index.ts"] }), true, "a swapped engine file");
+  assert.equal(warns({ regenerated: true }), true, "regenerated launchers");
+  assert.equal(warns({ skillsRefreshed: ["coach"] }), true, "a refreshed skill");
+  assert.equal(warns({ skillsMerged: ["coach"] }), true, "a merged skill — the drift that was already there");
+  assert.equal(warns({ scriptsRefreshed: ["scripts/auto-commit.mjs"] }), true, "a fast-forwarded engine script");
+  assert.equal(warns({ scriptsMerged: ["scripts/auto-commit.mjs"] }), true, "a merged engine script");
+  // The don't-cry-wolf boundary: an update that changed NOTHING on disk stays silent,
+  // and a preserved file changed nothing — the owner's bytes are exactly where they were.
+  assert.equal(warns({}), false, "a genuine no-op");
+  assert.equal(
+    warns({ scriptsPreserved: [{ name: "scripts/auto-commit.mjs", reason: "customized", newVersionPath: "x" }] }),
+    false,
+    "a preserve is not a change to the running engine",
+  );
+});
+
+// ⚠️ THE REGRESSION S2b-3 could have shipped silently. The four engine scripts used to
+// arrive in `copied`; they now arrive as a merge-governed refresh, so a brain nobody
+// customized would have watched its swapped-file count DROP by four while exactly as
+// many files changed. The count is the owner's only measure of what this update did.
+test("formatReport — a fast-forwarded script counts as a swapped engine file", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: ["rag/src/index.ts", "scripts/lib/engine-merge.mjs"],
+    regenerated: false,
+    reindexed: false,
+    scriptsRefreshed: ["scripts/auto-commit.mjs", "scripts/auto-push.mjs"],
+  });
+  assert.match(out, /• 4 engine file\(s\) swapped\n/);
+});
+
+// A verdict the report drops is a verdict nobody can act on, and each aside is a
+// different piece of news: `merge-failed` = the tool could not answer, `merge-unsafe`
+// = it answered and the bytes would not have parsed, `customized` = there was nothing
+// to merge from. Asserted per FAMILY, because the reachable set differs: only the
+// engine scripts pass a syntax gate (S2b-2), so `merge-unsafe` can only ever be told
+// about a file — asserting it on a skill would pin a state nothing can produce.
+test("formatReport — every preserve reason says WHY, in the words of its own family", () => {
+  const asideOf = (family) => (reason) =>
     formatReport({
       ref: "v9.9.9",
       engineVersion: {},
@@ -143,7 +247,7 @@ test("formatReport — a merge the gate refused says so, and says it apart", () 
       regenerated: false,
       reindexed: false,
       vaultNoteCount: 0,
-      skillsPreserved: [{ name: "x", reason, newVersionPath: "x.new" }],
+      [family]: [{ name: "x", reason, newVersionPath: "x.new" }],
     })
       // Same predicate as the sibling test above: the bulleted lines that NAME
       // something. A bare `startsWith("   • ")` also matches the standard report
@@ -152,18 +256,26 @@ test("formatReport — a merge the gate refused says so, and says it apart", () 
       .split("\n")
       .filter((line) => line.startsWith("   • ") && line.includes('"'));
 
-  // The three asides are three different pieces of news, and the fourth reason is
-  // silence by design. Asserted together so none can quietly collapse into another.
-  assert.deepEqual(asideOf("customized"), [
+  const skillAside = asideOf("skillsPreserved");
+  assert.deepEqual(skillAside("customized"), [
     '   • your customized "x" skill was kept exactly as you wrote it — the newer engine version sits next to it as x.new',
   ]);
-  assert.deepEqual(asideOf("merge-failed"), [
+  assert.deepEqual(skillAside("merge-failed"), [
     '   • your customized "x" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as x.new',
   ]);
-  assert.deepEqual(asideOf("merge-unsafe"), [
-    '   • your customized "x" skill was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as x.new',
+  assert.deepEqual(skillAside("no-provenance"), [], "no proof, no claim, no line");
+
+  const scriptAside = asideOf("scriptsPreserved");
+  assert.deepEqual(scriptAside("customized"), [
+    '   • your customized "x" file was kept exactly as you wrote it — the newer engine version sits next to it as x.new',
   ]);
-  assert.deepEqual(asideOf("no-provenance"), [], "no proof, no claim, no line");
+  assert.deepEqual(scriptAside("merge-failed"), [
+    '   • your customized "x" file was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as x.new',
+  ]);
+  assert.deepEqual(scriptAside("merge-unsafe"), [
+    '   • your customized "x" file was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as x.new',
+  ]);
+  assert.deepEqual(scriptAside("no-provenance"), [], "and silence is silence in both families");
 });
 
 // One merged skill must not be announced in the plural. The report is read by a
@@ -781,6 +893,16 @@ test("needsRestart — a merged skill arms the nudge, like a refreshed one", () 
   assert.equal(needsRestart({ copied: [], regenerated: false, skillsRefreshed: [], skillsMerged: ["coach"] }), true);
 });
 
+// S2b-3: the four engine scripts left `copied`, and `copied` was their only trigger.
+// Both new shapes must arm it on their own, or the release that unfreezes the scripts
+// is the release that stops telling an owner their auto-commit hook has changed under
+// the running session.
+test("needsRestart — a refreshed or a merged engine SCRIPT arms the nudge too", () => {
+  const base = { copied: [], regenerated: false, skillsRefreshed: [], skillsMerged: [] };
+  assert.equal(needsRestart({ ...base, scriptsRefreshed: ["scripts/auto-commit.mjs"] }), true, "fast-forwarded");
+  assert.equal(needsRestart({ ...base, scriptsMerged: ["scripts/auto-commit.mjs"] }), true, "merged");
+});
+
 // The don't-cry-wolf boundary, same as the report banner's: an update that changed
 // nothing on disk must leave the nudge disarmed, or the statusLine nags forever.
 test("needsRestart — a genuine no-op leaves the nudge disarmed", () => {
@@ -1033,15 +1155,21 @@ function engineFiles(tag) {
       "scripts/run-node.sh": `#!/usr/bin/env bash\n# run-node ${tag}\n`,
       "scripts/run-node.cmd": `@rem run-node ${tag}\r\n`,
     },
-    // Engine-owned scripts live under the manifest's `merge` regime but are
-    // REPLACED in Phase 1 (Option 1) — incl. update-engine.mjs itself (self-update).
+    // The four engine-owned scripts of the `merge` regime. They were REPLACED until
+    // S2b-3; they now travel through the three-way merge, so an owner's edit survives.
+    // A brain that never edited them still receives them — as a fast-forward, which is
+    // what the gate below asserts.
     engineScripts: {
       "scripts/auto-commit.mjs": `// auto-commit ${tag}\n`,
       "scripts/auto-push.mjs": `// auto-push ${tag}\n`,
       "scripts/status-line.mjs": `// status-line ${tag}\n`,
       "scripts/verify-rag.mjs": `// verify-rag ${tag}\n`,
-      "scripts/update-engine.mjs": `// update-engine ${tag} (self-updating)\n`,
     },
+    // `update-engine.mjs` is `replace` — the self-update path is a copy, on every one
+    // of the 48 manifests the product has shipped. This fixture used to file it under
+    // `merge`, and that single wrong line was the whole evidence behind a claim that
+    // had been copied into a plan, a comment and a test title.
+    selfUpdater: { "scripts/update-engine.mjs": `// update-engine ${tag} (self-updating)\n` },
   };
 }
 
@@ -1066,7 +1194,7 @@ function manifest({
       engineVersion: { rag: ragVersion, constitutionTemplate: "1.0.0", scripts: "1.0.0" },
       indexSchemaVersion,
       regimes: {
-        replace: ["rag/src/**", "rag/package.json"],
+        replace: ["rag/src/**", "rag/package.json", "scripts/update-engine.mjs"],
         regenerate: ["rag/launch.sh", "rag/launch.cmd", "scripts/run-node.sh", "scripts/run-node.cmd"],
         merge: [
           "CLAUDE.md",
@@ -1076,7 +1204,6 @@ function manifest({
           "scripts/auto-push.mjs",
           "scripts/status-line.mjs",
           "scripts/verify-rag.mjs",
-          "scripts/update-engine.mjs",
           ...extraMerge,
         ],
       },
@@ -1090,7 +1217,7 @@ function manifest({
 }
 
 function flat(files) {
-  return { ...files.replace, ...files.regenerate, ...files.engineScripts };
+  return { ...files.replace, ...files.regenerate, ...files.engineScripts, ...files.selfUpdater };
 }
 
 // A brain pinned at vA: engine files (vA) + the user's sacred files + manifest.
@@ -1105,12 +1232,19 @@ function buildBrain() {
       ragVersion: "1.0.0",
       indexSchemaVersion: 1,
       ref: "v1.0.0",
-      // The base the engine last delivered: a user merge file (CLAUDE.md) + a vA
+      // The base the engine last delivered: a user merge file (CLAUDE.md) + EVERY vA
       // engine script. Step 5 must PRESERVE the former (never re-delivered) and
       // REFRESH the latter (re-delivered as vB).
+      // ⚠️ All four, not just one: a real brain is fingerprinted over the WHOLE `merge`
+      // regime at install and re-seeded at every update, so a script with no recorded
+      // base is a state the fleet does not hold. Recording one and leaving three blank
+      // was harmless while the scripts were copied blind; since S2b-3 it would have the
+      // fixture assert a fast-forward the merge is right to refuse (verdict row 3).
       provenance: {
         "CLAUDE.md": fp(SACRED["CLAUDE.md"]),
-        "scripts/auto-commit.mjs": fp(engineFiles("vA").engineScripts["scripts/auto-commit.mjs"]),
+        ...Object.fromEntries(
+          Object.entries(engineFiles("vA").engineScripts).map(([rel, content]) => [rel, fp(content)]),
+        ),
       },
     }),
   );
@@ -1228,10 +1362,16 @@ for (const platform of ["posix", "win32"]) {
       "the latest tag must be resolved on the brain's recorded source repo",
     );
 
-    // 1. Every COPIED engine file now carries the vB bytes — the `replace` bucket and
-    //    the engine-owned scripts (incl. update-engine.mjs self-update). The launchers
-    //    are not copied: they are regenerated (asserted just below).
-    const expected = { ...engineFiles("vB").replace, ...engineFiles("vB").engineScripts };
+    // 1. Every engine file now carries the vB bytes: the `replace` bucket and the
+    //    self-updater by COPY, the four merge-governed scripts by FAST-FORWARD (S2b-3 —
+    //    this brain never edited them, so both routes end at the same bytes, which is
+    //    exactly the promise the copy used to keep by force). The launchers are neither:
+    //    they are regenerated (asserted just below).
+    const expected = {
+      ...engineFiles("vB").replace,
+      ...engineFiles("vB").selfUpdater,
+      ...engineFiles("vB").engineScripts,
+    };
     for (const [rel, content] of Object.entries(expected)) {
       assert.equal(
         readFileSync(join(brainDir, rel), "utf8"),
@@ -1282,6 +1422,40 @@ for (const platform of ["posix", "win32"]) {
     );
   });
 }
+
+// ⚠️ S2b-3, end to end and through the LAST relay that can drop it. `reconcileBrain`
+// now returns four new lists, and `updateEngine` destructures what it forwards: a field
+// it does not name is a verdict the owner never hears. The whole point of unfreezing the
+// scripts is that the owner is TOLD — a preserved auto-commit with no sentence beside it
+// is a `.new` file appearing next to a hook with no explanation.
+test("gate — an EDITED engine script survives the update, and the report says so", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 }); // the schema is not this test's subject
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // The owner tuned their own commit hook. Until this slice, the update overwrote it.
+  const mine = "// auto-commit vA, tuned by me\n";
+  writeFile(brainDir, "scripts/auto-commit.mjs", mine);
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/auto-commit.mjs"), "utf8"), mine, "the owner's hook stands");
+  assert.deepEqual(report.scriptsPreserved, [
+    { name: "scripts/auto-commit.mjs", reason: "customized", newVersionPath: "scripts/auto-commit.mjs.new" },
+  ]);
+  // ...and the three they never touched still fast-forwarded, in the same run.
+  assert.deepEqual(report.scriptsRefreshed, [
+    "scripts/auto-push.mjs",
+    "scripts/status-line.mjs",
+    "scripts/verify-rag.mjs",
+  ]);
+  assert.deepEqual(report.scriptsMerged, []);
+  assert.deepEqual(report.scriptConflicts, []);
+  // The sentence the owner actually reads, from the report the CLI prints.
+  assert.match(formatReport(report), /your customized "scripts\/auto-commit\.mjs" file was kept/);
+});
 
 // ── F1 — a repository RENAME reaches an already-installed brain ──────────────
 //    The brain writes `source.repo` once, at install, and never revises it: every

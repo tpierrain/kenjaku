@@ -71,7 +71,13 @@ export function needsRestart(report) {
     report.skillsRefreshed?.length > 0 ||
     // A MERGED skill changed on disk exactly as a refreshed one did: the file the next
     // session loads is not the file this one loaded (plan S2a-3b).
-    report.skillsMerged?.length > 0
+    report.skillsMerged?.length > 0 ||
+    // S2b-3: the four engine scripts used to arrive in `copied`, which armed this on
+    // their behalf. They now arrive through the merge, so both of their shapes have to
+    // say it themselves — an auto-commit hook that changed under the running session
+    // is exactly the change a restart nudge exists for.
+    report.scriptsRefreshed?.length > 0 ||
+    report.scriptsMerged?.length > 0
   );
 }
 
@@ -83,10 +89,77 @@ export function bareHookName(command) {
   return command.replace(/^scripts\//, "").replace(/\.mjs$/, "");
 }
 
+// ── The two families of engine-owned file, and their three shared promises ────
+// S2 gave the SKILLS these sentences; S2b-3 gives them to the engine SCRIPTS. The
+// promise is one promise (what you edited is still yours, and the update landed
+// anyway), so the wording is one wording — parameterised by the NOUN, because a
+// skill is a subtree the owner knows by name and a script is a path they open.
+// Calling a script a "skill" would send them hunting under .claude/skills for
+// something that is not there.
+//
+// Three asides, three different pieces of news, and every other reason is silence
+// by design (`no-provenance` says we can PROVE nothing, so it claims nothing).
+// `merge-failed` = the tool could not answer; `merge-unsafe` = it answered, and the
+// merged bytes would not have parsed (S2b-2's gate, on files the brain EXECUTES —
+// so only a script can ever be told this one). Folding the last two together would
+// tell an owner their file is broken when it is the tool that is, and send them
+// hunting through a file that is fine.
+const PRESERVED_ASIDE = {
+  customized: "",
+  "merge-failed": " (the merge could not run here)",
+  "merge-unsafe": " (merging the two would not have produced a working file)",
+};
+
+// ⚠️ The entries are keyed `name`, not `skill`: the same carrier serves the engine
+// scripts (S2b) and the constitution (S2c), and in those a field called `skill` would
+// simply be false. What stays family-specific is the NOUN, not the data.
+//
+// The path is read UNCONDITIONALLY: the refreshers emit `customized` only ever WITH a
+// `newVersionPath` (the sidecar is written on that same branch), so a "no path"
+// fallback here would be a state the producer cannot emit — a dead branch to maintain
+// and mutation-test forever, not a safety net.
+function preservedAndMergedLines({ merged, preserved, singular, plural }) {
+  const lines = [];
+  // The headline, and the one an owner has been owed since the first frozen file:
+  // they edited it, the engine moved it, and BOTH landed. Named one by one, and in
+  // the singular when there is one — "your skills" for a single one is the tell of a
+  // template nobody re-read.
+  if (merged.length > 0) {
+    const named = merged.map((name) => `"${name}"`).join(" and ");
+    lines.push(
+      `   • your ${named} ${merged.length > 1 ? plural : singular} kept your edits AND received this update`,
+    );
+  }
+  // ...and the mirror promise: what the owner edited and the engine could not merge is
+  // left ALONE, with the path of the new version dropped beside it so the choice to
+  // adopt the new bits stays theirs.
+  for (const { name, reason, newVersionPath } of preserved) {
+    const aside = PRESERVED_ASIDE[reason];
+    if (aside === undefined) continue;
+    lines.push(
+      `   • your customized "${name}" ${singular} was kept exactly as you wrote it${aside}` +
+        ` — the newer engine version sits next to it as ${newVersionPath}`,
+    );
+  }
+  return lines;
+}
+
+// The one case that costs a human anything, so these are the loudest lines in the
+// report and — whichever family they came from — the LAST of the block. Everything
+// mergeable is already merged in that sidecar: what is left is the region the two
+// sides both rewrote. This sentence names no noun, so both families share it whole.
+function conflictLines(conflicts) {
+  return conflicts.map(
+    ({ name, newVersionPath }) =>
+      `   • ⚠️ "${name}": your version and this update changed the same lines.` +
+      ` Yours is untouched; a merged copy marking both is at ${newVersionPath}`,
+  );
+}
+
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -107,7 +180,12 @@ export function formatReport(report) {
     // it describes is already done and recorded — printing "undefined" (or throwing)
     // would be the report lying about a change that DID happen.
     `✅ Engine updated to ${ref} (rag ${engineVersion?.rag ?? "unknown"}).`,
-    `   • ${copied.length} engine file(s) swapped` + (regenerated ? " + launchers regenerated" : ""),
+    // ⚠️ `+ scriptsRefreshed`: the four engine scripts used to arrive in `copied`, and
+    // since S2b-3 a fast-forwarded one arrives through the merge instead. Counting only
+    // `copied` would show a brain nobody customized four fewer swapped files than the
+    // release before, while exactly as many files changed — and this count is the
+    // owner's only measure of what the update did.
+    `   • ${copied.length + scriptsRefreshed.length} engine file(s) swapped` + (regenerated ? " + launchers regenerated" : ""),
     reindexLine,
   ];
   // F2: the number the USER cares about — how many notes the brain holds. When a
@@ -133,60 +211,26 @@ export function formatReport(report) {
   if (skillsRefreshed.length > 0) {
     lines.push(`   • engine skill(s) brought up to date: ${skillsRefreshed.join(", ")}`);
   }
-  // ...and the mirror promise: a skill the owner edited is left ALONE. Report it per
-  // skill, with the path of the new version dropped beside it, so the choice to adopt
-  // the new bits stays theirs. `no-provenance` stays silent on purpose: it is a machine
-  // detail (an older brain that was never fingerprinted), not a decision the user made
-  // nor one they can act on.
-  // The path is read UNCONDITIONALLY: `refreshUntouchedSkills` emits `customized` only
-  // ever WITH a `newVersionPath` (engine-skill-refresh.mjs — the sidecar is written on
-  // that same branch), so a "no path" fallback here would be a state the producer cannot
-  // emit — a dead branch to maintain and mutation-test forever, not a safety net.
-  // S2's headline, and the one an owner has been owed since the first frozen skill:
-  // they edited it, the engine moved it, and BOTH landed. Named per skill, and in the
-  // singular when there is one — "your skills" for a single one is the tell of a
-  // template nobody re-read.
-  if (skillsMerged.length > 0) {
-    const named = skillsMerged.map((skill) => `"${skill}"`).join(" and ");
-    const plural = skillsMerged.length > 1 ? "skills" : "skill";
-    lines.push(`   • your ${named} ${plural} kept your edits AND received this update`);
-  }
-  // ...and the mirror promise when no merge was possible: the owner's file is left
-  // ALONE. `merge-failed` is a customization too — the ancestor was there but the tool
-  // could not run — and it is said out loud rather than folded into the plain case,
-  // because "your edits could not be merged THIS time" is a different piece of news
-  // from "there was nothing to merge from".
-  // Three asides, three different pieces of news, and every other reason is silence
-  // by design (`no-provenance` says we can PROVE nothing, so it claims nothing).
-  // `merge-failed` = the tool could not answer; `merge-unsafe` = it answered, and the
-  // merged bytes would not have parsed (S2b-2's gate, on files the brain EXECUTES).
-  // Folding the last two together would tell an owner their file is broken when it is
-  // the tool that is, and send them hunting through a file that is fine.
-  const PRESERVED_ASIDE = {
-    customized: "",
-    "merge-failed": " (the merge could not run here)",
-    "merge-unsafe": " (merging the two would not have produced a working file)",
-  };
-  // ⚠️ The entries are keyed `name`, not `skill`: the same carrier serves the engine
-  // scripts (S2b) and the constitution (S2c), and in those a field called `skill` would
-  // simply be false. What stays skill-specific is this SENTENCE, not the data.
-  for (const { name, reason, newVersionPath } of skillsPreserved) {
-    const aside = PRESERVED_ASIDE[reason];
-    if (aside === undefined) continue;
-    lines.push(
-      `   • your customized "${name}" skill was kept exactly as you wrote it${aside}` +
-        ` — the newer engine version sits next to it as ${newVersionPath}`,
-    );
-  }
-  // The one case that costs a human anything, so it is the loudest line in the report
-  // and the last of the skill block. Everything mergeable is already merged in that
-  // sidecar: what is left is the region the two sides both rewrote.
-  for (const { name, newVersionPath } of conflicts) {
-    lines.push(
-      `   • ⚠️ "${name}": your version and this update changed the same lines.` +
-        ` Yours is untouched; a merged copy marking both is at ${newVersionPath}`,
-    );
-  }
+  // The two families' merged + preserved sentences (see the helpers above), then
+  // EVERY conflict, last. A fast-forwarded script needs no line of its own: it is
+  // already counted as a swapped engine file, which is what it has always been.
+  lines.push(
+    ...preservedAndMergedLines({
+      merged: skillsMerged,
+      preserved: skillsPreserved,
+      singular: "skill",
+      plural: "skills",
+    }),
+    ...preservedAndMergedLines({
+      merged: scriptsMerged,
+      preserved: scriptsPreserved,
+      singular: "file",
+      plural: "files",
+    }),
+    // Both families' clashes together, at the end of the block: appending each next to
+    // its own family's sentences would bury a skill conflict mid-report.
+    ...conflictLines([...conflicts, ...scriptConflicts]),
+  );
   // The engine files this update rewrote are VERSIONED, so we committed them (step 9) —
   // otherwise they sit dirty forever and the next SessionStart `git pull --rebase`
   // refuses to run. The user will see that commit in their history, so we name it; and
@@ -255,7 +299,13 @@ export function formatReport(report) {
       `   brand-new chat for this. Until you restart, your brain CAN'T use ${them}.`,
       `   • If still missing after a restart, run /update-engine once more.`,
     );
-  } else if (copied.length > 0 || regenerated || skillsRefreshed.length > 0) {
+    // ⚠️ `needsRestart(report)`, not a second hand-written list. This branch used to ask
+    // `copied || regenerated || skillsRefreshed` — a near-copy that had already drifted
+    // (a MERGED skill armed the persistent nudge and printed no banner), and that S2b-3
+    // would have drifted further the moment the four scripts left `copied`. Two questions
+    // with the same meaning is one of them going stale; the `if` above already claimed
+    // the new-capability case, so what is left here is exactly "changed, nothing new".
+  } else if (needsRestart(report)) {
     // F-B7d (ship-blocker A1): even a steady-state swap with NO brand-new capability still
     // needs a restart — the MCP server, hooks and constitution THIS conversation loaded are
     // the OLD ones until Claude is reopened. Stay silent and a "✅ done" reads as "already
@@ -319,6 +369,13 @@ export async function updateEngine({
     skillsPreserved,
     skillsMerged,
     conflicts,
+    // S2b-3: the engine scripts' own four lists. A field this destructure does not name
+    // is a verdict the owner never hears — and a preserved auto-commit with no sentence
+    // beside it is a `.new` file appearing next to a hook with no explanation.
+    scriptsRefreshed,
+    scriptsPreserved,
+    scriptsMerged,
+    scriptConflicts,
     refreshedFileMap,
     mcpServersAdded,
     hooksAdded,
@@ -435,6 +492,10 @@ export async function updateEngine({
     skillsPreserved,
     skillsMerged,
     conflicts,
+    scriptsRefreshed,
+    scriptsPreserved,
+    scriptsMerged,
+    scriptConflicts,
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,

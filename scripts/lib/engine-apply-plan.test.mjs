@@ -9,11 +9,12 @@ import { computeApplyPlan, planTouches } from "./engine-apply-plan.mjs";
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-apply-plan — THE SAFETY CORE (plan Step 3). A pure function turning the
 // fetched target manifest's regimes into a WRITE-ALLOWLIST (ADR 0003/0012): the
-// engine only ever writes files it declares it owns — `replace` (overwrite),
-// `regenerate` (launchers) and the engine-owned `merge` *scripts* (scripts/*.mjs,
-// incl. update-engine.mjs → self-update). Everything else — CLAUDE.md, settings,
-// any .claude/skills/**, the vault, .env — is untouchable BY CONSTRUCTION, and a
-// sacred scrub defends even against a buggy/hostile manifest. No filesystem.
+// engine only ever writes files it declares it owns — `replace` (overwrite,
+// including `update-engine.mjs` → self-update), `regenerate` (launchers) and the
+// engine-owned `merge` *scripts*, which since S2b-3 are written through a three-way
+// merge rather than copied. Everything else — CLAUDE.md, settings, any
+// .claude/skills/**, the vault, .env — is untouchable BY CONSTRUCTION, and a sacred
+// scrub defends even against a buggy/hostile manifest. No filesystem.
 // ═══════════════════════════════════════════════════════════════════════════
 
 test("computeApplyPlan — the target's `replace` regime becomes the `overwrite` bucket", () => {
@@ -28,28 +29,43 @@ test("computeApplyPlan — the target's `regenerate` regime becomes the `regener
   ]);
 });
 
-test("computeApplyPlan — `replaceScripts` = the engine-owned merge scripts (scripts/*.mjs), incl. self-update; user merge files excluded", () => {
+test("computeApplyPlan — `mergeScripts` = the engine-owned merge scripts (scripts/*.mjs); user merge files excluded", () => {
   const target = {
     regimes: {
       merge: [
         "CLAUDE.md",                      // user-sovereign → excluded
         ".claude/settings.json",          // user-sovereign → excluded
-        ".claude/skills/coach/**",        // a shipped skill → out of v1 scope (excluded)
+        ".claude/skills/coach/**",        // a shipped skill → the additive install path
         "scripts/auto-commit.mjs",
         "scripts/auto-push.mjs",
         "scripts/status-line.mjs",
         "scripts/verify-rag.mjs",
-        "scripts/update-engine.mjs",      // self-update → MUST be present
       ],
     },
   };
-  assert.deepEqual(computeApplyPlan(target).replaceScripts, [
+  assert.deepEqual(computeApplyPlan(target).mergeScripts, [
     "scripts/auto-commit.mjs",
     "scripts/auto-push.mjs",
     "scripts/status-line.mjs",
     "scripts/verify-rag.mjs",
-    "scripts/update-engine.mjs",
   ]);
+});
+
+// 🛑 The self-update path is NOT a merge subject, and it never was: this file used to
+// warn that `update-engine.mjs` rides in this bucket, but a sweep of all 48 revisions
+// of the shipped manifest found it declared `replace` every single time. It reaches a
+// brain by COPY, through `overwrite`, and must keep doing so — a brain that cannot
+// replace its own updater cannot be upgraded at all.
+test("computeApplyPlan — the self-updater arrives by copy, not by merge, wherever the manifest puts it", () => {
+  const declaredReplace = computeApplyPlan({ regimes: { replace: ["scripts/update-engine.mjs"] } });
+  assert.deepEqual(declaredReplace.overwrite, ["scripts/update-engine.mjs"], "the shipped shape: a copy bucket");
+  assert.deepEqual(declaredReplace.mergeScripts, [], "and never the merge-governed one");
+  // The fixture that had been mistaken for the shipped manifest for months. Kept as a
+  // test rather than deleted: it pins what the OTHER branch does, so the day someone
+  // declares the updater `merge` they find out here instead of on a brain.
+  const declaredMerge = computeApplyPlan({ regimes: { merge: ["scripts/update-engine.mjs"] } });
+  assert.deepEqual(declaredMerge.mergeScripts, ["scripts/update-engine.mjs"]);
+  assert.deepEqual(declaredMerge.overwrite, []);
 });
 
 test("computeApplyPlan — manifest-declared engine skills (.claude/skills/<name>/**) become the `installSkills` bucket", () => {
@@ -59,7 +75,7 @@ test("computeApplyPlan — manifest-declared engine skills (.claude/skills/<name
         "CLAUDE.md",                          // user-sovereign → not a skill
         ".claude/settings.json",              // user-sovereign → not a skill
         ".claude/skills/coach/**",     // an engine-owned skill → installSkills
-        "scripts/auto-commit.mjs",            // an engine script → replaceScripts, not a skill
+        "scripts/auto-commit.mjs",            // an engine script → mergeScripts, not a skill
       ],
     },
   };
@@ -84,21 +100,28 @@ test("computeApplyPlan — SAFETY: a skill can ONLY be delivered additively; mis
 function fullTarget() {
   return {
     regimes: {
-      replace: ["rag/src/**", "rag/package.json", "rag/package-lock.json", "rag/tsconfig.json"],
+      // `scripts/update-engine.mjs` sits HERE, exactly as the shipped manifest declares
+      // it: the self-updater arrives by copy, never by merge. `planTouches` must stay
+      // true for it (the SELF-CARRY guard below), and it reaches that truth through
+      // `overwrite`.
+      replace: [
+        "rag/src/**", "rag/package.json", "rag/package-lock.json", "rag/tsconfig.json",
+        "scripts/update-engine.mjs",
+      ],
       regenerate: ["rag/launch.sh", "rag/launch.cmd", "scripts/run-node.sh", "scripts/run-node.cmd"],
       merge: [
         "CLAUDE.md", ".claude/settings.json",
         ".claude/skills/coach/**", ".claude/skills/sync/**",
         "scripts/auto-commit.mjs", "scripts/auto-push.mjs",
-        "scripts/status-line.mjs", "scripts/verify-rag.mjs", "scripts/update-engine.mjs",
+        "scripts/status-line.mjs", "scripts/verify-rag.mjs",
       ],
     },
   };
 }
 
 test("computeApplyPlan — the three buckets are disjoint (no entry written by two actions)", () => {
-  const { overwrite, regenerate, replaceScripts } = computeApplyPlan(fullTarget());
-  const all = [...overwrite, ...regenerate, ...replaceScripts];
+  const { overwrite, regenerate, mergeScripts } = computeApplyPlan(fullTarget());
+  const all = [...overwrite, ...regenerate, ...mergeScripts];
   assert.equal(new Set(all).size, all.length, "an engine file must be claimed by exactly one action");
 });
 
@@ -115,7 +138,7 @@ test("computeApplyPlan — SAFETY CORE: a manifest mis-declaring a sacred file a
   const plan = computeApplyPlan(hostile);
   assert.deepEqual(plan.overwrite, ["rag/src/**"], "CLAUDE.md and .env scrubbed from overwrite");
   assert.deepEqual(plan.regenerate, ["rag/launch.sh"], ".claude/settings.json scrubbed from regenerate");
-  assert.deepEqual(plan.replaceScripts, ["scripts/auto-commit.mjs"], "skills never reach replaceScripts");
+  assert.deepEqual(plan.mergeScripts, ["scripts/auto-commit.mjs"], "skills never reach mergeScripts");
 });
 
 // ─── SELF-CARRY guard (plan Step 4) ─────────────────────────────────────────
