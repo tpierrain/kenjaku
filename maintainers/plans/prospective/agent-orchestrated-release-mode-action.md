@@ -416,12 +416,27 @@ arbitration goes here as a question, and the run continues on other slices.
     `.filter((p) => p.skill === "switch")` into a filter that matches nothing — and its assertion
     expected `[]`, so it would have gone on passing for ever. The **failing** siblings are what led to
     it; a rename sweep that only chases red misses exactly the assertions that went quiet.
-  - 🧪 **A flaky test is not a nuisance here, it is a missing measurement.** The merge's *"nothing left
-    behind"* sweep read the **shared** system temp dir, so under Stryker's parallel workers it saw other
-    workers mid-merge and failed the initial run: the mutation score for `update-engine.mjs` was simply
-    **not obtainable**. Fixed at the source (a temp-root seam), not retried.
-    ➡️ **For the mode**: a test that depends on what else is running will fail first under the tool that
-    runs the most things at once. The mutation runner is this repo's earliest detector of that.
+  - 🛑 **THE FINDING OF THE NIGHT, and it is about the judge itself: a flaky test does not add noise to
+    a mutation score, it adds POINTS.** The runner is Stryker's **`command`** runner — a mutant is
+    killed when the suite **exits non-zero** — so a test that fails at random is indistinguishable from
+    a mutant being detected, and the error only ever goes **upward**.
+    - **Measured, not inferred**: with the old sweep, **6 of 8** concurrent full-suite runs failed; with
+      the fix, **0 of 8**. The blocked measurement was only the visible half — the same test had been
+      *inflating* every score measured since it was written (`de19cd9`, 2026-08-20).
+    - **What it cost**: `update-engine.mjs` re-measured **98.95 % → 97.54 %**. The four extra survivors
+      are not a regression, they are holes the noise had been masking — three more `readFileSync`
+      encoding mutants, i.e. **three more lines the suite walks past**, now joined to S2b-4's debt.
+    - **Four files re-measured, two figures were wrong and two were not**: `update-engine.mjs`
+      98.95 → **97.54 %**, `engine-merge-git.mjs` 100 → **98.18 %** (the module that carried the flaky
+      test is the one its own noise flattered into an unearned perfect mark), while
+      `engine-merge-apply.mjs` and `engine-skill-refresh.mjs` both came back **unchanged at 100 %**.
+      Naming which numbers survived the correction is the point; a blanket "everything is suspect"
+      would be as useless as the inflation.
+    ➡️ **For the mode**: a test that depends on what else is running fails first under the tool that runs
+    the most things at once, and this repo's earliest detector of that is the mutation runner. **Treat a
+    suite that is not deterministic under load as a broken instrument** and re-measure what it judged,
+    rather than filing the flake as tooling noise. Every affected section of `RESULTS.md` now carries
+    the mark, including the ones not worth re-running.
   - ✍️ **One test in the new batch could not be red first**, and it is written down as such rather than
     dressed up: *"self-heal writes nothing"* is a contract a skeleton satisfies by doing nothing. What
     judges it is the mutation run, and that is said in `RESULTS.md` where the number lives.

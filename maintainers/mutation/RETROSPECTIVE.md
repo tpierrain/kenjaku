@@ -6,6 +6,17 @@
 > asks the harder question Thomas put next: *given that Part I's rules existed and were engraved, how did
 > we still write four files scoring 51 % to 87 %?* Read Part II first if you want the actionable answer —
 > Part I is the catalogue it builds on.
+>
+> 🛑 **Part III would be one line long, and it is about the instrument rather than the tests**
+> (2026-08-21, S2b-1): **a flaky test does not add noise to a mutation score, it adds points.** Under
+> Stryker's `command` runner a mutant is killed when the suite exits non-zero, so a test that fails at
+> random is indistinguishable from a detection — and the error is **one-directional, always upward**.
+> Measured on the day: **6 of 8** concurrent full-suite runs failed because one test swept the shared
+> system temp dir, **0 of 8** after it was given a private one; one file's score fell from 98.95 % to
+> 97.54 % once the instrument was honest, uncovering three more lines the suite had never executed.
+> **Both retrospectives above ask why the tests were weak. This asks whether the number was real** —
+> and the answer has to be re-established every time the suite stops being deterministic under load.
+> Full account, with the sections it invalidates: [`RESULTS.md`](RESULTS.md), top warning.
 
 ---
 

@@ -762,12 +762,25 @@ audible divergence.
             `engine-skill-refresh.mjs` still claimed a *"PURE decision core, no fs, no side effects"*
             (untrue since S2a-3), and `mergeWithGit` had become the default of `merge` in **two**
             modules at once — the `gitBin` lesson, one owner per default.
-      - [x] ⚠️ **A flaky test was blocking the measurement, and it was a real defect** _(`211cfc5`)_:
-            the merge's *"nothing is left behind"* sweep read the **shared** system temp dir, so it saw
-            every other process mid-merge. Under a mutation run's parallel workers that is an initial
-            test-run failure, i.e. **no measurement at all**. `mergeWithGit` takes its temp root as a
-            seam now; the test hands it a private one and asserts it EMPTY first, so a passing sweep
-            means the merges cleaned up rather than that the directory was never theirs.
+      - [x] 🛑 **A flaky test was not just blocking a measurement, it had been INFLATING the corpus**
+            _(`211cfc5`)_: the merge's *"nothing is left behind"* sweep read the **shared** system temp
+            dir, so it saw every other process mid-merge. Under Stryker's **`command`** runner a mutant
+            is killed when the suite exits non-zero, so a random failure is indistinguishable from a
+            detection, and **the error only ever goes upward**. Measured: **6 of 8** concurrent suite
+            runs failed with the old test, **0 of 8** with the fix.
+        - [x] `update-engine.mjs` re-measured **98.95 % → 97.54 %**; the four extra survivors are not a
+              regression but holes the noise was masking — **three more `readFileSync` encoding mutants,
+              i.e. three more lines the suite walks past**, now folded into S2b-4's debt below.
+        - [x] **Four files re-measured, two figures wrong and two not.** This slice's own two came back
+              **identical** (100 % / 100 %), so S2b-1's numbers were not bought with noise; but S2a-2's
+              git seam fell **100 % → 98.18 %** — the module that carried the flaky test is the one its
+              own noise flattered into an unearned perfect mark. Its single survivor is an equivalent,
+              named rather than fake-killed (`force: true` on the cleanup `rmSync`: unobservable from
+              the suite, load-bearing against an external temp sweeper). Every affected section of
+              `RESULTS.md` carries the mark.
+        - [x] `mergeWithGit` takes its temp root as a seam now; the test hands it a private one and
+              asserts it EMPTY first, so a passing sweep means the merges cleaned up rather than that
+              the directory was never theirs.
     - [ ] **S2b-2 — the syntax gate.** `engine-script-check.mjs` against a **real** `node --check` (a
           subprocess contract proven by a stub proves nothing — S2a-2's lesson), plus the core's
           `verifyWrite` seam and the `merge-unsafe` degradation, driven through an injected merge that
@@ -780,12 +793,18 @@ audible divergence.
       - [ ] The report sentences are the skills' three, said about a file instead of a skill. Wording is
             Thomas's at release time (`release-notes-tone`), like S2a-3b's.
     - [ ] **S2b-4 — the named debt, paid on the final shape.** The `deliveredFileMap` line at
-          `update-engine.mjs:341` that reads back every **copied** file's bytes is **never executed under
+          `update-engine.mjs:344` that reads back every **copied** file's bytes is **never executed under
           test** (a mutant giving it an invalid encoding survives). That map feeds `reseedProvenance` and
           `syncBaseTree`, so the ancestor recorded for every `replace`-copied file is unproven. Detail in
           `RESULTS.md` § S2's report. **Deliberately last**: pinning it before S2b-3 would pin a `copied`
           list that S2b-3 then changes, so the test would be rewritten by the slice it was meant to
           guard.
+      - [ ] **The debt grew by three when the instrument was fixed** _(2026-08-21)_ — same shape, same
+            cause, so they are paid together: `:279` (the local manifest read on the update path) and
+            `:465` (the brain's recorded `source`) are two more `readFileSync(…, "utf8")` mutants that
+            survive an invalid encoding, and `runUpdateCli`'s `argv = process.argv.slice(2)` default is
+            exercised by no test that omits `argv`. **Four lines the suite walks past**, in the file that
+            carries the whole update.
       - [ ] Same slice, same run's other finding: `runUpdateCli`'s "unknown" report hand-rolls a second
             copy of the shape `checkUpstream`'s `unknown()` helper already builds, which is why one of
             its fields is dead and unassertable. Reuse the helper.

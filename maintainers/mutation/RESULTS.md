@@ -10,6 +10,34 @@
 > 📈 **Sections are ordered newest-first (anti-chronological).** The top block is the current
 > state; scroll down for the history back to the 2026-06-23 baseline.
 
+> 🛑 **A FLAKY TEST INFLATES EVERY SCORE MEASURED WHILE IT EXISTS, and one did — between
+> `de19cd9` and `211cfc5` (2026-08-20 → 2026-08-21).** The runner is Stryker's **`command`**
+> runner: a mutant is killed when the suite **exits non-zero**, and a test that fails at random
+> is indistinguishable from a mutant being detected. `engine-merge-git.test.mjs`'s *"nothing is
+> left behind"* swept the **shared** system temp dir, so under parallel workers it saw other
+> processes mid-merge.
+>
+> **Measured on 2026-08-21, 8 concurrent full-suite runs**: **6 of 8 failed** with that test as
+> written, **0 of 8** after the fix. Every section below dated 2026-08-20 or 2026-08-21 whose
+> subject runs while a merge can be in flight was therefore measured against a suite that failed
+> ~75 % of the time **for reasons unrelated to the mutant**, and is **marked ⚠️ inflated** where it
+> has not been re-measured. What re-measurement showed, file by file:
+>
+> | File | Inflated figure | Honest figure | Verdict |
+> |---|---|---|---|
+> | `update-engine.mjs` | 98.95 % | **97.54 %** | 4 more survivors, all pre-existing holes the noise masked |
+> | `lib/engine-merge-git.mjs` | 100.00 % | **98.18 %** | 1 survivor, an equivalent — the perfect mark was not earned |
+> | `lib/engine-merge-apply.mjs` | 100.00 % | **100.00 %** | unchanged |
+> | `lib/engine-skill-refresh.mjs` | 100.00 % | **100.00 %** | unchanged (as re-cut at S2b-1) |
+>
+> **Two of the four numbers were wrong and two were not**, which is why this warning names files rather
+> than casting doubt on the whole corpus. A number worth keeping is one that survived the correction.
+>
+> ➡️ **The durable rule**: under a `command` runner, *suite green* is the only thing the score
+> means. A flaky test does not add noise to a mutation score, it adds **points** — always upward,
+> never down. Treat a suite that is not deterministic under load as a broken instrument, and fix
+> it before believing any number it produced.
+
 ## Current scores (latest)
 
 | Package | Mutation score | As of | Detail |
@@ -148,10 +176,15 @@ the kind of file it carries, so the engine scripts (S2b-3) and the constitution 
 journey. State owned by
 [`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
 
-| File | First pass | Survivors |
-|---|---|---|
-| `lib/engine-merge-apply.mjs` | **100.00 %** — 86 killed, 0 survived | none |
-| `lib/engine-skill-refresh.mjs` (what is left of it) | **100.00 %** — 28 killed, 0 survived | none |
+| File | First pass | Re-measured after the flaky-test fix (`211cfc5`) | Survivors |
+|---|---|---|---|
+| `lib/engine-merge-apply.mjs` | **100.00 %** — 86 killed, 0 survived | **100.00 %** — 86 killed, **unchanged** | none |
+| `lib/engine-skill-refresh.mjs` (what is left of it) | **100.00 %** — 28 killed, 0 survived | **100.00 %** — 28 killed, **unchanged** | none |
+
+✅ **Both first passes landed inside the flaky window** (see the warning at the top of this file), so
+both were **re-measured after the fix and came back identical**. That matters more than the score: it
+says these two numbers were not bought with noise, and it is the reason the correction above can name
+`update-engine.mjs` specifically instead of casting doubt on everything.
 
 **The mutant count is the extraction's own audit.** S2a-3 measured 113 mutants in
 `engine-skill-refresh.mjs`; the same code now measures **86 + 28 = 114** across the two files. Code
@@ -190,11 +223,23 @@ the owner reads. State owned by
 
 | File | Score | Survivors |
 |---|---|---|
-| `update-engine.mjs` | **98.95 %** — 282 killed, 3 survived | 3, all **pre-existing**, none in this slice's code |
+| `update-engine.mjs` | ~~**98.95 %** — 282 killed, 3 survived~~ ⚠️ **inflated, see below** | ~~3~~ |
+| `update-engine.mjs` — **re-measured 2026-08-21 on `211cfc5`** | **97.54 %** — 278 killed, 7 survived | 7, all **pre-existing**, none in this slice's code |
 
-**None of the three is in the lines this slice added**, and saying so is the point of measuring a whole
+🛑 **The first figure was measured against a suite that failed ~75 % of the time for reasons unrelated
+to the mutant** (the flaky temp-dir sweep — see the warning at the top of this file; under the
+`command` runner every such failure reads as a kill). The re-measurement after the fix is the real one,
+and the four extra survivors are **not a regression**: they are holes the noise had been masking. Three
+of them are `readFileSync(…, "utf8")` mutants that survive an invalid encoding, i.e. **three more lines
+that never run under test** — the same shape as the debt already routed to S2b-4, at
+[`:279`](../../scripts/update-engine.mjs) (the local manifest read), [`:344`](../../scripts/update-engine.mjs)
+(the `copied` readback) and [`:465`](../../scripts/update-engine.mjs) (the brain's `source`). The fourth
+is `runUpdateCli`'s `argv = process.argv.slice(2)` default, which no test exercises by omitting `argv`.
+
+**None of the seven is in the lines this slice added**, and saying so is the point of measuring a whole
 file rather than a diff: the run judged 285 mutants and the new report block killed every one of its
-own. The three are named below rather than left implied.
+own. The three that were visible before the fix are named below rather than left implied; the four the
+noise was hiding **join S2b-4's debt**, since they name the same thing — lines the suite walks past.
 
 - 🔴 **A real gap, and it is in this chantier's own subject.** `readFileSync(join(brainDir, rel),
   "utf8")` at the `deliveredFileMap` construction survives being given an invalid encoding — which can
@@ -229,6 +274,13 @@ disk. State owned by
 |---|---|---|---|
 | `lib/engine-skill-refresh.mjs` | **98.23 %** — 111 killed, 2 survived | **100.00 %** — 113 killed, 0 survived | none |
 
+⚠️ **Both figures were measured inside the flaky window** (see the warning at the top of this file), so
+the 100 % is an upper bound rather than a fact. What this slice's code became was re-measured at S2b-1
+after the fix — the entry to read for a trustworthy number on this file is
+[§ S2b's extraction](#s2bs-extraction--engine-merge-applymjs-the-merges-journey-to-the-disk--2026-08-21).
+The **survivors named below stand regardless**: a mutant that survived a noisy suite would have survived
+a quiet one too, since the noise only ever adds kills.
+
 **Three survivors across two rounds, and each named a hole worth more than the score.**
 
 - **The dedup was keyed on the wrong question.** `noteOnce` survived being mutated to *"have I said
@@ -257,7 +309,21 @@ owned by [`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](.
 
 | File | First pass | After the survivors were paid | Survivors left |
 |---|---|---|---|
-| `lib/engine-merge-git.mjs` | **75.00 %** — 42 killed, 14 survived | **100.00 %** — 55 killed, 0 survived | none |
+| `lib/engine-merge-git.mjs` | **75.00 %** — 42 killed, 14 survived | ~~**100.00 %** — 55 killed~~ ⚠️ inflated | ~~none~~ |
+| `lib/engine-merge-git.mjs` — **re-measured 2026-08-21 on `211cfc5`** | — | **98.18 %** — 54 killed, 1 survived | 1, an equivalent |
+
+⚠️ **This is the file that carried the flaky test**, and its 100 % was measured with that test in
+place (see the warning at the top). Re-measured after the fix: **98.18 %**. The irony is worth
+recording rather than hiding — the module whose test was inflating the corpus's scores is the one
+whose own score the inflation flattered into a perfect mark it had not earned.
+
+- ⚪ **The one survivor, and it is an equivalent kept as such.** `rmSync(dir, { recursive: true, force:
+  true })` in the cleanup `finally` survives `force: false`. Under test the two are indistinguishable:
+  `mkdtempSync` runs **before** the `try`, so reaching the `finally` at all means the directory exists,
+  and `force` only ever suppresses `ENOENT`. It is **not** noise to delete, though: it guards the case
+  no test can stage — an external temp sweeper removing the directory mid-merge — where `force: false`
+  would throw **from a `finally`** and replace a completed merge with an exception. Load-bearing in the
+  world, unobservable from the suite. Contorting a test to pin it is how a suite starts lying.
 
 **The same 100 % / 75 % split as S1, on the same fault line, one slice apart.** The pure verdict table
 scored 100 % on its first pass; the moment the identical design met a subprocess, the tests stopped
