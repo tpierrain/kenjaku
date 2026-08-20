@@ -271,12 +271,14 @@ export function runSessionStatus(argv, deps = realSessionStatusDeps) {
   // engine already knows which is which — it records the file and the cause in the last
   // run's state. Read it here so the counter and its explanation share one line.
   // Fail-soft: an unreadable/corrupt run state just means "nothing recorded" (a wait).
+  // No `existsSync` guard on purpose — an absent file throws on read and lands in the
+  // same branch, so the guard was a second spelling of the catch, and both a missing
+  // file and a corrupt one deserve exactly this answer.
   let lastRun = null;
   try {
-    const lastRunPath = join(repo, LAST_RUN_REL);
-    if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+    lastRun = JSON.parse(readFileSync(join(repo, LAST_RUN_REL), "utf8"));
   } catch {
-    lastRun = null;
+    // nothing recorded — `lastRun` is already null, and must stay so.
   }
   const ragLine = ragStatusLine({ docs, scanned, lastRun });
 
@@ -307,29 +309,29 @@ export function runSessionStatus(argv, deps = realSessionStatusDeps) {
   // brain's BRAIN_LOCALE). Converged → no-op, no spawn. Fail-soft: a broken bootstrap NEVER
   // blocks session start. The same reconcile CLI the self-heal spawns; sourceDir === brainDir
   // (local converge, no fetch).
+  // Same shape as the run state above: either file missing throws on read and lands in
+  // the catch, which is the identical outcome an `existsSync` pair would have produced —
+  // so the pair is not written twice.
   let bootstrapLine = null;
   try {
-    const settingsPath = join(repo, ".claude", "settings.json");
-    const templatePath = join(repo, ".claude", "settings.json.template");
-    if (existsSync(settingsPath) && existsSync(templatePath)) {
-      const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
-      const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
-      const reconcileCli = join(scriptsDir, "lib", "reconcile-brain.mjs");
-      const r = bootstrapSessionHooks({
-        brainHooks,
-        templateHooks,
-        brainDir: repo,
-        message: bootstrapReassuranceMessage(),
-        spawnReconcile: ({ brainDir }) => {
-          const call = buildReconcileInvocation({ execPath, reconcileCli, brainDir, platform });
-          spawn(call.command, call.args, call.options).unref();
-        },
-        emit: (msg) => (bootstrapLine = msg),
-      });
-      void r;
-    }
+    const brainHooks = JSON.parse(readFileSync(join(repo, ".claude", "settings.json"), "utf8")).hooks ?? {};
+    const templateHooks =
+      JSON.parse(readFileSync(join(repo, ".claude", "settings.json.template"), "utf8")).hooks ?? {};
+    const reconcileCli = join(scriptsDir, "lib", "reconcile-brain.mjs");
+    bootstrapSessionHooks({
+      brainHooks,
+      templateHooks,
+      brainDir: repo,
+      message: bootstrapReassuranceMessage(),
+      spawnReconcile: ({ brainDir }) => {
+        const call = buildReconcileInvocation({ execPath, reconcileCli, brainDir, platform });
+        spawn(call.command, call.args, call.options).unref();
+      },
+      emit: (msg) => (bootstrapLine = msg),
+    });
   } catch {
-    bootstrapLine = null; // fail-soft: never block session start over a bootstrap hiccup
+    // fail-soft: never block session start over a bootstrap hiccup. Nothing was emitted
+    // when we get here (the emit happens after the reads), so the line stays null.
   }
 
   // ─── Restart nudge (ADR 0036): the channel of last resort on the CLI ───────

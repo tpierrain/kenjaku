@@ -102,6 +102,7 @@ function harness(overrides = {}) {
   const { disk = fakeDisk(), git = scriptedGit().git, ...rest } = overrides;
   const emitted = [];
   const spawned = [];
+  const dbAsked = [];
   const deps = {
     repo: REPO,
     scriptsDir: SCRIPTS_DIR,
@@ -118,7 +119,10 @@ function harness(overrides = {}) {
     mkdirSync: disk.mkdirSync,
     readdirSync: disk.readdirSync,
     readHookPayload: () => '{"session_id":"session-7"}',
-    readDocCount: () => null,
+    readDocCount: (dbPath) => {
+      dbAsked.push(dbPath);
+      return null;
+    },
     deriveWanted: () => ({ wantedSkillDirs: [], wantedServerIds: [] }),
     now: () => 1_755_000_000_000,
     write: (text) => emitted.push(text),
@@ -129,6 +133,7 @@ function harness(overrides = {}) {
     disk,
     emitted,
     spawned,
+    dbAsked,
     run: () => runSessionStatus([], deps),
     // The emitted payload, parsed. One call, one line, and that is asserted here
     // rather than in every case: a hook that writes twice corrupts the harness's
@@ -482,11 +487,14 @@ test("an unreadable doc count is reported as unknown, never as zero", () => {
     files: { [ENV_PATH]: KEYLESS_ENV },
     dirs: { [VAULT]: [fileEntry("one.md")] },
   });
-  const h = harness({ disk, readDocCount: () => null });
+  const h = harness({ disk });
 
   h.run();
 
   assert.match(h.output().systemMessage, /🧠 RAG: status unavailable/);
+  // The count is read from the vault's OWN database, once. A wrong path here reads
+  // as "nothing indexed yet" forever, on a brain that is perfectly indexed.
+  assert.deepEqual(h.dbAsked, [join(REPO, "rag", ".cache", "vault.db")]);
 });
 
 // ─── The real adapters: the thin layer between the seams and the OS ──────────
@@ -565,9 +573,13 @@ test("readDocCountFrom — opens READ-ONLY and must-exist, asks the one query, a
   assert.equal(docs, 41);
   assert.deepEqual(calls, [
     ["open", join(REPO, "rag", ".cache", "vault.db"), { readonly: true, fileMustExist: true }],
-    ["prepare", DOC_COUNT_SQL],
+    // The SQL spelled out, NOT quoted through the constant: asserting against
+    // DOC_COUNT_SQL would mutate on both sides and pin nothing. This is the one
+    // string here that has to match the indexer's real schema.
+    ["prepare", "SELECT COUNT(*) AS n FROM documents"],
     ["close"],
   ]);
+  assert.equal(DOC_COUNT_SQL, "SELECT COUNT(*) AS n FROM documents");
 });
 
 test("readDocCountFrom — a database being written degrades to unknown, it never throws", () => {
@@ -593,6 +605,21 @@ test("the real seam set is wired to the real world — repo, process and stdout"
   for (const seam of ["git", "spawn", "existsSync", "readFileSync", "readDocCount", "deriveWanted", "write"]) {
     assert.equal(typeof realSessionStatusDeps[seam], "function", `${seam} must be wired`);
   }
+});
+
+test("the real `git` seam really runs git — the one call safe enough to prove it", () => {
+  // `--version` touches no repository and changes nothing, so this can assert that
+  // the wiring reaches a real process without the hook's own dangerous commands.
+  const version = realSessionStatusDeps.git(["--version"]);
+
+  assert.equal(version.ok, true, `git must be reachable — got: ${version.out}`);
+  assert.match(version.out, /^git version /);
+});
+
+test("the real `readDocCount` seam answers UNKNOWN for a database that is not there", () => {
+  // Reaches realOpenDatabase not at all (the existence check short-circuits), which
+  // is the point: the wiring must return null rather than undefined or a throw.
+  assert.equal(realSessionStatusDeps.readDocCount(join(dirname(CLI), "no-such-vault.db")), null);
 });
 
 test("the real `write` seam reaches stdout — the banner's only delivery", () => {
