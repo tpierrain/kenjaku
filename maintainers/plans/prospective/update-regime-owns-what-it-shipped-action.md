@@ -66,12 +66,13 @@
 > keeps no copy of a number.
 >
 > **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
-> this plan exists for. ⏸️ **S1 is SCOUTED, not started** _(2026-08-20)_: its ground truth is measured
-> on the deployed brains and written into its box (`merge` is **four** behaviours, not one — and three
-> of the four have **no base at all**), and it now waits on **one owner's decision**, the base's home
-> (`.engine-base/` recommended, with the reason). **No test written, no production line touched**: the
-> shape of the base decides the shape of the first test. Resume by answering that fork, not by
-> re-measuring. ⚠️ **One slice comes BEFORE it**, and it is not in this file: the
+> this plan exists for. ⏸️ **S1 is SCOUTED and its one blocking decision is TAKEN** _(2026-08-20)_: the
+> base lives in a single **`.engine-base/`** (owner's call, "la seconde a priori"). Its ground truth is
+> measured on the deployed brains and written into its box — `merge` is **four** behaviours, not one,
+> three of the four have **no base at all**, and `CLAUDE.engine.md` has **no regime at all**, which is
+> why a fully-up-to-date brain is still 10 KB of doctrine behind. **Still no test written and no
+> production line touched.** Resume by writing S1's first test against the `.engine-base/` shape; do
+> **not** re-measure, and do not re-open the fork. ⚠️ **One slice comes BEFORE it**, and it is not in this file: the
 > **`mutation-testing` skill** the owner asked for on 2026-08-20, carried by
 > [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking.
 > Read that plan's header first — it is the landmark for the whole chantier. One thing is still open on S6 and does not block it: its **Kenjaku-side
@@ -190,12 +191,28 @@ Three consequences, each already logged as its own field finding:
           opposite failure: `computeApplyPlan` puts them in `replaceScripts`, so they are **overwritten
           blind**. Declared `merge`, applied `replace`. On the brains read they all still match their
           base, so no owner edit has been destroyed yet — but nothing prevents it.
-  - [ ] 🛑 **THE FORK, and it is the owner's — asked 2026-08-20, unanswered.** Generalize
-        `engine-skills/` (one staging tree per family) **or** a single `.engine-base/` mirror of every
-        delivered engine file. **My recommendation: `.engine-base/`**, because the measurement above
-        says the problem is not skills — it is that three of the four families have **no base at all**,
-        and `engine-skills/` cannot host `CLAUDE.md` or `settings.json` without becoming a second thing.
-        One tree, one mechanism, one answer for the files that have none.
+  - [x] 🛑 **THE FORK — ANSWERED 2026-08-20: a single `.engine-base/`**, the recommended option
+        _(owner, in conversation: "la seconde a priori" — a leaning, not a signature; he may revisit it
+        when the first test makes the shape concrete, and that is the moment to re-ask, not before)_.
+        The rejected option was generalizing `engine-skills/` (one staging tree per family). **The
+        reason to keep**: the problem is not skills — three of the four families have **no base at
+        all**, and `engine-skills/` cannot host `CLAUDE.md` or `settings.json` without becoming a
+        second thing. One tree, one mechanism, one answer for the files that have none.
+  - [x] **The case that made the decision concrete, measured 2026-08-20 — the best demonstration this
+        chantier has, and it is worth quoting in the release note.** `~/mind-palace` is installed at
+        **`v4.9.1`, engine `scripts` 1.13.1**, i.e. the newest published code. Its doctrine layer is
+        **26 KB against the launcher's 36 KB**: four sections missing, one of them the *discipline
+        d'affirmation* (a negative claim about a person must name its check or become a question),
+        which landed **2026-08-03** and has shipped in **every tag since v4.5.0**. The brain's
+        `CLAUDE.md` line 13 is `@CLAUDE.engine.md`, so that layer loads at **every session** — the rule
+        written to stop the brain from repeating an accusation about a colleague simply never arrived.
+    - [x] **Why it never arrived**: `CLAUDE.engine.md` is in **no regime at all** in
+          `engine-manifest.json`. Not `replace`, not `merge`, not `regenerate`. The fourth category
+          above, *"never updated, and nobody decided that"* — an omission, not a policy.
+    - [x] **And why the base is the unlock**: with no ancestor, the only way to deliver those four
+          sections is a blind overwrite of a file that sits beside a personalized constitution, which
+          nobody dares do — so nothing ships. With `.engine-base/` we know what was last delivered, so
+          the sections can land **without touching** what the owner wrote next to them.
     - [ ] **What makes the migration cheap, and it falls out of the same measurement**: on a brain
           where the installed file still **matches its recorded `sha256`**, that file **is** the
           engine's last delivered content — so the base tree can be seeded **from the brain itself**,
