@@ -713,6 +713,12 @@ arbitration goes here as a question, and the run continues on other slices.
         carriers that are only read once opened: comments inside the config files, `RESULTS.md`
         § Reproduce, and `RETROSPECTIVE.md`. Same carrier defect §12 fixed for orchestration: the
         knowledge is read when a file is opened, while the mistakes are made **while acting**.
+    - [x] ⬆️ **Half of that diagnosis has since gone upstream, and it must not come back here**
+          _(2026-08-20 · `use-case-driven-harness@29abfa8`, T8)_. `test-first-discipline` v2.1.0 now
+          carries the **portable** half — the five ways any run reports a number it did not measure,
+          and the survivor triage that comes before writing a test. What stays local is the **local
+          answer**: which command, which worktree, which package. Do not restate the five traps in
+          `maintainers/skills/mutation-testing/SKILL.md`; it links to them.
   - [x] 🛑 **The refinement that was put to him, and that he took** _(kept for its reasoning; the
         decision is the green box above)_. `CONVENTIONS.md` **§5quinquies already carries part of this recipe**
         (the worktree, the reset incantation, the symlink, the two commands) — so the skill would not
