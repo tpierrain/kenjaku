@@ -91,16 +91,54 @@ export function buildUpstreamProbeInvocation({ execPath, probeCli, brainDir }) {
   };
 }
 
-// Runs git and returns { out, ok } without ever throwing (stderr included).
-function realGit(args) {
-  const { command, args: argv, options } = buildGitInvocation(args, REPO);
+/**
+ * Runs a built git invocation and NEVER throws: a failed git is data here, not an
+ * exception — the banner's whole job is to report it. On failure both streams are
+ * concatenated, because git says "why" on stderr and "what" on stdout, and the
+ * caller (`repoStatusLine`) reads the reason out of the pair.
+ * `execFile` is injected so this can be judged without spawning anything.
+ */
+export function runGitInvocation({ command, args, options }, execFile) {
   try {
-    const out = execFileSync(command, argv, options);
+    const out = execFile(command, args, options);
     return { out: out ?? "", ok: true };
   } catch (e) {
     const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
     return { out, ok: false };
   }
+}
+
+function realGit(args) {
+  return runGitInvocation(buildGitInvocation(args, REPO), execFileSync);
+}
+
+// The one query the status banner asks of the index. Named so the SQL is a value
+// a test can hold, rather than a literal only a live database could contradict.
+export const DOC_COUNT_SQL = "SELECT COUNT(*) AS n FROM documents";
+
+/**
+ * The indexed-document count, or null when it cannot be read — which is NOT the
+ * same as zero and must never be rendered as one (cf. lib/rag-status.mjs).
+ * READ-ONLY and `fileMustExist`: this runs while the indexer may be writing, and
+ * a status line has no business creating or altering the vault's database.
+ */
+export function readDocCountFrom(dbPath, { existsSync, openDatabase }) {
+  if (!existsSync(dbPath)) return null;
+  try {
+    const db = openDatabase(dbPath, { readonly: true, fileMustExist: true });
+    const n = db.prepare(DOC_COUNT_SQL).get().n;
+    db.close();
+    return n;
+  } catch {
+    return null; // degrades: module absent, DB being written, etc.
+  }
+}
+
+// better-sqlite3 lives in rag/node_modules → require resolved from rag/.
+function realOpenDatabase(dbPath, options) {
+  const require = createRequire(join(REPO, "rag", "package.json"));
+  const Database = require("better-sqlite3");
+  return new Database(dbPath, options);
 }
 
 // How many .md files are on disk under `dir`, recursively. `readdir` is passed in
@@ -123,21 +161,8 @@ export function countMarkdown(dir, readdir) {
   return n;
 }
 
-// The indexed-document count, or null when it cannot be read — which is NOT the
-// same as zero and must never be rendered as one (cf. lib/rag-status.mjs).
 function realReadDocCount(dbPath) {
-  if (!existsSync(dbPath)) return null;
-  try {
-    // better-sqlite3 lives in rag/node_modules → require resolved from rag/.
-    const require = createRequire(join(REPO, "rag", "package.json"));
-    const Database = require("better-sqlite3");
-    const db = new Database(dbPath, { readonly: true, fileMustExist: true });
-    const n = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
-    db.close();
-    return n;
-  } catch {
-    return null; // degrades: module absent, DB being written, etc.
-  }
+  return readDocCountFrom(dbPath, { existsSync, openDatabase: realOpenDatabase });
 }
 
 // Every seam the hook touches outside its own process, in one place. The default

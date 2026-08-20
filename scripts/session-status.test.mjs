@@ -5,12 +5,17 @@ import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
+  DOC_COUNT_SQL,
   buildGitInvocation,
   buildReconcileInvocation,
   buildUpstreamProbeInvocation,
   countMarkdown,
+  readDocCountFrom,
+  realSessionStatusDeps,
+  runGitInvocation,
   runSessionStatus,
 } from "./session-status.mjs";
+import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
 import { SWEEP_MESSAGE } from "./lib/startup-sync.mjs";
 import { SYNC_MARKER_REL } from "./lib/startup-sync-gate.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
@@ -48,13 +53,20 @@ const fileEntry = (name) => ({ name, isDirectory: () => false, isFile: () => tru
 // An in-memory disk that RECORDS. `files` is the content, `dirs` the listings;
 // every write is appended to `written` in order, which is what lets the marker
 // bracketing be asserted as a sequence rather than one call at a time.
+//
+// The two readers are DELIBERATELY strict about their second argument: a fake
+// that ignores it makes the argument unobservable, and `readFileSync(p, "utf8")`
+// could then lose its encoding — returning a Buffer to code that string-matches
+// it — with every test still green. A double's answer has to be a fingerprint of
+// what it was asked, or it certifies nothing.
 function fakeDisk({ files = {}, dirs = {} } = {}) {
   const written = [];
   return {
     files,
     written,
     existsSync: (p) => p in files || p in dirs,
-    readFileSync: (p) => {
+    readFileSync: (p, encoding) => {
+      assert.equal(encoding, "utf8", `read of ${p} must ask for text, not a Buffer`);
       if (!(p in files)) throw new Error(`ENOENT: ${p}`);
       return files[p];
     },
@@ -63,7 +75,8 @@ function fakeDisk({ files = {}, dirs = {} } = {}) {
       written.push({ path: p, body });
     },
     mkdirSync: () => {},
-    readdirSync: (p) => {
+    readdirSync: (p, options) => {
+      assert.deepEqual(options, { withFileTypes: true }, "the scan needs dirents, not names");
       if (!(p in dirs)) throw new Error(`ENOENT: ${p}`);
       return dirs[p];
     },
@@ -218,6 +231,37 @@ test("no session id on stdin — the marker is not written, and the pull happens
   ]);
 });
 
+test("a FAILED pull is never asked what it changed — and the banner says it failed", () => {
+  const { git, asked } = scriptedGit({
+    remote: "origin\n",
+    "pull --rebase": { out: "fatal: could not read from remote repository\n", ok: false },
+  });
+  const h = harness({ git, disk: fakeDisk({ files: { [ENV_PATH]: KEYLESS_ENV } }) });
+
+  h.run();
+
+  assert.equal(
+    asked.some((args) => args[0] === "diff"),
+    false,
+    "ORIG_HEAD means nothing after a pull that did not land — asking would report a phantom diff",
+  );
+  assert.match(h.output().systemMessage, /^⚠️ Pull failed — /);
+});
+
+test("a pull that landed says HOW MANY files it changed", () => {
+  const { git } = scriptedGit({
+    remote: "origin\n",
+    "rev-parse --short HEAD": "d4e5f6a\n",
+    "pull --rebase": "Updating a1b2c3..d4e5f6\n",
+    "diff --name-only ORIG_HEAD HEAD": "vault/notes/kept.md\nvault/notes/other.md\nvault/notes/third.md\n",
+  });
+  const h = harness({ git, disk: fakeDisk({ files: { [ENV_PATH]: KEYLESS_ENV } }) });
+
+  h.run();
+
+  assert.match(h.output().systemMessage, /^📥 Repo updated — 3 file\(s\) changed \(commit d4e5f6a\)\./);
+});
+
 // ─── F20: a pull that lands the ENGINE freezes this session ───────────────────
 
 test("a pull that lands frozen wiring ARMS the restart flag", () => {
@@ -315,7 +359,14 @@ test("the key warning appears when the embedder needs a key and .env has none", 
 
   h.run();
 
-  assert.match(h.output().systemMessage, /Your brain needs its Gemini key before it can search your notes/);
+  // Asserted WHOLE, not by a fragment: this line is three sentences glued from
+  // three literals, and matching only the first lets the other two be blanked —
+  // on the one line that tells an owner why their brain cannot answer.
+  assert.deepEqual(h.output().systemMessage.split("\n")[0], [
+    "⚠️ Your brain needs its Gemini key before it can search your notes. Ask me to open ",
+    "your .env file, paste the key after GOOGLE_GEMINI_API_KEY=, save it, and ask your ",
+    "question again — it picks the key up on its own. Your notes themselves are untouched.",
+  ].join(""));
 });
 
 test("a keyless embedder never sees that warning, key or no key", () => {
@@ -392,6 +443,25 @@ test("a corrupt settings.json never blocks the session start", () => {
   assert.match(h.output().systemMessage, /🧠 RAG — 1\/1 files indexed\./);
 });
 
+test("a last-run state that recorded a REFUSED note explains the shortfall on the RAG line", () => {
+  const disk = fakeDisk({
+    files: {
+      [ENV_PATH]: KEYLESS_ENV,
+      [join(REPO, "rag", ".cache", "last-run.json")]: JSON.stringify({
+        errors: [{ file: "vault/notes/broken.md", reason: "front-matter is not valid YAML" }],
+      }),
+    },
+    dirs: { [VAULT]: [fileEntry("one.md"), fileEntry("two.md"), fileEntry("three.md")] },
+  });
+  const h = harness({ disk, readDocCount: () => 1 });
+
+  h.run();
+
+  // 3 on disk, 1 indexed, 1 explained → the other one is genuinely queued, and
+  // both halves must share the line rather than silence each other.
+  assert.match(h.output().systemMessage, /🧠 RAG: 1\/3 files indexed, 1 failed, 1 pending — /);
+});
+
 test("a corrupt last-run state degrades to a plain count, never to a throw", () => {
   const disk = fakeDisk({
     files: {
@@ -417,6 +487,128 @@ test("an unreadable doc count is reported as unknown, never as zero", () => {
   h.run();
 
   assert.match(h.output().systemMessage, /🧠 RAG: status unavailable/);
+});
+
+// ─── The real adapters: the thin layer between the seams and the OS ──────────
+// Every test above hands `runSessionStatus` a double, so nothing above judges the
+// real git runner or the real DB read. Those two are where the file's remaining
+// logic lives, and they are the pieces a mutation pass finds naked first.
+
+test("runGitInvocation — a successful call returns git's stdout and says so", () => {
+  const asked = [];
+  const out = runGitInvocation({ command: "git", args: ["remote"], options: { cwd: REPO } }, (...call) => {
+    asked.push(call);
+    return "origin\n";
+  });
+
+  assert.deepEqual(out, { out: "origin\n", ok: true });
+  assert.deepEqual(asked, [["git", ["remote"], { cwd: REPO }]]);
+});
+
+test("runGitInvocation — a command that returns nothing yields '', never undefined", () => {
+  // repoStatusLine calls .trim() on this; undefined would crash a session start.
+  assert.deepEqual(runGitInvocation({ command: "git", args: [], options: {} }, () => undefined), {
+    out: "",
+    ok: true,
+  });
+});
+
+test("runGitInvocation — a FAILED call is data: both streams, stdout first, ok false", () => {
+  const boom = Object.assign(new Error("exit 1"), { stdout: "hint: on a branch\n", stderr: "fatal: no upstream\n" });
+
+  assert.deepEqual(
+    runGitInvocation({ command: "git", args: ["pull", "--rebase"], options: {} }, () => {
+      throw boom;
+    }),
+    { out: "hint: on a branch\nfatal: no upstream\n", ok: false },
+  );
+});
+
+test("runGitInvocation — a failure carrying neither stream still yields a string", () => {
+  assert.deepEqual(
+    runGitInvocation({ command: "git", args: [], options: {} }, () => {
+      throw new Error("spawn ENOENT");
+    }),
+    { out: "", ok: false },
+  );
+});
+
+test("readDocCountFrom — no database on disk is UNKNOWN (null), never zero", () => {
+  let opened = false;
+  const docs = readDocCountFrom(join(REPO, "rag", ".cache", "vault.db"), {
+    existsSync: () => false,
+    openDatabase: () => {
+      opened = true;
+    },
+  });
+
+  assert.equal(docs, null);
+  assert.equal(opened, false, "a database that is not there must not be opened into existence");
+});
+
+test("readDocCountFrom — opens READ-ONLY and must-exist, asks the one query, and closes", () => {
+  const calls = [];
+  const docs = readDocCountFrom(join(REPO, "rag", ".cache", "vault.db"), {
+    existsSync: () => true,
+    openDatabase: (path, options) => {
+      calls.push(["open", path, options]);
+      return {
+        prepare: (sql) => {
+          calls.push(["prepare", sql]);
+          return { get: () => ({ n: 41 }) };
+        },
+        close: () => calls.push(["close"]),
+      };
+    },
+  });
+
+  assert.equal(docs, 41);
+  assert.deepEqual(calls, [
+    ["open", join(REPO, "rag", ".cache", "vault.db"), { readonly: true, fileMustExist: true }],
+    ["prepare", DOC_COUNT_SQL],
+    ["close"],
+  ]);
+});
+
+test("readDocCountFrom — a database being written degrades to unknown, it never throws", () => {
+  assert.equal(
+    readDocCountFrom(join(REPO, "rag", ".cache", "vault.db"), {
+      existsSync: () => true,
+      openDatabase: () => {
+        throw new Error("SQLITE_BUSY: database is locked");
+      },
+    }),
+    null,
+  );
+});
+
+test("the real seam set is wired to the real world — repo, process and stdout", () => {
+  // The default argument of runSessionStatus: if this object drifts, every test
+  // above keeps passing while the CLI itself talks to nothing.
+  assert.equal(realSessionStatusDeps.repo, dirname(realSessionStatusDeps.scriptsDir));
+  assert.equal(realSessionStatusDeps.scriptsDir, dirname(CLI));
+  assert.equal(realSessionStatusDeps.execPath, process.execPath);
+  assert.equal(realSessionStatusDeps.platform, process.platform);
+  assert.equal(realSessionStatusDeps.now, Date.now);
+  for (const seam of ["git", "spawn", "existsSync", "readFileSync", "readDocCount", "deriveWanted", "write"]) {
+    assert.equal(typeof realSessionStatusDeps[seam], "function", `${seam} must be wired`);
+  }
+});
+
+test("the real `write` seam reaches stdout — the banner's only delivery", () => {
+  const original = process.stdout.write;
+  const seen = [];
+  process.stdout.write = (chunk) => {
+    seen.push(chunk);
+    return true;
+  };
+  try {
+    realSessionStatusDeps.write("banner\n");
+  } finally {
+    process.stdout.write = original;
+  }
+
+  assert.deepEqual(seen, ["banner\n"]);
 });
 
 // ─── The three child processes, asserted as VALUES (debt 2's shape) ──────────
@@ -507,6 +699,58 @@ test("a settings drift spawns the reconcile ONCE, with the invocation asserted w
       options: { detached: true, stdio: "ignore", windowsHide: true },
     },
   ]);
+  // …and the reassurance it emits comes BEFORE the ordinary status, or the owner
+  // watches an unexplained child process start on their machine.
+  const message = h.output().systemMessage;
+  const reassurance = message.indexOf(bootstrapReassuranceMessage());
+  assert.notEqual(reassurance, -1, "a spawned reconcile must be announced");
+  assert.ok(reassurance < message.indexOf("✅ Repo up to date"), "it leads the repo/RAG chatter");
+});
+
+test("a brain already converged on the template spawns NOTHING and says nothing", () => {
+  const hooks = {
+    SessionStart: [{ hooks: [{ type: "command", command: "node scripts/session-self-heal.mjs" }] }],
+  };
+  const disk = fakeDisk({
+    files: {
+      [ENV_PATH]: KEYLESS_ENV,
+      [join(REPO, ".claude", "settings.json")]: JSON.stringify({ hooks }),
+      [join(REPO, ".claude", "settings.json.template")]: JSON.stringify({ hooks }),
+      [join(REPO, "engine-manifest.json")]: JSON.stringify({ source: { ref: "v4.9.1" } }),
+      [join(REPO, ".cache", "engine-upstream.json")]: JSON.stringify({
+        state: "current",
+        installed: "v4.9.1",
+        checkedAt: new Date(1_755_000_000_000 - 60_000).toISOString(),
+      }),
+    },
+  });
+  const h = harness({ disk });
+
+  h.run();
+
+  assert.deepEqual(h.spawned, [], "a converged brain must be a no-op, every single session start");
+  assert.equal(h.output().systemMessage.includes(bootstrapReassuranceMessage()), false);
+});
+
+test("a manifest with no `source` at all still triggers the upstream probe", () => {
+  // The cached verdict is fresh, so only the UNKNOWN installed ref can ask for a
+  // re-probe — which is what a manifest missing its whole `source` block means.
+  const disk = fakeDisk({
+    files: {
+      [ENV_PATH]: KEYLESS_ENV,
+      [join(REPO, "engine-manifest.json")]: JSON.stringify({ engineVersion: { rag: "1.3.0" } }),
+      [join(REPO, ".cache", "engine-upstream.json")]: JSON.stringify({
+        state: "current",
+        installed: "v4.9.1",
+        checkedAt: new Date(1_755_000_000_000 - 60_000).toISOString(),
+      }),
+    },
+  });
+  const h = harness({ disk });
+
+  h.run();
+
+  assert.deepEqual(h.spawned.map((s) => s.args[1]), ["--brainDir"]);
 });
 
 // ─── countMarkdown — the vault scan, recursive and fail-soft ─────────────────
