@@ -66,7 +66,12 @@
 > keeps no copy of a number.
 >
 > **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
-> this plan exists for. ⚠️ **One slice comes BEFORE it**, and it is not in this file: the
+> this plan exists for. ⏸️ **S1 is SCOUTED, not started** _(2026-08-20)_: its ground truth is measured
+> on the deployed brains and written into its box (`merge` is **four** behaviours, not one — and three
+> of the four have **no base at all**), and it now waits on **one owner's decision**, the base's home
+> (`.engine-base/` recommended, with the reason). **No test written, no production line touched**: the
+> shape of the base decides the shape of the first test. Resume by answering that fork, not by
+> re-measuring. ⚠️ **One slice comes BEFORE it**, and it is not in this file: the
 > **`mutation-testing` skill** the owner asked for on 2026-08-20, carried by
 > [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking.
 > Read that plan's header first — it is the landmark for the whole chantier. One thing is still open on S6 and does not block it: its **Kenjaku-side
@@ -161,6 +166,43 @@ Three consequences, each already logged as its own field finding:
   - [ ] Decide the base's home for the files that have none today (`CLAUDE.md`, `settings.json`, the
         four scripts): generalize the `engine-skills/` idea, or a single `.engine-base/` tree. Cost is
         a few dozen KB.
+  - [x] **GROUND TRUTH, measured on the deployed brains 2026-08-20 — do not re-derive it.** Read on
+        `~/mind-palace` (engine `scripts` 1.13.1), cross-checked on `~/autre-brain` (1.7.0) and
+        `~/legacy-brain` (1.1.0). `merge` is **not one behaviour, it is four**, and only one of them is
+        the mechanism this step was written about:
+    - [x] **The 9-10 declared `merge` skills** — provenance-gated refresh, `.new` sidecar when the
+          owner customized. This is the mechanism that works, and the only one a base serves today.
+    - [x] **The 9 STAGED skills** (`consolidate`, `file-back`, `lint`, `local-mirror`,
+          `mcp-token-expired`, `open-note`, `rag`, `univers`, `universe`) — installed under
+          `.claude/skills/<name>/`, a path **no `merge` glob names**, so `provenance[rel]` is
+          **undefined** and `refreshVerdict` returns `preserve: no-provenance` **every single time**:
+          never refreshed, and **not even offered** a `.new` sidecar (that branch is reserved for
+          `customized`). **More than half of an installed brain's skills are outside the update regime
+          entirely.** On the brains read they are still byte-identical to their staged source, so the
+          freeze has not yet *shown*, but nothing can ever lift it.
+    - [x] **`CLAUDE.md` and `.claude/settings.json`** — not "preserved by a comparison": **SACRED**
+          in `engine-apply-plan.mjs` (`SACRED_FILES`), scrubbed out of the write allowlist whatever the
+          manifest says. Both are **diverged from their recorded base on the live brain** (expected:
+          the constitution is personalized then edited, the allowlist grows with every "always allow").
+          These are the two carriers of the frozen doctrine, and **a base alone will not unfreeze
+          them** — it takes S2's merge *and* a decision to stop treating them as untouchable.
+    - [x] **The 4 `merge` scripts** (`auto-commit`, `auto-push`, `status-line`, `verify-rag`) — the
+          opposite failure: `computeApplyPlan` puts them in `replaceScripts`, so they are **overwritten
+          blind**. Declared `merge`, applied `replace`. On the brains read they all still match their
+          base, so no owner edit has been destroyed yet — but nothing prevents it.
+  - [ ] 🛑 **THE FORK, and it is the owner's — asked 2026-08-20, unanswered.** Generalize
+        `engine-skills/` (one staging tree per family) **or** a single `.engine-base/` mirror of every
+        delivered engine file. **My recommendation: `.engine-base/`**, because the measurement above
+        says the problem is not skills — it is that three of the four families have **no base at all**,
+        and `engine-skills/` cannot host `CLAUDE.md` or `settings.json` without becoming a second thing.
+        One tree, one mechanism, one answer for the files that have none.
+    - [ ] **What makes the migration cheap, and it falls out of the same measurement**: on a brain
+          where the installed file still **matches its recorded `sha256`**, that file **is** the
+          engine's last delivered content — so the base tree can be seeded **from the brain itself**,
+          with no fetch. 13 of 15 entries qualified on the live brain; the two that did not
+          (`CLAUDE.md`, `settings.json`) seed from the fetched engine copy at the next update.
+    - [ ] Not started, deliberately: no test written and no production line touched until the fork is
+          answered — the shape of the base decides the shape of the first test.
 - [ ] **S2 — A real three-way merge, so "preserve" stops meaning "abandon".**
   - [ ] untouched → fast-forward (today's behaviour, unchanged);
   - [ ] owner's edit in a region the update does not touch → **merge**: they keep their edit **and**
