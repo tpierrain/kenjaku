@@ -78,6 +78,15 @@ jobs:
       - name: Harness tests
         run: node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
 
+      # Maintainer tooling (dev-only, never copied into a brain): the mutation
+      # runner's own suite. macOS only, deliberately — mutate-one.mjs is a
+      # maintainer's machine tool (git worktree + Stryker + POSIX path fixtures)
+      # that is never run on Windows, so the cross-OS matrix has nothing to say
+      # about it. Without this step its tests would run in no job at all.
+      - name: Maintainer tooling tests
+        if: runner.os == 'macOS'
+        run: node --test "maintainers/mutation/*.test.mjs"
+
       # Engine — `npm ci` builds the native binding (better-sqlite3) on this
       # exact Node; the test run then exercises it. This is the real net.
       - name: Install engine (builds native binding)
