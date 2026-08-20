@@ -582,6 +582,10 @@ not parallelize.** Delegate volume, never design.
   green *by luck*. **Deterministic net (ADR 0009)**: a `PreToolUse` hook,
   `~/.claude/hooks/wave-staging-guard.mjs`, stamps every agent dispatch and **blocks** a broad stage
   for 20 minutes afterwards. The hook is the braces, this line is the belt.
+  ⚠️ **The hook is machine-local and therefore does not travel**: it lives under `~/.claude/`, not in
+  this repo, so a fresh machine (or anyone else cloning Kenjaku) has the belt and no braces. Making it
+  portable means homing it in `use-case-driven-harness` alongside `en-artifact-guard.mjs` — **open,
+  not decided** (raised 2026-08-20, deliberately not done in the same breath as writing it).
 - **A saturated machine can manufacture false reds.** A timing-sensitive test failed once during the
   run under full load and never reproduced afterwards (30 attempts). Treat an isolated red during a
   wave as *suspect* rather than as fact: re-run it alone before acting on it, and never "fix" a
