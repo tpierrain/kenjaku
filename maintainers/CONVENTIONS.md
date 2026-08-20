@@ -19,11 +19,14 @@ repo (linked below); the rest are spelled out here because they previously lived
 
 ## 1. Plans, roadmaps, TODOs — checkboxes on every step
 
-> 📤 **§1, §3 and §3bis are also published standalone** in
-> [`plan-discipline.md`](plan-discipline.md) — the same three rules with nothing of this repo in
-> them (no ADRs, no engine regimes, no CI matrix), plus a ready-to-paste `CLAUDE.md` block, so they
-> can be handed to someone working on something else entirely. **That file is the shareable copy,
-> this one is the operative one**: change a rule here first, then carry it over.
+> 📤 **The project-agnostic version of §1, §3 and §3bis lives in the harness**, not here:
+> [`use-case-driven-harness`](https://github.com/tpierrain/use-case-driven-harness) →
+> `rules/plans.md` (always-on) + `skills/plan-discipline/` (the how, and the full rationale).
+> **That repo is the source for the method; this section is its application here** — change the
+> method there first, then carry the consequence into this file. What stays below is deliberately
+> repo-carried, so it travels with any clone. _(Was the other way round until 2026-08-20, when the
+> standalone copy that used to sit in `maintainers/` moved out; `plan-discipline.md` is now just a
+> pointer.)_
 
 Any **plan / roadmap / TODO / progress-tracking** document I write or edit (first of all
 `maintainers/plans/**`, but **any** file listing steps to do) MUST use Markdown **checkboxes**

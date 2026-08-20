@@ -166,10 +166,10 @@ exhaustive enumeration: the impoverished smoke test is the **safety net** for ev
      (`darwin/x64`) — that's a documented hardware limit (ADR 0007), not a license to drop Windows.
 
 9. **The plan is the truth, the chat is the echo — state never lives in a conversation.** *Full rules:
-   [`maintainers/CONVENTIONS.md`](maintainers/CONVENTIONS.md) §1 / §3 / §3bis (operative). Standalone,
-   project-agnostic version to read or reuse elsewhere:
-   [`maintainers/plan-discipline.md`](maintainers/plan-discipline.md), with a copy-ready skill next to
-   it in [`maintainers/skills/plan-discipline/`](maintainers/skills/plan-discipline/).* Work here spans
+   [`maintainers/CONVENTIONS.md`](maintainers/CONVENTIONS.md) §1 / §3 / §3bis (operative here).
+   Standalone, project-agnostic version to read or reuse elsewhere:
+   [`use-case-driven-harness`](https://github.com/tpierrain/use-case-driven-harness) →
+   `skills/plan-discipline/`.* Work here spans
    many sessions and many context wipes (rule 7's whole premise). What is not written down is not
    saved, so:
    - **Checkboxes on every step and sub-step** of any plan under `maintainers/plans/`, never plain
