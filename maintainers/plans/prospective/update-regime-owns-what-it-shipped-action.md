@@ -382,8 +382,10 @@ audible divergence.
         closing it: the refresh is this rider's job. **No longer waiting — the payload exists**: the
         harness's [T8](../../../../use-case-driven-harness/docs/plans/harness-consolidation-action.md)
         landed upstream on 2026-08-20 (`29abfa8`, skill **v2.1.0**, the section *"A mutation run LIES
-        to you"*). It must reach the brains **through this path**, not by copy-paste, so the gap this
-        rider has to close is now one version wider and fully described upstream.
+        to you"*), and **T10 the same day** (`78b3536`, skill **v2.2.0**: the table filing the low
+        mutation numbers to their real cause, so they stop being blamed on step size). It must reach
+        the brains **through this path**, not by copy-paste, so the gap this rider has to close is now
+        **two versions wide** and fully described upstream.
   - [ ] ⚠️ **Retirement is NOT automatic — verified in code on 2026-08-15**: `refreshUntouchedSkills`
         only walks skills present in the **source**, and its single `rmSync` targets `.new` sidecars.
         A skill dropped from the engine is **never visited**, so `tdd-discipline` would sit on every
