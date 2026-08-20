@@ -61,8 +61,13 @@ export function buildMergeFileInvocation({ paths, labels = {}, gitBin }) {
   };
 }
 
-export function mergeWithGit({ base, ours, theirs, labels = {}, gitBin = "git", run = spawnSync }) {
-  const dir = mkdtempSync(join(tmpdir(), MERGE_TMP_PREFIX));
+// `tmpRoot` exists for ONE reason, and it is a test's: "this merge left nothing
+// behind" can only be asserted over a directory nobody else writes into. Swept over
+// the shared system temp dir, that assertion sees every OTHER process mid-merge and
+// fails for reasons that have nothing to do with the code under test — which is what
+// it did, under a mutation run's parallel workers. Production always takes the default.
+export function mergeWithGit({ base, ours, theirs, labels = {}, gitBin = "git", run = spawnSync, tmpRoot = tmpdir() }) {
+  const dir = mkdtempSync(join(tmpRoot, MERGE_TMP_PREFIX));
   try {
     // Normalised before they ever reach git. A Windows brain can hold its installed
     // file in CRLF with nobody having touched a word; left as they are, EVERY line

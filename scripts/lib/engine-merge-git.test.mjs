@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readdirSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import { MERGE_TMP_PREFIX, buildMergeFileInvocation, mergeWithGit } from "./engine-merge-git.mjs";
 
@@ -121,16 +122,24 @@ test("a CRLF side merges cleanly against LF ones, instead of conflicting on ever
 
 // An update writes into a brain, so leaving three copies of the owner's files in the
 // system temp directory at every merge is a privacy leak, not untidiness.
-test("nothing is left behind in the temp directory, on the clean path and the conflict one", () => {
+//
+// ⚠️ Swept over the SHARED system temp dir, this assertion sees every other process
+// that is mid-merge and fails for reasons that have nothing to do with this code — it
+// did exactly that under a mutation run's parallel workers, blocking a measurement.
+// So the merge takes its temp root as a seam and this test hands it a private one:
+// "nothing left behind" is only a statement about a directory nobody else writes into.
+test("nothing is left behind in the temp directory, on the clean path and the conflict one", (t) => {
   // The prefix has to name something: a blank one would make the sweep below match
   // every entry in the temp directory and pass on an implementation that merges
   // nothing at all.
   assert.match(MERGE_TMP_PREFIX, /^kenjaku-/);
-  const leftovers = () => readdirSync(tmpdir()).filter((entry) => entry.startsWith(MERGE_TMP_PREFIX));
-  const before = leftovers();
-  assert.equal(mergeWithGit({ base: BASE, ours: OURS, theirs: THEIRS }).clean, true);
-  assert.equal(mergeWithGit({ base: "one\n", ours: "OURS\n", theirs: "THEIRS\n" }).clean, false);
-  assert.deepEqual(leftovers(), before);
+  const tmpRoot = mkdtempSync(join(tmpdir(), "sbg-merge-sweep-"));
+  t.after(() => rmSync(tmpRoot, { recursive: true, force: true }));
+  const leftovers = () => readdirSync(tmpRoot);
+  assert.deepEqual(leftovers(), [], "the private root starts empty, so the sweep below means something");
+  assert.equal(mergeWithGit({ base: BASE, ours: OURS, theirs: THEIRS, tmpRoot }).clean, true);
+  assert.equal(mergeWithGit({ base: "one\n", ours: "OURS\n", theirs: "THEIRS\n", tmpRoot }).clean, false);
+  assert.deepEqual(leftovers(), []);
 });
 
 // A git that cannot run is a TECHNICAL failure, and it must never come back looking
