@@ -52,14 +52,50 @@ import { deriveWanted } from "./session-self-heal.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, "..");
 
+// ─── The three child processes, built as VALUES before anything runs them ────
+// Debt 2's shape (CONVENTIONS.md §5ter, first paid at v4.5.0): a request composed
+// AT the call site is a request no test can assert — which is where defaultGit's
+// 21 survivors lived. Here it also unblocks the measurement itself: this file is
+// scanned by `lib/entrypoint-discipline.mjs`, and a mutation run INSTRUMENTS the
+// source that scanner reads, so an inline literal flips the guard's own verdict
+// mid-run. A named value is stable under instrumentation as well as assertable.
+
+/** The read-only git call this hook makes, cwd included. */
+export function buildGitInvocation(args, cwd) {
+  return {
+    command: "git",
+    args,
+    options: { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  };
+}
+
+// detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+// Shared by both detached children below, so the two can never drift apart.
+const DETACHED = { detached: true, stdio: "ignore", windowsHide: true };
+
+/** The one-time bootstrap reconcile (ADR 0026): sourceDir === brainDir, no fetch. */
+export function buildReconcileInvocation({ execPath, reconcileCli, brainDir, platform }) {
+  return {
+    command: execPath,
+    args: [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", platform],
+    options: DETACHED,
+  };
+}
+
+/** The throttled "is a newer engine out?" probe (ADR 0028), refreshed for NEXT time. */
+export function buildUpstreamProbeInvocation({ execPath, probeCli, brainDir }) {
+  return {
+    command: execPath,
+    args: [probeCli, "--brainDir", brainDir],
+    options: DETACHED,
+  };
+}
+
 // Runs git and returns { out, ok } without ever throwing (stderr included).
 function realGit(args) {
+  const { command, args: argv, options } = buildGitInvocation(args, REPO);
   try {
-    const out = execFileSync("git", args, {
-      cwd: REPO,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const out = execFileSync(command, argv, options);
     return { out: out ?? "", ok: true };
   } catch (e) {
     const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
@@ -135,7 +171,7 @@ export function runSessionStatus(argv, deps = realSessionStatusDeps) {
     repo,
     scriptsDir,
     git,
-    spawn: spawnChild,
+    spawn,
     execPath,
     platform,
     existsSync,
@@ -260,13 +296,8 @@ export function runSessionStatus(argv, deps = realSessionStatusDeps) {
         brainDir: repo,
         message: bootstrapReassuranceMessage(),
         spawnReconcile: ({ brainDir }) => {
-          const child = spawnChild(
-            execPath,
-            [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", platform],
-            // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
-            { detached: true, stdio: "ignore", windowsHide: true },
-          );
-          child.unref();
+          const call = buildReconcileInvocation({ execPath, reconcileCli, brainDir, platform });
+          spawn(call.command, call.args, call.options).unref();
         },
         emit: (msg) => (bootstrapLine = msg),
       });
@@ -308,12 +339,12 @@ export function runSessionStatus(argv, deps = realSessionStatusDeps) {
       installedRef: readJson(manifestPath)?.source?.ref ?? null,
       now: now(),
     })) {
-      const child = spawnChild(
+      const call = buildUpstreamProbeInvocation({
         execPath,
-        [join(scriptsDir, "upstream-check-run.mjs"), "--brainDir", repo],
-        { detached: true, stdio: "ignore", windowsHide: true },
-      );
-      child.unref();
+        probeCli: join(scriptsDir, "upstream-check-run.mjs"),
+        brainDir: repo,
+      });
+      spawn(call.command, call.args, call.options).unref();
     }
   } catch {
     // fail-soft: a session start is never blocked by an update check.

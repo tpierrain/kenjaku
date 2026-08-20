@@ -4,7 +4,13 @@ import { spawnSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { countMarkdown, runSessionStatus } from "./session-status.mjs";
+import {
+  buildGitInvocation,
+  buildReconcileInvocation,
+  buildUpstreamProbeInvocation,
+  countMarkdown,
+  runSessionStatus,
+} from "./session-status.mjs";
 import { SWEEP_MESSAGE } from "./lib/startup-sync.mjs";
 import { SYNC_MARKER_REL } from "./lib/startup-sync-gate.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
@@ -411,6 +417,96 @@ test("an unreadable doc count is reported as unknown, never as zero", () => {
   h.run();
 
   assert.match(h.output().systemMessage, /🧠 RAG: status unavailable/);
+});
+
+// ─── The three child processes, asserted as VALUES (debt 2's shape) ──────────
+
+test("buildGitInvocation — the whole read-only call, cwd and stdio included", () => {
+  assert.deepEqual(buildGitInvocation(["status", "--porcelain"], REPO), {
+    command: "git",
+    args: ["status", "--porcelain"],
+    options: { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  });
+});
+
+test("buildReconcileInvocation — sourceDir IS brainDir: a local converge, never a fetch", () => {
+  assert.deepEqual(
+    buildReconcileInvocation({
+      execPath: join("/", "usr", "bin", "node"),
+      reconcileCli: join(SCRIPTS_DIR, "lib", "reconcile-brain.mjs"),
+      brainDir: REPO,
+      platform: "win32",
+    }),
+    {
+      command: join("/", "usr", "bin", "node"),
+      args: [
+        join(SCRIPTS_DIR, "lib", "reconcile-brain.mjs"),
+        "--brainDir",
+        REPO,
+        "--sourceDir",
+        REPO,
+        "--platform",
+        "win32",
+      ],
+      options: { detached: true, stdio: "ignore", windowsHide: true },
+    },
+  );
+});
+
+test("buildUpstreamProbeInvocation — detached, so the network never sits before the session", () => {
+  assert.deepEqual(
+    buildUpstreamProbeInvocation({
+      execPath: join("/", "usr", "bin", "node"),
+      probeCli: join(SCRIPTS_DIR, "upstream-check-run.mjs"),
+      brainDir: REPO,
+    }),
+    {
+      command: join("/", "usr", "bin", "node"),
+      args: [join(SCRIPTS_DIR, "upstream-check-run.mjs"), "--brainDir", REPO],
+      options: { detached: true, stdio: "ignore", windowsHide: true },
+    },
+  );
+});
+
+test("a settings drift spawns the reconcile ONCE, with the invocation asserted whole", () => {
+  const disk = fakeDisk({
+    files: {
+      [ENV_PATH]: KEYLESS_ENV,
+      [join(REPO, ".claude", "settings.json")]: JSON.stringify({ hooks: {} }),
+      [join(REPO, ".claude", "settings.json.template")]: JSON.stringify({
+        hooks: {
+          SessionStart: [{ hooks: [{ type: "command", command: "node scripts/session-self-heal.mjs" }] }],
+        },
+      }),
+      // A fresh verdict about the installed engine, so the upstream probe stays
+      // silent and the ONLY child spawned here is the reconcile.
+      [join(REPO, "engine-manifest.json")]: JSON.stringify({ source: { ref: "v4.9.1" } }),
+      [join(REPO, ".cache", "engine-upstream.json")]: JSON.stringify({
+        state: "current",
+        installed: "v4.9.1",
+        checkedAt: new Date(1_755_000_000_000 - 60_000).toISOString(),
+      }),
+    },
+  });
+  const h = harness({ disk, platform: "linux" });
+
+  h.run();
+
+  assert.deepEqual(h.spawned, [
+    {
+      command: join("/", "usr", "bin", "node"),
+      args: [
+        join(SCRIPTS_DIR, "lib", "reconcile-brain.mjs"),
+        "--brainDir",
+        REPO,
+        "--sourceDir",
+        REPO,
+        "--platform",
+        "linux",
+      ],
+      options: { detached: true, stdio: "ignore", windowsHide: true },
+    },
+  ]);
 });
 
 // ─── countMarkdown — the vault scan, recursive and fail-soft ─────────────────

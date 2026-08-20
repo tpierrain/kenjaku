@@ -297,7 +297,6 @@ const INLINE_INVOCATION_EXEMPT = new Set([
   "scripts/run-eval.mjs",
   "scripts/session-health.mjs",
   "scripts/session-self-heal.mjs",
-  "scripts/session-status.mjs",
   "scripts/set-universe-profile.mjs",
   "scripts/status-line.mjs",
   "scripts/verify-rag.mjs",
