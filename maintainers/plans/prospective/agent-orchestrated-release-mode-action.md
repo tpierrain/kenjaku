@@ -90,15 +90,31 @@
 > ```
 > Open maintainers/plans/prospective/update-regime-owns-what-it-shipped-action.md and read its
 > header (WHERE THIS RESUMES / RESUME AT). Do the ONE slice it names, and only that one.
-> Test-first: see the tests fail on their assertions before any production code. Then the full
-> suite green (node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"), then COMMIT, then
-> measure mutation on HEAD (node maintainers/mutation/mutate-one.mjs <file>) and kill the
-> survivors. Never commit red. Then tick the carriers -- the owning plan, RESULTS.md for any
-> number, this mode plan if the mode learned something -- commit and push on
-> feat/engine-base-unfreeze. If the slice needs a decision that is Thomas's, write it as a
-> blocking box at the top of the plan and move to the next slice that does not need him. Bulk
-> reads go to a subagent. Then stop, so the loop can restart you from the plan.
+>
+> A DESIGN slice has no tests and no mutation score: it is finished when the design is WRITTEN
+> INTO THE PLAN and committed -- the shape, the cases it must answer, what is deliberately out.
+> Do not start coding it in the same iteration.
+>
+> A CODE slice is test-first: see the tests fail on their assertions before any production code.
+> Then the full suite green (node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"), then
+> COMMIT, then measure mutation on HEAD (node maintainers/mutation/mutate-one.mjs <file>) and
+> kill the survivors. Never commit red.
+>
+> Either way: tick the carriers -- the owning plan, RESULTS.md for any number, this mode plan if
+> the mode learned something -- commit and push on feat/engine-base-unfreeze. If the slice needs
+> a decision that is Thomas's, write it as a blocking box at the top of the plan and move to the
+> next slice that does not need him. Bulk reads go to a subagent, and so does the IMPLEMENTATION
+> of a mechanical slice once its tests exist -- that is what makes the night last, since the
+> window never empties between iterations. Then stop, so the loop can restart you from the plan.
 > ```
+>
+> ⚠️ **What one `/clear` actually buys, measured on the night of 2026-08-20.** One fresh window, not a
+> whole night: `/loop` never empties it, so the same ceiling returns. The lever that makes the night
+> last is **not** the clear, it is **how much of each slice is spent in this window**. S1's fs
+> orchestrator cost ~20k of window for one slice because design + tests + implementation all stayed in
+> session. The mechanical-only verdict allows the third of those to leave: **once the design is in the
+> plan and the tests are written and red, the implementation is dispatchable**, and that is the
+> difference between one more slice and several.
 
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
 > adversarial-review question is deferred to the **S1 debrief**, on S1's figures. **And the release's
