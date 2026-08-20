@@ -1,0 +1,450 @@
+00:37:39 (53593) INFO ProjectReader Found 4 of 699 file(s) to be mutated.
+00:37:39 (53593) INFO Instrumenter Instrumented 4 source file(s) with 445 mutant(s)
+00:37:39 (53593) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+00:37:39 (53593) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-VoNgqT
+00:37:39 (53593) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+00:37:39 (53593) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+00:37:41 (53593) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2058 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 331)
+
+[Survived] MethodExpression
+scripts/lib/entrypoint-discipline.mjs:38:10
+-     return findings
+-       .sort((a, b) => a.at - b.at)
++     return findings
+
+[Survived] ArrowFunction
+scripts/lib/entrypoint-discipline.mjs:39:11
+-       .sort((a, b) => a.at - b.at)
++       .sort(() => undefined)
+
+[Survived] ArithmeticOperator
+scripts/lib/entrypoint-discipline.mjs:39:21
+-       .sort((a, b) => a.at - b.at)
++       .sort((a, b) => a.at + b.at)
+
+[Survived] Regex
+scripts/lib/entrypoint-discipline.mjs:47:10
+-     return /(^|[^.\w])runAsEntrypoint\s*\(/.test(stripComments(source));
++     return /(^|[^.\w])runAsEntrypoint\S*\(/.test(stripComments(source));
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:73:11
+-         if (/[\w$]/.test(clean[at + runner.length] ?? "")) continue;
++         if (false) continue;
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:73:24
+-         if (/[\w$]/.test(clean[at + runner.length] ?? "")) continue;
++         if (/[\w$]/.test(clean[at + runner.length] && "")) continue;
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:73:53
+-         if (/[\w$]/.test(clean[at + runner.length] ?? "")) continue;
++         if (/[\w$]/.test(clean[at + runner.length] ?? "Stryker was here!")) continue;
+
+[Survived] MethodExpression
+scripts/lib/entrypoint-discipline.mjs:83:10
+-     return findings
+-       .sort((a, b) => a.at - b.at)
++     return findings
+
+[Survived] ArrowFunction
+scripts/lib/entrypoint-discipline.mjs:84:11
+-       .sort((a, b) => a.at - b.at)
++       .sort(() => undefined)
+
+[Survived] ArithmeticOperator
+scripts/lib/entrypoint-discipline.mjs:84:21
+-       .sort((a, b) => a.at - b.at)
++       .sort((a, b) => a.at + b.at)
+
+[Survived] BooleanLiteral
+scripts/lib/entrypoint-discipline.mjs:96:27
+-     let expectingArgument = true;
++     let expectingArgument = false;
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:97:23
+-     for (let i = start; i < source.length; i++) {
++     for (let i = start; i <= source.length; i++) {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:99:9
+-       if (quote) {
++       if (false) {
+
+[Survived] BlockStatement
+scripts/lib/entrypoint-discipline.mjs:99:16
+-       if (quote) {
+-         if (ch === "\\") i++;
+-         else if (ch === quote) quote = null;
+-         continue;
+-       }
++       if (quote) {}
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:100:18
+-         if (ch === "\\") i++;
++         if (ch === "") i++;
+
+[Survived] UpdateOperator
+scripts/lib/entrypoint-discipline.mjs:100:24
+-         if (ch === "\\") i++;
++         if (ch === "\\") i--;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:105:11
+-         if (!(ch === ")" && nesting === 1)) args.push({ first: ch });
++         if (true) args.push({ first: ch });
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:105:13
+-         if (!(ch === ")" && nesting === 1)) args.push({ first: ch });
++         if (!(false)) args.push({ first: ch });
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:105:20
+-         if (!(ch === ")" && nesting === 1)) args.push({ first: ch });
++         if (!(ch === "" && nesting === 1)) args.push({ first: ch });
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:105:27
+-         if (!(ch === ")" && nesting === 1)) args.push({ first: ch });
++         if (!(ch === ")" && true)) args.push({ first: ch });
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:108:9
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (false) quote = ch;
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:108:9
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if ((ch === "'" || ch === '"') && ch === "`") quote = ch;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:108:9
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (false || ch === "`") quote = ch;
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:108:9
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (ch === "'" && ch === '"' || ch === "`") quote = ch;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:108:9
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (false || ch === '"' || ch === "`") quote = ch;
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:108:16
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (ch === "" || ch === '"' || ch === "`") quote = ch;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:108:23
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (ch === "'" || false || ch === "`") quote = ch;
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:108:30
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (ch === "'" || ch === "" || ch === "`") quote = ch;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:108:37
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (ch === "'" || ch === '"' || false) quote = ch;
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:108:44
+-       if (ch === "'" || ch === '"' || ch === "`") quote = ch;
++       if (ch === "'" || ch === '"' || ch === "") quote = ch;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:109:42
+-       else if (ch === "(" || ch === "[" || ch === "{") nesting++;
++       else if (ch === "(" || ch === "[" || false) nesting++;
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:109:49
+-       else if (ch === "(" || ch === "[" || ch === "{") nesting++;
++       else if (ch === "(" || ch === "[" || ch === "") nesting++;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:110:42
+-       else if (ch === ")" || ch === "]" || ch === "}") {
++       else if (ch === ")" || ch === "]" || false) {
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:110:49
+-       else if (ch === ")" || ch === "]" || ch === "}") {
++       else if (ch === ")" || ch === "]" || ch === "") {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:113:16
+-       } else if (ch === "," && nesting === 1) expectingArgument = true;
++       } else if (true) expectingArgument = true;
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:113:16
+-       } else if (ch === "," && nesting === 1) expectingArgument = true;
++       } else if (ch === "," || nesting === 1) expectingArgument = true;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:113:16
+-       } else if (ch === "," && nesting === 1) expectingArgument = true;
++       } else if (true && nesting === 1) expectingArgument = true;
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:113:16
+-       } else if (ch === "," && nesting === 1) expectingArgument = true;
++       } else if (ch !== "," && nesting === 1) expectingArgument = true;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:113:30
+-       } else if (ch === "," && nesting === 1) expectingArgument = true;
++       } else if (ch === "," && true) expectingArgument = true;
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:126:13
+-     let out = "";
++     let out = "Stryker was here!";
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:128:19
+-     for (let i = 0; i < source.length; i++) {
++     for (let i = 0; i <= source.length; i++) {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:130:9
+-       if (quote) {
++       if (false) {
+
+[Survived] BlockStatement
+scripts/lib/entrypoint-discipline.mjs:130:16
+-       if (quote) {
+-         out += ch;
+-         if (ch === "\\") out += source[++i] ?? "";
+-         else if (ch === quote) quote = null;
+-         continue;
+-       }
++       if (quote) {}
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:132:11
+-         if (ch === "\\") out += source[++i] ?? "";
++         if (false) out += source[++i] ?? "";
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:132:18
+-         if (ch === "\\") out += source[++i] ?? "";
++         if (ch === "") out += source[++i] ?? "";
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:132:31
+-         if (ch === "\\") out += source[++i] ?? "";
++         if (ch === "\\") out += source[++i] && "";
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:132:46
+-         if (ch === "\\") out += source[++i] ?? "";
++         if (ch === "\\") out += source[++i] ?? "Stryker was here!";
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:133:16
+-         else if (ch === quote) quote = null;
++         else if (true) quote = null;
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:133:16
+-         else if (ch === quote) quote = null;
++         else if (ch !== quote) quote = null;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:136:9
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if (false) {
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:136:9
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if ((ch === "'" || ch === '"') && ch === "`") {
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:136:9
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if (ch === "'" && ch === '"' || ch === "`") {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:136:9
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if (false || ch === '"' || ch === "`") {
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:136:16
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if (ch === "" || ch === '"' || ch === "`") {
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:136:30
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if (ch === "'" || ch === "" || ch === "`") {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:136:37
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if (ch === "'" || ch === '"' || false) {
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:136:44
+-       if (ch === "'" || ch === '"' || ch === "`") {
++       if (ch === "'" || ch === '"' || ch === "") {
+
+[Survived] BlockStatement
+scripts/lib/entrypoint-discipline.mjs:136:49
+-       if (ch === "'" || ch === '"' || ch === "`") {
+-         quote = ch;
+-         out += ch;
+-         continue;
+-       }
++       if (ch === "'" || ch === '"' || ch === "`") {}
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:141:9
+-       if (ch === "/" && source[i + 1] === "/") {
++       if (ch === "/" || source[i + 1] === "/") {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:141:9
+-       if (ch === "/" && source[i + 1] === "/") {
++       if (true && source[i + 1] === "/") {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:141:23
+-       if (ch === "/" && source[i + 1] === "/") {
++       if (ch === "/" && true) {
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:141:23
+-       if (ch === "/" && source[i + 1] === "/") {
++       if (ch === "/" && source[i + 1] !== "/") {
+
+[Survived] ArithmeticOperator
+scripts/lib/entrypoint-discipline.mjs:141:30
+-       if (ch === "/" && source[i + 1] === "/") {
++       if (ch === "/" && source[i - 1] === "/") {
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:142:14
+-         while (i < source.length && source[i] !== "\n") i++;
++         while (i <= source.length && source[i] !== "\n") i++;
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:143:14
+-         out += "\n";
++         out += "";
+
+[Survived] AssignmentOperator
+scripts/lib/entrypoint-discipline.mjs:147:7
+-         i += 2;
++         i -= 2;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:148:14
+-         while (i < source.length && !(source[i] === "*" && source[i + 1] === "/")) {
++         while (true && !(source[i] === "*" && source[i + 1] === "/")) {
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:148:14
+-         while (i < source.length && !(source[i] === "*" && source[i + 1] === "/")) {
++         while (i <= source.length && !(source[i] === "*" && source[i + 1] === "/")) {
+
+[Survived] LogicalOperator
+scripts/lib/entrypoint-discipline.mjs:148:37
+-         while (i < source.length && !(source[i] === "*" && source[i + 1] === "/")) {
++         while (i < source.length && !(source[i] === "*" || source[i + 1] === "/")) {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:148:37
+-         while (i < source.length && !(source[i] === "*" && source[i + 1] === "/")) {
++         while (i < source.length && !(true && source[i + 1] === "/")) {
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:148:58
+-         while (i < source.length && !(source[i] === "*" && source[i + 1] === "/")) {
++         while (i < source.length && !(source[i] === "*" && true)) {
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:148:58
+-         while (i < source.length && !(source[i] === "*" && source[i + 1] === "/")) {
++         while (i < source.length && !(source[i] === "*" && source[i + 1] !== "/")) {
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:149:13
+-           if (source[i] === "\n") out += "\n";
++           if (source[i] !== "\n") out += "\n";
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:149:27
+-           if (source[i] === "\n") out += "\n";
++           if (source[i] === "") out += "\n";
+
+[Survived] StringLiteral
+scripts/lib/entrypoint-discipline.mjs:149:40
+-           if (source[i] === "\n") out += "\n";
++           if (source[i] === "\n") out += "";
+
+[Survived] UpdateOperator
+scripts/lib/entrypoint-discipline.mjs:152:7
+-         i++;
++         i--;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:162:10
+-     while (i < source.length && /\s/.test(source[i])) i++;
++     while (false) i++;
+
+[Survived] ConditionalExpression
+scripts/lib/entrypoint-discipline.mjs:162:10
+-     while (i < source.length && /\s/.test(source[i])) i++;
++     while (true && /\s/.test(source[i])) i++;
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:162:10
+-     while (i < source.length && /\s/.test(source[i])) i++;
++     while (i <= source.length && /\s/.test(source[i])) i++;
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:162:10
+-     while (i < source.length && /\s/.test(source[i])) i++;
++     while (i >= source.length && /\s/.test(source[i])) i++;
+
+[Survived] UpdateOperator
+scripts/lib/entrypoint-discipline.mjs:162:53
+-     while (i < source.length && /\s/.test(source[i])) i++;
++     while (i < source.length && /\s/.test(source[i])) i--;
+
+[Survived] EqualityOperator
+scripts/lib/entrypoint-discipline.mjs:168:19
+-     for (let i = 0; i < index; i++) if (source[i] === "\n") line++;
++     for (let i = 0; i <= index; i++) if (source[i] === "\n") line++;
+
+Ran 0.93 tests per mutant on average.
+----------------------------|------------------|----------|-----------|------------|----------|----------|
+                            | % Mutation score |          |           |            |          |          |
+File                        |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                   |  81.57 |   81.57 |      331 |        32 |         82 |        0 |        0 |
+ lib                        |  74.45 |   74.45 |      207 |        32 |         82 |        0 |        0 |
+  entrypoint-discipline.mjs |  71.82 |   71.82 |      181 |        28 |         82 |        0 |        0 |
+  entrypoint.mjs            | 100.00 |  100.00 |       26 |         4 |          0 |        0 |        0 |
+ status-line.mjs            | 100.00 |  100.00 |      109 |         0 |          0 |        0 |        0 |
+ upstream-check-run.mjs     | 100.00 |  100.00 |       15 |         0 |          0 |        0 |        0 |
+----------------------------|--------|---------|----------|-----------|------------|----------|----------|
+00:52:13 (53593) INFO MutationTestExecutor Done in 14 minutes and 34 seconds.
+00:52:13 (53593) INFO Sandbox Resetting your original files from .stryker-tmp/backup-VoNgqT.

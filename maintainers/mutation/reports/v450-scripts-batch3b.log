@@ -1,0 +1,1715 @@
+18:30:07 (67343) INFO ProjectReader Found 3 of 633 file(s) to be mutated.
+18:30:07 (67343) INFO Instrumenter Instrumented 3 source file(s) with 339 mutant(s)
+18:30:07 (67343) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+18:30:07 (67343) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-5a9ew3
+18:30:07 (67343) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+18:30:07 (67343) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+18:30:10 (67343) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2590 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 78)
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:51:82
+-           `⚠️ This machine isn't wired for your brain yet — missing ${unwired.join(" and ")} ` +
++           `⚠️ This machine isn't wired for your brain yet — missing ${unwired.join("")} ` +
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:54:11
+-             `rooted here (servers and hooks are loaded when a session starts).`,
++             ``,
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:52:11
+-             `(gitignored: they hold this machine's absolute paths, so a clone never has them). ` +
++             `` +
+
+[Survived] MethodExpression
+scripts/session-self-heal.mjs:76:19
+-       const parts = [
+-         gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join(", ")}` : null,
+-         gap.missingServers.length ? `MCP: ${gap.missingServers.join(", ")}` : null,
+-       ].filter(Boolean);
++       const parts = [gap.missingSkills.length ? `skills: ${gap.missingSkills.map(d => d.split("/").pop()).join(", ")}` : null, gap.missingServers.length ? `MCP: ${gap.missingServers.join(", ")}` : null];
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:77:34
+-         gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join(", ")}` : null,
++         gap.missingSkills.length ? `` : null,
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:77:67
+-         gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join(", ")}` : null,
++         gap.missingSkills.length ? `skills: ${gap.missingSkills.map(() => undefined).join(", ")}` : null,
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:77:82
+-         gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join(", ")}` : null,
++         gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("").pop()).join(", ")}` : null,
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:77:99
+-         gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join(", ")}` : null,
++         gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join("")}` : null,
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:78:67
+-         gap.missingServers.length ? `MCP: ${gap.missingServers.join(", ")}` : null,
++         gap.missingServers.length ? `MCP: ${gap.missingServers.join("")}` : null,
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:81:86
+-         `⚠️ ACTION NEEDED — finishing an engine update in the background (${parts.join("; ")}). ` +
++         `⚠️ ACTION NEEDED — finishing an engine update in the background (${parts.join("")}). ` +
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:82:9
+-           `Until you RESTART Claude (close it and reopen) once this completes, your brain ` +
++           `` +
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:88:19
+-       const error = e?.message ?? String(e);
++       const error = e?.message && String(e);
+
+[Survived] OptionalChaining
+scripts/session-self-heal.mjs:88:19
+-       const error = e?.message ?? String(e);
++       const error = e.message ?? String(e);
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:104:67
+-   export function buildSelfHealHookOutput(lines, { needsRehydrate = false } = {}) {
++   export function buildSelfHealHookOutput(lines, { needsRehydrate = true } = {}) {
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:105:7
+-     if (!lines || lines.length === 0) return null;
++     if (false) return null;
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:105:7
+-     if (!lines || lines.length === 0) return null;
++     if (!lines && lines.length === 0) return null;
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:105:17
+-     if (!lines || lines.length === 0) return null;
++     if (!lines || false) return null;
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:106:29
+-     const detail = lines.join("\n");
++     const detail = lines.join("");
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:109:7
+-         `(emoji + a heading): this machine is not wired for their brain yet, and the command ` +
++         `` +
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:110:7
+-         `below is what wires it — they run it themselves, from this folder. Relay:\n`
++         ``
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:112:7
+-         `(emoji + a heading): they must FULLY restart Claude (close it, reopen, resume here) for ` +
++         `` +
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:113:7
+-         `an update finishing in the background. Never imply it is already live. Relay:\n`;
++         ``;
+
+[Survived] Regex
+scripts/session-self-heal.mjs:125:23
+-     return glob.replace(/\/\*\*?$/, "");
++     return glob.replace(/\/\*\*?/, "");
+
+[Survived] Regex
+scripts/session-self-heal.mjs:125:23
+-     return glob.replace(/\/\*\*?$/, "");
++     return glob.replace(/\/\*\*$/, "");
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:125:35
+-     return glob.replace(/\/\*\*?$/, "");
++     return glob.replace(/\/\*\*?$/, "Stryker was here!");
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:137:84
+-     const manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
++     const manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), ""));
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:140:37
+-     const stagingDir = join(brainDir, "engine-skills");
++     const stagingDir = join(brainDir, "");
+
+[Survived] MethodExpression
+scripts/session-self-heal.mjs:142:7
+-       ? readdirSync(stagingDir, { withFileTypes: true })
+-           .filter((e) => e.isDirectory())
++       ? readdirSync(stagingDir, {
++     withFileTypes: true
++   })
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:143:17
+-           .filter((e) => e.isDirectory())
++           .filter(() => undefined)
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:144:21
+-           .map((e) => `.claude/skills/${e.name}`)
++           .map((e) => ``)
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:145:7
+-       : [];
++       : ["Stryker was here"];
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:149:19
+-       ? Object.keys(JSON.parse(readFileSync(templatePath, "utf8")).mcpServers ?? {})
++       ? Object.keys(JSON.parse(readFileSync(templatePath, "utf8")).mcpServers && {})
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:150:7
+-       : [];
++       : ["Stryker was here"];
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:149:57
+-       ? Object.keys(JSON.parse(readFileSync(templatePath, "utf8")).mcpServers ?? {})
++       ? Object.keys(JSON.parse(readFileSync(templatePath, "")).mcpServers ?? {})
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:153:22
+-       wantedSkillDirs: [...new Set([...mergeSkillDirs, ...stagedSkillDirs])],
++       wantedSkillDirs: [],
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:153:34
+-       wantedSkillDirs: [...new Set([...mergeSkillDirs, ...stagedSkillDirs])],
++       wantedSkillDirs: [...new Set([])],
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:162:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (false) {
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:162:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (true) {
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:162:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] || resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:162:24
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] && true) {
+
+[Survived] EqualityOperator
+scripts/session-self-heal.mjs:162:24
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] && resolve(process.argv[1]) !== fileURLToPath(import.meta.url)) {
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:162:85
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+-     const __dirname = dirname(fileURLToPath(import.meta.url));
+-     const brainDir = resolve(__dirname, "..");
+-     const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
+-     const lines = [];
+-     sessionSelfHeal({
+-       brainDir,
+-       // Desired-state from the files the engine DELIVERS, never the frozen manifest
+-       // (F-B7 2g): wanted skills = engine merge skills ∪ staged `engine-skills/`;
+-       // wanted MCP servers = keys of the delivered `.mcp.json.template`.
+-       readWanted: () => deriveWanted(brainDir),
+-       // F14: the two files a machine bakes its own paths into. Absent → this is a clone
+-       // nobody has rehydrated yet, not a brain mid-update.
+-       missingWiring: () =>
+-         unwiredFiles(rehydrationPlan({ exists: (rel) => existsSync(join(brainDir, rel)) })),
+-       skillDirExists: (dir) => existsSync(join(brainDir, dir)),
+-       mcpServerRegistered: (() => {
+-         const mcpPath = join(brainDir, ".mcp.json");
+-         const ids = existsSync(mcpPath)
+-           ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
+-           : new Set();
+-         return (id) => ids.has(id);
+-       })(),
+-       spawnReconcile: ({ brainDir: dir }) => {
+-         const child = spawn(
+-           process.execPath,
+-           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "--platform", process.platform],
+-           // detached + unref → survives the hook process; windowsHide → no console flash on Windows.
+-           { detached: true, stdio: "ignore", windowsHide: true },
+-         );
+-         child.unref();
+-       },
+-       // A2: persist the "restart pending" flag under the gitignored .cache/ so the statusLine
+-       // (status-line.mjs) can show the Desktop-visible nudge. Fail-soft: a flag-write hiccup
+-       // must never break self-heal, so swallow errors (the systemMessage line still ships).
+-       setRestartPending: (pending) => {
+-         const flagPath = join(brainDir, RESTART_FLAG_REL);
+-         try {
+-           if (pending) {
+-             mkdirSync(dirname(flagPath), { recursive: true });
+-             writeFileSync(flagPath, "restart needed to finish the engine update\n");
+-           } else {
+-             rmSync(flagPath, { force: true });
+-           }
+-         } catch {
+-           /* fail-soft: the nudge is a convenience, never a blocker */
+-         }
+-       },
+-       emit: (msg) => lines.push(msg),
+-     })
+-       .then((result) => {
+-         // F14: the wrapper's directive follows the payload — an unwired machine gets "run this",
+-         // never "restart for an update finishing in the background".
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
+-         if (output) {
+-           // additionalContext is the ONLY Desktop-visible channel (chat) — see buildSelfHealHookOutput.
+-           process.stdout.write(JSON.stringify(output) + "\n");
+-         }
+-         process.exit(0); // fail-open: ALWAYS exit 0, never block session start
+-       })
+-       .catch(() => process.exit(0));
+-   }
++   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {}
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:164:39
+-     const brainDir = resolve(__dirname, "..");
++     const brainDir = resolve(__dirname, "");
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:165:40
+-     const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
++     const reconcileCli = join(__dirname, "", "reconcile-brain.mjs");
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:165:47
+-     const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
++     const reconcileCli = join(__dirname, "lib", "");
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:166:17
+-     const lines = [];
++     const lines = ["Stryker was here"];
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:168:19
+-     sessionSelfHeal({
+-       brainDir,
+-       // Desired-state from the files the engine DELIVERS, never the frozen manifest
+-       // (F-B7 2g): wanted skills = engine merge skills ∪ staged `engine-skills/`;
+-       // wanted MCP servers = keys of the delivered `.mcp.json.template`.
+-       readWanted: () => deriveWanted(brainDir),
+-       // F14: the two files a machine bakes its own paths into. Absent → this is a clone
+-       // nobody has rehydrated yet, not a brain mid-update.
+-       missingWiring: () =>
+-         unwiredFiles(rehydrationPlan({ exists: (rel) => existsSync(join(brainDir, rel)) })),
+-       skillDirExists: (dir) => existsSync(join(brainDir, dir)),
+-       mcpServerRegistered: (() => {
+-         const mcpPath = join(brainDir, ".mcp.json");
+-         const ids = existsSync(mcpPath)
+-           ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
+-           : new Set();
+-         return (id) => ids.has(id);
+-       })(),
+-       spawnReconcile: ({ brainDir: dir }) => {
+-         const child = spawn(
+-           process.execPath,
+-           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "--platform", process.platform],
+-           // detached + unref → survives the hook process; windowsHide → no console flash on Windows.
+-           { detached: true, stdio: "ignore", windowsHide: true },
+-         );
+-         child.unref();
+-       },
+-       // A2: persist the "restart pending" flag under the gitignored .cache/ so the statusLine
+-       // (status-line.mjs) can show the Desktop-visible nudge. Fail-soft: a flag-write hiccup
+-       // must never break self-heal, so swallow errors (the systemMessage line still ships).
+-       setRestartPending: (pending) => {
+-         const flagPath = join(brainDir, RESTART_FLAG_REL);
+-         try {
+-           if (pending) {
+-             mkdirSync(dirname(flagPath), { recursive: true });
+-             writeFileSync(flagPath, "restart needed to finish the engine update\n");
+-           } else {
+-             rmSync(flagPath, { force: true });
+-           }
+-         } catch {
+-           /* fail-soft: the nudge is a convenience, never a blocker */
+-         }
+-       },
+-       emit: (msg) => lines.push(msg),
+-     })
++     sessionSelfHeal({})
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:173:17
+-       readWanted: () => deriveWanted(brainDir),
++       readWanted: () => undefined,
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:176:20
+-       missingWiring: () =>
+-         unwiredFiles(rehydrationPlan({ exists: (rel) => existsSync(join(brainDir, rel)) })),
++       missingWiring: () => undefined,
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:177:46
+-         unwiredFiles(rehydrationPlan({ exists: (rel) => existsSync(join(brainDir, rel)) })),
++         unwiredFiles(rehydrationPlan({ exists: () => undefined })),
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:177:36
+-         unwiredFiles(rehydrationPlan({ exists: (rel) => existsSync(join(brainDir, rel)) })),
++         unwiredFiles(rehydrationPlan({})),
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:178:21
+-       skillDirExists: (dir) => existsSync(join(brainDir, dir)),
++       skillDirExists: () => undefined,
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:179:33
+-       mcpServerRegistered: (() => {
+-         const mcpPath = join(brainDir, ".mcp.json");
+-         const ids = existsSync(mcpPath)
+-           ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
+-           : new Set();
+-         return (id) => ids.has(id);
+-       })(),
++       mcpServerRegistered: (() => {})(),
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:180:38
+-         const mcpPath = join(brainDir, ".mcp.json");
++         const mcpPath = join(brainDir, "");
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:182:31
+-           ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
++           ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers && {}))
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:182:64
+-           ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
++           ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "")).mcpServers ?? {}))
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:184:14
+-         return (id) => ids.has(id);
++         return () => undefined;
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:186:44
+-       spawnReconcile: ({ brainDir: dir }) => {
+-         const child = spawn(
+-           process.execPath,
+-           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "--platform", process.platform],
+-           // detached + unref → survives the hook process; windowsHide → no console flash on Windows.
+-           { detached: true, stdio: "ignore", windowsHide: true },
+-         );
+-         child.unref();
+-       },
++       spawnReconcile: ({ brainDir: dir }) => {},
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:189:9
+-           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "--platform", process.platform],
++           [],
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:189:24
+-           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "--platform", process.platform],
++           [reconcileCli, "", dir, "--sourceDir", dir, "--platform", process.platform],
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:189:43
+-           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "--platform", process.platform],
++           [reconcileCli, "--brainDir", dir, "", dir, "--platform", process.platform],
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:189:63
+-           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "--platform", process.platform],
++           [reconcileCli, "--brainDir", dir, "--sourceDir", dir, "", process.platform],
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:191:9
+-           { detached: true, stdio: "ignore", windowsHide: true },
++           {},
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:191:21
+-           { detached: true, stdio: "ignore", windowsHide: true },
++           { detached: false, stdio: "ignore", windowsHide: true },
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:191:34
+-           { detached: true, stdio: "ignore", windowsHide: true },
++           { detached: true, stdio: "", windowsHide: true },
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:191:57
+-           { detached: true, stdio: "ignore", windowsHide: true },
++           { detached: true, stdio: "ignore", windowsHide: false },
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:198:37
+-       setRestartPending: (pending) => {
+-         const flagPath = join(brainDir, RESTART_FLAG_REL);
+-         try {
+-           if (pending) {
+-             mkdirSync(dirname(flagPath), { recursive: true });
+-             writeFileSync(flagPath, "restart needed to finish the engine update\n");
+-           } else {
+-             rmSync(flagPath, { force: true });
+-           }
+-         } catch {
+-           /* fail-soft: the nudge is a convenience, never a blocker */
+-         }
+-       },
++       setRestartPending: (pending) => {},
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:200:11
+-         try {
+-           if (pending) {
+-             mkdirSync(dirname(flagPath), { recursive: true });
+-             writeFileSync(flagPath, "restart needed to finish the engine update\n");
+-           } else {
+-             rmSync(flagPath, { force: true });
+-           }
+-         } catch {
++         try {} catch {
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:201:13
+-           if (pending) {
++           if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:201:13
+-           if (pending) {
++           if (false) {
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:201:22
+-           if (pending) {
+-             mkdirSync(dirname(flagPath), { recursive: true });
+-             writeFileSync(flagPath, "restart needed to finish the engine update\n");
+-           } else {
++           if (pending) {} else {
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:202:40
+-             mkdirSync(dirname(flagPath), { recursive: true });
++             mkdirSync(dirname(flagPath), {});
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:202:53
+-             mkdirSync(dirname(flagPath), { recursive: true });
++             mkdirSync(dirname(flagPath), { recursive: false });
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:203:35
+-             writeFileSync(flagPath, "restart needed to finish the engine update\n");
++             writeFileSync(flagPath, "");
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:204:16
+-           } else {
+-             rmSync(flagPath, { force: true });
+-           }
++           } else {}
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:205:28
+-             rmSync(flagPath, { force: true });
++             rmSync(flagPath, {});
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:205:37
+-             rmSync(flagPath, { force: true });
++             rmSync(flagPath, { force: false });
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:211:11
+-       emit: (msg) => lines.push(msg),
++       emit: () => undefined,
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:213:23
+-       .then((result) => {
+-         // F14: the wrapper's directive follows the payload — an unwired machine gets "run this",
+-         // never "restart for an update finishing in the background".
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
+-         if (output) {
+-           // additionalContext is the ONLY Desktop-visible channel (chat) — see buildSelfHealHookOutput.
+-           process.stdout.write(JSON.stringify(output) + "\n");
+-         }
+-         process.exit(0); // fail-open: ALWAYS exit 0, never block session start
+-       })
++       .then((result) => {})
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:216:53
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
++         const output = buildSelfHealHookOutput(lines, {});
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:216:71
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
++         const output = buildSelfHealHookOutput(lines, { needsRehydrate: true });
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:216:71
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
++         const output = buildSelfHealHookOutput(lines, { needsRehydrate: false });
+
+[Survived] EqualityOperator
+scripts/session-self-heal.mjs:216:71
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
++         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate !== true });
+
+[Survived] OptionalChaining
+scripts/session-self-heal.mjs:216:71
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
++         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result.needsRehydrate === true });
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:216:98
+-         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === true });
++         const output = buildSelfHealHookOutput(lines, { needsRehydrate: result?.needsRehydrate === false });
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:217:11
+-         if (output) {
++         if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:217:11
+-         if (output) {
++         if (false) {
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:217:19
+-         if (output) {
+-           // additionalContext is the ONLY Desktop-visible channel (chat) — see buildSelfHealHookOutput.
+-           process.stdout.write(JSON.stringify(output) + "\n");
+-         }
++         if (output) {}
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:219:55
+-           process.stdout.write(JSON.stringify(output) + "\n");
++           process.stdout.write(JSON.stringify(output) + "");
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:223:12
+-       .catch(() => process.exit(0));
++       .catch(() => undefined);
+
+[Survived] StringLiteral
+scripts/session-status.mjs:36:33
+-   const REPO = resolve(__dirname, "..");
++   const REPO = resolve(__dirname, "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:37:26
+-   const VAULT = join(REPO, "vault");
++   const VAULT = join(REPO, "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:38:28
+-   const DB_PATH = join(REPO, "rag", ".cache", "vault.db");
++   const DB_PATH = join(REPO, "", ".cache", "vault.db");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:38:35
+-   const DB_PATH = join(REPO, "rag", ".cache", "vault.db");
++   const DB_PATH = join(REPO, "rag", "", "vault.db");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:38:45
+-   const DB_PATH = join(REPO, "rag", ".cache", "vault.db");
++   const DB_PATH = join(REPO, "rag", ".cache", "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:39:29
+-   const ENV_PATH = join(REPO, ".env");
++   const ENV_PATH = join(REPO, "");
+
+[Survived] BlockStatement
+scripts/session-status.mjs:42:20
+-   function git(args) {
+-     try {
+-       const out = execFileSync("git", args, {
+-         cwd: REPO,
+-         encoding: "utf8",
+-         stdio: ["ignore", "pipe", "pipe"],
+-       });
+-       return { out: out ?? "", ok: true };
+-     } catch (e) {
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
+-       return { out, ok: false };
+-     }
+-   }
++   function git(args) {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:43:7
+-     try {
+-       const out = execFileSync("git", args, {
+-         cwd: REPO,
+-         encoding: "utf8",
+-         stdio: ["ignore", "pipe", "pipe"],
+-       });
+-       return { out: out ?? "", ok: true };
+-     } catch (e) {
++     try {} catch (e) {
+
+[Survived] StringLiteral
+scripts/session-status.mjs:44:30
+-       const out = execFileSync("git", args, {
++       const out = execFileSync("", args, {
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:44:43
+-       const out = execFileSync("git", args, {
+-         cwd: REPO,
+-         encoding: "utf8",
+-         stdio: ["ignore", "pipe", "pipe"],
+-       });
++       const out = execFileSync("git", args, {});
+
+[Survived] StringLiteral
+scripts/session-status.mjs:46:17
+-         encoding: "utf8",
++         encoding: "",
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:47:14
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: [],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:47:15
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: ["", "pipe", "pipe"],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:47:25
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: ["ignore", "", "pipe"],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:47:33
+-         stdio: ["ignore", "pipe", "pipe"],
++         stdio: ["ignore", "pipe", ""],
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:49:12
+-       return { out: out ?? "", ok: true };
++       return {};
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:49:19
+-       return { out: out ?? "", ok: true };
++       return { out: out && "", ok: true };
+
+[Survived] StringLiteral
+scripts/session-status.mjs:49:26
+-       return { out: out ?? "", ok: true };
++       return { out: out ?? "Stryker was here!", ok: true };
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:49:34
+-       return { out: out ?? "", ok: true };
++       return { out: out ?? "", ok: false };
+
+[Survived] BlockStatement
+scripts/session-status.mjs:50:15
+-     } catch (e) {
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
+-       return { out, ok: false };
+-     }
++     } catch (e) {}
+
+[Survived] StringLiteral
+scripts/session-status.mjs:51:17
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = ``;
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:51:20
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout && ""}${e.stderr ?? ""}`;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:51:32
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout ?? "Stryker was here!"}${e.stderr ?? ""}`;
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:51:37
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout ?? ""}${e.stderr && ""}`;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:51:49
+-       const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
++       const out = `${e.stdout ?? ""}${e.stderr ?? "Stryker was here!"}`;
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:52:12
+-       return { out, ok: false };
++       return {};
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:52:23
+-       return { out, ok: false };
++       return { out, ok: true };
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:63:43
+-   const { pullOk, pullOut } = sweepThenPull({ git });
++   const { pullOk, pullOut } = sweepThenPull({});
+
+[Survived] MethodExpression
+scripts/session-status.mjs:64:15
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["rev-parse", "--short", "HEAD"]).out;
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:64:19
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git([]).out.trim();
+
+[Survived] StringLiteral
+scripts/session-status.mjs:64:20
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["", "--short", "HEAD"]).out.trim();
+
+[Survived] StringLiteral
+scripts/session-status.mjs:64:33
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["rev-parse", "", "HEAD"]).out.trim();
+
+[Survived] StringLiteral
+scripts/session-status.mjs:64:44
+-   const short = git(["rev-parse", "--short", "HEAD"]).out.trim();
++   const short = git(["rev-parse", "--short", ""]).out.trim();
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:70:23
+-   const porcelain = git(["status", "--porcelain"]).out;
++   const porcelain = git([]).out;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:70:24
+-   const porcelain = git(["status", "--porcelain"]).out;
++   const porcelain = git(["", "--porcelain"]).out;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:70:34
+-   const porcelain = git(["status", "--porcelain"]).out;
++   const porcelain = git(["status", ""]).out;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:74:3
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     true
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:74:3
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     false
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:74:3
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     pullOk || !/already up to date|déjà à jour/i.test(pullOut)
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:74:13
+-     pullOk && !/already up to date|déjà à jour/i.test(pullOut)
++     pullOk && /already up to date|déjà à jour/i.test(pullOut)
+
+[Survived] MethodExpression
+scripts/session-status.mjs:75:7
+-       ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
+-           .split("\n")
+-           .filter((l) => l.trim().length > 0).length
++       ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out.split("\n").length
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:75:11
+-       ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
++       ? git([]).out
+
+[Survived] StringLiteral
+scripts/session-status.mjs:75:12
+-       ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
++       ? git(["", "--name-only", "ORIG_HEAD", "HEAD"]).out
+
+[Survived] StringLiteral
+scripts/session-status.mjs:75:20
+-       ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
++       ? git(["diff", "", "ORIG_HEAD", "HEAD"]).out
+
+[Survived] StringLiteral
+scripts/session-status.mjs:75:35
+-       ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
++       ? git(["diff", "--name-only", "", "HEAD"]).out
+
+[Survived] StringLiteral
+scripts/session-status.mjs:75:48
+-       ? git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out
++       ? git(["diff", "--name-only", "ORIG_HEAD", ""]).out
+
+[Survived] StringLiteral
+scripts/session-status.mjs:76:16
+-           .split("\n")
++           .split("")
+
+[Survived] ArrowFunction
+scripts/session-status.mjs:77:17
+-           .filter((l) => l.trim().length > 0).length
++           .filter(() => undefined).length
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:77:24
+-           .filter((l) => l.trim().length > 0).length
++           .filter((l) => true).length
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:77:24
+-           .filter((l) => l.trim().length > 0).length
++           .filter((l) => false).length
+
+[Survived] EqualityOperator
+scripts/session-status.mjs:77:24
+-           .filter((l) => l.trim().length > 0).length
++           .filter((l) => l.trim().length >= 0).length
+
+[Survived] EqualityOperator
+scripts/session-status.mjs:77:24
+-           .filter((l) => l.trim().length > 0).length
++           .filter((l) => l.trim().length <= 0).length
+
+[Survived] MethodExpression
+scripts/session-status.mjs:77:24
+-           .filter((l) => l.trim().length > 0).length
++           .filter((l) => l.length > 0).length
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:79:33
+-   const repoLine = repoStatusLine({ pullOk, pullOut, short, changedCount, uncommittedVault, conflictedCount });
++   const repoLine = repoStatusLine({});
+
+[Survived] BlockStatement
+scripts/session-status.mjs:82:29
+-   function countMarkdown(dir) {
+-     let n = 0;
+-     let entries;
+-     try {
+-       entries = readdirSync(dir, { withFileTypes: true });
+-     } catch {
+-       return 0;
+-     }
+-     for (const e of entries) {
+-       const p = join(dir, e.name);
+-       if (e.isDirectory()) n += countMarkdown(p);
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
+-     }
+-     return n;
+-   }
++   function countMarkdown(dir) {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:85:7
+-     try {
+-       entries = readdirSync(dir, { withFileTypes: true });
+-     } catch {
++     try {} catch {
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:86:32
+-       entries = readdirSync(dir, { withFileTypes: true });
++       entries = readdirSync(dir, {});
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:86:49
+-       entries = readdirSync(dir, { withFileTypes: true });
++       entries = readdirSync(dir, { withFileTypes: false });
+
+[Survived] BlockStatement
+scripts/session-status.mjs:87:11
+-     } catch {
+-       return 0;
+-     }
++     } catch {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:90:28
+-     for (const e of entries) {
+-       const p = join(dir, e.name);
+-       if (e.isDirectory()) n += countMarkdown(p);
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
+-     }
++     for (const e of entries) {}
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:92:9
+-       if (e.isDirectory()) n += countMarkdown(p);
++       if (true) n += countMarkdown(p);
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:92:9
+-       if (e.isDirectory()) n += countMarkdown(p);
++       if (false) n += countMarkdown(p);
+
+[Survived] AssignmentOperator
+scripts/session-status.mjs:92:26
+-       if (e.isDirectory()) n += countMarkdown(p);
++       if (e.isDirectory()) n -= countMarkdown(p);
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:93:14
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (true) n++;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:93:14
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (false) n++;
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:93:14
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() || e.name.toLowerCase().endsWith(".md")) n++;
+
+[Survived] MethodExpression
+scripts/session-status.mjs:93:28
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toLowerCase().startsWith(".md")) n++;
+
+[Survived] MethodExpression
+scripts/session-status.mjs:93:28
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toUpperCase().endsWith(".md")) n++;
+
+[Survived] StringLiteral
+scripts/session-status.mjs:93:58
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toLowerCase().endsWith("")) n++;
+
+[Survived] UpdateOperator
+scripts/session-status.mjs:93:66
+-       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n++;
++       else if (e.isFile() && e.name.toLowerCase().endsWith(".md")) n--;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:100:5
+-   if (existsSync(DB_PATH)) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:100:5
+-   if (existsSync(DB_PATH)) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/session-status.mjs:100:26
+-   if (existsSync(DB_PATH)) {
+-     try {
+-       // better-sqlite3 lives in rag/node_modules → require resolved from rag/.
+-       const require = createRequire(join(REPO, "rag", "package.json"));
+-       const Database = require("better-sqlite3");
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
+-       docs = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
+-       db.close();
+-     } catch {
+-       docs = null; // degrades: module absent, DB being written, etc.
+-     }
+-   }
++   if (existsSync(DB_PATH)) {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:101:7
+-     try {
+-       // better-sqlite3 lives in rag/node_modules → require resolved from rag/.
+-       const require = createRequire(join(REPO, "rag", "package.json"));
+-       const Database = require("better-sqlite3");
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
+-       docs = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
+-       db.close();
+-     } catch {
++     try {} catch {
+
+[Survived] StringLiteral
+scripts/session-status.mjs:103:46
+-       const require = createRequire(join(REPO, "rag", "package.json"));
++       const require = createRequire(join(REPO, "", "package.json"));
+
+[Survived] StringLiteral
+scripts/session-status.mjs:103:53
+-       const require = createRequire(join(REPO, "rag", "package.json"));
++       const require = createRequire(join(REPO, "rag", ""));
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:105:38
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
++       const db = new Database(DB_PATH, {});
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:105:50
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
++       const db = new Database(DB_PATH, { readonly: false, fileMustExist: true });
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:105:71
+-       const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
++       const db = new Database(DB_PATH, { readonly: true, fileMustExist: false });
+
+[Survived] StringLiteral
+scripts/session-status.mjs:106:23
+-       docs = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
++       docs = db.prepare("").get().n;
+
+[Survived] BlockStatement
+scripts/session-status.mjs:108:11
+-     } catch {
+-       docs = null; // degrades: module absent, DB being written, etc.
+-     }
++     } catch {}
+
+[Survived] BlockStatement
+scripts/session-status.mjs:118:5
+-   try {
+-     const lastRunPath = join(REPO, LAST_RUN_REL);
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+-   } catch {
++   try {} catch {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:120:7
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
++     if (true) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:120:7
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
++     if (false) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
+
+[Survived] StringLiteral
+scripts/session-status.mjs:120:79
+-     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, "utf8"));
++     if (existsSync(lastRunPath)) lastRun = JSON.parse(readFileSync(lastRunPath, ""));
+
+[Survived] BlockStatement
+scripts/session-status.mjs:121:9
+-   } catch {
+-     lastRun = null;
+-   }
++   } catch {}
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:124:31
+-   const ragLine = ragStatusLine({ docs, scanned, lastRun });
++   const ragLine = ragStatusLine({});
+
+[Survived] StringLiteral
+scripts/session-status.mjs:133:66
+-   const envContent = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, "utf8") : null;
++   const envContent = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, "") : null;
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:134:5
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (false) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:134:5
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (true) {
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:134:5
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (geminiKeyRequired(envContent) || !hasGeminiKey(envContent)) {
+
+[Survived] BlockStatement
+scripts/session-status.mjs:134:65
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
+-     keyLine =
+-       "⚠️ Gemini key missing from .env → the RAG can't answer. Paste it into " +
+-       ".env (GOOGLE_GEMINI_API_KEY=…) then re-ask your question (the server re-reads " +
+-       "it on its own). If it persists, reconnect the MCP (/mcp) or restart Claude Code.";
+-   }
++   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {}
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:134:38
+-   if (geminiKeyRequired(envContent) && !hasGeminiKey(envContent)) {
++   if (geminiKeyRequired(envContent) && hasGeminiKey(envContent)) {
+
+[Survived] StringLiteral
+scripts/session-status.mjs:136:5
+-       "⚠️ Gemini key missing from .env → the RAG can't answer. Paste it into " +
++       "" +
+
+[Survived] StringLiteral
+scripts/session-status.mjs:137:5
+-       ".env (GOOGLE_GEMINI_API_KEY=…) then re-ask your question (the server re-reads " +
++       "" +
+
+[Survived] StringLiteral
+scripts/session-status.mjs:138:5
+-       "it on its own). If it persists, reconnect the MCP (/mcp) or restart Claude Code.";
++       "";
+
+[Survived] BlockStatement
+scripts/session-status.mjs:150:5
+-   try {
+-     const settingsPath = join(REPO, ".claude", "settings.json");
+-     const templatePath = join(REPO, ".claude", "settings.json.template");
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
+-       const r = bootstrapSessionHooks({
+-         brainHooks,
+-         templateHooks,
+-         brainDir: REPO,
+-         message: bootstrapReassuranceMessage(),
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
+-         emit: (msg) => (bootstrapLine = msg),
+-       });
+-       void r;
+-     }
+-   } catch {
++   try {} catch {
+
+[Survived] StringLiteral
+scripts/session-status.mjs:151:35
+-     const settingsPath = join(REPO, ".claude", "settings.json");
++     const settingsPath = join(REPO, "", "settings.json");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:151:46
+-     const settingsPath = join(REPO, ".claude", "settings.json");
++     const settingsPath = join(REPO, ".claude", "");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:152:35
+-     const templatePath = join(REPO, ".claude", "settings.json.template");
++     const templatePath = join(REPO, "", "settings.json.template");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:152:46
+-     const templatePath = join(REPO, ".claude", "settings.json.template");
++     const templatePath = join(REPO, ".claude", "");
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:153:7
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-status.mjs:153:7
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
++     if (false) {
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:153:7
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
++     if (existsSync(settingsPath) || existsSync(templatePath)) {
+
+[Survived] BlockStatement
+scripts/session-status.mjs:153:61
+-     if (existsSync(settingsPath) && existsSync(templatePath)) {
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
+-       const r = bootstrapSessionHooks({
+-         brainHooks,
+-         templateHooks,
+-         brainDir: REPO,
+-         message: bootstrapReassuranceMessage(),
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
+-         emit: (msg) => (bootstrapLine = msg),
+-       });
+-       void r;
+-     }
++     if (existsSync(settingsPath) && existsSync(templatePath)) {}
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:154:24
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
++       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks && {};
+
+[Survived] StringLiteral
+scripts/session-status.mjs:154:62
+-       const brainHooks = JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {};
++       const brainHooks = JSON.parse(readFileSync(settingsPath, "")).hooks ?? {};
+
+[Survived] LogicalOperator
+scripts/session-status.mjs:155:27
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
++       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks && {};
+
+[Survived] StringLiteral
+scripts/session-status.mjs:155:65
+-       const templateHooks = JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {};
++       const templateHooks = JSON.parse(readFileSync(templatePath, "")).hooks ?? {};
+
+[Survived] StringLiteral
+scripts/session-status.mjs:156:42
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
++       const reconcileCli = join(__dirname, "", "reconcile-brain.mjs");
+
+[Survived] StringLiteral
+scripts/session-status.mjs:156:49
+-       const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
++       const reconcileCli = join(__dirname, "lib", "");
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:157:37
+-       const r = bootstrapSessionHooks({
+-         brainHooks,
+-         templateHooks,
+-         brainDir: REPO,
+-         message: bootstrapReassuranceMessage(),
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
+-         emit: (msg) => (bootstrapLine = msg),
+-       });
++       const r = bootstrapSessionHooks({});
+
+[Survived] BlockStatement
+scripts/session-status.mjs:162:41
+-         spawnReconcile: ({ brainDir }) => {
+-           const child = spawn(
+-             process.execPath,
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+-             // detached + unref → outlives the hook; windowsHide → no console flash (ADR 0015).
+-             { detached: true, stdio: "ignore", windowsHide: true },
+-           );
+-           child.unref();
+-         },
++         spawnReconcile: ({ brainDir }) => {},
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:165:11
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:165:26
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [reconcileCli, "", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:165:50
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [reconcileCli, "--brainDir", brainDir, "", brainDir, "--platform", process.platform],
+
+[Survived] StringLiteral
+scripts/session-status.mjs:165:75
+-             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "--platform", process.platform],
++             [reconcileCli, "--brainDir", brainDir, "--sourceDir", brainDir, "", process.platform],
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:167:11
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             {},
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:167:23
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             { detached: false, stdio: "ignore", windowsHide: true },
+
+[Survived] StringLiteral
+scripts/session-status.mjs:167:36
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             { detached: true, stdio: "", windowsHide: true },
+
+[Survived] BooleanLiteral
+scripts/session-status.mjs:167:59
+-             { detached: true, stdio: "ignore", windowsHide: true },
++             { detached: true, stdio: "ignore", windowsHide: false },
+
+[Survived] ArrowFunction
+scripts/session-status.mjs:171:13
+-         emit: (msg) => (bootstrapLine = msg),
++         emit: () => undefined,
+
+[Survived] BlockStatement
+scripts/session-status.mjs:175:9
+-   } catch {
+-     bootstrapLine = null; // fail-soft: never block session start over a bootstrap hiccup
+-   }
++   } catch {}
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:187:24
+-     restartPendingOnDisk({ repo: REPO, deriveWanted, existsSync, readFileSync }),
++     restartPendingOnDisk({}),
+
+[Survived] MethodExpression
+scripts/session-status.mjs:191:23
+-   const systemMessage = [restartLine, bootstrapLine, keyLine, repoLine, ragLine]
+-     .filter(Boolean)
++   const systemMessage = [restartLine, bootstrapLine, keyLine, repoLine, ragLine]
+
+[Survived] ArrayDeclaration
+scripts/session-status.mjs:191:23
+-   const systemMessage = [restartLine, bootstrapLine, keyLine, repoLine, ragLine]
++   const systemMessage = []
+
+[Survived] StringLiteral
+scripts/session-status.mjs:193:9
+-     .join("\n");
++     .join("");
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:195:18
+-     JSON.stringify({
+-       hookSpecificOutput: { hookEventName: "SessionStart" },
+-       systemMessage,
+-     }) + "\n"
++     JSON.stringify({}) + "\n"
+
+[Survived] ObjectLiteral
+scripts/session-status.mjs:196:25
+-       hookSpecificOutput: { hookEventName: "SessionStart" },
++       hookSpecificOutput: {},
+
+[Survived] StringLiteral
+scripts/session-status.mjs:196:42
+-       hookSpecificOutput: { hookEventName: "SessionStart" },
++       hookSpecificOutput: { hookEventName: "" },
+
+[Survived] StringLiteral
+scripts/session-status.mjs:198:8
+-     }) + "\n"
++     }) + ""
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:61:17
+-   const toPosix = (p) => p.split("\\").join("/");
++   const toPosix = () => undefined;
+
+[Survived] StringLiteral
+scripts/session-universe.mjs:61:32
+-   const toPosix = (p) => p.split("\\").join("/");
++   const toPosix = (p) => p.split("").join("/");
+
+[Survived] StringLiteral
+scripts/session-universe.mjs:61:43
+-   const toPosix = (p) => p.split("\\").join("/");
++   const toPosix = (p) => p.split("\\").join("");
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:69:17
+-     healPointer = () => ({ healed: false }),
++     healPointer = () => undefined,
+
+[Survived] ObjectLiteral
+scripts/session-universe.mjs:69:24
+-     healPointer = () => ({ healed: false }),
++     healPointer = () => ({}),
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:70:19
+-     readSynthesis = () => null,
++     readSynthesis = () => undefined,
+
+[Survived] BooleanLiteral
+scripts/session-universe.mjs:69:34
+-     healPointer = () => ({ healed: false }),
++     healPointer = () => ({ healed: true }),
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:71:18
+-     readDeclined = () => false,
++     readDeclined = () => undefined,
+
+[Survived] BooleanLiteral
+scripts/session-universe.mjs:71:24
+-     readDeclined = () => false,
++     readDeclined = () => true,
+
+[Survived] BooleanLiteral
+scripts/session-universe.mjs:87:20
+-     let multiverse = false;
++     let multiverse = true;
+
+[Survived] BooleanLiteral
+scripts/session-universe.mjs:101:18
+-         reported = true;
++         reported = false;
+
+[Survived] ConditionalExpression
+scripts/session-universe.mjs:129:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-universe.mjs:129:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (false) {
+
+[Survived] LogicalOperator
+scripts/session-universe.mjs:129:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] || resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+
+[Survived] ConditionalExpression
+scripts/session-universe.mjs:129:24
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] && true) {
+
+[Survived] EqualityOperator
+scripts/session-universe.mjs:129:24
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] && resolve(process.argv[1]) !== fileURLToPath(import.meta.url)) {
+
+[Survived] BlockStatement
+scripts/session-universe.mjs:129:85
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+-     const io = {
+-       existsSync,
+-       readFileSync: (p) => readFileSync(p, "utf-8"),
+-       writeFileSync,
+-       mkdirSync,
+-     };
+-     const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+-     const vaultDir = `${toPosix(brainDir)}/vault`;
+-     const lines = [];
+-     const { synthesis, offer } = sessionUniverseReminder({
+-       dir: vaultRagDir(brainDir),
+-       // The profile of the universe actually in force. Read through
+-       // readActiveUniverse, which VALIDATES against the registry, so a machine whose
+-       // pointer is a ghost injects the default universe's profile — no dependency on
+-       // whether the repair below has run yet.
+-       readSynthesis: (dir) =>
+-         readActiveProfileSynthesis(io, vaultDir, () => readActiveUniverse(io, dir)),
+-       // A refusal is remembered PER UNIVERSE: saying no to describing Acme must not
+-       // silence the question for a universe created later, which is a different world.
+-       readDeclined: (dir) => profileCaptureDeclined(io, dir, readActiveUniverse(io, dir)),
+-       // The only write this hook performs: repairing a pointer left aimed at a
+-       // universe that is gone. A healthy pointer is never rewritten.
+-       healPointer: (dir) => healActiveUniversePointer(io, dir),
+-       readState: (dir) => ({
+-         registry: readRegistry(io, dir),
+-         active: readActiveUniverse(io, dir),
+-       }),
+-       emit: (msg) => lines.push(msg),
+-     });
+-     const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, synthesis, offer });
+-     if (output) {
+-       // additionalContext is the ONLY Desktop-visible channel (chat) — see buildUniverseHookOutput.
+-       process.stdout.write(JSON.stringify(output) + "\n");
+-     }
+-     process.exit(0); // fail-open: ALWAYS exit 0, never block session start
+-   }
++   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {}
+
+[Survived] ObjectLiteral
+scripts/session-universe.mjs:130:14
+-     const io = {
+-       existsSync,
+-       readFileSync: (p) => readFileSync(p, "utf-8"),
+-       writeFileSync,
+-       mkdirSync,
+-     };
++     const io = {};
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:132:19
+-       readFileSync: (p) => readFileSync(p, "utf-8"),
++       readFileSync: () => undefined,
+
+[Survived] StringLiteral
+scripts/session-universe.mjs:132:42
+-       readFileSync: (p) => readFileSync(p, "utf-8"),
++       readFileSync: (p) => readFileSync(p, ""),
+
+[Survived] StringLiteral
+scripts/session-universe.mjs:136:69
+-     const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
++     const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "");
+
+[Survived] StringLiteral
+scripts/session-universe.mjs:137:20
+-     const vaultDir = `${toPosix(brainDir)}/vault`;
++     const vaultDir = ``;
+
+[Survived] ArrayDeclaration
+scripts/session-universe.mjs:138:17
+-     const lines = [];
++     const lines = ["Stryker was here"];
+
+[Survived] ObjectLiteral
+scripts/session-universe.mjs:140:56
+-     const { synthesis, offer } = sessionUniverseReminder({
+-       dir: vaultRagDir(brainDir),
+-       // The profile of the universe actually in force. Read through
+-       // readActiveUniverse, which VALIDATES against the registry, so a machine whose
+-       // pointer is a ghost injects the default universe's profile — no dependency on
+-       // whether the repair below has run yet.
+-       readSynthesis: (dir) =>
+-         readActiveProfileSynthesis(io, vaultDir, () => readActiveUniverse(io, dir)),
+-       // A refusal is remembered PER UNIVERSE: saying no to describing Acme must not
+-       // silence the question for a universe created later, which is a different world.
+-       readDeclined: (dir) => profileCaptureDeclined(io, dir, readActiveUniverse(io, dir)),
+-       // The only write this hook performs: repairing a pointer left aimed at a
+-       // universe that is gone. A healthy pointer is never rewritten.
+-       healPointer: (dir) => healActiveUniversePointer(io, dir),
+-       readState: (dir) => ({
+-         registry: readRegistry(io, dir),
+-         active: readActiveUniverse(io, dir),
+-       }),
+-       emit: (msg) => lines.push(msg),
+-     });
++     const { synthesis, offer } = sessionUniverseReminder({});
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:146:20
+-       readSynthesis: (dir) =>
+-         readActiveProfileSynthesis(io, vaultDir, () => readActiveUniverse(io, dir)),
++       readSynthesis: () => undefined,
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:147:48
+-         readActiveProfileSynthesis(io, vaultDir, () => readActiveUniverse(io, dir)),
++         readActiveProfileSynthesis(io, vaultDir, () => undefined),
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:150:19
+-       readDeclined: (dir) => profileCaptureDeclined(io, dir, readActiveUniverse(io, dir)),
++       readDeclined: () => undefined,
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:153:18
+-       healPointer: (dir) => healActiveUniversePointer(io, dir),
++       healPointer: () => undefined,
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:154:16
+-       readState: (dir) => ({
+-         registry: readRegistry(io, dir),
+-         active: readActiveUniverse(io, dir),
+-       }),
++       readState: () => undefined,
+
+[Survived] ObjectLiteral
+scripts/session-universe.mjs:154:26
+-       readState: (dir) => ({
+-         registry: readRegistry(io, dir),
+-         active: readActiveUniverse(io, dir),
+-       }),
++       readState: (dir) => ({}),
+
+[Survived] ArrowFunction
+scripts/session-universe.mjs:158:11
+-       emit: (msg) => lines.push(msg),
++       emit: () => undefined,
+
+[Survived] ObjectLiteral
+scripts/session-universe.mjs:161:42
+-     const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, synthesis, offer });
++     const output = buildUniverseHookOutput({});
+
+[Survived] ConditionalExpression
+scripts/session-universe.mjs:161:51
+-     const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, synthesis, offer });
++     const output = buildUniverseHookOutput({ nudge: true, synthesis, offer });
+
+[Survived] ConditionalExpression
+scripts/session-universe.mjs:161:51
+-     const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, synthesis, offer });
++     const output = buildUniverseHookOutput({ nudge: false, synthesis, offer });
+
+[Survived] LogicalOperator
+scripts/session-universe.mjs:161:51
+-     const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, synthesis, offer });
++     const output = buildUniverseHookOutput({ nudge: lines.join(" ") && null, synthesis, offer });
+
+[Survived] StringLiteral
+scripts/session-universe.mjs:161:62
+-     const output = buildUniverseHookOutput({ nudge: lines.join(" ") || null, synthesis, offer });
++     const output = buildUniverseHookOutput({ nudge: lines.join("") || null, synthesis, offer });
+
+[Survived] ConditionalExpression
+scripts/session-universe.mjs:162:7
+-     if (output) {
++     if (true) {
+
+[Survived] ConditionalExpression
+scripts/session-universe.mjs:162:7
+-     if (output) {
++     if (false) {
+
+[Survived] BlockStatement
+scripts/session-universe.mjs:162:15
+-     if (output) {
+-       // additionalContext is the ONLY Desktop-visible channel (chat) — see buildUniverseHookOutput.
+-       process.stdout.write(JSON.stringify(output) + "\n");
+-     }
++     if (output) {}
+
+[Survived] StringLiteral
+scripts/session-universe.mjs:164:51
+-       process.stdout.write(JSON.stringify(output) + "\n");
++       process.stdout.write(JSON.stringify(output) + "");
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  23.01 |   23.01 |       78 |         0 |        261 |        0 |        0 |
+ session-self-heal.mjs |  36.62 |   36.62 |       52 |         0 |         90 |        0 |        0 |
+ session-status.mjs    |   0.00 |    0.00 |        0 |         0 |        131 |        0 |        0 |
+ session-universe.mjs  |  39.39 |   39.39 |       26 |         0 |         40 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+18:37:53 (67343) INFO MutationTestExecutor Done in 7 minutes and 45 seconds.
+18:37:53 (67343) INFO Sandbox Resetting your original files from .stryker-tmp/backup-5a9ew3.

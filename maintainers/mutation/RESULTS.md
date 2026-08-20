@@ -15,7 +15,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %**. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) over its 6 changed files reads **94.67 %**, with the file it creates at **100 %**. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) over the 2 files that release changed reads **94.44 %** first pass, **100 % on both** after the survivors were closed |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent. It then ran a **second pass after the review fixes** (those fixes changed production code, so the first numbers no longer covered it): 4 files re-measured, 3 of them at **96.88–100 %**, plus `lib/hooks-reconcile.mjs` — a file this release only grazes — at **78.69 %**, whose 24 remaining survivors are pre-existing and named rather than implied. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) measured the 4 files that release wrote: **83.33 % → 97.56 %**, two of them at **100 %**, the two survivors left both pre-listed equivalents — and the low first-pass number was a **design** defect (a fail-soft written twice, so neither half was observable), not thin tests. The [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05) is the biggest targeted pass so far — **16 files**, six batches: **thirteen end at 94 % or above**, one at 100 %, and the three that do not are the **named structural debt** (two files with no test sibling at 0 %, `engine-fetch.mjs`'s real git runner at 54.05 %), whose two remedies the owner **arbitrated into v4.9.0**, then **re-arbitrated in writing** (2026-08-08) onto the unfreeze release that follows it, rather than left implied. The [v4.9.0 run](#v490--the-universes-release-scripts-only--2026-08-08) measured the 6 files that release changed: **the two files it WROTE end at 100.00 % and 95.28 %**, `update-engine.mjs` at **98.44 %** and `reconcile-brain.mjs` at **96.11 %** — and the two entrypoint-tier files it merely grazed both **rose**, `session-universe.mjs` **39.39 % → 66.18 %** and `session-status.mjs` **0.00 % → 8.67 %**, still debt 1 rather than new rot. The [v4.9.1 run](#v491--the-switch-that-leaves-the-machine-scripts-only--2026-08-15) measured the 6 files that hotfix changed, over **three passes** (production moved twice): **the two files it WROTE both end at 100.00 %**, the untested CLI wiring goes **25 % → 100 %**, and the four others land at **95.92–99.66 %** — every survivor left a named equivalent |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent. It then ran a **second pass after the review fixes** (those fixes changed production code, so the first numbers no longer covered it): 4 files re-measured, 3 of them at **96.88–100 %**, plus `lib/hooks-reconcile.mjs` — a file this release only grazes — at **78.69 %**, whose 24 remaining survivors are pre-existing and named rather than implied. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) measured the 4 files that release wrote: **83.33 % → 97.56 %**, two of them at **100 %**, the two survivors left both pre-listed equivalents — and the low first-pass number was a **design** defect (a fail-soft written twice, so neither half was observable), not thin tests. The [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05) is the biggest targeted pass so far — **16 files**, six batches: **thirteen end at 94 % or above**, one at 100 %, and the three that do not are the **named structural debt** (two files with no test sibling at 0 %, `engine-fetch.mjs`'s real git runner at 54.05 %), whose two remedies the owner **arbitrated into v4.9.0**, then **re-arbitrated in writing** (2026-08-08) onto the unfreeze release that follows it, rather than left implied. The [v4.9.0 run](#v490--the-universes-release-scripts-only--2026-08-08) measured the 6 files that release changed: **the two files it WROTE end at 100.00 % and 95.28 %**, `update-engine.mjs` at **98.44 %** and `reconcile-brain.mjs` at **96.11 %** — and the two entrypoint-tier files it merely grazed both **rose**, `session-universe.mjs` **39.39 % → 66.18 %** and `session-status.mjs` **0.00 % → 8.67 %**, still debt 1 rather than new rot. The [v4.9.1 run](#v491--the-switch-that-leaves-the-machine-scripts-only--2026-08-15) measured the 6 files that hotfix changed, over **three passes** (production moved twice): **the two files it WROTE both end at 100.00 %**, the untested CLI wiring goes **25 % → 100 %**, and the four others land at **95.92–99.66 %** — every survivor left a named equivalent. The [S0bis run](#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20) is not a release but the **debt run itself**: it pays both structural debts this table has flagged since v4.4.0 — the two entry-guard files quoted above at **0 %** (`status-line.mjs`, `upstream-check-run.mjs`) both end at **100.00 %**, `engine-fetch.mjs` goes **54.05 % → 84.21 %**, and a new repo-wide **guard test** makes the shape unrepeatable rather than merely fixed. **The tier is now closed**: `session-status.mjs`, held back the same day as a written arbitration because it is the one file that cannot be verified by running it, was answered by the owner and paid — **8.67 % → 96.10 %** over three rounds, its red taken inside a disposable worktree and its output proved byte-identical before and after. **No `scripts/*.mjs` sits in the 0 % tier any more**, for the first time since v4.4.0 |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**. **v4.4.0 touches no `src/**` file here — the number carries over, deliberately not re-measured** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -138,6 +138,252 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## S1's seeding planner — `planBaseSeed`, same file, same day — 2026-08-20
+
+**Third production slice of the unfreeze chantier** (the migration: a brain seeds its own base tree
+from itself, with nothing to fetch). Same branch, same file; state owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors left |
+|---|---|---|
+| `lib/engine-base.mjs` *(+ `planBaseSeed`)* | **100.00 %** — 57 killed, 0 survived | 0 |
+
+**No survivor, first pass again** — 19 mutants more than the 38 the file carried before the function.
+Measured **on `HEAD`, after the green commit**, per the stop sign now in the skill.
+
+What paid for it: the cases that pin a *state* rather than a happy path — a base already present and
+provable (left alone), a base that drifted (re-seeded), a recorded file the owner deleted (named, not
+skipped), and a file delivered empty. Three of those four are unreachable from the nominal case, and
+the "already provable" one is the guard that keeps this migration from overwriting a correct ancestor
+with a file the owner has edited since.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs`.
+
+---
+
+## S1's advance rule — `planBaseAdvance`, same file, same day — 2026-08-20
+
+**Still not a release: the second production slice of the unfreeze chantier** (the base moves to what
+was *delivered*, never to what was fetched). Same branch, same file as the section below; the step's
+state is owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors left |
+|---|---|---|
+| `lib/engine-base.mjs` *(+ `planBaseAdvance`)* | **100.00 %** — 38 killed, 0 survived | 0 |
+
+**No survivor, first pass** — 3 mutants more than the 35 the file carried before the function, all
+killed. The cases that earned it are the two a green suite would not have needed: a file delivered
+**empty** (the falsy-content skip, invisible to every other case) and a `replace`-regime path in the
+delivery map (the false positive S1 exists to kill).
+
+> ⚠️ **The runner measures `HEAD`, not the working tree — and it will happily hand you a green score
+> about code you have not written yet.** Measured live the same day: the first run on this slice
+> returned **100 %, 35 killed** while `planBaseAdvance` sat uncommitted; `mutate-one.mjs` resets its
+> disposable worktree to `git rev-parse HEAD`, so the number was the *previous* commit's, re-measured.
+> Nothing in the output says so. **Commit green, then measure** — the reflex is now written into
+> [`../skills/mutation-testing/SKILL.md`](../skills/mutation-testing/SKILL.md) §2.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs` (log
+[`reports/mutate-one-engine-base.log`](reports/mutate-one-engine-base.log) — one log per file, so this
+run overwrote the one below; the numbers, not the log, are the record).
+
+---
+
+## S1's first slice — `lib/engine-base.mjs`, measured the day it was written — 2026-08-20
+
+**Not a release: the first production file of the unfreeze chantier** (the immutable base per `merge`
+file). Same branch as S0bis below; the step's own state is owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md),
+this section owns only the number.
+
+| File | First pass | After the survivor | Survivors left |
+|---|---|---|---|
+| `lib/engine-base.mjs` *(new)* | 97.14 % | **100.00 %** | 0 |
+
+**This is the day-of runner's first use on the work it was built for**, one commit after it shipped:
+the file was mutated the same hour it was written, not at the release tail, and the whole round cost
+two runs of ~70 s.
+
+**The single first-pass survivor was worth the run, and it was NOT an equivalent.** Stryker dropped the
+raw `fingerprint(baseContent) === recorded` half of the base's proof, keeping only the EOL-normalized
+one — green, because normalizing LF content is the identity. The case it silently gave up is real and
+Windows-only: a brain installed on Windows fingerprints whatever it copied, so **the recorded sha
+itself can be taken over CRLF bytes**, and there the normalized comparison hashes LF and misses. The
+two terms serve **opposite halves of the fleet**, and the suite had a case for one half only —
+reflex 9 (a condition with N reasons needs N tests, one per reason alone). Mutant applied by hand
+before and after the new case, per the skill.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs` (log
+[`reports/mutate-one-engine-base.log`](reports/mutate-one-engine-base.log)).
+
+---
+
+## The day-of runner, and its first two runs — 2026-08-20
+
+**Not a release either: the tooling.** Same branch as S0bis below. §5quinquies had carried the
+one-file recipe **in prose** since v4.8.0 and the traps kept being paid anyway, so the recipe became a
+script — [`mutate-one.mjs`](mutate-one.mjs) — with the [`mutation-testing`](../skills/mutation-testing/SKILL.md)
+skill beside it for the judgement half.
+
+| Run | Score | Survivors left |
+|---|---|---|
+| `mutate-one.mjs` **on itself**, first pass | 80.95 % | 64 |
+| `mutate-one.mjs` **on itself**, after one hardening round | **99.11 %** | 3, all named below |
+| `scripts/lint-vault.mjs` *(the S0bis canary, never measured until now)* | **70.00 %** | 3 |
+
+**The tool's own 64 first-pass survivors sorted into the three families the skill names**, which is
+the first evidence that those families generalise beyond `session-status.mjs`: ~30 in the composition
+root (every case drove the run through doubles, so `run`, `symlink`, `writeFile` and `say` could each
+be emptied whole with the suite green), ~25 message literals blanked to `""` on output that is the
+run's only account of itself, and the rest genuine missing cases — a git step failing mid-plan, a
+write-guard exiting non-zero while printing a clean summary, a Stryker threshold break that prints a
+perfect table and exits non-zero.
+
+**The 3 survivors left are equivalents, named rather than rounded up:**
+
+- `cells.length >= 8` → `> 8` — a Stryker clear-text row always splits into **9** cells, so no log can
+  distinguish the two bounds.
+- `encoding: "utf8"` → `""` — the captured output is built in a template string, which coerces a
+  Buffer to exactly the same text.
+- the entry tail `runAsEntrypoint(…)` — killed only by the two `^entry point` cases that
+  [`stryker.maintainers.config.mjs`](stryker.maintainers.config.mjs) deliberately **skips**: they spawn
+  the real file, so a mutant flipping `dryRun` to false would run `git worktree add` for real from
+  inside a test. Excluding tests can only make a score pessimistic, never inflate it.
+
+**What the first real run found, on its first use** — `scripts/lint-vault.mjs`, the S0bis canary,
+converted and ticked but whose score was never recorded: **70.00 %**, and all 3 survivors sit in its
+**composition root** (`realLintDeps.cwd`, `realLintDeps.error`, and `toPosix`'s `"/"`). Family 1
+again, on a file everyone considered done. **Recorded as remaining entry-tier debt, not fixed here**:
+it belongs to the S0bis ceilings, not to the tooling slice.
+
+**Reproduce**: `npm --prefix maintainers/mutation run mutate:maintainers` (logs
+[`reports/mutate-one-self.log`](reports/mutate-one-self.log)) and
+`node maintainers/mutation/mutate-one.mjs scripts/lint-vault.mjs` (log
+[`reports/mutate-one-lint-vault.log`](reports/mutate-one-lint-vault.log)).
+
+---
+
+## S0bis — the two structural debts, paid (`scripts` only) — 2026-08-20
+
+**Not a release: the debt run itself.** Branch `chore/s0bis-entrypoint-mutation-debt`, working contract
+in [`../plans/prospective/agent-orchestrated-release-mode-action.md`](../plans/prospective/agent-orchestrated-release-mode-action.md),
+debt statement in [`../plans/prospective/v4.9.0-mutation-debt-plan.md`](../plans/prospective/v4.9.0-mutation-debt-plan.md).
+It exists to pay the **two named structural debts** the [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05)
+recorded and every published tag has carried since: the **entry-guard tier** (top-level scripts whose
+whole body no test can import, hence 0 %) and **`defaultGit`'s inline invocation** (54.05 %).
+
+| File | Before | After | Survivors left |
+|---|---|---|---|
+| `lib/entrypoint.mjs` *(the shared tail)* | — | **100.00 %** | 0 |
+| `status-line.mjs` | **0.00 %** *(v4.8.0)* | **100.00 %** | 0 |
+| `upstream-check-run.mjs` | **0.00 %** *(v4.8.0)* | **100.00 %** | 0 |
+| `lib/engine-fetch.mjs` | **54.05 %** *(v4.8.0)* | **84.21 %** | 12 |
+| `lib/entrypoint-discipline.mjs` *(new — the guard)* | — | 71.82 % → **81.44 %** | 54 |
+| `session-status.mjs` | **8.67 %** *(v4.9.0)*, 0.00 % since v4.4.0 | 70.89 % → 90.12 % → **96.10 %** | 6 |
+
+**Both 0 % files end at 100 %** — the tier v4.4.0 named and four releases carried is no longer a tier
+of its own for them. The mechanism is the one settled at v4.5.0 and never propagated until now: one
+shared `runAsEntrypoint(metaUrl, argv, fn)`, tested once, with each script's body passed in as an
+**importable function**. What used to be unreachable code became ordinary code, and ordinary code is
+measurable. `upstream-check-run.mjs` needed **15 mutants' worth** of tests to get there; the 0 % was
+never a hard problem, only an unreachable one.
+
+**Debt 2 is paid the same way it was solved at v4.5.0**: `defaultGit`'s request became a pure value
+(`buildGitInvocation(args) → {command, args, options}`, asserted whole), and the comment in which the
+code **documented its own exemption** — *"Used by the core's CLI wiring, never by the unit tests"* — was
+deleted with the fix. 54.05 % → **84.21 %**; the 12 survivors left are in the file's other functions,
+not in the runner.
+
+**What is genuinely new here is the guard, and it earned its keep on day one.** `lib/entrypoint-discipline.mjs`
++ its repo-wide test go red on a hand-rolled entry guard, on a top-level script with no test sibling,
+and on a child process **built and executed in the same call**. Switched on before the conversions
+started, it went red on exactly one production file: `engine-fetch.mjs` — the Debt-2 file. The debt did
+not have to be remembered; it was **reported**. Two ratchets carry the rest: descending numeric
+**ceilings** for the entry-guard shape (fan-out-safe — parallel agents never touch the guard test) and
+**named allowlists** for the rest, where shrink-only is *enforced* rather than promised: an exemption
+that is no longer an offender **turns the suite red until it is deleted**.
+
+**Counted, not estimated: 26 files carried the shape, not the 20 the debt plan assumed** — 16 via
+`isEntrypoint`, 7 inline, 2 via `auto-commit.mjs`'s duplicate `isEntryPoint`, and 1 via a *third*
+spelling nobody had recorded (`import-brain.mjs`'s `isMain()`). Fifteen are converted; the ceilings
+stand at **14 / 9**, down from 32 / 26.
+
+### `session-status.mjs` — 8.67 % → 96.10 %, and how a file you may not run gets a net
+
+Held back from the batches above as a **blocking arbitration**, then answered by the owner the same
+day ("yes, now, with me at the keyboard") and paid. It is the head of the entry-guard debt: **0.00 %
+on every published tag from v4.4.0**, 8.67 % at v4.9.0, and the one file of the tier that **cannot be
+verified by running it** — executing it sweeps and auto-commits the importer's own working tree.
+
+**The disposable worktree is what restored fail-first**, and that is the transferable part. Inside a
+throwaway checkout a sweep-and-commit is harmless, so the red could be taken for real: importing the
+unconverted file ran the whole SessionStart hook — pull, markers, detached child, banner on stdout.
+The body then moved into `runSessionStatus(argv, deps)` behind the shared tail **without
+restructuring**, and the real hook was run as a process **before and after**: output byte-identical,
+tree untouched. Three measured rounds followed: **70.89 % → 90.12 % → 96.10 %**.
+
+**The 46 first-pass survivors sorted into three families, and only one was about missing cases:**
+
+1. **The real adapter layer, judged by nothing.** Every case drove the hook through doubles, so
+   `realGit` and the DB read were never executed at all — a mutant could empty either one whole. Both
+   became injected functions with their own tests (`runGitInvocation`, `readDocCountFrom`), and the
+   two seams that still need the real world are proved by the one call safe enough to make:
+   `git --version`, and a `readDocCount` of a database that is not there.
+2. **Doubles that ignored their arguments.** The fake fs took `(p)` and dropped the rest, so every
+   `readFileSync(p, "utf8")` could lose its encoding — handing a Buffer to code that string-matches
+   it — with the suite still green. **Six survivors lived in that one omission.** The fakes now assert
+   their second argument. *A double's answer has to be a fingerprint of what it was asked, or it
+   certifies nothing.*
+3. **Genuine missing cases**: a failed pull (which must never be asked what it changed — `ORIG_HEAD`
+   means nothing then), a pull that landed and reports its count, a last-run that recorded a refused
+   note, a converged brain that spawns nothing, a manifest with no `source` block, and the Gemini key
+   line asserted **whole** instead of by its first sentence — three literals, of which two could be
+   blanked unseen, on the line that tells an owner why their brain cannot answer.
+
+**Five of the second round's 16 survivors were killed by SIMPLIFYING the production**, which is the
+better answer whenever it applies: the run-state read and the bootstrap read each guarded themselves
+with `existsSync` **and** a `try/catch`. An absent file throws on read and lands in the same branch, so
+the guard was a second spelling of the catch — two branches, four mutants, no behaviour of its own.
+Both catch bodies then re-assigned `null` to a variable that was already `null`. Deleted, reasons kept
+as comments.
+
+**The 6 survivors left are named equivalents, not rounding:**
+
+- `realOpenDatabase` and its two path literals (3) — only a real `better-sqlite3` load exercises them,
+  and any wrong path throws into the catch that already answers `null`. Same answer, either way.
+- `markerIo.readFileSync` (2) — the marker **writer** never reads; only the gate's reader does, at a
+  different call site with its own tests.
+- `pulled: []` (1) — `changedCount` is rendered only on the "📥 Repo updated" branch, which is
+  unreachable exactly when the `[]` branch is taken.
+
+🪤 **A trap this run uncovered, and the next person will hit it too: mutating a file that a SOURCE
+SCANNER reads breaks the dry run.** Stryker instruments in place, so the literals
+`lib/entrypoint-discipline.mjs` scans for are rewritten under it; `session-status.mjs` stopped reading
+as an inline-invocation offender and the shrink-only allowlist assertion went red — correctly, on a
+file that was still an offender when clean. **Paid rather than worked around**: its git call and its
+two detached children became named values (`buildGitInvocation`, `buildReconcileInvocation`,
+`buildUpstreamProbeInvocation`), and the file left `INLINE_INVOCATION_EXEMPT`. A named value is stable
+under instrumentation as well as assertable. *(Caught alongside it: binding the injected `spawn` to
+`spawnChild` hid both spawn calls from the scanner's token list. A rename must not be able to buy
+silence from a guard.)*
+
+**Reproduce**: `--mutate "scripts/session-status.mjs"`, worktree `kenjaku-mut-sessionstatus`, log
+[`reports/s0bis-session-status.log`](reports/s0bis-session-status.log) (the third and final round).
+
+**One thing this run deliberately did NOT do**, written down rather than left implied:
+
+- **`lib/entrypoint-discipline.mjs`'s own 81.44 % is below the repo norm** (~94 %). One hardening round
+  took it 71.82 % → 81.44 %; the 54 survivors left are in the hand-rolled comment/quote state machine,
+  where a large share are boundary equivalents. Named as the top follow-up rather than rounded up: a
+  guard that judges the repo should be measured at least as strictly as what it judges.
+
+**Reproduce**: batch recipe of §"Reproduce" below, worktree `kenjaku-mut-s0bis`, logs
+[`reports/s0bis-batch1.log`](reports/s0bis-batch1.log),
+[`reports/s0bis-batch2.log`](reports/s0bis-batch2.log).
 
 ---
 
@@ -303,6 +549,13 @@ Reading the batch totals without that split is how a known, named, arbitrated de
 regression.
 
 ### The two remedies this release deliberately did NOT build (owner's arbitration, 2026-08-05)
+
+> ✅ **Both were paid on 2026-08-20 by the [S0bis run](#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20)**,
+> branch `chore/s0bis-entrypoint-mutation-debt`: **debt 1** ships the shared `runAsEntrypoint` **and**
+> the guard test that makes it stick (`status-line.mjs` and `upstream-check-run.mjs`, the two 0 % files
+> here, both end at **100.00 %**), and **debt 2** turns `defaultGit`'s invocation into a pure value
+> (**54.05 % → 84.21 %**). `session-status.mjs` is the one piece left, held back as a written
+> arbitration rather than converted blind — it cannot be verified by running it.
 
 Recorded here as **numbered debt**, not as a story about one file, because that is the form that
 survives: both were designed and named at v4.5.0, scheduled for v4.6.0, and never came back. They are

@@ -1,11 +1,59 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟠 PROPOSED 2026-08-19 — the working CONTRACT for building the      -->
-<!-- unfreeze release with subagents. The map and the rules below are written;   -->
-<!-- the three arbitrations in § Waiting on the owner are NOT, and no autonomous -->
-<!-- loop starts before they are answered.                                       -->
+<!-- STATUS: 🟢 IN FORCE since 2026-08-20 — the working CONTRACT for building    -->
+<!-- the unfreeze release with subagents. The three arbitrations are APPROVED,   -->
+<!-- S0bis ran under it, and the mode was DEBRIEFED the same day: kept for       -->
+<!-- S1–S5, MECHANICAL ONLY. Read § Tracking's debrief box before delegating.    -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Working contract — building the unfreeze release with orchestrated subagents
+
+> ## ⏳ WHERE THIS RESUMES — read before the Tracking
+>
+> **S0BIS IS COMPLETE** _(2026-08-20)_ — `session-status.mjs`, its last blocking arbitration, was
+> answered "yes, now" by the owner and paid. Everything is on
+> `chore/s0bis-entrypoint-mutation-debt`, pushed, under draft
+> [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — **nothing merged, nothing tagged**.
+> _(Who owns what, so no copy has to be trusted: the **release's state** is
+> [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md);
+> every **measured number** is
+> [`RESULTS.md` § S0bis](../../mutation/RESULTS.md#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20);
+> this file owns only the **working mode** and the run log below.)_
+>
+> ## ▶️ RESUME HERE — the next slices, in order
+>
+> 1. ~~**The stale-plan net**~~ — **DONE 2026-08-20**, all three builds (owner's call: *"les deux, le
+>    hook d'abord"*). The hook `~/.claude/hooks/plan-carrier-guard.mjs` is written, tested (29 + 8
+>    cases) and wired; the rule speaks of **carriers, plural** at its source in
+>    `use-case-driven-harness` (`abecb38`); the corpus is deduplicated behind a written ownership split
+>    (`maintainers/README.md`). **Do not re-open it. Two tails are the owner's, not work to pick up**:
+>    propagating the rule to the **public extract / published page** (outward-facing), and the unmerged
+>    doctrine branch `chore/plan-discipline-points-at-the-harness` (no PR). ⚠️ The hook loads at
+>    **session start**, so it never watched the session that wrote it.
+> 2. ~~**The `mutation-testing` pair**~~ — **DONE 2026-08-20** (`59a4ec4` the script, `9126179` the
+>    skill, `0f43037` the hardening). Both halves shipped: `mutate-one.mjs` (the braces) and
+>    `maintainers/skills/mutation-testing/SKILL.md` (the belt), plus a config that measures the runner
+>    itself — **80.95 % → 99.11 %**, 3 named equivalents left. Numbers in
+>    [`RESULTS.md` § The day-of runner](../../mutation/RESULTS.md#the-day-of-runner-and-its-first-two-runs--2026-08-20).
+>    **Do not re-open.** One tail is recorded there, not here: `scripts/lint-vault.mjs` measured
+>    **70.00 %** on the tool's first real use, its 3 survivors all in its composition root — remaining
+>    entry-tier debt, held by the S0bis ceilings.
+> 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
+> 4. ▶️ **S1 IS UNDER WAY** in [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+>    under the mechanical-only verdict — **its first TWO slices landed 2026-08-20 and were both kept in
+>    session, correctly**: design + tests are exactly what the verdict forbids dispatching. That plan
+>    owns the release's state and its own resume marker — open it and start where **its** header says,
+>    not here. S1 is also what has to produce the **contrast** the deferred adversarial-review question
+>    needs (one slice reviewed adversarially, one not) — **still unproduced**, since nothing has been
+>    dispatched on S1 yet. ⚠️ **THREE pure planners in, the mechanical-only verdict has cost the mode its
+>    own subject**: every S1 slice so far was design + tests, i.e. exactly the class the verdict keeps
+>    in session, so there is still nothing to debrief. If the contrast is to exist at all, the candidate
+>    is the **fs orchestrator + wiring** slice — the first one that is mostly mechanical, and the one S1
+>    resumes at.
+>
+> **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
+> adversarial-review question is deferred to the **S1 debrief**, on S1's figures. **And the release's
+> version number was settled and signed on 2026-08-20** — the release plan states it and owns the
+> argument; this file deliberately keeps no copy. Do not re-open that question either.
 
 > **This plan owns HOW, not WHAT.** The what is
 > [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md), which
@@ -209,11 +257,263 @@ here**, which is what `v4.9.0-mutation-debt-plan.md` demanded anyway.
 immediately, so they are handled in the orchestrating session, never fanned out, and their existing
 behaviour is asserted **before** it is moved.
 
+## Step 0 — the deterministic inventory (measured 2026-08-20, `chore/s0bis-entrypoint-mutation-debt`)
+
+Counted by static text analysis over the 32 top-level `scripts/*.mjs`. **These numbers replace every
+earlier estimate** (the plan's own "~30 files / ~16 + ~14" and the repo's "28 of 32 guarded").
+
+| Guard spelling | Count | Files |
+|---|---|---|
+| `isEntrypoint(meta, argv1)` — the shared helper | **16** | ai-summary-guard, clear-example-notes, consolidate-scan, delete-universe, file-back-note, lint-vault, prompt-restart-nudge, refresh-note, rehydrate, rename-universe, set-active-universe, set-universe-profile, update-engine, upstream-check-run, vault-write-guard, verify-index |
+| `isEntryPoint(argv1, meta)` — the **duplicate** predicate, reversed args | **2** | auto-commit (defines it), auto-push (imports it) |
+| `isMain()` — a **third** local spelling, previously unrecorded | **1** | import-brain |
+| inline `resolve(argv[1]) === fileURLToPath(import.meta.url)` | **7** | health-probe-run, session-actions-log, session-obsidian-hint, session-self-heal, session-universe, session-wiki-health |
+| **no guard at all** — the whole body runs at import | **6** | open-env, pick-folder, run-eval, session-status, status-line, verify-rag |
+| **Total** | **32** | 26 guarded, 6 unguarded |
+
+- **Three spellings, not two.** `import-brain.mjs`'s `isMain()` is a third hand-rolled predicate the
+  reconnaissance had not seen. It folds into the shared helper with the other two.
+- **Nine files have NO `.test.mjs` sibling** — which confirms the repo's earlier figure, and it is the
+  expensive half: import-brain, open-env, pick-folder, run-eval, session-status, status-line,
+  update-engine, upstream-check-run, verify-rag.
+- **Guard body size** splits cleanly into the three tiers: **16 files at 3 lines** (thin,
+  `process.exit(fn(argv))`), **6 files at 9–35 lines** (inline argv parsing), **4 files at 52–64 lines
+  or unguarded-and-session-critical** (fat).
+- Baseline suite before any change: **1723 pass / 0 fail / 3 skipped**.
+
+## The design, settled in session before any fan-out (2026-08-20)
+
+**`runAsEntrypoint(metaUrl, argv, fn, { exit })`** in `scripts/lib/entrypoint.mjs`:
+
+- returns `false` and does nothing when the module is not the entry point;
+- otherwise calls `fn(argv.slice(2))` — so the per-script body becomes an **exported, importable
+  function** and stops being 0 %-scored dead weight;
+- **exits only on a numeric result** (`process.exit(code)`), injectable as `exit`. A non-numeric
+  result exits nothing — that is what keeps `auto-commit.mjs`'s fall-through behaviour identical;
+- **awaits a thenable result** before exiting, which is what `delete-universe` and `update-engine` need.
+
+**The guard test** `scripts/lib/entrypoint-discipline.test.mjs` carries three checks over the
+top-level `scripts/*.mjs`:
+
+1. no `.test.mjs` sibling → red;
+2. a **hand-rolled entry guard** (any of the three spellings, or an inline comparison) instead of
+   `runAsEntrypoint` → red;
+3. a module that **builds and executes a child process in the same call** → red. Mechanical rule: a
+   child-process runner (`spawn`/`spawnSync`/`execFile`/`execFileSync`/`execSync`) called with an
+   **inline array literal for `args` or an inline object literal for `options`**. That is exactly the
+   Debt-2 shape (`defaultGit`), and exactly what `buildCrosscheckInvocation` passes by returning the
+   request as a value.
+
+**The shrink-only mechanic, made mechanical rather than written.** The allowlist is seeded with
+today's offenders, and a second assertion states that **every exempt entry must still BE an
+offender** — so an exemption that has been paid off turns the suite **red** until it is deleted. A
+list that can only go stale is a list that shrinks by itself.
+
+> **The anti-tautology protocol for the fan-out, decided in session 2026-08-20.** The contract forbids
+> an agent writing both the test and the code it judges. A guard conversion is a **pure refactor**, so
+> the rule becomes mechanically checkable and every dispatched prompt carries it as a hard gate:
+> *the new test must be GREEN against the STILL-UNCONVERTED file*. A test that only passes after the
+> refactor is a wrong test, not a caught bug — and the agent is told to fix its test, never the module.
+> That inverts the tautology risk: the test cannot have been written by the implementation, because it
+> had to pass before the implementation existed.
+>
+> **What each converted file gains**: a process-level test that **importing** the module fires nothing
+> (safe for every CLI, and it is the only thing that proves the body is no longer top-level), plus —
+> only where a genuinely harmless invocation exists (a usage error, no writes, no git, no network) — a
+> test that running it as a process still exits as it did. Agents are told to skip the second rather
+> than invent a side-effecting invocation.
+>
+> **Ceiling ownership**: agents never touch `entrypoint-discipline.test.mjs`. The orchestrating session
+> lowers the ceilings between waves. That is what lets several agents convert several files at once
+> without contending on a single shared file.
+
+> **Granularity call taken in session, not a scope change** _(2026-08-20)_: the nine files with no
+> test sibling are **seeded into the allowlist** rather than all fixed in this run. The debt plan asks
+> for a guard test *"whose allowlist may only shrink"*, not for an empty allowlist on day one. This
+> run shrinks it wherever the conversion makes the body importable; whatever survives is recorded
+> here as remaining debt with its file names, so it cannot go quiet.
+
 ## 📓 Run log — the running trace (the owner reads THIS, not the thread)
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ✅ **2026-08-20 — `session-status.mjs`: 8.67 % → 96.10 %. S0BIS IS COMPLETE, and the 0 % tier is
+  closed for the first time since v4.4.0.** Three measured rounds — **70.89 % → 90.12 % → 96.10 %** —
+  commits a72755b, cbd01c0, e458cb6, 72912c3. Log `reports/s0bis-session-status.log`, full write-up
+  in `RESULTS.md` § S0bis. **6 survivors left, all named equivalents**, not rounding.
+  - **What the first pass exposed was the TESTS, not the file.** 46 survivors in three families: a
+    real adapter layer judged by nothing (every case drove the hook through doubles, so `realGit` and
+    the DB read were never executed at all), **doubles that ignored their arguments** (the fake fs
+    took `(p)` and dropped the rest, so six `readFileSync(p, "utf8")` mutants could drop the encoding
+    unseen), and genuine missing cases. The middle one is the lesson to carry: **a double's answer
+    has to be a fingerprint of what it was asked, or it certifies nothing.**
+  - **Five of the second round's survivors died by SIMPLIFYING the production**, not by another test:
+    two reads guarded themselves with `existsSync` **and** a `try/catch`, which is the catch written
+    twice, and both catch bodies re-assigned `null` to something already `null`.
+  - **Nothing merged, nothing tagged.** The branch is pushed under draft PR #75, as the contract says.
+- 🛠️ **2026-08-20 — `session-status.mjs` is converted, and the measurement found a trap in the
+  MEASURING, not in the code.** Commits a72755b and cbd01c0, branch pushed, PR #75 still draft.
+  - **The red was taken where it is safe.** In a disposable worktree, importing the unconverted file
+    ran the whole SessionStart hook — pull, markers, detached child, banner on stdout. That is the
+    defect, demonstrated rather than argued, and it is why this file could never be seen red in the
+    working tree. The body then moved into `runSessionStatus(argv, deps)` behind the shared tail
+    **without restructuring**, and the real hook was run as a process before and after: **output
+    byte-identical, tree untouched**. The new sibling pins the composition through injected seams
+    only — no real git, no real disk, no real child.
+  - 🪤 **The trap, and it is new: a mutation run over a file that a SOURCE SCANNER reads breaks its
+    own dry run.** Stryker instruments in place, so the literals `lib/entrypoint-discipline.mjs`
+    scans for are rewritten under it; `session-status.mjs` stopped reading as an inline-invocation
+    offender, and the shrink-only allowlist assertion went red — correctly, on a file that was still
+    an offender when clean. **Anyone mutating a file named in one of those allowlists will hit this.**
+  - **Paid rather than worked around**: the git call and the two detached children became named
+    values (`buildGitInvocation`, `buildReconcileInvocation`, `buildUpstreamProbeInvocation`), each
+    asserted whole, and the file **left `INLINE_INVOCATION_EXEMPT`**. A named value is stable under
+    instrumentation as well as assertable.
+  - ⚠️ **One self-inflicted hole, caught and closed**: the first commit bound the injected `spawn` to
+    `spawnChild`, which hid both spawn calls from the scanner's token list. **A rename must not be
+    able to buy silence from a guard.**
+  - Ceiling **14 → 13**, `session-status.mjs` leaves the no-sibling allowlist, suite **1813 → 1839**.
+- 🧭 **2026-08-20 — the debrief happened, and the three open questions are now two decisions and one
+  dated deferral.** Owner's calls, in conversation, recorded here the moment they were taken:
+  - **The mode is kept for S1–S5, mechanical only.** Dispatch needs a machine-evaluable pass/fail
+    **and** no design judgement; everything that decides stays in session. This ratifies what S0bis
+    measured rather than widening the bet — see the debrief box in § Tracking for the full wording.
+  - **`session-status.mjs`: yes, now.** The arbitration is answered with the owner at the keyboard,
+    on the fourth time this debt has come due. The recipe below stands as written.
+  - **The adversarial-review fan-out is deferred to the S1 debrief, with a destination and a
+    condition** — S0bis ran no adversarial pass, so there is nothing to judge it on; S1 must produce
+    one slice reviewed that way and one not. Deferring without those two is how it comes back
+    undecided a third time.
+- ❓ **2026-08-20 — an unreproduced flake in `session-universe.test.mjs`, reported by an agent and
+  NOT diagnosed. Written down so the next person does not burn the same hour.** The tier-1 agent that
+  converted `set-active-universe.mjs` saw the race test — *"the universe hook waits for the startup
+  pull"* — fail once **inside a full-suite run** while the fan-out was saturating the machine, then
+  pass alone and on a clean re-run.
+  - **I could not reproduce it: 20 solo runs and 10 full-suite runs, all green.** So it is rare, and
+    load is the only correlate we have.
+  - **The obvious explanation is WRONG, and that is the useful part.** The test gives the child a
+    250 ms head start before flipping the pointer, which reads like a too-tight wall-clock margin —
+    but it writes the marker as `phase: "running"` **before** spawning, so the barrier sees its own
+    session immediately and gets the **full 12 s ceiling** (`WAIT_MS` in `lib/startup-sync-gate.mjs`),
+    not the 3 s grace. 250 ms against 12 s is not a tight race. Do not "fix" it by raising the sleep.
+  - **The one mechanism left standing, unverified**: the test rewrites the marker file
+    (`.cache/startup-sync.json`) *while* the child polls it every 50 ms, so a loaded machine could
+    hand the reader a **torn read** of a file mid-rewrite. That is a real cross-process hazard the
+    test itself creates. Confirming it means instrumenting `readMarker`, not re-running the suite.
+  - **Not touched**: out of S0bis scope, and a timing test is exactly the thing not to change blind at
+    the end of an autonomous run. It is a **debrief input**: if the flake is load-induced, the
+    orchestration mode manufactures its own false reds, and that is a cost of the mode, not of the test.
+- ✅ **2026-08-20 — S0BIS IS DONE. Both v4.8.0 debts are paid and measured; one arbitration is left
+  standing, in writing.** Branch `chore/s0bis-entrypoint-mutation-debt`, draft PR, nothing merged and
+  nothing tagged. **14 agents used of the ~25 the contract allows.**
+  - **The numbers** (`RESULTS.md` § S0bis, worktree `kenjaku-mut-s0bis`, logs `reports/s0bis-batch{1,2}.log`):
+    `lib/entrypoint.mjs` **100.00 %**, `status-line.mjs` **0 % → 100.00 %**, `upstream-check-run.mjs`
+    **0 % → 100.00 %**, `lib/engine-fetch.mjs` **54.05 % → 84.21 %**, and the new guard
+    `lib/entrypoint-discipline.mjs` **71.82 % → 81.44 %** after one hardening round.
+  - **Suite 1723 → 1813 pass / 0 fail. Ceilings 32/26 → 14/9.** Fifteen of the twenty-six guarded
+    files converted.
+  - **What the mode actually bought, judged honestly.** The 12-file tier-1 fan-out is where it paid:
+    twelve mechanical conversions, each with a machine-evaluable pass/fail, none of which needed my
+    context. Where it did **not** pay is everything with judgement in it — the judge, the canary, the
+    three tier-3 files, Debt 2 — all kept in session, all of them the parts that found real defects.
+    **The rule that made it safe is the one to keep**: nothing was dispatched without a deterministic
+    check, and no agent wrote a test.
+  - **The two orchestration mistakes are recorded above, both the same mistake twice**: `git add -A`
+    and then `git add scripts/` while a wave was in flight, sweeping unfinished agent work into a
+    docs commit. Both happened to be green, verified after the fact — by luck, not by design. **Stage
+    explicit paths while a wave runs.** This is the single most important line for the debrief.
+  - **What the guard proved on day one**: switched on before the conversions, it went red on exactly
+    one production file — `engine-fetch.mjs`, the Debt-2 file. The debt did not have to be
+    remembered; it was reported. That is the difference between a fix and a ratchet.
+  - **What is left, and it is named rather than implied**: `session-status.mjs` (the arbitration
+    below), and the guard's own **81.44 %**, which is under the repo norm (~94 %) — its 54 survivors
+    live in the hand-rolled comment/quote state machine. Both are written into `RESULTS.md` § S0bis
+    as follow-ups, not rounded away.
+  - **Draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75) is open** (e0f740c). _(Written at
+    the close of the run: "next, and both need the owner — the mode debrief, and `session-status.mjs`".
+    **Both were done the same day**; this line is kept as the run's own record, and § Tracking is where
+    the state lives. A run log is history: never resume from one.)_
+- 🛑 **2026-08-20 — ARBITRATION, taken and NOT resolved autonomously: `session-status.mjs` is left
+  for a session with the owner at the keyboard.** It is the third and largest of the named 0 % files
+  (measured **8.67 %** at v4.9.0, up from a flat 0.00 % carried since v4.4.0 — `RESULTS.md` § v4.9.0),
+  so leaving it is leaving the head of the debt. The reason it is nonetheless the right call:
+  - **It has no `.test.mjs` sibling**, so there is no existing net to catch a mistake.
+  - **Its whole body is top-level and side-effecting**: `sweepThenPull` runs a real `git pull`,
+    `markSyncRunning`/`markSyncDone` write marker files, `armRestartPending` writes, and it spawns
+    detached children. ~190 of its 265 lines are that body.
+  - **It cannot be executed to check the work.** It is the SessionStart hook of every generated brain;
+    running it here sweeps and auto-commits the working tree. So the usual proof — run the CLI before
+    and after, see the behaviour unchanged — is unavailable, and a wrong guard is felt by every user
+    at their next session start rather than by a red test.
+  - The logic is already delegated to tested `lib/*` modules; what is top-level is composition and I/O
+    wiring, which is exactly the part with no net.
+  - **The safe recipe for next time, so this is not re-derived**: wrap the body into
+    `export function runSessionStatus(argv, deps)` behind the shared tail **without restructuring**,
+    then prove the guard by running the import probe **inside a disposable git worktree**, where a
+    sweep-and-commit is harmless, and by asserting the working tree is untouched afterwards. Only then
+    split the composition into pure pieces.
+  - Everything else in S0bis was completed around it, per the owner's standing instruction to write a
+    blocking arbitration down and keep the other slices moving.
+- **2026-08-20 — two of the three 0 %-scored files are paid, and the duplicate predicate is gone.**
+  Commits eb8b0fb and bc2a8bf. Suite **1796 pass / 0 fail**. Ceilings **15/10**.
+  - `status-line.mjs`: every segment was a top-level `const`, so **importing it printed a status
+    line**. Its "importing fires nothing" test was **red against the old file** — the only new test in
+    this run that was, and the proof the defect was real rather than theoretical. The line itself is
+    unchanged, asserted by running the real CLI against this repo before and after.
+  - `auto-commit.mjs` / `auto-push.mjs`: the second predicate (`isEntryPoint`, reversed arguments,
+    re-exported) is deleted, its four tests with it. **Kept in session, not fanned out**: two coupled
+    files, and one of them is the hook that fires on every edit.
+  - The scanner learned a rule while doing it: a predicate named only in a **comment** is not a
+    hand-rolled guard. Without that, a file cannot explain the debt it used to carry without being
+    counted as still carrying it, and the ceiling could never reach zero.
+  - ⚠️ **A deliberate exception to fail-first, recorded rather than hidden**: `session-status.mjs`
+    cannot have its "importing fires nothing" test seen red first. Seeing it red means **importing the
+    module**, and this module is a SessionStart hook that sweeps the working tree and auto-commits it.
+    Its pure extractions get the normal treatment; that one test is written after the guard exists.
+- **2026-08-20 — tier 1 is done: 12 CLIs converted by 12 agents, plus `upstream-check-run` in
+  session.** Commits 62246c6 and bb21a36. Suite **1786 pass / 0 fail** (baseline was 1723). Ceilings
+  32/26 → **18/12**, and the sibling allowlist lost its first entry.
+  - **The fan-out's real risk was the arguments, not the tail.** Four of the twelve needed an arrow
+    rather than a direct pass: two whose body takes `deps` first (a direct pass would have handed it
+    the argument array), and two whose deps are **required and built at invocation time** (hoisting
+    that call out of the arrow would have reinstated the very import-time side effect being removed).
+    All four came back right, and each was flagged in its own prompt — the prompts were **not** a
+    single template, they named the specific trap per file.
+  - `upstream-check-run.mjs` was kept in session because it needed a **new test sibling**, i.e. new
+    test authorship rather than a refactor.
+    - ❌ **CORRECTION (2026-08-20, re-read on the diff)**: this entry first claimed the extraction
+      *"caught a real defect: a trailing `--brainDir` with no value resolved to `undefined`"*. **That
+      is false.** `main` already guarded it (`flag !== -1 && process.argv[flag + 1]`); the fallback
+      was correct before the run and is unchanged after it. What the extraction did was make that
+      branch **reachable by a test** and **state the intent in a comment** — worth doing, and not a
+      bug fix. Left visible rather than quietly deleted: a run log that claims a defect it did not
+      find is exactly the kind of inflation this file exists to prevent.
+  - ⚠️ **Orchestration lesson, learned by making the mistake**: `git add -A` while agents are in
+    flight swept three files of half-finished agent work into a docs commit (b4bd7a4). It happened to
+    be green — verified after the fact in a throwaway worktree — but only by luck. **While a wave is
+    running, stage explicit paths, never `-A`.** This belongs in the mode debrief.
+  - **Next: the two remaining 0 %-scored files** (`status-line.mjs`, `session-status.mjs`, both
+    session-critical, both kept in session), then the duplicate `isEntryPoint` predicate shared by
+    `auto-commit.mjs` / `auto-push.mjs`, then the batched mutation gate.
+- **2026-08-20 — steps 1, 2 and 4 landed; the fan-out has started.** Three commits, branch pushed:
+  - `runAsEntrypoint` + 9 unit tests (5b17338). Its exit contract is deliberately narrow so the
+    fall-through bodies keep behaving exactly as they do.
+  - The repo-wide guard + **Debt 2 paid** (a3faa2a). Turning the guard on named exactly one file the
+    allowlist deliberately does not carry — `engine-fetch.mjs`'s `defaultGit` — so step 4 came forward
+    to keep the commit green. Its request is now a value mirroring `buildCrosscheckInvocation`, and the
+    comment that documented its own exemption is deleted.
+  - The **canary** (480dcd7): `lint-vault.mjs` converted end to end, its behaviour asserted by running
+    the CLI as a process **before** it moved, and that net then **checked for being discriminating** —
+    pointed at a tail that can never fire, it goes red. Ceilings 32/26 → 31/25.
+  - Suite: **1760 pass / 0 fail** (from 1723 at baseline).
+  - **Next: wave 1 of the fan-out** (clear-example-notes, consolidate-scan, vault-write-guard), then
+    the rest of tier 1.
+- **2026-08-20 — step 0 done, on branch `chore/s0bis-entrypoint-mutation-debt`.** The inventory is
+  measured and written above; it corrects three earlier figures (32 files not ~30, **26** guarded not
+  28, and a **third** guard spelling nobody had recorded — `import-brain.mjs`'s `isMain()`). The
+  design of `runAsEntrypoint` and of the guard test is settled in session, as the contract requires,
+  before anything is fanned out. Baseline suite: 1723 pass / 0 fail. **Next: step 1, the judge.**
 - **2026-08-20 — mode framed, contract approved, run not yet started.** The three parameters are
   approved (above), the scope is all of S0bis including Debt 2, the reconnaissance is recorded, and
   the test discipline was re-confirmed as **design-first / test-first in batches**, not TDD
@@ -230,25 +530,281 @@ arbitration goes here as a question, and the run continues on other slices.
       _(2026-08-19)_.
 - [x] **Get the three arbitrations answered** _(2026-08-20)_ — approved as proposed; scope set to all
       of S0bis, Debt 2 included; test discipline re-confirmed as batches, not baby-steps.
-- [ ] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
-  - [ ] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
-        spelling, test sibling present, guard body line count. **Write the numbers here.**
-  - [ ] **Step 1 — the judge, not delegated**: the guard test and `runAsEntrypoint(meta, argv, fn)` in
-        `scripts/lib/entrypoint.mjs`, under the discipline above. Allowlist may only SHRINK.
-  - [ ] **Step 2 — one canary file**, a thin guard, converted end to end and verified.
-  - [ ] **Step 3 — fan out by tier** (1 and 2 delegated, 3 kept in session).
-  - [ ] **Step 4 — Debt 2**: `defaultGit` split into a pure invocation builder plus a thin runner,
-        asserted whole, `win32` fed on purpose, self-exempting comment deleted.
-  - [ ] **Step 5 — the batched mutation gate** in a disposable worktree over the touched files; numbers
+- [x] **Run the mode on S0bis** — the release's first unticked box, and the best-judged cargo we have.
+      _(2026-08-20 — **COMPLETE**, draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75).
+      `session-status.mjs`, the last item under it, was arbitrated and paid the same day: 8.67 % →
+      **96.10 %**. Nothing merged, nothing tagged.)_
+  - [x] **Step 0 — deterministic inventory**: per top-level `scripts/*.mjs`, guard present and which
+        spelling, test sibling present, guard body line count. **Written above** _(2026-08-20 ·
+        branch `chore/s0bis-entrypoint-mutation-debt`)_.
+  - [x] **Step 1 — the judge, not delegated**: the guard test and `runAsEntrypoint(meta, argv, fn)` in
+        `scripts/lib/entrypoint.mjs`, under the discipline above. Allowlist may only SHRINK
+        _(2026-08-20 · 5b17338 + a3faa2a)_.
+  - [x] **Step 2 — one canary file**, a thin guard, converted end to end and verified
+        _(2026-08-20 · 480dcd7 — `lint-vault.mjs`, and the net proved discriminating)_.
+  - [~] **Step 3 — fan out by tier** (1 and 2 delegated, 3 kept in session).
+    - [x] **Tier 1 — thin guards**: 12 files, one agent each _(2026-08-20 · 62246c6)_.
+    - [x] `upstream-check-run.mjs` — kept in session (new test sibling = new test authorship)
+          _(2026-08-20 · bb21a36)_.
+    - [x] **Tier 3 — the two remaining 0 %-scored files**: `status-line.mjs`, `session-status.mjs`.
+          Never fanned out: they run at EVERY session start. _(2026-08-20 — both done.)_
+      - [x] `status-line.mjs` _(2026-08-20 · eb8b0fb — **0 % → 100.00 %**)_.
+      - [x] 🛑 `session-status.mjs` — **arbitration ANSWERED 2026-08-20 (yes, now, owner at the
+            keyboard), and DONE the same day** _(a72755b + cbd01c0)_. The three reasons it was
+            blocking held throughout and shaped the work: no test sibling, ~190 side-effecting
+            top-level lines, and no way to verify it by running it here. The recipe worked exactly as
+            written — the disposable worktree is what restored fail-first on a file that had none.
+        - [x] Debt 2 paid on this file too, unplanned: its three child processes are values now, and
+              it leaves `INLINE_INVOCATION_EXEMPT` _(cbd01c0)_. Not scope creep — the mutation run
+              could not even dry-run without it (see the Run log's trap).
+    - [x] The duplicate predicate: fold `auto-commit.mjs`'s `isEntryPoint` (reversed arguments,
+          re-exported to `auto-push.mjs`) into the shared tail. Kept in session — the two files are
+          coupled, and `auto-commit` runs on every single edit _(2026-08-20 · bc2a8bf)_.
+    - [~] Remaining inline guards (`session-*.mjs`, `health-probe-run.mjs`, `set-active-universe.mjs`,
+          `import-brain.mjs`, `update-engine.mjs`) — fat bodies, recorded as remaining debt if the run
+          ends before them. _(2026-08-20 — `set-active-universe.mjs` done (4fdb91b); the rest are the
+          **recorded remaining debt**, held by the ceilings at **14 / 9**, down from 32 / 26.)_
+  - [x] **Step 4 — Debt 2**: `defaultGit` split into a pure invocation builder plus a thin runner,
+        asserted whole, self-exempting comment deleted _(2026-08-20 · a3faa2a — brought forward, since
+        the new guard went red on it the moment it was switched on)_. No `win32` case to feed: git is a
+        real executable on Windows too, so the invocation is byte-identical everywhere — that absence
+        is asserted as the design, in a comment, rather than faked with a vacuous test.
+  - [x] **Step 5 — the batched mutation gate** in a disposable worktree over the touched files; numbers
         into `maintainers/mutation/RESULTS.md`, plus the line in its § v4.8.0 naming the release that
-        paid each debt.
-  - [ ] Tick the matching boxes in `v4.9.0-mutation-debt-plan.md` and the S0bis box in
-        `update-regime-owns-what-it-shipped-action.md`.
-  - [ ] Push the branch and open a **draft** PR. Nothing merged, nothing tagged.
-- [ ] **Debrief the mode after S0bis**, before applying it to S1–S5: what the fan-out actually cost,
-      what it caught, what it broke. If it does not pay, say so here and go back to a single session.
-- [ ] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
+        paid each debt _(2026-08-20 — two batches in `kenjaku-mut-s0bis`, logs
+        `reports/s0bis-batch{1,2}.log`, written up as `RESULTS.md` § S0bis; the v4.8.0 debt section
+        now carries a ✅ callout naming what paid it)_.
+  - [x] Tick the matching boxes in `v4.9.0-mutation-debt-plan.md` and the S0bis box in
+        `update-regime-owns-what-it-shipped-action.md` _(2026-08-20)_ — including moving that plan's
+        landmark off S0bis and onto **S1**, so the next resume does not restart on delivered work.
+  - [x] Push the branch and open a **draft** PR. Nothing merged, nothing tagged _(2026-08-20 · e0f740c
+        — [PR #75](https://github.com/tpierrain/kenjaku/pull/75), draft)_.
+- [x] **Debrief the mode after S0bis** — done _(2026-08-20, owner's call in conversation)_: what the
+      fan-out cost, caught and broke is the S0bis run-log entry above; the verdict on it is here.
+  - [x] **VERDICT — the mode is kept for S1–S5, but MECHANICAL ONLY.** A slice is dispatchable when
+        it has a machine-evaluable pass/fail **and** no design judgement in it: repetitive
+        conversions, bulk reference reads, wide codebase sweeps. **Everything that decides stays in
+        session** — the design, the judge, the canary, anything session-critical, anything whose
+        failure is felt by a user rather than by a red test. This is exactly the split that paid on
+        S0bis (12 mechanical conversions cost no context; every real defect was found in the parts
+        kept in session), so the verdict ratifies the measurement instead of widening the bet.
+  - [x] **What the mode is NOT allowed to buy**: no agent writes a test, and no slice is dispatched
+        because it is merely large. Size is not the criterion — judgement is. _(Already `CONVENTIONS.md`
+        §12; restated here because this box is where the verdict lives.)_
+  - [ ] **The costs kept on the ledger, not waved away**: the mode manufactures its own false reds
+        under load (the unreproduced flake above), and the two staging mistakes were the same mistake
+        twice. The staging one now has a deterministic net; the false-reds one does not, and a red
+        seen during a saturated fan-out is to be re-run solo before it is believed.
+- [~] **Run the mode on S1** — the first slice of substance, and the first test of the mechanical-only
+      verdict on work that is *not* a repetitive conversion.
+  - [x] **Slice 1 — the base's home and its proof: KEPT IN SESSION, and that was the verdict working**
+        _(2026-08-20 · `411d4d7` + `40743c1`)_. Nothing here was dispatchable: the design decides what
+        `merge` will mean afterwards, and the tests are the judge every later slice will be measured
+        against — the two things the verdict names first. The day-of runner then judged it
+        mechanically (**100 %**), which is the shape to keep: **the human keeps the judgement, the
+        machine keeps the score.**
+  - [ ] **Where a fan-out becomes legitimate on S1**, and it is not yet: once the advance rule and the
+        seeding planner have their tests written **in session**, seeding the base tree across the
+        families is repetitive work against a written judge. That is also the slice to run
+        **adversarially reviewed**, to produce the contrast the deferred question needs.
+- [x] **DONE — plans go stale because their state is COPIED, not because the rule is forgotten.**
+      _(Owner asked "pourquoi tu n'arrêtes pas d'oublier de mettre à jour le plan ? il y a un truc qui
+      ne va pas dans mon harnais", 2026-08-20. His call on the fix: **"les deux, le hook d'abord"**.)_
+      **All three builds landed 2026-08-20.** Two tails are left and both are the **owner's**: the
+      outward-facing propagation (Build 2), and the unmerged doctrine branch (Build 3).
+  - [x] **The measurement, taken before answering, so this is not a feeling.** Four files name the
+        branch `chore/s0bis-entrypoint-mutation-debt` (this plan, the chantier plan, the debt plan,
+        `RESULTS.md`); eight mention `session-status`. The session made **8 commits, 4 of which wrote
+        to plans** — and each one updated *the plan that was open*, never its siblings. **The rule
+        fires; what it cannot reach is the duplicates.**
+  - [x] **Three causes, and only the third is about me.** (a) One work item's status is restated in
+        four repo files with no link between them, so every change needs 3-4 hand-synchronised edits
+        and nothing checks. (b) The rule is written in the **singular** — `plans.md` says "*the* plan
+        must already say…", and `CONVENTIONS.md` §3's "one canonical plan" is about repo-vs-tooling
+        snapshot, **not** about a status copied across four repo files. It has literally nothing to
+        say about this case. (c) The save point is "every handed-back turn", and this session chained
+        ~60 tool calls between two hand-backs: **the autonomous mode rarefies the trigger exactly
+        when there is most state to record.** That is an interaction between two harness parts, new
+        since 2026-08-19, and it will get worse in S1–S5, not better.
+  - [x] **Why prose cannot be the answer, in the repo's own words**: everything that stopped
+        recurring here got a mechanical guard (the entry-guard shape → a guard test with shrink-only
+        allowlists; `git add -A` mid-wave → `wave-staging-guard.mjs`). Plan staleness has only prose,
+        and §5quinquies says outright that answering a recurring shape with one more written reflex
+        is the move already measured as insufficient.
+  - [x] **Build (1): the hook that NAMES THE CARRIERS** _(2026-08-20 —
+        `~/.claude/hooks/plan-carrier-guard.mjs`, wired into `~/.claude/settings.json` on `SessionStart`
+        + `Stop`)_. On hand-back it greps the **tracked Markdown** for the current branch (widened from
+        `plans/` + `ROADMAP.md`: the fourth carrier measured was `maintainers/mutation/RESULTS.md`,
+        which that narrower glob would have missed), subtracts what the session touched since the sha
+        it started on, and **blocks the hand-back** with *"4 files name this branch, you touched 2"*.
+        It judges **no content**.
+    - [x] **Test-first**: 29 self-test cases on the pure core, seen **red for the right reason** (14/29
+          on stubs, assertion failures) before a line of implementation, then 29/29 green. Plus 8
+          end-to-end payloads against a throwaway repo (`plan-carrier-guard.e2e.sh`, beside the hook):
+          stamping, the warning, suppression, `stop_hook_active`, every carrier touched, `main`,
+          outside a repo, malformed payload.
+    - [x] **Two design calls, taken and not to be re-opened**: it **blocks** (exit 2) because a `Stop`
+          hook that exits 0 is invisible to Claude, and the fix is cheap; and it stays silent once
+          warned until HEAD or the carrier list changes, so judging *"this one needs nothing"* is
+          allowed to end the matter instead of looping.
+    - [x] Named in `CONVENTIONS.md` § See also and § 3bis. **Machine-local, it does not travel** —
+          accepted, same as `wave-staging-guard.mjs`. ⚠️ It loads at **session start**, so it does not
+          watch the session that wrote it.
+  - [x] **Build (2): fix the rule at its source** _(2026-08-20 · `use-case-driven-harness@abecb38`,
+        pushed on `chore/harness-consolidation`)_. `rules/plans.md` gains § *"The plan is PLURAL"*;
+        `skills/plan-discipline/SKILL.md` gains the actionable line; `plan-discipline.md` gains § 3.bis
+        (the measurement, the three causes, why prose alone could not be the whole answer). Tracked
+        there as **T7** of `docs/plans/harness-consolidation-action.md`, which **owns** it.
+    - [x] Kenjaku's own § 3bis restates it rather than linking — deliberate, and it is T6's standing
+          arbitration: `CONVENTIONS.md` exists so the rules **travel with a clone**, and a pointer to
+          another repo does not travel.
+    - [ ] **Left to the owner, deliberately**: the public extract `plan-memory-test-harness` and the
+          published page still carry the singular version. Both are **outward-facing**, and the fate of
+          that repo is a question already open in the harness plan's header. Do not propagate alone.
+  - [x] **Build (3): deduplicate the corpus** _(2026-08-20)_ — one item, one **owning** plan; the
+        others LINK instead of restating a status. Attack the cause, not the symptom. Sequenced after
+        the hook on purpose: the hook's `--explain` named the four carriers rather than guessing them.
+    - [x] **The ownership split, decided and written into `maintainers/README.md`** so it outlives this
+          plan: *the release's state* → `update-regime-owns-what-it-shipped-action.md`; *every measured
+          number* → `mutation/RESULTS.md`; *the working mode and its run log* → this file; *why a debt
+          exists and when its due date moved* → `v4.9.0-mutation-debt-plan.md`.
+    - [x] **The criterion used, and it is sharper than "remove the duplicates"**: a **present-tense
+          claim** about current state (*"nothing sits in the 0 % tier any more"*, *"12 survivors left"*)
+          rots and must live with its owner; a **dated past-tense measurement** inside a ticked box
+          (*"2026-08-20 — 54.05 % → 84.21 %"*) is a record and stays true forever. Only the first kind
+          was replaced by a link, so no evidence was stripped in the name of tidiness.
+    - [x] Applied to the three non-owning carriers: the debt plan's header now states what it owns and
+          points for the rest; the chantier plan keeps the release's state and drops the copied scores;
+          this file's header points at both.
+    - [x] **One stale sentence found and fixed by doing this**, which is the whole point: the S0bis run
+          log still read *"next, and both need the owner: the mode debrief, and `session-status.mjs`"*
+          — both done the same day. Kept as the run's own record, marked as history.
+    - [x] **Six broken relative links repaired** on the way (plans moved to `archived/` without their
+          referrers following, in `maintainers/README.md` and `CONVENTIONS.md`) — the same disease one
+          level down: a pointer nobody re-checked.
+    - [ ] ⚠️ **Not merged, and it matters here**: `chore/plan-discipline-points-at-the-harness`
+          (`0001ba9`, pushed, **no PR**) rewrites `CONVENTIONS.md` §1's banner and guts
+          `maintainers/plan-discipline.md`. On **this** branch those files still describe the old
+          shape, so §3bis was worded to be true either way. **Two branches touching the same doctrine
+          is the next duplication to close** — merge order is the owner's call.
+- [x] ✅ **DONE 2026-08-20 — the `mutation-testing` pair: a SCRIPT *and* a skill** _(owner asked for it 2026-08-20,
+      mid-run: "on découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait
+      pas le coup de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**,
+      deliberately: the traps are fresh and checkable against the run that just happened.
+  - [x] 🟢 **THE ARBITRATION BELOW IS ANSWERED — 2026-08-20, owner: "script + skill".** Do **not**
+        re-open it, and do not write the skill alone. Build **both**:
+        `maintainers/mutation/mutate-one.mjs` for the mechanics (the braces) and
+        `maintainers/skills/mutation-testing/SKILL.md` for the judgement (the belt). The reasoning he
+        endorsed is §5quinquies': answering a recurring shape with one more written reflex is the move
+        already measured as insufficient.
+  - [x] **The script** _(2026-08-20 · `59a4ec4`, hardened in `0f43037`)_ —
+        [`maintainers/mutation/mutate-one.mjs`](../../mutation/mutate-one.mjs), test-first: 30 cases
+        seen red for the right reason on stubs first, 38 after the hardening round. Every trap listed
+        below is now a step in an ordered **plan of values**, so the ORDER itself is asserted rather
+        than described. Three decisions taken while building it, none of which need re-opening:
+    - [x] **The worktree is a SIBLING of the repo and is REUSED** (`../kenjaku-mut-one`), never a
+          scratchpad path: both v4.4.0 worktrees lived under the session scratchpad and macOS's temp
+          cleanup took their reports. It is reset, never removed — the runner offers no teardown.
+    - [x] **The log is written into the REAL repo**, not the worktree, and discarded **before** the
+          run rather than after: a stale log is the most convincing way to be told a number that was
+          never measured.
+    - [x] **The tuning is checked twice**: on the config before the run (concurrency ≤ 5, timeout
+          ≥ 30 s, `inPlace`, `disableTypeChecks`) and on the report after it (a run whose mutants
+          mostly timed out is REFUSED, not reported). The fake 99.97 % cannot come back silently.
+    - [x] **The runner is measured by its own rule** _(`0f43037`)_ — `stryker.maintainers.config.mjs`,
+          **80.95 % → 99.11 %**, 3 named equivalents. It runs in the sandbox and **skips the two
+          `^entry point` cases**: they spawn the real file, so a mutant flipping `dryRun` would run
+          `git worktree add` for real from inside a test.
+    - [x] **Wired into CI on macOS only** — the suite would otherwise run in **no job at all**
+          (nothing under `maintainers/` was ever tested by CI). Windows is excluded deliberately: it
+          is a maintainer's machine tool with POSIX path fixtures.
+  - [x] ~~**START HERE — the script first**~~ _(kept for the trap list it carries)_. What it had to
+        make unrepeatable, each trap having cost a real run: `git worktree prune` before re-adding a worktree that was `rm -rf`'d
+        (otherwise `add` refuses, the run silently never happens, and a STALE log gets read as the
+        result), the disposable worktree itself (`inPlace` on the real tree once wiped the vault's demo
+        notes), the `rag/node_modules` symlink the worktree needs, verifying
+        `vault-write-guard.test.mjs` reports **0 skipped**, concurrency 5 + 30 s timeout (or the run
+        returns a **fake 99.97 %** made of bogus timeouts), `disableTypeChecks: false`, and a **loud
+        failure** instead of a stale log. Read `mutate-changed.mjs` first — it is the existing sibling
+        and sets the shape (repo-root resolution, the Stryker bin path, `--mutate` as ONE
+        comma-separated list).
+  - [x] **The diagnosis, so the skill is not written against the wrong problem.** What we keep
+        re-deriving is **not** assertion quality — that already lives in `test-first-discipline` and
+        it works. It is **how to OPERATE Stryker on this repo**, and it is scattered across three
+        carriers that are only read once opened: comments inside the config files, `RESULTS.md`
+        § Reproduce, and `RETROSPECTIVE.md`. Same carrier defect §12 fixed for orchestration: the
+        knowledge is read when a file is opened, while the mistakes are made **while acting**.
+    - [x] ⬆️ **Half of that diagnosis has since gone upstream, and it must not come back here**
+          _(2026-08-20 · `use-case-driven-harness@29abfa8`, T8)_. `test-first-discipline` v2.1.0 now
+          carries the **portable** half — the five ways any run reports a number it did not measure,
+          and the survivor triage that comes before writing a test. What stays local is the **local
+          answer**: which command, which worktree, which package. Do not restate the five traps in
+          `maintainers/skills/mutation-testing/SKILL.md`; it links to them.
+  - [x] 🛑 **The refinement that was put to him, and that he took** _(kept for its reasoning; the
+        decision is the green box above)_. `CONVENTIONS.md` **§5quinquies already carries part of this recipe**
+        (the worktree, the reset incantation, the symlink, the two commands) — so the skill would not
+        fill a void, it would consolidate. And that same section ends with the corollary that argues
+        against it: *"do not answer a recurring shape with one more written reflex"*, because the
+        prose move was already measured as insufficient. **The stronger answer is a SPLIT**: a
+        **script** (`maintainers/mutation/mutate-one.mjs`) that makes the mechanical traps
+        unrepeatable — prune, worktree, symlink, verify `vault-write-guard.test.mjs` reports 0
+        skipped, run, normalise the log, print the score, fail loudly instead of leaving a stale log
+        to be misread — plus a **skill** for what a script cannot hold: when to run a pass, how to
+        read the survivors, when to simplify the production instead of writing a case, and when to
+        name an equivalent. **The script is the braces, the skill is the belt** — the same shape
+        `language.md` uses. Note it is MORE work than the skill alone, hence the owner's call.
+        _(Where it lives is already settled: `maintainers/skills/`, precedent `plan-discipline`,
+        because `maintainers/` is excluded from install while `.claude/skills/` ships to every
+        generated brain — a maintainer skill must never travel there. It gets loaded by being named
+        from `CONVENTIONS.md`, which `CLAUDE.md`'s maintainer note points at.)_
+  - [x] **The six operational traps it must carry**, every one of which has already cost a real run:
+        the sandbox has no `.git` so the manifest-integrity test dies before the first mutant (hence
+        `inPlace`); `inPlace` on the real tree is destructive (a mutant once wiped the vault's demo
+        notes), hence the **disposable worktree**; reset between batches with `git reset --hard` +
+        `git clean -fd` and **never** `git checkout -- .`; concurrency 5 + a 30 s timeout, or the run
+        returns a **fake 99.97 %** made of bogus timeouts; `disableTypeChecks: false`, or `@ts-nocheck`
+        lands on the worktree; and the new one — **mutating a file that a source scanner reads breaks
+        the dry run**, because instrumentation rewrites the literals under the scanner.
+  - [x] Plus, from the `session-status` rounds: **how to read the survivors** — the three families
+        (a real adapter layer judged by nothing, doubles that ignore their arguments, genuine missing
+        cases), the **simplify-the-production-instead** reflex, and what makes a **named equivalent**
+        honest rather than a rounding-up. Written up with real numbers in `RESULTS.md` § S0bis.
+  - [x] Plus the two that cost time this very session and are pure operations: `git worktree prune`
+        before re-adding a worktree that was `rm -rf`'d (otherwise `add` refuses and the run silently
+        never happens, leaving a STALE log to be misread as the result), and the `rag/node_modules`
+        symlink the worktree needs.
+  - [x] **The split with the existing carriers, so nothing is duplicated**: the skill owns the
+        **how-to** (when to run a pass, the worktree recipe, batching, the traps, where results go);
+        `RESULTS.md` stays the **measurement register**; `RETROSPECTIVE.md` keeps the **design
+        lessons** mined from survivors.
+- [ ] **The adversarial-review fan-out as standing QA — DEFERRED WITH ITS DESTINATION, not left
+      hanging** _(owner, 2026-08-20)_. The question came out of v4.9.1 (its verdict is in
+      `archived/hotfix-v4.9.1-universe-pointer-action.md`) and asked whether every slice must pass a
+      multi-agent adversarial review before it counts as finished. **Not answered now, deliberately:
+      S0bis produced no figure on it** — it ran no adversarial pass, so answering today would be
+      taste, not measurement. **Decided at the S1 debrief, with S1's figures.** Until then it stays
+      case-by-case (sensitive code, rewrites), never a standing gate.
+  - [ ] What S1 has to produce for this to be answerable: at least one slice reviewed adversarially
+        and one not, with what each caught. Without that contrast the next debrief re-deals the same
+        undecided question.
+- [~] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
       kill this file), and rewrite the memory pointer to whatever becomes live next.
+  - [x] **Folded EARLY, on purpose** _(2026-08-20 — `CONVENTIONS.md` **§12**)_: the two delegation
+        rules, "judgement does not parallelize", the staging rule, the false-reds warning, and the
+        run-log-is-evidence rule. **Why not wait for the ship date, as this box said**: this file is
+        scheduled to be archived at that date, so its doctrine had an expiry — and "we will do it when
+        the release ships" is the exact mechanism that slipped the mutation debt three times. The
+        lessons were also in the worst possible carrier: a run log, read when opened, while the
+        mistakes happen **while acting**.
+  - [x] **The one lesson that repeated got a deterministic net, not a sentence** _(2026-08-20)_:
+        `~/.claude/hooks/wave-staging-guard.mjs` stamps every agent dispatch and **blocks** a broad
+        `git add` for 20 min afterwards. 20 self-test cases, five end-to-end payloads verified.
+        Machine-local, so it is named in `CONVENTIONS.md` § See also rather than versioned here.
+  - [ ] What is deliberately NOT folded yet, because it is still a question and not a rule: the
+        unreproduced flake, and the adversarial-review question below.
+  - [ ] **Ready to fold once S1 confirms it**: the mechanical-only verdict above. It is a rule now,
+        but it is one release old — fold it into `CONVENTIONS.md` §12 when S1 has run under it, so
+        what travels is a measured rule rather than a fresh opinion.
 
 ---
 

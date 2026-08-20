@@ -1,7 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
 import { runRenameUniverse } from "./rename-universe.mjs";
+
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "rename-universe.mjs");
 
 // A FULL rename (decision D4): the folder moves, every note under it is
 // re-stamped, the registry entry changes name, and the pointer follows if you
@@ -211,4 +219,33 @@ test("runRenameUniverse reports a failed reindex instead of claiming a finished 
   // searches pointing at paths that no longer exist.
   assert.equal(runRenameUniverse(["acme", "acme-corp"], args), 1);
   assert.match(calls.errored.join("\n"), /npm run reindex/);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by RUNNING the CLI as a process, mirroring the
+// lint-vault conversion (S0bis): importing must fire nothing, and one harmless
+// invocation proves the tail actually runs the body when it IS the entry point.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const probe = `import("${pathToFileURL(CLI).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
+test("the CLI, run as a process — no args refuses without touching anything", (t) => {
+  // Harmless by construction: an empty temp cwd has no .vault-rag registry, so the
+  // "empty" refusal fires before any write, git spawn or network reach — nothing
+  // else about this CLI (a real rename, then a commit) is safe to run as a probe.
+  const dir = mkdtempSync(join(tmpdir(), "rename-universe-cli-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+
+  const run = spawnSync(process.execPath, [CLI], { cwd: dir, encoding: "utf8" });
+
+  assert.equal(run.status, 1, `a missing universe name must exit 1 — stderr: ${run.stderr}`);
+  assert.match(run.stderr, /A rename needs both a universe to rename and a new name/);
 });

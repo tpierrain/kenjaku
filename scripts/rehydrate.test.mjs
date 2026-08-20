@@ -6,14 +6,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { runRehydrate, realRehydrateDeps } from "./rehydrate.mjs";
 import { CANARY_NOTE } from "./lib/brain-rehydrate.mjs";
 import { seedHealthNote } from "./lib/staged-health-note.mjs";
 import { buildRagInstallInvocation } from "./lib/rag-launcher.mjs";
+
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "rehydrate.mjs");
 
 // The brain the fakes describe, spelled the way PRODUCTION spells it — `join`, not a
 // hand-written literal. CONVENTIONS §9's exact trap, and the one that made this suite
@@ -376,4 +379,25 @@ test("realRehydrateDeps.log/error forward to console.log/console.error", () => {
   }
   assert.deepEqual(logged, ["rebuilt"]);
   assert.deepEqual(errored, ["nope"]);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by RUNNING the CLI as a process, which is the
+// only thing that proves the tail actually fires. Mirrors lint-vault.test.mjs's
+// own version of this test (the S0bis conversion's canary).
+//
+// No harmless-invocation test alongside it: unlike lint-vault, rehydrate.mjs
+// takes no CLI args and has no usage-error branch — every real invocation walks
+// the live filesystem and can spawn `npm install`, so it is never run for real
+// here (per instructions). Only the import-does-nothing guarantee is asserted.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const probe = `import("${pathToFileURL(CLI).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
 });

@@ -9,7 +9,6 @@ import {
   buildGit,
   attemptCommit,
   repoRoot,
-  isEntryPoint,
   COMMIT_MESSAGE,
 } from "./auto-commit.mjs";
 
@@ -19,7 +18,7 @@ import {
 // Green right away: we characterize an already-correct behavior, not an addition.
 //
 // Mutation score 98.21 % — the single residual survivor is a documented equivalent:
-// the `if (isEntryPoint(...))` guard forced to `if (true)`. It only matters when the
+// the entry-point tail forced to always fire. It only matters when the
 // module IS the process; under the command runner, forcing it true merely self-runs
 // attemptCommit at import (harmless, no assertion observes it). Effective 100 % on
 // non-equivalents. (The integration tests below drive the REAL script as a subprocess,
@@ -37,6 +36,9 @@ function makeRepo() {
   // The hook reads the tree through `treeState` (shared with the sweep and the
   // engine update), so the fixture must ship that module too — a brain does.
   copyFileSync(join(HERE, "lib", "repo-status.mjs"), join(root, "scripts", "lib", "repo-status.mjs"));
+  // …and the shared entry-point tail, for the same reason: the hook goes through
+  // runAsEntrypoint now, so a fixture without it would fail to load, not to commit.
+  copyFileSync(join(HERE, "lib", "entrypoint.mjs"), join(root, "scripts", "lib", "entrypoint.mjs"));
   const git = (args) =>
     execFileSync("git", args, { cwd: root, encoding: "utf8" });
   git(["init", "-q"]);
@@ -201,24 +203,6 @@ test("repoRoot — resolves ONE level up from the module (scripts/ → repo root
   const here = fileURLToPath(import.meta.url);
   assert.equal(repoRoot(import.meta.url), resolve(dirname(here), ".."));
   assert.notEqual(repoRoot(import.meta.url), dirname(here));
-});
-
-test("isEntryPoint — true when argv1 realpath matches the module URL", () => {
-  const me = fileURLToPath(import.meta.url);
-  assert.equal(isEntryPoint(me, import.meta.url), true);
-});
-
-test("isEntryPoint — false when argv1 points at a different file", () => {
-  assert.equal(isEntryPoint(REAL_SCRIPT, import.meta.url), false);
-});
-
-test("isEntryPoint — false for a missing argv1 (imported, not invoked)", () => {
-  assert.equal(isEntryPoint(undefined, import.meta.url), false);
-  assert.equal(isEntryPoint("", import.meta.url), false);
-});
-
-test("isEntryPoint — false (not throwing) when argv1 does not exist on disk", () => {
-  assert.equal(isEntryPoint("/no/such/path/x.mjs", import.meta.url), false);
 });
 
 test("auto-commit — no remote: local commit, no push, no error", () => {

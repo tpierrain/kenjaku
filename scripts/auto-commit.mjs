@@ -10,9 +10,9 @@
 // script location (not the hook's cwd).
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync } from "node:child_process";
-import { realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { treeState } from "./lib/repo-status.mjs";
 
 // Builds the real git runner bound to `repo`. `execFile` is injected (default:
@@ -67,23 +67,19 @@ export function repoRoot(metaUrl) {
   return resolve(dirname(fileURLToPath(metaUrl)), "..");
 }
 
-// Is THIS module the process entry point (invoked as the hook), vs merely
-// imported by a test? Compare REAL paths — import.meta.url is already symlink-
-// resolved by Node, so we realpath argv[1] too (macOS /var → /private/var).
-export function isEntryPoint(argv1, metaUrl) {
-  try {
-    // A falsy/absent argv1 makes realpathSync throw → caught → false (imported case).
-    return realpathSync(argv1) === fileURLToPath(metaUrl);
-  } catch {
-    return false;
-  }
-}
-
 // ── CLI entry (the actual PostToolUse hook) ──────────────────────────────────
-// Guarded so importing this module in tests does NOT run it. Commit-only; the
-// push moved to the Stop hook (auto-push.mjs). No explicit process.exit: the
-// work is fully synchronous (execFileSync), so Node exits 0 on its own — and
-// NOT exiting at import time keeps the module unit-testable under mutation.
-if (isEntryPoint(process.argv[1], import.meta.url)) {
+// Behind the shared tail, so importing this module in tests does NOT run it.
+// Commit-only; the push moved to the Stop hook (auto-push.mjs). It returns
+// nothing on purpose: the work is fully synchronous (execFileSync) and Node
+// exits 0 on its own, so the tail must not call process.exit for it.
+//
+// This file used to carry its OWN entry predicate — `isEntryPoint(argv1, meta)`,
+// same idea as the shared one but with the arguments the other way round, and
+// re-exported to auto-push.mjs. Two spellings of "am I the entry point?" are two
+// behaviours to keep in step forever, so it is gone: the realpath lesson it had
+// learned lives in lib/entrypoint.mjs, tested once.
+export function runAutoCommitHook() {
   attemptCommit({ git: buildGit(repoRoot(import.meta.url)) });
 }
+
+runAsEntrypoint(import.meta.url, process.argv, runAutoCommitHook);

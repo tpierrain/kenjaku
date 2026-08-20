@@ -1,0 +1,43 @@
+13:35:33 (68916) INFO ProjectReader Found 1 of 692 file(s) to be mutated.
+13:35:33 (68916) INFO Instrumenter Instrumented 1 source file(s) with 98 mutant(s)
+13:35:33 (68916) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+13:35:33 (68916) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-LOsW0B
+13:35:33 (68916) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+13:35:33 (68916) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+13:35:36 (68916) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2334 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 94)
+
+[Survived] MethodExpression
+scripts/auto-push.mjs:34:16
+-         ? Number(git(["rev-list", "--count", "@{u}..HEAD"]).out.trim()) || 0
++         ? Number(git(["rev-list", "--count", "@{u}..HEAD"]).out) || 0
+
+[Survived] ConditionalExpression
+scripts/auto-push.mjs:135:5
+-   if (isEntryPoint(process.argv[1], import.meta.url)) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/auto-push.mjs:135:5
+-   if (isEntryPoint(process.argv[1], import.meta.url)) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/auto-push.mjs:135:53
+-   if (isEntryPoint(process.argv[1], import.meta.url)) {
+-     process.exit(runHook(realHookDeps(import.meta.url)));
+-   }
++   if (isEntryPoint(process.argv[1], import.meta.url)) {}
+
+Ran 1.00 tests per mutant on average.
+---------------|------------------|----------|-----------|------------|----------|----------|
+               | % Mutation score |          |           |            |          |          |
+File           |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------|--------|---------|----------|-----------|------------|----------|----------|
+All files      |  95.92 |   95.92 |       94 |         0 |          4 |        0 |        0 |
+ auto-push.mjs |  95.92 |   95.92 |       94 |         0 |          4 |        0 |        0 |
+---------------|--------|---------|----------|-----------|------------|----------|----------|
+13:38:40 (68916) INFO MutationTestExecutor Done in 3 minutes and 7 seconds.
+13:38:40 (68916) INFO Sandbox Resetting your original files from .stryker-tmp/backup-LOsW0B.

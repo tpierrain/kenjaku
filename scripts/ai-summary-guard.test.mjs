@@ -133,6 +133,18 @@ test("ai-summary-guard, as a real process — stdin in, one JSON line out, exit 
   assert.equal(quiet.stdout.trim(), "", "silence is silence, not `{}`");
 });
 
+test("ai-summary-guard, IMPORTED rather than run — the body must not fire on import", async () => {
+  // Mirrors the lint-vault conversion's canary (S0bis): importing the module runs
+  // nothing. Asserted from a child process so an accidental process.exit() (e.g.
+  // stdin blocked on a real TTY) cannot take the suite with it.
+  const moduleUrl = new URL("./ai-summary-guard.mjs", import.meta.url).href;
+  const probe = `import("${moduleUrl}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the module must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
 test("realSummaryGuardDeps — the real ports are what they claim", () => {
   assert.equal(typeof realSummaryGuardDeps.readInput, "function");
   assert.equal(typeof realSummaryGuardDeps.emit, "function");

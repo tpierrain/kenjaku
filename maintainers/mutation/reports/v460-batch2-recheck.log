@@ -1,0 +1,51 @@
+21:43:23 (89721) INFO ProjectReader Found 5 of 635 file(s) to be mutated.
+21:43:23 (89721) INFO Instrumenter Instrumented 5 source file(s) with 231 mutant(s)
+21:43:23 (89721) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:43:23 (89721) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-5AEpI8
+21:43:23 (89721) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:43:23 (89721) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:43:25 (89721) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1761 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 225)
+
+[Survived] ConditionalExpression
+scripts/lib/engine-version.mjs:61:20
+-     if (!manifest || typeof manifest !== "object") return null;
++     if (!manifest || false) return null;
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:16:24
+-   const FRONTMATTER_RE = /^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)([\s\S]*)$/;
++   const FRONTMATTER_RE = /^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)([\s\S]*)/;
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:98:25
+-       body = body.replace(/^> \*\*Confidence\*\* — .*$/m, `> **Confidence** — ${rendered}`);
++       body = body.replace(/^> \*\*Confidence\*\* — .*/m, `> **Confidence** — ${rendered}`);
+
+[Survived] StringLiteral
+scripts/refresh-note.mjs:31:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] MethodExpression
+scripts/refresh-note.mjs:103:27
+-     process.exit(runRefresh(process.argv.slice(2)));
++     process.exit(runRefresh(process.argv));
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  97.84 |   97.84 |      225 |         1 |          5 |        0 |        0 |
+ lib                     |  98.31 |   98.31 |      174 |         0 |          3 |        0 |        0 |
+  doc-section.mjs        | 100.00 |  100.00 |       30 |         0 |          0 |        0 |        0 |
+  engine-version.mjs     |  97.62 |   97.62 |       41 |         0 |          1 |        0 |        0 |
+  note-refresh.mjs       |  97.80 |   97.80 |       89 |         0 |          2 |        0 |        0 |
+  status-hook-output.mjs | 100.00 |  100.00 |       14 |         0 |          0 |        0 |        0 |
+ refresh-note.mjs        |  96.30 |   96.30 |       51 |         1 |          2 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:49:27 (89721) INFO MutationTestExecutor Done in 6 minutes and 4 seconds.
+21:49:27 (89721) INFO Sandbox Resetting your original files from .stryker-tmp/backup-5AEpI8.

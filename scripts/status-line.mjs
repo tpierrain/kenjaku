@@ -20,6 +20,11 @@
 //   - .md counting via fs
 //   - RAG DB reading via better-sqlite3 (in rag/node_modules); degrades
 //     gracefully if the module/DB is not loadable.
+//
+// Every segment below used to be a top-level `const`, so IMPORTING this module
+// ran it and printed a line. That is why it scored 0 % at v4.8.0 — debt 1 of
+// v4.9.0-mutation-debt-plan.md. The segments are pure functions now and the I/O
+// went behind a `deps` port; the line itself is unchanged.
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
@@ -30,6 +35,7 @@ import { geminiKeyWarning } from "./lib/gemini-key.mjs";
 import { formatEngineVersion } from "./lib/engine-version.mjs";
 import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -39,8 +45,49 @@ const DB_PATH = join(REPO, "rag", ".cache", "vault.db");
 const ENV_PATH = join(REPO, ".env");
 const MANIFEST_PATH = join(REPO, "engine-manifest.json");
 
+// ─── Git segment: branch + short SHA + "uncommitted changes" marker ──────────
+// Every read is fail-silent: a git that answers nothing degrades to "?" rather
+// than printing a blank, because a status line must never break a session.
+export function gitSegment(git) {
+  const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]) || "?";
+  const short = git(["rev-parse", "--short", "HEAD"]) || "?";
+  const dirty = git(["status", "--porcelain"]).length > 0 ? "*" : "";
+  return `⎇ ${branch} ${short}${dirty}`;
+}
+
+// ─── RAG segment: docCount (db) vs .md files on disk ─────────────────────────
+// An unreadable DB is a question mark, never a count of zero — "nothing indexed"
+// and "cannot tell" mean very different things to whoever reads the line.
+export function ragSegment(scanned, docs) {
+  if (scanned === 0) return "🧠 RAG empty";
+  if (docs === null) return "🧠 RAG ?";
+  const remaining = scanned - docs;
+  return remaining <= 0 ? `🧠 RAG ${docs}/${scanned}` : `🧠 RAG ${docs}/${scanned} (${remaining}⏳)`;
+}
+
+// A single line, segments separated by "·" — the restart nudge LEADS (unmissable),
+// and absent segments are dropped rather than rendered as empty gaps.
+export function buildStatusLine({
+  git,
+  countMarkdown,
+  readDocCount,
+  readEnv,
+  readEngine,
+  restartPending,
+}) {
+  return [
+    restartNudgeSegment(restartPending()),
+    gitSegment(git),
+    ragSegment(countMarkdown(), readDocCount()),
+    readEngine(),
+    geminiKeyWarning(readEnv()),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 // Runs git read-only and returns the output (empty string on failure).
-function git(args) {
+function realGit(args) {
   try {
     return execFileSync("git", args, {
       cwd: REPO,
@@ -52,13 +99,6 @@ function git(args) {
   }
 }
 
-// ─── Git segment: branch + short SHA + "uncommitted changes" marker ──────────
-const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]) || "?";
-const short = git(["rev-parse", "--short", "HEAD"]) || "?";
-const dirty = git(["status", "--porcelain"]).length > 0 ? "*" : "";
-const gitSeg = `⎇ ${branch} ${short}${dirty}`;
-
-// ─── RAG segment: docCount (db) vs .md files on disk ─────────────────────────
 function countMarkdown(dir) {
   let n = 0;
   let entries;
@@ -74,41 +114,26 @@ function countMarkdown(dir) {
   }
   return n;
 }
-const scanned = countMarkdown(VAULT);
 
-let docs = null;
-if (existsSync(DB_PATH)) {
+// Degrades to null: module absent, DB mid-write, schema not there yet.
+function readDocCount() {
+  if (!existsSync(DB_PATH)) return null;
   try {
     const require = createRequire(join(REPO, "rag", "package.json"));
     const Database = require("better-sqlite3");
     const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
-    docs = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
+    const n = db.prepare("SELECT COUNT(*) AS n FROM documents").get().n;
     db.close();
+    return n;
   } catch {
-    docs = null; // degrades: module absent, DB being written, etc.
+    return null;
   }
 }
 
-let ragSeg;
-if (scanned === 0) {
-  ragSeg = "🧠 RAG empty";
-} else if (docs === null) {
-  ragSeg = "🧠 RAG ?";
-} else {
-  const remaining = scanned - docs;
-  ragSeg = remaining <= 0 ? `🧠 RAG ${docs}/${scanned}` : `🧠 RAG ${docs}/${scanned} (${remaining}⏳)`;
-}
-
-// ─── Key segment: STRONG flag if a REQUIRED Gemini key is missing (RAG inoperative).
-// Gated on geminiKeyRequired (via geminiKeyWarning): keyless embedders
-// (in-process / openai-compatible / Ollama) must NOT show a bogus warning.
-const envContent = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, "utf8") : null;
-const keySeg = geminiKeyWarning(envContent);
-
-// ─── Engine segment: the brain's pinned version, read OFFLINE from the manifest
-// (ADR 0017). Pure file read — fail-silent: no manifest / unparseable → no
-// segment. The "update available" suffix is DEFERRED (read from a cache later).
-function readEngineSeg() {
+// The brain's pinned version, read OFFLINE from the manifest (ADR 0017). Pure
+// file read — fail-silent: no manifest / unparseable → no segment. The "update
+// available" suffix is DEFERRED (read from a cache later).
+function readEngine() {
   if (!existsSync(MANIFEST_PATH)) return null;
   try {
     return formatEngineVersion(JSON.parse(readFileSync(MANIFEST_PATH, "utf8")));
@@ -116,22 +141,37 @@ function readEngineSeg() {
     return null;
   }
 }
-const engineSeg = readEngineSeg();
 
-// ─── Restart nudge (A2, F-B7d): "⚠️ RESTART Claude", PERSISTENT because statusLine
-// re-runs continuously and reads THIS file fresh each time — so the new version runs
-// even inside a stale session, the moment an update delivers it. It reaches the
-// TERMINAL only: this surface is not rendered on Desktop (ADR 0036's channel matrix
-// — the header's older claim was wrong, F4). Pending iff EITHER signal holds:
-//   • an on-disk GAP (engine-delivered skill/MCP not yet installed) — the signal that fires
-//     in the SAME session after a silent (old-orchestrator) update, with no fresh session;
-//   • the explicit FLAG (self-heal / new core wrote it for converged-but-not-loaded).
-// Both reads are fail-soft: a hiccup must never break or freeze the status line.
+// Restart nudge (A2, F-B7d): "⚠️ RESTART Claude", PERSISTENT because statusLine
+// re-runs continuously and reads THIS file fresh each time — so the new version
+// runs even inside a stale session, the moment an update delivers it. It reaches
+// the TERMINAL only: this surface is not rendered on Desktop (ADR 0036's channel
+// matrix — the header's older claim was wrong, F4). Pending iff EITHER signal
+// holds: an on-disk GAP (an engine-delivered skill/MCP not yet installed), which
+// is what fires in the SAME session after a silent update with no fresh session;
+// or the explicit FLAG (self-heal / a new core wrote it for converged-but-not-
+// loaded). Both reads are fail-soft: a hiccup must never break or freeze the line.
 // The reads themselves live in lib/restart-signal.mjs — shared, and unit-tested —
 // since session-status.mjs now carries the same nudge on the CLI (ADR 0036).
-const restartSeg = restartNudgeSegment(
-  restartPendingOnDisk({ repo: REPO, deriveWanted, existsSync, readFileSync }),
-);
+function restartPending() {
+  return restartPendingOnDisk({ repo: REPO, deriveWanted, existsSync, readFileSync });
+}
 
-// ─── A single line, segments separated by "·" — the restart nudge leads (unmissable) ─
-process.stdout.write([restartSeg, gitSeg, ragSeg, engineSeg, keySeg].filter(Boolean).join(" · "));
+export const realStatusLineDeps = {
+  git: realGit,
+  countMarkdown: () => countMarkdown(VAULT),
+  readDocCount,
+  readEnv: () => (existsSync(ENV_PATH) ? readFileSync(ENV_PATH, "utf8") : null),
+  readEngine,
+  restartPending,
+  write: (line) => process.stdout.write(line),
+};
+
+// Returns nothing on purpose: statusLine reads stdout and the process ends by
+// itself, exactly as before. A non-numeric result is what keeps the shared tail
+// from calling process.exit.
+export function runStatusLine(argv, deps = realStatusLineDeps) {
+  deps.write(buildStatusLine(deps));
+}
+
+runAsEntrypoint(import.meta.url, process.argv, runStatusLine);

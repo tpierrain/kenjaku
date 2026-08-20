@@ -97,13 +97,28 @@ export function readTargetManifest(dir, read = (p) => readFileSync(p, "utf8")) {
   return JSON.parse(read(join(dir, "engine-manifest.json")));
 }
 
-// Real git runner (args[] → {out, ok}), shared convention with auto-push.mjs. Used
-// by the core's CLI wiring, never by the unit tests (which inject `git`). Exported
-// so the update CHECK runs the very same runner: two spellings of "ask git" would
-// be two behaviours to keep in step forever.
-export function defaultGit(args) {
+// The exact git invocation, as a VALUE — command, argv and spawn options. Pure,
+// so what is actually run is asserted whole instead of being inspected through a
+// spawn nobody calls (debt 2 of the v4.8.0 mutation pass; same shape as
+// buildCrosscheckInvocation in verify-index.mjs, which killed the identical
+// cluster at v4.5.0). No platform branch: git is a real executable on Windows
+// too, so this request is byte-identical everywhere — see the module header.
+export function buildGitInvocation(args) {
+  return {
+    command: "git",
+    args,
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  };
+}
+
+// Real git runner (args[] → {out, ok}), shared convention with auto-push.mjs.
+// Exported so the update CHECK runs the very same runner: two spellings of "ask
+// git" would be two behaviours to keep in step forever. `execFile` is a seam so
+// the forwarding and the ok/failure mapping are asserted without a real git.
+export function defaultGit(args, execFile = execFileSync) {
+  const { command, args: argv, options } = buildGitInvocation(args);
   try {
-    const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const out = execFile(command, argv, options);
     return { out: out ?? "", ok: true };
   } catch (e) {
     return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };

@@ -1,0 +1,57 @@
+07:42:10 (51867) INFO ProjectReader Found 2 of 635 file(s) to be mutated.
+07:42:10 (51867) INFO Instrumenter Instrumented 2 source file(s) with 142 mutant(s)
+07:42:10 (51867) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+07:42:10 (51867) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-nrSfeK
+07:42:10 (51867) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+07:42:10 (51867) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+07:42:12 (51867) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1639 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 135)
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:16:24
+-   const FRONTMATTER_RE = /^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)([\s\S]*)$/;
++   const FRONTMATTER_RE = /^(---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)([\s\S]*)/;
+
+[Survived] Regex
+scripts/lib/note-refresh.mjs:56:26
+-   const CONFIDENCE_BLOCK = /^> \*\*Confidence\*\* — .*$/m;
++   const CONFIDENCE_BLOCK = /^> \*\*Confidence\*\* — .*/m;
+
+[Survived] ConditionalExpression
+scripts/lib/note-refresh.mjs:79:7
+-     if (at < lines.length && /^> \*\*Which one\*\* — /.test(lines[at])) {
++     if (true && /^> \*\*Which one\*\* — /.test(lines[at])) {
+
+[Survived] EqualityOperator
+scripts/lib/note-refresh.mjs:79:7
+-     if (at < lines.length && /^> \*\*Which one\*\* — /.test(lines[at])) {
++     if (at <= lines.length && /^> \*\*Which one\*\* — /.test(lines[at])) {
+
+[Survived] EqualityOperator
+scripts/lib/note-refresh.mjs:81:12
+-       while (at < lines.length && lines[at].trim() === "") at += 1;
++       while (at <= lines.length && lines[at].trim() === "") at += 1;
+
+[Survived] ConditionalExpression
+scripts/lib/note-refresh.mjs:81:12
+-       while (at < lines.length && lines[at].trim() === "") at += 1;
++       while (true && lines[at].trim() === "") at += 1;
+
+[Survived] MethodExpression
+scripts/lib/note-refresh.mjs:81:33
+-       while (at < lines.length && lines[at].trim() === "") at += 1;
++       while (at < lines.length && lines[at] === "") at += 1;
+
+Ran 1.00 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  95.07 |   95.07 |      135 |         0 |          7 |        0 |        0 |
+ note-refresh.mjs       |  94.53 |   94.53 |      121 |         0 |          7 |        0 |        0 |
+ status-hook-output.mjs | 100.00 |  100.00 |       14 |         0 |          0 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+07:45:22 (51867) INFO MutationTestExecutor Done in 3 minutes and 12 seconds.
+07:45:22 (51867) INFO Sandbox Resetting your original files from .stryker-tmp/backup-nrSfeK.

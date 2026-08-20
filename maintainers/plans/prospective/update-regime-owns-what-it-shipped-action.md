@@ -56,14 +56,80 @@
 > The harness side is **fully closed**: PR #1 merged into `main` (`9f843dc`) on the owner's call, and
 > the local clone put back on `main` (the `~/.claude` symlinks read that working tree).
 >
-> **The first unticked box is now the landmark again: S0bis**, the inherited mutation debt. One thing
-> is still open on S6 and does not block it: its **Kenjaku-side delivery** (manifest `merge` regime,
-> the explicit retirement of `tdd-discipline`, the `templates/fr/` version, `CONVENTIONS.md` §5) is
-> release work, and it needs the power S1-S5 build — it belongs in the cut, not before it.
+> **S0bis is COMPLETE and closed** _(2026-08-20, branch `chore/s0bis-entrypoint-mutation-debt`, draft
+> [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — nothing merged, nothing tagged)_. Both
+> v4.8.0 debts are paid, including its last open item, `session-status.mjs`, which needed the owner at
+> the keyboard and was arbitrated the same day. **Nothing is left under S0bis.** Every score, and the
+> state of the 0 % tier, is in
+> [`RESULTS.md` § S0bis](../../mutation/RESULTS.md#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20),
+> which **owns** them — this plan owns the release's state, not the measurements, and deliberately
+> keeps no copy of a number.
 >
-> The Tracking's first unticked box is **S0bis** (the inherited mutation debt). That is the next box
-> to *work*, and it is correct — but it is not where a resume should start, because S6 is **blocked on
-> a human** and would otherwise sit unnoticed. Take S0bis if Thomas is not at the keyboard.
+> **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
+> this plan exists for. ▶️ **S1 IS UNDER WAY: THREE pure slices have landed**, all test-first and all
+> at **100 % mutation** the hour they were written _(numbers owned by `RESULTS.md`, §§
+> [S1's first slice](../../mutation/RESULTS.md#s1s-first-slice--libengine-basemjs-measured-the-day-it-was-written--2026-08-20),
+> [S1's advance rule](../../mutation/RESULTS.md#s1s-advance-rule--planbaseadvance-same-file-same-day--2026-08-20)
+> and [S1's seeding planner](../../mutation/RESULTS.md#s1s-seeding-planner--planbaseseed-same-file-same-day--2026-08-20))_:
+>
+> - **the base's HOME and its PROOF** _(2026-08-20 · `411d4d7` + `40743c1`)_ — `scripts/lib/engine-base.mjs`:
+>   **where** a base lives (`.engine-base/<rel>`, one tree for the four families) and **whether it is
+>   provable** (the recorded sha256, with `no-provenance` / `absent` / `mismatch` named apart because
+>   their repairs differ);
+> - **the ADVANCE rule** _(2026-08-20 · `184ce2e`)_ — `planBaseAdvance`, the sentence S1 is named after:
+>   *the base moves to what was **delivered** to the installed file, never to the newest fetched
+>   content.* Driven by the delivery map that already exists, so `engine-skills/**` (a `replace` target)
+>   can no longer run the base ahead of a file that stood still;
+> - **the SEEDING planner** _(2026-08-20 · `fb87393`)_ — `planBaseSeed`, the migration: a brain seeds its
+>   own tree **from itself**, because a file still matching its recorded sha **is** the last delivery.
+>   Seeds whenever the tree cannot be **proven** (so a drifted base is repaired), never when it can.
+>
+> **▶️ RESUME AT: the fs ORCHESTRATOR and its WIRING** — the first slice that touches the disk, and the
+> last one S1 owes. The three planners above are pure and complete; what is missing is the thin I/O
+> around them: seed at install (`recordSourceAndProvenance`, which already walks the brain and writes
+> the manifest) and advance at update (beside `reseedProvenance`, in **both** writers —
+> `update-engine.mjs` step 7 *and* `reconcile-brain.mjs`'s `runReconcileCli`, which is the LAST writer
+> on the update path). ⚠️ **And it decides the tree's own regime**: `.engine-base/**` must **never** be a
+> `replace` target — that would recreate this whole bug one level up — nor a `merge` one. It is
+> engine-written, never hand-edited, and it needs its own answer in `engine-manifest.json`.
+>
+> ✅ **THE FORK IS NOW SIGNED, not merely inclined** _(owner, 2026-08-20: "oui, `.engine-base/` à la
+> racine me va")_. The re-ask the plan had reserved was made once the first test showed the concrete
+> shape (`.engine-base/CLAUDE.md`, `.engine-base/scripts/auto-commit.mjs`,
+> `.engine-base/.claude/skills/coach/SKILL.md`), and the answer confirmed the leaning: **one tree, at
+> the brain's root, beside the notes**. Nothing on this step needs the owner any more, and **the fs
+> orchestrator is unblocked** — it was the only slice the open question held. Do not re-open it.
+>
+> ⏸️ **S1 was SCOUTED and its one blocking decision TAKEN** _(2026-08-20)_: the
+> base lives in a single **`.engine-base/`** (owner's call, "la seconde a priori"). Its ground truth is
+> measured on the deployed brains and written into its box — `merge` is **four** behaviours, not one,
+> three of the four have **no base at all**, and `CLAUDE.engine.md` has **no regime at all**, which is
+> why a fully-up-to-date brain is still 10 KB of doctrine behind. Do **not** re-measure any of it. ✅ **The slice that came before it is DONE**
+> _(2026-08-20)_ — the `mutation-testing` pair (script + skill), so **S1 is the live work now**. Its
+> record, and the working mode that governs how S1 may be dispatched, stay in
+> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking;
+> read that plan's header first, it is still the landmark for the chantier. One thing is still open on S6 and does not block it: its **Kenjaku-side
+> delivery** (manifest `merge` regime, the explicit retirement of `tdd-discipline`, the
+> `templates/fr/` version, `CONVENTIONS.md` §5) is release work, and it needs the power S1-S5 build —
+> it belongs in the cut, not before it.
+>
+> A resume should still **surface S6 first**, because it is **blocked on a human** and would otherwise
+> sit unnoticed; then take **S1** if Thomas is not at the keyboard.
+>
+> ## 🔢 THE VERSION NUMBER — **v5.0.0, SIGNED by the owner** (2026-08-20, in conversation: *"oui, on
+> part sur la 5.0.0"*). Do not re-litigate it.
+>
+> This release is **v5.0.0**, the first major since the rename. The reason is the **promise, not the
+> diff**, and the owner's own framing is the one retained: what breaks is *the behaviour towards the
+> Constitution, and how a brain is updated from now on*. Argument, counter-argument and the three
+> obligations a major carries: § *Why this release is a MAJOR* below — read it at cut time rather than
+> re-deriving it. **Checked, not assumed**: the number costs the fleet **nothing**
+> (`pickLatestSemverTag` compares numerically, **no major gate**, so `update-engine` and the "N
+> releases ahead" line cross 4 → 5 like any other tag — `scripts/lib/semver-tag.mjs`).
+>
+> **This plan OWNS the number.** No other file states it — `RESULTS.md` and
+> `v4.9.0-mutation-debt-plan.md` deliberately say *"the unfreeze release"* and stay true whatever
+> happens; the ROADMAP row links here. Do not spread it: at cut time, one file to read.
 
 ## The four categories we actually have (measured 2026-08-08)
 
@@ -113,6 +179,74 @@ Three consequences, each already logged as its own field finding:
 - **Locale-aware delivery is solved and in production since v4.1.0** (`resolveLocaleSource` +
   `readBrainLocale`), which was the stated reason the doctrine layer was frozen in ROADMAP Gate 1.
 
+## Why this release is a MAJOR — the argument, and its counter-argument
+
+> **Status: SIGNED — this release is `v5.0.0`** (owner, 2026-08-20). The header note carries the
+> decision; this section carries the reasoning, so it is not re-derived at cut time, when the pressure
+> is highest.
+
+**The owner's framing, 2026-08-20, and it is sharper than the first draft of this section**: *"le
+breaking change, c'est sur le comportement qu'on a vis-à-vis de la Constitution, et sur comment on met
+à jour le second cerveau désormais."* Not the feature list — **the update model itself**, whose most
+visible face is the constitution. Three facts back it, read in the code rather than recalled:
+
+- **The sacred perimeter shrinks.** `engine-apply-plan.mjs` declares untouchable, whatever the manifest
+  says: `CLAUDE.md`, `.claude/settings.json`, `.env`, and two whole **trees**, `.claude/skills/` and
+  `vault/`. That tree is why more than half of an installed brain's skills have never received
+  anything — they are not badly configured, they are **inside a perimeter declared sacred**. This
+  release moves part of that boundary.
+- **The ownership axis is replaced.** From *"you modified it, so it is yours"* — which mostly catches
+  **Claude's own past edits**, in a product whose agent edits files for a living — to *origin decides
+  who owns it, and a real merge delivers both sides*. Everything else in this plan is a consequence.
+- **A test that says NEVER becomes a test that says HOW.** The lock in `engine-apply-plan.test.mjs`
+  spells out its own reason: do not propagate `CLAUDE.engine.md` until delivery is locale-aware, *"else
+  a FR brain is re-anglicized on upgrade"*. **That reason expired** — locale-aware delivery has been in
+  production since v4.1.0. S5 flips it with the comment rewritten, never deleted quietly.
+
+**Where the line is drawn, and it is not negotiable**: what the owner writes stays the owner's.
+`CLAUDE.md`, `.env` and `vault/` remain sacred — the **two-layer design exists precisely so the engine
+never needs to write in their constitution**: it owns `CLAUDE.engine.md`, they own `CLAUDE.md`. A
+release that touched the personal layer would spend a promise we could not make twice. `settings.json`
+is the one genuinely open case (it grows with every "always allow"), and it is S3's business.
+
+⚠️ **Two populations, and the release note must not address them as one**: two-layer brains get their
+doctrine unfrozen; **monolithic brains** (pre-layering, ~v3.2.x line) simply lack `CLAUDE.engine.md`
+and **stay frozen** — retro-fitting them is *fleet re-layering*, a different subject with its own
+carrier (`engine-managed-file-merge-strategy.md`, ROADMAP item 4). Not in this cut.
+
+And on machines that already run, three things happen that no 4.x did:
+
+- **engine files start moving again.** The staged skills (more than half of an installed brain's
+  skills), the four `merge` scripts, and `CLAUDE.engine.md` — which is in no regime **at all** — enter
+  one. Better outcomes, but files the owner never saw change will change.
+- **the brain starts pushing back.** S3's write guard asks before an edit lands in an engine file: a
+  new, visible interaction in daily use, not an internal detail.
+- **something shipped goes away.** S6 retires `tdd-discipline` from deployed brains — the first
+  deliberate **removal** from a brain the engine had already furnished.
+
+Plus a **one-time migration**: `.engine-base/` is seeded inside the owner's folder at the first update
+(13 of 15 entries from the brain itself, 2 from the fetched copy). A new tree appears in a directory
+the owner considers theirs. That alone is a major-shaped event.
+
+**The counter-argument, and it is honest**: strictly, semver majors mark a **broken** contract, and
+nothing here breaks — every owner edit is preserved *better* than before, so this could be read as a
+large minor (`v4.10.0`). **Why it loses**: the contract that changes is *"the engine leaves your files
+alone"*, and the version number is the only signal in the series that says **read before you update**.
+This is the first release that will write into files an owner may have edited by hand. Precedent is
+consistent, too: `v4.0.0 — The One Where It Becomes Kenjaku` was a **meaning** shift, not a breakage.
+
+**What calling it 5.0.0 obliges** (all of it belongs to the cut, none of it to S1):
+
+- a release note with a plain *"what changes for you, and what you have to do"* — non-devs first, no
+  alarm (`CONVENTIONS.md` §11);
+- the QA instrument exercised **across the boundary**: an update **4.x → 5.0.0** replayed on the frozen
+  `mind-palace` fixture, not only same-major updates;
+- a stated answer to *"and if it goes wrong?"* — what the owner does to get their file back.
+
+**What it does NOT oblige**: any code change. The version is a git tag (ADR 0017); the number is a
+message to owners, never a protection. What protects them is S2's real merge, S3's guard and S4's
+audible divergence.
+
 ## Tracking
 
 - [x] **S0 — ✅ SEQUENCED 2026-08-08 by the owner**: the small universes release ships and is cut
@@ -122,14 +256,23 @@ Three consequences, each already logged as its own field finding:
       (`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`) as its demonstration: the
       release whose subject is *the doctrine finally arrives* is where new doctrine should arrive.
       Nothing here starts before the universes release is cut.
-- [ ] **S0bis — INHERITED FLOOR: the v4.8.0 mutation debt is due WITH this release** _(owner,
-      2026-08-08)_. It was the declared floor of v4.9.0; the owner re-arbitrated it in writing onto this
+- [x] **S0bis — INHERITED FLOOR: the v4.8.0 mutation debt is due WITH this release** _(owner,
+      2026-08-08)_ — **PAID IN FULL 2026-08-20**, branch `chore/s0bis-entrypoint-mutation-debt`
+      (draft PR #75, nothing merged or tagged).
+      It was the declared floor of v4.9.0; the owner re-arbitrated it in writing onto this
       release when v4.9.0 was scoped to universes alone. It is carried here so it arrives with its
       release instead of relying on someone re-opening the other file.
-  - [ ] Pay both debts from `prospective/v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
+  - [x] Pay both debts from `prospective/v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
         `runAsEntrypoint` + the guard test whose allowlist may only shrink; Debt 2: `defaultGit` as a
-        pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`.
-  - [ ] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
+        pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`
+        _(2026-08-20 — both paid, ceilings **32/26 → 13/9**; the scores are in `RESULTS.md` § S0bis)_.
+  - [x] `session-status.mjs` — the last entry-guard file, and the only one that **cannot be verified by
+        running it** (executing it sweeps and auto-commits the working tree). Held as an arbitration
+        rather than done blind, **answered by the owner the same day** ("yes, now, at the keyboard")
+        and paid over three measured rounds. What made it judgeable was a **disposable git worktree**,
+        where a sweep-and-commit is harmless — so the red was taken for real and the output proved
+        byte-identical before and after _(2026-08-20 · scores in `RESULTS.md` § S0bis)_.
+  - [x] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
         release without paying it is a **defect**, not a candidate for a second re-arbitration.
 
 - [ ] **S1 — An immutable base per `merge` file.** Freeze the staged copy at **the version actually
@@ -140,6 +283,111 @@ Three consequences, each already logged as its own field finding:
   - [ ] Decide the base's home for the files that have none today (`CLAUDE.md`, `settings.json`, the
         four scripts): generalize the `engine-skills/` idea, or a single `.engine-base/` tree. Cost is
         a few dozen KB.
+  - [x] **GROUND TRUTH, measured on the deployed brains 2026-08-20 — do not re-derive it.** Read on
+        `~/mind-palace` (engine `scripts` 1.13.1), cross-checked on `~/autre-brain` (1.7.0) and
+        `~/legacy-brain` (1.1.0). `merge` is **not one behaviour, it is four**, and only one of them is
+        the mechanism this step was written about:
+    - [x] **The 9-10 declared `merge` skills** — provenance-gated refresh, `.new` sidecar when the
+          owner customized. This is the mechanism that works, and the only one a base serves today.
+    - [x] **The 9 STAGED skills** (`consolidate`, `file-back`, `lint`, `local-mirror`,
+          `mcp-token-expired`, `open-note`, `rag`, `univers`, `universe`) — installed under
+          `.claude/skills/<name>/`, a path **no `merge` glob names**, so `provenance[rel]` is
+          **undefined** and `refreshVerdict` returns `preserve: no-provenance` **every single time**:
+          never refreshed, and **not even offered** a `.new` sidecar (that branch is reserved for
+          `customized`). **More than half of an installed brain's skills are outside the update regime
+          entirely.** On the brains read they are still byte-identical to their staged source, so the
+          freeze has not yet *shown*, but nothing can ever lift it.
+    - [x] **`CLAUDE.md` and `.claude/settings.json`** — not "preserved by a comparison": **SACRED**
+          in `engine-apply-plan.mjs` (`SACRED_FILES`), scrubbed out of the write allowlist whatever the
+          manifest says. Both are **diverged from their recorded base on the live brain** (expected:
+          the constitution is personalized then edited, the allowlist grows with every "always allow").
+          These are the two carriers of the frozen doctrine, and **a base alone will not unfreeze
+          them** — it takes S2's merge *and* a decision to stop treating them as untouchable.
+    - [x] **The 4 `merge` scripts** (`auto-commit`, `auto-push`, `status-line`, `verify-rag`) — the
+          opposite failure: `computeApplyPlan` puts them in `replaceScripts`, so they are **overwritten
+          blind**. Declared `merge`, applied `replace`. On the brains read they all still match their
+          base, so no owner edit has been destroyed yet — but nothing prevents it.
+  - [x] 🛑 **THE FORK — ANSWERED 2026-08-20: a single `.engine-base/`**, the recommended option
+        _(owner, in conversation: "la seconde a priori" — a leaning, not a signature; he may revisit it
+        when the first test makes the shape concrete, and that is the moment to re-ask, not before)_.
+    - [x] ✅ **RE-ASKED AND SIGNED the same day**, once `baseRelPath`'s tests showed the literal paths:
+          *"oui, `.engine-base/` à la racine me va"*. The leaning became a decision, the tree sits at the
+          **brain's root beside the notes** (not hidden under `.claude/`), and the fs orchestrator is
+          unblocked. **Do not re-open.**
+        The rejected option was generalizing `engine-skills/` (one staging tree per family). **The
+        reason to keep**: the problem is not skills — three of the four families have **no base at
+        all**, and `engine-skills/` cannot host `CLAUDE.md` or `settings.json` without becoming a
+        second thing. One tree, one mechanism, one answer for the files that have none.
+  - [x] **The case that made the decision concrete, measured 2026-08-20 — the best demonstration this
+        chantier has, and it is worth quoting in the release note.** `~/mind-palace` is installed at
+        **`v4.9.1`, engine `scripts` 1.13.1**, i.e. the newest published code. Its doctrine layer is
+        **26 KB against the launcher's 36 KB**: four sections missing, one of them the *discipline
+        d'affirmation* (a negative claim about a person must name its check or become a question),
+        which landed **2026-08-03** and has shipped in **every tag since v4.5.0**. The brain's
+        `CLAUDE.md` line 13 is `@CLAUDE.engine.md`, so that layer loads at **every session** — the rule
+        written to stop the brain from repeating an accusation about a colleague simply never arrived.
+    - [x] **Why it never arrived**: `CLAUDE.engine.md` is in **no regime at all** in
+          `engine-manifest.json`. Not `replace`, not `merge`, not `regenerate`. The fourth category
+          above, *"never updated, and nobody decided that"* — an omission, not a policy.
+    - [x] **And why the base is the unlock**: with no ancestor, the only way to deliver those four
+          sections is a blind overwrite of a file that sits beside a personalized constitution, which
+          nobody dares do — so nothing ships. With `.engine-base/` we know what was last delivered, so
+          the sections can land **without touching** what the owner wrote next to them.
+    - [ ] **What makes the migration cheap, and it falls out of the same measurement**: on a brain
+          where the installed file still **matches its recorded `sha256`**, that file **is** the
+          engine's last delivered content — so the base tree can be seeded **from the brain itself**,
+          with no fetch. 13 of 15 entries qualified on the live brain; the two that did not
+          (`CLAUDE.md`, `settings.json`) seed from the fetched engine copy at the next update.
+  - [x] **The base's HOME and its PROOF are built** _(2026-08-20 · `411d4d7` + `40743c1`)_ —
+        `scripts/lib/engine-base.mjs`, pure and fs-free: `baseRelPath` (one `.engine-base/` tree, a
+        deliberately unconditional prefix, no per-family case) and `verifyBase`, which turns the
+        recorded sha256 into the **proof checked before any merge** and names its three failures apart
+        because their repairs differ — `no-provenance` (never entered the regime: the 9 staged skills,
+        `CLAUDE.engine.md`), `absent` (incomplete tree, re-seed), `mismatch` (the tree drifted; feeding
+        those bytes to a three-way merge would silently pick the **wrong ancestor**, which is the
+        failure this tree exists to make impossible). 8 cases red on their assertions first, **100 %
+        mutation**, and the run earned its keep: the survivor it found was the raw-vs-normalized half
+        of the proof, i.e. **a real Windows case the suite had no example of** (a brain that
+        fingerprints CRLF bytes at install records a CRLF sha). ♻️ `normalizeEol` had a second copy in
+        `engine-skill-refresh.mjs`; one definition now, since both answer the same question about the
+        same sha.
+  - [x] **The ADVANCE rule, the sentence this step is named after** _(2026-08-20 · `184ce2e`)_ — a pure
+        `planBaseAdvance`: the base moves to what was **delivered** to the installed file, never to the
+        newest fetched content. Driven by the delivery map that already exists (`installedFileMap` +
+        `refreshedFileMap`), not by the source tree — that substitution *is* the false positive
+        (`engine-skills/**` sits in `replace`, so the base would run ahead while the installed file
+        stands still). 6 cases red on their assertions first, **100 % mutation, no survivor**
+        _(number owned by [`RESULTS.md` § S1's advance rule](../../mutation/RESULTS.md#s1s-advance-rule--planbaseadvance-same-file-same-day--2026-08-20))_.
+    - [x] **Decided while building it, worth keeping**: an entry leaves with its path, its bytes **and**
+          its sha in **one object**. The tree and the record can then never be advanced apart — that
+          drift is exactly what `verifyBase` would report as a `mismatch`, and the orchestrator has
+          nothing left to recompute. The digest is taken over the delivered bytes **as they are** (like
+          `buildProvenance` at install), or a Windows brain would flip its recorded sha at its first
+          update for content nobody touched.
+    - [x] **A file the update did NOT deliver is absent from the map, so its base stands.** That is what
+          makes "preserve" finally keep an ancestor worth merging from — the input S2's three-way needs.
+  - [x] **The seeding planner** _(2026-08-20 · `fb87393`)_ — `planBaseSeed`, on the measurement above:
+        installed content matching its recorded sha **is** the engine's last delivered content → seed
+        the tree from the brain itself, no fetch (13 of 15 entries qualified on the live brain). The
+        other two seed from the fetched copy at the next update, through the advance rule. 9 cases red
+        on their assertions first, **100 % mutation, no survivor** _(number owned by
+        [`RESULTS.md` § S1's seeding planner](../../mutation/RESULTS.md#s1s-seeding-planner--planbaseseed-same-file-same-day--2026-08-20))_.
+    - [x] **Decided while building it**: the rule is **not** "seed when absent" but *"seed whenever the
+          tree cannot be PROVEN"*, so a base that drifted is repaired by the same pass — and a base that
+          is present **and** provable is left strictly alone. That last guard is load-bearing: this runs
+          at **every** update, and re-seeding a correct ancestor from a file the owner has edited since
+          is the one way the migration could destroy exactly what it exists to protect.
+    - [x] **No second definition of the proof**: "would these bytes make a provable base?" *is* the
+          seeding question, so `verifyBase` is asked of the **installed** file, and only its three
+          refusals are renamed to what they mean on that side — `customized` (waits for a delivery),
+          `no-provenance` (waits for a regime), `not-installed` (waits for nothing).
+    - [x] **Candidates are the recorded entries UNION what the brain holds**, so a file the owner
+          DELETED is named rather than invisible — a planner walking only the disk would report nothing
+          about it at all. Feeds S4's audible divergence.
+  - [ ] **NEXT — the fs orchestrator + the wiring**: write `.engine-base/` at install
+        (`recordSourceAndProvenance`) and at update (beside `reseedProvenance`), and decide what regime
+        the tree itself answers to (it must never be a `replace` target — that would recreate the bug
+        one level up).
 - [ ] **S2 — A real three-way merge, so "preserve" stops meaning "abandon".**
   - [ ] untouched → fast-forward (today's behaviour, unchanged);
   - [ ] owner's edit in a region the update does not touch → **merge**: they keep their edit **and**
@@ -167,6 +415,19 @@ Three consequences, each already logged as its own field finding:
       what was dropped is TDD's own thesis, not a ceremony, so the name had to change too (owner's
       call, both the decision and the name).
   - [ ] Add `.claude/skills/test-first-discipline/**` to the manifest's **`merge`** regime.
+  - [ ] 🔎 **The inverted vendoring has to be flipped BACK, and it is already costing** _(measured
+        2026-08-20)_. The two files have **diverged**: Kenjaku's copy is the 2026-08-15 rewrite
+        (frontmatter `origin: use-case-driven-harness`, wording about *"this repo"*, `rag/`,
+        `installer.mjs`), while the harness source has moved on since. **The harness is the owner
+        again** — Kenjaku's copy is the shipped artefact, not the source. ⚠️ It is the **only** copy of
+        this doctrine that reaches end users, so a hand edit here widens the gap while looking like
+        closing it: the refresh is this rider's job. **No longer waiting — the payload exists**: the
+        harness's [T8](../../../../use-case-driven-harness/docs/plans/harness-consolidation-action.md)
+        landed upstream on 2026-08-20 (`29abfa8`, skill **v2.1.0**, the section *"A mutation run LIES
+        to you"*), and **T10 the same day** (`78b3536`, skill **v2.2.0**: the table filing the low
+        mutation numbers to their real cause, so they stop being blamed on step size). It must reach
+        the brains **through this path**, not by copy-paste, so the gap this rider has to close is now
+        **two versions wide** and fully described upstream.
   - [ ] ⚠️ **Retirement is NOT automatic — verified in code on 2026-08-15**: `refreshUntouchedSkills`
         only walks skills present in the **source**, and its single `rmSync` targets `.new` sidecars.
         A skill dropped from the engine is **never visited**, so `tdd-discipline` would sit on every

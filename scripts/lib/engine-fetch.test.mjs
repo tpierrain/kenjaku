@@ -7,7 +7,9 @@ import { join } from "node:path";
 
 import {
   buildCloneArgs,
+  buildGitInvocation,
   buildLsRemoteArgs,
+  defaultGit,
   fetchSource,
   readTargetManifest,
   resolveLatestTag,
@@ -201,3 +203,78 @@ for (const { platform, dir } of [
     ]);
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// defaultGit — debt 2 of the v4.8.0 mutation pass. The real runner used to be a
+// single execFileSync call the unit tests never entered (21 live mutants, and a
+// comment that documented its own exemption). Same fix as v4.5.0's
+// buildCrosscheckInvocation: the request becomes a VALUE, asserted whole, and
+// the runner shrinks to the forwarding plus the ok/failure mapping.
+//
+// No platform branch is asserted on purpose: git is a real executable on Windows
+// too (no `.cmd` wrapper, unlike npx), so the invocation is byte-identical
+// everywhere — see the module header. That absence is the design, not an omission.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("buildGitInvocation — the whole request, arguments passed through untouched", () => {
+  assert.deepEqual(buildGitInvocation(["ls-remote", "--tags", "git@host:me/repo.git"]), {
+    command: "git",
+    args: ["ls-remote", "--tags", "git@host:me/repo.git"],
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  });
+});
+
+test("buildGitInvocation — an empty argument list is still a well-formed request", () => {
+  assert.deepEqual(buildGitInvocation([]), {
+    command: "git",
+    args: [],
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  });
+});
+
+test("defaultGit — hands the BUILT invocation to the runner, whole and in order", () => {
+  const calls = [];
+  defaultGit(["status", "--porcelain"], (...a) => {
+    calls.push(a);
+    return "";
+  });
+  assert.deepEqual(calls, [
+    ["git", ["status", "--porcelain"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }],
+  ]);
+});
+
+test("defaultGit — a run that succeeds returns its output and ok:true", () => {
+  // The return value is a fingerprint, never something the mapping could invent.
+  assert.deepEqual(defaultGit(["rev-parse", "HEAD"], () => "9f3c1ab-from-the-runner\n"), {
+    out: "9f3c1ab-from-the-runner\n",
+    ok: true,
+  });
+});
+
+test("defaultGit — a runner returning nothing maps to an EMPTY string, never undefined", () => {
+  // `stdio: ignore` on stdout is a real case, and `out` is concatenated by callers.
+  assert.deepEqual(defaultGit(["fetch"], () => undefined), { out: "", ok: true });
+  assert.deepEqual(defaultGit(["fetch"], () => null), { out: "", ok: true });
+});
+
+test("defaultGit — a failing run maps to ok:false, stdout THEN stderr", () => {
+  const boom = Object.assign(new Error("git exited 128"), {
+    stdout: "partial-output",
+    stderr: "fatal: repository not found",
+  });
+  assert.deepEqual(
+    defaultGit(["clone", "nope"], () => {
+      throw boom;
+    }),
+    { out: "partial-outputfatal: repository not found", ok: false },
+  );
+});
+
+test("defaultGit — a failure carrying neither stream is an empty out, not 'undefined'", () => {
+  assert.deepEqual(
+    defaultGit(["clone", "nope"], () => {
+      throw new Error("spawn ENOENT");
+    }),
+    { out: "", ok: false },
+  );
+});

@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { runPromptNudge, realNudgeDeps } from "./prompt-restart-nudge.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
 
@@ -129,6 +129,17 @@ test("run as the harness runs it, the hook injects the directive on stdout", () 
   } finally {
     if (!preexisting) rmSync(flag, { force: true });
   }
+});
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the shared tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const cli = join(SCRIPTS_DIR, "prompt-restart-nudge.mjs");
+  const probe = `import("${pathToFileURL(cli).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
 });
 
 test("what it injects stays short — volume IS the defect (F5)", () => {

@@ -1,0 +1,212 @@
+21:18:12 (67176) INFO ProjectReader Found 2 of 632 file(s) to be mutated.
+21:18:12 (67176) INFO Instrumenter Instrumented 2 source file(s) with 239 mutant(s)
+21:18:12 (67176) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:18:13 (67176) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-87yb7a
+21:18:13 (67176) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:18:13 (67176) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:18:14 (67176) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1698 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 202)
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-|-+$/g, ""); // trim leading/trailing hyphens
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-+|-$/g, ""); // trim leading/trailing hyphens
+
+[Survived] MethodExpression
+scripts/lib/filed-note.mjs:66:18
+-     if (!basis || !String(basis).trim()) {
++     if (!basis || !String(basis)) {
+
+[Survived] StringLiteral
+scripts/lib/filed-note.mjs:80:84
+-         `unknown type "${spec.type}": supported types are ${Object.keys(FOLDER).join(", ")}`,
++         `unknown type "${spec.type}": supported types are ${Object.keys(FOLDER).join("")}`,
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:138:44
+-     return cardPath.split("/").pop().replace(/\.md$/, "").split("-")[0];
++     return cardPath.split("/").pop().replace(/\.md/, "").split("-")[0];
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:32:43
+-   const toPosix = (p) => p.split("\\").join("/");
++   const toPosix = (p) => p.split("\\").join("");
+
+[Survived] LogicalOperator
+scripts/file-back-note.mjs:48:9
+-       if (entry.isDirectory && entry.name !== "people") collect(`${entry.name}/`);
++       if (entry.isDirectory || entry.name !== "people") collect(`${entry.name}/`);
+
+[Survived] ConditionalExpression
+scripts/file-back-note.mjs:48:9
+-       if (entry.isDirectory && entry.name !== "people") collect(`${entry.name}/`);
++       if (true) collect(`${entry.name}/`);
+
+[Survived] ConditionalExpression
+scripts/file-back-note.mjs:48:30
+-       if (entry.isDirectory && entry.name !== "people") collect(`${entry.name}/`);
++       if (entry.isDirectory && true) collect(`${entry.name}/`);
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:48:45
+-       if (entry.isDirectory && entry.name !== "people") collect(`${entry.name}/`);
++       if (entry.isDirectory && entry.name !== "") collect(`${entry.name}/`);
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:71:8
+-     cwd: () => process.cwd(),
++     cwd: () => undefined,
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:72:10
+-     today: () => new Date().toISOString().slice(0, 10),
++     today: () => undefined,
+
+[Survived] MethodExpression
+scripts/file-back-note.mjs:72:16
+-     today: () => new Date().toISOString().slice(0, 10),
++     today: () => new Date().toISOString(),
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:79:13
+-     universe: () =>
+-       readActiveUniverse(
+-         { existsSync, readFileSync: (p) => readFileSync(p, "utf-8") },
+-         vaultRagDir(process.cwd()),
+-       ),
++     universe: () => undefined,
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:81:35
+-         { existsSync, readFileSync: (p) => readFileSync(p, "utf-8") },
++         { existsSync, readFileSync: () => undefined },
+
+[Survived] ObjectLiteral
+scripts/file-back-note.mjs:81:7
+-         { existsSync, readFileSync: (p) => readFileSync(p, "utf-8") },
++         {},
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:81:58
+-         { existsSync, readFileSync: (p) => readFileSync(p, "utf-8") },
++         { existsSync, readFileSync: (p) => readFileSync(p, "") },
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:84:14
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => undefined,
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:84:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:85:11
+-     exists: (p) => existsSync(p),
++     exists: () => undefined,
+
+[Survived] BlockStatement
+scripts/file-back-note.mjs:91:30
+-     writeFile: (p, content) => {
+-       mkdirSync(dirname(p), { recursive: true });
+-       writeFileSync(p, content);
+-     },
++     writeFile: (p, content) => {},
+
+[Survived] ObjectLiteral
+scripts/file-back-note.mjs:92:27
+-       mkdirSync(dirname(p), { recursive: true });
++       mkdirSync(dirname(p), {});
+
+[Survived] BooleanLiteral
+scripts/file-back-note.mjs:92:40
+-       mkdirSync(dirname(p), { recursive: true });
++       mkdirSync(dirname(p), { recursive: false });
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:95:8
+-     log: (...a) => console.log(...a),
++     log: () => undefined,
+
+[Survived] ArrowFunction
+scripts/file-back-note.mjs:96:10
+-     error: (...a) => console.error(...a),
++     error: () => undefined,
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:117:7
+-         `✗ vault/ — a person card must say how sure its identity is.\n` +
++         `` +
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:119:41
+-           `${Object.keys(CONFIDENCE).join(", ")},\n` +
++           `${Object.keys(CONFIDENCE).join("")},\n` +
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:120:9
+-           `  and basis says what the resolution rests on (the source, its date, the card it matched).`,
++           ``,
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:137:9
+-           `Refine that living page by appending a dated section instead.`,
++           ``,
+
+[Survived] MethodExpression
+scripts/file-back-note.mjs:148:25
+-         const firstName = String(spec.title).trim().split(/\s+/)[0];
++         const firstName = String(spec.title).split(/\s+/)[0];
+
+[Survived] Regex
+scripts/file-back-note.mjs:148:57
+-         const firstName = String(spec.title).trim().split(/\s+/)[0];
++         const firstName = String(spec.title).trim().split(/\s/)[0];
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:153:48
+-             homonyms.map((c) => `    ${c}`).join("\n") +
++             homonyms.map((c) => `    ${c}`).join("") +
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:154:11
+-             `\n  A card that does not say WHICH ${firstName} only moves the ambiguity.` +
++             `` +
+
+[Survived] ConditionalExpression
+scripts/file-back-note.mjs:166:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/file-back-note.mjs:166:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runFileBack(process.argv.slice(2)));
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] MethodExpression
+scripts/file-back-note.mjs:167:28
+-     process.exit(runFileBack(process.argv.slice(2)));
++     process.exit(runFileBack(process.argv));
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  84.94 |   84.94 |      202 |         1 |         36 |        0 |        0 |
+ lib                |  96.00 |   96.00 |      120 |         0 |          5 |        0 |        0 |
+  filed-note.mjs    |  96.00 |   96.00 |      120 |         0 |          5 |        0 |        0 |
+ file-back-note.mjs |  72.81 |   72.81 |       82 |         1 |         31 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:23:51 (67176) INFO MutationTestExecutor Done in 5 minutes and 38 seconds.
+21:23:51 (67176) INFO Sandbox Resetting your original files from .stryker-tmp/backup-87yb7a.

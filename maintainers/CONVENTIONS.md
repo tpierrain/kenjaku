@@ -128,8 +128,29 @@ destroys — and the human had to ask for it to be saved. The right trigger is n
 it is **the handed-back turn**. **Goal: `/clear` is free at every instant, never only at step
 boundaries.**
 
+**And "the plan" is PLURAL — measured here, 2026-08-20.** A session made **8 commits, 4 of them into
+plans**, obeyed the save point every time, and still left the corpus stale: **four** files restated
+the same item's status (`agent-orchestrated-release-mode-action.md`,
+`update-regime-owns-what-it-shipped-action.md`, `v4.9.0-mutation-debt-plan.md`,
+`maintainers/mutation/RESULTS.md`) and each commit updated **the plan that was open**. Nothing was
+forgotten: the state had been **copied**, and a copy is invisible from inside the file you have open —
+§3bis's own principle broken one level up, at the corpus rather than at a single plan. So:
+
+- **Name the carriers, do not recall them**: `git grep -l "<branch>" -- '*.md'` before handing back.
+  Every file that answers must already say what the reply says, or be told in one line why it needs
+  nothing.
+- **One item, one OWNING plan.** A second file that restates a status is a future lie: link to the
+  owner instead. Deduplicate the moment the grep shows a duplicate.
+- **An orchestrated run (§12) has almost no hand-backs**: dozens of tool calls between two of them, so
+  the mode rarefies the save point exactly when there is most state to record. On such a run, save at
+  **each decision as it lands**.
+- **Deterministic net (ADR 0009), machine-local**: `~/.claude/hooks/plan-carrier-guard.mjs` blocks the
+  hand-back naming the untouched carriers. It judges **no content**. Braces; this section is the belt.
+
 This is the **all-projects** convention; the global rule
-`use-case-driven-harness/rules/plans.md` § "Mémoire & /clear" carries the same, machine-wide.
+[`use-case-driven-harness/rules/plans.md`](https://github.com/tpierrain/use-case-driven-harness)
+§ "The save point is EVERY handed-back turn" carries the same, machine-wide, and **owns the method**:
+change it there first, then carry the consequence here.
 
 ## 4. Artifacts in English (conversation may be in French)
 
@@ -197,7 +218,7 @@ dismissal is the bug. I/O glue still hides logic — a `.md` filter, a `.obsidia
   no-op on the exact promise that release existed to keep. The file ended at **100 %**.
 - **Coverage ≠ verification.** A suite can show high line coverage and still kill ~0 % of mutants. The
   objective signal is the **mutation score**, not coverage. See the plan
-  [`plans/prospective/mutation-testing-stryker.md`](plans/prospective/mutation-testing-stryker.md).
+  [`plans/prospective/mutation-testing-stryker.md`](plans/archived/mutation-testing-stryker.md).
 - **Two durable guardrails back this up** (Step 4 of that plan): a deterministic **sibling-test guard**
   (`rag/src/lib/lib-coverage-guard.test.ts` fails loud if a `src/lib` module has no `*.test.ts`), and a
   targeted **non-regression re-run** (`npm --prefix maintainers/mutation run mutate:changed`).
@@ -205,7 +226,7 @@ dismissal is the bug. I/O glue still hides logic — a `.md` filter, a `.obsidia
 ## 5ter. Assertion quality — what the mutation retrospective taught (2026-07)
 
 The mutation audit + hardening of all three packages (plan
-[`plans/prospective/mutation-testing-stryker.md`](plans/prospective/mutation-testing-stryker.md),
+[`plans/prospective/mutation-testing-stryker.md`](plans/archived/mutation-testing-stryker.md),
 Step 6) found **recurring shapes** of surviving mutant. Two homes:
 
 - **The 5 language-agnostic assertion habits** (assert the message not the fact; assert the whole
@@ -280,26 +301,34 @@ healthy notes declared broken**. The vault was fine; the checker was wrong.
 ## 5quinquies. Mutate a NEW production file the day it is written — not at the release tail
 
 **The rule.** When a new production file is finished — the tests are green and you are about to move on
-to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. The two commands,
-both run from the repo root:
+to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. Both commands run
+from the repo root:
 
 ```
+# a scripts file — the runner does the whole recipe, and refuses what it cannot measure
+node maintainers/mutation/mutate-one.mjs scripts/<the-one-file>.mjs
+
 # a rag/src/lib file — sandbox-free inPlace on the real tree is this config's own recipe
 node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
   run maintainers/mutation/stryker.rag.config.mjs --mutate "rag/src/lib/<the-one-file>.ts"
-
-# a scripts file — from a DISPOSABLE WORKTREE, with rag/node_modules symlinked into it
-node <repo>/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
-  run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate "scripts/<the-one-file>.mjs"
 ```
 
-The worktree is not ceremony you can skip for a one-file run: `inPlace` on the real tree lets a mutant of
-vault-mutating code (`clear-example-notes.mjs`, `auto-commit.mjs`) act for real, and the sandbox
-alternative has no git, which `engine-manifest-integrity` needs. Set it up **once per branch** and reset
-it between runs (`git reset --hard <sha>` + `git clean -qfd -e rag/node_modules`, **never**
-`git checkout -- .`); then each day-of run really is 1-3 minutes. Verify the symlink bought what it was
-for — `vault-write-guard.test.mjs` must report **0 skipped** in the worktree — or the mutants face a
-suite that cannot judge them, which is §5quater's fiction with a mutation score on top.
+**Belt and braces, and the braces came first** _(2026-08-20)_.
+[`mutate-one.mjs`](mutation/mutate-one.mjs) is the **braces**: it prunes stale worktree registrations
+before adding one, creates and resets the **disposable worktree** (`git reset --hard` + `git clean -qfd
+-e rag/node_modules`, **never** `git checkout -- .`), symlinks `rag/node_modules`, proves
+`vault-write-guard.test.mjs` reports **0 skipped** there, checks the config's tuning before the run and
+the timeout share after it, discards any stale log, and **fails loudly rather than report a score it
+did not measure**. The [`mutation-testing`](skills/mutation-testing/SKILL.md) skill is the **belt**: it
+holds what a script cannot — when a pass is due, how to read the survivors, when to simplify the
+production instead of writing a case, and when a named equivalent is honest.
+
+Why the worktree is not ceremony you can skip for a one-file run: `inPlace` on the real tree lets a
+mutant of vault-mutating code (`clear-example-notes.mjs`, `auto-commit.mjs`) act for real, and the
+sandbox alternative has no git, which `engine-manifest-integrity` needs. A suite that reports skipped
+cases in the worktree is §5quater's fiction with a mutation score on top. All of that is now the
+runner's job rather than yours to remember — which is the point: this section had carried the recipe
+in prose since v4.8.0 and the traps kept being paid anyway.
 
 This is an **addition, not a substitution**: the release-tail pass over everything the branch changed
 stays exactly as it is (§10's sibling in the release checklist). What changes is that the tail stops
@@ -550,6 +579,58 @@ frame them as the quality of what ships, not as a list of near-misses the reader
 > *Under the hood*. Complements §10, which says the note is a marketing artifact and must lead with
 > *why this matters to you* — this section says how.
 
+## 12. Orchestrating subagents — what may be delegated, and what a wave costs
+
+Measured on the **first real run** of the mode (S0bis, 2026-08-20: two structural mutation debts paid,
+14 agents, ~1 h). Homed here rather than left in
+[`plans/prospective/agent-orchestrated-release-mode-action.md`](plans/prospective/agent-orchestrated-release-mode-action.md)
+because that file is scheduled to be **archived when the release ships** — and a doctrine kept in a
+file with an expiry date is how the same lesson gets re-learned. The plan keeps the run's narrative;
+what survived the measurement lives here.
+
+**The two rules that made delegation safe. Neither is negotiable.**
+
+1. **Nothing is dispatched without a machine-evaluable pass/fail.** If success can only be judged by
+   reading the result, the task is not delegable — it is yours. This is what kept 14 parallel agents
+   from producing 14 plausible-looking regressions.
+2. **No agent writes a test.** Tests are written before the fan-out, by the session that holds the
+   design. An agent that authors its own judge grades its own homework; the tautological test is the
+   dominant failure mode of test-first work (see §5), and parallelism multiplies it.
+
+**What the fan-out actually bought, and what it did not.** It paid on the twelve mechanical
+conversions: same gesture, twelve files, no shared context needed. It bought **nothing** anywhere
+judgement was involved — the guard test, the canary, the session-critical files, the second debt were
+all kept in session, and those are precisely the parts that found the real problems. **Judgement does
+not parallelize.** Delegate volume, never design.
+
+**A wave is a shared working tree, and that is its real cost.**
+
+- 🛑 **While agents are in flight, stage explicit paths. Never `git add -A`, `.`, `-u`, a bare
+  directory, or `git commit -a`.** During S0bis this exact mistake was made **twice in one night**
+  (`b4bd7a4`, then `4fdb91b`), sweeping half-finished agent work into unrelated commits. Both landed
+  green *by luck*. **Deterministic net (ADR 0009)**: a `PreToolUse` hook,
+  `~/.claude/hooks/wave-staging-guard.mjs`, stamps every agent dispatch and **blocks** a broad stage
+  for 20 minutes afterwards. The hook is the braces, this line is the belt.
+  ⚠️ **The hook is machine-local and therefore does not travel**: it lives under `~/.claude/`, not in
+  this repo, so a fresh machine (or anyone else cloning Kenjaku) has the belt and no braces. Making it
+  portable means homing it in `use-case-driven-harness` alongside `en-artifact-guard.mjs` — **open,
+  not decided** (raised 2026-08-20, deliberately not done in the same breath as writing it).
+- **A saturated machine can manufacture false reds.** A timing-sensitive test failed once during the
+  run under full load and never reproduced afterwards (30 attempts). Treat an isolated red during a
+  wave as *suspect* rather than as fact: re-run it alone before acting on it, and never "fix" a
+  timing margin on the strength of a single loaded-machine failure.
+
+**The run log is evidence, not a trophy.** Every claim written into a run log must be checked against
+the diff before it is committed. S0bis's log credited a refactor with catching a defect the run had
+never found (`main` already guarded that case); it was corrected in place, **visibly**, rather than
+quietly deleted. A log that inflates refactoring into bugs-found makes the whole trace worthless, and
+it is the orchestrator — not the agents — who writes it.
+
+> Origin: Thomas, 2026-08-20, on reading the S0bis debrief — *"comment peux-tu en tenir compte pour la
+> suite ?"*. The honest answer was that the lessons sat in a run log, which is where behaviour goes to
+> die: the mistakes were made **while acting**, not while reading a plan. Hence a rule with a carrier
+> that loads when it is needed, plus a hook for the one lesson that repeated.
+
 ## See also (operative rules already homed in the repo)
 
 - [`../DEVELOPING.md`](../DEVELOPING.md) — manual commits, neutrality (+ the Thomas-Pierrain
@@ -557,5 +638,17 @@ frame them as the quality of what ships, not as a list of near-misses the reader
   "one open PR of mine" resume convention (ADR 0013), §8 cross-platform parity (ADR 0015).
 - [`README.md`](README.md) — what `maintainers/` is, the ADR `Scope:` convention, the
   plan-done = archived convention.
+- [`skills/`](skills/) — the **maintainer skills**, which live here rather than in `.claude/skills/`
+  precisely because `maintainers/` never travels to a generated brain:
+  [`plan-discipline`](skills/plan-discipline/SKILL.md) (write, open, resume or tick a plan) and
+  [`mutation-testing`](skills/mutation-testing/SKILL.md) (run and **read** a mutation pass — §5quinquies'
+  belt, whose braces are [`mutation/mutate-one.mjs`](mutation/mutate-one.mjs)). They are loaded by being
+  named here; nothing else advertises them.
 - ADR [`0009-prefer-deterministic-mechanisms.md`](decisions/0009-prefer-deterministic-mechanisms.md) —
   at equal reliability, prefer a deterministic mechanism over a probabilistic / LLM / in-memory-timer one.
+- `~/.claude/hooks/wave-staging-guard.mjs` — the net under §12's staging rule (machine-local, not in
+  this repo; `node wave-staging-guard.mjs --selftest` is its own suite, 20 cases).
+- `~/.claude/hooks/plan-carrier-guard.mjs` — the net under §3bis's plural-carriers rule: on `Stop`, it
+  names the files that mention the current branch and were not touched, and blocks the hand-back
+  (machine-local too; `--selftest` = 29 cases on the pure core, `plan-carrier-guard.e2e.sh` beside it
+  = 8 end-to-end payloads, and `--explain` prints its verdict for the current repo).
