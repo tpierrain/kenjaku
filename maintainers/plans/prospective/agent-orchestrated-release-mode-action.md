@@ -9,35 +9,36 @@
 
 > ## ⏳ WHERE THIS RESUMES — read before the Tracking
 >
-> **S0BIS IS COMPLETE** _(2026-08-20)_. `session-status.mjs`, its last blocking arbitration, was
-> answered "yes, now" by the owner and paid: **8.67 % → 96.10 %** over three measured rounds, red
-> taken inside a disposable worktree, output proved byte-identical before and after. **No
-> `scripts/*.mjs` sits in the 0 % tier any more, for the first time since v4.4.0.** Everything is on
+> **S0BIS IS COMPLETE** _(2026-08-20)_ — `session-status.mjs`, its last blocking arbitration, was
+> answered "yes, now" by the owner and paid. Everything is on
 > `chore/s0bis-entrypoint-mutation-debt`, pushed, under draft
 > [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — **nothing merged, nothing tagged**.
+> _(Who owns what, so no copy has to be trusted: the **release's state** is
+> [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md);
+> every **measured number** is
+> [`RESULTS.md` § S0bis](../../mutation/RESULTS.md#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20);
+> this file owns only the **working mode** and the run log below.)_
 >
 > ## ▶️ RESUME HERE — the next slices, in order
 >
-> 1. **The stale-plan net** — owner's call 2026-08-20: *"les deux, le hook d'abord"*. **Builds (1) and
->    (2) are DONE** _(2026-08-20)_: the hook `~/.claude/hooks/plan-carrier-guard.mjs` is written,
->    tested (29 + 8 cases) and wired, and the rule now speaks of **carriers, plural**, at its source in
->    `use-case-driven-harness` (`abecb38`, pushed). **What remains is Build (3), the corpus
->    deduplication** — start there, its box carries the hook's own reading of the four carriers.
->    ⚠️ Two things the boxes hold and a `/clear` would otherwise lose: the hook loads at **session
->    start**, so it did not watch the session that wrote it; and propagating the rule to the **public
->    extract / published page is the owner's call**, untouched on purpose.
-> 2. **Write the `mutation-testing` skill** — the owner asked for it mid-run the same day. Its
->    Tracking box carries the diagnosis, the eight traps and the split with the existing carriers.
->    ⚠️ **Read that box before writing**: §5quinquies of `CONVENTIONS.md` already carries part of the
->    recipe *and* warns that another written reflex is the move already measured as insufficient — so
->    the box records a refinement to put to the owner first (a **script** for the mechanics, the skill
->    for the judgement).
-> 3. **Deduplicate the plan corpus** — the second half of slice 1, guided by what the hook actually
->    reports as redundant carriers.
+> 1. ~~**The stale-plan net**~~ — **DONE 2026-08-20**, all three builds (owner's call: *"les deux, le
+>    hook d'abord"*). The hook `~/.claude/hooks/plan-carrier-guard.mjs` is written, tested (29 + 8
+>    cases) and wired; the rule speaks of **carriers, plural** at its source in
+>    `use-case-driven-harness` (`abecb38`); the corpus is deduplicated behind a written ownership split
+>    (`maintainers/README.md`). **Do not re-open it. Two tails are the owner's, not work to pick up**:
+>    propagating the rule to the **public extract / published page** (outward-facing), and the unmerged
+>    doctrine branch `chore/plan-discipline-points-at-the-harness` (no PR). ⚠️ The hook loads at
+>    **session start**, so it never watched the session that wrote it.
+> 2. 🛑 **NEXT, AND IT NEEDS THE OWNER FIRST — the `mutation-testing` skill.** He asked for it mid-run
+>    the same day. Its Tracking box carries the diagnosis, the eight traps and the split with the
+>    existing carriers. **Do not start writing**: §5quinquies of `CONVENTIONS.md` already carries part
+>    of the recipe *and* warns that another written reflex is the move already measured as
+>    insufficient. The box therefore records **a question to put to him** — a **script**
+>    (`maintainers/mutation/mutate-one.mjs`) for the mechanics **plus** a skill for the judgement, which
+>    is more work than the skill alone. **Asked on 2026-08-20 and awaiting his answer.**
+> 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
 > 4. **Then S1** of `update-regime-owns-what-it-shipped-action.md`, under the mechanical-only verdict.
->
-> _(This ordering is mine, from the owner's "hook first". Slices 2 and 3 are interchangeable; say so
-> if you want the skill before the deduplication.)_
+>    **This is what to pick up if the owner is not at the keyboard** and slice 2 is still unanswered.
 >
 > **Decided, do not re-ask**: the subagent mode is kept but **mechanical only**; the
 > adversarial-review question is deferred to the **S1 debrief**, on S1's figures.
@@ -417,9 +418,10 @@ arbitration goes here as a question, and the run continues on other slices.
     below), and the guard's own **81.44 %**, which is under the repo norm (~94 %) — its 54 survivors
     live in the hand-rolled comment/quote state machine. Both are written into `RESULTS.md` § S0bis
     as follow-ups, not rounded away.
-  - **Draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75) is open** (e0f740c). **Next, and
-    both need the owner**: the **mode debrief** (the next Tracking box — is the fan-out worth keeping
-    for S1–S5?), and `session-status.mjs` by the recipe below. Nothing else in S0bis is pending.
+  - **Draft [PR #75](https://github.com/tpierrain/kenjaku/pull/75) is open** (e0f740c). _(Written at
+    the close of the run: "next, and both need the owner — the mode debrief, and `session-status.mjs`".
+    **Both were done the same day**; this line is kept as the run's own record, and § Tracking is where
+    the state lives. A run log is history: never resume from one.)_
 - 🛑 **2026-08-20 — ARBITRATION, taken and NOT resolved autonomously: `session-status.mjs` is left
   for a session with the owner at the keyboard.** It is the third and largest of the named 0 % files
   (measured **8.67 %** at v4.9.0, up from a flat 0.00 % carried since v4.4.0 — `RESULTS.md` § v4.9.0),
@@ -581,10 +583,11 @@ arbitration goes here as a question, and the run continues on other slices.
         under load (the unreproduced flake above), and the two staging mistakes were the same mistake
         twice. The staging one now has a deterministic net; the false-reds one does not, and a red
         seen during a saturated fan-out is to be re-run solo before it is believed.
-- [~] ▶️ **IN PROGRESS — plans go stale because their state is COPIED, not because the rule is forgotten.**
+- [x] **DONE — plans go stale because their state is COPIED, not because the rule is forgotten.**
       _(Owner asked "pourquoi tu n'arrêtes pas d'oublier de mettre à jour le plan ? il y a un truc qui
       ne va pas dans mon harnais", 2026-08-20. His call on the fix: **"les deux, le hook d'abord"**.)_
-      **Builds (1) and (2) are done** _(2026-08-20)_; **(3), the corpus deduplication, is what remains.**
+      **All three builds landed 2026-08-20.** Two tails are left and both are the **owner's**: the
+      outward-facing propagation (Build 2), and the unmerged doctrine branch (Build 3).
   - [x] **The measurement, taken before answering, so this is not a feeling.** Four files name the
         branch `chore/s0bis-entrypoint-mutation-debt` (this plan, the chantier plan, the debt plan,
         `RESULTS.md`); eight mention `session-status`. The session made **8 commits, 4 of which wrote
@@ -634,15 +637,32 @@ arbitration goes here as a question, and the run continues on other slices.
     - [ ] **Left to the owner, deliberately**: the public extract `plan-memory-test-harness` and the
           published page still carry the singular version. Both are **outward-facing**, and the fate of
           that repo is a question already open in the harness plan's header. Do not propagate alone.
-  - [ ] ▶️ **Build (3) — NEXT: deduplicate the corpus** — one item, one **owning** plan; the others LINK
-        instead of restating a status. Attack the cause, not the symptom. Sequenced after the hook on
-        purpose: let the hook report which carriers are actually redundant rather than guessing.
-    - [ ] The hook's own reading, taken 2026-08-20 via `--explain`: **4 carriers** for this branch —
-          this plan, `update-regime-owns-what-it-shipped-action.md`, `v4.9.0-mutation-debt-plan.md`,
-          `maintainers/mutation/RESULTS.md`. Decide per pair which one **owns** the status and which
-          links.
-    - [ ] Watch the boundary: `RESULTS.md` is a **measurement register**, not a plan. It legitimately
-          records numbers; what it must stop doing is restating *where the chantier stands*.
+  - [x] **Build (3): deduplicate the corpus** _(2026-08-20)_ — one item, one **owning** plan; the
+        others LINK instead of restating a status. Attack the cause, not the symptom. Sequenced after
+        the hook on purpose: the hook's `--explain` named the four carriers rather than guessing them.
+    - [x] **The ownership split, decided and written into `maintainers/README.md`** so it outlives this
+          plan: *the release's state* → `update-regime-owns-what-it-shipped-action.md`; *every measured
+          number* → `mutation/RESULTS.md`; *the working mode and its run log* → this file; *why a debt
+          exists and when its due date moved* → `v4.9.0-mutation-debt-plan.md`.
+    - [x] **The criterion used, and it is sharper than "remove the duplicates"**: a **present-tense
+          claim** about current state (*"nothing sits in the 0 % tier any more"*, *"12 survivors left"*)
+          rots and must live with its owner; a **dated past-tense measurement** inside a ticked box
+          (*"2026-08-20 — 54.05 % → 84.21 %"*) is a record and stays true forever. Only the first kind
+          was replaced by a link, so no evidence was stripped in the name of tidiness.
+    - [x] Applied to the three non-owning carriers: the debt plan's header now states what it owns and
+          points for the rest; the chantier plan keeps the release's state and drops the copied scores;
+          this file's header points at both.
+    - [x] **One stale sentence found and fixed by doing this**, which is the whole point: the S0bis run
+          log still read *"next, and both need the owner: the mode debrief, and `session-status.mjs`"*
+          — both done the same day. Kept as the run's own record, marked as history.
+    - [x] **Six broken relative links repaired** on the way (plans moved to `archived/` without their
+          referrers following, in `maintainers/README.md` and `CONVENTIONS.md`) — the same disease one
+          level down: a pointer nobody re-checked.
+    - [ ] ⚠️ **Not merged, and it matters here**: `chore/plan-discipline-points-at-the-harness`
+          (`0001ba9`, pushed, **no PR**) rewrites `CONVENTIONS.md` §1's banner and guts
+          `maintainers/plan-discipline.md`. On **this** branch those files still describe the old
+          shape, so §3bis was worded to be true either way. **Two branches touching the same doctrine
+          is the next duplication to close** — merge order is the owner's call.
 - [ ] ▶️ **THEN — write a `mutation-testing` skill** _(owner asked for it 2026-08-20, mid-run: "on
       découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait pas le coup
       de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**, deliberately: the

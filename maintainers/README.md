@@ -167,10 +167,10 @@
   (🗺️ ACTION PLAN / 🔬 STUDY / 🔭 PROSPECTIVE / 💡 BACKLOG / ⏳ PENDING / IN PROGRESS / ✅ SHIPPED / ABANDONED).
   Three buckets along a **past · present · future** axis:
   - **root of `plans/` = present** — action plans **mid-flight**:
-    - [`golden-source-sync-action.md`](plans/golden-source-sync-action.md) — **🗺️ action plan** for
+    - [`golden-source-sync-action.md`](plans/archived/golden-source-sync-action.md) — **🗺️ action plan** for
       the **`local-mirror`** MCP (named `golden-source-sync` when this plan was written — a new local MCP
       that synchronizes declared **local mirrors** into the vault; ADR 0022,
-      PRD [`prd-golden-source-sync.md`](plans/prd-golden-source-sync.md)). Self-contained
+      PRD [`prd-golden-source-sync.md`](plans/archived/prd-golden-source-sync.md)). Self-contained
       steps with a Tracking table to drive it session by session (a `/clear` between each). **STATUS:
       🚧 ACTIVE — not started.**
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
@@ -181,6 +181,13 @@
   > [`plans/archived/`](plans/archived/)**. Never leave a shipped plan at the root, and never delete it
   > (the archive keeps the step-by-step detail). A plan whose **core shipped but that still carries an
   > open conditional/exploratory tail** goes to `plans/prospective/`, not `archived/`.
+  > **One fact, one OWNER — a plan that restates a neighbour's status is a future lie.** Measured
+  > 2026-08-20: one work item's status sat in four files, and a session that obeyed the save-point rule
+  > on every commit still left three of them stale, because it updated **the plan that was open**. So a
+  > plan restates no status it does not own: it **links**. The standing split here is *the release's
+  > state* → its own action plan; *every measured number* → `mutation/RESULTS.md`; *the working mode and
+  > its run log* → the mode plan; *why a debt exists and when its due date moved* → the debt plan.
+  > (Rule and its machine-local net: `CONVENTIONS.md` §3bis.)
   - **🔭 Prospective (`plans/prospective/`):**
     - [`rag-embedder-plan-action.md`](plans/prospective/rag-embedder-plan-action.md) — **🗺️ action plan**
       that **orchestrates** the embedder effort into **self-contained steps** (port → eval-set →
@@ -195,7 +202,7 @@
       **refreshed** watch (EmbeddingGemma, bge-m3, Qwen3, E2GraphRAG…), **privacy scale by
       provider**, plain-language "embedder ≠ chat LLM", eval-first. **STATUS: 🔬 STUDY — nothing
       enacted.** *(feeds the SPI plan + ADR 0007)*
-    - [`active-universe-follows-the-owner-action.md`](plans/prospective/active-universe-follows-the-owner-action.md) —
+    - [`active-universe-follows-the-owner-action.md`](plans/archived/active-universe-follows-the-owner-action.md) —
       **🗺️ action plan**: make the **active universe travel between machines** instead of staying
       machine-local. The native connectors are account-global, so half the "which context am I in"
       already follows the owner and half does not — and the half that does not fails **silently** (the
@@ -205,7 +212,7 @@
     - [`post-v3.1.0-ux-backlog.md`](plans/prospective/post-v3.1.0-ux-backlog.md) — **💡 backlog** of
       post-v3.1.0 UX ideas (custom notification icon, a `doctor` / "am I OK?" self-check…). Captured,
       **not committed work** — promote one to a real `*-action.md` when it's picked up.
-    - [`local-mirror-auto-refresh-spike.md`](plans/prospective/local-mirror-auto-refresh-spike.md) —
+    - [`local-mirror-auto-refresh-spike.md`](plans/archived/local-mirror-auto-refresh-spike.md) —
       **🔭 design spike (doc-only)**: should a declared local mirror refresh itself, and how? Surveys
       the state of the art (TTL-gated `stale-while-revalidate`), weighs 4 options, and **recommends a
       session-triggered staleness refresh, no daemon** (a near-clone of the `session-self-heal`

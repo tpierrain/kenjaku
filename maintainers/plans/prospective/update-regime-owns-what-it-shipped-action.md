@@ -58,10 +58,12 @@
 >
 > **S0bis is COMPLETE and closed** _(2026-08-20, branch `chore/s0bis-entrypoint-mutation-debt`, draft
 > [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — nothing merged, nothing tagged)_. Both
-> v4.8.0 debts are paid and measured (`RESULTS.md` § S0bis), and its last open item —
-> `session-status.mjs`, which needed the owner at the keyboard — was arbitrated the same day and paid:
-> **8.67 % → 96.10 %**. **No `scripts/*.mjs` is in the 0 % tier any more, for the first time since
-> v4.4.0.** Nothing is left under S0bis.
+> v4.8.0 debts are paid, including its last open item, `session-status.mjs`, which needed the owner at
+> the keyboard and was arbitrated the same day. **Nothing is left under S0bis.** Every score, and the
+> state of the 0 % tier, is in
+> [`RESULTS.md` § S0bis](../../mutation/RESULTS.md#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20),
+> which **owns** them — this plan owns the release's state, not the measurements, and deliberately
+> keeps no copy of a number.
 >
 > **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
 > this plan exists for. ⚠️ **One slice comes BEFORE it**, and it is not in this file: the
@@ -141,14 +143,13 @@ Three consequences, each already logged as its own field finding:
   - [x] Pay both debts from `prospective/v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
         `runAsEntrypoint` + the guard test whose allowlist may only shrink; Debt 2: `defaultGit` as a
         pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`
-        _(2026-08-20 — both paid; the two 0 % files end at **100.00 %**, `engine-fetch.mjs`
-        **54.05 % → 84.21 %**, numbers in `RESULTS.md` § S0bis, ceilings **32/26 → 13/9**)_.
+        _(2026-08-20 — both paid, ceilings **32/26 → 13/9**; the scores are in `RESULTS.md` § S0bis)_.
   - [x] `session-status.mjs` — the last entry-guard file, and the only one that **cannot be verified by
         running it** (executing it sweeps and auto-commits the working tree). Held as an arbitration
         rather than done blind, **answered by the owner the same day** ("yes, now, at the keyboard")
-        and paid: **8.67 % → 96.10 %** over three measured rounds. What made it judgeable was a
-        **disposable git worktree**, where a sweep-and-commit is harmless — so the red was taken for
-        real and the output proved byte-identical before and after _(2026-08-20)_.
+        and paid over three measured rounds. What made it judgeable was a **disposable git worktree**,
+        where a sweep-and-commit is harmless — so the red was taken for real and the output proved
+        byte-identical before and after _(2026-08-20 · scores in `RESULTS.md` § S0bis)_.
   - [x] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
         release without paying it is a **defect**, not a candidate for a second re-arbitration.
 

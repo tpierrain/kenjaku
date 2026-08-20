@@ -149,8 +149,8 @@ forgotten: the state had been **copied**, and a copy is invisible from inside th
 
 This is the **all-projects** convention; the global rule
 [`use-case-driven-harness/rules/plans.md`](https://github.com/tpierrain/use-case-driven-harness)
-§ "The save point is EVERY handed-back turn" carries the same, machine-wide, and **owns the method**
-(§1): change it there first.
+§ "The save point is EVERY handed-back turn" carries the same, machine-wide, and **owns the method**:
+change it there first, then carry the consequence here.
 
 ## 4. Artifacts in English (conversation may be in French)
 
@@ -218,7 +218,7 @@ dismissal is the bug. I/O glue still hides logic — a `.md` filter, a `.obsidia
   no-op on the exact promise that release existed to keep. The file ended at **100 %**.
 - **Coverage ≠ verification.** A suite can show high line coverage and still kill ~0 % of mutants. The
   objective signal is the **mutation score**, not coverage. See the plan
-  [`plans/prospective/mutation-testing-stryker.md`](plans/prospective/mutation-testing-stryker.md).
+  [`plans/prospective/mutation-testing-stryker.md`](plans/archived/mutation-testing-stryker.md).
 - **Two durable guardrails back this up** (Step 4 of that plan): a deterministic **sibling-test guard**
   (`rag/src/lib/lib-coverage-guard.test.ts` fails loud if a `src/lib` module has no `*.test.ts`), and a
   targeted **non-regression re-run** (`npm --prefix maintainers/mutation run mutate:changed`).
@@ -226,7 +226,7 @@ dismissal is the bug. I/O glue still hides logic — a `.md` filter, a `.obsidia
 ## 5ter. Assertion quality — what the mutation retrospective taught (2026-07)
 
 The mutation audit + hardening of all three packages (plan
-[`plans/prospective/mutation-testing-stryker.md`](plans/prospective/mutation-testing-stryker.md),
+[`plans/prospective/mutation-testing-stryker.md`](plans/archived/mutation-testing-stryker.md),
 Step 6) found **recurring shapes** of surviving mutant. Two homes:
 
 - **The 5 language-agnostic assertion habits** (assert the message not the fact; assert the whole
