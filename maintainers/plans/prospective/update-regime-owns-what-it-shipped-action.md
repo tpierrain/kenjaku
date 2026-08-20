@@ -56,13 +56,18 @@
 > The harness side is **fully closed**: PR #1 merged into `main` (`9f843dc`) on the owner's call, and
 > the local clone put back on `main` (the `~/.claude` symlinks read that working tree).
 >
-> **S0bis is done and is no longer the landmark** _(2026-08-20, branch
-> `chore/s0bis-entrypoint-mutation-debt`, draft PR)_: both v4.8.0 debts are paid and measured
-> (`RESULTS.md` § S0bis). It stays `[~]` for **one** reason, and that reason is an arbitration, not
-> leftover work: `session-status.mjs` needs a session **with the owner present** — see its sub-box.
+> **S0bis is COMPLETE and closed** _(2026-08-20, branch `chore/s0bis-entrypoint-mutation-debt`, draft
+> [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — nothing merged, nothing tagged)_. Both
+> v4.8.0 debts are paid and measured (`RESULTS.md` § S0bis), and its last open item —
+> `session-status.mjs`, which needed the owner at the keyboard — was arbitrated the same day and paid:
+> **8.67 % → 96.10 %**. **No `scripts/*.mjs` is in the 0 % tier any more, for the first time since
+> v4.4.0.** Nothing is left under S0bis.
 >
 > **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
-> this plan exists for. One thing is still open on S6 and does not block it: its **Kenjaku-side
+> this plan exists for. ⚠️ **One slice comes BEFORE it**, and it is not in this file: the
+> **`mutation-testing` skill** the owner asked for on 2026-08-20, carried by
+> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking.
+> Read that plan's header first — it is the landmark for the whole chantier. One thing is still open on S6 and does not block it: its **Kenjaku-side
 > delivery** (manifest `merge` regime, the explicit retirement of `tdd-discipline`, the
 > `templates/fr/` version, `CONVENTIONS.md` §5) is release work, and it needs the power S1-S5 build —
 > it belongs in the cut, not before it.
@@ -127,8 +132,9 @@ Three consequences, each already logged as its own field finding:
       (`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`) as its demonstration: the
       release whose subject is *the doctrine finally arrives* is where new doctrine should arrive.
       Nothing here starts before the universes release is cut.
-- [~] **S0bis — INHERITED FLOOR: the v4.8.0 mutation debt is due WITH this release** _(owner,
-      2026-08-08)_ — **run done 2026-08-20**, branch `chore/s0bis-entrypoint-mutation-debt` (draft PR).
+- [x] **S0bis — INHERITED FLOOR: the v4.8.0 mutation debt is due WITH this release** _(owner,
+      2026-08-08)_ — **PAID IN FULL 2026-08-20**, branch `chore/s0bis-entrypoint-mutation-debt`
+      (draft PR #75, nothing merged or tagged).
       It was the declared floor of v4.9.0; the owner re-arbitrated it in writing onto this
       release when v4.9.0 was scoped to universes alone. It is carried here so it arrives with its
       release instead of relying on someone re-opening the other file.
@@ -136,12 +142,13 @@ Three consequences, each already logged as its own field finding:
         `runAsEntrypoint` + the guard test whose allowlist may only shrink; Debt 2: `defaultGit` as a
         pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`
         _(2026-08-20 — both paid; the two 0 % files end at **100.00 %**, `engine-fetch.mjs`
-        **54.05 % → 84.21 %**, numbers in `RESULTS.md` § S0bis, ceilings **32/26 → 14/9**)_.
-  - [ ] **One piece left, and it is an arbitration, not an oversight**: `session-status.mjs` — the last
-        entry-guard file, the only one that **cannot be verified by running it** (executing it sweeps
-        and auto-commits the working tree). Needs a session **with the owner present**; the safe recipe
-        is written in `agent-orchestrated-release-mode-action.md` § Run log. **Does not block this
-        release**: it is measured, named, and no worse than the tag before it.
+        **54.05 % → 84.21 %**, numbers in `RESULTS.md` § S0bis, ceilings **32/26 → 13/9**)_.
+  - [x] `session-status.mjs` — the last entry-guard file, and the only one that **cannot be verified by
+        running it** (executing it sweeps and auto-commits the working tree). Held as an arbitration
+        rather than done blind, **answered by the owner the same day** ("yes, now, at the keyboard")
+        and paid: **8.67 % → 96.10 %** over three measured rounds. What made it judgeable was a
+        **disposable git worktree**, where a sweep-and-commit is harmless — so the red was taken for
+        real and the output proved byte-identical before and after _(2026-08-20)_.
   - [x] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
         release without paying it is a **defect**, not a candidate for a second re-arbitration.
 
