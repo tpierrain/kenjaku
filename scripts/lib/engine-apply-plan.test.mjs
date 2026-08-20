@@ -36,6 +36,12 @@ test("computeApplyPlan — `mergeScripts` = the engine-owned merge scripts (scri
         "CLAUDE.md",                      // user-sovereign → excluded
         ".claude/settings.json",          // user-sovereign → excluded
         ".claude/skills/coach/**",        // a shipped skill → the additive install path
+        // ⚠️ Two shapes a looser ENGINE_SCRIPT would swallow, and both are reachable:
+        // helper code shipped inside a staged skill (the pattern must be anchored to
+        // the START of the path), and the engine's own sidecar (`.mjs` must be the END
+        // of it). Neither is sacred, so the scrub would not catch them afterwards.
+        "engine-skills/local-mirror/scripts/helper.mjs",
+        "scripts/auto-commit.mjs.new",
         "scripts/auto-commit.mjs",
         "scripts/auto-push.mjs",
         "scripts/status-line.mjs",
@@ -49,6 +55,21 @@ test("computeApplyPlan — `mergeScripts` = the engine-owned merge scripts (scri
     "scripts/status-line.mjs",
     "scripts/verify-rag.mjs",
   ]);
+});
+
+// A manifest is fetched from a remote launcher, so every shape of it is an INPUT, not
+// an assumption: an older one, a truncated one, a hand-edited one. The plan is an
+// allowlist, so the safe answer to "I cannot read your regimes" is "you may write
+// nothing" — never a crash (which strands the brain mid-update) and never a default
+// that invents entries nobody declared.
+test("computeApplyPlan — a manifest missing its regimes, or missing altogether, allows NOTHING", () => {
+  const empty = { overwrite: [], regenerate: [], mergeScripts: [], installSkills: [] };
+  assert.deepEqual(computeApplyPlan({ regimes: {} }), empty, "a manifest declaring no regime at all");
+  assert.deepEqual(computeApplyPlan({}), empty, "a manifest with no `regimes` key");
+  assert.deepEqual(computeApplyPlan(undefined), empty, "no manifest at all — an unreadable fetch");
+  // ...and the never-touch oracle agrees, which is the half that actually guards a file.
+  assert.equal(planTouches(computeApplyPlan(undefined), "CLAUDE.md"), false);
+  assert.equal(planTouches(computeApplyPlan(undefined), "scripts/auto-commit.mjs"), false);
 });
 
 // 🛑 The self-update path is NOT a merge subject, and it never was: this file used to
@@ -139,6 +160,25 @@ test("computeApplyPlan — SAFETY CORE: a manifest mis-declaring a sacred file a
   assert.deepEqual(plan.overwrite, ["rag/src/**"], "CLAUDE.md and .env scrubbed from overwrite");
   assert.deepEqual(plan.regenerate, ["rag/launch.sh"], ".claude/settings.json scrubbed from regenerate");
   assert.deepEqual(plan.mergeScripts, ["scripts/auto-commit.mjs"], "skills never reach mergeScripts");
+});
+
+// The two shapes the scrub above never exercised, and both are what a hostile manifest
+// would actually try: name the sacred TREE itself rather than a file inside it, and
+// claim the vault wholesale. A tree is judged by prefix, so both hang on one `"/"` and
+// on the glob stem being stripped to nothing — details invisible to any test that only
+// ever declares `.claude/skills/coach/**`.
+test("computeApplyPlan — SAFETY CORE: the sacred TREES themselves are refused, named bare or by glob", () => {
+  const hostile = {
+    regimes: {
+      // `.claude/skills` with no trailing slash and no glob: the tree, exactly, and the
+      // one spelling a prefix test gets wrong if it forgets to re-append the separator.
+      replace: ["rag/src/**", ".claude/skills", "vault/**"],
+      regenerate: ["vault", ".claude/skills/**"],
+    },
+  };
+  const plan = computeApplyPlan(hostile);
+  assert.deepEqual(plan.overwrite, ["rag/src/**"], "neither the skills tree nor the whole vault");
+  assert.deepEqual(plan.regenerate, [], "and a launcher bucket claiming the vault regenerates nothing");
 });
 
 // ─── SELF-CARRY guard (plan Step 4) ─────────────────────────────────────────
