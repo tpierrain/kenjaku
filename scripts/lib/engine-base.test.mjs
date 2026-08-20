@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { baseRelPath, planBaseAdvance, verifyBase } from "./engine-base.mjs";
+import { baseRelPath, planBaseAdvance, planBaseSeed, verifyBase } from "./engine-base.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-base — the IMMUTABLE BASE: the bytes the engine last DELIVERED to an
@@ -21,6 +21,9 @@ import { baseRelPath, planBaseAdvance, verifyBase } from "./engine-base.mjs";
 //     apart from "no base recorded", they lead to different repairs.
 //   • WHEN a base MOVES — the sentence S1 is named after: to what was DELIVERED
 //     to the installed file, never to the newest fetched content.
+//   • WHERE THE FIRST ONE COMES FROM — the migration: on a brain whose installed
+//     bytes still match their recorded sha, that file IS the engine's last
+//     delivered content, so the tree seeds from the brain itself, with no fetch.
 //
 // Fixtures: sha256 digests computed OUTSIDE this codebase (`shasum -a 256`), never
 // through `fingerprint()`, so "the proof holds" cannot be true by construction.
@@ -135,7 +138,7 @@ test("verifyBase — a base whose sha was RECORDED over CRLF bytes proves out to
 
 const MANIFEST = {
   regimes: {
-    merge: ["CLAUDE.md", ".claude/skills/coach/**", "scripts/auto-commit.mjs"],
+    merge: ["CLAUDE.md", ".claude/settings.json", ".claude/skills/coach/**", "scripts/auto-commit.mjs"],
     replace: ["engine-skills/**", "rag/src/**"],
   },
 };
@@ -258,4 +261,190 @@ test("planBaseAdvance — CRLF bytes are hashed as delivered, like the installer
   assert.deepEqual(plan, [
     { rel: "CLAUDE.md", baseRel: ".engine-base/CLAUDE.md", content: "engine v1\r\n", sha: SHA_ENGINE_V1_CRLF },
   ]);
+});
+
+// ─── Where the FIRST base comes from — the SEEDING migration ─────────────────
+// Every brain in the fleet was installed before this tree existed, so the advance
+// rule above has nothing to move: a base has to appear first. It does NOT have to be
+// fetched. The measurement on the deployed brains is what makes the migration cheap:
+// a file whose installed bytes still match their recorded sha IS, by definition, the
+// content the engine last delivered — so the brain can seed its own base tree, no
+// network, no release. 13 of the 15 recorded entries qualified on the live brain; the
+// two that did not (`CLAUDE.md`, `.claude/settings.json`) are the owner's edits, and
+// they seed from the fetched copy at their next delivery, through the advance rule.
+//
+// The proof is the SAME one `verifyBase` applies, asked of the installed file instead
+// of the base: "would these bytes make a provable base?". So the three refusals are
+// the same three, renamed to what they mean on the installed side, because their
+// repairs differ — a customized file waits for a delivery, a missing record waits for
+// a regime, a deleted file waits for nothing.
+
+const SEEDED = { manifest: MANIFEST };
+
+// The nominal migration, over three families at once: nothing in the tree yet, three
+// installed files that still prove out, three seeds carrying the BRAIN's bytes. No sha
+// travels with them, deliberately — the record already exists and already matches, and
+// re-deriving it here would be a second writer for one fact.
+test("planBaseSeed — a brain seeds its own tree from the files that still prove out", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: {
+      "CLAUDE.md": SHA_CONSTITUTION_V2,
+      ".claude/skills/coach/SKILL.md": SHA_COACH_V2,
+      "scripts/auto-commit.mjs": SHA_AUTO_COMMIT_V2,
+    },
+    installedFileMap: {
+      "CLAUDE.md": CONSTITUTION_V2,
+      ".claude/skills/coach/SKILL.md": COACH_V2,
+      "scripts/auto-commit.mjs": AUTO_COMMIT_V2,
+    },
+    baseContentMap: {},
+  });
+  assert.deepEqual(plan, {
+    seeds: [
+      { rel: "CLAUDE.md", baseRel: ".engine-base/CLAUDE.md", content: CONSTITUTION_V2 },
+      {
+        rel: ".claude/skills/coach/SKILL.md",
+        baseRel: ".engine-base/.claude/skills/coach/SKILL.md",
+        content: COACH_V2,
+      },
+      { rel: "scripts/auto-commit.mjs", baseRel: ".engine-base/scripts/auto-commit.mjs", content: AUTO_COMMIT_V2 },
+    ],
+    deferred: [],
+  });
+});
+
+// The two that did NOT qualify on the live brain, and the reason the migration cannot
+// be "seed everything": the owner edited these, so their installed bytes are NOT what
+// the engine delivered. Seeding from them would enshrine the owner's own text as the
+// ancestor, and S2's three-way would then diff their edits against themselves — the
+// edits would vanish from the merge, silently. They wait for a real delivery.
+test("planBaseSeed — a file the owner edited is NOT the engine's last delivery, so it defers", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: { "CLAUDE.md": SHA_ENGINE_V2, ".claude/settings.json": SHA_ENGINE_V2 },
+    installedFileMap: { "CLAUDE.md": CONSTITUTION_V2, ".claude/settings.json": "{}\n" },
+    baseContentMap: {},
+  });
+  assert.deepEqual(plan, {
+    seeds: [],
+    deferred: [
+      { rel: "CLAUDE.md", reason: "customized" },
+      { rel: ".claude/settings.json", reason: "customized" },
+    ],
+  });
+});
+
+// A `merge` file the manifest declares but this brain never fingerprinted (a file a
+// later release moved into the regime, on a brain installed before it). Bytes without
+// a record prove nothing, so seeding them would manufacture a base nobody can check —
+// which is the one thing `verifyBase` exists to refuse.
+test("planBaseSeed — bytes with no recorded sha are not seeded, they are unprovable", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: {},
+    installedFileMap: { "scripts/auto-commit.mjs": AUTO_COMMIT_V2 },
+    baseContentMap: {},
+  });
+  assert.deepEqual(plan, {
+    seeds: [],
+    deferred: [{ rel: "scripts/auto-commit.mjs", reason: "no-provenance" }],
+  });
+});
+
+// The mirror case, and the one that proves the candidate list is not just "what is on
+// disk": the engine recorded this file, and the owner has since DELETED it. It cannot
+// be seeded from a brain that no longer holds it, and it must still be named — a
+// planner that enumerated only installed files would report nothing at all here.
+test("planBaseSeed — a recorded file the owner deleted is named, not silently skipped", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: { ".claude/skills/coach/SKILL.md": SHA_COACH_V2 },
+    installedFileMap: {},
+    baseContentMap: {},
+  });
+  assert.deepEqual(plan, {
+    seeds: [],
+    deferred: [{ rel: ".claude/skills/coach/SKILL.md", reason: "not-installed" }],
+  });
+});
+
+// Idempotence, and it is not decoration: this migration runs on every update, on brains
+// that ran it already. A base that is present AND proves out is the truth — re-seeding
+// it from the installed file would be a write for nothing at best, and at worst would
+// overwrite a correct ancestor with a file the owner has edited since.
+test("planBaseSeed — a base already on disk and provable is left alone", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: { "CLAUDE.md": SHA_CONSTITUTION_V2 },
+    installedFileMap: { "CLAUDE.md": "the owner has edited this since\n" },
+    baseContentMap: { "CLAUDE.md": CONSTITUTION_V2 },
+  });
+  assert.deepEqual(plan, { seeds: [], deferred: [] });
+});
+
+// The repair the same rule buys for free: a base tree that DRIFTED (half-written,
+// hand-edited, restored from another brain) hashes elsewhere, so it is not a base at
+// all — and if the installed file still proves out, the brain can rebuild the right
+// ancestor from itself. Distinguishes "seed when absent" from "seed whenever the tree
+// cannot be proven", which is the rule that actually holds.
+test("planBaseSeed — a base that drifted is re-seeded from the file that still proves out", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: { "CLAUDE.md": SHA_CONSTITUTION_V2 },
+    installedFileMap: { "CLAUDE.md": CONSTITUTION_V2 },
+    baseContentMap: { "CLAUDE.md": "a base from somewhere else\n" },
+  });
+  assert.deepEqual(plan, {
+    seeds: [{ rel: "CLAUDE.md", baseRel: ".engine-base/CLAUDE.md", content: CONSTITUTION_V2 }],
+    deferred: [],
+  });
+});
+
+// The Windows half of the fleet, at migration time: git rewrote the installed file
+// LF→CRLF, nobody touched a word, and the recorded sha was taken on the LF bytes. It
+// still qualifies — and it is seeded with the bytes AS THEY ARE on disk, not with a
+// normalized copy the brain never held. `verifyBase` proves either form, so the tree
+// stays checkable; inventing bytes would make the base a fiction.
+test("planBaseSeed — a file rewritten CRLF still qualifies, and seeds the bytes as they are", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: { "CLAUDE.md": SHA_ENGINE_V1 },
+    installedFileMap: { "CLAUDE.md": "engine v1\r\n" },
+    baseContentMap: {},
+  });
+  assert.deepEqual(plan, {
+    seeds: [{ rel: "CLAUDE.md", baseRel: ".engine-base/CLAUDE.md", content: "engine v1\r\n" }],
+    deferred: [],
+  });
+});
+
+// Emptiness is content here too: a file the engine delivered empty proves out against
+// the empty digest and must seed. The trap is a falsy-content skip, which would silently
+// leave that file with no ancestor forever — and no other case here can see it.
+test("planBaseSeed — a file the engine delivered EMPTY seeds an empty base", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: { "CLAUDE.md": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
+    installedFileMap: { "CLAUDE.md": "" },
+    baseContentMap: {},
+  });
+  assert.deepEqual(plan, {
+    seeds: [{ rel: "CLAUDE.md", baseRel: ".engine-base/CLAUDE.md", content: "" }],
+    deferred: [],
+  });
+});
+
+// A file outside the `merge` regime has no base to seed, whatever the brain holds —
+// the same gate the advance rule applies, restated on the migration path because it is
+// the other door into the tree. The decoy is a `replace` target that IS recorded and
+// DOES sit on disk: only the regime keeps it out.
+test("planBaseSeed — a file outside the `merge` regime is never seeded", () => {
+  const plan = planBaseSeed({
+    ...SEEDED,
+    provenance: { "engine-skills/coach/SKILL.md": SHA_COACH_V2 },
+    installedFileMap: { "engine-skills/coach/SKILL.md": COACH_V2, "rag/src/index.mjs": "compiled\n" },
+    baseContentMap: {},
+  });
+  assert.deepEqual(plan, { seeds: [], deferred: [] });
 });
