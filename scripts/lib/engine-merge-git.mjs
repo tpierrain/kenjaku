@@ -44,7 +44,10 @@ const GIT_FAILURE_STATUS = 128;
 // as a value it can be asserted whole instead of being read back out of conflict
 // markers. Swapped, git still returns a plausible file — one in which the engine
 // silently wins every region the owner touched.
-export function buildMergeFileInvocation({ paths, labels = {}, gitBin = "git" }) {
+// `gitBin` carries NO default here: `mergeWithGit` owns the one default there is,
+// and a second copy of it would be a value no call site can reach — an unreachable
+// branch is a mutation survivor by construction, not a missing test.
+export function buildMergeFileInvocation({ paths, labels = {}, gitBin }) {
   const { ours: oursLabel, base: baseLabel, theirs: theirsLabel } = { ...DEFAULT_LABELS, ...labels };
   return {
     command: gitBin,

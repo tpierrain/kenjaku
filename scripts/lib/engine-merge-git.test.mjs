@@ -143,3 +143,51 @@ test("a git that cannot run throws, instead of passing itself off as a conflict"
     /kenjaku-no-such-git/,
   );
 });
+
+// ─── The failure shapes real git will not produce on demand ──────────────────
+//
+// The mutation run named the hole these fill: a missing binary sets BOTH `error`
+// AND a null status, so one test covered two guards and each was free to vanish
+// behind the other. Below, every guard is met alone. The runner is injected here
+// and ONLY here — the merges above stay on real git, because a subprocess contract
+// proven by a stub proves nothing.
+const failing = (result) => () => mergeWithGit({ base: "b\n", ours: "o\n", theirs: "t\n", run: () => result });
+
+test("a spawn error throws even when the status alongside it looks perfectly fine", () => {
+  assert.throws(failing({ error: new Error("EACCES"), status: 0, stdout: "a plausible merge\n" }), /could not run: EACCES/);
+});
+
+test("the statuses git never uses for a conflict count are failures, one by one", () => {
+  assert.throws(failing({ status: null, stdout: "" }), /failed \(status null\)/);
+  assert.throws(failing({ status: -1, stdout: "" }), /failed \(status -1\)/);
+});
+
+// The boundary, triangulated: 127 regions in conflict is absurd but it is still a
+// COUNT, and treating it as a crash would hand the owner a preserved file for a
+// merge that worked. 128 and up is git refusing to run at all.
+test("the failure boundary is 128, and 127 is still a conflict count", () => {
+  assert.deepEqual(mergeWithGit({ base: "b\n", ours: "o\n", theirs: "t\n", run: () => ({ status: 127, stdout: "marked\n" }) }), {
+    clean: false,
+    merged: "marked\n",
+  });
+  assert.throws(failing({ status: 128, stderr: "" }), /failed \(status 128\)/);
+});
+
+// The message IS the diagnosis: an owner sends it back, and "something went wrong"
+// costs a round trip. Asserted whole — git pads its stderr with a newline, and a
+// message that carried that padding would read as a truncated sentence.
+test("the failure message carries the status and git's own words, trimmed", () => {
+  assert.throws(failing({ status: 129, stderr: "  fatal: boom  \n" }), (e) => {
+    assert.equal(e.message, "git merge-file failed (status 129): fatal: boom");
+    return true;
+  });
+});
+
+// A runner that reports no stderr at all must still produce a readable message,
+// not a crash inside the error path — the one place a second failure is invisible.
+test("a failure with no stderr still names what failed", () => {
+  assert.throws(failing({ status: 130, stderr: undefined }), (e) => {
+    assert.equal(e.message, "git merge-file failed (status 130): ");
+    return true;
+  });
+});
