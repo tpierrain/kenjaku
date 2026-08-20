@@ -128,8 +128,29 @@ destroys — and the human had to ask for it to be saved. The right trigger is n
 it is **the handed-back turn**. **Goal: `/clear` is free at every instant, never only at step
 boundaries.**
 
+**And "the plan" is PLURAL — measured here, 2026-08-20.** A session made **8 commits, 4 of them into
+plans**, obeyed the save point every time, and still left the corpus stale: **four** files restated
+the same item's status (`agent-orchestrated-release-mode-action.md`,
+`update-regime-owns-what-it-shipped-action.md`, `v4.9.0-mutation-debt-plan.md`,
+`maintainers/mutation/RESULTS.md`) and each commit updated **the plan that was open**. Nothing was
+forgotten: the state had been **copied**, and a copy is invisible from inside the file you have open —
+§3bis's own principle broken one level up, at the corpus rather than at a single plan. So:
+
+- **Name the carriers, do not recall them**: `git grep -l "<branch>" -- '*.md'` before handing back.
+  Every file that answers must already say what the reply says, or be told in one line why it needs
+  nothing.
+- **One item, one OWNING plan.** A second file that restates a status is a future lie: link to the
+  owner instead. Deduplicate the moment the grep shows a duplicate.
+- **An orchestrated run (§12) has almost no hand-backs**: dozens of tool calls between two of them, so
+  the mode rarefies the save point exactly when there is most state to record. On such a run, save at
+  **each decision as it lands**.
+- **Deterministic net (ADR 0009), machine-local**: `~/.claude/hooks/plan-carrier-guard.mjs` blocks the
+  hand-back naming the untouched carriers. It judges **no content**. Braces; this section is the belt.
+
 This is the **all-projects** convention; the global rule
-`use-case-driven-harness/rules/plans.md` § "Mémoire & /clear" carries the same, machine-wide.
+[`use-case-driven-harness/rules/plans.md`](https://github.com/tpierrain/use-case-driven-harness)
+§ "The save point is EVERY handed-back turn" carries the same, machine-wide, and **owns the method**
+(§1): change it there first.
 
 ## 4. Artifacts in English (conversation may be in French)
 
@@ -613,3 +634,7 @@ it is the orchestrator — not the agents — who writes it.
   at equal reliability, prefer a deterministic mechanism over a probabilistic / LLM / in-memory-timer one.
 - `~/.claude/hooks/wave-staging-guard.mjs` — the net under §12's staging rule (machine-local, not in
   this repo; `node wave-staging-guard.mjs --selftest` is its own suite, 20 cases).
+- `~/.claude/hooks/plan-carrier-guard.mjs` — the net under §3bis's plural-carriers rule: on `Stop`, it
+  names the files that mention the current branch and were not touched, and blocks the hand-back
+  (machine-local too; `--selftest` = 29 cases on the pure core, `plan-carrier-guard.e2e.sh` beside it
+  = 8 end-to-end payloads, and `--explain` prints its verdict for the current repo).

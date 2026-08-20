@@ -18,9 +18,14 @@
 >
 > ## ▶️ RESUME HERE — the next slices, in order
 >
-> 1. **The stale-plan net** — owner's call 2026-08-20: *"les deux, le hook d'abord"*. See the box
->    **"Plans go stale because their state is COPIED"** below; it carries the measurement, the
->    diagnosis and what to build. First because it is cheap and the bleeding is live.
+> 1. **The stale-plan net** — owner's call 2026-08-20: *"les deux, le hook d'abord"*. **Builds (1) and
+>    (2) are DONE** _(2026-08-20)_: the hook `~/.claude/hooks/plan-carrier-guard.mjs` is written,
+>    tested (29 + 8 cases) and wired, and the rule now speaks of **carriers, plural**, at its source in
+>    `use-case-driven-harness` (`abecb38`, pushed). **What remains is Build (3), the corpus
+>    deduplication** — start there, its box carries the hook's own reading of the four carriers.
+>    ⚠️ Two things the boxes hold and a `/clear` would otherwise lose: the hook loads at **session
+>    start**, so it did not watch the session that wrote it; and propagating the rule to the **public
+>    extract / published page is the owner's call**, untouched on purpose.
 > 2. **Write the `mutation-testing` skill** — the owner asked for it mid-run the same day. Its
 >    Tracking box carries the diagnosis, the eight traps and the split with the existing carriers.
 >    ⚠️ **Read that box before writing**: §5quinquies of `CONVENTIONS.md` already carries part of the
@@ -576,15 +581,16 @@ arbitration goes here as a question, and the run continues on other slices.
         under load (the unreproduced flake above), and the two staging mistakes were the same mistake
         twice. The staging one now has a deterministic net; the false-reds one does not, and a red
         seen during a saturated fan-out is to be re-run solo before it is believed.
-- [ ] ▶️ **NEXT — plans go stale because their state is COPIED, not because the rule is forgotten.**
+- [~] ▶️ **IN PROGRESS — plans go stale because their state is COPIED, not because the rule is forgotten.**
       _(Owner asked "pourquoi tu n'arrêtes pas d'oublier de mettre à jour le plan ? il y a un truc qui
       ne va pas dans mon harnais", 2026-08-20. His call on the fix: **"les deux, le hook d'abord"**.)_
-  - [ ] **The measurement, taken before answering, so this is not a feeling.** Four files name the
+      **Builds (1) and (2) are done** _(2026-08-20)_; **(3), the corpus deduplication, is what remains.**
+  - [x] **The measurement, taken before answering, so this is not a feeling.** Four files name the
         branch `chore/s0bis-entrypoint-mutation-debt` (this plan, the chantier plan, the debt plan,
         `RESULTS.md`); eight mention `session-status`. The session made **8 commits, 4 of which wrote
         to plans** — and each one updated *the plan that was open*, never its siblings. **The rule
         fires; what it cannot reach is the duplicates.**
-  - [ ] **Three causes, and only the third is about me.** (a) One work item's status is restated in
+  - [x] **Three causes, and only the third is about me.** (a) One work item's status is restated in
         four repo files with no link between them, so every change needs 3-4 hand-synchronised edits
         and nothing checks. (b) The rule is written in the **singular** — `plans.md` says "*the* plan
         must already say…", and `CONVENTIONS.md` §3's "one canonical plan" is about repo-vs-tooling
@@ -593,23 +599,50 @@ arbitration goes here as a question, and the run continues on other slices.
         ~60 tool calls between two hand-backs: **the autonomous mode rarefies the trigger exactly
         when there is most state to record.** That is an interaction between two harness parts, new
         since 2026-08-19, and it will get worse in S1–S5, not better.
-  - [ ] **Why prose cannot be the answer, in the repo's own words**: everything that stopped
+  - [x] **Why prose cannot be the answer, in the repo's own words**: everything that stopped
         recurring here got a mechanical guard (the entry-guard shape → a guard test with shrink-only
         allowlists; `git add -A` mid-wave → `wave-staging-guard.mjs`). Plan staleness has only prose,
         and §5quinquies says outright that answering a recurring shape with one more written reflex
         is the move already measured as insufficient.
-  - [ ] **Build (1): the hook that NAMES THE CARRIERS.** On hand-back: read the current branch, grep
-        `maintainers/plans/prospective/*.md` + `ROADMAP.md` for that branch name, compare against what
-        the session actually committed, and say *"4 files name this branch, you touched 2"*. It judges
-        **no content** — it names carriers. Same shape and same home as `wave-staging-guard.mjs`
-        (`~/.claude/hooks/`), with the same accepted limit: **machine-local, it does not travel**, so
-        `CONVENTIONS.md` § See also names it rather than versioning it.
-  - [ ] **Build (2): fix the rule at its source** — `use-case-driven-harness/rules/plans.md`. The save
-        point must speak of **carriers, plural**: before handing back, every file that restates this
-        item's status must already say it. That repo owns the rule; Kenjaku only suffers it.
-  - [ ] **Build (3): deduplicate the corpus** — one item, one **owning** plan; the others LINK instead
-        of restating a status. Attack the cause, not the symptom. Sequenced after the hook on purpose:
-        let the hook report which carriers are actually redundant rather than guessing.
+  - [x] **Build (1): the hook that NAMES THE CARRIERS** _(2026-08-20 —
+        `~/.claude/hooks/plan-carrier-guard.mjs`, wired into `~/.claude/settings.json` on `SessionStart`
+        + `Stop`)_. On hand-back it greps the **tracked Markdown** for the current branch (widened from
+        `plans/` + `ROADMAP.md`: the fourth carrier measured was `maintainers/mutation/RESULTS.md`,
+        which that narrower glob would have missed), subtracts what the session touched since the sha
+        it started on, and **blocks the hand-back** with *"4 files name this branch, you touched 2"*.
+        It judges **no content**.
+    - [x] **Test-first**: 29 self-test cases on the pure core, seen **red for the right reason** (14/29
+          on stubs, assertion failures) before a line of implementation, then 29/29 green. Plus 8
+          end-to-end payloads against a throwaway repo (`plan-carrier-guard.e2e.sh`, beside the hook):
+          stamping, the warning, suppression, `stop_hook_active`, every carrier touched, `main`,
+          outside a repo, malformed payload.
+    - [x] **Two design calls, taken and not to be re-opened**: it **blocks** (exit 2) because a `Stop`
+          hook that exits 0 is invisible to Claude, and the fix is cheap; and it stays silent once
+          warned until HEAD or the carrier list changes, so judging *"this one needs nothing"* is
+          allowed to end the matter instead of looping.
+    - [x] Named in `CONVENTIONS.md` § See also and § 3bis. **Machine-local, it does not travel** —
+          accepted, same as `wave-staging-guard.mjs`. ⚠️ It loads at **session start**, so it does not
+          watch the session that wrote it.
+  - [x] **Build (2): fix the rule at its source** _(2026-08-20 · `use-case-driven-harness@abecb38`,
+        pushed on `chore/harness-consolidation`)_. `rules/plans.md` gains § *"The plan is PLURAL"*;
+        `skills/plan-discipline/SKILL.md` gains the actionable line; `plan-discipline.md` gains § 3.bis
+        (the measurement, the three causes, why prose alone could not be the whole answer). Tracked
+        there as **T7** of `docs/plans/harness-consolidation-action.md`, which **owns** it.
+    - [x] Kenjaku's own § 3bis restates it rather than linking — deliberate, and it is T6's standing
+          arbitration: `CONVENTIONS.md` exists so the rules **travel with a clone**, and a pointer to
+          another repo does not travel.
+    - [ ] **Left to the owner, deliberately**: the public extract `plan-memory-test-harness` and the
+          published page still carry the singular version. Both are **outward-facing**, and the fate of
+          that repo is a question already open in the harness plan's header. Do not propagate alone.
+  - [ ] ▶️ **Build (3) — NEXT: deduplicate the corpus** — one item, one **owning** plan; the others LINK
+        instead of restating a status. Attack the cause, not the symptom. Sequenced after the hook on
+        purpose: let the hook report which carriers are actually redundant rather than guessing.
+    - [ ] The hook's own reading, taken 2026-08-20 via `--explain`: **4 carriers** for this branch —
+          this plan, `update-regime-owns-what-it-shipped-action.md`, `v4.9.0-mutation-debt-plan.md`,
+          `maintainers/mutation/RESULTS.md`. Decide per pair which one **owns** the status and which
+          links.
+    - [ ] Watch the boundary: `RESULTS.md` is a **measurement register**, not a plan. It legitimately
+          records numbers; what it must stop doing is restating *where the chantier stands*.
 - [ ] ▶️ **THEN — write a `mutation-testing` skill** _(owner asked for it 2026-08-20, mid-run: "on
       découvre toujours un peu les mêmes choses avec Stryker … est-ce que ça ne vaudrait pas le coup
       de se faire une skill ?")_. **Scheduled right after `session-status.mjs`**, deliberately: the
