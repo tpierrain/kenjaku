@@ -141,6 +141,29 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S1's seeding planner — `planBaseSeed`, same file, same day — 2026-08-20
+
+**Third production slice of the unfreeze chantier** (the migration: a brain seeds its own base tree
+from itself, with nothing to fetch). Same branch, same file; state owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors left |
+|---|---|---|
+| `lib/engine-base.mjs` *(+ `planBaseSeed`)* | **100.00 %** — 57 killed, 0 survived | 0 |
+
+**No survivor, first pass again** — 19 mutants more than the 38 the file carried before the function.
+Measured **on `HEAD`, after the green commit**, per the stop sign now in the skill.
+
+What paid for it: the cases that pin a *state* rather than a happy path — a base already present and
+provable (left alone), a base that drifted (re-seeded), a recorded file the owner deleted (named, not
+skipped), and a file delivered empty. Three of those four are unreachable from the nominal case, and
+the "already provable" one is the guard that keeps this migration from overwriting a correct ancestor
+with a file the owner has edited since.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs`.
+
+---
+
 ## S1's advance rule — `planBaseAdvance`, same file, same day — 2026-08-20
 
 **Still not a release: the second production slice of the unfreeze chantier** (the base moves to what

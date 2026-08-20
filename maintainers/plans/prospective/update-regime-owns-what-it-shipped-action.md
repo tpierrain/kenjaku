@@ -66,10 +66,11 @@
 > keeps no copy of a number.
 >
 > **The landmark is now S1** (an immutable base per `merge` file) — the first box of the substance
-> this plan exists for. ▶️ **S1 IS UNDER WAY: two pure slices have landed**, both test-first and both
+> this plan exists for. ▶️ **S1 IS UNDER WAY: THREE pure slices have landed**, all test-first and all
 > at **100 % mutation** the hour they were written _(numbers owned by `RESULTS.md`, §§
-> [S1's first slice](../../mutation/RESULTS.md#s1s-first-slice--libengine-basemjs-measured-the-day-it-was-written--2026-08-20)
-> and [S1's advance rule](../../mutation/RESULTS.md#s1s-advance-rule--planbaseadvance-same-file-same-day--2026-08-20))_:
+> [S1's first slice](../../mutation/RESULTS.md#s1s-first-slice--libengine-basemjs-measured-the-day-it-was-written--2026-08-20),
+> [S1's advance rule](../../mutation/RESULTS.md#s1s-advance-rule--planbaseadvance-same-file-same-day--2026-08-20)
+> and [S1's seeding planner](../../mutation/RESULTS.md#s1s-seeding-planner--planbaseseed-same-file-same-day--2026-08-20))_:
 >
 > - **the base's HOME and its PROOF** _(2026-08-20 · `411d4d7` + `40743c1`)_ — `scripts/lib/engine-base.mjs`:
 >   **where** a base lives (`.engine-base/<rel>`, one tree for the four families) and **whether it is
@@ -78,16 +79,19 @@
 > - **the ADVANCE rule** _(2026-08-20 · `184ce2e`)_ — `planBaseAdvance`, the sentence S1 is named after:
 >   *the base moves to what was **delivered** to the installed file, never to the newest fetched
 >   content.* Driven by the delivery map that already exists, so `engine-skills/**` (a `replace` target)
->   can no longer run the base ahead of a file that stood still.
+>   can no longer run the base ahead of a file that stood still;
+> - **the SEEDING planner** _(2026-08-20 · `fb87393`)_ — `planBaseSeed`, the migration: a brain seeds its
+>   own tree **from itself**, because a file still matching its recorded sha **is** the last delivery.
+>   Seeds whenever the tree cannot be **proven** (so a drifted base is repaired), never when it can.
 >
-> **▶️ RESUME AT: the SEEDING planner** — the cheap migration, and it falls out of the ground truth
-> below: a file whose installed bytes still match its recorded sha **is** the engine's last delivered
-> content, so the tree seeds **from the brain itself, with no fetch** (13 of 15 entries qualified on the
-> live brain; `CLAUDE.md` and `settings.json` seed from the fetched copy at the next update). Pure
-> planner first, same shape as the two slices above. **Then** the fs orchestrator and its wiring at
-> install (`recordSourceAndProvenance`) and at update (beside `reseedProvenance`), which is also where
-> the tree's own regime gets decided — it must never be a `replace` target, that would recreate the bug
-> one level up.
+> **▶️ RESUME AT: the fs ORCHESTRATOR and its WIRING** — the first slice that touches the disk, and the
+> last one S1 owes. The three planners above are pure and complete; what is missing is the thin I/O
+> around them: seed at install (`recordSourceAndProvenance`, which already walks the brain and writes
+> the manifest) and advance at update (beside `reseedProvenance`, in **both** writers —
+> `update-engine.mjs` step 7 *and* `reconcile-brain.mjs`'s `runReconcileCli`, which is the LAST writer
+> on the update path). ⚠️ **And it decides the tree's own regime**: `.engine-base/**` must **never** be a
+> `replace` target — that would recreate this whole bug one level up — nor a `merge` one. It is
+> engine-written, never hand-edited, and it needs its own answer in `engine-manifest.json`.
 >
 > ✅ **THE FORK IS NOW SIGNED, not merely inclined** _(owner, 2026-08-20: "oui, `.engine-base/` à la
 > racine me va")_. The re-ask the plan had reserved was made once the first test showed the concrete
@@ -362,11 +366,25 @@ audible divergence.
           update for content nobody touched.
     - [x] **A file the update did NOT deliver is absent from the map, so its base stands.** That is what
           makes "preserve" finally keep an ancestor worth merging from — the input S2's three-way needs.
-  - [ ] **NEXT — the seeding planner**, on the measurement above: installed content matching its recorded
-        sha **is** the engine's last delivered content → seed the tree from the brain itself, no fetch
-        (13 of 15 entries qualified on the live brain). The other two seed from the fetched copy at the
-        next update.
-  - [ ] **Then the fs orchestrator + the wiring**: write `.engine-base/` at install
+  - [x] **The seeding planner** _(2026-08-20 · `fb87393`)_ — `planBaseSeed`, on the measurement above:
+        installed content matching its recorded sha **is** the engine's last delivered content → seed
+        the tree from the brain itself, no fetch (13 of 15 entries qualified on the live brain). The
+        other two seed from the fetched copy at the next update, through the advance rule. 9 cases red
+        on their assertions first, **100 % mutation, no survivor** _(number owned by
+        [`RESULTS.md` § S1's seeding planner](../../mutation/RESULTS.md#s1s-seeding-planner--planbaseseed-same-file-same-day--2026-08-20))_.
+    - [x] **Decided while building it**: the rule is **not** "seed when absent" but *"seed whenever the
+          tree cannot be PROVEN"*, so a base that drifted is repaired by the same pass — and a base that
+          is present **and** provable is left strictly alone. That last guard is load-bearing: this runs
+          at **every** update, and re-seeding a correct ancestor from a file the owner has edited since
+          is the one way the migration could destroy exactly what it exists to protect.
+    - [x] **No second definition of the proof**: "would these bytes make a provable base?" *is* the
+          seeding question, so `verifyBase` is asked of the **installed** file, and only its three
+          refusals are renamed to what they mean on that side — `customized` (waits for a delivery),
+          `no-provenance` (waits for a regime), `not-installed` (waits for nothing).
+    - [x] **Candidates are the recorded entries UNION what the brain holds**, so a file the owner
+          DELETED is named rather than invisible — a planner walking only the disk would report nothing
+          about it at all. Feeds S4's audible divergence.
+  - [ ] **NEXT — the fs orchestrator + the wiring**: write `.engine-base/` at install
         (`recordSourceAndProvenance`) and at update (beside `reseedProvenance`), and decide what regime
         the tree itself answers to (it must never be a `replace` target — that would recreate the bug
         one level up).
