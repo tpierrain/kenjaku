@@ -55,7 +55,17 @@ export function verifyBase({ recorded, baseContent }) {
 // renamed to what they mean there — the repairs differ, so the words must: a
 // customized file waits for a delivery, a missing record waits for a regime, a
 // deleted file waits for nothing.
-const SEED_REFUSAL = { "no-provenance": "no-provenance", absent: "not-installed", mismatch: "customized" };
+//
+// Exported because S4 asks `verifyBase` the very same question — "would these
+// installed bytes make a provable base?" — and answers the owner with these words.
+// One vocabulary: a file the seeder defers as `customized` and a file the report
+// calls `customized` must be the same file, or the two halves of the promise
+// (kept for you / here is how far behind) would disagree in public.
+export const INSTALLED_REFUSAL = {
+  "no-provenance": "no-provenance",
+  absent: "not-installed",
+  mismatch: "customized",
+};
 
 // WHERE THE FIRST BASE COMES FROM. Every brain in the fleet was installed before this
 // tree existed, so the advance rule below has nothing to move until one appears — and
@@ -88,7 +98,7 @@ export function planBaseSeed({ manifest, provenance, installedFileMap, baseConte
     // held would make the base a fiction. No sha travels with a seed — the record
     // already exists and already matches, and a second writer for one fact is drift.
     if (asBase.usable) seeds.push({ rel, baseRel: baseRelPath(rel), content: installedFileMap[rel] });
-    else deferred.push({ rel, reason: SEED_REFUSAL[asBase.reason] });
+    else deferred.push({ rel, reason: INSTALLED_REFUSAL[asBase.reason] });
   }
   return { seeds, deferred };
 }
