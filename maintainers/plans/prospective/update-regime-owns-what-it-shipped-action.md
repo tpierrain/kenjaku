@@ -248,13 +248,14 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S6 — deliver `test-first-discipline` and RETIRE `tdd-discipline`** _(2026-08-21)_.
-> The skill is **already written and committed** (`.claude/skills/test-first-discipline/SKILL.md`); what
-> S6 owes is the DELIVERY and the RETIREMENT, which is why it was parked until this release existed.
-> ⚠️ **Open it expecting the manifest to be insufficient again** — `.claude/skills/tdd-discipline/**`
-> is a `merge` entry, and the additive `installSkills` bucket has **no removal path** by construction
-> (ADR 0025 is install-if-absent). Retiring a skill is therefore NOT the mirror of adding one, and
-> that is the first thing to check in the code before writing a design box about it.
+> **▶️ RESUME AT: S6b — the retirement machinery** _(2026-08-21)_, and nothing of it needs re-deciding:
+> **S6's design is written and committed** (§ S6, and it was a design slice — no code). The shape is a
+> declared `retired: []` tombstone list in the manifest, a `retireSkills` bucket counted by
+> `planTouches`, and a provenance guard on ADR 0036's shape (remove only what is byte-for-byte ours,
+> preserve and report on any doubt). ⚠️ **The one thing that must not be split apart**: dropping the
+> `merge` entry and adding the tombstone are **ONE** manifest change — do only the second and the
+> update deletes the directory while the next SessionStart restores it, forever. S6c/S6d/S6e follow,
+> listed in the block.
 >
 > ✅ **S2c AND S2d ARE DONE.** S2c _(`856ad24`, 92.73 %)_: `SACRED` splits into *inviolable* and
 > *merge-governed*, the merge-governed half **is** S3's `OWNER_AUTHORED` pinned by identity, and **ADR
@@ -1730,6 +1731,70 @@ audible divergence.
       old skill's opening rule (*one test at a time, never a test-first batch*) did not survive — and
       what was dropped is TDD's own thesis, not a ceremony, so the name had to change too (owner's
       call, both the decision and the name).
+  - [x] 🧭 **THE DESIGN — written before a line of code** _(2026-08-21, design slice)_. Every claim
+        below was read off the code, not recalled. The retirement is the undesigned half; everything
+        else in S6 is mechanical once it exists.
+
+    - [x] 🛑 **A REMOVAL IS DECLARED, NEVER INFERRED.** The tempting shape is "a skill in the brain that
+          the TARGET manifest no longer declares is retired" — no new vocabulary, derived for free. It
+          is refused: a truncated, stale or hand-broken manifest would then read as *"retire
+          everything"*, and this whole repo is built on the opposite reflex (`computeApplyPlan` answers
+          *"you may write nothing"* to a manifest it cannot read). **A delete is the most destructive
+          write there is, so it must be the most explicitly named.** The manifest grows a
+          **`retired: []` tombstone list**, a sibling of `regimes` — it does not say how a shipped file
+          is updated, it says the engine **no longer ships it**.
+    - [x] **It still reaches `computeApplyPlan`**, as its own `retireSkills` bucket counted by
+          `planTouches`: a delete is a touch, and the never-touch oracle every guard test asks must not
+          answer "we never write there" about a path we erase. **Unscrubbed, like `installSkills`** —
+          the sacred `.claude/skills/` tree would otherwise empty it — so the pattern's own anchor is
+          again its only defence, exactly as `ENGINE_SKILL`'s comment already records.
+    - [x] 🔒 **Provenance-guarded, on ADR 0036's shape** (`status-line-retreat.mjs`, the engine's ONLY
+          existing removal): remove the directory **only** if every file under it matches its recorded
+          fingerprint **and** it holds no file the engine never delivered. Any doubt — no record, an
+          edit, one extra file the owner dropped in — **preserves and says so**. The cost asymmetry is
+          the argument, and it is the same one 0036 wrote down: a leftover skill is cosmetic, deleting
+          someone's work is not.
+    - [x] ⏱️ **Order: retire BEFORE the skills refresh**, or the engine spends an update carefully
+          three-way-merging a skill it is about to delete.
+    - [x] ✅ **No reinstall fight — verified, and it was the trap worth checking first.**
+          `session-self-heal.mjs`'s `deriveWanted` builds the desired state from
+          `computeApplyPlan(manifest).installSkills` read off the brain's **own, just-updated**
+          manifest. So a skill dropped from `merge` is not wanted and self-heal will not put it back at
+          the next session. ⚠️ **That only holds because the two edits are ONE manifest change**: drop
+          the `merge` entry *and* add the tombstone. Doing only the second would have the update delete
+          the directory and the next SessionStart restore it, forever.
+    - [x] 🪦 **Tombstones accumulate, and pruning one early is a silent regression.** A brain upgrading
+          from v4.x months from now must still hear that the skill is gone; the entry is what tells it.
+          There is no expiry mechanism and this design deliberately adds none — the list is short, and
+          the day it is not, the fix is a cohort decision, not a cleanup reflex.
+    - [x] 🧹 **The launcher must stop SHIPPING it in the same breath**: delete
+          `.claude/skills/tdd-discipline/` **and** `templates/fr/.claude/skills/tdd-discipline/`
+          _(both present, checked)_. A source that still carries what the manifest calls retired would
+          re-deliver it to every fresh install.
+    - [x] 📄 **ADR 0039, amending [`0025`](../../decisions/0025-update-engine-installs-missing-engine-skills-and-servers.md)**:
+          the additive engine surface gains **exactly one** subtractive door, declared and
+          provenance-guarded. 0025 is install-if-absent by construction, so this is an amendment, not
+          an implementation detail of it.
+    - [x] 🗣️ **What the owner is told**, and it is not "a glob was removed": a skill that went says so
+          by name with its replacement (*"the `tdd-discipline` skill has been retired — its successor
+          `test-first-discipline` is installed"*); one that stayed says why, and that the engine no
+          longer maintains it. Prose, therefore asserted whole.
+    - [x] 🚫 **Deliberately OUT**: any general uninstall feature; removing anything that is not a
+          declared, retired **skill directory**; and any removal of a file the owner may have authored.
+          One door, one shape, named in one list.
+
+  - [ ] 🧱 **THE SLICES** _(2026-08-21)_:
+    - [ ] **S6b — the retirement machinery.** Manifest key + `retireSkills` bucket + `planTouches` +
+          a pure `skill-retirement.mjs` deciding remove/preserve from provenance and the on-disk
+          listing. Test-first. **New pure module AND the write path → mutation mandatory.**
+    - [ ] **S6c — the delivery becomes real.** Wire it into `reconcileBrain` (before the skills
+          refresh), surface the report, delete the launcher's two `tdd-discipline` copies, add
+          `.claude/skills/test-first-discipline/**` to `merge` and the tombstone to `retired`.
+    - [ ] **S6d — refresh Kenjaku's copy of the skill from the harness** (two versions behind, v2.1.0
+          + v2.2.0). A bulk read → **subagent**, per the mode's own rule.
+    - [ ] **S6e — `templates/fr/.claude/skills/test-first-discipline/`**. Quality debt, not breakage
+          (`resolveLocaleSource` falls back to English, verified) — the slice that may honestly slip.
+
   - [ ] Add `.claude/skills/test-first-discipline/**` to the manifest's **`merge`** regime.
   - [ ] 🔎 **The inverted vendoring has to be flipped BACK, and it is already costing** _(measured
         2026-08-20)_. The two files have **diverged**: Kenjaku's copy is the 2026-08-15 rewrite

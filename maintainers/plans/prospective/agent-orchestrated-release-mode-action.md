@@ -413,6 +413,26 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 30) — S6's DESIGN, and the trap that was worth checking first.** A
+  design slice: no code, and the design is committed before any is written. _(The design itself belongs
+  to the owning plan, § S6; this entry keeps only what the MODE learned.)_
+  - 🎯 **The opener aimed at the trap, not at the feature, and that is the sharper version of it.** The
+    obvious first question was *"is there a removal path?"* — the plan had already answered it. The
+    question actually worth the first tool call was **"what would UNDO the removal?"**, and it had a
+    real answer: `session-self-heal`'s `deriveWanted` rebuilds the desired state from the manifest at
+    every session start, so a retirement that deleted the directory without also dropping the `merge`
+    entry would be undone at the next restart, forever, in silence. **On a destructive feature, ask
+    what reverses it before asking how to do it.**
+  - 🚫 **The elegant derivation was refused, in writing, so it is not re-invented.** "A skill the target
+    manifest no longer declares is retired" needs no new vocabulary and is free — and turns any
+    truncated or stale manifest into a fleet-wide deletion. The repo's own reflex is the opposite
+    (an unreadable manifest allows *nothing*), so **the most destructive write gets the most explicit
+    declaration**, not the cleverest inference. Recording the rejected option is half the design.
+  - ♻️ **A new capability is cheapest when it copies a shape the repo already paid for.** The
+    provenance-guarded removal, the cost-asymmetry rule ("a leftover is cosmetic, deleting someone's
+    work is not") and even the wording all come from ADR 0036's status-line retreat. The design box's
+    job was to NAME that precedent, so S6b is a transposition rather than an invention.
+
 - 🌙 **2026-08-21 (loop iteration 29) — S2d, one sentence, 99.44 %.** `c1ec660` · the clash block stops
   being a cul-de-sac. _(Engineering: owning plan, § S2d.)_
   - 🎯 **Prose asserted as a LITERAL kills every mutant of itself.** All 13 new mutants died — the
