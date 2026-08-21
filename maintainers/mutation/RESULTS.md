@@ -169,6 +169,35 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S7-2 — the fingerprint table, and the runner's HEAD trap wearing a PLAUSIBLE score — 2026-08-21
+
+`0cafa56` (the slice) + `9c50842` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-fingerprint-table.mjs` (new) | 85.71 % (36 killed, 6 survived) | **94.74 %** (36 / 2) | 2, both named equivalents |
+| `scripts/lib/tracked-files.mjs:49-57` (hunk) | **100 %** (1 / 0) | — | 0 |
+
+**Six survivors, two causes, and one of them was DEAD CODE hiding four mutants.** The comparator
+carried a third branch for the tie (`a > b ? 1 : 0`), unreachable by construction — both sort keys come
+from unique paths. Deleting it killed four mutants at once; documenting it would have killed none. The
+lesson generalises past this file: **an unreachable branch is not a named equivalent, it is a mutant
+nest** — name the equivalent only when the *operator* is unfalsifiable, not when the *branch* is dead.
+The other cause was real: the `^` anchor of the locale regex was unpinned, and without it a demo note
+under `vault/templates/fr/` files itself under someone else's rel — a **wrong** row, which is the
+clobber risk this table is designed against, not merely a missing one.
+
+⚠️ **The runner's HEAD trap again, one slice later, and this time it did NOT print NaN.** S7-1 recorded
+it as *"an uncommitted file mutates nothing and reports `NaN %`"*, which reads as self-announcing. It is
+not. Here the **file** was committed and only the **fix** was uncommitted, so the run came back
+`✅ 83.33 %, 7 survivors` — a plausible number, complete with a survivor list quoting source lines that
+no longer existed. Nothing about the output says "this is the previous commit". The tell was the
+*content*: survivors quoting code just deleted. **The rule is unchanged and now measured twice: commit
+green, then measure.** And the skill already said so (`maintainers/skills/mutation-testing/SKILL.md`,
+"It measures HEAD, never your working tree") — the defect was not a missing rule, it was a rule nothing
+loaded.
+
 ## S7-1 — the heal, and a test that never reached the thing it was testing — 2026-08-21
 
 `3908b7f` (the slice) + `924b0d9` (the kills). State owned by

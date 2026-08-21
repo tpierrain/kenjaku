@@ -47,10 +47,29 @@
 >    adversarially, one not), and it is **still unproduced** — ⚠️ **twelve iterations in, the
 >    mechanical-only verdict has cost the mode its own subject.** Slice after slice has been design +
 >    test-first + a measured refactor, i.e. exactly the class the verdict keeps in session, so nothing has
->    ever been dispatched to debrief. **This is now a finding, not a delay**: if a whole release can be
+>    ever been dispatched to debrief. _(S7-2, 2026-08-21, unchanged: the bulk reads went to two Explore
+>    agents — seven modules plus the repo's test conventions — while design, tests and implementation all
+>    stayed in session. Same shape, one more iteration.)_ **This is now a finding, not a delay**: if a whole release can be
 >    built without one dispatchable slice, the honest conclusion may be that the contrast cannot be
 >    produced by waiting for one, and the question has to be re-framed (e.g. dispatch the adversarial
 >    REVIEW of a slice built in session, which the verdict does allow).
+>
+> ## 📉 A RULE THAT EXISTS, IS WRITTEN, AND STILL DID NOT FIRE _(S7-2, 2026-08-21)_
+>
+> The mutation runner measures **`HEAD`**, never the working tree. `maintainers/skills/mutation-testing/SKILL.md`
+> says so in bold. `RESULTS.md` § S7-1 recorded it **one slice earlier**. S7-2 walked into it anyway,
+> and in a worse form than the one on record: S7-1's write-up said an uncommitted file reports
+> `NaN %`, which sounds self-announcing — here the file was committed and only the **fix** was not, so
+> the run returned a perfectly plausible **83.33 %** with a survivor list quoting lines that had just
+> been deleted.
+>
+> **The finding is not "add a rule".** Three carriers already held it. The finding is that a
+> **maintainer skill loads only when something invokes it**, and a loop iteration that runs
+> `mutate-one.mjs` from muscle memory invokes nothing. Two candidate nets, neither built yet and both
+> the owner's call: make `mutate-one.mjs` itself **refuse (or loudly warn) when the working tree is
+> dirty** — deterministic, at the exact moment of the mistake, no skill to remember — or have the loop
+> prompt name the skill. **The first is braces, the second is belt**; the first is the one that
+> travels.
 >
 > ## 🌙 THE OVERNIGHT LOOP — framed by the owner 2026-08-20, before a `/clear`
 >

@@ -40,11 +40,21 @@
 >
 > ## ▶️ WHERE THIS RESUMES
 >
-> **RESUME AT: S7-2 — the fingerprint table and its freshness guard.** S7-0 (design) and S7-1 (the
-> heal) are **done** _(2026-08-21)_. `healProvenance` exists, is green and measured at **96.43 %**;
-> nothing it needs is missing except **the table itself**, which is why S7-2 is next and not S7-3.
-> Read **§ S7-0** before writing the generator — in particular the two claims that decide whether it
-> works at all: generate under **HEAD's** regime (not each tag's own), and carry the **FR** sources.
+> **RESUME AT: S7-3 — the wiring, so a real update consults the table.** S7-0 (design), S7-1 (the
+> heal) and S7-2 (the table + its freshness guard) are **done** _(2026-08-21)_. Both halves now exist
+> and neither is plugged in: `healProvenance` is green at **96.43 %**, `scripts/lib/engine-fingerprints.json`
+> is generated and green at **94.74 %** — and **no production caller reads either**. That is exactly
+> what S7-3 is.
+>
+> **What S7-3 has to do, and it is all already decided** (§ S7-0, Correction 1 — do not re-derive it):
+> `reconcileBrain` computes the heal **once, at the top**, and passes it in place of `local?.provenance`
+> at the three refresh call sites (`reconcile-brain.mjs:193`, `:212`, and the skills' equivalent) and as
+> `priorProvenance` to `reseedProvenance` (`:460`), so it persists in the single manifest write that
+> already happens (`:476`). The table is read **lazily, at heal time only** — from `sourceDir` when there
+> is one, falling back to the brain's own copy for a self-heal. `verifyBase`, `mergeVerdict`,
+> `planBaseSeed`, `planBaseAdvance`, `update-engine.mjs` and the installer are **not touched**. The
+> report gains **one aggregated line**: *"N engine files recognized from vX — this brain can now receive
+> updates for them."*
 >
 > ## 🆕 THE RELEASE GREW TWICE, both times on the owner's word _(2026-08-21, after S7-1)_
 >
@@ -170,7 +180,10 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         **FR** sources or it heals neither of the owner's brains. **Row-2 seeding is absorbed.**
   - [x] **S7-1 — the heal**: `healProvenance`, a new pure module. Nothing existing changed.
         _(2026-08-21 · `3908b7f` + `924b0d9` · 12 tests, mutation **96.43 %**, 1 named equivalent)_
-  - [ ] **S7-2 — the historical fingerprint table**, and the guard that keeps it fresh.
+  - [x] **S7-2 — the historical fingerprint table**, and the guard that keeps it fresh.
+        _(2026-08-21 · `0cafa56` + `9c50842` · 15 rels, 77 byte-states, 11.6 KB · 21 tests, mutation
+        **94.74 %**, 2 named equivalents)_ `CLAUDE.engine.md` came out at **5 EN + 4 FR**, exactly what
+        S7-0 predicted from the measurement.
   - [ ] **S7-3 — the wiring**, so a real update consults it.
   - [ ] **S7-5 — fetch the ancestor's bytes from a published tag** (owner's idea, measured 13/15 on
         both real brains). ✅ **IN v5, owner's call 2026-08-21.** Runs after S7-3, before S7-4.
