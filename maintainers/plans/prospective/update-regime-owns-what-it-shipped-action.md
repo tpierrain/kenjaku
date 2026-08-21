@@ -220,13 +220,14 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: finish S4-3's MEASUREMENT, then S4-4.** S4-3's code is **done, committed and pushed**
-> _(`d171e90`, suite green)_ — the `no-provenance` silence is re-opened and the standing recap ships. The
-> one thing it still owes is its **mutation number**: the run on `scripts/update-engine.mjs` was launched
-> on that commit and outlived a 10-minute window (~370 mutants). Re-run
-> `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs`, kill or name the survivors, add
-> the row to `RESULTS.md` (pre-slice honest figure: **97.54 %**), and give `lib/engine-base-fs.mjs` the
-> same pass — it gained `readEngineDivergence`. **Nothing else of S4-3 is outstanding.**
+> **▶️ RESUME AT: write S4-3's number into `RESULTS.md`, then S4-4.** S4-3's code is **done, committed
+> and pushed** _(`d171e90` + `69b17c9`, suite green)_ — the `no-provenance` silence is re-opened, the
+> standing recap ships, and the dead guard that would have silenced the next verdict is gone. It measured
+> **98.50 %** first pass (up from **97.54 %**); a confirm run was launched after the deletion and is
+> expected around **99 %** with two named equivalents left. **To finish**: re-run
+> `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs` if the number was lost, add the
+> row to `RESULTS.md`, and give `lib/engine-base-fs.mjs` the same pass — it gained `readEngineDivergence`
+> and has never been measured. **Nothing else of S4-3 is outstanding.**
 >
 > Then **S4-4 — the session surface**: `additionalContext` + `systemMessage` in its own soft hook (never
 > folded into the breakage banner), reusing `readEngineDivergence` as-is, with the added SessionStart
@@ -1302,13 +1303,21 @@ audible divergence.
       - [x] **Read LAST, off the brain as it now is** (`readEngineDivergence` in `engine-base-fs.mjs`) —
             the finalize child rewrites the manifest after step 7, so a divergence computed earlier
             would describe a brain that existed halfway through the update. Fail-soft like steps 8 and 9.
-      - [ ] ⏳ **MEASUREMENT PENDING — this is the only thing S4-3 still owes.** `mutate-one.mjs
-            scripts/update-engine.mjs` was launched on `d171e90` and exceeds a 10-minute run (~370
-            mutants, the largest file in the release). **To resume**: re-run
-            `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs`, kill or name the
-            survivors, then add the row to `RESULTS.md` (the honest pre-slice figure is **97.54 %** —
-            see the flaky-test warning at the top of that file). `lib/engine-base-fs.mjs` gained
-            `readEngineDivergence` and wants the same treatment.
+      - [x] **Measured, first pass: `scripts/update-engine.mjs` at 98.50 %** _(329 killed, 5 survived,
+            on `d171e90`)_ — up from the honest pre-slice **97.54 %**.
+      - [x] **One survivor was masking two more, and deleting it was the fix** _(2026-08-21 ·
+            `69b17c9`)_. The `aside === undefined → continue` guard existed for `no-provenance`, which
+            now has its own sentence, so nothing the producer can emit reaches it. Worse than dead:
+            what it would do to a verdict reason added later is **drop the line in silence**, the very
+            defect this slice ends. With it gone, the two `skillsPreserved = []` / `scriptsPreserved =
+            []` default mutants reach the prose and fail the byte-for-byte tests instead of being
+            swallowed on the way out. The two left are the `readFileSync(…, "utf8") → ""` equivalents.
+      - [ ] ⏳ **CONFIRM RUN IN FLIGHT — the last thing S4-3 owes.** Re-launched on `69b17c9` after the
+            deletion. **If this context was cleared before it landed**, simply re-run
+            `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs` (~11 min): expect
+            **~99 %** with only the two named equivalents. Then write the row into `RESULTS.md`, and
+            give `lib/engine-base-fs.mjs` the same pass — it gained `readEngineDivergence` and has not
+            been measured since.
     - [ ] **S4-4 — the session surface.** `additionalContext` + `systemMessage`, in its own soft hook
           rather than folded into the breakage banner. **Measure the added SessionStart latency** before
           shipping it: the contract for these hooks is zero-ish, and this one is file reads and digests
