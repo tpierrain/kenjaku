@@ -123,9 +123,12 @@ release (the pre-layering, monolithic-constitution line, ~v3.2.x).
         present since before v3.2.1), so no intermediate versions are replayed. The remaining completeness gap
         is exactly the **frozen** files: the constitution (this plan) and the shipped user-skills under
         `.claude/skills/` (`coach`, `prepare-1-1`, … install-if-absent). Close them the same way.
-        **Now explicitly owns the engine-layer propagation deferred from Gate 1:** move `CLAUDE.engine.md`
-        into a refreshed regime **locale-aware** (a FR brain must receive the FR engine layer, never the EN
-        one), so an upgrade actually delivers constitution improvements without re-anglicizing localized brains.
+        **➡️ The engine-layer propagation moved OUT of here on 2026-08-21** — it is **S5** of
+        [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+        which owns it and carries its design. Deliberately no copy of the decision here: that plan
+        settled the regime (**`merge`**, not the `replace` this file sketched above) and established, in
+        code, that the locale-aware condition this deferral was waiting on is **already met** on the merge
+        path. Read it there.
   - [ ] **(B) Tell the user what they gained.** A human, benefit-framed changelog spanning the jump (from the
         brain's recorded ref to target), surfaced at upgrade. Reuse the "The One With…" release codenames as the
         substrate; suited to non-technical owners.

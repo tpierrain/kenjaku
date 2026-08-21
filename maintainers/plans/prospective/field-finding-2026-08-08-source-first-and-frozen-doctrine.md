@@ -101,6 +101,15 @@ release on: **shipping something the fleet never receives**, silently.
         never proves it was read. A reinforced reminder, not a constraint.
         - [ ] If taken: it must **never** read file contents into the context (a prompt naming `.env`
               would inject secrets). Names and existence only.
+  - [x] ➡️ **OPTION B WAS TAKEN, and it is no longer this file's to track** _(2026-08-21)_. It is **S5**
+        of [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+        which owns the decision and its design. Two things that plan settled, recorded here **as a
+        pointer only** because the sketch below now under-describes the answer: the regime is **`merge`**,
+        and — read straight from the code rather than from this file's hopeful "since v4.1.0" — the merge
+        carrier is **already locale-aware**. ⚠️ **And one correction the sketch below gets wrong**: B does
+        **not** "land 12 commits of doctrine on every deployed brain at once". A brain with no provenance
+        for the file gets no ancestor, so it is **reported, not delivered**, until the ancestor machine
+        exists. See S5's design box.
   - [ ] **Option B — unfreeze the constitution layer for the fleet.** Deliver `CLAUDE.engine.md`
         locale-aware, reusing the **provenance-gated refresh already proven on skills** (overwrite only
         what is byte-identical to what the engine last delivered; a hand-edited layer is preserved and

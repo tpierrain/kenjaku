@@ -413,6 +413,25 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 24) — S5's DESIGN, and a slice whose one-line description was
+  backwards.** A design slice: no code, and the design is committed before any is written. _(The design
+  itself belongs to the owning plan, § S5; this entry keeps only what the MODE learned.)_
+  - ➡️ **The design box read the CODE for every claim, and that is now the standing rule** — two boxes
+    in a row had been written from memory and both were wrong. This one checked four things and **two
+    came back against the plan's own summary**: the locale blocker everyone kept deferring to "Gate 4"
+    is **already met** in the merge carrier, and the slice as described (*"the doctrine layer joins a
+    regime"*) **unfreezes no deployed brain at all**, because a file with no provenance gets no
+    ancestor. A one-line slice description is a hypothesis, not a spec.
+  - 🧹 **Four carriers said four different things about one decision**, and the design pass is where that
+    surfaced: two live plans named different target regimes, the ROADMAP's invariant asserted a regime
+    the file **never had**, and a production test comment pointed readers at the wrong gate. All four
+    were replaced by a **link** to the owning plan rather than re-synchronised — the carrier rule
+    applied to a decision instead of a status.
+  - 💡 **A subagent was the right tool for exactly this**: "who already speaks about `CLAUDE.engine.md`,
+    and do they contradict each other?" is a bulk read whose whole value is one paragraph of
+    contradictions. It came back with the four above, none of which a session holding the plan in its
+    window would have noticed.
+
 - 🌙 **2026-08-21 (loop iteration 23) — S4-4c closes S4, and six survivors were six defects.** The
   optimization the previous iteration's measurement demanded: the merge scan stopped reading the owner's
   vault, and is now **flat at ~0.25 ms** from 0 to 8 000 notes. _(Numbers and the full write-up:

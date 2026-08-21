@@ -50,9 +50,12 @@ Kenjaku's runtime (*"c'est aucune de ces deux options"*). So:
 Decided with Thomas 2026-07-18, extended 2026-07-19 (universes). When juggling plans, keep this sequence:
 
 1. 🟢 **Green** — legacy-**safe** fresh-install layering of the constitution (new engine-owned
-   `CLAUDE.engine.md` in the `replace` regime; `CLAUDE.md` **stays** in `SACRED_FILES`, so deployed
-   monolithic brains are never clobbered). **Must ship BEFORE the migration's *generate* step**, so
-   the regenerated personal brain is born two-layer.
+   `CLAUDE.engine.md`; `CLAUDE.md` **stays** in `SACRED_FILES`, so deployed monolithic brains are never
+   clobbered). **Must ship BEFORE the migration's *generate* step**, so the regenerated personal brain
+   is born two-layer. _(The words "in the `replace` regime" stood here and never described reality: the
+   engine layer shipped in **no regime at all**, which is the frozen-doctrine finding on line 222. Which
+   regime it joins is **S5**'s, and it is `merge` — owned, with its design, by
+   [`prospective/update-regime-owns-what-it-shipped-action.md`](prospective/update-regime-owns-what-it-shipped-action.md).)_
 2. 🌌 **Universes** — the soft, progressively-disclosed retrieval scope (ADR 0034). A Bucket-1
    note-convention / schema change, so it **must land BEFORE the migration's *import* step**, so the
    regenerated brain is born universe-aware and the imported notes are stamped at import time.

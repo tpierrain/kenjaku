@@ -248,12 +248,18 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S4 IS COMPLETE — the next step is S5** (`CLAUDE.engine.md` joins a regime), with
-> **S2c and S2d** queued beside it now that the constitution question is answered. S4-4a/b/c are all
-> closed _(2026-08-21 · `ea9a4c1`, `9dc9d5d`, `a3f4e2b` + two kill rounds)_: the brain says where it
-> stands at rest, in one sentence, wired last on SessionStart, and the scan behind it stopped reading
-> the owner's vault (**flat ~0.25 ms at 0, 2 000 or 8 000 notes**, where the walk alone cost 18.5 ms at
-> 8 000). Numbers owned by `RESULTS.md`.
+> **▶️ RESUME AT: S5's CODE — its design is written and committed** _(2026-08-21)_, so the next
+> iteration implements it and nothing of it needs re-deciding: the regime is **`merge`**, the manifest
+> gets **one** line, and `engine-apply-plan.test.mjs`'s lock is flipped with its comment **rewritten**
+> (and its Gate 3 → Gate 4 error fixed). ⚠️ **Read the design's central finding before writing the
+> release note**: S5 unfreezes **no already-deployed brain** — with no provenance there is no ancestor,
+> so the file is *reported*, not delivered, until the ancestor machine lands. New installs are correct
+> from day one. Full block below, § S5.
+>
+> _(S4 is COMPLETE — S4-4a/b/c closed 2026-08-21 · `ea9a4c1`, `9dc9d5d`, `a3f4e2b` + two kill rounds:
+> the brain says where it stands at rest, in one sentence, wired last on SessionStart, and the scan
+> behind it stopped reading the owner's vault — **flat ~0.25 ms at 0, 2 000 or 8 000 notes**, where the
+> walk alone cost 18.5 ms at 8 000. Numbers owned by `RESULTS.md`. **S2c and S2d** are queued after S5.)_
 >
 > _(S4-1, S4-2 and S4-3 were closed earlier the same day; their numbers, and everything each slice
 > found, are in the S4 block below and in `RESULTS.md`. Nothing under S4 is outstanding.)_
@@ -1519,6 +1525,89 @@ audible divergence.
       belong in `CLAUDE.md`, so a divergence in the engine layer is nearly always **an accident to
       surface**, not work to protect. Flip `engine-apply-plan.test.mjs`'s deliberate lock with its
       comment rewritten, never deleted quietly.
+
+  - [x] 🧭 **THE DESIGN — written before a line of code** _(2026-08-21, design slice)_. Same reason as
+        S2's, S3's and S4's, and it paid the same way: **every claim below was checked in the code**,
+        because the last two design boxes were written from memory and both were wrong.
+
+  - [x] 🎯 **THE REGIME IS `merge`, NOT `replace`** — and the argument is short. `replace` clobbers, and
+        this whole release exists because *"what we must never lose is the work a person did"*. On the
+        overwhelming case (a file nobody touched, since the product tells them not to) a three-way merge
+        from a provable base is **byte-identical to a replace**, so the honest default costs nothing. On
+        the rare edited file it **preserves and reports**, which is exactly "an accident to surface"
+        rather than one to destroy. _(Three live plans named three different targets — `replace`,
+        `merge`, replace-with-a-report. This box settles it; the other two are to be replaced by a link,
+        not re-argued.)_
+
+  - [x] ✅ **THE GATE-1 DEFERRAL IS EXPIRED, AND IT WAS VERIFIED RATHER THAN RECALLED.** The lock's own
+        comment says propagation waits until the engine layer is *"locale-aware, or a FR brain would be
+        re-anglicized on upgrade"*. That is **already true on the merge path**: `engine-merge-apply.mjs`
+        reads the brain's locale (`readBrainLocale`, :47) and resolves `templates/<locale>/<rel>` for
+        every file it delivers (`resolveLocaleSource`, :65). An FR brain gets the FR engine layer through
+        the same code that already serves it the FR skills. **Choosing `merge` is therefore also what
+        makes the locale answer free** — a `replace` would have had to grow one.
+
+  - [x] 🛑 **THE FINDING, AND IT MUST REACH THE RELEASE NOTES: S5 ALONE UNFREEZES NOT ONE DEPLOYED
+        BRAIN.** Traced through the code rather than assumed, and it is the opposite of what the slice's
+        one-line description implies:
+    - [x] The file was in **no regime**, so no `provenance` entry exists → `verifyBase` returns
+          **`no-provenance`** (`engine-base.mjs:48`).
+    - [x] `planBaseSeed` **defers** a no-provenance file, it does not seed it (`engine-base.mjs:95-101`)
+          — deliberately, and rightly: seeding unproven bytes would record **the owner's** file as the
+          engine's last delivery, and a later merge would then take "theirs" and destroy an edit in
+          silence. That is the mirror image of the silent skill freeze.
+    - [x] So the merge has **no ancestor**, the verdict preserves, and the report names it.
+    - [x] ➡️ **What S5 actually delivers**: every brain installed from this release on is correct from
+          day one, and every already-deployed brain **stops being silent** — S4's report and session
+          surface now name the file and say *"no record of what the engine delivered there"*. The
+          taxonomy's fourth category (*"never updated, and nobody decided that"*) becomes a **decided,
+          reported** state. That is worth shipping. **Claiming the freeze is over would be false.**
+
+  - [x] 🔗 **ONE ancestor machine now unblocks BOTH constitutions** — deduplicated here rather than
+        tracked twice. S2c needs it for `CLAUDE.md`, S5 needs it for `CLAUDE.engine.md`, and it is the
+        same follow-on chantier named in the box at the top of this plan. **The engine layer is its
+        EASIER half**, worth recording while it is fresh: it ships **verbatim per locale with no
+        per-brain rendering** (a test forbids `{{tokens}}` in it), so its historical fingerprints are
+        computable **at release time** — the field finding's "known bases" step. `CLAUDE.md` has no such
+        shortcut: its ancestor must be re-rendered from a template plus the install answers.
+
+  - [x] 🪤 **The lock flip, precisely** — `scripts/lib/engine-apply-plan.test.mjs:224-240`. The comment
+        is **rewritten, never deleted**: a test that said NEVER becomes a test that says HOW, and the
+        record of why it once said never is the valuable half. ⚠️ **Two errors to fix in the same pass**:
+        it says the work is deferred to **Gate 3** twice (:226, :231) where every other carrier says
+        **Gate 4** (ROADMAP's Gate 3 is *Migration generate*) — so a reader chasing the deferral has been
+        sent to the wrong gate since Gate 1.
+    - [x] **`SACRED_FILES` does NOT need changing** (`engine-apply-plan.mjs:46`): `CLAUDE.engine.md` was
+          never in it. The lock has always been enforced by **omission from the manifest**, and that test
+          is the only thing that would have gone red. Worth knowing before touching the scrub by reflex.
+
+  - [x] 📎 **ONE manifest line, not two.** `templates/fr/CLAUDE.engine.md` must **not** get its own entry:
+        the manifest names the **destination** rel, and the locale source is resolved at delivery time
+        (`templates/**` is excluded from the blind copy by `localeOwnedPaths`). A second line would be a
+        second owner for one fact.
+
+  - [x] 🔔 **A free behaviour change to NAME rather than discover**: S3's write guard returns `null` for
+        a path in no regime (`engine-write-guard.mjs`, `regimeOf`), so it is **silent** on
+        `CLAUDE.engine.md` today. The moment the file has a regime, the guard starts **asking** before an
+        agent writes there, with the merge price named — which is the correct redirect (*your edits belong
+        in `CLAUDE.md`*), and is exactly the kind of new prompt that belongs in the release notes instead
+        of surprising someone.
+
+  - [x] 📄 **The file's own sentence stays as it is, and the reasoning is recorded so it is not re-opened.**
+        `CLAUDE.engine.md:5` promises *"refreshed by upgrades"* (echoed in `CLAUDE.md.template:11` and
+        `README.md:309`) — a sentence that has been **false since it was written**. S5 makes it
+        structurally true, and false in fact for already-deployed brains until the ancestor machine lands.
+        **Decision: do not hedge it.** A brain that is behind is now **told so by name**, every session,
+        with the version it last received — which is a better answer to a legacy brain than a weaker
+        promise made to everyone. _(The counter, stated because it is real: for a few months the doctrine
+        will keep saying "refreshed" to brains where it is not. The report is what makes that survivable,
+        and if the ancestor machine slips, this box is where to come back and narrow the sentence.)_
+
+  - [x] 🚫 **Deliberately OUT of S5**: **monolithic brains (~v3.2.x) that have no `CLAUDE.engine.md` at
+        all.** They do not have the two-layer split, so there is nothing for a regime to refresh;
+        retro-fitting them is its own migration and is already excluded above. And **ADR 0012's staleness**
+        (:52, :77 still call `CLAUDE.md` *the* engine-provided constitution, written before the split) is
+        **one amendment shared with S2c** — whichever lands first writes it, the second links to it.
 - [ ] **S6 — RIDER, decided 2026-08-15: deliver `test-first-discipline` and RETIRE `tdd-discipline`.**
       The skill is **already written and committed** (`.claude/skills/test-first-discipline/SKILL.md`),
       deliberately parked here rather than shipped alone, because retiring its predecessor needs
