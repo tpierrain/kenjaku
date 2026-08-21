@@ -1,0 +1,84 @@
+[32m03:52:07 (20724) INFO ProjectReader[39m Found 1 of 785 file(s) to be mutated.
+[32m03:52:07 (20724) INFO Instrumenter[39m Instrumented 1 source file(s) with 90 mutant(s)
+[32m03:52:07 (20724) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m03:52:07 (20724) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-8loJVy
+[32m03:52:07 (20724) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m03:52:07 (20724) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m03:52:09 (20724) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2156 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/90 tested (0 survived, 0 timed out)
+Mutation testing 5% (elapsed: <1m, remaining: ~5m) 5/90 tested (0 survived, 0 timed out)
+Mutation testing 11% (elapsed: <1m, remaining: ~4m) 10/90 tested (0 survived, 0 timed out)
+Mutation testing 16% (elapsed: <1m, remaining: ~3m) 15/90 tested (0 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~2m) 20/90 tested (1 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~2m) 25/90 tested (2 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~1m, remaining: ~2m) 30/90 tested (2 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~1m, remaining: ~2m) 35/90 tested (3 survived, 0 timed out)
+Mutation testing 44% (elapsed: ~1m, remaining: ~1m) 40/90 tested (4 survived, 0 timed out)
+Mutation testing 50% (elapsed: ~1m, remaining: ~1m) 45/90 tested (6 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~1m, remaining: ~1m) 50/90 tested (8 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~2m, remaining: ~1m) 55/90 tested (8 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~2m, remaining: ~1m) 60/90 tested (8 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~2m, remaining: <1m) 65/90 tested (8 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~2m, remaining: <1m) 70/90 tested (8 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~2m, remaining: <1m) 75/90 tested (8 survived, 0 timed out)
+Mutation testing 88% (elapsed: ~2m, remaining: <1m) 80/90 tested (9 survived, 0 timed out)
+Mutation testing 94% (elapsed: ~3m, remaining: <1m) 85/90 tested (9 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 81)
+
+[Survived] ConditionalExpression
+scripts/lib/engine-write-guard.mjs:57:7
+-     if (rel === "" || rel.startsWith("..") || isAbsolute(rel)) return null;
++     if (false || rel.startsWith("..") || isAbsolute(rel)) return null;
+
+[Survived] StringLiteral
+scripts/lib/engine-write-guard.mjs:57:15
+-     if (rel === "" || rel.startsWith("..") || isAbsolute(rel)) return null;
++     if (rel === "Stryker was here!" || rel.startsWith("..") || isAbsolute(rel)) return null;
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-write-guard.mjs:65:42
+-       const matchers = (regimes[regime] ?? []).map(globToRegExp);
++       const matchers = (regimes[regime] ?? ["Stryker was here"]).map(globToRegExp);
+
+[Survived] StringLiteral
+scripts/lib/engine-write-guard.mjs:78:5
+-       `update three-way-merges it with the new version — a clash is reported to you, never written. ` +
++       `` +
+
+[Survived] StringLiteral
+scripts/lib/engine-write-guard.mjs:80:5
+-       `and a skill of your own costs nothing to carry.`,
++       ``,
+
+[Survived] StringLiteral
+scripts/lib/engine-write-guard.mjs:83:5
+-       `with the new version, without a word, and your change will be gone. If you mean to change how ` +
++       `` +
+
+[Survived] StringLiteral
+scripts/lib/engine-write-guard.mjs:85:5
+-       `update touches them.`,
++       ``,
+
+[Survived] StringLiteral
+scripts/lib/engine-write-guard.mjs:89:5
+-       `is the layer built for that — a launcher is machinery, not doctrine.`,
++       ``,
+
+[Survived] StringLiteral
+scripts/lib/engine-write-guard.mjs:123:9
+-           `replaced by the engine's version, with this record as the evidence that nothing was wrong.`,
++           ``,
+
+Ran 1.00 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  90.00 |   90.00 |       81 |         0 |          9 |        0 |        0 |
+ engine-write-guard.mjs |  90.00 |   90.00 |       81 |         0 |          9 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m03:55:13 (20724) INFO MutationTestExecutor[39m Done in 3 minutes and 5 seconds.
+[32m03:55:13 (20724) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-8loJVy.
