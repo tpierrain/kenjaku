@@ -142,6 +142,17 @@ test("engineDivergence — a brain that records nothing at all reports nothing, 
   assert.deepEqual(engineDivergence({ manifest: manifest(), installedFileMap: {} }), []);
 });
 
+// ⚠️ A manifest that could not be read is a REAL input, not a defensive flourish: the
+// write guard already established the idiom (a failed manifest read yields `null` and
+// the pass keeps going), and S4's session surface will run in exactly that world. Fed
+// with files on disk, so a version of this that reached for `manifest.provenance`
+// would throw here rather than pass vacuously.
+test("engineDivergence — a manifest the brain could not read at all reports nothing, rather than throwing", () => {
+  const onDisk = { ".claude/skills/coach/SKILL.md": EDITED, "CLAUDE.md": EDITED };
+  assert.deepEqual(engineDivergence({ manifest: null, installedFileMap: onDisk }), []);
+  assert.deepEqual(engineDivergence({ manifest: undefined, installedFileMap: onDisk }), []);
+});
+
 // ── Order is part of the contract, because a human reads this ─────────────────
 
 test("engineDivergence — the list is sorted by path, not by the order the disk was walked", () => {
@@ -152,12 +163,15 @@ test("engineDivergence — the list is sorted by path, not by the order the disk
       baseRefs: { "CLAUDE.md": "v4.7.0", "scripts/auto-commit.mjs": "v4.9.0" },
       merge,
     }),
-    // Deliberately in neither insertion nor sorted order, and with the entry that has
-    // no recorded ref in the middle, so a comparator sorting the wrong field shows up.
+    // ⚠️ A ROTATION, deliberately — neither sorted nor exactly REVERSED. This fixture
+    // was a perfect reversal at first, and a comparator mutated to always return -1
+    // (i.e. no comparison at all) reverses the array and produced the expected answer
+    // by accident. A sort test whose input is the mirror of its expectation proves the
+    // array was flipped, not that it was ordered.
     installedFileMap: {
-      "scripts/auto-commit.mjs": EDITED,
       "CLAUDE.md": EDITED,
       ".claude/settings.json": EDITED,
+      "scripts/auto-commit.mjs": EDITED,
     },
   });
 

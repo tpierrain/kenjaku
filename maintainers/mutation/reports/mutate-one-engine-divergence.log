@@ -1,0 +1,45 @@
+[32m06:36:05 (33556) INFO ProjectReader[39m Found 1 of 791 file(s) to be mutated.
+[32m06:36:05 (33556) INFO Instrumenter[39m Instrumented 1 source file(s) with 19 mutant(s)
+[32m06:36:05 (33556) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m06:36:05 (33556) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-s3Gmhm
+[32m06:36:05 (33556) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m06:36:05 (33556) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m06:36:07 (33556) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2201 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/19 tested (0 survived, 0 timed out)
+Mutation testing 26% (elapsed: <1m, remaining: <1m) 5/19 tested (2 survived, 0 timed out)
+Mutation testing 52% (elapsed: <1m, remaining: <1m) 10/19 tested (2 survived, 0 timed out)
+Mutation testing 78% (elapsed: <1m, remaining: <1m) 15/19 tested (3 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 15)
+
+[Survived] OptionalChaining
+scripts/lib/engine-divergence.mjs:36:22
+-     const provenance = manifest?.provenance ?? {};
++     const provenance = manifest.provenance ?? {};
+
+[Survived] OptionalChaining
+scripts/lib/engine-divergence.mjs:37:20
+-     const baseRefs = manifest?.baseRefs ?? {};
++     const baseRefs = manifest.baseRefs ?? {};
+
+[Survived] ConditionalExpression
+scripts/lib/engine-divergence.mjs:52:31
+-     return held.sort((a, b) => (a.rel < b.rel ? -1 : 1));
++     return held.sort((a, b) => (true ? -1 : 1));
+
+[Survived] EqualityOperator
+scripts/lib/engine-divergence.mjs:52:31
+-     return held.sort((a, b) => (a.rel < b.rel ? -1 : 1));
++     return held.sort((a, b) => (a.rel <= b.rel ? -1 : 1));
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  78.95 |   78.95 |       15 |         0 |          4 |        0 |        0 |
+ engine-divergence.mjs |  78.95 |   78.95 |       15 |         0 |          4 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m06:36:48 (33556) INFO MutationTestExecutor[39m Done in 43 seconds.
+[32m06:36:48 (33556) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-s3Gmhm.
