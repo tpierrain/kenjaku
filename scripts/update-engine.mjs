@@ -290,12 +290,18 @@ const answerOffer = (count) =>
   `     Your call, and there is no hurry: ask me about ${count === 1 ? "that file" : `those ${count} files`}` +
   ` and I'll offer${count === 1 ? "" : ", for each one,"} to take the new version, keep yours, or combine the two.`;
 
-// Only a preserve with a candidate beside it can be offered anything. A retired skill is
-// preserved and has no newer version BY DEFINITION — the engine stopped shipping it — so
-// asking about it would be a question with no answer that changes anything.
+// Only a preserve with a candidate beside it can be offered anything — and EVERY entry in
+// these arrays has one: all five `preserve` outcomes (`no-provenance` since S10-1,
+// `customized`, `merge-failed`, `merge-unsafe`) carry a sidecar, which is the same fact
+// `preservedAndMergedLines` relies on to read the path unconditionally.
+//
+// ⚠️ A `.filter(({ newVersionPath }) => newVersionPath !== undefined)` stood here and was
+// DELETED: mutation proved it unreachable (two survivors, 2026-08-21), and the comment
+// justifying it named the wrong family. A retired skill genuinely has no newer version —
+// the engine stopped shipping it — but it travels in `skillsRetirePreserved`, which is
+// never passed to this function. It is excluded STRUCTURALLY, not by a filter.
 function answerOfferLines(preserved) {
-  const awaiting = preserved.filter(({ newVersionPath }) => newVersionPath !== undefined);
-  return awaiting.length === 0 ? [] : [answerOffer(awaiting.length)];
+  return preserved.length === 0 ? [] : [answerOffer(preserved.length)];
 }
 
 function conflictLines(conflicts) {

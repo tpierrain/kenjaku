@@ -460,10 +460,16 @@ test("formatReport — a single awaiting file is spoken of in the singular", () 
   );
 });
 
-test("formatReport — a preserve with NO candidate is offered nothing, because there is nothing to offer", () => {
+test("formatReport — a RETIRED preserve is offered nothing, because there is nothing to offer", () => {
   // A retired skill is preserved and has no newer version by definition — the engine
   // stopped shipping it. Offering "take the new version" there would be a question with
   // no answer that changes anything, which is the definition of a nag (plan § S10-0).
+  //
+  // ⚠️ Renamed from "a preserve with NO candidate": that title claimed more than the test
+  // measures, and the claim was false. Every `preserve` outcome writes a sidecar, so a
+  // preserve with no candidate does not exist — a retired skill is excluded because it
+  // travels in its OWN array, never passed to the offer. Structure, not a filter; the
+  // filter that used to stand there was deleted when mutation proved it unreachable.
   const out = formatReport({
     ref: "v5.0.0",
     engineVersion: {},
