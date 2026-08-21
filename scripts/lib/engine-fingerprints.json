@@ -1,0 +1,343 @@
+{
+  "generatedAt": "v5.0.0",
+  "files": {
+    ".claude/skills/coach/SKILL.md": {
+      "sha256:3a1df7202920eb0cf1879bf8cecaf1eba91944a7efcbef339c0d0e6a3cd9aa74": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:50c659bedf307d16a717502897001055cac1e992413ff3dc11a6a436a1f1e0d4": {
+        "since": "v3.0.0",
+        "locale": "fr"
+      }
+    },
+    ".claude/skills/import/SKILL.md": {
+      "sha256:4c2513e0fd52ebb6869be9a507746a74d46964a81344e4582e9d4a73d8d1e428": {
+        "since": "v3.1.0",
+        "locale": "en"
+      },
+      "sha256:eab9d7101bd318980cadc05f232db4e692d8e978ec2b826f5838a606a2295b7e": {
+        "since": "v3.1.0",
+        "locale": "fr"
+      },
+      "sha256:b8f4443489686e82bd6fab0f395117634ddb1477880fe0663b5009dda6762f0d": {
+        "since": "v3.6.0",
+        "locale": "en"
+      },
+      "sha256:f353be496300f0aa93a6f9d8d501f0127e8c0747e59fcf3cebe946e90896eb30": {
+        "since": "v3.6.0",
+        "locale": "fr"
+      }
+    },
+    ".claude/skills/improve/SKILL.md": {
+      "sha256:ef77fafb86f1f8fde5e80f7b60bafbaa38fbc600c1f184274befd0edf98c8815": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:8f8642b3208e2b3ccd681e7aceb45efd445e739573b6034bb7bc04f48ca32754": {
+        "since": "v3.0.0",
+        "locale": "fr"
+      }
+    },
+    ".claude/skills/prepare-1-1/SKILL.md": {
+      "sha256:600a9fb4961a782d4609a238db1473b6339b896fa2614ffeeebff7eedb4da41c": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:70bb3745e3b882a203ecf0997ca5244b01cbeb3a09c0c2640728462914e6f699": {
+        "since": "v3.0.0",
+        "locale": "fr"
+      },
+      "sha256:ea9613a707c087b9bb06da9b29573bd06223d70407728099b86ef8624bf5fe39": {
+        "since": "v4.5.0",
+        "locale": "en"
+      },
+      "sha256:ced39664f736961149a371fb50e51ce0de195ceeaaf26f52cf4ce322533f2d1e": {
+        "since": "v4.5.0",
+        "locale": "fr"
+      },
+      "sha256:dbdc567b547da60f0331bc7646c0909ff208c2ddcd868ed429d19d375968b1c9": {
+        "since": "v4.6.0",
+        "locale": "en"
+      },
+      "sha256:efef48f37cb4f25b6194bb0b4c6ac6c2a3eecf37909f34c75ddb6a2e694888c8": {
+        "since": "v4.6.0",
+        "locale": "fr"
+      }
+    },
+    ".claude/skills/switch/SKILL.md": {
+      "sha256:052e7ba91aa89f7068d5d64c513880d54b0fd5dd23b2eadcbb6fc610dab7f820": {
+        "since": "v3.6.0",
+        "locale": "en"
+      },
+      "sha256:312fd16410a062e091a9740c3a70f52bb22ef9f172a7e2ff2741d673fc7bfdb8": {
+        "since": "v3.6.2",
+        "locale": "en"
+      },
+      "sha256:f8945f83564484b59840fa7338380120de5d50c5ff03719e5aa2aca3ac70e7ac": {
+        "since": "v4.2.0",
+        "locale": "en"
+      },
+      "sha256:6420651f4951ce2a09394e0d5c0355cf74253c2b3875defdc38303a42e205a43": {
+        "since": "v4.4.0",
+        "locale": "en"
+      },
+      "sha256:b9a0b6d34cf03f51c7d3690b6fbec36a9619f2fa402d9663ad3d3ffe3c7d8bae": {
+        "since": "v4.5.0",
+        "locale": "en"
+      },
+      "sha256:17bbdd8f383fc7671f80372e59b4ff016d7be3ff6885a04b40048452c51af124": {
+        "since": "v4.8.0",
+        "locale": "en"
+      },
+      "sha256:fe397ee40ffb551237c84a4de4018d07eb40d1ce9b798c91e8221d8949b6878a": {
+        "since": "v4.9.0",
+        "locale": "en"
+      }
+    },
+    ".claude/skills/sync-sources/SKILL.md": {
+      "sha256:33bc9e6948ce52c38540e08f5a000862a88860e6ed0648948a64d5dc2d906773": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:fb71c25beb9cfa7e571acd2748ff4d56c8525480af57f049f56c706d3c5edb3a": {
+        "since": "v3.0.0",
+        "locale": "fr"
+      },
+      "sha256:ee93c8f158a6e302b7a972e3786c6d21796b37a99b311629a394ac4ce5a60491": {
+        "since": "v3.6.0",
+        "locale": "en"
+      },
+      "sha256:c3a6fa80b0ab82c41f7bf69bce3cfab2c8230885810a61991f73be10d6227e75": {
+        "since": "v3.6.0",
+        "locale": "fr"
+      },
+      "sha256:29dbcff52b420f2b8805f227573b5e05cc20819d4eaa1bcc881f20767ff0b8b3": {
+        "since": "v4.5.0",
+        "locale": "en"
+      },
+      "sha256:3de76f1e008bdedaf1c9550869e732841054f87f22155f1190889aa3eb881326": {
+        "since": "v4.5.0",
+        "locale": "fr"
+      },
+      "sha256:26fc6613623e7ee9a74b4fda36540c2f9aa8ef06f2d99b980bafe86dc3485222": {
+        "since": "v4.6.0",
+        "locale": "en"
+      },
+      "sha256:a67052c3110993d0bfe57402ce71ce994924cb21725abca668c1928c183301da": {
+        "since": "v4.6.0",
+        "locale": "fr"
+      },
+      "sha256:33c9c3bcc687040e3d87765b454fc8163300d594ae007bbe3505886c1da35b42": {
+        "since": "v4.8.0",
+        "locale": "en"
+      },
+      "sha256:1f0e7d8d857f1b139937ca483d94730658aec7b2dfcbb21b3d8d0b4f2072114a": {
+        "since": "v4.8.0",
+        "locale": "fr"
+      }
+    },
+    ".claude/skills/sync/SKILL.md": {
+      "sha256:3b9c55f8d0a0219ce521e5a56316ff576c325f088620082b1ce5d2bedf3f6b08": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:8d23d1b77e9c018884018895b55067001183abeeec867db444b1d58a7cd39e81": {
+        "since": "v3.0.0",
+        "locale": "fr"
+      },
+      "sha256:acd33ffaaeccd36aaf7e659e047ab77af0ad2d298481a5b3dd591e786eb4c81e": {
+        "since": "v4.9.0",
+        "locale": "en"
+      }
+    },
+    ".claude/skills/test-first-discipline/SKILL.md": {
+      "sha256:cde29d8c6bcf899ae8a7803bb191e4c51f94abc70621b8e7bab172a0d7450d58": {
+        "since": "v5.0.0",
+        "locale": "en"
+      }
+    },
+    ".claude/skills/update-engine/SKILL.md": {
+      "sha256:5fdcb7f3ca260f1d5f94d6ff6cfded297de7fb19914bf4baaf955f3b35911060": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:7800f2413f3b5695528001be6b2d054d268225ae597d7700428886f93d3e059f": {
+        "since": "v3.0.0",
+        "locale": "fr"
+      },
+      "sha256:c228c30b35a51e6ba0e49d5fe9ebef9bf7a500b98d58765dc19697f50a255056": {
+        "since": "v3.2.1",
+        "locale": "en"
+      },
+      "sha256:81abbc967b3ad8fc206788e54160e0d0a59519799779f98310f554a757998d84": {
+        "since": "v3.3.0",
+        "locale": "en"
+      },
+      "sha256:bb44729b22a42f8f177dae7900f585dd170875a517970a0b23260cdd0dfd79f2": {
+        "since": "v3.3.0",
+        "locale": "fr"
+      },
+      "sha256:28bfeb500c7f4322ec8000a60512f567bd8af2600b7e5ff52954b06181212638": {
+        "since": "v4.1.0",
+        "locale": "en"
+      },
+      "sha256:d92175eaa23eb6d8e8860260cfbbae33ed5be489887fd8e84aaa6b74db34dadf": {
+        "since": "v4.1.0",
+        "locale": "fr"
+      },
+      "sha256:7b78ea50aa330fbe8d1290ca96dfbd970bc75daf3614b248e7c28240ed51642a": {
+        "since": "v4.4.0",
+        "locale": "en"
+      },
+      "sha256:74c2939d28cc4e4d1e7b0f8f4c1959e234ceac0c3e18078ebd0d23564d642d44": {
+        "since": "v4.8.0",
+        "locale": "en"
+      },
+      "sha256:bd46dda01f927ef6a40b9ea9936e5a574c782ae98e3610535c876f2fce301144": {
+        "since": "v4.8.0",
+        "locale": "fr"
+      }
+    },
+    "CLAUDE.engine.md": {
+      "sha256:e6ab2411d61f2b9f235165c86a16713955bd4aab9e3bdf9fca32995e9161a5b1": {
+        "since": "v3.6.0",
+        "locale": "en"
+      },
+      "sha256:9e20c559021afadf4c6b48a9f408f1444de372ab9bc687bf69a5b723f2d366a6": {
+        "since": "v3.6.0",
+        "locale": "fr"
+      },
+      "sha256:4ddad404518e07f94f178de6e2bc25fd3f9f6a48c74fe21ed6f72de067e1e40b": {
+        "since": "v4.5.0",
+        "locale": "en"
+      },
+      "sha256:8087daa7ced83e89485a280afe314bf5e1767d65f4cd77eb3a301182d3a61e87": {
+        "since": "v4.5.0",
+        "locale": "fr"
+      },
+      "sha256:3fd0823b307b7a2ee7bb9578abcea50ece5168b564676dd2b9c802b3d3bcbddb": {
+        "since": "v4.6.0",
+        "locale": "en"
+      },
+      "sha256:1cebfa41b760e37df3db0b7b9a65bd2cae9021719946cf33f7c3b8c175a6282d": {
+        "since": "v4.6.0",
+        "locale": "fr"
+      },
+      "sha256:d09da5c7383dd61f42fc373ce692952a7ba3813d7b63d0325759ffd6f916b353": {
+        "since": "v4.8.0",
+        "locale": "en"
+      },
+      "sha256:b8be9bfc258de6a021bc82e0c8a021dab17357232f46da8054cf59c0cfbd764e": {
+        "since": "v4.8.0",
+        "locale": "fr"
+      },
+      "sha256:78a902cdc51bfc8243da70ebd5039fed51eb11274c2262215767e66f20bcead3": {
+        "since": "v4.9.0",
+        "locale": "en"
+      }
+    },
+    "CLAUDE.md": {
+      "sha256:91ac6f7e1dfd111f5a8d634fd0c1f31e4d17417fcee699ef34f982d033c0b7a9": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:78a2760b411b585fee9854ccc86dabab875334801c502157afa2485061d32d14": {
+        "since": "v3.1.0",
+        "locale": "en"
+      },
+      "sha256:de1debc3c3efc38976efae63d801b273a05281bfebd2163250416e31cff8dbd6": {
+        "since": "v3.3.0",
+        "locale": "en"
+      },
+      "sha256:276725aae44387e2f098697444a7299ab24e9725e9b87d4b46518bc499b08dc8": {
+        "since": "v4.0.0",
+        "locale": "en"
+      },
+      "sha256:2e019a1191f4499963278088dd7851f528f36b4dc06384cbfa9a9ef7a73a7840": {
+        "since": "v4.2.0",
+        "locale": "en"
+      }
+    },
+    "scripts/auto-commit.mjs": {
+      "sha256:0d92adc15502d2b9cb47e6f36df1913446479fa9e5b111dcbe3fc7174ce68009": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:6703db8a12e4d5ac057ba21b533bcdb9575d5ac5b606eba16add8717b8267785": {
+        "since": "v3.4.1",
+        "locale": "en"
+      },
+      "sha256:ae3e5bebb69b58b155e69aa8351b15767773d2d4d85d9ff564be5e9e9078e5b4": {
+        "since": "v4.3.0",
+        "locale": "en"
+      },
+      "sha256:44b2204d33045b790f910da1b4615f6875e41b307aa9869b9dbbd8a02f1714c1": {
+        "since": "v4.4.0",
+        "locale": "en"
+      },
+      "sha256:53d6e49b51e3932e748e240b368e4a538558a136232b6fac092a68f93e256542": {
+        "since": "v4.9.1",
+        "locale": "en"
+      },
+      "sha256:059272b97e0aea5d90e0202d8f3aa4c331c1f2fef5c8267b6c4ff05e097d5b68": {
+        "since": "v5.0.0",
+        "locale": "en"
+      }
+    },
+    "scripts/auto-push.mjs": {
+      "sha256:343e2830956b20141895280daf736e48a7762759ab6065cd21f08a242ac10b10": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:dc8296c97a0227bd295bcdcb019db14087b780dfc2f2e09025acd7199f8ee935": {
+        "since": "v3.4.1",
+        "locale": "en"
+      },
+      "sha256:18e2317e10f0e4690b17e2ba1e6d9619117159dfab6cf517effab80a53de6640": {
+        "since": "v4.9.1",
+        "locale": "en"
+      },
+      "sha256:58409df0fe469dba5b65d47a5c5974ea52337692e09916c8e6fb05b5a3710ea4": {
+        "since": "v5.0.0",
+        "locale": "en"
+      }
+    },
+    "scripts/status-line.mjs": {
+      "sha256:de69572645f9170099d51a4ff9652e030975562a0c8e6eeabfa02bb2ca40fc18": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:02f257cb4d8ea3752fb5863c320761fc83052930780f4c7672fc21850bcaec3b": {
+        "since": "v3.3.0",
+        "locale": "en"
+      },
+      "sha256:8612592cb8126168cac63dbef5f71779b956a89d655c7654f5875e445ba594a5": {
+        "since": "v4.4.0",
+        "locale": "en"
+      },
+      "sha256:6231c5d56a645aece84b42a3b82e8f2d8636a37b236c9f74e00c1b906d273b79": {
+        "since": "v5.0.0",
+        "locale": "en"
+      }
+    },
+    "scripts/verify-rag.mjs": {
+      "sha256:8b2abca256e37c9249d7fd79b7a8fe663bd3c21672d09422845a91130886e656": {
+        "since": "v3.0.0",
+        "locale": "en"
+      },
+      "sha256:e7c07502a4d7bf49cb8bd4d931c810e490e004bd75e0dc1ba1dd79f92f1d5187": {
+        "since": "v3.1.0",
+        "locale": "en"
+      },
+      "sha256:fddf3098d3d05ec6fe78d8a1d3db75a12e2ba6937736e3284d7b404bd7a33513": {
+        "since": "v3.3.0",
+        "locale": "en"
+      },
+      "sha256:d9036a0696177625e441313e8ef7bad38a1b9cd230811d6791d7a92c42123659": {
+        "since": "v3.4.0",
+        "locale": "en"
+      }
+    }
+  }
+}

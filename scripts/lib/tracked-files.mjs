@@ -46,6 +46,15 @@ const DEV_ONLY_PREFIXES = [
   // assert.throws/rejects). Pure dev tooling, useless in a brain. Covers the .mjs
   // AND its .test.mjs via the prefix.
   "scripts/lib/assert-matcher-lint",
+  // engine-fingerprint-table: the PURE half of the maintainer generator that builds
+  // engine-fingerprints.json (plan S7-2). A brain READS that table on every update;
+  // it never builds one, and building one means 25 tags of git I/O. Covers the .mjs
+  // AND its .test.mjs via the prefix.
+  // 🪤 The prefix MUST keep the `-table` suffix: `scripts/lib/engine-fingerprint`
+  // would also swallow `engine-fingerprints.json` — excluding from the copy the very
+  // artefact v5 exists to deliver, and leaving every brain frozen with no way to
+  // notice. Pinned by a test in tracked-files.test.mjs.
+  "scripts/lib/engine-fingerprint-table",
   "rag/scripts/",
   // NOTE: the marketing boards (docs/img/board-*.png/svg) used to be excluded here
   // (~87MB of README-only art). Compressed to ~12MB total (1760px + pngquant), they

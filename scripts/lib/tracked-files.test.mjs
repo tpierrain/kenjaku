@@ -167,3 +167,20 @@ test("filterCopyable — excludes the eval-set tooling (dev-only: used to choose
     ["scripts/verify-rag.mjs", "rag/src/index.ts"],
   );
 });
+
+test("filterCopyable — the table BUILDER stays home, the TABLE itself ships", () => {
+  // 🪤 The trap this pins: a prefix of `scripts/lib/engine-fingerprint` would ALSO
+  // swallow `engine-fingerprints.json` — excluding from the copy the very artefact
+  // v5 exists to deliver, and leaving every brain frozen with no way to notice.
+  // The builder is maintainer tooling (25 tags of git I/O); the table is data the
+  // heal reads on every update.
+  assert.deepEqual(
+    filterCopyable([
+      "scripts/lib/engine-fingerprint-table.mjs",
+      "scripts/lib/engine-fingerprint-table.test.mjs",
+      "scripts/lib/engine-fingerprints.json",
+      "scripts/lib/engine-fingerprints.test.mjs",
+    ]),
+    ["scripts/lib/engine-fingerprints.json", "scripts/lib/engine-fingerprints.test.mjs"],
+  );
+});
