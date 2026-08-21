@@ -235,6 +235,10 @@
       "sha256:78a902cdc51bfc8243da70ebd5039fed51eb11274c2262215767e66f20bcead3": {
         "since": "v4.9.0",
         "locale": "en"
+      },
+      "sha256:07288d659cca74dc59c549efff18d82754ad7cc7537727489febc469d232e23f": {
+        "since": "v5.0.0",
+        "locale": "fr"
       }
     },
     "CLAUDE.md": {

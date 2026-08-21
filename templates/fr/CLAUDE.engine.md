@@ -195,7 +195,9 @@ lève le problème, un redémarrage ou une ré-indexation n'y changent rien.
 
 Un **univers** est un périmètre de recherche *souple* au-dessus du vault unique et partagé : des employeurs successifs, des clients ou des sphères gardés comme **corpus par défaut distincts** dans le même cerveau. Tant qu'un univers est actif, `search_vault` renvoie **les notes de cet univers plus tes notes transverses (par défaut)**, et rien des autres : une question sur ton contexte actuel n'est pas diluée par un ancien.
 
-- **C'est le moteur qui cadre la recherche, pas toi.** L'univers actif est lu depuis l'état persistant (`.vault-rag/active-universe`) et injecté **côté serveur** ; tu ne le passes jamais. Pour chercher délibérément **dans tous les univers**, active le paramètre `allUniverses` de l'outil `search_vault` : ne le propose que si la personne demande explicitement « tous les univers » / « tous les contextes ».
+- **C'est le moteur qui cadre la recherche, pas toi.** L'univers actif est lu depuis l'état persistant
+  (`.vault-rag/active-universe`, **versionné**, il suit donc son propriétaire d'une machine à l'autre,
+  ADR 0034) et injecté **côté serveur** ; tu ne le passes jamais. Pour chercher délibérément **dans tous les univers**, active le paramètre `allUniverses` de l'outil `search_vault` : ne le propose que si la personne demande explicitement « tous les univers » / « tous les contextes ».
 - **Pertinence, pas sécurité.** C'est une frontière de pertinence, jamais un mur d'isolation : un `grep`, Obsidian ou `get_document` par chemin peut toujours la traverser, et pour un cerveau privé c'est très bien. Ne la présente **jamais** comme de la confidentialité.
 - **Basculer / créer** passe par la skill **`/switch`** ; les nouvelles notes se rangent alors sous `vault/<univers>/` (voir *Univers — où se range une note* dans Format des notes). Rapatrie toute une sphère externe dans son propre univers avec **`/import --universe <nom>`**.
 
