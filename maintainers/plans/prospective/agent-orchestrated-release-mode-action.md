@@ -465,6 +465,35 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🚦 **2026-08-22 (S9-2a) — THE PR BODY HAD GONE STALE A SECOND TIME, which is the release's own
+  defect wearing the release's own clothes.** `release-v5.0.0-pr-body.md` beside the plan, covering
+  S1 → S10; #76's live body still described **S1–S6 alone**, and the branch has more than doubled
+  since. Its previous rewrite (2026-08-21) had already named that staleness as *"the exact defect this
+  release exists to end"* — and then it happened again, to the same file, in a day.
+
+  > **The lesson is not "rewrite the PR body more often".** A body that restates a branch's contents
+  > is **a copy of state**, and every copy of state in this repo has now gone stale at least once — the
+  > archived plan's commit count, the ROADMAP's *open* on a paid debt, this PR body twice. The rule
+  > `rules/plans.md` already carries for plans (*one item, one OWNING plan; replace a restatement with
+  > a link*) applies to **anything a human reads for status**, GitHub included. What the new body does
+  > differently: it links to the owning plan for state and keeps only what a REVIEWER needs — the
+  > shape of the change, how it was judged, what is deliberately out.
+
+  🧭 **And the sweep found the one thing that would actually stall a cut, which is not a defect but an
+  ORDER**: #76 is based on `chore/s0bis-entrypoint-mutation-debt`, and **draft #75 is still open**.
+  Deliberate when it was set up — #75 keeps its S0bis perimeter — and a **decision** now. Everything
+  else is green: suite 2 337/2 334/3 skipped (all three Windows-only, checked rather than assumed), the
+  four release guards 69/69, branch 248 ahead of `main`, 0 behind, no merge conflict.
+
+  🛑 **The body was written to a FILE, not pushed to GitHub.** Editing a live PR is outward-facing, and
+  the loop's mandate is commit-and-push on its own branch. The `gh pr edit` command sits ready in the
+  file's header for S9-2b. **That line — the loop assembles, the owner publishes — is the same one
+  S9-1 drew**, and it is worth stating as the mode's rule rather than re-deciding it per slice.
+
+  **Next**: nothing on this release the loop may take alone. S9-2b is his, S9-3 needs days of real
+  use, and the regimes arbitration is his. **That is a sentence about this release, not a decision to
+  stop**: the loop re-arms and goes looking at the repo's other open plans.
+
 - ✍️ **2026-08-22 (S9-1b) — THE NOTE IS DRAFTED, AND THE LOOP DID NOT WAIT FOR HIS VOICE TO PRODUCE
   IT.** `release-v5.0.0-note.md` beside the plan, to §11's shape. The slice is marked *"owner's tone"*,
   and the honest reading of that is **not** "leave it empty until he sits down": a draft he rewrites is

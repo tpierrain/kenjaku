@@ -118,18 +118,41 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: S9-2a — the release MATERIALS (mine). S9-2b, the cut itself, is HIS.
+> ## ▶️ RESUME AT: S9-2b — cut, tag, publish. **HIS, and the loop has no slice left to take alone.**
 >
-> **S9-2 splits the same way S9-1 did, and for the same reason**: assembling what a release needs is
-> checkable work; **deciding to publish is not**. The loop takes the first and never the second.
+> ✅ **S9-2a — THE MATERIALS ARE READY** _(2026-08-22)_. **S9-2 split the way S9-1 did**: assembling
+> what a release needs is checkable work; deciding to publish is not.
 >
-> - [ ] ▶️ **NEXT — S9-2a — the materials.** The **PR body for #76** (every published release since
->       v4.5.0 has one archived beside its plan, and #76's was written when the branch still carried
->       S1-S6 alone), plus a **pre-flight sweep**: manifest integrity, the fingerprint table current at
->       v5.0.0, the locale pairing, the full suite, and the branch's state against `main`. Anything
->       that comes back red is a finding for this plan, not a thing to fix inside the tag.
-> - [ ] **S9-2b — cut, tag, publish.** His, always. Carries the `engineVersion` bump and the title
->       he picks from the note's three candidates.
+> **The PR body** — [`release-v5.0.0-pr-body.md`](release-v5.0.0-pr-body.md), beside this plan.
+> #76's live body still describes **S1–S6 alone** and has been wrong since 2026-08-21 — the branch has
+> since more than doubled. The new one covers S1 → S10, both fallen forbidden claims, how it was
+> judged, and the two things to settle before a cut. **Written to a file rather than pushed**: editing
+> a live PR is outward-facing and the loop does not take those alone. To apply it, from the repo root:
+>
+> ```bash
+> sed '1,/^---$/d' maintainers/plans/prospective/release-v5.0.0-pr-body.md > /tmp/pr76.md
+> gh pr edit 76 --title "v5.0.0 — the engine owns what it shipped, and stops leaving old brains behind" --body-file /tmp/pr76.md
+> ```
+>
+> **The pre-flight sweep — everything green, and two findings that are not red but are ORDER:**
+>
+> - [x] Full suite **2 337 tests, 2 334 pass, 0 fail, 3 skipped** — and the three skips were checked,
+>       not assumed: all Windows-only (`cmd.exe` cannot parse a batch file on macOS).
+> - [x] The four release guards run clean on their own: **69 pass / 0 fail** across the fingerprint
+>       table, `locale-drift`, manifest integrity and entry-point discipline. So the table IS current at
+>       v5.0.0, the FR pairs ARE paired, every script a skill names IS carried and tracked.
+> - [x] Branch vs `main`: **248 ahead, 0 behind**, and `git merge-tree` finds **no conflict**. No
+>       rebase is owed.
+> - [ ] 🛑 **THE MERGE ORDER IS UNSETTLED, and it is the one thing that would stall a cut.** #76's base
+>       is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is still OPEN**. Either #75 lands
+>       first, or #76 is retargeted to `main`. Deliberate when it was set up (so #75 kept its S0bis
+>       perimeter); it is a decision now, and it is his.
+> - [ ] **The `engineVersion` bump is S9-2b's**, which is why the manifest still reads v4.9.1's numbers
+>       (`rag 1.4.0`, `local-mirror 0.3.0`, `constitutionTemplate 1.3.0`, `scripts 1.13.1`).
+>
+> 🚦 **After this, the loop has nothing left it may take alone on this release.** S9-2b is his, S9-3
+> needs days of real use, and the arbitration above is his. That is a sentence about THIS release, not
+> an instruction to stop.
 >
 > 🔍 **Checked, so the loop does not go looking for it again**: the release's other floor — the v4.8.0
 > mutation debt re-arbitrated onto this release — is **already paid on this branch** (its plan reads
@@ -531,11 +554,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [x] **S9-1b — the release note, DRAFTED** _(2026-08-22)_ — `release-v5.0.0-note.md` beside this
         plan, to §11's shape. Lead: **"your words are never lost"**. The body is publishable as-is;
         the **voice and the title are his** (three candidates listed in the file).
-  - [ ] ▶️ **NEXT — S9-2a — the release materials.** The PR body for #76 (its own body predates
-        S7/S8/S10), plus a pre-flight sweep: manifest integrity, the fingerprint table at v5.0.0, the
-        locale pairing, the full suite, the branch against `main`. Mine — checkable, not a decision.
-  - [ ] **S9-2b — cut, tag, publish.** Owner's, always. Carries the `engineVersion` bump, which is why
-        the manifest still reads v4.9.1's numbers today, and the title he picks.
+  - [x] **S9-2a — the release materials.** _(2026-08-22)_ `release-v5.0.0-pr-body.md` beside this plan
+        (#76's live body still describes S1-S6 alone), plus a pre-flight sweep: suite 2 337/2 334, the
+        four release guards 69/69, branch 248 ahead of `main` and 0 behind with no merge conflict.
+  - [ ] ▶️ **NEXT — S9-2b — cut, tag, publish.** Owner's, always. Carries the `engineVersion` bump, the
+        title he picks, and **the merge-order decision**: #76 is based on the S0bis branch and draft
+        PR #75 is still open, so either #75 lands first or #76 is retargeted to `main`.
   - [ ] **S9-3 — the field measurement** carried to the release checklist.
 
 ---
@@ -1408,10 +1432,13 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
         regime list keeps the doctrine out of the between-updates banner on a pre-v4 brain.
   - [x] **Verified, not assumed**: `indexSchemaVersion` is unchanged since `v4.9.1`, so nothing is
         re-read or re-encoded and *"What you have to do"* is one line.
-- [ ] ▶️ **NEXT — S9-2a — the release materials** (the PR body for #76 + a pre-flight sweep). Mine:
-      assembling what a release needs is checkable work.
-- [ ] **S9-2b — cut, tag, publish.** The owner's, always. **Deciding to publish is not delegable**, and
-      that is the line the S9-1 / S9-2 splits both draw.
+- [x] **S9-2a — the release materials** _(2026-08-22)_: the PR body for #76 rewritten to cover S1 → S10
+      ([`release-v5.0.0-pr-body.md`](release-v5.0.0-pr-body.md), with the `gh pr edit` command in the
+      header — the loop writes the file, it does not edit a live PR), plus a green pre-flight sweep.
+  - [x] **The sweep's one non-green finding is an ORDER, not a defect**: #76's base is the S0bis branch
+        and draft PR #75 is still open. Either #75 lands first, or #76 is retargeted to `main`.
+- [ ] ▶️ **NEXT — S9-2b — cut, tag, publish.** The owner's, always. **Deciding to publish is not
+      delegable**, and that is the line the S9-1 / S9-2 splits both draw.
 - [ ] **S9-3 — the field measurement**, carried to the release checklist rather than to a slice: do the
       write guard's prompts become noise on a session that legitimately customizes an engine skill?
       Correct the first time, noise the tenth. Only living with the guard for a few days answers it,
