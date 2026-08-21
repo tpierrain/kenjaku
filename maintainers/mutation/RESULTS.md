@@ -233,6 +233,59 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S10-QA — the acceptance test, and the guard that refused too much — 2026-08-22
+
+`612f306` then `5c16fc2`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY** (16 hunks across six files).
+**Reproduce**: the `mutate-one.mjs` invocation is quoted in the log's header — log
+[`s10-qa-hunks`](reports/s10-qa-hunks.log).
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| first pass (`612f306`) | 54 | 85.19 % | 8 |
+| after the three fixes (`5c16fc2`) | **52** | **96.15 %** | 2, both equivalent |
+
+Per file after the fixes: `engine-answers.mjs` 100 %, `engine-base.mjs` 100 %, `adopt-engine-file.mjs`
+100 %, `engine-adopt.mjs` 95.83 %, `engine-base-fs.mjs` 85.71 %.
+
+### 🛑 THE FINDING: A SAFETY GUARD IS MEASURED IN BOTH DIRECTIONS, OR IT IS HALF-TESTED
+
+Three survivors sat on `isMarkedMerge`, the guard that refuses to adopt a marked-up merge: the two
+`^` anchors and the `&&`. Every test aimed at it proved it **refuses the dangerous file**, and not one
+proved it **accepts an innocent one**. Unanchor the opening marker, or turn the `&&` into `||`, and
+the engine starts refusing any file that so much as quotes `<<<<<<<` in prose — which is a real file:
+`update-engine`'s own Step 4 explains what a conflict looks like. A guard that over-refuses freezes
+exactly the document that explains the freeze, and no test would have noticed.
+
+Two tests now pin it from the other side, one per anchor: a candidate whose *closing* marker starts a
+line and whose opening one does not, and the mirror. Both adopt cleanly.
+
+### A branch no input could reach, deleted rather than asserted
+
+`(write !== undefined || deliver !== undefined)` — two survivors, and both said the same thing:
+`planAdoption` returns `write` and `deliver` **together or neither**, so the `||` had an arm nothing
+could exercise. Asked of the plan as a whole (`Object.keys(plan).length > 0`) it is one expression, it
+means what it always meant, and a reader can check it without opening `planAdoption`. Same lesson as
+S10-6a's `parseFrom`: **a mutant you can delete beats a mutant you assert.**
+
+### The eighth: a true half-sentence
+
+The CLI's marked-merge line could lose its middle clause and still read as true — *"your version and
+the engine's changed the same lines"* — while dropping the only fact the owner acts on: that what sits
+beside the file is a **marked-up merge of both**, not a version to install. S10-6a's finding, one
+release later, on the sentence that finding did not cover.
+
+### The two survivors that stay (documented equivalent)
+
+- `readFileSync(sidecar, "utf8")` → `""`. Node treats the empty encoding as none and returns a
+  **Buffer**; measured, the Buffer writes the same bytes and hashes to the same sha256, so the file,
+  the ancestor and the manifest are byte-identical either way. Nothing observable to assert.
+- `regimes.merge ?? []` → `?? ["Stryker was here"]`. The fallback feeds `globRoots`, and a root that
+  does not exist on disk is filtered before it can select anything. Pre-existing on that line.
+
+---
+
 ## S10-6a — the command, and 18 survivors that were all the SAME defect — 2026-08-22
 
 `087d57b` then `160d36e`. State owned by

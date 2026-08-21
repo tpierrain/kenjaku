@@ -152,7 +152,16 @@ export function applyMergeGoverned({
     } else if (verdict === "conflict") {
       noteOnce(conflicts, { name, newVersionPath: sidecarPath(rel) });
     } else if (verdict === "preserve") {
-      noteOnce(preserved, sidecar === undefined ? { name, reason } : { name, reason, newVersionPath: sidecarPath(rel) });
+      // 🧭 NO "preserve without an offer" ARM ANY MORE, and the measurement is what
+      // proved it dead: a ternary stood here, and both of its mutants survived because
+      // NOTHING produces that state. Every preserve carries a sidecar — rows 3 and 7 of
+      // `mergeVerdict` set `sidecar: candidate`, and so do this module's own two
+      // degradations (`merge-failed`, `merge-unsafe`). Before S10-1 the `no-provenance`
+      // row deliberately offered nothing, and that arm was its home; S10 gave it one,
+      // because a file nobody can prove is exactly the file the next conversation must
+      // be able to ask about. A branch no input can reach is not a safety net, it is a
+      // claim about a state that does not exist.
+      noteOnce(preserved, { name, reason, newVersionPath: sidecarPath(rel) });
     }
   }
   return report;

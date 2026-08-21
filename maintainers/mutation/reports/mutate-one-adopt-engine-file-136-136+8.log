@@ -1,0 +1,38 @@
+[32m01:17:01 (39858) INFO ProjectReader[39m Found 4 of 861 file(s) to be mutated.
+[32m01:17:01 (39858) INFO Instrumenter[39m Instrumented 4 source file(s) with 17 mutant(s)
+[32m01:17:01 (39858) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m01:17:01 (39858) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-ND7XGm
+[32m01:17:01 (39858) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m01:17:01 (39858) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m01:17:05 (39858) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3453 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/17 tested (0 survived, 0 timed out)
+Mutation testing 29% (elapsed: <1m, remaining: <1m) 5/17 tested (0 survived, 0 timed out)
+Mutation testing 29% (elapsed: <1m, remaining: ~1m) 5/17 tested (0 survived, 0 timed out)
+Mutation testing 58% (elapsed: <1m, remaining: <1m) 10/17 tested (0 survived, 0 timed out)
+Mutation testing 58% (elapsed: <1m, remaining: <1m) 10/17 tested (0 survived, 0 timed out)
+Mutation testing 94% (elapsed: ~1m, remaining: <1m) 16/17 tested (2 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 15)
+
+[Survived] ConditionalExpression
+scripts/lib/engine-merge-apply.mjs:155:27
+-         noteOnce(preserved, sidecar === undefined ? { name, reason } : { name, reason, newVersionPath: sidecarPath(rel) });
++         noteOnce(preserved, false ? { name, reason } : { name, reason, newVersionPath: sidecarPath(rel) });
+
+[Survived] ObjectLiteral
+scripts/lib/engine-merge-apply.mjs:155:51
+-         noteOnce(preserved, sidecar === undefined ? { name, reason } : { name, reason, newVersionPath: sidecarPath(rel) });
++         noteOnce(preserved, sidecar === undefined ? {} : { name, reason, newVersionPath: sidecarPath(rel) });
+
+Ran 1.00 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  88.24 |   88.24 |       15 |         0 |          2 |        0 |        0 |
+ engine-answers.mjs     | 100.00 |  100.00 |        6 |         0 |          0 |        0 |        0 |
+ engine-merge-apply.mjs |  81.82 |   81.82 |        9 |         0 |          2 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m01:18:05 (39858) INFO MutationTestExecutor[39m Done in 1 minute and 3 seconds.
+[32m01:18:05 (39858) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-ND7XGm.
