@@ -57,10 +57,10 @@ export function resolveSourceRepo({ recorded, declared }) {
   return trimmed || recorded;
 }
 
-// Returns a NEW manifest with `source` and `provenance` set, every other field
-// preserved. Never mutates the input (the brain's freshly-copied manifest).
-export function enrichManifest(manifest, { source, provenance }) {
-  return { ...manifest, source, provenance };
+// Returns a NEW manifest with `source`, `provenance` and `baseRefs` set, every other
+// field preserved. Never mutates the input (the brain's freshly-copied manifest).
+export function enrichManifest(manifest, { source, provenance, baseRefs }) {
+  return { ...manifest, source, provenance, baseRefs };
 }
 
 // After an update-engine swap, refresh the provenance base for ONLY the merge files
@@ -75,6 +75,26 @@ export function reseedProvenance({ priorProvenance, manifest, deliveredFileMap }
     Object.fromEntries(redelivered.map((rel) => [rel, deliveredFileMap[rel]])),
   );
   return { ...priorProvenance, ...refreshed };
+}
+
+// WHICH engine version each recorded base came from (S4). The base tree holds the
+// last-delivered BYTES, and nothing held the VERSION they came from — so a brain could
+// say "you are holding this file back" and never "back from what".
+//
+// One entry means exactly one thing: **the last engine version whose bytes this file
+// actually received**. That single meaning is what keeps this a map and not a state
+// machine — a "first became held back" stamp would have to know when to stop moving,
+// and would be wrong the first time an owner edited a file twice.
+//
+// Same gate as `reseedProvenance`, deliberately: a `replace` file is overwritten whole
+// at every update and carries no base, so stamping one would describe nothing.
+export function reseedBaseRefs({ priorBaseRefs, manifest, deliveredFileMap, ref }) {
+  // No usable ref → record NOTHING. An absent entry already means "unknown, say since
+  // your install"; writing `null` or `""` would make an unknown look like an answer, and
+  // every reader downstream would then have to know that it is not one.
+  if (!ref) return { ...priorBaseRefs };
+  const redelivered = selectMergeFiles(manifest, Object.keys(deliveredFileMap));
+  return { ...priorBaseRefs, ...Object.fromEntries(redelivered.map((rel) => [rel, ref])) };
 }
 
 // ─── I/O orchestrator (the installer's thin wiring) ──────────────────────────
@@ -92,9 +112,19 @@ export function recordSourceAndProvenance({ brainDir, git }) {
     mergeFiles.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]),
   );
 
+  // At install every merge file IS delivered, so `reseedBaseRefs` over the same map
+  // stamps them all at the version we are installing — the honest starting point: a
+  // brand-new brain is behind on nothing.
+  const source = buildSource(git);
   const enriched = enrichManifest(manifest, {
-    source: buildSource(git),
+    source,
     provenance: buildProvenance(fileMap),
+    baseRefs: reseedBaseRefs({
+      priorBaseRefs: manifest.baseRefs,
+      manifest,
+      deliveredFileMap: fileMap,
+      ref: source.ref,
+    }),
   });
   writeFileSync(manifestPath, JSON.stringify(enriched, null, 2) + "\n");
   return enriched;

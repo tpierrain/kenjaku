@@ -1201,6 +1201,7 @@ function manifest({
   indexSchemaVersion,
   ref,
   provenance = {},
+  baseRefs,
   extraMerge = [],
   canonicalRepo,
 }) {
@@ -1227,6 +1228,9 @@ function manifest({
       engineMcpServers: ["vault-rag"],
       source: { repo: "https://example.test/launcher.git", ref },
       provenance,
+      // Omitted entirely unless a test asks for it: a brain installed before S4 has no
+      // such key, and that migration state must stay reachable from these fixtures.
+      ...(baseRefs === undefined ? {} : { baseRefs }),
     },
     null,
     2,
@@ -1261,6 +1265,16 @@ function buildBrain() {
         "CLAUDE.md": fp(SACRED["CLAUDE.md"]),
         ...Object.fromEntries(
           Object.entries(engineFiles("vA").engineScripts).map(([rel, content]) => [rel, fp(content)]),
+        ),
+      },
+      // S4: the same set, and WHICH engine version delivered each of those bases. Both
+      // halves of step 7 read off this map — the re-delivered scripts must advance to
+      // vB, and CLAUDE.md (never re-delivered) must still say vA, which is precisely
+      // the sentence "you have been holding this file back since v1.0.0".
+      baseRefs: {
+        "CLAUDE.md": "v1.0.0",
+        ...Object.fromEntries(
+          Object.keys(engineFiles("vA").engineScripts).map((rel) => [rel, "v1.0.0"]),
         ),
       },
     }),
@@ -1436,6 +1450,22 @@ for (const platform of ["posix", "win32"]) {
       m.provenance["CLAUDE.md"],
       fp(SACRED["CLAUDE.md"]),
       "an untouched user merge file's provenance base must be preserved",
+    );
+
+    // 6.bis WHICH version each of those bases came from (S4). Asserted WHOLE, because
+    //       the defect this map exists to fix is a file silently held back: a stray key
+    //       (a `replace` file that carries no base) or a missing one would each make the
+    //       divergence report state a version nobody was ever delivered.
+    assert.deepEqual(
+      m.baseRefs,
+      {
+        "CLAUDE.md": "v1.0.0",
+        "scripts/auto-commit.mjs": "v1.1.0",
+        "scripts/auto-push.mjs": "v1.1.0",
+        "scripts/status-line.mjs": "v1.1.0",
+        "scripts/verify-rag.mjs": "v1.1.0",
+      },
+      "re-delivered files advance to the ref just pulled; the file held back keeps the one it was last given",
     );
   });
 }

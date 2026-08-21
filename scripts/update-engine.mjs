@@ -34,7 +34,7 @@ import {
 } from "./lib/engine-fetch.mjs";
 import { checkUpstream, formatUpdateCheck, unknownUpstream } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
-import { reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
+import { reseedBaseRefs, reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
 import { syncBaseTree } from "./lib/engine-base-fs.mjs";
 import {
   defaultRunInstall,
@@ -431,6 +431,17 @@ export async function updateEngine({
       priorProvenance: local.provenance ?? {},
       manifest: target,
       deliveredFileMap,
+    }),
+    //    S4 — and WHICH version each of those bases is. The digest proves a file still
+    //    matches what we shipped; it cannot name the shipment, so a brain could report a
+    //    file held back and never say since when. `ref` is the one we just pulled, so a
+    //    re-delivered file advances and a held-back one keeps the version it was last
+    //    given — which is the sentence the owner is owed.
+    baseRefs: reseedBaseRefs({
+      priorBaseRefs: local.baseRefs ?? {},
+      manifest: target,
+      deliveredFileMap,
+      ref,
     }),
   };
   writeFileSync(manifestPath, JSON.stringify(updated, null, 2) + "\n");

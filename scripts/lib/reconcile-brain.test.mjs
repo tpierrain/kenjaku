@@ -1589,6 +1589,83 @@ test("runReconcileCli — re-seeds the provenance base of what it refreshed (T1)
   );
 });
 
+// ── S4: the base's VERSION, written by the same last writer as its digest ─────
+// A digest says "this file matches what we shipped"; it cannot say WHICH shipment.
+// The child re-seeds here for the same reason it re-seeds the digest: on the first
+// update carrying this feature the parent runs the OLD code, so a ref written only by
+// step 7 would arrive one update late — on the very brains being migrated.
+test("runReconcileCli — stamps the engine version on what it refreshed, and leaves the held-back file's older one (S4)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: [".claude/skills/switch/**"] }),
+        provenance: { ".claude/skills/switch/SKILL.md": base(delivered) },
+        baseRefs: { ".claude/skills/switch/SKILL.md": "v0.9.0", "CLAUDE.md": "v0.9.0" },
+      },
+      null,
+      2,
+    ),
+  );
+
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.deepEqual(persisted.baseRefs, {
+    ".claude/skills/switch/SKILL.md": "v1.1.0",
+    "CLAUDE.md": "v0.9.0",
+  });
+});
+
+// The ref comes from the brain's own manifest, and a brain can have none (a very old
+// install, or a source block written before refs were recorded). "I do not know" must
+// stay unrecorded: an invented ref is a divergence report naming a version the owner
+// was never delivered, which is worse than the silence this whole chantier is fixing.
+test("runReconcileCli — a brain whose manifest records no ref stamps nothing, rather than a lie (S4)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  const { source: _dropped, ...refless } = manifest({ extraMerge: [".claude/skills/switch/**"] });
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify({ ...refless, provenance: { ".claude/skills/switch/SKILL.md": base(delivered) } }, null, 2),
+  );
+
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  // The refresh itself still happened — the missing ref costs the RECORD, not the file.
+  assert.deepEqual(report.skillsRefreshed, ["switch"]);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.deepEqual(persisted.baseRefs, {});
+});
+
 // ── S1 — the LAST writer on the update path also lays down the base TREE ──────
 // The child is where the tree must land as much as the record: on the first update
 // carrying this feature the parent runs the OLD code, so a tree written only by

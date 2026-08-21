@@ -33,7 +33,7 @@ import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from 
 import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
-import { reseedProvenance } from "./engine-source.mjs";
+import { reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
 import { syncBaseTree } from "./engine-base-fs.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
@@ -405,8 +405,18 @@ export async function runReconcileCli({ argv, seams = {} }) {
     manifest,
     deliveredFileMap: delivered,
   });
+  // S4 — the base's VERSION travels with its digest, written by the same last writer,
+  // for the same migration reason. The ref is the brain's OWN (`source.ref`, already
+  // advanced by the parent's step 7): the child never fetched anything, so it has no
+  // other version to speak of, and a brain that records none records nothing here.
+  const baseRefs = reseedBaseRefs({
+    priorBaseRefs: manifest.baseRefs ?? {},
+    manifest,
+    deliveredFileMap: delivered,
+    ref: manifest.source?.ref,
+  });
   if (Object.keys(delivered).length > 0) {
-    writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance }, null, 2) + "\n");
+    writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance, baseRefs }, null, 2) + "\n");
   }
 
   // S1 — the base TREE, beside that record, and for the same reason the re-seed above

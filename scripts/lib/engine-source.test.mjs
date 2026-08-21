@@ -12,6 +12,7 @@ import {
   buildSource,
   resolveSourceRepo,
   enrichManifest,
+  reseedBaseRefs,
   reseedProvenance,
   recordSourceAndProvenance,
 } from "./engine-source.mjs";
@@ -175,7 +176,7 @@ test("resolveSourceRepo — a blank declaration declares nothing, and a padded o
   );
 });
 
-test("enrichManifest — sets source + provenance, preserves the rest, never mutates the input", () => {
+test("enrichManifest — sets source + provenance + baseRefs, preserves the rest, never mutates the input", () => {
   const original = {
     manifestVersion: 1,
     engineVersion: { rag: "1.1.0" },
@@ -184,8 +185,9 @@ test("enrichManifest — sets source + provenance, preserves the rest, never mut
   };
   const source = { repo: "git@github.com:me/launcher.git", ref: "v1.1.0" };
   const provenance = { "CLAUDE.md": fingerprint("c") };
+  const baseRefs = { "CLAUDE.md": "v1.1.0" };
 
-  const enriched = enrichManifest(original, { source, provenance });
+  const enriched = enrichManifest(original, { source, provenance, baseRefs });
 
   assert.deepEqual(enriched, {
     manifestVersion: 1,
@@ -193,10 +195,12 @@ test("enrichManifest — sets source + provenance, preserves the rest, never mut
     regimes: { merge: ["CLAUDE.md"] },
     source,
     provenance,
+    baseRefs,
   });
   // The input object is left untouched (still the empty provenance, still no source).
   assert.deepEqual(original.provenance, {});
   assert.equal("source" in original, false);
+  assert.equal("baseRefs" in original, false);
 });
 
 // ── reseedProvenance: refresh the 3-way base after an update-engine swap (Step 5) ──
@@ -238,6 +242,78 @@ test("reseedProvenance — a user merge file the swap never touched KEEPS its pr
     "CLAUDE.md": fingerprint("the engine's last-delivered constitution"), // preserved
     "scripts/auto-commit.mjs": fingerprint("// auto-commit vB"), // refreshed
   });
+});
+
+// ── reseedBaseRefs: WHICH engine version each base came from (S4) ────────────
+// The base tree holds the last-delivered BYTES; nothing held the VERSION they came
+// from, so a brain could say "you are holding this file back" and never "back from
+// what". `baseRefs` is that missing half, and it means exactly one thing: the last
+// engine version whose bytes this file actually received. One meaning, so no state
+// machine — unlike a "first became held back" stamp, which would have to know when
+// to stop moving.
+
+test("reseedBaseRefs — stamps the ref on the re-delivered merge files, and on nothing else", () => {
+  const target = {
+    regimes: { replace: ["rag/src/**"], merge: ["CLAUDE.md", "scripts/auto-commit.mjs"] },
+  };
+  const deliveredFileMap = {
+    "scripts/auto-commit.mjs": "// auto-commit vB",
+    "rag/src/index.ts": "// engine vB", // replace-regime → never stamped
+  };
+
+  assert.deepEqual(reseedBaseRefs({ priorBaseRefs: {}, manifest: target, deliveredFileMap, ref: "v5.0.0" }), {
+    "scripts/auto-commit.mjs": "v5.0.0",
+  });
+});
+
+test("reseedBaseRefs — a file the update passed by KEEPS its older ref, which is the whole point", () => {
+  // This is the sentence S4 exists to make possible: "coach last received an engine
+  // version at v4.7.0, and this brain now runs v5.0.0". Move this entry forward and
+  // every held-back file reads as up to date.
+  const target = { regimes: { merge: ["CLAUDE.md", ".claude/skills/coach/SKILL.md"] } };
+  const prior = { "CLAUDE.md": "v4.7.0", ".claude/skills/coach/SKILL.md": "v4.7.0" };
+
+  assert.deepEqual(
+    reseedBaseRefs({
+      priorBaseRefs: prior,
+      manifest: target,
+      deliveredFileMap: { "CLAUDE.md": "the newer constitution" },
+      ref: "v5.0.0",
+    }),
+    { "CLAUDE.md": "v5.0.0", ".claude/skills/coach/SKILL.md": "v4.7.0" },
+  );
+});
+
+test("reseedBaseRefs — no usable ref stamps NOTHING, rather than recording a lie", () => {
+  // An absent entry already means "unknown, say since your install". Writing `null`
+  // or `""` as the version would make an unknown look like an answer, and every
+  // reader downstream would have to know that it is not one.
+  const target = { regimes: { merge: ["CLAUDE.md"] } };
+  const delivered = { "CLAUDE.md": "content" };
+
+  for (const ref of [null, undefined, ""]) {
+    assert.deepEqual(
+      reseedBaseRefs({ priorBaseRefs: { "CLAUDE.md": "v4.7.0" }, manifest: target, deliveredFileMap: delivered, ref }),
+      { "CLAUDE.md": "v4.7.0" },
+      `ref ${JSON.stringify(ref)} must leave the record untouched`,
+    );
+  }
+});
+
+test("reseedBaseRefs — an older brain with no record at all starts one, it does not crash", () => {
+  const target = { regimes: { merge: ["CLAUDE.md"] } };
+
+  assert.deepEqual(
+    reseedBaseRefs({ priorBaseRefs: undefined, manifest: target, deliveredFileMap: { "CLAUDE.md": "c" }, ref: "v5.0.0" }),
+    { "CLAUDE.md": "v5.0.0" },
+  );
+});
+
+test("reseedBaseRefs — a manifest declaring no merge regime stamps nothing", () => {
+  assert.deepEqual(
+    reseedBaseRefs({ priorBaseRefs: {}, manifest: {}, deliveredFileMap: { "CLAUDE.md": "c" }, ref: "v5.0.0" }),
+    {},
+  );
 });
 
 // ── The thin I/O orchestrator the installer calls (real fs, git facts injected) ──
@@ -288,6 +364,15 @@ test("recordSourceAndProvenance — writes source + fingerprints ONLY the merge 
     ".claude/settings.json": fingerprint('{"generated":true}'),
     ".claude/skills/coach/SKILL.md": fingerprint("coach skill"),
     "scripts/auto-commit.mjs": fingerprint("// auto-commit"),
+  });
+  // S4 — and WHICH version each of those bases came from. At install the answer is
+  // exact for every merge file: they all arrived together, at the install ref. A
+  // brain therefore knows "since when" from day one, rather than from its first update.
+  assert.deepEqual(m.baseRefs, {
+    "CLAUDE.md": "v1.1.0",
+    ".claude/settings.json": "v1.1.0",
+    ".claude/skills/coach/SKILL.md": "v1.1.0",
+    "scripts/auto-commit.mjs": "v1.1.0",
   });
   // The rest of the manifest is preserved.
   assert.equal(m.engineVersion.rag, "1.1.0");
