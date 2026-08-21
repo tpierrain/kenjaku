@@ -40,7 +40,13 @@
 >
 > ## ▶️ WHERE THIS RESUMES
 >
-> **RESUME AT: S7-5 — fetch the ancestor's bytes from the published tag.** S7-0 → S7-3 are **done**
+> **RESUME AT: S7-5-1 — the pure planner (`planAncestorFetch`), test-first.**
+> **S7-5-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S7-5-0 and build to it; the four
+> questions are answered and two traps the sketch missed are named there (the self-heal must NOT fetch;
+> the table needs no reverse index). Then S7-5-2 (the git shell + the verification) and S7-5-3 (the
+> wiring + one report line).
+>
+> _Background, unchanged:_ **S7-5 — fetch the ancestor's bytes from the published tag.** S7-0 → S7-3 are **done**
 > _(2026-08-21)_, and with them **the release's reason for existing is discharged**: measured on the
 > real `v3.6.0` fixture tree, a brain recording **no provenance at all** for `CLAUDE.engine.md` now
 > comes out of an update **byte-identical to what the engine ships**. The forbidden claim *"the
@@ -192,6 +198,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         for the doctrine, comes out of an update byte-identical to what the engine ships.
   - [ ] **S7-5 — fetch the ancestor's bytes from a published tag** (owner's idea, measured 13/15 on
         both real brains). ✅ **IN v5, owner's call 2026-08-21.** Runs after S7-3, before S7-4.
+    - [x] **S7-5-0 — THE DESIGN.** _(2026-08-21 · `HEAD`)_ The four questions answered, plus two the
+          sketch missed: the self-heal must **not** fetch (the brain's remote is the owner's own repo),
+          and the table needs no reverse index.
+    - [ ] **S7-5-1 — the pure planner**, `planAncestorFetch`.
+    - [ ] **S7-5-2 — the git shell**: fetch the tag, **verify against the recorded sha**, hydrate holes.
+    - [ ] **S7-5-3 — the wiring** + the one report line (attempted-and-failed only).
   - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. ⚠️ **Headline already
         paid at S7-3** — see § S7 for what is left (FR, a second tag, the other two families).
 - [ ] **S8 — the French tree stops drifting in silence.**
@@ -495,12 +507,79 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         handful of versions, and the fetch is only needed for files that are BOTH edited and outdated,
         so it is rare by construction — the owner's own framing: *"dans les cas rares où on ne l'a pas
         sous la main"*.
-  - [ ] ❓ **What its design must settle**: it is **best effort and never blocking** (a failed fetch
-        falls back to S10's offer, an update must not die because a tag was unreachable); whether the
-        fetched bytes are **verified against the recorded sha before use** (they must be — that check is
-        what makes this safe, and it is free); whether they are **written into `.engine-base/`** so the
-        fetch happens once and never again (almost certainly yes, and it is the migration S1 describes);
-        and whether an offline brain is told why it got the degraded path.
+  - [x] ❓ **What its design must settle** — the four questions, ANSWERED _(2026-08-21, before any code)_.
+
+  #### 📐 S7-5-0 — THE DESIGN _(written 2026-08-21; design slice, no code in the same iteration)_
+
+  **The population, named exactly.** It is **row 7 of `mergeVerdict`** and nothing else
+  (`engine-merge.mjs:86-88`): `recorded` exists, the installed bytes differ from it, and
+  `verifyBase` answers `absent` because `.engine-base/<rel>` is not there. Today that is
+  `preserve/customized` + a `.new` sidecar. Files where installed **matches** `recorded` never reach it
+  (rows 4-5 deliver with no ancestor at all), and files with **no** `recorded` are S7's business, not
+  this slice's. **The two populations do not overlap and neither subsumes the other.**
+
+  - [x] 🎯 **Q1 — best effort, never blocking. YES, and the worst case is TODAY'S BEHAVIOUR.**
+        `defaultGit` already returns `{out, ok}` instead of throwing (`engine-fetch.mjs:118`). No bytes
+        → the file falls through to row 7 exactly as it does now. **This slice can therefore regress
+        nothing**, which is the strongest argument for shipping it inside v5 rather than after.
+  - [x] 🔒 **Q2 — verify against the recorded sha BEFORE WRITING, not merely before merging.** Free, and
+        the placement is the whole point: `verifyBase` downstream would already reject bad bytes, but by
+        then they would be **persisted in `.engine-base/` as a false ancestor**, and a false ancestor is
+        exactly how an update clobbers an owner's edit. So the check happens at the fetch site —
+        `fingerprint(fetched) === recorded`, or the EOL-normalised form, the same double test
+        `verifyBase:50` makes — and the downstream one becomes a second, independent opinion. **Belt and
+        braces, both free.**
+  - [x] 💾 **Q3 — YES, into `.engine-base/`, and that choice buys ZERO downstream change.** The ancestor
+        is read in exactly one place (`engine-merge-apply.mjs:73-74`, straight off the disk, no seam).
+        Two ways in: widen that read, or **hydrate the hole upstream and let it find the bytes**. The
+        second wins for the same reason S7-3's did — `writeBaseEntries` is already the single writer of
+        that tree, the three refresh families keep their signatures, and the fetch then happens **once
+        ever** (the next update reads a local file). ⚠️ **Only fill HOLES**: an existing
+        `.engine-base/<rel>` is the real recorded ancestor and is never overwritten.
+  - [x] 🗣️ **Q4 — told, but ONLY when a fetch was attempted and FAILED**, and phrased so it cannot
+        alarm. A brain that never needed one must hear nothing. A brain that tried and could not reach
+        the server is in a state that is **indistinguishable from the old behaviour**, and silence would
+        make a retryable situation look permanent: *"could not reach the update server to recover the
+        original of N file(s) — they are preserved as usual, and the next update will try again."*
+
+  #### 🆕 Two things the reading found that the sketch did not anticipate
+
+  - [x] 🚨 **THE SELF-HEAL MUST NOT FETCH, and this is a safety rule, not an optimisation.** On a
+        SessionStart self-heal `sourceDir === brainDir`, and the brain dir **is** a git repo — the
+        OWNER'S vault repo, whose remote is their own backup, not the engine's. Running
+        `git fetch origin tag …` there would point engine machinery at a personal repository.
+        `applyMergeGoverned` already returns early on `sourceDir === brainDir`
+        (`engine-merge-apply.mjs:45`), so there is nothing to gain either. **Gate the fetch on
+        `sourceDir !== brainDir`, like the three refresh families.**
+  - [x] ♻️ **The table needs NO reverse index — it is already keyed the right way.**
+        `table.files[rel][recordedSha]` → `{ since, locale }` is a direct lookup: the tag AND the
+        locale, which is what says whether to read `<rel>` or `templates/<locale>/<rel>` at that tag.
+        `manifest.baseRefs[rel]` gives a tag too, but no locale, so it is the **cross-check, not the
+        source**. (Merge files always ship at their own rel or its locale twin — a staged skill, which
+        ships elsewhere, is by construction never a merge file.)
+
+  #### 🔧 The shape, decided
+
+  - [x] **A pure planner + a git shell**, the S7-1/S7-3 pattern:
+        `planAncestorFetch({ manifest, provenance, installedFileMap, baseContentMap, table })` →
+        `[{ rel, tag, sourcePath, recorded }]`, and an I/O half that fetches, **verifies**, and hands
+        `{ baseRel, content }` entries to `writeBaseEntries`.
+  - [x] **In the existing clone, not a new one.** `fetchSource` leaves a real working tree with an
+        `origin` remote (`git clone --depth 1 --branch <ref> --single-branch`), and `update-engine`
+        never removes it — `auto-finalize` re-passes the same dir to the child. So:
+        `git -C <sourceDir> fetch --depth 1 origin tag <tag>` then `git -C <sourceDir> show <tag>:<path>`.
+        ⚠️ **`-C <dir>` is mandatory**: `buildGitInvocation` sets no `cwd` (`engine-fetch.mjs:110`), so a
+        bare `git fetch` would run in the process's own directory. And the explicit `tag <tag>` refspec
+        is required, because `--single-branch` narrowed `remote.origin.fetch` to the cloned ref.
+  - [x] **One fetch per DISTINCT tag**, then N cheap `git show`. The measurement says brains concentrate
+        on a handful of versions, and the population is files that are BOTH edited AND outdated.
+  - [x] **Order inside `reconcileBrain`: heal FIRST, then fetch.** A healed file has
+        `recorded === installed` and needs no ancestor at all, so healing first is what keeps the fetch
+        list minimal. Both sit together, before the refresh families.
+
+  - [ ] ▶️ **NEXT: S7-5-1, the pure planner** (test-first), then S7-5-2 the git shell, then S7-5-3 the
+        wiring + the one report line. **No code was written in this iteration** — a design slice ships a
+        written design and stops.
   - [ ] 💡 **The tail nobody should promise yet**: `CLAUDE.md` and `settings.json` could in principle be
         RECONSTRUCTED from their `.template` at the right tag plus the substitutions. **Not measured, not
         promised** — the substitution inputs must be recoverable byte-exactly, and they may not be.
