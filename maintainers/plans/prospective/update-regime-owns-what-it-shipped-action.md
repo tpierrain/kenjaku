@@ -248,16 +248,19 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S2d — the conflict report names its door** _(2026-08-21)_: *"N things clash, ask me
-> and I'll walk you through them"*, **one sentence**, in `update-engine.mjs`'s `conflictLines`. It is
-> **prose, therefore the deliverable** — assert it whole, never sample it — and it must not promise a
-> flow that does not exist: the wording offers to *help*, and what the brain can honestly do today is
-> show the two sides. Then **S6** (deliver `test-first-discipline`, retire `tdd-discipline`).
+> **▶️ RESUME AT: S6 — deliver `test-first-discipline` and RETIRE `tdd-discipline`** _(2026-08-21)_.
+> The skill is **already written and committed** (`.claude/skills/test-first-discipline/SKILL.md`); what
+> S6 owes is the DELIVERY and the RETIREMENT, which is why it was parked until this release existed.
+> ⚠️ **Open it expecting the manifest to be insufficient again** — `.claude/skills/tdd-discipline/**`
+> is a `merge` entry, and the additive `installSkills` bucket has **no removal path** by construction
+> (ADR 0025 is install-if-absent). Retiring a skill is therefore NOT the mirror of adding one, and
+> that is the first thing to check in the code before writing a design box about it.
 >
-> ✅ **S2c IS DONE** _(`856ad24`, 92.73 %)_: `SACRED` splits into *inviolable* and *merge-governed*,
-> the merge-governed half **is** S3's `OWNER_AUTHORED` pinned by identity, and **ADR 0038** records it
-> and amends 0012 (whose two pre-split lines about "the constitution `CLAUDE.md`" are corrected in the
-> same pass). Behaviour byte-for-byte unchanged — a door named is not a door open.
+> ✅ **S2c AND S2d ARE DONE.** S2c _(`856ad24`, 92.73 %)_: `SACRED` splits into *inviolable* and
+> *merge-governed*, the merge-governed half **is** S3's `OWNER_AUTHORED` pinned by identity, and **ADR
+> 0038** records it and amends 0012. Behaviour byte-for-byte unchanged — a door named is not a door
+> open. S2d _(`c1ec660`, 99.44 %)_: the clash block ends by offering the walkthrough, once, without
+> promising the flow that does not exist yet.
 >
 > ✅ **S5 IS COMPLETE** — `a51df22` (allowlist, 91.07 %), `74c273d` (family, 100 %), `4340240` (wiring
 > + report), `b3aefa3` (**the manifest line and the lock**). The doctrine layer is declared, delivered,
@@ -1053,16 +1056,21 @@ audible divergence.
           mechanism for a JSON file whose two sides both append to the same arrays. S2c's job on it is
           to say so out loud, not to replace it with a line-based diff.
 
-  - [ ] **S2d — the conflict report names its door** _(new, 2026-08-21, from the owner's answer)_. A
-        conflict currently ends at *"the engine wrote nothing"*: true, and a cul-de-sac. It must end at
-        *"N things clash — ask me and I'll walk you through them"*. **Deliberately one sentence**: the
-        walkthrough itself is the follow-on chantier (box at the top), and this slice is the pointer
-        that keeps the release honest until then.
-    - [ ] It is **prose, therefore the deliverable** (S3's measured lesson) — assert the sentence whole,
-          never sample it.
-    - [ ] It must not promise a flow that does not exist yet: the wording offers to *help*, and the
-          brain's honest answer today is to show the two sides. Say what it can do, not what is planned.
-    - [ ] Sequenced **after S4**, with S2c.
+  - [x] **S2d — the conflict report names its door** ✅ _(2026-08-21 · `c1ec660`, mutation **99.44 %**,
+        all 13 new mutants killed)_. A conflict ended at *"yours is untouched, a merged copy is at
+        &lt;path&gt;"*: true, and a cul-de-sac. It now ends at *"ask me and I'll walk you through them"*.
+    - [x] It is **prose, therefore the deliverable** (S3's measured lesson) — the sentence is asserted
+          as a **literal**, never sampled and never re-imported from the module: `out.includes(CONST)`
+          passes just as happily when `CONST` is emptied.
+    - [x] It does not promise a flow that does not exist: the offer is what the brain can do **today**
+          (read both sides, say in words what each changed), not the assisted walkthrough.
+    - [x] **ONCE for the whole block**, counting every family, and **nothing at all** when there is no
+          clash. Repeated under each one it would be the consent fatigue the follow-on chantier's own
+          non-negotiables forbid; printed under every clean update it would mean nothing by the third.
+    - [x] **Not alarmist**: their version stands and their brain works, so the register is *"nothing is
+          urgent"*, not a call to action (§11 tone).
+    - [x] ⚠️ **The whole-report golden test is where the ORDER got pinned** — the three focused tests
+          were green on wording while the placement was still unjudged.
 
   - [x] **Deliberately OUT of S2** — named so no slice quietly grows:
     - [ ] **Markdown-aware merging.** Line-based only, on the measurement above (blank lines already

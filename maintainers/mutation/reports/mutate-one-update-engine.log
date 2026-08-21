@@ -1,96 +1,93 @@
-[32m09:23:36 (26531) INFO ProjectReader[39m Found 1 of 801 file(s) to be mutated.
-[32m09:23:36 (26531) INFO Instrumenter[39m Instrumented 1 source file(s) with 341 mutant(s)
-[32m09:23:36 (26531) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m09:23:37 (26531) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-0fEfEl
-[32m09:23:37 (26531) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m09:23:37 (26531) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m09:23:39 (26531) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2232 ms, overhead 0 ms).
-Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/341 tested (0 survived, 0 timed out)
-Mutation testing 1% (elapsed: <1m, remaining: ~22m) 5/341 tested (0 survived, 0 timed out)
-Mutation testing 2% (elapsed: <1m, remaining: ~16m) 10/341 tested (0 survived, 0 timed out)
-Mutation testing 4% (elapsed: <1m, remaining: ~14m) 15/341 tested (0 survived, 0 timed out)
-Mutation testing 5% (elapsed: <1m, remaining: ~13m) 20/341 tested (0 survived, 0 timed out)
-Mutation testing 7% (elapsed: ~1m, remaining: ~12m) 25/341 tested (0 survived, 0 timed out)
-Mutation testing 8% (elapsed: ~1m, remaining: ~12m) 30/341 tested (0 survived, 0 timed out)
-Mutation testing 10% (elapsed: ~1m, remaining: ~11m) 35/341 tested (0 survived, 0 timed out)
-Mutation testing 11% (elapsed: ~1m, remaining: ~11m) 40/341 tested (0 survived, 0 timed out)
-Mutation testing 13% (elapsed: ~1m, remaining: ~10m) 45/341 tested (0 survived, 0 timed out)
-Mutation testing 14% (elapsed: ~1m, remaining: ~11m) 48/341 tested (0 survived, 0 timed out)
-Mutation testing 15% (elapsed: ~2m, remaining: ~11m) 52/341 tested (0 survived, 0 timed out)
-Mutation testing 16% (elapsed: ~2m, remaining: ~10m) 57/341 tested (0 survived, 0 timed out)
-Mutation testing 17% (elapsed: ~2m, remaining: ~10m) 61/341 tested (0 survived, 0 timed out)
-Mutation testing 19% (elapsed: ~2m, remaining: ~10m) 66/341 tested (0 survived, 0 timed out)
-Mutation testing 20% (elapsed: ~2m, remaining: ~10m) 71/341 tested (0 survived, 0 timed out)
-Mutation testing 22% (elapsed: ~2m, remaining: ~9m) 76/341 tested (0 survived, 0 timed out)
-Mutation testing 23% (elapsed: ~3m, remaining: ~9m) 80/341 tested (0 survived, 0 timed out)
-Mutation testing 24% (elapsed: ~3m, remaining: ~9m) 85/341 tested (0 survived, 0 timed out)
-Mutation testing 26% (elapsed: ~3m, remaining: ~9m) 89/341 tested (0 survived, 0 timed out)
-Mutation testing 27% (elapsed: ~3m, remaining: ~9m) 94/341 tested (0 survived, 0 timed out)
-Mutation testing 28% (elapsed: ~3m, remaining: ~9m) 98/341 tested (0 survived, 0 timed out)
-Mutation testing 29% (elapsed: ~3m, remaining: ~8m) 102/341 tested (0 survived, 0 timed out)
-Mutation testing 31% (elapsed: ~4m, remaining: ~8m) 107/341 tested (0 survived, 0 timed out)
-Mutation testing 32% (elapsed: ~4m, remaining: ~8m) 111/341 tested (0 survived, 0 timed out)
-Mutation testing 34% (elapsed: ~4m, remaining: ~8m) 116/341 tested (0 survived, 0 timed out)
-Mutation testing 35% (elapsed: ~4m, remaining: ~8m) 121/341 tested (0 survived, 0 timed out)
-Mutation testing 36% (elapsed: ~4m, remaining: ~7m) 126/341 tested (0 survived, 0 timed out)
-Mutation testing 38% (elapsed: ~4m, remaining: ~7m) 130/341 tested (0 survived, 0 timed out)
-Mutation testing 39% (elapsed: ~5m, remaining: ~7m) 134/341 tested (0 survived, 0 timed out)
-Mutation testing 40% (elapsed: ~5m, remaining: ~7m) 139/341 tested (0 survived, 0 timed out)
-Mutation testing 42% (elapsed: ~5m, remaining: ~7m) 144/341 tested (0 survived, 0 timed out)
-Mutation testing 43% (elapsed: ~5m, remaining: ~7m) 148/341 tested (0 survived, 0 timed out)
-Mutation testing 44% (elapsed: ~5m, remaining: ~7m) 152/341 tested (0 survived, 0 timed out)
-Mutation testing 45% (elapsed: ~5m, remaining: ~6m) 156/341 tested (0 survived, 0 timed out)
-Mutation testing 47% (elapsed: ~6m, remaining: ~6m) 161/341 tested (0 survived, 0 timed out)
-Mutation testing 48% (elapsed: ~6m, remaining: ~6m) 166/341 tested (0 survived, 0 timed out)
-Mutation testing 50% (elapsed: ~6m, remaining: ~6m) 171/341 tested (0 survived, 0 timed out)
-Mutation testing 51% (elapsed: ~6m, remaining: ~6m) 176/341 tested (0 survived, 0 timed out)
-Mutation testing 52% (elapsed: ~6m, remaining: ~5m) 180/341 tested (0 survived, 0 timed out)
-Mutation testing 53% (elapsed: ~6m, remaining: ~5m) 183/341 tested (0 survived, 0 timed out)
-Mutation testing 55% (elapsed: ~7m, remaining: ~5m) 188/341 tested (0 survived, 0 timed out)
-Mutation testing 56% (elapsed: ~7m, remaining: ~5m) 193/341 tested (0 survived, 0 timed out)
-Mutation testing 58% (elapsed: ~7m, remaining: ~5m) 198/341 tested (0 survived, 0 timed out)
-Mutation testing 59% (elapsed: ~7m, remaining: ~5m) 202/341 tested (0 survived, 0 timed out)
-Mutation testing 60% (elapsed: ~7m, remaining: ~4m) 207/341 tested (0 survived, 0 timed out)
-Mutation testing 61% (elapsed: ~7m, remaining: ~4m) 211/341 tested (0 survived, 0 timed out)
-Mutation testing 63% (elapsed: ~8m, remaining: ~4m) 215/341 tested (0 survived, 0 timed out)
-Mutation testing 64% (elapsed: ~8m, remaining: ~4m) 220/341 tested (0 survived, 0 timed out)
-Mutation testing 65% (elapsed: ~8m, remaining: ~4m) 225/341 tested (0 survived, 0 timed out)
-Mutation testing 67% (elapsed: ~8m, remaining: ~4m) 230/341 tested (0 survived, 0 timed out)
-Mutation testing 68% (elapsed: ~8m, remaining: ~4m) 233/341 tested (0 survived, 0 timed out)
-Mutation testing 69% (elapsed: ~8m, remaining: ~3m) 238/341 tested (0 survived, 0 timed out)
-Mutation testing 71% (elapsed: ~9m, remaining: ~3m) 243/341 tested (0 survived, 0 timed out)
-Mutation testing 72% (elapsed: ~9m, remaining: ~3m) 248/341 tested (0 survived, 0 timed out)
-Mutation testing 73% (elapsed: ~9m, remaining: ~3m) 252/341 tested (0 survived, 0 timed out)
-Mutation testing 74% (elapsed: ~9m, remaining: ~3m) 255/341 tested (0 survived, 0 timed out)
-Mutation testing 76% (elapsed: ~9m, remaining: ~3m) 260/341 tested (0 survived, 0 timed out)
-Mutation testing 77% (elapsed: ~9m, remaining: ~2m) 265/341 tested (0 survived, 0 timed out)
-Mutation testing 79% (elapsed: ~10m, remaining: ~2m) 270/341 tested (0 survived, 0 timed out)
-Mutation testing 80% (elapsed: ~10m, remaining: ~2m) 275/341 tested (0 survived, 0 timed out)
-Mutation testing 81% (elapsed: ~10m, remaining: ~2m) 279/341 tested (1 survived, 0 timed out)
-Mutation testing 82% (elapsed: ~10m, remaining: ~2m) 283/341 tested (1 survived, 0 timed out)
-Mutation testing 84% (elapsed: ~10m, remaining: ~1m) 288/341 tested (1 survived, 0 timed out)
-Mutation testing 85% (elapsed: ~10m, remaining: ~1m) 292/341 tested (1 survived, 0 timed out)
-Mutation testing 87% (elapsed: ~11m, remaining: ~1m) 297/341 tested (1 survived, 0 timed out)
-Mutation testing 87% (elapsed: ~11m, remaining: ~1m) 300/341 tested (1 survived, 0 timed out)
-Mutation testing 89% (elapsed: ~11m, remaining: ~1m) 305/341 tested (1 survived, 0 timed out)
-Mutation testing 90% (elapsed: ~11m, remaining: ~1m) 310/341 tested (2 survived, 0 timed out)
-Mutation testing 92% (elapsed: ~11m, remaining: <1m) 315/341 tested (2 survived, 0 timed out)
-Mutation testing 93% (elapsed: ~11m, remaining: <1m) 320/341 tested (2 survived, 0 timed out)
-Mutation testing 95% (elapsed: ~12m, remaining: <1m) 325/341 tested (2 survived, 0 timed out)
-Mutation testing 96% (elapsed: ~12m, remaining: <1m) 328/341 tested (2 survived, 0 timed out)
-Mutation testing 97% (elapsed: ~12m, remaining: <1m) 332/341 tested (2 survived, 0 timed out)
-Mutation testing 98% (elapsed: ~12m, remaining: <1m) 337/341 tested (2 survived, 0 timed out)
+[32m09:52:17 (48190) INFO ProjectReader[39m Found 1 of 802 file(s) to be mutated.
+[32m09:52:17 (48190) INFO Instrumenter[39m Instrumented 1 source file(s) with 354 mutant(s)
+[32m09:52:17 (48190) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m09:52:18 (48190) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-6Mpgv3
+[32m09:52:18 (48190) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m09:52:18 (48190) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m09:52:20 (48190) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2291 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/354 tested (0 survived, 0 timed out)
+Mutation testing 1% (elapsed: <1m, remaining: ~23m) 5/354 tested (0 survived, 0 timed out)
+Mutation testing 2% (elapsed: <1m, remaining: ~17m) 10/354 tested (0 survived, 0 timed out)
+Mutation testing 4% (elapsed: <1m, remaining: ~15m) 15/354 tested (0 survived, 0 timed out)
+Mutation testing 5% (elapsed: <1m, remaining: ~13m) 20/354 tested (0 survived, 0 timed out)
+Mutation testing 7% (elapsed: ~1m, remaining: ~13m) 25/354 tested (0 survived, 0 timed out)
+Mutation testing 8% (elapsed: ~1m, remaining: ~12m) 30/354 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~1m, remaining: ~12m) 35/354 tested (0 survived, 0 timed out)
+Mutation testing 11% (elapsed: ~1m, remaining: ~11m) 40/354 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: ~1m, remaining: ~11m) 45/354 tested (0 survived, 0 timed out)
+Mutation testing 14% (elapsed: ~1m, remaining: ~11m) 50/354 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~2m, remaining: ~10m) 55/354 tested (0 survived, 0 timed out)
+Mutation testing 16% (elapsed: ~2m, remaining: ~10m) 60/354 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~2m, remaining: ~10m) 65/354 tested (0 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~2m, remaining: ~10m) 70/354 tested (0 survived, 0 timed out)
+Mutation testing 21% (elapsed: ~2m, remaining: ~9m) 75/354 tested (0 survived, 0 timed out)
+Mutation testing 22% (elapsed: ~2m, remaining: ~9m) 80/354 tested (0 survived, 0 timed out)
+Mutation testing 24% (elapsed: ~3m, remaining: ~9m) 85/354 tested (0 survived, 0 timed out)
+Mutation testing 25% (elapsed: ~3m, remaining: ~9m) 90/354 tested (0 survived, 0 timed out)
+Mutation testing 26% (elapsed: ~3m, remaining: ~9m) 95/354 tested (0 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~3m, remaining: ~8m) 100/354 tested (0 survived, 0 timed out)
+Mutation testing 29% (elapsed: ~3m, remaining: ~8m) 105/354 tested (0 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~3m, remaining: ~8m) 110/354 tested (0 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~4m, remaining: ~8m) 115/354 tested (0 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~4m, remaining: ~8m) 119/354 tested (0 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~4m, remaining: ~8m) 124/354 tested (0 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~4m, remaining: ~7m) 128/354 tested (0 survived, 0 timed out)
+Mutation testing 37% (elapsed: ~4m, remaining: ~7m) 133/354 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~4m, remaining: ~7m) 138/354 tested (0 survived, 0 timed out)
+Mutation testing 40% (elapsed: ~5m, remaining: ~7m) 143/354 tested (0 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~5m, remaining: ~7m) 148/354 tested (0 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~5m, remaining: ~7m) 153/354 tested (0 survived, 0 timed out)
+Mutation testing 44% (elapsed: ~5m, remaining: ~6m) 158/354 tested (0 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~5m, remaining: ~6m) 163/354 tested (0 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~5m, remaining: ~6m) 167/354 tested (0 survived, 0 timed out)
+Mutation testing 48% (elapsed: ~6m, remaining: ~6m) 172/354 tested (0 survived, 0 timed out)
+Mutation testing 50% (elapsed: ~6m, remaining: ~6m) 177/354 tested (0 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~6m, remaining: ~5m) 182/354 tested (0 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~6m, remaining: ~5m) 187/354 tested (0 survived, 0 timed out)
+Mutation testing 54% (elapsed: ~6m, remaining: ~5m) 192/354 tested (0 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~6m, remaining: ~5m) 197/354 tested (0 survived, 0 timed out)
+Mutation testing 57% (elapsed: ~7m, remaining: ~5m) 202/354 tested (0 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~7m, remaining: ~5m) 207/354 tested (0 survived, 0 timed out)
+Mutation testing 59% (elapsed: ~7m, remaining: ~4m) 212/354 tested (0 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~7m, remaining: ~4m) 217/354 tested (0 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~7m, remaining: ~4m) 222/354 tested (0 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~7m, remaining: ~4m) 227/354 tested (0 survived, 0 timed out)
+Mutation testing 65% (elapsed: ~8m, remaining: ~4m) 232/354 tested (0 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~8m, remaining: ~4m) 237/354 tested (0 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~8m, remaining: ~3m) 242/354 tested (0 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~8m, remaining: ~3m) 247/354 tested (0 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~8m, remaining: ~3m) 252/354 tested (0 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~8m, remaining: ~3m) 257/354 tested (0 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~9m, remaining: ~3m) 262/354 tested (0 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~9m, remaining: ~2m) 267/354 tested (0 survived, 0 timed out)
+Mutation testing 76% (elapsed: ~9m, remaining: ~2m) 272/354 tested (0 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~9m, remaining: ~2m) 277/354 tested (0 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~9m, remaining: ~2m) 282/354 tested (0 survived, 0 timed out)
+Mutation testing 81% (elapsed: ~9m, remaining: ~2m) 287/354 tested (0 survived, 0 timed out)
+Mutation testing 82% (elapsed: ~10m, remaining: ~2m) 292/354 tested (1 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~10m, remaining: ~1m) 297/354 tested (1 survived, 0 timed out)
+Mutation testing 85% (elapsed: ~10m, remaining: ~1m) 302/354 tested (1 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~10m, remaining: ~1m) 307/354 tested (1 survived, 0 timed out)
+Mutation testing 88% (elapsed: ~10m, remaining: ~1m) 312/354 tested (1 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~10m, remaining: ~1m) 317/354 tested (1 survived, 0 timed out)
+Mutation testing 90% (elapsed: ~11m, remaining: ~1m) 322/354 tested (2 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~11m, remaining: <1m) 327/354 tested (2 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~11m, remaining: <1m) 332/354 tested (2 survived, 0 timed out)
+Mutation testing 95% (elapsed: ~11m, remaining: <1m) 337/354 tested (2 survived, 0 timed out)
+Mutation testing 96% (elapsed: ~11m, remaining: <1m) 342/354 tested (2 survived, 0 timed out)
+Mutation testing 98% (elapsed: ~11m, remaining: <1m) 347/354 tested (2 survived, 0 timed out)
+Mutation testing 99% (elapsed: ~12m, remaining: <1m) 352/354 tested (2 survived, 0 timed out)
 
 All tests
-  ✓ All tests (killed 339)
+  ✓ All tests (killed 352)
 
 [Survived] StringLiteral
-scripts/update-engine.mjs:410:55
+scripts/update-engine.mjs:436:55
 -     const local = JSON.parse(readFileSync(manifestPath, "utf8"));
 +     const local = JSON.parse(readFileSync(manifestPath, ""));
 
 [Survived] StringLiteral
-scripts/update-engine.mjs:635:86
+scripts/update-engine.mjs:661:86
 -     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
 +     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), ""));
 
@@ -99,8 +96,8 @@ Ran 1.00 tests per mutant on average.
                    | % Mutation score |          |           |            |          |          |
 File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 -------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files          |  99.41 |   99.41 |      339 |         0 |          2 |        0 |        0 |
- update-engine.mjs |  99.41 |   99.41 |      339 |         0 |          2 |        0 |        0 |
+All files          |  99.44 |   99.44 |      352 |         0 |          2 |        0 |        0 |
+ update-engine.mjs |  99.44 |   99.44 |      352 |         0 |          2 |        0 |        0 |
 -------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m09:36:11 (26531) INFO MutationTestExecutor[39m Done in 12 minutes and 35 seconds.
-[32m09:36:11 (26531) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-0fEfEl.
+[32m10:04:21 (48190) INFO MutationTestExecutor[39m Done in 12 minutes and 3 seconds.
+[32m10:04:21 (48190) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-6Mpgv3.

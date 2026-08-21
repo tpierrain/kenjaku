@@ -413,6 +413,23 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 29) — S2d, one sentence, 99.44 %.** `c1ec660` · the clash block stops
+  being a cul-de-sac. _(Engineering: owning plan, § S2d.)_
+  - 🎯 **Prose asserted as a LITERAL kills every mutant of itself.** All 13 new mutants died — the
+    count-aware ternary, the empty-block guard, every string fragment — because the test spells the
+    whole line out instead of importing the constant it is judging. `out.includes(THE_CONSTANT)` passes
+    just as happily when the constant is emptied: on prose **the assertion IS the specification**, and
+    the mutation score is what proves the difference rather than the intention.
+  - 📐 **A focused prose test judges the WORDS; only a whole-output golden judges the POSITION.** The
+    three new tests were green on wording while the line's placement in the report was still unjudged —
+    it was the pre-existing whole-report test that failed and pinned where the offer sits (under its
+    own clash, before the hooks news). **Prose needs both, and the golden is the half that is easy to
+    skip because it looks like duplication.**
+  - 🔍 **A filter that catches NOTHING is as dangerous as one that catches the furniture** (the lesson
+    already in this file, mirrored). My first attempt filtered on `trimStart().startsWith("⚠️")` for a
+    line that begins `   • ⚠️` — it matched zero lines. It failed loudly only because the expectation
+    was a non-empty array; asserted the other way round it would have passed vacuously forever.
+
 - 🌙 **2026-08-21 (loop iteration 28) — S2c, a slice whose deliverable is an ADR.** `856ad24` · the
   sacred scrub splits in two, 92.73 % mutation, no new survivor. _(Engineering: owning plan, § S2c.)_
   - 🔤 **The measured cost of a word doing three jobs, and it is worth carrying to other repos.** One
