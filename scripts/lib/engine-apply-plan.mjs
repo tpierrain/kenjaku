@@ -43,7 +43,11 @@ const ENGINE_SCRIPT = /^scripts\/[^/]+\.mjs$/;
 // owner's constitution into a bucket that writes. It also keeps out the merge sidecar
 // (`.new`), the locale source (`templates/<locale>/…`, resolved at delivery time, never
 // its own manifest entry) and any copy sitting in the vault.
-const ENGINE_DOCTRINE = /^CLAUDE\.engine\.md$/;
+// EXPORTED, unlike its two siblings above, and deliberately: the delivery module
+// (`engine-doctrine-refresh.mjs`) selects with THIS one rather than a twin of it. The
+// scripts' pair has to warn in a comment that "the two must agree, or a file would be
+// delivered twice or not at all"; one owner removes the warning instead of restating it.
+export const ENGINE_DOCTRINE = /^CLAUDE\.engine\.md$/;
 
 // An engine-owned SKILL within the `merge` regime: a `.claude/skills/<name>/**`
 // entry the manifest declares (coach, local-mirror, …). These are carved OUT of the
