@@ -167,6 +167,8 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         _(2026-08-21 · `3908b7f` + `924b0d9` · 12 tests, mutation **96.43 %**, 1 named equivalent)_
   - [ ] **S7-2 — the historical fingerprint table**, and the guard that keeps it fresh.
   - [ ] **S7-3 — the wiring**, so a real update consults it.
+  - [ ] **S7-5 — fetch the ancestor's bytes from a published tag** (owner's idea, measured 13/15 on
+        both real brains). ⚠️ **Scope not arbitrated — ask before building.**
   - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**.
 - [ ] **S8 — the French tree stops drifting in silence.**
   - [ ] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`.
@@ -365,6 +367,43 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 - [ ] **S7-3 — the wiring**: `reconcileBrain` computes the heal once and hands it to the three refresh
       families and to `reseedProvenance`; the report gains its one line. `update-engine.mjs` and the
       installer are **not** touched.
+- [ ] **S7-5 — FETCH the ancestor's bytes from a published tag.** _(The owner's idea, 2026-08-21:
+      *"est-ce que l'update ne peut pas aller lire dans GitHub, récupérer le fichier de la version de
+      l'utilisateur pour s'en servir d'origine?"* — **measured the same hour and it works.**)_
+      ⚠️ **SCOPE NOT ARBITRATED**: written down because it is measured and valuable, not because it was
+      decided. Ask before building it.
+
+  - [x] 📐 **The measurement, on the owner's two real brains.** **13 of 15** recorded provenance shas
+        resolve to a file in a published tag. `mind-palace` (v4.9.1) and `autre-brain` (v3.5.0) give the
+        same 13/15. **The 2 that never resolve are `CLAUDE.md` and `.claude/settings.json`** — generated
+        per brain from a template, so no published byte can ever match. Same carve-out as § *What S7
+        cannot heal*, reached independently.
+  - [x] 🎯 **It covers a population S7 does NOT, and the two are complementary.**
+        | | has a recorded sha? | has the ancestor's BYTES? | who fixes it |
+        |---|---|---|---|
+        | `CLAUDE.engine.md` on any deployed brain | **no** | no | **S7-1/2/3** (recognise the bytes) |
+        | a merge file the owner EDITED before v5 | **yes** | **no** (`.engine-base/` absent — verified on both brains) | **S7-5** (fetch the bytes) |
+        Today the second row lands on `preserve/customized`: the recorded sha proves the file moved, and
+        without the ancestor's bytes there is nothing to merge FROM. That is the case this slice ends.
+  - [x] ♻️ **It makes S7-2's table pay for itself twice.** To fetch the right bytes you must know WHICH
+        tag the recorded sha came from, and `sha → {tag, locale}` is exactly what the table already is.
+        **One artefact, two uses**: recognising unrecorded files (S7) and locating recorded ones (S7-5).
+  - [x] 💰 **The cost, measured**: the update clones `--depth 1 --single-branch --branch <ref>`
+        (`engine-fetch.mjs:24`), so old tags are **not** already on disk. Each distinct ancestor version
+        needs one extra shallow `git fetch` of that tag. The measurement says brains concentrate on a
+        handful of versions, and the fetch is only needed for files that are BOTH edited and outdated,
+        so it is rare by construction — the owner's own framing: *"dans les cas rares où on ne l'a pas
+        sous la main"*.
+  - [ ] ❓ **What its design must settle**: it is **best effort and never blocking** (a failed fetch
+        falls back to S10's offer, an update must not die because a tag was unreachable); whether the
+        fetched bytes are **verified against the recorded sha before use** (they must be — that check is
+        what makes this safe, and it is free); whether they are **written into `.engine-base/`** so the
+        fetch happens once and never again (almost certainly yes, and it is the migration S1 describes);
+        and whether an offline brain is told why it got the degraded path.
+  - [ ] 💡 **The tail nobody should promise yet**: `CLAUDE.md` and `settings.json` could in principle be
+        RECONSTRUCTED from their `.template` at the right tag plus the substitutions. **Not measured, not
+        promised** — the substitution inputs must be recoverable byte-exactly, and they may not be.
+
 - [ ] **S7-4 — the QA, and it is the acceptance test of this plan.** Extend
       `release-fixture-doctrine.test.mjs`: a brain rebuilt from `v3.6.0` with **no provenance at all**
       must now **RECEIVE** the doctrine. Today the same suite asserts the opposite (Pole A: preserved,
