@@ -469,6 +469,14 @@ arbitration goes here as a question, and the run continues on other slices.
     file:line facts. The main window kept the conclusions and read **four** files itself, all of them
     ones the design actually turns on. This is the second standing rule of this file paying for itself,
     on the slice class that reads the most.
+  - 🛑 **Clearing a carrier BY GREP is not clearing it, and the guard proved it in the same turn.**
+    The hand-back was blocked naming two carriers as untouched. Both had been cleared from `grep`
+    output and dismissed in one line to the owner — the escape hatch the rule allows. **One of the two
+    was wrong**: the archived plan still carried the row-2 exclusion as an **open box**, closed by this
+    very slice an hour earlier. A grep answers *"does this file mention the branch?"*; the rule asks
+    *"does this file now say something false?"*, and only reading answers that. **The one-line
+    dismissal is legitimate only after opening the file** — used on a grep snippet it is the
+    stale-carrier defect wearing the rule's own clothes.
   - ⚠️ **Still no dispatchable slice — and this one could not have been.** A design slice stays in
     session by the mechanical-only verdict, so iteration 40 adds another tally mark to the finding at
     the top of this file rather than resolving it. **S7-1 is the first slice in a while that will have
