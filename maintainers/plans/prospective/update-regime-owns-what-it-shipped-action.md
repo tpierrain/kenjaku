@@ -309,10 +309,22 @@
 >
 > - [ ] 🛑 **The S6e scope call** — the blocking box at the top of this file. One word.
 > - [ ] 🗣️ **The release note, and the three user-facing sentences at § S4-3** — tone is his at release
->       time (`release-notes-tone`). ⚠️ **The claim to get right, and it is the whole honesty of this
->       release**: S5 unfreezes **no already-deployed brain**. Old brains stop being **silent**; new
->       ones are correct from day one. *"The freeze is over"* is not true and the acceptance test now
->       proves which half is.
+>       time (`release-notes-tone`). **TWO claims must not be overstated, and both are now pinned by a
+>       test rather than by anyone's memory:**
+>   - [ ] ⚠️ **The doctrine layer unfreezes no already-deployed brain.** Old brains stop being
+>         **silent**; new ones are correct from day one. *"The freeze is over"* is not true, and the
+>         acceptance test proves which half is.
+>   - [ ] ⚠️ **The merge does not reach BACK** _(found 2026-08-21 while checking what the note could
+>         claim · `19a6842`)_. The obvious sentence — *"your edits are kept AND you get the update"* —
+>         is **false for one population, permanently**: files the owner had **already edited before
+>         this release**. A merge needs an ancestor; a base can only be seeded from bytes that still
+>         match their recorded sha, and an edited file does not. It cannot be seeded from the fetched
+>         copy either — that is *theirs*, not the ancestor, so merging against it would silently
+>         discard everything shipped between the install and now. **The behaviour is right**; a
+>         comment in `engine-base.mjs` claiming those files would self-heal *"at their next delivery"*
+>         was the only thing wrong, and it is fixed. ✅ **The true sentence**: *files you edit from
+>         this version on will merge; the ones you had already changed keep standing untouched, with
+>         the new version beside them, and the update says so by name.*
 > - [ ] ✂️ **Cutting, tagging and publishing** — his, always (§ *Where the owner is required*).
 > - [ ] 🔬 **The one S3 item that is a field measurement, not code** (§ S3, and it says so there):
 >       whether the write guard's prompt becomes noise on a session that legitimately customizes an

@@ -425,6 +425,24 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 37) — writing the release note's CONSTRAINTS found a comment that
+  lied.** _(The finding belongs to the owning plan, § what remains; this entry keeps the mode lesson.)_
+  - 🗣️ **The most productive thing left, once the engineering is done, was asking what the release
+    note is ALLOWED to say.** Not drafting it — the tone is Thomas's and the mode says so. Just: which
+    sentences are true? That question walked into `planBaseSeed` and found a comment asserting that an
+    owner's already-edited files *"seed from the fetched copy at their next delivery"*. **No such path
+    exists**, and the obvious release-note sentence built on it would have been false for a whole
+    population, permanently. **A release note is a claim-checking exercise, and it can be run before
+    anyone writes a word of it.**
+  - ✅ **The behaviour was right and only the prose was wrong — which is the rarer and better outcome,
+    and it has to be said as loudly as a bug would be.** Seeding a customization's base from the
+    fetched copy would merge against `theirs` and silently discard everything shipped in between. The
+    temptation on finding a comment/code disagreement is to "fix" the code; here the code was the one
+    telling the truth.
+  - 🟢🔴 **A test that goes green on its first run has proved nothing when it asserts an ABSENCE.**
+    "No ancestor is seeded" is satisfied by any brain where nothing happens at all. Probed by
+    un-editing the skill — the bytes become provable, the base gets seeded, **1 fail**. This is the
+    same reflex the fixture's design pinned one iteration earlier, and it caught something both times.
 - 🌙 **2026-08-21 (loop iteration 36) — the acceptance test, and two things only a red test knew.**
   _(What shipped belongs to the owning plan, § The QA instrument; this entry keeps only what the MODE
   learned.)_
