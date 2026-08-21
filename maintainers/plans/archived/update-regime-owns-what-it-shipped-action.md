@@ -30,6 +30,13 @@
 > characters of French, the loop went to look at what the FR tree actually is. **Three facts it did not
 > expect, all measured on the repo:**
 >
+> ⚠️ **The three bullets below are the ANALYSIS AS IT STOOD ON 2026-08-21, and two of their facts have
+> since been overtaken — do not quote any figure from them as current.** The `sync` FR skill has been
+> brought up to its English source (S8-2a), and *"no FR version at all"* has been re-read as the
+> engine's own rule (a file is locale-owned only once its twin exists) rather than as a hole. Both
+> belong to S8 of [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+> **which owns that state; this record keeps no copy of it.**
+>
 > - [ ] 📉 **The FR tree is already partial and silently drifting, and S6e closes one hole of five.**
 >       `switch` (shipped 2026-08-08, and it is the *universes* skill, as user-facing as it gets) and
 >       `local-mirror` (2026-07-28) **have no FR version at all**. `sync` FR was last touched
