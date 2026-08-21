@@ -74,18 +74,21 @@
 >       changed is its NATURE — it is no longer "the FR tree stops drifting", it is "the FR tree stops
 >       being overwritten". A drift is stale content; this is the wrong language.
 >
-> ## ▶️ RESUME AT: S8-2 — the EN/FR drift guard, **DESIGN FIRST**
+> ## ▶️ RESUME AT: S8-2a — port the two drifting commits into their FR twins
 >
 > **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth) and **S8-1 is done** _(`775c00a`)_. S8 is now
 > load-bearing for the release rather than tidy-up — see the box above.
 >
-> **S8-2 is a DESIGN slice**: write the criterion into this plan and stop, no code in the same
-> iteration. What it must settle, and the plan already names two of them: last-commit **dates** are the
-> cheap signal and they **misfire on same-day commits** (precisely the error made by hand in
-> conversation); and S8-1 measured a second case the sketch did not have — **a rel with NO FR twin at
-> all** (`switch`, `SETUP.md`) must read differently from a twin that has fallen behind. The guard
-> judges no translation quality; it makes the omission impossible not to see. **It must name `sync` FR
-> (two months, half the file) on its first run, or it does not work.**
+> **S8-2-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S8-2-0 and build to it. The
+> criterion is **unpaired commits** (commits touching EN since the FR twin's last commit that do not
+> also touch the twin), measured on all 16 real pairs: it collapses 14 false positives to zero and
+> names the 2 real ones, `sync` included. Two things it settled that the sketch had wrong: the obvious
+> date signal fires on the **same commit**, not merely the same day; and **"no FR twin" must not be
+> reported at all** — which contradicts what S8-1 wrote, for a reason `engine-copy-select.mjs` states
+> outright.
+>
+> ⚠️ **The guard is RED ON ARRIVAL**, so the design splits it and **the port comes first**:
+> **S8-2a** ports `435c164` and `f7a00fc` into their FR twins, **then S8-2b** ships the guard green.
 >
 > Then **S8-3** (the FR delivery — the defect in the box above), **S8-4** (the ADR), then **S10**, then
 > **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
@@ -687,11 +690,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
       _(2026-08-21 · `775c00a` · doc-only slice, no mutation pass, skip recorded)_
       - [x] 🔎 **Measured while porting: the FR tree has a counterpart for only ONE of that commit's
             three files.** There is no `templates/fr/.claude/skills/switch/` and no
-            `templates/fr/SETUP.md` at all. So the port is genuinely one paragraph — and the absence is
-            a **scope fact S8-2's guard must handle**: a drift guard that compares pairs will find no
-            pair for these, and "no FR twin" must read differently from "FR twin behind". A French
-            brain receives the English `switch` skill, which for a skill is a defensible fallback and
-            for the constitution is not (see the box at the top).
+            `templates/fr/SETUP.md` at all, so the port is genuinely one paragraph.
+            ❌ **What this row concluded from that was WRONG, and S8-2-0 corrects it**: it said the
+            drift guard must treat "no FR twin" as a case of its own. It must not report it at all — a
+            rel is locale-owned **iff** a twin exists (`engine-copy-select.mjs:20`), so no twin means
+            the product did not localize the file. Kept here because the wrong inference is instructive:
+            it was drawn from the outside, and one look at the code settled it.
       - [x] 🎯 **The S7-2 freshness guard bit, on a slice unrelated to it.** Editing the FR doctrine
             changed its bytes, so the shipped table stopped describing the release being cut; the guard
             failed by name, with the regenerate command in its message. Table regenerated: **one row
@@ -702,10 +706,52 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
       behind its English source. It judges **no translation quality**: it makes the omission impossible
       not to see, exactly like the plan-carrier guard. **The argument for it is on the record**: the
       same drift was measured by hand in conversation and the measurement was wrong.
-      - [ ] Decide the criterion in writing before coding: last-commit dates are the cheap signal but
-            they misfire on same-day commits (that is precisely the error made). A commit-count or
-            last-common-ancestor comparison may be the honest one. **Design first.**
-      - [ ] It must name `sync` FR (two months, half the file) on its first run, or it does not work.
+
+  #### 📐 S8-2-0 — THE DESIGN _(written 2026-08-21; design slice, no code in the same iteration)_
+
+  Every number below was **measured on the 16 real pairs**, not reasoned about.
+
+  - [x] ✅ **THE CRITERION: unpaired commits.** For each pair, count the commits touching `<rel>` since
+        the FR twin's own last commit **that do not also touch `templates/fr/<rel>`**. Greater than
+        zero is drift. No dates, no thresholds, no arithmetic on timestamps.
+  - [x] ❌ **AND HERE IS WHY THE OBVIOUS SIGNAL IS WRONG, quantified.** "Commits on EN since the FR
+        twin's timestamp" reads **1 for a perfectly-synchronised pair**, because the pair was updated
+        in **one shared commit** and that commit falls inside its own window. Measured: **14 of 16
+        pairs scored 1** and every one of them was in sync. Subtracting the commits that touched BOTH
+        sides collapses those 14 to **0** and leaves exactly **2** real hits. This is the same-day
+        misfire the plan warned about, and it is worse than "same day": it fires on the same COMMIT.
+  - [x] 🎯 **The acceptance case passes.** `sync` FR is named, via `435c164`. It is **61 lines against
+        96** — and that whole gap is **ONE** unpaired commit.
+  - [x] 🗣️ **Which is exactly why the guard must print SUBJECTS, not a count.** A count cannot carry
+        magnitude: `sync` and `prepare-1-1` both score 1, and one is a third of the file while the
+        other is a one-line review fix. Output per drifting pair: the rel, then each unpaired commit as
+        `<short-sha> <subject>`. A human reads the subject and knows the size; a number tells them
+        nothing and trains them to ignore it.
+  - [x] 📋 **The pair set is DERIVED, never listed.** A rel is locale-owned **iff it appears under
+        `templates/<locale>/`** — the engine's own rule, and `engine-copy-select.mjs:20` says so in as
+        many words: *"with no list to maintain here."* The guard reuses it and inherits new pairs for
+        free.
+  - [x] ❌ **CORRECTION to what S8-1 wrote one iteration ago.** S8-1 recorded that "no FR twin at all"
+        (`switch`, `SETUP.md`) must read differently from "twin behind". **It must not be reported at
+        all.** By the rule above, no twin means *the product did not localize this file* — not an
+        omission. Reporting it would flood the output with every English file forever, and a guard that
+        cries wolf is a guard that gets skipped. **Localizing a file is decided by creating its twin**,
+        and the guard starts watching it from that moment. (Found by reading `engine-copy-select.mjs`
+        rather than by assuming; the S8-1 note was written from the outside.)
+  - [x] ⚠️ **Two limitations, stated rather than discovered later.** A **rename** resets the window and
+        makes the guard under-report (`--follow` is available per-pair and is deliberately not used in
+        v1: it has its own heuristics, and an under-reporting guard is honest while a mis-attributing
+        one is not). And a twin **created later** than the EN file is assumed current at creation —
+        which is what creating it means.
+  - [x] 🛑 **SEQUENCING, and it is a real consequence: the guard is RED ON ARRIVAL.** Two pairs drift
+        today, and nothing is ever committed red. So S8-2 **splits**, and the port comes first:
+    - [ ] **S8-2a — port the two drifting commits into FR**: `435c164` into
+          `templates/fr/.claude/skills/sync/SKILL.md` (a universe arriving mid-session is resolved by a
+          rule) and `f7a00fc` into `templates/fr/.claude/skills/prepare-1-1/SKILL.md` (the markers rule
+          governs the section, not the last bullet). Content work, in French, exactly like S8-1.
+    - [ ] **S8-2b — the guard itself**, which then lands green over 16 pairs at zero. ⚠️ Remember the
+          fingerprint table: editing an FR file that is in the `merge` regime invalidates it, and the
+          S7-2 guard will say so.
 - [ ] **S8-3 — the FR delivery, and its replay QA.** A pole in the release fixtures for a **French**
       brain: it must receive the FR doctrine, not the English one, through a real update.
       ✅ **The pole now EXISTS** _(S7-4, `d9421c8`)_ and it currently asserts the **English** delivery
