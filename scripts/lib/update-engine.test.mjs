@@ -197,7 +197,9 @@ test("formatReport — every conflict lands last, whichever family it came from"
 // one answer: the banner now asks `needsRestart`, and every shape below is a change
 // this conversation is still running the OLD version of.
 test("formatReport — anything that changed on disk warns THIS conversation is stale", () => {
-  const quiet = { ref: "v5.0.0", engineVersion: {}, copied: [], regenerated: false, reindexed: false };
+  // Every list named and empty — see NO_OP_REPORT below for why an omitted key is a
+  // disjunct this test would not judge.
+  const quiet = { ref: "v5.0.0", engineVersion: {}, reindexed: false, ...NO_OP_REPORT };
   const warns = (extra) => /ACTION NEEDED — your engine was updated on disk/.test(formatReport({ ...quiet, ...extra }));
 
   assert.equal(warns({ copied: ["rag/src/index.ts"] }), true, "a swapped engine file");
@@ -905,11 +907,25 @@ test("needsRestart — a refreshed or a merged engine SCRIPT arms the nudge too"
 
 // The don't-cry-wolf boundary, same as the report banner's: an update that changed
 // nothing on disk must leave the nudge disarmed, or the statusLine nags forever.
+// ⚠️ EVERY list is named and EMPTY, which is the shape a real converged reconcile
+// hands back. A key merely LEFT OUT makes its disjunct read `undefined > 0` — false
+// whatever the comparison says — so an omitted key is a disjunct this test does not
+// judge, and `length >= 0` would sail past it. (Measured: three such mutants survived
+// until the keys were filled in.)
+const NO_OP_REPORT = {
+  copied: [],
+  regenerated: false,
+  installedSkills: [],
+  mcpServersAdded: [],
+  hooksAdded: [],
+  skillsRefreshed: [],
+  skillsMerged: [],
+  scriptsRefreshed: [],
+  scriptsMerged: [],
+};
+
 test("needsRestart — a genuine no-op leaves the nudge disarmed", () => {
-  assert.equal(
-    needsRestart({ copied: [], regenerated: false, skillsRefreshed: [], installedSkills: [], mcpServersAdded: [], hooksAdded: [] }),
-    false,
-  );
+  assert.equal(needsRestart(NO_OP_REPORT), false);
 });
 
 // The absent twin: a report carrying none of the keys at all (an older reconcile, a
