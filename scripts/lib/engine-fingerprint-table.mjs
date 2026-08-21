@@ -19,9 +19,15 @@
 import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
 
 // `templates/<locale>/<rel>` is the ONLY localized shape (there is no
-// `templates/en/` — EN is the repo root). `(.+)` and not `(.*)`: a path with
-// nothing left after the locale names a directory, and an empty rel would inject
-// a key into the table that no lookup can ever match.
+// `templates/en/` — EN is the repo root). Three things carry weight here:
+//   • `(.+)` and not `(.*)`: a path with nothing left after the locale names a
+//     directory, and an empty rel would inject a key no lookup can ever match;
+//   • `^`, because a root path that merely CONTAINS the segment (a demo note under
+//     `vault/templates/fr/…`) would otherwise be filed under a rel that is not its
+//     own — a wrong row, i.e. the clobber risk, not a missing one;
+//   • `$` is defensive only, and it is a NAMED EQUIVALENT: it changes the answer
+//     solely for a path containing a newline, and the generator's `git ls-files`
+//     splits on newlines long before this is reached.
 const LOCALIZED = /^templates\/([^/]+)\/(.+)$/;
 
 export function installedRelOf(sourcePath) {
@@ -47,7 +53,12 @@ export function selectFingerprintSources({ manifest, sourceFiles }) {
     .sort((a, b) => (a.rel === b.rel ? cmp(a.locale, b.locale) : cmp(a.rel, b.rel)));
 }
 
-const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+// No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: both sort keys are built
+// from unique paths (`git ls-files` cannot list one twice, and object keys cannot
+// repeat), so the tie is unreachable by construction — the same shape, and the same
+// reasoning, as `healProvenance`'s comparator. A third branch returning 0 would be
+// dead code four mutants can hide in, so there is none.
+const cmp = (a, b) => (a < b ? -1 : 1);
 
 // The fold. `versions` comes in ASCENDING order, and FIRST WRITER WINS — so `since`
 // is the EARLIEST version that shipped those bytes, and the release being cut can

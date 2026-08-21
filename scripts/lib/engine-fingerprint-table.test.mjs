@@ -94,6 +94,16 @@ test("installedRelOf — a path UNDER templates/ with no rel left is not a local
   });
 });
 
+test("installedRelOf — a root path that CONTAINS templates/<locale>/ is not localized", () => {
+  // Demanded by the mutation run: without the `^` anchor a demo note living under
+  // `vault/templates/fr/` would be filed under the rel `note.md` in locale fr —
+  // a WRONG row, which is the clobber risk, not merely a missing one.
+  assert.deepEqual(installedRelOf("vault/templates/fr/note.md"), {
+    rel: "vault/templates/fr/note.md",
+    locale: "en",
+  });
+});
+
 test("installedRelOf — a path merely STARTING with the word templates is a root path", () => {
   assert.deepEqual(installedRelOf("templates-notes.md"), {
     rel: "templates-notes.md",
