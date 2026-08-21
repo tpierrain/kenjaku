@@ -425,6 +425,26 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 36) — the acceptance test, and two things only a red test knew.**
+  _(What shipped belongs to the owning plan, § The QA instrument; this entry keeps only what the MODE
+  learned.)_
+  - 🔴 **The design was right about WHAT to assert and wrong about WHERE, twice — and both were found
+    by an assertion failing, not by re-reading.** (1) The base advance is **not** `reconcileBrain`'s:
+    `runReconcileCli` is the last writer on the update path and does it after the report. (2) Poles B
+    and C stayed red until the brain held the **current manifest** — because a brain's own manifest is
+    what declares the doctrine, which is the mechanical form of the very claim the release note has to
+    make. **A design slice buys the shape; it does not buy the seams.** Both were an hour of reading
+    away and neither was found that way.
+  - ✂️ **The design's own probe list earned its keep, and it grew one pole.** The design pinned "see
+    Pole A red by swapping its verdict" — done, plus two more (a cohort with no provenance, a cohort
+    with no base tree): **1, 2 and 2 failures**. And Pole C (the owner who *edited* the file) was added
+    on contact, because B alone proves delivery to someone who changed nothing — the easy half of a
+    release whose whole claim is *"preserve stops meaning abandon"*.
+  - 📉 **The mechanical checkbox audit paid a second time, and this time it produced a CONCLUSION.**
+    Two scripts — unticked parents whose children are all done, and unticked **leaves** — swept a
+    2 200-line plan and returned the honest state of the release: every remaining leaf is a design
+    box, an exclusion box, or one of **four items that are all Thomas's**. *"The engineering is done"*
+    is a claim worth being able to check rather than feel, and it took twelve lines of JavaScript.
 - 🌙 **2026-08-21 (loop iteration 35) — a design slice, and the ground answering a question the plan
   had filed as a risk.** _(The design itself belongs to the owning plan, § The QA instrument; this
   entry keeps only what the MODE learned.)_

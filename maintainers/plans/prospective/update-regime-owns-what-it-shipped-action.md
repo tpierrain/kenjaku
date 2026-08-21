@@ -293,19 +293,35 @@
 > where it belongs. **Everything else in S1–S6 is done**, and the v4.9.0 mutation debt is **already
 > paid** (delivered on branch with S0bis — its own plan says so and owns the argument).
 >
-> ▶️ **So the next slice is the REPLAY FIXTURE**, § *The QA instrument*, the last unticked box that
-> needs nobody. ✅ **Its DESIGN is written and committed** _(2026-08-21, `5c62423`)_ — the whole shape
-> is in that section's design block and nothing of it is left in a session's window. **Start at its
-> design boxes; do not re-derive them.** Two things from it are worth carrying in the head:
+> ✅ **THE REPLAY FIXTURE IS DONE** _(2026-08-21 · design `5c62423`, code `9ffddfa`)_ — § *The QA
+> instrument* owns it. Three poles over one brain rebuilt from the `v3.6.0` tag, and the only variable
+> between them is **the ancestor**: no provenance → preserved and **reported**; the ancestor an
+> installer of this release records → **refreshed**; the owner's own rule written into the file →
+> **merged**, their line and the update both landing. Each pole was seen red by an inverted probe
+> before being kept.
 >
-> - 🧨 **The freeze's cause is now known exactly, and it is not a bug in the update path**:
->   `CLAUDE.engine.md` is **absent from every regime at all nine published tags** (`v3.6.0` → `v4.9.1`,
->   `merge` holding a steady 15 entries throughout). Nothing declared it, so no update could carry it.
->   That kills the tag-chain replay — every hop answers the same — and the fixture becomes **one hop**,
->   `v3.6.0 → HEAD`.
-> - 🎯 **What it asserts is a CONTRAST, not an arrival**: the old cohort's file stays byte-identical and
->   is **reported** (`doctrinePreserved`, no-provenance wording), the new cohort's **converges**. Asserting
->   "the doctrine arrives" for a deployed brain would make the release note lie.
+> ### 🏁 SO WHAT REMAINS ON THIS RELEASE, and it is short
+>
+> **The engineering is done.** S1, S2, S3, S4, S5 and S6 (bar S6e) have shipped; the v4.9.0 mutation
+> debt was paid with S0bis; the acceptance test exists. A mechanical sweep of every unticked leaf in
+> this file returns **design boxes, exclusion boxes, and four real items — all four of which are
+> Thomas's**:
+>
+> - [ ] 🛑 **The S6e scope call** — the blocking box at the top of this file. One word.
+> - [ ] 🗣️ **The release note, and the three user-facing sentences at § S4-3** — tone is his at release
+>       time (`release-notes-tone`). ⚠️ **The claim to get right, and it is the whole honesty of this
+>       release**: S5 unfreezes **no already-deployed brain**. Old brains stop being **silent**; new
+>       ones are correct from day one. *"The freeze is over"* is not true and the acceptance test now
+>       proves which half is.
+> - [ ] ✂️ **Cutting, tagging and publishing** — his, always (§ *Where the owner is required*).
+> - [ ] 🔬 **The one S3 item that is a field measurement, not code** (§ S3, and it says so there):
+>       whether the write guard's prompt becomes noise on a session that legitimately customizes an
+>       engine skill. Only living with the guard answers it; it is carried to the release checklist.
+>
+> _(The top-level S1 / S2 / S4 / S6 boxes are still `- [ ]` — the carrier debt named below. Every
+> remaining child under them is a design or exclusion box, honoured but unticked. Verified
+> mechanically: **no unticked parent has all its children ticked**, and no unticked leaf is an
+> implementation task.)_
 >
 > 🧹 _**Known carrier debt, named rather than left to be re-discovered** (2026-08-21): the top-level
 > **S1, S2 and S4** boxes are still `- [ ]` while this header says complete. Every remaining unticked
@@ -892,17 +908,17 @@ audible divergence.
           declare it there; it sits in `regimes.replace` (line 23), so it reaches a brain through
           `overwrite`, and the shipped `replaceScripts` bucket has always held **exactly the four
           scripts** — the four this slice removes from it.
-      - [ ] **Consequence for the code**: there is **no split to make**. The bucket is not "the engine
+      - [x] **Consequence for the code**: there is **no split to make**. The bucket is not "the engine
             scripts including the self-updater", it is *"the merge-declared top-level scripts"*, and once
             those go through the merge it is **empty on every manifest that exists**. So it is renamed
             (`replaceScripts` → `mergeScripts`), it leaves `copyGlobs`, and it stays inside
             `planTouches` — the engine still writes those files, just no longer blind.
-      - [ ] **Consequence for the prose**: three artefacts assert the false claim and must stop —
+      - [x] **Consequence for the prose**: three artefacts assert the false claim and must stop —
             `engine-apply-plan.mjs`'s header comment (lines 7–8), the test title at
             `engine-apply-plan.test.mjs:31`, and the note at `:42` ("self-update → MUST be present"),
             which is true of that **synthetic fixture** and of nothing the product ships. A comment that
             lies is a defect, exactly like a test name that lies.
-      - [ ] **What must not change**: the self-update path itself. `update-engine.mjs` keeps arriving by
+      - [x] **What must not change**: the self-update path itself. `update-engine.mjs` keeps arriving by
             copy through `overwrite`, and `planTouches(shippedPlan, "scripts/update-engine.mjs")` stays
             true — pinned already by `engine-apply-plan.test.mjs:148`.
 
@@ -2165,13 +2181,13 @@ audible divergence.
       the moment anything unfreezes it — hand or mechanism — the frozen state is consumed, permanently.
       One observation, non-reproducible, and a bug in the mechanism burns the only sample. So a
       replayable fixture is **not optional**, whichever way the live brain is used.
-- [ ] **The fixture needs none of his files — the drift is reproducible from public tags.** Measured:
+- [x] **The fixture needs none of his files — the drift is reproducible from public tags.** Measured:
       the brain was installed **19 July** (tags of that day: `v3.6.0`, `v3.6.1`) and its own git history
       carries the engine updates it then took (`v4.5.0` → `v4.8.1`). Replaying *install at the 19-July
       tag, then update through each tag* reproduces **exactly** the state observed: skills refreshed,
       `CLAUDE.engine.md` untouched since install. Deterministic, CI-able on every commit, and free of
       one byte of personal data.
-  - [ ] Home + convention already exist: `maintainers/qa/release-fixtures/<version>/` (`.claude/` +
+  - [x] Home + convention already exist: `maintainers/qa/release-fixtures/<version>/` (`.claude/` +
         `engine-manifest.json`, built from tags — same shape, new use).
   - [x] **If the drift turns out NOT to reproduce**, that is itself a finding: something in his install
         is doing the freezing, and we would have been debugging the wrong mechanism. ✅ **Answered
@@ -2179,11 +2195,11 @@ audible divergence.
         reproducible, it is **over-determined** — see the design below, box 2. Nothing in his install
         is doing anything; the file was in no regime at any tag.
 
-  - [ ] 🎨 **THE DESIGN — written before the code, per the loop's own rule** _(2026-08-21, design
+  - [x] 🎨 **THE DESIGN — written before the code, per the loop's own rule** _(2026-08-21, design
         slice, no code)_. Reading the ground first changed the slice three times, so each finding is a
         box rather than a paragraph.
 
-    - [ ] 📏 **1. The measurement the fixture exists to defend, and it is bigger than "some drift".**
+    - [x] 📏 **1. The measurement the fixture exists to defend, and it is bigger than "some drift".**
           `CLAUDE.engine.md` was **23 504 bytes** at the cohort's install tag (`v3.6.0` / `v3.6.1`, and
           the two are byte-identical on this file) and is **33 531** at HEAD: **+10 027 bytes over 12
           commits**, `git diff --stat` = **120 insertions / 13 deletions**. The FR file, which is the
@@ -2192,7 +2208,7 @@ audible divergence.
           finding — same measurement, FR file. Both are **≈ +43 %**. Neither supersedes the other and
           the numbers must not be quoted without the file they belong to.)_
 
-    - [ ] 🧨 **2. THE FINDING THAT RESHAPES THE SLICE: the freeze has a one-line mechanical cause, and
+    - [x] 🧨 **2. THE FINDING THAT RESHAPES THE SLICE: the freeze has a one-line mechanical cause, and
           it is not a bug in the update path.** Measured across **nine published tags** — `v3.6.0`,
           `v3.6.1`, `v4.0.0`, `v4.5.0`, `v4.6.0`, `v4.7.0`, `v4.8.0`, `v4.8.1`, `v4.9.1` — the
           manifest's `merge` list holds **15 entries at every single one of them**, and
@@ -2204,7 +2220,7 @@ audible divergence.
           drift; it is the **regression net on a cause we now understand exactly**, and its real job is
           to pin the two end states apart.
 
-    - [ ] 🪝 **3. So the fixture is ONE HOP, not the tag chain — and that is a saving, not a
+    - [x] 🪝 **3. So the fixture is ONE HOP, not the tag chain — and that is a saving, not a
           shortcut.** The plan said *"install at the 19-July tag, then update through each tag"*. Box 2
           disqualifies it: what decides the outcome at every hop is (a) whether the brain's manifest
           lists the file under a regime and (b) whether provenance records an ancestor — and the answer
@@ -2214,49 +2230,49 @@ audible divergence.
           that question** — it is not being ruled out on principle, it is being left unbuilt because
           nothing currently asks for it.
 
-    - [ ] 🎯 **4. WHAT IS ASSERTED — two poles, and the contrast between them IS the deliverable.**
+    - [x] 🎯 **4. WHAT IS ASSERTED — two poles, and the contrast between them IS the deliverable.**
           The temptation is to assert *"the doctrine finally arrives"*. **That assertion would be false
           for the old cohort and would make the release note lie**, which is the exact failure S5's
           header already warns about. So:
-      - [ ] **Pole A — the OLD cohort (`v3.6.0` fixture, no provenance for the file).** After an update
+      - [x] **Pole A — the OLD cohort (`v3.6.0` fixture, no provenance for the file).** After an update
             to HEAD: `CLAUDE.engine.md` on disk is **still byte-identical to the v3.6.0 bytes**, and
             the report **names it** — `doctrinePreserved`, with the no-provenance wording S6c's box
             already pinned as accusing nobody. ✅ *A brain that was silent becomes a brain that says
             what it is holding back.* That, and only that, is what v5.0.0 buys the fleet.
-      - [ ] **Pole B — the NEW cohort (installed from v5.0.0, base seeded on day one).** After an
+      - [x] **Pole B — the NEW cohort (installed from v5.0.0, base seeded on day one).** After an
             update: the file is **byte-identical to the source**, and the report says so through
             `doctrineMerged` / `doctrineRefreshed`. There is no v5.0.0 tag to build this from, so the
             brain is built at HEAD and its base tree is written by **the production seeder**
             (`engine-base-fs.mjs`, the only writer of `.engine-base/`) — never hand-rolled, for exactly
             the reason the existing QA imports the production `fingerprint` rather than re-deriving it.
-      - [ ] 🔴 **The fail-first shape, stated so it cannot be skipped**: Pole A must be seen red by
+      - [x] 🔴 **The fail-first shape, stated so it cannot be skipped**: Pole A must be seen red by
             **swapping its expected verdict** (assert `doctrineRefreshed` instead of
             `doctrinePreserved`) before it is written green — otherwise it is a test that passes because
             nothing happens, which is the one shape a frozen file always satisfies.
 
-    - [ ] 🏗️ **5. Where it lives, and how little of it is new.** The instrument **already exists**:
+    - [x] 🏗️ **5. Where it lives, and how little of it is new.** The instrument **already exists**:
           `scripts/lib/release-fixture-refresh.test.mjs` builds a brain from `maintainers/qa/release-
           fixtures/<tag>/`, synthesizes provenance with the production `fingerprint`, plants the sacred
           trio and runs a **real `reconcileBrain`** with the I/O seams stubbed (no network, no npm, no
           reindex). What is missing is only: the fixture does not carry `CLAUDE.engine.md`, and
           `skillFilesOf` is a hard-coded two-tag map.
-      - [ ] `brainAtRelease` + `seams` + `updateFrom` are **extracted to
+      - [x] `brainAtRelease` + `seams` + `updateFrom` are **extracted to
             `maintainers/qa/release-fixtures/brain-at-release.mjs`** and imported by both suites.
             Dev-only prefix, so it never reaches a brain — the same argument the fixtures themselves
             already run on. Duplicating them into a second suite is how the two QA files start
             disagreeing about what a brain at a release looks like.
-      - [ ] The doctrine QA is **its own file**, `scripts/lib/release-fixture-doctrine.test.mjs`, on the
+      - [x] The doctrine QA is **its own file**, `scripts/lib/release-fixture-doctrine.test.mjs`, on the
             existing file's own precedent: that one is the QA of the **skill** refresh, and its header
             argues a separate suite per question rather than one growing file.
 
-    - [ ] 🚫 **Deliberately OUT, named so the slice does not grow**: the tag **chain** (box 3); any
+    - [x] 🚫 **Deliberately OUT, named so the slice does not grow**: the tag **chain** (box 3); any
           **network, `npm install` or reindex** (already stubbed seams); a **full installer replay** —
           this fixture drives `reconcileBrain`, and the installer's own path is covered elsewhere; any
           assertion on the doctrine's **prose** beyond byte identity; and the **FR file** — the locale
           is a second axis, it is where the owner's own +11 391 bytes live, and it is worth its own
           test rather than a flag on this one. **Named, not forgotten.**
 
-    - [ ] ⚖️ **The judge, and the mutation call.** Judge: `node --test
+    - [x] ⚖️ **The judge, and the mutation call.** Judge: `node --test
           scripts/lib/release-fixture-doctrine.test.mjs`, binary, plus the full suite green. **No
           mutation pass is due**: this slice adds a **test suite and a test helper**, no production
           line. The helper extraction is a **move** — the proof it was a move is that
