@@ -790,7 +790,11 @@ audible divergence.
   - [x] owner's edit in a region the update does not touch → **merge**: they keep their edit **and**
         receive the update. This is the case that is common today and served worst;
   - [x] both changed the same region → a **real conflict**, the only case that costs a human anything,
-        and the only one that should produce a sidecar or a question.
+        and the only one that should produce a sidecar or a question. ⚠️ **The "only one" no longer
+        holds** _(2026-08-21)_: rows 3 and 7 emit sidecars too, and **S10 turns a sidecar into an
+        actual question** — the owner's acceptance criterion for v5. Owned by
+        `../prospective/v5-unfreezes-the-existing-fleet-action.md`; left visible, since what this line
+        got right is that a conflict is the case that costs a human something.
   - [x] ~~Markdown-aware where it pays (doctrine and skills are section-structured), line-based
         otherwise.~~ ⛔ **DROPPED, and this line contradicted its own section until the carrier audit
         caught it** _(2026-08-21)_. S2's exclusion list already says *"Markdown-aware merging.
@@ -866,13 +870,23 @@ audible divergence.
         |---|---|---|---|---|---|
         | 1 | `I` absent | `absent-install` | `C` | — | yes |
         | 2 | no `recorded`, `I === C` | `unchanged` (`no-base`) | — | — | no |
-        | 3 | no `recorded`, `I ≠ C` | `preserve` (`no-provenance`) | — | — | no |
+        | 3 | no `recorded`, `I ≠ C` | `preserve` (`no-provenance`) | — | ⚠️ **now `C`** — see below | no |
         | 4 | untouched, `I === C` | `unchanged` | — | — | no |
         | 5 | untouched, `I ≠ C` | `refresh` (fast-forward) | `C` | — | yes |
         | 6 | edited, engine stood still | `unchanged` (`owner-edit-stands`) | — | — | no |
         | 7 | edited, engine moved, **`B` unusable** | `preserve` (`customized`) | — | `C` | no |
         | 8 | edited, engine moved, `B` usable, merge clean | `merge` | the merged bytes | — | **yes, with `C`** |
         | 9 | edited, engine moved, `B` usable, conflict | `conflict` | — (owner's copy stands) | marked merge | **no** |
+
+    > ⚠️ **ROW 3 HAS MOVED SINCE THIS PLAN WAS ARCHIVED — 2026-08-21, S10-1 of
+    > [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+    > which OWNS that behaviour now.** A `no-provenance` preserve emits the candidate as a **sidecar**,
+    > where this table says it emits none. The reasoning written here was sound and its premise stopped
+    > holding: the table's *"no sidecar"* rested on there being nothing useful to say about a file
+    > nobody can prove, and S10 gives it something to say — the sidecar is what the next conversation
+    > can ASK the owner about. **This row is left standing as the record of what was built**; do not
+    > hand-synchronise it further, and do not read it as current behaviour. Everything else in the
+    > table is unchanged.
 
     - [x] **Row 7 is the fleet's first update, and it is today's behaviour exactly** — preserve the
           owner's file, offer the engine's version beside it. It is the row that makes this release
@@ -1554,7 +1568,9 @@ audible divergence.
       - [x] **The `no-provenance` silence is re-opened.** It gets its OWN sentence, not an entry in
             `PRESERVED_ASIDE`, because that map's sentence opens with *"your customized"* — the one claim
             this verdict cannot make, and the false claim that once sent an owner diffing a file nobody
-            had edited. It names no sidecar: that verdict writes none.
+            had edited. It names no sidecar: that verdict writes none. ⚠️ **Superseded 2026-08-21 by
+            S10-1** (see the row-3 note under the verdict table): the verdict now DOES write one, and
+            the sentence names it. The owning plan is `../prospective/v5-unfreezes-the-existing-fleet-action.md`.
       - [x] **The standing recap** — `where your brain stands now, running <ref>: N engine file(s) this
             update leaves alone`, each with the version it last received. Deliberately a RECAP that
             **repeats** a file named above rather than subtracting it: the subtraction needs a join
@@ -1859,7 +1875,8 @@ audible divergence.
           warning the two must agree, and one owner removes the warning instead of restating it.
       - [x] **Three tests now carry claims the release note will make**, so they are named here: a brain
             with **no provenance** keeps its constitution (preserved, reported, no sidecar, nothing
-            delivered — that is the whole deployed fleet); a brain already holding the right bytes
+            delivered — that is the whole deployed fleet) ⚠️ *"no sidecar" superseded by S10-1,
+            2026-08-21 — the preserve stands, the sidecar is now written beside it*; a brain already holding the right bytes
             appears on **no list at all** (or every future update shows a phantom forever); and a **FR
             brain receives `templates/fr/CLAUDE.engine.md`** from one manifest entry — the Gate-1 lock's
             condition is now a passing test rather than a reading of the code.
