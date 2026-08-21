@@ -37,6 +37,7 @@
       "scripts/session-universe.mjs",
       "scripts/session-actions-log.mjs",
       "scripts/session-engine-divergence.mjs",
+      "scripts/adopt-engine-file.mjs",
       "scripts/health-probe-run.mjs",
     "scripts/upstream-check-run.mjs",
       "scripts/lint-vault.mjs",
