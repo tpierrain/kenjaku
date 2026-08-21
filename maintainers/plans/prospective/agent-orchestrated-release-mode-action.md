@@ -465,6 +465,35 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🔬 **2026-08-22 (S10-5) — THE SURVIVOR WAS UNREACHABLE BECAUSE OF THE FIXTURE, NOT THE CODE, and
+  that is a third distinct reading of the same signal.** `4238e16` then `363db77`. The adoption seam
+  shipped, green on the first run of a 13-test batch written against the design slice: 60 mutants,
+  93.33 %, four survivors. Two were `manifest.provenance ?? {}` → `&& {}`. Everything the loop has
+  learned so far pointed at *equivalent*: a fallback the fixture never reaches, on a key every real
+  manifest has.
+
+  It was a **fleet-scale defect**. `&& {}` on a *present* provenance yields `{}`, and the seam
+  **rebuilds** the provenance table from the prior one — so rebuilding it from nothing wipes every
+  other engine file's digest. A real brain holds **79**: one answered file would make the entire fleet
+  read as personalized at the next update. This slice's own machinery, re-creating at scale the exact
+  blind spot S10 exists to close. Invisible only because the fixture brain held **one** merge file, so
+  *"it leaves the others alone"* had nothing to be true about. The fix is the **fixture** — a second
+  merge file nobody is answering about — not a guard. Both mutants hand-applied to confirm the kill.
+  96.67 % on the re-run; the two survivors left are `"utf8"` → `""`, genuinely equivalent (Node returns
+  a Buffer and `writeFileSync` / `JSON.parse` / `createHash` all take one with identical bytes).
+
+  > **The rule this adds, and it completes a trio the last three iterations built.** § S10-3: *read the
+  > mutant COUNT, not only the score.* § S10-4's slice: *a survivor on unreachable code is first a
+  > question about the CODE — can the line be deleted?* Now: **a survivor can be unreachable because of
+  > the FIXTURE.** So the question before *"is this equivalent?"* is **"what would have to be true of
+  > the brain for this to matter, and does my fixture ever look like that?"** Here: more than one file.
+  > The three failure modes wear the same coat — a survivor that looks like noise — and the cost of
+  > guessing wrong was, this time, the whole deployed fleet.
+
+  **Next**: S10-6, the conversation itself. The engine is complete, so the prose may now promise
+  exactly what it does. EN skill **and** its `templates/fr/` twin in ONE commit, or `locale-drift` goes
+  red. No unit to mutate: the wording review stands in for the gate.
+
 - 🎨 **2026-08-22 (S10-5-0) — a DESIGN slice, opened because the next slice was about to promise
   something the engine cannot record.** `3348875`, no code, no tests, no mutation score — the mode's
   contract for a design slice, honoured rather than quietly bent into "design while coding".

@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-5 — the adoption seam (engine), then S10-6 for the conversation itself
+> ## ▶️ RESUME AT: S10-6 — the conversation itself (skill prose, EN + FR in ONE commit)
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -97,11 +97,15 @@
 > owner has already answered at the running ref. **S10-4 has shipped too** (`e7a1952`): a git refusal
 > now VETOES an adoption instead of reporting it.
 >
-> ⚠️ **What remains is NOT just prose.** § S10-5-0 (designed 2026-08-22) measured that *combine*
-> produces bytes no fingerprint table can ever hold, so without an explicit record the same file is
-> raised at **every** release. So the order is **S10-5** (the adoption seam: safety commit → write →
-> base advances to the CANDIDATE → answer recorded → sidecar removed) and only then **S10-6**, the
-> conversation itself — the prose may only promise what exists.
+> ✅ **S10-5 has shipped** _(2026-08-22 · `4238e16` + `363db77`)_ — **the engine can now act on an
+> answer.** `scripts/lib/engine-adopt.mjs`: safety commit → write → the base advances to the
+> **CANDIDATE** → the answer is recorded at the running ref → the sidecar goes. 96.67 % over 60
+> mutants, the two survivors equivalent and documented.
+>
+> ⚠️ **What remains IS prose now, and only prose** — S10-6, the conversation itself, which may promise
+> exactly what `engine-adopt.mjs` does and nothing more. **EN `.claude/skills/update-engine/SKILL.md`
+> and its `templates/fr/` twin in the SAME commit**, or `locale-drift` goes red. No unit to mutate:
+> the wording review stands in for the gate. Then **S10-QA**, then S9.
 >
 > Read § S10-0 and build to it; it cut four slices, **S10-1 → S10-4**. Three corrections it made to the
 > sketch, each measured against the code rather than reasoned about:
@@ -349,9 +353,15 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
     - [x] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
           _(2026-08-21 · `e7a1952`)_ — a refused commit VETOES the adoption, it does not report it.
     - [x] **S10-5-0 — DESIGN: where the three offers land on disk.** _(2026-08-22)_ Cuts S10-5 + S10-6.
-    - [ ] **S10-5 — the adoption seam**: safety commit → write → base advances to the CANDIDATE →
+    - [x] **S10-5 — the adoption seam**: safety commit → write → base advances to the CANDIDATE →
           answer recorded → sidecar removed. Refuses everything if the safety commit vetoed.
-    - [ ] **S10-6 — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/` twin).
+          _(2026-08-22 · `4238e16` + `363db77`)_ — `scripts/lib/engine-adopt.mjs`, 96.67 % / 60 mutants.
+          Mutation caught a **fleet-scale** defect the one-file fixture could not express: an adoption
+          rebuilds the provenance table, so rebuilding it from nothing would wipe the **78 other**
+          files' digests and raise the whole fleet at the next update. See `../../mutation/RESULTS.md § S10-5`.
+    - [ ] ▶️ **NEXT: S10-6 — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/`
+          twin **in the same commit**, or `locale-drift` goes red). The engine is done; this may
+          promise exactly what `engine-adopt.mjs` does and nothing more.
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
 - [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
   - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
@@ -1110,12 +1120,20 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
 
 **The slices this cuts** — two, in this order, because the prose may only promise what exists:
 
-- [ ] **S10-5 — the adoption seam** (engine code): one function that takes a `rel` and a decision,
+- [x] **S10-5 — the adoption seam** (engine code): one function that takes a `rel` and a decision,
       runs the safety commit, writes the chosen bytes, **advances the base to the candidate**, records
       the answer, and removes the sidecar. Refuses to do any of it if `safetyCommit` says
       `proceed: false`. `syncBaseTree({ deliveredFileMap })` is the existing mechanism — this is
-      wiring, not a new concept.
-- [ ] **S10-6 — bricks 3-5, the conversation** (skill prose, EN **and** its `templates/fr/` twin in
+      wiring, not a new concept. _(2026-08-22 · `4238e16` + `363db77`)_
+  - **Shipped as designed**, `scripts/lib/engine-adopt.mjs`: `planAdoption` is the rule, pure, wearing
+    `mergeVerdict`'s own `{write, deliver}` because it IS row 8's rule with a human in place of
+    `git merge-file`; `adoptCandidate` is the wiring. **Two refusals leave the brain exactly as it
+    was and record NO answer** — a vetoed safety commit, and a missing sidecar (`no-candidate`,
+    reachable in ordinary life when the offer was already taken).
+  - 🛑 **What the design did not foresee, and mutation did**: the seam **rebuilds** the provenance
+    table, so it can also FORGET it. The one-file fixture made that unreachable; a real brain has 79.
+    Fixed in the fixture, not by a guard. Full write-up: `../../mutation/RESULTS.md § S10-5`.
+- [ ] ▶️ **NEXT — S10-6 — bricks 3-5, the conversation** (skill prose, EN **and** its `templates/fr/` twin in
       the SAME commit, or `locale-drift` goes red): what the person changed and what the new version
       brings, in plain words, **no jargon, no conflict markers, no paths as the headline**; the three
       offers; "combine" read by Claude from both versions when there is no ancestor; and the grouping

@@ -233,6 +233,54 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S10-5 — the adoption seam, and the survivor that was a FLEET-SCALE defect — 2026-08-22
+
+`4238e16` then `363db77`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW file → measured **whole**.
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-adopt.mjs` — log
+[`s10-5-adopt`](reports/s10-5-adopt).
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| first pass (`4238e16`) | 60 | 93.33 % | 4 |
+| after the added assertion (`363db77`) | 60 | **96.67 %** | 2, both equivalent |
+
+**Count checked before the score**, per the rule § S10-3 added: 60 mutants over ~70 lines carrying
+five string comparisons, two throws and four guards is the right order of magnitude.
+
+### 🛑 THE FINDING: THE SURVIVOR WAS INVISIBLE BECAUSE THE FIXTURE HELD ONE FILE
+
+Two survivors were `manifest.provenance ?? {}` → `&& {}` (and the same on `baseRefs`). Both look like
+noise on a guard whose fallback the fixture never reaches. They are not. `&& {}` on a *present*
+provenance yields `{}`, and an adoption **rebuilds the provenance table from the prior one** — so
+rebuilding it from nothing wipes every other engine file's digest. A real brain has **79** of them:
+one answered file would make the entire fleet read as personalized at the next update, i.e. this
+slice's own machinery re-creating, at scale, the blind spot S10 exists to close.
+
+The defect was unreachable by construction: the fixture brain held **one** merge file, so "keeps the
+others" had nothing to be true about. The fix is the fixture, not a guard — a second merge file
+nobody is answering about, and an assertion that its digest and its baseRef come out untouched.
+**Hand-applied both mutants** to confirm the kill (1 test red each) rather than trusting the re-run.
+
+> **The lesson, one turn after the previous two.** § S10-3 said *read the count, not only the score*;
+> § S10-4's slice said *a survivor on unreachable code is first a question about the code*. This adds
+> the third: **a survivor can be unreachable because of the FIXTURE, not the code.** The question to
+> ask before "is this equivalent?" is **"what would have to be true of the brain for this to matter,
+> and does my fixture ever look like that?"** — here, having more than one file.
+
+### The two remaining survivors are equivalent, and the reason is Node, not the tests
+
+`readFileSync(p, "utf8")` → `readFileSync(p, "")` at both read sites. An empty encoding does not
+throw: Node returns a **Buffer**. And every consumer downstream takes a Buffer with identical bytes
+— `writeFileSync` writes them unchanged, `JSON.parse` coerces via `toString()`, `createHash().update()`
+hashes the same bytes. Behaviour is byte-for-byte identical, so there is nothing to assert that would
+not be an assertion about Node.
+
+Per § S10-2's rule (*"equivalent" is a verdict about the CODE — can the line be deleted?*): no.
+Dropping the argument entirely also yields a Buffer, so the mutant would stay equivalent, and `"utf8"`
+is what tells a reader these are text files. **Kept, documented, not chased.**
+
 ## S10-4 — the safety commit, 40 mutants, and a count that finally matches the diff — 2026-08-21
 
 `e7a1952`. State owned by
