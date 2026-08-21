@@ -465,6 +465,33 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🚪 **2026-08-21 (S10-3) — the sidecar became a QUESTION, and the intermediate state is closed.**
+  `216d3b6`, suite **2279 pass / 0 fail**. The update report now names the `.new` on a `no-provenance`
+  preserve and ends the block with one line offering the three choices; the session nudge subtracts
+  what the owner already answered at the running ref, and goes silent when everything is settled.
+  Since S10-1 a sidecar had been sitting on disk with **nothing anywhere to explain it** — named in
+  the plan as a known intermediate state precisely so it would be exited on purpose rather than
+  discovered by an owner.
+  - 🧭 **The decision worth keeping is WHERE the subtraction lives**: in the nudge, not in its caller.
+    That surface is the only one that speaks **unbidden**, at every session start, so it is the only
+    place consent fatigue can be built — and a filter in the caller gets silently un-done by the next
+    caller that never heard of it. The corollary is that the **wiring** becomes the forgettable half
+    (the default is "nothing answered", which nags forever without failing anything), so the wiring is
+    what the test pins, in the hook's own file.
+  - ⚖️ **And the twin decision: the REPORT deliberately does not subtract.** It prints inside an update
+    the owner just launched — they are present, it is one line — while the nudge arrives unasked. Two
+    surfaces, two duties. It also dodges a join between skill names and paths that this very module
+    had already refused once, which is the tell that the split follows the grain of the code.
+  - 🔗 **Five stale fixtures were the real find.** They passed a shape (`no-provenance` with no
+    `newVersionPath`) the producer stopped emitting at S10-1, and they surfaced only because the report
+    started reading that field — it printed `undefined`. The fix was not to add a defensive branch: the
+    coupling is **pinned** where the producer lives, so a regression goes red there first.
+    ➡️ **What the MODE takes from it**: when a slice starts READING a field it used to ignore, the
+    fixtures that construct that field are the first place to look — they were written against the old
+    producer and nothing has forced them to keep up.
+  - **Next: S10-4, the safety commit** before the one destructive offer ("take the new one") overwrites
+    an edit that was never swept into a commit.
+
 - ⬇️ **2026-08-21 (S10-2) — the judge lied DOWNWARD, and that direction pushes you to WEAKEN a good
   test.** `engine-answers.mjs`, measured twice on the same commit with no test changed: **78.33 %,
   then 80 %**. The mutant that moved (`&&` → `||` on `isEntry`), hand-applied to the real tree, turns

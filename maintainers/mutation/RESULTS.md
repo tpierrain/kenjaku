@@ -233,6 +233,70 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S10-3 — the wiring, and a 100 % that measured a QUARTER of the change — 2026-08-21
+
+`216d3b6`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+Three EXISTING files changed by a few lines each → **hunk-scoped**, per the mode's rule.
+**Reproduce**: see the per-row commands below — logs [`s10-3-nudge`](reports/s10-3-nudge),
+[`s10-3-session`](reports/s10-3-session), [`s10-3-report2`](reports/s10-3-report2), [`s10-3-report3`](reports/s10-3-report3).
+
+### 🛑 THE FINDING: `--mutate` SILENTLY DROPPED THREE HUNKS OUT OF FOUR
+
+The report surface was first measured with **one** argument carrying four ranges:
+
+```
+node maintainers/mutation/mutate-one.mjs "scripts/update-engine.mjs:149-152,196-200,289-299,450-455"
+```
+
+It returned **100 %, 4 killed, 0 survived** — and it had instrumented **4 mutants**. The file name
+belongs to *each* pattern in Stryker's comma-separated list, so `196-200` (no file) is not a pattern
+it can use; the run silently measured `149-152` alone, a single template literal. **Three quarters of
+the change was never mutated, and the output said nothing was wrong** — `mutate-one.mjs` passes
+`targets.join(",")` straight through, so both spellings are accepted and only one is right.
+
+The correct spelling repeats the file, as separate arguments:
+
+```
+node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs:149-152 scripts/update-engine.mjs:196-200 …
+```
+
+➡️ **The rule this adds, and it is the sibling of tonight's false-survivor rule**: **read the mutant
+COUNT, not only the score.** A perfect score over a handful of mutants on a multi-hunk change is not
+a result, it is a question. The count is the only field that says *what was measured*; the percentage
+only says how it went. Cheap check, and it is the one that caught this: does the count look like the
+size of the diff?
+
+### The three hunks, measured
+
+| Surface | Hunks | Mutants | Score | Survivors |
+|---|---|---|---|---|
+| `lib/engine-divergence-nudge.mjs` | `:68-75` | 12 | **100.00 %** | 0 |
+| `session-engine-divergence.mjs` | `:32-49` | 11 | **100.00 %** | 0 |
+| `update-engine.mjs` | `:149-152` ⚠️ *the invalid run* | 4 | ~~100.00 %~~ | 0 |
+| `update-engine.mjs` | four hunks, spelled correctly | **33** | **93.94 %** | **2** |
+| `update-engine.mjs` | the same, after `66f00c3` | **28** | **100.00 %** | 0 |
+
+### The two survivors were DEAD CODE — one slice after S10-2 taught exactly that
+
+Both landed on the offer's guard, `preserved.filter(({ newVersionPath }) => newVersionPath !== undefined)`.
+Nothing can make it drop an entry: **all five `preserve` outcomes carry a sidecar** (`no-provenance`
+since S10-1, plus `customized`, `merge-failed`, `merge-unsafe`) — which is the very fact
+`preservedAndMergedLines` relies on to read that path unconditionally, three functions up. That
+comment had been *extended by me two edits before I wrote the filter that contradicts it*.
+
+The comment defending the filter named the wrong family, too: a retired skill genuinely has no newer
+version, and it is excluded **structurally** — it travels in `skillsRetirePreserved`, an array this
+function is never handed. The test asserting it was passing for a reason its title did not describe.
+
+Deleted rather than filed as equivalent, per § S10-2's rule. **33 → 28 mutants**: five stopped
+existing, and the remaining 28 all die.
+
+**Every perfect score here was confirmed rather than trusted**, per § S7-5-2 — two hand-applied
+mutants on the real tree: deleting the nudge's `answers` filter (i.e. reinstating the nag) turns
+**3 tests red** across two files, and deleting the report's `answerOfferLines` call turns **4** red.
+A 100 % nobody has tried to break is a claim, not a measurement.
+
 ## S10-2 — the answers file, and 21 mutants that stopped existing — 2026-08-21
 
 **Subject**: `scripts/lib/engine-answers.mjs`, NEW file → measured **whole**, per the mode's rule.

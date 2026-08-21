@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-3 — the wiring (the nudge subtracts what is answered; the report names what waits)
+> ## ▶️ RESUME AT: S10-4 — the safety commit, before an adopted candidate overwrites an uncommitted edit
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -92,8 +92,11 @@
 >
 > **S10-0's design is WRITTEN and committed** and **S10-1 has shipped** _(2026-08-21 · `39f37bb`)_ —
 > row 3 now drops the engine's version beside the owner's, so the three offers have something to offer.
-> ⚠️ **Until S10-3, that sidecar is on disk and no surface mentions it** — a known intermediate state,
-> named in § S10-1, harmless because S9 runs after S10.
+> ✅ **S10-3 has shipped** _(2026-08-21 · `216d3b6`)_ — **the intermediate state is CLOSED**: the report
+> names the sidecar and offers the three choices in one line, and the session nudge subtracts what the
+> owner has already answered at the running ref. What remains of S10 is **S10-4** (the safety commit
+> before the one destructive offer) and then the brain-side skill content (bricks 3-5), which was cut
+> with S10-3 on purpose: a skill can only speak about a record that exists.
 >
 > Read § S10-0 and build to it; it cut four slices, **S10-1 → S10-4**. Three corrections it made to the
 > sketch, each measured against the code rather than reasoned about:
@@ -336,7 +339,8 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         new one" is **not** free-recoverable, because the update commits only after it writes.
     - [x] **S10-1 — row 3 gets its sidecar.** _(2026-08-21)_
     - [x] **S10-2 — the answers file**, `rel → {decision, at}`, keyed by engine ref. _(2026-08-21)_
-    - [ ] **S10-3 — the wiring**: the nudge subtracts what is answered; the report names what waits.
+    - [x] **S10-3 — the wiring**: the nudge subtracts what is answered; the report names what waits.
+          _(2026-08-21 · `216d3b6`)_ — the exit from the S10-1 intermediate state.
     - [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
 - [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
@@ -989,9 +993,49 @@ false alarms to diagnoses written from reading (`f7a00fc`, and the FR-overwrite 
         *survivor*, which is worse — it sends you to weaken a passing test to chase a hole that is
         not there. **New standing rule, written into `RESULTS.md`'s top box: a test is never weakened
         to chase a survivor, and no survivor is acted on until it reproduces or is hand-applied.**
-- [ ] **S10-3 — the wiring**: the divergence nudge subtracts answered files at the current ref, and
-      the update report names what is awaiting an answer. No new surface, two existing ones taught the
-      subtraction.
+- [x] **S10-3 — the wiring.** _(2026-08-21 · `216d3b6`)_ The divergence nudge subtracts answered files
+      at the current ref, and the update report names both the sidecar and what is awaiting an answer.
+      No new surface: two existing ones taught the subtraction. **This is the EXIT from the known
+      intermediate state** named under S10-1 — since then a sidecar sat on disk with nothing anywhere
+      to explain it.
+  - [x] 🚪 **The offer, and it is the owner's acceptance criterion in one sentence**: *"ask me about
+        those N files and I'll offer, for each one, to take the new version, keep yours, or combine the
+        two."* It borrows all three of `walkthroughOffer`'s non-negotiables — **once** per report
+        whatever the families, no alarm, and it promises only what exists **today**. A preserve with no
+        candidate (a retired skill) is offered nothing: a question whose answer changes nothing is the
+        definition of a nag.
+  - [x] 🚨 **The subtraction lives in the NUDGE, not in its caller** — the decision of the slice. That
+        surface is the only one that speaks **unbidden**, at every session start, so it is the only
+        place consent fatigue can be built; a filter in the caller would be reinstated by the next
+        caller that never heard of it. `answers` defaults to *"nothing answered"* (the literal state of
+        the whole fleet), so the forgettable half is the **wiring** — pinned in the hook's own test,
+        because a caller that never read the file would nag forever in silence.
+  - [x] 🧭 **The report deliberately does NOT subtract, and the reason is not laziness.** It prints
+        inside an update the owner just launched — they are present, it is one line — while the nudge
+        arrives unasked. And reaching a `rel` from the report would mean joining skill NAMES to paths:
+        the exact join `divergenceLines` already refused once. Two surfaces, two different duties.
+  - [x] 🔁 **Two comments corrected rather than deleted, same shape as S10-1's**: *"pointing at a
+        `.new` would be the report inventing a file"* was sound and its **premise** died at S10-1.
+        Silence is now what invents something. What survives untouched and is asserted harder: the
+        line still never says *"customized"* — admitting we cannot tell whose bytes those are and
+        pointing at the version that awaits are not in tension.
+  - [x] 🔗 **The "read the path unconditionally" rule now covers `no-provenance` too, and it is PINNED
+        rather than assumed**: `engine-merge-apply.test.mjs` asserts the whole `preserved` entry for a
+        brain with no recorded sha, so a producer that stopped writing the sidecar goes red **before**
+        the report can print `undefined` at an owner. Five stale fixtures were passing a shape the
+        producer stopped emitting at S10-1 — they are what surfaced this.
+  - [x] 🛑 **The measurement caught its own instrument first**: the four changed hunks were passed as
+        ONE comma-joined argument, and Stryker silently mutated only the first — **4 mutants, a serene
+        100 %**. Spelled correctly (the file repeated per range) it is **33 mutants and 93.94 %**.
+        ➡️ **Read the mutant COUNT, not only the score**: the count is the only field that says what
+        was measured. Written into `RESULTS.md` § S10-3.
+  - [x] 🧹 **And the two real survivors were dead code, one slice after S10-2 taught exactly that.**
+        The offer's `.filter(newVersionPath !== undefined)` can never drop an entry: **all five
+        `preserve` outcomes carry a sidecar**, which is the fact `preservedAndMergedLines` already
+        relies on three functions up — I extended that very comment two edits before contradicting it.
+        A retired skill is excluded **structurally** (its own array, never passed here), not by a
+        filter. Deleted, not documented (`66f00c3`), and the test whose title claimed more than it
+        measured was renamed with it.
 - [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
 - [ ] ⚠️ **Bricks 3-5 (the conversation itself) are brain-side skill content**, not engine code, and
       are cut with S10-3 rather than before it: the skill can only speak about a record that exists.
