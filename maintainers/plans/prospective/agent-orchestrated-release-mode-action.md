@@ -448,6 +448,34 @@ arbitration goes here as a question, and the run continues on other slices.
     last-commit date mislabelled a commit as missing because it landed the same day as the boundary. Found
     by reading the actual line. It is now the stated argument for the drift guard: **the fix for an
     error-prone manual check is a test, not more care.**
+- 🌙 **2026-08-21 (loop iteration 41) — S7-1: the FIRST slice this release actually dispatched, and
+  the mutation run paid for the whole night.** _(Numbers in [`RESULTS.md` § S7-1](../../mutation/RESULTS.md);
+  state in the owning plan. This entry keeps the mode lessons.)_
+  - ✅ **The contrast the mode has been waiting twelve-plus iterations for finally exists.** Tests
+    written in session (12, red on their assertions against a stub), then the **implementation handed
+    to a subagent** with the files named and `node --test scripts/lib/engine-heal.test.mjs` as the
+    judge. It came back green, 11/11 at the time, having touched exactly the one file it was allowed
+    to. **The verdict's own condition was met for once** — *once the design is in the plan and the
+    tests are written and red, the implementation is dispatchable* — and it cost one round trip
+    instead of a slice's worth of window.
+  - 🛡️ **The instruction that made it safe was "never modify the test file, not one character".** An
+    agent handed a failing suite and write access to it has a trivially cheaper path than the intended
+    one. The judge only judges if the agent cannot edit the judge.
+  - 🔬 **The measurement, not the review, is what found the defects — and it found FOUR.** First pass
+    82.14 %, five survivors, and four of them were the **tests'**, not the code's. The worst: the
+    absent-table test recorded provenance for both its files, so every rel was filtered out **before
+    the lookup ran** — a test that proved nothing, passing, in a file whose author (me) had just
+    written the design. Underneath it a second defect: the test helper defaulted the argument to the
+    real table, so the `undefined` case was exercising the populated one. **Two green tests stacked on
+    one blind spot. No amount of re-reading finds that; one command did.**
+  - 📐 **A new assertion-quality shape, worth carrying to the discipline**: *"collections ≥2,
+    unsorted"* is not enough — an unsorted fixture must be unsorted **in both directions**. The
+    ordering test passed three files in exactly reverse order, so a comparator mutated to never swap
+    produced the right answer by accident.
+  - 🪤 **A trap in our own runner, recorded because it wears a green tick.** `mutate-one.mjs` resets a
+    worktree to **HEAD**, so a run on an **uncommitted** file mutates nothing and prints
+    `✅ Mutation score NaN % — 0 killed, 0 survived`. It reads as a pass. **Commit first, then
+    measure** — and treat `NaN` as a failed run, never as a clean one.
 - 🌙 **2026-08-21 (loop iteration 40) — S7-0, and the design slice earned its keep by MEASURING the
   sketch instead of writing it up.** _(The design belongs to the owning plan, § S7-0; this entry keeps
   the mode lesson.)_

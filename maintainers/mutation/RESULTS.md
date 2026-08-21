@@ -169,6 +169,34 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S7-1 — the heal, and a test that never reached the thing it was testing — 2026-08-21
+
+`3908b7f` (the slice) + `924b0d9` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-heal.mjs` | 82.14 % (23 killed, 5 survived) | **96.43 %** (27 / 1) | 1, a named equivalent |
+
+**Four of the five survivors were the tests', and two defects were stacked in one case.** The
+absent-table test recorded provenance for **both** its files, so every rel was filtered out before the
+lookup ran: the test that exists to prove an absent table is harmless never reached the table. Three
+mutants said so at once. Underneath it, the test file's own `heal` helper defaults `table` to the
+**real** table, so the `undefined` iteration was silently exercising the populated one — the omitted
+argument now gets a direct call, and `null` is covered (a failed read yields null; a parameter default
+only fires on `undefined`).
+
+**A NEW SHAPE, worth the paragraph: a fixture that was unsorted in only one direction.** The ordering
+test passed its three files in **exactly reverse** order, so a comparator mutated to *never swap*
+produced the right answer by accident and survived. "Collections ≥2, unsorted" is not enough — the
+input must be unsorted **in both directions**, or reversal and sorting are indistinguishable. Reordered,
+the mutant dies.
+
+⚠️ **And a trap in the runner itself, recorded because it printed a green tick.** `mutate-one.mjs`
+resets a worktree to **HEAD**, so a run on an **uncommitted** file mutates nothing and reports
+`✅ Mutation score NaN % — 0 killed, 0 survived`. A NaN score wearing a ✅ reads as a pass. **Commit
+first, then measure.**
+
 ## S4-4c — the walk that read the vault, and three survivors that were three real defects — 2026-08-21
 
 `a3f4e2b` + the two kill rounds. State owned by
