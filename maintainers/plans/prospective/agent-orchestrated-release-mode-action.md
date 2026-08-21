@@ -448,6 +448,31 @@ arbitration goes here as a question, and the run continues on other slices.
     last-commit date mislabelled a commit as missing because it landed the same day as the boundary. Found
     by reading the actual line. It is now the stated argument for the drift guard: **the fix for an
     error-prone manual check is a test, not more care.**
+- 🌙 **2026-08-21 (loop iteration 40) — S7-0, and the design slice earned its keep by MEASURING the
+  sketch instead of writing it up.** _(The design belongs to the owning plan, § S7-0; this entry keeps
+  the mode lesson.)_
+  - 📏 **Three of the sketch's claims died on contact, and none would have been caught by re-reading
+    it.** Each needed a command: the seam was in the wrong module (a `grep` for the caller showed the
+    freeze short-circuits *before* the function the sketch proposed to extend); the table would have
+    omitted the very file the release is named for (generating under each tag's own regime yields
+    **zero** entries for `CLAUDE.engine.md`); and an EN-only table recognizes nothing on either of the
+    owner's brains, both French. **A design slice that only re-states the sketch is a transcription,
+    not a design.**
+  - 💸 **The mode's own run log carried a stale price for one day.** The entry below prices the healing
+    table at *"~150 sha256, ~10 KB"*. Measured: **73** distinct (rel,digest) entries — 342 (rel,tag)
+    pairs collapse — and ~10.8 KB **only once the French sources are in**, ~5.3 KB without. Right
+    order of magnitude, wrong for two compensating reasons. **The entry that warned "a price goes
+    stale like any other number" was itself the stale price.** Left in place, corrected here: the run
+    log is a record, not a state file.
+  - 🔬 **The reading was delegated and the window barely moved.** Four read-only Explore agents covered
+    seven modules, the fixture suite and a 2 200-line archived plan, and returned ~2 500 words of
+    file:line facts. The main window kept the conclusions and read **four** files itself, all of them
+    ones the design actually turns on. This is the second standing rule of this file paying for itself,
+    on the slice class that reads the most.
+  - ⚠️ **Still no dispatchable slice — and this one could not have been.** A design slice stays in
+    session by the mechanical-only verdict, so iteration 40 adds another tally mark to the finding at
+    the top of this file rather than resolving it. **S7-1 is the first slice in a while that will have
+    tests written before its implementation**, i.e. the first real chance to produce the contrast.
 - 🌙 **2026-08-21 (loop iterations 38–39) — the carrier audit: ticking a design box is a CLAIM, so a
   subagent verified every one of them against the code.** _(What the audits found belongs to the owning
   plan, § what remains; this entry keeps the mode lesson.)_

@@ -8,10 +8,26 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
+> ## 🛑 BLOCKING — one arbitration is THOMAS'S, and it is destructive
+>
+> **Does the heal also unlock skill RETIREMENT, or only the merge?** `decideSkillRetirement`
+> (`scripts/lib/skill-retirement.mjs:29`) refuses to remove a retired skill it cannot prove, and
+> `no-provenance` is today's refusal — so a frozen brain keeps `tdd-discipline/SKILL.md` forever.
+> Heal it, and the same update that unfreezes the doctrine **deletes a file**.
+>
+> - **What the design does meanwhile, so nothing waits on the answer**: the healed map is computed
+>   once and handed to the **merge path and the base seed only**. Retirement keeps reading the
+>   *recorded* provenance. Flipping it later is one argument at one call site.
+> - **Note the answer is only about the healing pass**, not the end state: the heal writes real
+>   provenance into the manifest, so from the **next** update on, retirement treats those files like
+>   any other recorded one, whatever is decided here.
+> - Why it is his: `never-surface-destructive-paths` — a deletion is not a default the session picks.
+>
 > ## ▶️ WHERE THIS RESUMES
 >
-> **RESUME AT: S7-0, the DESIGN slice.** Nothing has been built on this plan yet. Write the design
-> into this file and commit it before a line of code, per the loop's own contract.
+> **RESUME AT: S7-1.** S7-0 is **done** _(2026-08-21)_: the design is written below, and three of the
+> sketch's claims did not survive contact with the code and the tags. Read **§ S7-0** before S7-1 —
+> in particular *the seam moved*: `verifyBase` and `planBaseSeed` are **not** changed after all.
 >
 > **Why this plan exists, in one paragraph.** The engineering of the unfreeze release is *done* and
 > sits on `feat/engine-base-unfreeze` (105 commits, S1 through S6). It was two hours from being
@@ -62,9 +78,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 
 ## 📐 THE FACTS ALREADY MEASURED — so nobody re-derives them
 
-- [x] **The whole fleet is frozen**: `CLAUDE.engine.md` is absent from every regime at all nine
-      published tags (`v3.6.0` → `v4.9.1`), while its content grew 23 504 → 33 531 bytes. It was never
-      a bug in the update path; it was a file nothing declared.
+- [x] **The whole fleet is frozen**: `CLAUDE.engine.md` is absent from every regime at all **fifteen**
+      published tags that carry it (`v3.6.0` → `v4.9.1`), while its content grew 23 504 → 33 531 bytes.
+      It was never a bug in the update path; it was a file nothing declared.
+      ⚠️ _This line said **nine** tags until 2026-08-21; re-measured at S7-0, it is **fifteen** (five
+      distinct byte-states). The byte figures were right. Corrected here rather than left to be
+      re-derived: the tag count is what S7's table is generated over._
 - [x] **The freeze has a face, and it is the owner's.** The behavioural rule *"Jamais de `- [ ]`
       muet"* has been in the repo's FR doctrine **since 2026-08-05** and is **absent from both real
       brains** (`mind-palace`, `autre-brain`), measured 2026-08-21. As built, v5.0.0 would leave it
@@ -89,8 +108,11 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 ## Tracking
 
 - [ ] **S7 — the frozen fleet is healed.** The reason the release is not published.
-  - [ ] **S7-0 — THE DESIGN**, written into this file before a line of code.
-  - [ ] **S7-1 — a second source of proof** for a base.
+  - [x] **S7-0 — THE DESIGN**, written into this file before a line of code. _(2026-08-21 · `HEAD`)_
+        Three corrections to the sketch: the seam is the `recorded` **input**, not `verifyBase`; the
+        table is generated under **HEAD's** regime or it misses `CLAUDE.engine.md`; it must carry the
+        **FR** sources or it heals neither of the owner's brains. **Row-2 seeding is absorbed.**
+  - [ ] **S7-1 — the heal**: `healProvenance`, a new pure module. Nothing existing changes.
   - [ ] **S7-2 — the historical fingerprint table**, and the guard that keeps it fresh.
   - [ ] **S7-3 — the wiring**, so a real update consults it.
   - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**.
@@ -108,41 +130,174 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 
 ## 🧊 S7 — the frozen fleet is healed
 
-- [ ] **S7-0 — THE DESIGN.** _(the loop's contract: a design slice ships a written design and stops.)_
-      The shape below is the sketch that justified reopening the release. **It is not the design.**
-      S7-0's job is to check every claim in it against the code and write what survives.
+- [x] **S7-0 — THE DESIGN.** _(2026-08-21 · this commit — the loop's contract: a design slice ships a
+      written design and stops. No mutation pass: doc-only slice, skip recorded per CONVENTIONS
+      §5quinquies.)_ The sketch that justified reopening the release has been checked claim by claim
+      against the code and against the 25 published tags. **The idea survived. Three of its claims did
+      not**, and one of them decides whether the release heals the file it is named for.
 
-  - [ ] 💡 **The idea, in three lines.** If an installed file's digest matches **any version the engine
-        ever published**, then that file **is** that version, untouched. So the ancestor's bytes are
-        already on the disk; only the **proof** was missing. The brain seeds itself, exactly as S1's
-        migration already does for files that have a recorded provenance.
-  - [ ] 📦 **We ship digests, not bytes.** ~15 merge-regime files × ~10 tags = ~150 sha256, about 10 KB.
-        The exclusion this reopens (*"a release-time generation pipeline, not a report"*) was right
-        about the pipeline and wrong about the cost: it assumed shipping historical **content**.
-  - [ ] 🔑 **THE CRUX, and the one place the contract really changes.** `planBaseSeed` deliberately
-        carries **no sha** today: *"the record already exists and already matches, and a second writer
-        for one fact is drift."* For a healed file **there is no record**. So the seed must now write
-        the provenance too. Get this wrong and the file seeds a base nothing can prove, which is the
-        `mismatch` state, i.e. worse than the freeze.
-  - [ ] ⚖️ **What it heals and what it does not.** Heals: every brain whose engine files are untouched
-        (the majority, including the owner's two). Does not heal: files the owner edited, whose digest
-        matches nothing. Those stay preserved **and reported** — and that is the forbidden claim n°2
-        above, which S7 does **not** change.
-  - [ ] 🚨 **The risk to design against, not to discover later**: this table must be **regenerated at
-        every release** or it goes stale, which is this repo's signature defect committed one level up.
-        Generation is scripted and guarded by a test, never done by hand.
-  - [ ] ❓ **Questions S7-0 must answer in writing**: which files the table covers (all `merge`, or
-        only those with a real freeze history?); where it lives (`engine-manifest.json` or a sibling —
-        the manifest is read at every update, so 10 KB there is a cost to state); what a match against
-        an OLD version implies for `baseRefs` (we learn the version too, for free, so does S4's
-        divergence notice become accurate for the healed fleet?); and whether a healed file must be
-        **reported** on the update that heals it, or land silently.
+  - [x] 💡 **The idea, unchanged and confirmed.** If an installed file's digest matches **any version
+        the engine ever published**, then that file **is** that version, untouched. The ancestor's
+        bytes are already on the disk; only the **proof** was missing.
 
-- [ ] **S7-1 — a second source of proof.** `verifyBase` / `planBaseSeed` accept a known historical
-      digest beside the recorded provenance. Pure, test-first, and the seed now carries its sha.
-- [ ] **S7-2 — the historical fingerprint table**, generated from the published tags by a maintainer
-      script, plus the test that fails when the table does not cover the release being cut.
-- [ ] **S7-3 — the wiring**: the seed pass consults the table, on all three writers, as S1 did.
+  #### ❌ Correction 1 — THE SEAM MOVED. `verifyBase` and `planBaseSeed` are not touched.
+
+  The sketch put the second source of proof inside `verifyBase`. **It would have healed nothing on the
+  merge path**: `mergeVerdict` short-circuits on `!recorded` at `scripts/lib/engine-merge.mjs:59` and
+  returns `preserve/no-provenance` **before `verifyBase` is ever called** (`:30`, `:71`, `:86` are all
+  downstream of that guard). Teaching `verifyBase` a new source would have left row 3 — the freeze
+  itself — exactly where it is.
+
+  The seam is one level up: **the `recorded` INPUT**. Reconstruct it, and rows 4-6 of the existing
+  table do the right thing untouched — and they do it **without the base tree**, which the S2a
+  correction at `engine-merge.mjs:48-53` already established on purpose. So:
+
+  - [x] **One new pure function**, `healProvenance({ manifest, provenance, installedFileMap, table })`
+        → the same map, plus an entry for every merge-regime file whose installed bytes are recognized
+        in the table. It returns `fingerprint(installed)` — **recognized, never invented**: the proof
+        is membership in the table, and the sha is only the form the rest of the engine reads it in.
+  - [x] **Computed ONCE, at the top of `reconcileBrain`**, and passed down in place of
+        `local?.provenance` at the three refresh call sites (`reconcile-brain.mjs:193`, `:212`, and the
+        skills' equivalent), and as `priorProvenance` to `reseedProvenance` (`:460`) so it **persists in
+        the single manifest write that already happens** (`:476`).
+  - [x] **`verifyBase`, `mergeVerdict`, `planBaseSeed`, `planBaseAdvance`: unchanged.** `syncBaseTree`
+        receives the reseeded map (`:487`) and therefore inherits the heal for free — `planBaseSeed`
+        finds a `recorded` that matches the installed bytes and seeds `.engine-base/<rel>` exactly as it
+        does for a brain with real provenance. **That is the whole point of doing it at the input.**
+
+  - [x] 🔑 **What the sketch called THE CRUX is answered, and it was a real problem.** *"The seed must
+        now write the provenance too"* — it cannot, where it stands. In **all three writers** the
+        manifest is written to disk **before** `syncBaseTree` runs (`update-engine.mjs:587` then `:596`;
+        `reconcile-brain.mjs:476` then `:487`; `engine-source.mjs:139` then `engine-base-fs.mjs:153`).
+        A sha discovered by the seed would arrive after its own record was written, and the module's
+        stated invariant (*"this module writes bytes, `reseedProvenance` writes shas"*,
+        `engine-base-fs.mjs:92-95`) would need a second writer. **Computing the heal before the manifest
+        write removes the problem instead of solving it**: one fact, one owner, one write.
+  - [x] **`update-engine.mjs` needs no change.** Its parent pass writes an un-healed manifest at `:587`;
+        the auto-finalize **child** re-runs `reconcileBrain`, re-reads the manifest from disk, heals,
+        and is the **last writer** on the path. The heal therefore lands **within a single
+        `update-engine` invocation** — not one update late.
+  - [x] **A self-heal heals too.** The three refresh families are guarded on `sourceDir !== brainDir`,
+        but the seed pass is not (`reconcile-brain.mjs:481-487`): a `reconcile`-only run on a frozen
+        brain still records the proof, so the *next* update merges. Free, and worth a test.
+
+  #### ❌ Correction 2 — GENERATE THE TABLE UNDER **HEAD's** REGIME, OR IT HEALS EVERYTHING EXCEPT THE POINT
+
+  Measured 2026-08-21 over all **25** published tags (`v3.0.0` → `v4.9.1`):
+
+  | Selection rule | rels | distinct (rel,digest) | `CLAUDE.engine.md` covered? |
+  |---|---|---|---|
+  | Each tag's **own** `merge` regime | 15 | 51 | **NO — zero entries** |
+  | **HEAD's** `merge` regime, applied to each tag's tree | 14 | 52 | **yes — 5 versions, from `v3.6.0`** |
+
+  `CLAUDE.engine.md` was in **no regime at any published tag** — that *is* the freeze this release
+  exists to end. A generator that asks each tag *"what did you call merge?"* therefore reproduces the
+  freeze in the healing table itself. **The generator asks the release being cut**, and applies its
+  regime (minus its tombstones, `selectMergeFiles`) to the historical trees. Same cost, opposite result.
+
+  #### ❌ Correction 3 — WITHOUT THE FRENCH SOURCES, THE HEAL MISSES BOTH OF THE OWNER'S OWN BRAINS
+
+  A brain installed in French holds the bytes of `templates/fr/<rel>`, not of `<rel>`
+  (`resolveLocaleSource`, `engine-copy-select.mjs:33`). Both real brains are French (see § facts). An
+  EN-only table recognizes **nothing** on them. So each rel carries the digests of **every locale
+  source that ever shipped for it**, and the entry records which:
+
+  | Table | rels | distinct digests | pretty JSON | minified |
+  |---|---|---|---|---|
+  | EN only | 14 | 52 | 5 346 B | 4 767 B |
+  | **EN + FR (retained)** | **14** | **73** | **10 834 B** | **8 116 B** |
+
+  `CLAUDE.engine.md` alone: **5 EN + 4 FR**. The sketch's *"~150 sha256, about 10 KB"* was two claims,
+  both wrong and in opposite directions: **73** entries, not 150 (342 (rel,tag) pairs collapse to 73
+  distinct byte-states), and ~10.8 KB **is** the honest figure only once French is in.
+
+  #### 📦 The shape, decided
+
+  ```jsonc
+  // scripts/lib/engine-fingerprints.json — generated, never hand-edited
+  { "generatedAt": "v5.0.0",
+    "files": {
+      "CLAUDE.engine.md": {
+        "sha256:…": { "since": "v3.6.0", "locale": "en" },
+        "sha256:…": { "since": "v3.6.0", "locale": "fr" }
+      }
+    } }
+  ```
+
+  Keyed by the **installed** rel (what the brain holds), never by the source path — the lookup knows
+  nothing of locale, it only reports one. `since` is the **earliest** tag that shipped those bytes.
+
+  #### ❓ The six questions, answered in writing
+
+  - [x] **Which files?** Every file under **HEAD's `merge` regime minus its `retired` tombstones**, at
+        every published tag, in every locale. Not *"only those with a real freeze history"*: that
+        criterion needs a measurement that goes stale, and it saves ~5 KB. Retirement is honored **at
+        generation** (HEAD's tombstones) and again **at lookup** (`selectMergeFiles` already subtracts
+        them), so a retired file can never be healed into existence.
+  - [x] **Where does it live?** `scripts/lib/engine-fingerprints.json` — **not** in
+        `engine-manifest.json`. The manifest is parsed on **every session start** (the
+        `session-engine-divergence` hook → `engine-base-fs.mjs:137`) and on **every status-line render**
+        (`status-line.mjs:46,139`), and it is a `FROZEN_FILES` entry in no regime: 10 KB there is a tax
+        on a hot path forever, paid to serve one code path that runs on updates only. `scripts/lib/**`
+        is already a `replace` glob, so the sibling is **delivered by the existing copy path with no new
+        wiring**, and it is read **lazily, at heal time only** — from `sourceDir` when there is one (the
+        freshest table), falling back to the brain's own copy for a self-heal.
+  - [x] **What does an OLD match imply for `baseRefs`?** We learn the version for free, so the heal
+        writes `baseRefs[rel] = <the matched tag's `since`>` **when the entry is absent, never over one
+        already recorded**. But state the honest size of the win: a file that heals *and* is delivered
+        in the same pass is re-stamped by `reseedBaseRefs` with the new ref anyway, and a file that
+        stays held back is a file the owner **edited** — which by definition matched nothing and did not
+        heal. So the learned tag survives on exactly one population: files healed and left **unchanged**
+        (row 4). It costs one line and makes the transitional state honest. **S4's notice must not be
+        redesigned around it.**
+  - [x] **Reported, or silent?** **Reported**, one aggregated line, once: *"N engine files recognized
+        from vX — this brain can now receive updates for them."* S4's whole thesis is that the engine
+        says what it did; a silent change of ancestry is the class of defect this chantier exists to
+        end. It cannot become a phantom (the failure mode `engine-merge.mjs:60-63` warns about): after
+        the first heal the provenance is recorded, so there is nothing left to recognize.
+  - [x] **Row-2 seeding — same slice?** **Yes, absorbed.** Row 2 is the special case where the version
+        recognized happens to be the one being delivered. Once the table covers the release being cut,
+        row 2 needs no code of its own. The archived exclusion (*"cheap and correct, but it is S1's
+        planner's business"*, `update-regime-owns-what-it-shipped-action.md:1225-1226`) is **closed by
+        S7**, not re-opened — S7-1 carries a row-2 case in its tests so the absorption is pinned.
+  - [x] **Line endings.** The lookup asks the table for `fingerprint(installed)` **and** for
+        `fingerprint(normalizeEol(installed))`, exactly as `verifyBase:50` forgives them. Without it a
+        Windows checkout stays frozen after the release that unfreezes everyone else.
+
+  #### ⚖️ What S7 CANNOT heal — by construction, not by omission
+
+  - [x] **The personalized files: `CLAUDE.md` and `.claude/settings.json`.** They are **generated per
+        brain** at install (`installer.mjs:514` from `CLAUDE.md.template`; settings from
+        `.claude/settings.json.template`, a `replace` file). No two brains hold the same bytes, so no
+        shipped digest can ever match. `.claude/settings.json` has **no historical repo file at all** —
+        it appears in the measurement as an empty glob. **This is coherent, not a gap**: the constitution
+        was split into a personalized half and an engine-owned half precisely so the engine could own
+        one of them. **S7 heals exactly the engine-owned set — the set the split created.**
+  - [x] **The `test-first-discipline` skill has no history under that name** (it shipped as
+        `tdd-discipline`, now tombstoned). A frozen brain holds no such directory, so row 1
+        (`absent-install` → deliver) already covers it. No heal needed, none possible.
+  - [x] **Files the owner edited.** Their digest matches nothing. Preserved **and reported**, unchanged
+        — this is forbidden claim n°2 in the decisions block, which S7 does **not** touch.
+
+  - [x] 🚨 **The risk designed against.** The table goes stale the first release nobody regenerates it,
+        which is this repo's signature defect committed one level up. Generation is a maintainer script;
+        **S7-2's test fails when the table does not cover the release being cut** — computed from the
+        working tree, never from the table itself. And the asymmetric risk is named: a **wrong** entry
+        makes an edited file read as untouched and **clobbers the owner**. That is why the match is an
+        exact digest against a shipped byte-state, keyed by rel, and never a heuristic.
+
+- [ ] **S7-1 — the heal itself.** `healProvenance` — new pure module, test-first, with the table
+      injected as data (never read from disk in the pure half). Cases the tests must carry: recognized
+      EN, recognized FR, recognized only after `normalizeEol`, **row 2** (recognized as the version
+      being delivered), an edited file recognized by nothing, a file already recorded (must be left
+      strictly alone), a retired rel (never healed), and an empty/absent table (returns the input map
+      unchanged). ⚠️ Nothing in `engine-base.mjs` or `engine-merge.mjs` changes.
+- [ ] **S7-2 — the historical fingerprint table**, generated by a maintainer script under **HEAD's
+      regime**, both locales, plus the guard test that fails when the table does not cover the release
+      being cut.
+- [ ] **S7-3 — the wiring**: `reconcileBrain` computes the heal once and hands it to the three refresh
+      families and to `reseedProvenance`; the report gains its one line. `update-engine.mjs` and the
+      installer are **not** touched.
 - [ ] **S7-4 — the QA, and it is the acceptance test of this plan.** Extend
       `release-fixture-doctrine.test.mjs`: a brain rebuilt from `v3.6.0` with **no provenance at all**
       must now **RECEIVE** the doctrine. Today the same suite asserts the opposite (Pole A: preserved,
@@ -190,9 +345,11 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 - [ ] **Recording the LANGUAGE beside `baseRefs`**, so a locale flip is reported instead of performed.
       Real, and designed in conversation, but **no bug requires it**: the only FR-tree change shipping
       is the safe retirement. It protects against a future removal of a translation. Its own chantier.
-- [ ] **Row-2 seeding** (a base for a no-record file holding the engine's exact bytes). Inherited
-      exclusion from S2. ⚠️ **Re-read it during S7-0**: S7 is close enough to this that the two may in
-      fact be the same slice, and shipping them apart would be building one mechanism twice.
+- [x] ~~**Row-2 seeding**~~ (a base for a no-record file holding the engine's exact bytes) — **NO
+      LONGER OUT: absorbed by S7** _(S7-0, 2026-08-21)_. It is the special case where the version
+      recognized is the one being delivered, so the table answers it with no code of its own. The
+      inherited exclusion is **closed**, not re-opened, and S7-1 carries a row-2 test case so the
+      absorption is pinned rather than assumed.
 - [ ] **The always-loaded constitution's growth.** Measured and parked, not v5 work: `CLAUDE.engine.md`
       grew **+61 % in eighteen days** (20 737 → 33 451 bytes), read in full at every session, because
       one reflex sends every field finding into the constitution. What follows (a budget enforced by a
