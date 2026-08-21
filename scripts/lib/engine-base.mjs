@@ -73,7 +73,19 @@ export const INSTALLED_REFUSAL = {
 // the migration cheap: a file whose installed bytes still match their recorded sha IS,
 // by definition, the content the engine last delivered, so the brain seeds its own tree
 // from itself. 13 of 15 recorded entries qualified on the live brain; the two that did
-// not are the owner's edits, and they seed from the fetched copy at their next delivery.
+// not are the owner's edits.
+//
+// 🛑 AND THOSE TWO NEVER ACQUIRE AN ANCESTOR — say it plainly, because this comment used
+// to claim they would "seed from the fetched copy at their next delivery", and there is
+// no such path. A preserved customization is never DELIVERED (row 7 returns no `deliver`),
+// so `planBaseAdvance` never moves its base; and it cannot be seeded from the fetched copy
+// either, because that copy is `theirs`, not the ancestor — merging against it would
+// silently discard everything the engine shipped between the install and now. So a file
+// edited BEFORE this release stays at preserve + sidecar, permanently, and the `deferred`
+// list says `customized` so the owner is told rather than left guessing. Files edited
+// FROM this release on merge normally: their base is on disk before the edit happens.
+// Pinned by `release-fixture-refresh.test.mjs`, "a skill edited BEFORE this release never
+// acquires an ancestor" — including that a second update reaches the same verdict.
 //
 // The rule is not "seed when absent" but "seed whenever the tree cannot be PROVEN", so
 // a base that drifted is repaired by the same pass. And the proof asked of the installed

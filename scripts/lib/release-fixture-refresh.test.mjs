@@ -38,6 +38,7 @@ import {
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
 import { fingerprint, reseedProvenance } from "./engine-source.mjs";
+import { syncBaseTree } from "./engine-base-fs.mjs";
 
 // ── The case this increment was pulled forward for (plan §"The trigger") ──────
 // `4e43e70` shipped 22 lines into `.claude/skills/switch/SKILL.md` in v3.6.2. A brain
@@ -131,4 +132,54 @@ test("QA already-converged brain — a second update refreshes nothing and rewri
   assert.deepEqual(second.skillsPreserved, [], "and nothing mistaken for a customization");
   assert.deepEqual(skillFilesOf("v3.6.0").map((rel) => fingerprint(readBrain(brainDir, rel))), before);
   assert.ok(!existsSync(join(brainDir, ".claude/skills/switch/SKILL.md.new")), "no sidecar on a converged brain");
+});
+
+// ── The claim a release note must NOT overstate, pinned by a test ────────────────
+// The merge is this release's headline, and the obvious sentence — "your edits are
+// preserved AND you get the update" — is FALSE for one population, permanently: the
+// files an owner had ALREADY edited before this release.
+//
+// The mechanism, and it is not a bug: a merge needs an ancestor. `planBaseSeed` can
+// only seed one from bytes that still match their recorded sha ("a file matching its
+// record IS the last delivery"), and an edited file does not. It cannot be seeded from
+// the FETCHED copy either — that is `theirs`, not the ancestor, and merging against it
+// would silently discard everything the engine shipped between install and now. So the
+// file stays at row 7 (preserve + sidecar), the deferred list says `customized`, and no
+// number of updates changes it. Files edited from THIS release on merge normally,
+// because the base is on disk before the edit happens.
+test("QA v3.6.0 → HEAD — a skill edited BEFORE this release never acquires an ancestor, and says so", async (t) => {
+  const REL = ".claude/skills/prepare-1-1/SKILL.md";
+  const customized = readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8") + "\n## My own KPIs\n- churn\n";
+  const { brainDir, manifest } = brainAtRelease("v3.6.0", { edits: { [REL]: customized } });
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+
+  const first = await updateFrom(brainDir, manifest);
+  assert.deepEqual(
+    first.skillsPreserved.filter((p) => p.name === "prepare-1-1"),
+    [{ name: "prepare-1-1", reason: "customized", newVersionPath: `${REL}.new` }],
+  );
+
+  // The update path's own tail, through the production helpers `runReconcileCli` calls.
+  const delivered = { ...first.installedFileMap, ...first.refreshedFileMap };
+  manifest.provenance = reseedProvenance({ priorProvenance: manifest.provenance, manifest, deliveredFileMap: delivered });
+  const sync = syncBaseTree({ brainDir, manifest, provenance: manifest.provenance, deliveredFileMap: delivered });
+
+  // 🛑 The whole finding, in three assertions.
+  assert.ok(!existsSync(join(brainDir, ".engine-base", REL)), "no ancestor can be seeded for bytes nobody can prove");
+  assert.ok(!sync.seeded.includes(REL), "and the seeder does not pretend otherwise");
+  assert.deepEqual(
+    sync.deferred.filter((d) => d.rel === REL),
+    [{ rel: REL, reason: "customized" }],
+    "it is REPORTED as deferred, by name and with the reason — never silently skipped",
+  );
+
+  // And it does not heal on the next update either: that is what makes it permanent
+  // rather than a one-off migration cost, and it is the sentence the release note owes.
+  const second = await updateFrom(brainDir, manifest);
+  assert.deepEqual(
+    second.skillsPreserved.filter((p) => p.name === "prepare-1-1"),
+    [{ name: "prepare-1-1", reason: "customized", newVersionPath: `${REL}.new` }],
+    "a second update reaches the same verdict, not a merge",
+  );
+  assert.equal(readBrain(brainDir, REL), customized, "their file is never touched, which is the promise that IS kept");
 });
