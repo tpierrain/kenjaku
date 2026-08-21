@@ -233,6 +233,32 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S10-4 — the safety commit, 40 mutants, and a count that finally matches the diff — 2026-08-21
+
+`e7a1952`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW code inside an EXISTING file → **hunk-scoped** (`:76-109`).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-commit.mjs:76-109` — log
+[`s10-4-safety`](reports/s10-4-safety).
+
+| Mutants | Score | Survivors |
+|---|---|---|
+| **40** | **100.00 %** | 0 |
+
+**The count was checked before the score**, which is the rule § S10-3 just added: 40 mutants over 34
+added lines carrying two sentence maps, three comparisons and two ternaries is the right order of
+magnitude. Last slice's serene 100 % came from 4 mutants over a change four times that size.
+
+**Confirmed by hand, twice**, per § S7-5-2 — a perfect score nobody has tried to break is a claim:
+
+| Mutant applied to the real tree | Result |
+|---|---|
+| `refused` returns `proceed: true` (the veto removed) | **2 tests red** |
+| the `conflicted` guard deleted (an unmerged tree gets `add -A`) | **2 tests red** |
+
+Both are the slice's reason for existing: the first would let an irreversible overwrite happen with
+the owner's bytes nowhere in history, the second would bury `<<<<<<<` markers in what it stages.
+
 ## S10-3 — the wiring, and a 100 % that measured a QUARTER of the change — 2026-08-21
 
 `216d3b6`. State owned by

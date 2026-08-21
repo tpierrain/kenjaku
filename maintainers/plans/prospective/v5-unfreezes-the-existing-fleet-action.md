@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-4 — the safety commit, before an adopted candidate overwrites an uncommitted edit
+> ## ▶️ RESUME AT: bricks 3-5 — the CONVERSATION itself (brain-side skill), the half that actually asks
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -341,7 +341,8 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
     - [x] **S10-2 — the answers file**, `rel → {decision, at}`, keyed by engine ref. _(2026-08-21)_
     - [x] **S10-3 — the wiring**: the nudge subtracts what is answered; the report names what waits.
           _(2026-08-21 · `216d3b6`)_ — the exit from the S10-1 intermediate state.
-    - [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
+    - [x] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
+          _(2026-08-21 · `e7a1952`)_ — a refused commit VETOES the adoption, it does not report it.
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
 - [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
   - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
@@ -1036,7 +1037,25 @@ false alarms to diagnoses written from reading (`f7a00fc`, and the FR-overwrite 
         A retired skill is excluded **structurally** (its own array, never passed here), not by a
         filter. Deleted, not documented (`66f00c3`), and the test whose title claimed more than it
         measured was renamed with it.
-- [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
+- [x] **S10-4 — the safety commit.** _(2026-08-21 · `e7a1952`)_ `safetyCommit({ git, rel })` in
+      `engine-commit.mjs`, returning `{ outcome, proceed }`.
+  - [x] 🚨 **The decision of the slice is the FAILURE SEMANTICS, and it inverts this module's own
+        precedent.** In `commitEngineUpdate`, twenty lines up, a refused commit is **news**: the files
+        are already on disk and the report names the cause. Here it is a **VETO**, because the write
+        has not happened yet and it is not undoable. Both live in one file **on purpose**, so a reader
+        meets the contrast instead of deducing it.
+  - [x] 🧭 **`proceed` is ONE field, and it is the only thing a caller may branch on.** The rule
+        *"which outcomes are safe"* lives in the module — the same discipline as S10-3's subtraction —
+        so a second caller cannot invent a looser one. `outcome` is for the sentence and the log,
+        never for the decision.
+  - [x] 🔇 **Every veto has a sentence the owner can read** (`ADOPTION_BLOCKED_LINE`): what was NOT
+        done, why, and the one thing that lifts it. A veto nobody can read is a file that silently did
+        not change — the blind spot S10 exists to close, wearing a different coat.
+  - [x] ⚠️ **What it CANNOT do is written into it rather than implied**: it has no idea when the caller
+        writes, so it cannot enforce *"before"*. It can only refuse to say `proceed`.
+  - [x] 🪪 **`add -A`, never the one file.** The owner's edit to the file being adopted is the obvious
+        casualty; the note they wrote in the same minute is the quiet one, and this commit exists to
+        make the whole moment before the overwrite recoverable.
 - [ ] ⚠️ **Bricks 3-5 (the conversation itself) are brain-side skill content**, not engine code, and
       are cut with S10-3 rather than before it: the skill can only speak about a record that exists.
 
