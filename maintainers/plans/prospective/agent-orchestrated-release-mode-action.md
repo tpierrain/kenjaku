@@ -406,6 +406,32 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 13) — S3 is DESIGNED (no code, no number).** A design slice, so
+  `RESULTS.md` gets nothing: there is no mutation score for a paragraph, and the loop's own rule says a
+  design slice ends when the design is committed. Three findings, and **not one of them is the kind a
+  green test reports**.
+  - 🪤 **The wiring would have been a silent no-op, and only reading the reconciler said so.** The
+    reflex is to add the new `PreToolUse` hook beside `vault-write-guard` in the same matcher group.
+    `reconcileHooks` identifies a template group by its **first** script and skips the group when that
+    script is already wired — so the second hook would have reached **zero** deployed brains. Nothing
+    throws, nothing is reported, the feature simply does not exist on the fleet.
+    ➡️ **For the mode**: before adding an entry to a config the engine RECONCILES, read the reconciler's
+    identity function. "Is it in the template?" is not the question; "what does the delivery code use as
+    the key?" is.
+  - 🎯 **Reusing an existing classification for a new question gave the WRONG answer.** "Engine-owned ⇒
+    ask" reads the manifest's regimes and lands on `CLAUDE.md` and `.claude/settings.json`, both
+    `merge` — i.e. the guard would interrupt the owner on the two files it exists to redirect them
+    **to**. The regime says *how the engine updates a file*; the guard needed *who the file was written
+    for*. Two axes that agree almost everywhere, and the exceptions are the whole product.
+    ➡️ **For the mode**: an existing taxonomy is the cheapest thing to reach for and the easiest place
+    to be wrong. Name the question the taxonomy actually answers before borrowing it.
+  - 🔍 **The slice opens on a check no test can perform.** Its whole UX rests on the harness honouring
+    `permissionDecision: "ask"` and showing the reason to the **human** — a contract with the tool that
+    runs us, unprovable from inside a unit test. It is scheduled as **S3-0, first and cheap**, ahead of
+    any code.
+    ➡️ **For the mode**: when a design depends on someone else's contract, the fail-first rule has a
+    sibling — **verify the contract before writing the test that assumes it**, or the whole slice is
+    green against a fiction.
 - 🌙 **2026-08-21 (night, loop iteration 12) — S2b-4, and with it S2b: the named debt paid by DELETING
   the line it was routed to test.** Commits `1d1bc3c` (the deletion + the `argv` default + `unknown()`
   extracted) and `ca41b10` (the mutation instrument). Pushed, suite **1970 pass / 0 fail**,

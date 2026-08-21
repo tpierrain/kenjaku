@@ -179,10 +179,19 @@
 > to a test, `unknown()` moved into `engine-update-check.mjs`, and the last two survivors are **named
 > equivalents**. `update-engine.mjs` ends S2b at **98.65 %** (293 killed, 4 survived, all equivalent).
 >
-> **▶️ RESUME AT: S3 — the write guard.** **S2c is skipped for now: it is the one slice that waits on
-> Thomas** (the blocking box at the top — may the engine write `CLAUDE.md`?), and starting it before that
-> answer would design against a scrub that may not survive the arbitration. Everything else is unblocked,
-> so the queue continues at S3.
+> ✅ **S3 IS DESIGNED** _(2026-08-21 · design slice, no code)_. The full block is below (§ S3), and it
+> found three things a green test would not have: the guard sees **only what Claude writes** (a
+> `PreToolUse` hook sees tool calls, so the owner's editor and the engine's own `fs` writes are both
+> invisible — and that is why it needs no self-exemption); **the regimes alone give the wrong verdict**,
+> because `CLAUDE.md` and `.claude/settings.json` are `merge`-regime files the guard exists to redirect
+> people **to**; and adding the hook next to `vault-write-guard` in the same matcher group **would never
+> reach a deployed brain** (`reconcileHooks` identifies a group by its *first* script).
+>
+> **▶️ RESUME AT: S3-0 — verify the `"ask"` dialect in the field**, then S3-1 (the pure verdict module,
+> test-first). S3-0 is cheap and the slice's whole UX rests on it: `vault-write-guard` only ever emits
+> `"deny"`, and no unit test can prove the harness honours `"ask"` or shows its reason to the human.
+> **S2c stays skipped: it is the one slice that waits on Thomas** (the blocking box at the top — may the
+> engine write `CLAUDE.md`?). S3 does **not** wait on it, whichever way it is answered.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -952,6 +961,112 @@ audible divergence.
       and asks before letting an edit land in an engine file. Precedent and shape:
       `scripts/vault-write-guard.mjs`. **This is the half that makes the whole model honest**: divergence
       stops being free and silent, so preserving it stops being the hard problem.
+
+  - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-21)_. Same reason as S2a's and
+        S2b's, and both paid for themselves: the design is where the plan's own wrong facts surface.
+        This one found **three**, listed as they come.
+
+  - [ ] 🛑 **WHAT THIS GUARD CAN AND CANNOT SEE — say it before promising anything.** A `PreToolUse`
+        hook only ever sees **tool calls**. So the guard governs **what Claude writes**, and nothing
+        else. It does **not** see the owner editing `scripts/auto-commit.mjs` in VS Code or Obsidian,
+        and it does **not** see the engine's own writes (`update-engine`, `reconcileBrain` and the
+        merge all write through `fs`, never through a tool) — which is also why it needs **no
+        self-exemption**, a carve-out that would otherwise be the first thing to get wrong. The slice's
+        title has to shrink to what the mechanism delivers: **an agent no longer diverges a brain from
+        its engine without the owner being asked.** The rest of the promise is S4's (divergence becomes
+        audible) and the merge's (divergence survives an update).
+
+  - [ ] 🎯 **THE VERDICT IS THREE-WAY, and the regimes ALONE cannot produce it** — the design's first
+        finding, and the one that would have shipped a wrong guard. The obvious rule ("engine-owned ⇒
+        ask") reads the manifest and lands on `CLAUDE.md` and `.claude/settings.json`, which are in the
+        **`merge`** regime — i.e. the guard would interrupt the owner on the two files it exists to
+        **redirect them to**. Regime is the wrong axis. The axis is *who the file was written for*:
+    - [ ] **`allow`, silently — the owner's surface.** Everything in **no regime at all** (the vault,
+          `.env`, a skill the owner wrote) falls out for free, plus exactly **two** engine-owned
+          exceptions: **`CLAUDE.md`** and **`.claude/settings.json`**. Those two are engine-owned *and*
+          owner-authored; being asked before writing them would be the guard fighting the product.
+    - [ ] **`ask`, with the price named — engine internals under a regime.** `scripts/**`, `rag/**`,
+          `local-mirror/**`, `shared/**`, `engine-skills/**`, the launchers, and the engine skills under
+          `.claude/skills/`. The sentence differs by regime because **the price differs**: under
+          `merge`, *"your edit will be kept, and every future update will three-way-merge this file
+          forever"*; under `replace` / `regenerate`, *"the next update overwrites this, without a word"*.
+          That second sentence is the whole point of the slice.
+    - [ ] **`deny` — `.engine-base/**`, and only it.** The recorded ancestor is the one write with **no
+          correct version**: editing it does not diverge the brain, it **forges the provenance**, turning
+          a real divergence into a fast-forward that destroys the owner's edit at the next update, in
+          silence, with the base itself as the evidence that nothing was wrong. Same doctrine as
+          `vault-write-guard`: **deny is reserved for the write that cannot be meant.**
+    - [ ] ⚖️ **`replace` is `ask`, not `deny`, and that is a decision.** An edit there is *always* lost,
+          so denying it is tempting — and wrong: an owner unbreaking their own brain right now has a
+          legitimate reason the guard cannot see. **The guard's job is to make the cost visible at the
+          moment of the gesture, never to make the choice.**
+
+  - [ ] 🔗 **The two-file exception is S2c's list, read from the other side** — so it is **one constant,
+        not two**. S2c splits `SACRED` into *inviolable* and *merge-governed*, and the merge-governed
+        half is exactly `CLAUDE.md` + `.claude/settings.json`. S3 needs the same pair to answer *"may
+        the AGENT write this without asking?"*; S2c needs it to answer *"may the ENGINE write this at
+        all?"*. Two directions of one boundary. **S3 defines the constant and S2c reuses it** — and
+        because the two questions are independent, **S3 does not wait on the arbitration**: whichever
+        way Thomas answers *"may the engine write `CLAUDE.md`"*, the owner may.
+
+  - [ ] 🪤 **THE WIRING TRAP, found by reading `hooks-reconcile.mjs` and worth the whole design slice.**
+        The reflex is to add the new hook as a second entry inside the existing
+        `PreToolUse` / `Write|Edit` group next to `vault-write-guard`. **It would never reach a single
+        deployed brain.** `reconcileHooks` identifies a template group by
+        `(group.hooks ?? []).map(hookScript).find(Boolean)` — its **first** script — and skips the group
+        when that script is already wired. The group's first script would be `vault-write-guard.mjs`,
+        present in every brain since v4.5, so the group is skipped whole and the second hook is silently
+        dropped. **The guard must be its OWN group**: a second `{ matcher: "Write|Edit", hooks: [ … ] }`
+        object in the `PreToolUse` array.
+    - [ ] 📌 **And that is a latent defect in the reconciler, not just an S3 inconvenience**: *a template
+          hook group can only ever deliver its FIRST script.* S3 works **with** the constraint (one
+          script per group, which is also how every existing group is shaped) and records the finding
+          here rather than widening the reconciler mid-slice. Cost of getting it wrong: nothing throws,
+          nothing is reported, the feature simply does not exist on the fleet.
+    - [ ] ✅ **Delivery is otherwise free, and this is the good news**: `reconcileHooks` compares a brain
+          against **`.claude/settings.json.template`**, which is in the `replace` regime. Adding the
+          group to the template is therefore the entire distribution mechanism — every existing brain
+          self-heals the hook in at its next update or SessionStart (ADR 0026), with **no migration to
+          write**.
+
+  - [ ] 🧱 **The shape, per CONVENTIONS §5ter and the entry-point seam rule** — a straight copy of the
+        precedent's split, because it is the shape the fleet already runs:
+    - [ ] `scripts/lib/engine-write-guard.mjs` — **pure**. `guardDecision({ toolName, filePath, brainDir,
+          manifest })` → `{ decision: "allow" | "ask" | "deny", reason }`. Glob matching reuses
+          `globToRegExp` from `lib/glob-match.mjs` (the same primitive `selectMergeFiles` and
+          `computeApplyPlan` already answer with) — **no second glob dialect in the product**.
+    - [ ] `scripts/engine-write-guard.mjs` — the entry: stdin JSON, `runAsEntrypoint`, `emit`, and
+          **always exit 0**. Tested by **running it as a process**, like every other entry point.
+    - [ ] **FAIL-OPEN, with one anchored exception.** No manifest, an unreadable one, an unexpected
+          payload → allow. But the `.engine-base/**` deny is anchored on the **path prefix**, not on the
+          manifest, so it survives a manifest the guard could not read: the one verdict that protects a
+          *correctness* invariant must not be disarmed by the file whose integrity it is protecting.
+    - [ ] Both files join the manifest's **`replace`** regime (engine internals, like their precedent).
+
+  - [ ] 🔍 **S3-0, first and cheap: verify the `"ask"` dialect in the field.** `vault-write-guard` only
+        ever emits `permissionDecision: "deny"`; this slice's whole UX rests on `"ask"` being honoured
+        by the harness and on the `permissionDecisionReason` being shown to the **human** (on `deny` it
+        is fed back to the model). **A unit test cannot prove either.** Check it before building on it;
+        if `"ask"` is not honoured, the fallback is `deny` + a reason that names the one-line
+        `/permissions` escape, and the slice's wording changes, not its shape.
+
+  - [ ] ⚠️ **The UX risk to measure, not to argue about**: the engine skills are in `merge`, so a session
+        that legitimately customizes `coach` or `improve` meets the prompt. That is *correct* the first
+        time and noise the tenth. Measure it on the real brain before adding any cleverness; the escape
+        hatch already exists (`/permissions`) and costs the owner one gesture.
+
+  - [ ] 📜 **It AMENDS ADR 0012, it does not open a new one** (CONVENTIONS §6bis — one ADR per topic).
+        0012 owns the write boundary between launcher and brain; today it states only the engine→brain
+        direction (the structural write-allowlist). S3 adds the brain→engine direction, which is the same
+        boundary read backwards, and S2c amends the same ADR in the same release. New ADR `0038` would
+        split one topic in two. Prior art to name (§6quinquies): a **protected-path pre-commit /
+        CODEOWNERS gate** — the file is not locked, the change is made deliberate.
+
+  - [ ] 🚫 **Deliberately OUT of S3**, named so the slice does not grow: guarding the **launcher** repo
+        (maintainers edit engine files all day; the guard reaches brains only through
+        `settings.json.template`, which the launcher never applies to itself — it is out by
+        construction, not by exemption); guarding non-tool writes (`Bash` heredocs, an external editor);
+        and **reporting** existing divergence, which is S4 and needs the base tree, not a hook.
 - [ ] **S4 — Divergence becomes audible.** A brain says, once, which engine files it is holding back and
       how far behind they are. Absorbs the silent-skill-freeze plan's third defect.
 - [ ] **S5 — The doctrine layer joins a regime, as the first client of the new model.**
