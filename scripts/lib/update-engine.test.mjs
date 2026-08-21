@@ -2833,6 +2833,34 @@ test("formatReport — the range is ordered by SEMVER, never lexically", () => {
   assert.match(out, /recognized from v3\.2\.0 to v3\.10\.0/);
 });
 
+test("formatReport — a version string it cannot parse is SKIPPED, never crashed on", () => {
+  // The heal already happened and is already recorded on disk. A report is the last
+  // thing that may fail an update that worked, so a table carrying a tag this engine
+  // cannot parse costs that one file its place in the range — and nothing else.
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.4.0" },
+    copied: [],
+    healed: [
+      { rel: "a.md", since: "not-a-tag", locale: "en" },
+      { rel: "b.md", since: "v3.6.0", locale: "en" },
+    ],
+  });
+
+  assert.match(out, /2 engine file\(s\) recognized from v3\.6\.0 —/, "both files counted, one version named");
+});
+
+test("formatReport — when NO version parses, the count still stands and the range stays vague", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.4.0" },
+    copied: [],
+    healed: [{ rel: "a.md", since: "not-a-tag", locale: "en" }],
+  });
+
+  assert.match(out, /1 engine file\(s\) recognized from an earlier version —/);
+});
+
 test("formatReport — a brain with nothing to recognise gets NO line at all", () => {
   // Every brain installed from v5.0.0 on, and every brain already healed: this is a
   // migration event, and an event that did not happen must not be announced. It also

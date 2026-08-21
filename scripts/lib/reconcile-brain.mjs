@@ -511,7 +511,10 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // `sourceDir !== brainDir`. Left as "delivered something", the heal would be computed,
   // used for one run and thrown away unwritten, so the next update would meet the same
   // frozen brain forever.
-  if (Object.keys(delivered).length > 0 || (report.healed ?? []).length > 0) {
+  // No `?? []` on `report.healed`: this report comes from `reconcileBrain` three lines up,
+  // which always returns the array. A fallback that cannot fire is a mutant nest, not a
+  // safety net (the lesson S7-2's comparator taught, applied one file over).
+  if (Object.keys(delivered).length > 0 || report.healed.length > 0) {
     writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance, baseRefs }, null, 2) + "\n");
   }
 
