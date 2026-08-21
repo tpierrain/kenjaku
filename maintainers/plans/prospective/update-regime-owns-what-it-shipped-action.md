@@ -598,12 +598,15 @@ audible divergence.
   - [x] ⚠️ **This is the third due date for the same debt** (v4.5.0, v4.6.0, then v4.9.0). Cutting this
         release without paying it is a **defect**, not a candidate for a second re-arbitration.
 
-- [ ] **S1 — An immutable base per `merge` file.** Freeze the staged copy at **the version actually
+- [x] **S1 — An immutable base per `merge` file.** Freeze the staged copy at **the version actually
       delivered to the installed file**, instead of overwriting it with the newest one. That one change
       makes the existing comparison correct and kills the silent-freeze false positive by construction.
-  - [ ] The recorded `sha256` becomes what it should always have been: the **proof** that the base on
+      _(COMPLETE — every child box below was verified against the CODE by the carrier audit of
+      2026-08-21, not against this plan's own prose; one of them turned out FALSE and is struck in
+      place rather than quietly deleted.)_
+  - [x] The recorded `sha256` becomes what it should always have been: the **proof** that the base on
         disk is the right one, checked before any merge.
-  - [ ] Decide the base's home for the files that have none today (`CLAUDE.md`, `settings.json`, the
+  - [x] Decide the base's home for the files that have none today (`CLAUDE.md`, `settings.json`, the
         four scripts): generalize the `engine-skills/` idea, or a single `.engine-base/` tree. Cost is
         a few dozen KB.
   - [x] **GROUND TRUTH, measured on the deployed brains 2026-08-20 — do not re-derive it.** Read on
@@ -656,11 +659,19 @@ audible divergence.
           sections is a blind overwrite of a file that sits beside a personalized constitution, which
           nobody dares do — so nothing ships. With `.engine-base/` we know what was last delivered, so
           the sections can land **without touching** what the owner wrote next to them.
-    - [ ] **What makes the migration cheap, and it falls out of the same measurement**: on a brain
+    - [x] **What makes the migration cheap, and it falls out of the same measurement**: on a brain
           where the installed file still **matches its recorded `sha256`**, that file **is** the
           engine's last delivered content — so the base tree can be seeded **from the brain itself**,
-          with no fetch. 13 of 15 entries qualified on the live brain; the two that did not
-          (`CLAUDE.md`, `settings.json`) seed from the fetched engine copy at the next update.
+          with no fetch. 13 of 15 entries qualified on the live brain.
+      - [x] ⚠️ **The last clause of this box was FALSE and is struck** _(caught 2026-08-21 by the
+            carrier audit, same defect as the code comment fixed in `19a6842`)_. It read: *"the two
+            that did not (`CLAUDE.md`, `settings.json`) seed from the fetched engine copy at the next
+            update."* ~~They do not.~~ **There is no such path**: a preserved customization is never
+            *delivered* (row 7 returns no `deliver`), so `planBaseAdvance` never moves its base; and
+            seeding from the fetched copy would seed *theirs*, not the ancestor, silently discarding
+            everything shipped in between. **The behaviour is right, the sentence was not.** Those two
+            files stay preserved with the new version beside them, and the `deferred` list names them
+            with the reason. Pinned by `release-fixture-refresh.test.mjs`.
   - [x] **The base's HOME and its PROOF are built** _(2026-08-20 · `411d4d7` + `40743c1`)_ —
         `scripts/lib/engine-base.mjs`, pure and fs-free: `baseRelPath` (one `.engine-base/` tree, a
         deliberately unconditional prefix, no per-family case) and `verifyBase`, which turns the
@@ -732,12 +743,19 @@ audible divergence.
           match **no tracked source file** — it names what a brain produces, never what the launcher
           ships.
 - [ ] **S2 — A real three-way merge, so "preserve" stops meaning "abandon".**
-  - [ ] untouched → fast-forward (today's behaviour, unchanged);
-  - [ ] owner's edit in a region the update does not touch → **merge**: they keep their edit **and**
+  - [x] untouched → fast-forward (today's behaviour, unchanged);
+  - [x] owner's edit in a region the update does not touch → **merge**: they keep their edit **and**
         receive the update. This is the case that is common today and served worst;
-  - [ ] both changed the same region → a **real conflict**, the only case that costs a human anything,
+  - [x] both changed the same region → a **real conflict**, the only case that costs a human anything,
         and the only one that should produce a sidecar or a question.
-  - [ ] Markdown-aware where it pays (doctrine and skills are section-structured), line-based otherwise.
+  - [x] ~~Markdown-aware where it pays (doctrine and skills are section-structured), line-based
+        otherwise.~~ ⛔ **DROPPED, and this line contradicted its own section until the carrier audit
+        caught it** _(2026-08-21)_. S2's exclusion list already says *"Markdown-aware merging.
+        Line-based only, on the measurement above"* — the exclusion is later and it won; what shipped
+        is `git merge-file` and nothing else (`engine-merge-git.mjs`, no section logic anywhere).
+        Left visible rather than deleted: a reader landing here would otherwise have believed the
+        merge understands Markdown, which is exactly the kind of promise a plan should not make in
+        two places and answer differently.
 
   - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-20)_.
         Written into this file rather than held in a window, because a compaction costs a session its
@@ -1129,11 +1147,11 @@ audible divergence.
             *(This item was written into the plan twice, in two adjacent bullets saying the same thing —
             deduplicated here rather than ticked twice.)*
 
-    - [ ] **Deliberately OUT of S2b** — named so the slice does not grow:
-      - [ ] **Semantic validation of a merged script** (running it, linting it, type-checking it). The
+    - [x] **Deliberately OUT of S2b** — named so the slice does not grow:
+      - [x] **Semantic validation of a merged script** (running it, linting it, type-checking it). The
             gate parses; judging whether a merged `auto-commit.mjs` still *behaves* is a different
             product, and the honest answer to it is the conflict report, not a cleverer check.
-      - [ ] **`scripts/lib/**`** — declared `replace`, and it stays there. It is engine internals, not
+      - [x] **`scripts/lib/**`** — declared `replace`, and it stays there. It is engine internals, not
             a file an owner is invited to edit; making it merge-governed would offer a promise nobody
             asked for.
   - [x] **S2c — the scrub is reformulated: never written *blind*.** ✅ _(2026-08-21 · `856ad24`,
@@ -1155,7 +1173,7 @@ audible divergence.
     - [x] ✅ **UNBLOCKED 2026-08-21** — the arbitration box at the top is answered: **yes**, the
           constitution is merge-governed. Read that box before writing the ADR, it carries the argument
           (and the honest limit: no deployed brain can merge `CLAUDE.md` yet, for want of an ancestor).
-    - [ ] `.claude/settings.json` is **deliberately not a text merge**: the engine already writes it
+    - [x] `.claude/settings.json` is **deliberately not a text merge**: the engine already writes it
           surgically today (hook entries, status line, via `reconcileBrain`), which is the better
           mechanism for a JSON file whose two sides both append to the same arrays. S2c's job on it is
           to say so out loud, not to replace it with a line-based diff.
@@ -1177,23 +1195,23 @@ audible divergence.
           were green on wording while the placement was still unjudged.
 
   - [x] **Deliberately OUT of S2** — named so no slice quietly grows:
-    - [ ] **Markdown-aware merging.** Line-based only, on the measurement above (blank lines already
+    - [x] **Markdown-aware merging.** Line-based only, on the measurement above (blank lines already
           give section granularity). The trigger to revisit is a **measured** conflict rate, replayed
           against real deployed-brain content — not an intuition.
-    - [ ] **The 9 staged skills** (`consolidate`, `file-back`, `lint`, `local-mirror`,
+    - [x] **The 9 staged skills** (`consolidate`, `file-back`, `lint`, `local-mirror`,
           `mcp-token-expired`, `open-note`, `rag`, `univers`, `universe`) stay unmergeable: no `merge`
           glob names their installed path, so they have no provenance and S1 seeds them no base. **A
           merge with no ancestor is not a merge** — widening the manifest to bring them in is a scope
           call and belongs to the release's cargo discussion, not to S2's code.
     - [ ] **Seeding a base for a no-record file that holds the engine's exact bytes** (row 2). Cheap and
           correct, but it is S1's planner's business — noted here so it is not lost, not done here.
-    - [ ] Interactive conflict resolution. An update **never** prompts: it writes, or it reports. ⚠️
+    - [x] Interactive conflict resolution. An update **never** prompts: it writes, or it reports. ⚠️
           **Qualified, not contradicted, by the owner's 2026-08-21 answer** (box at the top): assisted
           resolution IS coming, as its own chantier, but it lives **outside** `update-engine.mjs` — the
           update runs in a non-interactive child where no conversation can happen. What S2 excludes is
           prompting *from the update*; what the follow-on chantier adds is a separate on-demand flow the
           report points at. **S2d**, in this release, is only that pointer sentence.
-    - [ ] The audible divergence report (S4), the write guard (S3), `CLAUDE.engine.md`'s regime (S5).
+    - [x] The audible divergence report (S4), the write guard (S3), `CLAUDE.engine.md`'s regime (S5).
 - [x] **S3 — Keep the owner's intent out of engine files, by construction** _(complete 2026-08-21, S3-0 →
       S3-3: `177c572` · `4bf5efa` · `b82569e` · `cf55c2a` · `3493533`)_. **One thing is deliberately left
       open and it is not code**: the UX measurement below, which needs a real brain and a few days, not a
@@ -1207,7 +1225,7 @@ audible divergence.
         S2b's, and both paid for themselves: the design is where the plan's own wrong facts surface.
         This one found **three**, listed as they come.
 
-  - [ ] 🛑 **WHAT THIS GUARD CAN AND CANNOT SEE — say it before promising anything.** A `PreToolUse`
+  - [x] 🛑 **WHAT THIS GUARD CAN AND CANNOT SEE — say it before promising anything.** A `PreToolUse`
         hook only ever sees **tool calls**. So the guard governs **what Claude writes**, and nothing
         else. It does **not** see the owner editing `scripts/auto-commit.mjs` in VS Code or Obsidian,
         and it does **not** see the engine's own writes (`update-engine`, `reconcileBrain` and the
@@ -1217,32 +1235,32 @@ audible divergence.
         its engine without the owner being asked.** The rest of the promise is S4's (divergence becomes
         audible) and the merge's (divergence survives an update).
 
-  - [ ] 🎯 **THE VERDICT IS THREE-WAY, and the regimes ALONE cannot produce it** — the design's first
+  - [x] 🎯 **THE VERDICT IS THREE-WAY, and the regimes ALONE cannot produce it** — the design's first
         finding, and the one that would have shipped a wrong guard. The obvious rule ("engine-owned ⇒
         ask") reads the manifest and lands on `CLAUDE.md` and `.claude/settings.json`, which are in the
         **`merge`** regime — i.e. the guard would interrupt the owner on the two files it exists to
         **redirect them to**. Regime is the wrong axis. The axis is *who the file was written for*:
-    - [ ] **`allow`, silently — the owner's surface.** Everything in **no regime at all** (the vault,
+    - [x] **`allow`, silently — the owner's surface.** Everything in **no regime at all** (the vault,
           `.env`, a skill the owner wrote) falls out for free, plus exactly **two** engine-owned
           exceptions: **`CLAUDE.md`** and **`.claude/settings.json`**. Those two are engine-owned *and*
           owner-authored; being asked before writing them would be the guard fighting the product.
-    - [ ] **`ask`, with the price named — engine internals under a regime.** `scripts/**`, `rag/**`,
+    - [x] **`ask`, with the price named — engine internals under a regime.** `scripts/**`, `rag/**`,
           `local-mirror/**`, `shared/**`, `engine-skills/**`, the launchers, and the engine skills under
           `.claude/skills/`. The sentence differs by regime because **the price differs**: under
           `merge`, *"your edit will be kept, and every future update will three-way-merge this file
           forever"*; under `replace` / `regenerate`, *"the next update overwrites this, without a word"*.
           That second sentence is the whole point of the slice.
-    - [ ] **`deny` — `.engine-base/**`, and only it.** The recorded ancestor is the one write with **no
+    - [x] **`deny` — `.engine-base/**`, and only it.** The recorded ancestor is the one write with **no
           correct version**: editing it does not diverge the brain, it **forges the provenance**, turning
           a real divergence into a fast-forward that destroys the owner's edit at the next update, in
           silence, with the base itself as the evidence that nothing was wrong. Same doctrine as
           `vault-write-guard`: **deny is reserved for the write that cannot be meant.**
-    - [ ] ⚖️ **`replace` is `ask`, not `deny`, and that is a decision.** An edit there is *always* lost,
+    - [x] ⚖️ **`replace` is `ask`, not `deny`, and that is a decision.** An edit there is *always* lost,
           so denying it is tempting — and wrong: an owner unbreaking their own brain right now has a
           legitimate reason the guard cannot see. **The guard's job is to make the cost visible at the
           moment of the gesture, never to make the choice.**
 
-  - [ ] 🔗 **The two-file exception is S2c's list, read from the other side** — so it is **one constant,
+  - [x] 🔗 **The two-file exception is S2c's list, read from the other side** — so it is **one constant,
         not two**. S2c splits `SACRED` into *inviolable* and *merge-governed*, and the merge-governed
         half is exactly `CLAUDE.md` + `.claude/settings.json`. S3 needs the same pair to answer *"may
         the AGENT write this without asking?"*; S2c needs it to answer *"may the ENGINE write this at
@@ -1250,7 +1268,7 @@ audible divergence.
         because the two questions are independent, **S3 does not wait on the arbitration**: whichever
         way Thomas answers *"may the engine write `CLAUDE.md`"*, the owner may.
 
-  - [ ] 🪤 **THE WIRING TRAP, found by reading `hooks-reconcile.mjs` and worth the whole design slice.**
+  - [x] 🪤 **THE WIRING TRAP, found by reading `hooks-reconcile.mjs` and worth the whole design slice.**
         The reflex is to add the new hook as a second entry inside the existing
         `PreToolUse` / `Write|Edit` group next to `vault-write-guard`. **It would never reach a single
         deployed brain.** `reconcileHooks` identifies a template group by
@@ -1259,12 +1277,12 @@ audible divergence.
         present in every brain since v4.5, so the group is skipped whole and the second hook is silently
         dropped. **The guard must be its OWN group**: a second `{ matcher: "Write|Edit", hooks: [ … ] }`
         object in the `PreToolUse` array.
-    - [ ] 📌 **And that is a latent defect in the reconciler, not just an S3 inconvenience**: *a template
+    - [x] 📌 **And that is a latent defect in the reconciler, not just an S3 inconvenience**: *a template
           hook group can only ever deliver its FIRST script.* S3 works **with** the constraint (one
           script per group, which is also how every existing group is shaped) and records the finding
           here rather than widening the reconciler mid-slice. Cost of getting it wrong: nothing throws,
           nothing is reported, the feature simply does not exist on the fleet.
-    - [ ] ✅ **Delivery is otherwise free, and this is the good news**: `reconcileHooks` compares a brain
+    - [x] ✅ **Delivery is otherwise free, and this is the good news**: `reconcileHooks` compares a brain
           against **`.claude/settings.json.template`**, which is in the `replace` regime. Adding the
           group to the template is therefore the entire distribution mechanism — every existing brain
           self-heals the hook in at its next update or SessionStart (ADR 0026), with **no migration to
