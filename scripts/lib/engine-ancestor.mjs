@@ -35,6 +35,13 @@ export function planAncestorFetch({ manifest, provenance = {}, installedFileMap 
     .map((rel) => {
       const recorded = provenance[rel];
       // No record at all → S7's business (recognise the bytes), never this one.
+      // ⚠️ A NAMED EQUIVALENT, and a different animal from the dead branches S7-2 and
+      // S7-3 deleted: this guard is REACHED on real input, it is merely REDUNDANT.
+      // Remove it and BOTH ways out still return null — either `matchesRecord` forgives
+      // the absent record, or the table lookup misses on an `undefined` key two lines
+      // down. Kept, because it answers the question at the place a reader asks it, and
+      // because leaning on two distant behaviours to skip a file is how a refactor
+      // downstream silently changes this one.
       if (!recorded) return null;
       // 🛑 HOLES ONLY. An existing `.engine-base/<rel>` is the REAL recorded ancestor;
       // replacing it with bytes fetched on the strength of a historical digest would
@@ -55,5 +62,8 @@ export function planAncestorFetch({ manifest, provenance = {}, installedFileMap 
       return { rel, tag: entry.since, sourcePath: sourcePathFor(rel, entry.locale), recorded };
     })
     .filter(Boolean)
+    // No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: the rels come from object
+    // keys, so one cannot appear twice — the same shape, and the same reasoning, as
+    // `healProvenance`'s comparator next door.
     .sort((a, b) => (a.rel < b.rel ? -1 : 1));
 }

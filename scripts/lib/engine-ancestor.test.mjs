@@ -183,6 +183,16 @@ test("planAncestorFetch — NO table at all plans nothing, and does not throw", 
   );
 });
 
+test("planAncestorFetch — a table with no `files` key at all is survived, not crashed on", () => {
+  // Demanded by the mutation run, and reachable for real: a table file holding `{}`
+  // parses fine and comes back as a table with nothing in it. Each `?.` in the lookup
+  // chain guards a different absence, and this is the middle one.
+  assert.deepEqual(
+    plan({ table: {}, provenance: { [DOCTRINE]: SHA_SHIPPED }, installedFileMap: { [DOCTRINE]: EDITED } }),
+    [],
+  );
+});
+
 test("planAncestorFetch — the table argument may be omitted entirely", () => {
   assert.deepEqual(
     planAncestorFetch({
