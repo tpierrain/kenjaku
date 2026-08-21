@@ -55,39 +55,48 @@
 > Offline, or on a tag that has gone, the file is preserved exactly as before and the report says so in
 > one line. And two edits in the **same region** still conflict — correctly, and visibly.
 >
-> ## 🛑 S7 UNFREEZES A FRENCH BRAIN **INTO ENGLISH** — measured at S7-4, 2026-08-21, `d9421c8`
+> ## ✅ RESOLVED — "S7 UNFREEZES A FRENCH BRAIN INTO ENGLISH" WAS A **FALSE ALARM** _(2026-08-21, `a58ecf8`)_
 >
-> **Not a suspicion: a QA pole on a brain rebuilt from the real `v3.6.0` tag, holding the real FR
-> doctrine blob.** The heal reads the locale perfectly (`{rel, since: "v3.6.0", locale: "fr"}`) and the
-> **delivery ignores it**: `selectMergeGovernedDoctrine` pairs every rel with `sourceRel: rel`, so the
-> source is always the English tree. The brain ends the update holding the English doctrine.
+> **A genuinely French brain receives the FRENCH doctrine, byte for byte** — probed on a brain rebuilt
+> from the real `v3.6.0` tag before a line was changed. The claim below is kept, struck through in
+> meaning rather than deleted, because the way it was wrong is the finding.
 >
-> **Why this is S7's doing and not merely a pre-existing S8 gap.** Before S7 a French brain's doctrine
-> was FROZEN — and frozen meant it stayed French. **S7 converted a silent freeze into a silent language
-> switch.** It is the owner's own two brains that are French.
+> **What was actually broken was the FIXTURE, not the engine.** The release-fixture tree is PARTIAL and
+> carries no `scripts/lib/demo-locale.mjs`, so `readBrainLocale` fell back to `en`: Pole D built an
+> **English brain holding French bytes in exactly one file**, a state no installer can produce. The heal
+> then reported `locale: "fr"` — correctly, those bytes really are the fr byte-state — and that was read
+> as *"the brain is French, and it received English"*. A brain is French because its **marker** says so.
 >
-> - [ ] **The fix belongs to S8-3** and was deliberately not smuggled into the QA slice. It is small
->       (the doctrine's pair must resolve the locale, exactly as the skills' does).
-> - [x] **The QA already holds the tripwire**: Pole D asserts the English delivery **as a measurement**,
->       so it turns RED the moment S8-3 fixes it. Nobody has to remember.
-> - [ ] ⚠️ **v5 MUST NOT SHIP with S8 unpaid.** S8 was already sequenced before the release tail; what
->       changed is its NATURE — it is no longer "the FR tree stops drifting", it is "the FR tree stops
->       being overwritten". A drift is stale content; this is the wrong language.
+> **And the located cause was wrong on its own terms**: the box blamed `selectMergeGovernedDoctrine` for
+> pairing every rel with `sourceRel: rel`, but `applyMergeGoverned` resolves the locale one level down,
+> through `resolveLocaleSource`. The pairing was never the delivery's last word.
 >
-> ## ▶️ RESUME AT: S8-3 — the FR delivery fix (S7 unfreezes a French brain INTO ENGLISH)
+> - [x] **Pole D is INVERTED and green**: a French brain (marker written from the tag's own
+>       `templates/fr/` overlay, never invented) receives `templates/fr/CLAUDE.engine.md`. A second test
+>       pins that the marker is really written, so this cannot drift back to measuring an English brain
+>       under a French name.
+> - [x] 🎯 **THE LESSON, and it is the second time in one night**: both this and `f7a00fc` were "causes
+>       located" by reading code from the outside and neither survived contact with the artifact. **A
+>       located cause is a hypothesis until something is run.** Cheap here — the probe took one file and
+>       two minutes — and it had already reached the ROADMAP as a promise to the fleet.
+> - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
+>       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth) and **S8-2 is DONE end to end** _(2026-08-21)_ —
-> S8-1 `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`. **The French tree no longer drifts in silence**:
-> `scripts/lib/locale-drift.mjs` is green over the 16 real pairs, and its waiver map turned out to be
-> load-bearing (empty it and it goes red naming `f7a00fc`, the one commit where **English caught up with
-> French** and no French edit can ever pair it).
+> ## ▶️ RESUME AT: S8-4 — the locale doctrine recorded as an ADR (the last item in S8)
 >
-> **S8-3 is now the biggest thing left in S8, and it is a DEFECT, not tidy-up** — see the box at the top
-> of this file. Its QA half is already paid: Pole D of `release-fixture-doctrine.test.mjs` asserts the
-> **English** delivery *as a measurement*, so it turns red the moment the fix lands and you flip it. The
-> cause is located: `selectMergeGovernedDoctrine` pairs every rel with `sourceRel: rel`
-> (`engine-doctrine-refresh.mjs:66`), so the source is always the English tree — while the skills'
-> equivalent already resolves a locale, which is the working shape to copy.
+> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth) and **S8 is done bar its ADR** _(2026-08-21)_ —
+> S8-1 `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`. **The French tree no longer drifts
+> in silence**: `scripts/lib/locale-drift.mjs` is green over the 16 real pairs, and its waiver map turned
+> out to be load-bearing (empty it and it goes red naming `f7a00fc`, the one commit where **English
+> caught up with French** and no French edit can ever pair it).
+>
+> 🛑 **S8-3 CLOSED A FALSE ALARM, not a defect** — read the box at the top before quoting anything about
+> French brains being overwritten. A genuinely French brain always received the French doctrine; the QA
+> fixture was building an English brain and calling it French. **Twice in one night a "located cause"
+> did not survive being run** (this, and `f7a00fc` at S8-2a), and this one had already reached the
+> ROADMAP as a promise to the fleet.
+>
+> **After S8-4**: **S10**, then **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
 >
 > **S8-2-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S8-2-0 and build to it. The
 > criterion is **unpaired commits** (commits touching EN since the FR twin's last commit that do not
@@ -100,9 +109,6 @@
 > ✅ **The guard was RED ON ARRIVAL**, the design split it, the port came first, and it shipped green.
 > The split is also what made the criterion's one flaw cheap to fix: it was found by the slice that
 > used it, before a line of guard existed.
->
-> Then **S8-3** (the FR delivery — the defect in the box above), **S8-4** (the ADR), then **S10**, then
-> **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
 >
 > ⚠️ **Read this before trusting any mutation number** (S7-5-1 paid for it): the runner is
 > **NON-DETERMINISTIC at `concurrency: 5`** — same commit, two runs, 96.97 % then 93.94 %. Serial is
@@ -282,11 +288,10 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [x] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. _(2026-08-21 · `d9421c8` ·
         2 poles; no mutation pass — test-only slice, adds no production line, skip recorded)_ Headline
         was paid at S7-3; this bought the breadth: **FR**, the **scripts** family, and a **second tag**.
-        🛑 **It measured a defect S7 activated** — a French brain is unfrozen into ENGLISH. See the box
-        at the top; the fix is S8-3's.
-- [ ] **S8 — the French tree stops drifting in silence** — and, since 2026-08-21, **stops being
-      OVERWRITTEN**: S7 unfreezes a French brain into English (measured, box at the top of this file).
-      S8-3 owns that fix, and Pole D of `release-fixture-doctrine.test.mjs` goes red when it lands.
+        ⚠️ **It reported a defect S7 had activated — and that turned out to be the FIXTURE's, not the
+        engine's.** Resolved at S8-3 the same night; see the box at the top.
+- [ ] **S8 — the French tree stops drifting in silence.** _(It briefly read "and stops being
+      OVERWRITTEN" — that was the false alarm above, withdrawn 2026-08-21.)_
   - [x] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`. _(2026-08-21 · `775c00a`)_
   - [ ] **S8-2 — the EN/FR drift guard**, a test.
     - [x] **S8-2-0 — the design**, measured on the 16 real pairs. _(2026-08-21)_
@@ -295,7 +300,8 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           _(2026-08-21)_
     - [x] **S8-2b — the guard**, shipped green over 16 pairs, with `NOT_A_PORT`.
           _(2026-08-21 · `ab85fde` + `417e264`)_
-  - [ ] **S8-3 — the FR replay QA.**
+  - [x] **S8-3 — the FR replay QA**, and the defect it was filed against was the fixture's, not the
+        engine's. _(2026-08-21 · `a58ecf8`)_
   - [ ] **S8-4 — the locale doctrine recorded** as an ADR.
 - [ ] **S10 — a personalized file becomes a QUESTION, never a blind spot.** _(Owner's acceptance
       criterion, 2026-08-21. **v5 cargo**, explicitly not v5.1. Runs BEFORE S9.)_
@@ -810,13 +816,13 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
             here would turn a broken git call into "no drift found", the exact silence this guard exists
             to break.
       - [x] ⚠️ The fingerprint table needed no regeneration: this slice touched no `merge`-regime file.
-- [ ] **S8-3 — the FR delivery, and its replay QA.** A pole in the release fixtures for a **French**
-      brain: it must receive the FR doctrine, not the English one, through a real update.
-      ✅ **The pole now EXISTS** _(S7-4, `d9421c8`)_ and it currently asserts the **English** delivery
-      as a measurement — so the QA half of this item is paid, and what is left is the FIX plus flipping
-      that assertion. **The cause is located**: `selectMergeGovernedDoctrine` pairs every rel with
-      `sourceRel: rel` (`engine-doctrine-refresh.mjs:66`), so the source is always the English tree;
-      the skills' equivalent already resolves a locale, so there is a working shape to copy.
+- [x] **S8-3 — the FR delivery, and its replay QA.** _(2026-08-21 · `a58ecf8`)_ A pole in the release
+      fixtures for a **French** brain: it receives the FR doctrine, not the English one, through a real
+      update. **There was no engine fix to make** — the delivery already resolved the locale, and the
+      defect was in the fixture, which built an English brain and called it French. Full account in the
+      box at the top of this file. What shipped: `brainAtRelease` takes a `locale` and writes the
+      marker from the tag's own overlay, Pole D is inverted and green, and a second test pins that the
+      marker is really written.
 - [ ] **S8-4 — the locale doctrine recorded as an ADR** (the three-row table in the decisions block
       above). Check first whether an existing ADR owns localization: CONVENTIONS §6bis says one ADR per
       topic, and S3 amended 0012 rather than opening 0038 for exactly this reason.

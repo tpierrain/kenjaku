@@ -465,6 +465,23 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🛑 **2026-08-21 (S8-3) — THE SECOND "LOCATED CAUSE" OF THE NIGHT THAT DID NOT SURVIVE BEING RUN, and
+  this one had already been promised to the fleet.** S7-4's entry below reports that S7 unfreezes a
+  French brain into English. **It does not.** The QA fixture was building an *English* brain holding
+  French bytes in one file — the fixture tree is partial and carries no `demo-locale.mjs`, so the locale
+  fell back to `en` — and the heal's honest `locale: "fr"` (the bytes are the fr byte-state) was read as
+  *"the brain is French"*. A two-minute probe on a brain with the marker written settled it: it receives
+  the French doctrine, byte for byte. The blamed line was innocent too: `applyMergeGoverned` resolves
+  the locale one level below where the box was pointing.
+  **What the MODE takes from it**, and it is the sharper version of what S8-2a already showed: **a cause
+  located by READING is a hypothesis, and the loop kept treating it as a measurement.** Both times the
+  correction cost minutes and both times the claim had already been copied outward — into the plan's
+  headline box, the tracking list, and (this one) the ROADMAP, where it read as a promise about the
+  owner's own two brains. The rule the run should carry: **before a diagnosis is written into a carrier,
+  run the thing.** The repo's own habit is right there — the QA is built to avoid tautologies by using
+  the production path; a diagnosis deserves the same standard.
+  State is owned by [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md);
+  not restated here.
 - 🧪 **2026-08-21 (S8-2b) — A GUARD THAT SAYS "assert empty" IS THE EASIEST TEST IN THE WORLD TO PASS
   BY ACCIDENT, and the mutation pass proved the same thing about its own fixture.** The drift guard's
   headline test asserts *no pair has drifted* — which a broken derivation satisfies perfectly by
@@ -487,10 +504,12 @@ arbitration goes here as a question, and the run continues on other slices.
   measurement is a claim about the past, and the artifact it points at can still contradict it. State
   is owned by [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md);
   not restated here.
-- 🛑 **2026-08-21 (S7-4) — A QA SLICE FOUND A DEFECT THE FEATURE ITSELF CREATED, and the loop nearly
-  did not look.** S7-4 was filed as "breadth" — the boring tail of a finished chantier. Building the
-  French pole measured that **S7 unfreezes a French brain INTO ENGLISH**: the heal reads the locale
-  perfectly, the delivery ignores it. The owner's own two brains are French. State is owned by
+- 🛑 **2026-08-21 (S7-4) — A QA SLICE FOUND WHAT LOOKED LIKE A DEFECT THE FEATURE ITSELF CREATED, and
+  the loop nearly did not look.** ⚠️ **The defect was NOT real — see the S8-3 entry above**; what
+  follows is what the slice believed at the time, kept because the lesson about *breadth slices* holds
+  either way. S7-4 was filed as "breadth" — the boring tail of a finished chantier. Building the
+  French pole appeared to measure that **S7 unfreezes a French brain INTO ENGLISH**: the heal reads the
+  locale perfectly, the delivery ignores it. The owner's own two brains are French. State is owned by
   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) (box at the
   top); not restated here. **What the MODE takes from it**: a slice labelled "remaining coverage" is
   the one most likely to be skipped as tidy-up, and it is exactly where a feature's blind spot lives —
