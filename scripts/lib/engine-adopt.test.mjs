@@ -24,6 +24,10 @@ import { adoptCandidate, planAdoption } from "./engine-adopt.mjs";
 // ═══════════════════════════════════════════════════════════════════════════
 
 const REL = ".claude/skills/coach/SKILL.md";
+// The OTHER merge file in the brain, the one nobody is answering about. A real brain
+// has 79 of these; an adoption that only ever runs against a one-file manifest cannot
+// show whether it left them alone.
+const OTHER = "CLAUDE.md";
 const OWNER = "# Coach\nmy own words\n";
 const CANDIDATE = "# Coach\nthe engine's newer words\n";
 const COMBINED = "# Coach\nmy own words, plus the engine's newer ones\n";
@@ -78,12 +82,16 @@ function brain(t, { answers } = {}) {
   };
   write(REL, OWNER);
   write(`${REL}.new`, CANDIDATE);
+  write(OTHER, "# CLAUDE\nsomeone else's business\n");
   write(
     "engine-manifest.json",
     JSON.stringify({
-      regimes: { merge: [REL] },
-      provenance: { [REL]: "sha256:whatever-the-engine-last-delivered" },
-      baseRefs: { [REL]: "v4.7.0" },
+      regimes: { merge: [REL, OTHER] },
+      provenance: {
+        [REL]: "sha256:whatever-the-engine-last-delivered",
+        [OTHER]: "sha256:untouched-by-this-answer",
+      },
+      baseRefs: { [REL]: "v4.7.0", [OTHER]: "v4.7.0" },
       source: { ref: "v5.0.0" },
     }),
   );
@@ -130,6 +138,20 @@ test("adoptCandidate — the manifest records the candidate's digest and the run
   const after = manifestOf(dir);
   assert.notEqual(after.provenance[REL], before, "the old digest would still read as a mismatch");
   assert.equal(after.baseRefs[REL], "v5.0.0", "and 'since which version' moves with it");
+});
+
+test("adoptCandidate — answering about ONE file does not forget every OTHER file", (t) => {
+  // 🛑 The scale defect, invisible on a one-file fixture: an adoption REBUILDS the
+  // provenance table, and rebuilding it from nothing would wipe the 78 other engine
+  // files' digests. Every one of them would then read as personalized at the next
+  // update — the whole fleet raised as questions because one file was answered.
+  const dir = brain(t);
+
+  adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
+
+  const after = manifestOf(dir);
+  assert.equal(after.provenance[OTHER], "sha256:untouched-by-this-answer");
+  assert.equal(after.baseRefs[OTHER], "v4.7.0", "and it is still held back since the version it really came from");
 });
 
 test("adoptCandidate — the answer is recorded AT THE RUNNING VERSION", (t) => {
