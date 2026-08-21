@@ -187,11 +187,17 @@
 > people **to**; and adding the hook next to `vault-write-guard` in the same matcher group **would never
 > reach a deployed brain** (`reconcileHooks` identifies a group by its *first* script).
 >
-> **▶️ RESUME AT: S3-0 — verify the `"ask"` dialect in the field**, then S3-1 (the pure verdict module,
-> test-first). S3-0 is cheap and the slice's whole UX rests on it: `vault-write-guard` only ever emits
-> `"deny"`, and no unit test can prove the harness honours `"ask"` or shows its reason to the human.
-> **S2c stays skipped: it is the one slice that waits on Thomas** (the blocking box at the top — may the
-> engine write `CLAUDE.md`?). S3 does **not** wait on it, whichever way it is answered.
+> ✅ **S3-0 IS DONE — the `"ask"` dialect is real** _(2026-08-21)_, read out of the shipped client's own
+> binary rather than recalled: `allow | deny | ask | defer`, an unknown value **throws**, the reason
+> reaches the permission layer on `ask` too, and combining hooks is **most-restrictive-wins** — which
+> also settles, for free, that the new guard cannot weaken `vault-write-guard` beside it.
+>
+> **▶️ RESUME AT: S3-1 — the pure verdict module, test-first.**
+> `scripts/lib/engine-write-guard.mjs`, three-way verdict, reusing `globToRegExp`. Then S3-2 (the entry
+> script + its own hook group in `settings.json.template`, minding the `reconcileHooks` first-script
+> trap) and S3-3 (ADR 0012 amended). **S2c stays skipped: it is the one slice that waits on Thomas**
+> (the blocking box at the top — may the engine write `CLAUDE.md`?). S3 does **not** wait on it,
+> whichever way it is answered.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -1043,12 +1049,30 @@ audible divergence.
           *correctness* invariant must not be disarmed by the file whose integrity it is protecting.
     - [ ] Both files join the manifest's **`replace`** regime (engine internals, like their precedent).
 
-  - [ ] 🔍 **S3-0, first and cheap: verify the `"ask"` dialect in the field.** `vault-write-guard` only
-        ever emits `permissionDecision: "deny"`; this slice's whole UX rests on `"ask"` being honoured
-        by the harness and on the `permissionDecisionReason` being shown to the **human** (on `deny` it
-        is fed back to the model). **A unit test cannot prove either.** Check it before building on it;
-        if `"ask"` is not honoured, the fallback is `deny` + a reason that names the one-line
-        `/permissions` escape, and the slice's wording changes, not its shape.
+  - [x] 🔍 **S3-0 — the `"ask"` dialect is REAL, and the check paid for a second answer**
+        _(2026-08-21)_. `vault-write-guard` only ever emits `"deny"`, so nothing in this repo proved the
+        harness honours anything else, and no unit test can. Read out of the **shipped client's own
+        binary** (`claude 2.1.220`, `strings` on `bin/claude.exe`) rather than from memory or docs:
+    - [x] **The contract, verbatim from the client's hook documentation**: `permissionDecision` —
+          *"allow", "deny", or "ask" (PreToolUse only)*, with `permissionDecisionReason` beside it. The
+          dispatcher's own `default:` branch **throws** `Unknown hook permissionDecision type: … Valid
+          types are: allow, deny, ask, defer`. So `"ask"` is supported **and** the guard must never emit
+          anything outside that set: a typo there is not ignored, it breaks the hook.
+    - [x] **The reason survives**: `hookPermissionDecisionReason = e.hookSpecificOutput
+          .permissionDecisionReason` (with the legacy top-level `e.reason` accepted too), attached
+          whenever a behaviour was decided — so the sentence reaches the permission layer on `ask`, not
+          only on `deny`.
+    - [x] 🎁 **The unasked-for answer, and it settles a question the design had left open:
+          MOST-RESTRICTIVE WINS.** Combining several hooks' verdicts reads
+          `case "ask": if (B !== "deny" && B !== "defer") B = "ask"`. A `deny` from any hook therefore
+          beats an `ask` from another, and neither can weaken the other. **The new guard sitting beside
+          `vault-write-guard` is safe in both directions** — which the design had flagged as *"to verify
+          in the field, not to assume"*.
+    - [x] `"defer"` exists but is **print-mode only** (*"returned permissionDecision=defer in
+          interactive mode; ignoring"*). Not ours.
+    - [x] ⚠️ **The honest limit of this check**: it proves what the client *installed here* does. A brain
+          runs whatever Claude Code its owner has. That is not a reason to hedge the design — `"ask"` is
+          in the documented set, and the fail-open doctrine already covers a client that refuses it.
 
   - [ ] ⚠️ **The UX risk to measure, not to argue about**: the engine skills are in `merge`, so a session
         that legitimately customizes `coach` or `improve` meets the prompt. That is *correct* the first
