@@ -1165,6 +1165,69 @@ test("reconcileBrain — self-heal touches no engine script and reports none", a
   assert.deepEqual(report.scriptsPreserved, []);
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// THE DOCTRINE LAYER, third merge family (plan S5c-1). `CLAUDE.engine.md` was in
+// no regime for the product's whole life, so the ambient doctrine of every brain
+// was frozen at install day while the skills, scripts and servers moved on eight
+// times. What is asserted here is the WIRING — that `reconcileBrain` calls the
+// family, hands its verdicts back up in lists of their own, and folds its
+// delivered bytes into the ONE map that re-seeds provenance.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("reconcileBrain — an untouched constitution is delivered by the merge, and its bytes re-seed the base", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "# Engine doctrine\n\nRule one.\n";
+  const improved = "# Engine doctrine\n\nRule one.\n\nRule two.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", delivered);
+  writeFile(sourceDir, "CLAUDE.engine.md", improved);
+  const extraMerge = ["CLAUDE.engine.md"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "CLAUDE.engine.md": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), improved);
+  assert.deepEqual(report.doctrineRefreshed, ["CLAUDE.engine.md"]);
+  // ...and NOT through the copy bucket: `copyGlobs` is `plan.overwrite` alone, so a
+  // doctrine file arriving there too would be written before the merge ever looked.
+  assert.deepEqual(report.copied, ["rag/package.json", "rag/src/index.ts"]);
+  // 🛑 The half that makes the unfreeze work more than once: left out of this map, the
+  // file would be called "user-modified" at the very next update and freeze again.
+  assert.equal(report.refreshedFileMap["CLAUDE.engine.md"], improved);
+});
+
+// 🛑 EVERY brain deployed before this release is this test, so the wiring has to
+// carry the honest verdict all the way up — not just the happy one.
+test("reconcileBrain — a constitution with no provenance is preserved, and says so in its own list", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const theirs = "# Engine doctrine\n\nInstalled long ago.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", theirs);
+  writeFile(sourceDir, "CLAUDE.engine.md", "# Engine doctrine\n\nTwelve commits later.\n");
+  const extraMerge = ["CLAUDE.engine.md"];
+  const target = manifest({ extraMerge });
+  const local = { ...manifest({ ragVersion: "1.0.0", extraMerge }), provenance: {} };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), theirs, "unproven bytes stand");
+  assert.deepEqual(report.doctrinePreserved, [{ name: "CLAUDE.engine.md", reason: "no-provenance" }]);
+  assert.deepEqual(report.doctrineRefreshed, []);
+  assert.equal(report.refreshedFileMap["CLAUDE.engine.md"], undefined, "nothing delivered, no ancestor claimed");
+});
+
 test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and reported as such", async (t) => {
   const brainDir = buildBrain();
   const sourceDir = buildSource();

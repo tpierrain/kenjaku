@@ -210,6 +210,11 @@ test("formatReport — anything that changed on disk warns THIS conversation is 
   assert.equal(warns({ skillsMerged: ["coach"] }), true, "a merged skill — the drift that was already there");
   assert.equal(warns({ scriptsRefreshed: ["scripts/auto-commit.mjs"] }), true, "a fast-forwarded engine script");
   assert.equal(warns({ scriptsMerged: ["scripts/auto-commit.mjs"] }), true, "a merged engine script");
+  // S5c-1: `CLAUDE.md` @imports the engine layer at CONVERSATION start, so doctrine
+  // that moved under a running session is the purest case this nudge exists for —
+  // the agent is still reasoning from the rules the file no longer contains.
+  assert.equal(warns({ doctrineRefreshed: ["CLAUDE.engine.md"] }), true, "a fast-forwarded constitution");
+  assert.equal(warns({ doctrineMerged: ["CLAUDE.engine.md"] }), true, "a merged constitution");
   // The don't-cry-wolf boundary: an update that changed NOTHING on disk stays silent,
   // and a preserved file changed nothing — the owner's bytes are exactly where they were.
   assert.equal(warns({}), false, "a genuine no-op");
@@ -234,6 +239,54 @@ test("formatReport — a fast-forwarded script counts as a swapped engine file",
     scriptsRefreshed: ["scripts/auto-commit.mjs", "scripts/auto-push.mjs"],
   });
   assert.match(out, /• 4 engine file\(s\) swapped\n/);
+});
+
+// ── The doctrine layer in the report (plan S5c-1) ────────────────────────────
+// Same argument as the script above, and the same trap: `CLAUDE.engine.md` reached
+// a brain through NOTHING before this release, so it cannot be lost from `copied` —
+// but a brain that finally receives 12 commits of doctrine and is told "0 engine
+// file(s) swapped" has been told the update did nothing.
+test("formatReport — a fast-forwarded constitution counts as a swapped engine file", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    doctrineRefreshed: ["CLAUDE.engine.md"],
+  });
+  assert.match(out, /• 2 engine file\(s\) swapped\n/);
+});
+
+// 🛑 The line EVERY deployed brain will print at EVERY update, for as long as the
+// ancestor machine does not exist — so it had to be the true sentence and not the
+// flattering one. S4-3 already built it: a `no-provenance` preserve must not open
+// with "your customized", which is the one claim this verdict cannot make and the
+// one that sent an owner diffing a file nobody had edited.
+//
+// The constitution borrows the SCRIPTS' noun on purpose. It is a path the owner
+// opens, exactly like `auto-commit.mjs`, and a third noun invented for one file
+// would be machinery bought for nothing. Conflicts still land last, whichever
+// family they came from.
+test("formatReport — the constitution speaks in the file family's words, and its unprovable case tells the truth", () => {
+  const named = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    doctrineMerged: ["CLAUDE.engine.md"],
+    doctrinePreserved: [{ name: "CLAUDE.engine.md", reason: "no-provenance" }],
+    doctrineConflicts: [{ name: "CLAUDE.engine.md", newVersionPath: "CLAUDE.engine.md.new" }],
+  })
+    .split("\n")
+    .filter((line) => line.startsWith("   • ") && line.includes('"'));
+
+  assert.deepEqual(named, [
+    '   • your "CLAUDE.engine.md" file kept your edits AND received this update',
+    '   • your "CLAUDE.engine.md" file was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+    '   • ⚠️ "CLAUDE.engine.md": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at CLAUDE.engine.md.new',
+  ]);
 });
 
 // A verdict the report drops is a verdict nobody can act on, and each aside is a
@@ -1014,6 +1067,8 @@ const NO_OP_REPORT = {
   skillsMerged: [],
   scriptsRefreshed: [],
   scriptsMerged: [],
+  doctrineRefreshed: [],
+  doctrineMerged: [],
 };
 
 test("needsRestart — a genuine no-op leaves the nudge disarmed", () => {

@@ -27,6 +27,7 @@ import { matchesAny } from "./glob-match.mjs";
 import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
 import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
 import { refreshEngineScripts } from "./engine-script-refresh.mjs";
+import { refreshEngineDoctrine } from "./engine-doctrine-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
@@ -173,6 +174,33 @@ export async function reconcileBrain({
     // manifest's recorded sha256 is the only base there is. No `?? {}` either: absent,
     // this reads `undefined` and the callee's own default takes over — a fallback that
     // cannot change a byte is noise (the mutation lesson the skills' call already carries).
+    provenance: local?.provenance,
+  });
+
+  // 2.bis-doctrine THE CONSTITUTION'S ENGINE HALF, third and last merge family (plan
+  //    S5c). `CLAUDE.engine.md` was in NO regime at all, which is neither of the two
+  //    bugs above: it was not clobbered and it was not frozen by a bad base — it was
+  //    never delivered, by anything, since the day the brain was installed. A rule
+  //    written into the ambient doctrine reached fresh installs and nobody else.
+  //    Same carrier, same provenance base, same sidecars as the scripts. The
+  //    difference is the ABSENCE of the syntax gate: doctrine is prose read by an
+  //    agent, and gating it would refuse every merge it ever produced.
+  //    ⚠️ On a brain deployed before this release there is no provenance for the file,
+  //    so this preserves and REPORTS rather than delivering. That is the honest
+  //    verdict, and the report says so in words that claim nothing (S4-3).
+  const {
+    doctrineRefreshed,
+    doctrinePreserved,
+    doctrineMerged,
+    doctrineConflicts,
+    refreshedFileMap: refreshedDoctrineMap,
+  } = refreshEngineDoctrine({
+    brainDir,
+    sourceDir,
+    sourceFiles,
+    manifest: target,
+    // Like the scripts and unlike the skills: the constitution ships AT its runtime
+    // path, so the manifest's recorded sha256 is the only base there is.
     provenance: local?.provenance,
   });
 
@@ -344,10 +372,18 @@ export async function reconcileBrain({
     scriptsPreserved,
     scriptsMerged,
     scriptConflicts,
+    // S5c: the same four verdicts for the constitution's ENGINE half. Lists of their
+    // own, like the scripts', so a frozen doctrine can never be read as a frozen skill
+    // — and because a `no-provenance` preserve on THIS file is the standing state of
+    // the whole deployed fleet, not an incident.
+    doctrineRefreshed,
+    doctrinePreserved,
+    doctrineMerged,
+    doctrineConflicts,
     // ONE delivered map, because it feeds ONE thing: the provenance re-seed in
     // `runReconcileCli`. A script left out of it would be called "user-modified" at the
     // very next update and frozen again — the feature working exactly once per brain.
-    refreshedFileMap: { ...refreshedFileMap, ...refreshedScriptMap },
+    refreshedFileMap: { ...refreshedFileMap, ...refreshedScriptMap, ...refreshedDoctrineMap },
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,

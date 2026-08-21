@@ -1662,9 +1662,35 @@ audible divergence.
             appears on **no list at all** (or every future update shows a phantom forever); and a **FR
             brain receives `templates/fr/CLAUDE.engine.md`** from one manifest entry — the Gate-1 lock's
             condition is now a passing test rather than a reading of the code.
-    - [ ] **S5c — the delivery becomes real**: wire the family into `reconcile-brain.mjs` beside the
-          scripts', surface its report, add **the** manifest line, and flip the lock with its comment
-          rewritten (and Gate 3 → Gate 4). **WRITE PATH → mutation is mandatory.**
+    - [ ] **S5c — the delivery becomes real.** Split in two on contact _(2026-08-21)_, because the
+          report surface turned out to be four call sites in `update-engine.mjs` and not one:
+      - [ ] **S5c-1 — the wiring and the report.** `reconcile-brain.mjs` calls the family beside the
+            scripts and folds its delivered map into the ONE map that re-seeds provenance; the four
+            lists travel to `formatReport`, which folds them into the **"file"** family — same noun as
+            a script, because a constitution is also a path the owner opens, and a third noun for one
+            file is machinery for no gain. `needsRestart` gains both of its shapes: `CLAUDE.md`
+            **@imports** the engine layer at conversation start, so doctrine that moved under a running
+            session is exactly what the restart nudge is for. **Changes nothing for anyone while the
+            manifest stays silent** — which is what makes it a safe slice.
+        - [x] ✅ **Verified rather than assumed, before writing**: S4-3 already built the sentence this
+              needs. `unprovableLine` says *"no record of the version the engine last delivered there,
+              so we cannot tell your edits from ours"* and deliberately does NOT open with "your
+              customized" — the one claim a `no-provenance` preserve cannot make. Its own comment
+              already names the constitution as a future client. **Every deployed brain will emit that
+              line for this file at every update**, so it had to be the true sentence, not the
+              flattering one.
+      - [ ] **S5c-2 — the delivery goes live**: **the** manifest line, and the lock flipped with its
+            comment **rewritten** (and Gate 3 → Gate 4, :226 and :231). ⚠️ The lock test goes **red**
+            the moment the line lands — that is the slice working.
+        - [x] ✅ **The installer needs NO change, verified**: `recordSourceAndProvenance` builds
+              provenance over `selectMergeFiles(manifest, <files in the brain>)`, so the one manifest
+              line makes a fresh install record the file's fingerprint AND seed `.engine-base/` for it.
+              A FR brain fingerprints the FR bytes it actually received. And nothing else delivers the
+              file today — `copyGlobs` is `plan.overwrite` alone — so there is no double delivery.
+      - [ ] 📊 **Mutation, decided in writing rather than by reflex**: ONE pass at the END of S5c, on
+            `reconcile-brain.mjs` and `update-engine.mjs`. Both are on the WRITE PATH, so the rule's
+            "large file changed by a few lines → skip" does **not** license a skip here; but measuring
+            twice would re-judge ~470 mutants of untouched code for nothing.
 - [ ] **S6 — RIDER, decided 2026-08-15: deliver `test-first-discipline` and RETIRE `tdd-discipline`.**
       The skill is **already written and committed** (`.claude/skills/test-first-discipline/SKILL.md`),
       deliberately parked here rather than shipped alone, because retiring its predecessor needs

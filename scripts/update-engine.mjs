@@ -78,7 +78,13 @@ export function needsRestart(report) {
     // say it themselves — an auto-commit hook that changed under the running session
     // is exactly the change a restart nudge exists for.
     report.scriptsRefreshed?.length > 0 ||
-    report.scriptsMerged?.length > 0
+    report.scriptsMerged?.length > 0 ||
+    // S5c: the purest case this nudge exists for. `CLAUDE.md` @imports the engine
+    // layer at CONVERSATION start, so a doctrine that moved under a running session
+    // leaves the agent reasoning from rules the file no longer contains — and unlike a
+    // skill, nothing will re-read it lazily when it is next used.
+    report.doctrineRefreshed?.length > 0 ||
+    report.doctrineMerged?.length > 0
   );
 }
 
@@ -218,7 +224,7 @@ function conflictLines(conflicts) {
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -244,7 +250,7 @@ export function formatReport(report) {
     // `copied` would show a brain nobody customized four fewer swapped files than the
     // release before, while exactly as many files changed — and this count is the
     // owner's only measure of what the update did.
-    `   • ${copied.length + scriptsRefreshed.length} engine file(s) swapped` + (regenerated ? " + launchers regenerated" : ""),
+    `   • ${copied.length + scriptsRefreshed.length + doctrineRefreshed.length} engine file(s) swapped` + (regenerated ? " + launchers regenerated" : ""),
     reindexLine,
   ];
   // F2: the number the USER cares about — how many notes the brain holds. When a
@@ -280,15 +286,19 @@ export function formatReport(report) {
       singular: "skill",
       plural: "skills",
     }),
+    // S5c folds the constitution's engine half into the SCRIPTS' family rather than
+    // giving it a third noun: it is a path the owner opens, exactly like
+    // `auto-commit.mjs`. A noun invented for one file would be machinery bought for
+    // nothing, and "your CLAUDE.engine.md constitution" reads worse than "file".
     ...preservedAndMergedLines({
-      merged: scriptsMerged,
-      preserved: scriptsPreserved,
+      merged: [...scriptsMerged, ...doctrineMerged],
+      preserved: [...scriptsPreserved, ...doctrinePreserved],
       singular: "file",
       plural: "files",
     }),
     // Both families' clashes together, at the end of the block: appending each next to
     // its own family's sentences would bury a skill conflict mid-report.
-    ...conflictLines([...conflicts, ...scriptConflicts]),
+    ...conflictLines([...conflicts, ...scriptConflicts, ...doctrineConflicts]),
     // …then the standing state, after every event, because it is the summary of them.
     ...divergenceLines(divergence, ref),
   );
@@ -437,6 +447,13 @@ export async function updateEngine({
     scriptsPreserved,
     scriptsMerged,
     scriptConflicts,
+    // S5c: and the constitution's engine half, same argument. A brain that finally
+    // receives twelve commits of frozen doctrine, and is told nothing, has been told
+    // this update did nothing.
+    doctrineRefreshed,
+    doctrinePreserved,
+    doctrineMerged,
+    doctrineConflicts,
     refreshedFileMap,
     mcpServersAdded,
     hooksAdded,
@@ -574,6 +591,10 @@ export async function updateEngine({
     scriptsPreserved,
     scriptsMerged,
     scriptConflicts,
+    doctrineRefreshed,
+    doctrinePreserved,
+    doctrineMerged,
+    doctrineConflicts,
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
