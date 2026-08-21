@@ -205,6 +205,32 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S7-5-2 — the git shell, and the first perfect score this document CHECKED — 2026-08-21
+
+`d5324a0`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | Confirmation | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-ancestor-fetch.mjs` (new) | **100 %** (42 killed) | **100 %** on a serial re-run | 0 |
+
+**The confirmation is the point, not the number.** The rule written one section above — *a score that
+arrives without a test being added is re-run before it is written down* — was applied to its own
+author's work the same night. A lone 100 % from an instrument just proved non-deterministic is not
+evidence, and the box at the top of this file already records a **100 % that was really 98.18 %**.
+Three minutes at `--concurrency 1` is what turns a claim into a measurement. **42 of 42, twice.**
+
+**Why the score came out clean on the first pass**, which is worth naming because it is repeatable and
+not luck: the module's whole risk is an argv it builds and a refusal it makes, and **both were
+asserted as values**. The git invocation is compared **whole** (`["-C", dir, "fetch", "--depth", "1",
+"origin", "tag", tag]`) rather than sampled — a missing `-C` is invisible from a return value, since
+the command still succeeds, just in the wrong directory. And every failure mode got its own test
+rather than one shared "it fails gracefully": fetch fails, show fails, bytes hash elsewhere, tag
+already local, source is the brain. There were no survivors because there was nowhere for one to hide,
+not because the mutants were weak.
+
+---
+
 ## S7-5-1 — the planner, and a survivor that was worth KEEPING — 2026-08-21
 
 `1d545b2` (the slice) + `d019d38` (the kills). State owned by

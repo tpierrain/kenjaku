@@ -40,13 +40,20 @@
 >
 > ## ▶️ WHERE THIS RESUMES
 >
-> **RESUME AT: S7-5-2 — the git shell: fetch the tag, VERIFY against the recorded sha, hydrate the
-> holes.** `planAncestorFetch` (S7-5-1) is **done and measured** _(2026-08-21 · `d019d38`)_, so the
-> shell's input already exists: a sorted list of `{rel, tag, sourcePath, recorded}`. Build to § S7-5's
-> checked design rows — `git -C <sourceDir>` is **mandatory** (`buildGitInvocation` sets no `cwd`), the
-> `tag <tag>` refspec is required because `--single-branch` narrowed the fetch refspec, ONE fetch per
-> distinct tag then N cheap `git show`, and **no byte reaches the disk before it matches `recorded`**.
-> Then S7-5-3 (the wiring + one report line, shown only when a fetch was attempted and failed).
+> **RESUME AT: S7-5-3 — the wiring, and the one report line.** Both halves exist and are measured:
+> `planAncestorFetch` _(S7-5-1 · `d019d38` · 93.94 %)_ and `fetchAncestors` _(S7-5-2 · `d5324a0` ·
+> **100 %**, 42/42, confirmed serially)_. What is left is to join them inside `reconcileBrain`:
+>
+> - **heal FIRST, then fetch** (a healed file has `recorded === installed` and needs no ancestor at
+>   all, so healing first is what keeps the fetch list minimal), both before the three refresh families;
+> - `planAncestorFetch` needs `baseContentMap` — `readInstalledMergeFiles`'s sibling for the base tree.
+>   Check what `reconcileBrain` already reads before adding a read;
+> - **do NOT add a `sourceDir !== brainDir` gate in the caller.** It moved INTO `fetchAncestors`
+>   at S7-5-2 — see the design row below — so the wiring calls it unconditionally;
+> - **one report line, and only when a fetch was ATTEMPTED and FAILED** (`failed.length > 0`; the shell
+>   returns an empty `failed` on a self-heal precisely so a brain that never wanted a fetch hears
+>   nothing): *"could not reach the update server to recover the original of N file(s) — they are
+>   preserved as usual, and the next update will try again."*
 >
 > ⚠️ **Read this before trusting any mutation number** (S7-5-1 paid for it): the runner is
 > **NON-DETERMINISTIC at `concurrency: 5`** — same commit, two runs, 96.97 % then 93.94 %. Serial is
@@ -214,7 +221,11 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           nothing buys a network call, and planning one whose `.engine-base/<rel>` already exists would
           overwrite a **fact** with a guess. ⚠️ The measurement itself misbehaved here — see the header
           note and RESULTS.md § "The judge itself was flaky".
-    - [ ] **S7-5-2 — the git shell**: fetch the tag, **verify against the recorded sha**, hydrate holes.
+    - [x] **S7-5-2 — the git shell**: fetch the tag, **verify against the recorded sha**, hydrate holes.
+          _(2026-08-21 · `d5324a0` · 14 tests, mutation **100 %** on the new module, 42/42, **confirmed
+          on a serial re-run** because a lone perfect score from a judge proved flaky is not evidence)_
+          One design change, made while writing it and recorded below: **the self-heal gate moved into
+          the shell.**
     - [ ] **S7-5-3 — the wiring** + the one report line (attempted-and-failed only).
   - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. ⚠️ **Headline already
         paid at S7-3** — see § S7 for what is left (FR, a second tag, the other two families).
@@ -593,7 +604,21 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         held: the direct lookup `table.files[rel][recorded]` → `{since, locale}` needed no reverse
         index, and the locale came back from the same lookup as the tag, which is what sends a French
         brain to `templates/fr/<rel>` at that tag.
-  - [ ] ▶️ **NEXT: S7-5-2, the git shell** (test-first), then S7-5-3 the wiring + the one report line.
+  - [x] **S7-5-2 shipped to that design, with ONE deliberate change** _(2026-08-21 · `d5324a0`)_.
+        The design said *"gate the fetch on `sourceDir !== brainDir`, like the three refresh families"*,
+        which put the guard in the **caller**. It is now **inside `fetchAncestors`**, at the only place
+        that spawns git. Why the move: the three refresh families each gate themselves for a *behaviour*
+        reason, whereas this one is a **safety** rule — a fetch in the brain dir points engine machinery
+        at the owner's personal backup repository. A safety rule that every future caller must remember
+        is a safety rule with a deadline. It is also what lets the report stay quiet: the shell returns
+        an **empty `failed`** on a self-heal, so "attempted and failed" needs no second condition
+        upstream. ⚠️ **S7-5-3 must therefore NOT re-add the gate.**
+  - [x] **Also shipped, and NOT in the design**: a second refusal to overwrite an existing
+        `.engine-base/<rel>`, inside the shell. The planner already excludes those; this one exists
+        because overwriting a real ancestor is the module's one irreversible act, and the guard belongs
+        beside the write, not only in the code that decides.
+  - [ ] ▶️ **NEXT: S7-5-3, the wiring + the one report line** — the header's RESUME AT block lists the
+        four points it must hit.
   - [ ] 💡 **The tail nobody should promise yet**: `CLAUDE.md` and `settings.json` could in principle be
         RECONSTRUCTED from their `.template` at the right tag plus the substitutions. **Not measured, not
         promised** — the substitution inputs must be recoverable byte-exactly, and they may not be.
