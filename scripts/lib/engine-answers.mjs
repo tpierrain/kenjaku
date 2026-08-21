@@ -22,7 +22,7 @@
 // question is the exact defect being removed, so every doubtful case falls on the side
 // that still speaks.
 // ─────────────────────────────────────────────────────────────────────────────
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 // The single file. Named once, here, so no caller can grow a second convention — the
@@ -31,26 +31,29 @@ import { join } from "node:path";
 // carried to the owner's other machine, where they may well be the one answering.
 export const ANSWERS_REL = ".engine-answers.json";
 
-const isEntry = (entry) =>
-  typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
+// An answer IS its version stamp: no readable `at`, no answer. Everything else a hand
+// edit can leave behind — `null`, a bare string, a number, an entry with no `at`, an
+// empty `at` — falls out of this one condition rather than needing a guard of its own.
+const isEntry = (entry) => typeof entry?.at === "string" && entry.at.length > 0;
 
-// PURE. `null` and arrays are objects to `typeof`, and both are reachable from a hand
-// edit, so the shape is checked rather than assumed.
+// PURE. `null` is the only parse result that cannot be walked at all (`Object.entries`
+// throws on it); a primitive or an array simply yields no entry that `isEntry` accepts,
+// so they need no guard of their own — measured, not assumed (mutation, S10-2).
 export function parseAnswers(content) {
   let parsed;
   try {
-    parsed = JSON.parse(content ?? "");
+    parsed = JSON.parse(content);
   } catch {
     return {};
   }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return {};
+  if (parsed === null) return {};
   // A malformed entry drops on its own and takes nothing with it: one bad line in a file
   // that travels between machines must not re-open every question the owner has settled.
   return Object.fromEntries(Object.entries(parsed).filter(([, entry]) => isEntry(entry)));
 }
 
 export function isAnswered({ answers, rel, ref }) {
-  return answers?.[rel]?.at === ref;
+  return answers[rel]?.at === ref;
 }
 
 // Returns a NEW map. The caller reads once and writes once, and a function that edited
@@ -66,11 +69,12 @@ export function unansweredRels({ rels, answers, ref }) {
   return rels.filter((rel) => !isAnswered({ answers, rel, ref }));
 }
 
+// A brain that has never answered anything has no file, and that is not an error: the
+// read throws and lands in the same `catch` as an unreadable one. Both mean the same
+// thing to the caller — nothing is answered, so ask.
 export function readAnswers({ brainDir }) {
-  const path = join(brainDir, ANSWERS_REL);
-  if (!existsSync(path)) return {};
   try {
-    return parseAnswers(readFileSync(path, "utf8"));
+    return parseAnswers(readFileSync(join(brainDir, ANSWERS_REL), "utf8"));
   } catch {
     return {};
   }

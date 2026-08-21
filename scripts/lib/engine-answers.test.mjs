@@ -113,6 +113,24 @@ test("parseAnswers treats anything it cannot trust as NO answers at all", () => 
   assert.deepEqual(parseAnswers('"a string"'), {});
 });
 
+test("a NULL entry is dropped rather than crashing the read", () => {
+  // `typeof null === "object"`, so without the explicit null check this throws while
+  // reaching for `.at` — and a thrown parse takes down the whole update over one bad
+  // line in a file that travels between machines.
+  assert.deepEqual(parseAnswers(`{"${REL}":null,"${OTHER}":{"decision":"keep-mine","at":"v5.0.0"}}`), {
+    [OTHER]: { decision: "keep-mine", at: "v5.0.0" },
+  });
+});
+
+test("an EMPTY version is not a version", () => {
+  // `at: ""` is what a half-written file or a bad hand edit leaves behind. It must not
+  // count as an answer, and it must not accidentally match a caller passing "" as a ref.
+  const answers = parseAnswers(`{"${REL}":{"decision":"keep-mine","at":""}}`);
+
+  assert.deepEqual(answers, {});
+  assert.equal(isAnswered({ answers, rel: REL, ref: "" }), false);
+});
+
 test("an entry with no version is NOT an answer, and it does not poison its siblings", () => {
   const parsed = parseAnswers(
     `{"${REL}":{"decision":"keep-mine"},"${OTHER}":{"decision":"keep-mine","at":"v5.0.0"}}`,
