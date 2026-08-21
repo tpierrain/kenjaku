@@ -31,6 +31,7 @@ import {
   fetchSource as defaultFetchSource,
   resolveLatestTag as defaultResolveLatestTag,
   readTargetManifest,
+  defaultGit,
 } from "./lib/engine-fetch.mjs";
 import { checkUpstream, formatUpdateCheck, unknownUpstream } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
@@ -293,8 +294,25 @@ function recognizedLines(healed) {
   ];
 }
 
+// S7-5-3 — the ONE line the ancestor fetch is allowed to print, and only when a fetch
+// was ATTEMPTED and FAILED. Three silences are deliberate: a brain that needed no
+// ancestor, a brain whose fetch worked, and a self-heal (which never even tries, because
+// the shell refuses to spawn git when the source IS the brain).
+//
+// The wording is doing real work. This owner is not being told about a defect: they are
+// in the state they were already in, the file is preserved exactly as before, and the
+// situation is RETRYABLE. Silence would make a temporary network problem look like a
+// permanent verdict on their file — which is the failure mode this whole chantier exists
+// to end — while the word "error" would make a routine offline moment look like damage.
+function ancestorLines(ancestorsFailed) {
+  if (ancestorsFailed.length === 0) return [];
+  return [
+    `   • could not reach the update server to recover the original of ${ancestorsFailed.length} file(s) — they are preserved as usual, and the next update will try again`,
+  ];
+}
+
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], healed = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], healed = [], ancestorsFailed = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -364,6 +382,7 @@ export function formatReport(report) {
   // Absent on every brain installed from v5.0.0 on, and on every brain already healed —
   // an event that did not happen must not be announced.
   lines.push(...recognizedLines(healed));
+  lines.push(...ancestorLines(ancestorsFailed));
   // The two families' merged + preserved sentences (see the helpers above), then
   // EVERY conflict, last. A fast-forwarded script needs no line of its own: it is
   // already counted as a swapped engine file, which is what it has always been.
@@ -493,6 +512,8 @@ export async function updateEngine({
   countVaultNotes = defaultCountVaultNotes,
   finalizeReconcile = defaultFinalizeReconcile,
   commitEngineWrites = defaultCommitEngineWrites,
+  // S7-5-3: forwarded to the reconciler, which spawns the ancestor fetch through it.
+  git = defaultGit,
 }) {
   const manifestPath = join(brainDir, "engine-manifest.json");
   const local = JSON.parse(readFileSync(manifestPath, "utf8"));
@@ -551,6 +572,11 @@ export async function updateEngine({
     // is a verdict the owner never hears — and this one is the migration itself: a brain
     // frozen since install day silently becoming a brain that receives.
     healed,
+    // S7-5-3: same argument as `healed` one line up — a field this destructure does not
+    // name is a verdict the owner never hears, and this one is the OTHER half of the
+    // fleet: the files the owner edited before v5, which stop being frozen.
+    ancestorsHydrated,
+    ancestorsFailed,
     refreshedFileMap,
     mcpServersAdded,
     hooksAdded,
@@ -567,6 +593,7 @@ export async function updateEngine({
       runInstall,
       runReindex,
       countVaultNotes,
+      git,
     });
 
   // 7. Record the new engine version + the ref we pulled, and RE-SEED `provenance`
@@ -695,6 +722,8 @@ export async function updateEngine({
     doctrineMerged,
     doctrineConflicts,
     healed,
+    ancestorsHydrated,
+    ancestorsFailed,
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,

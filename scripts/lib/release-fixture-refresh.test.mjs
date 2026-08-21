@@ -65,9 +65,17 @@ test("QA v3.6.0 → HEAD — the untouched `switch` skill ends up at the release
   assert.deepEqual(report.skillsPreserved.filter((p) => p.name === "switch"), []);
 });
 
-// The promise made to anyone who tailored a skill (the documented `prepare-1-1` "refine to
-// your own KPIs" case): their file stands, and the engine's newer version waits beside it.
-test("QA v3.6.0 → HEAD — a customized skill is kept byte-identical, with the new version beside it", async (t) => {
+// ⚠️ THIS TEST WAS INVERTED BY S7-5, AND THE CLAIM IT USED TO MAKE IS KEPT HERE.
+// It read: *"a customized skill is kept byte-identical, with the new version beside it"* —
+// their file stands, the engine's newer version waits beside it as a `.new` sidecar. True
+// for the product's whole life, and the best that could be promised while an owner who had
+// edited a file before this release could never acquire an ancestor for it.
+//
+// ✅ S7-5 fetches that ancestor from the tag the recorded sha names, so the three-way merge
+// that had nothing to merge FROM now has it. The owner's lines survive AND the update lands
+// — in the same pass, on a brain built from the real v3.6.0 tag. That is a strictly better
+// outcome, and it is the sentence the release could not honestly write before.
+test("QA v3.6.0 → HEAD — a customized skill now MERGES: the owner's lines survive AND the update lands", async (t) => {
   const customized = readFileSync(join(FIXTURES, "v3.6.0/.claude/skills/prepare-1-1/SKILL.md"), "utf8") +
     "\n## My own KPIs\n- churn\n- time-to-first-review\n";
   const { brainDir, manifest } = brainAtRelease("v3.6.0", {
@@ -77,16 +85,12 @@ test("QA v3.6.0 → HEAD — a customized skill is kept byte-identical, with the
 
   const report = await updateFrom(brainDir, manifest);
 
-  assert.equal(readBrain(brainDir, ".claude/skills/prepare-1-1/SKILL.md"), customized, "never clobbered");
-  assert.equal(
-    readBrain(brainDir, ".claude/skills/prepare-1-1/SKILL.md.new"),
-    readRepo(".claude/skills/prepare-1-1/SKILL.md"),
-    "the engine's version is offered alongside, not imposed",
-  );
-  assert.deepEqual(
-    report.skillsPreserved.filter((p) => p.name === "prepare-1-1"),
-    [{ name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
-  );
+  const merged = readBrain(brainDir, ".claude/skills/prepare-1-1/SKILL.md");
+  assert.match(merged, /## My own KPIs\n- churn\n- time-to-first-review/, "the owner's own lines are still there");
+  assert.match(merged, /## Claim discipline/, "and the engine's newer content has ARRIVED, in the same pass");
+  assert.deepEqual(report.skillsMerged, ["prepare-1-1"]);
+  assert.deepEqual(report.conflicts, [], "and it merged cleanly — no sidecar, nothing to arbitrate");
+  assert.deepEqual(report.skillsPreserved.filter((p) => p.name === "prepare-1-1"), []);
   assert.ok(!report.skillsRefreshed.includes("prepare-1-1"));
   // The sacred trio is untouched by the same run.
   assert.equal(readBrain(brainDir, "CLAUDE.md"), "# My constitution\nI tailored this.\n");
@@ -134,29 +138,40 @@ test("QA already-converged brain — a second update refreshes nothing and rewri
   assert.ok(!existsSync(join(brainDir, ".claude/skills/switch/SKILL.md.new")), "no sidecar on a converged brain");
 });
 
-// ── The claim a release note must NOT overstate, pinned by a test ────────────────
-// The merge is this release's headline, and the obvious sentence — "your edits are
-// preserved AND you get the update" — is FALSE for one population, permanently: the
-// files an owner had ALREADY edited before this release.
+// ── THE CLAIM THIS TEST USED TO PIN, AND WHY IT NO LONGER HOLDS ─────────────────
+// It pinned the sentence a release note must not overstate: *"your edits are preserved AND
+// you get the update"* was **FALSE for one population, permanently** — the files an owner
+// had already edited before this release. The reasoning was sound and it is worth keeping:
+// a merge needs an ancestor; `planBaseSeed` can only seed one from bytes that still match
+// their recorded sha, and an edited file does not; and it cannot be seeded from the FETCHED
+// copy either, because that is `theirs`, not the ancestor, and merging against it would
+// silently discard everything the engine shipped between install and now.
 //
-// The mechanism, and it is not a bug: a merge needs an ancestor. `planBaseSeed` can
-// only seed one from bytes that still match their recorded sha ("a file matching its
-// record IS the last delivery"), and an edited file does not. It cannot be seeded from
-// the FETCHED copy either — that is `theirs`, not the ancestor, and merging against it
-// would silently discard everything the engine shipped between install and now. So the
-// file stays at row 7 (preserve + sidecar), the deferred list says `customized`, and no
-// number of updates changes it. Files edited from THIS release on merge normally,
-// because the base is on disk before the edit happens.
-test("QA v3.6.0 → HEAD — a skill edited BEFORE this release never acquires an ancestor, and says so", async (t) => {
+// ✅ THE WORD THAT WAS WRONG IS "PERMANENTLY", and S7-5 is what disproved it. The
+// reasoning has exactly one hole: the ancestor cannot be seeded FROM THE DISK, but it can
+// be FETCHED — the recorded sha names a published tag, `table.files[rel][recorded]` says
+// which, and the fetched bytes are verified against that same sha before one of them is
+// written. The population this test describes is precisely the population that is served.
+//
+// What the test asserts now is the other half of the promise: the ancestor ARRIVES, it is
+// the real v3.6.0 blob, and the base does not stay there — the merge consumes it and the
+// base advances to what was just delivered, so the next update compares against the version
+// actually shipped and no second fetch is ever needed.
+test("QA v3.6.0 → HEAD — a skill edited BEFORE this release now ACQUIRES its ancestor, fetched from the tag", async (t) => {
   const REL = ".claude/skills/prepare-1-1/SKILL.md";
   const customized = readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8") + "\n## My own KPIs\n- churn\n";
   const { brainDir, manifest } = brainAtRelease("v3.6.0", { edits: { [REL]: customized } });
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
 
   const first = await updateFrom(brainDir, manifest);
+
+  // 🛑 The whole finding, inverted, in three assertions.
+  assert.deepEqual(first.ancestorsHydrated, [REL], "the ancestor was fetched, for this exact file");
+  assert.deepEqual(first.ancestorsFailed, [], "and nothing had to be apologised for");
   assert.deepEqual(
     first.skillsPreserved.filter((p) => p.name === "prepare-1-1"),
-    [{ name: "prepare-1-1", reason: "customized", newVersionPath: `${REL}.new` }],
+    [],
+    "so it is no longer deferred as `customized` — there is an ancestor now",
   );
 
   // The update path's own tail, through the production helpers `runReconcileCli` calls.
@@ -164,22 +179,10 @@ test("QA v3.6.0 → HEAD — a skill edited BEFORE this release never acquires a
   manifest.provenance = reseedProvenance({ priorProvenance: manifest.provenance, manifest, deliveredFileMap: delivered });
   const sync = syncBaseTree({ brainDir, manifest, provenance: manifest.provenance, deliveredFileMap: delivered });
 
-  // 🛑 The whole finding, in three assertions.
-  assert.ok(!existsSync(join(brainDir, ".engine-base", REL)), "no ancestor can be seeded for bytes nobody can prove");
-  assert.ok(!sync.seeded.includes(REL), "and the seeder does not pretend otherwise");
-  assert.deepEqual(
-    sync.deferred.filter((d) => d.rel === REL),
-    [{ rel: REL, reason: "customized" }],
-    "it is REPORTED as deferred, by name and with the reason — never silently skipped",
-  );
-
-  // And it does not heal on the next update either: that is what makes it permanent
-  // rather than a one-off migration cost, and it is the sentence the release note owes.
-  const second = await updateFrom(brainDir, manifest);
-  assert.deepEqual(
-    second.skillsPreserved.filter((p) => p.name === "prepare-1-1"),
-    [{ name: "prepare-1-1", reason: "customized", newVersionPath: `${REL}.new` }],
-    "a second update reaches the same verdict, not a merge",
-  );
-  assert.equal(readBrain(brainDir, REL), customized, "their file is never touched, which is the promise that IS kept");
+  // And the base is on disk, holding what was DELIVERED — not the v3.6.0 blob it was
+  // fetched as. The ancestor did its job during the merge and the base then advanced, which
+  // is why the fetch happens once ever and the next update reads a local file.
+  assert.ok(existsSync(join(brainDir, ".engine-base", REL)), "the hole is filled");
+  assert.equal(readBrain(brainDir, `.engine-base/${REL}`), readRepo(REL));
+  assert.deepEqual(sync.deferred.filter((d) => d.rel === REL), [], "nothing left to defer");
 });

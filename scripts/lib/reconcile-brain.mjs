@@ -36,8 +36,11 @@ import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
 import { reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
-import { syncBaseTree } from "./engine-base-fs.mjs";
-import { healFromDisk } from "./engine-heal-fs.mjs";
+import { syncBaseTree, readBaseTree, readInstalledMergeFiles } from "./engine-base-fs.mjs";
+import { healFromDisk, readFingerprintTable } from "./engine-heal-fs.mjs";
+import { planAncestorFetch } from "./engine-ancestor.mjs";
+import { fetchAncestors } from "./engine-ancestor-fetch.mjs";
+import { defaultGit } from "./engine-fetch.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
 import {
@@ -77,6 +80,10 @@ export async function reconcileBrain({
   runInstall,
   runReindex,
   countVaultNotes,
+  // S7-5-3: the seam the ancestor fetch spawns git through. Same runner as the update
+  // CHECK and as auto-push, because two spellings of "ask git" would be two behaviours
+  // to keep in step forever.
+  git = defaultGit,
 }) {
   // 1. The write-allowlist (the safety core, Step 3): the ONLY files we may write.
   const plan = computeApplyPlan(target);
@@ -102,11 +109,43 @@ export async function reconcileBrain({
   // a provenance the brain can PROVE, and `verifyBase`, `mergeVerdict`, `planBaseSeed` and
   // `planBaseAdvance` do the right thing untouched. Computing it here rather than at the
   // seed also removes the crux the design named: one fact, one owner, one write.
+  //
+  // Read ONCE, used TWICE: the heal and the ancestor fetch below need the same installed
+  // bytes and the same table, and this path runs at every session start.
+  const installedMergeFiles = readInstalledMergeFiles({ brainDir, manifest: target });
+  const fingerprintTable = readFingerprintTable({ sourceDir, brainDir });
   const { provenance: healedProvenance, baseRefs: healedBaseRefs, healed } = healFromDisk({
     manifest: target,
     provenance: local?.provenance ?? {},
     sourceDir,
     brainDir,
+    installedFileMap: installedMergeFiles,
+    table: fingerprintTable,
+  });
+  // ⚠️ AND THEN THE FETCH, in this order (plan S7-5-3). The heal is what keeps this list
+  // minimal: a healed file has `recorded === installed`, so it needs no ancestor at all
+  // and `planAncestorFetch` skips it. Running the fetch first would buy network calls for
+  // files the heal was about to prove.
+  //
+  // The other half of the fleet, and it does not overlap: files that HAVE a recorded sha,
+  // whose bytes moved because the owner edited them, and whose ancestor was never
+  // persisted — `.engine-base/` is invented by this release. They are row 7 of
+  // `mergeVerdict` today: preserved, frozen, with a `.new` sidecar. Hydrating the hole
+  // HERE, before the three refresh families run, is what lets the very same pass merge.
+  //
+  // No `sourceDir !== brainDir` gate here on purpose: it lives inside `fetchAncestors`,
+  // at the only place that spawns git, so no caller has to remember it.
+  const { hydrated: ancestorsHydrated, failed: ancestorsFailed } = fetchAncestors({
+    plan: planAncestorFetch({
+      manifest: target,
+      provenance: healedProvenance,
+      installedFileMap: installedMergeFiles,
+      baseContentMap: readBaseTree({ brainDir, rels: Object.keys(installedMergeFiles) }),
+      table: fingerprintTable,
+    }),
+    sourceDir,
+    brainDir,
+    git,
   });
   // ⚠️ `plan.mergeScripts` is NOT here since S2b-3. Those four (auto-commit, auto-push,
   // status-line, verify-rag) are declared `merge` and were copied anyway — an owner who
@@ -427,6 +466,11 @@ export async function reconcileBrain({
     healed,
     healedProvenance,
     healedBaseRefs,
+    // S7-5-3 — the ancestors this pass went and got. `ancestorsFailed` is what the report
+    // speaks from, and it is EMPTY unless a fetch was actually attempted and failed: a
+    // brain that never needed one must hear nothing, and a self-heal never even tries.
+    ancestorsHydrated,
+    ancestorsFailed,
     // ONE delivered map, because it feeds ONE thing: the provenance re-seed in
     // `runReconcileCli`. A script left out of it would be called "user-modified" at the
     // very next update and frozen again — the feature working exactly once per brain.

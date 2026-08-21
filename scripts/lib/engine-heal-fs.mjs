@@ -52,11 +52,20 @@ export function readFingerprintTable({ sourceDir, brainDir }) {
 
 // The heal, as the reconciler asks for it: hand it the manifest and what the brain
 // records, and it answers with what the brain can PROVE about itself.
-export function healFromDisk({ manifest, provenance, sourceDir, brainDir }) {
-  return healProvenance({
-    manifest,
-    provenance,
-    installedFileMap: readInstalledMergeFiles({ brainDir, manifest }),
-    table: readFingerprintTable({ sourceDir, brainDir }),
-  });
+// The two reads are DEFAULTS, not fixtures (S7-5-3). The ancestor fetch next door needs
+// the very same installed map and the very same table, and reading each twice would
+// double the cost this module's header exists to keep down — on the SessionStart path,
+// on every session. So the reconciler reads once and hands both in; every other caller,
+// and every test written before this parameter existed, keeps working untouched.
+// ⚠️ A default fires on `undefined` ONLY: `table: null` from a failed read stays null,
+// which is exactly right — "we recognise nothing today" must not silently re-read.
+export function healFromDisk({
+  manifest,
+  provenance,
+  sourceDir,
+  brainDir,
+  installedFileMap = readInstalledMergeFiles({ brainDir, manifest }),
+  table = readFingerprintTable({ sourceDir, brainDir }),
+}) {
+  return healProvenance({ manifest, provenance, installedFileMap, table });
 }

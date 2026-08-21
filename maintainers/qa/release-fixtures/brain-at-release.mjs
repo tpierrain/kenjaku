@@ -16,6 +16,7 @@ import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
+import { defaultGit } from "../../../scripts/lib/engine-fetch.mjs";
 import { reconcileBrain } from "../../../scripts/lib/reconcile-brain.mjs";
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
@@ -60,6 +61,23 @@ export function brainAtRelease(tag, { edits = {} } = {}) {
   return { brainDir, manifest };
 }
 
+// 🛑 THE ONLY GIT THIS QA IS ALLOWED TO SPAWN (S7-5-3). The ancestor fetch runs a real
+// `git fetch origin tag <tag>` — and the "source" here is THIS REPOSITORY, whose tags are
+// already local. Letting the real runner through would put a NETWORK CALL inside a suite
+// that says "no network" in its own header, and a suite that needs the internet is a
+// suite that fails at random. Random failure is not noise in this repo: under the mutation
+// runner a suite that exits non-zero IS the kill signal, so a flaky test does not add
+// noise to a score, it adds points (RESULTS.md, top box).
+//
+// So `fetch` is answered `ok` without touching the network, and everything else — the
+// `git show <tag>:<path>` that produces the ancestor's actual bytes — goes to real git in
+// the real repository. The QA keeps reading REAL released content, which is its whole
+// reason to exist; only the round-trip that would have downloaded what is already on disk
+// is skipped.
+export function localTagGit(args, run = defaultGit) {
+  return args[2] === "fetch" ? { out: "", ok: true } : run(args);
+}
+
 // Everything the reconciler does to the world, stubbed: this QA is about file content.
 export function seams() {
   const calls = { install: [], reindex: [] };
@@ -69,6 +87,7 @@ export function seams() {
     runInstall: async ({ ragDir }) => calls.install.push(ragDir),
     runReindex: async ({ brainDir }) => calls.reindex.push(brainDir),
     countVaultNotes: async () => 0,
+    git: localTagGit,
   };
 }
 

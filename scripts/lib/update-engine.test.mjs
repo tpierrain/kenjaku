@@ -1568,12 +1568,16 @@ function assertSacredUntouched(brainDir, before) {
 // Run the core with the network/npm/reindex SEAMS stubbed. fetchSource hands back the
 // prepared source dir (stands in for `git clone --depth 1 --branch <ref>`); the calls
 // object records the side effects we assert on.
-async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, countVaultNotes }) {
+async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, countVaultNotes, git }) {
   const updateEngine = await loadCore();
   const calls = { install: [], reindex: [], regenerate: [], finalize: [], commit: [], order: [] };
   const report = await updateEngine({
     brainDir,
     platform,
+    // S7-5-3: the git seam the ancestor fetch spawns through. Left undefined by every
+    // test that predates it, so the parameter default (the real runner) stands — and no
+    // test that never needed an ancestor is asked to care.
+    ...(git === undefined ? {} : { git }),
     countVaultNotes: countVaultNotes ?? (async () => 0),
     // Persistence seam: an update rewrites VERSIONED engine files, and nothing
     // else commits them (the brain's auto-commit only fires on a session write).
@@ -2932,4 +2936,169 @@ test("updateEngine — a frozen brain's recognised files reach the REPORT, and t
     formatReport(report),
     /1 engine file\(s\) recognized from v3\.6\.0 — this brain can now receive updates for them/,
   );
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S7-5-3, END TO END — THE ANCESTOR ARRIVES, AND THE FILE STOPS BEING FROZEN.
+//
+// S7 healed the files with no recorded sha. This is the OTHER half of the fleet: a
+// file the owner EDITED before v5, whose sha is recorded, and whose ancestor bytes
+// were never persisted because `.engine-base/` is invented by this very release.
+// Today it lands on row 7 of `mergeVerdict` — `preserve/customized`, a `.new` sidecar,
+// frozen with a polite note.
+//
+// The payoff is not "the bytes were fetched", it is what the fetch UNLOCKS in the same
+// pass: the ancestor is hydrated BEFORE the three refresh families run, so the merge
+// that had nothing to merge from now has it, and the owner keeps their edit AND
+// receives the update. That is the sentence the release could not honestly write.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Long enough, and with enough unchanged lines between the two edits, that the owner's
+// change and the engine's do NOT overlap. That is the point being demonstrated: a real
+// three-way merge, on a real ancestor. (A fixture where both sides append to the same
+// last line produces a CONFLICT — which is also correct behaviour, and equally
+// impossible before this slice, since with no ancestor no merge was attempted at all.)
+const V360_DOCTRINE = [
+  "# Engine doctrine",
+  "",
+  "## Rule one",
+  "Always close the loop.",
+  "",
+  "## Rule two",
+  "Never guess a number.",
+  "",
+  "## Rule three",
+  "Say what you skipped.",
+  "",
+].join("\n");
+const SHA_V360_DOCTRINE = "sha256:" + createHash("sha256").update(V360_DOCTRINE).digest("hex");
+
+// A brain that edited its doctrine BEFORE this release: the sha is recorded, the bytes
+// on disk have moved, and there is no `.engine-base/` tree at all.
+function buildEditedBrain({ brainDir, sourceDir }) {
+  writeFile(brainDir, "CLAUDE.engine.md", V360_DOCTRINE + "\n## Ma propre règle\nAjoutée à la main.\n");
+  writeFile(
+    sourceDir,
+    "CLAUDE.engine.md",
+    V360_DOCTRINE.replace("## Rule one", "## Rule zero\nJamais de `- [ ]` muet.\n\n## Rule one"),
+  );
+  writeFile(
+    sourceDir,
+    "scripts/lib/engine-fingerprints.json",
+    JSON.stringify({
+      generatedAt: "v5.0.0",
+      files: { "CLAUDE.engine.md": { [SHA_V360_DOCTRINE]: { since: "v3.6.0", locale: "en" } } },
+    }),
+  );
+  for (const [dir, rag, ref] of [
+    [brainDir, "1.0.0", "v1.0.0"],
+    [sourceDir, "1.1.0", "v1.1.0"],
+  ]) {
+    writeFile(
+      dir,
+      "engine-manifest.json",
+      manifest({
+        ragVersion: rag,
+        indexSchemaVersion: 1,
+        ref,
+        extraMerge: ["CLAUDE.engine.md"],
+        provenance: { "CLAUDE.engine.md": SHA_V360_DOCTRINE },
+      }),
+    );
+  }
+}
+
+// A git that serves the tag's bytes, and records what it was asked.
+const ancestorGit = (blobs, { fetchOk = true } = {}) => {
+  const calls = [];
+  const git = (args) => {
+    calls.push(args);
+    if (args[2] === "fetch") return { out: "", ok: fetchOk };
+    return blobs[args[3]] === undefined
+      ? { out: "fatal: path does not exist", ok: false }
+      : { out: blobs[args[3]], ok: true };
+  };
+  return { git, calls };
+};
+
+test("updateEngine — the missing ancestor is FETCHED, and the file the owner edited is merged instead of frozen", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  buildEditedBrain({ brainDir, sourceDir });
+  const { git, calls } = ancestorGit({ "v3.6.0:CLAUDE.engine.md": V360_DOCTRINE });
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix", git });
+
+  assert.deepEqual(report.ancestorsHydrated, ["CLAUDE.engine.md"]);
+  assert.deepEqual(report.ancestorsFailed, []);
+  // 🛑 AND THE BASE DOES NOT STAY AT THE ANCESTOR — asserting that it did was a guess
+  // about the code, and the code is right. The ancestor is fetched, the merge CONSUMES
+  // it, then `planBaseAdvance` moves the base to what the engine has just delivered, so
+  // the NEXT update's three-way compares against the version actually shipped. Which is
+  // also why the fetch happens once ever: from here on the bytes are local.
+  assert.equal(
+    readFileSync(join(brainDir, ".engine-base/CLAUDE.engine.md"), "utf8"),
+    readFileSync(join(sourceDir, "CLAUDE.engine.md"), "utf8"),
+  );
+  // 🎯 THE PAYOFF, and the reason this slice is in v5: the ancestor is hydrated before
+  // the refresh families run, so the same pass that fetched it also MERGES. Without it
+  // this file is `doctrinePreserved` with a `.new` sidecar beside it.
+  assert.deepEqual(report.doctrineMerged, ["CLAUDE.engine.md"]);
+  assert.deepEqual(report.doctrineConflicts, []);
+  const merged = readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8");
+  assert.match(merged, /## Ma propre règle\nAjoutée à la main\./, "the owner's edit survives");
+  assert.match(merged, /Jamais de `- \[ \]` muet\./, "and the update arrives");
+  // The exact conversation with git, asserted whole: one fetch of that tag, one show.
+  assert.deepEqual(calls, [
+    ["-C", sourceDir, "fetch", "--depth", "1", "origin", "tag", "v3.6.0"],
+    ["-C", sourceDir, "show", "v3.6.0:CLAUDE.engine.md"],
+  ]);
+});
+
+test("updateEngine — a fetch that cannot reach the server is TOLD once, and alarms nobody", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  buildEditedBrain({ brainDir, sourceDir });
+  const { git } = ancestorGit({}, { fetchOk: false });
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix", git });
+
+  assert.deepEqual(report.ancestorsHydrated, []);
+  assert.deepEqual(report.ancestorsFailed, ["CLAUDE.engine.md"]);
+  // The state is EXACTLY today's behaviour — preserved, with the new version beside it.
+  assert.deepEqual(report.doctrinePreserved, [
+    { name: "CLAUDE.engine.md", reason: "customized", newVersionPath: "CLAUDE.engine.md.new" },
+  ]);
+  const line = formatReport(report);
+  assert.match(
+    line,
+    /could not reach the update server to recover the original of 1 file\(s\) — they are preserved as usual, and the next update will try again/,
+  );
+  assert.doesNotMatch(line, /error|failed|corrupt/i, "and it cannot read as an incident");
+});
+
+test("updateEngine — a brain that needed no ancestor hears NOTHING about fetching", async (t) => {
+  // The silence is the feature. Every brain installed from v5.0.0 on is in this case,
+  // and a line explaining a recovery it never needed is noise on every update forever.
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const { git, calls } = ancestorGit({});
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix", git });
+
+  assert.deepEqual(report.ancestorsFailed, []);
+  assert.deepEqual(calls, [], "and git was never spawned");
+  assert.doesNotMatch(formatReport(report), /could not reach the update server/);
 });
