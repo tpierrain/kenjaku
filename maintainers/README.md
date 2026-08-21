@@ -179,6 +179,16 @@
     it. A tombstone beats a regime — measured, because the reconcile's own install-if-absent put a
     just-deleted skill straight back in the same pass. First and only tombstone:
     `tdd-discipline`, superseded by `test-first-discipline`. **Scope: Second brain (runtime).**
+  - [`0040-a-brain-has-one-locale-and-it-is-written-on-the-brain.md`](decisions/0040-a-brain-has-one-locale-and-it-is-written-on-the-brain.md) —
+    three questions that kept being answered independently, now answered in one place: **which files
+    are localized** (those with a `templates/<locale>/` twin — derived, never listed; English is the
+    root, so *no twin* means the product did not localize it), **what language a brain is** (what
+    `demo-locale.mjs` says on **that brain**, and nothing else — not its content, not its bytes), and
+    **which source an update reads** (`resolveLocaleSource`, once, inside the shared merge carrier;
+    resolved at the source, written at the rel). The corollary is the one that cost a day: a `locale`
+    reported by the fingerprint lookup describes **the bytes it matched**, never the brain. Adding a
+    locale is adding a directory. **No behaviour change** — it writes down what the code has enforced
+    since v4.9.1. **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local

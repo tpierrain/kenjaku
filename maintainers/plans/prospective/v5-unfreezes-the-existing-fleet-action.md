@@ -82,13 +82,17 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S8-4 — the locale doctrine recorded as an ADR (the last item in S8)
+> ## ▶️ RESUME AT: S10 — a personalized file becomes a QUESTION with three offers
 >
-> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth) and **S8 is done bar its ADR** _(2026-08-21)_ —
-> S8-1 `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`. **The French tree no longer drifts
-> in silence**: `scripts/lib/locale-drift.mjs` is green over the 16 real pairs, and its waiver map turned
-> out to be load-bearing (empty it and it goes red naming `f7a00fc`, the one commit where **English
-> caught up with French** and no French edit can ever pair it).
+> **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
+> `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
+> longer drifts in silence**: `scripts/lib/locale-drift.mjs` is green over the 16 real pairs, and its
+> waiver map turned out to be load-bearing (empty it and it goes red naming `f7a00fc`, the one commit
+> where **English caught up with French** and no French edit can ever pair it).
+>
+> **S10 is the owner's own acceptance criterion** _(2026-08-21, explicitly v5 cargo and not v5.1)_ and
+> it RUNS BEFORE S9. Read its section before writing anything: what is left in the release after it is
+> the tail, S9.
 >
 > 🛑 **S8-3 CLOSED A FALSE ALARM, not a defect** — read the box at the top before quoting anything about
 > French brains being overwritten. A genuinely French brain always received the French doctrine; the QA
@@ -96,7 +100,7 @@
 > did not survive being run** (this, and `f7a00fc` at S8-2a), and this one had already reached the
 > ROADMAP as a promise to the fleet.
 >
-> **After S8-4**: **S10**, then **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
+> **Remaining**: **S10**, then **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
 >
 > **S8-2-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S8-2-0 and build to it. The
 > criterion is **unpaired commits** (commits touching EN since the FR twin's last commit that do not
@@ -290,8 +294,9 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         was paid at S7-3; this bought the breadth: **FR**, the **scripts** family, and a **second tag**.
         ⚠️ **It reported a defect S7 had activated — and that turned out to be the FIXTURE's, not the
         engine's.** Resolved at S8-3 the same night; see the box at the top.
-- [ ] **S8 — the French tree stops drifting in silence.** _(It briefly read "and stops being
-      OVERWRITTEN" — that was the false alarm above, withdrawn 2026-08-21.)_
+- [x] **S8 — the French tree stops drifting in silence.** _(2026-08-21 · S8-1 → S8-4, all four
+      shipped.)_ _(It briefly read "and stops being OVERWRITTEN" — that was the false alarm above,
+      withdrawn 2026-08-21.)_
   - [x] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`. _(2026-08-21 · `775c00a`)_
   - [ ] **S8-2 — the EN/FR drift guard**, a test.
     - [x] **S8-2-0 — the design**, measured on the 16 real pairs. _(2026-08-21)_
@@ -302,7 +307,7 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           _(2026-08-21 · `ab85fde` + `417e264`)_
   - [x] **S8-3 — the FR replay QA**, and the defect it was filed against was the fixture's, not the
         engine's. _(2026-08-21 · `a58ecf8`)_
-  - [ ] **S8-4 — the locale doctrine recorded** as an ADR.
+  - [x] **S8-4 — the locale doctrine recorded** as an ADR. _(2026-08-21 · **ADR 0040**)_
 - [ ] **S10 — a personalized file becomes a QUESTION, never a blind spot.** _(Owner's acceptance
       criterion, 2026-08-21. **v5 cargo**, explicitly not v5.1. Runs BEFORE S9.)_
   - [ ] **S10-0 — THE DESIGN**, written into this file before a line of code.
@@ -823,9 +828,17 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
       box at the top of this file. What shipped: `brainAtRelease` takes a `locale` and writes the
       marker from the tag's own overlay, Pole D is inverted and green, and a second test pins that the
       marker is really written.
-- [ ] **S8-4 — the locale doctrine recorded as an ADR** (the three-row table in the decisions block
-      above). Check first whether an existing ADR owns localization: CONVENTIONS §6bis says one ADR per
-      topic, and S3 amended 0012 rather than opening 0038 for exactly this reason.
+- [x] **S8-4 — the locale doctrine recorded as an ADR.** _(2026-08-21 · **ADR 0040**, indexed in
+      `maintainers/README.md`)_ Checked first, as the item required: **no existing ADR owns
+      localization** (0012 owns packaging, 0038 the merge-governed boundary, 0025/0039 the install and
+      retire doors — all four locale-blind by design), so this is a new number rather than an amendment.
+      The three rules are deliberately about three *different* things: which files are localized (a
+      twin exists — derived, never listed), what language a brain is (`demo-locale.mjs`, **on that
+      brain**, and nothing else), and which source an update reads (`resolveLocaleSource`, once, in the
+      shared carrier). **The corollary is the one this night paid for**: a `locale` reported by the
+      fingerprint lookup describes THE BYTES it matched, never the brain — the two agree on a healthy
+      brain and that agreement is a consequence, not a definition. No behaviour change; it writes down
+      what the code has enforced since v4.9.1. No mutation pass: documentation only, skip recorded.
 
 ---
 
