@@ -413,6 +413,21 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 22) — S4-4b, and a measurement that was worth the asking.** The plan
+  had written *"measure the added SessionStart latency: 'should be fast' is not a measurement"*, and
+  that instruction paid: the hook is fine on time (~20 ms of its own work) and **wrong on shape** — it
+  walks the owner's entire vault to look at files no `merge` glob can ever name. _(Numbers and the
+  follow-on slice: the owning plan's S4-4 block.)_
+  - ➡️ **For the mode**: the useful measurement was the one the plan **demanded in advance**, written
+    into a design box while nobody was in a hurry. Asked at the end of the slice, "is it fast enough?"
+    answers yes and stops; asked as a required step, it produced a number, then a scaling curve, then a
+    grep that found the waste. **A required measurement is a question that cannot be satisfied by a
+    reassuring answer.**
+  - ⚠️ **Second design box wrong in two iterations** (this one said "two file reads plus ~20 digests";
+    the previous said "cap at 5 named files"). Both were written from memory about code and channels
+    that were a `grep` away. The design-before-code rule is holding; what is not holding is **checking
+    the claim inside the box** — and both times the repo already held the answer.
+
 - 🌙 **2026-08-21 (loop iteration 21, second half) — S4-4a, and a 100 % score that proved nothing about
   the defect.** _(Numbers in [`RESULTS.md`](../../mutation/RESULTS.md#s4-4a--the-session-surface-and-a-defect-no-mutant-could-have-found--2026-08-21);
   the slice's state in the owning plan.)_ Two defects were caught this iteration and **neither was

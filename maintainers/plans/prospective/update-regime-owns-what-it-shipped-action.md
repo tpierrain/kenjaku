@@ -248,16 +248,18 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S4-4b — the surface reaches a brain.** **S4-4a is DONE** _(2026-08-21 · `ea9a4c1`)_:
-> the nudge and its hook exist, one sentence, both channels verified from a real process run. What is
-> left is **delivery**: its own SessionStart group in `.claude/settings.json.template` (⚠️ S3-2's lesson
-> — `hookScript()` identifies a group by its *first* script, so packing it beside an existing hook
-> delivers nothing to a deployed brain, and **two tests must make that packing go red**), its explicit
-> `replace` entry in the manifest (session hooks are listed one by one; no `scripts/session-*.mjs` glob
-> exists), and the **added SessionStart latency measured, not assumed** — a first free data point is
-> already in hand: the whole process, node boot included, ran in **73 ms** on the launcher's own tree.
+> **▶️ RESUME AT: S4-4c — the walk stops reading the vault.** **S4-4a and S4-4b are DONE**
+> _(2026-08-21 · `ea9a4c1` + `9dc9d5d`)_: the surface exists, says one sentence, is wired last on
+> SessionStart and is carried by the manifest. **The latency measurement is what opens the next slice**:
+> the hook costs **~20 ms of its own work** (median of 12: bare node 30 ms, hook 50 ms), but it gets
+> there by **walking the entire brain** — and **not one `merge` glob reaches into `vault/`**, so it reads
+> every note the owner ever wrote to look at files that are never among them. Measured at **2.3 µs per
+> file** (18.5 ms for 8 000 notes), i.e. a cost that tracks the owner's vault at every session start.
+> S4-4c derives the walk roots from the globs' static prefixes instead; ⚠️ its risk is the **shared**
+> caller (`readInstalledMergeFiles` also feeds `syncBaseTree` and the update report), so the new set must
+> be **exactly** today's. Full detail in the S4-4 block below.
 > _(S4-1, S4-2 and S4-3 are closed: `update-engine.mjs` reads **99.40 %**, `engine-base-fs.mjs`
-> **95.65 %**, every survivor a named equivalent.)_
+> **95.65 %**, every survivor a named equivalent. S4-4a scored **100 %** first pass.)_
 >
 > **S2c is UNBLOCKED** _(2026-08-21 — the box at the top is answered:
 > yes, the engine may write `CLAUDE.md` through the merge door)_, and it amends ADR 0012, whose §5 is now
@@ -1411,12 +1413,45 @@ audible divergence.
                 `update-engine.mjs` for the shared lib, and that file's byte-for-byte prose tests are
                 **untouched and green** — which is the proof it was a move. `installRef` is exported from
                 `engine-version.mjs` for the same one-owner reason.
-        - [ ] **S4-4b — the surface reaches a brain.** Its own `PreToolUse`-style group in
-              `.claude/settings.json.template`, its explicit `replace` entry in the manifest (session
-              hooks are listed **one by one** there — no `scripts/session-*.mjs` glob exists), and the
-              latency measurement. ⚠️ **S3-2's lesson applies verbatim**: `hookScript()` identifies a
-              group by its *first* script, so packing this beside an existing hook would deliver
-              nothing to a deployed brain. Two tests must make that packing go **red**.
+        - [x] **S4-4b — the surface reaches a brain.** _(2026-08-21 · `9dc9d5d`)_ Its own SessionStart
+              group in `.claude/settings.json.template` (**wired LAST**: breakage, a pending restart and
+              the version/update line all outrank a file the owner chose to keep), its explicit
+              `replace` line in the manifest, both driven by red tests. ✅ **S3-2's trap needed no new
+              test**: the guard it left behind scans **every group of every event** for a second script,
+              so it covered this hook for free — a lesson that became repo-wide instead of per-hook.
+          - [x] ⏱️ **THE LATENCY IS MEASURED, and the measurement contradicted the design box above.**
+                Median of 12 runs each: a bare node process **30 ms**, the hook **50 ms** → **~20 ms of
+                its own work** on the launcher's tree. Against a 20 000 ms hook timeout that is nothing,
+                **but the shape is wrong**: the design box called this *"two file reads plus ~20
+                digests"*, and it is in fact a **full recursive walk of the whole brain**
+                (`readInstalledMergeFiles` → `listFilesRelPosix(brainDir)`), then a filter.
+          - [x] 📉 **How it scales, measured rather than feared**: the walk is ~2.3 µs per file —
+                **3.7 ms / 500 notes, 7.3 ms / 2 000, 18.5 ms / 8 000**. So the hook's cost follows the
+                size of the owner's VAULT, and a large brain pays tens of milliseconds at every single
+                session start.
+          - [x] 🎯 **And it is entirely avoidable — the walk reads what it can never need.** Checked
+                against the manifest: **not one `merge` glob reaches into `vault/`** (they are
+                `CLAUDE.md`, `.claude/settings.json`, nine `.claude/skills/*/**`, four `scripts/*.mjs`).
+                The hook walks every note the owner has ever written in order to look at files that are
+                never among them.
+          - [x] 🚫 **No mutation pass, and the skip is said in writing**: S4-4b changed two JSON files
+                and added two tests. Wiring-only, per CONVENTIONS.md 5quinquies — there is no new
+                behaviour for a mutant to survive in.
+          - [x] ⚖️ **Shipped anyway, deliberately, and the reason is written here rather than left to
+                look like an oversight**: it is an inefficiency, not a defect — the surface is correct,
+                fail-open and far inside its timeout. The fix touches `readInstalledMergeFiles`, which
+                the **update path** shares, so it earns its own slice with its own tests rather than
+                riding a delivery slice.
+        - [ ] **S4-4c — the walk stops reading the vault.** Derive the walk roots from the `merge`
+              globs' **static prefixes** (the part before the first wildcard: `.claude/skills/coach/**`
+              → walk `.claude/skills/coach`; `CLAUDE.md` → stat it) instead of walking `brainDir` and
+              filtering afterwards. A pure `globRoots(globs)` function, testable on its own.
+          - [ ] ⚠️ **The shared caller is the whole risk**: `readInstalledMergeFiles` also feeds
+                `syncBaseTree` and the update report. Its current contract is *"every file on disk that
+                a merge glob names"*, and the new one must return **exactly the same set** — the tests
+                that pin it today are the judge, and a red one means the prefix logic dropped a file.
+          - [ ] **Judge it with the numbers above**: re-run the 12× median on a brain-shaped tree, and
+                the walk cost must stop tracking note count at all.
       - [ ] 🧱 **The module split** follows the house shape every other session hook uses
             (`session-wiki-health.mjs` is the reference): a pure builder in `scripts/lib/`, an entry
             script whose `main` is declared deterministic glue and is not unit-tested, seams injected so
