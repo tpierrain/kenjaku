@@ -9,10 +9,15 @@
 <!-- plan is self-sufficient. Open this one only to investigate HOW a shipped  -->
 <!-- mechanism was designed.                                                   -->
 <!--                                                                          -->
-<!-- WHY IT CLOSED SHORT OF PUBLISHING: the release unfreezes brains installed -->
-<!-- from v5.0.0 on, and NOBODY already installed — i.e. the entire fleet.     -->
-<!-- Owner's call, 2026-08-21: do not publish in that state. Healing the       -->
-<!-- frozen fleet moved from "deliberately out" to the successor plan's S7.    -->
+<!-- WHY IT CLOSED SHORT OF PUBLISHING: the release, AS THIS PLAN BUILT IT,    -->
+<!-- unfroze brains installed from v5.0.0 on and NOBODY already installed —    -->
+<!-- i.e. the entire fleet. Owner's call, 2026-08-21: do not publish in that   -->
+<!-- state. Healing the frozen fleet moved to the successor plan's S7.         -->
+<!--                                                                          -->
+<!-- ⚠️ THAT IS HISTORY, NOT THE CURRENT STATE. S7 shipped later the same day  -->
+<!-- and a brain rebuilt from v3.6.0 now RECEIVES. Do not quote the sentence   -->
+<!-- above as if it still held: the successor plan owns where this stands, and -->
+<!-- this header keeps no second copy of it.                                   -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 > ## ✅ RESOLVED — S6e is DROPPED (owner, 2026-08-21, in conversation)
