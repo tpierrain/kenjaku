@@ -465,6 +465,40 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📣 **2026-08-22 (S9-1a) — THE RELEASE MADE ONE OF OUR OWN PROMISES FALSE, and the ritual that found
+  it is a checklist, not a hunch.** S9-1 split on contact: §10's re-read corrects what the repo
+  **claims** (factual, mine to do); the note is his **voice**. Doing both in one slice would have
+  buried the second under the first.
+
+  > **The finding: an improvement can turn a guarantee into a lie, and CI cannot see it.** `SETUP.md`
+  > swore *"an update never writes to … anything under `.claude/skills/` you customized"*. S7-5 made
+  > that **false on purpose** — a customized skill whose ancestor can be fetched is now merged, so the
+  > file changes, with the owner's words still in it. Nothing went red, because no test asserts prose.
+  > CONVENTIONS §10 tells you to *"hunt the absolute promises first: never, only, always, untouched,
+  > sacred"* — and it is exactly the word **never** that broke.
+  >
+  > The repair was not a patch but a **change of shape**: *"never written to"* was a freeze;
+  > **"never LOST"** is what survives an update. One sentence now spines six corrected passages and
+  > will be the release note's lead.
+
+  **A subagent did the sweep and it was the right call** — one Explore agent read README, SETUP,
+  EN-QUOI, CONNECTORS, DEVELOPING, both constitutions, the installer's strings, `templates/**` and the
+  board prompts, and came back with file:line quotes and a verdict per file, for a few thousand words
+  of window. That is the mode's *"bulk reads go to a subagent"* paying for itself: the main window
+  spent its budget on **judging** the findings, not on locating them.
+
+  🧭 **And the boring verdict is part of the ritual**: `docs/marketing-image-prompts.md`'s boards claim
+  *"never overwrites your notes"* about **notes and the constitution**, which stay literally untouched
+  — so no board asserts anything the code stopped doing. §10 says record that, in writing, or the next
+  release re-derives it.
+
+  **No mutation pass**, and the skip is stated rather than assumed: doc-only, no production line
+  changed, and the two nets that *could* still fire were checked — those three files are in **no
+  regime** (no fingerprint table to regenerate) and have **no FR twin** (nothing for `locale-drift` to
+  pair). Suite green, 2334 pass.
+
+  **Next**: S9-1b, the note itself, in his tone.
+
 - 🧪 **2026-08-22 (S10-QA) — THE QA FIXTURE WAS MEASURING A STATE NO BRAIN IS EVER IN, and the
   mutation run was skipping nine of sixteen hunks in silence.** `612f306`, `5c16fc2`, `ea78d42`,
   `e2036be`. S10 is now DONE: the owner's sentence runs as a test over a brain rebuilt from the

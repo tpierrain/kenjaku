@@ -118,7 +118,48 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: S9-1 — the release note (S10 is DONE, QA included)
+> ## ▶️ RESUME AT: S9-1b — the release note itself (his tone). S9-1a is DONE.
+>
+> ✅ **S9-1a — THE MARKETING SURFACE NOW TELLS THE TRUTH** _(2026-08-22 · CONVENTIONS.md §10's ritual,
+> run in full; verdict recorded below rather than summarised away)_. **S9-1 split on contact**, as S5c
+> and S10-6 did: §10's re-read is a **factual** correction of what the repo claims, mine to make; the
+> release note is his **voice**. Doing them in one slice would have buried the second under the first.
+>
+> **The one that was outright FALSE**, and it is the absolute promise §10 tells you to hunt first:
+> `SETUP.md` swore *"an update never writes to … anything under `.claude/skills/` you customized"*.
+> **S7-5 made that false on purpose**: a customized skill whose ancestor can be fetched is now MERGED,
+> so the file does change — with the owner's words still in it. The promise had to change shape rather
+> than be patched: **"never written to" was a freeze; "never LOST" is what survives an update.** That
+> sentence is now the spine of every corrected passage, and it is the release note's lead.
+>
+> **Six passages corrected** (`README.md` ×4, `EN-QUOI-C-EST-DIFFERENT.md` ×1, `SETUP.md` ×2 including
+> the "sacred by construction" box): every one of them sold *preserved / never overwritten*, which the
+> release turns from a guarantee into an **undersell**. `SETUP.md`'s update step now describes the
+> three real outcomes (merged · offered with three answers · said out loud between updates) and names
+> the command behind them.
+>
+> **What was TRUE and sold NOWHERE** (§10's second question): **the heal** — a brain frozen since its
+> install day recognising the files it was given back then and receiving improvements again — appeared
+> in no user-facing document at all. Now in `README.md`'s updater bullet.
+>
+> **Checked and found clean, recorded so the sweep's coverage is legible**: `CONNECTORS.md`,
+> `DEVELOPING.md`, `CLAUDE.md`, `CLAUDE.engine.md`, `installer.mjs` (no printed claim on this),
+> `templates/**` including the FR tree, and `docs/marketing-image-prompts.md` — the boards' claims are
+> about **notes and the constitution**, which stay literally untouched, so **no board asserts anything
+> the code stopped doing**. That is the boring verdict §10 asks for in writing.
+>
+> 🧪 **No mutation pass on this slice, and the skip is deliberate**: doc-only, no production line
+> changed. The nets that could still fire were checked — `README.md`, `SETUP.md` and
+> `EN-QUOI-C-EST-DIFFERENT.md` are in **no regime** (so no fingerprint table to regenerate) and have
+> **no `templates/fr/` twin** (so `locale-drift` has nothing to pair). Full suite green, 2334 pass.
+>
+> ### Where S9-1b picks up — the release note (HIS tone, not mine)
+>
+> The material is now assembled and needs a voice: the lead is **"your words are never lost"**;
+> `CONVENTIONS.md §11` fixes the shape (two-sentence lead in the reader's words, `What you get`,
+> `What you have to do`, then `---` and `Under the hood`); the three user-facing sentences of the
+> divergence notice are his. **Do not advertise bugs that never shipped** — the three defects S10-QA
+> found were caught before any tag and belong under the fold, if anywhere at all.
 >
 > ✅ **S10-QA HAS SHIPPED, and with it S10 is finished** _(2026-08-22 · `612f306`, `5c16fc2`, `ea78d42`,
 > `e2036be`)_ — the owner's sentence is now an executable test over a brain rebuilt from the published
@@ -133,8 +174,8 @@
 > **silently skipped** (a bare `:79` matches no file; `mutate-one.mjs` now normalizes it). See
 > `../../mutation/RESULTS.md § S10-QA`.
 >
-> ▶️ **NEXT: S9, the release tail** — S9-1 (the release note, the owner's tone; the marketing lead
-> below is waiting for it), then S9-2 (cut/tag/publish, his) and S9-3 (the field measurement).
+> ▶️ **NEXT: S9-1b** (the note, his tone), then S9-2 (cut/tag/publish, his) and S9-3 (the field
+> measurement). **S9-1a is done** — see the top of this header.
 >
 > ### The road to here (S7, S8, S10-0 → S10-6b) — kept as the record, **not** the resume point
 >
@@ -170,11 +211,12 @@
 > frozen brain. **Every BUILD slice is ticked, S10-0 → S10-6b**, and **S10-QA closed the gap between
 > built and done** — see the top of this header.
 >
-> 📌 **A lead for S9-1, recorded here so it survives this context** (found while writing S10-6b, and
-> it is exactly CONVENTIONS.md §10's *"what did this release make TRUE that we do not sell yet?"*):
-> the marketing surface still promises that a file you tailored is **kept**. That is now an
-> **undersell**, not a falsehood — it is kept *and offered back to you as a choice*. §10's re-read is
-> owned by S9-1; this note only makes sure the finding is waiting there.
+> 📌 **The lead recorded here for S9-1 — SPENT, 2026-08-22.** It said the marketing surface still
+> promises that a tailored file is merely *kept*, an undersell rather than a falsehood. **S9-1a's sweep
+> found it was worse than that in one place** (`SETUP.md` promised a customized skill is never written
+> to, which S7-5 makes false) and **thinner than that everywhere else** (six passages, plus a
+> capability sold nowhere). See the S9-1a verdict at the top of this header; nothing is left waiting
+> here.
 >
 > Read § S10-0 and build to it; it cut four slices, **S10-1 → S10-4**. Three corrections it made to the
 > sketch, each measured against the code rather than reasoned about:
@@ -440,8 +482,13 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         marked-up merge adoptable blind; every sidecar counted as a held-back file). 96.15 % then
         100 % — see `../../mutation/RESULTS.md § S10-QA`. **S10 is DONE.**
 - [ ] ▶️ **NEXT — S9 — the release tail.** _(LAST: after S7, S8 and S10 — all three are now done.)_
-  - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
-        play: one falls if S7 ships, the other if S10 does. **Not writable until both verdicts exist.**
+  - [x] **S9-1a — CONVENTIONS §10's re-read of the marketing surface, and its corrections.**
+        _(2026-08-22)_ One outright FALSE promise (`SETUP.md`: an update never writes a skill you
+        customized — S7-5 makes it merge), six undersells corrected, and the **heal**, sold nowhere,
+        now in `README.md`. Verdict recorded in the header, including the clean files.
+  - [ ] ▶️ **NEXT — S9-1b — the release note itself.** Owner's tone. Both old forbidden claims have
+        fallen (S7 and S10 both shipped), so it is writable at last. Lead: **"your words are never
+        lost"**. Shape: `CONVENTIONS.md §11`.
   - [ ] **S9-2 — cut, tag, publish.** Owner's, always.
   - [ ] **S9-3 — the field measurement** carried to the release checklist.
 
@@ -1292,12 +1339,22 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
 
 ## 🏁 S9 — the release tail
 
-- [ ] **S9-1 — the release note.** Owner's tone (`release-notes-tone`: written for non-devs first,
-      never alarmist). **Blocked until BOTH S7's and S10's verdicts are known**: the release had two
-      forbidden claims, and each is now the subject of a slice — S7 makes *"unfreezes nobody already
-      installed"* false, S10 makes *"the merge does not reach back"* irrelevant to the user, which is
-      the only sense in which it was ever a release-note problem. The three user-facing sentences of
-      the divergence notice are his too.
+- [x] **S9-1a — the marketing surface re-read (CONVENTIONS §10) and its corrections.** _(2026-08-22)_
+      **Split on contact from S9-1**: §10's re-read corrects what the repo CLAIMS (factual, mine); the
+      note is his VOICE. The full verdict, including the files that needed nothing, is in the header —
+      it is not restated here.
+  - [x] **The absolute promise that rotted**, exactly what §10 says to hunt first: `SETUP.md` swore an
+        update never writes to a skill you customized. S7-5 makes a customized skill MERGE, so the file
+        does change, with the owner's words still in it. **"Never written to" was a freeze; "never
+        LOST" is the promise that survives an update** — and it is the note's lead.
+  - [x] **Six passages corrected** across `README.md`, `EN-QUOI-C-EST-DIFFERENT.md` and `SETUP.md`; the
+        **heal**, which appeared in no user-facing document at all, is now in the updater bullet.
+- [ ] ▶️ **NEXT — S9-1b — the release note.** Owner's tone (`release-notes-tone`: written for non-devs
+      first, never alarmist). **Both old forbidden claims have now fallen** — S7 made *"unfreezes
+      nobody already installed"* false, S10 made *"the merge does not reach back"* irrelevant to the
+      user — so it is writable. The three user-facing sentences of the divergence notice are his too.
+      ⚠️ **Do not advertise bugs that never shipped**: S10-QA's three findings were caught before any
+      tag (§11).
 - [ ] **S9-2 — cut, tag, publish.** The owner's, always.
 - [ ] **S9-3 — the field measurement**, carried to the release checklist rather than to a slice: do the
       write guard's prompts become noise on a session that legitimately customizes an engine skill?
