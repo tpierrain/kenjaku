@@ -235,19 +235,32 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ## S10-QA — the acceptance test, and the guard that refused too much — 2026-08-22
 
-`612f306` then `5c16fc2`. State owned by
+`612f306`, `5c16fc2`, `ea78d42`. State owned by
 [`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
 EXISTING files changed by a few lines → measured **on THOSE LINES ONLY** (16 hunks across six files).
-**Reproduce**: the `mutate-one.mjs` invocation is quoted in the log's header — log
-[`s10-qa-hunks`](reports/s10-qa-hunks.log).
+**Reproduce**: each run's full `mutate-one.mjs` invocation is quoted in its log header — logs
+[`s10-qa-hunks`](reports/s10-qa-hunks) and [`s10-qa-single-lines`](reports/s10-qa-single-lines).
 
 | Run | Mutants | Score | Survivors |
 |---|---|---|---|
 | first pass (`612f306`) | 54 | 85.19 % | 8 |
 | after the three fixes (`5c16fc2`) | **52** | **96.15 %** | 2, both equivalent |
+| the nine SKIPPED lines, re-run | 17 | 88.24 % | 2, same defect |
+| after deleting the dead arm (`ea78d42`) | **13** | **100.00 %** | 0 |
 
 Per file after the fixes: `engine-answers.mjs` 100 %, `engine-base.mjs` 100 %, `adopt-engine-file.mjs`
-100 %, `engine-adopt.mjs` 95.83 %, `engine-base-fs.mjs` 85.71 %.
+100 %, `engine-merge-apply.mjs` 100 %, `engine-adopt.mjs` 95.83 %, `engine-base-fs.mjs` 85.71 %.
+
+### 🚨 A `--mutate` RANGE WRITTEN AS A BARE LINE NUMBER MEASURES NOTHING, AND SAYS SO IN A WARNING
+
+`scripts/lib/engine-adopt.mjs:79` matches **no file**. Stryker logs
+`Glob pattern "…:79" did not result in any files` and carries on to a green score over everything
+else — so **nine of this slice's sixteen hunks were never measured**, and the first table row above
+was computed on the seven that were. Single lines have to be written `79-79`.
+
+This sits beside the flag's other trap, already documented at the top of this file: the file name must
+be **repeated per range** (`f.mjs:1-5 f.mjs:9-12`, never `f.mjs:1-5,9-12`). Both fail the same way —
+**silently, upward**. Re-run properly, the nine lines held one real defect (below) and now score 100 %.
 
 ### 🛑 THE FINDING: A SAFETY GUARD IS MEASURED IN BOTH DIRECTIONS, OR IT IS HALF-TESTED
 
@@ -275,6 +288,15 @@ The CLI's marked-merge line could lose its middle clause and still read as true 
 the engine's changed the same lines"* — while dropping the only fact the owner acts on: that what sits
 beside the file is a **marked-up merge of both**, not a version to install. S10-6a's finding, one
 release later, on the sentence that finding did not cover.
+
+### And what the nine unmeasured lines were hiding: a report arm with no state to describe
+
+`preserved.push(sidecar === undefined ? {name, reason} : {name, reason, newVersionPath})` — both its
+mutants survived, because **nothing produces a preserve without a sidecar**. Rows 3 and 7 of
+`mergeVerdict` both set `sidecar: candidate`, and so do this module's own `merge-failed` /
+`merge-unsafe` degradations. The `no-provenance` row was that arm's only home until **S10-1 gave it an
+offer** — the arm outlived its state by one slice, and only a hunk-scoped run over a line nobody had
+otherwise touched would ever have said so. Deleted, not asserted.
 
 ### The two survivors that stay (documented equivalent)
 

@@ -58,6 +58,17 @@ const MAX_TIMEOUT_SHARE = 0.25;
 
 // ── The CLI surface ──────────────────────────────────────────────────────────
 
+// 🚨 `file.mjs:79` MEASURES NOTHING. Stryker's `--mutate` wants a RANGE: given a bare
+// line number it logs `Glob pattern "…:79" did not result in any files` and scores the
+// rest of the batch as if that line had been measured. Met on S10-QA, where nine of
+// sixteen hunks were skipped that way and the run reported 85 % over the seven that
+// were — a score that was never measured, which is the one failure this script exists to
+// make impossible. Normalized rather than refused: `79` and `79-79` mean the same thing
+// to the person typing it, and the tool is the one that knows Stryker's spelling.
+function normalizeRange(target) {
+  return target.replace(/:(\d+)$/, ":$1-$1");
+}
+
 export function parseArgs(argv) {
   const targets = [];
   let worktree = DEFAULT_WORKTREE;
@@ -69,7 +80,7 @@ export function parseArgs(argv) {
     if (arg === "--dry-run") dryRun = true;
     else if (arg === "--worktree") worktree = argv[++i];
     else if (arg === "--log") logName = argv[++i];
-    else targets.push(arg);
+    else targets.push(normalizeRange(arg));
   }
 
   if (!targets.length) return { ok: false, error: `no target file given\n${USAGE}` };

@@ -61,6 +61,22 @@ test("parseArgs — a line-scoped target keeps its range, and the log name survi
   });
 });
 
+// 🚨 THE TRAP THIS CLOSES, met for real on S10-QA: Stryker's `--mutate` accepts
+// `file.mjs:79-79` and REJECTS `file.mjs:79` — it logs "did not result in any files" and
+// carries on to a green score over whatever else was in the batch. Nine of that slice's
+// sixteen hunks were measured by nobody, and the run said 85 % as if they had been.
+// A score that was never measured is exactly what this script exists to make impossible,
+// so the single line is normalized here rather than left to be spotted in a warning.
+test("parseArgs — a SINGLE line is normalized into a range, because Stryker silently ignores a bare one", () => {
+  assert.deepEqual(parseArgs(["scripts/update-engine.mjs:147"]), {
+    ok: true,
+    targets: ["scripts/update-engine.mjs:147-147"],
+    worktree: "kenjaku-mut-one",
+    logName: "mutate-one-update-engine-147-147.log",
+    dryRun: false,
+  });
+});
+
 test("parseArgs — several targets keep their order, and the log is named after the first", () => {
   assert.deepEqual(
     parseArgs(["scripts/lib/repo-status.mjs", "scripts/auto-push.mjs"]),
