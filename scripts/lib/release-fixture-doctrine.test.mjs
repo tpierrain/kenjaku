@@ -191,3 +191,77 @@ test("QA v3.6.0 → HEAD — an owner who edited the doctrine keeps their line A
   assert.equal(advanced[DOCTRINE], fingerprint(readRepo(DOCTRINE)), "and so does the recorded sha");
   assert.notEqual(advanced[DOCTRINE], fingerprint(landed), "never to the merged bytes");
 });
+
+// ── Pole D — THE FRENCH FLEET (S7-4) ──────────────────────────────────────────────
+//
+// 🇫🇷 Both of the owner's real brains are French, and until now no fixture was. That is
+// not a detail of coverage: the heal recognises bytes by MEMBERSHIP in a table, and the
+// French doctrine is a different byte-state of the same rel — 4 of the 9 states the table
+// holds for `CLAUDE.engine.md` are French. A heal that only knew the English ones would
+// have healed nobody who actually runs this product.
+//
+// The fixture blob is `git show v3.6.0:templates/fr/CLAUDE.engine.md`, kept OUTSIDE the
+// copied tree (`blobs/<tag>/<source-path>`) so it names where it came from without
+// putting a `templates/` directory inside a brain that would never have one.
+//
+// ✅ Proven to bite: asserting `locale: "en"` here turns it red. A QA test that passed the
+// moment it was written is worth exactly as much as the check that it can fail.
+const FR_DOCTRINE_AT_TAG = () =>
+  readFileSync(join(FIXTURES, "blobs", TAG, "templates/fr", DOCTRINE), "utf8");
+
+test("QA v3.6.0 FR → HEAD — a FRENCH frozen brain is recognised too, and by its own locale", async (t) => {
+  const { brainDir, manifest } = brainAtRelease(TAG, { edits: { [DOCTRINE]: FR_DOCTRINE_AT_TAG() } });
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  assert.notEqual(FR_DOCTRINE_AT_TAG(), doctrineAtTag(), "the FR and EN blobs must differ, or this proves nothing");
+  assert.equal(manifest.provenance?.[DOCTRINE], undefined, "and it is the frozen cohort: nothing recorded");
+
+  const report = await updateFrom(brainDir, manifest);
+
+  // 🎯 The locale is REPORTED, not guessed: the same lookup that proves the bytes says
+  // which tree they came from, which is what S7-5 needs to know where to fetch from.
+  assert.deepEqual(report.healed, [{ rel: DOCTRINE, since: TAG, locale: "fr" }]);
+  assert.deepEqual(report.doctrinePreserved, [], "no longer frozen for want of a provenance");
+
+  // 🛑 AND WHAT IT RECEIVES IS THE **ENGLISH** DOCTRINE — asserted here as a MEASUREMENT,
+  // not as an endorsement. The heal reads the locale correctly and the delivery ignores it:
+  // `selectMergeGovernedDoctrine` pairs every rel with `sourceRel: rel`, so the source is
+  // always the English tree. A French brain is therefore unfrozen INTO ENGLISH.
+  //
+  // Deliberately NOT fixed here — that is S8-3's slice, and this assertion is what will
+  // turn red the moment it is, which is exactly what a QA pole is for. Left as the record
+  // that the defect was measured on a real tag before anyone promised otherwise.
+  assert.equal(readBrain(brainDir, DOCTRINE), readRepo(DOCTRINE), "measured: the EN doctrine (see S8-3)");
+});
+
+// ── Pole E — THE OTHER TWO FAMILIES, AND A TAG THAT IS NOT THE BRAIN'S (S7-4) ─────
+//
+// The doctrine is the file this release is named for, and it was the only family this QA
+// covered. The heal is declared to work on any `merge`-regime file, and a declaration is
+// not a measurement. `scripts/auto-commit.mjs` is the sharpest second family: the brain
+// EXECUTES it at every write, it went through the same freeze, and it is one of the four
+// scripts S2b-3 moved out of the copy bucket.
+//
+// 🛑 AND IT CARRIES A SUBTLETY THAT LOOKS LIKE A BUG. A brain installed at v3.6.0 gets
+// told its hook was recognised from **v3.4.1**. That is correct and it is the design: the
+// table records the FIRST tag that shipped a given byte-state, and this file did not change
+// between v3.4.1 and v3.6.0. The version named is the version of the BYTES, never the
+// version of the brain — and it is the one an ancestor fetch must ask for.
+const HOOK = "scripts/auto-commit.mjs";
+const HOOK_AT_TAG = () => readFileSync(join(FIXTURES, "blobs", TAG, HOOK), "utf8");
+
+test("QA v3.6.0 → HEAD — a frozen engine SCRIPT is healed too, and named by the tag its BYTES came from", async (t) => {
+  const { brainDir, manifest } = brainAtRelease(TAG, { edits: { [HOOK]: HOOK_AT_TAG() } });
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  assert.equal(manifest.provenance?.[HOOK], undefined, "the frozen cohort again, on another family");
+  assert.notEqual(HOOK_AT_TAG(), readRepo(HOOK), "and the engine must have moved since");
+
+  const report = await updateFrom(brainDir, manifest);
+
+  assert.deepEqual(
+    report.healed.filter((h) => h.rel === HOOK),
+    [{ rel: HOOK, since: "v3.4.1", locale: "en" }],
+    "recognised, and dated by its BYTES — v3.4.1, not the v3.6.0 this brain was installed from",
+  );
+  assert.equal(readBrain(brainDir, HOOK), readRepo(HOOK), "and the hook the brain runs is the engine's current one");
+  assert.deepEqual(report.scriptsPreserved, [], "nothing held back for want of a provenance");
+});
