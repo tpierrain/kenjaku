@@ -23,6 +23,10 @@
 // and it had been copied from here into a plan, a test title and a fixture note.
 // ─────────────────────────────────────────────────────────────────────────────
 import { matchesAny } from "./glob-match.mjs";
+// The merge-governed pair, defined by S3's guard and reused here rather than restated
+// (see MERGE_GOVERNED_FILES below). That module imports `node:path` and this one's
+// header promises no filesystem — the promise holds: `node:path` touches no disk.
+import { OWNER_AUTHORED } from "./engine-write-guard.mjs";
 
 // An engine-owned script within the `merge` regime: a top-level scripts/*.mjs. On
 // every manifest the product has ever shipped that is exactly four files —
@@ -56,11 +60,47 @@ export const ENGINE_DOCTRINE = /^CLAUDE\.engine\.md$/;
 // untouchable (it is never in the manifest) and an already-present one is preserved.
 const ENGINE_SKILL = /^\.claude\/skills\/[^/]+\//;
 
-// The user's sovereign territory — NEVER writable by the engine (ADR 0003/0012),
-// whatever a manifest declares. Exact files + whole subtrees. The vault has no
-// fixed manifest entry, but `vault/` is denied too as belt-and-suspenders.
-const SACRED_FILES = ["CLAUDE.md", ".claude/settings.json", ".env"];
-const SACRED_TREES = [".claude/skills/", "vault/"];
+// ─── The owner's territory, in TWO categories and not one (plan S2c) ─────────
+// One word, "sacred", used to file three different reasons, and the flattening had a
+// cost: a blanket "the engine never writes there" made *"may the engine ever update
+// your constitution?"* read as already answered, when it never had been. ADR 0038
+// amends 0012 with the split; what follows is the same invariant, said precisely.
+
+// 🔒 INVIOLABLE — no regime, no door, no merge, ever, whatever a manifest declares.
+// `.env` holds the owner's API key; `vault/` is their notes, which is the product's
+// entire promise. Neither has a legitimate engine write, so there is nothing to
+// qualify. (The vault has no fixed manifest entry either — the tree is denied here as
+// belt-and-braces against a buggy or hostile manifest.)
+const INVIOLABLE_FILES = [".env"];
+// `.claude/skills/` is inviolable HERE and carved out exactly ONE level up: a skill
+// the manifest DECLARES reaches `installSkills`, the single bucket this scrub does not
+// filter (ADR 0025, additive install-if-absent). So the tree means "no skill is ever
+// copied over", and a skill the owner wrote themselves — never in any manifest — is
+// unreachable by every bucket there is.
+const INVIOLABLE_TREES = [".claude/skills/", "vault/"];
+
+// 🚪 MERGE-GOVERNED — off the copy path for a DIFFERENT reason: not "the engine must
+// never touch this", but "the engine may only reach it through a three-way merge from
+// a provable base, never by copy and never on a conflict". The owner's answer of
+// 2026-08-21, recorded in ADR 0038.
+//
+// It is the guard's `OWNER_AUTHORED`, imported rather than restated: ONE boundary read
+// from two sides — S3 asks *"may the AGENT write this without asking?"*, this module
+// asks *"may the ENGINE write it by copy?"*. Two lists that agree today are two lists
+// that disagree the day one is edited, so a test pins them by IDENTITY.
+//
+// ⚠️ This is a statement about the DOOR, not an announcement that it is open. Nothing
+// in this release delivers either file: `CLAUDE.md` has no ancestor machine yet (no
+// provable base ⇒ no merge), and `.claude/settings.json` is written surgically by the
+// reconciler's hook reconcile — the right mechanism for a JSON file whose two sides
+// both append to the same arrays, and deliberately not a line diff.
+export const MERGE_GOVERNED_FILES = OWNER_AUTHORED;
+
+// What the scrub actually removes from the copy buckets: both categories, because the
+// COPY path is closed to both. Only the REASON differs, and the reason is what the two
+// constants above now carry instead of a single word doing three jobs.
+const SACRED_FILES = [...INVIOLABLE_FILES, ...MERGE_GOVERNED_FILES];
+const SACRED_TREES = INVIOLABLE_TREES;
 
 // The path stem of a (possibly glob) entry, for the sacred check: drop a trailing
 // "/**" or "/*" so ".claude/skills/coach/**" is judged under ".claude/skills/".

@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
-import { computeApplyPlan, planTouches } from "./engine-apply-plan.mjs";
+import { computeApplyPlan, planTouches, MERGE_GOVERNED_FILES } from "./engine-apply-plan.mjs";
+import { OWNER_AUTHORED } from "./engine-write-guard.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-apply-plan — THE SAFETY CORE (plan Step 3). A pure function turning the
@@ -234,6 +235,53 @@ test("computeApplyPlan — SAFETY CORE: the sacred TREES themselves are refused,
   assert.deepEqual(plan.overwrite, ["rag/src/**"], "neither the skills tree nor the whole vault");
   assert.deepEqual(plan.regenerate, [], "and a launcher bucket claiming the vault regenerates nothing");
   assert.deepEqual(plan.installSkills, [".claude/skills/coach/**"], "a skills path under another root is not a skill");
+});
+
+// ─── The scrub splits in two, and the words are the deliverable (plan S2c) ───
+// One word, "sacred", was filing three different reasons: `.env` and `vault/` must
+// never be written by anything, ever; `CLAUDE.md` and `.claude/settings.json` are the
+// owner's to AUTHOR but the engine may reach them through a provable merge; an
+// undeclared skill is untouchable because nobody claimed it. Reformulating the scrub
+// is not cosmetics — ADR 0003/0012's whole invariant is built on that word, and a
+// blanket "never" is what made "may the engine ever update your constitution?" read
+// as already answered.
+test("SAFETY CORE — the scrub's merge-governed half IS the guard's OWNER_AUTHORED, by identity", () => {
+  // Same REFERENCE, not merely the same contents: two lists that happen to agree today
+  // are two lists that disagree the day one of them is edited, and this pair is the one
+  // boundary read from both sides — S3 asks "may the AGENT write this without asking?",
+  // this module asks "may the ENGINE write it by copy?".
+  assert.equal(MERGE_GOVERNED_FILES, OWNER_AUTHORED);
+});
+
+// The split has to BITE, or it is a rename with a paragraph. `.env` is the file where
+// a wrong answer leaks the owner's API key: no regime, no merge, no door, ever.
+test("SAFETY CORE — `.env` is inviolable: no bucket, no door, not even the merge", () => {
+  assert.equal(MERGE_GOVERNED_FILES.includes(".env"), false, "it is not on the merge-governed side");
+  const hostile = { regimes: { replace: [".env"], regenerate: [".env"], merge: [".env"] } };
+  const plan = computeApplyPlan(hostile);
+  assert.deepEqual(plan, { overwrite: [], regenerate: [], mergeScripts: [], mergeDoctrine: [], installSkills: [] });
+  assert.equal(planTouches(plan, ".env"), false);
+});
+
+// ⚠️ "Merge-governed" is a STATEMENT ABOUT THE DOOR, not an announcement that it is
+// open. In this release neither file is delivered by anything: `CLAUDE.md` has no
+// ancestor machine yet (no provable base ⇒ no merge), and `.claude/settings.json` is
+// written surgically by the reconciler's hook reconcile, which is the right mechanism
+// for a JSON file whose two sides both append to the same arrays — not a line diff.
+// So the scrub's BEHAVIOUR is byte-for-byte what it was; what changed is that the code
+// now says why. This test is what stops the rename being read as a green light.
+test("SAFETY CORE — merge-governed does NOT mean delivered: neither file is written by any bucket yet", () => {
+  const plan = computeApplyPlan({
+    regimes: {
+      replace: ["CLAUDE.md"],
+      regenerate: [".claude/settings.json"],
+      merge: ["CLAUDE.md", ".claude/settings.json"],
+    },
+  });
+  assert.deepEqual(plan.overwrite, [], "a manifest declaring the constitution `replace` still writes nothing");
+  assert.deepEqual(plan.regenerate, []);
+  assert.equal(planTouches(plan, "CLAUDE.md"), false);
+  assert.equal(planTouches(plan, ".claude/settings.json"), false);
 });
 
 // ─── SELF-CARRY guard (plan Step 4) ─────────────────────────────────────────

@@ -49,7 +49,7 @@ them, not a catch-all:
 | Part | What | Upgrade |
 |---|---|---|
 | **Installer** | the launcher + what it needs to generate a brain (`installer.mjs`, install-side `scripts/lib/`, `templates/`); read-only, reusable (ADR 0001) | **out of scope** — it *performs* upgrades, it isn't upgraded inside a brain |
-| **Engine** *(the motor)* | the **upstream-provided** runtime machinery: RAG, runtime hooks/scripts, shipped skills, the constitution `CLAUDE.md`, `.mcp.json` | **upgradable** (the subject) |
+| **Engine** *(the motor)* | the **upstream-provided** runtime machinery: RAG, runtime hooks/scripts, shipped skills, the constitution's **engine layer** `CLAUDE.engine.md`, `.mcp.json` | **upgradable** (the subject) |
 | **Personal Extensions** | the **user-made** tooling grafted onto the brain: home-made skills, custom scripts/sub-agents/hooks. Machinery, but authored locally | **never touched** |
 | **Content** | the user's notes — their **data** (`vault/**`) | **never touched** |
 
@@ -74,11 +74,22 @@ deletion. This is a **structural** guarantee, stronger than 0003's "non-destruct
 **3 — Three upgrade regimes.** Every engine file falls in exactly one:
 - **Replace (re-substituted):** pure upstream machinery the user never edits (`rag/src/**`, provided
   hooks/scripts) — overwritten, placeholders re-substituted, but only files named in the manifest.
-- **Merge 3-way (opt-in):** upstream-provided **but** user-editable (constitution `CLAUDE.md`, shipped
-  skills) — never overwritten; the new version is offered as a diff the user accepts hunk by hunk
-  (protects a fork). This regime is what makes "engine vs content" safe despite the constitution and
-  shipped skills living inside the engine.
+- **Merge 3-way (opt-in):** upstream-provided **but** user-editable (the constitution, shipped skills)
+  — never overwritten; the new version is offered as a diff the user accepts hunk by hunk (protects a
+  fork). This regime is what makes "engine vs content" safe despite the constitution and shipped skills
+  living inside the engine.
 - **Never-touch:** Content **and** every Personal Extension — absent from the manifest ⇒ untouchable.
+
+> ⏱️ **Amended 2026-08-21, twice, and the amendments are recorded here rather than left to be
+> re-derived.** _(a)_ **The constitution is two-layer since v4.0.0.** The rows above were written before
+> the split and said *the constitution `CLAUDE.md`*, which stopped describing reality the day a thin,
+> sacred `CLAUDE.md` began `@import`ing an engine-owned `CLAUDE.engine.md`. The **engine layer** is the
+> Engine's; `CLAUDE.md` is the owner's. Only the engine layer joined a regime, and it did so in
+> **v5.0.0** — before that it was in **no regime at all**, so a doctrine rule written there reached
+> fresh installs and nobody else. _(b)_ **Never-touch splits in two**, see
+> [`0038`](0038-sacred-splits-inviolable-and-merge-governed.md): *inviolable* (`.env`, `vault/`,
+> undeclared skills) and *merge-governed* (`CLAUDE.md`, `.claude/settings.json` — reachable only through
+> a provable three-way merge, never by copy). The three regimes themselves are unchanged.
 
 The Engine is therefore versioned as a **vector** (`rag` / `constitution-template` / `scripts`), not a
 single number, surfaced at runtime (e.g. via `vault_stats`).

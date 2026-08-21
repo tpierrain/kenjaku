@@ -163,6 +163,14 @@
     Re-examines each of ADR 0011's four costs — including owning the timer against ADR 0009 — and states
     the bound plainly: *searchable in seconds, committed within minutes, as long as your brain is open*.
     **Scope: Second brain (runtime).**
+  - [`0038-sacred-splits-inviolable-and-merge-governed.md`](decisions/0038-sacred-splits-inviolable-and-merge-governed.md) —
+    **amends ADR 0012**: one word, *sacred*, was filing three different reasons, and the flattening
+    answered a question nobody had decided. **Inviolable** (`.env`, `vault/`, undeclared skills) means
+    no door, ever; **merge-governed** (`CLAUDE.md`, `.claude/settings.json`) means the engine may reach
+    it **only** through a three-way merge from a provable base — never by copy, never on a conflict.
+    One boundary read from two sides, so the list **is** the write guard's `OWNER_AUTHORED`, pinned by
+    identity. **No behaviour change**: a door named is not a door open, and nothing in this release
+    delivers either file. **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local
