@@ -327,9 +327,13 @@
 > - [ ] 🗣️ **The release note, and the three user-facing sentences at § S4-3** — tone is his at release
 >       time (`release-notes-tone`). **TWO claims must not be overstated, and both are now pinned by a
 >       test rather than by anyone's memory:**
->   - [ ] ⚠️ **The doctrine layer unfreezes no already-deployed brain.** Old brains stop being
->         **silent**; new ones are correct from day one. *"The freeze is over"* is not true, and the
->         acceptance test proves which half is.
+>   - [x] ⚠️ ~~**The doctrine layer unfreezes no already-deployed brain.**~~ **THIS CONSTRAINT IS DEAD
+>         — do not carry it into the release note.** It was true of the release **as this plan built
+>         it**, and S7 of the successor plan made it false on 2026-08-21 (`f3d72c4`): a brain rebuilt
+>         from the real `v3.6.0` tag, recording no sha for the doctrine, now comes out of an update
+>         byte-identical to what the engine ships. The acceptance test that pinned the old claim was
+>         **inverted, with its reason**, in `release-fixture-doctrine.test.mjs`. What the note may
+>         claim, and the wording is the successor plan's to settle, is bounded by the row below.
 >   - [ ] ⚠️ **The merge does not reach BACK** _(found 2026-08-21 while checking what the note could
 >         claim · `19a6842`)_. The obvious sentence — *"your edits are kept AND you get the update"* —
 >         is **false for one population, permanently**: files the owner had **already edited before
@@ -341,6 +345,15 @@
 >         was the only thing wrong, and it is fixed. ✅ **The true sentence**: *files you edit from
 >         this version on will merge; the ones you had already changed keep standing untouched, with
 >         the new version beside them, and the update says so by name.*
+>         ⚠️ **"PERMANENTLY" IS NO LONGER SAFE TO WRITE, and the release note must not inherit it.**
+>         The reasoning above has exactly one hole and the successor plan is in it: the ancestor
+>         cannot be seeded from the disk, but it can be **FETCHED** from the tag the recorded sha
+>         names. That is **S7-5** of
+>         [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+>         **in flight, not finished** (the planner landed 2026-08-21; the git shell and the wiring are
+>         not written). **That plan owns whether the sentence changes and this row keeps no copy** —
+>         it is flagged here only so nobody quotes "permanently" out of an archive while it is being
+>         disproved next door.
 > - [ ] ✂️ **Cutting, tagging and publishing** — his, always (§ *Where the owner is required*).
 > - [ ] 🔬 **The one S3 item that is a field measurement, not code** (§ S3, and it says so there):
 >       whether the write guard's prompt becomes noise on a session that legitimately customizes an
