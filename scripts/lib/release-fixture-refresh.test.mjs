@@ -20,74 +20,24 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { tmpdir } from "node:os";
-import { fileURLToPath } from "node:url";
+import { existsSync, readFileSync, rmSync } from "node:fs";
+import { join } from "node:path";
 
-import { reconcileBrain } from "./reconcile-brain.mjs";
+// The brain builder, the stubbed seams and the one-real-update helper were EXTRACTED
+// to `maintainers/qa/release-fixtures/brain-at-release.mjs` when the doctrine QA
+// needed the same brain. Nothing below this line changed with the move — that the
+// four tests still pass untouched is the proof it was a move.
+import {
+  FIXTURES,
+  brainAtRelease,
+  readBrain,
+  readRepo,
+  skillFilesOf,
+  updateFrom,
+} from "../../maintainers/qa/release-fixtures/brain-at-release.mjs";
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
 import { fingerprint, reseedProvenance } from "./engine-source.mjs";
-
-const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const FIXTURES = join(REPO, "maintainers", "qa", "release-fixtures");
-
-const readRepo = (rel) => readFileSync(join(REPO, rel), "utf8");
-const readBrain = (brainDir, rel) => readFileSync(join(brainDir, rel), "utf8");
-
-function writeFile(root, rel, content) {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), content);
-}
-
-// A brain as the installer of `<tag>` left it: that release's skills, that release's
-// manifest, and the provenance base the installer records for every `merge` file it
-// delivers — the sha256 of the very bytes it wrote. `edits` overwrites a skill AFTER
-// the base is computed, which is exactly what a user customization looks like on disk.
-function brainAtRelease(tag, { edits = {} } = {}) {
-  const brainDir = mkdtempSync(join(tmpdir(), `sbg-qa-${tag}-`));
-  cpSync(join(FIXTURES, tag), brainDir, { recursive: true });
-  const manifest = JSON.parse(readBrain(brainDir, "engine-manifest.json"));
-  const provenance = {};
-  for (const rel of skillFilesOf(tag)) provenance[rel] = fingerprint(readBrain(brainDir, rel));
-  manifest.provenance = provenance;
-  // The sacred trio, so the QA also observes that a refresh leaves them alone.
-  writeFile(brainDir, "CLAUDE.md", "# My constitution\nI tailored this.\n");
-  writeFile(brainDir, ".env", "GOOGLE_GEMINI_API_KEY=secret\n");
-  writeFile(brainDir, ".claude/settings.json", '{\n  "mine": true\n}\n');
-  for (const [rel, content] of Object.entries(edits)) writeFile(brainDir, rel, content);
-  return { brainDir, manifest };
-}
-
-// The skill files the fixture carries, as brain-relative POSIX paths.
-function skillFilesOf(tag) {
-  const skills = {
-    "v3.6.0": [".claude/skills/switch/SKILL.md", ".claude/skills/prepare-1-1/SKILL.md"],
-    "v3.2.2": [".claude/skills/import/SKILL.md"],
-  };
-  return skills[tag];
-}
-
-// Everything the reconciler does to the world, stubbed: this QA is about file content.
-function seams() {
-  const calls = { install: [], reindex: [] };
-  return {
-    calls,
-    regenerateLaunchers: async () => {},
-    runInstall: async ({ ragDir }) => calls.install.push(ragDir),
-    runReindex: async ({ brainDir }) => calls.reindex.push(brainDir),
-    countVaultNotes: async () => 0,
-  };
-}
-
-// One real update: the repository at HEAD is the fetched source (`sourceDir !== brainDir`,
-// i.e. the auto-finalize child of an explicitly-requested update).
-async function updateFrom(brainDir, local) {
-  const { calls, ...s } = seams();
-  const target = JSON.parse(readRepo("engine-manifest.json"));
-  return reconcileBrain({ brainDir, platform: "posix", sourceDir: REPO, target, local, ...s });
-}
 
 // ── The case this increment was pulled forward for (plan §"The trigger") ──────
 // `4e43e70` shipped 22 lines into `.claude/skills/switch/SKILL.md` in v3.6.2. A brain
