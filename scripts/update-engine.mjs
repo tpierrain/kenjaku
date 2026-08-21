@@ -35,7 +35,7 @@ import {
 import { checkUpstream, formatUpdateCheck, unknownUpstream } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
 import { reseedBaseRefs, reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
-import { syncBaseTree } from "./lib/engine-base-fs.mjs";
+import { readEngineDivergence, syncBaseTree } from "./lib/engine-base-fs.mjs";
 import {
   defaultRunInstall,
   defaultRunReindex,
@@ -110,6 +110,24 @@ const PRESERVED_ASIDE = {
   "merge-unsafe": " (merging the two would not have produced a working file)",
 };
 
+// 🔇→🔊 S4-3: `no-provenance` used to be the fourth silence, and it was the loudest
+// defect in the product. A brain with no record for a file preserved it on every
+// update and said nothing, on every update, forever — an owner discovered by hand
+// that a skill had been frozen since install, and the file turned out to be the
+// engine's own bytes, zero lines of his.
+//
+// It gets a SENTENCE OF ITS OWN rather than an entry in the map above, because the
+// map's sentence opens with "your customized" — the one claim this verdict cannot
+// make. That false claim is what sent him diffing a file nobody had edited. What we
+// know is that we do not know, and that is what is said.
+//
+// No sidecar is named: a `no-provenance` preserve writes none (engine-merge-apply),
+// so pointing at a `.new` would be the report inventing a file, on the very verdict
+// that exists to admit ignorance.
+const unprovableLine = (name, singular) =>
+  `   • your "${name}" ${singular} was left exactly as it is — this brain has no record of` +
+  ` the version the engine last delivered there, so we cannot tell your edits from ours`;
+
 // ⚠️ The entries are keyed `name`, not `skill`: the same carrier serves the engine
 // scripts (S2b) and the constitution (S2c), and in those a field called `skill` would
 // simply be false. What stays family-specific is the NOUN, not the data.
@@ -134,6 +152,10 @@ function preservedAndMergedLines({ merged, preserved, singular, plural }) {
   // left ALONE, with the path of the new version dropped beside it so the choice to
   // adopt the new bits stays theirs.
   for (const { name, reason, newVersionPath } of preserved) {
+    if (reason === "no-provenance") {
+      lines.push(unprovableLine(name, singular));
+      continue;
+    }
     const aside = PRESERVED_ASIDE[reason];
     if (aside === undefined) continue;
     lines.push(
@@ -148,6 +170,39 @@ function preservedAndMergedLines({ merged, preserved, singular, plural }) {
 // report and — whichever family they came from — the LAST of the block. Everything
 // mergeable is already merged in that sidecar: what is left is the region the two
 // sides both rewrote. This sentence names no noun, so both families share it whole.
+// ── S4-3: WHERE THE BRAIN STANDS, not only what this pass decided ────────────
+// Every line above is an EVENT: it names a file this update looked at. A file frozen
+// three releases ago and untouched by this update produces no event, which is exactly
+// how a freeze stays invisible for months.
+//
+// So this block is a RECAP, and says so. It deliberately repeats a file named above
+// instead of subtracting it: the subtraction would need a join between skill NAMES and
+// file paths that nothing records, and the recap carries something the event lines
+// cannot — the version each file was last delivered at. Two versions named, no release
+// count computed: counting releases would need the release list (a fetch) for a number
+// "v4.7.0 → v5.0.0" already conveys.
+//
+// `since: null` stays "no record". It is never filled in from the ref we just installed:
+// the version the brain runs TODAY is not the version the file is behind.
+const DIVERGENCE_LINE = {
+  customized: (since) => (since === null ? `yours; no record of which engine version it came from` : `yours; the engine last delivered here at ${since}`),
+  "no-provenance": () => `left as-is; no record of what the engine delivered there`,
+};
+
+function divergenceLines(divergence, ref) {
+  if (divergence.length === 0) return [];
+  const count = divergence.length;
+  return [
+    `   • where your brain stands now, running ${ref}: ${count} engine file${count > 1 ? "(s)" : ""} this update leaves alone`,
+    ...divergence.map(({ rel, reason, since }) => `     - ${rel} — ${DIVERGENCE_LINE[reason](since)}`),
+    // The calm closing line is load-bearing, not decoration: a held-back file is a
+    // legitimate steady state an owner may keep for years, and a list with no verdict
+    // under it reads as a list of problems. It says "a file", not "your file": one of
+    // these reasons is precisely that we cannot tell whose it is.
+    `     Nothing to do: a file the engine leaves alone is a choice, not a problem.`,
+  ];
+}
+
 function conflictLines(conflicts) {
   return conflicts.map(
     ({ name, newVersionPath }) =>
@@ -159,7 +214,7 @@ function conflictLines(conflicts) {
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -230,6 +285,8 @@ export function formatReport(report) {
     // Both families' clashes together, at the end of the block: appending each next to
     // its own family's sentences would bury a skill conflict mid-report.
     ...conflictLines([...conflicts, ...scriptConflicts]),
+    // …then the standing state, after every event, because it is the summary of them.
+    ...divergenceLines(divergence, ref),
   );
   // The engine files this update rewrote are VERSIONED, so we committed them (step 9) —
   // otherwise they sit dirty forever and the next SessionStart `git pull --rebase`
@@ -496,6 +553,7 @@ export async function updateEngine({
 
   return {
     committed,
+    divergence: readEngineDivergence({ brainDir }),
     ref: updated.source.ref,
     engineVersion: updated.engineVersion,
     copied,

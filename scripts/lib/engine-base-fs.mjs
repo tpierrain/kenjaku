@@ -21,6 +21,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { baseRelPath, planBaseAdvance, planBaseSeed } from "./engine-base.mjs";
+import { engineDivergence } from "./engine-divergence.mjs";
 import { recordSourceAndProvenance, selectMergeFiles } from "./engine-source.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 
@@ -94,6 +95,24 @@ export function syncBaseTree({ brainDir, manifest, provenance = {}, deliveredFil
     seeded: seeds.map((seed) => seed.rel).sort(),
     deferred: [...deferred].sort(byPath),
   };
+}
+
+// S4-3 — the standing state, read off the brain AS IT NOW IS. Both inputs come from
+// the same disk read, deliberately: a divergence computed from the manifest we wrote
+// earlier in the pass would describe a brain that existed halfway through the update
+// (the finalize child rewrites that manifest after us).
+//
+// Fail-soft, like the two steps it sits beside: an unreadable manifest means we cannot
+// say where the brain stands, and "cannot say" is silence, never a thrown error over an
+// update that already succeeded and is already recorded.
+export function readEngineDivergence({ brainDir }) {
+  let manifest = null;
+  try {
+    manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  } catch {
+    return [];
+  }
+  return engineDivergence({ manifest, installedFileMap: readInstalledMergeFiles({ brainDir, manifest }) });
 }
 
 // The INSTALL composition root. Recording the source and the provenance without laying

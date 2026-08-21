@@ -105,8 +105,8 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     vaultNoteCount: 0,
     skillsMerged: ["coach", "switch"],
     // The discriminating trio for the `reason` filter: a plain customization (no
-    // ancestor yet), a merge the tool could not run, and a no-provenance preserve that
-    // stays silent by design.
+    // ancestor yet), a merge the tool could not run, and a no-provenance preserve —
+    // which since S4-3 gets a sentence of its own rather than silence.
     skillsPreserved: [
       { name: "import", reason: "customized", newVersionPath: ".claude/skills/import/SKILL.md.new" },
       { name: "sync", reason: "merge-failed", newVersionPath: ".claude/skills/sync/SKILL.md.new" },
@@ -121,6 +121,7 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     '   • your "coach" and "switch" skills kept your edits AND received this update',
     '   • your customized "import" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/import/SKILL.md.new',
     '   • your customized "sync" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as .claude/skills/sync/SKILL.md.new',
+    '   • your "improve" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
     '   • ⚠️ "prepare-1-1": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/prepare-1-1/SKILL.md.new',
   ]);
 });
@@ -266,7 +267,14 @@ test("formatReport — every preserve reason says WHY, in the words of its own f
   assert.deepEqual(skillAside("merge-failed"), [
     '   • your customized "x" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as x.new',
   ]);
-  assert.deepEqual(skillAside("no-provenance"), [], "no proof, no claim, no line");
+  // 🔇→🔊 S4-3 reverses the decision this line used to pin. "No proof, no claim, no
+  // line" kept the report honest and the OWNER blind: a skill frozen since install
+  // produced no sentence on any update, forever, which is the field finding's third
+  // defect word for word. The claim is still not made — the file is never called
+  // customized — and what is said instead is the thing we DO know: we cannot tell.
+  assert.deepEqual(skillAside("no-provenance"), [
+    '   • your "x" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+  ]);
 
   const scriptAside = asideOf("scriptsPreserved");
   assert.deepEqual(scriptAside("customized"), [
@@ -278,7 +286,31 @@ test("formatReport — every preserve reason says WHY, in the words of its own f
   assert.deepEqual(scriptAside("merge-unsafe"), [
     '   • your customized "x" file was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as x.new',
   ]);
-  assert.deepEqual(scriptAside("no-provenance"), [], "and silence is silence in both families");
+  assert.deepEqual(scriptAside("no-provenance"), [
+    '   • your "x" file was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+  ], "and the same news, in the other family's noun");
+});
+
+// ⚠️ The sidecar is NOT mentioned, and the fixture above would let it slip: it passes a
+// `newVersionPath` for every reason, while the producer emits none for this one (a
+// `no-provenance` preserve writes no `.new` — see engine-merge-apply.mjs). Asserted on
+// the shape the producer can actually emit, or the report would point at a file that
+// does not exist, on the very verdict that exists to admit we know nothing.
+test("formatReport — the unprovable-file line points at no sidecar, because none was written", () => {
+  const out = formatReport({
+    ref: "v9.9.9",
+    engineVersion: {},
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    skillsPreserved: [{ name: "coach", reason: "no-provenance" }],
+  });
+  assert.match(
+    out,
+    /• your "coach" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours\n/,
+  );
+  assert.doesNotMatch(out, /customized/i);
+  assert.doesNotMatch(out, /\.new/);
 });
 
 // One merged skill must not be announced in the plural. The report is read by a
@@ -639,6 +671,7 @@ test("formatReport — an everything-on update prints every optional line, in or
       "   • engine skill(s) brought up to date: switch, coach",
       '   • your "sync" and "improve" skills kept your edits AND received this update',
       '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
+      '   • your "import" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
       '   • ⚠️ "univers": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/univers/SKILL.md.new',
       "   • new runtime hook(s) wired: session-health, session-self-heal",
       "   • repaired Windows hook command(s) (issue #31 — 'laude' error): auto-push, statusLine",
@@ -671,9 +704,9 @@ test("formatReport — a target manifest with no engineVersion says so instead o
 });
 
 // The third shape, between the floor and the ceiling: an upgrader whose schema did NOT
-// move (health-note seed only), holding a single note, with a preserve the report must
-// stay SILENT about — and the steady-state restart banner, whose wording is a different
-// literal from the new-capability one above.
+// move (health-note seed only), holding a single note, with the preserve this report
+// used to stay silent about (S4-3 gave it a sentence) — and the steady-state restart
+// banner, whose wording is a different literal from the new-capability one above.
 test("formatReport — a steady-state upgrade prints the incremental-reindex + generic-restart wording, byte for byte", () => {
   const out = formatReport({
     ref: "v3.6.2",
@@ -692,6 +725,7 @@ test("formatReport — a steady-state upgrade prints the incremental-reindex + g
       "   • 1 engine file(s) swapped",
       "   • ensured the engine health-check note is present and indexed (incremental — your other notes were not re-encoded)",
       "   • your vault holds 1 note — searchable as the reindex finishes",
+      '   • your "coach" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
       "   ⚠️ ACTION NEEDED — your engine was updated on disk, but THIS conversation is",
       "   still running the OLD version. A FULL RESTART of Claude (close it and reopen) is",
       "   enough: come back to THIS same conversation afterwards and the update takes effect.",
@@ -769,11 +803,12 @@ test("formatReport — says which customized skill was preserved, and where its 
   assert.match(out, /kept|preserved|as you wrote/i);
 });
 
-// Step 1's refinement, carried into the prose: a pre-provenance brain (nothing was
-// ever fingerprinted for that file) must NOT be told it customized anything — it
-// didn't. There is nothing to decide and nothing to adopt, so the report stays silent
-// rather than manufacturing a scary, unactionable line on every single update.
-test("formatReport — a preserve with no provenance is NOT reported as a customization", () => {
+// The half of the old decision that STAYS: a pre-provenance brain must never be told
+// it customized anything — it didn't, and that false claim is what once sent an owner
+// hunting for a diff of zero lines. What changed in S4-3 is the other half: silence is
+// no longer the way to avoid the false claim, because a file nobody mentions on any
+// update is the permanent freeze the field finding is about.
+test("formatReport — a preserve with no provenance is never called a customization", () => {
   const out = formatReport({
     ref: "v3.6.2",
     engineVersion: { rag: "1.1.4" },
@@ -783,7 +818,63 @@ test("formatReport — a preserve with no provenance is NOT reported as a custom
     skillsPreserved: [{ name: "coach", reason: "no-provenance" }],
   });
   assert.doesNotMatch(out, /customized/i);
-  assert.doesNotMatch(out, /coach/);
+  assert.match(out, /"coach" skill was left exactly as it is/);
+});
+
+// ── S4-3: the STANDING state, not only what this pass decided ────────────────
+// An update names the files it just looked at. A file frozen three releases ago and
+// untouched by this update produced no line at all — which is how a freeze stays
+// invisible for months. The recap is the answer, and it is deliberately a RECAP: it
+// repeats a file named above rather than trying to subtract it, because the versions
+// it carries are exactly what the event lines cannot say.
+test("formatReport — the recap names every held-back file with the version it last received", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    divergence: [
+      { rel: ".claude/settings.json", reason: "customized", since: null },
+      { rel: "CLAUDE.md", reason: "customized", since: "v4.7.0" },
+      { rel: ".claude/skills/coach/SKILL.md", reason: "no-provenance", since: null },
+    ],
+  });
+
+  // The block WHOLE, in order: this prose is the deliverable of the slice, and a
+  // matcher on one phrase leaves the clauses between them unjudged (S3's lesson).
+  assert.match(
+    out,
+    /\n {3}• where your brain stands now, running v5\.0\.0: 3 engine file\(s\) this update leaves alone\n {5}- \.claude\/settings\.json — yours; no record of which engine version it came from\n {5}- CLAUDE\.md — yours; the engine last delivered here at v4\.7\.0\n {5}- \.claude\/skills\/coach\/SKILL\.md — left as-is; no record of what the engine delivered there\n {5}Nothing to do: a file the engine leaves alone is a choice, not a problem\.\n/,
+  );
+});
+
+test("formatReport — a single held-back file is announced in the singular", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    divergence: [{ rel: "CLAUDE.md", reason: "customized", since: "v4.7.0" }],
+  });
+  assert.match(out, /• where your brain stands now, running v5\.0\.0: 1 engine file this update leaves alone\n/);
+});
+
+// A converged brain must get NO recap: this whole block exists so a standing fact is
+// visible, and a "0 files" line every update is the nagging the design forbids.
+test("formatReport — a brain holding nothing back gets no recap at all", () => {
+  const converged = {
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+  };
+  assert.doesNotMatch(formatReport({ ...converged, divergence: [] }), /where your brain stands now/);
+  // …and an older report that never carried the field at all reads the same way, which
+  // is what lets this land on a brain whose updater has not been swapped yet.
+  assert.doesNotMatch(formatReport(converged), /where your brain stands now/);
 });
 
 // A refreshed skill is on disk but THIS conversation loaded the OLD text when it
@@ -2011,6 +2102,40 @@ test("gate — returns the vault note count from the injected seam", async (t) =
   });
 
   assert.equal(report.vaultNoteCount, 42);
+});
+
+// ── S4-3: the standing state is READ, at the end, off the brain as it now is ──
+// Not derived from what this pass decided: the whole point is the files it did NOT
+// decide. Read last, after the finalize child has had its say, or the report would
+// describe a brain that existed halfway through the update.
+test("updateEngine — the report names what the brain is STILL holding back, versions and all", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // The owner's own constitution, edited after install: a `merge` file the fetched
+  // source does not carry, so this update never touches it — the exact file that is
+  // invisible in today's report and stays held back release after release.
+  writeFile(brainDir, "CLAUDE.md", SACRED["CLAUDE.md"] + "\n## My own section\n");
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  // The WHOLE list, sorted, both reasons. The four engine scripts were re-delivered by
+  // this update, so they are converged and must NOT appear — while this fixture brain
+  // really does hold two files it can prove nothing about (they were never
+  // fingerprinted), which is the state the recap exists to stop hiding.
+  assert.deepEqual(report.divergence, [
+    { rel: ".claude/settings.json", reason: "no-provenance", since: null },
+    { rel: ".claude/skills/zzz-mine/SKILL.md", reason: "no-provenance", since: null },
+    { rel: "CLAUDE.md", reason: "customized", since: "v1.0.0" },
+  ]);
+  // …and it reaches the prose, with the version each file was last delivered at.
+  assert.match(
+    formatReport(report),
+    /• where your brain stands now, running v1\.1\.0: 3 engine file\(s\) this update leaves alone\n {5}- \.claude\/settings\.json — left as-is; no record of what the engine delivered there\n {5}- \.claude\/skills\/zzz-mine\/SKILL\.md — left as-is; no record of what the engine delivered there\n {5}- CLAUDE\.md — yours; the engine last delivered here at v1\.0\.0\n/,
+  );
 });
 
 // ── Increment 2.5 / trap T1 — the parent's step 7 must not lose the reseed ────
