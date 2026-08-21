@@ -490,6 +490,16 @@ arbitration goes here as a question, and the run continues on other slices.
   > The three failure modes wear the same coat — a survivor that looks like noise — and the cost of
   > guessing wrong was, this time, the whole deployed fleet.
 
+  📌 **And the carrier guard caught a second thing, on the hand-back** (`b88fc14`): a ROADMAP row whose
+  own last clause reads *"this row only points at it, and keeps no copy of what remains"* was carrying
+  one anyway — *"since S10-3 (2026-08-21) a personalized file is … offered three choices"*. Outdated
+  within a day: S10-3 made the offer a **sentence**, S10-5 made it something the engine can carry out.
+  **A pointer row that names a version or a slice is a copy of status wearing a pointer's clothes**, and
+  the give-away is that it dates itself. The claim now names neither, and says why. Also worth writing
+  down: the guard's list was answered *"they need nothing"* on a **grep** at first, which is the exact
+  move that was already wrong once (§ S10-1's round 2). Opening the four touchpoints is what made the
+  dismissal of the archived plan an actual verification — and turned up the ROADMAP row in passing.
+
   **Next**: S10-6, the conversation itself. The engine is complete, so the prose may now promise
   exactly what it does. EN skill **and** its `templates/fr/` twin in ONE commit, or `locale-drift` goes
   red. No unit to mutate: the wording review stands in for the gate.
