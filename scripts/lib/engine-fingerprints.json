@@ -201,6 +201,14 @@
       "sha256:bd46dda01f927ef6a40b9ea9936e5a574c782ae98e3610535c876f2fce301144": {
         "since": "v4.8.0",
         "locale": "fr"
+      },
+      "sha256:ab236b2a864c5cb602b7914b95ac0e42646ed19bc137c75c45d479414d60b2ae": {
+        "since": "v5.0.0",
+        "locale": "en"
+      },
+      "sha256:7499bf75dc759dc6ba0a026c4fa3d4ecb323253d37cc17f5ae4e46b84eb1d8a9": {
+        "since": "v5.0.0",
+        "locale": "fr"
       }
     },
     "CLAUDE.engine.md": {
