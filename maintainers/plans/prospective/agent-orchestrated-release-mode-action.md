@@ -465,6 +465,26 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🎨 **2026-08-22 (S10-5-0) — a DESIGN slice, opened because the next slice was about to promise
+  something the engine cannot record.** `3348875`, no code, no tests, no mutation score — the mode's
+  contract for a design slice, honoured rather than quietly bent into "design while coding".
+  The plan said *next: bricks 3-5, the conversation*. Starting to write that prose would have meant
+  writing *"I'll combine the two"* without knowing what happens to the **ancestor** afterwards, which
+  is what decides whether the same file is raised at every release forever.
+  - 📐 **The measurement that made it a fifteen-minute slice instead of a wrong one.** One command —
+    hash the merge-governed files, look them up in `engine-fingerprints.json` — proved the v5.0.0
+    byte-states are in the table. That single fact **separates the three offers**: *take the new one*
+    needs no new seam (S7's heal recognises the adopted bytes by itself), *combine* produces bytes no
+    table can ever hold, and *keep mine* must **not** advance the base at all — recording the
+    candidate as the ancestor of a file the owner refused would make the next merge fold v5's text in
+    as already agreed. That last one is the S7-0 trap **inverted**, and worse than the freeze.
+    ➡️ **What the MODE takes from it**: the standing rule *"a located cause is a hypothesis until
+    something is run"* has a twin on the design side — **a design decision is a guess until the fact
+    it turns on is measured.** Both cost about a minute. Tonight this one turned "write the prose"
+    into "cut one more engine slice first", which is a smaller mistake to make now than later.
+  - **Next: S10-5, the adoption seam**, then S10-6 for the conversation. Flagged in the plan already:
+    S10-6 is prose, so there is **no unit to mutate** and the wording review stands in for the gate.
+
 - 🛡️ **2026-08-21 (S10-4) — S10 is ENGINE-COMPLETE, and the slice's decision was a failure semantics,
   not a feature.** `e7a1952`, suite **2287 pass / 0 fail**, **40 mutants at 100 %**. `safetyCommit`
   puts the owner's current bytes in history before *"take the new one"* overwrites them — and when
