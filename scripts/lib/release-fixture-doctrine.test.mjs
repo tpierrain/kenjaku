@@ -209,8 +209,11 @@ test("QA v3.6.0 → HEAD — an owner who edited the doctrine keeps their line A
 const FR_DOCTRINE_AT_TAG = () =>
   readFileSync(join(FIXTURES, "blobs", TAG, "templates/fr", DOCTRINE), "utf8");
 
-test("QA v3.6.0 FR → HEAD — a FRENCH frozen brain is recognised too, and by its own locale", async (t) => {
-  const { brainDir, manifest } = brainAtRelease(TAG, { edits: { [DOCTRINE]: FR_DOCTRINE_AT_TAG() } });
+test("QA v3.6.0 FR → HEAD — a FRENCH frozen brain is recognised, and unfrozen IN FRENCH", async (t) => {
+  const { brainDir, manifest } = brainAtRelease(TAG, {
+    locale: "fr",
+    edits: { [DOCTRINE]: FR_DOCTRINE_AT_TAG() },
+  });
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   assert.notEqual(FR_DOCTRINE_AT_TAG(), doctrineAtTag(), "the FR and EN blobs must differ, or this proves nothing");
   assert.equal(manifest.provenance?.[DOCTRINE], undefined, "and it is the frozen cohort: nothing recorded");
@@ -222,15 +225,32 @@ test("QA v3.6.0 FR → HEAD — a FRENCH frozen brain is recognised too, and by 
   assert.deepEqual(report.healed, [{ rel: DOCTRINE, since: TAG, locale: "fr" }]);
   assert.deepEqual(report.doctrinePreserved, [], "no longer frozen for want of a provenance");
 
-  // 🛑 AND WHAT IT RECEIVES IS THE **ENGLISH** DOCTRINE — asserted here as a MEASUREMENT,
-  // not as an endorsement. The heal reads the locale correctly and the delivery ignores it:
-  // `selectMergeGovernedDoctrine` pairs every rel with `sourceRel: rel`, so the source is
-  // always the English tree. A French brain is therefore unfrozen INTO ENGLISH.
+  // ✅ AND IT RECEIVES THE **FRENCH** DOCTRINE.
   //
-  // Deliberately NOT fixed here — that is S8-3's slice, and this assertion is what will
-  // turn red the moment it is, which is exactly what a QA pole is for. Left as the record
-  // that the defect was measured on a real tag before anyone promised otherwise.
-  assert.equal(readBrain(brainDir, DOCTRINE), readRepo(DOCTRINE), "measured: the EN doctrine (see S8-3)");
+  // ⚠️ THIS ASSERTION USED TO SAY THE OPPOSITE, and the reason is kept because the
+  // correction is the finding. It read `readRepo(DOCTRINE)` — the English tree — under a
+  // comment blaming `selectMergeGovernedDoctrine` for pairing every rel with
+  // `sourceRel: rel`. That reading was wrong: `applyMergeGoverned` resolves the locale
+  // itself, through `resolveLocaleSource`, one level down.
+  //
+  // What was really wrong was THE FIXTURE. The tree is partial and carries no
+  // `scripts/lib/demo-locale.mjs`, so `readBrainLocale` fell back to `en` and the brain
+  // was ENGLISH — holding French bytes in exactly one file, a state no installer can
+  // produce. The heal said `locale: "fr"` (the bytes really are the fr byte-state) and
+  // that was read as "the brain is French", which it was not. A brain is French because
+  // its MARKER says so, which is why the fixture now takes `locale` and writes it.
+  assert.equal(readBrain(brainDir, DOCTRINE), readRepo(`templates/fr/${DOCTRINE}`));
+  assert.notEqual(readBrain(brainDir, DOCTRINE), readRepo(DOCTRINE), "and it is NOT the English one");
+});
+
+test("QA v3.6.0 FR → HEAD — the fixture's french brain declares itself french on disk", async (t) => {
+  // Without this, `locale: "fr"` could quietly stop writing the marker and the pole above
+  // would go back to measuring an English brain while still being named after a French one
+  // — which is exactly the way it was wrong before.
+  const { brainDir } = brainAtRelease(TAG, { locale: "fr" });
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+
+  assert.match(readBrain(brainDir, "scripts/lib/demo-locale.mjs"), /BRAIN_LOCALE\s*=\s*"fr"/);
 });
 
 // ── Pole E — THE OTHER TWO FAMILIES, AND A TAG THAT IS NOT THE BRAIN'S (S7-4) ─────

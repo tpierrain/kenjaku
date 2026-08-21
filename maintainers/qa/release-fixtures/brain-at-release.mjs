@@ -46,9 +46,22 @@ export function skillFilesOf(tag) {
 // manifest, and the provenance base the installer records for every `merge` file it
 // delivers — the sha256 of the very bytes it wrote. `edits` overwrites a skill AFTER
 // the base is computed, which is exactly what a user customization looks like on disk.
-export function brainAtRelease(tag, { edits = {} } = {}) {
+// 🇫🇷 A brain is not French because one of its files holds French bytes — it is French
+// because `scripts/lib/demo-locale.mjs` SAYS SO. That file is what `readBrainLocale`
+// reads, it is locale-owned so an update never overwrites it, and the installer is the
+// only thing that ever writes it. The fixture tree is PARTIAL and does not carry it, so
+// a fixture built without this option is an English brain whatever else is edited into
+// it — which is precisely how the FR pole came to measure the wrong thing for a day.
+// The marker is taken from the TAG's own `templates/<locale>/` overlay, never invented
+// here, for the same reason the doctrine blob is.
+function localeMarkerAtTag(tag, locale) {
+  return defaultGit(["show", `${tag}:templates/${locale}/scripts/lib/demo-locale.mjs`]).out;
+}
+
+export function brainAtRelease(tag, { edits = {}, locale } = {}) {
   const brainDir = mkdtempSync(join(tmpdir(), `sbg-qa-${tag}-`));
   cpSync(join(FIXTURES, tag), brainDir, { recursive: true });
+  if (locale) writeFile(brainDir, "scripts/lib/demo-locale.mjs", localeMarkerAtTag(tag, locale));
   const manifest = JSON.parse(readBrain(brainDir, "engine-manifest.json"));
   const provenance = {};
   for (const rel of skillFilesOf(tag)) provenance[rel] = fingerprint(readBrain(brainDir, rel));
