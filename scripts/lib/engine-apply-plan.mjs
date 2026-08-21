@@ -33,6 +33,18 @@ import { matchesAny } from "./glob-match.mjs";
 // the user's: the constitution and the allowlist stay S2c's subject.
 const ENGINE_SCRIPT = /^scripts\/[^/]+\.mjs$/;
 
+// The engine's half of the two-layer constitution, within the `merge` regime (plan S5).
+// The doctrine layer was in NO regime at all until this release, so a rule written there
+// reached fresh installs only. It gets its own family because `merge` is split by SHAPE
+// here, and this file is neither a script nor a skill: without this bucket, declaring it
+// in the manifest would promise a delivery no code performs.
+// ANCHORED AT BOTH ENDS, and that is the load-bearing part: one dot separates it from
+// `CLAUDE.md`, which is the OWNER's half and sacred. A looser pattern would carry the
+// owner's constitution into a bucket that writes. It also keeps out the merge sidecar
+// (`.new`), the locale source (`templates/<locale>/…`, resolved at delivery time, never
+// its own manifest entry) and any copy sitting in the vault.
+const ENGINE_DOCTRINE = /^CLAUDE\.engine\.md$/;
+
 // An engine-owned SKILL within the `merge` regime: a `.claude/skills/<name>/**`
 // entry the manifest declares (coach, local-mirror, …). These are carved OUT of the
 // blanket skills scrub into an ADDITIVE install-if-absent bucket (ADR 0025): a
@@ -61,7 +73,7 @@ function isSacred(entry) {
 // and the apply step (Step 4) use to resolve globs against concrete files. Because
 // the plan is an allowlist, this is false for every user file by construction.
 export function planTouches(plan, relPath) {
-  return matchesAny([...plan.overwrite, ...plan.regenerate, ...plan.mergeScripts], relPath);
+  return matchesAny([...plan.overwrite, ...plan.regenerate, ...plan.mergeScripts, ...plan.mergeDoctrine], relPath);
 }
 
 export function computeApplyPlan(targetManifest) {
@@ -71,6 +83,11 @@ export function computeApplyPlan(targetManifest) {
     overwrite: scrub([...(regimes.replace ?? [])]),
     regenerate: scrub([...(regimes.regenerate ?? [])]),
     mergeScripts: scrub((regimes.merge ?? []).filter((entry) => ENGINE_SCRIPT.test(entry))),
+    // No `scrub` here, deliberately: the pattern is an exact match on a single filename
+    // that is not sacred and never can be, so a scrub could not remove one entry ever.
+    // A guard that cannot change a byte is noise (the repeated mutation lesson) — the
+    // anchoring IS the guard, and `SACRED_FILES` keeps defending the sibling it protects.
+    mergeDoctrine: (regimes.merge ?? []).filter((entry) => ENGINE_DOCTRINE.test(entry)),
     installSkills: (regimes.merge ?? []).filter((entry) => ENGINE_SKILL.test(entry)),
   };
 }

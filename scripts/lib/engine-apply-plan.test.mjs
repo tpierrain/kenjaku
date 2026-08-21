@@ -63,7 +63,7 @@ test("computeApplyPlan — `mergeScripts` = the engine-owned merge scripts (scri
 // nothing" — never a crash (which strands the brain mid-update) and never a default
 // that invents entries nobody declared.
 test("computeApplyPlan — a manifest missing its regimes, or missing altogether, allows NOTHING", () => {
-  const empty = { overwrite: [], regenerate: [], mergeScripts: [], installSkills: [] };
+  const empty = { overwrite: [], regenerate: [], mergeScripts: [], mergeDoctrine: [], installSkills: [] };
   assert.deepEqual(computeApplyPlan({ regimes: {} }), empty, "a manifest declaring no regime at all");
   assert.deepEqual(computeApplyPlan({}), empty, "a manifest with no `regimes` key");
   assert.deepEqual(computeApplyPlan(undefined), empty, "no manifest at all — an unreadable fetch");
@@ -101,6 +101,55 @@ test("computeApplyPlan — manifest-declared engine skills (.claude/skills/<name
     },
   };
   assert.deepEqual(computeApplyPlan(target).installSkills, [".claude/skills/coach/**"]);
+});
+
+// ─── The doctrine layer: the THIRD merge family (plan S5a) ───────────────────
+// `CLAUDE.engine.md` sat in NO regime for the product's whole life, so a doctrine rule
+// written there reached fresh installs only — the field finding of 2026-08-08 measured
+// 12 commits of doctrine that never arrived on an up-to-date brain. Declaring it
+// `merge` is NECESSARY AND NOT SUFFICIENT, which is the trap this block pins: this
+// function does not carry `merge` as one bucket, it splits it by SHAPE, and the
+// doctrine layer matches neither the scripts' regex nor the skills'. Without a bucket
+// of its own the manifest would promise a delivery no code performs, silently — the
+// very defect the release is named after.
+test("computeApplyPlan — the doctrine layer declared `merge` becomes the `mergeDoctrine` bucket, and lands nowhere else", () => {
+  const target = {
+    regimes: {
+      merge: ["CLAUDE.engine.md", "scripts/auto-commit.mjs", ".claude/skills/coach/**"],
+    },
+  };
+  const plan = computeApplyPlan(target);
+  assert.deepEqual(plan.mergeDoctrine, ["CLAUDE.engine.md"]);
+  assert.deepEqual(plan.mergeScripts, ["scripts/auto-commit.mjs"], "it does not leak into the scripts' family");
+  assert.deepEqual(plan.installSkills, [".claude/skills/coach/**"], "nor into the skills'");
+  assert.deepEqual(plan.overwrite, [], "nor into the copy path — doctrine is merged, never clobbered");
+});
+
+// 🛑 The one dot that decides sovereignty. `CLAUDE.md` is the OWNER's half of the
+// two-layer constitution (sacred, ADR 0003/0012); `CLAUDE.engine.md` is the engine's.
+// A predicate written `/^CLAUDE\./` or `/\.md$/` would carry the owner's own file into
+// a bucket that WRITES — the single worst outcome this release exists to prevent — so
+// the pattern is anchored at both ends and the sacred scrub is only the second net.
+// The other three shapes are each reachable: the merge sidecar the carrier itself
+// writes on an unsafe verdict, the locale source (the manifest names the DESTINATION
+// rel and the locale is resolved at delivery time — a second line would be a second
+// owner for one fact), and any copy sitting in the owner's vault.
+test("computeApplyPlan — SAFETY: the owner's CLAUDE.md is never mistaken for the engine's doctrine layer", () => {
+  const hostile = {
+    regimes: {
+      merge: ["CLAUDE.md", "CLAUDE.engine.md.new", "templates/fr/CLAUDE.engine.md", "vault/notes/CLAUDE.engine.md"],
+    },
+  };
+  assert.deepEqual(computeApplyPlan(hostile).mergeDoctrine, []);
+});
+
+// The never-touch oracle is what the guard tests and the apply step actually ask, so a
+// family the plan carries but the oracle ignores is a file written behind the guard's
+// back. It counts `mergeScripts` already; it must count this one for the same reason.
+test("planTouches — the oracle counts the doctrine family, and still refuses its sovereign twin", () => {
+  const plan = computeApplyPlan({ regimes: { merge: ["CLAUDE.engine.md", "CLAUDE.md"] } });
+  assert.equal(planTouches(plan, "CLAUDE.engine.md"), true, "declared `merge`, so the engine does write here now");
+  assert.equal(planTouches(plan, "CLAUDE.md"), false, "and the owner's half stays untouchable, declared or not");
 });
 
 test("computeApplyPlan — SAFETY: a skill can ONLY be delivered additively; mis-declared in `replace`/`regenerate` it is scrubbed (never overwritten)", () => {

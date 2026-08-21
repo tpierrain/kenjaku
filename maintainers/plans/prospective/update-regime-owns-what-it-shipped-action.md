@@ -1530,6 +1530,25 @@ audible divergence.
         S2's, S3's and S4's, and it paid the same way: **every claim below was checked in the code**,
         because the last two design boxes were written from memory and both were wrong.
 
+  - [x] 🔴 **CORRECTION OF THIS VERY DESIGN, found by the code on the first line of S5's implementation**
+        _(2026-08-21)_. The box below said *"ONE manifest line"* and it is **not false, it is
+        insufficient**: on its own that line delivers **nothing at all**. `computeApplyPlan`
+        (`engine-apply-plan.mjs:67-75`) does not carry `merge` as one bucket — it splits it through two
+        **regexes**, `mergeScripts` (`^scripts/[^/]+\.mjs$`) and `installSkills`
+        (`^\.claude/skills/[^/]+/`). `CLAUDE.engine.md` matches neither, so it would land in **no bucket**,
+        `planTouches` would stay `false`, and the lock the slice exists to flip **would not even go red**.
+        _(That is also why `.claude/settings.json` — `merge` since forever — reaches a brain through a
+        hand-wired side channel in `reconcile-brain.mjs`, and `CLAUDE.md` reaches it not at all.)_
+    - [x] **What it costs**: a **third merge family**, and the shape is already proven twice.
+          `applyMergeGoverned` (`engine-merge-apply.mjs:29`) is family-agnostic and already locale-aware;
+          `engine-script-refresh.mjs` is the 60-line template to copy. So the work is reuse, **no new
+          decision** — the regime stays `merge`, every other box below stands.
+    - [x] **The lesson, third instance**: the mode plan already carries *"grep the guards before writing a
+          design box about a channel, not after"*. It was written after S4-4 and **not applied to S5's own
+          box one iteration later** — because the box checked `verifyBase`, `planBaseSeed`,
+          `resolveLocaleSource` and `SACRED_FILES`, and never checked the one function whose name is in
+          the slice's own title. **Checking four things is what made the fifth feel checked.**
+
   - [x] 🎯 **THE REGIME IS `merge`, NOT `replace`** — and the argument is short. `replace` clobbers, and
         this whole release exists because *"what we must never lose is the work a person did"*. On the
         overwhelming case (a file nobody touched, since the product tells them not to) a three-way merge
@@ -1608,6 +1627,21 @@ audible divergence.
         retro-fitting them is its own migration and is already excluded above. And **ADR 0012's staleness**
         (:52, :77 still call `CLAUDE.md` *the* engine-provided constitution, written before the split) is
         **one amendment shared with S2c** — whichever lands first writes it, the second links to it.
+
+  - [ ] 🧱 **THE SLICES, in the only order that keeps every step green** _(split 2026-08-21, imposed by the
+        correction box above)_. The manifest line comes **last** on purpose: until a family can carry the
+        file, declaring it `merge` would be a manifest that promises a delivery no code performs.
+    - [ ] **S5a — the write-allowlist learns a third merge family.** `computeApplyPlan` grows
+          `mergeDoctrine`, and `planTouches` counts it. Pure, test-first. The shipped plan stays
+          **unchanged** while the manifest is silent, so the lock stays green through this slice.
+    - [ ] **S5b — `engine-doctrine-refresh.mjs`, the family on the shared carrier.** Twin of
+          `engine-script-refresh.mjs`, and deliberately thinner: **no syntax gate** (prose is not
+          executed, so there is nothing to parse and nothing to downgrade), `groupOf: (rel) => rel` (the
+          file IS the subject the owner opens). A **new pure module → mutation is mandatory**, whatever
+          the hurry.
+    - [ ] **S5c — the delivery becomes real**: wire the family into `reconcile-brain.mjs` beside the
+          scripts', surface its report, add **the** manifest line, and flip the lock with its comment
+          rewritten (and Gate 3 → Gate 4). **WRITE PATH → mutation is mandatory.**
 - [ ] **S6 — RIDER, decided 2026-08-15: deliver `test-first-discipline` and RETIRE `tdd-discipline`.**
       The skill is **already written and committed** (`.claude/skills/test-first-discipline/SKILL.md`),
       deliberately parked here rather than shipped alone, because retiring its predecessor needs
