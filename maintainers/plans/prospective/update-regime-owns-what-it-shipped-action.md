@@ -248,11 +248,16 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S2c — the scrub reformulated, ADR 0012 amended** _(2026-08-21)_, then **S2d** (the
-> conflict report names its door: *"N things clash, ask me and I'll walk you through them"*, one
-> sentence), then **S6**. Both are specified in their own blocks below; S2c's decision was taken by
-> the owner and is in the dated box at the top of this plan — **the engine MAY write `CLAUDE.md`,
-> through the merge door only, never on a conflict**. Nothing about it needs re-deciding.
+> **▶️ RESUME AT: S2d — the conflict report names its door** _(2026-08-21)_: *"N things clash, ask me
+> and I'll walk you through them"*, **one sentence**, in `update-engine.mjs`'s `conflictLines`. It is
+> **prose, therefore the deliverable** — assert it whole, never sample it — and it must not promise a
+> flow that does not exist: the wording offers to *help*, and what the brain can honestly do today is
+> show the two sides. Then **S6** (deliver `test-first-discipline`, retire `tdd-discipline`).
+>
+> ✅ **S2c IS DONE** _(`856ad24`, 92.73 %)_: `SACRED` splits into *inviolable* and *merge-governed*,
+> the merge-governed half **is** S3's `OWNER_AUTHORED` pinned by identity, and **ADR 0038** records it
+> and amends 0012 (whose two pre-split lines about "the constitution `CLAUDE.md`" are corrected in the
+> same pass). Behaviour byte-for-byte unchanged — a door named is not a door open.
 >
 > ✅ **S5 IS COMPLETE** — `a51df22` (allowlist, 91.07 %), `74c273d` (family, 100 %), `4340240` (wiring
 > + report), `b3aefa3` (**the manifest line and the lock**). The doctrine layer is declared, delivered,
@@ -1024,14 +1029,22 @@ audible divergence.
       - [ ] **`scripts/lib/**`** — declared `replace`, and it stays there. It is engine internals, not
             a file an owner is invited to edit; making it merge-governed would offer a promise nobody
             asked for.
-  - [ ] **S2c — the scrub is reformulated: never written *blind*.** `SACRED` splits in two, and the
-        words matter because this is the invariant ADR 0003/0012 is built on:
-    - [ ] **Inviolable, and it stays that way**: `.env` (secrets), `vault/` (the owner's notes — the
+  - [x] **S2c — the scrub is reformulated: never written *blind*.** ✅ _(2026-08-21 · `856ad24`,
+        mutation **92.73 %**, 4 survivors all previously-characterised equivalents)_ `SACRED` splits in
+        two, and the words matter because this is the invariant ADR 0003/0012 is built on:
+    - [x] **Inviolable, and it stays that way**: `.env` (secrets), `vault/` (the owner's notes — the
           product's whole promise), and every skill the manifest does **not** declare.
-    - [ ] **Merge-governed**: `.claude/settings.json` and `CLAUDE.md` — writable only through a
-          three-way merge from a **provable** base, never by copy, never on conflict.
-    - [ ] Needs a **new ADR amending 0003/0012** (`Scope:` field per the repo's convention): the
-          allowlist stays an allowlist, and a second, narrower door is added beside it.
+    - [x] **Merge-governed**: `.claude/settings.json` and `CLAUDE.md` — writable only through a
+          three-way merge from a **provable** base, never by copy, never on conflict. **It IS S3's
+          `OWNER_AUTHORED`, imported**, and a test pins the two by REFERENCE — two lists that agree
+          today disagree the day one is edited.
+    - [x] **ADR 0038**, amending 0012 (`Scope:` field, and an entry in `maintainers/README.md`'s ADR
+          list). 0012's own two stale lines — written before the constitution split in two, still
+          calling `CLAUDE.md` *the* engine-provided constitution — are corrected in the same pass, as
+          this plan said whichever slice landed first would do.
+    - [x] ⚠️ **A door named is not a door open**, and one test exists whose only job is to stop the
+          rename being read as a green light. Behaviour is byte-for-byte unchanged: nothing in this
+          release delivers either file.
     - [x] ✅ **UNBLOCKED 2026-08-21** — the arbitration box at the top is answered: **yes**, the
           constitution is merge-governed. Read that box before writing the ADR, it carries the argument
           (and the honest limit: no deployed brain can merge `CLAUDE.md` yet, for want of an ancestor).

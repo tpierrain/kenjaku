@@ -413,6 +413,25 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 28) — S2c, a slice whose deliverable is an ADR.** `856ad24` · the
+  sacred scrub splits in two, 92.73 % mutation, no new survivor. _(Engineering: owning plan, § S2c.)_
+  - 🔤 **The measured cost of a word doing three jobs, and it is worth carrying to other repos.** One
+    noun, *sacred*, covered "never, ever" (`.env`, the vault), "the owner's to author" (`CLAUDE.md`)
+    and "nobody claimed it" (a custom skill). The flattening did not just blur a distinction, it
+    **answered a question nobody had decided**: four carriers said the engine may never write the
+    constitution, an answer inherited from a word chosen to protect something else, and the owner had
+    to be asked explicitly before the release could move. **When a decision keeps feeling
+    pre-answered, suspect the vocabulary before the reasoning.**
+  - 🚪 **A refactor whose behaviour is byte-for-byte unchanged still needs a test, and it is not the
+    behaviour one.** What the split adds is a *claim* — one boundary, one constant — so the test that
+    demanded the code asserts the two lists by **reference**, not by contents. And a second test exists
+    purely to stop the new name being read as a green light ("merge-governed" ≠ "delivered"). **A
+    rename that changes no behaviour is where a silent semantic drift is cheapest to ship.**
+  - 🔎 **How to find the carriers of a NEW artifact: grep for its PREDECESSOR.** An ADR has no back-link
+    yet, so `git grep` on its own number returns nothing and the sweep looks clean. Grepping `0037`
+    surfaced `maintainers/README.md`'s ADR list — a carrier that would otherwise have gone stale on day
+    one. Generalises to any numbered or dated artifact.
+
 - 🌙 **2026-08-21 (loop iteration 27) — S5c, the release's headline line, and a slice that split twice.**
   `4340240` + `b3aefa3` · the doctrine layer is declared, delivered and reported. _(Engineering: owning
   plan, § S5c.)_
