@@ -248,19 +248,21 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S6d — refresh Kenjaku's copy of `test-first-discipline` from the harness**
-> _(2026-08-21)_. **S6b AND S6c are done, committed and pushed** (`b2329c2`, `15f3f4d`, `f46a42d`,
-> `4c6a942`): the retirement is declared in the shipped manifest, wired, guarded, reported, and both
-> launcher copies of `tdd-discipline` are gone. **The skill now shipping is two versions behind its
-> source** — Kenjaku carries the harness's v2.0.0, and the harness has moved to v2.1.0 (`29abfa8`,
-> *"a mutation run LIES to you"*) and v2.2.0 (`78b3536`, the table filing low mutation numbers to
-> their real cause). ⚠️ **The harness is the OWNER of that file, Kenjaku's copy is the shipped
-> artefact** — so this is a copy-forward, not a rewrite, and a hand edit here widens the gap while
-> looking like closing it. A bulk read → **subagent**, per the mode's own rule. ⚠️ **The harness moved
-> AGAIN on 2026-08-21** (`24ce6cb`, on branch `chore/harness-consolidation`, *"the scope of a mutation
-> run is the scope of the change"*): the copy-forward is now **three** versions, not two, and that
-> third one is the rule Thomas signed off during this very block. Then S6e (the FR locale copy,
-> quality debt, `resolveLocaleSource` falls back to English so nothing is broken).
+> **▶️ RESUME AT: S6e — write `templates/fr/.claude/skills/test-first-discipline/`** _(2026-08-21)_.
+> It is the **last unticked box of the S6 rider**, and the one the rider itself called *"the slice
+> that may honestly slip"*: `resolveLocaleSource` falls back to English (verified), so a FR brain gets
+> a working English skill today — this is **quality debt, not breakage**. ⚠️ It is a **locale
+> deliverable**, i.e. exactly the carve-out in `language.md`: the FR file is *the product speaking to
+> its owner in their language*, so it is written **in French** on purpose and must never be
+> "corrected" to English. Its source is the English file just refreshed
+> (`.claude/skills/test-first-discipline/SKILL.md`, v2.3.0) — translate that, do not translate the
+> v2.0.0 text any FR memory may still hold.
+>
+> **S6b, S6c AND S6d are done, committed and pushed** (`b2329c2`, `15f3f4d`, `f46a42d`, `4c6a942`,
+> `c65e5f4`): the retirement is declared in the shipped manifest, wired, guarded and reported, both
+> launcher copies of `tdd-discipline` are gone, and the shipped `test-first-discipline` has caught up
+> with its owner — **v2.0.0 → v2.3.0, byte-for-byte** (S6d's box owns what was dropped and why, and
+> the third version's missing number, fixed upstream as harness `e9e8b40`).
 >
 > 🆕 **A RULE CHANGED MID-BLOCK, and it governs every remaining slice** _(Thomas, 2026-08-21)_:
 > mutation is now scoped to the **changed lines** of an existing file
@@ -1832,14 +1834,38 @@ audible divergence.
             on a brain with no record it is a false one — the exact shape S4-3 was written to end.
             The no-provenance wording says what we do not know, and a test asserts the accusation is
             absent from it.
-    - [ ] **S6d — refresh Kenjaku's copy of the skill from the harness** (two versions behind, v2.1.0
-          + v2.2.0). A bulk read → **subagent**, per the mode's own rule.
+    - [x] **S6d — refresh Kenjaku's copy of the skill from the harness** _(2026-08-21, `c65e5f4` ·
+          harness `e9e8b40`)_. **v2.0.0 → v2.3.0, byte-for-byte**, the `origin:` frontmatter key the
+          only deliberate delta and `diff` run to prove there is no second one. The bulk read went to
+          a **subagent** as the mode requires: two files, ~41 000 characters, and what came back into
+          this window was a verdict plus one quoted passage.
+      - [x] 🔢 **The gap was THREE versions, and the third one had no number** — found by looking, not
+            by trusting the plan. `24ce6cb` upstream added a whole rule (*the scope of a mutation run
+            is the scope of the change*) and left `version: 2.2.0` standing, so two different
+            byte-streams answered to the same version. That is only bookkeeping upstream; **here it is
+            the defect this release exists to remove**, since the skill ships under the `merge` regime
+            and the version key is what a merge reasons with. Fixed **at the source** (harness
+            `e9e8b40`, bump to **2.3.0**, version line only — extending the `description:` routing
+            surface is authoring, and belongs to its owner), then vendored.
+      - [x] ✂️ **One Kenjaku-only sentence deliberately DROPPED, and it is worth the line.** The Scope
+            section's inventory — *"in this repo it governs all the code — the RAG engine (`rag/`) as
+            well as the install harness (`installer.mjs` and its helpers `scripts/lib/*.mjs`)"* —
+            exists nowhere upstream. It was dropped anyway: upstream says the same thing generically
+            (*"every line, the glue and the entry points included"*), and the inventory named
+            **`installer.mjs`, a file no brain holds**. The shipped artefact was orienting brain owners
+            around the launcher's layout, not their own.
+      - [x] 🚫 **No mutation pass — doc-only slice, and the skip is said out loud** per the loop's own
+            rule. No production line changed; suite green, **2131 tests, 0 fail**. `RESULTS.md` gets
+            nothing because there is no measurement to file.
     - [ ] **S6e — `templates/fr/.claude/skills/test-first-discipline/`**. Quality debt, not breakage
           (`resolveLocaleSource` falls back to English, verified) — the slice that may honestly slip.
 
-  - [ ] Add `.claude/skills/test-first-discipline/**` to the manifest's **`merge`** regime.
-  - [ ] 🔎 **The inverted vendoring has to be flipped BACK, and it is already costing** _(measured
-        2026-08-20)_. The two files have **diverged**: Kenjaku's copy is the 2026-08-15 rewrite
+  - [x] Add `.claude/skills/test-first-discipline/**` to the manifest's **`merge`** regime. _(shipped
+        with S6c's one manifest change, 2026-08-21 — verified present in `engine-manifest.json`.)_
+  - [x] 🔎 **The inverted vendoring has been flipped BACK** — ✅ **closed by S6d above**
+        _(2026-08-21, `c65e5f4`)_, which owns what was copied, what was dropped and why. The
+        diagnosis is kept below because it is what earned the slice; **the gap turned out to be three
+        versions, not two**. _(Measured 2026-08-20.)_ The two files had **diverged**: Kenjaku's copy was the 2026-08-15 rewrite
         (frontmatter `origin: use-case-driven-harness`, wording about *"this repo"*, `rag/`,
         `installer.mjs`), while the harness source has moved on since. **The harness is the owner
         again** — Kenjaku's copy is the shipped artefact, not the source. ⚠️ It is the **only** copy of
@@ -1851,19 +1877,26 @@ audible divergence.
         mutation numbers to their real cause, so they stop being blamed on step size). It must reach
         the brains **through this path**, not by copy-paste, so the gap this rider has to close is now
         **two versions wide** and fully described upstream.
-  - [ ] ⚠️ **Retirement is NOT automatic — verified in code on 2026-08-15**: `refreshUntouchedSkills`
+  - [x] ⚠️ **Retirement is NOT automatic — verified in code on 2026-08-15**: `refreshUntouchedSkills`
         only walks skills present in the **source**, and its single `rmSync` targets `.new` sidecars.
         A skill dropped from the engine is **never visited**, so `tdd-discipline` would sit on every
         deployed brain forever, contradicting its replacement. This release must remove it
         **explicitly** — and that retirement path is itself a piece of "the update regime owns what it
         shipped", so it belongs here on the merits, not only by convenience.
-  - [ ] Guard the retirement the way this release guards everything else: a brain that **customized**
+        ✅ **Answered by S6b + S6c** _(2026-08-21)_ — the explicit removal path exists, is declared in
+        the manifest and is guarded; those two slices own the detail.
+  - [x] Guard the retirement the way this release guards everything else: a brain that **customized**
         `tdd-discipline` must not have it deleted silently (preserve + say so), a brain that never
-        touched it may lose it cleanly.
-  - [ ] Write the `templates/fr/` version (the locale falls back to English until it exists —
-        `resolveLocaleSource`, verified — so this is a quality debt, not a breakage).
-  - [ ] Re-sync the **source harness** copy (`use-case-driven-harness/skills/`): the vendoring
-        direction is temporarily **inverted** for this rewrite.
+        touched it may lose it cleanly. ✅ **Done by S6b** (`skill-retirement.mjs` decides
+        remove / preserve / **absent**, asking `verifyBase` rather than comparing bytes) **and S6c**
+        (the report's two sentences, the no-provenance one deliberately accusing nobody).
+  - [ ] Write the `templates/fr/` version → **this is S6e**, and S6e above is the box that tracks it.
+        Kept as a pointer, not a second status _(the locale falls back to English until it exists —
+        `resolveLocaleSource`, verified — so this is a quality debt, not a breakage)_.
+  - [x] Re-sync the **source harness** copy (`use-case-driven-harness/skills/`): the vendoring
+        direction was temporarily **inverted** for this rewrite, and is now **flipped back** — every
+        sub-box below is done, and the last upstream touch is `e9e8b40` (2026-08-21, the version the
+        scope rule had shipped without).
         **⚠️ THE HARNESS HALF IS THE ONE THAT CHANGES MY BEHAVIOUR, and the owner said GO on
         2026-08-15 ("everything in English").** Without it the new skill is Kenjaku-only and
         `rules/testing.md` — always loaded, every project — keeps pointing at `tdd-discipline`, so

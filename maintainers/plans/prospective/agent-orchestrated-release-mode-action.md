@@ -425,6 +425,28 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 33) — S6d, and the read that never touched this window.**
+  _(What shipped belongs to the owning plan, § S6d; this entry keeps only what the MODE learned.)_
+  - 📚 **The second rule paid, cleanly and for the first time on a slice that was ABOUT reading.**
+    Two skill files, **~41 000 characters**, compared in full by a subagent; what came back into this
+    window was a one-line verdict, one quoted passage and eight bullets. The files themselves were
+    never in here. That is the whole of the rule *delegate the READING too*, and the slice would have
+    spent ~12k of window doing it in place.
+  - ⚖️ **A delegated read has no pass/fail, and that does not break the delegation rule — it marks its
+    edge.** The subagent returned `LOCAL_CONTENT_FOUND`, which sounds like a verdict and is not one:
+    the local passage it found was **still** the right thing to drop, because only the session knew
+    where the artefact lands (a brain holds no `installer.mjs`). **A read returns EVIDENCE, and the
+    session judges it**; the *"nothing is dispatched without a machine-evaluable judge"* rule governs
+    dispatched **work**, not dispatched reading. Worth stating, because the two look alike from the
+    orchestrator's seat.
+  - 🔢 **The plan was stale about its own subject, and looking is what caught it.** It said the copy
+    was two versions behind; it was **three**, and the third had shipped upstream **with no version
+    number at all**. The repair went **to the source** (harness `e9e8b40`) rather than into the copy —
+    on a vendored file, fixing the artefact is how a fork starts.
+  - 🪞 **Thirteenth iteration, and the contrast is still unproduced** (see § RESUME HERE, item 4). This
+    one could not have produced it either: a doc-only copy-forward has no implementation to dispatch.
+    The finding recorded there is holding — the release keeps generating slices the mechanical-only
+    verdict correctly keeps in session.
 - 🌙 **2026-08-21 (loop iteration 32) — S6c, and the test that was right when I was not.**
   _(What shipped belongs to the owning plan, § S6c; this entry keeps only what the MODE learned.)_
   - 🎯 **The opener paid a third time, and then the TEST found what the opener could not.** The first
