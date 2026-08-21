@@ -413,6 +413,31 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 25) — S5a, and the design box that its own first line refuted.**
+  `a51df22` · the write allowlist grows a third merge family (`mergeDoctrine`), 91.07 % mutation, all
+  five survivors provable equivalents. _(The engineering belongs to the owning plan, § S5; this entry
+  keeps only what the MODE learned.)_
+  - 🔴 **A design box written one iteration earlier, under the brand-new rule "read the code for every
+    claim", was still wrong — and the rule is not what failed.** The box checked four things
+    (`verifyBase`, `planBaseSeed`, `resolveLocaleSource`, `SACRED_FILES`) and never checked
+    `computeApplyPlan`, whose name is in the slice's own title. Its conclusion, *"ONE manifest line"*,
+    would have delivered **nothing**: `merge` is split by shape through two regexes and the doctrine
+    layer matches neither. **The sharpened rule: checking four things is what makes the fifth feel
+    checked.** Before writing "add X to regime R", open the function that CONSUMES R and follow the
+    entry to a write — the manifest is a declaration, never a delivery.
+  - ✅ **The correction cost one slice split, not one wasted slice**, and that is the mode working. The
+    finding landed on the first tool call of the implementation, before a line of code, because the
+    iteration opened by asking the one question the box had not answered (*does a `merge` file go
+    through the merge, or through the blind copy?*). **Opening a code slice with the design's most
+    load-bearing unverified claim is cheap and pays immediately** — it is now the standing opener.
+  - 📐 **A design proved wrong is amended IN PLACE, dated, with the lesson beside it** — never quietly
+    rewritten. The wrong box stays readable above the correction: what it got right (the regime) is
+    still the decision, and the record of why "one line" felt sufficient is the half worth keeping.
+  - 📊 **The mutation call, made in writing rather than by reflex**: the block (S5a/b/c) is not
+    finished, but `engine-apply-plan.mjs` **is** — it is the write allowlist and no later slice touches
+    it. So it was measured now, once, on the file rather than on the block. *"Once per block"* means
+    once per file's block of changes, not once per calendar sprint.
+
 - 🌙 **2026-08-21 (loop iteration 24) — S5's DESIGN, and a slice whose one-line description was
   backwards.** A design slice: no code, and the design is committed before any is written. _(The design
   itself belongs to the owning plan, § S5; this entry keeps only what the MODE learned.)_

@@ -248,13 +248,17 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S5's CODE — its design is written and committed** _(2026-08-21)_, so the next
-> iteration implements it and nothing of it needs re-deciding: the regime is **`merge`**, the manifest
-> gets **one** line, and `engine-apply-plan.test.mjs`'s lock is flipped with its comment **rewritten**
-> (and its Gate 3 → Gate 4 error fixed). ⚠️ **Read the design's central finding before writing the
-> release note**: S5 unfreezes **no already-deployed brain** — with no provenance there is no ancestor,
-> so the file is *reported*, not delivered, until the ancestor machine lands. New installs are correct
-> from day one. Full block below, § S5.
+> **▶️ RESUME AT: S5b — `engine-doctrine-refresh.mjs`, the family module on the shared carrier**
+> _(2026-08-21)_. **S5a is done** (`a51df22`, 91.07 % mutation, 5 survivors all provable equivalents):
+> the write allowlist now has a third merge family, `mergeDoctrine`, and `planTouches` counts it.
+> ⚠️ **S5's design box was WRONG and is corrected in place** — "one manifest line" delivers **nothing**,
+> because `computeApplyPlan` splits `merge` by shape and the doctrine layer is neither a script nor a
+> skill. S5 is therefore **three slices**, listed at the end of the S5 block; the manifest line comes
+> **last**, with the lock flip, or the manifest would promise a delivery no code performs. Nothing of
+> the regime decision changed: it is still **`merge`**, and every other design box stands.
+> ⚠️ **Read the design's central finding before writing the release note**: S5 unfreezes **no
+> already-deployed brain** — with no provenance there is no ancestor, so the file is *reported*, not
+> delivered, until the ancestor machine lands. New installs are correct from day one. Full block below, § S5.
 >
 > _(S4 is COMPLETE — S4-4a/b/c closed 2026-08-21 · `ea9a4c1`, `9dc9d5d`, `a3f4e2b` + two kill rounds:
 > the brain says where it stands at rest, in one sentence, wired last on SessionStart, and the scan
@@ -1631,9 +1635,15 @@ audible divergence.
   - [ ] 🧱 **THE SLICES, in the only order that keeps every step green** _(split 2026-08-21, imposed by the
         correction box above)_. The manifest line comes **last** on purpose: until a family can carry the
         file, declaring it `merge` would be a manifest that promises a delivery no code performs.
-    - [ ] **S5a — the write-allowlist learns a third merge family.** `computeApplyPlan` grows
-          `mergeDoctrine`, and `planTouches` counts it. Pure, test-first. The shipped plan stays
-          **unchanged** while the manifest is silent, so the lock stays green through this slice.
+    - [x] **S5a — the write-allowlist learns a third merge family.** ✅ _(2026-08-21 · `a51df22`)_
+          `computeApplyPlan` grows `mergeDoctrine`, and `planTouches` counts it. The shipped plan stayed
+          **unchanged** while the manifest is silent, so the lock stayed green through this slice, as
+          designed. **Mutation 91.07 %** (51 killed, 5 survived) — measured here rather than at the end
+          of the block because this file is the write allowlist and S5b/S5c do not touch it again. All
+          five survivors are provable equivalents: the four `RESULTS.md` already named, plus the new
+          bucket's own `?? ["Stryker was here"]`, discarded by the `.filter()` on the very next call.
+          **The predicate is anchored at both ends and a test pins why**: one dot separates the engine's
+          constitution from the owner's.
     - [ ] **S5b — `engine-doctrine-refresh.mjs`, the family on the shared carrier.** Twin of
           `engine-script-refresh.mjs`, and deliberately thinner: **no syntax gate** (prose is not
           executed, so there is nothing to parse and nothing to downgrade), `groupOf: (rel) => rel` (the
