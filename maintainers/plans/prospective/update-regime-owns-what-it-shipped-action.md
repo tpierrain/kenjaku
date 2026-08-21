@@ -198,13 +198,18 @@
 > manifest. Its mutation run's real finding was about the **prose**: the four sentences an owner reads
 > are the deliverable, and sampling them with `assert.match` left most of each one unjudged.
 >
-> **▶️ RESUME AT: S3-2 — the entry script and its wiring.** `scripts/engine-write-guard.mjs` (stdin
-> JSON, `runAsEntrypoint`, always exit 0, tested **as a process**), then its **OWN** hook group in
-> `.claude/settings.json.template` — not a second entry beside `vault-write-guard`, which
-> `reconcileHooks` would silently drop — and the entry script added to the manifest's `replace` regime.
-> Then S3-3 (ADR 0012 amended). **S2c stays skipped: it is the one slice that waits on Thomas** (the
-> blocking box at the top — may the engine write `CLAUDE.md`?). S3 does **not** wait on it, whichever
-> way it is answered.
+> ✅ **S3-2 IS DONE — the guard reaches a brain** _(2026-08-21 · `cf55c2a` + `3493533`, **88 %**, all
+> three survivors equivalents)_. Its own `PreToolUse` group in the template (two tests now make packing
+> it beside `vault-write-guard` go red instead of silently delivering nothing), the entry script in the
+> `replace` regime, and a red test that changed the code: the manifest read has its own `catch`, because
+> the outer catch-all would have disarmed the `.engine-base` deny through the very file it protects.
+>
+> **▶️ RESUME AT: S3-3 — amend ADR 0012** (CONVENTIONS §6bis: one ADR per topic, so no new `0038`). 0012
+> owns the launcher↔brain write boundary and today states only the engine→brain direction; S3 adds the
+> brain→engine one. Crux block first (§6quater) and the prior art named (§6quinquies: a protected-path
+> pre-commit / CODEOWNERS gate — the file is not locked, the change is made deliberate). Then S4.
+> **S2c stays skipped: it is the one slice that waits on Thomas** (the blocking box at the top — may the
+> engine write `CLAUDE.md`?), and it amends the same ADR, so S3-3 lands its section first.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -1067,13 +1072,34 @@ audible divergence.
             helper.
       - [x] **The one survivor is a named equivalent** (`regimes[regime] ?? ["Stryker was here"]` builds
             a glob matching only that literal), same family as the ones already listed in `RESULTS.md`.
-    - [ ] `scripts/engine-write-guard.mjs` — the entry: stdin JSON, `runAsEntrypoint`, `emit`, and
-          **always exit 0**. Tested by **running it as a process**, like every other entry point.
-    - [ ] **FAIL-OPEN, with one anchored exception.** No manifest, an unreadable one, an unexpected
-          payload → allow. But the `.engine-base/**` deny is anchored on the **path prefix**, not on the
-          manifest, so it survives a manifest the guard could not read: the one verdict that protects a
-          *correctness* invariant must not be disarmed by the file whose integrity it is protecting.
-    - [ ] Both files join the manifest's **`replace`** regime (engine internals, like their precedent).
+    - [x] **S3-2 — `scripts/engine-write-guard.mjs`, the entry and its wiring** _(2026-08-21 · `cf55c2a`
+          + `3493533`, **88 %**, 3 survivors all equivalents, suite 2008 pass / 0 fail)_. Stdin JSON,
+          `runAsEntrypoint`, `emit`, **always exit 0**, and tested by **running it as a process** — twice:
+          once for an `ask` on stdout, once proving a write it does not judge prints **nothing** (an
+          empty stdout is the silent path; a payload saying "allow" would not be).
+      - [x] 🪤 **The trap was stepped around, and TWO tests now make stepping into it loud.** The guard
+            has its **own** `PreToolUse` group in `.claude/settings.json.template`. One test pins
+            `reconcileHooks`'s output for a pre-v4.5 brain — both groups created, both named in
+            `hooksAdded` — and one refuses **any** template group wiring more than one script. Pack the
+            two guards together and both go red instead of the feature silently not existing.
+      - [x] 🔴 **A test went red for the right reason and changed the production code.** The manifest read
+            now has its **own** `catch` inside `runGuard`: routed to the outer catch-all, an unreadable
+            manifest would abort the whole verdict — **including the `.engine-base` deny**, i.e. the one
+            refusal that must survive the file it protects. Written after the test for it failed, not
+            before.
+      - [x] 📉 **The score went DOWN when the code got better, and that is correct.** A first-pass
+            survivor was the `catch` body emptied, and it survived because it was **dead**: `manifest` is
+            initialised to `null`, so a throwing read never completed the assignment. Deleting it
+            (S2b-4's answer again) removed a mutant from the denominator without removing a kill:
+            23/26 → 22/25. **A mutation score is a ratio, and simplifying prod moves both ends.**
+    - [x] **FAIL-OPEN, with one anchored exception** — built and asserted end to end. No manifest, an
+          unreadable one, an unexpected payload → allow. The `.engine-base/**` deny is anchored on the
+          **path prefix**, not on the manifest, so it survives a manifest the guard could not read.
+    - [x] Both files joined the manifest's **`replace`** regime — and the repo's existing manifest-integrity
+          guards *required* it before the suite would go green, which is the belt working unprompted.
+      - [x] ✅ **The launcher is unaffected, verified rather than assumed**: this repo has no tracked
+            `.claude/settings.json` (it is `.gitignore`d, only the template is tracked), so no maintainer
+            editing engine files here meets the prompt. Out by construction, exactly as the design said.
 
   - [x] 🔍 **S3-0 — the `"ask"` dialect is REAL, and the check paid for a second answer**
         _(2026-08-21)_. `vault-write-guard` only ever emits `"deny"`, so nothing in this repo proved the

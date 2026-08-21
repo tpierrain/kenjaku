@@ -406,6 +406,33 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 15) — S3-2: the guard reaches a brain.** Commits `cf55c2a` and
+  `3493533`. Pushed, suite **2008 pass / 0 fail**, the entry at **88 %** with all three survivors
+  equivalents.
+  - 🎯 **The design slice paid, two iterations later, in the currency it promised.** Iteration 13 read
+    `reconcileHooks` and found that a template group is identified by its FIRST script. This slice wired
+    the guard into its own group because of that, and — the part worth logging — turned the finding into
+    **two tests**: the reconcile output for a pre-v4.5 brain, both groups named, and a structural refusal
+    of any template group wiring more than one script.
+    ➡️ **For the mode**: a design finding that stays prose protects only the person who read it. The
+    finding is finished when a test would go red for the mistake it describes.
+  - 🔴 **A red test changed the production code, which is the whole point of writing it first.** The
+    manifest read had been routed to the entry's outer catch-all — and that catch swallows the *whole*
+    verdict, including the `.engine-base` deny, i.e. the one refusal that must survive an unreadable
+    manifest. The test asserting "the base is still refused, manifest or no manifest" failed, and the
+    fix was a second, narrower `catch`. **Written test-after, this hole ships**: the code looked right,
+    and every other test was green.
+  - 📉 **The mutation score went DOWN when the code got better, and the number was right.** A survivor
+    was the `catch` body emptied — dead, because `manifest` is initialised to `null` and a throwing read
+    never completes the assignment. Deleting it removed a mutant from the denominator without removing a
+    kill: 23/26 → 22/25, i.e. 88.46 % → 88.00 %.
+    ➡️ **For the mode**: a score is a ratio, so simplifying production moves BOTH ends of it. A slice
+    that deletes dead code and reports a lower number has not regressed — read the survivor list, not
+    the percentage.
+  - 🧱 **The repo's own guards demanded the manifest entry before the suite would go green.** Adding a
+    hook to the template with no `replace` declaration is the "brain runs what an upgrade never sends"
+    bug class, and `engine-manifest-integrity.test.mjs` has covered it under **every** hook event since
+    someone anticipated exactly this. Nothing to remember, and nothing that could be forgotten.
 - 🌙 **2026-08-21 (night, loop iteration 14) — S3-0 (the field check) and S3-1 (the pure verdict).**
   Commits `177c572`, `4bf5efa`, `b82569e`. Pushed, suite **1994 pass / 0 fail**, the new module
   **90 % → 98.89 %** with its single survivor a named equivalent.

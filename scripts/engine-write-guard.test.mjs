@@ -79,6 +79,17 @@ test("...but the recorded base is STILL refused, manifest or no manifest", () =>
   assert.equal(emitted[0].hookSpecificOutput.permissionDecision, "deny");
 });
 
+test("a payload with no tool_input at all is allowed, not crashed on", () => {
+  // The `?.` on `input.tool_input` cannot be KILLED — without it the read throws
+  // and the outer catch-all produces the same silence — so this test earns its
+  // place on the behaviour, not on the mutant: the day that catch-all is
+  // narrowed, a malformed payload must still fail open here rather than there.
+  const { emitted, code } = captured({ readInput: () => JSON.stringify({ tool_name: "Write" }) });
+
+  assert.deepEqual(emitted, []);
+  assert.equal(code, 0);
+});
+
 test("a file no regime names goes through with nothing for the owner to read", () => {
   const { emitted, code } = captured({ readInput: () => hookInput({ path: "/brain/vault/notes/mine.md" }) });
 

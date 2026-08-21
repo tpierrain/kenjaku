@@ -171,13 +171,26 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ## S3's write guard — the pure verdict, and prose as a deliverable — 2026-08-21
 
-First code slice of S3 (`4bf5efa` + `b82569e`): `engine-write-guard.mjs` decides, for one tool call,
-whether an agent may write an engine file. State owned by
+S3's two code slices (`4bf5efa` + `b82569e` for the decision, `cf55c2a` + `3493533` for the wiring):
+`engine-write-guard.mjs` decides, for one tool call, whether an agent may write an engine file, and the
+entry script beside it is the hook the harness actually runs. State owned by
 [`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
 
 | File | First pass | After the kills | Survivors |
 |---|---|---|---|
 | `lib/engine-write-guard.mjs` (new) | **90.00 %** — 81 killed, 9 survived | **98.89 %** — 89 killed, 1 survived | 1, a named equivalent |
+| `engine-write-guard.mjs` (new, the entry) | **88.46 %** — 23 killed, 3 survived | **88.00 %** — 22 killed, 3 survived | 3, **all equivalents** |
+
+📉 **The entry's score went DOWN when the code got better, and that is the number behaving correctly.**
+One first-pass survivor was the `catch` body emptied — it survived because it *was* dead: `manifest` is
+initialised to `null`, so a read that throws never completed the assignment and the `manifest = null`
+inside the catch could not be seen to fire. Deleting it (S2b-4's answer, applied again) removed one
+mutant from the denominator without removing a kill, so 23/26 became 22/25. **A mutation score is a
+ratio, and simplifying prod moves both ends of it** — the file is strictly better and reads 0.46 points
+worse. The three left are equivalents: two `readFileSync(…, "utf8") → ""` (the family listed elsewhere
+in this file), and `input.tool_input?.file_path` losing its `?.`, which throws into the fail-open
+catch-all and produces the same silence. That last one has a test anyway, earned on the behaviour
+rather than on the mutant: the day the catch-all is narrowed, a malformed payload must fail open *there*.
 
 🎯 **Six of the nine survivors emptied one clause each out of the reason strings, and every
 `assert.match` stayed green.** The tests sampled the sentences — the file name, the word *kept*, the
