@@ -118,7 +118,28 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: S9-2 — cut, tag, publish (HIS, always). S9-1 is DONE, draft and all.
+> ## ▶️ RESUME AT: S9-2a — the release MATERIALS (mine). S9-2b, the cut itself, is HIS.
+>
+> **S9-2 splits the same way S9-1 did, and for the same reason**: assembling what a release needs is
+> checkable work; **deciding to publish is not**. The loop takes the first and never the second.
+>
+> - [ ] ▶️ **NEXT — S9-2a — the materials.** The **PR body for #76** (every published release since
+>       v4.5.0 has one archived beside its plan, and #76's was written when the branch still carried
+>       S1-S6 alone), plus a **pre-flight sweep**: manifest integrity, the fingerprint table current at
+>       v5.0.0, the locale pairing, the full suite, and the branch's state against `main`. Anything
+>       that comes back red is a finding for this plan, not a thing to fix inside the tag.
+> - [ ] **S9-2b — cut, tag, publish.** His, always. Carries the `engineVersion` bump and the title
+>       he picks from the note's three candidates.
+>
+> 🔍 **Checked, so the loop does not go looking for it again**: the release's other floor — the v4.8.0
+> mutation debt re-arbitrated onto this release — is **already paid on this branch** (its plan reads
+> *"DELIVERED ON BRANCH 2026-08-20 — every box ticked"*, and it stays open only because it closes when
+> the release SHIPS). Nothing there for the loop to do.
+>
+> 🛑 **And S9-3 cannot be done tonight, by construction**: it asks whether the write guard's prompts
+> become noise on a session that legitimately customizes an engine skill — *correct the first time,
+> noise the tenth*. Only living with the guard for a few days answers it. It belongs to the release
+> checklist, not to a slice, and no amount of loop iterations replaces the days.
 >
 > ✅ **S9-1b — THE RELEASE NOTE IS DRAFTED** _(2026-08-22)_ —
 > [`release-v5.0.0-note.md`](release-v5.0.0-note.md), beside this plan, written to `CONVENTIONS.md`
@@ -510,8 +531,11 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [x] **S9-1b — the release note, DRAFTED** _(2026-08-22)_ — `release-v5.0.0-note.md` beside this
         plan, to §11's shape. Lead: **"your words are never lost"**. The body is publishable as-is;
         the **voice and the title are his** (three candidates listed in the file).
-  - [ ] ▶️ **NEXT — S9-2 — cut, tag, publish.** Owner's, always. Carries the `engineVersion` bump,
-        which is why the manifest still reads v4.9.1's numbers today.
+  - [ ] ▶️ **NEXT — S9-2a — the release materials.** The PR body for #76 (its own body predates
+        S7/S8/S10), plus a pre-flight sweep: manifest integrity, the fingerprint table at v5.0.0, the
+        locale pairing, the full suite, the branch against `main`. Mine — checkable, not a decision.
+  - [ ] **S9-2b — cut, tag, publish.** Owner's, always. Carries the `engineVersion` bump, which is why
+        the manifest still reads v4.9.1's numbers today, and the title he picks.
   - [ ] **S9-3 — the field measurement** carried to the release checklist.
 
 ---
@@ -1384,7 +1408,10 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
         regime list keeps the doctrine out of the between-updates banner on a pre-v4 brain.
   - [x] **Verified, not assumed**: `indexSchemaVersion` is unchanged since `v4.9.1`, so nothing is
         re-read or re-encoded and *"What you have to do"* is one line.
-- [ ] **S9-2 — cut, tag, publish.** The owner's, always.
+- [ ] ▶️ **NEXT — S9-2a — the release materials** (the PR body for #76 + a pre-flight sweep). Mine:
+      assembling what a release needs is checkable work.
+- [ ] **S9-2b — cut, tag, publish.** The owner's, always. **Deciding to publish is not delegable**, and
+      that is the line the S9-1 / S9-2 splits both draw.
 - [ ] **S9-3 — the field measurement**, carried to the release checklist rather than to a slice: do the
       write guard's prompts become noise on a session that legitimately customizes an engine skill?
       Correct the first time, noise the tenth. Only living with the guard for a few days answers it,
