@@ -5,7 +5,13 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { commitEngineUpdate, defaultCommitEngineWrites } from "./engine-commit.mjs";
+import {
+  ADOPTION_BLOCKED_LINE,
+  SAFETY_COMMIT_MESSAGE,
+  commitEngineUpdate,
+  defaultCommitEngineWrites,
+  safetyCommit,
+} from "./engine-commit.mjs";
 
 // Fake git keyed on the FULL command (never on args[0]): a partial key lets every
 // later arg-string mutant survive. `calls` records the whole sequence so the test
@@ -122,4 +128,110 @@ test("defaultCommitEngineWrites: a real CLEAN repo gains no empty commit", (t) =
 
   assert.equal(outcome, "clean");
   assert.equal(git("rev-parse", "HEAD").trim(), before, "history must not have moved");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S10-4 — THE SAFETY COMMIT, and it is the only place in this codebase where a
+// git failure must STOP the caller rather than be reported and moved past.
+//
+// "Take the new one" is the one offer that destroys. Measured in § S10-0: an edit
+// already committed is recoverable from git history, but an edit made outside a
+// session and never swept is overwritten AND committed over in one pass, with no
+// trace. So the owner's current bytes go into history FIRST, or the adoption does
+// not happen. The offer that destroys is the one that has to earn it.
+//
+// Contrast with `commitEngineUpdate` right above: there, a refused commit is news
+// (the files are already written, the report names the cause). Here it is a VETO.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const REL = ".claude/skills/coach/SKILL.md";
+
+test("safetyCommit: the owner's uncommitted work is staged and committed, and the message names the file", () => {
+  const { git, calls } = fakeGit({ porcelain: ` M ${REL}\n` });
+
+  assert.deepEqual(safetyCommit({ git, rel: REL }), { outcome: "committed", proceed: true });
+  assert.deepEqual(calls, [
+    "status --porcelain",
+    "add -A",
+    `commit -m ${SAFETY_COMMIT_MESSAGE(REL)}`,
+  ]);
+});
+
+test("safetyCommit: `add -A`, not the one file — everything on disk goes in, or the safety net has holes", () => {
+  // The owner's edit to the file being adopted is the OBVIOUS casualty; a note they
+  // wrote in the same minute is the quiet one. This commit exists to make the moment
+  // before the overwrite recoverable, and half a tree is not that moment.
+  const { git, calls } = fakeGit({ porcelain: ` M ${REL}\n?? notes/idea.md\n` });
+
+  safetyCommit({ git, rel: REL });
+
+  assert.ok(calls.includes("add -A"), "the whole tree is staged");
+  assert.ok(!calls.some((c) => c.startsWith("add ") && c !== "add -A"), "and nothing narrower");
+});
+
+test("safetyCommit: a CLEAN tree needs no commit, and adoption proceeds", () => {
+  // The common case: `auto-commit` already swept. There is nothing to protect, and an
+  // empty commit in the owner's history would be noise standing for a risk not taken.
+  const { git, calls } = fakeGit({ porcelain: "" });
+
+  assert.deepEqual(safetyCommit({ git, rel: REL }), { outcome: "clean", proceed: true });
+  assert.deepEqual(calls, ["status --porcelain"]);
+});
+
+test("safetyCommit: git REFUSING the commit VETOES the adoption", () => {
+  // 🛑 The load-bearing assertion of the slice. The common cause is no `user.email` on
+  // a fresh machine — nothing to do with this file — and the consequence is total: the
+  // owner's bytes are not in history, so overwriting them is irreversible. `proceed`
+  // is false, and it is one field so no caller re-derives the rule from `outcome`.
+  const { git } = fakeGit({ porcelain: ` M ${REL}\n`, commitOk: false });
+
+  assert.deepEqual(safetyCommit({ git, rel: REL }), { outcome: "refused", proceed: false });
+});
+
+test("safetyCommit: an unmerged tree is NEVER staged, and vetoes the adoption too", () => {
+  // Same hazard and same answer as `commitEngineUpdate` and the session-start sweep:
+  // `add -A` here would bury `<<<<<<<` markers in the files it stages.
+  const { git, calls } = fakeGit({ porcelain: "UU CLAUDE.md\n" });
+
+  assert.deepEqual(safetyCommit({ git, rel: REL }), { outcome: "conflicted", proceed: false });
+  assert.deepEqual(calls, ["status --porcelain"], "it looked, and kept its hands off");
+});
+
+test("SAFETY_COMMIT_MESSAGE: findable a year later by someone who knows none of this machinery", () => {
+  assert.equal(
+    SAFETY_COMMIT_MESSAGE(REL),
+    `safety: your ${REL} saved before taking the engine's version`,
+  );
+});
+
+test("ADOPTION_BLOCKED_LINE: every non-proceeding outcome has a sentence, and only those", () => {
+  // A veto the owner cannot read is a file that silently did not change — which is the
+  // blind spot S10 exists to close, wearing a different coat. Each line says what was
+  // NOT done, why, and the one thing that lifts it.
+  assert.deepEqual(Object.keys(ADOPTION_BLOCKED_LINE).sort(), ["conflicted", "refused"]);
+  assert.equal(
+    ADOPTION_BLOCKED_LINE.refused(REL),
+    `I left ${REL} exactly as it is: git would not save your current version first` +
+      ` (often: no name/email set yet — git config --global user.email "you@example.com"),` +
+      ` and I will not overwrite something I cannot give you back.`,
+  );
+  assert.equal(
+    ADOPTION_BLOCKED_LINE.conflicted(REL),
+    `I left ${REL} exactly as it is: your brain's repo has a merge in progress, so saving your` +
+      ` current version first would bury the conflict markers. Finish that merge and ask me again.`,
+  );
+});
+
+test("safetyCommit: the two blocking outcomes are exactly the two sentences", () => {
+  // Anti-vacuous pairing: the map above could name any two keys and the tests would
+  // still pass. This one walks the real outcomes and demands a sentence for each.
+  const blocked = [
+    safetyCommit({ git: fakeGit({ porcelain: ` M ${REL}\n`, commitOk: false }).git, rel: REL }),
+    safetyCommit({ git: fakeGit({ porcelain: "UU CLAUDE.md\n" }).git, rel: REL }),
+  ];
+
+  assert.deepEqual(blocked.map((b) => b.proceed), [false, false]);
+  for (const { outcome } of blocked) {
+    assert.equal(typeof ADOPTION_BLOCKED_LINE[outcome], "function", `no sentence for ${outcome}`);
+  }
 });
