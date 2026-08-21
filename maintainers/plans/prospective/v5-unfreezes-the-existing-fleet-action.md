@@ -46,11 +46,16 @@
 > Read **§ S7-0** before writing the generator — in particular the two claims that decide whether it
 > works at all: generate under **HEAD's** regime (not each tag's own), and carry the **FR** sources.
 >
-> ## 🆕 THE RELEASE GREW, and it grew on the owner's word _(2026-08-21, after S7-1)_
+> ## 🆕 THE RELEASE GREW TWICE, both times on the owner's word _(2026-08-21, after S7-1)_
 >
 > **S10 is new v5 cargo**: a personalized file must become a **question with three offers**, never a
 > blind spot. He was offered v5.1 and answered *"c'est le comportement que j'attends pour la version
 > 5"*. Read the acceptance criterion in the decisions block — it is quoted, not paraphrased.
+>
+> **S7-5 is new v5 cargo too**: when the ancestor's bytes are missing, **fetch them from the published
+> tag the recorded sha points at**. His idea, measured at **13/15** on his own two brains the same
+> hour, and arbitrated INTO v5 immediately after. It is what turns *"combine the two"* from a reading
+> into a real merge for every file that still has a recorded sha.
 >
 > **Execution order is S7 → S8 → S10 → S9.** S9 (cut, tag, publish) is LAST and its note cannot be
 > written before S10's verdict, because S10 is what makes the second forbidden claim harmless.
@@ -168,7 +173,7 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [ ] **S7-2 — the historical fingerprint table**, and the guard that keeps it fresh.
   - [ ] **S7-3 — the wiring**, so a real update consults it.
   - [ ] **S7-5 — fetch the ancestor's bytes from a published tag** (owner's idea, measured 13/15 on
-        both real brains). ⚠️ **Scope not arbitrated — ask before building.**
+        both real brains). ✅ **IN v5, owner's call 2026-08-21.** Runs after S7-3, before S7-4.
   - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**.
 - [ ] **S8 — the French tree stops drifting in silence.**
   - [ ] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`.
@@ -370,8 +375,9 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 - [ ] **S7-5 — FETCH the ancestor's bytes from a published tag.** _(The owner's idea, 2026-08-21:
       *"est-ce que l'update ne peut pas aller lire dans GitHub, récupérer le fichier de la version de
       l'utilisateur pour s'en servir d'origine?"* — **measured the same hour and it works.**)_
-      ⚠️ **SCOPE NOT ARBITRATED**: written down because it is measured and valuable, not because it was
-      decided. Ask before building it.
+      ✅ **IN v5 — owner's call, 2026-08-21**, taken on the measurement below. **Do not re-open the
+      scope question.** Order: **after S7-3** (the wiring), **before S7-4** (the QA), so the QA covers
+      the recognised files and the fetched ones in one pass.
 
   - [x] 📐 **The measurement, on the owner's two real brains.** **13 of 15** recorded provenance shas
         resolve to a file in a published tag. `mind-palace` (v4.9.1) and `autre-brain` (v3.5.0) give the
