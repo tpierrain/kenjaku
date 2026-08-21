@@ -269,6 +269,38 @@ test("adoptCandidate — KEEP MINE is still allowed on a marked merge: it neithe
   assert.equal(existsSync(join(dir, ".engine-base")), false, "and a declined version is never an ancestor");
 });
 
+// 🎯 THE OTHER HALF OF THE GUARD, and the mutation score is what demanded it: refusing
+// too much is a failure mode of its own. A skill that DOCUMENTS merge markers — and
+// `update-engine`'s own Step 4 is heading that way — must stay adoptable, or the engine
+// would freeze exactly the file that explains how conflicts look. So both markers count,
+// and only at the START OF A LINE; prose that mentions one mid-sentence is prose.
+const MENTIONS_MARKERS = `# What a conflict looks like
+
+The engine writes a <<<<<<< opener into the file, and closes with:
+>>>>>>> the engine's new version
+`;
+
+const MENTIONS_MARKERS_INVERTED = `# What a conflict looks like
+
+<<<<<<< is what opens a conflict block
+and the block ends with a >>>>>>> line.
+`;
+
+for (const [shape, candidate] of [
+  ["only the CLOSING marker starts a line", MENTIONS_MARKERS],
+  ["only the OPENING marker starts a line", MENTIONS_MARKERS_INVERTED],
+]) {
+  test(`adoptCandidate — a file that merely MENTIONS the markers is adoptable (${shape})`, (t) => {
+    const dir = brain(t);
+    writeFileSync(join(dir, `${REL}.new`), candidate);
+
+    const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
+
+    assert.deepEqual(result, { adopted: true });
+    assert.equal(read(dir, REL), candidate, "the engine's version arrived, markers-in-prose and all");
+  });
+}
+
 test("adoptCandidate — no sidecar means there is nothing to adopt, and it says so", (t) => {
   const dir = brain(t);
   rmSync(join(dir, `${REL}.new`));

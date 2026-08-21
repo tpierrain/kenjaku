@@ -82,13 +82,21 @@ export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
   if (!existsSync(sidecar)) return { adopted: false, blocked: "no-candidate" };
   const candidate = readFileSync(sidecar, "utf8");
 
-  const { write, deliver } = planAdoption({ decision, candidate, combined });
+  const plan = planAdoption({ decision, candidate, combined });
+  const { write, deliver } = plan;
 
   // Gated on the PLAN, not on the decision: what makes a marked merge dangerous is that
   // its bytes get used, either written to the file or recorded as the ancestor. "Keep
-  // mine" does neither, and refusing it would trap the owner — declining is the one
-  // answer that is always safe, and it is precisely what they are declining.
-  if ((write !== undefined || deliver !== undefined) && isMarkedMerge(candidate)) {
+  // mine" plans NOTHING — `{}` — and refusing it would trap the owner: declining is the
+  // one answer that is always safe, and it is precisely what they are declining.
+  //
+  // Asked of the plan as a WHOLE rather than of its two keys, because the measurement
+  // showed the two-key form was a branch no input could reach: `planAdoption` returns
+  // `write` and `deliver` together or neither, so `write !== undefined || deliver !==
+  // undefined` had an arm nothing could exercise — a survivor by construction, and a
+  // reader would have to check `planAdoption` to learn that. An empty plan touches no
+  // bytes; anything else touches the candidate's.
+  if (Object.keys(plan).length > 0 && isMarkedMerge(candidate)) {
     return { adopted: false, blocked: "marked-candidate" };
   }
 

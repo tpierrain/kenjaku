@@ -1,0 +1,92 @@
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/adopt-engine-file.mjs:136" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-adopt.mjs:79" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-adopt.mjs:108" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-answers.mjs:76" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-answers.mjs:83" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-merge-apply.mjs:115" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-merge-apply.mjs:142" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-merge-apply.mjs:153" did not result in any files.
+[33m01:06:32 (99464) WARN ProjectReader[39m Glob pattern "scripts/lib/engine-merge-apply.mjs:155" did not result in any files.
+[32m01:06:32 (99464) INFO ProjectReader[39m Found 5 of 860 file(s) to be mutated.
+[32m01:06:32 (99464) INFO Instrumenter[39m Instrumented 5 source file(s) with 54 mutant(s)
+[32m01:06:32 (99464) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m01:06:32 (99464) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Al3jlr
+[32m01:06:32 (99464) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m01:06:32 (99464) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m01:06:35 (99464) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3202 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/54 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/54 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~4m) 5/54 tested (1 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~6m) 5/54 tested (1 survived, 0 timed out)
+Mutation testing 18% (elapsed: <1m, remaining: ~3m) 10/54 tested (3 survived, 0 timed out)
+Mutation testing 22% (elapsed: ~1m, remaining: ~3m) 12/54 tested (4 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~3m) 15/54 tested (4 survived, 0 timed out)
+Mutation testing 37% (elapsed: ~1m, remaining: ~2m) 20/54 tested (5 survived, 0 timed out)
+Mutation testing 40% (elapsed: ~1m, remaining: ~2m) 22/54 tested (5 survived, 0 timed out)
+Mutation testing 48% (elapsed: ~1m, remaining: ~1m) 26/54 tested (7 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~1m, remaining: ~1m) 30/54 tested (7 survived, 0 timed out)
+Mutation testing 59% (elapsed: ~2m, remaining: ~1m) 32/54 tested (7 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~2m, remaining: ~1m) 36/54 tested (7 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~2m, remaining: <1m) 41/54 tested (7 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~2m, remaining: <1m) 43/54 tested (7 survived, 0 timed out)
+Mutation testing 87% (elapsed: ~2m, remaining: <1m) 47/54 tested (8 survived, 0 timed out)
+Mutation testing 96% (elapsed: ~2m, remaining: <1m) 52/54 tested (8 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 46)
+
+[Survived] Regex
+scripts/lib/engine-adopt.mjs:73:36
+-   const isMarkedMerge = (content) => /^<<<<<<</m.test(content) && /^>>>>>>>/m.test(content);
++   const isMarkedMerge = (content) => /<<<<<<</m.test(content) && /^>>>>>>>/m.test(content);
+
+[Survived] LogicalOperator
+scripts/lib/engine-adopt.mjs:73:36
+-   const isMarkedMerge = (content) => /^<<<<<<</m.test(content) && /^>>>>>>>/m.test(content);
++   const isMarkedMerge = (content) => /^<<<<<<</m.test(content) || /^>>>>>>>/m.test(content);
+
+[Survived] Regex
+scripts/lib/engine-adopt.mjs:73:65
+-   const isMarkedMerge = (content) => /^<<<<<<</m.test(content) && /^>>>>>>>/m.test(content);
++   const isMarkedMerge = (content) => /^<<<<<<</m.test(content) && />>>>>>>/m.test(content);
+
+[Survived] StringLiteral
+scripts/lib/engine-adopt.mjs:83:43
+-     const candidate = readFileSync(sidecar, "utf8");
++     const candidate = readFileSync(sidecar, "");
+
+[Survived] LogicalOperator
+scripts/lib/engine-adopt.mjs:91:8
+-     if ((write !== undefined || deliver !== undefined) && isMarkedMerge(candidate)) {
++     if ((write !== undefined && deliver !== undefined) && isMarkedMerge(candidate)) {
+
+[Survived] ConditionalExpression
+scripts/lib/engine-adopt.mjs:91:31
+-     if ((write !== undefined || deliver !== undefined) && isMarkedMerge(candidate)) {
++     if ((write !== undefined || false) && isMarkedMerge(candidate)) {
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-base-fs.mjs:69:86
+-     const onDisk = listFilesUnderRoots(brainDir, globRoots(manifest?.regimes?.merge ?? [])).filter(
++     const onDisk = listFilesUnderRoots(brainDir, globRoots(manifest?.regimes?.merge ?? ["Stryker was here"])).filter(
+
+[Survived] StringLiteral
+scripts/adopt-engine-file.mjs:51:3
+-     ` so what is waiting beside it is a marked-up merge of both, not a version anyone should` +
++     `` +
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  85.19 |   85.19 |       46 |         0 |          8 |        0 |        0 |
+ lib                   |  85.71 |   85.71 |       42 |         0 |          7 |        0 |        0 |
+  engine-adopt.mjs     |  76.92 |   76.92 |       20 |         0 |          6 |        0 |        0 |
+  engine-answers.mjs   | 100.00 |  100.00 |       11 |         0 |          0 |        0 |        0 |
+  engine-base-fs.mjs   |  85.71 |   85.71 |        6 |         0 |          1 |        0 |        0 |
+  engine-base.mjs      | 100.00 |  100.00 |        5 |         0 |          0 |        0 |        0 |
+ adopt-engine-file.mjs |  80.00 |   80.00 |        4 |         0 |          1 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m01:09:28 (99464) INFO MutationTestExecutor[39m Done in 2 minutes and 56 seconds.
+[32m01:09:28 (99464) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-Al3jlr.

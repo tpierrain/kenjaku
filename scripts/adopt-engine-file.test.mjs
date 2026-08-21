@@ -201,6 +201,12 @@ test("a MARKED merge gets its own sentence, and is never called 'nothing to adop
 
   assert.doesNotMatch(said(calls), /no newer version/i);
   assert.match(said(calls), /same lines|clash|both versions/i, "it must say WHY, in plain words");
+  // 🎯 And WHAT is waiting, which is the half the owner acts on: a marked-up merge of
+  // both, not a version to install. Left unasserted, a mutant emptied this clause and the
+  // sentence still said "the same lines changed" — a true half-sentence that stops right
+  // before the only fact the reader needs.
+  assert.match(said(calls), /marked-up merge of both/i, "it must say what is actually sitting there");
+  assert.match(said(calls), /install as-is/i, "and that installing it is not on the table");
   assert.match(said(calls), /combine/i, "and point at the offer that does work here");
 });
 
