@@ -270,21 +270,39 @@ test("SELF-CARRY — the plan covers update-engine + every lib the core depends 
   }
 });
 
-// Gate 1 "green": the constitution ships two-layer (thin sacred CLAUDE.md @imports a
-// generic CLAUDE.engine.md). It is STRUCTURE-ONLY — propagation of the engine layer to
-// deployed brains is deferred to Gate 3 (it must first be made locale-aware, or a FR
-// brain would be re-anglicized on upgrade). So the shipped plan must touch NEITHER file:
-// CLAUDE.md because it is sacred, CLAUDE.engine.md because it is not yet in any regime.
-// This locks the legacy-safety invariant — a deployed monolithic brain updating is not
-// clobbered — and guards against someone wiring CLAUDE.engine.md into `replace` before
-// the locale-aware propagation of Gate 3 exists.
-test("GREEN LAYERING — the shipped plan touches NEITHER CLAUDE.md NOR CLAUDE.engine.md (structure-only, propagation deferred)", () => {
+// ─── The two-layer constitution: one half sacred forever, one half unfrozen ──
+// 🔓 A test that said NEVER now says HOW, and the record of why it once said never is
+// the half worth keeping — so the comment is REWRITTEN, not deleted.
+//
+// WHAT IT USED TO SAY (Gate 1, and it was right at the time). The constitution ships
+// two-layer: a thin, sacred `CLAUDE.md` @imports a generic `CLAUDE.engine.md`. That
+// was STRUCTURE-ONLY, and propagating the engine layer to deployed brains was deferred
+// — it had to be made locale-aware first, or a FR brain would be re-anglicized by its
+// own upgrade. So the shipped plan had to touch NEITHER file, and this test guarded
+// against someone wiring `CLAUDE.engine.md` into `replace` before that existed.
+// _(It said the work was deferred to "Gate 3" twice. Every other carrier says Gate 4;
+// the ROADMAP's Gate 3 is `Migration generate`. A reader chasing the deferral has been
+// sent to the wrong gate since Gate 1. Corrected here.)_
+//
+// WHY THE LOCK IS LIFTED (plan S5, verified in the code rather than recalled). The
+// locale condition has been met since v4.1.0 and nobody came back: `engine-merge-apply`
+// reads the brain's locale and resolves `templates/<locale>/<rel>` for every file it
+// delivers, which is how the FR skills already reach FR brains. And what the lock
+// feared is not what shipped: the regime is `merge`, NOT `replace`. On a file nobody
+// touched a three-way merge from a provable base is byte-identical to a copy; on an
+// edited one it preserves and reports. Nothing is clobbered on either path.
+//
+// WHAT STAYS LOCKED, and it is the half that must never move: `CLAUDE.md` is the
+// OWNER's. One dot separates the two names, so this test keeps both assertions in one
+// place — the day someone widens a predicate, the owner's constitution and the
+// engine's go different ways HERE, in the same three lines.
+test("LAYERING — the shipped plan delivers CLAUDE.engine.md and still never touches CLAUDE.md", () => {
   const plan = computeApplyPlan(shippedManifest());
   assert.equal(planTouches(plan, "CLAUDE.md"), false, "CLAUDE.md is sacred — never clobber a deployed brain's constitution");
   assert.equal(
     planTouches(plan, "CLAUDE.engine.md"),
-    false,
-    "CLAUDE.engine.md must NOT be propagated yet — Gate 3 makes it locale-aware first (else a FR brain is re-anglicized on upgrade)",
+    true,
+    "the engine layer is `merge`-declared since S5 — a doctrine rule that reaches fresh installs only is the defect this release is named after",
   );
 });
 

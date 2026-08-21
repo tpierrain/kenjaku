@@ -64,6 +64,7 @@
     ],
     "merge": [
       "CLAUDE.md",
+      "CLAUDE.engine.md",
       ".claude/settings.json",
       ".claude/skills/coach/**",
       ".claude/skills/sync/**",
