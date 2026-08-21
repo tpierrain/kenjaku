@@ -169,6 +169,36 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S4-4a — the session surface, and a defect no mutant could have found — 2026-08-21
+
+`ea9a4c1`. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors |
+|---|---|---|
+| `scripts/lib/engine-divergence-nudge.mjs` | **100 %** (46 killed) | none |
+
+**No pass on `scripts/session-engine-divergence.mjs`** (the entry) or on `engine-version.mjs` (one
+line: an existing function exported): wiring and a keyword, and the rule says say the skip in writing.
+
+⚠️ **The new shape of defect, and the reason it is written up despite a 100 % score: mutation could not
+have found it.** The hook emitted `systemMessage` **nested inside** `hookSpecificOutput`, where the
+client does not read it — valid JSON, a silent CLI channel, and a unit test asserting the same wrong
+shape it had been written against. **Every mutant of that object still died**, because the tests and the
+code agreed with each other; what disagreed was the *client*. It surfaced from **running the entry as a
+process** and reading the JSON, which is the entry-point seam rule paying for itself a second time.
+
+➡️ **The durable lesson**: a mutation score judges whether the tests pin the code, never whether the
+code speaks the protocol. For any output whose reader is **outside this repo** (a hook envelope, a JSON
+contract, a CLI's stdout), the run-it-as-a-process check is not a formality on top of a good score — it
+is the only thing measuring the half the score cannot see.
+
+*(The prose itself was cut from ~990 characters to one sentence **before** the run, on the F5 startup-payload
+guard's evidence — see the plan. A smaller deliverable is a smaller surface, and part of why 46 mutants
+died first pass.)*
+
+---
+
 ## S4-3 — the report stops being silent, and a guard that would have re-silenced it — 2026-08-21
 
 The prose slice: `d171e90` re-opens the `no-provenance` silence and adds the standing recap, `69b17c9`

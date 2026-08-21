@@ -413,6 +413,23 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 21, second half) — S4-4a, and a 100 % score that proved nothing about
+  the defect.** _(Numbers in [`RESULTS.md`](../../mutation/RESULTS.md#s4-4a--the-session-surface-and-a-defect-no-mutant-could-have-found--2026-08-21);
+  the slice's state in the owning plan.)_ Two defects were caught this iteration and **neither was
+  caught by the tests I wrote**: a repo guard condemned the prose before it shipped, and running the
+  entry as a process found a channel that emitted nothing.
+  - ➡️ **For the mode, and it is a sharp one**: the module scored **100 % first pass** while shipping a
+    dead output channel. The tests and the code agreed; the **client** disagreed. So a mutation score
+    answers *"do the tests pin this code?"* and never *"does this code speak the protocol?"* — and the
+    mode's own judge rule (*nothing is dispatched without a pass/fail a machine can evaluate*) inherits
+    the hole: **a subagent handed "make the score 100 %" would have returned exactly this**, confidently.
+    For anything whose reader is outside the repo, the machine-checkable judge has to include the
+    run-it-as-a-process check, not just the score.
+  - ⚠️ **The standing repo guards did more useful work this iteration than the plan's own design box
+    did.** The box said "cap at 5 named files"; the F5 payload guard held the field measurement that
+    made that wrong. Design written from memory loses to a guard holding a measurement — **grep the
+    guards before writing a design box about a channel**, not after.
+
 - 🌙 **2026-08-21 (loop iteration 21) — THE BLOCKING-BOX MECHANISM WAS EXERCISED FOR REAL, and it paid.**
   The owner walked in mid-loop and asked about the one question parked at the top of the owning plan
   (*may the engine write `CLAUDE.md`?*). It was answerable in one exchange **because it had been written

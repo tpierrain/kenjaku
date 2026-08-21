@@ -248,14 +248,18 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S4-4 — the session surface.** **S4-3 is CLOSED** _(code `d171e90` + `69b17c9`,
-> measurement `2fbd811` + `c11c684`)_: the `no-provenance` silence is re-opened, the standing recap
-> ships, `update-engine.mjs` reads **99.40 %** and `engine-base-fs.mjs` **95.65 %**, every survivor left
-> a named equivalent. Nothing of S4-1, S4-2 or S4-3 is outstanding.
+> **▶️ RESUME AT: S4-4b — the surface reaches a brain.** **S4-4a is DONE** _(2026-08-21 · `ea9a4c1`)_:
+> the nudge and its hook exist, one sentence, both channels verified from a real process run. What is
+> left is **delivery**: its own SessionStart group in `.claude/settings.json.template` (⚠️ S3-2's lesson
+> — `hookScript()` identifies a group by its *first* script, so packing it beside an existing hook
+> delivers nothing to a deployed brain, and **two tests must make that packing go red**), its explicit
+> `replace` entry in the manifest (session hooks are listed one by one; no `scripts/session-*.mjs` glob
+> exists), and the **added SessionStart latency measured, not assumed** — a first free data point is
+> already in hand: the whole process, node boot included, ran in **73 ms** on the launcher's own tree.
+> _(S4-1, S4-2 and S4-3 are closed: `update-engine.mjs` reads **99.40 %**, `engine-base-fs.mjs`
+> **95.65 %**, every survivor a named equivalent.)_
 >
-> Then **S4-4 — the session surface**: `additionalContext` + `systemMessage` in its own soft hook (never
-> folded into the breakage banner), reusing `readEngineDivergence` as-is, with the added SessionStart
-> latency **measured, not assumed**. **S2c is UNBLOCKED** _(2026-08-21 — the box at the top is answered:
+> **S2c is UNBLOCKED** _(2026-08-21 — the box at the top is answered:
 > yes, the engine may write `CLAUDE.md` through the merge door)_, and it amends ADR 0012, whose §5 is now
 > in place. It is followed by a new **S2d** (the conflict report names its door instead of being a
 > cul-de-sac); both are queued **after** S4, and neither waits on anyone.
@@ -1374,7 +1378,39 @@ audible divergence.
       - [ ] 🧭 **Cut in two, on S3's own precedent** (*the guard decides* / *the guard reaches a brain*),
             because one slice that writes prose, spawns a hook, edits the template AND the manifest is
             this chantier's own definition of mis-cut:
-        - [ ] **S4-4a — the surface decides what to say.** The pure nudge + the entry script, tested.
+        - [x] **S4-4a — the surface decides what to say.** _(2026-08-21 · `ea9a4c1`)_ The pure nudge +
+              the entry script, **full suite green (2053 pass, 0 fail)**. Two defects were found by
+              things other than its own tests, and both are worth keeping:
+          - [x] 🔇 **The F5 guard condemned the prose before it shipped, and the design box above was
+                wrong.** That box said "cap at 5 named files" on the reasoning that `additionalContext`
+                only ever speaks to the **agent**, which then picks its moment. It does not:
+                `startup-payload-guard.test.mjs` carries the field measurement that the **CLI echoes it
+                VERBATIM to the owner**, prefixed `SessionStart:startup says:`, before they have typed a
+                word. So the draft was ~990 characters of file paths at every session start — **the exact
+                banner S4 forbids, arriving through the channel that looked innocent**. Shipped instead:
+                **one sentence, one file named with its clause, the rest a count**, and the payload
+                length asserted (520, with the launcher's real **490** written into the test as the
+                measurement rather than a guessed ceiling).
+          - [x] 🔌 **Running it as a process found a dead channel.** `systemMessage` was nested **inside**
+                `hookSpecificOutput`, where the client does not read it: valid JSON, silent CLI, and a
+                test asserting the same wrong shape it had been written against. `deepEqual` on the
+                **whole** envelope is what turns that into a red test — sampling the keys would not have.
+                ➡️ The entry-point seam rule earned its keep again: no unit test on this module could
+                have caught it.
+          - [x] 🪜 **Two ratchets fired and both were right**, so they were obeyed rather than raised: the
+                entry uses the canonical `runAsEntrypoint` tail (not a hand-rolled guard copied from an
+                older hook), and the F5 audit's pinned emitter list learns its eighth entry.
+          - [x] 📏 **Measured, first pass: `engine-divergence-nudge.mjs` at 100 %** (46 killed, 0
+                survived). The entry script and the one-word export on `engine-version.mjs` got **no
+                pass** — wiring and a keyword — and the skip is
+                [said in writing](../../mutation/RESULTS.md#s4-4a--the-session-surface-and-a-defect-no-mutant-could-have-found--2026-08-21),
+                where the run's real lesson also lives: **the dead channel above was invisible to
+                mutation by construction**, because the tests and the code agreed with each other and it
+                was the *client* that disagreed.
+          - [x] 🔗 **The move landed as designed**: `DIVERGENCE_LINE` + the closing sentence left
+                `update-engine.mjs` for the shared lib, and that file's byte-for-byte prose tests are
+                **untouched and green** — which is the proof it was a move. `installRef` is exported from
+                `engine-version.mjs` for the same one-owner reason.
         - [ ] **S4-4b — the surface reaches a brain.** Its own `PreToolUse`-style group in
               `.claude/settings.json.template`, its explicit `replace` entry in the manifest (session
               hooks are listed **one by one** there — no `scripts/session-*.mjs` glob exists), and the
@@ -1400,12 +1436,10 @@ audible divergence.
             from, shared, so the two labels can never disagree"*. A second reader here would be the
             third. **And it stays a separate fact from `since`**: naming the version the brain runs is
             legitimate; filling an unknown `since` from it is the exact confusion `baseRefs` ended.
-      - [ ] 🔇 **CAPPED, and the count stays exact.** A brain may hold back a dozen skills; naming all
-            of them in **every** session's context is the nagging the plan forbids, and it is charged to
-            the window on top. So: the count is always exact and complete, the *named* files are capped
-            (**5**, then "and N more"), and the full list stays where it is already free — the update
-            report. This is a decision, not a detail: the surface's job is to keep the fact **available**
-            to the agent, not to recite an inventory nobody asked for.
+      - [ ] 🔇 ~~**CAPPED at 5 named files**~~ — ⚠️ **this box was WRONG and the guard said so**; see
+            S4-4a's finding below. The count stays exact and complete, but **one** file is named, not
+            five, because the channel is echoed verbatim to the owner rather than held by the agent.
+            The full list stays where it is already free: the update report.
       - [ ] 🛟 **Fail-open, and it needs its OWN guard**: `readEngineDivergence` is fail-soft about an
             unreadable *manifest* only — `readInstalledMergeFiles` sits outside its `try`, so a brainDir
             that does not exist throws. On the update path that cannot happen; on a hook it can. The
