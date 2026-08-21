@@ -124,7 +124,7 @@ const PLAN_INPUT = {
 };
 
 test("planRun — a worktree that does not exist yet: prune, THEN add", () => {
-  assert.deepEqual(planRun({ ...PLAN_INPUT, worktreeExists: false, ragLinkExists: false }), [
+  assert.deepEqual(planRun({ ...PLAN_INPUT, worktreeExists: false }), [
     // `git worktree prune` FIRST, always: a worktree that was rm -rf'd is still
     // registered, `add` refuses, and the run silently never happens — leaving the
     // PREVIOUS log to be read as this run's result.
@@ -163,7 +163,7 @@ test("planRun — a worktree that does not exist yet: prune, THEN add", () => {
 });
 
 test("planRun — an existing worktree is RESET, and never with `checkout -- .`", () => {
-  const steps = planRun({ ...PLAN_INPUT, worktreeExists: true, ragLinkExists: true });
+  const steps = planRun({ ...PLAN_INPUT, worktreeExists: true });
 
   assert.deepEqual(steps.slice(0, 3), [
     { step: "prune", command: "git", args: ["worktree", "prune"], cwd: "/Users/dev/kenjaku" },
@@ -186,15 +186,28 @@ test("planRun — an existing worktree is RESET, and never with `checkout -- .`"
   // auto-commit.mjs can COMMIT it; `checkout -- .` then faithfully restores the
   // instrumented tree and every later dry run dies on `stryNS_ already declared`.
   assert.equal(JSON.stringify(steps).includes("checkout"), false);
-  // An existing link is left alone rather than re-created.
+  // 🛑 The link is re-made even though it EXISTED when the plan was built. The plan
+  // asked its question before running the step that changes the answer: `git clean`
+  // removes the symlink despite the `-e`, so a plan that skipped the link on
+  // `ragLinkExists: true` produced a worktree with no `rag/node_modules` — and the
+  // preflight then refused the run. **It alternated**, which is what hid it: the run
+  // that found no link made one and passed, leaving one for the next run to skip and
+  // fail on. Measured 2026-08-21: three aborted runs in one session, on alternate
+  // invocations. An idempotent step costs one syscall; a stale precondition costs a run.
   assert.deepEqual(steps.map((s) => s.step), [
     "prune",
     "reset",
     "clean",
+    "link-rag-node-modules",
     "verify-write-guard",
     "discard-stale-log",
     "mutate",
   ]);
+  // ...and it is ordered AFTER the clean, which is the whole point.
+  assert.ok(
+    steps.findIndex((s) => s.step === "link-rag-node-modules") > steps.findIndex((s) => s.step === "clean"),
+    "linking before the clean is linking into a directory the clean is about to empty",
+  );
 });
 
 test("planRun — --mutate takes ONE comma-separated list, never a repeated flag", () => {
@@ -204,7 +217,6 @@ test("planRun — --mutate takes ONE comma-separated list, never a repeated flag
     ...PLAN_INPUT,
     targets: ["scripts/auto-push.mjs", "scripts/lib/repo-status.mjs"],
     worktreeExists: true,
-    ragLinkExists: true,
   });
   const mutate = steps.find((s) => s.step === "mutate");
 
@@ -216,7 +228,7 @@ test("planRun — the bin is the REAL repo's, the config is the worktree's own c
   // The worktree has no node_modules (git-ignored), so Stryker is reached by
   // absolute path into the real repo; the config is read from the worktree, whose
   // cwd is also Stryker's project root.
-  const mutate = planRun({ ...PLAN_INPUT, worktreeExists: true, ragLinkExists: true })
+  const mutate = planRun({ ...PLAN_INPUT, worktreeExists: true })
     .find((s) => s.step === "mutate");
 
   assert.equal(mutate.args[0], PLAN_INPUT.strykerBin);
@@ -406,7 +418,7 @@ test("parseMutationReport — no table means no result, and that is not a zero",
 
 // A fake whose answers are a FINGERPRINT of what it was asked (RESULTS.md
 // § S0bis, family 2: a double that ignores its arguments certifies nothing).
-function harness({ results = {}, worktreeExists = true, ragLinkExists = true, config = SOUND_CONFIG } = {}) {
+function harness({ results = {}, worktreeExists = true, config = SOUND_CONFIG } = {}) {
   const calls = [];
   const out = [];
   return {
@@ -416,9 +428,11 @@ function harness({ results = {}, worktreeExists = true, ragLinkExists = true, co
       repoRoot: "/Users/dev/kenjaku",
       sha: "bd9277d1c0ffee0000000000000000000000beef",
       config,
+      // The rag link is no longer ASKED about — the plan makes it unconditionally
+      // (its precondition was invalidated by the very step that preceded it), so the
+      // only question left is whether the worktree is there.
       exists: (path) => {
         calls.push({ fn: "exists", path });
-        if (path.endsWith("rag/node_modules")) return ragLinkExists;
         return worktreeExists;
       },
       run: ({ command, args, cwd }) => {
@@ -452,8 +466,15 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
     h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")),
     ["worktree prune", "reset --hard bd9277d1c0ffee0000000000000000000000beef", "clean -qfd -e rag/node_modules", GUARD_KEY, MUTATE_KEY()]
   );
+  // Two removals, and the ORDER matters: the link's path is cleared before the symlink
+  // is made (the step is unconditional now, so it meets an existing link), and the
+  // stale log goes before the mutants run, never after.
   assert.deepEqual(h.calls.filter((c) => c.fn === "removeFile"), [
+    { fn: "removeFile", path: "/Users/dev/kenjaku-mut-one/rag/node_modules" },
     { fn: "removeFile", path: "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log" },
+  ]);
+  assert.deepEqual(h.calls.filter((c) => c.fn === "symlink"), [
+    { fn: "symlink", from: "/Users/dev/kenjaku/rag/node_modules", to: "/Users/dev/kenjaku-mut-one/rag/node_modules" },
   ]);
   assert.deepEqual(h.calls.filter((c) => c.fn === "writeFile"), [
     {
@@ -468,6 +489,7 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
     "▶ git worktree prune   (in /Users/dev/kenjaku)",
     "▶ git reset --hard bd9277d1c0ffee0000000000000000000000beef   (in /Users/dev/kenjaku-mut-one)",
     "▶ git clean -qfd -e rag/node_modules   (in /Users/dev/kenjaku-mut-one)",
+    "▶ symlink /Users/dev/kenjaku/rag/node_modules → /Users/dev/kenjaku-mut-one/rag/node_modules",
     "▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/dev/kenjaku-mut-one)",
     "   ✓ write guard: 22 pass, 0 skipped",
     "▶ discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
@@ -488,7 +510,6 @@ test("runMutateOne — a git step that fails stops the run there, with git's own
   // deleted with the suite green.
   const h = harness({
     worktreeExists: false,
-    ragLinkExists: false,
     results: {
       "worktree add --detach /Users/dev/kenjaku-mut-one bd9277d1c0ffee0000000000000000000000beef": {
         code: 128,
@@ -642,6 +663,7 @@ test("runMutateOne — --dry-run prints the plan, whole, and runs nothing", () =
     "   git worktree prune   (in /Users/dev/kenjaku)",
     "   git reset --hard bd9277d1c0ffee0000000000000000000000beef   (in /Users/dev/kenjaku-mut-one)",
     "   git clean -qfd -e rag/node_modules   (in /Users/dev/kenjaku-mut-one)",
+    "   symlink /Users/dev/kenjaku/rag/node_modules → /Users/dev/kenjaku-mut-one/rag/node_modules",
     "   node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/dev/kenjaku-mut-one)",
     "   discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-a+1.log",
     `   node ${MUTATE_KEY("scripts/a.mjs,scripts/lib/b.mjs")}   (in /Users/dev/kenjaku-mut-one)`,
@@ -770,7 +792,6 @@ test("entry point — no argument exits 2 with the usage, and runs nothing", () 
 test("runMutateOne — a missing worktree is created, and the rag link with it", () => {
   const h = harness({
     worktreeExists: false,
-    ragLinkExists: false,
     results: { [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL }, [MUTATE_KEY()]: { code: 0, output: STRYKER_TAIL } },
   });
 

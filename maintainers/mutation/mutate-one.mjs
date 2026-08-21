@@ -103,7 +103,7 @@ function defaultLogName(targets) {
 // The order is the contract, and a value is the only thing a test can assert —
 // the same lesson that turned defaultGit's inline invocation into a value.
 
-export function planRun({ repoRoot, worktreePath, sha, targets, logPath, strykerBin, worktreeExists, ragLinkExists }) {
+export function planRun({ repoRoot, worktreePath, sha, targets, logPath, strykerBin, worktreeExists }) {
   const steps = [{ step: "prune", command: "git", args: ["worktree", "prune"], cwd: repoRoot }];
 
   if (worktreeExists) {
@@ -120,13 +120,18 @@ export function planRun({ repoRoot, worktreePath, sha, targets, logPath, stryker
     });
   }
 
-  if (!ragLinkExists) {
-    steps.push({
-      step: "link-rag-node-modules",
-      from: join(repoRoot, RAG_MODULES),
-      to: join(worktreePath, RAG_MODULES),
-    });
-  }
+  // 🛑 UNCONDITIONAL, and AFTER the clean. This step used to be skipped when the link
+  // already existed — a precondition read before the very step that invalidates it:
+  // `git clean` removes the symlink despite the `-e`, so the plan skipped the link and
+  // the preflight then refused the run for having no `rag/node_modules`. It ALTERNATED,
+  // which is what hid it for so long: the run that found no link made one and passed,
+  // leaving one for the next run to skip and fail on. Idempotent now (the executor
+  // clears the path first), which costs one syscall and can never cost a run.
+  steps.push({
+    step: "link-rag-node-modules",
+    from: join(repoRoot, RAG_MODULES),
+    to: join(worktreePath, RAG_MODULES),
+  });
 
   steps.push(
     { step: "verify-write-guard", command: "node", args: ["--test", WRITE_GUARD], cwd: worktreePath },
@@ -246,7 +251,6 @@ export function runMutateOne(argv, deps) {
     logPath,
     strykerBin: join(repoRoot, STRYKER_BIN),
     worktreeExists: exists(worktreePath),
-    ragLinkExists: exists(join(worktreePath, RAG_MODULES)),
   });
 
   if (parsed.dryRun) {
@@ -262,6 +266,10 @@ export function runMutateOne(argv, deps) {
     say(`▶ ${renderStep(step)}`);
 
     if (step.step === "link-rag-node-modules") {
+      // Clear first: the step is unconditional (see `planRun`), so it must survive
+      // meeting a link the clean happened to spare. `removeFile` is `force`, so an
+      // absent path is not an error.
+      removeFile(step.to);
       symlink(step.from, step.to);
       continue;
     }
