@@ -168,6 +168,33 @@ test("readInstalledMergeFiles — the ROOTED walk returns EXACTLY what walking t
   });
 });
 
+test("readInstalledMergeFiles — a manifest with NO `regimes` key at all costs nothing (it must not throw)", (t) => {
+  // Condemned by the mutation pass: `manifest?.regimes?.merge` had never been fed a
+  // manifest that parses but declares no regimes. It is reachable — `readEngineDivergence`
+  // JSON.parses whatever is on disk, and `{}` is valid JSON — and a throw here escapes
+  // that function's own try, so a truncated manifest would take down the update report
+  // it was written to keep alive. `selectMergeFiles` has always been defensive about
+  // exactly this shape; this call site was not.
+  const dir = brain(t, { "CLAUDE.md": "# mine\n" });
+
+  assert.deepEqual(readInstalledMergeFiles({ brainDir: dir, manifest: {} }), {});
+});
+
+test("readInstalledMergeFiles — a merge glob with no static prefix walks the WHOLE brain, vault included", (t) => {
+  // The `[""]` answer from globRoots, end to end: there is no prefix to start from, so
+  // honesty costs a full walk and the owner's notes ARE read. Kept as a test because it
+  // is the one case where the optimization must give itself up rather than under-select.
+  const dir = brain(t, { "CLAUDE.md": "# mine\n", "vault/a-note.md": "# Mollecuisse\n" });
+
+  // `**.md`, not `**/*.md`: in this dialect `**` is "any run of characters including /",
+  // so `**/*.md` still demands a literal slash and would never match `CLAUDE.md`. The
+  // first draft of this test used it and was wrong about the repo's own glob dialect.
+  assert.deepEqual(readInstalledMergeFiles({ brainDir: dir, manifest: { regimes: { merge: ["**.md"] } } }), {
+    "CLAUDE.md": "# mine\n",
+    "vault/a-note.md": "# Mollecuisse\n",
+  });
+});
+
 test("readInstalledMergeFiles — the owner's notes are NOT read, proved by making them unreadable", (t) => {
   // The measurement that opened S4-4c: the old walk read every note in the vault to
   // look at files no merge glob can name (~2.3 µs each, 18.5 ms for 8 000 notes, at

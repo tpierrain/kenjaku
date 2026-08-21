@@ -66,16 +66,22 @@ export function readInstalledMergeFiles({ brainDir, manifest }) {
   return Object.fromEntries(rels.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]));
 }
 
-// A root is a directory to walk, a single file to take as-is, or absent — and `""` is
-// the honest fallback `globRoots` returns when some glob begins with a wildcard and
-// there is no prefix to start from.
+// A root is a directory to walk, a single file to take as-is, or absent.
+//
+// `""` — globRoots' honest "walk everything" — needs no case of its own, and the
+// measurement is what proved it: `join(brainDir, "")` IS `brainDir`, which is a
+// directory, so the general path already walks the whole tree. The special case that
+// stood here said what the next line says, and a mutant that broke its condition
+// changed no behaviour at all.
+//
+// Absence is FILTERED rather than returned-as-empty, so the guard stays observable: as
+// an early `return []` its value was swallowed by `selectMergeFiles` downstream, and no
+// input could tell an empty list from a bogus one.
 function listFilesUnderRoots(brainDir, roots) {
-  return roots.flatMap((root) => {
-    const abs = join(brainDir, root);
-    if (!existsSync(abs)) return [];
-    if (root === "") return listFilesRelPosix(brainDir);
-    return statSync(abs).isDirectory() ? listFilesRelPosix(abs, brainDir) : [root];
-  });
+  return roots
+    .map((root) => ({ root, abs: join(brainDir, root) }))
+    .filter(({ abs }) => existsSync(abs))
+    .flatMap(({ root, abs }) => (statSync(abs).isDirectory() ? listFilesRelPosix(abs, brainDir) : [root]));
 }
 
 // ADVANCE what this pass delivered, then SEED whatever the brain can still prove about
