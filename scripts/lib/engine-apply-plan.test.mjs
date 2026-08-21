@@ -64,7 +64,7 @@ test("computeApplyPlan — `mergeScripts` = the engine-owned merge scripts (scri
 // nothing" — never a crash (which strands the brain mid-update) and never a default
 // that invents entries nobody declared.
 test("computeApplyPlan — a manifest missing its regimes, or missing altogether, allows NOTHING", () => {
-  const empty = { overwrite: [], regenerate: [], mergeScripts: [], mergeDoctrine: [], installSkills: [] };
+  const empty = { overwrite: [], regenerate: [], mergeScripts: [], mergeDoctrine: [], installSkills: [], retireSkills: [] };
   assert.deepEqual(computeApplyPlan({ regimes: {} }), empty, "a manifest declaring no regime at all");
   assert.deepEqual(computeApplyPlan({}), empty, "a manifest with no `regimes` key");
   assert.deepEqual(computeApplyPlan(undefined), empty, "no manifest at all — an unreadable fetch");
@@ -257,9 +257,11 @@ test("SAFETY CORE — the scrub's merge-governed half IS the guard's OWNER_AUTHO
 // a wrong answer leaks the owner's API key: no regime, no merge, no door, ever.
 test("SAFETY CORE — `.env` is inviolable: no bucket, no door, not even the merge", () => {
   assert.equal(MERGE_GOVERNED_FILES.includes(".env"), false, "it is not on the merge-governed side");
-  const hostile = { regimes: { replace: [".env"], regenerate: [".env"], merge: [".env"] } };
+  const hostile = { regimes: { replace: [".env"], regenerate: [".env"], merge: [".env"] }, retired: [".env"] };
   const plan = computeApplyPlan(hostile);
-  assert.deepEqual(plan, { overwrite: [], regenerate: [], mergeScripts: [], mergeDoctrine: [], installSkills: [] });
+  assert.deepEqual(plan, {
+    overwrite: [], regenerate: [], mergeScripts: [], mergeDoctrine: [], installSkills: [], retireSkills: [],
+  });
   assert.equal(planTouches(plan, ".env"), false);
 });
 
@@ -282,6 +284,65 @@ test("SAFETY CORE — merge-governed does NOT mean delivered: neither file is wr
   assert.deepEqual(plan.regenerate, []);
   assert.equal(planTouches(plan, "CLAUDE.md"), false);
   assert.equal(planTouches(plan, ".claude/settings.json"), false);
+});
+
+// ─── The subtractive bucket: `retired` (plan S6b, ADR 0039) ─────────────────
+// Every other bucket answers "how is this file UPDATED?". This one answers a question
+// the engine had never asked: "does the engine still ship it at all?". It reads a
+// `retired` list that is a SIBLING of `regimes`, deliberately — a removal is declared,
+// never derived from an absence, or a truncated manifest would read as "retire
+// everything" on a machine holding the owner's work.
+test("computeApplyPlan — the manifest's `retired` tombstones become the `retireSkills` bucket", () => {
+  const target = {
+    regimes: { merge: [".claude/skills/test-first-discipline/**", "scripts/auto-commit.mjs"] },
+    retired: [".claude/skills/tdd-discipline/**"],
+  };
+  const plan = computeApplyPlan(target);
+  assert.deepEqual(plan.retireSkills, [".claude/skills/tdd-discipline/**"]);
+  // ...and the successor is on the other side of the fence, in the same manifest.
+  assert.deepEqual(plan.installSkills, [".claude/skills/test-first-discipline/**"], "a tombstone is not an install");
+});
+
+// A delete is a touch. The never-touch oracle is what every guard test in this repo
+// asks, and it must not answer "the engine never writes there" about a path the engine
+// ERASES — that is the one write where a wrong answer costs the owner their work.
+test("computeApplyPlan — `planTouches` counts a retirement: a delete is a write", () => {
+  const plan = computeApplyPlan({ retired: [".claude/skills/tdd-discipline/**"] });
+  assert.equal(planTouches(plan, ".claude/skills/tdd-discipline/SKILL.md"), true, "the file the engine erases");
+  assert.equal(planTouches(plan, ".claude/skills/coach/SKILL.md"), false, "and only under the tombstone it declared");
+});
+
+// `retireSkills` is UNSCRUBBED, exactly like `installSkills` and for the same reason:
+// `.claude/skills/` is an inviolable TREE, so a scrub would empty this bucket every
+// time and the tombstone would be a no-op nobody noticed. The pattern's own anchor is
+// therefore its only defence — which is the whole of the next test.
+test("computeApplyPlan — a tombstone survives the sacred scrub of the skills tree", () => {
+  const plan = computeApplyPlan({ retired: [".claude/skills/tdd-discipline/**"] });
+  assert.deepEqual(plan.retireSkills, [".claude/skills/tdd-discipline/**"]);
+});
+
+// 🛑 THE HOSTILE MANIFEST, and here it is not a paranoia exercise: this is the only
+// list in the product whose entries end in `rm -rf`. Anything that is not a declared
+// engine SKILL DIRECTORY is refused by shape, because the shape is all that stands
+// between a hand-broken manifest and the owner's vault.
+test("computeApplyPlan — SAFETY CORE: `retired` retires SKILL DIRECTORIES and nothing else", () => {
+  const hostile = {
+    retired: [
+      "vault/**",                                 // the product's entire promise
+      ".env",                                     // the owner's API key
+      "CLAUDE.md",                                // the owner's constitution
+      ".claude/skills",                           // the tree itself, bare
+      ".claude/skills/**",                        // ...and by glob: "retire every skill"
+      "vault/.claude/skills/smuggled/**",         // a skills path under another root
+      "scripts/auto-commit.mjs",                  // an engine script is retired by hand, not here
+      ".claude/skills/tdd-discipline/**",         // the one legitimate entry
+    ],
+  };
+  const plan = computeApplyPlan(hostile);
+  assert.deepEqual(plan.retireSkills, [".claude/skills/tdd-discipline/**"]);
+  assert.equal(planTouches(plan, "vault/note.md"), false);
+  assert.equal(planTouches(plan, ".env"), false);
+  assert.equal(planTouches(plan, ".claude/skills/coach/SKILL.md"), false);
 });
 
 // ─── SELF-CARRY guard (plan Step 4) ─────────────────────────────────────────

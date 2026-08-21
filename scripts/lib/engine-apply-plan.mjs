@@ -116,8 +116,14 @@ function isSacred(entry) {
 // True iff the plan would write `relPath` — the never-touch oracle the guard tests
 // and the apply step (Step 4) use to resolve globs against concrete files. Because
 // the plan is an allowlist, this is false for every user file by construction.
+// A DELETE IS A TOUCH — `retireSkills` is counted here, and it is the entry that most
+// needs to be: this oracle is what every guard test in the repo asks, and it must not
+// answer "the engine never writes there" about a path the engine ERASES.
 export function planTouches(plan, relPath) {
-  return matchesAny([...plan.overwrite, ...plan.regenerate, ...plan.mergeScripts, ...plan.mergeDoctrine], relPath);
+  return matchesAny(
+    [...plan.overwrite, ...plan.regenerate, ...plan.mergeScripts, ...plan.mergeDoctrine, ...plan.retireSkills],
+    relPath,
+  );
 }
 
 export function computeApplyPlan(targetManifest) {
@@ -133,5 +139,15 @@ export function computeApplyPlan(targetManifest) {
     // anchoring IS the guard, and `SACRED_FILES` keeps defending the sibling it protects.
     mergeDoctrine: (regimes.merge ?? []).filter((entry) => ENGINE_DOCTRINE.test(entry)),
     installSkills: (regimes.merge ?? []).filter((entry) => ENGINE_SKILL.test(entry)),
+    // ⚰️ THE SUBTRACTIVE BUCKET, and the only list in this product whose entries end in
+    // a delete. It reads `retired`, a SIBLING of `regimes` and not a regime: a regime
+    // says HOW a shipped file is updated, a tombstone says the engine no longer ships
+    // it at all. Declared, never inferred from an absence — a manifest that failed to
+    // parse half way would otherwise read as "retire everything".
+    // Unscrubbed like `installSkills`, and for the same reason: `.claude/skills/` is an
+    // inviolable TREE, so a scrub would empty this every time and the tombstone would
+    // be a silent no-op. So `ENGINE_SKILL` is again the ONLY defence — which here means
+    // it is what stands between a hand-broken manifest and the owner's vault.
+    retireSkills: (targetManifest?.retired ?? []).filter((entry) => ENGINE_SKILL.test(entry)),
   };
 }
