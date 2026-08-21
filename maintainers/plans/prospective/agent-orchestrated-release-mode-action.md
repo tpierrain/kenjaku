@@ -448,6 +448,15 @@ arbitration goes here as a question, and the run continues on other slices.
     the script proves *all children ticked*; it cannot prove a **leaf** is done. Those were ticked only
     after reading the target file, and the ones needing inference were **left unticked and named** in
     the owning plan's header rather than swept.
+  - 🚧 **`wave-staging-guard` fired, and it was right for the wrong reason — worth one line, not a
+    fix.** `git add maintainers/plans/prospective/` was blocked because a subagent had been dispatched
+    13 minutes earlier. The stage was in fact safe: that agent was **read-only** (`Explore`), so it
+    could not have left a half-finished file anywhere. The guard keys on *"a subagent was dispatched"*,
+    not on *"a subagent that can WRITE was dispatched"*, and it has no way to know — the distinction
+    lives in the agent type. **Left alone deliberately**: the guard costs one `git status` and a named
+    stage, the mistake it exists to prevent was made **twice** in one run, and a guard that reasons
+    about which agents are dangerous is a guard that can be wrong in the expensive direction. Filed
+    here so the next person to be annoyed by it finds the reasoning instead of re-deriving it.
 - 🌙 **2026-08-21 (loop iteration 33) — S6d, and the read that never touched this window.**
   _(What shipped belongs to the owning plan, § S6d; this entry keeps only what the MODE learned.)_
   - 📚 **The second rule paid, cleanly and for the first time on a slice that was ABOUT reading.**
