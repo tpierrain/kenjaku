@@ -21,12 +21,19 @@
 //   • NO grouping. A skill is a subtree, so its report speaks about the directory;
 //     there is exactly one constitution, so the file is its own subject.
 //
-// 🛑 What this module does NOT do, and the release note must not claim: it
-// unfreezes no ALREADY-DEPLOYED brain. The file was in no regime, so no provenance
-// was ever recorded — `mergeVerdict` can prove nothing about the bytes on disk and
-// preserves them (`no-provenance`). Brains installed from this release on are
-// correct from day one; older ones stop being SILENT, which is a smaller and true
-// claim. Delivering to them needs the ancestor machine, which is its own chantier.
+// ⚠️ THIS HEADER CARRIED A CLAIM THAT IS NO LONGER TRUE, and it is kept here with its
+// correction rather than deleted, because it recorded a real limit for a real while.
+// It said: *this module unfreezes no ALREADY-DEPLOYED brain* — the file was in no
+// regime, so no provenance was ever recorded, `mergeVerdict` could prove nothing about
+// the bytes on disk, and it preserved them (`no-provenance`). True as written, and the
+// reason the release was stopped two hours from publication.
+//
+// ✅ **S7 is the "ancestor machine" that sentence pointed at, and it shipped.** Nothing
+// in THIS module changed: the heal works one level up, at the `recorded` INPUT
+// (`engine-heal.mjs` proves the bytes against a table of every version the engine ever
+// published; `reconcile-brain.mjs` computes it once and hands it down). So the honest
+// statement today is that this module delivers to a deployed brain **exactly when the
+// brain can prove its bytes** — which the fleet now can, for every file nobody edited.
 // ─────────────────────────────────────────────────────────────────────────────
 import { applyMergeGoverned } from "./engine-merge-apply.mjs";
 import { selectMergeFiles } from "./engine-source.mjs";

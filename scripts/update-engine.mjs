@@ -35,6 +35,7 @@ import {
 import { checkUpstream, formatUpdateCheck, unknownUpstream } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
 import { reseedBaseRefs, reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
+import { parseSemverTag, compareSemverTags } from "./lib/semver-tag.mjs";
 import { readEngineDivergence, syncBaseTree } from "./lib/engine-base-fs.mjs";
 import { DIVERGENCE_CLOSING, DIVERGENCE_LINE } from "./lib/engine-divergence-nudge.mjs";
 import {
@@ -268,8 +269,32 @@ function conflictLines(conflicts) {
 
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
+// S7-3 — "N engine file(s) recognized from <range>". A RANGE, not a version: each healed
+// file carries the tag its own bytes first shipped at, and those differ per file, so a
+// single "from vX" would be a tidy sentence that is false about most of the list.
+//
+// Ordered by `compareSemverTags`, never lexically — `v3.10.0` sorts BEFORE `v3.2.0` as a
+// string, and "recognized from v3.10.0 to v3.2.0" is visibly nonsense to the one person
+// this line is written for. An unparseable tag is skipped rather than crashed on: the
+// heal already happened and is already recorded, and a report cannot be the thing that
+// fails an update that worked.
+function recognizedLines(healed) {
+  if (healed.length === 0) return [];
+  const versions = healed
+    .map((h) => ({ tag: h.since, parsed: parseSemverTag(h.since) }))
+    .filter(({ parsed }) => parsed)
+    .sort((a, b) => compareSemverTags(a.parsed, b.parsed))
+    .map(({ tag }) => tag);
+  const oldest = versions[0];
+  const newest = versions[versions.length - 1];
+  const range = oldest === undefined ? "an earlier version" : oldest === newest ? oldest : `${oldest} to ${newest}`;
+  return [
+    `   • ${healed.length} engine file(s) recognized from ${range} — this brain can now receive updates for them`,
+  ];
+}
+
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], healed = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -333,6 +358,12 @@ export function formatReport(report) {
     );
   }
   lines.push(...skillsRetirePreserved.map(retiredPreservedLine));
+  // S7-3 — the migration's own event, and it belongs HERE: with what appeared, moved on
+  // and went, and BEFORE the preserved/merged family lines, because its whole point is
+  // that files which would have been listed as "preserved, we cannot tell" no longer are.
+  // Absent on every brain installed from v5.0.0 on, and on every brain already healed —
+  // an event that did not happen must not be announced.
+  lines.push(...recognizedLines(healed));
   // The two families' merged + preserved sentences (see the helpers above), then
   // EVERY conflict, last. A fast-forwarded script needs no line of its own: it is
   // already counted as a swapped engine file, which is what it has always been.
@@ -516,6 +547,10 @@ export async function updateEngine({
     doctrinePreserved,
     doctrineMerged,
     doctrineConflicts,
+    // S7-3: what the brain PROVED about itself. A field this destructure does not name
+    // is a verdict the owner never hears — and this one is the migration itself: a brain
+    // frozen since install day silently becoming a brain that receives.
+    healed,
     refreshedFileMap,
     mcpServersAdded,
     hooksAdded,
@@ -659,6 +694,7 @@ export async function updateEngine({
     doctrinePreserved,
     doctrineMerged,
     doctrineConflicts,
+    healed,
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,

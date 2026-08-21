@@ -16,7 +16,7 @@
 // 23 504 -> 33 531 bytes (EN) over 12 commits, +43 %. The freeze is not a bug in
 // the update path; it is a file that was in no regime.
 //
-// 🎯 SO THE TWO POLES, and the only difference between them is the ANCESTOR:
+// 🎯 SO THE TWO POLES, and the only difference between them WAS the ANCESTOR:
 //   • the OLD cohort (installed before this release) has no provenance for the
 //     file, so nothing can be proven about its bytes -> preserved, and REPORTED.
 //     A brain that was silent becomes one that says what it is holding back.
@@ -25,6 +25,19 @@
 //     -> delivered, and byte-identical to the source.
 // Asserting "the doctrine arrives" for a deployed brain would make the release
 // note lie. That claim is the one S5's own header exists to forbid.
+//
+// ⚠️ 2026-08-21 — **THE PARAGRAPH ABOVE IS THE STATE BEFORE S7, AND POLE A HAS BEEN
+// INVERTED.** It is kept, rather than rewritten, because it recorded a truth for the
+// whole life of the product and the release note has to be able to quote what changed.
+//
+// What changed is not the ancestor's ABSENCE — the old cohort still records no
+// provenance, and this suite still builds it that way. What changed is that the
+// ancestor's bytes are **on the disk** and, since S7, **provable**: the brain's
+// installed `CLAUDE.engine.md` is recognised in a table of every version the engine
+// ever published, so `mergeVerdict` is handed a `recorded` it can act on. The two
+// poles therefore now differ in HOW the ancestor is known (recorded vs recognised),
+// not in whether the file arrives. **Pole A is the acceptance test of S7**, and its
+// old assertion is rewritten below with this reason beside it, never deleted quietly.
 //
 // The tag chain (v4.5.0 -> ... -> v4.8.1) is deliberately NOT replayed: every
 // hop answers identically, so it would cost one worktree and one fixture tree
@@ -75,25 +88,46 @@ function newCohortAt(tag) {
   return { brainDir, manifest };
 }
 
-// ── Pole A — the OLD cohort: nothing is delivered, and that is the honest end state ──
-test("QA v3.6.0 → HEAD — a brain with no ancestor keeps its frozen doctrine, and is TOLD", async (t) => {
+// ── Pole A — the OLD cohort, INVERTED by S7: the frozen fleet RECEIVES ────────────
+//
+// 🔄 THE ASSERTION THIS REPLACES, written out so nothing is lost: until 2026-08-21 this
+// test asserted `doctrinePreserved: [{name, reason: "no-provenance"}]`, `doctrineRefreshed:
+// []`, and "not one byte is written without an ancestor". Every word of it was true, and
+// it is the measurement that stopped the release two hours from publication — a release
+// named "the engine owns what it shipped" that unfroze nobody already installed.
+//
+// S7 is what makes it false, and this is the only test in the repo that proves it on a
+// REAL historical tree rather than a fixture written by hand: a brain rebuilt from the
+// v3.6.0 tag, holding NOT ONE recorded sha, updated from HEAD.
+test("QA v3.6.0 → HEAD — a brain with NO provenance at all now RECEIVES the doctrine (S7)", async (t) => {
   const { brainDir, manifest } = brainAtRelease(TAG);
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   const frozen = readBrain(brainDir, DOCTRINE);
   assert.equal(frozen, doctrineAtTag(), "the fixture must carry the tag's own doctrine bytes");
   assert.notEqual(frozen, readRepo(DOCTRINE), "and the engine must have moved since, or this QA proves nothing");
+  // Not "records nothing at all" — a v3.6.0 brain does hold shas for the skills that WERE
+  // in a regime. What it holds for the doctrine is the point, and it is nothing, because
+  // no published tag ever declared the file. That absence is the freeze, exactly.
+  assert.equal(
+    manifest.provenance?.[DOCTRINE],
+    undefined,
+    "and it must record NOTHING for the doctrine, or this is not the frozen cohort",
+  );
 
   const report = await updateFrom(brainDir, manifest);
 
-  assert.equal(readBrain(brainDir, DOCTRINE), frozen, "not one byte is written without an ancestor");
-  // The whole entry, not a sampled field: `reason` is what the owner reads, and the
-  // absence of `newVersionPath` is a decision (a no-provenance preserve leaves no
-  // sidecar — it claims nothing, so it litters nothing).
-  assert.deepEqual(report.doctrinePreserved, [{ name: DOCTRINE, reason: "no-provenance" }]);
-  assert.deepEqual(report.doctrineRefreshed, [], "nothing was delivered");
+  assert.equal(readBrain(brainDir, DOCTRINE), readRepo(DOCTRINE), "byte-identical to what the engine ships");
+  assert.deepEqual(report.doctrineRefreshed, [DOCTRINE], "delivered, where it was preserved before S7");
+  assert.deepEqual(report.doctrinePreserved, [], "and no longer held back for want of a provenance");
   assert.deepEqual(report.doctrineMerged, []);
   assert.deepEqual(report.doctrineConflicts, []);
-  assert.ok(!existsSync(join(brainDir, `${DOCTRINE}.new`)), "and no unexplained sidecar beside it");
+  assert.ok(!existsSync(join(brainDir, `${DOCTRINE}.new`)), "no sidecar: it was a clean delivery, not a merge");
+  // The proof was RECOGNISED, not recorded — the distinction the whole of S7 turns on.
+  assert.deepEqual(
+    report.healed.map((h) => h.rel),
+    [DOCTRINE],
+    "and the engine says which files it recognised, so the change of ancestry is never silent",
+  );
 });
 
 // ── Pole B — the NEW cohort: one ancestor is the whole difference ─────────────────

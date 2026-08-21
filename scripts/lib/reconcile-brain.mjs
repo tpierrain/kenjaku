@@ -37,6 +37,7 @@ import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
 import { reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
 import { syncBaseTree } from "./engine-base-fs.mjs";
+import { healFromDisk } from "./engine-heal-fs.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
 import {
@@ -91,6 +92,22 @@ export async function reconcileBrain({
   // the STAGED skills (Increment 2.5), and `engine-skills/**` is a `replace` glob — one
   // line later it holds the NEW content and every staged skill would read as untouched.
   const stagedProvenance = readStagedProvenance(brainDir);
+  // ⚠️ ALSO BEFORE the copy, and computed exactly ONCE: THE HEAL (plan S7-3). The whole
+  // deployed fleet recorded no provenance for `CLAUDE.engine.md` — it was in no regime at
+  // any published tag — so `mergeVerdict` short-circuits on `!recorded` and answers
+  // `preserve/no-provenance` forever. The ancestor's bytes are on the disk; only the PROOF
+  // was missing, and a table of every version the engine ever published supplies it.
+  //
+  // The seam is the `recorded` INPUT and nothing below it: hand the three refresh families
+  // a provenance the brain can PROVE, and `verifyBase`, `mergeVerdict`, `planBaseSeed` and
+  // `planBaseAdvance` do the right thing untouched. Computing it here rather than at the
+  // seed also removes the crux the design named: one fact, one owner, one write.
+  const { provenance: healedProvenance, baseRefs: healedBaseRefs, healed } = healFromDisk({
+    manifest: target,
+    provenance: local?.provenance ?? {},
+    sourceDir,
+    brainDir,
+  });
   // ⚠️ `plan.mergeScripts` is NOT here since S2b-3. Those four (auto-commit, auto-push,
   // status-line, verify-rag) are declared `merge` and were copied anyway — an owner who
   // tuned their commit hook lost the tuning at every update, silently. They now go
@@ -163,7 +180,9 @@ export async function reconcileBrain({
     // No `?? {}`: object spread already ignores undefined, so the fallback could not
     // change a byte (mutation lesson — a guard that cannot matter is noise). The `?.`,
     // on the other hand, is load-bearing: a caller may legitimately have no `local`.
-    provenance: { ...local?.provenance, ...stagedProvenance },
+    // S7-3: the HEALED map, not the recorded one — same map plus what the brain can
+    // prove about itself. A frozen brain's untouched skill is now provable like anyone's.
+    provenance: { ...healedProvenance, ...stagedProvenance },
   });
 
   // 2.bis-scripts THE ENGINE SCRIPTS, same journey (plan S2b-3). The mirror image of the
@@ -186,10 +205,9 @@ export async function reconcileBrain({
     sourceFiles,
     manifest: target,
     // No staged family here: an engine script ships AT its runtime path, always. So the
-    // manifest's recorded sha256 is the only base there is. No `?? {}` either: absent,
-    // this reads `undefined` and the callee's own default takes over — a fallback that
-    // cannot change a byte is noise (the mutation lesson the skills' call already carries).
-    provenance: local?.provenance,
+    // recorded sha256 — S7-3: or the HEALED one, which is that map plus what the brain can
+    // prove — is the only base there is.
+    provenance: healedProvenance,
   });
 
   // 2.bis-doctrine THE CONSTITUTION'S ENGINE HALF, third and last merge family (plan
@@ -215,8 +233,9 @@ export async function reconcileBrain({
     sourceFiles,
     manifest: target,
     // Like the scripts and unlike the skills: the constitution ships AT its runtime
-    // path, so the manifest's recorded sha256 is the only base there is.
-    provenance: local?.provenance,
+    // path, so the recorded sha256 is the only base there is — and S7-3 is what finally
+    // gives the deployed fleet one, so THIS is the call the whole arc was built for.
+    provenance: healedProvenance,
   });
 
   // 2.ter Reconcile .mcp.json against the engine's MCP servers (ADR 0025): register a
@@ -401,6 +420,13 @@ export async function reconcileBrain({
     doctrinePreserved,
     doctrineMerged,
     doctrineConflicts,
+    // S7-3 — what the brain proved about ITSELF this pass. Three consumers, and none of
+    // them can re-derive it: the report says it out loud, and `runReconcileCli` persists
+    // the map and the refs it learned. Empty on every brain that already had provenance,
+    // which is every brain installed from v5.0.0 on — this is the migration's own trace.
+    healed,
+    healedProvenance,
+    healedBaseRefs,
     // ONE delivered map, because it feeds ONE thing: the provenance re-seed in
     // `runReconcileCli`. A script left out of it would be called "user-modified" at the
     // very next update and frozen again — the feature working exactly once per brain.
@@ -457,8 +483,12 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // recorded base → the next update calls it "user-modified" and never refreshes it
   // again: the feature would work exactly once per brain, silently.
   const delivered = { ...report.installedFileMap, ...report.refreshedFileMap };
+  // S7-3 — the prior is the HEALED map: the manifest's own record PLUS whatever the brain
+  // proved about itself this pass. Re-seeding from `manifest.provenance` here would throw
+  // the heal away at the last step, and the very next update would meet the same frozen
+  // brain — the feature working for one run and then forgetting.
   const provenance = reseedProvenance({
-    priorProvenance: manifest.provenance ?? {},
+    priorProvenance: report.healedProvenance ?? manifest.provenance ?? {},
     manifest,
     deliveredFileMap: delivered,
   });
@@ -466,13 +496,22 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // for the same migration reason. The ref is the brain's OWN (`source.ref`, already
   // advanced by the parent's step 7): the child never fetched anything, so it has no
   // other version to speak of, and a brain that records none records nothing here.
+  // S7-3 — the learned refs go UNDER the recorded ones: a heal tells us which version
+  // those bytes first shipped at, which is worth having, but a ref the brain actually
+  // recorded is a fact about ITS delivery and always wins.
   const baseRefs = reseedBaseRefs({
-    priorBaseRefs: manifest.baseRefs ?? {},
+    priorBaseRefs: { ...report.healedBaseRefs, ...(manifest.baseRefs ?? {}) },
     manifest,
     deliveredFileMap: delivered,
     ref: manifest.source?.ref,
   });
-  if (Object.keys(delivered).length > 0) {
+  // 🚨 S7-3 WIDENED THIS GUARD, and the clause it rescues would otherwise have been
+  // silently false. "A self-heal heals too" (design S7-0) depends on this write, and a
+  // self-heal DELIVERS NOTHING — all three refresh families are gated on
+  // `sourceDir !== brainDir`. Left as "delivered something", the heal would be computed,
+  // used for one run and thrown away unwritten, so the next update would meet the same
+  // frozen brain forever.
+  if (Object.keys(delivered).length > 0 || (report.healed ?? []).length > 0) {
     writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance, baseRefs }, null, 2) + "\n");
   }
 

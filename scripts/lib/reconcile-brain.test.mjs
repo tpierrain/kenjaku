@@ -2568,3 +2568,178 @@ test("reconcileBrain — no tombstone declared: the retirement lists are present
   assert.deepEqual(report.skillsRetired, []);
   assert.deepEqual(report.skillsRetirePreserved, []);
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S7-3 — THE HEAL, WIRED. Everything above this block is a brain that RECORDED a
+// provenance at install. The whole deployed fleet did not: `CLAUDE.engine.md` was in
+// no regime at any published tag, so `mergeVerdict` short-circuits on `!recorded` and
+// answers `preserve/no-provenance` — forever, for everybody.
+//
+// S7-1 built the proof (`healProvenance`), S7-2 the table it recognises bytes in.
+// This is the wiring that makes a real update consult them, and the four tests below
+// are the acceptance of the whole S7 arc: a brain that recorded NOTHING receives.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const FINGERPRINTS = "scripts/lib/engine-fingerprints.json";
+
+// A table that recognises `content` at `rel` — written the long way rather than through
+// the generator, so a defect in the generator cannot make these tests pass.
+function tableFor(rel, content, since = "v3.6.0", locale = "en") {
+  return JSON.stringify({ generatedAt: "v5.0.0", files: { [rel]: { [base(content)]: { since, locale } } } });
+}
+
+test("reconcileBrain — a brain that recorded NOTHING receives the doctrine, because its bytes are recognised", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  const improved = shipped + "\nJamais de `- [ ]` muet.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(sourceDir, "CLAUDE.engine.md", improved);
+  writeFile(sourceDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+    local: { provenance: {} }, // the frozen fleet: not one recorded sha
+    ...seams(),
+  });
+
+  assert.deepEqual(report.doctrineRefreshed, ["CLAUDE.engine.md"], "delivered, not preserved");
+  assert.deepEqual(report.doctrinePreserved, []);
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), improved);
+  assert.deepEqual(report.healed, [{ rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "en" }]);
+});
+
+test("reconcileBrain — the same brain WITHOUT the table stays frozen, and says so", async (t) => {
+  // The control for the test above: same brain, same source, no table. If this ever
+  // goes green the delivery is coming from somewhere other than the heal.
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(sourceDir, "CLAUDE.engine.md", shipped + "\nsomething new\n");
+
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+    local: { provenance: {} },
+    ...seams(),
+  });
+
+  assert.deepEqual(report.doctrineRefreshed, []);
+  assert.deepEqual(
+    report.doctrinePreserved,
+    [{ name: "CLAUDE.engine.md", reason: "no-provenance" }],
+    "and the REASON is the freeze itself — the state of the whole fleet before S7",
+  );
+  assert.deepEqual(report.healed, []);
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), shipped, "untouched");
+});
+
+test("reconcileBrain — a doctrine the OWNER edited is recognised by nothing, and is preserved", async (t) => {
+  // The asymmetric risk the whole design is built against: a heal that fired here
+  // would let the update overwrite the owner's own paragraph.
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  const theirs = shipped + "\nMy own rule, which I wrote myself.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", theirs);
+  writeFile(sourceDir, "CLAUDE.engine.md", shipped + "\nJamais de `- [ ]` muet.\n");
+  writeFile(sourceDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+    local: { provenance: {} },
+    ...seams(),
+  });
+
+  assert.deepEqual(report.healed, []);
+  assert.deepEqual(
+    report.doctrinePreserved,
+    [{ name: "CLAUDE.engine.md", reason: "no-provenance" }],
+    "still no-provenance: the table proves nothing about bytes it does not carry",
+  );
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), theirs, "their words, untouched");
+});
+
+test("runReconcileCli — a SELF-HEAL that delivers nothing still RECORDS the proof it found", async (t) => {
+  // 🚨 The clause this pins, and it would have been silently false: the manifest write
+  // is guarded on "something was delivered", and a self-heal delivers nothing (all three
+  // refresh families are gated on sourceDir !== brainDir). Without widening that guard
+  // the heal is computed, used for one run, and thrown away — so the NEXT update finds
+  // the same frozen brain and the self-heal never converges anything.
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(brainDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify({ ...manifest({ extraMerge: ["CLAUDE.engine.md"] }), provenance: {} }, null, 2),
+  );
+
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", brainDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  assert.deepEqual(report.healed, [{ rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "en" }]);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    persisted.provenance["CLAUDE.engine.md"],
+    base(shipped),
+    "the proof is on disk, so the NEXT update can merge",
+  );
+  assert.equal(persisted.baseRefs["CLAUDE.engine.md"], "v3.6.0", "and it learned which version, for free");
+});
+
+test("runReconcileCli — a learned baseRef never overwrites one the brain already recorded", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(brainDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+        provenance: {},
+        baseRefs: { "CLAUDE.engine.md": "v4.9.1" },
+      },
+      null,
+      2,
+    ),
+  );
+
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", brainDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(persisted.baseRefs["CLAUDE.engine.md"], "v4.9.1", "the record wins over what was learned");
+});

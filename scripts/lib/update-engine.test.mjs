@@ -2774,3 +2774,134 @@ test("updateEngine — a retired skill is removed on a real update, and the remo
   // ...and the sentence the owner actually reads, from that same report.
   assert.ok(formatReport(report).includes("engine skill(s) retired: tdd-discipline"), formatReport(report));
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S7-3 — THE HEAL SAYS ITSELF. A brain frozen since install day silently becomes a
+// brain that receives, and S4's whole thesis is that the engine says what it did: a
+// change of ancestry the owner is never told about is the exact class of defect this
+// chantier exists to end.
+//
+// The line names a RANGE, not a version. Each healed file carries the tag its bytes
+// first shipped at, and those differ per file — "recognized from v3.6.0" would be a
+// tidy sentence that is false about most of the list.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("formatReport — files recognised from ONE version name that version", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.4.0" },
+    copied: [],
+    healed: [{ rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "fr" }],
+  });
+
+  assert.match(
+    out,
+    /• 1 engine file\(s\) recognized from v3\.6\.0 — this brain can now receive updates for them/,
+  );
+});
+
+test("formatReport — files recognised from SEVERAL versions name the range, oldest first", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.4.0" },
+    copied: [],
+    healed: [
+      { rel: "scripts/auto-commit.mjs", since: "v4.9.1", locale: "en" },
+      { rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "fr" },
+    ],
+  });
+
+  assert.match(
+    out,
+    /• 2 engine file\(s\) recognized from v3\.6\.0 to v4\.9\.1 — this brain can now receive updates for them/,
+  );
+});
+
+test("formatReport — the range is ordered by SEMVER, never lexically", () => {
+  // `v3.10.0` sorts BEFORE `v3.2.0` as a string, and a report that told the owner their
+  // files were recognised "from v3.10.0 to v3.2.0" would be visibly nonsense.
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.4.0" },
+    copied: [],
+    healed: [
+      { rel: "a.md", since: "v3.10.0", locale: "en" },
+      { rel: "b.md", since: "v3.2.0", locale: "en" },
+    ],
+  });
+
+  assert.match(out, /recognized from v3\.2\.0 to v3\.10\.0/);
+});
+
+test("formatReport — a brain with nothing to recognise gets NO line at all", () => {
+  // Every brain installed from v5.0.0 on, and every brain already healed: this is a
+  // migration event, and an event that did not happen must not be announced. It also
+  // cannot become a phantom — after the first heal the provenance is recorded, so
+  // there is nothing left to recognise.
+  const out = formatReport({ ref: "v5.0.0", engineVersion: { rag: "1.4.0" }, copied: [], healed: [] });
+
+  assert.doesNotMatch(out, /recognized/);
+});
+
+test("formatReport — a report with no healed key at all is not an error", () => {
+  // Older callers, and every test above this block, pass no `healed`. A destructuring
+  // default is the whole guard, and this is what keeps it honest.
+  const out = formatReport({ ref: "v5.0.0", engineVersion: { rag: "1.4.0" }, copied: [] });
+
+  assert.doesNotMatch(out, /recognized/);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S7-3, END TO END — the heal has to SURVIVE the trip. `reconcileBrain` returns
+// `healed`, `formatReport` knows how to say it; between them sits `updateEngine`'s
+// destructure, and a field it does not name is a verdict the owner never hears. That
+// is the exact silent-hole shape this whole chantier exists to end, so it gets a test
+// on the real path rather than a comment saying it was thought about.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("updateEngine — a frozen brain's recognised files reach the REPORT, and the line prints", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+
+  // A brain with NOT ONE recorded sha — the whole deployed fleet — holding the exact
+  // bytes v3.6.0 shipped, and a source that carries both a newer doctrine and the table.
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(sourceDir, "CLAUDE.engine.md", shipped + "\nJamais de `- [ ]` muet.\n");
+  writeFile(
+    sourceDir,
+    "scripts/lib/engine-fingerprints.json",
+    JSON.stringify({
+      generatedAt: "v5.0.0",
+      files: {
+        "CLAUDE.engine.md": {
+          ["sha256:" + createHash("sha256").update(shipped).digest("hex")]: { since: "v3.6.0", locale: "fr" },
+        },
+      },
+    }),
+  );
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    manifest({ ragVersion: "1.0.0", indexSchemaVersion: 1, ref: "v1.0.0", extraMerge: ["CLAUDE.engine.md"] }),
+  );
+  // …and the SOURCE's manifest declares it too, because the regime that governs an
+  // update is the one being delivered, not the one the brain still holds.
+  writeFile(
+    sourceDir,
+    "engine-manifest.json",
+    manifest({ ragVersion: "1.1.0", indexSchemaVersion: 1, ref: "v1.1.0", extraMerge: ["CLAUDE.engine.md"] }),
+  );
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  assert.deepEqual(report.healed, [{ rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "fr" }]);
+  assert.match(
+    formatReport(report),
+    /1 engine file\(s\) recognized from v3\.6\.0 — this brain can now receive updates for them/,
+  );
+});
