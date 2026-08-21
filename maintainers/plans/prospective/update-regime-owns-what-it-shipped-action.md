@@ -256,8 +256,17 @@
 > *"a mutation run LIES to you"*) and v2.2.0 (`78b3536`, the table filing low mutation numbers to
 > their real cause). ⚠️ **The harness is the OWNER of that file, Kenjaku's copy is the shipped
 > artefact** — so this is a copy-forward, not a rewrite, and a hand edit here widens the gap while
-> looking like closing it. A bulk read → **subagent**, per the mode's own rule. Then S6e (the FR
-> locale copy, quality debt, `resolveLocaleSource` falls back to English so nothing is broken).
+> looking like closing it. A bulk read → **subagent**, per the mode's own rule. ⚠️ **The harness moved
+> AGAIN on 2026-08-21** (`24ce6cb`, on branch `chore/harness-consolidation`, *"the scope of a mutation
+> run is the scope of the change"*): the copy-forward is now **three** versions, not two, and that
+> third one is the rule Thomas signed off during this very block. Then S6e (the FR locale copy,
+> quality debt, `resolveLocaleSource` falls back to English so nothing is broken).
+>
+> 🆕 **A RULE CHANGED MID-BLOCK, and it governs every remaining slice** _(Thomas, 2026-08-21)_:
+> mutation is now scoped to the **changed lines** of an existing file
+> (`mutate-one.mjs "scripts/x.mjs:147-160"`), whole-file only for a **new** file. The loop's own
+> instruction in the mode plan (§ THE OVERNIGHT LOOP) is already rewritten, so a resumed session picks
+> up the new rule and not the one that timed out.
 >
 > ✅ **S2c AND S2d ARE DONE.** S2c _(`856ad24`, 92.73 %)_: `SACRED` splits into *inviolable* and
 > *merge-governed*, the merge-governed half **is** S3's `OWNER_AUTHORED` pinned by identity, and **ADR
