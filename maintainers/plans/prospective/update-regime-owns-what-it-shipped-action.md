@@ -1371,6 +1371,46 @@ audible divergence.
           rather than folded into the breakage banner. **Measure the added SessionStart latency** before
           shipping it: the contract for these hooks is zero-ish, and this one is file reads and digests
           with no spawn and no network — but "should be fast" is not a measurement.
+      - [ ] 🧭 **Cut in two, on S3's own precedent** (*the guard decides* / *the guard reaches a brain*),
+            because one slice that writes prose, spawns a hook, edits the template AND the manifest is
+            this chantier's own definition of mis-cut:
+        - [ ] **S4-4a — the surface decides what to say.** The pure nudge + the entry script, tested.
+        - [ ] **S4-4b — the surface reaches a brain.** Its own `PreToolUse`-style group in
+              `.claude/settings.json.template`, its explicit `replace` entry in the manifest (session
+              hooks are listed **one by one** there — no `scripts/session-*.mjs` glob exists), and the
+              latency measurement. ⚠️ **S3-2's lesson applies verbatim**: `hookScript()` identifies a
+              group by its *first* script, so packing this beside an existing hook would deliver
+              nothing to a deployed brain. Two tests must make that packing go **red**.
+      - [ ] 🧱 **The module split** follows the house shape every other session hook uses
+            (`session-wiki-health.mjs` is the reference): a pure builder in `scripts/lib/`, an entry
+            script whose `main` is declared deterministic glue and is not unit-tested, seams injected so
+            the brain root is a plain string a test asserts on and never a temp dir.
+      - [ ] 🔗 **The per-file clause is MOVED, not copied.** `DIVERGENCE_LINE` currently lives private
+            inside `update-engine.mjs`, and the session surface needs the exact same three sentences.
+            Two copies of one sentence in two surfaces is a future divergence, so the map moves to the
+            shared lib and the update report imports it. **The proof it was a move**: `update-engine`'s
+            prose tests assert byte-for-byte and must stay green untouched, and its mutant count must
+            drop by what the lib gains (S2b-1's method).
+      - [ ] ✂️ **What each surface keeps as its own**: the *framing* sentence. The update report says
+            "where your brain stands now, running `<ref>`: N files this update leaves alone" (it speaks
+            about a pass that just ran); the session surface speaks at rest and must not imply an update
+            happened. Same clauses, different sentence around them.
+      - [ ] 🔢 **The ref comes from `engine-version.mjs`'s `installRef`, exported for the purpose** —
+            it already calls itself *"the one reader of which engine point was this brain installed
+            from, shared, so the two labels can never disagree"*. A second reader here would be the
+            third. **And it stays a separate fact from `since`**: naming the version the brain runs is
+            legitimate; filling an unknown `since` from it is the exact confusion `baseRefs` ended.
+      - [ ] 🔇 **CAPPED, and the count stays exact.** A brain may hold back a dozen skills; naming all
+            of them in **every** session's context is the nagging the plan forbids, and it is charged to
+            the window on top. So: the count is always exact and complete, the *named* files are capped
+            (**5**, then "and N more"), and the full list stays where it is already free — the update
+            report. This is a decision, not a detail: the surface's job is to keep the fact **available**
+            to the agent, not to recite an inventory nobody asked for.
+      - [ ] 🛟 **Fail-open, and it needs its OWN guard**: `readEngineDivergence` is fail-soft about an
+            unreadable *manifest* only — `readInstalledMergeFiles` sits outside its `try`, so a brainDir
+            that does not exist throws. On the update path that cannot happen; on a hook it can. The
+            entry core catches, and a test hands it a thrower _(third time this release a fail-soft is
+            written; the rule that it is not written without a test that feeds it is in `RESULTS.md`)_.
 
   - [ ] 🚫 **Deliberately OUT of S4**, named so the slice does not grow:
     - [ ] **Healing an already-frozen fleet** (the field finding's Step 2: ship every historical
