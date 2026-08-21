@@ -413,6 +413,23 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 21) — THE BLOCKING-BOX MECHANISM WAS EXERCISED FOR REAL, and it paid.**
+  The owner walked in mid-loop and asked about the one question parked at the top of the owning plan
+  (*may the engine write `CLAUDE.md`?*). It was answerable in one exchange **because it had been written
+  down as a box weeks of slices earlier**, with its measured facts attached — nothing had to be
+  re-derived, and the loop had lost nothing waiting. _(The answer itself is the owning plan's, and this
+  file deliberately keeps no copy: [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+  box at the top.)_
+  - ➡️ **For the mode, and it is the finding**: the box's value is not that it *defers* a question, it
+    is that it **keeps the question answerable by someone who was not in the window**. The owner had no
+    context, read three bullets, and decided — *and rejected the framing of the question itself*, which
+    is precisely the class of answer a subagent can never produce and a session should never guess.
+  - ⚠️ **What it cost to answer well**: the honest reply was not the two options the box offered. It
+    took a third shape (assisted resolution), a size estimate, and an explicit **split between what ships
+    and what defers**. A box that offers only its own two branches invites a session to pick one; the
+    owner's answer arrived *outside* both. **Write boxes with the branches you see, and expect to be
+    told the list was short.**
+
 - 🌙 **2026-08-21 (night, loop iteration 20) — S4-3: the report says where the brain STANDS.** Commit
   `d171e90`, suite green (2031 pass). ⏳ **Its mutation number is the one thing outstanding** — the run on
   `scripts/update-engine.mjs` outlived a 10-minute window (~370 mutants) and the owning plan's header

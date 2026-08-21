@@ -6,34 +6,62 @@
 <!-- delegation. See ROADMAP.md § DIVERSION LIFTED.                              -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
-> ## 🛑 WAITING ON THOMAS — one arbitration, and it blocks **S2c ONLY** (raised 2026-08-20)
+> ## ✅ ANSWERED — the engine MAY write `CLAUDE.md`, and a conflict stops being a dead end
+> _(owner, 2026-08-21, in conversation. **Nothing waits on Thomas on this plan any more.**)_
 >
-> **Nothing else waits.** S2a (the merge core) and S2b (the four engine scripts) are **done**
-> (2026-08-21); the queue continues at **S3**, which this box does not block either. This box exists so
-> the question is not guessed in his place — and S2c stays parked until it is answered.
+> **The question that was asked**: may the engine land its own updates inside a brain's `CLAUDE.md`
+> (owner's edits preserved, conflicts never written and reported instead)? Or does the constitution stay
+> untouchable **by policy**, with the engine's doctrine reaching brains only through `CLAUDE.engine.md`?
 >
-> **May the engine write `CLAUDE.md`?** S2 turns the sacred scrub from *"never written"* into *"never
-> written **blind**"* — a merge-governed door that can only ever lay down the output of a three-way
-> merge from a **provable** base, and never on a conflict. The two files behind that door are
-> `.claude/settings.json` (already engine-written today, surgically: hooks, status line) and
-> **`CLAUDE.md`, the constitution — the most personal file in the product**. Opening it is a doctrine
-> call, not a technical one, so it is his.
+> **The answer is YES, through the merge door only** — and the owner did not accept the question's own
+> framing, which is the part worth recording. Told that a conflict means *"the engine writes nothing and
+> says so"*, he named it for what it is: *« ne pourrions-nous pas plutôt aider l'utilisateur à faire ce
+> merge, en lui demandant ce qu'il a envie de retenir entre ça et ça »*, explicitly, pedagogically, and
+> **without dumping paragraphs at someone** — a synthesis, not the diff.
 >
-> - [ ] 🛑 **The question**: is the engine allowed to land its own updates inside a brain's `CLAUDE.md`
->       (owner's edits preserved, conflicts never written and reported instead)? Or does the
->       constitution stay untouchable **by policy**, with the engine's own doctrine reaching brains only
->       through `CLAUDE.engine.md` (S5's file, the layer built exactly for that)?
-> - [ ] **What is already measured, so the answer is not abstract** _(2026-08-20)_: on the live brain
->       `CLAUDE.md` is **diverged from its recorded base**, so S1's seeding defers it — the fleet holds
->       **no ancestor** for it and cannot merge it today whatever the answer. An ancestor is
->       *reconstructible* (a brain keeps `CLAUDE.md.template` **and** `installer.mjs` on disk, both frozen
->       at its install version and, like `CLAUDE.engine.md`, **in no regime at all**), but that
->       reconstruction is a machine to build, not a line to flip.
-> - [ ] **If the answer is "no"**: S2c shrinks to `.claude/settings.json` + the wording of the scrub, and
->       the constitution's freeze becomes a stated policy instead of an accident — which is itself worth
->       shipping, since today's silence reads as the second.
-> - [ ] **If the answer is "yes"**: S2c keeps the door, and the ancestor-reconstruction machine becomes
->       its own slice (it is bigger than the merge itself).
+> - [x] 🎯 **The doctrine call**: `CLAUDE.md` is **merge-governed**, not inviolable. The engine may lay
+>       down the output of a three-way merge from a **provable** base, never a copy, never on a conflict.
+>       That is S2c, and it is **unblocked**.
+> - [x] ⚖️ **The reason the answer is "yes" and not "later"**, kept because it is the whole argument: a
+>       refusal makes today's silence permanent. A `CLAUDE.md` in no regime never receives another engine
+>       line, and the gap widens for years without anyone being told — which **is** the "too timid"
+>       defect this chantier exists to fix, preserved rather than fixed.
+> - [x] 🧱 **What "yes" actually buys, stated honestly so nobody expects more**: on **already-deployed**
+>       brains, nothing yet. `CLAUDE.md` is diverged from its recorded base there (measured 2026-08-20),
+>       the fleet holds **no ancestor**, and a merge with no ancestor is not a merge. What it buys is
+>       **every brain installed from v5.0.0 on**, where the installer seeds the base on day one. That is
+>       cheap (the door is already built) and it is why the answer ships now instead of waiting.
+>
+> ### ▶️ The split that was decided with it — three pieces, and only two are in this release
+>
+> - [x] **In the cut (S2c, as designed)**: the scrub is reformulated, `SACRED` splits in two, the ADR is
+>       amended. No new machinery.
+> - [ ] **In the cut, and it is new**: **the conflict report stops being a cul-de-sac.** Today's end
+>       state would be *"3 files clash, I wrote nothing"*, which tells the owner about a problem and
+>       hands them no door. It must name the door instead: *"3 things clash, ask me and I will walk you
+>       through them"*. One sentence, one slice, sequenced after S4 — **its own slice, S2d**, so it is
+>       not smuggled into S2c's ADR work.
+> - [ ] 🚀 **NOT in the cut — its own chantier: assisted conflict resolution.** The owner's idea in full,
+>       and the real payoff. It is deliberately deferred, on the release's own terms rather than on
+>       enthusiasm: it needs the **ancestor-reconstruction machine** (which it inherits — an assisted
+>       merge needs a base exactly as much as a silent one), a resumable state, a per-hunk write path and
+>       a presentation layer, i.e. **a chantier, not a slice**, and cramming it would slip v5.0.0.
+>       **Its non-negotiables, decided now while the reasoning is fresh** (do not re-derive them when it
+>       opens):
+>   - [ ] **The LLM chooses BETWEEN two existing texts; it never authors the merged text.** What lands on
+>         disk is copied byte-for-byte from one side. The summary is a lede, and the real text stays one
+>         word away. Otherwise the failure mode is a *summary that misrepresents a hunk and collects a
+>         "yes" it never earned* — the most personal file in the product, written on a paraphrase.
+>   - [ ] **Consent fatigue is the second risk, and it is worse than silence**: twelve questions produce
+>         a "yes to all" nobody read, and now there is a *record of consent*. So: batch, cap, and make
+>         *"leave everything alone"* a first-class answer that costs the owner no guilt.
+>   - [ ] **One atomic write at the end.** An abandoned flow must leave the constitution wholly old, never
+>         half-merged.
+>   - [ ] **It does not live inside `update-engine.mjs`.** The update runs in a non-interactive child; the
+>         conversation cannot happen there. The update still *writes or reports, never prompts* — the
+>         resolution is a **separate, on-demand flow** the report points at. This is why the exclusion
+>         under § *Deliberately OUT of S2* still stands, and it is now qualified there rather than
+>         contradicted.
 
 > ## ▶️ UNPAUSED — this plan is live again (owner, 2026-08-19)
 >
@@ -227,9 +255,10 @@
 >
 > Then **S4-4 — the session surface**: `additionalContext` + `systemMessage` in its own soft hook (never
 > folded into the breakage banner), reusing `readEngineDivergence` as-is, with the added SessionStart
-> latency **measured, not assumed**. **S2c stays skipped: it is the one slice that waits on Thomas** (the
-> blocking box at the top — may the engine write `CLAUDE.md`?), and it amends ADR 0012, whose §5 is now
-> in place.
+> latency **measured, not assumed**. **S2c is UNBLOCKED** _(2026-08-21 — the box at the top is answered:
+> yes, the engine may write `CLAUDE.md` through the merge door)_, and it amends ADR 0012, whose §5 is now
+> in place. It is followed by a new **S2d** (the conflict report names its door instead of being a
+> cul-de-sac); both are queued **after** S4, and neither waits on anyone.
 >
 > ⚠️ **What S4-4 must NOT re-derive**: `since: null` means *unknown*, and it stays unknown — the sentence
 > is "no record", never a version. Neither the report nor the session surface may fill the gap from
@@ -579,7 +608,8 @@ audible divergence.
   - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-20)_.
         Written into this file rather than held in a window, because a compaction costs a session its
         reasoning and never its files. Everything below is decided unless a line says otherwise; the
-        single open question is the arbitration box at the top of this plan, and it blocks **S2c only**.
+        one arbitration it deferred (may the engine write `CLAUDE.md`?) was **answered 2026-08-21** — see the
+        box at the top. Nothing in this design is open any more.
 
   - [x] **The sentence S2 is named after — and the trap inside it.**
         **The disk receives the MERGE; the base advances to the CANDIDATE.** The two are *different
@@ -980,12 +1010,24 @@ audible divergence.
           three-way merge from a **provable** base, never by copy, never on conflict.
     - [ ] Needs a **new ADR amending 0003/0012** (`Scope:` field per the repo's convention): the
           allowlist stays an allowlist, and a second, narrower door is added beside it.
-    - [ ] 🛑 **Waits on the arbitration box at the top of this plan** — see it for what is already
-          measured about `CLAUDE.md`'s missing ancestor.
+    - [x] ✅ **UNBLOCKED 2026-08-21** — the arbitration box at the top is answered: **yes**, the
+          constitution is merge-governed. Read that box before writing the ADR, it carries the argument
+          (and the honest limit: no deployed brain can merge `CLAUDE.md` yet, for want of an ancestor).
     - [ ] `.claude/settings.json` is **deliberately not a text merge**: the engine already writes it
           surgically today (hook entries, status line, via `reconcileBrain`), which is the better
           mechanism for a JSON file whose two sides both append to the same arrays. S2c's job on it is
           to say so out loud, not to replace it with a line-based diff.
+
+  - [ ] **S2d — the conflict report names its door** _(new, 2026-08-21, from the owner's answer)_. A
+        conflict currently ends at *"the engine wrote nothing"*: true, and a cul-de-sac. It must end at
+        *"N things clash — ask me and I'll walk you through them"*. **Deliberately one sentence**: the
+        walkthrough itself is the follow-on chantier (box at the top), and this slice is the pointer
+        that keeps the release honest until then.
+    - [ ] It is **prose, therefore the deliverable** (S3's measured lesson) — assert the sentence whole,
+          never sample it.
+    - [ ] It must not promise a flow that does not exist yet: the wording offers to *help*, and the
+          brain's honest answer today is to show the two sides. Say what it can do, not what is planned.
+    - [ ] Sequenced **after S4**, with S2c.
 
   - [x] **Deliberately OUT of S2** — named so no slice quietly grows:
     - [ ] **Markdown-aware merging.** Line-based only, on the measurement above (blank lines already
@@ -998,7 +1040,12 @@ audible divergence.
           call and belongs to the release's cargo discussion, not to S2's code.
     - [ ] **Seeding a base for a no-record file that holds the engine's exact bytes** (row 2). Cheap and
           correct, but it is S1's planner's business — noted here so it is not lost, not done here.
-    - [ ] Interactive conflict resolution. An update **never** prompts: it writes, or it reports.
+    - [ ] Interactive conflict resolution. An update **never** prompts: it writes, or it reports. ⚠️
+          **Qualified, not contradicted, by the owner's 2026-08-21 answer** (box at the top): assisted
+          resolution IS coming, as its own chantier, but it lives **outside** `update-engine.mjs` — the
+          update runs in a non-interactive child where no conversation can happen. What S2 excludes is
+          prompting *from the update*; what the follow-on chantier adds is a separate on-demand flow the
+          report points at. **S2d**, in this release, is only that pointer sentence.
     - [ ] The audible divergence report (S4), the write guard (S3), `CLAUDE.engine.md`'s regime (S5).
 - [x] **S3 — Keep the owner's intent out of engine files, by construction** _(complete 2026-08-21, S3-0 →
       S3-3: `177c572` · `4bf5efa` · `b82569e` · `cf55c2a` · `3493533`)_. **One thing is deliberately left
