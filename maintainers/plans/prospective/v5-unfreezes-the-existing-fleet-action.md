@@ -8,20 +8,35 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
-> ## 🛑 BLOCKING — one arbitration is THOMAS'S, and it is destructive
+> ## ✅ WITHDRAWN — the "does the heal unlock RETIREMENT?" arbitration was a FALSE ALARM
 >
-> **Does the heal also unlock skill RETIREMENT, or only the merge?** `decideSkillRetirement`
-> (`scripts/lib/skill-retirement.mjs:29`) refuses to remove a retired skill it cannot prove, and
-> `no-provenance` is today's refusal — so a frozen brain keeps `tdd-discipline/SKILL.md` forever.
-> Heal it, and the same update that unfreezes the doctrine **deletes a file**.
+> _(Raised at S7-0, withdrawn 2026-08-21 when the owner asked for concrete cases and the premise was
+> measured instead of assumed. Kept here as the record, because a question that looked destructive and
+> turned out to be empty is worth not re-opening.)_
 >
-> - **What the design does meanwhile, so nothing waits on the answer**: the healed map is computed
->   once and handed to the **merge path and the base seed only**. Retirement keeps reading the
->   *recorded* provenance. Flipping it later is one argument at one call site.
-> - **Note the answer is only about the healing pass**, not the end state: the heal writes real
->   provenance into the manifest, so from the **next** update on, retirement treats those files like
->   any other recorded one, whatever is decided here.
-> - Why it is his: `never-surface-destructive-paths` — a deletion is not a default the session picks.
+> It asked whether healing would let the update that unfreezes the doctrine also **delete** a retired
+> skill. **It cannot, for two independent reasons, either of which alone closes it:**
+>
+> - [x] 🔒 **A retired rel can never be healed, by construction.** The candidate set comes from
+>       `selectMergeFiles`, which already subtracts the manifest's `retired` tombstones. So the healed
+>       map and the recorded map are **identical from retirement's point of view**, always: handing
+>       either one to `decideSkillRetirement` produces the same verdict. Pinned by the S7-1 test
+>       *"a RETIRED file is never healed, however well the table knows its bytes"*.
+> - [x] 📐 **And the premise was wrong anyway.** `tdd-discipline` was in the `merge` regime at **all 25
+>       published tags** and tombstoned only on this branch, so every deployed brain recorded a
+>       provenance for it at install. **Measured on both real brains 2026-08-21**: `mind-palace`
+>       (v4.9.1) and `autre-brain` (v3.5.0) each hold 15 provenance entries, and
+>       `.claude/skills/tdd-discipline/SKILL.md` is one of them. Its retirement was never blocked on
+>       `no-provenance`; it already resolves on the recorded sha (removed if untouched, kept and
+>       reported if the owner edited it).
+>
+> **What survives, and it is NOT v5 work.** The 9 **staged** skills (`consolidate`, `file-back`,
+> `lint`, `local-mirror`, `mcp-token-expired`, `open-note`, `rag`, `univers`, `universe`) are on the
+> disk of both brains with **no provenance** and are named by no `merge` glob. The day one of them is
+> retired, it will be unremovable for exactly the reason this box imagined. **None is retired today**,
+> so it is a question for whoever writes that tombstone, not for this release. Its answer will be the
+> same trade-off: leave an inert orphan on the disk, or widen the table to cover retired rels and let
+> an update delete a file on the strength of a historical digest.
 >
 > ## ▶️ WHERE THIS RESUMES
 >
