@@ -248,9 +248,14 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S5b — `engine-doctrine-refresh.mjs`, the family module on the shared carrier**
-> _(2026-08-21)_. **S5a is done** (`a51df22`, 91.07 % mutation, 5 survivors all provable equivalents):
-> the write allowlist now has a third merge family, `mergeDoctrine`, and `planTouches` counts it.
+> **▶️ RESUME AT: S5c — the delivery becomes real** _(2026-08-21)_: wire the doctrine family into
+> `reconcile-brain.mjs` beside the scripts', surface its report, add **the** manifest line, and flip
+> `engine-apply-plan.test.mjs`'s deliberate lock with its comment **rewritten** (and its Gate 3 → Gate 4
+> error fixed, :226 and :231). **WRITE PATH → mutation is mandatory.** ⚠️ The lock test is the one that
+> goes red the moment the manifest line lands, and that is the slice working, not a regression.
+> **S5a and S5b are done** (`a51df22`, 91.07 %, all survivors provable equivalents · `74c273d`, 100 %):
+> the write allowlist has a third merge family, `mergeDoctrine`, `planTouches` counts it, and
+> `engine-doctrine-refresh.mjs` can carry the file. Nothing delivers it yet — by design, that is S5c.
 > ⚠️ **S5's design box was WRONG and is corrected in place** — "one manifest line" delivers **nothing**,
 > because `computeApplyPlan` splits `merge` by shape and the doctrine layer is neither a script nor a
 > skill. S5 is therefore **three slices**, listed at the end of the S5 block; the manifest line comes
@@ -1644,11 +1649,19 @@ audible divergence.
           bucket's own `?? ["Stryker was here"]`, discarded by the `.filter()` on the very next call.
           **The predicate is anchored at both ends and a test pins why**: one dot separates the engine's
           constitution from the owner's.
-    - [ ] **S5b — `engine-doctrine-refresh.mjs`, the family on the shared carrier.** Twin of
-          `engine-script-refresh.mjs`, and deliberately thinner: **no syntax gate** (prose is not
-          executed, so there is nothing to parse and nothing to downgrade), `groupOf: (rel) => rel` (the
-          file IS the subject the owner opens). A **new pure module → mutation is mandatory**, whatever
-          the hurry.
+    - [x] **S5b — `engine-doctrine-refresh.mjs`, the family on the shared carrier.** ✅
+          _(2026-08-21 · `74c273d`, **mutation 100 %**, 10 killed, 0 survived)_ 40 lines, because
+          everything shared is shared. Deliberately thinner than its twin: **no syntax gate** (prose
+          parses as nothing and runs as nothing; a gate would downgrade every merge to `merge-unsafe`
+          and re-freeze the layer), `groupOf: (rel) => rel`. **The predicate is IMPORTED** from
+          `engine-apply-plan.mjs` rather than re-declared — `ENGINE_SCRIPT` exists twice with a comment
+          warning the two must agree, and one owner removes the warning instead of restating it.
+      - [x] **Three tests now carry claims the release note will make**, so they are named here: a brain
+            with **no provenance** keeps its constitution (preserved, reported, no sidecar, nothing
+            delivered — that is the whole deployed fleet); a brain already holding the right bytes
+            appears on **no list at all** (or every future update shows a phantom forever); and a **FR
+            brain receives `templates/fr/CLAUDE.engine.md`** from one manifest entry — the Gate-1 lock's
+            condition is now a passing test rather than a reading of the code.
     - [ ] **S5c — the delivery becomes real**: wire the family into `reconcile-brain.mjs` beside the
           scripts', surface its report, add **the** manifest line, and flip the lock with its comment
           rewritten (and Gate 3 → Gate 4). **WRITE PATH → mutation is mandatory.**

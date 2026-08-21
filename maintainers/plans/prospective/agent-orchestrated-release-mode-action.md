@@ -413,6 +413,27 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 26) — S5b, and how to get honest red on a module that does not exist
+  yet.** `74c273d` · the doctrine family, 100 % mutation, 10 killed. _(Engineering: owning plan, § S5b.)_
+  - ✅ **The new opener paid a second time, by saying "go ahead".** The iteration again spent its first
+    tool call on the design's most load-bearing unverified claim — here, whether the merge globs are
+    anchored, since an unanchored one would have selected the locale twin as its own delivery. They
+    are. **Recording the confirmations matters as much as the refutations**: a rule that only ever
+    appears in the log when it catches something reads as pure cost, and gets dropped.
+  - 🔴 **A brand-new module's batch fails on `ERR_MODULE_NOT_FOUND`, and that is NOT fail-first.** It
+    is the loading error the discipline explicitly rules out — it proves the import path, nothing about
+    the assertions. The fix is a **skeleton committed to nothing**: the real export names returning
+    empty results, which turned one loading error into **8 assertion failures and 3 passes**. The 3
+    passes are themselves the finding: they were the negative-space tests (*"is skipped"*, *"is not
+    reported at all"*, *"writes nothing"*), all vacuously green against a module that does nothing.
+    **A test that passes against a skeleton is a test only mutation can vouch for** — noted, and it
+    came back 100 %.
+  - 📐 **A duplicated safety predicate was refused rather than inherited.** The twin family declares its
+    own copy of the apply plan's regex with a comment warning that "the two must agree, or a file would
+    be delivered twice or not at all". Copying that shape would have copied the warning. The predicate
+    is exported once and imported, and a test asserts the allowlist and the delivery name the same
+    file. **When the model being copied documents its own weakness, the weakness is the part to drop.**
+
 - 🌙 **2026-08-21 (loop iteration 25) — S5a, and the design box that its own first line refuted.**
   `a51df22` · the write allowlist grows a third merge family (`mergeDoctrine`), 91.07 % mutation, all
   five survivors provable equivalents. _(The engineering belongs to the owning plan, § S5; this entry

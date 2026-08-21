@@ -438,6 +438,7 @@ the branch would hold a state in which nobody delivers them. State owned by
 | `lib/reconcile-brain.mjs` | **96.74 %** — 177 killed + 1 t/o, 6 survived | — | 6, all pre-existing |
 | `update-engine.mjs` — **after S2b-4** (`1d1bc3c`) | — | **98.65 %** — 293 killed, 4 survived | 4, all equivalents |
 | `lib/engine-apply-plan.mjs` — **after S5a** (the `mergeDoctrine` family) | 92.00 % | **91.07 %** — 51 killed, 5 survived | 5, all equivalents: the same 4 as above **plus** the third `?? ["Stryker was here"]`, on the new bucket and discarded by the same `.filter()`. The dip is arithmetic, not a regression — one more provable equivalent over a larger denominator. |
+| `lib/engine-doctrine-refresh.mjs` (**new**, S5b) | — | **100 %** — 10 killed, 0 survived | 0. A third family that is 40 lines because everything shared is shared; the batch was written against the twin's, minus the syntax gate and plus the no-provenance case the release note depends on. |
 
 🛑 **The write-allowlist had never been measured, and it is the one pure function standing between a
 fetched manifest and an owner's files.** `engine-apply-plan.mjs` came back at **78 %**. Three of the
