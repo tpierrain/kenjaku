@@ -1,14 +1,25 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: ▶️ LIVE again since 2026-08-19 — the diversion was lifted after the -->
-<!-- framing conversation. This is THE next chantier, and it is the one being    -->
-<!-- built in the orchestrated/subagent mode described in                        -->
-<!-- agent-orchestrated-release-mode-action.md. Read that plan before any        -->
-<!-- delegation. See ROADMAP.md § DIVERSION LIFTED.                              -->
+<!-- STATUS: 🏁 DONE, ARCHIVED (2026-08-21). S1 through S6 are BUILT and sit   -->
+<!-- on feat/engine-base-unfreeze (105 commits, draft PR #76). Nothing tagged. -->
+<!--                                                                          -->
+<!-- 🛑 DO NOT OPEN THIS FILE TO FIND OUT WHERE THE WORK STANDS. It is ~2 200  -->
+<!-- lines and holds NO current state. The live plan is:                       -->
+<!--   maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md -->
+<!-- Every decision here that still binds has been COPIED into it, so that     -->
+<!-- plan is self-sufficient. Open this one only to investigate HOW a shipped  -->
+<!-- mechanism was designed.                                                   -->
+<!--                                                                          -->
+<!-- WHY IT CLOSED SHORT OF PUBLISHING: the release unfreezes brains installed -->
+<!-- from v5.0.0 on, and NOBODY already installed — i.e. the entire fleet.     -->
+<!-- Owner's call, 2026-08-21: do not publish in that state. Healing the       -->
+<!-- frozen fleet moved from "deliberately out" to the successor plan's S7.    -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
-> ## 🛑 BLOCKING — S6e: does the FR translation ship at all? (a scope call, so it is Thomas's)
-> _(raised by the night loop, 2026-08-21, iteration 34. **The loop did not guess; it moved on to the
-> next slice that needs nobody.** This is the ONLY thing on this plan waiting on him.)_
+> ## ✅ RESOLVED — S6e is DROPPED (owner, 2026-08-21, in conversation)
+> _(Raised by the night loop at iteration 34; answered the same day. **No French
+> `test-first-discipline` ships.** The finding it uncovered — the FR tree has no owner and no
+> staleness report — is carried as S8 of the successor plan. The analysis below is kept as the record
+> of what the answer was based on.)_
 >
 > S6e says *"write `templates/fr/.claude/skills/test-first-discipline/`"*. Before writing ~25 000
 > characters of French, the loop went to look at what the FR tree actually is. **Three facts it did not

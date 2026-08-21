@@ -14,7 +14,7 @@
 > `chore/s0bis-entrypoint-mutation-debt`, pushed, under draft
 > [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — **nothing merged, nothing tagged**.
 > _(Who owns what, so no copy has to be trusted: the **release's state** is
-> [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md);
+> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md);
 > every **measured number** is
 > [`RESULTS.md` § S0bis](../../mutation/RESULTS.md#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20);
 > this file owns only the **working mode** and the run log below.)_
@@ -40,7 +40,7 @@
 > 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
 > 4. ▶️ **The release is being built under the mechanical-only verdict.** Its state, its slice queue and
 >    its resume marker live in
->    [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md) —
+>    [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) —
 >    **open it and start where ITS header says**; this list deliberately restates none of that (a second
 >    copy of a status is a future lie). What belongs to the **mode** is this: the release is what has to
 >    produce the **contrast** the deferred adversarial-review question needs (one slice reviewed
@@ -90,7 +90,7 @@
 > **The prompt to paste** (it is written here so it survives the `/clear` that follows it):
 >
 > ```
-> Open maintainers/plans/prospective/update-regime-owns-what-it-shipped-action.md and read its
+> Open maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md and read its
 > header (WHERE THIS RESUMES / RESUME AT). Do the ONE slice it names, and only that one.
 >
 > A DESIGN slice has no tests and no mutation score: it is finished when the design is WRITTEN
@@ -143,7 +143,7 @@
 > argument; this file deliberately keeps no copy. Do not re-open that question either.
 
 > **This plan owns HOW, not WHAT.** The what is
-> [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md), which
+> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md), which
 > is unchanged and remains the single source of the release's own state. This file exists so the
 > *working mode* is written down instead of living in a conversation, and so a session resuming after
 > a `/clear` knows what it may dispatch and what it may not.
@@ -425,6 +425,29 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🛑 **2026-08-21 (owner, in conversation) — THE RELEASE IS STOPPED TWO HOURS FROM PUBLISHING, and the
+  loop had filed the reason as a wording problem.** The plan owning what comes next is now
+  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md); the old one
+  is archived and closed.
+  - 🧊 **The measurement that stopped it**: the release is named *"the engine owns what it shipped"* and
+    unfreezes **nobody already installed** — the entire fleet. Pole A of the acceptance test says so in
+    as many words (*no provenance → preserved, never delivered*), and the loop had treated that as a
+    **release-note constraint to phrase around** rather than as a verdict on the release. **When the
+    measured truth forces an awkward sentence, the signal is not "find a better sentence."** The owner
+    read the same fact and stopped the release. That inversion is the lesson of this entry.
+  - 👤 **The freeze had a face the whole time and nobody looked.** A behavioural rule has been in the
+    repo's FR doctrine since 2026-08-05 and is absent from **both of the owner's real brains**, measured
+    on disk. An abstraction in a plan became a defect on his machine in one `grep`. **Check the claim
+    against the field before deciding it is acceptable**, not after.
+  - 💸 **The exclusion that reopened had mispriced itself.** *"Healing an already-frozen fleet"* was ruled
+    out as a release-time generation pipeline — true, but it assumed shipping historical **bytes**. Only
+    the **digests** are needed (~150 sha256, ~10 KB): a digest match proves the installed file IS that
+    published version, so the ancestor is already on disk and the brain seeds itself. **An exclusion
+    carries a price, and a price goes stale like any other number.**
+  - 📉 **A hand measurement went into a decision-shaping answer and was WRONG.** Comparing EN/FR drift by
+    last-commit date mislabelled a commit as missing because it landed the same day as the boundary. Found
+    by reading the actual line. It is now the stated argument for the drift guard: **the fix for an
+    error-prone manual check is a test, not more care.**
 - 🌙 **2026-08-21 (loop iterations 38–39) — the carrier audit: ticking a design box is a CLAIM, so a
   subagent verified every one of them against the code.** _(What the audits found belongs to the owning
   plan, § what remains; this entry keeps the mode lesson.)_
@@ -826,7 +849,7 @@ arbitration goes here as a question, and the run continues on other slices.
   (*may the engine write `CLAUDE.md`?*). It was answerable in one exchange **because it had been written
   down as a box weeks of slices earlier**, with its measured facts attached — nothing had to be
   re-derived, and the loop had lost nothing waiting. _(The answer itself is the owning plan's, and this
-  file deliberately keeps no copy: [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+  file deliberately keeps no copy: [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md),
   box at the top.)_
   - ➡️ **For the mode, and it is the finding**: the box's value is not that it *defers* a question, it
     is that it **keeps the question answerable by someone who was not in the window**. The owner had no
