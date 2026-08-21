@@ -79,6 +79,14 @@ test("globRoots — a root that CONTAINS another subsumes it, so nothing is walk
   assert.deepEqual(globRoots([".claude/skills/coach/**", ".claude/skills/*/SKILL.md"]), [".claude/skills"]);
 });
 
+test("globRoots — two globs rooting at the SAME directory yield it once, not twice", () => {
+  // Found by the mutation pass: three survivors all pointed at the self-comparison
+  // guards, because no fixture had ever produced two equal roots. It is not a cosmetic
+  // duplicate — the caller walks each root, so the subtree would be read TWICE, which is
+  // exactly the waste this slice exists to remove.
+  assert.deepEqual(globRoots([".claude/skills/coach/**", ".claude/skills/coach/*.md"]), [".claude/skills/coach"]);
+});
+
 test("globRoots — subsumption respects segment boundaries, never bare string prefixes", () => {
   // `.claude/skills` must NOT swallow `.claude/skillsets`: the trap of a startsWith
   // check written without the separator.

@@ -46,7 +46,16 @@ export function globRoots(globs) {
   }
   // A root that contains another makes the inner one redundant, and keeping both would
   // walk the same subtree twice — handing the caller one path under two entries.
-  return roots.filter((root, i) => !roots.some((other, j) => j !== i && contains(other, root)));
+  //
+  // Deduplicate FIRST, and the self-comparison guards disappear with it. Two globs can
+  // root at the same directory (`coach/**` and `coach/*.md`), and the first version
+  // returned it twice while carrying two separate guards against a root eliminating
+  // itself — an index check and an equality check, each making the other unreachable.
+  // The mutation pass condemned all three lines at once: with duplicates gone,
+  // `root.startsWith(root + "/")` is false for free, because no string starts with
+  // itself plus a separator.
+  const unique = [...new Set(roots)];
+  return unique.filter((root) => !unique.some((other) => contains(other, root)));
 }
 
 function firstWildcard(segments) {
@@ -55,8 +64,8 @@ function firstWildcard(segments) {
 }
 
 // Containment on SEGMENT boundaries, never bare string prefixes: `.claude/skills` must
-// not swallow `.claude/skillsets`. Equal roots are handled by index, so the first of a
-// duplicate pair survives and the second does not eat it.
+// not swallow `.claude/skillsets`. Reflexive by construction rather than by a guard —
+// see the deduplication above.
 function contains(outer, inner) {
-  return outer === inner ? false : inner.startsWith(outer + "/");
+  return inner.startsWith(outer + "/");
 }
