@@ -465,6 +465,17 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🛑 **2026-08-21 (S7-4) — A QA SLICE FOUND A DEFECT THE FEATURE ITSELF CREATED, and the loop nearly
+  did not look.** S7-4 was filed as "breadth" — the boring tail of a finished chantier. Building the
+  French pole measured that **S7 unfreezes a French brain INTO ENGLISH**: the heal reads the locale
+  perfectly, the delivery ignores it. The owner's own two brains are French. State is owned by
+  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) (box at the
+  top); not restated here. **What the MODE takes from it**: a slice labelled "remaining coverage" is
+  the one most likely to be skipped as tidy-up, and it is exactly where a feature's blind spot lives —
+  because the coverage that was postponed is the coverage the author found least obvious. And the QA
+  asserted the defect **as a measurement**, so it turns red when it is fixed, instead of being written
+  down somewhere and remembered.
+
 - 📉 **2026-08-21 (S7-5-3) — A SLICE CAN MAKE THE SUITE FLAKY WITHOUT MAKING ONE TEST FAIL.** Wiring a
   real git runner into the reconciler made the release-fixture QA start doing a genuine network fetch,
   inside a suite whose header says "no network". Nothing went red; the tests just took 2.1 s instead of

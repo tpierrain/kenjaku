@@ -38,8 +38,6 @@
 > same trade-off: leave an inert orphan on the disk, or widen the table to cover retired rels and let
 > an update delete a file on the strength of a historical digest.
 >
-> ## ▶️ WHERE THIS RESUMES
->
 > ## ✅ THE SECOND FORBIDDEN CLAIM HAS FALLEN — "the merge does not reach BACK", **false as of `fa0f5be`**
 >
 > _(2026-08-21. The first one fell at S7-3; this is the other half of the fleet.)_ The release note was
@@ -57,27 +55,33 @@
 > Offline, or on a tag that has gone, the file is preserved exactly as before and the report says so in
 > one line. And two edits in the **same region** still conflict — correctly, and visibly.
 >
-> ## ▶️ RESUME AT: S7-4 — the remaining QA breadth
+> ## 🛑 S7 UNFREEZES A FRENCH BRAIN **INTO ENGLISH** — measured at S7-4, 2026-08-21, `d9421c8`
 >
-> S7 and S7-5 are **both complete**. What is left of S7-4 is breadth, not the headline (which was paid
-> at S7-3): the **FR side**, a **second tag hop**, and the **scripts** family. Then **S8** (the FR tree
-> stops drifting), **S10** (a personalized file becomes a question with three offers), **S9** (the
-> release tail). Execution order unchanged: S7 → S8 → S10 → S9.
+> **Not a suspicion: a QA pole on a brain rebuilt from the real `v3.6.0` tag, holding the real FR
+> doctrine blob.** The heal reads the locale perfectly (`{rel, since: "v3.6.0", locale: "fr"}`) and the
+> **delivery ignores it**: `selectMergeGovernedDoctrine` pairs every rel with `sourceRel: rel`, so the
+> source is always the English tree. The brain ends the update holding the English doctrine.
 >
-> _Superseded, kept for the trail:_ **S7-5-3 — the wiring, and the one report line.** Both halves exist and are measured:
-> `planAncestorFetch` _(S7-5-1 · `d019d38` · 93.94 %)_ and `fetchAncestors` _(S7-5-2 · `d5324a0` ·
-> **100 %**, 42/42, confirmed serially)_. What is left is to join them inside `reconcileBrain`:
+> **Why this is S7's doing and not merely a pre-existing S8 gap.** Before S7 a French brain's doctrine
+> was FROZEN — and frozen meant it stayed French. **S7 converted a silent freeze into a silent language
+> switch.** It is the owner's own two brains that are French.
 >
-> - **heal FIRST, then fetch** (a healed file has `recorded === installed` and needs no ancestor at
->   all, so healing first is what keeps the fetch list minimal), both before the three refresh families;
-> - `planAncestorFetch` needs `baseContentMap` — `readInstalledMergeFiles`'s sibling for the base tree.
->   Check what `reconcileBrain` already reads before adding a read;
-> - **do NOT add a `sourceDir !== brainDir` gate in the caller.** It moved INTO `fetchAncestors`
->   at S7-5-2 — see the design row below — so the wiring calls it unconditionally;
-> - **one report line, and only when a fetch was ATTEMPTED and FAILED** (`failed.length > 0`; the shell
->   returns an empty `failed` on a self-heal precisely so a brain that never wanted a fetch hears
->   nothing): *"could not reach the update server to recover the original of N file(s) — they are
->   preserved as usual, and the next update will try again."*
+> - [ ] **The fix belongs to S8-3** and was deliberately not smuggled into the QA slice. It is small
+>       (the doctrine's pair must resolve the locale, exactly as the skills' does).
+> - [x] **The QA already holds the tripwire**: Pole D asserts the English delivery **as a measurement**,
+>       so it turns RED the moment S8-3 fixes it. Nobody has to remember.
+> - [ ] ⚠️ **v5 MUST NOT SHIP with S8 unpaid.** S8 was already sequenced before the release tail; what
+>       changed is its NATURE — it is no longer "the FR tree stops drifting", it is "the FR tree stops
+>       being overwritten". A drift is stale content; this is the wrong language.
+>
+> ## ▶️ RESUME AT: S8-1 — port `8341e18` into `templates/fr/CLAUDE.engine.md`
+>
+> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth). Next is **S8**, and it is now load-bearing for
+> the release rather than tidy-up — see the box above. Order within S8: **S8-1** (port the paragraph),
+> **S8-2** (the drift guard, design first — last-commit dates misfire on same-day commits, which is the
+> error already made by hand), **S8-3** (the FR delivery, which is the defect above), **S8-4** (the ADR).
+> Then **S10**, then **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
+>
 >
 > ⚠️ **Read this before trusting any mutation number** (S7-5-1 paid for it): the runner is
 > **NON-DETERMINISTIC at `concurrency: 5`** — same commit, two runs, 96.97 % then 93.94 %. Serial is
@@ -254,9 +258,14 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           _(2026-08-21 · `fa0f5be` · 3 end-to-end tests + 2 QA tests INVERTED, mutation **100 %** on the
           three changed hunks, 41/41, confirmed serially)_ **S7-5 IS COMPLETE, and the second forbidden
           claim has fallen** — see the box below.
-  - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. ⚠️ **Headline already
-        paid at S7-3** — see § S7 for what is left (FR, a second tag, the other two families).
-- [ ] **S8 — the French tree stops drifting in silence.**
+  - [x] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. _(2026-08-21 · `d9421c8` ·
+        2 poles; no mutation pass — test-only slice, adds no production line, skip recorded)_ Headline
+        was paid at S7-3; this bought the breadth: **FR**, the **scripts** family, and a **second tag**.
+        🛑 **It measured a defect S7 activated** — a French brain is unfrozen into ENGLISH. See the box
+        at the top; the fix is S8-3's.
+- [ ] **S8 — the French tree stops drifting in silence** — and, since 2026-08-21, **stops being
+      OVERWRITTEN**: S7 unfreezes a French brain into English (measured, box at the top of this file).
+      S8-3 owns that fix, and Pole D of `release-fixture-doctrine.test.mjs` goes red when it lands.
   - [ ] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`.
   - [ ] **S8-2 — the EN/FR drift guard**, a test.
   - [ ] **S8-3 — the FR replay QA.**
@@ -676,9 +685,13 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
             they misfire on same-day commits (that is precisely the error made). A commit-count or
             last-common-ancestor comparison may be the honest one. **Design first.**
       - [ ] It must name `sync` FR (two months, half the file) on its first run, or it does not work.
-- [ ] **S8-3 — the FR replay QA.** A pole in the release fixtures for a **French** brain: it must
-      receive the FR doctrine, not the English one, through a real update. Today one unit test covers
-      this (`engine-doctrine-refresh.test.mjs`); nothing covers it end to end.
+- [ ] **S8-3 — the FR delivery, and its replay QA.** A pole in the release fixtures for a **French**
+      brain: it must receive the FR doctrine, not the English one, through a real update.
+      ✅ **The pole now EXISTS** _(S7-4, `d9421c8`)_ and it currently asserts the **English** delivery
+      as a measurement — so the QA half of this item is paid, and what is left is the FIX plus flipping
+      that assertion. **The cause is located**: `selectMergeGovernedDoctrine` pairs every rel with
+      `sourceRel: rel` (`engine-doctrine-refresh.mjs:66`), so the source is always the English tree;
+      the skills' equivalent already resolves a locale, so there is a working shape to copy.
 - [ ] **S8-4 — the locale doctrine recorded as an ADR** (the three-row table in the decisions block
       above). Check first whether an existing ADR owns localization: CONVENTIONS §6bis says one ADR per
       topic, and S3 amended 0012 rather than opening 0038 for exactly this reason.
