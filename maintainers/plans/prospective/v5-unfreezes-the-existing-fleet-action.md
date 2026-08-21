@@ -417,8 +417,10 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         release being cut"*, computed from the tree, never from the table. It does **not** verify the
         historical rows: re-reading 25 tags is a minute of CI to re-prove bytes that cannot change.
 - [ ] **S7-3 — the wiring**: `reconcileBrain` computes the heal once and hands it to the three refresh
-      families and to `reseedProvenance`; the report gains its one line. `update-engine.mjs` and the
-      installer are **not** touched.
+      families and to `reseedProvenance`; the report gains its one line. The installer is **not**
+      touched. ⚠️ **Nor is `update-engine.mjs`'s update PATH** — S7-0's claim, and it holds — but
+      `formatReport` lives in that file, so the **report line** lands there. The claim was always
+      scoped to the write path; this tracking line over-generalized it, corrected 2026-08-21.
 
   #### 📐 S7-3's own design — five residual choices, one of them load-bearing _(written 2026-08-21, before the code)_
 
@@ -429,13 +431,15 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         the three refresh families are all gated on `sourceDir !== brainDir` — so the heal would be
         computed, used for that run, and then **thrown away unwritten**. The condition has to widen to
         *"delivered something OR healed something"*, or the clause is false and nothing says so.
-  - [x] **Where the installed bytes come from, and it is NOT a walk of the brain.** `healProvenance`
-        needs an `installedFileMap`. The obvious `listFilesRelPosix(brainDir)` walks the whole vault —
-        thousands of notes, on **every SessionStart self-heal**, to look at ~15 files. Instead the
-        candidate set is **the table's own rels**, stat'ed on the brain's disk: bounded by construction,
-        and it loses nothing, because a rel absent from the table can never be healed anyway
-        (`table?.files?.[rel]` → null). The table bounds the work; `selectMergeFiles` inside the heal
-        still gates the regime.
+  - [x] **Where the installed bytes come from: `readInstalledMergeFiles`, which ALREADY EXISTS.**
+        `healProvenance` needs an `installedFileMap`, and the naive `listFilesRelPosix(brainDir)` would
+        walk the owner's whole vault on every SessionStart self-heal to look at ~15 files.
+        ⚠️ **This slice first designed a table-bounded candidate set to avoid that, and it was
+        redundant**: `engine-base-fs.mjs:64` solved the same problem better at **S4-4c** — it walks the
+        merge globs' **roots**, not the brain (measured there at 18.5 ms for 8 000 notes, and pinned by
+        a test against a full walk on a real disk). Corrected here rather than left as a second
+        spelling of one idea: **reuse it, invent nothing.** The lesson is the cheap one — before
+        designing an optimisation, grep for the last person who needed it.
   - [x] **How the heal reaches `reseedProvenance`, which lives in ANOTHER function.** S7-0 says
         "computed once at the top of `reconcileBrain`" and "handed to `reseedProvenance` (`:460`)", but
         that call is in `runReconcileCli`. So the report carries it: `healedProvenance`, `healedBaseRefs`
