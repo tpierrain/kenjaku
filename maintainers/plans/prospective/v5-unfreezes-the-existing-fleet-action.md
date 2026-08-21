@@ -46,6 +46,19 @@
 > Read **§ S7-0** before writing the generator — in particular the two claims that decide whether it
 > works at all: generate under **HEAD's** regime (not each tag's own), and carry the **FR** sources.
 >
+> ## 🆕 THE RELEASE GREW, and it grew on the owner's word _(2026-08-21, after S7-1)_
+>
+> **S10 is new v5 cargo**: a personalized file must become a **question with three offers**, never a
+> blind spot. He was offered v5.1 and answered *"c'est le comportement que j'attends pour la version
+> 5"*. Read the acceptance criterion in the decisions block — it is quoted, not paraphrased.
+>
+> **Execution order is S7 → S8 → S10 → S9.** S9 (cut, tag, publish) is LAST and its note cannot be
+> written before S10's verdict, because S10 is what makes the second forbidden claim harmless.
+>
+> ⚠️ **Do not read this as "S7 was a detour".** S7 is what modernizes the files nobody touched, which
+> is the majority of the fleet and the first half of his criterion. S10 is the second half: what to do
+> about the rest. They are two halves of one sentence.
+>
 > **Why this plan exists, in one paragraph.** The engineering of the unfreeze release is *done* and
 > sits on `feat/engine-base-unfreeze` (105 commits, S1 through S6). It was two hours from being
 > published when a measurement stopped it: the release is named *"the engine owns what it shipped"*
@@ -81,12 +94,33 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
       | The person READS sentences the skill dictates | **translation** | substitution, full file |
       | The only reader is Claude (`test-first-discipline`) | **nothing** | English suffices |
 
-- [x] ⚠️ **ONE release-note claim stays forbidden whatever this plan achieves**: *the merge does not
-      reach BACK*. Files the owner had **already edited before v5.0.0** can never acquire an ancestor
-      (a base seeds only from bytes that still match a known delivery, and an edited file matches
-      none; it cannot seed from the fetched copy either, which is *theirs*, not the ancestor). ✅ The
-      true sentence: *files you edit from this version on will merge; the ones you had already changed
-      keep standing untouched, with the new version beside them, and the update says so by name.*
+- [x] 🎯 **THE RELEASE'S ACCEPTANCE CRITERION, stated by the owner 2026-08-21 and binding on v5.0.0.**
+      *"Quelle que soit la version installée au préalable, je veux qu'un update modernise tous les
+      skills, les compétences, les comportements qui font partie de Kenjaku à la base. À l'exception de
+      ce qui aura été personnalisé. Et dans ce cas-là, je veux que Kenjaku analyse la situation et
+      propose un choix simple, lisible pour un utilisateur qui n'est pas informaticien."* The three
+      offers, in his words: **take the new Kenjaku version**, **keep yours as it stands**, or **combine
+      the two** so the improvement lands without losing what you added.
+      🛑 **And the sentence that judges the release**: *"je ne veux plus de fichiers éclipsés ou
+      d'angles morts sur les fichiers sous prétexte qu'ils ont été modifiés."* **"It was modified" may
+      never again be a reason to do nothing and say nothing.** This is **S10**, and it is v5 cargo, not
+      a follow-on: asked whether it could ship as v5.1, the owner answered *"c'est le comportement que
+      j'attends pour la version 5"*.
+
+- [x] ⚠️ **The claim that WAS forbidden, and the exact condition under which it falls.** *The merge
+      does not reach BACK*: files the owner had **already edited before v5.0.0** can never acquire an
+      ancestor (a base seeds only from bytes that still match a known delivery, and an edited file
+      matches none; it cannot seed from the fetched copy either, which is *theirs*, not the ancestor).
+      **That remains true of the MECHANICAL merge and S7 does not change it.** ✅ **But S10 makes the
+      user-facing claim true anyway**, because a three-way merge is not the only way to combine two
+      texts: the brain **is** a Claude session, and what the engine cannot merge for lack of an
+      ancestor, a reading can. The honest sentence once S10 ships: *whatever you had changed, the
+      update shows you what moved and lets you choose; nothing is decided behind your back and nothing
+      is left in limbo.*
+      ⚠️ **Measured, and worse than the plan described it until 2026-08-21**: in the no-ancestor case
+      the engine drops **no copy beside the file at all** (`applyMergeGoverned` gives a
+      `no-provenance` preserve no sidecar). The owner gets one sentence saying we cannot tell their
+      edits from ours, and nothing else. **That is the deepest of the blind spots S10 closes.**
 - [x] 🔓 **The OTHER forbidden claim falls if S7 ships.** *"The doctrine layer unfreezes no
       already-deployed brain"* was true of the release as built. S7 exists to make it false. **The note
       may not be written until S7's verdict is known.**
@@ -139,8 +173,14 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [ ] **S8-2 — the EN/FR drift guard**, a test.
   - [ ] **S8-3 — the FR replay QA.**
   - [ ] **S8-4 — the locale doctrine recorded** as an ADR.
-- [ ] **S9 — the release tail.**
-  - [ ] **S9-1 — the release note**, rewritten now that one forbidden claim may fall. Owner's tone.
+- [ ] **S10 — a personalized file becomes a QUESTION, never a blind spot.** _(Owner's acceptance
+      criterion, 2026-08-21. **v5 cargo**, explicitly not v5.1. Runs BEFORE S9.)_
+  - [ ] **S10-0 — THE DESIGN**, written into this file before a line of code.
+  - [ ] **S10-1 → S10-n — the slices**, cut by S10-0.
+  - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
+- [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
+  - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
+        play: one falls if S7 ships, the other if S10 does. **Not writable until both verdicts exist.**
   - [ ] **S9-2 — cut, tag, publish.** Owner's, always.
   - [ ] **S9-3 — the field measurement** carried to the release checklist.
 
@@ -354,11 +394,73 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 
 ---
 
+## 🗣️ S10 — a personalized file becomes a QUESTION, never a blind spot
+
+> **Numbered S10, but it runs BEFORE S9.** Execution order is **S7 → S8 → S10 → S9**; the number is an
+> identifier, not a rank, and renumbering a live plan breaks every reference already written down.
+>
+> **Owner's criterion, 2026-08-21** (in the decisions block above): an update modernizes everything
+> except what the person customized, and for those it **asks**, in words a non-technical person reads
+> without help. Three offers: **take the new one**, **keep mine**, **combine them**.
+
+- [ ] **S10-0 — THE DESIGN**, written into this file before a line of code, per the loop's contract.
+      The sketch below is what the conversation produced; S10-0 checks it against the code and writes
+      what survives. Questions it must answer are named at the end.
+
+  - [ ] 🧭 **The one architectural move, and it was already decided.** `update-engine.mjs` **still
+        never prompts** — that decision stands (archived plan: *"an update never prompts: it writes,
+        or it reports"*, qualified by the owner on 2026-08-21 with *assisted resolution lives OUTSIDE
+        `update-engine.mjs`*). So the engine's job changes from **taking** the decision to **preparing**
+        it: it emits a decision file, touches nothing it cannot prove, and the **next conversation**
+        with the brain is what asks the question and applies the answer.
+  - [ ] 📦 **Brick 1 — the engine stops throwing the choice away.** Today a `no-provenance` preserve
+        gets **no sidecar**, so the new version is not even on the disk to compare against. Every
+        personalized file must leave the update with: the file untouched, **the candidate available**,
+        and an entry in a pending-decisions record.
+  - [ ] ⏳ **Brick 2 — the pending state SURVIVES the session.** This is the brick that decides whether
+        S10 works. If the question is only asked in the update's output, it dies with the scrollback
+        and the file is a blind spot again, which is the exact defect being closed. The pending
+        decisions live in a file the brain re-reads, and the session raises them until they are
+        answered. ⚠️ **A question that must be re-asked at every session start is consent fatigue** —
+        the report's own `walkthroughOffer` already carries that non-negotiable (*"it does not
+        repeat"*). Cadence is a design question, not a coding one: answer it here.
+  - [ ] 🗣️ **Brick 3 — the conversation asks, in plain words.** The brain-side `update-engine` skill
+        reads the pending record and says, per file, what the person changed and what the new version
+        brings. **No jargon, no conflict markers, no paths as the headline.** Then the three offers.
+  - [ ] 🤝 **Brick 4 — "combine" must work EVEN WITH NO ANCESTOR, and that is the whole point.** With
+        an ancestor, the mechanical three-way merge already does it. Without one, **Claude reads both
+        versions and proposes the combination** — that is why this cannot live in `update-engine.mjs`,
+        and why the release can now promise something the merge engine alone could not deliver.
+  - [ ] 🚦 **Brick 5 — no consent fatigue.** Twelve customized files must not become twelve questions.
+        Group them, offer *"take all the new ones / keep all mine / let's go through them"*, and keep
+        the per-file conversation for the ones the person asks about.
+  - [ ] ❓ **What S10-0 must answer in writing**: where the pending record lives and what it holds
+        (enough to act on later without re-running the update?); when the session raises it and how
+        often, without repeating; what happens if the person never answers (the file stays theirs,
+        forever, silently? or is it raised once per release?); whether **"take the new one"** keeps a
+        recoverable copy of what it replaces (the brain is a git repo with auto-commit, so possibly
+        yes for free — verify, do not assume); how a combined file's **ancestor** is recorded
+        afterwards, which is `S7-0`'s trap all over again (**the disk takes the combination, the base
+        advances to the CANDIDATE**); and whether the three offers apply to `.claude/settings.json`,
+        which is generated per brain and merges differently from prose.
+
+- [ ] **S10-1 → S10-n — the slices**, cut by S10-0. Not enumerated here on purpose: cutting them
+      before the design is written is how a plan grows slices nobody can judge.
+- [ ] **S10-QA — the acceptance test, and it is the owner's sentence turned executable.** A brain
+      rebuilt from a real tag, with a file **edited before v5.0.0**, must come out of an update with a
+      real choice offered and **nothing silently left behind**. Extends the release fixtures beside
+      S7-4's pole.
+
+---
+
 ## 🏁 S9 — the release tail
 
 - [ ] **S9-1 — the release note.** Owner's tone (`release-notes-tone`: written for non-devs first,
-      never alarmist). **Blocked until S7's verdict is known**, because one of its two forbidden claims
-      falls if S7 ships. The three user-facing sentences of the divergence notice are his too.
+      never alarmist). **Blocked until BOTH S7's and S10's verdicts are known**: the release had two
+      forbidden claims, and each is now the subject of a slice — S7 makes *"unfreezes nobody already
+      installed"* false, S10 makes *"the merge does not reach back"* irrelevant to the user, which is
+      the only sense in which it was ever a release-note problem. The three user-facing sentences of
+      the divergence notice are his too.
 - [ ] **S9-2 — cut, tag, publish.** The owner's, always.
 - [ ] **S9-3 — the field measurement**, carried to the release checklist rather than to a slice: do the
       write guard's prompts become noise on a session that legitimately customizes an engine skill?
