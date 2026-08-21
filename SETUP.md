@@ -790,7 +790,7 @@ and always **propose** fixes you confirm (never a silent rewrite):
 |---|---|---|
 | **`sync-sources`** | Pulls the **delta** of external sources in parallel **read-only** sub-agents — the engine behind Phase 2. 🔧 to wire to your connectors. | **your questions** (never you) |
 | **auto-commit hook** | **Commits** your vault on every change (and **pushes** it if you've enabled a remote repository — *opt-in*, off by default). This is what means a **non-technical** profile **never has to know git**: everything is versioned on its own, locally, nothing gets lost. | automatic |
-| **`tdd-discipline`** | Vendored TDD discipline — used to develop *the harness itself*. | Claude, when modifying the harness |
+| **`test-first-discipline`** | Vendored test-first discipline — used to develop *the harness itself*. Replaces `tdd-discipline`, which the engine has retired: if your brain still holds an untouched copy, an update removes it and says so. | Claude, when modifying the harness |
 
 The rest is **not shipped**: those are **skill ideas** to let emerge as you need them, detailed in
 [`.claude/skills/EXAMPLES.md`](.claude/skills/EXAMPLES.md) — e.g. `briefing-journee` (morning briefing),

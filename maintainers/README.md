@@ -171,6 +171,14 @@
     One boundary read from two sides, so the list **is** the write guard's `OWNER_AUTHORED`, pinned by
     identity. **No behaviour change**: a door named is not a door open, and nothing in this release
     delivers either file. **Scope: Second brain (runtime).**
+  - [`0039-engine-retires-a-skill-declared-and-provenance-guarded.md`](decisions/0039-engine-retires-a-skill-declared-and-provenance-guarded.md) —
+    **amends ADR 0025**: the engine's surface was additive because nothing could remove, not because
+    anyone decided it should be. Exactly **one** subtractive door opens, on ADR 0036's shape: a skill
+    directory the manifest **declares** in a `retired` tombstone list, removed **only** when every file
+    under it is provably ours. Any doubt preserves the whole directory and names the file that blocked
+    it. A tombstone beats a regime — measured, because the reconcile's own install-if-absent put a
+    just-deleted skill straight back in the same pass. First and only tombstone:
+    `tdd-discipline`, superseded by `test-first-discipline`. **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local

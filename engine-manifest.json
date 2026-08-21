@@ -71,7 +71,7 @@
       ".claude/skills/sync-sources/**",
       ".claude/skills/improve/**",
       ".claude/skills/prepare-1-1/**",
-      ".claude/skills/tdd-discipline/**",
+      ".claude/skills/test-first-discipline/**",
       ".claude/skills/update-engine/**",
       ".claude/skills/import/**",
       ".claude/skills/switch/**",
@@ -84,6 +84,9 @@
       ".engine-base/**"
     ]
   },
+  "retired": [
+    ".claude/skills/tdd-discipline/**"
+  ],
   "engineMcpServers": [
     "vault-rag",
     "local-mirror"
