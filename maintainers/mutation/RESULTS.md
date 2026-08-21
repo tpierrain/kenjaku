@@ -183,6 +183,7 @@ the branch would hold a state in which nobody delivers them. State owned by
 | `lib/engine-apply-plan.mjs` (**never measured before**) | **78.00 %** — 39 killed, 11 survived | **92.00 %** — 46 killed, 4 survived | 4, all equivalents |
 | `update-engine.mjs` | **96.69 %** — 292 killed, 10 survived | **98.34 %** — 297 killed, 5 survived | 5, 4 of them named debt |
 | `lib/reconcile-brain.mjs` | **96.74 %** — 177 killed + 1 t/o, 6 survived | — | 6, all pre-existing |
+| `update-engine.mjs` — **after S2b-4** (`1d1bc3c`) | — | **98.65 %** — 293 killed, 4 survived | 4, all equivalents |
 
 🛑 **The write-allowlist had never been measured, and it is the one pure function standing between a
 fetched manifest and an owner's files.** `engine-apply-plan.mjs` came back at **78 %**. Three of the
@@ -220,7 +221,44 @@ also the shape a real converged reconcile hands back.
   extraction's claim being re-earned rather than assumed: a carrier that needed edits to serve family
   number two would have moved its own numbers.
 - ✅ **`reconcile-brain.mjs` gained no survivor** (96.11 % → **96.74 %**) despite gaining a whole wiring
-  step. Its six are the pre-existing `readFileSync(…, "utf8")` family and the `gitignore` write guard.
+  step. Its six are the pre-existing `readFileSync(…, "utf8")` family (**equivalent**, see S2b-4 below)
+  and the `gitignore` write guard.
+
+### S2b-4 — the debt this whole sub-slice existed to pay, paid by deleting the line
+
+Fourth and last slice of S2b (`1d1bc3c`), and it wrote **no test for the line it was routed to fix**: it
+removed the line. Step 7 read every `replace`-copied file's bytes back off the disk to build
+`deliveredFileMap`, and **both** of that map's consumers filter their candidates through the `merge`
+regime — so a copied file's bytes reached neither. The read had a job right up until S2b-3 (the four
+engine scripts were in `copied`, and this readback is how their base advanced), and `runReconcileCli`,
+the last writer on the update path, never did it at all. **The mutant that proved it was not the
+encoding one but its neighbour**, `copied.map((rel) => [])`, which empties the entries outright and
+still survived: nothing downstream can see the difference between the right bytes and no bytes.
+
+> 🧭 **The lesson for the whole register: a surviving mutant is not evidence of an uncovered line.** It
+> says *no test can see this mutation* — which is satisfied both by "nothing runs it" and by "everything
+> runs it and nothing depends on it". Distinguishing them is one command: put a `throw` on the line and
+> count the red tests. Here it was **18**, on the hottest path in the suite. § S2's report had recorded
+> the opposite ("three more lines that never run under test"), corrected in place above.
+
+| File | After S2b-4 (`1d1bc3c`) | Survivors |
+|---|---|---|
+| `update-engine.mjs` | **98.65 %** — 293 killed, 4 survived, 0 t/o | 4, **all equivalents** |
+
+The four are named, and none is debt:
+
+- **Two `readFileSync(…, "utf8") → ""`** (`:339` the local manifest, `:541` the brain's `source`). `""`
+  is falsy, so Node's `assertEncoding` accepts it and returns a **Buffer**; `JSON.parse` stringifies it
+  identically. Nothing a test can assert on differs. *(This is the third time this file has re-derived
+  that fact — twice correctly, once not.)*
+- **Two `preserved = ["Stryker was here"]` defaults** (`skillsPreserved`, `scriptsPreserved`). The
+  default IS exercised — the sibling mutant on `skillsMerged` dies to the same fixtures — but every
+  entry passes through `PRESERVED_ASIDE[reason]`, and an entry with no `reason` is `continue`d. A
+  garbage default is **silent by construction**, which is exactly the property that block was written
+  to have. Killing it would mean asserting on a report shape production cannot produce.
+
+`runUpdateCli`'s `argv = process.argv.slice(2)` default, the fifth survivor of the previous run, was
+killed by a test calling it with no arguments.
 
 ---
 
@@ -316,38 +354,51 @@ the owner reads. State owned by
 | `update-engine.mjs` | ~~**98.95 %** — 282 killed, 3 survived~~ ⚠️ **inflated, see below** | ~~3~~ |
 | `update-engine.mjs` — **re-measured 2026-08-21 on `211cfc5`** | **97.54 %** — 278 killed, 7 survived | 7, all **pre-existing**, none in this slice's code |
 | `update-engine.mjs` — **after S2b-3** (`739b7e0`) | **98.34 %** — 297 killed, 5 survived | 5 — see [§ S2b's switch](#s2bs-switch--the-four-engine-scripts-leave-the-copy-bucket--2026-08-21) |
+| `update-engine.mjs` — **after S2b-4** (`1d1bc3c`) | **98.65 %** — 293 killed, 4 survived | 4, **all equivalents** — the debt is closed |
 
 ✅ **S2b-3 paid two of the seven while passing through**, without setting out to: `:465` (the brain's
-recorded `source`) and `releases: []` both died to the fixtures that slice tightened. **What is left for
-S2b-4 is three lines, not four** — `:339` (the local manifest read), `:411` (the `copied` readback, in
-two mutants: the encoding AND the whole entry) and `runUpdateCli`'s `argv` default — plus the
-`skillsPreserved` equivalent below. The line numbers moved with the slice; the shapes did not.
+recorded `source`) and `releases: []` both died to the fixtures that slice tightened. **S2b-4 closed the
+rest**: `runUpdateCli`'s `argv` default died to a test, the `copied` readback died with the line itself,
+and the two remaining encoding mutants turned out to be **equivalents, not lines** (see the correction
+box below). The line numbers moved with each slice; the shapes did not.
 
 🛑 **The first figure was measured against a suite that failed ~75 % of the time for reasons unrelated
 to the mutant** (the flaky temp-dir sweep — see the warning at the top of this file; under the
 `command` runner every such failure reads as a kill). The re-measurement after the fix is the real one,
 and the four extra survivors are **not a regression**: they are holes the noise had been masking. Three
-of them are `readFileSync(…, "utf8")` mutants that survive an invalid encoding, i.e. **three more lines
-that never run under test** — the same shape as the debt already routed to S2b-4, at
-[`:279`](../../scripts/update-engine.mjs) (the local manifest read), [`:344`](../../scripts/update-engine.mjs)
-(the `copied` readback) and [`:465`](../../scripts/update-engine.mjs) (the brain's `source`). The fourth
-is `runUpdateCli`'s `argv = process.argv.slice(2)` default, which no test exercises by omitting `argv`.
+of them are `readFileSync(…, "utf8")` mutants that survive an invalid encoding, and the fourth is
+`runUpdateCli`'s `argv = process.argv.slice(2)` default, which no test exercises by omitting `argv`
+(**paid at S2b-4**).
 
 **None of the seven is in the lines this slice added**, and saying so is the point of measuring a whole
 file rather than a diff: the run judged 285 mutants and the new report block killed every one of its
-own. The three that were visible before the fix are named below rather than left implied; the four the
-noise was hiding **join S2b-4's debt**, since they name the same thing — lines the suite walks past.
+own.
 
-- 🔴 **A real gap, and it is in this chantier's own subject.** `readFileSync(join(brainDir, rel),
-  "utf8")` at the `deliveredFileMap` construction survives being given an invalid encoding — which can
-  only mean **that line never runs under test**: no integration case reaches it with a non-empty
-  `copied`. That map feeds `reseedProvenance` **and** `syncBaseTree`, so the bytes recorded as the
-  ancestor for every `replace`-copied file are unproven. **Routed to S2b**, which reworks exactly that
-  path when the four engine scripts leave `replaceScripts` — the test belongs where the behaviour is
-  being changed, not bolted onto a report slice. ➡️ **Narrowed 2026-08-21 by S2b's design to the
+> 🛑 **CORRECTED 2026-08-21 (S2b-4). The sentence that used to stand here — "three more lines that
+> never run under test" — was WRONG, and this file already held the right answer.** A
+> `readFileSync(…, "utf8") → ""` mutant proves nothing about coverage: `""` is FALSY, so Node's
+> `assertEncoding` waves it through and hands back a **Buffer**, and every consumer here (`JSON.parse`,
+> `createHash().update()`, `writeFileSync`) treats that Buffer exactly as it treats the string. The
+> mutants are **equivalent**. Measured rather than argued: replacing the same line with a `throw`
+> turned **18 tests red**, so it is not merely covered, it is on the hot path of the whole suite.
+> ➡️ The same fact was already recorded, correctly, in at least **four** earlier places —
+> [§ Listed equivalents (do not chase)](#listed-equivalents-do-not-chase) and
+> [§ Recorded equivalents (this release)](#recorded-equivalents-this-release) among them — and
+> re-derived wrongly here. **A survivor is not evidence of an uncovered line** — and a corpus that
+> already knows something still has to be *read* to know it.
+
+- 🔴 **A real gap, and it is in this chantier's own subject.** The `deliveredFileMap` construction read
+  every **copied** file's bytes back off the disk — and the mutant that proves it is the OTHER one on
+  that line, `copied.map((rel) => [])`, which empties the entries outright and still survives. That map
+  feeds `reseedProvenance` **and** `syncBaseTree`. **Routed to S2b**, which reworks exactly that path
+  when the four engine scripts leave `replaceScripts`. ➡️ **Narrowed 2026-08-21 by S2b's design to the
   sub-slice `S2b-4`, deliberately LAST**: the four scripts leaving the copy bucket changes what `copied`
   contains, so a test pinned before that switch would be rewritten by the very slice it was meant to
-  guard. Line located while designing: `update-engine.mjs:341`.
+  guard. ✅ **PAID at S2b-4 (`1d1bc3c`) — by DELETION, not by a test.** Both consumers filter their
+  candidates through the `merge` regime, so a `replace`-copied file reached neither; the pass was read
+  and discarded. It had a job until S2b-3 (the four scripts were in `copied`, and this is how their base
+  advanced), and `runReconcileCli` — the last writer on the update path — never did it at all. **The
+  fix for a line whose effect no test can see is sometimes to establish that nothing should see it.**
 - ⚪ **An equivalent mutant, kept as such.** The `skillsPreserved = []` default survives being given a
   junk array: only its *iterability* is observable (a string entry destructures to `undefined` fields
   and is skipped by the same filter that skips `no-provenance`). The default is load-bearing — without

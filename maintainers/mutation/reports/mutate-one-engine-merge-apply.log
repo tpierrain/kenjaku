@@ -1,30 +1,31 @@
-[32m01:01:05 (11442) INFO ProjectReader[39m Found 1 of 776 file(s) to be mutated.
-[32m01:01:05 (11442) INFO Instrumenter[39m Instrumented 1 source file(s) with 106 mutant(s)
-[32m01:01:05 (11442) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m01:01:05 (11442) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Io3IHz
-[32m01:01:05 (11442) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m01:01:05 (11442) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m01:01:07 (11442) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2147 ms, overhead 0 ms).
+[32m01:24:07 (40711) INFO ProjectReader[39m Found 1 of 779 file(s) to be mutated.
+[32m01:24:07 (40711) INFO Instrumenter[39m Instrumented 1 source file(s) with 106 mutant(s)
+[32m01:24:07 (40711) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m01:24:07 (40711) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-jYTHOe
+[32m01:24:07 (40711) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m01:24:07 (40711) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m01:24:09 (40711) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2181 ms, overhead 0 ms).
 Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/106 tested (0 survived, 0 timed out)
 Mutation testing 4% (elapsed: <1m, remaining: ~6m) 5/106 tested (0 survived, 0 timed out)
 Mutation testing 9% (elapsed: <1m, remaining: ~4m) 10/106 tested (0 survived, 0 timed out)
-Mutation testing 15% (elapsed: <1m, remaining: ~3m) 16/106 tested (0 survived, 0 timed out)
-Mutation testing 19% (elapsed: <1m, remaining: ~3m) 21/106 tested (0 survived, 0 timed out)
-Mutation testing 24% (elapsed: ~1m, remaining: ~3m) 26/106 tested (0 survived, 0 timed out)
-Mutation testing 30% (elapsed: ~1m, remaining: ~2m) 32/106 tested (0 survived, 0 timed out)
-Mutation testing 35% (elapsed: ~1m, remaining: ~2m) 38/106 tested (0 survived, 0 timed out)
-Mutation testing 40% (elapsed: ~1m, remaining: ~2m) 43/106 tested (0 survived, 0 timed out)
-Mutation testing 45% (elapsed: ~1m, remaining: ~2m) 48/106 tested (0 survived, 0 timed out)
-Mutation testing 50% (elapsed: ~1m, remaining: ~1m) 53/106 tested (0 survived, 0 timed out)
-Mutation testing 54% (elapsed: ~2m, remaining: ~1m) 58/106 tested (0 survived, 0 timed out)
-Mutation testing 60% (elapsed: ~2m, remaining: ~1m) 64/106 tested (0 survived, 0 timed out)
-Mutation testing 66% (elapsed: ~2m, remaining: ~1m) 70/106 tested (0 survived, 0 timed out)
-Mutation testing 69% (elapsed: ~2m, remaining: ~1m) 74/106 tested (0 survived, 0 timed out)
-Mutation testing 74% (elapsed: ~2m, remaining: <1m) 79/106 tested (0 survived, 0 timed out)
-Mutation testing 80% (elapsed: ~2m, remaining: <1m) 85/106 tested (0 survived, 0 timed out)
-Mutation testing 85% (elapsed: ~3m, remaining: <1m) 91/106 tested (0 survived, 0 timed out)
-Mutation testing 90% (elapsed: ~3m, remaining: <1m) 96/106 tested (0 survived, 0 timed out)
-Mutation testing 95% (elapsed: ~3m, remaining: <1m) 101/106 tested (0 survived, 0 timed out)
+Mutation testing 14% (elapsed: <1m, remaining: ~4m) 15/106 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: <1m, remaining: ~3m) 20/106 tested (0 survived, 0 timed out)
+Mutation testing 23% (elapsed: ~1m, remaining: ~3m) 25/106 tested (0 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~1m, remaining: ~2m) 30/106 tested (0 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~1m, remaining: ~2m) 34/106 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~1m, remaining: ~2m) 41/106 tested (0 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~1m, remaining: ~2m) 46/106 tested (0 survived, 0 timed out)
+Mutation testing 48% (elapsed: ~1m, remaining: ~1m) 51/106 tested (0 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~2m, remaining: ~1m) 56/106 tested (0 survived, 0 timed out)
+Mutation testing 57% (elapsed: ~2m, remaining: ~1m) 61/106 tested (0 survived, 0 timed out)
+Mutation testing 63% (elapsed: ~2m, remaining: ~1m) 67/106 tested (0 survived, 0 timed out)
+Mutation testing 67% (elapsed: ~2m, remaining: ~1m) 72/106 tested (0 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~2m, remaining: ~1m) 77/106 tested (0 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~2m, remaining: <1m) 82/106 tested (0 survived, 0 timed out)
+Mutation testing 82% (elapsed: ~3m, remaining: <1m) 87/106 tested (0 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~3m, remaining: <1m) 92/106 tested (0 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~3m, remaining: <1m) 98/106 tested (0 survived, 0 timed out)
+Mutation testing 97% (elapsed: ~3m, remaining: <1m) 103/106 tested (0 survived, 0 timed out)
 
 All tests
   ✓ All tests (killed 106)
@@ -37,5 +38,5 @@ File                    |  total | covered | # killed | # timeout | # survived |
 All files               | 100.00 |  100.00 |      106 |         0 |          0 |        0 |        0 |
  engine-merge-apply.mjs | 100.00 |  100.00 |      106 |         0 |          0 |        0 |        0 |
 ------------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m01:04:30 (11442) INFO MutationTestExecutor[39m Done in 3 minutes and 25 seconds.
-[32m01:04:30 (11442) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-Io3IHz.
+[32m01:27:41 (40711) INFO MutationTestExecutor[39m Done in 3 minutes and 33 seconds.
+[32m01:27:41 (40711) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-jYTHOe.

@@ -1,0 +1,87 @@
+[32m01:30:22 (17870) INFO ProjectReader[39m Found 1 of 779 file(s) to be mutated.
+[32m01:30:22 (17870) INFO Instrumenter[39m Instrumented 1 source file(s) with 184 mutant(s)
+[32m01:30:22 (17870) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m01:30:22 (17870) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-lStEWj
+[32m01:30:23 (17870) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m01:30:23 (17870) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m01:30:25 (17870) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2159 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/184 tested (0 survived, 0 timed out)
+Mutation testing 2% (elapsed: <1m, remaining: ~11m) 5/184 tested (0 survived, 0 timed out)
+Mutation testing 7% (elapsed: <1m, remaining: ~6m) 13/184 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~6m) 18/184 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: <1m, remaining: ~6m) 20/184 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: ~1m, remaining: ~6m) 25/184 tested (1 survived, 0 timed out)
+Mutation testing 16% (elapsed: ~1m, remaining: ~5m) 30/184 tested (1 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~1m, remaining: ~5m) 34/184 tested (2 survived, 0 timed out)
+Mutation testing 21% (elapsed: ~1m, remaining: ~5m) 39/184 tested (2 survived, 0 timed out)
+Mutation testing 24% (elapsed: ~1m, remaining: ~5m) 45/184 tested (2 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~4m) 51/184 tested (3 survived, 0 timed out)
+Mutation testing 30% (elapsed: ~2m, remaining: ~4m) 56/184 tested (3 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~2m, remaining: ~4m) 61/184 tested (3 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~2m, remaining: ~4m) 66/184 tested (3 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~2m, remaining: ~3m) 71/184 tested (4 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~2m, remaining: ~3m) 76/184 tested (4 survived, 0 timed out)
+Mutation testing 44% (elapsed: ~2m, remaining: ~3m) 81/184 tested (4 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~3m, remaining: ~3m) 87/184 tested (4 survived, 0 timed out)
+Mutation testing 50% (elapsed: ~3m, remaining: ~3m) 92/184 tested (4 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~3m, remaining: ~2m) 97/184 tested (4 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~3m, remaining: ~2m) 102/184 tested (4 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~3m, remaining: ~2m) 107/184 tested (4 survived, 0 timed out)
+Mutation testing 60% (elapsed: ~3m, remaining: ~2m) 112/184 tested (5 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~4m, remaining: ~2m) 118/184 tested (5 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~4m, remaining: ~2m) 123/184 tested (5 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~4m, remaining: ~1m) 128/184 tested (5 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~4m, remaining: ~1m) 133/184 tested (5 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~4m, remaining: ~1m) 139/184 tested (5 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~4m, remaining: ~1m) 144/184 tested (5 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~5m, remaining: ~1m) 149/184 tested (5 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~5m, remaining: <1m) 155/184 tested (6 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~5m, remaining: <1m) 159/184 tested (6 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~5m, remaining: <1m) 164/184 tested (6 survived, 0 timed out)
+Mutation testing 91% (elapsed: ~5m, remaining: <1m) 169/184 tested (6 survived, 0 timed out)
+Mutation testing 94% (elapsed: ~5m, remaining: <1m) 174/184 tested (6 survived, 1 timed out)
+Mutation testing 97% (elapsed: ~6m, remaining: <1m) 179/184 tested (6 survived, 1 timed out)
+
+All tests
+  ✓ All tests (killed 177)
+
+[Survived] Regex
+scripts/lib/reconcile-brain.mjs:114:40
+-       const skillDir = skillGlob.replace(/\/\*\*?$/, ""); // ".../local-mirror/**" → ".../local-mirror"
++       const skillDir = skillGlob.replace(/\/\*\*?/, ""); // ".../local-mirror/**" → ".../local-mirror"
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:117:105
+-         if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
++         if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "");
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:193:60
+-       const brainMcp = JSON.parse(readFileSync(brainMcpPath, "utf8"));
++       const brainMcp = JSON.parse(readFileSync(brainMcpPath, ""));
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:227:70
+-       const brainSettings = JSON.parse(readFileSync(brainSettingsPath, "utf8"));
++       const brainSettings = JSON.parse(readFileSync(brainSettingsPath, ""));
+
+[Survived] ConditionalExpression
+scripts/lib/reconcile-brain.mjs:279:9
+-       if (changed) writeFileSync(gitignorePath, text);
++       if (true) writeFileSync(gitignorePath, text);
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:383:58
+-     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
++     const manifest = JSON.parse(readFileSync(manifestPath, ""));
+
+Ran 0.99 tests per mutant on average.
+---------------------|------------------|----------|-----------|------------|----------|----------|
+                     | % Mutation score |          |           |            |          |          |
+File                 |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files            |  96.74 |   96.74 |      177 |         1 |          6 |        0 |        0 |
+ reconcile-brain.mjs |  96.74 |   96.74 |      177 |         1 |          6 |        0 |        0 |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m01:36:28 (17870) INFO MutationTestExecutor[39m Done in 6 minutes and 5 seconds.
+[32m01:36:28 (17870) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-lStEWj.

@@ -8,8 +8,9 @@
 
 > ## 🛑 WAITING ON THOMAS — one arbitration, and it blocks **S2c ONLY** (raised 2026-08-20)
 >
-> **Nothing else waits.** S2a (the merge core) and S2b (the four engine scripts) are unblocked and are
-> where the work continues; this box exists so the question is not guessed in his place.
+> **Nothing else waits.** S2a (the merge core) and S2b (the four engine scripts) are **done**
+> (2026-08-21); the queue continues at **S3**, which this box does not block either. This box exists so
+> the question is not guessed in his place — and S2c stays parked until it is answered.
 >
 > **May the engine write `CLAUDE.md`?** S2 turns the sacred scrub from *"never written"* into *"never
 > written **blind**"* — a merge-governed door that can only ever lay down the output of a three-way
@@ -172,11 +173,16 @@
 > new module** (16 mutants), the carrier **still 100 %** (106), and `engine-apply-plan.mjs` — the
 > write-allowlist, never measured before — went **78 % → 92 %** with three real safety holes closed.
 >
-> **▶️ RESUME AT: S2b-4 — the named debt, paid on the final shape.** Four `readFileSync`/argv lines in
-> `update-engine.mjs` that no test walks (`:344` the `copied` readback, `:279` the local manifest, `:465`
-> the recorded `source`, and `runUpdateCli`'s `argv` default), plus the `unknown()` duplication in
-> `runUpdateCli`. Detailed in § S2b below. **S2c is the only part that waits on Thomas** (the box at the
-> top), and nothing else does.
+> ✅ **S2b-4 IS DONE — and with it, S2b** _(2026-08-21 · `1d1bc3c` + `ca41b10`)_. The debt this sub-slice
+> was reserved for was **not a coverage hole**: step 7's readback of every copied file's bytes fed two
+> consumers that both discard them, so the line was deleted rather than tested. The `argv` default died
+> to a test, `unknown()` moved into `engine-update-check.mjs`, and the last two survivors are **named
+> equivalents**. `update-engine.mjs` ends S2b at **98.65 %** (293 killed, 4 survived, all equivalent).
+>
+> **▶️ RESUME AT: S3 — the write guard.** **S2c is skipped for now: it is the one slice that waits on
+> Thomas** (the blocking box at the top — may the engine write `CLAUDE.md`?), and starting it before that
+> answer would design against a scrub that may not survive the arbitration. Everything else is unblocked,
+> so the queue continues at S3.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -678,10 +684,12 @@ audible divergence.
             **A test name that lies is a defect**, so it carries them now.
       - [ ] ⚠️ **Wording**: these three sentences are user-facing. The tone is Thomas's at release time
             (`release-notes-tone`); what is committed is factual and neutral, not final.
-  - [ ] **S2b — the four engine scripts stop being overwritten blind.** `auto-commit`, `auto-push`,
-        `status-line`, `verify-rag` are declared `merge` and applied `replace` (`computeApplyPlan` puts
-        them in `replaceScripts`) — the mirror image of the skills' bug, and the one that can destroy an
-        owner's edit **today**.
+  - [x] **S2b — the four engine scripts stop being overwritten blind** _(complete 2026-08-21, S2b-1 →
+        S2b-4: `3395e1a` · `211cfc5` · `6ba4348` · `8b90fc8` · `1d1bc3c`)_. `auto-commit`, `auto-push`,
+        `status-line`, `verify-rag` were declared `merge` and applied `replace` (`computeApplyPlan` put
+        them in `replaceScripts`) — the mirror image of the skills' bug, and the one that could destroy an
+        owner's edit **today**. It no longer can: they are delivered by the merge, their output is parsed
+        before it is written, and the report says which of the three things happened to each.
 
     - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-21)_. Same reason as S2a's: a
           design held in a window dies at the next compaction, and S2a proved that a re-readable
@@ -862,13 +870,31 @@ audible divergence.
             install-if-absent into the owner's vault), a manifest with **no `regimes` at all**, and the
             sacred TREES named bare (`.claude/skills`) or claimed wholesale (`vault/**`). **78 % → 92 %**,
             the four remaining survivors named equivalents in `RESULTS.md`.
-    - [ ] **S2b-4 — the named debt, paid on the final shape.** The `deliveredFileMap` line at
-          `update-engine.mjs:411` that reads back every **copied** file's bytes is **never executed under
-          test** (both a mutant giving it an invalid encoding AND one emptying the whole entry survive).
-          That map feeds `reseedProvenance` and `syncBaseTree`, so the ancestor recorded for every
-          `replace`-copied file is unproven. Detail in `RESULTS.md` § S2's report. **Deliberately last**:
-          pinning it before S2b-3 would pin a `copied` list that S2b-3 then changes, so the test would be
-          rewritten by the slice it was meant to guard.
+    - [x] **S2b-4 — the named debt, paid on the final shape** _(2026-08-21 · `1d1bc3c`, 98.65 %)_. The
+          `deliveredFileMap` line at `update-engine.mjs:411` read back every **copied** file's bytes, and
+          two mutants survived it (an invalid encoding AND one emptying the whole entry). That map feeds
+          `reseedProvenance` and `syncBaseTree`. **Deliberately last**: pinning it before S2b-3 would pin
+          a `copied` list that S2b-3 then changes, so the test would be rewritten by the slice it was
+          meant to guard.
+      - [x] 🛑 **The diagnosis this plan carried was WRONG, and the slice's first job was to correct it.**
+            "Never executed under test" did not follow from the survivors. `readFileSync(p, "")` returns a
+            **Buffer** (the empty encoding is falsy, so `assertEncoding` accepts it) and `JSON.parse`
+            decodes it identically — the encoding mutant is an **equivalent**, on that line and on every
+            other. Measured instead of argued: a `throw` on the same line turns **18 tests red**. The line
+            was on the suite's hot path all along.
+      - [x] ✅ **Paid by DELETION, not by a test** — and that was the honest fix. The real defect was the
+            *other* mutant, `copied.map((rel) => [])`: emptying the entries changes nothing, because both
+            consumers filter their candidates through the `merge` regime and a `replace`-copied file
+            reaches neither. The pass had a job until S2b-3 (the four scripts were in `copied`, and this
+            is how their base advanced), and `runReconcileCli` — the last writer on the update path —
+            never did it at all. **A line whose effect no test can see is sometimes a line nothing should
+            see.**
+      - [x] `runUpdateCli`'s `argv = process.argv.slice(2)` default: killed by a test that calls it with
+            no arguments.
+      - [x] **Ends at 98.65 %** (293 killed, **4 survived, all equivalents**): two `readFileSync(…,
+            "utf8") → ""`, and two `preserved = ["Stryker was here"]` defaults that `PRESERVED_ASIDE`
+            silently skips — a garbage default is inert **by construction** there, which is the property
+            that block was written to have.
       - [x] **The debt grew by three when the instrument was fixed** _(2026-08-21)_ — same shape, same
             cause, so they are paid together: `:279` (the local manifest read on the update path) and
             `:465` (the brain's recorded `source`) were two more `readFileSync(…, "utf8")` mutants that
@@ -879,12 +905,12 @@ audible divergence.
             tightened. **What is left is three lines** in the file that carries the whole update:
             `:339` (the local manifest read), `:411` (the `copied` readback) and the `argv` default —
             plus the `skillsPreserved` equivalent, which is named rather than killed.
-      - [ ] **Still owed with them**: `runUpdateCli`'s "unknown"-report literal hand-rolls a second copy
-            of the shape `checkUpstream`'s own `unknown()` helper already builds. The mutant is dead; the
-            duplication that made it possible is not.
-      - [ ] Same slice, same run's other finding: `runUpdateCli`'s "unknown" report hand-rolls a second
-            copy of the shape `checkUpstream`'s `unknown()` helper already builds, which is why one of
-            its fields is dead and unassertable. Reuse the helper.
+      - [x] **The duplication that made a dead field possible** _(2026-08-21)_: `runUpdateCli`'s
+            "unknown"-report literal hand-rolled a second copy of the shape `checkUpstream`'s own
+            `unknown()` helper already builds. Extracted as `unknownUpstream()` in
+            `lib/engine-update-check.mjs`; both call sites now go through it, so the shape has one author.
+            *(This item was written into the plan twice, in two adjacent bullets saying the same thing —
+            deduplicated here rather than ticked twice.)*
 
     - [ ] **Deliberately OUT of S2b** — named so the slice does not grow:
       - [ ] **Semantic validation of a merged script** (running it, linting it, type-checking it). The

@@ -38,17 +38,19 @@
 >    **70.00 %** on the tool's first real use, its 3 survivors all in its composition root — remaining
 >    entry-tier debt, held by the S0bis ceilings.
 > 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
-> 4. ▶️ **S1 IS UNDER WAY** in [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
->    under the mechanical-only verdict — **its first TWO slices landed 2026-08-20 and were both kept in
->    session, correctly**: design + tests are exactly what the verdict forbids dispatching. That plan
->    owns the release's state and its own resume marker — open it and start where **its** header says,
->    not here. S1 is also what has to produce the **contrast** the deferred adversarial-review question
->    needs (one slice reviewed adversarially, one not) — **still unproduced**, since nothing has been
->    dispatched on S1 yet. ⚠️ **THREE pure planners in, the mechanical-only verdict has cost the mode its
->    own subject**: every S1 slice so far was design + tests, i.e. exactly the class the verdict keeps
->    in session, so there is still nothing to debrief. If the contrast is to exist at all, the candidate
->    is the **fs orchestrator + wiring** slice — the first one that is mostly mechanical, and the one S1
->    resumes at.
+> 4. ▶️ **The release is being built under the mechanical-only verdict.** Its state, its slice queue and
+>    its resume marker live in
+>    [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md) —
+>    **open it and start where ITS header says**; this list deliberately restates none of that (a second
+>    copy of a status is a future lie). What belongs to the **mode** is this: the release is what has to
+>    produce the **contrast** the deferred adversarial-review question needs (one slice reviewed
+>    adversarially, one not), and it is **still unproduced** — ⚠️ **twelve iterations in, the
+>    mechanical-only verdict has cost the mode its own subject.** Slice after slice has been design +
+>    test-first + a measured refactor, i.e. exactly the class the verdict keeps in session, so nothing has
+>    ever been dispatched to debrief. **This is now a finding, not a delay**: if a whole release can be
+>    built without one dispatchable slice, the honest conclusion may be that the contrast cannot be
+>    produced by waiting for one, and the question has to be re-framed (e.g. dispatch the adversarial
+>    REVIEW of a slice built in session, which the verdict does allow).
 >
 > ## 🌙 THE OVERNIGHT LOOP — framed by the owner 2026-08-20, before a `/clear`
 >
@@ -404,6 +406,38 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 12) — S2b-4, and with it S2b: the named debt paid by DELETING
+  the line it was routed to test.** Commits `1d1bc3c` (the deletion + the `argv` default + `unknown()`
+  extracted) and `ca41b10` (the mutation instrument). Pushed, suite **1970 pass / 0 fail**,
+  `update-engine.mjs` **98.34 % → 98.65 %** with **all four remaining survivors named equivalents**.
+  - 🧨 **A SURVIVING MUTANT IS NOT EVIDENCE OF AN UNCOVERED LINE.** This plan and `RESULTS.md` had both
+    written "three lines that never run under test" from three `readFileSync(…, "utf8") → ""`
+    survivors. False: `""` is falsy, so Node's `assertEncoding` accepts it and hands back a **Buffer**,
+    which `JSON.parse` and `createHash` consume identically. A survivor says *no test can see this
+    mutation*, and that is satisfied by "nothing runs it" **and** by "everything runs it and nothing
+    depends on it".
+    ➡️ **For the mode**: the two are separated by one command — put a `throw` on the line and count the
+    red tests. Here: **18**. Do that BEFORE writing the word "uncovered" into a carrier.
+  - 🗄️ **The corpus already knew, and a newer section re-derived the wrong answer anyway.**
+    `RESULTS.md` records this exact equivalence in **four** earlier places, the oldest weeks old. The
+    register grew past the point where writing something down means it will be read.
+    ➡️ **For the mode**: before diagnosing a survivor, `grep` the register for its SHAPE
+    (`readFileSync(.*"")`), not for the file it is in. A register that is only ever appended to is a
+    diary, not a memory.
+  - 🗑️ **The fix for a line whose effect no test can see is sometimes to prove nothing should see it.**
+    Both consumers of `deliveredFileMap` filter their candidates through the `merge` regime, so a
+    `replace`-copied file's bytes reached neither — and `runReconcileCli`, the last writer on the update
+    path, never did the readback at all. The mutant that actually proved it was the neighbour
+    (`copied.map(rel => [])`), not the encoding one. **The line was true work until S2b-3 moved the four
+    scripts out of `copied`**: the slice that made it dead is the slice that was scheduled to test it.
+  - ⏱️ **A precondition read before the step that invalidates it is not a precondition.** Three mutation
+    runs aborted with "check the `rag/node_modules` symlink". `planRun` asked whether the link existed
+    **at plan-build time**, then emitted a `git clean` that removes it (the `-e` guard does not cover a
+    symlink), then skipped the link step it had decided it did not need. It **alternated**: the run that
+    found no link made one and passed, leaving one for the next run to skip and fail on.
+    ➡️ **For the mode**: an intermittent failure that alternates cleanly is a state machine, not flake.
+    Fixed by making the link step unconditional and ordering it AFTER the clean — a plan that describes
+    an end state does not get to consult the start state.
 - 🌙 **2026-08-21 (night, loop iteration 11) — S2b-3: the four engine scripts leave the copy bucket.**
   Commit `8b90fc8` (the switch, deliberately indivisible), then `d7a6fd6`, `bc6a9f5`, `59c2275`,
   `739b7e0` paying what its mutation runs found. Pushed, suite **1968 pass / 0 fail**. New module
