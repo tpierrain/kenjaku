@@ -220,22 +220,25 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S4-3 — the update report.** Both halves of the answer are now computable offline:
-> **S4-1** _(`df983c7`)_ records which version delivered each base, **S4-2** _(`f247db3` + `d315525`)_
-> turns that into a sorted list of held-back files with their `since`. What is left in S4-3 is **prose
-> and one missing map key**: re-open the `no-provenance` silence (`PRESERVED_ASIDE` in
-> `update-engine.mjs` has no entry for it, so `preservedAndMergedLines` hits `aside === undefined` and
-> `continue`s), and add the **standing** divergence — files still held back that *this* update did not
-> touch, invisible today because the report only names what this pass decided. Then S4-4 (the session
-> surface, with its SessionStart latency **measured**, not assumed). **S2c stays skipped: it is the one
-> slice that waits on Thomas** (the blocking box at the top — may the engine write `CLAUDE.md`?), and it
-> amends ADR 0012, whose §5 is now in place.
+> **▶️ RESUME AT: finish S4-3's MEASUREMENT, then S4-4.** S4-3's code is **done, committed and pushed**
+> _(`d171e90`, suite green)_ — the `no-provenance` silence is re-opened and the standing recap ships. The
+> one thing it still owes is its **mutation number**: the run on `scripts/update-engine.mjs` was launched
+> on that commit and outlived a 10-minute window (~370 mutants). Re-run
+> `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs`, kill or name the survivors, add
+> the row to `RESULTS.md` (pre-slice honest figure: **97.54 %**), and give `lib/engine-base-fs.mjs` the
+> same pass — it gained `readEngineDivergence`. **Nothing else of S4-3 is outstanding.**
 >
-> ⚠️ **What S4-3 must NOT re-derive**: `since: null` means *unknown*, and it stays unknown — the sentence
-> is "since your install", never a version. Neither the report nor the session surface may fill the gap
-> from `source.ref`: the version the brain runs today is not the version the file is behind, and that is
-> the exact confusion `baseRefs` was added to end. **The prose IS the deliverable** here (S3's lesson,
-> measured): assert the sentences whole, or the clauses in between go unjudged.
+> Then **S4-4 — the session surface**: `additionalContext` + `systemMessage` in its own soft hook (never
+> folded into the breakage banner), reusing `readEngineDivergence` as-is, with the added SessionStart
+> latency **measured, not assumed**. **S2c stays skipped: it is the one slice that waits on Thomas** (the
+> blocking box at the top — may the engine write `CLAUDE.md`?), and it amends ADR 0012, whose §5 is now
+> in place.
+>
+> ⚠️ **What S4-4 must NOT re-derive**: `since: null` means *unknown*, and it stays unknown — the sentence
+> is "no record", never a version. Neither the report nor the session surface may fill the gap from
+> `source.ref`: the version the brain runs today is not the version the file is behind, and that is the
+> exact confusion `baseRefs` was added to end. **The prose IS the deliverable** (S3's lesson, measured):
+> assert the sentences whole, or the clauses in between go unjudged.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -1285,9 +1288,27 @@ audible divergence.
             the array) and an unread manifest never fed. Both
             [written up](../../mutation/RESULTS.md#s4-2--the-divergence-module-and-two-survivors-that-were-the-tests--2026-08-21),
             the first as a durable rule about testing orderings.
-    - [ ] **S4-3 — the update report.** Re-open the `no-provenance` silence, and add the **standing**
-          divergence: files still held back that this update did not touch are invisible today, because
-          the report only names what *this* pass decided.
+    - [x] **S4-3 — the update report.** _(2026-08-21 · `d171e90`)_ Both silences ended, code committed
+          and pushed, **full suite green (2031 pass, 0 fail)**.
+      - [x] **The `no-provenance` silence is re-opened.** It gets its OWN sentence, not an entry in
+            `PRESERVED_ASIDE`, because that map's sentence opens with *"your customized"* — the one claim
+            this verdict cannot make, and the false claim that once sent an owner diffing a file nobody
+            had edited. It names no sidecar: that verdict writes none.
+      - [x] **The standing recap** — `where your brain stands now, running <ref>: N engine file(s) this
+            update leaves alone`, each with the version it last received. Deliberately a RECAP that
+            **repeats** a file named above rather than subtracting it: the subtraction needs a join
+            between skill names and paths that nothing records, and the recap carries what the event
+            lines cannot (the versions).
+      - [x] **Read LAST, off the brain as it now is** (`readEngineDivergence` in `engine-base-fs.mjs`) —
+            the finalize child rewrites the manifest after step 7, so a divergence computed earlier
+            would describe a brain that existed halfway through the update. Fail-soft like steps 8 and 9.
+      - [ ] ⏳ **MEASUREMENT PENDING — this is the only thing S4-3 still owes.** `mutate-one.mjs
+            scripts/update-engine.mjs` was launched on `d171e90` and exceeds a 10-minute run (~370
+            mutants, the largest file in the release). **To resume**: re-run
+            `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs`, kill or name the
+            survivors, then add the row to `RESULTS.md` (the honest pre-slice figure is **97.54 %** —
+            see the flaky-test warning at the top of that file). `lib/engine-base-fs.mjs` gained
+            `readEngineDivergence` and wants the same treatment.
     - [ ] **S4-4 — the session surface.** `additionalContext` + `systemMessage`, in its own soft hook
           rather than folded into the breakage banner. **Measure the added SessionStart latency** before
           shipping it: the contract for these hooks is zero-ish, and this one is file reads and digests

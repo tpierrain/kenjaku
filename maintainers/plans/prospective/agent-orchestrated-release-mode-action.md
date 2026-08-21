@@ -406,6 +406,29 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 20) — S4-3: the report says where the brain STANDS.** Commit
+  `d171e90`, suite green (2031 pass). ⏳ **Its mutation number is the one thing outstanding** — the run on
+  `scripts/update-engine.mjs` outlived a 10-minute window (~370 mutants) and the owning plan's header
+  says how to finish it. Recorded as owed rather than skipped.
+  - 🔇 **A REFUSED CLAIM HAD BEEN IMPLEMENTED AS A REFUSED SENTENCE, and that is the whole field
+    defect.** `no-provenance` said "we cannot prove this file is customized", which was correct, and the
+    code expressed it by printing nothing at all. So a brain frozen since install stayed silent on every
+    update, forever. The fix is not new data: it is one sentence saying the thing we DO know.
+    ➡️ **For the mode**: when a design note says *"stays silent by design"*, read it as a decision that
+    can expire. Silence is a defensible answer to "what can we claim?" and never a defensible answer to
+    "what does the owner need to know?".
+  - 🔁 **Choosing REPETITION over a fragile join was the right call, and it took writing the join to see
+    it.** Scoping the recap to "files this update did not name" needs a mapping from skill NAMES to file
+    paths that nothing records. Framing the block as a recap instead — it repeats a file named above,
+    and carries the versions the event lines cannot — removed the whole problem.
+    ➡️ **For the mode**: when a filter needs data the system does not keep, ask whether the filter is the
+    requirement or just the first shape it was written in.
+  - 🧪 **A fixture told the truth the assertion did not expect.** The gate brain really does hold two
+    merge files it can prove nothing about, so the end-to-end test came back with three entries where
+    one was expected. The test was wrong, not the code — and the wording had to change with it: the
+    header said *"kept at your own version"* about files we explicitly cannot attribute.
+    ➡️ **For the mode**: a surprising fixture result is evidence before it is a failure. Read what it
+    says about the domain before adjusting either side.
 - 🌙 **2026-08-21 (night, loop iteration 19) — S4-2: the module that names what a brain holds back.**
   Commits `f247db3` (the module) and `d315525` (the tests it deserved), `lib/engine-divergence.mjs`
   **78.95 % → 94.74 %**, one survivor left and it is the equivalent the production comment predicted.
