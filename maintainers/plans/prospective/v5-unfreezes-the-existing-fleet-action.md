@@ -74,14 +74,21 @@
 >       changed is its NATURE — it is no longer "the FR tree stops drifting", it is "the FR tree stops
 >       being overwritten". A drift is stale content; this is the wrong language.
 >
-> ## ▶️ RESUME AT: S8-1 — port `8341e18` into `templates/fr/CLAUDE.engine.md`
+> ## ▶️ RESUME AT: S8-2 — the EN/FR drift guard, **DESIGN FIRST**
 >
-> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth). Next is **S8**, and it is now load-bearing for
-> the release rather than tidy-up — see the box above. Order within S8: **S8-1** (port the paragraph),
-> **S8-2** (the drift guard, design first — last-commit dates misfire on same-day commits, which is the
-> error already made by hand), **S8-3** (the FR delivery, which is the defect above), **S8-4** (the ADR).
-> Then **S10**, then **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
+> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth) and **S8-1 is done** _(`775c00a`)_. S8 is now
+> load-bearing for the release rather than tidy-up — see the box above.
 >
+> **S8-2 is a DESIGN slice**: write the criterion into this plan and stop, no code in the same
+> iteration. What it must settle, and the plan already names two of them: last-commit **dates** are the
+> cheap signal and they **misfire on same-day commits** (precisely the error made by hand in
+> conversation); and S8-1 measured a second case the sketch did not have — **a rel with NO FR twin at
+> all** (`switch`, `SETUP.md`) must read differently from a twin that has fallen behind. The guard
+> judges no translation quality; it makes the omission impossible not to see. **It must name `sync` FR
+> (two months, half the file) on its first run, or it does not work.**
+>
+> Then **S8-3** (the FR delivery — the defect in the box above), **S8-4** (the ADR), then **S10**, then
+> **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
 >
 > ⚠️ **Read this before trusting any mutation number** (S7-5-1 paid for it): the runner is
 > **NON-DETERMINISTIC at `concurrency: 5`** — same commit, two runs, 96.97 % then 93.94 %. Serial is
@@ -675,8 +682,22 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 
 ## 🇫🇷 S8 — the French tree stops drifting in silence
 
-- [ ] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`: the precision that the active
+- [x] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`: the precision that the active
       universe is committed, so it follows the owner between machines (ADR 0034). One paragraph.
+      _(2026-08-21 · `775c00a` · doc-only slice, no mutation pass, skip recorded)_
+      - [x] 🔎 **Measured while porting: the FR tree has a counterpart for only ONE of that commit's
+            three files.** There is no `templates/fr/.claude/skills/switch/` and no
+            `templates/fr/SETUP.md` at all. So the port is genuinely one paragraph — and the absence is
+            a **scope fact S8-2's guard must handle**: a drift guard that compares pairs will find no
+            pair for these, and "no FR twin" must read differently from "FR twin behind". A French
+            brain receives the English `switch` skill, which for a skill is a defensible fallback and
+            for the constitution is not (see the box at the top).
+      - [x] 🎯 **The S7-2 freshness guard bit, on a slice unrelated to it.** Editing the FR doctrine
+            changed its bytes, so the shipped table stopped describing the release being cut; the guard
+            failed by name, with the regenerate command in its message. Table regenerated: **one row
+            added** (the new FR state at v5.0.0), 78 distinct states over 25 tags. **The coupling needs
+            no written rule** — any edit to a merge-regime file invalidates the table, and the guard
+            says so at the moment it matters.
 - [ ] **S8-2 — the EN/FR drift guard.** A test that fails when a `templates/fr/<rel>` pair has fallen
       behind its English source. It judges **no translation quality**: it makes the omission impossible
       not to see, exactly like the plan-carrier guard. **The argument for it is on the record**: the
