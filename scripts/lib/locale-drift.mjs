@@ -77,11 +77,17 @@ export function localeDriftPairs(sourceFiles) {
   const tracked = new Set(sourceFiles);
   return sourceFiles
     .flatMap((sourcePath) => {
+      // ⚠️ The trailing `$` is a NAMED EQUIVALENT: `.+` is greedy and a path holds no
+      // newline, so it already runs to the end. The LEADING `^` is not — without it,
+      // `docs/templates/fr/nested.md` joins the watched set — and a test says so.
       const m = /^templates\/([^/]+)\/(.+)$/.exec(sourcePath);
       return m && tracked.has(m[2])
         ? [{ sourcePath, locale: m[1], rel: m[2] }]
         : [];
     })
+    // `<` vs `<=` is a NAMED EQUIVALENT: source paths come from a tracked-file listing,
+    // so no two compared here are ever equal. The sort itself is NOT decoration — the
+    // report's order is what a human diffs between two runs.
     .sort((a, b) => (a.sourcePath < b.sourcePath ? -1 : 1));
 }
 

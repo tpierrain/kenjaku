@@ -76,6 +76,11 @@ test("parseCommits reads no commit out of the empty output git gives for an unto
   assert.deepEqual(parseCommits("\n"), []);
 });
 
+test("parseCommits survives an ABSENT payload rather than inventing a commit from it", () => {
+  assert.deepEqual(parseCommits(undefined), []);
+  assert.deepEqual(parseCommits(null), []);
+});
+
 test("unpairedCommits keeps only what touched EN without touching the twin", () => {
   const commits = [
     { sha: "aaa1111", subject: "shared: both sides in one commit" },
@@ -109,10 +114,13 @@ test("unpairedCommits reports everything when nothing is paired and nothing is w
   assert.deepEqual(unpairedCommits({ commits, pairedShas: [], waived: {} }), commits);
 });
 
-test("describeDrift prints the SUBJECTS, because a count cannot carry magnitude", () => {
-  // `sync` and `prepare-1-1` both scored 1, and one was a third of the file while the
-  // other was a one-line review fix. A number tells a human nothing and trains them
-  // to ignore the guard.
+test("describeDrift prints the WHOLE message: the subjects, and both ways to clear a hit", () => {
+  // Asserted whole rather than by fragments. Two reasons, both learned by measurement:
+  // a `match` on one line lets every OTHER line be emptied without a test noticing, and
+  // this message IS the feature — subjects because a count cannot carry magnitude
+  // (`sync` and `prepare-1-1` both scored 1, one was a third of the file and the other a
+  // one-line review fix), and BOTH remedies because a guard that only says "port it"
+  // gets deleted the day a hit is legitimately unportable.
   const message = describeDrift([
     {
       rel: ".claude/skills/sync/SKILL.md",
@@ -121,31 +129,44 @@ test("describeDrift prints the SUBJECTS, because a count cannot carry magnitude"
     },
   ]);
 
-  assert.match(message, /templates\/fr\/\.claude\/skills\/sync\/SKILL\.md/);
-  assert.match(message, /435c164 feat\(sync\): a universe arriving mid-session/);
+  assert.equal(
+    message,
+    [
+      "1 localized file(s) behind their English source:",
+      "  templates/fr/.claude/skills/sync/SKILL.md is behind .claude/skills/sync/SKILL.md:",
+      "    435c164 feat(sync): a universe arriving mid-session",
+      "",
+      "Two ways to clear each commit, and only two:",
+      "  • PORT it into the localized file (the usual answer), or",
+      "  • if it cannot be ported — e.g. it fixed English to match a translation that was",
+      "    already right — add it to NOT_A_PORT in locale-drift.test.mjs WITH A REASON.",
+    ].join("\n"),
+  );
 });
 
-test("describeDrift names BOTH ways to clear a hit — porting it, and waiving it with a reason", () => {
-  // A guard that only says "port it" is a guard that gets deleted the day a hit is
-  // legitimately unportable.
+test("describeDrift lists every drifting pair and every commit, not just the first of each", () => {
   const message = describeDrift([
-    { rel: "a.md", sourcePath: "templates/fr/a.md", commits: [{ sha: "aaa1111", subject: "x" }] },
-  ]);
-
-  assert.match(message, /port/i);
-  assert.match(message, /NOT_A_PORT/);
-});
-
-test("describeDrift lists every drifting pair, not just the first", () => {
-  const message = describeDrift([
-    { rel: "a.md", sourcePath: "templates/fr/a.md", commits: [{ sha: "aaa1111", subject: "one" }] },
+    {
+      rel: "a.md",
+      sourcePath: "templates/fr/a.md",
+      commits: [
+        { sha: "aaa1111", subject: "one" },
+        { sha: "ccc3333", subject: "three" },
+      ],
+    },
     { rel: "b.md", sourcePath: "templates/fr/b.md", commits: [{ sha: "bbb2222", subject: "two" }] },
   ]);
 
-  assert.match(message, /templates\/fr\/a\.md/);
-  assert.match(message, /templates\/fr\/b\.md/);
-  assert.match(message, /aaa1111 one/);
-  assert.match(message, /bbb2222 two/);
+  assert.equal(
+    message.split("\n").slice(0, 5).join("\n"),
+    [
+      "2 localized file(s) behind their English source:",
+      "  templates/fr/a.md is behind a.md:",
+      "    aaa1111 one",
+      "    ccc3333 three",
+      "  templates/fr/b.md is behind b.md:",
+    ].join("\n"),
+  );
 });
 
 test("defaultLog hands git a BUILT invocation and trims what comes back", () => {
@@ -161,21 +182,31 @@ test("defaultLog hands git a BUILT invocation and trims what comes back", () => 
   assert.deepEqual(seen, [buildGitInvocation(["log", "-1"])]);
 });
 
-test("localeDriftPairs derives a pair only where BOTH sides exist, in any locale", () => {
+test("localeDriftPairs derives a pair only where BOTH sides exist, in any locale, in a stable order", () => {
+  // ⚠️ The input is deliberately UNSORTED and puts fr BEFORE es: with a pre-sorted
+  // fixture, dropping the sort entirely still passes, and the report's order — which
+  // is what a human diffs between two runs — stops being asserted at all.
   assert.deepEqual(
     localeDriftPairs([
       "templates/fr/orphan.md",
       "b.md",
-      "templates/es/a.md",
+      "templates/fr/a.md",
       "no-twin.md",
       "a.md",
-      "templates/fr/a.md",
+      "templates/es/a.md",
     ]),
     [
       { sourcePath: "templates/es/a.md", locale: "es", rel: "a.md" },
       { sourcePath: "templates/fr/a.md", locale: "fr", rel: "a.md" },
     ],
   );
+});
+
+test("localeDriftPairs anchors on templates/ at the START of the path", () => {
+  // `docs/templates/fr/nested.md` is a document ABOUT the templates, not a twin of
+  // `nested.md`. Without the anchor it would silently join the watched set and report
+  // drift against a file it has nothing to do with.
+  assert.deepEqual(localeDriftPairs(["nested.md", "docs/templates/fr/nested.md"]), []);
 });
 
 test("measureLocaleDrift pairs a twin with its source, and asks git the right three questions", () => {
