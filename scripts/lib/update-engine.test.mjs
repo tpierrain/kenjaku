@@ -241,6 +241,72 @@ test("formatReport — a fast-forwarded script counts as a swapped engine file",
   assert.match(out, /• 4 engine file\(s\) swapped\n/);
 });
 
+// ── The conflict block names its door (plan S2d) ─────────────────────────────
+// A conflict used to end at "yours is untouched, a merged copy is at <path>": true,
+// and a cul-de-sac. It hands a non-developer a file full of `<<<<<<<` markers and
+// stops talking. The owner's call (2026-08-21): the report must end at *"ask me and
+// I'll walk you through them"*.
+//
+// ⚠️ It says what the brain can do TODAY — show what each side changed, in words —
+// not the assisted resolution that is its own chantier. Promising a flow that does
+// not exist is how a report becomes something owners learn to ignore.
+//
+// The whole line is asserted as a LITERAL, never sampled and never re-imported from
+// the module: a test that checks `out.includes(THE_CONSTANT)` passes just as happily
+// when the constant is emptied. On prose, the assertion IS the specification.
+test("formatReport — a conflict block ends by offering the walkthrough, once, in the singular", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    conflicts: [{ name: "coach", newVersionPath: ".claude/skills/coach/SKILL.md.new" }],
+  });
+  assert.deepEqual(
+    out.split("\n").filter((line) => line.includes("⚠️") || line.includes("walk you through")),
+    [
+      '   • ⚠️ "coach": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/coach/SKILL.md.new',
+      "     Nothing is urgent, and nothing changes until you say so: ask me to walk you through it, and I'll show you in plain words what each side changed.",
+    ],
+  );
+});
+
+// 🛑 ONCE for the block, whatever the families. Repeated under every clash it would be
+// the consent fatigue the follow-on chantier's non-negotiables exist to prevent — and
+// an owner who scrolls past the same offer three times has learned to scroll past it.
+test("formatReport — the walkthrough is offered ONCE for the whole block, counting every family", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    conflicts: [{ name: "coach", newVersionPath: ".claude/skills/coach/SKILL.md.new" }],
+    scriptConflicts: [{ name: "scripts/verify-rag.mjs", newVersionPath: "scripts/verify-rag.mjs.new" }],
+    doctrineConflicts: [{ name: "CLAUDE.engine.md", newVersionPath: "CLAUDE.engine.md.new" }],
+  });
+  const offers = out.split("\n").filter((line) => line.includes("walk you through"));
+  assert.deepEqual(offers, [
+    "     Nothing is urgent, and nothing changes until you say so: ask me to walk you through these 3, and I'll show you in plain words what each side changed.",
+  ]);
+});
+
+// The boundary that keeps the offer meaningful: an update with nothing to resolve must
+// not offer to resolve anything. Without this, the sentence would print under every
+// clean update and mean nothing by the third one.
+test("formatReport — an update with no clash offers no walkthrough", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: ["rag/src/index.ts"],
+    regenerated: false,
+    reindexed: false,
+    skillsMerged: ["coach"],
+  });
+  assert.equal(out.includes("walk you through"), false);
+});
+
 // ── The doctrine layer in the report (plan S5c-1) ────────────────────────────
 // Same argument as the script above, and the same trap: `CLAUDE.engine.md` reached
 // a brain through NOTHING before this release, so it cannot be lost from `copied` —
@@ -726,6 +792,10 @@ test("formatReport — an everything-on update prints every optional line, in or
       '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
       '   • your "import" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
       '   • ⚠️ "univers": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/univers/SKILL.md.new',
+      // S2d: the clash block now has a way out, and this whole-report test is where the
+      // ORDER of it is pinned — indented under the clash it belongs to, and before the
+      // hooks/capabilities news, so the offer sits with the thing it is offering about.
+      "     Nothing is urgent, and nothing changes until you say so: ask me to walk you through it, and I'll show you in plain words what each side changed.",
       "   • new runtime hook(s) wired: session-health, session-self-heal",
       "   • repaired Windows hook command(s) (issue #31 — 'laude' error): auto-push, statusLine",
       "   ⚠️ ACTION NEEDED — 6 new capabilities are installed on disk but NOT active in THIS conversation.",

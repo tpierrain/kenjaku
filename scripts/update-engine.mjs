@@ -213,12 +213,38 @@ function divergenceLines(divergence, ref) {
   ];
 }
 
+// 🚪 THE DOOR the conflict block used to lack (plan S2d, from the owner's answer of
+// 2026-08-21). Until this, a clash ended at "yours is untouched, a merged copy is at
+// <path>" — true, and a cul-de-sac: it hands a non-developer a file full of `<<<<<<<`
+// markers and stops talking. What follows is the pointer that makes the report honest
+// until the assisted walkthrough exists.
+//
+// Three things it deliberately does NOT do:
+//   • It does not promise the guided flow. That is its own chantier, it lives OUTSIDE
+//     `update-engine` (this runs in a non-interactive child where no conversation can
+//     happen), and it is not built. So the offer is what the brain can do TODAY —
+//     read both sides and say what each changed, in words.
+//   • It does not alarm. Their version stands and their brain works; the honest
+//     register is "nothing is urgent", not a call to action.
+//   • It does not repeat. ONCE for the whole block, whatever the families — an offer
+//     printed under every clash is the consent fatigue the follow-on chantier's
+//     non-negotiables exist to prevent, and the third repeat teaches owners to scroll.
+const walkthroughOffer = (count) =>
+  `     Nothing is urgent, and nothing changes until you say so: ask me to walk you through` +
+  ` ${count === 1 ? "it" : `these ${count}`}, and I'll show you in plain words what each side changed.`;
+
 function conflictLines(conflicts) {
-  return conflicts.map(
-    ({ name, newVersionPath }) =>
-      `   • ⚠️ "${name}": your version and this update changed the same lines.` +
-      ` Yours is untouched; a merged copy marking both is at ${newVersionPath}`,
-  );
+  // No clash, no offer: a sentence printed under every clean update means nothing by
+  // the third one. The empty case is the boundary that keeps the offer worth reading.
+  if (conflicts.length === 0) return [];
+  return [
+    ...conflicts.map(
+      ({ name, newVersionPath }) =>
+        `   • ⚠️ "${name}": your version and this update changed the same lines.` +
+        ` Yours is untouched; a merged copy marking both is at ${newVersionPath}`,
+    ),
+    walkthroughOffer(conflicts.length),
+  ];
 }
 
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
