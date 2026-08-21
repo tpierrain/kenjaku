@@ -1,7 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { sessionEngineDivergence } from "./session-engine-divergence.mjs";
+
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 // S4-4a — the SessionStart core that says where the brain stands at REST.
 //
@@ -77,4 +82,31 @@ test("sessionEngineDivergence — fail-open: a throwing version read never propa
   });
   assert.deepEqual(sessionEngineDivergence(args), { reported: false });
   assert.deepEqual(calls.emitted, []);
+});
+
+// ── S4-4b: the surface reaches a brain ──────────────────────────────────────────
+
+test("settings.json.template wires session-engine-divergence as a SessionStart hook, LAST", () => {
+  const settings = JSON.parse(readFileSync(join(REPO_ROOT, ".claude", "settings.json.template"), "utf8"));
+  const commands = settings.hooks.SessionStart.flatMap((entry) => entry.hooks.map((h) => h.command));
+  const mine = commands.findIndex((c) => c.includes("session-engine-divergence.mjs"));
+
+  assert.ok(mine >= 0, "session-engine-divergence.mjs must be wired on SessionStart");
+  // Last on purpose: this is the calmest thing a session start says. Breakage
+  // (`session-health`), a pending restart (`session-self-heal`) and the version /
+  // update line (`session-status`) all outrank a file the owner chose to keep.
+  assert.equal(mine, commands.length - 1, "the standing fact goes after everything that is actionable");
+});
+
+test("the hook script is CARRIED by the manifest, or an upgrade never refreshes what the brain runs", () => {
+  // The general guard in engine-manifest-integrity.test.mjs says "some regime"; this
+  // one pins WHICH. `replace` is the only correct answer for a hook: `merge` would
+  // offer it as a diff and a brain that ever touched it would keep its own copy
+  // forever. Session hooks are listed one by one there — no `scripts/session-*.mjs`
+  // glob exists — so a new one is an explicit line or it is nothing.
+  const manifest = JSON.parse(readFileSync(join(REPO_ROOT, "engine-manifest.json"), "utf8"));
+  assert.ok(
+    (manifest.regimes.replace ?? []).includes("scripts/session-engine-divergence.mjs"),
+    "add scripts/session-engine-divergence.mjs to the manifest's `replace` regime",
+  );
 });
