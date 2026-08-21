@@ -406,6 +406,27 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 16) — S3-3, and with it S3: the doctrine, in the ADR that
+  already owned the topic.** No code, no number: ADR 0012 gains §5, the write boundary read backwards,
+  plus a Crux line, two consequences, three rejected alternatives, and the index entry in
+  `maintainers/README.md`. Suite **2009 pass / 0 fail** (docs only).
+  - 🗂️ **The convention did the deciding, and that is what a convention is for.** The reflex was a new
+    ADR `0038` for "a guard on agent writes". CONVENTIONS §6bis says one ADR per topic, and 0012 already
+    owns the launcher↔brain write boundary — it merely stated one direction of it. A second ADR would
+    have made `decisions/` harder to browse and left two half-answers where the question is one.
+    ➡️ **For the mode**: before opening a numbered artefact, ask which existing one already owns the
+    *question*, not which one mentions the same words.
+  - 🧾 **The index is a surface, and a section that never reaches it is not published.**
+    `maintainers/README.md` carries a paragraph per ADR; amending 0012 without touching it would leave
+    the new half of the boundary invisible to anyone browsing decisions rather than grepping them.
+    Updated in the same commit, deliberately, not as a chore.
+  - 📌 **S3 closes with one item open ON PURPOSE, and saying so is the point.** Whether the prompt turns
+    into noise on a session that legitimately customizes an engine skill cannot be answered by a test or
+    by argument — only by living with the guard for a few days. It is carried to the **release
+    checklist** rather than left as a half-ticked slice, so nothing downstream appears to be waiting on
+    it.
+    ➡️ **For the mode**: "done bar a field measurement" is a legitimate end state. What is not legitimate
+    is leaving it as an unticked box that reads like unfinished code.
 - 🌙 **2026-08-21 (night, loop iteration 15) — S3-2: the guard reaches a brain.** Commits `cf55c2a` and
   `3493533`. Pushed, suite **2008 pass / 0 fail**, the entry at **88 %** with all three survivors
   equivalents.

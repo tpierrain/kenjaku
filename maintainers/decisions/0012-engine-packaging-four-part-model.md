@@ -20,8 +20,13 @@
 >   files (a **write-allowlist**, a managed file set), and can **never** delete or overwrite a Personal
 >   Extension or any Content. (Two later, surgical side-channels sit *alongside* this allowlist — see the
 >   forward-note in Decision §2.)
+> - **Boundary, both ways —** the allowlist says what the **engine** may write into a brain; a **write
+>   guard** says what the brain's **agent** may write into the engine — asking before an edit diverges the
+>   brain, and refusing only the one write that forges the merge base.
 > - **Prior art (not NIH) —** this is the package-manager *managed-file-set* model (dpkg/rpm/Homebrew own
->   and touch only the files they installed); upgrades never `rsync --delete` a user's tree.
+>   and touch only the files they installed); upgrades never `rsync --delete` a user's tree. The guard is
+>   the same family read backwards: a **protected-path gate** (CODEOWNERS, pre-commit protected paths) —
+>   the file is not locked, the change is made deliberate.
 
 ## Context
 
@@ -83,6 +88,39 @@ manifest — Phase 0), and **defer the distribution channel** (opt-in re-pull / 
 proven need. Any channel must preserve ADR 0001's **self-sufficiency**: the engine **starts offline, with
 no network dependency** (today it is vendored as `tsx rag/src` — that property is kept).
 
+**5 — The boundary is read in BOTH directions: the agent asks before it diverges a brain.** Everything
+above governs what the **engine** writes into a brain. The same boundary has a second direction — what
+the brain's **agent** writes into engine files — and leaving it unguarded is what makes the model
+dishonest. An edit landed in a *replace* file vanishes at the next upgrade with nothing said; an edit
+landed in a *merge* file quietly commits its owner to a three-way merge on that file forever. **Free,
+silent divergence is precisely what makes preserving divergence the hard problem.**
+
+A `PreToolUse(Write|Edit)` hook therefore rules on every write the agent attempts, with a **three-way
+verdict** — and that verdict is deliberately **not** the upgrade regimes:
+
+| The write targets | Verdict | Why |
+|---|---|---|
+| Content, Personal Extensions, and the two engine files the owner **authors** (`CLAUDE.md`, `.claude/settings.json`) | **allow**, in silence | theirs — and the last two are exactly where the guard sends people |
+| any other manifest-declared engine file | **ask**, naming the price *for that regime* | *merge*: your edit is kept and merged forever. *replace* / *regenerate*: the next upgrade overwrites it without a word |
+| the recorded merge base (`.engine-base/**`) | **deny** | the only write that cannot be meant — see below |
+
+**Why not just read the regimes.** A regime says *how the engine updates a file*; this verdict needs
+*who the file was written for*. The two axes agree almost everywhere, and where they part is the whole
+product: `CLAUDE.md` and `.claude/settings.json` are engine files under *merge*, so "engine-owned ⇒ ask"
+would interrupt the owner on the two files the guard exists to **redirect them to**.
+
+**Why the base is the one refusal.** Editing the recorded ancestor does not diverge the brain — it
+**forges the provenance**: the next upgrade sees no divergence, fast-forwards the real file, and destroys
+the owner's edit, with the doctored record standing as evidence that nothing was wrong. There is no
+version of that write anyone can mean, which is the bar a refusal has to clear. Everything else is a
+question, never a veto: an owner unbreaking their own brain has reasons a guard cannot see.
+
+**What the guard can see, and the promise stops there.** A `PreToolUse` hook sees **tool calls**. It
+governs what the agent writes; the owner's own editor is invisible to it, and so are the engine's writes
+(the upgrade and the merge use the filesystem directly, never a tool) — which is also why the guard needs
+no self-exemption. It **fails open** on anything it cannot judge, save the base refusal, which is keyed
+on the path rather than on the manifest so that an unreadable manifest cannot disarm it.
+
 ## Consequences
 
 - **Existing brains become upgradable without losing a single user addition** — the founding principle
@@ -92,6 +130,12 @@ no network dependency** (today it is vendored as `tsx rag/src` — that property
   **zero content loss** (the vault is the source of truth).
 - **"Engine = everything but content" is made safe** by the Personal Extensions category + the merge
   regime — the two ideas Thomas needed to reconcile.
+- **Divergence stops being free and silent**, so preserving it stops being the hard problem. An owner who
+  diverges an engine file did so on purpose, having been told what it costs — and the one edit that would
+  have made the merge lie about them is the one edit that cannot happen.
+- **The layering is taught at the moment it matters.** A refusal that only says "no" gets clicked
+  through; every question names the layer built for what the owner was trying to do, so the answer arrives
+  with the problem rather than in documentation nobody re-reads.
 - **New surface to maintain** (manifest, version vector, upgrade command). Deliberately **staged** so
   none of it lands before demos or before the user base proves the need.
 - **Inherited and hardened invariant** (from 0003): opt-in, non-destructive, no silent auto-update, no
@@ -105,6 +149,17 @@ no network dependency** (today it is vendored as `tsx rag/src` — that property
   registry/network dependency before the user base justifies it, weakening 0001's offline guarantee. If
   adopted later, **vendored-first** (an offline fallback shipped in the brain).
 - **Auto-upgrade / mandatory upstream link** — rejected, as in 0003: violates sovereignty.
+- **Refusing every write to an engine file** (instead of asking) — rejected: an edit to a *replace* file
+  is always lost, which makes a veto tempting and wrong. An owner unbreaking their brain right now has a
+  legitimate reason the guard cannot see. The guard's job is to make the cost visible **at the moment of
+  the gesture**, never to make the choice.
+- **Deriving the guard's verdict from the upgrade regimes** — rejected: it lands on `CLAUDE.md` and
+  `.claude/settings.json`, and a guard that interrupts the owner on the files it redirects them to is
+  worse than no guard.
+- **Making the recorded base read-only on disk** (filesystem permissions) instead of refusing writes to
+  it — rejected: it would block the engine, which legitimately rewrites the base at every upgrade, and it
+  does not survive a clone or a sync to a second machine. A permission bit describes a file; the refusal
+  has to describe an intent.
 
 ## Supersedes 0003
 

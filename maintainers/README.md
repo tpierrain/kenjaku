@@ -87,7 +87,11 @@
     additive-only upgrade (write-allowlist + managed file set, never `rsync --delete`) — a user addition
     is *never* deleted/overwritten, structurally. Three **regimes** (replace / merge-3way / never-touch),
     Engine versioned as a **vector**. **Phased + channel-deferred** (decouple now, defer npm/plugin to
-    proven need; engine must start **offline**). **Scope: Second brain (runtime) + Installer.**
+    proven need; engine must start **offline**). Reads the boundary **both ways**: beside the allowlist
+    that governs what the engine writes into a brain sits a **write guard** governing what the brain's
+    **agent** writes into the engine — allow on the owner's own files, **ask** on an engine file with the
+    price named per regime, **deny** only on the recorded merge base, whose edit would forge the
+    provenance. **Scope: Second brain (runtime) + Installer.**
   - [`0013-resume-via-single-open-pr.md`](decisions/0013-resume-via-single-open-pr.md) —
     **resume multi-session work via the maintainer's single open PR** (the first *maintainer-workflow*
     ADR). Invariant: **at most one open PR authored by `tpierrain`** (the agent never opens a 2nd, never

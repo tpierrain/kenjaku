@@ -204,12 +204,18 @@
 > `replace` regime, and a red test that changed the code: the manifest read has its own `catch`, because
 > the outer catch-all would have disarmed the `.engine-base` deny through the very file it protects.
 >
-> **▶️ RESUME AT: S3-3 — amend ADR 0012** (CONVENTIONS §6bis: one ADR per topic, so no new `0038`). 0012
-> owns the launcher↔brain write boundary and today states only the engine→brain direction; S3 adds the
-> brain→engine one. Crux block first (§6quater) and the prior art named (§6quinquies: a protected-path
-> pre-commit / CODEOWNERS gate — the file is not locked, the change is made deliberate). Then S4.
-> **S2c stays skipped: it is the one slice that waits on Thomas** (the blocking box at the top — may the
-> engine write `CLAUDE.md`?), and it amends the same ADR, so S3-3 lands its section first.
+> ✅ **S3 IS COMPLETE** _(2026-08-21 · S3-0 → S3-3)_. The guard decides, reaches a brain, and ADR 0012
+> now carries the boundary read backwards (§5) rather than a new ADR splitting one topic in two. **One
+> item is deliberately left open and it is not code**: whether the prompt becomes noise on a session that
+> legitimately customizes an engine skill. That can only be answered by living with the guard, so it is
+> carried to the release checklist.
+>
+> **▶️ RESUME AT: S4 — divergence becomes audible.** A brain says, once, which engine files it is holding
+> back and how far behind they are. S3 stopped divergence being created in ignorance; S4 stops the
+> divergence a brain already carries being invisible. It needs the base tree (S1) and the verdict table
+> (S2a), both of which exist — **start with the design slice**, as S2b and S3 both did, since both paid
+> for themselves. **S2c stays skipped: it is the one slice that waits on Thomas** (the blocking box at the
+> top — may the engine write `CLAUDE.md`?), and it amends the same ADR 0012, whose §5 is now in place.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -974,7 +980,10 @@ audible divergence.
           correct, but it is S1's planner's business — noted here so it is not lost, not done here.
     - [ ] Interactive conflict resolution. An update **never** prompts: it writes, or it reports.
     - [ ] The audible divergence report (S4), the write guard (S3), `CLAUDE.engine.md`'s regime (S5).
-- [ ] **S3 — Keep the owner's intent out of engine files, by construction.** A write guard on
+- [x] **S3 — Keep the owner's intent out of engine files, by construction** _(complete 2026-08-21, S3-0 →
+      S3-3: `177c572` · `4bf5efa` · `b82569e` · `cf55c2a` · `3493533`)_. **One thing is deliberately left
+      open and it is not code**: the UX measurement below, which needs a real brain and a few days, not a
+      test. A write guard on
       engine-owned paths that redirects to the layer built for it (`CLAUDE.md`, the owner's own skills)
       and asks before letting an edit land in an engine file. Precedent and shape:
       `scripts/vault-write-guard.mjs`. **This is the half that makes the whole model honest**: divergence
@@ -1126,17 +1135,30 @@ audible divergence.
           runs whatever Claude Code its owner has. That is not a reason to hedge the design — `"ask"` is
           in the documented set, and the fail-open doctrine already covers a client that refuses it.
 
-  - [ ] ⚠️ **The UX risk to measure, not to argue about**: the engine skills are in `merge`, so a session
-        that legitimately customizes `coach` or `improve` meets the prompt. That is *correct* the first
-        time and noise the tenth. Measure it on the real brain before adding any cleverness; the escape
-        hatch already exists (`/permissions`) and costs the owner one gesture.
+  - [ ] ⚠️ **THE ONE S3 ITEM STILL OPEN, and it is a field measurement, not code**: the engine skills are
+        in `merge`, so a session that legitimately customizes `coach` or `improve` meets the prompt. That
+        is *correct* the first time and noise the tenth. **Measure it on the real brain before adding any
+        cleverness** — the escape hatch already exists (`/permissions`) and costs the owner one gesture.
+        Nothing downstream waits on this: it can only be answered by living with the guard for a few days
+        once this release is on a brain, so it is carried to the **release checklist**, not to a slice.
 
-  - [ ] 📜 **It AMENDS ADR 0012, it does not open a new one** (CONVENTIONS §6bis — one ADR per topic).
-        0012 owns the write boundary between launcher and brain; today it states only the engine→brain
-        direction (the structural write-allowlist). S3 adds the brain→engine direction, which is the same
-        boundary read backwards, and S2c amends the same ADR in the same release. New ADR `0038` would
-        split one topic in two. Prior art to name (§6quinquies): a **protected-path pre-commit /
-        CODEOWNERS gate** — the file is not locked, the change is made deliberate.
+  - [x] 📜 **S3-3 — ADR 0012 AMENDED, no new ADR opened** _(2026-08-21)_. CONVENTIONS §6bis: one ADR per
+        topic. 0012 owns the write boundary between launcher and brain and stated only the engine→brain
+        direction (the structural write-allowlist); it now carries **§5, the same boundary read
+        backwards**. A new `0038` would have split one topic in two, and S2c amends this same ADR next.
+    - [x] Written **timeless** (§6ter): no dates, no hashes, no "we first did X" — the reader discovering
+          the project gets one decision, not its autobiography.
+    - [x] **Crux line added** (§6quater) and **prior art named** (§6quinquies): a **protected-path gate**
+          (CODEOWNERS, pre-commit protected paths) — the file is not locked, the change is made
+          deliberate. It sits beside the ADR's existing dpkg/rpm *managed-file-set* framing, which is the
+          same family read the other way.
+    - [x] **Three rejected alternatives recorded**, because each was a real fork: refusing every engine
+          write instead of asking (an owner unbreaking their brain has a reason the guard cannot see);
+          deriving the verdict from the regimes (it lands on `CLAUDE.md`); and making the base read-only
+          on disk (it would block the engine, which rewrites the base at every upgrade, and would not
+          survive a clone or a sync to a second machine).
+    - [x] `maintainers/README.md`'s ADR index updated in the same pass — the index is a **summary**, so a
+          new decision section that never reaches it is a decision nobody browsing will find.
 
   - [ ] 🚫 **Deliberately OUT of S3**, named so the slice does not grow: guarding the **launcher** repo
         (maintainers edit engine files all day; the guard reaches brains only through
