@@ -425,6 +425,31 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iterations 38–39) — the carrier audit: ticking a design box is a CLAIM, so a
+  subagent verified every one of them against the code.** _(What the audits found belongs to the owning
+  plan, § what remains; this entry keeps the mode lesson.)_
+  - 🔍 **The unticked leaves were never "just carrier debt" — that framing was itself the risk.** Forty
+    design and exclusion boxes were sitting unticked across S1–S4 with the release called done, and the
+    cheap move was to tick them because the code shipped. Instead, two read-only Explore agents
+    re-verified each box **against the code, never against this plan's own prose**, and reported
+    `CONFIRMED | REFUTED | UNVERIFIABLE` with a file:line for every verdict. **S1's audit found two
+    false claims** (the *"seed from the fetched copy"* lie a third time, now in the plan as well as in
+    the comment; and a *"Markdown-aware merging"* promise contradicted by its own section's exclusion
+    list). **S4's found nineteen out of nineteen true.**
+  - ⚖️ **The two verdicts disagreeing is the finding, and it is an argument against sampling.** Same
+    audit shape, same plan, same author, one section clean and one lying twice. **A section that passes
+    is not evidence about the next one** — which is exactly why the audit had to be run per-section
+    rather than spot-checked, and why "the plan says so" was never admissible evidence for ticking the
+    plan.
+  - ✂️ **A refuted line is STRUCK IN PLACE with its reason, never deleted.** A plan that quietly loses
+    a wrong sentence teaches nobody, and the next reader re-derives it. The strike-through is the only
+    form in which the plan can carry both what was believed and why it was false.
+  - 📐 **A long-running audit reports coordinates into a file the parent keeps editing — re-anchor by
+    TEXT, never by the line number the agent gives you.** The S3/S4 agent ran ~5 minutes while S1/S2's
+    ticks were being written; every line it named had shifted by **+18** by the time it reported.
+    Ticking by its numbers would have silently marked the wrong boxes, and nothing downstream would
+    have complained. **The offset happened to be uniform this time — that is luck, not a method**: each
+    box was matched on its own text before a single character was changed.
 - 🌙 **2026-08-21 (loop iteration 37) — writing the release note's CONSTRAINTS found a comment that
   lied.** _(The finding belongs to the owning plan, § what remains; this entry keeps the mode lesson.)_
   - 🗣️ **The most productive thing left, once the engineering is done, was asking what the release

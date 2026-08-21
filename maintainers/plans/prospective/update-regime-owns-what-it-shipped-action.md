@@ -330,10 +330,18 @@
 >       whether the write guard's prompt becomes noise on a session that legitimately customizes an
 >       engine skill. Only living with the guard answers it; it is carried to the release checklist.
 >
-> _(The top-level S1 / S2 / S4 / S6 boxes are still `- [ ]` — the carrier debt named below. Every
-> remaining child under them is a design or exclusion box, honoured but unticked. Verified
-> mechanically: **no unticked parent has all its children ticked**, and no unticked leaf is an
-> implementation task.)_
+> _(**Carrier debt: paid for S1 and S4** _(2026-08-21 · `d6b2565`, and this commit)_. Both were closed
+> the same way — a read-only subagent re-verifying every design and exclusion box **against the code**,
+> never against this plan's own prose — and the two audits did not agree: S1's found **two false
+> claims** (struck in place, with the reason), S4's found **nineteen out of nineteen true**. That
+> asymmetry is the point: the audit is what makes a tick mean something, so passing it is not evidence
+> that the next section will.
+>
+> **Still `- [ ]`: S2 and S6, and each for one named reason** — S2 keeps one child open on purpose (the
+> row-2 seeding deferral, a decision that is not verifiable in code because it is about what was *not*
+> built), and S6 waits on the S6e scope call at the top of this file. Verified mechanically after every
+> pass: **no unticked parent has all its children ticked**, and no unticked leaf is an implementation
+> task.)_
 >
 > 🧹 _**Known carrier debt, named rather than left to be re-discovered** (2026-08-21): the top-level
 > **S1, S2 and S4** boxes are still `- [ ]` while this header says complete. Every remaining unticked
@@ -1392,13 +1400,16 @@ audible divergence.
     - [x] `maintainers/README.md`'s ADR index updated in the same pass — the index is a **summary**, so a
           new decision section that never reaches it is a decision nobody browsing will find.
 
-  - [ ] 🚫 **Deliberately OUT of S3**, named so the slice does not grow: guarding the **launcher** repo
+  - [x] 🚫 **Deliberately OUT of S3**, named so the slice does not grow: guarding the **launcher** repo
         (maintainers edit engine files all day; the guard reaches brains only through
         `settings.json.template`, which the launcher never applies to itself — it is out by
         construction, not by exemption); guarding non-tool writes (`Bash` heredocs, an external editor);
         and **reporting** existing divergence, which is S4 and needs the base tree, not a hook.
-- [ ] **S4 — Divergence becomes audible.** A brain says, once, which engine files it is holding back and
-      how far behind they are. Absorbs the silent-skill-freeze plan's third defect.
+- [x] **S4 — Divergence becomes audible.** A brain says, once, which engine files it is holding back and
+      how far behind they are. Absorbs the silent-skill-freeze plan's third defect. _(complete 2026-08-21
+      — every design and exclusion box below **re-verified against the code**, not against this plan's own
+      prose, and all nineteen held. The contrast with S1, whose same audit found two false claims, is the
+      argument for the audit and not for trusting the sections that pass it.)_
 
   - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-21)_. Third time, and the two before
         it both found a defect a green test could not have. This one found four, plus the fact that the
@@ -1412,45 +1423,45 @@ audible divergence.
         only in an update report the owner reads once. Its Step 2 (`knownBases`, healing an
         already-frozen fleet) is **not** absorbed — see the exclusions.
 
-  - [ ] 🎯 **THE FINDING THAT SHAPES THE SLICE: "which" is free, "how far behind" is not recorded
+  - [x] 🎯 **THE FINDING THAT SHAPES THE SLICE: "which" is free, "how far behind" is not recorded
         anywhere.**
-    - [ ] **WHICH files are held back needs no new state and no network.** A `merge`-regime file whose
+    - [x] **WHICH files are held back needs no new state and no network.** A `merge`-regime file whose
           disk digest differs from `provenance[rel]` is, by definition, one the owner edited and the
           engine is holding back — the same question row 7 of the verdict table answers at update time,
           asked at rest. Exact, offline, two file reads plus ~20 digests.
-    - [ ] **HOW FAR BEHIND has no source today.** The base tree holds the last-delivered *bytes*; nothing
+    - [x] **HOW FAR BEHIND has no source today.** The base tree holds the last-delivered *bytes*; nothing
           holds the *version* they came from. Saying "three releases behind" would be inventing a number.
-    - [ ] ➡️ **So record it, in the one place that already carries per-brain engine state**: a
+    - [x] ➡️ **So record it, in the one place that already carries per-brain engine state**: a
           `baseRefs: { rel: ref }` map in `engine-manifest.json`, beside `provenance`, written by the same
           pass that advances the base. It means one unambiguous thing — *the last engine version whose
           bytes this file actually received* — so it needs **no state machine**, unlike a "first became
           held back" stamp that would have to know when to stop moving. Additive and absent-tolerant: an
           older brain simply says "since your install" and loses nothing.
-    - [ ] **Then the sentence is concrete and offline**: *"your `coach` skill still carries your edits —
+    - [x] **Then the sentence is concrete and offline**: *"your `coach` skill still carries your edits —
           it last received an engine version at v4.7.0, and this brain now runs v5.0.0."* No release
           count, no fetch: **name the two versions and let the owner read the distance.** A count would
           need the release list, i.e. a network call, for a number the two versions already convey.
 
-  - [ ] 🛑 **THE SURFACE IS DECIDED BY [ADR 0036](../../decisions/0036-deterministic-channels-differ-by-surface.md)'s
+  - [x] 🛑 **THE SURFACE IS DECIDED BY [ADR 0036](../../decisions/0036-deterministic-channels-differ-by-surface.md)'s
         CHANNEL MATRIX, NOT BY REFLEX** — and the reflex answer is wrong twice over:
-    - [ ] **`statusLine` is disqualified.** It is **opt-in since v4.4.0** (ADR 0036 — the brain no longer
+    - [x] **`statusLine` is disqualified.** It is **opt-in since v4.4.0** (ADR 0036 — the brain no longer
           installs it), *and* the Code tab renders **nothing** for it. A divergence notice there would
           reach almost no one, and no one at all on Desktop.
-    - [ ] **A SessionStart `systemMessage` is dropped by the Code tab too.** The banner shape every other
+    - [x] **A SessionStart `systemMessage` is dropped by the Code tab too.** The banner shape every other
           health hook uses is CLI-only.
-    - [ ] ✅ **So the notice rides `additionalContext`** (the agent's own context → it reaches the chat,
+    - [x] ✅ **So the notice rides `additionalContext`** (the agent's own context → it reaches the chat,
           the only channel that renders on both surfaces), **with `systemMessage` kept beside it** for the
           CLI, exactly as `session-self-heal.mjs` already documents. And this is not a workaround: it is
           the *right* shape for this fact, see the nagging rule below.
 
-  - [ ] ⚖️ **A HELD-BACK FILE IS A LEGITIMATE STEADY STATE, so S4 must state and never nag.** The owner
+  - [x] ⚖️ **A HELD-BACK FILE IS A LEGITIMATE STEADY STATE, so S4 must state and never nag.** The owner
         may keep their fork for years; a banner repeating it every session is a banner they learn to
         skip, and the alarm voice is reserved for breakage (`session-health.mjs`) — mixing the two is the
         failure `session-obsidian-hint.mjs` was split out to avoid. Riding `additionalContext` answers
         this exactly: **the agent holds the fact every session and mentions it when it matters**, which is
         the "says, once" the plan asked for, without a marker file recording what has already been said.
 
-  - [ ] 🔇 **THE SILENCE TO RE-OPEN IS A REAL LINE, and it is findable**: `PRESERVED_ASIDE` in
+  - [x] 🔇 **THE SILENCE TO RE-OPEN IS A REAL LINE, and it is findable**: `PRESERVED_ASIDE` in
         `update-engine.mjs` has no `no-provenance` key, so `preservedAndMergedLines` hits
         `aside === undefined` and **`continue`s** — a preserved file the engine cannot prove anything
         about produces no line at all. That is the deliberate silence the field finding names, and S4 is
@@ -1458,7 +1469,7 @@ audible divergence.
         needs. *(It is also why a mutation survivor on that block is equivalent: a garbage default is
         swallowed by the very guard this slice is about to change.)*
 
-  - [ ] 🧱 **The sub-slices**, smallest reviewable units, each test-first:
+  - [x] 🧱 **The sub-slices**, smallest reviewable units, each test-first:
     - [x] **S4-1 — `baseRefs` is recorded when the base advances.** _(2026-08-21 · `df983c7`)_
           `reseedBaseRefs` sits beside `reseedProvenance` in `engine-source.mjs`, under the **same merge
           regime gate** (a `replace` file is overwritten whole and carries no base, so a ref on it would
@@ -1532,7 +1543,7 @@ audible divergence.
             early `return []` was deleted, because the pure module already answers "nothing to say" for
             a null manifest. **Third fail-soft written twice in this release** — the rule is now in
             [`RESULTS.md`](../../mutation/RESULTS.md#s4-3--the-report-stops-being-silent-and-a-guard-that-would-have-re-silenced-it--2026-08-21).
-    - [ ] **S4-4 — the session surface.** `additionalContext` + `systemMessage`, in its own soft hook
+    - [x] **S4-4 — the session surface.** `additionalContext` + `systemMessage`, in its own soft hook
           rather than folded into the breakage banner. **Measure the added SessionStart latency** before
           shipping it: the contract for these hooks is zero-ish, and this one is file reads and digests
           with no spawn and no network — but "should be fast" is not a measurement.
@@ -1638,43 +1649,43 @@ audible divergence.
                 the wrong expectation** (`scripts/*.mjs` roots at `scripts`, which subsumes the two
                 named files beside it). No harm done here, and the mutation pass is what stood in for
                 the missing red — but the slip is the interesting part, not the fix.
-      - [ ] 🧱 **The module split** follows the house shape every other session hook uses
+      - [x] 🧱 **The module split** follows the house shape every other session hook uses
             (`session-wiki-health.mjs` is the reference): a pure builder in `scripts/lib/`, an entry
             script whose `main` is declared deterministic glue and is not unit-tested, seams injected so
             the brain root is a plain string a test asserts on and never a temp dir.
-      - [ ] 🔗 **The per-file clause is MOVED, not copied.** `DIVERGENCE_LINE` currently lives private
+      - [x] 🔗 **The per-file clause is MOVED, not copied.** `DIVERGENCE_LINE` currently lives private
             inside `update-engine.mjs`, and the session surface needs the exact same three sentences.
             Two copies of one sentence in two surfaces is a future divergence, so the map moves to the
             shared lib and the update report imports it. **The proof it was a move**: `update-engine`'s
             prose tests assert byte-for-byte and must stay green untouched, and its mutant count must
             drop by what the lib gains (S2b-1's method).
-      - [ ] ✂️ **What each surface keeps as its own**: the *framing* sentence. The update report says
+      - [x] ✂️ **What each surface keeps as its own**: the *framing* sentence. The update report says
             "where your brain stands now, running `<ref>`: N files this update leaves alone" (it speaks
             about a pass that just ran); the session surface speaks at rest and must not imply an update
             happened. Same clauses, different sentence around them.
-      - [ ] 🔢 **The ref comes from `engine-version.mjs`'s `installRef`, exported for the purpose** —
+      - [x] 🔢 **The ref comes from `engine-version.mjs`'s `installRef`, exported for the purpose** —
             it already calls itself *"the one reader of which engine point was this brain installed
             from, shared, so the two labels can never disagree"*. A second reader here would be the
             third. **And it stays a separate fact from `since`**: naming the version the brain runs is
             legitimate; filling an unknown `since` from it is the exact confusion `baseRefs` ended.
-      - [ ] 🔇 ~~**CAPPED at 5 named files**~~ — ⚠️ **this box was WRONG and the guard said so**; see
+      - [x] 🔇 ~~**CAPPED at 5 named files**~~ — ⚠️ **this box was WRONG and the guard said so**; see
             S4-4a's finding below. The count stays exact and complete, but **one** file is named, not
             five, because the channel is echoed verbatim to the owner rather than held by the agent.
             The full list stays where it is already free: the update report.
-      - [ ] 🛟 **Fail-open, and it needs its OWN guard**: `readEngineDivergence` is fail-soft about an
+      - [x] 🛟 **Fail-open, and it needs its OWN guard**: `readEngineDivergence` is fail-soft about an
             unreadable *manifest* only — `readInstalledMergeFiles` sits outside its `try`, so a brainDir
             that does not exist throws. On the update path that cannot happen; on a hook it can. The
             entry core catches, and a test hands it a thrower _(third time this release a fail-soft is
             written; the rule that it is not written without a test that feeds it is in `RESULTS.md`)_.
 
-  - [ ] 🚫 **Deliberately OUT of S4**, named so the slice does not grow:
-    - [ ] **Healing an already-frozen fleet** (the field finding's Step 2: ship every historical
+  - [x] 🚫 **Deliberately OUT of S4**, named so the slice does not grow:
+    - [x] **Healing an already-frozen fleet** (the field finding's Step 2: ship every historical
           fingerprint so the engine recognises its own past output). S1's base tree makes it unnecessary
           for brains installed from this release on, and it is a release-time generation pipeline, not a
           report.
-    - [ ] **Counting releases** between the two versions. It needs the release list, i.e. a network call,
+    - [x] **Counting releases** between the two versions. It needs the release list, i.e. a network call,
           for a distance the two version numbers already state.
-    - [ ] **Offering to adopt the newer version** from the notice. An update writes or reports; it never
+    - [x] **Offering to adopt the newer version** from the notice. An update writes or reports; it never
           prompts (S2's own exclusion), and the same rule holds for a report.
 - [x] **S5 — The doctrine layer joins a regime, as the first client of the new model.** _(complete
       2026-08-21 — `a51df22`, `74c273d`, `4340240`, `b3aefa3`; the header note carries what it does and
