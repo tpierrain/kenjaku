@@ -192,12 +192,19 @@
 > reaches the permission layer on `ask` too, and combining hooks is **most-restrictive-wins** — which
 > also settles, for free, that the new guard cannot weaken `vault-write-guard` beside it.
 >
-> **▶️ RESUME AT: S3-1 — the pure verdict module, test-first.**
-> `scripts/lib/engine-write-guard.mjs`, three-way verdict, reusing `globToRegExp`. Then S3-2 (the entry
-> script + its own hook group in `settings.json.template`, minding the `reconcileHooks` first-script
-> trap) and S3-3 (ADR 0012 amended). **S2c stays skipped: it is the one slice that waits on Thomas**
-> (the blocking box at the top — may the engine write `CLAUDE.md`?). S3 does **not** wait on it,
-> whichever way it is answered.
+> ✅ **S3-1 IS DONE — the guard decides** _(2026-08-21 · `4bf5efa` + `b82569e`, **98.89 %**)_. The
+> three-way verdict is built and measured: the owner's surface passes in silence, engine internals ask
+> with the price named per regime, and `.engine-base/**` is denied on the path rather than on the
+> manifest. Its mutation run's real finding was about the **prose**: the four sentences an owner reads
+> are the deliverable, and sampling them with `assert.match` left most of each one unjudged.
+>
+> **▶️ RESUME AT: S3-2 — the entry script and its wiring.** `scripts/engine-write-guard.mjs` (stdin
+> JSON, `runAsEntrypoint`, always exit 0, tested **as a process**), then its **OWN** hook group in
+> `.claude/settings.json.template` — not a second entry beside `vault-write-guard`, which
+> `reconcileHooks` would silently drop — and the entry script added to the manifest's `replace` regime.
+> Then S3-3 (ADR 0012 amended). **S2c stays skipped: it is the one slice that waits on Thomas** (the
+> blocking box at the top — may the engine write `CLAUDE.md`?). S3 does **not** wait on it, whichever
+> way it is answered.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -1037,10 +1044,29 @@ audible divergence.
 
   - [ ] 🧱 **The shape, per CONVENTIONS §5ter and the entry-point seam rule** — a straight copy of the
         precedent's split, because it is the shape the fleet already runs:
-    - [ ] `scripts/lib/engine-write-guard.mjs` — **pure**. `guardDecision({ toolName, filePath, brainDir,
-          manifest })` → `{ decision: "allow" | "ask" | "deny", reason }`. Glob matching reuses
-          `globToRegExp` from `lib/glob-match.mjs` (the same primitive `selectMergeFiles` and
-          `computeApplyPlan` already answer with) — **no second glob dialect in the product**.
+    - [x] **S3-1 — `scripts/lib/engine-write-guard.mjs`, pure** _(2026-08-21 · `4bf5efa` + `b82569e`,
+          **90 % → 98.89 %**, 24 tests, suite 1994 pass / 0 fail)_. `guardDecision({ toolName, filePath,
+          brainDir, manifest })` → `{ decision: "allow" | "ask" | "deny", reason }`, the three-way verdict
+          exactly as designed. Glob matching reuses `globToRegExp` from `lib/glob-match.mjs` (the same
+          primitive `selectMergeFiles` and `computeApplyPlan` answer with) — **no second glob dialect in
+          the product**. Measured by
+          [`RESULTS.md` § S3's write guard](../../mutation/RESULTS.md#s3s-write-guard--the-pure-verdict-and-prose-as-a-deliverable--2026-08-21).
+      - [x] **The regime lookup order is fixed, and it is not the manifest's key order**: `local`,
+            `replace`, `regenerate`, `merge`. A path can be claimed twice (`scripts/lib/**` under
+            `replace` while one file inside it is named under `merge`), and the owner must be told the
+            **worst** that can happen to their edit, not whichever glob was declared first.
+      - [x] 🎯 **The mutation run's verdict was about the PROSE, and it was right.** Six of nine first-pass
+            survivors emptied one clause each out of the reason strings while every `assert.match` stayed
+            green. Those four sentences are what an owner reads before deciding whether to diverge their
+            brain — **they are the deliverable** — so they are pinned whole now, and changing one costs a
+            deliberate test edit.
+      - [x] ⚠️ **A DEFAULT PARAMETER IN A TEST HELPER SUBSTITUTES THE VALUE UNDER TEST.**
+            `decide = (rel, manifest = MANIFEST)`, looped over `[null, undefined, {}, …]` to prove
+            fail-open, re-injected the real manifest on the `undefined` pass and asserted the opposite of
+            its own title. Third variant of this shape on this branch. Fixed with a second, default-free
+            helper.
+      - [x] **The one survivor is a named equivalent** (`regimes[regime] ?? ["Stryker was here"]` builds
+            a glob matching only that literal), same family as the ones already listed in `RESULTS.md`.
     - [ ] `scripts/engine-write-guard.mjs` — the entry: stdin JSON, `runAsEntrypoint`, `emit`, and
           **always exit 0**. Tested by **running it as a process**, like every other entry point.
     - [ ] **FAIL-OPEN, with one anchored exception.** No manifest, an unreadable one, an unexpected

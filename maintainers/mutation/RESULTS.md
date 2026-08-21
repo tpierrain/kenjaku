@@ -169,6 +169,43 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S3's write guard — the pure verdict, and prose as a deliverable — 2026-08-21
+
+First code slice of S3 (`4bf5efa` + `b82569e`): `engine-write-guard.mjs` decides, for one tool call,
+whether an agent may write an engine file. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `lib/engine-write-guard.mjs` (new) | **90.00 %** — 81 killed, 9 survived | **98.89 %** — 89 killed, 1 survived | 1, a named equivalent |
+
+🎯 **Six of the nine survivors emptied one clause each out of the reason strings, and every
+`assert.match` stayed green.** The tests sampled the sentences — the file name, the word *kept*, the
+word *overwrite* — and the mutants deleted the clauses in between. That is the correct verdict on the
+tests: **when the prose IS the deliverable, matching a phrase leaves most of it unjudged.** These four
+sentences are the entire product of the slice (they are what an owner reads before deciding whether to
+diverge their brain), so they are now asserted **whole**, and changing one costs a deliberate test edit
+— the same rule the update report's wording already lives under.
+
+🕳️ **The other two named a case no test could reach, and the cause was in the TEST HELPER.**
+`brainRelative` guards `rel === ""`, i.e. the write target being the brain directory itself
+(`relative(dir, dir)` is the empty string, and it passes both the `..` and the `isAbsolute` checks).
+Nothing fed it. Pinned directly.
+
+> ⚠️ **A DEFAULT PARAMETER IN A TEST HELPER SUBSTITUTES THE VALUE UNDER TEST, IN SILENCE.** Found while
+> the suite was still red: `decide = (rel, manifest = MANIFEST) => …`, used in a loop over
+> `[null, undefined, {}, { regimes: {} }]` to prove the guard fails open on an unreadable manifest. The
+> `undefined` iteration re-injected the **real** manifest and asserted the opposite of what it claimed.
+> **Third variant of the same shape this branch has now met** (after the absent optional-chained fixture
+> field, and the fixture that recorded one provenance base out of four): *the test passed because it
+> never asked the question.* The fix is a second, default-free helper, named for what it is.
+
+The one survivor is an equivalent of the family already listed in this file: `regimes[regime] ?? []`
+becoming `?? ["Stryker was here"]` builds a glob matching only that literal, which no brain-relative
+path is.
+
+---
+
 ## S2b's switch — the four engine scripts leave the copy bucket — 2026-08-21
 
 Third slice of S2b, and the one that changes what a brain receives: `auto-commit`, `auto-push`,

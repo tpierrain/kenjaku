@@ -406,6 +406,33 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 14) — S3-0 (the field check) and S3-1 (the pure verdict).**
+  Commits `177c572`, `4bf5efa`, `b82569e`. Pushed, suite **1994 pass / 0 fail**, the new module
+  **90 % → 98.89 %** with its single survivor a named equivalent.
+  - 🔍 **The contract check answered a question nobody asked it.** S3-0 only had to prove the harness
+    honours `permissionDecision: "ask"` — read out of the shipped client's own binary rather than
+    recalled. The same read also produced `case "ask": if (B !== "deny" && B !== "defer") B = "ask"`,
+    i.e. **most-restrictive-wins**, which settles the design's parked question about two hooks in one
+    matcher, and the `default:` branch that **throws** on any other value, which turns the emitted set
+    into a test.
+    ➡️ **For the mode**: reading the artefact beats asking the model, and it pays interest — a
+    recollection answers exactly the question asked, a source answers the neighbouring ones too.
+  - 🖋️ **The mutation run judged the PROSE, and it was right.** Six of nine first-pass survivors emptied
+    one clause each out of the guard's four sentences while every `assert.match` stayed green. The
+    tests sampled a phrase; the mutants deleted what was between the samples.
+    ➡️ **For the mode**: when the prose IS the deliverable (a report line, a permission reason, an
+    error message), pin it **whole**. `assert.match` is for a fact inside a string, never for a string
+    that is itself the product. A wording change should cost a deliberate test edit.
+  - 🕳️ **A DEFAULT PARAMETER IN A TEST HELPER SUBSTITUTES THE VALUE UNDER TEST, IN SILENCE.**
+    `decide = (rel, manifest = MANIFEST)`, looped over `[null, undefined, {}, …]` to prove the guard
+    fails open when it cannot read the manifest: the `undefined` pass re-injected the **real** manifest
+    and asserted the opposite of the test's own title. Caught only because the production behaviour
+    happened to differ; had it agreed, it would have shipped green and vacuous.
+    ➡️ **For the mode**: this is the **third variant** on this branch of *the test passed because it
+    never asked the question* (after the absent optional-chained fixture field, and the fixture holding
+    one provenance base out of four). The family is now nameable: **anything that can supply a value in
+    the test's place — a default parameter, optional chaining, a partial fixture — can also supply it
+    for the case you meant to isolate.**
 - 🌙 **2026-08-21 (night, loop iteration 13) — S3 is DESIGNED (no code, no number).** A design slice, so
   `RESULTS.md` gets nothing: there is no mutation score for a paragraph, and the loop's own rule says a
   design slice ends when the design is committed. Three findings, and **not one of them is the kind a
