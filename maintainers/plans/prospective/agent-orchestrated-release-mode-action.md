@@ -489,6 +489,20 @@ arbitration goes here as a question, and the run continues on other slices.
     ➡️ **What the MODE takes from it**: when a slice starts READING a field it used to ignore, the
     fixtures that construct that field are the first place to look — they were written against the old
     producer and nothing has forced them to keep up.
+  - 🔢 **READ THE MUTANT COUNT, NOT ONLY THE SCORE — the measurement lied by omission.** The four
+    changed hunks went in as ONE comma-joined argument; Stryker takes the file name as part of *each*
+    pattern, so the three ranges without one were dropped and the run measured a **single template
+    literal**: 4 mutants, a serene **100 %**. Spelled correctly (file repeated per range) it is **33
+    mutants and 93.94 %**, with two real survivors. `mutate-one.mjs` accepts both spellings and only
+    one is right.
+    ➡️ **The rule**, and it is the sibling of last slice's false-survivor rule: the **count** is the
+    only field that says *what* was measured; the percentage only says how it went. A perfect score
+    over a handful of mutants on a multi-hunk change is a **question, not a result** — does the count
+    look like the size of the diff?
+  - ♻️ **And the dead-code lesson repeated ONE SLICE after being written.** The two survivors were a
+    `.filter()` that can never drop an entry, and the fact proving it was in a comment **I had
+    extended two edits earlier**. Deleted (`66f00c3`), 33 → 28 mutants, 100 %. Writing a rule down
+    does not make it fire; what fired was the measurement.
   - **Next: S10-4, the safety commit** before the one destructive offer ("take the new one") overwrites
     an edit that was never swept into a commit.
 
