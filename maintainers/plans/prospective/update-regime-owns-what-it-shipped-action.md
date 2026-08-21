@@ -220,19 +220,22 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S4-2 — the pure divergence module.** `engineDivergence({ manifest, installedFileMap })`
-> → the held-back files with their `since` ref (or `null` when the brain records none), **sorted by
-> path**. Everything it needs is now on disk: **S4-1 is done** _(2026-08-21 · `df983c7`)_, so
-> `manifest.baseRefs` answers "since when" for every merge file the engine has delivered. Then S4-3 (the
-> update report re-opens the `no-provenance` silence and names *standing* divergence) and S4-4 (the
-> session surface, with its SessionStart latency **measured**, not assumed). **S2c stays skipped: it is
-> the one slice that waits on Thomas** (the blocking box at the top — may the engine write `CLAUDE.md`?),
-> and it amends ADR 0012, whose §5 is now in place.
+> **▶️ RESUME AT: S4-3 — the update report.** Both halves of the answer are now computable offline:
+> **S4-1** _(`df983c7`)_ records which version delivered each base, **S4-2** _(`f247db3` + `d315525`)_
+> turns that into a sorted list of held-back files with their `since`. What is left in S4-3 is **prose
+> and one missing map key**: re-open the `no-provenance` silence (`PRESERVED_ASIDE` in
+> `update-engine.mjs` has no entry for it, so `preservedAndMergedLines` hits `aside === undefined` and
+> `continue`s), and add the **standing** divergence — files still held back that *this* update did not
+> touch, invisible today because the report only names what this pass decided. Then S4-4 (the session
+> surface, with its SessionStart latency **measured**, not assumed). **S2c stays skipped: it is the one
+> slice that waits on Thomas** (the blocking box at the top — may the engine write `CLAUDE.md`?), and it
+> amends ADR 0012, whose §5 is now in place.
 >
-> ⚠️ **What S4-2 must NOT re-derive**: a missing `baseRefs` entry means *unknown*, and it stays unknown.
-> S4-1 deliberately records nothing rather than a `null` ref, so the divergence module reports "since
-> your install" for those — it never invents a version, and it never treats the brain's *current*
-> `source.ref` as the file's base (that is the whole confusion this map exists to end).
+> ⚠️ **What S4-3 must NOT re-derive**: `since: null` means *unknown*, and it stays unknown — the sentence
+> is "since your install", never a version. Neither the report nor the session surface may fill the gap
+> from `source.ref`: the version the brain runs today is not the version the file is behind, and that is
+> the exact confusion `baseRefs` was added to end. **The prose IS the deliverable** here (S3's lesson,
+> measured): assert the sentences whole, or the clauses in between go unjudged.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -1263,10 +1266,25 @@ audible divergence.
             assert the **whole** map after a real update; not re-measured file-wide, and
             [said so in writing](../../mutation/RESULTS.md#s4-1--the-base-learns-which-version-delivered-it--2026-08-21)
             rather than left as an implied omission.
-    - [ ] **S4-2 — the pure divergence module.** `engineDivergence({ manifest, installedFileMap })` → the
-          held-back files, each with its `since` ref (or `null`), **sorted by path** — `syncBaseTree`
-          already sorts its own report for the same reason, and its comment says *"from S4 on it is said
-          out loud to the owner"*.
+    - [x] **S4-2 — the pure divergence module.** _(2026-08-21 · `f247db3` + `d315525`)_
+          `engineDivergence({ manifest, installedFileMap })` in its own file, returning
+          `{ rel, reason, since }` **sorted by path**. Pure and offline: the manifest is the record, the
+          disk is the disk, and no release count is computed (that needs a fetch for a number the two
+          version names already convey).
+      - [x] **It asks `verifyBase` the seeding question of the INSTALLED file** rather than defining
+            "unchanged" a second time — so the EOL normalization comes with it, without which every
+            Windows brain would be told it is holding back every engine file. The answer's vocabulary is
+            `engine-base.mjs`'s own (`customized` / `no-provenance`), now exported: a file the seeder
+            defers and a file the report names must be the same file.
+      - [x] **Candidates are what is on DISK, never the union with the record** — the one deliberate
+            asymmetry with `planBaseSeed`. A recorded file the owner deleted is not held back, it is on
+            its way back at the next install-if-absent. Pinned by a test, not left implicit.
+      - [x] **Measured** — **78.95 % → 94.74 %**, the single survivor an equivalent the production
+            comment had already predicted. **Two of the four first-pass survivors were the TESTS'**: a
+            sort fixture that mirrored its own expectation (so a no-op comparator passed by reversing
+            the array) and an unread manifest never fed. Both
+            [written up](../../mutation/RESULTS.md#s4-2--the-divergence-module-and-two-survivors-that-were-the-tests--2026-08-21),
+            the first as a durable rule about testing orderings.
     - [ ] **S4-3 — the update report.** Re-open the `no-provenance` silence, and add the **standing**
           divergence: files still held back that this update did not touch are invisible today, because
           the report only names what *this* pass decided.

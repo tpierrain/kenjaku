@@ -406,6 +406,27 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 19) — S4-2: the module that names what a brain holds back.**
+  Commits `f247db3` (the module) and `d315525` (the tests it deserved), `lib/engine-divergence.mjs`
+  **78.95 % → 94.74 %**, one survivor left and it is the equivalent the production comment predicted.
+  - 🪞 **TWO OF THE FOUR SURVIVORS WERE THE TESTS', AND ONE OF THEM IS A NEW SHAPE.** The sort fixture
+    listed its three files in exactly the **reverse** of the expected output — so a comparator mutated to
+    `(true ? -1 : 1)`, i.e. no comparison at all, reversed the array and produced the right answer by
+    accident. The test proved the array had been flipped, not ordered.
+    ➡️ **For the mode**: never build a test input by applying a symmetry of the expectation (a reversal,
+    a negation, a swap). A fixture that is the mirror of its answer can be satisfied by an operation
+    that is not the one under test. For orderings: ≥3 elements in a **rotation**.
+  - 🔁 **The mutation run is worth doing even when the file looks obviously right.** This module is 20
+    lines, pure, and every one of its behaviours had a test written before it — and it still came in at
+    **78.95 %**. Nothing was missing from the *list* of cases; two cases were being *checked wrongly*.
+    A mutation score is the only instrument in this repo that can tell those apart.
+  - ♻️ **Reusing an existing verdict beat re-deriving it, and the vocabulary came with it.** "Is this
+    file still what we delivered?" is `verifyBase` asked of the installed bytes — already written,
+    already EOL-normalized. Writing a fresh comparison would have re-introduced the Windows false
+    positive (every CRLF checkout reported as holding back every file) in a module whose whole job is
+    to tell the owner something true.
+    ➡️ **For the mode**: when a slice needs a judgement the codebase already makes elsewhere, spend the
+    read. The second implementation of a verdict is where the fleet-wide false positive lives.
 - 🌙 **2026-08-21 (night, loop iteration 18) — S4-1: the base learns which version delivered it.**
   Commit `df983c7`, `lib/engine-source.mjs` **93.02 % → 96.61 %** on the **first pass, with no kill round
   needed** — the first slice of this release where the number was right before anything was fixed.

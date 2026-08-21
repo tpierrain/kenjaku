@@ -169,6 +169,43 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S4-2 — the divergence module, and two survivors that were the TESTS' — 2026-08-21
+
+One new pure module (`f247db3`), then a test-hardening pass on top of it (`d315525`):
+`engineDivergence({ manifest, installedFileMap })` returns the merge files a brain is holding back, each
+with the version that last reached it. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `lib/engine-divergence.mjs` (new) | **78.95 %** — 15 killed, 4 survived | **94.74 %** — 18 killed, 1 survived | 1, the equivalent the code comment predicted |
+
+🪞 **A SORT TEST WHOSE INPUT IS THE MIRROR OF ITS EXPECTATION PROVES THE ARRAY WAS FLIPPED, NOT
+ORDERED.** The comparator mutated to `(true ? -1 : 1)` — i.e. no comparison at all — **survived**, and
+the reason is worth carrying: the fixture listed its three files in exactly the reverse of the expected
+output, and a comparator that always answers "a before b" *reverses* the array under V8's sort. The
+mutant produced the right answer by accident. Fixed by making the input a **rotation**: neither sorted
+nor mirrored, so only a real ordering satisfies it.
+
+➡️ **The durable rule**: when testing an ordering, never build the input by reversing the expectation.
+Use ≥3 elements in a rotation — the cheapest input a "no-op comparator" cannot satisfy by luck. This
+generalizes past sorts: any fixture that is a *symmetry* of its expectation can be satisfied by an
+operation that is not the one under test.
+
+🕳️ **The other two named an input the module will meet in production and no test fed: a manifest the
+brain could not read.** `manifest?.provenance` and `manifest?.baseRefs` both survived their `?.` being
+removed, because every fixture passed a real manifest. That is not a defensive flourish to delete — S3-2
+established the idiom (a failed manifest read yields `null` and the pass keeps going) and S4-4's session
+hook will run in exactly that world. So the case was **fed** rather than the guard removed, and fed
+**with files on disk**, or the test would pass vacuously against a version that throws.
+
+✅ **The one survivor left is an equivalent the production comment had already predicted**: `a.rel <
+b.rel` mutated to `<=`, unreachable because a rel appears at most once in the list — the same reasoning
+`syncBaseTree`'s comparator carries, now confirmed by measurement on a second file rather than reasoned
+about twice.
+
+---
+
 ## S4-1 — the base learns which version delivered it — 2026-08-21
 
 One slice, one commit (`df983c7`): `baseRefs: { relPath: ref }` beside `provenance`, written by the
