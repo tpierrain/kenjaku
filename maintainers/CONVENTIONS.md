@@ -349,6 +349,26 @@ never propagated), and a top-level script with no test sibling (a fix designed a
 deferred three releases running). The knowledge was complete, versioned and written down. What was
 missing was a net that fires **while the file is being written**.
 
+**What it may cost, arbitrated by Thomas** _(2026-08-21, during the v5.0.0 night)_. The rule above stays;
+what was capped is its **overhead**, after a night where the write-ups and the re-runs came to rival the
+feature work (74 commits, 35 of code, 12 of mutation prose; 694 lines of `RESULTS.md` against 1 448 of
+production). Four limits, and they are limits on the *bookkeeping*, never on the detector:
+
+- **One pass per feature block, not per sub-slice.** That night `update-engine.mjs` (~370 mutants,
+  11 minutes) was measured **twice for one slice**. Group the block's files and run them once.
+- **No confirmation re-run when the delta is predictable.** State the predicted score in the commit or
+  the plan and let the next block's pass confirm it. Being right out loud is not worth 11 minutes.
+- **`RESULTS.md`: one line per file.** A paragraph is earned only by a **new shape** of defect (the kind
+  that becomes a durable rule), not by every slice's number.
+- **No pass at all** on doc-only or wiring-only slices, nor on a large file changed by two lines — say so
+  in writing, so a skip stays a choice and not an omission.
+
+**Not negotiable, and this is why the cap is on the paperwork only**: a new pure module, anything on the
+**write path** (this product overwrites files inside other people's brains, and its failure mode is
+silent and permanent), and prose that IS the deliverable. That same night the detector found a flaky test
+inflating every score in the release, a product defect that would have silenced future verdicts, and
+three tests that tested nothing. **The instrument earns its keep; the commentary around it did not.**
+
 Two corollaries, both earned the same day:
 
 - **Do not answer a recurring shape with one more written reflex.** `test-first-discipline`'s assertion section

@@ -99,8 +99,15 @@
 >
 > A CODE slice is test-first: see the tests fail on their assertions before any production code.
 > Then the full suite green (node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"), then
-> COMMIT, then measure mutation on HEAD (node maintainers/mutation/mutate-one.mjs <file>) and
-> kill the survivors. Never commit red.
+> COMMIT. Never commit red.
+>
+> MEASURE ONCE PER BLOCK, NOT PER SLICE (Thomas, 2026-08-21 -- CONVENTIONS.md 5quinquies).
+> Mutation is due when a BLOCK of slices is finished, over its files together:
+> node maintainers/mutation/mutate-one.mjs <file>. No confirmation re-run when you can predict
+> the delta -- write the prediction down instead. RESULTS.md gets ONE LINE per file; a paragraph
+> only for a NEW shape of defect. No pass at all on a doc-only or wiring-only slice, nor on a
+> large file changed by two lines -- but say the skip in writing. Still mandatory, whatever the
+> hurry: a new pure module, anything on the WRITE PATH, and prose that is the deliverable.
 >
 > Either way: tick the carriers -- the owning plan, RESULTS.md for any number, this mode plan if
 > the mode learned something -- commit and push on feat/engine-base-unfreeze. If the slice needs
