@@ -48,6 +48,7 @@ async function loadCore() {
 // only the untestable I/O wiring (ADR 0009).
 import { formatReport, countNewCapabilities, needsRestart, bareHookName, runUpdateCli, realUpdateDeps, armRestartFlag, defaultCountVaultNotes, defaultReadInstalledSource } from "../update-engine.mjs";
 import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
+import { unknownUpstream } from "./engine-update-check.mjs";
 
 // F2: the default count must match what the indexer actually treats as a note —
 // the document-scanner excludes `_template.md`, `.gitkeep` and the `.obsidian/`
@@ -2071,6 +2072,12 @@ test("updateEngine — step 7 lays down the `.engine-base/` tree: advanced for w
     "a `replace` file has no base: the tree follows the `merge` regime, exactly as provenance does",
   );
   const m = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  // ...and the record says the same thing as the tree. Both halves of "delivered" run
+  // every candidate through the `merge` regime, so a copied `replace` file reaches
+  // NEITHER — which is why step 7 no longer reads those files back off the disk at all
+  // (S2b-4). Pinned here so the removal is a fact this test would notice, not a guess.
+  assert.equal(m.provenance["rag/src/index.ts"], undefined, "a copied `replace` file records no ancestor");
+  assert.equal(m.provenance["rag/package.json"], undefined);
   assert.equal(
     m.provenance["scripts/auto-commit.mjs"],
     fp(engineFiles("vB").engineScripts["scripts/auto-commit.mjs"]),
@@ -2207,6 +2214,32 @@ test("runUpdateCli --check — an unreadable manifest is an UNKNOWN answer, not 
   ]);
 });
 
+// S2b-4 — the unknown report has ONE owner. `update-engine.mjs` used to hand-roll a
+// second copy of the six-field shape `checkUpstream` already builds for its own four
+// unknowns, and the copy had already started to rot: its `releases: []` is read by
+// nobody, which is how a mutation run found it. Two literals of one shape is one of
+// them drifting, and the drift shows up as a report that renders wrong.
+test("unknownUpstream — the ONE shape of 'I could not find out', whoever is saying it", () => {
+  assert.deepEqual(unknownUpstream({ reason: "the manifest could not be read" }), {
+    state: "unknown",
+    installed: null,
+    target: null,
+    ahead: null,
+    releases: [],
+    reason: "the manifest could not be read",
+  });
+  // The two fields a caller may know something about. `ahead` never is one: an unknown
+  // is precisely a distance that could not be counted.
+  assert.deepEqual(unknownUpstream({ installed: "v4.6.0", target: "v4.7.0", reason: "pinned to a branch" }), {
+    state: "unknown",
+    installed: "v4.6.0",
+    target: "v4.7.0",
+    ahead: null,
+    releases: [],
+    reason: "pinned to a branch",
+  });
+});
+
 test("runUpdateCli — with no --check, the real update still runs and the check is never called", async () => {
   const out = [];
   const code = await runUpdateCli(
@@ -2225,6 +2258,47 @@ test("runUpdateCli — with no --check, the real update still runs and the check
   assert.equal(code, 0);
   assert.equal(out.length, 1);
   assert.match(out[0], /^✅ Engine updated to v4\.7\.0/);
+});
+
+// S2b-4 — the `argv` default. Every test above hands `runUpdateCli` its arguments, so
+// the ONE line that decides what a real invocation reads was observed by nothing. The
+// contract is an off-by-two: `process.argv[0]` is the interpreter and `[1]` is the
+// script, and neither is a flag the owner typed.
+// ⚠️ The fixture is synthetic on purpose — the script path is never literally
+// `--check`, so nothing REAL discriminates a default that forgot to slice. What is
+// under test is the contract, and the only way to see it is to put a flag-shaped value
+// where the slice is supposed to drop it.
+test("runUpdateCli — with no argv, it reads the USER's arguments, not the interpreter and the script path", async () => {
+  const realArgv = process.argv;
+  const seen = [];
+  const deps = (mark) => ({
+    brainDir: "/brains/mine",
+    readInstalledSource: () => ({ repo: "git@example.test:x.git", ref: "v1.0.0" }),
+    checkUpstream: async () => {
+      seen.push(mark);
+      return { state: "current", installed: "v1.0.0", target: "v1.0.0", ahead: 0, releases: [], reason: null };
+    },
+    updateEngine: async () => ({ ref: "v1.0.0", engineVersion: {}, copied: [], regenerated: false, reindexed: false }),
+    armRestartFlag: () => {},
+    log: () => {},
+    error: (s) => assert.fail(`nothing should reach stderr, got: ${s}`),
+  });
+
+  try {
+    // A flag sitting where the SCRIPT PATH goes is not a flag. A default reading the
+    // whole of `process.argv` would run the check here.
+    process.argv = ["/usr/bin/node", "--check"];
+    assert.equal(await runUpdateCli(deps("dropped")), 0);
+    assert.deepEqual(seen, [], "slots 0 and 1 are not arguments");
+
+    // ...and the same flag, typed by the owner, IS read — or the default could simply
+    // be `[]` and this test would not notice.
+    process.argv = ["/usr/bin/node", "/brains/mine/scripts/update-engine.mjs", "--check"];
+    assert.equal(await runUpdateCli(deps("read")), 0);
+    assert.deepEqual(seen, ["read"]);
+  } finally {
+    process.argv = realArgv;
+  }
 });
 
 test("defaultReadInstalledSource — reads the brain's OWN manifest, and survives every shape of it", () => {

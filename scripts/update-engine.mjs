@@ -32,7 +32,7 @@ import {
   resolveLatestTag as defaultResolveLatestTag,
   readTargetManifest,
 } from "./lib/engine-fetch.mjs";
-import { checkUpstream, formatUpdateCheck } from "./lib/engine-update-check.mjs";
+import { checkUpstream, formatUpdateCheck, unknownUpstream } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
 import { reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
 import { syncBaseTree } from "./lib/engine-base-fs.mjs";
@@ -396,9 +396,8 @@ export async function updateEngine({
 
   // 7. Record the new engine version + the ref we pulled, and RE-SEED `provenance`
   //    (Step 5): refresh the 3-way base for the merge files the engine just
-  //    re-delivered (the engine-owned scripts, read back from disk), while the user's
-  //    untouched merge files (CLAUDE.md/settings/skills) keep their prior base — so a
-  //    future Phase 2 3-way still detects the user's edits.
+  //    re-delivered, while the user's untouched merge files (CLAUDE.md/settings/skills)
+  //    keep their prior base — so a future Phase 2 3-way still detects the user's edits.
   //    T1 (Increment 2.5): the skills the reconcile just REFRESHED are re-delivered
   //    content too, so they must be re-seeded here. Miss them and this manifest write
   //    (built from the `local` copy read before the reconcile) leaves their base at the
@@ -407,11 +406,17 @@ export async function updateEngine({
   //    Same for the skills the reconcile just INSTALLED (install-if-absent): they are
   //    engine-delivered content with no base yet, and a skill without a base is never
   //    refreshable again.
-  const deliveredFileMap = {
-    ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")])),
-    ...installedFileMap,
-    ...refreshedFileMap,
-  };
+  //
+  // 🛑 S2b-4 — what used to head this map, and why it is gone: every **copied** file's
+  //    bytes were read back off the disk into it. Both consumers — `reseedProvenance`
+  //    and `syncBaseTree` — run their candidates through the `merge` regime, so a
+  //    `replace`-copied file reached NEITHER; the whole pass was read and discarded. It
+  //    had a real job until S2b-3, when the four engine scripts were in `copied` and
+  //    this is how their base advanced. They now arrive through `refreshedFileMap`, and
+  //    `runReconcileCli` — the LAST writer on the update path — never read `copied` back
+  //    in the first place. A line that survives an invalid encoding is what pointed at
+  //    it; what it turned out to be is not an untested line but an unnecessary one.
+  const deliveredFileMap = { ...installedFileMap, ...refreshedFileMap };
   const updated = {
     ...local,
     engineVersion: target.engineVersion,
@@ -552,14 +557,10 @@ async function runUpdateCheck(deps) {
   }
   const report =
     source === null
-      ? {
-          state: "unknown",
-          installed: null,
-          target: null,
-          ahead: null,
-          releases: [],
-          reason: "this brain's engine-manifest.json could not be read",
-        }
+      ? // The fifth unknown, and the only one that cannot reach `checkUpstream` — with
+        // no manifest there is no source to ask. Its SHAPE is still that module's, or
+        // the two drift and one of them renders wrong (S2b-4).
+        unknownUpstream({ reason: "this brain's engine-manifest.json could not be read" })
       : await deps.checkUpstream({ repo: source.repo, installedRef: source.ref });
   deps.log(formatUpdateCheck(report) + "\n");
   return 0;
