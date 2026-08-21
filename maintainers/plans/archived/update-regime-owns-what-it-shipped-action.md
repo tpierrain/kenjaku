@@ -1274,6 +1274,11 @@ audible divergence.
           update runs in a non-interactive child where no conversation can happen. What S2 excludes is
           prompting *from the update*; what the follow-on chantier adds is a separate on-demand flow the
           report points at. **S2d**, in this release, is only that pointer sentence.
+          📎 **That chantier now has a name**: it is **S10** of
+          [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+          **which owns its state** — go there rather than reading a status into this line. The
+          exclusion above still holds exactly as written: the on-demand flow is a **separate command**,
+          run from a conversation, never a prompt raised by the update.
     - [x] The audible divergence report (S4), the write guard (S3), `CLAUDE.engine.md`'s regime (S5).
 - [x] **S3 — Keep the owner's intent out of engine files, by construction** _(complete 2026-08-21, S3-0 →
       S3-3: `177c572` · `4bf5efa` · `b82569e` · `cf55c2a` · `3493533`)_. **One thing is deliberately left
