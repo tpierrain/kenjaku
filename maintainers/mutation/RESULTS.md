@@ -205,6 +205,42 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S7-5-3 — the wiring, and a NETWORK CALL that nearly entered the suite — 2026-08-21
+
+`fa0f5be`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| Hunk | Score | Survivors |
+|---|---|---|
+| `scripts/lib/reconcile-brain.mjs:112-148` | **100 %** (7 killed) | 0 |
+| `scripts/update-engine.mjs:297-315` | **100 %** (30 killed) | 0 |
+| `scripts/lib/engine-heal-fs.mjs:55-71` | **100 %** (4 killed) | 0 |
+
+41 of 41, and **confirmed on a serial re-run** — same protocol as § S7-5-2, same reason.
+
+**The finding is not in the numbers, it is in what the wiring did to the SUITE.** Handing
+`reconcileBrain` a real git runner made the release-fixture QA start doing a genuine
+`git fetch origin tag v3.6.0` — inside a suite whose own header says *"the I/O seams are injected — no
+network"*. Nothing failed. The tests passed, took **2.1 s each instead of 94 ms**, and would have gone
+on passing until the day a CI runner had no route to the network.
+
+**Why that is a mutation-testing finding and not merely a slow test.** This document's top box already
+records the rule: under a `command` runner a suite that exits non-zero **IS** the kill signal, so a
+test that fails at random does not add noise to a score, it adds **points**. A network-dependent suite
+is a flaky suite with a delay fuse. It would have inflated every score measured afterwards, and the
+inflation would have looked exactly like good work.
+
+The fix is a seam, not a skip: `localTagGit` answers `fetch` with `ok` and no round-trip — the tags are
+already in the very repository the QA uses as its source — and forwards everything else, including the
+`git show <tag>:<path>` that produces the ancestor's real bytes, to real git. The QA still reads real
+released content, which is its entire reason to exist.
+
+➡️ **The rule this adds**: when a slice hands a real I/O runner to code a test suite already drives,
+**check what the suite starts doing**, not just whether it still passes. A test that silently acquires
+a network dependency reports success in exactly the same way as one that did not.
+
+---
+
 ## S7-5-2 — the git shell, and the first perfect score this document CHECKED — 2026-08-21
 
 `d5324a0`. State owned by

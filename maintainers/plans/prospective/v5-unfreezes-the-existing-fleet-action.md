@@ -40,7 +40,31 @@
 >
 > ## ▶️ WHERE THIS RESUMES
 >
-> **RESUME AT: S7-5-3 — the wiring, and the one report line.** Both halves exist and are measured:
+> ## ✅ THE SECOND FORBIDDEN CLAIM HAS FALLEN — "the merge does not reach BACK", **false as of `fa0f5be`**
+>
+> _(2026-08-21. The first one fell at S7-3; this is the other half of the fleet.)_ The release note was
+> forbidden the obvious sentence — *"your edits are kept AND you get the update"* — because it was
+> **false for one population, permanently**: files the owner had already edited before this release.
+> The reasoning was sound but for one word. The ancestor cannot be seeded **from the disk**; it can be
+> **fetched** from the tag the recorded sha names.
+>
+> **Measured on a brain built from the real `v3.6.0` tag**, with a skill the owner had tailored: their
+> lines survive **and** the engine's newer content arrives, cleanly, no sidecar, nothing to arbitrate.
+> The two QA tests that pinned the old limitation — one of them named *"never acquires an ancestor, and
+> says so"* — are **inverted, with their old claims kept above their replacements**.
+>
+> ⚠️ **What is still NOT promised**, and the note must not overstate it either: a fetch is best effort.
+> Offline, or on a tag that has gone, the file is preserved exactly as before and the report says so in
+> one line. And two edits in the **same region** still conflict — correctly, and visibly.
+>
+> ## ▶️ RESUME AT: S7-4 — the remaining QA breadth
+>
+> S7 and S7-5 are **both complete**. What is left of S7-4 is breadth, not the headline (which was paid
+> at S7-3): the **FR side**, a **second tag hop**, and the **scripts** family. Then **S8** (the FR tree
+> stops drifting), **S10** (a personalized file becomes a question with three offers), **S9** (the
+> release tail). Execution order unchanged: S7 → S8 → S10 → S9.
+>
+> _Superseded, kept for the trail:_ **S7-5-3 — the wiring, and the one report line.** Both halves exist and are measured:
 > `planAncestorFetch` _(S7-5-1 · `d019d38` · 93.94 %)_ and `fetchAncestors` _(S7-5-2 · `d5324a0` ·
 > **100 %**, 42/42, confirmed serially)_. What is left is to join them inside `reconcileBrain`:
 >
@@ -226,7 +250,10 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           on a serial re-run** because a lone perfect score from a judge proved flaky is not evidence)_
           One design change, made while writing it and recorded below: **the self-heal gate moved into
           the shell.**
-    - [ ] **S7-5-3 — the wiring** + the one report line (attempted-and-failed only).
+    - [x] **S7-5-3 — the wiring** + the one report line (attempted-and-failed only).
+          _(2026-08-21 · `fa0f5be` · 3 end-to-end tests + 2 QA tests INVERTED, mutation **100 %** on the
+          three changed hunks, 41/41, confirmed serially)_ **S7-5 IS COMPLETE, and the second forbidden
+          claim has fallen** — see the box below.
   - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. ⚠️ **Headline already
         paid at S7-3** — see § S7 for what is left (FR, a second tag, the other two families).
 - [ ] **S8 — the French tree stops drifting in silence.**

@@ -345,15 +345,14 @@
 >         was the only thing wrong, and it is fixed. ✅ **The true sentence**: *files you edit from
 >         this version on will merge; the ones you had already changed keep standing untouched, with
 >         the new version beside them, and the update says so by name.*
->         ⚠️ **"PERMANENTLY" IS NO LONGER SAFE TO WRITE, and the release note must not inherit it.**
->         The reasoning above has exactly one hole and the successor plan is in it: the ancestor
->         cannot be seeded from the disk, but it can be **FETCHED** from the tag the recorded sha
->         names. That is **S7-5** of
->         [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
->         **in flight, not finished** (the planner landed 2026-08-21; the git shell and the wiring are
->         not written). **That plan owns whether the sentence changes and this row keeps no copy** —
->         it is flagged here only so nobody quotes "permanently" out of an archive while it is being
->         disproved next door.
+>         ✅ **"PERMANENTLY" IS NOW FALSE, and S7-5 SHIPPED** _(2026-08-21 · `fa0f5be`)_. The
+>         reasoning above had exactly one hole: the ancestor cannot be seeded **from the disk**, but it
+>         can be **FETCHED** from the tag the recorded sha names. Measured on a brain built from the
+>         real `v3.6.0` tag — the owner's lines survive and the update lands, in the same pass — and the
+>         two QA tests that pinned the old limitation are inverted. **The successor plan owns what the
+>         note may now claim and this row keeps no copy**:
+>         [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md).
+>         Flagged here only so nobody quotes "permanently" out of an archive.
 > - [ ] ✂️ **Cutting, tagging and publishing** — his, always (§ *Where the owner is required*).
 > - [ ] 🔬 **The one S3 item that is a field measurement, not code** (§ S3, and it says so there):
 >       whether the write guard's prompt becomes noise on a session that legitimately customizes an

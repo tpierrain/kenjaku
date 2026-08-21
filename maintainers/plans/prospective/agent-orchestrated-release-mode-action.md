@@ -465,6 +465,21 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📉 **2026-08-21 (S7-5-3) — A SLICE CAN MAKE THE SUITE FLAKY WITHOUT MAKING ONE TEST FAIL.** Wiring a
+  real git runner into the reconciler made the release-fixture QA start doing a genuine network fetch,
+  inside a suite whose header says "no network". Nothing went red; the tests just took 2.1 s instead of
+  94 ms. Owned by [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md) § S7-5-3, not restated here.
+  **What the MODE takes from it**: when a slice hands a real I/O runner to code the tests already
+  drive, look at what the suite *starts doing*, not only at whether it still passes. In this repo that
+  is not hygiene — a flaky suite adds POINTS to every later mutation score, and the loop measures once
+  per block.
+
+- ✅ **2026-08-21 (S7-5) — THE SECOND FORBIDDEN CLAIM FELL**, one release-note sentence at a time. S7-3
+  killed *"the doctrine layer unfreezes no already-deployed brain"*; S7-5 killed *"the merge does not
+  reach back, permanently"*. Both were **pinned by tests**, which is why neither could be quietly
+  forgotten and why both inversions had to carry their old claim above the new one. State is owned by
+  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md).
+
 - 📉 **2026-08-21 (S7-5-1) — THE JUDGE ITSELF CAME BACK NON-DETERMINISTIC, and the loop's own habits
   are what caught it.** The same command, on the same commit, scored **96.97 %** then **93.94 %**
   minutes apart. This matters to the MODE, not just to one file: the loop's contract is *measure once
