@@ -169,6 +169,61 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S2b's switch — the four engine scripts leave the copy bucket — 2026-08-21
+
+Third slice of S2b, and the one that changes what a brain receives: `auto-commit`, `auto-push`,
+`status-line` and `verify-rag` stop being overwritten blind. **One commit** (`8b90fc8`) — split in two,
+the branch would hold a state in which nobody delivers them. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the fixes | Survivors |
+|---|---|---|---|
+| `lib/engine-script-refresh.mjs` (new) | **87.50 %** — 14 killed, 2 survived | **100.00 %** — 16 killed | none |
+| `lib/engine-merge-apply.mjs` (the carrier, re-measured) | — | **100.00 %** — 106 killed, **unchanged** | none |
+| `lib/engine-apply-plan.mjs` (**never measured before**) | **78.00 %** — 39 killed, 11 survived | **92.00 %** — 46 killed, 4 survived | 4, all equivalents |
+| `update-engine.mjs` | **96.69 %** — 292 killed, 10 survived | **98.34 %** — 297 killed, 5 survived | 5, 4 of them named debt |
+| `lib/reconcile-brain.mjs` | **96.74 %** — 177 killed + 1 t/o, 6 survived | — | 6, all pre-existing |
+
+🛑 **The write-allowlist had never been measured, and it is the one pure function standing between a
+fetched manifest and an owner's files.** `engine-apply-plan.mjs` came back at **78 %**. Three of the
+eleven survivors were reachable safety holes, not style:
+
+- **Both anchors of `ENGINE_SCRIPT` were free.** Without `^`, helper code shipped inside a staged skill
+  (`engine-skills/local-mirror/scripts/helper.mjs`) reads as a merge-governed engine script and leaves
+  the skill that owns it. Without `$`, so does the engine's **own `.new` sidecar** — the owner would be
+  handed a merge of a merge. Neither path is sacred, so nothing downstream would have caught them.
+- **The leading anchor of `ENGINE_SKILL` is `installSkills`'s only defence**, because that is the one
+  bucket `computeApplyPlan` does not scrub (a declared skill is exactly what the additive install path
+  is for). A manifest declaring `vault/.claude/skills/smuggled/**` read as an engine skill.
+- **A manifest with no `regimes` at all** — an older one, a truncated one, an unreadable fetch — had
+  never been fed to it. An allowlist's answer there must be *"you may write nothing"*.
+- **The sacred scrub had only ever been shown a file INSIDE a sacred tree.** Named bare
+  (`.claude/skills`) or claimed wholesale (`vault/**`), the tree hangs on re-appending one `"/"` and on
+  the glob stem being stripped to nothing.
+
+The four survivors left are equivalents: two `?? ["Stryker was here"]` defaults that the very next
+`.filter()` discards, and two `stem()` regex variants (`/\/\*\*$/` and the unanchored `/\/\*\*?/`) whose
+only discriminators are globs no manifest can meaningfully carry (`CLAUDE.md/*`) — every realistic entry
+lands on the same side of `isSacred` either way.
+
+⚠️ **A report key left OUT of a fixture is a disjunct that fixture never judged.** `needsRestart` is an
+OR over six lists and its don't-cry-wolf test named three. A missing key reads `undefined?.length > 0` —
+false **whatever the comparison says** — so `length >= 0` sailed straight past three disjuncts, one of
+them older than this branch. The shape generalises: *an optional-chained field absent from the fixture
+makes its whole test vacuous, and the test still passes.* Fixed by naming every list, empty, which is
+also the shape a real converged reconcile hands back.
+
+- ✅ **The new module scored 87.5 % first pass, and both survivors were the same anchors** the
+  allowlist's own regex lost. Same pattern, same blind spot, measured twice in one slice: **a test that
+  only ever feeds paths failing in the MIDDLE of a pattern never pays for its ends.**
+- ✅ **The carrier came back at 100 % with 106 mutants, unchanged**, on its second client. That is the
+  extraction's claim being re-earned rather than assumed: a carrier that needed edits to serve family
+  number two would have moved its own numbers.
+- ✅ **`reconcile-brain.mjs` gained no survivor** (96.11 % → **96.74 %**) despite gaining a whole wiring
+  step. Its six are the pre-existing `readFileSync(…, "utf8")` family and the `gitignore` write guard.
+
+---
+
 ## S2b's syntax gate — `engine-script-check.mjs`, on bytes that exist nowhere else — 2026-08-21
 
 Second slice of S2b: the merge's output is parsed before it is written, because S2b's four files are
@@ -260,6 +315,13 @@ the owner reads. State owned by
 |---|---|---|
 | `update-engine.mjs` | ~~**98.95 %** — 282 killed, 3 survived~~ ⚠️ **inflated, see below** | ~~3~~ |
 | `update-engine.mjs` — **re-measured 2026-08-21 on `211cfc5`** | **97.54 %** — 278 killed, 7 survived | 7, all **pre-existing**, none in this slice's code |
+| `update-engine.mjs` — **after S2b-3** (`739b7e0`) | **98.34 %** — 297 killed, 5 survived | 5 — see [§ S2b's switch](#s2bs-switch--the-four-engine-scripts-leave-the-copy-bucket--2026-08-21) |
+
+✅ **S2b-3 paid two of the seven while passing through**, without setting out to: `:465` (the brain's
+recorded `source`) and `releases: []` both died to the fixtures that slice tightened. **What is left for
+S2b-4 is three lines, not four** — `:339` (the local manifest read), `:411` (the `copied` readback, in
+two mutants: the encoding AND the whole entry) and `runUpdateCli`'s `argv` default — plus the
+`skillsPreserved` equivalent below. The line numbers moved with the slice; the shapes did not.
 
 🛑 **The first figure was measured against a suite that failed ~75 % of the time for reasons unrelated
 to the mutant** (the flaky temp-dir sweep — see the warning at the top of this file; under the

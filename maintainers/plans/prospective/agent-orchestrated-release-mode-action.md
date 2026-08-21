@@ -404,6 +404,47 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 11) — S2b-3: the four engine scripts leave the copy bucket.**
+  Commit `8b90fc8` (the switch, deliberately indivisible), then `d7a6fd6`, `bc6a9f5`, `59c2275`,
+  `739b7e0` paying what its mutation runs found. Pushed, suite **1968 pass / 0 fail**. New module
+  **100 %** (16), the carrier **still 100 %** (106) on its second client, `update-engine.mjs`
+  **96.69 % → 98.34 %**, and the never-measured write-allowlist **78 % → 92 %**.
+  - 🔍 **A slice's real find was in a file it only grazed.** `engine-apply-plan.mjs` is the pure
+    function standing between a fetched manifest and an owner's files, and **it had never been
+    mutation-measured** — 78 %, with three reachable safety holes (a staged skill's helper code reading
+    as an engine script, the engine's own `.new` sidecar doing the same, and
+    `vault/.claude/skills/smuggled/**` reading as an installable skill because `installSkills` is the
+    one bucket the scrub does not filter).
+    ➡️ **For the mode**: when a slice changes what a file MEANS, measure it even if the diff is a
+    rename. The rename was three lines; the audit it triggered was the slice's most valuable hour.
+  - 🎯 **The same blind spot, twice in one slice, in two different files**: both anchors of an
+    identical regex survived in the new module and in the allowlist. **A test that only ever feeds
+    paths failing in the MIDDLE of a pattern never pays for its ends** — and both ends turned out to
+    guard something real.
+  - 🕳️ **A fixture key left OUT makes its test vacuous, and the test still passes.** `needsRestart` is
+    an OR over six lists; its don't-cry-wolf fixture named three. A missing key reads
+    `undefined?.length > 0` — false *whatever the comparison says* — so `length >= 0` sailed past three
+    disjuncts, one older than this branch. Optional chaining turns an absent fixture field into a
+    silently unjudged branch.
+  - 📉 **The regression this slice nearly shipped was a NUMBER, not a behaviour.** The four scripts left
+    `copied`, so a brain nobody customized would have read *"4 fewer engine file(s) swapped"* while
+    exactly as many files changed. Nothing broke; the report would simply have started under-counting.
+    ➡️ **For the mode**: when work moves out of a bucket, ask what COUNTED that bucket.
+  - 🧬 **A near-copy of a predicate had already drifted before this slice touched it.** The restart
+    banner asked `copied || regenerated || skillsRefreshed`, a hand-written echo of `needsRestart` that
+    had silently fallen behind it (a merged skill armed the nudge and printed no banner). It now asks
+    `needsRestart` itself. **Two questions with one meaning is one of them going stale** — and the
+    drift is invisible until something moves.
+  - 🧾 **The false fact from iteration 10 was still alive in three fixtures.** `update-engine.mjs` under
+    `merge` — corrected in the plan, the comment and one test title last night, and still sitting in
+    `reconcile-brain.test.mjs`, `restart-convergence.test.mjs` and `update-engine.test.mjs`.
+    ➡️ **For the mode**: correcting a claim means grepping for its EVIDENCE, not just its wording. A
+    fixture is the quietest place a wrong belief hides, because it is never read as an assertion.
+  - 🧪 **A fixture that was harmless became a lie the moment the behaviour changed**: one provenance
+    base recorded out of four engine scripts. Fine while they were copied blind; since the switch it
+    would have asserted a fast-forward the merge is right to refuse. **Verified against the real fleet
+    shape before editing it** (the scripts were in `copied`, so they were re-seeded at every update) —
+    a fixture is changed by proving what the field holds, never by making the test go green.
 - 🌙 **2026-08-21 (night, loop iteration 10) — S2b-2: a merge that would not parse is never written.**
   Commit `6ba4348`, pushed, suite **1945 pass / 0 fail**, **100 % on both files, first pass, no
   survivor** (the carrier went 86 → 106 mutants for four lines of gate, all killed).

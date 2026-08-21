@@ -165,13 +165,18 @@
 > merge's OUTPUT is parsed under the brain's own node before it reaches the disk, and only the merge's
 > output; `merge-unsafe` and `merge-failed` say different things, and the report can say both.
 >
-> **▶️ RESUME AT: S2b-3 — the switch, and it is ONE commit.** `computeApplyPlan`'s bucket renames
-> (`replaceScripts` → `mergeScripts`) and **leaves `copyGlobs`**, the script refresh is wired into
-> `reconcileBrain` with the syntax gate as its `verifyWrite`, and the report gains sentences that say
-> *file*, not *skill* (the known lie S2b-2 pinned). ⚠️ **Split across two commits there would exist a
-> commit in which the four scripts are delivered by nobody** — a fleet that silently stops receiving
-> `auto-commit` fixes. Then S2b-4 (the named debt, now four lines) — detailed in § S2b below. **S2c is
-> the only part that waits on Thomas** (the box at the top), and nothing else does.
+> ✅ **S2b-3 IS DONE — the four engine scripts are unfrozen, in ONE commit** _(2026-08-21 · `8b90fc8`
+> + `d7a6fd6` + `bc6a9f5` + `59c2275`)_. `mergeScripts` left `copyGlobs` and `engine-script-refresh.mjs`
+> took over in the same commit, so the branch never held a state where nobody delivered them. The report
+> says *file*, and the `merge-unsafe` sentence S2b-2 pinned as a known lie is now true. **100 % on the
+> new module** (16 mutants), the carrier **still 100 %** (106), and `engine-apply-plan.mjs` — the
+> write-allowlist, never measured before — went **78 % → 92 %** with three real safety holes closed.
+>
+> **▶️ RESUME AT: S2b-4 — the named debt, paid on the final shape.** Four `readFileSync`/argv lines in
+> `update-engine.mjs` that no test walks (`:344` the `copied` readback, `:279` the local manifest, `:465`
+> the recorded `source`, and `runUpdateCli`'s `argv` default), plus the `unknown()` duplication in
+> `runUpdateCli`. Detailed in § S2b below. **S2c is the only part that waits on Thomas** (the box at the
+> top), and nothing else does.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -808,26 +813,75 @@ audible divergence.
       - [x] **A test filter caught being too loose, again**: a bare `startsWith("   • ")` also matches
             the standard report's furniture. Same defect as the one S2a-3b already paid for — the
             sibling test's predicate is the one to copy.
-    - [ ] **S2b-3 — the switch, and it is ONE commit.** The bucket renames and leaves `copyGlobs`, the
-          script refresh is wired into `reconcileBrain`, and the report gains its sentences. ⚠️ **Split
-          across two commits there would exist a commit in which the four scripts are delivered by
-          nobody** — a fleet that silently stops receiving `auto-commit` fixes. The branch never holds
-          that state.
-      - [ ] The report sentences are the skills' three, said about a file instead of a skill. Wording is
-            Thomas's at release time (`release-notes-tone`), like S2a-3b's.
+    - [x] **S2b-3 — the switch, and it was ONE commit** _(2026-08-21 · `8b90fc8`, then three test-only
+          commits paying what its mutation runs found)_. The bucket renamed and left `copyGlobs`,
+          `engine-script-refresh.mjs` was wired into `reconcileBrain`, and the report gained its
+          sentences — **all in the same commit**, so the branch never held a state in which the four
+          scripts were delivered by nobody. **100 % first pass on the new module** _(numbers owned by
+          [`RESULTS.md` § S2b's switch](../../mutation/RESULTS.md#s2bs-switch--the-four-engine-scripts-leave-the-copy-bucket--2026-08-21))_.
+      - [x] The report sentences are the skills' three, said about a file instead of a skill —
+            **factored into one helper parameterised by the noun**, because the promise is one promise.
+            The conflict sentence names no noun, so both families share it whole, and **every** conflict
+            lands last rather than beside its own family. Wording is Thomas's at release time
+            (`release-notes-tone`), like S2a-3b's.
+      - [x] ⚠️ **The regression the slice nearly shipped in silence: the swapped-file COUNT.** The four
+            scripts used to arrive in `copied`, so a brain nobody customized would have read *"4 fewer
+            engine file(s) swapped"* while exactly as many files changed. `scriptsRefreshed` folds into
+            the count and arms `needsRestart` — a fast-forwarded script needs no line of its own, it has
+            always been a swapped engine file.
+      - [x] **The restart BANNER was asking its own question**, a near-copy of `needsRestart`
+            (`copied || regenerated || skillsRefreshed`) that **had already drifted**: a merged skill
+            armed the persistent nudge and printed no banner. S2b-3 would have drifted it further, so the
+            banner now asks `needsRestart` itself. Two questions with one meaning is one of them going
+            stale.
+      - [x] 🛑 **Three fixtures declared `scripts/update-engine.mjs` under `merge`** — the same false
+            fact the design caught in this plan, still alive in `reconcile-brain.test.mjs`,
+            `restart-convergence.test.mjs` and `update-engine.test.mjs`. Corrected at the source rather
+            than worked around; the self-updater now sits in `replace` in every fixture, as it does on
+            every shipped manifest.
+      - [x] **A fixture that recorded a provenance base for ONE engine script out of four.** Harmless
+            while they were copied blind; since the switch it made the gate test assert a fast-forward
+            the merge is right to refuse (verdict row 3). A real brain is fingerprinted over the whole
+            `merge` regime at install **and re-seeded at every update** — the four scripts were in
+            `copied`, so they were in `deliveredFileMap` — so **a script with no recorded base is a state
+            the fleet does not hold**. Verified before changing the fixture rather than assumed.
+      - [x] **`restart-convergence.test.mjs` keeps `mergeScripts` in its copy list, deliberately**: that
+            function simulates the **v3.1.0 orchestrator's own code**, which copied the four scripts
+            blind. A comment says so, or the next reader "fixes" it into agreement with the new
+            reconciler and the migration test stops modelling the migration.
+      - [x] **What the bucket is FOR, now that it copies nothing**: `planTouches`, the never-touch
+            oracle. The engine still writes those four files, it just no longer writes them blind — so
+            they must stay inside the allowlist, and `computeApplyPlan` still emits them.
+      - [x] 🛑 **The write-allowlist had never been mutation-measured** — `engine-apply-plan.mjs`, the
+            one pure function standing between a fetched manifest and an owner's files, came back at
+            **78 %**. Three of the eleven survivors were real safety holes, and they are paid rather than
+            noted: both anchors of `ENGINE_SCRIPT` (without `^`, helper code shipped inside a staged
+            skill becomes an engine script; without `$`, so does the engine's own `.new` sidecar), the
+            leading anchor of `ENGINE_SKILL` (**`installSkills` is the one bucket the scrub does not
+            filter**, so a manifest declaring `vault/.claude/skills/smuggled/**` would have the engine
+            install-if-absent into the owner's vault), a manifest with **no `regimes` at all**, and the
+            sacred TREES named bare (`.claude/skills`) or claimed wholesale (`vault/**`). **78 % → 92 %**,
+            the four remaining survivors named equivalents in `RESULTS.md`.
     - [ ] **S2b-4 — the named debt, paid on the final shape.** The `deliveredFileMap` line at
-          `update-engine.mjs:344` that reads back every **copied** file's bytes is **never executed under
-          test** (a mutant giving it an invalid encoding survives). That map feeds `reseedProvenance` and
-          `syncBaseTree`, so the ancestor recorded for every `replace`-copied file is unproven. Detail in
-          `RESULTS.md` § S2's report. **Deliberately last**: pinning it before S2b-3 would pin a `copied`
-          list that S2b-3 then changes, so the test would be rewritten by the slice it was meant to
-          guard.
-      - [ ] **The debt grew by three when the instrument was fixed** _(2026-08-21)_ — same shape, same
+          `update-engine.mjs:411` that reads back every **copied** file's bytes is **never executed under
+          test** (both a mutant giving it an invalid encoding AND one emptying the whole entry survive).
+          That map feeds `reseedProvenance` and `syncBaseTree`, so the ancestor recorded for every
+          `replace`-copied file is unproven. Detail in `RESULTS.md` § S2's report. **Deliberately last**:
+          pinning it before S2b-3 would pin a `copied` list that S2b-3 then changes, so the test would be
+          rewritten by the slice it was meant to guard.
+      - [x] **The debt grew by three when the instrument was fixed** _(2026-08-21)_ — same shape, same
             cause, so they are paid together: `:279` (the local manifest read on the update path) and
-            `:465` (the brain's recorded `source`) are two more `readFileSync(…, "utf8")` mutants that
+            `:465` (the brain's recorded `source`) were two more `readFileSync(…, "utf8")` mutants that
             survive an invalid encoding, and `runUpdateCli`'s `argv = process.argv.slice(2)` default is
-            exercised by no test that omits `argv`. **Four lines the suite walks past**, in the file that
-            carries the whole update.
+            exercised by no test that omits `argv`.
+      - [x] ✅ **And S2b-3 paid two of them in passing, without setting out to** _(2026-08-21,
+            98.34 %)_. `:465` and the `releases: []` duplication both died to the fixtures that slice
+            tightened. **What is left is three lines** in the file that carries the whole update:
+            `:339` (the local manifest read), `:411` (the `copied` readback) and the `argv` default —
+            plus the `skillsPreserved` equivalent, which is named rather than killed.
+      - [ ] **Still owed with them**: `runUpdateCli`'s "unknown"-report literal hand-rolls a second copy
+            of the shape `checkUpstream`'s own `unknown()` helper already builds. The mutant is dead; the
+            duplication that made it possible is not.
       - [ ] Same slice, same run's other finding: `runUpdateCli`'s "unknown" report hand-rolls a second
             copy of the shape `checkUpstream`'s `unknown()` helper already builds, which is why one of
             its fields is dead and unassertable. Reuse the helper.
