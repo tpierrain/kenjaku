@@ -57,11 +57,13 @@ const APPLIED_LINE = {
     ` — so your next update merges from there instead of asking again.`,
 };
 
-// Parsed rather than inlined so a malformed `--from` is one refusal, not two.
-function parseFrom(rest) {
+// The `-1` guard is load-bearing, not ceremony: without it `rest[at + 1]` reads
+// `rest[0]` when `--from` is absent, so a stray argument would be silently promoted
+// to "the combination", and the owner would be told a file they never named could
+// not be read.
+function fromPath(rest) {
   const at = rest.indexOf("--from");
-  if (at === -1) return { path: undefined };
-  return { path: rest[at + 1] };
+  return at === -1 ? undefined : rest[at + 1];
 }
 
 // Everything reaches this through `deps`, so the whole decision is testable without
@@ -92,7 +94,7 @@ export function runAdoptEngineFile(argv, deps = realDeps()) {
 
   let combined;
   if (decision === "combine") {
-    const { path } = parseFrom(rest);
+    const path = fromPath(rest);
     if (!path) {
       // Without its bytes, "combine" is one silent fallback away from becoming
       // "take the new one" — the offer the owner chose over that one on purpose.

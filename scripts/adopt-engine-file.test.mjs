@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { ADOPTION_BLOCKED_LINE } from "./lib/engine-commit.mjs";
@@ -43,22 +43,27 @@ function harness({ adopt } = {}) {
 }
 
 const said = (calls) => [...calls.log, ...calls.error].join("\n");
+const escaped = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // ── the caller got it wrong: exit 2, and NOTHING is attempted ────────────────
 // Each of these must leave `adopt` uncalled. A usage error that has already run a
 // safety commit and rewritten a file is not a usage error any more.
 
-test("no arguments at all — usage, exit 2, nothing attempted", () => {
+test("no arguments at all — the BARE usage, exit 2, nothing attempted", () => {
   const { deps, calls } = harness();
   assert.equal(runAdoptEngineFile([], deps), 2);
   assert.deepEqual(calls.adopt, []);
-  assert.match(said(calls), /adopt-engine-file/);
+  // 🛑 Exactly the usage, and nothing else. Falling through to the unknown-decision
+  // branch also exits 2, which is why the code alone cannot tell these apart — but it
+  // greets someone who typed nothing with `I do not know the answer "undefined"`.
+  assert.equal(said(calls), USAGE);
 });
 
-test("a file but no decision — usage, exit 2, nothing attempted", () => {
+test("a file but no decision — the BARE usage too, exit 2, nothing attempted", () => {
   const { deps, calls } = harness();
   assert.equal(runAdoptEngineFile([REL], deps), 2);
   assert.deepEqual(calls.adopt, []);
+  assert.equal(said(calls), USAGE);
 });
 
 test("an unknown decision is NAMED back, and never guessed at", () => {
@@ -88,6 +93,19 @@ test("combine whose --from cannot be read is refused, and says which path", () =
   assert.match(said(calls), /\/nope\/absent\.md/);
 });
 
+test("a stray argument is NOT silently promoted to being the combination", () => {
+  // 🛑 Without the `-1` guard, `rest[at + 1]` reads `rest[0]` — so this stray word
+  // becomes "the combination", and the owner is told a file they never named could
+  // not be read. Both spellings exit 2; only one of them is actionable.
+  const { deps, calls } = harness();
+
+  assert.equal(runAdoptEngineFile([REL, "combine", "oops.md"], deps), 2);
+
+  assert.deepEqual(calls.adopt, []);
+  assert.match(said(calls), /--from/);
+  assert.doesNotMatch(said(calls), /oops\.md/, "it was never named as a path, so it must not be quoted back as one");
+});
+
 // ── the answer is applied: exit 0 ────────────────────────────────────────────
 
 test("take the new one — the seam is called with exactly the owner's answer", () => {
@@ -96,7 +114,10 @@ test("take the new one — the seam is called with exactly the owner's answer", 
   assert.equal(runAdoptEngineFile([REL, "take-theirs"], deps), 0);
 
   assert.deepEqual(calls.adopt, [{ brainDir: "/brain", rel: REL, decision: "take-theirs", combined: undefined }]);
-  assert.match(said(calls), /coach/i);
+  assert.match(said(calls), new RegExp(escaped(REL)));
+  // The only offer that destroys something. Its sentence must carry the reassurance
+  // S10-4 exists to make true, or the safety commit is a fact nobody is told about.
+  assert.match(said(calls), /saved in this brain's history/i);
 });
 
 test("keep mine — applied, and the sentence says their version is what stands", () => {
@@ -106,6 +127,12 @@ test("keep mine — applied, and the sentence says their version is what stands"
 
   assert.equal(calls.adopt[0].decision, "keep-mine");
   assert.equal(calls.adopt[0].combined, undefined);
+  // The sentence IS the deliverable of this branch. It must name the file, say the
+  // owner's text stands, and answer the question they would ask next — *will you
+  // pester me about this again?*
+  assert.match(said(calls), new RegExp(escaped(REL)));
+  assert.match(said(calls), /exactly as you wrote it/i);
+  assert.match(said(calls), /not raise it again until its next release/i);
 });
 
 test("combine — the BYTES of --from are what reach the seam, not the path", (t) => {
@@ -121,6 +148,11 @@ test("combine — the BYTES of --from are what reach the seam, not the path", (t
 
   assert.equal(calls.adopt[0].decision, "combine");
   assert.equal(calls.adopt[0].combined, COMBINED);
+  // 🛑 The sentence has to say what became the ANCESTOR, because that is the one
+  // consequence the owner cannot see on disk and the one that decides whether this
+  // file is raised again at every release forever.
+  assert.match(said(calls), /ancestor/i);
+  assert.match(said(calls), /merges from there instead of asking again/i);
 });
 
 // ── the brain refused: exit 1, and the reason is the owner's to act on ───────
@@ -151,7 +183,11 @@ test("no offer left to take is exit 1 and says so plainly — not a crash, not a
   assert.equal(runAdoptEngineFile([REL, "take-theirs"], deps), 1);
 
   assert.match(said(calls), /no newer version/i);
-  assert.match(said(calls), new RegExp(REL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(said(calls), new RegExp(escaped(REL)));
+  // Both innocent explanations, said out loud. "Nothing to adopt" with no reason
+  // reads as a malfunction, and this is the one blocked outcome that is not one.
+  assert.match(said(calls), /already made/i);
+  assert.match(said(calls), /never received an engine version/i);
 });
 
 test("every blocked outcome says the brain was left ALONE — that is the reassurance", () => {
@@ -174,8 +210,59 @@ test("started as a real process with no arguments: exit 2, and the usage on stde
   assert.equal(run.stdout, "", "a usage error belongs on stderr");
 });
 
-test("the usage names all three offers — it is the only place a caller can learn them", () => {
-  assert.match(USAGE, /take-theirs/);
-  assert.match(USAGE, /keep-mine/);
-  assert.match(USAGE, /combine/);
+// 🚨 THE ONE TEST THAT PROVES THE COMMAND IS PLUGGED IN. Everything above injects
+// `adopt`, so all of it would still pass if `realDeps` handed the seam an empty
+// object, or dropped the git runner, or logged nothing. A fake can never show the
+// real wiring — and the wiring is the entire content of this slice.
+//
+// 🧭 The brain is a COPY of `scripts/`, not a bare temp dir, and that is not
+// ceremony: the command resolves the brain it acts on from where the SCRIPT lives,
+// not from the working directory. Spawning the launcher's own copy against a temp
+// folder would silently act on the launcher — which is exactly what this test
+// caught the first time it ran. A real brain carries its own `scripts/`, so the
+// fixture does too.
+test("run for real against a real brain: the file changes, and the answer is recorded", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "sbg-adopt-e2e-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const git = (...args) => execFileSync("git", args, { cwd: dir, encoding: "utf8" });
+  git("init", "--quiet");
+  // A CI runner has no global git identity → configure one locally or `commit` fails.
+  git("config", "user.email", "test@example.invalid");
+  git("config", "user.name", "Test");
+  cpSync(dirname(CLI), join(dir, "scripts"), { recursive: true });
+  mkdirSync(join(dir, dirname(REL)), { recursive: true });
+  writeFileSync(join(dir, REL), "# Coach\nmy own words\n");
+  writeFileSync(join(dir, `${REL}.new`), "# Coach\nthe engine's newer words\n");
+  writeFileSync(
+    join(dir, "engine-manifest.json"),
+    JSON.stringify({ regimes: { merge: [REL] }, provenance: { [REL]: "sha256:old" }, source: { ref: "v5.0.0" } }),
+  );
+  git("add", "-A");
+  git("commit", "--quiet", "-m", "initial");
+
+  const run = spawnSync(process.execPath, [join(dir, "scripts", "adopt-engine-file.mjs"), REL, "take-theirs"], {
+    cwd: dir,
+    encoding: "utf8",
+  });
+
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(run.stdout, /Done:/, "the real log goes to stdout, or the owner sees nothing");
+  assert.equal(readFileSync(join(dir, REL), "utf8"), "# Coach\nthe engine's newer words\n");
+  assert.equal(existsSync(join(dir, `${REL}.new`)), false, "the offer was taken, so it is no longer open");
+  assert.equal(
+    JSON.parse(readFileSync(join(dir, ".engine-answers.json"), "utf8"))[REL].at,
+    "v5.0.0",
+    "and it is recorded against the version it was answered at, or the next release cannot re-open it",
+  );
+});
+
+test("the usage EXPLAINS all three offers — naming them is not telling anyone what they do", () => {
+  // Naming the three words is satisfied by the invocation line alone, which is how
+  // three emptied explanation lines can hide behind a passing test. What a caller
+  // actually needs is the consequence of each offer.
+  assert.match(USAGE, /take-theirs\s+the engine's newer version replaces yours/);
+  assert.match(USAGE, /your current one is saved first/);
+  assert.match(USAGE, /keep-mine\s+your version stands/);
+  assert.match(USAGE, /combine\s+adopt the combination written in --from/);
+  assert.match(USAGE, /keeping the engine's version as the ancestor/);
 });
