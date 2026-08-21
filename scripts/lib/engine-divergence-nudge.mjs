@@ -29,6 +29,7 @@
 // to happen, and the sentence an owner reads must not depend on which door it came
 // through.
 // ─────────────────────────────────────────────────────────────────────────────
+import { isAnswered } from "./engine-answers.mjs";
 
 // One clause per verdict of `engineDivergence`. `no-provenance` takes no argument on
 // purpose: it is the verdict that can prove nothing, so it may not say "yours" — the
@@ -50,13 +51,28 @@ export const DIVERGENCE_CLOSING = "Nothing to do: a file the engine leaves alone
 // (already sorted by path), and `ref` is the version the brain runs — a fact about the
 // BRAIN, deliberately kept apart from each file's `since`. Filling an unknown `since`
 // from it is the exact confusion `baseRefs` was added to end.
-export function engineDivergenceNudge({ divergence, ref }) {
-  if (divergence.length === 0) return null;
-  const count = divergence.length;
+//
+// 🚨 S10-3 — THE SUBTRACTION IS THIS FUNCTION'S, NOT THE CALLER'S, and that is a decision.
+// This is the one surface that speaks UNBIDDEN, at every session start, so it is the only
+// place consent fatigue can be built. A file the owner has already been asked about and
+// settled must stop being raised — and if the filter lived in the caller, a second caller
+// would reinstate the nag by simply not knowing about it.
+//
+// `answers` defaults to "nothing answered" because that is the literal state of the whole
+// fleet and of every brain until the brain-side skill writes one — not a fallback covering
+// a caller that forgot. What a forgetful caller would break is the WIRING, and the wiring
+// is pinned where it lives (`session-engine-divergence.test.mjs`).
+//
+// The subtraction is keyed by the ref the answer was GIVEN at, so a new engine version
+// re-opens every question by construction: `engine-answers.mjs` carries the why.
+export function engineDivergenceNudge({ divergence, ref, answers = {} }) {
+  const open = divergence.filter(({ rel }) => !isAnswered({ answers, rel, ref }));
+  if (open.length === 0) return null;
+  const count = open.length;
   const subject = ref === null ? `This brain records no engine version` : `This brain runs ${ref}`;
   // The first by path, not the "most important" one: there is no such ranking, and
   // inventing one would be a claim about the owner's intent we have no way to make.
-  const [{ rel, reason, since }] = divergence;
+  const [{ rel, reason, since }] = open;
   const rest = count - 1;
   return (
     `⚙️ ${subject}, and the engine is leaving ${count} file${count > 1 ? "s" : ""} alone` +

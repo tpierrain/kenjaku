@@ -110,7 +110,7 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     skillsPreserved: [
       { name: "import", reason: "customized", newVersionPath: ".claude/skills/import/SKILL.md.new" },
       { name: "sync", reason: "merge-failed", newVersionPath: ".claude/skills/sync/SKILL.md.new" },
-      { name: "improve", reason: "no-provenance" },
+      { name: "improve", reason: "no-provenance", newVersionPath: ".claude/skills/improve/SKILL.md.new" },
     ],
     conflicts: [{ name: "prepare-1-1", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" }],
   });
@@ -121,7 +121,7 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
     '   • your "coach" and "switch" skills kept your edits AND received this update',
     '   • your customized "import" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/import/SKILL.md.new',
     '   • your customized "sync" skill was kept exactly as you wrote it (the merge could not run here) — the newer engine version sits next to it as .claude/skills/sync/SKILL.md.new',
-    '   • your "improve" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+    '   • your "improve" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as .claude/skills/improve/SKILL.md.new',
     '   • ⚠️ "prepare-1-1": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/prepare-1-1/SKILL.md.new',
   ]);
 });
@@ -342,7 +342,9 @@ test("formatReport — the constitution speaks in the file family's words, and i
     regenerated: false,
     reindexed: false,
     doctrineMerged: ["CLAUDE.engine.md"],
-    doctrinePreserved: [{ name: "CLAUDE.engine.md", reason: "no-provenance" }],
+    doctrinePreserved: [
+      { name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" },
+    ],
     doctrineConflicts: [{ name: "CLAUDE.engine.md", newVersionPath: "CLAUDE.engine.md.new" }],
   })
     .split("\n")
@@ -350,7 +352,7 @@ test("formatReport — the constitution speaks in the file family's words, and i
 
   assert.deepEqual(named, [
     '   • your "CLAUDE.engine.md" file kept your edits AND received this update',
-    '   • your "CLAUDE.engine.md" file was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+    '   • your "CLAUDE.engine.md" file was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as CLAUDE.engine.md.new',
     '   • ⚠️ "CLAUDE.engine.md": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at CLAUDE.engine.md.new',
   ]);
 });
@@ -391,8 +393,11 @@ test("formatReport — every preserve reason says WHY, in the words of its own f
   // produced no sentence on any update, forever, which is the field finding's third
   // defect word for word. The claim is still not made — the file is never called
   // customized — and what is said instead is the thing we DO know: we cannot tell.
+  // 🔁 S10-3 extends it once more, in the same direction: the verdict now WRITES a
+  // sidecar (S10-1), so naming it is what keeps the report honest. Still no claim about
+  // who wrote the file — only about which version is waiting beside it.
   assert.deepEqual(skillAside("no-provenance"), [
-    '   • your "x" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+    '   • your "x" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as x.new',
   ]);
 
   const scriptAside = asideOf("scriptsPreserved");
@@ -406,30 +411,107 @@ test("formatReport — every preserve reason says WHY, in the words of its own f
     '   • your customized "x" file was kept exactly as you wrote it (merging the two would not have produced a working file) — the newer engine version sits next to it as x.new',
   ]);
   assert.deepEqual(scriptAside("no-provenance"), [
-    '   • your "x" file was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+    '   • your "x" file was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as x.new',
   ], "and the same news, in the other family's noun");
 });
 
-// ⚠️ The sidecar is NOT mentioned, and the fixture above would let it slip: it passes a
-// `newVersionPath` for every reason, while the producer emits none for this one (a
-// `no-provenance` preserve writes no `.new` — see engine-merge-apply.mjs). Asserted on
-// the shape the producer can actually emit, or the report would point at a file that
-// does not exist, on the very verdict that exists to admit we know nothing.
-test("formatReport — the unprovable-file line points at no sidecar, because none was written", () => {
+// ── S10-3: the offer that turns a preserved file into a QUESTION ────────────────
+//
+// The owner's acceptance criterion for v5, in his words: a file you personalized becomes
+// a question with three offers, not a blind spot. S10-1 put the candidate on disk; this
+// is the sentence that says it is there and that the choice is the owner's.
+//
+// It is ONE line for the whole block, whatever the families and however many files —
+// the same non-negotiable `walkthroughOffer` carries: an offer printed under every file
+// is the consent fatigue this chantier exists to end.
+
+test("formatReport — the answer offer is ONE line, names the three choices, and counts every family", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: {},
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    skillsPreserved: [{ name: "coach", reason: "customized", newVersionPath: ".claude/skills/coach/SKILL.md.new" }],
+    scriptsPreserved: [{ name: "auto-commit.mjs", reason: "customized", newVersionPath: "scripts/auto-commit.mjs.new" }],
+    doctrinePreserved: [{ name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" }],
+  });
+  const offers = out.split("\n").filter((line) => line.includes("keep yours"));
+
+  assert.deepEqual(offers, [
+    "     Your call, and there is no hurry: ask me about those 3 files and I'll offer, for each one," +
+      " to take the new version, keep yours, or combine the two.",
+  ]);
+});
+
+test("formatReport — a single awaiting file is spoken of in the singular", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: {},
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    skillsPreserved: [{ name: "coach", reason: "customized", newVersionPath: ".claude/skills/coach/SKILL.md.new" }],
+  });
+
+  assert.match(
+    out,
+    /\n {5}Your call, and there is no hurry: ask me about that file and I'll offer to take the new version, keep yours, or combine the two\.\n/,
+  );
+});
+
+test("formatReport — a preserve with NO candidate is offered nothing, because there is nothing to offer", () => {
+  // A retired skill is preserved and has no newer version by definition — the engine
+  // stopped shipping it. Offering "take the new version" there would be a question with
+  // no answer that changes anything, which is the definition of a nag (plan § S10-0).
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: {},
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    skillsRetirePreserved: [
+      { name: "old-skill", blockers: [{ rel: ".claude/skills/old-skill/SKILL.md", reason: "customized" }] },
+    ],
+  });
+
+  assert.doesNotMatch(out, /keep yours/);
+});
+
+test("formatReport — a clean update makes NO offer at all", () => {
+  const out = formatReport({ ref: "v5.0.0", engineVersion: {}, copied: ["a"], regenerated: false, reindexed: false });
+
+  assert.doesNotMatch(out, /keep yours/);
+});
+
+// 🔁 INVERTED AT S10-3, and this is the EXIT from the intermediate state S10-1 named.
+//
+// It used to read: *"the unprovable-file line points at no sidecar, because none was
+// written"* — true when it was written, and the producer changed underneath it. Since
+// S10-1 a `no-provenance` preserve DOES write a `.new`, so the report staying silent
+// about it is now the defect: a sidecar on disk that no surface explains is precisely
+// the "unexplained `.new`" the old rule was right to forbid.
+//
+// What survives the inversion, and is asserted harder than before: the line still may
+// not say "customized". Admitting we cannot tell whose bytes those are, and pointing at
+// the version that awaits, are not in tension — one is a claim about the past, the other
+// an offer about the future.
+test("formatReport — the unprovable-file line NAMES the sidecar, and still claims nothing about who wrote the file", () => {
   const out = formatReport({
     ref: "v9.9.9",
     engineVersion: {},
     copied: [],
     regenerated: false,
     reindexed: false,
-    skillsPreserved: [{ name: "coach", reason: "no-provenance" }],
+    skillsPreserved: [
+      { name: "coach", reason: "no-provenance", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+    ],
   });
   assert.match(
     out,
-    /• your "coach" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours\n/,
+    /• your "coach" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as \.claude\/skills\/coach\/SKILL\.md\.new\n/,
   );
   assert.doesNotMatch(out, /customized/i);
-  assert.doesNotMatch(out, /\.new/);
 });
 
 // One merged skill must not be announced in the plural. The report is read by a
@@ -776,11 +858,13 @@ test("formatReport — an everything-on update prints every optional line, in or
       { name: "no-record", blockers: [{ rel: ".claude/skills/no-record/SKILL.md", reason: "no-provenance" }] },
     ],
     skillsMerged: ["sync", "improve"],
-    // A customized preserve (reported, with its sidecar) next to a no-provenance one
-    // (silent by design) — the discriminating pair for the `reason` filter.
+    // A customized preserve next to a no-provenance one — the discriminating pair for
+    // the `reason` filter. ⚠️ The second used to be described here as "silent by design";
+    // since S10-1 it writes a sidecar too, and since S10-3 the report names it. Both now
+    // count toward the offer below, which is what this golden pins.
     skillsPreserved: [
       { name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
-      { name: "import", reason: "no-provenance" },
+      { name: "import", reason: "no-provenance", newVersionPath: ".claude/skills/import/SKILL.md.new" },
     ],
     conflicts: [{ name: "univers", newVersionPath: ".claude/skills/univers/SKILL.md.new" }],
     hooksAdded: ["scripts/session-health.mjs", "scripts/session-self-heal.mjs"],
@@ -803,7 +887,13 @@ test("formatReport — an everything-on update prints every optional line, in or
       '   • the "no-record" skill is retired — the engine no longer ships it, but this brain has no record of what it delivered there, so your copy was left exactly as it is',
       '   • your "sync" and "improve" skills kept your edits AND received this update',
       '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
-      '   • your "import" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+      '   • your "import" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as .claude/skills/import/SKILL.md.new',
+      // S10-3: the answer offer, and this golden is where its POSITION and its
+      // NON-REPETITION are pinned — one line for both preserved files, sitting directly
+      // under them, and BEFORE the clash gets its own separate door. Two offers appear
+      // here on purpose: they are about different files and ask different questions, and
+      // reading them back to back is the check that their openings stay unalike.
+      "     Your call, and there is no hurry: ask me about those 2 files and I'll offer, for each one, to take the new version, keep yours, or combine the two.",
       '   • ⚠️ "univers": your version and this update changed the same lines. Yours is untouched; a merged copy marking both is at .claude/skills/univers/SKILL.md.new',
       // S2d: the clash block now has a way out, and this whole-report test is where the
       // ORDER of it is pinned — indented under the clash it belongs to, and before the
@@ -852,7 +942,9 @@ test("formatReport — a steady-state upgrade prints the incremental-reindex + g
     reindexed: true,
     reindexReason: "health-note-seed",
     vaultNoteCount: 1,
-    skillsPreserved: [{ name: "coach", reason: "no-provenance" }],
+    skillsPreserved: [
+      { name: "coach", reason: "no-provenance", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+    ],
   });
   assert.equal(
     out,
@@ -861,7 +953,10 @@ test("formatReport — a steady-state upgrade prints the incremental-reindex + g
       "   • 1 engine file(s) swapped",
       "   • ensured the engine health-check note is present and indexed (incremental — your other notes were not re-encoded)",
       "   • your vault holds 1 note — searchable as the reindex finishes",
-      '   • your "coach" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
+      '   • your "coach" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as .claude/skills/coach/SKILL.md.new',
+      // S10-3, singular half: ONE file awaiting an answer, and no clash anywhere — so the
+      // only offer in the whole report is this one, and it reads "that file", not "those 1".
+      "     Your call, and there is no hurry: ask me about that file and I'll offer to take the new version, keep yours, or combine the two.",
       "   ⚠️ ACTION NEEDED — your engine was updated on disk, but THIS conversation is",
       "   still running the OLD version. A FULL RESTART of Claude (close it and reopen) is",
       "   enough: come back to THIS same conversation afterwards and the update takes effect.",
@@ -951,7 +1046,9 @@ test("formatReport — a preserve with no provenance is never called a customiza
     copied: ["rag/src/index.ts"],
     regenerated: false,
     reindexed: false,
-    skillsPreserved: [{ name: "coach", reason: "no-provenance" }],
+    skillsPreserved: [
+      { name: "coach", reason: "no-provenance", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+    ],
   });
   assert.doesNotMatch(out, /customized/i);
   assert.match(out, /"coach" skill was left exactly as it is/);

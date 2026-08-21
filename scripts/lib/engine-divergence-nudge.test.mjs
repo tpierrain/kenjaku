@@ -72,6 +72,65 @@ test("engineDivergenceNudge — two held back: the tail is singular", () => {
   );
 });
 
+// ── S10-3: a file the owner has ALREADY answered about stops being raised ───────
+//
+// 🚨 This is where consent fatigue would live if it lived anywhere. This surface speaks
+// UNBIDDEN, at every single session start; re-raising a file the owner has settled is
+// the exact nag `walkthroughOffer`'s "it does not repeat" was written against. The
+// subtraction is the nudge's own, not the caller's, so a second caller cannot reinstate
+// the nag by forgetting a filter.
+
+const answeredAt = (rel, ref) => ({ [rel]: { decision: "keep-mine", at: ref } });
+
+test("engineDivergenceNudge — a file answered AT THIS REF is subtracted, and never named", () => {
+  assert.equal(
+    engineDivergenceNudge({
+      divergence: [customized, unprovable],
+      ref: "v5.0.0",
+      answers: answeredAt("CLAUDE.md", "v5.0.0"),
+    }),
+    "⚙️ This brain runs v5.0.0, and the engine is leaving 1 file alone" +
+      " — .claude/skills/coach/SKILL.md (left as-is; no record of what the engine delivered there)." +
+      " Nothing to do: a file the engine leaves alone is a choice, not a problem.",
+    "the count drops to 1 AND the named file moves on — a subtraction that only hid the name would lie",
+  );
+});
+
+test("engineDivergenceNudge — an answer given at an EARLIER ref does not subtract", () => {
+  // The whole point of keying answers by version: a new engine means a new candidate, so
+  // the question is genuinely open again. Once per release, with no timer to tune.
+  assert.equal(
+    engineDivergenceNudge({
+      divergence: [customized],
+      ref: "v5.1.0",
+      answers: answeredAt("CLAUDE.md", "v5.0.0"),
+    }),
+    "⚙️ This brain runs v5.1.0, and the engine is leaving 1 file alone — CLAUDE.md" +
+      " (yours; the engine last delivered here at v4.7.0)." +
+      " Nothing to do: a file the engine leaves alone is a choice, not a problem.",
+  );
+});
+
+test("engineDivergenceNudge — every file answered → SILENCE, not a nudge with a zero in it", () => {
+  assert.equal(
+    engineDivergenceNudge({
+      divergence: [customized, unprovable],
+      ref: "v5.0.0",
+      answers: { ...answeredAt("CLAUDE.md", "v5.0.0"), ...answeredAt(".claude/skills/coach/SKILL.md", "v5.0.0") },
+    }),
+    null,
+  );
+});
+
+test("engineDivergenceNudge — no answers at all is the fleet's state today, and reads exactly as before", () => {
+  // Anti-vacuous: every assertion above would also pass if the parameter were ignored
+  // and the nudge simply never spoke. This pins that the default is "nothing answered".
+  assert.equal(
+    engineDivergenceNudge({ divergence: [customized], ref: "v5.0.0", answers: {} }),
+    engineDivergenceNudge({ divergence: [customized], ref: "v5.0.0" }),
+  );
+});
+
 test("engineDivergenceNudge — an unknown `since` is NEVER filled in from the running ref", () => {
   const nudge = engineDivergenceNudge({ divergence: [customizedNoRef], ref: "v5.0.0" });
   // The version the brain runs today is not the version the file is behind — the exact

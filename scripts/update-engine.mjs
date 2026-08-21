@@ -135,12 +135,21 @@ const PRESERVED_ASIDE = {
 // make. That false claim is what sent him diffing a file nobody had edited. What we
 // know is that we do not know, and that is what is said.
 //
-// No sidecar is named: a `no-provenance` preserve writes none (engine-merge-apply),
-// so pointing at a `.new` would be the report inventing a file, on the very verdict
-// that exists to admit ignorance.
-const unprovableLine = (name, singular) =>
+// 🔁 S10-3 — this comment used to end: "No sidecar is named: a `no-provenance` preserve
+// writes none, so pointing at a `.new` would be the report inventing a file, on the very
+// verdict that exists to admit ignorance." The reasoning was right and its PREMISE died at
+// S10-1, which is the same shape of correction `engine-merge-apply.mjs` carries: the
+// verdict now writes a sidecar, so silence here is what invents something — a `.new`
+// appearing beside a file with nothing anywhere to explain it.
+//
+// Admitting we cannot tell whose bytes those are and pointing at the version that awaits
+// are not in tension: one is a claim about the past, which this verdict may not make, and
+// the other an offer about the future, which it may. The clause is `PRESERVED_ASIDE`'s
+// wording verbatim — one sentence with two homes is a divergence waiting to happen.
+const unprovableLine = (name, singular, newVersionPath) =>
   `   • your "${name}" ${singular} was left exactly as it is — this brain has no record of` +
-  ` the version the engine last delivered there, so we cannot tell your edits from ours`;
+  ` the version the engine last delivered there, so we cannot tell your edits from ours;` +
+  ` the newer engine version sits next to it as ${newVersionPath}`;
 
 // ⚰️ S6c — the retirement's two sentences. Split by REASON and not merged into one,
 // for exactly S4-3's reason above: "you had changed it" is a CLAIM, and on the fleet's
@@ -164,6 +173,12 @@ const retiredPreservedLine = ({ name, blockers }) => {
 // `newVersionPath` (the sidecar is written on that same branch), so a "no path"
 // fallback here would be a state the producer cannot emit — a dead branch to maintain
 // and mutation-test forever, not a safety net.
+//
+// 🔗 S10-3 makes `no-provenance` read it too, so the same coupling now covers that verdict
+// — and it is PINNED, not assumed: `engine-merge-apply.test.mjs` asserts the whole
+// `preserved` entry (`{ name, reason, newVersionPath }`) for a brain with no recorded sha.
+// If the producer ever stops writing that sidecar, that test goes red before this line
+// can print "undefined" at an owner.
 function preservedAndMergedLines({ merged, preserved, singular, plural }) {
   const lines = [];
   // The headline, and the one an owner has been owed since the first frozen file:
@@ -181,7 +196,7 @@ function preservedAndMergedLines({ merged, preserved, singular, plural }) {
   // adopt the new bits stays theirs.
   for (const { name, reason, newVersionPath } of preserved) {
     if (reason === "no-provenance") {
-      lines.push(unprovableLine(name, singular));
+      lines.push(unprovableLine(name, singular, newVersionPath));
       continue;
     }
     // 🛑 An `aside === undefined → continue` guard used to stand here, and S4-3 is what
@@ -253,6 +268,35 @@ function divergenceLines(divergence, ref) {
 const walkthroughOffer = (count) =>
   `     Nothing is urgent, and nothing changes until you say so: ask me to walk you through` +
   ` ${count === 1 ? "it" : `these ${count}`}, and I'll show you in plain words what each side changed.`;
+
+// 🚪 S10-3 — THE OFFER, and it is the owner's acceptance criterion for v5 in one line:
+// a file you personalized becomes a QUESTION with three offers, not a blind spot. S10-1
+// put the candidate on disk; this is what says it is there and that the choice is yours.
+//
+// Three properties it shares with `walkthroughOffer`, for the same reasons:
+//   • ONCE for the whole block, whatever the families and however many files. An offer
+//     printed under every file is the consent fatigue this chantier exists to end.
+//   • It does not alarm. Their brain works and their file stands; the register is
+//     "your call", not a call to action.
+//   • It promises only what exists TODAY — a conversation with the brain, which is where
+//     the three offers are actually carried out (bricks 3-5, brain-side).
+//
+// What it does NOT do, deliberately: subtract what the owner has already answered. That
+// subtraction belongs to the SESSION nudge, which speaks unbidden at every start; this
+// surface only ever prints inside an update the owner just launched, and reaching a `rel`
+// from here would mean joining names to paths — the very join this module already refused
+// once (see the recap block below).
+const answerOffer = (count) =>
+  `     Your call, and there is no hurry: ask me about ${count === 1 ? "that file" : `those ${count} files`}` +
+  ` and I'll offer${count === 1 ? "" : ", for each one,"} to take the new version, keep yours, or combine the two.`;
+
+// Only a preserve with a candidate beside it can be offered anything. A retired skill is
+// preserved and has no newer version BY DEFINITION — the engine stopped shipping it — so
+// asking about it would be a question with no answer that changes anything.
+function answerOfferLines(preserved) {
+  const awaiting = preserved.filter(({ newVersionPath }) => newVersionPath !== undefined);
+  return awaiting.length === 0 ? [] : [answerOffer(awaiting.length)];
+}
 
 function conflictLines(conflicts) {
   // No clash, no offer: a sentence printed under every clean update means nothing by
@@ -403,6 +447,11 @@ export function formatReport(report) {
       singular: "file",
       plural: "files",
     }),
+    // …then the one offer for every preserved file that has a newer version waiting, both
+    // families together, directly under the lines it is about and before the clashes get
+    // their own door. Two offers can appear in one report; they are about different files
+    // and different questions, and their openings are deliberately unalike.
+    ...answerOfferLines([...skillsPreserved, ...scriptsPreserved, ...doctrinePreserved]),
     // Both families' clashes together, at the end of the block: appending each next to
     // its own family's sentences would bury a skill conflict mid-report.
     ...conflictLines([...conflicts, ...scriptConflicts, ...doctrineConflicts]),

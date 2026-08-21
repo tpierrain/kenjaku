@@ -21,11 +21,12 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const held = [{ rel: "CLAUDE.md", reason: "customized", since: "v4.7.0" }];
 
 function seams(overrides = {}) {
-  const calls = { emitted: [], divergenceFrom: [], refFrom: [] };
+  const calls = { emitted: [], divergenceFrom: [], refFrom: [], answersFrom: [] };
   const base = {
     brainDir: "/brain",
     readDivergence: (dir) => (calls.divergenceFrom.push(dir), held),
     readRef: (dir) => (calls.refFrom.push(dir), "v5.0.0"),
+    readAnswers: (dir) => (calls.answersFrom.push(dir), {}),
     emit: (msg) => calls.emitted.push(msg),
   };
   return { args: { ...base, ...overrides }, calls };
@@ -78,6 +79,41 @@ test("sessionEngineDivergence — fail-open: a throwing version read never propa
   const { args, calls } = seams({
     readRef: () => {
       throw new Error("manifest unreadable");
+    },
+  });
+  assert.deepEqual(sessionEngineDivergence(args), { reported: false });
+  assert.deepEqual(calls.emitted, []);
+});
+
+// ── S10-3: the answers reach the surface that must subtract them ────────────────
+//
+// 🛑 THIS IS THE FORGETTABLE HALF. `engineDivergenceNudge` defaults `answers` to "nothing
+// answered", which is right for the fleet and silent for a caller that never reads the
+// file — the nudge would go on raising a settled file forever and no test would notice.
+// So the wiring is pinned HERE, where it lives: the seam is called, with the brain's own
+// directory, and its result reaches the sentence.
+
+test("sessionEngineDivergence — the answers file is READ, and asked about the given brainDir", () => {
+  const { args, calls } = seams({ brainDir: "/somewhere/else" });
+  sessionEngineDivergence(args);
+  assert.deepEqual(calls.answersFrom, ["/somewhere/else"]);
+});
+
+test("sessionEngineDivergence — an answered file is subtracted before a word is emitted", () => {
+  const { args, calls } = seams({
+    readAnswers: () => ({ "CLAUDE.md": { decision: "keep-mine", at: "v5.0.0" } }),
+  });
+
+  assert.deepEqual(sessionEngineDivergence(args), { reported: false });
+  assert.deepEqual(calls.emitted, [], "the one held-back file was settled at this very ref");
+});
+
+test("sessionEngineDivergence — fail-open: a throwing answers read never propagates", () => {
+  // `.engine-answers.json` is brain-side and travels through git, so it can arrive
+  // half-written from another machine. A session start is never the casualty.
+  const { args, calls } = seams({
+    readAnswers: () => {
+      throw new Error("EACCES: permission denied");
     },
   });
   assert.deepEqual(sessionEngineDivergence(args), { reported: false });
