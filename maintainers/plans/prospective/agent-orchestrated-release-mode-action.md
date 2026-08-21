@@ -71,10 +71,25 @@
 > itself, nor trigger a compaction, nor refuse one — auto-compaction fires on its own, at its own
 > threshold. The only levers that actually exist:
 >
-> - **STOPPING the loop is in the session's hands, cleaning is not.** So the honest form of "this slice
->   deserves a fresh window" is: **stop the loop**, leave the plan pointing at the next step, and let the
->   owner restart. Riding on and hoping is the failure mode; asking for a clear the session cannot
->   perform is the *pretending* version of it.
+> - **STOPPING the loop is in the session's hands, cleaning is not.** ⚠️ **AMENDED 2026-08-21, owner's
+>   explicit instruction: *"idéalement je ne veux pas que tu t'arrêtes."*** Stopping is therefore **no
+>   longer the answer to a full window** — it is the LAST resort, not the honest reflex. Read in order:
+>   - **The default is to CONTINUE.** Every iteration ends by re-arming the wake-up. A compaction is
+>     not an ending: the plan is written so the next iteration restarts from it, and that is exactly
+>     what makes riding on legitimate here where it would be pretending elsewhere.
+>   - 🪤 **FORGETTING to re-arm IS stopping, silently — and it has already happened.** Iteration 41
+>     ended without a `ScheduleWakeup`, so the night ended by omission, not by decision. There is no
+>     warning for this. **Re-arming is the last action of every iteration**, and skipping it is a
+>     decision that must be stated out loud, never a thing that just occurs.
+>   - **The one legitimate reason to stop**: work is coming out **WRONG** — not "the window feels
+>     full", not "this slice deserves better". Measured wrong: a test that will not go green, a
+>     verdict that contradicts the plan, an edit landing in the wrong file. Then stop, write **why**
+>     into the plan, and say so. A quota that runs out or a session the owner closes are not this;
+>     they need no decision at all.
+>   - **What actually buys the night is DELEGATION, not stopping.** Bulk reads to subagents, and the
+>     implementation of any slice whose tests already exist. Measured on iteration 41: four Explore
+>     agents covered seven modules, a fixture suite and a 2 200-line archived plan for ~2 500 words
+>     of main-window cost, and the implementation itself never touched this window at all.
 > - **Write the DESIGN into the plan before writing the code.** What survives a compaction is a file,
 >   never the reasoning held in the window. A design slice whose design is already committed costs, at
 >   worst, the tranche in flight. This is the one preparation that makes a compaction cheap instead of
@@ -126,7 +141,13 @@
 > a decision that is Thomas's, write it as a blocking box at the top of the plan and move to the
 > next slice that does not need him. Bulk reads go to a subagent, and so does the IMPLEMENTATION
 > of a mechanical slice once its tests exist -- that is what makes the night last, since the
-> window never empties between iterations. Then stop, so the loop can restart you from the plan.
+> window never empties between iterations.
+>
+> Then END THE ITERATION -- one slice per iteration, never two -- and RE-ARM the loop so it
+> restarts you from the plan. "End the iteration" is NOT "stop the loop": the owner's standing
+> instruction (2026-08-21) is do not stop. Re-arming is the LAST action of every iteration, and
+> forgetting it ends the night silently -- that is how iteration 41 ended. Stop only if the work
+> is coming out measurably WRONG, and then write why into the plan.
 > ```
 >
 > ⚠️ **What one `/clear` actually buys, measured on the night of 2026-08-20.** One fresh window, not a
