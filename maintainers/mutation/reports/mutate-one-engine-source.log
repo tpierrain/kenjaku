@@ -1,0 +1,42 @@
+[32m06:08:25 (70814) INFO ProjectReader[39m Found 1 of 788 file(s) to be mutated.
+[32m06:08:25 (70814) INFO Instrumenter[39m Instrumented 1 source file(s) with 59 mutant(s)
+[32m06:08:25 (70814) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m06:08:25 (70814) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-ec48y3
+[32m06:08:25 (70814) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m06:08:25 (70814) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m06:08:27 (70814) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2219 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/59 tested (0 survived, 0 timed out)
+Mutation testing 8% (elapsed: <1m, remaining: ~3m) 5/59 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: <1m, remaining: ~2m) 11/59 tested (1 survived, 0 timed out)
+Mutation testing 27% (elapsed: <1m, remaining: ~1m) 16/59 tested (1 survived, 0 timed out)
+Mutation testing 35% (elapsed: <1m, remaining: ~1m) 21/59 tested (1 survived, 0 timed out)
+Mutation testing 44% (elapsed: ~1m, remaining: ~1m) 26/59 tested (1 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~1m, remaining: ~1m) 31/59 tested (1 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~1m, remaining: <1m) 37/59 tested (1 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~1m, remaining: <1m) 42/59 tested (1 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~1m, remaining: <1m) 47/59 tested (1 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~1m, remaining: <1m) 50/59 tested (1 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 57)
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-source.mjs:27:49
+-     const matchers = (manifest?.regimes?.merge ?? []).map(globToRegExp);
++     const matchers = (manifest?.regimes?.merge ?? ["Stryker was here"]).map(globToRegExp);
+
+[Survived] StringLiteral
+scripts/lib/engine-source.mjs:112:69
+-       mergeFiles.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]),
++       mergeFiles.map((rel) => [rel, readFileSync(join(brainDir, rel), "")]),
+
+Ran 1.00 tests per mutant on average.
+-------------------|------------------|----------|-----------|------------|----------|----------|
+                   | % Mutation score |          |           |            |          |          |
+File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files          |  96.61 |   96.61 |       57 |         0 |          2 |        0 |        0 |
+ engine-source.mjs |  96.61 |   96.61 |       57 |         0 |          2 |        0 |        0 |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m06:10:27 (70814) INFO MutationTestExecutor[39m Done in 2 minutes and 1 second.
+[32m06:10:27 (70814) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-ec48y3.

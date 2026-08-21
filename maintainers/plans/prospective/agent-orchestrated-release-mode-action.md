@@ -406,6 +406,33 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 18) — S4-1: the base learns which version delivered it.**
+  Commit `df983c7`, `lib/engine-source.mjs` **93.02 % → 96.61 %** on the **first pass, with no kill round
+  needed** — the first slice of this release where the number was right before anything was fixed.
+  - 📐 **The design slice paid for itself in one iteration.** Iteration 17 wrote the shape (a
+    `baseRefs: { rel: ref }` map, one meaning per entry, absent when unknown); this one wrote nine tests
+    against it and every one of them described a case the design had already named. Nothing was
+    discovered while coding, which is what a design slice is *for* — and is the strongest evidence so far
+    that the "a design slice has no tests and no mutation score" rule is buying something.
+    ➡️ **For the mode**: the payoff of designing first is not visible in the design iteration. It shows up
+    as the *next* iteration having no surprises, and that is where it should be recorded.
+  - 🕳️ **A default parameter hid the very case the slice existed for — again, and in the same shape.**
+    `enrichManifest(manifest, { source, provenance })` gained a third field, and a `baseRefs = {}`
+    default would have made "a brain with no ref records nothing" indistinguishable from "a brain that
+    records an empty map". The identical trap cost a wrong test two iterations ago (S3-1's
+    `decide` helper re-injecting the real manifest for the `undefined` case). It was avoided here because
+    it was *remembered*, not because anything catches it.
+    ➡️ **For the mode**: a default value in a test helper or a destructured signature is a silent
+    substitution. When the absent case IS the requirement, the parameter must have no default.
+  - ⚖️ **A number that rises while the file grows deserves the same scrutiny as one that falls.** The
+    honest reason is that the new function is total and every branch is fed, including the absent-`ref`
+    one; the temptation is to read 96.61 % as a verdict on the whole file, when 2 of its 59 mutants are
+    pre-listed equivalents this slice never touched. Recorded with both survivors named.
+  - 🔗 **Two wiring sites were deliberately not re-measured, and the choice is written down.**
+    `update-engine.mjs` and `reconcile-brain.mjs` gained one call each; re-pricing ~370 mutants for two
+    lines buys no information, and both are covered by tests asserting the **whole** map after a real
+    update. Named in `RESULTS.md` rather than silently skipped — an unmeasured file that nobody mentions
+    reads, later, exactly like one that was measured.
 - 🌙 **2026-08-21 (night, loop iteration 17) — S4 is DESIGNED (no code, no number).** Third design slice
   of this release, and like the two before it, it changed the shape of the work before any of it was
   written. `RESULTS.md` gets nothing: there is no mutation score for a paragraph.

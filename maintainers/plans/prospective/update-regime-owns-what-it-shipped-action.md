@@ -220,12 +220,19 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S4-1 — `baseRefs` is recorded when the base advances.** Test-first, beside
-> `reseedProvenance` / `syncBaseTree`; absent-tolerant on read. Then S4-2 (the pure divergence module),
-> S4-3 (the update report re-opens the `no-provenance` silence and names *standing* divergence) and S4-4
-> (the session surface, with its SessionStart latency **measured**, not assumed). **S2c stays skipped: it
-> is the one slice that waits on Thomas** (the blocking box at the top — may the engine write
-> `CLAUDE.md`?), and it amends ADR 0012, whose §5 is now in place.
+> **▶️ RESUME AT: S4-2 — the pure divergence module.** `engineDivergence({ manifest, installedFileMap })`
+> → the held-back files with their `since` ref (or `null` when the brain records none), **sorted by
+> path**. Everything it needs is now on disk: **S4-1 is done** _(2026-08-21 · `df983c7`)_, so
+> `manifest.baseRefs` answers "since when" for every merge file the engine has delivered. Then S4-3 (the
+> update report re-opens the `no-provenance` silence and names *standing* divergence) and S4-4 (the
+> session surface, with its SessionStart latency **measured**, not assumed). **S2c stays skipped: it is
+> the one slice that waits on Thomas** (the blocking box at the top — may the engine write `CLAUDE.md`?),
+> and it amends ADR 0012, whose §5 is now in place.
+>
+> ⚠️ **What S4-2 must NOT re-derive**: a missing `baseRefs` entry means *unknown*, and it stays unknown.
+> S4-1 deliberately records nothing rather than a `null` ref, so the divergence module reports "since
+> your install" for those — it never invents a version, and it never treats the brain's *current*
+> `source.ref` as the file's base (that is the whole confusion this map exists to end).
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -1237,8 +1244,25 @@ audible divergence.
         swallowed by the very guard this slice is about to change.)*
 
   - [ ] 🧱 **The sub-slices**, smallest reviewable units, each test-first:
-    - [ ] **S4-1 — `baseRefs` is recorded when the base advances.** Touches the manifest writer beside
-          `reseedProvenance` / `syncBaseTree`. Absent-tolerant on read, never partially written.
+    - [x] **S4-1 — `baseRefs` is recorded when the base advances.** _(2026-08-21 · `df983c7`)_
+          `reseedBaseRefs` sits beside `reseedProvenance` in `engine-source.mjs`, under the **same merge
+          regime gate** (a `replace` file is overwritten whole and carries no base, so a ref on it would
+          describe nothing), and is called by the **same three writers** as the digest: install stamps
+          every merge file at the version being installed, `update-engine` step 7 stamps what it
+          re-delivered at the ref it just pulled, and the reconcile child does the same from the brain's
+          own `source.ref` — because on the first update carrying this feature the parent runs the OLD
+          code, so the child is the last writer that can save the migrating brains.
+      - [x] **No usable ref records NOTHING**, never `null`. An absent entry already means *unknown*;
+            a recorded `null` would make an unknown look like an answer, and every reader downstream
+            would have to learn that it is not one. That case is a test before it is a line of code.
+      - [x] **Absent-tolerant on read**: an older brain with no `baseRefs` key at all starts one on its
+            next update rather than crashing, and a file the update passed by **keeps its older ref**,
+            which is the entire point of the map.
+      - [x] **Measured** — `lib/engine-source.mjs` **93.02 % → 96.61 %** on the first pass, no kill round
+            needed, both survivors pre-listed equivalents. The two wiring sites are covered by tests that
+            assert the **whole** map after a real update; not re-measured file-wide, and
+            [said so in writing](../../mutation/RESULTS.md#s4-1--the-base-learns-which-version-delivered-it--2026-08-21)
+            rather than left as an implied omission.
     - [ ] **S4-2 — the pure divergence module.** `engineDivergence({ manifest, installedFileMap })` → the
           held-back files, each with its `since` ref (or `null`), **sorted by path** — `syncBaseTree`
           already sorts its own report for the same reason, and its comment says *"from S4 on it is said

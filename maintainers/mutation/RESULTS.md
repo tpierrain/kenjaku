@@ -169,6 +169,37 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S4-1 — the base learns which version delivered it — 2026-08-21
+
+One slice, one commit (`df983c7`): `baseRefs: { relPath: ref }` beside `provenance`, written by the
+same three writers (install, `update-engine` step 7, and the reconcile child as the last writer on
+the update path). State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | Before (2026-07-27) | This slice | Survivors |
+|---|---|---|---|
+| `lib/engine-source.mjs` | 93.02 % — 40/43 | **96.61 %** — 57 killed, 2 survived | 2, **both pre-listed equivalents** |
+
+**Measured on the first pass, with no kill round needed** — which is the claim worth checking rather
+than celebrating. The two survivors are both families this file already carries elsewhere: the
+`?? [] → ["Stryker was here"]` default in `selectMergeFiles` (a glob matching one literal string no
+brain-relative path can equal, so the selection is empty either way), and `readFileSync(…, "utf8") → ""`
+(an empty encoding is falsy, so the read returns a Buffer and every consumer here treats it identically
+— see [Recorded equivalents](#recorded-equivalents-this-release)).
+
+⚖️ **The score rose 3.6 points while the file GREW**, which is the opposite of the usual dilution: the
+new function is small, total, and has no branch that is not fed — including the one that matters, `ref`
+absent. That case exists because the alternative was to record `null`, and a `null` ref is an unknown
+wearing the costume of an answer. It is a test before it is a line of code.
+
+🔗 **The two wiring sites were not measured file-wide.** `update-engine.mjs` (97.54 % honest, above)
+and `lib/reconcile-brain.mjs` gained a call each, both covered by tests that assert the **whole**
+`baseRefs` map after a real update — a stray key or a missing one fails them. Measuring those two files
+again for two lines would re-price ~370 mutants for no new information; the slice's own logic lives in
+`engine-source.mjs`, and that is what was measured. **Named, so it is a choice and not an omission.**
+
+---
+
 ## S3's write guard — the pure verdict, and prose as a deliverable — 2026-08-21
 
 S3's two code slices (`4bf5efa` + `b82569e` for the decision, `cf55c2a` + `3493533` for the wiring):
