@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-1 — row 3 (`no-provenance`) gets its sidecar
+> ## ▶️ RESUME AT: S10-2 — the answers file (`rel → {decision, at: <engine ref>}`)
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -90,9 +90,13 @@
 > waiver map turned out to be load-bearing (empty it and it goes red naming `f7a00fc`, the one commit
 > where **English caught up with French** and no French edit can ever pair it).
 >
-> **S10-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S10-0 and build to it; it cut
-> four slices, **S10-1 → S10-4**. Three corrections it made to the sketch, each measured against the
-> code rather than reasoned about:
+> **S10-0's design is WRITTEN and committed** and **S10-1 has shipped** _(2026-08-21 · `39f37bb`)_ —
+> row 3 now drops the engine's version beside the owner's, so the three offers have something to offer.
+> ⚠️ **Until S10-3, that sidecar is on disk and no surface mentions it** — a known intermediate state,
+> named in § S10-1, harmless because S9 runs after S10.
+>
+> Read § S10-0 and build to it; it cut four slices, **S10-1 → S10-4**. Three corrections it made to the
+> sketch, each measured against the code rather than reasoned about:
 >
 > - **Row 3's missing sidecar is confirmed, and the code states the very decision to overturn** —
 >   *"littering an older brain with unexplained sidecars would be noise, not a choice."* That reasoning
@@ -330,7 +334,7 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         states the decision to overturn**; Brick 2's "file the brain re-reads" is **rejected** — the
         list is already derived from the disk by S4-2, and only the ANSWER is new state; and "take the
         new one" is **not** free-recoverable, because the update commits only after it writes.
-    - [ ] **S10-1 — row 3 gets its sidecar.**
+    - [x] **S10-1 — row 3 gets its sidecar.** _(2026-08-21)_
     - [ ] **S10-2 — the answers file**, `rel → {decision, at}`, keyed by engine ref.
     - [ ] **S10-3 — the wiring**: the nudge subtracts what is answered; the report names what waits.
     - [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
@@ -940,9 +944,26 @@ false alarms to diagnoses written from reading (`f7a00fc`, and the FR-overwrite 
 
 **The slices this cuts** (S10-1 → S10-4), smallest shippable first, each green on its own:
 
-- [ ] **S10-1 — row 3 gets its sidecar.** `mergeVerdict` returns `sidecar: candidate` for
-      `no-provenance`, the report gains the `newVersionPath` it already carries for row 7, and the
-      comment that forbade it is replaced by the reason it no longer holds. Pure module + its tests.
+- [x] **S10-1 — row 3 gets its sidecar.** _(2026-08-21)_ `mergeVerdict` returns `sidecar: candidate`
+      for `no-provenance`; `preserved` gains the `newVersionPath` it already carried for row 7; the two
+      comments that forbade it are **kept and corrected**, because the reasoning was sound and it is
+      the premise that stopped holding.
+  - [x] 🎯 **Seven downstream tests asserted the old behaviour**, each inverted deliberately with its
+        old claim kept above it. **Two got STRONGER, not weaker**: a stale sidecar from an earlier
+        update is now asserted to be **replaced by the current candidate** rather than merely deleted
+        (the unconditional clear was untested against a re-drop), and a brain already holding the
+        candidate is still offered nothing — the part the old rule was genuinely right about, which
+        survives one row up at `unchanged/no-base`.
+  - [x] ⚠️ **KNOWN INTERMEDIATE STATE, named so it is not discovered later**: between S10-1 and S10-3
+        the sidecar exists on disk and **no surface mentions it**. `unprovableLine` says nothing false
+        — it simply does not know about it yet — and the divergence nudge's `no-provenance` clause
+        makes no claim either. This is exactly the "unexplained `.new`" the old rule warned about, and
+        **S10-3 is its exit**. It cannot reach the fleet: S9 (cut, tag, publish) runs after S10.
+  - [x] 🧪 **Mutation 100 % on the changed hunk** (`:64-71`, 8 mutants), plus a hand-applied bite-check
+        on the mutant that matters: deleting `sidecar: candidate` turns **9 tests red**. ⚠️ The serial
+        confirmation § S7-5-2 asks of a perfect score was **deliberately not run** — `mutate-one.mjs`
+        has no `--concurrency` flag and the alternative is editing a shared config whose forgotten
+        revert no guard would catch. Recorded as such in `mutation/RESULTS.md` § S10-1.
 - [ ] **S10-2 — the answers file**: read, write, and `rel → {decision, at}` keyed by engine ref, with
       the version-keyed re-raise falling out of the lookup. A new pure module beside `engine-base-fs`.
 - [ ] **S10-3 — the wiring**: the divergence nudge subtracts answered files at the current ref, and

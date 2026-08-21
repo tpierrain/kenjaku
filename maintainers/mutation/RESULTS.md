@@ -205,6 +205,41 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S10-1 — row 3's sidecar, and seven tests that had to be inverted on purpose — 2026-08-21
+
+`39f37bb`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | Scope | Score | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-merge.mjs` | the changed hunk, `:64-71` | **100 %** (8 killed) | 0 |
+
+⚠️ **ONE RUN, at the default concurrency — the full serial confirmation § S7-5-2 asks of a perfect
+score was NOT performed, and here is why, so nobody reads a protocol into this that was not followed.**
+`mutate-one.mjs` has no `--concurrency` flag; going serial means editing the shared
+`stryker.scripts.config.mjs` and reverting it, and a forgotten revert is invisible (`tuningViolations`
+accepts anything ≤ 5, so no guard would catch a config left at 1). Instead the **second** protocol this
+document already names was used: **the load-bearing mutant was applied by hand.** Deleting
+`sidecar: candidate` turns **9 tests red** across three suites, and the working tree was restored and
+verified clean against HEAD afterwards. That does not re-prove the other 7 mutants; it proves the one
+the slice exists for, deterministically, which is more than a second flaky run would have.
+
+**A behaviour change measures its blast radius in inverted tests, not in mutants.** The hunk is two
+lines and the mutation pass on it is trivially perfect; what actually cost the slice its care is that
+**seven downstream tests asserted the old rule**, one of them in its very name (*"…preserved WITHOUT a
+.new"*). Each was inverted deliberately, with the claim it used to make kept above it — a batch
+find-and-replace would have produced the same green with none of the record.
+
+**Two of the seven came out STRONGER, and that is the part worth repeating.** The old assertions were
+`existsSync(...) === false`, which is the weakest shape a test can have: it passes when the file is
+absent for the *right* reason and equally when the whole code path never ran. Replacing them with
+`readFileSync(...) === candidate` pins something the suite had never checked — that the unconditional
+`rmSync` of a stale sidecar is followed by a re-drop of the CURRENT one, so a leftover claim from an
+earlier update can never survive as itself. **An inversion is an opportunity to upgrade an assertion,
+because you are already reading it.**
+
+---
+
 ## S8-2b — the drift guard, and a fixture that agreed with the code by construction — 2026-08-21
 
 `ab85fde` → `417e264` → `3625dee`. State owned by
