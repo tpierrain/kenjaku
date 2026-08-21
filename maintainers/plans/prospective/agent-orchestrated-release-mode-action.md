@@ -465,6 +465,24 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🛡️ **2026-08-21 (S10-4) — S10 is ENGINE-COMPLETE, and the slice's decision was a failure semantics,
+  not a feature.** `e7a1952`, suite **2287 pass / 0 fail**, **40 mutants at 100 %**. `safetyCommit`
+  puts the owner's current bytes in history before *"take the new one"* overwrites them — and when
+  git refuses, it **VETOES the adoption** instead of reporting it. That inverts the precedent sitting
+  twenty lines above it in the same file: for `commitEngineUpdate`, a refused commit is news, because
+  the files are already written. Here the write has not happened and is not undoable. **Both live in
+  one module on purpose**, so a reader meets the contrast rather than deducing it.
+  - 🔢 **The new rule fired on its first outing**: the count was read *before* the score. 40 mutants
+    over 34 added lines is the right order of magnitude; last slice's serene 100 % came from 4 mutants
+    over a change four times that size. Confirmed by hand twice on top (removing the veto, deleting
+    the unmerged-tree guard — 2 tests red each).
+  - 🗣️ **Next, and it is the half that actually ASKS: bricks 3-5, the brain-side conversation.** The
+    engine now writes the candidate, names it in the report, records the answer, subtracts what is
+    settled and protects the owner's bytes — and **not one word is yet said to them in their own
+    words**. The owner's acceptance criterion is not met until it is. This is also the first slice of
+    the chantier that is **skill prose, not engine code**, so the test discipline that governs it is
+    different: there is no unit to mutate, and what stands in for it is the wording review.
+
 - 🚪 **2026-08-21 (S10-3) — the sidecar became a QUESTION, and the intermediate state is closed.**
   `216d3b6`, suite **2279 pass / 0 fail**. The update report now names the `.new` on a `no-provenance`
   preserve and ends the block with one line offering the three choices; the session nudge subtracts
