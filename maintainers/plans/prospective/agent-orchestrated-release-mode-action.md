@@ -425,6 +425,26 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 35) — a design slice, and the ground answering a question the plan
+  had filed as a risk.** _(The design itself belongs to the owning plan, § The QA instrument; this
+  entry keeps only what the MODE learned.)_
+  - 🧭 **"Read the ground before writing the slice" is now two for two, and it paid differently this
+    time.** Iteration 34 it killed a slice. Here it **shrank one and sharpened it**: nine `git show`
+    on published manifests established that `CLAUDE.engine.md` was in no regime at any tag, which
+    deleted the tag-chain replay (one worktree and one fixture tree per tag) and turned the fixture
+    from an investigation into a regression net. **The plan had filed that very question as a risk to
+    discover by running the fixture** (*"if the drift does NOT reproduce, that is itself a finding"*).
+    It cost nine commands to answer **before** building the thing that was supposed to answer it.
+  - 🏗️ **The instrument already existed, and reading the code first is what found it.** The first
+    reflex was "design a replay harness"; `release-fixture-refresh.test.mjs` already builds a brain
+    from a tag's bytes, seeds provenance with the **production** fingerprint and runs a real
+    `reconcileBrain` with stubbed seams. The slice went from *build* to *extract the builder and add
+    one suite*. **A design slice's first duty is to find out that most of it is already written.**
+  - 🔴 **A design slice can still pin its own fail-first, and this one had to.** The dangerous shape
+    here is a test that passes because **nothing happens** — a frozen file satisfies "unchanged"
+    forever. So the design names the mutation to run by hand: swap the expected verdict before writing
+    it green. Written into the plan rather than trusted to the implementing iteration, because that
+    iteration may be a subagent.
 - 🌙 **2026-08-21 (loop iteration 34) — the slice that was worth NOT doing, and a checkbox audit that
   is a script.** _(The arbitration itself is a blocking box at the top of the owning plan; this entry
   keeps only what the MODE learned.)_
