@@ -205,6 +205,47 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S8-2b — the drift guard, and a fixture that agreed with the code by construction — 2026-08-21
+
+`ab85fde` → `417e264` → `3625dee`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the assertion fixes | After the comparator fixture | Survivors |
+|---|---|---|---|---|
+| `scripts/lib/locale-drift.mjs` (new) | **82.28 %** (14 survived) | **97.47 %** (2 survived) | **98.73 %** (77 killed, 1 timeout) | 1 named equivalent |
+
+**No confirmation re-run was owed here**, and the reason is worth stating rather than assumed: the rule
+in § S7-5-2 fires on *a score that improves without a test being added*, which is the signature of the
+flaky judge. Every jump above was bought with tests committed in the same step, so each number has a
+cause on disk.
+
+**Four causes, and not one of them was an equivalent to hide behind.** Worth listing because three are
+about the TESTS, not the code, and they are the shapes that recur:
+
+1. **An ABSENT payload never fed.** `parseCommits(out)` guards with `?? ""` and nothing ever passed
+   `undefined`, so the guard could have been anything at all.
+2. **A fixture already in sorted order** — the big one. It let **`.sort()` be deleted outright**, plus
+   four more mutants on the comparator: five at once. The pair list was written in the order the
+   assertion expected, which is the most natural way to write it and the one that measures nothing.
+3. **No anchor asserted on the regex.** Without `^`, `docs/templates/fr/x.md` silently joins the
+   watched set and reports drift against a file it has nothing to do with. The mutant found a real
+   hole in the derivation's contract, not a stylistic preference.
+4. **A message asserted by fragments.** `assert.match` on one line lets every OTHER line be emptied
+   without a test noticing — and for a guard, **the message IS the feature**: the subjects (a count
+   cannot carry magnitude) and both ways to clear a hit (a guard that only says "port it" gets deleted
+   the day a hit is legitimately unportable). Asserted whole now.
+
+**Then the second pass found a survivor that LOOKED equivalent and was not**, which is the entry worth
+keeping. `.sort((a, b) => (true ? -1 : 1))` — a comparator ignoring both arguments — survived against a
+**two-element** fixture, because with two entries **reversing the list and sorting it produce the same
+answer**. The fix is a third locale, ordered so the reverse (`de, fr, es`) is not the sorted answer
+(`de, es, fr`). ⚠️ **The general rule this pays for**: the standing advice is *collections of at least
+two, unsorted*; on a comparator, two is not enough — it takes **three**.
+
+**The one survivor kept** is named in the source: `<` vs `<=`, on tracked paths that are never equal.
+
+---
+
 ## S7-5-3 — the wiring, and a NETWORK CALL that nearly entered the suite — 2026-08-21
 
 `fa0f5be`. State owned by

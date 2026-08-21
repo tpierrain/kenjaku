@@ -798,9 +798,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
             set; and `describeDrift` asserted by fragments, which let every *other* line be emptied
             unnoticed — and that message **is** the feature. Two equivalents are NAMED in the source
             (`$` after a greedy `.+`; `<` vs `<=` on paths that are never equal).
-            ⏳ **The confirming re-measure is IN FLIGHT** at the time of writing — the fixes are
-            committed and the suite is green either way; the number lands in `mutation/RESULTS.md`
-            § S8-2b. If it did not, that section is the thing to go and finish.
+            **Landed at 98.73 %** _(82.28 → 97.47 → 98.73, `3625dee`)_, the single survivor being the
+            named `<` / `<=` equivalent. The second pass paid for a rule worth carrying: the standing
+            advice is *collections of at least two, unsorted*, but **on a comparator two is not
+            enough** — with two entries, reversing the list and sorting it give the same answer, so a
+            comparator ignoring both its arguments survives. It takes three. Full detail in
+            `mutation/RESULTS.md` § S8-2b.
       - [x] 🧱 **The repo's own entrypoint-discipline guard caught the git seam** and was right: the
             invocation is now `engine-fetch`'s `buildGitInvocation`, not a second spelling of "ask git".
             The seam deliberately **throws** where `defaultGit` returns `{ok:false}` — that convention
