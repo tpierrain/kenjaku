@@ -17,11 +17,12 @@
 // ADVANCES to what was delivered — and seeds again, because no deployed brain holds
 // a tree yet, so every update is also that brain's migration.
 // ─────────────────────────────────────────────────────────────────────────────
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { baseRelPath, planBaseAdvance, planBaseSeed } from "./engine-base.mjs";
 import { engineDivergence } from "./engine-divergence.mjs";
+import { globRoots } from "./glob-match.mjs";
 import { recordSourceAndProvenance, selectMergeFiles } from "./engine-source.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 
@@ -53,9 +54,28 @@ export function writeBaseEntries({ brainDir, entries }) {
 // by the manifest's `merge` regime exactly as provenance is. The tree itself can never
 // be a candidate — no `merge` glob names `.engine-base/…`, which is why `baseRelPath`
 // can stay an unconditional prefix.
+//
+// It walks the globs' ROOTS, not the brain (S4-4c). It used to list every file under
+// `brainDir` and filter — which meant reading the owner's entire vault to look at files
+// no `merge` glob can name: measured at ~2.3 µs per file, 18.5 ms for 8 000 notes, and
+// paid at every session start once S4-4 put this on the SessionStart path. The set is
+// unchanged by construction (every path a glob matches is under that glob's own static
+// prefix) and by test — the equivalence is pinned against a full walk on a real disk.
 export function readInstalledMergeFiles({ brainDir, manifest }) {
-  const rels = selectMergeFiles(manifest, listFilesRelPosix(brainDir));
+  const rels = selectMergeFiles(manifest, listFilesUnderRoots(brainDir, globRoots(manifest?.regimes?.merge ?? [])));
   return Object.fromEntries(rels.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]));
+}
+
+// A root is a directory to walk, a single file to take as-is, or absent — and `""` is
+// the honest fallback `globRoots` returns when some glob begins with a wildcard and
+// there is no prefix to start from.
+function listFilesUnderRoots(brainDir, roots) {
+  return roots.flatMap((root) => {
+    const abs = join(brainDir, root);
+    if (!existsSync(abs)) return [];
+    if (root === "") return listFilesRelPosix(brainDir);
+    return statSync(abs).isDirectory() ? listFilesRelPosix(abs, brainDir) : [root];
+  });
 }
 
 // ADVANCE what this pass delivered, then SEED whatever the brain can still prove about

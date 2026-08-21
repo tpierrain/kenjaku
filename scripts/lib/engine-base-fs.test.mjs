@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
@@ -14,7 +14,8 @@ import {
   recordSourceProvenanceAndBase,
 } from "./engine-base-fs.mjs";
 import { verifyBase } from "./engine-base.mjs";
-import { reseedProvenance } from "./engine-source.mjs";
+import { reseedProvenance, selectMergeFiles } from "./engine-source.mjs";
+import { listFilesRelPosix } from "./fs-walk.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-base-fs — THE FS ORCHESTRATOR around the three pure planners of
@@ -130,6 +131,63 @@ test("readInstalledMergeFiles — returns the brain's `merge` files with their e
     "CLAUDE.md": "# mine\n",
     "scripts/auto-commit.mjs": "// auto-commit\n",
   });
+});
+
+test("readInstalledMergeFiles — the ROOTED walk returns EXACTLY what walking the whole brain returned (S4-4c)", (t) => {
+  // The contract this optimization may not change by one entry. The old shape walked
+  // brainDir and filtered; the new one starts from the merge globs' static prefixes.
+  // Every path a glob can match lives under that glob's own prefix, so the two sets are
+  // equal — and this test is what says so with files on a real disk rather than by
+  // argument.
+  const dir = brain(t, {
+    "CLAUDE.md": "# mine\n",
+    ".claude/settings.json": "{}\n",
+    ".claude/skills/coach/SKILL.md": "coach\n",
+    ".claude/skills/coach/nested/deeper.md": "deep\n",
+    ".claude/skills/lint/SKILL.md": "not a merge skill\n",
+    "scripts/auto-commit.mjs": "// auto-commit\n",
+    "scripts/lib/engine-fetch.mjs": "// replace regime\n",
+    "vault/a-note.md": "# Mollecuisse\n",
+    "vault/deep/nested/note.md": "# deeper\n",
+    ".engine-base/CLAUDE.md": "# the base, never a candidate\n",
+  });
+
+  const rooted = readInstalledMergeFiles({ brainDir: dir, manifest: MANIFEST });
+  const byFullWalk = Object.fromEntries(
+    selectMergeFiles(MANIFEST, listFilesRelPosix(dir)).map((rel) => [rel, read(dir, rel)]),
+  );
+
+  assert.deepEqual(rooted, byFullWalk);
+  // Pinned whole, so an equivalence that becomes "both return nothing" cannot pass.
+  assert.deepEqual(rooted, {
+    "CLAUDE.md": "# mine\n",
+    ".claude/settings.json": "{}\n",
+    ".claude/skills/coach/SKILL.md": "coach\n",
+    ".claude/skills/coach/nested/deeper.md": "deep\n",
+    "scripts/auto-commit.mjs": "// auto-commit\n",
+  });
+});
+
+test("readInstalledMergeFiles — the owner's notes are NOT read, proved by making them unreadable", (t) => {
+  // The measurement that opened S4-4c: the old walk read every note in the vault to
+  // look at files no merge glob can name (~2.3 µs each, 18.5 ms for 8 000 notes, at
+  // every session start). A vault the process cannot enter is the one observation that
+  // tells the two implementations apart on any fixture — the old one throws EACCES,
+  // the new one never looks.
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const dir = brain(t, { "CLAUDE.md": "# mine\n", "vault/a-note.md": "# Mollecuisse\n" });
+  chmodSync(join(dir, "vault"), 0o000);
+  try {
+    assert.deepEqual(readInstalledMergeFiles({ brainDir: dir, manifest: MANIFEST }), { "CLAUDE.md": "# mine\n" });
+  } finally {
+    // Restored HERE, not in a `t.after`: `brain()` registered its own rmSync first, and
+    // after-hooks run in registration order — so the cleanup would hit a directory it
+    // still cannot enter, and the test would fail on ENOTEMPTY with the assertion green.
+    chmodSync(join(dir, "vault"), 0o755);
+  }
 });
 
 // ── syncBaseTree — the install shape: seed from the brain itself ──────────────
