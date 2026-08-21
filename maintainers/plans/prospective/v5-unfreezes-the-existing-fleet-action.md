@@ -40,21 +40,19 @@
 >
 > ## ▶️ WHERE THIS RESUMES
 >
-> **RESUME AT: S7-3 — the wiring, so a real update consults the table.** S7-0 (design), S7-1 (the
-> heal) and S7-2 (the table + its freshness guard) are **done** _(2026-08-21)_. Both halves now exist
-> and neither is plugged in: `healProvenance` is green at **96.43 %**, `scripts/lib/engine-fingerprints.json`
-> is generated and green at **94.74 %** — and **no production caller reads either**. That is exactly
-> what S7-3 is.
+> **RESUME AT: S7-5 — fetch the ancestor's bytes from the published tag.** S7-0 → S7-3 are **done**
+> _(2026-08-21)_, and with them **the release's reason for existing is discharged**: measured on the
+> real `v3.6.0` fixture tree, a brain recording **no provenance at all** for `CLAUDE.engine.md` now
+> comes out of an update **byte-identical to what the engine ships**. The forbidden claim *"the
+> doctrine layer unfreezes no already-deployed brain"* is **false as of `f3d72c4`** — S9-1 may now be
+> written about it.
 >
-> **What S7-3 has to do, and it is all already decided** (§ S7-0, Correction 1 — do not re-derive it):
-> `reconcileBrain` computes the heal **once, at the top**, and passes it in place of `local?.provenance`
-> at the three refresh call sites (`reconcile-brain.mjs:193`, `:212`, and the skills' equivalent) and as
-> `priorProvenance` to `reseedProvenance` (`:460`), so it persists in the single manifest write that
-> already happens (`:476`). The table is read **lazily, at heal time only** — from `sourceDir` when there
-> is one, falling back to the brain's own copy for a self-heal. `verifyBase`, `mergeVerdict`,
-> `planBaseSeed`, `planBaseAdvance`, `update-engine.mjs` and the installer are **not touched**. The
-> report gains **one aggregated line**: *"N engine files recognized from vX — this brain can now receive
-> updates for them."*
+> **S7-5 is the other half of the fleet**, and the two do not overlap: S7 recognises files with **no
+> recorded sha**; S7-5 serves files that **have one** and whose ancestor bytes are missing, which today
+> land on `preserve/customized`. Its four design questions are **written and unanswered** — read the
+> S7-5 block below before coding: best-effort and never blocking, verify the fetched bytes against the
+> recorded sha before use, whether to write them into `.engine-base/`, and what an offline brain is
+> told. **Answer those four in the plan first**, exactly as S7-0 and S7-2 did.
 >
 > ## 🆕 THE RELEASE GREW TWICE, both times on the owner's word _(2026-08-21, after S7-1)_
 >
@@ -136,9 +134,13 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
       the engine drops **no copy beside the file at all** (`applyMergeGoverned` gives a
       `no-provenance` preserve no sidecar). The owner gets one sentence saying we cannot tell their
       edits from ours, and nothing else. **That is the deepest of the blind spots S10 closes.**
-- [x] 🔓 **The OTHER forbidden claim falls if S7 ships.** *"The doctrine layer unfreezes no
-      already-deployed brain"* was true of the release as built. S7 exists to make it false. **The note
-      may not be written until S7's verdict is known.**
+- [x] 🔓 **The OTHER forbidden claim HAS FALLEN.** *"The doctrine layer unfreezes no already-deployed
+      brain"* was true of the release as built, and S7 existed to make it false. ✅ **Verdict known,
+      2026-08-21 (`f3d72c4`)**: measured on the real `v3.6.0` fixture tree, a brain recording no
+      provenance for the doctrine now ends an update **byte-identical to what the engine ships**
+      (`release-fixture-doctrine.test.mjs`, Pole A, inverted with its old assertion kept beside it).
+      **S9-1 may now say it** — for files nobody edited. The FIRST forbidden claim (files edited
+      before v5.0.0) is untouched by this and still waits on S10.
 
 ---
 
@@ -184,10 +186,14 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         _(2026-08-21 · `e716a33` + `9c50842` · 15 rels, 77 byte-states, 11.6 KB · 21 tests, mutation
         **94.74 %**, 2 named equivalents)_ `CLAUDE.engine.md` came out at **5 EN + 4 FR**, exactly what
         S7-0 predicted from the measurement.
-  - [ ] **S7-3 — the wiring**, so a real update consults it.
+  - [x] **S7-3 — the wiring**, so a real update consults it. _(2026-08-21 · `f3d72c4` + `778482c` ·
+        13 tests, mutation **92.31 %** on the new module, **100 %** on both changed hunks)_
+        **The frozen fleet receives**: a brain rebuilt from the real `v3.6.0` tag, recording no sha
+        for the doctrine, comes out of an update byte-identical to what the engine ships.
   - [ ] **S7-5 — fetch the ancestor's bytes from a published tag** (owner's idea, measured 13/15 on
         both real brains). ✅ **IN v5, owner's call 2026-08-21.** Runs after S7-3, before S7-4.
-  - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**.
+  - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. ⚠️ **Headline already
+        paid at S7-3** — see § S7 for what is left (FR, a second tag, the other two families).
 - [ ] **S8 — the French tree stops drifting in silence.**
   - [ ] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`.
   - [ ] **S8-2 — the EN/FR drift guard**, a test.
@@ -499,7 +505,13 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         RECONSTRUCTED from their `.template` at the right tag plus the substitutions. **Not measured, not
         promised** — the substitution inputs must be recoverable byte-exactly, and they may not be.
 
-- [ ] **S7-4 — the QA, and it is the acceptance test of this plan.** Extend
+- [ ] **S7-4 — the QA.** ⚠️ **Its headline deliverable is ALREADY PAID** _(S7-3, 2026-08-21)_: the
+      Pole A inversion could not be deferred, because S7-3 turned that test red and nothing is ever
+      committed red. It is inverted, with the assertion it replaces written out above it, and it passes
+      on the real `v3.6.0` fixture tree. **What is left for S7-4** is the breadth this did not buy: the
+      **FR** side (both of the owner's real brains are French and no fixture is), a **second tag hop**,
+      and the **skills / scripts** families rather than the doctrine alone. Original wording kept:
+      Extend
       `release-fixture-doctrine.test.mjs`: a brain rebuilt from `v3.6.0` with **no provenance at all**
       must now **RECEIVE** the doctrine. Today the same suite asserts the opposite (Pole A: preserved,
       `no-provenance`). **That inversion is the deliverable** — the old assertion is rewritten with its

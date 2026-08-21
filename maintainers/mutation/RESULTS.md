@@ -169,6 +169,35 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S7-3 — the wiring, and a fallback that could not fire — 2026-08-21
+
+`f3d72c4` (the slice) + `778482c` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-heal-fs.mjs` (new) | **92.31 %** (12 killed, 1 survived) | — | 1, a named equivalent |
+| `scripts/lib/reconcile-brain.mjs` (2 hunks) | 95.24 % (1 survived) | **100 %** | 0 |
+| `scripts/update-engine.mjs:272-296` (hunk) | 86.96 % (3 survived) | **100 %** | 0 |
+
+**Four survivors, three causes, and the hunk scoping earned its keep**: every one of them was written
+this slice, with no score drift to attribute and no survivor list to diff against last time.
+
+- **A fallback that cannot fire, again** (`report.healed ?? []`). The report comes from
+  `reconcileBrain` three lines above, which always returns the array. Deleted, not documented — the
+  same call S7-2 made on its dead comparator branch, one file over. **Two slices running, the same
+  shape**: this repo's tests are strong enough that the surviving mutants are mostly hiding in code
+  that cannot run. That is worth saying plainly, because the reflex when a mutant survives is to write
+  a test, and twice now the right answer was to delete a line.
+- **A fail-soft that was documented and never fed.** `formatReport` skips a version string it cannot
+  parse — the comment said so, no test did. Two now do: a mixed list (the bad tag loses its place in
+  the range, the file keeps its place in the count) and an all-bad list (the count stands, the range
+  goes vague). A report is the last thing that may fail an update that already succeeded.
+
+The one named equivalent: `readFileSync(path, "utf8")` → `readFileSync(path, "")`. Measured rather
+than assumed — an empty encoding returns a **Buffer**, and `JSON.parse(buffer)` stringifies it as
+UTF-8. Byte-for-byte the same answer.
+
 ## S7-2 — the fingerprint table, and the runner's HEAD trap wearing a PLAUSIBLE score — 2026-08-21
 
 `e716a33` (the slice) + `9c50842` (the kills). State owned by
