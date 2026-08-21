@@ -181,7 +181,7 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [x] **S7-1 — the heal**: `healProvenance`, a new pure module. Nothing existing changed.
         _(2026-08-21 · `3908b7f` + `924b0d9` · 12 tests, mutation **96.43 %**, 1 named equivalent)_
   - [x] **S7-2 — the historical fingerprint table**, and the guard that keeps it fresh.
-        _(2026-08-21 · `0cafa56` + `9c50842` · 15 rels, 77 byte-states, 11.6 KB · 21 tests, mutation
+        _(2026-08-21 · `e716a33` + `9c50842` · 15 rels, 77 byte-states, 11.6 KB · 21 tests, mutation
         **94.74 %**, 2 named equivalents)_ `CLAUDE.engine.md` came out at **5 EN + 4 FR**, exactly what
         S7-0 predicted from the measurement.
   - [ ] **S7-3 — the wiring**, so a real update consults it.

@@ -171,7 +171,7 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ## S7-2 — the fingerprint table, and the runner's HEAD trap wearing a PLAUSIBLE score — 2026-08-21
 
-`0cafa56` (the slice) + `9c50842` (the kills). State owned by
+`e716a33` (the slice) + `9c50842` (the kills). State owned by
 [`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
 
 | File | First pass | After the kills | Survivors |
