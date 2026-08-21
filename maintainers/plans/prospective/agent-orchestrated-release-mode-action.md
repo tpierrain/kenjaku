@@ -465,6 +465,17 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🧪 **2026-08-21 (S8-2b) — A GUARD THAT SAYS "assert empty" IS THE EASIEST TEST IN THE WORLD TO PASS
+  BY ACCIDENT, and the mutation pass proved the same thing about its own fixture.** The drift guard's
+  headline test asserts *no pair has drifted* — which a broken derivation satisfies perfectly by
+  watching nothing at all. Two companion tests exist for that alone (the pair set is non-empty and
+  contains the pair the slice was measured on; every waived sha still resolves to a commit), and the
+  guard was **bite-checked** by emptying the waiver map in a throwaway run rather than by editing the
+  file — a `git checkout` on an uncommitted test file has already cost this run two QA poles once.
+  **What the MODE takes from it**: 82.28 % on a brand-new file with **four real causes and zero
+  equivalents to hide behind**, and the biggest one was a *fixture already in sorted order*, which let
+  removing `.sort()` pass. The mutation pass is not a formality on new files written by someone who
+  holds the whole design — it is precisely there that the fixtures agree with the code by construction.
 - ✅ **2026-08-21 (S8-2a) — THE DESIGN-THEN-CODE SPLIT PAID FOR ITSELF, in one iteration.** The
   criterion designed in S8-2-0 named two drifting pairs. Doing the port measured that **one of them was
   a false positive**: `f7a00fc` fixed EN to match an FR sibling that was already right, so no FR edit

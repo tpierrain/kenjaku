@@ -74,18 +74,20 @@
 >       changed is its NATURE — it is no longer "the FR tree stops drifting", it is "the FR tree stops
 >       being overwritten". A drift is stale content; this is the wrong language.
 >
-> ## ▶️ RESUME AT: S8-2b — the EN/FR drift guard itself
+> ## ▶️ RESUME AT: S8-3 — the FR delivery fix (S7 unfreezes a French brain INTO ENGLISH)
 >
-> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth), **S8-1 is done** _(`775c00a`)_ and **S8-2a is
-> done** _(2026-08-21)_. S8 is now load-bearing for the release rather than tidy-up — see the box above.
+> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth) and **S8-2 is DONE end to end** _(2026-08-21)_ —
+> S8-1 `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`. **The French tree no longer drifts in silence**:
+> `scripts/lib/locale-drift.mjs` is green over the 16 real pairs, and its waiver map turned out to be
+> load-bearing (empty it and it goes red naming `f7a00fc`, the one commit where **English caught up with
+> French** and no French edit can ever pair it).
 >
-> 🎯 **S8-2a landed HALF the port it was scoped for, and that is the correct outcome**: `435c164` went
-> into the FR `sync` skill, but **`f7a00fc` needs no port at all** — its own message says it was EN-only,
-> fixing EN to match an FR sibling *"which had it right"*, and the FR blank line is there at line 66. So
-> **the criterion designed one iteration earlier has a false-positive class**: it cannot see direction,
-> and a commit where EN catches up with FR stays unpaired forever. **S8-2b must therefore ship with the
-> `NOT_A_PORT` waiver map described in § S8-2-0** (sha → reason, in the guard's own test file, one entry:
-> `f7a00fc`) — otherwise `prepare-1-1` is a permanent red that no amount of translating can clear.
+> **S8-3 is now the biggest thing left in S8, and it is a DEFECT, not tidy-up** — see the box at the top
+> of this file. Its QA half is already paid: Pole D of `release-fixture-doctrine.test.mjs` asserts the
+> **English** delivery *as a measurement*, so it turns red the moment the fix lands and you flip it. The
+> cause is located: `selectMergeGovernedDoctrine` pairs every rel with `sourceRel: rel`
+> (`engine-doctrine-refresh.mjs:66`), so the source is always the English tree — while the skills'
+> equivalent already resolves a locale, which is the working shape to copy.
 >
 > **S8-2-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S8-2-0 and build to it. The
 > criterion is **unpaired commits** (commits touching EN since the FR twin's last commit that do not
@@ -95,8 +97,9 @@
 > reported at all** — which contradicts what S8-1 wrote, for a reason `engine-copy-select.mjs` states
 > outright.
 >
-> ⚠️ **The guard is RED ON ARRIVAL**, which is why the design split it and the port came first. With
-> S8-2a paid, **S8-2b is the last thing between the criterion and a green guard over 16 pairs at zero.**
+> ✅ **The guard was RED ON ARRIVAL**, the design split it, the port came first, and it shipped green.
+> The split is also what made the criterion's one flaw cheap to fix: it was found by the slice that
+> used it, before a line of guard existed.
 >
 > Then **S8-3** (the FR delivery — the defect in the box above), **S8-4** (the ADR), then **S10**, then
 > **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
@@ -290,7 +293,8 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
     - [x] **S8-2a — the port**: `435c164` into the FR `sync` skill; `f7a00fc` measured as **needing no
           port** (EN was catching up with FR), which is what forces the waiver map into S8-2b.
           _(2026-08-21)_
-    - [ ] **S8-2b — the guard**, shipped green, with `NOT_A_PORT`.
+    - [x] **S8-2b — the guard**, shipped green over 16 pairs, with `NOT_A_PORT`.
+          _(2026-08-21 · `ab85fde` + `417e264`)_
   - [ ] **S8-3 — the FR replay QA.**
   - [ ] **S8-4 — the locale doctrine recorded** as an ADR.
 - [ ] **S10 — a personalized file becomes a QUESTION, never a blind spot.** _(Owner's acceptance
@@ -781,9 +785,28 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           rather than discovered**: a waiver list is how a guard dies. The message must therefore print
           BOTH ways to clear a hit (port it, or waive it *with a reason*), and a growing map is a signal
           to re-examine the criterion, not to keep typing.
-    - [ ] **S8-2b — the guard itself**, which then lands green over 16 pairs at zero. ⚠️ Remember the
-          fingerprint table: editing an FR file that is in the `merge` regime invalidates it, and the
-          S7-2 guard will say so.
+    - [x] **S8-2b — the guard itself** _(2026-08-21 · `ab85fde` + `417e264`)_. `scripts/lib/locale-drift.mjs`
+          + its test. **It lands green over the 16 pairs**, and the waiver was load-bearing exactly as
+          predicted: with `NOT_A_PORT` emptied it goes red naming `f7a00fc` and nothing else. Two tests
+          stop it passing vacuously (the derived pair set is non-empty and contains the pair this was
+          measured on; every waived sha still resolves to a commit) — the failure mode of every
+          "assert empty" test.
+      - [x] 🧪 **Mutation: 82.28 % first pass on a new file, and all four causes were real** — no
+            equivalents hiding as excuses. An absent payload never fed to `parseCommits`; a pair fixture
+            **already in sorted order**, so removing `.sort()` entirely still passed (five mutants at
+            once); no `^` anchor asserted, so `docs/templates/fr/x.md` could silently join the watched
+            set; and `describeDrift` asserted by fragments, which let every *other* line be emptied
+            unnoticed — and that message **is** the feature. Two equivalents are NAMED in the source
+            (`$` after a greedy `.+`; `<` vs `<=` on paths that are never equal).
+            ⏳ **The confirming re-measure is IN FLIGHT** at the time of writing — the fixes are
+            committed and the suite is green either way; the number lands in `mutation/RESULTS.md`
+            § S8-2b. If it did not, that section is the thing to go and finish.
+      - [x] 🧱 **The repo's own entrypoint-discipline guard caught the git seam** and was right: the
+            invocation is now `engine-fetch`'s `buildGitInvocation`, not a second spelling of "ask git".
+            The seam deliberately **throws** where `defaultGit` returns `{ok:false}` — that convention
+            here would turn a broken git call into "no drift found", the exact silence this guard exists
+            to break.
+      - [x] ⚠️ The fingerprint table needed no regeneration: this slice touched no `merge`-regime file.
 - [ ] **S8-3 — the FR delivery, and its replay QA.** A pole in the release fixtures for a **French**
       brain: it must receive the FR doctrine, not the English one, through a real update.
       ✅ **The pole now EXISTS** _(S7-4, `d9421c8`)_ and it currently asserts the **English** delivery
