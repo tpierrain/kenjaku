@@ -1,6 +1,9 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- STATUS: 🏁 DONE, ARCHIVED (2026-08-21). S1 through S6 are BUILT and sit   -->
-<!-- on feat/engine-base-unfreeze (105 commits, draft PR #76). Nothing tagged. -->
+<!-- on feat/engine-base-unfreeze (draft PR #76). Nothing tagged. The commit     -->
+<!-- count that stood here aged into a lie within a day: the branch kept          -->
+<!-- growing under the successor plan. A number is a COPY of state; the branch    -->
+<!-- itself is the record.                                                        -->
 <!--                                                                          -->
 <!-- 🛑 DO NOT OPEN THIS FILE TO FIND OUT WHERE THE WORK STANDS. It is ~2 200  -->
 <!-- lines and holds NO current state. The live plan is:                       -->
