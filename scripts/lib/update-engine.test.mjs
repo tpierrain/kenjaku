@@ -2694,8 +2694,12 @@ test("formatReport — a skill kept back because the owner edited it names the f
     skillsRetirePreserved: [
       {
         name: "tdd-discipline",
+        // TWO edited files and one unprovable, so the sentence has to list a real
+        // collection: with a single name, a dropped separator is invisible (measured —
+        // a `join("")` mutant survived the first version of this test).
         blockers: [
           { rel: ".claude/skills/tdd-discipline/SKILL.md", reason: "customized" },
+          { rel: ".claude/skills/tdd-discipline/reference/examples.md", reason: "customized" },
           { rel: ".claude/skills/tdd-discipline/notes.md", reason: "no-provenance" },
         ],
       },
@@ -2704,7 +2708,8 @@ test("formatReport — a skill kept back because the owner edited it names the f
   assert.ok(
     out.includes(
       '   • the "tdd-discipline" skill is retired — the engine no longer ships it, and you had changed it' +
-        ' (.claude/skills/tdd-discipline/SKILL.md), so your copy was left exactly as you wrote it',
+        ' (.claude/skills/tdd-discipline/SKILL.md, .claude/skills/tdd-discipline/reference/examples.md),' +
+        ' so your copy was left exactly as you wrote it',
     ),
     out,
   );
