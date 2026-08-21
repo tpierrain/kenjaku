@@ -419,6 +419,44 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 - [ ] **S7-3 — the wiring**: `reconcileBrain` computes the heal once and hands it to the three refresh
       families and to `reseedProvenance`; the report gains its one line. `update-engine.mjs` and the
       installer are **not** touched.
+
+  #### 📐 S7-3's own design — five residual choices, one of them load-bearing _(written 2026-08-21, before the code)_
+
+  - [x] 🚨 **THE ONE THAT WOULD HAVE SILENTLY BROKEN THE DESIGN'S OWN PROMISE.** S7-0 says *"a self-heal
+        heals too… a `reconcile`-only run on a frozen brain still records the proof, so the NEXT update
+        merges"*. The manifest write it relies on is guarded: `reconcile-brain.mjs:475`,
+        `if (Object.keys(delivered).length > 0)`. **A self-heal on a frozen brain delivers nothing** —
+        the three refresh families are all gated on `sourceDir !== brainDir` — so the heal would be
+        computed, used for that run, and then **thrown away unwritten**. The condition has to widen to
+        *"delivered something OR healed something"*, or the clause is false and nothing says so.
+  - [x] **Where the installed bytes come from, and it is NOT a walk of the brain.** `healProvenance`
+        needs an `installedFileMap`. The obvious `listFilesRelPosix(brainDir)` walks the whole vault —
+        thousands of notes, on **every SessionStart self-heal**, to look at ~15 files. Instead the
+        candidate set is **the table's own rels**, stat'ed on the brain's disk: bounded by construction,
+        and it loses nothing, because a rel absent from the table can never be healed anyway
+        (`table?.files?.[rel]` → null). The table bounds the work; `selectMergeFiles` inside the heal
+        still gates the regime.
+  - [x] **How the heal reaches `reseedProvenance`, which lives in ANOTHER function.** S7-0 says
+        "computed once at the top of `reconcileBrain`" and "handed to `reseedProvenance` (`:460`)", but
+        that call is in `runReconcileCli`. So the report carries it: `healedProvenance`, `healedBaseRefs`
+        and `healed` come back with the rest, and the CLI uses them as `priorProvenance` and merges the
+        learned refs **under** the recorded ones (`{...healed, ...recorded}` — recorded always wins, per
+        S7-0's answer on `baseRefs`).
+  - [x] **`retireDeclaredSkills` keeps the RECORDED map** (`:116`), not the healed one. The withdrawn
+        arbitration at the top of this file measured why: the two maps are identical from retirement's
+        point of view, always. Passing the healed one would be a change with no effect and one more thing
+        to reason about the day someone reads it.
+  - [x] **Reading the table is FAIL-SOFT, and its order is `sourceDir` then `brainDir`.** The source's
+        copy is the freshest; the brain's own is what a self-heal has. Missing, unreadable or corrupt →
+        `null`, which `healProvenance` already survives (pinned at S7-1). **An update must never die
+        because a data file was unreadable.**
+  - [x] **The report line says what is TRUE, not what was drafted.** S7-0 sketched *"N engine files
+        recognized from vX"*. There is no single vX: each healed file carries the `since` of the tag its
+        bytes first appeared at, and those differ per file. So the line names the **range** when it is a
+        range — earliest, and `to <latest>` only when they differ — ordered by `compareSemverTags`, never
+        lexically (`v3.10.0` sorts before `v3.2.0` as a string). It sits with the skill/retire **events**
+        and before the preserved+merged family lines, because its whole point is that files which would
+        have been listed as *"preserved, we cannot tell"* no longer are.
 - [ ] **S7-5 — FETCH the ancestor's bytes from a published tag.** _(The owner's idea, 2026-08-21:
       *"est-ce que l'update ne peut pas aller lire dans GitHub, récupérer le fichier de la version de
       l'utilisateur pour s'en servir d'origine?"* — **measured the same hour and it works.**)_
