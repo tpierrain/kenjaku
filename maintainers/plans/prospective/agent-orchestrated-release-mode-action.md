@@ -465,6 +465,45 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🧪 **2026-08-22 (S10-QA) — THE QA FIXTURE WAS MEASURING A STATE NO BRAIN IS EVER IN, and the
+  mutation run was skipping nine of sixteen hunks in silence.** `612f306`, `5c16fc2`, `ea78d42`,
+  `e2036be`. S10 is now DONE: the owner's sentence runs as a test over a brain rebuilt from the
+  published `v3.6.0` tag, and it found **three product defects** no hand-written fixture could have —
+  a dropped answer on a brain that cannot name its engine version, a marked-up merge adoptable blind,
+  and every `.new` sidecar counted as a file the brain was holding back.
+
+  Two lessons, and both are about **instruments**, not about the product:
+
+  > **An instrument that stops one step short of the real path measures a fiction.** `updateFrom`
+  > called the reconciler and returned — but on the real path the manifest is written *after* it, by
+  > `update-engine`'s step 7. So the fixture brain kept its **install-day manifest**: empty
+  > provenance, no `baseRefs`. Every earlier suite only read the *report*, so nothing noticed. The
+  > moment a suite read the brain **back** — what does it still hold back? can it be answered? — the
+  > gap became visible, and my first two attempts to "fix the test" were fixing the wrong end. **When
+  > a QA disagrees with you twice about a real tree, suspect the instrument before the assertion.**
+
+  > **A `--mutate` range written as a bare line number matches NO file, and Stryker says so in a
+  > warning while scoring the rest green.** Nine of this slice's sixteen hunks were never measured;
+  > the run reported 85 % over the seven that were. `mutate-one.mjs` exists to make *"a score that was
+  > never measured"* impossible, so it now normalizes `:79` into `:79-79` — the same class of trap as
+  > the file name that must be repeated per range, and it fails the same way: **silently, upward.**
+  > Re-run properly, those lines held a real finding: a report arm that had had **no state to
+  > describe since S10-1**.
+
+  🛑 **And a guard is measured in BOTH directions or it is half-tested.** Three survivors sat on the
+  marker check that refuses to adopt a conflicted merge: every test proved it refuses the dangerous
+  file, none proved it accepts an innocent one. Unanchor one marker and the engine starts refusing
+  any file that merely *quotes* `<<<<<<<` — which is a real file: the update-engine skill's own Step 4
+  explains what a conflict looks like. A guard that over-refuses would freeze exactly the document
+  that explains the freeze.
+
+  **Next**: S9, the release tail (S9-1 the note, his tone). ⚠️ **One arbitration is waiting for the
+  owner at the top of the v5 plan**, and the run did not resolve it: a brain keeps its **install-day
+  regime list forever**, so `CLAUDE.engine.md` — a `merge` family only v4+ declares — is offered
+  during an update and never mentioned by the standing nudge between them. Three ways out are written
+  there with a recommendation; it changes what an update may write on every deployed brain, so it is
+  his.
+
 - 🎙️ **2026-08-22 (S10-6b) — S10 IS BUILT, and the slice with NO mutation gate is the one where the
   other nets did the judging.** `a4e7783`. The owner's acceptance criterion is finally spoken: Step 4
   of the update-engine skill turns a preserved file into a conversation (what you changed, what the

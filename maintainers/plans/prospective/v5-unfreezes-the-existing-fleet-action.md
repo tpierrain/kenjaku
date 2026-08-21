@@ -82,7 +82,61 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-QA — the owner's sentence, turned into an executable test
+> ## 🛑 THOMAS'S CALL — a brain keeps its INSTALL-DAY regime list, **forever**
+>
+> _(Found by S10-QA on 2026-08-22, on a brain rebuilt from the real `v3.6.0` tag. **Not blocking the
+> next slice**: S9-1 can be written without it. Blocking only in the sense that the answer is yours.)_
+>
+> **The fact, measured not supposed.** An update writes back `{...local, engineVersion,
+> indexSchemaVersion, source, provenance, baseRefs}` — and `regimes` is **not in that list**, so it
+> comes from the brain's own manifest and is never advanced. `session-self-heal.mjs` already names it
+> in a comment (*"update-engine never refreshes those, which is the whole bug"*) and works around it
+> by deriving the desired state from what the engine **delivers** instead.
+>
+> **What it costs v5, precisely.** `CLAUDE.engine.md` is a `merge` family only **v4+ declares**. On a
+> v3.6.0 brain the doctrine is still held back correctly, **is** named at update time
+> (`doctrinePreserved` carries it with its `.new`), and **is** adoptable by path. But the STANDING
+> surfaces never mention it: `readEngineDivergence` selects through the brain's stale globs, so the
+> session nudge is silent about it, and adopting it records the answer and writes the file **without
+> advancing its ancestor** — so the question comes back at the next release instead of being settled.
+> The acceptance criterion holds for the update conversation; it is the between-updates half that
+> misses this one file family.
+>
+> **Three ways out, and it is not my call because it changes what an update MAY WRITE on every
+> deployed brain** (the write guard reads the very same list):
+>
+> - [ ] **(a) Advance `regimes` (and `retired`) to the target's at step 7.** One line. It aligns the
+>       record with what the update just did — the reconcile already decides everything from `target`.
+>       Widens the write guard's allowlist to whatever the new engine declares, which is the point and
+>       also the risk.
+> - [ ] **(b) Leave the manifest alone, and have the standing readers use the ENGINE's own regimes.**
+>       A brain's `scripts/lib/**` is at HEAD after an update, so the engine can read its own list. No
+>       migration, but two sources of truth for one fact.
+> - [ ] **(c) Ship v5 as it is.** The doctrine is offered at every update and re-offered at the next
+>       release. Honest, never silent during an update, and mildly repetitive between them.
+>
+> _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
+> release note. But the fleet is yours.)_
+>
+> ## ▶️ RESUME AT: S9-1 — the release note (S10 is DONE, QA included)
+>
+> ✅ **S10-QA HAS SHIPPED, and with it S10 is finished** _(2026-08-22 · `612f306`, `5c16fc2`, `ea78d42`,
+> `e2036be`)_ — the owner's sentence is now an executable test over a brain rebuilt from the published
+> `v3.6.0` tag, with three files edited **before** the release.
+> **Running it on a real tree found three product defects** no hand-written fixture could have shown,
+> each fixed test-first: an answer recorded on a brain that **cannot name its engine version** was
+> written and then silently dropped on read (`UNKNOWN_REF`); a **conflict's `.new` carries `<<<<<<<`
+> markers** and would have been adopted blind, pasting them into the live file *and* recording them as
+> the ancestor; and a `merge` glob matches `SKILL.md.new` as happily as `SKILL.md`, so **every sidecar
+> counted as a file the brain was holding back** — the engine naming its own offer to the owner as a
+> divergence. Mutation: **96.15 %** over the changed hunks, then **100 %** over nine hunks Stryker had
+> **silently skipped** (a bare `:79` matches no file; `mutate-one.mjs` now normalizes it). See
+> `../../mutation/RESULTS.md § S10-QA`.
+>
+> ▶️ **NEXT: S9, the release tail** — S9-1 (the release note, the owner's tone; the marketing lead
+> below is waiting for it), then S9-2 (cut/tag/publish, his) and S9-3 (the field measurement).
+>
+> ### The road to here (S7, S8, S10-0 → S10-6b) — kept as the record, **not** the resume point
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -113,12 +167,8 @@
 > brings in plain words, then the three offers, then the command. **EN + `templates/fr/` twin in the
 > one commit**, and the **fingerprint table regenerated at v5.0.0** (79 → 81 byte-states) — its guard
 > caught that changing a `merge` file without regenerating leaves those bytes recognisable by no
-> frozen brain. **Every BUILD slice is ticked, S10-0 → S10-6b; S10-QA is what stands between built
-> and done**, so do not read this as S10 finished.
->
-> ▶️ **NEXT: S10-QA**, the owner's sentence turned executable — a brain rebuilt from a real tag, with
-> a file edited **before** v5.0.0, must come out of an update with a real choice offered and nothing
-> silently left behind. Then **S9**, the release tail.
+> frozen brain. **Every BUILD slice is ticked, S10-0 → S10-6b**, and **S10-QA closed the gap between
+> built and done** — see the top of this header.
 >
 > 📌 **A lead for S9-1, recorded here so it survives this context** (found while writing S10-6b, and
 > it is exactly CONVENTIONS.md §10's *"what did this release make TRUE that we do not sell yet?"*):
@@ -384,8 +434,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
     - [x] **S10-6b — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/` twin in
           the same commit). _(2026-08-22 · `a4e7783`)_ Step 4 of the update-engine skill; fingerprint
           table regenerated at v5.0.0 (79 → 81 byte-states), which its own guard demanded.
-  - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
-- [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
+  - [x] **S10-QA — the acceptance test, on a brain rebuilt from the real `v3.6.0` tag.**
+        _(2026-08-22 · `612f306`, `5c16fc2`, `ea78d42`, `e2036be`)_ Three product defects found on the
+        real tree and fixed test-first (a dropped answer on a brain that cannot name its version; a
+        marked-up merge adoptable blind; every sidecar counted as a held-back file). 96.15 % then
+        100 % — see `../../mutation/RESULTS.md § S10-QA`. **S10 is DONE.**
+- [ ] ▶️ **NEXT — S9 — the release tail.** _(LAST: after S7, S8 and S10 — all three are now done.)_
   - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
         play: one falls if S7 ships, the other if S10 does. **Not writable until both verdicts exist.**
   - [ ] **S9-2 — cut, tag, publish.** Owner's, always.
@@ -1216,10 +1270,23 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
 - [x] **S10-1 → S10-n — the slices, CUT** _(2026-08-21, by S10-0)_ — they are **S10-1 → S10-4**, listed
       at the end of § S10-0 above. Four, not "n": the design collapsed the sketch's pending-decisions
       record into an answers file, because the list itself is already derived from the disk.
-- [ ] ▶️ **NEXT — S10-QA — the acceptance test, and it is the owner's sentence turned executable.** A brain
-      rebuilt from a real tag, with a file **edited before v5.0.0**, must come out of an update with a
-      real choice offered and **nothing silently left behind**. Extends the release fixtures beside
-      S7-4's pole.
+- [x] **S10-QA — the acceptance test, and it is the owner's sentence turned executable.**
+      _(2026-08-22 · `612f306`, `5c16fc2`, `ea78d42`, `e2036be`)_ A brain rebuilt from the real
+      `v3.6.0` tag, with three files **edited before v5.0.0**, comes out of an update with a real
+      choice offered and **nothing silently left behind** —
+      `scripts/lib/release-fixture-adoption.test.mjs`, five poles, beside S7-4's.
+  - [x] **Three product defects, found on the real tree and fixed test-first.** An answer recorded on
+        a brain that **cannot name its engine version** was written and silently dropped on read
+        (`UNKNOWN_REF`); a **conflict's `.new` carries `<<<<<<<` markers** and was adoptable blind,
+        which would have pasted them into the live file *and* recorded them as the ancestor; a `merge`
+        glob matches `SKILL.md.new`, so **every sidecar counted as a held-back file** — the engine
+        naming its own offer as a divergence.
+  - [x] **And one in the QA instrument itself**: `updateFrom` stopped at the reconcile, leaving the
+        brain on its **install-day manifest** — a state no brain is ever in after a real update. It
+        now performs the manifest write that always follows in the field, including what that write
+        does **not** advance (`regimes` — see the arbitration box in the header).
+  - [x] **Measured**: 96.15 % over the changed hunks, then 100 % over nine hunks Stryker had
+        **silently skipped**. `../../mutation/RESULTS.md § S10-QA`.
 
 ---
 
