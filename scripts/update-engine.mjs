@@ -156,10 +156,14 @@ function preservedAndMergedLines({ merged, preserved, singular, plural }) {
       lines.push(unprovableLine(name, singular));
       continue;
     }
-    const aside = PRESERVED_ASIDE[reason];
-    if (aside === undefined) continue;
+    // 🛑 An `aside === undefined → continue` guard used to stand here, and S4-3 is what
+    // made it indefensible. It existed for `no-provenance`, which now has its own
+    // sentence above, so nothing the producer can emit reaches it any more — and worse,
+    // what it WOULD do to a verdict reason added later is drop the line in silence,
+    // which is the exact defect this slice was written to end. A new reason must break
+    // a test, not disappear from the report.
     lines.push(
-      `   • your customized "${name}" ${singular} was kept exactly as you wrote it${aside}` +
+      `   • your customized "${name}" ${singular} was kept exactly as you wrote it${PRESERVED_ASIDE[reason]}` +
         ` — the newer engine version sits next to it as ${newVersionPath}`,
     );
   }
