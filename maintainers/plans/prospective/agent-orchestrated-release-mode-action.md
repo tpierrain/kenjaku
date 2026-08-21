@@ -413,6 +413,27 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 31) — S6b, the only door that erases** (`b2329c2`, 100 % on the new
+  module). _(What was built belongs to the owning plan, § S6b; this entry keeps only what the MODE
+  learned.)_
+  - 🎯 **The opener again aimed at what would INVALIDATE the design, and again it paid** — one grep,
+    not a review. The design said "remove only what matches its recorded fingerprint", and the
+    question worth the first tool call was *"matches HOW?"*: a naive byte comparison would leave the
+    entire Windows fleet holding a retired skill forever, because git rewrites LF→CRLF on clone and
+    the sha was taken on the delivered bytes. The answer was already in the repo (`verifyBase` tries
+    the normalized form second), so the slice's job was **to reuse it rather than to write a
+    comparison** — and the test that pins it is the one a byte-comparison author would never write.
+  - 📉 **A falling score that is not a regression, for the THIRD time this release** — 92.73 → 91.67 %
+    on `engine-apply-plan.mjs`. The rule earned last week held again: **diff the survivor lists, never
+    the scores.** All five are two shapes already characterised in RESULTS.md, and the new bucket's
+    `?? ["Stryker was here"]` is discarded by its own `.filter()` — the row for S5a had *predicted*
+    this exact arithmetic for the previous new bucket.
+  - 🛑 **What I did NOT write down is the part worth keeping.** One mutant that survived at S2c is
+    dead in this run, and the reproduction showed it is not killed by this file's own tests — so a
+    sibling in the batch covers it and I cannot name which. It went into RESULTS.md as *not
+    attributed*. A tempting sentence ("and S6b's tests fixed it") would have cost nothing today and
+    would be a fabrication in the corpus forever.
+
 - 🌙 **2026-08-21 (loop iteration 30) — S6's DESIGN, and the trap that was worth checking first.** A
   design slice: no code, and the design is committed before any is written. _(The design itself belongs
   to the owning plan, § S6; this entry keeps only what the MODE learned.)_

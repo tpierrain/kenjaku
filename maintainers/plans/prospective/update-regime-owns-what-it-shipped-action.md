@@ -248,14 +248,17 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S6b — the retirement machinery** _(2026-08-21)_, and nothing of it needs re-deciding:
-> **S6's design is written and committed** (§ S6, and it was a design slice — no code). The shape is a
-> declared `retired: []` tombstone list in the manifest, a `retireSkills` bucket counted by
-> `planTouches`, and a provenance guard on ADR 0036's shape (remove only what is byte-for-byte ours,
-> preserve and report on any doubt). ⚠️ **The one thing that must not be split apart**: dropping the
-> `merge` entry and adding the tombstone are **ONE** manifest change — do only the second and the
-> update deletes the directory while the next SessionStart restores it, forever. S6c/S6d/S6e follow,
-> listed in the block.
+> **▶️ RESUME AT: S6c — the delivery becomes real** _(2026-08-21)_. **S6b is done and committed**
+> (`b2329c2`): the `retireSkills` bucket and the pure `skill-retirement.mjs` exist, are counted by
+> `planTouches`, and nothing calls them yet — the door is built and still shut. S6c is what opens it,
+> and it is four moves that belong to one commit: wire the decision into `reconcileBrain` **before**
+> the skills refresh (or the engine three-way-merges a skill it is about to delete), surface the
+> report by name (*"the `tdd-discipline` skill has been retired — its successor
+> `test-first-discipline` is installed"*), **delete the launcher's two `tdd-discipline` copies**
+> (`.claude/skills/` and `templates/fr/.claude/skills/`, both present), and edit the manifest.
+> ⚠️ **The one thing that must not be split apart**: dropping the `merge` entry and adding the
+> tombstone are **ONE** manifest change — do only the second and the update deletes the directory
+> while the next SessionStart restores it, forever. Then ADR 0039. S6d/S6e follow, listed in the block.
 >
 > ✅ **S2c AND S2d ARE DONE.** S2c _(`856ad24`, 92.73 %)_: `SACRED` splits into *inviolable* and
 > *merge-governed*, the merge-governed half **is** S3's `OWNER_AUTHORED` pinned by identity, and **ADR
@@ -1784,9 +1787,17 @@ audible divergence.
           One door, one shape, named in one list.
 
   - [ ] 🧱 **THE SLICES** _(2026-08-21)_:
-    - [ ] **S6b — the retirement machinery.** Manifest key + `retireSkills` bucket + `planTouches` +
-          a pure `skill-retirement.mjs` deciding remove/preserve from provenance and the on-disk
-          listing. Test-first. **New pure module AND the write path → mutation mandatory.**
+    - [x] **S6b — the retirement machinery** _(2026-08-21, `b2329c2`)_. `retireSkills` reads a
+          `retired` list that is a **sibling of `regimes`**, filtered by `ENGINE_SKILL` and
+          **unscrubbed** (the skills tree is inviolable, so a scrub would empty it silently) — and
+          `planTouches` counts it, because a delete is a touch. A hostile fixture hands it `vault/**`,
+          `.env`, `CLAUDE.md` and a bare `.claude/skills/**`, and one entry survives.
+          `skill-retirement.mjs` decides **remove / preserve / absent** for one directory, asking
+          `verifyBase` rather than comparing bytes — which is what forgives the LF→CRLF rewrite git
+          performs by itself on a Windows clone. **Three** verdicts, not two: an absent directory is
+          not a rescue. Mutation: **100 %** on the new module (26/26), 91.67 % on `engine-apply-plan`
+          — five survivors, all pre-characterised equivalents, none in the new lines (see
+          [RESULTS.md](../../mutation/RESULTS.md)). 2109 tests, 0 fail.
     - [ ] **S6c — the delivery becomes real.** Wire it into `reconcileBrain` (before the skills
           refresh), surface the report, delete the launcher's two `tdd-discipline` copies, add
           `.claude/skills/test-first-discipline/**` to `merge` and the tombstone to `retired`.
