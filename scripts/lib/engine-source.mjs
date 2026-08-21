@@ -23,9 +23,19 @@ export function fingerprint(content) {
 // regime — i.e. the files that get a provenance base seed. Selection is by the
 // manifest's globs ONLY: a file the manifest never names is, by construction, the
 // user's property and is never fingerprinted (the founding principle, ADR 0012).
+// ⚰️ MINUS what the manifest has RETIRED (plan S6c). A tombstone is a sibling of
+// `regimes`, and subtracting it here rather than at each caller is what makes it mean
+// one thing everywhere: a file the engine no longer ships is not a file it merges. The
+// skills refresh, the base seeding, the provenance re-seed and the version stamps all
+// ask this one question, and two of them were measurably wrong without it — the
+// refresh's absent-install put a just-retired directory back in the SAME pass, and the
+// base tree went on seeding an ancestor for a file nobody delivers any more.
 export function selectMergeFiles(manifest, candidates) {
   const matchers = (manifest?.regimes?.merge ?? []).map(globToRegExp);
-  return candidates.filter((path) => matchers.some((re) => re.test(path)));
+  const tombstones = (manifest?.retired ?? []).map(globToRegExp);
+  return candidates.filter(
+    (path) => matchers.some((re) => re.test(path)) && !tombstones.some((re) => re.test(path)),
+  );
 }
 
 // The provenance base map: { relPath: fingerprint(content) } over a file→content

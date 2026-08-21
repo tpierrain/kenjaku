@@ -50,6 +50,27 @@ test("selectMergeFiles — a manifest with no merge regime selects nothing, and 
   assert.deepEqual(selectMergeFiles(undefined, ["CLAUDE.md"]), []);
 });
 
+// ⚰️ A RETIRED FILE IS NOT A MERGE FILE, whatever `merge` still says (plan S6c). This
+// is one line in one chokepoint, and it is where it belongs: everything that treats a
+// file as engine-owned asks THIS question — the skills refresh, the base seeding, the
+// provenance re-seed, the version stamps. Without it, the refresh's absent-install puts
+// a just-retired directory straight back in the SAME pass (measured, not feared), and
+// the base tree keeps seeding an ancestor for a file nobody ships.
+// The precedence is deliberate, and it is the same one `computeApplyPlan` applies to
+// `installSkills`: between "we still ship this" and "we no longer ship this", the
+// second is the more explicit statement, and it is the one that took a decision.
+test("selectMergeFiles — a retired entry is subtracted, however the merge regime still names it", () => {
+  const manifest = {
+    regimes: { merge: [".claude/skills/tdd-discipline/**", ".claude/skills/coach/**"] },
+    retired: [".claude/skills/tdd-discipline/**"],
+  };
+  const candidates = [".claude/skills/tdd-discipline/SKILL.md", ".claude/skills/coach/SKILL.md"];
+  assert.deepEqual(selectMergeFiles(manifest, candidates), [".claude/skills/coach/SKILL.md"]);
+  // ...and a manifest with no tombstone at all — every manifest the product has shipped
+  // so far — selects exactly what it always did.
+  assert.deepEqual(selectMergeFiles({ regimes: manifest.regimes }, candidates), candidates);
+});
+
 test("selectMergeFiles — a `**` glob selects the whole subtree, nothing outside it", () => {
   const manifest = { regimes: { merge: [".claude/skills/coach/**"] } };
   const candidates = [

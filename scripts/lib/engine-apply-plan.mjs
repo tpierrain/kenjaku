@@ -129,6 +129,15 @@ export function planTouches(plan, relPath) {
 export function computeApplyPlan(targetManifest) {
   const regimes = targetManifest?.regimes ?? {};
   const scrub = (entries) => entries.filter((entry) => !isSacred(entry));
+  // ⚰️ A TOMBSTONE BEATS A REGIME. Computed before the buckets because `installSkills`
+  // has to subtract it: the reconcile's install-if-absent runs a few lines after the
+  // retirement, finds a directory that just went missing, and puts it straight back —
+  // in the SAME pass. Found by an order test, not by reasoning about it. The two
+  // manifest edits are meant to be one change; this makes that a belt rather than the
+  // only thing holding it up, and it is the right precedence anyway: of "we still ship
+  // this" and "we no longer ship this", the second is the more explicit statement.
+  const retireSkills = (targetManifest?.retired ?? []).filter((entry) => ENGINE_SKILL.test(entry));
+  const retiredDirs = new Set(retireSkills.map(stem));
   return {
     overwrite: scrub([...(regimes.replace ?? [])]),
     regenerate: scrub([...(regimes.regenerate ?? [])]),
@@ -138,7 +147,9 @@ export function computeApplyPlan(targetManifest) {
     // A guard that cannot change a byte is noise (the repeated mutation lesson) — the
     // anchoring IS the guard, and `SACRED_FILES` keeps defending the sibling it protects.
     mergeDoctrine: (regimes.merge ?? []).filter((entry) => ENGINE_DOCTRINE.test(entry)),
-    installSkills: (regimes.merge ?? []).filter((entry) => ENGINE_SKILL.test(entry)),
+    installSkills: (regimes.merge ?? [])
+      .filter((entry) => ENGINE_SKILL.test(entry))
+      .filter((entry) => !retiredDirs.has(stem(entry))),
     // ⚰️ THE SUBTRACTIVE BUCKET, and the only list in this product whose entries end in
     // a delete. It reads `retired`, a SIBLING of `regimes` and not a regime: a regime
     // says HOW a shipped file is updated, a tombstone says the engine no longer ships
@@ -148,6 +159,6 @@ export function computeApplyPlan(targetManifest) {
     // inviolable TREE, so a scrub would empty this every time and the tombstone would
     // be a silent no-op. So `ENGINE_SKILL` is again the ONLY defence — which here means
     // it is what stands between a hand-broken manifest and the owner's vault.
-    retireSkills: (targetManifest?.retired ?? []).filter((entry) => ENGINE_SKILL.test(entry)),
+    retireSkills,
   };
 }

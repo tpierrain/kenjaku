@@ -321,6 +321,22 @@ test("computeApplyPlan — a tombstone survives the sacred scrub of the skills t
   assert.deepEqual(plan.retireSkills, [".claude/skills/tdd-discipline/**"]);
 });
 
+// 🛑 A TOMBSTONE BEATS A REGIME, and this is not theory: the reconcile's own
+// install-if-absent runs a few lines after the retirement, sees a directory that is
+// suddenly missing, and puts it straight back — in the SAME pass. Found by the order
+// test, not by reasoning. The design says the two manifest edits are one change; this
+// makes that a belt rather than the only thing holding the trousers up, because a delete
+// is the more explicit statement of the two and must win when a manifest says both.
+test("computeApplyPlan — a retired skill is NOT installed, whatever the merge regime still says", () => {
+  const halfEdited = {
+    regimes: { merge: [".claude/skills/tdd-discipline/**", ".claude/skills/coach/**"] },
+    retired: [".claude/skills/tdd-discipline/**"],
+  };
+  const plan = computeApplyPlan(halfEdited);
+  assert.deepEqual(plan.installSkills, [".claude/skills/coach/**"], "the tombstone wins over its own merge entry");
+  assert.deepEqual(plan.retireSkills, [".claude/skills/tdd-discipline/**"]);
+});
+
 // 🛑 THE HOSTILE MANIFEST, and here it is not a paranoia exercise: this is the only
 // list in the product whose entries end in `rm -rf`. Anything that is not a declared
 // engine SKILL DIRECTORY is refused by shape, because the shape is all that stands

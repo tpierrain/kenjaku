@@ -60,9 +60,13 @@ const SACRED = {
   "vault/my-note.md": "# Mollecuisse\nThe canary that must never be lost.\n",
 };
 
-function manifest({ ragVersion = "1.1.0", indexSchemaVersion = 1, extraMerge = [], extraReplace = [], engineMcpServers = ["vault-rag"] } = {}) {
+function manifest({ ragVersion = "1.1.0", indexSchemaVersion = 1, extraMerge = [], extraReplace = [], engineMcpServers = ["vault-rag"], retired = [] } = {}) {
   return {
     manifestVersion: 1,
+    // S6c — a SIBLING of `regimes`, not one of them: it does not say how a shipped file
+    // is updated, it says the engine no longer ships it. Empty on every manifest the
+    // product has shipped so far, which is exactly the state most of this suite runs in.
+    retired,
     engineVersion: { rag: ragVersion, constitutionTemplate: "1.0.0", scripts: "1.0.0" },
     indexSchemaVersion,
     regimes: {
@@ -2450,4 +2454,117 @@ test("reconcileBrain — a brain with no .gitignore at all migrates nothing, and
 
   assert.equal(report.pointerUnignored, false);
   assert.equal(existsSync(join(brainDir, ".gitignore")), false, "we write files, we do not invent them");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S6c — THE RETIREMENT, wired. The engine's surface is additive by construction
+// (ADR 0025); this is the one declared, provenance-guarded exception (ADR 0039).
+// The decision and the `rmSync` live next door; what is asserted here is that the
+// reconcile CALLS them, with the brain's own provenance, at the right moment.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("reconcileBrain — a RETIRED skill the owner never touched is deleted, and named in the report", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "---\nname: tdd-discipline\n---\nOne test at a time.\n";
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", shipped);
+  // The manifest change is ONE change, and this fixture is what it looks like: the
+  // tombstone is declared and the `merge` entry is gone in the same breath. Doing only
+  // the first would have the update delete the directory and SessionStart restore it.
+  const target = manifest({ retired: [".claude/skills/tdd-discipline/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0" }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base(shipped) },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, ["tdd-discipline"]);
+  assert.deepEqual(report.skillsRetirePreserved, []);
+  assert.equal(existsSync(join(brainDir, ".claude/skills/tdd-discipline")), false, "gone from the disk");
+});
+
+// THE PROVENANCE HAS TO BE THE BRAIN'S OWN. Handing the FETCHED manifest's provenance
+// here would compare the owner's file against what the new engine says it ships — and
+// on a brain that edited the skill, that comparison can accidentally succeed. The
+// question is "did WE deliver these exact bytes to YOU?", and only the local manifest
+// can answer it.
+test("reconcileBrain — a RETIRED skill the owner edited is kept, and the report says which file blocked it", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const mine = "---\nname: tdd-discipline\n---\nOne test at a time. AND MY OWN NOTES.\n";
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", mine);
+  const target = manifest({ retired: [".claude/skills/tdd-discipline/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0" }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base("---\nname: tdd-discipline\n---\nOne test at a time.\n") },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, []);
+  assert.deepEqual(report.skillsRetirePreserved, [
+    { name: "tdd-discipline", blockers: [{ rel: ".claude/skills/tdd-discipline/SKILL.md", reason: "customized" }] },
+  ]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/tdd-discipline/SKILL.md"), "utf8"), mine);
+});
+
+// ⏱️ THE ORDER, and it is observable only through a manifest the design forbids: one
+// that both DECLARES the skill `merge` and retires it. The engine must not spend an
+// update carefully three-way-merging a directory it is about to delete — and a brain
+// whose manifest is half-edited (or fetched mid-release) is exactly where that happens.
+test("reconcileBrain — the retirement runs BEFORE the refresh: no skill is merged on its way to the bin", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "---\nname: tdd-discipline\n---\nOne test at a time.\n";
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", shipped);
+  writeFile(sourceDir, ".claude/skills/tdd-discipline/SKILL.md", shipped + "a line the refresh would deliver\n");
+  const target = manifest({
+    extraMerge: [".claude/skills/tdd-discipline/**"],   // still declared…
+    retired: [".claude/skills/tdd-discipline/**"],      // …and retired in the same manifest
+  });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/tdd-discipline/**"] }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base(shipped) },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, ["tdd-discipline"]);
+  assert.deepEqual(report.skillsRefreshed, [], "nothing was refreshed on its way out");
+  assert.equal(existsSync(join(brainDir, ".claude/skills/tdd-discipline")), false);
+});
+
+// The state of every brain in the fleet today, and of every one that never held the
+// skill: the report's two new lists exist and are empty, so the reporting layer has
+// nothing to say rather than something empty to say.
+test("reconcileBrain — no tombstone declared: the retirement lists are present and empty", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const { calls, ...s } = seams();
+  const report = await reconcile({
+    brainDir, platform: "posix", sourceDir,
+    target: manifest(), local: manifest({ ragVersion: "1.0.0" }), ...s,
+  });
+  assert.deepEqual(report.skillsRetired, []);
+  assert.deepEqual(report.skillsRetirePreserved, []);
 });

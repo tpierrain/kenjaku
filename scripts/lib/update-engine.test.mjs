@@ -765,6 +765,16 @@ test("formatReport — an everything-on update prints every optional line, in or
     installedSkills: ["local-mirror", "coach"],
     mcpServersAdded: ["local-mirror", "vault-rag"],
     skillsRefreshed: ["switch", "coach"],
+    // S6c — the subtractive news, and the golden is where its POSITION is pinned: with
+    // the other skill events, after what appeared and what moved on, before the
+    // merged/preserved family lines. Two removed, and the two preserve reasons side by
+    // side — a report that accused the second owner of an edit would still pass every
+    // focused test and fail here.
+    skillsRetired: ["tdd-discipline", "old-sync"],
+    skillsRetirePreserved: [
+      { name: "hand-tuned", blockers: [{ rel: ".claude/skills/hand-tuned/SKILL.md", reason: "customized" }] },
+      { name: "no-record", blockers: [{ rel: ".claude/skills/no-record/SKILL.md", reason: "no-provenance" }] },
+    ],
     skillsMerged: ["sync", "improve"],
     // A customized preserve (reported, with its sidecar) next to a no-provenance one
     // (silent by design) — the discriminating pair for the `reason` filter.
@@ -788,6 +798,9 @@ test("formatReport — an everything-on update prints every optional line, in or
       "   • new engine skill(s) installed: local-mirror, coach",
       "   • new MCP server(s) registered: local-mirror, vault-rag",
       "   • engine skill(s) brought up to date: switch, coach",
+      "   • engine skill(s) retired: tdd-discipline, old-sync — no longer shipped, and your copies held none of your own edits, so they were removed",
+      '   • the "hand-tuned" skill is retired — the engine no longer ships it, and you had changed it (.claude/skills/hand-tuned/SKILL.md), so your copy was left exactly as you wrote it',
+      '   • the "no-record" skill is retired — the engine no longer ships it, but this brain has no record of what it delivered there, so your copy was left exactly as it is',
       '   • your "sync" and "improve" skills kept your edits AND received this update',
       '   • your customized "prepare-1-1" skill was kept exactly as you wrote it — the newer engine version sits next to it as .claude/skills/prepare-1-1/SKILL.md.new',
       '   • your "import" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours',
@@ -1141,6 +1154,26 @@ const NO_OP_REPORT = {
   doctrineMerged: [],
 };
 
+// S6c — a skill that went AWAY is the purest case this nudge exists for: the running
+// conversation loaded it at session start and still believes it has it, and unlike a
+// refreshed file nothing will re-read it and find it gone.
+test("needsRestart — a RETIRED skill arms the nudge", () => {
+  assert.equal(needsRestart({ ...NO_OP_REPORT, skillsRetired: ["tdd-discipline"] }), true);
+});
+
+// ...and its mirror: a skill the engine KEPT changed nothing on disk, so it must not
+// nag. The two lists arrive together from one reconcile, and only one of them is news.
+test("needsRestart — a retirement that preserved everything leaves the nudge disarmed", () => {
+  assert.equal(
+    needsRestart({
+      ...NO_OP_REPORT,
+      skillsRetired: [],
+      skillsRetirePreserved: [{ name: "tdd-discipline", blockers: [{ rel: "x", reason: "customized" }] }],
+    }),
+    false,
+  );
+});
+
 test("needsRestart — a genuine no-op leaves the nudge disarmed", () => {
   assert.equal(needsRestart(NO_OP_REPORT), false);
 });
@@ -1419,6 +1452,7 @@ function manifest({
   provenance = {},
   baseRefs,
   extraMerge = [],
+  retired = [],
   canonicalRepo,
 }) {
   return JSON.stringify(
@@ -1441,6 +1475,9 @@ function manifest({
           ...extraMerge,
         ],
       },
+      // S6c — the tombstone list, a SIBLING of `regimes`. Empty on every manifest the
+      // product has shipped, which is the state the rest of this harness runs in.
+      retired,
       engineMcpServers: ["vault-rag"],
       source: { repo: "https://example.test/launcher.git", ref },
       provenance,
@@ -1500,13 +1537,13 @@ function buildBrain() {
 
 // A freshly-cloned launcher source at vB: engine files (vB) + its manifest. (It does
 // NOT carry the brain's sacred files — those belong to the brain alone.)
-function buildSource({ indexSchemaVersion, canonicalRepo }) {
+function buildSource({ indexSchemaVersion, canonicalRepo, retired }) {
   const dir = mkdtempSync(join(tmpdir(), "sbg-source-"));
   for (const [rel, content] of Object.entries(flat(engineFiles("vB")))) writeFile(dir, rel, content);
   writeFile(
     dir,
     "engine-manifest.json",
-    manifest({ ragVersion: "1.1.0", indexSchemaVersion, ref: "v1.1.0", canonicalRepo }),
+    manifest({ ragVersion: "1.1.0", indexSchemaVersion, ref: "v1.1.0", canonicalRepo, retired }),
   );
   return dir;
 }
@@ -2614,4 +2651,121 @@ test("defaultReadInstalledSource — reads the brain's OWN manifest, and survive
   } finally {
     rmSync(brainDir, { recursive: true, force: true });
   }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S6c — WHAT THE OWNER IS TOLD ABOUT A RETIREMENT. Prose, so it is asserted whole:
+// a skill that disappeared from their brain is the one event where "a glob was
+// removed" is not an acceptable answer. Two sentences, because there are two
+// truths and the S4-3 lesson forbids merging them — "you had changed it" is a
+// claim, and on the fleet's default state (no record at all) it is a false one.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("formatReport — a removed skill says what went and why it was safe to go", () => {
+  const out = formatReport({ ref: "v5.0.0", engineVersion: { rag: "1.1.4" }, copied: [], skillsRetired: ["tdd-discipline"] });
+  assert.ok(
+    out.includes(
+      '   • engine skill(s) retired: tdd-discipline — no longer shipped, and your copy held none of your own edits, so it was removed',
+    ),
+    out,
+  );
+});
+
+test("formatReport — two removed skills are named together, and the sentence agrees with itself", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    skillsRetired: ["tdd-discipline", "old-sync"],
+  });
+  assert.ok(
+    out.includes(
+      '   • engine skill(s) retired: tdd-discipline, old-sync — no longer shipped, and your copies held none of your own edits, so they were removed',
+    ),
+    out,
+  );
+});
+
+test("formatReport — a skill kept back because the owner edited it names the file they edited", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    skillsRetirePreserved: [
+      {
+        name: "tdd-discipline",
+        blockers: [
+          { rel: ".claude/skills/tdd-discipline/SKILL.md", reason: "customized" },
+          { rel: ".claude/skills/tdd-discipline/notes.md", reason: "no-provenance" },
+        ],
+      },
+    ],
+  });
+  assert.ok(
+    out.includes(
+      '   • the "tdd-discipline" skill is retired — the engine no longer ships it, and you had changed it' +
+        ' (.claude/skills/tdd-discipline/SKILL.md), so your copy was left exactly as you wrote it',
+    ),
+    out,
+  );
+});
+
+// 🔇→🔊 The fleet's DEFAULT state, and the S4-3 defect re-entering by a new door if it
+// were folded into the sentence above: a brain with no provenance did not edit anything.
+// Telling that owner "you had changed it" is what once sent someone diffing a file they
+// had never touched. What we know is that we do not know.
+test("formatReport — a skill kept back for want of a record does NOT accuse the owner of editing it", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.1.4" },
+    copied: [],
+    skillsRetirePreserved: [
+      { name: "tdd-discipline", blockers: [{ rel: ".claude/skills/tdd-discipline/SKILL.md", reason: "no-provenance" }] },
+    ],
+  });
+  assert.ok(
+    out.includes(
+      '   • the "tdd-discipline" skill is retired — the engine no longer ships it, but this brain has no record of' +
+        ' what it delivered there, so your copy was left exactly as it is',
+    ),
+    out,
+  );
+  assert.equal(out.includes("you had changed it"), false, "the claim this brain cannot make");
+});
+
+// The state of every update that retires nothing — which is every update the product
+// has ever shipped: not one word about a machinery the owner has no reason to meet.
+test("formatReport — an update that retires nothing says nothing about retirement", () => {
+  const out = formatReport({ ref: "v5.0.0", engineVersion: { rag: "1.1.4" }, copied: ["rag/src/index.ts"] });
+  assert.equal(out.includes("retired"), false, out);
+});
+
+// ⚰️ S6c END TO END — the retirement crossing the WHOLE core, not just the reconcile:
+// `updateEngine` destructures the reconcile's report field by field, and that
+// destructure is where a verdict goes to die in silence (the comment beside it says so,
+// and it was written after one did). A retirement that reaches the disk but not the
+// report is a skill the owner finds missing with no sentence anywhere explaining it.
+test("updateEngine — a retired skill is removed on a real update, and the removal reaches the report", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1, retired: [".claude/skills/tdd-discipline/**"] });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "---\nname: tdd-discipline\n---\nOne test at a time.\n";
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", shipped);
+  // The brain's OWN record of what the engine delivered there — the only thing that can
+  // make a delete provably safe. Written into the fixture's manifest rather than passed
+  // in, because that is where a deployed brain keeps it.
+  const local = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  local.provenance[".claude/skills/tdd-discipline/SKILL.md"] = fp(shipped);
+  writeFileSync(join(brainDir, "engine-manifest.json"), JSON.stringify(local, null, 2) + "\n");
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
+
+  assert.deepEqual(report.skillsRetired, ["tdd-discipline"]);
+  assert.deepEqual(report.skillsRetirePreserved, []);
+  assert.equal(existsSync(join(brainDir, ".claude/skills/tdd-discipline")), false, "gone from the brain");
+  // ...and the sentence the owner actually reads, from that same report.
+  assert.ok(formatReport(report).includes("engine skill(s) retired: tdd-discipline"), formatReport(report));
 });

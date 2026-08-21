@@ -26,6 +26,7 @@ import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
 import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
 import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
+import { retireDeclaredSkills } from "./skill-retirement-fs.mjs";
 import { refreshEngineScripts } from "./engine-script-refresh.mjs";
 import { refreshEngineDoctrine } from "./engine-doctrine-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
@@ -100,6 +101,20 @@ export async function reconcileBrain({
   for (const rel of selectEngineFilesToCopy({ sourceFiles, copyGlobs })) {
     if (copyInto(sourceDir, brainDir, rel)) copied.push(rel);
   }
+
+  // 2.bis-retire RETIRE the skills the engine no longer ships (plan S6c, ADR 0039).
+  //    FIRST of the skill steps, and deliberately: a manifest that both declares a skill
+  //    `merge` and retires it (a half-finished edit, or a fetch mid-release) would
+  //    otherwise have the engine carefully three-way-merge a directory it is about to
+  //    delete. Provenance-guarded, on ADR 0036's shape — the decision is next door and
+  //    every doubt preserves. The provenance is the BRAIN'S OWN (`local`), because the
+  //    question is "did we deliver these exact bytes to YOU?", which only the brain's
+  //    manifest can answer; the fetched one would be answering about someone else.
+  const { skillsRetired, skillsRetirePreserved } = retireDeclaredSkills({
+    brainDir,
+    plan,
+    provenance: local?.provenance,
+  });
 
   // 2.bis Install engine-declared skills the brain is MISSING (ADR 0025): additive,
   //    install-if-absent at the SKILL-DIR level. A skill dir that already exists
@@ -356,6 +371,12 @@ export async function reconcileBrain({
     reindexReason,
     vaultNoteCount,
     installedSkills,
+    // S6c: the engine's only subtractive door. Two lists, like every other family —
+    // what went, and what was kept with the file that blocked it. Separate from
+    // `skillsPreserved`, because a skill preserved from a REFRESH is still maintained
+    // and a skill preserved from a RETIREMENT is one the engine has stopped shipping.
+    skillsRetired,
+    skillsRetirePreserved,
     installedFileMap,
     skillsRefreshed,
     skillsPreserved,

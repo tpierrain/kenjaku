@@ -1,0 +1,55 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// skill-retirement-fs.mjs — THE THIN I/O around the pure decision (plan S6c).
+// It lists the declared directory, hands the bytes to `decideSkillRetirement`, and
+// is the ONE place in this product that calls `rmSync` on something under the
+// owner's `.claude/`. Everything that DECIDES lives next door and touches no disk;
+// what is here is deliberately dumb, because the interesting half must stay
+// testable without a brain and this half must stay easy to read in a review.
+//
+// The pure/fs split is the house pattern (`engine-base.mjs` / `engine-base-fs.mjs`),
+// and it earns its keep loudest here: a delete is the one write no test should have
+// to trust a double about.
+// ─────────────────────────────────────────────────────────────────────────────
+import { existsSync, readFileSync, rmSync } from "node:fs";
+import { join } from "node:path";
+
+import { listFilesRelPosix } from "./fs-walk.mjs";
+import { decideSkillRetirement } from "./skill-retirement.mjs";
+
+// ".claude/skills/tdd-discipline/**" → ".claude/skills/tdd-discipline". The same strip
+// the install-if-absent loop does, and for the same reason: a skill is retired at the
+// DIRECTORY level, never file by file — half a skill left behind is worse than all of it.
+const skillDirOf = (glob) => glob.replace(/\/\*\*?$/, "");
+
+export function retireDeclaredSkills({ brainDir, plan, provenance = {} }) {
+  const skillsRetired = [];
+  const skillsRetirePreserved = [];
+
+  for (const glob of plan.retireSkills) {
+    const dir = skillDirOf(glob);
+    const abs = join(brainDir, dir);
+    // An absent directory reads as an empty listing rather than as a special case: the
+    // decision already has a word for it (`absent`), and giving the I/O a second opinion
+    // on the same question is how two answers start to disagree.
+    const files = existsSync(abs)
+      ? listFilesRelPosix(abs).map((rel) => ({ rel: `${dir}/${rel}`, content: readFileSync(join(abs, rel), "utf8") }))
+      : [];
+    const decision = decideSkillRetirement({ dir, files, provenance });
+    const name = dir.split("/").pop();
+
+    // The whole directory, not the files we just listed: a leftover empty tree would
+    // still read as an installed skill to the next `existsSync` guard (and there is one
+    // in the install-if-absent loop), so a half-removal is a skill that never comes back.
+    if (decision.verdict === "remove") {
+      rmSync(abs, { recursive: true, force: true });
+      skillsRetired.push(name);
+    } else if (decision.verdict === "preserve") {
+      skillsRetirePreserved.push({ name, blockers: decision.blockers });
+    }
+    // `absent` falls through into NEITHER list, deliberately: it is the commonest case in
+    // the fleet, and an owner told "preserved tdd-discipline" about a skill they never
+    // installed would go looking for something that was never there.
+  }
+
+  return { skillsRetired, skillsRetirePreserved };
+}

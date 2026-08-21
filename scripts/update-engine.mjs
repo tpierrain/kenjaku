@@ -84,7 +84,12 @@ export function needsRestart(report) {
     // leaves the agent reasoning from rules the file no longer contains — and unlike a
     // skill, nothing will re-read it lazily when it is next used.
     report.doctrineRefreshed?.length > 0 ||
-    report.doctrineMerged?.length > 0
+    report.doctrineMerged?.length > 0 ||
+    // S6c: the purest case of all. A skill that went AWAY was loaded at session start
+    // and the running conversation still believes it has it — and unlike a refreshed
+    // file, nothing will re-read it and discover it is gone. Only the REMOVED list
+    // counts: a retirement the engine refused changed not one byte on disk.
+    report.skillsRetired?.length > 0
   );
 }
 
@@ -134,6 +139,20 @@ const PRESERVED_ASIDE = {
 const unprovableLine = (name, singular) =>
   `   • your "${name}" ${singular} was left exactly as it is — this brain has no record of` +
   ` the version the engine last delivered there, so we cannot tell your edits from ours`;
+
+// ⚰️ S6c — the retirement's two sentences. Split by REASON and not merged into one,
+// for exactly S4-3's reason above: "you had changed it" is a CLAIM, and on the fleet's
+// default state (a brain that recorded nothing) it is a false one. A skill blocked by a
+// mix of both is reported as edited, naming only the files that really were.
+const retiredPreservedLine = ({ name, blockers }) => {
+  const edited = blockers.filter((blocker) => blocker.reason === "customized").map((blocker) => blocker.rel);
+  if (edited.length === 0) {
+    return `   • the "${name}" skill is retired — the engine no longer ships it, but this brain has no record of` +
+      ` what it delivered there, so your copy was left exactly as it is`;
+  }
+  return `   • the "${name}" skill is retired — the engine no longer ships it, and you had changed it` +
+    ` (${edited.join(", ")}), so your copy was left exactly as you wrote it`;
+};
 
 // ⚠️ The entries are keyed `name`, not `skill`: the same carrier serves the engine
 // scripts (S2b) and the constitution (S2c), and in those a field called `skill` would
@@ -250,7 +269,7 @@ function conflictLines(conflicts) {
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -302,6 +321,18 @@ export function formatReport(report) {
   if (skillsRefreshed.length > 0) {
     lines.push(`   • engine skill(s) brought up to date: ${skillsRefreshed.join(", ")}`);
   }
+  // S6c — and the mirror of that news: a skill that is GONE. It sits with the other
+  // skill events and before the merged/preserved family lines, because an owner reading
+  // top-down should hear what appeared, what moved on and what went, in that order.
+  if (skillsRetired.length > 0) {
+    const many = skillsRetired.length > 1;
+    lines.push(
+      `   • engine skill(s) retired: ${skillsRetired.join(", ")} — no longer shipped, and` +
+        ` ${many ? "your copies held" : "your copy held"} none of your own edits, so` +
+        ` ${many ? "they were" : "it was"} removed`,
+    );
+  }
+  lines.push(...skillsRetirePreserved.map(retiredPreservedLine));
   // The two families' merged + preserved sentences (see the helpers above), then
   // EVERY conflict, last. A fast-forwarded script needs no line of its own: it is
   // already counted as a swapped engine file, which is what it has always been.
@@ -462,6 +493,11 @@ export async function updateEngine({
     vaultNoteCount,
     installedSkills,
     installedFileMap,
+    // S6c: the subtractive door's two lists. Same reason as the comment below — a
+    // field this destructure does not name is a verdict the owner never hears, and a
+    // skill that vanished with no sentence beside it is the worst shape of that.
+    skillsRetired,
+    skillsRetirePreserved,
     skillsRefreshed,
     skillsPreserved,
     skillsMerged,
@@ -609,6 +645,8 @@ export async function updateEngine({
     reindexReason,
     vaultNoteCount,
     installedSkills,
+    skillsRetired,
+    skillsRetirePreserved,
     skillsRefreshed,
     skillsPreserved,
     skillsMerged,
