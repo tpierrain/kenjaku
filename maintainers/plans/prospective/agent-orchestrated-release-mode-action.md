@@ -488,6 +488,15 @@ arbitration goes here as a question, and the run continues on other slices.
     against code that is already green, so it can never take its red the ordinary way. **Hand-applying
     the mutant IS the fail-first step**: all five were applied and seen red (13/3, 15/1, 15/1, 12/4,
     15/1) before the commit. Skip it and you ship a test that has never once been observed to fail.
+  - 📕 **AN ARCHIVED PLAN IS NOT INERT, and a header grep is not opening a file.** The carrier guard
+    named `archived/update-regime-owns-what-it-shipped-action.md` twice tonight and I dismissed it
+    twice, both times after grepping its **header**. The stale content sat 800 lines down: that plan
+    **designed the nine-row verdict table**, and S10-1 changed row 3 under it. Four statements were
+    promising the fleet *"no sidecar"* on a verdict that now writes one. Marked superseded, not
+    rewritten — an archived plan is the record of what was built.
+    ➡️ **The rule**: an archived plan whose *behaviour is still running* can be falsified by a later
+    slice, and **being archived is what stops anyone looking**. When the guard names a carrier, open
+    it and search for the **behaviour the slice changed**, not for the branch name.
   - **Next: S10-3, the wiring** — the nudge subtracts what is answered at the current ref, the report
     names what waits. It is also the **exit from the known intermediate state**: since S10-1 the
     sidecar exists on disk and no surface mentions it.
