@@ -465,6 +465,31 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ✍️ **2026-08-22 (S9-1b) — THE NOTE IS DRAFTED, AND THE LOOP DID NOT WAIT FOR HIS VOICE TO PRODUCE
+  IT.** `release-v5.0.0-note.md` beside the plan, to §11's shape. The slice is marked *"owner's tone"*,
+  and the honest reading of that is **not** "leave it empty until he sits down": a draft he rewrites is
+  an artifact, not a decision taken in his place.
+
+  > **Where the line actually falls.** The loop's rule is *never guess a DECISION that is his*. So the
+  > body is written to be published as-is — the facts, the shape, the order are checkable — while the
+  > two things that are genuinely his are **left open and named**: the **voice**, and the **title**,
+  > with three candidates listed in the house style rather than one picked for him. v4.9.1 is the
+  > precedent: he chose the title naming the symptom people lived over the one naming the mechanism,
+  > and that is not a preference a session can predict.
+
+  🧭 **Two claims were VERIFIED before being written, and one of them is the whole *"What you have to
+  do"* section**: `indexSchemaVersion` is unchanged since `v4.9.1`, so nothing is re-read or
+  re-encoded — a release note that got that wrong would promise a wait that does not exist, or hide
+  one that does. And `engineVersion` still reads v4.9.1's numbers, because the bump belongs to S9-2.
+
+  🛑 **§11's *do not alarm*, applied to this night's own findings.** S10-QA turned up three real
+  defects, and every one of them was caught **before any tag**. They appear nowhere in the note: they
+  are evidence the net works, not a list of near-misses to hand a reader. What DOES appear, under the
+  fold, is the release's honest **limits** — a limit is a promise's edge, a pre-tag finding is not.
+
+  **Next**: S9-2, cut/tag/publish — **his**, always. The loop has run out of slices it may take alone
+  on this release; the arbitration box at the top of the plan is the other thing waiting for him.
+
 - 📣 **2026-08-22 (S9-1a) — THE RELEASE MADE ONE OF OUR OWN PROMISES FALSE, and the ritual that found
   it is a checklist, not a hunch.** S9-1 split on contact: §10's re-read corrects what the repo
   **claims** (factual, mine to do); the note is his **voice**. Doing both in one slice would have

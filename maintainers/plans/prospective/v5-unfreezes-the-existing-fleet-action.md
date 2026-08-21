@@ -118,7 +118,28 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: S9-1b — the release note itself (his tone). S9-1a is DONE.
+> ## ▶️ RESUME AT: S9-2 — cut, tag, publish (HIS, always). S9-1 is DONE, draft and all.
+>
+> ✅ **S9-1b — THE RELEASE NOTE IS DRAFTED** _(2026-08-22)_ —
+> [`release-v5.0.0-note.md`](release-v5.0.0-note.md), beside this plan, written to `CONVENTIONS.md`
+> §11 (two-sentence lead in the reader's words, six `What you get` bullets, the shortest possible
+> `What you have to do`, then everything technical below the `---`). **The body is written to be
+> published as-is; the VOICE is his, and so is the TITLE** — three candidates are listed at the top of
+> the file for him to arbitrate, following v4.9.1's precedent where he took the one naming the symptom
+> people actually lived.
+>
+> **Two facts the note turns on, both verified rather than assumed**: `indexSchemaVersion` is
+> unchanged since `v4.9.1`, so **nothing is re-read or re-encoded** and *"What you have to do"* is one
+> line; and `engineVersion` is still at v4.9.1's numbers, because **the bump is S9-2's**, his step.
+>
+> **What the note deliberately does NOT do** (§11's *do not alarm*): it advertises no bug that never
+> shipped. S10-QA's three findings were caught before any tag and appear nowhere in it. What it does
+> carry, under the fold, is the **honest limits** — same-region edits still conflict, the ancestor
+> fetch needs the network and a live tag, and the install-day regime list leaves the doctrine out of
+> the between-updates banner on a pre-v4 brain (the arbitration box above).
+
+>
+> ### Done, no longer the resume point: S9-1a — the marketing surface
 >
 > ✅ **S9-1a — THE MARKETING SURFACE NOW TELLS THE TRUTH** _(2026-08-22 · CONVENTIONS.md §10's ritual,
 > run in full; verdict recorded below rather than summarised away)_. **S9-1 split on contact**, as S5c
@@ -486,10 +507,11 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         _(2026-08-22)_ One outright FALSE promise (`SETUP.md`: an update never writes a skill you
         customized — S7-5 makes it merge), six undersells corrected, and the **heal**, sold nowhere,
         now in `README.md`. Verdict recorded in the header, including the clean files.
-  - [ ] ▶️ **NEXT — S9-1b — the release note itself.** Owner's tone. Both old forbidden claims have
-        fallen (S7 and S10 both shipped), so it is writable at last. Lead: **"your words are never
-        lost"**. Shape: `CONVENTIONS.md §11`.
-  - [ ] **S9-2 — cut, tag, publish.** Owner's, always.
+  - [x] **S9-1b — the release note, DRAFTED** _(2026-08-22)_ — `release-v5.0.0-note.md` beside this
+        plan, to §11's shape. Lead: **"your words are never lost"**. The body is publishable as-is;
+        the **voice and the title are his** (three candidates listed in the file).
+  - [ ] ▶️ **NEXT — S9-2 — cut, tag, publish.** Owner's, always. Carries the `engineVersion` bump,
+        which is why the manifest still reads v4.9.1's numbers today.
   - [ ] **S9-3 — the field measurement** carried to the release checklist.
 
 ---
@@ -1349,12 +1371,19 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
         LOST" is the promise that survives an update** — and it is the note's lead.
   - [x] **Six passages corrected** across `README.md`, `EN-QUOI-C-EST-DIFFERENT.md` and `SETUP.md`; the
         **heal**, which appeared in no user-facing document at all, is now in the updater bullet.
-- [ ] ▶️ **NEXT — S9-1b — the release note.** Owner's tone (`release-notes-tone`: written for non-devs
-      first, never alarmist). **Both old forbidden claims have now fallen** — S7 made *"unfreezes
+- [x] **S9-1b — the release note, DRAFTED** _(2026-08-22)_ — [`release-v5.0.0-note.md`](release-v5.0.0-note.md),
+      to `CONVENTIONS.md` §11's shape. **Both old forbidden claims have fallen** — S7 made *"unfreezes
       nobody already installed"* false, S10 made *"the merge does not reach back"* irrelevant to the
-      user — so it is writable. The three user-facing sentences of the divergence notice are his too.
-      ⚠️ **Do not advertise bugs that never shipped**: S10-QA's three findings were caught before any
-      tag (§11).
+      user — so the note says plainly what it could not say before.
+  - [x] **Written to be published as-is; the VOICE and the TITLE are his.** Three title candidates are
+        listed at the top of the file, per v4.9.1's precedent (he took the one naming the symptom
+        people lived, over the one naming the mechanism).
+  - [x] **§11's *do not alarm* honoured**: S10-QA's three findings were caught before any tag and
+        appear nowhere in the note. The honest LIMITS do appear, below the fold — same-region edits
+        still conflict, the ancestor fetch needs the network and a live tag, and the install-day
+        regime list keeps the doctrine out of the between-updates banner on a pre-v4 brain.
+  - [x] **Verified, not assumed**: `indexSchemaVersion` is unchanged since `v4.9.1`, so nothing is
+        re-read or re-encoded and *"What you have to do"* is one line.
 - [ ] **S9-2 — cut, tag, publish.** The owner's, always.
 - [ ] **S9-3 — the field measurement**, carried to the release checklist rather than to a slice: do the
       write guard's prompts become noise on a session that legitimately customizes an engine skill?
