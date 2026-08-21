@@ -1,43 +1,43 @@
-[32m03:56:33 (15132) INFO ProjectReader[39m Found 1 of 786 file(s) to be mutated.
-[32m03:56:33 (15132) INFO Instrumenter[39m Instrumented 1 source file(s) with 90 mutant(s)
-[32m03:56:33 (15132) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m03:56:33 (15132) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-d4opVY
-[32m03:56:33 (15132) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m03:56:33 (15132) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m03:56:36 (15132) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2150 ms, overhead 0 ms).
-Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/90 tested (0 survived, 0 timed out)
-Mutation testing 5% (elapsed: <1m, remaining: ~5m) 5/90 tested (0 survived, 0 timed out)
-Mutation testing 11% (elapsed: <1m, remaining: ~4m) 10/90 tested (0 survived, 0 timed out)
-Mutation testing 16% (elapsed: <1m, remaining: ~3m) 15/90 tested (0 survived, 0 timed out)
-Mutation testing 22% (elapsed: <1m, remaining: ~2m) 20/90 tested (0 survived, 0 timed out)
-Mutation testing 27% (elapsed: ~1m, remaining: ~2m) 25/90 tested (0 survived, 0 timed out)
-Mutation testing 34% (elapsed: ~1m, remaining: ~2m) 31/90 tested (1 survived, 0 timed out)
-Mutation testing 40% (elapsed: ~1m, remaining: ~1m) 36/90 tested (1 survived, 0 timed out)
-Mutation testing 46% (elapsed: ~1m, remaining: ~1m) 42/90 tested (1 survived, 0 timed out)
-Mutation testing 51% (elapsed: ~1m, remaining: ~1m) 46/90 tested (1 survived, 0 timed out)
-Mutation testing 58% (elapsed: ~1m, remaining: ~1m) 53/90 tested (1 survived, 0 timed out)
-Mutation testing 64% (elapsed: ~2m, remaining: ~1m) 58/90 tested (1 survived, 0 timed out)
-Mutation testing 71% (elapsed: ~2m, remaining: <1m) 64/90 tested (1 survived, 0 timed out)
-Mutation testing 76% (elapsed: ~2m, remaining: <1m) 69/90 tested (1 survived, 0 timed out)
-Mutation testing 83% (elapsed: ~2m, remaining: <1m) 75/90 tested (1 survived, 0 timed out)
-Mutation testing 88% (elapsed: ~2m, remaining: <1m) 80/90 tested (1 survived, 0 timed out)
-Mutation testing 94% (elapsed: ~2m, remaining: <1m) 85/90 tested (1 survived, 0 timed out)
+[32m04:30:53 (11130) INFO ProjectReader[39m Found 1 of 788 file(s) to be mutated.
+[32m04:30:53 (11130) INFO Instrumenter[39m Instrumented 1 source file(s) with 26 mutant(s)
+[32m04:30:53 (11130) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m04:30:54 (11130) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-M5dlBs
+[32m04:30:54 (11130) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m04:30:54 (11130) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m04:30:56 (11130) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2190 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/26 tested (0 survived, 0 timed out)
+Mutation testing 19% (elapsed: <1m, remaining: ~1m) 5/26 tested (1 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: <1m) 10/26 tested (2 survived, 0 timed out)
+Mutation testing 57% (elapsed: <1m, remaining: <1m) 15/26 tested (3 survived, 0 timed out)
+Mutation testing 76% (elapsed: <1m, remaining: <1m) 20/26 tested (3 survived, 0 timed out)
 
 All tests
-  ✓ All tests (killed 89)
+  ✓ All tests (killed 23)
 
-[Survived] ArrayDeclaration
-scripts/lib/engine-write-guard.mjs:65:42
--       const matchers = (regimes[regime] ?? []).map(globToRegExp);
-+       const matchers = (regimes[regime] ?? ["Stryker was here"]).map(globToRegExp);
+[Survived] StringLiteral
+scripts/engine-write-guard.mjs:27:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] StringLiteral
+scripts/engine-write-guard.mjs:37:78
+-         return JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
++         return JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), ""));
+
+[Survived] BlockStatement
+scripts/engine-write-guard.mjs:67:13
+-       } catch {
+-         manifest = null;
+-       }
++       } catch {}
 
 Ran 1.00 tests per mutant on average.
 ------------------------|------------------|----------|-----------|------------|----------|----------|
                         | % Mutation score |          |           |            |          |          |
 File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 ------------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files               |  98.89 |   98.89 |       89 |         0 |          1 |        0 |        0 |
- engine-write-guard.mjs |  98.89 |   98.89 |       89 |         0 |          1 |        0 |        0 |
+All files               |  88.46 |   88.46 |       23 |         0 |          3 |        0 |        0 |
+ engine-write-guard.mjs |  88.46 |   88.46 |       23 |         0 |          3 |        0 |        0 |
 ------------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m03:59:34 (15132) INFO MutationTestExecutor[39m Done in 3 minutes and 0 seconds.
-[32m03:59:34 (15132) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-d4opVY.
+[32m04:31:49 (11130) INFO MutationTestExecutor[39m Done in 56 seconds.
+[32m04:31:49 (11130) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-M5dlBs.

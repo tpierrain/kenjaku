@@ -65,7 +65,9 @@ export function runGuard(deps = realGuardDeps) {
     try {
       manifest = deps.readManifest(brainDir);
     } catch {
-      manifest = null;
+      // Deliberately empty: `manifest` is already `null`, and a `manifest = null`
+      // here would be a statement no test could ever see fire — a failed read
+      // never completed the assignment in the first place.
     }
 
     const decision = guardDecision({
