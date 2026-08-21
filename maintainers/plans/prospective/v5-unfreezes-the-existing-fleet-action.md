@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-6b — the conversation itself (skill prose, EN + FR in ONE commit)
+> ## ▶️ RESUME AT: S10-QA — the owner's sentence, turned into an executable test
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -108,13 +108,23 @@
 > (`<file> take-theirs|keep-mine|combine --from <path>`), declared in the manifest so it reaches
 > deployed brains. 100 % over 60 mutants, two mutants hand-confirmed.
 >
-> ⚠️ **What remains IS prose now, and only prose** — S10-6b, the conversation itself, which may promise
-> exactly what the command does and nothing more. **EN `.claude/skills/update-engine/SKILL.md`
-> and its `templates/fr/` twin in the SAME commit**, or `locale-drift` goes red. No unit to mutate:
-> the wording review stands in for the gate. ⚠️ **Naming the command in the skill will arm a second
-> net**: `engine-manifest-integrity` requires every script a skill names to be carried — it is already
-> declared, so this should stay green; if it does not, that test is right and the manifest is wrong.
-> Then **S10-QA**, then S9.
+> ✅ **S10-6b has shipped, and with it S10 IS BUILT** _(2026-08-22 · `a4e7783`)_ — the skill's
+> **Step 4** turns a preserved file into a conversation: what you changed and what the new version
+> brings in plain words, then the three offers, then the command. **EN + `templates/fr/` twin in the
+> one commit**, and the **fingerprint table regenerated at v5.0.0** (79 → 81 byte-states) — its guard
+> caught that changing a `merge` file without regenerating leaves those bytes recognisable by no
+> frozen brain. **Every BUILD slice is ticked, S10-0 → S10-6b; S10-QA is what stands between built
+> and done**, so do not read this as S10 finished.
+>
+> ▶️ **NEXT: S10-QA**, the owner's sentence turned executable — a brain rebuilt from a real tag, with
+> a file edited **before** v5.0.0, must come out of an update with a real choice offered and nothing
+> silently left behind. Then **S9**, the release tail.
+>
+> 📌 **A lead for S9-1, recorded here so it survives this context** (found while writing S10-6b, and
+> it is exactly CONVENTIONS.md §10's *"what did this release make TRUE that we do not sell yet?"*):
+> the marketing surface still promises that a file you tailored is **kept**. That is now an
+> **undersell**, not a falsehood — it is kept *and offered back to you as a choice*. §10's re-read is
+> owned by S9-1; this note only makes sure the finding is waiting there.
 >
 > Read § S10-0 and build to it; it cut four slices, **S10-1 → S10-4**. Three corrections it made to the
 > sketch, each measured against the code rather than reasoned about:
@@ -338,7 +348,7 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
       shipped.)_ _(It briefly read "and stops being OVERWRITTEN" — that was the false alarm above,
       withdrawn 2026-08-21.)_
   - [x] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`. _(2026-08-21 · `775c00a`)_
-  - [ ] **S8-2 — the EN/FR drift guard**, a test.
+  - [x] **S8-2 — the EN/FR drift guard**, a test. _(2026-08-21, all three sub-slices; box ticked 2026-08-22 — it had been left unticked while S8 itself already read "all four shipped".)_
     - [x] **S8-2-0 — the design**, measured on the 16 real pairs. _(2026-08-21)_
     - [x] **S8-2a — the port**: `435c164` into the FR `sync` skill; `f7a00fc` measured as **needing no
           port** (EN was catching up with FR), which is what forces the waiver map into S8-2b.
@@ -371,9 +381,9 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
     - [x] **S10-6a — the COMMAND behind the three offers.** _(2026-08-22 · `087d57b` + `160d36e`)_
           `scripts/adopt-engine-file.mjs`, manifest-declared, 100 % over 60 mutants. **Split out of
           S10-6 on contact**: a skill cannot call a function, so the prose had nothing to reach.
-    - [ ] ▶️ **NEXT: S10-6b — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/`
-          twin **in the same commit**, or `locale-drift` goes red). The engine AND its command are
-          done; this may promise exactly what they do and nothing more.
+    - [x] **S10-6b — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/` twin in
+          the same commit). _(2026-08-22 · `a4e7783`)_ Step 4 of the update-engine skill; fingerprint
+          table regenerated at v5.0.0 (79 → 81 byte-states), which its own guard demanded.
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
 - [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
   - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
@@ -792,8 +802,9 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
             added** (the new FR state at v5.0.0), 78 distinct states over 25 tags. **The coupling needs
             no written rule** — any edit to a merge-regime file invalidates the table, and the guard
             says so at the moment it matters.
-- [ ] **S8-2 — the EN/FR drift guard.** A test that fails when a `templates/fr/<rel>` pair has fallen
-      behind its English source. It judges **no translation quality**: it makes the omission impossible
+- [x] **S8-2 — the EN/FR drift guard.** _(2026-08-21 · S8-2-0, S8-2a, S8-2b `ab85fde` + `417e264`;
+      box ticked 2026-08-22, found unticked during S10-6b's carrier pass.)_ A test that fails when a
+      `templates/fr/<rel>` pair has fallen behind its English source. It judges **no translation quality**: it makes the omission impossible
       not to see, exactly like the plan-carrier guard. **The argument for it is on the record**: the
       same drift was measured by hand in conversation and the measurement was wrong.
 
@@ -1151,8 +1162,8 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
       would have described a capability nothing could reach — the exact shape of promise this release
       exists to stop making. `node scripts/adopt-engine-file.mjs <file> take-theirs|keep-mine|combine
       --from <path>`, manifest-declared, exit `0` applied / `1` refused-and-untouched / `2` bad call.
-- [ ] ▶️ **NEXT — S10-6b — bricks 3-5, the conversation** (skill prose, EN **and** its `templates/fr/` twin in
-      the SAME commit, or `locale-drift` goes red): what the person changed and what the new version
+- [x] **S10-6b — bricks 3-5, the conversation** (skill prose, EN **and** its `templates/fr/` twin in
+      the SAME commit, or `locale-drift` goes red) _(2026-08-22 · `a4e7783`)_: what the person changed and what the new version
       brings, in plain words, **no jargon, no conflict markers, no paths as the headline**; the three
       offers; "combine" read by Claude from both versions when there is no ancestor; and the grouping
       that keeps twelve files from becoming twelve questions.
@@ -1205,7 +1216,7 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
 - [x] **S10-1 → S10-n — the slices, CUT** _(2026-08-21, by S10-0)_ — they are **S10-1 → S10-4**, listed
       at the end of § S10-0 above. Four, not "n": the design collapsed the sketch's pending-decisions
       record into an answers file, because the list itself is already derived from the disk.
-- [ ] **S10-QA — the acceptance test, and it is the owner's sentence turned executable.** A brain
+- [ ] ▶️ **NEXT — S10-QA — the acceptance test, and it is the owner's sentence turned executable.** A brain
       rebuilt from a real tag, with a file **edited before v5.0.0**, must come out of an update with a
       real choice offered and **nothing silently left behind**. Extends the release fixtures beside
       S7-4's pole.

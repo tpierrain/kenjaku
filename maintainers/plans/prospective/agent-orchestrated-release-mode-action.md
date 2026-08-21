@@ -465,6 +465,37 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🎙️ **2026-08-22 (S10-6b) — S10 IS BUILT, and the slice with NO mutation gate is the one where the
+  other nets did the judging.** `a4e7783`. The owner's acceptance criterion is finally spoken: Step 4
+  of the update-engine skill turns a preserved file into a conversation (what you changed, what the
+  new version brings, then three offers, then the command), EN and `templates/fr/` in the one commit.
+
+  The mode calls this slice *"no unit to mutate, the wording review stands in for the gate"* — and
+  that is only half of what happened. **Two deterministic nets fired on a prose commit**, which is not
+  what anyone expects from prose:
+
+  - **`engine-fingerprints`** went red: changing a `merge`-regime file without regenerating the table
+    leaves those bytes recognisable by **no frozen brain**, so S7's heal would stop working on exactly
+    the file this slice improves. Regenerated at v5.0.0, 79 → 81 byte-states.
+  - **`locale-drift`** was the reason the FR twin was written in the same commit rather than "next",
+    and `engine-manifest-integrity` was standing by for the moment the skill named a script.
+
+  > **The lesson: "no gate" almost never means no gate — it means no MUTATION gate.** The mode's own
+  > sentence invited me to treat this as an unjudged slice. What actually judged it was a table, a
+  > pairing test and a manifest guard, none of which score anything. **Before calling a slice
+  > ungated, name which nets it will still trip**, and write them down as the plan's expectation —
+  > S10-6b's plan entry named one (manifest integrity) and missed the two that actually fired.
+
+  🛑 **The load-bearing sentence of the prose is a PROHIBITION**, and it is worth its own line: never
+  write the file directly, not even for *keep mine*, always through the command. An edit skips the
+  safety commit, skips the ancestor advance, and skips the recorded answer — so the file is raised at
+  every release forever, and on *take the new one* the person's work is gone with nothing to go back
+  to. A skill that merely *described* the offers would have left that door wide open.
+
+  **Next**: S10-QA, the owner's sentence turned executable. Also recorded in the plan, so it survives
+  a cleared context: the marketing surface still says a tailored file is *kept*, which is now an
+  **undersell** rather than a falsehood, and CONVENTIONS.md §10's re-read of it belongs to S9-1.
+
 - 🗣️ **2026-08-22 (S10-6a) — A PROSE SLICE THAT COULD NOT BE WRITTEN, and 18 survivors that were all
   the same defect.** `087d57b` then `160d36e`. The plan said *next: the conversation, skill prose, no
   unit to mutate*. It could not be written: S10-5 built the adoption seam as a **function**, the
