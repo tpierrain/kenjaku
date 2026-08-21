@@ -1,38 +1,58 @@
-[32m22:43:08 (87339) INFO ProjectReader[39m Found 1 of 762 file(s) to be mutated.
-[32m22:43:08 (87339) INFO Instrumenter[39m Instrumented 1 source file(s) with 40 mutant(s)
-[32m22:43:08 (87339) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m22:43:08 (87339) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Omykjj
-[32m22:43:08 (87339) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m22:43:08 (87339) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m22:43:10 (87339) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2345 ms, overhead 1 ms).
-Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/40 tested (0 survived, 0 timed out)
-Mutation testing 12% (elapsed: <1m, remaining: ~2m) 5/40 tested (0 survived, 0 timed out)
-Mutation testing 27% (elapsed: <1m, remaining: ~1m) 11/40 tested (0 survived, 0 timed out)
-Mutation testing 42% (elapsed: <1m, remaining: <1m) 17/40 tested (0 survived, 0 timed out)
-Mutation testing 60% (elapsed: <1m, remaining: <1m) 24/40 tested (0 survived, 0 timed out)
-Mutation testing 72% (elapsed: ~1m, remaining: <1m) 29/40 tested (1 survived, 0 timed out)
-Mutation testing 87% (elapsed: ~1m, remaining: <1m) 35/40 tested (2 survived, 0 timed out)
+[32m07:34:28 (65631) INFO ProjectReader[39m Found 1 of 791 file(s) to be mutated.
+[32m07:34:28 (65631) INFO Instrumenter[39m Instrumented 1 source file(s) with 48 mutant(s)
+[32m07:34:28 (65631) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m07:34:28 (65631) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-i20H0X
+[32m07:34:28 (65631) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m07:34:28 (65631) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m07:34:31 (65631) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2533 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/48 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: <1m, remaining: ~2m) 5/48 tested (0 survived, 0 timed out)
+Mutation testing 20% (elapsed: <1m, remaining: ~1m) 10/48 tested (0 survived, 0 timed out)
+Mutation testing 31% (elapsed: <1m, remaining: ~1m) 15/48 tested (0 survived, 0 timed out)
+Mutation testing 41% (elapsed: <1m, remaining: ~1m) 20/48 tested (0 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~1m, remaining: <1m) 25/48 tested (0 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~1m, remaining: <1m) 30/48 tested (1 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~1m, remaining: <1m) 35/48 tested (2 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~1m, remaining: <1m) 40/48 tested (2 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~1m, remaining: <1m) 43/48 tested (5 survived, 0 timed out)
 
 All tests
-  ✓ All tests (killed 38)
+  ✓ All tests (killed 43)
 
 [Survived] EqualityOperator
-scripts/lib/engine-base-fs.mjs:91:29
+scripts/lib/engine-base-fs.mjs:92:29
 -     const byPath = (a, b) => (a.rel < b.rel ? -1 : 1);
 +     const byPath = (a, b) => (a.rel <= b.rel ? -1 : 1);
 
 [Survived] MethodExpression
-scripts/lib/engine-base-fs.mjs:94:13
+scripts/lib/engine-base-fs.mjs:95:13
 -       seeded: seeds.map((seed) => seed.rel).sort(),
 +       seeded: seeds.map(seed => seed.rel),
+
+[Survived] BlockStatement
+scripts/lib/engine-base-fs.mjs:112:11
+-     } catch {
+-       return [];
+-     }
++     } catch {}
+
+[Survived] StringLiteral
+scripts/lib/engine-base-fs.mjs:111:80
+-       manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
++       manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), ""));
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-base-fs.mjs:113:12
+-       return [];
++       return ["Stryker was here"];
 
 Ran 1.00 tests per mutant on average.
 --------------------|------------------|----------|-----------|------------|----------|----------|
                     | % Mutation score |          |           |            |          |          |
 File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 --------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files           |  95.00 |   95.00 |       38 |         0 |          2 |        0 |        0 |
- engine-base-fs.mjs |  95.00 |   95.00 |       38 |         0 |          2 |        0 |        0 |
+All files           |  89.58 |   89.58 |       43 |         0 |          5 |        0 |        0 |
+ engine-base-fs.mjs |  89.58 |   89.58 |       43 |         0 |          5 |        0 |        0 |
 --------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m22:44:28 (87339) INFO MutationTestExecutor[39m Done in 1 minute and 20 seconds.
-[32m22:44:28 (87339) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-Omykjj.
+[32m07:36:17 (65631) INFO MutationTestExecutor[39m Done in 1 minute and 49 seconds.
+[32m07:36:17 (65631) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-i20H0X.

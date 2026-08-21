@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import {
   readBaseTree,
   writeBaseEntries,
+  readEngineDivergence,
   readInstalledMergeFiles,
   syncBaseTree,
   recordSourceProvenanceAndBase,
@@ -351,4 +352,63 @@ test("recordSourceProvenanceAndBase — one call records source + provenance AND
   assert.deepEqual(persisted.provenance, { "CLAUDE.md": fp(constitution) });
   assert.deepEqual(enriched.provenance, persisted.provenance, "the caller is handed the manifest that was written");
   assert.equal(read(dir, ".engine-base/CLAUDE.md"), constitution);
+});
+
+// The `seeded` list's own ordering, which the two sibling lists' test could not reach.
+// It takes a real collision to observe: the walk lists each DIRECTORY sorted, so its
+// output is already sorted for ordinary paths — but `coach` sorts before `coach.md`
+// among directory entries, while `coach.md` sorts before `coach/SKILL.md` as a whole
+// path. A brain holding both hands this module its seeds out of order, and nothing but
+// the sort puts them back.
+test("syncBaseTree — the SEEDED list is ordered by path too, even where the directory walk is not", (t) => {
+  const skill = "# the coach skill\n";
+  const note = "# a stray note beside it\n";
+  const dir = brain(t, { ".claude/skills/coach/SKILL.md": skill, ".claude/skills/coach.md": note });
+  // A glob wide enough to cover BOTH, which the shared fixture's `coach/**` is not.
+  const skillsWide = { regimes: { ...MANIFEST.regimes, merge: [".claude/skills/**"] } };
+
+  const report = syncBaseTree({
+    brainDir: dir,
+    manifest: skillsWide,
+    provenance: { ".claude/skills/coach/SKILL.md": fp(skill), ".claude/skills/coach.md": fp(note) },
+    deliveredFileMap: {},
+  });
+
+  assert.deepEqual(report.seeded, [".claude/skills/coach.md", ".claude/skills/coach/SKILL.md"]);
+});
+
+// ── readEngineDivergence — the standing state, read off a real brain (S4-3) ────
+// The pure verdict is `engine-divergence.mjs`'s and is tested there. What is this
+// module's own is the pair of reads, and the FAIL-SOFT: it runs at the end of an
+// update that has already succeeded and is already recorded, so a brain whose manifest
+// cannot be parsed must cost the report a sentence, never turn a successful update into
+// a thrown error.
+test("readEngineDivergence — names the held-back merge files of a real brain, with the version each last received", (t) => {
+  const delivered = "# as the engine delivered it\n";
+  const dir = brain(t, {
+    "CLAUDE.md": delivered + "and the owner's own paragraph.\n",
+    ".claude/settings.json": delivered,
+    "scripts/lib/engine-fetch.mjs": "// a replace file the owner rewrote entirely\n",
+    "engine-manifest.json":
+      JSON.stringify({
+        ...MANIFEST,
+        provenance: { "CLAUDE.md": fp(delivered), ".claude/settings.json": fp(delivered) },
+        baseRefs: { "CLAUDE.md": "v4.7.0", ".claude/settings.json": "v4.7.0" },
+      }) + "\n",
+  });
+
+  assert.deepEqual(readEngineDivergence({ brainDir: dir }), [
+    { rel: "CLAUDE.md", reason: "customized", since: "v4.7.0" },
+  ]);
+});
+
+test("readEngineDivergence — a manifest it cannot read costs a sentence, never a thrown update", (t) => {
+  const absent = brain(t, { "CLAUDE.md": "# no manifest at all\n" });
+  assert.deepEqual(readEngineDivergence({ brainDir: absent }), []);
+
+  const corrupt = brain(t, {
+    "CLAUDE.md": "# a manifest that is not JSON\n",
+    "engine-manifest.json": "{ this is not json",
+  });
+  assert.deepEqual(readEngineDivergence({ brainDir: corrupt }), []);
 });

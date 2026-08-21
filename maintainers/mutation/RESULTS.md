@@ -169,6 +169,40 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S4-3 — the report stops being silent, and a guard that would have re-silenced it — 2026-08-21
+
+The prose slice: `d171e90` re-opens the `no-provenance` silence and adds the standing recap, `69b17c9`
+deletes what the measurement condemned. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | Before | First pass | After the kill | Survivors |
+|---|---|---|---|---|
+| `scripts/update-engine.mjs` | 97.54 % _(honest, post-flake)_ | **98.50 %** — 329 killed, 5 survived | **99.40 %** — 329 killed, 2 survived | 2, both the `readFileSync(…, "utf8") → ""` equivalents |
+
+🎯 **ONE SURVIVOR WAS MASKING TWO MORE, AND THE FIX WAS TO DELETE IT.** `if (aside === undefined)
+continue;` guarded the preserve loop against a reason absent from `PRESERVED_ASIDE`. It existed for
+`no-provenance` — which this very slice gave a sentence of its own, so **nothing the producer can emit
+reaches it any more**. And what it would do to a verdict reason added *later* is drop the line without a
+word: the exact defect the slice was written to end, rebuilt as a safety net.
+
+With the guard gone, the two `skillsPreserved = []` / `scriptsPreserved = []` **default-value mutants
+die too**. Mutated to `["Stryker was here"]`, they destructure a string into `{name, reason}` of
+`undefined`, which used to hit the guard and vanish; now they reach the prose and fail the byte-for-byte
+report tests. Three mutants, one deletion, and 329 kills held while the denominator dropped from 334 to
+331.
+
+➡️ **The durable rule**: a fail-soft branch is a mutation-survivor *factory* AND a blindfold. It absorbs
+the mutants of everything upstream of it, so a healthy score above it means nothing. When the reachable
+set shrinks to zero — here, because the case it protected got a real answer — delete it in the same
+slice, or the next reader inherits a guard that quietly eats the next feature.
+
+⚖️ **Note the shape of the numbers**: 329 killed before and 329 killed after. **A ratio improved by
+deleting code, not by adding tests** — the same effect S3 recorded in the other direction (a score
+*falling* because dead code left the denominator). Neither movement is a verdict on the tests; the kill
+count is.
+
+---
+
 ## S4-2 — the divergence module, and two survivors that were the TESTS' — 2026-08-21
 
 One new pure module (`f247db3`), then a test-hardening pass on top of it (`d315525`):
