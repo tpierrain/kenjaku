@@ -110,7 +110,11 @@ export function readEngineDivergence({ brainDir }) {
   try {
     manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
   } catch {
-    return [];
+    // Deliberately empty. An early `return []` stood here and said the same thing
+    // twice: `engineDivergence` already answers "nothing to say" for a null manifest,
+    // and a brain with no readable regimes selects no files to read either. The
+    // measurement is what proved it — emptying this block changed no test, because
+    // there was nothing here a caller could tell apart.
   }
   return engineDivergence({ manifest, installedFileMap: readInstalledMergeFiles({ brainDir, manifest }) });
 }
