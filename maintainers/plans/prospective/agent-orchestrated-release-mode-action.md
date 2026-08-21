@@ -450,6 +450,15 @@ arbitration goes here as a question, and the run continues on other slices.
     Ticking by its numbers would have silently marked the wrong boxes, and nothing downstream would
     have complained. **The offset happened to be uniform this time — that is luck, not a method**: each
     box was matched on its own text before a single character was changed.
+  - 📬 **The stalest carrier on this release was the one OUTSIDE the repo, and the branch-name grep
+    cannot see it.** [PR #76](https://github.com/tpierrain/kenjaku/pull/76)'s body still described **S1
+    alone** — true when it was opened, false for the ninety commits since. `git grep -l <branch>` finds
+    the plans and the registers and is blind to a PR body, a release draft, an issue: **the carrier list
+    is not "tracked Markdown", it is "everything that claims to say where this work stands"**. Rewritten
+    to what the branch carries (105 commits, 93 files, S1–S6 bar the rider), **still a draft**, with the
+    two forbidden release-note claims moved into it so a reviewer meets them before writing the note.
+    The staleness is named in the body rather than quietly overwritten — it is this release's own defect,
+    committed by its own author.
 - 🌙 **2026-08-21 (loop iteration 37) — writing the release note's CONSTRAINTS found a comment that
   lied.** _(The finding belongs to the owning plan, § what remains; this entry keeps the mode lesson.)_
   - 🗣️ **The most productive thing left, once the engineering is done, was asking what the release
