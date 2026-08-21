@@ -40,11 +40,18 @@
 >
 > ## ▶️ WHERE THIS RESUMES
 >
-> **RESUME AT: S7-5-1 — the pure planner (`planAncestorFetch`), test-first.**
-> **S7-5-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S7-5-0 and build to it; the four
-> questions are answered and two traps the sketch missed are named there (the self-heal must NOT fetch;
-> the table needs no reverse index). Then S7-5-2 (the git shell + the verification) and S7-5-3 (the
-> wiring + one report line).
+> **RESUME AT: S7-5-2 — the git shell: fetch the tag, VERIFY against the recorded sha, hydrate the
+> holes.** `planAncestorFetch` (S7-5-1) is **done and measured** _(2026-08-21 · `d019d38`)_, so the
+> shell's input already exists: a sorted list of `{rel, tag, sourcePath, recorded}`. Build to § S7-5's
+> checked design rows — `git -C <sourceDir>` is **mandatory** (`buildGitInvocation` sets no `cwd`), the
+> `tag <tag>` refspec is required because `--single-branch` narrowed the fetch refspec, ONE fetch per
+> distinct tag then N cheap `git show`, and **no byte reaches the disk before it matches `recorded`**.
+> Then S7-5-3 (the wiring + one report line, shown only when a fetch was attempted and failed).
+>
+> ⚠️ **Read this before trusting any mutation number** (S7-5-1 paid for it): the runner is
+> **NON-DETERMINISTIC at `concurrency: 5`** — same commit, two runs, 96.97 % then 93.94 %. Serial is
+> the truth. The finding, its evidence and the owner's decision live in
+> [`maintainers/mutation/RESULTS.md`](../../mutation/RESULTS.md) § "The judge itself was flaky".
 >
 > _Background, unchanged:_ **S7-5 — fetch the ancestor's bytes from the published tag.** S7-0 → S7-3 are **done**
 > _(2026-08-21)_, and with them **the release's reason for existing is discharged**: measured on the
@@ -201,7 +208,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
     - [x] **S7-5-0 — THE DESIGN.** _(2026-08-21 · `HEAD`)_ The four questions answered, plus two the
           sketch missed: the self-heal must **not** fetch (the brain's remote is the owner's own repo),
           and the table needs no reverse index.
-    - [ ] **S7-5-1 — the pure planner**, `planAncestorFetch`.
+    - [x] **S7-5-1 — the pure planner**, `planAncestorFetch`. _(2026-08-21 · `1d545b2` + `d019d38` ·
+          16 tests, mutation **93.94 %** on the new module, 2 survivors, **both named equivalents**)_
+          Every skip is a test, because each is a way this could go wrong: planning a file that needs
+          nothing buys a network call, and planning one whose `.engine-base/<rel>` already exists would
+          overwrite a **fact** with a guess. ⚠️ The measurement itself misbehaved here — see the header
+          note and RESULTS.md § "The judge itself was flaky".
     - [ ] **S7-5-2 — the git shell**: fetch the tag, **verify against the recorded sha**, hydrate holes.
     - [ ] **S7-5-3 — the wiring** + the one report line (attempted-and-failed only).
   - [ ] **S7-4 — the QA**: a brain rebuilt from a real tag now **RECEIVES**. ⚠️ **Headline already
@@ -577,9 +589,11 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         `recorded === installed` and needs no ancestor at all, so healing first is what keeps the fetch
         list minimal. Both sit together, before the refresh families.
 
-  - [ ] ▶️ **NEXT: S7-5-1, the pure planner** (test-first), then S7-5-2 the git shell, then S7-5-3 the
-        wiring + the one report line. **No code was written in this iteration** — a design slice ships a
-        written design and stops.
+  - [x] **S7-5-1 shipped to that design, unchanged** _(2026-08-21 · `1d545b2` + `d019d38`)_. The design
+        held: the direct lookup `table.files[rel][recorded]` → `{since, locale}` needed no reverse
+        index, and the locale came back from the same lookup as the tag, which is what sends a French
+        brain to `templates/fr/<rel>` at that tag.
+  - [ ] ▶️ **NEXT: S7-5-2, the git shell** (test-first), then S7-5-3 the wiring + the one report line.
   - [ ] 💡 **The tail nobody should promise yet**: `CLAUDE.md` and `settings.json` could in principle be
         RECONSTRUCTED from their `.template` at the right tag plus the substitutions. **Not measured, not
         promised** — the substitution inputs must be recoverable byte-exactly, and they may not be.

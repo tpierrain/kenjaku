@@ -465,6 +465,16 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📉 **2026-08-21 (S7-5-1) — THE JUDGE ITSELF CAME BACK NON-DETERMINISTIC, and the loop's own habits
+  are what caught it.** The same command, on the same commit, scored **96.97 %** then **93.94 %**
+  minutes apart. This matters to the MODE, not just to one file: the loop's contract is *measure once
+  per block*, and a single run is exactly what a flaky judge fools. The finding, the evidence, the
+  mechanism and the owner's three options are owned by
+  [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md) § "The judge itself was flaky" — not
+  restated here. **What the MODE takes from it**: a lone survivor, or a score that improves with no
+  test added, is re-run before it is written down. It costs under a minute on a single file, and it
+  is the difference between a recorded number and a recorded guess.
+
 - 🛑 **2026-08-21 (owner, in conversation) — THE RELEASE IS STOPPED TWO HOURS FROM PUBLISHING, and the
   loop had filed the reason as a wording problem.** The plan owning what comes next is now
   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md); the old one

@@ -37,6 +37,42 @@
 > means. A flaky test does not add noise to a mutation score, it adds **points** — always upward,
 > never down. Treat a suite that is not deterministic under load as a broken instrument, and fix
 > it before believing any number it produced.
+>
+> ### ⚠️ THE JUDGE ITSELF WAS FLAKY — the class RECURRED after `211cfc5`, and this time no test is flaky
+>
+> _(Measured at S7-5-1, 2026-08-21, on `d019d38`.)_ The box above fixed **one shared-temp-dir test**.
+> The **class** it belongs to is still open, and it bit again on a file whose suite is perfectly
+> deterministic on its own:
+>
+> | Run | Command | Score | Survivors |
+> |---|---|---|---|
+> | 1 | `mutate-one.mjs … engine-ancestor.mjs` | **96.97 %** | 1 |
+> | 2 | the same command, same HEAD, minutes later | **93.94 %** | 2 |
+> | 3 | the same, `--concurrency 1` | **93.94 %** | 2 |
+>
+> **The tiebreaker is not the majority, it is the hand-run**: the disputed mutant (`if (!recorded)` →
+> `if (false)`) was applied to the real tree by hand and the **whole suite passed, 2210 / 0**. No test
+> kills it. So run 1 was a **spurious kill**, and the serial run is the honest number.
+>
+> **Why it can happen with every test deterministic.** `coverageAnalysis: 'off'` + `testRunner:
+> 'command'` + `inPlace: true` + `concurrency: 5` means **five full suites at once in ONE shared
+> worktree**. Any test touching a path another worker also touches can fail for a reason that has
+> nothing to do with the mutant, and under a `command` runner "the suite exited non-zero" IS the kill
+> signal. Fixing one such test removes one occurrence; it cannot remove the arrangement that produces
+> them.
+>
+> ➡️ **The rule this adds**: a **lone survivor, or a score that improves without a test being added,
+> is not to be believed until it reproduces.** Cheap protocol, and it is what caught this one: re-run
+> the file, and if the two runs disagree, decide it with `--concurrency 1` or by applying the mutant
+> to the real tree by hand. Neither costs a minute on a single file.
+>
+> 🙋 **OWNER'S CALL, not urgent and not blocking v5.** Three options, and the trade-off is minutes
+> against trust: (a) leave `concurrency: 5` and apply the protocol above per survivor — free, and the
+> discipline is already written here; (b) drop the batch config to `concurrency: 1` — ~5× slower, and
+> the ~30-min package run becomes impractical; (c) hunt the remaining shared-state tests one by one,
+> which is what `211cfc5` did once already, with no way to know when the last one is found. **(a) is
+> what this section does by default**; nothing below needs re-measuring on account of it, because the
+> spurious kill was caught before its number was ever recorded.
 
 ## Current scores (latest)
 
@@ -166,6 +202,43 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## S7-5-1 — the planner, and a survivor that was worth KEEPING — 2026-08-21
+
+`1d545b2` (the slice) + `d019d38` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-ancestor.mjs` (new) | **90.91 %** (30 killed, 3 survived) | **93.94 %** | 2, both named equivalents |
+
+The measurement misbehaved on this file and the account of it is in the box at the top of this
+document, § "The judge itself was flaky" — it is the reason the honest figure here is 93.94 % and not
+the 96.97 % a run produced.
+
+**The one real gap** was the middle link of an optional chain: `table?.files?.[rel]?.[recorded]`
+survived losing its second `?.` because no test handed the planner a table that was **present but
+empty**. Not hypothetical — a fingerprints file holding `{}` parses fine, and `undefined[rel]` throws
+inside an update, on a brain, at the moment the owner can help least. Each `?.` in a chain guards a
+different absence, and a test per link is the only thing that says so.
+
+**A NEW SHAPE, and it cuts against this document's own favourite lesson.** Two sections above
+(§ S7-2, § S7-3) the right answer to a survivor was to **delete the line** — dead code is a mutant
+nest. The `!recorded` guard here looks identical from the report and is **not the same animal**: it is
+**reached** on real input, merely **redundant**, because both ways out below it also return null
+(`matchesRecord` forgives an absent record, and the table lookup then misses on an `undefined` key).
+It was **kept**, with the equivalence named in the code. The distinction worth carrying:
+
+- **Dead** — the branch cannot be entered. Delete it: it is untestable by construction and every
+  future reader will mistake it for a live case.
+- **Redundant** — the branch is entered, and something further down would have caught the case
+  anyway. Keep it if it answers the reader's question at the line where they ask it. Leaning on two
+  distant behaviours to skip a file is precisely how a later refactor changes this one by accident.
+
+The report cannot tell the two apart; only reading the flow can. **A survivor is a question, not a
+verdict** — sometimes the honest answer is a comment, not a test and not a deletion.
 
 ---
 
