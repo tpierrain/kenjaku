@@ -35,8 +35,10 @@ function nonEmptyString(value) {
 }
 
 // The one reader of "which engine point was this brain installed from" — shared,
-// so the two labels can never disagree about what the brain is running.
-function installRef(manifest) {
+// so the two labels can never disagree about what the brain is running. Exported
+// since S4-4: the session's divergence surface names the running version too, and a
+// second reader of the same field would be the third place this fact is decided.
+export function installRef(manifest) {
   const ref = manifest?.source?.ref;
   return nonEmptyString(ref) ? ref : null;
 }

@@ -46,7 +46,7 @@ function emitters() {
   );
 }
 
-test("the F5 audit knows every additionalContext emitter — the field log named three, there are seven", () => {
+test("the F5 audit knows every additionalContext emitter — the field log named three, there are eight", () => {
   // Pin the list. A new hook lands here first, which is the moment to ask whether the
   // owner should be reading its prose at all. The sixth (F20) is the first that is NOT a
   // startup hook: it rides `UserPromptSubmit`, i.e. EVERY prompt rather than one session
@@ -54,11 +54,16 @@ test("the F5 audit knows every additionalContext emitter — the field log named
   // The seventh (the AI-summary notice) widens it again: `PostToolUse` on the READ path,
   // the most-walked path there is. It answers the question by being silent unless a
   // note-taker's signature is in the payload — but it still bounds what it says.
+  // The eighth (S4-4, engine divergence) is the first to be caught by this guard while
+  // still being WRITTEN: its draft listed five files on five lines (~990 chars) on the
+  // reasoning that additionalContext only ever speaks to the agent. It does not, and
+  // that is this file's story told once more — so the shipped surface is one sentence.
   assert.deepEqual(
     emitters().map(({ name }) => name).sort(),
     [
       "actions-log-seed.mjs",
       "ai-summary-guard.mjs",
+      "engine-divergence-nudge.mjs",
       "prompt-restart-nudge.mjs",
       "session-self-heal.mjs",
       "status-hook-output.mjs",
@@ -85,7 +90,7 @@ test("the scan reads real sources, so an empty result cannot pass for a clean on
   // vacuously forever — the quietest way there is to lose a guard.
   const found = emitters();
 
-  assert.equal(found.length, 7);
+  assert.equal(found.length, 8);
   assert.ok(
     found.every(({ path }) => readFileSync(path, "utf8").includes("hookEventName")),
     "an emitter was matched that does not build a hook output at all",

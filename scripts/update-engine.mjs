@@ -36,6 +36,7 @@ import { checkUpstream, formatUpdateCheck, unknownUpstream } from "./lib/engine-
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
 import { reseedBaseRefs, reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
 import { readEngineDivergence, syncBaseTree } from "./lib/engine-base-fs.mjs";
+import { DIVERGENCE_CLOSING, DIVERGENCE_LINE } from "./lib/engine-divergence-nudge.mjs";
 import {
   defaultRunInstall,
   defaultRunReindex,
@@ -188,11 +189,10 @@ function preservedAndMergedLines({ merged, preserved, singular, plural }) {
 //
 // `since: null` stays "no record". It is never filled in from the ref we just installed:
 // the version the brain runs TODAY is not the version the file is behind.
-const DIVERGENCE_LINE = {
-  customized: (since) => (since === null ? `yours; no record of which engine version it came from` : `yours; the engine last delivered here at ${since}`),
-  "no-provenance": () => `left as-is; no record of what the engine delivered there`,
-};
-
+// The clauses themselves live in `engine-divergence-nudge.mjs` since S4-4: the session
+// surface says the same thing at rest, and one sentence with two homes is a divergence
+// waiting to happen. What stays here is the FRAMING — this one speaks about a pass that
+// just ran, which the session surface must never imply.
 function divergenceLines(divergence, ref) {
   if (divergence.length === 0) return [];
   const count = divergence.length;
@@ -203,7 +203,7 @@ function divergenceLines(divergence, ref) {
     // legitimate steady state an owner may keep for years, and a list with no verdict
     // under it reads as a list of problems. It says "a file", not "your file": one of
     // these reasons is precisely that we cannot tell whose it is.
-    `     Nothing to do: a file the engine leaves alone is a choice, not a problem.`,
+    `     ${DIVERGENCE_CLOSING}`,
   ];
 }
 
