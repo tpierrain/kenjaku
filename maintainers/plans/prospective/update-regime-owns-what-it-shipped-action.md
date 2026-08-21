@@ -294,9 +294,9 @@
 > paid** (delivered on branch with S0bis — its own plan says so and owns the argument).
 >
 > ▶️ **So the next slice is the REPLAY FIXTURE**, § *The QA instrument*, the last unticked box that
-> needs nobody. ✅ **Its DESIGN is written and committed** _(2026-08-21, `ff4c86a`)_ — the whole shape
+> needs nobody. ✅ **Its DESIGN is written and committed** _(2026-08-21, `5c62423`)_ — the whole shape
 > is in that section's design block and nothing of it is left in a session's window. **Start at its
-> slice list; do not re-derive it.** Two things from it are worth carrying in the head:
+> design boxes; do not re-derive them.** Two things from it are worth carrying in the head:
 >
 > - 🧨 **The freeze's cause is now known exactly, and it is not a bug in the update path**:
 >   `CLAUDE.engine.md` is **absent from every regime at all nine published tags** (`v3.6.0` → `v4.9.1`,
