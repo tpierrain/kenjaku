@@ -183,19 +183,23 @@ test("defaultLog hands git a BUILT invocation and trims what comes back", () => 
 });
 
 test("localeDriftPairs derives a pair only where BOTH sides exist, in any locale, in a stable order", () => {
-  // ⚠️ The input is deliberately UNSORTED and puts fr BEFORE es: with a pre-sorted
-  // fixture, dropping the sort entirely still passes, and the report's order — which
-  // is what a human diffs between two runs — stops being asserted at all.
+  // ⚠️ THREE locales, in the order es, fr, de, and both facts are load-bearing.
+  // A pre-sorted fixture lets `.sort()` be deleted outright. And with only TWO
+  // entries, REVERSING them is indistinguishable from sorting them — a comparator
+  // that ignores its arguments passes. Three, ordered so that the reverse
+  // (de, fr, es) is NOT the sorted answer (de, es, fr), tells the two apart.
   assert.deepEqual(
     localeDriftPairs([
       "templates/fr/orphan.md",
       "b.md",
-      "templates/fr/a.md",
+      "templates/es/a.md",
       "no-twin.md",
       "a.md",
-      "templates/es/a.md",
+      "templates/fr/a.md",
+      "templates/de/a.md",
     ]),
     [
+      { sourcePath: "templates/de/a.md", locale: "de", rel: "a.md" },
       { sourcePath: "templates/es/a.md", locale: "es", rel: "a.md" },
       { sourcePath: "templates/fr/a.md", locale: "fr", rel: "a.md" },
     ],
