@@ -175,9 +175,10 @@ The prose slice: `d171e90` re-opens the `no-provenance` silence and adds the sta
 deletes what the measurement condemned. State owned by
 [`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
 
-| File | Before | First pass | After the kill | Survivors |
+| File | Before | First pass | After the kills | Survivors |
 |---|---|---|---|---|
 | `scripts/update-engine.mjs` | 97.54 % _(honest, post-flake)_ | **98.50 %** — 329 killed, 5 survived | **99.40 %** — 329 killed, 2 survived | 2, both the `readFileSync(…, "utf8") → ""` equivalents |
+| `lib/engine-base-fs.mjs` | never measured | **89.58 %** — 43 killed, 5 survived | **95.65 %** — 44 killed, 2 survived | 2: the `byPath` `<=` (no equal case) + the same `"utf8"` equivalent |
 
 🎯 **ONE SURVIVOR WAS MASKING TWO MORE, AND THE FIX WAS TO DELETE IT.** `if (aside === undefined)
 continue;` guarded the preserve loop against a reason absent from `PRESERVED_ASIDE`. It existed for
@@ -200,6 +201,29 @@ slice, or the next reader inherits a guard that quietly eats the next feature.
 deleting code, not by adding tests** — the same effect S3 recorded in the other direction (a score
 *falling* because dead code left the denominator). Neither movement is a verdict on the tests; the kill
 count is.
+
+🕳️ **`engine-base-fs.mjs`: three of its five survivors were the fail-soft I had just written and never
+fed.** `readEngineDivergence`'s catch could be emptied, its `return []` could return garbage, and its
+read could lose its encoding, all with the suite green — because **no test ever handed it an unreadable
+manifest**. It is precisely the branch that keeps a successful, already-recorded update from being
+turned into a thrown error by a file nobody can parse. Fed now, with both shapes (absent, and present
+but not JSON).
+
+♻️ **And the third one, once fed, turned out to be a fact stated twice.** Emptying the catch *still*
+changed no test: `engineDivergence` already answers "nothing to say" for a null manifest, and a brain
+with no readable regimes selects no files to read either. So the early `return []` went the way of the
+two before it. **Third time this release** a mutant survived because a fail-soft was written in two
+places — after S2b-4's read-back pass and S3-2's `manifest = null` catch.
+
+➡️ **The durable rule, now earned three times**: when a mutant survives inside a fail-soft, ask *"who
+else already handles this?"* before writing a test for it. Two answers to one question is not
+redundancy: it is a second thing to keep true, and the measurement is the only instrument that finds it.
+
+📐 **One survivor was killed by a fixture, not by a new assertion**: the `seeded` list's `.sort()` is
+unobservable for ordinary paths, because the directory walk lists each folder sorted. It takes a
+collision to see it — `coach` sorts before `coach.md` among directory entries, while `coach.md` sorts
+before `coach/SKILL.md` as a whole path. The mutant was **hand-applied** to confirm the new test judges
+it, per the method note this file has carried since 2026-07-27.
 
 ---
 

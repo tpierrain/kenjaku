@@ -423,6 +423,17 @@ arbitration goes here as a question, and the run continues on other slices.
     and carries the versions the event lines cannot — removed the whole problem.
     ➡️ **For the mode**: when a filter needs data the system does not keep, ask whether the filter is the
     requirement or just the first shape it was written in.
+  - 🕳️ **THE FAIL-SOFT I HAD JUST WRITTEN WAS THE LARGEST HOLE IN THE SLICE, and I did not feel it.**
+    `readEngineDivergence`'s catch had no test: it could be emptied, its return could be garbage, and
+    the suite stayed green. Writing a fail-soft feels like *adding* safety, which is precisely why it
+    escapes the test-first reflex — there is no failing behaviour pulling it into existence.
+    ➡️ **For the mode**: a `catch` written in the same breath as the code it protects is unfed by
+    default. Feed it in the same slice, or the measurement will find it and you will have shipped a
+    branch nobody has ever executed.
+  - ♻️ **Three times in one release, a mutant survived because a fail-soft was written TWICE.** Here the
+    early `return []` said what the pure module already answers for a null manifest. The rule that fell
+    out: when a mutant survives inside a fail-soft, ask *"who else already handles this?"* before writing
+    a test for it. Two answers to one question is a second thing to keep true.
   - 🧪 **A fixture told the truth the assertion did not expect.** The gate brain really does hold two
     merge files it can prove nothing about, so the end-to-end test came back with three entries where
     one was expected. The test was wrong, not the code — and the wording had to change with it: the

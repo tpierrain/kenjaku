@@ -220,14 +220,10 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: write S4-3's number into `RESULTS.md`, then S4-4.** S4-3's code is **done, committed
-> and pushed** _(`d171e90` + `69b17c9`, suite green)_ — the `no-provenance` silence is re-opened, the
-> standing recap ships, and the dead guard that would have silenced the next verdict is gone. It measured
-> **98.50 %** first pass (up from **97.54 %**); a confirm run was launched after the deletion and is
-> expected around **99 %** with two named equivalents left. **To finish**: re-run
-> `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs` if the number was lost, add the
-> row to `RESULTS.md`, and give `lib/engine-base-fs.mjs` the same pass — it gained `readEngineDivergence`
-> and has never been measured. **Nothing else of S4-3 is outstanding.**
+> **▶️ RESUME AT: S4-4 — the session surface.** **S4-3 is CLOSED** _(code `d171e90` + `69b17c9`,
+> measurement `2fbd811` + `c11c684`)_: the `no-provenance` silence is re-opened, the standing recap
+> ships, `update-engine.mjs` reads **99.40 %** and `engine-base-fs.mjs` **95.65 %**, every survivor left
+> a named equivalent. Nothing of S4-1, S4-2 or S4-3 is outstanding.
 >
 > Then **S4-4 — the session surface**: `additionalContext` + `systemMessage` in its own soft hook (never
 > folded into the breakage banner), reusing `readEngineDivergence` as-is, with the added SessionStart
@@ -1312,12 +1308,18 @@ audible divergence.
             defect this slice ends. With it gone, the two `skillsPreserved = []` / `scriptsPreserved =
             []` default mutants reach the prose and fail the byte-for-byte tests instead of being
             swallowed on the way out. The two left are the `readFileSync(…, "utf8") → ""` equivalents.
-      - [ ] ⏳ **CONFIRM RUN IN FLIGHT — the last thing S4-3 owes.** Re-launched on `69b17c9` after the
-            deletion. **If this context was cleared before it landed**, simply re-run
-            `node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs` (~11 min): expect
-            **~99 %** with only the two named equivalents. Then write the row into `RESULTS.md`, and
-            give `lib/engine-base-fs.mjs` the same pass — it gained `readEngineDivergence` and has not
-            been measured since.
+      - [x] **Confirmed after the deletion: `scripts/update-engine.mjs` at 99.40 %** — 329 killed, 2
+            survived, both the `readFileSync(…, "utf8")` equivalents. Same kill count as before the
+            deletion: the ratio improved by removing code, not by adding tests.
+      - [x] **`lib/engine-base-fs.mjs`, never measured before, 89.58 % → 95.65 %** _(`2fbd811` +
+            `c11c684`)_. **Three of its five survivors were the fail-soft this slice had just written
+            and never fed**: no test handed `readEngineDivergence` an unreadable manifest, which is
+            exactly the branch that keeps a recorded, successful update from becoming a thrown error.
+            Fed with both shapes; the `seeded` sort was killed by a fixture where the directory walk
+            disagrees with path order (mutant **hand-applied** to confirm the test judges it); and the
+            early `return []` was deleted, because the pure module already answers "nothing to say" for
+            a null manifest. **Third fail-soft written twice in this release** — the rule is now in
+            [`RESULTS.md`](../../mutation/RESULTS.md#s4-3--the-report-stops-being-silent-and-a-guard-that-would-have-re-silenced-it--2026-08-21).
     - [ ] **S4-4 — the session surface.** `additionalContext` + `systemMessage`, in its own soft hook
           rather than folded into the breakage banner. **Measure the added SessionStart latency** before
           shipping it: the contract for these hooks is zero-ish, and this one is file reads and digests
