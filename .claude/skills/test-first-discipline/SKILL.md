@@ -1,7 +1,7 @@
 ---
 name: test-first-discipline
-description: "How to test, language-agnostic, for ALL code (libs, tools, helpers, algos, services): tests before code and fail-first are non-negotiable, and the mutation score is the judge, not the ritual. Default mode is design-first then test-first in small batches; classic TDD baby-steps + triangulation stay available as a tool. Also carries assertion quality (the mutation-testing lessons) and the entry-point seam rule. To load as soon as you write or modify code."
-version: 2.0.0
+description: "How to test, language-agnostic, for ALL code (libs, tools, helpers, algos, services): tests before code and fail-first are non-negotiable, and the mutation score is the judge, not the ritual. Default mode is design-first then test-first in small batches; classic TDD baby-steps + triangulation stay available as a tool. Also carries assertion quality (the mutation-testing lessons), how a mutation run can lie to you, and the entry-point seam rule. To load as soon as you write or modify code."
+version: 2.3.0
 origin: use-case-driven-harness
 ---
 
@@ -34,6 +34,29 @@ origin: use-case-driven-harness
 > One release is one data point, and the v4.9.1 figure only reached 95.92–100 % **after** three
 > adversarial reviews and two more mutation passes. So the claim is **not** "the relaxed mode is free".
 > It is: **the step size did not carry the quality — the nets did.**
+>
+> ### 🛑 The low numbers you are remembering are NOT baby-steps — here is what each one is
+>
+> **No score in this record is low *because* the steps were small.** Every low number that gets quoted
+> against baby-steps belongs to a different cause, and the cause is always **when the test was written**
+> or **whether the line sits in a seam a test can reach**:
+>
+> | Recalled as "baby-steps scored badly" | Actually | What it really measures |
+> |---|---|---|
+> | **51.5 %** — `update-engine.mjs` | composition glue written **after** an already-green core | test-**after**, never step size |
+> | **71.4 %** — `reconcile-brain.mjs` | a pure core wrapped in I/O and a CLI | an unreachable branch (reflex 6) |
+> | **66 %**, and a flat **0 %** for months | top-level entry points no test ever imported | the entry-point seam rule |
+>
+> And the reverse case, from the same audit: `engine-skill-refresh.mjs` — **the one file built in strict
+> baby-steps** — came out **top of its batch at 86.7 %**, needing "only assertion polish". The two
+> numbers actually attached to baby-steps in this record are **84.62 %** and **87.74 %**. **There is no
+> ~60 % baby-steps run. It does not exist.**
+>
+> **Why this table is here rather than left to be re-derived**: the misattribution has now happened
+> **twice**, from both sides (the 87-vs-51 pair was long quoted in this file's own predecessor as
+> evidence about step size; the owner recalled a "60 % baby-steps" figure on 2026-08-20). A number
+> misfiled twice is a number that will be misfiled again — so the filing is written down, not the
+> correction.
 
 ## What judges the work
 
@@ -70,8 +93,44 @@ They do not depend on the mode, and none of them is a matter of taste.
 3. **See them ALL red, each for the right reason.** Not "the file fails to load": each one on its own
    assertion. A test that is green before the implementation exists is deleted or fixed, never kept.
 4. **Implement until green, then refactor.** Same rules as above.
-5. **Measure.** New production file → it gets its mutation run **the day it is written**, not at the
-   release tail (a file measured late is a file whose survivors are found by users).
+5. **Measure — but measure WHAT CHANGED, not what surrounds it.** A new production file gets its
+   mutation run **the day it is written**, not at the release tail (a file measured late is a file
+   whose survivors are found by users). An **existing** file touched by a few lines is a different
+   case, and running it whole is where a mutation practice goes to die. See below.
+
+### When to run it, and on what (the flow rule)
+
+Mutation testing is expensive in a way line coverage is not: it re-runs the suite once per mutant. If
+every iteration re-measures whole files, the feedback loop stops being usable and the practice gets
+abandoned for being slow — which costs far more than the runs saved.
+
+**The scope of a run is the scope of the change:**
+
+- **A new file → the whole file, now.** It is small, it costs under a minute, and it is where the holes
+  actually are.
+- **An existing file changed by a few lines → those lines only.** Every serious mutation tool takes a
+  line range (Stryker: `--mutate "path/file.js:147-160"`). Not an optimisation detail: a run scoped to
+  your own hunk answers the only question you have, and answers it while the code is still in your head.
+- **A release cut → one full pass** over everything the release touched, incrementally if the tool
+  supports it (Stryker: `--incremental`). This is the toll you pay once, deliberately, on code that has
+  stopped moving.
+- **Never re-measure a large file you did not change**, and never re-measure one you changed cosmetically.
+
+> **Measured, on a real release** (Kenjaku, 2026-08-21, one iteration): the two brand-new modules cost
+> ~40 s and ~1 min and **found two real defects** in a hand-written regex. The two large pre-existing
+> files cost **~7 minutes each**: one found a single real defect (a dropped list separator, in the three
+> lines just written), the other returned a survivor list **byte-identical to the previous run** — seven
+> minutes for zero information. Re-run scoped to the changed hunk, the same defect was caught in
+> **44 seconds instead of 7 minutes**, 17 mutants instead of 396.
+
+**The corollary that removes a whole class of confusion:** a whole-file run makes the score move for
+reasons that are not yours (one more equivalent mutant over a larger denominator reads as a regression),
+so you end up diffing survivor lists to prove you broke nothing. **On a hunk-scoped run, every survivor
+is yours.** There is nothing to attribute and no score to explain away.
+
+⚠️ **What this rule does NOT license: deferring everything to the end.** A hole found at the release tail
+is repaired in a file you have stopped holding in your head, by someone reconstructing an intent from a
+diff. The point is not "measure later", it is "measure **less surface, immediately**".
 
 The acceptance layer stays **outside-in and first**, in every mode.
 
@@ -211,14 +270,81 @@ already engraved, were not enough. Four more shapes, named by none of the six:
 > **The objective signal is the mutation score, not line coverage.** Know also **not to chase
 > equivalents** (mutants indistinguishable from the original code: the default wiring of an injected
 > port, a `?? []` that recollapses into a string after `.map().join('')`, a greedy regex masked by a
-> downstream `.trim()`, real-SDK construction observable only over the network) and to **distrust false
-> timeouts**, which inflate the score artificially (cap `concurrency`/`timeout` before believing a run).
+> downstream `.trim()`, real-SDK construction observable only over the network) — and to distrust the
+> **run** before believing its number, which is the whole of the next section.
+
+## A mutation run LIES to you — audit the run before reading the score
+
+Everything above is judged by a mutation score, which makes the run itself the one measurement nobody
+audits. **Five ways a run hands you a number that measures nothing.** Each one cost a real run; none
+is tool- or language-specific, and none of them looks like a failure while it happens — that is the
+point.
+
+1. **A stale report, read as this pass's result.** The command died before writing anything, and the
+   report file from the **previous** pass is still exactly where it was. You read a number that
+   describes code you have since changed. → Prove the report was produced *by this run* before reading
+   it: delete it first, or compare its timestamp against the run's start. Never both trust a file and
+   let something else be responsible for refreshing it.
+2. **A suite that silently skips in the run environment.** A dependency missing under the runner, a
+   guard that self-disables outside the normal harness, a filter that matches nothing: the mutants
+   face **a judge that judges nothing**, and a score is printed on top of it. → Pin the number of
+   tests **actually executed** inside the mutation run against the number a normal run executes. A
+   mutation run whose test count you did not check is not a measurement.
+3. **A run killed mid-way.** No table is produced, and the *absence* of a score gets read as a zero,
+   or — worse, via trap 1 — as the previous number. → An interrupted run has **no score**. Report "no
+   result" and why; never a number, not even a pessimistic one.
+4. **A suite that really touches the disk, run in place.** Mutants exist to make destructive paths
+   fire, so a suite that writes for real, run over your **working tree** instead of a throwaway
+   checkout, destroys for real — silently, while you watch a progress bar. → Mutate a disposable copy,
+   never the tree you are working in, and make every writing test write inside a temp directory it
+   created itself.
+5. **False timeouts from CPU oversubscription.** A timed-out mutant is scored as killed, so a
+   saturated machine **inflates** the score, and inflates it more the slower the machine is. → Cap
+   concurrency so the machine is not oversubscribed, and re-run any file whose timeout count moves
+   between two runs: a score that depends on the load is not a property of the tests.
+
+> **Why this section exists, in one sentence**: *the worst failure of a measuring tool is not being
+> wrong, it is being **confidently precise about nothing**.* A number that is obviously wrong gets
+> argued with; a precise number nobody suspects gets **built on**.
+
+### Triage a survivor before writing a test for it
+
+A first-pass survivor belongs to one of three families, and **only the third is about missing tests**:
+
+- **an adapter or composition layer judged by nothing** — the answer is a **seam** (reflex 6), not an
+  assertion. Writing an assertion here produces a test that is green for the wrong reason and leaves
+  the hole exactly where it was;
+- **a double that ignores its arguments** — the test exists and would stay green against a component
+  called with nothing at all. The answer is the **double** (reflex 8), not another test;
+- **a genuinely missing case** — the only family where "write the test" is the answer (reflexes 1–5,
+  7, 9, 10).
+
+The three reflexes are each engraved above; what is easy to skip is **asking which family you are in
+first**. Do that before writing a line.
+
+### When the operating recipe keeps costing you, it becomes a command
+
+This file's own doctrine, applied to measurement: a rule breached repeatedly earns a **dumber, more
+reliable carrier**, not a better-worded paragraph. The five traps are all *operating* errors — none of
+them is fixed by knowing about them, because each one strikes precisely when attention is elsewhere.
+So the endpoint of this section is not the section: it is **a command that refuses to report what it
+did not measure**, one that fails loudly instead of printing a number when the report is stale, the
+suite skipped, or the run dead.
+
+> Earned, not theorised (Kenjaku, 2026-08-20): that runner was built after the traps had been paid for
+> individually, and its first act was to measure **itself**. The implementation is project-specific and
+> stays in that repo, with the operational half of the recipe. What travels is the move: **once the
+> same operating trap has bitten you twice, stop writing it down and make it unrepresentable.**
 
 ## Scope
 
-This strategy **holds for all languages** and all types of code: small libs, tools, helpers, isolated
-algorithms, services and applications alike. In this repo it governs **all the code** without
-exception — the RAG engine (`rag/`) **as well as** the install harness (`installer.mjs` and its
-helpers `scripts/lib/*.mjs`), all tested via `node --test`. Specialized variants (by framework, by
-language, by architecture style — e.g. the outside-in acceptance style for back-ends) **presuppose**
-it and never contradict it.
+This discipline **holds for all languages** and all types of code: small libs, simple tools, helpers,
+isolated algorithms, services and applications alike. It is the non-negotiable foundation, and it
+governs **every** line of production code, the glue and the entry points included — never only the
+"interesting" core.
+
+**Specialized variants presuppose it and never contradict it.** For back-ends, APIs, workers and
+services (notably with The Hive), the `outside-in-diamond-tdd` skill specializes it: coarse-grained
+acceptance tests driven by the left-hand adapter, a Builder returning the Domain Service, In-Proc
+Adapters inside the perimeter. Per-language conventions (e.g. the .NET stack: xUnit, NFluent,
+NSubstitute, Diverse) sit on top of it in the same way.
