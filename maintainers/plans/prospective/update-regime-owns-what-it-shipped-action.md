@@ -248,17 +248,16 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S6c — the delivery becomes real** _(2026-08-21)_. **S6b is done and committed**
-> (`b2329c2`): the `retireSkills` bucket and the pure `skill-retirement.mjs` exist, are counted by
-> `planTouches`, and nothing calls them yet — the door is built and still shut. S6c is what opens it,
-> and it is four moves that belong to one commit: wire the decision into `reconcileBrain` **before**
-> the skills refresh (or the engine three-way-merges a skill it is about to delete), surface the
-> report by name (*"the `tdd-discipline` skill has been retired — its successor
-> `test-first-discipline` is installed"*), **delete the launcher's two `tdd-discipline` copies**
-> (`.claude/skills/` and `templates/fr/.claude/skills/`, both present), and edit the manifest.
-> ⚠️ **The one thing that must not be split apart**: dropping the `merge` entry and adding the
-> tombstone are **ONE** manifest change — do only the second and the update deletes the directory
-> while the next SessionStart restores it, forever. Then ADR 0039. S6d/S6e follow, listed in the block.
+> **▶️ RESUME AT: S6d — refresh Kenjaku's copy of `test-first-discipline` from the harness**
+> _(2026-08-21)_. **S6b AND S6c are done, committed and pushed** (`b2329c2`, `15f3f4d`, `f46a42d`,
+> `4c6a942`): the retirement is declared in the shipped manifest, wired, guarded, reported, and both
+> launcher copies of `tdd-discipline` are gone. **The skill now shipping is two versions behind its
+> source** — Kenjaku carries the harness's v2.0.0, and the harness has moved to v2.1.0 (`29abfa8`,
+> *"a mutation run LIES to you"*) and v2.2.0 (`78b3536`, the table filing low mutation numbers to
+> their real cause). ⚠️ **The harness is the OWNER of that file, Kenjaku's copy is the shipped
+> artefact** — so this is a copy-forward, not a rewrite, and a hand edit here widens the gap while
+> looking like closing it. A bulk read → **subagent**, per the mode's own rule. Then S6e (the FR
+> locale copy, quality debt, `resolveLocaleSource` falls back to English so nothing is broken).
 >
 > ✅ **S2c AND S2d ARE DONE.** S2c _(`856ad24`, 92.73 %)_: `SACRED` splits into *inviolable* and
 > *merge-governed*, the merge-governed half **is** S3's `OWNER_AUTHORED` pinned by identity, and **ADR
@@ -1798,9 +1797,32 @@ audible divergence.
           not a rescue. Mutation: **100 %** on the new module (26/26), 91.67 % on `engine-apply-plan`
           — five survivors, all pre-characterised equivalents, none in the new lines (see
           [RESULTS.md](../../mutation/RESULTS.md)). 2109 tests, 0 fail.
-    - [ ] **S6c — the delivery becomes real.** Wire it into `reconcileBrain` (before the skills
-          refresh), surface the report, delete the launcher's two `tdd-discipline` copies, add
-          `.claude/skills/test-first-discipline/**` to `merge` and the tombstone to `retired`.
+    - [x] **S6c — the delivery becomes real** _(2026-08-21, `15f3f4d` + `f46a42d` + `4c6a942`)_.
+          `skill-retirement-fs.mjs` (the thin I/O), called FIRST of the skill steps with the brain's
+          OWN provenance; the report's two sentences; the manifest's one change (drop the `merge`
+          entry, add the tombstone, add `test-first-discipline`); both launcher copies deleted;
+          SETUP.md's tooling table; **ADR 0039**.
+      - [x] 🔴 **TWO restore paths the design never enumerated, found by the ORDER test failing** —
+            and neither by reasoning about it. The reconcile's own **install-if-absent** puts the
+            just-deleted directory back **in the same pass**; then the **skills refresh's
+            absent-install** does it again, because it selects from the manifest and not from the
+            plan. Fixed at the two right levels: a tombstone beats a regime in `computeApplyPlan`
+            (`installSkills` subtracts it), and `selectMergeFiles` subtracts it outright — the
+            chokepoint every consumer of the merge regime goes through. That second one also stops
+            the base tree seeding an ancestor for a file nobody ships. **The test earned this by
+            asserting `existsSync(...) === false` instead of trusting the report**, which was
+            cheerfully correct both times.
+      - [x] 🗣️ **The successor is NOT named in the message, and that is a design amendment.** § S6's
+            box wanted *"its successor `test-first-discipline` is installed"*. The manifest carries
+            no successor link, and inventing one in the report layer would have the report assert a
+            relationship nobody declared. What ships instead: the retired skill by name with the
+            reason it was safe to remove, and the successor visible on the same report's install
+            line. Adding a `replacedBy` key is a manifest convention to buy the day a second
+            retirement needs it, not on the first.
+      - [x] 🔇→🔊 **Two sentences for the preserve, not one.** "You had changed it" is a claim, and
+            on a brain with no record it is a false one — the exact shape S4-3 was written to end.
+            The no-provenance wording says what we do not know, and a test asserts the accusation is
+            absent from it.
     - [ ] **S6d — refresh Kenjaku's copy of the skill from the harness** (two versions behind, v2.1.0
           + v2.2.0). A bulk read → **subagent**, per the mode's own rule.
     - [ ] **S6e — `templates/fr/.claude/skills/test-first-discipline/`**. Quality debt, not breakage

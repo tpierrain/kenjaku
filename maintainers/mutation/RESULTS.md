@@ -444,6 +444,32 @@ the branch would hold a state in which nobody delivers them. State owned by
 | `update-engine.mjs` — **after S2d** (the clash block's door) | 99.41 % | **99.44 %** — 352 killed, 2 survived | 2, the same `readFileSync(p, "")` equivalents, line-shifted. **All 13 new mutants died** — the count-aware ternary, the empty-block guard and every string literal of the sentence. That is what asserting the whole line as a LITERAL buys on prose: there is no fragment left for a mutant to hide behind. |
 | `update-engine.mjs` — **after S5c** (the doctrine in the report) | 98.65 % | **99.41 %** — 339 killed, 2 survived | 2, **none in the new lines**, and both the `readFileSync(p, "")` equivalent characterised on the row above. The report surface was four call sites and every one of them is now pinned by a test that names the words the owner reads. |
 | `lib/skill-retirement.mjs` (**new**, S6b — the only subtractive door) | — | **100 %** — 26 killed, 0 survived | 0. Nothing here is shared with a sibling — it is the first module in the product that decides a DELETE — so every row was triangulated: proven bytes, a CRLF rewrite, an edit, an unrecorded file, no provenance at all, two blockers unsorted, and the empty directory. The verdict word and the reason word are both asserted, which is what kills the mutants that swap `preserve` for `remove`. |
+| `lib/skill-retirement-fs.mjs` (**new**, S6c — the thin I/O, the only `rmSync` under `.claude/`) | **90 %** — 27 killed, 3 survived | **96.67 %** — 29 killed, 1 survived | 1, and it is documented **in the code** so the next run does not re-litigate it: `rmSync(abs, {recursive: true, force: true})`. `force` is unkillable — we only reach that line when the listing found files — and it is kept anyway, for the one case no test can stage: the owner deleting the folder in their file manager between the listing and the `rmSync`. The two that died were **real**: a tombstone is written BY HAND, so both anchors of `/\/\*\*?$/` matter (without `?`, a `/*` entry retires nothing; without `$`, an interior `/**` is stripped and the path deleted is one nobody declared). |
+| `lib/engine-source.mjs` — **after S6c** (the tombstone subtraction) | — | **94.12 %** — 64 killed, 4 survived | 4, **all provable equivalents**, one of them mine and of a shape this table already names twice: `retired ?? ["Stryker was here"]` compiles to a glob that matches no path, so nothing is subtracted either way. The other three are the sibling `merge ?? []` and two `readFileSync(p, "")` Buffer coercions. |
+| `lib/engine-apply-plan.mjs` — **after S6c** (a tombstone beats a regime) | 91.67 % | **93.65 %** — 59 killed, 4 survived | 4, none new: the two `stem` regex anchors and two `?? []` equivalents. The `installSkills` subtraction added behaviour AND killed mutants. |
+| `lib/reconcile-brain.mjs` — **after S6c** (the retirement wired in) | 96.30 % | **96.34 %** — 183 killed + 1 t/o, 7 survived | 7, and the list is **byte-identical to the previous run's**. Which is the finding: seven minutes of CPU for zero information, and it is what turned the flow rule below into a convention. |
+| `update-engine.mjs` — **after S6c** (the retirement's prose) | 99.44 % | **99.24 %** whole → **100 % on the hunk** | Whole-file: 3 survived, 1 of them NEW and real — `edited.join(", ")` → `join("")`, invisible because the test named a single edited file. Fixed (two names, one unprovable), then **re-measured on the changed lines alone**: `"scripts/update-engine.mjs:147-160"`, **17 mutants, 44 seconds, 100 %**. Against 396 mutants and 7+ minutes for the same answer. |
+
+> ### 🔑 The flow rule this block earned (2026-08-21) — measure the CHANGE, not what surrounds it
+>
+> The four rows above are one experiment. **The value sat entirely in the new files and in the lines
+> just written**; the cost sat entirely in re-measuring large files that had barely moved.
+> `reconcile-brain.mjs` returned a survivor list identical to the previous run's, and a third whole-file
+> run was **killed by the 10-minute cap** — the practice had stopped fitting inside the loop it serves.
+>
+> So: **a new file is measured whole, the day it is written. An existing file is measured by its changed
+> lines** (`--mutate "path:147-160"`, which the runner passes straight through). The release tail keeps
+> its full pass, unchanged. This is *not* "defer to the end": a hole found at the tail is repaired in a
+> file nobody is holding in their head any more.
+>
+> The corollary is worth as much as the minutes: **on a hunk-scoped run every survivor is yours.** No
+> score drift to explain, no survivor list to diff against last time — two things this very table has
+> had to do three times in this release alone.
+>
+> Written up where it is durable:
+> [`test-first-discipline`](../../../use-case-driven-harness/skills/test-first-discipline/SKILL.md)
+> § *When to run it, and on what*; commands in CONVENTIONS §5quinquies; how to read a run in the
+> [`mutation-testing`](../skills/mutation-testing/SKILL.md) skill § 1.
 | `lib/engine-apply-plan.mjs` — **after S6b** (the `retireSkills` bucket) | 92.73 % | **91.67 %** — 55 killed, 5 survived | 5, **none in the new lines** and all of two already-characterised shapes: two `stem` regex anchors and three `?? ["Stryker was here"]` discarded by their own `.filter()` — the third being S6b's own, exactly as S5a's row predicted for the previous new bucket. The fall is the same arithmetic: one more provable equivalent over five more mutants. ⚠️ One mutant that survived at S2c (`installSkills`'s `?? []`) is dead in this run and **the kill is not attributed** — it is not killed by this file's own tests, so a sibling in the batch covers it. Recorded rather than claimed, because the shape is a known equivalent and "we fixed it" would be a fabrication. |
 
 🛑 **The write-allowlist had never been measured, and it is the one pure function standing between a

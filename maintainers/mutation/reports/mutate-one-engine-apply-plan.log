@@ -1,25 +1,26 @@
-[32m10:20:08 (48017) INFO ProjectReader[39m Found 1 of 804 file(s) to be mutated.
-[32m10:20:08 (48017) INFO Instrumenter[39m Instrumented 1 source file(s) with 60 mutant(s)
-[32m10:20:08 (48017) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m10:20:08 (48017) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-4PCd8T
-[32m10:20:08 (48017) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m10:20:08 (48017) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m10:20:10 (48017) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2225 ms, overhead 0 ms).
-Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/60 tested (0 survived, 0 timed out)
-Mutation testing 8% (elapsed: <1m, remaining: ~3m) 5/60 tested (0 survived, 0 timed out)
-Mutation testing 16% (elapsed: <1m, remaining: ~2m) 10/60 tested (0 survived, 0 timed out)
-Mutation testing 25% (elapsed: <1m, remaining: ~2m) 15/60 tested (0 survived, 0 timed out)
-Mutation testing 33% (elapsed: <1m, remaining: ~1m) 20/60 tested (2 survived, 0 timed out)
-Mutation testing 41% (elapsed: ~1m, remaining: ~1m) 25/60 tested (2 survived, 0 timed out)
-Mutation testing 50% (elapsed: ~1m, remaining: ~1m) 30/60 tested (2 survived, 0 timed out)
-Mutation testing 58% (elapsed: ~1m, remaining: <1m) 35/60 tested (2 survived, 0 timed out)
-Mutation testing 66% (elapsed: ~1m, remaining: <1m) 40/60 tested (2 survived, 0 timed out)
-Mutation testing 75% (elapsed: ~1m, remaining: <1m) 45/60 tested (2 survived, 0 timed out)
-Mutation testing 83% (elapsed: ~1m, remaining: <1m) 50/60 tested (4 survived, 0 timed out)
-Mutation testing 91% (elapsed: ~2m, remaining: <1m) 55/60 tested (4 survived, 0 timed out)
+[32m10:45:07 (53825) INFO ProjectReader[39m Found 1 of 806 file(s) to be mutated.
+[32m10:45:07 (53825) INFO Instrumenter[39m Instrumented 1 source file(s) with 63 mutant(s)
+[32m10:45:07 (53825) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m10:45:07 (53825) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-U9mse5
+[32m10:45:07 (53825) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m10:45:07 (53825) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m10:45:10 (53825) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2253 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/63 tested (0 survived, 0 timed out)
+Mutation testing 7% (elapsed: <1m, remaining: ~3m) 5/63 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: <1m, remaining: ~2m) 10/63 tested (0 survived, 0 timed out)
+Mutation testing 23% (elapsed: <1m, remaining: ~2m) 15/63 tested (0 survived, 0 timed out)
+Mutation testing 31% (elapsed: <1m, remaining: ~1m) 20/63 tested (2 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~1m, remaining: ~1m) 25/63 tested (2 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~1m, remaining: ~1m) 30/63 tested (2 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~1m, remaining: ~1m) 35/63 tested (2 survived, 0 timed out)
+Mutation testing 63% (elapsed: ~1m, remaining: <1m) 40/63 tested (3 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~1m, remaining: <1m) 45/63 tested (3 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~1m, remaining: <1m) 50/63 tested (3 survived, 0 timed out)
+Mutation testing 87% (elapsed: ~2m, remaining: <1m) 55/63 tested (4 survived, 0 timed out)
+Mutation testing 96% (elapsed: ~2m, remaining: <1m) 61/63 tested (4 survived, 0 timed out)
 
 All tests
-  ✓ All tests (killed 55)
+  ✓ All tests (killed 59)
 
 [Survived] Regex
 scripts/lib/engine-apply-plan.mjs:108:24
@@ -32,27 +33,22 @@ scripts/lib/engine-apply-plan.mjs:108:24
 +     return entry.replace(/\/\*\*$/, "");
 
 [Survived] ArrayDeclaration
-scripts/lib/engine-apply-plan.mjs:135:43
--       mergeScripts: scrub((regimes.merge ?? []).filter((entry) => ENGINE_SCRIPT.test(entry))),
-+       mergeScripts: scrub((regimes.merge ?? ["Stryker was here"]).filter((entry) => ENGINE_SCRIPT.test(entry))),
+scripts/lib/engine-apply-plan.mjs:139:52
+-     const retireSkills = (targetManifest?.retired ?? []).filter((entry) => ENGINE_SKILL.test(entry));
++     const retireSkills = (targetManifest?.retired ?? ["Stryker was here"]).filter((entry) => ENGINE_SKILL.test(entry));
 
 [Survived] ArrayDeclaration
-scripts/lib/engine-apply-plan.mjs:140:38
+scripts/lib/engine-apply-plan.mjs:149:38
 -       mergeDoctrine: (regimes.merge ?? []).filter((entry) => ENGINE_DOCTRINE.test(entry)),
 +       mergeDoctrine: (regimes.merge ?? ["Stryker was here"]).filter((entry) => ENGINE_DOCTRINE.test(entry)),
-
-[Survived] ArrayDeclaration
-scripts/lib/engine-apply-plan.mjs:151:47
--       retireSkills: (targetManifest?.retired ?? []).filter((entry) => ENGINE_SKILL.test(entry)),
-+       retireSkills: (targetManifest?.retired ?? ["Stryker was here"]).filter((entry) => ENGINE_SKILL.test(entry)),
 
 Ran 1.00 tests per mutant on average.
 -----------------------|------------------|----------|-----------|------------|----------|----------|
                        | % Mutation score |          |           |            |          |          |
 File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 -----------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files              |  91.67 |   91.67 |       55 |         0 |          5 |        0 |        0 |
- engine-apply-plan.mjs |  91.67 |   91.67 |       55 |         0 |          5 |        0 |        0 |
+All files              |  93.65 |   93.65 |       59 |         0 |          4 |        0 |        0 |
+ engine-apply-plan.mjs |  93.65 |   93.65 |       59 |         0 |          4 |        0 |        0 |
 -----------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m10:22:15 (48017) INFO MutationTestExecutor[39m Done in 2 minutes and 7 seconds.
-[32m10:22:15 (48017) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-4PCd8T.
+[32m10:47:20 (53825) INFO MutationTestExecutor[39m Done in 2 minutes and 13 seconds.
+[32m10:47:20 (53825) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-U9mse5.

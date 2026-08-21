@@ -93,8 +93,14 @@ export function parseArgs(argv) {
 
 // mutate-one-<first file>.log, plus +N when the run carries more than one, so a
 // batch never overwrites the single-file log of the same first target.
+// A target may carry a LINE RANGE (`scripts/x.mjs:147-160`), which is the ordinary shape
+// since the scope-the-change rule: the range rides through to Stryker untouched, but it
+// must not ride into a filename. `:` is illegal on Windows, and `.mjs` in the middle of a
+// log name reads as a source file. Both are stripped here, and the range is KEPT — two
+// runs on two hunks of one file are two measurements and must not overwrite each other.
 function defaultLogName(targets) {
-  const stem = basename(targets[0], ".mjs");
+  const [path, range] = targets[0].split(":");
+  const stem = basename(path, ".mjs") + (range ? `-${range}` : "");
   const extra = targets.length - 1;
   return `mutate-one-${stem}${extra ? `+${extra}` : ""}.log`;
 }

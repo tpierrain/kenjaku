@@ -101,13 +101,25 @@
 > Then the full suite green (node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"), then
 > COMMIT. Never commit red.
 >
-> MEASURE ONCE PER BLOCK, NOT PER SLICE (Thomas, 2026-08-21 -- CONVENTIONS.md 5quinquies).
-> Mutation is due when a BLOCK of slices is finished, over its files together:
-> node maintainers/mutation/mutate-one.mjs <file>. No confirmation re-run when you can predict
-> the delta -- write the prediction down instead. RESULTS.md gets ONE LINE per file; a paragraph
-> only for a NEW shape of defect. No pass at all on a doc-only or wiring-only slice, nor on a
-> large file changed by two lines -- but say the skip in writing. Still mandatory, whatever the
-> hurry: a new pure module, anything on the WRITE PATH, and prose that is the deliverable.
+> MEASURE ONCE PER BLOCK, NOT PER SLICE (Thomas, 2026-08-21 -- CONVENTIONS.md 5quinquies), AND
+> MEASURE THE CHANGE, NOT THE FILE (Thomas, 2026-08-21, second call, on iteration 32's figures).
+> Mutation is due when a BLOCK of slices is finished. The SCOPE of each run is the scope of the
+> change:
+>   - a NEW file -> whole, now:  node maintainers/mutation/mutate-one.mjs scripts/<new>.mjs
+>   - an EXISTING file changed by a few lines -> THOSE LINES ONLY, never the whole file:
+>     node maintainers/mutation/mutate-one.mjs "scripts/<file>.mjs:147-160"
+>     (verified: 44 s / 17 mutants instead of 7 min / 396, same defect caught. A whole-file
+>     re-run of reconcile-brain returned a survivor list byte-identical to the previous one --
+>     7 minutes for zero information -- and a third one was killed by the 10-minute cap.)
+>   - the release tail keeps its full pass, unchanged.
+> This is NOT a licence to defer to the tail: "less surface, IMMEDIATELY".
+> No confirmation re-run when you can predict the delta -- write the prediction down instead.
+> RESULTS.md gets ONE LINE per file; a paragraph only for a NEW shape of defect. No pass at all
+> on a doc-only or wiring-only slice -- but say the skip in writing. Still mandatory, whatever the
+> hurry: a new pure module, anything on the WRITE PATH, and prose that is the deliverable --
+> scoped to the lines you wrote when the file already existed.
+> BONUS worth as much as the minutes: on a hunk-scoped run EVERY SURVIVOR IS YOURS. No score
+> drift to attribute, no survivor list to diff against last time.
 >
 > Either way: tick the carriers -- the owning plan, RESULTS.md for any number, this mode plan if
 > the mode learned something -- commit and push on feat/engine-base-unfreeze. If the slice needs
@@ -412,6 +424,38 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- 🌙 **2026-08-21 (loop iteration 32) — S6c, and the test that was right when I was not.**
+  _(What shipped belongs to the owning plan, § S6c; this entry keeps only what the MODE learned.)_
+  - 🎯 **The opener paid a third time, and then the TEST found what the opener could not.** The first
+    tool call went at "what would UNDO this removal?" and cleared two candidates by reading code
+    (`session-self-heal`'s desired state, a staged `engine-skills/` copy). Both answers were right.
+    **Two more restore paths existed and no amount of reading found them** — the reconcile's own
+    install-if-absent, and then the skills refresh's absent-install, each putting the just-deleted
+    directory back **in the same pass**. What found them was one assertion: the order test checked
+    `existsSync(...) === false` on the disk instead of trusting the report, and the report was
+    cheerfully correct both times. **The opener finds what you can think to look for; the disk
+    assertion finds what you cannot.** Neither replaces the other.
+  - ✂️ **A slice that was too big, split at a green line rather than rushed.** S6c was five moves.
+    They went out as three commits — machinery+wiring, the manifest switch, then the mutation
+    follow-up — each green, each reviewable alone. The manifest commit is eight lines and is the one
+    that changes what a deployed brain does; burying it inside a 400-line diff would have made the
+    only dangerous change the hardest one to see.
+  - ⏱️ **THE MODE CHANGES: mutation is scoped to the CHANGE, not to the file** _(owner's call,
+    2026-08-21, on this iteration's figures)_. Thomas challenged the cost of measuring "a bit all the
+    time", and the block's own numbers backed him: the value was entirely in the **new** files (~40 s
+    and ~1 min, **two real defects**) while the cost was entirely in re-measuring **large files that
+    had barely moved** (~7 min each; `reconcile-brain` returned a survivor list **byte-identical** to
+    the previous run, and a third whole-file run was **killed by the 10-minute cap**). New file →
+    whole, now. Existing file → **its changed lines only** (`--mutate "path:147-160"`, verified
+    end-to-end here: 44 s and 17 mutants instead of 7 min and 396, same defect caught). Release tail
+    → unchanged. **Not** a licence to defer: "less surface, immediately". Written into the three
+    carriers (the harness's `test-first-discipline`, CONVENTIONS §5quinquies, the local
+    `mutation-testing` skill) rather than restated here.
+  - 🗣️ **A design line that could not be honoured, amended in the open.** § S6 promised the report
+    would name the retired skill *"with its successor"*. The manifest carries no successor link, so
+    the report would have had to assert a relationship nobody declared. Written into the plan as an
+    amendment with what ships instead — not quietly dropped, and not faked.
 
 - 🌙 **2026-08-21 (loop iteration 31) — S6b, the only door that erases** (`b2329c2`, 100 % on the new
   module). _(What was built belongs to the owning plan, § S6b; this entry keeps only what the MODE

@@ -46,6 +46,21 @@ test("parseArgs — one target, and the defaults it comes with", () => {
   });
 });
 
+// A LINE-SCOPED target, which is the ordinary shape since 2026-08-21: an existing file
+// is measured by the lines that changed, never whole (CONVENTIONS §5quinquies). The
+// range rides through to Stryker untouched — but it must NOT ride into the log's
+// filename: `:` is illegal on Windows, and this repo's whole hook history is about
+// paths that only worked on the machine that wrote them.
+test("parseArgs — a line-scoped target keeps its range, and the log name survives Windows", () => {
+  assert.deepEqual(parseArgs(["scripts/update-engine.mjs:147-160"]), {
+    ok: true,
+    targets: ["scripts/update-engine.mjs:147-160"],
+    worktree: "kenjaku-mut-one",
+    logName: "mutate-one-update-engine-147-160.log",
+    dryRun: false,
+  });
+});
+
 test("parseArgs — several targets keep their order, and the log is named after the first", () => {
   assert.deepEqual(
     parseArgs(["scripts/lib/repo-status.mjs", "scripts/auto-push.mjs"]),

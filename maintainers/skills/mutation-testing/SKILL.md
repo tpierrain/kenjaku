@@ -22,7 +22,20 @@ below has already cost a real run at least once, and a written reflex was measur
 > the local answer**: which command, which worktree, which package. Read the doctrine there, run it
 > here.
 
-## 1. When a pass is due
+## 1. When a pass is due — and on WHAT SURFACE
+
+> 🔑 **The scope of a run is the scope of the change.** A **new** file is measured whole; an
+> **existing** one is measured **by its changed lines** (`"scripts/file.mjs:147-160"` — the runner
+> passes the range straight through to Stryker). Whole-file re-runs of large existing files are where
+> this practice dies of slowness: measured on the S6 block, one cost **7 minutes to return a survivor
+> list byte-identical to the previous run**, and a second was killed by the 10-minute cap. The same
+> real defect, re-measured on its hunk, died in **44 seconds** (17 mutants instead of 396).
+> The reasoning and the numbers live in
+> [`test-first-discipline`](../../../../use-case-driven-harness/skills/test-first-discipline/SKILL.md)
+> § *When to run it, and on what*; the commands live in CONVENTIONS §5quinquies.
+>
+> The bonus is in §3: on a hunk-scoped run **every survivor is yours**, so there is no score drift to
+> attribute and no survivor list to diff against last time.
 
 - **The day a production file is finished** — one file, 1-3 minutes, before moving on. This is the
   rule that exists because a lesson arriving only at the release tail can tax the writing but can

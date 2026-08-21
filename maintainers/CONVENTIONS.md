@@ -304,6 +304,31 @@ healthy notes declared broken**. The vault was fine; the checker was wrong.
 to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. Both commands run
 from the repo root:
 
+> ⚠️ **AN EXISTING FILE IS MEASURED BY ITS CHANGED LINES, NEVER WHOLE** _(2026-08-21, measured)_. The
+> scope of a run is the scope of the change; the discipline's own statement of it lives in
+> [`test-first-discipline`](../../use-case-driven-harness/skills/test-first-discipline/SKILL.md)
+> § *When to run it, and on what*, and this section carries only the commands.
+>
+> ```
+> # the changed hunk of an existing file — the runner passes the range straight through
+> node maintainers/mutation/mutate-one.mjs "scripts/update-engine.mjs:147-160"
+> ```
+>
+> **The numbers that made it a rule, from one iteration of the S6 block**: the two brand-new modules
+> cost ~40 s and ~1 min and found **two real defects**. `update-engine.mjs` whole cost **~7 min** (396
+> mutants) to find **one**, in the three lines just written; `reconcile-brain.mjs` whole cost ~7 min to
+> return a survivor list **byte-identical** to the previous run. Re-run on the hunk, the same defect
+> died in **44 s** (17 mutants). A third whole-file run was **killed by a 10-minute timeout** — the
+> practice had stopped fitting inside the loop it is supposed to serve.
+>
+> The corollary is worth as much as the minutes: on a whole-file run the score moves for reasons that
+> are not yours (one more equivalent over a larger denominator reads as a regression), and this repo has
+> spent real time diffing survivor lists to prove it broke nothing. **On a hunk-scoped run, every
+> survivor is yours.** Nothing to attribute.
+>
+> 🛑 **This does NOT license deferring to the tail** — see "Why the tail alone cannot work" below,
+> which is unchanged. The rule is "less surface, immediately", never "later".
+
 ```
 # a scripts file — the runner does the whole recipe, and refuses what it cannot measure
 node maintainers/mutation/mutate-one.mjs scripts/<the-one-file>.mjs
