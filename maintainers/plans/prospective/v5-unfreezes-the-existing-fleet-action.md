@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10 — a personalized file becomes a QUESTION with three offers
+> ## ▶️ RESUME AT: S10-1 — row 3 (`no-provenance`) gets its sidecar
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -90,9 +90,24 @@
 > waiver map turned out to be load-bearing (empty it and it goes red naming `f7a00fc`, the one commit
 > where **English caught up with French** and no French edit can ever pair it).
 >
+> **S10-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S10-0 and build to it; it cut
+> four slices, **S10-1 → S10-4**. Three corrections it made to the sketch, each measured against the
+> code rather than reasoned about:
+>
+> - **Row 3's missing sidecar is confirmed, and the code states the very decision to overturn** —
+>   *"littering an older brain with unexplained sidecars would be noise, not a choice."* That reasoning
+>   dissolves the moment a conversation explains the sidecar.
+> - **Brick 2's "pending decisions live in a file the brain re-reads" is REJECTED.** The list is
+>   already derived from the disk (`engineDivergence`, S4-2) and surfaced at rest by the divergence
+>   nudge (S4-4a). The only new state is the ANSWER — `rel → {decision, at: <engine ref>}` — and keying
+>   it by version makes "raised once per release" fall out with no rule to write.
+> - **"Take the new one" is NOT free-recoverable**, contrary to the sketch's guess: `auto-commit`
+>   stages the whole tree but `engine-commit` runs **after** the update wrote, so an edit never swept
+>   is overwritten and committed over in one pass. Hence S10-4, a safety commit before the only
+>   destructive offer.
+>
 > **S10 is the owner's own acceptance criterion** _(2026-08-21, explicitly v5 cargo and not v5.1)_ and
-> it RUNS BEFORE S9. Read its section before writing anything: what is left in the release after it is
-> the tail, S9.
+> it RUNS BEFORE S9. What is left in the release after it is the tail, S9.
 >
 > 🛑 **S8-3 CLOSED A FALSE ALARM, not a defect** — read the box at the top before quoting anything about
 > French brains being overwritten. A genuinely French brain always received the French doctrine; the QA
@@ -310,8 +325,15 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [x] **S8-4 — the locale doctrine recorded** as an ADR. _(2026-08-21 · **ADR 0040**)_
 - [ ] **S10 — a personalized file becomes a QUESTION, never a blind spot.** _(Owner's acceptance
       criterion, 2026-08-21. **v5 cargo**, explicitly not v5.1. Runs BEFORE S9.)_
-  - [ ] **S10-0 — THE DESIGN**, written into this file before a line of code.
-  - [ ] **S10-1 → S10-n — the slices**, cut by S10-0.
+  - [x] **S10-0 — THE DESIGN**, written into this file before a line of code. _(2026-08-21)_ Three
+        corrections to the sketch, all measured: row 3's missing sidecar is confirmed **and the code
+        states the decision to overturn**; Brick 2's "file the brain re-reads" is **rejected** — the
+        list is already derived from the disk by S4-2, and only the ANSWER is new state; and "take the
+        new one" is **not** free-recoverable, because the update commits only after it writes.
+    - [ ] **S10-1 — row 3 gets its sidecar.**
+    - [ ] **S10-2 — the answers file**, `rel → {decision, at}`, keyed by engine ref.
+    - [ ] **S10-3 — the wiring**: the nudge subtracts what is answered; the report names what waits.
+    - [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
 - [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
   - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
@@ -851,9 +873,89 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 > except what the person customized, and for those it **asks**, in words a non-technical person reads
 > without help. Three offers: **take the new one**, **keep mine**, **combine them**.
 
-- [ ] **S10-0 — THE DESIGN**, written into this file before a line of code, per the loop's contract.
-      The sketch below is what the conversation produced; S10-0 checks it against the code and writes
-      what survives. Questions it must answer are named at the end.
+#### 📐 S10-0 — THE DESIGN _(written 2026-08-21; design slice, no code in the same iteration)_
+
+Every claim below was **checked against the code**, not reasoned about — the night has now cost two
+false alarms to diagnoses written from reading (`f7a00fc`, and the FR-overwrite box at the top).
+
+- [x] ✅ **The sketch's Brick 1 is CONFIRMED, and the code states the decision it must overturn.**
+      `mergeVerdict` row 3 returns `{verdict: "preserve", reason: "no-provenance"}` with **no
+      `sidecar`**, and `engine-merge-apply.mjs` says why in as many words: *"littering an older brain
+      with unexplained sidecars would be noise, not a choice."* **That reasoning is exactly what S10
+      dissolves**: the sidecar stops being unexplained the moment a conversation explains it. The old
+      decision was right for a world with no question; it is wrong for this one.
+- [x] 🎯 **AND THIS IS PRECISELY THE PERSONALIZED-FILE CASE, after S7 as before it.** S7 heals by
+      recognising bytes in a table of published states, and S7-5 fetches an ancestor for a **recorded**
+      sha. A file the owner EDITED matches no published state and has no record, so both walk past it
+      and it lands on row 3. **S7 shrank row 3 to almost exactly the set S10 exists for**, which is why
+      these two slices belong to the same release.
+- [x] 🛑 **THE BIGGEST CORRECTION TO THE SKETCH — Brick 2 asks for a mechanism THAT ALREADY EXISTS,
+      and the sketch's version of it would be worse.** `engine-divergence-nudge.mjs` (S4-4a) already
+      says this fact **at rest**, at every session start: one line, first file named, count exact,
+      *"Nothing to do: a file the engine leaves alone is a choice, not a problem."* The sketch proposed
+      *"the pending decisions live in a file the brain re-reads"*. **They must not.** The LIST is
+      DERIVED from the disk by `engineDivergence` (S4-2) and cannot go stale; a stored list of pending
+      files is a second copy of a fact the disk already answers, and this plan has spent the night
+      deleting exactly that shape.
+- [x] 📌 **So the ONLY genuinely new state is the ANSWER, and it is small.** What the disk cannot
+      derive is *"the owner has already been asked about this file, and said keep mine."* Without it
+      the question repeats forever, which is the consent fatigue the whole feature must avoid.
+      **Shape**: `rel → { decision, at: <engine ref> }`, keyed by the **engine version the answer was
+      given against**.
+  - [x] 🎁 **Keying by version answers a question the sketch asked separately and could not settle**:
+        *"what happens if the person never answers — silently forever, or once per release?"* It falls
+        out. A new version means a new candidate, so the answer no longer covers it and the file is
+        raised **once more, once per release** — no rule to write, no timer, nothing to tune.
+  - [x] 📂 **Where it lives: beside `.engine-base/`, not in the manifest.** The manifest is
+        engine-owned and rewritten by every update; this is a fact about the OWNER. `.engine-base/` is
+        the precedent — brain-side, written by the engine, committed by `add -A`, so **it travels to
+        the other machine**, which matters because the owner may well answer there.
+- [x] 🚨 **"TAKE THE NEW ONE" IS THE ONLY DESTRUCTIVE OFFER, and it is not free-recoverable today.**
+      Measured: the brain's `auto-commit` stages `git add .` (the whole tree, engine files included),
+      and `engine-commit.mjs` commits **after** the update has written. So an edit that was already
+      committed is recoverable from git history — but an edit made outside a session and never swept
+      is **overwritten and then committed over**, in one pass, with no trace. **Decision: "take the new
+      one" makes a safety commit BEFORE it writes**, and says so in one clause. The offer that destroys
+      is the one that has to earn it.
+- [x] 🤝 **"Combine" records its ancestor exactly like the mechanical merge, and this is `S7-0`'s trap
+      verified rather than assumed.** Row 8 is `{write: merged, deliver: candidate}`, and
+      `engine-merge-apply.mjs` comments that `deliveredFileMap` feeds `reseedProvenance` and
+      `syncBaseTree` — *"recording the merged file as the ancestor would make it read untouched at the
+      next update."* A combination follows the same split: **the disk takes the combination, the base
+      advances to the CANDIDATE.** No new rule; the existing one already covers it.
+- [x] ❌ **The three offers do NOT apply to `.claude/settings.json` in v5, and the reason is not
+      "it merges differently".** ADR 0038 named it merge-governed, and its own index entry records
+      that **nothing in this release delivers it**. With no candidate there is no offer to make.
+      Asking about a file the engine is not updating would be a question with no answer that changes
+      anything — the definition of a nag.
+- [x] 🗣️ **Bricks 3, 4 and 5 stand as sketched** and are the brain-side skill's, not the engine's:
+      plain words, no conflict markers, no paths as the headline; "combine" works with NO ancestor
+      because Claude reads both versions (which is *why* it cannot live in `update-engine.mjs`); and
+      grouping with *"take all the new ones / keep all mine / let's go through them"* so twelve files
+      are not twelve questions.
+- [x] 🧭 **The architectural move is unchanged and now has its seam**: `update-engine.mjs` still never
+      prompts. It **prepares** — drops the sidecar, leaves the file untouched — and the divergence
+      nudge already carries the fact to the next conversation. What S10 adds to the engine is a
+      sidecar and an answers file; everything that talks is brain-side.
+
+**The slices this cuts** (S10-1 → S10-4), smallest shippable first, each green on its own:
+
+- [ ] **S10-1 — row 3 gets its sidecar.** `mergeVerdict` returns `sidecar: candidate` for
+      `no-provenance`, the report gains the `newVersionPath` it already carries for row 7, and the
+      comment that forbade it is replaced by the reason it no longer holds. Pure module + its tests.
+- [ ] **S10-2 — the answers file**: read, write, and `rel → {decision, at}` keyed by engine ref, with
+      the version-keyed re-raise falling out of the lookup. A new pure module beside `engine-base-fs`.
+- [ ] **S10-3 — the wiring**: the divergence nudge subtracts answered files at the current ref, and
+      the update report names what is awaiting an answer. No new surface, two existing ones taught the
+      subtraction.
+- [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
+- [ ] ⚠️ **Bricks 3-5 (the conversation itself) are brain-side skill content**, not engine code, and
+      are cut with S10-3 rather than before it: the skill can only speak about a record that exists.
+
+  > 📎 **THE SKETCH BELOW IS THE INPUT, NOT THE PLAN.** It is what the conversation produced, kept
+  > because § S10-0 above is a set of corrections and a correction is unreadable without what it
+  > corrects. **Where the two disagree, S10-0 wins** — notably on Brick 2, whose "pending decisions
+  > live in a file the brain re-reads" is precisely what the design rejects.
 
   - [ ] 🧭 **The one architectural move, and it was already decided.** `update-engine.mjs` **still
         never prompts** — that decision stands (archived plan: *"an update never prompts: it writes,
@@ -892,8 +994,9 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         advances to the CANDIDATE**); and whether the three offers apply to `.claude/settings.json`,
         which is generated per brain and merges differently from prose.
 
-- [ ] **S10-1 → S10-n — the slices**, cut by S10-0. Not enumerated here on purpose: cutting them
-      before the design is written is how a plan grows slices nobody can judge.
+- [x] **S10-1 → S10-n — the slices, CUT** _(2026-08-21, by S10-0)_ — they are **S10-1 → S10-4**, listed
+      at the end of § S10-0 above. Four, not "n": the design collapsed the sketch's pending-decisions
+      record into an answers file, because the list itself is already derived from the disk.
 - [ ] **S10-QA — the acceptance test, and it is the owner's sentence turned executable.** A brain
       rebuilt from a real tag, with a file **edited before v5.0.0**, must come out of an update with a
       real choice offered and **nothing silently left behind**. Extends the release fixtures beside
