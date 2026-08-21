@@ -82,16 +82,60 @@ test("row 2 — no provable base but the brain already holds the candidate: noth
   assert.deepEqual(calls, [], "no ancestor, no merge");
 });
 
-// Nothing recorded means nothing can be PROVEN about this file — not that the
-// owner customized it. The two deserve different prose in the update report, and
-// only one of them earns a sidecar.
-test("row 3 — nothing recorded: the owner's copy stands, and we say we cannot prove why", () => {
+// Nothing recorded means nothing can be PROVEN about this file — not that the owner
+// customized it. The two still deserve different prose in the update report, and the
+// `reason` is what carries that difference.
+//
+// ⚠️ THIS TEST USED TO ASSERT **NO SIDECAR HERE**, and the reason it changed is S10's
+// whole thesis. The old rule was written down in `engine-merge-apply.mjs`: *"littering
+// an older brain with unexplained sidecars would be noise, not a choice."* True in a
+// world where nobody explains it. S10 makes the next conversation ask about this file
+// in plain words, with three offers — and it cannot offer "take the new one" or
+// "combine them" if the new one is not even on the disk to read. The sidecar stops
+// being unexplained, so the objection to it dissolves.
+test("row 3 — nothing recorded: the owner's copy stands, and the new version lands BESIDE it", () => {
   const { merge, calls } = mergeSpy();
   assert.deepEqual(
     mergeVerdict({ installed: OWNER_EDIT, recorded: undefined, baseContent: ENGINE_V1, candidate: ENGINE_V2, merge }),
-    { verdict: "preserve", reason: "no-provenance" },
+    { verdict: "preserve", reason: "no-provenance", sidecar: ENGINE_V2 },
   );
   assert.deepEqual(calls, [], "an unprovable ancestor must never reach the merge");
+});
+
+test("row 3 offers the CANDIDATE, never the ancestor it could not prove", () => {
+  // The one substitution that would look right and be worthless: handing back the base
+  // means offering the owner the version they already moved away from. The double's
+  // arguments are distinct values precisely so this cannot pass by coincidence.
+  const { merge } = mergeSpy();
+  const { sidecar } = mergeVerdict({
+    installed: OWNER_EDIT,
+    recorded: undefined,
+    baseContent: ENGINE_V1,
+    candidate: ENGINE_V2,
+    merge,
+  });
+
+  assert.equal(sidecar, ENGINE_V2);
+  assert.notEqual(sidecar, ENGINE_V1);
+  assert.notEqual(sidecar, OWNER_EDIT);
+});
+
+// 🛑 The boundary that keeps the sidecar honest: row 3 fires only when the bytes
+// DIFFER. A brain already holding the candidate takes the `unchanged/no-base` exit
+// above, so it gets no sidecar — offering someone a copy of what they already have is
+// the "noise, not a choice" the old rule was actually right about.
+test("a brain already holding the candidate is offered nothing at all", () => {
+  const { merge } = mergeSpy();
+  const outcome = mergeVerdict({
+    installed: ENGINE_V2,
+    recorded: undefined,
+    baseContent: ENGINE_V1,
+    candidate: ENGINE_V2,
+    merge,
+  });
+
+  assert.equal(outcome.sidecar, undefined);
+  assert.deepEqual(outcome, { verdict: "unchanged", reason: "no-base" });
 });
 
 // ─── Rows 4 & 5: the owner never touched it ──────────────────────────────────

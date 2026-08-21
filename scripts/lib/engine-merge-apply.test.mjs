@@ -440,7 +440,14 @@ test("with no gate supplied, a merge is written exactly as before", (t) => {
 // says we cannot PROVE anything, and littering an older brain with unexplained
 // `.new` files would be noise, not a choice. It is reported all the same, so the
 // verdict is not lost — `formatReport` is what decides to stay quiet about it.
-test("a file with no recorded provenance is preserved silently, with no sidecar", (t) => {
+// ⚠️ INVERTED at S10-1. This test was named "…preserved silently, with no sidecar" and
+// asserted exactly that. The premise it rested on — an unexplained sidecar is noise —
+// is what S10 removes: the next conversation asks about this file and offers to take
+// the new one, keep the owner's, or combine them, and two of those three need the
+// engine's version readable on disk. What has NOT changed, and is asserted below: the
+// owner's file is untouched, and `deliveredFileMap` stays empty so no base advances
+// behind a decision nobody has taken yet.
+test("a file with no recorded provenance keeps the owner's bytes, and the new version lands beside it", (t) => {
   const { brainDir, sourceDir } = trees(t);
   const rel = "scripts/auto-push.mjs";
   writeInto(brainDir, rel, OWNER);
@@ -455,8 +462,13 @@ test("a file with no recorded provenance is preserved silently, with no sidecar"
     groupOf: byPath,
   });
 
-  assert.equal(onDisk(brainDir, rel), OWNER);
-  assert.deepEqual(report.preserved, [{ name: rel, reason: "no-provenance" }]);
-  assert.ok(!existsSync(join(brainDir, `${rel}.new`)), "no proof, no sidecar");
+  assert.equal(onDisk(brainDir, rel), OWNER, "the owner's file is never overwritten");
+  assert.deepEqual(report.preserved, [
+    { name: rel, reason: "no-provenance", newVersionPath: `${rel}.new` },
+  ]);
+  assert.equal(onDisk(brainDir, `${rel}.new`), ENGINE, "and the engine's version is readable beside it");
+  // 🛑 Still empty, and this is the load-bearing half: a sidecar is an OFFER, not a
+  // delivery. Advancing the base here would record an ancestor the file never received
+  // and make the owner's own bytes read as a deletion at the next update.
   assert.deepEqual(report.deliveredFileMap, {});
 });

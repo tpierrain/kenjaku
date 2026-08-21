@@ -37,7 +37,8 @@ const matchesRecord = (recorded, content) => verifyBase({ recorded, baseContent:
 //
 //   1. nothing installed          → absent-install : deliver it
 //   2. nothing recorded, and the brain already holds the candidate → nothing to do
-//   3. nothing recorded           → preserve : we cannot prove anything either way
+//   3. nothing recorded           → preserve + the sidecar : we cannot prove anything
+//                                   either way, so the next conversation asks (S10)
 //   4. untouched, up to date      → unchanged
 //   5. untouched, outdated        → refresh (fast-forward — today's behaviour)
 //   6. edited, engine stood still → the owner's edit simply stands
@@ -61,7 +62,12 @@ export function mergeVerdict({ installed, recorded, baseContent, candidate, merg
     // holding the exact bytes this update carries needs nothing, and reporting it as
     // preserved puts a phantom on the owner's report at every update, forever.
     if (same(installed, candidate)) return { verdict: "unchanged", reason: "no-base" };
-    return { verdict: "preserve", reason: "no-provenance" };
+    // The sidecar is S10's: a file nobody can prove is exactly the file the next
+    // conversation must be able to ASK about — take the new one, keep yours, or combine
+    // them — and none of those three offers can be made if the new one is not on the
+    // disk to read. The `reason` still separates this from row 7, so the report can go
+    // on saying "we cannot prove why" rather than accusing the owner of an edit.
+    return { verdict: "preserve", reason: "no-provenance", sidecar: candidate };
   }
 
   // Untouched — proven by the sha, so this holds on a brain that has never carried a

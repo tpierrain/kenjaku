@@ -128,9 +128,17 @@ export function applyMergeGoverned({
     if (deliver !== undefined) deliveredFileMap[rel] = deliver;
     // "Never overwritten" must not mean "never offered": the engine's version (or, on a
     // conflict, the marked-up merge — everything mergeable already merged) lands BESIDE
-    // the owner's so adopting it stays their call. `.new` is loaded by nothing. A
-    // `no-provenance` preserve gets none: it says we cannot PROVE anything, and littering
-    // an older brain with unexplained sidecars would be noise, not a choice.
+    // the owner's so adopting it stays their call. `.new` is loaded by nothing.
+    //
+    // ⚠️ THIS COMMENT USED TO END: *"A `no-provenance` preserve gets none: it says we
+    // cannot PROVE anything, and littering an older brain with unexplained sidecars
+    // would be noise, not a choice."* It is kept, corrected, because the reasoning was
+    // sound and it is the PREMISE that stopped being true. **S10 explains the sidecar**:
+    // the next conversation asks about the file in plain words and offers three answers,
+    // two of which need the engine's version to be readable on disk. Unexplained is what
+    // made it noise; a question makes it the choice. What the old rule was right about
+    // survives one row up: a brain already holding the candidate exits at
+    // `unchanged/no-base` and is still offered nothing.
     if (sidecar !== undefined) writeFileSync(`${installedPath}.new`, sidecar);
 
     // `absent-install` reports down the SAME path as `refresh`: install-if-absent decides

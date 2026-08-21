@@ -1227,7 +1227,7 @@ test("reconcileBrain — a constitution with no provenance is preserved, and say
   const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
 
   assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), theirs, "unproven bytes stand");
-  assert.deepEqual(report.doctrinePreserved, [{ name: "CLAUDE.engine.md", reason: "no-provenance" }]);
+  assert.deepEqual(report.doctrinePreserved, [{ name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" }]);
   assert.deepEqual(report.doctrineRefreshed, []);
   assert.equal(report.refreshedFileMap["CLAUDE.engine.md"], undefined, "nothing delivered, no ancestor claimed");
 });
@@ -1340,12 +1340,19 @@ test("reconcileBrain — a NEW file under an ALREADY-INSTALLED skill is delivere
 });
 
 // A pre-provenance brain: the file is engine-shipped but nothing was ever fingerprinted
-// for it, so "untouched" is UNPROVABLE. We keep the owner's copy either way, but the two
-// preserves are NOT the same report: `no-provenance` must not call them a customizer, and
-// must NOT litter the brain with a `.new` for a claim we cannot make. A sidecar left by an
-// earlier update is cleared all the same — only `preserve: customized` still has something
-// newer genuinely pending.
-test("reconcileBrain — an UNPROVABLE skill is preserved WITHOUT a .new, and a stale one is cleared", async (t) => {
+// for it, so "untouched" is UNPROVABLE. We keep the owner's copy either way, and the two
+// preserves are still NOT the same report: `no-provenance` must not call them a customizer.
+//
+// ⚠️ INVERTED at S10-1. This test read "…preserved WITHOUT a .new" and asserted that a
+// claim we cannot make must not be pointed at. S10 changes what the sidecar means: it is
+// no longer a claim ("a newer version awaits you"), it is the material the next
+// conversation needs to ask a question and offer three answers. The `reason` still
+// carries the distinction the old rule was protecting.
+//
+// The second half is UNCHANGED and gets sharper: a sidecar left by an earlier update
+// must not survive as itself. It is cleared unconditionally and re-dropped with the
+// CURRENT candidate, so what sits there is never a stale claim.
+test("reconcileBrain — an UNPROVABLE skill keeps its bytes, and a stale sidecar is replaced, not kept", async (t) => {
   const brainDir = buildBrain();
   const sourceDir = buildSource();
   t.after(() => {
@@ -1370,13 +1377,13 @@ test("reconcileBrain — an UNPROVABLE skill is preserved WITHOUT a .new, and a 
   assert.deepEqual(report.skillsRefreshed, []);
   assert.deepEqual(
     report.skillsPreserved,
-    [{ name: "coach", reason: "no-provenance" }],
-    "reported as unprovable, NOT as a customization, and with no .new to point at",
+    [{ name: "coach", reason: "no-provenance", newVersionPath: ".claude/skills/coach/SKILL.md.new" }],
+    "reported as unprovable, NOT as a customization — the reason is what carries that",
   );
   assert.equal(
-    existsSync(join(brainDir, ".claude/skills/coach/SKILL.md.new")),
-    false,
-    "we make no claim here, so the old sidecar's claim must not survive either",
+    readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md.new"), "utf8"),
+    candidate,
+    "the leftover from an earlier update is REPLACED by this update's candidate, never kept",
   );
 });
 
@@ -1953,7 +1960,9 @@ test("reconcileBrain — a reconcile with no `local` manifest at all still conve
   const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, ...s });
 
   assert.deepEqual(report.skillsRefreshed, [], "no base on record → nothing may be overwritten");
-  assert.deepEqual(report.skillsPreserved, [{ name: "coach", reason: "no-provenance" }]);
+  assert.deepEqual(report.skillsPreserved, [
+    { name: "coach", reason: "no-provenance", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+  ]);
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), skill, "the brain's copy is left alone");
   assert.deepEqual(calls.install, [join(brainDir, "rag")], "the rest of the converge still runs");
 });
@@ -2641,7 +2650,7 @@ test("reconcileBrain — the same brain WITHOUT the table stays frozen, and says
   assert.deepEqual(report.doctrineRefreshed, []);
   assert.deepEqual(
     report.doctrinePreserved,
-    [{ name: "CLAUDE.engine.md", reason: "no-provenance" }],
+    [{ name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" }],
     "and the REASON is the freeze itself — the state of the whole fleet before S7",
   );
   assert.deepEqual(report.healed, []);
@@ -2675,7 +2684,7 @@ test("reconcileBrain — a doctrine the OWNER edited is recognised by nothing, a
   assert.deepEqual(report.healed, []);
   assert.deepEqual(
     report.doctrinePreserved,
-    [{ name: "CLAUDE.engine.md", reason: "no-provenance" }],
+    [{ name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" }],
     "still no-provenance: the table proves nothing about bytes it does not carry",
   );
   assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), theirs, "their words, untouched");

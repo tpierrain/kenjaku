@@ -149,11 +149,19 @@ test("a brain with NO provenance keeps its constitution — reported, not delive
   const report = run(trees, { provenance: {} });
 
   assert.equal(onDisk(trees.brainDir), OWNER, "unproven bytes are never overwritten");
-  assert.deepEqual(report.doctrinePreserved, [{ name: REL, reason: "no-provenance" }]);
+  assert.deepEqual(report.doctrinePreserved, [
+    { name: REL, reason: "no-provenance", newVersionPath: `${REL}.new` },
+  ]);
   assert.deepEqual(report.refreshedFileMap, {}, "and no ancestor is invented from them");
-  assert.ok(
-    !existsSync(join(trees.brainDir, `${REL}.new`)),
-    "no sidecar either: 'we cannot prove anything' is not an offer, and a 37 KB unexplained .new is noise",
+  // ⚠️ INVERTED at S10-1. This asserted "no sidecar either: … a 37 KB unexplained .new
+  // is noise". The size objection was real and is answered, not waved away: the .new is
+  // never what the owner reads. It is what the next conversation reads FOR them, to say
+  // in plain words what the new version brings — and to be able to combine the two at
+  // all. Unexplained was the problem; this is the slice that explains it.
+  assert.equal(
+    readFileSync(join(trees.brainDir, `${REL}.new`), "utf8"),
+    ENGINE,
+    "the engine's constitution is readable beside the owner's, so the three offers are possible",
   );
 });
 
