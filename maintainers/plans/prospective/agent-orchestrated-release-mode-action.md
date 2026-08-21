@@ -425,6 +425,29 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 34) — the slice that was worth NOT doing, and a checkbox audit that
+  is a script.** _(The arbitration itself is a blocking box at the top of the owning plan; this entry
+  keeps only what the MODE learned.)_
+  - 🛑 **The loop's most useful output this iteration was a question, not a commit.** S6e was named,
+    unblocked and perfectly doable: translate one skill into French. **Twenty minutes of looking before
+    writing found that it may not be worth writing at all** — the FR tree is missing two other skills
+    entirely and one FR copy is two months behind its source, and this particular skill's only reader
+    is Claude. **The autonomy rule paid in the direction nobody designs for**: it is written to stop the
+    loop guessing on a decision that is Thomas's, and what it actually stopped was the loop **doing
+    honest work on a slice whose premise had rotted**. A night loop's real failure mode is not a wrong
+    commit; it is eight hours of correct work on the wrong thing.
+  - 🔎 **Look at the ground before writing the slice, even when the slice is unambiguous.** The three
+    facts that killed it — the two missing FR skills, `sync` FR at 2 months' drift, the `description:`
+    frontmatter being the *routing* surface — cost **four shell commands**. None of them is in any plan.
+    A slice specified months ago describes a repo that no longer exists.
+  - 🤖 **A checkbox audit is a SCRIPT, and it should always have been one.** *"Which parent box is
+    unticked while every one of its children is ticked?"* is mechanical, and a 12-line parser answered
+    it over a 2 100-line plan in one run — **four stale parents**, none of which repeated reading had
+    caught. This is the delegation rule's own logic applied one level lower: **before dispatching a
+    reader, ask whether the question has a machine that answers it.** ⚠️ And its edge, respected here:
+    the script proves *all children ticked*; it cannot prove a **leaf** is done. Those were ticked only
+    after reading the target file, and the ones needing inference were **left unticked and named** in
+    the owning plan's header rather than swept.
 - 🌙 **2026-08-21 (loop iteration 33) — S6d, and the read that never touched this window.**
   _(What shipped belongs to the owning plan, § S6d; this entry keeps only what the MODE learned.)_
   - 📚 **The second rule paid, cleanly and for the first time on a slice that was ABOUT reading.**

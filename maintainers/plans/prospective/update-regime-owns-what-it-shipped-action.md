@@ -6,8 +6,47 @@
 <!-- delegation. See ROADMAP.md § DIVERSION LIFTED.                              -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
+> ## 🛑 BLOCKING — S6e: does the FR translation ship at all? (a scope call, so it is Thomas's)
+> _(raised by the night loop, 2026-08-21, iteration 34. **The loop did not guess; it moved on to the
+> next slice that needs nobody.** This is the ONLY thing on this plan waiting on him.)_
+>
+> S6e says *"write `templates/fr/.claude/skills/test-first-discipline/`"*. Before writing ~25 000
+> characters of French, the loop went to look at what the FR tree actually is. **Three facts it did not
+> expect, all measured on the repo:**
+>
+> - [ ] 📉 **The FR tree is already partial and silently drifting, and S6e closes one hole of five.**
+>       `switch` (shipped 2026-08-08, and it is the *universes* skill, as user-facing as it gets) and
+>       `local-mirror` (2026-07-28) **have no FR version at all**. `sync` FR was last touched
+>       **2026-06-10** while its EN source moved on **2026-08-08** — two months stale, and 2 391 bytes
+>       against the EN's 4 258, so more than half the skill is missing. `update-engine` FR carries **6
+>       commits against the EN's 13**. Nothing anywhere reports any of this.
+> - [ ] 🎯 **The FR copies exist to be FOUND and to SPEAK, and this skill does neither.** What the FR
+>       tree localizes is the **`description:` frontmatter** — the routing surface, so a user's French
+>       phrasing matches the skill — and the prose the skill makes Claude say back. Verified on
+>       `improve`: FR `description` is French, and the body is the conversation it drives.
+>       `test-first-discipline` is triggered by **no user phrasing**: it loads *"as soon as you write or
+>       modify code"*, and its only reader is **Claude**, deciding how to test. SETUP.md already files it
+>       that way — audience column: *"Claude, when modifying the harness"*.
+> - [ ] ⚖️ **So the FR file would be a translation with no reader, owned by nobody, drifting by
+>       default.** The English is the source of truth (the harness owns it, `language.md` §English), it
+>       was refreshed hours ago to v2.3.0, and a FR brain **already receives it and works** —
+>       `resolveLocaleSource` falls back to the root file, verified in `engine-copy-select.mjs`.
+>
+> **The loop's recommendation, stated so the answer can be one word:** ✂️ **drop S6e from v5.0.0** and
+> re-file the real finding — *the FR tree has no owner and no staleness report* — as its own item, since
+> it is five skills wide and is the same defect this whole release exists to end (a copy with no
+> provenance goes stale and nobody is told). **The counter-argument, stated fairly rather than
+> buried**: a brain whose every other skill speaks French gains a coherence from the French version even
+> if only Claude reads it, and *"the launcher ships partial French"* is a real product answer to give.
+>
+> - [ ] ▶️ **Thomas: one of the three.** (a) **Drop S6e** and open the FR-tree finding separately
+>       _(the loop's recommendation)_; (b) **keep S6e** as specified, and the loop writes the French;
+>       (c) **widen it** — S6e becomes *"the FR tree catches up"*, which is five skills and is a
+>       chantier, not a slice.
+
 > ## ✅ ANSWERED — the engine MAY write `CLAUDE.md`, and a conflict stops being a dead end
-> _(owner, 2026-08-21, in conversation. **Nothing waits on Thomas on this plan any more.**)_
+> _(owner, 2026-08-21, in conversation. **Nothing else waits on Thomas on this plan** — see the
+> blocking box above, which is the one exception and postdates this line.)_
 >
 > **The question that was asked**: may the engine land its own updates inside a brain's `CLAUDE.md`
 > (owner's edits preserved, conflicts never written and reported instead)? Or does the constitution stay
@@ -248,15 +287,33 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S6e — write `templates/fr/.claude/skills/test-first-discipline/`** _(2026-08-21)_.
-> It is the **last unticked box of the S6 rider**, and the one the rider itself called *"the slice
-> that may honestly slip"*: `resolveLocaleSource` falls back to English (verified), so a FR brain gets
-> a working English skill today — this is **quality debt, not breakage**. ⚠️ It is a **locale
-> deliverable**, i.e. exactly the carve-out in `language.md`: the FR file is *the product speaking to
-> its owner in their language*, so it is written **in French** on purpose and must never be
-> "corrected" to English. Its source is the English file just refreshed
-> (`.claude/skills/test-first-discipline/SKILL.md`, v2.3.0) — translate that, do not translate the
-> v2.0.0 text any FR memory may still hold.
+> **▶️ RESUME AT: the release TAIL — S6e is BLOCKED on the scope call at the top of this file, and it
+> is the only thing left in S6** _(2026-08-21)_. Do **not** start writing the French: the loop looked at
+> the FR tree before writing it, found the slice may not be worth doing at all, and put the arbitration
+> where it belongs. **Everything else in S1–S6 is done**, and the v4.9.0 mutation debt is **already
+> paid** (delivered on branch with S0bis — its own plan says so and owns the argument).
+>
+> ▶️ **So the next slice is the REPLAY FIXTURE**, § *The QA instrument*, the last unticked box that
+> needs nobody: replay *install at the 19-July tag (`v3.6.0` / `v3.6.1`), then update through `v4.5.0`
+> → `v4.8.1`* and check it reproduces the drift measured on the live brain. It is the **acceptance test
+> of S1–S5** — the doctrine must arrive through the mechanism or the mechanism does not work — and the
+> live brain is a **single-use** test, so the fixture is not optional. ⚠️ It is **design-bearing**
+> (which tags, what is asserted, where the replay runs), so per the loop's own rule its design is
+> **written into this plan and committed before any code**, in its own iteration. The mode's map rates
+> it 🟢 **highly delegable, one agent per published tag**, judge = the install replay's binary outcome.
+>
+> 🧹 _**Known carrier debt, named rather than left to be re-discovered** (2026-08-21): the top-level
+> **S1, S2 and S4** boxes are still `- [ ]` while this header says complete. Every remaining unticked
+> child under them is a **design box or a `🚫 deliberately OUT` box** that was honoured but never
+> ticked — the convention here is that constraints and exclusions are checkboxes too. Ticking them by
+> inference from a summary is how a plan starts lying in the other direction, so they are left for
+> whoever verifies them against S2a-3 / S4-4a / S4-4b's own reports. Four parents whose children were
+> **all** already ticked were fixed this iteration, checked mechanically rather than by eye._
+>
+> _(If he answers **keep it**: the source to translate is `.claude/skills/test-first-discipline/SKILL.md`
+> at **v2.3.0**, refreshed 2026-08-21, not the v2.0.0 text. And it is a **locale deliverable** —
+> `language.md`'s own carve-out — so it is written in French on purpose and must never be "corrected"
+> back to English.)_
 >
 > **S6b, S6c AND S6d are done, committed and pushed** (`b2329c2`, `15f3f4d`, `f46a42d`, `4c6a942`,
 > `c65e5f4`): the retirement is declared in the shipped manifest, wired, guarded and reported, both
@@ -1180,7 +1237,7 @@ audible divergence.
           self-heals the hook in at its next update or SessionStart (ADR 0026), with **no migration to
           write**.
 
-  - [ ] 🧱 **The shape, per CONVENTIONS §5ter and the entry-point seam rule** — a straight copy of the
+  - [x] 🧱 **The shape, per CONVENTIONS §5ter and the entry-point seam rule** — a straight copy of the
         precedent's split, because it is the shape the fleet already runs:
     - [x] **S3-1 — `scripts/lib/engine-write-guard.mjs`, pure** _(2026-08-21 · `4bf5efa` + `b82569e`,
           **90 % → 98.89 %**, 24 tests, suite 1994 pass / 0 fail)_. `guardDecision({ toolName, filePath,
@@ -1428,7 +1485,7 @@ audible divergence.
           rather than folded into the breakage banner. **Measure the added SessionStart latency** before
           shipping it: the contract for these hooks is zero-ish, and this one is file reads and digests
           with no spawn and no network — but "should be fast" is not a measurement.
-      - [ ] 🧭 **Cut in two, on S3's own precedent** (*the guard decides* / *the guard reaches a brain*),
+      - [x] 🧭 **Cut in two, on S3's own precedent** (*the guard decides* / *the guard reaches a brain*),
             because one slice that writes prose, spawns a hook, edits the template AND the manifest is
             this chantier's own definition of mis-cut:
         - [x] **S4-4a — the surface decides what to say.** _(2026-08-21 · `ea9a4c1`)_ The pure nudge +
@@ -1568,7 +1625,9 @@ audible divergence.
           for a distance the two version numbers already state.
     - [ ] **Offering to adopt the newer version** from the notice. An update writes or reports; it never
           prompts (S2's own exclusion), and the same rule holds for a report.
-- [ ] **S5 — The doctrine layer joins a regime, as the first client of the new model.**
+- [x] **S5 — The doctrine layer joins a regime, as the first client of the new model.** _(complete
+      2026-08-21 — `a51df22`, `74c273d`, `4340240`, `b3aefa3`; the header note carries what it does and
+      does NOT unfreeze, and that caveat belongs in the release note.)_
       `CLAUDE.engine.md` is a special case worth stating: the two-layer design means the owner's edits
       belong in `CLAUDE.md`, so a divergence in the engine layer is nearly always **an accident to
       surface**, not work to protect. Flip `engine-apply-plan.test.mjs`'s deliberate lock with its
@@ -1676,7 +1735,7 @@ audible divergence.
         (:52, :77 still call `CLAUDE.md` *the* engine-provided constitution, written before the split) is
         **one amendment shared with S2c** — whichever lands first writes it, the second links to it.
 
-  - [ ] 🧱 **THE SLICES, in the only order that keeps every step green** _(split 2026-08-21, imposed by the
+  - [x] 🧱 **THE SLICES, in the only order that keeps every step green** _(split 2026-08-21, imposed by the
         correction box above)_. The manifest line comes **last** on purpose: until a family can carry the
         file, declaring it `merge` would be a manifest that promises a delivery no code performs.
     - [x] **S5a — the write-allowlist learns a third merge family.** ✅ _(2026-08-21 · `a51df22`)_
@@ -1857,8 +1916,15 @@ audible divergence.
       - [x] 🚫 **No mutation pass — doc-only slice, and the skip is said out loud** per the loop's own
             rule. No production line changed; suite green, **2131 tests, 0 fail**. `RESULTS.md` gets
             nothing because there is no measurement to file.
-    - [ ] **S6e — `templates/fr/.claude/skills/test-first-discipline/`**. Quality debt, not breakage
-          (`resolveLocaleSource` falls back to English, verified) — the slice that may honestly slip.
+    - [ ] 🛑 **S6e — `templates/fr/.claude/skills/test-first-discipline/`** — **BLOCKED on a scope
+          call, and the box for it is at the top of this file.** The rider called it *"the slice that
+          may honestly slip"*; looking at the FR tree before writing it found something better than a
+          slip — the tree is **partial and drifting** (`switch` and `local-mirror` have no FR version
+          at all, `sync` FR is two months behind its source), and this particular skill is read by
+          **Claude**, not by the owner, so a French copy has no reader. The evidence, the three
+          options and the loop's recommendation are in the blocking box; nothing is decided here.
+          _(Unchanged and still true: `resolveLocaleSource` falls back to English, verified, so a FR
+          brain works today. Quality debt, never breakage.)_
 
   - [x] Add `.claude/skills/test-first-discipline/**` to the manifest's **`merge`** regime. _(shipped
         with S6c's one manifest change, 2026-08-21 — verified present in `engine-manifest.json`.)_
@@ -2012,9 +2078,12 @@ audible divergence.
             during the translation pass the edited skills' descriptions were re-read **live** by the
             running session (the harness symlinks resolve). That proves the *symlinks* carry, not that
             a **fresh session in another project** routes to `test-first-discipline`. Still owed.
-  - [ ] Align `CONVENTIONS.md` §5 ("TDD baby-steps + green-only commits") and harden §5bis with the
+  - [x] Align `CONVENTIONS.md` §5 ("TDD baby-steps + green-only commits") and harden §5bis with the
         **entry-point seam rule** (every executable entry point is tested by running it as a process —
-        earned on v4.9.1's 25 % CLI wiring).
+        earned on v4.9.1's 25 % CLI wiring). ✅ **Both are done and were verified in the file, not
+        recalled** _(2026-08-21)_: §5 is titled *"Test-first + green-only commits"* and carries the
+        batch rule with the measured argument for it; §5bis's third bullet is the entry-point seam
+        rule, hardened 2026-08-15, with the 25 % → 100 % figure and the symlink defect it found.
 
 ## The owner's second worry, and it is a different failure (2026-08-08)
 
