@@ -1222,8 +1222,14 @@ audible divergence.
           glob names their installed path, so they have no provenance and S1 seeds them no base. **A
           merge with no ancestor is not a merge** — widening the manifest to bring them in is a scope
           call and belongs to the release's cargo discussion, not to S2's code.
-    - [ ] **Seeding a base for a no-record file that holds the engine's exact bytes** (row 2). Cheap and
+    - [x] **Seeding a base for a no-record file that holds the engine's exact bytes** (row 2). Cheap and
           correct, but it is S1's planner's business — noted here so it is not lost, not done here.
+          ✅ **CLOSED elsewhere, 2026-08-21**: absorbed by **S7** of
+          [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+          — row 2 is the special case where the version recognized is the one being delivered, so the
+          historical fingerprint table answers it with no code of its own. Ticked here so this archive
+          stops advertising an open exclusion it no longer owns; **the design and its test case live
+          there**, not in this file.
     - [x] Interactive conflict resolution. An update **never** prompts: it writes, or it reports. ⚠️
           **Qualified, not contradicted, by the owner's 2026-08-21 answer** (box at the top): assisted
           resolution IS coming, as its own chantier, but it lives **outside** `update-engine.mjs` — the
