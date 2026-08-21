@@ -41,6 +41,13 @@ export function retireDeclaredSkills({ brainDir, plan, provenance = {} }) {
     // still read as an installed skill to the next `existsSync` guard (and there is one
     // in the install-if-absent loop), so a half-removal is a skill that never comes back.
     if (decision.verdict === "remove") {
+      // `force` survives every mutation run and always will: we only get here when the
+      // listing found files, so the path exists. What it covers is the one case no test
+      // can stage deterministically — the owner deleting the folder in their file manager
+      // between our listing and this line. An update that throws there strands the brain
+      // mid-pass over a directory that is already gone, which is the outcome the whole
+      // fail-soft habit of this codebase exists to avoid. Kept, and recorded as an
+      // unkillable equivalent rather than defended by a test that would have to lie.
       rmSync(abs, { recursive: true, force: true });
       skillsRetired.push(name);
     } else if (decision.verdict === "preserve") {

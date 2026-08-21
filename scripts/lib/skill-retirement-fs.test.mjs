@@ -136,3 +136,35 @@ test("no tombstone declared — nothing is listed, nothing is removed", () => {
   assert.equal(existsSync(join(brainDir, ".claude/skills/coach/SKILL.md")), true);
   rmSync(brainDir, { recursive: true, force: true });
 });
+
+// Both anchors of the glob strip, each pinned by the shape that needs it. A tombstone
+// is written by hand into a manifest, so neither end of `/\/\*\*?$/` is decoration:
+// without the `?` a `/*` entry is not recognised as a skill dir at all, and without the
+// `$` an interior `**` is stripped and the path we delete is one nobody declared.
+test("a single-star tombstone is a skill directory too", () => {
+  const brainDir = brainWith({ ".claude/skills/legacy/SKILL.md": "# legacy\n" });
+  const report = retireDeclaredSkills({
+    brainDir,
+    plan: { retireSkills: [".claude/skills/legacy/*"] },
+    provenance: { ".claude/skills/legacy/SKILL.md": fp("# legacy\n") },
+  });
+  assert.deepEqual(report, { skillsRetired: ["legacy"], skillsRetirePreserved: [] });
+  assert.equal(existsSync(join(brainDir, ".claude/skills/legacy")), false);
+  rmSync(brainDir, { recursive: true, force: true });
+});
+
+// 🛑 A tombstone naming a FILE rather than a directory — a hand-edited manifest, or a
+// glob someone got creative with. The strip must not rewrite it into a shorter path that
+// happens to exist: what we would delete then is a path nobody ever declared. It reads
+// as a directory that is not there, which is the safe answer and the silent one.
+test("a tombstone whose glob is not a trailing one deletes nothing, and does not throw", () => {
+  const brainDir = brainWith({ [`${DIR}/SKILL.md`]: "# tdd-discipline\n" });
+  const report = retireDeclaredSkills({
+    brainDir,
+    plan: { retireSkills: [`${DIR}/**/SKILL.md`] },
+    provenance: { [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n") },
+  });
+  assert.deepEqual(report, { skillsRetired: [], skillsRetirePreserved: [] });
+  assert.equal(existsSync(join(brainDir, `${DIR}/SKILL.md`)), true, "every byte still there");
+  rmSync(brainDir, { recursive: true, force: true });
+});
