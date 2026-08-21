@@ -74,10 +74,18 @@
 >       changed is its NATURE — it is no longer "the FR tree stops drifting", it is "the FR tree stops
 >       being overwritten". A drift is stale content; this is the wrong language.
 >
-> ## ▶️ RESUME AT: S8-2a — port the two drifting commits into their FR twins
+> ## ▶️ RESUME AT: S8-2b — the EN/FR drift guard itself
 >
-> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth) and **S8-1 is done** _(`775c00a`)_. S8 is now
-> load-bearing for the release rather than tidy-up — see the box above.
+> **S7 is COMPLETE** (S7-0 → S7-5, plus S7-4's breadth), **S8-1 is done** _(`775c00a`)_ and **S8-2a is
+> done** _(2026-08-21)_. S8 is now load-bearing for the release rather than tidy-up — see the box above.
+>
+> 🎯 **S8-2a landed HALF the port it was scoped for, and that is the correct outcome**: `435c164` went
+> into the FR `sync` skill, but **`f7a00fc` needs no port at all** — its own message says it was EN-only,
+> fixing EN to match an FR sibling *"which had it right"*, and the FR blank line is there at line 66. So
+> **the criterion designed one iteration earlier has a false-positive class**: it cannot see direction,
+> and a commit where EN catches up with FR stays unpaired forever. **S8-2b must therefore ship with the
+> `NOT_A_PORT` waiver map described in § S8-2-0** (sha → reason, in the guard's own test file, one entry:
+> `f7a00fc`) — otherwise `prepare-1-1` is a permanent red that no amount of translating can clear.
 >
 > **S8-2-0's design is WRITTEN and committed** _(2026-08-21)_ — read § S8-2-0 and build to it. The
 > criterion is **unpaired commits** (commits touching EN since the FR twin's last commit that do not
@@ -87,8 +95,8 @@
 > reported at all** — which contradicts what S8-1 wrote, for a reason `engine-copy-select.mjs` states
 > outright.
 >
-> ⚠️ **The guard is RED ON ARRIVAL**, so the design splits it and **the port comes first**:
-> **S8-2a** ports `435c164` and `f7a00fc` into their FR twins, **then S8-2b** ships the guard green.
+> ⚠️ **The guard is RED ON ARRIVAL**, which is why the design split it and the port came first. With
+> S8-2a paid, **S8-2b is the last thing between the criterion and a green guard over 16 pairs at zero.**
 >
 > Then **S8-3** (the FR delivery — the defect in the box above), **S8-4** (the ADR), then **S10**, then
 > **S9**. Execution order unchanged: S7 → S8 → S10 → S9.
@@ -276,8 +284,13 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
 - [ ] **S8 — the French tree stops drifting in silence** — and, since 2026-08-21, **stops being
       OVERWRITTEN**: S7 unfreezes a French brain into English (measured, box at the top of this file).
       S8-3 owns that fix, and Pole D of `release-fixture-doctrine.test.mjs` goes red when it lands.
-  - [ ] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`.
+  - [x] **S8-1 — port `8341e18`** into `templates/fr/CLAUDE.engine.md`. _(2026-08-21 · `775c00a`)_
   - [ ] **S8-2 — the EN/FR drift guard**, a test.
+    - [x] **S8-2-0 — the design**, measured on the 16 real pairs. _(2026-08-21)_
+    - [x] **S8-2a — the port**: `435c164` into the FR `sync` skill; `f7a00fc` measured as **needing no
+          port** (EN was catching up with FR), which is what forces the waiver map into S8-2b.
+          _(2026-08-21)_
+    - [ ] **S8-2b — the guard**, shipped green, with `NOT_A_PORT`.
   - [ ] **S8-3 — the FR replay QA.**
   - [ ] **S8-4 — the locale doctrine recorded** as an ADR.
 - [ ] **S10 — a personalized file becomes a QUESTION, never a blind spot.** _(Owner's acceptance
@@ -745,10 +758,29 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         which is what creating it means.
   - [x] 🛑 **SEQUENCING, and it is a real consequence: the guard is RED ON ARRIVAL.** Two pairs drift
         today, and nothing is ever committed red. So S8-2 **splits**, and the port comes first:
-    - [ ] **S8-2a — port the two drifting commits into FR**: `435c164` into
-          `templates/fr/.claude/skills/sync/SKILL.md` (a universe arriving mid-session is resolved by a
-          rule) and `f7a00fc` into `templates/fr/.claude/skills/prepare-1-1/SKILL.md` (the markers rule
-          governs the section, not the last bullet). Content work, in French, exactly like S8-1.
+    - [x] **S8-2a — port the drifting commits into FR** _(2026-08-21 · this commit)_. **Only ONE of the
+          two was a port.** `435c164` is ported into `templates/fr/.claude/skills/sync/SKILL.md`: the
+          standing rule for `.vault-rag/active-universe` (the machine you sit at wins, and `--theirs` is
+          the counter-intuitive command that means it), the read of the active universe on both sides of
+          the rebase, and the one-line announcement when it changed. In French, tutoiement and inclusive
+          forms like the rest of the FR tree; the fingerprint table was regenerated (the S7-2 guard fired
+          on cue, and 78 byte-states became 79).
+    - [x] 🎯 **`f7a00fc` needs NO port, and finding that out is the most valuable thing this slice
+          produced** _(2026-08-21)_. Its own commit message says it: *"EN only, verified against the FR
+          sibling **which had it right**"*. It adds a blank line so CommonMark stops folding a paragraph
+          into the preceding list item, and **`templates/fr/…/prepare-1-1/SKILL.md:66` already has that
+          blank line.** The FR is not behind; **the EN caught up with the FR**.
+    - [ ] 🛠️ **CONSEQUENCE FOR S8-2b — the criterion has a false-positive class, measured on the very
+          next slice after it was designed.** "Unpaired commit" cannot see DIRECTION: a commit that
+          brings EN up to FR's standard is unpaired forever, because the correct FR edit is *no edit*.
+          Left alone, `prepare-1-1` is a permanent red the port can never clear, and a guard nobody can
+          get to green is a guard that gets deleted. **The fix, decided here**: alongside the commits
+          that touched both sides, the guard subtracts a `NOT_A_PORT` map of `sha → one-line reason`,
+          **living in the guard's own test file** — so adding a waiver is a reviewed code change carrying
+          its justification, not a config line. First and only entry: `f7a00fc`. ⚠️ **The risk, named
+          rather than discovered**: a waiver list is how a guard dies. The message must therefore print
+          BOTH ways to clear a hit (port it, or waive it *with a reason*), and a growing map is a signal
+          to re-examine the criterion, not to keep typing.
     - [ ] **S8-2b — the guard itself**, which then lands green over 16 pairs at zero. ⚠️ Remember the
           fingerprint table: editing an FR file that is in the `merge` regime invalidates it, and the
           S7-2 guard will say so.

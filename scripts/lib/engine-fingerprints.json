@@ -149,6 +149,10 @@
       "sha256:acd33ffaaeccd36aaf7e659e047ab77af0ad2d298481a5b3dd591e786eb4c81e": {
         "since": "v4.9.0",
         "locale": "en"
+      },
+      "sha256:914c7d5314998f4f0196762e88393c4e3d5537d9a7a4811c43b4ad315f7d055b": {
+        "since": "v5.0.0",
+        "locale": "fr"
       }
     },
     ".claude/skills/test-first-discipline/SKILL.md": {

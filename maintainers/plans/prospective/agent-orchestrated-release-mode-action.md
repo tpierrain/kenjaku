@@ -465,6 +465,17 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ✅ **2026-08-21 (S8-2a) — THE DESIGN-THEN-CODE SPLIT PAID FOR ITSELF, in one iteration.** The
+  criterion designed in S8-2-0 named two drifting pairs. Doing the port measured that **one of them was
+  a false positive**: `f7a00fc` fixed EN to match an FR sibling that was already right, so no FR edit
+  can ever pair it and the guard would have been permanently red on a file with nothing wrong with it.
+  **What the MODE takes from it**: the contract's rule that a design slice writes the design and stops,
+  *without coding it in the same iteration*, is what made this cheap — the correction cost two plan
+  paragraphs instead of unpicking a shipped guard. And the reason it was caught at all is that the port
+  began by **reading the commit being ported** rather than trusting the criterion that selected it: a
+  measurement is a claim about the past, and the artifact it points at can still contradict it. State
+  is owned by [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md);
+  not restated here.
 - 🛑 **2026-08-21 (S7-4) — A QA SLICE FOUND A DEFECT THE FEATURE ITSELF CREATED, and the loop nearly
   did not look.** S7-4 was filed as "breadth" — the boring tail of a finished chantier. Building the
   French pole measured that **S7 unfreezes a French brain INTO ENGLISH**: the heal reads the locale
