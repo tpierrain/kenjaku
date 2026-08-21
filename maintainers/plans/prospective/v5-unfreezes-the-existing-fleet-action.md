@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-6 — the conversation itself (skill prose, EN + FR in ONE commit)
+> ## ▶️ RESUME AT: S10-6b — the conversation itself (skill prose, EN + FR in ONE commit)
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -102,10 +102,19 @@
 > **CANDIDATE** → the answer is recorded at the running ref → the sidecar goes. 96.67 % over 60
 > mutants, the two survivors equivalent and documented.
 >
-> ⚠️ **What remains IS prose now, and only prose** — S10-6, the conversation itself, which may promise
-> exactly what `engine-adopt.mjs` does and nothing more. **EN `.claude/skills/update-engine/SKILL.md`
+> ✅ **S10-6a has shipped** _(2026-08-22 · `087d57b` + `160d36e`)_ — **S10-6 split on contact**, as S5c
+> did, and for a reason the plan had missed: S10-5 built the seam as a FUNCTION, and **a skill cannot
+> call a function, only a command**. `scripts/adopt-engine-file.mjs` is that command
+> (`<file> take-theirs|keep-mine|combine --from <path>`), declared in the manifest so it reaches
+> deployed brains. 100 % over 60 mutants, two mutants hand-confirmed.
+>
+> ⚠️ **What remains IS prose now, and only prose** — S10-6b, the conversation itself, which may promise
+> exactly what the command does and nothing more. **EN `.claude/skills/update-engine/SKILL.md`
 > and its `templates/fr/` twin in the SAME commit**, or `locale-drift` goes red. No unit to mutate:
-> the wording review stands in for the gate. Then **S10-QA**, then S9.
+> the wording review stands in for the gate. ⚠️ **Naming the command in the skill will arm a second
+> net**: `engine-manifest-integrity` requires every script a skill names to be carried — it is already
+> declared, so this should stay green; if it does not, that test is right and the manifest is wrong.
+> Then **S10-QA**, then S9.
 >
 > Read § S10-0 and build to it; it cut four slices, **S10-1 → S10-4**. Three corrections it made to the
 > sketch, each measured against the code rather than reasoned about:
@@ -359,9 +368,12 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           Mutation caught a **fleet-scale** defect the one-file fixture could not express: an adoption
           rebuilds the provenance table, so rebuilding it from nothing would wipe the **78 other**
           files' digests and raise the whole fleet at the next update. See `../../mutation/RESULTS.md § S10-5`.
-    - [ ] ▶️ **NEXT: S10-6 — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/`
-          twin **in the same commit**, or `locale-drift` goes red). The engine is done; this may
-          promise exactly what `engine-adopt.mjs` does and nothing more.
+    - [x] **S10-6a — the COMMAND behind the three offers.** _(2026-08-22 · `087d57b` + `160d36e`)_
+          `scripts/adopt-engine-file.mjs`, manifest-declared, 100 % over 60 mutants. **Split out of
+          S10-6 on contact**: a skill cannot call a function, so the prose had nothing to reach.
+    - [ ] ▶️ **NEXT: S10-6b — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/`
+          twin **in the same commit**, or `locale-drift` goes red). The engine AND its command are
+          done; this may promise exactly what they do and nothing more.
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
 - [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
   - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
@@ -1133,7 +1145,13 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
   - 🛑 **What the design did not foresee, and mutation did**: the seam **rebuilds** the provenance
     table, so it can also FORGET it. The one-file fixture made that unreachable; a real brain has 79.
     Fixed in the fixture, not by a guard. Full write-up: `../../mutation/RESULTS.md § S10-5`.
-- [ ] ▶️ **NEXT — S10-6 — bricks 3-5, the conversation** (skill prose, EN **and** its `templates/fr/` twin in
+- [x] **S10-6a — the COMMAND, split out of S10-6 on contact.** _(2026-08-22 · `087d57b` + `160d36e`)_
+      The plan cut S10-6 as prose. It could not be written: the seam is a **function**, the
+      conversation is a **skill**, and a skill can only run a **command**. Writing the prose first
+      would have described a capability nothing could reach — the exact shape of promise this release
+      exists to stop making. `node scripts/adopt-engine-file.mjs <file> take-theirs|keep-mine|combine
+      --from <path>`, manifest-declared, exit `0` applied / `1` refused-and-untouched / `2` bad call.
+- [ ] ▶️ **NEXT — S10-6b — bricks 3-5, the conversation** (skill prose, EN **and** its `templates/fr/` twin in
       the SAME commit, or `locale-drift` goes red): what the person changed and what the new version
       brings, in plain words, **no jargon, no conflict markers, no paths as the headline**; the three
       offers; "combine" read by Claude from both versions when there is no ancestor; and the grouping

@@ -233,6 +233,59 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S10-6a — the command, and 18 survivors that were all the SAME defect — 2026-08-22
+
+`087d57b` then `160d36e`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW file → measured **whole**.
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/adopt-engine-file.mjs` — log
+[`s10-6a-cli`](reports/s10-6a-cli).
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| first pass (`087d57b`) | 62 | 70.97 % | 18 |
+| after the four fixes (`160d36e`) | **60** | **100.00 %** | 0 |
+
+**The mutant count fell by two** and that is the honest direction: `parseFrom` lost its wrapper object,
+so two of its mutants stopped existing rather than being killed. **A mutant you can delete beats a
+mutant you assert.**
+
+### 🛑 THE FINDING: ON A COMMAND, THE SENTENCES *ARE* THE PRODUCT
+
+Seven survivors emptied user-facing prose with nothing going red — the three usage lines that explain
+what each offer **does**, the whole *keep mine* and *combine* confirmations, and the half of the
+no-candidate line carrying the two innocent explanations. The tests asserted that the usage **named**
+the three offers, which the invocation line alone already satisfies.
+
+This file's entire output is sentences. A test suite that lets them all be emptied is measuring the
+control flow of a thing whose job is to speak. Each is now asserted on **what it must say**: that the
+overwritten version was saved, that the engine will stop asking until the next release, that the
+recorded ancestor is the **engine's** version, and that nothing is broken.
+
+### Three more, each a different failure mode
+
+| Survivor | What it actually was |
+|---|---|
+| `at === -1` → `false` / `+1` | **Load-bearing.** Without it `rest[at + 1]` reads `rest[0]`, so a stray argument is promoted to "the combination" and the owner is told a file they never named could not be read. Both spellings exit 2; only one is actionable. |
+| `if (!rel \|\| !decision)` → `false` / `&&` | Missing arguments also reach the unknown-decision branch and exit 2 there — so the **code** cannot tell them apart, but it greets someone who typed nothing with `I do not know the answer "undefined"`. Asserted as **exactly** the usage. |
+| `realDeps().adopt` → `() => undefined` | The wiring was **never exercised**: every other test injects `adopt`, so all of them would pass if the real deps handed the seam an empty object. |
+
+### The end-to-end test failed on its first run, on something true
+
+Closing the `realDeps` hole meant running the command **as a process against a git-backed brain**
+(the § *entry-point seam* rule). It went red immediately: the command resolves the brain it acts on
+from **where the script lives**, not from the working directory — so spawning the launcher's own copy
+against a temp folder would have acted on **the launcher**. The fixture now carries its own
+`scripts/`, as a real brain does. The mutation score bought a fixture that is honest about the
+production layout, which is worth more here than the three points it also bought.
+
+**Confirmed by hand, twice**, per § S7-5-2:
+
+| Mutant applied to the real tree | Result |
+|---|---|
+| the `-1` guard removed (`return rest[at + 1]`) | **1 test red** |
+| the real wiring drops its git runner | **1 test red** |
+
 ## S10-5 — the adoption seam, and the survivor that was a FLEET-SCALE defect — 2026-08-22
 
 `4238e16` then `363db77`. State owned by

@@ -465,6 +465,37 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🗣️ **2026-08-22 (S10-6a) — A PROSE SLICE THAT COULD NOT BE WRITTEN, and 18 survivors that were all
+  the same defect.** `087d57b` then `160d36e`. The plan said *next: the conversation, skill prose, no
+  unit to mutate*. It could not be written: S10-5 built the adoption seam as a **function**, the
+  conversation is a **skill**, and a skill can only run a **command**. Writing the prose first would
+  have described a capability nothing could reach — the exact shape of promise this release exists to
+  stop making. So S10-6 **split on contact**, as S5c did: the command now, the conversation next.
+
+  > **The rule: check what the next slice will REACH FOR, not only what it will say.** A prose slice
+  > reads as the cheapest kind there is, which is precisely why nobody checks whether its verbs have
+  > anything behind them. The tell was available at zero cost — `grep engine-adopt` returned its own
+  > test and nothing else. **A seam whose only consumer is its own test is not wired to anything.**
+
+  Then the measurement, and it was the low score of this release: **70.97 %, 18 survivors**. Seven of
+  them **emptied user-facing sentences** with nothing going red. On a command whose entire output is
+  sentences, that is not a coverage gap, it is the product being untested: the suite asserted that the
+  usage **named** the three offers, which the invocation line alone satisfies, while the three lines
+  explaining what each offer *does* could all become `""`. Three more were a genuinely load-bearing
+  `-1` guard (without it a stray argument is promoted to "the combination"), the bare-usage branch
+  (missing arguments exit 2 either way, but one path greets someone who typed nothing with
+  `I do not know the answer "undefined"`), and the real wiring, **never exercised** because every test
+  injected it. 100 % after, over 60 mutants, two hand-confirmed.
+
+  > **And the end-to-end test failed on its first run, on something true.** Running the command as a
+  > real process (§ the entry-point seam rule) showed it resolves the brain from **where the script
+  > lives**, not the working directory — so spawning the launcher's copy against a temp folder would
+  > have acted on **the launcher**. The fixture now carries its own `scripts/`, as a real brain does.
+  > **What the mutation score bought here was not three points, it was a fixture that is honest about
+  > the production layout.**
+
+  **Next**: S10-6b, the conversation. Now it has something to promise.
+
 - 🔬 **2026-08-22 (S10-5) — THE SURVIVOR WAS UNREACHABLE BECAUSE OF THE FIXTURE, NOT THE CODE, and
   that is a third distinct reading of the same signal.** `4238e16` then `363db77`. The adoption seam
   shipped, green on the first run of a 13-test batch written against the design slice: 60 mutants,
