@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: bricks 3-5 — the CONVERSATION itself (brain-side skill), the half that actually asks
+> ## ▶️ RESUME AT: S10-5 — the adoption seam (engine), then S10-6 for the conversation itself
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -94,9 +94,14 @@
 > row 3 now drops the engine's version beside the owner's, so the three offers have something to offer.
 > ✅ **S10-3 has shipped** _(2026-08-21 · `216d3b6`)_ — **the intermediate state is CLOSED**: the report
 > names the sidecar and offers the three choices in one line, and the session nudge subtracts what the
-> owner has already answered at the running ref. What remains of S10 is **S10-4** (the safety commit
-> before the one destructive offer) and then the brain-side skill content (bricks 3-5), which was cut
-> with S10-3 on purpose: a skill can only speak about a record that exists.
+> owner has already answered at the running ref. **S10-4 has shipped too** (`e7a1952`): a git refusal
+> now VETOES an adoption instead of reporting it.
+>
+> ⚠️ **What remains is NOT just prose.** § S10-5-0 (designed 2026-08-22) measured that *combine*
+> produces bytes no fingerprint table can ever hold, so without an explicit record the same file is
+> raised at **every** release. So the order is **S10-5** (the adoption seam: safety commit → write →
+> base advances to the CANDIDATE → answer recorded → sidecar removed) and only then **S10-6**, the
+> conversation itself — the prose may only promise what exists.
 >
 > Read § S10-0 and build to it; it cut four slices, **S10-1 → S10-4**. Three corrections it made to the
 > sketch, each measured against the code rather than reasoned about:
@@ -343,6 +348,10 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
           _(2026-08-21 · `216d3b6`)_ — the exit from the S10-1 intermediate state.
     - [x] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
           _(2026-08-21 · `e7a1952`)_ — a refused commit VETOES the adoption, it does not report it.
+    - [x] **S10-5-0 — DESIGN: where the three offers land on disk.** _(2026-08-22)_ Cuts S10-5 + S10-6.
+    - [ ] **S10-5 — the adoption seam**: safety commit → write → base advances to the CANDIDATE →
+          answer recorded → sidecar removed. Refuses everything if the safety commit vetoed.
+    - [ ] **S10-6 — bricks 3-5, the conversation** (skill prose, EN + its `templates/fr/` twin).
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
 - [ ] **S9 — the release tail.** _(LAST: after S7, S8 and S10.)_
   - [ ] **S9-1 — the release note.** Owner's tone. **Both** of the old forbidden claims are now in
@@ -1058,6 +1067,62 @@ false alarms to diagnoses written from reading (`f7a00fc`, and the FR-overwrite 
         make the whole moment before the overwrite recoverable.
 - [ ] ⚠️ **Bricks 3-5 (the conversation itself) are brain-side skill content**, not engine code, and
       are cut with S10-3 rather than before it: the skill can only speak about a record that exists.
+
+### 🎨 S10-5-0 — DESIGN: where the three offers LAND ON DISK _(2026-08-22, design slice — no code)_
+
+**Why this slice is a design and not the prose.** Bricks 3-5 are skill wording, and the wording was
+about to promise something the engine cannot yet record. Writing *"I'll combine the two"* is easy;
+what happens to the **ancestor** afterwards decides whether the same question comes back at every
+release forever. `S7-0`'s trap, one more time, and this is where it gets answered rather than met.
+
+- [x] 📐 **MEASURED FIRST, not reasoned from reading** _(2026-08-22)_ — the night's standing lesson.
+      The v5.0.0 bytes of merge-governed files **are** present in `scripts/lib/engine-fingerprints.json`
+      (checked on `CLAUDE.md` and `CLAUDE.engine.md`, EOL-normalised sha256, found). That single fact
+      is what separates the three offers below, and it was one command rather than a paragraph of
+      plausible reasoning.
+- [x] 🎯 **The rule, one line, and it covers all three offers**: **the disk takes what the OWNER
+      chose; the base advances to the CANDIDATE only when the owner accepted the candidate's content.**
+
+| Offer | What lands on disk | The base (`.engine-base/`) | Why |
+|---|---|---|---|
+| **keep mine** | nothing — their file stands | **must NOT advance** | Recording the candidate as the ancestor of a file they refused would make the next merge treat v5's text as the agreed common origin, and silently fold it in. That is the S7-0 trap **inverted**, and it is worse than the freeze it replaces. |
+| **take the new one** | the candidate | advances to the candidate | Their bytes become a published byte-state. |
+| **combine** | the combination | advances to the **candidate**, never to the combination | `engine-merge-apply.mjs`'s own rule for row 8, word for word: recording the merged file as the ancestor would make it read *untouched* at the next update. |
+
+- [x] 🕳️ **THE GAP THE MEASUREMENT FOUND, and it only bites ONE of the three.** *Take the new one*
+      needs no new engine seam at all: the adopted bytes are a published byte-state, so **S7's heal
+      recognises them at the next update** and records the base by itself. **Combine does not** — a
+      combination is in no table, ever, so without an explicit record it stays unprovable and the
+      **same file is raised again at every release**. The answers file hides the nag for one version;
+      it does not fix the cause.
+- [x] ⚖️ **Decision: adoption records the ancestor ITSELF, for both writing offers, rather than
+      leaning on the heal for one and inventing something else for the other.** Two reasons. (1) One
+      rule beats two: *"the base advances to the candidate"* is already written for row 8, and a
+      second path that reaches the same state a cycle later, by a different mechanism, is a divergence
+      waiting to happen. (2) Leaning on the heal leaves a **visible wart** — until the next update the
+      report still calls an adopted file *held back*, which is a surface saying the opposite of what
+      the owner just did.
+- [x] 🧹 **Adoption removes the sidecar.** A `.new` is a promise that a newer version awaits; once the
+      choice is made it is a claim about a decision already taken. (The engine also replaces a stale
+      one at the next update — S10-1 — but that is a repair, not a reason to leave litter.)
+- [x] 🚦 **The safety commit (S10-4) gates the two WRITING offers only.** *Keep mine* writes nothing to
+      the file, so there is nothing to lose and nothing to earn.
+
+**The slices this cuts** — two, in this order, because the prose may only promise what exists:
+
+- [ ] **S10-5 — the adoption seam** (engine code): one function that takes a `rel` and a decision,
+      runs the safety commit, writes the chosen bytes, **advances the base to the candidate**, records
+      the answer, and removes the sidecar. Refuses to do any of it if `safetyCommit` says
+      `proceed: false`. `syncBaseTree({ deliveredFileMap })` is the existing mechanism — this is
+      wiring, not a new concept.
+- [ ] **S10-6 — bricks 3-5, the conversation** (skill prose, EN **and** its `templates/fr/` twin in
+      the SAME commit, or `locale-drift` goes red): what the person changed and what the new version
+      brings, in plain words, **no jargon, no conflict markers, no paths as the headline**; the three
+      offers; "combine" read by Claude from both versions when there is no ancestor; and the grouping
+      that keeps twelve files from becoming twelve questions.
+  - ⚠️ **No unit to mutate**: this slice is prose. What stands in for the mutation gate is the
+    wording review (`CONVENTIONS.md` §10-11 register rules), plus the structural tests the skill
+    already has (manifest regime, drift pair).
 
   > 📎 **THE SKETCH BELOW IS THE INPUT, NOT THE PLAN.** It is what the conversation produced, kept
   > because § S10-0 above is a set of corrections and a correction is unreadable without what it
