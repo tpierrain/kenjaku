@@ -20,7 +20,7 @@
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { baseRelPath, planBaseAdvance, planBaseSeed } from "./engine-base.mjs";
+import { baseRelPath, isSidecarRel, planBaseAdvance, planBaseSeed } from "./engine-base.mjs";
 import { engineDivergence } from "./engine-divergence.mjs";
 import { globRoots } from "./glob-match.mjs";
 import { recordSourceAndProvenance, selectMergeFiles } from "./engine-source.mjs";
@@ -62,7 +62,14 @@ export function writeBaseEntries({ brainDir, entries }) {
 // unchanged by construction (every path a glob matches is under that glob's own static
 // prefix) and by test — the equivalence is pinned against a full walk on a real disk.
 export function readInstalledMergeFiles({ brainDir, manifest }) {
-  const rels = selectMergeFiles(manifest, listFilesUnderRoots(brainDir, globRoots(manifest?.regimes?.merge ?? [])));
+  // 🛑 Sidecars are filtered BEFORE the glob decides, because the glob cannot tell them
+  // apart: `.claude/skills/**` matches `SKILL.md.new` exactly as well as `SKILL.md`
+  // (S10-QA, on the real v3.6.0 tree). A sidecar is the engine's own offer, loaded by
+  // nothing — counting it makes the brain claim to hold back a file it has never held.
+  const onDisk = listFilesUnderRoots(brainDir, globRoots(manifest?.regimes?.merge ?? [])).filter(
+    (rel) => !isSidecarRel(rel),
+  );
+  const rels = selectMergeFiles(manifest, onDisk);
   return Object.fromEntries(rels.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]));
 }
 

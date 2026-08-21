@@ -30,6 +30,7 @@ import { join } from "node:path";
 import { readAnswers, recordAnswer, writeAnswers } from "./engine-answers.mjs";
 import { safetyCommit } from "./engine-commit.mjs";
 import { syncBaseTree } from "./engine-base-fs.mjs";
+import { sidecarPath } from "./engine-base.mjs";
 import { reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
 import { installRef } from "./engine-version.mjs";
 
@@ -55,17 +56,41 @@ export function planAdoption({ decision, candidate, combined }) {
   throw new Error(`unknown adoption decision: ${decision}`);
 }
 
+// 🛑 TWO DIFFERENT FILES WEAR THE `.new` SUFFIX, and S10-QA is what found it — on the
+// real v3.6.0 tree, not by reasoning. A `preserve` drops the engine's CLEAN version
+// there (rows 3 and 7). A CONFLICT drops a three-way merge carrying markers (row 9).
+// And S7-5 made conflicts common exactly where S10 looks: a file edited before the
+// release now has a FETCHABLE ancestor, so it reaches the merge path instead of being
+// preserved — which is what the QA's own fixture turned out to do.
+//
+// Taking one blind would paste `<<<<<<<` into the live file and, worse, record the
+// markers as the file's new ANCESTOR, so every later merge would diff against a corpse.
+// A conflict has its own door in the report (the walkthrough offer); this refuses to be
+// a second, silent one.
+//
+// Both markers are required, at line start: the opening alone would refuse a file that
+// merely quotes one, and this seam must never block a legitimate adoption to feel safe.
+const isMarkedMerge = (content) => /^<<<<<<</m.test(content) && /^>>>>>>>/m.test(content);
+
 // `{ adopted: true }`, or `{ adopted: false, blocked: <reason> }`. Every blocked reason
 // leaves the brain EXACTLY as it was — file, sidecar, base, manifest and answers — so a
 // caller that only checks `adopted` can never be halfway.
 export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
-  const sidecarPath = join(brainDir, `${rel}.new`);
+  const sidecar = join(brainDir, sidecarPath(rel));
   // No sidecar, no offer. This is reachable in ordinary life: the owner asks about a
   // file whose engine version has already been adopted, or whose update never ran here.
-  if (!existsSync(sidecarPath)) return { adopted: false, blocked: "no-candidate" };
-  const candidate = readFileSync(sidecarPath, "utf8");
+  if (!existsSync(sidecar)) return { adopted: false, blocked: "no-candidate" };
+  const candidate = readFileSync(sidecar, "utf8");
 
   const { write, deliver } = planAdoption({ decision, candidate, combined });
+
+  // Gated on the PLAN, not on the decision: what makes a marked merge dangerous is that
+  // its bytes get used, either written to the file or recorded as the ancestor. "Keep
+  // mine" does neither, and refusing it would trap the owner — declining is the one
+  // answer that is always safe, and it is precisely what they are declining.
+  if ((write !== undefined || deliver !== undefined) && isMarkedMerge(candidate)) {
+    return { adopted: false, blocked: "marked-candidate" };
+  }
 
   if (write !== undefined) {
     // S10-4. The owner's current bytes go into history first, or this does not happen.
@@ -80,7 +105,7 @@ export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
   // A sidecar is an OPEN OFFER. Once a choice is made — including "keep mine" — leaving
   // it there is a claim about a decision already taken. (The engine also replaces a
   // stale one at the next update, S10-1, but that is a repair, not a licence to litter.)
-  rmSync(sidecarPath);
+  rmSync(sidecar);
 
   const manifestPath = join(brainDir, "engine-manifest.json");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));

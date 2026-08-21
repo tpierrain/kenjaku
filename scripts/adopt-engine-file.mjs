@@ -42,10 +42,29 @@ export const USAGE =
 // The one blocked outcome with no sentence in `engine-commit.mjs`: that map covers
 // the safety commit's refusals, and this is not one. It is not an error either —
 // it is what the owner hears when the offer was already taken, or never made here.
+// A conflict's sidecar is a three-way merge carrying markers, not the engine's clean
+// version (S10-QA). Two things this sentence must do: NOT say "nothing to adopt", which
+// was where an unknown reason used to fall through, and name the offer that does work —
+// combining, because the person writing it reads both sides instead of copying one.
+const MARKED_CANDIDATE_LINE = (rel) =>
+  `I left ${rel} exactly as it is: your version and the engine's changed the same lines,` +
+  ` so what is waiting beside it is a marked-up merge of both, not a version anyone should` +
+  ` install as-is. Ask me to combine the two and I'll write the merged version with you.`;
+
 const NO_CANDIDATE_LINE = (rel) =>
   `There is no newer version waiting beside ${rel}, so there is nothing to adopt —` +
   ` your file stands exactly as it is. Either this choice was already made, or this` +
   ` brain never received an engine version of that file to compare against.`;
+
+// One sentence per blocked reason, and NO fallback on purpose. A `??` stood here and
+// quietly handed every unknown reason the no-candidate sentence — so the day the seam
+// learned a fourth refusal, the owner was told "there is no newer version waiting" about
+// a file that had one. A missing key must be a crash in a test, not a lie in production.
+const BLOCKED_LINE = {
+  ...ADOPTION_BLOCKED_LINE,
+  "no-candidate": NO_CANDIDATE_LINE,
+  "marked-candidate": MARKED_CANDIDATE_LINE,
+};
 
 const APPLIED_LINE = {
   "take-theirs": (rel) =>
@@ -114,7 +133,7 @@ export function runAdoptEngineFile(argv, deps = realDeps()) {
     deps.log(APPLIED_LINE[decision](rel));
     return 0;
   }
-  deps.error((ADOPTION_BLOCKED_LINE[blocked] ?? NO_CANDIDATE_LINE)(rel));
+  deps.error(BLOCKED_LINE[blocked](rel));
   return 1;
 }
 

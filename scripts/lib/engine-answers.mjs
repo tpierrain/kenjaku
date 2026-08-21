@@ -52,15 +52,35 @@ export function parseAnswers(content) {
   return Object.fromEntries(Object.entries(parsed).filter(([, entry]) => isEntry(entry)));
 }
 
+// 🛑 THE STAMP FOR A BRAIN THAT CANNOT NAME ITS ENGINE VERSION — found by S10-QA on the
+// real `v3.6.0` tree, whose manifest carries no `source` at all. That is not an edge
+// case: it is what the pre-v4 fleet looks like, and it is the cohort this release is for.
+//
+// Without it, `recordAnswer` wrote `"at": null`, which `isEntry` above correctly refuses
+// on the way back in — so the answer was SAVED AND SILENTLY LOST, and the owner would
+// have been asked the same question at every session forever. That is brick 5's consent
+// fatigue, manufactured by the very file that exists to prevent it.
+//
+// It is a SENTENCE, not `null` and not `""`, for two reasons: this file is meant to be
+// opened by a human, and the reader's refusal of `""`/missing must stay intact, because
+// those are corruption. "This brain cannot name its version" is a state, not corruption,
+// and a state deserves a stamp that reads back. No tag can ever collide with it.
+export const UNKNOWN_REF = "engine-version-unknown";
+
+// The ONE place null/"" becomes that stamp. Both the writer and the reader route through
+// it, so a caller cannot open a second "unknown" era by passing the other spelling — and
+// so the rule can never be half-applied on one side of the comparison.
+const stampOf = (ref) => (typeof ref === "string" && ref !== "" ? ref : UNKNOWN_REF);
+
 export function isAnswered({ answers, rel, ref }) {
-  return answers[rel]?.at === ref;
+  return answers[rel]?.at === stampOf(ref);
 }
 
 // Returns a NEW map. The caller reads once and writes once, and a function that edited
 // its argument in place would make "what was on disk" and "what we are about to write"
 // the same object — which is the one difference worth having when this goes wrong.
 export function recordAnswer({ answers, rel, decision, ref }) {
-  return { ...answers, [rel]: { decision, at: ref } };
+  return { ...answers, [rel]: { decision, at: stampOf(ref) } };
 }
 
 // Order is the caller's, deliberately: the report and the nudge each sort for their own

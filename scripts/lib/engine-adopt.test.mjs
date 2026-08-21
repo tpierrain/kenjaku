@@ -206,6 +206,69 @@ test("adoptCandidate — a VETOED safety commit stops everything, and records NO
   assert.equal(existsSync(join(dir, ".engine-base")), false);
 });
 
+// ── the sidecar that is NOT a candidate (found by S10-QA on the v3.6.0 tree) ──────
+//
+// 🛑 TWO DIFFERENT FILES WEAR THE `.new` SUFFIX, and this seam was built knowing only
+// one of them. A `preserve` drops the engine's clean version there (row 3, row 7). A
+// CONFLICT drops a three-way merge carrying `<<<<<<<` / `||||||| engine base` /
+// `>>>>>>>` markers (row 9) — and S7-5 made conflicts common exactly where S10 looks,
+// because a file edited before the release now has a fetchable ancestor and therefore
+// reaches the merge path instead of being preserved.
+//
+// Adopting one blind would paste conflict markers into the live file AND record them
+// as the file's new ANCESTOR, so every later merge would diff against a corpse.
+
+const MARKED = `# Coach
+<<<<<<< your version
+my own words
+||||||| engine base
+what the engine shipped last time
+=======
+the engine's newer words
+>>>>>>> the engine's new version
+`;
+
+test("adoptCandidate — a MARKED merge is never taken blind, and the file is untouched", (t) => {
+  const dir = brain(t);
+  writeFileSync(join(dir, `${REL}.new`), MARKED);
+
+  const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
+
+  assert.deepEqual(result, { adopted: false, blocked: "marked-candidate" });
+  assert.equal(read(dir, REL), OWNER, "their file must not gain a single marker");
+  assert.equal(read(dir, `${REL}.new`), MARKED, "and the marked merge still stands, for the walkthrough");
+  assert.deepEqual(readAnswers({ brainDir: dir }), {}, "nothing was decided, so nothing is remembered");
+  assert.equal(existsSync(join(dir, ".engine-base")), false, "🛑 and it is NOT recorded as the ancestor");
+});
+
+test("adoptCandidate — COMBINE is refused on a marked merge too, because the ANCESTOR would be the markers", (t) => {
+  // The near-miss worth its own test: `combine` writes Claude's own bytes, so the live
+  // file would be fine — and the base would still take the CANDIDATE, i.e. the markers.
+  const dir = brain(t);
+  writeFileSync(join(dir, `${REL}.new`), MARKED);
+
+  const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "combine", combined: COMBINED, git: cleanGit });
+
+  assert.deepEqual(result, { adopted: false, blocked: "marked-candidate" });
+  assert.equal(read(dir, REL), OWNER);
+  assert.equal(existsSync(join(dir, ".engine-base")), false);
+});
+
+test("adoptCandidate — KEEP MINE is still allowed on a marked merge: it neither writes nor delivers", (t) => {
+  // Refusing this one would trap the owner: their answer is "leave it alone", which is
+  // the one thing that is always safe, and the marked merge is exactly what they are
+  // declining. Blocking it would keep re-raising a question they already settled.
+  const dir = brain(t);
+  writeFileSync(join(dir, `${REL}.new`), MARKED);
+
+  const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "keep-mine", git: cleanGit });
+
+  assert.deepEqual(result, { adopted: true });
+  assert.equal(read(dir, REL), OWNER);
+  assert.equal(existsSync(join(dir, `${REL}.new`)), false, "the offer was declined, so it stops standing");
+  assert.equal(existsSync(join(dir, ".engine-base")), false, "and a declined version is never an ancestor");
+});
+
 test("adoptCandidate — no sidecar means there is nothing to adopt, and it says so", (t) => {
   const dir = brain(t);
   rmSync(join(dir, `${REL}.new`));

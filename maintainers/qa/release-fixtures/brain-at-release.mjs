@@ -20,7 +20,7 @@ import { defaultGit } from "../../../scripts/lib/engine-fetch.mjs";
 import { reconcileBrain } from "../../../scripts/lib/reconcile-brain.mjs";
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
-import { fingerprint } from "../../../scripts/lib/engine-source.mjs";
+import { fingerprint, reseedBaseRefs, reseedProvenance } from "../../../scripts/lib/engine-source.mjs";
 
 export const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 export const FIXTURES = join(REPO, "maintainers", "qa", "release-fixtures");
@@ -66,6 +66,10 @@ export function brainAtRelease(tag, { edits = {}, locale } = {}) {
   const provenance = {};
   for (const rel of skillFilesOf(tag)) provenance[rel] = fingerprint(readBrain(brainDir, rel));
   manifest.provenance = provenance;
+  // On the DISK too, not only in the object handed back: an installer writes what it
+  // recorded, and everything that reads the brain back (the standing divergence report,
+  // an adoption) reads this file rather than the caller's copy.
+  writeFile(brainDir, "engine-manifest.json", `${JSON.stringify(manifest, null, 2)}\n`);
   // The sacred trio, so the QA also observes that a refresh leaves them alone.
   writeFile(brainDir, "CLAUDE.md", "# My constitution\nI tailored this.\n");
   writeFile(brainDir, ".env", "GOOGLE_GEMINI_API_KEY=secret\n");
@@ -104,10 +108,48 @@ export function seams() {
   };
 }
 
+// 🛑 THE HALF THE RECONCILER DOES NOT DO, and S10-QA is what needed it. `reconcileBrain`
+// converges FILES and never writes the manifest: on the real update path that write is
+// step 7 of `update-engine.mjs` (and the auto-finalize child after it). A fixture that
+// stops at the reconcile leaves the brain carrying its INSTALL-DAY manifest — empty
+// provenance, no `baseRefs` — a state no brain is ever in after a real update. Every
+// suite that only reads the report never noticed; the moment a suite reads the brain
+// BACK (the adoption QA asks what the brain still holds back, then answers it), the
+// fixture would have been measuring a fiction.
+//
+// Mirrored on step 7 line for line, including what it does NOT advance: `regimes` come
+// from `local`, so a brain keeps its install-day regime list forever. That is a real
+// engine behaviour (`session-self-heal.mjs` calls it out: "update-engine never refreshes
+// those"), and reproducing it is the point — a fixture that quietly advanced the regimes
+// would make the QA green about a fleet that is not.
+function finalizeManifest({ brainDir, target, local, report }) {
+  const deliveredFileMap = { ...report.installedFileMap, ...report.refreshedFileMap };
+  const updated = {
+    ...local,
+    engineVersion: target.engineVersion,
+    indexSchemaVersion: target.indexSchemaVersion,
+    provenance: reseedProvenance({
+      priorProvenance: report.healedProvenance ?? local.provenance ?? {},
+      manifest: target,
+      deliveredFileMap,
+    }),
+    baseRefs: reseedBaseRefs({
+      priorBaseRefs: { ...report.healedBaseRefs, ...(local.baseRefs ?? {}) },
+      manifest: target,
+      deliveredFileMap,
+      ref: local.source?.ref,
+    }),
+  };
+  writeFile(brainDir, "engine-manifest.json", `${JSON.stringify(updated, null, 2)}\n`);
+}
+
 // One real update: the repository at HEAD is the fetched source (`sourceDir !== brainDir`,
-// i.e. the auto-finalize child of an explicitly-requested update).
+// i.e. the auto-finalize child of an explicitly-requested update) — then the manifest
+// write that always follows it in the field.
 export async function updateFrom(brainDir, local) {
   const { calls, ...s } = seams();
   const target = JSON.parse(readRepo("engine-manifest.json"));
-  return reconcileBrain({ brainDir, platform: "posix", sourceDir: REPO, target, local, ...s });
+  const report = await reconcileBrain({ brainDir, platform: "posix", sourceDir: REPO, target, local, ...s });
+  finalizeManifest({ brainDir, target, local, report });
+  return report;
 }

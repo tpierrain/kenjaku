@@ -17,7 +17,7 @@ import { dirname, join, resolve } from "node:path";
 
 // WHERE the ancestor lives. The proof itself, and every question asked of it,
 // belong to `engine-merge.mjs`.
-import { baseRelPath } from "./engine-base.mjs";
+import { baseRelPath, sidecarPath } from "./engine-base.mjs";
 import { mergeVerdict } from "./engine-merge.mjs";
 import { mergeWithGit } from "./engine-merge-git.mjs";
 import { resolveLocaleSource } from "./engine-copy-select.mjs";
@@ -112,7 +112,7 @@ export function applyMergeGoverned({
     // Cleared UNCONDITIONALLY, and the branches below re-drop it where it is still true:
     // guarding this on the verdict would be redundant with that write (rm-then-write and
     // write-alone leave the same bytes), i.e. a condition no test could tell apart.
-    rmSync(`${installedPath}.new`, { force: true });
+    rmSync(sidecarPath(installedPath), { force: true });
 
     // ONE place decides whether bytes reach the disk, and it is byte equality: a merge
     // whose result is what was already installed must not churn the auto-commit history
@@ -139,7 +139,7 @@ export function applyMergeGoverned({
     // made it noise; a question makes it the choice. What the old rule was right about
     // survives one row up: a brain already holding the candidate exits at
     // `unchanged/no-base` and is still offered nothing.
-    if (sidecar !== undefined) writeFileSync(`${installedPath}.new`, sidecar);
+    if (sidecar !== undefined) writeFileSync(sidecarPath(installedPath), sidecar);
 
     // `absent-install` reports down the SAME path as `refresh`: install-if-absent decides
     // one level up (at the skill DIR, `reconcile-brain.mjs` step 2.bis), so a file a
@@ -150,9 +150,9 @@ export function applyMergeGoverned({
     } else if (verdict === "merge") {
       nameOnce(merged, name);
     } else if (verdict === "conflict") {
-      noteOnce(conflicts, { name, newVersionPath: `${rel}.new` });
+      noteOnce(conflicts, { name, newVersionPath: sidecarPath(rel) });
     } else if (verdict === "preserve") {
-      noteOnce(preserved, sidecar === undefined ? { name, reason } : { name, reason, newVersionPath: `${rel}.new` });
+      noteOnce(preserved, sidecar === undefined ? { name, reason } : { name, reason, newVersionPath: sidecarPath(rel) });
     }
   }
   return report;

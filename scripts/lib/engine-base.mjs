@@ -31,6 +31,25 @@ export function baseRelPath(rel) {
   return BASE_PREFIX + rel;
 }
 
+// The OTHER file the engine derives from a rel: the version it is offering, dropped
+// beside the owner's. Named here, beside `baseRelPath`, for the same reason and by the
+// same rule — it was spelled inline in four places, and S10-QA found what that costs:
+// a `merge` glob matches `SKILL.md.new` as happily as `SKILL.md`, so every sidecar was
+// counted as an engine file the brain was "holding back", and the session nudge named,
+// to the owner, a file the engine itself had just created.
+//
+// So the suffix and the question "is this rel a sidecar?" now have exactly one home,
+// and no reader has to trust that four string literals still agree.
+export const SIDECAR_SUFFIX = ".new";
+
+export function sidecarPath(rel) {
+  return rel + SIDECAR_SUFFIX;
+}
+
+export function isSidecarRel(rel) {
+  return rel.endsWith(SIDECAR_SUFFIX);
+}
+
 // Line endings are not authorship. This tree is engine-written and never hand-edited,
 // but a brain cloned on Windows can have it rewritten LF→CRLF by git itself, and the
 // recorded sha was taken on the LF bytes the engine delivered — so a normalized match

@@ -140,6 +140,64 @@ test("an entry with no version is NOT an answer, and it does not poison its sibl
   assert.equal(isAnswered({ answers: parsed, rel: REL, ref: "v5.0.0" }), false);
 });
 
+// ── the brain that cannot name its own engine version (found by S10-QA) ──────────
+//
+// 🛑 FOUND ON A REAL TAG, NOT REASONED ABOUT: the `v3.6.0` manifest carries no
+// `source` at all, so `installRef` answers `null` — and that is not an edge case, it
+// is what the pre-v4 fleet looks like. Recording an answer at a null version wrote
+// `"at": null` to disk, which the reader above correctly refuses. The answer was
+// therefore SAVED AND SILENTLY LOST, and the owner would have been asked the same
+// question at every session, forever: brick 5's consent fatigue, produced by the very
+// file that exists to prevent it.
+//
+// The fix is at the WRITE boundary, never at the read one: the guards above must keep
+// refusing `at: ""` and a missing `at`, because those are corruption. "This brain
+// cannot name its version" is not corruption — it is a state, and a state deserves a
+// stamp that can be read back.
+
+test("a brain that cannot name its engine version can still REMEMBER an answer", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-answers-"));
+  try {
+    const answers = recordAnswer({ answers: {}, rel: REL, decision: "keep-mine", ref: null });
+    writeAnswers({ brainDir, answers });
+
+    const back = readAnswers({ brainDir });
+
+    assert.equal(isAnswered({ answers: back, rel: REL, ref: null }), true, "or it is asked again at every session");
+    assert.deepEqual(unansweredRels({ rels: [REL], answers: back, ref: null }), []);
+  } finally {
+    rmSync(brainDir, { recursive: true, force: true });
+  }
+});
+
+test("and the stamp SAYS SO, rather than being a null nobody can read back", () => {
+  // The file is meant to be opened by a human. `null` there reads as a bug; a sentence
+  // reads as the fact it is. And it can never collide with a real tag.
+  const answers = recordAnswer({ answers: {}, rel: REL, decision: "keep-mine", ref: null });
+
+  assert.equal(answers[REL].at, "engine-version-unknown");
+  assert.deepEqual(parseAnswers(JSON.stringify(answers)), answers, "and it survives its own round trip");
+});
+
+test("the moment the brain LEARNS its version, the question re-opens", () => {
+  // Learning a version IS the engine moving, as far as this file can tell — so the
+  // offer is worth making again, exactly once. The alternative, treating an unknown
+  // version as matching everything, would silence a real release.
+  const answers = recordAnswer({ answers: {}, rel: REL, decision: "keep-mine", ref: null });
+
+  assert.equal(isAnswered({ answers, rel: REL, ref: "v5.0.0" }), false);
+  assert.deepEqual(unansweredRels({ rels: [REL], answers, ref: "v5.0.0" }), [REL]);
+});
+
+test("an EMPTY ref is treated as no version at all, not as its own era", () => {
+  // Triangulates the normalization: `null` and `""` are the same fact, and a caller
+  // must not be able to open a second "unknown" era by passing the other spelling.
+  const answers = recordAnswer({ answers: {}, rel: REL, decision: "keep-mine", ref: "" });
+
+  assert.equal(answers[REL].at, "engine-version-unknown");
+  assert.equal(isAnswered({ answers, rel: REL, ref: null }), true);
+});
+
 test("readAnswers on a brain that has never answered anything returns no answers", () => {
   const brainDir = mkdtempSync(join(tmpdir(), "sbg-answers-"));
   try {

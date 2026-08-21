@@ -133,6 +133,25 @@ test("readInstalledMergeFiles — returns the brain's `merge` files with their e
   });
 });
 
+test("readInstalledMergeFiles — a `.new` SIDECAR is not a file this brain holds (found by S10-QA)", (t) => {
+  // 🛑 MEASURED ON THE REAL v3.6.0 TREE, not imagined: a glob like `.claude/skills/**`
+  // matches `SKILL.md.new` just as happily as `SKILL.md`. So every sidecar the engine
+  // drops becomes a PHANTOM engine file the brain is "holding back" — it inflates the
+  // divergence count and the session nudge names, to the owner, a file the engine itself
+  // just created and that they have never seen.
+  //
+  // The sidecar is the engine's own scratch: it is loaded by nothing, it is not a file
+  // the brain holds, and it must never be a candidate for a base either.
+  const dir = brain(t, {
+    ".claude/skills/coach/SKILL.md": "# coach, theirs\n",
+    ".claude/skills/coach/SKILL.md.new": "# coach, the engine's newer version\n",
+  });
+
+  assert.deepEqual(readInstalledMergeFiles({ brainDir: dir, manifest: MANIFEST }), {
+    ".claude/skills/coach/SKILL.md": "# coach, theirs\n",
+  });
+});
+
 test("readInstalledMergeFiles — the ROOTED walk returns EXACTLY what walking the whole brain returned (S4-4c)", (t) => {
   // The contract this optimization may not change by one entry. The old shape walked
   // brainDir and filtered; the new one starts from the merge globs' static prefixes.

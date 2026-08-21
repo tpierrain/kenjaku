@@ -190,8 +190,22 @@ test("no offer left to take is exit 1 and says so plainly — not a crash, not a
   assert.match(said(calls), /never received an engine version/i);
 });
 
+test("a MARKED merge gets its own sentence, and is never called 'nothing to adopt'", () => {
+  // 🛑 The near-miss: the reason map only knew three keys, and an unknown one fell
+  // through to the no-candidate sentence — which would tell the owner there is no newer
+  // version waiting, while a marked-up merge sits right there needing a walkthrough.
+  // Wrong, confidently, in the one place they cannot check.
+  const { deps, calls } = harness({ adopt: () => ({ adopted: false, blocked: "marked-candidate" }) });
+
+  assert.equal(runAdoptEngineFile([REL, "take-theirs"], deps), 1);
+
+  assert.doesNotMatch(said(calls), /no newer version/i);
+  assert.match(said(calls), /same lines|clash|both versions/i, "it must say WHY, in plain words");
+  assert.match(said(calls), /combine/i, "and point at the offer that does work here");
+});
+
 test("every blocked outcome says the brain was left ALONE — that is the reassurance", () => {
-  for (const blocked of ["refused", "conflicted", "no-candidate"]) {
+  for (const blocked of ["refused", "conflicted", "no-candidate", "marked-candidate"]) {
     const { deps, calls } = harness({ adopt: () => ({ adopted: false, blocked }) });
     runAdoptEngineFile([REL, "take-theirs"], deps);
     assert.match(said(calls), /left|stands|unchanged/i, `"${blocked}" must reassure, not just refuse`);
