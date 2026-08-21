@@ -248,14 +248,18 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S5c — the delivery becomes real** _(2026-08-21)_: wire the doctrine family into
-> `reconcile-brain.mjs` beside the scripts', surface its report, add **the** manifest line, and flip
-> `engine-apply-plan.test.mjs`'s deliberate lock with its comment **rewritten** (and its Gate 3 → Gate 4
-> error fixed, :226 and :231). **WRITE PATH → mutation is mandatory.** ⚠️ The lock test is the one that
-> goes red the moment the manifest line lands, and that is the slice working, not a regression.
-> **S5a and S5b are done** (`a51df22`, 91.07 %, all survivors provable equivalents · `74c273d`, 100 %):
-> the write allowlist has a third merge family, `mergeDoctrine`, `planTouches` counts it, and
-> `engine-doctrine-refresh.mjs` can carry the file. Nothing delivers it yet — by design, that is S5c.
+> **▶️ RESUME AT: S2c — the scrub reformulated, ADR 0012 amended** _(2026-08-21)_, then **S2d** (the
+> conflict report names its door: *"N things clash, ask me and I'll walk you through them"*, one
+> sentence), then **S6**. Both are specified in their own blocks below; S2c's decision was taken by
+> the owner and is in the dated box at the top of this plan — **the engine MAY write `CLAUDE.md`,
+> through the merge door only, never on a conflict**. Nothing about it needs re-deciding.
+>
+> ✅ **S5 IS COMPLETE** — `a51df22` (allowlist, 91.07 %), `74c273d` (family, 100 %), `4340240` (wiring
+> + report), `b3aefa3` (**the manifest line and the lock**). The doctrine layer is declared, delivered,
+> reported, and a FR brain gets the FR file. ⚠️ **Read the finding before writing the release note**:
+> S5 unfreezes **no already-deployed brain** — with no provenance there is no ancestor, so the file is
+> *reported*, not delivered, until the ancestor machine lands. New installs are correct from day one,
+> and old brains stop being **silent**. That is the true claim; "the freeze is over" is not.
 > ⚠️ **S5's design box was WRONG and is corrected in place** — "one manifest line" delivers **nothing**,
 > because `computeApplyPlan` splits `merge` by shape and the doctrine layer is neither a script nor a
 > skill. S5 is therefore **three slices**, listed at the end of the S5 block; the manifest line comes
@@ -1662,9 +1666,9 @@ audible divergence.
             appears on **no list at all** (or every future update shows a phantom forever); and a **FR
             brain receives `templates/fr/CLAUDE.engine.md`** from one manifest entry — the Gate-1 lock's
             condition is now a passing test rather than a reading of the code.
-    - [ ] **S5c — the delivery becomes real.** Split in two on contact _(2026-08-21)_, because the
+    - [x] **S5c — the delivery becomes real.** ✅ _(2026-08-21)_ Split in two on contact, because the
           report surface turned out to be four call sites in `update-engine.mjs` and not one:
-      - [ ] **S5c-1 — the wiring and the report.** `reconcile-brain.mjs` calls the family beside the
+      - [x] **S5c-1 — the wiring and the report.** ✅ _(`4340240`)_ `reconcile-brain.mjs` calls the family beside the
             scripts and folds its delivered map into the ONE map that re-seeds provenance; the four
             lists travel to `formatReport`, which folds them into the **"file"** family — same noun as
             a script, because a constitution is also a path the owner opens, and a third noun for one
@@ -1679,18 +1683,25 @@ audible divergence.
               already names the constitution as a future client. **Every deployed brain will emit that
               line for this file at every update**, so it had to be the true sentence, not the
               flattering one.
-      - [ ] **S5c-2 — the delivery goes live**: **the** manifest line, and the lock flipped with its
-            comment **rewritten** (and Gate 3 → Gate 4, :226 and :231). ⚠️ The lock test goes **red**
-            the moment the line lands — that is the slice working.
+      - [x] **S5c-2 — the delivery goes live.** ✅ _(`b3aefa3`)_ The manifest line, and the lock flipped
+            with its comment **rewritten** (and Gate 3 → Gate 4). It went red on the rewrite and green
+            on the line, in that order. **Nothing else in the suite broke** (2 089 passing before and
+            after), which is the evidence no other carrier had quietly come to depend on this file
+            being in no regime at all.
         - [x] ✅ **The installer needs NO change, verified**: `recordSourceAndProvenance` builds
               provenance over `selectMergeFiles(manifest, <files in the brain>)`, so the one manifest
               line makes a fresh install record the file's fingerprint AND seed `.engine-base/` for it.
               A FR brain fingerprints the FR bytes it actually received. And nothing else delivers the
               file today — `copyGlobs` is `plan.overwrite` alone — so there is no double delivery.
-      - [ ] 📊 **Mutation, decided in writing rather than by reflex**: ONE pass at the END of S5c, on
-            `reconcile-brain.mjs` and `update-engine.mjs`. Both are on the WRITE PATH, so the rule's
-            "large file changed by a few lines → skip" does **not** license a skip here; but measuring
-            twice would re-judge ~470 mutants of untouched code for nothing.
+      - [x] 📊 **Mutation, decided in writing rather than by reflex** ✅ _(2026-08-21)_: ONE pass at the
+            END of S5c, on `reconcile-brain.mjs` (**96.30 %**) and `update-engine.mjs` (**99.41 %**).
+            Both are on the WRITE PATH, so the rule's "large file changed by a few lines → skip" does
+            **not** license a skip here; but measuring after each half would have re-judged ~470 mutants
+            of untouched code for nothing. **No survivor is in the new lines.** The reconciler's score
+            went DOWN (96.74 → 96.30) and it is not a regression: six survivors are the previous run's,
+            line-shifted, and the extra one is `readFileSync(p, "")` — which does **not** throw, it
+            returns a Buffer `JSON.parse` coerces, so the whole shape is a provable equivalent and the
+            one that used to die was dying by accident. Numbers and the reasoning: `RESULTS.md`.
 - [ ] **S6 — RIDER, decided 2026-08-15: deliver `test-first-discipline` and RETIRE `tdd-discipline`.**
       The skill is **already written and committed** (`.claude/skills/test-first-discipline/SKILL.md`),
       deliberately parked here rather than shipped alone, because retiring its predecessor needs

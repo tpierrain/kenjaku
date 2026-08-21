@@ -413,6 +413,32 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 27) — S5c, the release's headline line, and a slice that split twice.**
+  `4340240` + `b3aefa3` · the doctrine layer is declared, delivered and reported. _(Engineering: owning
+  plan, § S5c.)_
+  - ✂️ **A slice that splits on contact is not a slice that was estimated wrong.** S5c was one box; the
+    report surface turned out to be **four call sites** in `update-engine.mjs` (destructure, count,
+    family sentences, conflicts) plus the reconciler. Split into S5c-1 (wiring, changes nothing while
+    the manifest is silent) and S5c-2 (three lines that switch it on), **each landing green on its
+    own**. The property worth keeping: **the first half is safe to leave overnight**, because a family
+    nothing declares is a family nothing calls.
+  - 🗣️ **The opener found the sentence, not a bug, and that was the higher-value use of it.** The
+    load-bearing unverified claim here was not "does it work" but *"what words will every deployed
+    brain read, at every update, forever?"* S4-3 had already built the honest one and had already
+    refused "your customized" — the claim a `no-provenance` preserve cannot make. **At fleet volume,
+    picking the flattering sentence is a lie repeated a million times**, so the wording deserved the
+    same verification as the code, before writing rather than after.
+  - 🔓 **Flipping a deliberate lock is a rewrite, never a delete.** The test that said NEVER now says
+    HOW, and the old reason stays readable above the new one — including the two "Gate 3" references
+    that had been sending readers to the wrong gate since Gate 1. **A lock lifted without its history
+    is indistinguishable from a lock someone deleted to make a test pass.**
+  - 📉 **A mutation score that DROPS is not a regression until you diff the survivors.** 96.74 → 96.30
+    on the reconciler, and the honest answer took one command: six of the seven are the previous run's,
+    line-shifted; the seventh is `readFileSync(p, "")`, which **does not throw — it returns a Buffer
+    that `JSON.parse` coerces**. Four mutants of that shape, all provable equivalents, and the one that
+    used to die was dying by accident. **Compare survivor lists, not scores** — the score moves with
+    the denominator and with luck.
+
 - 🌙 **2026-08-21 (loop iteration 26) — S5b, and how to get honest red on a module that does not exist
   yet.** `74c273d` · the doctrine family, 100 % mutation, 10 killed. _(Engineering: owning plan, § S5b.)_
   - ✅ **The new opener paid a second time, by saying "go ahead".** The iteration again spent its first
