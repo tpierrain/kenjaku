@@ -169,6 +169,53 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S4-4c — the walk that read the vault, and three survivors that were three real defects — 2026-08-21
+
+`a3f4e2b` + the two kill rounds. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/glob-match.mjs` | 94 % (47 killed, 3 survived) | **100 %** (42 killed) | none |
+| `scripts/lib/engine-base-fs.mjs` | 91.80 % (56 / 5) | **94.74 %** (54 / 3) | 3, all named equivalents |
+
+**Read the two numbers honestly.** `glob-match` reached 100 % with **eight fewer mutants than it
+started with** — the ratio improved by **deleting code**, not by adding tests (the same shape as S4-3).
+And `engine-base-fs` ends **below** its pre-slice 95.65 %: the slice added ~11 mutants to a 46-mutant
+file, so a single new equivalent moves the ratio down. Both survivor sets are equivalents; what matters
+is what the runs *found*, and it was not coverage.
+
+**Not one of the six survivors was a missing test. Every one named a defect or a dead line.**
+
+- **Two globs rooting at the same directory were returned TWICE** (`.claude/skills/coach/**` and
+  `.claude/skills/coach/*.md`). The caller walks each root, so that subtree would be read twice — the
+  exact waste the slice exists to remove. Three survivors pointed at it together, because `globRoots`
+  carried **two** guards against a root eliminating itself (an index check and an equality check), each
+  making the other unreachable, and no fixture had ever produced two equal roots. **The fix deleted
+  both**: deduplicate first, and `root.startsWith(root + "/")` is false for free.
+- **A manifest that parses but declares no `regimes` would have thrown.** `{}` is valid JSON and
+  `readEngineDivergence` parses whatever is on disk, so the throw was reachable — and it escapes that
+  function's own `try`, meaning a truncated manifest would have taken down the very report the
+  fail-soft exists to keep alive. `selectMergeFiles` had always been defensive about this shape; the
+  new call site was not.
+- **A branch that said what the next line already said.** `root === "" → walk everything` was dead:
+  `join(brainDir, "")` **is** `brainDir`, which is a directory, so the general path already did it. The
+  mutant that broke its condition changed no behaviour, which is the signature.
+
+➡️ **The durable lesson, and it is about how to read a survivor.** Three of these were reachable only
+because a value was **swallowed downstream**: the absent-root guard returned `[]` into a list
+`selectMergeFiles` was about to filter, so no input could tell an empty list from a bogus one. The fix
+was not to document an equivalent — it was to **stop discarding the observation**, by filtering absence
+instead of returning-as-empty. A survivor whose value dies in a later filter is usually telling you the
+code is shaped so nothing can see it, not that the mutant is harmless.
+
+**The three left, all named equivalents**: `?? []` → `?? ["Stryker was here"]` (the same absent
+`regimes.merge` that fires the `??` also makes `selectMergeFiles` match nothing, so no root can matter);
+`byPath`'s `<` → `<=` (a rel appears at most once, so the equal case is unreachable — pre-existing); and
+`readFileSync(…, "utf8")` → `""` (pre-existing, documented in S4-3).
+
+---
+
 ## S4-4a — the session surface, and a defect no mutant could have found — 2026-08-21
 
 `ea9a4c1`. State owned by

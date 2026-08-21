@@ -413,6 +413,24 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (loop iteration 23) — S4-4c closes S4, and six survivors were six defects.** The
+  optimization the previous iteration's measurement demanded: the merge scan stopped reading the owner's
+  vault, and is now **flat at ~0.25 ms** from 0 to 8 000 notes. _(Numbers and the full write-up:
+  [`RESULTS.md`](../../mutation/RESULTS.md#s4-4c--the-walk-that-read-the-vault-and-three-survivors-that-were-three-real-defects--2026-08-21).)_
+  - ➡️ **For the mode, the strongest data point yet on what mutation is FOR**: six survivors across two
+    files, and **not one was a missing test**. Each named a defect or a dead line — a duplicated walk
+    root, a throw through a fail-soft, a branch that repeated the line under it. **Chasing the score
+    would have documented three equivalents and shipped all three defects.**
+  - 🔍 **The reading technique worth keeping**: three of the six were reachable only because a value was
+    **swallowed downstream** (an early `return []` feeding a list about to be filtered). The right move
+    was not to accept an equivalent, it was to **stop discarding the observation**. A survivor whose
+    value dies in a later filter is telling you the code is shaped so nothing can see it.
+  - ⚠️ **Fail-first did NOT run first on this slice, and it is recorded rather than smoothed over**: the
+    implementation was written in the same breath as the tests. The single red that came back was a
+    **fixture asserting the wrong thing**, and the mutation pass is what stood in for the missing red.
+    It worked here; the honest reading is that the loop's speed is quietly eating the one rule that is
+    hardest to notice missing.
+
 - 🌙 **2026-08-21 (loop iteration 22) — S4-4b, and a measurement that was worth the asking.** The plan
   had written *"measure the added SessionStart latency: 'should be fast' is not a measurement"*, and
   that instruction paid: the hook is fine on time (~20 ms of its own work) and **wrong on shape** — it

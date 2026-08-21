@@ -248,18 +248,15 @@
 > is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
 > must be stated and never nagged.
 >
-> **▶️ RESUME AT: S4-4c — the walk stops reading the vault.** **S4-4a and S4-4b are DONE**
-> _(2026-08-21 · `ea9a4c1` + `9dc9d5d`)_: the surface exists, says one sentence, is wired last on
-> SessionStart and is carried by the manifest. **The latency measurement is what opens the next slice**:
-> the hook costs **~20 ms of its own work** (median of 12: bare node 30 ms, hook 50 ms), but it gets
-> there by **walking the entire brain** — and **not one `merge` glob reaches into `vault/`**, so it reads
-> every note the owner ever wrote to look at files that are never among them. Measured at **2.3 µs per
-> file** (18.5 ms for 8 000 notes), i.e. a cost that tracks the owner's vault at every session start.
-> S4-4c derives the walk roots from the globs' static prefixes instead; ⚠️ its risk is the **shared**
-> caller (`readInstalledMergeFiles` also feeds `syncBaseTree` and the update report), so the new set must
-> be **exactly** today's. Full detail in the S4-4 block below.
-> _(S4-1, S4-2 and S4-3 are closed: `update-engine.mjs` reads **99.40 %**, `engine-base-fs.mjs`
-> **95.65 %**, every survivor a named equivalent. S4-4a scored **100 %** first pass.)_
+> **▶️ RESUME AT: S4 IS COMPLETE — the next step is S5** (`CLAUDE.engine.md` joins a regime), with
+> **S2c and S2d** queued beside it now that the constitution question is answered. S4-4a/b/c are all
+> closed _(2026-08-21 · `ea9a4c1`, `9dc9d5d`, `a3f4e2b` + two kill rounds)_: the brain says where it
+> stands at rest, in one sentence, wired last on SessionStart, and the scan behind it stopped reading
+> the owner's vault (**flat ~0.25 ms at 0, 2 000 or 8 000 notes**, where the walk alone cost 18.5 ms at
+> 8 000). Numbers owned by `RESULTS.md`.
+>
+> _(S4-1, S4-2 and S4-3 were closed earlier the same day; their numbers, and everything each slice
+> found, are in the S4 block below and in `RESULTS.md`. Nothing under S4 is outstanding.)_
 >
 > **S2c is UNBLOCKED** _(2026-08-21 — the box at the top is answered:
 > yes, the engine may write `CLAUDE.md` through the merge door)_, and it amends ADR 0012, whose §5 is now
@@ -1442,16 +1439,43 @@ audible divergence.
                 fail-open and far inside its timeout. The fix touches `readInstalledMergeFiles`, which
                 the **update path** shares, so it earns its own slice with its own tests rather than
                 riding a delivery slice.
-        - [ ] **S4-4c — the walk stops reading the vault.** Derive the walk roots from the `merge`
-              globs' **static prefixes** (the part before the first wildcard: `.claude/skills/coach/**`
-              → walk `.claude/skills/coach`; `CLAUDE.md` → stat it) instead of walking `brainDir` and
-              filtering afterwards. A pure `globRoots(globs)` function, testable on its own.
-          - [ ] ⚠️ **The shared caller is the whole risk**: `readInstalledMergeFiles` also feeds
-                `syncBaseTree` and the update report. Its current contract is *"every file on disk that
-                a merge glob names"*, and the new one must return **exactly the same set** — the tests
-                that pin it today are the judge, and a red one means the prefix logic dropped a file.
-          - [ ] **Judge it with the numbers above**: re-run the 12× median on a brain-shaped tree, and
-                the walk cost must stop tracking note count at all.
+        - [x] **S4-4c — the walk stops reading the vault.** _(2026-08-21 · `a3f4e2b`)_ `globRoots` lives
+              in `glob-match.mjs`, the module that already owns the glob dialect, and returns each
+              glob's leading run of wildcard-free segments. **Full suite green (2068 pass, 0 fail).**
+          - [x] 📊 **The judge the plan set was met**: the scan is **flat at ~0.25 ms** whether the vault
+                holds **0, 2 000 or 8 000 notes** — it no longer tracks note count at all, where the walk
+                alone cost **18.5 ms** at 8 000. The hook's own work went **20 ms → 10 ms** on the
+                launcher's tree (same 12× median method as the measurement that opened the slice).
+          - [x] ✅ **The shared caller was the risk and it was answered with a test, not an argument**:
+                the equivalence against a full walk is pinned **on a real disk**, and asserted **whole**
+                so that "both return nothing" cannot pass for agreement. Every existing
+                `syncBaseTree` / update-report test stayed green untouched.
+          - [x] 🔬 **The behavioural proof is a vault the process cannot enter** (`chmod 000`): the old
+                shape throws `EACCES`, the new one never looks. Skipped on Windows and as root, where it
+                would prove nothing. _(Its own trap, worth keeping: the permission is restored in a
+                `finally`, not a `t.after` — `brain()` registers its `rmSync` first and after-hooks run
+                in registration order, so the cleanup would hit a directory it still cannot enter and
+                fail on `ENOTEMPTY` with the assertion green.)_
+          - [x] 🧭 **Two answers kept deliberately apart**, because conflating them is the bug this would
+                otherwise have been: `[]` means **walk nothing** (no globs, so nothing can match) and
+                `[""]` means **walk everything** (a glob starts with a wildcard, so there is no prefix
+                and honesty costs a full walk). Subsumption is on **segment boundaries** —
+                `.claude/skills` may never swallow `.claude/skillsets`.
+          - [x] 📏 **Measured, and the run earned its keep three times over**: `glob-match.mjs` 94 % →
+                **100 %** (and with **eight fewer mutants** — the ratio rose by deleting code),
+                `engine-base-fs.mjs` 91.80 % → **94.74 %**, three survivors left, all named equivalents.
+                **Not one of the six survivors was a missing test**: two globs rooting at the same
+                directory were returned twice (that subtree walked twice, the slice's own waste
+                reintroduced), a manifest that parses with no `regimes` would have **thrown** through a
+                fail-soft, and one branch was dead because `join(brainDir, "")` is `brainDir`. Full
+                write-up, and the lesson about survivors whose value dies in a downstream filter, in
+                [`RESULTS.md`](../../mutation/RESULTS.md#s4-4c--the-walk-that-read-the-vault-and-three-survivors-that-were-three-real-defects--2026-08-21).
+          - [x] ⚠️ **A test was wrong before the code was** — the one case where fail-first did not run
+                first, and it is recorded rather than smoothed over: the implementation was written in
+                the same breath as the tests, and the single red that came back was a **fixture stating
+                the wrong expectation** (`scripts/*.mjs` roots at `scripts`, which subsumes the two
+                named files beside it). No harm done here, and the mutation pass is what stood in for
+                the missing red — but the slip is the interesting part, not the fix.
       - [ ] 🧱 **The module split** follows the house shape every other session hook uses
             (`session-wiki-health.mjs` is the reference): a pure builder in `scripts/lib/`, an entry
             script whose `main` is declared deterministic glue and is not unit-tested, seams injected so
