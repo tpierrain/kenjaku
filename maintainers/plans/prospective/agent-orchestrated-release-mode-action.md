@@ -406,6 +406,34 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🌙 **2026-08-21 (night, loop iteration 17) — S4 is DESIGNED (no code, no number).** Third design slice
+  of this release, and like the two before it, it changed the shape of the work before any of it was
+  written. `RESULTS.md` gets nothing: there is no mutation score for a paragraph.
+  - 🚫 **THE OBVIOUS SURFACE WAS DISQUALIFIED BY AN ADR THE SLICE HAD NO REASON TO OPEN.** "Make
+    divergence audible" points straight at the status line. [ADR 0036](../../decisions/0036-deterministic-channels-differ-by-surface.md)
+    holds a **channel matrix** saying `statusLine` renders **nothing** in Desktop's Code tab and has been
+    **opt-in since v4.4.0** — and that a SessionStart `systemMessage`, the shape every health hook uses,
+    is dropped there too. The notice rides `additionalContext` instead.
+    ➡️ **For the mode**: *before choosing a surface, read the ADR about surfaces.* A design that picks a
+    channel from habit is a feature that ships to the CLI only, and the field would have reported it as
+    "it never told me" months later.
+  - 📐 **Half of a two-part promise had no source, and the design is where that is cheap to find.** "Which
+    files are held back" costs nothing — a `merge` file whose disk digest differs from its recorded
+    provenance IS one the engine is holding back, exact and offline. "How far behind" has **no source at
+    all**: the base tree holds the last-delivered bytes and nothing holds the version they came from.
+    Discovered as a missing field rather than as a wrong number, which is the difference between adding
+    `baseRefs` calmly now and inventing a release count later.
+    ➡️ **For the mode**: read a two-clause requirement as two requirements. The second clause is where the
+    missing data hides, because the first one is what made the feature sound easy.
+  - 🔇 **The "deliberate silence" the field finding complained about turned out to be one findable line.**
+    `PRESERVED_ASIDE` has no `no-provenance` key, so the report's loop hits `aside === undefined` and
+    `continue`s. Two years of "nothing ever says so" is a missing map entry — and the same guard is why a
+    mutation survivor there was correctly named equivalent two iterations ago.
+  - 🔗 **Two plans claimed this work, and the duplicate was cut at the moment it appeared.** The
+    silent-skill-freeze field finding states the requirement (its Step 3); this release builds it. Rather
+    than let both track it, that step now carries a one-line pointer here and nothing else.
+    ➡️ **For the mode**: the deduplication rule is cheapest **when the second carrier is first noticed**,
+    not at the next hand-back sweep.
 - 🌙 **2026-08-21 (night, loop iteration 16) — S3-3, and with it S3: the doctrine, in the ADR that
   already owned the topic.** No code, no number: ADR 0012 gains §5, the write boundary read backwards,
   plus a Crux line, two consequences, three rejected alternatives, and the index entry in

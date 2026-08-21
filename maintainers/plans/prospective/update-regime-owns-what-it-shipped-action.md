@@ -210,12 +210,22 @@
 > legitimately customizes an engine skill. That can only be answered by living with the guard, so it is
 > carried to the release checklist.
 >
-> **▶️ RESUME AT: S4 — divergence becomes audible.** A brain says, once, which engine files it is holding
-> back and how far behind they are. S3 stopped divergence being created in ignorance; S4 stops the
-> divergence a brain already carries being invisible. It needs the base tree (S1) and the verdict table
-> (S2a), both of which exist — **start with the design slice**, as S2b and S3 both did, since both paid
-> for themselves. **S2c stays skipped: it is the one slice that waits on Thomas** (the blocking box at the
-> top — may the engine write `CLAUDE.md`?), and it amends the same ADR 0012, whose §5 is now in place.
+> ✅ **S4 IS DESIGNED** _(2026-08-21 · design slice, no code)_. The full block is below (§ S4), and the
+> design changed the shape of the slice twice. **"Which files" costs nothing** (a `merge` file whose disk
+> digest differs from its recorded provenance *is* one the engine is holding back — exact and offline),
+> but **"how far behind" has no source at all**: the base tree holds the last-delivered bytes and nothing
+> holds the version they came from, so a `baseRefs: { rel: ref }` map joins the manifest beside
+> `provenance`. And **the obvious surface is disqualified by [ADR 0036](../../decisions/0036-deterministic-channels-differ-by-surface.md)**:
+> `statusLine` is opt-in *and* renders nothing in Desktop's Code tab, where a SessionStart `systemMessage`
+> is dropped too — so the notice rides `additionalContext`, which is also the right shape for a fact that
+> must be stated and never nagged.
+>
+> **▶️ RESUME AT: S4-1 — `baseRefs` is recorded when the base advances.** Test-first, beside
+> `reseedProvenance` / `syncBaseTree`; absent-tolerant on read. Then S4-2 (the pure divergence module),
+> S4-3 (the update report re-opens the `no-provenance` silence and names *standing* divergence) and S4-4
+> (the session surface, with its SessionStart latency **measured**, not assumed). **S2c stays skipped: it
+> is the one slice that waits on Thomas** (the blocking box at the top — may the engine write
+> `CLAUDE.md`?), and it amends ADR 0012, whose §5 is now in place.
 >
 
 > ✅ **Measured while wiring it, do not re-derive** _(2026-08-20)_: the tree is **invisible** to the RAG
@@ -1167,6 +1177,89 @@ audible divergence.
         and **reporting** existing divergence, which is S4 and needs the base tree, not a hook.
 - [ ] **S4 — Divergence becomes audible.** A brain says, once, which engine files it is holding back and
       how far behind they are. Absorbs the silent-skill-freeze plan's third defect.
+
+  - [x] 🧭 **THE DESIGN — written before a line of test** _(2026-08-21)_. Third time, and the two before
+        it both found a defect a green test could not have. This one found four, plus the fact that the
+        obvious surface is disqualified by an ADR.
+
+  - [x] 🔗 **This slice OWNS the third defect of
+        [`field-finding-2026-08-05-silent-skill-freeze.md`](field-finding-2026-08-05-silent-skill-freeze.md)**
+        (*"Step 3 — make the freeze audible (the real subject)"*). That plan states the requirement and
+        this one holds the state: a preserved file must say **since when** it has been kept and **which
+        engine version** it diverges from, and it must say it *where a freeze is visible over time*, not
+        only in an update report the owner reads once. Its Step 2 (`knownBases`, healing an
+        already-frozen fleet) is **not** absorbed — see the exclusions.
+
+  - [ ] 🎯 **THE FINDING THAT SHAPES THE SLICE: "which" is free, "how far behind" is not recorded
+        anywhere.**
+    - [ ] **WHICH files are held back needs no new state and no network.** A `merge`-regime file whose
+          disk digest differs from `provenance[rel]` is, by definition, one the owner edited and the
+          engine is holding back — the same question row 7 of the verdict table answers at update time,
+          asked at rest. Exact, offline, two file reads plus ~20 digests.
+    - [ ] **HOW FAR BEHIND has no source today.** The base tree holds the last-delivered *bytes*; nothing
+          holds the *version* they came from. Saying "three releases behind" would be inventing a number.
+    - [ ] ➡️ **So record it, in the one place that already carries per-brain engine state**: a
+          `baseRefs: { rel: ref }` map in `engine-manifest.json`, beside `provenance`, written by the same
+          pass that advances the base. It means one unambiguous thing — *the last engine version whose
+          bytes this file actually received* — so it needs **no state machine**, unlike a "first became
+          held back" stamp that would have to know when to stop moving. Additive and absent-tolerant: an
+          older brain simply says "since your install" and loses nothing.
+    - [ ] **Then the sentence is concrete and offline**: *"your `coach` skill still carries your edits —
+          it last received an engine version at v4.7.0, and this brain now runs v5.0.0."* No release
+          count, no fetch: **name the two versions and let the owner read the distance.** A count would
+          need the release list, i.e. a network call, for a number the two versions already convey.
+
+  - [ ] 🛑 **THE SURFACE IS DECIDED BY [ADR 0036](../../decisions/0036-deterministic-channels-differ-by-surface.md)'s
+        CHANNEL MATRIX, NOT BY REFLEX** — and the reflex answer is wrong twice over:
+    - [ ] **`statusLine` is disqualified.** It is **opt-in since v4.4.0** (ADR 0036 — the brain no longer
+          installs it), *and* the Code tab renders **nothing** for it. A divergence notice there would
+          reach almost no one, and no one at all on Desktop.
+    - [ ] **A SessionStart `systemMessage` is dropped by the Code tab too.** The banner shape every other
+          health hook uses is CLI-only.
+    - [ ] ✅ **So the notice rides `additionalContext`** (the agent's own context → it reaches the chat,
+          the only channel that renders on both surfaces), **with `systemMessage` kept beside it** for the
+          CLI, exactly as `session-self-heal.mjs` already documents. And this is not a workaround: it is
+          the *right* shape for this fact, see the nagging rule below.
+
+  - [ ] ⚖️ **A HELD-BACK FILE IS A LEGITIMATE STEADY STATE, so S4 must state and never nag.** The owner
+        may keep their fork for years; a banner repeating it every session is a banner they learn to
+        skip, and the alarm voice is reserved for breakage (`session-health.mjs`) — mixing the two is the
+        failure `session-obsidian-hint.mjs` was split out to avoid. Riding `additionalContext` answers
+        this exactly: **the agent holds the fact every session and mentions it when it matters**, which is
+        the "says, once" the plan asked for, without a marker file recording what has already been said.
+
+  - [ ] 🔇 **THE SILENCE TO RE-OPEN IS A REAL LINE, and it is findable**: `PRESERVED_ASIDE` in
+        `update-engine.mjs` has no `no-provenance` key, so `preservedAndMergedLines` hits
+        `aside === undefined` and **`continue`s** — a preserved file the engine cannot prove anything
+        about produces no line at all. That is the deliberate silence the field finding names, and S4 is
+        where it is re-opened: *"we cannot prove anything about this file"* is information the owner
+        needs. *(It is also why a mutation survivor on that block is equivalent: a garbage default is
+        swallowed by the very guard this slice is about to change.)*
+
+  - [ ] 🧱 **The sub-slices**, smallest reviewable units, each test-first:
+    - [ ] **S4-1 — `baseRefs` is recorded when the base advances.** Touches the manifest writer beside
+          `reseedProvenance` / `syncBaseTree`. Absent-tolerant on read, never partially written.
+    - [ ] **S4-2 — the pure divergence module.** `engineDivergence({ manifest, installedFileMap })` → the
+          held-back files, each with its `since` ref (or `null`), **sorted by path** — `syncBaseTree`
+          already sorts its own report for the same reason, and its comment says *"from S4 on it is said
+          out loud to the owner"*.
+    - [ ] **S4-3 — the update report.** Re-open the `no-provenance` silence, and add the **standing**
+          divergence: files still held back that this update did not touch are invisible today, because
+          the report only names what *this* pass decided.
+    - [ ] **S4-4 — the session surface.** `additionalContext` + `systemMessage`, in its own soft hook
+          rather than folded into the breakage banner. **Measure the added SessionStart latency** before
+          shipping it: the contract for these hooks is zero-ish, and this one is file reads and digests
+          with no spawn and no network — but "should be fast" is not a measurement.
+
+  - [ ] 🚫 **Deliberately OUT of S4**, named so the slice does not grow:
+    - [ ] **Healing an already-frozen fleet** (the field finding's Step 2: ship every historical
+          fingerprint so the engine recognises its own past output). S1's base tree makes it unnecessary
+          for brains installed from this release on, and it is a release-time generation pipeline, not a
+          report.
+    - [ ] **Counting releases** between the two versions. It needs the release list, i.e. a network call,
+          for a distance the two version numbers already state.
+    - [ ] **Offering to adopt the newer version** from the notice. An update writes or reports; it never
+          prompts (S2's own exclusion), and the same rule holds for a report.
 - [ ] **S5 — The doctrine layer joins a regime, as the first client of the new model.**
       `CLAUDE.engine.md` is a special case worth stating: the two-layer design means the owner's edits
       belong in `CLAUDE.md`, so a divergence in the engine layer is nearly always **an accident to
