@@ -146,10 +146,12 @@ test("row 2 — a file holding the bytes of the release being cut is recognised 
   });
 });
 
-// Two rels healed from one call, handed in in the wrong order, so the report cannot
-// be sorted by accident of iteration.
+// Three rels healed from one call, handed in an order that is neither sorted NOR
+// reversed. ⚠️ The first version of this test passed them in exactly reverse order,
+// so a comparator that simply never swaps produced the right answer by accident and
+// the mutant survived. An unsorted fixture has to be unsorted in both directions.
 test("the report is ordered by path, never by the order the files arrived", () => {
-  const { healed } = heal({ [SCRIPT]: CURRENT, [DOCTRINE]: EN_V1, [COACH]: LF });
+  const { healed } = heal({ [DOCTRINE]: EN_V1, [SCRIPT]: CURRENT, [COACH]: LF });
   assert.deepEqual(healed, [
     { rel: COACH, since: "v3.0.0", locale: "en" },
     { rel: DOCTRINE, since: "v3.6.0", locale: "en" },
@@ -199,13 +201,38 @@ test("a file outside the merge regime is never healed, even with a digest that m
 // A brain updating from a source that predates S7-2 has no table. The heal must then
 // be a no-op that RETURNS WHAT IT WAS GIVEN — an empty map here would wipe the
 // brain's provenance and freeze the whole fleet in one line.
+//
+// ⚠️ `COACH` is deliberately UNRECORDED here. The first version of this test recorded
+// both files, so every rel was filtered out before the table was ever consulted and
+// the test proved nothing about an absent table — three surviving mutants said so.
+// `null` is in the list because a table read that fails yields null, and a default
+// parameter only fires on `undefined`.
 test("with no table the recorded provenance is handed back untouched, never emptied", () => {
-  const recorded = { [DOCTRINE]: SHA_EN_V2, [COACH]: SHA_LF };
-  for (const table of [{}, { files: {} }, undefined]) {
-    assert.deepEqual(heal({ [DOCTRINE]: EN_V1, [COACH]: LF }, recorded, table), {
-      provenance: recorded,
-      baseRefs: {},
-      healed: [],
-    });
+  const recorded = { [DOCTRINE]: SHA_EN_V2 };
+  const installedFileMap = { [DOCTRINE]: EN_V1, [COACH]: LF };
+  const nothingHealed = { provenance: recorded, baseRefs: {}, healed: [] };
+
+  for (const table of [{}, { files: {} }, null]) {
+    assert.deepEqual(heal(installedFileMap, recorded, table), nothingHealed);
   }
+  // Omitted entirely, which is NOT the same call: it is the only one that exercises
+  // the parameter default. Called directly, because this file's own `heal` helper
+  // defaults the argument to the real table — and that helper is what made the first
+  // version of this case silently test the populated table instead of the absent one.
+  assert.deepEqual(
+    healProvenance({ manifest: MANIFEST, provenance: recorded, installedFileMap }),
+    nothingHealed,
+  );
+});
+
+// A merge file the table has never heard of — a skill shipped after the last tag the
+// table covers, or one the generator missed. It must be passed over, not crashed on:
+// without the guard, the lookup indexes into `undefined` and takes the whole update
+// down over a file it simply could not vouch for.
+test("a merge file absent from the table is passed over, never crashed on", () => {
+  assert.deepEqual(heal({ ".claude/skills/coach/UNKNOWN.md": EN_V1 }), {
+    provenance: {},
+    baseRefs: {},
+    healed: [],
+  });
 });

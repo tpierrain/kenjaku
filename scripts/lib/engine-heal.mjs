@@ -42,6 +42,11 @@ export function healProvenance({ manifest, provenance = {}, installedFileMap = {
     (rel) => !(rel in provenance),
   );
 
+  // Reported by path, never in the order the caller's map happened to be built: this
+  // is read by a human and said out loud to the owner.
+  // No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: the rels come from object
+  // keys, so one cannot appear twice and the branch is unreachable by construction —
+  // the same shape, and the same reasoning, as `syncBaseTree`'s own comparator.
   const healed = unrecorded
     .map((rel) => healOne(rel, installedFileMap[rel], table))
     .filter(Boolean)
