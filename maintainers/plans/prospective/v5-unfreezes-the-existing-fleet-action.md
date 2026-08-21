@@ -82,7 +82,7 @@
 > - [x] ⚠️ **What S8 is, restored**: "the FR tree stops drifting in silence", which S8-2 delivered. It
 >       never became "stops being overwritten". v5 must still not ship with S8 unpaid; S8-4 remains.
 >
-> ## ▶️ RESUME AT: S10-2 — the answers file (`rel → {decision, at: <engine ref>}`)
+> ## ▶️ RESUME AT: S10-3 — the wiring (the nudge subtracts what is answered; the report names what waits)
 >
 > **S7 AND S8 ARE BOTH COMPLETE** _(2026-08-21)_ — S7-0 → S7-5 plus S7-4's breadth, then S8-1
 > `775c00a`, S8-2a, S8-2b `ab85fde` + `417e264`, S8-3 `a58ecf8`, S8-4 (ADR 0040). **The French tree no
@@ -335,7 +335,7 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         list is already derived from the disk by S4-2, and only the ANSWER is new state; and "take the
         new one" is **not** free-recoverable, because the update commits only after it writes.
     - [x] **S10-1 — row 3 gets its sidecar.** _(2026-08-21)_
-    - [ ] **S10-2 — the answers file**, `rel → {decision, at}`, keyed by engine ref.
+    - [x] **S10-2 — the answers file**, `rel → {decision, at}`, keyed by engine ref. _(2026-08-21)_
     - [ ] **S10-3 — the wiring**: the nudge subtracts what is answered; the report names what waits.
     - [ ] **S10-4 — the safety commit** before an adopted candidate overwrites an uncommitted edit.
   - [ ] **S10-QA** — a file edited before v5.0.0 comes out of an update with a real choice offered.
@@ -964,8 +964,31 @@ false alarms to diagnoses written from reading (`f7a00fc`, and the FR-overwrite 
         confirmation § S7-5-2 asks of a perfect score was **deliberately not run** — `mutate-one.mjs`
         has no `--concurrency` flag and the alternative is editing a shared config whose forgotten
         revert no guard would catch. Recorded as such in `mutation/RESULTS.md` § S10-1.
-- [ ] **S10-2 — the answers file**: read, write, and `rel → {decision, at}` keyed by engine ref, with
-      the version-keyed re-raise falling out of the lookup. A new pure module beside `engine-base-fs`.
+- [x] **S10-2 — the answers file.** _(2026-08-21)_ `scripts/lib/engine-answers.mjs`:
+      `rel → {decision, at: <engine ref>}` in `.engine-answers.json`, named once like `BASE_PREFIX`
+      so no caller grows a second convention. The version-keyed re-raise falls out of the lookup, as
+      designed — no timer, no rule.
+  - [x] 🧭 **It FAILS TOWARD ASKING**, and that is a decision, not a detail: unreadable file,
+        malformed JSON, an entry with no version, all count as **not answered**, and a bad entry drops
+        on its own without taking its siblings with it. Re-asking is a mild annoyance; silently
+        swallowing the question is the defect S10 removes.
+  - [x] 🛡️ **The "it travels to the other machine" claim is MEASURED, not asserted in prose.** It
+        rests entirely on git tracking the file, so a test pins that the **shipped `.gitignore` does
+        not ignore it** (checked empirically first, in a throwaway repo). One line added there would
+        strand every answer on one laptop, and the only symptom would be settled questions coming
+        back — a defect with no error message.
+  - [x] 📊 **Measured: 80 % first pass → 97.44 %** (`62025ec`), and the score is the small half of it.
+        Of 12 survivors, **2 were real gaps** (a `null` entry, an empty `at`) and **10 were dead
+        code** — four guards no input `JSON.parse` can produce is able to reach. Deleting them dropped
+        the mutant count **60 → 39**: twenty-one mutants stopped existing rather than being killed.
+        The single survivor left is a verified equivalent (`readFileSync(…, "")` returns a Buffer,
+        which `JSON.parse` coerces as UTF-8). Detail: `mutation/RESULTS.md` § S10-2.
+  - [x] ⬇️ **The judge was caught lying DOWNWARD for the first time** — same HEAD, same tests, two
+        runs: 78.33 % then 80 %. The disputed mutant, hand-applied, turns the suite **red**. Every
+        earlier note in `RESULTS.md` described the runner inventing *kills*; this one invents a
+        *survivor*, which is worse — it sends you to weaken a passing test to chase a hole that is
+        not there. **New standing rule, written into `RESULTS.md`'s top box: a test is never weakened
+        to chase a survivor, and no survivor is acted on until it reproduces or is hand-applied.**
 - [ ] **S10-3 — the wiring**: the divergence nudge subtracts answered files at the current ref, and
       the update report names what is awaiting an answer. No new surface, two existing ones taught the
       subtraction.

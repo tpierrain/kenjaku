@@ -465,6 +465,33 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ⬇️ **2026-08-21 (S10-2) — the judge lied DOWNWARD, and that direction pushes you to WEAKEN a good
+  test.** `engine-answers.mjs`, measured twice on the same commit with no test changed: **78.33 %,
+  then 80 %**. The mutant that moved (`&&` → `||` on `isEntry`), hand-applied to the real tree, turns
+  the suite **red** — a test does kill it. Every note this document already carries about the flaky
+  judge describes it inventing **kills**, where the remedy is to distrust a flattering number. A
+  **false survivor** is the mirror image and the worse half: the honest reading of *"my test does not
+  kill this"* is *"my test is wrong"*, so the natural next move is to edit a **passing** test until
+  the number moves. That is how a measuring error walks into the corpus as a weakened assertion.
+  **The rule is now symmetric, and written into `RESULTS.md`'s top box: no survivor is acted on until
+  it reproduces or is hand-applied, and a test is NEVER weakened to chase one.**
+  - 🧹 **The other half of the slice is bigger than the score.** Of the 12 survivors, **two were real
+    fixtures** (a `null` entry, an empty version stamp) and **ten were dead code** — four guards no
+    input `JSON.parse` can produce is able to reach. They were **deleted, not filed as "equivalent
+    mutants"**. Result: 80 % → **97.44 %**, but the number to look at is the mutant count, **60 → 39**.
+    Twenty-one mutants were not killed, they **stopped existing**.
+    ➡️ **What the MODE takes from it**: *"equivalent mutant"* is a verdict about **code**, not about
+    tests, and writing it down is the expensive way to keep dead code alive. **Ask "can this line be
+    deleted?" BEFORE writing "equivalent".** Evidence it does not sit still: removing one dead
+    `existsSync` made a neighbouring `catch` **live for the first time**.
+  - 🔴 **Fail-first has a second form, and this slice needed it.** A mutation-driven test is written
+    against code that is already green, so it can never take its red the ordinary way. **Hand-applying
+    the mutant IS the fail-first step**: all five were applied and seen red (13/3, 15/1, 15/1, 12/4,
+    15/1) before the commit. Skip it and you ship a test that has never once been observed to fail.
+  - **Next: S10-3, the wiring** — the nudge subtracts what is answered at the current ref, the report
+    names what waits. It is also the **exit from the known intermediate state**: since S10-1 the
+    sidecar exists on disk and no surface mentions it.
+
 - 🛑 **2026-08-21 (S8-3) — THE SECOND "LOCATED CAUSE" OF THE NIGHT THAT DID NOT SURVIVE BEING RUN, and
   this one had already been promised to the fleet.** S7-4's entry below reports that S7 unfreezes a
   French brain into English. **It does not.** The QA fixture was building an *English* brain holding

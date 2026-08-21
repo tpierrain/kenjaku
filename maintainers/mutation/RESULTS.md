@@ -73,6 +73,34 @@
 > which is what `211cfc5` did once already, with no way to know when the last one is found. **(a) is
 > what this section does by default**; nothing below needs re-measuring on account of it, because the
 > spurious kill was caught before its number was ever recorded.
+>
+> ### ⬇️ AND IT GOES THE OTHER WAY TOO — a FALSE SURVIVOR, which is the dangerous direction
+>
+> _(Measured at S10-2, 2026-08-21, on `36f2c5c`.)_ Both boxes above describe the judge inventing
+> **kills**: the score reads too high, and the remedy is to distrust a good number. The same
+> arrangement produces the mirror image, and this is the first time it was caught:
+>
+> | Run | Command | Score | Survivors |
+> |---|---|---|---|
+> | 1 | `mutate-one.mjs … engine-answers.mjs` | **78.33 %** | 13 |
+> | 2 | the same command, same HEAD, same tests, minutes later | **80.00 %** | 12 |
+>
+> The mutant that moved is `&&` → `||` on `isEntry`. Applied to the real tree by hand, the suite goes
+> **RED** — `✖ an entry with no version is NOT an answer` — 13 pass / 1 fail. **A test does kill it.**
+> Run 1 reported it survived: the worker's suite must have exited **zero** for a reason unrelated to
+> the mutant, most plausibly a run in which the failing test's process was not the one whose exit code
+> the runner read.
+>
+> **Why this direction is worse, even though it costs points.** A spurious kill flatters you and you
+> may never look. A false survivor sends you to **write a test for a hole that does not exist** — and
+> the honest reading of "my test does not kill this" is "my test is wrong", so the natural next move is
+> to *change a passing test until the number moves*. That is how a good assertion gets weakened by a
+> measuring error. The protocol below is the only thing between that and a corpus quietly getting worse.
+>
+> ➡️ **The rule this adds, and it is now symmetric**: **no survivor is acted on until it reproduces or
+> is hand-applied.** Not just the flattering numbers — *any* disagreement between two runs, in either
+> direction, is the instrument talking. Hand-applying a mutant costs one command and answers it outright;
+> **and a test may never be weakened to chase a survivor** — if the test is right, the number is wrong.
 
 ## Current scores (latest)
 
@@ -205,10 +233,68 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## S10-2 — the answers file, and 21 mutants that stopped existing — 2026-08-21
+
+**Subject**: `scripts/lib/engine-answers.mjs`, NEW file → measured **whole**, per the mode's rule.
+**Commits**: `36f2c5c` (the file), `62025ec` (the two fixtures + the four dead branches).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-answers.mjs` — logs
+[`mutate-one-engine-answers.log`](reports/mutate-one-engine-answers.log) (run 1),
+[`engine-answers-run2`](reports/engine-answers-run2), [`engine-answers-run3`](reports/engine-answers-run3).
+
+| Run | HEAD | Mutants | Score | Survivors |
+|---|---|---|---|---|
+| 1 | `36f2c5c` | 60 | **78.33 %** | 13 |
+| 2 | `36f2c5c` — *identical tree, no test changed* | 60 | **80.00 %** | 12 |
+| 3 | `62025ec` | **39** | **97.44 %** | **1** |
+
+Runs 1 and 2 are the **false survivor** written up in the top box; the honest first-pass reading of
+this file is 80 %, and even that is one disputed mutant away from 78.33 %.
+
+### The 12 survivors split in two, and only one half was a testing failure
+
+**Two were real gaps** — states a hand-edited `.engine-answers.json` genuinely reaches, and no test fed
+either: a **`null` entry** (`typeof null === "object"`, so the read walked into `.at` on it) and
+**`at: ""`** (an empty stamp must not count as an answer, nor match a caller passing `""` as a ref).
+Both fixtures added.
+
+**Ten were dead code, and that is the finding.** They clustered on four guards, and every one of them
+was unreachable *over the domain the function actually has* — whatever `JSON.parse` can return:
+
+| Guard | Why no mutant could die on it |
+|---|---|
+| `typeof entry === "object" && entry !== null && …` | subsumed by the `.at` check that follows — a string's `.at` is a *function*, a number's is `undefined` |
+| `content ?? ""` | `JSON.parse(undefined)` throws exactly like `JSON.parse("")` |
+| `typeof parsed !== "object" \|\| … \|\| Array.isArray(parsed)` | a primitive or an array yields no entry `isEntry` accepts; only `null` cannot be walked at all |
+| `existsSync(path)` in `readAnswers` | a missing file throws into the same `catch` as an unreadable one |
+
+They were **deleted, not documented as equivalents**. The score moved 80 % → 97.44 %, but the number
+is the small half of it: **the mutant count fell from 60 to 39**. Twenty-one mutants did not get
+killed, they **stopped existing**, because the code they lived in stopped existing.
+
+➡️ **The rule this adds.** *"Equivalent mutant"* is a verdict about **code**, not about tests, and
+writing it down is the expensive way to keep dead code. A guard no input can reach is dead whatever
+its intent was; the intent belongs in the test's assertion (this file still asserts that an array and
+a string yield no answers) and in a comment, **not in a branch nothing can take**. First ask *can this
+line be deleted*, and only then write "equivalent" — the run that follows is shorter, faster and says
+something true. Removing `existsSync` even made a `catch` **live for the first time**: dead code does
+not sit still, it shelters more of itself.
+
+**The one remaining survivor is a true equivalent**: `readFileSync(…, "utf8")` → `readFileSync(…, "")`.
+Verified by hand — an empty encoding returns a **Buffer**, and `JSON.parse` coerces a Buffer as UTF-8,
+so the two paths agree byte for byte. Left as is; the explicit `"utf8"` says what is meant.
+
+**Fail-first, on a file whose production code was already green**: each of the five mutants the new
+fixtures target was **hand-applied and seen red** before the commit (13/3, 15/1, 15/1, 12/4, 15/1).
+A mutation-driven test cannot get its red from the ordinary route — the code it exercises is already
+written — so hand-applying the mutant *is* the fail-first step, and skipping it leaves a test that has
+never once been observed to fail.
+
 ## S10-1 — row 3's sidecar, and seven tests that had to be inverted on purpose — 2026-08-21
 
 `39f37bb`. State owned by
 [`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-merge.mjs:64-71"` — log
+[`mutate-one-engine-merge-64-71.log`](reports/mutate-one-engine-merge-64-71.log).
 
 | File | Scope | Score | Survivors |
 |---|---|---|---|
@@ -244,6 +330,8 @@ because you are already reading it.**
 
 `ab85fde` → `417e264` → `3625dee`. State owned by
 [`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/locale-drift.mjs` — log
+[`mutate-one-locale-drift.log`](reports/mutate-one-locale-drift.log).
 
 | File | First pass | After the assertion fixes | After the comparator fixture | Survivors |
 |---|---|---|---|---|

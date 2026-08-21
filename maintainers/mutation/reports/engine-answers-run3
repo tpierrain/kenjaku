@@ -1,0 +1,38 @@
+[32m23:25:23 (49496) INFO ProjectReader[39m Found 1 of 840 file(s) to be mutated.
+[32m23:25:23 (49496) INFO Instrumenter[39m Instrumented 1 source file(s) with 39 mutant(s)
+[32m23:25:23 (49496) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m23:25:23 (49496) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-KrstdW
+[32m23:25:23 (49496) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m23:25:23 (49496) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m23:25:26 (49496) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2934 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/39 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: <1m, remaining: ~2m) 5/39 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: <1m, remaining: ~3m) 5/39 tested (0 survived, 0 timed out)
+Mutation testing 25% (elapsed: <1m, remaining: ~1m) 10/39 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: ~1m) 15/39 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~1m, remaining: ~1m) 15/39 tested (0 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~1m, remaining: ~1m) 20/39 tested (0 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~1m, remaining: ~1m) 20/39 tested (0 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~1m, remaining: <1m) 25/39 tested (0 survived, 0 timed out)
+Mutation testing 76% (elapsed: ~1m, remaining: <1m) 30/39 tested (0 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~1m, remaining: <1m) 31/39 tested (0 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~2m, remaining: <1m) 36/39 tested (1 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 38)
+
+[Survived] StringLiteral
+scripts/lib/engine-answers.mjs:77:67
+-       return parseAnswers(readFileSync(join(brainDir, ANSWERS_REL), "utf8"));
++       return parseAnswers(readFileSync(join(brainDir, ANSWERS_REL), ""));
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  97.44 |   97.44 |       38 |         0 |          1 |        0 |        0 |
+ engine-answers.mjs |  97.44 |   97.44 |       38 |         0 |          1 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m23:27:27 (49496) INFO MutationTestExecutor[39m Done in 2 minutes and 4 seconds.
+[32m23:27:27 (49496) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-KrstdW.
