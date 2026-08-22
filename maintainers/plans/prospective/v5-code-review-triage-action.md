@@ -1,25 +1,35 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- STATUS: 🔴 LIVE since 2026-08-22 — the triage of the `/code-review max`  -->
 <!-- run that Thomas asked for BEFORE merging v5.0.0. 15 findings returned.   -->
-<!-- The FIXING is under way; the header note below says where it stands and  -->
-<!-- what is next. This file OWNS the findings and their state; the release   -->
-<!-- plan links here and restates none of it.                                 -->
+<!-- The FIXING is DONE for everything under the GO; what is left is Thomas's -->
+<!-- (§ H). The header note below is the truth. This file OWNS the findings   -->
+<!-- and their state; the release plan links here and restates none of it.    -->
 <!-- Owning release plan: v5-unfreezes-the-existing-fleet-action.md (item 4a). -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F14, then F15 — the last two.** _(updated
-> 2026-08-22, mid autonomous run)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS DONE. WHAT IS LEFT IS THOMAS'S.** _(updated 2026-08-22,
+> end of the autonomous run)_
 >
-> **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`),
-> F4 (`a0419f6`), F5 (`1917a76`), F7 (`89621f0`), F10 (`6707eca`), F6 (`83fc9b5`). **Categories A, B,
-> C and D are discharged.**
-> **Resume at F (F14 then F15)**, the two prose fixes — both land in `update-engine.mjs`'s own
-> strings, NOT in a skill (see the boundary below). ⚠️ F14 also drags a test: the "STILL holding back"
-> prose regex in `update-engine.test.mjs` asserts `3 engine file\(s\)` and must move with the wording.
-> **Then § H**, and the batch is done.
-> The order and the boundaries below are unchanged and still govern.
+> **Every finding under the GO is fixed, test-first, green, and pushed** — categories **A, B, C, D and
+> F**, in nine commits: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`), F4 (`a0419f6`),
+> F5 (`1917a76`), F7 (`89621f0`), F10 (`6707eca`), F6 (`83fc9b5`), F14 + F15 (`2ce39d8`).
+> **2 525 tests green (3 skipped), maintainer suite 56/56.**
+>
+> **THE ONLY THING LEFT IS § H, and it is his to type**: re-run `/code-review` on **`fc4e7bb..HEAD`**.
+> The session cannot run that command. Nothing else in this file is actionable by a session.
+>
+> **NOT done, and none of it was ever mine** (unchanged, see the boundaries below): **E/F11** (the
+> French twin), the **G** scope call (F12, F13), the four doctrine texts' wording (W5b), the rehearsal
+> on a copy of a real brain, and the **merge/tag/publish of #76**.
+>
+> 📌 **Two residuals were recorded rather than quietly counted as done** — a sibling checkout is still
+> reachable by `mutate-one --worktree` (under F6), and `file(s)` survives in two other surfaces
+> (under F14). Both are written where they belong, both are cheap, neither blocks the merge.
+>
+> **Everything below is preserved as it was written**: the boundaries, the GO and its refusals still
+> govern any further session, and the per-finding boxes carry what each fix cost to get right.
 >
 > ⚠️ **A boundary worth knowing before touching any doc**: editing an **engine skill**
 > (`.claude/skills/**`) makes two other guards go red — the fingerprint table must be regenerated
@@ -46,9 +56,9 @@
 >   cover **E** (the French locale regression, his product call) nor **G** (quality work whose cost is
 >   worth asking about before spending it).
 >
-> **So the next session starts by fixing, not by triaging.** Suggested order, hardest-hitting first:
-> ~~F1 (the fleet-wide false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, ~~F3 (the silent
-> deletion)~~ ✅, ~~F4 (the published machine)~~ ✅, ~~C (F5, F7, F10)~~ ✅, ~~D (F6)~~ ✅, then F.
+> **The suggested order, hardest-hitting first — and it was worked in full**: ~~F1 (the fleet-wide
+> false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, ~~F3 (the silent deletion)~~ ✅,
+> ~~F4 (the published machine)~~ ✅, ~~C (F5, F7, F10)~~ ✅, ~~D (F6)~~ ✅, ~~F (F14, F15)~~ ✅.
 >
 > ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
 > explicitly ships with a named finding deferred (his call, recorded here if it happens).
@@ -315,11 +325,22 @@ catches any of this.
         retired (provably, by sha) and the English one installed in its place. `locale-drift.mjs` needs
         a twin to **exist** to report drift, so CI is blind to a twin that was **deleted**. Either
         translate it, or say so in the release note. **The note currently says nothing.**
-- [ ] **F. Prose the owner reads — cheap, fix**
-  - [ ] **F14 — `2 engine file(s)`** (`update-engine.mjs:242`): the count is known at render time, so
+- [x] **F. Prose the owner reads — cheap, fix** _(2026-08-22 · 2ce39d8 — one commit, one subject)_
+  - [x] **F14 — `2 engine file(s)`** (`update-engine.mjs:242`): the count is known at render time, so
         the parenthesised plural is never needed. Every other line in this release picks the word.
-  - [ ] **F15 — `"coach" and "sync" and "improve"`** (`update-engine.mjs:191`): three merged skills is
+        - [x] **Fixed across ALL FOUR of the report's counts, not only the line the review quoted** —
+              one report, one voice: "3 engine files swapped" two lines above "3 engine file(s) this
+              update leaves alone" would have been worse than either. Zero takes the plural.
+        - [x] **The pronouns move with the count** ("updates for it" / "for them"), or the fix just
+              displaces the tell one clause to the right.
+        - [ ] 📌 **RESIDUAL, deliberately out of scope**: `file(s)` also lives in `repo-status.mjs`
+              (the session banner) and `locale-drift.mjs` (a maintainer tool). Different surfaces, own
+              tests, not this report's voice. Cheap whenever someone is next in those files.
+  - [x] **F15 — `"coach" and "sync" and "improve"`** (`update-engine.mjs:191`): three merged skills is
         ordinary on the first v5 run of a customized brain. Comma-plus-"and".
+        - [x] **Why it survived**: not one test exercised any arity above TWO, where `join(" and ")`
+              happens to be correct. Both the three-item case and the two-item boundary (no comma) are
+              pinned now.
 - [ ] **G. Quality, non-blocking — decide whether v5 pays them or a follow-up does**
   - [ ] **F12 — `stripComments` is not regex-aware** (`entrypoint-discipline.mjs:141`): a `//` inside a
         regex literal blanks the rest of the line, so the entry-point guard can miss a hand-rolled
@@ -327,7 +348,11 @@ catches any of this.
   - [ ] **F13 — four full read-and-sha256 passes per update** over every engine-owned file
         (`engine-base-fs.mjs:64`), despite the module's own "Read ONCE, used TWICE" comment, plus a
         fifth at **every** session start. Thread the already-read `installedFileMap` through.
-- [ ] **H. After the fixes**
+- [ ] **H. After the fixes — ⏳ WAITING ON THOMAS, and it is the ONLY thing left**
+  - [ ] 🎯 **Re-run `/code-review` on the fix range. THE EXACT RANGE: `fc4e7bb..HEAD` on
+        `feat/engine-base-unfreeze`** — 16 commits, 8 of them fixes, 8 plan updates.
+        _(2026-08-22: every finding under the GO is closed and pushed; **this command is his to type**,
+        the session cannot run it. Everything below stays as written.)_
   - [ ] Re-run `/code-review` on the fix range (the `v3.3.0` discipline: the second pass caught what the
         first missed), and report the figure back to
         [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) —
