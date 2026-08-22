@@ -35,6 +35,7 @@ import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from 
 import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
+import { ignoreBaseSettings } from "./ignore-base-settings.mjs";
 import { reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
 import { syncBaseTree, readBaseTree, readInstalledMergeFiles } from "./engine-base-fs.mjs";
 import { healFromDisk, readFingerprintTable } from "./engine-heal-fs.mjs";
@@ -396,12 +397,26 @@ export async function reconcileBrain({
   //    `commitEngineUpdate` (`add -A`) and the session-start sweep, which commits before
   //    `git pull --rebase` by construction. That is what keeps a first pull from hitting
   //    git's "untracked working tree file would be overwritten" dead end.
+  //
+  //    F4 rides the same read and the same write, and it points the OTHER way: START
+  //    ignoring `.engine-base/.claude/settings.json`. The settings file is gitignored
+  //    because it holds absolute paths belonging to one machine; its copy in the base tree
+  //    was not, so auto-commit would sweep it and auto-push would publish it, and a second
+  //    machine's pull would then describe machine A. The launcher's own `.gitignore` (what
+  //    a fresh install copies) carries the line already; this is the only route to a brain
+  //    that is already deployed.
+  //
+  //    ⏱️ ORDER IS LOAD-BEARING: this runs INSIDE the reconcile, and `syncBaseTree` runs
+  //    after it in both callers — so the entry is in place before the tree it names is
+  //    written for the very first time. `.engine-base/` is new in this release, so there is
+  //    nothing to untrack anywhere in the fleet: only something to never start tracking.
   let pointerUnignored = false;
   const gitignorePath = join(brainDir, ".gitignore");
   if (existsSync(gitignorePath)) {
-    const { text, changed } = unignoreActiveUniverse(readFileSync(gitignorePath, "utf8"));
-    if (changed) writeFileSync(gitignorePath, text);
-    pointerUnignored = changed;
+    const unignored = unignoreActiveUniverse(readFileSync(gitignorePath, "utf8"));
+    const ignored = ignoreBaseSettings(unignored.text);
+    if (unignored.changed || ignored.changed) writeFileSync(gitignorePath, ignored.text);
+    pointerUnignored = unignored.changed;
   }
 
   // 2.quater Ensure the engine-owned health-check note is present AND indexed (ADR 0026

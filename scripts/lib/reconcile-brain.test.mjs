@@ -18,6 +18,9 @@ import { createHash } from "node:crypto";
 // asserting through it (rather than through the manifest's digests) is what pins the
 // SENTENCE the owner would have read, not merely the bookkeeping behind it.
 import { readEngineDivergence } from "./engine-base-fs.mjs";
+// F4: spelled once, in the module that owns it — a test that re-typed the entry could
+// pass while the migration wrote a different line.
+import { BASE_SETTINGS_ENTRY } from "./ignore-base-settings.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // reconcile-brain — the RECONCILE half of update-engine, extracted (ADR 0026).
@@ -2538,7 +2541,12 @@ test("reconcileBrain — a brain already migrated is not touched again, and does
   const sourceDir = buildSource();
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   t.after(() => rmSync(sourceDir, { recursive: true, force: true }));
-  writeFile(brainDir, ".gitignore", ".env\nscratch/\n");
+  // Already migrated on BOTH counts — the universes pointer (which this test is named for)
+  // and F4's base copy of settings.json, since the two share one read and one write. A
+  // fixture missing either entry would be a brain with something left to do, and the
+  // byte-for-byte claim below would prove nothing about the idempotence of the other.
+  const migrated = `.env\nscratch/\n${BASE_SETTINGS_ENTRY}\n`;
+  writeFile(brainDir, ".gitignore", migrated);
   const args = {
     brainDir,
     platform: "darwin",
@@ -2551,7 +2559,7 @@ test("reconcileBrain — a brain already migrated is not touched again, and does
   const report = await reconcile(args);
 
   assert.equal(report.pointerUnignored, false, "nothing to migrate must not read as a migration");
-  assert.equal(readFileSync(join(brainDir, ".gitignore"), "utf8"), ".env\nscratch/\n");
+  assert.equal(readFileSync(join(brainDir, ".gitignore"), "utf8"), migrated);
 });
 
 test("reconcileBrain — a brain with no .gitignore at all migrates nothing, and never creates one", async (t) => {
@@ -2634,6 +2642,42 @@ test("reconcileBrain — a RETIRED skill the owner edited is kept, and the repor
     { name: "tdd-discipline", blockers: [{ rel: ".claude/skills/tdd-discipline/SKILL.md", reason: "customized" }] },
   ]);
   assert.equal(readFileSync(join(brainDir, ".claude/skills/tdd-discipline/SKILL.md"), "utf8"), mine);
+});
+
+// F4 (v5.0.0 code review) — the reconcile's own half: a brain that is ALREADY DEPLOYED
+// carries a v4 `.gitignore`, which no engine regime updates, so the launcher's own line
+// reaches nobody. Without this migration the whole fleet starts publishing machine A's
+// absolute paths on the v5 update itself — the first update that writes `.engine-base/`
+// at all.
+test("runReconcileCli — an already-deployed brain starts ignoring the base copy of settings.json, BEFORE the tree is written", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // A v4-era `.gitignore`: it knows about settings.json and nothing about the base tree.
+  writeFile(brainDir, ".gitignore", "# my brain\n.env\n.mcp.json\n.claude/settings.json\n");
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(convergedManifest(brainDir), null, 2));
+
+  const { calls: _calls, ...s } = seams();
+  await reconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  const ignore = readFileSync(join(brainDir, ".gitignore"), "utf8");
+  assert.ok(ignore.split("\n").includes(".engine-base/.claude/settings.json"), "the entry must reach a deployed brain");
+  assert.ok(ignore.includes(".claude/settings.json\n"), "and their own entries survive");
+  // 🎯 The ordering claim, and the only one that makes the entry worth anything: the tree
+  // is laid down by `syncBaseTree` AFTER the reconcile, so the file it would publish must
+  // already be ignored by the time it appears. Asserted by the file being there at all —
+  // a pass that wrote the base first would have committed it before this line existed.
+  assert.equal(
+    existsSync(join(brainDir, ".engine-base/.claude/settings.json")),
+    true,
+    "fixture check: this pass really does write the copy the entry is about",
+  );
 });
 
 // F3 (v5.0.0 code review) — and the reconcile's own half of it: the SELF-HEAL must not
