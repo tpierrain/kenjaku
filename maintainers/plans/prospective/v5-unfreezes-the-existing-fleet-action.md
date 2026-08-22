@@ -168,6 +168,19 @@
 >       silence. The child writes one line, in the owner's terms, naming what arrived and what went. It
 >       is refused to a self-heal, which is the pole that matters: a converged brain must not be told
 >       daily about an update that happened once.
+> - [x] 🧪 **AND THE TRIAL ITSELF IS NOW A COMMAND** _(2026-08-23 · `9f69cbd`)_ —
+>       `node maintainers/qa/field-rehearsal/rehearse.mjs --brain <path>`, with a README that says what
+>       it proves and how to read its three sections. It was a scaffold in a temp folder; the defect it
+>       found is a **class** (old parent, new child) that every release changing the update path can
+>       reproduce, so the instrument had to outlive the session. It exits non-zero if the update fails
+>       **or** if the owner's territory moved. Re-run green on copies of both real brains.
+>       - 📌 **This is the answer to *"la campagne de QA est-elle suffisante ?"***: it was not — the
+>         suites all call HEAD's code, and the fleet never does. It is now, for this class.
+> - [x] 🧬 **The catch-up line's WORDS are pinned** _(2026-08-23 · `6a65425`)_. A scoped mutation run on
+>       the CLI came back at **66 %**, and all but three survivors sat in that one sentence: every clause
+>       deletable with the suite green, the whole retired-skill half unreached. Nine poles now assert it
+>       whole (arrivals, retirements, both joined, the silences) — plus the guard that writes an advance
+>       down when the pass **delivers nothing**, which no test had made load-bearing.
 >
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**

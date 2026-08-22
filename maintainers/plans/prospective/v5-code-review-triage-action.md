@@ -17,15 +17,31 @@
   the two batches before it: red first for the right reason, one commit per subject, green only,
   pushed as it goes. Everything under the previous GO is **done, green and pushed**: § I `ca46027`,
   § J `f716066` `d17896c` `94272e9` `e27ed4a`, § K `e6c4deb`, S14 with `e27ed4a`.
-  1. **S15** — `ignore-base-settings.mjs`: two blank lines on an empty `.gitignore`, and a
-     directory-level `.engine-base/` entry not recognised as already covering the path. A real bug on
-     the owner's own file, so it goes first.
-  2. **S11** — `update-engine.mjs` lines 429/432/438/446/517/520 still print `(s)`. Line 429 is pinned
-     by a test that enshrines the hedge; the test moves with the fix.
-  3. **The delivered-prose hole** (owner's call (3), now GRANTED by "the maximum"): `CONNECTORS.md`,
-     `.claude/skills/EXAMPLES.md` and `engine-skills/mcp-token-expired/SKILL.md` can be **gutted with
-     the suite fully green**. Build the guard. ⚠️ **Read § H's 📐 box first** — this is exactly the
-     class of check the mode has written weakly before.
+  1. - [x] **S15** — `ignore-base-settings.mjs`: two blank lines on an empty `.gitignore`, and a
+        directory-level `.engine-base/` entry not recognised as already covering the path. A real bug
+        on the owner's own file, so it went first. _(2026-08-22 · `229cc4c` `eff040c` `1cac9b8`)_
+  2. - [x] **S11** — the `(s)` hedges in `update-engine.mjs`, plus F14's two named residuals, closed
+        together behind one `plural.mjs`. _(2026-08-22 · `84c8d07`)_
+  3. - [x] **The delivered-prose hole** _(2026-08-23 · `156ce8e`)_ — twelve rules over the three
+        files, leaning on what a keyword cannot fake: the frontmatter contract the loader reads
+        (**every** shipped skill, all three locales, not just the three named files), relations
+        between two shipped artefacts, and order/placement. **Proved the way the finding was found**:
+        each file gutted in turn, red every time (3, 2, 5 failures). § H's 📐 box was read first, and
+        its warning is quoted in the guard's own header — a doctrine sentence was once inverted with
+        every asserted keyword left standing, and nothing fired.
+     - 🐛 **It found a live defect on the way in**: `CONNECTORS.md` linked twice into `maintainers/`,
+       which `filterCopyable` excludes from every generated brain — two dead ends for every owner who
+       followed them. Fixed in the same commit.
+     - 📋 **AND A WIDER ONE, NAMED HERE RATHER THAN QUIETLY DROPPED.** The same probe over the whole
+       delivered surface flags **~24 candidate dead links in 41 files** — `README.md` alone links a
+       dozen times into `maintainers/` and to `EN-QUOI-C-EST-DIFFERENT.md`, both dev-only. Most of the
+       rest are **false positives of a naive resolver**: `engine-skills/<x>/SKILL.md` is installed at
+       `.claude/skills/<x>/`, so its `../sync-sources/SKILL.md` is correct in a brain and wrong in the
+       launcher tree. A guard for that class needs **install-location awareness**, and the README half
+       is a product call (is a brain's copy of the launcher README meant to link to the launcher's own
+       docs?). **Not taken tonight**: it is a new finding, not one of the fifteen, and it would decide
+       a question that is Thomas's. Cost if he wants it: the resolver is ~20 lines, the README
+       decision is one sentence from him.
   4. **S13** — `reconcile-brain.mjs`: a recording write helper that owns both the write and
      `reconciledFileMap`, so the next in-place write cannot silently recreate F1.
   5. **S12** — an `invited` regime declared in `engine-manifest.json` instead of the hardcoded
@@ -34,45 +50,52 @@
   6. **F13** — thread the already-read `installedFileMap` through, killing four full read+sha256
      passes per update and a fifth at every session start.
   7. **F12** — `stripComments` is not regex-aware in `entrypoint-discipline.mjs:141`.
-  8. **The two named residuals**: F14's `file(s)` in `repo-status.mjs` and `locale-drift.mjs`; S5's
-     unreadable-file sentence, which belongs to the **health banner** (see § J's decision 3).
+  8. **The residual that is left**: S5's unreadable-file sentence, which belongs to the **health
+     banner** (see § J's decision 3). _(F14's `file(s)` in `repo-status.mjs` and `locale-drift.mjs`
+     is **done** — it rode with S11 at item 2, `84c8d07`.)_
   9. **The report he is owed** — see below. It is the last act, not an optional one.
   - 📣 **HE HAS NOT HAD THE "montres à la fin" YET.** Two GOs have now asked for a report at the end
     and neither has been delivered. After the queue, **one plain-language report** in French, same
     register as the first batch's: what it fixed, in terms of what would have gone wrong for an owner.
   - 🛑 **"The maximum" DID NOT lift the prohibitions.** They are unchanged and they are absolute: not
     merge, tag or publish #76, not touch either of his two real brains, **not write under
-    `templates/fr/**`**, not run the rehearsal on a copy of a real brain. A GO on engineering is not a
-    GO on the release.
+    `templates/fr/**`**. A GO on engineering is not a GO on the release.
+    - 🔄 **One line of this box was overtaken by his next message and is retired here** _(2026-08-23)_:
+      it also forbade *running the rehearsal on a copy of a real brain*, written when the rehearsal
+      was an idea nobody had asked for. He then asked, in as many words, to make sure the QA campaign
+      is enough and that v5 not turn out to touch no existing brain — which is that trial and nothing
+      else. It ran on **copies** (no `.git`, so no remote and no push is even expressible) and it
+      found the release-stopping defect. **The originals stay untouchable**, and the rehearsal is
+      owned by the release plan's § *THE REHEARSAL*, not restated here.
   - ❓ **F11 is the ONE thing "the maximum" cannot settle by itself, and he was asked** _(2026-08-22)_:
     translating the French twin means writing under `templates/fr/**`, which is forbidden here.
     **Until he answers, do the half that is mine**: state the loss in the release note (an English
     artifact) so the note stops being silent about it. If he says "translate", it becomes item 10.
-- **Blocked on:** nothing. **Suite at the last commit: 2 541 green, 3 skipped** (CI's own invocation,
+- **Blocked on:** nothing. **Suite at the last commit: 2 577 green, 3 skipped** (CI's own invocation,
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
   assertion rather than a loading error.
-- **Owner's call pending:** **three.** (1) **E / F11** — the French twin: translate it,
-  or say so in the release note. (2) **G** — does v5 pay F12 and F13, or a follow-up? (3) **the
-  delivered-prose hole** raised by § H's measurement: three delivered prose files can be gutted with
-  the suite fully green (`CONNECTORS.md`, `.claude/skills/EXAMPLES.md`,
-  `engine-skills/mcp-token-expired/SKILL.md`). **v5, or a follow-up?** Recommendation on record:
-  **follow-up**.
+- **Owner's call pending:** **one.** **E / F11** — the French twin: translate it, or say so in the
+  release note. _(The other two are settled: **G** and **the delivered-prose hole** were both taken
+  by "the maximum", and the prose hole is closed above. The G items stay in the queue below, where
+  their order lives.)_
   - ✅ **A fourth call is ANSWERED by the second pass, not by him** — *should
     `.claude/settings.json` also leave the nudge?* **S4 shows the file is broken on a second machine
     for a different reason**, and that reason has to be fixed either way. The nudge question rides on
     S4's fix rather than standing alone; see F1's follow-up box, which now points here.
-- 🌙 **An unattended night was OFFERED and its scope is HIS to widen** _(2026-08-22, he asked whether
-  he could leave a loop running while he slept)_. The honest answer given: **no loop** — what is
-  authorised here is S11, S15 and the report, well under an hour, after which a loop would only wake
-  up against the prohibitions below. **If he widens it, the recommended candidate is call (3), the
-  delivered-prose hole**: it is real test-first work, it needs no decision mid-flight, and it changes
-  nothing the release promises its owners. **S12/S13 and the G work were NOT offered** — he weighed
-  them and they stay his. **Until he answers, the boundary below is unchanged.**
-- **A session may, alone:** **work the ordered queue in the Next block, all nine items.** Not merge, tag
-  or publish #76, not touch either real brain, not write under `templates/fr/**`, not spend the G work
-  **nor S12/S13**. ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**, unless Thomas
-  ships with a named finding deferred.
+- 🌙 **The night WAS widened, and this line is kept only so the widening is not re-litigated**
+  _(offered 2026-08-22 as "no loop, S11 + S15 + the report"; widened the same evening to "tout ce
+  qu'on a identifié comme à faire", then again on 2026-08-23 with "j'aimerais que tout soit fait pour
+  pouvoir shipper la release")_. **S12/S13 and the G work were held back at the offer and are IN
+  scope now** — the queue above is the whole of it.
+- **A session may, alone:** **work the ordered queue in the Next block, all nine items — S12 and S13
+  and the G work included.** Not merge, tag or publish #76, not touch either real brain, not write
+  under `templates/fr/**`. ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**,
+  unless Thomas ships with a named finding deferred.
+  - 🪤 **This line used to end with "not spend the G work nor S12/S13", contradicting the queue three
+    lines above it.** It was the pre-widening boundary, left standing when the queue was rewritten.
+    Corrected 2026-08-23. Worth the sentence: a stale prohibition reads with the same authority as a
+    live one, and the next session obeys whichever it happens to read first.
 
 ## How the batch was worked — durable, this is what it cost
 
