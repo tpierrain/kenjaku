@@ -35,6 +35,15 @@
 > > from the tag than it was this morning, not closer. →
 > > [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns the findings.
 > >
+> > ✅ **AND THAT FIXING PHASE HAS NOW RUN, WHICH CONFIRMS THE PARAGRAPH ABOVE RATHER THAN CHANGING
+> > IT** _(2026-08-22, end of the autonomous run)_. Every finding under the GO is repaired and pushed;
+> > **not one of them touched this file's text**, exactly as predicted. So the count of things standing
+> > between the branch and the tag went **down by one** — the fixes — and **W5b is still there,
+> > untouched, still his**. ⚠️ **This is the moment to re-read, not to relax**: "the code review is
+> > done" is about to sound like "the release is unblocked", and it is the same false step this box was
+> > written to catch two paragraphs up. The wording has never been closer to being the last thing
+> > forgotten.
+> >
 > > 🔍 **AND A FOURTH THING NOW STANDS BEFORE THE MERGE — a tooled `/code-review`** _(2026-08-22,
 > > Thomas's call, because the release was built end to end in orchestrated `/loop` mode and nothing
 > > outside the loop has read the code)_. It runs in three passes by descending operational risk, over

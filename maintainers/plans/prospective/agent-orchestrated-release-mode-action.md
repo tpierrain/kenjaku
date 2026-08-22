@@ -3025,12 +3025,34 @@ arbitration goes here as a question, and the run continues on other slices.
           the debrief now that one side of it is measured.
         - ⚠️ **One caveat, or the figure is over-read**: the review's ten parallel finders never
           returned and one reader did all ten angles. So 15 is a **floor**, not a ceiling.
+        - 💰 **AND NOW THE SECOND HALF OF THE MEASUREMENT: WHAT THE FINDINGS COST TO FIX**
+          _(2026-08-22, end of the autonomous fixing run)_. The 10 findings under Thomas's GO
+          (categories A, B, C, D, F) were repaired **test-first in a single session**: 8 fix commits,
+          2 525 tests green (+53), maintainer suite 56/56, nothing deferred inside the GO. **That is
+          the number the shape question needed.** An independent read at the release boundary found
+          fleet-wide defects for roughly one session of repair — so the argument against a standing
+          adversarial pass per slice is not cost, it is redundancy. **This is evidence for the tooled
+          review at the boundary, not against the per-slice pass**; the two have not been compared.
+          → [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns which finding is
+          which, and this file keeps no copy of that.
+        - 🔬 **What the fixing run itself learned about the mode, and it is not a detail**: **four of
+          the ten findings were bigger than their write-up**. F2's stated repair (containment + regime
+          check) was insufficient and needed a third question; F9 turned out to be the SAME ordering
+          defect as F2 seen from the other side, so one fix closed two; F10's two named sites were
+          three; and F14's one line was four. **A review's finding is a pointer, not a spec** — a
+          fixing loop that implements findings literally would have shipped four half-repairs, all
+          green.
   - [ ] 🔍 **The contrast is arriving from the OTHER end** _(2026-08-22, Thomas's call)_: rather than
         one reviewed slice against one unreviewed, a **tooled `/code-review` runs over the WHOLE
         fan-out-built branch** before the merge, in three passes by descending operational risk. The
         release plan owns the run (§ *WHAT IS YOURS, IN ORDER*, item 4a); **what comes back here is the
         figure**: how many real defects an independent read finds in code that the loop had already
         declared finished, green and mutation-scored. **A zero is an answer too**, and the stronger one.
+        - [x] **The first pass's figure arrived and is recorded above** (15 findings, then 10 repaired
+              in one session). **This box stays open for the SECOND pass** — `/code-review` re-run on
+              the fix range `fc4e7bb..HEAD`, which is Thomas's command to type. That one measures
+              something different and worth more: whether an independent read of *repairs* finds
+              anything, which is the `v3.3.0` discipline's own claim.
 - [~] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
       kill this file), and rewrite the memory pointer to whatever becomes live next.
   - [x] **Folded EARLY, on purpose** _(2026-08-20 — `CONVENTIONS.md` **§12**)_: the two delegation
