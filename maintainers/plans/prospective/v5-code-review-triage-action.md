@@ -8,10 +8,12 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F3.** _(updated 2026-08-22, mid autonomous run)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F5.** _(updated 2026-08-22, mid autonomous run)_
 >
-> **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`).
-> **Resume at F3** (the silent deletion), then F4, then C, then D and F.
+> **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`),
+> F4 (`a0419f6`). **Category A and B are discharged.**
+> **Resume at F5** (the ownership oracle's `?` and spaces), then F7 and F10, then D (F6), then F
+> (F14, F15).
 > The order and the boundaries below are unchanged and still govern.
 >
 > ⚠️ **A boundary worth knowing before touching any doc**: editing an **engine skill**
@@ -40,8 +42,8 @@
 >   worth asking about before spending it).
 >
 > **So the next session starts by fixing, not by triaging.** Suggested order, hardest-hitting first:
-> ~~F1 (the fleet-wide false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, F3 (the silent
-> deletion), then the rest of B and C, then D and F.
+> ~~F1 (the fleet-wide false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, ~~F3 (the silent
+> deletion)~~ ✅, ~~F4 (the published machine)~~ ✅, then C, then D and F.
 >
 > ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
 > explicitly ships with a named finding deferred (his call, recorded here if it happens).
@@ -157,7 +159,8 @@ catches any of this.
               dismissible — more machinery, and it leaves a message still saying something arguable
               about `CLAUDE.md`; (c) restrict the nudge to files with a fetchable ancestor — cheap, but
               it silences legitimate cases he wants to see.)_
-- [ ] **B. Silent damage — fix test-first, no decision needed**
+- [x] **B. Silent damage — fix test-first, no decision needed** _(2026-08-22 · d8191b5, e084eef,
+      a0419f6 — all four findings closed)_
   - [x] **F2 — `adoptCandidate` writes outside the brain.** _(2026-08-22 · d8191b5, **with F9** — one
         fix, see below)_ `engine-adopt.mjs:79/110`. `rel` arrives from the conversation
         (`update-engine/SKILL.md:224`), and `join(brainDir, rel)` with `../` escapes. Inside the brain
@@ -182,16 +185,40 @@ catches any of this.
               again**: touching an engine skill obliges regenerating the fingerprint table **and**
               porting the French twin, and `templates/fr/**` is F11's, which is Thomas's. Worth
               re-adding in the same breath as F11. _(Cost of finding out: one red commit, amended.)_
-  - [ ] **F3 — a restored skill is deleted again, silently, at session start.**
-        `reconcile-brain.mjs:169`. `retireDeclaredSkills` is the engine's only subtractive door and is
-        **not** gated on `sourceDir !== brainDir`, unlike all three merge families beside it — so it
-        runs on the SessionStart self-heal, which is spawned detached with `stdio: "ignore"`, so
-        `skillsRetired` is thrown away. Provenance entries are never pruned, so an owner who restores a
-        retired skill from git history loses it again at the next session, with nothing said.
-  - [ ] **F4 — the brain's backup repo starts publishing the owner's absolute paths.**
-        `engine-base-fs.mjs:103`. `.claude/settings.json` is deliberately gitignored (machine-specific,
-        absolute paths, connector permissions), but its **copy under `.engine-base/` is not**, and
-        auto-commit pushes it. On a second machine the pulled base then describes machine A.
+  - [x] **F3 — a restored skill is deleted again, silently, at session start.** ✅ _(2026-08-22 ·
+        `e084eef`)_ `reconcile-brain.mjs:169`. `retireDeclaredSkills` is the engine's only subtractive
+        door and was **not** gated on `sourceDir !== brainDir`, unlike all three merge families beside
+        it — so it ran on the SessionStart self-heal, which is spawned detached with `stdio: "ignore"`,
+        so `skillsRetired` is thrown away. Provenance entries are never pruned, so an owner who
+        restored a retired skill from git history lost it again at the next session, with nothing said.
+        - [x] **The gate lives INSIDE the retirement module, not at the call site** — the same choice
+              `fetchAncestors` makes, for the same reason: this is the one place in the product that
+              calls `rmSync` under the owner's `.claude/`, so no caller has to remember. **Do not move
+              it out to the caller.**
+        - [x] **An ABSENT `sourceDir` is caught by the same line.** A caller that has not said "this is
+              an update" has not earned a deletion: "I cannot tell" fails towards keeping.
+        - [x] The v5 retirement of `tdd-discipline` still lands — it travels on the update path, which
+              is also the only path that can report it.
+  - [x] **F4 — the brain's backup repo starts publishing the owner's absolute paths.** ✅ _(2026-08-22 ·
+        `a0419f6`)_ `engine-base-fs.mjs:103`. `.claude/settings.json` is deliberately gitignored
+        (machine-specific, absolute paths, connector permissions), but its **copy under `.engine-base/`
+        was not**, and auto-commit pushes it. On a second machine the pulled base then described
+        machine A.
+        - [x] **A gitignore line is the whole repair, and it is enough BECAUSE `.engine-base/` is new
+              in v5**: no deployed brain has ever tracked that path, so there is nothing to *untrack*,
+              only something to never start tracking. _(Had the path existed in v4, this fix would have
+              been insufficient — a `git rm --cached` would have been owed too.)_
+        - [x] **Two doors, because a brain arrives through one or the other**: a fresh install copies
+              the launcher's own `.gitignore` (which now carries the entry), and an already-deployed
+              brain carries a v4 one that **no engine regime updates** → migrated, chained onto the
+              universes-pointer migration that already reads and writes that file. One read, one write;
+              `pointerUnignored` keeps meaning exactly what it meant.
+        - [x] ⏱️ **The ordering is load-bearing**: the migration runs INSIDE the reconcile, and
+              `syncBaseTree` writes the tree after it in **both** callers — so the entry exists before
+              the file it protects does. **Do not hoist the migration to a caller.**
+        - [x] **The two spellings are pinned against each other by a test**, not trusted to agree: a
+              shipped `.gitignore` lacking the entry would leak on every new brain until its first
+              update, and a differently-spelled one would append a duplicate to every brain, forever.
   - [x] **F9 — `adoptCandidate` is not atomic** ✅ **Fixed with F2, whose box owns the detail**
         _(2026-08-22 · d8191b5)_ (`engine-adopt.mjs:118`): it wrote the file and deleted the sidecar,
         *then* parsed the manifest. A manifest error exits 1, which the skill is told means "nothing

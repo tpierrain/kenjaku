@@ -438,16 +438,15 @@
 > ### 🧭 ON "ON REPREND" — READ THIS FIRST _(updated 2026-08-22, after the code review returned)_
 >
 > 🔴 **THE MERGE IS NOW GATED ON THE REVIEW'S FINDINGS, AND THAT IS THE HEADLINE.** `/code-review max`
-> ran over the whole branch and came back with **15 findings, none fixed**. **One is a blocker**: this
-> release's own hook additions make every brain in the fleet report `.claude/settings.json` and
-> `CLAUDE.md` as "yours" at **every session start**, undismissably — false, and it is the consent
-> fatigue the nudge was built to prevent. Two more are silent-damage defects (a write that escapes the
-> brain folder, a skill deleted again at self-heal with nothing said).
+> ran over the whole branch and came back with **15 findings**, one of them a blocker on what the
+> nudge may claim about a file the engine itself rewrites.
 >
 > - **The findings live in [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md)**, and
->   **only** there. This plan restates none of them: open that file, it owns their state.
-> - **The blocker needs Thomas's design call**, not a repair: what the nudge should say about a file
->   the engine itself rewrites, and about one the product tells owners to edit.
+>   **only** there. **How many are fixed, which one is next, and what the blocker was decided to be:
+>   that file answers all three.** This plan deliberately restates none of it — a count copied here
+>   is a count that goes stale the next time a finding closes. Open that file.
+> - Thomas **decided the blocker and granted the fixing GO** before a `/clear`; both are recorded
+>   there, in its header. Do not re-ask either.
 > - **Nothing is merged or tagged until that file's § Tracking is discharged** (or he ships with a
 >   named finding deferred, which is his to decide and is recorded there).
 > - **Step 1 is DONE**: #76 is retargeted to `main` with its new title and a corrected body.
