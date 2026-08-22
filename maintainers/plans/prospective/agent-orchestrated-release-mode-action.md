@@ -24,10 +24,15 @@
 > >   hook, which named a carrier whose header had been saying so for a day. **A closed list is not an
 > >   emptied inventory** — the third time this release has been told that, each time on a different
 > >   surface.
-> > - **The next buildable slice is S7-6** (the CRLF ancestor fetch): its **design is written**, its
-> >   four tests are named, **no code exists yet**. Build it test-first.
-> > - **CI is RED on the branch and that is expected** — four Windows failures, three of them the defect
-> >   S7-6 repairs, one a harness artifact. Nothing else fails anywhere.
+> > - ✅ **W1 (S7-6, the CRLF ancestor fetch) IS BUILT AND PUSHED** _(2026-08-22 · `65a6080` +
+> >   `13ef852`)_. **The next buildable slice is W2** — pin the line endings at delivery
+> >   (`-c core.autocrlf=false` on the updater's clone and the installer's copy path).
+> > - 🪟 **W6 is not a slice and is NOT done**: the Windows repair is proved on macOS with a
+> >   **synthesised** CRLF fixture. Thomas's acceptance condition is a green `windows-latest` run,
+> >   **read** on GitHub. A push exists to read; nobody has read it yet.
+> > - **CI was RED on the branch and that was expected** — four Windows failures, three of them the
+> >   defect W1 repairs, one a harness artifact (still open). Nothing else fails anywhere. Whether the
+> >   three are now green is a **prediction until the run is read**.
 > > - **The run log below is the night's trace**, newest first. Read the top three entries before
 > >   trusting anything older in this file: two of them are **corrections of earlier entries**, and the
 > >   biggest lesson of the night is that a crisp wrong diagnosis survived two iterations.
@@ -487,6 +492,33 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- ✅ **2026-08-22 (W1 · S7-6) — THE WINDOWS FLEET GETS ITS ANCESTOR BACK, and the mutation runner
+  measured the wrong tree first.** `65a6080` (the fix) + `13ef852` (the survivor's test). Test-first:
+  the four poles the design named went red on their **assertions** before a line of code, 22 tests in
+  all; suite **2 446 / 2 443 pass / 0 fail / 3 skipped**. State owned by the release plan's § *The
+  DESIGN for (a)*; nothing is copied here.
+  - 🛑 **THREE seams, and the box had promised one, then two.** The third only appeared when a test was
+    written: `verifyBase` **forgives** EOL, so on the candidate path it says *"usable"* without saying
+    **which byte-state** matched — and there the answer has to BE bytes. Hence `recordedVariant`,
+    deliberately unforgiving. **Three corrections on the same subject, and every one arrived the moment
+    something was RUN rather than read.** Naming a defect precisely is not having enumerated where it
+    lives.
+  - 💸 **The mutation pass measured code that did not exist**, and returned a confident **100 %** for
+    it. `mutate-one.mjs` builds its worktree at `git rev-parse HEAD` — correct and deliberate (a mutant
+    of `auto-commit.mjs` must not be able to commit the instrumented tree) and **invisible in the
+    output**: the run prints the same `✅` either way. ➡️ **COMMIT, THEN MUTATE.** Same family as the
+    night's hand-rolled lookup, one layer out: real, deterministic, repeatable, **about the wrong
+    thing**. Written into `RESULTS.md` as a rule, not as an anecdote.
+  - 🧪 Scoped to the changed lines, never whole files: **100 % / 100 % / 96.67 % → 100 %**. The one
+    survivor was killed by a test that states a rule rather than covering a branch — *bytes that arrive
+    WITH a failure are not bytes; `ok` is the authority* — and the kill was **verified by hand-applying
+    the exact mutant** instead of buying a confirmation re-run.
+  - 🪟 **What it does NOT prove**: anything about Windows. The fixture **synthesises** the CRLF on
+    macOS. W6 — reading a real `windows-latest` run — is the owner's acceptance condition and is
+    untouched.
+  - **Next**: **W2**, pin the line endings at delivery (`-c core.autocrlf=false` on the updater's clone
+    and the installer's copy path). And, whenever a run is available to read, **W6**.
 
 - 🎙️ **2026-08-22 (the arbitration round) — THE FIVE QUESTIONS WERE PUT TO HIM AND ALL FIVE CAME BACK,
   in one sitting.** The night's accumulated blocking boxes had been assembled into a single

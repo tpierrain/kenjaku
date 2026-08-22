@@ -233,6 +233,50 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## W1 (S7-6) — the CRLF ancestor fetch, and a pass that measured the code it had NOT written — 2026-08-22
+
+`65a6080` (the fix) + `13ef852` (the survivor's test). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
+
+| File (range) | Score | Survivors |
+|---|---|---|
+| `scripts/lib/engine-base.mjs:56-86` (`crlfify`, `recordedVariant`) | **100 %** — 23 killed | 0 |
+| `scripts/lib/engine-ancestor.mjs:55-90` (the miss path) | **100 %** — 10 killed | 0 |
+| `scripts/lib/engine-ancestor-fetch.mjs:60-112` (the candidate walk) | **96.67 %** → **100 %** | 1, killed |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-base.mjs:56-86"` (and the
+two ranges above).
+
+🛑 **THE FINDING IS NOT THE SCORE, IT IS THE FIRST RUN.** A pass was launched over the change **before
+it was committed** and returned a clean **100 %, 32 killed** — for lines that did not exist in the tree
+it measured. `mutate-one.mjs` builds its worktree with `git worktree add --detach <path> <sha>` where
+`sha = git rev-parse HEAD`, then `reset --hard` + `clean -qfd`: **it measures HEAD, never the working
+tree.** That is correct and deliberate (a mutant of `auto-commit.mjs` must not be able to commit the
+instrumented tree), and it is invisible from the output — the run says `✅ Mutation score 100 %` in the
+same words either way.
+
+➡️ **The rule: COMMIT, THEN MUTATE.** Not a preference, a precondition. And the family it belongs to is
+the one this branch keeps meeting: yesterday a probe **re-implemented a lookup by hand** instead of
+calling it and produced a confident wrong verdict; this is the same shape one layer out — a
+measurement that was real, deterministic, repeatable and **about the wrong thing**. A green light for
+code you have not committed reads exactly like a green light for code you have.
+
+**The one real survivor**, in the shared loop: `if (!shown.ok) continue;` → `if (false) continue;`. It
+survived because a failed `git show` hands back an error message, which the verification below refuses
+anyway — so the guard looked decorative on every input the suite had. It is not, and the fix was a test
+that states a **rule** rather than covering a branch: *bytes that arrive WITH a failure are not bytes —
+`ok` is the authority.* Feed the double real content with a non-zero status and the mutant hydrates a
+base from it, which is the single write this module exists to prevent. Asserted on both shapes (hit and
+candidate walk), since they share the line, and **verified by applying the exact mutant by hand**: that
+test fails, and only that test.
+
+➡️ **A confirmation re-run was deliberately NOT bought** (§5quinquies: no re-run when the delta is
+predictable, write the prediction instead). Hand-applying the mutant is stronger evidence than a second
+two-minute pass: it observes the kill directly rather than inferring it from an aggregate.
+
+---
+
 ## S10-QA — the acceptance test, and the guard that refused too much — 2026-08-22
 
 `612f306`, `5c16fc2`, `ea78d42`. State owned by

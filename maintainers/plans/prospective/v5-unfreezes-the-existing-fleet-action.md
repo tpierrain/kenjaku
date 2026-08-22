@@ -43,9 +43,13 @@
 > 📦 **Ready and NOT applied, so it does not need deciding, only doing**: the `engineVersion` bump (three
 > of its four numbers dictated by the diff, the fourth by 25 tags of precedent) — § *S9-2b's materials*.
 >
-> 🔴 **CI is RED on `feat/engine-base-unfreeze`, and that is expected**: four Windows failures — three
-> are item 1's defect, the fourth is a harness artifact (the fingerprint table regenerated from a CRLF
-> checkout). Nothing else is failing, on any platform.
+> 🔴 **CI was RED on `feat/engine-base-unfreeze`, and that was expected**: four Windows failures — three
+> were item 1's defect, the fourth is a harness artifact (the fingerprint table regenerated from a CRLF
+> checkout). Nothing else was failing, on any platform.
+>
+> 🟡 **Since `13ef852` (W1), the three product failures should be gone and the fourth should NOT be.**
+> That sentence is a **prediction, not a result** — W6 is what turns it into one, by reading the run.
+> The harness artifact is W6's own second bullet and nothing has been done about it yet.
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
 >
@@ -108,6 +112,9 @@
 > edited a skill before this release gets **`preserve/customized` + a `.new` sidecar** — the old
 > behaviour, correct and visible, but not the promise.
 >
+> - [x] ✅ **REPAIRED ON THE BRANCH** _(2026-08-22 · W1 · `65a6080`)_. Both claims now hold on both
+>       platforms in the suite. **The proof on a real Windows image is W6's, and it is still owed.**
+>
 > - [x] 📥 **AND A REAL WINDOWS INSTALL DOES HOLD CRLF — read, not reasoned** _(2026-08-22)_. The
 >       yesterday's caveat was *"the CI is a fixture; nobody has read a real Windows brain's bytes"*.
 >       The install path answers it without one: `installer.mjs` lists the launcher's tracked files
@@ -125,7 +132,11 @@
 >
 > **Why it is not mine to fix**: every way out changes what ships or what an update writes.
 >
-> - [ ] **(a) Teach the fetch path that a recorded sha may be CRLF.** ⚠️ **Corrected 2026-08-22, second
+> - [x] ✅ **(a) IS BUILT** _(2026-08-22 · `65a6080` + `13ef852` · W1)_. The four named tests went red on
+>       their assertions first, plus 19 more; full suite **2 446 / 2 443 pass / 0 fail / 3 skipped**.
+>       **Still owed by W6, and it is not a formality**: green on a real `windows-latest` runner, read
+>       from the run. A macOS pass **synthesises** the CRLF; it does not observe it.
+> - [x] **(a) Teach the fetch path that a recorded sha may be CRLF.** ⚠️ **Corrected 2026-08-22, second
 >       pass: this is TWO seams, not the one line the previous version of this box promised.** Measured
 >       by calling both: `planAncestorFetch` yields **0 plan entries** for a CRLF-recorded sha (1 for
 >       LF), **and** `verifyBase` refuses the tag's LF blob against a CRLF record — so fixing only the
@@ -174,34 +185,73 @@
 >
 > **The shape, on the MISS path only — so an LF brain executes not one extra instruction.**
 >
-> - [ ] When `table.files[rel][recorded]` misses, do **not** give up: the rel's rows are few (2–11 in
+> - [x] When `table.files[rel][recorded]` misses, do **not** give up: the rel's rows are few (2–11 in
 >       this table, 82 over 15 files). For each candidate row, the fetch already knows the tag and the
 >       source path, so it can obtain the blob and test `fingerprint(crlfify(blob)) === recorded`. The
 >       row that answers **is** the recorded version, proved by the same membership argument S7 rests
 >       on — never derived from the installed bytes.
-> - [ ] The variant that matched is then carried to the write: `verifyBase` is asked about the **CRLF**
+>       - 📐 **ONE REFINEMENT the design did not name, and it is where the work went** _(built
+>         2026-08-22)_. The planner is **pure** and holds no git, so it cannot be the thing that tests
+>         a blob. It therefore stops **resolving** on a miss and starts **NOMINATING**: it returns
+>         `{ rel, recorded, candidates: [{ tag, sourcePath }] }`, and the walk lives in the fetch,
+>         which is the half that already spawns git. A hit still returns `{ rel, tag, sourcePath,
+>         recorded }` — **two shapes on purpose**, so the LF fleet's argv and call count are provably
+>         byte-for-byte what they were, rather than merely believed to be.
+> - [x] The variant that matched is then carried to the write: `verifyBase` is asked about the **CRLF**
 >       form, and the CRLF bytes are what land in `.engine-base/`. That is not a concession, it is
 >       correct — the base must be **what was delivered to that brain**, and CRLF is what was delivered.
-> - [ ] **Cost, stated**: up to N `git show` on a miss, N ≤ 11, and only on a brain that has the defect.
->       No table change, no manifest change, no recorded sha rewritten.
+>       - 🛑 **And `verifyBase` turned out to be the WRONG function to ask** _(found by writing the
+>         test, not by reading the code)_. It **forgives** EOL to answer a yes/no, so on the candidate
+>         path it would say *"usable"* without saying **which byte-state** matched — and the answer here
+>         has to BE bytes. Hence `recordedVariant` beside it in `engine-base.mjs`: deliberately
+>         unforgiving, it returns the byte-state it has **proved**, or null. A test pins the difference
+>         on the very input where the two disagree.
+> - [x] **Cost, stated**: up to N `git show` on a miss, N ≤ 11, and only on a brain that has the defect.
+>       No table change, no manifest change, no recorded sha rewritten. _(Confirmed as built: one fetch
+>       per DISTINCT tag, memoised across entries, and the walk stops at the row that answers.)_
 >
 > **What must go red first** (the tests this design owes, before a line of it exists):
 >
-> - [ ] A CRLF-recorded hole yields a plan entry naming the right tag — the pole CI fails on today.
-> - [ ] Its ancestor is written, and the merge that follows keeps the owner's lines **and** lands the
+> - [x] A CRLF-recorded hole yields a plan entry naming the right tag — the pole CI fails on today.
+>       _(Named as **candidates** rather than one tag, per the refinement above.)_
+> - [x] Its ancestor is written, and the merge that follows keeps the owner's lines **and** lands the
 >       update, on a brain rebuilt from a real tag. Same assertion as the LF pole, different EOL.
-> - [ ] **An owner's genuine edit still fetches nothing**, in both EOL forms. The whole risk of this
+>       `brainAtRelease` gained an `eol: "crlf"` option that CRLF-ifies the fixture **before** the
+>       provenance is computed, which is the defect's own ordering. 🛑 **The pole asserts its own
+>       premise** — that the record really is the CRLF digest and really is absent from the table — so
+>       it cannot pass as an LF brain wearing a Windows name, which is exactly how the FR pole measured
+>       the wrong thing for a day.
+> - [x] **An owner's genuine edit still fetches nothing**, in both EOL forms. The whole risk of this
 >       change is loosening the proof, so the negative pole is the one that must be triangulated.
-> - [ ] An LF brain's plan and its fetch count are **unchanged** — the miss path never runs for it.
+>       Three of them: a candidate list nothing can prove writes **not one byte** and reports `failed`;
+>       the same with a tag whose blob is already CRLF (so `crlfify` cannot become a way for any CRLF
+>       blob to pass); and an **untouched** Windows brain plans nothing at all.
+> - [x] An LF brain's plan and its fetch count are **unchanged** — the miss path never runs for it.
+>       Asserted twice: the hit entry carries no `candidates` key, and every pre-existing argv test
+>       passes untouched.
+> - [x] 🧪 **Mutation, scoped to the changed lines** (never the whole file — CONVENTIONS §5quinquies):
+>       `engine-base.mjs:56-86` **100 %** (23 killed), `engine-ancestor.mjs:55-90` **100 %** (10),
+>       `engine-ancestor-fetch.mjs:60-112` **96.67 %** → **100 %** with the one test the survivor
+>       demanded (`13ef852`). → `mutation/RESULTS.md`.
+>       - 🧭 **The trap this run walked into first, worth more than the score**: `mutate-one.mjs`
+>         resets its worktree to **`git rev-parse HEAD`**, so a pass run over an **uncommitted** change
+>         measures the code that is still committed. The first run returned a clean **100 %** for lines
+>         that did not exist yet. Same family as yesterday's hand-rolled lookup: real, deterministic,
+>         repeatable and **about the wrong thing**. **Commit, then mutate** — the order is not a
+>         preference.
 >
 > **Deliberately NOT in this design**: pinning the clone with `-c core.autocrlf=false` (that is option
 > (b), it is future-only, and it is a separate decision), and anything touching `.gitattributes`.
 >
-> ⚠️ **The release note needs ONE honest line, not the qualifier this box first demanded.** *"A brain
-> frozen since the day it was installed starts receiving again"* is **true on Windows** — the heal is
-> fine. What needs saying is narrower: **the ancestor fetch does not reach a Windows brain**, so *"your
-> edits survive AND the update lands"* becomes *"your edits survive, and the new version waits beside
-> them"* there. If you take (a), even that goes away.
+> ~~⚠️ **The release note needs ONE honest line, not the qualifier this box first demanded.**~~
+> ✅ **AND IT GOES AWAY — (a) WAS TAKEN AND IS BUILT** _(2026-08-22 · W1)_. The line this box was about
+> to make the note owe — *"on Windows, your edits survive and the new version waits beside them"* —
+> **is no longer true and must NOT be written**. Both promises now hold on both platforms: the heal
+> was never affected, and the ancestor fetch reaches a CRLF-recorded brain.
+>
+> 🛑 **Subject to W6, and that is not a formality.** What is proved today is proved **on macOS, with
+> the CRLF synthesised** by the fixture. The claim above may be written into the note only once a real
+> `windows-latest` run is **read** and green. Until then the code is repaired and the proof is owed.
 
 > ## ✅ WITHDRAWN — the "does the heal unlock RETIREMENT?" arbitration was a FALSE ALARM
 >
@@ -316,13 +366,29 @@
 > ## ▶️ RESUME AT — **THE WORK ORDER, set by Thomas 2026-08-22 after he answered all five**
 >
 > _(He asked for exactly this, in these terms: a loop that **carries out the five decisions**, with
-> **the Windows fixes at the top**. This queue IS the loop's order of work; take W1 first and do not
-> re-derive the order from the slice numbering.)_
+> **the Windows fixes at the top**. This queue IS the loop's order of work; take the first unticked
+> entry and do not re-derive the order from the slice numbering.)_
 >
-> - [ ] **W1 — S7-6, the CRLF ancestor fetch (answer 1, half a).** Design written, four tests named,
->       **no code yet**. Build it **test-first**: the four poles red on their assertions, then the code,
->       then the full suite, then commit. → § *The DESIGN for (a)* at the top of this file.
-> - [ ] **W2 — pin the line endings at delivery (answer 1, half b).** `-c core.autocrlf=false` on the
+> 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed)_. W1 is built and pushed; what it still owes is
+> **W6's reading of a real Windows run**, which is an acceptance condition on the release rather than
+> a slice to build, so it does not hold W2 back. The branch was pushed at `13ef852`, so the *Windows
+> tripwire · harness* job has a run to report on — **read it before claiming W1 is proved.**
+>
+> - [x] ✅ **W1 — S7-6, the CRLF ancestor fetch (answer 1, half a). BUILT** _(2026-08-22 · `65a6080`
+>       fix + `13ef852` the mutation survivor's test)_. Test-first, the four named poles red on their
+>       assertions before a line of code, 22 tests in all. Suite **2 446 / 2 443 pass / 0 fail / 3
+>       skipped**; scoped mutation 100 % on all three seams. → § *The DESIGN for (a)*, whose boxes now
+>       carry what the build changed about it.
+>       - 🛑 **THREE seams, not two**, and the second correction in this box's history came from the
+>         same cause as the first: `verifyBase` was the wrong function to ask on the candidate path
+>         because it **forgives** EOL, and the answer there has to BE bytes. Found by writing the test,
+>         not by reading the code. **Naming a defect precisely is still not having enumerated where it
+>         lives** — third time on this subject, and each time the missing seam appeared the moment
+>         something was RUN.
+>       - [ ] 🪟 **NOT DONE UNTIL W6 SAYS SO.** The CRLF is **synthesised** by the fixture on macOS. The
+>         three QA poles CI fails on today are the real measurement, and reading that run is the
+>         acceptance condition Thomas set.
+> - [ ] **▶️ W2 (NEXT) — pin the line endings at delivery (answer 1, half b).** `-c core.autocrlf=false` on the
 >       updater's clone (`buildCloneArgs`) **and** on the installer's copy path. Future-only by nature;
 >       W1 is what repairs brains already installed. **Deliberately a separate slice** — the design of
 >       (a) says so.
@@ -363,6 +429,9 @@
 > > - [ ] **W1's four tests must run ON Windows and be green there**, not merely green locally. The
 > >       three QA poles CI fails today are exactly the defect W1 repairs — they are the proof, already
 > >       written and already red on a real image.
+> >       - 🟡 **W1 landed 2026-08-22 (`65a6080` / `13ef852`) and was PUSHED**, so a tripwire run
+> >         exists. **Nothing here may be ticked from a macOS pass**: on this machine the fixture
+> >         SYNTHESISES the CRLF, and the whole point of W6 is a platform where git makes it.
 > > - [ ] **The fourth Windows red is a HARNESS artifact and must be closed too**, separately and
 > >       without pretending it is the same bug: the S7-2 freshness guard regenerates the fingerprint
 > >       table from the runner's working tree, which is CRLF there. → the box at the top names it.
@@ -539,7 +608,10 @@
 >       🧭 **And clearing it is what made the real defect legible**: four failures had been hiding under
 >       nine. A red light with two unrelated causes reads as one broken thing, which is part of why it
 >       went unread for a day.
-> - [ ] 🛑 **CRLF: the heal recognises nothing on Windows.** The blocking box at the top of this file.
+> - [x] 🛑 ~~**CRLF: the heal recognises nothing on Windows.**~~ **Wrong twice over, and both corrections
+>       are recorded in the box at the top**: the heal was never affected, and the seam that was — the
+>       ancestor FETCH — is **repaired by W1** _(2026-08-22 · `65a6080`)_. What is left is reading a
+>       real Windows run (W6), not writing code.
 >
 > 🧭 **The rule this earns, beside "a pre-flight is a timestamp": a pre-flight that only reads the
 > LOCAL suite is measuring the machine that wrote the code.** The tripwire exists because the local
@@ -930,8 +1002,14 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         13 tests, mutation **92.31 %** on the new module, **100 %** on both changed hunks)_
         **The frozen fleet receives**: a brain rebuilt from the real `v3.6.0` tag, recording no sha
         for the doctrine, comes out of an update byte-identical to what the engine ships.
-  - [ ] ▶️ **S7-6 — the CRLF ancestor fetch.** Design written 2026-08-22 (blocking box, § *The DESIGN
-        for (a)*); **build it test-first next**, four poles named there.
+  - [x] ✅ **S7-6 — the CRLF ancestor fetch (= W1).** _(2026-08-22 · `65a6080` + `13ef852` · 22 tests,
+        scoped mutation 100 % on all three seams)_ On a miss the planner **nominates** the rel's rows
+        instead of giving up, and the fetch proves which one is the record by digesting its CRLF form,
+        then writes that form — the base must hold **what was delivered to that brain**. An LF brain
+        takes the hit path unchanged. § *The DESIGN for (a)* owns the detail and what the build changed
+        about it; nothing is copied here.
+        - [ ] 🪟 **W6 still owes the proof on a real `windows-latest` run.** On macOS the CRLF is
+              synthesised by the fixture, so a local pass is not the acceptance condition Thomas set.
   - [ ] **S7-5 — fetch the ancestor's bytes from a published tag** (owner's idea, measured 13/15 on
         both real brains). ✅ **IN v5, owner's call 2026-08-21.** Runs after S7-3, before S7-4.
     - [x] **S7-5-0 — THE DESIGN.** _(2026-08-21 · `HEAD`)_ The four questions answered, plus two the

@@ -157,16 +157,22 @@ what the fleet stopped receiving. Owned by
 They are kept here, with what made each false, because they were pinned by tests and the tests were
 inverted rather than deleted.
 
-> 🛑 **CLAIM 1 FELL EVERYWHERE. CLAIM 2 STILL STANDS ON WINDOWS** _(measured 2026-08-22; an earlier
-> version of this paragraph said both, and was wrong)_. **The heal is fine on Windows**: it normalises
-> the installed content before consulting the table (`engine-heal.mjs:32`), and CRLF content heals
-> byte-identically to LF while an owner's edit still heals not at all. **The ancestor fetch is not**:
-> `planAncestorFetch` resolves the tag by a **direct lookup on the recorded sha**
-> (`engine-ancestor.mjs:59`), a Windows brain records a **CRLF** digest at install, and no table row is
-> CRLF — so **no fetch is attempted at all** (the QA pole fails with an empty list, not a wrong one).
-> A one-line asymmetry: `verifyBase` forgives CRLF *content* against an LF *record*, and nothing
-> forgives the mirror case. Read entry 2 below as *"false on macOS/Linux, unresolved on Windows"* until
-> item 1 of the arbitration at the end of this body is settled.
+> ✅ **BOTH CLAIMS NOW FALL ON BOTH PLATFORMS** _(2026-08-22, `65a6080` + `13ef852`)_. **The heal was
+> never affected on Windows**: it normalises the installed content before consulting the table
+> (`engine-heal.mjs:32`), and CRLF content heals byte-identically to LF while an owner's edit still
+> heals not at all. **The ancestor fetch WAS** — it resolved the tag by a direct lookup on the recorded
+> sha, a Windows brain records a **CRLF** digest at install, and no table row is CRLF (every row is
+> folded from a git blob, and the object store holds LF), so no fetch was attempted at all.
+>
+> **A digest cannot be un-digested**, so the lookup could not be repaired in place. Instead the planner
+> stops resolving on a miss and **nominates**: it hands the fetch the rel's rows, and the fetch proves
+> which one is the record by digesting its CRLF form. The row that answers **is** what was delivered —
+> a membership proof, never derived from the installed bytes — and the CRLF form is what lands in
+> `.engine-base/`, because the base must hold what was delivered to *that* brain. An LF brain takes the
+> hit path unchanged and pays nothing.
+>
+> 🪟 **Proved on macOS with a SYNTHESISED CRLF fixture; the real Windows runner has the last word** —
+> see the acceptance condition at the end of this body.
 
 1. ~~**The doctrine layer unfreezes no already-deployed brain.**~~ **False as of S7.** Old brains no
    longer merely stop being *silent*: a brain rebuilt from the real `v3.6.0` tag now **receives**. The
@@ -228,27 +234,32 @@ inverted rather than deleted.
 
 ## ⚠️ Three things to settle before this can be cut
 
-1. 🛑 **CI IS RED ON WINDOWS, and one of the four failures is a real product defect.** **The ancestor
-   fetch never runs on a Windows brain.** `planAncestorFetch` resolves the tag by a direct lookup on
-   the recorded sha (`engine-ancestor.mjs:59`); a Windows brain records a **CRLF** digest at install —
+1. 🪟 **THE WINDOWS REPAIR IS BUILT; ITS PROOF ON A REAL WINDOWS RUNNER IS AN ACCEPTANCE CONDITION.**
+   CI was red on Windows with four failures, three of them one real product defect: **the ancestor
+   fetch never ran on a Windows brain.** A Windows brain records a **CRLF** digest at install —
    deliberately, so an update does not flip a sha for content nobody touched — and no table row is
-   CRLF, so the lookup misses and nothing is fetched. Two more QA poles fall with it, because all three
-   need that ancestor. **A brain installed on Windows does hold CRLF**: `installer.mjs` copies the
-   launcher's working tree byte for byte (`installer.mjs:309`) and Git for Windows defaults
+   CRLF, so the direct lookup missed and nothing was fetched. Two more QA poles fell with it, because
+   all three need that ancestor. **A brain installed on Windows does hold CRLF**: `installer.mjs`
+   copies the launcher's working tree byte for byte (`installer.mjs:309`) and Git for Windows defaults
    `core.autocrlf` to true.
-   - ✅ **The heal is NOT affected**, so *"a frozen brain starts receiving again"* holds on Windows. It
-     normalises the installed content before consulting the table (`engine-heal.mjs:32`) — measured,
-     CRLF heals identically to LF, and an owner's edit still heals not at all.
-   - 📐 **The fourth Windows failure is a harness artifact**: the fingerprint freshness guard
-     regenerates the table from the runner's working tree, which is CRLF there. Worth naming anyway —
-     **a maintainer cutting a release from a Windows checkout would generate a CRLF table**, and
-     nothing prevents it.
-   - The options are at the top of the plan with a recommendation, and **two numbers are already
-     measured** so the choice is not blind: LF-normalising the table costs **0 of its 82 byte-states**
-     (nothing collapses, across versions or locales), and no published blob carries CRLF at any ref.
-     It changes what an update may write on a deployed brain, so it is not the loop's call.
-   - ⚠️ **What the release note needs is one honest line, not a qualifier on its lead**: on Windows, a
-     file edited before this release is preserved with its `.new` sidecar rather than merged.
+   - ✅ **Repaired** _(`65a6080` + `13ef852`)_: on a miss the planner **nominates** the rel's rows
+     instead of giving up, and the fetch proves which one is the record by digesting its CRLF form,
+     then writes that form. 22 tests, all red on their assertions first, including a QA pole on a brain
+     rebuilt from the real `v3.6.0` tag with CRLF-recorded provenance. Scoped mutation 100 % on all
+     three seams.
+   - 🛑 **NOT the same as done.** The CRLF is **synthesised** by the fixture on macOS; the point of the
+     owner's condition is a platform where git makes it. **Read the `windows-latest` run** — the three
+     QA poles it fails today are the measurement.
+   - ✅ **The heal was NOT affected**, so *"a frozen brain starts receiving again"* held on Windows all
+     along. It normalises the installed content before consulting the table (`engine-heal.mjs:32`) —
+     measured, CRLF heals identically to LF, and an owner's edit still heals not at all.
+   - 📐 **The fourth Windows failure is a harness artifact and is STILL OPEN**: the fingerprint
+     freshness guard regenerates the table from the runner's working tree, which is CRLF there. Worth
+     naming beyond CI — **a maintainer cutting a release from a Windows checkout would generate a CRLF
+     table**, and nothing prevents it.
+   - ✅ **What the release note owes here is now NOTHING.** The honest line this section used to
+     demand — *on Windows, a file edited before this release is preserved with its `.new` sidecar
+     rather than merged* — **is no longer true and must not be written.**
 2. **One arbitration, written at the top of the plan.** A brain keeps its **install-day list of which
    files the engine manages**, forever — an update never advances `regimes`. Consequence, measured: the
    engine half of the constitution, a `merge` family only v4+ declares, is offered *during* an update on
