@@ -12,29 +12,37 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **the second `/code-review` pass has RUN** (Thomas typed it, 2026-08-22) **and its findings
-  are being discharged under his GO.** How many, which are done, which remain and what is still his to
-  answer: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) § I–L and its STATE
-  block, which OWNS all of it. **Do not restate any of it here** — this line used to carry the count
-  and the pending question, and both went stale within the day. After they are discharged the cut runs
-  3 → 4 → 6 of § *WHAT IS YOURS, IN ORDER*.
+- **Next:** 🚨 **THE REHEARSAL RAN, AND IT FOUND THE THING THOMAS SAID HE WANTED TO AVOID**
+  _(2026-08-23, on a COPY of `mind-palace`, no original touched)_: **the first update to v5 does NOT
+  unfreeze a deployed brain.** It swaps the engine, says it is up to date, and leaves the doctrine
+  exactly where it was — because the update that carries this feature is performed by the brain's
+  **OLD** engine, and nothing in the old parent advances the file families the new one needs. It takes
+  a **second** `/update-engine` — which no surface ever asks for. → § *THE REHEARSAL*, which owns it.
+  - The review queue is otherwise being discharged under his GO:
+    [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) § I–L and its STATE block OWN
+    how many, which are done and which remain. **Do not restate any of it here** — this line used to
+    carry the count and the pending question, and both went stale within the day. After they are
+    discharged the cut runs 3 → 4 → 6 of § *WHAT IS YOURS, IN ORDER*.
   - The other conversation he opened is still open and is **not** on this release's path: **the shape
     lint for plans**, argued in [`plan-state-single-source-study.md`](plan-state-single-source-study.md),
     his call, recommendation on record.
   - **No engineering is left on this release** beyond whatever the review turns up: the queue is
     empty, checked against the three surfaces rather than recalled. Say that in one line rather than
     reciting § *WHAT IS YOURS*, and **do not take an entry from it**.
-- **Blocked on:** the code review's findings —
+- **Blocked on:** **the first-update defect above must be fixed before this ships** — it is the
+  release's own headline, and it lands on every deployed brain. Plus the code review's findings —
   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns them and its own STATE
   block answers where they stand. **Nothing is merged or tagged until its § Tracking is discharged**,
   unless Thomas ships with a named finding deferred.
-- **Owner's call pending:** **one.** The **rehearsal on a copy of a real brain** before the tag —
-  proposed 2026-08-22, never ruled on, and the only thing that would exercise in the field what this
-  release promises. _(Everything else he was asked is answered: the five decisions, the `scripts` bump
-  at `1.14.0`, and **W5b — the four doctrine texts ship as written**, 2026-08-22. **Do not re-ask any
-  of them.**)_
-- **A session may, alone:** **nothing here.** Not merge, tag, publish, push to `main`, or touch either
-  of his two real brains. There is no engineering entry left to take.
+- **Owner's call pending:** **none that blocks.** The rehearsal question is **answered by doing it**:
+  it ran on a copy on 2026-08-23, under his *"j'aimerais m'assurer que la campagne de QA … soit
+  suffisante"*, and no original was touched (the copy carries no `.git`, so it has no remote and can
+  push nowhere). _(Everything else he was asked is answered: the five decisions, the `scripts` bump at
+  `1.14.0`, and **W5b — the four doctrine texts ship as written**, 2026-08-22. **Do not re-ask any of
+  them.**)_
+- **A session may, alone:** fix the first-update defect, test-first, and re-run the rehearsal against
+  the fix. **Not** merge, tag, publish, push to `main`, or write into either of his two real brains
+  (a read-only COPY under the job's tmp dir is not the brain).
 
 > ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the arguments; the state is in the block above)_
 >
@@ -100,6 +108,54 @@
 > ✅ **AND NOW → ZERO** _(2026-08-22, run `32564338986` on `3b6820b`, the full PR matrix 7/7)_: the last
 > one was the S7-2 harness artifact, and closing it also closed a maintainer defect nobody had named —
 > **a release cut from a Windows clone would have shipped a CRLF fingerprint table**. → § *W6*.
+
+> ## 🚨 THE REHEARSAL — **the first update to v5 does not unfreeze anything, and says it is up to date**
+>
+> _(2026-08-23. Run on a **copy** of `mind-palace` (v4.9.1, French), against a local mirror of this
+> repository **tagged `v5.0.0`** at the branch's HEAD — because what reaches the fleet is the TAG.
+> Nothing in the trial can reach an original: the copy is made **without `.git`**, so it has no remote
+> and no push is even expressible; every path is under the job's tmp dir. `npm install` / `npm run
+> index` are stubbed by a shim on `PATH` — they are network and model work, and this trial is about
+> what the update WRITES INTO THE BRAIN. Everything else in the run is the real engine.)_
+>
+> **What was measured, in order, on a pristine copy:**
+>
+> - [x] 🔴 **After ONE `/update-engine`, the brain is NOT unfrozen.** `CLAUDE.engine.md` is still the
+>       **334-line** file it has held since v3.6.0 (the release delivers 548). `regimes` still has its
+>       three install-day keys and its 15-entry `merge` list, **without `CLAUDE.engine.md`**. `retired`
+>       is still absent, so `tdd-discipline` is **still on disk**. `baseRefs` is still `{}`.
+> - [x] 🔴 **And every surface says everything is fine.** `/update-engine --check` answers *"Your brain
+>       runs v5.0.0. ✅ That is the latest release — there is nothing to install."* The session nudge
+>       names **one** file (`.claude/settings.json`) and never mentions the doctrine. The SessionStart
+>       self-heal detects **no gap** and changes nothing. **Nothing anywhere asks for a second run.**
+> - [x] ✅ **A SECOND `/update-engine` does the whole thing, perfectly.** `doctrineRefreshed:
+>       ["CLAUDE.engine.md"]`, `healed: [{rel: CLAUDE.engine.md, since: "v3.6.0", locale: "fr"}]`,
+>       `skillsRetired: ["tdd-discipline"]`, `baseRefs: {CLAUDE.engine.md: "v5.0.0"}`, regimes advanced
+>       to four keys / 16 entries — and the delivered doctrine is **byte-identical to
+>       `templates/fr/CLAUDE.engine.md` at HEAD**. The mechanism is right. Its **first** run is not.
+>
+> **THE CAUSE, read rather than reasoned.** The update that carries this feature is performed by the
+> brain's **OLD** engine: every deployed brain runs a `update-engine.mjs` that predates v5. That old
+> step 7 writes back `{...local, engineVersion, indexSchemaVersion, source, provenance, baseRefs}` and
+> **not `regimes`** — the very defect W3 was decided against, one level up. The auto-finalize child
+> that follows *is* new code, and it is the release's only chance to repair this on the first pass —
+> but it loads **the brain's own manifest as both target and local** (`reconcile-brain.mjs`, the CLI
+> entry), so it reconciles against the **stale** family list and cannot see the doctrine either.
+>
+> **Why no test caught it.** Every QA pole calls **HEAD's** `reconcileBrain` directly. That models the
+> second update, not the first. The one thing the whole fleet will actually run — *old parent, new
+> child* — had no test at all. _(Same family as the FR false alarm and the hand-rolled lookup: the
+> instrument was measuring a state no brain is ever in.)_
+>
+> **THE FIX, and why it is engineering rather than a call.** The child is spawned with `--sourceDir`,
+> and that directory holds the release's own `engine-manifest.json`. Advancing the brain's `regimes`
+> and `retired` from it, **before** the child reconciles, is exactly what W3 decided (Thomas, answer 4)
+> — applied at the one place that runs on a deployed brain's first update. It is a no-op for the
+> self-heal path, where `sourceDir === brainDir` and the two manifests are the same file. Nothing else
+> moves: the version stamps and the index schema are the parent's, already written.
+>
+> - [ ] Build it test-first, then **re-run this same rehearsal** and read the state after ONE update.
+>
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
 >
