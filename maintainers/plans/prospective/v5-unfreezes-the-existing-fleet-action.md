@@ -412,8 +412,8 @@
 > **the Windows fixes at the top**. This queue IS the loop's order of work; take the first unticked
 > entry and do not re-derive the order from the slice numbering.)_
 >
-> 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
-> **proved green on a real `windows-latest` runner** (run `32558375080`).
+> ~~🧭 **RESUME AT W2**~~ _(superseded twice; kept struck so a reader after a clear cannot mistake a
+> two-generation-old marker for the current one — the box below is the only live RESUME AT.)_
 >
 > 🛑 **RESUME AT: NOTHING. THE LOOP'S QUEUE IS EMPTY, AND THIS TIME THE INVENTORY WAS CHECKED RATHER
 > THAN THE LIST** _(2026-08-22, after W6's skip list was read)_. **W1, W2, W3, W4 and W6 are built,
@@ -434,6 +434,44 @@
 >
 > 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
 > should say so and stop, rather than find something.
+>
+> ### 🎙️ WHAT IS YOURS, IN ORDER — the whole cut, on one screen _(2026-08-22)_
+>
+> _(Assembled here so it survives a cleared context: each line links the section that argues it. The
+> sections stay the authority; this is the order, not a second copy of the reasoning.)_
+>
+> - [ ] **1. Retarget #76 to `main`, and apply the new body + title.** Measured now: **#76 is still
+>       based on `chore/s0bis-entrypoint-mutation-debt`, still draft, MERGEABLE**; #75 is open on
+>       `main`; the branch is **304 ahead of `main`, 0 behind**. #75 is **not** merged first and **not**
+>       closed by hand — its head is an ancestor, so GitHub marks it merged on its own.
+>       ```bash
+>       gh pr edit 76 --base main
+>       sed '1,/^---$/d' maintainers/plans/prospective/release-v5.0.0-pr-body.md > /tmp/pr76.md
+>       gh pr edit 76 --title "v5.0.0 — the engine owns what it shipped, and stops leaving old brains behind" --body-file /tmp/pr76.md
+>       ```
+>       ⚠️ The live body still describes **S1–S6 alone** and has been wrong since 2026-08-21.
+> - [ ] **2. W5b — arbitrate the WORDING of the four doctrine texts, before the tag.** #61, #67, #64's
+>       rule half and the source-first rule are written, placed and guarded. **The guards assert
+>       patterns, not prose**: rewrite every sentence and the suite stays green; when a rule stops
+>       being recognisable, the test names which one. → § *W5b*.
+> - [ ] **3. The release note — your voice.** Title already decided: **`v5.0.0 — The One Where Your
+>       Edits and Its Updates Finally Merge`**, seven bullets kept.
+>       → [`release-v5.0.0-note.md`](release-v5.0.0-note.md).
+> - [ ] **4. ONE review, ONE merge, NO squash.** The repo allows all three merge styles, so **squash is
+>       reachable by a mis-click** — the button must read *Create a merge commit* at the moment of
+>       merging. History kept whole.
+> - [ ] **5. The `engineVersion` bump, IN THE SAME MOVEMENT AS THE TAG** — never before it (a bumped
+>       version that is not published makes a fresh install stamp itself with a version that was never
+>       released). `rag` and `local-mirror` **unchanged** (0 files moved), `constitutionTemplate`
+>       **1.3.0 → 1.4.0**, `scripts` **1.13.1 → 1.14.0**. → § *S9-2b's materials* for the table and the
+>       25-tag precedent.
+>       - 🎙️ **The one number still yours**: `1.14.0` is the conservative read. `v3.6.0` once moved
+>         `scripts` six minors at once to signal scale — that option is open, and I did not choose.
+> - [ ] **6. Tag, publish.** What reaches the fleet is the **TAG** (`releasesAhead` compares published
+>       semver tags); merging to `main` publishes nothing, there is no release workflow.
+>
+> **Not part of the cut, on purpose**: **#61, #67 and #64 stay OPEN** — what closes them is a brain
+> *receiving* the rule, not the branch carrying it.
 >
 > **W6's two bullets, both now closed:**
 >
