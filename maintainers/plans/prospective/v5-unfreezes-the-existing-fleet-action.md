@@ -435,31 +435,20 @@
 > 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
 > should say so and stop, rather than find something.
 >
-> ### 🙋 ON "ON REPREND": THERE IS **EXACTLY ONE QUESTION** FOR THOMAS. ASK IT, ALONE, FIRST.
+> ### ✅ THE ONE QUESTION IS ANSWERED — NOTHING IS PENDING A DECISION ANY MORE
 >
-> _(2026-08-22. Written here because the checklist below caused the failure it now prevents: asked
-> what remained, the session answered with six ordered steps and buried the only decision inside step
-> 5. His reply: **"je ne comprends pas ce que tu attends de moi"**. A question is not an item in a list
-> of steps.)_
+> _(2026-08-22. The question was `scripts` `1.13.1 → 1.14.0` versus a larger jump. Asked alone, in
+> plain French, and answered: **"ok pour ta reco" → `1.14.0`**. It is recorded at its authority, the
+> § *S9-2b's materials* table, and that box is now ticked. **Do not ask it again.**)_
 >
-> **THE QUESTION — and nothing else goes in the opening reply:**
+> _(Why the box was written in the first place, kept because the lesson outlives the question: asked
+> what remained, an earlier session answered with six ordered steps and buried the only decision
+> inside step 5. His reply: **"je ne comprends pas ce que tu attends de moi"**. A question is not an
+> item in a list of steps.)_
 >
-> > Kenjaku carries an internal version number for its `scripts` part, separate from the release name.
-> > It says **how much moved inside that part**, and it has never been used to mean "a big release" —
-> > checked at all 25 published tags, where even `v4.0.0` moved none of the four numbers.
-> >
-> > This release moved a lot there: **122 files, 25 new modules, nothing removed**. Two honest answers:
-> >
-> > - **`1.13.1 → 1.14.0`** — one release, one step. What the precedent gives by default.
-> > - **a bigger jump** (e.g. `→ 1.20.0`) — `v3.6.0` once moved it six steps at once, deliberately, so
-> >   the number itself would say how much had changed.
-> >
-> > Nothing depends on it technically: no install, no update and no brain reads this number to decide
-> > anything. It is a **signal to a human reading the manifest later**. My recommendation is `1.14.0`,
-> > and I did not choose for you.
->
-> **Everything else on this release needs only your GO**, not a decision: it is the checklist below,
-> and the session should say that in **one line** rather than reciting it.
+> **So on "on reprend": everything left on this release needs only Thomas's GO**, not a decision. It
+> is the checklist below, and it is **his to execute, in order, at the keyboard** — say it in **one
+> line** rather than reciting it, and do not take an entry from it.
 >
 > ### 🎙️ WHAT IS YOURS, IN ORDER — the whole cut, on one screen _(2026-08-22)_
 >
@@ -491,8 +480,9 @@
 >       released). `rag` and `local-mirror` **unchanged** (0 files moved), `constitutionTemplate`
 >       **1.3.0 → 1.4.0**, `scripts` **1.13.1 → 1.14.0**. → § *S9-2b's materials* for the table and the
 >       25-tag precedent.
->       - 🎙️ **The one number still yours**: `1.14.0` is the conservative read. `v3.6.0` once moved
->         `scripts` six minors at once to signal scale — that option is open, and I did not choose.
+>       - ✅ **All four numbers are settled**: three are dictated by the diff, and the fourth,
+>         `scripts`, was **arbitrated by Thomas at `1.14.0`** on 2026-08-22 (the larger jump, à la
+>         `v3.6.0`, was offered and declined). Nothing left to decide here, only to apply.
 > - [ ] **6. Tag, publish.** What reaches the fleet is the **TAG** (`releasesAhead` compares published
 >       semver tags); merging to `main` publishes nothing, there is no release workflow.
 >
@@ -897,11 +887,11 @@
 >       to `v3.6.2`. **A Kenjaku major release implies nothing about this vector**; it tracks what
 >       changed *inside a component*, and the release number is a separate story told elsewhere. So
 >       `scripts → 2.0.0` would be a first in the project's history, for a change that removes nothing.
-> - [ ] 🎙️ **What IS still yours, and it is one number.** `v3.6.0` moved `scripts` **1.1.0 → 1.7.0**,
->       six minors in one release, so the vector *has* been used to signal scale. `1.14.0` is the
->       conservative read (one release, one minor); a larger jump is available if you want the number
->       itself to say how much moved. **I did not choose** — the table above writes `1.14.0` because
->       that is what the precedent's default gives, not because the question is closed.
+> - [x] 🎙️ **ANSWERED BY THOMAS — `scripts` goes `1.13.1 → 1.14.0`** _(2026-08-22, asked alone and
+>       answered "ok pour ta reco")_. `v3.6.0` moved `scripts` **1.1.0 → 1.7.0**, six minors in one
+>       release, so the vector *has* been used to signal scale; the larger jump was offered and **not**
+>       taken. The table above stands as written. **The question is closed** — the number is no longer
+>       a decision, only a value to apply with the tag (step 5 of the cut).
 > - 🚫 **`indexSchemaVersion` stays `2`, and that is not a bump anyone may take**: it is the promise
 >       *"nothing is re-read and nothing is re-encoded"* in the release note. Moving it would re-index
 >       every deployed brain.
@@ -960,9 +950,10 @@
 >       is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is still OPEN**. Either #75 lands
 >       first, or #76 is retargeted to `main`. Deliberate when it was set up (so #75 kept its S0bis
 >       perimeter); it is a decision now, and it is his.
-> - [ ] **The `engineVersion` bump is now DERIVED and waiting to be applied**, not an open question:
->       the four numbers, what dictates each and the one that is still yours are in the table under
->       § *S9-2b's materials* above. No copy here on purpose — the manifest still reads v4.9.1's.
+> - [ ] **The `engineVersion` bump is now DERIVED, ARBITRATED and waiting to be applied**, not an open
+>       question: the four numbers and what dictates each are in the table under § *S9-2b's materials*
+>       above, and the only one that was ever a call was answered there on 2026-08-22. No copy here on
+>       purpose — the manifest still reads v4.9.1's.
 >
 > 🚦 **After this, the loop has nothing left it may take alone on this release.** S9-2b is his, S9-3
 > needs days of real use, and the arbitration above is his. That is a sentence about THIS release, not

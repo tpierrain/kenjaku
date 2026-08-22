@@ -9,13 +9,14 @@
 
 > ## ⏳ WHERE THIS RESUMES — read before the Tracking
 >
-> > 🙋 **ON "ON REPREND" (2026-08-22, after the second `/clear` of this chantier): THE BUILD IS DONE,
-> > AND THERE IS EXACTLY ONE QUESTION FOR THOMAS.** Do not open a slice, do not look for work: the
-> > loop's queue on this release is **empty** (W1-W4 and W6 closed, Windows matrix 7/7). Open
-> > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *RESUME
-> > AT*, read the box titled **"ON 'ON REPREND': THERE IS EXACTLY ONE QUESTION FOR THOMAS"**, and
-> > **ask that question alone, first, in plain French with no PR number and no slice name.** Everything
-> > else needs only his GO and is said in one line, never recited.
+> > 🙋 **ON "ON REPREND" (2026-08-22, after the third `/clear` of this chantier): THE BUILD IS DONE,
+> > THE LAST QUESTION IS ANSWERED, AND WHAT REMAINS IS THOMAS'S TO EXECUTE.** Do not open a slice, do
+> > not look for work, and **do not take an entry from his cut**: the loop's queue on this release is
+> > **empty** (W1-W4 and W6 closed, Windows matrix 7/7). The one open decision, the `scripts` internal
+> > version, was asked alone and answered — **`1.13.1 → 1.14.0`**, recorded in the v5 plan's § *S9-2b's
+> > materials* table. **Do not ask it again.** What is left is the six-step cut in
+> > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *WHAT IS
+> > YOURS, IN ORDER*: name it in **one line**, never recite it, and wait for his GO.
 > >
 > > 🌙 **AS OF 2026-08-22, after a night of `/loop` iterations and immediately before a `/clear`.** The
 > > landmark below is still true and is no longer the useful one: it dates from 2026-08-20. **Start
@@ -811,7 +812,10 @@ arbitration goes here as a question, and the run continues on other slices.
   any component, and **`v4.0.0` moved not one of the four** (byte-equal to v3.6.2). A Kenjaku major
   release says nothing about this vector. What genuinely remains is **one number**: `v3.6.0` moved
   `scripts` 1.1.0 → 1.7.0, so the vector *has* been used to signal scale — the table writes `1.14.0`
-  as the precedent's default and says out loud that it did not choose.
+  as the precedent's default and says out loud that it did not choose. ✅ **Asked alone and answered
+  the same day** _(2026-08-22)_: `1.14.0`. The state lives in the v5 plan; what belongs to the **mode**
+  is the shape — a question isolated from the checklist got a one-line answer, where the same question
+  buried in six ordered steps had got *"je ne comprends pas ce que tu attends de moi"*.
 
   > 🧭 **"His step" is a claim about the ACT, and the loop kept reading it as a claim about the
   > INPUTS.** Applying a bump, cutting a tag, publishing: those are his, and no amount of preparation
