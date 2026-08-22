@@ -9,13 +9,17 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** apply the convention — § *Application*, in its order: the pilot, then the harness rule,
-  then the remaining live plans and the ROADMAP.
-- **Blocked on:** nothing.
-- **Owner's call pending:** none. Arbitrated 2026-08-22 — *"adopte la convention, on diffère le lint"*.
+- **Next:** paused before the pilot, waiting on the lint question below. The convention itself is
+  adopted and unaffected either way, so § *Application* steps 1, 3 and 4 could start regardless.
+- **Blocked on:** nothing technical.
+- **Owner's call pending:** **the lint decision is REOPENED (2026-08-22).** Thomas's *"on diffère le
+  lint"* came from an autocompletion he accepted before knowing what a lint was; he asked for the
+  stakes in plain terms and the question is back to him. Three options are on the table, and the
+  recommendation is the third: build it all now · defer it all · **split it** (the cheap half now,
+  the hard half after the v5.0.0 tag). See § *The lint, reopened*.
 - **A session may, alone:** apply rules 1-3 to any plan, and write the convention into the harness.
   **It may NOT delete the hook, the `delegates-only` door or the certificate** — those three retire
-  with the lint, and the lint is deferred.
+  only when something replaces them.
 
 > 🧪 **This block is the convention's own first instance.** If it ever needs a sixth key or a
 > thirtieth line, that is evidence against § *The proposal*, and it belongs in § *Application*'s
@@ -339,8 +343,42 @@ single edit and the least reversible.
 
 ### Findings from the application (append as they land)
 
-_(Empty until the pilot runs. Anything the migration teaches about the convention itself goes here,
-because it is evidence about § *The proposal*, not status.)_
+- [x] **The lint has a false-positive problem the proposal understated** _(found 2026-08-22, while
+      preparing the pilot, before writing a line of it)_. Migrating the triage plan means writing
+      **nine commit shas** into a history section — legitimately: they are what the batch cost, they
+      are true forever, and they are exactly the shape the lint was to flag. **So the lint cannot be
+      a blanket "no shas outside the STATE block"**: it needs a scope (which files) and an exemption
+      (a marked history section), and that is the expensive half of it. This is a real argument for
+      not building it in a hurry, and it is the reason the split option below exists at all.
+
+## The lint, reopened
+
+**Why it is back.** Thomas accepted an autocompleted *"on diffère le lint"* without knowing what a
+lint is, and asked for the stakes in plain terms. The convention is **not** in question; only its
+enforcement is.
+
+**What the deferral actually costs, stated plainly** — and the proposal buried it: the hook, the door
+and the certificate were to be retired **by** the lint. With no lint, they stay, so the outcome of
+*"adopt the convention, defer the lint"* is **five mechanisms plus a convention**. That is an
+addition, not the removal the study was asked to deliver. It is defensible as a temporary state; it
+is not defensible as the end state, and nothing in the corpus would have said so out loud.
+
+- [ ] **Option A — build it all now.** Retires the hook, the door and the certificate immediately.
+      Costs ~1h of tooling while the v5.0.0 cut waits, and pays it straight into the hard half whose
+      difficulty the finding above just measured.
+- [ ] **Option B — defer it all.** Cheapest today. Leaves six mechanisms and no trigger to fix that,
+      which is how the previous four workarounds each became permanent.
+- [ ] **Option C — split it (RECOMMENDED).**
+      - **Cheap half, now**: *every live plan has a `## 📍 STATE` block, four keys, ≤ 20 lines.* ~20
+        lines of test, no judgment, no false positive possible, and it keeps the convention alive on
+        the days neither of us is thinking about it.
+      - **Hard half, later, with a NAMED trigger (after the v5.0.0 tag)**: detecting a status written
+        in prose where it does not belong. It is the half that retires the hook and the door, it is
+        the half the finding above says needs care, and two or three weeks of the convention running
+        will say which status shapes actually recur — which is the data the detector needs and does
+        not have today.
+      - **Until the hard half exists, the hook and the door STAY, and this file says so** rather than
+        letting "we adopted the convention" be read as "the workarounds are gone".
 
 ## Scope
 
