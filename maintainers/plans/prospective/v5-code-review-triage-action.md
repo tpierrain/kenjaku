@@ -8,12 +8,12 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F7.** _(updated 2026-08-22, mid autonomous run)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F10.** _(updated 2026-08-22, mid autonomous run)_
 >
 > **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`),
-> F4 (`a0419f6`), F5 (`1917a76`). **Categories A and B are discharged.**
-> **Resume at F7** (a successful update reporting itself as failed), then F10, then D (F6), then F
-> (F14, F15).
+> F4 (`a0419f6`), F5 (`1917a76`), F7 (`89621f0`). **Categories A and B are discharged.**
+> **Resume at F10** (the 1 MB `maxBuffer` on the ancestor fetch) — the last of C — then D (F6), then
+> F (F14, F15).
 > The order and the boundaries below are unchanged and still govern.
 >
 > ⚠️ **A boundary worth knowing before touching any doc**: editing an **engine skill**
@@ -243,10 +243,21 @@ catches any of this.
               under one of that glob's own roots.
         - [x] **Nothing changes for the fleet today**: no shipped glob contains either character (68
               in the manifest, checked). What changes is what the next glob author gets.
-  - [ ] **F7 — a successful update can report itself as failed.** `update-engine.mjs:764`.
-        `readEngineDivergence`'s file reads sit outside its try/catch, and it runs *after* the merge,
-        the manifest rewrite and the commit — so one unreadable file at that instant prints
-        `❌ update-engine failed — the brain was NOT changed`, which is false, and invites a re-run.
+  - [x] **F7 — a successful update can report itself as failed.** ✅ _(2026-08-22 · `89621f0`)_
+        `update-engine.mjs:764`. `readEngineDivergence`'s file reads sit outside its try/catch, and it
+        runs *after* the merge, the manifest rewrite and the commit — so one unreadable file at that
+        instant printed `❌ update-engine failed — the brain was NOT changed`, which is false, and
+        invites a re-run of a completed update.
+        - [x] **Guarded at the CALL SITE, not inside `readEngineDivergence`.** The function stays
+              honest for callers that want to know — the session surface makes its own, already
+              deliberate, fail-open choice — and the invariant lives where it is stated: **past step 7,
+              nothing rejects**, which is also why steps 8 and 9 beside it are fail-soft.
+        - [x] **Nothing is lost by staying quiet**: the divergence nudge is a STANDING surface,
+              re-read at every session start, so a line omitted once comes back on its own.
+        - [x] **The test pins the TOCTOU, not the symptom** — the file is readable for every step that
+              WRITES and unreadable for the step that merely DESCRIBES (a new late hook in the test
+              harness, `onFinalize`). It asserts the update completed *before* asserting the report
+              degraded: a test that only checked "no throw" would pass on an update that never ran.
   - [x] **F8 — a brand-new install is born diverged.** ✅ **Fixed with F1, whose box owns the detail**
         (A. above) _(2026-08-22 · 7f0ae6a)_. `installer.mjs:639`. Provenance and the base tree were
         recorded **before** the connectors step merges permissions into `settings.json`, so any
