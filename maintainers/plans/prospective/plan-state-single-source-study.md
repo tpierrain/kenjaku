@@ -9,11 +9,10 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** § *Application* **step 7 — `ROADMAP.md` loses its Status column** (rule 3): the biggest
-  and least reversible edit, which is why it comes last. Its durable lessons are **kept** and moved
-  to an append-only section of the same file. Then step 8 (a date prefix on newly archived plans).
-  Steps 1-6 are done: all five live plans carry a STATE block and no hand-written resume header.
-  Everything remaining is authorized: **do not ask again, execute.**
+- **Next:** § *Application* **step 8 — a date prefix on NEWLY archived plans** (`archived/2026-08-21-<name>.md`),
+  the last step and the only one that is a judgment call rather than a clear instruction (see its
+  box). Steps 1-7 are done. Step 9 is out of scope and stays out.
+  It is authorized: **do not ask again, execute.**
 - **Blocked on:** nothing.
 - **Owner's call pending:** **one — the lint, and it does not block any step above.** His *"on
   diffère le lint"* came from an autocompletion accepted before knowing what a lint was; asked again
@@ -378,10 +377,24 @@ comes last: biggest edit, least reversible.
             found by grep and fixed: the `/loop` prompt told a session to read a header that no longer
             exists (it now says `ACTIVE.md` → the STATE block), and two cross-references pointed at
             deleted sections. **A convention that deletes headers owes that grep**, every time.
-- [ ] **7. `ROADMAP.md` loses its Status column** (rule 3). Its 22 shas, 19 PR numbers and 23
-      ship-words go; the **durable lessons** buried in those cells are **kept** (criterion 6 forbids
-      losing them) and moved to an append-only section of the same file. Columns become
-      `Plan | Delivers | Depends on`.
+- [x] **7. `ROADMAP.md` loses its Status column** _(2026-08-22)_. Columns are now
+      `Plan | What it delivers | Depends on`. Every sha and PR number that survives sits inside a
+      **ticked checkbox annotation** _(date · commit)_, which is history and true forever — the map's
+      own cells hold none.
+      - [x] **The durable lessons were rescued into § *Kept from the old Status column*** — three
+            debts still owed and by whom (v4.4.0's on-a-real-brain check, v4.8.1's reporters, Track
+            D's two tails), v4.9.0's "general smell", the **unmeasured baby-steps carve-out** with the
+            numbers a future data point must beat, the fan-out sizing rule, and *"a file is not an
+            increment"*. Criterion 6 says none of that may be lost, and none of it was.
+      - [x] **Shipped plans left the map entirely.** Eight rows for `archived/` plans were carrying
+            the biggest status cells in the file — one ran to ~450 words. **The folder name already
+            says they shipped**, so the row was pure restatement.
+      - [x] **The second table's Status column became *"What it waits for"*** — a boundary or a
+            precondition, both true until someone lifts them. That is where *"needs an ADR, the
+            owner's"* belongs; *"UNSTARTED"* was the part that could go false unattended.
+      - [x] **The `plan-carrier-guard: delegates-only` declaration STAYS, and is now true.** It was
+            aspirational when Thomas granted it (finding F-C: the file held 22 shas that day). Rule 3
+            is what made the header honest rather than the header making the file honest.
 - [ ] **8. Newly archived plans get a date prefix** — `archived/2026-08-21-<name>.md`.
       ⚠️ **This one is a judgment call, not a clear instruction**: Thomas asked for an archived
       marker in filenames himself, then answered *"1. oui"* to a question whose second half was this.
