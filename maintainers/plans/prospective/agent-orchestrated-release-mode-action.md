@@ -465,6 +465,38 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📐 **2026-08-22 (the design) — "it is his" was the third inflation in a row, and the written list
+  says otherwise.** With the diagnosis corrected, the fix was re-checked against the mode plan's own
+  § *Where the owner is required*: cutting/tagging/publishing, release-note tone, **scope
+  arbitration**, merging, anything destructive. **Repairing a defect in unreleased code this branch
+  already carries is none of those** — the cargo already contains S7-5, and S7-5 is broken on Windows;
+  mending what is already loaded is not loading more. So S7-6 is the loop's to build, and the
+  arbitration box stays at the top only because **(d) ship and state the limit** remains a live choice
+  the owner may still prefer.
+
+  ⛔ **And the same shortcut fired again, on the same subject.** The box had just been corrected to
+  *"one lookup learning what its neighbours already know"*. **Wrong again — it is two seams.** Measured
+  by calling both: `planAncestorFetch` yields **0 plan entries** for a CRLF-recorded sha (1 for LF),
+  **and** `verifyBase` refuses the tag's LF blob against a CRLF record, so repairing only the lookup
+  would build a plan the write-side then rejects entry by entry.
+
+  > 🧭 **Naming a defect precisely is not the same as having enumerated where it lives.** The asymmetry
+  > — *content forgiven, key not* — was correct both times, and both times it was treated as the whole
+  > story. **A crisp diagnosis is more seductive than a vague one**, and this one was crisp enough to
+  > stop the search twice. The counter-move is mechanical, not attitudinal: **the same question is
+  > asked in more than one place; go find every place before costing the fix.**
+
+  📐 **Written as a DESIGN slice and deliberately not coded this iteration**, per the loop's own rule.
+  It records the constraint that rules out the obvious fixes (a digest cannot be un-digested, so
+  neither *"normalise the key"* nor *"re-record normalised shas"* exists), the miss-path-only shape, its
+  cost (≤11 `git show`, only on an affected brain), the **four tests it owes** — including *an owner's
+  genuine edit still fetches nothing, in both EOL forms*, since the whole risk is loosening the proof —
+  and what is deliberately out.
+
+  🧪 **No mutation pass**: design-only, zero production lines. It falls due when S7-6 is built.
+
+  **Next**: build S7-6 test-first, four poles red on their assertions before any code.
+
 - ⛔ **2026-08-22 (the correction) — the blocking box was WRONG about half its subject, and a hook that
   judges no content is what caught it.** For two iterations the top of the release plan read *"the heal
   does not recognise CRLF, so S7 may be inert on Windows"*. **The heal is fine.** Measured by calling

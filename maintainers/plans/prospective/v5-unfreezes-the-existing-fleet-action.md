@@ -86,13 +86,17 @@
 >
 > **Why it is not mine to fix**: every way out changes what ships or what an update writes.
 >
-> - [ ] **(a) Forgive the EOL on the LOOKUP KEY, exactly where `verifyBase` already forgives it on the
->       content** — `engine-ancestor.mjs:59` tries `table.files[rel][recorded]` and, on a miss, the same
->       row set indexed by normalised digest. **This is not a new convention**: it is S1's own
->       `normalizeEol` discipline applied to the one seam S7-5 added after it, and the heal already does
->       the equivalent. Fixes every already-installed Windows brain, changes **no bytes on disk**, and
->       the argument is conceptual rather than expedient: **a line ending is not an owner edit**.
->       ⚠️ **Narrower than this box first claimed** — the heal needs nothing; only the fetch does.
+> - [ ] **(a) Teach the fetch path that a recorded sha may be CRLF.** ⚠️ **Corrected 2026-08-22, second
+>       pass: this is TWO seams, not the one line the previous version of this box promised.** Measured
+>       by calling both: `planAncestorFetch` yields **0 plan entries** for a CRLF-recorded sha (1 for
+>       LF), **and** `verifyBase` refuses the tag's LF blob against a CRLF record — so fixing only the
+>       lookup would produce a plan whose every entry the write-side then rejects. **The design is
+>       written out below**; it is still the cheapest option and still fixes brains already installed.
+>       - 🧭 **Why "one line" was wrong, twice in a row on the same subject**: both times the shortcut
+>         came from **reasoning about a seam instead of running it**. The asymmetry was named correctly
+>         (*content forgiven, key not*) and then treated as the whole story, when the write-side check
+>         is a third place the same question is asked. **Naming a defect precisely is not the same as
+>         having enumerated where it lives.**
 >       - [x] 📏 **Its one stated risk is now MEASURED, and it is ZERO** _(2026-08-22)_. The risk was
 >             *"two byte-states collapse to one answer"*. Re-folding all **25 published tags + the
 >             working tree** and digesting each state a second time after LF-normalisation:
@@ -115,6 +119,44 @@
 > _(My recommendation if you want one: **(a) + (b)**, and (a) is now a much smaller thing than this box
 > first said — one lookup learning what its neighbours already know, not a new fleet-wide semantic.
 > Still yours: it changes what an update may write on a deployed brain.)_
+>
+> ### 📐 The DESIGN for (a) — written before any code, per the loop's own rule
+>
+> _(Design slice, 2026-08-22. Not built in the same iteration on purpose. **By the mode plan's written
+> list of what needs the owner** — cutting, note tone, scope arbitration, merging, anything destructive
+> — **this is none of them**: it repairs a defect in code this branch already carries and has never
+> published. Building it is the loop's; the box stays here because it was raised as yours and you may
+> still want (d) instead.)_
+>
+> **The constraint that rules out the obvious fixes.** A digest cannot be un-digested: given a CRLF
+> `recorded`, nothing derives the LF row it corresponds to. So neither *"normalise the key"* (there is
+> nothing to normalise) nor *"record normalised shas at install"* (that flips every deployed Windows
+> brain's record, which S1 deliberately refused) is available.
+>
+> **The shape, on the MISS path only — so an LF brain executes not one extra instruction.**
+>
+> - [ ] When `table.files[rel][recorded]` misses, do **not** give up: the rel's rows are few (2–11 in
+>       this table, 82 over 15 files). For each candidate row, the fetch already knows the tag and the
+>       source path, so it can obtain the blob and test `fingerprint(crlfify(blob)) === recorded`. The
+>       row that answers **is** the recorded version, proved by the same membership argument S7 rests
+>       on — never derived from the installed bytes.
+> - [ ] The variant that matched is then carried to the write: `verifyBase` is asked about the **CRLF**
+>       form, and the CRLF bytes are what land in `.engine-base/`. That is not a concession, it is
+>       correct — the base must be **what was delivered to that brain**, and CRLF is what was delivered.
+> - [ ] **Cost, stated**: up to N `git show` on a miss, N ≤ 11, and only on a brain that has the defect.
+>       No table change, no manifest change, no recorded sha rewritten.
+>
+> **What must go red first** (the tests this design owes, before a line of it exists):
+>
+> - [ ] A CRLF-recorded hole yields a plan entry naming the right tag — the pole CI fails on today.
+> - [ ] Its ancestor is written, and the merge that follows keeps the owner's lines **and** lands the
+>       update, on a brain rebuilt from a real tag. Same assertion as the LF pole, different EOL.
+> - [ ] **An owner's genuine edit still fetches nothing**, in both EOL forms. The whole risk of this
+>       change is loosening the proof, so the negative pole is the one that must be triangulated.
+> - [ ] An LF brain's plan and its fetch count are **unchanged** — the miss path never runs for it.
+>
+> **Deliberately NOT in this design**: pinning the clone with `-c core.autocrlf=false` (that is option
+> (b), it is future-only, and it is a separate decision), and anything touching `.gitattributes`.
 >
 > ⚠️ **The release note needs ONE honest line, not the qualifier this box first demanded.** *"A brain
 > frozen since the day it was installed starts receiving again"* is **true on Windows** — the heal is
@@ -232,7 +274,19 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: S9-2b — cut, tag, publish. **HIS.** _(the doctrine cargo is COMPLETE, 2026-08-22)_
+> ## ▶️ RESUME AT: **S7-6 — the CRLF ancestor fetch. DESIGN DONE, BUILD IT NEXT.** _(2026-08-22)_
+>
+> **The design is written**, in the blocking box at the top of this file under § *The DESIGN for (a)*,
+> with the four tests it owes and what is deliberately out. Next iteration **builds it test-first**:
+> the four poles red on their assertions, then the code, then the full suite, then commit.
+>
+> **Why the loop may take it**, checked against the mode plan's written list rather than felt: cutting,
+> release-note tone, scope arbitration, merging and destructive acts need the owner — **repairing a
+> defect in unreleased code this branch already carries is none of those**. The arbitration box stays
+> at the top because you may still prefer **(d) ship and state the limit**, which would make this slice
+> moot; building it does not pre-empt that, it only removes the reason to choose (d) reluctantly.
+>
+> **After it: S9-2b — cut, tag, publish. HIS.** _(the doctrine cargo is COMPLETE, 2026-08-22)_
 >
 > ✅ **All three doctrine items are delivered** — #61 `b590738`, #67 `b2bb910`, #64's rule half
 > `8ff14cf` — plus the source-first rule `5729282` that the same sweep uncovered. **Four text changes
@@ -785,6 +839,8 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         13 tests, mutation **92.31 %** on the new module, **100 %** on both changed hunks)_
         **The frozen fleet receives**: a brain rebuilt from the real `v3.6.0` tag, recording no sha
         for the doctrine, comes out of an update byte-identical to what the engine ships.
+  - [ ] ▶️ **S7-6 — the CRLF ancestor fetch.** Design written 2026-08-22 (blocking box, § *The DESIGN
+        for (a)*); **build it test-first next**, four poles named there.
   - [ ] **S7-5 — fetch the ancestor's bytes from a published tag** (owner's idea, measured 13/15 on
         both real brains). ✅ **IN v5, owner's call 2026-08-21.** Runs after S7-3, before S7-4.
     - [x] **S7-5-0 — THE DESIGN.** _(2026-08-21 · `HEAD`)_ The four questions answered, plus two the
