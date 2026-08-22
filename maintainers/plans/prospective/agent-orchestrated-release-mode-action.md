@@ -17,8 +17,9 @@
 - **Blocked on:** the release, which is not this file's —
   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) owns its
   state and its cut. **Do not open a slice, do not look for work, and do not take an entry from that
-  cut.** What still comes back here is the **second** review pass's figure (an independent read of
-  *repairs*), and that command is Thomas's to type.
+  cut.** The **second** review pass this file was waiting on has **run**, and its figure and
+  its debrief are recorded below in § *Tracking* — nothing further is owed to this file by the
+  release.
 - **Owner's call pending:** none of this file's own. _(The `scripts` version and the five release
   arbitrations are answered and recorded in the release plan. **Do not re-ask them.**)_
 - **A session may, alone:** run the mode as written — delegate bulk reads, and the implementation of

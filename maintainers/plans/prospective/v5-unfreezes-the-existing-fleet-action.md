@@ -12,12 +12,12 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **the second `/code-review` pass has RUN** (Thomas typed it, 2026-08-22) **and came back
-  with 15 more findings, none of them started.** They are owned, triaged and argued in
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) § I–L — that file's STATE block
-  says where they stand and carries the one question waiting on Thomas (the GO on the batch). **Do not
-  restate any of it here.** After they are discharged the cut runs 3 → 4 → 6 of § *WHAT IS YOURS, IN
-  ORDER*.
+- **Next:** **the second `/code-review` pass has RUN** (Thomas typed it, 2026-08-22) **and its findings
+  are being discharged under his GO.** How many, which are done, which remain and what is still his to
+  answer: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) § I–L and its STATE
+  block, which OWNS all of it. **Do not restate any of it here** — this line used to carry the count
+  and the pending question, and both went stale within the day. After they are discharged the cut runs
+  3 → 4 → 6 of § *WHAT IS YOURS, IN ORDER*.
   - The other conversation he opened is still open and is **not** on this release's path: **the shape
     lint for plans**, argued in [`plan-state-single-source-study.md`](plan-state-single-source-study.md),
     his call, recommendation on record.
