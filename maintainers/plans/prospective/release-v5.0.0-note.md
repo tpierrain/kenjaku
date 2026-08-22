@@ -61,10 +61,15 @@
 > - 🚪 **AN OPENING SECTION, `What this release is about`** _(his fourth pass, same day)_. Two sentences
 >   were not enough to state the subject: what this release exists for is a **problem people live
 >   with**, and the note went straight to the fixes. It now says, before anything else, what a second
->   brain ships with, what happens the day you tailor a piece of it, and what v5.0.0 ends. The field
->   measurement (a skill frozen since install day with **not one line of its owner's in it**) moves up
->   with it — it is the proof the problem is real, and it was buried under the fold. §11's *two-sentence
->   lead* becomes this section, on the owner's explicit ask.
+>   brain ships with, what happens the day you tailor a piece of it, and what v5.0.0 ends. §11's
+>   *two-sentence lead* becomes this section, on the owner's explicit ask.
+>   - ↩️ **The field measurement was pulled up with it, and pushed back down the same day** _(his
+>     read: *"est-ce que cette phrase est utile au non-dev? moi j'ai pas l'impression"* — no, it is
+>     not)_. *A skill frozen since install day with not one line of its owner's in it* proves the
+>     heuristic was wrong, which is an **engineering** argument: it convinces a maintainer, and it
+>     asks a non-developer to hold a subtlety (a file frozen although nothing of theirs was in it) in
+>     a paragraph that is about **their own** edits. It costs nothing to drop — `Under the hood`
+>     already carries it, word for word, where the readers it is written for will find it.
 > - ↩️ **The body is written UNWRAPPED, one line per paragraph or bullet** _(his ask, same day)_. Hard
 >   line breaks at ~100 columns are invisible once rendered and a nuisance in every editor that
 >   reflows; the file is a body to be pasted, not source to be diffed line by line.
@@ -88,7 +93,7 @@
 
 Your second brain ships with ready-made pieces: the skills you call on, the rules it works by, the way it searches. The Kenjaku project keeps improving those pieces, in good part thanks to what its users report back, and asking your brain for an update is what carries the improvements over to you.
 
-**But the day you tailored one of those pieces, it stopped receiving anything, for good.** That was a protection, and a deliberate one: an update must never overwrite what you wrote yourself. It simply had no third move — so far, your brain could not tell your words from its own, so *"protect what is yours"* also meant *"freeze this file"*, silently. Measured on a real brain: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
+**But the day you tailored one of those pieces, it stopped receiving anything, for good.** That was a protection, and a deliberate one: an update must never overwrite what you wrote yourself. It simply had no third move — so far, your brain could not tell your words from its own, so *"protect what is yours"* also meant *"freeze this file"*, silently.
 
 **v5.0.0 is that third move.** Whenever the two do not collide, your specifics and the new version are merged together: what you wrote stays, the improvements land around it. And when they really do collide, your brain stops deciding on your behalf and asks you what you want done with that file.
 
