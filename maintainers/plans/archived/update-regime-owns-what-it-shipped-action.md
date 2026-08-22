@@ -758,6 +758,15 @@ audible divergence.
             does not stop caller N+1 re-asking the question by hand, *and* it does not mean caller N+1
             is asking the same question at all. **State stays in the owning plan; nothing is copied
             here.**
+          - 🪟 **AND THERE IS A FOURTH SITE, MAINTAINER-SIDE — it was the branch's last Windows red**
+            _(2026-08-22)_. This entry only ever counted the sites *inside a brain*. The
+            **release-cutting tool** asks the EOL question too, and nobody had noticed: it folds the
+            release being cut from the maintainer's working tree, so **cutting from a Windows clone
+            would have shipped a CRLF fingerprint table** — every row a digest no brain can hold. Its
+            answer now goes through `deliversAsLf`, the installer's copy oracle, so the question is
+            *"what does delivery write?"* and not a fourth spelling of *"do these bytes match?"*.
+            **The count of callers was never the point; the count of PLACES THAT ASK was**, and this
+            one sits outside the product entirely. Repair owned by the live plan (W6); no copy here.
   - [x] **The ADVANCE rule, the sentence this step is named after** _(2026-08-20 · `184ce2e`)_ — a pure
         `planBaseAdvance`: the base moves to what was **delivered** to the installed file, never to the
         newest fetched content. Driven by the delivery map that already exists (`installedFileMap` +
