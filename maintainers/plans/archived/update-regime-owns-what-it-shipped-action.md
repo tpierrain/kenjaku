@@ -1,9 +1,15 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🏁 DONE, ARCHIVED (2026-08-21). S1 through S6 are BUILT and sit   -->
-<!-- on feat/engine-base-unfreeze (draft PR #76). Nothing tagged. The commit     -->
-<!-- count that stood here aged into a lie within a day: the branch kept          -->
-<!-- growing under the successor plan. A number is a COPY of state; the branch    -->
-<!-- itself is the record.                                                        -->
+<!-- STATUS: 🏁 DONE, ARCHIVED (2026-08-21). S1 through S6 were BUILT, on the  -->
+<!-- branch feat/engine-base-unfreeze. That is history and stays true.         -->
+<!--                                                                          -->
+<!-- 🚫 WHETHER IT IS MERGED, TAGGED OR PUBLISHED IS NOT ANSWERED HERE, EVER.  -->
+<!-- This header said "draft PR #76 / nothing tagged" until 2026-08-22, and    -->
+<!-- both were live status in a file that tells its reader not to come here    -->
+<!-- for status — so nobody would ever have come to correct them, and the day  -->
+<!-- of the tag they would simply have become false. Removed for the same      -->
+<!-- reason the commit count was removed before them: a COPY of state in an    -->
+<!-- archived file is a lie with a delivery date. The branch is the record;    -->
+<!-- the successor plan below is the answer.                                   -->
 <!--                                                                          -->
 <!-- 🛑 DO NOT OPEN THIS FILE TO FIND OUT WHERE THE WORK STANDS. It is ~2 200  -->
 <!-- lines and holds NO current state. The live plan is:                       -->
