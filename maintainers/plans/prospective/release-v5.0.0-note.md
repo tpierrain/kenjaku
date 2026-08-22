@@ -17,6 +17,13 @@
 > **Numbers not yet real**: `engineVersion` and the tag are S9-2's, the owner's step. Every figure
 > below the fold is measured and current; nothing here waits on a re-run.
 >
+> 🛑 **One arbitration added 2026-08-22: `What you get` now has SEVEN bullets, and §11 says six.** The
+> seventh (🔗 *hand it a link or a file*) arrived with the source-first rule, which is a different
+> subject riding the same release. It is written in rather than left out, because dropping it silently
+> would be the *"nobody was told"* defect this release exists against — **but the cut is yours**: keep
+> seven, or fold one. My read if you want it: 🛡️ *stops drifting without you knowing* is the most
+> mechanism-shaped of the six, and the one a reader gains least from.
+>
 > Everything after this note is the body verbatim.
 
 ---
@@ -46,6 +53,9 @@ shipped since either arrives around your edits, or your brain asks you which ver
 - 🛡️ **It stops drifting from the engine without you knowing.** When something is about to change one
   of the engine's own files during ordinary work, you are asked first, once, instead of finding out
   months later that your brain no longer matches what it ships.
+- 🔗 **Hand it a link or a file, and it reads that before it searches anything.** A URL or a path in
+  your message is the subject, not decoration — so you stop getting a confident answer built on what
+  your brain *remembered* of an article it never opened.
 
 ### What you have to do
 
@@ -97,6 +107,11 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
   question with no timer and no rule.
 - **A locale drift guard**: the French tree can no longer fall behind its English source without a
   test naming the file and the commit that left it behind.
+- **A level 1 in the routing doctrine**: the routing table had rows for semantic, exact and structural
+  retrieval and none at all for *a source the owner handed over*. It now opens with one, in both
+  languages, above the search routing rather than below it — and a guard holds the rule, its wording
+  and its position. It rides this release for a reason: it is doctrine, and doctrine is exactly what
+  the fleet stopped receiving.
 
 **Honest limits, stated rather than discovered**
 

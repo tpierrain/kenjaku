@@ -24,8 +24,8 @@
 
 ## What the branch carries
 
-**194 commits, 158 files, +24 071 / −1 508** against this PR's base. Slices **S1 through S10**, plus
-the release tail's first half. The owning plan is
+**196 commits, 161 files, +24 530 / −1 508** against this PR's base. Slices **S1 through S10**, the
+**doctrine cargo** it carries for a neighbouring plan, plus the release tail's first half. The owning plan is
 [`v5-unfreezes-the-existing-fleet-action.md`](maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md)
 — its predecessor, which built S1–S6, is archived beside it and holds no current state. The working
 contract and the run log are in
@@ -103,6 +103,19 @@ owner's current bytes are committed to the brain's history *before* an adoption 
 one* is undoable), *keep mine* must **not** advance the ancestor (or the next merge would fold in the
 version they refused), and a conflicted `.new` — which carries `<<<<<<<` markers, not a clean candidate
 — is **refused** rather than pasted into the live file and recorded as its ancestor.
+
+**The doctrine cargo — the layer this release unfreezes gains a rule it never had.** Deliberately
+**not** numbered as a slice: it belongs to another plan and only *rides* here. The routing table had rows for
+semantic, exact and structural retrieval and **none at all for a source the owner hands over** — the
+2026-08-08 field case, where an article's URL sat in the first message, was never opened, and the answer
+compared that article against a reconstruction of itself. Both constitutions now open their routing
+section with a `Level 1` block, and the block is placed **above** the search routing because a rule
+about reading order that is itself read last reproduces the order that failed —
+`source-first-discipline.test.mjs` pins the rules, the EN/FR parity, the table row's position and the
+block's. Its corollary **points at** the existing claim discipline rather than restating it. It rides
+this release rather than the next one for the obvious reason: it is doctrine, and doctrine is exactly
+what the fleet stopped receiving. Owned by
+[`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](maintainers/plans/prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md).
 
 ## 🛑 The two claims the release note was FORBIDDEN — both have now fallen
 

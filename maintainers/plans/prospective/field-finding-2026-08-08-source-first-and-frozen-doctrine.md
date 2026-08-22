@@ -1,10 +1,40 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN — 2026-08-08. The rule is one paragraph; its DELIVERY is  -->
-<!-- the work. S2's carrier is the owner's arbitration and nothing starts      -->
-<!-- before it, because the two options are not the same release.              -->
+<!-- STATUS: 🟡 WRITTEN AND GUARDED on feat/engine-base-unfreeze (2026-08-22,  -->
+<!-- `5729282`). S1 is delivered in both constitutions; the WORDING is the      -->
+<!-- owner's to arbitrate before the tag. Closes when v5.0.0 SHIPS it.         -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the source the owner hands you comes first, and the doctrine that says so must actually arrive
+
+> ## ▶️ WHERE THIS RESUMES: nothing to build. **The wording is his, then the release carries it.**
+>
+> ✅ **S1 is written and guarded** _(2026-08-22, `5729282`, branch `feat/engine-base-unfreeze`)_. Both
+> `CLAUDE.engine.md` and `templates/fr/CLAUDE.engine.md` open their routing section with a **`Level 1`
+> block** (`Niveau 1` in French) and carry a level-1 row in the routing table.
+> `scripts/lib/source-first-discipline.test.mjs` holds it: **20 assertions, EN/FR parity**, each rule
+> naming the field defect it prevents.
+>
+> 🎙️ **What is HIS, and it is not the mechanism**: the **wording**. The delegability map calls the
+> doctrine cargo *"text that speaks in the owner's voice"*, so this follows the S9-1 split — the rule,
+> its **placement** and its guard are checkable work; the sentences are his. **The guard asserts
+> patterns, not prose**: he can rewrite every sentence, and it stays green as long as the seven rules
+> are still recognisable — and when one is not, the test names which.
+>
+> 🧭 **Two design calls, made here rather than left implicit:**
+>
+> - **The block sits ABOVE the vault's search routing, and a test pins that.** A rule about reading
+>   order that is itself read last reproduces the order that failed. Same reflex as F18's
+>   markers-rule guard: presence was not enough, position is the rule.
+> - **The corollary POINTS at the existing Claim discipline** instead of restating it, which is what
+>   S1's third checkbox asked for. Two paraphrases are two disciplines.
+>
+> 🚧 **What is left, and none of it is buildable tonight**: the release-note line (S4's last box, now
+> drafted in [`release-v5.0.0-note.md`](release-v5.0.0-note.md) and his to voice), and the field
+> re-test — the same brain, the same kind of prompt, once it runs a v5 engine.
+>
+> ⚠️ **This plan does NOT close when the branch is green.** It closes when v5.0.0 **ships**, because
+> the whole finding is *a rule written where the fleet never receives it*. A rule delivered to a branch
+> is that same defect one commit further along.
 
 > **The field fact (2026-08-08, `mind-palace` on v4.8.1, i.e. fully up to date).** The owner asked for
 > an article completing one of his Medium posts, **with the URL in the message**. The brain never opened
@@ -69,21 +99,34 @@ release on: **shipping something the fleet never receives**, silently.
 
 ## Tracking
 
-- [ ] **S1 — The rule, written where doctrine belongs (EN + FR), with a guard on the model of the claim discipline.**
-  - [ ] A **level-1 row** in the routing table of both `CLAUDE.engine.md` and
+- [x] **S1 — The rule, written where doctrine belongs (EN + FR), with a guard on the model of the claim discipline.** _(2026-08-22 · `5729282`)_
+  - [x] A **level-1 row** in the routing table of both `CLAUDE.engine.md` and
         `templates/fr/CLAUDE.engine.md`: *source designated by the owner (URL, path, screenshot,
-        attachment)* → `WebFetch` / `Read`, **before any search**.
-  - [ ] The **priority order** stated once, in prose: (1) what the owner hands over, (2) exact search
+        attachment)* → `WebFetch` / `Read`, **before any search**. **And a test on the row's
+        POSITION**: a table whose first row is the semantic search teaches, to whoever scans instead of
+        reading, the exact order the prose just forbade.
+  - [x] The **priority order** stated once, in prose: (1) what the owner hands over, (2) exact search
         (`Grep` / `Glob`), (3) semantic search (`search_vault`), (4) the web. Plus the *prerequisite*
         clause: when the task is defined **relative to** that source ("complete this article", "fix this
-        file", "like in that repo"), the source **is** the specification.
-  - [ ] Point the corollary at the **existing** Claim discipline rather than paraphrasing it — two
+        file", "like in that repo"), the source **is** the specification. **Level 2 carries the second
+        field defect explicitly** — a **proper noun** is spellable, so it goes to exact search; a
+        semantic search on one returns nothing, quietly.
+  - [x] Point the corollary at the **existing** Claim discipline rather than paraphrasing it — two
         paraphrases are two disciplines (`claim-discipline.test.mjs` already enforces that reflex for
         `prepare-1-1`). Add only what is new: *have I exhausted level 1 before concluding anything
         negative?*
-  - [ ] **Guard test** modelled on `claim-discipline.test.mjs` (same `docSection` slicing, same EN/FR
+  - [x] **Guard test** modelled on `claim-discipline.test.mjs` (same `docSection` slicing, same EN/FR
         parity, one entry per rule naming the field defect it prevents), extended to whichever carrier
-        S2 chooses.
+        S2 chooses. → `scripts/lib/source-first-discipline.test.mjs`, **20 assertions, all seen red on
+        their assertions first**. Carrier: the two constitutions, which is what S2 settled.
+  - [x] **The fingerprint table was regenerated in the same commit** (81 → 82 byte-states), and that is
+        not housekeeping: `CLAUDE.engine.md` is a `merge` file now, so bytes no row recognises leave a
+        brain holding this release **frozen on the very file this plan exists to unfreeze**. The S7-2
+        freshness guard caught it — it went red on both locales before the regeneration.
+  - [ ] 🎙️ **The wording is the owner's** (delegability map: *doctrine cargo speaks in his voice*). The
+        guard asserts **patterns**, so a rewrite stays green as long as the seven rules survive.
+  - [ ] **No mutation pass, and the skip is deliberate**: the slice is two Markdown files, a new test
+        and a regenerated data table. There is no production code in it to mutate.
 - [x] **S2 — ✅ RESOLVED 2026-08-08 by the owner's sequencing, without having to choose.** The unfreeze
       becomes **the very next release** (`update-regime-owns-what-it-shipped-action.md`), so the rule
       goes where doctrine belongs — S1 above, one paragraph in both constitutions plus its guard test —
@@ -130,8 +173,11 @@ release on: **shipping something the fleet never receives**, silently.
       owner scoped that one to universes only. This finding ships with the **unfreeze release**, which
       is the coherent home: that release's whole subject is *the doctrine finally arrives*, so the new
       doctrine rule arriving with it is the demonstration, not a bundle.
-  - [ ] Release note per §11: what the owner gains is *"when you hand your brain a link or a file, it
-        reads it before answering"* — never a paragraph about regimes and manifests.
+  - [x] Release note per §11: what the owner gains is *"when you hand your brain a link or a file, it
+        reads it before answering"* — never a paragraph about regimes and manifests. **Drafted
+        2026-08-22** in [`release-v5.0.0-note.md`](release-v5.0.0-note.md), in those words. ⚠️ It makes
+        a **seventh** `What you get` bullet where §11 allows six: written in rather than dropped
+        silently, with the cut flagged at the top of that file as the owner's.
 
 ## Deliberately out of scope (recorded so it is not re-litigated)
 

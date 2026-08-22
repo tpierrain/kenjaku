@@ -154,6 +154,20 @@
 > needs days of real use, and the arbitration above is his. That is a sentence about THIS release, not
 > an instruction to stop.
 >
+> ⚠️ **And it was wrong within the hour** _(2026-08-22, `5729282`)_. The loop took the sentence
+> literally — *on this release* — and went looking at the repo's other open plans, which is what the
+> mode's contract tells it to do. It found **an unbuilt slice that had been arbitrated INTO this very
+> release** two weeks earlier: the **source-first rule**, S1 of
+> [`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](field-finding-2026-08-08-source-first-and-frozen-doctrine.md),
+> whose own S4 box reads *"it ships with the unfreeze release"*. It is now written into both
+> constitutions and guarded, and it appears in the PR body and the release note.
+>
+> **The lesson is not that the sentence was sloppy, it is that THIS PLAN IS NOT THE RELEASE'S
+> INVENTORY.** A release's cargo can be decided in a plan this one never names. *"Nothing left"*,
+> asserted from inside one plan, is only ever a claim about that plan. **Before the cut, the inventory
+> is the ROADMAP's open rows** — that file is the cross-plan ordering authority precisely for this.
+> That plan still owns its own state; this box keeps no copy of it.
+>
 > 🔍 **Checked, so the loop does not go looking for it again**: the release's other floor — the v4.8.0
 > mutation debt re-arbitrated onto this release — is **already paid on this branch** (its plan reads
 > *"DELIVERED ON BRANCH 2026-08-20 — every box ticked"*, and it stays open only because it closes when

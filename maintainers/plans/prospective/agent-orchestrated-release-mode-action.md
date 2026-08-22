@@ -465,6 +465,45 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🧭 **2026-08-22 (the doctrine cargo) — "NOTHING LEFT TO TAKE ALONE" WAS A CLAIM ABOUT ONE PLAN, and
+  it was wrong.** The previous iteration ended on the release plan's header saying the loop had no
+  slice left it could take alone. The contract's answer to that is not *stop*, it is *go look at the
+  repo's other open plans* — so it did, at the ROADMAP, which is the cross-plan **ordering authority**.
+  Row by row: two rows delegate their state to the live plan, one is a floor already paid, one waits on
+  the owner's own brain. **One row was a genuine unbuilt slice, and it had been arbitrated INTO this
+  release two weeks ago**: the source-first rule, S1 of
+  `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`, whose S4 box reads *"it ships with the
+  unfreeze release"*. Written into both constitutions, guarded by 20 assertions, `5729282`.
+
+  > **The mode-level lesson, and it costs a release if it is not learned: the live plan is not the
+  > release's INVENTORY.** Cargo can be decided in a plan the live one never names — this one was, in a
+  > file that says so in its own tracking. A loop that asks *"is anything left?"* of the plan it has
+  > open gets an honest answer to the wrong question, and a release ships one rule short with nobody
+  > told. **Before a cut, the inventory is the ROADMAP's open rows.** That is what the file is for, and
+  > the loop had been reading it for ordering only.
+
+  🎙️ **What was NOT taken**: the wording. The delegability map calls doctrine cargo *"text that speaks
+  in the owner's voice"*, so this follows the S9-1 split — the rule, its placement and its guard are
+  checkable work, the sentences are his. The guard asserts **patterns**, so a rewrite stays green while
+  the seven rules survive, and names the one that does not.
+
+  🔬 **What the slice proved on the way, and it is the S7-2 guard doing its job**: the two constitutions
+  are `merge`-regime files now, so editing them without regenerating `engine-fingerprints.json` would
+  have left a brain holding this release **frozen on the very file this plan exists to unfreeze**. The
+  freshness guard went red on both locales, by name, before anything shipped (81 → 82 byte-states).
+
+  **No mutation pass, and the skip is said out loud** as the contract requires: two Markdown files, one
+  new test, one regenerated data table. No production code in the slice to mutate. Suite 2 357 tests,
+  2 354 pass, 0 fail, 3 skipped (Windows-only).
+
+  **Next**: S9-2b is his, S9-3 needs days of real use, the regimes arbitration and now the note's
+  seventh bullet are his. ⚠️ **Said at the honesty level it was actually checked at**: the ROADMAP's
+  other open rows were read **at row level** this iteration, not plan by plan. What that pass shows —
+  Gate 4 work not pulled forward (`engine-managed-file-merge-strategy`), two field findings deliberately
+  deferred (F3, F7), a floor already paid, and a migration tail that needs the owner's own brain — is a
+  reason to look elsewhere first, **not** a proof that no slice hides in them. The next iteration opens
+  the plans themselves rather than trusting their rows, which is the same mistake one level up.
+
 - 🚦 **2026-08-22 (S9-2a) — THE PR BODY HAD GONE STALE A SECOND TIME, which is the release's own
   defect wearing the release's own clothes.** `release-v5.0.0-pr-body.md` beside the plan, covering
   S1 → S10; #76's live body still described **S1–S6 alone**, and the branch has more than doubled
