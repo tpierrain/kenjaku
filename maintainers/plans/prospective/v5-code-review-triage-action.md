@@ -313,7 +313,17 @@ catches any of this.
         fifth at **every** session start. Thread the already-read `installedFileMap` through.
 - [ ] **H. After the fixes — his command to type, never a session's**
   - [ ] 🎯 **Re-run `/code-review` on the fix range. THE EXACT RANGE: `fc4e7bb..HEAD` on
-        `feat/engine-base-unfreeze`** — 16 commits, 8 of them fixes, 8 plan updates.
+        `feat/engine-base-unfreeze`.**
+        - 📐 **The range keeps growing, and only in Markdown — checked, not assumed** _(2026-08-22)_.
+          Since `2ce39d8`, the last fix commit, **not one non-Markdown file has changed**: the plan
+          corpus was migrated to the STATE-block convention and a doctrine branch was merged, all of
+          it prose. **So the code this re-run has to read is exactly the code it had to read the
+          moment the batch closed**, and no later commit adds to its job. Re-check the same way
+          before typing it — `git diff --name-only 2ce39d8..HEAD | grep -v '\.md$'` — rather than
+          trusting this line, which is only true until someone commits code.
+        - 🧾 **The plans in the diff do not drown the code**: the first pass read `main...HEAD` with
+          **27 113 lines of plans** in it and still found 15 findings in 7 257 lines of production
+          diff. No need to slice the range by hand.
   - [ ] Re-run `/code-review` on the fix range (the `v3.3.0` discipline: the second pass caught what the
         first missed), and report the figure back to
         [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) —
