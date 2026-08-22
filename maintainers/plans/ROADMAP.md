@@ -283,6 +283,7 @@ surplus line spends the budget the critical instructions need. A repo file is th
 | `prospective/post-v3.1.0-ux-backlog.md` | Captured UX ideas, explicitly **not committed work**. Promote one to an `*-action.md` when it is picked up. | 💡 Backlog. Promotion is a scope call. |
 | `prospective/background-consolidation-mode-study.md` | Design study: the RAG's process shape, a "pulse" projection, keeping the brain fresh without making the owner wait. | 🔬 Study. No code, no branch; the action plan comes after the measurement it names. |
 | `prospective/etude-rag-local-criteres-et-veille.md` | Watch note: offering a range of RAG alternatives per person's constraints. | 🔬 Study / watch. Nothing decided. |
+| `prospective/plan-state-single-source-study.md` | Can duplicated plan state be made structurally **impossible** instead of detectable, retiring the five workarounds (save-point rule, plural carriers, the guard hook, the declared door, the certificate)? | 🔬 Study, **answered and awaiting the owner's arbitration**. The plan owns its state; this row keeps no copy. Listed here because until 2026-08-22 **no repo file named it at all** — it lived only in a memory pointer, which is the very gap this section was created for. |
 | `prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md` | The runtime-graph question. | ⏸️ **WATCH, deferred by the owner to AFTER the unfreeze release** — a study to do *with* him, not work to pick up. |
 
 ### Incoming (standing inbox)

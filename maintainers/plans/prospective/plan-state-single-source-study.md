@@ -7,8 +7,21 @@
 
 # Study — plans that need no guard: making duplicated state structurally impossible
 
-> ## ▶️ WHERE THIS RESUMES — **NOTHING HAS BEEN STUDIED YET. START AT § The question.**
-> _(written 2026-08-22, immediately before a `/clear`, so the request survives it.)_
+> ## ▶️ WHERE THIS RESUMES — **THE STUDY IS DONE. THE ANSWER IS § The proposal. STEP 4 IS THOMAS'S.**
+> _(steps 1-3 done 2026-08-22, after the `/clear`, as asked. Brief preserved below.)_
+>
+> **Nothing has been applied**: no rule edited, no hook touched, no plan refactored — that was the
+> boundary and it held. What exists now is **one recommended convention with its cost, what it
+> retires, and what it cannot fix** (§ The proposal), on top of a corpus measurement that **confirmed
+> the hypothesis and moved its centre of gravity** (§ 1 — what the corpus actually says).
+>
+> **The one-sentence answer**: the leak is not the file, it is the **form** — state and history are
+> both written as *paragraphs*, and no mechanism can tell one paragraph from another, which is why
+> only detection was ever available. Give state a form of its own (a capped, fixed-key block) and the
+> five workarounds lose their reason to exist.
+>
+> **What Thomas arbitrates**: adopt / amend / reject, and if adopted, whether the lint is built now or
+> the convention travels alone first.
 >
 > **Thomas's ask, in his words**: *"est-ce qu'on ne manque pas d'une convention qui rendrait caduque
 > tous ces workarounds qu'on fait en permanence sur ce sujet… une solution rationnelle et efficace de
@@ -103,13 +116,184 @@ duplication the guard then hunts.
 - [ ] **Shrink the unit**: archive aggressively so no live plan exceeds what a person will actually
       read. Attacks the grep-instead-of-read root cause directly.
 
+## 1 — What the corpus actually says (measured 2026-08-22, do not re-derive)
+
+Method: the 90 plan files under `maintainers/plans/` (20 prospective, 70 archived, **33 654 lines**),
+plus 21 days of git history on the three files that are actually in flight.
+
+| Measurement | Number |
+|---|---|
+| `agent-orchestrated-release-mode-action.md` | **3 079 lines / 42 640 words**, written in 21 days (`+3 378 / -299`) |
+| `v5-unfreezes-the-existing-fleet-action.md` | **2 406 lines / 32 456 words**, written in 21 days (`+3 143 / -737`) |
+| Share of lines that are a checkbox | **3 %** (mode plan) · **8 %** (release plan) |
+| Commits touching the mode plan in 21 days | **130** — of which **109 (84 %) moved no checkbox at all** |
+| Commits touching the release plan in 21 days | **77** — of which **39 (51 %) moved no checkbox** |
+| `ROADMAP.md`, which declares `delegates-only` and *"pointers, not copies"* | 316 lines holding **22 commit shas, 19 PR numbers, 23 ship/status words**, touched by **41 commits in 21 days** |
+| Hand-invented `WHERE THIS RESUMES` headers | **4 files** (the largest, in the triage plan, is ~80 lines) |
+| The archived plan's header comment, whose subject is that the file holds no state | **40 lines** |
+
+### The four findings, in the order they change the answer
+
+- [x] **F-A. The checkbox layer is not where the state is.** 84 % of the writes to the biggest live
+      plan move no box. Everything that actually decides what happens next — the authorization
+      boundary, the *"still owed"*, the open question, the scope call — is **prose**. So the
+      machine-readable layer that every mechanism reads (the guard, the human tick, the roadmap
+      sync) sees a **minority** of the state changes. The `## Tracking` convention was built on the
+      assumption that ticking a box *is* saving the state; the corpus says it is a third of it at best.
+- [x] **F-B. Duplication is the symptom; UNFINDABILITY is the disease.** You cannot find state in
+      42 640 words, so a resume header was invented to hold a copy of it at the top. You cannot find
+      it across files either, so the roadmap holds another copy in prose. **The copy is not a
+      discipline failure — it is the rational fix the writer chose for a real problem.** That is why
+      three years of detectors cannot win: the detector fights the remedy, not the cause.
+- [x] **F-C. "Does this file hold state?" is not answerable at declaration time — the door proves
+      it.** `ROADMAP.md` was granted the door on 2026-08-22; its own contract says *delete the line
+      the day a row here starts carrying state of its own*. Its 22 shas, 19 PR numbers and 41 commits
+      in 21 days say that day arrived before the line was written. **This is not a bad call by
+      Thomas** — it is evidence that a human declaring "I hold no state" is exactly as unreliable as
+      a hook guessing it, so moving the judgment from the hook to the header bought nothing.
+- [x] **F-D. The lies with a delivery date are all copies of facts another system owns.**
+      `Nothing tagged`, `draft PR #76`, `CI 7/7`, `merged 96d0546`: git and `gh` answer every one of
+      them in a second, and each written copy is true until a date certain and false forever after.
+      The 40-line apology header in the archived plan exists solely because two such copies were
+      written into a file whose own first line forbids reading it for status.
+
+### The hypothesis: confirmed, but its centre of gravity moves
+
+The five-kinds table stands. What the measurement changes is **why** the mix is fatal. It is not
+volume (kind 1 drowning in kinds 2-4); it is that **kind 1 is written in the SAME FORM as kinds 2-4 —
+a paragraph.** A paragraph cannot be distinguished from another paragraph, by a hook, by a grep, or by
+a reader in a hurry. Every mechanism we built was therefore forced to guess *which* paragraphs were
+perishable, from the outside: the guard guesses from a branch name, the door lets a human guess in
+advance, the certificate records that someone guessed carefully. **They are three generations of the
+same guess.**
+
+> **So the leak is the FORM, not the file.** Splitting files without changing the form just moves the
+> paragraphs. Give state a form that is not prose, and the guessing problem disappears rather than
+> being relocated.
+
+## 2 — The five directions, costed
+
+Against the six criteria of § *What a good answer must satisfy*.
+
+| Direction | Kills copies at source | Survives a `/clear` | Travels | Cheap while writing | Hand-tickable | Keeps history | Verdict |
+|---|---|---|---|---|---|---|---|
+| **Split by lifetime** | ✅ if the state part has a *form*, ❌ if it is just another file of prose | ✅ fixed address | ✅ pure convention | ✅ writes less | ✅ | ✅ | **ADOPT — as a capped block, not a second file** |
+| **Status lives where it is already true** (git / `gh`) | ✅ for the whole F-D class | ✅ | ✅ | ✅ | n/a | ✅ | **ADOPT as rule 2** |
+| **Transclusion / generation** | ✅✅ strongest | ✅ | ❌ needs tooling on every machine | ❌ | ❌ generated Markdown fights hand-ticking | ✅ | **REJECT** — it breaks the one standing requirement |
+| **Front-matter contract** (`owns:` / `delegates:`) | ❌ still detection, and F-C says declaration-time judgment is unreliable | ✅ | ⚠️ needs the reader installed | ⚠️ | ✅ | ✅ | **REJECT** — it is the door promoted to a schema |
+| **Shrink the unit** (archive aggressively) | ⚠️ indirect: it makes state findable again without changing the form | ✅ | ✅ | ⚠️ costs a deliberate archiving act | ✅ | ✅ | **KEEP as hygiene, not as the answer** |
+
+Two notes the table cannot hold:
+
+- **Why a block and not a `STATE.md`.** The separate file's only advantage — a small target for grep
+  and for a reader — is obtained just as well by a **fixed heading**, and it costs the human path:
+  Thomas opens one file in Typora and expects to see where it stands *and* tick a box. A convention
+  that makes the human path worse will be abandoned under load.
+- **Why front-matter loses to a shape lint.** A declaration says *"trust me, nothing perishable
+  here"*. A shape lint **looks**. F-C is the measurement that decides between them.
+
+## 3 — The proposal
+
+### The invariant (one sentence, and everything else follows)
+
+> 🎯 **A paragraph in a plan may not contain a fact that can become false.**
+
+If a sentence can go false **without anyone editing it**, it is state, and state has exactly two legal
+forms: **a checkbox**, or a line in the **`## 📍 STATE` block**. Prose then carries only what is true
+forever — rationale, evidence, what was rejected and why, how it went. That is the separation by
+lifetime, enforced by *form* rather than by *file*, which is what F-A/F-B say is needed.
+
+### Rule 1 — every plan opens with a capped, fixed-key STATE block
+
+```markdown
+## 📍 STATE — the only perishable block in this file  ·  moved 2026-08-22
+- **Next:** <one line: the next real step>
+- **Blocked on:** <what would lift it — or "nothing">
+- **Owner's call pending:** <the question, one line — or "none">
+- **A session may, alone:** <the boundary — or "ask first">
+```
+
+**Four keys, one date, ≤ 20 lines, always the same heading.** The cap and the fixed keys *are* the
+prevention: a form with four slots has nowhere to put a narration and nowhere to put a second copy of
+anything. It **replaces the hand-invented `WHERE THIS RESUMES` header** (4 files today, up to ~80
+lines, itself an unmanaged copy of state scattered through the body) by formalising it and bounding it.
+
+### Rule 2 — a fact another system owns is linked, never asserted
+
+Merged, tagged, released, CI status, branch alive, which commit: **git and `gh` are the record.** A
+plan may write `PR #76` as a link; it may not write *"#76 is a draft"* or *"nothing tagged"*. This
+deletes the entire F-D class — the only failures in the corpus that are guaranteed to happen on a
+date certain, with nobody present.
+
+### Rule 3 — one item, one STATE block; every other mention is a link, syntactically
+
+Not *"prefer a link to a restatement"* as a discipline (that is today's rule, and the ROADMAP shows
+what it is worth), but as the only **syntax available**: other files write
+`[what it delivers](path/to/plan.md)` and stop. Concretely, the roadmap's map table loses its
+**Status** column and keeps `Plan | Delivers | Depends on`. **A form with no status field cannot
+carry a status.** That single deletion removes 22 shas, 19 PR numbers and 23 ship-words from a file
+whose contract already said they should not be there.
+
+### The lint — optional, content-judging, and it TRAVELS
+
+One test in **`scripts/lib/maintainer-conventions.test.mjs`** — the repo's existing home for
+conventions that must reach every clone, which is precisely what `~/.claude/hooks/` cannot do:
+
+- every live plan has a `## 📍 STATE` block, ≤ 20 lines, with the four keys;
+- **no status shape outside it**: `\b[0-9a-f]{7}\b`, `PR #\d+`, `SHIPPED|MERGED|TAGGED|nothing tagged|still owed`, in the ROADMAP's rows and in archived files;
+- it judges **shape**, not branch mentions — so it **needs no door**: a file that genuinely delegates
+  contains no status sentences and passes by construction, with nothing to declare and nobody to trust.
+
+### What it retires (the five workarounds, plus the sixth nobody counted)
+
+- [ ] **The plural-carriers amendment** → moot. One address per item; other files hold links, and a
+      link cannot go stale.
+- [ ] **`~/.claude/hooks/plan-carrier-guard.mjs`** (machine-local, branch-grep, judges no content) →
+      replaced by the repo-side shape lint, which judges content, travels with the clone, and does not
+      over-fire on correct files.
+- [ ] **The `delegates-only` door** → unnecessary (see above). The two declarations in the repo get deleted.
+- [ ] **The "certificate" variant** → dies with the door, and with it the 40-line header written to
+      justify one.
+- [ ] **The `WHERE THIS RESUMES` headers** → become the STATE block, capped, in all 4 files.
+- [ ] **The save-point rule SURVIVES and shrinks** to one line: *before handing back, the STATE block
+      must already say what your reply says.* Four keys and ≤ 20 lines is cheap enough to write
+      mid-reply, which is the only thing that even partly reaches the sequencing hole.
+
+### What it costs
+
+**No migration of the 33 654 archived lines** — archived files are touched only to delete a door
+declaration if they carry one (2 files). The convention applies to **live plans: 5 files today**.
+Roughly 15 minutes each: add the block, hoist the resume header into it, strip the ROADMAP's Status
+column. Afterwards the cost is **negative**: the corpus is currently absorbing ~150 lines of plan
+prose per day per live plan, part of which is restating state.
+
+### What it cannot fix — stated, not buried
+
+- **It does not make a session NOTICE that it has state to write.** The sequencing hole (memory
+  `save-point-rule-sequencing-hole`) is a trigger problem, not a storage problem. This only makes the
+  write cheap enough that noticing is usually enough.
+- **"Can this sentence become false?" is a judgment call.** The lint catches recognisable shapes, not
+  a claim like *"nothing forces the fleet's upgrade"* — the ROADMAP paragraph that outlived both of
+  its premises. A rationale resting on facts that expire stays possible; rule 2 narrows it, nothing
+  closes it.
+- **It does not shrink the 3 000-line plans.** Direction 5 stays worth doing on its own merits; the
+  STATE block only makes size non-fatal by giving the perishable part a fixed address.
+- **It is a convention, so a determined writer can still write a status paragraph.** The claim is not
+  that copies become impossible — it is that the *form* no longer invites them, the *motive*
+  (unfindability) is gone, and what remains is cheap to see.
+
 ## Tracking
 
-- [ ] **1. Re-read the corpus with the lifetime lens** and confirm or break the hypothesis.
-- [ ] **2. Cost each direction** against the six criteria above.
-- [ ] **3. Write the proposal**: one recommended convention, its migration cost, what it retires
-      (which of the five mechanisms disappear), and what it cannot fix.
-- [ ] **4. Hand to Thomas for arbitration.** ⛔ Nothing is applied without his GO.
+- [x] **1. Re-read the corpus with the lifetime lens** and confirm or break the hypothesis.
+      _(2026-08-22 · § 1 — confirmed, and its centre of gravity moved from **file** to **form**)_
+- [x] **2. Cost each direction** against the six criteria above. _(2026-08-22 · § 2 — two adopted, two
+      rejected, one kept as hygiene)_
+- [x] **3. Write the proposal**: one recommended convention, its migration cost, what it retires
+      (which of the five mechanisms disappear), and what it cannot fix. _(2026-08-22 · § 3)_
+- [ ] **4. Hand to Thomas for arbitration.** ⛔ Nothing is applied without his GO. Three ways to
+      answer: **adopt as written** · **adopt the convention, defer the lint** · **reject / amend**.
+      If adopted, the destination is the harness (`rules/plans.md` + the `plan-discipline` skill),
+      and only the lint lands in Kenjaku.
 
 ## Scope
 
