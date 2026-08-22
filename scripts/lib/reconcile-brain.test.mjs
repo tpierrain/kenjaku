@@ -419,6 +419,64 @@ test("runReconcileCli — the child takes its FAMILIES from the source, or a dep
   assert.deepEqual(calls.reindex, [], "advancing the families must not turn the child into a migration");
 });
 
+// ── And the owner has to be TOLD, on the very update where nobody can tell them ──
+//
+// The recap an owner reads after their first v5 update is printed by their OLD engine —
+// the one that ran the update — and it knows nothing about doctrine, healing or
+// retirement. So the release's headline event lands in complete silence on the one run
+// that performs it. The child's stdout is inherited by the parent process, which makes it
+// the only voice available at that moment; from the second update on, the parent is new
+// code, the child delivers nothing, and this stays quiet.
+//
+// S4-3's lesson, one file over: a preservation nobody was told about was "the loudest
+// defect in the product". A DELIVERY nobody is told about is the same defect wearing the
+// good news.
+test("runReconcileCli — a first update announces what the old recap cannot describe", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(manifest(), null, 2));
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", "---\nname: coach\n---\nYour sparring partner.\n");
+  writeFile(
+    sourceDir,
+    "engine-manifest.json",
+    JSON.stringify(manifest({ extraMerge: [".claude/skills/coach/**"] }), null, 2),
+  );
+
+  const said = [];
+  const { calls, ...s } = seams();
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: { ...s, emit: (line) => said.push(line) },
+  });
+
+  assert.equal(said.length, 1, "one line, not a second report — the parent is about to print its own");
+  assert.match(said[0], /coach/, "and it NAMES what arrived, or it is decoration");
+});
+
+// The negative pole, and it is the load-bearing one: this line may never appear on the
+// steady state. A converged brain re-opened every day would otherwise be told, at every
+// session start, about an update that happened once.
+test("runReconcileCli — a self-heal that converges nothing says NOTHING", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(manifest(), null, 2));
+
+  const said = [];
+  const { calls, ...s } = seams();
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", brainDir, "--platform", "posix"],
+    seams: { ...s, emit: (line) => said.push(line) },
+  });
+
+  assert.deepEqual(said, []);
+});
+
 // The other caller of the very same CLI is the SessionStart self-heal, where `sourceDir`
 // IS the brain: the two manifests are then the same file, so the advance above must be a
 // provable no-op there rather than merely an unlikely one.
@@ -2308,20 +2366,28 @@ async function loadProcessCli() {
   return (await import("./reconcile-brain.mjs")).runReconcileCliProcess;
 }
 
-test("runReconcileCliProcess — a successful reconcile exits 0 and stays silent", async () => {
+test("runReconcileCliProcess — a successful reconcile exits 0, says nothing of its own, and hands the child its VOICE", async () => {
   const seen = [];
   const err = [];
+  const out = [];
   const runReconcileCliProcess = await loadProcessCli();
 
   const code = await runReconcileCliProcess({
     argv: ["--brainDir", "/brains/mine", "--sourceDir", "/src"],
     runReconcileCli: async (args) => seen.push(args) && { copied: [] },
     error: (s) => err.push(s),
+    log: (s) => out.push(s),
   });
 
   assert.equal(code, 0);
   assert.deepEqual(err, [], "a successful reconcile is a silent finisher — it must not write to stderr");
-  assert.deepEqual(seen, [{ argv: ["--brainDir", "/brains/mine", "--sourceDir", "/src"] }]);
+  assert.deepEqual(out, [], "and the process writes nothing itself: the ONE line is the reconcile's to decide");
+  // The stdout writer is passed DOWN as the `emit` seam — that wiring is the whole
+  // reason the catch-up line can reach an owner's terminal, and a test that only
+  // checked the argv would pass with it silently unwired.
+  assert.deepEqual(seen.map((a) => a.argv), [["--brainDir", "/brains/mine", "--sourceDir", "/src"]]);
+  seen[0].seams.emit("hello\n");
+  assert.deepEqual(out, ["hello\n"], "the seam the child speaks through must BE the process's stdout");
 });
 
 // FAIL LOUD (the project's strategy): auto-finalize's own caller treats a child failure

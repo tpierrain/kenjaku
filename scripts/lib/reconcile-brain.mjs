@@ -37,6 +37,7 @@ import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
 import { ignoreBaseSettings } from "./ignore-base-settings.mjs";
 import { advanceRegimes, reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
+import { agreeing, countOf } from "./plural.mjs";
 import { syncBaseTree, readBaseTree, readInstalledMergeFiles } from "./engine-base-fs.mjs";
 import { healFromDisk, readFingerprintTable } from "./engine-heal-fs.mjs";
 import { planAncestorFetch } from "./engine-ancestor.mjs";
@@ -658,7 +659,42 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // self-heal converging a brain from its own code delivers nothing, and can still seed
   // every ancestor the brain is able to prove).
   syncBaseTree({ brainDir, manifest, provenance, deliveredFileMap: delivered });
+  announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit: seams.emit ?? (() => {}) });
   return report;
+}
+
+/**
+ * ONE line, on the one update where nobody else can say it.
+ *
+ * The recap an owner reads after their first update to a new release is printed by the
+ * engine that RAN that update — the old one — and it knows nothing about the families
+ * the new release invented. So on the single run that performs the catch-up, the whole
+ * event lands in silence. This child's stdout is inherited by that parent process, which
+ * makes it the only voice available at that moment.
+ *
+ * It goes quiet by itself: from the second update on, the parent is the new code and
+ * prints all of this properly, and this child then delivers nothing. A self-heal
+ * (`sourceDir === brainDir`) delivers nothing either, and must never speak — a converged
+ * brain re-opened every morning would otherwise be told daily about an update that
+ * happened once.
+ */
+function announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit }) {
+  if (sourceDir === brainDir) return;
+  const arrived = Object.keys(delivered).sort();
+  const gone = report.skillsRetired ?? [];
+  if (arrived.length === 0 && gone.length === 0) return;
+
+  // Said in the owner's terms, not ours: "provenance", "merge regime" and "reconcile"
+  // mean nothing to the person reading their terminal, and this line may be the only
+  // trace the catch-up leaves.
+  const parts = [];
+  if (arrived.length > 0) {
+    parts.push(`your brain just received ${countOf(arrived.length, "engine file")} it had stopped getting updates for (${arrived.join(", ")})`);
+  }
+  if (gone.length > 0) {
+    parts.push(`the ${gone.join(", ")} ${agreeing(gone.length, "skill")} the engine no longer ships ${gone.length === 1 ? "was" : "were"} removed`);
+  }
+  emit(`🔓 Catching up: ${parts.join(", and ")}. Your own edits were kept.\n`);
 }
 
 // The real I/O the child process runs on: the flags it was actually launched with and
@@ -669,6 +705,11 @@ export const realReconcileDeps = {
   argv: process.argv.slice(2),
   runReconcileCli,
   error: (s) => process.stderr.write(s),
+  // The child's stdout is INHERITED by the update that spawned it, so a line written
+  // here reaches the owner's terminal. Wired at the process edge and nowhere else:
+  // every other caller of `runReconcileCli` (78 of them are tests) stays silent by
+  // default, which is what keeps a suite's output readable.
+  log: (s) => process.stdout.write(s),
 };
 
 // What the auto-finalize child process does, minus the process. Returns the exit code.
@@ -679,7 +720,7 @@ export const realReconcileDeps = {
 // nobody anything.
 export async function runReconcileCliProcess(deps = realReconcileDeps) {
   try {
-    await deps.runReconcileCli({ argv: deps.argv });
+    await deps.runReconcileCli({ argv: deps.argv, seams: { emit: deps.log } });
     return 0;
   } catch (e) {
     deps.error(`\n❌ reconcile-brain failed.\n${e?.message ?? e ?? "no reason given"}\n`);
