@@ -12,36 +12,37 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** ✅ **THE REHEARSAL RAN, IT FOUND EXACTLY THE THING THOMAS SAID HE WANTED TO AVOID, AND IT
-  IS FIXED** _(2026-08-23, on COPIES of both real brains, no original touched)_. The first update to v5
-  was swapping the engine, answering *"that is the latest release"*, and leaving the doctrine exactly
-  where it was: it took a **second** `/update-engine` that no surface ever asked for. Both real brains
-  now unfreeze on the **first** update, and the catch-up announces itself. → § *THE REHEARSAL*, which
-  owns the measurement, the cause and the design.
-  - The review queue is otherwise being discharged under his GO:
-    [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) § I–L and its STATE block OWN
-    how many, which are done and which remain. **Do not restate any of it here** — this line used to
-    carry the count and the pending question, and both went stale within the day. After they are
-    discharged the cut runs 3 → 4 → 6 of § *WHAT IS YOURS, IN ORDER*.
+- **Next:** ✅ **EVERYTHING A SESSION MAY DO ALONE ON THIS RELEASE IS DONE** _(2026-08-23)_. The
+  rehearsal ran on COPIES of both real brains and found **exactly** the thing Thomas said he wanted to
+  avoid: the first update to v5 swapped the engine, answered *"that is the latest release"*, and left
+  the doctrine frozen where it was — the real unfreeze needed a **second** `/update-engine` that no
+  surface ever asked for. It is fixed, and both brains now unfreeze on the **first** update with the
+  catch-up announced in one plain line and the owner's territory byte-identical. → § *THE REHEARSAL*,
+  which owns the measurement, the cause and the design.
+  - The code-review queue that gated the merge is **discharged in full** —
+    [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) and its STATE block OWN the
+    nine items and how each was paid. **Do not restate any of it here**: this line used to carry the
+    count and the pending question, and both went stale within the day.
   - The other conversation he opened is still open and is **not** on this release's path: **the shape
     lint for plans**, argued in [`plan-state-single-source-study.md`](plan-state-single-source-study.md),
     his call, recommendation on record.
-  - **No engineering is left on this release** beyond whatever the review turns up: the queue is
-    empty, checked against the three surfaces rather than recalled. Say that in one line rather than
-    reciting § *WHAT IS YOURS*, and **do not take an entry from it**.
-- **Blocked on:** the code review's findings —
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns them and its own STATE
-  block answers where they stand. **Nothing is merged or tagged until its § Tracking is discharged**,
-  unless Thomas ships with a named finding deferred.
-- **Owner's call pending:** **none that blocks.** The rehearsal question is **answered by doing it**:
-  it ran on a copy on 2026-08-23, under his *"j'aimerais m'assurer que la campagne de QA … soit
-  suffisante"*, and no original was touched (the copy carries no `.git`, so it has no remote and can
-  push nowhere). _(Everything else he was asked is answered: the five decisions, the `scripts` bump at
-  `1.14.0`, and **W5b — the four doctrine texts ship as written**, 2026-08-22. **Do not re-ask any of
-  them.**)_
-- **A session may, alone:** fix the first-update defect, test-first, and re-run the rehearsal against
-  the fix. **Not** merge, tag, publish, push to `main`, or write into either of his two real brains
-  (a read-only COPY under the job's tmp dir is not the brain).
+  - **No engineering is left on this release.** Say that in one line rather than reciting
+    § *WHAT IS YOURS*, and **do not take an entry from it**.
+- **Blocked on:** **Thomas, and only Thomas.** The gate this line carried — *nothing merged or tagged
+  until the review queue's § Tracking is discharged* — is **lifted**: that § Tracking is fully ticked.
+  What remains is the merge of PR #76, the tag and the publication, none of which a session may do
+  alone (see below).
+- **Owner's call pending:** **one, and it does not block a ship** — **F11**: the French twin
+  (`templates/fr/**`) is not translated, so a `--lang fr` brain reads its constitution in English. The
+  release note states the limit honestly as written. Translating it is **his** call because
+  `templates/fr/**` is product, and a session may not write there. _(Everything else he was asked is
+  answered: the five decisions, the `scripts` bump at `1.14.0`, and **W5b — the four doctrine texts
+  ship as written**, 2026-08-22. **Do not re-ask any of them.** F13 was measured and declined, and
+  that too is reversible on one word — see the triage plan's § G.)_
+- **A session may, alone:** re-run the rehearsal (`node maintainers/qa/field-rehearsal/rehearse.mjs`)
+  against a copy, and nothing else on this release. **Not** merge, tag, publish, push to `main`, write
+  into `templates/fr/**`, or write into either of his two real brains (a read-only COPY under the
+  job's tmp dir is not the brain).
 
 > ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the arguments; the state is in the block above)_
 >
