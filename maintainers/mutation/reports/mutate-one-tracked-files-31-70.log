@@ -1,0 +1,64 @@
+[32m09:34:20 (61024) INFO ProjectReader[39m Found 1 of 873 file(s) to be mutated.
+[32m09:34:20 (61024) INFO Instrumenter[39m Instrumented 1 source file(s) with 37 mutant(s)
+[32m09:34:20 (61024) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m09:34:20 (61024) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-UBNGUr
+[32m09:34:20 (61024) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m09:34:20 (61024) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m09:34:24 (61024) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3604 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/37 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/37 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: <1m, remaining: ~3m) 5/37 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: <1m, remaining: ~4m) 5/37 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: <1m, remaining: ~2m) 10/37 tested (2 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~2m) 10/37 tested (2 survived, 0 timed out)
+Mutation testing 40% (elapsed: ~1m, remaining: ~1m) 15/37 tested (2 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~1m, remaining: ~1m) 16/37 tested (2 survived, 0 timed out)
+Mutation testing 56% (elapsed: ~1m, remaining: ~1m) 21/37 tested (5 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~1m, remaining: ~1m) 23/37 tested (5 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~1m, remaining: <1m) 26/37 tested (5 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~2m, remaining: <1m) 31/37 tested (5 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~2m, remaining: <1m) 32/37 tested (5 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 31)
+
+[Survived] EqualityOperator
+scripts/lib/tracked-files.mjs:38:9
+-       if (tab < 0) continue;
++       if (tab <= 0) continue;
+
+[Survived] MethodExpression
+scripts/lib/tracked-files.mjs:40:31
+-       const [index, worktree] = fields.trim().split(/\s+/);
++       const [index, worktree] = fields.split(/\s+/);
+
+[Survived] ConditionalExpression
+scripts/lib/tracked-files.mjs:45:13
+-         attr: attrAt < 0 ? "" : fields.slice(attrAt + "attr/".length).trim(),
++         attr: false ? "" : fields.slice(attrAt + "attr/".length).trim(),
+
+[Survived] EqualityOperator
+scripts/lib/tracked-files.mjs:45:13
+-         attr: attrAt < 0 ? "" : fields.slice(attrAt + "attr/".length).trim(),
++         attr: attrAt <= 0 ? "" : fields.slice(attrAt + "attr/".length).trim(),
+
+[Survived] StringLiteral
+scripts/lib/tracked-files.mjs:45:26
+-         attr: attrAt < 0 ? "" : fields.slice(attrAt + "attr/".length).trim(),
++         attr: attrAt < 0 ? "Stryker was here!" : fields.slice(attrAt + "attr/".length).trim(),
+
+[Survived] Regex
+scripts/lib/tracked-files.mjs:69:11
+-     return !/(^|\s)eol=crlf(\s|$)/.test(info.attr);
++     return !/(^|\s)eol=crlf(\S|$)/.test(info.attr);
+
+Ran 1.00 tests per mutant on average.
+-------------------|------------------|----------|-----------|------------|----------|----------|
+                   | % Mutation score |          |           |            |          |          |
+File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files          |  83.78 |   83.78 |       31 |         0 |          6 |        0 |        0 |
+ tracked-files.mjs |  83.78 |   83.78 |       31 |         0 |          6 |        0 |        0 |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m09:36:41 (61024) INFO MutationTestExecutor[39m Done in 2 minutes and 20 seconds.
+[32m09:36:41 (61024) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-UBNGUr.

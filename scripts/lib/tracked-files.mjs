@@ -28,22 +28,28 @@ export function parseLsFilesZ(output) {
 // TAB, the path, then NUL. The tab is what makes a path with spaces safe, and the
 // attribute field is what makes `attr/text eol=crlf` (two words, one value)
 // readable — both are why this is parsed rather than split on whitespace.
+// The whole record format, stated once as a pattern rather than walked with index
+// arithmetic — which is what the mutation run asked for: three of its survivors were
+// `indexOf` comparisons whose false branch no output git produces can reach, so they
+// were unkillable AND load-bearing-looking. A pattern that either matches or does not
+// has no such half-states.
+const EOL_FIELDS = /^(i\/\S+)\s+(w\/\S+)\s+attr\/(.*)$/;
+
 export function parseLsFilesEolZ(output) {
   const byPath = {};
   for (const record of output.split("\0")) {
     const tab = record.indexOf("\t");
-    // No tab → not a record (the trailing empty entry, or a line git did not emit
-    // in this format). Skipped rather than half-parsed: a bogus key here becomes a
-    // file delivered in the wrong form.
+    // No tab → not a record: the trailing empty entry, or anything git did not emit
+    // in this format.
     if (tab < 0) continue;
-    const fields = record.slice(0, tab);
-    const [index, worktree] = fields.trim().split(/\s+/);
-    const attrAt = fields.indexOf("attr/");
-    byPath[record.slice(tab + 1)] = {
-      index,
-      worktree,
-      attr: attrAt < 0 ? "" : fields.slice(attrAt + "attr/".length).trim(),
-    };
+    const fields = EOL_FIELDS.exec(record.slice(0, tab));
+    // 🛑 A record it cannot FULLY read is skipped, never half-read. A half-parsed one
+    // becomes an entry keyed by a real path carrying a wrong verdict, and the caller
+    // then delivers that file in the wrong form. Silence is the safe failure: an
+    // unknown file is copied byte-verbatim, which is what the installer always did.
+    if (!fields) continue;
+    const [, index, worktree, attr] = fields;
+    byPath[record.slice(tab + 1)] = { index, worktree, attr: attr.trim() };
   }
   return byPath;
 }

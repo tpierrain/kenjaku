@@ -61,6 +61,36 @@ test("parseLsFilesEolZ — no output, or a malformed record with no tab, yields 
   assert.deepEqual(parseLsFilesEolZ("i/lf w/lf attr/ no-tab-here\0"), {});
 });
 
+test("parseLsFilesEolZ — a record it cannot fully read is SKIPPED, never half-read", () => {
+  // 🛑 Demanded by the mutation run, and it is a rule rather than a branch: a
+  // half-parsed record becomes an entry keyed by a real path carrying a wrong verdict,
+  // and the caller then delivers that file in the wrong form. Silence is the safe
+  // failure here — an unknown file is copied byte-verbatim, which is what the
+  // installer did before any of this existed.
+  assert.deepEqual(parseLsFilesEolZ("\tREADME.md\0"), {}, "no fields at all");
+  assert.deepEqual(parseLsFilesEolZ("i/lf    w/lf\tREADME.md\0"), {}, "no attr field");
+  assert.deepEqual(parseLsFilesEolZ("garbage\tREADME.md\0"), {}, "nothing of the expected shape");
+  // And one good record beside a bad one still lands: skipping is per record.
+  assert.deepEqual(parseLsFilesEolZ(`garbage\tbad.md\0${REC("lf", "lf", "", "good.md")}\0`), {
+    "good.md": { index: "i/lf", worktree: "w/lf", attr: "" },
+  });
+});
+
+test("deliversAsLf — `eol=crlf` is recognised in the MIDDLE of an attribute list, not just at its end", () => {
+  // 🛑 Demanded by the mutation run: every fixture had `eol=crlf` last, so the trailing
+  // boundary was only ever satisfied by end-of-string and `(\s|$)` could lose its `\s`
+  // unnoticed. A file can carry several attributes, and the one that protects a Windows
+  // launcher must not depend on being written last.
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/crlf", attr: "text eol=crlf diff=text" }), false);
+});
+
+test("deliversAsLf — an attribute that merely CONTAINS the letters is not the attribute", () => {
+  // Both boundaries, from the other side. Without them the guard could be a substring
+  // test, and a file would be denied its LF delivery for a coincidence of spelling.
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/lf", attr: "eol=crlfx" }), true);
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/lf", attr: "noeol=crlf" }), true);
+});
+
 test("deliversAsLf — a text file git stores as LF is normalised on delivery", () => {
   assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/crlf", attr: "" }), true);
   assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/lf", attr: "" }), true);
