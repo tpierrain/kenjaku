@@ -489,8 +489,8 @@ test("syncBaseTree — the SEEDED list is ordered by path too, even where the di
 // cannot be parsed must cost the report a sentence, never turn a successful update into
 // a thrown error.
 // ⚠️ The held-back file here is an engine SKILL, not `CLAUDE.md`. Since F1 the owner's
-// half of the constitution is exempt from this report by name (see `INVITED_EDITS` in
-// engine-divergence.mjs), so a fixture built on it would pin the two reads against a
+// half of the constitution is exempt from this report by name (the `invited` regime the
+// release declares — see engine-divergence.mjs), so a fixture built on it would pin the two reads against a
 // list it can no longer appear in — green forever, and about nothing.
 test("readEngineDivergence — names the held-back merge files of a real brain, with the version each last received", (t) => {
   const delivered = "# as the engine delivered it\n";

@@ -161,6 +161,48 @@ test("engineDivergence — an unprovable constitution is silent too, not merely 
   assert.deepEqual(result, []);
 });
 
+// ── S12: WHERE that exemption is written down ────────────────────────────────
+//
+// It was a `new Set(["CLAUDE.md"])` in this module, while every other question about
+// file families — which are replaced, merged, regenerated, retired — is answered per
+// release by `engine-manifest.json` and carried onto older brains by `advanceRegimes`.
+// A list in code can only reach a brain by shipping a release; a list in the manifest
+// reaches one at its next update, which is the whole point of the machinery.
+//
+// It rides INSIDE `regimes` for exactly that reason — that object is what
+// `advanceRegimes` copies — and it is NOT a delivery family: `CLAUDE.md` stays under
+// `merge` and is delivered exactly as before, and `regimeOf` walks a fixed list of the
+// four delivery regimes, so the write guard never sees this key.
+test("engineDivergence — the invited list is DECLARED by the release, not compiled into the engine", () => {
+  // A brain whose release invited edits somewhere else entirely: the declaration has to
+  // work in BOTH directions, or it is a default with extra steps. `CLAUDE.md` is edited
+  // in the same call and must now be REPORTED, because this manifest no longer exempts it.
+  const merge = ["CLAUDE.md", ".claude/skills/mine/SKILL.md"];
+  const result = engineDivergence({
+    manifest: {
+      ...manifest({ provenance: {}, baseRefs: {}, merge }),
+      regimes: { replace: ["rag/src/**"], merge, invited: [".claude/skills/mine/**"] },
+    },
+    installedFileMap: { "CLAUDE.md": EDITED, ".claude/skills/mine/SKILL.md": EDITED },
+  });
+
+  assert.deepEqual(result, [{ rel: "CLAUDE.md", reason: "no-provenance", since: null }]);
+});
+
+test("engineDivergence — a manifest that declares no invited list still spares the constitution", () => {
+  // NOT a defensive default: this is a state the fleet was measurably in. An update is
+  // performed by the brain's OLD engine, and until the first-update fix landed on
+  // 2026-08-23 the new code could sit beside a manifest whose families had never been
+  // advanced. Falling back to an empty list there would put the fleet-wide line about
+  // the constitution straight back, on the one run nobody could dismiss it.
+  const result = engineDivergence({
+    manifest: manifest({ provenance: {}, baseRefs: {}, merge: ["CLAUDE.md"] }),
+    installedFileMap: { "CLAUDE.md": EDITED },
+  });
+
+  assert.deepEqual(result, []);
+});
+
 // 🛑 The exemption is a NAME, not a shape: `CLAUDE.engine.md` is the ENGINE's half of
 // the constitution — the engine writes it, the owner is never asked to — so it stays in
 // the report. One dot apart, and the opposite verdict.

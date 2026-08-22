@@ -83,6 +83,9 @@
     ],
     "local": [
       ".engine-base/**"
+    ],
+    "invited": [
+      "CLAUDE.md"
     ]
   },
   "retired": [

@@ -26,6 +26,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { INSTALLED_REFUSAL, normalizeEol, verifyBase } from "./engine-base.mjs";
 import { selectMergeFiles } from "./engine-source.mjs";
+import { matchesAny } from "./glob-match.mjs";
 
 // 🚪 THE ONE FILE THIS REPORT MAY NOT NAME (Thomas's call, 2026-08-22, on F1 of the
 // v5.0.0 code review: *"ne parler que des fichiers vraiment tenus par toi"*).
@@ -45,7 +46,22 @@ import { selectMergeFiles } from "./engine-source.mjs";
 //
 // A NAME, not a shape: `CLAUDE.engine.md` is the ENGINE's half — the engine writes it,
 // the owner is never asked to — so it is still reported. One dot apart, opposite verdict.
-export const INVITED_EDITS = new Set(["CLAUDE.md"]);
+// S12 — DECLARED per release in `engine-manifest.json`, like every other file family,
+// rather than compiled in here. A list in code can only reach a brain by shipping a new
+// engine; a list in the manifest reaches one at its next update, because `advanceRegimes`
+// already carries `regimes` onto older brains. It rides inside `regimes` for exactly that
+// reason, and it is NOT a delivery family: `CLAUDE.md` stays under `merge` and is
+// delivered exactly as before, and `regimeOf` walks a fixed list of the four delivery
+// regimes, so the write guard never sees this key.
+//
+// The fallback below is NOT a defensive habit — it is a state the fleet was measurably
+// in. An update is performed by the brain's OLD engine, and until the first-update fix
+// (2026-08-23) this new code could sit beside a manifest whose families had never been
+// advanced. Falling back to nothing there would put the undismissible fleet-wide line
+// about the constitution straight back, on the one run where nobody could act on it.
+export const INVITED_EDITS_FALLBACK = ["CLAUDE.md"];
+
+const invitedEdits = (manifest) => manifest?.regimes?.invited ?? INVITED_EDITS_FALLBACK;
 
 // Candidates are what is ON DISK, never the union with the record — and that is
 // the one deliberate asymmetry with `planBaseSeed`, which does take the union. A
@@ -88,7 +104,7 @@ export function engineDivergence({ manifest, installedFileMap, baseContentMap = 
     // deployed fleet is `no-provenance` on `CLAUDE.md` (no regime named it before v4), and
     // silencing only the `customized` half would leave the fleet-wide line exactly where
     // it was.
-    if (INVITED_EDITS.has(rel)) continue;
+    if (matchesAny(invitedEdits(manifest), rel)) continue;
     // The seeding question, asked of the installed file: "would these bytes make a
     // provable base?" Yes → the file still IS what the engine delivered, nothing is
     // held back. There is no second definition of "unchanged" in this codebase, and

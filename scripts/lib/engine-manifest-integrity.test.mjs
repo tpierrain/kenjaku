@@ -83,6 +83,22 @@ test("engine-manifest — the `.engine-base/` tree is declared `local`, and NO d
   assert.deepEqual(reachable, [], `a delivery regime claims the base tree: ${reachable.join(", ")}`);
 });
 
+// S12 — `invited` says which files the divergence report may NOT name, because the
+// product itself asks the owner to edit them. It is not a delivery family: the file is
+// still delivered by whichever regime governs it, and only the NARRATION changes.
+//
+// Which is why it has to intersect `merge`. The report walks the merge files and nothing
+// else, so an `invited` glob that names a `replace` file (or a file in no regime) exempts
+// a file that was never going to be reported — an entry that reads like a decision and
+// does nothing, which is worse than no entry.
+test("engine-manifest — every `invited` glob names a file the report could otherwise have named", () => {
+  const invited = manifest.regimes.invited ?? [];
+  assert.deepEqual(invited, ["CLAUDE.md"], "the release's own invitation, spelled out: the owner's half of the constitution");
+  const merge = manifest.regimes.merge ?? [];
+  const inert = invited.filter((glob) => !merge.some((m) => m === glob || matchesAny([m], glob.replace(/\/\*\*$/, "/SKILL.md"))));
+  assert.deepEqual(inert, [], `an \`invited\` glob outside the merge regime exempts nothing: ${inert.join(", ")}`);
+});
+
 // A `local` glob names what a BRAIN produces, never what this launcher ships. The moment
 // one matches a tracked source file, either the tree has moved into the repo or the glob
 // is wrong — and the dead-inventory guard above cannot see it, since it reads only
