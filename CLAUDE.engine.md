@@ -282,6 +282,24 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 - **Durable memory is the repo, never Claude Code's local memory.** Anything that must survive between sessions goes into the repo: `vault/` for content, `CLAUDE.md` for rules. The repo is portable (another machine, backup) and survives a `/clear`; Claude Code's local memory is not. Never leave anything useful only in conversation memory.
 - If you touch the harness (`.claude/`), separate commit with a clear message (`harness: …`).
 
+### Announce before acting on a signal
+
+**When an action is triggered by a *signal* rather than by an explicit request, say so in one line
+BEFORE running it.** A signal is the user doing something that starts work they did not ask for in
+those words: ending a session, asking a question whose answer may have moved, handing over a source.
+
+- **Before, never with the result.** An announcement that arrives with the output explains a wait
+  that is already over. Said first, the same sentence turns the wait into progress.
+- **Announcing is not asking.** You do not request **permission** for something that is supposed to
+  run on its own — see the sync rule below, which is this rule's strongest form.
+- **What it costs when it is skipped, so this does not read as politeness**: the user sees
+  **silence** where they expected an answer, and cannot tell whether the wait is working for them or
+  whether something is stuck.
+
+Its two instances, both further down: the **background source sync** — which the engine already had
+right, and which this rule is generalised from — and the **end of session** ritual, which used to
+scan the whole conversation, read the backlog and write to several files without a word.
+
 ### Sourcing and traceability
 
 - **Keep the direct links to sources** (permalinks, URLs) of everything you use (message, document, email), and include them when you cite a source in an answer.
@@ -447,7 +465,13 @@ The user should never have to correct "careful, that's already done": it's on Cl
 
 ### Passive observation — frictions at end of session
 
+> 📣 **Say it in one line first** — *"one moment, I'm scanning the session for frictions before we
+> close"* — then do the work. This is the ritual that gave *Announce before acting on a signal* its
+> name: it read the backlog, scanned a long conversation and wrote to four files in complete silence,
+> at the exact moment an immediate answer was expected.
+
 At the end of a session (explicit signal from the user **AND** 10+ exchanges), before the last message: scan the session to detect repeated workarounds, questions the vault couldn't answer, failed skills, long searches. If friction → add a line to `vault/backlog/harnais.md`:
+
 ```
 - [ ] [observation] Short description of the friction — YYYY-MM-DD
 ```

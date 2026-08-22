@@ -290,6 +290,26 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 - **La mémoire durable, c'est le repo, jamais la mémoire locale de Claude Code.** Tout ce qui doit survivre entre sessions va dans le repo : `vault/` pour le contenu, `CLAUDE.md` pour les règles. Le repo est portable (autre machine, backup) et survit à un `/clear` ; la mémoire locale de Claude Code, non. Ne rien laisser d'utile uniquement en mémoire de conversation.
 - Si on touche au harnais (`.claude/`), commit séparé avec message clair (`harness: …`).
 
+### Annonce avant d'agir sur un signal
+
+**Quand une action est déclenchée par un *signal* et non par une demande explicite, dis-le en une
+ligne AVANT de la lancer.** Un signal, c'est la personne qui fait quelque chose qui démarre un travail
+qu'elle n'a pas demandé avec ces mots-là : terminer une session, poser une question dont la réponse a
+pu bouger, tendre une source.
+
+- **Avant, jamais avec le résultat.** Une annonce qui arrive en même temps que la sortie explique une
+  attente déjà finie. Dite d'abord, la même phrase transforme l'attente en progression.
+- **Annoncer, ce n'est pas demander.** On ne demande pas la **permission** pour quelque chose qui est
+  censé tourner tout seul : voir la règle de sync plus bas, qui est la forme la plus forte de
+  celle-ci.
+- **Ce que ça coûte quand on l'oublie**, pour que ça ne se lise pas comme de la politesse : en face,
+  on voit un **silence** là où une réponse était attendue, sans pouvoir dire si l'attente travaille
+  pour soi ou si quelque chose est bloqué.
+
+Ses deux instances, toutes deux plus bas : le **sync de sources en tâche de fond** (que le moteur
+tenait déjà, et d'où cette règle est généralisée) et le rituel de **fin de session**, qui scannait
+toute la conversation, lisait le backlog et écrivait dans plusieurs fichiers sans un mot.
+
 ### Sourçage et traçabilité
 
 - **Garder les liens directs vers les sources** (permalinks, URLs) de tout ce qu'on exploite (message, document, mail), et les inclure quand on cite une source dans une réponse.
@@ -463,6 +483,12 @@ La personne ne devrait jamais avoir à corriger « attention, c'est déjà fait 
 **Conséquence : ne PAS lancer `git add` / `commit` / `push` soi-même** quand le hook tourne (un commit manuel court après le hook et brouille la sortie). Les commandes git en lecture (`status`, `log`, `diff`) restent OK.
 
 ### Observation passive — frictions en fin de session
+
+> 📣 **Dis-le en une ligne d'abord** (« un instant, je scanne la session pour repérer les frictions
+> avant qu'on ferme »), puis fais le travail. C'est ce rituel qui a donné son nom à la règle
+> *Annonce avant d'agir sur un signal* : il lisait le backlog, scannait une longue conversation et
+> écrivait dans quatre fichiers dans un silence complet, au moment précis où une réponse immédiate
+> était attendue.
 
 En fin de session (signal explicite de l'utilisateur **ET** 10+ échanges), avant le dernier message : scanner la session pour détecter workarounds répétés, questions sans réponse du vault, skills ratés, recherches longues. Si friction → ajouter une ligne à `vault/backlog/harnais.md` :
 ```
