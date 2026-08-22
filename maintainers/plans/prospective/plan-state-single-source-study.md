@@ -12,11 +12,12 @@
 - **Next:** paused before the pilot, waiting on the lint question below. The convention itself is
   adopted and unaffected either way, so § *Application* steps 1, 3 and 4 could start regardless.
 - **Blocked on:** nothing technical.
-- **Owner's call pending:** **the lint decision is REOPENED (2026-08-22).** Thomas's *"on diffère le
-  lint"* came from an autocompletion he accepted before knowing what a lint was; he asked for the
-  stakes in plain terms and the question is back to him. Three options are on the table, and the
-  recommendation is the third: build it all now · defer it all · **split it** (the cheap half now,
-  the hard half after the v5.0.0 tag). See § *The lint, reopened*.
+- **Owner's call pending:** **two, and the second outranks the first.**
+  **(1) The ENTRY POINT convention he proposed himself** — one way in at instant T, `ACTIVE.md`, the
+  memory pointer reduced to one line. It is the half this study missed and the one he actually feels.
+  → § *The ENTRY POINT*. **(2) The lint decision, REOPENED** — his *"on diffère le lint"* came from an
+  autocompletion accepted before knowing what a lint was. Three options, recommendation is to split
+  it. → § *The lint, reopened*.
 - **A session may, alone:** apply rules 1-3 to any plan, and write the convention into the harness.
   **It may NOT delete the hook, the `delegates-only` door or the certificate** — those three retire
   only when something replaces them.
@@ -350,6 +351,78 @@ single edit and the least reversible.
       a blanket "no shas outside the STATE block"**: it needs a scope (which files) and an exemption
       (a marked history section), and that is the expensive half of it. This is a real argument for
       not building it in a hurry, and it is the reason the split option below exists at all.
+
+## The ENTRY POINT — Thomas's own convention, and the half this study missed
+
+_(proposed by him 2026-08-22, in conversation, **not yet decided**. Written here the moment it was
+said, because the study's own § 1 says an idea that lives only in a thread dies at the next clear.)_
+
+**His words**: *"chaque plan s'appelle du nom de la feature, c'est pratique mais il n'y a ni index ni
+machin… un plan, on est censé avoir qu'un seul plan actif à l'instant T… ça ne veut pas dire qu'on ne
+peut pas l'enrichir en cours de route… et ça c'est pour que le 'on reprend' fonctionne… au lieu de
+truffer la mémoire de tout un tas de trucs… plus de conventions, moins de recherches intempestives et
+contre-productives."*
+
+### Why this is not the same problem, and why it is the one that hurts
+
+The study answered **"how do we stop state being copied between files?"** — a *staleness* problem, and
+its fix is the STATE block. Thomas is asking **"which file do I open, and why must anyone work that
+out?"** — an *entry point* problem, and the STATE block does nothing for it. **It is the upstream
+half**, and it is the one he actually experiences.
+
+**Measured on this very session** (2026-08-22): answering *"on reprends"* took **eight files opened
+before any work began** — the memory pointer, then four plan headers, then the ROADMAP, then an
+archived header. Not one of those reads was wasted *given today's rules*; every one of them was a
+search that a convention could have made unnecessary.
+
+**And the memory pointer is a live rule violation, which his instinct caught.**
+`kenjaku-next-work-order.md` is ~40 lines that rank eight plans, flag one *"🔴 READ THIS ONE FIRST"*,
+warn *"do not open that one"*, and carry a study's due date. `rules/plans.md` says memory holds
+**pointers and references, never state** — that file is a roadmap in a pointer's clothing, reloaded
+with full authority at every session start, and it has been wrong before.
+
+### The rule, and the one nuance it needs
+
+> **At instant T there is exactly ONE way in.** *"On reprend"* means: open it, read its STATE block,
+> announce the step, work. No memory lookup, no roadmap scan, no grep.
+
+The nuance, from this session's own evidence: **one entry point, not necessarily one file.** The
+triage plan was a legitimate second file — it gated the merge and carried a whole autonomous run, and
+folding it into a 2 406-line release plan would have buried it. What must be unique is **the door**,
+not the room count. So: sub-plans are allowed, and they are reachable **only through the active
+plan**, never through memory and never through the ROADMAP.
+
+### The mechanism, costed
+
+- [ ] **`maintainers/plans/ACTIVE.md` — one file, at a path that never changes.** Three lines: the
+      subject in plain words, the link to the active plan, the date it became active. *"On reprend"*
+      is then a single deterministic read. `git log ACTIVE.md` gives, for free, the history of what
+      was active when — something no current file can answer.
+- [ ] **The memory pointer shrinks to one line** and stops holding state: *"on reprend → open
+      `maintainers/plans/ACTIVE.md`"*. That is a pointer in the sense the rules actually mean.
+- [ ] **The ROADMAP stops being a door.** It keeps ordering (which it owns) and loses its role as an
+      index of where to resume, which it was never able to hold correctly anyway.
+- [ ] **Rejected: renaming the active plan** (an `ACTIVE-` prefix instead of a pointer file). It makes
+      `ls` the index and needs no extra file, but every rename breaks the Markdown cross-links the
+      corpus is full of, and it churns git for a fact that changes weekly.
+
+### On the archived marker in the filename — his second idea, and where I disagree
+
+He asks that a filename say *archived*, at the same time as the move into `archived/`. The instinct is
+right and the evidence supports it: the archived plan grew a **40-line header** shouting *"DO NOT OPEN
+THIS FILE TO FIND OUT WHERE THE WORK STANDS"*, which is what a file writes when it keeps being opened
+by mistake.
+
+**But the mistake has a cause, and the marker treats the symptom.** Files in `archived/` get opened by
+accident because there are **many doors** — memory, the ROADMAP, a grep, a link from another plan. The
+entry-point rule removes the doors: if the only way in is `ACTIVE.md` → the active plan → its own
+links, nobody lands in `archived/` by accident, and that 40-line header can shrink to a line.
+
+- [ ] **If he wants the marker anyway** (his call, and it is cheap): date-prefix **newly** archived
+      files only — `archived/2026-08-21-update-regime-owns-what-it-shipped.md`. A date in a name reads
+      as *historical record* at a glance and sorts by close date. **No retro-rename of the 70 existing
+      files**: it would break cross-links across the corpus to fix a problem the entry-point rule
+      already removes.
 
 ## The lint, reopened
 
