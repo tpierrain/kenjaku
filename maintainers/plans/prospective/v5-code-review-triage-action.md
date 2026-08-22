@@ -8,11 +8,11 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F5.** _(updated 2026-08-22, mid autonomous run)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F7.** _(updated 2026-08-22, mid autonomous run)_
 >
 > **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`),
-> F4 (`a0419f6`). **Category A and B are discharged.**
-> **Resume at F5** (the ownership oracle's `?` and spaces), then F7 and F10, then D (F6), then F
+> F4 (`a0419f6`), F5 (`1917a76`). **Categories A and B are discharged.**
+> **Resume at F7** (a successful update reporting itself as failed), then F10, then D (F6), then F
 > (F14, F15).
 > The order and the boundaries below are unchanged and still govern.
 >
@@ -226,12 +226,23 @@ catches any of this.
         The manifest is now read FIRST, which is also what F2's guard needs in order to ask its third
         question: **one ordering, two findings.**
 - [ ] **C. Wrong to the owner, or wrong under load — fix test-first**
-  - [ ] **F5 — the ownership oracle answers wrongly on `?` and on spaces.** `glob-match.mjs:12`. `?` is
-        left unescaped (it becomes a regex quantifier: `a?.md` matches `a.md`, not `ab.md`) and the `**`
-        placeholder is a **space**, so a literal space is eaten (`my notes/**` matches `myXXnotes/x`).
-        This function decides `selectMergeFiles`, `regimeOf` (the write guard), `planTouches` and
-        `computeApplyPlan` — and `advanceRegimes`, new in this release, now imports whatever globs the
-        **fetched** engine declares.
+  - [x] **F5 — the ownership oracle answers wrongly on `?` and on spaces.** ✅ _(2026-08-22 ·
+        `1917a76`)_ `glob-match.mjs:12`. `?` was left unescaped (it became a regex quantifier: `a?.md`
+        matched `a.md`, not `ab.md`) and the `**` placeholder was a **space**, so a literal space was
+        eaten (`my notes/**` matched `myXXnotes/x`). This function decides `selectMergeFiles`,
+        `regimeOf` (the write guard), `planTouches` and `computeApplyPlan` — and `advanceRegimes`, new
+        in this release, which imports whatever globs the **fetched** engine declares.
+        - [x] **One cause behind both, and it is the fix**: the body was built in successive passes
+              over its own OUTPUT. Now **one alternation**, `**` offered before `*`, so no intermediate
+              form exists to misread. **Do not reintroduce a placeholder pass** — that is exactly the
+              shape that produced the space bug.
+        - [x] **`?` → `[^/]`** (one character, never crossing a directory), not a literal. Chosen
+              because `globRoots` has always counted `?` as a wildcard: had it stayed literal, a glob
+              spelled with one would have forced the whole-tree walk `globRoots` exists to avoid. A
+              test now pins the two halves of the file together — every path a glob matches must live
+              under one of that glob's own roots.
+        - [x] **Nothing changes for the fleet today**: no shipped glob contains either character (68
+              in the manifest, checked). What changes is what the next glob author gets.
   - [ ] **F7 — a successful update can report itself as failed.** `update-engine.mjs:764`.
         `readEngineDivergence`'s file reads sit outside its try/catch, and it runs *after* the merge,
         the manifest rewrite and the commit — so one unreadable file at that instant prints
