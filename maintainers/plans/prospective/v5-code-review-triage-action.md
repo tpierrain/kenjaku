@@ -9,12 +9,16 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F6.** _(updated 2026-08-22, mid autonomous run)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F14, then F15 — the last two.** _(updated
+> 2026-08-22, mid autonomous run)_
 >
 > **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`),
-> F4 (`a0419f6`), F5 (`1917a76`), F7 (`89621f0`), F10 (`6707eca`). **Categories A, B and C are
-> discharged.**
-> **Resume at F6** (`mutate-one --worktree kenjaku` aiming at the real repository), then F (F14, F15).
+> F4 (`a0419f6`), F5 (`1917a76`), F7 (`89621f0`), F10 (`6707eca`), F6 (`83fc9b5`). **Categories A, B,
+> C and D are discharged.**
+> **Resume at F (F14 then F15)**, the two prose fixes — both land in `update-engine.mjs`'s own
+> strings, NOT in a skill (see the boundary below). ⚠️ F14 also drags a test: the "STILL holding back"
+> prose regex in `update-engine.test.mjs` asserts `3 engine file\(s\)` and must move with the wording.
+> **Then § H**, and the batch is done.
 > The order and the boundaries below are unchanged and still govern.
 >
 > ⚠️ **A boundary worth knowing before touching any doc**: editing an **engine skill**
@@ -44,7 +48,7 @@
 >
 > **So the next session starts by fixing, not by triaging.** Suggested order, hardest-hitting first:
 > ~~F1 (the fleet-wide false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, ~~F3 (the silent
-> deletion)~~ ✅, ~~F4 (the published machine)~~ ✅, ~~C (F5, F7, F10)~~ ✅, then D and F.
+> deletion)~~ ✅, ~~F4 (the published machine)~~ ✅, ~~C (F5, F7, F10)~~ ✅, ~~D (F6)~~ ✅, then F.
 >
 > ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
 > explicitly ships with a named finding deferred (his call, recorded here if it happens).
@@ -284,12 +288,26 @@ catches any of this.
               contract** (`process.exitCode = main(...)` runs on import; every decision it makes lives
               in the pure module CI does test). It gained the missing `catch`, which re-throws while
               naming the call. Verified by running it: the usage path is intact and writes nothing.
-- [ ] **D. Maintainer-side, destructive — fix test-first**
-  - [ ] **F6 — `mutate-one.mjs --worktree kenjaku` targets the real repository** and then runs
-        `git reset --hard` + `git clean -qfd` in it, destroying every uncommitted and untracked file.
-        `mutate-one.mjs:299`: the worktree name is joined onto the repo's **parent**. The module header
-        states this hazard as the reason the tool uses a disposable worktree; nothing enforces it. Same
-        hole for `--worktree ..` and a bare trailing `--worktree`.
+- [x] **D. Maintainer-side, destructive — fix test-first** _(2026-08-22 · 83fc9b5)_
+  - [x] **F6 — `mutate-one.mjs --worktree kenjaku` targets the real repository** ✅ _(2026-08-22 ·
+        `83fc9b5`)_ and then ran `git reset --hard` + `git clean -qfd` in it, destroying every
+        uncommitted and untracked file. `mutate-one.mjs:299`: the worktree name is joined onto the
+        repo's **parent**. The module header stated this hazard as the reason the tool uses a
+        disposable worktree; nothing enforced it. Same hole for `--worktree ..` and a bare trailing
+        `--worktree`.
+        - [x] **Two guards, each where its knowledge is.** `parseArgs` demands a single folder name
+              (both separators, and `.`/`..` named explicitly — a character class that asks about
+              letters and punctuation says yes to both). The repo-identity check lives beside
+              `repoRoot`, because no check on the NAME can see that `kenjaku` is this repository.
+        - [x] **It compares PATHS, not names**, so the ordinary worktree beside the repo is untouched;
+              and its test pins the **silence** — not one git call is made — rather than the message.
+        - [x] **Ordering**: after the target check, so `--worktree <target>` (the option eating its
+              value) keeps reporting the missing target rather than a strange-looking name.
+        - [ ] 📌 **RESIDUAL, deliberately not taken here — a SIBLING checkout is still reachable.**
+              `--worktree some-other-repo` passes both guards, and the reset lands in that other
+              project. Closing it needs a new I/O dep (is this path a *linked* worktree of this repo?)
+              plus a change to the test harness, which is beyond the finding as written. **Worth doing
+              before the next mutation campaign; the three shapes the review named are closed.**
 - [ ] **E. Product / locale — needs Thomas's call**
   - [ ] **F11 — a French brain loses a localized skill and receives an English one.**
         `engine-manifest.json:75`. The branch deletes the French `tdd-discipline` twin;
