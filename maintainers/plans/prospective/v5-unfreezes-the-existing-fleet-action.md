@@ -8,29 +8,37 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
-> ## 🎙️ WAITING ON THOMAS — the whole list, in one place _(assembled 2026-08-22, before a `/clear`)_
+> ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the list is closed; what remains is DOING them)_
 >
-> Five things, and **nothing ships without them**. They live in different sections because each belongs
-> beside its evidence; this block is the index, and it **keeps no copy** — follow the link for the
-> argument, the options and the recommendation.
+> They were assembled as *WAITING ON THOMAS* and put to him in one pass. **Every one is now decided.**
+> Each answer is recorded here **and** beside its evidence in the section that owns the argument.
 >
-> - [ ] **1. Windows: repair, or ship and state the limit?** A brain that personalized a skill *before*
->       this release keeps its file and gets the new version **beside** it, instead of merged. The
->       headline promise (*a frozen brain receives again*) is **unaffected** — that was measured and an
->       earlier version of this plan said otherwise. → § *THOMAS'S CALL — the ancestor FETCH is inert on
->       Windows*, directly below. **Recommended: repair.** It is small, the design is written, its one
->       feared cost measured at zero, and it makes the note need no qualifier at all.
-> - [ ] **2. The release TITLE** — three candidates in the house style, none picked for you.
->       → [`release-v5.0.0-note.md`](release-v5.0.0-note.md), top of file.
-> - [ ] **3. How many things the note says out loud.** The release gives a user **ten**; the convention
->       allows **six**. Which six get said, and which move below the fold.
+> - [x] **1. Windows → REPAIR, (a) + (b).** (a) teach the ancestor fetch that a recorded sha may be
+>       CRLF — it repairs brains **already installed**; (b) pin the line endings at delivery so it
+>       cannot recur. → § *THOMAS'S CALL — the ancestor FETCH is inert on Windows*, directly below,
+>       holds the design and the four tests it owes. **(d) ship-and-state-the-limit is OFF the table**,
+>       so the note needs no Windows qualifier at all.
+> - [x] **2. The release TITLE → `v5.0.0 — The One Where Your Edits and Its Updates Finally Merge`.**
+>       His own framing, asked for twice: the title must say **the merge** (Kenjaku folds its new work
+>       into your own edits at update time), not the promise or the symptom. The three earlier
+>       candidates are superseded. → [`release-v5.0.0-note.md`](release-v5.0.0-note.md).
+> - [x] **3. The note KEEPS ITS SEVEN bullets** — one more than `CONVENTIONS.md` §11's six, deliberately.
+>       Nothing is folded, nothing is promoted from the doctrine cargo below the fold.
 >       → [`release-v5.0.0-note.md`](release-v5.0.0-note.md), the arbitration box at the top.
-> - [ ] **4. The regimes question** — a brain keeps its **install-day** list of which files the engine
->       manages, forever. Three ways out, with a recommendation. → § *THOMAS'S CALL — a brain keeps its
->       INSTALL-DAY regime list*, further down this file.
-> - [ ] **5. The merge order, then cut / tag / publish.** This PR's base is another branch still open:
->       either it lands first, or this one is retargeted. → § *S9-2b's materials*, and § *S9 — the
->       release tail*.
+> - [x] **4. The regimes question → (a): advance `regimes` (and `retired`) to the target's at step 7.**
+>       With the write guard's widening **called out in the release note** — that was the condition
+>       attached to the recommendation, and he took the recommendation. → § *THOMAS'S CALL — a brain
+>       keeps its INSTALL-DAY regime list*, further down this file.
+> - [x] **5. ONE review, ONE merge, NO squash, and the history is kept WHOLE.** His words: *"je ne veux
+>       plus que tu squash… je veux garder tout l'historique… une code review sur l'ensemble et on merge
+>       qu'une seule fois"*. Concretely: **#76 is retargeted to `main`**, reviewed as one body of work,
+>       and merged with a **merge commit** (never squash, never rebase). #75 is **not** merged first and
+>       **not** closed by hand — its head is an ancestor of #76's, so GitHub marks it **merged** on its
+>       own when #76 lands. → § *S9-2b's materials*, and § *S9 — the release tail*.
+>       - 📐 **Checked, not assumed** _(2026-08-22)_: the repo allows all three merge styles
+>         (`merge`/`rebase`/`squash` all true), so **squash is reachable by a mis-click** — the button
+>         has to be set to *Create a merge commit* at the moment of merging. The branch is **259 ahead
+>         of `main`, 0 behind, no conflict**, so retargeting owes **no rebase** and rewrites nothing.
 >
 > 📦 **Ready and NOT applied, so it does not need deciding, only doing**: the `engineVersion` bump (three
 > of its four numbers dictated by the diff, the fourth by 25 tags of precedent) — § *S9-2b's materials*.

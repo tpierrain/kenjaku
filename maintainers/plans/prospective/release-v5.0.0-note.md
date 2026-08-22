@@ -1,39 +1,36 @@
-# v5.0.0 — The One Where Your Words Are Never Lost
+# v5.0.0 — The One Where Your Edits and Its Updates Finally Merge
 
-> 🚧 **DRAFT — S9-1b. The body below is written to be published as-is, but the VOICE is the owner's**
-> and so is the **title**. Written per `CONVENTIONS.md` §11 (non-developer first, technical depth kept
-> and moved below the `---`) and §10 (the marketing surface was re-read first, in S9-1a).
+> 🚧 **DRAFT — S9-1b. The body below is written to be published as-is.** Written per
+> `CONVENTIONS.md` §11 (non-developer first, technical depth kept and moved below the `---`) and §10
+> (the marketing surface was re-read first, in S9-1a).
 >
-> **Title to arbitrate**, three candidates in the house style — the precedent is v4.9.1, where the
-> owner took the one naming the symptom people actually lived:
+> ✅ **TITLE — DECIDED BY THOMAS, 2026-08-22.** `The One Where Your Edits and Its Updates Finally
+> Merge`. **His framing, asked for twice and it is the correction that matters**: the title must name
+> **the merge itself** — Kenjaku folds its new work into your own edits at update time — not the
+> promise (*your words are never lost*) nor the symptom (*it stops leaving you behind*) nor what you
+> see (*it finally asks*). Those three candidates were mine and are **superseded**; they are not kept
+> here, because a list of rejected titles beside a decided one is an invitation to re-open it.
 >
-> 1. **The One Where Your Words Are Never Lost** — names the promise, and it is the promise that
->    changed shape this release (*"never written to"* was a freeze; *"never lost"* survives an update).
-> 2. **The One Where It Stops Leaving You Behind** — names the symptom: a brain that went quiet about
->    a file the day you touched it, and stayed quiet for months.
-> 3. **The One Where It Finally Asks** — names what a user actually sees: a question with three
->    answers, where there used to be silence.
+> ✅ **SEVEN BULLETS, and that is DECIDED too** _(Thomas, 2026-08-22)_. `What you get` carries **seven**
+> where §11 allows six, deliberately: nothing is folded, and nothing is promoted from the doctrine
+> cargo that sits below the fold. **The question is closed, not open** — it had been put as *"which six
+> of the ten things this release gives a user get said out loud"*, and the answer is *"the seven that
+> are written, as they are"*.
+>
+> - The seventh (🔗 *hand it a link or a file*) rode in with the source-first rule, a different subject
+>   on the same release. Keeping it is the point: dropping it silently would be the very *"nobody was
+>   told"* defect this release exists against.
+> - The doctrine cargo stays **below the fold** — no more silent rituals (#61), a rule that stopped
+>   arguing with itself (#67), conversations that run out of room later (#64). Not a verdict that they
+>   matter less; a judgement to hold §11's shape.
+>
+> 🆕 **STILL OWED TO THIS NOTE, and it is not a decision but a WRITE** _(2026-08-22)_: the regimes call
+> came back as **(a)**, *with the write guard's widening called out in the release note* — that clause
+> was part of the recommendation he took, so the note owes one honest line saying an update may now
+> refresh a brain's list of engine-managed files. Not written yet.
 >
 > **Numbers not yet real**: `engineVersion` and the tag are S9-2's, the owner's step. Every figure
 > below the fold is measured and current; nothing here waits on a re-run.
->
-> 🛑 **One arbitration added 2026-08-22: `What you get` now has SEVEN bullets, and §11 says six.** The
-> seventh (🔗 *hand it a link or a file*) arrived with the source-first rule, which is a different
-> subject riding the same release. It is written in rather than left out, because dropping it silently
-> would be the *"nobody was told"* defect this release exists against — **but the cut is yours**: keep
-> seven, or fold one. My read if you want it: 🛡️ *stops drifting without you knowing* is the most
-> mechanism-shaped of the six, and the one a reader gains least from.
->
-> ⚠️ **The doctrine cargo is now COMPLETE, and it added THREE more things a user feels** — no more
-> silent rituals (#61), a rule that stopped arguing with itself (#67), and conversations that run out
-> of room later (#64). All three were put **below the fold** rather than made bullets eight, nine and
-> ten: a judgement call to hold §11's shape, not a verdict that they matter less. **So the real
-> question is no longer "seven or six", it is which of the ten things this release gives a user are
-> the six that get said out loud.** My read, if you want a starting point: the unfreeze half (a
-> personalized file stops being a dead end, the brain asks with three answers, a frozen brain starts
-> receiving again) is what the release IS; the doctrine cargo is what it *also* carries, and #64 —
-> conversations that stop resetting mid-work — is the one of the three a user notices without being
-> told.
 >
 > Everything after this note is the body verbatim.
 
