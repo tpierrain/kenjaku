@@ -19,6 +19,14 @@
 > > 🪝 **The `plan-carrier-guard` hook is what found this**, by naming this file as a carrier the
 > > session kept not opening. It judges no content: it only made the omission impossible to not see,
 > > and the omission was a **false claim about the owner's own backlog**.
+> >
+> > 🛑 **AND THE STRONGER VERSION OF THAT CLAIM IS NOW TRUE, WHICH IS EXACTLY WHEN THIS BOX MATTERS**
+> > _(2026-08-22, after W6 was discharged)_: the release's **engineering** queue really is empty —
+> > W1-W4 and W6 closed, matrix 7/7 on Windows. **That is not "unblocked".** Three things stand
+> > between the branch and the tag, and all three are his: the merge (W5), **the wording carried here
+> > (W5b)**, and the `engineVersion` bump, which travels with the tag rather than ahead of it. An empty
+> > engineering queue is the moment this file is most likely to be skipped, and it is the moment it is
+> > load-bearing.
 >
 > ✅ **S1 is written and guarded** _(2026-08-22, `5729282`, branch `feat/engine-base-unfreeze`)_. Both
 > `CLAUDE.engine.md` and `templates/fr/CLAUDE.engine.md` open their routing section with a **`Level 1`
