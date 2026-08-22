@@ -8,11 +8,17 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F2.** _(updated 2026-08-22, mid autonomous run)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F3.** _(updated 2026-08-22, mid autonomous run)_
 >
-> **A. is discharged** — F1 (both halves) and F8 landed together in `7f0ae6a`, test-first, pushed.
-> **Resume at F2** (the write that escapes the brain), then F3, then the rest of B and C, then D and F.
+> **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`).
+> **Resume at F3** (the silent deletion), then F4, then C, then D and F.
 > The order and the boundaries below are unchanged and still govern.
+>
+> ⚠️ **A boundary worth knowing before touching any doc**: editing an **engine skill**
+> (`.claude/skills/**`) makes two other guards go red — the fingerprint table must be regenerated
+> **and** the French twin ported. The second is `templates/fr/**`, which is F11's and Thomas's. So on
+> this run, **prose fixes land in the CODE's own strings, not in a skill**. (Learned the expensive way
+> at F2; the paragraph it cost is parked under F2 below.)
 >
 > ❓ **ONE QUESTION FOR THOMAS CAME OUT OF F1, and nothing is blocked on it** — it is written under F1
 > below, in the *"what F1 does not settle"* box: whether `.claude/settings.json` should ALSO leave the
@@ -34,7 +40,7 @@
 >   worth asking about before spending it).
 >
 > **So the next session starts by fixing, not by triaging.** Suggested order, hardest-hitting first:
-> ~~F1 (the fleet-wide false claim)~~ ✅, F2 (the write that escapes the brain), F3 (the silent
+> ~~F1 (the fleet-wide false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, F3 (the silent
 > deletion), then the rest of B and C, then D and F.
 >
 > ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
@@ -152,13 +158,30 @@ catches any of this.
               about `CLAUDE.md`; (c) restrict the nudge to files with a fetchable ancestor — cheap, but
               it silences legitimate cases he wants to see.)_
 - [ ] **B. Silent damage — fix test-first, no decision needed**
-  - [ ] **F2 — `adoptCandidate` writes outside the brain.** `engine-adopt.mjs:79/110`. `rel` arrives
-        from the conversation (`update-engine/SKILL.md:224`), and `join(brainDir, rel)` with `../`
-        escapes. Inside the brain it is just as unguarded: **any path with a `.new` beside it**,
-        including `.env`, `vault/**` and `.engine-base/**` — the last being the exact path the write
-        guard denies the agent, because forging it destroys the owner's edit at the next update.
-        **Fix**: reject a `rel` whose `relative(brainDir, join(brainDir, rel))` escapes, and require
-        `selectMergeFiles(manifest, [rel])` to be non-empty.
+  - [x] **F2 — `adoptCandidate` writes outside the brain.** _(2026-08-22 · d8191b5, **with F9** — one
+        fix, see below)_ `engine-adopt.mjs:79/110`. `rel` arrives from the conversation
+        (`update-engine/SKILL.md:224`), and `join(brainDir, rel)` with `../` escapes. Inside the brain
+        it is just as unguarded: **any path with a `.new` beside it**, including `.env`, `vault/**`
+        and `.engine-base/**` — the last being the exact path the write guard denies the agent,
+        because forging it destroys the owner's edit at the next update.
+        - [x] **THREE questions, not the two the finding proposed, and the third is the one that
+              matters.** The suggested fix (containment + `selectMergeFiles`) leaves a hole a test
+              found: `.claude/skills/../../notes.md` lands on `notes.md`, which is **inside** the
+              brain, and still MATCHES `.claude/skills/**` — `**` compiles to `.*`, which crosses `/`.
+              So the guard first requires the rel to BE the canonical brain-relative POSIX spelling of
+              the file it names (which also disposes of an absolute path, silently re-rooted by
+              `join`, and of a win32 spelling no manifest glob uses), THEN that it stays inside, THEN
+              that a merge regime names it. **Do not collapse them back into two.**
+        - [x] One new blocked reason, `not-adoptable`, with its own sentence in
+              `adopt-engine-file.mjs` — written for the AGENT that got the path wrong as much as for
+              the owner. `BLOCKED_LINE` has no fallback by design, so a reason without a sentence is a
+              crash in a test, never a lie in production.
+        - [ ] 📝 **ONE PARAGRAPH LEFT UNWRITTEN, and it is not a decision — it is a boundary.** The
+              matching note in `update-engine/SKILL.md`'s exit-code list (*"this exit 1 is yours, not
+              theirs: pass the file exactly as the report named it"*) was written, then **removed
+              again**: touching an engine skill obliges regenerating the fingerprint table **and**
+              porting the French twin, and `templates/fr/**` is F11's, which is Thomas's. Worth
+              re-adding in the same breath as F11. _(Cost of finding out: one red commit, amended.)_
   - [ ] **F3 — a restored skill is deleted again, silently, at session start.**
         `reconcile-brain.mjs:169`. `retireDeclaredSkills` is the engine's only subtractive door and is
         **not** gated on `sourceDir !== brainDir`, unlike all three merge families beside it — so it
@@ -169,10 +192,12 @@ catches any of this.
         `engine-base-fs.mjs:103`. `.claude/settings.json` is deliberately gitignored (machine-specific,
         absolute paths, connector permissions), but its **copy under `.engine-base/` is not**, and
         auto-commit pushes it. On a second machine the pulled base then describes machine A.
-  - [ ] **F9 — `adoptCandidate` is not atomic** (`engine-adopt.mjs:118`): it writes the file and deletes
-        the sidecar, *then* parses the manifest. A manifest error exits 1, which the skill is told means
-        "nothing was touched" — while the owner's file has already been overwritten and the offer
-        destroyed. Read the manifest before the first write.
+  - [x] **F9 — `adoptCandidate` is not atomic** ✅ **Fixed with F2, whose box owns the detail**
+        _(2026-08-22 · d8191b5)_ (`engine-adopt.mjs:118`): it wrote the file and deleted the sidecar,
+        *then* parsed the manifest. A manifest error exits 1, which the skill is told means "nothing
+        was touched" — while the owner's file had already been overwritten and the offer destroyed.
+        The manifest is now read FIRST, which is also what F2's guard needs in order to ask its third
+        question: **one ordering, two findings.**
 - [ ] **C. Wrong to the owner, or wrong under load — fix test-first**
   - [ ] **F5 — the ownership oracle answers wrongly on `?` and on spaces.** `glob-match.mjs:12`. `?` is
         left unescaped (it becomes a regex quantifier: `a?.md` matches `a.md`, not `ab.md`) and the `**`
