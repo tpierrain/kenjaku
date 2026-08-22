@@ -127,6 +127,16 @@ Second half, a separation rather than a rule: Routing is about *correctness* and
 Tooling is about *ergonomics* and is environment-dependent — with the teeth named, since an **absence**
 claim needs an exhaustive exact search and a top-N by similarity cannot prove a negative.
 
+**#64 (rule half) — delegation gets an objective threshold.** The delegation guidance was not missing,
+it was **advisory**: *"a large document"*, *"reasonable size"*, no number — and a rule with no number is
+remembered when there is room to spare and forgotten when there is not. Consultation reads now go to a
+sub-agent past **~1,500 lines or ~60 KB**, with the two carve-outs stated in the same breath and pinned
+by a test to follow the number rather than live elsewhere: a file about to be **edited** (`Edit`
+requires a prior `Read`) and content to be quoted **verbatim**. The issue's third part ships too, as a
+rule: loading a big skill for three facts is the same disease. ⚠️ **Its `PreToolUse(Read)` hook is NOT
+here** — deferred by the owner, and the guard **asserts its absence**, because a doc guard is where
+undecided scope quietly becomes shipped scope.
+
 **The source-first rule — the routing doctrine gains a level 1 it never had.** The routing table had rows for
 semantic, exact and structural retrieval and **none at all for a source the owner hands over** — the
 2026-08-08 field case, where an article's URL sat in the first message, was never opened, and the answer

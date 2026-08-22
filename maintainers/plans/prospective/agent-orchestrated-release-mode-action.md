@@ -465,6 +465,38 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📏 **2026-08-22 (doctrine cargo 3/3, #64's rule half) — THE CARGO IS COMPLETE, and the finding is
+  that the guidance was never missing.** `8ff14cf`. Auto-compaction fired far early in a real session;
+  the trigger was a huge skill injected mid-turn to source three figures, on a context already full of
+  articles and screenshots. The engine already had a delegation section — **advisory**: *"a large
+  document"*, *"reasonable size"*, no number.
+
+  > 🧭 **The reusable part: a rule with no number is remembered exactly when there is room to spare,
+  > and forgotten exactly when there is not.** Judging *"is this large?"* costs attention, and the
+  > moment the rule matters is the moment that attention is already spent. **This is the same shape as
+  > #61 and #67 and it is now the night's through-line**: none of the three defects was a missing
+  > rule. One was an inconsistency with a rule stated elsewhere (#61), one was a rule stated as
+  > universal when it was local (#67), one was a rule with no threshold (#64). **Three ways for a rule
+  > to be present and inert** — which is a better description of doctrine failure than "we forgot to
+  > write it down", and worth carrying wherever doctrine is written.
+
+  **A number is only safe to state with its exceptions in the same breath**, so a test pins that the
+  carve-outs FOLLOW it inside the same section: a file about to be edited (a mechanism — `Edit` needs a
+  prior `Read`), and content to be quoted verbatim. That is the issue's own non-goal, and the fourth
+  framing assertion in four slices.
+
+  🛑 **The guard asserts an ABSENCE too** — `doesNotMatch(/PreToolUse/)`. The hook half was left in the
+  backlog by the owner, and **a doc guard is exactly where undecided scope quietly becomes shipped
+  scope**. Holding a deferral with a test rather than with memory is cheap and travels.
+
+  24 assertions, EN/FR parity, the 20 that could be red were red on their assertions. No mutation pass,
+  said out loud. Suite 2 423 / 2 420 pass / 0 fail / 3 skipped.
+
+  **Next**: nothing the loop may take alone — and this time the claim is checked against **all three**
+  surfaces (this plan's slices, the ROADMAP's open rows, the scheduled open issues), the third being
+  the one missed twice before a hook named it. #61, #67 and #64 **stay open**: they are reports from
+  deployed brains, and what closes them is a brain **receiving** the rule.
+
 - 🧰 **2026-08-22 (doctrine cargo 2/3, #67) — a rule that states a LOCAL constraint as UNIVERSAL does
   not merely misinform: it manufactures work for the person it was meant to serve.** `b2bb910`.
   *"Never Bash to probe the vault"* rested on a premise true of one surface in one permission mode. In

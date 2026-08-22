@@ -118,7 +118,23 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: the DOCTRINE CARGO — **#64's rule half, the last of the three** _(#61 and #67 done 2026-08-22)_
+> ## ▶️ RESUME AT: S9-2b — cut, tag, publish. **HIS.** _(the doctrine cargo is COMPLETE, 2026-08-22)_
+>
+> ✅ **All three doctrine items are delivered** — #61 `b590738`, #67 `b2bb910`, #64's rule half
+> `8ff14cf` — plus the source-first rule `5729282` that the same sweep uncovered. **Four text changes
+> to `CLAUDE.engine.md`, the very file this release unfreezes**, which is what the owner's 2026-08-15
+> arbitration was after: shipping them inside it is the proof by example that the carrier works.
+>
+> 🚦 **What is left is his, and this time the claim is checked against all three surfaces**: this
+> plan's slices (S9-2b, S9-3), the ROADMAP's open rows, **and the scheduled open issues** — the third
+> surface being the one that was missed, twice, before a hook named it.
+>
+> - **#61, #67 and #64 stay OPEN**: they are reports from deployed brains, and what closes them is a
+>   brain **receiving** the rule, not the branch carrying it. Closing them at merge would be the same
+>   *"delivered to a branch"* error the source-first plan's header warns about.
+> - **Deferred with their reasons, not forgotten**: #64's `PreToolUse(Read)` hook (his arbitration —
+>   and a test now asserts the rule does not announce it), and #67's optional part 3 (allowlist and
+>   auto permission mode in the setup docs — user-facing text carrying a prompt-injection trade-off).
 >
 > 🛑 **Found 2026-08-22 by the `plan-carrier-guard` Stop hook**, which named the archived plan as a
 > carrier the session had not opened. That plan holds the arbitration verbatim _(owner, 2026-08-15)_:
@@ -172,9 +188,26 @@
 >             surface, so recommending auto mode removes the last human gate exactly where it matters.
 >             The issue spells that caveat out; it is a doc slice with your voice on it, not this one.
 >       - **The issue stays OPEN until the release ships**, same reason as #61.
-> - [ ] **#64's RULE half only** — size-guarded delegation with an **objective threshold** in
->       `CLAUDE.engine.md`. ⚠️ **The hook half stays in the backlog**, by the owner's own words: taking
->       it would be scope he did not grant.
+> - [x] ✅ **#64's RULE half only** — size-guarded delegation with an **objective threshold**
+>       _(2026-08-22 · `8ff14cf`)_. Consultation reads go to a sub-agent past **~1 500 lines or ~60 KB**,
+>       whichever comes first. 24 assertions in `scripts/lib/delegation-threshold.test.mjs`.
+>       - 🧭 **The guidance was not missing, it was ADVISORY** — *"a large document"*, *"reasonable
+>         size"*, no number. **A rule with no number is remembered when there is room to spare and
+>         forgotten when there is not**, because judging *"large"* costs attention a loaded context no
+>         longer has. That is why the fix is a threshold and not another paragraph.
+>       - 🛑 **A number is only safe to state with its exceptions in the same breath**, and a test pins
+>         that they FOLLOW it rather than living elsewhere: a file about to be **edited** is read
+>         directly whatever its size (a mechanism, not a preference — `Edit` requires a prior `Read` in
+>         this context), and so is content to be quoted **verbatim**. That is the issue's own non-goal.
+>       - **Part 3 delivered too**, as a rule since nothing can read intent: loading a big skill for
+>         three facts is the same disease, and it was the actual trigger in the observed session.
+>       - [ ] ⚠️ **The hook half stays in the backlog**, by the owner's own words — and the guard
+>             **asserts its absence** (`doesNotMatch(/PreToolUse/)`). A doc guard is exactly where
+>             undecided scope quietly becomes shipped scope, so the line is held by a test rather than
+>             by memory.
+>       - **The issue stays OPEN**: two of its four acceptance criteria are met, the hook is deferred,
+>         and the fourth (*existing brains pick this up through a regular update*) is what the release
+>         itself delivers.
 >
 > **Why they belong here and not in a later release**, in the arbitration's own words: they are text
 > changes to `CLAUDE.engine.md`, *the very file this release unfreezes* — shipping them inside it is
@@ -186,7 +219,7 @@
 > `engine-fingerprints.json` regenerated in the same commit — the S7-2 guard will say so if it is
 > forgotten.
 >
-> ## Then: S9-2b — cut, tag, publish. **HIS.**
+> ## S9-2b's materials — assembled, waiting on him
 >
 > ✅ **S9-2a — THE MATERIALS ARE READY** _(2026-08-22)_. **S9-2 split the way S9-1 did**: assembling
 > what a release needs is checkable work; deciding to publish is not.

@@ -24,11 +24,16 @@
 > seven, or fold one. My read if you want it: 🛡️ *stops drifting without you knowing* is the most
 > mechanism-shaped of the six, and the one a reader gains least from.
 >
-> ⚠️ **And the doctrine cargo keeps arriving, so the pressure on that count is not over.** #61 (*no
-> more silent rituals*) is a real thing a user feels, and it was put **below the fold** rather than made
-> an eighth bullet — a judgement call to hold §11's shape, not a verdict that it matters less. Two
-> items remain (#67, #64's rule half). **If the count is going to move, it is cheaper to decide once,
-> now, than to re-cut the list per item.**
+> ⚠️ **The doctrine cargo is now COMPLETE, and it added THREE more things a user feels** — no more
+> silent rituals (#61), a rule that stopped arguing with itself (#67), and conversations that run out
+> of room later (#64). All three were put **below the fold** rather than made bullets eight, nine and
+> ten: a judgement call to hold §11's shape, not a verdict that they matter less. **So the real
+> question is no longer "seven or six", it is which of the ten things this release gives a user are
+> the six that get said out loud.** My read, if you want a starting point: the unfreeze half (a
+> personalized file stops being a dead end, the brain asks with three answers, a frozen brain starts
+> receiving again) is what the release IS; the doctrine cargo is what it *also* carries, and #64 —
+> conversations that stop resetting mid-work — is the one of the three a user notices without being
+> told.
 >
 > Everything after this note is the body verbatim.
 
@@ -118,6 +123,10 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
   languages, above the search routing rather than below it — and a guard holds the rule, its wording
   and its position. It rides this release for a reason: it is doctrine, and doctrine is exactly what
   the fleet stopped receiving.
+- **Your brain runs out of room later**: when it opens something big just to see what is in it, it now
+  sends a helper to read it and bring back the gist, past a stated size rather than by feel. Files it is
+  actually editing, or quoting word for word, it still reads itself. In practice: fewer conversations
+  that hit their limit and reset in the middle of your work.
 - **A rule that stopped arguing with itself**: one of the engine's own tool rules stated a constraint
   that is true of the desktop app in its default mode as if it were true everywhere. A brain running
   elsewhere hit the contradiction and asked *its owner* to settle a rule the owner is told not to edit.
