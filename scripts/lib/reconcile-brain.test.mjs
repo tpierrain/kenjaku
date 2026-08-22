@@ -2636,6 +2636,36 @@ test("reconcileBrain — a RETIRED skill the owner edited is kept, and the repor
   assert.equal(readFileSync(join(brainDir, ".claude/skills/tdd-discipline/SKILL.md"), "utf8"), mine);
 });
 
+// F3 (v5.0.0 code review) — and the reconcile's own half of it: the SELF-HEAL must not
+// retire. It is spawned detached with `stdio: "ignore"`, so anything it reports is thrown
+// away by construction — a deletion decided here is a deletion nobody can ever be told
+// about. Asserted through the reconciler and not only through the retirement module,
+// because what F3 actually was is a MISSING ARGUMENT at this call site.
+test("reconcileBrain — a self-heal retires NOTHING, so a restored skill survives the next session start", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const shipped = "---\nname: tdd-discipline\n---\nOne test at a time.\n";
+  // The owner went and got it back out of their git history — so it is byte-identical to
+  // what the engine once delivered, and the recorded provenance still proves it. Every
+  // condition for a deletion is met except the one that matters.
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", shipped);
+  const local = {
+    ...manifest({ retired: [".claude/skills/tdd-discipline/**"] }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base(shipped) },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir: brainDir, target: local, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, []);
+  assert.deepEqual(report.skillsRetirePreserved, []);
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/tdd-discipline/SKILL.md"), "utf8"),
+    shipped,
+    "a self-heal may not delete what the owner put back — and it could never have said so",
+  );
+});
+
 // ⏱️ THE ORDER, and it is observable only through a manifest the design forbids: one
 // that both DECLARES the skill `merge` and retires it. The engine must not spend an
 // update carefully three-way-merging a directory it is about to delete — and a brain

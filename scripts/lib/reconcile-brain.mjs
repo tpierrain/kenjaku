@@ -171,8 +171,11 @@ export async function reconcileBrain({
   //    every doubt preserves. The provenance is the BRAIN'S OWN (`local`), because the
   //    question is "did we deliver these exact bytes to YOU?", which only the brain's
   //    manifest can answer; the fetched one would be answering about someone else.
+  //    F3: `sourceDir` travels so the retirement can tell an UPDATE from a self-heal. The
+  //    gate itself is inside `retireDeclaredSkills`, at the only line that deletes.
   const { skillsRetired, skillsRetirePreserved } = retireDeclaredSkills({
     brainDir,
+    sourceDir,
     plan,
     provenance: local?.provenance,
   });

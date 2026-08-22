@@ -34,6 +34,11 @@ function brainWith(files) {
 const TOMBSTONE = ".claude/skills/tdd-discipline/**";
 const DIR = ".claude/skills/tdd-discipline";
 
+// The fetched launcher an UPDATE hands the reconciler. Its contents are irrelevant here
+// — what matters to this module is only that it is not the brain itself, which is what
+// tells an update apart from a SessionStart self-heal (F3).
+const UPDATE_SOURCE = "/tmp/a-fetched-launcher";
+
 test("a declared, untouched skill is DELETED from the disk, and reported by its name", () => {
   const brainDir = brainWith({
     [`${DIR}/SKILL.md`]: "# tdd-discipline\n",
@@ -42,6 +47,7 @@ test("a declared, untouched skill is DELETED from the disk, and reported by its 
   });
   const report = retireDeclaredSkills({
     brainDir,
+    sourceDir: UPDATE_SOURCE,
     plan: { retireSkills: [TOMBSTONE] },
     provenance: {
       [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n"),
@@ -54,6 +60,49 @@ test("a declared, untouched skill is DELETED from the disk, and reported by its 
   rmSync(brainDir, { recursive: true, force: true });
 });
 
+// ── F3 (v5.0.0 code review) — RETIREMENT IS AN UPDATE-TIME ACT ────────────────
+// This was the one family beside the three merge families NOT gated on
+// `sourceDir !== brainDir`, so it also ran at SessionStart self-heal — which is
+// spawned detached, `stdio: "ignore"`, so `skillsRetired` goes to nowhere at all.
+// And provenance entries are never pruned, so a skill the owner RESTORED from their
+// git history still matches its recorded digest: it was deleted again at the next
+// session start, with not one word said anywhere.
+//
+// The gate lives HERE rather than at the call site, deliberately, and for the reason
+// `fetchAncestors` gives for the same choice: this is the one place in the product
+// that calls `rmSync` under `.claude/`, so no caller should have to remember.
+
+test("F3 — a SELF-HEAL retires nothing, whatever the tombstone says", () => {
+  const brainDir = brainWith({ [`${DIR}/SKILL.md`]: "# tdd-discipline\n" });
+  // Everything an update would need in order to delete it: declared, and provably the
+  // engine's own bytes. The ONLY thing standing between the owner and a silent deletion
+  // is that this is a self-heal.
+  const report = retireDeclaredSkills({
+    brainDir,
+    sourceDir: brainDir,
+    plan: { retireSkills: [TOMBSTONE] },
+    provenance: { [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n") },
+  });
+  assert.deepEqual(report, { skillsRetired: [], skillsRetirePreserved: [] });
+  assert.equal(existsSync(join(brainDir, `${DIR}/SKILL.md`)), true, "a skill the owner restored must survive their next session start");
+  rmSync(brainDir, { recursive: true, force: true });
+});
+
+// 🛑 The default FAILS TOWARDS KEEPING. A caller that says nothing has not told us this
+// is an update, and "I cannot tell" must never resolve to a delete — this is the one
+// door in the product that removes an owner's file.
+test("F3 — a caller that names no source retires nothing either", () => {
+  const brainDir = brainWith({ [`${DIR}/SKILL.md`]: "# tdd-discipline\n" });
+  const report = retireDeclaredSkills({
+    brainDir,
+    plan: { retireSkills: [TOMBSTONE] },
+    provenance: { [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n") },
+  });
+  assert.deepEqual(report, { skillsRetired: [], skillsRetirePreserved: [] });
+  assert.equal(existsSync(join(brainDir, `${DIR}/SKILL.md`)), true);
+  rmSync(brainDir, { recursive: true, force: true });
+});
+
 // The half that costs the owner their work if it is wrong, so it is asserted on the
 // DISK and not merely in the report: a preserved skill is still there, byte for byte.
 test("one edited file and the directory stays — every byte of it, not just the edited one", () => {
@@ -63,6 +112,7 @@ test("one edited file and the directory stays — every byte of it, not just the
   });
   const report = retireDeclaredSkills({
     brainDir,
+    sourceDir: UPDATE_SOURCE,
     plan: { retireSkills: [TOMBSTONE] },
     provenance: {
       [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n"),
@@ -83,7 +133,7 @@ test("one edited file and the directory stays — every byte of it, not just the
 // tdd-discipline" about a skill they never installed would go looking for it.
 test("a brain that never had the skill hears nothing about it", () => {
   const brainDir = brainWith({ ".claude/skills/coach/SKILL.md": "# coach\n" });
-  const report = retireDeclaredSkills({ brainDir, plan: { retireSkills: [TOMBSTONE] }, provenance: {} });
+  const report = retireDeclaredSkills({ brainDir, sourceDir: UPDATE_SOURCE, plan: { retireSkills: [TOMBSTONE] }, provenance: {} });
   assert.deepEqual(report, { skillsRetired: [], skillsRetirePreserved: [] });
   rmSync(brainDir, { recursive: true, force: true });
 });
@@ -92,7 +142,7 @@ test("a brain that never had the skill hears nothing about it", () => {
 // default state — so this is the path most brains take. Nothing is deleted without proof.
 test("no provenance at all — the skill stays, and the report says which files could not be proved", () => {
   const brainDir = brainWith({ [`${DIR}/SKILL.md`]: "# tdd-discipline\n" });
-  const report = retireDeclaredSkills({ brainDir, plan: { retireSkills: [TOMBSTONE] } });
+  const report = retireDeclaredSkills({ brainDir, sourceDir: UPDATE_SOURCE, plan: { retireSkills: [TOMBSTONE] } });
   assert.deepEqual(report, {
     skillsRetired: [],
     skillsRetirePreserved: [{ name: "tdd-discipline", blockers: [{ rel: `${DIR}/SKILL.md`, reason: "no-provenance" }] }],
@@ -110,6 +160,7 @@ test("several tombstones are each decided on their own merits", () => {
   });
   const report = retireDeclaredSkills({
     brainDir,
+    sourceDir: UPDATE_SOURCE,
     plan: { retireSkills: [TOMBSTONE, ".claude/skills/old-sync/**"] },
     provenance: {
       [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n"),
@@ -131,7 +182,7 @@ test("several tombstones are each decided on their own merits", () => {
 // manifest with no tombstone at all must reach no `rmSync` and read no directory.
 test("no tombstone declared — nothing is listed, nothing is removed", () => {
   const brainDir = brainWith({ ".claude/skills/coach/SKILL.md": "# coach\n" });
-  const report = retireDeclaredSkills({ brainDir, plan: { retireSkills: [] }, provenance: {} });
+  const report = retireDeclaredSkills({ brainDir, sourceDir: UPDATE_SOURCE, plan: { retireSkills: [] }, provenance: {} });
   assert.deepEqual(report, { skillsRetired: [], skillsRetirePreserved: [] });
   assert.equal(existsSync(join(brainDir, ".claude/skills/coach/SKILL.md")), true);
   rmSync(brainDir, { recursive: true, force: true });
@@ -145,6 +196,7 @@ test("a single-star tombstone is a skill directory too", () => {
   const brainDir = brainWith({ ".claude/skills/legacy/SKILL.md": "# legacy\n" });
   const report = retireDeclaredSkills({
     brainDir,
+    sourceDir: UPDATE_SOURCE,
     plan: { retireSkills: [".claude/skills/legacy/*"] },
     provenance: { ".claude/skills/legacy/SKILL.md": fp("# legacy\n") },
   });
@@ -161,6 +213,7 @@ test("a tombstone whose glob is not a trailing one deletes nothing, and does not
   const brainDir = brainWith({ [`${DIR}/SKILL.md`]: "# tdd-discipline\n" });
   const report = retireDeclaredSkills({
     brainDir,
+    sourceDir: UPDATE_SOURCE,
     plan: { retireSkills: [`${DIR}/**/SKILL.md`] },
     provenance: { [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n") },
   });

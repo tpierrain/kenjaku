@@ -21,9 +21,23 @@ import { decideSkillRetirement } from "./skill-retirement.mjs";
 // DIRECTORY level, never file by file — half a skill left behind is worse than all of it.
 const skillDirOf = (glob) => glob.replace(/\/\*\*?$/, "");
 
-export function retireDeclaredSkills({ brainDir, plan, provenance = {} }) {
+export function retireDeclaredSkills({ brainDir, sourceDir, plan, provenance = {} }) {
   const skillsRetired = [];
   const skillsRetirePreserved = [];
+
+  // 🚨 F3 (v5.0.0 code review) — RETIREMENT IS AN UPDATE-TIME ACT, and this was the one
+  // family beside the three merge families that did not say so. Left ungated it also ran
+  // at SessionStart self-heal (`sourceDir === brainDir`), which is spawned DETACHED with
+  // `stdio: "ignore"` — so `skillsRetired` goes to nowhere at all. And provenance entries
+  // are never pruned, so a skill the owner went and RESTORED from their git history still
+  // matched its recorded digest: deleted again at the next session start, in silence.
+  //
+  // The gate lives HERE and not at the call site, for the reason `fetchAncestors` gives
+  // for the same choice: this is the one place in the product that calls `rmSync` under
+  // the owner's `.claude/`, so no caller should have to remember. And an ABSENT
+  // `sourceDir` is caught by the same line, deliberately — a caller who has not said this
+  // is an update has not earned a deletion, and "I cannot tell" must fail towards keeping.
+  if (sourceDir === undefined || sourceDir === brainDir) return { skillsRetired, skillsRetirePreserved };
 
   for (const glob of plan.retireSkills) {
     const dir = skillDirOf(glob);
