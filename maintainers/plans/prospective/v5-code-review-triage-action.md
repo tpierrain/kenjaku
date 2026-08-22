@@ -11,15 +11,24 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **§ J, then § K, then S11/S14/S15** — § I is closed _(2026-08-22 · `ca46027`)_. Working
-  hardest-hitting first, exactly as the first batch was worked. Thomas typed
-  `/code-review max fc4e7bb..HEAD` on 2026-08-22; § H is discharged. The first batch (**A, B, C, D,
-  F**) stays fixed, test-first, green and pushed.
+- **Next:** **exactly two boxes are left of the second batch — S11 and S15**, both in § L, both cheap
+  and neither carrying a decision. **S11**: `update-engine.mjs` lines 429/432/438/446/517/520 still
+  print `(s)`, and line 429 is pinned by a test that enshrines it — the test moves with the fix.
+  **S15**: `ignore-base-settings.mjs` gains two blank lines on an empty `.gitignore`, and does not
+  recognise a directory-level `.engine-base/` entry as already covering the path. Everything else
+  under the GO is **done, green and pushed**: § I `ca46027`, § J `f716066` `d17896c` `94272e9`
+  `e27ed4a`, § K `e6c4deb`, S14 with `e27ed4a`.
   - ✅ **THE GO, in his words** _(2026-08-22)_: *"oui, en test-first, et tu me montres à la fin."* Word
     for word the first batch's GO, on the scope that was recommended with it: **I, J, K, and the cheap
     half of L (S11, S14, S15)**. **S12 and S13 are NOT in it** — they are weighed like G, and stay
     Thomas's.
-- **Blocked on:** nothing.
+  - 📣 **HE HAS NOT HAD THE "montres à la fin" YET.** The GO asked for a report at the end and the
+    batch is not finished, so the last thing a resuming session owes him, after S11 and S15, is **one
+    plain-language report** — same register as the first batch's.
+- **Blocked on:** nothing. **Suite at the last commit: 2 541 green, 3 skipped** (CI's own invocation,
+  `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
+  66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
+  assertion rather than a loading error.
 - **Owner's call pending:** **three.** (1) **E / F11** — the French twin: translate it,
   or say so in the release note. (2) **G** — does v5 pay F12 and F13, or a follow-up? (3) **the
   delivered-prose hole** raised by § H's measurement: three delivered prose files can be gutted with
@@ -30,7 +39,7 @@
     `.claude/settings.json` also leave the nudge?* **S4 shows the file is broken on a second machine
     for a different reason**, and that reason has to be fixed either way. The nudge question rides on
     S4's fix rather than standing alone; see F1's follow-up box, which now points here.
-- **A session may, alone:** **work § I, J, K and S11/S14/S15 — and nothing else here.** Not merge, tag
+- **A session may, alone:** **finish S11 and S15 — and nothing else here.** Not merge, tag
   or publish #76, not touch either real brain, not write under `templates/fr/**`, not spend the G work
   **nor S12/S13**. ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**, unless Thomas
   ships with a named finding deferred.
@@ -468,8 +477,8 @@ in the whole file, and it runs 45 lines before the re-record; **S15(a)** by insp
         uncommitted work is reset. The reviewer's framing is the useful one — **the property is
         OWNERSHIP, not name shape**: refuse any path this run did not create, or that `git worktree
         list` does not name. That single check closes S1, S3, and the class.
-- [ ] **J. Second pass — wrong on the deployed fleet, or wrong to the owner**
-  - [ ] **S4 — F4's gitignore line stops the leak and starts a permanent divergence on the SECOND
+- [x] **J. Second pass — wrong on the deployed fleet, or wrong to the owner** _(2026-08-22 · `f716066` S4, `d17896c` S5, `94272e9` S6, `e27ed4a` S7+S8+S14)_
+  - [x] **S4 — F4's gitignore line stops the leak and starts a permanent divergence on the SECOND
         machine.** `scripts/lib/ignore-base-settings.mjs:26`. `.claude/settings.json` is gitignored and
         regenerated per machine (`brain-rehydrate.mjs`, `UNTRAVELLABLE`), but **its provenance sha
         travels inside the tracked manifest**. With the base copy now ignored too, machine B pulls a
@@ -480,7 +489,7 @@ in the whole file, and it runs 45 lines before the re-record; **S15(a)** by insp
         `.new` to dismiss, and every update preserving it as `no-provenance` with a sidecar instead of
         merging. `brain-rehydrate.mjs`'s own comment (*"the reconcile re-seeds"*) is false for exactly
         this file. ⚠️ **This is also the answer to F1's follow-up question** — see § A.
-  - [ ] **S5 — F7's swallow leans on a surface that swallows the same failure.**
+  - [x] **S5 — F7's swallow leans on a surface that swallows the same failure.**
         `scripts/update-engine.mjs:806`. F7 made step 10 fail-soft on the argument that *"the nudge is a
         standing surface, a line omitted once comes back on its own"* (§ C). But
         `session-engine-divergence.mjs:51` catches the identical throw and returns
@@ -488,29 +497,29 @@ in the whole file, and it runs 45 lines before the re-record; **S15(a)** by insp
         umask) is omitted by the update recap **and** by the session banner, with no diagnostic on
         either path — and nothing distinguishes *"nothing held back"* from *"could not look"*.
         **F7's own premise is what fails here**, which is why this is J and not L.
-  - [ ] **S6 — F9's reordering turned a designed refusal into a stack trace.**
+  - [x] **S6 — F9's reordering turned a designed refusal into a stack trace.**
         `scripts/lib/engine-adopt.mjs:116`. Before F9, a brain with a missing or mid-edit
         `engine-manifest.json`, asked about a file with **no `.new` beside it**, returned
         `{ adopted: false, blocked: "no-candidate" }` — a sentence. Now the manifest is parsed FIRST
         (which F2's third question needs), it throws, and `adopt-engine-file.mjs:142` has no
         `try/catch`. Keep the ordering, wrap the read, map the failure to a named `blocked` reason —
         `BLOCKED_LINE` having no fallback (§ B) means the new reason cannot ship without its sentence.
-  - [ ] **S7 — an install that wires a connector hands the owner a brand-new brain with a dirty tree.**
+  - [x] **S7 — an install that wires a connector hands the owner a brand-new brain with a dirty tree.**
         `installer.mjs:711`. The brain's only `git add -A` + `git commit` runs at **662-667**; the
         connector merge and `rerecordEngineWrite` run at **694/711**, and there is no second commit in
         the file. So right after printing *"local git repo ready (install commit)"*, `git status` shows
         a modified `engine-manifest.json` the owner cannot explain. It self-heals at the first
         SessionStart sweep — **the defect is the first impression**, on a product whose whole promise
         is that it commits for you.
-  - [ ] **S8 — the installer announces a record that may not have happened.** `installer.mjs:712`
+  - [x] **S8 — the installer announces a record that may not have happened.** `installer.mjs:712`
         prints *"engine provenance re-recorded"* unconditionally, while `rerecordEngineWrite` returns
         **the rels it actually recorded** and returns `[]` when the path is absent or outside
         `regimes.merge` — writing nothing. `engine-base-fs.mjs` documents that return as existing *"so
         a caller can say what it did"*, and the only caller drops it. **This is the shape the repo's own
         `CLAUDE.md` guardrail forbids in one word: "Don't pretend".** Fix is one line —
         `const recorded = …; if (recorded.length) ok(…)`.
-- [ ] **K. Second pass — two holes left in F2's containment guard**
-  - [ ] **S9 — the exact string `".."` is its own canonical form.** `engine-adopt.mjs:98`. `rel = ".."`
+- [x] **K. Second pass — two holes left in F2's containment guard** _(2026-08-22 · `e6c4deb` — one commit, one guard)_
+  - [x] **S9 — the exact string `".."` is its own canonical form.** `engine-adopt.mjs:98`. `rel = ".."`
         → `relative(brainDir, join(brainDir, ".."))` is `".."`, so `canonical !== rel` is false,
         `startsWith("../")` is false, `isAbsolute("..")` is false: **all three questions pass**, and the
         only thing still refusing it is `selectMergeFiles`. That last line is not load-bearing by
@@ -518,7 +527,7 @@ in the whole file, and it runs 45 lines before the re-record; **S15(a)** by insp
         `globToRegExp("**")` compiles to `^.*$`, which matches `".."`. **One leading-wildcard merge glob
         in a future manifest re-opens the escape F2 was written to close.** Fix:
         `canonical === ".." || canonical.startsWith("../")`.
-  - [ ] **S10 — the guard is lexical, so a symlink walks straight through it.**
+  - [x] **S10 — the guard is lexical, so a symlink walks straight through it.**
         `engine-adopt.mjs:96`. `relative()` and `join()` never touch the filesystem. An owner who
         symlinks `.claude/skills/coach` at a shared folder outside the brain — a documented way to share
         skills between brains — gives `.claude/skills/coach/SKILL.md` a spelling that is canonical,
@@ -527,6 +536,38 @@ in the whole file, and it runs 45 lines before the re-record; **S15(a)** by insp
         and only `realpathSync` can answer that. _(Weigh the cost: it adds I/O to a pure module, and
         F2's design deliberately asks its questions before touching disk. The honest fix may be to
         realpath **once**, at the point where the write is already committed to.)_
+### How the SECOND batch was worked, and the four calls it made on its own
+
+Same GO, same shape as the first: red for the right reason, then the code, **one commit per subject**,
+green only. **Six commits**: § I (`ca46027`), S4 (`f716066`), S5 (`d17896c`), S6 (`94272e9`),
+S7+S8+S14 (`e27ed4a`), § K (`e6c4deb`). Four decisions were taken inside these fixes that no finding
+dictated — written here so they are not re-derived or quietly reversed:
+
+1. **§ I — the guard is OWNERSHIP, and it is asked before the dry-run return.** Three findings, one
+   check: a directory that already exists may be reset only if `git worktree list --porcelain` names
+   it. The dry run now refuses too, breaking with the neighbouring committed-targets gate (which stays
+   out of dry runs because it protects a SCORE). **Why**: the dry run is literally how S1 was found —
+   a plan that prints `git reset --hard /Users/dev/Kenjaku` has already taught the reader it is fine.
+2. **S4 — the ancestor a machine HOLDS outranks the digest the shared manifest REMEMBERS.** The
+   obvious fix (re-record on rehydrate) is only half, and alone it is not a fix: machine B's sha
+   travels back through the tracked manifest and machine A starts making the same false claim. So the
+   report asks `.engine-base/<rel>` first, and falls back to the digest where the brain holds no
+   ancestor. **What this deliberately does NOT answer**: whether `.claude/settings.json` should leave
+   the nudge the way `CLAUDE.md` did — still Thomas's, and now a narrower question, about the machine
+   that really did edit the file.
+3. **S5 — the fix is per FILE, and one sentence is deliberately left unsaid.** `readInstalledMerge
+   Files` takes an OPT-IN collector (a seeder that quietly skipped a file it could not read would
+   record an ancestor for a brain it never saw), the update recap names the files in a line of its
+   own, and the session hook takes the collector but **discards it**. 📌 **RESIDUAL, named rather
+   than smuggled in**: that hook's voice is *"a file the engine leaves alone is a choice, not a
+   problem"*, and an unreadable file is neither. Saying it belongs to the **health banner**, which
+   owns the alarm voice. Worth doing; not this batch.
+4. **S10 — scoped to the adoption door on purpose.** Engine writes elsewhere follow symlinks just the
+   same, and that is consistent rather than sloppy: their rels come from the **manifest**, this one
+   from the **conversation**, which is the whole reason F2's guard exists. **Named consequence**: an
+   owner who symlinks a skill folder out of the brain cannot adopt through it. The day an engine write
+   takes an untrusted rel, the check belongs lower.
+
 - [ ] **L. Second pass — prose, tests and altitude (non-blocking; the cheap half is worth taking with
       the rest, the two design ones are G-class)**
   - [ ] **S11 — `(s)` survived F14 in six lines of the same report.** `update-engine.mjs:429, 432, 438,
@@ -550,7 +591,7 @@ in the whole file, and it runs 45 lines before the re-record; **S15(a)** by insp
         (704). The next in-place write (the diff's own comment anticipates one) must remember all
         three, and missing any one silently recreates F1 for that file. **A recording write helper
         owning both the write and the map makes forgetting impossible.**
-  - [ ] **S14 — two of F8's four source-text assertions pin whitespace, in a repo whose convention is
+  - [x] **S14 — two of F8's four source-text assertions _(2026-08-22 · `e27ed4a`, with S7/S8 — the very commit their brittleness would have blocked)_  pin whitespace, in a repo whose convention is
         heavy inline commenting.** `scripts/installer-connector-provenance.test.mjs:414`. The regexes
         require `rerecordEngineWrite(` to be the FIRST line after the `if` brace, and forbid any line
         between `applyConnectorFiles(...)` and `connectorsTouchedSettings = true`. **Adding one
