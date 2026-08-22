@@ -465,6 +465,38 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🧰 **2026-08-22 (doctrine cargo 2/3, #67) — a rule that states a LOCAL constraint as UNIVERSAL does
+  not merely misinform: it manufactures work for the person it was meant to serve.** `b2bb910`.
+  *"Never Bash to probe the vault"* rested on a premise true of one surface in one permission mode. In
+  a real session in auto mode, with the native `Grep` absent and the harness itself saying to fall
+  back, the brain read its own constitution as self-contradictory and **filed a friction item asking
+  its owner to arbitrate** — a rule that lives in the engine layer, which owners are told not to edit.
+  Engine-induced noise in a user's backlog, plus a wasted round trip.
+
+  > 🧭 **The reusable part: the absolute had to leave the TITLE.** A heading is what a scanning reader
+  > carries away; a body that qualifies a title nobody re-reads has fixed nothing, and a test now pins
+  > that the heading no longer says NEVER / JAMAIS. **Three slices in a row where the assertion that
+  > mattered was about POSITION OR FRAMING, not presence** — the source-first rule above the search
+  > routing, the signal rule above its instances, and now an absolute out of a title. That is no longer
+  > a coincidence: **in a doc guard, "is the rule there?" is the cheap half. "Will it be met, and in
+  > what frame?" is the half that was failing in the field.**
+
+  **Also delivered: a separation rather than a rule.** Two tables read as one — Routing is about
+  *correctness* and holds everywhere, Outillage is about *ergonomics* and is environment-dependent.
+  With its teeth named: an **absence** claim needs an exhaustive exact search, because a top-N by
+  similarity **cannot prove a negative**. Pointed at the claim discipline, not restated.
+
+  🚧 **Scope call, written rather than smuggled**: the issue's optional part 3 (allowlist and auto mode
+  in the setup docs) was **not taken**. The arbitration named the rule, and part 3 is user-facing doc
+  carrying a **prompt-injection trade-off** — a second brain ingests third-party content, so
+  recommending auto mode removes the last human gate exactly where it matters. His voice, his call.
+
+  22 assertions, EN/FR parity, red on their assertions first. No mutation pass, said out loud. Suite
+  2 399 / 2 396 pass / 0 fail / 3 skipped.
+
+  **Next**: #64's **rule half only** — an objective threshold for size-guarded delegation. ⚠️ **The
+  hook half stays in the backlog**, by the owner's own words in the arbitration.
+
 - 📣 **2026-08-22 (doctrine cargo 1/3, #61) — the engine was inconsistent with itself, and the fix was
   to generalise what it already said.** `b590738`. Ending a session in plain words ran the passive
   observation ritual in complete silence: backlog read, long conversation scanned, four files written,

@@ -118,6 +118,11 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
   languages, above the search routing rather than below it — and a guard holds the rule, its wording
   and its position. It rides this release for a reason: it is doctrine, and doctrine is exactly what
   the fleet stopped receiving.
+- **A rule that stopped arguing with itself**: one of the engine's own tool rules stated a constraint
+  that is true of the desktop app in its default mode as if it were true everywhere. A brain running
+  elsewhere hit the contradiction and asked *its owner* to settle a rule the owner is told not to edit.
+  It now says which surface it is talking about, and that falling back is expected rather than a defect
+  worth reporting.
 - **No more silent rituals**: when something your brain does was triggered by a *signal* rather than
   by a request — you ending a session, a question whose answer may have moved — it says so in one line
   before doing it, instead of leaving you in front of an unexplained pause. The engine already

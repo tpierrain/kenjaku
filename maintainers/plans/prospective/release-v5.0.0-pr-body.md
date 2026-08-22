@@ -117,6 +117,16 @@ engine already demanded exactly this one section earlier, for the background syn
 generalises the rule that existed instead of inventing a second one, states it **above both of its
 instances**, and has the ritual that failed point at it in one line.
 
+**#67 — the tooling rule becomes conditional and self-describing.** *"Never Bash to probe the vault"*
+rested on a premise true of one surface in one permission mode, and was written as an absolute — in
+the title first. In a session in auto mode with the native `Grep` absent, the brain read its own
+constitution as self-contradictory and **filed a friction item asking its owner to arbitrate a rule
+that lives in the engine layer**. The rule now names its surface and its mode, and says that falling
+back to Bash when a native tool is unavailable is **expected, not a defect, and nothing to report**.
+Second half, a separation rather than a rule: Routing is about *correctness* and holds everywhere,
+Tooling is about *ergonomics* and is environment-dependent — with the teeth named, since an **absence**
+claim needs an exhaustive exact search and a top-N by similarity cannot prove a negative.
+
 **The source-first rule — the routing doctrine gains a level 1 it never had.** The routing table had rows for
 semantic, exact and structural retrieval and **none at all for a source the owner hands over** — the
 2026-08-08 field case, where an article's URL sat in the first message, was never opened, and the answer

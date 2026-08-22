@@ -118,7 +118,7 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: the DOCTRINE CARGO — **#67 next, then #64's rule half** _(#61 done 2026-08-22)_
+> ## ▶️ RESUME AT: the DOCTRINE CARGO — **#64's rule half, the last of the three** _(#61 and #67 done 2026-08-22)_
 >
 > 🛑 **Found 2026-08-22 by the `plan-carrier-guard` Stop hook**, which named the archived plan as a
 > carrier the session had not opened. That plan holds the arbitration verbatim _(owner, 2026-08-15)_:
@@ -143,10 +143,35 @@
 >         is the same family as this repo's other writing conventions.
 >       - **The issue stays OPEN until the release ships** — it is a report from a deployed brain, and
 >         what closes it is the brain receiving the rule, not the branch carrying it.
-> - [ ] **#67 — the Outillage rule states a Claude Desktop permission constraint as if it were
->       universal.** *"Never Bash to probe the vault"* rests on a rationale true of one surface in one
->       permission mode; in auto mode, with the native `Grep` unavailable, the rule actively misleads.
->       It must become **conditional and self-describing**.
+> - [x] ✅ **#67 — the Outillage rule becomes conditional and self-describing** _(2026-08-22 · `b2bb910`)_.
+>       *"Never Bash to probe the vault"* rested on a rationale true of one surface in one permission
+>       mode. The rule now names **both** — surface and mode — and states the fallback: **a native tool
+>       unavailable means the Bash equivalent is EXPECTED, not a defect, and there is nothing to report
+>       about it.** 22 assertions in `scripts/lib/tooling-rule-conditional.test.mjs`.
+>       - 🚨 **What the absolute actually cost, and it is the part worth keeping**: a session in auto
+>         mode, with the native `Grep` absent, read its own constitution as self-contradictory and
+>         **filed a friction item asking its owner to arbitrate** — an arbitration that was never
+>         theirs, since the rule lives in the engine layer owners are told not to edit. **A rule that
+>         states a local constraint as universal does not merely misinform: it manufactures work for
+>         the person it was meant to serve.**
+>       - 🧭 **The absolute had to leave the TITLE, not just the body**, and a test pins that. The
+>         heading is what a scanning reader carries away; a body qualifying a title nobody re-reads has
+>         fixed nothing. **Third slice in a row where placement or framing, not presence, was the
+>         assertion that mattered.**
+>       - **Second half: a separation, not a rule.** Two tables read as one — **Routing** is about
+>         *correctness* and holds in every environment, **Outillage** is about *ergonomics* and is
+>         environment-dependent. Reading the `❌ grep` cell as *"never run an exact search"* collides
+>         head-on with Routing. It has teeth: an **absence** claim can only rest on an exhaustive exact
+>         search, since a top-N by similarity **cannot prove a negative** — pointed at the *Claim
+>         discipline* rather than restated.
+>       - [ ] 🚧 **NOT taken, deliberately — the issue's optional part 3**: offering the two real
+>             prompt-fatigue remedies in the setup docs (a read-only allowlist; auto mode as an
+>             *informed* choice). Two reasons: the arbitration named *"the rule becomes conditional and
+>             self-describing"*, and part 3 is **user-facing documentation carrying a security
+>             trade-off** — a second brain ingests third-party content, which is the prompt-injection
+>             surface, so recommending auto mode removes the last human gate exactly where it matters.
+>             The issue spells that caveat out; it is a doc slice with your voice on it, not this one.
+>       - **The issue stays OPEN until the release ships**, same reason as #61.
 > - [ ] **#64's RULE half only** — size-guarded delegation with an **objective threshold** in
 >       `CLAUDE.engine.md`. ⚠️ **The hook half stays in the backlog**, by the owner's own words: taking
 >       it would be scope he did not grant.
