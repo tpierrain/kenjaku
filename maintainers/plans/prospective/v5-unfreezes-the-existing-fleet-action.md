@@ -12,25 +12,27 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **one conversation left of the two he asked to resume after a `/clear`** _(2026-08-22,
-  his words: "on continue nos échanges sur ces deux sujets, le Lint et ça")_ — **the lint**, argued in
-  [`plan-state-single-source-study.md`](plan-state-single-source-study.md), his call, recommendation
-  on record. The second, *does any test go red when DELIVERED Markdown changes the brain's
-  behaviour?*, is **measured and answered** under § H of
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) — it needs him to hear it, not
-  to be worked again. Beyond that, **no engineering is left on this release**: the queue is empty,
-  checked against the three surfaces rather than recalled, and what remains is the cut, every line of
-  it Thomas's — § *WHAT IS YOURS, IN ORDER*. Say that in one line rather than reciting the list, and
-  **do not take an entry from it**.
+- **Next:** **the second `/code-review` pass, and Thomas types it — a session cannot.** He said go on
+  2026-08-22 (*"on lance la code review"*), immediately after arbitrating W5b, so the branch is in its
+  final shape and the review reads what will actually ship. **THE RANGE: `fc4e7bb..HEAD` on
+  `feat/engine-base-unfreeze`.** Findings land in
+  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md), which owns them; fix them
+  test-first as the first batch was. After that the cut runs 3 → 4 → 6 of § *WHAT IS YOURS, IN ORDER*.
+  - The other conversation he opened is still open and is **not** on this release's path: **the shape
+    lint for plans**, argued in [`plan-state-single-source-study.md`](plan-state-single-source-study.md),
+    his call, recommendation on record.
+  - **No engineering is left on this release** beyond whatever the review turns up: the queue is
+    empty, checked against the three surfaces rather than recalled. Say that in one line rather than
+    reciting § *WHAT IS YOURS*, and **do not take an entry from it**.
 - **Blocked on:** the code review's findings —
   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns them and its own STATE
   block answers where they stand. **Nothing is merged or tagged until its § Tracking is discharged**,
   unless Thomas ships with a named finding deferred.
-- **Owner's call pending:** **two.** (1) **W5b** — the wording of the four doctrine texts, the last
-  thing on this release needing him to decide *content*; the guards assert patterns, not prose.
-  (2) The **rehearsal on a copy of a real brain** before the tag — proposed 2026-08-22, never ruled
-  on. _(Everything else he was asked is answered: the five decisions, and the `scripts` bump at
-  `1.14.0`. **Do not re-ask any of them.**)_
+- **Owner's call pending:** **one.** The **rehearsal on a copy of a real brain** before the tag —
+  proposed 2026-08-22, never ruled on, and the only thing that would exercise in the field what this
+  release promises. _(Everything else he was asked is answered: the five decisions, the `scripts` bump
+  at `1.14.0`, and **W5b — the four doctrine texts ship as written**, 2026-08-22. **Do not re-ask any
+  of them.**)_
 - **A session may, alone:** **nothing here.** Not merge, tag, publish, push to `main`, or touch either
   of his two real brains. There is no engineering entry left to take.
 
@@ -481,10 +483,16 @@
 >         files / 27 113 insertions are the maintainers' plans; the code perimeter is **79 source files
 >         (+6 957 / −533)** plus **44 test files (+11 498)**, and the operational risk sits in the files
 >         that write into installed brains (`scripts/lib/engine-*.mjs`, `reconcile-brain.mjs`).
-> - [ ] **2. W5b — arbitrate the WORDING of the four doctrine texts, before the tag.** #61, #67, #64's
->       rule half and the source-first rule are written, placed and guarded. **The guards assert
->       patterns, not prose**: rewrite every sentence and the suite stays green; when a rule stops
->       being recognisable, the test names which one. → § *W5b*.
+> - [x] ✅ **2. W5b — the WORDING of the four doctrine texts: ARBITRATED, they ship AS WRITTEN**
+>       _(2026-08-22, his words: "les 4 me vont")_. The four sections of `CLAUDE.engine.md` — the
+>       signal announcement (#61), the source-first level 1, the sub-agent threshold (#64's rule half)
+>       and the conditional tooling rule (#67) — were shown to him **verbatim, in full, one by one**,
+>       each with the field defect it exists for. **He changed no word.** → § *W5b*.
+>       - 📐 **What that spares, and it is why the arbitration was put before the review**: a wording
+>         change to `CLAUDE.engine.md` is never prose alone — it drags the **FR twin** (locale-drift
+>         guard) and a **fingerprint-table regeneration** (measured 2026-08-22, § H of the triage
+>         plan). Approving as-is means **no mechanical work lands after the review**, which was the
+>         whole risk of doing it the other way round.
 > - [x] ✅ **3. The release note — DONE, re-read WITH Thomas line by line** _(2026-08-22 evening)_.
 >       Title unchanged (**`v5.0.0 — The One Where Your Edits and Its Updates Finally Merge`**), same
 >       seven bullets. What changed is the top, on nine successive corrections of his: an opening
@@ -701,12 +709,12 @@
 >             `test-first-discipline` beside it (read from the shipped manifest).
 > - [ ] **W5 — HIS, not the loop's**: retarget #76 to `main`, one review over the whole branch, **one
 >       merge commit, never a squash**, then cut / tag / publish. → answer 5, and § *S9-2b's materials*.
-> - [ ] **W5b — HIS TOO, and it was NOT one of the five: the WORDING of the doctrine text.** Four text
->       changes to `CLAUDE.engine.md` (#61, #67, #64's rule half, and the source-first rule) are
->       **written, placed and guarded** — the mechanism is the loop's and it is done. **The sentences
->       speak in his voice and are his to arbitrate, and they are due BEFORE the tag.** The guards
->       assert patterns, not prose: he can rewrite every sentence and the suite stays green, and when a
->       rule stops being recognisable the test names which one. → the doctrine-cargo block further down,
+> - [x] ✅ **W5b — ARBITRATED 2026-08-22: the four texts ship AS WRITTEN, not one word changed.** His
+>       verdict, after being shown all four verbatim with the field defect each one exists for:
+>       *"les 4 me vont"*. Four text changes to `CLAUDE.engine.md` (#61, #67, #64's rule half, and the
+>       source-first rule), **written, placed and guarded** — the mechanism was the loop's, the
+>       sentences were his. **The guards assert patterns, not prose**, so this was never something the
+>       suite could have settled for him. → the doctrine-cargo block further down,
 >       and [`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](field-finding-2026-08-08-source-first-and-frozen-doctrine.md)
 >       for the fourth.
 >       - 🛑 **Why it is written here at all**: the five-question round of 2026-08-22 closed the
