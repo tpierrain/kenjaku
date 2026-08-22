@@ -10,9 +10,9 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **one thing, and it is a read, not a fix** — answer Thomas's open question under § H:
-  *does anything in the suite go red when a doctrine sentence in DELIVERED Markdown changes?* Read the
-  tests, then answer; do not answer from memory. Every finding under the GO is otherwise fixed,
+- **Next:** **nothing for a session here.** The last read owed by this file is done — § H now carries
+  the measured answer to *"does anything go red when DELIVERED Markdown changes?"*, obtained by
+  mutating shipped prose and running the suite, not from memory. Every finding under the GO is fixed,
   test-first, green and pushed — categories **A, B, C, D, F**. The rest is Thomas's, below.
 - **Blocked on:** nothing.
 - **Owner's call pending:** **four.** (1) **§ H** — re-run `/code-review` on `fc4e7bb..HEAD`; a
@@ -20,6 +20,10 @@
   release note. (3) **G** — does v5 pay F12 and F13, or a follow-up? (4) **F1's follow-up** — should
   `.claude/settings.json` also leave the nudge, the way `CLAUDE.md` did? Two defensible designs,
   written out under F1, and **nothing depends on it**.
+  - A **fifth is now on the table and is his to weigh**, raised by § H's measurement: three delivered
+    prose files can be gutted with the suite fully green (`CONNECTORS.md`,
+    `.claude/skills/EXAMPLES.md`, `engine-skills/mcp-token-expired/SKILL.md`). **v5, or a follow-up?**
+    The recommendation on record is **follow-up** — no finding of this review depends on it.
 - **A session may, alone:** **nothing in this file.** Not merge, tag or publish #76, not touch either
   real brain, not write under `templates/fr/**`, not spend the G work. ⚠️ **Nothing may be merged or
   tagged until § Tracking is discharged**, unless Thomas ships with a named finding deferred.
@@ -330,18 +334,48 @@ catches any of this.
           `2ce39d8` falls in one of those two, **read on disk, not recalled**, so the delivered
           surface is byte-identical to the moment the batch closed and this re-run's job is
           unchanged. **Re-derive it that way, never by file extension.**
-        - ❓ **His second question, OPEN and unanswered — what actually guards shipped prose?**
-          *"Tu veux dire qu'on n'a aucun test qui [...] peut devenir faux à cause de changements de
-          comportements ?"* If a doctrine sentence in `CLAUDE.engine.md` or a shipped skill is the
-          behaviour, then **a test that only reads code cannot go red when the behaviour changes** —
-          and the release's whole safety net would be resting on review, not on the suite.
-          **NOT VERIFIED — do not answer from memory.** What must be read, on disk, before saying
-          anything: which tests assert on the *content* of delivered Markdown, what exactly they
-          assert (a pattern, a fingerprint, a hash, or nothing), and what a doctrine wording change
-          would have to break for one of them to fail. Names to start from, unconfirmed:
-          `source-first-discipline.test.mjs`, the locale-drift guard, `tracked-files.test.mjs`.
-          Related, and already known: **W5b's guards assert patterns, not prose** — which is a first
-          data point *for* his worry, not against it.
+        - ✅ **His second question — what actually guards shipped prose? ANSWERED BY MEASUREMENT,
+          2026-08-22.** The question was *"tu veux dire qu'on n'a aucun test qui peut devenir faux à
+          cause de changements de comportements ?"*. It was **not** answered from memory: nine
+          mutations were applied to delivered Markdown on disk, the 2 525-test suite run against each,
+          and the file restored. **He was right in substance and wrong in the strongest form**, and
+          the three findings are worth more than the yes/no:
+
+          1. **A real family of doc guards exists, and it reads the SHIPPED bytes, not a fixture.**
+             ~10 test files (`source-first-discipline`, `claim-discipline`, `source-discipline`,
+             `backlog-discipline`, `delegation-threshold`, `signal-announce-discipline`,
+             `tooling-rule-conditional`, `identity-discipline`, `connector-discipline`,
+             `update-consent-discipline`, `constitution-layering`, `constitution-mirror-citations`)
+             build `REPO_ROOT` from `import.meta.url` and `readFileSync` the real
+             `CLAUDE.md.template` + `CLAUDE.engine.md` **union**, and the FR twins, and the real
+             `SKILL.md`s. **They guard more than presence**: renaming the `### Level 1 — a source you
+             are handed comes before any search` heading turned **10 tests red**; moving the
+             `WebFetch` row below the `search_vault` row in the routing table turned **2 red**.
+             Section **placement and table row order** — i.e. the reading order that actually caused
+             the 2026-08-08 field defect — are asserted, not just keywords.
+          2. **🛑 But not one of them can see MEANING, and that is his point standing.** The level-1
+             rule was inverted in place — *"is not ambience: it is the statement of the task"* →
+             *"is usually just ambience, not the statement of"* — leaving **every asserted keyword
+             where it was**. **Zero doc guards fired.** The only red was
+             `engine-fingerprints.test.mjs` → *"the table covers every merge file of the release being
+             cut, in every locale"*, which fires on the **bytes**, not on the sense. A doctrine
+             sentence can be reversed and the suite has nothing doctrinal to say about it.
+          3. **The fingerprint table is an accidental second net, and it is the load-bearing one.**
+             Any byte change to a **`merge`-regime** delivered file (`CLAUDE.engine.md`, `CLAUDE.md`,
+             the eight `.claude/skills/**` under merge) makes the suite red until the table is
+             regenerated. It **judges nothing** — but it makes a prose change **impossible to ship
+             unnoticed**, which is a review trigger, and answers the literal question with *no, the
+             suite is not silent*.
+          4. **⚠️ The genuine hole is the surface OUTSIDE the merge regime.** Gutting each of these
+             down to one line left **2 525 tests green, 0 fail**: `CONNECTORS.md` (in **no regime at
+             all**), `.claude/skills/EXAMPLES.md`, `engine-skills/mcp-token-expired/SKILL.md`. They
+             are delivered prose the brain obeys, with **neither a doc guard nor a byte tripwire**.
+             (`engine-skills/**` is `replace`, so the fingerprint table does not cover it; some of it
+             is incidentally guarded — gutting `engine-skills/universe/SKILL.md` did turn 3 red.)
+
+          **What this does NOT license**: it is not an argument for a new guard on this release. It is
+          the honest shape of the net, so the cut is taken knowing it. Related and consistent:
+          **W5b's guards assert patterns, not prose** — same limit, same reason.
         - 🧾 **The plans in the diff do not drown the code**: the first pass read `main...HEAD` with
           **27 113 lines of plans** in it and still found 15 findings in 7 257 lines of production
           diff. No need to slice the range by hand.
