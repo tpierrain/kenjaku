@@ -708,8 +708,31 @@ if (interactive) {
 // Gated on a write having actually happened: an install that wired nothing must leave the
 // manifest byte-identical, exactly as the reconciler's own re-record is gated.
 if (connectorsTouchedSettings) {
-  rerecordEngineWrite({ brainDir: TARGET, rels: [".claude/settings.json"] });
-  ok("engine provenance re-recorded after the connector merge (.claude/settings.json)");
+  // S8 — the return value is the only thing that knows what was recorded. It is `[]` when
+  // the path is absent or outside `regimes.merge`, i.e. when NOTHING was written; printing
+  // the success line regardless is a claim about something that may not have happened,
+  // made to someone with no way to check. The repo's own guardrail, in three words:
+  // don't pretend.
+  const recorded = rerecordEngineWrite({ brainDir: TARGET, rels: [".claude/settings.json"] });
+  if (recorded.length) {
+    ok(`engine provenance re-recorded after the connector merge (${recorded.join(", ")})`);
+    // S7 — and the brain's ONE commit ran before this write. `engine-manifest.json` is
+    // tracked, so without this the installer printed "local git repo ready (install
+    // commit)" and handed over a brand-new brain with a modified file behind it. The next
+    // SessionStart sweep would commit it, but the first impression is a product that did
+    // not do the one thing it promises to do for you.
+    //
+    // AMENDED, not added: the owner was told "install commit", singular, and a second
+    // commit for a file they never saw would need explaining. Only ever onto a commit that
+    // was actually made — `git commit --amend` with no HEAD is an error, and this whole
+    // step is optional comfort.
+    if (commit.ok) {
+      run("git", ["add", "-A"], { cwd: TARGET });
+      run("git", ["commit", "--amend", "--no-edit", "-q"], { cwd: TARGET });
+    }
+  } else {
+    warn("engine provenance could not be re-recorded for .claude/settings.json — harmless, but a session may report it as customized.");
+  }
 }
 
 // ── 6. Example notes (optional) ──────────────────────────────────────────────

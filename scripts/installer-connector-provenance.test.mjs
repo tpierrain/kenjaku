@@ -61,15 +61,79 @@ test("the re-record comes AFTER the connector merge, which is the whole of the f
 // so it must leave the manifest exactly as step 4 recorded it. An unconditional
 // re-record would be harmless today and a habit tomorrow — and it is precisely the
 // "re-seed everything" shape that would, elsewhere, silence a real owner edit.
+// 🧱 S14 (second pass) — THE TWO ASSERTIONS BELOW USED TO PIN WHITESPACE.
+//
+// They required `rerecordEngineWrite(` to be the FIRST line after the guard's brace, and
+// forbade any line between the merge and the flag — in a file whose every other block
+// carries an explanatory comment. Adding one would have turned this suite red with a
+// message about a missing guard that was still there. What they are really about is
+// CONTAINMENT and ORDER, so that is what they ask now, on the block rather than on the
+// spacing. (The `indexOf` test above never had the problem, and is untouched.)
+const blockOf = (opener, closer) => {
+  const from = installerSrc.indexOf(opener);
+  assert.ok(from > 0, `installer.mjs must still contain \`${opener}\``);
+  const to = installerSrc.indexOf(closer, from);
+  assert.ok(to > from, `installer.mjs must still close \`${opener}\` with \`${closer}\``);
+  return installerSrc.slice(from, to);
+};
+
 test("the re-record is CONDITIONAL on a connector having actually been wired", () => {
-  assert.match(
-    installerSrc,
-    /if\s*\(\s*connectorsTouchedSettings\s*\)\s*\{\s*\n\s*rerecordEngineWrite\(/,
-    "the re-record must be guarded by the flag the connector loop sets",
+  // The other half of the gate: an install that wires no connector writes no permission,
+  // so it must leave the manifest exactly as step 4 recorded it. An unconditional
+  // re-record would be harmless today and a habit tomorrow — and it is precisely the
+  // "re-seed everything" shape that would, elsewhere, silence a real owner edit.
+  const guarded = blockOf("if (connectorsTouchedSettings) {", "\n}");
+
+  assert.ok(
+    guarded.includes("rerecordEngineWrite("),
+    "the re-record must sit INSIDE the block guarded by the flag the connector loop sets",
   );
-  assert.match(
-    installerSrc,
-    /applyConnectorFiles\(conn,[^)]*\);\s*\n\s*connectorsTouchedSettings\s*=\s*true;/,
-    "the flag must be set where the merge actually happens, not where the step is announced",
+});
+
+test("the flag is set where the merge happens, not where the step is announced", () => {
+  const mcpBranch = blockOf('if (conn.kind === "mcp") {', "} else {");
+
+  assert.ok(mcpBranch.includes("applyConnectorFiles("), "the merge must still be in the mcp branch");
+  assert.ok(
+    mcpBranch.indexOf("connectorsTouchedSettings = true") > mcpBranch.indexOf("applyConnectorFiles("),
+    "the flag must be raised by the merge, and after it — a flag set before the write can be raised over a write that threw",
+  );
+});
+
+// 🚨 S7 (second pass) — A BRAND-NEW BRAIN HANDED OVER WITH A DIRTY WORKING TREE.
+//
+// The brain's one `git add -A` + `git commit` runs at step 4bis, BEFORE the connectors
+// step; the re-record that F8 added runs after it and rewrites `engine-manifest.json`,
+// which is tracked. So an interactive install that wires a single connector printed
+// "local git repo ready (install commit)" and then left a modified file behind it. It
+// self-heals at the first SessionStart sweep — the defect is the first impression, on a
+// product whose whole promise is that it commits for you.
+test("the manifest the re-record rewrote is COMMITTED, inside the same guarded block", () => {
+  const guarded = blockOf("if (connectorsTouchedSettings) {", "\n}");
+
+  assert.ok(guarded.includes('"--amend"'), "the install commit must be amended to carry the re-recorded manifest");
+  assert.ok(
+    guarded.indexOf('"--amend"') > guarded.indexOf("rerecordEngineWrite("),
+    "committing BEFORE the re-record commits nothing — the whole point is the bytes it just wrote",
+  );
+  // Amended rather than added: the installer told the owner "install commit", singular,
+  // and a second commit for a file they never saw would need explaining.
+  assert.ok(guarded.includes("commit.ok"), "and it may only amend a commit that was actually made");
+});
+
+// 🚨 S8 (second pass) — DON'T PRETEND (the repo's own guardrail, in three words).
+//
+// `rerecordEngineWrite` returns the rels it ACTUALLY recorded, and returns `[]` when the
+// path is absent or outside `regimes.merge` — writing nothing at all. The installer
+// announced "engine provenance re-recorded" regardless, which is a claim about something
+// that may not have happened, printed to someone with no way to check.
+test("what the installer ANNOUNCES is what the re-record says it did", () => {
+  const guarded = blockOf("if (connectorsTouchedSettings) {", "\n}");
+  const assigned = /(?:const|let)\s+(\w+)\s*=\s*rerecordEngineWrite\(/.exec(guarded);
+
+  assert.ok(assigned, "the return value must be kept — it is the only thing that knows what was recorded");
+  assert.ok(
+    new RegExp(`\\b${assigned[1]}\\b[\\s\\S]*\\bok\\(`).test(guarded),
+    "the success line must be gated on what was recorded, not printed unconditionally",
   );
 });
