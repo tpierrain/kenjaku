@@ -4,16 +4,31 @@
 // "which files does this glob own" has a single, identical answer everywhere.
 //   **  → any run of characters, including "/" (whole subtrees)
 //   *   → any run of characters except "/" (a single path segment)
-// Everything else is literal; the match is anchored (^…$) so a glob never selects a
-// path that merely starts/ends with it.
+//   ?   → exactly one character, never "/"
+// Everything else is literal — a space is a space — and the match is anchored (^…$) so a
+// glob never selects a path that merely starts/ends with it.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// The whole dialect, as ONE alternation, deliberately. Both defects F5 fixed came from
+// building the body in successive passes over its own OUTPUT: a `**` was parked as a
+// space and every space then became `.*`, so a glob naming a folder with a space in it
+// silently gained a subtree wildcard; and `?`, never escaped, reached the RegExp as a
+// quantifier, making the preceding character optional. A single pass cannot mistake what
+// an earlier pass wrote for what the glob said. Order matters here and nowhere else:
+// `**` must be offered before `*`, or it would be read as two of them.
+// Safe to hoist despite the `g` flag: `String.prototype.replace` resets `lastIndex` on a
+// global regexp, so no call can inherit where another left off.
+const TOKEN = /\*\*|[*?]|[.+^${}()|[\]\\]/g;
+// A Map rather than an object literal: every remaining token is a regex metacharacter to
+// escape, and a plain object would answer `toString` and `constructor` too.
+const EXPANSION = new Map([
+  ["**", ".*"],
+  ["*", "[^/]*"],
+  ["?", "[^/]"],
+]);
+
 export function globToRegExp(glob) {
-  const escaped = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&");
-  const body = escaped
-    .replace(/\*\*/g, " ") // placeholder so "*" below doesn't eat "**"
-    .replace(/\*/g, "[^/]*")
-    .replace(/ /g, ".*");
+  const body = glob.replace(TOKEN, (token) => EXPANSION.get(token) ?? "\\" + token);
   return new RegExp("^" + body + "$");
 }
 
