@@ -308,6 +308,28 @@ test("fetchAncestors — a candidate whose PATH is gone at that tag costs the ne
   assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
 });
 
+test("fetchAncestors — bytes that arrive WITH a failure are not bytes: `ok` is the authority", (t) => {
+  // 🛑 Demanded by the mutation run, and it pins a real rule rather than a branch: a
+  // `git show` that exits non-zero has produced no content, whatever sits in its
+  // stdout. Digest it anyway and the exit status becomes decorative — and a fetch that
+  // trusts bytes accompanying a failure is precisely how a false ancestor reaches
+  // `.engine-base/`, which is the one write this module exists to prevent.
+  //
+  // Asserted on BOTH shapes, because the guard is shared: the hit and the candidate
+  // walk go through the same line, and a test of one leaves the other unpinned.
+  const brainDir = brain(t);
+  // Real bytes, a real digest, and a REFUSAL anyway — the only thing wrong here is the
+  // exit status, so nothing but the exit status can be doing the refusing.
+  const git = (args) => (args[2] === "fetch" ? { out: "", ok: true } : { out: ANCESTOR, ok: false });
+
+  const hit = fetchAncestors({ plan: [entry()], sourceDir: SOURCE, brainDir, git });
+  const miss = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
+
+  assert.deepEqual(hit, { hydrated: [], failed: [DOCTRINE] });
+  assert.deepEqual(miss, { hydrated: [], failed: [DOCTRINE] });
+  assert.ok(!existsSync(baseAt(brainDir, DOCTRINE)), "and not one byte was written by either");
+});
+
 test("fetchAncestors — an existing `.engine-base/<rel>` stops a CANDIDATE entry too, before any git", (t) => {
   // The dangerous skip, on the new path. An existing base is the REAL ancestor;
   // replacing it with a row chosen on the strength of a historical digest swaps a fact
