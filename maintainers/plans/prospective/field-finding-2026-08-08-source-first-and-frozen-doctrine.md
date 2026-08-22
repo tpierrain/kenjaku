@@ -32,6 +32,15 @@
 > drafted in [`release-v5.0.0-note.md`](release-v5.0.0-note.md) and his to voice), and the field
 > re-test — the same brain, the same kind of prompt, once it runs a v5 engine.
 >
+> 🛑 **AND THE SHIP IS BLOCKED ON SOMETHING THIS FINDING DOES NOT OWN** _(noted 2026-08-22)_. This plan
+> closes when v5.0.0 **ships**, so anything blocking the cut blocks this too — and as of 2026-08-22 the
+> cut is held by an owner arbitration that has nothing to do with the source-first rule: **the heal
+> and the ancestor fetch are both LF-only, so S7 may be inert on Windows.** The header above used to
+> read as if only the wording stood between this finding and its close, which was true of *this plan*
+> and false of *the release*. **No status is copied here on purpose** — the four options, the evidence
+> and the recommendation live in the owning plan's blocking box:
+> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md).
+>
 > ⚠️ **This plan does NOT close when the branch is green.** It closes when v5.0.0 **ships**, because
 > the whole finding is *a rule written where the fleet never receives it*. A rule delivered to a branch
 > is that same defect one commit further along.
