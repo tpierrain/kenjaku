@@ -2,6 +2,17 @@
 <!-- STATUS: 🏁 DONE, ARCHIVED (2026-08-21). S1 through S6 were BUILT, on the  -->
 <!-- branch feat/engine-base-unfreeze. That is history and stays true.         -->
 <!--                                                                          -->
+<!-- plan-carrier-guard: delegates-only                                        -->
+<!-- (Thomas's call, 2026-08-22.) It names the branch because it BUILT it,     -->
+<!-- which is history, and it holds no status about it. What it does own: the  -->
+<!-- design record of S1-S6, i.e. HOW each shipped mechanism was designed and  -->
+<!-- what was rejected on the way. Nothing perishable.                         -->
+<!--                                                                          -->
+<!-- 🔍 EARNED, NOT ASSUMED: the line was added only AFTER the file was read   -->
+<!-- end to end and a real state copy was removed from this very header (see   -->
+<!-- below). It is a certificate that someone checked, never a way to stop     -->
+<!-- checking. DELETE IT the day any row here starts carrying live state.      -->
+<!--                                                                          -->
 <!-- 🚫 WHETHER IT IS MERGED, TAGGED OR PUBLISHED IS NOT ANSWERED HERE, EVER.  -->
 <!-- This header said "draft PR #76 / nothing tagged" until 2026-08-22, and    -->
 <!-- both were live status in a file that tells its reader not to come here    -->
