@@ -66,6 +66,17 @@ const NO_CANDIDATE_LINE = (rel) =>
   ` your file stands exactly as it is. Either this choice was already made, or this` +
   ` brain never received an engine version of that file to compare against.`;
 
+// S6 — the record itself is unreadable (missing, or caught mid-write by a sync). Nothing
+// about it is the owner's doing and nothing about it is their file's fault, so the
+// sentence blames neither: it names `engine-manifest.json`, says the brain was left alone,
+// and points at the one thing that repairs it. Deliberately NOT the no-candidate story
+// ("there is no newer version waiting") — there may well be one, and we cannot see it.
+const UNREADABLE_MANIFEST_LINE = (rel) =>
+  `I could not read this brain's engine-manifest.json, so I left ${rel} and everything else` +
+  ` exactly as it is. That file is the engine's own record of what it delivered; if a sync` +
+  ` caught it mid-write, opening a new session repairs it, and it is restorable from this` +
+  ` brain's git history.`;
+
 // One sentence per blocked reason, and NO fallback on purpose. A `??` stood here and
 // quietly handed every unknown reason the no-candidate sentence — so the day the seam
 // learned a fourth refusal, the owner was told "there is no newer version waiting" about
@@ -75,6 +86,7 @@ const BLOCKED_LINE = {
   "no-candidate": NO_CANDIDATE_LINE,
   "marked-candidate": MARKED_CANDIDATE_LINE,
   "not-adoptable": NOT_ADOPTABLE_LINE,
+  "unreadable-manifest": UNREADABLE_MANIFEST_LINE,
 };
 
 const APPLIED_LINE = {

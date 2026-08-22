@@ -112,8 +112,21 @@ export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
   //
   // It is also what F2's guard needs in order to ask its second question, so the two
   // findings have one fix: ask everything before writing the first byte.
+  //
+  // 🛑 S6 (second pass) — AND THE THROW IS AN ANSWER, not an escape. Moving the read here
+  // kept F9's promise and cost a sentence: the same brain, asked about a file with no
+  // `.new` beside it, used to get the designed `no-candidate` refusal and now got a
+  // `JSON.parse` stack trace, because `adopt-engine-file.mjs` calls this with no
+  // try/catch. "I cannot read the record" is one of this function's outcomes like every
+  // other refusal — named, with the brain left exactly as it was, and a sentence of its
+  // own in the CLI. Do NOT move the read back down to buy this back.
   const manifestPath = join(brainDir, "engine-manifest.json");
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  let manifest;
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  } catch {
+    return { adopted: false, blocked: "unreadable-manifest" };
+  }
   // F2 — before the sidecar is even looked for: the existence of a `.new` beside a file
   // is not what makes it the engine's. Anyone can put one there, including a mistaken
   // agent relaying a path it half-heard.

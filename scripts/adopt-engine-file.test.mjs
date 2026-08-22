@@ -224,7 +224,14 @@ test("a path the engine does not own gets its own sentence, and never 'nothing t
 });
 
 test("every blocked outcome says the brain was left ALONE — that is the reassurance", () => {
-  for (const blocked of ["refused", "conflicted", "no-candidate", "marked-candidate", "not-adoptable"]) {
+  for (const blocked of [
+    "refused",
+    "conflicted",
+    "no-candidate",
+    "marked-candidate",
+    "not-adoptable",
+    "unreadable-manifest",
+  ]) {
     const { deps, calls } = harness({ adopt: () => ({ adopted: false, blocked }) });
     runAdoptEngineFile([REL, "take-theirs"], deps);
     assert.match(said(calls), /left|stands|unchanged/i, `"${blocked}" must reassure, not just refuse`);
@@ -298,4 +305,23 @@ test("the usage EXPLAINS all three offers — naming them is not telling anyone 
   assert.match(USAGE, /keep-mine\s+your version stands/);
   assert.match(USAGE, /combine\s+adopt the combination written in --from/);
   assert.match(USAGE, /keeping the engine's version as the ancestor/);
+});
+
+// 🚨 S6 (second pass) — the refusal F9 turned into a stack trace.
+//
+// `adoptCandidate` reads the manifest FIRST (that is what makes the write atomic), and
+// this CLI calls it with no try/catch. A brain whose record is missing or mid-edit
+// therefore answered a question with a `JSON.parse` trace, where a sentence used to
+// stand. The reason is named now, so the sentence exists — and `BLOCKED_LINE` has no
+// fallback by design, so a reason without one is a red test, never a lie in production.
+test("a manifest the engine cannot read gets a sentence, not a stack trace", () => {
+  const { deps, calls } = harness({ adopt: () => ({ adopted: false, blocked: "unreadable-manifest" }) });
+
+  assert.equal(runAdoptEngineFile([REL, "take-theirs"], deps), 1);
+
+  assert.match(said(calls), new RegExp(escaped(REL)));
+  assert.match(said(calls), /engine-manifest\.json/, "it must name the file that is actually the problem");
+  // Not the owner's mistake, and not the same story as a path the engine does not own.
+  assert.doesNotMatch(said(calls), /no newer version/i);
+  assert.doesNotMatch(said(calls), /update report/i);
 });

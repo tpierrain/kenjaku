@@ -460,13 +460,15 @@ test("adoptCandidate — an unreadable manifest changes NOTHING, neither the fil
   const dir = brain(t);
   writeFileSync(join(dir, "engine-manifest.json"), "{ this is not json");
 
-  // The matcher pins WHICH failure this is: a manifest that would not parse. Left loose,
-  // the test would pass just as happily on a guard that threw for the wrong reason —
-  // including one that threw AFTER writing.
-  assert.throws(
-    () => adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit }),
-    /JSON/i,
-  );
+  // 🔁 S6 (second pass) CHANGED WHAT THIS ASSERTS, and the change is the finding. It
+  // pinned the THROW — which is what F9's ordering produced, and what the CLI one door
+  // over turns into a stack trace where a sentence used to stand. The invariant it was
+  // really about is untouched and asserted below: nothing moved. What moved is that "I
+  // cannot read the record" is now an ANSWER, named, with a sentence of its own.
+  assert.deepEqual(adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit }), {
+    adopted: false,
+    blocked: "unreadable-manifest",
+  });
 
   assert.equal(read(dir, REL), OWNER, "the owner's file must survive a manifest we could not parse");
   assert.equal(read(dir, `${REL}.new`), CANDIDATE, "and so must the offer, or the choice is destroyed with it");
@@ -482,4 +484,28 @@ test("adoptCandidate — answering a SECOND file keeps the first answer", (t) =>
     "CLAUDE.md": { decision: "keep-mine", at: "v5.0.0" },
     [REL]: { decision: "keep-mine", at: "v5.0.0" },
   });
+});
+
+// 🚨 S6 (second pass of the v5.0.0 review) — F9's ORDERING KEPT ITS PROMISE AND LOST A
+// SENTENCE.
+//
+// Before F9 the manifest was parsed at the END, so a brain whose `engine-manifest.json`
+// was missing or mid-edit, asked about a file with no `.new` beside it, got the designed
+// refusal `no-candidate` — a sentence the owner can act on. Reading it FIRST is right (it
+// is what makes the write atomic, and what F2's guard needs), but it turned that refusal
+// into an uncaught `JSON.parse` throw: `adopt-engine-file.mjs` calls `adopt` with no
+// try/catch, so a stack trace replaced the sentence.
+//
+// The answer is not to move the read back. It is that "I cannot read the record" is one of
+// this function's ANSWERS, like every other refusal here: a named `blocked`, a brain left
+// exactly as it was, and a sentence of its own in the CLI.
+test("adoptCandidate — a manifest that is not there at all is the same refusal", (t) => {
+  const dir = brain(t);
+  rmSync(join(dir, "engine-manifest.json"));
+
+  assert.deepEqual(adoptCandidate({ brainDir: dir, rel: REL, decision: "keep-mine", git: cleanGit }), {
+    adopted: false,
+    blocked: "unreadable-manifest",
+  });
+  assert.equal(read(dir, REL), OWNER);
 });
