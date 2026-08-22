@@ -1,19 +1,20 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- STATUS: 🔴 LIVE since 2026-08-22 — the triage of the `/code-review max`  -->
 <!-- run that Thomas asked for BEFORE merging v5.0.0. 15 findings returned.   -->
-<!-- NOTHING is fixed yet. This file OWNS the findings and their state; the    -->
-<!-- release plan links here and restates none of it.                         -->
+<!-- The FIXING is under way; the header note below says where it stands and  -->
+<!-- what is next. This file OWNS the findings and their state; the release   -->
+<!-- plan links here and restates none of it.                                 -->
 <!-- Owning release plan: v5-unfreezes-the-existing-fleet-action.md (item 4a). -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F10.** _(updated 2026-08-22, mid autonomous run)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F6.** _(updated 2026-08-22, mid autonomous run)_
 >
 > **Done and pushed, test-first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`),
-> F4 (`a0419f6`), F5 (`1917a76`), F7 (`89621f0`). **Categories A and B are discharged.**
-> **Resume at F10** (the 1 MB `maxBuffer` on the ancestor fetch) — the last of C — then D (F6), then
-> F (F14, F15).
+> F4 (`a0419f6`), F5 (`1917a76`), F7 (`89621f0`), F10 (`6707eca`). **Categories A, B and C are
+> discharged.**
+> **Resume at F6** (`mutate-one --worktree kenjaku` aiming at the real repository), then F (F14, F15).
 > The order and the boundaries below are unchanged and still govern.
 >
 > ⚠️ **A boundary worth knowing before touching any doc**: editing an **engine skill**
@@ -43,7 +44,7 @@
 >
 > **So the next session starts by fixing, not by triaging.** Suggested order, hardest-hitting first:
 > ~~F1 (the fleet-wide false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, ~~F3 (the silent
-> deletion)~~ ✅, ~~F4 (the published machine)~~ ✅, then C, then D and F.
+> deletion)~~ ✅, ~~F4 (the published machine)~~ ✅, ~~C (F5, F7, F10)~~ ✅, then D and F.
 >
 > ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
 > explicitly ships with a named finding deferred (his call, recorded here if it happens).
@@ -225,7 +226,8 @@ catches any of this.
         was touched" — while the owner's file had already been overwritten and the offer destroyed.
         The manifest is now read FIRST, which is also what F2's guard needs in order to ask its third
         question: **one ordering, two findings.**
-- [ ] **C. Wrong to the owner, or wrong under load — fix test-first**
+- [x] **C. Wrong to the owner, or wrong under load — fix test-first** _(2026-08-22 · 1917a76, 89621f0,
+      6707eca — F5, F7, F10; F8 was taken by F1)_
   - [x] **F5 — the ownership oracle answers wrongly on `?` and on spaces.** ✅ _(2026-08-22 ·
         `1917a76`)_ `glob-match.mjs:12`. `?` was left unescaped (it became a regex quantifier: `a?.md`
         matched `a.md`, not `ab.md`) and the `**` placeholder was a **space**, so a literal space was
@@ -263,11 +265,25 @@ catches any of this.
         recorded **before** the connectors step merges permissions into `settings.json`, so any
         interactive install with a connector ended with a file that mismatches its own recorded sha,
         and F1's nudge fired on a brain minutes old. Taken by the *re-record after the merge* branch.
-  - [ ] **F10 — the ancestor fetch inherits Node's 1 MB `maxBuffer`.** `engine-fetch.mjs:130`. The
-        sibling seam `engine-merge-git.mjs:60` sets 64 MB with a comment naming this exact hazard.
-        Latent today (merge files are ~40 KB), and it silently degrades to "the update server could not
-        be reached" when it did answer. `generate-fingerprints.mjs:43` has no try/catch at all, so the
-        same blob aborts a release cut.
+  - [x] **F10 — the ancestor fetch inherits Node's 1 MB `maxBuffer`.** ✅ _(2026-08-22 · `6707eca`)_
+        `engine-fetch.mjs:130`. The sibling seam `engine-merge-git.mjs:60` set 64 MB with a comment
+        naming this exact hazard. It silently degraded to "the update server could not be reached" when
+        the server did answer. `generate-fingerprints.mjs:43` had no try/catch at all, so the same blob
+        aborted a release cut.
+        - [x] **Overflowing `maxBuffer` does not truncate** — node kills the child and the call THROWS,
+              so the failure always arrives wearing the wrong clothes. That is the whole finding: not
+              lost bytes, a lost *diagnosis*.
+        - [x] **A THIRD site, found beside the two the review named**: `session-status.mjs` is an
+              independent spelling of the same request, and its queries GROW with the vault —
+              `git status --porcelain` is one line per dirty file, so a fresh clone or a bulk import
+              reaches 1 MB around **25 000 notes**, and the banner then calls a healthy repository
+              broken.
+        - [x] **One named ceiling, `GIT_MAX_BUFFER`, imported by all four git seams.** Two spellings of
+              a limit are two behaviours to keep in step forever. **Do not re-inline the number.**
+        - [x] 🛑 **The generator stays UNTESTED by construction, and that is its own declared
+              contract** (`process.exitCode = main(...)` runs on import; every decision it makes lives
+              in the pure module CI does test). It gained the missing `catch`, which re-throws while
+              naming the call. Verified by running it: the usage path is intact and writes nothing.
 - [ ] **D. Maintainer-side, destructive — fix test-first**
   - [ ] **F6 — `mutate-one.mjs --worktree kenjaku` targets the real repository** and then runs
         `git reset --hard` + `git clean -qfd` in it, destroying every uncommitted and untracked file.
