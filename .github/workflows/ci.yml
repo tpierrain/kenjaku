@@ -190,6 +190,14 @@ jobs:
       - name: Assert the brain was delivered with LF endings (W2 - the installer copy path)
         shell: pwsh
         run: |
+          # THE PREMISE, measured in this same job rather than asserted in a comment:
+          # the whole proof below is vacuous unless THIS checkout is CRLF. If a future
+          # runner image flips core.autocrlf, the assertions keep passing while proving
+          # nothing — so the premise fails loudly instead of going quiet.
+          $eol = git ls-files --eol -- scripts/lib/engine-base.mjs
+          if ($eol -notmatch "w/crlf") { Write-Error "this checkout is not CRLF ($eol) - the LF proof below would be vacuous"; exit 1 }
+          Write-Host "the launcher checkout IS CRLF here ($eol) - the proof below has something to measure"
+
           $brain = Join-Path "${{ runner.temp }}" "ci-brain"
           $texts = @(Get-ChildItem -Path (Join-Path $brain "scripts") -Recurse -Filter *.mjs) +
                    @(Get-Item (Join-Path $brain "CLAUDE.engine.md"))
