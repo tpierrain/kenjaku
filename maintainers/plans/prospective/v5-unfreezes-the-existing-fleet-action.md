@@ -435,19 +435,27 @@
 > 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
 > should say so and stop, rather than find something.
 >
-> ### 🧭 ON "ON REPREND" — READ THIS FIRST _(updated 2026-08-22, after step 1 landed)_
+> ### 🧭 ON "ON REPREND" — READ THIS FIRST _(updated 2026-08-22, after the code review returned)_
 >
-> **Step 1 is DONE**: #76 is retargeted to `main` with its new title and a corrected body (four stale
-> passages fixed before sending). **What is live now is step 4a: a tooled `/code-review`, in three
-> passes, BEFORE the merge** — Thomas's call, because the whole release was built in orchestrated
-> `/loop` mode and nothing outside the loop has ever read this code. **`/code-review` is a command HE
-> types**; the session's job is to scope each pass and triage the findings test-first.
+> 🔴 **THE MERGE IS NOW GATED ON THE REVIEW'S FINDINGS, AND THAT IS THE HEADLINE.** `/code-review max`
+> ran over the whole branch and came back with **15 findings, none fixed**. **One is a blocker**: this
+> release's own hook additions make every brain in the fleet report `.claude/settings.json` and
+> `CLAUDE.md` as "yours" at **every session start**, undismissably — false, and it is the consent
+> fatigue the nudge was built to prevent. Two more are silent-damage defects (a write that escapes the
+> brain folder, a skill deleted again at self-heal with nothing said).
 >
-> - **Pass A first**: the unfreeze engine (`scripts/lib/engine-*.mjs`, `reconcile-brain.mjs`), the code
->   that writes into brains already installed. Then B (install / update path), then C (the rest).
+> - **The findings live in [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md)**, and
+>   **only** there. This plan restates none of them: open that file, it owns their state.
+> - **The blocker needs Thomas's design call**, not a repair: what the nudge should say about a file
+>   the engine itself rewrites, and about one the product tells owners to edit.
+> - **Nothing is merged or tagged until that file's § Tracking is discharged** (or he ships with a
+>   named finding deferred, which is his to decide and is recorded there).
+> - **Step 1 is DONE**: #76 is retargeted to `main` with its new title and a corrected body.
 > - **W5b, the wording of the four doctrine texts, is still his and still due before the tag.** It is
->   prose, independent of the code: it does not block the review and the review cannot invalidate it.
+>   prose: the review neither judges it nor discharges it.
 > - **Open and NOT decided**: the rehearsal on a copy of a real brain — see the box after the cut list.
+>   **The review strengthens the case for it**: three of the fifteen are about what the update *does to
+>   an installed brain*, which is exactly what a rehearsal would have shown.
 > - The section below dates from before step 1 and stays for its reasoning; **its step 1 is spent**.
 >
 > ### 🧭 THE CLEAR OF 2026-08-22 EVENING — FIVE STEPS LEFT, ALL HIS
@@ -533,6 +541,15 @@
 >         `installer.mjs`, the `update-engine` skill, `engine-manifest.json` and the release-cutting
 >         tool; **(C)** the rest (other scripts, FR/EN templates, CI).
 >       - 🧪 **Findings are fixed TEST-FIRST and the review is re-run on the fix**, as v3.3.0 did.
+>       - 🔴 **IT RAN, on the WHOLE branch at `max` effort, and it came back with 15 findings**
+>         _(2026-08-22, ~37 min)_. The three-pass slicing was not needed: it read the 7 257-line
+>         production diff and the 16 260-line test diff in one go. **The findings and their triage are
+>         in [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md)** — that file owns
+>         them, this one links to it and restates nothing. **One blocker, two silent-damage defects,
+>         one locale regression that the release note does not mention.**
+>       - 🛑 **And the honest limitation, recorded rather than glossed**: its ten parallel finder agents
+>         never returned, so one reader performed all ten angles sequentially. The recall of this pass
+>         is one reader's, which is an argument for the re-run after the fixes, not against the run.
 >       - 📌 **This also answers, in the field, the question the mode plan deferred**: whether work built
 >         by a subagent fan-out owes an independent review before it counts as finished. →
 >         [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).

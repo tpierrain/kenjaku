@@ -3011,6 +3011,20 @@ arbitration goes here as a question, and the run continues on other slices.
   - [ ] What S1 has to produce for this to be answerable: at least one slice reviewed adversarially
         and one not, with what each caught. Without that contrast the next debrief re-deals the same
         undecided question.
+  - [x] 🔴 **THE FIGURE CAME BACK, AND IT IS NOT ZERO** _(2026-08-22)_. The review found **15
+        findings** in code the loop had declared finished, green, mutation-scored and queue-empty three
+        times over. Three of them matter on their own: a **fleet-wide** false claim to every owner at
+        every session start, caused by this release's own hook additions and undismissable; a write
+        that **escapes the brain folder**; and a skill **deleted again, silently**, at self-heal. None
+        is exotic. **They are the kind an author's own tests cannot catch, because those tests encode
+        the author's model of the problem** — which is the whole argument for an independent read, and
+        it now has numbers instead of taste. → [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md).
+        - **So the standing answer is YES**: fan-out-built work owes an independent review before it
+          counts as finished. What stays open is the *shape* (a tooled review at the release boundary,
+          as here, versus an adversarial pass per slice) — and that is a cost question, decidable at
+          the debrief now that one side of it is measured.
+        - ⚠️ **One caveat, or the figure is over-read**: the review's ten parallel finders never
+          returned and one reader did all ten angles. So 15 is a **floor**, not a ceiling.
   - [ ] 🔍 **The contrast is arriving from the OTHER end** _(2026-08-22, Thomas's call)_: rather than
         one reviewed slice against one unreviewed, a **tooled `/code-review` runs over the WHOLE
         fan-out-built branch** before the merge, in three passes by descending operational risk. The
