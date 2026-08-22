@@ -69,6 +69,15 @@ function normalizeRange(target) {
   return target.replace(/:(\d+)$/, ":$1-$1");
 }
 
+// A single folder name, in the strictest reading: no separator in EITHER slash (a guard
+// that knows one separator teaches the next reader the wrong lesson, and `node:path` on
+// win32 honours both), and never `.` or `..` — both are legal spellings under a character
+// class that only asks about letters and punctuation, and both resolve to a directory
+// that already holds something.
+function isPlainFolderName(name) {
+  return /^[A-Za-z0-9._-]+$/.test(name) && name !== "." && name !== "..";
+}
+
 export function parseArgs(argv) {
   const targets = [];
   let worktree = DEFAULT_WORKTREE;
@@ -84,6 +93,24 @@ export function parseArgs(argv) {
   }
 
   if (!targets.length) return { ok: false, error: `no target file given\n${USAGE}` };
+
+  // 🚨 THE WORKTREE NAME IS AN ARGUMENT TO `git reset --hard` (F6 of the v5.0.0 review).
+  // It is joined onto the repo's PARENT, and the run that follows ends with
+  // `git reset --hard <sha>` and `git clean -qfd` inside whatever that lands on. So it
+  // is not a label: it selects the one directory this tool is allowed to destroy.
+  //
+  // Checked AFTER the target check on purpose — a missing target is the more basic
+  // complaint, and `--worktree <target>` (the option eating its value) must keep
+  // reporting the missing target rather than a strange-looking name.
+  if (worktree === undefined) return { ok: false, error: `--worktree needs a name\n${USAGE}` };
+  if (!isPlainFolderName(worktree)) {
+    return {
+      ok: false,
+      error:
+        `--worktree "${worktree}" must be a single folder name (letters, digits, . _ -): the worktree is ` +
+        "created BESIDE this repo, and the run ends with `git reset --hard` and `git clean -qfd` inside it",
+    };
+  }
 
   for (const file of targets) {
     if (!file.startsWith("scripts/")) {
@@ -297,6 +324,24 @@ export function runMutateOne(argv, deps) {
   }
 
   const worktreePath = join(dirname(repoRoot), parsed.worktree);
+
+  // 🚨 The half of F6 the character check cannot see: `--worktree kenjaku`, from
+  // `/Users/dev/kenjaku`, is a perfectly well-formed folder name that resolves to the
+  // REPOSITORY ITSELF — one tab-completion away from the intended `kenjaku-mut-one`.
+  // The steps below would then run `git reset --hard` and `git clean -qfd` in the real
+  // checkout, discarding every uncommitted change and every untracked file.
+  //
+  // The guard lives here rather than in `parseArgs` because only this side knows where
+  // the repo is, and it compares PATHS rather than names so the ordinary case beside the
+  // repo is untouched.
+  if (worktreePath === repoRoot) {
+    say(
+      `❌ --worktree ${parsed.worktree} resolves to ${worktreePath}, which IS this repository — refusing: ` +
+        "this run ends with `git reset --hard` and `git clean -qfd` in the worktree, and everything " +
+        "uncommitted here would be gone.",
+    );
+    return 2;
+  }
   const logPath = join(repoRoot, REPORTS, parsed.logName);
   const steps = planRun({
     repoRoot,

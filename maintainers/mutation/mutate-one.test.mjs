@@ -140,6 +140,69 @@ test("parseArgs — an option that eats its value cannot swallow the target", ()
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// F6 (v5.0.0 code review) — THE WORKTREE NAME IS AN ARGUMENT TO `git reset --hard`.
+//
+// The name is joined onto the repo's PARENT, and the run that follows ends with
+// `git reset --hard <sha>` and `git clean -qfd` inside whatever that lands on. So the
+// argument is not a label: it selects the directory this tool is allowed to destroy.
+// Anything that is not a single folder name beside the repo is refused before a single
+// git call is made.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Spelled out rather than interpolated from the module, for the reason the usage test
+// below gives: a fixture produced by the code under test cannot fail when that code is
+// wrong. The sentence has to name the destruction, because that is what the reader is
+// being protected from.
+const badWorktree = (name) =>
+  `--worktree "${name}" must be a single folder name (letters, digits, . _ -): the worktree is ` +
+  "created BESIDE this repo, and the run ends with `git reset --hard` and `git clean -qfd` inside it";
+
+test("parseArgs — `--worktree ..` is refused: it names the repo's own parent", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree", ".."]), {
+    ok: false,
+    error: badWorktree(".."),
+  });
+  // `.` lands on the parent's own directory just as surely, and both survive a
+  // character-class check that only asks about letters and punctuation.
+  assert.equal(parseArgs(["scripts/lint-vault.mjs", "--worktree", "."]).ok, false);
+});
+
+test("parseArgs — a worktree name carrying a path is refused, in either slash", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree", "../../etc"]), {
+    ok: false,
+    error: badWorktree("../../etc"),
+  });
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree", "sub/dir"]), {
+    ok: false,
+    error: badWorktree("sub/dir"),
+  });
+  // 🪟 A backslash is a separator on Windows, where this tool is not run — but a guard
+  // that only knows one separator is a guard that teaches the wrong lesson to the next
+  // reader, and `node:path` on win32 would honour it.
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree", "sub\\dir"]), {
+    ok: false,
+    error: badWorktree("sub\\dir"),
+  });
+});
+
+// A trailing `--worktree` with nothing after it used to reach `join(parent, undefined)`,
+// which throws a TypeError from deep inside node:path — a stack trace where a usage line
+// belongs, on a tool whose next step is destructive.
+test("parseArgs — a bare trailing `--worktree` is a usage error, not a TypeError", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree"]), {
+    ok: false,
+    error:
+      "--worktree needs a name\n" +
+      "usage: node maintainers/mutation/mutate-one.mjs <scripts/file.mjs> [more files…] " +
+      "[--worktree <name>] [--log <name>] [--dry-run]",
+  });
+});
+
+test("parseArgs — an ordinary worktree name still passes, punctuation included", () => {
+  assert.equal(parseArgs(["scripts/lint-vault.mjs", "--worktree", "kenjaku-mut_s1.2"]).worktree, "kenjaku-mut_s1.2");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // planRun — the ordered steps, asserted WHOLE
 //
 // The order IS the contract (RESULTS.md: a call-order claim is invisible in any
@@ -840,6 +903,46 @@ test("runMutateOne — --dry-run still runs NOTHING, this gate included", () => 
 
   assert.equal(code, 0);
   assert.equal(h.calls.some((c) => c.fn === "run"), false);
+});
+
+// 🚨 F6 (v5.0.0 code review) — THE ONE THAT DESTROYS UNCOMMITTED WORK.
+//
+// A worktree name is a legal single folder name and still names the repository itself:
+// `--worktree kenjaku`, from `/Users/dev/kenjaku`, resolves to `/Users/dev/kenjaku`.
+// The steps that follow are `git reset --hard <sha>` and `git clean -qfd` — run there,
+// they discard every uncommitted change and every untracked file in the real checkout.
+// It is one tab-completion away from the intended `kenjaku-mut-one`.
+//
+// The character check cannot see this: only the repo's own location can, so the guard
+// lives where `repoRoot` does. What the test pins is not the message but the SILENCE —
+// nothing ran.
+test("runMutateOne — a worktree that resolves to the repository ITSELF is refused before anything runs", () => {
+  const h = harness();
+
+  const code = runMutateOne(["scripts/lint-vault.mjs", "--worktree", "kenjaku"], h.deps);
+
+  assert.equal(code, 2);
+  assert.equal(
+    h.calls.some((c) => c.fn === "run"),
+    false,
+    "not one git call — `git reset --hard` here would discard the maintainer's working tree",
+  );
+  assert.deepEqual(h.out, [
+    "❌ --worktree kenjaku resolves to /Users/dev/kenjaku, which IS this repository — refusing: " +
+      "this run ends with `git reset --hard` and `git clean -qfd` in the worktree, and everything " +
+      "uncommitted here would be gone.",
+  ]);
+});
+
+// The sibling of the above, and the reason the guard compares PATHS rather than names:
+// the ordinary name must still reach the plan, from the very same repoRoot.
+test("runMutateOne — the ordinary worktree beside the repo is untouched by the guard", () => {
+  const h = harness();
+
+  const code = runMutateOne(["--dry-run", "scripts/lint-vault.mjs", "--worktree", "kenjaku-mut-one"], h.deps);
+
+  assert.equal(code, 0);
+  assert.equal(h.out[0], "▶ plan for scripts/lint-vault.mjs (worktree /Users/dev/kenjaku-mut-one):");
 });
 
 test("runMutateOne — a usage error prints the usage and never touches the repo", () => {
