@@ -3317,3 +3317,36 @@ asks `git ls-files`), and narrowing can only make a score pessimistic.
   path at BOTH ends or at neither — a `"` anywhere in a name is itself a reason to quote — so no line
   git can emit distinguishes the two. Killing it would take a fixture git never produces (an
   unquoted path ending in `"`), which is exactly the invented-fixture trap this file warns about.
+
+### v5.0.0 — the auto-finalize CLI, and the sentence it prints — 2026-08-23
+
+Scoped to `scripts/lib/reconcile-brain.mjs:563-600` + `:640-705` (the child's entry and the
+catch-up announcement), measured with `maintainers/mutation/mutate-one.mjs`. Two runs, because the
+first one is the finding:
+
+**66.25 % — 52 killed, 27 survived** (at `9f69cbd`). **All but three survivors sat in one sentence**:
+the line the child prints on a first update, which is the only trace the catch-up leaves an owner.
+Every clause could be deleted with the suite green — the count, the names, the sort, the join — and
+the entire retired-skill half was unreached by any pole. The tests around it proved the line was
+EMITTED and read not one word of it.
+
+**98.75 % — 78 killed, 1 survived, 1 timeout** (at `4cc2ace`) after nine poles: the sentence asserted
+whole, one per branch (one file / several / unsorted; one retirement / several, verb included; both
+joined; a report predating `skillsRetired`; silence when nothing moved; silence on a self-heal that
+DID converge). Plus the guard that writes an advance down when the pass **delivers nothing** — a
+release can bury a skill a brain never had, and the tombstone still has to reach disk.
+
+**Two lessons worth more than the score.**
+
+- **A prefix match let an invented retirement through.** `report.skillsRetired ?? []` mutated to
+  `?? ["Stryker was here"]` survived a pole that asserted the line's opening clause with
+  `assert.match(/^🔓 Catching up: your brain just received 1 engine file/)`. The mutant leaves that
+  clause exactly where it is and APPENDS a retirement that never happened. The fallback's own value
+  is part of the contract; asserting a prefix is asserting the half a mutant does not touch.
+- **The one survivor left is an equivalent**, and it is the familiar shape:
+  `readFileSync(manifestPath, "utf8")` → `readFileSync(manifestPath, "")`. `JSON.parse` accepts what
+  comes back either way, so no input distinguishes them. Killing it would take a fixture asserting on
+  the encoding argument rather than on behaviour.
+
+**Reading the report needs `FORCE_COLOR=0 NO_COLOR=1`**: `parseTestCounts` cannot read ANSI-coloured
+`node --test` output, and a session that exports `FORCE_COLOR` makes `mutate-one.mjs` refuse to start.
