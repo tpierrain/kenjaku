@@ -121,6 +121,62 @@ test("engineDivergence — a file outside the merge regime is never held back, w
   assert.deepEqual(result, []);
 });
 
+// ⚠️ THE ONE FILE THIS REPORT MAY NOT NAME (F1 of the v5.0.0 code review; Thomas's
+// call, 2026-08-22 — *"ne parler que des fichiers vraiment tenus par toi"*). The
+// product's own doctrine tells the owner to edit their constitution, so every brain
+// diverges on it within days and forever; no refresh family ever writes a `.new`
+// beside it, so the line can never be dismissed either. Naming it is a false claim AND
+// the consent fatigue this surface exists to prevent.
+//
+// Fed with an owner-edited engine skill IN THE SAME CALL, deliberately: an
+// implementation that answered `[]` by going silent altogether would satisfy a
+// one-file fixture and destroy the feature.
+test("engineDivergence — the constitution the product TELLS the owner to edit is never called held back", () => {
+  const merge = ["CLAUDE.md", ".claude/skills/coach/SKILL.md"];
+  const result = engineDivergence({
+    manifest: manifest({
+      provenance: Object.fromEntries(merge.map((rel) => [rel, fingerprint(DELIVERED)])),
+      baseRefs: { "CLAUDE.md": "v4.7.0", ".claude/skills/coach/SKILL.md": "v4.7.0" },
+      merge,
+    }),
+    installedFileMap: { "CLAUDE.md": EDITED, ".claude/skills/coach/SKILL.md": EDITED },
+  });
+
+  assert.deepEqual(result, [
+    { rel: ".claude/skills/coach/SKILL.md", reason: "customized", since: "v4.7.0" },
+  ]);
+});
+
+// The other half of the same claim, and it is not a duplicate: `no-provenance` is a
+// DIFFERENT branch of the loop, and it is the one the whole deployed fleet is in for
+// `CLAUDE.md` (no brain installed before v5 recorded a base for a file no regime named).
+// Silencing only the `customized` branch would leave the fleet-wide line exactly where
+// it was.
+test("engineDivergence — an unprovable constitution is silent too, not merely an unproven one", () => {
+  const result = engineDivergence({
+    manifest: manifest({ provenance: {}, baseRefs: {}, merge: ["CLAUDE.md"] }),
+    installedFileMap: { "CLAUDE.md": EDITED },
+  });
+
+  assert.deepEqual(result, []);
+});
+
+// 🛑 The exemption is a NAME, not a shape: `CLAUDE.engine.md` is the ENGINE's half of
+// the constitution — the engine writes it, the owner is never asked to — so it stays in
+// the report. One dot apart, and the opposite verdict.
+test("engineDivergence — the ENGINE's half of the constitution is still reported", () => {
+  const result = engineDivergence({
+    manifest: manifest({
+      provenance: { "CLAUDE.engine.md": fingerprint(DELIVERED) },
+      baseRefs: { "CLAUDE.engine.md": "v4.7.0" },
+      merge: ["CLAUDE.engine.md"],
+    }),
+    installedFileMap: { "CLAUDE.engine.md": EDITED },
+  });
+
+  assert.deepEqual(result, [{ rel: "CLAUDE.engine.md", reason: "customized", since: "v4.7.0" }]);
+});
+
 test("engineDivergence — a recorded file the owner DELETED is not reported as held back", () => {
   // It is absent from the disk map, so it is absent from the answer. Deliberate: the
   // install-if-absent path re-delivers a deleted engine file at the next update, so it
@@ -156,11 +212,14 @@ test("engineDivergence — a manifest the brain could not read at all reports no
 // ── Order is part of the contract, because a human reads this ─────────────────
 
 test("engineDivergence — the list is sorted by path, not by the order the disk was walked", () => {
-  const merge = ["CLAUDE.md", ".claude/settings.json", "scripts/auto-commit.mjs"];
+  // ⚠️ `CLAUDE.engine.md`, never `CLAUDE.md`: the owner's half is exempt from this
+  // report (see the test above), so using it here would pin the ORDER of a list it can
+  // no longer appear in — a fixture that proves nothing while looking thorough.
+  const merge = ["CLAUDE.engine.md", ".claude/settings.json", "scripts/auto-commit.mjs"];
   const result = engineDivergence({
     manifest: manifest({
       provenance: Object.fromEntries(merge.map((rel) => [rel, fingerprint(DELIVERED)])),
-      baseRefs: { "CLAUDE.md": "v4.7.0", "scripts/auto-commit.mjs": "v4.9.0" },
+      baseRefs: { "CLAUDE.engine.md": "v4.7.0", "scripts/auto-commit.mjs": "v4.9.0" },
       merge,
     }),
     // ⚠️ A ROTATION, deliberately — neither sorted nor exactly REVERSED. This fixture
@@ -169,7 +228,7 @@ test("engineDivergence — the list is sorted by path, not by the order the disk
     // by accident. A sort test whose input is the mirror of its expectation proves the
     // array was flipped, not that it was ordered.
     installedFileMap: {
-      "CLAUDE.md": EDITED,
+      "CLAUDE.engine.md": EDITED,
       ".claude/settings.json": EDITED,
       "scripts/auto-commit.mjs": EDITED,
     },
@@ -177,7 +236,7 @@ test("engineDivergence — the list is sorted by path, not by the order the disk
 
   assert.deepEqual(result, [
     { rel: ".claude/settings.json", reason: "customized", since: null },
-    { rel: "CLAUDE.md", reason: "customized", since: "v4.7.0" },
+    { rel: "CLAUDE.engine.md", reason: "customized", since: "v4.7.0" },
     { rel: "scripts/auto-commit.mjs", reason: "customized", since: "v4.9.0" },
   ]);
 });

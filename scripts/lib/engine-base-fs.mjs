@@ -23,7 +23,8 @@ import { dirname, join } from "node:path";
 import { baseRelPath, isSidecarRel, planBaseAdvance, planBaseSeed } from "./engine-base.mjs";
 import { engineDivergence } from "./engine-divergence.mjs";
 import { globRoots } from "./glob-match.mjs";
-import { recordSourceAndProvenance, selectMergeFiles } from "./engine-source.mjs";
+import { recordSourceAndProvenance, reseedBaseRefs, reseedProvenance, selectMergeFiles } from "./engine-source.mjs";
+import { installRef } from "./engine-version.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 
 // The tree as `verifyBase` needs to hear about it: bytes, or `null` for "no bytes"
@@ -150,6 +151,58 @@ export function readEngineDivergence({ brainDir }) {
     // there was nothing here a caller could tell apart.
   }
   return engineDivergence({ manifest, installedFileMap: readInstalledMergeFiles({ brainDir, manifest }) });
+}
+
+// 🚨 THE ENGINE JUST REWROTE ONE OF ITS OWN MERGE FILES, IN PLACE (F1 / F8 of the v5.0.0
+// code review). Not delivered from a source — rewritten where it stands: the connectors
+// step merging permissions into `.claude/settings.json` after the install already recorded
+// its provenance, which is why a brand-new brain with a connector was born diverged and
+// nagged, at every session, about a file nobody had yet had time to edit.
+//
+// The rule this enforces is one sentence: **a file the ENGINE wrote must never read as a
+// file the OWNER is holding back.** The reconcile path carries the same fact through
+// `reconciledFileMap` (it has a manifest writer of its own, further down the pass); the
+// installer has no such pass, so it gets a door.
+//
+// GATED BY THE MERGE REGIME, exactly like every other recorder here: a `replace` file is
+// overwritten whole at every update and carries no base, so recording one would describe
+// nothing. And gated on the file EXISTING — a caller naming a path the brain does not hold
+// must not invent a record for it.
+//
+// Returns the rels it actually recorded, sorted, so a caller can say what it did. Writes
+// nothing at all when that list is empty: an install that wired no connector must leave the
+// manifest byte-identical.
+export function rerecordEngineWrite({ brainDir, rels }) {
+  const manifestPath = join(brainDir, "engine-manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const deliveredFileMap = Object.fromEntries(
+    selectMergeFiles(manifest, rels)
+      .filter((rel) => existsSync(join(brainDir, rel)))
+      .map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]),
+  );
+  const recorded = Object.keys(deliveredFileMap).sort();
+  if (recorded.length === 0) return [];
+
+  const provenance = reseedProvenance({
+    priorProvenance: manifest.provenance ?? {},
+    manifest,
+    deliveredFileMap,
+  });
+  // The version the brain records about ITSELF: this write came from the engine the brain
+  // is running, not from a fetch. A brain that records none records nothing here —
+  // `reseedBaseRefs` refuses to turn an unknown into an answer.
+  const baseRefs = reseedBaseRefs({
+    priorBaseRefs: manifest.baseRefs ?? {},
+    manifest,
+    deliveredFileMap,
+    ref: installRef(manifest),
+  });
+  const advanced = { ...manifest, provenance, baseRefs };
+  writeFileSync(manifestPath, JSON.stringify(advanced, null, 2) + "\n");
+  // The digest and the BYTES, or the next three-way merge would diff against an ancestor
+  // the file never had — `engine-adopt.mjs`'s rule, one door over.
+  syncBaseTree({ brainDir, manifest: advanced, provenance, deliveredFileMap });
+  return recorded;
 }
 
 // The INSTALL composition root. Recording the source and the provenance without laying

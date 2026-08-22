@@ -633,6 +633,11 @@ export async function updateEngine({
     ancestorsHydrated,
     ancestorsFailed,
     refreshedFileMap,
+    // F1: what the reconcile rewrote IN PLACE in the brain's own settings.json. It has to
+    // reach step 7's record, and the auto-finalize child cannot cover for it — by the time
+    // the child runs, the hook entries are already there, so its own reconcile adds nothing
+    // and rewrites nothing. Miss it here and the record is never moved at all.
+    reconciledFileMap,
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
@@ -673,7 +678,7 @@ export async function updateEngine({
   //    `runReconcileCli` — the LAST writer on the update path — never read `copied` back
   //    in the first place. A line that survives an invalid encoding is what pointed at
   //    it; what it turned out to be is not an untested line but an unnecessary one.
-  const deliveredFileMap = { ...installedFileMap, ...refreshedFileMap };
+  const deliveredFileMap = { ...installedFileMap, ...refreshedFileMap, ...reconciledFileMap };
   const updated = {
     ...local,
     engineVersion: target.engineVersion,

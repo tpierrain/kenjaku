@@ -14,6 +14,11 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
+// The standing surface F1 is about, read off the real brain the reconcile just wrote:
+// asserting through it (rather than through the manifest's digests) is what pins the
+// SENTENCE the owner would have read, not merely the bookkeeping behind it.
+import { readEngineDivergence } from "./engine-base-fs.mjs";
+
 // ═══════════════════════════════════════════════════════════════════════════
 // reconcile-brain — the RECONCILE half of update-engine, extracted (ADR 0026).
 //
@@ -694,6 +699,101 @@ test("reconcileBrain — a converged brain's HAND-FORMATTED settings.json is not
   assert.equal(readFileSync(settingsPath, "utf8"), handFormatted, "nothing to add → settings.json must not be touched AT ALL");
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// F1 (v5.0.0 code review) — THE ENGINE'S OWN WRITE MUST NOT READ AS THE OWNER'S.
+//
+// Step 2.quinquies is the one write the reconciler ever makes to `.claude/settings.json`,
+// and this release adds TWO hook entries to the template — so every brain in the fleet
+// takes that write on the update itself. The file is in `regimes.merge`, and NOTHING
+// else re-seeds it: its recorded digest stayed at the pre-update bytes, so from the very
+// next session start `engineDivergence` reported it held back by the owner, at every
+// session, forever, and undismissibly (no refresh family writes a `.new` beside it).
+//
+// The repair is the obvious one, said once: the record moves with the bytes. What is NOT
+// obvious — and is what these two tests separate — is that it must move ONLY when the
+// engine actually wrote. A blanket re-seed would silence a real owner edit and turn the
+// whole surface into a file that always agrees with itself.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// A brain that is genuinely CONVERGED on its merge files: every one of them on disk
+// matches its recorded digest, so the divergence report starts empty and any entry
+// appearing later is something this pass caused.
+function convergedManifest(brainDir, { extraMerge = [] } = {}) {
+  const m = manifest({ extraMerge: [".claude/settings.json", ...extraMerge] });
+  const recorded = [".claude/settings.json", ".claude/skills/zzz-mine/SKILL.md"];
+  m.provenance = Object.fromEntries(
+    recorded.map((rel) => [rel, base(readFileSync(join(brainDir, rel), "utf8"))]),
+  );
+  m.baseRefs = Object.fromEntries(recorded.map((rel) => [rel, "v1.1.0"]));
+  return m;
+}
+
+test("runReconcileCli — a brain the ENGINE just wired holds nothing back (F1)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(v310Settings(brainDir), null, 2) + "\n");
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(convergedManifest(brainDir), null, 2));
+
+  // ⚠️ The fixture must START converged, or the assertion at the end would hold for a
+  // brain that never had anything to hold back in the first place.
+  assert.deepEqual(
+    readEngineDivergence({ brainDir }),
+    [],
+    "fixture check: this brain holds nothing back BEFORE the engine writes to it",
+  );
+
+  const { calls: _calls, ...s } = seams();
+  const report = await reconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  // …and the engine really did rewrite the file — without this the test would pass on a
+  // reconciler that simply never touched settings.json.
+  assert.equal(report.hooksAdded.length, 3, "the engine must have rewritten settings.json for this to prove anything");
+  assert.deepEqual(
+    readEngineDivergence({ brainDir }),
+    [],
+    "a file the ENGINE just rewrote may never be reported as one the OWNER is holding back",
+  );
+});
+
+test("runReconcileCli — the owner's OWN edit to settings.json is still held back (the record moves only with the engine's write)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(v310Settings(brainDir), null, 2) + "\n");
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(convergedManifest(brainDir), null, 2));
+  const argv = ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"];
+  // First pass wires the hooks and re-records — the brain is now converged on the file.
+  await reconcileCli({ argv, seams: seams() });
+
+  // THEN the owner edits it themselves. The second pass has nothing to add, so it writes
+  // nothing — and the edit must survive as a fact the brain still states.
+  const settingsPath = join(brainDir, ".claude/settings.json");
+  const mine = JSON.parse(readFileSync(settingsPath, "utf8"));
+  mine.permissions = { allow: ["Bash(open:*)"] };
+  writeFileSync(settingsPath, JSON.stringify(mine, null, 2) + "\n");
+
+  const report = await reconcileCli({ argv, seams: seams() });
+
+  assert.deepEqual(report.hooksAdded, [], "the second pass must have nothing to wire");
+  assert.deepEqual(
+    readEngineDivergence({ brainDir }).map((d) => d.rel),
+    [".claude/settings.json"],
+    "an edit the OWNER made is still theirs — the re-record may not be a blanket amnesty",
+  );
+});
+
 // A deployed win32 brain whose hook commands are broken but which has NO statusLine and
 // is missing no hook: the ONLY reason to write is the repair itself. Nothing else covered
 // that term of the write guard in isolation — every other repair fixture also had a
@@ -913,6 +1013,14 @@ test("reconcileBrain — registers MCP servers from the DELIVERED template keys,
 async function reconcile(args) {
   const reconcileBrain = await loadReconciler();
   return reconcileBrain(args);
+}
+
+// The same indirection for the CLI entry the auto-finalize child and the SessionStart
+// self-heal both run — it is the LAST writer of the manifest on those paths, so the
+// F1 tests above have to go through it rather than through `reconcileBrain` alone.
+async function reconcileCli(args) {
+  const runReconcileCli = await loadCli();
+  return runReconcileCli(args);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

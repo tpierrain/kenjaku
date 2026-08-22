@@ -61,6 +61,11 @@ import {
 // otherwise a no-op and any regression in it would be invisible.
 export const toPosix = (p) => p.split("\\").join("/");
 
+// The allowlist path of the settings file, in the manifest's own POSIX spelling — the
+// same string the `merge` regime declares, so the write below and the record that has to
+// follow it are talking about one file rather than two spellings of one.
+const SETTINGS_REL = ".claude/settings.json";
+
 function copyInto(srcDir, destDir, rel) {
   const src = join(srcDir, rel);
   const dest = join(destDir, rel);
@@ -318,11 +323,21 @@ export async function reconcileBrain({
   //    needed). Upgraders from v3.3.0+ converge the same way in-band via auto-finalize.
   const hooksAdded = [];
   const hooksRepaired = [];
+  // 🚨 F1 (v5.0.0 code review) — WHAT THE ENGINE WROTE, so the record can move with the
+  // bytes. `.claude/settings.json` is a `merge` file that NOTHING else re-seeds: the
+  // surgical write below is the only engine write it ever takes, and this release adds
+  // two hook entries to the template, so the WHOLE fleet takes it on the update itself.
+  // Left unrecorded, the file stopped matching its own recorded digest and every standing
+  // surface then reported it held back BY THE OWNER — at every session start, forever, and
+  // undismissibly (no refresh family writes a `.new` beside it, so there is nothing to
+  // adopt). Populated ONLY when the write actually happens: a blanket re-seed would
+  // silence the owner's own edits too, which is the opposite defect.
+  const reconciledFileMap = {};
   // ADR 0036: set when the retreat removed the statusLine WE installed, so the
   // caller can tell the owner their own line is back.
   let statusLineWasRemoved = false;
   const settingsTemplatePath = join(sourceDir, ".claude", "settings.json.template");
-  const brainSettingsPath = join(brainDir, ".claude", "settings.json");
+  const brainSettingsPath = join(brainDir, SETTINGS_REL);
   if (existsSync(settingsTemplatePath) && existsSync(brainSettingsPath)) {
     const projectRoot = toPosix(brainDir); // same normalisation as step 2.ter
     const brainSettings = JSON.parse(readFileSync(brainSettingsPath, "utf8"));
@@ -354,7 +369,12 @@ export async function reconcileBrain({
     if (added.length > 0 || repaired.length > 0 || statusLineRepaired || statusLineRemoved) {
       const nextSettings = { ...retreatedSettings, hooks: healedHooks };
       if (statusLineRepaired) nextSettings.statusLine = { ...retreatedSettings.statusLine, command: healedStatusLine };
-      writeFileSync(brainSettingsPath, JSON.stringify(nextSettings, null, 2) + "\n");
+      // The bytes are captured rather than re-read off the disk: what the record must
+      // describe is what THIS pass wrote, and a re-read would describe whatever the file
+      // holds by the time the manifest writer runs.
+      const nextText = JSON.stringify(nextSettings, null, 2) + "\n";
+      writeFileSync(brainSettingsPath, nextText);
+      reconciledFileMap[SETTINGS_REL] = nextText;
       hooksAdded.push(...added);
       hooksRepaired.push(...repaired, ...(statusLineRepaired ? ["statusLine"] : []));
     }
@@ -478,6 +498,11 @@ export async function reconcileBrain({
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
+    // F1 — the settings file as THIS pass rewrote it, or `{}` when it did not. It is not
+    // folded into `refreshedFileMap`: that map is what the engine DELIVERED from a source,
+    // this one is what the engine rewrote IN PLACE in the brain's own file, and merging the
+    // two would lose the distinction the day one of them needs a different treatment.
+    reconciledFileMap,
     statusLineRemoved: statusLineWasRemoved,
     pointerUnignored,
   };
@@ -526,7 +551,10 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // the refresh happens HERE). Without this, a refreshed file no longer matches its
   // recorded base → the next update calls it "user-modified" and never refreshes it
   // again: the feature would work exactly once per brain, silently.
-  const delivered = { ...report.installedFileMap, ...report.refreshedFileMap };
+  // F1 — `reconciledFileMap` rides here with the two delivery maps because the three feed
+  // ONE thing: the record of what the ENGINE last put in each merge file. A file the engine
+  // rewrote and did not record reads as the owner's at the very next session start.
+  const delivered = { ...report.installedFileMap, ...report.refreshedFileMap, ...report.reconciledFileMap };
   // S7-3 — the prior is the HEALED map: the manifest's own record PLUS whatever the brain
   // proved about itself this pass. Re-seeding from `manifest.provenance` here would throw
   // the heal away at the last step, and the very next update would meet the same frozen

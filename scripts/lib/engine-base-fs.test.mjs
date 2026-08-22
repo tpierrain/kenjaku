@@ -12,6 +12,7 @@ import {
   readInstalledMergeFiles,
   syncBaseTree,
   recordSourceProvenanceAndBase,
+  rerecordEngineWrite,
 } from "./engine-base-fs.mjs";
 import { verifyBase } from "./engine-base.mjs";
 import { reseedProvenance, selectMergeFiles } from "./engine-source.mjs";
@@ -487,23 +488,113 @@ test("syncBaseTree — the SEEDED list is ordered by path too, even where the di
 // update that has already succeeded and is already recorded, so a brain whose manifest
 // cannot be parsed must cost the report a sentence, never turn a successful update into
 // a thrown error.
+// ⚠️ The held-back file here is an engine SKILL, not `CLAUDE.md`. Since F1 the owner's
+// half of the constitution is exempt from this report by name (see `INVITED_EDITS` in
+// engine-divergence.mjs), so a fixture built on it would pin the two reads against a
+// list it can no longer appear in — green forever, and about nothing.
 test("readEngineDivergence — names the held-back merge files of a real brain, with the version each last received", (t) => {
   const delivered = "# as the engine delivered it\n";
   const dir = brain(t, {
-    "CLAUDE.md": delivered + "and the owner's own paragraph.\n",
+    ".claude/skills/coach/SKILL.md": delivered + "and the owner's own paragraph.\n",
     ".claude/settings.json": delivered,
     "scripts/lib/engine-fetch.mjs": "// a replace file the owner rewrote entirely\n",
     "engine-manifest.json":
       JSON.stringify({
         ...MANIFEST,
-        provenance: { "CLAUDE.md": fp(delivered), ".claude/settings.json": fp(delivered) },
-        baseRefs: { "CLAUDE.md": "v4.7.0", ".claude/settings.json": "v4.7.0" },
+        provenance: { ".claude/skills/coach/SKILL.md": fp(delivered), ".claude/settings.json": fp(delivered) },
+        baseRefs: { ".claude/skills/coach/SKILL.md": "v4.7.0", ".claude/settings.json": "v4.7.0" },
       }) + "\n",
   });
 
   assert.deepEqual(readEngineDivergence({ brainDir: dir }), [
-    { rel: "CLAUDE.md", reason: "customized", since: "v4.7.0" },
+    { rel: ".claude/skills/coach/SKILL.md", reason: "customized", since: "v4.7.0" },
   ]);
+});
+
+// ── rerecordEngineWrite — the record follows the engine's own write (F1 / F8) ──
+// The install's twin of what the reconciler does through `reconciledFileMap`: the
+// connectors step merges permissions into `.claude/settings.json` AFTER the provenance
+// was recorded, so a brand-new brain was born diverged and nagged about a file it had
+// never let anyone edit. The engine wrote it; the record has to say so.
+
+const INSTALLED = '{\n  "mine": true\n}\n';
+
+// A freshly-installed brain: its settings recorded, then rewritten by the engine.
+function installedBrain(t, { settings = INSTALLED, ref = "v5.0.0" } = {}) {
+  const dir = brain(t, {
+    ".claude/settings.json": settings,
+    "engine-manifest.json":
+      JSON.stringify({
+        ...MANIFEST,
+        source: { repo: "https://example.test/launcher.git", ref },
+        provenance: { ".claude/settings.json": fp(INSTALLED) },
+        baseRefs: { ".claude/settings.json": ref },
+      }) + "\n",
+  });
+  syncBaseTree({ brainDir: dir, manifest: MANIFEST, provenance: { ".claude/settings.json": fp(INSTALLED) } });
+  return dir;
+}
+
+test("rerecordEngineWrite — a merge file the ENGINE rewrote is recorded, digest, version and bytes", (t) => {
+  const dir = installedBrain(t);
+  const merged = '{\n  "mine": true,\n  "permissions": { "allow": ["mcp__notion"] }\n}\n';
+  writeFile(dir, ".claude/settings.json", merged);
+  // Fail-first pole: with the record left behind, the brain claims the OWNER is holding
+  // the file back — the fleet-wide false claim, in one file.
+  assert.deepEqual(readEngineDivergence({ brainDir: dir }), [
+    { rel: ".claude/settings.json", reason: "customized", since: "v5.0.0" },
+  ]);
+
+  assert.deepEqual(rerecordEngineWrite({ brainDir: dir, rels: [".claude/settings.json"] }), [
+    ".claude/settings.json",
+  ]);
+
+  assert.deepEqual(readEngineDivergence({ brainDir: dir }), []);
+  const manifest = JSON.parse(read(dir, "engine-manifest.json"));
+  assert.equal(manifest.provenance[".claude/settings.json"], fp(merged));
+  assert.equal(manifest.baseRefs[".claude/settings.json"], "v5.0.0");
+  // The BYTES too, not only the digest: an ancestor left at the pre-write content would
+  // hand the next three-way merge a common origin the file never had.
+  assert.equal(read(dir, ".engine-base/.claude/settings.json"), merged);
+});
+
+test("rerecordEngineWrite — a path outside the merge regime is recorded by nothing", (t) => {
+  const dir = installedBrain(t);
+  writeFile(dir, "scripts/lib/engine-fetch.mjs", "// a replace file\n");
+
+  assert.deepEqual(rerecordEngineWrite({ brainDir: dir, rels: ["scripts/lib/engine-fetch.mjs"] }), []);
+
+  const manifest = JSON.parse(read(dir, "engine-manifest.json"));
+  assert.deepEqual(Object.keys(manifest.provenance), [".claude/settings.json"], "a `replace` file carries no base, and gains none here");
+  assert.equal(existsSync(join(dir, ".engine-base/scripts/lib/engine-fetch.mjs")), false);
+});
+
+test("rerecordEngineWrite — a file that is not on disk is not invented", (t) => {
+  const dir = installedBrain(t);
+  const before = read(dir, "engine-manifest.json");
+
+  assert.deepEqual(rerecordEngineWrite({ brainDir: dir, rels: ["CLAUDE.md"] }), []);
+
+  assert.equal(read(dir, "engine-manifest.json"), before, "nothing to record → the manifest is not even rewritten");
+});
+
+// A brain that records no version at all (installed from a branch, no tag): the digest
+// still moves — it is what the divergence verdict is computed from — while `baseRefs`
+// stays silent rather than inventing a version the file never came from.
+test("rerecordEngineWrite — no recorded engine version: the digest moves, the version stays unknown", (t) => {
+  const dir = brain(t, {
+    ".claude/settings.json": INSTALLED,
+    "engine-manifest.json": JSON.stringify({ ...MANIFEST, provenance: { ".claude/settings.json": fp(INSTALLED) } }) + "\n",
+  });
+  const merged = INSTALLED.replace("true", "false");
+  writeFile(dir, ".claude/settings.json", merged);
+
+  assert.deepEqual(rerecordEngineWrite({ brainDir: dir, rels: [".claude/settings.json"] }), [".claude/settings.json"]);
+
+  const manifest = JSON.parse(read(dir, "engine-manifest.json"));
+  assert.equal(manifest.provenance[".claude/settings.json"], fp(merged));
+  assert.deepEqual(manifest.baseRefs, {}, "an unknown version is left unknown, never filled in from the running ref");
+  assert.deepEqual(readEngineDivergence({ brainDir: dir }), []);
 });
 
 test("readEngineDivergence — a manifest it cannot read costs a sentence, never a thrown update", (t) => {

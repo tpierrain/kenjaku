@@ -27,6 +27,26 @@
 import { INSTALLED_REFUSAL, verifyBase } from "./engine-base.mjs";
 import { selectMergeFiles } from "./engine-source.mjs";
 
+// 🚪 THE ONE FILE THIS REPORT MAY NOT NAME (Thomas's call, 2026-08-22, on F1 of the
+// v5.0.0 code review: *"ne parler que des fichiers vraiment tenus par toi"*).
+//
+// `CLAUDE.md` is the OWNER's half of the constitution and the product's own doctrine
+// TELLS them to edit it — the README, the install hand-off and the constitution itself
+// all invite it. So every brain diverges on it within days and stays diverged for life,
+// and no refresh family ever writes a `.new` sidecar beside it, which means the line is
+// not dismissible either (`adoptCandidate` answers `no-candidate` forever). Saying "the
+// engine is leaving this file alone" about a file we ASKED them to write is a false
+// claim, and repeating it unbidden at every session start is precisely the consent
+// fatigue this whole surface was built to prevent.
+//
+// ⚠️ SCOPED TO WHAT IS SAID, and that boundary is the decision. `CLAUDE.md` stays a
+// `merge` file: the update-time behaviour is untouched, the owner's edits still merge
+// exactly as before. What changes is only that the brain stops narrating it.
+//
+// A NAME, not a shape: `CLAUDE.engine.md` is the ENGINE's half — the engine writes it,
+// the owner is never asked to — so it is still reported. One dot apart, opposite verdict.
+export const INVITED_EDITS = new Set(["CLAUDE.md"]);
+
 // Candidates are what is ON DISK, never the union with the record — and that is
 // the one deliberate asymmetry with `planBaseSeed`, which does take the union. A
 // recorded file the owner deleted is not being held back: the install-if-absent
@@ -37,6 +57,11 @@ export function engineDivergence({ manifest, installedFileMap }) {
   const baseRefs = manifest?.baseRefs ?? {};
   const held = [];
   for (const rel of selectMergeFiles(manifest, Object.keys(installedFileMap))) {
+    // Filtered BEFORE the verdict is computed, so it holds for BOTH branches: the whole
+    // deployed fleet is `no-provenance` on `CLAUDE.md` (no regime named it before v4), and
+    // silencing only the `customized` half would leave the fleet-wide line exactly where
+    // it was.
+    if (INVITED_EDITS.has(rel)) continue;
     // The seeding question, asked of the installed file: "would these bytes make a
     // provable base?" Yes → the file still IS what the engine delivered, nothing is
     // held back. There is no second definition of "unchanged" in this codebase, and

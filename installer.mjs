@@ -67,7 +67,7 @@ import {
 } from "./scripts/lib/obsidian-register.mjs";
 import { formatObsidianHint } from "./scripts/lib/obsidian-health.mjs";
 import { buildHandoff } from "./scripts/lib/install-handoff.mjs";
-import { recordSourceProvenanceAndBase } from "./scripts/lib/engine-base-fs.mjs";
+import { recordSourceProvenanceAndBase, rerecordEngineWrite } from "./scripts/lib/engine-base-fs.mjs";
 import { resolveLatestTag } from "./scripts/lib/engine-fetch.mjs";
 import {
   checkNode,
@@ -675,6 +675,12 @@ else warn("install commit failed (configure git user.name/email).");
 // touch nothing: we just point to the account's *Connectors*.
 // Non-interactive (CI / stdin not a TTY) → step fully skipped.
 step("5/10 · Wire up external sources (optional)");
+// F8 (v5.0.0 code review) — did THIS step write into settings.json? The provenance was
+// recorded above, before any connector merged its permissions in, so a brain that wires
+// one ends the install with a settings.json that no longer matches its own recorded sha:
+// born diverged, and nagged at every session start about a file its owner has not had a
+// second to edit. The engine wrote it; the record has to follow (see rerecordEngineWrite).
+let connectorsTouchedSettings = false;
 if (interactive) {
   const want = await ask("Wire up external sources now? [y/N]", "N");
   if (/^y/i.test(want)) {
@@ -686,6 +692,7 @@ if (interactive) {
       if (!/^y/i.test(pick)) continue;
       if (conn.kind === "mcp") {
         applyConnectorFiles(conn, { mcpPath, settingsPath });
+        connectorsTouchedSettings = true;
         ok(`${conn.id} wired up → .mcp.json + permissions settings.json`);
       } else {
         warn(`${conn.id}: native claude.ai connector — nothing to write into .mcp.json.`);
@@ -697,6 +704,12 @@ if (interactive) {
   }
 } else {
   warn("Non-interactive input — connectors step skipped.");
+}
+// Gated on a write having actually happened: an install that wired nothing must leave the
+// manifest byte-identical, exactly as the reconciler's own re-record is gated.
+if (connectorsTouchedSettings) {
+  rerecordEngineWrite({ brainDir: TARGET, rels: [".claude/settings.json"] });
+  ok("engine provenance re-recorded after the connector merge (.claude/settings.json)");
 }
 
 // ── 6. Example notes (optional) ──────────────────────────────────────────────

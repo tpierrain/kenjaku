@@ -2384,26 +2384,63 @@ test("updateEngine — the report names what the brain is STILL holding back, ve
     rmSync(brainDir, { recursive: true, force: true });
     rmSync(sourceDir, { recursive: true, force: true });
   });
-  // The owner's own constitution, edited after install: a `merge` file the fetched
-  // source does not carry, so this update never touches it — the exact file that is
-  // invisible in today's report and stays held back release after release.
+  // An engine SKILL the owner edited after install: a `merge` file the fetched source
+  // does not carry, so this update never touches it — the exact shape that is invisible
+  // in today's report and stays held back release after release.
+  //
+  // ⚠️ `CLAUDE.md` used to stand here, and it is written below for the OPPOSITE reason:
+  // since F1 the owner's own constitution is exempt from this report BY NAME (the product
+  // tells them to edit it, so calling it held back was a false claim repeated at every
+  // session start). Editing it here and asserting its ABSENCE is what pins the exemption
+  // at the whole-update level, where the sentence is actually produced.
+  const deliveredSkill = "---\nname: switch\n---\nSwitch universes.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", deliveredSkill + "\n## My own section\n");
   writeFile(brainDir, "CLAUDE.md", SACRED["CLAUDE.md"] + "\n## My own section\n");
+  const provenance = {
+    "CLAUDE.md": fp(SACRED["CLAUDE.md"]),
+    ".claude/skills/switch/SKILL.md": fp(deliveredSkill),
+    ...Object.fromEntries(
+      Object.entries(engineFiles("vA").engineScripts).map(([rel, content]) => [rel, fp(content)]),
+    ),
+  };
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    manifest({
+      ragVersion: "1.0.0",
+      indexSchemaVersion: 1,
+      ref: "v1.0.0",
+      extraMerge: [".claude/skills/switch/**"],
+      provenance,
+      baseRefs: Object.fromEntries(Object.keys(provenance).map((rel) => [rel, "v1.0.0"])),
+    }),
+  );
+  // ⚠️ …and the FETCHED manifest has to declare the family too. Since W3, step 7 advances
+  // `regimes` to the target's, so a glob only the brain knows about is gone by the time
+  // the divergence is read — the file would drop out of the report for a reason that has
+  // nothing to do with what this test is about.
+  writeFile(
+    sourceDir,
+    "engine-manifest.json",
+    manifest({ ragVersion: "1.1.0", indexSchemaVersion: 1, ref: "v1.1.0", extraMerge: [".claude/skills/switch/**"] }),
+  );
 
   const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix" });
 
   // The WHOLE list, sorted, both reasons. The four engine scripts were re-delivered by
   // this update, so they are converged and must NOT appear — while this fixture brain
   // really does hold two files it can prove nothing about (they were never
-  // fingerprinted), which is the state the recap exists to stop hiding.
+  // fingerprinted), which is the state the recap exists to stop hiding. And `CLAUDE.md`,
+  // provably edited, is absent: exempt, not merely unnoticed.
   assert.deepEqual(report.divergence, [
     { rel: ".claude/settings.json", reason: "no-provenance", since: null },
+    { rel: ".claude/skills/switch/SKILL.md", reason: "customized", since: "v1.0.0" },
     { rel: ".claude/skills/zzz-mine/SKILL.md", reason: "no-provenance", since: null },
-    { rel: "CLAUDE.md", reason: "customized", since: "v1.0.0" },
   ]);
   // …and it reaches the prose, with the version each file was last delivered at.
   assert.match(
     formatReport(report),
-    /• where your brain stands now, running v1\.1\.0: 3 engine file\(s\) this update leaves alone\n {5}- \.claude\/settings\.json — left as-is; no record of what the engine delivered there\n {5}- \.claude\/skills\/zzz-mine\/SKILL\.md — left as-is; no record of what the engine delivered there\n {5}- CLAUDE\.md — yours; the engine last delivered here at v1\.0\.0\n/,
+    /• where your brain stands now, running v1\.1\.0: 3 engine file\(s\) this update leaves alone\n {5}- \.claude\/settings\.json — left as-is; no record of what the engine delivered there\n {5}- \.claude\/skills\/switch\/SKILL\.md — yours; the engine last delivered here at v1\.0\.0\n {5}- \.claude\/skills\/zzz-mine\/SKILL\.md — left as-is; no record of what the engine delivered there\n/,
   );
 });
 
