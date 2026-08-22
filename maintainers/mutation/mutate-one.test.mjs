@@ -31,6 +31,7 @@ import {
   targetPaths,
   uncommittedTargets,
   runMutateOne,
+  linkedWorktrees,
   USAGE,
 } from "./mutate-one.mjs";
 
@@ -154,7 +155,7 @@ test("parseArgs — an option that eats its value cannot swallow the target", ()
 // wrong. The sentence has to name the destruction, because that is what the reader is
 // being protected from.
 const badWorktree = (name) =>
-  `--worktree "${name}" must be a single folder name (letters, digits, . _ -): the worktree is ` +
+  `--worktree "${name}" must be a single folder name (letters, digits, . _ + -): the worktree is ` +
   "created BESIDE this repo, and the run ends with `git reset --hard` and `git clean -qfd` inside it";
 
 test("parseArgs — `--worktree ..` is refused: it names the repo's own parent", () => {
@@ -200,6 +201,97 @@ test("parseArgs — a bare trailing `--worktree` is a usage error, not a TypeErr
 
 test("parseArgs — an ordinary worktree name still passes, punctuation included", () => {
   assert.equal(parseArgs(["scripts/lint-vault.mjs", "--worktree", "kenjaku-mut_s1.2"]).worktree, "kenjaku-mut_s1.2");
+});
+
+// 🚨 S2 (second pass of the v5.0.0 review) — `--log` IS THE ONE THAT CALLS THE DELETE.
+//
+// F6 hardened `--worktree` and left its sibling untouched, although the log name is the
+// argument that actually reaches `rmSync`: the plan discards a stale log BEFORE the run,
+// and then writes the Stryker output over that same path. An unchecked value escapes
+// `maintainers/mutation/reports/` the moment it contains `..`.
+const badLogError = (name) =>
+  `log name "${name}" must be a single file name (letters, digits, . _ + -): it is created under ` +
+  "maintainers/mutation/reports/, and a stale log at that path is DELETED before the run";
+
+test("parseArgs — a `--log` name that climbs out of the reports directory is refused", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--log", "../../../../.zshrc"]), {
+    ok: false,
+    error: badLogError("../../../../.zshrc"),
+  });
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--log", "sub/dir.log"]), {
+    ok: false,
+    error: badLogError("sub/dir.log"),
+  });
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--log", "sub\\dir.log"]), {
+    ok: false,
+    error: badLogError("sub\\dir.log"),
+  });
+});
+
+// The second door onto the same `rmSync`, and the one a check on `--log` alone would
+// leave open: with no `--log`, the name is DERIVED from the target — and the line range
+// rides into it verbatim. `normalizeRange` only rewrites a bare trailing number, so
+// anything else after the colon is carried through untouched. So the guard is on the
+// RESOLVED name, whatever door it came through.
+test("parseArgs — a target whose line range forges a path is refused by the same guard", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs:../../../../.zshrc"]), {
+    ok: false,
+    error: badLogError("mutate-one-lint-vault-../../../../.zshrc.log"),
+  });
+});
+
+// The sibling of the bare trailing `--worktree`: `logName` starts as `null` and is
+// resolved with `??`, so an option eating nothing used to fall back to the default log
+// name in silence — a run whose output lands somewhere the caller did not ask for.
+test("parseArgs — a bare trailing `--log` is a usage error, not a silent default", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--log"]), {
+    ok: false,
+    error:
+      "--log needs a name\n" +
+      "usage: node maintainers/mutation/mutate-one.mjs <scripts/file.mjs> [more files…] " +
+      "[--worktree <name>] [--log <name>] [--dry-run]",
+  });
+});
+
+test("parseArgs — the ordinary derived log name, range included, still passes", () => {
+  assert.equal(parseArgs(["scripts/lint-vault.mjs:75-88"]).logName, "mutate-one-lint-vault-75-88.log");
+  assert.equal(parseArgs(["scripts/lint-vault.mjs:79"]).logName, "mutate-one-lint-vault-79-79.log");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// linkedWorktrees — who is this run ALLOWED to reset?
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Real `git worktree list --porcelain` output, copied from this repo: a blank line
+// between records, and the MAIN worktree first. That first record is the repository
+// itself — the one directory this tool must never reset — so it is dropped here rather
+// than remembered by the caller.
+const PORCELAIN = [
+  "worktree /Users/dev/kenjaku",
+  "HEAD bd9277d1c0ffee0000000000000000000000beef",
+  "branch refs/heads/main",
+  "",
+  "worktree /Users/dev/kenjaku-mut-one",
+  "HEAD bd9277d1c0ffee0000000000000000000000beef",
+  "detached",
+  "",
+].join("\n");
+
+test("linkedWorktrees — the main worktree is dropped, the linked ones are kept in order", () => {
+  assert.deepEqual(
+    linkedWorktrees(`${PORCELAIN}worktree /Users/dev/kenjaku-mut-two\nHEAD abc\ndetached\n\n`),
+    ["/Users/dev/kenjaku-mut-one", "/Users/dev/kenjaku-mut-two"],
+  );
+});
+
+test("linkedWorktrees — a repo with no linked worktree at all yields nothing to reset", () => {
+  assert.deepEqual(
+    linkedWorktrees("worktree /Users/dev/kenjaku\nHEAD abc\nbranch refs/heads/main\n\n"),
+    [],
+  );
+  // Not `[""]`, and not a crash: an empty listing is what a failed read looks like
+  // after `.split`, and it must mean "nothing is adoptable", never "everything is".
+  assert.deepEqual(linkedWorktrees(""), []);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -533,6 +625,10 @@ function harness({ results = {}, worktreeExists = true, config = SOUND_CONFIG } 
       },
       run: ({ command, args, cwd }) => {
         calls.push({ fn: "run", command, args, cwd });
+        // The registry this repo really has: itself, plus the default worktree. A run
+        // is allowed to reset the second and never the first (S1/S3), so the double
+        // has to answer this one for real or every existing case below would refuse.
+        if (args.join(" ") === WORKTREE_LIST_KEY) return { code: 0, output: PORCELAIN };
         return results[args.join(" ")] ?? { code: 0, output: "" };
       },
       symlink: (from, to) => calls.push({ fn: "symlink", from, to }),
@@ -543,6 +639,7 @@ function harness({ results = {}, worktreeExists = true, config = SOUND_CONFIG } 
   };
 }
 
+const WORKTREE_LIST_KEY = "worktree list --porcelain";
 const GUARD_KEY = "--test scripts/lib/vault-write-guard.test.mjs";
 const MUTATE_KEY = (t = "scripts/lint-vault.mjs") =>
   `/Users/dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate ${t}`;
@@ -560,8 +657,19 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
   assert.equal(code, 0);
   assert.deepEqual(
     h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")),
-    // The gate comes FIRST, before a single git command touches a worktree.
-    [STATUS_KEY("scripts/lint-vault.mjs"), "worktree prune", "reset --hard bd9277d1c0ffee0000000000000000000000beef", "clean -qfd -e rag/node_modules", GUARD_KEY, MUTATE_KEY()]
+    // Two questions before a single git command CHANGES anything, and in this order:
+    // may this run touch that directory at all (S1/S3 — a `reset --hard` in the wrong
+    // place is worse than a score that was never measured), then are the targets
+    // committed. Both are read-only; everything after them is not.
+    [
+      WORKTREE_LIST_KEY,
+      STATUS_KEY("scripts/lint-vault.mjs"),
+      "worktree prune",
+      "reset --hard bd9277d1c0ffee0000000000000000000000beef",
+      "clean -qfd -e rag/node_modules",
+      GUARD_KEY,
+      MUTATE_KEY(),
+    ]
   );
   // Two removals, and the ORDER matters: the link's path is cleared before the symlink
   // is made (the step is unconditional now, so it meets an existing link), and the
@@ -755,7 +863,12 @@ test("runMutateOne — --dry-run prints the plan, whole, and runs nothing", () =
   const code = runMutateOne(["--dry-run", "scripts/a.mjs", "scripts/lib/b.mjs"], h.deps);
 
   assert.equal(code, 0);
-  assert.deepEqual(h.calls.filter((c) => c.fn === "run" || c.fn === "removeFile" || c.fn === "symlink"), []);
+  // A dry run CHANGES nothing — no file removed, no link made, and the one git call it
+  // does make is the read-only ownership question. It is asked here on purpose: a dry
+  // run whose whole job is to show the plan must not print `git reset --hard` over a
+  // directory the real run would refuse, or the plan itself teaches the hazard.
+  assert.deepEqual(h.calls.filter((c) => c.fn === "removeFile" || c.fn === "symlink"), []);
+  assert.deepEqual(h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")), [WORKTREE_LIST_KEY]);
   assert.deepEqual(h.out, [
     "▶ plan for scripts/a.mjs, scripts/lib/b.mjs (worktree /Users/dev/kenjaku-mut-one):",
     "   git worktree prune   (in /Users/dev/kenjaku)",
@@ -845,6 +958,12 @@ test("runMutateOne — an uncommitted TARGET is refused before the worktree is t
     {
       fn: "run",
       command: "git",
+      args: ["worktree", "list", "--porcelain"],
+      cwd: "/Users/dev/kenjaku",
+    },
+    {
+      fn: "run",
+      command: "git",
       args: ["status", "--porcelain", "--", "scripts/lib/a.mjs"],
       cwd: "/Users/dev/kenjaku",
     },
@@ -870,7 +989,8 @@ test("runMutateOne — the question is asked about the TARGETS only, ranges stri
   const code = runMutateOne(["scripts/a.mjs:1-9", "scripts/lib/b.mjs"], h.deps);
 
   assert.equal(code, 0);
-  assert.equal(h.calls.filter((c) => c.fn === "run")[0].args.join(" "), STATUS_KEY("scripts/a.mjs", "scripts/lib/b.mjs"));
+  // [1], not [0]: the ownership question is asked first and knows nothing of targets.
+  assert.equal(h.calls.filter((c) => c.fn === "run")[1].args.join(" "), STATUS_KEY("scripts/a.mjs", "scripts/lib/b.mjs"));
 });
 
 test("runMutateOne — a git status that FAILS is refused, never read as clean", () => {
@@ -891,10 +1011,11 @@ test("runMutateOne — a git status that FAILS is refused, never read as clean",
   ]);
 });
 
-test("runMutateOne — --dry-run still runs NOTHING, this gate included", () => {
-  // Deliberate: the gate protects a SCORE, and a dry run produces none. "Runs
-  // nothing" is a contract worth keeping literally true — a dry run that shells
-  // out is not a dry run. The real run is where the refusal belongs.
+test("runMutateOne — --dry-run does not ask THIS gate: an uncommitted target still prints its plan", () => {
+  // Deliberate, and the line the two gates are told apart on: this one protects a
+  // SCORE, and a dry run produces none. The ownership gate protects a DIRECTORY, and a
+  // dry run that shows `git reset --hard` over the wrong one has already made the
+  // hazard look routine — so that one is asked, and only that one.
   const h = harness({
     results: { [STATUS_KEY("scripts/a.mjs")]: { code: 0, output: " M scripts/a.mjs\n" } },
   });
@@ -902,7 +1023,7 @@ test("runMutateOne — --dry-run still runs NOTHING, this gate included", () => 
   const code = runMutateOne(["--dry-run", "scripts/a.mjs"], h.deps);
 
   assert.equal(code, 0);
-  assert.equal(h.calls.some((c) => c.fn === "run"), false);
+  assert.deepEqual(h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")), [WORKTREE_LIST_KEY]);
 });
 
 // 🚨 F6 (v5.0.0 code review) — THE ONE THAT DESTROYS UNCOMMITTED WORK.
@@ -931,6 +1052,97 @@ test("runMutateOne — a worktree that resolves to the repository ITSELF is refu
     "❌ --worktree kenjaku resolves to /Users/dev/kenjaku, which IS this repository — refusing: " +
       "this run ends with `git reset --hard` and `git clean -qfd` in the worktree, and everything " +
       "uncommitted here would be gone.",
+  ]);
+});
+
+// 🚨 S1 (second pass) — THE SAME DESTRUCTION, THROUGH A GUARD THAT SAYS YES.
+//
+// The check above compares STRINGS. macOS and Windows do not: `--worktree Kenjaku`,
+// from `/Users/dev/kenjaku`, is a different string and the SAME directory. `existsSync`
+// then says the folder is there, so the plan skips `git worktree add` and goes straight
+// to `git reset --hard` + `git clean -qfd` inside the real checkout — the exact outcome
+// F6 was written to prevent, one shift key away from the name F6's own comment quotes.
+//
+// The answer is not a case-insensitive comparison (that fixes one filesystem and lies on
+// the next) but OWNERSHIP: git is asked which directories are worktrees OF THIS REPO, and
+// nothing else may be reset. That single question also closes S3 below.
+test("runMutateOne — a worktree name that differs from the repo only in CASE is refused", () => {
+  const h = harness();
+
+  const code = runMutateOne(["scripts/lint-vault.mjs", "--worktree", "Kenjaku"], h.deps);
+
+  assert.equal(code, 2);
+  assert.deepEqual(
+    h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")),
+    [WORKTREE_LIST_KEY],
+    "the only git call is the read-only listing that earns the right to reset — nothing mutating ran",
+  );
+  assert.deepEqual(h.out, [
+    "❌ --worktree Kenjaku resolves to /Users/dev/Kenjaku, which already exists and is NOT a worktree " +
+      "of this repository — refusing: this run ends with `git reset --hard` and `git clean -qfd` there. " +
+      "Worktrees of this repository: /Users/dev/kenjaku-mut-one",
+  ]);
+});
+
+// 🚨 S3 (second pass) — recorded as F6's residual, and it is the same guard's job.
+// A second CLONE of this repo beside it is one tab-completion away, passes every check
+// on the NAME, and its uncommitted work dies the same way. It is not in this repo's
+// worktree registry, so the ownership question refuses it without knowing what it is.
+test("runMutateOne — a pre-existing SIBLING checkout is refused: this repo does not own it", () => {
+  const h = harness();
+
+  const code = runMutateOne(["scripts/lint-vault.mjs", "--worktree", "kenjaku-2"], h.deps);
+
+  assert.equal(code, 2);
+  assert.equal(
+    h.calls.some((c) => c.fn === "run" && c.args.join(" ") !== WORKTREE_LIST_KEY),
+    false,
+    "not one mutating git call — `git reset --hard` here would discard another project's work",
+  );
+  assert.match(h.out[0], /^❌ --worktree kenjaku-2 resolves to \/Users\/dev\/kenjaku-2, which already exists/);
+});
+
+// A directory that does NOT exist is not a hazard: `git worktree add` creates it, and
+// creating is the act that makes it ours. So the ownership question is asked only of a
+// directory that is already there — and asking it is what tells the two apart.
+test("runMutateOne — an unknown name that does not exist yet is created, not refused", () => {
+  const h = harness({ worktreeExists: false });
+
+  const code = runMutateOne(["--dry-run", "scripts/lint-vault.mjs", "--worktree", "kenjaku-mut-fresh"], h.deps);
+
+  assert.equal(code, 0);
+  assert.equal(
+    h.calls.some((c) => c.fn === "run"),
+    false,
+    "nothing to ask git about: the directory is not there, so there is nothing to protect",
+  );
+  assert.equal(h.out[1], "   git worktree prune   (in /Users/dev/kenjaku)");
+});
+
+// Fails towards refusing, like the uncommitted-targets gate one door over: a registry
+// this run cannot read is not an empty registry, and "I cannot tell" must never be the
+// answer that authorises `git reset --hard`.
+test("runMutateOne — a worktree registry that cannot be read stops the run", () => {
+  const h = harness();
+  const deps = {
+    ...h.deps,
+    run: (invocation) => {
+      h.calls.push({ fn: "run", ...invocation });
+      if (invocation.args.join(" ") === WORKTREE_LIST_KEY) return { code: 128, output: "fatal: not a git repository\n" };
+      return { code: 0, output: "" };
+    },
+  };
+
+  const code = runMutateOne(["scripts/lint-vault.mjs"], deps);
+
+  assert.equal(code, 2);
+  assert.deepEqual(
+    h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")),
+    [WORKTREE_LIST_KEY],
+  );
+  assert.deepEqual(h.out, [
+    "❌ could not list this repository's worktrees — refusing to reset a directory I cannot prove is mine:",
+    "fatal: not a git repository",
   ]);
 });
 

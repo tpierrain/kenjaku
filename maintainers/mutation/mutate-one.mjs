@@ -23,7 +23,12 @@
 //     bogus timeouts — checked on the config before the run, and on the report
 //     after it;
 //   • a stale log discarded BEFORE the run, and a loud failure instead of a
-//     score that was never measured.
+//     score that was never measured;
+//   • and the two arguments that are PATHS, not labels: `--worktree` selects the
+//     directory `git reset --hard` lands in, `--log` the file `rmSync` deletes.
+//     A run may only reset a directory git calls a worktree OF THIS REPO — names
+//     are not evidence, on a filesystem that ignores case and beside a repo that
+//     may have siblings.
 //
 // The judgement half — when to run a pass, how to read the survivors, when to
 // simplify the production instead of adding a case — is the `mutation-testing`
@@ -69,13 +74,22 @@ function normalizeRange(target) {
   return target.replace(/:(\d+)$/, ":$1-$1");
 }
 
-// A single folder name, in the strictest reading: no separator in EITHER slash (a guard
-// that knows one separator teaches the next reader the wrong lesson, and `node:path` on
-// win32 honours both), and never `.` or `..` — both are legal spellings under a character
-// class that only asks about letters and punctuation, and both resolve to a directory
-// that already holds something.
-function isPlainFolderName(name) {
-  return /^[A-Za-z0-9._-]+$/.test(name) && name !== "." && name !== "..";
+// A single name — no directory, in the strictest reading: no separator in EITHER slash (a
+// guard that knows one separator teaches the next reader the wrong lesson, and `node:path`
+// on win32 honours both), and never `.` or `..` — both are legal spellings under a
+// character class that only asks about letters and punctuation, and both resolve to
+// somewhere that already holds something.
+//
+// ONE predicate for BOTH path-shaped arguments, deliberately: `--worktree` and `--log`
+// each land on a path this tool then destroys (`git reset --hard` there, `rmSync` on the
+// log), and two spellings of one limit are two behaviours to keep in step forever.
+//
+// `+` is in the class for the LOG side alone — `defaultLogName` spells a multi-target run
+// `…+2.log` — and it is granted to both rather than forking the predicate: a `+` in a
+// directory name separates nothing and escapes nowhere, which is the only question this
+// guard is asking.
+function isPlainName(name) {
+  return /^[A-Za-z0-9._+-]+$/.test(name) && name !== "." && name !== "..";
 }
 
 export function parseArgs(argv) {
@@ -103,11 +117,12 @@ export function parseArgs(argv) {
   // complaint, and `--worktree <target>` (the option eating its value) must keep
   // reporting the missing target rather than a strange-looking name.
   if (worktree === undefined) return { ok: false, error: `--worktree needs a name\n${USAGE}` };
-  if (!isPlainFolderName(worktree)) {
+  if (logName === undefined) return { ok: false, error: `--log needs a name\n${USAGE}` };
+  if (!isPlainName(worktree)) {
     return {
       ok: false,
       error:
-        `--worktree "${worktree}" must be a single folder name (letters, digits, . _ -): the worktree is ` +
+        `--worktree "${worktree}" must be a single folder name (letters, digits, . _ + -): the worktree is ` +
         "created BESIDE this repo, and the run ends with `git reset --hard` and `git clean -qfd` inside it",
     };
   }
@@ -126,7 +141,28 @@ export function parseArgs(argv) {
     }
   }
 
-  return { ok: true, targets, worktree, logName: logName ?? defaultLogName(targets), dryRun };
+  // 🚨 THE LOG NAME IS AN ARGUMENT TO `rmSync` (S2, second pass of the v5.0.0 review).
+  // The plan discards a stale log BEFORE the run and writes the Stryker output over that
+  // same path, so a name carrying `..` deletes and then overwrites a file outside the
+  // reports directory. F6 hardened `--worktree` and left this one, which is the sibling
+  // that actually calls the delete.
+  //
+  // Checked on the RESOLVED name, never on the option: with no `--log`, the name is
+  // DERIVED from the target, and the line range rides into it verbatim
+  // (`scripts/x.mjs:../../y` — `normalizeRange` only rewrites a bare trailing number). A
+  // guard on the option alone would leave that door open. AFTER the target loop, so a
+  // bogus target keeps reporting the more basic complaint.
+  const resolvedLog = logName ?? defaultLogName(targets);
+  if (!isPlainName(resolvedLog)) {
+    return {
+      ok: false,
+      error:
+        `log name "${resolvedLog}" must be a single file name (letters, digits, . _ + -): it is created ` +
+        `under ${REPORTS}/, and a stale log at that path is DELETED before the run`,
+    };
+  }
+
+  return { ok: true, targets, worktree, logName: resolvedLog, dryRun };
 }
 
 // mutate-one-<first file>.log, plus +N when the run carries more than one, so a
@@ -141,6 +177,31 @@ function defaultLogName(targets) {
   const stem = basename(path, ".mjs") + (range ? `-${range}` : "");
   const extra = targets.length - 1;
   return `mutate-one-${stem}${extra ? `+${extra}` : ""}.log`;
+}
+
+// ── Which directories is this run ALLOWED to reset? ──────────────────────────
+//
+// 🚨 S1/S3 (second pass of the v5.0.0 review). F6 refused the one name that resolves to
+// the repository — by comparing STRINGS, on filesystems that do not: `--worktree Kenjaku`
+// is a different string and the same directory on macOS and on Windows. And a second
+// CLONE beside the repo (`kenjaku-2`) was never in question at all, though its
+// uncommitted work dies exactly the same way.
+//
+// A case-insensitive comparison would fix one filesystem and lie on the next, and no
+// check on the NAME can tell a sibling checkout from a worktree. The property is
+// OWNERSHIP: git knows which directories are worktrees of this repository, and this run
+// may reset those and nothing else.
+//
+// `git worktree list --porcelain` emits one record per worktree, blank-line separated,
+// each opening with `worktree <path>` — and the MAIN worktree first, which is the
+// repository itself and the one directory this tool must never reset. Dropped here rather
+// than remembered by the caller.
+export function linkedWorktrees(porcelain) {
+  const paths = porcelain
+    .split("\n")
+    .filter((line) => line.startsWith("worktree "))
+    .map((line) => line.slice("worktree ".length).trim());
+  return paths.slice(1);
 }
 
 // ── The plan: an ordered list of steps, each one a VALUE ─────────────────────
@@ -342,6 +403,38 @@ export function runMutateOne(argv, deps) {
     );
     return 2;
   }
+
+  // 🚨 S1/S3 — and it is the check that actually holds, the one above being its
+  // fast, specific special case. A directory that is ALREADY THERE is about to be
+  // `git reset --hard`-ed, so this run has to prove it owns it (see `linkedWorktrees`).
+  // A directory that is NOT there is created by `git worktree add`, and creating it is
+  // what makes it ours — so nothing is asked, and nothing is at risk.
+  //
+  // BEFORE the committed-targets gate and before the dry run: preventing destruction
+  // outranks preventing a meaningless score, and a dry run that PRINTS `git reset --hard
+  // /Users/dev/Kenjaku` has already told the reader it is a fine idea.
+  const worktreeExists = exists(worktreePath);
+  if (worktreeExists) {
+    const listed = run({ command: "git", args: ["worktree", "list", "--porcelain"], cwd: repoRoot });
+    // Fails towards refusing, like the committed-targets gate one door over: a registry
+    // this run cannot read is not an empty registry, and "I cannot tell" must never be
+    // the answer that authorises `git reset --hard`.
+    if (listed.code !== 0) {
+      say("❌ could not list this repository's worktrees — refusing to reset a directory I cannot prove is mine:");
+      say(listed.output.trimEnd());
+      return 2;
+    }
+    const linked = linkedWorktrees(listed.output);
+    if (!linked.includes(worktreePath)) {
+      say(
+        `❌ --worktree ${parsed.worktree} resolves to ${worktreePath}, which already exists and is NOT a ` +
+          "worktree of this repository — refusing: this run ends with `git reset --hard` and " +
+          `\`git clean -qfd\` there. Worktrees of this repository: ${linked.join(", ") || "(none)"}`,
+      );
+      return 2;
+    }
+  }
+
   const logPath = join(repoRoot, REPORTS, parsed.logName);
   const steps = planRun({
     repoRoot,
@@ -350,7 +443,10 @@ export function runMutateOne(argv, deps) {
     targets: parsed.targets,
     logPath,
     strykerBin: join(repoRoot, STRYKER_BIN),
-    worktreeExists: exists(worktreePath),
+    // The same answer the ownership guard just acted on — asked ONCE. Two reads of a
+    // directory that a guard has decided about is a precondition read after its own
+    // check, which is the shape that produced the rag-link alternation above.
+    worktreeExists,
   });
 
   if (parsed.dryRun) {
