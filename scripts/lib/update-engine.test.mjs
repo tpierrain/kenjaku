@@ -127,6 +127,44 @@ test("formatReport — a merge, a clash and a merge that could not run each get 
   ]);
 });
 
+// F15 (v5.0.0 code review) — THREE IS WHERE THE SENTENCE BREAKS, AND NOTHING ASSERTED IT.
+//
+// Every test above stops at two, where `join(" and ")` happens to be right. At three it
+// produced `your "coach" and "sync" and "improve" skills` — the tell of a list built by a
+// loop rather than written by someone. It is the same line an owner reads after the update
+// that touched the most files, which is the moment the report is least skimmed.
+test("formatReport — three merged skills are a list, not a chain of `and`s", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    vaultNoteCount: 0,
+    skillsMerged: ["coach", "sync", "improve"],
+  });
+
+  assert.match(out, /• your "coach", "sync" and "improve" skills kept your edits AND received this update\n/);
+  assert.equal(out.includes('" and "coach'), false, "no chained `and` survives anywhere in the report");
+});
+
+// …and the boundary below it, which the fix must not break: at TWO there is no comma.
+// A list helper that always joins with commas would produce `"coach", "sync"`, which is
+// wrong English and wrong for the overwhelmingly common case.
+test("formatReport — two merged skills keep their bare `and`, with no comma", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    vaultNoteCount: 0,
+    skillsMerged: ["coach", "sync"],
+  });
+
+  assert.match(out, /• your "coach" and "sync" skills kept your edits AND received this update\n/);
+});
+
 // S2b-3 — the same three promises, for the family that is NOT a skill. An engine
 // script is a FILE the owner opens by path, so "your scripts/auto-commit.mjs file"
 // is what the sentence must say; calling it a skill would send them looking under
@@ -239,7 +277,7 @@ test("formatReport — a fast-forwarded script counts as a swapped engine file",
     reindexed: false,
     scriptsRefreshed: ["scripts/auto-commit.mjs", "scripts/auto-push.mjs"],
   });
-  assert.match(out, /• 4 engine file\(s\) swapped\n/);
+  assert.match(out, /• 4 engine files swapped\n/);
 });
 
 // ── The conflict block names its door (plan S2d) ─────────────────────────────
@@ -322,7 +360,7 @@ test("formatReport — a fast-forwarded constitution counts as a swapped engine 
     reindexed: false,
     doctrineRefreshed: ["CLAUDE.engine.md"],
   });
-  assert.match(out, /• 2 engine file\(s\) swapped\n/);
+  assert.match(out, /• 2 engine files swapped\n/);
 });
 
 // 🛑 The line EVERY deployed brain will print at EVERY update, for as long as the
@@ -834,7 +872,7 @@ test("formatReport — a quiet no-op prints EXACTLY the four always-on lines, no
     out,
     [
       "✅ Engine updated to v3.6.2 (rag 1.1.4).",
-      "   • 0 engine file(s) swapped",
+      "   • 0 engine files swapped",
       "   • index format unchanged — no reindex needed",
       "   Your notes, .env, constitution, settings and custom skills were left untouched.",
     ].join("\n"),
@@ -883,7 +921,7 @@ test("formatReport — an everything-on update prints every optional line, in or
     out,
     [
       "✅ Engine updated to v3.6.2 (rag 1.1.4).",
-      "   • 2 engine file(s) swapped + launchers regenerated",
+      "   • 2 engine files swapped + launchers regenerated",
       "   • reindexed — the index format changed (your notes were re-encoded, nothing lost)",
       "   • your vault holds 2 notes — searchable as the reindex finishes",
       "   • new engine skill(s) installed: local-mirror, coach",
@@ -929,7 +967,7 @@ test("formatReport — a target manifest with no engineVersion says so instead o
     out,
     [
       "✅ Engine updated to v3.6.2 (rag unknown).",
-      "   • 0 engine file(s) swapped",
+      "   • 0 engine files swapped",
       "   • index format unchanged — no reindex needed",
       "   Your notes, .env, constitution, settings and custom skills were left untouched.",
     ].join("\n"),
@@ -957,7 +995,7 @@ test("formatReport — a steady-state upgrade prints the incremental-reindex + g
     out,
     [
       "✅ Engine updated to v3.6.2 (rag 1.1.4).",
-      "   • 1 engine file(s) swapped",
+      "   • 1 engine file swapped",
       "   • ensured the engine health-check note is present and indexed (incremental — your other notes were not re-encoded)",
       "   • your vault holds 1 note — searchable as the reindex finishes",
       '   • your "coach" skill was left exactly as it is — this brain has no record of the version the engine last delivered there, so we cannot tell your edits from ours; the newer engine version sits next to it as .claude/skills/coach/SKILL.md.new',
@@ -989,7 +1027,7 @@ test("formatReport — exactly one new capability reads in the singular, byte fo
     out,
     [
       "✅ Engine updated to v3.6.2 (rag 1.1.4).",
-      "   • 0 engine file(s) swapped",
+      "   • 0 engine files swapped",
       "   • index format unchanged — no reindex needed",
       "   • new engine skill(s) installed: local-mirror",
       "   ⚠️ ACTION NEEDED — 1 new capability is installed on disk but NOT active in THIS conversation.",
@@ -1085,7 +1123,7 @@ test("formatReport — the recap names every held-back file with the version it 
   // matcher on one phrase leaves the clauses between them unjudged (S3's lesson).
   assert.match(
     out,
-    /\n {3}• where your brain stands now, running v5\.0\.0: 3 engine file\(s\) this update leaves alone\n {5}- \.claude\/settings\.json — yours; no record of which engine version it came from\n {5}- CLAUDE\.md — yours; the engine last delivered here at v4\.7\.0\n {5}- \.claude\/skills\/coach\/SKILL\.md — left as-is; no record of what the engine delivered there\n {5}Nothing to do: a file the engine leaves alone is a choice, not a problem\.\n/,
+    /\n {3}• where your brain stands now, running v5\.0\.0: 3 engine files this update leaves alone\n {5}- \.claude\/settings\.json — yours; no record of which engine version it came from\n {5}- CLAUDE\.md — yours; the engine last delivered here at v4\.7\.0\n {5}- \.claude\/skills\/coach\/SKILL\.md — left as-is; no record of what the engine delivered there\n {5}Nothing to do: a file the engine leaves alone is a choice, not a problem\.\n/,
   );
 });
 
@@ -2445,7 +2483,7 @@ test("updateEngine — the report names what the brain is STILL holding back, ve
   // …and it reaches the prose, with the version each file was last delivered at.
   assert.match(
     formatReport(report),
-    /• where your brain stands now, running v1\.1\.0: 3 engine file\(s\) this update leaves alone\n {5}- \.claude\/settings\.json — left as-is; no record of what the engine delivered there\n {5}- \.claude\/skills\/switch\/SKILL\.md — yours; the engine last delivered here at v1\.0\.0\n {5}- \.claude\/skills\/zzz-mine\/SKILL\.md — left as-is; no record of what the engine delivered there\n/,
+    /• where your brain stands now, running v1\.1\.0: 3 engine files this update leaves alone\n {5}- \.claude\/settings\.json — left as-is; no record of what the engine delivered there\n {5}- \.claude\/skills\/switch\/SKILL\.md — yours; the engine last delivered here at v1\.0\.0\n {5}- \.claude\/skills\/zzz-mine\/SKILL\.md — left as-is; no record of what the engine delivered there\n/,
   );
 });
 
@@ -2989,7 +3027,7 @@ test("formatReport — files recognised from ONE version name that version", () 
 
   assert.match(
     out,
-    /• 1 engine file\(s\) recognized from v3\.6\.0 — this brain can now receive updates for them/,
+    /• 1 engine file recognized from v3\.6\.0 — this brain can now receive updates for it/,
   );
 });
 
@@ -3006,7 +3044,7 @@ test("formatReport — files recognised from SEVERAL versions name the range, ol
 
   assert.match(
     out,
-    /• 2 engine file\(s\) recognized from v3\.6\.0 to v4\.9\.1 — this brain can now receive updates for them/,
+    /• 2 engine files recognized from v3\.6\.0 to v4\.9\.1 — this brain can now receive updates for them/,
   );
 });
 
@@ -3040,7 +3078,7 @@ test("formatReport — a version string it cannot parse is SKIPPED, never crashe
     ],
   });
 
-  assert.match(out, /2 engine file\(s\) recognized from v3\.6\.0 —/, "both files counted, one version named");
+  assert.match(out, /2 engine files recognized from v3\.6\.0 —/, "both files counted, one version named");
 });
 
 test("formatReport — when NO version parses, the count still stands and the range stays vague", () => {
@@ -3051,7 +3089,7 @@ test("formatReport — when NO version parses, the count still stands and the ra
     healed: [{ rel: "a.md", since: "not-a-tag", locale: "en" }],
   });
 
-  assert.match(out, /1 engine file\(s\) recognized from an earlier version —/);
+  assert.match(out, /1 engine file recognized from an earlier version —/);
 });
 
 test("formatReport — a brain with nothing to recognise gets NO line at all", () => {
@@ -3123,7 +3161,7 @@ test("updateEngine — a frozen brain's recognised files reach the REPORT, and t
   assert.deepEqual(report.healed, [{ rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "fr" }]);
   assert.match(
     formatReport(report),
-    /1 engine file\(s\) recognized from v3\.6\.0 — this brain can now receive updates for them/,
+    /1 engine file recognized from v3\.6\.0 — this brain can now receive updates for it/,
   );
 });
 
@@ -3269,7 +3307,7 @@ test("updateEngine — a fetch that cannot reach the server is TOLD once, and al
   const line = formatReport(report);
   assert.match(
     line,
-    /could not reach the update server to recover the original of 1 file\(s\) — they are preserved as usual, and the next update will try again/,
+    /could not reach the update server to recover the original of 1 file — it is preserved as usual, and the next update will try again/,
   );
   assert.doesNotMatch(line, /error|failed|corrupt/i, "and it cannot read as an incident");
 });

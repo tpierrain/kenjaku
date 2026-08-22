@@ -179,6 +179,29 @@ const retiredPreservedLine = ({ name, blockers }) => {
 // `preserved` entry (`{ name, reason, newVersionPath }`) for a brain with no recorded sha.
 // If the producer ever stops writing that sidecar, that test goes red before this line
 // can print "undefined" at an owner.
+// ── The two things this report was still saying like a template (F14, F15) ───
+//
+// The count is KNOWN at render time: "(s)" is the hedge of a sentence that does not know
+// what it is describing, and this one counted. Zero takes the plural, as English does.
+function countOf(n, noun) {
+  return `${n} ${noun}${n === 1 ? "" : "s"}`;
+}
+
+// ...and the pronoun that follows a count has to agree with it, or the fix above just
+// moves the tell one clause to the right.
+function itOrThem(n) {
+  return n === 1 ? "it" : "them";
+}
+
+// A list a person would write. `join(" and ")` is right at two and wrong at three, where
+// it produced `"coach" and "sync" and "improve"` — and three is exactly the update that
+// touched the most files, which is when the report is least skimmed. No comma at two:
+// a helper that always joins with commas is wrong for the common case.
+function andList(items) {
+  if (items.length < 3) return items.join(" and ");
+  return `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+}
+
 function preservedAndMergedLines({ merged, preserved, singular, plural }) {
   const lines = [];
   // The headline, and the one an owner has been owed since the first frozen file:
@@ -186,7 +209,7 @@ function preservedAndMergedLines({ merged, preserved, singular, plural }) {
   // the singular when there is one — "your skills" for a single one is the tell of a
   // template nobody re-read.
   if (merged.length > 0) {
-    const named = merged.map((name) => `"${name}"`).join(" and ");
+    const named = andList(merged.map((name) => `"${name}"`));
     lines.push(
       `   • your ${named} ${merged.length > 1 ? plural : singular} kept your edits AND received this update`,
     );
@@ -239,7 +262,7 @@ function divergenceLines(divergence, ref) {
   if (divergence.length === 0) return [];
   const count = divergence.length;
   return [
-    `   • where your brain stands now, running ${ref}: ${count} engine file${count > 1 ? "(s)" : ""} this update leaves alone`,
+    `   • where your brain stands now, running ${ref}: ${countOf(count, "engine file")} this update leaves alone`,
     ...divergence.map(({ rel, reason, since }) => `     - ${rel} — ${DIVERGENCE_LINE[reason](since)}`),
     // The calm closing line is load-bearing, not decoration: a held-back file is a
     // legitimate steady state an owner may keep for years, and a list with no verdict
@@ -320,7 +343,7 @@ function conflictLines(conflicts) {
 
 // Human summary the brain-side `update-engine` skill shows the user (Step 6, ADR
 // 0016). Pure so the wording is unit-tested; the CLI entry only wires the I/O.
-// S7-3 — "N engine file(s) recognized from <range>". A RANGE, not a version: each healed
+// S7-3 — "N engine files recognized from <range>". A RANGE, not a version: each healed
 // file carries the tag its own bytes first shipped at, and those differ per file, so a
 // single "from vX" would be a tidy sentence that is false about most of the list.
 //
@@ -340,7 +363,7 @@ function recognizedLines(healed) {
   const newest = versions[versions.length - 1];
   const range = oldest === undefined ? "an earlier version" : oldest === newest ? oldest : `${oldest} to ${newest}`;
   return [
-    `   • ${healed.length} engine file(s) recognized from ${range} — this brain can now receive updates for them`,
+    `   • ${countOf(healed.length, "engine file")} recognized from ${range} — this brain can now receive updates for ${itOrThem(healed.length)}`,
   ];
 }
 
@@ -357,7 +380,7 @@ function recognizedLines(healed) {
 function ancestorLines(ancestorsFailed) {
   if (ancestorsFailed.length === 0) return [];
   return [
-    `   • could not reach the update server to recover the original of ${ancestorsFailed.length} file(s) — they are preserved as usual, and the next update will try again`,
+    `   • could not reach the update server to recover the original of ${countOf(ancestorsFailed.length, "file")} — ${ancestorsFailed.length === 1 ? "it is" : "they are"} preserved as usual, and the next update will try again`,
   ];
 }
 
@@ -388,7 +411,7 @@ export function formatReport(report) {
     // `copied` would show a brain nobody customized four fewer swapped files than the
     // release before, while exactly as many files changed — and this count is the
     // owner's only measure of what the update did.
-    `   • ${copied.length + scriptsRefreshed.length + doctrineRefreshed.length} engine file(s) swapped` + (regenerated ? " + launchers regenerated" : ""),
+    `   • ${countOf(copied.length + scriptsRefreshed.length + doctrineRefreshed.length, "engine file")} swapped` + (regenerated ? " + launchers regenerated" : ""),
     reindexLine,
   ];
   // F2: the number the USER cares about — how many notes the brain holds. When a
