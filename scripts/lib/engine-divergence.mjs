@@ -24,7 +24,7 @@
 // release list, i.e. a network call, for a number the two version names already
 // convey to the only reader that matters.
 // ─────────────────────────────────────────────────────────────────────────────
-import { INSTALLED_REFUSAL, verifyBase } from "./engine-base.mjs";
+import { INSTALLED_REFUSAL, normalizeEol, verifyBase } from "./engine-base.mjs";
 import { selectMergeFiles } from "./engine-source.mjs";
 
 // 🚪 THE ONE FILE THIS REPORT MAY NOT NAME (Thomas's call, 2026-08-22, on F1 of the
@@ -52,7 +52,34 @@ export const INVITED_EDITS = new Set(["CLAUDE.md"]);
 // recorded file the owner deleted is not being held back: the install-if-absent
 // path re-delivers it at the next update, so it is on its way back. It is a
 // different fact, and this module owns exactly one.
-export function engineDivergence({ manifest, installedFileMap }) {
+// 🚨 THE DIGEST TRAVELS AND THE FILE DOES NOT (S4, second pass of the v5.0.0 review).
+//
+// `.claude/settings.json` bakes an absolute path, so it is gitignored and regenerated per
+// machine — while `engine-manifest.json`, which records its digest, is tracked and travels
+// in the clone. On a second machine the recorded sha therefore describes MACHINE A's bytes,
+// and every session start told that owner they were holding back a file they had never
+// opened. Un-dismissable, too: no refresh family writes a `.new` beside it.
+//
+// `.engine-base/<rel>` is a different kind of evidence: it is the bytes the ENGINE last
+// wrote HERE, and it is written by the same act that regenerates the file. Where the brain
+// holds it, it answers the question the digest was only ever a proxy for — so the ancestor
+// this machine HOLDS outranks the digest the shared manifest REMEMBERS. Where it does not,
+// the digest still decides, exactly as before.
+//
+// ⚠️ This does NOT silence the owner's own edit: bytes that differ from the ancestor are
+// the owner's, ancestor or no ancestor, and that is the whole point of the report. It is
+// F1's invariant read from the other end — *a file the ENGINE wrote must never read as a
+// file the OWNER is holding back* — and the engine's own bytes are the honest witness.
+//
+// EOL is forgiven exactly as `verifyBase` forgives it, and for the same reason: git
+// rewrote the line endings, the owner did not. A second definition of "unchanged" here
+// would put the whole Windows fleet back in the report.
+function matchesLocalAncestor(baseContent, installed) {
+  if (baseContent === null || baseContent === undefined) return false;
+  return normalizeEol(baseContent) === normalizeEol(installed);
+}
+
+export function engineDivergence({ manifest, installedFileMap, baseContentMap = {} }) {
   const provenance = manifest?.provenance ?? {};
   const baseRefs = manifest?.baseRefs ?? {};
   const held = [];
@@ -69,6 +96,9 @@ export function engineDivergence({ manifest, installedFileMap }) {
     // without which the whole Windows fleet reads as holding back every file).
     const verdict = verifyBase({ recorded: provenance[rel], baseContent: installedFileMap[rel] });
     if (verdict.usable) continue;
+    // Asked only once the digest has already said "held back" — the digest is right for
+    // every file that travels, and this is the second opinion for the ones that cannot.
+    if (matchesLocalAncestor(baseContentMap[rel], installedFileMap[rel])) continue;
     held.push({ rel, reason: INSTALLED_REFUSAL[verdict.reason], since: baseRefs[rel] ?? null });
   }
   // By path, because a human reads it — the same comparator, and the same reason for

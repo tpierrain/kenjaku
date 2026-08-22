@@ -150,7 +150,12 @@ export function readEngineDivergence({ brainDir }) {
     // measurement is what proved it — emptying this block changed no test, because
     // there was nothing here a caller could tell apart.
   }
-  return engineDivergence({ manifest, installedFileMap: readInstalledMergeFiles({ brainDir, manifest }) });
+  const installedFileMap = readInstalledMergeFiles({ brainDir, manifest });
+  // S4 — the ancestor this machine HOLDS, handed to the report so a file whose digest
+  // travelled from another machine is judged by bytes rather than by a foreign sha.
+  // Read from the same disk pass as the installed bytes, for the same reason as above.
+  const baseContentMap = readBaseTree({ brainDir, rels: Object.keys(installedFileMap) });
+  return engineDivergence({ manifest, installedFileMap, baseContentMap });
 }
 
 // 🚨 THE ENGINE JUST REWROTE ONE OF ITS OWN MERGE FILES, IN PLACE (F1 / F8 of the v5.0.0

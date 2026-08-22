@@ -17,6 +17,7 @@ import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 
 import { CANARY_NOTE, machineReplacements, rehydrationPlan } from "./lib/brain-rehydrate.mjs";
+import { rerecordEngineWrite } from "./lib/engine-base-fs.mjs";
 import { applyLaunchers, buildRagInstallInvocation } from "./lib/rag-launcher.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { seedHealthNote } from "./lib/staged-health-note.mjs";
@@ -35,6 +36,7 @@ export const realRehydrateDeps = {
     writeFileSync(path, content);
   },
   seedHealthNote,
+  rerecordEngineWrite,
   installInvocation: buildRagInstallInvocation,
   spawnSync,
   log: (line) => console.log(line),
@@ -69,6 +71,22 @@ export function runRehydrate(argv, deps = realRehydrateDeps) {
     const template = deps.readFile(join(root, ".claude", "settings.json.template"));
     deps.writeFile(join(root, ".claude", "settings.json"), substitute(template, replacements));
     deps.log("✓ regenerated .claude/settings.json");
+
+    // 🚨 THE ENGINE JUST WROTE ONE OF ITS OWN MERGE FILES (S4 of the second review pass).
+    // This file bakes an absolute path, so it is gitignored and rebuilt here — while the
+    // manifest recording its digest is TRACKED and travelled in the clone. Without this
+    // line the second machine holds its own bytes against machine A's sha and is told, at
+    // every session start and un-dismissably, that it is holding the file back.
+    //
+    // Same act as the installer's, through the same door, and for the same one-sentence
+    // rule: a file the ENGINE wrote must never read as a file the OWNER is holding back.
+    // It also lays down `.engine-base/.claude/settings.json` — the ancestor THIS machine
+    // holds, which is what the divergence report then judges against.
+    //
+    // Gated on the WRITE, never run unconditionally: a rehydrate that only rebuilt a
+    // dependency tree has written no engine file, and re-recording there would hand an
+    // amnesty to whatever the owner had edited before the clone.
+    deps.rerecordEngineWrite({ brainDir: root, rels: [".claude/settings.json"] });
   }
 
   if (missing.includes(CANARY_NOTE)) {

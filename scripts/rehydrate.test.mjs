@@ -13,6 +13,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { runRehydrate, realRehydrateDeps } from "./rehydrate.mjs";
 import { CANARY_NOTE } from "./lib/brain-rehydrate.mjs";
+import { rerecordEngineWrite } from "./lib/engine-base-fs.mjs";
 import { seedHealthNote } from "./lib/staged-health-note.mjs";
 import { buildRagInstallInvocation } from "./lib/rag-launcher.mjs";
 
@@ -50,6 +51,9 @@ function fakeDeps({ spawnStatus = 0, ...overrides } = {}) {
     readFile: () => "",
     writeFile: (path, content) => calls.writes.push({ path, content }),
     seedHealthNote: () => ({ present: true }),
+    // Recorded nothing by default; the two cases that care about S4 override it and
+    // assert what it was handed.
+    rerecordEngineWrite: () => [],
     spawnSync: (command, args, opts) => {
       // The WHOLE options object, not a chosen field or two: `stdio: "inherit"` is
       // what lets the owner watch an install that takes minutes, and picking fields
@@ -169,6 +173,52 @@ test("a missing .claude/settings.json is rebuilt with the hooks pointed at this 
     },
   ]);
   assert.deepEqual(rebuilt(calls), ["✓ regenerated .claude/settings.json"]);
+});
+
+// 🚨 S4 (second pass of the v5.0.0 review) — THE SECOND MACHINE, DIVERGED FOR LIFE.
+//
+// `.claude/settings.json` is a `merge` file, so the manifest records a sha for it — and
+// that manifest TRAVELS. The file does not: it bakes this machine's absolute paths, so it
+// is gitignored and regenerated right here, and since F4 its ancestor copy under
+// `.engine-base/` is gitignored too. So a second machine ends up holding bytes of its own
+// against a digest taken on machine A's, which reads as "the owner is holding this file
+// back" — at every session start, with no `.new` beside it to dismiss.
+//
+// The rule is F1's, and it does not care which door the write came through: **a file the
+// ENGINE wrote must never read as a file the OWNER is holding back.** The installer got
+// that door (`rerecordEngineWrite`); this is the same act on the other machine.
+test("a regenerated .claude/settings.json is re-recorded: the engine wrote it, so the record follows", () => {
+  const recorded = [];
+  const { deps } = fakeDeps({
+    exists: (path) => path !== at(".claude", "settings.json"),
+    readFile: () => SETTINGS_TEMPLATE,
+    rerecordEngineWrite: (args) => {
+      recorded.push(args);
+      return [".claude/settings.json"];
+    },
+  });
+
+  assert.equal(runRehydrate([], deps), 0);
+
+  // The BRAIN's own directory and the rel spelled the way the manifest spells it: this
+  // call is what writes the local ancestor the divergence report then judges against, so
+  // a wrong rel here would be silently recorded as nothing at all.
+  assert.deepEqual(recorded, [{ brainDir: BRAIN, rels: [".claude/settings.json"] }]);
+});
+
+// Gated on the WRITE, exactly as the installer's is: a rehydrate that rebuilt a
+// dependency tree and nothing else has written no engine file, and re-recording there
+// would hand an amnesty to whatever the owner had edited before the clone.
+test("a rehydrate that regenerates no engine file records nothing", () => {
+  const recorded = [];
+  const { deps } = fakeDeps({
+    exists: (path) => path !== at("rag", "node_modules"),
+    rerecordEngineWrite: (args) => recorded.push(args),
+  });
+
+  assert.equal(runRehydrate([], deps), 0);
+
+  assert.deepEqual(recorded, []);
 });
 
 // `vault/engine-health/` is gitignored and the installer alone seeds the canary, so
@@ -342,6 +392,9 @@ test("realRehydrateDeps wires the real machine", () => {
   assert.equal(realRehydrateDeps.platform, process.platform);
   assert.equal(realRehydrateDeps.cwd(), process.cwd());
   assert.equal(realRehydrateDeps.tmpDir(), tmpdir());
+  // S4: the record follows the write, and it is the ENGINE's own door that does it —
+  // wired to that function, not to a local re-implementation of what it does.
+  assert.equal(realRehydrateDeps.rerecordEngineWrite, rerecordEngineWrite);
 });
 
 // A brain missing `.claude/settings.json` may be missing the folder around it too

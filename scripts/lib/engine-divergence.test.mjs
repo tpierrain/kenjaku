@@ -240,3 +240,88 @@ test("engineDivergence — the list is sorted by path, not by the order the disk
     { rel: "scripts/auto-commit.mjs", reason: "customized", since: "v4.9.0" },
   ]);
 });
+
+// ── S4 (second pass) — the ancestor THIS machine holds outranks the digest the
+// shared manifest REMEMBERS ─────────────────────────────────────────────────────
+
+// `.claude/settings.json` bakes an absolute path, so it is gitignored and regenerated on
+// every machine — while the manifest that records its digest TRAVELS in the clone. A
+// second machine therefore holds bytes of its own against a digest taken on machine A's,
+// and the verdict `customized` is a claim about an owner who has touched nothing.
+//
+// `.engine-base/` is the bytes the ENGINE last wrote HERE. Where the brain holds them,
+// they answer the question the digest was only ever a proxy for.
+const OTHER_MACHINE = "{ \"root\": \"/Users/alice/brain\" }\n";
+const THIS_MACHINE = "{ \"root\": \"/Users/bob/brain\" }\n";
+const SETTINGS = ".claude/settings.json";
+
+test("engineDivergence — bytes matching this machine's ancestor are not held back, whatever the shared manifest recorded", () => {
+  const result = engineDivergence({
+    manifest: manifest({
+      provenance: { [SETTINGS]: fingerprint(OTHER_MACHINE) },
+      baseRefs: { [SETTINGS]: "v5.0.0" },
+      merge: [SETTINGS],
+    }),
+    installedFileMap: { [SETTINGS]: THIS_MACHINE },
+    baseContentMap: { [SETTINGS]: THIS_MACHINE },
+  });
+
+  assert.deepEqual(result, []);
+});
+
+test("engineDivergence — an owner's edit is still reported, ancestor or no ancestor", () => {
+  // The half that must NOT be silenced: the ancestor is what the engine wrote here, so
+  // bytes that differ from it are the owner's, and that is the whole point of the report.
+  assert.deepEqual(
+    engineDivergence({
+      manifest: manifest({
+        provenance: { [SETTINGS]: fingerprint(OTHER_MACHINE) },
+        baseRefs: { [SETTINGS]: "v5.0.0" },
+        merge: [SETTINGS],
+      }),
+      installedFileMap: { [SETTINGS]: THIS_MACHINE + "// and the owner's own line\n" },
+      baseContentMap: { [SETTINGS]: THIS_MACHINE },
+    }),
+    [{ rel: SETTINGS, reason: "customized", since: "v5.0.0" }],
+  );
+});
+
+test("engineDivergence — with no ancestor on this machine, the recorded digest still decides", () => {
+  // The fallback is the behaviour of every release so far, and it has to stay: a brain
+  // that holds no `.engine-base/` entry for a file has nothing better to judge it by.
+  // `null` is what `readBaseTree` returns for "no bytes", so it is what is fed here.
+  assert.deepEqual(
+    engineDivergence({
+      manifest: manifest({
+        provenance: { [SETTINGS]: fingerprint(OTHER_MACHINE) },
+        baseRefs: { [SETTINGS]: "v5.0.0" },
+        merge: [SETTINGS],
+      }),
+      installedFileMap: { [SETTINGS]: THIS_MACHINE },
+      baseContentMap: { [SETTINGS]: null },
+    }),
+    [{ rel: SETTINGS, reason: "customized", since: "v5.0.0" }],
+  );
+  // And with no map at all — the caller that never read the tree.
+  assert.equal(
+    engineDivergence({
+      manifest: manifest({ provenance: { [SETTINGS]: fingerprint(OTHER_MACHINE) }, merge: [SETTINGS] }),
+      installedFileMap: { [SETTINGS]: THIS_MACHINE },
+    }).length,
+    1,
+  );
+});
+
+test("engineDivergence — a Windows checkout's CRLF ancestor still matches, exactly as the digest path forgives it", () => {
+  // The same forgiveness `verifyBase` grants, and for the same reason: git rewrote the
+  // line endings, the owner did not. A second definition of "unchanged" here would put
+  // the whole Windows fleet back in the report.
+  assert.deepEqual(
+    engineDivergence({
+      manifest: manifest({ provenance: { [SETTINGS]: fingerprint(OTHER_MACHINE) }, merge: [SETTINGS] }),
+      installedFileMap: { [SETTINGS]: THIS_MACHINE.split("\n").join("\r\n") },
+      baseContentMap: { [SETTINGS]: THIS_MACHINE },
+    }),
+    [],
+  );
+});
