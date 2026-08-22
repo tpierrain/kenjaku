@@ -132,7 +132,7 @@ test("describeDrift prints the WHOLE message: the subjects, and both ways to cle
   assert.equal(
     message,
     [
-      "1 localized file(s) behind their English source:",
+      "1 localized file behind its English source:",
       "  templates/fr/.claude/skills/sync/SKILL.md is behind .claude/skills/sync/SKILL.md:",
       "    435c164 feat(sync): a universe arriving mid-session",
       "",
@@ -160,7 +160,7 @@ test("describeDrift lists every drifting pair and every commit, not just the fir
   assert.equal(
     message.split("\n").slice(0, 5).join("\n"),
     [
-      "2 localized file(s) behind their English source:",
+      "2 localized files behind their English source:",
       "  templates/fr/a.md is behind a.md:",
       "    aaa1111 one",
       "    ccc3333 three",

@@ -265,7 +265,7 @@ test("a pull that landed says HOW MANY files it changed", () => {
 
   h.run();
 
-  assert.match(h.output().systemMessage, /^📥 Repo updated — 3 file\(s\) changed \(commit d4e5f6a\)\./);
+  assert.match(h.output().systemMessage, /^📥 Repo updated — 3 files changed \(commit d4e5f6a\)\./);
 });
 
 // ─── F20: a pull that lands the ENGINE freezes this session ───────────────────

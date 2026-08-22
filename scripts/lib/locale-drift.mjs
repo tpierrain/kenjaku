@@ -18,6 +18,7 @@
 import { execFileSync } from "node:child_process";
 
 import { buildGitInvocation } from "./engine-fetch.mjs";
+import { countOf } from "./plural.mjs";
 
 // 🛑 Pinned. `%h` widens on its own as a repository grows, and the waiver map is keyed
 // on exactly what the failure message prints — so copying a sha out of the message has
@@ -110,7 +111,7 @@ export function measureLocaleDrift({ sourceFiles, waived = {}, git = defaultLog 
 // and trains them to ignore the guard.
 export function describeDrift(drifting) {
   return [
-    `${drifting.length} localized file(s) behind their English source:`,
+    `${countOf(drifting.length, "localized file")} behind ${drifting.length === 1 ? "its" : "their"} English source:`,
     ...drifting.flatMap(({ rel, sourcePath, commits }) => [
       `  ${sourcePath} is behind ${rel}:`,
       ...commits.map(({ sha, subject }) => `    ${sha} ${subject}`),

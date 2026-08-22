@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, copyFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readdirSync, rmSync, copyFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -33,12 +33,17 @@ function makeRepo() {
   const root = mkdtempSync(join(tmpdir(), "auto-commit-"));
   mkdirSync(join(root, "scripts", "lib"), { recursive: true });
   copyFileSync(REAL_SCRIPT, join(root, "scripts", "auto-commit.mjs"));
-  // The hook reads the tree through `treeState` (shared with the sweep and the
-  // engine update), so the fixture must ship that module too — a brain does.
-  copyFileSync(join(HERE, "lib", "repo-status.mjs"), join(root, "scripts", "lib", "repo-status.mjs"));
-  // …and the shared entry-point tail, for the same reason: the hook goes through
-  // runAsEntrypoint now, so a fixture without it would fail to load, not to commit.
-  copyFileSync(join(HERE, "lib", "entrypoint.mjs"), join(root, "scripts", "lib", "entrypoint.mjs"));
+  // The hook reads the tree through `treeState` and exits through `runAsEntrypoint`,
+  // so the fixture must ship those modules too — a brain does. It used to name the two
+  // it needed, one `copyFileSync` each, and that list was a hand-maintained fact about
+  // somebody else's imports: the day `repo-status.mjs` imported a third module, four
+  // tests failed with ERR_MODULE_NOT_FOUND about a file this test had never heard of.
+  // `scripts/lib/**` is ONE `replace` glob in the manifest — a brain receives the whole
+  // folder — so the fixture takes the whole folder too, and stops having a list to keep.
+  for (const file of readdirSync(join(HERE, "lib"))) {
+    if (!file.endsWith(".mjs") || file.endsWith(".test.mjs")) continue;
+    copyFileSync(join(HERE, "lib", file), join(root, "scripts", "lib", file));
+  }
   const git = (args) =>
     execFileSync("git", args, { cwd: root, encoding: "utf8" });
   git(["init", "-q"]);

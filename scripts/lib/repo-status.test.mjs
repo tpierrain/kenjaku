@@ -181,7 +181,7 @@ test("repoStatusLine: UNcommitted vault changes → ⚠️ fail-loud (the sweep 
   // holds. What's left is a git that refused the commit — and git will say why.
   assert.equal(
     line,
-    "⚠️ 2 vault note(s) NOT committed — the startup sweep could not commit them. " +
+    "⚠️ 2 vault notes NOT committed — the startup sweep could not commit them. " +
       "Your notes are ON DISK but not versioned. Commit by hand to get git's own reason: " +
       "git add -A && git commit (a missing git identity is the usual culprit)."
   );
@@ -200,10 +200,36 @@ test("repoStatusLine: an unresolved conflict asks for a HUMAN decision, never fo
   });
   assert.equal(
     line,
-    "⚠️ Sync BLOCKED by a conflict — 2 file(s) hold changes git could not merge on its own. " +
+    "⚠️ Sync BLOCKED by a conflict — 2 files hold changes git could not merge on its own. " +
       "Nothing was committed for you (that would bury the <<<<<<< markers in your notes). " +
       "Open them, keep what you want, then finish with: git rebase --continue."
   );
+});
+
+// F14's residual, closed with S11: these three lines are the ones an owner meets at
+// EVERY session start, and each was hedging over a number it was holding. One file is
+// the common case for both alarms, so the singular is the pole that matters — and the
+// agreement runs through the whole sentence, verb and pronoun included, not just the
+// noun. Asserted whole: a message that agrees in its first clause and slips in its
+// third is exactly what the half-fix produced upstream.
+test("repoStatusLine: with ONE file, every clause of both alarms agrees with itself", () => {
+  const conflict = repoStatusLine({ pullOk: false, pullOut: "error: could not apply 9f2a1c…", short: "abc1234", conflictedCount: 1 });
+  const uncommitted = repoStatusLine({ pullOk: true, pullOut: "Already up to date.", short: "abc1234", uncommittedVault: 1 });
+  const updated = repoStatusLine({ pullOk: true, pullOut: "Updating 1234abc..abc1234", short: "abc1234", changedCount: 1 });
+
+  assert.equal(
+    conflict,
+    "⚠️ Sync BLOCKED by a conflict — 1 file holds changes git could not merge on its own. " +
+      "Nothing was committed for you (that would bury the <<<<<<< markers in your notes). " +
+      "Open it, keep what you want, then finish with: git rebase --continue."
+  );
+  assert.equal(
+    uncommitted,
+    "⚠️ 1 vault note NOT committed — the startup sweep could not commit it. " +
+      "Your note is ON DISK but not versioned. Commit by hand to get git's own reason: " +
+      "git add -A && git commit (a missing git identity is the usual culprit)."
+  );
+  assert.equal(updated, "📥 Repo updated — 1 file changed (commit abc1234).");
 });
 
 test("repoStatusLine: the vault fail-loud TAKES PRIORITY over 'up to date'", () => {

@@ -26,6 +26,7 @@ import { fileURLToPath } from "node:url";
 
 import { armRestartPending } from "./lib/restart-signal.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { agreeing, countOf, itOrThem } from "./lib/plural.mjs";
 
 import {
   fetchSource as defaultFetchSource,
@@ -182,16 +183,10 @@ const retiredPreservedLine = ({ name, blockers }) => {
 // ── The two things this report was still saying like a template (F14, F15) ───
 //
 // The count is KNOWN at render time: "(s)" is the hedge of a sentence that does not know
-// what it is describing, and this one counted. Zero takes the plural, as English does.
-function countOf(n, noun) {
-  return `${n} ${noun}${n === 1 ? "" : "s"}`;
-}
-
-// ...and the pronoun that follows a count has to agree with it, or the fix above just
-// moves the tell one clause to the right.
-function itOrThem(n) {
-  return n === 1 ? "it" : "them";
-}
+// what it is describing, and every sentence here counted. `countOf` / `agreeing` /
+// `itOrThem` now live in `lib/plural.mjs`, imported above: S11 found SIX survivors of
+// F14 in this one report, three lines under a line F14 had already fixed, which is what
+// a rule re-typed in each file always ends up looking like.
 
 // A list a person would write. `join(" and ")` is right at two and wrong at three, where
 // it produced `"coach" and "sync" and "improve"` — and three is exactly the update that
@@ -449,16 +444,16 @@ export function formatReport(report) {
   // Surface newly-delivered engine skills / MCP servers (ADR 0025) — the whole point
   // of an additive update: an upgrader must SEE they finally have the feature.
   if (installedSkills.length > 0) {
-    lines.push(`   • new engine skill(s) installed: ${installedSkills.join(", ")}`);
+    lines.push(`   • new engine ${agreeing(installedSkills.length, "skill")} installed: ${installedSkills.join(", ")}`);
   }
   if (mcpServersAdded.length > 0) {
-    lines.push(`   • new MCP server(s) registered: ${mcpServersAdded.join(", ")}`);
+    lines.push(`   • new MCP ${agreeing(mcpServersAdded.length, "server")} registered: ${mcpServersAdded.join(", ")}`);
   }
   // Increment 2.5: an engine skill the owner never touched was brought up to date.
-  // Distinct from "new engine skill(s) installed" above — the skill was already
+  // Distinct from "new engine skill installed" above — the skill was already
   // there, so the news is that it MOVED ON, not that it appeared.
   if (skillsRefreshed.length > 0) {
-    lines.push(`   • engine skill(s) brought up to date: ${skillsRefreshed.join(", ")}`);
+    lines.push(`   • engine ${agreeing(skillsRefreshed.length, "skill")} brought up to date: ${skillsRefreshed.join(", ")}`);
   }
   // S6c — and the mirror of that news: a skill that is GONE. It sits with the other
   // skill events and before the merged/preserved family lines, because an owner reading
@@ -466,7 +461,7 @@ export function formatReport(report) {
   if (skillsRetired.length > 0) {
     const many = skillsRetired.length > 1;
     lines.push(
-      `   • engine skill(s) retired: ${skillsRetired.join(", ")} — no longer shipped, and` +
+      `   • engine ${agreeing(skillsRetired.length, "skill")} retired: ${skillsRetired.join(", ")} — no longer shipped, and` +
         ` ${many ? "your copies held" : "your copy held"} none of your own edits, so` +
         ` ${many ? "they were" : "it was"} removed`,
     );
@@ -539,10 +534,10 @@ export function formatReport(report) {
     );
   }
   if (wiredHooks.length > 0) {
-    lines.push(`   • new runtime hook(s) wired: ${wiredHooks.join(", ")}`);
+    lines.push(`   • new runtime ${agreeing(wiredHooks.length, "hook")} wired: ${wiredHooks.join(", ")}`);
   }
   if (healedHooks.length > 0) {
-    lines.push(`   • repaired Windows hook command(s) (issue #31 — 'laude' error): ${healedHooks.join(", ")}`);
+    lines.push(`   • repaired Windows hook ${agreeing(healedHooks.length, "command")} (issue #31 — 'laude' error): ${healedHooks.join(", ")}`);
   }
   // ADR 0036: we stopped occupying the terminal's status line. Said as what the owner
   // GAINS — the next terminal session shows THEIR line again, where ours used to be —

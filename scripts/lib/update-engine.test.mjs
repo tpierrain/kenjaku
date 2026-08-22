@@ -924,10 +924,10 @@ test("formatReport — an everything-on update prints every optional line, in or
       "   • 2 engine files swapped + launchers regenerated",
       "   • reindexed — the index format changed (your notes were re-encoded, nothing lost)",
       "   • your vault holds 2 notes — searchable as the reindex finishes",
-      "   • new engine skill(s) installed: local-mirror, coach",
-      "   • new MCP server(s) registered: local-mirror, vault-rag",
-      "   • engine skill(s) brought up to date: switch, coach",
-      "   • engine skill(s) retired: tdd-discipline, old-sync — no longer shipped, and your copies held none of your own edits, so they were removed",
+      "   • new engine skills installed: local-mirror, coach",
+      "   • new MCP servers registered: local-mirror, vault-rag",
+      "   • engine skills brought up to date: switch, coach",
+      "   • engine skills retired: tdd-discipline, old-sync — no longer shipped, and your copies held none of your own edits, so they were removed",
       '   • the "hand-tuned" skill is retired — the engine no longer ships it, and you had changed it (.claude/skills/hand-tuned/SKILL.md), so your copy was left exactly as you wrote it',
       '   • the "no-record" skill is retired — the engine no longer ships it, but this brain has no record of what it delivered there, so your copy was left exactly as it is',
       '   • your "sync" and "improve" skills kept your edits AND received this update',
@@ -944,8 +944,8 @@ test("formatReport — an everything-on update prints every optional line, in or
       // ORDER of it is pinned — indented under the clash it belongs to, and before the
       // hooks/capabilities news, so the offer sits with the thing it is offering about.
       "     Nothing is urgent, and nothing changes until you say so: ask me to walk you through it, and I'll show you in plain words what each side changed.",
-      "   • new runtime hook(s) wired: session-health, session-self-heal",
-      "   • repaired Windows hook command(s) (issue #31 — 'laude' error): auto-push, statusLine",
+      "   • new runtime hooks wired: session-health, session-self-heal",
+      "   • repaired Windows hook commands (issue #31 — 'laude' error): auto-push, statusLine",
       "   ⚠️ ACTION NEEDED — 6 new capabilities are installed on disk but NOT active in THIS conversation.",
       "   A FULL RESTART of Claude (close it and reopen) is enough: come back to THIS same",
       "   conversation afterwards and your brain can use them. You do NOT need to start a",
@@ -1029,7 +1029,7 @@ test("formatReport — exactly one new capability reads in the singular, byte fo
       "✅ Engine updated to v3.6.2 (rag 1.1.4).",
       "   • 0 engine files swapped",
       "   • index format unchanged — no reindex needed",
-      "   • new engine skill(s) installed: local-mirror",
+      "   • new engine skill installed: local-mirror",
       "   ⚠️ ACTION NEEDED — 1 new capability is installed on disk but NOT active in THIS conversation.",
       "   A FULL RESTART of Claude (close it and reopen) is enough: come back to THIS same",
       "   conversation afterwards and your brain can use it. You do NOT need to start a",
@@ -2916,7 +2916,7 @@ test("formatReport — a removed skill says what went and why it was safe to go"
   const out = formatReport({ ref: "v5.0.0", engineVersion: { rag: "1.1.4" }, copied: [], skillsRetired: ["tdd-discipline"] });
   assert.ok(
     out.includes(
-      '   • engine skill(s) retired: tdd-discipline — no longer shipped, and your copy held none of your own edits, so it was removed',
+      '   • engine skill retired: tdd-discipline — no longer shipped, and your copy held none of your own edits, so it was removed',
     ),
     out,
   );
@@ -2931,7 +2931,7 @@ test("formatReport — two removed skills are named together, and the sentence a
   });
   assert.ok(
     out.includes(
-      '   • engine skill(s) retired: tdd-discipline, old-sync — no longer shipped, and your copies held none of your own edits, so they were removed',
+      '   • engine skills retired: tdd-discipline, old-sync — no longer shipped, and your copies held none of your own edits, so they were removed',
     ),
     out,
   );
@@ -3023,7 +3023,7 @@ test("updateEngine — a retired skill is removed on a real update, and the remo
   assert.deepEqual(report.skillsRetirePreserved, []);
   assert.equal(existsSync(join(brainDir, ".claude/skills/tdd-discipline")), false, "gone from the brain");
   // ...and the sentence the owner actually reads, from that same report.
-  assert.ok(formatReport(report).includes("engine skill(s) retired: tdd-discipline"), formatReport(report));
+  assert.ok(formatReport(report).includes("engine skill retired: tdd-discipline"), formatReport(report));
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
