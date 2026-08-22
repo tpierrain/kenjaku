@@ -18,6 +18,10 @@ checkbox protocol + a **Findings** section; the fixes it triggers live as action
 ## Index
 
 - [`qa-v3.2.0.md`](qa-v3.2.0.md) — post-v3.2.0 release campaign (upgrade path from a v3.1.0 brain).
+- [`field-rehearsal/`](field-rehearsal/README.md) — **run before every release that changes the
+  update path.** One command per brain: it drives the release with the engine that brain *already
+  has*, which is the one thing the automated suites structurally cannot observe (they all call
+  HEAD's code). It is what caught the v5 first-update defect.
 
 ## `_private/` (gitignored)
 
