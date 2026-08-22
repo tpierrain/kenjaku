@@ -71,6 +71,21 @@ Decided with Thomas 2026-07-18, extended 2026-07-19 (universes). When juggling p
 `1.0.0`, so no constitution re-layering is forced. Deferral stays safe because **nothing forces** the
 fleet's upgrade in the interim.
 
+> ⚠️ **BOTH HALVES OF THAT ARGUMENT HAVE EXPIRED** _(noted 2026-08-22, found by the `plan-carrier-guard`
+> hook)_. **The number was never re-read**: `constitutionTemplate` left `1.0.0` at **v4.5.0** and reads
+> `1.3.0` today, having moved again at v4.6.0 and v4.8.0. And the premise underneath it is what the
+> unfreeze release exists to end: `CLAUDE.engine.md` **joins the `merge` regime**, so from v5.0.0 a
+> deployed brain *does* receive doctrine — *"nothing forces the fleet's upgrade"* stops being the
+> reason 🔴 is safe. **This paragraph has been patched around twice without being re-read** (the
+> `replace`-regime correction sits ten lines above it, the `indexSchemaVersion` correction just below),
+> which is how a rationale outlives every fact it rests on.
+>
+> 🚫 **Deliberately NOT rewritten here**: whether 🔴 stays deferred once brains receive again is a scope
+> call, and it is the owner's. What is fixed is the *reason* on offer, which was false. The release's
+> own state lives in
+> [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md);
+> this note keeps no copy of it.
+
 > ✅ **Closed (2026-07-28 · `a3943e9`).** For a while this paragraph's claim that `update-engine`
 > "handles the `indexSchemaVersion` 1 → 2 bump with a warning" was false: the universes commit moved the
 > engine constant to `2` but never bumped the manifest, and that manifest pair is what
@@ -206,6 +221,12 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
 > Determinism note (once green exists): consider a lightweight guard that fails loud if a release
 > bumps `constitutionTemplate` before green has shipped — turning this ordering invariant into an
 > enforced gate rather than a written one (ADR 0009 spirit).
+>
+> ✅ **The invariant is SATISFIED, checked 2026-08-22 rather than assumed.** Green shipped on
+> **2026-07-18** (Gate 1, `f998259`, PR #37 → `fc3b943`), so a release may bump `constitutionTemplate`.
+> Checked because v5.0.0's derived vector does exactly that (`1.3.0 → 1.4.0`), and this line is the
+> only place the ordering rule is written down. **The guard it proposes was never built** — the
+> invariant is still held by prose, which is why it had to be re-read by hand to clear a bump.
 
 ---
 
