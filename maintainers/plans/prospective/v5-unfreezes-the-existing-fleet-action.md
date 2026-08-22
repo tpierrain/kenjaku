@@ -237,13 +237,30 @@
 >
 > **The pre-flight sweep — everything green, and two findings that are not red but are ORDER:**
 >
-> - [x] Full suite **2 337 tests, 2 334 pass, 0 fail, 3 skipped** — and the three skips were checked,
->       not assumed: all Windows-only (`cmd.exe` cannot parse a batch file on macOS).
+> ⏱️ **RE-RUN 2026-08-22 after the doctrine cargo landed** _(4 commits into `CLAUDE.engine.md`, both
+> locales, the fingerprint table regenerated each time)_. **A pre-flight recorded once and never
+> re-run is a copy of state** — the defect this release exists against — so the numbers below are a
+> **timestamp, not a guarantee**, and the sweep is owed again at the cut. Superseded figures are kept
+> beside the current ones rather than overwritten, so the drift is legible.
+>
+> - [x] Full suite **2 423 tests, 2 420 pass, 0 fail, 3 skipped** _(was 2 337/2 334 at S9-2a)_ — and the
+>       three skips were checked, not assumed: all Windows-only (`cmd.exe` cannot parse a batch file on
+>       macOS).
 > - [x] The four release guards run clean on their own: **69 pass / 0 fail** across the fingerprint
 >       table, `locale-drift`, manifest integrity and entry-point discipline. So the table IS current at
 >       v5.0.0, the FR pairs ARE paired, every script a skill names IS carried and tracked.
-> - [x] Branch vs `main`: **248 ahead, 0 behind**, and `git merge-tree` finds **no conflict**. No
->       rebase is owed.
+>       🧭 **The count did not move, and that is right rather than suspicious**: those guards assert
+>       *cases* (every merge file covered, every FR pair paired), not one case per edit — four more
+>       edits to two already-covered files add no case. What would have moved it is a NEW file.
+> - [x] **The table's shape, checked rather than trusted**: `generatedAt v5.0.0`, **15 files, 82
+>       byte-states, 9 of them at v5.0.0**. The four doctrine commits each regenerated it, and the S7-2
+>       freshness guard went red first on every one of them — the net fired four times out of four.
+> - [x] Branch vs `main`: **259 ahead, 0 behind** _(was 248)_, and `git merge-tree` finds **no
+>       conflict**. No rebase is owed. Against **#76's own base** (`chore/s0bis-entrypoint-mutation-debt`):
+>       **205 commits, 165 files, +25 658 / −1 542**.
+> - [x] **`indexSchemaVersion` is still `2`**, unchanged since v4.9.1 — which is what makes the release
+>       note's *"nothing is re-read and nothing is re-encoded"* true. Checked, because that sentence is
+>       a promise to every deployed brain.
 > - [ ] 🛑 **THE MERGE ORDER IS UNSETTLED, and it is the one thing that would stall a cut.** #76's base
 >       is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is still OPEN**. Either #75 lands
 >       first, or #76 is retargeted to `main`. Deliberate when it was set up (so #75 kept its S0bis

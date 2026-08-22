@@ -465,6 +465,37 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ⏱️ **2026-08-22 (pre-flight, re-run) — the sweep that certifies a cut is itself a copy of state, and
+  it had drifted.** S9-2a's pre-flight was recorded on 2026-08-21 and read as a standing fact; nine
+  commits later every number in it was wrong. Re-run in full, **all green**: suite **2 423 / 2 420 pass
+  / 0 fail / 3 skipped**, the four release guards **69 / 69**, branch **259 ahead of `main`, 0 behind**,
+  `git merge-tree` finds no conflict.
+
+  > 🧭 **The rule this earns: a pre-flight is a TIMESTAMP, not a guarantee**, and it is owed again at
+  > the cut. Superseded figures are now kept beside the current ones instead of being overwritten, so
+  > the drift is legible rather than erased — the same treatment the PR body got after going stale
+  > twice.
+
+  🔍 **Two things checked rather than assumed, because both are promises to deployed brains:**
+  `indexSchemaVersion` is **still `2`**, which is what makes the note's *"nothing is re-read and nothing
+  is re-encoded"* true; and the fingerprint table reads `generatedAt v5.0.0`, **15 files, 82
+  byte-states, 9 at v5.0.0** — the S7-2 freshness guard went red first on **all four** doctrine commits,
+  so the net fired four times out of four.
+
+  🧮 **A count that did NOT move, and that is right rather than suspicious**: the four release guards
+  still total 69. They assert *cases* (every merge file covered, every FR pair paired), not one case per
+  edit, so four more edits to two already-covered files add none. What would move it is a NEW file.
+  Worth writing down, because an unchanged number after a busy branch reads like a guard that stopped
+  running.
+
+  **Three stale figures repaired in the release artifacts** (suite count in both, and the heal's
+  byte-state count `81 → 82` in each), while the three historical *"79 → 81"* lines were left alone:
+  they record what a given slice did at the time, and rewriting history to match the present is how a
+  record becomes a lie. Doc-only slice: no new tests, no mutation pass.
+
+  **Next**: unchanged — S9-2b is his, and starting `harness-universe-blindspot-hardening`'s M1 is a
+  scope call.
+
 - 🗂️ **2026-08-22 (the map's blind spot) — a delegation to a carrier that has since been EMPTIED.**
   With the release cargo complete, the loop did what the previous entry promised: open the other plans
   instead of trusting their rows. **Nine of the eighteen prospective plans are named nowhere in the

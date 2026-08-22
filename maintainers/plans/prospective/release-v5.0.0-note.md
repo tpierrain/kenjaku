@@ -105,7 +105,7 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
   successor named beside it** — this release retires `tdd-discipline` and installs
   `test-first-discipline`. A tailored version of a retired skill is kept, never deleted.
 - **The heal**: a brain proves its own installed bytes by membership in a table of every byte-state
-  the engine ever published (81 of them at this release). A file that matches one has, by definition,
+  the engine ever published (82 of them at this release). A file that matches one has, by definition,
   never been edited — so a brain with no recorded proof recovers one and stops being frozen.
 - **The ancestor fetch**: when a file's digest is recorded but its bytes are not, the engine fetches
   that exact version from the published tag the digest names, so a genuinely edited file can be
@@ -151,7 +151,7 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
 
 **Quality**
 
-- Full suite green: **2 337 tests, 2 334 passing, 3 skipped, none failing**. Mutation is measured per
+- Full suite green: **2 423 tests, 2 420 passing, 3 skipped, none failing**. Mutation is measured per
   block and scoped to the change, with
   every survivor either killed or documented as equivalent — figures in `maintainers/mutation/RESULTS.md`.
 - The release's acceptance test runs against **brains rebuilt from real published tags** (`v3.2.2`,
