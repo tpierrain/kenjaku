@@ -233,6 +233,32 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
 > part of this fleet-upgrade ordering** and are tracked by their own plans + memory pointers; they
 > are listed here only if/when they gain a cross-plan dependency.
 
+### 🗂️ Off-ordering, but alive — the plans the map above deliberately does not order
+
+**Why this list exists** _(2026-08-22)_. The clause immediately above is right that these are not part
+of the fleet-upgrade ordering. Its second carrier, though, **is empty**: `MEMORY.md` is size-bounded
+and gets pruned as chantiers ship, so *"tracked by their own plans + memory pointers"* now delegates to
+pointers that no longer exist. Measured: **no memory entry names any plan below**, and
+`restore-affordance-graduated-autonomy-action.md` still opens with *"North-star, always-loaded pointer:
+memory `brain-graduated-autonomy-affordance`"* — **an entry that is gone**. Net result: two entirely
+unstarted action plans, with concrete unblocked work, were named by **nothing a pickup reads**.
+
+**Not promoted to map rows on purpose** — they have no cross-plan dependency, and inventing one would
+corrupt the ordering this file exists to protect. What they needed was to be *nameable*, not ordered.
+**And deliberately not put back into memory either**: `rules/plans.md` forbids state there, and every
+surplus line spends the budget the critical instructions need. A repo file is the right carrier.
+
+| Plan (canonical) | What it is | Status |
+| --- | --- | --- |
+| `prospective/harness-universe-blindspot-hardening-action.md` | The answer to *"why did universes break six components that every green suite missed?"* — a non-default fixture everywhere, one vault-path seam, a cross-cutting-contract gate. | 🔴 **UNSTARTED, 4 open boxes.** M1 (non-default fixture) is mechanical and needs no arbitration; M2 needs an ADR. |
+| `prospective/restore-affordance-graduated-autonomy-action.md` | Restore *"things happen on their own"* after `/lint` + `/consolidate` turned the brain into a wall of jargon-laden prompts. | 🔴 **UNSTARTED.** Step 1 is *"agree the model (ADR)"* — a design call, the owner's, so nothing below it starts. ⚠️ Its header's memory pointer is dead; see above. |
+| `prospective/wiki-health-axis1-mechanisms-action.md` | `/lint`, `/file-back`, `/consolidate`, contradiction flagging, the activity ledger, the SessionStart trigger. | 🟢 **Tracks A→F SHIPPED** (2026-07-17/18), proven on the real 405-note vault. Remaining: cross-cutting retrieval measurement + the formal private import, both owner-side. |
+| `prospective/rag-embedder-plan-action.md` | Swappable 3-adapter embedder + adaptive install. | ✅ **Core DELIVERED and in production since 2026-06-09.** Steps 6-7 are *conditional* on a quality ceiling that was never observed — parked, **not pending**. |
+| `prospective/post-v3.1.0-ux-backlog.md` | Captured UX ideas, explicitly **not committed work**. Promote one to an `*-action.md` when it is picked up. | 💡 Backlog. Promotion is a scope call. |
+| `prospective/background-consolidation-mode-study.md` | Design study: the RAG's process shape, a "pulse" projection, keeping the brain fresh without making the owner wait. | 🔬 Study. No code, no branch; the action plan comes after the measurement it names. |
+| `prospective/etude-rag-local-criteres-et-veille.md` | Watch note: offering a range of RAG alternatives per person's constraints. | 🔬 Study / watch. Nothing decided. |
+| `prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md` | The runtime-graph question. | ⏸️ **WATCH, deferred by the owner to AFTER the unfreeze release** — a study to do *with* him, not work to pick up. |
+
 ### Incoming (standing inbox)
 
 Work born **outside** this repo — field reports from deployed brains, ideas, defects — lands as

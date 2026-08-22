@@ -465,6 +465,40 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🗂️ **2026-08-22 (the map's blind spot) — a delegation to a carrier that has since been EMPTIED.**
+  With the release cargo complete, the loop did what the previous entry promised: open the other plans
+  instead of trusting their rows. **Nine of the eighteen prospective plans are named nowhere in the
+  ROADMAP's map.** Two of those are release artifacts the v5 plan owns, legitimately. The other seven
+  are covered by a clause the map already carries — *"other in-flight plans … are tracked by their own
+  plans + memory pointers"* — **and that clause is half true**: `MEMORY.md` is size-bounded and pruned
+  as chantiers ship, so the second carrier has been emptied. **No memory entry names any of the seven**,
+  and `restore-affordance-graduated-autonomy-action.md` still opened with *"North-star, always-loaded
+  pointer: memory `brain-graduated-autonomy-affordance`"* — an entry that is gone.
+
+  > 🧭 **The lesson, and it is the night's shape a third time: a rule that was true when written and is
+  > false now.** #61 was inconsistent with a rule elsewhere, #67 stated a local premise as universal,
+  > #64 had no number — and this one **named a real carrier that a later, CORRECT decision emptied**.
+  > The pruning rule is right; the delegation to it was never revisited. **Two mechanisms that are each
+  > individually correct can compose into a gap, and nothing goes red when they do** — which is exactly
+  > why the plan-carrier hook judges no content and only names carriers.
+
+  **What shipped**: a *§ Off-ordering, but alive* table in the ROADMAP naming all eight off-ordering
+  plans with one line and a real status each, and the dead pointer replaced in the plan that carried it.
+  **Deliberately NOT map rows** — they have no cross-plan dependency, and inventing one corrupts the
+  ordering the file exists to protect; what they needed was to be *nameable*, not ordered. **And
+  deliberately not put back into memory**: `rules/plans.md` forbids state there, and every surplus line
+  spends the budget the critical instructions need.
+
+  🔴 **What the pass surfaced, and it is not this loop's to take**: two of the seven are **entirely
+  unstarted action plans with concrete work** — `harness-universe-blindspot-hardening-action.md` (4 open
+  boxes; M1, a non-default fixture everywhere, is mechanical and needs no arbitration) and
+  `restore-affordance-graduated-autonomy-action.md` (step 1 is *"agree the model (ADR)"*, a design call).
+  **Starting either is a scope arbitration**, which the mode's own rules put with the owner. Doc-only
+  slice: no tests, no mutation pass.
+
+  **Next**: nothing the loop may take alone. The release waits on S9-2b; the two plans above wait on a
+  scope call.
+
 - 📏 **2026-08-22 (doctrine cargo 3/3, #64's rule half) — THE CARGO IS COMPLETE, and the finding is
   that the guidance was never missing.** `8ff14cf`. Auto-compaction fired far early in a real session;
   the trigger was a huge skill injected mid-turn to source three figures, on a context already full of
