@@ -413,6 +413,12 @@
 >       a real one. The premise is now **measured in the same job** (`git ls-files --eol` must report
 >       `w/crlf`) and fails loudly naming the vacuity. **A proof carries its premise, or it is not one.**
 >
+> ▶️ **WHAT THIS ITERATION LEAVES OWING, and it is one read**: the premise guard **has not run yet**.
+> It went up with `9b5fbec`; the `Installer e2e · windows-latest` job that carries it must be read
+> before W2's proof is called closed — **a guard nobody has watched run is a guard on paper**, which is
+> the exact failure it was written against. The next iteration opens on that read, as this one opened
+> on W2's. → § *W6*, whose W2 bullet holds the checkbox.
+>
 > **Both of W2's opening reads were DONE** _(2026-08-22, run `32558912124`, the full PR matrix on
 > `621d1cb`)_:
 >
@@ -465,7 +471,8 @@
 >             LF — the copy path holds on Windows"**, plus the positive control *"run-node.cmd is still
 >             CRLF"*. The floor on the count is what makes 316 mean something rather than *"found
 >             nothing to look at"*.
->             - [x] **Its premise is now measured too, not asserted in a comment** _(`9b5fbec`)_ —
+>             - [ ] ▶️ **Its premise is now measured too, not asserted in a comment — BUT THAT STEP HAS
+>                   NOT RUN YET** _(`9b5fbec`)_ —
 >                   `git ls-files --eol` must report `w/crlf` in that same job, or the step fails
 >                   naming the vacuity. Without it, a runner image that flips `core.autocrlf` turns the
 >                   whole proof into a no-op that still reports green.
