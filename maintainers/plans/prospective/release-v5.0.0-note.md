@@ -96,6 +96,12 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
   confirmation, which is what stops a brain from drifting silently between updates.
 - **An audible divergence**: the standing report of which engine files a brain is holding back, and
   since which engine version each of them last received bytes.
+- **Your brain's list of what the engine manages now moves with the engine.** Until this release a
+  brain kept, for its whole life, the list it was installed with. A family the engine only started
+  managing later was offered during an update and then invisible to everything between two updates,
+  and a skill the engine had retired went on being treated as engine-managed. An update now brings
+  that list up to date. It is also what widens the write guard: it reads the same list, so it will ask
+  about files it used to let through, and stop asking about the ones the engine no longer ships.
 - **The doctrine layer joins a regime**: `CLAUDE.engine.md` is delivered like everything else, while
   the owner's own `CLAUDE.md` stays off the copy path entirely.
 - **Subtractive delivery**: a skill the engine no longer ships is retired **by name, with its
@@ -141,10 +147,11 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
   file is left exactly as the owner wrote it, and the marked-up merge sits beside it for a walkthrough
   rather than being installed.
 - The ancestor fetch needs the network and a tag that still exists. Neither is assumed.
-- A brain keeps its **install-day list of which files the engine manages**, so one family declared
-  only from v4 on — the engine half of the constitution — is offered during an update but not named by
-  the between-updates banner on a pre-v4 brain. Known, measured, and its fix is an owner decision
-  recorded in the plan.
+- Updating **widens what your brain asks you about**, and that is the intended effect of the list
+  advancing (see *What was built*). The families the engine manages have grown since the older
+  releases, so on an old brain the write guard will start asking before an ordinary edit touches a file
+  it used to let through — the engine half of the constitution, most of all. Nothing is written without
+  you; the change is in how often you are asked, and it settles as soon as your brain is up to date.
 
 **Quality**
 

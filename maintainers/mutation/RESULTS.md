@@ -233,6 +233,34 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## W3 — the regime list advances, and the survivors were all the absent case — 2026-08-22
+
+`df09f17` (the slice) + `ea85b07` (the survivors' test). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-source.mjs` (`advanceRegimes`, :134-135) | 89.47 % — 8 survived, **4 of them mine** | **94.74 %** | **0 on the changed lines** |
+| `scripts/update-engine.mjs:686-690` (the step-7 wiring) | **100 %** — 1 killed | — | 0 |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-source.mjs` and
+`node maintainers/mutation/mutate-one.mjs "scripts/update-engine.mjs:686-690"`.
+
+🧭 **ALL FOUR OF MY SURVIVORS WERE THE SAME MISSING CASE**: `target?.` → `target.` and `local?.` →
+`local.`, on both fields. Every existing pole passed `{}` for each side, which never dereferences
+nothing. Killed by **feeding the absent case**, not by an assertion reverse-engineered from the code —
+and the case is real: `advanceRegimes` runs at step 7, *after* the reconcile has converged the files on
+disk, so a throw there does not lose the regimes, it aborts the manifest write and leaves a brain whose
+**files are at HEAD and whose manifest is at install day**. Nothing downstream expects that pair.
+
+⚠️ **The four survivors LEFT are pre-existing and named, not silently inherited**: two
+`ArrayDeclaration` mutants on `selectMergeFiles`' empty-list defaults (`:34-35`) and two `StringLiteral`
+mutants on `readFileSync(…, "utf8")` (`:147`, `:151`). Out of this change's scope, recorded so the next
+pass does not re-discover them as new.
+
+---
+
 ## W2 — pinning the delivery, and six survivors that asked for LESS code — 2026-08-22
 
 `dd08024` (the slice) + `a5b8c2a` (the simplification) + the boundary test. State owned by

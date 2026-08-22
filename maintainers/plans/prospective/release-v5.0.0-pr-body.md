@@ -272,12 +272,14 @@ inverted rather than deleted.
    - ✅ **What the release note owes here is now NOTHING.** The honest line this section used to
      demand — *on Windows, a file edited before this release is preserved with its `.new` sidecar
      rather than merged* — **is no longer true and must not be written.**
-2. **One arbitration, written at the top of the plan.** A brain keeps its **install-day list of which
-   files the engine manages**, forever — an update never advances `regimes`. Consequence, measured: the
-   engine half of the constitution, a `merge` family only v4+ declares, is offered *during* an update on
-   a pre-v4 brain but never named by the between-updates banner. Three ways out are written down with a
-   recommendation; it changes what an update may write on every deployed brain, so it is not the loop's
-   call.
+2. ✅ **That arbitration is ANSWERED and BUILT** _(2026-08-22 · `df09f17` + `ea85b07`)_. It read: a
+   brain keeps its **install-day list of which files the engine manages**, forever — an update never
+   advances `regimes` — so the engine half of the constitution, a `merge` family only v4+ declares, was
+   offered *during* an update on a pre-v4 brain and never named by the between-updates banner. The
+   owner took option (a): **step 7 now advances `regimes` and `retired` to the engine's**, with the
+   condition he attached — the **write guard's widening is stated in the release note**, because it
+   reads the same list and will start asking about files it used to let through. Scoped mutation 100 %
+   on the changed lines. The plan owns the detail; this item is closed, not summarised.
 3. **The merge order.** This PR's base is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is
    still open**. Either #75 lands first, or this PR is retargeted to `main` — the branch is 0 behind
    `main` and `git merge-tree` reports no conflict (the ahead-count is stamped at the top of this body,

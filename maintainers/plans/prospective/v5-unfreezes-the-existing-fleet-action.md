@@ -354,10 +354,28 @@
 > **Three ways out, and it is not my call because it changes what an update MAY WRITE on every
 > deployed brain** (the write guard reads the very same list):
 >
-> - [ ] **(a) Advance `regimes` (and `retired`) to the target's at step 7.** One line. It aligns the
->       record with what the update just did — the reconcile already decides everything from `target`.
->       Widens the write guard's allowlist to whatever the new engine declares, which is the point and
->       also the risk.
+> - [x] ✅ **(a) Advance `regimes` (and `retired`) to the target's at step 7. CHOSEN AND BUILT**
+>       _(2026-08-22 · `df09f17` + `ea85b07`, W3)_. It aligns the record with what the update just did —
+>       the reconcile already decides everything from `target`. Widens the write guard's allowlist to
+>       whatever the new engine declares, which is the point and also the risk, **and the release note
+>       now says so out loud** — twice: once as what was built, once under *honest limits*, because the
+>       owner of an old brain will feel it as "it started asking me about files it used to let through".
+>       - 🛑 **"One line" was right about the change and wrong about the SHAPE.** It is one line at the
+>         call site, and the thing it calls has to exist: the result is **spread** over the manifest,
+>         where an `undefined` value does not defer to what `{...local}` put there — it overwrites it,
+>         and `JSON.stringify` then drops the key. An engine that shipped without declaring its regimes
+>         would leave every updated brain with **no regime list at all**, and the write guard recognises
+>         no engine file without one. Hence `advanceRegimes`, its `??` fallback, and a test that names
+>         that failure rather than the happy path.
+>       - 📐 **What the v3.6.0 fixture proves, and neither half is hypothetical**: the doctrine family
+>         arrives, and `.claude/skills/tdd-discipline/**` — which v3.6.0 lists under `merge`, knowing no
+>         `retired` key at all — is **finally recognised as retired**, so the brain stops seeding a base
+>         for a skill nobody ships.
+>       - ⚠️ **`engineMcpServers` is NOT advanced, and that is deliberate**: answer 4 named `regimes`
+>         and `retired`. `session-self-heal.mjs` derives its wanted servers from the delivered
+>         `.mcp.json.template` and is unaffected — its comment, which said "update-engine never
+>         refreshes those", is now corrected to say which half stopped being true. Widening it further
+>         would be a new decision, not this one.
 > - [ ] **(b) Leave the manifest alone, and have the standing readers use the ENGINE's own regimes.**
 >       A brain's `scripts/lib/**` is at HEAD after an update, so the engine can read its own list. No
 >       migration, but two sources of truth for one fact.
@@ -376,13 +394,24 @@
 > 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
 > **proved green on a real `windows-latest` runner** (run `32558375080`).
 >
-> 🧭 **RESUME AT W3** _(2026-08-22, after W2 landed)_ — advance `regimes` and `retired` to the target's
-> at step 7 of the update, **plus the honest line in the release note** about the write guard widening.
-> The note clause was part of the recommendation Thomas took, so W3 is not done without it.
+> 🧭 **RESUME AT W4** _(2026-08-22, after W3 landed)_ — and W4 is now a **RE-READ, not a write**: W3
+> wrote the only line the note still owed. Read `release-v5.0.0-note.md` end to end against what W1,
+> W2 and W3 actually shipped, fix whatever no longer matches, and if nothing does, say so in one line
+> and tick it. **One thing is already known to have needed it**: the note's *honest limits* carried
+> *"a brain keeps its install-day list of which files the engine manages"* — W3 made that sentence
+> false, and it was replaced by the widening rather than left standing beside the fix.
 >
-> **What W2 left owing, and it is a read rather than a build:** the `windows-latest` installer e2e now
-> asserts the delivered brain is LF. **That step has never run.** Read it — a macOS pass cannot give
-> that proof, by construction. → § *W2*.
+> ✅ **W2's Windows proof is IN, read not predicted** _(2026-08-22, run `32560532878` on `dacbf59`,
+> job `Installer e2e · windows-latest`)_: **"316 delivered text files are LF — the copy path holds on
+> Windows"**, and the positive control with it, *"run-node.cmd is still CRLF"*. The count floor did
+> its job: 316 is not "found nothing to look at".
+>
+> - [x] 🛑 **And the proof was missing its own PREMISE, which is W1's lesson one level up** _(`9b5fbec`)_.
+>       The step's green only means something if **that checkout is CRLF** — written as a *comment*
+>       above the step, i.e. reasoning. Flip `core.autocrlf` on a future runner image and every
+>       assertion keeps passing while the normalisation is a no-op: a vacuous green looks exactly like
+>       a real one. The premise is now **measured in the same job** (`git ls-files --eol` must report
+>       `w/crlf`) and fails loudly naming the vacuity. **A proof carries its premise, or it is not one.**
 >
 > **Both of W2's opening reads were DONE** _(2026-08-22, run `32558912124`, the full PR matrix on
 > `621d1cb`)_:
@@ -431,22 +460,41 @@
 >             into a temp dir delivered **247 engine files with zero CR**, the PNG **byte-identical**,
 >             and the generated `run-node.cmd` still CRLF — that one is written by `buildNodeRunnerCmd`
 >             and never copied, which is precisely why the copy loop must not be what protects it.
->       - [ ] 🪟 **Its Windows proof is W6's, and a macOS run CANNOT give it**: this checkout is already
->             LF, so the normalisation is a no-op here and any assertion passes while measuring nothing.
->             A step was added to the **`windows-latest` installer e2e** — every delivered `.mjs` and
->             `CLAUDE.engine.md` must be LF, with a **positive control** (`run-node.cmd` must still be
->             CRLF) and a floor on the file count so a green cannot mean *"found nothing to look at"*.
->             **Read that run.**
+>       - [x] ✅ 🪟 **Its Windows proof is IN, and a macOS run could not have given it** _(2026-08-22,
+>             run `32560532878`, job `Installer e2e · windows-latest`)_: **"316 delivered text files are
+>             LF — the copy path holds on Windows"**, plus the positive control *"run-node.cmd is still
+>             CRLF"*. The floor on the count is what makes 316 mean something rather than *"found
+>             nothing to look at"*.
+>             - [x] **Its premise is now measured too, not asserted in a comment** _(`9b5fbec`)_ —
+>                   `git ls-files --eol` must report `w/crlf` in that same job, or the step fails
+>                   naming the vacuity. Without it, a runner image that flips `core.autocrlf` turns the
+>                   whole proof into a no-op that still reports green.
 >       - 🧪 **No mutation on `installer.mjs`'s five wiring lines, and the skip is stated**: it sits
 >             **outside `scripts/`**, which `mutate-one.mjs` refuses by construction — a pre-existing
 >             structural limit, not a choice made here. What it wires is pure and measured; what it does
 >             is covered by running the installer, which is what the entry-point rule asks for anyway.
-> - [ ] **W3 — regimes → (a) (answer 4).** Advance `regimes` and `retired` to the target's at step 7 of
->       the update, **plus the honest line in the release note** about the write guard's widening. The
->       note clause was part of the recommendation he took, so the slice is not done without it.
->       → § *THOMAS'S CALL — a brain keeps its INSTALL-DAY regime list*.
+> - [x] ✅ **W3 — regimes → (a) (answer 4). BUILT, note clause included** _(2026-08-22 · `df09f17`
+>       the change + `ea85b07` the survivor's test)_. Test-first: four unit poles red on their own
+>       assertions behind an explicit stub, then the outside-in pole on the real v3.6.0 fixture red on
+>       `deepEqual(regimes)`. Suite **2 474 / 0 fail / 3 skipped**. Scoped mutation **100 % on the
+>       changed lines** — `engine-source.mjs` 89.47 % → **94.74 %** with all four survivors on
+>       `advanceRegimes` killed, and `update-engine.mjs:686-690` **100 %**; the four survivors left in
+>       the file are pre-existing and named. → § *THOMAS'S CALL — a brain keeps its INSTALL-DAY regime
+>       list*, whose option (a) box now carries what the build changed about it.
+>       - [x] **The note clause is written, and it replaced a lie rather than being added beside one.**
+>             The note's *honest limits* still said *"a brain keeps its install-day list of which files
+>             the engine manages"* — **W3 made that sentence false**, so the bullet became the widening
+>             itself: after updating, the write guard asks about files it used to let through. The
+>             *what was built* half states the advance in the owner's terms.
+>       - [x] **The QA harness calls `advanceRegimes` instead of mirroring step 7.** Its comment used
+>             to explain that it kept the install-day list **because the engine did** — a fidelity the
+>             QA depended on. It must reproduce the field, not a preference, and a hand-copied mirror is
+>             a fixture that lies the next time step 7 moves.
 > - [ ] **W4 — the note's remaining write (answers 2 and 3 are already applied).** Title and the
->       seven-bullet shape are **done**; what the note still owes is W3's line. Nothing else.
+>       seven-bullet shape are **done**, and **W3 wrote the line it was still owed**. ▶️ **What is left
+>       is a RE-READ, not a write**: the note now describes a release whose Windows repair landed after
+>       the note was drafted, so read it end to end against what W1/W2/W3 actually shipped and fix
+>       whatever no longer matches. If nothing does, say so in one line and tick it.
 > - [ ] **W5 — HIS, not the loop's**: retarget #76 to `main`, one review over the whole branch, **one
 >       merge commit, never a squash**, then cut / tag / publish. → answer 5, and § *S9-2b's materials*.
 > - [ ] **W5b — HIS TOO, and it was NOT one of the five: the WORDING of the doctrine text.** Four text

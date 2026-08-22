@@ -24,12 +24,18 @@
 > >   hook, which named a carrier whose header had been saying so for a day. **A closed list is not an
 > >   emptied inventory** — the third time this release has been told that, each time on a different
 > >   surface.
-> > - ✅ **W1 AND W2 ARE BUILT AND PUSHED** _(2026-08-22 · W1 `65a6080`+`13ef852`, W2 `dd08024`+
-> >   `a5b8c2a`)_. **The next buildable slice is W3** — advance `regimes` and `retired` at step 7 of
-> >   the update, plus the honest release-note line about the write guard widening.
-> > - 🪟 **W6 was READ, and W1's half of it passed** _(run `32558375080` on `13ef852`)_: the three QA
-> >   poles are green on `windows-latest`. **W6 itself is still open** — one Windows red remains, the
-> >   S7-2 freshness guard regenerating the table from a CRLF working tree, which is its own bullet.
+> > - ✅ **W1, W2 AND W3 ARE BUILT AND PUSHED** _(2026-08-22 · W1 `65a6080`+`13ef852`, W2 `dd08024`+
+> >   `a5b8c2a`, W3 `df09f17`+`ea85b07`, plus `9b5fbec` on the CI premise)_. **The next entry is W4, and
+> >   it is a RE-READ rather than a write**: W3 wrote the release note's last owed line, so W4 is
+> >   reading the note end to end against what W1/W2/W3 actually shipped.
+> > - 🪟 **W6 was READ TWICE, and both W1's and W2's halves passed** — W1's three QA poles green on
+> >   `windows-latest` (run `32558375080`), and W2's LF assertion green with **316 delivered text files
+> >   LF** and its positive control (run `32560532878`). **W6 itself is still open** — one Windows red
+> >   remains, the S7-2 freshness guard regenerating the table from a CRLF working tree, which is its
+> >   own bullet.
+> >   - 🛑 **W2's proof was missing its own premise, and that is W1's lesson one level up** (`9b5fbec`).
+> >     "This runner's checkout is CRLF" was a **comment**, so a future image flipping `core.autocrlf`
+> >     would have kept every assertion green over a no-op. It is measured in the same job now.
 > > - **Windows went from FOUR failures to ONE.** Nothing else fails anywhere. This is a reading of a
 > >   run, not a prediction from a local pass — which is the whole reason Thomas set the condition.
 > > - **The run log below is the night's trace**, newest first. Read the top three entries before
@@ -491,6 +497,35 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- ✅ **2026-08-22 (W3) — THE FLEET STOPS CARRYING ITS INSTALL-DAY LIST, and W2's Windows proof came
+  back GREEN.** `9b5fbec` + `df09f17` + `ea85b07`. Suite **2 474 / 0 fail / 3 skipped**. State owned by
+  the release plan's § *W3* and § *THOMAS'S CALL — a brain keeps its INSTALL-DAY regime list*.
+  - 🪟 **The iteration opened on a READ, and that is the order the work order sets.** Job
+    `Installer e2e · windows-latest` on run `32560532878`: **"316 delivered text files are LF — the
+    copy path holds on Windows"**, positive control *"run-node.cmd is still CRLF"*. W2 is proved on the
+    platform it was built for.
+  - 🛑 **THEN THE PROOF WAS FOUND MISSING ITS OWN PREMISE — the same defect as W1's, one level up.**
+    The green only means anything if **that checkout is CRLF**, and that sentence lived in a *comment*
+    above the step. Flip `core.autocrlf` on a future runner image and every assertion still passes,
+    over a normalisation that has become a no-op: **a vacuous green is indistinguishable from a real
+    one**. Now measured in the same job (`git ls-files --eol` must say `w/crlf`), failing loudly and
+    naming the vacuity. **A proof carries its premise, or it is not a proof.**
+  - 📐 **W3's "one line" was right about the change and wrong about the shape.** One line at the call
+    site, and the thing it calls had to exist: the result is **spread** over the manifest, where
+    `undefined` does not defer to what `{...local}` put there — it overwrites it, and `JSON.stringify`
+    then drops the key. A target manifest with no regimes would leave every updated brain with **no
+    regime list at all**, and the write guard recognises no engine file without one. That failure mode
+    is what the test names; the happy path is the cheap half.
+  - 🧪 **Scoped mutation 100 % on the changed lines**, `engine-source.mjs` 89.47 % → **94.74 %**. The
+    four survivors were all the `?.` guards, killed by **feeding the absent case** rather than by an
+    assertion invented to match the code — a throw there aborts the manifest write *after* the
+    reconcile has converged the files, leaving files at HEAD and a manifest at install day.
+  - 🪞 **A mirror was retired in the same pass.** The QA harness restated step 7 "line for line",
+    including a comment explaining that it kept the install-day list **because the engine did**. It
+    calls `advanceRegimes` now: a fixture must reproduce the field, not a preference.
+  - **Next**: **W4**, and it is a **re-read rather than a write** — the note's last owed line was
+    written here.
 
 - ✅ **2026-08-22 (W2) — THE DELIVERY IS PINNED, and "one flag in two places" was one flag in ONE
   place.** `dd08024` + `a5b8c2a`. Suite **2 460 / 0 fail**. State owned by the release plan's § *W2*.
@@ -1143,6 +1178,8 @@ arbitration goes here as a question, and the run continues on other slices.
   during an update and never mentioned by the standing nudge between them. Three ways out are written
   there with a recommendation; it changes what an update may write on every deployed brain, so it is
   his.
+  > ✅ **ANSWERED AND BUILT SINCE — 2026-08-22, option (a), W3** (`df09f17` + `ea85b07`). Left above as
+  > the history it is; this line is here so nobody reads the paragraph as an open question.
 
 - 🎙️ **2026-08-22 (S10-6b) — S10 IS BUILT, and the slice with NO mutation gate is the one where the
   other nets did the judging.** `a4e7783`. The owner's acceptance criterion is finally spoken: Step 4
