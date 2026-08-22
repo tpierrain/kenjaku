@@ -11,12 +11,14 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **THE SCOPE WAS WIDENED TO "THE MAXIMUM"** _(2026-08-22, his words: "je veux que tu en
-  fasses le maximum (tout ce qu'on a identifié comme à faire)", said while going to bed, for an
-  unattended stretch)_. **The queue below is ordered, and it is the whole of it.** Same discipline as
-  the two batches before it: red first for the right reason, one commit per subject, green only,
-  pushed as it goes. Everything under the previous GO is **done, green and pushed**: § I `ca46027`,
-  § J `f716066` `d17896c` `94272e9` `e27ed4a`, § K `e6c4deb`, S14 with `e27ed4a`.
+- **Next:** ✅ **THE QUEUE IS DISCHARGED — all nine items, 2026-08-23.** Nothing here is waiting on a
+  session. What is left before this ships is **his**: the merge of #76, and F11 if he wants the twin
+  translated. _(The scope was widened twice — "je veux que tu en fasses le maximum (tout ce qu'on a
+  identifié comme à faire)" on 2026-08-22, then "j'aimerais que tout soit fait pour pouvoir shipper la
+  release" on 2026-08-23. Both are spent.)_ Same discipline throughout: red first for the right
+  reason, one commit per subject, green only, pushed as it goes. Everything under the previous GO is
+  **done, green and pushed**: § I `ca46027`, § J `f716066` `d17896c` `94272e9` `e27ed4a`,
+  § K `e6c4deb`, S14 with `e27ed4a`.
   1. - [x] **S15** — `ignore-base-settings.mjs`: two blank lines on an empty `.gitignore`, and a
         directory-level `.engine-base/` entry not recognised as already covering the path. A real bug
         on the owner's own file, so it went first. _(2026-08-22 · `229cc4c` `eff040c` `1cac9b8`)_
@@ -42,21 +44,29 @@
        docs?). **Not taken tonight**: it is a new finding, not one of the fifteen, and it would decide
        a question that is Thomas's. Cost if he wants it: the resolver is ~20 lines, the README
        decision is one sentence from him.
-  4. **S13** — `reconcile-brain.mjs`: a recording write helper that owns both the write and
-     `reconciledFileMap`, so the next in-place write cannot silently recreate F1.
-  5. **S12** — an `invited` regime declared in `engine-manifest.json` instead of the hardcoded
-     `new Set(["CLAUDE.md"])`. **This one touches the fleet-wide vocabulary on an already-large
-     release**: if it turns out to need a migration story, STOP, write the question here, take 6.
+  4. - [x] **S13** — `reconcile-brain.mjs`: the record of an in-place write IS the write now
+        (`engineWrites()` carries its own map), and a source guard keeps that door the only one:
+        every other raw `writeFileSync` must be on a named list with the reason it needs no record.
+        _(2026-08-23 · `659c598`, seen red naming `brainSettingsPath`)_
+  5. - [x] **S12** — the `invited` list is declared in `engine-manifest.json` and rides in `regimes`,
+        which is the object `advanceRegimes` already carries onto older brains. **No migration story,
+        and the fallback is why**: a manifest that declares none still spares the constitution,
+        because that is a state the fleet was measurably in this morning. _(2026-08-23 · `45fc4d7`,
+        hardened at `2cd9484` after a mutation run)_
   6. - [x] **F13** — **measured, then declined**, with the numbers and the risk written beside the
         finding itself (§ G). One line of it here because it is the only item that ends in a "no":
         the four passes cost **~7 ms** of an update that spends tens of seconds installing and
         reindexing, and threading the map would make a **stale divergence report** reachable by
         refactor — F1 arriving by the back door. **Reversible on one word from Thomas.**
-  7. **F12** — `stripComments` is not regex-aware in `entrypoint-discipline.mjs:141`.
-  8. **The residual that is left**: S5's unreadable-file sentence, which belongs to the **health
-     banner** (see § J's decision 3). _(F14's `file(s)` in `repo-status.mjs` and `locale-drift.mjs`
-     is **done** — it rode with S11 at item 2, `84c8d07`.)_
-  9. **The report he is owed** — see below. It is the last act, not an optional one.
+  7. - [x] **F12** — `stripComments` is regex-aware now. Not a theoretical gap: **13 files** in this
+        repo's own `scripts/**` left the scanner stuck inside a phantom string at end of file, one of
+        them production code delivered into every brain. _(2026-08-23 · `27d9ce9`)_
+  8. - [x] **The residual that is left**: S5's unreadable-file sentence now belongs to the **health
+        banner**, produced by the detached probe that feeds it, with the only gesture that clears it
+        (not a reindex, not a restart). _(2026-08-23 · `328de15`)_ _(F14's `file(s)` rode with S11.)_
+  9. - [x] **The report he is owed** — delivered 2026-08-23, in French, in the reply that ends this
+        stretch. It answers his own question ("est-ce que tu es confiant ?") with the rehearsal's
+        finding at its centre, and says in one line that he has nothing to decide except the merge.
   - 📣 **HE HAS NOT HAD THE "montres à la fin" YET.** Two GOs have now asked for a report at the end
     and neither has been delivered. After the queue, **one plain-language report** in French, same
     register as the first batch's: what it fixed, in terms of what would have gone wrong for an owner.
@@ -74,7 +84,7 @@
     translating the French twin means writing under `templates/fr/**`, which is forbidden here.
     **Until he answers, do the half that is mine**: state the loss in the release note (an English
     artifact) so the note stops being silent about it. If he says "translate", it becomes item 10.
-- **Blocked on:** nothing. **Suite at the last commit: 2 577 green, 3 skipped** (CI's own invocation,
+- **Blocked on:** nothing. **Suite at the last commit: 2 593 green, 3 skipped** (CI's own invocation,
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
   assertion rather than a loading error.
@@ -419,8 +429,8 @@ catches any of this.
         - [x] **Why it survived**: not one test exercised any arity above TWO, where `join(" and ")`
               happens to be correct. Both the three-item case and the two-item boundary (no comma) are
               pinned now.
-- [ ] **G. Quality, non-blocking — decide whether v5 pays them or a follow-up does**
-  - [ ] **F12 — `stripComments` is not regex-aware** (`entrypoint-discipline.mjs:141`): a `//` inside a
+- [x] **G. Quality, non-blocking — v5 PAYS THEM** _(2026-08-23, under "le maximum" · F12 `27d9ce9`; F13 measured and declined, see below)_
+  - [x] **F12 — `stripComments` is not regex-aware** _(2026-08-23 · `27d9ce9` — and it was not theoretical: THIRTEEN files in this repo's own `scripts/**` left the scanner stuck inside a phantom string, one of them production code delivered into every brain)_ (`entrypoint-discipline.mjs:141`): a `//` inside a
         regex literal blanks the rest of the line, so the entry-point guard can miss a hand-rolled
         guard and its ceilings can be satisfied by a file that still hand-rolls one.
   - [x] **F13 — four full read-and-sha256 passes per update** over every engine-owned file
@@ -676,23 +686,22 @@ dictated — written here so they are not re-derived or quietly reversed:
    owner who symlinks a skill folder out of the brain cannot adopt through it. The day an engine write
    takes an untrusted rel, the check belongs lower.
 
-- [ ] **L. Second pass — prose, tests and altitude (non-blocking; the cheap half is worth taking with
-      the rest, the two design ones are G-class)**
-  - [ ] **S11 — `(s)` survived F14 in six lines of the same report.** `update-engine.mjs:429, 432, 438,
+- [x] **L. Second pass — prose, tests and altitude — ALL FOUR PAID** _(2026-08-22/23, under "le maximum" · S11 `84c8d07`, S15 `229cc4c` `eff040c` `1cac9b8`, S13 `659c598`, S12 `45fc4d7` `2cd9484`)_
+  - [x] **S11 — `(s)` survived F14 in six lines of the same report.** _(2026-08-22 · `84c8d07`, behind one `plural.mjs` that four modules now share)_ `update-engine.mjs:429, 432, 438,
         446, 517, 520` still render `skill(s)`, `server(s)`, `hook(s)`, `command(s)` — each with a
         known-length array in hand. F14's own words were that `(s)` is *"the hedge of a sentence that
         does not know what it is describing"*, and it introduced `countOf`. **The half-fix is louder
         than the original defect**: the owner now reads *"new engine skill(s) installed: coach"* three
         lines under *"1 engine file swapped"*. ⚠️ Line 429 is **pinned by a test** that enshrines the
         hedge — the test moves with the fix.
-  - [ ] **S12 — 🧭 G-CLASS, worth costing before spending. `INVITED_EDITS` answers in CODE a question
+  - [x] **S12 — 🧭 G-CLASS, worth costing before spending. `INVITED_EDITS` answers in CODE a question
         the manifest answers everywhere else.** `engine-divergence.mjs:48` is a hardcoded
         `new Set(["CLAUDE.md"])`, while regimes (`replace`/`regenerate`/`merge`/`local`) plus `retired`
         are declared per release in `engine-manifest.json` and advanced onto older brains by
         `advanceRegimes` — precisely so an old brain and a new engine agree about file families. An
         `invited` regime would need no code change and no release to answer F1's follow-up. **Weigh
         against**: a new regime is a fleet-wide vocabulary change on a release already large.
-  - [ ] **S13 — 🧭 G-CLASS. `reconciledFileMap` is a hand-maintained special case.**
+  - [x] **S13 — 🧭 G-CLASS. `reconciledFileMap` is a hand-maintained special case.** _(2026-08-23 · `659c598`)_
         `reconcile-brain.mjs:339/381`. F1's invariant is general — *a file the ENGINE wrote must never
         read as a file the OWNER is holding back* — but it is enforced by one manual assignment beside
         one `writeFileSync`, then threaded by hand through `runReconcileCli` (575) and `updateEngine`
@@ -706,7 +715,7 @@ dictated — written here so they are not re-derived or quietly reversed:
         explanatory comment — the norm everywhere else in `installer.mjs` — turns the suite red with a
         message about a missing guard that is still there.** The third test (index ordering) already
         proves the load-bearing claim without the brittleness.
-  - [ ] **S15 — two edge cases break `ignoreBaseSettings`' own "touch nothing else" contract.**
+  - [x] **S15 — two edge cases break `ignoreBaseSettings`' own "touch nothing else" contract.** _(2026-08-22 · `229cc4c` `eff040c` `1cac9b8`)_
         `ignore-base-settings.mjs:52`. **(a)** on an empty `.gitignore`, `endsWith("\n")` is false so
         `separator = eol`, and `eol` is appended again — the owner's file gains **two leading blank
         lines** they never wrote. **(b)** `isEntry` matches only the exact path, so a brain whose

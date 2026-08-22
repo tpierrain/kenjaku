@@ -3350,3 +3350,23 @@ release can bury a skill a brain never had, and the tombstone still has to reach
 
 **Reading the report needs `FORCE_COLOR=0 NO_COLOR=1`**: `parseTestCounts` cannot read ANSI-coloured
 `node --test` output, and a session that exports `FORCE_COLOR` makes `mutate-one.mjs` refuse to start.
+
+## v5.0.0 — the invited list, and the sentence the health banner says — 2026-08-23
+
+Scoped to `scripts/lib/engine-divergence.mjs:60-130` (S12, the `invited` family read from the
+manifest) + `scripts/health-probe-run.mjs:61-95` (S5's residual, `engineFilesVerdict`), measured at
+`2cd9484`.
+
+**98.31 % — 58 killed, 1 survived, 0 timeout.** Per file: `health-probe-run.mjs` **100 %**,
+`engine-divergence.mjs` **97.56 %**.
+
+**The one survivor is an equivalent, and the code already says why**:
+`held.sort((a, b) => (a.rel < b.rel ? -1 : 1))` → `<=`. A `rel` appears at most once in the list, so
+no input can produce the equal case; the comparator's own comment states that, and spelling out an
+equal branch would add a line no test could reach for a reason other than coverage.
+
+**What the run bought, before it was run.** An earlier spelling read the invited list INSIDE the
+loop (`manifest?.regimes?.invited ?? FALLBACK` per file). Hoisting it out was not a tidy-up: inside
+the loop the optional chaining could never fire — the loop only runs when `regimes.merge` named
+something, so a manifest with no `regimes` never reaches it — and two structural mutants therefore
+had nowhere to die. **An unreachable safety net is a mutant nest, not a safety net.**
