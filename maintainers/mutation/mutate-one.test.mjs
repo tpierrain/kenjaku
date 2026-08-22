@@ -756,6 +756,15 @@ test("uncommittedTargets — a clean pathspec says nothing, and that is an empty
   assert.deepEqual(uncommittedTargets("\n"), []);
 });
 
+test("uncommittedTargets — two status columns and NO path is not an entry", () => {
+  // Demanded by the mutation run (`length > 3` → `>= 3` survived). git cannot emit
+  // an entry with an empty path, so the boundary looked decorative — and the way to
+  // kill it is to feed the shape it excludes, not to reword the condition. An entry
+  // with no path would be refused as `   ` in the message: a run stopped by a file
+  // whose name nobody can read is worse than the run it was protecting.
+  assert.deepEqual(uncommittedTargets("M  \n"), []);
+});
+
 test("runMutateOne — an uncommitted TARGET is refused before the worktree is touched", () => {
   const h = harness({
     results: { [STATUS_KEY("scripts/lib/a.mjs")]: { code: 0, output: " M scripts/lib/a.mjs\n" } },
@@ -765,10 +774,18 @@ test("runMutateOne — an uncommitted TARGET is refused before the worktree is t
 
   assert.equal(code, 1);
   // The ONLY thing it ran is the question itself: no prune, no worktree, no mutants.
-  assert.deepEqual(
-    h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")),
-    [STATUS_KEY("scripts/lib/a.mjs")],
-  );
+  // Asserted WHOLE — command and cwd included. The mutation run killed a `command:
+  // "git"` → `command: ""` mutant only once this stopped reading the args alone, and
+  // the cwd is load-bearing in its own right: the same question asked from another
+  // directory answers about another tree.
+  assert.deepEqual(h.calls.filter((c) => c.fn === "run"), [
+    {
+      fn: "run",
+      command: "git",
+      args: ["status", "--porcelain", "--", "scripts/lib/a.mjs"],
+      cwd: "/Users/dev/kenjaku",
+    },
+  ]);
   assert.deepEqual(h.out, [
     "❌ the worktree is built at HEAD, and these TARGETS are not committed:",
     "    M scripts/lib/a.mjs",
