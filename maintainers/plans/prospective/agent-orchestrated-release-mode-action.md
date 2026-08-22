@@ -3019,10 +3019,26 @@ arbitration goes here as a question, and the run continues on other slices.
         figure**: how many real defects an independent read finds in code that the loop had already
         declared finished, green and mutation-scored. **A zero is an answer too**, and the stronger one.
         - [x] **The first pass's figure arrived and is recorded above** (15 findings, then 10 repaired
-              in one session). **This box stays open for the SECOND pass** — `/code-review` re-run on
-              the fix range `fc4e7bb..HEAD`, which is Thomas's command to type. That one measures
-              something different and worth more: whether an independent read of *repairs* finds
-              anything, which is the `v3.3.0` discipline's own claim.
+              in one session).
+        - [x] 📊 **THE SECOND PASS'S FIGURE, 2026-08-22 — and it is the one this box existed for: 15
+              again.** `/code-review max fc4e7bb..HEAD`, typed by Thomas, on the *repairs* the first
+              batch had just shipped test-first, green, and reviewed by their author. An independent
+              read found **as many findings in the fixes as the first read found in the original
+              code** — including **two in the very guard the batch had just written** (a case-sensitive
+              path comparison where the filesystem is not, and the un-guarded sibling argument that
+              actually calls the delete), one of them reproduced on Thomas's own machine in under a
+              minute. **What this measures, and it is worth more than the first figure**: repairs are
+              not safer than features. A fixing batch owes the same independent read as the work it
+              fixes, and *"the author already thought hard about this exact hazard"* predicts nothing —
+              F6's author wrote the hazard into a comment and still compared strings.
+              → the findings are [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md)'s,
+              § I–L, and only its.
+        - [x] 🛑 **A limitation of the TOOL, measured twice and worth recording here rather than in the
+              triage plan**: on this repo's diff size, `/code-review max`'s ten parallel finder agents
+              **never returned, on either pass**. Both times one agent ran all ten angles sequentially
+              and said so. So what the command actually buys here is **one careful sequential read, not
+              ten independent ones** — a real result (30 findings) obtained without the diversity the
+              mode's own thesis is about. **Do not commission a third pass expecting fan-out.**
 - [~] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
       kill this file), and rewrite the memory pointer to whatever becomes live next.
   - [x] **Folded EARLY, on purpose** _(2026-08-20 — `CONVENTIONS.md` **§12**)_: the two delegation

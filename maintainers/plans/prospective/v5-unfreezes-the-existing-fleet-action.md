@@ -12,12 +12,12 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **the second `/code-review` pass, and Thomas types it — a session cannot.** He said go on
-  2026-08-22 (*"on lance la code review"*), immediately after arbitrating W5b, so the branch is in its
-  final shape and the review reads what will actually ship. **THE RANGE: `fc4e7bb..HEAD` on
-  `feat/engine-base-unfreeze`.** Findings land in
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md), which owns them; fix them
-  test-first as the first batch was. After that the cut runs 3 → 4 → 6 of § *WHAT IS YOURS, IN ORDER*.
+- **Next:** **the second `/code-review` pass has RUN** (Thomas typed it, 2026-08-22) **and came back
+  with 15 more findings, none of them started.** They are owned, triaged and argued in
+  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) § I–L — that file's STATE block
+  says where they stand and carries the one question waiting on Thomas (the GO on the batch). **Do not
+  restate any of it here.** After they are discharged the cut runs 3 → 4 → 6 of § *WHAT IS YOURS, IN
+  ORDER*.
   - The other conversation he opened is still open and is **not** on this release's path: **the shape
     lint for plans**, argued in [`plan-state-single-source-study.md`](plan-state-single-source-study.md),
     his call, recommendation on record.
