@@ -345,6 +345,21 @@ catches any of this.
         retired (provably, by sha) and the English one installed in its place. `locale-drift.mjs` needs
         a twin to **exist** to report drift, so CI is blind to a twin that was **deleted**. Either
         translate it, or say so in the release note. **The note currently says nothing.**
+        - 🚧 **WHY A SESSION MAY NOT JUST TRANSLATE IT, asked and answered 2026-08-22.** The boundary
+              reads "never, alone, translate anything under `templates/fr/**`", and the reason was
+              nowhere in this file — it had to be reconstructed from three places, which is how a rule
+              becomes folklore. It is **not** a ban on writing French: this very release wrote FR twins
+              (S8-1, S10-6b), as **ports of prose already agreed in English, in the same commit**.
+              Three things make F11 different, and all three are the owner's:
+              - **The finding offers TWO remedies and picking one decides what v5 delivers** to French
+                brains. That is a product call, not an engineering one.
+              - **This Markdown IS behaviour** (§ H's 📐 box, his own words). 350 lines of unreviewed
+                French doctrine would not sit in a doc — a French brain would **obey** them.
+              - **A twin is a standing commitment, not a task.** Once it exists, `locale-drift` pairs
+                the two forever and every future edit owes both. Taking that on is his to take.
+              🛡️ **The counterweight, stated so the decision is honest**: nothing merges without him,
+              so a translation would wait in #76 like everything else. The real risk is not a bad
+              merge, it is **him merging 350 lines of French he did not read**.
 - [x] **F. Prose the owner reads — cheap, fix** _(2026-08-22 · 2ce39d8 — one commit, one subject)_
   - [x] **F14 — `2 engine file(s)`** (`update-engine.mjs:242`): the count is known at render time, so
         the parenthesised plural is never needed. Every other line in this release picks the word.
