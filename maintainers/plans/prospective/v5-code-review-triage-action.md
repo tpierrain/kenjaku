@@ -11,16 +11,15 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **the SECOND pass has run, and its 15 findings are triaged below in § I–L, unfixed.**
-  Thomas typed `/code-review max fc4e7bb..HEAD` on 2026-08-22; § H is discharged. The first batch
-  (**A, B, C, D, F**) stays fixed, test-first, green and pushed. **Nothing of the second batch is
-  started** — the first batch's GO was that batch's, and this one is not covered by it.
-- **Blocked on:** **one word from Thomas — the GO on the second batch** (see the question below). Two
-  of its findings are the *destructive* class the first batch just closed, reopened from another
-  angle, and one of them was reproduced on his own machine this session.
-- **Owner's call pending:** **four.** (1) **THE GO on § I–L** — same shape as the first batch
-  (test-first, one commit per subject, report at the end), recommended for **I, J, K plus the cheap
-  half of L**, with **S12 and S13 weighed like G**. (2) **E / F11** — the French twin: translate it,
+- **Next:** **work § I–L under the GO below**, hardest-hitting first, exactly as the first batch was
+  worked. Thomas typed `/code-review max fc4e7bb..HEAD` on 2026-08-22; § H is discharged. The first
+  batch (**A, B, C, D, F**) stays fixed, test-first, green and pushed.
+  - ✅ **THE GO, in his words** _(2026-08-22)_: *"oui, en test-first, et tu me montres à la fin."* Word
+    for word the first batch's GO, on the scope that was recommended with it: **I, J, K, and the cheap
+    half of L (S11, S14, S15)**. **S12 and S13 are NOT in it** — they are weighed like G, and stay
+    Thomas's.
+- **Blocked on:** nothing.
+- **Owner's call pending:** **three.** (1) **E / F11** — the French twin: translate it,
   or say so in the release note. (3) **G** — does v5 pay F12 and F13, or a follow-up? (4) **the
   delivered-prose hole** raised by § H's measurement: three delivered prose files can be gutted with
   the suite fully green (`CONNECTORS.md`, `.claude/skills/EXAMPLES.md`,
@@ -30,10 +29,10 @@
     `.claude/settings.json` also leave the nudge?* **S4 shows the file is broken on a second machine
     for a different reason**, and that reason has to be fixed either way. The nudge question rides on
     S4's fix rather than standing alone; see F1's follow-up box, which now points here.
-- **A session may, alone:** **nothing in this file.** Not merge, tag or publish #76, not touch either
-  real brain, not write under `templates/fr/**`, not spend the G work, **and not open § I–L**.
-  ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**, unless Thomas ships with a
-  named finding deferred.
+- **A session may, alone:** **work § I, J, K and S11/S14/S15 — and nothing else here.** Not merge, tag
+  or publish #76, not touch either real brain, not write under `templates/fr/**`, not spend the G work
+  **nor S12/S13**. ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**, unless Thomas
+  ships with a named finding deferred.
 
 ## How the batch was worked — durable, this is what it cost
 
