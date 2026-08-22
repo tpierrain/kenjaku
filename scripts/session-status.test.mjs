@@ -15,6 +15,7 @@ import {
   runGitInvocation,
   runSessionStatus,
 } from "./session-status.mjs";
+import { GIT_MAX_BUFFER } from "./lib/engine-fetch.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
 import { SWEEP_MESSAGE } from "./lib/startup-sync.mjs";
 import { SYNC_MARKER_REL } from "./lib/startup-sync-gate.mjs";
@@ -644,8 +645,23 @@ test("buildGitInvocation — the whole read-only call, cwd and stdio included", 
   assert.deepEqual(buildGitInvocation(["status", "--porcelain"], REPO), {
     command: "git",
     args: ["status", "--porcelain"],
-    options: { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    options: { cwd: REPO, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
   });
+});
+
+// F10 (v5.0.0 code review), found beside the finding's own two sites: this builder is a
+// second, independent spelling of the same request — and the queries it carries are the
+// ones that GROW with the vault. `git status --porcelain` on a brain whose notes are all
+// dirty (a fresh clone, a restored backup, a bulk import) is one line per file; at ~40
+// bytes a line, node's 1 MB default is reached around 25 000 notes. The banner would then
+// report a git failure on a repository that is perfectly healthy — precisely when the
+// owner has most files at stake.
+test("the status hook's git ceiling is the same one the rest of the engine uses", () => {
+  assert.equal(
+    buildGitInvocation(["status", "--porcelain"], REPO).options.maxBuffer,
+    GIT_MAX_BUFFER,
+    "one ceiling, imported — two spellings of it would be two behaviours to keep in step forever",
+  );
 });
 
 test("buildReconcileInvocation — sourceDir IS brainDir: a local converge, never a fetch", () => {

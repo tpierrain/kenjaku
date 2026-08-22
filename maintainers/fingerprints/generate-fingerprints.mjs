@@ -34,13 +34,30 @@ import {
   deliveredSources,
   buildFingerprintTable,
 } from "../../scripts/lib/engine-fingerprint-table.mjs";
+import { GIT_MAX_BUFFER } from "../../scripts/lib/engine-fetch.mjs";
 import { parseLsFilesEolZ } from "../../scripts/lib/tracked-files.mjs";
 import { parseSemverTag, compareSemverTags } from "../../scripts/lib/semver-tag.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUTPUT_REL = "scripts/lib/engine-fingerprints.json";
 
-const git = (args) => execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" });
+// The SAME ceiling the engine's own git seams use, imported rather than respelled (F10
+// of the v5.0.0 review). This generator walks every published tag and reads every
+// delivered file at each of them: `ls-tree -r` over 25 tags, then one `show` per file.
+// Under node's 1 MB default, a single large delivered file — a skill's reference bundle,
+// a fingerprint table read back — kills the child and the release cut dies on a raw
+// ENOBUFS, in the middle of a loop, with nothing said about which tag or which path.
+//
+// The `catch` is the other half: this is a maintainer's shell, run once per release at
+// the worst possible moment to be handed a stack trace. It re-throws, but naming the
+// call — a failure that cannot be located costs more than the one that can.
+const git = (args) => {
+  try {
+    return execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8", maxBuffer: GIT_MAX_BUFFER });
+  } catch (e) {
+    throw new Error(`git ${args.join(" ")} failed while generating ${OUTPUT_REL}: ${e?.message ?? e}`, { cause: e });
+  }
+};
 
 // A tag's tree, and a tag's file: `git show <tag>:<path>` is the only way to reach
 // bytes that are not checked out, and the shallow clone the updater uses means old

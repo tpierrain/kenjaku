@@ -23,6 +23,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { normalizeEol } from "./engine-base.mjs";
+import { GIT_MAX_BUFFER } from "./engine-fetch.mjs";
 
 // Named, and named recognisably: a test sweeps the temp directory for it, and a
 // human debugging a full disk should be able to tell whose files these are.
@@ -56,8 +57,10 @@ export function buildMergeFileInvocation({ paths, labels = {}, gitBin }) {
     // the sentence USED to say — half of what makes a conflict resolvable.
     args: ["merge-file", "-p", "--diff3", "-L", oursLabel, "-L", baseLabel, "-L", theirsLabel, paths.ours, paths.base, paths.theirs],
     // A skill's reference bundle can be a few hundred KB, and a merge truncated at
-    // node's 1 MB default would be a corrupted file delivered as a clean one.
-    options: { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+    // node's 1 MB default would be a corrupted file delivered as a clean one. This
+    // seam had the reasoning first; F10 gave the number a name and the other three
+    // git seams the same one, so there is a single limit to reason about.
+    options: { encoding: "utf8", maxBuffer: GIT_MAX_BUFFER },
   };
 }
 

@@ -127,11 +127,23 @@ export function readTargetManifest(dir, read = (p) => readFileSync(p, "utf8")) {
 // buildCrosscheckInvocation in verify-index.mjs, which killed the identical
 // cluster at v4.5.0). No platform branch: git is a real executable on Windows
 // too, so this request is byte-identical everywhere — see the module header.
+// The ceiling on what a git child may hand back, shared by every git seam in the
+// product so there is ONE number to reason about (F10 of the v5.0.0 review). Node's
+// default is 1 MB, and overflowing it does not truncate — the child is killed and the
+// call THROWS, which every runner here maps to "git said no". The failure therefore
+// arrives wearing the wrong clothes: `defaultGit` reports the update server as
+// unreachable, and the session banner reports a broken repository. Both are false, and
+// both happen precisely on the biggest brains.
+//
+// `git show <ref>:<path>` carries whole file bytes; `git status --porcelain` carries one
+// line per dirty file. Neither has a bound this side of the vault's own size.
+export const GIT_MAX_BUFFER = 64 * 1024 * 1024;
+
 export function buildGitInvocation(args) {
   return {
     command: "git",
     args,
-    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
   };
 }
 

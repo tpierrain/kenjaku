@@ -11,6 +11,7 @@ import {
   buildLsRemoteArgs,
   defaultGit,
   fetchSource,
+  GIT_MAX_BUFFER,
   readTargetManifest,
   resolveLatestTag,
 } from "./engine-fetch.mjs";
@@ -259,7 +260,7 @@ test("buildGitInvocation — the whole request, arguments passed through untouch
   assert.deepEqual(buildGitInvocation(["ls-remote", "--tags", "git@host:me/repo.git"]), {
     command: "git",
     args: ["ls-remote", "--tags", "git@host:me/repo.git"],
-    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
   });
 });
 
@@ -267,8 +268,20 @@ test("buildGitInvocation — an empty argument list is still a well-formed reque
   assert.deepEqual(buildGitInvocation([]), {
     command: "git",
     args: [],
-    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
   });
+});
+
+// F10 (v5.0.0 code review) — THE CEILING IS A NUMBER, AND SILENCE IS ITS FAILURE MODE.
+//
+// This seam carries `git show <ref>:<path>`, the ancestor hydration: whole FILE bytes out
+// of the object store. It inherited node's 1 MB default, and `defaultGit` maps any throw
+// to `{ ok: false }` — which the update path reads as "the update server could not be
+// reached". So a file one byte over the line would have reported a network problem, and
+// the owner's merge would have silently gone to a frozen fallback.
+test("the git seam's ceiling is far above node's 1 MB default", () => {
+  assert.equal(GIT_MAX_BUFFER, 64 * 1024 * 1024, "the value itself, so a slip to a smaller one is caught");
+  assert.equal(buildGitInvocation(["show", "v1.0.0:CLAUDE.md"]).options.maxBuffer, GIT_MAX_BUFFER);
 });
 
 test("defaultGit — hands the BUILT invocation to the runner, whole and in order", () => {
@@ -278,7 +291,7 @@ test("defaultGit — hands the BUILT invocation to the runner, whole and in orde
     return "";
   });
   assert.deepEqual(calls, [
-    ["git", ["status", "--porcelain"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }],
+    ["git", ["status", "--porcelain"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER }],
   ]);
 });
 

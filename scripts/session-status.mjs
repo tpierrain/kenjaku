@@ -46,6 +46,7 @@ import { pulledPaths, frozenWiringIn } from "./lib/frozen-wiring.mjs";
 import { readStartupVersionLine } from "./lib/engine-version.mjs";
 import { UPSTREAM_CACHE_REL, shouldReprobe } from "./lib/upstream-cache.mjs";
 import { buildStatusHookOutput } from "./lib/status-hook-output.mjs";
+import { GIT_MAX_BUFFER } from "./lib/engine-fetch.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
 
@@ -60,12 +61,18 @@ const REPO = resolve(__dirname, "..");
 // source that scanner reads, so an inline literal flips the guard's own verdict
 // mid-run. A named value is stable under instrumentation as well as assertable.
 
-/** The read-only git call this hook makes, cwd included. */
+/**
+ * The read-only git call this hook makes, cwd included. The ceiling is IMPORTED, not
+ * spelled again: the queries here grow with the vault (`git status --porcelain` is one
+ * line per dirty file, so a freshly-cloned or bulk-imported brain reaches node's 1 MB
+ * default around 25 000 notes), and an overflow does not truncate — it kills the child,
+ * and this banner would report a broken repository that is perfectly healthy. F10.
+ */
 export function buildGitInvocation(args, cwd) {
   return {
     command: "git",
     args,
-    options: { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    options: { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
   };
 }
 
