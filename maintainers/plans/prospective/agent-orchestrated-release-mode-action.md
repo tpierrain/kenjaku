@@ -465,6 +465,40 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- ⛔ **2026-08-22 (the correction) — the blocking box was WRONG about half its subject, and a hook that
+  judges no content is what caught it.** For two iterations the top of the release plan read *"the heal
+  does not recognise CRLF, so S7 may be inert on Windows"*. **The heal is fine.** Measured by calling
+  `healProvenance` itself: **CRLF content heals 3/3, byte-identically to LF**, and an owner's edit still
+  heals **0/3**. `engine-heal.mjs:32` has normalised since S7-1, and its own comment names the Windows
+  checkout as the reason. What is genuinely broken is **one line in a different module**:
+  `planAncestorFetch` resolves the tag by a direct lookup on the recorded sha
+  (`engine-ancestor.mjs:59`) with no EOL forgiveness on the **key**, while `verifyBase` forgives it on
+  the **content**. One of the two fallen claims is at risk, not both.
+
+  > 🧭 **The measurement was real, repeatable, deterministic — and about the wrong thing.** The probe
+  > asked *"is this CRLF digest a key of the table?"*, which **re-implements the lookup by hand**
+  > instead of calling the function that performs it; the hand copy omitted the one line that matters.
+  > **A reproduction of a seam is not the seam.** It is the same disease as asserting against a double's
+  > behaviour rather than the real collaborator's, and it is more dangerous than a sloppy measurement,
+  > because everything about it looks like rigour. **The rule this earns: when the question is "does
+  > this code handle X?", CALL THAT CODE.** A probe that re-derives the logic is answering a question
+  > you wrote, not the one the product answers.
+
+  > 🪝 **And the `plan-carrier-guard` hook found it — a hook that judges NO content.** It had named the
+  > archived plan three iterations running as a carrier never opened, and twice the answer was *"it
+  > genuinely needs nothing"*, which was **true about status and blind about facts**. That plan records
+  > `normalizeEol` being deduplicated across two modules at S1, the merge normalising all three sides,
+  > and `verifyBase` forgiving the LF→CRLF rewrite. **S1–S6 had a written CRLF discipline and the
+  > diagnosis never consulted it.** The lesson is not about hooks: *"this file has nothing to update"*
+  > and *"this file has nothing to teach me"* are different claims, and answering the first as if it
+  > settled the second is how a session stays confidently wrong for two iterations.
+
+  🧪 **No mutation pass, stated**: the correction is doc-only. **No production line was changed** — the
+  fix is option (a) and it is his call, so what shipped this iteration is an accurate description of the
+  defect, not the defect's repair.
+
+  **Next**: his — the CRLF arbitration, now correctly scoped to one lookup, then the cut.
+
 - 📄 **2026-08-22 (the document that told the reviewer the opposite) — a stale artifact is not merely
   out of date, it ACTIVELY misinforms.** The PR body is what a reviewer reads before merging. It said
   **"2 423 tests, 2 420 pass, 0 fail"** with the only Windows caveat being three cosmetic skips — a

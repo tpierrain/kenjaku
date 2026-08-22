@@ -8,34 +8,66 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
-> ## 🛑 THOMAS'S CALL — **the heal does not recognise CRLF, so S7 may be inert on Windows**
+> ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
 >
 > _(Found 2026-08-22 by reading the CI the pre-flight had never looked at. **This bears on the
 > release's headline promise**, so it is at the very top.)_
 >
+> > ### ⛔ CORRECTION, 2026-08-22 — this box said "the heal does not recognise CRLF", and that was WRONG
+> >
+> > **The heal works on a Windows brain.** Measured by calling `healProvenance` itself on three merge
+> > files: **CRLF content heals 3/3, byte-identically to LF**, and an owner's edit still heals **0/3**,
+> > so nothing is weakened. `engine-heal.mjs:32` has normalised since S7-1 — `raw in versions ? raw :
+> > fingerprint(normalizeEol(content))` — and its own comment names the Windows checkout as the reason.
+> >
+> > 🧭 **How the wrong verdict was reached, because the method is the lesson.** Yesterday's probe asked
+> > *"is this CRLF digest a key of the table?"* — it **re-implemented the lookup by hand** instead of
+> > calling the function that performs it, and the hand-rolled copy omitted the one line that matters.
+> > **A reproduction of a seam is not the seam.** It is the same family as testing against a double's
+> > behaviour rather than the real collaborator's: the measurement was real, deterministic, repeatable
+> > and *about the wrong thing*, which is exactly the shape a wrong answer needs to survive review.
+> >
+> > 🪝 **And it was the `plan-carrier-guard` hook that broke it open**, by naming the archived plan as a
+> > carrier this session kept not opening. That plan records `normalizeEol` being **deduplicated across
+> > two modules at S1**, plus the merge normalising all three sides, plus `verifyBase` forgiving the
+> > LF→CRLF rewrite. **S1–S6 had a CRLF discipline, written down, and the diagnosis never consulted it.**
+> > A hook that judges no content found a factual error, purely by insisting a file be opened.
+>
 > **What is PROVEN, on this repo's real content and not by reasoning:**
 >
-> - [x] **Zero of the table's rows recognise CRLF bytes.** Probed locally on three merge files with
->       11, 2 and 6 recorded byte-states: LF recognised `true`, the **same content CRLF-ified**
->       recognised `false`, every time. The digest is over raw bytes, and `\r\n` is different bytes.
-> - [x] **CI's Windows cells say the same thing at full scale**: the S7-2 freshness guard fails there
->       naming **all 23 merge files**, on every Windows job, on **none** of the macOS jobs.
+> - [x] ✅ **THE HEAL IS NOT AFFECTED** — see the correction above. `healProvenance` normalises the
+>       installed content before the lookup, so a brain whose files are CRLF heals exactly like an LF
+>       one. The release's *"a frozen brain starts receiving again"* stands on Windows.
+> - [x] 🚨 **THE ANCESTOR FETCH IS — and this is a ONE-LINE asymmetry, read not guessed.**
+>       `planAncestorFetch` resolves the tag with a **direct lookup by the recorded sha**
+>       (`engine-ancestor.mjs:59`: `table?.files?.[rel]?.[recorded]`), with **no EOL forgiveness on the
+>       key**. A Windows brain records a **CRLF digest** at install (deliberately — S1 chose to digest
+>       delivered bytes *as they are*, so an update does not flip a sha for content nobody touched), and
+>       no table row is CRLF. The lookup misses, the plan is empty, **no fetch is attempted at all** —
+>       which is precisely CI's `actual: []`.
+>       - 🔍 **The asymmetry, stated exactly**: `verifyBase` forgives CRLF **content** measured against
+>         an LF **record** (`engine-base.mjs:69` normalises `baseContent`). Nothing forgives the mirror
+>         case, an LF **candidate** against a CRLF **record** — and that is the only case a Windows
+>         brain ever presents.
+> - [x] **The S7-2 freshness guard's Windows red is a HARNESS artifact, not the product.** It
+>       regenerates the table from the runner's **working tree**, which is CRLF there, so the digests
+>       cannot match a table generated on LF. ⚠️ **The real risk it hides is worth naming**: a
+>       maintainer cutting a release **from a Windows checkout would generate a CRLF table**. Nobody has
+>       done that, and nothing prevents it.
 > - [x] **The updater's clone does not pin line endings** — `buildCloneArgs` is
 >       `clone --depth 1 --branch <ref> --single-branch`, with no `-c core.autocrlf=false`. Git for
 >       Windows defaults `core.autocrlf` to **true**, and `.gitattributes` covers only `*.cmd` / `*.sh`.
 >
-> - [x] 🚨 **AND THE ANCESTOR FETCH IS INERT THERE TOO — a SECOND mechanism, measured 2026-08-22 on the
->       Windows runner** once `fetch-depth: 0` cleared the noise that had been hiding it. The QA test
->       *"a skill edited BEFORE this release now ACQUIRES its ancestor, fetched from the tag"* fails with
->       **`actual: []`** — no fetch happens at all. The mechanism follows: S7-5 fetches from **the tag
->       whose blob matches the recorded sha**, that sha is the **CRLF** digest, and **no published tag's
->       blob is CRLF** — so the lookup finds no source and the file falls back to the preserve path.
->       Two more QA poles fail the same way (the clean merge, and the clash that should yield a marked
->       sidecar).
+> - [x] **CI names it, on the Windows runner** _(2026-08-22, once `fetch-depth: 0` cleared the noise
+>       that had been hiding it)_: *"a skill edited BEFORE this release now ACQUIRES its ancestor,
+>       fetched from the tag"* fails with **`actual: []`**, and two more QA poles fall with it (the
+>       clean merge and the clash that should yield a marked sidecar) — all three need the ancestor the
+>       first one never fetched.
 >
-> **So BOTH of S7's mechanisms are LF-only**: the heal (membership in the table) and the ancestor fetch
-> (which tag a sha names). That is *both* of the release's fallen-forbidden claims — *"an old brain
-> receives"* and *"the merge reaches back"* — at risk on the same platform, for the same one reason.
+> **So ONE of the two fallen-forbidden claims is at risk, not both.** *"An old brain receives"* holds
+> everywhere. *"The merge reaches back"* is the one that goes quiet on Windows: a Windows owner who
+> edited a skill before this release gets **`preserve/customized` + a `.new` sidecar** — the old
+> behaviour, correct and visible, but not the promise.
 >
 > - [x] 📥 **AND A REAL WINDOWS INSTALL DOES HOLD CRLF — read, not reasoned** _(2026-08-22)_. The
 >       yesterday's caveat was *"the CI is a fixture; nobody has read a real Windows brain's bytes"*.
@@ -54,10 +86,13 @@
 >
 > **Why it is not mine to fix**: every way out changes what ships or what an update writes.
 >
-> - [ ] **(a) Normalise at the boundary** — LF-normalise inside the **membership test only**. Fixes
->       every already-installed Windows brain and changes **no bytes on disk**; and the argument for it
->       is conceptual, not just expedient: **a line ending is not an owner edit**, and the table exists
->       precisely to answer *"did the owner touch this?"*.
+> - [ ] **(a) Forgive the EOL on the LOOKUP KEY, exactly where `verifyBase` already forgives it on the
+>       content** — `engine-ancestor.mjs:59` tries `table.files[rel][recorded]` and, on a miss, the same
+>       row set indexed by normalised digest. **This is not a new convention**: it is S1's own
+>       `normalizeEol` discipline applied to the one seam S7-5 added after it, and the heal already does
+>       the equivalent. Fixes every already-installed Windows brain, changes **no bytes on disk**, and
+>       the argument is conceptual rather than expedient: **a line ending is not an owner edit**.
+>       ⚠️ **Narrower than this box first claimed** — the heal needs nothing; only the fetch does.
 >       - [x] 📏 **Its one stated risk is now MEASURED, and it is ZERO** _(2026-08-22)_. The risk was
 >             *"two byte-states collapse to one answer"*. Re-folding all **25 published tags + the
 >             working tree** and digesting each state a second time after LF-normalisation:
@@ -72,14 +107,20 @@
 > - [ ] **(c) `* text=auto eol=lf` in `.gitattributes`.** Repo-wide and blunt: it rewrites Windows
 >       working trees and sits next to the launcher's deliberately opposite `*.cmd eol=crlf` rule — the
 >       file's own comment warns that one rule wrongly applied to both families is the trap.
-> - [ ] **(d) Ship as is and state the limit**: the heal is LF-only, and Windows brains stay frozen.
->       Honest, but the release note currently promises the opposite without qualification.
+> - [ ] **(d) Ship as is and state the limit**: on Windows, a file you edited before this release is
+>       preserved with its `.new` sidecar instead of merged. **Much cheaper than it looked yesterday** —
+>       the headline promise (a frozen brain receives again) is untouched, so this costs one honest line
+>       in *Honest limits*, not a qualifier on the lead.
 >
-> _(My recommendation if you want one: **(a) + (b)** — (a) for the brains already out there, which are
-> the whole point of this release, and (b) so the question stops recurring. But it is the fleet.)_
+> _(My recommendation if you want one: **(a) + (b)**, and (a) is now a much smaller thing than this box
+> first said — one lookup learning what its neighbours already know, not a new fleet-wide semantic.
+> Still yours: it changes what an update may write on a deployed brain.)_
 >
-> ⚠️ **Whatever you choose, the release note's *"a brain frozen since the day it was installed starts
-> receiving again"* needs a qualifier or a fix before it ships.**
+> ⚠️ **The release note needs ONE honest line, not the qualifier this box first demanded.** *"A brain
+> frozen since the day it was installed starts receiving again"* is **true on Windows** — the heal is
+> fine. What needs saying is narrower: **the ancestor fetch does not reach a Windows brain**, so *"your
+> edits survive AND the update lands"* becomes *"your edits survive, and the new version waits beside
+> them"* there. If you take (a), even that goes away.
 
 > ## ✅ WITHDRAWN — the "does the heal unlock RETIREMENT?" arbitration was a FALSE ALARM
 >
