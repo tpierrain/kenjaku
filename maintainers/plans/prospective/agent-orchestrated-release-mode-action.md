@@ -27,14 +27,16 @@
 > > - ✅ **W1 THROUGH W4 ARE DONE — the loop's queue is EXHAUSTED** _(2026-08-22 · W1 `65a6080`+
 > >   `13ef852`, W2 `dd08024`+`a5b8c2a`, W3 `df09f17`+`ea85b07`, `9b5fbec` the CI premise, W4 the
 > >   note's re-read)_. **W5 and W5b are Thomas's** — the retarget / one review / one merge commit, and
-> >   the wording of the four doctrine texts. **What remains for the loop is W6's own two open
-> >   bullets**: the S7-2 harness artifact (the last Windows red) and reading the three skipped tests.
+> >   the wording of the four doctrine texts. **What remains for the loop is ONE bullet of W6**:
+> >   reading what the three skipped tests skip. _(The S7-2 harness artifact, the last Windows red, was
+> >   closed 2026-08-22 — `3b6820b` + `87e9be1`, matrix 7/7 on run `32564338986`.)_
 > >   ⚠️ **The queue must not be advanced past W4** — the entries after it are the owner's.
-> > - 🪟 **W6 was READ TWICE, and both W1's and W2's halves passed** — W1's three QA poles green on
-> >   `windows-latest` (run `32558375080`), and W2's LF assertion green with **316 delivered text files
-> >   LF** and its positive control (run `32560532878`). **W6 itself is still open** — one Windows red
-> >   remains, the S7-2 freshness guard regenerating the table from a CRLF working tree, which is its
-> >   own bullet.
+> > - 🪟 **W6's WINDOWS COLUMN IS GREEN END TO END** — W1's three QA poles (run `32558375080`), W2's
+> >   **316 delivered text files LF** with its positive control (run `32560532878`), and the last red,
+> >   the S7-2 freshness guard, now **7/7 across Node 22/24/26 on `windows-latest`** (run
+> >   `32564338986`). **Zero Windows reds.** The v5 plan owns the detail — including the part worth
+> >   carrying into the mode: **the red was in the TEST's reading, and the real defect was the release-
+> >   cutting tool**, which from a Windows clone would have written a CRLF fingerprint table.
 > >   - 🛑 **W2's proof was missing its own premise, and that is W1's lesson one level up** (`9b5fbec`).
 > >     "This runner's checkout is CRLF" was a **comment**, so a future image flipping `core.autocrlf`
 > >     would have kept every assertion green over a no-op. It is measured in the same job now.

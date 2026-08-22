@@ -233,6 +233,42 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## W6 — the CRLF cut, and the SAME instrument lie two hours after it was written down — 2026-08-22
+
+`3b6820b` (the fix) + `87e9be1` (the survivor's pole). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW function in an existing file → measured **on those lines only**.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-fingerprint-table.mjs:75-88` (`deliveredSources`) | **80 %** — 4 killed, 1 survived | **100 %** — 4 killed | 0 |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-fingerprint-table.mjs:75-88"`.
+
+🛑 **AND THE PASS BEFORE THOSE TWO MEASURED NOTHING — the W1 box below is the same finding, written
+two hours earlier, by the same session.** The first run over the uncommitted change reported
+`✅ 100 % — 8 killed` for lines that were still `buildFingerprintTable`'s. **The rule "COMMIT, THEN
+MUTATE" existed, in this file, in bold, and did not fire.** What caught it the second time was not the
+rule: it was **reading the reset sha the runner prints** (`git reset --hard b279144…`) and noticing it
+was the parent commit. A written rule competes with an output that says `✅` either way, and the output
+wins.
+
+➡️ **So the remedy is not a third restatement.** `mutate-one.mjs`'s own header charter is *"a loud
+failure instead of a score that was never measured"*, and it already refuses a stale log, a starved
+timeout share and a skipping write-guard. **A dirty working tree on a TARGETED file is exactly that
+class and is not guarded** — it is the one precondition the tool can check for free (`git status
+--porcelain -- <targets>`) and the only one that has now been met twice in one night. Recorded here as
+the next candidate; not built in the slice that found it, because the loop's work order names one
+bullet at a time.
+
+**The one real survivor**: `eolByPath?.[…]` → `eolByPath[…]`. No caller omits the map, so the optional
+chain was unkillable — and the fix was to **delete it**, not to cover it. The two failures are not
+symmetric: a crash stops a release being cut, a silent verbatim fold **ships a CRLF table that reads as
+normal** and leaves the fleet frozen. A pole now pins the throw, so re-adding the guard goes red instead
+of going quiet. Same shape as W2's six survivors — the run asked for LESS code, and was right.
+
+---
+
 ## W3 — the regime list advances, and the survivors were all the absent case — 2026-08-22
 
 `df09f17` (the slice) + `ea85b07` (the survivors' test). State owned by

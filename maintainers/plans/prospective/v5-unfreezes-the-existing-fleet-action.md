@@ -68,6 +68,10 @@
 > on `windows-latest`**, and the harness artifact is not. **Four Windows failures → one.** _(The
 > transient second one was W1's own new pole, whose premise guard was macOS-shaped; fixed in
 > `f244290`.)_ → § *W6*, which owns the detail.
+>
+> ✅ **AND NOW → ZERO** _(2026-08-22, run `32564338986` on `3b6820b`, the full PR matrix 7/7)_: the last
+> one was the S7-2 harness artifact, and closing it also closed a maintainer defect nobody had named —
+> **a release cut from a Windows clone would have shipped a CRLF fingerprint table**. → § *W6*.
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
 >
@@ -411,18 +415,41 @@
 > 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
 > **proved green on a real `windows-latest` runner** (run `32558375080`).
 >
-> 🧭 **RESUME AT W6's HARNESS ARTIFACT** _(2026-08-22, after W4 landed)_ — **the W1..W5 queue no longer
-> has an entry the loop may take**: W1, W2, W3 and W4 are built and read, and **W5 and W5b are
-> Thomas's** (the retarget / one review / one merge commit, and the wording of the four doctrine texts).
+> 🧭 **RESUME AT W6's THREE SKIPPED TESTS** _(2026-08-22, after the S7-2 artifact was fixed and read
+> green on Windows)_ — **the W1..W5 queue no longer has an entry the loop may take**: W1, W2, W3 and W4
+> are built and read, and **W5 and W5b are Thomas's** (the retarget / one review / one merge commit, and
+> the wording of the four doctrine texts). **W6's Windows column is now GREEN end to end**; what is left
+> of W6 is a READ, not a repair.
 >
-> **What is still the loop's, and it is W6's own two open bullets:**
+> **What is still the loop's, and it is W6's own last open bullet:**
 >
-> - [ ] ▶️ **The S7-2 fingerprint freshness guard, the last Windows red.** *"the table covers every
->       merge file of the release being cut, in every locale"*, **23 rels unrecognised** — the
->       release-cutting tool regenerating the table from a CRLF working tree. **Not W1's and not W2's**,
->       which is why it was kept out of both. The risk it hides is the one worth fixing before a tag: a
->       maintainer cutting a release **from a Windows checkout would generate a CRLF table**, and
->       nothing today prevents it.
+> - [x] ✅ **The S7-2 fingerprint freshness guard, the last Windows red. FIXED AND READ GREEN**
+>       _(2026-08-22 · `3b6820b` the fix + `87e9be1` the mutation survivor's pole)_. It was never a
+>       stale table: the guard **read the working tree**, git for Windows checks that tree out as CRLF,
+>       and it compared those bytes to a table folded from LF blobs → all 23 merge rels at once.
+>       - 🛑 **And the defect underneath was the CUTTING TOOL's, which is the half worth having.** The
+>             generator folds the release being cut off the disk — the one tree not yet in git's object
+>             store — so **cutting from a Windows clone would have written a CRLF table**: rows that
+>             recognise bytes no brain holds, in an artefact that looks perfectly normal, leaving the
+>             fleet frozen. Nothing prevented it. `deliveredSources` now folds what the installer
+>             **writes** (`deliversAsLf`, the copy path's own oracle), and **both** the generator and
+>             the guard go through it, so a wrong table and a green guard cannot coexist.
+>       - 📐 **Checked, not assumed**: regenerating the table on macOS yields a **byte-identical**
+>             artefact — a no-op where the checkout is LF, the fix where it is not. Test-first, the two
+>             CRLF poles red on their assertions first; seven poles in all (the four EOL verdicts, both
+>             locales read at their own source path, the regime gate, and the missing-map throw).
+>             Scoped mutation **100 %**.
+>       - 🪟 ✅ **READ ON GITHUB, NOT PREDICTED** _(run `32564338986` on `3b6820b`)_: the full PR matrix
+>             is **7/7 green**, `windows-latest` on Node 22, 24 **and** 26, plus `Installer e2e ·
+>             windows-latest`. The run before it (`32563919034` on `b279144`) was red on all three
+>             Windows cells with this one assertion, macOS green. **Zero Windows reds remain.**
+>       - 🛑 **The first mutation pass measured NOTHING, and the tool made it look like a 100 %.**
+>             `mutate-one.mjs` builds its worktree at **HEAD**, so with the work still uncommitted it
+>             mutated the OLD file and scored 8 killed over lines that were someone else's code. Caught
+>             by reading the reset sha in its own output. Re-run after committing: 80 %, one survivor,
+>             then 100 %. **Committing first is not hygiene here, it is what makes the score real** —
+>             the same class of "a score that was never measured" the runner exists to prevent
+>             (`e2036be`, the bare line number), on a path it does not guard.
 > - [ ] **The three skipped tests.** The suite reports **3 skipped, all Windows-only**. Read what they
 >       skip and say **in writing** whether any of them is part of what W1/W2 are supposed to prove. A
 >       green suite with an unread skip list is not the full claim.
@@ -593,15 +620,22 @@
 > >       - [x] ✅ **The reshaped guard is GREEN ON WINDOWS** _(2026-08-22, run `32558912124`, the full
 > >         PR matrix on `621d1cb`, Node 22 / 24 / 26)_. **W1 is now proved end to end on the platform**:
 > >         its own pole and the three it repairs.
-> > - [ ] **▶️ THE ONE WINDOWS RED THAT REMAINS is the HARNESS artifact, and it must be closed too**,
-> >       separately and without pretending it is the same bug: the S7-2 freshness guard regenerates the
-> >       fingerprint table from the runner's working tree, which is CRLF there. → the box at the top
-> >       names it. **Confirmed as the only survivor** _(run `32558375080`)_: *"the table covers every
-> >       merge file of the release being cut, in every locale"* fails with **23 rels unrecognised** —
-> >       every `merge` file, which is the signature of a whole-tree EOL difference rather than a
-> >       content drift. **Not W1's, not W2's**: it is this bullet, still open.
-> > - [ ] **Verify on GitHub, by reading the run** — not by predicting it from a local pass. The branch
+> > - [x] ✅ **THE LAST WINDOWS RED IS CLOSED, and it was not the bug it looked like** _(2026-08-22 ·
+> >       `3b6820b` + `87e9be1`)_. The guard failed with **23 rels unrecognised** — every `merge` file at
+> >       once, the signature of a whole-tree EOL difference — because it **read the working tree**,
+> >       which git checks out as CRLF there. The table was fine; the reading was wrong.
+> >       - 🛑 **What that red was really pointing at is a MAINTAINER's defect, not a test's**: the
+> >             release-cutting tool folds the release being cut off the same disk, so **a release cut
+> >             from a Windows clone would have shipped a CRLF fingerprint table** — every row a digest
+> >             no brain can hold, and the fleet stays frozen with nothing to see. Both the generator
+> >             and the guard now fold through `deliveredSources`, i.e. through `deliversAsLf`, the
+> >             installer's own copy oracle. → the box at the top of this file holds the detail.
+> >       - 🪟 ✅ **Read on GitHub, not predicted** _(run `32564338986` on `3b6820b`)_: **7/7, the full
+> >             PR matrix**, Windows on Node 22/24/26 and the installer e2e. The run on the parent
+> >             commit (`32563919034`) was red on all three Windows cells with exactly this assertion.
+> > - [x] **Verify on GitHub, by reading the run** — not by predicting it from a local pass. The branch
 > >       is pushed at every slice, so the tripwire reports on each push; the full matrix needs the PR.
+> >       _(Done throughout W1..W6; the closing read is `32564338986`, 7/7.)_
 > > - [ ] ⚠️ **A green Windows suite is NOT yet the full claim.** The suite reports **3 skipped, all
 > >       three Windows-only**. Before calling W6 done, read what those three skip and say in writing
 > >       whether any of them is part of what W1/W2 are supposed to prove.

@@ -172,8 +172,8 @@ inverted rather than deleted.
 > hit path unchanged and pays nothing.
 >
 > 🪟 **And the real Windows runner has said so** _(run `32558375080`)_: the three QA poles that carried
-> this are green on `windows-latest`. See the acceptance condition at the end of this body for the one
-> Windows red that remains, which is a harness artifact rather than the product.
+> this are green on `windows-latest`. **The whole matrix is green there now** _(run `32564338986`,
+> 7/7)_ — the last red was the release-cutting tool, not the product, and it is closed.
 
 1. ~~**The doctrine layer unfreezes no already-deployed brain.**~~ **False as of S7.** Old brains no
    longer merely stop being *silent*: a brain rebuilt from the real `v3.6.0` tag now **receives**. The
@@ -188,19 +188,24 @@ inverted rather than deleted.
 
 ## How it was judged
 
-- Suite **2 474 tests — 2 471 pass / 0 fail / 3 skipped** (the three are Windows-only:
+- Suite **2 481 tests — 2 478 pass / 0 fail / 3 skipped** (the three are Windows-only:
   `cmd.exe` cannot parse a batch file on macOS). ⚠️ **That figure is LOCAL, on macOS, and it is not the
   verdict** — stating the local number alone is the exact defect this release's own pre-flight
   committed twice: *a pre-flight that only reads the local suite is measuring the machine that wrote
   the code.*
-  - 🪟 **The Windows verdict, read from CI rather than predicted** _(2026-08-22, run `32562505730`)_:
-    **four failures → one**. The three that were the product are repaired (W1) and green on
-    `windows-latest`; delivery is pinned so they cannot recur on a new install (W2), proved there by
-    **316 delivered text files LF** with its premise measured in the same job. **The one red left is
-    the harness**, not the product: the S7-2 freshness guard regenerates the fingerprint table from the
-    runner's CRLF working tree. It is tracked as W6's own bullet, and it carries a real risk worth
-    closing before a tag — a maintainer cutting a release from a Windows checkout would generate a CRLF
-    table, and nothing today prevents it.
+  - 🪟 **The Windows verdict, read from CI rather than predicted** _(2026-08-22, run `32564338986` on
+    `3b6820b`)_: **four failures → ZERO. The full matrix is 7/7**, `windows-latest` on Node 22, 24 and
+    26 plus the installer e2e. The three that were the product are repaired (W1); delivery is pinned so
+    they cannot recur on a new install (W2), proved there by **316 delivered text files LF** with its
+    premise measured in the same job.
+  - 🛑 **And the last one was worth more than a green tick.** It looked like a stale fingerprint table
+    (23 rels unrecognised) and it was a **reading**: the freshness guard read the runner's working
+    tree, which git checks out as CRLF. Underneath sat a defect nobody had named — **the
+    release-cutting tool folds the release being cut from that same tree, so a release cut from a
+    Windows clone would have shipped a CRLF fingerprint table**: every row a digest no brain can hold,
+    an artefact that looks perfectly normal, and a fleet left frozen by the very release that exists to
+    unfreeze it. The generator and the guard now both fold through the installer's own copy oracle
+    (`deliversAsLf`), so a wrong table and a green guard cannot coexist.
 - **Test-first throughout**, with the reds taken on assertions rather than on loading errors. The one
   slice where fail-first did not run first is recorded as such in the plan rather than smoothed over.
 - **Mutation measured per block, on the change and not the file** — every number and every named
@@ -243,7 +248,9 @@ inverted rather than deleted.
 
 ## ⚠️ Three things to settle before this can be cut
 
-1. 🪟 **THE WINDOWS REPAIR IS BUILT; ITS PROOF ON A REAL WINDOWS RUNNER IS AN ACCEPTANCE CONDITION.**
+1. ✅ 🪟 **THE WINDOWS REPAIR IS BUILT, AND ITS ACCEPTANCE CONDITION IS DISCHARGED** — the proof
+   the owner asked for is a green `windows-latest` run, READ: it is `32564338986`, the full matrix
+   **7/7**, zero Windows failures. What follows is the history of the four that were red.
    CI was red on Windows with four failures, three of them one real product defect: **the ancestor
    fetch never ran on a Windows brain.** A Windows brain records a **CRLF** digest at install —
    deliberately, so an update does not flip a sha for content nobody touched — and no table row is
@@ -273,10 +280,14 @@ inverted rather than deleted.
    - ✅ **The heal was NOT affected**, so *"a frozen brain starts receiving again"* held on Windows all
      along. It normalises the installed content before consulting the table (`engine-heal.mjs:32`) —
      measured, CRLF heals identically to LF, and an owner's edit still heals not at all.
-   - 📐 **The fourth Windows failure is a harness artifact and is STILL OPEN**: the fingerprint
-     freshness guard regenerates the table from the runner's working tree, which is CRLF there. Worth
-     naming beyond CI — **a maintainer cutting a release from a Windows checkout would generate a CRLF
-     table**, and nothing prevents it.
+   - ✅ **The fourth Windows failure is CLOSED, and it was the most interesting of the four**
+     _(`3b6820b` + `87e9be1`)_. It presented as a harness artifact — the freshness guard reading the
+     runner's CRLF working tree against an LF table — but what it was pointing at is a **maintainer**
+     defect: the release-cutting tool folds the release being cut from that same tree, so **a release
+     cut from a Windows checkout would have shipped a CRLF fingerprint table** and left the fleet
+     frozen with nothing to see. Both now fold through the installer's own copy oracle
+     (`deliversAsLf`). Regenerating on macOS yields a byte-identical artefact, and the full matrix is
+     **7/7 green** _(run `32564338986`)_.
    - ✅ **What the release note owes here is now NOTHING.** The honest line this section used to
      demand — *on Windows, a file edited before this release is preserved with its `.new` sidecar
      rather than merged* — **is no longer true and must not be written.**
