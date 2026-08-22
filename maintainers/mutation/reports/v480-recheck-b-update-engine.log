@@ -1,0 +1,51 @@
+21:44:13 (18285) INFO ProjectReader Found 1 of 662 file(s) to be mutated.
+21:44:13 (18285) INFO Instrumenter Instrumented 1 source file(s) with 250 mutant(s)
+21:44:13 (18285) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:44:14 (18285) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-jzY6DL
+21:44:14 (18285) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:44:14 (18285) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:44:15 (18285) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1855 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 244)
+
+[Survived] ArrayDeclaration
+scripts/update-engine.mjs:85:167
+-     const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false } = report;
++     const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = ["Stryker was here"], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false } = report;
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:238:55
+-     const local = JSON.parse(readFileSync(manifestPath, "utf8"));
++     const local = JSON.parse(readFileSync(manifestPath, ""));
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:300:87
+-       ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")])),
++       ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "")])),
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:409:86
+-     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
++     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), ""));
+
+[Survived] ArrayDeclaration
+scripts/update-engine.mjs:433:21
+-             releases: [],
++             releases: ["Stryker was here"],
+
+[Survived] MethodExpression
+scripts/update-engine.mjs:444:66
+-   export async function runUpdateCli(deps = realUpdateDeps, argv = process.argv.slice(2)) {
++   export async function runUpdateCli(deps = realUpdateDeps, argv = process.argv) {
+
+Ran 1.00 tests per mutant on average.
+-------------------|------------------|----------|-----------|------------|----------|----------|
+                   | % Mutation score |          |           |            |          |          |
+File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files          |  97.60 |   97.60 |      244 |         0 |          6 |        0 |        0 |
+ update-engine.mjs |  97.60 |   97.60 |      244 |         0 |          6 |        0 |        0 |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:50:23 (18285) INFO MutationTestExecutor Done in 6 minutes and 9 seconds.
+21:50:23 (18285) INFO Sandbox Resetting your original files from .stryker-tmp/backup-jzY6DL.

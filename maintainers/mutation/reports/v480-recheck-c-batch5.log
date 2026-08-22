@@ -1,0 +1,73 @@
+21:50:24 (70870) INFO ProjectReader Found 3 of 662 file(s) to be mutated.
+21:50:24 (70870) INFO Instrumenter Instrumented 3 source file(s) with 424 mutant(s)
+21:50:24 (70870) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:50:24 (70870) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-5ND8Sx
+21:50:24 (70870) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:50:24 (70870) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:50:26 (70870) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1902 ms, overhead 2 ms).
+
+All tests
+  ✓ All tests (killed 414)
+
+[Survived] Regex
+scripts/lib/connector-accounts.mjs:158:14
+-       .replace(/^[a-z][a-z0-9+.-]*:\/\//, "")
++       .replace(/[a-z][a-z0-9+.-]*:\/\//, "")
+
+[Survived] Regex
+scripts/lib/connector-accounts.mjs:159:14
+-       .replace(/\.slack\.com.*$/, "");
++       .replace(/\.slack\.com.*/, "");
+
+[Survived] ArrowFunction
+scripts/lib/wiki-lint.mjs:16:33
+-       .replace(/```[\s\S]*?```/g, (m) => " ".repeat(m.length))
++       .replace(/```[\s\S]*?```/g, () => undefined)
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:16:40
+-       .replace(/```[\s\S]*?```/g, (m) => " ".repeat(m.length))
++       .replace(/```[\s\S]*?```/g, (m) => "".repeat(m.length))
+
+[Survived] ArrowFunction
+scripts/lib/wiki-lint.mjs:17:28
+-       .replace(/`[^`\n]*`/g, (m) => " ".repeat(m.length));
++       .replace(/`[^`\n]*`/g, () => undefined);
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:17:35
+-       .replace(/`[^`\n]*`/g, (m) => " ".repeat(m.length));
++       .replace(/`[^`\n]*`/g, (m) => "".repeat(m.length));
+
+[Survived] Regex
+scripts/lib/wiki-lint.mjs:55:31
+-         register(suffix.replace(/\.md$/, ""), note.path); // folder/note, note
++         register(suffix.replace(/\.md/, ""), note.path); // folder/note, note
+
+[Survived] EqualityOperator
+scripts/lib/wiki-lint.mjs:178:29
+-         if (when && (!seen || Date.parse(when) > Date.parse(seen))) {
++         if (when && (!seen || Date.parse(when) >= Date.parse(seen))) {
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:194:9
+-       if (freshest && updated && daysBetween(freshest, updated) > staleDays) {
++       if (true && daysBetween(freshest, updated) > staleDays) {
+
+[Survived] LogicalOperator
+scripts/lib/wiki-lint.mjs:194:9
+-       if (freshest && updated && daysBetween(freshest, updated) > staleDays) {
++       if (freshest || updated && daysBetween(freshest, updated) > staleDays) {
+
+Ran 1.00 tests per mutant on average.
+------------------------------|------------------|----------|-----------|------------|----------|----------|
+                              | % Mutation score |          |           |            |          |          |
+File                          |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                     |  97.64 |   97.64 |      414 |         0 |         10 |        0 |        0 |
+ connector-accounts.mjs       |  98.26 |   98.26 |      113 |         0 |          2 |        0 |        0 |
+ consolidation-candidates.mjs | 100.00 |  100.00 |       92 |         0 |          0 |        0 |        0 |
+ wiki-lint.mjs                |  96.31 |   96.31 |      209 |         0 |          8 |        0 |        0 |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+22:00:33 (70870) INFO MutationTestExecutor Done in 10 minutes and 9 seconds.
+22:00:33 (70870) INFO Sandbox Resetting your original files from .stryker-tmp/backup-5ND8Sx.

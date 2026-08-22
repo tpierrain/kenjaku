@@ -56,6 +56,45 @@ test("engine-manifest — every `replace`/`merge` glob resolves to a real tracke
   assert.deepEqual(dead, [], `manifest globs matching no tracked file (renamed/removed?): ${dead.join(", ")}`);
 });
 
+// ── The brain's own tree (S1) — the fourth answer, written down rather than left blank ──
+// `.engine-base/` holds the bytes the engine last DELIVERED to each `merge` file: the
+// ancestor a three-way merge needs. It is written by the engine INSIDE a brain and never
+// shipped from here, so no delivery regime can own it. `replace` would overwrite the
+// ancestor with the newest fetched content — this release's whole bug, recreated one level
+// up. `merge` would ask a three-way merge to merge its own input. `regenerate` describes
+// files a launcher rebuilds from a template. Hence a fourth, explicit answer, `local`,
+// rather than the silence that left `CLAUDE.engine.md` in no regime at all and ten
+// kilobytes of doctrine stranded on an up-to-date brain.
+const BASE_TREE_SAMPLES = [
+  ".engine-base/CLAUDE.md",
+  ".engine-base/.claude/settings.json",
+  ".engine-base/.claude/skills/coach/SKILL.md",
+  ".engine-base/scripts/auto-commit.mjs",
+];
+
+test("engine-manifest — the `.engine-base/` tree is declared `local`, and NO delivery regime can reach into it", () => {
+  assert.deepEqual(manifest.regimes.local ?? [], [".engine-base/**"]);
+  const delivery = [
+    ...(manifest.regimes.replace ?? []),
+    ...(manifest.regimes.merge ?? []),
+    ...(manifest.regimes.regenerate ?? []),
+  ];
+  const reachable = BASE_TREE_SAMPLES.filter((rel) => delivery.some((glob) => matchesAny([glob], rel)));
+  assert.deepEqual(reachable, [], `a delivery regime claims the base tree: ${reachable.join(", ")}`);
+});
+
+// A `local` glob names what a BRAIN produces, never what this launcher ships. The moment
+// one matches a tracked source file, either the tree has moved into the repo or the glob
+// is wrong — and the dead-inventory guard above cannot see it, since it reads only
+// `replace`/`merge` (a `local` glob matching nothing tracked is the normal case, not a
+// dead entry).
+test("engine-manifest — every `local` glob matches NO tracked source file (it names brain-produced paths only)", () => {
+  const shipped = (manifest.regimes.local ?? []).filter((glob) =>
+    trackedFiles.some((file) => matchesAny([glob], file)),
+  );
+  assert.deepEqual(shipped, [], `a \`local\` glob matches tracked source: ${shipped.join(", ")}`);
+});
+
 // The reverse guard: an engine-owned script wired as a hook but ABSENT from the
 // manifest is the "update-engine must self-carry its libs" bug class — the brain runs
 // it, yet an upgrade never refreshes it (settings.json is sacred/merge, so the hook

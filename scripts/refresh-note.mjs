@@ -19,7 +19,7 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 
 import { refreshNote } from "./lib/note-refresh.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 // Vault paths are compared and written in POSIX form so behaviour is identical
 // across platforms (cf. file-back-note.mjs).
@@ -105,6 +105,4 @@ export function runRefresh(argv, deps = realRefreshDeps) {
   return 0;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runRefresh(process.argv.slice(2)));
-}
+runAsEntrypoint(import.meta.url, process.argv, runRefresh);

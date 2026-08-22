@@ -19,11 +19,14 @@ repo (linked below); the rest are spelled out here because they previously lived
 
 ## 1. Plans, roadmaps, TODOs — checkboxes on every step
 
-> 📤 **§1, §3 and §3bis are also published standalone** in
-> [`plan-discipline.md`](plan-discipline.md) — the same three rules with nothing of this repo in
-> them (no ADRs, no engine regimes, no CI matrix), plus a ready-to-paste `CLAUDE.md` block, so they
-> can be handed to someone working on something else entirely. **That file is the shareable copy,
-> this one is the operative one**: change a rule here first, then carry it over.
+> 📤 **The project-agnostic version of §1, §3 and §3bis lives in the harness**, not here:
+> [`use-case-driven-harness`](https://github.com/tpierrain/use-case-driven-harness) →
+> `rules/plans.md` (always-on) + `skills/plan-discipline/` (the how, and the full rationale).
+> **That repo is the source for the method; this section is its application here** — change the
+> method there first, then carry the consequence into this file. What stays below is deliberately
+> repo-carried, so it travels with any clone. _(Was the other way round until 2026-08-20, when the
+> standalone copy that used to sit in `maintainers/` moved out; `plan-discipline.md` is now just a
+> pointer.)_
 
 Any **plan / roadmap / TODO / progress-tracking** document I write or edit (first of all
 `maintainers/plans/**`, but **any** file listing steps to do) MUST use Markdown **checkboxes**
@@ -98,22 +101,52 @@ not copies**:
   Everything else is either in the plan, in the code, or in git — and therefore must **not** be
   duplicated here. Every extra line spends the same bounded budget the critical instructions need.
 - **On ship, prune it** — retire the SHIPPED pointer + its index line in the archiving change (§7).
+- **The only pointer this repo needs is the door.** *"On reprend"* → open
+  [`plans/ACTIVE.md`](plans/ACTIVE.md). Anything in memory that ranks plans, flags one *"read this
+  first"*, or carries a due date **is state wearing a pointer's clothes**.
 - **`/clear` resume ritual:** a `/clear` is *free* precisely because nothing is lost in memory —
-  the state is in the plan. To resume: **follow the pointer → open the repo plan → read its header
-  note and its `## Tracking` → restart where the header says → announce it before writing any code.**
-  (Ticking the plan as work proceeds, §1, is what makes this pointer not lie.)
-- **The first unticked `- [ ]` is NOT reliably the resume point**, which is why the header note above
+  the state is in the plan. To resume: **open [`plans/ACTIVE.md`](plans/ACTIVE.md) → follow its link
+  to the active plan → read that plan's `## 📍 STATE` block → announce the step before writing any
+  code.** No grep, no ROADMAP scan, no ranking of candidates. Sub-plans are legitimate and are reached
+  **through** the active plan, never directly.
+- **The first unticked `- [ ]` is NOT reliably the resume point**, which is why the STATE block
   outranks it. Constraints, rejected options and evidence are checkboxes too; a step can be done bar
-  one line of doc; a check can be waiting on an environment. A plan whose header does not say what
-  the next real step is has not saved its state, however many boxes are ticked.
+  one line of doc; a check can be waiting on an environment.
+
+### 3ter. State has a FORM of its own — the invariant
+
+> 🎯 **A paragraph in a plan may not contain a fact that can become false.**
+
+_(Adopted 2026-08-22, on a measurement of this repo's own corpus: 90 plan files, 33 654 lines, and
+**84 %** of the writes to the biggest live plan moved **no checkbox at all** — the state was in the
+prose the whole time. The study, its evidence and what it retires:
+[`plans/prospective/plan-state-single-source-study.md`](plans/prospective/plan-state-single-source-study.md).
+The convention itself is the harness's, see the banner in §1.)_
+
+If a sentence can go false **without anyone editing it**, it is state, and state has exactly two legal
+forms: a **checkbox**, or a line in the plan's **`## 📍 STATE`** block. Prose then carries only what is
+true forever: rationale, evidence, what was rejected and why, how it went.
+
+1. **Every live plan opens with the block**, immediately under its title: four keys — `Next:`,
+   `Blocked on:`, `Owner's call pending:`, `A session may, alone:` — one date, **≤ 20 lines**, always
+   that heading. The cap *is* the prevention: four slots have nowhere to put a narration and nowhere
+   to put a second copy. It **replaces** any hand-written `WHERE THIS RESUMES` / `RESUME AT` header.
+2. **A fact another system owns is linked, never asserted.** Merged, tagged, released, CI green,
+   branch alive, which commit: **git and `gh` are the record.** Write `PR #76` as a link; never
+   *"#76 is a draft"*, *"CI 7/7"* or *"nothing tagged"*. A ticked checkbox's _(date · commit)_
+   annotation is history and stays welcome.
+3. **One item, one STATE block**; every other mention is a **link**, syntactically. Hence
+   [`plans/ROADMAP.md`](plans/ROADMAP.md)'s map has columns `Plan | Delivers | Depends on` and **no
+   Status column**: a form with no status field cannot hold a status.
 
 ### The save point is EVERY handed-back turn — not the end of a step
 
 **Before handing back** — that is, any reply that does not chain into another tool call, so **every
-instant the human may `/clear`** — the plan must already say what the chat message is about to say.
-The test, applied before writing the reply: **if my reply contains "next: X", "Y remains", "resume at
-Z", those sentences must already exist in the plan, committed.** Otherwise write them there first,
-and let the chat be the echo.
+instant the human may `/clear`** — the plan's **`## 📍 STATE` block** must already say what the chat
+message is about to say. The test, applied before writing the reply: **if my reply contains "next: X",
+"Y remains", "resume at Z", or a decision taken in conversation, those sentences already exist in the
+committed block.** Otherwise write them there first, and let the chat be the echo. Four keys and
+≤ 20 lines is cheap enough to write mid-reply — that cheapness is the rule, not a bonus.
 
 This is what no checkbox says on its own:
 
@@ -128,8 +161,29 @@ destroys — and the human had to ask for it to be saved. The right trigger is n
 it is **the handed-back turn**. **Goal: `/clear` is free at every instant, never only at step
 boundaries.**
 
+**And "the plan" is PLURAL — measured here, 2026-08-20.** A session made **8 commits, 4 of them into
+plans**, obeyed the save point every time, and still left the corpus stale: **four** files restated
+the same item's status (`agent-orchestrated-release-mode-action.md`,
+`update-regime-owns-what-it-shipped-action.md`, `v4.9.0-mutation-debt-plan.md`,
+`maintainers/mutation/RESULTS.md`) and each commit updated **the plan that was open**. Nothing was
+forgotten: the state had been **copied**, and a copy is invisible from inside the file you have open —
+§3bis's own principle broken one level up, at the corpus rather than at a single plan. So:
+
+- **Name the carriers, do not recall them**: `git grep -l "<branch>" -- '*.md'` before handing back.
+  Every file that answers must already say what the reply says, or be told in one line why it needs
+  nothing.
+- **One item, one OWNING plan.** A second file that restates a status is a future lie: link to the
+  owner instead. Deduplicate the moment the grep shows a duplicate.
+- **An orchestrated run (§12) has almost no hand-backs**: dozens of tool calls between two of them, so
+  the mode rarefies the save point exactly when there is most state to record. On such a run, save at
+  **each decision as it lands**.
+- **Deterministic net (ADR 0009), machine-local**: `~/.claude/hooks/plan-carrier-guard.mjs` blocks the
+  hand-back naming the untouched carriers. It judges **no content**. Braces; this section is the belt.
+
 This is the **all-projects** convention; the global rule
-`use-case-driven-harness/rules/plans.md` § "Mémoire & /clear" carries the same, machine-wide.
+[`use-case-driven-harness/rules/plans.md`](https://github.com/tpierrain/use-case-driven-harness)
+§ "The save point is EVERY handed-back turn" carries the same, machine-wide, and **owns the method**:
+change it there first, then carry the consequence here.
 
 ## 4. Artifacts in English (conversation may be in French)
 
@@ -197,7 +251,7 @@ dismissal is the bug. I/O glue still hides logic — a `.md` filter, a `.obsidia
   no-op on the exact promise that release existed to keep. The file ended at **100 %**.
 - **Coverage ≠ verification.** A suite can show high line coverage and still kill ~0 % of mutants. The
   objective signal is the **mutation score**, not coverage. See the plan
-  [`plans/prospective/mutation-testing-stryker.md`](plans/prospective/mutation-testing-stryker.md).
+  [`plans/prospective/mutation-testing-stryker.md`](plans/archived/mutation-testing-stryker.md).
 - **Two durable guardrails back this up** (Step 4 of that plan): a deterministic **sibling-test guard**
   (`rag/src/lib/lib-coverage-guard.test.ts` fails loud if a `src/lib` module has no `*.test.ts`), and a
   targeted **non-regression re-run** (`npm --prefix maintainers/mutation run mutate:changed`).
@@ -205,7 +259,7 @@ dismissal is the bug. I/O glue still hides logic — a `.md` filter, a `.obsidia
 ## 5ter. Assertion quality — what the mutation retrospective taught (2026-07)
 
 The mutation audit + hardening of all three packages (plan
-[`plans/prospective/mutation-testing-stryker.md`](plans/prospective/mutation-testing-stryker.md),
+[`plans/prospective/mutation-testing-stryker.md`](plans/archived/mutation-testing-stryker.md),
 Step 6) found **recurring shapes** of surviving mutant. Two homes:
 
 - **The 5 language-agnostic assertion habits** (assert the message not the fact; assert the whole
@@ -280,26 +334,70 @@ healthy notes declared broken**. The vault was fine; the checker was wrong.
 ## 5quinquies. Mutate a NEW production file the day it is written — not at the release tail
 
 **The rule.** When a new production file is finished — the tests are green and you are about to move on
-to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. The two commands,
-both run from the repo root:
+to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. Both commands run
+from the repo root:
+
+> ⚠️ **AN EXISTING FILE IS MEASURED BY ITS CHANGED LINES, NEVER WHOLE** _(2026-08-21, measured)_. The
+> scope of a run is the scope of the change; the discipline's own statement of it lives in
+> [`test-first-discipline`](../../use-case-driven-harness/skills/test-first-discipline/SKILL.md)
+> § *When to run it, and on what*, and this section carries only the commands.
+>
+> ```
+> # the changed hunk of an existing file — the runner passes the range straight through
+> node maintainers/mutation/mutate-one.mjs "scripts/update-engine.mjs:147-160"
+> ```
+>
+> **The numbers that made it a rule, from one iteration of the S6 block**: the two brand-new modules
+> cost ~40 s and ~1 min and found **two real defects**. `update-engine.mjs` whole cost **~7 min** (396
+> mutants) to find **one**, in the three lines just written; `reconcile-brain.mjs` whole cost ~7 min to
+> return a survivor list **byte-identical** to the previous run. Re-run on the hunk, the same defect
+> died in **44 s** (17 mutants). A third whole-file run was **killed by a 10-minute timeout** — the
+> practice had stopped fitting inside the loop it is supposed to serve.
+>
+> The corollary is worth as much as the minutes: on a whole-file run the score moves for reasons that
+> are not yours (one more equivalent over a larger denominator reads as a regression), and this repo has
+> spent real time diffing survivor lists to prove it broke nothing. **On a hunk-scoped run, every
+> survivor is yours.** Nothing to attribute.
+>
+> 🛑 **This does NOT license deferring to the tail** — see "Why the tail alone cannot work" below,
+> which is unchanged. The rule is "less surface, immediately", never "later".
 
 ```
+# a scripts file — the runner does the whole recipe, and refuses what it cannot measure
+node maintainers/mutation/mutate-one.mjs scripts/<the-one-file>.mjs
+
 # a rag/src/lib file — sandbox-free inPlace on the real tree is this config's own recipe
 node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
   run maintainers/mutation/stryker.rag.config.mjs --mutate "rag/src/lib/<the-one-file>.ts"
-
-# a scripts file — from a DISPOSABLE WORKTREE, with rag/node_modules symlinked into it
-node <repo>/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
-  run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate "scripts/<the-one-file>.mjs"
 ```
 
-The worktree is not ceremony you can skip for a one-file run: `inPlace` on the real tree lets a mutant of
-vault-mutating code (`clear-example-notes.mjs`, `auto-commit.mjs`) act for real, and the sandbox
-alternative has no git, which `engine-manifest-integrity` needs. Set it up **once per branch** and reset
-it between runs (`git reset --hard <sha>` + `git clean -qfd -e rag/node_modules`, **never**
-`git checkout -- .`); then each day-of run really is 1-3 minutes. Verify the symlink bought what it was
-for — `vault-write-guard.test.mjs` must report **0 skipped** in the worktree — or the mutants face a
-suite that cannot judge them, which is §5quater's fiction with a mutation score on top.
+**Belt and braces, and the braces came first** _(2026-08-20)_.
+[`mutate-one.mjs`](mutation/mutate-one.mjs) is the **braces**: it **refuses a target that is not
+committed** (see below), prunes stale worktree registrations before adding one, creates and resets the
+**disposable worktree** (`git reset --hard` + `git clean -qfd
+-e rag/node_modules`, **never** `git checkout -- .`), symlinks `rag/node_modules`, proves
+`vault-write-guard.test.mjs` reports **0 skipped** there, checks the config's tuning before the run and
+the timeout share after it, discards any stale log, and **fails loudly rather than report a score it
+did not measure**.
+
+> 🛑 **COMMIT, THEN MUTATE — and the tool enforces it now** _(2026-08-22)_. The worktree is built at
+> `git rev-parse HEAD`, so a pass launched over an **uncommitted** change measures the OLD bytes and
+> prints `✅ Mutation score 100 %` in exactly the same words. It happened twice in one night, two hours
+> apart, **with the rule already written in bold in `mutation/RESULTS.md` between the two attempts**:
+> a written rule competes with an output that says ✅ either way, and the output wins. So the runner
+> asks `git status --porcelain` about the **targets** (never the whole tree — editing plans while
+> mutating a committed file is the normal way it is used) and stops before touching a worktree.
+> **This is the general lesson, not a mutation-testing one**: when a rule has to be remembered at the
+> exact moment an instrument is reassuring you, move it into the instrument. The [`mutation-testing`](skills/mutation-testing/SKILL.md) skill is the **belt**: it
+holds what a script cannot — when a pass is due, how to read the survivors, when to simplify the
+production instead of writing a case, and when a named equivalent is honest.
+
+Why the worktree is not ceremony you can skip for a one-file run: `inPlace` on the real tree lets a
+mutant of vault-mutating code (`clear-example-notes.mjs`, `auto-commit.mjs`) act for real, and the
+sandbox alternative has no git, which `engine-manifest-integrity` needs. A suite that reports skipped
+cases in the worktree is §5quater's fiction with a mutation score on top. All of that is now the
+runner's job rather than yours to remember — which is the point: this section had carried the recipe
+in prose since v4.8.0 and the traps kept being paid anyway.
 
 This is an **addition, not a substitution**: the release-tail pass over everything the branch changed
 stays exactly as it is (§10's sibling in the release checklist). What changes is that the tail stops
@@ -319,6 +417,26 @@ child-process runner nothing observed (solved at v4.5.0 by turning the spawn's r
 never propagated), and a top-level script with no test sibling (a fix designed and named at v4.5.0, then
 deferred three releases running). The knowledge was complete, versioned and written down. What was
 missing was a net that fires **while the file is being written**.
+
+**What it may cost, arbitrated by Thomas** _(2026-08-21, during the v5.0.0 night)_. The rule above stays;
+what was capped is its **overhead**, after a night where the write-ups and the re-runs came to rival the
+feature work (74 commits, 35 of code, 12 of mutation prose; 694 lines of `RESULTS.md` against 1 448 of
+production). Four limits, and they are limits on the *bookkeeping*, never on the detector:
+
+- **One pass per feature block, not per sub-slice.** That night `update-engine.mjs` (~370 mutants,
+  11 minutes) was measured **twice for one slice**. Group the block's files and run them once.
+- **No confirmation re-run when the delta is predictable.** State the predicted score in the commit or
+  the plan and let the next block's pass confirm it. Being right out loud is not worth 11 minutes.
+- **`RESULTS.md`: one line per file.** A paragraph is earned only by a **new shape** of defect (the kind
+  that becomes a durable rule), not by every slice's number.
+- **No pass at all** on doc-only or wiring-only slices, nor on a large file changed by two lines — say so
+  in writing, so a skip stays a choice and not an omission.
+
+**Not negotiable, and this is why the cap is on the paperwork only**: a new pure module, anything on the
+**write path** (this product overwrites files inside other people's brains, and its failure mode is
+silent and permanent), and prose that IS the deliverable. That same night the detector found a flaky test
+inflating every score in the release, a product defect that would have silenced future verdicts, and
+three tests that tested nothing. **The instrument earns its keep; the commentary around it did not.**
 
 Two corollaries, both earned the same day:
 
@@ -393,11 +511,24 @@ ADR.**
 
 ## 7. Plan done = archived
 
-The moment a plan ships, **in the same change**: set its top `STATUS` to ✅ (with proof — commit
-SHAs / what was verified) **and `git mv` it into [`plans/archived/`](plans/archived/)**. Never leave a
-shipped plan at the root; never delete it (the archive keeps the step detail). A plan whose core
-shipped but that still carries an open conditional/exploratory tail goes to `plans/prospective/`.
-Update the plans listing in [`README.md`](README.md). Full convention: [`README.md`](README.md).
+The moment a plan ships, **in the same change**: `git mv` it into
+[`plans/archived/`](plans/archived/) **under a date-prefixed name** — `2026-08-21-<name>.md`, the date
+it closed. Never leave a shipped plan at the root; never delete it (the archive keeps the step
+detail). A plan whose core shipped but that still carries an open conditional/exploratory tail goes to
+`plans/prospective/`. Update the plans listing in [`README.md`](README.md), and **hand the door over**:
+remove its link from [`plans/ACTIVE.md`](plans/ACTIVE.md) in the same commit.
+
+> 📅 **Why the date prefix** _(2026-08-22, Thomas asked for an archived marker in the filename itself)_.
+> A date reads as *historical record* at a glance and sorts by close date, which is what an archive is
+> for. **Newly archived files only — no retro-rename of the existing ones**: it would break Markdown
+> cross-links across the whole corpus to fix what the one-door rule already fixes by removing the other
+> ways in.
+>
+> 🚫 **And the archived plan's `## 📍 STATE` block goes when it is archived** — replaced by one line
+> saying which release shipped it. A block whose name means *"the only perishable thing here"* has no
+> business in a file that is, by definition, finished. _(This is what produced a 40-line apology header
+> in one archived plan: two live statuses were written into a file whose own first line forbids reading
+> it for status.)_
 
 **Ship ⇒ also retire the working-memory pointer (anti-context-rot).** A maintainer's running
 working-memory (the agent's `MEMORY.md` index, loaded in full every session) must NOT accumulate
@@ -525,19 +656,42 @@ what they gain is.
 
 **The shape, every time:**
 
-1. **A two-sentence lead** saying what the reader gains, in their words. No `git`, no file names, no
-   internal vocabulary. Not what we built: what changes for them.
-2. **`What you get`** — one-line bullets, an emoji + a bold claim + at most one sentence of plain
-   language. Six bullets is already a lot. If a bullet needs a paragraph, the paragraph belongs in
-   *Under the hood* and the bullet keeps only the outcome.
-3. **`What you have to do`** — the shortest section, the command and the cost.
-4. **`---`, then `Under the hood`** and everything technical: the mechanics, the ADRs, the review,
+1. **`What this release is about`** — the subject, before any fix. It opens on **one sentence set as a
+   pull quote** (`> ###`), the single thing a reader scanning for ten seconds must leave with, then
+   says in two or three short paragraphs what the product does today, what the problem costs them,
+   and what this release ends. **Describe the old behaviour fairly**: if it was a deliberate
+   trade-off, say so — a note that presents yesterday's design as a flaw teaches the reader to
+   distrust today's.
+2. **`What you get`, grouped by MOMENT** — one heading per moment the reader can situate themselves
+   in (*when you update your brain*, *the rest of the time, in ordinary conversations*), each under
+   one line of framing that names the moment and the command that triggers it. A flat list forces the
+   reader to infer, bullet by bullet, *when* each promise applies.
+3. **Every bullet stands ALONE**: an emoji, a bold claim that names its own context, then **one plain
+   sentence — or one concrete example**, whichever lands. An example is worth its extra line;
+   abstraction dressed as brevity is not. Seven bullets is already a lot. If one needs a paragraph,
+   the paragraph belongs in *Under the hood* and the bullet keeps the outcome.
+4. **`What you have to do`** — the shortest section, the command and the cost.
+5. **`---`, then `Under the hood`** and everything technical: the mechanics, the ADRs, the review,
    CI, the mutation snapshot. **Nothing is cut** — depth is kept, it is *moved below the fold*, where
-   the readers who want it will go and the others will not trip over it.
+   the readers who want it will go and the others will not trip over it. **Field measurements live
+   here**, not at the top: *"a skill frozen since install day with not one line of its owner's in
+   it"* proves an internal heuristic was wrong, which convinces a maintainer and costs a
+   non-developer a subtlety they never asked to hold.
 
 **Be brief on purpose.** We are in an era where machines generate a lot of text and humans are tired
 of reading it. Length is not thoroughness — the technical sections carry the thoroughness. Every
 sentence above the `---` earns its place or goes.
+
+**And the writer's shorthand is not plain language.** *"A brain the way you want it"*, *"your words
+are never lost"*, *"it keeps a private copy so it can tell your words from its own"*: each is true,
+compact, and leaves the reader to guess what it stands for. Name the things themselves — *the changes
+you made to your second brain's capabilities*, *the improvements that follow*. The test is not
+whether the sentence is short: it is whether someone who did not build this can picture what it
+describes.
+
+**The body is written UNWRAPPED**, one line per paragraph or bullet. Hard breaks at ~100 columns are
+invisible once rendered and a nuisance in any editor that reflows — this file is a body to be pasted,
+not source to be diffed line by line.
 
 **Do not alarm.** State a fix without dramatizing the defect ("notes that could come out damaged,
 don't" — not "notes were destroyed"), scope it to what actually happened, and **never advertise bugs
@@ -549,6 +703,67 @@ frame them as the quality of what ships, not as a list of near-misses the reader
 > nothing told you". Rewritten top-down for a non-dev reader, technical depth preserved under
 > *Under the hood*. Complements §10, which says the note is a marketing artifact and must lead with
 > *why this matters to you* — this section says how.
+>
+> **Rewritten 2026-08-22, on Thomas's call, from his live re-read of the v5.0.0 note.** The old shape
+> (*two-sentence lead*, *one flat `What you get`*, *at most one sentence per bullet*) had been obeyed
+> to the letter and still produced a top he judged *"trop cryptique … technico-technique"*. What the
+> rewrite cost him was **nine successive corrections in one sitting** — the subject was missing, the
+> moment was missing, the examples were missing, the promise arrived last, the shorthand said nothing
+> — and every one of them is now a line above, so the next release starts where this one finished
+> instead of re-deriving it. **The rule was not amended quietly**: the note deviated first, said in
+> writing that it was deviating, and the convention was changed only once he arbitrated it.
+
+## 12. Orchestrating subagents — what may be delegated, and what a wave costs
+
+Measured on the **first real run** of the mode (S0bis, 2026-08-20: two structural mutation debts paid,
+14 agents, ~1 h). Homed here rather than left in
+[`plans/prospective/agent-orchestrated-release-mode-action.md`](plans/prospective/agent-orchestrated-release-mode-action.md)
+because that file is scheduled to be **archived when the release ships** — and a doctrine kept in a
+file with an expiry date is how the same lesson gets re-learned. The plan keeps the run's narrative;
+what survived the measurement lives here.
+
+**The two rules that made delegation safe. Neither is negotiable.**
+
+1. **Nothing is dispatched without a machine-evaluable pass/fail.** If success can only be judged by
+   reading the result, the task is not delegable — it is yours. This is what kept 14 parallel agents
+   from producing 14 plausible-looking regressions.
+2. **No agent writes a test.** Tests are written before the fan-out, by the session that holds the
+   design. An agent that authors its own judge grades its own homework; the tautological test is the
+   dominant failure mode of test-first work (see §5), and parallelism multiplies it.
+
+**What the fan-out actually bought, and what it did not.** It paid on the twelve mechanical
+conversions: same gesture, twelve files, no shared context needed. It bought **nothing** anywhere
+judgement was involved — the guard test, the canary, the session-critical files, the second debt were
+all kept in session, and those are precisely the parts that found the real problems. **Judgement does
+not parallelize.** Delegate volume, never design.
+
+**A wave is a shared working tree, and that is its real cost.**
+
+- 🛑 **While agents are in flight, stage explicit paths. Never `git add -A`, `.`, `-u`, a bare
+  directory, or `git commit -a`.** During S0bis this exact mistake was made **twice in one night**
+  (`b4bd7a4`, then `4fdb91b`), sweeping half-finished agent work into unrelated commits. Both landed
+  green *by luck*. **Deterministic net (ADR 0009)**: a `PreToolUse` hook,
+  `~/.claude/hooks/wave-staging-guard.mjs`, stamps every agent dispatch and **blocks** a broad stage
+  for 20 minutes afterwards. The hook is the braces, this line is the belt.
+  ⚠️ **The hook is machine-local and therefore does not travel**: it lives under `~/.claude/`, not in
+  this repo, so a fresh machine (or anyone else cloning Kenjaku) has the belt and no braces. Making it
+  portable means homing it in `use-case-driven-harness` alongside `en-artifact-guard.mjs` — **open,
+  not decided** (raised 2026-08-20, deliberately not done in the same breath as writing it).
+- **A saturated machine can manufacture false reds.** A timing-sensitive test failed once during the
+  run under full load and never reproduced afterwards (30 attempts). Treat an isolated red during a
+  wave as *suspect* rather than as fact: re-run it alone before acting on it, and never "fix" a
+  timing margin on the strength of a single loaded-machine failure.
+
+**The run log is evidence, not a trophy.** Every claim written into a run log must be checked against
+the diff before it is committed. S0bis's log credited a refactor with catching a defect the run had
+never found (`main` already guarded that case); it was corrected in place, **visibly**, rather than
+quietly deleted. A log that inflates refactoring into bugs-found makes the whole trace worthless, and
+it is the orchestrator — not the agents — who writes it.
+
+> Origin: Thomas, 2026-08-20, on reading the S0bis debrief — *"comment peux-tu en tenir compte pour la
+> suite ?"*. The honest answer was that the lessons sat in a run log, which is where behaviour goes to
+> die: the mistakes were made **while acting**, not while reading a plan. Hence a rule with a carrier
+> that loads when it is needed, plus a hook for the one lesson that repeated.
 
 ## See also (operative rules already homed in the repo)
 
@@ -557,5 +772,19 @@ frame them as the quality of what ships, not as a list of near-misses the reader
   "one open PR of mine" resume convention (ADR 0013), §8 cross-platform parity (ADR 0015).
 - [`README.md`](README.md) — what `maintainers/` is, the ADR `Scope:` convention, the
   plan-done = archived convention.
+- [`skills/`](skills/) — the **maintainer skills**, which live here rather than in `.claude/skills/`
+  precisely because `maintainers/` never travels to a generated brain:
+  [`mutation-testing`](skills/mutation-testing/SKILL.md) (run and **read** a mutation pass — §5quinquies'
+  belt, whose braces are [`mutation/mutate-one.mjs`](mutation/mutate-one.mjs)). It is loaded by being
+  named here; nothing else advertises it. _(`plan-discipline` used to sit beside it and **left on
+  2026-08-20**: it lives in the harness, symlinked into `~/.claude/skills/`, which is what finally
+  made it loadable — under `maintainers/` it sat on a path Claude Code does not scan, so it was
+  available in no session at all. See [`plan-discipline.md`](plan-discipline.md).)_
 - ADR [`0009-prefer-deterministic-mechanisms.md`](decisions/0009-prefer-deterministic-mechanisms.md) —
   at equal reliability, prefer a deterministic mechanism over a probabilistic / LLM / in-memory-timer one.
+- `~/.claude/hooks/wave-staging-guard.mjs` — the net under §12's staging rule (machine-local, not in
+  this repo; `node wave-staging-guard.mjs --selftest` is its own suite, 20 cases).
+- `~/.claude/hooks/plan-carrier-guard.mjs` — the net under §3bis's plural-carriers rule: on `Stop`, it
+  names the files that mention the current branch and were not touched, and blocks the hand-back
+  (machine-local too; `--selftest` = 29 cases on the pure core, `plan-carrier-guard.e2e.sh` beside it
+  = 8 end-to-end payloads, and `--explain` prints its verdict for the current repo).

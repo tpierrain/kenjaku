@@ -1,0 +1,136 @@
+18:25:39 (69392) INFO ProjectReader Found 3 of 630 file(s) to be mutated.
+18:25:39 (69392) INFO Instrumenter Instrumented 3 source file(s) with 165 mutant(s)
+18:25:39 (69392) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+18:25:39 (69392) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-uZufLr
+18:25:39 (69392) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+18:25:39 (69392) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+18:25:40 (69392) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1624 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 144)
+
+[Survived] ObjectLiteral
+scripts/rehydrate.mjs:34:30
+-       mkdirSync(dirname(path), { recursive: true });
++       mkdirSync(dirname(path), {});
+
+[Survived] BooleanLiteral
+scripts/rehydrate.mjs:34:43
+-       mkdirSync(dirname(path), { recursive: true });
++       mkdirSync(dirname(path), { recursive: false });
+
+[Survived] StringLiteral
+scripts/rehydrate.mjs:64:76
+-       deps.writeFile(join(root, ".mcp.json"), JSON.stringify(mcp, null, 2) + "\n");
++       deps.writeFile(join(root, ".mcp.json"), JSON.stringify(mcp, null, 2) + "");
+
+[Survived] StringLiteral
+scripts/rehydrate.mjs:112:12
+-       stdio: "inherit",
++       stdio: "",
+
+[Survived] ConditionalExpression
+scripts/rehydrate.mjs:130:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/rehydrate.mjs:130:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runRehydrate(process.argv.slice(2)));
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] MethodExpression
+scripts/rehydrate.mjs:131:29
+-     process.exit(runRehydrate(process.argv.slice(2)));
++     process.exit(runRehydrate(process.argv));
+
+[Survived] ConditionalExpression
+scripts/rehydrate.mjs:130:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (true) {
+
+[Survived] ObjectLiteral
+scripts/vault-write-guard.mjs:23:30
+-   export const realGuardDeps = {
+-     readInput: () => readFileSync(0, "utf8"),
+-     readFile: (path) => readFileSync(path, "utf8"),
+-     // The brain root is derived from THIS module's location (one level up from
+-     // scripts/), never from the hook's cwd — same rule as auto-commit.mjs.
+-     brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ".."),
+-     parser: (brainDir) => engineParser({ brainDir }),
+-     emit: (payload) => console.log(JSON.stringify(payload)),
+-   };
++   export const realGuardDeps = {};
+
+[Survived] ArrowFunction
+scripts/vault-write-guard.mjs:24:14
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => undefined,
+
+[Survived] StringLiteral
+scripts/vault-write-guard.mjs:24:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] ArrowFunction
+scripts/vault-write-guard.mjs:25:13
+-     readFile: (path) => readFileSync(path, "utf8"),
++     readFile: () => undefined,
+
+[Survived] StringLiteral
+scripts/vault-write-guard.mjs:25:42
+-     readFile: (path) => readFileSync(path, "utf8"),
++     readFile: (path) => readFileSync(path, ""),
+
+[Survived] ArrowFunction
+scripts/vault-write-guard.mjs:28:13
+-     brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ".."),
++     brainDir: () => undefined,
+
+[Survived] StringLiteral
+scripts/vault-write-guard.mjs:28:68
+-     brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ".."),
++     brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ""),
+
+[Survived] ArrowFunction
+scripts/vault-write-guard.mjs:29:11
+-     parser: (brainDir) => engineParser({ brainDir }),
++     parser: () => undefined,
+
+[Survived] ObjectLiteral
+scripts/vault-write-guard.mjs:29:38
+-     parser: (brainDir) => engineParser({ brainDir }),
++     parser: (brainDir) => engineParser({}),
+
+[Survived] ArrowFunction
+scripts/vault-write-guard.mjs:30:9
+-     emit: (payload) => console.log(JSON.stringify(payload)),
++     emit: () => undefined,
+
+[Survived] ConditionalExpression
+scripts/vault-write-guard.mjs:68:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/vault-write-guard.mjs:68:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runGuard());
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+Ran 0.99 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  87.88 |   87.88 |      144 |         1 |         20 |        0 |        0 |
+ lib                    | 100.00 |  100.00 |       54 |         0 |          0 |        0 |        0 |
+  universe-reminder.mjs | 100.00 |  100.00 |       54 |         0 |          0 |        0 |        0 |
+ rehydrate.mjs          |  90.80 |   90.80 |       79 |         0 |          8 |        0 |        0 |
+ vault-write-guard.mjs  |  50.00 |   50.00 |       11 |         1 |         12 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+18:29:55 (69392) INFO MutationTestExecutor Done in 4 minutes and 16 seconds.
+18:29:55 (69392) INFO Sandbox Resetting your original files from .stryker-tmp/backup-uZufLr.

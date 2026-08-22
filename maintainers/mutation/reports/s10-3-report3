@@ -1,0 +1,30 @@
+[32m23:46:32 (82657) INFO ProjectReader[39m Found 1 of 845 file(s) to be mutated.
+[32m23:46:32 (82657) INFO Instrumenter[39m Instrumented 1 source file(s) with 28 mutant(s)
+[32m23:46:32 (82657) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m23:46:32 (82657) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-oi567c
+[32m23:46:32 (82657) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m23:46:32 (82657) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m23:46:35 (82657) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2967 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/28 tested (0 survived, 0 timed out)
+Mutation testing 17% (elapsed: <1m, remaining: ~1m) 5/28 tested (0 survived, 0 timed out)
+Mutation testing 17% (elapsed: <1m, remaining: ~2m) 5/28 tested (0 survived, 0 timed out)
+Mutation testing 35% (elapsed: <1m, remaining: ~1m) 10/28 tested (0 survived, 0 timed out)
+Mutation testing 53% (elapsed: <1m, remaining: <1m) 15/28 tested (0 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~1m, remaining: <1m) 15/28 tested (0 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~1m, remaining: <1m) 20/28 tested (0 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~1m, remaining: <1m) 20/28 tested (0 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~1m, remaining: <1m) 25/28 tested (0 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 28)
+
+Ran 1.00 tests per mutant on average.
+-------------------|------------------|----------|-----------|------------|----------|----------|
+                   | % Mutation score |          |           |            |          |          |
+File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files          | 100.00 |  100.00 |       28 |         0 |          0 |        0 |        0 |
+ update-engine.mjs | 100.00 |  100.00 |       28 |         0 |          0 |        0 |        0 |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m23:48:06 (82657) INFO MutationTestExecutor[39m Done in 1 minute and 33 seconds.
+[32m23:48:06 (82657) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-oi567c.

@@ -1,0 +1,168 @@
+21:14:17 (40068) INFO ProjectReader Found 2 of 661 file(s) to be mutated.
+21:14:17 (40068) INFO Instrumenter Instrumented 2 source file(s) with 290 mutant(s)
+21:14:17 (40068) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:14:17 (40068) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-PmSkwt
+21:14:17 (40068) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:14:17 (40068) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:14:19 (40068) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1930 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 264)
+
+[Survived] OptionalChaining
+scripts/lib/universe-profile.mjs:93:26
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
++       return Array.isArray(parsed.declined) ? parsed.declined : [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:188:75
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: [], topics: [], connectors: [], other: ["Stryker was here"] };
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:191:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s+(.*)/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:191:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s(.*)$/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:199:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/^[-*]\s/, ""));
+
+[Survived] ObjectLiteral
+scripts/set-universe-profile.mjs:49:16
+-   const realIo = {
+-     existsSync,
+-     readFileSync: (p) => readFileSync(p, "utf-8"),
+-     writeFileSync,
+-     mkdirSync,
+-   };
++   const realIo = {};
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:51:17
+-     readFileSync: (p) => readFileSync(p, "utf-8"),
++     readFileSync: () => undefined,
+
+[Survived] StringLiteral
+scripts/set-universe-profile.mjs:51:40
+-     readFileSync: (p) => readFileSync(p, "utf-8"),
++     readFileSync: (p) => readFileSync(p, ""),
+
+[Survived] ObjectLiteral
+scripts/set-universe-profile.mjs:56:32
+-   export const realProfileDeps = {
+-     cwd: () => process.cwd(),
+-     today: () => new Date().toISOString().slice(0, 10),
+-     activeUniverse: () => readActiveUniverse(realIo, vaultRagDir(process.cwd())),
+-     readInput: () => readFileSync(0, "utf8"),
+-     io: realIo,
+-     spawnSync,
+-     platform: process.platform,
+-     log: (...a) => console.log(...a),
+-     error: (...a) => console.error(...a),
+-   };
++   export const realProfileDeps = {};
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:58:10
+-     today: () => new Date().toISOString().slice(0, 10),
++     today: () => undefined,
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:57:8
+-     cwd: () => process.cwd(),
++     cwd: () => undefined,
+
+[Survived] MethodExpression
+scripts/set-universe-profile.mjs:58:16
+-     today: () => new Date().toISOString().slice(0, 10),
++     today: () => new Date().toISOString(),
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:59:19
+-     activeUniverse: () => readActiveUniverse(realIo, vaultRagDir(process.cwd())),
++     activeUniverse: () => undefined,
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:60:14
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => undefined,
+
+[Survived] StringLiteral
+scripts/set-universe-profile.mjs:60:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:64:8
+-     log: (...a) => console.log(...a),
++     log: () => undefined,
+
+[Survived] ArrowFunction
+scripts/set-universe-profile.mjs:65:10
+-     error: (...a) => console.error(...a),
++     error: () => undefined,
+
+[Survived] BlockStatement
+scripts/set-universe-profile.mjs:134:17
+-     } catch (err) {
+-       deps.error(`✗ Invalid JSON answers on stdin: ${err.message}`);
+-       return 1;
+-     }
++     } catch (err) {}
+
+[Survived] StringLiteral
+scripts/set-universe-profile.mjs:135:16
+-       deps.error(`✗ Invalid JSON answers on stdin: ${err.message}`);
++       deps.error(``);
+
+[Survived] ConditionalExpression
+scripts/set-universe-profile.mjs:160:15
+-     const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
++     const NPM = false ? "npm.cmd" : "npm";
+
+[Survived] StringLiteral
+scripts/set-universe-profile.mjs:160:33
+-     const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
++     const NPM = deps.platform === "" ? "npm.cmd" : "npm";
+
+[Survived] StringLiteral
+scripts/set-universe-profile.mjs:160:43
+-     const NPM = deps.platform === "win32" ? "npm.cmd" : "npm";
++     const NPM = deps.platform === "win32" ? "" : "npm";
+
+[Survived] ConditionalExpression
+scripts/set-universe-profile.mjs:175:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/set-universe-profile.mjs:175:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runSetUniverseProfile(process.argv.slice(2)));
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] MethodExpression
+scripts/set-universe-profile.mjs:176:38
+-     process.exit(runSetUniverseProfile(process.argv.slice(2)));
++     process.exit(runSetUniverseProfile(process.argv));
+
+Ran 1.00 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  91.38 |   91.38 |      264 |         1 |         25 |        0 |        0 |
+ lib                      |  97.37 |   97.37 |      185 |         0 |          5 |        0 |        0 |
+  universe-profile.mjs    |  97.37 |   97.37 |      185 |         0 |          5 |        0 |        0 |
+ set-universe-profile.mjs |  80.00 |   80.00 |       79 |         1 |         20 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:21:42 (40068) INFO MutationTestExecutor Done in 7 minutes and 24 seconds.
+21:21:42 (40068) INFO Sandbox Resetting your original files from .stryker-tmp/backup-PmSkwt.

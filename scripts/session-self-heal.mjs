@@ -143,8 +143,15 @@ function skillGlobToDir(glob) {
 }
 
 // Derive the engine's DESIRED-STATE from the files it DELIVERS to this brain (F-B7 2g),
-// proven by restart-convergence.test.mjs. NEVER the frozen `engineMcpServers`/manifest
-// regimes alone — update-engine never refreshes those, which is the whole bug:
+// proven by restart-convergence.test.mjs. NEVER the recorded `engineMcpServers`/manifest
+// regimes alone.
+//
+// ⚠️ THIS COMMENT USED TO SAY "update-engine never refreshes those, which is the whole bug",
+// and half of it stopped being true at W3: step 7 now advances `regimes` and `retired` to
+// the engine's. `engineMcpServers` is still never advanced, so the sentence holds for the
+// half that matters here. And the derivation is not made redundant by W3 either — it must
+// hold for a brain that has NOT updated yet, and the staged `engine-skills/` half is in no
+// regime at all:
 //   • wanted skills  = engine merge skills (computeApplyPlan, for v3.3.0+ skills) ∪ the
 //                      staged `engine-skills/<name>/` dirs (upgrader-bound skills the
 //                      sacred scrub forbids delivering under `.claude/skills/`);

@@ -33,7 +33,8 @@ import { applyConnectorFiles } from "./scripts/lib/connectors-apply.mjs";
 import { clearExampleNotes } from "./scripts/lib/example-notes.mjs";
 import { isInstallerStub } from "./scripts/lib/claude-md.mjs";
 import { parseAnswers, resolveTargetDir, resolveRunMode } from "./scripts/lib/installer-args.mjs";
-import { parseLsFilesZ, filterCopyable } from "./scripts/lib/tracked-files.mjs";
+import { parseLsFilesZ, filterCopyable, parseLsFilesEolZ, deliversAsLf } from "./scripts/lib/tracked-files.mjs";
+import { normalizeEol } from "./scripts/lib/engine-base.mjs";
 import { resolveLocale, chooseLocale } from "./scripts/lib/locale.mjs";
 import { overlayLocale } from "./scripts/lib/locale-overlay.mjs";
 import { installStagedSkills } from "./scripts/lib/staged-skills.mjs";
@@ -66,7 +67,7 @@ import {
 } from "./scripts/lib/obsidian-register.mjs";
 import { formatObsidianHint } from "./scripts/lib/obsidian-health.mjs";
 import { buildHandoff } from "./scripts/lib/install-handoff.mjs";
-import { recordSourceAndProvenance } from "./scripts/lib/engine-source.mjs";
+import { recordSourceProvenanceAndBase, rerecordEngineWrite } from "./scripts/lib/engine-base-fs.mjs";
 import { resolveLatestTag } from "./scripts/lib/engine-fetch.mjs";
 import {
   checkNode,
@@ -303,10 +304,24 @@ if (!lsFiles.ok) {
   process.exit(1);
 }
 const tracked = filterCopyable(parseLsFilesZ(lsFiles.out));
+// 🪟 THE BRAIN IS DELIVERED WHAT THE OBJECT STORE HOLDS, not what this checkout
+// happens to hold (plan W2). Git for Windows defaults `core.autocrlf` to true, so a
+// launcher cloned there has a CRLF working tree — and a byte-verbatim copy makes the
+// brain CRLF from install day, with recorded shas that match no row of a fingerprint
+// table folded from LF blobs. (W1 repairs the brains that already have it; this stops
+// it recurring.) Git itself says which files it stores as LF, so nothing here has to
+// guess from a file extension.
+//
+// BEST EFFORT: a failed call leaves the map empty, `deliversAsLf` refuses every file,
+// and the copy is the byte-verbatim one it has always been. An installer must not
+// refuse to build a brain over a line-ending nicety.
+const lsEol = run("git", ["-C", ROOT, "ls-files", "--eol", "-z"]);
+const eolByPath = lsEol.ok ? parseLsFilesEolZ(lsEol.out) : {};
 for (const rel of tracked) {
   const dst = join(TARGET, rel);
   mkdirSync(dirname(dst), { recursive: true });
-  copyFileSync(join(ROOT, rel), dst);
+  if (deliversAsLf(eolByPath[rel])) writeFileSync(dst, normalizeEol(readFileSync(join(ROOT, rel), "utf8")));
+  else copyFileSync(join(ROOT, rel), dst);
 }
 ok(`brain folder created: ${TARGET} (${tracked.length} files copied from the launcher)`);
 
@@ -621,7 +636,7 @@ function setEnvVar(env, key, value) {
     (repo ? resolveLatestTag({ repo, git: gitSeam }) : null) ||
     refOf(["describe", "--tags", "--exact-match"]) ||
     null;
-  recordSourceAndProvenance({
+  recordSourceProvenanceAndBase({
     brainDir: TARGET,
     git: {
       repo,
@@ -630,7 +645,7 @@ function setEnvVar(env, key, value) {
       commit: refOf(["rev-parse", "HEAD"]) || null,
     },
   });
-  ok("engine source + provenance recorded in engine-manifest.json");
+  ok("engine source + provenance recorded, base tree seeded (.engine-base/)");
 }
 
 // Git repo OF THE BRAIN — foundation of auto-commit. NEW folder → `git init`
@@ -660,6 +675,12 @@ else warn("install commit failed (configure git user.name/email).");
 // touch nothing: we just point to the account's *Connectors*.
 // Non-interactive (CI / stdin not a TTY) → step fully skipped.
 step("5/10 · Wire up external sources (optional)");
+// F8 (v5.0.0 code review) — did THIS step write into settings.json? The provenance was
+// recorded above, before any connector merged its permissions in, so a brain that wires
+// one ends the install with a settings.json that no longer matches its own recorded sha:
+// born diverged, and nagged at every session start about a file its owner has not had a
+// second to edit. The engine wrote it; the record has to follow (see rerecordEngineWrite).
+let connectorsTouchedSettings = false;
 if (interactive) {
   const want = await ask("Wire up external sources now? [y/N]", "N");
   if (/^y/i.test(want)) {
@@ -671,6 +692,7 @@ if (interactive) {
       if (!/^y/i.test(pick)) continue;
       if (conn.kind === "mcp") {
         applyConnectorFiles(conn, { mcpPath, settingsPath });
+        connectorsTouchedSettings = true;
         ok(`${conn.id} wired up → .mcp.json + permissions settings.json`);
       } else {
         warn(`${conn.id}: native claude.ai connector — nothing to write into .mcp.json.`);
@@ -682,6 +704,12 @@ if (interactive) {
   }
 } else {
   warn("Non-interactive input — connectors step skipped.");
+}
+// Gated on a write having actually happened: an install that wired nothing must leave the
+// manifest byte-identical, exactly as the reconciler's own re-record is gated.
+if (connectorsTouchedSettings) {
+  rerecordEngineWrite({ brainDir: TARGET, rels: [".claude/settings.json"] });
+  ok("engine provenance re-recorded after the connector merge (.claude/settings.json)");
 }
 
 // ── 6. Example notes (optional) ──────────────────────────────────────────────

@@ -1,0 +1,192 @@
+16:17:06 (63175) INFO ProjectReader Found 5 of 626 file(s) to be mutated.
+16:17:06 (63175) INFO Instrumenter Instrumented 5 source file(s) with 147 mutant(s)
+16:17:06 (63175) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+16:17:06 (63175) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Jo2Leg
+16:17:06 (63175) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+16:17:06 (63175) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+16:17:08 (63175) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1552 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 118)
+
+[Survived] StringLiteral
+scripts/lib/rag-status.mjs:23:43
+-     const shown = errors.slice(0, max).join("; ");
++     const shown = errors.slice(0, max).join("");
+
+[Survived] ConditionalExpression
+scripts/lib/rag-status.mjs:25:10
+-     return rest > 0 ? `${shown} (+${rest} other(s))` : shown;
++     return true ? `${shown} (+${rest} other(s))` : shown;
+
+[Survived] EqualityOperator
+scripts/lib/rag-status.mjs:25:10
+-     return rest > 0 ? `${shown} (+${rest} other(s))` : shown;
++     return rest >= 0 ? `${shown} (+${rest} other(s))` : shown;
+
+[Survived] ArrayDeclaration
+scripts/lib/rag-status.mjs:38:39
+-     const failures = lastRun?.errors ?? [];
++     const failures = lastRun?.errors ?? ["Stryker was here"];
+
+[Survived] OptionalChaining
+scripts/lib/rag-status.mjs:38:20
+-     const failures = lastRun?.errors ?? [];
++     const failures = lastRun.errors ?? [];
+
+[Survived] StringLiteral
+scripts/lib/rag-status.mjs:48:58
+-       const waiting = queued > 0 ? `, ${queued} pending` : "";
++       const waiting = queued > 0 ? `, ${queued} pending` : "Stryker was here!";
+
+[Survived] StringLiteral
+scripts/lib/rag-status.mjs:52:7
+-         `(or ask me to), then reindex.`
++         ``
+
+[Survived] BlockStatement
+scripts/verify-index.mjs:32:83
+-   function defaultRunCrosscheck({ ragDir, platform = process.platform, argv = [] }) {
+-     const npx = platform === "win32" ? "npx.cmd" : "npx";
+-     return spawnSync(npx, ["tsx", "src/crosscheck-cli.ts", ...argv], {
+-       cwd: ragDir,
+-       stdio: "inherit",
+-       shell: needsShell(npx, platform),
+-       env: { ...process.env, SBG_NO_NOTIFY: "1" },
+-       windowsHide: true,
+-     });
+-   }
++   function defaultRunCrosscheck({ ragDir, platform = process.platform, argv = [] }) {}
+
+[Survived] ArrayDeclaration
+scripts/verify-index.mjs:32:77
+-   function defaultRunCrosscheck({ ragDir, platform = process.platform, argv = [] }) {
++   function defaultRunCrosscheck({ ragDir, platform = process.platform, argv = ["Stryker was here"] }) {
+
+[Survived] ConditionalExpression
+scripts/verify-index.mjs:33:15
+-     const npx = platform === "win32" ? "npx.cmd" : "npx";
++     const npx = true ? "npx.cmd" : "npx";
+
+[Survived] ConditionalExpression
+scripts/verify-index.mjs:33:15
+-     const npx = platform === "win32" ? "npx.cmd" : "npx";
++     const npx = false ? "npx.cmd" : "npx";
+
+[Survived] EqualityOperator
+scripts/verify-index.mjs:33:15
+-     const npx = platform === "win32" ? "npx.cmd" : "npx";
++     const npx = platform !== "win32" ? "npx.cmd" : "npx";
+
+[Survived] StringLiteral
+scripts/verify-index.mjs:33:28
+-     const npx = platform === "win32" ? "npx.cmd" : "npx";
++     const npx = platform === "" ? "npx.cmd" : "npx";
+
+[Survived] StringLiteral
+scripts/verify-index.mjs:33:38
+-     const npx = platform === "win32" ? "npx.cmd" : "npx";
++     const npx = platform === "win32" ? "" : "npx";
+
+[Survived] StringLiteral
+scripts/verify-index.mjs:33:50
+-     const npx = platform === "win32" ? "npx.cmd" : "npx";
++     const npx = platform === "win32" ? "npx.cmd" : "";
+
+[Survived] ArrayDeclaration
+scripts/verify-index.mjs:34:25
+-     return spawnSync(npx, ["tsx", "src/crosscheck-cli.ts", ...argv], {
++     return spawnSync(npx, [], {
+
+[Survived] StringLiteral
+scripts/verify-index.mjs:34:26
+-     return spawnSync(npx, ["tsx", "src/crosscheck-cli.ts", ...argv], {
++     return spawnSync(npx, ["", "src/crosscheck-cli.ts", ...argv], {
+
+[Survived] StringLiteral
+scripts/verify-index.mjs:34:33
+-     return spawnSync(npx, ["tsx", "src/crosscheck-cli.ts", ...argv], {
++     return spawnSync(npx, ["tsx", "", ...argv], {
+
+[Survived] ObjectLiteral
+scripts/verify-index.mjs:34:68
+-     return spawnSync(npx, ["tsx", "src/crosscheck-cli.ts", ...argv], {
+-       cwd: ragDir,
+-       stdio: "inherit",
+-       shell: needsShell(npx, platform),
+-       env: { ...process.env, SBG_NO_NOTIFY: "1" },
+-       windowsHide: true,
+-     });
++     return spawnSync(npx, ["tsx", "src/crosscheck-cli.ts", ...argv], {});
+
+[Survived] StringLiteral
+scripts/verify-index.mjs:36:12
+-       stdio: "inherit",
++       stdio: "",
+
+[Survived] ObjectLiteral
+scripts/verify-index.mjs:38:10
+-       env: { ...process.env, SBG_NO_NOTIFY: "1" },
++       env: {},
+
+[Survived] StringLiteral
+scripts/verify-index.mjs:38:43
+-       env: { ...process.env, SBG_NO_NOTIFY: "1" },
++       env: { ...process.env, SBG_NO_NOTIFY: "" },
+
+[Survived] BooleanLiteral
+scripts/verify-index.mjs:39:18
+-       windowsHide: true,
++       windowsHide: false,
+
+[Survived] ObjectLiteral
+scripts/verify-index.mjs:43:36
+-   export const realVerifyIndexDeps = {
+-     cwd: () => process.cwd(),
+-     runCrosscheck: defaultRunCrosscheck,
+-     error: (...a) => console.error(...a),
+-   };
++   export const realVerifyIndexDeps = {};
+
+[Survived] ArrowFunction
+scripts/verify-index.mjs:44:8
+-     cwd: () => process.cwd(),
++     cwd: () => undefined,
+
+[Survived] ArrowFunction
+scripts/verify-index.mjs:46:10
+-     error: (...a) => console.error(...a),
++     error: () => undefined,
+
+[Survived] ConditionalExpression
+scripts/verify-index.mjs:67:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/verify-index.mjs:67:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runVerifyIndex(process.argv.slice(2)));
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] MethodExpression
+scripts/verify-index.mjs:68:31
+-     process.exit(runVerifyIndex(process.argv.slice(2)));
++     process.exit(runVerifyIndex(process.argv));
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  80.27 |   80.27 |      118 |         0 |         29 |        0 |        0 |
+ lib                     |  93.64 |   93.64 |      103 |         0 |          7 |        0 |        0 |
+  brain-rehydrate.mjs    | 100.00 |  100.00 |       17 |         0 |          0 |        0 |        0 |
+  open-note.mjs          | 100.00 |  100.00 |       29 |         0 |          0 |        0 |        0 |
+  rag-status.mjs         |  86.79 |   86.79 |       46 |         0 |          7 |        0 |        0 |
+  staged-health-note.mjs | 100.00 |  100.00 |       11 |         0 |          0 |        0 |        0 |
+ verify-index.mjs        |  40.54 |   40.54 |       15 |         0 |         22 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+16:20:16 (63175) INFO MutationTestExecutor Done in 3 minutes and 10 seconds.
+16:20:16 (63175) INFO Sandbox Resetting your original files from .stryker-tmp/backup-Jo2Leg.

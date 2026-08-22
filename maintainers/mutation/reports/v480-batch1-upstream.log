@@ -1,0 +1,359 @@
+19:48:14 (35991) INFO ProjectReader Found 4 of 660 file(s) to be mutated.
+19:48:14 (35991) INFO Instrumenter Instrumented 4 source file(s) with 179 mutant(s)
+19:48:14 (35991) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+19:48:14 (35991) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-8S3iJy
+19:48:14 (35991) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+19:48:14 (35991) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+19:48:16 (35991) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1916 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 118)
+
+[Survived] ConditionalExpression
+scripts/lib/engine-fetch.mjs:43:7
+-     if (!ok) return null;
++     if (false) return null;
+
+[Survived] MethodExpression
+scripts/lib/engine-fetch.mjs:52:10
+-     return (out ?? "")
+-       .split("\n")
+-       .map((line) => {
+-         const m = /\srefs\/tags\/(.+)$/.exec(line);
+-         return m ? m[1].trim() : null;
+-       })
+-       .filter(Boolean);
++     return (out ?? "").split("\n").map(line => {
++     const m = /\srefs\/tags\/(.+)$/.exec(line);
++     return m ? m[1].trim() : null;
++   });
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:52:18
+-     return (out ?? "")
++     return (out ?? "Stryker was here!")
+
+[Survived] Regex
+scripts/lib/engine-fetch.mjs:55:17
+-         const m = /\srefs\/tags\/(.+)$/.exec(line);
++         const m = /\srefs\/tags\/(.+)/.exec(line);
+
+[Survived] MethodExpression
+scripts/lib/engine-fetch.mjs:56:18
+-         return m ? m[1].trim() : null;
++         return m ? m[1] : null;
+
+[Survived] ArrowFunction
+scripts/lib/engine-fetch.mjs:68:17
+-     makeTempDir = () => mkdtempSync(join(tmpdir(), "sbg-engine-src-")),
++     makeTempDir = () => undefined,
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:68:50
+-     makeTempDir = () => mkdtempSync(join(tmpdir(), "sbg-engine-src-")),
++     makeTempDir = () => mkdtempSync(join(tmpdir(), "")),
+
+[Survived] ArrowFunction
+scripts/lib/engine-fetch.mjs:69:15
+-     removeDir = (d) => rmSync(d, { recursive: true, force: true }),
++     removeDir = () => undefined,
+
+[Survived] ObjectLiteral
+scripts/lib/engine-fetch.mjs:69:32
+-     removeDir = (d) => rmSync(d, { recursive: true, force: true }),
++     removeDir = (d) => rmSync(d, {}),
+
+[Survived] BooleanLiteral
+scripts/lib/engine-fetch.mjs:69:45
+-     removeDir = (d) => rmSync(d, { recursive: true, force: true }),
++     removeDir = (d) => rmSync(d, { recursive: false, force: true }),
+
+[Survived] BooleanLiteral
+scripts/lib/engine-fetch.mjs:69:58
+-     removeDir = (d) => rmSync(d, { recursive: true, force: true }),
++     removeDir = (d) => rmSync(d, { recursive: true, force: false }),
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:87:9
+-           `otherwise check your internet connection and try again.`,
++           ``,
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:96:71
+-   export function readTargetManifest(dir, read = (p) => readFileSync(p, "utf8")) {
++   export function readTargetManifest(dir, read = (p) => readFileSync(p, "")) {
+
+[Survived] BlockStatement
+scripts/lib/engine-fetch.mjs:104:34
+-   export function defaultGit(args) {
+-     try {
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+-       return { out: out ?? "", ok: true };
+-     } catch (e) {
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
+-     }
+-   }
++   export function defaultGit(args) {}
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:106:30
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++       const out = execFileSync("", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+
+[Survived] BlockStatement
+scripts/lib/engine-fetch.mjs:105:7
+-     try {
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+-       return { out: out ?? "", ok: true };
+-     } catch (e) {
++     try {} catch (e) {
+
+[Survived] ObjectLiteral
+scripts/lib/engine-fetch.mjs:106:43
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++       const out = execFileSync("git", args, {});
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:106:55
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++       const out = execFileSync("git", args, { encoding: "", stdio: ["ignore", "pipe", "pipe"] });
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-fetch.mjs:106:70
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++       const out = execFileSync("git", args, { encoding: "utf8", stdio: [] });
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:106:81
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "", "pipe"] });
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:106:71
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["", "pipe", "pipe"] });
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:106:89
+-       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++       const out = execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", ""] });
+
+[Survived] ObjectLiteral
+scripts/lib/engine-fetch.mjs:107:12
+-       return { out: out ?? "", ok: true };
++       return {};
+
+[Survived] LogicalOperator
+scripts/lib/engine-fetch.mjs:107:19
+-       return { out: out ?? "", ok: true };
++       return { out: out && "", ok: true };
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:107:26
+-       return { out: out ?? "", ok: true };
++       return { out: out ?? "Stryker was here!", ok: true };
+
+[Survived] BooleanLiteral
+scripts/lib/engine-fetch.mjs:107:34
+-       return { out: out ?? "", ok: true };
++       return { out: out ?? "", ok: false };
+
+[Survived] BlockStatement
+scripts/lib/engine-fetch.mjs:108:15
+-     } catch (e) {
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
+-     }
++     } catch (e) {}
+
+[Survived] ObjectLiteral
+scripts/lib/engine-fetch.mjs:109:12
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
++       return {};
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:109:19
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
++       return { out: ``, ok: false };
+
+[Survived] LogicalOperator
+scripts/lib/engine-fetch.mjs:109:22
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
++       return { out: `${e.stdout && ""}${e.stderr ?? ""}`, ok: false };
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:109:34
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
++       return { out: `${e.stdout ?? "Stryker was here!"}${e.stderr ?? ""}`, ok: false };
+
+[Survived] LogicalOperator
+scripts/lib/engine-fetch.mjs:109:39
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
++       return { out: `${e.stdout ?? ""}${e.stderr && ""}`, ok: false };
+
+[Survived] StringLiteral
+scripts/lib/engine-fetch.mjs:109:51
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
++       return { out: `${e.stdout ?? ""}${e.stderr ?? "Stryker was here!"}`, ok: false };
+
+[Survived] BooleanLiteral
+scripts/lib/engine-fetch.mjs:109:61
+-       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: false };
++       return { out: `${e.stdout ?? ""}${e.stderr ?? ""}`, ok: true };
+
+[Survived] Regex
+scripts/lib/semver-tag.mjs:12:13
+-     const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "");
++     const m = /v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "");
+
+[Survived] Regex
+scripts/lib/semver-tag.mjs:12:13
+-     const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "");
++     const m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "");
+
+[Survived] Regex
+scripts/lib/semver-tag.mjs:12:13
+-     const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "");
++     const m = /^v?(\d)\.(\d+)\.(\d+)$/.exec(tag ?? "");
+
+[Survived] StringLiteral
+scripts/lib/semver-tag.mjs:12:51
+-     const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "");
++     const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "Stryker was here!");
+
+[Survived] ArrayDeclaration
+scripts/lib/semver-tag.mjs:20:29
+-     for (const tag of tags ?? []) {
++     for (const tag of tags ?? ["Stryker was here"]) {
+
+[Survived] ArithmeticOperator
+scripts/lib/semver-tag.mjs:38:10
+-     return a.patch - b.patch;
++     return a.patch + b.patch;
+
+[Survived] EqualityOperator
+scripts/lib/semver-tag.mjs:42:10
+-     return compareSemverTags(a, b) > 0;
++     return compareSemverTags(a, b) >= 0;
+
+[Survived] StringLiteral
+scripts/lib/upstream-cache.mjs:25:40
+-   export const UPSTREAM_CACHE_REL = join(".cache", "engine-upstream.json");
++   export const UPSTREAM_CACHE_REL = join("", "engine-upstream.json");
+
+[Survived] StringLiteral
+scripts/lib/upstream-cache.mjs:35:45
+-     const at = Date.parse(cached.checkedAt ?? "");
++     const at = Date.parse(cached.checkedAt ?? "Stryker was here!");
+
+[Survived] ArrowFunction
+scripts/lib/upstream-cache.mjs:45:9
+-     now = () => Date.now(),
++     now = () => undefined,
+
+[Survived] StringLiteral
+scripts/lib/upstream-cache.mjs:47:37
+-     readFile = (p) => readFileSync(p, "utf8"),
++     readFile = (p) => readFileSync(p, ""),
+
+[Survived] ObjectLiteral
+scripts/lib/upstream-cache.mjs:49:33
+-     makeDir = (p) => mkdirSync(p, { recursive: true }),
++     makeDir = (p) => mkdirSync(p, {}),
+
+[Survived] BooleanLiteral
+scripts/lib/upstream-cache.mjs:49:46
+-     makeDir = (p) => mkdirSync(p, { recursive: true }),
++     makeDir = (p) => mkdirSync(p, { recursive: false }),
+
+[Survived] ConditionalExpression
+scripts/upstream-check-run.mjs:21:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/upstream-check-run.mjs:21:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] StringLiteral
+scripts/upstream-check-run.mjs:22:37
+-     const flag = process.argv.indexOf("--brainDir");
++     const flag = process.argv.indexOf("");
+
+[Survived] BlockStatement
+scripts/upstream-check-run.mjs:21:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     const flag = process.argv.indexOf("--brainDir");
+-     const brainDir =
+-       flag !== -1 && process.argv[flag + 1]
+-         ? process.argv[flag + 1]
+-         : resolve(dirname(fileURLToPath(import.meta.url)), "..");
+-     await probeUpstream({ brainDir });
+-     process.exit(0);
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] ConditionalExpression
+scripts/upstream-check-run.mjs:24:5
+-       flag !== -1 && process.argv[flag + 1]
++       true
+
+[Survived] ConditionalExpression
+scripts/upstream-check-run.mjs:24:5
+-       flag !== -1 && process.argv[flag + 1]
++       false
+
+[Survived] LogicalOperator
+scripts/upstream-check-run.mjs:24:5
+-       flag !== -1 && process.argv[flag + 1]
++       flag !== -1 || process.argv[flag + 1]
+
+[Survived] ConditionalExpression
+scripts/upstream-check-run.mjs:24:5
+-       flag !== -1 && process.argv[flag + 1]
++       true && process.argv[flag + 1]
+
+[Survived] EqualityOperator
+scripts/upstream-check-run.mjs:24:5
+-       flag !== -1 && process.argv[flag + 1]
++       flag === -1 && process.argv[flag + 1]
+
+[Survived] UnaryOperator
+scripts/upstream-check-run.mjs:24:14
+-       flag !== -1 && process.argv[flag + 1]
++       flag !== +1 && process.argv[flag + 1]
+
+[Survived] ArithmeticOperator
+scripts/upstream-check-run.mjs:24:33
+-       flag !== -1 && process.argv[flag + 1]
++       flag !== -1 && process.argv[flag - 1]
+
+[Survived] ArithmeticOperator
+scripts/upstream-check-run.mjs:25:22
+-         ? process.argv[flag + 1]
++         ? process.argv[flag - 1]
+
+[Survived] StringLiteral
+scripts/upstream-check-run.mjs:26:58
+-         : resolve(dirname(fileURLToPath(import.meta.url)), "..");
++         : resolve(dirname(fileURLToPath(import.meta.url)), "");
+
+[Survived] ObjectLiteral
+scripts/upstream-check-run.mjs:27:23
+-     await probeUpstream({ brainDir });
++     await probeUpstream({});
+
+Ran 1.00 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  65.92 |   65.92 |      118 |         0 |         61 |        0 |        0 |
+ lib                    |  71.52 |   71.52 |      118 |         0 |         47 |        0 |        0 |
+  engine-fetch.mjs      |  54.05 |   54.05 |       40 |         0 |         34 |        0 |        0 |
+  semver-tag.mjs        |  84.09 |   84.09 |       37 |         0 |          7 |        0 |        0 |
+  upstream-cache.mjs    |  87.23 |   87.23 |       41 |         0 |          6 |        0 |        0 |
+ upstream-check-run.mjs |   0.00 |    0.00 |        0 |         0 |         14 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+19:53:12 (35991) INFO MutationTestExecutor Done in 4 minutes and 58 seconds.
+19:53:12 (35991) INFO Sandbox Resetting your original files from .stryker-tmp/backup-8S3iJy.

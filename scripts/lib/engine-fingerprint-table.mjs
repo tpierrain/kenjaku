@@ -1,0 +1,118 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// engine-fingerprint-table.mjs — the PURE half of the generator that builds
+// `scripts/lib/engine-fingerprints.json`, the table `healProvenance` recognises
+// installed bytes in (plan S7-2 of v5-unfreezes-the-existing-fleet-action.md).
+//
+// PURE by design, and the split is not taste: the git I/O (25 published tags, two
+// locales) lives in `maintainers/fingerprints/generate-fingerprints.mjs`, because
+// CI globs `scripts/lib/*.test.mjs` and globs nothing under `maintainers/qa/**` —
+// logic left in the maintainer script is logic no CI run ever executes.
+//
+// 🛑 DEV-ONLY: excluded from the copy into a brain by a `tracked-files.mjs` prefix.
+// A brain READS the table on every update; it never builds one.
+//
+// 🛑 THE GATE RUNS ON THE INSTALLED REL, NEVER ON THE SOURCE PATH. A French brain
+// holds the bytes of `templates/fr/CLAUDE.engine.md` AT `CLAUDE.engine.md`, so a
+// generator that asks the merge regime about the source path recognises nothing on
+// either of the owner's two real brains (S7-0, Correction 3).
+// ─────────────────────────────────────────────────────────────────────────────
+import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
+import { normalizeEol } from "./engine-base.mjs";
+import { deliversAsLf } from "./tracked-files.mjs";
+
+// `templates/<locale>/<rel>` is the ONLY localized shape (there is no
+// `templates/en/` — EN is the repo root). Three things carry weight here:
+//   • `(.+)` and not `(.*)`: a path with nothing left after the locale names a
+//     directory, and an empty rel would inject a key no lookup can ever match;
+//   • `^`, because a root path that merely CONTAINS the segment (a demo note under
+//     `vault/templates/fr/…`) would otherwise be filed under a rel that is not its
+//     own — a wrong row, i.e. the clobber risk, not a missing one;
+//   • `$` is defensive only, and it is a NAMED EQUIVALENT: it changes the answer
+//     solely for a path containing a newline, and the generator's `git ls-files`
+//     splits on newlines long before this is reached.
+const LOCALIZED = /^templates\/([^/]+)\/(.+)$/;
+
+export function installedRelOf(sourcePath) {
+  const match = LOCALIZED.exec(sourcePath);
+  return match ? { rel: match[2], locale: match[1] } : { rel: sourcePath, locale: "en" };
+}
+
+// The sources of ONE tree (a published tag, or the working tree) that the table
+// must fingerprint: every locale of every file under HEAD's `merge` regime, minus
+// HEAD's tombstones. `selectMergeFiles` is asked once, on the deduplicated rels,
+// so the regime is read exactly as the engine reads it — not re-implemented here.
+export function selectFingerprintSources({ manifest, sourceFiles }) {
+  const candidates = sourceFiles.map((sourcePath) => ({
+    sourcePath,
+    ...installedRelOf(sourcePath),
+  }));
+  const kept = new Set(selectMergeFiles(manifest, [...new Set(candidates.map((c) => c.rel))]));
+
+  // Sorted by rel then locale so the generated artefact diffs cleanly from one
+  // release to the next, and a reviewer reads a row, not a shuffle.
+  return candidates
+    .filter((c) => kept.has(c.rel))
+    .sort((a, b) => (a.rel === b.rel ? cmp(a.locale, b.locale) : cmp(a.rel, b.rel)));
+}
+
+// The same sources, each carrying THE BYTES A BRAIN RECEIVES — which is NOT what
+// `read` returns on a Windows clone.
+//
+// 🪟 The working tree is the only tree the generator cannot read from git's object
+// store (it is not committed yet), and git for Windows checks it out as CRLF. Fold
+// it verbatim there and the release being cut claims 23 CRLF digests: rows that
+// recognise bytes no brain holds, in an artefact that looks exactly right. The
+// freshness guard read the same tree, so it was red on Windows for the same reason
+// — the last one on the branch.
+//
+// The oracle is `deliversAsLf`, the ONE function the installer copies with: what the
+// table records is what the copy writes. LF for anything the index holds as LF,
+// verbatim for the rest (binaries, committed CRLF, an `eol=crlf` attribute) — and
+// verbatim, too, for a path git said nothing about, because both callers get their
+// map best-effort and an unknown file is copied as-is.
+//
+// 🛑 An UNKNOWN PATH is verbatim; a MISSING MAP is a crash, and the asymmetry is
+// deliberate. Crashing stops a release being cut, which is recoverable in seconds;
+// folding a whole tree verbatim on Windows ships a CRLF table that reads as perfectly
+// normal and leaves the fleet frozen. So no `?.` guards the lookup.
+//
+// Both callers go through here so a wrong table and a green guard cannot coexist.
+export function deliveredSources({ manifest, sourceFiles, eolByPath, read }) {
+  return selectFingerprintSources({ manifest, sourceFiles }).map((source) => {
+    const raw = read(source.sourcePath);
+    return {
+      ...source,
+      content: deliversAsLf(eolByPath[source.sourcePath]) ? normalizeEol(raw) : raw,
+    };
+  });
+}
+
+// No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: both sort keys are built
+// from unique paths (`git ls-files` cannot list one twice, and object keys cannot
+// repeat), so the tie is unreachable by construction — the same shape, and the same
+// reasoning, as `healProvenance`'s comparator. A third branch returning 0 would be
+// dead code four mutants can hide in, so there is none.
+const cmp = (a, b) => (a < b ? -1 : 1);
+
+// The fold. `versions` comes in ASCENDING order, and FIRST WRITER WINS — so `since`
+// is the EARLIEST version that shipped those bytes, and the release being cut can
+// only ever claim bytes nobody shipped before it.
+//
+// ⚠️ When two locales hold identical bytes for one rel, one digest cannot carry two
+// locales: the first folded keeps it. The `locale` field is a REPORT (it is printed
+// to the owner), never a fact the heal branches on.
+export function buildFingerprintTable({ generatedAt, versions }) {
+  const files = {};
+  for (const { version, files: shipped } of versions) {
+    for (const { rel, locale, content } of shipped) {
+      const digest = fingerprint(content);
+      const versionsOfRel = (files[rel] ??= {});
+      if (!(digest in versionsOfRel)) versionsOfRel[digest] = { since: version, locale };
+    }
+  }
+
+  return {
+    generatedAt,
+    files: Object.fromEntries(Object.entries(files).sort(([a], [b]) => cmp(a, b))),
+  };
+}

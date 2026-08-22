@@ -3,6 +3,11 @@
 <!-- This file owns the CROSS-PLAN ORDER only. It never duplicates a plan's         -->
 <!-- content (checkboxes, done/remains, commits): each plan stays the single        -->
 <!-- source of truth for its own state; this is the map that says which goes first. -->
+<!--                                                                            -->
+<!-- plan-carrier-guard: delegates-only — the line above is a CONTRACT, and this -->
+<!-- declares it to the Stop hook, which otherwise names this file at every       -->
+<!-- hand-back for restating a status it structurally never holds. Delete this    -->
+<!-- line the day a row here starts carrying state of its own.                    -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # 🧭 ROADMAP — cross-plan ordering authority
@@ -18,22 +23,25 @@ to know the **order**.
 
 ---
 
-## ▶️ DIVERSION LIFTED — the unfreeze release is LIVE again (owner, 2026-08-19)
+## ▶️ What "Graph Engineering" turned out to mean (owner, 2026-08-19)
 
 **The framing conversation happened, and it sent the subject elsewhere than expected.** By *Graph
 Engineering* the owner meant **orchestrating subagents to BUILD the next release**, not a graph inside
-Kenjaku's runtime (*"c'est aucune de ces deux options"*). So:
+Kenjaku's runtime (*"c'est aucune de ces deux options"*). The three ordering consequences, which is
+all this file records:
 
-- **`prospective/update-regime-owns-what-it-shipped-action.md` is UNPAUSED** and is the next chantier.
-  It never lost its cargo (the doctrine issues, the mutation floor, the S6 rider).
-- **How it gets built is itself a subject**, with its own plan and its own open arbitrations:
-  `prospective/agent-orchestrated-release-mode-action.md` — the working contract (what is delegable,
-  the deterministic-check rule, the human stop points, the loop quota). **Read it before dispatching
-  anything to a subagent.**
-- **`prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md` goes back to a WATCH note.** The
-  runtime-graph question survives and is **deferred, on his explicit ask, to AFTER this release** — it
-  is a study to do *with* him, not work to pick up. He also **ruled out** building this release on top
-  of a knowledge graph of the codebase (too long, too little code for the payoff).
+- **v5.0.0 belongs to** [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md).
+  Its predecessor, [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md),
+  built S1-S6 and is closed.
+- **How it gets built is itself a subject**, with its own plan:
+  [`prospective/agent-orchestrated-release-mode-action.md`](prospective/agent-orchestrated-release-mode-action.md)
+  — the working contract (what is delegable, the deterministic-check rule, the human stop points, the
+  loop's shape). **Read it before dispatching anything to a subagent.**
+- **The runtime-graph question goes back to a WATCH note**
+  ([`prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md)):
+  **deferred, on his explicit ask, to AFTER this release** — a study to do *with* him, not work to
+  pick up. He also **ruled out** building the release on top of a knowledge graph of the codebase (too
+  long, too little code for the payoff).
 
 > 🛑 **Why the previous entry existed, kept because the lesson is not spent.** The 2026-08-15 diversion
 > was taken in conversation and written NOWHERE. A session resuming after a `/clear` read the pointer,
@@ -50,9 +58,12 @@ Kenjaku's runtime (*"c'est aucune de ces deux options"*). So:
 Decided with Thomas 2026-07-18, extended 2026-07-19 (universes). When juggling plans, keep this sequence:
 
 1. 🟢 **Green** — legacy-**safe** fresh-install layering of the constitution (new engine-owned
-   `CLAUDE.engine.md` in the `replace` regime; `CLAUDE.md` **stays** in `SACRED_FILES`, so deployed
-   monolithic brains are never clobbered). **Must ship BEFORE the migration's *generate* step**, so
-   the regenerated personal brain is born two-layer.
+   `CLAUDE.engine.md`; `CLAUDE.md` **stays** in `SACRED_FILES`, so deployed monolithic brains are never
+   clobbered). **Must ship BEFORE the migration's *generate* step**, so the regenerated personal brain
+   is born two-layer. _(The words "in the `replace` regime" stood here and never described reality: the
+   engine layer shipped in **no regime at all**, which is the frozen-doctrine finding on line 222. Which
+   regime it joins is **S5**'s, and it is `merge` — owned, with its design, by
+   [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md).)_
 2. 🌌 **Universes** — the soft, progressively-disclosed retrieval scope (ADR 0034). A Bucket-1
    note-convention / schema change, so it **must land BEFORE the migration's *import* step**, so the
    regenerated brain is born universe-aware and the imported notes are stamped at import time.
@@ -67,6 +78,21 @@ Decided with Thomas 2026-07-18, extended 2026-07-19 (universes). When juggling p
 **Why deferring 🔴 is safe:** the constitution is `sacred` and `constitutionTemplate` is frozen at
 `1.0.0`, so no constitution re-layering is forced. Deferral stays safe because **nothing forces** the
 fleet's upgrade in the interim.
+
+> ⚠️ **BOTH HALVES OF THAT ARGUMENT HAVE EXPIRED** _(noted 2026-08-22, found by the `plan-carrier-guard`
+> hook)_. **The number was never re-read**: `constitutionTemplate` left `1.0.0` at **v4.5.0** and reads
+> `1.3.0` today, having moved again at v4.6.0 and v4.8.0. And the premise underneath it is what the
+> unfreeze release exists to end: `CLAUDE.engine.md` **joins the `merge` regime**, so from v5.0.0 a
+> deployed brain *does* receive doctrine — *"nothing forces the fleet's upgrade"* stops being the
+> reason 🔴 is safe. **This paragraph has been patched around twice without being re-read** (the
+> `replace`-regime correction sits ten lines above it, the `indexSchemaVersion` correction just below),
+> which is how a rationale outlives every fact it rests on.
+>
+> 🚫 **Deliberately NOT rewritten here**: whether 🔴 stays deferred once brains receive again is a scope
+> call, and it is the owner's. What is fixed is the *reason* on offer, which was false. The release's
+> own state lives in
+> [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md);
+> this note keeps no copy of it.
 
 > ✅ **Closed (2026-07-28 · `a3943e9`).** For a while this paragraph's claim that `update-engine`
 > "handles the `indexSchemaVersion` 1 → 2 bump with a warning" was false: the universes commit moved the
@@ -203,31 +229,114 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
 > Determinism note (once green exists): consider a lightweight guard that fails loud if a release
 > bumps `constitutionTemplate` before green has shipped — turning this ordering invariant into an
 > enforced gate rather than a written one (ADR 0009 spirit).
+>
+> ✅ **The invariant is SATISFIED, checked 2026-08-22 rather than assumed.** Green shipped on
+> **2026-07-18** (Gate 1, `f998259`, PR #37 → `fc3b943`), so a release may bump `constitutionTemplate`.
+> Checked because v5.0.0's derived vector does exactly that (`1.3.0 → 1.4.0`), and this line is the
+> only place the ordering rule is written down. **The guard it proposes was never built** — the
+> invariant is still held by prose, which is why it had to be re-read by hand to clear a bump.
 
 ---
 
-## The map — active plans
+## The map — plans in flight
 
-| Plan (canonical) | What it delivers | Gate | Status |
-| --- | --- | --- | --- |
-| `prospective/engine-managed-file-merge-strategy.md` | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. | 1, **2.5** & 4 | 🟢 Increment 2.5 (skills half) shipped in **v4.1.0**; the constitution half stays prospective in Gate 4. |
-| `archived/universes-profiles-lifecycle-action.md` | Per-universe profiles (captured + injected), rename, guarded delete. | 2.6 | ✅ Shipped in **v4.2.0** (PR #49, 2026-07-28) — profiles + lifecycle + the mirror's universe choice, one release. Plan archived. |
-| `archived/universes-progressive-disclosure-action.md` | A soft, progressively-disclosed per-universe retrieval scope over one shared vault/index (ADR 0034). | 2 | ✅ Shipped (PR #38 in v3.6.0, then write-path trilogy + `/switch` flag in v3.6.2, 2026-07-21). Plan archived; field-verify folds into Gate 3. |
-| `prospective/fleet-upgrade-field-feedback.md` | Defects observed on a real deployed brain crossing three versions, captured live. | 4 | 🔬 **Run CLOSED (2026-07-28)** — F1-F12 recorded, each verified on disk. Now the **evidence**, not the work list: the fixes shipped in **v4.4.0** (`archived/release-v4.4.0-action.md`). Only F3 (silent reindex) and F7 (unverified outcome reported in the measured voice) remain here, both deferred to Gate 4 on purpose. |
-| `archived/release-v4.4.0-action.md` | Turns the field log into shipped code: a commit that follows the index instead of the session, a status line that yields to the owner's, an indexer that reports what it could not read, a consolidation that cannot damage a page. | 4 | ✅ Shipped as **v4.4.0** (2026-08-02, PR #53, CI 7/7) — all ten tracks, nothing cut. Plan archived beside its published note. Still owed: the on-a-real-brain verification (needs an installed brain, which the launcher is not). |
-| `archived/field-findings-2026-08-02-action.md` | 16 findings from one evening on a real brain, cut into four releases: **v4.5.0** promises kept (multi-machine clone, failure ≠ wait, disk↔index crosscheck), **v4.6.0** the vault's identity (resolve before writing, homonymy), **v4.7.0** visibility (the machine that is behind, the index promising a resume), **v4.8.0** consent that can answer *"what for?"* (the upstream check, a note that says what it was built from, a checked Slack account). | — | 🏁 **DONE, ARCHIVED (2026-08-05).** All four shipped: **v4.5.0** (tag, PR #54, merge `96f5999`), **v4.6.0** (PR #55, `c0b2b16`), **v4.7.0** (PR #57, `556f950`), **v4.8.0** (PR #58, `e0dbb7b`, CI 7/7 on the tagged commit, release published). Each note + PR body archived beside the plan; mutation numbers pinned in `mutation/RESULTS.md`, one section per release. **What leaves it**: the two structural mutation remedies the owner arbitrated into v4.9.0 → `prospective/v4.9.0-mutation-debt-plan.md`. |
-| `archived/field-report-2026-08-07-rag-orphans-and-windows-launchers.md` | The RAG MCP server never exits when the client disconnects, so orphans pile up on the SQLite lock until a session silently has **no vault tools at all**; plus two Windows launcher defects (LF-only `.cmd`, `npx tsx` resolving through the registry) that pushed startup over the 30 s ceiling. | — | 🏁 **DONE, ARCHIVED** — ✅ shipped as **v4.8.1** _(2026-08-07, PR #59 · `829c2a1`, "The One Where Closing It Actually Closes It", CI 7/7 incl. three Windows cells)_. All three defects fixed. **Still owed**: the reporters (Daniel MARTIN + colleague) re-running their reproducer on the tag — needs their machines. **What it handed forward**: the live health banner (made affordable at ~0.3 s) and the `health-probe-run.mjs` / `headless-health-check.mjs` mutation debt → `prospective/v4.9.0-mutation-debt-plan.md`. Source report: `archived/field-report-2026-08-07-source.md`. |
-| `archived/active-universe-follows-the-owner-action.md` | The active universe travels with its owner, and the machine that pulls a switch lands on it cleanly. | — | 🏁 **DONE, ARCHIVED (2026-08-08).** Shipped as **v4.9.0 — The One Where the Universe Travels With You** (PR #60, merge `6f8b830`, CI 8/8 green on the tagged commit, release published). Scope was arbitrated to **universes only**. Mutation numbers pinned in `mutation/RESULTS.md` § v4.9.0; note and PR body archived beside the plan. **What leaves it, so it does not die with the plan**: the *general smell* — the startup pull races EVERY hook, so wiki-health and self-heal may also read pre-pull state, and `session-status`'s bootstrap tick and the self-heal can now both spawn `reconcile-brain` at once — plus the deliberately deferred **per-machine override** (`active-universe.local`). |
-| `prospective/update-regime-owns-what-it-shipped-action.md` | The engine updates what it shipped and only stops for what the owner really wrote: an immutable base, a real three-way merge, a write guard, an audible divergence, and the doctrine layer finally joining a regime. | supersedes 4's F-B7e | 🔴 **LIVE — NEXT TO EXECUTE: the v4.9.1 hotfix shipped on 2026-08-15, so this one starts now** (owner's arbitrage, same day). It is the big one. Absorbs the silent-skill-freeze finding as a symptom and carries the source-first rule as its demonstration. **Same arbitrage: it also carries the doctrine cargo from the issue tracker** (#61 announce-before-signal-rituals, #67 conditional Outillage rule, #64's rule half) — text riding the release that unfreezes their carrier, proof by example. **And it pays the v4.9.0 mutation debt** (third named due date). `mind-palace` stays **frozen on purpose**: it is the acceptance test, and the replayable fixture is rebuilt from public tags. |
-| `prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md` | A source the owner hands over (URL, path) must be read before any search tool, and the doctrine layer that says so must actually reach deployed brains. | with the unfreeze | 🟢 **OPEN (2026-08-08)** — measured, not supposed: a brain pinned at **v4.8.1** carries a `CLAUDE.engine.md` frozen at **install day**, 11.4 KB and 12 doctrine commits behind, because that file is in **no regime**. Carrier question **resolved without choosing**: no hook, the rule goes in both constitutions and the unfreeze release delivers it. |
-| `prospective/field-finding-2026-08-05-silent-skill-freeze.md` | An engine skill kept as "customized" on a deployed brain that had **zero lines of the owner's** in it, frozen since install day and never mentioned again. Persist the provenance base, teach the engine to recognise its own past output so frozen brains heal themselves, and make the freeze audible. | ahead of 3 | 🟢 **OPEN (2026-08-05)** — observed live on the mind-palace during the v4.7.0 → v4.8.0 update. Evidence is **measured** (brain git history + this repo's), written in the plan's § *What was measured*; do not re-derive it. |
-| `prospective/v4.9.0-mutation-debt-plan.md` | The two structural mutation remedies v4.8.0 deferred: a shared `runAsEntrypoint` (+ the guard test that makes it stick) and `defaultGit` as a pure value. | ahead of 3 | 🟢 **OPEN — floor RE-ARBITRATED in writing (2026-08-08): it falls due with the unfreeze release above, NOT with v4.9.0**, which shipped the universes work alone. Third due date named as such: cutting the unfreeze release without paying it is a defect, not a re-arbitration. Opened the day the deferral was taken, because the same deferral was taken at v4.5.0 and v4.6.0 and memory never brought it back. Evidence lives in `mutation/RESULTS.md` § v4.8.0; do not re-derive it. |
-| `prospective/second-brain-migration-and-engine-upstream-action.md` | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | 3 | Tracks A/B/C DONE (PR #29/#30/#32); **Track D core LIVED since 2026-07-19** (`mind-palace` is the daily brain); two tails open (private layering = owner's call, formal canary). F post-migration. |
-| `archived/hotfix-v4.9.1-universe-pointer-action.md` | The universe switch actually leaves the machine: commit+push in the `/switch` path, Stop hook that sweep-commits before pushing. Riders: auto-compact headroom (#63), ⚠️ on the connectors reminder (#65). | — | 🏁 **DONE, ARCHIVED (2026-08-15).** Shipped as **v4.9.1 — The One Where Your Context Stops Coming Back** (PR #70, merge `df5d353`, full CI matrix green on the merged commit, release published, #69/#63/#65 closed). Mutation pinned in `mutation/RESULTS.md` § v4.9.1 (three passes; the two new files at 100 %, the CLI wiring 25 % → 100 %); note archived beside the plan. **What leaves it, so it does not die with the plan**: the two pilots' verdict is written in the archived plan. **Half of the graduation is now SIGNED and DELIVERED (2026-08-15)**: the relaxed mode graduated, and the owner's call went further than the question asked — the skill was **renamed** `test-first-discipline`, because what the measurement dropped is TDD's own thesis rather than a ceremony around it. Written, translated to English with the whole harness, merged into `use-case-driven-harness` `main` (PR #1, `9f843dc`), and **verified by acceptance test in a third project**: an unbriefed session reached for it on its own and wrote its tests first. Its Kenjaku-side delivery (manifest regime + retiring `tdd-discipline` on deployed brains) rides the unfreeze release, as its S6 rider. **Still the owner's to decide**: the adversarial-review fan-out into the unfreeze chantier's standing QA. Also on record: the stale-pointer guard **deferred with its reason**, and the sizing rule earned (fan-out pays on independent lenses, not on many look-alike survivors). ⚠️ **An UNMEASURED carve-out, challenged by the owner 2026-08-15 and not to be smuggled into any rule**: the debrief kept classic baby-steps "for genuinely unknown design / triangulable algorithms". **Nothing in this repo measures that case** — v4.9.1's design was one I could hold whole, so the run says nothing about it. The clause exempts precisely the region where no measurement exists, which is how a rule escapes falsification, and its trigger ("the design is unknown") is self-assessed by the one applying it. **Before it becomes a rule it needs its own data point**: next genuinely unknown design (an algorithm, a protocol, something whose design I cannot state in one paragraph), run it in strict baby-steps and compare **first-pass** mutation score against the spec-first numbers on comparable new files (v4.9.0: 84.62 / 87.74 %; v4.9.1: 91.80 %). The other half of the carve-out (*"when the owner wants the step-by-step narrative"*) needs no measurement: it is a **review/communication** preference, not a quality claim, and stands on that ground alone. |
+**Three columns, and no Status column, on purpose** _(2026-08-22)_: a form with no status field cannot
+hold a status. Each plan's own `## 📍 STATE` block answers where it stands; this table answers only
+*what it delivers* and *what must come first*. What the old Status column was really carrying — debts
+still owed, and lessons that outlived their release — is in § *Kept from the old Status column* below.
+**Shipped plans have left this table**: they live under `archived/`, and their folder says so.
+
+| Plan (canonical) | What it delivers | Depends on |
+| --- | --- | --- |
+| [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md) | v5.0.0 stops being a release that only helps brains installed after it: an already-frozen brain proves its own ancestor from the digests of every version the engine ever published; **a file the owner had edited before the release gets its ancestor FETCHED from the tag that sha names, so it merges instead of staying frozen**; the FR tree stops drifting in silence (a test names any localized file left behind by its English source); and **a file you personalized becomes a QUESTION with three offers — take the new one / keep yours / combine them — instead of a blind spot** (the owner's acceptance criterion, explicitly v5 and not v5.1). | Finishes what [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md) built (S1-S6). Supersedes Gate 4's F-B7e. |
+| [`prospective/agent-orchestrated-release-mode-action.md`](prospective/agent-orchestrated-release-mode-action.md) | The working contract for building a release with orchestrated subagents: what is delegable, the deterministic-check rule, the human stop points, the loop's shape. **Read it before dispatching anything to a subagent.** | Runs alongside the release above; owns HOW, never WHAT. |
+| [`prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md) | A source the owner hands over (URL, path) is read **before** any search tool, and the doctrine layer that says so actually reaches deployed brains. _(Measured, not supposed: a brain pinned at v4.8.1 carried a `CLAUDE.engine.md` frozen at install day, 11.4 KB and 12 doctrine commits behind, because that file was in **no regime**. Carrier question resolved without choosing: no hook — the rule goes in both constitutions and the unfreeze release delivers it.)_ | Ships **with** the unfreeze release. Closes when v5.0.0 reaches the fleet, never when a branch goes green. |
+| [`prospective/field-finding-2026-08-05-silent-skill-freeze.md`](prospective/field-finding-2026-08-05-silent-skill-freeze.md) | An engine skill kept as "customized" on a brain that had **zero lines of the owner's** in it, frozen since install day and never mentioned again. Persist the provenance base, teach the engine to recognise its own past output so frozen brains heal themselves, and make the freeze audible. | **All three halves are answered by the v5 chantier** — the persisted base by S1-S6, self-healing as S7, and *audible* as S4-3/S4-4 then S10, which goes past audible. ⚠️ **Name no slice here**: this cell said "since S10-3" and was outdated within a day. |
+| [`prospective/v4.9.0-mutation-debt-plan.md`](prospective/v4.9.0-mutation-debt-plan.md) | The two structural mutation remedies v4.8.0 deferred: a shared `runAsEntrypoint` (+ the guard test that makes it stick) and `defaultGit` as a pure value. | Falls due **with the unfreeze release**, not with v4.9.0. Third due date named as such: cutting that release without paying it is a defect, not a re-arbitration. Evidence: `mutation/RESULTS.md` § v4.8.0. |
+| [`prospective/engine-managed-file-merge-strategy.md`](prospective/engine-managed-file-merge-strategy.md) | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. Two halves: the **skills** half (increment 2.5) and the **constitution** half. | Gates 1, 2.5 and 4. The constitution half is Gate 4's. |
+| [`prospective/fleet-upgrade-field-feedback.md`](prospective/fleet-upgrade-field-feedback.md) | Defects observed on a real deployed brain crossing three versions, captured live (F1-F12, each verified on disk). It is **evidence, not a work list** — it said which fixtures are worth building. | Gate 4. F3 (silent reindex) and F7 (an unverified outcome reported in the measured voice) stay here on purpose. |
+| [`prospective/second-brain-migration-and-engine-upstream-action.md`](prospective/second-brain-migration-and-engine-upstream-action.md) | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | Gate 3. Track D's core has been the owner's daily brain since 2026-07-19; its two tails are in § *Still owed*. |
 
 > Other in-flight plans on their own branches (e.g. wiki-health axis 1, marketing page) are **not
 > part of this fleet-upgrade ordering** and are tracked by their own plans + memory pointers; they
 > are listed here only if/when they gain a cross-plan dependency.
+
+### 🗂️ Off-ordering, but alive — the plans the map above deliberately does not order
+
+**Why this list exists** _(2026-08-22)_. The clause immediately above is right that these are not part
+of the fleet-upgrade ordering. Its second carrier, though, **is empty**: `MEMORY.md` is size-bounded
+and gets pruned as chantiers ship, so *"tracked by their own plans + memory pointers"* now delegates to
+pointers that no longer exist. Measured: **no memory entry names any plan below**, and
+`restore-affordance-graduated-autonomy-action.md` still opens with *"North-star, always-loaded pointer:
+memory `brain-graduated-autonomy-affordance`"* — **an entry that is gone**. Net result: two entirely
+unstarted action plans, with concrete unblocked work, were named by **nothing a pickup reads**.
+
+**Not promoted to map rows on purpose** — they have no cross-plan dependency, and inventing one would
+corrupt the ordering this file exists to protect. What they needed was to be *nameable*, not ordered.
+**And deliberately not put back into memory either**: `rules/plans.md` forbids state there, and every
+surplus line spends the budget the critical instructions need. A repo file is the right carrier.
+
+**Third column is *what it is waiting for*, not a status** — a boundary or a precondition, both of
+which stay true until someone lifts them. These plans hold no `## 📍 STATE` block yet: they get one
+when they wake.
+
+| Plan (canonical) | What it is | What it waits for |
+| --- | --- | --- |
+| [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md) | The answer to *"why did universes break six components that every green suite missed?"* — a non-default fixture everywhere, one vault-path seam, a cross-cutting-contract gate. | Nothing for M1: a non-default fixture is mechanical and needs no arbitration. M2 needs an **ADR**. |
+| [`prospective/restore-affordance-graduated-autonomy-action.md`](prospective/restore-affordance-graduated-autonomy-action.md) | Restore *"things happen on their own"* after `/lint` + `/consolidate` turned the brain into a wall of jargon-laden prompts. | Its step 1 is *"agree the model (ADR)"* — a design call, **the owner's**, so nothing below it can start. ⚠️ Its header still names a memory pointer that no longer exists; see above. |
+| [`prospective/wiki-health-axis1-mechanisms-action.md`](prospective/wiki-health-axis1-mechanisms-action.md) | `/lint`, `/file-back`, `/consolidate`, contradiction flagging, the activity ledger, the SessionStart trigger. Tracks A→F were proven on the real 405-note vault. | Its two remaining pieces are **owner-side**: a cross-cutting retrieval measurement, and the formal private import. |
+| [`prospective/rag-embedder-plan-action.md`](prospective/rag-embedder-plan-action.md) | Swappable 3-adapter embedder + adaptive install. Its core has been in production since 2026-06-09. | Its steps 6-7 are **conditional on a quality ceiling that was never observed** — parked, not pending. Nothing to pick up unless that ceiling shows up. |
+| [`prospective/post-v3.1.0-ux-backlog.md`](prospective/post-v3.1.0-ux-backlog.md) | Captured UX ideas, explicitly **not committed work**. | A scope call: promote one to an `*-action.md` when it is picked up. |
+| [`prospective/background-consolidation-mode-study.md`](prospective/background-consolidation-mode-study.md) | Design study: the RAG's process shape, a "pulse" projection, keeping the brain fresh without making the owner wait. | The measurement it names. The action plan comes after, never before. |
+| [`prospective/etude-rag-local-criteres-et-veille.md`](prospective/etude-rag-local-criteres-et-veille.md) | Watch note: offering a range of RAG alternatives per person's constraints. | Nothing decided; it is a watch. |
+| [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md) | Makes duplicated plan state structurally impossible (a capped STATE block per plan) and gives the corpus **one door**, [`ACTIVE.md`](ACTIVE.md), instead of eight. It is what deleted this file's own role as an entry point, and its own Status column. | Its plan owns that; this row keeps no copy, by construction now. |
+| [`prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md) | The runtime-graph question. | The owner deferred it to **after** the unfreeze release: a study to do *with* him, not work to pick up. |
+
+## 📚 Kept from the old Status column — append-only
+
+_(2026-08-22. For months this file's map carried a **Status** column: 22 commit shas, 19 PR numbers
+and 23 ship-words, in a file whose own header says it holds no state. Rule 3 of the plan-state
+convention deleted the column — a form with no status field cannot hold a status. But the column had
+become the only carrier for a handful of things that were **not** statuses, and criterion 6 of the
+study forbids losing them. They are here, and nothing below can go false on its own.)_
+
+### Still owed, and by whom
+
+- **v4.4.0's on-a-real-brain verification.** The release shipped; the verification needs an **installed
+  brain**, which the launcher is not. Nobody has run it. →
+  [`archived/release-v4.4.0-action.md`](archived/release-v4.4.0-action.md).
+- **v4.8.1's reporters re-running their reproducer on the tag.** Daniel MARTIN and a colleague found
+  the RAG-orphan defect; confirming the fix needs **their** machines, so it cannot be closed from
+  here. → [`archived/field-report-2026-08-07-rag-orphans-and-windows-launchers.md`](archived/field-report-2026-08-07-rag-orphans-and-windows-launchers.md).
+- **Track D's two tails** (Gate 3): layering the private capabilities — measured absent from
+  `mind-palace`, but they were classified for the **previous** sphere, so they may be obsolete rather
+  than missing, and that is the owner's call — and the formal canary (`node scripts/verify-rag.mjs`
+  → exit 0), never recorded on his machine. **Ask, do not assume.**
+
+### Lessons that outlived the release that paid for them
+
+- 🧭 **v4.9.0's "general smell", named so it would not die with its plan.** The startup pull **races
+  every hook**, so wiki-health and self-heal may also read pre-pull state; and `session-status`'s
+  bootstrap tick and the self-heal can both spawn `reconcile-brain` at once. Also deliberately
+  deferred there: a **per-machine override**, `active-universe.local`.
+- ⚠️ **An UNMEASURED carve-out that must not be smuggled into any rule** _(challenged by the owner,
+  2026-08-15)_. The v4.9.1 debrief kept classic baby-steps *"for genuinely unknown design /
+  triangulable algorithms"* — and **nothing in this repo measures that case**: v4.9.1's design was one
+  that could be held whole, so the run says nothing about it. The clause exempts precisely the region
+  where no measurement exists, which is how a rule escapes falsification, and its trigger (*"the
+  design is unknown"*) is self-assessed by whoever applies it. **Before it becomes a rule it needs its
+  own data point**: on the next genuinely unknown design — an algorithm, a protocol, something whose
+  design cannot be stated in one paragraph — run it in strict baby-steps and compare the **first-pass**
+  mutation score against the spec-first numbers on comparable new files (v4.9.0: 84.62 / 87.74 %;
+  v4.9.1: 91.80 %). _(The carve-out's other half, *"when the owner wants the step-by-step narrative"*,
+  needs no measurement: it is a review preference, not a quality claim, and stands on that ground.)_
+- 📏 **Fan-out pays on independent lenses, not on many look-alike survivors** — the sizing rule earned
+  at v4.9.1.
+- 🧮 **"A file is not an increment."** v4.2.0's per-file origin table mislabelled 11 live mutants as
+  someone else's, because new code lands *inside* old files. Recorded at its authority,
+  `maintainers/mutation/RETROSPECTIVE.md`.
+- 🗺️ **A row here lagged reality by almost a month, and the owner had to correct the map** (Track D's
+  core, 2026-08-15). That is the founding argument for this file holding no state at all.
 
 ### Incoming (standing inbox)
 
@@ -237,12 +346,29 @@ issues when picking up work: an issue graduates to a plan (or to a rider on one)
 scheduled, and this map only lists plans. _(Added 2026-08-15: the map had no entry point for
 out-of-band arrivals, so five issues filed by the owner's brain sat invisible to a pickup.)_
 
+> 🛑 **The rule above existed and did not run — measured 2026-08-22.** A loop swept the map's rows,
+> found no slice left, and reported the v5 release complete bar the owner's steps. **Three doctrine
+> issues (#61, #67, #64's rule half) had been arbitrated INTO that release a week earlier and had never
+> graduated to a rider**, so no row named them and the sweep was honest and wrong. Scheduling an issue
+> and not writing it into a plan leaves it visible only to whoever remembers it.
+>
+> **So the inventory before a cut is three things, not one**: the live plan's slices **+** the open
+> rows here **+** the **scheduled** open issues. That rule now lives beside the plan that has to obey
+> it — [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md)
+> § *FOUR LESSONS* — and this note keeps no copy of what it found.
+
 ---
 
 ## How to use this file
 
-- **Picking up work after a `/clear`:** read the invariant, find the **first unchecked gate**, open
-  its canonical plan, and resume at that plan's first `- [ ]`.
+> 🚪 **THIS FILE IS NOT THE DOOR — since 2026-08-22 it never answers *"where do I resume?"***
+> That question has exactly one address: **[`ACTIVE.md`](ACTIVE.md)**. This file owns **cross-plan
+> order** and nothing else. _(Thomas's convention: one way in at instant T. Rationale and the rest of
+> the migration: [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md).)_
+
+- **Picking up work after a `/clear`:** open [`ACTIVE.md`](ACTIVE.md). Do **not** hunt for the first
+  unchecked gate here — a gate is an ordering fact, not a resume point, and reading it as one is how
+  a session once restarted a release the owner had already diverted from.
 - **Finishing a gate:** check it here **and** in its canonical plan, with _(date · commit)_. Keep the
   two in sync; if they ever disagree, the **canonical plan wins** (this file is only the order).
 - **Adding a plan to the fleet order:** add one row to the map + one gate, both as pointers. Never

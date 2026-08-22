@@ -1,0 +1,233 @@
+21:02:58 (80773) INFO ProjectReader Found 3 of 661 file(s) to be mutated.
+21:02:58 (80773) INFO Instrumenter Instrumented 3 source file(s) with 425 mutant(s)
+21:02:58 (80773) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:02:58 (80773) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-sSEhdq
+21:02:58 (80773) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:02:58 (80773) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:03:00 (80773) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1859 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 383)
+
+[Survived] MethodExpression
+scripts/lib/connector-accounts.mjs:30:8
+-     if (!entries.some((entry) => isVerifiable(toolOf(entry)))) return declared;
++     if (!entries.every(entry => isVerifiable(toolOf(entry)))) return declared;
+
+[Survived] StringLiteral
+scripts/lib/connector-accounts.mjs:55:15
+-         status: "undeclared",
++         status: "",
+
+[Survived] StringLiteral
+scripts/lib/connector-accounts.mjs:58:61
+-           `against. Slack is on '${slackWorkspace(observed ?? "")}'. ` +
++           `against. Slack is on '${slackWorkspace(observed ?? "Stryker was here!")}'. ` +
+
+[Survived] StringLiteral
+scripts/lib/connector-accounts.mjs:66:50
+-       const workspace = slackWorkspace(observed ?? "");
++       const workspace = slackWorkspace(observed ?? "Stryker was here!");
+
+[Survived] StringLiteral
+scripts/lib/connector-accounts.mjs:68:15
+-         status: "undeclared",
++         status: "",
+
+[Survived] MethodExpression
+scripts/lib/connector-accounts.mjs:83:18
+-     const wanted = String(tool).trim().toLowerCase();
++     const wanted = String(tool).toLowerCase();
+
+[Survived] ConditionalExpression
+scripts/lib/connector-accounts.mjs:84:39
+-     const hit = entries.find((entry) => toolOf(entry).trim().toLowerCase() === wanted);
++     const hit = entries.find((entry) => true);
+
+[Survived] MethodExpression
+scripts/lib/connector-accounts.mjs:84:39
+-     const hit = entries.find((entry) => toolOf(entry).trim().toLowerCase() === wanted);
++     const hit = entries.find((entry) => toolOf(entry).toLowerCase() === wanted);
+
+[Survived] MethodExpression
+scripts/lib/connector-accounts.mjs:85:37
+-     return hit === undefined ? null : hit.slice(hit.indexOf(":") + 1).trim();
++     return hit === undefined ? null : hit.slice(hit.indexOf(":") + 1);
+
+[Survived] Regex
+scripts/lib/connector-accounts.mjs:146:14
+-       .replace(/^[a-z][a-z0-9+.-]*:\/\//, "")
++       .replace(/[a-z][a-z0-9+.-]*:\/\//, "")
+
+[Survived] Regex
+scripts/lib/connector-accounts.mjs:147:14
+-       .replace(/\.slack\.com.*$/, "");
++       .replace(/\.slack\.com.*/, "");
+
+[Survived] StringLiteral
+scripts/lib/consolidation-candidates.mjs:27:50
+-   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", "concept"];
++   const DEFAULT_ENTITY_TYPES = ["person", "topic", "", "project", "concept"];
+
+[Survived] StringLiteral
+scripts/lib/consolidation-candidates.mjs:27:61
+-   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", "concept"];
++   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "", "concept"];
+
+[Survived] StringLiteral
+scripts/lib/consolidation-candidates.mjs:27:72
+-   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", "concept"];
++   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", ""];
+
+[Survived] ConditionalExpression
+scripts/lib/consolidation-candidates.mjs:103:9
+-       if (items.length === 0) return;
++       if (false) return;
+
+[Survived] StringLiteral
+scripts/lib/consolidation-candidates.mjs:119:17
+-             .join(", ")}`,
++             .join("")}`,
+
+[Survived] ArrowFunction
+scripts/lib/wiki-lint.mjs:16:33
+-       .replace(/```[\s\S]*?```/g, (m) => " ".repeat(m.length))
++       .replace(/```[\s\S]*?```/g, () => undefined)
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:16:40
+-       .replace(/```[\s\S]*?```/g, (m) => " ".repeat(m.length))
++       .replace(/```[\s\S]*?```/g, (m) => "".repeat(m.length))
+
+[Survived] ArrowFunction
+scripts/lib/wiki-lint.mjs:17:28
+-       .replace(/`[^`\n]*`/g, (m) => " ".repeat(m.length));
++       .replace(/`[^`\n]*`/g, () => undefined);
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:17:35
+-       .replace(/`[^`\n]*`/g, (m) => " ".repeat(m.length));
++       .replace(/`[^`\n]*`/g, (m) => "".repeat(m.length));
+
+[Survived] MethodExpression
+scripts/lib/wiki-lint.mjs:28:17
+-       .map((m) => m[1].split(/[|#]/)[0].trim())
++       .map((m) => m[1].split(/[|#]/)[0])
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:50:9
+-       if (!byKey.has(key)) byKey.set(key, path);
++       if (true) byKey.set(key, path);
+
+[Survived] Regex
+scripts/lib/wiki-lint.mjs:55:31
+-         register(suffix.replace(/\.md$/, ""), note.path); // folder/note, note
++         register(suffix.replace(/\.md/, ""), note.path); // folder/note, note
+
+[Survived] LogicalOperator
+scripts/lib/wiki-lint.mjs:59:22
+-     return (target) => byKey.get(target) ?? byKey.get(target.replace(/\.md$/, "")) ?? null;
++     return (target) => byKey.get(target) && byKey.get(target.replace(/\.md$/, "")) ?? null;
+
+[Survived] Regex
+scripts/lib/wiki-lint.mjs:59:68
+-     return (target) => byKey.get(target) ?? byKey.get(target.replace(/\.md$/, "")) ?? null;
++     return (target) => byKey.get(target) ?? byKey.get(target.replace(/\.md/, "")) ?? null;
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:59:77
+-     return (target) => byKey.get(target) ?? byKey.get(target.replace(/\.md$/, "")) ?? null;
++     return (target) => byKey.get(target) ?? byKey.get(target.replace(/\.md$/, "Stryker was here!")) ?? null;
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:72:10
+-     return firstSlash !== -1 && path.slice(firstSlash + 1).startsWith(prefix);
++     return true && path.slice(firstSlash + 1).startsWith(prefix);
+
+[Survived] UnaryOperator
+scripts/lib/wiki-lint.mjs:72:25
+-     return firstSlash !== -1 && path.slice(firstSlash + 1).startsWith(prefix);
++     return firstSlash !== +1 && path.slice(firstSlash + 1).startsWith(prefix);
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:116:41
+-   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", "concept"];
++   const DEFAULT_ENTITY_TYPES = ["person", "", "company", "project", "concept"];
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:116:50
+-   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", "concept"];
++   const DEFAULT_ENTITY_TYPES = ["person", "topic", "", "project", "concept"];
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:116:61
+-   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", "concept"];
++   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "", "concept"];
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:116:72
+-   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", "concept"];
++   const DEFAULT_ENTITY_TYPES = ["person", "topic", "company", "project", ""];
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:127:7
+-     if (Array.isArray(value)) return value.length > 0;
++     if (true) return value.length > 0;
+
+[Survived] StringLiteral
+scripts/lib/wiki-lint.mjs:161:21
+-           const key = `${note.path}\0${target}`;
++           const key = ``;
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:171:11
+-         if (when && (!seen || Date.parse(when) > Date.parse(seen))) {
++         if (true) {
+
+[Survived] LogicalOperator
+scripts/lib/wiki-lint.mjs:171:11
+-         if (when && (!seen || Date.parse(when) > Date.parse(seen))) {
++         if (when || !seen || Date.parse(when) > Date.parse(seen)) {
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:171:20
+-         if (when && (!seen || Date.parse(when) > Date.parse(seen))) {
++         if (when && (true)) {
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:171:29
+-         if (when && (!seen || Date.parse(when) > Date.parse(seen))) {
++         if (when && (!seen || false)) {
+
+[Survived] EqualityOperator
+scripts/lib/wiki-lint.mjs:171:29
+-         if (when && (!seen || Date.parse(when) > Date.parse(seen))) {
++         if (when && (!seen || Date.parse(when) >= Date.parse(seen))) {
+
+[Survived] EqualityOperator
+scripts/lib/wiki-lint.mjs:171:29
+-         if (when && (!seen || Date.parse(when) > Date.parse(seen))) {
++         if (when && (!seen || Date.parse(when) <= Date.parse(seen))) {
+
+[Survived] ConditionalExpression
+scripts/lib/wiki-lint.mjs:187:9
+-       if (freshest && updated && daysBetween(freshest, updated) > staleDays) {
++       if (true && daysBetween(freshest, updated) > staleDays) {
+
+[Survived] LogicalOperator
+scripts/lib/wiki-lint.mjs:187:9
+-       if (freshest && updated && daysBetween(freshest, updated) > staleDays) {
++       if (freshest || updated && daysBetween(freshest, updated) > staleDays) {
+
+Ran 1.00 tests per mutant on average.
+------------------------------|------------------|----------|-----------|------------|----------|----------|
+                              | % Mutation score |          |           |            |          |          |
+File                          |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                     |  90.12 |   90.12 |      383 |         0 |         42 |        0 |        0 |
+ connector-accounts.mjs       |  89.72 |   89.72 |       96 |         0 |         11 |        0 |        0 |
+ consolidation-candidates.mjs |  94.57 |   94.57 |       87 |         0 |          5 |        0 |        0 |
+ wiki-lint.mjs                |  88.50 |   88.50 |      200 |         0 |         26 |        0 |        0 |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:13:54 (80773) INFO MutationTestExecutor Done in 10 minutes and 56 seconds.
+21:13:54 (80773) INFO Sandbox Resetting your original files from .stryker-tmp/backup-sSEhdq.

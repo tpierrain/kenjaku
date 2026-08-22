@@ -1,0 +1,32 @@
+[32m10:41:37 (50777) INFO ProjectReader[39m Found 1 of 806 file(s) to be mutated.
+[32m10:41:37 (50777) INFO Instrumenter[39m Instrumented 1 source file(s) with 30 mutant(s)
+[32m10:41:37 (50777) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m10:41:37 (50777) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-7B5Ozr
+[32m10:41:37 (50777) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m10:41:37 (50777) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m10:41:39 (50777) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2276 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/30 tested (0 survived, 0 timed out)
+Mutation testing 16% (elapsed: <1m, remaining: ~1m) 5/30 tested (0 survived, 0 timed out)
+Mutation testing 33% (elapsed: <1m, remaining: ~1m) 10/30 tested (0 survived, 0 timed out)
+Mutation testing 50% (elapsed: <1m, remaining: <1m) 15/30 tested (0 survived, 0 timed out)
+Mutation testing 66% (elapsed: <1m, remaining: <1m) 20/30 tested (0 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~1m, remaining: <1m) 25/30 tested (1 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 29)
+
+[Survived] BooleanLiteral
+scripts/lib/skill-retirement-fs.mjs:51:45
+-         rmSync(abs, { recursive: true, force: true });
++         rmSync(abs, { recursive: true, force: false });
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  96.67 |   96.67 |       29 |         0 |          1 |        0 |        0 |
+ skill-retirement-fs.mjs |  96.67 |   96.67 |       29 |         0 |          1 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m10:42:43 (50777) INFO MutationTestExecutor[39m Done in 1 minute and 5 seconds.
+[32m10:42:43 (50777) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-7B5Ozr.

@@ -36,6 +36,8 @@
       "scripts/session-wiki-health.mjs",
       "scripts/session-universe.mjs",
       "scripts/session-actions-log.mjs",
+      "scripts/session-engine-divergence.mjs",
+      "scripts/adopt-engine-file.mjs",
       "scripts/health-probe-run.mjs",
     "scripts/upstream-check-run.mjs",
       "scripts/lint-vault.mjs",
@@ -43,6 +45,7 @@
       "scripts/consolidate-scan.mjs",
       "scripts/refresh-note.mjs",
       "scripts/vault-write-guard.mjs",
+      "scripts/engine-write-guard.mjs",
       "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",
       "scripts/verify-index.mjs",
@@ -62,13 +65,14 @@
     ],
     "merge": [
       "CLAUDE.md",
+      "CLAUDE.engine.md",
       ".claude/settings.json",
       ".claude/skills/coach/**",
       ".claude/skills/sync/**",
       ".claude/skills/sync-sources/**",
       ".claude/skills/improve/**",
       ".claude/skills/prepare-1-1/**",
-      ".claude/skills/tdd-discipline/**",
+      ".claude/skills/test-first-discipline/**",
       ".claude/skills/update-engine/**",
       ".claude/skills/import/**",
       ".claude/skills/switch/**",
@@ -76,8 +80,14 @@
       "scripts/auto-push.mjs",
       "scripts/status-line.mjs",
       "scripts/verify-rag.mjs"
+    ],
+    "local": [
+      ".engine-base/**"
     ]
   },
+  "retired": [
+    ".claude/skills/tdd-discipline/**"
+  ],
   "engineMcpServers": [
     "vault-rag",
     "local-mirror"

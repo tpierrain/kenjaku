@@ -113,6 +113,11 @@ release (the pre-layering, monolithic-constitution line, ~v3.2.x).
   - [x] **Green-time "do-no-harm" QA:** _(2026-07-18 · f998259)_ locked by a test on the shipped manifest —
         the plan touches NEITHER `CLAUDE.md` NOR `CLAUDE.engine.md` (no clobber, no reindex, no behaviour
         change). Trivially safe while the engine layer is not yet propagated to deployed brains.
+    - [x] ⏱️ **That lock was lifted on 2026-08-21** (`b3aefa3`), deliberately and with its comment
+          rewritten rather than deleted. The half about `CLAUDE.md` is unchanged and always will be; the
+          half about `CLAUDE.engine.md` now asserts the opposite, and **why** is
+          [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md)'s
+          § S5 — not restated here.
   - [ ] Field-verify a real fresh two-layer install (EN + FR) when Gate 3 generates the personal brain.
 - [ ] **The heavy re-layering QA is safely deferred to AFTER the migration.** The deployed fleet is safe in the
       interim, for the reasons in "Why this is non-blocking": sacred `CLAUDE.md`, `constitutionTemplate` frozen
@@ -123,9 +128,12 @@ release (the pre-layering, monolithic-constitution line, ~v3.2.x).
         present since before v3.2.1), so no intermediate versions are replayed. The remaining completeness gap
         is exactly the **frozen** files: the constitution (this plan) and the shipped user-skills under
         `.claude/skills/` (`coach`, `prepare-1-1`, … install-if-absent). Close them the same way.
-        **Now explicitly owns the engine-layer propagation deferred from Gate 1:** move `CLAUDE.engine.md`
-        into a refreshed regime **locale-aware** (a FR brain must receive the FR engine layer, never the EN
-        one), so an upgrade actually delivers constitution improvements without re-anglicizing localized brains.
+        **➡️ The engine-layer propagation moved OUT of here on 2026-08-21** — it is **S5** of
+        [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md),
+        which owns it and carries its design. Deliberately no copy of the decision here: that plan
+        settled the regime (**`merge`**, not the `replace` this file sketched above) and established, in
+        code, that the locale-aware condition this deferral was waiting on is **already met** on the merge
+        path. Read it there.
   - [ ] **(B) Tell the user what they gained.** A human, benefit-framed changelog spanning the jump (from the
         brain's recorded ref to target), surfaced at upgrade. Reuse the "The One With…" release codenames as the
         substrate; suited to non-technical owners.
@@ -152,7 +160,10 @@ release (the pre-layering, monolithic-constitution line, ~v3.2.x).
 
 > **Status:** ✅ SHIPPED in **v4.1.0** _(2026-07-27 · PR #47 · `163d882`)_ — "The One Where the Engine
 > Refreshes Its Skills, but Never Yours". Owns the *skills* half of Gate 4(A) only; the constitution
-> half (`CLAUDE.engine.md` propagation) stays in Gate 4, which is why this plan stays prospective.
+> half (`CLAUDE.engine.md` propagation) ~~stays in Gate 4~~ **shipped on 2026-08-21 as S5 of
+> [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md)**,
+> which owns it. This plan stays prospective for its OTHER open items (B, C, and Step 6's exit
+> condition), no longer for that one.
 > **Why it jumped the queue:** the propagation gap is no longer theoretical, and the fleet is growing.
 > **Still open here, on purpose:** Step 6's exit condition (retire the pre-v3.3.0 bottle once that
 > cohort has shrunk) and the §Side-finding decision on `indexSchemaVersion` — both deliberately out of

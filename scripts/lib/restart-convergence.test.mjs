@@ -65,14 +65,15 @@ function v310Manifest() {
     engineVersion: { rag: "1.0.0", constitutionTemplate: "1.0.0", scripts: "1.0.0" },
     indexSchemaVersion: 1,
     regimes: {
-      replace: ["rag/src/**", "rag/package.json"],
+      // `scripts/update-engine.mjs` is `replace`, as it is on every shipped manifest —
+      // the self-update path is a copy, never a merge subject (engine-apply-plan.mjs).
+      replace: ["rag/src/**", "rag/package.json", "scripts/update-engine.mjs"],
       regenerate: ["rag/launch.sh", "rag/launch.cmd", "scripts/run-node.sh", "scripts/run-node.cmd"],
       merge: [
         "CLAUDE.md",
         ".claude/settings.json",
         ".claude/skills/coach/**",
         "scripts/auto-commit.mjs",
-        "scripts/update-engine.mjs",
       ],
     },
     engineMcpServers: ["vault-rag"],
@@ -120,10 +121,15 @@ function buildV310Brain() {
 // Simulate pass-1 FAITHFULLY (the v3.1.0 orchestrator running against the fetched
 // v3.3.0 engine): copy exactly the files the REAL Phase-1 apply would write — the
 // SCRUBBED allowlist `computeApplyPlan(target)` (overwrite ∪ regenerate ∪
-// replaceScripts, with `.claude/skills/` + vault stripped), refined by
+// mergeScripts, with `.claude/skills/` + vault stripped), refined by
 // `selectEngineFilesToCopy` (drop dev-only + locale-owned files). NOT raw
 // `matchesAny`: a future `replace`-skill under `.claude/skills/` that the real scrub
-// would DROP must not falsely converge here. Like the old orchestrator it then
+// would DROP must not falsely converge here.
+// ⚠️ `mergeScripts` is deliberately still in the copy list here, and must NOT be
+// "fixed" to match `reconcile-brain.mjs`: this function models the v3.1.0
+// orchestrator's OWN code, which copied the four engine scripts blind. That is the
+// bug S2b-3 removes going forward — and the state a pre-3.3 brain genuinely reaches.
+// Like the old orchestrator it then
 // installs NO merge skill, reconciles NO wiring, and REFRESHES the manifest NOT AT
 // ALL. So after this, from the relocated layout (F-B7 2a/2b):
 //   • the hook template + `engine-skills/local-mirror/**` + `.mcp.json.template` (all
@@ -133,7 +139,7 @@ function buildV310Brain() {
 function simulatePass1FromRealLauncher(brainDir) {
   const target = JSON.parse(readFileSync(join(LAUNCHER, "engine-manifest.json"), "utf8"));
   const plan = computeApplyPlan(target);
-  const copyGlobs = [...plan.overwrite, ...plan.regenerate, ...plan.replaceScripts];
+  const copyGlobs = [...plan.overwrite, ...plan.regenerate, ...plan.mergeScripts];
   const sourceFiles = listFilesRelPosix(LAUNCHER);
   for (const rel of selectEngineFilesToCopy({ sourceFiles, copyGlobs })) {
     const dest = join(brainDir, rel.split("/").join(sep));

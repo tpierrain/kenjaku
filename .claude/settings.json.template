@@ -54,6 +54,16 @@
             "timeout": 10000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/engine-write-guard.mjs\"",
+            "timeout": 10000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -157,6 +167,16 @@
           {
             "type": "command",
             "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/session-status.mjs\"",
+            "timeout": 20000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/session-engine-divergence.mjs\"",
             "timeout": 20000
           }
         ]

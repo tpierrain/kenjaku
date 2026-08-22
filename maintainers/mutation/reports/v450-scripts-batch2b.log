@@ -1,0 +1,118 @@
+17:05:32 (28021) INFO ProjectReader Found 1 of 629 file(s) to be mutated.
+17:05:32 (28021) INFO Instrumenter Instrumented 1 source file(s) with 128 mutant(s)
+17:05:32 (28021) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+17:05:34 (28021) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-wQptC1
+17:05:34 (28021) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+17:05:34 (28021) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+17:05:42 (28021) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 8 seconds (net 8746 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 109)
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:28:57
+-       const require = createRequire(join(brainDir, "rag", "package.json"));
++       const require = createRequire(join(brainDir, "rag", ""));
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:28:50
+-       const require = createRequire(join(brainDir, "rag", "package.json"));
++       const require = createRequire(join(brainDir, "", "package.json"));
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:34:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:56:7
+-     if (lines[0].trim() !== "---") return null;
++     if (false) return null;
+
+[Survived] MethodExpression
+scripts/lib/vault-write-guard.mjs:56:7
+-     if (lines[0].trim() !== "---") return null;
++     if (lines[0] !== "---") return null;
+
+[Survived] EqualityOperator
+scripts/lib/vault-write-guard.mjs:58:19
+-     for (let i = 1; i < lines.length; i++) {
++     for (let i = 1; i <= lines.length; i++) {
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:59:9
+-       if (lines[i].trim() === "---") break;
++       if (false) break;
+
+[Survived] MethodExpression
+scripts/lib/vault-write-guard.mjs:59:9
+-       if (lines[i].trim() === "---") break;
++       if (lines[i] === "---") break;
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:59:29
+-       if (lines[i].trim() === "---") break;
++       if (lines[i].trim() === "") break;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:75:7
+-     if (toolName !== "Write" && toolName !== "Edit") return null;
++     if (false) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:76:7
+-     if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
++     if (false || !filePath.toLowerCase().endsWith(".md")) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (false) return null;
+
+[Survived] LogicalOperator
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString !== "string" && typeof newString !== "string") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:112:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (false || typeof newString !== "string") return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:112:40
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (typeof oldString !== "string" || false) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:119:7
+-     if (!current.includes(oldString)) return null;
++     if (false) return null;
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:132:57
+-     const relPath = guardedNotePath({ toolName, filePath: toolInput?.file_path, brainDir });
++     const relPath = guardedNotePath({ toolName, filePath: toolInput.file_path, brainDir });
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:135:38
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = toolName === "Write" ? toolInput.content : editedNote({ toolInput, readFile });
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:147:7
+-         `Fix the frontmatter (quote any value containing ": ") and write again.`,
++         ``,
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  85.16 |   85.16 |      109 |         0 |         19 |        0 |        0 |
+ vault-write-guard.mjs |  85.16 |   85.16 |      109 |         0 |         19 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+17:11:41 (28021) INFO MutationTestExecutor Done in 6 minutes and 8 seconds.
+17:11:41 (28021) INFO Sandbox Resetting your original files from .stryker-tmp/backup-wQptC1.

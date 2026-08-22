@@ -1,0 +1,102 @@
+[32m23:19:49 (72606) INFO ProjectReader[39m Found 1 of 840 file(s) to be mutated.
+[32m23:19:49 (72606) INFO Instrumenter[39m Instrumented 1 source file(s) with 60 mutant(s)
+[32m23:19:49 (72606) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m23:19:50 (72606) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-rRk7BP
+[32m23:19:50 (72606) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m23:19:50 (72606) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m23:19:53 (72606) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2991 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/60 tested (0 survived, 0 timed out)
+Mutation testing 8% (elapsed: <1m, remaining: ~3m) 5/60 tested (0 survived, 0 timed out)
+Mutation testing 8% (elapsed: <1m, remaining: ~5m) 5/60 tested (0 survived, 0 timed out)
+Mutation testing 16% (elapsed: <1m, remaining: ~3m) 10/60 tested (3 survived, 0 timed out)
+Mutation testing 16% (elapsed: <1m, remaining: ~4m) 10/60 tested (3 survived, 0 timed out)
+Mutation testing 25% (elapsed: ~1m, remaining: ~3m) 15/60 tested (4 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~1m, remaining: ~2m) 20/60 tested (6 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~1m, remaining: ~2m) 20/60 tested (6 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~1m, remaining: ~2m) 25/60 tested (8 survived, 0 timed out)
+Mutation testing 50% (elapsed: ~1m, remaining: ~1m) 30/60 tested (8 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~1m, remaining: ~1m) 31/60 tested (9 survived, 0 timed out)
+Mutation testing 60% (elapsed: ~2m, remaining: ~1m) 36/60 tested (9 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~2m, remaining: ~1m) 40/60 tested (9 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~2m, remaining: <1m) 45/60 tested (10 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~2m, remaining: <1m) 47/60 tested (10 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~2m, remaining: <1m) 52/60 tested (10 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~2m, remaining: <1m) 56/60 tested (11 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 48)
+
+[Survived] LogicalOperator
+scripts/lib/engine-answers.mjs:35:3
+-     typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
++     typeof entry === "object" || entry !== null && typeof entry.at === "string" && entry.at.length > 0;
+
+[Survived] ConditionalExpression
+scripts/lib/engine-answers.mjs:35:3
+-     typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
++     true && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
+
+[Survived] ConditionalExpression
+scripts/lib/engine-answers.mjs:35:3
+-     typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
++     true && typeof entry.at === "string" && entry.at.length > 0;
+
+[Survived] ConditionalExpression
+scripts/lib/engine-answers.mjs:35:32
+-     typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
++     typeof entry === "object" && true && typeof entry.at === "string" && entry.at.length > 0;
+
+[Survived] EqualityOperator
+scripts/lib/engine-answers.mjs:35:82
+-     typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
++     typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length >= 0;
+
+[Survived] ConditionalExpression
+scripts/lib/engine-answers.mjs:35:82
+-     typeof entry === "object" && entry !== null && typeof entry.at === "string" && entry.at.length > 0;
++     typeof entry === "object" && entry !== null && typeof entry.at === "string" && true;
+
+[Survived] BlockStatement
+scripts/lib/engine-answers.mjs:43:11
+-     } catch {
+-       return {};
+-     }
++     } catch {}
+
+[Survived] StringLiteral
+scripts/lib/engine-answers.mjs:42:36
+-       parsed = JSON.parse(content ?? "");
++       parsed = JSON.parse(content ?? "Stryker was here!");
+
+[Survived] ConditionalExpression
+scripts/lib/engine-answers.mjs:46:7
+-     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return {};
++     if (false || parsed === null || Array.isArray(parsed)) return {};
+
+[Survived] OptionalChaining
+scripts/lib/engine-answers.mjs:53:10
+-     return answers?.[rel]?.at === ref;
++     return answers[rel]?.at === ref;
+
+[Survived] ConditionalExpression
+scripts/lib/engine-answers.mjs:71:7
+-     if (!existsSync(path)) return {};
++     if (false) return {};
+
+[Survived] BlockStatement
+scripts/lib/engine-answers.mjs:74:11
+-     } catch {
+-       return {};
+-     }
++     } catch {}
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  80.00 |   80.00 |       48 |         0 |         12 |        0 |        0 |
+ engine-answers.mjs |  80.00 |   80.00 |       48 |         0 |         12 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m23:22:47 (72606) INFO MutationTestExecutor[39m Done in 2 minutes and 58 seconds.
+[32m23:22:47 (72606) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-rRk7BP.

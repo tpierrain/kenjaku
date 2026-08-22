@@ -1,7 +1,7 @@
 ---
 name: update-engine
 description: "Met à jour le MOTEUR de ton second cerveau (le code de recherche RAG, les launchers et les scripts du moteur) vers une version plus récente, sur opt-in et sans jamais toucher à tes notes, ton .env, ta constitution, tes réglages, tes skills à toi ni aucun skill du moteur que tu as personnalisé. Réindexe uniquement si le format d'index a changé. À utiliser quand l'utilisateur demande de mettre à jour le moteur de son cerveau, ou de vérifier si une mise à jour est disponible."
-version: 1.2.0
+version: 1.3.0
 ---
 
 # /update-engine — Mets à jour le moteur de ton cerveau (opt-in, non destructif)
@@ -43,7 +43,7 @@ toujours être une action consciente et acceptée.
 | scripts du moteur (`auto-commit`, `auto-push`, `status-line`, `verify-rag`) | `CLAUDE.md` (ta constitution) |
 | `update-engine` lui-même (il s'auto-met à jour) | `.claude/settings.json` |
 | skills du moteur **manquants** (p. ex. `local-mirror`) : _ajoutés s'ils sont absents_ (ADR 0025) | **tes** skills à toi (`.claude/skills/**`) : le moteur ne les déclare pas, il ne peut donc jamais les écrire |
-| skills du moteur **que tu n'as jamais modifiés** : _remis à jour_ (ADR 0026 §8) | tout skill du moteur **que tu as personnalisé** : conservé à l'octet près, la version plus récente du moteur étant posée **à côté** en `.new` |
+| skills du moteur **que tu n'as jamais modifiés** : _remis à jour_ (ADR 0026 §8) | tout skill du moteur **que tu as personnalisé** : conservé à l'octet près, la version plus récente du moteur étant posée **à côté** en `.new`, et proposée comme un choix (Étape 4), jamais en silence |
 | serveurs MCP du moteur **manquants** dans `.mcp.json` : _ajoutés s'ils sont absents_ (ADR 0025) | tout serveur que tu as ajouté toi-même à `.mcp.json` |
 
 ## Procédure
@@ -92,8 +92,8 @@ Ensuite, avant le oui, explique simplement :
 - ça **remet à jour les skills du moteur que tu n'as jamais modifiés**, pour que les
   améliorations livrées depuis l'installation de ce cerveau finissent par lui parvenir ;
   **tout ce que tu as personnalisé reste exactement tel que tu l'as écrit**, la version plus
-  récente du moteur étant simplement posée à côté en `.new`, libre à toi de l'adopter ou de
-  l'ignorer ;
+  récente du moteur étant posée à côté ; ensuite il te **posera la question**, fichier par
+  fichier : prendre la nouvelle, garder la tienne, ou combiner les deux ;
 - ça **réindexe uniquement si le format d'index a changé** (quelques minutes, rien de perdu —
   tes notes sont simplement ré-encodées) ;
 - **prérequis** : `git`, `npm` et une connexion réseau (comme à l'installation). Ici
@@ -118,9 +118,11 @@ applique exactement les fichiers du moteur, régénère les launchers, lance `np
   - Si le résumé liste des **skills du moteur remis à jour**, nomme-les : une amélioration
     livrée il y a des mois vient enfin d'arriver dans ce cerveau ; la livrer en silence, c'est
     laisser la personne ignorer qu'elle l'a désormais.
-  - S'il indique qu'un **skill personnalisé a été conservé**, relaie-le aussi, **avec le chemin
-    du fichier `.new`** : sa version reste intacte, et la version plus récente du moteur est
-    posée à côté. Propose de comparer les deux, ou d'intégrer les nouveautés dans la sienne.
+  - S'il indique que des fichiers ont été **laissés tels quels** parce qu'ils portent les
+    modifications de la personne, ce n'est pas une note de bas de page : c'est une **question
+    qui attend d'être posée**. Relaie-le, puis passe à l'**Étape 4**. Ne termine pas la
+    conversation sur « ta version a été conservée » : c'est exactement cette phrase qui a
+    laissé un fichier gelé pendant des mois sans que personne ne s'en aperçoive.
 - **`exit 1`** → **relaie l'erreur telle quelle** et dis à l'utilisateur que le cerveau n'a pas
   été modifié au-delà du point d'échec. **Ne prétends jamais que ça a marché si ça a échoué.**
 
@@ -142,6 +144,81 @@ applique exactement les fichiers du moteur, régénère les launchers, lance `np
 > ça : c'est la règle de *rooting initial* (uniquement pour une session pas encore ancrée dans
 > le cerveau), **pas** ce qu'il faut pour capter un nouveau skill+MCP. Un redémarrage en
 > reprenant cette conversation est l'action la plus légère et suffisante.
+
+### Étape 4 : les fichiers laissés tels quels, **pose la question**, ne te contente pas de les mentionner
+
+Un fichier que le moteur a laissé tel quel est un fichier **que la personne a personnalisé**
+et que le moteur ne pouvait pas mettre à jour sans risque. Le dire puis passer à autre chose,
+c'est précisément ce que cette version vient arrêter : la version posée à côté en `.new` est
+une proposition que personne n'a jamais formulée à voix haute.
+
+Cette étape est une **conversation**, pas un rapport. Elle peut avoir lieu juste après une mise
+à jour, ou des jours plus tard quand la personne pose la question : les propositions restent
+ouvertes tant qu'elles n'ont pas de réponse.
+
+#### Dis ce qui diffère vraiment, avec ses mots à elle
+
+Ouvre les deux versions (la sienne, et le `.new` posé à côté), lis-les, et dis **ce qu'elle a
+changé** et **ce qu'apporte la nouvelle version**. Deux ou trois phrases simples par fichier.
+
+- **Aucun marqueur de conflit**, aucun diff brut, aucun numéro de ligne.
+- **Jamais un chemin de fichier en titre.** « Ton skill coach » d'abord ; le chemin seulement
+  si elle le demande.
+- Si la nouvelle version n'apporte rien qui l'intéresse, **dis-le aussi** : c'est une vraie
+  réponse, et ça rend le choix « je garde la mienne » évident.
+
+#### Puis propose trois choses, jamais moins
+
+> **Prendre la nouvelle** : la version du moteur remplace la sienne. Sa version actuelle est
+> **d'abord sauvegardée dans l'historique du cerveau**, toujours, donc rien n'est perdu.
+> **Garder la mienne** : sa version reste. Le moteur arrête d'en parler jusqu'à sa prochaine version.
+> **Combiner les deux** : le meilleur des deux, la seule proposition qu'une conversation peut faire.
+
+**Combiner, c'est ton travail à toi, et c'est pour ça que c'est un skill et pas un script.**
+Lis les deux versions, écris la combinaison toi-même, montre-la, et ne l'applique qu'une fois
+qu'elle est d'accord. Une fusion mécanique ne sait pas faire ça ici : ces fichiers n'ont
+**aucun ancêtre commun** dont partir, ce qui est exactement la raison pour laquelle le moteur
+les a laissés tranquilles.
+
+#### Applique la réponse avec la commande, jamais en éditant le fichier
+
+```bash
+node scripts/adopt-engine-file.mjs <fichier> take-theirs
+node scripts/adopt-engine-file.mjs <fichier> keep-mine
+node scripts/adopt-engine-file.mjs <fichier> combine --from <chemin-de-ta-combinaison>
+```
+
+🛑 **N'écris jamais le fichier toi-même, pas même pour « je garde la mienne ».** La commande
+fait trois choses qu'une édition ne fait pas : elle **sauvegarde la version actuelle dans
+l'historique du cerveau avant d'écraser quoi que ce soit**, elle enregistre la version du
+moteur comme nouvel **ancêtre** du fichier pour que les mises à jour suivantes puissent
+fusionner au lieu de reposer la question, et elle retient la réponse pour ne pas la redemander
+avant la prochaine version. Édite le fichier directement, et il sera resoulevé à chaque
+version, indéfiniment ; et sur « prendre la nouvelle », son travail est écrasé sans retour
+possible.
+
+Pour **combiner**, écris ta combinaison dans un fichier de travail et passe-le avec `--from` :
+les octets adoptés sont exactement ceux qu'elle a validés.
+
+**Ce que la commande te répond :**
+
+- **`exit 0`** : appliqué. Relaie sa phrase, elle dit ce qui a changé et ce qui se passe ensuite.
+- **`exit 1`** : **rien n'a été touché**, et la raison la concerne, elle, pas une nouvelle
+  tentative : git n'a pas encore de nom/email configuré, une fusion est en cours dans le dépôt
+  de son cerveau, ou il n'y avait aucune version plus récente en attente. Relaie la phrase telle
+  quelle et laisse-la décider. **Ne relance pas la commande en espérant une autre réponse.**
+- **`exit 2`** : c'est toi qui as mal appelé. Corrige l'appel, ne montre jamais ce message.
+
+#### Douze fichiers ne doivent pas devenir douze questions
+
+Si plusieurs fichiers attendent, **regroupe-les d'abord**. Nomme-les en une courte liste, puis
+propose, pour l'ensemble : **prendre toutes les nouvelles**, **garder toutes les miennes**, ou
+**passons-les en revue un par un**. N'ouvre la conversation détaillée ci-dessus que pour ceux
+qu'elle veut vraiment regarder.
+
+Si elle ne dit rien, ou dit « plus tard », c'est une réponse complète : laisse tout en l'état.
+Les propositions ne sont pas perdues, le moteur les rementionnera, et elles n'expirent jamais
+avant la prochaine version.
 
 ## Cas limites
 - **Aucune source enregistrée** (`source.repo` est null — p. ex. un cerveau dont le launcher

@@ -14,7 +14,8 @@ import { execFileSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { shouldPush } from "./lib/git-push.mjs";
-import { attemptCommit, isEntryPoint } from "./auto-commit.mjs";
+import { attemptCommit } from "./auto-commit.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 // attemptPush — testable core. `git` is an injected runner (args[]) → {out, ok};
 // `sleep` is an injected blocking pause (ms). Returns "pushed" | "skipped" |
@@ -127,11 +128,8 @@ export function realHookDeps(metaUrl) {
 
 // ── CLI entry (the actual Stop hook) ─────────────────────────────────────────
 // Guarded so importing this module in tests does NOT run it. Wires the real
-// git/sleep/write, then ALWAYS exits 0 (ignores the hook stdin). isEntryPoint
+// git/sleep/write, then ALWAYS exits 0 (ignores the hook stdin). The shared tail
 // compares REAL paths (review finding, v4.9.1): the bare resolve() comparison
 // silently disarmed the whole hook on any brain whose path holds a symlink
-// (macOS /var → /private/var being the everyday case) — auto-commit.mjs had
-// learned this already; the guard is now shared.
-if (isEntryPoint(process.argv[1], import.meta.url)) {
-  process.exit(runHook(realHookDeps(import.meta.url)));
-}
+// (macOS /var → /private/var being the everyday case).
+runAsEntrypoint(import.meta.url, process.argv, () => runHook(realHookDeps(import.meta.url)));

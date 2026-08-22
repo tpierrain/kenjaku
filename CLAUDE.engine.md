@@ -140,6 +140,33 @@ When I only want an **answer** (a fact, a synthesis), just answer with the sourc
 
 ## Routing — which tool for what
 
+### Level 1 — a source you are handed comes before any search
+
+**A URL, a path, a screenshot or an attachment in the message is not ambience: it is the statement of
+the task.** Open it — `WebFetch` for a link, `Read` for a file — **before any search tool fires**.
+
+The retrieval levels, in order. Level 1 is a position, not a preference:
+
+1. **What the owner handed over** — `WebFetch` / `Read`.
+2. **Exact search** — `Grep` / `Glob`, for anything you can spell: a name, an identifier, a **proper
+   noun**. A semantic search is the wrong instrument for a proper noun and will quietly return nothing.
+3. **Semantic search** — `mcp__vault-rag__search_vault`, for open and cross-cutting questions.
+4. **The web**, last.
+
+- **When the task is defined *relative to* that source** ("complete this article", "fix this file",
+  "like in that repo"), the source **is the specification**. Producing a structured, comparative,
+  serious-looking answer from your reconstruction of it is the failure mode — it looks like work and
+  is built on nothing.
+- **Corollary, and it already has a home**: before concluding anything negative, ask *have I exhausted
+  level 1?* The wording of that conclusion is governed by the **Claim discipline** below — do not
+  restate it here; two paraphrases are two disciplines.
+
+> Field case, 2026-08-08: an article's URL was handed over in the first message and never opened. The
+> answer that came back compared the article against what was "missing" from it, from a reconstruction.
+> Asked afterwards about a tool by name, a semantic search found nothing and the silence became two
+> assertions — *"not in the vault"*, *"your articles never name it"*. It was in the addendum of the
+> very article whose link had been handed over.
+
 ### Vault — semantic RAG (heart of the system)
 
 The RAG (`rag/`) splits each Markdown file into **chunks** (one per `#`/`##`/`###` section), turns each chunk into a vector (Gemini embedding) and stores them. A search embeds the question and surfaces the closest chunks by meaning similarity.
@@ -148,6 +175,7 @@ The RAG (`rag/`) splits each Markdown file into **chunks** (one per `#`/`##`/`##
 
 | Operation | Tool |
 |---|---|
+| **A source the owner handed over** (URL, path, attachment) — **level 1, before any search** | `WebFetch` / `Read` |
 | **Semantic / cross-cutting question** ("what do we know about X?") | `mcp__vault-rag__search_vault` |
 | **Read a full doc** retrieved by search | `mcp__vault-rag__get_document` |
 | **List indexed documents** | `mcp__vault-rag__list_documents` |
@@ -241,6 +269,26 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 
 **Read directly (Read / grep) when:** known file, exact path, reasonable size; exact search; need for faithful content, not a summary.
 
+**📏 The threshold, so "large" stops being a judgement call.** Reading a file **to consult it** —
+you want to know what is in it, not to change it — goes to a sub-agent past **~1,500 lines or
+~60 KB**, whichever comes first. Below that, read it yourself. *(Both measures, because a wide file
+can be short on lines and still flood the context. **Adjust** the numbers if your notes run
+routinely bigger; what must not be adjusted away is having a number at all.)*
+
+> 🛑 **Two carve-outs, and they are the reason the number is safe to state.** **Not every** file
+> open goes through a sub-agent — that would break the edit flow, add latency on small notes and
+> lose fidelity where it matters:
+>
+> - **A file you are about to EDIT is read directly, whatever its size.** Not a preference, a
+>   mechanism: `Edit` requires a **prior Read** of that file in *this* context.
+> - **Content you will quote VERBATIM is read directly too.** A digest is a summary, and word-level
+>   work (an article, a quote, a transcript excerpt) needs the words.
+
+**🧩 Same disease, other vector: loading a big skill for three facts.** If a skill is being pulled
+in only to source a handful of figures or names, have a **sub-agent** load it and hand back the
+facts. This one is judgement — nothing can read your intent — but it is written down because it has
+cost more context, in one turn, than any note ever did.
+
 **Golden rule**: a sub-agent returns only pre-digested signals (~500 tokens), never file dumps.
 
 ### General rules
@@ -253,6 +301,24 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 - **Never edit a past daily note** (except for a glaring typo correction that's flagged).
 - **Durable memory is the repo, never Claude Code's local memory.** Anything that must survive between sessions goes into the repo: `vault/` for content, `CLAUDE.md` for rules. The repo is portable (another machine, backup) and survives a `/clear`; Claude Code's local memory is not. Never leave anything useful only in conversation memory.
 - If you touch the harness (`.claude/`), separate commit with a clear message (`harness: …`).
+
+### Announce before acting on a signal
+
+**When an action is triggered by a *signal* rather than by an explicit request, say so in one line
+BEFORE running it.** A signal is the user doing something that starts work they did not ask for in
+those words: ending a session, asking a question whose answer may have moved, handing over a source.
+
+- **Before, never with the result.** An announcement that arrives with the output explains a wait
+  that is already over. Said first, the same sentence turns the wait into progress.
+- **Announcing is not asking.** You do not request **permission** for something that is supposed to
+  run on its own — see the sync rule below, which is this rule's strongest form.
+- **What it costs when it is skipped, so this does not read as politeness**: the user sees
+  **silence** where they expected an answer, and cannot tell whether the wait is working for them or
+  whether something is stuck.
+
+Its two instances, both further down: the **background source sync** — which the engine already had
+right, and which this rule is generalised from — and the **end of session** ritual, which used to
+scan the whole conversation, read the backlog and write to several files without a word.
 
 ### Sourcing and traceability
 
@@ -368,14 +434,26 @@ Question
 
 **Phase 4** — Everything fetched or produced in session is saved to the vault. Nothing remains only in conversation memory.
 
-### Tooling — native tools, NEVER Bash to probe the vault or process text
+### Tooling — prefer the native tools; on Desktop, Bash costs a prompt
 
-This brain often runs in **Claude Desktop (Code tab)**, where **each Bash command re-triggers a
-permission prompt** — and where **compound or risky** commands (`cd … && mkdir …`, multiline
-`python3 -c "…"`, `#` in an argument) are **refused outright** (no "Always allow" button): the
-user *cannot* pre-authorize them. Conversely, the **native tools** `Read`/`Write`/`Edit`/`Glob`/`Grep`
-and the `vault-rag` MCP tools are **pre-authorized and silent**. So, **by default, never use Bash**
-to inspect the vault or manipulate content — use the equivalent native tool:
+> 🧭 **This table is about ERGONOMICS, and its premise is local.** It says which tool *surface* to
+> reach for so a session is not interrupted. It is **not** the Routing table (§ *Vault — semantic
+> RAG*), which is about **correctness** — which kind of tool answers which kind of question — and
+> holds in **every** environment, on every surface, always. **Reading the `❌ grep` cell below as
+> "never run an exact search" is a misreading**, and it collides head-on with Routing, which requires
+> exactly that for anything spellable.
+>
+> ⚠️ **And the difference has teeth.** An **absence** claim — *"X is mentioned nowhere"*, *"nobody
+> asked for Y"* — can only rest on an **exhaustive exact search**. A semantic search returns a top-N by
+> similarity and **can never prove a negative**. See *Claim discipline* further down: this is the
+> mechanism behind the rule there.
+
+This brain **often** runs in **Claude Desktop (Code tab)** with the **default permission mode**, and
+there **each Bash command re-triggers a permission prompt** — while **compound or risky** commands
+(`cd … && mkdir …`, multiline `python3 -c "…"`, `#` in an argument) are **refused outright** (no
+"Always allow" button): the user *cannot* pre-authorize them. Conversely, the **native tools**
+`Read`/`Write`/`Edit`/`Glob`/`Grep` and the `vault-rag` MCP tools are **pre-authorized and silent**.
+So, **by default, prefer the native tool** over Bash to inspect the vault or manipulate content:
 
 | Need | ✅ Native tool (silent) | ❌ Bash (prompt every time, sometimes non-authorizable) |
 |---|---|---|
@@ -388,8 +466,17 @@ to inspect the vault or manipulate content — use the equivalent native tool:
 
 Bash stays reserved for the strict minimum **with no** native equivalent (and for **read-only** git:
 `status`/`log`/`diff`). For everything else — discovering the vault's state before a fan-out,
-re-reading an off-loaded transcript, slicing content — **native tools only**. Never compose
-`cd … &&` with a write.
+re-reading an off-loaded transcript, slicing content — **reach for the native tool first**. Never
+compose `cd … &&` with a write.
+
+> ✅ **When the premise does not hold, the table does not either.** If a native tool is **unavailable**
+> in this session, or if the harness itself tells you to fall back, **use the Bash equivalent** — that
+> is the **expected** behaviour, not a defect, and there is **nothing to report** about it: do not add
+> a friction line and do not ask the owner to arbitrate. *(This paragraph exists because a session did
+> exactly that: running in auto permission mode, with the native `Grep` absent, it read its own
+> constitution as self-contradictory and filed an item asking its owner to settle a rule that lives in
+> the engine layer — a layer owners are told not to edit. The noise was the engine's fault, not
+> theirs.)*
 
 ### Backlogs (`vault/backlog/`)
 
@@ -419,7 +506,13 @@ The user should never have to correct "careful, that's already done": it's on Cl
 
 ### Passive observation — frictions at end of session
 
+> 📣 **Say it in one line first** — *"one moment, I'm scanning the session for frictions before we
+> close"* — then do the work. This is the ritual that gave *Announce before acting on a signal* its
+> name: it read the backlog, scanned a long conversation and wrote to four files in complete silence,
+> at the exact moment an immediate answer was expected.
+
 At the end of a session (explicit signal from the user **AND** 10+ exchanges), before the last message: scan the session to detect repeated workarounds, questions the vault couldn't answer, failed skills, long searches. If friction → add a line to `vault/backlog/harnais.md`:
+
 ```
 - [ ] [observation] Short description of the friction — YYYY-MM-DD
 ```

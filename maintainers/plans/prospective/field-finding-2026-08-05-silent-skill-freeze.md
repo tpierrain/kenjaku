@@ -74,6 +74,11 @@ still live for any brain in the field that has not yet crossed that hop.
 - [ ] **Step 3 — Make the freeze audible (the real subject).** A preserved skill must say **since when**
       it has been kept and **which engine version** it diverges from. The owner should never need a git
       diff to discover a months-old freeze.
+  > ➡️ **OWNED ELSEWHERE — do not track progress here.** This step is being built as **S4** of
+  > [`update-regime-owns-what-it-shipped-action.md`](update-regime-owns-what-it-shipped-action.md)
+  > (designed 2026-08-21), which holds its state, its sub-slices and its surface decision. The
+  > requirement below stays as the *statement of the need*; the boxes under it are answered there. A
+  > second file restating a status is a future lie.
   - [ ] `preserve / no-provenance` currently stays **silent on purpose** (`scripts/update-engine.mjs:134`).
         Re-open that decision: "we cannot prove anything about this skill" is information the owner needs,
         not machine noise. Silence is what this whole finding is about.

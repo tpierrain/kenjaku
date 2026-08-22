@@ -1,0 +1,163 @@
+20:04:40 (47137) INFO ProjectReader Found 1 of 660 file(s) to be mutated.
+20:04:40 (47137) INFO Instrumenter Instrumented 1 source file(s) with 201 mutant(s)
+20:04:40 (47137) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+20:04:40 (47137) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-7HT0Bn
+20:04:40 (47137) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+20:04:40 (47137) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+20:04:42 (47137) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1905 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 173)
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-update-check.mjs:24:19
+-     return (tags ?? [])
++     return (tags ?? ["Stryker was here"])
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-update-check.mjs:43:46
+-     const latest = pickLatestSemverTag(tags ?? []);
++     const latest = pickLatestSemverTag(tags ?? ["Stryker was here"]);
+
+[Survived] ConditionalExpression
+scripts/lib/engine-update-check.mjs:80:13
+-       target: ahead.length > 0 ? ahead[ahead.length - 1] : latest,
++       target: false ? ahead[ahead.length - 1] : latest,
+
+[Survived] OptionalChaining
+scripts/lib/engine-update-check.mjs:99:53
+-     const byTag = new Map(published.map((release) => [release?.tag_name, release]));
++     const byTag = new Map(published.map((release) => [release.tag_name, release]));
+
+[Survived] ConditionalExpression
+scripts/lib/engine-update-check.mjs:111:39
+-     return typeof value === "string" && value.trim() !== "" ? value : null;
++     return typeof value === "string" && true ? value : null;
+
+[Survived] MethodExpression
+scripts/lib/engine-update-check.mjs:111:39
+-     return typeof value === "string" && value.trim() !== "" ? value : null;
++     return typeof value === "string" && value !== "" ? value : null;
+
+[Survived] StringLiteral
+scripts/lib/engine-update-check.mjs:111:56
+-     return typeof value === "string" && value.trim() !== "" ? value : null;
++     return typeof value === "string" && value.trim() !== "Stryker was here!" ? value : null;
+
+[Survived] ConditionalExpression
+scripts/lib/engine-update-check.mjs:123:7
+-     if (!repo) return null;
++     if (false) return null;
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:135:13
+-     const m = /^(?:git@github\.com:|(?:https?|ssh):\/\/(?:git@)?github\.com\/)([^/]+)\/(.+?)(?:\.git)?$/.exec(
++     const m = /(?:git@github\.com:|(?:https?|ssh):\/\/(?:git@)?github\.com\/)([^/]+)\/(.+?)(?:\.git)?$/.exec(
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:135:13
+-     const m = /^(?:git@github\.com:|(?:https?|ssh):\/\/(?:git@)?github\.com\/)([^/]+)\/(.+?)(?:\.git)?$/.exec(
++     const m = /^(?:git@github\.com:|(?:https|ssh):\/\/(?:git@)?github\.com\/)([^/]+)\/(.+?)(?:\.git)?$/.exec(
+
+[Survived] StringLiteral
+scripts/lib/engine-update-check.mjs:136:13
+-       repo ?? "",
++       repo ?? "Stryker was here!",
+
+[Survived] StringLiteral
+scripts/lib/engine-update-check.mjs:147:26
+-     const lines = (body ?? "").split("\n");
++     const lines = (body ?? "Stryker was here!").split("\n");
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:148:43
+-     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\s*$/i.test(line.trim()));
++     const start = lines.findIndex((line) => /#{1,6}\s+What you get\s*$/i.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:148:43
+-     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\s*$/i.test(line.trim()));
++     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\s*/i.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:148:43
+-     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\s*$/i.test(line.trim()));
++     const start = lines.findIndex((line) => /^#{1,6}\sWhat you get\s*$/i.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:148:43
+-     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\s*$/i.test(line.trim()));
++     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\S*$/i.test(line.trim()));
+
+[Survived] MethodExpression
+scripts/lib/engine-update-check.mjs:148:78
+-     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\s*$/i.test(line.trim()));
++     const start = lines.findIndex((line) => /^#{1,6}\s+What you get\s*$/i.test(line));
+
+[Survived] ConditionalExpression
+scripts/lib/engine-update-check.mjs:149:7
+-     if (start === -1) return null;
++     if (false) return null;
+
+[Survived] UnaryOperator
+scripts/lib/engine-update-check.mjs:149:17
+-     if (start === -1) return null;
++     if (start === +1) return null;
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /(#{1,6}\s|---\s*$)/.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\S|---\s*$)/.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*)/.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s$)/.test(line.trim()));
+
+[Survived] Regex
+scripts/lib/engine-update-check.mjs:151:40
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\s|---\S*$)/.test(line.trim()));
+
+[Survived] MethodExpression
+scripts/lib/engine-update-check.mjs:151:67
+-     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line.trim()));
++     const end = rest.findIndex((line) => /^(#{1,6}\s|---\s*$)/.test(line));
+
+[Survived] ConditionalExpression
+scripts/lib/engine-update-check.mjs:152:20
+-     const section = (end === -1 ? rest : rest.slice(0, end)).join("\n").trim();
++     const section = (false ? rest : rest.slice(0, end)).join("\n").trim();
+
+[Survived] UnaryOperator
+scripts/lib/engine-update-check.mjs:152:28
+-     const section = (end === -1 ? rest : rest.slice(0, end)).join("\n").trim();
++     const section = (end === +1 ? rest : rest.slice(0, end)).join("\n").trim();
+
+[Survived] BlockStatement
+scripts/lib/engine-update-check.mjs:174:13
+-     } finally {
+-       clearTimeout(timer);
+-     }
++     } finally {}
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  86.07 |   86.07 |      173 |         0 |         28 |        0 |        0 |
+ engine-update-check.mjs |  86.07 |   86.07 |      173 |         0 |         28 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+20:10:00 (47137) INFO MutationTestExecutor Done in 5 minutes and 20 seconds.
+20:10:00 (47137) INFO Sandbox Resetting your original files from .stryker-tmp/backup-7HT0Bn.

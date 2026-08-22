@@ -15,6 +15,20 @@
 import { buildLsRemoteArgs, defaultGit, parseTagRefs } from "./engine-fetch.mjs";
 import { compareSemverTags, parseSemverTag, pickLatestSemverTag } from "./semver-tag.mjs";
 
+// "I could not find out" — the ONE shape of it, wherever it is said (S2b-4). This
+// module has four unknowns of its own and `update-engine.mjs` has a fifth (an
+// unreadable manifest, which cannot even reach `checkUpstream`). It used to hand-roll
+// the six fields, and the copy had already started to rot — its `releases: []` is read
+// by nobody, which is how a mutation run found it. Two literals of one shape is one of
+// them drifting, and the drift renders as a wrong report.
+//
+// `ahead` is never a parameter: an unknown is precisely a distance that could not be
+// counted. `installed` and `target` are, because a caller can know one without the
+// other (a brain pinned to a branch knows what is upstream, not how far behind it is).
+export function unknownUpstream({ installed = null, target = null, reason }) {
+  return { state: "unknown", installed, target, ahead: null, releases: [], reason };
+}
+
 // The releases strictly newer than the one this brain runs, oldest first — i.e.
 // exactly what an owner would be installing. Non-semver tags are skipped (the
 // same rule `pickLatestSemverTag` applies: only stable releases advance a brain).
@@ -45,14 +59,7 @@ export async function checkUpstream({
   // The three states this module exists to keep apart — and each "unknown" says
   // WHICH unknown it is, because "there is nothing to install" and "I could not
   // find out" are opposite answers an owner would act on differently.
-  const unknown = (reason, target = null) => ({
-    state: "unknown",
-    installed: installedRef ?? null,
-    target,
-    ahead: null,
-    releases: [],
-    reason,
-  });
+  const unknown = (reason, target = null) => unknownUpstream({ installed: installedRef, target, reason });
   if (!repo) {
     return unknown("this brain records no source to check — engine-manifest.json has no source.repo");
   }

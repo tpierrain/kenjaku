@@ -1,0 +1,72 @@
+
+▶ Mutating 2 changed rag file(s):
+   rag/src/lib/index-shortfall.ts
+   rag/src/lib/status-report.ts
+08:25:06 (81592) INFO ProjectReader Found 2 of 812 file(s) to be mutated.
+08:25:06 (81592) INFO Instrumenter Instrumented 2 source file(s) with 162 mutant(s)
+08:25:07 (81592) INFO ConcurrencyTokenProvider Creating 4 test runner process(es).
+08:25:07 (81592) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: maintainers/mutation/.stryker-tmp/backup-AyuxfK
+08:25:07 (81592) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+08:25:07 (81592) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+08:25:08 (81592) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 0 seconds (net 698 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 153)
+
+[Survived] ConditionalExpression
+rag/src/lib/index-shortfall.ts:61:25
+-     if (asked !== null && asked !== undefined && remaining >= asked) return "stalled";
++     if (asked !== null && true && remaining >= asked) return "stalled";
+
+[Survived] ConditionalExpression
+rag/src/lib/status-report.ts:78:21
+-       const waiting = shortfall.queued > 0 ? `, ${shortfall.queued} pending` : "";
++       const waiting = true ? `, ${shortfall.queued} pending` : "";
+
+[Survived] EqualityOperator
+rag/src/lib/status-report.ts:78:21
+-       const waiting = shortfall.queued > 0 ? `, ${shortfall.queued} pending` : "";
++       const waiting = shortfall.queued >= 0 ? `, ${shortfall.queued} pending` : "";
+
+[Survived] StringLiteral
+rag/src/lib/status-report.ts:78:78
+-       const waiting = shortfall.queued > 0 ? `, ${shortfall.queued} pending` : "";
++       const waiting = shortfall.queued > 0 ? `, ${shortfall.queued} pending` : "Stryker was here!";
+
+[Survived] MethodExpression
+rag/src/lib/status-report.ts:105:17
+-     const shown = errors.slice(0, max).join("; ");
++     const shown = errors.join("; ");
+
+[Survived] StringLiteral
+rag/src/lib/status-report.ts:105:43
+-     const shown = errors.slice(0, max).join("; ");
++     const shown = errors.slice(0, max).join("");
+
+[Survived] EqualityOperator
+rag/src/lib/status-report.ts:107:10
+-     return rest > 0 ? `${shown} (+${rest} other(s))` : shown;
++     return rest >= 0 ? `${shown} (+${rest} other(s))` : shown;
+
+[Survived] ConditionalExpression
+rag/src/lib/status-report.ts:107:10
+-     return rest > 0 ? `${shown} (+${rest} other(s))` : shown;
++     return false ? `${shown} (+${rest} other(s))` : shown;
+
+[Survived] StringLiteral
+rag/src/lib/status-report.ts:107:21
+-     return rest > 0 ? `${shown} (+${rest} other(s))` : shown;
++     return rest > 0 ? `` : shown;
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  94.44 |   94.44 |      153 |         0 |          9 |        0 |        0 |
+ index-shortfall.ts |  98.04 |   98.04 |       50 |         0 |          1 |        0 |        0 |
+ status-report.ts   |  92.79 |   92.79 |      103 |         0 |          8 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+08:26:33 (81592) INFO HtmlReporter Your report can be found at: file:///Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutation-rag.html
+08:26:33 (81592) INFO MutationTestExecutor Done in 1 minute and 27 seconds.
+08:26:33 (81592) INFO Sandbox Resetting your original files from maintainers/mutation/.stryker-tmp/backup-AyuxfK.

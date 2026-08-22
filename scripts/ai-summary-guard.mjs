@@ -20,7 +20,7 @@
 import { readFileSync } from "node:fs";
 
 import { summaryNotice, payloadText } from "./lib/ai-summary-guard.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 export const realSummaryGuardDeps = {
   readInput: () => readFileSync(0, "utf8"),
@@ -57,6 +57,7 @@ export function runSummaryGuard(deps = realSummaryGuardDeps) {
   return 0;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runSummaryGuard());
-}
+// runSummaryGuard() takes a `deps` argument (defaulted to the real ports), not
+// argv — so it must be wrapped rather than passed directly, or it would receive
+// the CLI args array as `deps` and lose its real stdin/emit ports.
+runAsEntrypoint(import.meta.url, process.argv, () => runSummaryGuard());

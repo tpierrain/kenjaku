@@ -35,7 +35,7 @@ import { checkSlackAccount } from "./lib/connector-accounts.mjs";
 import { readActiveUniverse, vaultRagDir, readRegistry, isMultiverse } from "./lib/universes.mjs";
 import { profileCaptureOffer } from "./lib/universe-reminder.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 // Windows hands cwd() back as C:\brain, and a backslash survives into every path
 // built from it — which fs tolerates but string comparisons do not. Normalising
@@ -172,6 +172,4 @@ export function runSetUniverseProfile(argv, deps = realProfileDeps) {
   return 0;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runSetUniverseProfile(process.argv.slice(2)));
-}
+runAsEntrypoint(import.meta.url, process.argv, runSetUniverseProfile);

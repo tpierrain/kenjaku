@@ -10,12 +10,104 @@
 > 📈 **Sections are ordered newest-first (anti-chronological).** The top block is the current
 > state; scroll down for the history back to the 2026-06-23 baseline.
 
+> 🛑 **A FLAKY TEST INFLATES EVERY SCORE MEASURED WHILE IT EXISTS, and one did — between
+> `de19cd9` and `211cfc5` (2026-08-20 → 2026-08-21).** The runner is Stryker's **`command`**
+> runner: a mutant is killed when the suite **exits non-zero**, and a test that fails at random
+> is indistinguishable from a mutant being detected. `engine-merge-git.test.mjs`'s *"nothing is
+> left behind"* swept the **shared** system temp dir, so under parallel workers it saw other
+> processes mid-merge.
+>
+> **Measured on 2026-08-21, 8 concurrent full-suite runs**: **6 of 8 failed** with that test as
+> written, **0 of 8** after the fix. Every section below dated 2026-08-20 or 2026-08-21 whose
+> subject runs while a merge can be in flight was therefore measured against a suite that failed
+> ~75 % of the time **for reasons unrelated to the mutant**, and is **marked ⚠️ inflated** where it
+> has not been re-measured. What re-measurement showed, file by file:
+>
+> | File | Inflated figure | Honest figure | Verdict |
+> |---|---|---|---|
+> | `update-engine.mjs` | 98.95 % | **97.54 %** | 4 more survivors, all pre-existing holes the noise masked |
+> | `lib/engine-merge-git.mjs` | 100.00 % | **98.18 %** | 1 survivor, an equivalent — the perfect mark was not earned |
+> | `lib/engine-merge-apply.mjs` | 100.00 % | **100.00 %** | unchanged |
+> | `lib/engine-skill-refresh.mjs` | 100.00 % | **100.00 %** | unchanged (as re-cut at S2b-1) |
+>
+> **Two of the four numbers were wrong and two were not**, which is why this warning names files rather
+> than casting doubt on the whole corpus. A number worth keeping is one that survived the correction.
+>
+> ➡️ **The durable rule**: under a `command` runner, *suite green* is the only thing the score
+> means. A flaky test does not add noise to a mutation score, it adds **points** — always upward,
+> never down. Treat a suite that is not deterministic under load as a broken instrument, and fix
+> it before believing any number it produced.
+>
+> ### ⚠️ THE JUDGE ITSELF WAS FLAKY — the class RECURRED after `211cfc5`, and this time no test is flaky
+>
+> _(Measured at S7-5-1, 2026-08-21, on `d019d38`.)_ The box above fixed **one shared-temp-dir test**.
+> The **class** it belongs to is still open, and it bit again on a file whose suite is perfectly
+> deterministic on its own:
+>
+> | Run | Command | Score | Survivors |
+> |---|---|---|---|
+> | 1 | `mutate-one.mjs … engine-ancestor.mjs` | **96.97 %** | 1 |
+> | 2 | the same command, same HEAD, minutes later | **93.94 %** | 2 |
+> | 3 | the same, `--concurrency 1` | **93.94 %** | 2 |
+>
+> **The tiebreaker is not the majority, it is the hand-run**: the disputed mutant (`if (!recorded)` →
+> `if (false)`) was applied to the real tree by hand and the **whole suite passed, 2210 / 0**. No test
+> kills it. So run 1 was a **spurious kill**, and the serial run is the honest number.
+>
+> **Why it can happen with every test deterministic.** `coverageAnalysis: 'off'` + `testRunner:
+> 'command'` + `inPlace: true` + `concurrency: 5` means **five full suites at once in ONE shared
+> worktree**. Any test touching a path another worker also touches can fail for a reason that has
+> nothing to do with the mutant, and under a `command` runner "the suite exited non-zero" IS the kill
+> signal. Fixing one such test removes one occurrence; it cannot remove the arrangement that produces
+> them.
+>
+> ➡️ **The rule this adds**: a **lone survivor, or a score that improves without a test being added,
+> is not to be believed until it reproduces.** Cheap protocol, and it is what caught this one: re-run
+> the file, and if the two runs disagree, decide it with `--concurrency 1` or by applying the mutant
+> to the real tree by hand. Neither costs a minute on a single file.
+>
+> 🙋 **OWNER'S CALL, not urgent and not blocking v5.** Three options, and the trade-off is minutes
+> against trust: (a) leave `concurrency: 5` and apply the protocol above per survivor — free, and the
+> discipline is already written here; (b) drop the batch config to `concurrency: 1` — ~5× slower, and
+> the ~30-min package run becomes impractical; (c) hunt the remaining shared-state tests one by one,
+> which is what `211cfc5` did once already, with no way to know when the last one is found. **(a) is
+> what this section does by default**; nothing below needs re-measuring on account of it, because the
+> spurious kill was caught before its number was ever recorded.
+>
+> ### ⬇️ AND IT GOES THE OTHER WAY TOO — a FALSE SURVIVOR, which is the dangerous direction
+>
+> _(Measured at S10-2, 2026-08-21, on `36f2c5c`.)_ Both boxes above describe the judge inventing
+> **kills**: the score reads too high, and the remedy is to distrust a good number. The same
+> arrangement produces the mirror image, and this is the first time it was caught:
+>
+> | Run | Command | Score | Survivors |
+> |---|---|---|---|
+> | 1 | `mutate-one.mjs … engine-answers.mjs` | **78.33 %** | 13 |
+> | 2 | the same command, same HEAD, same tests, minutes later | **80.00 %** | 12 |
+>
+> The mutant that moved is `&&` → `||` on `isEntry`. Applied to the real tree by hand, the suite goes
+> **RED** — `✖ an entry with no version is NOT an answer` — 13 pass / 1 fail. **A test does kill it.**
+> Run 1 reported it survived: the worker's suite must have exited **zero** for a reason unrelated to
+> the mutant, most plausibly a run in which the failing test's process was not the one whose exit code
+> the runner read.
+>
+> **Why this direction is worse, even though it costs points.** A spurious kill flatters you and you
+> may never look. A false survivor sends you to **write a test for a hole that does not exist** — and
+> the honest reading of "my test does not kill this" is "my test is wrong", so the natural next move is
+> to *change a passing test until the number moves*. That is how a good assertion gets weakened by a
+> measuring error. The protocol below is the only thing between that and a corpus quietly getting worse.
+>
+> ➡️ **The rule this adds, and it is now symmetric**: **no survivor is acted on until it reproduces or
+> is hand-applied.** Not just the flattering numbers — *any* disagreement between two runs, in either
+> direction, is the instrument talking. Hand-applying a mutant costs one command and answers it outright;
+> **and a test may never be weakened to chase a survivor** — if the test is right, the number is wrong.
+
 ## Current scores (latest)
 
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %**. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) over its 6 changed files reads **94.67 %**, with the file it creates at **100 %**. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) over the 2 files that release changed reads **94.44 %** first pass, **100 % on both** after the survivors were closed |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent. It then ran a **second pass after the review fixes** (those fixes changed production code, so the first numbers no longer covered it): 4 files re-measured, 3 of them at **96.88–100 %**, plus `lib/hooks-reconcile.mjs` — a file this release only grazes — at **78.69 %**, whose 24 remaining survivors are pre-existing and named rather than implied. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) measured the 4 files that release wrote: **83.33 % → 97.56 %**, two of them at **100 %**, the two survivors left both pre-listed equivalents — and the low first-pass number was a **design** defect (a fail-soft written twice, so neither half was observable), not thin tests. The [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05) is the biggest targeted pass so far — **16 files**, six batches: **thirteen end at 94 % or above**, one at 100 %, and the three that do not are the **named structural debt** (two files with no test sibling at 0 %, `engine-fetch.mjs`'s real git runner at 54.05 %), whose two remedies the owner **arbitrated into v4.9.0**, then **re-arbitrated in writing** (2026-08-08) onto the unfreeze release that follows it, rather than left implied. The [v4.9.0 run](#v490--the-universes-release-scripts-only--2026-08-08) measured the 6 files that release changed: **the two files it WROTE end at 100.00 % and 95.28 %**, `update-engine.mjs` at **98.44 %** and `reconcile-brain.mjs` at **96.11 %** — and the two entrypoint-tier files it merely grazed both **rose**, `session-universe.mjs` **39.39 % → 66.18 %** and `session-status.mjs` **0.00 % → 8.67 %**, still debt 1 rather than new rot. The [v4.9.1 run](#v491--the-switch-that-leaves-the-machine-scripts-only--2026-08-15) measured the 6 files that hotfix changed, over **three passes** (production moved twice): **the two files it WROTE both end at 100.00 %**, the untested CLI wiring goes **25 % → 100 %**, and the four others land at **95.92–99.66 %** — every survivor left a named equivalent |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent. It then ran a **second pass after the review fixes** (those fixes changed production code, so the first numbers no longer covered it): 4 files re-measured, 3 of them at **96.88–100 %**, plus `lib/hooks-reconcile.mjs` — a file this release only grazes — at **78.69 %**, whose 24 remaining survivors are pre-existing and named rather than implied. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) measured the 4 files that release wrote: **83.33 % → 97.56 %**, two of them at **100 %**, the two survivors left both pre-listed equivalents — and the low first-pass number was a **design** defect (a fail-soft written twice, so neither half was observable), not thin tests. The [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05) is the biggest targeted pass so far — **16 files**, six batches: **thirteen end at 94 % or above**, one at 100 %, and the three that do not are the **named structural debt** (two files with no test sibling at 0 %, `engine-fetch.mjs`'s real git runner at 54.05 %), whose two remedies the owner **arbitrated into v4.9.0**, then **re-arbitrated in writing** (2026-08-08) onto the unfreeze release that follows it, rather than left implied. The [v4.9.0 run](#v490--the-universes-release-scripts-only--2026-08-08) measured the 6 files that release changed: **the two files it WROTE end at 100.00 % and 95.28 %**, `update-engine.mjs` at **98.44 %** and `reconcile-brain.mjs` at **96.11 %** — and the two entrypoint-tier files it merely grazed both **rose**, `session-universe.mjs` **39.39 % → 66.18 %** and `session-status.mjs` **0.00 % → 8.67 %**, still debt 1 rather than new rot. The [v4.9.1 run](#v491--the-switch-that-leaves-the-machine-scripts-only--2026-08-15) measured the 6 files that hotfix changed, over **three passes** (production moved twice): **the two files it WROTE both end at 100.00 %**, the untested CLI wiring goes **25 % → 100 %**, and the four others land at **95.92–99.66 %** — every survivor left a named equivalent. The [S0bis run](#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20) is not a release but the **debt run itself**: it pays both structural debts this table has flagged since v4.4.0 — the two entry-guard files quoted above at **0 %** (`status-line.mjs`, `upstream-check-run.mjs`) both end at **100.00 %**, `engine-fetch.mjs` goes **54.05 % → 84.21 %**, and a new repo-wide **guard test** makes the shape unrepeatable rather than merely fixed. **The tier is now closed**: `session-status.mjs`, held back the same day as a written arbitration because it is the one file that cannot be verified by running it, was answered by the owner and paid — **8.67 % → 96.10 %** over three rounds, its red taken inside a disposable worktree and its output proved byte-identical before and after. **No `scripts/*.mjs` sits in the 0 % tier any more**, for the first time since v4.4.0 |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**. **v4.4.0 touches no `src/**` file here — the number carries over, deliberately not re-measured** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -138,6 +230,1728 @@ survivors there are **documented equivalent mutants** (unkillable without touchi
 "effective 100 %" on non-equivalents. The lowest never-hardened tiers, the natural next "B5" targets,
 are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` / `index-freshness`, plus
 local-mirror's `fs-state-store` and `content-hash`.
+
+---
+
+## W6 — the CRLF cut, and the SAME instrument lie two hours after it was written down — 2026-08-22
+
+`3b6820b` (the fix) + `87e9be1` (the survivor's pole). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW function in an existing file → measured **on those lines only**.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-fingerprint-table.mjs:75-88` (`deliveredSources`) | **80 %** — 4 killed, 1 survived | **100 %** — 4 killed | 0 |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-fingerprint-table.mjs:75-88"`.
+
+🛑 **AND THE PASS BEFORE THOSE TWO MEASURED NOTHING — the W1 box below is the same finding, written
+two hours earlier, by the same session.** The first run over the uncommitted change reported
+`✅ 100 % — 8 killed` for lines that were still `buildFingerprintTable`'s. **The rule "COMMIT, THEN
+MUTATE" existed, in this file, in bold, and did not fire.** What caught it the second time was not the
+rule: it was **reading the reset sha the runner prints** (`git reset --hard b279144…`) and noticing it
+was the parent commit. A written rule competes with an output that says `✅` either way, and the output
+wins.
+
+➡️ **So the remedy is not a third restatement.** `mutate-one.mjs`'s own header charter is *"a loud
+failure instead of a score that was never measured"*, and it already refuses a stale log, a starved
+timeout share and a skipping write-guard. **A dirty working tree on a TARGETED file is exactly that
+class and is not guarded** — it is the one precondition the tool can check for free (`git status
+--porcelain -- <targets>`) and the only one that has now been met twice in one night.
+
+✅ **BUILT** _(2026-08-22 · `ced15a0` + the survivors' poles)_ — see § *The gate that makes this box
+historical*, below. **The rule stops being something to remember.**
+
+---
+
+## The gate that makes the box above historical — 2026-08-22
+
+`ced15a0`. The refusal `mutate-one.mjs` never made: **a target that is not committed stops the run**,
+because the worktree is built at HEAD and a pass over an uncommitted change scores the old bytes and
+prints `✅` in the same words.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `maintainers/mutation/mutate-one.mjs` (`targetPaths`, `uncommittedTargets`, the gate) | **93.94 %** — 31 killed, 2 survived | **100 %** — 33 killed | 0 |
+
+**Reproduce**: `npm --prefix maintainers/mutation run mutate:maintainers` scoped with
+`--mutate "maintainers/mutation/mutate-one.mjs:191-193,…:200-205,…:320-338"`. _(This file is under
+`maintainers/`, so `mutate-one` refuses to mutate itself — it is the `scripts` package's runner. The
+maintainers config is the one that measures it.)_
+
+🧭 **Neither survivor asked for more code, and both are shapes this corpus has met before:**
+
+- `line.length > 3` → `>= 3`. git cannot emit an entry with an empty path, so the boundary looked
+  decorative. **Killed by feeding the shape it excludes** (`"M  "`), not by rewording the condition —
+  the same answer W3's four survivors got. The alternative considered and rejected: rewriting the
+  filter as a regex, the way `parseLsFilesEolZ` did for its `indexOf` survivors. Here it would only
+  have moved the unkillable boundary into a `.+` nobody feeds either.
+- `command: "git"` → `command: ""`. It survived because the assertion read `args` alone. **The test
+  file's own header says a double that ignores its arguments certifies nothing** — the assertion was
+  committing that error one level up. The whole call is asserted now, `cwd` included: the same
+  question asked from another directory answers about another tree.
+
+⚠️ **What it does NOT guard, deliberately**: `--dry-run` still runs nothing, this gate included. The
+gate protects a **score**, and a dry run produces none; a dry run that shells out is not a dry run.
+
+**The one real survivor**: `eolByPath?.[…]` → `eolByPath[…]`. No caller omits the map, so the optional
+chain was unkillable — and the fix was to **delete it**, not to cover it. The two failures are not
+symmetric: a crash stops a release being cut, a silent verbatim fold **ships a CRLF table that reads as
+normal** and leaves the fleet frozen. A pole now pins the throw, so re-adding the guard goes red instead
+of going quiet. Same shape as W2's six survivors — the run asked for LESS code, and was right.
+
+---
+
+## W3 — the regime list advances, and the survivors were all the absent case — 2026-08-22
+
+`df09f17` (the slice) + `ea85b07` (the survivors' test). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-source.mjs` (`advanceRegimes`, :134-135) | 89.47 % — 8 survived, **4 of them mine** | **94.74 %** | **0 on the changed lines** |
+| `scripts/update-engine.mjs:686-690` (the step-7 wiring) | **100 %** — 1 killed | — | 0 |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-source.mjs` and
+`node maintainers/mutation/mutate-one.mjs "scripts/update-engine.mjs:686-690"`.
+
+🧭 **ALL FOUR OF MY SURVIVORS WERE THE SAME MISSING CASE**: `target?.` → `target.` and `local?.` →
+`local.`, on both fields. Every existing pole passed `{}` for each side, which never dereferences
+nothing. Killed by **feeding the absent case**, not by an assertion reverse-engineered from the code —
+and the case is real: `advanceRegimes` runs at step 7, *after* the reconcile has converged the files on
+disk, so a throw there does not lose the regimes, it aborts the manifest write and leaves a brain whose
+**files are at HEAD and whose manifest is at install day**. Nothing downstream expects that pair.
+
+⚠️ **The four survivors LEFT are pre-existing and named, not silently inherited**: two
+`ArrayDeclaration` mutants on `selectMergeFiles`' empty-list defaults (`:34-35`) and two `StringLiteral`
+mutants on `readFileSync(…, "utf8")` (`:147`, `:151`). Out of this change's scope, recorded so the next
+pass does not re-discover them as new.
+
+---
+
+## W2 — pinning the delivery, and six survivors that asked for LESS code — 2026-08-22
+
+`dd08024` (the slice) + `a5b8c2a` (the simplification) + the boundary test. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-fetch.mjs:36-49` (`buildCloneArgs`) | **100 %** — 9 killed | — | 0 |
+| `scripts/lib/tracked-files.mjs:31-73` (the EOL parse + verdict) | **83.78 %** — 6 survived | **92.59 %** | 2, both named equivalents |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/tracked-files.mjs:31-73"`.
+
+🧭 **THREE OF THE SIX SURVIVORS WERE ONE MESSAGE: there was too much code.** They were all `indexOf`
+comparisons — `tab <= 0`, and the `attrAt < 0 ? "" : …` ternary twice — whose false branch **no output
+git produces can reach**. Unkillable, and *load-bearing-looking*, which is the worse half: a reader
+budgets attention for a guard that guards nothing. The remedy was the one this document keeps
+recommending and sessions keep skipping — **simplify the production instead of inventing a fixture**:
+the record format is now stated once as a pattern that either matches or does not, and the arithmetic
+went away with its half-states.
+
+**And the simplification produced a rule worth asserting**, which is how you tell it from mere
+deletion: *a record it cannot FULLY read is SKIPPED, never half-read.* A half-parsed record becomes an
+entry keyed by a real path carrying a wrong verdict, and the installer then delivers that file in the
+wrong form; skipping means byte-verbatim, which is what it always did.
+
+**The two genuine gaps**, both closed:
+
+- **Every `eol=crlf` fixture had it LAST**, so the trailing boundary was only ever satisfied by
+  end-of-string and `(\s|$)` could lose its `\s` unnoticed. A file can carry several attributes, and
+  the one protecting a Windows launcher must not depend on being written last.
+- **Both boundaries from the other side** (`eol=crlfx`, `noeol=crlf`), so the guard cannot decay into a
+  substring test and deny a file its LF delivery over a coincidence of spelling.
+
+**The two that remain are equivalents, and each is PROVED rather than asserted:**
+
+- `(.*)$` → `(.*)`: `.` does not match a newline and `.*` is greedy, so the anchor changes nothing
+  unless the **fields** part contains a newline. It cannot — git emits the fields, then one tab, then
+  the path, and the split takes the **first** tab.
+- `tab < 0` → `tab <= 0`: a record starting with a tab yields empty fields, the pattern refuses them,
+  and the record is skipped either way. **That equivalence is a CONSEQUENCE of the simplification** —
+  the edge the comparison used to guard is now covered by the pattern.
+
+🧪 **`installer.mjs`'s five wiring lines are NOT measured, and the skip is stated rather than passed
+over**: it sits outside `scripts/`, which `mutate-one.mjs` refuses by construction — a pre-existing
+structural limit, not a choice made here. What it wires is pure and measured above; what it *does* is
+covered by **running the installer as a process**, which the entry-point seam rule demands anyway
+(247 engine files delivered with zero CR, the PNG byte-identical, the generated `run-node.cmd` still
+CRLF).
+
+---
+
+## W1 (S7-6) — the CRLF ancestor fetch, and a pass that measured the code it had NOT written — 2026-08-22
+
+`65a6080` (the fix) + `13ef852` (the survivor's test). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
+
+| File (range) | Score | Survivors |
+|---|---|---|
+| `scripts/lib/engine-base.mjs:56-86` (`crlfify`, `recordedVariant`) | **100 %** — 23 killed | 0 |
+| `scripts/lib/engine-ancestor.mjs:55-90` (the miss path) | **100 %** — 10 killed | 0 |
+| `scripts/lib/engine-ancestor-fetch.mjs:60-112` (the candidate walk) | **96.67 %** → **100 %** | 1, killed |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-base.mjs:56-86"` (and the
+two ranges above).
+
+🛑 **THE FINDING IS NOT THE SCORE, IT IS THE FIRST RUN.** A pass was launched over the change **before
+it was committed** and returned a clean **100 %, 32 killed** — for lines that did not exist in the tree
+it measured. `mutate-one.mjs` builds its worktree with `git worktree add --detach <path> <sha>` where
+`sha = git rev-parse HEAD`, then `reset --hard` + `clean -qfd`: **it measures HEAD, never the working
+tree.** That is correct and deliberate (a mutant of `auto-commit.mjs` must not be able to commit the
+instrumented tree), and it is invisible from the output — the run says `✅ Mutation score 100 %` in the
+same words either way.
+
+➡️ **The rule: COMMIT, THEN MUTATE.** Not a preference, a precondition. And the family it belongs to is
+the one this branch keeps meeting: yesterday a probe **re-implemented a lookup by hand** instead of
+calling it and produced a confident wrong verdict; this is the same shape one layer out — a
+measurement that was real, deterministic, repeatable and **about the wrong thing**. A green light for
+code you have not committed reads exactly like a green light for code you have.
+
+**The one real survivor**, in the shared loop: `if (!shown.ok) continue;` → `if (false) continue;`. It
+survived because a failed `git show` hands back an error message, which the verification below refuses
+anyway — so the guard looked decorative on every input the suite had. It is not, and the fix was a test
+that states a **rule** rather than covering a branch: *bytes that arrive WITH a failure are not bytes —
+`ok` is the authority.* Feed the double real content with a non-zero status and the mutant hydrates a
+base from it, which is the single write this module exists to prevent. Asserted on both shapes (hit and
+candidate walk), since they share the line, and **verified by applying the exact mutant by hand**: that
+test fails, and only that test.
+
+➡️ **A confirmation re-run was deliberately NOT bought** (§5quinquies: no re-run when the delta is
+predictable, write the prediction instead). Hand-applying the mutant is stronger evidence than a second
+two-minute pass: it observes the kill directly rather than inferring it from an aggregate.
+
+---
+
+## S10-QA — the acceptance test, and the guard that refused too much — 2026-08-22
+
+`612f306`, `5c16fc2`, `ea78d42`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY** (16 hunks across six files).
+**Reproduce**: each run's full `mutate-one.mjs` invocation is quoted in its log header — logs
+[`s10-qa-hunks`](reports/s10-qa-hunks) and [`s10-qa-single-lines`](reports/s10-qa-single-lines).
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| first pass (`612f306`) | 54 | 85.19 % | 8 |
+| after the three fixes (`5c16fc2`) | **52** | **96.15 %** | 2, both equivalent |
+| the nine SKIPPED lines, re-run | 17 | 88.24 % | 2, same defect |
+| after deleting the dead arm (`ea78d42`) | **13** | **100.00 %** | 0 |
+
+Per file after the fixes: `engine-answers.mjs` 100 %, `engine-base.mjs` 100 %, `adopt-engine-file.mjs`
+100 %, `engine-merge-apply.mjs` 100 %, `engine-adopt.mjs` 95.83 %, `engine-base-fs.mjs` 85.71 %.
+
+### 🚨 A `--mutate` RANGE WRITTEN AS A BARE LINE NUMBER MEASURES NOTHING, AND SAYS SO IN A WARNING
+
+`scripts/lib/engine-adopt.mjs:79` matches **no file**. Stryker logs
+`Glob pattern "…:79" did not result in any files` and carries on to a green score over everything
+else — so **nine of this slice's sixteen hunks were never measured**, and the first table row above
+was computed on the seven that were. Single lines have to be written `79-79`.
+
+This sits beside the flag's other trap, already documented at the top of this file: the file name must
+be **repeated per range** (`f.mjs:1-5 f.mjs:9-12`, never `f.mjs:1-5,9-12`). Both fail the same way —
+**silently, upward**. Re-run properly, the nine lines held one real defect (below) and now score 100 %.
+
+### 🛑 THE FINDING: A SAFETY GUARD IS MEASURED IN BOTH DIRECTIONS, OR IT IS HALF-TESTED
+
+Three survivors sat on `isMarkedMerge`, the guard that refuses to adopt a marked-up merge: the two
+`^` anchors and the `&&`. Every test aimed at it proved it **refuses the dangerous file**, and not one
+proved it **accepts an innocent one**. Unanchor the opening marker, or turn the `&&` into `||`, and
+the engine starts refusing any file that so much as quotes `<<<<<<<` in prose — which is a real file:
+`update-engine`'s own Step 4 explains what a conflict looks like. A guard that over-refuses freezes
+exactly the document that explains the freeze, and no test would have noticed.
+
+Two tests now pin it from the other side, one per anchor: a candidate whose *closing* marker starts a
+line and whose opening one does not, and the mirror. Both adopt cleanly.
+
+### A branch no input could reach, deleted rather than asserted
+
+`(write !== undefined || deliver !== undefined)` — two survivors, and both said the same thing:
+`planAdoption` returns `write` and `deliver` **together or neither**, so the `||` had an arm nothing
+could exercise. Asked of the plan as a whole (`Object.keys(plan).length > 0`) it is one expression, it
+means what it always meant, and a reader can check it without opening `planAdoption`. Same lesson as
+S10-6a's `parseFrom`: **a mutant you can delete beats a mutant you assert.**
+
+### The eighth: a true half-sentence
+
+The CLI's marked-merge line could lose its middle clause and still read as true — *"your version and
+the engine's changed the same lines"* — while dropping the only fact the owner acts on: that what sits
+beside the file is a **marked-up merge of both**, not a version to install. S10-6a's finding, one
+release later, on the sentence that finding did not cover.
+
+### And what the nine unmeasured lines were hiding: a report arm with no state to describe
+
+`preserved.push(sidecar === undefined ? {name, reason} : {name, reason, newVersionPath})` — both its
+mutants survived, because **nothing produces a preserve without a sidecar**. Rows 3 and 7 of
+`mergeVerdict` both set `sidecar: candidate`, and so do this module's own `merge-failed` /
+`merge-unsafe` degradations. The `no-provenance` row was that arm's only home until **S10-1 gave it an
+offer** — the arm outlived its state by one slice, and only a hunk-scoped run over a line nobody had
+otherwise touched would ever have said so. Deleted, not asserted.
+
+### The two survivors that stay (documented equivalent)
+
+- `readFileSync(sidecar, "utf8")` → `""`. Node treats the empty encoding as none and returns a
+  **Buffer**; measured, the Buffer writes the same bytes and hashes to the same sha256, so the file,
+  the ancestor and the manifest are byte-identical either way. Nothing observable to assert.
+- `regimes.merge ?? []` → `?? ["Stryker was here"]`. The fallback feeds `globRoots`, and a root that
+  does not exist on disk is filtered before it can select anything. Pre-existing on that line.
+
+---
+
+## S10-6a — the command, and 18 survivors that were all the SAME defect — 2026-08-22
+
+`087d57b` then `160d36e`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW file → measured **whole**.
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/adopt-engine-file.mjs` — log
+[`s10-6a-cli`](reports/s10-6a-cli).
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| first pass (`087d57b`) | 62 | 70.97 % | 18 |
+| after the four fixes (`160d36e`) | **60** | **100.00 %** | 0 |
+
+**The mutant count fell by two** and that is the honest direction: `parseFrom` lost its wrapper object,
+so two of its mutants stopped existing rather than being killed. **A mutant you can delete beats a
+mutant you assert.**
+
+### 🛑 THE FINDING: ON A COMMAND, THE SENTENCES *ARE* THE PRODUCT
+
+Seven survivors emptied user-facing prose with nothing going red — the three usage lines that explain
+what each offer **does**, the whole *keep mine* and *combine* confirmations, and the half of the
+no-candidate line carrying the two innocent explanations. The tests asserted that the usage **named**
+the three offers, which the invocation line alone already satisfies.
+
+This file's entire output is sentences. A test suite that lets them all be emptied is measuring the
+control flow of a thing whose job is to speak. Each is now asserted on **what it must say**: that the
+overwritten version was saved, that the engine will stop asking until the next release, that the
+recorded ancestor is the **engine's** version, and that nothing is broken.
+
+### Three more, each a different failure mode
+
+| Survivor | What it actually was |
+|---|---|
+| `at === -1` → `false` / `+1` | **Load-bearing.** Without it `rest[at + 1]` reads `rest[0]`, so a stray argument is promoted to "the combination" and the owner is told a file they never named could not be read. Both spellings exit 2; only one is actionable. |
+| `if (!rel \|\| !decision)` → `false` / `&&` | Missing arguments also reach the unknown-decision branch and exit 2 there — so the **code** cannot tell them apart, but it greets someone who typed nothing with `I do not know the answer "undefined"`. Asserted as **exactly** the usage. |
+| `realDeps().adopt` → `() => undefined` | The wiring was **never exercised**: every other test injects `adopt`, so all of them would pass if the real deps handed the seam an empty object. |
+
+### The end-to-end test failed on its first run, on something true
+
+Closing the `realDeps` hole meant running the command **as a process against a git-backed brain**
+(the § *entry-point seam* rule). It went red immediately: the command resolves the brain it acts on
+from **where the script lives**, not from the working directory — so spawning the launcher's own copy
+against a temp folder would have acted on **the launcher**. The fixture now carries its own
+`scripts/`, as a real brain does. The mutation score bought a fixture that is honest about the
+production layout, which is worth more here than the three points it also bought.
+
+**Confirmed by hand, twice**, per § S7-5-2:
+
+| Mutant applied to the real tree | Result |
+|---|---|
+| the `-1` guard removed (`return rest[at + 1]`) | **1 test red** |
+| the real wiring drops its git runner | **1 test red** |
+
+## S10-5 — the adoption seam, and the survivor that was a FLEET-SCALE defect — 2026-08-22
+
+`4238e16` then `363db77`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW file → measured **whole**.
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-adopt.mjs` — log
+[`s10-5-adopt`](reports/s10-5-adopt).
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| first pass (`4238e16`) | 60 | 93.33 % | 4 |
+| after the added assertion (`363db77`) | 60 | **96.67 %** | 2, both equivalent |
+
+**Count checked before the score**, per the rule § S10-3 added: 60 mutants over ~70 lines carrying
+five string comparisons, two throws and four guards is the right order of magnitude.
+
+### 🛑 THE FINDING: THE SURVIVOR WAS INVISIBLE BECAUSE THE FIXTURE HELD ONE FILE
+
+Two survivors were `manifest.provenance ?? {}` → `&& {}` (and the same on `baseRefs`). Both look like
+noise on a guard whose fallback the fixture never reaches. They are not. `&& {}` on a *present*
+provenance yields `{}`, and an adoption **rebuilds the provenance table from the prior one** — so
+rebuilding it from nothing wipes every other engine file's digest. A real brain has **79** of them:
+one answered file would make the entire fleet read as personalized at the next update, i.e. this
+slice's own machinery re-creating, at scale, the blind spot S10 exists to close.
+
+The defect was unreachable by construction: the fixture brain held **one** merge file, so "keeps the
+others" had nothing to be true about. The fix is the fixture, not a guard — a second merge file
+nobody is answering about, and an assertion that its digest and its baseRef come out untouched.
+**Hand-applied both mutants** to confirm the kill (1 test red each) rather than trusting the re-run.
+
+> **The lesson, one turn after the previous two.** § S10-3 said *read the count, not only the score*;
+> § S10-4's slice said *a survivor on unreachable code is first a question about the code*. This adds
+> the third: **a survivor can be unreachable because of the FIXTURE, not the code.** The question to
+> ask before "is this equivalent?" is **"what would have to be true of the brain for this to matter,
+> and does my fixture ever look like that?"** — here, having more than one file.
+
+### The two remaining survivors are equivalent, and the reason is Node, not the tests
+
+`readFileSync(p, "utf8")` → `readFileSync(p, "")` at both read sites. An empty encoding does not
+throw: Node returns a **Buffer**. And every consumer downstream takes a Buffer with identical bytes
+— `writeFileSync` writes them unchanged, `JSON.parse` coerces via `toString()`, `createHash().update()`
+hashes the same bytes. Behaviour is byte-for-byte identical, so there is nothing to assert that would
+not be an assertion about Node.
+
+Per § S10-2's rule (*"equivalent" is a verdict about the CODE — can the line be deleted?*): no.
+Dropping the argument entirely also yields a Buffer, so the mutant would stay equivalent, and `"utf8"`
+is what tells a reader these are text files. **Kept, documented, not chased.**
+
+## S10-4 — the safety commit, 40 mutants, and a count that finally matches the diff — 2026-08-21
+
+`e7a1952`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+NEW code inside an EXISTING file → **hunk-scoped** (`:76-109`).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-commit.mjs:76-109` — log
+[`s10-4-safety`](reports/s10-4-safety).
+
+| Mutants | Score | Survivors |
+|---|---|---|
+| **40** | **100.00 %** | 0 |
+
+**The count was checked before the score**, which is the rule § S10-3 just added: 40 mutants over 34
+added lines carrying two sentence maps, three comparisons and two ternaries is the right order of
+magnitude. Last slice's serene 100 % came from 4 mutants over a change four times that size.
+
+**Confirmed by hand, twice**, per § S7-5-2 — a perfect score nobody has tried to break is a claim:
+
+| Mutant applied to the real tree | Result |
+|---|---|
+| `refused` returns `proceed: true` (the veto removed) | **2 tests red** |
+| the `conflicted` guard deleted (an unmerged tree gets `add -A`) | **2 tests red** |
+
+Both are the slice's reason for existing: the first would let an irreversible overwrite happen with
+the owner's bytes nowhere in history, the second would bury `<<<<<<<` markers in what it stages.
+
+## S10-3 — the wiring, and a 100 % that measured a QUARTER of the change — 2026-08-21
+
+`216d3b6`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+Three EXISTING files changed by a few lines each → **hunk-scoped**, per the mode's rule.
+**Reproduce**: see the per-row commands below — logs [`s10-3-nudge`](reports/s10-3-nudge),
+[`s10-3-session`](reports/s10-3-session), [`s10-3-report2`](reports/s10-3-report2), [`s10-3-report3`](reports/s10-3-report3).
+
+### 🛑 THE FINDING: `--mutate` SILENTLY DROPPED THREE HUNKS OUT OF FOUR
+
+The report surface was first measured with **one** argument carrying four ranges:
+
+```
+node maintainers/mutation/mutate-one.mjs "scripts/update-engine.mjs:149-152,196-200,289-299,450-455"
+```
+
+It returned **100 %, 4 killed, 0 survived** — and it had instrumented **4 mutants**. The file name
+belongs to *each* pattern in Stryker's comma-separated list, so `196-200` (no file) is not a pattern
+it can use; the run silently measured `149-152` alone, a single template literal. **Three quarters of
+the change was never mutated, and the output said nothing was wrong** — `mutate-one.mjs` passes
+`targets.join(",")` straight through, so both spellings are accepted and only one is right.
+
+The correct spelling repeats the file, as separate arguments:
+
+```
+node maintainers/mutation/mutate-one.mjs scripts/update-engine.mjs:149-152 scripts/update-engine.mjs:196-200 …
+```
+
+➡️ **The rule this adds, and it is the sibling of tonight's false-survivor rule**: **read the mutant
+COUNT, not only the score.** A perfect score over a handful of mutants on a multi-hunk change is not
+a result, it is a question. The count is the only field that says *what was measured*; the percentage
+only says how it went. Cheap check, and it is the one that caught this: does the count look like the
+size of the diff?
+
+### The three hunks, measured
+
+| Surface | Hunks | Mutants | Score | Survivors |
+|---|---|---|---|---|
+| `lib/engine-divergence-nudge.mjs` | `:68-75` | 12 | **100.00 %** | 0 |
+| `session-engine-divergence.mjs` | `:32-49` | 11 | **100.00 %** | 0 |
+| `update-engine.mjs` | `:149-152` ⚠️ *the invalid run* | 4 | ~~100.00 %~~ | 0 |
+| `update-engine.mjs` | four hunks, spelled correctly | **33** | **93.94 %** | **2** |
+| `update-engine.mjs` | the same, after `66f00c3` | **28** | **100.00 %** | 0 |
+
+### The two survivors were DEAD CODE — one slice after S10-2 taught exactly that
+
+Both landed on the offer's guard, `preserved.filter(({ newVersionPath }) => newVersionPath !== undefined)`.
+Nothing can make it drop an entry: **all five `preserve` outcomes carry a sidecar** (`no-provenance`
+since S10-1, plus `customized`, `merge-failed`, `merge-unsafe`) — which is the very fact
+`preservedAndMergedLines` relies on to read that path unconditionally, three functions up. That
+comment had been *extended by me two edits before I wrote the filter that contradicts it*.
+
+The comment defending the filter named the wrong family, too: a retired skill genuinely has no newer
+version, and it is excluded **structurally** — it travels in `skillsRetirePreserved`, an array this
+function is never handed. The test asserting it was passing for a reason its title did not describe.
+
+Deleted rather than filed as equivalent, per § S10-2's rule. **33 → 28 mutants**: five stopped
+existing, and the remaining 28 all die.
+
+**Every perfect score here was confirmed rather than trusted**, per § S7-5-2 — two hand-applied
+mutants on the real tree: deleting the nudge's `answers` filter (i.e. reinstating the nag) turns
+**3 tests red** across two files, and deleting the report's `answerOfferLines` call turns **4** red.
+A 100 % nobody has tried to break is a claim, not a measurement.
+
+## S10-2 — the answers file, and 21 mutants that stopped existing — 2026-08-21
+
+**Subject**: `scripts/lib/engine-answers.mjs`, NEW file → measured **whole**, per the mode's rule.
+**Commits**: `36f2c5c` (the file), `62025ec` (the two fixtures + the four dead branches).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-answers.mjs` — logs
+[`mutate-one-engine-answers.log`](reports/mutate-one-engine-answers.log) (run 1),
+[`engine-answers-run2`](reports/engine-answers-run2), [`engine-answers-run3`](reports/engine-answers-run3).
+
+| Run | HEAD | Mutants | Score | Survivors |
+|---|---|---|---|---|
+| 1 | `36f2c5c` | 60 | **78.33 %** | 13 |
+| 2 | `36f2c5c` — *identical tree, no test changed* | 60 | **80.00 %** | 12 |
+| 3 | `62025ec` | **39** | **97.44 %** | **1** |
+
+Runs 1 and 2 are the **false survivor** written up in the top box; the honest first-pass reading of
+this file is 80 %, and even that is one disputed mutant away from 78.33 %.
+
+### The 12 survivors split in two, and only one half was a testing failure
+
+**Two were real gaps** — states a hand-edited `.engine-answers.json` genuinely reaches, and no test fed
+either: a **`null` entry** (`typeof null === "object"`, so the read walked into `.at` on it) and
+**`at: ""`** (an empty stamp must not count as an answer, nor match a caller passing `""` as a ref).
+Both fixtures added.
+
+**Ten were dead code, and that is the finding.** They clustered on four guards, and every one of them
+was unreachable *over the domain the function actually has* — whatever `JSON.parse` can return:
+
+| Guard | Why no mutant could die on it |
+|---|---|
+| `typeof entry === "object" && entry !== null && …` | subsumed by the `.at` check that follows — a string's `.at` is a *function*, a number's is `undefined` |
+| `content ?? ""` | `JSON.parse(undefined)` throws exactly like `JSON.parse("")` |
+| `typeof parsed !== "object" \|\| … \|\| Array.isArray(parsed)` | a primitive or an array yields no entry `isEntry` accepts; only `null` cannot be walked at all |
+| `existsSync(path)` in `readAnswers` | a missing file throws into the same `catch` as an unreadable one |
+
+They were **deleted, not documented as equivalents**. The score moved 80 % → 97.44 %, but the number
+is the small half of it: **the mutant count fell from 60 to 39**. Twenty-one mutants did not get
+killed, they **stopped existing**, because the code they lived in stopped existing.
+
+➡️ **The rule this adds.** *"Equivalent mutant"* is a verdict about **code**, not about tests, and
+writing it down is the expensive way to keep dead code. A guard no input can reach is dead whatever
+its intent was; the intent belongs in the test's assertion (this file still asserts that an array and
+a string yield no answers) and in a comment, **not in a branch nothing can take**. First ask *can this
+line be deleted*, and only then write "equivalent" — the run that follows is shorter, faster and says
+something true. Removing `existsSync` even made a `catch` **live for the first time**: dead code does
+not sit still, it shelters more of itself.
+
+**The one remaining survivor is a true equivalent**: `readFileSync(…, "utf8")` → `readFileSync(…, "")`.
+Verified by hand — an empty encoding returns a **Buffer**, and `JSON.parse` coerces a Buffer as UTF-8,
+so the two paths agree byte for byte. Left as is; the explicit `"utf8"` says what is meant.
+
+**Fail-first, on a file whose production code was already green**: each of the five mutants the new
+fixtures target was **hand-applied and seen red** before the commit (13/3, 15/1, 15/1, 12/4, 15/1).
+A mutation-driven test cannot get its red from the ordinary route — the code it exercises is already
+written — so hand-applying the mutant *is* the fail-first step, and skipping it leaves a test that has
+never once been observed to fail.
+
+## S10-1 — row 3's sidecar, and seven tests that had to be inverted on purpose — 2026-08-21
+
+`39f37bb`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-merge.mjs:64-71"` — log
+[`mutate-one-engine-merge-64-71.log`](reports/mutate-one-engine-merge-64-71.log).
+
+| File | Scope | Score | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-merge.mjs` | the changed hunk, `:64-71` | **100 %** (8 killed) | 0 |
+
+⚠️ **ONE RUN, at the default concurrency — the full serial confirmation § S7-5-2 asks of a perfect
+score was NOT performed, and here is why, so nobody reads a protocol into this that was not followed.**
+`mutate-one.mjs` has no `--concurrency` flag; going serial means editing the shared
+`stryker.scripts.config.mjs` and reverting it, and a forgotten revert is invisible (`tuningViolations`
+accepts anything ≤ 5, so no guard would catch a config left at 1). Instead the **second** protocol this
+document already names was used: **the load-bearing mutant was applied by hand.** Deleting
+`sidecar: candidate` turns **9 tests red** across three suites, and the working tree was restored and
+verified clean against HEAD afterwards. That does not re-prove the other 7 mutants; it proves the one
+the slice exists for, deterministically, which is more than a second flaky run would have.
+
+**A behaviour change measures its blast radius in inverted tests, not in mutants.** The hunk is two
+lines and the mutation pass on it is trivially perfect; what actually cost the slice its care is that
+**seven downstream tests asserted the old rule**, one of them in its very name (*"…preserved WITHOUT a
+.new"*). Each was inverted deliberately, with the claim it used to make kept above it — a batch
+find-and-replace would have produced the same green with none of the record.
+
+**Two of the seven came out STRONGER, and that is the part worth repeating.** The old assertions were
+`existsSync(...) === false`, which is the weakest shape a test can have: it passes when the file is
+absent for the *right* reason and equally when the whole code path never ran. Replacing them with
+`readFileSync(...) === candidate` pins something the suite had never checked — that the unconditional
+`rmSync` of a stale sidecar is followed by a re-drop of the CURRENT one, so a leftover claim from an
+earlier update can never survive as itself. **An inversion is an opportunity to upgrade an assertion,
+because you are already reading it.**
+
+---
+
+## S8-2b — the drift guard, and a fixture that agreed with the code by construction — 2026-08-21
+
+`ab85fde` → `417e264` → `3625dee`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/locale-drift.mjs` — log
+[`mutate-one-locale-drift.log`](reports/mutate-one-locale-drift.log).
+
+| File | First pass | After the assertion fixes | After the comparator fixture | Survivors |
+|---|---|---|---|---|
+| `scripts/lib/locale-drift.mjs` (new) | **82.28 %** (14 survived) | **97.47 %** (2 survived) | **98.73 %** (77 killed, 1 timeout) | 1 named equivalent |
+
+**No confirmation re-run was owed here**, and the reason is worth stating rather than assumed: the rule
+in § S7-5-2 fires on *a score that improves without a test being added*, which is the signature of the
+flaky judge. Every jump above was bought with tests committed in the same step, so each number has a
+cause on disk.
+
+**Four causes, and not one of them was an equivalent to hide behind.** Worth listing because three are
+about the TESTS, not the code, and they are the shapes that recur:
+
+1. **An ABSENT payload never fed.** `parseCommits(out)` guards with `?? ""` and nothing ever passed
+   `undefined`, so the guard could have been anything at all.
+2. **A fixture already in sorted order** — the big one. It let **`.sort()` be deleted outright**, plus
+   four more mutants on the comparator: five at once. The pair list was written in the order the
+   assertion expected, which is the most natural way to write it and the one that measures nothing.
+3. **No anchor asserted on the regex.** Without `^`, `docs/templates/fr/x.md` silently joins the
+   watched set and reports drift against a file it has nothing to do with. The mutant found a real
+   hole in the derivation's contract, not a stylistic preference.
+4. **A message asserted by fragments.** `assert.match` on one line lets every OTHER line be emptied
+   without a test noticing — and for a guard, **the message IS the feature**: the subjects (a count
+   cannot carry magnitude) and both ways to clear a hit (a guard that only says "port it" gets deleted
+   the day a hit is legitimately unportable). Asserted whole now.
+
+**Then the second pass found a survivor that LOOKED equivalent and was not**, which is the entry worth
+keeping. `.sort((a, b) => (true ? -1 : 1))` — a comparator ignoring both arguments — survived against a
+**two-element** fixture, because with two entries **reversing the list and sorting it produce the same
+answer**. The fix is a third locale, ordered so the reverse (`de, fr, es`) is not the sorted answer
+(`de, es, fr`). ⚠️ **The general rule this pays for**: the standing advice is *collections of at least
+two, unsorted*; on a comparator, two is not enough — it takes **three**.
+
+**The one survivor kept** is named in the source: `<` vs `<=`, on tracked paths that are never equal.
+
+---
+
+## S7-5-3 — the wiring, and a NETWORK CALL that nearly entered the suite — 2026-08-21
+
+`fa0f5be`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| Hunk | Score | Survivors |
+|---|---|---|
+| `scripts/lib/reconcile-brain.mjs:112-148` | **100 %** (7 killed) | 0 |
+| `scripts/update-engine.mjs:297-315` | **100 %** (30 killed) | 0 |
+| `scripts/lib/engine-heal-fs.mjs:55-71` | **100 %** (4 killed) | 0 |
+
+41 of 41, and **confirmed on a serial re-run** — same protocol as § S7-5-2, same reason.
+
+**The finding is not in the numbers, it is in what the wiring did to the SUITE.** Handing
+`reconcileBrain` a real git runner made the release-fixture QA start doing a genuine
+`git fetch origin tag v3.6.0` — inside a suite whose own header says *"the I/O seams are injected — no
+network"*. Nothing failed. The tests passed, took **2.1 s each instead of 94 ms**, and would have gone
+on passing until the day a CI runner had no route to the network.
+
+**Why that is a mutation-testing finding and not merely a slow test.** This document's top box already
+records the rule: under a `command` runner a suite that exits non-zero **IS** the kill signal, so a
+test that fails at random does not add noise to a score, it adds **points**. A network-dependent suite
+is a flaky suite with a delay fuse. It would have inflated every score measured afterwards, and the
+inflation would have looked exactly like good work.
+
+The fix is a seam, not a skip: `localTagGit` answers `fetch` with `ok` and no round-trip — the tags are
+already in the very repository the QA uses as its source — and forwards everything else, including the
+`git show <tag>:<path>` that produces the ancestor's real bytes, to real git. The QA still reads real
+released content, which is its entire reason to exist.
+
+➡️ **The rule this adds**: when a slice hands a real I/O runner to code a test suite already drives,
+**check what the suite starts doing**, not just whether it still passes. A test that silently acquires
+a network dependency reports success in exactly the same way as one that did not.
+
+---
+
+## S7-5-2 — the git shell, and the first perfect score this document CHECKED — 2026-08-21
+
+`d5324a0`. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | Confirmation | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-ancestor-fetch.mjs` (new) | **100 %** (42 killed) | **100 %** on a serial re-run | 0 |
+
+**The confirmation is the point, not the number.** The rule written one section above — *a score that
+arrives without a test being added is re-run before it is written down* — was applied to its own
+author's work the same night. A lone 100 % from an instrument just proved non-deterministic is not
+evidence, and the box at the top of this file already records a **100 % that was really 98.18 %**.
+Three minutes at `--concurrency 1` is what turns a claim into a measurement. **42 of 42, twice.**
+
+**Why the score came out clean on the first pass**, which is worth naming because it is repeatable and
+not luck: the module's whole risk is an argv it builds and a refusal it makes, and **both were
+asserted as values**. The git invocation is compared **whole** (`["-C", dir, "fetch", "--depth", "1",
+"origin", "tag", tag]`) rather than sampled — a missing `-C` is invisible from a return value, since
+the command still succeeds, just in the wrong directory. And every failure mode got its own test
+rather than one shared "it fails gracefully": fetch fails, show fails, bytes hash elsewhere, tag
+already local, source is the brain. There were no survivors because there was nowhere for one to hide,
+not because the mutants were weak.
+
+---
+
+## S7-5-1 — the planner, and a survivor that was worth KEEPING — 2026-08-21
+
+`1d545b2` (the slice) + `d019d38` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-ancestor.mjs` (new) | **90.91 %** (30 killed, 3 survived) | **93.94 %** | 2, both named equivalents |
+
+The measurement misbehaved on this file and the account of it is in the box at the top of this
+document, § "The judge itself was flaky" — it is the reason the honest figure here is 93.94 % and not
+the 96.97 % a run produced.
+
+**The one real gap** was the middle link of an optional chain: `table?.files?.[rel]?.[recorded]`
+survived losing its second `?.` because no test handed the planner a table that was **present but
+empty**. Not hypothetical — a fingerprints file holding `{}` parses fine, and `undefined[rel]` throws
+inside an update, on a brain, at the moment the owner can help least. Each `?.` in a chain guards a
+different absence, and a test per link is the only thing that says so.
+
+**A NEW SHAPE, and it cuts against this document's own favourite lesson.** Two sections above
+(§ S7-2, § S7-3) the right answer to a survivor was to **delete the line** — dead code is a mutant
+nest. The `!recorded` guard here looks identical from the report and is **not the same animal**: it is
+**reached** on real input, merely **redundant**, because both ways out below it also return null
+(`matchesRecord` forgives an absent record, and the table lookup then misses on an `undefined` key).
+It was **kept**, with the equivalence named in the code. The distinction worth carrying:
+
+- **Dead** — the branch cannot be entered. Delete it: it is untestable by construction and every
+  future reader will mistake it for a live case.
+- **Redundant** — the branch is entered, and something further down would have caught the case
+  anyway. Keep it if it answers the reader's question at the line where they ask it. Leaning on two
+  distant behaviours to skip a file is precisely how a later refactor changes this one by accident.
+
+The report cannot tell the two apart; only reading the flow can. **A survivor is a question, not a
+verdict** — sometimes the honest answer is a comment, not a test and not a deletion.
+
+---
+
+## S7-3 — the wiring, and a fallback that could not fire — 2026-08-21
+
+`f3d72c4` (the slice) + `778482c` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-heal-fs.mjs` (new) | **92.31 %** (12 killed, 1 survived) | — | 1, a named equivalent |
+| `scripts/lib/reconcile-brain.mjs` (2 hunks) | 95.24 % (1 survived) | **100 %** | 0 |
+| `scripts/update-engine.mjs:272-296` (hunk) | 86.96 % (3 survived) | **100 %** | 0 |
+
+**Four survivors, three causes, and the hunk scoping earned its keep**: every one of them was written
+this slice, with no score drift to attribute and no survivor list to diff against last time.
+
+- **A fallback that cannot fire, again** (`report.healed ?? []`). The report comes from
+  `reconcileBrain` three lines above, which always returns the array. Deleted, not documented — the
+  same call S7-2 made on its dead comparator branch, one file over. **Two slices running, the same
+  shape**: this repo's tests are strong enough that the surviving mutants are mostly hiding in code
+  that cannot run. That is worth saying plainly, because the reflex when a mutant survives is to write
+  a test, and twice now the right answer was to delete a line.
+- **A fail-soft that was documented and never fed.** `formatReport` skips a version string it cannot
+  parse — the comment said so, no test did. Two now do: a mixed list (the bad tag loses its place in
+  the range, the file keeps its place in the count) and an all-bad list (the count stands, the range
+  goes vague). A report is the last thing that may fail an update that already succeeded.
+
+The one named equivalent: `readFileSync(path, "utf8")` → `readFileSync(path, "")`. Measured rather
+than assumed — an empty encoding returns a **Buffer**, and `JSON.parse(buffer)` stringifies it as
+UTF-8. Byte-for-byte the same answer.
+
+## S7-2 — the fingerprint table, and the runner's HEAD trap wearing a PLAUSIBLE score — 2026-08-21
+
+`e716a33` (the slice) + `9c50842` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-fingerprint-table.mjs` (new) | 85.71 % (36 killed, 6 survived) | **94.74 %** (36 / 2) | 2, both named equivalents |
+| `scripts/lib/tracked-files.mjs:49-57` (hunk) | **100 %** (1 / 0) | — | 0 |
+
+**Six survivors, two causes, and one of them was DEAD CODE hiding four mutants.** The comparator
+carried a third branch for the tie (`a > b ? 1 : 0`), unreachable by construction — both sort keys come
+from unique paths. Deleting it killed four mutants at once; documenting it would have killed none. The
+lesson generalises past this file: **an unreachable branch is not a named equivalent, it is a mutant
+nest** — name the equivalent only when the *operator* is unfalsifiable, not when the *branch* is dead.
+The other cause was real: the `^` anchor of the locale regex was unpinned, and without it a demo note
+under `vault/templates/fr/` files itself under someone else's rel — a **wrong** row, which is the
+clobber risk this table is designed against, not merely a missing one.
+
+⚠️ **The runner's HEAD trap again, one slice later, and this time it did NOT print NaN.** S7-1 recorded
+it as *"an uncommitted file mutates nothing and reports `NaN %`"*, which reads as self-announcing. It is
+not. Here the **file** was committed and only the **fix** was uncommitted, so the run came back
+`✅ 83.33 %, 7 survivors` — a plausible number, complete with a survivor list quoting source lines that
+no longer existed. Nothing about the output says "this is the previous commit". The tell was the
+*content*: survivors quoting code just deleted. **The rule is unchanged and now measured twice: commit
+green, then measure.** And the skill already said so (`maintainers/skills/mutation-testing/SKILL.md`,
+"It measures HEAD, never your working tree") — the defect was not a missing rule, it was a rule nothing
+loaded.
+
+## S7-1 — the heal, and a test that never reached the thing it was testing — 2026-08-21
+
+`3908b7f` (the slice) + `924b0d9` (the kills). State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-heal.mjs` | 82.14 % (23 killed, 5 survived) | **96.43 %** (27 / 1) | 1, a named equivalent |
+
+**Four of the five survivors were the tests', and two defects were stacked in one case.** The
+absent-table test recorded provenance for **both** its files, so every rel was filtered out before the
+lookup ran: the test that exists to prove an absent table is harmless never reached the table. Three
+mutants said so at once. Underneath it, the test file's own `heal` helper defaults `table` to the
+**real** table, so the `undefined` iteration was silently exercising the populated one — the omitted
+argument now gets a direct call, and `null` is covered (a failed read yields null; a parameter default
+only fires on `undefined`).
+
+**A NEW SHAPE, worth the paragraph: a fixture that was unsorted in only one direction.** The ordering
+test passed its three files in **exactly reverse** order, so a comparator mutated to *never swap*
+produced the right answer by accident and survived. "Collections ≥2, unsorted" is not enough — the
+input must be unsorted **in both directions**, or reversal and sorting are indistinguishable. Reordered,
+the mutant dies.
+
+⚠️ **And a trap in the runner itself, recorded because it printed a green tick.** `mutate-one.mjs`
+resets a worktree to **HEAD**, so a run on an **uncommitted** file mutates nothing and reports
+`✅ Mutation score NaN % — 0 killed, 0 survived`. A NaN score wearing a ✅ reads as a pass. **Commit
+first, then measure.**
+
+## S4-4c — the walk that read the vault, and three survivors that were three real defects — 2026-08-21
+
+`a3f4e2b` + the two kill rounds. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `scripts/lib/glob-match.mjs` | 94 % (47 killed, 3 survived) | **100 %** (42 killed) | none |
+| `scripts/lib/engine-base-fs.mjs` | 91.80 % (56 / 5) | **94.74 %** (54 / 3) | 3, all named equivalents |
+
+**Read the two numbers honestly.** `glob-match` reached 100 % with **eight fewer mutants than it
+started with** — the ratio improved by **deleting code**, not by adding tests (the same shape as S4-3).
+And `engine-base-fs` ends **below** its pre-slice 95.65 %: the slice added ~11 mutants to a 46-mutant
+file, so a single new equivalent moves the ratio down. Both survivor sets are equivalents; what matters
+is what the runs *found*, and it was not coverage.
+
+**Not one of the six survivors was a missing test. Every one named a defect or a dead line.**
+
+- **Two globs rooting at the same directory were returned TWICE** (`.claude/skills/coach/**` and
+  `.claude/skills/coach/*.md`). The caller walks each root, so that subtree would be read twice — the
+  exact waste the slice exists to remove. Three survivors pointed at it together, because `globRoots`
+  carried **two** guards against a root eliminating itself (an index check and an equality check), each
+  making the other unreachable, and no fixture had ever produced two equal roots. **The fix deleted
+  both**: deduplicate first, and `root.startsWith(root + "/")` is false for free.
+- **A manifest that parses but declares no `regimes` would have thrown.** `{}` is valid JSON and
+  `readEngineDivergence` parses whatever is on disk, so the throw was reachable — and it escapes that
+  function's own `try`, meaning a truncated manifest would have taken down the very report the
+  fail-soft exists to keep alive. `selectMergeFiles` had always been defensive about this shape; the
+  new call site was not.
+- **A branch that said what the next line already said.** `root === "" → walk everything` was dead:
+  `join(brainDir, "")` **is** `brainDir`, which is a directory, so the general path already did it. The
+  mutant that broke its condition changed no behaviour, which is the signature.
+
+➡️ **The durable lesson, and it is about how to read a survivor.** Three of these were reachable only
+because a value was **swallowed downstream**: the absent-root guard returned `[]` into a list
+`selectMergeFiles` was about to filter, so no input could tell an empty list from a bogus one. The fix
+was not to document an equivalent — it was to **stop discarding the observation**, by filtering absence
+instead of returning-as-empty. A survivor whose value dies in a later filter is usually telling you the
+code is shaped so nothing can see it, not that the mutant is harmless.
+
+**The three left, all named equivalents**: `?? []` → `?? ["Stryker was here"]` (the same absent
+`regimes.merge` that fires the `??` also makes `selectMergeFiles` match nothing, so no root can matter);
+`byPath`'s `<` → `<=` (a rel appears at most once, so the equal case is unreachable — pre-existing); and
+`readFileSync(…, "utf8")` → `""` (pre-existing, documented in S4-3).
+
+---
+
+## S4-4a — the session surface, and a defect no mutant could have found — 2026-08-21
+
+`ea9a4c1`. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors |
+|---|---|---|
+| `scripts/lib/engine-divergence-nudge.mjs` | **100 %** (46 killed) | none |
+
+**No pass on `scripts/session-engine-divergence.mjs`** (the entry) or on `engine-version.mjs` (one
+line: an existing function exported): wiring and a keyword, and the rule says say the skip in writing.
+
+⚠️ **The new shape of defect, and the reason it is written up despite a 100 % score: mutation could not
+have found it.** The hook emitted `systemMessage` **nested inside** `hookSpecificOutput`, where the
+client does not read it — valid JSON, a silent CLI channel, and a unit test asserting the same wrong
+shape it had been written against. **Every mutant of that object still died**, because the tests and the
+code agreed with each other; what disagreed was the *client*. It surfaced from **running the entry as a
+process** and reading the JSON, which is the entry-point seam rule paying for itself a second time.
+
+➡️ **The durable lesson**: a mutation score judges whether the tests pin the code, never whether the
+code speaks the protocol. For any output whose reader is **outside this repo** (a hook envelope, a JSON
+contract, a CLI's stdout), the run-it-as-a-process check is not a formality on top of a good score — it
+is the only thing measuring the half the score cannot see.
+
+*(The prose itself was cut from ~990 characters to one sentence **before** the run, on the F5 startup-payload
+guard's evidence — see the plan. A smaller deliverable is a smaller surface, and part of why 46 mutants
+died first pass.)*
+
+---
+
+## S4-3 — the report stops being silent, and a guard that would have re-silenced it — 2026-08-21
+
+The prose slice: `d171e90` re-opens the `no-provenance` silence and adds the standing recap, `69b17c9`
+deletes what the measurement condemned. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | Before | First pass | After the kills | Survivors |
+|---|---|---|---|---|
+| `scripts/update-engine.mjs` | 97.54 % _(honest, post-flake)_ | **98.50 %** — 329 killed, 5 survived | **99.40 %** — 329 killed, 2 survived | 2, both the `readFileSync(…, "utf8") → ""` equivalents |
+| `lib/engine-base-fs.mjs` | never measured | **89.58 %** — 43 killed, 5 survived | **95.65 %** — 44 killed, 2 survived | 2: the `byPath` `<=` (no equal case) + the same `"utf8"` equivalent |
+
+🎯 **ONE SURVIVOR WAS MASKING TWO MORE, AND THE FIX WAS TO DELETE IT.** `if (aside === undefined)
+continue;` guarded the preserve loop against a reason absent from `PRESERVED_ASIDE`. It existed for
+`no-provenance` — which this very slice gave a sentence of its own, so **nothing the producer can emit
+reaches it any more**. And what it would do to a verdict reason added *later* is drop the line without a
+word: the exact defect the slice was written to end, rebuilt as a safety net.
+
+With the guard gone, the two `skillsPreserved = []` / `scriptsPreserved = []` **default-value mutants
+die too**. Mutated to `["Stryker was here"]`, they destructure a string into `{name, reason}` of
+`undefined`, which used to hit the guard and vanish; now they reach the prose and fail the byte-for-byte
+report tests. Three mutants, one deletion, and 329 kills held while the denominator dropped from 334 to
+331.
+
+➡️ **The durable rule**: a fail-soft branch is a mutation-survivor *factory* AND a blindfold. It absorbs
+the mutants of everything upstream of it, so a healthy score above it means nothing. When the reachable
+set shrinks to zero — here, because the case it protected got a real answer — delete it in the same
+slice, or the next reader inherits a guard that quietly eats the next feature.
+
+⚖️ **Note the shape of the numbers**: 329 killed before and 329 killed after. **A ratio improved by
+deleting code, not by adding tests** — the same effect S3 recorded in the other direction (a score
+*falling* because dead code left the denominator). Neither movement is a verdict on the tests; the kill
+count is.
+
+🕳️ **`engine-base-fs.mjs`: three of its five survivors were the fail-soft I had just written and never
+fed.** `readEngineDivergence`'s catch could be emptied, its `return []` could return garbage, and its
+read could lose its encoding, all with the suite green — because **no test ever handed it an unreadable
+manifest**. It is precisely the branch that keeps a successful, already-recorded update from being
+turned into a thrown error by a file nobody can parse. Fed now, with both shapes (absent, and present
+but not JSON).
+
+♻️ **And the third one, once fed, turned out to be a fact stated twice.** Emptying the catch *still*
+changed no test: `engineDivergence` already answers "nothing to say" for a null manifest, and a brain
+with no readable regimes selects no files to read either. So the early `return []` went the way of the
+two before it. **Third time this release** a mutant survived because a fail-soft was written in two
+places — after S2b-4's read-back pass and S3-2's `manifest = null` catch.
+
+➡️ **The durable rule, now earned three times**: when a mutant survives inside a fail-soft, ask *"who
+else already handles this?"* before writing a test for it. Two answers to one question is not
+redundancy: it is a second thing to keep true, and the measurement is the only instrument that finds it.
+
+📐 **One survivor was killed by a fixture, not by a new assertion**: the `seeded` list's `.sort()` is
+unobservable for ordinary paths, because the directory walk lists each folder sorted. It takes a
+collision to see it — `coach` sorts before `coach.md` among directory entries, while `coach.md` sorts
+before `coach/SKILL.md` as a whole path. The mutant was **hand-applied** to confirm the new test judges
+it, per the method note this file has carried since 2026-07-27.
+
+---
+
+## S4-2 — the divergence module, and two survivors that were the TESTS' — 2026-08-21
+
+One new pure module (`f247db3`), then a test-hardening pass on top of it (`d315525`):
+`engineDivergence({ manifest, installedFileMap })` returns the merge files a brain is holding back, each
+with the version that last reached it. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `lib/engine-divergence.mjs` (new) | **78.95 %** — 15 killed, 4 survived | **94.74 %** — 18 killed, 1 survived | 1, the equivalent the code comment predicted |
+
+🪞 **A SORT TEST WHOSE INPUT IS THE MIRROR OF ITS EXPECTATION PROVES THE ARRAY WAS FLIPPED, NOT
+ORDERED.** The comparator mutated to `(true ? -1 : 1)` — i.e. no comparison at all — **survived**, and
+the reason is worth carrying: the fixture listed its three files in exactly the reverse of the expected
+output, and a comparator that always answers "a before b" *reverses* the array under V8's sort. The
+mutant produced the right answer by accident. Fixed by making the input a **rotation**: neither sorted
+nor mirrored, so only a real ordering satisfies it.
+
+➡️ **The durable rule**: when testing an ordering, never build the input by reversing the expectation.
+Use ≥3 elements in a rotation — the cheapest input a "no-op comparator" cannot satisfy by luck. This
+generalizes past sorts: any fixture that is a *symmetry* of its expectation can be satisfied by an
+operation that is not the one under test.
+
+🕳️ **The other two named an input the module will meet in production and no test fed: a manifest the
+brain could not read.** `manifest?.provenance` and `manifest?.baseRefs` both survived their `?.` being
+removed, because every fixture passed a real manifest. That is not a defensive flourish to delete — S3-2
+established the idiom (a failed manifest read yields `null` and the pass keeps going) and S4-4's session
+hook will run in exactly that world. So the case was **fed** rather than the guard removed, and fed
+**with files on disk**, or the test would pass vacuously against a version that throws.
+
+✅ **The one survivor left is an equivalent the production comment had already predicted**: `a.rel <
+b.rel` mutated to `<=`, unreachable because a rel appears at most once in the list — the same reasoning
+`syncBaseTree`'s comparator carries, now confirmed by measurement on a second file rather than reasoned
+about twice.
+
+---
+
+## S4-1 — the base learns which version delivered it — 2026-08-21
+
+One slice, one commit (`df983c7`): `baseRefs: { relPath: ref }` beside `provenance`, written by the
+same three writers (install, `update-engine` step 7, and the reconcile child as the last writer on
+the update path). State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | Before (2026-07-27) | This slice | Survivors |
+|---|---|---|---|
+| `lib/engine-source.mjs` | 93.02 % — 40/43 | **96.61 %** — 57 killed, 2 survived | 2, **both pre-listed equivalents** |
+
+**Measured on the first pass, with no kill round needed** — which is the claim worth checking rather
+than celebrating. The two survivors are both families this file already carries elsewhere: the
+`?? [] → ["Stryker was here"]` default in `selectMergeFiles` (a glob matching one literal string no
+brain-relative path can equal, so the selection is empty either way), and `readFileSync(…, "utf8") → ""`
+(an empty encoding is falsy, so the read returns a Buffer and every consumer here treats it identically
+— see [Recorded equivalents](#recorded-equivalents-this-release)).
+
+⚖️ **The score rose 3.6 points while the file GREW**, which is the opposite of the usual dilution: the
+new function is small, total, and has no branch that is not fed — including the one that matters, `ref`
+absent. That case exists because the alternative was to record `null`, and a `null` ref is an unknown
+wearing the costume of an answer. It is a test before it is a line of code.
+
+🔗 **The two wiring sites were not measured file-wide.** `update-engine.mjs` (97.54 % honest, above)
+and `lib/reconcile-brain.mjs` gained a call each, both covered by tests that assert the **whole**
+`baseRefs` map after a real update — a stray key or a missing one fails them. Measuring those two files
+again for two lines would re-price ~370 mutants for no new information; the slice's own logic lives in
+`engine-source.mjs`, and that is what was measured. **Named, so it is a choice and not an omission.**
+
+---
+
+## S3's write guard — the pure verdict, and prose as a deliverable — 2026-08-21
+
+S3's two code slices (`4bf5efa` + `b82569e` for the decision, `cf55c2a` + `3493533` for the wiring):
+`engine-write-guard.mjs` decides, for one tool call, whether an agent may write an engine file, and the
+entry script beside it is the hook the harness actually runs. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the kills | Survivors |
+|---|---|---|---|
+| `lib/engine-write-guard.mjs` (new) | **90.00 %** — 81 killed, 9 survived | **98.89 %** — 89 killed, 1 survived | 1, a named equivalent |
+| `engine-write-guard.mjs` (new, the entry) | **88.46 %** — 23 killed, 3 survived | **88.00 %** — 22 killed, 3 survived | 3, **all equivalents** |
+
+📉 **The entry's score went DOWN when the code got better, and that is the number behaving correctly.**
+One first-pass survivor was the `catch` body emptied — it survived because it *was* dead: `manifest` is
+initialised to `null`, so a read that throws never completed the assignment and the `manifest = null`
+inside the catch could not be seen to fire. Deleting it (S2b-4's answer, applied again) removed one
+mutant from the denominator without removing a kill, so 23/26 became 22/25. **A mutation score is a
+ratio, and simplifying prod moves both ends of it** — the file is strictly better and reads 0.46 points
+worse. The three left are equivalents: two `readFileSync(…, "utf8") → ""` (the family listed elsewhere
+in this file), and `input.tool_input?.file_path` losing its `?.`, which throws into the fail-open
+catch-all and produces the same silence. That last one has a test anyway, earned on the behaviour
+rather than on the mutant: the day the catch-all is narrowed, a malformed payload must fail open *there*.
+
+🎯 **Six of the nine survivors emptied one clause each out of the reason strings, and every
+`assert.match` stayed green.** The tests sampled the sentences — the file name, the word *kept*, the
+word *overwrite* — and the mutants deleted the clauses in between. That is the correct verdict on the
+tests: **when the prose IS the deliverable, matching a phrase leaves most of it unjudged.** These four
+sentences are the entire product of the slice (they are what an owner reads before deciding whether to
+diverge their brain), so they are now asserted **whole**, and changing one costs a deliberate test edit
+— the same rule the update report's wording already lives under.
+
+🕳️ **The other two named a case no test could reach, and the cause was in the TEST HELPER.**
+`brainRelative` guards `rel === ""`, i.e. the write target being the brain directory itself
+(`relative(dir, dir)` is the empty string, and it passes both the `..` and the `isAbsolute` checks).
+Nothing fed it. Pinned directly.
+
+> ⚠️ **A DEFAULT PARAMETER IN A TEST HELPER SUBSTITUTES THE VALUE UNDER TEST, IN SILENCE.** Found while
+> the suite was still red: `decide = (rel, manifest = MANIFEST) => …`, used in a loop over
+> `[null, undefined, {}, { regimes: {} }]` to prove the guard fails open on an unreadable manifest. The
+> `undefined` iteration re-injected the **real** manifest and asserted the opposite of what it claimed.
+> **Third variant of the same shape this branch has now met** (after the absent optional-chained fixture
+> field, and the fixture that recorded one provenance base out of four): *the test passed because it
+> never asked the question.* The fix is a second, default-free helper, named for what it is.
+
+The one survivor is an equivalent of the family already listed in this file: `regimes[regime] ?? []`
+becoming `?? ["Stryker was here"]` builds a glob matching only that literal, which no brain-relative
+path is.
+
+---
+
+## S2b's switch — the four engine scripts leave the copy bucket — 2026-08-21
+
+Third slice of S2b, and the one that changes what a brain receives: `auto-commit`, `auto-push`,
+`status-line` and `verify-rag` stop being overwritten blind. **One commit** (`8b90fc8`) — split in two,
+the branch would hold a state in which nobody delivers them. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the fixes | Survivors |
+|---|---|---|---|
+| `lib/engine-script-refresh.mjs` (new) | **87.50 %** — 14 killed, 2 survived | **100.00 %** — 16 killed | none |
+| `lib/engine-merge-apply.mjs` (the carrier, re-measured) | — | **100.00 %** — 106 killed, **unchanged** | none |
+| `lib/engine-apply-plan.mjs` (**never measured before**) | **78.00 %** — 39 killed, 11 survived | **92.00 %** — 46 killed, 4 survived | 4, all equivalents |
+| `update-engine.mjs` | **96.69 %** — 292 killed, 10 survived | **98.34 %** — 297 killed, 5 survived | 5, 4 of them named debt |
+| `lib/reconcile-brain.mjs` | **96.74 %** — 177 killed + 1 t/o, 6 survived | — | 6, all pre-existing |
+| `update-engine.mjs` — **after S2b-4** (`1d1bc3c`) | — | **98.65 %** — 293 killed, 4 survived | 4, all equivalents |
+| `lib/engine-apply-plan.mjs` — **after S5a** (the `mergeDoctrine` family) | 92.00 % | **91.07 %** — 51 killed, 5 survived | 5, all equivalents: the same 4 as above **plus** the third `?? ["Stryker was here"]`, on the new bucket and discarded by the same `.filter()`. The dip is arithmetic, not a regression — one more provable equivalent over a larger denominator. |
+| `lib/engine-doctrine-refresh.mjs` (**new**, S5b) | — | **100 %** — 10 killed, 0 survived | 0. A third family that is 40 lines because everything shared is shared; the batch was written against the twin's, minus the syntax gate and plus the no-provenance case the release note depends on. |
+| `lib/reconcile-brain.mjs` — **after S5c** (the doctrine wiring) | 96.74 % | **96.30 %** — 181 killed + 1 t/o, 7 survived | 7, **none in the new lines**. Six are the same shapes as the previous run, line-shifted. The seventh is new only in the sense that its neighbour already survived: `JSON.parse(readFileSync(p, ""))`. **An empty encoding does not throw — it returns a Buffer, and `JSON.parse` coerces it** — so every mutant of that shape is a provable equivalent, and the one that used to die was dying by accident. Worth knowing before anyone hunts the "regression". |
+| `lib/engine-apply-plan.mjs` — **after S2c** (the sacred split) | 91.07 % | **92.73 %** — 51 killed, 4 survived | 4, all already-characterised equivalents (three `?? []`, one `stem` regex), **none new and none in the new lines**. Same killed count as S5a over a smaller mutant set: the split replaced a literal array with a spread of two named ones, so a mutant stopped existing rather than starting to die. A rise that is bookkeeping, exactly like S5a's fall. |
+| `update-engine.mjs` — **after S2d** (the clash block's door) | 99.41 % | **99.44 %** — 352 killed, 2 survived | 2, the same `readFileSync(p, "")` equivalents, line-shifted. **All 13 new mutants died** — the count-aware ternary, the empty-block guard and every string literal of the sentence. That is what asserting the whole line as a LITERAL buys on prose: there is no fragment left for a mutant to hide behind. |
+| `update-engine.mjs` — **after S5c** (the doctrine in the report) | 98.65 % | **99.41 %** — 339 killed, 2 survived | 2, **none in the new lines**, and both the `readFileSync(p, "")` equivalent characterised on the row above. The report surface was four call sites and every one of them is now pinned by a test that names the words the owner reads. |
+| `lib/skill-retirement.mjs` (**new**, S6b — the only subtractive door) | — | **100 %** — 26 killed, 0 survived | 0. Nothing here is shared with a sibling — it is the first module in the product that decides a DELETE — so every row was triangulated: proven bytes, a CRLF rewrite, an edit, an unrecorded file, no provenance at all, two blockers unsorted, and the empty directory. The verdict word and the reason word are both asserted, which is what kills the mutants that swap `preserve` for `remove`. |
+| `lib/skill-retirement-fs.mjs` (**new**, S6c — the thin I/O, the only `rmSync` under `.claude/`) | **90 %** — 27 killed, 3 survived | **96.67 %** — 29 killed, 1 survived | 1, and it is documented **in the code** so the next run does not re-litigate it: `rmSync(abs, {recursive: true, force: true})`. `force` is unkillable — we only reach that line when the listing found files — and it is kept anyway, for the one case no test can stage: the owner deleting the folder in their file manager between the listing and the `rmSync`. The two that died were **real**: a tombstone is written BY HAND, so both anchors of `/\/\*\*?$/` matter (without `?`, a `/*` entry retires nothing; without `$`, an interior `/**` is stripped and the path deleted is one nobody declared). |
+| `lib/engine-source.mjs` — **after S6c** (the tombstone subtraction) | — | **94.12 %** — 64 killed, 4 survived | 4, **all provable equivalents**, one of them mine and of a shape this table already names twice: `retired ?? ["Stryker was here"]` compiles to a glob that matches no path, so nothing is subtracted either way. The other three are the sibling `merge ?? []` and two `readFileSync(p, "")` Buffer coercions. |
+| `lib/engine-apply-plan.mjs` — **after S6c** (a tombstone beats a regime) | 91.67 % | **93.65 %** — 59 killed, 4 survived | 4, none new: the two `stem` regex anchors and two `?? []` equivalents. The `installSkills` subtraction added behaviour AND killed mutants. |
+| `lib/reconcile-brain.mjs` — **after S6c** (the retirement wired in) | 96.30 % | **96.34 %** — 183 killed + 1 t/o, 7 survived | 7, and the list is **byte-identical to the previous run's**. Which is the finding: seven minutes of CPU for zero information, and it is what turned the flow rule below into a convention. |
+| `update-engine.mjs` — **after S6c** (the retirement's prose) | 99.44 % | **99.24 %** whole → **100 % on the hunk** | Whole-file: 3 survived, 1 of them NEW and real — `edited.join(", ")` → `join("")`, invisible because the test named a single edited file. Fixed (two names, one unprovable), then **re-measured on the changed lines alone**: `"scripts/update-engine.mjs:147-160"`, **17 mutants, 44 seconds, 100 %**. Against 396 mutants and 7+ minutes for the same answer. |
+
+> ### 🔑 The flow rule this block earned (2026-08-21) — measure the CHANGE, not what surrounds it
+>
+> The four rows above are one experiment. **The value sat entirely in the new files and in the lines
+> just written**; the cost sat entirely in re-measuring large files that had barely moved.
+> `reconcile-brain.mjs` returned a survivor list identical to the previous run's, and a third whole-file
+> run was **killed by the 10-minute cap** — the practice had stopped fitting inside the loop it serves.
+>
+> So: **a new file is measured whole, the day it is written. An existing file is measured by its changed
+> lines** (`--mutate "path:147-160"`, which the runner passes straight through). The release tail keeps
+> its full pass, unchanged. This is *not* "defer to the end": a hole found at the tail is repaired in a
+> file nobody is holding in their head any more.
+>
+> The corollary is worth as much as the minutes: **on a hunk-scoped run every survivor is yours.** No
+> score drift to explain, no survivor list to diff against last time — two things this very table has
+> had to do three times in this release alone.
+>
+> Written up where it is durable:
+> [`test-first-discipline`](../../../use-case-driven-harness/skills/test-first-discipline/SKILL.md)
+> § *When to run it, and on what*; commands in CONVENTIONS §5quinquies; how to read a run in the
+> [`mutation-testing`](../skills/mutation-testing/SKILL.md) skill § 1.
+| `lib/engine-apply-plan.mjs` — **after S6b** (the `retireSkills` bucket) | 92.73 % | **91.67 %** — 55 killed, 5 survived | 5, **none in the new lines** and all of two already-characterised shapes: two `stem` regex anchors and three `?? ["Stryker was here"]` discarded by their own `.filter()` — the third being S6b's own, exactly as S5a's row predicted for the previous new bucket. The fall is the same arithmetic: one more provable equivalent over five more mutants. ⚠️ One mutant that survived at S2c (`installSkills`'s `?? []`) is dead in this run and **the kill is not attributed** — it is not killed by this file's own tests, so a sibling in the batch covers it. Recorded rather than claimed, because the shape is a known equivalent and "we fixed it" would be a fabrication. |
+
+🛑 **The write-allowlist had never been measured, and it is the one pure function standing between a
+fetched manifest and an owner's files.** `engine-apply-plan.mjs` came back at **78 %**. Three of the
+eleven survivors were reachable safety holes, not style:
+
+- **Both anchors of `ENGINE_SCRIPT` were free.** Without `^`, helper code shipped inside a staged skill
+  (`engine-skills/local-mirror/scripts/helper.mjs`) reads as a merge-governed engine script and leaves
+  the skill that owns it. Without `$`, so does the engine's **own `.new` sidecar** — the owner would be
+  handed a merge of a merge. Neither path is sacred, so nothing downstream would have caught them.
+- **The leading anchor of `ENGINE_SKILL` is `installSkills`'s only defence**, because that is the one
+  bucket `computeApplyPlan` does not scrub (a declared skill is exactly what the additive install path
+  is for). A manifest declaring `vault/.claude/skills/smuggled/**` read as an engine skill.
+- **A manifest with no `regimes` at all** — an older one, a truncated one, an unreadable fetch — had
+  never been fed to it. An allowlist's answer there must be *"you may write nothing"*.
+- **The sacred scrub had only ever been shown a file INSIDE a sacred tree.** Named bare
+  (`.claude/skills`) or claimed wholesale (`vault/**`), the tree hangs on re-appending one `"/"` and on
+  the glob stem being stripped to nothing.
+
+The four survivors left are equivalents: two `?? ["Stryker was here"]` defaults that the very next
+`.filter()` discards, and two `stem()` regex variants (`/\/\*\*$/` and the unanchored `/\/\*\*?/`) whose
+only discriminators are globs no manifest can meaningfully carry (`CLAUDE.md/*`) — every realistic entry
+lands on the same side of `isSacred` either way.
+
+⚠️ **A report key left OUT of a fixture is a disjunct that fixture never judged.** `needsRestart` is an
+OR over six lists and its don't-cry-wolf test named three. A missing key reads `undefined?.length > 0` —
+false **whatever the comparison says** — so `length >= 0` sailed straight past three disjuncts, one of
+them older than this branch. The shape generalises: *an optional-chained field absent from the fixture
+makes its whole test vacuous, and the test still passes.* Fixed by naming every list, empty, which is
+also the shape a real converged reconcile hands back.
+
+- ✅ **The new module scored 87.5 % first pass, and both survivors were the same anchors** the
+  allowlist's own regex lost. Same pattern, same blind spot, measured twice in one slice: **a test that
+  only ever feeds paths failing in the MIDDLE of a pattern never pays for its ends.**
+- ✅ **The carrier came back at 100 % with 106 mutants, unchanged**, on its second client. That is the
+  extraction's claim being re-earned rather than assumed: a carrier that needed edits to serve family
+  number two would have moved its own numbers.
+- ✅ **`reconcile-brain.mjs` gained no survivor** (96.11 % → **96.74 %**) despite gaining a whole wiring
+  step. Its six are the pre-existing `readFileSync(…, "utf8")` family (**equivalent**, see S2b-4 below)
+  and the `gitignore` write guard.
+
+### S2b-4 — the debt this whole sub-slice existed to pay, paid by deleting the line
+
+Fourth and last slice of S2b (`1d1bc3c`), and it wrote **no test for the line it was routed to fix**: it
+removed the line. Step 7 read every `replace`-copied file's bytes back off the disk to build
+`deliveredFileMap`, and **both** of that map's consumers filter their candidates through the `merge`
+regime — so a copied file's bytes reached neither. The read had a job right up until S2b-3 (the four
+engine scripts were in `copied`, and this readback is how their base advanced), and `runReconcileCli`,
+the last writer on the update path, never did it at all. **The mutant that proved it was not the
+encoding one but its neighbour**, `copied.map((rel) => [])`, which empties the entries outright and
+still survived: nothing downstream can see the difference between the right bytes and no bytes.
+
+> 🧭 **The lesson for the whole register: a surviving mutant is not evidence of an uncovered line.** It
+> says *no test can see this mutation* — which is satisfied both by "nothing runs it" and by "everything
+> runs it and nothing depends on it". Distinguishing them is one command: put a `throw` on the line and
+> count the red tests. Here it was **18**, on the hottest path in the suite. § S2's report had recorded
+> the opposite ("three more lines that never run under test"), corrected in place above.
+
+| File | After S2b-4 (`1d1bc3c`) | Survivors |
+|---|---|---|
+| `update-engine.mjs` | **98.65 %** — 293 killed, 4 survived, 0 t/o | 4, **all equivalents** |
+
+The four are named, and none is debt:
+
+- **Two `readFileSync(…, "utf8") → ""`** (`:339` the local manifest, `:541` the brain's `source`). `""`
+  is falsy, so Node's `assertEncoding` accepts it and returns a **Buffer**; `JSON.parse` stringifies it
+  identically. Nothing a test can assert on differs. *(This is the third time this file has re-derived
+  that fact — twice correctly, once not.)*
+- **Two `preserved = ["Stryker was here"]` defaults** (`skillsPreserved`, `scriptsPreserved`). The
+  default IS exercised — the sibling mutant on `skillsMerged` dies to the same fixtures — but every
+  entry passes through `PRESERVED_ASIDE[reason]`, and an entry with no `reason` is `continue`d. A
+  garbage default is **silent by construction**, which is exactly the property that block was written
+  to have. Killing it would mean asserting on a report shape production cannot produce.
+
+`runUpdateCli`'s `argv = process.argv.slice(2)` default, the fifth survivor of the previous run, was
+killed by a test calling it with no arguments.
+
+---
+
+## S2b's syntax gate — `engine-script-check.mjs`, on bytes that exist nowhere else — 2026-08-21
+
+Second slice of S2b: the merge's output is parsed before it is written, because S2b's four files are
+**executed** at every session. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors |
+|---|---|---|
+| `lib/engine-script-check.mjs` | **100.00 %** — 26 killed, 0 survived | none |
+| `lib/engine-merge-apply.mjs` (the gate's wiring) | **100.00 %** — 106 killed, 0 survived | none |
+
+The carrier went **86 → 106 mutants**: twenty new ones for a gate that is four lines, and all twenty
+killed. That ratio is the point of measuring the whole file — a branch this small is exactly the kind
+a diff-shaped review waves through, and it is the branch standing between a merged `auto-commit.mjs`
+and a brain that quietly stops saving itself.
+
+✅ **The refined rule from S2b-1 held, and this is the run that confirms it.** This module is impure by
+construction — it spawns a subprocess — and it scored **100 % on its first pass**, where S1's fs
+orchestrator and S2a-2's git seam both landed near 75 %. The difference is not purity: **S2a-2's
+lesson had already been paid**, so the failure shapes were enumerated in the batch from the start (a
+runner that cannot spawn, a null status met *alone* so it cannot hide behind the `error` guard, and a
+status outside `{0, 1}`). *A first pass measures how well the inputs were named* — and a lesson written
+down is a lesson that names them for you the next time.
+
+- 🧭 **The exit-code contract was measured before being relied on.** `0` parses, `1` does not, and an
+  unknown flag exits `9`. Treating "non-zero" as "broken" would have condemned a good file for ever the
+  day node itself complained, so anything outside `{0, 1}` throws. **A binary-looking exit code is
+  rarely binary**, and the cost of finding out was one shell loop.
+- ⚠️ **Three tests in the batch pass against a skeleton returning a constant `false`** (the "does not
+  parse" cases). They are not weak: their *positive* twins sit beside them and are red against the same
+  skeleton, so the pair is what discriminates. A negative contract asserted alone is the shape to
+  distrust.
+
+---
+
+## S2b's extraction — `engine-merge-apply.mjs`, the merge's journey to the disk — 2026-08-21
+
+First slice of S2b: `refreshUntouchedSkills`'s inner loop becomes a carrier that knows nothing about
+the kind of file it carries, so the engine scripts (S2b-3) and the constitution (S2c) can use the same
+journey. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Re-measured after the flaky-test fix (`211cfc5`) | Survivors |
+|---|---|---|---|
+| `lib/engine-merge-apply.mjs` | **100.00 %** — 86 killed, 0 survived | **100.00 %** — 86 killed, **unchanged** | none |
+| `lib/engine-skill-refresh.mjs` (what is left of it) | **100.00 %** — 28 killed, 0 survived | **100.00 %** — 28 killed, **unchanged** | none |
+
+✅ **Both first passes landed inside the flaky window** (see the warning at the top of this file), so
+both were **re-measured after the fix and came back identical**. That matters more than the score: it
+says these two numbers were not bought with noise, and it is the reason the correction above can name
+`update-engine.mjs` specifically instead of casting doubt on everything.
+
+**The mutant count is the extraction's own audit.** S2a-3 measured 113 mutants in
+`engine-skill-refresh.mjs`; the same code now measures **86 + 28 = 114** across the two files. Code
+that MOVED conserves its mutants; code that was copied would have inflated the total, and code that
+was lost would have shrunk it. One number, and it answers "is this a refactor?" without reading a diff.
+
+⚠️ **This run breaks the pattern this file has been recording, and the break is the lesson.** Twice now
+(S1's fs orchestrator, S2's git seam) an **impure** module scored ~75 % on its first pass while every
+**pure** one scored 100 %, and the stated reason was that a pure module's inputs are all visible in its
+signature. `engine-merge-apply.mjs` is as impure as they come — `readFileSync`, `writeFileSync`,
+`rmSync`, `mkdirSync` — and it scored **100 % first pass**. What actually separates the two cases is
+not purity: it is whether the author had **already been forced to name every input**. This code arrived
+with its tests already written against it, at a call site that had already paid for three survivors.
+So the rule to keep is the narrower one: *a first pass measures how well the inputs were named, and
+impurity is merely the most common way to leave one unnamed.*
+
+The nine verdict rows are not re-litigated here (`engine-merge.mjs` owns them) and the skills' end-to-end
+proof stays in `engine-skill-refresh.test.mjs`. What the new file's own tests pin is what only it
+decides: the grouping, the (installed ← source) pairing, the self-heal guard, and the four ways bytes do
+or do not reach the disk.
+
+- ⚠️ **One test in that batch could not be red before the code existed**, and it is written down rather
+  than dressed up: *"sourceDir === brainDir writes nothing and reports nothing"* is a contract a
+  skeleton satisfies by doing nothing. It is the mutation run that judges it — drop the guard and the
+  brain reads itself as its own candidate, landing `preserve: customized` in the report and overwriting
+  the stale sidecar with the owner's own bytes. Both assertions catch that; neither would if they only
+  counted files.
+
+---
+
+## S2's report — `update-engine.mjs`, where the merge stops being silent — 2026-08-21
+
+Fourth slice of S2 (S2a-3b): `skillsMerged` and `conflicts` travel from the refresher to the sentence
+the owner reads. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | Score | Survivors |
+|---|---|---|
+| `update-engine.mjs` | ~~**98.95 %** — 282 killed, 3 survived~~ ⚠️ **inflated, see below** | ~~3~~ |
+| `update-engine.mjs` — **re-measured 2026-08-21 on `211cfc5`** | **97.54 %** — 278 killed, 7 survived | 7, all **pre-existing**, none in this slice's code |
+| `update-engine.mjs` — **after S2b-3** (`739b7e0`) | **98.34 %** — 297 killed, 5 survived | 5 — see [§ S2b's switch](#s2bs-switch--the-four-engine-scripts-leave-the-copy-bucket--2026-08-21) |
+| `update-engine.mjs` — **after S2b-4** (`1d1bc3c`) | **98.65 %** — 293 killed, 4 survived | 4, **all equivalents** — the debt is closed |
+
+✅ **S2b-3 paid two of the seven while passing through**, without setting out to: `:465` (the brain's
+recorded `source`) and `releases: []` both died to the fixtures that slice tightened. **S2b-4 closed the
+rest**: `runUpdateCli`'s `argv` default died to a test, the `copied` readback died with the line itself,
+and the two remaining encoding mutants turned out to be **equivalents, not lines** (see the correction
+box below). The line numbers moved with each slice; the shapes did not.
+
+🛑 **The first figure was measured against a suite that failed ~75 % of the time for reasons unrelated
+to the mutant** (the flaky temp-dir sweep — see the warning at the top of this file; under the
+`command` runner every such failure reads as a kill). The re-measurement after the fix is the real one,
+and the four extra survivors are **not a regression**: they are holes the noise had been masking. Three
+of them are `readFileSync(…, "utf8")` mutants that survive an invalid encoding, and the fourth is
+`runUpdateCli`'s `argv = process.argv.slice(2)` default, which no test exercises by omitting `argv`
+(**paid at S2b-4**).
+
+**None of the seven is in the lines this slice added**, and saying so is the point of measuring a whole
+file rather than a diff: the run judged 285 mutants and the new report block killed every one of its
+own.
+
+> 🛑 **CORRECTED 2026-08-21 (S2b-4). The sentence that used to stand here — "three more lines that
+> never run under test" — was WRONG, and this file already held the right answer.** A
+> `readFileSync(…, "utf8") → ""` mutant proves nothing about coverage: `""` is FALSY, so Node's
+> `assertEncoding` waves it through and hands back a **Buffer**, and every consumer here (`JSON.parse`,
+> `createHash().update()`, `writeFileSync`) treats that Buffer exactly as it treats the string. The
+> mutants are **equivalent**. Measured rather than argued: replacing the same line with a `throw`
+> turned **18 tests red**, so it is not merely covered, it is on the hot path of the whole suite.
+> ➡️ The same fact was already recorded, correctly, in at least **four** earlier places —
+> [§ Listed equivalents (do not chase)](#listed-equivalents-do-not-chase) and
+> [§ Recorded equivalents (this release)](#recorded-equivalents-this-release) among them — and
+> re-derived wrongly here. **A survivor is not evidence of an uncovered line** — and a corpus that
+> already knows something still has to be *read* to know it.
+
+- 🔴 **A real gap, and it is in this chantier's own subject.** The `deliveredFileMap` construction read
+  every **copied** file's bytes back off the disk — and the mutant that proves it is the OTHER one on
+  that line, `copied.map((rel) => [])`, which empties the entries outright and still survives. That map
+  feeds `reseedProvenance` **and** `syncBaseTree`. **Routed to S2b**, which reworks exactly that path
+  when the four engine scripts leave `replaceScripts`. ➡️ **Narrowed 2026-08-21 by S2b's design to the
+  sub-slice `S2b-4`, deliberately LAST**: the four scripts leaving the copy bucket changes what `copied`
+  contains, so a test pinned before that switch would be rewritten by the very slice it was meant to
+  guard. ✅ **PAID at S2b-4 (`1d1bc3c`) — by DELETION, not by a test.** Both consumers filter their
+  candidates through the `merge` regime, so a `replace`-copied file reached neither; the pass was read
+  and discarded. It had a job until S2b-3 (the four scripts were in `copied`, and this is how their base
+  advanced), and `runReconcileCli` — the last writer on the update path — never did it at all. **The
+  fix for a line whose effect no test can see is sometimes to establish that nothing should see it.**
+- ⚪ **An equivalent mutant, kept as such.** The `skillsPreserved = []` default survives being given a
+  junk array: only its *iterability* is observable (a string entry destructures to `undefined` fields
+  and is skipped by the same filter that skips `no-provenance`). The default is load-bearing — without
+  it a report omitting the key would throw — but its value cannot be asserted. Contorting a test to
+  pin an unobservable is how a suite starts lying.
+- ⚪ **An equivalent mutant that names a duplication.** `releases: []` in `runUpdateCli`'s "unknown"
+  report is never read: `formatUpdateCheck` ignores the field on that branch. The survivor is the
+  symptom; the defect is that this literal **hand-rolls a second copy** of the report shape
+  `checkUpstream`'s own `unknown()` helper already builds. Cleanup named, not improvised at the end of
+  another slice.
+
+---
+
+## S2's rewiring — `engine-skill-refresh.mjs`, where the merge reaches a real brain — 2026-08-20
+
+Third slice of S2: the refresher drops its own verdict for `mergeVerdict` and carries the result to
+disk. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the survivors were paid | Survivors left |
+|---|---|---|---|
+| `lib/engine-skill-refresh.mjs` | **98.23 %** — 111 killed, 2 survived | **100.00 %** — 113 killed, 0 survived | none |
+
+⚠️ **Both figures were measured inside the flaky window** (see the warning at the top of this file), so
+the 100 % is an upper bound rather than a fact. What this slice's code became was re-measured at S2b-1
+after the fix — the entry to read for a trustworthy number on this file is
+[§ S2b's extraction](#s2bs-extraction--engine-merge-applymjs-the-merges-journey-to-the-disk--2026-08-21).
+The **survivors named below stand regardless**: a mutant that survived a noisy suite would have survived
+a quiet one too, since the noise only ever adds kills.
+
+**Three survivors across two rounds, and each named a hole worth more than the score.**
+
+- **The dedup was keyed on the wrong question.** `noteOnce` survived being mutated to *"have I said
+  anything yet"* instead of *"have I said THIS"* — because no test ever had two **different** skills on
+  the same list. Mutated that way it **silences every conflict after the first**, which is the one
+  failure an owner cannot recover from: they resolve one file and never learn the rest exist. The rule
+  had been asserted on `skillsRefreshed` since increment 2.5 and on nothing else, so the two lists this
+  slice adds could each lose it alone.
+- **A merge that changes nothing was free to rewrite the file.** Identical bytes cannot tell a write
+  from a skipped one, so the assertion had to move to the **mtime**: a brain auto-commits at every
+  session, and rewriting a converged file would leave a trail of empty *"updated coach"* commits for
+  merges that changed nothing.
+
+**What the batch got right first time is the trap it was written against**: `refreshedFileMap` carries
+the verdict's `deliver` — what the **engine** delivered — never the merged bytes. That map feeds
+`reseedProvenance` and `syncBaseTree`, so recording the merge as the ancestor would make the file read
+untouched at the next update, and the fast-forward would clobber the edit just preserved. Asserted as
+a whole object on the merge row, where the two differ.
+
+---
+
+## S2's git seam — `engine-merge-git.mjs`, the merge's one impure half — 2026-08-20
+
+Second slice of S2, and impure by design: the three texts handed to `git merge-file -p --diff3`. State
+owned by [`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the survivors were paid | Survivors left |
+|---|---|---|---|
+| `lib/engine-merge-git.mjs` | **75.00 %** — 42 killed, 14 survived | ~~**100.00 %** — 55 killed~~ ⚠️ inflated | ~~none~~ |
+| `lib/engine-merge-git.mjs` — **re-measured 2026-08-21 on `211cfc5`** | — | **98.18 %** — 54 killed, 1 survived | 1, an equivalent |
+
+⚠️ **This is the file that carried the flaky test**, and its 100 % was measured with that test in
+place (see the warning at the top). Re-measured after the fix: **98.18 %**. The irony is worth
+recording rather than hiding — the module whose test was inflating the corpus's scores is the one
+whose own score the inflation flattered into a perfect mark it had not earned.
+
+- ⚪ **The one survivor, and it is an equivalent kept as such.** `rmSync(dir, { recursive: true, force:
+  true })` in the cleanup `finally` survives `force: false`. Under test the two are indistinguishable:
+  `mkdtempSync` runs **before** the `try`, so reaching the `finally` at all means the directory exists,
+  and `force` only ever suppresses `ENOENT`. It is **not** noise to delete, though: it guards the case
+  no test can stage — an external temp sweeper removing the directory mid-merge — where `force: false`
+  would throw **from a `finally`** and replace a completed merge with an exception. Load-bearing in the
+  world, unobservable from the suite. Contorting a test to pin it is how a suite starts lying.
+
+**The same 100 % / 75 % split as S1, on the same fault line, one slice apart.** The pure verdict table
+scored 100 % on its first pass; the moment the identical design met a subprocess, the tests stopped
+being sufficient. Twice now, and it is no longer a coincidence to file under care: **a pure module's
+inputs are all visible in its signature, so a batch written from a design covers them; an impure one
+has inputs the author never names — a status code, a stderr, an `error` field — and a test batch
+reaches only the ones it happened to think of.**
+
+**Fourteen survivors, one hole.** A missing binary sets **both** `error` **and** a null status, so the
+single failure test covered two guards at once and each was free to vanish behind the other. Every
+guard is now met alone, through an injected runner — and only there: the merges themselves stay on real
+git, because a subprocess contract proven by a stub proves nothing.
+
+- **The boundary was asserted from one side only.** `status >= 128` survived becoming `>`. Triangulated
+  now: **127 is still a conflict COUNT** (treating it as a crash would hand the owner a preserved file
+  for a merge that worked), **128 and up is git refusing to run**.
+- **The failure message was never read.** Three survivors lived inside it (`throw new Error("")`, the
+  `?? ""` fallback, the `.trim()`). It is asserted whole now, because it is the diagnosis an owner
+  sends back: git pads its stderr with a newline, and a message carrying that padding reads as a
+  truncated sentence.
+- **One survivor died by simplifying the production**, as on `session-status.mjs` and
+  `engine-base-fs.mjs` before it: `buildMergeFileInvocation` carried its own `gitBin` default, which no
+  call site can reach since `mergeWithGit` always passes one. An unreachable branch is a survivor by
+  construction, not a missing test.
+
+---
+
+## S2's merge core — `engine-merge.mjs`, the verdict table — 2026-08-20
+
+**First production slice of S2**, and pure again on purpose: the decision that finally uses the bytes
+S1 put on disk. The merge itself arrives as an injected function, so what this run judges is the
+*decision*, not git. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the table was corrected | Survivors left |
+|---|---|---|---|
+| `lib/engine-merge.mjs` | **100.00 %** — 47 killed, 0 survived | **100.00 %** — 57 killed, 0 survived | none |
+
+⚠️ **And a 100 % that was measuring the wrong thing — worth more than the score.** Both passes are
+clean, yet the design under the first one carried a defect that would have **frozen every skill on the
+fleet**: it asked the base's BYTES for questions the recorded sha answers, and `reconcileBrain` runs the
+skill refresh *before* `syncBaseTree` lays the tree down. Every mutant died against a table that was
+internally consistent and wrong at its only real call site. **A mutation score judges the tests against
+the code, never the code against the world** — what caught this was wiring the module to its caller,
+three commits later. Filed here beside the number so the number is not read as more than it is.
+
+**Why a first pass at 100 % is credible here rather than flattering.** The pattern measured on S1
+stands: pure code flatters a test batch, and this slice is pure. What kept the batch honest is that the
+table was written into the plan *before* any test, so the eleven cases are the design's own rows and
+not a retelling of the implementation. Two assertions carry more than their weight:
+
+- **`write` and `deliver` are asserted as one whole object, on every row.** They differ on exactly one
+  (a clean merge writes the merged bytes, delivers the candidate), so an implementation that delivered
+  the merge would pass any test checking only what lands on disk — and would silently reintroduce the
+  clobber this chantier exists to end, one update later.
+- **The merge double's result is a sentinel string no other input can produce**, and its call is
+  asserted as `{base, ours, theirs}` by name. The ours/theirs inversion is a three-way merge's silent
+  catastrophe: swapped, the merge still returns a plausible file in which the engine wins every hunk the
+  owner touched. Only the roles, asserted by name, catch that.
+
+---
+
+## S1's fs orchestrator — `engine-base-fs.mjs`, the first slice that touches the disk — 2026-08-20
+
+**Fourth and last production slice of S1**, and the first that is not pure: the thin I/O that carries
+the three planners to disk, plus its wiring into the installer and both update writers. State owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | After the survivors were paid | Survivors left |
+|---|---|---|---|
+| `lib/engine-base-fs.mjs` | **75.00 %** — 33 killed, 11 survived | **95.00 %** — 38 killed, 2 survived | 2, both named below |
+
+**The first pass under 100 % of this chantier, and the run earned its keep twice.** The three pure
+planners had all scored 100 % on their first pass; the moment the same design met a filesystem, the
+tests stopped being sufficient — which is the honest reading, not a regression in care.
+
+- **The advance's own digests were load-bearing in the production and inert in every test.**
+  `syncBaseTree` folds the shas it just computed into the record its seeding pass reads. Every case had
+  handed in a provenance that *already* described the delivery, so the fold changed nothing and a mutant
+  emptying it survived. The case that kills it hands in the record **as it stood before the re-seed**,
+  and pins the contract that fold exists for: **a file just advanced is never reported back as the
+  owner's customization.** That is precisely the false positive this release exists to remove, so the
+  hole was in the middle of the subject.
+- **An ordering guarantee asserted only on inputs that were already ordered.** Ten of the eleven
+  survivors were the three `.sort()` calls and the comparator: every fixture happened to be in path
+  order, so removing the sort changed nothing. Both maps of the new case are written in **reverse** path
+  order.
+- **One survivor died by simplifying the production**, as on `session-status.mjs` before it: the
+  comparator spelled out an equal case (`? 0`) that no input can reach, since a rel appears once. An
+  unreachable branch is a survivor by construction, not a missing test.
+
+**The 2 left, named rather than implied:**
+
+1. `a.rel <= b.rel` for `a.rel < b.rel` — **a true equivalent**: the two differ only on equal paths, and
+   a path appears at most once in the list being sorted.
+2. Dropping `.sort()` on the **`seeded`** list — **not killable without controlling the filesystem's
+   own order.** Seeds come out in the order `readInstalledMergeFiles` returns, i.e. the order
+   `readdirSync` walked the brain, which is neither sorted nor guaranteed across platforms. A test
+   proving the sort would have to assume a walk order it cannot fix, so it would be a test about macOS,
+   not about this code. Recorded here instead. *(The same guarantee IS proven for `advanced` and
+   `deferred`, whose pre-sort order comes from the caller's maps.)*
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base-fs.mjs`.
+
+---
+
+## S1's seeding planner — `planBaseSeed`, same file, same day — 2026-08-20
+
+**Third production slice of the unfreeze chantier** (the migration: a brain seeds its own base tree
+from itself, with nothing to fetch). Same branch, same file; state owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors left |
+|---|---|---|
+| `lib/engine-base.mjs` *(+ `planBaseSeed`)* | **100.00 %** — 57 killed, 0 survived | 0 |
+
+**No survivor, first pass again** — 19 mutants more than the 38 the file carried before the function.
+Measured **on `HEAD`, after the green commit**, per the stop sign now in the skill.
+
+What paid for it: the cases that pin a *state* rather than a happy path — a base already present and
+provable (left alone), a base that drifted (re-seeded), a recorded file the owner deleted (named, not
+skipped), and a file delivered empty. Three of those four are unreachable from the nominal case, and
+the "already provable" one is the guard that keeps this migration from overwriting a correct ancestor
+with a file the owner has edited since.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs`.
+
+---
+
+## S1's advance rule — `planBaseAdvance`, same file, same day — 2026-08-20
+
+**Still not a release: the second production slice of the unfreeze chantier** (the base moves to what
+was *delivered*, never to what was fetched). Same branch, same file as the section below; the step's
+state is owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md).
+
+| File | First pass | Survivors left |
+|---|---|---|
+| `lib/engine-base.mjs` *(+ `planBaseAdvance`)* | **100.00 %** — 38 killed, 0 survived | 0 |
+
+**No survivor, first pass** — 3 mutants more than the 35 the file carried before the function, all
+killed. The cases that earned it are the two a green suite would not have needed: a file delivered
+**empty** (the falsy-content skip, invisible to every other case) and a `replace`-regime path in the
+delivery map (the false positive S1 exists to kill).
+
+> ⚠️ **The runner measures `HEAD`, not the working tree — and it will happily hand you a green score
+> about code you have not written yet.** Measured live the same day: the first run on this slice
+> returned **100 %, 35 killed** while `planBaseAdvance` sat uncommitted; `mutate-one.mjs` resets its
+> disposable worktree to `git rev-parse HEAD`, so the number was the *previous* commit's, re-measured.
+> Nothing in the output says so. **Commit green, then measure** — the reflex is now written into
+> [`../skills/mutation-testing/SKILL.md`](../skills/mutation-testing/SKILL.md) §2.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs` (log
+[`reports/mutate-one-engine-base.log`](reports/mutate-one-engine-base.log) — one log per file, so this
+run overwrote the one below; the numbers, not the log, are the record).
+
+---
+
+## S1's first slice — `lib/engine-base.mjs`, measured the day it was written — 2026-08-20
+
+**Not a release: the first production file of the unfreeze chantier** (the immutable base per `merge`
+file). Same branch as S0bis below; the step's own state is owned by
+[`../plans/prospective/update-regime-owns-what-it-shipped-action.md`](../plans/prospective/update-regime-owns-what-it-shipped-action.md),
+this section owns only the number.
+
+| File | First pass | After the survivor | Survivors left |
+|---|---|---|---|
+| `lib/engine-base.mjs` *(new)* | 97.14 % | **100.00 %** | 0 |
+
+**This is the day-of runner's first use on the work it was built for**, one commit after it shipped:
+the file was mutated the same hour it was written, not at the release tail, and the whole round cost
+two runs of ~70 s.
+
+**The single first-pass survivor was worth the run, and it was NOT an equivalent.** Stryker dropped the
+raw `fingerprint(baseContent) === recorded` half of the base's proof, keeping only the EOL-normalized
+one — green, because normalizing LF content is the identity. The case it silently gave up is real and
+Windows-only: a brain installed on Windows fingerprints whatever it copied, so **the recorded sha
+itself can be taken over CRLF bytes**, and there the normalized comparison hashes LF and misses. The
+two terms serve **opposite halves of the fleet**, and the suite had a case for one half only —
+reflex 9 (a condition with N reasons needs N tests, one per reason alone). Mutant applied by hand
+before and after the new case, per the skill.
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-base.mjs` (log
+[`reports/mutate-one-engine-base.log`](reports/mutate-one-engine-base.log)).
+
+---
+
+## The day-of runner, and its first two runs — 2026-08-20
+
+**Not a release either: the tooling.** Same branch as S0bis below. §5quinquies had carried the
+one-file recipe **in prose** since v4.8.0 and the traps kept being paid anyway, so the recipe became a
+script — [`mutate-one.mjs`](mutate-one.mjs) — with the [`mutation-testing`](../skills/mutation-testing/SKILL.md)
+skill beside it for the judgement half.
+
+| Run | Score | Survivors left |
+|---|---|---|
+| `mutate-one.mjs` **on itself**, first pass | 80.95 % | 64 |
+| `mutate-one.mjs` **on itself**, after one hardening round | **99.11 %** | 3, all named below |
+| `scripts/lint-vault.mjs` *(the S0bis canary, never measured until now)* | **70.00 %** | 3 |
+
+**The tool's own 64 first-pass survivors sorted into the three families the skill names**, which is
+the first evidence that those families generalise beyond `session-status.mjs`: ~30 in the composition
+root (every case drove the run through doubles, so `run`, `symlink`, `writeFile` and `say` could each
+be emptied whole with the suite green), ~25 message literals blanked to `""` on output that is the
+run's only account of itself, and the rest genuine missing cases — a git step failing mid-plan, a
+write-guard exiting non-zero while printing a clean summary, a Stryker threshold break that prints a
+perfect table and exits non-zero.
+
+**The 3 survivors left are equivalents, named rather than rounded up:**
+
+- `cells.length >= 8` → `> 8` — a Stryker clear-text row always splits into **9** cells, so no log can
+  distinguish the two bounds.
+- `encoding: "utf8"` → `""` — the captured output is built in a template string, which coerces a
+  Buffer to exactly the same text.
+- the entry tail `runAsEntrypoint(…)` — killed only by the two `^entry point` cases that
+  [`stryker.maintainers.config.mjs`](stryker.maintainers.config.mjs) deliberately **skips**: they spawn
+  the real file, so a mutant flipping `dryRun` to false would run `git worktree add` for real from
+  inside a test. Excluding tests can only make a score pessimistic, never inflate it.
+
+**What the first real run found, on its first use** — `scripts/lint-vault.mjs`, the S0bis canary,
+converted and ticked but whose score was never recorded: **70.00 %**, and all 3 survivors sit in its
+**composition root** (`realLintDeps.cwd`, `realLintDeps.error`, and `toPosix`'s `"/"`). Family 1
+again, on a file everyone considered done. **Recorded as remaining entry-tier debt, not fixed here**:
+it belongs to the S0bis ceilings, not to the tooling slice.
+
+**Reproduce**: `npm --prefix maintainers/mutation run mutate:maintainers` (logs
+[`reports/mutate-one-self.log`](reports/mutate-one-self.log)) and
+`node maintainers/mutation/mutate-one.mjs scripts/lint-vault.mjs` (log
+[`reports/mutate-one-lint-vault.log`](reports/mutate-one-lint-vault.log)).
+
+---
+
+## S0bis — the two structural debts, paid (`scripts` only) — 2026-08-20
+
+**Not a release: the debt run itself.** Branch `chore/s0bis-entrypoint-mutation-debt`, working contract
+in [`../plans/prospective/agent-orchestrated-release-mode-action.md`](../plans/prospective/agent-orchestrated-release-mode-action.md),
+debt statement in [`../plans/prospective/v4.9.0-mutation-debt-plan.md`](../plans/prospective/v4.9.0-mutation-debt-plan.md).
+It exists to pay the **two named structural debts** the [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05)
+recorded and every published tag has carried since: the **entry-guard tier** (top-level scripts whose
+whole body no test can import, hence 0 %) and **`defaultGit`'s inline invocation** (54.05 %).
+
+| File | Before | After | Survivors left |
+|---|---|---|---|
+| `lib/entrypoint.mjs` *(the shared tail)* | — | **100.00 %** | 0 |
+| `status-line.mjs` | **0.00 %** *(v4.8.0)* | **100.00 %** | 0 |
+| `upstream-check-run.mjs` | **0.00 %** *(v4.8.0)* | **100.00 %** | 0 |
+| `lib/engine-fetch.mjs` | **54.05 %** *(v4.8.0)* | **84.21 %** | 12 |
+| `lib/entrypoint-discipline.mjs` *(new — the guard)* | — | 71.82 % → **81.44 %** | 54 |
+| `session-status.mjs` | **8.67 %** *(v4.9.0)*, 0.00 % since v4.4.0 | 70.89 % → 90.12 % → **96.10 %** | 6 |
+
+**Both 0 % files end at 100 %** — the tier v4.4.0 named and four releases carried is no longer a tier
+of its own for them. The mechanism is the one settled at v4.5.0 and never propagated until now: one
+shared `runAsEntrypoint(metaUrl, argv, fn)`, tested once, with each script's body passed in as an
+**importable function**. What used to be unreachable code became ordinary code, and ordinary code is
+measurable. `upstream-check-run.mjs` needed **15 mutants' worth** of tests to get there; the 0 % was
+never a hard problem, only an unreachable one.
+
+**Debt 2 is paid the same way it was solved at v4.5.0**: `defaultGit`'s request became a pure value
+(`buildGitInvocation(args) → {command, args, options}`, asserted whole), and the comment in which the
+code **documented its own exemption** — *"Used by the core's CLI wiring, never by the unit tests"* — was
+deleted with the fix. 54.05 % → **84.21 %**; the 12 survivors left are in the file's other functions,
+not in the runner.
+
+**What is genuinely new here is the guard, and it earned its keep on day one.** `lib/entrypoint-discipline.mjs`
++ its repo-wide test go red on a hand-rolled entry guard, on a top-level script with no test sibling,
+and on a child process **built and executed in the same call**. Switched on before the conversions
+started, it went red on exactly one production file: `engine-fetch.mjs` — the Debt-2 file. The debt did
+not have to be remembered; it was **reported**. Two ratchets carry the rest: descending numeric
+**ceilings** for the entry-guard shape (fan-out-safe — parallel agents never touch the guard test) and
+**named allowlists** for the rest, where shrink-only is *enforced* rather than promised: an exemption
+that is no longer an offender **turns the suite red until it is deleted**.
+
+**Counted, not estimated: 26 files carried the shape, not the 20 the debt plan assumed** — 16 via
+`isEntrypoint`, 7 inline, 2 via `auto-commit.mjs`'s duplicate `isEntryPoint`, and 1 via a *third*
+spelling nobody had recorded (`import-brain.mjs`'s `isMain()`). Fifteen are converted; the ceilings
+stand at **14 / 9**, down from 32 / 26.
+
+### `session-status.mjs` — 8.67 % → 96.10 %, and how a file you may not run gets a net
+
+Held back from the batches above as a **blocking arbitration**, then answered by the owner the same
+day ("yes, now, with me at the keyboard") and paid. It is the head of the entry-guard debt: **0.00 %
+on every published tag from v4.4.0**, 8.67 % at v4.9.0, and the one file of the tier that **cannot be
+verified by running it** — executing it sweeps and auto-commits the importer's own working tree.
+
+**The disposable worktree is what restored fail-first**, and that is the transferable part. Inside a
+throwaway checkout a sweep-and-commit is harmless, so the red could be taken for real: importing the
+unconverted file ran the whole SessionStart hook — pull, markers, detached child, banner on stdout.
+The body then moved into `runSessionStatus(argv, deps)` behind the shared tail **without
+restructuring**, and the real hook was run as a process **before and after**: output byte-identical,
+tree untouched. Three measured rounds followed: **70.89 % → 90.12 % → 96.10 %**.
+
+**The 46 first-pass survivors sorted into three families, and only one was about missing cases:**
+
+1. **The real adapter layer, judged by nothing.** Every case drove the hook through doubles, so
+   `realGit` and the DB read were never executed at all — a mutant could empty either one whole. Both
+   became injected functions with their own tests (`runGitInvocation`, `readDocCountFrom`), and the
+   two seams that still need the real world are proved by the one call safe enough to make:
+   `git --version`, and a `readDocCount` of a database that is not there.
+2. **Doubles that ignored their arguments.** The fake fs took `(p)` and dropped the rest, so every
+   `readFileSync(p, "utf8")` could lose its encoding — handing a Buffer to code that string-matches
+   it — with the suite still green. **Six survivors lived in that one omission.** The fakes now assert
+   their second argument. *A double's answer has to be a fingerprint of what it was asked, or it
+   certifies nothing.*
+3. **Genuine missing cases**: a failed pull (which must never be asked what it changed — `ORIG_HEAD`
+   means nothing then), a pull that landed and reports its count, a last-run that recorded a refused
+   note, a converged brain that spawns nothing, a manifest with no `source` block, and the Gemini key
+   line asserted **whole** instead of by its first sentence — three literals, of which two could be
+   blanked unseen, on the line that tells an owner why their brain cannot answer.
+
+**Five of the second round's 16 survivors were killed by SIMPLIFYING the production**, which is the
+better answer whenever it applies: the run-state read and the bootstrap read each guarded themselves
+with `existsSync` **and** a `try/catch`. An absent file throws on read and lands in the same branch, so
+the guard was a second spelling of the catch — two branches, four mutants, no behaviour of its own.
+Both catch bodies then re-assigned `null` to a variable that was already `null`. Deleted, reasons kept
+as comments.
+
+**The 6 survivors left are named equivalents, not rounding:**
+
+- `realOpenDatabase` and its two path literals (3) — only a real `better-sqlite3` load exercises them,
+  and any wrong path throws into the catch that already answers `null`. Same answer, either way.
+- `markerIo.readFileSync` (2) — the marker **writer** never reads; only the gate's reader does, at a
+  different call site with its own tests.
+- `pulled: []` (1) — `changedCount` is rendered only on the "📥 Repo updated" branch, which is
+  unreachable exactly when the `[]` branch is taken.
+
+🪤 **A trap this run uncovered, and the next person will hit it too: mutating a file that a SOURCE
+SCANNER reads breaks the dry run.** Stryker instruments in place, so the literals
+`lib/entrypoint-discipline.mjs` scans for are rewritten under it; `session-status.mjs` stopped reading
+as an inline-invocation offender and the shrink-only allowlist assertion went red — correctly, on a
+file that was still an offender when clean. **Paid rather than worked around**: its git call and its
+two detached children became named values (`buildGitInvocation`, `buildReconcileInvocation`,
+`buildUpstreamProbeInvocation`), and the file left `INLINE_INVOCATION_EXEMPT`. A named value is stable
+under instrumentation as well as assertable. *(Caught alongside it: binding the injected `spawn` to
+`spawnChild` hid both spawn calls from the scanner's token list. A rename must not be able to buy
+silence from a guard.)*
+
+**Reproduce**: `--mutate "scripts/session-status.mjs"`, worktree `kenjaku-mut-sessionstatus`, log
+[`reports/s0bis-session-status.log`](reports/s0bis-session-status.log) (the third and final round).
+
+**One thing this run deliberately did NOT do**, written down rather than left implied:
+
+- **`lib/entrypoint-discipline.mjs`'s own 81.44 % is below the repo norm** (~94 %). One hardening round
+  took it 71.82 % → 81.44 %; the 54 survivors left are in the hand-rolled comment/quote state machine,
+  where a large share are boundary equivalents. Named as the top follow-up rather than rounded up: a
+  guard that judges the repo should be measured at least as strictly as what it judges.
+
+**Reproduce**: batch recipe of §"Reproduce" below, worktree `kenjaku-mut-s0bis`, logs
+[`reports/s0bis-batch1.log`](reports/s0bis-batch1.log),
+[`reports/s0bis-batch2.log`](reports/s0bis-batch2.log).
 
 ---
 
@@ -303,6 +2117,13 @@ Reading the batch totals without that split is how a known, named, arbitrated de
 regression.
 
 ### The two remedies this release deliberately did NOT build (owner's arbitration, 2026-08-05)
+
+> ✅ **Both were paid on 2026-08-20 by the [S0bis run](#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20)**,
+> branch `chore/s0bis-entrypoint-mutation-debt`: **debt 1** ships the shared `runAsEntrypoint` **and**
+> the guard test that makes it stick (`status-line.mjs` and `upstream-check-run.mjs`, the two 0 % files
+> here, both end at **100.00 %**), and **debt 2** turns `defaultGit`'s invocation into a pure value
+> (**54.05 % → 84.21 %**). `session-status.mjs` is the one piece left, held back as a written
+> arbitration rather than converted blind — it cannot be verified by running it.
 
 Recorded here as **numbered debt**, not as a story about one file, because that is the form that
 survives: both were designed and named at v4.5.0, scheduled for v4.6.0, and never came back. They are

@@ -14,6 +14,14 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
+// The standing surface F1 is about, read off the real brain the reconcile just wrote:
+// asserting through it (rather than through the manifest's digests) is what pins the
+// SENTENCE the owner would have read, not merely the bookkeeping behind it.
+import { readEngineDivergence } from "./engine-base-fs.mjs";
+// F4: spelled once, in the module that owns it — a test that re-typed the entry could
+// pass while the migration wrote a different line.
+import { BASE_SETTINGS_ENTRY } from "./ignore-base-settings.mjs";
+
 // ═══════════════════════════════════════════════════════════════════════════
 // reconcile-brain — the RECONCILE half of update-engine, extracted (ADR 0026).
 //
@@ -60,15 +68,23 @@ const SACRED = {
   "vault/my-note.md": "# Mollecuisse\nThe canary that must never be lost.\n",
 };
 
-function manifest({ ragVersion = "1.1.0", indexSchemaVersion = 1, extraMerge = [], extraReplace = [], engineMcpServers = ["vault-rag"] } = {}) {
+function manifest({ ragVersion = "1.1.0", indexSchemaVersion = 1, extraMerge = [], extraReplace = [], engineMcpServers = ["vault-rag"], retired = [] } = {}) {
   return {
     manifestVersion: 1,
+    // S6c — a SIBLING of `regimes`, not one of them: it does not say how a shipped file
+    // is updated, it says the engine no longer ships it. Empty on every manifest the
+    // product has shipped so far, which is exactly the state most of this suite runs in.
+    retired,
     engineVersion: { rag: ragVersion, constitutionTemplate: "1.0.0", scripts: "1.0.0" },
     indexSchemaVersion,
     regimes: {
-      replace: ["rag/src/**", "rag/package.json", ...extraReplace],
+      // ⚠️ `scripts/update-engine.mjs` sits in `replace`, where every one of the 48
+      // shipped manifests has always put it. This fixture used to declare it `merge`,
+      // and that single wrong line was the whole evidence behind a claim copied into a
+      // plan, a comment and a test title (see engine-apply-plan.mjs's header).
+      replace: ["rag/src/**", "rag/package.json", "scripts/update-engine.mjs", ...extraReplace],
       regenerate: ["rag/launch.sh", "rag/launch.cmd", "scripts/run-node.sh", "scripts/run-node.cmd"],
-      merge: [".claude/skills/zzz-mine/**", "scripts/update-engine.mjs", ...extraMerge],
+      merge: [".claude/skills/zzz-mine/**", ...extraMerge],
     },
     engineMcpServers,
     source: { repo: "https://example.test/launcher.git", ref: "v1.1.0" },
@@ -686,6 +702,101 @@ test("reconcileBrain — a converged brain's HAND-FORMATTED settings.json is not
   assert.equal(readFileSync(settingsPath, "utf8"), handFormatted, "nothing to add → settings.json must not be touched AT ALL");
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// F1 (v5.0.0 code review) — THE ENGINE'S OWN WRITE MUST NOT READ AS THE OWNER'S.
+//
+// Step 2.quinquies is the one write the reconciler ever makes to `.claude/settings.json`,
+// and this release adds TWO hook entries to the template — so every brain in the fleet
+// takes that write on the update itself. The file is in `regimes.merge`, and NOTHING
+// else re-seeds it: its recorded digest stayed at the pre-update bytes, so from the very
+// next session start `engineDivergence` reported it held back by the owner, at every
+// session, forever, and undismissibly (no refresh family writes a `.new` beside it).
+//
+// The repair is the obvious one, said once: the record moves with the bytes. What is NOT
+// obvious — and is what these two tests separate — is that it must move ONLY when the
+// engine actually wrote. A blanket re-seed would silence a real owner edit and turn the
+// whole surface into a file that always agrees with itself.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// A brain that is genuinely CONVERGED on its merge files: every one of them on disk
+// matches its recorded digest, so the divergence report starts empty and any entry
+// appearing later is something this pass caused.
+function convergedManifest(brainDir, { extraMerge = [] } = {}) {
+  const m = manifest({ extraMerge: [".claude/settings.json", ...extraMerge] });
+  const recorded = [".claude/settings.json", ".claude/skills/zzz-mine/SKILL.md"];
+  m.provenance = Object.fromEntries(
+    recorded.map((rel) => [rel, base(readFileSync(join(brainDir, rel), "utf8"))]),
+  );
+  m.baseRefs = Object.fromEntries(recorded.map((rel) => [rel, "v1.1.0"]));
+  return m;
+}
+
+test("runReconcileCli — a brain the ENGINE just wired holds nothing back (F1)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(v310Settings(brainDir), null, 2) + "\n");
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(convergedManifest(brainDir), null, 2));
+
+  // ⚠️ The fixture must START converged, or the assertion at the end would hold for a
+  // brain that never had anything to hold back in the first place.
+  assert.deepEqual(
+    readEngineDivergence({ brainDir }),
+    [],
+    "fixture check: this brain holds nothing back BEFORE the engine writes to it",
+  );
+
+  const { calls: _calls, ...s } = seams();
+  const report = await reconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  // …and the engine really did rewrite the file — without this the test would pass on a
+  // reconciler that simply never touched settings.json.
+  assert.equal(report.hooksAdded.length, 3, "the engine must have rewritten settings.json for this to prove anything");
+  assert.deepEqual(
+    readEngineDivergence({ brainDir }),
+    [],
+    "a file the ENGINE just rewrote may never be reported as one the OWNER is holding back",
+  );
+});
+
+test("runReconcileCli — the owner's OWN edit to settings.json is still held back (the record moves only with the engine's write)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, ".claude/settings.json", JSON.stringify(v310Settings(brainDir), null, 2) + "\n");
+  writeFile(sourceDir, ".claude/settings.json.template", JSON.stringify(templateSessionStart(), null, 2) + "\n");
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(convergedManifest(brainDir), null, 2));
+  const argv = ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"];
+  // First pass wires the hooks and re-records — the brain is now converged on the file.
+  await reconcileCli({ argv, seams: seams() });
+
+  // THEN the owner edits it themselves. The second pass has nothing to add, so it writes
+  // nothing — and the edit must survive as a fact the brain still states.
+  const settingsPath = join(brainDir, ".claude/settings.json");
+  const mine = JSON.parse(readFileSync(settingsPath, "utf8"));
+  mine.permissions = { allow: ["Bash(open:*)"] };
+  writeFileSync(settingsPath, JSON.stringify(mine, null, 2) + "\n");
+
+  const report = await reconcileCli({ argv, seams: seams() });
+
+  assert.deepEqual(report.hooksAdded, [], "the second pass must have nothing to wire");
+  assert.deepEqual(
+    readEngineDivergence({ brainDir }).map((d) => d.rel),
+    [".claude/settings.json"],
+    "an edit the OWNER made is still theirs — the re-record may not be a blanket amnesty",
+  );
+});
+
 // A deployed win32 brain whose hook commands are broken but which has NO statusLine and
 // is missing no hook: the ONLY reason to write is the repair itself. Nothing else covered
 // that term of the write guard in isolation — every other repair fixture also had a
@@ -907,6 +1018,14 @@ async function reconcile(args) {
   return reconcileBrain(args);
 }
 
+// The same indirection for the CLI entry the auto-finalize child and the SessionStart
+// self-heal both run — it is the LAST writer of the manifest on those paths, so the
+// F1 tests above have to go through it rather than through `reconcileBrain` alone.
+async function reconcileCli(args) {
+  const runReconcileCli = await loadCli();
+  return runReconcileCli(args);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Increment 2.5 — refresh an UNTOUCHED engine skill. Until now an already-present
 // skill dir was skipped wholesale (install-if-absent), so 12 skill commits since
@@ -951,6 +1070,279 @@ test("reconcileBrain — an UNTOUCHED engine skill is refreshed to the source's 
   assert.deepEqual(report.skillsPreserved, []);
 });
 
+// S2a-3b: the merge produced its verdicts one layer down, and this is the layer that
+// used to drop them — `reconcileBrain` destructured three fields and returned three.
+// A merge nobody is told about lands silently; a conflict nobody is told about is a
+// `.new` file appearing beside a skill with no explanation.
+test("reconcileBrain — a merged skill and a clashing one both reach the report", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\n\nSwitch universes.\n\nThe closing note.\n";
+  const owners = "---\nname: switch\n---\n\nSwitch universes, my way.\n\nThe closing note.\n";
+  const engines = delivered.replace("The closing note.\n", "The closing note.\n\nA paragraph the engine added.\n");
+  const clashing = "---\nname: coach\n---\n\nThe engine's own rewrite.\n";
+  const coachDelivered = "---\nname: coach\n---\n\nThe original line.\n";
+  const coachOwners = "---\nname: coach\n---\n\nThe owner's own rewrite.\n";
+
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", owners);
+  writeFile(brainDir, ".engine-base/.claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", engines);
+  writeFile(brainDir, ".claude/skills/coach/SKILL.md", coachOwners);
+  writeFile(brainDir, ".engine-base/.claude/skills/coach/SKILL.md", coachDelivered);
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", clashing);
+
+  const extraMerge = [".claude/skills/switch/**", ".claude/skills/coach/**"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: {
+      ".claude/skills/switch/SKILL.md": base(delivered),
+      ".claude/skills/coach/SKILL.md": base(coachDelivered),
+    },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.deepEqual(report.skillsMerged, ["switch"]);
+  assert.deepEqual(report.conflicts, [
+    { name: "coach", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+  ]);
+  assert.match(
+    readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"),
+    /my way[\s\S]*A paragraph the engine added/,
+    "the owner's edit and the engine's addition both survive the round trip",
+  );
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S2b-3 — the four engine SCRIPTS stop arriving by copy.
+// `auto-commit`, `auto-push`, `status-line` and `verify-rag` are declared `merge`
+// in every shipped manifest, and the reconciler copied them anyway: an owner who
+// tuned their auto-commit hook lost the tuning at the next update, silently. What
+// is asserted here is the WIRING — that `reconcileBrain` routes them through the
+// merge rather than through `copyGlobs`, and hands the verdicts back up.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ⚠️ The pairing that makes this slice one commit and not two: the moment a
+// merge-declared script leaves the copy bucket, SOMETHING has to deliver it. A
+// brain that never touched its auto-commit must still receive the engine's fix.
+test("reconcileBrain — an untouched engine script is delivered by the merge, not the copy", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "export const hook = 1;\n";
+  const improved = "export const hook = 1;\nexport const fixed = true;\n";
+  writeFile(brainDir, "scripts/auto-commit.mjs", delivered);
+  writeFile(sourceDir, "scripts/auto-commit.mjs", improved);
+  const extraMerge = ["scripts/auto-commit.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/auto-commit.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/auto-commit.mjs"), "utf8"), improved);
+  assert.deepEqual(report.scriptsRefreshed, ["scripts/auto-commit.mjs"]);
+  // ...and NOT through the copy bucket, or it would be counted twice in the report
+  // and, worse, written before the merge ever got to look at it.
+  assert.deepEqual(report.copied, ["rag/package.json", "rag/src/index.ts"]);
+  // The delivered bytes are the CANDIDATE, so `runReconcileCli` can re-seed the base.
+  assert.equal(report.refreshedFileMap["scripts/auto-commit.mjs"], improved);
+});
+
+// The bug in one test: the owner tuned their commit-message prefix, the engine fixed
+// something else in the same file, and until this slice the tuning was gone.
+test("reconcileBrain — an EDITED engine script keeps the edit AND takes the update", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "export const prefix = \"chore\";\n\nexport function run() {\n  return prefix;\n}\n";
+  const mine = delivered.replace('"chore"', '"brain"');
+  const engines = delivered + "\nexport const fixed = true;\n";
+  writeFile(brainDir, "scripts/auto-push.mjs", mine);
+  writeFile(brainDir, ".engine-base/scripts/auto-push.mjs", delivered);
+  writeFile(sourceDir, "scripts/auto-push.mjs", engines);
+  const extraMerge = ["scripts/auto-push.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/auto-push.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.match(
+    readFileSync(join(brainDir, "scripts/auto-push.mjs"), "utf8"),
+    /"brain"[\s\S]*export const fixed = true;/,
+    "both sides landed in a file the brain will RUN",
+  );
+  assert.deepEqual(report.scriptsMerged, ["scripts/auto-push.mjs"]);
+  assert.deepEqual(report.scriptsPreserved, []);
+  assert.deepEqual(report.scriptConflicts, []);
+});
+
+// The verdicts a script can reach that a skill cannot, and the fields that carry
+// them: `scriptConflicts` is its own list, so a clashing script can never be
+// mistaken for a clashing skill in the report.
+test("reconcileBrain — a clashing engine script gets its OWN conflict list", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "export const mode = \"a\";\n";
+  const mine = "export const mode = \"mine\";\n";
+  const engines = "export const mode = \"engine\";\n";
+  writeFile(brainDir, "scripts/verify-rag.mjs", mine);
+  writeFile(brainDir, ".engine-base/scripts/verify-rag.mjs", delivered);
+  writeFile(sourceDir, "scripts/verify-rag.mjs", engines);
+  const extraMerge = ["scripts/verify-rag.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/verify-rag.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/verify-rag.mjs"), "utf8"), mine, "no markers in a file we RUN");
+  assert.deepEqual(report.scriptConflicts, [
+    { name: "scripts/verify-rag.mjs", newVersionPath: "scripts/verify-rag.mjs.new" },
+  ]);
+  assert.deepEqual(report.conflicts, [], "and the skills' list stays the skills'");
+});
+
+// 🛑 The gate, end to end, and the reason the scripts are not simply a second call to
+// the skills' refresher. `reconcileBrain` must hand `refreshEngineScripts` no gate at
+// all — the module's own default is the gate — so a merge whose bytes do not parse
+// leaves the brain running the script it was already running.
+test("reconcileBrain — a merged script that would not parse never reaches the disk", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // Both sides edit DIFFERENT lines, so git merges them cleanly — and the result is
+  // an unbalanced brace. A textually clean merge that does not parse is exactly the
+  // failure mode the syntax gate exists for.
+  const delivered = "export function run() {\n  return 1;\n}\n\nexport const tail = 0;\n";
+  const mine = "export function run( {\n  return 1;\n}\n\nexport const tail = 0;\n";
+  const engines = delivered.replace("export const tail = 0;", "export const tail = 42;");
+  writeFile(brainDir, "scripts/status-line.mjs", mine);
+  writeFile(brainDir, ".engine-base/scripts/status-line.mjs", delivered);
+  writeFile(sourceDir, "scripts/status-line.mjs", engines);
+  const extraMerge = ["scripts/status-line.mjs"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "scripts/status-line.mjs": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/status-line.mjs"), "utf8"), mine);
+  assert.deepEqual(report.scriptsPreserved, [
+    { name: "scripts/status-line.mjs", reason: "merge-unsafe", newVersionPath: "scripts/status-line.mjs.new" },
+  ]);
+  assert.deepEqual(report.scriptsMerged, []);
+});
+
+// The self-heal path passes the brain as its own source, and nobody asked for an
+// update there. The skills already hold this line; the scripts must hold it too, or
+// a SessionStart tick would start writing sidecars beside files nobody touched.
+test("reconcileBrain — self-heal touches no engine script and reports none", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const mine = "export const hook = \"mine\";\n";
+  writeFile(brainDir, "scripts/auto-commit.mjs", mine);
+  const extraMerge = ["scripts/auto-commit.mjs"];
+  const target = manifest({ extraMerge });
+  const local = { ...manifest({ extraMerge }), provenance: {} };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir: brainDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "scripts/auto-commit.mjs"), "utf8"), mine);
+  assert.deepEqual(report.scriptsRefreshed, []);
+  assert.deepEqual(report.scriptsPreserved, []);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THE DOCTRINE LAYER, third merge family (plan S5c-1). `CLAUDE.engine.md` was in
+// no regime for the product's whole life, so the ambient doctrine of every brain
+// was frozen at install day while the skills, scripts and servers moved on eight
+// times. What is asserted here is the WIRING — that `reconcileBrain` calls the
+// family, hands its verdicts back up in lists of their own, and folds its
+// delivered bytes into the ONE map that re-seeds provenance.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("reconcileBrain — an untouched constitution is delivered by the merge, and its bytes re-seed the base", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "# Engine doctrine\n\nRule one.\n";
+  const improved = "# Engine doctrine\n\nRule one.\n\nRule two.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", delivered);
+  writeFile(sourceDir, "CLAUDE.engine.md", improved);
+  const extraMerge = ["CLAUDE.engine.md"];
+  const target = manifest({ extraMerge });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge }),
+    provenance: { "CLAUDE.engine.md": base(delivered) },
+  };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), improved);
+  assert.deepEqual(report.doctrineRefreshed, ["CLAUDE.engine.md"]);
+  // ...and NOT through the copy bucket: `copyGlobs` is `plan.overwrite` alone, so a
+  // doctrine file arriving there too would be written before the merge ever looked.
+  assert.deepEqual(report.copied, ["rag/package.json", "rag/src/index.ts"]);
+  // 🛑 The half that makes the unfreeze work more than once: left out of this map, the
+  // file would be called "user-modified" at the very next update and freeze again.
+  assert.equal(report.refreshedFileMap["CLAUDE.engine.md"], improved);
+});
+
+// 🛑 EVERY brain deployed before this release is this test, so the wiring has to
+// carry the honest verdict all the way up — not just the happy one.
+test("reconcileBrain — a constitution with no provenance is preserved, and says so in its own list", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const theirs = "# Engine doctrine\n\nInstalled long ago.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", theirs);
+  writeFile(sourceDir, "CLAUDE.engine.md", "# Engine doctrine\n\nTwelve commits later.\n");
+  const extraMerge = ["CLAUDE.engine.md"];
+  const target = manifest({ extraMerge });
+  const local = { ...manifest({ ragVersion: "1.0.0", extraMerge }), provenance: {} };
+
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...seams() });
+
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), theirs, "unproven bytes stand");
+  assert.deepEqual(report.doctrinePreserved, [{ name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" }]);
+  assert.deepEqual(report.doctrineRefreshed, []);
+  assert.equal(report.refreshedFileMap["CLAUDE.engine.md"], undefined, "nothing delivered, no ancestor claimed");
+});
+
 test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and reported as such", async (t) => {
   const brainDir = buildBrain();
   const sourceDir = buildSource();
@@ -979,7 +1371,7 @@ test("reconcileBrain — a CUSTOMIZED skill is preserved byte-for-byte and repor
   );
   assert.deepEqual(report.skillsRefreshed, []);
   assert.deepEqual(report.skillsPreserved, [
-    { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+    { name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
   ]);
 });
 
@@ -1014,7 +1406,7 @@ test("reconcileBrain — the new version of a customized skill is dropped alongs
     "the engine version is available, verbatim, next to the owner's",
   );
   assert.deepEqual(report.skillsPreserved, [
-    { skill: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
+    { name: "prepare-1-1", reason: "customized", newVersionPath: ".claude/skills/prepare-1-1/SKILL.md.new" },
   ]);
 });
 
@@ -1059,12 +1451,19 @@ test("reconcileBrain — a NEW file under an ALREADY-INSTALLED skill is delivere
 });
 
 // A pre-provenance brain: the file is engine-shipped but nothing was ever fingerprinted
-// for it, so "untouched" is UNPROVABLE. We keep the owner's copy either way, but the two
-// preserves are NOT the same report: `no-provenance` must not call them a customizer, and
-// must NOT litter the brain with a `.new` for a claim we cannot make. A sidecar left by an
-// earlier update is cleared all the same — only `preserve: customized` still has something
-// newer genuinely pending.
-test("reconcileBrain — an UNPROVABLE skill is preserved WITHOUT a .new, and a stale one is cleared", async (t) => {
+// for it, so "untouched" is UNPROVABLE. We keep the owner's copy either way, and the two
+// preserves are still NOT the same report: `no-provenance` must not call them a customizer.
+//
+// ⚠️ INVERTED at S10-1. This test read "…preserved WITHOUT a .new" and asserted that a
+// claim we cannot make must not be pointed at. S10 changes what the sidecar means: it is
+// no longer a claim ("a newer version awaits you"), it is the material the next
+// conversation needs to ask a question and offer three answers. The `reason` still
+// carries the distinction the old rule was protecting.
+//
+// The second half is UNCHANGED and gets sharper: a sidecar left by an earlier update
+// must not survive as itself. It is cleared unconditionally and re-dropped with the
+// CURRENT candidate, so what sits there is never a stale claim.
+test("reconcileBrain — an UNPROVABLE skill keeps its bytes, and a stale sidecar is replaced, not kept", async (t) => {
   const brainDir = buildBrain();
   const sourceDir = buildSource();
   t.after(() => {
@@ -1089,13 +1488,13 @@ test("reconcileBrain — an UNPROVABLE skill is preserved WITHOUT a .new, and a 
   assert.deepEqual(report.skillsRefreshed, []);
   assert.deepEqual(
     report.skillsPreserved,
-    [{ skill: "coach", reason: "no-provenance" }],
-    "reported as unprovable, NOT as a customization, and with no .new to point at",
+    [{ name: "coach", reason: "no-provenance", newVersionPath: ".claude/skills/coach/SKILL.md.new" }],
+    "reported as unprovable, NOT as a customization — the reason is what carries that",
   );
   assert.equal(
-    existsSync(join(brainDir, ".claude/skills/coach/SKILL.md.new")),
-    false,
-    "we make no claim here, so the old sidecar's claim must not survive either",
+    readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md.new"), "utf8"),
+    candidate,
+    "the leftover from an earlier update is REPLACED by this update's candidate, never kept",
   );
 });
 
@@ -1168,8 +1567,8 @@ test("reconcileBrain — TWO customized files in ONE skill are reported once, bu
 
   assert.equal(report.skillsPreserved.length, 1, "one line per SKILL, not per file");
   assert.deepEqual(
-    report.skillsPreserved.map(({ skill, reason }) => ({ skill, reason })),
-    [{ skill: "coach", reason: "customized" }],
+    report.skillsPreserved.map(({ name, reason }) => ({ name, reason })),
+    [{ name: "coach", reason: "customized" }],
   );
   // Reporting once must not mean delivering once: every customized file still gets its own
   // sidecar, or the owner silently loses the engine's newer version of the unnamed one.
@@ -1241,7 +1640,7 @@ test("reconcileBrain — a CUSTOMIZED staged skill is preserved too (the staging
   assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md"), "utf8"), mine);
   assert.deepEqual(report.skillsRefreshed, []);
   assert.deepEqual(report.skillsPreserved, [
-    { skill: "lint", reason: "customized", newVersionPath: ".claude/skills/lint/SKILL.md.new" },
+    { name: "lint", reason: "customized", newVersionPath: ".claude/skills/lint/SKILL.md.new" },
   ]);
   assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md.new"), "utf8"), next);
 });
@@ -1372,6 +1771,147 @@ test("runReconcileCli — re-seeds the provenance base of what it refreshed (T1)
     persisted.provenance[".claude/skills/switch/SKILL.md"],
     base(improved),
     "the base now describes what the engine JUST delivered",
+  );
+});
+
+// ── S4: the base's VERSION, written by the same last writer as its digest ─────
+// A digest says "this file matches what we shipped"; it cannot say WHICH shipment.
+// The child re-seeds here for the same reason it re-seeds the digest: on the first
+// update carrying this feature the parent runs the OLD code, so a ref written only by
+// step 7 would arrive one update late — on the very brains being migrated.
+test("runReconcileCli — stamps the engine version on what it refreshed, and leaves the held-back file's older one (S4)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: [".claude/skills/switch/**"] }),
+        provenance: { ".claude/skills/switch/SKILL.md": base(delivered) },
+        baseRefs: { ".claude/skills/switch/SKILL.md": "v0.9.0", "CLAUDE.md": "v0.9.0" },
+      },
+      null,
+      2,
+    ),
+  );
+
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.deepEqual(persisted.baseRefs, {
+    ".claude/skills/switch/SKILL.md": "v1.1.0",
+    "CLAUDE.md": "v0.9.0",
+  });
+});
+
+// The ref comes from the brain's own manifest, and a brain can have none (a very old
+// install, or a source block written before refs were recorded). "I do not know" must
+// stay unrecorded: an invented ref is a divergence report naming a version the owner
+// was never delivered, which is worse than the silence this whole chantier is fixing.
+test("runReconcileCli — a brain whose manifest records no ref stamps nothing, rather than a lie (S4)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  const { source: _dropped, ...refless } = manifest({ extraMerge: [".claude/skills/switch/**"] });
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify({ ...refless, provenance: { ".claude/skills/switch/SKILL.md": base(delivered) } }, null, 2),
+  );
+
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  // The refresh itself still happened — the missing ref costs the RECORD, not the file.
+  assert.deepEqual(report.skillsRefreshed, ["switch"]);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.deepEqual(persisted.baseRefs, {});
+});
+
+// ── S1 — the LAST writer on the update path also lays down the base TREE ──────
+// The child is where the tree must land as much as the record: on the first update
+// carrying this feature the parent runs the OLD code, so a tree written only by
+// step 7 would arrive one update late — on the very brains being migrated. Both
+// halves are visible here: the refreshed skill ADVANCES to what was delivered, and
+// a merge file the update never touched SEEDS from itself.
+test("runReconcileCli — writes the `.engine-base/` tree beside the record: advanced for the refresh, seeded for the untouched", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const delivered = "---\nname: switch\n---\nSwitch universes.\n";
+  const improved = delivered + "\nSingle-account native-connectors reminder.\n";
+  writeFile(brainDir, ".claude/skills/switch/SKILL.md", delivered);
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", improved);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: [".claude/skills/switch/**"] }),
+        provenance: {
+          ".claude/skills/switch/SKILL.md": base(delivered),
+          ".claude/skills/zzz-mine/SKILL.md": base(SACRED[".claude/skills/zzz-mine/SKILL.md"]),
+        },
+      },
+      null,
+      2,
+    ),
+  );
+
+  const { ...s } = seams();
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  // Read through absence rather than into it: a tree that was never written must fail
+  // this test on its assertion, saying what is missing, not on an ENOENT from a reader.
+  const baseOrNull = (rel) => {
+    const abs = join(brainDir, ".engine-base", rel);
+    return existsSync(abs) ? readFileSync(abs, "utf8") : null;
+  };
+
+  assert.equal(
+    baseOrNull(".claude/skills/switch/SKILL.md"),
+    improved,
+    "the refreshed skill's ancestor is the content the child just delivered",
+  );
+  assert.equal(
+    baseOrNull(".claude/skills/zzz-mine/SKILL.md"),
+    SACRED[".claude/skills/zzz-mine/SKILL.md"],
+    "a merge file still matching its record seeds its own ancestor, with nothing fetched",
+  );
+  assert.equal(
+    existsSync(join(brainDir, ".engine-base/rag/src/index.ts")),
+    false,
+    "a `replace` file has no base: the tree follows the `merge` regime",
   );
 });
 
@@ -1531,7 +2071,9 @@ test("reconcileBrain — a reconcile with no `local` manifest at all still conve
   const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, ...s });
 
   assert.deepEqual(report.skillsRefreshed, [], "no base on record → nothing may be overwritten");
-  assert.deepEqual(report.skillsPreserved, [{ skill: "coach", reason: "no-provenance" }]);
+  assert.deepEqual(report.skillsPreserved, [
+    { name: "coach", reason: "no-provenance", newVersionPath: ".claude/skills/coach/SKILL.md.new" },
+  ]);
   assert.equal(readFileSync(join(brainDir, ".claude/skills/coach/SKILL.md"), "utf8"), skill, "the brain's copy is left alone");
   assert.deepEqual(calls.install, [join(brainDir, "rag")], "the rest of the converge still runs");
 });
@@ -1999,7 +2541,12 @@ test("reconcileBrain — a brain already migrated is not touched again, and does
   const sourceDir = buildSource();
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   t.after(() => rmSync(sourceDir, { recursive: true, force: true }));
-  writeFile(brainDir, ".gitignore", ".env\nscratch/\n");
+  // Already migrated on BOTH counts — the universes pointer (which this test is named for)
+  // and F4's base copy of settings.json, since the two share one read and one write. A
+  // fixture missing either entry would be a brain with something left to do, and the
+  // byte-for-byte claim below would prove nothing about the idempotence of the other.
+  const migrated = `.env\nscratch/\n${BASE_SETTINGS_ENTRY}\n`;
+  writeFile(brainDir, ".gitignore", migrated);
   const args = {
     brainDir,
     platform: "darwin",
@@ -2012,7 +2559,7 @@ test("reconcileBrain — a brain already migrated is not touched again, and does
   const report = await reconcile(args);
 
   assert.equal(report.pointerUnignored, false, "nothing to migrate must not read as a migration");
-  assert.equal(readFileSync(join(brainDir, ".gitignore"), "utf8"), ".env\nscratch/\n");
+  assert.equal(readFileSync(join(brainDir, ".gitignore"), "utf8"), migrated);
 });
 
 test("reconcileBrain — a brain with no .gitignore at all migrates nothing, and never creates one", async (t) => {
@@ -2032,4 +2579,358 @@ test("reconcileBrain — a brain with no .gitignore at all migrates nothing, and
 
   assert.equal(report.pointerUnignored, false);
   assert.equal(existsSync(join(brainDir, ".gitignore")), false, "we write files, we do not invent them");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S6c — THE RETIREMENT, wired. The engine's surface is additive by construction
+// (ADR 0025); this is the one declared, provenance-guarded exception (ADR 0039).
+// The decision and the `rmSync` live next door; what is asserted here is that the
+// reconcile CALLS them, with the brain's own provenance, at the right moment.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("reconcileBrain — a RETIRED skill the owner never touched is deleted, and named in the report", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "---\nname: tdd-discipline\n---\nOne test at a time.\n";
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", shipped);
+  // The manifest change is ONE change, and this fixture is what it looks like: the
+  // tombstone is declared and the `merge` entry is gone in the same breath. Doing only
+  // the first would have the update delete the directory and SessionStart restore it.
+  const target = manifest({ retired: [".claude/skills/tdd-discipline/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0" }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base(shipped) },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, ["tdd-discipline"]);
+  assert.deepEqual(report.skillsRetirePreserved, []);
+  assert.equal(existsSync(join(brainDir, ".claude/skills/tdd-discipline")), false, "gone from the disk");
+});
+
+// THE PROVENANCE HAS TO BE THE BRAIN'S OWN. Handing the FETCHED manifest's provenance
+// here would compare the owner's file against what the new engine says it ships — and
+// on a brain that edited the skill, that comparison can accidentally succeed. The
+// question is "did WE deliver these exact bytes to YOU?", and only the local manifest
+// can answer it.
+test("reconcileBrain — a RETIRED skill the owner edited is kept, and the report says which file blocked it", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const mine = "---\nname: tdd-discipline\n---\nOne test at a time. AND MY OWN NOTES.\n";
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", mine);
+  const target = manifest({ retired: [".claude/skills/tdd-discipline/**"] });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0" }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base("---\nname: tdd-discipline\n---\nOne test at a time.\n") },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, []);
+  assert.deepEqual(report.skillsRetirePreserved, [
+    { name: "tdd-discipline", blockers: [{ rel: ".claude/skills/tdd-discipline/SKILL.md", reason: "customized" }] },
+  ]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/tdd-discipline/SKILL.md"), "utf8"), mine);
+});
+
+// F4 (v5.0.0 code review) — the reconcile's own half: a brain that is ALREADY DEPLOYED
+// carries a v4 `.gitignore`, which no engine regime updates, so the launcher's own line
+// reaches nobody. Without this migration the whole fleet starts publishing machine A's
+// absolute paths on the v5 update itself — the first update that writes `.engine-base/`
+// at all.
+test("runReconcileCli — an already-deployed brain starts ignoring the base copy of settings.json, BEFORE the tree is written", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // A v4-era `.gitignore`: it knows about settings.json and nothing about the base tree.
+  writeFile(brainDir, ".gitignore", "# my brain\n.env\n.mcp.json\n.claude/settings.json\n");
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(convergedManifest(brainDir), null, 2));
+
+  const { calls: _calls, ...s } = seams();
+  await reconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  const ignore = readFileSync(join(brainDir, ".gitignore"), "utf8");
+  assert.ok(ignore.split("\n").includes(".engine-base/.claude/settings.json"), "the entry must reach a deployed brain");
+  assert.ok(ignore.includes(".claude/settings.json\n"), "and their own entries survive");
+  // 🎯 The ordering claim, and the only one that makes the entry worth anything: the tree
+  // is laid down by `syncBaseTree` AFTER the reconcile, so the file it would publish must
+  // already be ignored by the time it appears. Asserted by the file being there at all —
+  // a pass that wrote the base first would have committed it before this line existed.
+  assert.equal(
+    existsSync(join(brainDir, ".engine-base/.claude/settings.json")),
+    true,
+    "fixture check: this pass really does write the copy the entry is about",
+  );
+});
+
+// F3 (v5.0.0 code review) — and the reconcile's own half of it: the SELF-HEAL must not
+// retire. It is spawned detached with `stdio: "ignore"`, so anything it reports is thrown
+// away by construction — a deletion decided here is a deletion nobody can ever be told
+// about. Asserted through the reconciler and not only through the retirement module,
+// because what F3 actually was is a MISSING ARGUMENT at this call site.
+test("reconcileBrain — a self-heal retires NOTHING, so a restored skill survives the next session start", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const shipped = "---\nname: tdd-discipline\n---\nOne test at a time.\n";
+  // The owner went and got it back out of their git history — so it is byte-identical to
+  // what the engine once delivered, and the recorded provenance still proves it. Every
+  // condition for a deletion is met except the one that matters.
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", shipped);
+  const local = {
+    ...manifest({ retired: [".claude/skills/tdd-discipline/**"] }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base(shipped) },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir: brainDir, target: local, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, []);
+  assert.deepEqual(report.skillsRetirePreserved, []);
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/tdd-discipline/SKILL.md"), "utf8"),
+    shipped,
+    "a self-heal may not delete what the owner put back — and it could never have said so",
+  );
+});
+
+// ⏱️ THE ORDER, and it is observable only through a manifest the design forbids: one
+// that both DECLARES the skill `merge` and retires it. The engine must not spend an
+// update carefully three-way-merging a directory it is about to delete — and a brain
+// whose manifest is half-edited (or fetched mid-release) is exactly where that happens.
+test("reconcileBrain — the retirement runs BEFORE the refresh: no skill is merged on its way to the bin", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "---\nname: tdd-discipline\n---\nOne test at a time.\n";
+  writeFile(brainDir, ".claude/skills/tdd-discipline/SKILL.md", shipped);
+  writeFile(sourceDir, ".claude/skills/tdd-discipline/SKILL.md", shipped + "a line the refresh would deliver\n");
+  const target = manifest({
+    extraMerge: [".claude/skills/tdd-discipline/**"],   // still declared…
+    retired: [".claude/skills/tdd-discipline/**"],      // …and retired in the same manifest
+  });
+  const local = {
+    ...manifest({ ragVersion: "1.0.0", extraMerge: [".claude/skills/tdd-discipline/**"] }),
+    provenance: { ".claude/skills/tdd-discipline/SKILL.md": base(shipped) },
+  };
+
+  const { calls, ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.skillsRetired, ["tdd-discipline"]);
+  assert.deepEqual(report.skillsRefreshed, [], "nothing was refreshed on its way out");
+  assert.equal(existsSync(join(brainDir, ".claude/skills/tdd-discipline")), false);
+});
+
+// The state of every brain in the fleet today, and of every one that never held the
+// skill: the report's two new lists exist and are empty, so the reporting layer has
+// nothing to say rather than something empty to say.
+test("reconcileBrain — no tombstone declared: the retirement lists are present and empty", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const { calls, ...s } = seams();
+  const report = await reconcile({
+    brainDir, platform: "posix", sourceDir,
+    target: manifest(), local: manifest({ ragVersion: "1.0.0" }), ...s,
+  });
+  assert.deepEqual(report.skillsRetired, []);
+  assert.deepEqual(report.skillsRetirePreserved, []);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S7-3 — THE HEAL, WIRED. Everything above this block is a brain that RECORDED a
+// provenance at install. The whole deployed fleet did not: `CLAUDE.engine.md` was in
+// no regime at any published tag, so `mergeVerdict` short-circuits on `!recorded` and
+// answers `preserve/no-provenance` — forever, for everybody.
+//
+// S7-1 built the proof (`healProvenance`), S7-2 the table it recognises bytes in.
+// This is the wiring that makes a real update consult them, and the four tests below
+// are the acceptance of the whole S7 arc: a brain that recorded NOTHING receives.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const FINGERPRINTS = "scripts/lib/engine-fingerprints.json";
+
+// A table that recognises `content` at `rel` — written the long way rather than through
+// the generator, so a defect in the generator cannot make these tests pass.
+function tableFor(rel, content, since = "v3.6.0", locale = "en") {
+  return JSON.stringify({ generatedAt: "v5.0.0", files: { [rel]: { [base(content)]: { since, locale } } } });
+}
+
+test("reconcileBrain — a brain that recorded NOTHING receives the doctrine, because its bytes are recognised", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  const improved = shipped + "\nJamais de `- [ ]` muet.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(sourceDir, "CLAUDE.engine.md", improved);
+  writeFile(sourceDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+    local: { provenance: {} }, // the frozen fleet: not one recorded sha
+    ...seams(),
+  });
+
+  assert.deepEqual(report.doctrineRefreshed, ["CLAUDE.engine.md"], "delivered, not preserved");
+  assert.deepEqual(report.doctrinePreserved, []);
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), improved);
+  assert.deepEqual(report.healed, [{ rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "en" }]);
+});
+
+test("reconcileBrain — the same brain WITHOUT the table stays frozen, and says so", async (t) => {
+  // The control for the test above: same brain, same source, no table. If this ever
+  // goes green the delivery is coming from somewhere other than the heal.
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(sourceDir, "CLAUDE.engine.md", shipped + "\nsomething new\n");
+
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+    local: { provenance: {} },
+    ...seams(),
+  });
+
+  assert.deepEqual(report.doctrineRefreshed, []);
+  assert.deepEqual(
+    report.doctrinePreserved,
+    [{ name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" }],
+    "and the REASON is the freeze itself — the state of the whole fleet before S7",
+  );
+  assert.deepEqual(report.healed, []);
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), shipped, "untouched");
+});
+
+test("reconcileBrain — a doctrine the OWNER edited is recognised by nothing, and is preserved", async (t) => {
+  // The asymmetric risk the whole design is built against: a heal that fired here
+  // would let the update overwrite the owner's own paragraph.
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  const theirs = shipped + "\nMy own rule, which I wrote myself.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", theirs);
+  writeFile(sourceDir, "CLAUDE.engine.md", shipped + "\nJamais de `- [ ]` muet.\n");
+  writeFile(sourceDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+    local: { provenance: {} },
+    ...seams(),
+  });
+
+  assert.deepEqual(report.healed, []);
+  assert.deepEqual(
+    report.doctrinePreserved,
+    [{ name: "CLAUDE.engine.md", reason: "no-provenance", newVersionPath: "CLAUDE.engine.md.new" }],
+    "still no-provenance: the table proves nothing about bytes it does not carry",
+  );
+  assert.equal(readFileSync(join(brainDir, "CLAUDE.engine.md"), "utf8"), theirs, "their words, untouched");
+});
+
+test("runReconcileCli — a SELF-HEAL that delivers nothing still RECORDS the proof it found", async (t) => {
+  // 🚨 The clause this pins, and it would have been silently false: the manifest write
+  // is guarded on "something was delivered", and a self-heal delivers nothing (all three
+  // refresh families are gated on sourceDir !== brainDir). Without widening that guard
+  // the heal is computed, used for one run, and thrown away — so the NEXT update finds
+  // the same frozen brain and the self-heal never converges anything.
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(brainDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify({ ...manifest({ extraMerge: ["CLAUDE.engine.md"] }), provenance: {} }, null, 2),
+  );
+
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", brainDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  assert.deepEqual(report.healed, [{ rel: "CLAUDE.engine.md", since: "v3.6.0", locale: "en" }]);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    persisted.provenance["CLAUDE.engine.md"],
+    base(shipped),
+    "the proof is on disk, so the NEXT update can merge",
+  );
+  assert.equal(persisted.baseRefs["CLAUDE.engine.md"], "v3.6.0", "and it learned which version, for free");
+});
+
+test("runReconcileCli — a learned baseRef never overwrites one the brain already recorded", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const shipped = "# Engine doctrine\nAs v3.6.0 shipped it.\n";
+  writeFile(brainDir, "CLAUDE.engine.md", shipped);
+  writeFile(brainDir, FINGERPRINTS, tableFor("CLAUDE.engine.md", shipped));
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify(
+      {
+        ...manifest({ extraMerge: ["CLAUDE.engine.md"] }),
+        provenance: {},
+        baseRefs: { "CLAUDE.engine.md": "v4.9.1" },
+      },
+      null,
+      2,
+    ),
+  );
+
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", brainDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(persisted.baseRefs["CLAUDE.engine.md"], "v4.9.1", "the record wins over what was learned");
 });

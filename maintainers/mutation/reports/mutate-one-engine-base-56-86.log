@@ -1,0 +1,29 @@
+[32m08:52:50 (64145) INFO ProjectReader[39m Found 1 of 870 file(s) to be mutated.
+[32m08:52:50 (64145) INFO Instrumenter[39m Instrumented 1 source file(s) with 23 mutant(s)
+[32m08:52:50 (64145) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m08:52:50 (64145) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-jStJAT
+[32m08:52:50 (64145) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m08:52:50 (64145) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m08:52:54 (64145) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3536 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/23 tested (0 survived, 0 timed out)
+Mutation testing 4% (elapsed: <1m, remaining: ~7m) 1/23 tested (0 survived, 0 timed out)
+Mutation testing 26% (elapsed: <1m, remaining: ~1m) 6/23 tested (0 survived, 0 timed out)
+Mutation testing 43% (elapsed: <1m, remaining: <1m) 10/23 tested (0 survived, 0 timed out)
+Mutation testing 47% (elapsed: <1m, remaining: <1m) 11/23 tested (0 survived, 0 timed out)
+Mutation testing 65% (elapsed: ~1m, remaining: <1m) 15/23 tested (0 survived, 0 timed out)
+Mutation testing 73% (elapsed: ~1m, remaining: <1m) 17/23 tested (0 survived, 0 timed out)
+Mutation testing 95% (elapsed: ~1m, remaining: <1m) 22/23 tested (0 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 23)
+
+Ran 1.00 tests per mutant on average.
+-----------------|------------------|----------|-----------|------------|----------|----------|
+                 | % Mutation score |          |           |            |          |          |
+File             |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+All files        | 100.00 |  100.00 |       23 |         0 |          0 |        0 |        0 |
+ engine-base.mjs | 100.00 |  100.00 |       23 |         0 |          0 |        0 |        0 |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m08:54:14 (64145) INFO MutationTestExecutor[39m Done in 1 minute and 24 seconds.
+[32m08:54:14 (64145) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-jStJAT.

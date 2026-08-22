@@ -1,0 +1,337 @@
+20:25:24 (82746) INFO ProjectReader Found 3 of 660 file(s) to be mutated.
+20:25:24 (82746) INFO Instrumenter Instrumented 3 source file(s) with 325 mutant(s)
+20:25:24 (82746) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+20:25:24 (82746) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-hpnpeY
+20:25:24 (82746) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+20:25:24 (82746) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+20:25:26 (82746) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1841 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 262)
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:30:3
+-     /\bnotes\s+de\s+Gemini\b/i,
++     /\bnotes\sde\s+Gemini\b/i,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:30:3
+-     /\bnotes\s+de\s+Gemini\b/i,
++     /\bnotes\S+de\s+Gemini\b/i,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:30:3
+-     /\bnotes\s+de\s+Gemini\b/i,
++     /\bnotes\s+de\sGemini\b/i,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:30:3
+-     /\bnotes\s+de\s+Gemini\b/i,
++     /\bnotes\s+de\S+Gemini\b/i,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:31:3
+-     /\bGemini['’]s\s+notes\b/i,
++     /\bGemini['’]s\snotes\b/i,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:31:3
+-     /\bGemini['’]s\s+notes\b/i,
++     /\bGemini[^'’]s\s+notes\b/i,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:31:3
+-     /\bGemini['’]s\s+notes\b/i,
++     /\bGemini['’]s\S+notes\b/i,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:28
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:28
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*/im, /^\s*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:28
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:28
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\S*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:28
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\S*$/im, /^\s*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:28
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s$/im, /^\s*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /\s*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\S*#*\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#\s*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\S*(Transcript)\s*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:35:57
+-   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\s*$/im];
++   const VERBATIM_HEADINGS = [/^\s*(Transcription)\s*$/im, /^\s*#*\s*(Transcript)\S*$/im];
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /^[^\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /^[\P{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /^[\p{Lu}][\p{L}'’. -]{0,30}\s\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d)?\s*$/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\D{2})?\s*$/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:41:3
+-     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\s*$/gmu,
++     /^[\p{Lu}][\p{L}'’. -]{0,30}\s{2,}\d{1,2}:\d{2}(?::\d{2})?\S*$/gmu,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:42:3
+-     /^\*\*[^*\n]{1,40}\*\*\s*:/gm,
++     /\*\*[^*\n]{1,40}\*\*\s*:/gm,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:42:3
+-     /^\*\*[^*\n]{1,40}\*\*\s*:/gm,
++     /^\*\*[^*\n]\*\*\s*:/gm,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:42:3
+-     /^\*\*[^*\n]{1,40}\*\*\s*:/gm,
++     /^\*\*[*\n]{1,40}\*\*\s*:/gm,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:42:3
+-     /^\*\*[^*\n]{1,40}\*\*\s*:/gm,
++     /^\*\*[^*\n]{1,40}\*\*\s:/gm,
+
+[Survived] Regex
+scripts/lib/ai-summary-guard.mjs:42:3
+-     /^\*\*[^*\n]{1,40}\*\*\s*:/gm,
++     /^\*\*[^*\n]{1,40}\*\*\S*:/gm,
+
+[Survived] ArrayDeclaration
+scripts/lib/ai-summary-guard.mjs:47:54
+-     return TURN_SHAPES.some((re) => (text.match(re) ?? []).length >= MIN_TURNS);
++     return TURN_SHAPES.some((re) => (text.match(re) ?? ["Stryker was here"]).length >= MIN_TURNS);
+
+[Survived] ConditionalExpression
+scripts/lib/ai-summary-guard.mjs:65:9
+-       if (size >= MAX_TEXT) return;
++       if (false) return;
+
+[Survived] EqualityOperator
+scripts/lib/ai-summary-guard.mjs:65:9
+-       if (size >= MAX_TEXT) return;
++       if (size > MAX_TEXT) return;
+
+[Survived] AssignmentOperator
+scripts/lib/ai-summary-guard.mjs:68:7
+-         size += value.length;
++         size -= value.length;
+
+[Survived] ConditionalExpression
+scripts/lib/ai-summary-guard.mjs:71:9
+-       if (Array.isArray(value)) {
++       if (false) {
+
+[Survived] BlockStatement
+scripts/lib/ai-summary-guard.mjs:71:31
+-       if (Array.isArray(value)) {
+-         for (const item of value) walk(item);
+-         return;
+-       }
++       if (Array.isArray(value)) {}
+
+[Survived] LogicalOperator
+scripts/lib/ai-summary-guard.mjs:75:9
+-       if (value && typeof value === "object") {
++       if (value || typeof value === "object") {
+
+[Survived] ConditionalExpression
+scripts/lib/ai-summary-guard.mjs:75:18
+-       if (value && typeof value === "object") {
++       if (value && true) {
+
+[Survived] StringLiteral
+scripts/lib/ai-summary-guard.mjs:96:7
+-         `Do not lift the summary's own list of actions out of the snippet.`
++         ``
+
+[Survived] StringLiteral
+scripts/lib/ai-summary-guard.mjs:109:7
+-         `and do not take the actions from the summary's own list.`
++         ``
+
+[Survived] StringLiteral
+scripts/lib/ai-summary-guard.mjs:117:5
+-       `before you write anything from this: in these exports it usually sits BELOW the summary, ` +
++       `` +
+
+[Survived] StringLiteral
+scripts/lib/ai-summary-guard.mjs:119:5
+-       `declare the tier you actually read.`
++       ``
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-|-+$/g, ""); // trim leading/trailing hyphens
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-+|-$/g, ""); // trim leading/trailing hyphens
+
+[Survived] EqualityOperator
+scripts/lib/filed-note.mjs:101:31
+-       .reduce((worst, tier) => (rank.indexOf(tier) > rank.indexOf(worst) ? tier : worst));
++       .reduce((worst, tier) => (rank.indexOf(tier) >= rank.indexOf(worst) ? tier : worst));
+
+[Survived] StringLiteral
+scripts/lib/filed-note.mjs:113:11
+-             `and declare the tier you actually read (${Object.keys(SOURCE_TIERS).join(", ")}).`,
++             ``,
+
+[Survived] StringLiteral
+scripts/lib/filed-note.mjs:113:85
+-             `and declare the tier you actually read (${Object.keys(SOURCE_TIERS).join(", ")}).`,
++             `and declare the tier you actually read (${Object.keys(SOURCE_TIERS).join("")}).`,
+
+[Survived] StringLiteral
+scripts/lib/filed-note.mjs:124:11
+-             `so the reading can be gone back to.`,
++             ``,
+
+[Survived] StringLiteral
+scripts/lib/filed-note.mjs:129:39
+-     return `> **Sources**\n${lines.join("\n")}`;
++     return `> **Sources**\n${lines.join("")}`;
+
+[Survived] StringLiteral
+scripts/lib/filed-note.mjs:168:9
+-           `"sources": [{ "tier": …, "ref": … }] — tier is one of ` +
++           `` +
+
+[Survived] StringLiteral
+scripts/lib/filed-note.mjs:178:70
+-     const built = spec.sources ? `${sourcesBlock(spec.sources)}\n\n` : "";
++     const built = spec.sources ? `${sourcesBlock(spec.sources)}\n\n` : "Stryker was here!";
+
+[Survived] ArrayDeclaration
+scripts/lib/filed-note.mjs:191:78
+-       ...(spec.sources ? [`source_tier: ${weakestSourceTier(spec.sources)}`] : []),
++       ...(spec.sources ? [`source_tier: ${weakestSourceTier(spec.sources)}`] : ["Stryker was here"]),
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:212:44
+-     return cardPath.split("/").pop().replace(/\.md$/, "").split("-")[0];
++     return cardPath.split("/").pop().replace(/\.md/, "").split("-")[0];
+
+[Survived] StringLiteral
+scripts/ai-summary-guard.mjs:26:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] ConditionalExpression
+scripts/ai-summary-guard.mjs:35:10
+-     return typeof toolName === "string" && /search/i.test(toolName);
++     return true && /search/i.test(toolName);
+
+[Survived] OptionalChaining
+scripts/ai-summary-guard.mjs:46:25
+-         text: payloadText(input?.tool_response),
++         text: payloadText(input.tool_response),
+
+[Survived] OptionalChaining
+scripts/ai-summary-guard.mjs:47:32
+-         fromSearch: isSearchTool(input?.tool_name),
++         fromSearch: isSearchTool(input.tool_name),
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  80.92 |   80.92 |      262 |         1 |         62 |        0 |        0 |
+ lib                   |  80.67 |   80.67 |      242 |         0 |         58 |        0 |        0 |
+  ai-summary-guard.mjs |  58.41 |   58.41 |       66 |         0 |         47 |        0 |        0 |
+  filed-note.mjs       |  94.12 |   94.12 |      176 |         0 |         11 |        0 |        0 |
+ ai-summary-guard.mjs  |  84.00 |   84.00 |       20 |         1 |          4 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+20:34:08 (82746) INFO MutationTestExecutor Done in 8 minutes and 44 seconds.
+20:34:08 (82746) INFO Sandbox Resetting your original files from .stryker-tmp/backup-hpnpeY.

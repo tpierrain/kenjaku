@@ -1,0 +1,82 @@
+20:51:24 (84989) INFO ProjectReader Found 3 of 661 file(s) to be mutated.
+20:51:24 (84989) INFO Instrumenter Instrumented 3 source file(s) with 318 mutant(s)
+20:51:24 (84989) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+20:51:24 (84989) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Y0lzUf
+20:51:24 (84989) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+20:51:24 (84989) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+20:51:26 (84989) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1782 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 306)
+
+[Survived] ArrayDeclaration
+scripts/lib/ai-summary-guard.mjs:52:54
+-     return TURN_SHAPES.some((re) => (text.match(re) ?? []).length >= MIN_TURNS);
++     return TURN_SHAPES.some((re) => (text.match(re) ?? ["Stryker was here"]).length >= MIN_TURNS);
+
+[Survived] ConditionalExpression
+scripts/lib/ai-summary-guard.mjs:76:9
+-       if (Array.isArray(value)) {
++       if (false) {
+
+[Survived] BlockStatement
+scripts/lib/ai-summary-guard.mjs:76:31
+-       if (Array.isArray(value)) {
+-         for (const item of value) walk(item);
+-         return;
+-       }
++       if (Array.isArray(value)) {}
+
+[Survived] ConditionalExpression
+scripts/lib/ai-summary-guard.mjs:80:18
+-       if (value && typeof value === "object") {
++       if (value && true) {
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-|-+$/g, ""); // trim leading/trailing hyphens
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-+|-$/g, ""); // trim leading/trailing hyphens
+
+[Survived] EqualityOperator
+scripts/lib/filed-note.mjs:101:31
+-       .reduce((worst, tier) => (rank.indexOf(tier) > rank.indexOf(worst) ? tier : worst));
++       .reduce((worst, tier) => (rank.indexOf(tier) >= rank.indexOf(worst) ? tier : worst));
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:217:44
+-     return cardPath.split("/").pop().replace(/\.md$/, "").split("-")[0];
++     return cardPath.split("/").pop().replace(/\.md/, "").split("-")[0];
+
+[Survived] StringLiteral
+scripts/ai-summary-guard.mjs:26:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] OptionalChaining
+scripts/ai-summary-guard.mjs:46:25
+-         text: payloadText(input?.tool_response),
++         text: payloadText(input.tool_response),
+
+[Survived] OptionalChaining
+scripts/ai-summary-guard.mjs:47:32
+-         fromSearch: isSearchTool(input?.tool_name),
++         fromSearch: isSearchTool(input.tool_name),
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  96.54 |   96.54 |      306 |         1 |         11 |        0 |        0 |
+ lib                   |  97.27 |   97.27 |      285 |         0 |          8 |        0 |        0 |
+  ai-summary-guard.mjs |  96.33 |   96.33 |      105 |         0 |          4 |        0 |        0 |
+  filed-note.mjs       |  97.83 |   97.83 |      180 |         0 |          4 |        0 |        0 |
+ ai-summary-guard.mjs  |  88.00 |   88.00 |       21 |         1 |          3 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+20:59:39 (84989) INFO MutationTestExecutor Done in 8 minutes and 14 seconds.
+20:59:39 (84989) INFO Sandbox Resetting your original files from .stryker-tmp/backup-Y0lzUf.
