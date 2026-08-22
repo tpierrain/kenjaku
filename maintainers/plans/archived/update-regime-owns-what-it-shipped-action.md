@@ -744,12 +744,20 @@ audible divergence.
           to this entry's implied completeness.** *"Both answer the same question"* was true of the two
           callers that existed. **S7-5 added a third** — `planAncestorFetch` looks the fingerprint table
           up by the recorded sha with no EOL forgiveness, and `verifyBase` forgives the content side
-          only — so the ancestor fetch never runs on a Windows brain. **This entry is the exact prose a
+          only — so the ancestor fetch never ran on a Windows brain. **This entry is the exact prose a
           diagnosis needed and did not read**, staying wrong for two iterations about a mechanism this
           plan had already solved. Consolidating N callers into one helper does not stop caller N+1
           from re-asking the question by hand; only a test does. The repair is **S7-6**, owned by
           [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
           — no copy of its state here.
+          - ✅ **S7-6 IS BUILT** _(2026-08-22)_, and it turned out to be **a third caller AND a third
+            question**: the fix could not be a fourth call to the shared helper, because `verifyBase`
+            *forgives* EOL and the fetch's miss path needs to know **which byte-state** matched. So the
+            module gained `recordedVariant` beside `normalizeEol` — deliberately unforgiving. **The
+            lesson this entry drew is therefore sharper than it was written**: consolidating callers
+            does not stop caller N+1 re-asking the question by hand, *and* it does not mean caller N+1
+            is asking the same question at all. **State stays in the owning plan; nothing is copied
+            here.**
   - [x] **The ADVANCE rule, the sentence this step is named after** _(2026-08-20 · `184ce2e`)_ — a pure
         `planBaseAdvance`: the base moves to what was **delivered** to the installed file, never to the
         newest fetched content. Driven by the delivery map that already exists (`installedFileMap` +
