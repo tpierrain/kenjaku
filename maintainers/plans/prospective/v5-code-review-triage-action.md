@@ -8,20 +8,32 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS AUTHORIZED AND NOT STARTED** _(written 2026-08-22, right before a `/clear`)_
 >
-> **The review has RUN and returned 15 findings. Not one is fixed.** The merge of #76 is now gated on
-> this file: Thomas asked for the review precisely because the whole release was built by orchestrated
-> subagents overnight, and it found real defects in code the loop had declared finished, green and
-> mutation-scored.
+> **The review has RUN and returned 15 findings. Not one is fixed yet.** The merge of #76 is gated on
+> this file. **Thomas answered both open questions before the clear** — do not re-ask either:
 >
-> - **One finding is a BLOCKER and needs Thomas's design call** (F1). It fires on **every brain in the
->   fleet, caused by this very release**, tells the owner something provably false at every session
->   start, and **cannot be dismissed** through the mechanism S10 built for dismissing it.
-> - **Two more are silent-damage defects** (F2 path escape, F3 silent skill deletion at self-heal).
-> - The rest are fix-then-verify, no decision needed.
-> - ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
->   explicitly ships with a named finding deferred (his call, recorded here if it happens).
+> - ✅ **THE BLOCKER IS DECIDED — shape (a).** *"Ne parler que des fichiers vraiment tenus par toi."*
+>   The engine **re-records `.claude/settings.json`'s provenance right after it rewrites it**, and
+>   **`CLAUDE.md` leaves the nudge** because an owner editing their constitution is the product working
+>   as designed, not a file held back. The nudge then speaks only of what the owner genuinely kept.
+>   **It is now a repair, not a decision** → F1 below carries the design and what it owes in tests.
+> - ✅ **GO TO FIX, TEST-FIRST, HE READS THE RESULT AT THE END.** *"Oui, en test-first, et tu me montres
+>   à la fin."* A red test for the right reason first, then the code, **one commit per subject**, and a
+>   report to him when the batch is done. **The GO covers categories A, B, C, D and F.** It does **not**
+>   cover **E** (the French locale regression, his product call) nor **G** (quality work whose cost is
+>   worth asking about before spending it).
+>
+> **So the next session starts by fixing, not by triaging.** Suggested order, hardest-hitting first:
+> F1 (the fleet-wide false claim), F2 (the write that escapes the brain), F3 (the silent deletion),
+> then the rest of B and C, then D and F.
+>
+> ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
+> explicitly ships with a named finding deferred (his call, recorded here if it happens).
+>
+> **Still his, and NOT unblocked by any of the above**: F11 (the French twin), the G scope call, the
+> wording of the four doctrine texts (W5b, in the release plan), and the undecided rehearsal on a copy
+> of a real brain.
 
 ## 🧾 How this review was run, and its ONE honest limitation
 
@@ -46,7 +58,7 @@ catches any of this.
 
 ## Tracking
 
-- [ ] **A. The blocker — needs Thomas's call before it can be fixed**
+- [ ] **A. The blocker — DECIDED by Thomas, now a repair to build test-first**
   - [ ] **F1 — the session nudge will tell every owner, forever, that `.claude/settings.json` and
         `CLAUDE.md` are "yours", and they cannot silence it.**
         `scripts/lib/engine-divergence.mjs:47`. Both files are in `regimes.merge`.
@@ -57,11 +69,25 @@ catches any of this.
         back at **every session start**, and `adoptCandidate` refuses to dismiss them (`no-candidate`:
         no refresh family ever writes a `.new` sidecar for them). **This is the consent fatigue the
         nudge's own header says it exists to prevent.**
-        - [ ] **The call is Thomas's because it is a product decision, not a repair.** The plausible
-              shapes: (a) re-record `settings.json`'s provenance after the engine rewrites it, and
-              exclude owner-authored files like `CLAUDE.md` from the nudge; (b) keep them in the report
-              but make them dismissible; (c) narrow the nudge to files that have a real ancestor.
-              **Do not pick one alone** — it changes what the release's headline feature says out loud.
+        - [x] ✅ **DECIDED 2026-08-22 — shape (a), Thomas's words: *"ne parler que des fichiers
+              vraiment tenus par toi"*.** Two halves, and both are owed tests:
+              - [ ] **The engine re-records `.claude/settings.json`'s provenance right after it
+                    rewrites it.** The rewrite is `reconcile-brain.mjs` step 2.quinquies; the file is
+                    in `regimes.merge`, so nothing else re-seeds it. A brain the engine just touched
+                    must not read as a brain the owner touched. **Fail-first pole**: a brain that
+                    receives a new hook entry reports **no** held-back file afterwards.
+              - [ ] **`CLAUDE.md` leaves the nudge.** Editing one's own constitution is the product
+                    working as designed, so naming it "held back" is a false claim, not a helpful one.
+                    ⚠️ **Scope it to the NUDGE only** — the update-time merge behaviour for `CLAUDE.md`
+                    is untouched and must stay untouched; the owner's edits still merge. **Fail-first
+                    pole**: an owner-edited `CLAUDE.md` is absent from the report while an owner-edited
+                    engine skill is still present in it.
+              - [ ] **F8 travels with this** — a fresh install with a connector is born diverged for the
+                    exact same reason, so the same re-recording has to cover the installer's ordering.
+              _(The two rejected shapes, so they are not re-litigated: (b) keep both and make them
+              dismissible — more machinery, and it leaves a message still saying something arguable
+              about `CLAUDE.md`; (c) restrict the nudge to files with a fetchable ancestor — cheap, but
+              it silences legitimate cases he wants to see.)_
 - [ ] **B. Silent damage — fix test-first, no decision needed**
   - [ ] **F2 — `adoptCandidate` writes outside the brain.** `engine-adopt.mjs:79/110`. `rel` arrives
         from the conversation (`update-engine/SKILL.md:224`), and `join(brainDir, rel)` with `../`
