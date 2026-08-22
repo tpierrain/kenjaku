@@ -1,117 +1,72 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 IN FORCE since 2026-08-20 — the working CONTRACT for building    -->
-<!-- the unfreeze release with subagents. The three arbitrations are APPROVED,   -->
-<!-- S0bis ran under it, and the mode was DEBRIEFED the same day: kept for       -->
-<!-- S1–S5, MECHANICAL ONLY. Read § Tracking's debrief box before delegating.    -->
+<!-- This file OWNS the working MODE — how work is delegated to subagents,    -->
+<!-- what may be dispatched and what may not, and the run log. It does NOT    -->
+<!-- own the release: that is v5-unfreezes-the-existing-fleet-action.md.      -->
+<!-- The `## 📍 STATE` block below is its only perishable content: do not     -->
+<!-- restate it here, in another file, or in a resume header.                 -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Working contract — building the unfreeze release with orchestrated subagents
 
-> ## ⏳ WHERE THIS RESUMES — read before the Tracking
+## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+
+- **Next:** **nothing to build, and no slice to open.** The mode is in force and debriefed:
+  **MECHANICAL ONLY** for S1-S5 — read § *Tracking*'s debrief box before delegating anything. Its own
+  deferred question, *does fan-out-built work owe an independent review?*, **has been answered YES
+  with numbers** → § *The adversarial-review fan-out as standing QA*, which owns the figures.
+- **Blocked on:** the release, which is not this file's —
+  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) owns its
+  state and its cut. **Do not open a slice, do not look for work, and do not take an entry from that
+  cut.** What still comes back here is the **second** review pass's figure (an independent read of
+  *repairs*), and that command is Thomas's to type.
+- **Owner's call pending:** none of this file's own. _(The `scripts` version and the five release
+  arbitrations are answered and recorded in the release plan. **Do not re-ask them.**)_
+- **A session may, alone:** run the mode as written — delegate bulk reads, and the implementation of
+  a slice whose tests already exist and are red. It may **not** dispatch judgement, and it may not
+  advance the release's queue past what the owner reserved.
+
+> ## 🧭 THREE LESSONS THIS MODE PAID FOR — durable, and none of them is a status
 >
-> > 🔍 **UPDATE 2026-08-22 — THE DEFERRED ADVERSARIAL-REVIEW QUESTION IS BEING ANSWERED IN THE FIELD.**
-> > Thomas asked for a **tooled `/code-review` before the merge**, and his reason is this mode:
-> > *"pour une fois en plus on a tout programmé en mode loop"*. Nothing outside the loop has ever read
-> > this code, and the five previous releases that ran one each found real defects. The cloud `ultra`
-> > review had refused the branch on size; the local command has no such limit, and the run is sliced
-> > in three by descending operational risk. **The state, the slices and the triage live in the v5
-> > plan's § *WHAT IS YOURS, IN ORDER*, item 4a** — not here. What this file owes is the **verdict**
-> > afterwards: whether a fan-out-built slice must carry an independent review to count as finished.
-> > → § *The adversarial-review fan-out as standing QA*, further down.
-> >
-> > 🙋 **ON "ON REPREND" (2026-08-22, after the third `/clear` of this chantier): THE BUILD IS DONE,
-> > THE LAST QUESTION IS ANSWERED, AND WHAT REMAINS IS THOMAS'S TO EXECUTE.** Do not open a slice, do
-> > not look for work, and **do not take an entry from his cut**: the loop's queue on this release is
-> > **empty** (W1-W4 and W6 closed, Windows matrix 7/7). The one open decision, the `scripts` internal
-> > version, was asked alone and answered — **`1.13.1 → 1.14.0`**, recorded in the v5 plan's § *S9-2b's
-> > materials* table. **Do not ask it again.** What is left is the six-step cut in
-> > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *WHAT IS
-> > YOURS, IN ORDER*: name it in **one line**, never recite it, and wait for his GO.
-> >
-> > 🌙 **AS OF 2026-08-22, after a night of `/loop` iterations and immediately before a `/clear`.** The
-> > landmark below is still true and is no longer the useful one: it dates from 2026-08-20. **Start
-> > here instead.**
-> >
-> > - **The release's state is NOT in this file** — open
-> >   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) and start
-> >   where **its** header says. Its § *WAITING ON THOMAS* is now § *ANSWERED BY THOMAS* — **all five
-> >   came back on 2026-08-22** — and § *RESUME AT* is now a **work order, W1 → W5b, Windows first**,
-> >   set by him.
-> > - ⚠️ **"All five are answered" is NOT "nothing is blocked on him".** The session wrote the second
-> >   sentence and it was **false**: the **wording** of the four doctrine text changes is his and is due
-> >   before the tag (**W5b**), and it was never one of the five. Caught by the `plan-carrier-guard`
-> >   hook, which named a carrier whose header had been saying so for a day. **A closed list is not an
-> >   emptied inventory** — the third time this release has been told that, each time on a different
-> >   surface.
-> > - ✅ **W1 THROUGH W4 ARE DONE — the loop's queue is EXHAUSTED** _(2026-08-22 · W1 `65a6080`+
-> >   `13ef852`, W2 `dd08024`+`a5b8c2a`, W3 `df09f17`+`ea85b07`, `9b5fbec` the CI premise, W4 the
-> >   note's re-read)_. **W5 and W5b are Thomas's** — the retarget / one review / one merge commit, and
-> >   the wording of the four doctrine texts. **W6 IS DISCHARGED TOO** _(2026-08-22)_ — the S7-2 harness
-> >   artifact fixed (`3b6820b` + `87e9be1`) and the skip list read on both platforms. **The loop's
-> >   queue on this release is EMPTY**; what is left is W5, W5b and the bump, which travel with the tag.
-> >   ⚠️ **The queue must not be advanced past W4** — the entries after it are the owner's.
-> >   ✅ **The one tooling task is DONE too** _(`ced15a0`)_: `mutate-one.mjs` refuses a target that is
-> >   not committed, rather than scoring HEAD and saying `✅`. **Nothing is left for a loop on this
-> >   release** — the next firing should say so and stop.
-> > - 🪟 **W6's WINDOWS COLUMN IS GREEN END TO END** — W1's three QA poles (run `32558375080`), W2's
-> >   **316 delivered text files LF** with its positive control (run `32560532878`), and the last red,
-> >   the S7-2 freshness guard, now **7/7 across Node 22/24/26 on `windows-latest`** (run
-> >   `32564338986`). **Zero Windows reds.** The v5 plan owns the detail — including the part worth
-> >   carrying into the mode: **the red was in the TEST's reading, and the real defect was the release-
-> >   cutting tool**, which from a Windows clone would have written a CRLF fingerprint table.
-> >   - 🛑 **W2's proof was missing its own premise, and that is W1's lesson one level up** (`9b5fbec`).
-> >     "This runner's checkout is CRLF" was a **comment**, so a future image flipping `core.autocrlf`
-> >     would have kept every assertion green over a no-op. It is measured in the same job now.
-> > - **Windows went from FOUR failures to ONE.** Nothing else fails anywhere. This is a reading of a
-> >   run, not a prediction from a local pass — which is the whole reason Thomas set the condition.
-> > - **The run log below is the night's trace**, newest first. Read the top three entries before
-> >   trusting anything older in this file: two of them are **corrections of earlier entries**, and the
-> >   biggest lesson of the night is that a crisp wrong diagnosis survived two iterations.
+> _(What four generations of `WHERE THIS RESUMES` header were really carrying. The headers are gone;
+> the STATE block above is the resume marker now.)_
 >
-> **S0BIS IS COMPLETE** _(2026-08-20)_ — `session-status.mjs`, its last blocking arbitration, was
-> answered "yes, now" by the owner and paid. Everything is on
-> `chore/s0bis-entrypoint-mutation-debt`, pushed, under draft
-> [PR #75](https://github.com/tpierrain/kenjaku/pull/75) — **nothing merged, nothing tagged**.
-> _(Who owns what, so no copy has to be trusted: the **release's state** is
-> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md);
-> every **measured number** is
-> [`RESULTS.md` § S0bis](../../mutation/RESULTS.md#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20);
-> this file owns only the **working mode** and the run log below.)_
+> - 🪤 **Twelve iterations in, the mechanical-only verdict cost the mode its own subject.** The
+>   contrast the adversarial-review question needed — one slice reviewed, one not — was **never
+>   produced**, because slice after slice was design + test-first + a measured refactor, exactly the
+>   class the verdict keeps in session. **That is a finding, not a delay**: if a whole release can be
+>   built without one dispatchable slice, the contrast cannot be obtained by waiting for one, and the
+>   question has to be re-framed — e.g. dispatch the adversarial **review** of a slice built in
+>   session, which the verdict does allow. _(In the end the field answered it from the other end
+>   entirely: a tooled review over the whole branch. See § *The adversarial-review fan-out*.)_
+> - 🛑 **A proof missing its own premise is green over a no-op** (`9b5fbec`). *"This runner's checkout
+>   is CRLF"* was written as a **comment**, so a future image flipping `core.autocrlf` would have kept
+>   every assertion passing while testing nothing. The premise is measured in the same job now.
+> - 🪝 **A net never watches the session that writes it.** `plan-carrier-guard.mjs` loads at **session
+>   start**, so the session that built it ran unguarded — worth knowing before trusting a hook the day
+>   it lands.
 >
-> ## ▶️ RESUME HERE — the next slices, in order
+> _(A fourth, **"a closed list is not an emptied inventory"**, was learned here too and is now owned by
+> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *FOUR
+> LESSONS*. Linked, not copied.)_
 >
-> 1. ~~**The stale-plan net**~~ — **DONE 2026-08-20**, all three builds (owner's call: *"les deux, le
->    hook d'abord"*). The hook `~/.claude/hooks/plan-carrier-guard.mjs` is written, tested (29 + 8
->    cases) and wired; the rule speaks of **carriers, plural** at its source in
->    `use-case-driven-harness` (`abecb38`); the corpus is deduplicated behind a written ownership split
->    (`maintainers/README.md`). **Do not re-open it. Two tails are the owner's, not work to pick up**:
->    propagating the rule to the **public extract / published page** (outward-facing), and the unmerged
->    doctrine branch `chore/plan-discipline-points-at-the-harness` (no PR). ⚠️ The hook loads at
->    **session start**, so it never watched the session that wrote it.
-> 2. ~~**The `mutation-testing` pair**~~ — **DONE 2026-08-20** (`59a4ec4` the script, `9126179` the
->    skill, `0f43037` the hardening). Both halves shipped: `mutate-one.mjs` (the braces) and
->    `maintainers/skills/mutation-testing/SKILL.md` (the belt), plus a config that measures the runner
->    itself — **80.95 % → 99.11 %**, 3 named equivalents left. Numbers in
->    [`RESULTS.md` § The day-of runner](../../mutation/RESULTS.md#the-day-of-runner-and-its-first-two-runs--2026-08-20).
->    **Do not re-open.** One tail is recorded there, not here: `scripts/lint-vault.mjs` measured
->    **70.00 %** on the tool's first real use, its 3 survivors all in its composition root — remaining
->    entry-tier debt, held by the S0bis ceilings.
-> 3. ~~**Deduplicate the plan corpus**~~ — done with slice 1 above, same day.
-> 4. ▶️ **The release is being built under the mechanical-only verdict.** Its state, its slice queue and
->    its resume marker live in
->    [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) —
->    **open it and start where ITS header says**; this list deliberately restates none of that (a second
->    copy of a status is a future lie). What belongs to the **mode** is this: the release is what has to
->    produce the **contrast** the deferred adversarial-review question needs (one slice reviewed
->    adversarially, one not), and it is **still unproduced** — ⚠️ **twelve iterations in, the
->    mechanical-only verdict has cost the mode its own subject.** Slice after slice has been design +
->    test-first + a measured refactor, i.e. exactly the class the verdict keeps in session, so nothing has
->    ever been dispatched to debrief. _(S7-2, 2026-08-21, unchanged: the bulk reads went to two Explore
->    agents — seven modules plus the repo's test conventions — while design, tests and implementation all
->    stayed in session. Same shape, one more iteration.)_ **This is now a finding, not a delay**: if a whole release can be
->    built without one dispatchable slice, the honest conclusion may be that the contrast cannot be
->    produced by waiting for one, and the question has to be re-framed (e.g. dispatch the adversarial
->    REVIEW of a slice built in session, which the verdict does allow).
+> ## 📦 What this mode shipped besides the release _(2026-08-20)_
+>
+> - **The stale-plan net**, all three builds (owner's call: *"les deux, le hook d'abord"*): the hook
+>   `~/.claude/hooks/plan-carrier-guard.mjs` (29 + 8 cases), the rule speaking of **carriers, plural**
+>   at its source in `use-case-driven-harness` (`abecb38`), and the corpus deduplicated behind a
+>   written ownership split (`maintainers/README.md`). **Do not re-open it.** _(Its two tails — the
+>   outward-facing extract, and the unmerged branch `chore/plan-discipline-points-at-the-harness` —
+>   are the owner's, and are now carried by
+>   [`harness-consolidation-action.md`](https://github.com/tpierrain/use-case-driven-harness/blob/main/docs/plans/harness-consolidation-action.md).)_
+> - **The `mutation-testing` pair** (`59a4ec4`, `9126179`, `0f43037`): `mutate-one.mjs` (the braces)
+>   and `maintainers/skills/mutation-testing/SKILL.md` (the belt), plus a config that measures the
+>   runner itself — **80.95 % → 99.11 %**, 3 named equivalents. Numbers in
+>   [`RESULTS.md`](../../mutation/RESULTS.md), which owns them. **Do not re-open.**
+> - **The plan-corpus deduplication**, done with the first of those, the same day.
+> - **S0bis**, whose last blocking arbitration (`session-status.mjs`) the owner answered *"yes, now"*.
+>   Its measured numbers are
+>   [`RESULTS.md` § S0bis](../../mutation/RESULTS.md#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20)'s,
+>   never copied here.
 >
 > ## 📉 A RULE THAT EXISTS, IS WRITTEN, AND STILL DID NOT FIRE _(S7-2, 2026-08-21)_
 >
@@ -124,11 +79,16 @@
 >
 > **The finding is not "add a rule".** Three carriers already held it. The finding is that a
 > **maintainer skill loads only when something invokes it**, and a loop iteration that runs
-> `mutate-one.mjs` from muscle memory invokes nothing. Two candidate nets, neither built yet and both
-> the owner's call: make `mutate-one.mjs` itself **refuse (or loudly warn) when the working tree is
-> dirty** — deterministic, at the exact moment of the mistake, no skill to remember — or have the loop
-> prompt name the skill. **The first is braces, the second is belt**; the first is the one that
-> travels.
+> `mutate-one.mjs` from muscle memory invokes nothing. Two candidate nets were named — make
+> `mutate-one.mjs` itself **refuse when the working tree is dirty** (deterministic, at the exact
+> moment of the mistake, no skill to remember), or have the loop prompt name the skill. **The first is
+> braces, the second is belt**; the first is the one that travels.
+>
+> ✅ **The braces were built** _(2026-08-22 · `ced15a0`)_: `mutate-one.mjs` now refuses an uncommitted
+> target instead of scoring `HEAD` and printing `✅`. Scoped mutation **100 %** (33 mutants), proved by
+> running it on both shapes (`??` and ` M`). Detail: [`mutation/RESULTS.md`](../../mutation/RESULTS.md).
+> **The trigger is worth keeping**: the rule was met twice in one night, two hours apart, written in
+> bold against it both times. **A rule restated a third time should become a gate.**
 >
 > ## 🌙 THE OVERNIGHT LOOP — framed by the owner 2026-08-20, before a `/clear`
 >
@@ -183,8 +143,8 @@
 > **The prompt to paste** (it is written here so it survives the `/clear` that follows it):
 >
 > ```
-> Open maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md and read its
-> header (WHERE THIS RESUMES / RESUME AT). Do the ONE slice it names, and only that one.
+> Open maintainers/plans/ACTIVE.md, follow it to the active plan, and read that plan's
+> `## 📍 STATE` block. Do the ONE slice it names, and only that one.
 >
 > A DESIGN slice has no tests and no mutation score: it is finished when the design is WRITTEN
 > INTO THE PLAN and committed -- the shape, the cases it must answer, what is deliberately out.
@@ -1804,7 +1764,8 @@ arbitration goes here as a question, and the run continues on other slices.
     was two versions behind; it was **three**, and the third had shipped upstream **with no version
     number at all**. The repair went **to the source** (harness `e9e8b40`) rather than into the copy —
     on a vendored file, fixing the artefact is how a fork starts.
-  - 🪞 **Thirteenth iteration, and the contrast is still unproduced** (see § RESUME HERE, item 4). This
+  - 🪞 **Thirteenth iteration, and the contrast is still unproduced** (see § *THREE LESSONS*, first
+    bullet). This
     one could not have produced it either: a doc-only copy-forward has no implementation to dispatch.
     The finding recorded there is holding — the release keeps generating slices the mechanical-only
     verdict correctly keeps in session.

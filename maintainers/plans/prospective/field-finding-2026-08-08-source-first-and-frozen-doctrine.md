@@ -1,105 +1,63 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟡 WRITTEN AND GUARDED on feat/engine-base-unfreeze (2026-08-22,  -->
-<!-- `5729282`). S1 is delivered in both constitutions; the WORDING is the      -->
-<!-- owner's to arbitrate before the tag. Closes when v5.0.0 SHIPS it.         -->
+<!-- This file OWNS the 2026-08-08 field finding (a handed-over source read as -->
+<!-- ambience), the doctrine that answers it, and the state of getting that    -->
+<!-- doctrine to the fleet. The `## 📍 STATE` block below is its only          -->
+<!-- perishable content: do not restate it here or in another file.           -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the source the owner hands you comes first, and the doctrine that says so must actually arrive
 
-> ## ▶️ WHERE THIS RESUMES: nothing to build. **The wording is his, then the release carries it.**
+## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+
+- **Next:** **nothing to build.** S1 is written and guarded in both constitutions _(2026-08-22 ·
+  `5729282`)_: `CLAUDE.engine.md` and `templates/fr/CLAUDE.engine.md` open their routing section with
+  a `Level 1` / `Niveau 1` block and carry a level-1 row in the routing table, held by
+  `source-first-discipline.test.mjs` — **20 assertions, EN/FR parity**, each rule naming the field
+  defect it prevents.
+- **Blocked on:** **the ship, not the branch.** This plan closes when v5.0.0 **reaches the fleet**,
+  because the whole finding is *a rule written where the fleet never receives it* — and a rule
+  delivered to a branch is that same defect one commit further along. The cut is
+  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)'s; no
+  status is copied here.
+- **Owner's call pending:** **the WORDING**, carried as **W5b** in that plan's work order. Also his to
+  voice: the release-note line (drafted in
+  [`release-v5.0.0-note.md`](release-v5.0.0-note.md)). And one thing neither of us can do yet: the
+  **field re-test** — same brain, same kind of prompt, once it runs a v5 engine.
+- **A session may, alone:** nothing here. The mechanism is built; what is left is prose in the
+  owner's voice, and shipping.
+
+> ## 🎙️ Why the wording is HIS, and the guard is not
 >
-> > 🛑 **AND THE FIVE-QUESTION ROUND OF 2026-08-22 DID NOT COVER IT** — read this before assuming the
-> > release is unblocked. Thomas answered the release's five open arbitrations that day (Windows,
-> > title, note shape, regimes, merge order), the owning plan closed its § *WAITING ON THOMAS*, and the
-> > session then claimed *"nothing on this release is blocked on him any more"*. **This file's wording
-> > was not in that list and is still his**, due before the tag. It is now carried as **W5b** in
-> > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)'s work
-> > order, so the release's queue names it instead of leaving it only here.
-> >
-> > 🪝 **The `plan-carrier-guard` hook is what found this**, by naming this file as a carrier the
-> > session kept not opening. It judges no content: it only made the omission impossible to not see,
-> > and the omission was a **false claim about the owner's own backlog**.
-> >
-> > 🛑 **AND THE STRONGER VERSION OF THAT CLAIM IS NOW TRUE, WHICH IS EXACTLY WHEN THIS BOX MATTERS**
-> > _(2026-08-22, after W6 was discharged)_: the release's **engineering** queue really is empty —
-> > W1-W4 and W6 closed, matrix 7/7 on Windows. **That is not "unblocked".** Three things stand
-> > between the branch and the tag, and all three are his: the merge (W5), **the wording carried here
-> > (W5b)**, and the `engineVersion` bump, which travels with the tag rather than ahead of it. An empty
-> > engineering queue is the moment this file is most likely to be skipped, and it is the moment it is
-> > load-bearing.
-> >
-> > 🔴 **AND THAT REVIEW CAME BACK WITH 15 FINDINGS, SO A FIXING PHASE NOW STANDS BEFORE THE MERGE**
-> > _(2026-08-22)_. One is fleet-wide and blocking; the shape of its repair is decided. **It changes
-> > nothing here either, for the same reason as below**: the fixes are code, the text this file carries
-> > is prose, and no finding touches it. It stays his, still due before the tag, and it is now further
-> > from the tag than it was this morning, not closer. →
-> > [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns the findings.
-> >
-> > ✅ **AND THAT FIXING PHASE HAS NOW RUN, WHICH CONFIRMS THE PARAGRAPH ABOVE RATHER THAN CHANGING
-> > IT** _(2026-08-22, end of the autonomous run)_. Every finding under the GO is repaired and pushed;
-> > **not one of them touched this file's text**, exactly as predicted. So the count of things standing
-> > between the branch and the tag went **down by one** — the fixes — and **W5b is still there,
-> > untouched, still his**. ⚠️ **This is the moment to re-read, not to relax**: "the code review is
-> > done" is about to sound like "the release is unblocked", and it is the same false step this box was
-> > written to catch two paragraphs up. The wording has never been closer to being the last thing
-> > forgotten.
-> >
-> > 🔍 **AND A FOURTH THING NOW STANDS BEFORE THE MERGE — a tooled `/code-review`** _(2026-08-22,
-> > Thomas's call, because the release was built end to end in orchestrated `/loop` mode and nothing
-> > outside the loop has read the code)_. It runs in three passes by descending operational risk, over
-> > the **code**. **It changes nothing here**: the wording carried by this file is prose in
-> > `CLAUDE.engine.md`, so no review pass can judge it, invalidate it, or discharge it. It stays his,
-> > and it stays due before the tag. The retarget of #76 to `main` is **done** (2026-08-22), so of the
-> > acts listed above, one is spent.
-> >
-> > 🔢 **The bump stopped being a DECISION on 2026-08-22, and that sharpens this box rather than
-> > softening it.** Its one open call, `scripts` `1.13.1 → 1.14.0`, was asked alone and answered ("ok
-> > pour ta reco"); it is recorded in the owning plan's § *S9-2b's materials* and **must not be asked
-> > again**. So of the three, two are now pure **acts** (apply the bump, merge) and **this file carries
-> > the only one that still needs him to decide CONTENT**: the wording. Fewer things standing between
-> > the branch and the tag makes the remaining one easier to walk past, not less real.
->
-> ✅ **S1 is written and guarded** _(2026-08-22, `5729282`, branch `feat/engine-base-unfreeze`)_. Both
-> `CLAUDE.engine.md` and `templates/fr/CLAUDE.engine.md` open their routing section with a **`Level 1`
-> block** (`Niveau 1` in French) and carry a level-1 row in the routing table.
-> `scripts/lib/source-first-discipline.test.mjs` holds it: **20 assertions, EN/FR parity**, each rule
-> naming the field defect it prevents.
->
-> 🎙️ **What is HIS, and it is not the mechanism**: the **wording**. The delegability map calls the
-> doctrine cargo *"text that speaks in the owner's voice"*, so this follows the S9-1 split — the rule,
-> its **placement** and its guard are checkable work; the sentences are his. **The guard asserts
-> patterns, not prose**: he can rewrite every sentence, and it stays green as long as the seven rules
-> are still recognisable — and when one is not, the test names which.
+> The delegability map calls the doctrine cargo *"text that speaks in the owner's voice"*, so this
+> follows the S9-1 split: the rule, its **placement** and its guard are checkable work; the sentences
+> are his. **The guard asserts patterns, not prose** — he can rewrite every sentence and it stays
+> green as long as the seven rules are still recognisable, and when one is not, the test names which.
 >
 > 🧭 **Two design calls, made here rather than left implicit:**
 >
 > - **The block sits ABOVE the vault's search routing, and a test pins that.** A rule about reading
->   order that is itself read last reproduces the order that failed. Same reflex as F18's
->   markers-rule guard: presence was not enough, position is the rule.
+>   order that is itself read last reproduces the order that failed. Same reflex as F18's markers-rule
+>   guard: presence was not enough, position is the rule.
 > - **The corollary POINTS at the existing Claim discipline** instead of restating it, which is what
 >   S1's third checkbox asked for. Two paraphrases are two disciplines.
 >
-> 🚧 **What is left, and none of it is buildable tonight**: the release-note line (S4's last box, now
-> drafted in [`release-v5.0.0-note.md`](release-v5.0.0-note.md) and his to voice), and the field
-> re-test — the same brain, the same kind of prompt, once it runs a v5 engine.
+> ### 🪝 The lesson this file's header paid for, kept now that the header is gone
 >
-> 🛑 **AND THE SHIP IS BLOCKED ON SOMETHING THIS FINDING DOES NOT OWN** _(noted 2026-08-22)_. This plan
-> closes when v5.0.0 **ships**, so anything blocking the cut blocks this too — and on 2026-08-22 the
-> cut was held by an owner arbitration that has nothing to do with the source-first rule: ~~the heal
-> and the ancestor fetch are both LF-only, so S7 may be inert on Windows~~. The header above used to
-> read as if only the wording stood between this finding and its close, which was true of *this plan*
-> and false of *the release*. **No status is copied here on purpose** — the evidence and the decisions
-> live in the owning plan:
-> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md).
+> _(Until 2026-08-22 this plan opened with **six stacked boxes**, each added as the release moved, each
+> re-asserting the same single fact: the wording is still his. That accretion is the workaround the
+> STATE block replaces — but the reason they were written is durable, so it is kept here in one place.)_
 >
-> - ✅ **UNBLOCKED, and the struck-through sentence was wrong twice over** _(2026-08-22)_. The **heal
->   was never LF-only**; the **ancestor fetch was**, and Thomas arbitrated *repair* — built and green
->   on a real `windows-latest` runner the same day. **What still stands between this finding and its
->   close is what its header always said: the wording, then the ship.**
+> **The recurring false step, met four times on this release:** an emptying queue gets reported as
+> *"nothing is blocked on him any more"*. It was said after the five arbitrations came back, after W6
+> was discharged, after the code review returned, and again after the fixing run — and it was **false
+> every time**, because W5b was never in any of those lists. **A closed list is not an emptied
+> inventory**, and an empty *engineering* queue is precisely the moment this file is most likely to be
+> skipped and most load-bearing.
 >
-> ⚠️ **This plan does NOT close when the branch is green.** It closes when v5.0.0 **ships**, because
-> the whole finding is *a rule written where the fleet never receives it*. A rule delivered to a branch
-> is that same defect one commit further along.
+> **What caught it was the `plan-carrier-guard` hook**, by naming this file as a carrier the session
+> kept not opening. It judges no content; it only made the omission impossible to not see. The
+> omission was a **false claim about the owner's own backlog** — the most expensive kind, because he
+> is the one person who cannot check it by reading the code.
 
 > **The field fact (2026-08-08, `mind-palace` on v4.8.1, i.e. fully up to date).** The owner asked for
 > an article completing one of his Medium posts, **with the URL in the message**. The brain never opened

@@ -9,10 +9,11 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** § *Application* **step 6 — the three remaining live plans get their STATE block.** Steps
-  1-5 are done (the door, the memory pointer, the ROADMAP, the harness, and the pilot on the triage
-  plan). Then 7 (the ROADMAP's Status column, the biggest and least reversible edit) and 8.
-  Everything there is authorized: **do not ask again, execute.**
+- **Next:** § *Application* **step 7 — `ROADMAP.md` loses its Status column** (rule 3): the biggest
+  and least reversible edit, which is why it comes last. Its durable lessons are **kept** and moved
+  to an append-only section of the same file. Then step 8 (a date prefix on newly archived plans).
+  Steps 1-6 are done: all five live plans carry a STATE block and no hand-written resume header.
+  Everything remaining is authorized: **do not ask again, execute.**
 - **Blocked on:** nothing.
 - **Owner's call pending:** **one — the lint, and it does not block any step above.** His *"on
   diffère le lint"* came from an autocompletion accepted before knowing what a lint was; asked again
@@ -361,10 +362,22 @@ comes last: biggest edit, least reversible.
       on a real migration. Rule 3 applied at the same time: W5b and the rehearsal on a copy of a real
       brain became links to the release plan that owns them.
       The file: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md).
-- [ ] **6. The remaining live plans get their block** —
-      `v5-unfreezes-the-existing-fleet-action.md`, `agent-orchestrated-release-mode-action.md`,
-      `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`. Dormant prospective plans are
-      **not** migrated: they get theirs when they wake.
+- [x] **6. The remaining live plans get their block** _(2026-08-22)_ —
+      `v5-unfreezes-the-existing-fleet-action.md` (2 406 → 2 378), `field-finding-2026-08-08-…`
+      (257 → 215), `agent-orchestrated-release-mode-action.md` (3 079 → 3 040). **All five live plans
+      now carry a `## 📍 STATE` block**, and no live plan carries a hand-written resume header any
+      more. Dormant prospective plans are **not** migrated: they get theirs when they wake, and
+      archived files are not touched at all.
+      - [x] **The pattern, seen three times and worth stating**: the headers were **stacked, not
+            edited**. Each session added a box rather than correcting the one above, so the field-
+            finding plan opened with **six** boxes asserting the same single fact, and the mode plan
+            with four generations of *"start here instead"*. Nobody was lazy — **editing a paragraph
+            you did not write, inside a file you cannot hold in your head, is genuinely riskier than
+            appending one.** A four-key block has nowhere to append, which is the whole mechanism.
+      - [x] **Three dangling section pointers were the migration's own cost**, and all three were
+            found by grep and fixed: the `/loop` prompt told a session to read a header that no longer
+            exists (it now says `ACTIVE.md` → the STATE block), and two cross-references pointed at
+            deleted sections. **A convention that deletes headers owes that grep**, every time.
 - [ ] **7. `ROADMAP.md` loses its Status column** (rule 3). Its 22 shas, 19 PR numbers and 23
       ship-words go; the **durable lessons** buried in those cells are **kept** (criterion 6 forbids
       losing them) and moved to an append-only section of the same file. Columns become
