@@ -27,12 +27,11 @@
 > > - ✅ **W1 (S7-6, the CRLF ancestor fetch) IS BUILT AND PUSHED** _(2026-08-22 · `65a6080` +
 > >   `13ef852`)_. **The next buildable slice is W2** — pin the line endings at delivery
 > >   (`-c core.autocrlf=false` on the updater's clone and the installer's copy path).
-> > - 🪟 **W6 is not a slice and is NOT done**: the Windows repair is proved on macOS with a
-> >   **synthesised** CRLF fixture. Thomas's acceptance condition is a green `windows-latest` run,
-> >   **read** on GitHub. A push exists to read; nobody has read it yet.
-> > - **CI was RED on the branch and that was expected** — four Windows failures, three of them the
-> >   defect W1 repairs, one a harness artifact (still open). Nothing else fails anywhere. Whether the
-> >   three are now green is a **prediction until the run is read**.
+> > - 🪟 **W6 was READ, and W1's half of it passed** _(run `32558375080` on `13ef852`)_: the three QA
+> >   poles are green on `windows-latest`. **W6 itself is still open** — one Windows red remains, the
+> >   S7-2 freshness guard regenerating the table from a CRLF working tree, which is its own bullet.
+> > - **Windows went from FOUR failures to ONE.** Nothing else fails anywhere. This is a reading of a
+> >   run, not a prediction from a local pass — which is the whole reason Thomas set the condition.
 > > - **The run log below is the night's trace**, newest first. Read the top three entries before
 > >   trusting anything older in this file: two of them are **corrections of earlier entries**, and the
 > >   biggest lesson of the night is that a crisp wrong diagnosis survived two iterations.
@@ -514,11 +513,18 @@ arbitration goes here as a question, and the run continues on other slices.
     survivor was killed by a test that states a rule rather than covering a branch — *bytes that arrive
     WITH a failure are not bytes; `ok` is the authority* — and the kill was **verified by hand-applying
     the exact mutant** instead of buying a confirmation re-run.
-  - 🪟 **What it does NOT prove**: anything about Windows. The fixture **synthesises** the CRLF on
-    macOS. W6 — reading a real `windows-latest` run — is the owner's acceptance condition and is
-    untouched.
+  - 🪟 **W6 WAS THEN READ, in the same iteration, and it earned its keep twice** _(run `32558375080`)_.
+    First: the three QA poles are **green on `windows-latest`** — and the reason is better than the
+    fixture's, since git checks the tree out as CRLF there, so the platform builds the defect for free
+    and the *pre-existing* LF pole exercises the repair without being asked. **Four Windows failures →
+    one**, the remaining one being the harness artifact.
+    - 🛑 **Second, and this is the argument for the condition itself**: the brand-new Windows pole
+      **failed on Windows**, on its own premise guard. It asserted `notEqual(crlf digest, lf digest)`,
+      true on macOS and **false where the checkout is already CRLF**. A guard written on the platform
+      that does not have the defect can be green for a reason that does not exist elsewhere. Reshaped
+      to assert the bytes.
   - **Next**: **W2**, pin the line endings at delivery (`-c core.autocrlf=false` on the updater's clone
-    and the installer's copy path). And, whenever a run is available to read, **W6**.
+    and the installer's copy path). W6 stays open on its harness-artifact bullet alone.
 
 - 🎙️ **2026-08-22 (the arbitration round) — THE FIVE QUESTIONS WERE PUT TO HIM AND ALL FIVE CAME BACK,
   in one sitting.** The night's accumulated blocking boxes had been assembled into a single

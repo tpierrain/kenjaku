@@ -205,12 +205,18 @@ test("QA v3.6.0 on WINDOWS → HEAD — a CRLF-recorded brain's edited skill acq
   const customized = crlfify(readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8") + "\n## My own KPIs\n- churn\n");
   const { brainDir, manifest } = brainAtRelease("v3.6.0", { eol: "crlf", edits: { [REL]: customized } });
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
-  // The premise, asserted rather than assumed: this brain's record really is the CRLF
-  // digest, and it really is absent from the table the fetch looks in. Without this the
-  // test could pass on an LF brain wearing a Windows name — the exact way the FR pole
-  // measured the wrong thing for a day.
+  // The premise, asserted rather than assumed: this brain really holds CRLF, and its
+  // record really is the digest of those bytes. Without it the test could pass on an LF
+  // brain wearing a Windows name — the exact way the FR pole measured the wrong thing
+  // for a day.
+  //
+  // ⚠️ AND THE FIRST SPELLING OF IT WAS macOS-SHAPED, which a real Windows runner said
+  // out loud (W6, 2026-08-22). It read `notEqual(crlf digest, lf digest)` — true here,
+  // FALSE on Windows, where git checks the fixture out as CRLF already, so `crlfify` is
+  // a no-op and the two digests are one. A premise guard that only holds on the platform
+  // that does not have the defect guards nothing. The bytes are what to assert on.
+  assert.match(readBrain(brainDir, ".claude/skills/switch/SKILL.md"), /\r\n/, "this brain really holds CRLF");
   assert.equal(manifest.provenance[REL], fingerprint(crlfify(readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8"))));
-  assert.notEqual(manifest.provenance[REL], fingerprint(readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8")));
 
   const first = await updateFrom(brainDir, manifest);
 

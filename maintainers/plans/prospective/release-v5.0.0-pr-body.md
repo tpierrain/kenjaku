@@ -171,8 +171,9 @@ inverted rather than deleted.
 > `.engine-base/`, because the base must hold what was delivered to *that* brain. An LF brain takes the
 > hit path unchanged and pays nothing.
 >
-> 🪟 **Proved on macOS with a SYNTHESISED CRLF fixture; the real Windows runner has the last word** —
-> see the acceptance condition at the end of this body.
+> 🪟 **And the real Windows runner has said so** _(run `32558375080`)_: the three QA poles that carried
+> this are green on `windows-latest`. See the acceptance condition at the end of this body for the one
+> Windows red that remains, which is a harness artifact rather than the product.
 
 1. ~~**The doctrine layer unfreezes no already-deployed brain.**~~ **False as of S7.** Old brains no
    longer merely stop being *silent*: a brain rebuilt from the real `v3.6.0` tag now **receives**. The
@@ -247,9 +248,11 @@ inverted rather than deleted.
      then writes that form. 22 tests, all red on their assertions first, including a QA pole on a brain
      rebuilt from the real `v3.6.0` tag with CRLF-recorded provenance. Scoped mutation 100 % on all
      three seams.
-   - 🛑 **NOT the same as done.** The CRLF is **synthesised** by the fixture on macOS; the point of the
-     owner's condition is a platform where git makes it. **Read the `windows-latest` run** — the three
-     QA poles it fails today are the measurement.
+   - ✅ **AND PROVED ON A REAL WINDOWS RUNNER, read rather than predicted** _(run `32558375080`,
+     `Node 24 · windows-latest`)_: the three QA poles that were the defect are **green there**. On that
+     platform git checks the fixtures out as CRLF, so the brain records a CRLF digest against an
+     LF table and the repair is exercised **without any fixture arranging it** — the environment builds
+     the defect for free. **Windows went from four failures to one.**
    - ✅ **The heal was NOT affected**, so *"a frozen brain starts receiving again"* held on Windows all
      along. It normalises the installed content before consulting the table (`engine-heal.mjs:32`) —
      measured, CRLF heals identically to LF, and an owner's edit still heals not at all.

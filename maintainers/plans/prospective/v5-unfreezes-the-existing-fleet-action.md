@@ -47,9 +47,10 @@
 > were item 1's defect, the fourth is a harness artifact (the fingerprint table regenerated from a CRLF
 > checkout). Nothing else was failing, on any platform.
 >
-> 🟡 **Since `13ef852` (W1), the three product failures should be gone and the fourth should NOT be.**
-> That sentence is a **prediction, not a result** — W6 is what turns it into one, by reading the run.
-> The harness artifact is W6's own second bullet and nothing has been done about it yet.
+> ✅ **READ, NOT PREDICTED** _(run `32558375080` on `13ef852`)_: the **three product failures are gone
+> on `windows-latest`**, and the harness artifact is not. **Four Windows failures → one.** _(The
+> transient second one was W1's own new pole, whose premise guard was macOS-shaped; fixed in
+> `d3d3d17`.)_ → § *W6*, which owns the detail.
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
 >
@@ -249,9 +250,9 @@
 > **is no longer true and must NOT be written**. Both promises now hold on both platforms: the heal
 > was never affected, and the ancestor fetch reaches a CRLF-recorded brain.
 >
-> 🛑 **Subject to W6, and that is not a formality.** What is proved today is proved **on macOS, with
-> the CRLF synthesised** by the fixture. The claim above may be written into the note only once a real
-> `windows-latest` run is **read** and green. Until then the code is repaired and the proof is owed.
+> ✅ **AND W6 HAS NOW CONFIRMED IT ON A REAL WINDOWS RUNNER** _(2026-08-22, run `32558375080`)_: the
+> three QA poles that carried this promise are green on `windows-latest`. The claim above is safe to
+> write into the note. → § *W6* for what is still red there (the harness artifact, not the product).
 
 > ## ✅ WITHDRAWN — the "does the heal unlock RETIREMENT?" arbitration was a FALSE ALARM
 >
@@ -385,9 +386,9 @@
 >         not by reading the code. **Naming a defect precisely is still not having enumerated where it
 >         lives** — third time on this subject, and each time the missing seam appeared the moment
 >         something was RUN.
->       - [ ] 🪟 **NOT DONE UNTIL W6 SAYS SO.** The CRLF is **synthesised** by the fixture on macOS. The
->         three QA poles CI fails on today are the real measurement, and reading that run is the
->         acceptance condition Thomas set.
+>       - [x] 🪟 ✅ **W6 HAS SAID SO, for W1's part** _(2026-08-22, run `32558375080` read on
+>         `13ef852`)_: the three QA poles are **green on `windows-latest`**. W6 itself stays open —
+>         one Windows red remains, the harness artifact, and it is a separate bullet there.
 > - [ ] **▶️ W2 (NEXT) — pin the line endings at delivery (answer 1, half b).** `-c core.autocrlf=false` on the
 >       updater's clone (`buildCloneArgs`) **and** on the installer's copy path. Future-only by nature;
 >       W1 is what repairs brains already installed. **Deliberately a separate slice** — the design of
@@ -426,15 +427,31 @@
 > >       on every branch push, and the full `macos-latest` × `windows-latest` matrix on pull requests.
 > >       **So nothing has to be built to get a real Windows image** — the question is only whether the
 > >       tests we point at it genuinely exercise the CRLF path.
-> > - [ ] **W1's four tests must run ON Windows and be green there**, not merely green locally. The
-> >       three QA poles CI fails today are exactly the defect W1 repairs — they are the proof, already
-> >       written and already red on a real image.
-> >       - 🟡 **W1 landed 2026-08-22 (`65a6080` / `13ef852`) and was PUSHED**, so a tripwire run
-> >         exists. **Nothing here may be ticked from a macOS pass**: on this machine the fixture
-> >         SYNTHESISES the CRLF, and the whole point of W6 is a platform where git makes it.
-> > - [ ] **The fourth Windows red is a HARNESS artifact and must be closed too**, separately and
-> >       without pretending it is the same bug: the S7-2 freshness guard regenerates the fingerprint
-> >       table from the runner's working tree, which is CRLF there. → the box at the top names it.
+> > - [x] ✅ **W1 IS PROVED ON A REAL WINDOWS RUNNER — read, not predicted** _(2026-08-22, run
+> >       `32558375080`, `Node 24 · windows-latest`, on `13ef852`)_. The three QA poles that were the
+> >       defect are **green there**: *"a skill edited BEFORE this release now ACQUIRES its ancestor"*
+> >       ✔ 846 ms, *"a customized skill now MERGES"* ✔ 1 467 ms, and the FR/clash pole with them. **The
+> >       Windows red went from four failures to two**, and neither remaining one is the product.
+> >       - 🧭 **Why the LF pole is the real Windows proof, and this is the part worth keeping.** On a
+> >         Windows runner git checks the fixture out as **CRLF**, so the brain records a CRLF digest
+> >         and the table holds LF rows — the pole *"edited BEFORE this release"* therefore takes the
+> >         **candidate path** without asking to. **The platform builds the defect for free**; no
+> >         fixture had to arrange it.
+> > - [x] 🪟 **AND W6 CAUGHT SOMETHING A MAC NEVER COULD, first time out** _(2026-08-22)_. The new
+> >       Windows QA pole itself failed there, on its own **premise guard**: it read `notEqual(crlf
+> >       digest, lf digest)`, which is true on macOS and **false on Windows**, where the checkout is
+> >       already CRLF so `crlfify` is a no-op and the two digests are one. Reshaped to assert the
+> >       **bytes** (`/\r\n/` in the brain) instead of a difference between two spellings.
+> >       - 🛑 **The lesson, and it is exactly Thomas's argument for W6**: a guard written on the
+> >         platform that does not have the defect can be **green for a reason that does not exist**
+> >         elsewhere. The test was correct about the product and wrong about the world.
+> > - [ ] **▶️ THE ONE WINDOWS RED THAT REMAINS is the HARNESS artifact, and it must be closed too**,
+> >       separately and without pretending it is the same bug: the S7-2 freshness guard regenerates the
+> >       fingerprint table from the runner's working tree, which is CRLF there. → the box at the top
+> >       names it. **Confirmed as the only survivor** _(run `32558375080`)_: *"the table covers every
+> >       merge file of the release being cut, in every locale"* fails with **23 rels unrecognised** —
+> >       every `merge` file, which is the signature of a whole-tree EOL difference rather than a
+> >       content drift. **Not W1's, not W2's**: it is this bullet, still open.
 > > - [ ] **Verify on GitHub, by reading the run** — not by predicting it from a local pass. The branch
 > >       is pushed at every slice, so the tripwire reports on each push; the full matrix needs the PR.
 > > - [ ] ⚠️ **A green Windows suite is NOT yet the full claim.** The suite reports **3 skipped, all
