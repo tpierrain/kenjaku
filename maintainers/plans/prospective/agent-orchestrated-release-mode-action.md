@@ -465,6 +465,30 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🔬 **2026-08-22 (the tripwire, read a second time) — clearing the DULL cause is what made the sharp
+  one legible.** The `fetch-depth: 0` fix worked: the waived-sha test and both FR fixture poles pass on
+  Windows now, and every `fatal: invalid object name 'v3.6.0'` is gone. **Four failures remain out of
+  nine** — and they are all the CRLF defect, no longer buried.
+
+  > 🧭 **A red light with two unrelated causes reads as ONE broken thing.** That is part of why this one
+  > went unread for a day: the shallow-clone noise made the run look like a config problem, and the
+  > product defect underneath was indistinguishable from it. **Fixing the boring cause is not
+  > housekeeping before the investigation — it IS the investigation's first step.**
+
+  🚨 **And it converted a written-down unknown into a measurement.** The previous entry listed, as *not
+  proven*, what happens when an LF ancestor meets a CRLF working file. CI answered: the QA pole *"a
+  skill edited BEFORE this release now ACQUIRES its ancestor, fetched from the tag"* fails with
+  **`actual: []`** — **no fetch happens at all**. The mechanism follows: S7-5 fetches from the tag whose
+  blob matches the recorded sha, that sha is the CRLF digest, and no published tag's blob is CRLF.
+
+  **So BOTH of S7's mechanisms are LF-only** — the heal (membership) and the ancestor fetch (which tag
+  a sha names) — which puts **both** of the release's fallen-forbidden claims at risk on Windows for one
+  single reason. The blocking box at the top of the release plan is updated with the measurement, and
+  with what is **still** not proven: nobody has read a real deployed Windows brain's bytes; this is a
+  fixture on a Windows runner, and that difference is kept rather than smoothed.
+
+  **Next**: unchanged and his — the CRLF arbitration (four options, a recommendation), then the cut.
+
 - 🚨 **2026-08-22 (the tripwire nobody read) — CI HAD BEEN RED ALL NIGHT, and the pre-flight said
   green twice.** With nothing left to take alone, the loop looked at the one surface it had never
   opened: `gh run list`. **Failure on every run in the visible window**, since 2026-08-21 22:32. Both

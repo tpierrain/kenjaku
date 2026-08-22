@@ -24,10 +24,24 @@
 >       `clone --depth 1 --branch <ref> --single-branch`, with no `-c core.autocrlf=false`. Git for
 >       Windows defaults `core.autocrlf` to **true**, and `.gitattributes` covers only `*.cmd` / `*.sh`.
 >
-> **What is NOT proven, and must not be written as if it were**: that a real deployed Windows brain
-> holds CRLF today (it depends on that machine's git config), and what the merge does when an ancestor
-> **fetched** with `git show` (LF, no smudge filter) meets a CRLF working file — the plausible answer is
-> *every line reads as changed*, but nobody has run it.
+> - [x] 🚨 **AND THE ANCESTOR FETCH IS INERT THERE TOO — a SECOND mechanism, measured 2026-08-22 on the
+>       Windows runner** once `fetch-depth: 0` cleared the noise that had been hiding it. The QA test
+>       *"a skill edited BEFORE this release now ACQUIRES its ancestor, fetched from the tag"* fails with
+>       **`actual: []`** — no fetch happens at all. The mechanism follows: S7-5 fetches from **the tag
+>       whose blob matches the recorded sha**, that sha is the **CRLF** digest, and **no published tag's
+>       blob is CRLF** — so the lookup finds no source and the file falls back to the preserve path.
+>       Two more QA poles fail the same way (the clean merge, and the clash that should yield a marked
+>       sidecar).
+>
+> **So BOTH of S7's mechanisms are LF-only**: the heal (membership in the table) and the ancestor fetch
+> (which tag a sha names). That is *both* of the release's fallen-forbidden claims — *"an old brain
+> receives"* and *"the merge reaches back"* — at risk on the same platform, for the same one reason.
+>
+> **What is STILL not proven, and must not be written as if it were**: that a real deployed Windows
+> brain holds CRLF today. The measurement above is a **fixture on a Windows runner**, which derives its
+> brain bytes from a working tree the runner checked out with `core.autocrlf=true`. A real install does
+> the same thing through the installer's copy, so the mechanism transfers — but nobody has read a real
+> Windows brain's bytes, and the difference is worth keeping.
 >
 > **Why it is not mine to fix**: every way out changes what ships or what an update writes.
 >
@@ -284,11 +298,15 @@
 > pre-flight: it is a green light nobody earned. **Diagnosed 2026-08-22**, two independent causes, and
 > the second is the serious one:
 >
-> - [x] **Shallow checkout** — `actions/checkout@v4` defaults to depth 1, no tags. `locale-drift`
->       resolves a waived sha (`fatal: ambiguous argument 'f7a00fc'`) and the release fixtures rebuild
->       brains from published tags (`fatal: invalid object name 'v3.6.0'`). **Fixed**: `fetch-depth: 0`
->       on the two suites that reach into git. The installer-e2e job is left shallow on purpose — it
->       runs the installer and touches no history, and blanket-changing it would only cost minutes.
+> - [x] **Shallow checkout — FIXED AND CONFIRMED BY CI** _(`86d8fad`)_. `actions/checkout@v4` defaults
+>       to depth 1, no tags: `locale-drift` could not resolve a waived sha (`fatal: ambiguous argument
+>       'f7a00fc'`) and the release fixtures could not rebuild brains from published tags (`fatal:
+>       invalid object name 'v3.6.0'`). With `fetch-depth: 0`, **all of those failures are gone from the
+>       next run** — the waived-sha test and both FR fixture poles now pass on Windows. The installer-e2e
+>       job is left shallow on purpose: it runs the installer and touches no history.
+>       🧭 **And clearing it is what made the real defect legible**: four failures had been hiding under
+>       nine. A red light with two unrelated causes reads as one broken thing, which is part of why it
+>       went unread for a day.
 > - [ ] 🛑 **CRLF: the heal recognises nothing on Windows.** The blocking box at the top of this file.
 >
 > 🧭 **The rule this earns, beside "a pre-flight is a timestamp": a pre-flight that only reads the
