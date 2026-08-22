@@ -118,7 +118,36 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: S9-2b — cut, tag, publish. **HIS, and the loop has no slice left to take alone.**
+> ## ▶️ RESUME AT: the DOCTRINE CARGO — **three items the owner arbitrated into this release and this plan never named**
+>
+> 🛑 **Found 2026-08-22 by the `plan-carrier-guard` Stop hook**, which named the archived plan as a
+> carrier the session had not opened. That plan holds the arbitration verbatim _(owner, 2026-08-15)_:
+> this release **carries the doctrine cargo waiting in the issue tracker** — **#61**, **#67**, **#64's
+> rule half** — ***alongside*** the already-planned source-first rule. **All three are still OPEN.** The
+> loop built the fourth and reported the release complete bar the owner's steps. It was not.
+>
+> - [ ] **#61 — announce a signal-triggered ritual before running it.** Ending a session triggers the
+>       *Observation passive* ritual, which runs silently: several seconds of unexplained pause at the
+>       moment an immediate answer was expected. The work was useful, the silence was not.
+> - [ ] **#67 — the Outillage rule states a Claude Desktop permission constraint as if it were
+>       universal.** *"Never Bash to probe the vault"* rests on a rationale true of one surface in one
+>       permission mode; in auto mode, with the native `Grep` unavailable, the rule actively misleads.
+>       It must become **conditional and self-describing**.
+> - [ ] **#64's RULE half only** — size-guarded delegation with an **objective threshold** in
+>       `CLAUDE.engine.md`. ⚠️ **The hook half stays in the backlog**, by the owner's own words: taking
+>       it would be scope he did not grant.
+>
+> **Why they belong here and not in a later release**, in the arbitration's own words: they are text
+> changes to `CLAUDE.engine.md`, *the very file this release unfreezes* — shipping them inside it is
+> the proof by example that the carrier works.
+>
+> 🎙️ **The same split as the source-first rule**: the rule, its placement and its guard are the loop's;
+> the **wording speaks in the owner's voice** and is his to arbitrate. Each lands in **both**
+> constitutions in one commit (`locale-drift` sees to that), and each needs
+> `engine-fingerprints.json` regenerated in the same commit — the S7-2 guard will say so if it is
+> forgotten.
+>
+> ## Then: S9-2b — cut, tag, publish. **HIS.**
 >
 > ✅ **S9-2a — THE MATERIALS ARE READY** _(2026-08-22)_. **S9-2 split the way S9-1 did**: assembling
 > what a release needs is checkable work; deciding to publish is not.
@@ -164,9 +193,21 @@
 >
 > **The lesson is not that the sentence was sloppy, it is that THIS PLAN IS NOT THE RELEASE'S
 > INVENTORY.** A release's cargo can be decided in a plan this one never names. *"Nothing left"*,
-> asserted from inside one plan, is only ever a claim about that plan. **Before the cut, the inventory
-> is the ROADMAP's open rows** — that file is the cross-plan ordering authority precisely for this.
-> That plan still owns its own state; this box keeps no copy of it.
+> asserted from inside one plan, is only ever a claim about that plan. That plan still owns its own
+> state; this box keeps no copy of it.
+>
+> 🛑 **And the ROADMAP was not the inventory either — the same claim failed twice in one iteration.**
+> Having been caught once, the loop said *"before the cut, the inventory is the ROADMAP's open rows"*
+> and handed back on it. The Stop hook then named the archived plan, which holds **three more doctrine
+> items the owner arbitrated into this release** — and they live as **GitHub issues**, so **no ROADMAP
+> row names them at all**. They are now the resume point at the top of this file.
+>
+> **The inventory is: this plan's slices + the ROADMAP's open rows + the SCHEDULED OPEN ISSUES.** The
+> ROADMAP already says so, in its *Incoming (standing inbox)* section — *"check the open issues when
+> picking up work; an issue graduates to a rider on a plan when it is scheduled"* — a section added on
+> 2026-08-15 for this exact failure, when five issues sat invisible to a pickup. **The rule existed and
+> did not run**: the map above it is what a pickup reads, and these three had been scheduled for a week
+> without ever graduating to a rider. Writing them into this plan's resume box **is** that graduation.
 >
 > 🔍 **Checked, so the loop does not go looking for it again**: the release's other floor — the v4.8.0
 > mutation debt re-arbitrated onto this release — is **already paid on this branch** (its plan reads

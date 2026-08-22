@@ -241,6 +241,17 @@ issues when picking up work: an issue graduates to a plan (or to a rider on one)
 scheduled, and this map only lists plans. _(Added 2026-08-15: the map had no entry point for
 out-of-band arrivals, so five issues filed by the owner's brain sat invisible to a pickup.)_
 
+> 🛑 **The rule above existed and did not run — measured 2026-08-22.** A loop swept the map's rows,
+> found no slice left, and reported the v5 release complete bar the owner's steps. **Three doctrine
+> issues (#61, #67, #64's rule half) had been arbitrated INTO that release a week earlier and had never
+> graduated to a rider**, so no row named them and the sweep was honest and wrong. Scheduling an issue
+> and not writing it into a plan leaves it visible only to whoever remembers it.
+>
+> **So the inventory before a cut is three things, not one**: the live plan's slices **+** the open
+> rows here **+** the **scheduled** open issues. Those three now live in
+> [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md)'s
+> resume box, which owns their state; this note keeps no copy.
+
 ---
 
 ## How to use this file

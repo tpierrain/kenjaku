@@ -496,13 +496,32 @@ arbitration goes here as a question, and the run continues on other slices.
   new test, one regenerated data table. No production code in the slice to mutate. Suite 2 357 tests,
   2 354 pass, 0 fail, 3 skipped (Windows-only).
 
-  **Next**: S9-2b is his, S9-3 needs days of real use, the regimes arbitration and now the note's
-  seventh bullet are his. ⚠️ **Said at the honesty level it was actually checked at**: the ROADMAP's
-  other open rows were read **at row level** this iteration, not plan by plan. What that pass shows —
-  Gate 4 work not pulled forward (`engine-managed-file-merge-strategy`), two field findings deliberately
-  deferred (F3, F7), a floor already paid, and a migration tail that needs the owner's own brain — is a
-  reason to look elsewhere first, **not** a proof that no slice hides in them. The next iteration opens
-  the plans themselves rather than trusting their rows, which is the same mistake one level up.
+  🛑 **THE SAME CLAIM FAILED TWICE IN ONE ITERATION, and the second time a hook caught it.** Having
+  been corrected once, this entry then said *"before the cut, the inventory is the ROADMAP's open
+  rows"* and the loop handed back on it. The `plan-carrier-guard` Stop hook fired, naming the archived
+  plan — which holds, verbatim, the owner's 2026-08-15 arbitration that this release **also carries
+  #61, #67 and #64's rule half**. All three still open. They live as **GitHub issues**, so **no ROADMAP
+  row names them at all**: the sweep was honest and wrong, and the release was one rule short with the
+  owner told the opposite.
+
+  > **The inventory before a cut is THREE things**: the live plan's slices **+** the ROADMAP's open
+  > rows **+** the **scheduled open issues**. And the ROADMAP already said the third part, in its
+  > *Incoming (standing inbox)* section — added 2026-08-15 after five issues sat invisible to a pickup.
+  > **The rule existed and did not run**, because the map above it is what a pickup reads and these
+  > three had never *graduated to a rider* as that rule requires. So the remedy is not another rule:
+  > it is the graduation itself, now written into the live plan's resume box. _(`repeated-ask-means-
+  > unwired-net`: a recurring defect is an unwired net, not a missing rule.)_
+  >
+  > 🧭 **What this says about the mode, and it is the reusable part**: an orchestrated loop asks *"is
+  > anything left?"* of whatever it has open, and gets an honest answer about **that surface**. Three
+  > surfaces answered *"nothing"* in a row here — the plan, then the map — and the only thing that
+  > broke the pattern was a **deterministic hook that judges no content** and merely names a carrier
+  > nobody opened. That is the argument for the hook existing, made in one night.
+
+  **Next**: the doctrine cargo, one item per iteration, same shape as the source-first rule (rule +
+  placement + guard are the loop's, the **wording is his**; both locales in one commit; fingerprints
+  regenerated in the same commit). Then S9-2b, which is his — along with S9-3, the regimes arbitration
+  and the note's seventh bullet.
 
 - 🚦 **2026-08-22 (S9-2a) — THE PR BODY HAD GONE STALE A SECOND TIME, which is the release's own
   defect wearing the release's own clothes.** `release-v5.0.0-pr-body.md` beside the plan, covering

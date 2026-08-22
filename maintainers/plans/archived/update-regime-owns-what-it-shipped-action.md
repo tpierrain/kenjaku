@@ -167,6 +167,15 @@
 > `CLAUDE.engine.md`, the very file this release unfreezes — shipping them inside it is the proof by
 > example that the carrier works. The release also **pays the v4.9.0 mutation debt**
 > (`v4.9.0-mutation-debt-plan.md`, third named due date; cutting without paying is a defect).
+>
+> ➡️ **This paragraph was the ONLY carrier of that cargo, and it cost a near-miss** _(2026-08-22)_. An
+> archived plan is read by nobody picking up work: the loop finished the source-first rule, swept the
+> ROADMAP, and reported the release complete bar the owner's steps — with **#61, #67 and #64's rule
+> half still open and still arbitrated into it**. Only the `plan-carrier-guard` Stop hook, naming this
+> file, surfaced them. **The cargo has since graduated to the live plan's resume box**
+> ([`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)),
+> which owns its state from now on. This paragraph stays as the **record of the arbitration** and keeps
+> no copy of what remains.
 
 > ## ⏳ NEXT STEP — read this before the Tracking
 >
