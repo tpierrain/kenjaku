@@ -63,15 +63,16 @@ shipped since either arrives around your edits, or your brain asks you which ver
 
 - ✍️ **What you wrote yourself no longer freezes the file.** Say you added two questions of your own
   to the ready-made skill that prepares your 1-1s: until now, that file never received another
-  improvement, ever. Now your brain remembers exactly what it handed you last time, so it can tell
-  your words from its own — your two questions stay, and everything improved since arrives around
-  them.
+  improvement from Kenjaku's updates, ever. Now your brain remembers exactly what it handed you last
+  time, so it can tell your words from its own — your two questions stay, and everything improved
+  since arrives around them.
 - 🙋 **When your words and the new version collide, it asks you rather than choosing.** Three answers,
   in plain language: keep mine, take the new one, or combine the two. Whichever you say, it does it —
   and it puts your current version safely aside first, so *"take the new one"* can always be undone.
 - 🧊 **A brain installed months ago starts receiving again.** If yours has been running since, say,
-  June, some of its files have had nothing since that day and nothing ever said so. It can now
-  recognise the files it was given on day one, even with no record of them, so the improvements
+  June, some of its files have had nothing from Kenjaku's updates since that day, and nothing ever
+  said so. It can now recognise the files it was given on day one, even with no record of them, so the
+  improvements
   shipped since finally reach it. This is the point of the release: the brains installed *before* it
   are the ones that gain the most.
 - 📣 **It tells you what it is keeping as you wrote it, and how far behind that leaves you.**
