@@ -342,10 +342,18 @@
 > this file returns **design boxes, exclusion boxes, and four real items — all four of which are
 > Thomas's**:
 >
-> - [ ] 🛑 **The S6e scope call** — the blocking box at the top of this file. One word.
-> - [ ] 🗣️ **The release note, and the three user-facing sentences at § S4-3** — tone is his at release
->       time (`release-notes-tone`). **TWO claims must not be overstated, and both are now pinned by a
->       test rather than by anyone's memory:**
+> - [x] 🛑 ~~**The S6e scope call**~~ — **ANSWERED: DROPPED** _(owner, 2026-08-21)_. No French
+>       `test-first-discipline` ships. Recorded in the successor plan, which owns it; ticked here on
+>       2026-08-22 because an archived file was still showing it as blocking.
+> - [x] 🗣️ **The release note, and the three user-facing sentences at § S4-3** — **NOT THIS FILE'S ANY
+>       MORE** _(2026-08-22)_. The note exists, is written to be published as-is, and its top was
+>       rewritten for a non-developer reader on the owner's re-read; it is **step 3 of the cut in the
+>       successor plan**, which owns it end to end:
+>       [`../prospective/release-v5.0.0-note.md`](../prospective/release-v5.0.0-note.md), ordered from
+>       [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+>       § *WHAT IS YOURS, IN ORDER*. Ticked here so an archived file stops carrying a live-looking box
+>       for work another plan is running. **The two claims below stay**, because they are constraints
+>       on what the note may say, pinned by tests, not a status:
 >   - [x] ⚠️ ~~**The doctrine layer unfreezes no already-deployed brain.**~~ **THIS CONSTRAINT IS DEAD
 >         — do not carry it into the release note.** It was true of the release **as this plan built
 >         it**, and S7 of the successor plan made it false on 2026-08-21 (`f3d72c4`): a brain rebuilt
