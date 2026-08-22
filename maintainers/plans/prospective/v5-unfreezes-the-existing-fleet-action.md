@@ -370,10 +370,15 @@
 > **the Windows fixes at the top**. This queue IS the loop's order of work; take the first unticked
 > entry and do not re-derive the order from the slice numbering.)_
 >
-> 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed)_. W1 is built and pushed; what it still owes is
-> **W6's reading of a real Windows run**, which is an acceptance condition on the release rather than
-> a slice to build, so it does not hold W2 back. The branch was pushed at `13ef852`, so the *Windows
-> tripwire · harness* job has a run to report on — **read it before claiming W1 is proved.**
+> 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
+> **proved green on a real `windows-latest` runner** (run `32558375080`).
+>
+> **Two things first, both small, before starting W2:**
+>
+> - [ ] **Read the run for `f244290`.** W1's own new Windows pole had a macOS-shaped premise guard; the
+>       reshaped one is green here and **unverified on Windows**. → § *W6*.
+> - [ ] **Note that ONE Windows red remains** and it is the harness artifact, not the product — W6's
+>       own bullet. Do not fold it into W2: W2 is the delivery pin, that is the release-cutting tool.
 >
 > - [x] ✅ **W1 — S7-6, the CRLF ancestor fetch (answer 1, half a). BUILT** _(2026-08-22 · `65a6080`
 >       fix + `13ef852` the mutation survivor's test)_. Test-first, the four named poles red on their
@@ -445,6 +450,9 @@
 > >       - 🛑 **The lesson, and it is exactly Thomas's argument for W6**: a guard written on the
 > >         platform that does not have the defect can be **green for a reason that does not exist**
 > >         elsewhere. The test was correct about the product and wrong about the world.
+> >       - [ ] ⏳ **The reshaped guard owes its OWN Windows reading** — pushed at `f244290`, green on
+> >         macOS, unverified on the platform that broke the first spelling. **Read that run at the top
+> >         of the next iteration**, before anything else claims W1 is finished.
 > > - [ ] **▶️ THE ONE WINDOWS RED THAT REMAINS is the HARNESS artifact, and it must be closed too**,
 > >       separately and without pretending it is the same bug: the S7-2 freshness guard regenerates the
 > >       fingerprint table from the runner's working tree, which is CRLF there. → the box at the top
