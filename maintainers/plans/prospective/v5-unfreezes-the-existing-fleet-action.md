@@ -435,6 +435,32 @@
 > 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
 > should say so and stop, rather than find something.
 >
+> ### 🙋 ON "ON REPREND": THERE IS **EXACTLY ONE QUESTION** FOR THOMAS. ASK IT, ALONE, FIRST.
+>
+> _(2026-08-22. Written here because the checklist below caused the failure it now prevents: asked
+> what remained, the session answered with six ordered steps and buried the only decision inside step
+> 5. His reply: **"je ne comprends pas ce que tu attends de moi"**. A question is not an item in a list
+> of steps.)_
+>
+> **THE QUESTION — and nothing else goes in the opening reply:**
+>
+> > Kenjaku carries an internal version number for its `scripts` part, separate from the release name.
+> > It says **how much moved inside that part**, and it has never been used to mean "a big release" —
+> > checked at all 25 published tags, where even `v4.0.0` moved none of the four numbers.
+> >
+> > This release moved a lot there: **122 files, 25 new modules, nothing removed**. Two honest answers:
+> >
+> > - **`1.13.1 → 1.14.0`** — one release, one step. What the precedent gives by default.
+> > - **a bigger jump** (e.g. `→ 1.20.0`) — `v3.6.0` once moved it six steps at once, deliberately, so
+> >   the number itself would say how much had changed.
+> >
+> > Nothing depends on it technically: no install, no update and no brain reads this number to decide
+> > anything. It is a **signal to a human reading the manifest later**. My recommendation is `1.14.0`,
+> > and I did not choose for you.
+>
+> **Everything else on this release needs only your GO**, not a decision: it is the checklist below,
+> and the session should say that in **one line** rather than reciting it.
+>
 > ### 🎙️ WHAT IS YOURS, IN ORDER — the whole cut, on one screen _(2026-08-22)_
 >
 > _(Assembled here so it survives a cleared context: each line links the section that argues it. The

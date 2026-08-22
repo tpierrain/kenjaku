@@ -9,6 +9,14 @@
 
 > ## ⏳ WHERE THIS RESUMES — read before the Tracking
 >
+> > 🙋 **ON "ON REPREND" (2026-08-22, after the second `/clear` of this chantier): THE BUILD IS DONE,
+> > AND THERE IS EXACTLY ONE QUESTION FOR THOMAS.** Do not open a slice, do not look for work: the
+> > loop's queue on this release is **empty** (W1-W4 and W6 closed, Windows matrix 7/7). Open
+> > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *RESUME
+> > AT*, read the box titled **"ON 'ON REPREND': THERE IS EXACTLY ONE QUESTION FOR THOMAS"**, and
+> > **ask that question alone, first, in plain French with no PR number and no slice name.** Everything
+> > else needs only his GO and is said in one line, never recited.
+> >
 > > 🌙 **AS OF 2026-08-22, after a night of `/loop` iterations and immediately before a `/clear`.** The
 > > landmark below is still true and is no longer the useful one: it dates from 2026-08-20. **Start
 > > here instead.**
