@@ -357,6 +357,23 @@ catches any of this.
                 French doctrine would not sit in a doc — a French brain would **obey** them.
               - **A twin is a standing commitment, not a task.** Once it exists, `locale-drift` pairs
                 the two forever and every future edit owes both. Taking that on is his to take.
+        - 📊 **WHAT IT ACTUALLY COSTS A FRENCH OWNER — measured, 2026-08-22, and it is close to
+              nothing.** He asked the only question that matters ("c'est quoi l'impact pour lui ?")
+              and the answer was nowhere on record. Three facts, read off the repo:
+              - **The skill is in `regimes.merge`, so it does ship into brains** — but a skill loads
+                **only when a task matches its description**, and this one's is *"as soon as you write
+                or modify code"*. A brain used for notes never loads it. **The affected population is
+                owners who ask their brain to write code, in French.**
+              - **For them, the brain still works.** It reads English natively. What is lost is
+                comfort: an English document sitting among their French ones if they open it.
+              - 🔄 **And the deleted French text was v1.1.0, whose opening rule was
+                *"baby steps, PAS test-first batch"* — the exact rule this release retired because it
+                was measured and did not survive.** So the French owner is not losing something good.
+                They are losing an **obsolete** text that made their brain work less well, and
+                receiving the correct one in English.
+              ✅ **Therefore: remedy (b), the release note, is not the cheap half — it is the right
+              answer**, and a translation would be a comfort feature, not a repair. Recorded so the
+              next session does not re-open this as an unresolved product call.
               🛡️ **The counterweight, stated so the decision is honest**: nothing merges without him,
               so a translation would wait in #76 like everything else. The real risk is not a bad
               merge, it is **him merging 350 lines of French he did not read**.
