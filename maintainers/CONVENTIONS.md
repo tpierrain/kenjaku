@@ -774,10 +774,12 @@ it is the orchestrator — not the agents — who writes it.
   plan-done = archived convention.
 - [`skills/`](skills/) — the **maintainer skills**, which live here rather than in `.claude/skills/`
   precisely because `maintainers/` never travels to a generated brain:
-  [`plan-discipline`](skills/plan-discipline/SKILL.md) (write, open, resume or tick a plan) and
   [`mutation-testing`](skills/mutation-testing/SKILL.md) (run and **read** a mutation pass — §5quinquies'
-  belt, whose braces are [`mutation/mutate-one.mjs`](mutation/mutate-one.mjs)). They are loaded by being
-  named here; nothing else advertises them.
+  belt, whose braces are [`mutation/mutate-one.mjs`](mutation/mutate-one.mjs)). It is loaded by being
+  named here; nothing else advertises it. _(`plan-discipline` used to sit beside it and **left on
+  2026-08-20**: it lives in the harness, symlinked into `~/.claude/skills/`, which is what finally
+  made it loadable — under `maintainers/` it sat on a path Claude Code does not scan, so it was
+  available in no session at all. See [`plan-discipline.md`](plan-discipline.md).)_
 - ADR [`0009-prefer-deterministic-mechanisms.md`](decisions/0009-prefer-deterministic-mechanisms.md) —
   at equal reliability, prefer a deterministic mechanism over a probabilistic / LLM / in-memory-timer one.
 - `~/.claude/hooks/wave-staging-guard.mjs` — the net under §12's staging rule (machine-local, not in
