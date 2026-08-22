@@ -435,7 +435,22 @@
 > 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
 > should say so and stop, rather than find something.
 >
-> ### 🧭 ON "ON REPREND" AFTER THE CLEAR OF 2026-08-22 EVENING — FIVE STEPS LEFT, ALL HIS
+> ### 🧭 ON "ON REPREND" — READ THIS FIRST _(updated 2026-08-22, after step 1 landed)_
+>
+> **Step 1 is DONE**: #76 is retargeted to `main` with its new title and a corrected body (four stale
+> passages fixed before sending). **What is live now is step 4a: a tooled `/code-review`, in three
+> passes, BEFORE the merge** — Thomas's call, because the whole release was built in orchestrated
+> `/loop` mode and nothing outside the loop has ever read this code. **`/code-review` is a command HE
+> types**; the session's job is to scope each pass and triage the findings test-first.
+>
+> - **Pass A first**: the unfreeze engine (`scripts/lib/engine-*.mjs`, `reconcile-brain.mjs`), the code
+>   that writes into brains already installed. Then B (install / update path), then C (the rest).
+> - **W5b, the wording of the four doctrine texts, is still his and still due before the tag.** It is
+>   prose, independent of the code: it does not block the review and the review cannot invalidate it.
+> - **Open and NOT decided**: the rehearsal on a copy of a real brain — see the box after the cut list.
+> - The section below dates from before step 1 and stays for its reasoning; **its step 1 is spent**.
+>
+> ### 🧭 THE CLEAR OF 2026-08-22 EVENING — FIVE STEPS LEFT, ALL HIS
 >
 > _(Written immediately before that `/clear`, so it survives it.)_ **The build is done and the note is
 > done.** What is left is the cut below, and **not one line of it is engineering**: step 1 (retarget
@@ -471,16 +486,23 @@
 > _(Assembled here so it survives a cleared context: each line links the section that argues it. The
 > sections stay the authority; this is the order, not a second copy of the reasoning.)_
 >
-> - [ ] **1. Retarget #76 to `main`, and apply the new body + title.** Measured now: **#76 is still
->       based on `chore/s0bis-entrypoint-mutation-debt`, still draft, MERGEABLE**; #75 is open on
->       `main`; the branch is **304 ahead of `main`, 0 behind**. #75 is **not** merged first and **not**
->       closed by hand — its head is an ancestor, so GitHub marks it merged on its own.
->       ```bash
->       gh pr edit 76 --base main
->       sed '1,/^---$/d' maintainers/plans/prospective/release-v5.0.0-pr-body.md > /tmp/pr76.md
->       gh pr edit 76 --title "v5.0.0 — the engine owns what it shipped, and stops leaving old brains behind" --body-file /tmp/pr76.md
->       ```
->       ⚠️ The live body still describes **S1–S6 alone** and has been wrong since 2026-08-21.
+> - [x] ✅ **1. Retarget #76 to `main` + new body and title — DONE** _(2026-08-22, on Thomas's GO, with
+>       him)_. #76 is now **based on `main`**, still draft, MERGEABLE, 278 files. Title applied:
+>       *"v5.0.0 — the engine owns what it shipped, and stops leaving old brains behind"* (the RELEASE
+>       title is a separate choice and is unchanged). #75 is untouched: its head is an ancestor, so
+>       GitHub marks it merged on its own when #76 lands.
+>       - 🛑 **The prepared body was itself stale, and applying it unread would have republished the
+>         very defect this release ends.** It still said *"its base is `chore/s0bis…`, on purpose"* and
+>         counted **212 commits / 166 files against that base**. Four passages were corrected before
+>         sending: the base paragraph, the counts (now **326 commits, 278 files, +46 278 / −1 686
+>         against `main`, 0 behind**), the "merge order" open question (settled: retargeted, one merge
+>         commit, squash reachable by a mis-click), and the `scripts` bump, which the body still
+>         described as undecided a day after he arbitrated it. **A prepared artifact ages exactly like
+>         a live one** — the third surface of this release to prove it.
+>       - 📖 **And the body now tells a reviewer where to look**, since half the diff is not code: 139
+>         files / 27 113 insertions are the maintainers' plans; the code perimeter is **79 source files
+>         (+6 957 / −533)** plus **44 test files (+11 498)**, and the operational risk sits in the files
+>         that write into installed brains (`scripts/lib/engine-*.mjs`, `reconcile-brain.mjs`).
 > - [ ] **2. W5b — arbitrate the WORDING of the four doctrine texts, before the tag.** #61, #67, #64's
 >       rule half and the source-first rule are written, placed and guarded. **The guards assert
 >       patterns, not prose**: rewrite every sentence and the suite stays green; when a rule stops
@@ -497,6 +519,23 @@
 > - [ ] **4. ONE review, ONE merge, NO squash.** The repo allows all three merge styles, so **squash is
 >       reachable by a mis-click** — the button must read *Create a merge commit* at the moment of
 >       merging. History kept whole.
+>       - 🔍 **4a — A TOOLED `/code-review` RUNS FIRST, and this is Thomas's call of 2026-08-22.** His
+>         reason is the one that matters: *"pour une fois en plus on a tout programmé en mode loop"* —
+>         this release was built by orchestrated subagents overnight, and **nothing outside the loop has
+>         ever read the code**. Checked rather than recalled: **v3.2.1, v3.2.2, v3.3.0, v4.3.0 and
+>         v4.4.0 each ran one before the merge**, and each found real defects (8 findings on v3.3.0, 6
+>         on v4.4.0). **v5 would be the first release to skip it, and it is the largest.** The cloud
+>         `ultra` attempt refused the branch on size; the local command has no such limit.
+>       - 🔪 **Run it in THREE PASSES, by descending operational risk** — not in one shot on
+>         `main...HEAD`, where 27 113 lines of plans would drown 7 000 lines of code:
+>         **(A)** the unfreeze engine, `scripts/lib/engine-*.mjs` + `reconcile-brain.mjs`, i.e. the code
+>         that **writes into brains that are already installed**; **(B)** the install and update path,
+>         `installer.mjs`, the `update-engine` skill, `engine-manifest.json` and the release-cutting
+>         tool; **(C)** the rest (other scripts, FR/EN templates, CI).
+>       - 🧪 **Findings are fixed TEST-FIRST and the review is re-run on the fix**, as v3.3.0 did.
+>       - 📌 **This also answers, in the field, the question the mode plan deferred**: whether work built
+>         by a subagent fan-out owes an independent review before it counts as finished. →
+>         [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).
 > - [ ] **5. The `engineVersion` bump, IN THE SAME MOVEMENT AS THE TAG** — never before it (a bumped
 >       version that is not published makes a fresh install stamp itself with a version that was never
 >       released). `rag` and `local-mirror` **unchanged** (0 files moved), `constitutionTemplate`
@@ -510,6 +549,18 @@
 >
 > **Not part of the cut, on purpose**: **#61, #67 and #64 stay OPEN** — what closes them is a brain
 > *receiving* the rule, not the branch carrying it.
+>
+> ### 🟡 PROPOSED, NOT DECIDED — a rehearsal on a COPY of a real brain, before the tag
+>
+> _(Offered 2026-08-22 when Thomas asked how to take the least operational risk. **He has not ruled on
+> it**; it is written here so the question survives a clear, not to be treated as agreed.)_
+>
+> The most expensive net for a release that rewrites files inside brains people already use is **not** a
+> code review: it is **replaying the real update on a copy of one of the owner's two real brains** (copy
+> the folder, run the update against this branch, read what it did to the merge files). Everything
+> measured on those brains so far was **read-only**, and the acceptance test S10-QA runs on fixtures. A
+> rehearsal is the only trial that exercises the path the fleet will live, on content nobody authored
+> for the test. **On a COPY**: nothing in this proposal touches an original.
 >
 > **W6's two bullets, both now closed:**
 >

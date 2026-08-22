@@ -9,6 +9,16 @@
 
 > ## ⏳ WHERE THIS RESUMES — read before the Tracking
 >
+> > 🔍 **UPDATE 2026-08-22 — THE DEFERRED ADVERSARIAL-REVIEW QUESTION IS BEING ANSWERED IN THE FIELD.**
+> > Thomas asked for a **tooled `/code-review` before the merge**, and his reason is this mode:
+> > *"pour une fois en plus on a tout programmé en mode loop"*. Nothing outside the loop has ever read
+> > this code, and the five previous releases that ran one each found real defects. The cloud `ultra`
+> > review had refused the branch on size; the local command has no such limit, and the run is sliced
+> > in three by descending operational risk. **The state, the slices and the triage live in the v5
+> > plan's § *WHAT IS YOURS, IN ORDER*, item 4a** — not here. What this file owes is the **verdict**
+> > afterwards: whether a fan-out-built slice must carry an independent review to count as finished.
+> > → § *The adversarial-review fan-out as standing QA*, further down.
+> >
 > > 🙋 **ON "ON REPREND" (2026-08-22, after the third `/clear` of this chantier): THE BUILD IS DONE,
 > > THE LAST QUESTION IS ANSWERED, AND WHAT REMAINS IS THOMAS'S TO EXECUTE.** Do not open a slice, do
 > > not look for work, and **do not take an entry from his cut**: the loop's queue on this release is
@@ -3001,6 +3011,12 @@ arbitration goes here as a question, and the run continues on other slices.
   - [ ] What S1 has to produce for this to be answerable: at least one slice reviewed adversarially
         and one not, with what each caught. Without that contrast the next debrief re-deals the same
         undecided question.
+  - [ ] 🔍 **The contrast is arriving from the OTHER end** _(2026-08-22, Thomas's call)_: rather than
+        one reviewed slice against one unreviewed, a **tooled `/code-review` runs over the WHOLE
+        fan-out-built branch** before the merge, in three passes by descending operational risk. The
+        release plan owns the run (§ *WHAT IS YOURS, IN ORDER*, item 4a); **what comes back here is the
+        figure**: how many real defects an independent read finds in code that the loop had already
+        declared finished, green and mutation-scored. **A zero is an answer too**, and the stronger one.
 - [~] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
       kill this file), and rewrite the memory pointer to whatever becomes live next.
   - [x] **Folded EARLY, on purpose** _(2026-08-20 — `CONVENTIONS.md` **§12**)_: the two delegation

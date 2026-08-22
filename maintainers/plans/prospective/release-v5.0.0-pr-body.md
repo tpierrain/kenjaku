@@ -13,8 +13,10 @@
 ---
 
 > **Draft, deliberately.** Nothing here is merged, tagged or published. This is the reviewable diff the
-> overnight loop was asked to leave behind. Its base is `chore/s0bis-entrypoint-mutation-debt` on
-> purpose, so draft PR #75 keeps its S0bis perimeter instead of swallowing the release.
+> overnight loop was asked to leave behind. It is based on **`main`**, retargeted on 2026-08-22 so the
+> whole release is reviewed **once** and merged **once**, with a merge commit and no squash. Draft
+> PR #75 keeps its own S0bis perimeter and is **not** merged first, **not** closed by hand: its head is
+> an ancestor of this branch, so GitHub marks it merged on its own the day this one lands.
 >
 > ⚠️ **This body has been rewritten TWICE, and both times for the same reason.** On 2026-08-21 it still
 > described S1 alone, ninety commits after that stopped being true. It is rewritten again on 2026-08-22
@@ -24,10 +26,16 @@
 
 ## What the branch carries
 
-**212 commits, 166 files, +25 996 / −1 542** against this PR's base, and **266 ahead of `main`, 0
-behind** _(re-measured 2026-08-22, after the release tail's materials landed)_. ⚠️ **A count is a
-COPY of state and ages within a day** — this one already did once. The branch is the record; to refresh
-rather than trust: `git diff --shortstat chore/s0bis-entrypoint-mutation-debt..HEAD`. Slices **S1 through S10**, the **doctrine cargo** it carries for a neighbouring
+**326 commits, 278 files, +46 278 / −1 686** against `main`, **0 behind** _(re-measured 2026-08-22,
+against the new base)_. ⚠️ **A count is a COPY of state and ages within a day** — this one already did
+twice. The branch is the record; to refresh rather than trust:
+`git diff --shortstat main...HEAD`.
+
+📖 **Where to actually look, because half of that total is not code.** The maintainers' plans and
+measurement registers account for **139 files and 27 113 insertions** of it. The code perimeter a
+reviewer owes attention to is **79 source files (+6 957 / −533)**, plus **44 test files (+11 498)** —
+and inside it, the files that write into brains that are already installed (`scripts/lib/engine-*.mjs`,
+`reconcile-brain.mjs`) carry the operational risk. Slices **S1 through S10**, the **doctrine cargo** it carries for a neighbouring
 plan and the issue tracker, plus the release tail's first half. The owning plan is
 [`v5-unfreezes-the-existing-fleet-action.md`](maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md)
 — its predecessor, which built S1–S6, is archived beside it and holds no current state. The working
@@ -305,17 +313,18 @@ inverted rather than deleted.
    condition he attached — the **write guard's widening is stated in the release note**, because it
    reads the same list and will start asking about files it used to let through. Scoped mutation 100 %
    on the changed lines. The plan owns the detail; this item is closed, not summarised.
-3. **The merge order.** This PR's base is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is
-   still open**. Either #75 lands first, or this PR is retargeted to `main` — the branch is 0 behind
-   `main` and `git merge-tree` reports no conflict (the ahead-count is stamped at the top of this body,
-   with the command to refresh it).
+3. ✅ **The merge order is SETTLED** _(2026-08-22, the owner's call)_. This PR is **retargeted to
+   `main`** and reviewed as one body of work: one review, one merge commit, **no squash**, history kept
+   whole. The retarget owed no rebase and rewrote nothing (0 behind `main`, no conflict). ⚠️ The repo
+   allows all three merge styles, so **squash is reachable by a mis-click**: the button must read
+   *Create a merge commit* at the moment of merging.
 
 > 📦 **Ready and NOT applied — the `engineVersion` bump.** Three of its four numbers are dictated by the
 > diff (`rag` and `local-mirror` have **zero files changed** since v4.9.1; `constitutionTemplate` is
 > purely additive doctrine → `1.4.0`), and 25 tags of precedent settle most of the fourth: the vector
-> has **never** used a major bump, and **`v4.0.0` moved not one of the four**. `scripts` → `1.14.0` is
-> the precedent's default; the plan says out loud that it did not choose, since `v3.6.0` once moved that
-> component by six minors to signal scale. `indexSchemaVersion` **stays `2`** — it is the note's promise
+> has **never** used a major bump, and **`v4.0.0` moved not one of the four**. The fourth is now
+> **arbitrated by the owner**: `scripts` **`1.13.1 → 1.14.0`**, the precedent's default (the larger jump,
+> à la `v3.6.0`, was offered and declined). `indexSchemaVersion` **stays `2`** — it is the note's promise
 > that nothing is re-read or re-encoded. The table is in the plan under § *S9-2b's materials*.
 >
 > 🛑 **It is applied WITH the cut, never ahead of it** _(Thomas, 2026-08-22)_. A bumped version that is
