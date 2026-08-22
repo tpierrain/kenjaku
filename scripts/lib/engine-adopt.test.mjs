@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 
@@ -508,4 +508,74 @@ test("adoptCandidate — a manifest that is not there at all is the same refusal
     blocked: "unreadable-manifest",
   });
   assert.equal(read(dir, REL), OWNER);
+});
+
+// 🚨 S9 (second pass of the v5.0.0 review) — `".."` IS ITS OWN CANONICAL FORM.
+//
+// F2's three questions are asked in order, and the second one asks whether the rel stays
+// inside the brain by looking for a leading `../` or a root. The exact string `".."` has
+// neither: `relative(brainDir, join(brainDir, ".."))` is `".."`, so it equals the rel it
+// came from, starts with no `../`, and is not absolute. All three pass, and the only thing
+// still refusing it is `selectMergeFiles`.
+//
+// That last line is not load-bearing by design: `advanceRegimes` imports whatever globs
+// the FETCHED engine declares, and `globToRegExp("**")` compiles to `^.*$`, which matches
+// `".."`. One leading-wildcard merge glob in a future manifest re-opens the very escape
+// F2 was written to close — so the fixture here declares exactly that glob, rather than
+// relying on today's manifest to keep the guard looking correct.
+test("adoptCandidate — the bare `..` is refused by the CONTAINMENT question, not by the regime", (t) => {
+  const dir = brain(t);
+  writeFileSync(
+    join(dir, "engine-manifest.json"),
+    JSON.stringify({ regimes: { merge: ["**"] }, provenance: {}, baseRefs: {}, source: { ref: "v5.0.0" } }),
+  );
+
+  assert.deepEqual(adoptCandidate({ brainDir: dir, rel: "..", decision: "take-theirs", git: cleanGit }), {
+    adopted: false,
+    blocked: "not-adoptable",
+  });
+});
+
+// 🚨 S10 (second pass) — THE GUARD IS LEXICAL, AND A SYMLINK IS NOT.
+//
+// `relative()` and `join()` never touch the filesystem, so a rel can be canonical,
+// lexically inside the brain, and matched by a merge glob, while the directory it names is
+// a symlink pointing somewhere else entirely. `writeFileSync` follows it, and the adoption
+// lands outside the brain — the one thing this module's own contract says it will not do.
+//
+// It matters HERE and not on the update path, and the difference is the input: `rel`
+// arrives from the CONVERSATION (an agent types it), which is the whole reason F2 exists.
+// Engine writes elsewhere take their rels from the manifest. The day that stops being
+// true, this check belongs lower.
+test("adoptCandidate — a merge path that is a SYMLINK out of the brain is refused, and the target survives", (t) => {
+  if (process.platform === "win32") {
+    t.skip("creating a symlink needs privileges on Windows; the guard itself is platform-agnostic");
+    return;
+  }
+  const dir = brain(t);
+  const outside = mkdtempSync(join(tmpdir(), "sbg-adopt-outside-"));
+  t.after(() => rmSync(outside, { recursive: true, force: true }));
+  const SHARED = ".claude/skills/shared/SKILL.md";
+  writeFileSync(join(outside, "SKILL.md"), "# a file that is NOT in this brain\n");
+  writeFileSync(join(outside, "SKILL.md.new"), "# the engine's newer words\n");
+  symlinkSync(outside, join(dir, ".claude", "skills", "shared"), "dir");
+  writeFileSync(
+    join(dir, "engine-manifest.json"),
+    JSON.stringify({
+      regimes: { merge: [".claude/skills/**"] },
+      provenance: {},
+      baseRefs: {},
+      source: { ref: "v5.0.0" },
+    }),
+  );
+
+  assert.deepEqual(adoptCandidate({ brainDir: dir, rel: SHARED, decision: "take-theirs", git: cleanGit }), {
+    adopted: false,
+    blocked: "not-adoptable",
+  });
+  assert.equal(
+    readFileSync(join(outside, "SKILL.md"), "utf8"),
+    "# a file that is NOT in this brain\n",
+    "the file outside the brain must be exactly as it was",
+  );
 });

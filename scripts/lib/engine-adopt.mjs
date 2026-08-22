@@ -24,8 +24,8 @@
 // make the next three-way merge treat v5's text as the agreed common origin and fold
 // it in silently — the same trap inverted, and worse than the freeze it replaces.
 // ─────────────────────────────────────────────────────────────────────────────
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { isAbsolute, join, relative } from "node:path";
+import { existsSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, sep } from "node:path";
 
 import { readAnswers, recordAnswer, writeAnswers } from "./engine-answers.mjs";
 import { safetyCommit } from "./engine-commit.mjs";
@@ -92,11 +92,55 @@ const isMarkedMerge = (content) => /^<<<<<<</m.test(content) && /^>>>>>>>/m.test
 //   • IS IT ENGINE-OWNED? A path can pass both and still be `.env`, a vault note, or
 //     `.engine-base/**` — the last being the exact path the write guard denies the agent,
 //     because forging an ancestor destroys the owner's edit at the next update.
+//
+// 🚨 S9 (second pass) — `".."` IS ITS OWN CANONICAL FORM, and it answered every question
+// above with a yes: it equals the rel it came from, it starts with no `../`, and it is not
+// absolute. The only thing refusing it was `selectMergeFiles` — which is not a guard:
+// `advanceRegimes` imports whatever globs the FETCHED engine declares, and `**` compiles
+// to `^.*$`, which matches `".."`. One leading-wildcard merge glob in a future manifest
+// would have re-opened the exact escape this function exists to close. Spelled out beside
+// the prefix test rather than folded into a cleverer one: the two shapes are `..` and
+// `../x`, and a reader has to see both.
+//
+// 🚨 S10 — AND ALL THREE QUESTIONS ARE LEXICAL. `relative()` and `join()` never touch the
+// disk, so a rel can be canonical, inside the brain by spelling, and matched by a merge
+// glob, while the directory it names is a SYMLINK pointing elsewhere — and `writeFileSync`
+// follows it out of the brain. Only the filesystem can answer "does it stay in the brain?",
+// so the fourth question asks it, and asks it last: it is the only one that costs I/O, and
+// the three cheap ones have already thrown out everything malformed.
+//
+// Why here and not on the update path, which follows symlinks just the same: `rel` arrives
+// from the CONVERSATION — an agent types it — and that is the whole reason this function
+// exists. Engine writes elsewhere take their rels from the manifest. The day that stops
+// being true, this check belongs lower.
 function isAdoptable({ brainDir, rel, manifest }) {
   const canonical = relative(brainDir, join(brainDir, rel)).split("\\").join("/");
   if (canonical !== rel) return false;
-  if (canonical.startsWith("../") || isAbsolute(canonical)) return false;
-  return selectMergeFiles(manifest, [rel]).length > 0;
+  if (canonical === ".." || canonical.startsWith("../") || isAbsolute(canonical)) return false;
+  if (selectMergeFiles(manifest, [rel]).length === 0) return false;
+  return staysInBrainOnDisk({ brainDir, rel });
+}
+
+// The real path, resolved through every link on the way. Fails towards refusing: a path we
+// cannot resolve at all is not a path we may write through, and the caller has a named
+// refusal to hand back either way.
+//
+// The TARGET when it is there, its PARENT when it is not — the parent is what the write
+// would be created in, and it is where a symlinked directory does its work. Both are
+// checked when both exist, because either one alone leaves the other's link unresolved.
+function staysInBrainOnDisk({ brainDir, rel }) {
+  try {
+    const root = realpathSync(brainDir);
+    const target = join(root, rel);
+    const escapes = (path) => {
+      const back = relative(root, path);
+      return back === ".." || back.startsWith(`..${sep}`) || isAbsolute(back);
+    };
+    if (escapes(realpathSync(dirname(target)))) return false;
+    return !existsSync(target) || !escapes(realpathSync(target));
+  } catch {
+    return false;
+  }
 }
 
 // `{ adopted: true }`, or `{ adopted: false, blocked: <reason> }`. Every blocked reason
