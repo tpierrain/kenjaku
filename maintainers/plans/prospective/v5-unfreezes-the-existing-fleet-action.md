@@ -1,14 +1,34 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: ▶️ LIVE since 2026-08-21. THE canonical plan for finishing        -->
-<!-- v5.0.0. It is SELF-SUFFICIENT: every decision it needs is written out     -->
-<!-- below, never fetched from another file. Built in the orchestrated /loop   -->
-<!-- mode described in agent-orchestrated-release-mode-action.md.              -->
-<!-- Branch: feat/engine-base-unfreeze · draft PR #76 · nothing tagged.        -->
+<!-- THE canonical plan for finishing v5.0.0, and it is SELF-SUFFICIENT:      -->
+<!-- every decision it needs is written out below, never fetched from         -->
+<!-- another file. Built in the orchestrated /loop mode described in          -->
+<!-- agent-orchestrated-release-mode-action.md. Branch: feat/engine-base-     -->
+<!-- unfreeze, PR #76.                                                        -->
+<!-- The `## 📍 STATE` block below is this file's only perishable content:    -->
+<!-- do not restate it here, in another file, or in a resume header.          -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
-> ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the list is closed; what remains is DOING them)_
+## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+
+- **Next:** **no engineering is left on this release** — the queue is empty, checked against the three
+  surfaces rather than recalled. What remains is the cut, and every line of it is Thomas's: § *WHAT IS
+  YOURS, IN ORDER*. Say that in one line rather than reciting the list, and **do not take an entry
+  from it**.
+- **Blocked on:** the code review's findings —
+  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns them and its own STATE
+  block answers where they stand. **Nothing is merged or tagged until its § Tracking is discharged**,
+  unless Thomas ships with a named finding deferred.
+- **Owner's call pending:** **two.** (1) **W5b** — the wording of the four doctrine texts, the last
+  thing on this release needing him to decide *content*; the guards assert patterns, not prose.
+  (2) The **rehearsal on a copy of a real brain** before the tag — proposed 2026-08-22, never ruled
+  on. _(Everything else he was asked is answered: the five decisions, and the `scripts` bump at
+  `1.14.0`. **Do not re-ask any of them.**)_
+- **A session may, alone:** **nothing here.** Not merge, tag, publish, push to `main`, or touch either
+  of his two real brains. There is no engineering entry left to take.
+
+> ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the arguments; the state is in the block above)_
 >
 > They were assembled as *WAITING ON THOMAS* and put to him in one pass. **Every one is now decided.**
 > Each answer is recorded here **and** beside its evidence in the section that owns the argument.
@@ -406,87 +426,32 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT — **THE WORK ORDER, set by Thomas 2026-08-22 after he answered all five**
+> ## 🧭 FOUR LESSONS THIS RELEASE PAID FOR — durable, and none of them is a status
 >
-> _(He asked for exactly this, in these terms: a loop that **carries out the five decisions**, with
-> **the Windows fixes at the top**. This queue IS the loop's order of work; take the first unticked
-> entry and do not re-derive the order from the slice numbering.)_
+> _(This is what four generations of `RESUME AT` headers were really carrying. The headers themselves
+> are gone: the STATE block at the top of the file is the resume marker now, and it is the only one.)_
 >
-> ~~🧭 **RESUME AT W2**~~ _(superseded twice; kept struck so a reader after a clear cannot mistake a
-> two-generation-old marker for the current one — the box below is the only live RESUME AT.)_
+> - 🛑 **A closed list is not an emptied inventory.** This plan announced an empty queue **twice** and
+>   was wrong both times, because it read its own slice list instead of looking. An emptiness claim is
+>   made against **three surfaces** — this file's slices, the ROADMAP's open rows, and the scheduled
+>   open issues — or it is not made.
+> - 🔀 **The findings are the triage plan's, and only its.**
+>   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) answers how many are fixed,
+>   which is next, and what the blocker was decided to be. **This plan restates none of it**: a count
+>   copied here is a count that goes stale the next time a finding closes.
+> - 🗣️ **A question is not an item in a list of steps.** Asked what remained, an earlier session
+>   answered with six ordered steps and buried the only actual decision inside step 5. His reply:
+>   *"je ne comprends pas ce que tu attends de moi"*. That is why the STATE block has a key of its own
+>   for the owner's calls, and why the cut below is announced in **one line** rather than recited.
+> - 🧰 **A rule restated a third time should become a gate.** `mutate-one.mjs` scoring uncommitted work
+>   was met twice in one night, two hours apart, with the rule against it written in bold both times →
+>   it now **refuses** an uncommitted target _(2026-08-22 · `ced15a0`)_. Detail:
+>   [`mutation/RESULTS.md`](../../mutation/RESULTS.md).
 >
-> 🛑 **RESUME AT: NOTHING. THE LOOP'S QUEUE IS EMPTY, AND THIS TIME THE INVENTORY WAS CHECKED RATHER
-> THAN THE LIST** _(2026-08-22, after W6's skip list was read)_. **W1, W2, W3, W4 and W6 are built,
-> read and closed**; **W5, W5b and the version bump are Thomas's** (the retarget / one review / one
-> merge commit, the wording of the four doctrine texts, and the bump that travels with the tag).
->
-> ⚠️ **This plan has twice announced an empty queue and been wrong** — a closed list is not an emptied
-> inventory. So the claim is made against the three surfaces, not from memory: this file's own slices,
-> the ROADMAP's open rows, and the scheduled open issues. **#61, #67 and #64 stay open on purpose**:
-> what closes them is a brain *receiving* the rule, not the branch carrying it.
->
-> ✅ **AND THE ONE TOOLING TASK THAT WAS LEFT IS DONE** _(2026-08-22 · `ced15a0`)_: `mutate-one.mjs`
-> now **refuses a target that is not committed**, instead of silently scoring HEAD and printing `✅`.
-> Met twice in one night, two hours apart, with the rule against it written in bold both times —
-> which is the argument for a gate rather than a third restatement. Scoped mutation **100 %** (33
-> mutants), proved by running it on both shapes (`??` and ` M`). Detail in
-> [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § *The gate that makes this box historical*.
->
-> 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
-> should say so and stop, rather than find something.
->
-> ### 🧭 ON "ON REPREND" — READ THIS FIRST _(updated 2026-08-22, after the code review returned)_
->
-> 🔴 **THE MERGE IS NOW GATED ON THE REVIEW'S FINDINGS, AND THAT IS THE HEADLINE.** `/code-review max`
-> ran over the whole branch and came back with **15 findings**, one of them a blocker on what the
-> nudge may claim about a file the engine itself rewrites.
->
-> - **The findings live in [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md)**, and
->   **only** there. **How many are fixed, which one is next, and what the blocker was decided to be:
->   that file answers all three.** This plan deliberately restates none of it — a count copied here
->   is a count that goes stale the next time a finding closes. Open that file.
-> - Thomas **decided the blocker and granted the fixing GO** before a `/clear`; both are recorded
->   there, in its header. Do not re-ask either.
-> - **Nothing is merged or tagged until that file's § Tracking is discharged** (or he ships with a
->   named finding deferred, which is his to decide and is recorded there).
-> - **Step 1 is DONE**: #76 is retargeted to `main` with its new title and a corrected body.
-> - **W5b, the wording of the four doctrine texts, is still his and still due before the tag.** It is
->   prose: the review neither judges it nor discharges it.
-> - **Open and NOT decided**: the rehearsal on a copy of a real brain — see the box after the cut list.
->   **The review strengthens the case for it**: three of the fifteen are about what the update *does to
->   an installed brain*, which is exactly what a rehearsal would have shown.
-> - The section below dates from before step 1 and stays for its reasoning; **its step 1 is spent**.
->
-> ### 🧭 THE CLEAR OF 2026-08-22 EVENING — FIVE STEPS LEFT, ALL HIS
->
-> _(Written immediately before that `/clear`, so it survives it.)_ **The build is done and the note is
-> done.** What is left is the cut below, and **not one line of it is engineering**: step 1 (retarget
-> #76 + its body), step 2 (**W5b**, the wording of the four doctrine texts — the only thing left that
-> needs him to decide CONTENT), then 4, 5, 6 (one review + one merge commit, the bump, the tag).
-> **Step 3 is closed**: the note was re-read with him line by line and §11 rewritten from it.
->
-> - **Do not re-ask the version question** — answered, `scripts` `1.13.1 → 1.14.0`.
-> - **Do not take an entry from the cut**, and do not look for engineering work: there is none left on
->   this release.
-> - **Outside this repo, and now settled**: the harness consolidation was merged by Thomas the same
->   evening — [PR #2](https://github.com/tpierrain/use-case-driven-harness/pull/2), merge commit
->   `5c40a41`, history kept whole. It carries the plural-carrier rule and the guard's declared door,
->   and it was **never** part of this cut. Nothing is owed there either.
->
-> ### ✅ THE ONE QUESTION IS ANSWERED — NOTHING IS PENDING A DECISION ANY MORE
->
-> _(2026-08-22. The question was `scripts` `1.13.1 → 1.14.0` versus a larger jump. Asked alone, in
-> plain French, and answered: **"ok pour ta reco" → `1.14.0`**. It is recorded at its authority, the
-> § *S9-2b's materials* table, and that box is now ticked. **Do not ask it again.**)_
->
-> _(Why the box was written in the first place, kept because the lesson outlives the question: asked
-> what remained, an earlier session answered with six ordered steps and buried the only decision
-> inside step 5. His reply: **"je ne comprends pas ce que tu attends de moi"**. A question is not an
-> item in a list of steps.)_
->
-> **So on "on reprend": everything left on this release needs only Thomas's GO**, not a decision. It
-> is the checklist below, and it is **his to execute, in order, at the keyboard** — say it in **one
-> line** rather than reciting it, and do not take an entry from it.
+> _(Related work in another repo, linked rather than restated: the harness now carries the plan-state
+> convention this file obeys —
+> [`harness-consolidation-action.md`](https://github.com/tpierrain/use-case-driven-harness/blob/main/docs/plans/harness-consolidation-action.md).
+> It was never part of this cut.)_
 >
 > ### 🎙️ WHAT IS YOURS, IN ORDER — the whole cut, on one screen _(2026-08-22)_
 >
@@ -1864,8 +1829,15 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
         `.engine-base/<rel>`, inside the shell. The planner already excludes those; this one exists
         because overwriting a real ancestor is the module's one irreversible act, and the guard belongs
         beside the write, not only in the code that decides.
-  - [ ] ▶️ **NEXT: S7-5-3, the wiring + the one report line** — the header's RESUME AT block lists the
-        four points it must hit.
+  - [x] **S7-5-3 — the wiring + the one report line** _(2026-08-21 · `fa0f5be`)_. 🔍 **This box was
+        found UNTICKED on 2026-08-22, while migrating this plan to the STATE-block convention, and it
+        was ticked only after checking the code rather than the plan**: `reconcile-brain.mjs:43/144`
+        calls `fetchAncestors` with no caller-side gate (S7-5-2's rule honoured — the guard stayed
+        inside the shell), and `update-engine.mjs:383` carries the *"could not reach the update
+        server"* line, pinned by two tests including its silent case.
+        🎯 **This is the convention's own thesis caught in the act**: the box said one thing, four
+        prose headers said another, and the code said a third. A resume header that has to be
+        re-written every session is a header nobody re-reads to the bottom.
   - [ ] 💡 **The tail nobody should promise yet**: `CLAUDE.md` and `settings.json` could in principle be
         RECONSTRUCTED from their `.template` at the right tag plus the substitutions. **Not measured, not
         promised** — the substitution inputs must be recoverable byte-exactly, and they may not be.

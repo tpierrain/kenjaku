@@ -401,6 +401,13 @@ comes last: biggest edit, least reversible.
       a blanket "no shas outside the STATE block"**: it needs a scope (which files) and an exemption
       (a marked history section), and that is the expensive half of it. This is a real argument for
       not building it in a hurry, and it is the reason the split option below exists at all.
+- [x] **The migration found a lie the corpus had been carrying for a day** _(2026-08-22, migrating the
+      release plan at step 6)_. `S7-5-3` sat **unticked** while its code was shipped, wired and
+      double-tested — `fa0f5be`, checked on disk. Three surfaces disagreed at once: the checkbox said
+      *to do*, four stacked prose headers said *the queue is empty*, and the code said *done*. **This
+      is F-A caught in the act**, and it is the sharpest evidence in the whole study: the box is not
+      where the state is, so the box goes stale while everyone reads the prose that buried it. Nobody
+      was careless — the file had simply grown past the point where anyone re-reads it to the bottom.
 - [x] **The convention has two outward-facing copies, and step 4 just made them stale** _(found
       2026-08-22, while doing step 4)_. The public extract `plan-memory-test-harness` and the
       published page both carry the **pre-2026-08-22** discipline (singular carriers, no door, no
