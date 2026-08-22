@@ -465,6 +465,41 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🚨 **2026-08-22 (the tripwire nobody read) — CI HAD BEEN RED ALL NIGHT, and the pre-flight said
+  green twice.** With nothing left to take alone, the loop looked at the one surface it had never
+  opened: `gh run list`. **Failure on every run in the visible window**, since 2026-08-21 22:32. Both
+  pre-flights had read `node --test` on this machine and called it a release-ready sweep.
+
+  > 🧭 **The rule, beside "a pre-flight is a timestamp": a pre-flight that only reads the LOCAL suite
+  > is measuring the machine that wrote the code.** The tripwire exists precisely because the local
+  > run cannot see the other platform. This is the same shape as every other finding tonight — a
+  > mechanism that was present and inert — except this one had a **red light already on**, and the
+  > gap was that nothing in the loop's routine ever looked at it. **`push-as-you-go-on-branches` says
+  > pushing is what arms the tripwire; nobody wrote down that arming it obliges you to read it.**
+
+  **Two independent causes, and the second is a product defect:**
+
+  1. ✅ **Shallow checkout** — `actions/checkout@v4` is depth 1 with no tags, so `locale-drift` cannot
+     resolve its waived sha and the release fixtures cannot rebuild brains from `v3.6.0`. Both pass
+     locally because a dev clone has the history: **the exact class of defect that only CI can see**.
+     Fixed with `fetch-depth: 0` on the two suites that reach into git; the installer-e2e job stays
+     shallow deliberately.
+  2. 🛑 **CRLF — the S7 heal recognises nothing on Windows.** Blocking box now at the top of the
+     release plan. **Proven rather than argued**: probed on three merge files with 11, 2 and 6 recorded
+     byte-states — LF `true`, the same content CRLF-ified `false`, every time; CI's Windows cells fail
+     the freshness guard naming **all 23** merge files, on **no** macOS job; and `buildCloneArgs` pins
+     nothing, while Git for Windows defaults `core.autocrlf` to true and `.gitattributes` covers only
+     `*.cmd` / `*.sh`. **What was NOT proven is written as not proven**: whether a real deployed Windows
+     brain holds CRLF today, and what the merge does when an LF ancestor fetched by `git show` meets a
+     CRLF working file.
+
+  > ⚠️ **This is the release's headline promise** — *"a brain frozen since the day it was installed
+  > starts receiving again"* — and it is unqualified in the note. Four ways out are written down with a
+  > recommendation; all four change what ships or what an update writes, so none is the loop's.
+
+  **Next**: his, and now on two fronts — the CRLF arbitration, then the cut. The CI fix is pushed, so
+  the next run says whether cause 1 is fully cleared.
+
 - ⏱️ **2026-08-22 (pre-flight, re-run) — the sweep that certifies a cut is itself a copy of state, and
   it had drifted.** S9-2a's pre-flight was recorded on 2026-08-21 and read as a standing fact; nine
   commits later every number in it was wrong. Re-run in full, **all green**: suite **2 423 / 2 420 pass

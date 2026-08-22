@@ -8,6 +8,47 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
+> ## 🛑 THOMAS'S CALL — **the heal does not recognise CRLF, so S7 may be inert on Windows**
+>
+> _(Found 2026-08-22 by reading the CI the pre-flight had never looked at. **This bears on the
+> release's headline promise**, so it is at the very top.)_
+>
+> **What is PROVEN, on this repo's real content and not by reasoning:**
+>
+> - [x] **Zero of the table's rows recognise CRLF bytes.** Probed locally on three merge files with
+>       11, 2 and 6 recorded byte-states: LF recognised `true`, the **same content CRLF-ified**
+>       recognised `false`, every time. The digest is over raw bytes, and `\r\n` is different bytes.
+> - [x] **CI's Windows cells say the same thing at full scale**: the S7-2 freshness guard fails there
+>       naming **all 23 merge files**, on every Windows job, on **none** of the macOS jobs.
+> - [x] **The updater's clone does not pin line endings** — `buildCloneArgs` is
+>       `clone --depth 1 --branch <ref> --single-branch`, with no `-c core.autocrlf=false`. Git for
+>       Windows defaults `core.autocrlf` to **true**, and `.gitattributes` covers only `*.cmd` / `*.sh`.
+>
+> **What is NOT proven, and must not be written as if it were**: that a real deployed Windows brain
+> holds CRLF today (it depends on that machine's git config), and what the merge does when an ancestor
+> **fetched** with `git show` (LF, no smudge filter) meets a CRLF working file — the plausible answer is
+> *every line reads as changed*, but nobody has run it.
+>
+> **Why it is not mine to fix**: every way out changes what ships or what an update writes.
+>
+> - [ ] **(a) Normalise at the boundary** — LF-normalise inside the **membership test only**. Fixes
+>       every already-installed Windows brain and changes **no bytes on disk**; and the argument for it
+>       is conceptual, not just expedient: **a line ending is not an owner edit**, and the table exists
+>       precisely to answer *"did the owner touch this?"*. Risk: two byte-states collapse to one answer.
+> - [ ] **(b) Pin the delivery** — `-c core.autocrlf=false` on the clone (and the installer copy). Makes
+>       future deliveries stable; does **nothing** for a brain already installed with CRLF.
+> - [ ] **(c) `* text=auto eol=lf` in `.gitattributes`.** Repo-wide and blunt: it rewrites Windows
+>       working trees and sits next to the launcher's deliberately opposite `*.cmd eol=crlf` rule — the
+>       file's own comment warns that one rule wrongly applied to both families is the trap.
+> - [ ] **(d) Ship as is and state the limit**: the heal is LF-only, and Windows brains stay frozen.
+>       Honest, but the release note currently promises the opposite without qualification.
+>
+> _(My recommendation if you want one: **(a) + (b)** — (a) for the brains already out there, which are
+> the whole point of this release, and (b) so the question stops recurring. But it is the fleet.)_
+>
+> ⚠️ **Whatever you choose, the release note's *"a brain frozen since the day it was installed starts
+> receiving again"* needs a qualifier or a fix before it ships.**
+
 > ## ✅ WITHDRAWN — the "does the heal unlock RETIREMENT?" arbitration was a FALSE ALARM
 >
 > _(Raised at S7-0, withdrawn 2026-08-21 when the owner asked for concrete cases and the premise was
@@ -236,6 +277,23 @@
 > ```
 >
 > **The pre-flight sweep — everything green, and two findings that are not red but are ORDER:**
+>
+> 🛑 **AND IT WAS STILL A LOCAL-ONLY SWEEP, twice.** Both runs read `node --test` on this machine and
+> **never looked at CI** — which had been **red for the whole visible window** (dozens of runs, since
+> 2026-08-21 22:32). A pre-flight that certifies a cut while the tripwire is red is worse than no
+> pre-flight: it is a green light nobody earned. **Diagnosed 2026-08-22**, two independent causes, and
+> the second is the serious one:
+>
+> - [x] **Shallow checkout** — `actions/checkout@v4` defaults to depth 1, no tags. `locale-drift`
+>       resolves a waived sha (`fatal: ambiguous argument 'f7a00fc'`) and the release fixtures rebuild
+>       brains from published tags (`fatal: invalid object name 'v3.6.0'`). **Fixed**: `fetch-depth: 0`
+>       on the two suites that reach into git. The installer-e2e job is left shallow on purpose — it
+>       runs the installer and touches no history, and blanket-changing it would only cost minutes.
+> - [ ] 🛑 **CRLF: the heal recognises nothing on Windows.** The blocking box at the top of this file.
+>
+> 🧭 **The rule this earns, beside "a pre-flight is a timestamp": a pre-flight that only reads the
+> LOCAL suite is measuring the machine that wrote the code.** The tripwire exists because the local
+> run cannot see the other platform — and it caught a real product defect the moment someone read it.
 >
 > ⏱️ **RE-RUN 2026-08-22 after the doctrine cargo landed** _(4 commits into `CLAUDE.engine.md`, both
 > locales, the fingerprint table regenerated each time)_. **A pre-flight recorded once and never

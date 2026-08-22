@@ -44,7 +44,15 @@ jobs:
     if: github.event_name == 'push' && github.ref != 'refs/heads/main'
     runs-on: windows-latest
     steps:
+      # 🛑 FULL HISTORY AND TAGS, not the default depth-1 shallow checkout.
+      # Two suites reach into git and BOTH went silently red on 2026-08-21 when they
+      # landed: `locale-drift` resolves a waived sha (`fatal: ambiguous argument
+      # 'f7a00fc'`), and the release fixtures rebuild brains from real published tags
+      # (`fatal: invalid object name 'v3.6.0'`). Locally both pass, because a dev clone
+      # has the history — which is exactly how a red tripwire went unread for a day.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node 24
         uses: actions/setup-node@v4
@@ -64,7 +72,10 @@ jobs:
         os: [macos-latest, windows-latest]
         node: [22, 24, 26]
     steps:
+      # Full history + tags — see the tripwire job above for why depth-1 breaks two suites.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node ${{ matrix.node }}
         uses: actions/setup-node@v4
