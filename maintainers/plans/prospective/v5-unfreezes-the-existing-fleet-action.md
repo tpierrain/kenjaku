@@ -157,8 +157,11 @@
 >             and the object store holds LF — **0 of the 82 carried CRLF at any ref**. Option (a)
 >             therefore costs nothing it was feared to cost. _(It remains yours: what it changes is
 >             what the engine calls "untouched", and that is a fleet-wide semantic.)_
-> - [ ] **(b) Pin the delivery** — `-c core.autocrlf=false` on the clone (and the installer copy). Makes
->       future deliveries stable; does **nothing** for a brain already installed with CRLF.
+> - [x] ✅ **(b) Pin the delivery — BUILT as W2** _(2026-08-22 · `dd08024`)_. `-c core.autocrlf=false` on
+>       the clone, **and the installer's copy delivering what the object store holds** (which is not a
+>       flag: the installer clones nothing). Makes future deliveries stable; does **nothing** for a
+>       brain already installed with CRLF — that is W1's half, and it is built too. → § *W2* in the work
+>       order for what each seam turned out to be.
 > - [ ] **(c) `* text=auto eol=lf` in `.gitattributes`.** Repo-wide and blunt: it rewrites Windows
 >       working trees and sits next to the launcher's deliberately opposite `*.cmd eol=crlf` rule — the
 >       file's own comment warns that one rule wrongly applied to both families is the trap.
@@ -373,7 +376,16 @@
 > 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
 > **proved green on a real `windows-latest` runner** (run `32558375080`).
 >
-> **Both opening reads are DONE** _(2026-08-22, run `32558912124`, the full PR matrix on `621d1cb`)_:
+> 🧭 **RESUME AT W3** _(2026-08-22, after W2 landed)_ — advance `regimes` and `retired` to the target's
+> at step 7 of the update, **plus the honest line in the release note** about the write guard widening.
+> The note clause was part of the recommendation Thomas took, so W3 is not done without it.
+>
+> **What W2 left owing, and it is a read rather than a build:** the `windows-latest` installer e2e now
+> asserts the delivered brain is LF. **That step has never run.** Read it — a macOS pass cannot give
+> that proof, by construction. → § *W2*.
+>
+> **Both of W2's opening reads were DONE** _(2026-08-22, run `32558912124`, the full PR matrix on
+> `621d1cb`)_:
 >
 > - [x] **The reshaped premise guard is GREEN on Windows.** W1's new pole no longer appears in any
 >       failure list, on Node 22, 24 or 26. → § *W6*.
@@ -396,10 +408,39 @@
 >       - [x] 🪟 ✅ **W6 HAS SAID SO, for W1's part** _(2026-08-22, run `32558375080` read on
 >         `13ef852`)_: the three QA poles are **green on `windows-latest`**. W6 itself stays open —
 >         one Windows red remains, the harness artifact, and it is a separate bullet there.
-> - [ ] **▶️ W2 (NEXT) — pin the line endings at delivery (answer 1, half b).** `-c core.autocrlf=false` on the
->       updater's clone (`buildCloneArgs`) **and** on the installer's copy path. Future-only by nature;
->       W1 is what repairs brains already installed. **Deliberately a separate slice** — the design of
->       (a) says so.
+> - [x] ✅ **W2 — pin the line endings at delivery (answer 1, half b). BUILT** _(2026-08-22 · `dd08024`
+>       + `a5b8c2a` + the boundary test)_. Test-first; full suite **2 460 / 0 fail**.
+>       - [x] **The updater's clone: `-c core.autocrlf=false` on `buildCloneArgs`** — the one flag the
+>             plan promised. **Mutation 100 %** (9 killed). It pins `core.autocrlf` and nothing else,
+>             deliberately: an explicit `eol=` attribute is a **different mechanism and it wins**, so
+>             `.gitattributes`' `*.cmd text eol=crlf` still yields the CRLF batch files Windows needs.
+>             A test asserts the argv carries exactly one `-c` and never touches `core.eol`.
+>       - [x] 🛑 **The installer was NOT a flag, and this line used to say it was.** The installer
+>             **clones nothing** — it copies the launcher's WORKING TREE. So the fix is to deliver what
+>             the **object store** holds: `git ls-files --eol` reports per file the form the index holds
+>             and the `.gitattributes` verdict, and `deliversAsLf` normalises exactly the files git
+>             stores as LF. **Git answers on the launcher's own rules; nothing guesses from a file
+>             extension.** Mutation **92.59 %**, 2 named equivalents _(→ `mutation/RESULTS.md`)_.
+>       - [x] 📏 **Measured before designing, and it is what made the slice small** _(2026-08-22)_: the
+>             launcher tracks **840 `i/lf`, 30 `i/-text`, 2 `i/none`, and NOT ONE file with an `eol=`
+>             attribute**. `.gitattributes`' `*.cmd` / `*.sh` rules exist for the launchers a **brain
+>             generates**, not for anything copied — the file's own comment says so. The guard for
+>             `eol=crlf` is still written and tested, because the day one is tracked the failure is a
+>             Windows user's launcher.
+>       - [x] 🏃 **Run as a PROCESS, not merely imported** (the entry-point seam rule): a real install
+>             into a temp dir delivered **247 engine files with zero CR**, the PNG **byte-identical**,
+>             and the generated `run-node.cmd` still CRLF — that one is written by `buildNodeRunnerCmd`
+>             and never copied, which is precisely why the copy loop must not be what protects it.
+>       - [ ] 🪟 **Its Windows proof is W6's, and a macOS run CANNOT give it**: this checkout is already
+>             LF, so the normalisation is a no-op here and any assertion passes while measuring nothing.
+>             A step was added to the **`windows-latest` installer e2e** — every delivered `.mjs` and
+>             `CLAUDE.engine.md` must be LF, with a **positive control** (`run-node.cmd` must still be
+>             CRLF) and a floor on the file count so a green cannot mean *"found nothing to look at"*.
+>             **Read that run.**
+>       - 🧪 **No mutation on `installer.mjs`'s five wiring lines, and the skip is stated**: it sits
+>             **outside `scripts/`**, which `mutate-one.mjs` refuses by construction — a pre-existing
+>             structural limit, not a choice made here. What it wires is pure and measured; what it does
+>             is covered by running the installer, which is what the entry-point rule asks for anyway.
 > - [ ] **W3 — regimes → (a) (answer 4).** Advance `regimes` and `retired` to the target's at step 7 of
 >       the update, **plus the honest line in the release note** about the write guard's widening. The
 >       note clause was part of the recommendation he took, so the slice is not done without it.

@@ -233,6 +233,58 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## W2 — pinning the delivery, and six survivors that asked for LESS code — 2026-08-22
+
+`dd08024` (the slice) + `a5b8c2a` (the simplification) + the boundary test. State owned by
+[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-fetch.mjs:36-49` (`buildCloneArgs`) | **100 %** — 9 killed | — | 0 |
+| `scripts/lib/tracked-files.mjs:31-73` (the EOL parse + verdict) | **83.78 %** — 6 survived | **92.59 %** | 2, both named equivalents |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/tracked-files.mjs:31-73"`.
+
+🧭 **THREE OF THE SIX SURVIVORS WERE ONE MESSAGE: there was too much code.** They were all `indexOf`
+comparisons — `tab <= 0`, and the `attrAt < 0 ? "" : …` ternary twice — whose false branch **no output
+git produces can reach**. Unkillable, and *load-bearing-looking*, which is the worse half: a reader
+budgets attention for a guard that guards nothing. The remedy was the one this document keeps
+recommending and sessions keep skipping — **simplify the production instead of inventing a fixture**:
+the record format is now stated once as a pattern that either matches or does not, and the arithmetic
+went away with its half-states.
+
+**And the simplification produced a rule worth asserting**, which is how you tell it from mere
+deletion: *a record it cannot FULLY read is SKIPPED, never half-read.* A half-parsed record becomes an
+entry keyed by a real path carrying a wrong verdict, and the installer then delivers that file in the
+wrong form; skipping means byte-verbatim, which is what it always did.
+
+**The two genuine gaps**, both closed:
+
+- **Every `eol=crlf` fixture had it LAST**, so the trailing boundary was only ever satisfied by
+  end-of-string and `(\s|$)` could lose its `\s` unnoticed. A file can carry several attributes, and
+  the one protecting a Windows launcher must not depend on being written last.
+- **Both boundaries from the other side** (`eol=crlfx`, `noeol=crlf`), so the guard cannot decay into a
+  substring test and deny a file its LF delivery over a coincidence of spelling.
+
+**The two that remain are equivalents, and each is PROVED rather than asserted:**
+
+- `(.*)$` → `(.*)`: `.` does not match a newline and `.*` is greedy, so the anchor changes nothing
+  unless the **fields** part contains a newline. It cannot — git emits the fields, then one tab, then
+  the path, and the split takes the **first** tab.
+- `tab < 0` → `tab <= 0`: a record starting with a tab yields empty fields, the pattern refuses them,
+  and the record is skipped either way. **That equivalence is a CONSEQUENCE of the simplification** —
+  the edge the comparison used to guard is now covered by the pattern.
+
+🧪 **`installer.mjs`'s five wiring lines are NOT measured, and the skip is stated rather than passed
+over**: it sits outside `scripts/`, which `mutate-one.mjs` refuses by construction — a pre-existing
+structural limit, not a choice made here. What it wires is pure and measured above; what it *does* is
+covered by **running the installer as a process**, which the entry-point seam rule demands anyway
+(247 engine files delivered with zero CR, the PNG byte-identical, the generated `run-node.cmd` still
+CRLF).
+
+---
+
 ## W1 (S7-6) — the CRLF ancestor fetch, and a pass that measured the code it had NOT written — 2026-08-22
 
 `65a6080` (the fix) + `13ef852` (the survivor's test). State owned by

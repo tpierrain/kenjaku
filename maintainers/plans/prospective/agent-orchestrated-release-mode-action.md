@@ -24,9 +24,9 @@
 > >   hook, which named a carrier whose header had been saying so for a day. **A closed list is not an
 > >   emptied inventory** — the third time this release has been told that, each time on a different
 > >   surface.
-> > - ✅ **W1 (S7-6, the CRLF ancestor fetch) IS BUILT AND PUSHED** _(2026-08-22 · `65a6080` +
-> >   `13ef852`)_. **The next buildable slice is W2** — pin the line endings at delivery
-> >   (`-c core.autocrlf=false` on the updater's clone and the installer's copy path).
+> > - ✅ **W1 AND W2 ARE BUILT AND PUSHED** _(2026-08-22 · W1 `65a6080`+`13ef852`, W2 `dd08024`+
+> >   `a5b8c2a`)_. **The next buildable slice is W3** — advance `regimes` and `retired` at step 7 of
+> >   the update, plus the honest release-note line about the write guard widening.
 > > - 🪟 **W6 was READ, and W1's half of it passed** _(run `32558375080` on `13ef852`)_: the three QA
 > >   poles are green on `windows-latest`. **W6 itself is still open** — one Windows red remains, the
 > >   S7-2 freshness guard regenerating the table from a CRLF working tree, which is its own bullet.
@@ -491,6 +491,35 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- ✅ **2026-08-22 (W2) — THE DELIVERY IS PINNED, and "one flag in two places" was one flag in ONE
+  place.** `dd08024` + `a5b8c2a`. Suite **2 460 / 0 fail**. State owned by the release plan's § *W2*.
+  - 🛑 **The second seam was not a flag, and nothing but opening the file could say so.** The plan's
+    W2 line read *"`-c core.autocrlf=false` on the updater's clone **and** on the installer's copy
+    path"*. **The installer clones nothing** — it copies the launcher's working tree. So the fix had to
+    become *deliver what the OBJECT STORE holds*: `git ls-files --eol` reports per file the index form
+    and the `.gitattributes` verdict, and git answers on the launcher's own rules instead of anything
+    here guessing from a file extension. **Third slice running where a one-line promise in a plan was
+    a sketch of the fix rather than a measurement of it** — and each time the correction cost minutes,
+    not hours, because it surfaced while writing the test.
+  - 📏 **The measurement that made it small, taken BEFORE designing**: the launcher tracks 840 `i/lf`,
+    30 binaries, 2 empty — and **not one file with an `eol=` attribute**. `.gitattributes`' `*.cmd` /
+    `*.sh` rules protect the launchers a **brain generates**, not anything copied. So the feared
+    `.gitattributes` trap was not in this path at all. **The guard is written and tested anyway**,
+    because the day a `.cmd` is tracked the failure is a Windows user's launcher.
+  - 🧪 **Six survivors, and three were one message: TOO MUCH CODE.** All three were `indexOf`
+    comparisons whose false branch no git output can reach — unkillable and *load-bearing-looking*.
+    Simplified to a stated pattern rather than fixture-hunted, and the simplification **produced a rule
+    worth asserting** (*a record it cannot fully read is skipped, never half-read*), which is how you
+    tell it from deletion. 83.78 % → **92.59 %**, 2 proved equivalents. `buildCloneArgs` 100 %.
+  - 🏃 **Run as a process, not merely imported**: a real install delivered 247 engine files with zero
+    CR, the PNG byte-identical, and the generated `run-node.cmd` still CRLF — written by
+    `buildNodeRunnerCmd`, never copied, which is why the copy loop must not be what protects it.
+  - 🪟 **And a macOS run CANNOT prove W2 fires** — this checkout is already LF, so the normalisation is
+    a no-op and any assertion passes while measuring nothing. A step was added to the `windows-latest`
+    installer e2e, with a **positive control** and a **floor on the file count**, precisely so a green
+    cannot mean *"found nothing to look at"*. It has never run. **Read it.**
+  - **Next**: **W3**.
 
 - ✅ **2026-08-22 (W1 · S7-6) — THE WINDOWS FLEET GETS ITS ANCESTOR BACK, and the mutation runner
   measured the wrong tree first.** `65a6080` (the fix) + `13ef852` (the survivor's test). Test-first:

@@ -253,6 +253,15 @@ inverted rather than deleted.
      platform git checks the fixtures out as CRLF, so the brain records a CRLF digest against an
      LF table and the repair is exercised **without any fixture arranging it** — the environment builds
      the defect for free. **Windows went from four failures to one.**
+   - ✅ **And the delivery is now PINNED, so it cannot recur** (W2, the owner's half (b)):
+     `-c core.autocrlf=false` on the updater's clone, and the installer delivering **what the object
+     store holds** rather than what its checkout holds. The second one is not a flag — the installer
+     clones nothing, it copies the launcher's working tree — so it asks `git ls-files --eol` which
+     files git stores as LF, and normalises exactly those. Binaries (29 PNG boards ship into every
+     brain) and any explicit `eol=crlf` are copied verbatim; a failed call falls back to the
+     byte-verbatim copy, so an installer never refuses to build a brain over a line-ending nicety.
+     **A macOS run cannot prove this fires** — its checkout is already LF — so the assertion lives in
+     the `windows-latest` installer e2e, with a positive control and a floor on the file count.
    - ✅ **The heal was NOT affected**, so *"a frozen brain starts receiving again"* held on Windows all
      along. It normalises the installed content before consulting the table (`engine-heal.mjs:32`) —
      measured, CRLF heals identically to LF, and an owner's edit still heals not at all.
