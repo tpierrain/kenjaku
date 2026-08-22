@@ -25,7 +25,7 @@
   a slice whose tests already exist and are red. It may **not** dispatch judgement, and it may not
   advance the release's queue past what the owner reserved.
 
-> ## 🧭 THREE LESSONS THIS MODE PAID FOR — durable, and none of them is a status
+> ## 🧭 FOUR LESSONS THIS MODE PAID FOR — durable, and none of them is a status
 >
 > _(What four generations of `WHERE THIS RESUMES` header were really carrying. The headers are gone;
 > the STATE block above is the resume marker now.)_
@@ -44,8 +44,17 @@
 > - 🪝 **A net never watches the session that writes it.** `plan-carrier-guard.mjs` loads at **session
 >   start**, so the session that built it ran unguarded — worth knowing before trusting a hook the day
 >   it lands.
+> - 📐 **"Checked, not assumed" is a claim about the CHECK, and the mode writes it fastest when the
+>   check is weakest** _(2026-08-22)_. A long unattended stretch recorded a range verdict as a
+>   📐-marked box — the marker this mode uses to mean *measured* — over a command that was really a
+>   guess with a shell around it (`grep -v '\.md$'`, i.e. *"prose can't change behaviour"*, false in a
+>   product whose prose IS the behaviour). It ran, it printed, it agreed with the conclusion, and the
+>   conclusion happened to be right; **only the owner caught the reasoning**. The box's authority came
+>   from its badge, not from what it proved. So: 📐 is earned by naming **what would have to be true
+>   for the command to answer the question**, not by having run something. On an autonomous stretch
+>   there is no hand-back where that gets asked, which is exactly when the badge gets typed.
 >
-> _(A fourth, **"a closed list is not an emptied inventory"**, was learned here too and is now owned by
+> _(A fifth, **"a closed list is not an emptied inventory"**, was learned here too and is now owned by
 > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *FOUR
 > LESSONS*. Linked, not copied.)_
 >
