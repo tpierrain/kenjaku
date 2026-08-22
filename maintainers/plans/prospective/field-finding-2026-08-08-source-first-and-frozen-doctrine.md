@@ -28,6 +28,14 @@
 > > engineering queue is the moment this file is most likely to be skipped, and it is the moment it is
 > > load-bearing.
 > >
+> > 🔍 **AND A FOURTH THING NOW STANDS BEFORE THE MERGE — a tooled `/code-review`** _(2026-08-22,
+> > Thomas's call, because the release was built end to end in orchestrated `/loop` mode and nothing
+> > outside the loop has read the code)_. It runs in three passes by descending operational risk, over
+> > the **code**. **It changes nothing here**: the wording carried by this file is prose in
+> > `CLAUDE.engine.md`, so no review pass can judge it, invalidate it, or discharge it. It stays his,
+> > and it stays due before the tag. The retarget of #76 to `main` is **done** (2026-08-22), so of the
+> > acts listed above, one is spent.
+> >
 > > 🔢 **The bump stopped being a DECISION on 2026-08-22, and that sharpens this box rather than
 > > softening it.** Its one open call, `scripts` `1.13.1 → 1.14.0`, was asked alone and answered ("ok
 > > pour ta reco"); it is recorded in the owning plan's § *S9-2b's materials* and **must not be asked
