@@ -12,12 +12,12 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** 🚨 **THE REHEARSAL RAN, AND IT FOUND THE THING THOMAS SAID HE WANTED TO AVOID**
-  _(2026-08-23, on a COPY of `mind-palace`, no original touched)_: **the first update to v5 does NOT
-  unfreeze a deployed brain.** It swaps the engine, says it is up to date, and leaves the doctrine
-  exactly where it was — because the update that carries this feature is performed by the brain's
-  **OLD** engine, and nothing in the old parent advances the file families the new one needs. It takes
-  a **second** `/update-engine` — which no surface ever asks for. → § *THE REHEARSAL*, which owns it.
+- **Next:** ✅ **THE REHEARSAL RAN, IT FOUND EXACTLY THE THING THOMAS SAID HE WANTED TO AVOID, AND IT
+  IS FIXED** _(2026-08-23, on COPIES of both real brains, no original touched)_. The first update to v5
+  was swapping the engine, answering *"that is the latest release"*, and leaving the doctrine exactly
+  where it was: it took a **second** `/update-engine` that no surface ever asked for. Both real brains
+  now unfreeze on the **first** update, and the catch-up announces itself. → § *THE REHEARSAL*, which
+  owns the measurement, the cause and the design.
   - The review queue is otherwise being discharged under his GO:
     [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) § I–L and its STATE block OWN
     how many, which are done and which remain. **Do not restate any of it here** — this line used to
@@ -29,8 +29,7 @@
   - **No engineering is left on this release** beyond whatever the review turns up: the queue is
     empty, checked against the three surfaces rather than recalled. Say that in one line rather than
     reciting § *WHAT IS YOURS*, and **do not take an entry from it**.
-- **Blocked on:** **the first-update defect above must be fixed before this ships** — it is the
-  release's own headline, and it lands on every deployed brain. Plus the code review's findings —
+- **Blocked on:** the code review's findings —
   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns them and its own STATE
   block answers where they stand. **Nothing is merged or tagged until its § Tracking is discharged**,
   unless Thomas ships with a named finding deferred.
@@ -154,7 +153,21 @@
 > self-heal path, where `sourceDir === brainDir` and the two manifests are the same file. Nothing else
 > moves: the version stamps and the index schema are the parent's, already written.
 >
-> - [ ] Build it test-first, then **re-run this same rehearsal** and read the state after ONE update.
+> - [x] ✅ **BUILT, AND THE SAME REHEARSAL NOW PASSES ON ONE UPDATE** _(2026-08-23 · `81dc6eb`)_. On the
+>       copy of `mind-palace`, after a single `/update-engine`: the doctrine goes **334 → 549 lines and
+>       is byte-identical to `templates/fr/CLAUDE.engine.md` at HEAD**, `regimes` gains its fourth key
+>       and its 16th entry, `retired` arrives and `tdd-discipline` is removed, `baseRefs` records the
+>       doctrine at `v5.0.0`. **The owner's territory is untouched**, checked file by file against the
+>       original: `CLAUDE.md`, `.env`, `.mcp.json` and the **whole 588-note vault** are byte-identical;
+>       `.claude/settings.json` differs by exactly the two hook entries this release wires.
+> - [x] ✅ **AND THE OLDER BRAIN TOO** _(same run, `autre-brain`, v3.5.0 — three minor versions further
+>       back, index schema 1 → 2)_: same unfreeze on the first update, plus 4 skills installed and 5
+>       hooks wired. Vault, constitution and `.env` byte-identical.
+> - [x] 🔊 **AND IT SAYS SO NOW** _(`7cc94bc`)_. The recap an owner reads on that update is printed by
+>       their OLD engine, which cannot describe any of this — so the catch-up was landing in total
+>       silence. The child writes one line, in the owner's terms, naming what arrived and what went. It
+>       is refused to a self-heal, which is the pole that matters: a converged brain must not be told
+>       daily about an update that happened once.
 >
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
