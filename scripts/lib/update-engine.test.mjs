@@ -7,6 +7,7 @@ import {
   readFileSync,
   existsSync,
   rmSync,
+  chmodSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
@@ -1671,7 +1672,10 @@ function assertSacredUntouched(brainDir, before) {
 // Run the core with the network/npm/reindex SEAMS stubbed. fetchSource hands back the
 // prepared source dir (stands in for `git clone --depth 1 --branch <ref>`); the calls
 // object records the side effects we assert on.
-async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, countVaultNotes, git }) {
+// `onFinalize` is the LATE hook: step 8 runs after everything that writes and reads the
+// brain, so a test that needs the disk to change under the REPORT — and only under the
+// report — has one place to do it from.
+async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, countVaultNotes, git, onFinalize }) {
   const updateEngine = await loadCore();
   const calls = { install: [], reindex: [], regenerate: [], finalize: [], commit: [], order: [] };
   const report = await updateEngine({
@@ -1698,6 +1702,7 @@ async function runUpdate({ brainDir, sourceDir, platform, resolveLatestTag, coun
     finalizeReconcile: async ({ brainDir: bd, sourceDir: sd, platform: p }) => {
       calls.finalize.push({ brainDir: bd, sourceDir: sd, platform: p });
       calls.order.push("finalize");
+      await onFinalize?.();
     },
     // The launcher's latest release tag on the remote (ADR 0017). Default = the
     // target's version; overridable to exercise the offline/no-tag fallback. The
@@ -2441,6 +2446,50 @@ test("updateEngine — the report names what the brain is STILL holding back, ve
   assert.match(
     formatReport(report),
     /• where your brain stands now, running v1\.1\.0: 3 engine file\(s\) this update leaves alone\n {5}- \.claude\/settings\.json — left as-is; no record of what the engine delivered there\n {5}- \.claude\/skills\/switch\/SKILL\.md — yours; the engine last delivered here at v1\.0\.0\n {5}- \.claude\/skills\/zzz-mine\/SKILL\.md — left as-is; no record of what the engine delivered there\n/,
+  );
+});
+
+// F7 (v5.0.0 code review) — A SUCCESSFUL UPDATE MUST NEVER REPORT ITSELF AS FAILED.
+//
+// The whole point of the "the brain was NOT changed past this point" banner is that it
+// is TRUE. The divergence read is the last thing `updateEngine` does — after the merge,
+// after the manifest rewrite, after the commit — and it reads files off disk. One file
+// that has become unreadable in the meantime (a permission change, a sync client moving
+// it, an editor swapping it out) turned a finished update into a ❌ and an invitation to
+// re-run it.
+test("updateEngine — a file that goes unreadable while the REPORT is being built cannot fail a finished update", async (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to make a file unreadable");
+    return;
+  }
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  const unreadable = join(brainDir, ".claude/skills/zzz-mine/SKILL.md");
+  t.after(() => {
+    // Restored FIRST: the rmSync below cannot delete what it cannot read.
+    chmodSync(unreadable, 0o644);
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "engine-manifest.json", manifest({ ragVersion: "1.0.0", indexSchemaVersion: 1, ref: "v1.0.0" }));
+  writeFile(sourceDir, "engine-manifest.json", manifest({ ragVersion: "1.1.0", indexSchemaVersion: 1, ref: "v1.1.0" }));
+
+  // 🎯 The TOCTOU this is about: the file was readable for every step that WROTE, and
+  // stops being readable for the step that merely DESCRIBES. Whatever `chmod` stands in
+  // for here, the invariant is the same — past the commit, nothing may reject.
+  const { report } = await runUpdate({
+    brainDir,
+    sourceDir,
+    platform: "posix",
+    onFinalize: () => chmodSync(unreadable, 0o000),
+  });
+
+  assert.equal(report.ref, "v1.1.0", "the update really did complete — this is not a test of an update that failed early");
+  assert.equal(report.committed, "committed-by-fake", "and it got as far as persisting its writes");
+  assert.deepEqual(
+    report.divergence,
+    [],
+    "a report it could not build says nothing, rather than taking the update down with it",
   );
 });
 

@@ -764,9 +764,31 @@ export async function updateEngine({
     // SessionStart banner says WHY the next pull is blocked (repo-status.mjs).
   }
 
+  // 10. DESCRIBE what the brain is still holding back. This READS files off disk, and it
+  //     is the last thing the update does — after the merge, after the manifest rewrite,
+  //     after the commit. One file that has gone unreadable in the meantime (a permission
+  //     change, a sync client moving it, an editor swapping it out) used to throw from
+  //     here, out of `updateEngine`, into the CLI's catch — which prints "❌ update-engine
+  //     failed — the brain was NOT changed past this point" over an update that finished,
+  //     recorded and committed. The banner's whole value is that it is TRUE, and this was
+  //     the last unguarded statement able to make it a lie (F7 of the v5.0.0 review).
+  //
+  //     Fail-soft for exactly the reason steps 8 and 9 are: past step 7 the update IS
+  //     done. And nothing is lost by staying quiet — the divergence nudge is a STANDING
+  //     surface, re-read at every session start (`session-engine-divergence.mjs`), so a
+  //     line omitted once comes back on its own. Guarded HERE rather than inside
+  //     `readEngineDivergence`, so the function stays honest for callers that want to
+  //     know, and the invariant lives where it is stated: past this point, nothing rejects.
+  let divergence = [];
+  try {
+    divergence = readEngineDivergence({ brainDir });
+  } catch {
+    // swallowed on purpose — a report we cannot build must not unsay a finished update.
+  }
+
   return {
     committed,
-    divergence: readEngineDivergence({ brainDir }),
+    divergence,
     ref: updated.source.ref,
     engineVersion: updated.engineVersion,
     copied,
