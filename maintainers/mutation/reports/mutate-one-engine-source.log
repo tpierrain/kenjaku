@@ -1,27 +1,39 @@
-[32m10:42:43 (82970) INFO ProjectReader[39m Found 1 of 806 file(s) to be mutated.
-[32m10:42:43 (82970) INFO Instrumenter[39m Instrumented 1 source file(s) with 68 mutant(s)
-[32m10:42:43 (82970) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m10:42:44 (82970) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-j7rNpk
-[32m10:42:44 (82970) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m10:42:44 (82970) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m10:42:46 (82970) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2266 ms, overhead 0 ms).
-Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/68 tested (0 survived, 0 timed out)
-Mutation testing 7% (elapsed: <1m, remaining: ~4m) 5/68 tested (0 survived, 0 timed out)
-Mutation testing 14% (elapsed: <1m, remaining: ~2m) 10/68 tested (1 survived, 0 timed out)
-Mutation testing 23% (elapsed: <1m, remaining: ~2m) 16/68 tested (2 survived, 0 timed out)
-Mutation testing 30% (elapsed: <1m, remaining: ~1m) 21/68 tested (2 survived, 0 timed out)
-Mutation testing 38% (elapsed: ~1m, remaining: ~1m) 26/68 tested (2 survived, 0 timed out)
-Mutation testing 44% (elapsed: ~1m, remaining: ~1m) 30/68 tested (2 survived, 0 timed out)
-Mutation testing 51% (elapsed: ~1m, remaining: ~1m) 35/68 tested (2 survived, 0 timed out)
-Mutation testing 58% (elapsed: ~1m, remaining: ~1m) 40/68 tested (2 survived, 0 timed out)
-Mutation testing 66% (elapsed: ~1m, remaining: <1m) 45/68 tested (2 survived, 0 timed out)
-Mutation testing 73% (elapsed: ~1m, remaining: <1m) 50/68 tested (2 survived, 0 timed out)
-Mutation testing 80% (elapsed: ~2m, remaining: <1m) 55/68 tested (2 survived, 0 timed out)
-Mutation testing 88% (elapsed: ~2m, remaining: <1m) 60/68 tested (2 survived, 0 timed out)
-Mutation testing 97% (elapsed: ~2m, remaining: <1m) 66/68 tested (4 survived, 0 timed out)
+[32m10:12:25 (4737) INFO ProjectReader[39m Found 1 of 876 file(s) to be mutated.
+[32m10:12:25 (4737) INFO Instrumenter[39m Instrumented 1 source file(s) with 76 mutant(s)
+[32m10:12:25 (4737) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m10:12:25 (4737) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-vFOPJN
+[32m10:12:25 (4737) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m10:12:25 (4737) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m10:12:29 (4737) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3688 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/76 tested (0 survived, 0 timed out)
+Mutation testing 6% (elapsed: <1m, remaining: ~4m) 5/76 tested (0 survived, 0 timed out)
+Mutation testing 6% (elapsed: <1m, remaining: ~7m) 5/76 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: <1m, remaining: ~4m) 10/76 tested (1 survived, 0 timed out)
+Mutation testing 14% (elapsed: <1m, remaining: ~4m) 11/76 tested (1 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~1m, remaining: ~4m) 15/76 tested (2 survived, 0 timed out)
+Mutation testing 22% (elapsed: ~1m, remaining: ~4m) 17/76 tested (2 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~3m) 21/76 tested (2 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~1m, remaining: ~3m) 25/76 tested (2 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~1m, remaining: ~3m) 27/76 tested (2 survived, 0 timed out)
+Mutation testing 40% (elapsed: ~1m, remaining: ~2m) 31/76 tested (2 survived, 0 timed out)
+Mutation testing 42% (elapsed: ~2m, remaining: ~2m) 32/76 tested (2 survived, 0 timed out)
+Mutation testing 48% (elapsed: ~2m, remaining: ~2m) 37/76 tested (2 survived, 0 timed out)
+Mutation testing 48% (elapsed: ~2m, remaining: ~2m) 37/76 tested (2 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~2m, remaining: ~2m) 42/76 tested (2 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~2m, remaining: ~2m) 42/76 tested (2 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~2m, remaining: ~1m) 47/76 tested (2 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~3m, remaining: ~1m) 49/76 tested (2 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~3m, remaining: ~1m) 52/76 tested (2 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~3m, remaining: ~1m) 57/76 tested (2 survived, 0 timed out)
+Mutation testing 76% (elapsed: ~3m, remaining: ~1m) 58/76 tested (2 survived, 0 timed out)
+Mutation testing 81% (elapsed: ~3m, remaining: <1m) 62/76 tested (2 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~3m, remaining: <1m) 64/76 tested (4 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~4m, remaining: <1m) 68/76 tested (6 survived, 0 timed out)
+Mutation testing 90% (elapsed: ~4m, remaining: <1m) 69/76 tested (6 survived, 0 timed out)
+Mutation testing 97% (elapsed: ~4m, remaining: <1m) 74/76 tested (8 survived, 0 timed out)
 
 All tests
-  ✓ All tests (killed 64)
+  ✓ All tests (killed 68)
 
 [Survived] ArrayDeclaration
 scripts/lib/engine-source.mjs:34:49
@@ -33,13 +45,33 @@ scripts/lib/engine-source.mjs:35:44
 -     const tombstones = (manifest?.retired ?? []).map(globToRegExp);
 +     const tombstones = (manifest?.retired ?? ["Stryker was here"]).map(globToRegExp);
 
+[Survived] OptionalChaining
+scripts/lib/engine-source.mjs:134:14
+-       regimes: target?.regimes ?? local?.regimes,
++       regimes: target.regimes ?? local?.regimes,
+
+[Survived] OptionalChaining
+scripts/lib/engine-source.mjs:134:33
+-       regimes: target?.regimes ?? local?.regimes,
++       regimes: target?.regimes ?? local.regimes,
+
+[Survived] OptionalChaining
+scripts/lib/engine-source.mjs:135:33
+-       retired: target?.retired ?? local?.retired,
++       retired: target?.retired ?? local.retired,
+
+[Survived] OptionalChaining
+scripts/lib/engine-source.mjs:135:14
+-       retired: target?.retired ?? local?.retired,
++       retired: target.retired ?? local?.retired,
+
 [Survived] StringLiteral
-scripts/lib/engine-source.mjs:118:58
+scripts/lib/engine-source.mjs:147:58
 -     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 +     const manifest = JSON.parse(readFileSync(manifestPath, ""));
 
 [Survived] StringLiteral
-scripts/lib/engine-source.mjs:122:69
+scripts/lib/engine-source.mjs:151:69
 -       mergeFiles.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]),
 +       mergeFiles.map((rel) => [rel, readFileSync(join(brainDir, rel), "")]),
 
@@ -48,8 +80,8 @@ Ran 1.00 tests per mutant on average.
                    | % Mutation score |          |           |            |          |          |
 File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 -------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files          |  94.12 |   94.12 |       64 |         0 |          4 |        0 |        0 |
- engine-source.mjs |  94.12 |   94.12 |       64 |         0 |          4 |        0 |        0 |
+All files          |  89.47 |   89.47 |       68 |         0 |          8 |        0 |        0 |
+ engine-source.mjs |  89.47 |   89.47 |       68 |         0 |          8 |        0 |        0 |
 -------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m10:45:07 (82970) INFO MutationTestExecutor[39m Done in 2 minutes and 23 seconds.
-[32m10:45:07 (82970) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-j7rNpk.
+[32m10:16:50 (4737) INFO MutationTestExecutor[39m Done in 4 minutes and 25 seconds.
+[32m10:16:50 (4737) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-vFOPJN.

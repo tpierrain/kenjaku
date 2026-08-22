@@ -468,6 +468,12 @@ test("advanceRegimes — an engine that declares no lists never BLANKS the brain
   );
 });
 
-test("advanceRegimes — a brain that has neither, updating from an engine that has neither, keeps none", () => {
+// The absent case, fed on purpose and for the same reason `selectMergeFiles` is fed one:
+// this runs at step 7, AFTER the reconcile has already converged the files on disk. A throw
+// here does not merely lose the regimes — it aborts the manifest write entirely, leaving a
+// brain whose FILES are at HEAD and whose MANIFEST is at install day. Nothing downstream is
+// written to expect that pair. Triangulated down to no manifests at all.
+test("advanceRegimes — a brain and an engine that declare nothing keep nothing, and never throw", () => {
   assert.deepEqual(advanceRegimes({ local: {}, target: {} }), { regimes: undefined, retired: undefined });
+  assert.deepEqual(advanceRegimes({}), { regimes: undefined, retired: undefined });
 });
