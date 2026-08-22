@@ -28,6 +28,13 @@
 > > engineering queue is the moment this file is most likely to be skipped, and it is the moment it is
 > > load-bearing.
 > >
+> > 🔴 **AND THAT REVIEW CAME BACK WITH 15 FINDINGS, SO A FIXING PHASE NOW STANDS BEFORE THE MERGE**
+> > _(2026-08-22)_. One is fleet-wide and blocking; the shape of its repair is decided. **It changes
+> > nothing here either, for the same reason as below**: the fixes are code, the text this file carries
+> > is prose, and no finding touches it. It stays his, still due before the tag, and it is now further
+> > from the tag than it was this morning, not closer. →
+> > [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns the findings.
+> >
 > > 🔍 **AND A FOURTH THING NOW STANDS BEFORE THE MERGE — a tooled `/code-review`** _(2026-08-22,
 > > Thomas's call, because the release was built end to end in orchestrated `/loop` mode and nothing
 > > outside the loop has read the code)_. It runs in three passes by descending operational risk, over
