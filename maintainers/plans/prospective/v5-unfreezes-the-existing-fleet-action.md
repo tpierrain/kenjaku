@@ -446,10 +446,10 @@
 > - **Do not re-ask the version question** — answered, `scripts` `1.13.1 → 1.14.0`.
 > - **Do not take an entry from the cut**, and do not look for engineering work: there is none left on
 >   this release.
-> - **Outside this repo, one thing is in flight**: the harness consolidation is open as
->   [PR #2 on `use-case-driven-harness`](https://github.com/tpierrain/use-case-driven-harness/pull/2)
->   and **waits on Thomas to merge it** (the session was blocked by a permission classifier). It is
->   **not** part of this cut; it carries the plural-carrier rule and the guard's declared door.
+> - **Outside this repo, and now settled**: the harness consolidation was merged by Thomas the same
+>   evening — [PR #2](https://github.com/tpierrain/use-case-driven-harness/pull/2), merge commit
+>   `5c40a41`, history kept whole. It carries the plural-carrier rule and the guard's declared door,
+>   and it was **never** part of this cut. Nothing is owed there either.
 >
 > ### ✅ THE ONE QUESTION IS ANSWERED — NOTHING IS PENDING A DECISION ANY MORE
 >
