@@ -27,6 +27,13 @@
 > > (W5b)**, and the `engineVersion` bump, which travels with the tag rather than ahead of it. An empty
 > > engineering queue is the moment this file is most likely to be skipped, and it is the moment it is
 > > load-bearing.
+> >
+> > 🔢 **The bump stopped being a DECISION on 2026-08-22, and that sharpens this box rather than
+> > softening it.** Its one open call, `scripts` `1.13.1 → 1.14.0`, was asked alone and answered ("ok
+> > pour ta reco"); it is recorded in the owning plan's § *S9-2b's materials* and **must not be asked
+> > again**. So of the three, two are now pure **acts** (apply the bump, merge) and **this file carries
+> > the only one that still needs him to decide CONTENT**: the wording. Fewer things standing between
+> > the branch and the tag makes the remaining one easier to walk past, not less real.
 >
 > ✅ **S1 is written and guarded** _(2026-08-22, `5729282`, branch `feat/engine-base-unfreeze`)_. Both
 > `CLAUDE.engine.md` and `templates/fr/CLAUDE.engine.md` open their routing section with a **`Level 1`
