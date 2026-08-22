@@ -37,18 +37,36 @@
 > (which tag a sha names). That is *both* of the release's fallen-forbidden claims — *"an old brain
 > receives"* and *"the merge reaches back"* — at risk on the same platform, for the same one reason.
 >
-> **What is STILL not proven, and must not be written as if it were**: that a real deployed Windows
-> brain holds CRLF today. The measurement above is a **fixture on a Windows runner**, which derives its
-> brain bytes from a working tree the runner checked out with `core.autocrlf=true`. A real install does
-> the same thing through the installer's copy, so the mechanism transfers — but nobody has read a real
-> Windows brain's bytes, and the difference is worth keeping.
+> - [x] 📥 **AND A REAL WINDOWS INSTALL DOES HOLD CRLF — read, not reasoned** _(2026-08-22)_. The
+>       yesterday's caveat was *"the CI is a fixture; nobody has read a real Windows brain's bytes"*.
+>       The install path answers it without one: `installer.mjs` lists the launcher's tracked files
+>       (`git ls-files`) and then **`copyFileSync`s each one from the launcher's WORKING TREE**
+>       (`installer.mjs:309`) — a byte-verbatim copy, no encoding pass, no normalisation. **A brain's
+>       engine bytes are therefore exactly its launcher checkout's bytes.** Git for Windows defaults
+>       `core.autocrlf` to **true**, so a launcher cloned on Windows has a CRLF working tree, and the
+>       brain is CRLF **from install day**.
+>
+> **What is STILL not proven, and must not be written as if it were**: it rests on the **user's own git
+> config at clone time**, which nobody can read remotely. A Windows user who had set
+> `core.autocrlf=false` (or `input`) has an LF brain and is unaffected. So the population is *"Windows
+> brains installed with the default git config"* — almost certainly all of them, not provably all
+> of them.
 >
 > **Why it is not mine to fix**: every way out changes what ships or what an update writes.
 >
 > - [ ] **(a) Normalise at the boundary** — LF-normalise inside the **membership test only**. Fixes
 >       every already-installed Windows brain and changes **no bytes on disk**; and the argument for it
 >       is conceptual, not just expedient: **a line ending is not an owner edit**, and the table exists
->       precisely to answer *"did the owner touch this?"*. Risk: two byte-states collapse to one answer.
+>       precisely to answer *"did the owner touch this?"*.
+>       - [x] 📏 **Its one stated risk is now MEASURED, and it is ZERO** _(2026-08-22)_. The risk was
+>             *"two byte-states collapse to one answer"*. Re-folding all **25 published tags + the
+>             working tree** and digesting each state a second time after LF-normalisation:
+>             **82 raw byte-states → 82 normalised, 0 lost**, 0 collapses spanning versions (so
+>             `baseRefs` stays unambiguous), 0 spanning locales (so no EN/FR flip can read as
+>             untouched). The reason is structural, not luck: every row is folded from a **git blob**,
+>             and the object store holds LF — **0 of the 82 carried CRLF at any ref**. Option (a)
+>             therefore costs nothing it was feared to cost. _(It remains yours: what it changes is
+>             what the engine calls "untouched", and that is a fleet-wide semantic.)_
 > - [ ] **(b) Pin the delivery** — `-c core.autocrlf=false` on the clone (and the installer copy). Makes
 >       future deliveries stable; does **nothing** for a brain already installed with CRLF.
 > - [ ] **(c) `* text=auto eol=lf` in `.gitattributes`.** Repo-wide and blunt: it rewrites Windows

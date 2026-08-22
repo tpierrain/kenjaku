@@ -465,6 +465,40 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📏 **2026-08-22 (the option's price tag) — when the next slice is HIS, the loop's job is to make his
+  choice cheaper, not to make it.** The release tail is entirely the owner's (S9-2b, S9-3) and the CRLF
+  fix is an arbitration, so the contract says: move to a slice that does not need him. **The slice that
+  does not need him is measuring what his options COST.** Two numbers, both local, both deterministic:
+
+  - **Option (a)'s one stated risk is ZERO.** The risk was *"two byte-states collapse to one answer"*.
+    Re-folding the 25 published tags + the working tree and digesting every state a second time after
+    LF-normalisation: **82 raw → 82 normalised, 0 lost**, 0 collapses spanning versions, 0 spanning
+    locales. **Structural, not lucky**: every row is folded from a **git blob**, and the object store
+    holds LF — 0 of the 82 carried CRLF at any ref. The risk was real to *state* and empty to *pay*.
+  - **A real Windows install DOES hold CRLF — read, not reasoned.** Yesterday's honest caveat was
+    *"the CI is a fixture; nobody has read a real Windows brain's bytes"*. The install path answers it
+    without needing one: `installer.mjs` lists the launcher's tracked files and **`copyFileSync`s each
+    from the WORKING TREE** (`installer.mjs:309`), byte-verbatim. A brain's engine bytes **are** its
+    launcher checkout's bytes; Git for Windows defaults `core.autocrlf=true`; the brain is CRLF from
+    install day.
+
+  > 🧭 **An unknown is not always expensive to close — sometimes it is one grep away, and it stayed open
+  > because it was FILED as an unknown.** Writing *"nobody has read a real Windows brain's bytes"* felt
+  > like rigour, and it was: the claim needed the caveat. But the caveat then sat there as if the only
+  > way to lift it were a Windows brain, when the actual question — *does anything between the clone
+  > and the brain touch line endings?* — is answerable on this machine in one read. **A well-written
+  > unknown can disguise a cheap one**; the discipline that closes it is asking, of every parked
+  > caveat, *what would it take*, before assuming the answer is "a machine I do not have".
+
+  🧪 **No mutation pass, and the skip is stated on purpose**: this slice added **zero production lines**
+  and zero tests. The probe was a throwaway in the scratchpad, deliberately not committed — a
+  measurement is not an asset, and a scratch script promoted to the repo would be the third carrier of
+  a fact the plan already owns. Per the block rule: measure the CHANGE, and there is no change to
+  measure.
+
+  **Next**: unchanged and his — the CRLF arbitration, now with (a)'s price measured at zero and the
+  Windows population confirmed, then the cut.
+
 - 🔬 **2026-08-22 (the tripwire, read a second time) — clearing the DULL cause is what made the sharp
   one legible.** The `fetch-depth: 0` fix worked: the waived-sha test and both FR fixture poles pass on
   Windows now, and every `fatal: invalid object name 'v3.6.0'` is gone. **Four failures remain out of
