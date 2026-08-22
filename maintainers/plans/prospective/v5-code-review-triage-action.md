@@ -11,21 +11,22 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **work § I–L under the GO below**, hardest-hitting first, exactly as the first batch was
-  worked. Thomas typed `/code-review max fc4e7bb..HEAD` on 2026-08-22; § H is discharged. The first
-  batch (**A, B, C, D, F**) stays fixed, test-first, green and pushed.
+- **Next:** **§ J, then § K, then S11/S14/S15** — § I is closed _(2026-08-22 · `ca46027`)_. Working
+  hardest-hitting first, exactly as the first batch was worked. Thomas typed
+  `/code-review max fc4e7bb..HEAD` on 2026-08-22; § H is discharged. The first batch (**A, B, C, D,
+  F**) stays fixed, test-first, green and pushed.
   - ✅ **THE GO, in his words** _(2026-08-22)_: *"oui, en test-first, et tu me montres à la fin."* Word
     for word the first batch's GO, on the scope that was recommended with it: **I, J, K, and the cheap
     half of L (S11, S14, S15)**. **S12 and S13 are NOT in it** — they are weighed like G, and stay
     Thomas's.
 - **Blocked on:** nothing.
 - **Owner's call pending:** **three.** (1) **E / F11** — the French twin: translate it,
-  or say so in the release note. (3) **G** — does v5 pay F12 and F13, or a follow-up? (4) **the
+  or say so in the release note. (2) **G** — does v5 pay F12 and F13, or a follow-up? (3) **the
   delivered-prose hole** raised by § H's measurement: three delivered prose files can be gutted with
   the suite fully green (`CONNECTORS.md`, `.claude/skills/EXAMPLES.md`,
   `engine-skills/mcp-token-expired/SKILL.md`). **v5, or a follow-up?** Recommendation on record:
   **follow-up**.
-  - ✅ **What used to be call (4) is ANSWERED by the second pass, not by him** — *should
+  - ✅ **A fourth call is ANSWERED by the second pass, not by him** — *should
     `.claude/settings.json` also leave the nudge?* **S4 shows the file is broken on a second machine
     for a different reason**, and that reason has to be fixed either way. The nudge question rides on
     S4's fix rather than standing alone; see F1's follow-up box, which now points here.
@@ -424,10 +425,28 @@ and `join(repoRoot, REPORTS, …)`; **S7** read at `installer.mjs:662-667` vs `7
 in the whole file, and it runs 45 lines before the re-record; **S15(a)** by inspection — an empty
 `.gitignore` takes `separator = eol` and then appends `eol` again.
 
-- [ ] **I. Second pass — DESTRUCTIVE, maintainer-side: the F6 family, reopened from three new angles**
-      _(the highest-severity group of this pass; none of it reaches an owner's brain, all of it reaches
+- [x] **I. Second pass — DESTRUCTIVE, maintainer-side: the F6 family, reopened from three new angles**
+      _(2026-08-22 · `ca46027` — one commit, one subject: the two arguments that are PATHS. The
+      highest-severity group of this pass; none of it reaches an owner's brain, all of it reaches
       Thomas's working tree)_
-  - [ ] **S1 — the F6 guard is case-sensitive, and the filesystem is not.**
+  - [x] ✅ **ONE guard closes all three, and it is not the one any of the findings proposed.** The
+        reviewer's own framing was the useful one: the property is **OWNERSHIP, not name shape**. A
+        directory that ALREADY EXISTS may be reset only if `git worktree list --porcelain` names it
+        (main worktree dropped — it is the repository); a directory that does **not** exist is created
+        by `git worktree add`, and **creating it is what makes it ours**, so nothing is asked and
+        nothing is at risk. **Do not replace this with a case-insensitive comparison** — that fixes one
+        filesystem and lies on the next.
+        - [x] **An unreadable registry REFUSES**, like the committed-targets gate one door over: "I
+              cannot tell" must never be the answer that authorises `git reset --hard`.
+        - [x] ⏱️ **Asked BEFORE the dry-run return, and that is a deliberate break with the neighbouring
+              gate.** `--dry-run` still changes nothing (the question is read-only), but it now refuses
+              — because a dry run that prints `git reset --hard /Users/dev/Kenjaku` as its plan has
+              already taught the reader the hazard is routine. **That is literally how S1 was found.**
+              The committed-targets gate stays out of dry runs: it protects a SCORE, and a dry run
+              produces none.
+        - [x] **Verified against the real machine, not only through doubles**: both hazards exit 2 from
+              the real CLI, and the ordinary worktree still plans.
+  - [x] **S1 — the F6 guard is case-sensitive, and the filesystem is not.**
         `maintainers/mutation/mutate-one.mjs:337`. `worktreePath === repoRoot` compares STRINGS, so
         `--worktree Kenjaku` is a different string, `existsSync` says the folder is there (so
         `git worktree add` is skipped), and the run ends with `git reset --hard` + `git clean -qfd`
@@ -437,13 +456,13 @@ in the whole file, and it runs 45 lines before the re-record; **S15(a)** by insp
         file dies. **macOS and Windows both, i.e. Thomas's machine.** _Fix shape: compare resolved
         real paths, or refuse any path whose `git rev-parse --show-toplevel` is this repo — the second
         also closes S3._
-  - [ ] **S2 — `--log` is the unguarded sibling of `--worktree`, and it is the one that calls the
+  - [x] **S2 — `--log` is the unguarded sibling of `--worktree`, and it is the one that calls the
         delete.** `mutate-one.mjs:345`. The value goes from argv straight into
         `join(repoRoot, REPORTS, logName)` with no shape check, and `planRun` then emits
         `discard-stale-log` → `rmSync(path, { force: true })` (line 481), followed by `writeFile` of
         the Stryker output. `--log ../../../../.zshrc` normalises outside the repo: **deleted, then
         overwritten.** F6 hardened one of the two path-shaped arguments; this is the other one.
-  - [ ] **S3 — a SIBLING checkout is still reachable.** Already on record as F6's deliberate residual
+  - [x] **S3 — a SIBLING checkout is still reachable.** Already on record as F6's deliberate residual
         (§ D), and **independently re-raised by the second pass**, which is the argument for promoting
         it out of "residual": `--worktree kenjaku-2` passes every guard, and a second clone's
         uncommitted work is reset. The reviewer's framing is the useful one — **the property is
