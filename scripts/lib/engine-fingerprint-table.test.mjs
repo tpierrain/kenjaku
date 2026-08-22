@@ -293,6 +293,24 @@ test("deliveredSources — every locale is read at its OWN source path, and come
   );
 });
 
+test("deliveredSources — called with NO eol map at all, it throws instead of folding verbatim", () => {
+  // Demanded by the mutation run, which kept `eolByPath?.[…]` alive: no caller omits
+  // the map, so the optional chain was unkillable. It is deleted rather than covered,
+  // and the reason is not tidiness — the two failures are not symmetric. A crash
+  // stops a release being cut; a silent verbatim fold SHIPS a CRLF table that reads
+  // as normal and leaves the fleet frozen. An empty map ({}) is still the legitimate
+  // best-effort case, and it is the test above.
+  assert.throws(
+    () =>
+      deliveredSources({
+        manifest: MANIFEST,
+        sourceFiles: ["CLAUDE.engine.md"],
+        read: () => "doctrine\r\nv1\r\n",
+      }),
+    TypeError,
+  );
+});
+
 test("deliveredSources — a file in another regime is dropped, it is not read at all", () => {
   // The selection is still `selectFingerprintSources`'. A caller that folded every
   // tracked file would put `replace`-regime bytes in a table the heal trusts.

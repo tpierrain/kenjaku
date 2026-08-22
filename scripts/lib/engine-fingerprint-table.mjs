@@ -71,13 +71,18 @@ export function selectFingerprintSources({ manifest, sourceFiles }) {
 // verbatim, too, for a path git said nothing about, because both callers get their
 // map best-effort and an unknown file is copied as-is.
 //
+// 🛑 An UNKNOWN PATH is verbatim; a MISSING MAP is a crash, and the asymmetry is
+// deliberate. Crashing stops a release being cut, which is recoverable in seconds;
+// folding a whole tree verbatim on Windows ships a CRLF table that reads as perfectly
+// normal and leaves the fleet frozen. So no `?.` guards the lookup.
+//
 // Both callers go through here so a wrong table and a green guard cannot coexist.
 export function deliveredSources({ manifest, sourceFiles, eolByPath, read }) {
   return selectFingerprintSources({ manifest, sourceFiles }).map((source) => {
     const raw = read(source.sourcePath);
     return {
       ...source,
-      content: deliversAsLf(eolByPath?.[source.sourcePath]) ? normalizeEol(raw) : raw,
+      content: deliversAsLf(eolByPath[source.sourcePath]) ? normalizeEol(raw) : raw,
     };
   });
 }
