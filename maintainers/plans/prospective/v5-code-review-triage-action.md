@@ -34,6 +34,30 @@
 > **Still his, and NOT unblocked by any of the above**: F11 (the French twin), the G scope call, the
 > wording of the four doctrine texts (W5b, in the release plan), and the undecided rehearsal on a copy
 > of a real brain.
+>
+> ### 🤖 AUTONOMOUS RUN AUTHORIZED — Thomas is away, and "on reprend" IS the GO
+>
+> _(2026-08-22, asked and granted explicitly: he is going for a walk and wants the batch worked without
+> him. So a session opening on this file does **not** stop to ask whether it may start.)_
+>
+> **DO, without asking:** everything in categories A, B, C, D and F, test-first (a red test **for the
+> right reason** first, then the code, then the refactor), **one commit per subject**, green only, and
+> **push every green commit** as it lands. Tick the box here as each one closes, with _(date · commit)_.
+>
+> **NEVER, alone, whatever the plan seems to authorize:** merge #76, tag, publish, push anything to
+> `main`, touch either of his two real brains, translate or delete anything under `templates/fr/**`
+> (that is F11 and it is his), or spend the G work. **The cut stays his, entirely.**
+>
+> **WHEN BLOCKED on a genuine fork** (two defensible designs, or a fix that would change what the
+> release promises): **do not stop and do not guess.** Do every finding that does not depend on it,
+> write the question into this file where it belongs, and carry on. He answers on his return.
+>
+> 🛑 **The save point moves, because a long autonomous stretch has no hand-back to hang it on.** Write
+> each decision into this file **as it lands** and commit it — never bank it for a report that may be
+> an hour away. The plan is what he reads when he gets back; the chat may be gone.
+>
+> **When the batch is done**: re-run `/code-review` on the fix range if he is back to type it (it is
+> his command), otherwise leave § H ticked as pending with the exact range to review, and report.
 
 ## 🧾 How this review was run, and its ONE honest limitation
 
