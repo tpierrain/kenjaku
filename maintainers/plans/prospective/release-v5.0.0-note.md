@@ -92,7 +92,7 @@ Your second brain ships with ready-made pieces: the skills you call on, the rule
 
 ### What you get, when you update your brain
 
-*You ask for an update (once, see below); here is what changes in that moment.*
+*You ask for an update with the `/update-engine` skill (once, see below); here is what changes in that moment.*
 
 - ✍️ **Whatever you changed in your brain in the past no longer stops that file from being updated.** Say you added two questions of your own to the ready-made skill that prepares your 1-1s: from that day on, that file never received another improvement from Kenjaku's updates, ever. Now, when your brain updates itself, it remembers exactly what it handed you last time, so it can tell your words from its own — your two questions stay, and everything improved since arrives around them.
 - 🙋 **When your words and the new version collide, it asks you rather than choosing.** Three answers, in plain language: keep mine, take the new one, or combine the two. Whichever you say, it does it — and it puts your current version safely aside first, so *"take the new one"* can always be undone.
