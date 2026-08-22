@@ -118,7 +118,7 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: the DOCTRINE CARGO — **three items the owner arbitrated into this release and this plan never named**
+> ## ▶️ RESUME AT: the DOCTRINE CARGO — **#67 next, then #64's rule half** _(#61 done 2026-08-22)_
 >
 > 🛑 **Found 2026-08-22 by the `plan-carrier-guard` Stop hook**, which named the archived plan as a
 > carrier the session had not opened. That plan holds the arbitration verbatim _(owner, 2026-08-15)_:
@@ -126,9 +126,23 @@
 > rule half** — ***alongside*** the already-planned source-first rule. **All three are still OPEN.** The
 > loop built the fourth and reported the release complete bar the owner's steps. It was not.
 >
-> - [ ] **#61 — announce a signal-triggered ritual before running it.** Ending a session triggers the
->       *Observation passive* ritual, which runs silently: several seconds of unexplained pause at the
->       moment an immediate answer was expected. The work was useful, the silence was not.
+> - [x] ✅ **#61 — announce a signal-triggered ritual before running it** _(2026-08-22 · `b590738`)_.
+>       Ending a session triggered the *Observation passive* ritual, which ran silently: several seconds
+>       of unexplained pause at the moment an immediate answer was expected. The work was useful, the
+>       silence was not. **Stated once and generally** (`### Announce before acting on a signal`,
+>       `### Annonce avant d'agir sur un signal`), **placed above BOTH its instances** — a general rule
+>       read after them is read too late — and the ritual that caused it now carries a one-line announce
+>       that **points at** the rule instead of restating it. 20 assertions in
+>       `scripts/lib/signal-announce-discipline.test.mjs`.
+>       - 🧭 **Why it added no new concept, and that was the reporter's own argument**: the engine
+>         already demanded exactly this one section earlier, for the background sync (*"you simply
+>         ANNOUNCE it in one line"*). The ritual was written without the clause. **An internal
+>         inconsistency, not a missing feature** — so the fix generalises the rule that was already
+>         there rather than inventing a second one.
+>       - 🚫 **Not a hook, deliberately**: a hook cannot write the sentence. The issue says so, and it
+>         is the same family as this repo's other writing conventions.
+>       - **The issue stays OPEN until the release ships** — it is a report from a deployed brain, and
+>         what closes it is the brain receiving the rule, not the branch carrying it.
 > - [ ] **#67 — the Outillage rule states a Claude Desktop permission constraint as if it were
 >       universal.** *"Never Bash to probe the vault"* rests on a rationale true of one surface in one
 >       permission mode; in auto mode, with the native `Grep` unavailable, the rule actively misleads.

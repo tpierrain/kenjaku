@@ -24,6 +24,12 @@
 > seven, or fold one. My read if you want it: 🛡️ *stops drifting without you knowing* is the most
 > mechanism-shaped of the six, and the one a reader gains least from.
 >
+> ⚠️ **And the doctrine cargo keeps arriving, so the pressure on that count is not over.** #61 (*no
+> more silent rituals*) is a real thing a user feels, and it was put **below the fold** rather than made
+> an eighth bullet — a judgement call to hold §11's shape, not a verdict that it matters less. Two
+> items remain (#67, #64's rule half). **If the count is going to move, it is cheaper to decide once,
+> now, than to re-cut the list per item.**
+>
 > Everything after this note is the body verbatim.
 
 ---
@@ -112,6 +118,11 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
   languages, above the search routing rather than below it — and a guard holds the rule, its wording
   and its position. It rides this release for a reason: it is doctrine, and doctrine is exactly what
   the fleet stopped receiving.
+- **No more silent rituals**: when something your brain does was triggered by a *signal* rather than
+  by a request — you ending a session, a question whose answer may have moved — it says so in one line
+  before doing it, instead of leaving you in front of an unexplained pause. The engine already
+  required this for its background source sync; the rule is now general, and stated above both places
+  that use it.
 
 **Honest limits, stated rather than discovered**
 

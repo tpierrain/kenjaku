@@ -104,8 +104,20 @@ one* is undoable), *keep mine* must **not** advance the ancestor (or the next me
 version they refused), and a conflicted `.new` — which carries `<<<<<<<` markers, not a clean candidate
 — is **refused** rather than pasted into the live file and recorded as its ancestor.
 
-**The doctrine cargo — the layer this release unfreezes gains a rule it never had.** Deliberately
-**not** numbered as a slice: it belongs to another plan and only *rides* here. The routing table had rows for
+**The doctrine cargo — text changes to the very file this release unfreezes.** Deliberately **not**
+numbered as slices: they were arbitrated in (owner, 2026-08-15) from a neighbouring plan and the issue
+tracker, and only *ride* here. Shipping them inside `CLAUDE.engine.md` is the proof by example that the
+carrier works. Each lands in both locales in one commit, with the fingerprint table regenerated beside
+it, and each is held by its own doc guard with EN/FR parity.
+
+**#61 — announce before acting on a signal.** Ending a session in plain words ran the passive
+observation ritual in complete silence: backlog read, long conversation scanned, four files written,
+and the answer only afterwards. **An internal inconsistency rather than a missing feature** — the
+engine already demanded exactly this one section earlier, for the background sync — so the fix
+generalises the rule that existed instead of inventing a second one, states it **above both of its
+instances**, and has the ritual that failed point at it in one line.
+
+**The source-first rule — the routing doctrine gains a level 1 it never had.** The routing table had rows for
 semantic, exact and structural retrieval and **none at all for a source the owner hands over** — the
 2026-08-08 field case, where an article's URL sat in the first message, was never opened, and the answer
 compared that article against a reconstruction of itself. Both constitutions now open their routing

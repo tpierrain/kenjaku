@@ -465,6 +465,34 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📣 **2026-08-22 (doctrine cargo 1/3, #61) — the engine was inconsistent with itself, and the fix was
+  to generalise what it already said.** `b590738`. Ending a session in plain words ran the passive
+  observation ritual in complete silence: backlog read, long conversation scanned, four files written,
+  and the answer only afterwards. **The engine already demanded the opposite one section earlier**, for
+  the background sync (*"you simply ANNOUNCE it in one line"*, and never ask permission for it) — the
+  ritual had simply been written without that clause.
+
+  > 🧭 **The reusable shape: a defect that is an internal inconsistency costs less to fix than it looks
+  > like it will, and the cheap fix is the RIGHT one.** The tempting move was a new rule for the
+  > ritual. What shipped instead: the existing rule promoted to its general form, stated once, above
+  > both of its instances — and the instance that failed now points at it in one line rather than
+  > carrying a copy. **Two paraphrases are two disciplines** (`claim-discipline`'s reflex, third
+  > application on this branch), and a rule invented where one already existed would have been a
+  > second discipline that drifts.
+
+  **Placement was asserted again**, as with the source-first rule: a general rule read after its
+  instances is read too late, and a test pins that it sits above both. That is now twice in two slices
+  that **position, not presence, was the thing worth testing** — worth noticing as a pattern in doc
+  guards rather than re-deriving each time.
+
+  20 assertions, EN/FR parity, all seen red on their assertions first. **No mutation pass, said out
+  loud**: two Markdown files, one test, one regenerated data table. Suite 2 377 / 2 374 pass / 0 fail /
+  3 skipped. **The issue stays open until the release ships** — it is a report from a deployed brain,
+  and what closes it is the brain receiving the rule.
+
+  **Next**: #67 (the Outillage rule states a Claude Desktop permission constraint as if it were
+  universal), then #64's rule half only.
+
 - 🧭 **2026-08-22 (the doctrine cargo) — "NOTHING LEFT TO TAKE ALONE" WAS A CLAIM ABOUT ONE PLAN, and
   it was wrong.** The previous iteration ended on the release plan's header saying the loop had no
   slice left it could take alone. The contract's answer to that is not *stop*, it is *go look at the
