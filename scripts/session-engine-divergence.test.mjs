@@ -1,10 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { sessionEngineDivergence } from "./session-engine-divergence.mjs";
+import { runSessionEngineDivergence, sessionEngineDivergence } from "./session-engine-divergence.mjs";
+import { fingerprint } from "./lib/engine-source.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -145,4 +147,56 @@ test("the hook script is CARRIED by the manifest, or an upgrade never refreshes 
     (manifest.regimes.replace ?? []).includes("scripts/session-engine-divergence.mjs"),
     "add scripts/session-engine-divergence.mjs to the manifest's `replace` regime",
   );
+});
+
+// 🚨 S5 (second pass of the v5.0.0 review) — THE STANDING SURFACE IS THE ONE THAT MUST
+// SURVIVE ONE BAD FILE.
+//
+// F7 made the update's own recap fail-soft and pointed HERE for the line it dropped: "a
+// standing surface, re-read at every session start, so a line omitted once comes back on
+// its own". This hook swallowed the identical failure, so it did not. One unreadable merge
+// file — a bad umask, a locked file, a sync client's placeholder — blanked BOTH.
+//
+// Driven through the real composition root on a real directory, deliberately: the seams
+// above are injected, so the defect lived in exactly the one line no unit test looked at.
+test("runSessionEngineDivergence — one unreadable merge file no longer silences the whole surface", (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to make a file unreadable");
+    return;
+  }
+  const delivered = "---\nname: coach\n---\nas the engine wrote it\n";
+  const dir = mkdtempSync(join(tmpdir(), "sbg-session-divergence-"));
+  t.after(() => {
+    chmodSync(join(dir, ".claude", "settings.json"), 0o644);
+    rmSync(dir, { recursive: true, force: true });
+  });
+  const write = (rel, body) => {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), body);
+  };
+  write(".claude/skills/coach/SKILL.md", delivered + "and the owner's own paragraph\n");
+  write(".claude/settings.json", "{}\n");
+  write(
+    "engine-manifest.json",
+    JSON.stringify({
+      manifestVersion: 1,
+      regimes: { replace: ["rag/src/**"], merge: [".claude/skills/**", ".claude/settings.json"] },
+      source: { repo: "https://example.test/launcher.git", ref: "v5.0.0" },
+      provenance: { ".claude/skills/coach/SKILL.md": fingerprint(delivered) },
+      baseRefs: { ".claude/skills/coach/SKILL.md": "v4.7.0" },
+    }) + "\n",
+  );
+  chmodSync(join(dir, ".claude", "settings.json"), 0o000);
+
+  const written = [];
+  const realWrite = process.stdout.write;
+  process.stdout.write = (chunk) => (written.push(String(chunk)), true);
+  try {
+    runSessionEngineDivergence({ brainDir: dir });
+  } finally {
+    process.stdout.write = realWrite;
+  }
+
+  assert.equal(written.length, 1, "the file it COULD read is still spoken about");
+  assert.match(written[0], /\.claude\/skills\/coach\/SKILL\.md/);
 });

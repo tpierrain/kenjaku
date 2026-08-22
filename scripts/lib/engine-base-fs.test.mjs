@@ -511,6 +511,66 @@ test("readEngineDivergence — names the held-back merge files of a real brain, 
   ]);
 });
 
+// 🚨 S5 (second pass of the v5.0.0 review) — ONE UNREADABLE FILE USED TO COST THE WHOLE
+// ANSWER, AND NOBODY WAS TOLD.
+//
+// F7 made the update's own call site fail-soft, on the argument that the session nudge is
+// a standing surface and "a line omitted once comes back on its own". It does not: that
+// hook catches the identical throw and returns `{reported:false}`. So an unreadable merge
+// file — a locked file, a bad umask, a sync client's placeholder — blanked the report on
+// BOTH surfaces, and nothing distinguished "nothing held back" from "could not look".
+//
+// The repair is per FILE: the file that cannot be read is set aside, every other file is
+// still judged, and the caller that asked for the list is handed the names.
+test("readEngineDivergence — one unreadable merge file no longer costs the whole report", (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const delivered = "# as the engine delivered it\n";
+  const dir = brain(t, {
+    ".claude/skills/coach/SKILL.md": delivered + "and the owner's own paragraph.\n",
+    ".claude/settings.json": delivered,
+    "engine-manifest.json":
+      JSON.stringify({
+        ...MANIFEST,
+        provenance: { ".claude/skills/coach/SKILL.md": fp(delivered), ".claude/settings.json": fp(delivered) },
+        baseRefs: { ".claude/skills/coach/SKILL.md": "v4.7.0" },
+      }) + "\n",
+  });
+  chmodSync(join(dir, ".claude", "settings.json"), 0o000);
+  const unreadable = [];
+  try {
+    // The held-back file is STILL named — that is the half the swallow used to lose.
+    assert.deepEqual(readEngineDivergence({ brainDir: dir, unreadable }), [
+      { rel: ".claude/skills/coach/SKILL.md", reason: "customized", since: "v4.7.0" },
+    ]);
+    // And the one that could not be read is named to the caller that asked, rather than
+    // silently absent from a list that reads as complete.
+    assert.deepEqual(unreadable, [".claude/settings.json"]);
+  } finally {
+    chmodSync(join(dir, ".claude", "settings.json"), 0o644);
+  }
+});
+
+// The collector is OPT-IN, and that is deliberate: `syncBaseTree` reads the same files to
+// decide what to WRITE, and a seeder that quietly skipped a file it could not read would
+// record an ancestor for a brain it never saw. A caller that does not ask to be told still
+// gets the throw.
+test("readInstalledMergeFiles — without a collector, an unreadable file still throws", (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const dir = brain(t, { "CLAUDE.md": "# mine\n" });
+  chmodSync(join(dir, "CLAUDE.md"), 0o000);
+  try {
+    assert.throws(() => readInstalledMergeFiles({ brainDir: dir, manifest: MANIFEST }), /EACCES|EPERM/);
+  } finally {
+    chmodSync(join(dir, "CLAUDE.md"), 0o644);
+  }
+});
+
 // ── rerecordEngineWrite — the record follows the engine's own write (F1 / F8) ──
 // The install's twin of what the reconciler does through `reconciledFileMap`: the
 // connectors step merges permissions into `.claude/settings.json` AFTER the provenance

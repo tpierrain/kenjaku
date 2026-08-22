@@ -272,6 +272,29 @@ function divergenceLines(divergence, ref) {
   ];
 }
 
+// 🚨 S5 — "COULD NOT LOOK" IS NOT "NOTHING TO SAY" (second pass of the v5.0.0 review).
+//
+// F7 made the divergence read above fail-soft, and justified the silence by pointing at
+// the session nudge: "a standing surface, so a line omitted once comes back on its own".
+// It does not — `session-engine-divergence.mjs` catches the identical failure and returns
+// `{reported:false}`. A merge file this process cannot read (a bad umask, a locked file, a
+// sync client's placeholder) was therefore omitted by BOTH surfaces, and the list above
+// read as complete when it was not.
+//
+// Its own line, never folded into the list: the two facts are different. One says the
+// engine is leaving a file alone — a choice, with a calm closing under it. This one says
+// we could not look, which is neither the owner's choice nor an incident, so it names the
+// files and says plainly that the update itself finished.
+function unreadableLines(unreadable) {
+  if (unreadable.length === 0) return [];
+  const many = unreadable.length > 1;
+  return [
+    `   • could not read ${countOf(unreadable.length, "engine file")} to tell you where ` +
+      `${many ? "they stand" : "it stands"} (${unreadable.join(", ")}) — the update itself is done; ` +
+      "nothing was changed there",
+  ];
+}
+
 // 🚪 THE DOOR the conflict block used to lack (plan S2d, from the owner's answer of
 // 2026-08-21). Until this, a clash ended at "yours is untouched, a merged copy is at
 // <path>" — true, and a cul-de-sac: it hands a non-developer a file full of `<<<<<<<`
@@ -385,7 +408,7 @@ function ancestorLines(ancestorsFailed) {
 }
 
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], healed = [], ancestorsFailed = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsFailed = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -486,6 +509,8 @@ export function formatReport(report) {
     ...conflictLines([...conflicts, ...scriptConflicts, ...doctrineConflicts]),
     // …then the standing state, after every event, because it is the summary of them.
     ...divergenceLines(divergence, ref),
+    // …and, only when it happened, what that summary could not look at.
+    ...unreadableLines(divergenceUnreadable),
   );
   // The engine files this update rewrote are VERSIONED, so we committed them (step 9) —
   // otherwise they sit dirty forever and the next SessionStart `git pull --rebase`
@@ -802,16 +827,27 @@ export async function updateEngine({
   //     line omitted once comes back on its own. Guarded HERE rather than inside
   //     `readEngineDivergence`, so the function stays honest for callers that want to
   //     know, and the invariant lives where it is stated: past this point, nothing rejects.
+  //
+  //     🚨 CORRECTED BY S5 (second pass): "nothing is lost by staying quiet" was FALSE.
+  //     The session surface swallows the identical failure, so an unreadable merge file
+  //     was reported by nothing, ever. Two changes, and the catch stays for what is left:
+  //     the read is now per-FILE fail-soft (one bad file no longer costs the other
+  //     twenty), and the names of the files it could not read come back as a VALUE, which
+  //     the report says out loud in a line of their own.
   let divergence = [];
+  const divergenceUnreadable = [];
   try {
-    divergence = readEngineDivergence({ brainDir });
+    divergence = readEngineDivergence({ brainDir, unreadable: divergenceUnreadable });
   } catch {
     // swallowed on purpose — a report we cannot build must not unsay a finished update.
+    // What reaches here now is only a whole-brain failure (no directory, no manifest),
+    // never one file: those arrive named, in `divergenceUnreadable`.
   }
 
   return {
     committed,
     divergence,
+    divergenceUnreadable,
     ref: updated.source.ref,
     engineVersion: updated.engineVersion,
     copied,

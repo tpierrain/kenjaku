@@ -2524,11 +2524,31 @@ test("updateEngine — a file that goes unreadable while the REPORT is being bui
 
   assert.equal(report.ref, "v1.1.0", "the update really did complete — this is not a test of an update that failed early");
   assert.equal(report.committed, "committed-by-fake", "and it got as far as persisting its writes");
+
+  // 🔁 S5 (second pass) CORRECTED WHAT THIS TEST USED TO ASSERT. It pinned an EMPTY
+  // divergence — one unreadable file blanking the whole report — and justified it with
+  // "the session nudge will say it instead". That nudge swallows the identical failure,
+  // so the true outcome was: said by nobody, ever. Both halves are now asserted.
   assert.deepEqual(
     report.divergence,
-    [],
-    "a report it could not build says nothing, rather than taking the update down with it",
+    [
+      { rel: ".claude/settings.json", reason: "no-provenance", since: null },
+      { rel: "scripts/auto-commit.mjs", reason: "no-provenance", since: null },
+      { rel: "scripts/auto-push.mjs", reason: "no-provenance", since: null },
+      { rel: "scripts/status-line.mjs", reason: "no-provenance", since: null },
+      { rel: "scripts/verify-rag.mjs", reason: "no-provenance", since: null },
+    ],
+    "every file it COULD read is still judged — one bad file no longer costs the rest",
   );
+  assert.deepEqual(
+    report.divergenceUnreadable,
+    [".claude/skills/zzz-mine/SKILL.md"],
+    "and the one it could not read comes back named, instead of vanishing from a list that reads as complete",
+  );
+  const out = formatReport(report);
+  assert.match(out, /could not read 1 engine file to tell you where it stands \(\.claude\/skills\/zzz-mine\/SKILL\.md\)/);
+  // F7's invariant, untouched: past the commit, nothing rejects.
+  assert.doesNotMatch(out, /update-engine failed/);
 });
 
 // ── Increment 2.5 / trap T1 — the parent's step 7 must not lose the reseed ────
@@ -3328,4 +3348,66 @@ test("updateEngine — a brain that needed no ancestor hears NOTHING about fetch
   assert.deepEqual(report.ancestorsFailed, []);
   assert.deepEqual(calls, [], "and git was never spawned");
   assert.doesNotMatch(formatReport(report), /could not reach the update server/);
+});
+
+// 🚨 S5 (second pass of the v5.0.0 review) — "COULD NOT LOOK" IS NOT "NOTHING TO SAY".
+//
+// F7 made this report's own divergence read fail-soft, on the argument that the session
+// nudge would say it instead. It does not: that hook swallows the identical failure. So a
+// merge file this process cannot read was omitted by both surfaces, silently, and the
+// report's list read as complete when it was not.
+test("formatReport — a merge file the update could not read is NAMED, not silently missing", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    vaultNoteCount: 0,
+    divergence: [{ rel: ".claude/skills/coach/SKILL.md", reason: "customized", since: "v4.7.0" }],
+    divergenceUnreadable: [".claude/settings.json"],
+  });
+
+  // The held-back file is still reported — the two facts are separate and both are said.
+  assert.match(out, /\.claude\/skills\/coach\/SKILL\.md — yours; the engine last delivered here at v4\.7\.0/);
+  assert.match(
+    out,
+    /could not read 1 engine file to tell you where it stands \(\.claude\/settings\.json\) — the update itself is done; nothing was changed there/,
+  );
+  // And it must not read as a failed update: past step 7 the update IS done (F7).
+  assert.doesNotMatch(out, /update-engine failed/);
+});
+
+test("formatReport — a report with nothing unreadable says nothing about reading", () => {
+  // The silence is the feature, exactly as it is for the ancestor fetch: every healthy
+  // brain is in this case, and a line about a failure that did not happen is noise on
+  // every update forever.
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    vaultNoteCount: 0,
+    divergence: [{ rel: ".claude/skills/coach/SKILL.md", reason: "customized", since: "v4.7.0" }],
+  });
+
+  assert.doesNotMatch(out, /could not read/);
+});
+
+test("formatReport — several unreadable files are counted and listed, plural agreed", () => {
+  const out = formatReport({
+    ref: "v5.0.0",
+    engineVersion: { rag: "1.14.0" },
+    copied: [],
+    regenerated: false,
+    reindexed: false,
+    vaultNoteCount: 0,
+    divergenceUnreadable: [".claude/settings.json", "CLAUDE.md"],
+  });
+
+  assert.match(
+    out,
+    /could not read 2 engine files to tell you where they stand \(\.claude\/settings\.json, CLAUDE\.md\)/,
+  );
 });

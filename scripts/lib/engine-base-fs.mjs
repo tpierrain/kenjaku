@@ -62,7 +62,18 @@ export function writeBaseEntries({ brainDir, entries }) {
 // paid at every session start once S4-4 put this on the SessionStart path. The set is
 // unchanged by construction (every path a glob matches is under that glob's own static
 // prefix) and by test — the equivalence is pinned against a full walk on a real disk.
-export function readInstalledMergeFiles({ brainDir, manifest }) {
+//
+// 🚨 `unreadable` — THE OPT-IN COLLECTOR (S5, second pass of the v5.0.0 review). One file
+// this process cannot read (a bad umask, a locked file, a sync client's placeholder) used
+// to deny the whole answer, and both surfaces that ask this question swallow the throw —
+// so the report went blank and nothing distinguished "nothing held back" from "could not
+// look". Hand an array and the unreadable rels are set aside into it, every other file
+// still judged.
+//
+// OPT-IN on purpose: `syncBaseTree` reads the same files to decide what to WRITE, and a
+// seeder that quietly skipped a file it could not read would record an ancestor for a
+// brain it never saw. Silence is only ever safe for a caller that DESCRIBES.
+export function readInstalledMergeFiles({ brainDir, manifest, unreadable = null }) {
   // 🛑 Sidecars are filtered BEFORE the glob decides, because the glob cannot tell them
   // apart: `.claude/skills/**` matches `SKILL.md.new` exactly as well as `SKILL.md`
   // (S10-QA, on the real v3.6.0 tree). A sidecar is the engine's own offer, loaded by
@@ -71,7 +82,16 @@ export function readInstalledMergeFiles({ brainDir, manifest }) {
     (rel) => !isSidecarRel(rel),
   );
   const rels = selectMergeFiles(manifest, onDisk);
-  return Object.fromEntries(rels.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")]));
+  const entries = [];
+  for (const rel of rels) {
+    try {
+      entries.push([rel, readFileSync(join(brainDir, rel), "utf8")]);
+    } catch (error) {
+      if (!unreadable) throw error;
+      unreadable.push(rel);
+    }
+  }
+  return Object.fromEntries(entries);
 }
 
 // A root is a directory to walk, a single file to take as-is, or absent.
@@ -139,7 +159,11 @@ export function syncBaseTree({ brainDir, manifest, provenance = {}, deliveredFil
 // Fail-soft, like the two steps it sits beside: an unreadable manifest means we cannot
 // say where the brain stands, and "cannot say" is silence, never a thrown error over an
 // update that already succeeded and is already recorded.
-export function readEngineDivergence({ brainDir }) {
+// S5 — `unreadable` is passed straight through to the installed-files read: a caller that
+// wants to be told which files it could not look at hands an array, one that does not gets
+// the throw it always got. Both surfaces asking this question swallow, which is exactly why
+// the answer has to be a VALUE rather than an exception.
+export function readEngineDivergence({ brainDir, unreadable = null }) {
   let manifest = null;
   try {
     manifest = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
@@ -150,7 +174,7 @@ export function readEngineDivergence({ brainDir }) {
     // measurement is what proved it — emptying this block changed no test, because
     // there was nothing here a caller could tell apart.
   }
-  const installedFileMap = readInstalledMergeFiles({ brainDir, manifest });
+  const installedFileMap = readInstalledMergeFiles({ brainDir, manifest, unreadable });
   // S4 — the ancestor this machine HOLDS, handed to the report so a file whose digest
   // travelled from another machine is judged by bytes rather than by a foreign sha.
   // Read from the same disk pass as the installed bytes, for the same reason as above.

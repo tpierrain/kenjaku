@@ -61,7 +61,14 @@ export function runSessionEngineDivergence({ brainDir = resolve(dirname(fileURLT
   let nudge = null;
   sessionEngineDivergence({
     brainDir,
-    readDivergence: (dir) => readEngineDivergence({ brainDir: dir }),
+    // S5 — the collector is passed and its contents DISCARDED, and that is the honest
+    // state of this surface. Handing the array is what stops one unreadable merge file
+    // from blanking the whole answer (F7 pointed here for the line its own recap drops,
+    // and this hook was swallowing the identical failure). Saying WHICH file could not be
+    // read is a different sentence: this surface's voice is "a file the engine leaves
+    // alone is a choice, not a problem", and an unreadable file is neither. That sentence
+    // belongs to the health banner, which owns the alarm voice — see the plan's § J.
+    readDivergence: (dir) => readEngineDivergence({ brainDir: dir, unreadable: [] }),
     readRef: (dir) => {
       const manifestPath = join(dir, "engine-manifest.json");
       return existsSync(manifestPath) ? installRef(JSON.parse(readFileSync(manifestPath, "utf8"))) : null;
