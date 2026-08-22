@@ -9,18 +9,17 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** paused before the pilot, waiting on the lint question below. The convention itself is
-  adopted and unaffected either way, so § *Application* steps 1, 3 and 4 could start regardless.
-- **Blocked on:** nothing technical.
-- **Owner's call pending:** **two, and the second outranks the first.**
-  **(1) The ENTRY POINT convention he proposed himself** — one way in at instant T, `ACTIVE.md`, the
-  memory pointer reduced to one line. It is the half this study missed and the one he actually feels.
-  → § *The ENTRY POINT*. **(2) The lint decision, REOPENED** — his *"on diffère le lint"* came from an
-  autocompletion accepted before knowing what a lint was. Three options, recommendation is to split
-  it. → § *The lint, reopened*.
-- **A session may, alone:** apply rules 1-3 to any plan, and write the convention into the harness.
+- **Next:** § *Application* **step 4 — the harness carries the convention.** Steps 1-3 are done
+  (the door exists, memory is a pointer again, the ROADMAP is no longer an entry point). Then 5, 6,
+  7, 8 in order. Everything there is authorized: **do not ask again, execute.**
+- **Blocked on:** nothing.
+- **Owner's call pending:** **one — the lint, and it does not block any step above.** His *"on
+  diffère le lint"* came from an autocompletion accepted before knowing what a lint was; asked again
+  in plain terms, still unanswered. Three options, recommendation is to **split it** (cheap half now,
+  hard half after the v5.0.0 tag). → § *The lint, reopened*.
+- **A session may, alone:** every step of § *Application*, and applying the convention to any plan.
   **It may NOT delete the hook, the `delegates-only` door or the certificate** — those three retire
-  only when something replaces them.
+  only when the lint replaces them.
 
 > 🧪 **This block is the convention's own first instance.** If it ever needs a sixth key or a
 > thirtieth line, that is evidence against § *The proposal*, and it belongs in § *Application*'s
@@ -313,34 +312,78 @@ prose per day per live plan, part of which is restating state.
       exists. Do not remove them "for consistency with the convention" — that would leave no net at
       all, which is worse than the over-firing it replaces.
 
-## Application — putting the convention in force
+## Application — the work order
 
-The study is closed; this section is the **only live work** in this file, and it owns its state
-(the STATE block at the top is its resume marker).
+The study is closed; this section is the **only live work** in this file. **Both halves are
+ADOPTED** — the STATE block (*"adopte la convention"*) and the entry point (*"1. oui"*, 2026-08-22).
+Everything below is authorized: **a session executes it without asking again.**
 
-**Order, and why.** The pilot comes before the written rule on purpose: migrating one real plan is
-what would expose a wrong key or a too-tight cap, and it is cheaper to learn that before the
-convention is carved into the harness than after. The ROADMAP comes last because it is the biggest
-single edit and the least reversible.
+**Order, and why.** The door came first, before this order was even written, so that the very next
+*"on reprends"* would land through the new convention instead of the old memory pointer. The harness
+comes next because a convention nobody is instructed to follow is inert. The ROADMAP's Status column
+comes last: biggest edit, least reversible.
 
-- [ ] **1. Pilot — one real plan gets a STATE block, and the block's design is judged on it.**
-      Target: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) — smallest live
-      plan (371 lines), and its ~80-line resume header is the workaround being replaced, so it is the
-      honest test. Record what the migration cost and whether the four keys were enough.
-- [ ] **2. The harness carries the convention** — `~/Dev/use-case-driven-harness`, on its own branch:
-      - [ ] `rules/plans.md` (always-on): the invariant, rules 1-3, the shrunk save-point rule, and
-            the hook demoted to *interim net, pending the lint*.
-      - [ ] `skills/plan-discipline/SKILL.md` (on-demand): how to write, tick and resume a STATE block.
-      - [ ] `skills/plan-discipline/plan-discipline.md`: the rationale + the measurement that produced
-            it, so the convention travels with its evidence and is not re-litigated from scratch.
-- [ ] **3. The remaining live plans get their block** — `v5-unfreezes-the-existing-fleet-action.md`,
-      `agent-orchestrated-release-mode-action.md`, `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`.
-      Dormant prospective plans are **not** migrated: they are touched when they wake.
-- [ ] **4. `ROADMAP.md` loses its Status column** (rule 3). The durable lessons currently buried in
-      those cells are **kept** — they are history, and criterion 6 forbids losing them; only the
-      perishable statuses go, replaced by the link to the owning plan.
-- [ ] **5. Prune the archived corpus of nothing.** Explicitly out of scope, restated here because it
-      is the tempting next step: 70 archived files, 33 654 lines, zero benefit.
+- [x] **1. The door exists** _(2026-08-22 · `maintainers/plans/ACTIVE.md`)_. Links and a date, no
+      status, capped at 30 lines. Two sections: the active plan, and *"open but NOT active"* — the
+      second holds **links only**, so it cannot go false when the ball changes hands.
+- [x] **2. Memory reduced to a pointer** _(2026-08-22)_. `kenjaku-next-work-order.md` went from ~40
+      lines ranking eight plans (with a *"read this first"*, a *"do not open that one"* and a due
+      date, i.e. state, which `rules/plans.md` forbids) to one instruction: open `ACTIVE.md`. The
+      `MEMORY.md` index line follows it.
+- [x] **3. `ROADMAP.md` stops being a door** _(2026-08-22)_. Its *"How to use this file"* told a
+      post-clear session to hunt the first unchecked gate; it now sends them to `ACTIVE.md` and keeps
+      cross-plan **order** only. _(Its Status column is a separate, bigger job: step 7.)_
+- [ ] **4. The harness carries the convention** — `~/Dev/use-case-driven-harness`. ⚠️ **It is on
+      `main` and clean: branch first** (e.g. `chore/plan-state-convention`), never commit to `main`.
+      - [ ] `rules/plans.md` (always-on, ~112 lines today): add **the entry point** (*"on reprend" →
+            `ACTIVE.md`, one door at instant T, sub-plans reached through the active plan*) and **the
+            invariant + rules 1-3**; shrink the save-point rule to *"the STATE block must already say
+            what the reply says"*; **demote the hook and its door to *interim net, pending the
+            lint*** rather than deleting them.
+      - [ ] `skills/plan-discipline/SKILL.md` (on-demand): how to write, tick and resume a STATE
+            block; how to hand the door over when the active plan changes.
+      - [ ] `skills/plan-discipline/plan-discipline.md`: the rationale **and the measurement**, so the
+            convention travels with its evidence and is never re-litigated from scratch.
+- [ ] **5. Pilot the STATE block on one real plan** —
+      [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md), 371 lines, whose ~80-line
+      resume header is exactly the workaround being replaced. **Its migration is already drafted**:
+      the four keys hold *nothing left for a session* / *nothing blocked* / *four owner calls (§ H's
+      re-run on `fc4e7bb..HEAD`, E/F11, the G scope call, F1's follow-up)* / *a session may do nothing
+      here*; and the durable narration (the GO, the nine commits, the autonomous-run boundaries, the
+      engine-skill lesson learned at F2, the two residuals) moves into a **§ How the batch was
+      worked**. **Apply rule 3 while migrating**: it currently restates **W5b** and the **rehearsal on
+      a copy of a real brain**, both owned by the release plan — replace with links (checked
+      2026-08-22: both are carried there, so nothing is lost).
+- [ ] **6. The remaining live plans get their block** —
+      `v5-unfreezes-the-existing-fleet-action.md`, `agent-orchestrated-release-mode-action.md`,
+      `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`. Dormant prospective plans are
+      **not** migrated: they get theirs when they wake.
+- [ ] **7. `ROADMAP.md` loses its Status column** (rule 3). Its 22 shas, 19 PR numbers and 23
+      ship-words go; the **durable lessons** buried in those cells are **kept** (criterion 6 forbids
+      losing them) and moved to an append-only section of the same file. Columns become
+      `Plan | Delivers | Depends on`.
+- [ ] **8. Newly archived plans get a date prefix** — `archived/2026-08-21-<name>.md`.
+      ⚠️ **This one is a judgment call, not a clear instruction**: Thomas asked for an archived
+      marker in filenames himself, then answered *"1. oui"* to a question whose second half was this.
+      Taken as a yes because he raised it; **it is one convention line to delete if he meant
+      otherwise**. **No retro-rename of the 70 existing files** — that would break cross-links
+      corpus-wide to fix what step 1 already fixes by removing the other doors.
+- [ ] **9. Prune the archived corpus of nothing.** Out of scope, written down because it is the
+      tempting next step: 70 files, 33 654 lines, zero benefit.
+
+### Decisions already taken — do NOT re-litigate
+
+- [x] **One DOOR, not one file.** Thomas's rule is *one active plan at instant T*; the nuance the
+      corpus forced is that sub-plans stay legitimate (the triage plan gated a merge and carried a
+      whole autonomous run; folding it into a 2 406-line plan would have buried it). **What must be
+      unique is the way in.**
+- [x] **`ACTIVE.md` holds links, never a status** — including in its *"open but not active"* list.
+      A file that names who the ball is with would go false the day the ball moves.
+- [x] **Rejected: an `ACTIVE-` filename prefix** instead of a pointer file. It makes `ls` the index
+      and needs no extra file, but every hand-over breaks the Markdown cross-links the corpus is full
+      of, and churns git for a fact that changes weekly.
+- [x] **The hook, the `delegates-only` door and the certificate STAY** until the lint exists. They
+      are not "inconsistent with the convention", they are its interim net.
 
 ### Findings from the application (append as they land)
 

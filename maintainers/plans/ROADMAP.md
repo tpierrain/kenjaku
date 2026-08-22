@@ -283,7 +283,7 @@ surplus line spends the budget the critical instructions need. A repo file is th
 | `prospective/post-v3.1.0-ux-backlog.md` | Captured UX ideas, explicitly **not committed work**. Promote one to an `*-action.md` when it is picked up. | 💡 Backlog. Promotion is a scope call. |
 | `prospective/background-consolidation-mode-study.md` | Design study: the RAG's process shape, a "pulse" projection, keeping the brain fresh without making the owner wait. | 🔬 Study. No code, no branch; the action plan comes after the measurement it names. |
 | `prospective/etude-rag-local-criteres-et-veille.md` | Watch note: offering a range of RAG alternatives per person's constraints. | 🔬 Study / watch. Nothing decided. |
-| `prospective/plan-state-single-source-study.md` | Can duplicated plan state be made structurally **impossible** instead of detectable, retiring the five workarounds (save-point rule, plural carriers, the guard hook, the declared door, the certificate)? | 🔬 Study, **answered and awaiting the owner's arbitration**. The plan owns its state; this row keeps no copy. Listed here because until 2026-08-22 **no repo file named it at all** — it lived only in a memory pointer, which is the very gap this section was created for. |
+| `prospective/plan-state-single-source-study.md` | Makes duplicated plan state structurally impossible (a capped STATE block per plan) and gives the corpus **one door**, [`ACTIVE.md`](ACTIVE.md), instead of eight. It is what deleted this file's own role as an entry point. | The plan owns its state; this row keeps no copy, by construction now. |
 | `prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md` | The runtime-graph question. | ⏸️ **WATCH, deferred by the owner to AFTER the unfreeze release** — a study to do *with* him, not work to pick up. |
 
 ### Incoming (standing inbox)
@@ -309,8 +309,14 @@ out-of-band arrivals, so five issues filed by the owner's brain sat invisible to
 
 ## How to use this file
 
-- **Picking up work after a `/clear`:** read the invariant, find the **first unchecked gate**, open
-  its canonical plan, and resume at that plan's first `- [ ]`.
+> 🚪 **THIS FILE IS NOT THE DOOR — since 2026-08-22 it never answers *"where do I resume?"***
+> That question has exactly one address: **[`ACTIVE.md`](ACTIVE.md)**. This file owns **cross-plan
+> order** and nothing else. _(Thomas's convention: one way in at instant T. Rationale and the rest of
+> the migration: [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md).)_
+
+- **Picking up work after a `/clear`:** open [`ACTIVE.md`](ACTIVE.md). Do **not** hunt for the first
+  unchecked gate here — a gate is an ordering fact, not a resume point, and reading it as one is how
+  a session once restarted a release the owner had already diverted from.
 - **Finishing a gate:** check it here **and** in its canonical plan, with _(date · commit)_. Keep the
   two in sync; if they ever disagree, the **canonical plan wins** (this file is only the order).
 - **Adding a plan to the fleet order:** add one row to the map + one gate, both as pointers. Never
