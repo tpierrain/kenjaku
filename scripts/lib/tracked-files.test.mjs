@@ -70,6 +70,10 @@ test("parseLsFilesEolZ — a record it cannot fully read is SKIPPED, never half-
   assert.deepEqual(parseLsFilesEolZ("\tREADME.md\0"), {}, "no fields at all");
   assert.deepEqual(parseLsFilesEolZ("i/lf    w/lf\tREADME.md\0"), {}, "no attr field");
   assert.deepEqual(parseLsFilesEolZ("garbage\tREADME.md\0"), {}, "nothing of the expected shape");
+  // The fields must BEGIN with the index form, not merely contain it somewhere: a
+  // parser that accepts junk in front is one that will happily read a record whose
+  // shape it does not actually recognise, which is the opposite of the rule above.
+  assert.deepEqual(parseLsFilesEolZ("junk i/lf    w/lf    attr/\tREADME.md\0"), {}, "junk before the fields");
   // And one good record beside a bad one still lands: skipping is per record.
   assert.deepEqual(parseLsFilesEolZ(`garbage\tbad.md\0${REC("lf", "lf", "", "good.md")}\0`), {
     "good.md": { index: "i/lf", worktree: "w/lf", attr: "" },
