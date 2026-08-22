@@ -394,12 +394,24 @@
 > 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
 > **proved green on a real `windows-latest` runner** (run `32558375080`).
 >
-> 🧭 **RESUME AT W4** _(2026-08-22, after W3 landed)_ — and W4 is now a **RE-READ, not a write**: W3
-> wrote the only line the note still owed. Read `release-v5.0.0-note.md` end to end against what W1,
-> W2 and W3 actually shipped, fix whatever no longer matches, and if nothing does, say so in one line
-> and tick it. **One thing is already known to have needed it**: the note's *honest limits* carried
-> *"a brain keeps its install-day list of which files the engine manages"* — W3 made that sentence
-> false, and it was replaced by the widening rather than left standing beside the fix.
+> 🧭 **RESUME AT W6's HARNESS ARTIFACT** _(2026-08-22, after W4 landed)_ — **the W1..W5 queue no longer
+> has an entry the loop may take**: W1, W2, W3 and W4 are built and read, and **W5 and W5b are
+> Thomas's** (the retarget / one review / one merge commit, and the wording of the four doctrine texts).
+>
+> **What is still the loop's, and it is W6's own two open bullets:**
+>
+> - [ ] ▶️ **The S7-2 fingerprint freshness guard, the last Windows red.** *"the table covers every
+>       merge file of the release being cut, in every locale"*, **23 rels unrecognised** — the
+>       release-cutting tool regenerating the table from a CRLF working tree. **Not W1's and not W2's**,
+>       which is why it was kept out of both. The risk it hides is the one worth fixing before a tag: a
+>       maintainer cutting a release **from a Windows checkout would generate a CRLF table**, and
+>       nothing today prevents it.
+> - [ ] **The three skipped tests.** The suite reports **3 skipped, all Windows-only**. Read what they
+>       skip and say **in writing** whether any of them is part of what W1/W2 are supposed to prove. A
+>       green suite with an unread skip list is not the full claim.
+>
+> ⚠️ **Do not "take the next entry" past W4.** The queue's remaining entries are the owner's, and a loop
+> that helps itself to them is the failure this plan has already recorded twice on other surfaces.
 >
 > ✅ **W2's Windows proof is IN, read not predicted** _(2026-08-22, run `32560532878` on `dacbf59`,
 > job `Installer e2e · windows-latest`)_: **"316 delivered text files are LF — the copy path holds on
@@ -413,11 +425,12 @@
 >       a real one. The premise is now **measured in the same job** (`git ls-files --eol` must report
 >       `w/crlf`) and fails loudly naming the vacuity. **A proof carries its premise, or it is not one.**
 >
-> ▶️ **WHAT THIS ITERATION LEAVES OWING, and it is one read**: the premise guard **has not run yet**.
-> It went up with `9b5fbec`; the `Installer e2e · windows-latest` job that carries it must be read
-> before W2's proof is called closed — **a guard nobody has watched run is a guard on paper**, which is
-> the exact failure it was written against. The next iteration opens on that read, as this one opened
-> on W2's. → § *W6*, whose W2 bullet holds the checkbox.
+> ✅ **THAT READ IS DONE** _(2026-08-22, run `32562505730` on `1f1a57e`)_: the premise guard printed
+> **`the launcher checkout IS CRLF here (… w/crlf …)`**, then the 316 LF files and the positive
+> control. **W2 is closed on Windows, premise included.** And the run says one more thing worth
+> recording: **exactly one Windows red remains, still the S7-2 harness artifact** — W3 changed the QA
+> harness, so this is the check that it introduced no Windows regression, rather than an assumption
+> that it could not have.
 >
 > **Both of W2's opening reads were DONE** _(2026-08-22, run `32558912124`, the full PR matrix on
 > `621d1cb`)_:
@@ -471,8 +484,10 @@
 >             LF — the copy path holds on Windows"**, plus the positive control *"run-node.cmd is still
 >             CRLF"*. The floor on the count is what makes 316 mean something rather than *"found
 >             nothing to look at"*.
->             - [ ] ▶️ **Its premise is now measured too, not asserted in a comment — BUT THAT STEP HAS
->                   NOT RUN YET** _(`9b5fbec`)_ —
+>             - [x] ✅ **Its premise is measured too, and IT HAS NOW RUN** _(2026-08-22, run
+>                   `32562505730` on `1f1a57e`)_: **`the launcher checkout IS CRLF here (i/lf w/crlf
+>                   attr/ scripts/lib/engine-base.mjs)`**. The proof and its premise are both read from
+>                   a real runner, so W2 is closed on the platform it was built for. —
 >                   `git ls-files --eol` must report `w/crlf` in that same job, or the step fails
 >                   naming the vacuity. Without it, a runner image that flips `core.autocrlf` turns the
 >                   whole proof into a no-op that still reports green.
@@ -497,11 +512,21 @@
 >             to explain that it kept the install-day list **because the engine did** — a fidelity the
 >             QA depended on. It must reproduce the field, not a preference, and a hand-copied mirror is
 >             a fixture that lies the next time step 7 moves.
-> - [ ] **W4 — the note's remaining write (answers 2 and 3 are already applied).** Title and the
->       seven-bullet shape are **done**, and **W3 wrote the line it was still owed**. ▶️ **What is left
->       is a RE-READ, not a write**: the note now describes a release whose Windows repair landed after
->       the note was drafted, so read it end to end against what W1/W2/W3 actually shipped and fix
->       whatever no longer matches. If nothing does, say so in one line and tick it.
+> - [x] ✅ **W4 — the note is RE-READ end to end and current** _(2026-08-22)_. Title, seven bullets and
+>       W3's clause were already in; the re-read was for what the Windows repair had made stale, and it
+>       found three things rather than the "nothing" the tick would have claimed:
+>       - [x] **The note's own header still said the regimes line was *"not written yet"*.** W3 wrote
+>             it. A draft box that describes the draft is exactly the copy that rots first.
+>       - [x] **The suite figures were two releases of work old** — `2 423 / 2 420` → **`2 474 / 2 471`,
+>             3 skipped**, re-counted rather than incremented.
+>       - [x] **`Quality` said nothing about Windows, and that was the omission that mattered.** The
+>             headline promise was **silently false there** on a suite green on a Mac, which is Thomas's
+>             W6 argument in one sentence and belongs in the note, not only in a plan. Added with what
+>             makes it trustworthy: the check **fails rather than passing quietly** when the machine
+>             cannot reproduce the condition.
+>       - 📐 **What was checked and did NOT move**: the heal table's **82 byte-states** (counted from
+>             `engine-fingerprints.json`, not recalled) and the retirement of `tdd-discipline` with
+>             `test-first-discipline` beside it (read from the shipped manifest).
 > - [ ] **W5 — HIS, not the loop's**: retarget #76 to `main`, one review over the whole branch, **one
 >       merge commit, never a squash**, then cut / tag / publish. → answer 5, and § *S9-2b's materials*.
 > - [ ] **W5b — HIS TOO, and it was NOT one of the five: the WORDING of the doctrine text.** Four text

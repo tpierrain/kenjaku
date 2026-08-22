@@ -24,10 +24,12 @@
 > >   hook, which named a carrier whose header had been saying so for a day. **A closed list is not an
 > >   emptied inventory** — the third time this release has been told that, each time on a different
 > >   surface.
-> > - ✅ **W1, W2 AND W3 ARE BUILT AND PUSHED** _(2026-08-22 · W1 `65a6080`+`13ef852`, W2 `dd08024`+
-> >   `a5b8c2a`, W3 `df09f17`+`ea85b07`, plus `9b5fbec` on the CI premise)_. **The next entry is W4, and
-> >   it is a RE-READ rather than a write**: W3 wrote the release note's last owed line, so W4 is
-> >   reading the note end to end against what W1/W2/W3 actually shipped.
+> > - ✅ **W1 THROUGH W4 ARE DONE — the loop's queue is EXHAUSTED** _(2026-08-22 · W1 `65a6080`+
+> >   `13ef852`, W2 `dd08024`+`a5b8c2a`, W3 `df09f17`+`ea85b07`, `9b5fbec` the CI premise, W4 the
+> >   note's re-read)_. **W5 and W5b are Thomas's** — the retarget / one review / one merge commit, and
+> >   the wording of the four doctrine texts. **What remains for the loop is W6's own two open
+> >   bullets**: the S7-2 harness artifact (the last Windows red) and reading the three skipped tests.
+> >   ⚠️ **The queue must not be advanced past W4** — the entries after it are the owner's.
 > > - 🪟 **W6 was READ TWICE, and both W1's and W2's halves passed** — W1's three QA poles green on
 > >   `windows-latest` (run `32558375080`), and W2's LF assertion green with **316 delivered text files
 > >   LF** and its positive control (run `32560532878`). **W6 itself is still open** — one Windows red
@@ -497,6 +499,27 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- ✅ **2026-08-22 (W4) — THE NOTE'S RE-READ FOUND THREE STALE THINGS, and the tick would have claimed
+  none.** The entry was *"re-read, and if nothing needs changing say so and tick it"* — the shape that
+  invites a tick without a read. What it found: the note's own header still announced the regimes line
+  as **"not written yet"** (W3 had written it — a draft box describing the draft is the copy that rots
+  first); the suite figures were two releases old (`2 423 / 2 420` → **`2 474 / 2 471`**, re-counted);
+  and `Quality` said **nothing about Windows**, which was the omission that mattered — the headline
+  promise was *silently false there* on a suite green on a Mac, and that is Thomas's W6 argument in one
+  sentence, which belongs in the note and not only in a plan.
+  - 📐 **Two figures were re-verified and had NOT moved** — the heal table's **82 byte-states**, counted
+    from `engine-fingerprints.json` rather than recalled, and the `tdd-discipline` retirement, read
+    from the shipped manifest. A re-read that only finds errors is not a re-read; the unchanged facts
+    have to be checked too, or "still true" is just "still written".
+  - 🪟 **The iteration opened on the read it had promised**: the premise guard **ran** (run
+    `32562505730`) and printed `the launcher checkout IS CRLF here (… w/crlf …)`. **W2 is closed on
+    Windows, premise included** — and the same run shows **exactly one Windows red left**, still the
+    S7-2 harness artifact, which is how W3's change to the QA harness is known to have caused no
+    regression rather than assumed to.
+  - **Next**: **not W5** — the queue's remaining entries are the owner's. The loop's own remaining work
+    is **W6's two open bullets**: the S7-2 harness artifact, and reading what the three skipped tests
+    skip.
 
 - ✅ **2026-08-22 (W3) — THE FLEET STOPS CARRYING ITS INSTALL-DAY LIST, and W2's Windows proof came
   back GREEN.** `9b5fbec` + `df09f17` + `ea85b07`. Suite **2 474 / 0 fail / 3 skipped**. State owned by

@@ -24,10 +24,16 @@
 >   arguing with itself (#67), conversations that run out of room later (#64). Not a verdict that they
 >   matter less; a judgement to hold §11's shape.
 >
-> 🆕 **STILL OWED TO THIS NOTE, and it is not a decision but a WRITE** _(2026-08-22)_: the regimes call
-> came back as **(a)**, *with the write guard's widening called out in the release note* — that clause
-> was part of the recommendation he took, so the note owes one honest line saying an update may now
-> refresh a brain's list of engine-managed files. Not written yet.
+> ✅ **THE LAST OWED WRITE IS DONE** _(2026-08-22, W3)_: the regimes call came back as **(a)**, *with
+> the write guard's widening called out in the release note*. It is written **twice** — as what was
+> built, in the owner's terms, and under *honest limits* as the widening they will feel. It replaced a
+> sentence rather than joining one: the limits section still said *"a brain keeps its install-day list
+> of which files the engine manages"*, and W3 made that false.
+>
+> ✅ **RE-READ END TO END against what W1/W2/W3 actually shipped** _(2026-08-22, W4)_. Three things had
+> gone stale and are fixed: this box, the suite figures, and the quality section's silence about
+> Windows. The `82` byte-states and the retirement of `tdd-discipline` were **re-verified against the
+> table and the manifest**, not assumed.
 >
 > **Numbers not yet real**: `engineVersion` and the tag are S9-2's, the owner's step. Every figure
 > below the fold is measured and current; nothing here waits on a re-run.
@@ -155,10 +161,16 @@ recorded a proof at all, and brains whose owner had genuinely edited the file.
 
 **Quality**
 
-- Full suite green: **2 423 tests, 2 420 passing, 3 skipped, none failing**. Mutation is measured per
+- Full suite green: **2 474 tests, 2 471 passing, 3 skipped, none failing**. Mutation is measured per
   block and scoped to the change, with
   every survivor either killed or documented as equivalent — figures in `maintainers/mutation/RESULTS.md`.
 - The release's acceptance test runs against **brains rebuilt from real published tags** (`v3.2.2`,
   `v3.6.0`), with files edited *before* this release, so the promises above are checked on real
   released content rather than on a fixture written by someone who already knew the answer.
+- **And it runs on Windows, not only on a Mac.** That is not a formality here. A Windows brain records
+  its files in a different byte-form from the day it is installed, and the headline promise — *a file
+  you tailored is merged rather than abandoned* — was **silently false there**, on a suite that was
+  green on a Mac. It is repaired, delivery is pinned so it cannot come back on a new install, and both
+  are proved on a real Windows machine in CI. The check that proves them **fails rather than passing
+  quietly** if the machine it lands on cannot reproduce the condition it is testing for.
 - Findings caught before the tag stayed before the tag. Nothing in this list shipped to anyone.

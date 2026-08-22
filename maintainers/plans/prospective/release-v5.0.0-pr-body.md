@@ -188,11 +188,19 @@ inverted rather than deleted.
 
 ## How it was judged
 
-- Suite **2 423 tests — 2 420 pass / 0 fail / 3 skipped** (the three are Windows-only:
+- Suite **2 474 tests — 2 471 pass / 0 fail / 3 skipped** (the three are Windows-only:
   `cmd.exe` cannot parse a batch file on macOS). ⚠️ **That figure is LOCAL, on macOS, and it is not the
-  verdict.** **CI is RED on Windows**, with four real failures — see the arbitration at the end of this
-  body. Stating the local number alone is the exact defect this release's own pre-flight committed
-  twice: *a pre-flight that only reads the local suite is measuring the machine that wrote the code.*
+  verdict** — stating the local number alone is the exact defect this release's own pre-flight
+  committed twice: *a pre-flight that only reads the local suite is measuring the machine that wrote
+  the code.*
+  - 🪟 **The Windows verdict, read from CI rather than predicted** _(2026-08-22, run `32562505730`)_:
+    **four failures → one**. The three that were the product are repaired (W1) and green on
+    `windows-latest`; delivery is pinned so they cannot recur on a new install (W2), proved there by
+    **316 delivered text files LF** with its premise measured in the same job. **The one red left is
+    the harness**, not the product: the S7-2 freshness guard regenerates the fingerprint table from the
+    runner's CRLF working tree. It is tracked as W6's own bullet, and it carries a real risk worth
+    closing before a tag — a maintainer cutting a release from a Windows checkout would generate a CRLF
+    table, and nothing today prevents it.
 - **Test-first throughout**, with the reds taken on assertions rather than on loading errors. The one
   slice where fail-first did not run first is recorded as such in the plan rather than smoothed over.
 - **Mutation measured per block, on the change and not the file** — every number and every named
