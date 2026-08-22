@@ -489,6 +489,56 @@ test("runReconcileCli — a first update announces what the old recap cannot des
   assert.match(said[0], /coach/, "and it NAMES what arrived, or it is decoration");
 });
 
+// ── S13: the record must not depend on the next author remembering it ────────
+//
+// F1's invariant is general — a file the ENGINE wrote must never read as a file the
+// OWNER is holding back — and it was enforced by one hand-written assignment sitting
+// beside one `writeFileSync`, then threaded by hand through two callers. The diff's own
+// comment anticipates a second in-place write, and whoever adds it has to remember all
+// three places. Missing any one recreates F1 for that file: the brain reports, at every
+// session start and undismissibly, that the owner is holding back a file the engine
+// itself rewrote.
+//
+// So the reconciler now has ONE door for that kind of write, and this guard is what
+// keeps it the only one. It reads the module's own source — the entrypoint-discipline
+// idiom, one folder over — and demands that every raw `writeFileSync` target be a name
+// on the list below, each with the reason it needs no record. Adding a raw write to a
+// file the owner may hold turns this red, with the reason, at the moment it is written.
+test("reconcile-brain — every raw write is on the list of files no record has to follow", () => {
+  const source = readFileSync(new URL("./reconcile-brain.mjs", import.meta.url), "utf8");
+
+  // Each of these is a file the divergence surfaces cannot report as "held back by the
+  // owner", because nothing records a digest for it in the first place.
+  const NO_RECORD_NEEDED = {
+    brainMcpPath: ".mcp.json — carried by NO regime, so it has no provenance to go stale",
+    gitignorePath: ".gitignore — same: no regime, no digest, and the write is surgical",
+    manifestPath: "engine-manifest.json — this IS the record; recording it into itself is meaningless",
+    "join(brainDir, rel)": "the recording door itself — the one write that keeps the map in step",
+  };
+
+  // Read to the FIRST TOP-LEVEL comma, not the first comma: `join(brainDir, rel)` is one
+  // argument with a comma inside it, and a regex that stops at any comma reports half of
+  // it — a guard that goes red over its own parsing teaches the next author to widen the
+  // list rather than to look at the write.
+  const firstArgument = (from) => {
+    let depth = 0;
+    for (let i = from; i < source.length; i += 1) {
+      const c = source[i];
+      if (c === "(") depth += 1;
+      else if (c === ")") depth -= 1;
+      else if (c === "," && depth === 0) return source.slice(from, i).trim();
+    }
+    return source.slice(from).trim();
+  };
+  const targets = [...source.matchAll(/writeFileSync\(\s*/g)].map((m) => firstArgument(m.index + m[0].length));
+  assert.ok(targets.length >= 4, `the scan must find the writes (found ${targets.length})`);
+  assert.deepEqual(
+    targets.filter((t) => !(t in NO_RECORD_NEEDED)),
+    [],
+    "a raw write to a brain file the owner may be holding — route it through the recording door, or add it here with its reason",
+  );
+});
+
 // ── The SENTENCE itself ──────────────────────────────────────────────────────
 //
 // Driven by a mutation run on the CLI (66 % — 27 survivors, all but three of them in the

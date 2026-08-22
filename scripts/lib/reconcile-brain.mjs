@@ -68,6 +68,31 @@ export const toPosix = (p) => p.split("\\").join("/");
 // follow it are talking about one file rather than two spellings of one.
 const SETTINGS_REL = ".claude/settings.json";
 
+/**
+ * THE ONE DOOR for rewriting, in place, a brain file the OWNER may also be holding (S13).
+ *
+ * F1's invariant is general — a file the ENGINE wrote must never read as a file the owner
+ * is holding back — but it was carried by a single assignment beside a single
+ * `writeFileSync`. Whoever added the next in-place write had to remember that line, and
+ * the two callers that thread the map onwards; missing any one tells the owner, at every
+ * session start and with no way to dismiss it, that they are holding back a file the
+ * engine rewrote itself.
+ *
+ * Returned as a callable carrying its own `recorded` map, so the write and the record are
+ * one gesture rather than two that have to agree. The bytes recorded are the bytes handed
+ * in, never a re-read: what the record must describe is what THIS pass wrote, and a
+ * re-read describes whatever the file holds by the time the manifest writer runs.
+ */
+function engineWrites() {
+  const recorded = {};
+  const write = ({ brainDir, rel, text }) => {
+    writeFileSync(join(brainDir, rel), text);
+    recorded[rel] = text;
+  };
+  write.recorded = recorded;
+  return write;
+}
+
 function copyInto(srcDir, destDir, rel) {
   const src = join(srcDir, rel);
   const dest = join(destDir, rel);
@@ -337,7 +362,12 @@ export async function reconcileBrain({
   // undismissibly (no refresh family writes a `.new` beside it, so there is nothing to
   // adopt). Populated ONLY when the write actually happens: a blanket re-seed would
   // silence the owner's own edits too, which is the opposite defect.
-  const reconciledFileMap = {};
+  //
+  // S13 — and it is a DOOR rather than a variable, because the invariant is general and
+  // the enforcement was one hand-written line. `engineWrites()` performs the write and
+  // the record in the same call, so the two cannot drift apart; a guard in the test file
+  // keeps every other raw write on a named list of files that have no record to follow.
+  const engineWrote = engineWrites();
   // ADR 0036: set when the retreat removed the statusLine WE installed, so the
   // caller can tell the owner their own line is back.
   let statusLineWasRemoved = false;
@@ -377,9 +407,7 @@ export async function reconcileBrain({
       // The bytes are captured rather than re-read off the disk: what the record must
       // describe is what THIS pass wrote, and a re-read would describe whatever the file
       // holds by the time the manifest writer runs.
-      const nextText = JSON.stringify(nextSettings, null, 2) + "\n";
-      writeFileSync(brainSettingsPath, nextText);
-      reconciledFileMap[SETTINGS_REL] = nextText;
+      engineWrote({ brainDir, rel: SETTINGS_REL, text: JSON.stringify(nextSettings, null, 2) + "\n" });
       hooksAdded.push(...added);
       hooksRepaired.push(...repaired, ...(statusLineRepaired ? ["statusLine"] : []));
     }
@@ -521,7 +549,7 @@ export async function reconcileBrain({
     // folded into `refreshedFileMap`: that map is what the engine DELIVERED from a source,
     // this one is what the engine rewrote IN PLACE in the brain's own file, and merging the
     // two would lose the distinction the day one of them needs a different treatment.
-    reconciledFileMap,
+    reconciledFileMap: engineWrote.recorded,
     statusLineRemoved: statusLineWasRemoved,
     pointerUnignored,
   };
