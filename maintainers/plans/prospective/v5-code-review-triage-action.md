@@ -1,95 +1,58 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🔴 LIVE since 2026-08-22 — the triage of the `/code-review max`  -->
-<!-- run that Thomas asked for BEFORE merging v5.0.0. 15 findings returned.   -->
-<!-- The FIXING is DONE for everything under the GO; what is left is Thomas's -->
-<!-- (§ H). The header note below is the truth. This file OWNS the findings   -->
-<!-- and their state; the release plan links here and restates none of it.    -->
-<!-- Owning release plan: v5-unfreezes-the-existing-fleet-action.md (item 4a). -->
+<!-- This file OWNS the 15 findings of the v5.0.0 code review, their fixes,   -->
+<!-- and their state. The `## 📍 STATE` block below is its only perishable    -->
+<!-- content: do not restate it here, in another file, or in a resume header. -->
+<!-- Owning release plan: v5-unfreezes-the-existing-fleet-action.md (item 4a),-->
+<!-- which links here and restates none of this.                              -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS DONE. WHAT IS LEFT IS THOMAS'S.** _(updated 2026-08-22,
-> end of the autonomous run)_
->
-> **Every finding under the GO is fixed, test-first, green, and pushed** — categories **A, B, C, D and
-> F**, in nine commits: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`), F4 (`a0419f6`),
-> F5 (`1917a76`), F7 (`89621f0`), F10 (`6707eca`), F6 (`83fc9b5`), F14 + F15 (`2ce39d8`).
-> **2 525 tests green (3 skipped), maintainer suite 56/56.**
->
-> **THE ONLY THING LEFT IS § H, and it is his to type**: re-run `/code-review` on **`fc4e7bb..HEAD`**.
-> The session cannot run that command. Nothing else in this file is actionable by a session.
->
-> **NOT done, and none of it was ever mine** (unchanged, see the boundaries below): **E/F11** (the
-> French twin), the **G** scope call (F12, F13), the four doctrine texts' wording (W5b), the rehearsal
-> on a copy of a real brain, and the **merge/tag/publish of #76**.
->
-> 📌 **Two residuals were recorded rather than quietly counted as done** — a sibling checkout is still
-> reachable by `mutate-one --worktree` (under F6), and `file(s)` survives in two other surfaces
-> (under F14). Both are written where they belong, both are cheap, neither blocks the merge.
->
-> **Everything below is preserved as it was written**: the boundaries, the GO and its refusals still
-> govern any further session, and the per-finding boxes carry what each fix cost to get right.
->
-> ⚠️ **A boundary worth knowing before touching any doc**: editing an **engine skill**
-> (`.claude/skills/**`) makes two other guards go red — the fingerprint table must be regenerated
-> **and** the French twin ported. The second is `templates/fr/**`, which is F11's and Thomas's. So on
-> this run, **prose fixes land in the CODE's own strings, not in a skill**. (Learned the expensive way
-> at F2; the paragraph it cost is parked under F2 below.)
->
-> ❓ **ONE QUESTION FOR THOMAS CAME OUT OF F1, and nothing is blocked on it** — it is written under F1
-> below, in the *"what F1 does not settle"* box: whether `.claude/settings.json` should ALSO leave the
-> nudge, the way `CLAUDE.md` just did. It is not part of the decided repair, and no other finding
-> depends on it.
->
-> **The review has RUN and returned 15 findings.** The merge of #76 is gated on this file. **Thomas
-> answered both open questions before the clear** — do not re-ask either:
->
-> - ✅ **THE BLOCKER IS DECIDED — shape (a).** *"Ne parler que des fichiers vraiment tenus par toi."*
->   The engine **re-records `.claude/settings.json`'s provenance right after it rewrites it**, and
->   **`CLAUDE.md` leaves the nudge** because an owner editing their constitution is the product working
->   as designed, not a file held back. The nudge then speaks only of what the owner genuinely kept.
->   **It is now a repair, not a decision** → F1 below carries the design and what it owes in tests.
-> - ✅ **GO TO FIX, TEST-FIRST, HE READS THE RESULT AT THE END.** *"Oui, en test-first, et tu me montres
->   à la fin."* A red test for the right reason first, then the code, **one commit per subject**, and a
->   report to him when the batch is done. **The GO covers categories A, B, C, D and F.** It does **not**
->   cover **E** (the French locale regression, his product call) nor **G** (quality work whose cost is
->   worth asking about before spending it).
->
-> **The suggested order, hardest-hitting first — and it was worked in full**: ~~F1 (the fleet-wide
-> false claim)~~ ✅, ~~F2 (the write that escapes the brain)~~ ✅, ~~F3 (the silent deletion)~~ ✅,
-> ~~F4 (the published machine)~~ ✅, ~~C (F5, F7, F10)~~ ✅, ~~D (F6)~~ ✅, ~~F (F14, F15)~~ ✅.
->
-> ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
-> explicitly ships with a named finding deferred (his call, recorded here if it happens).
->
-> **Still his, and NOT unblocked by any of the above**: F11 (the French twin), the G scope call, the
-> wording of the four doctrine texts (W5b, in the release plan), and the undecided rehearsal on a copy
-> of a real brain.
->
-> ### 🤖 AUTONOMOUS RUN AUTHORIZED — Thomas is away, and "on reprend" IS the GO
->
-> _(2026-08-22, asked and granted explicitly: he is going for a walk and wants the batch worked without
-> him. So a session opening on this file does **not** stop to ask whether it may start.)_
->
-> **DO, without asking:** everything in categories A, B, C, D and F, test-first (a red test **for the
-> right reason** first, then the code, then the refactor), **one commit per subject**, green only, and
-> **push every green commit** as it lands. Tick the box here as each one closes, with _(date · commit)_.
->
-> **NEVER, alone, whatever the plan seems to authorize:** merge #76, tag, publish, push anything to
-> `main`, touch either of his two real brains, translate or delete anything under `templates/fr/**`
-> (that is F11 and it is his), or spend the G work. **The cut stays his, entirely.**
->
-> **WHEN BLOCKED on a genuine fork** (two defensible designs, or a fix that would change what the
-> release promises): **do not stop and do not guess.** Do every finding that does not depend on it,
-> write the question into this file where it belongs, and carry on. He answers on his return.
->
-> 🛑 **The save point moves, because a long autonomous stretch has no hand-back to hang it on.** Write
-> each decision into this file **as it lands** and commit it — never bank it for a report that may be
-> an hour away. The plan is what he reads when he gets back; the chat may be gone.
->
-> **When the batch is done**: re-run `/code-review` on the fix range if he is back to type it (it is
-> his command), otherwise leave § H ticked as pending with the exact range to review, and report.
+## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+
+- **Next:** **nothing a session can do.** Every finding under the GO is fixed, test-first, green and
+  pushed — categories **A, B, C, D, F**. What is left is Thomas's, below.
+- **Blocked on:** nothing.
+- **Owner's call pending:** **four.** (1) **§ H** — re-run `/code-review` on `fc4e7bb..HEAD`; a
+  session cannot type his command. (2) **E / F11** — the French twin: translate it, or say so in the
+  release note. (3) **G** — does v5 pay F12 and F13, or a follow-up? (4) **F1's follow-up** — should
+  `.claude/settings.json` also leave the nudge, the way `CLAUDE.md` did? Two defensible designs,
+  written out under F1, and **nothing depends on it**.
+- **A session may, alone:** **nothing in this file.** Not merge, tag or publish #76, not touch either
+  real brain, not write under `templates/fr/**`, not spend the G work. ⚠️ **Nothing may be merged or
+  tagged until § Tracking is discharged**, unless Thomas ships with a named finding deferred.
+
+## How the batch was worked — durable, this is what it cost
+
+**The GO, in his words** _(2026-08-22)_: *"Oui, en test-first, et tu me montres à la fin."* A red test
+for the right reason first, then the code, **one commit per subject**, green only, and a report at the
+end. It covered categories **A, B, C, D and F** — never **E** (his product call) nor **G** (quality
+work worth costing before spending).
+
+**The blocker was decided before the batch started, shape (a)**: *"ne parler que des fichiers vraiment
+tenus par toi."* F1 below carries the design, what it owed in tests, and the two rejected shapes, so
+none of it is re-litigated.
+
+**The autonomous run** _(2026-08-22, asked and granted: he went for a walk and wanted the batch worked
+without him)_. Its boundaries still govern any further session here: **never**, alone, merge #76, tag,
+publish, push to `main`, touch either of his two real brains, translate or delete anything under
+`templates/fr/**`, or spend the G work. **The cut stays his, entirely.** On a genuine fork — two
+defensible designs, or a fix that would change what the release promises — do not stop and do not
+guess: work every finding that does not depend on it, write the question into this file, carry on.
+
+**Nine commits, hardest-hitting first**: F1 + F8 (`7f0ae6a`), F2 + F9 (`d8191b5`), F3 (`e084eef`),
+F4 (`a0419f6`), F5 (`1917a76`), F7 (`89621f0`), F10 (`6707eca`), F6 (`83fc9b5`), F14 + F15
+(`2ce39d8`). At the close of the batch: **2 525 tests green (3 skipped), maintainer suite 56/56.**
+
+⚠️ **The boundary learned the expensive way, at F2**, worth knowing before touching any doc here:
+editing an **engine skill** (`.claude/skills/**`) makes two other guards go red, because the
+fingerprint table must be regenerated **and** the French twin ported — and `templates/fr/**` is F11's,
+which is Thomas's. So on this run, **prose fixes landed in the CODE's own strings, not in a skill.**
+
+**Owned elsewhere, linked rather than restated**: the wording of the four doctrine texts (W5b) and the
+undecided rehearsal on a copy of a real brain both belong to
+[`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md). This file
+used to carry their status; it now points, and cannot go false when they move.
 
 ## 🧾 How this review was run, and its ONE honest limitation
 
@@ -348,11 +311,9 @@ catches any of this.
   - [ ] **F13 — four full read-and-sha256 passes per update** over every engine-owned file
         (`engine-base-fs.mjs:64`), despite the module's own "Read ONCE, used TWICE" comment, plus a
         fifth at **every** session start. Thread the already-read `installedFileMap` through.
-- [ ] **H. After the fixes — ⏳ WAITING ON THOMAS, and it is the ONLY thing left**
+- [ ] **H. After the fixes — his command to type, never a session's**
   - [ ] 🎯 **Re-run `/code-review` on the fix range. THE EXACT RANGE: `fc4e7bb..HEAD` on
         `feat/engine-base-unfreeze`** — 16 commits, 8 of them fixes, 8 plan updates.
-        _(2026-08-22: every finding under the GO is closed and pushed; **this command is his to type**,
-        the session cannot run it. Everything below stays as written.)_
   - [ ] Re-run `/code-review` on the fix range (the `v3.3.0` discipline: the second pass caught what the
         first missed), and report the figure back to
         [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) —

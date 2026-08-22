@@ -9,10 +9,10 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** § *Application* **step 5 — pilot the STATE block on
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md).** Steps 1-4 are done (the
-  door, the memory pointer, the ROADMAP, and the harness now carries the convention). Then 6, 7, 8
-  in order. Everything there is authorized: **do not ask again, execute.**
+- **Next:** § *Application* **step 6 — the three remaining live plans get their STATE block.** Steps
+  1-5 are done (the door, the memory pointer, the ROADMAP, the harness, and the pilot on the triage
+  plan). Then 7 (the ROADMAP's Status column, the biggest and least reversible edit) and 8.
+  Everything there is authorized: **do not ask again, execute.**
 - **Blocked on:** nothing.
 - **Owner's call pending:** **one — the lint, and it does not block any step above.** His *"on
   diffère le lint"* came from an autocompletion accepted before knowing what a lint was; asked again
@@ -352,16 +352,15 @@ comes last: biggest edit, least reversible.
             own `docs/plans/ACTIVE.md`. **Why it was not deferred**: a repo that publishes the
             convention while its own plan breaks it is how a shareable surface starts lying.
       - [x] `bash test/bootstrap-check.sh` green (the repo's only mechanical net).
-- [ ] **5. Pilot the STATE block on one real plan** —
-      [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md), 371 lines, whose ~80-line
-      resume header is exactly the workaround being replaced. **Its migration is already drafted**:
-      the four keys hold *nothing left for a session* / *nothing blocked* / *four owner calls (§ H's
-      re-run on `fc4e7bb..HEAD`, E/F11, the G scope call, F1's follow-up)* / *a session may do nothing
-      here*; and the durable narration (the GO, the nine commits, the autonomous-run boundaries, the
-      engine-skill lesson learned at F2, the two residuals) moves into a **§ How the batch was
-      worked**. **Apply rule 3 while migrating**: it currently restates **W5b** and the **rehearsal on
-      a copy of a real brain**, both owned by the release plan — replace with links (checked
-      2026-08-22: both are carried there, so nothing is lost).
+- [x] **5. Pilot the STATE block on one real plan** _(2026-08-22 · 371 → 332 lines; the ~80-line
+      resume header and the 8-line STATUS comment became a **14-line** STATE block plus a durable
+      § *How the batch was worked*)_. **What the pilot proved, and it is the finding that matters**:
+      the four keys held everything the header held, and the ~65 lines that did not fit were **not
+      state** — they were the GO, the run's boundaries and the nine commits, i.e. narration that had
+      been stapled to the top of the file *because that was where it could be found*. F-B, confirmed
+      on a real migration. Rule 3 applied at the same time: W5b and the rehearsal on a copy of a real
+      brain became links to the release plan that owns them.
+      The file: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md).
 - [ ] **6. The remaining live plans get their block** —
       `v5-unfreezes-the-existing-fleet-action.md`, `agent-orchestrated-release-mode-action.md`,
       `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`. Dormant prospective plans are
