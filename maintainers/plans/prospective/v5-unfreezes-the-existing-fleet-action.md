@@ -633,6 +633,9 @@
 > >       - 🪟 ✅ **Read on GitHub, not predicted** _(run `32564338986` on `3b6820b`)_: **7/7, the full
 > >             PR matrix**, Windows on Node 22/24/26 and the installer e2e. The run on the parent
 > >             commit (`32563919034`) was red on all three Windows cells with exactly this assertion.
+> >             **And re-read on the head that actually carries the code** _(run `32564444179` on
+> >             `87e9be1`, the mutation follow-up)_: **7/7 again**. A green read on a commit that is no
+> >             longer the head proves the fix, not the branch.
 > > - [x] **Verify on GitHub, by reading the run** — not by predicting it from a local pass. The branch
 > >       is pushed at every slice, so the tripwire reports on each push; the full matrix needs the PR.
 > >       _(Done throughout W1..W6; the closing read is `32564338986`, 7/7.)_
