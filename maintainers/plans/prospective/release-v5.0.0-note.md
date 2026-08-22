@@ -88,7 +88,9 @@
 
 Your second brain ships with ready-made pieces: the skills you call on, the rules it works by, the way it searches. The Kenjaku project keeps improving those pieces, in good part thanks to what its users report back, and asking your brain for an update is what carries the improvements over to you.
 
-**But the day you tailored one of those pieces, it stopped receiving anything, for good** — so far, your brain could no longer tell your words from its own, so it played safe and left the file alone, silently. Measured on a real brain: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
+**But the day you tailored one of those pieces, it stopped receiving anything, for good.** That was a protection, and a deliberate one: an update must never overwrite what you wrote yourself. It simply had no third move — so far, your brain could not tell your words from its own, so *"protect what is yours"* also meant *"freeze this file"*, silently. Measured on a real brain: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
+
+**v5.0.0 is that third move.** Whenever the two do not collide, your specifics and the new version are merged together: what you wrote stays, the improvements land around it. And when they really do collide, your brain stops deciding on your behalf and asks you what you want done with that file.
 
 ### What you get, when you update your brain
 
