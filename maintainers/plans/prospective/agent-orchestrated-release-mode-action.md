@@ -27,10 +27,13 @@
 > > - ✅ **W1 THROUGH W4 ARE DONE — the loop's queue is EXHAUSTED** _(2026-08-22 · W1 `65a6080`+
 > >   `13ef852`, W2 `dd08024`+`a5b8c2a`, W3 `df09f17`+`ea85b07`, `9b5fbec` the CI premise, W4 the
 > >   note's re-read)_. **W5 and W5b are Thomas's** — the retarget / one review / one merge commit, and
-> >   the wording of the four doctrine texts. **What remains for the loop is ONE bullet of W6**:
-> >   reading what the three skipped tests skip. _(The S7-2 harness artifact, the last Windows red, was
-> >   closed 2026-08-22 — `3b6820b` + `87e9be1`, matrix 7/7 on run `32564338986`.)_
+> >   the wording of the four doctrine texts. **W6 IS DISCHARGED TOO** _(2026-08-22)_ — the S7-2 harness
+> >   artifact fixed (`3b6820b` + `87e9be1`) and the skip list read on both platforms. **The loop's
+> >   queue on this release is EMPTY**; what is left is W5, W5b and the bump, which travel with the tag.
 > >   ⚠️ **The queue must not be advanced past W4** — the entries after it are the owner's.
+> >   🎯 **If a loop runs anyway, the honest task is tooling, not the release**: `mutate-one.mjs` cannot
+> >   tell that its target has uncommitted changes, so it scores the wrong tree and says `✅` — met
+> >   twice in one night with the rule against it written in bold both times.
 > > - 🪟 **W6's WINDOWS COLUMN IS GREEN END TO END** — W1's three QA poles (run `32558375080`), W2's
 > >   **316 delivered text files LF** with its positive control (run `32560532878`), and the last red,
 > >   the S7-2 freshness guard, now **7/7 across Node 22/24/26 on `windows-latest`** (run
@@ -501,6 +504,43 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- ✅ **2026-08-22 (W6b) — THE SKIP LIST WAS COUNTED ON ONE MACHINE FOR THE WHOLE RELEASE.** The bullet
+  read *"the suite reports 3 skipped, all three Windows-only"* and asked whether any belonged to W1/W2.
+  Read from the runners rather than from here: **macOS skips 9, Windows skips 11**, and 3 is the
+  developer-machine figure (a laptop already has `rag/node_modules`). Nothing is missing — the three
+  local skips **run and pass** on `windows-latest`, the six *"engine parser absent"* ones are re-run in
+  the same job after `npm ci` (32 / 0 skipped, both platforms), the rest are POSIX-side. **The claim
+  worth having is `nothing skips on both`, and it is now measured rather than assumed.**
+  - 🎯 **Answer to the question asked: none belongs to W1 or W2 — and the near-miss is the finding.**
+    The two `.cmd` byte-offset tests look exactly like W2's subject, and are not: **`git ls-files`
+    tracks not one `.cmd`**, all six launchers are `regenerate`-regime and generated at install, so
+    W2's copy path never touches them and its `eol=crlf` carve-out guards a case the launcher does not
+    have today. **Neighbours in subject, disjoint in mechanism** — the kind of adjacency that reads as
+    coverage until someone asks which file the test actually opens.
+  - 🛑 **The mode lesson, and it is the same shape as W2's premise**: *"checked rather than assumed"*
+    was written in this very log about this very count, on 2026-08-21. It was checked — **on the one
+    machine that skips the least**. A local suite is not a smaller CI; it is a different environment,
+    and a skip count is precisely where the two disagree.
+  - **Next**: **nothing on this release is the loop's.** W1-W4 and W6 are closed; W5, W5b and the bump
+    are the owner's and travel with the tag. The one honest task left for a loop is **tooling**:
+    `mutate-one.mjs` cannot see that its target is uncommitted.
+
+- ✅ **2026-08-22 (W6a) — THE LAST WINDOWS RED WAS THE RELEASE-CUTTING TOOL, not a stale table.**
+  `3b6820b` + `87e9be1`. The S7-2 guard failed with 23 rels unrecognised because it **read the working
+  tree**, which git checks out as CRLF there. Underneath: the generator folds the release being cut
+  from that same tree, so **cutting from a Windows clone would have shipped a CRLF fingerprint table**
+  — every row a digest no brain can hold, artefact looking perfectly normal, fleet left frozen. Both
+  now fold through `deliversAsLf`, the installer's own copy oracle. Test-first, two CRLF poles red on
+  their assertions first, seven poles, scoped mutation 100 %, and **regenerating on macOS yields a
+  byte-identical table** — a no-op where the checkout is LF. Matrix **7/7** (run `32564338986`, re-read
+  on `87e9be1` as `32564444179`). State owned by the release plan's § *W6*.
+  - 🛑 **"COMMIT, THEN MUTATE" was written in `RESULTS.md`, in bold, two hours earlier by this same
+    session — and did not fire.** The first pass reported `✅ 100 %` over lines that were still the old
+    code's. What caught it was **reading the reset sha the runner prints**, not the rule. A written
+    rule competes with an output that says `✅` either way, and the output wins. The tool already
+    refuses a stale log, a starved timeout share and a skipping write-guard; **a dirty working tree on
+    a targeted file is the same class and is the one precondition it does not check.**
 
 - ✅ **2026-08-22 (W4) — THE NOTE'S RE-READ FOUND THREE STALE THINGS, and the tick would have claimed
   none.** The entry was *"re-read, and if nothing needs changing say so and tick it"* — the shape that
@@ -1094,7 +1134,9 @@ arbitration goes here as a question, and the run continues on other slices.
   🧭 **And the sweep found the one thing that would actually stall a cut, which is not a defect but an
   ORDER**: #76 is based on `chore/s0bis-entrypoint-mutation-debt`, and **draft #75 is still open**.
   Deliberate when it was set up — #75 keeps its S0bis perimeter — and a **decision** now. Everything
-  else is green: suite 2 337/2 334/3 skipped (all three Windows-only, checked rather than assumed), the
+  else is green: suite 2 337/2 334/3 skipped (~~all three Windows-only, checked rather than assumed~~
+  — ⛔ **corrected 2026-08-22**: *checked* meant checked **on this machine**. The runners skip 9 (macOS)
+  and 11 (Windows); the real claim, now measured, is that **nothing skips on both**), the
   four release guards 69/69, branch 248 ahead of `main`, 0 behind, no merge conflict.
 
   🛑 **The body was written to a FILE, not pushed to GitHub.** Editing a live PR is outward-facing, and

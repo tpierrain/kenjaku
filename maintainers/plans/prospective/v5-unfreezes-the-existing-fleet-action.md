@@ -415,13 +415,22 @@
 > 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
 > **proved green on a real `windows-latest` runner** (run `32558375080`).
 >
-> 🧭 **RESUME AT W6's THREE SKIPPED TESTS** _(2026-08-22, after the S7-2 artifact was fixed and read
-> green on Windows)_ — **the W1..W5 queue no longer has an entry the loop may take**: W1, W2, W3 and W4
-> are built and read, and **W5 and W5b are Thomas's** (the retarget / one review / one merge commit, and
-> the wording of the four doctrine texts). **W6's Windows column is now GREEN end to end**; what is left
-> of W6 is a READ, not a repair.
+> 🛑 **RESUME AT: NOTHING. THE LOOP'S QUEUE IS EMPTY, AND THIS TIME THE INVENTORY WAS CHECKED RATHER
+> THAN THE LIST** _(2026-08-22, after W6's skip list was read)_. **W1, W2, W3, W4 and W6 are built,
+> read and closed**; **W5, W5b and the version bump are Thomas's** (the retarget / one review / one
+> merge commit, the wording of the four doctrine texts, and the bump that travels with the tag).
 >
-> **What is still the loop's, and it is W6's own last open bullet:**
+> ⚠️ **This plan has twice announced an empty queue and been wrong** — a closed list is not an emptied
+> inventory. So the claim is made against the three surfaces, not from memory: this file's own slices,
+> the ROADMAP's open rows, and the scheduled open issues. **#61, #67 and #64 stay open on purpose**:
+> what closes them is a brain *receiving* the rule, not the branch carrying it.
+>
+> 🎯 **What a next loop should do is therefore NOT to find work here.** If one runs, the honest task is
+> the one W6's own mutation pass named and did not build: **`mutate-one.mjs` cannot tell that its
+> target has uncommitted changes**, so it silently scores the wrong tree — met twice in one night, two
+> hours apart, with the rule against it written in bold both times. That is tooling, not the release.
+>
+> **W6's two bullets, both now closed:**
 >
 > - [x] ✅ **The S7-2 fingerprint freshness guard, the last Windows red. FIXED AND READ GREEN**
 >       _(2026-08-22 · `3b6820b` the fix + `87e9be1` the mutation survivor's pole)_. It was never a
@@ -588,11 +597,15 @@
 >         that the wording was his. **A list that closes is not the same as an inventory that empties**,
 >         which is the exact lesson this plan already recorded twice, on other surfaces.
 >
-> > ### 🪟 W6 — THE STANDING PROOF THOMAS ASKED FOR: **real Windows, on GitHub CI, at the END**
+> > ### 🪟 W6 — ✅ **DISCHARGED** _(2026-08-22)_ — the standing proof Thomas asked for: real Windows, on GitHub CI, at the END
 > >
 > > His words, 2026-08-22: *"j'aimerais que tu t'assures avec des vrais tests concrets sur Windows, sur
 > > GitHub, à la fin, sur la CI"*. **This is an acceptance condition on the release, not a slice**: the
 > > Windows repair is not done because tests pass on a Mac.
+> >
+> > ✅ **It is met: run `32564444179` on `87e9be1`, the full PR matrix 7/7** — `windows-latest` on Node
+> > 22, 24 and 26 plus the installer e2e, **zero failures**, and the skip list read on both platforms
+> > rather than counted on one. Every box below is ticked; what remains on this release is the owner's.
 > >
 > > - [x] 📐 **The runner already exists, checked rather than assumed** _(2026-08-22)_.
 > >       `.github/workflows/ci.yml` runs **`windows-latest` twice**: a *Windows tripwire · harness* job
@@ -639,9 +652,40 @@
 > > - [x] **Verify on GitHub, by reading the run** — not by predicting it from a local pass. The branch
 > >       is pushed at every slice, so the tripwire reports on each push; the full matrix needs the PR.
 > >       _(Done throughout W1..W6; the closing read is `32564338986`, 7/7.)_
-> > - [ ] ⚠️ **A green Windows suite is NOT yet the full claim.** The suite reports **3 skipped, all
-> >       three Windows-only**. Before calling W6 done, read what those three skip and say in writing
-> >       whether any of them is part of what W1/W2 are supposed to prove.
+> > - [x] ✅ **A green Windows suite is NOT yet the full claim — THE SKIP LIST IS NOW READ** _(2026-08-22,
+> >       from the logs of run `32564444179`, jobs `Node 24 · windows-latest` and `Node 24 ·
+> >       macos-latest`)_. **No test in the harness suite skips on both platforms**, and that is the
+> >       claim worth having — it was assumed, and it is now measured.
+> >       - 🛑 **"3 skipped, all Windows-only" was the LOCAL number, and it was wrong twice over.** On a
+> >             developer Mac with `rag/node_modules` already installed the suite says **3**; the macOS
+> >             runner says **9** and the Windows runner says **11**. The figure this plan repeated came
+> >             from the one machine that has the fewest.
+> >       - ✅ **The three that skip locally RUN AND PASS on `windows-latest`** — read, not inferred:
+> >             *"rag/launch.cmd is parsed cleanly by cmd.exe, byte offsets and all"* ✔ 6 925 ms,
+> >             *"local-mirror/launch.cmd …"* ✔ 214 ms, *"win32 hook command actually runs the script
+> >             under Git Bash AND PowerShell"* ✔ 2 797 ms. They are the platform mirror of the four
+> >             POSIX launcher tests that skip on Windows, not a hole.
+> >       - ✅ **The six *"engine parser absent"* skips are re-run IN THE SAME JOB**, by the dedicated
+> >             `Vault write-guard tests` step that runs after `npm ci` — **32 tests / 0 skipped on both
+> >             platforms**, read on each. That step exists precisely because those four assertions once
+> >             skipped everywhere for 67 commits, and the suite pins it from the inside.
+> >       - ✅ **The eleventh is `readInstalledMergeFiles — the owner's notes are NOT read, proved by
+> >             making them unreadable`**: POSIX permissions and a non-root user, so it runs on macOS.
+> >       - 🎯 **AND THE ANSWER TO THE QUESTION ASKED: none of them belongs to W1 or W2 — but the
+> >             near-miss is the part worth writing.** The two `.cmd` byte-offset tests look exactly like
+> >             W2's subject (CRLF, Windows, cmd.exe re-seeking mid-token — the v4.8.1 field report that
+> >             `deliversAsLf`'s `eol=crlf` carve-out names). **They are not.** `git ls-files` tracks
+> >             **not one `.cmd` file**: all six launchers are in the `regenerate` regime, produced by
+> >             `rag-launcher.mjs` at install, and the copy path W2 pins never touches them. So W2's
+> >             carve-out guards a case that **does not exist in the launcher today** — which is what
+> >             W2 measured when it found no `eol=` attribute anywhere — and these tests guard the
+> >             GENERATOR's output bytes. **Neighbours in subject, disjoint in mechanism.** W1's seams
+> >             have no skipped test at all.
+> >       - 📐 **Checked while there, because it would have been a real defect**: the Windows e2e's
+> >             positive control (*"run-node.cmd is still CRLF"*) also watches a **generated** file, so
+> >             it cannot fail from an over-reaching copy. That is not a flaw — it is a control on the
+> >             **detector** (`-match "\r"`), which is exactly what its own comment claims it is, and the
+> >             copy path is proved by the 316-file assertion above it.
 >
 > **Why the loop may take W1 through W4**, checked against the mode plan's written list rather than
 > felt: cutting, release-note tone, scope arbitration, merging and destructive acts need the owner.

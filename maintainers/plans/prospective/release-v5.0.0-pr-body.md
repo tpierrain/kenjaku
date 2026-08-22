@@ -188,11 +188,17 @@ inverted rather than deleted.
 
 ## How it was judged
 
-- Suite **2 481 tests — 2 478 pass / 0 fail / 3 skipped** (the three are Windows-only:
-  `cmd.exe` cannot parse a batch file on macOS). ⚠️ **That figure is LOCAL, on macOS, and it is not the
-  verdict** — stating the local number alone is the exact defect this release's own pre-flight
-  committed twice: *a pre-flight that only reads the local suite is measuring the machine that wrote
-  the code.*
+- Suite **2 481 tests — 2 478 pass / 0 fail / 3 skipped** locally. ⚠️ **That figure is LOCAL, on macOS,
+  and it is not the verdict** — stating the local number alone is the exact defect this release's own
+  pre-flight committed twice: *a pre-flight that only reads the local suite is measuring the machine
+  that wrote the code.*
+  - 📐 **And the skip count says it again, one level down.** *"3 skipped, all Windows-only"* was the
+    developer-machine number: the macOS runner reports **9** and the Windows runner **11**, because a
+    laptop already has `rag/node_modules` and a fresh runner does not. **The list is read on both
+    platforms rather than counted on one**, and the claim that matters holds: **no test in the harness
+    suite skips on both**. The three that skip on macOS pass on `windows-latest`; the six *"engine
+    parser absent"* ones are re-run in the same job after `npm ci` (**32 / 0 skipped**, both
+    platforms); the rest are POSIX launchers and one POSIX-permissions test, all green on macOS.
   - 🪟 **The Windows verdict, read from CI rather than predicted** _(2026-08-22, run `32564338986` on
     `3b6820b`)_: **four failures → ZERO. The full matrix is 7/7**, `windows-latest` on Node 22, 24 and
     26 plus the installer e2e. The three that were the product are repaired (W1); delivery is pinned so
