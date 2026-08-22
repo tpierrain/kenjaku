@@ -367,3 +367,16 @@ test("engineDivergence — a Windows checkout's CRLF ancestor still matches, exa
     [],
   );
 });
+
+// The two shapes a manifest can be in when this is called for real, both from
+// `readEngineDivergence`: it hands over `null` when the file could not be parsed, and a
+// half-written manifest (an update interrupted between two writes) has keys missing.
+// Neither may throw — this runs at every session start, and a throw there is a broken
+// session over a report nobody asked for.
+test("engineDivergence — an absent manifest says nothing, rather than failing the session", () => {
+  assert.deepEqual(engineDivergence({ manifest: null, installedFileMap: { "CLAUDE.md": EDITED } }), []);
+});
+
+test("engineDivergence — a manifest with no regimes at all says nothing either", () => {
+  assert.deepEqual(engineDivergence({ manifest: {}, installedFileMap: { "CLAUDE.md": EDITED } }), []);
+});

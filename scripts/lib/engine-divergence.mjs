@@ -98,13 +98,19 @@ function matchesLocalAncestor(baseContent, installed) {
 export function engineDivergence({ manifest, installedFileMap, baseContentMap = {} }) {
   const provenance = manifest?.provenance ?? {};
   const baseRefs = manifest?.baseRefs ?? {};
+  // Hoisted: the invitation is a property of the RELEASE, not of the file being judged,
+  // so reading it once is both cheaper and the only spelling under which the optional
+  // chaining above is reachable — inside the loop it could never fire (the loop runs
+  // only when `regimes.merge` named something), which makes it a mutant nest rather
+  // than a safety net.
+  const invited = invitedEdits(manifest);
   const held = [];
   for (const rel of selectMergeFiles(manifest, Object.keys(installedFileMap))) {
     // Filtered BEFORE the verdict is computed, so it holds for BOTH branches: the whole
     // deployed fleet is `no-provenance` on `CLAUDE.md` (no regime named it before v4), and
     // silencing only the `customized` half would leave the fleet-wide line exactly where
     // it was.
-    if (matchesAny(invitedEdits(manifest), rel)) continue;
+    if (matchesAny(invited, rel)) continue;
     // The seeding question, asked of the installed file: "would these bytes make a
     // provable base?" Yes → the file still IS what the engine delivered, nothing is
     // held back. There is no second definition of "unchanged" in this codebase, and
