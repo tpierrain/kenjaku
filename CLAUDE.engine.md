@@ -269,6 +269,26 @@ The main session's context is a **scarce, high-quality resource**. A large conte
 
 **Read directly (Read / grep) when:** known file, exact path, reasonable size; exact search; need for faithful content, not a summary.
 
+**📏 The threshold, so "large" stops being a judgement call.** Reading a file **to consult it** —
+you want to know what is in it, not to change it — goes to a sub-agent past **~1,500 lines or
+~60 KB**, whichever comes first. Below that, read it yourself. *(Both measures, because a wide file
+can be short on lines and still flood the context. **Adjust** the numbers if your notes run
+routinely bigger; what must not be adjusted away is having a number at all.)*
+
+> 🛑 **Two carve-outs, and they are the reason the number is safe to state.** **Not every** file
+> open goes through a sub-agent — that would break the edit flow, add latency on small notes and
+> lose fidelity where it matters:
+>
+> - **A file you are about to EDIT is read directly, whatever its size.** Not a preference, a
+>   mechanism: `Edit` requires a **prior Read** of that file in *this* context.
+> - **Content you will quote VERBATIM is read directly too.** A digest is a summary, and word-level
+>   work (an article, a quote, a transcript excerpt) needs the words.
+
+**🧩 Same disease, other vector: loading a big skill for three facts.** If a skill is being pulled
+in only to source a handful of figures or names, have a **sub-agent** load it and hand back the
+facts. This one is judgement — nothing can read your intent — but it is written down because it has
+cost more context, in one turn, than any note ever did.
+
 **Golden rule**: a sub-agent returns only pre-digested signals (~500 tokens), never file dumps.
 
 ### General rules

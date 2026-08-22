@@ -277,6 +277,27 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 
 **Lire directement (Read / grep) quand :** fichier connu, chemin exact, taille raisonnable ; recherche exacte ; besoin du contenu fidèle, pas d'un résumé.
 
+**📏 Le seuil, pour que « gros » cesse d'être un jugement.** Lire un fichier **en consultation**
+(tu veux savoir ce qu'il contient, pas le modifier) passe par un sous-agent au-delà de **~1 500 lignes
+ou ~60 Ko**, au premier des deux atteint. En dessous, lis-le toi-même. *(Les deux mesures, parce qu'un
+fichier large peut être court en lignes et noyer le contexte quand même. **Ajuste** les nombres si tes
+notes sont couramment plus grosses ; ce qui ne s'ajuste pas, c'est le fait d'avoir un nombre.)*
+
+> 🛑 **Deux exceptions, et ce sont elles qui rendent le nombre énonçable.** Toutes les lectures
+> **ne passent pas** par un sous-agent : ça casserait le flux d'édition, ajouterait de la latence sur
+> les petites notes et perdrait la fidélité là où elle compte.
+>
+> - **Un fichier que tu t'apprêtes à ÉDITER se lit directement, quelle que soit sa taille.** Ce n'est
+>   pas une préférence, c'est un mécanisme : `Edit` exige une lecture **préalable** de ce fichier dans
+>   *ce* contexte.
+> - **Un contenu que tu vas citer VERBATIM se lit directement aussi.** Un digest est un résumé, et le
+>   travail au mot près (un article, une citation, un extrait de transcript) a besoin des mots.
+
+**🧩 Même maladie, autre vecteur : charger une grosse skill pour trois faits.** Si une skill n'est
+tirée que pour sourcer quelques chiffres ou noms, fais-la charger par un **sous-agent** qui te rend
+les faits. Celle-ci relève du jugement (rien ne peut lire ton intention), mais elle est écrite parce
+qu'elle a coûté plus de contexte, en un seul tour, que n'importe quelle note.
+
 **Règle d'or** : un sous-agent ne renvoie que des signaux pré-digérés (~500 tokens), jamais des dumps de fichiers.
 
 ### Règles générales
