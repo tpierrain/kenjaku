@@ -339,12 +339,23 @@ node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js \
 ```
 
 **Belt and braces, and the braces came first** _(2026-08-20)_.
-[`mutate-one.mjs`](mutation/mutate-one.mjs) is the **braces**: it prunes stale worktree registrations
-before adding one, creates and resets the **disposable worktree** (`git reset --hard` + `git clean -qfd
+[`mutate-one.mjs`](mutation/mutate-one.mjs) is the **braces**: it **refuses a target that is not
+committed** (see below), prunes stale worktree registrations before adding one, creates and resets the
+**disposable worktree** (`git reset --hard` + `git clean -qfd
 -e rag/node_modules`, **never** `git checkout -- .`), symlinks `rag/node_modules`, proves
 `vault-write-guard.test.mjs` reports **0 skipped** there, checks the config's tuning before the run and
 the timeout share after it, discards any stale log, and **fails loudly rather than report a score it
-did not measure**. The [`mutation-testing`](skills/mutation-testing/SKILL.md) skill is the **belt**: it
+did not measure**.
+
+> 🛑 **COMMIT, THEN MUTATE — and the tool enforces it now** _(2026-08-22)_. The worktree is built at
+> `git rev-parse HEAD`, so a pass launched over an **uncommitted** change measures the OLD bytes and
+> prints `✅ Mutation score 100 %` in exactly the same words. It happened twice in one night, two hours
+> apart, **with the rule already written in bold in `mutation/RESULTS.md` between the two attempts**:
+> a written rule competes with an output that says ✅ either way, and the output wins. So the runner
+> asks `git status --porcelain` about the **targets** (never the whole tree — editing plans while
+> mutating a committed file is the normal way it is used) and stops before touching a worktree.
+> **This is the general lesson, not a mutation-testing one**: when a rule has to be remembered at the
+> exact moment an instrument is reassuring you, move it into the instrument. The [`mutation-testing`](skills/mutation-testing/SKILL.md) skill is the **belt**: it
 holds what a script cannot — when a pass is due, how to read the survivors, when to simplify the
 production instead of writing a case, and when a named equivalent is honest.
 

@@ -257,9 +257,42 @@ wins.
 failure instead of a score that was never measured"*, and it already refuses a stale log, a starved
 timeout share and a skipping write-guard. **A dirty working tree on a TARGETED file is exactly that
 class and is not guarded** — it is the one precondition the tool can check for free (`git status
---porcelain -- <targets>`) and the only one that has now been met twice in one night. Recorded here as
-the next candidate; not built in the slice that found it, because the loop's work order names one
-bullet at a time.
+--porcelain -- <targets>`) and the only one that has now been met twice in one night.
+
+✅ **BUILT** _(2026-08-22 · `ced15a0` + the survivors' poles)_ — see § *The gate that makes this box
+historical*, below. **The rule stops being something to remember.**
+
+---
+
+## The gate that makes the box above historical — 2026-08-22
+
+`ced15a0`. The refusal `mutate-one.mjs` never made: **a target that is not committed stops the run**,
+because the worktree is built at HEAD and a pass over an uncommitted change scores the old bytes and
+prints `✅` in the same words.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `maintainers/mutation/mutate-one.mjs` (`targetPaths`, `uncommittedTargets`, the gate) | **93.94 %** — 31 killed, 2 survived | **100 %** — 33 killed | 0 |
+
+**Reproduce**: `npm --prefix maintainers/mutation run mutate:maintainers` scoped with
+`--mutate "maintainers/mutation/mutate-one.mjs:191-193,…:200-205,…:320-338"`. _(This file is under
+`maintainers/`, so `mutate-one` refuses to mutate itself — it is the `scripts` package's runner. The
+maintainers config is the one that measures it.)_
+
+🧭 **Neither survivor asked for more code, and both are shapes this corpus has met before:**
+
+- `line.length > 3` → `>= 3`. git cannot emit an entry with an empty path, so the boundary looked
+  decorative. **Killed by feeding the shape it excludes** (`"M  "`), not by rewording the condition —
+  the same answer W3's four survivors got. The alternative considered and rejected: rewriting the
+  filter as a regex, the way `parseLsFilesEolZ` did for its `indexOf` survivors. Here it would only
+  have moved the unkillable boundary into a `.+` nobody feeds either.
+- `command: "git"` → `command: ""`. It survived because the assertion read `args` alone. **The test
+  file's own header says a double that ignores its arguments certifies nothing** — the assertion was
+  committing that error one level up. The whole call is asserted now, `cwd` included: the same
+  question asked from another directory answers about another tree.
+
+⚠️ **What it does NOT guard, deliberately**: `--dry-run` still runs nothing, this gate included. The
+gate protects a **score**, and a dry run produces none; a dry run that shells out is not a dry run.
 
 **The one real survivor**: `eolByPath?.[…]` → `eolByPath[…]`. No caller omits the map, so the optional
 chain was unkillable — and the fix was to **delete it**, not to cover it. The two failures are not

@@ -31,9 +31,9 @@
 > >   artifact fixed (`3b6820b` + `87e9be1`) and the skip list read on both platforms. **The loop's
 > >   queue on this release is EMPTY**; what is left is W5, W5b and the bump, which travel with the tag.
 > >   ⚠️ **The queue must not be advanced past W4** — the entries after it are the owner's.
-> >   🎯 **If a loop runs anyway, the honest task is tooling, not the release**: `mutate-one.mjs` cannot
-> >   tell that its target has uncommitted changes, so it scores the wrong tree and says `✅` — met
-> >   twice in one night with the rule against it written in bold both times.
+> >   ✅ **The one tooling task is DONE too** _(`ced15a0`)_: `mutate-one.mjs` refuses a target that is
+> >   not committed, rather than scoring HEAD and saying `✅`. **Nothing is left for a loop on this
+> >   release** — the next firing should say so and stop.
 > > - 🪟 **W6's WINDOWS COLUMN IS GREEN END TO END** — W1's three QA poles (run `32558375080`), W2's
 > >   **316 delivered text files LF** with its positive control (run `32560532878`), and the last red,
 > >   the S7-2 freshness guard, now **7/7 across Node 22/24/26 on `windows-latest`** (run
@@ -504,6 +504,21 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- ✅ **2026-08-22 (tooling) — THE RULE STOPS BEING SOMETHING TO REMEMBER.** `ced15a0` + the survivors'
+  poles. `mutate-one.mjs` now **refuses a target that is not committed**: the worktree is built at
+  HEAD, so a pass over an uncommitted change measures the old bytes and prints `✅` in the same words.
+  Twice in one night, two hours apart, with *"COMMIT, THEN MUTATE"* written in bold in `RESULTS.md`
+  between the two. **A written rule competes with an output that says ✅, and the output wins** — which
+  is the whole argument for a gate over a third restatement.
+  - Scoped to the **targets**, never the tree: editing plans while mutating a committed `.mjs` is how
+    the tool is used every run, and a whole-tree check would be disabled within a day.
+  - `--dry-run` still runs nothing, gate included: it protects a **score**, and a dry run makes none.
+  - Test-first, 7 poles red on their assertions; three existing tests updated (they assert the whole
+    run sequence, which now opens with the gate) and **not weakened**. Mutation 93.94 % → **100 %**,
+    both survivors killed by better assertions rather than more code. **Proved by running it**, on an
+    untracked target and on a modified one.
+  - **Next**: nothing. This was the last item any loop could take on this release.
 
 - ✅ **2026-08-22 (W6b) — THE SKIP LIST WAS COUNTED ON ONE MACHINE FOR THE WHOLE RELEASE.** The bullet
   read *"the suite reports 3 skipped, all three Windows-only"* and asked whether any belonged to W1/W2.

@@ -425,10 +425,15 @@
 > the ROADMAP's open rows, and the scheduled open issues. **#61, #67 and #64 stay open on purpose**:
 > what closes them is a brain *receiving* the rule, not the branch carrying it.
 >
-> 🎯 **What a next loop should do is therefore NOT to find work here.** If one runs, the honest task is
-> the one W6's own mutation pass named and did not build: **`mutate-one.mjs` cannot tell that its
-> target has uncommitted changes**, so it silently scores the wrong tree — met twice in one night, two
-> hours apart, with the rule against it written in bold both times. That is tooling, not the release.
+> ✅ **AND THE ONE TOOLING TASK THAT WAS LEFT IS DONE** _(2026-08-22 · `ced15a0`)_: `mutate-one.mjs`
+> now **refuses a target that is not committed**, instead of silently scoring HEAD and printing `✅`.
+> Met twice in one night, two hours apart, with the rule against it written in bold both times —
+> which is the argument for a gate rather than a third restatement. Scoped mutation **100 %** (33
+> mutants), proved by running it on both shapes (`??` and ` M`). Detail in
+> [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § *The gate that makes this box historical*.
+>
+> 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
+> should say so and stop, rather than find something.
 >
 > **W6's two bullets, both now closed:**
 >
