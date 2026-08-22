@@ -419,6 +419,37 @@ test("runReconcileCli — the child takes its FAMILIES from the source, or a dep
   assert.deepEqual(calls.reindex, [], "advancing the families must not turn the child into a migration");
 });
 
+// …and the advance must survive a pass that hands over NOTHING, which is the case the
+// write guard above it nearly missed. A release can invent a family, or bury a skill,
+// while every file involved is already at the right content: delivered is empty, healed
+// is empty, and a guard that only asks "did we hand anything over?" throws the advance
+// away unwritten. It would then be recomputed and thrown away at every run, and every
+// standing surface — the session nudge, the write guard, the next update — would go on
+// reasoning from the install-day list forever.
+test("runReconcileCli — an advance that delivers NOTHING is still written down", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(manifest(), null, 2));
+  // The release buries a skill this brain never had: nothing to copy, nothing to remove.
+  writeFile(sourceDir, "engine-manifest.json", JSON.stringify(manifest({ retired: [".claude/skills/never-had-it/**"] }), null, 2));
+
+  const { calls, ...s } = seams();
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  assert.deepEqual(report.installedSkills, [], "the premise: this pass hands nothing over");
+  assert.deepEqual(report.skillsRetired, [], "…and removes nothing either");
+  const after = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.deepEqual(after.retired, [".claude/skills/never-had-it/**"], "the tombstone is on disk, or the release forgets it at every run");
+});
+
 // ── And the owner has to be TOLD, on the very update where nobody can tell them ──
 //
 // The recap an owner reads after their first v5 update is printed by their OLD engine —
@@ -456,6 +487,108 @@ test("runReconcileCli — a first update announces what the old recap cannot des
 
   assert.equal(said.length, 1, "one line, not a second report — the parent is about to print its own");
   assert.match(said[0], /coach/, "and it NAMES what arrived, or it is decoration");
+});
+
+// ── The SENTENCE itself ──────────────────────────────────────────────────────
+//
+// Driven by a mutation run on the CLI (66 % — 27 survivors, all but three of them in the
+// prose below): the test above proves the line is emitted, and proved nothing about what
+// it says. Every clause could be deleted with the suite green — including the whole
+// retired-skill half, which no pole exercised at all.
+//
+// The words ARE the contract here: on a first update this line is the only trace the
+// catch-up leaves, so it is asserted whole, one pole per branch, exactly as the startup
+// banner's own line-formatter is.
+const catchUp = async (over) => {
+  const said = [];
+  const { announceWhatTheOldRecapCannot } = await import("./reconcile-brain.mjs");
+  announceWhatTheOldRecapCannot({
+    brainDir: "/brain",
+    sourceDir: "/source",
+    delivered: {},
+    report: { skillsRetired: [] },
+    emit: (line) => said.push(line),
+    ...over,
+  });
+  return said;
+};
+
+test("the catch-up line: files arrived — named, counted, and in a stable order", async () => {
+  // Deliberately unsorted, and two of them: a map is walked in insertion order, so a line
+  // that skipped the sort would read back "CLAUDE.engine.md, .claude/settings.json" —
+  // which is what the engine happened to write, not something an owner can scan.
+  const said = await catchUp({ delivered: { "CLAUDE.engine.md": "a1", ".claude/settings.json": "b2" } });
+  assert.deepEqual(said, [
+    "🔓 Catching up: your brain just received 2 engine files it had stopped getting updates for " +
+      "(.claude/settings.json, CLAUDE.engine.md). Your own edits were kept.\n",
+  ]);
+});
+
+test("the catch-up line: ONE file arrived — the count agrees with itself", async () => {
+  const said = await catchUp({ delivered: { "CLAUDE.engine.md": "a1" } });
+  assert.deepEqual(said, [
+    "🔓 Catching up: your brain just received 1 engine file it had stopped getting updates for " +
+      "(CLAUDE.engine.md). Your own edits were kept.\n",
+  ]);
+});
+
+test("the catch-up line: a retired skill is announced too, and ONE of them reads as one", async () => {
+  // The half no pole reached. It is the half that explains a DISAPPEARANCE — an owner
+  // who finds a skill gone with nothing said about it has met a bug, not an upgrade.
+  const said = await catchUp({ delivered: {}, report: { skillsRetired: ["tdd-discipline"] } });
+  assert.deepEqual(said, [
+    "🔓 Catching up: the tdd-discipline skill the engine no longer ships was removed. Your own edits were kept.\n",
+  ]);
+});
+
+test("the catch-up line: SEVERAL retired skills — the whole sentence goes plural, verb included", async () => {
+  const said = await catchUp({ delivered: {}, report: { skillsRetired: ["tdd-discipline", "old-timer"] } });
+  assert.deepEqual(said, [
+    "🔓 Catching up: the tdd-discipline, old-timer skills the engine no longer ships were removed. " +
+      "Your own edits were kept.\n",
+  ]);
+});
+
+test("the catch-up line: arrivals AND retirements are joined into one readable sentence", async () => {
+  // The real shape of a v5 first update, and the one place the two halves meet: they are
+  // joined by ", and", not concatenated — the difference between a sentence and a dump.
+  const said = await catchUp({
+    delivered: { "CLAUDE.engine.md": "a1" },
+    report: { skillsRetired: ["tdd-discipline"] },
+  });
+  assert.deepEqual(said, [
+    "🔓 Catching up: your brain just received 1 engine file it had stopped getting updates for " +
+      "(CLAUDE.engine.md), and the tdd-discipline skill the engine no longer ships was removed. " +
+      "Your own edits were kept.\n",
+  ]);
+});
+
+test("the catch-up line: an OLD report that has no skillsRetired at all still speaks", async () => {
+  // The absent twin. This report crosses from `reconcileBrain`, and a version of it that
+  // never sets the key must not turn the arrival announcement into a crash — the child
+  // runs inside someone's update, where a throw is the update failing.
+  const said = await catchUp({ delivered: { "CLAUDE.engine.md": "a1" }, report: {} });
+  assert.equal(said.length, 1);
+  assert.match(said[0], /^🔓 Catching up: your brain just received 1 engine file/);
+});
+
+test("the catch-up line: nothing arrived and nothing went → silence, not an empty announcement", async () => {
+  assert.deepEqual(await catchUp({}), []);
+});
+
+test("the catch-up line: a self-heal stays silent even when it converged files", async () => {
+  // The steady state: `sourceDir === brainDir` at every session start. Gating on "did we
+  // deliver anything" alone would let a healing self-heal announce, every morning, an
+  // update that happened once.
+  assert.deepEqual(
+    await catchUp({
+      brainDir: "/brain",
+      sourceDir: "/brain",
+      delivered: { "CLAUDE.engine.md": "a1" },
+      report: { skillsRetired: ["tdd-discipline"] },
+    }),
+    [],
+  );
 });
 
 // The negative pole, and it is the load-bearing one: this line may never appear on the

@@ -677,8 +677,12 @@ export async function runReconcileCli({ argv, seams = {} }) {
  * (`sourceDir === brainDir`) delivers nothing either, and must never speak — a converged
  * brain re-opened every morning would otherwise be told daily about an update that
  * happened once.
+ *
+ * Exported for the same reason `repoStatusLine` is: the WORDS are the contract here, not
+ * the plumbing — this may be the only trace the catch-up leaves an owner — and the exact
+ * sentence is only assertable when the caller chooses what arrived and what went.
  */
-function announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit }) {
+export function announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit }) {
   if (sourceDir === brainDir) return;
   const arrived = Object.keys(delivered).sort();
   const gone = report.skillsRetired ?? [];
