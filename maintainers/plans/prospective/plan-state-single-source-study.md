@@ -455,6 +455,12 @@ comes last: biggest edit, least reversible.
       is F-A caught in the act**, and it is the sharpest evidence in the whole study: the box is not
       where the state is, so the box goes stale while everyone reads the prose that buried it. Nobody
       was careless — the file had simply grown past the point where anyone re-reads it to the bottom.
+- [x] 😐 **The door was born over its own cap, and nobody noticed for a day** _(found 2026-08-22 when
+      handing it over)_. `ACTIVE.md` says *"keep it under 30 lines, forever"* in its own header and
+      was created at **34**. Trimmed to 28. **The lesson is not "be careful"** — it is that a cap
+      written in prose is a cap nothing measures, which is precisely the argument for the cheap half
+      of the lint (*every live plan has a STATE block, four keys, ≤ 20 lines*). A rule this convention
+      states about itself was broken by the convention's own first artifact.
 - [ ] ⚠️ **Two files in THIS repo still teach the superseded ritual, and the fix already exists on a
       branch nobody merged** _(found 2026-08-22 by grepping for *"header note"* after step 9)_.
       `maintainers/plan-discipline.md` (163 lines) and `maintainers/skills/plan-discipline/SKILL.md`
