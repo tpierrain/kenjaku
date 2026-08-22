@@ -248,7 +248,11 @@
         "since": "v4.9.0",
         "locale": "en"
       },
-      "sha256:07288d659cca74dc59c549efff18d82754ad7cc7537727489febc469d232e23f": {
+      "sha256:94085e0bc0e069fd5de3e9324ffad1d5c40ed0c943ce76f64a455f6356977f9c": {
+        "since": "v5.0.0",
+        "locale": "en"
+      },
+      "sha256:ab2f2720bd538f28b905f30e60a394fe32b4fed11812b982fe8ef0cab7e8431b": {
         "since": "v5.0.0",
         "locale": "fr"
       }

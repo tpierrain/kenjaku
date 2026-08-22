@@ -143,6 +143,36 @@ Quand je veux seulement une **réponse** (un fait, une synthèse), répondre ave
 
 ## Routage — quel outil pour quoi
 
+### Niveau 1 : la source qu'on te tend passe avant toute recherche
+
+**Une URL, un chemin, une capture ou une pièce jointe dans le message, ce n'est pas du décor : c'est
+l'énoncé de la tâche.** Ouvre-la (`WebFetch` pour un lien, `Read` pour un fichier) **avant toute
+recherche**, quel que soit l'outil.
+
+Les niveaux de retrieval, dans l'ordre. Le niveau 1 est une position, pas une préférence :
+
+1. **Ce qu'on t'a tendu** : `WebFetch` / `Read`.
+2. **Recherche exacte** : `Grep` / `Glob`, pour tout ce qui s'épelle (un nom, un identifiant, un **nom
+   propre**). La recherche sémantique est le mauvais instrument pour un nom propre, et elle ne
+   remontera rien, sans bruit.
+3. **Recherche sémantique** : `mcp__vault-rag__search_vault`, pour les questions ouvertes et
+   transversales.
+4. **Le web**, en dernier.
+
+- **Quand la tâche est définie *par rapport à* cette source** (« complète cet article », « corrige ce
+  fichier », « comme dans ce repo »), la source **est la spécification**. Produire une réponse
+  structurée, comparative, d'apparence sérieuse à partir de ta reconstitution de cette source, voilà
+  le mode de défaillance : ça ressemble à du travail et c'est bâti sur rien.
+- **Corollaire, et il a déjà son endroit** : avant de conclure quoi que ce soit de négatif, demande-toi
+  *ai-je épuisé le niveau 1 ?* La formulation de cette conclusion, elle, relève de la
+  **Discipline d'affirmation** plus bas. Ne la redis pas ici : deux paraphrases font deux disciplines.
+
+> Cas de terrain, 2026-08-08 : l'URL d'un article est tendue dans le premier message et n'est jamais
+> ouverte. La réponse compare l'article à ce qui lui « manque », à partir d'une reconstitution. Puis,
+> interrogé sur un outil nommé explicitement, une recherche sémantique ne trouve rien, et ce silence
+> devient deux affirmations (« pas dans le vault », « tes articles ne le nomment jamais »). Il était
+> dans l'addendum de l'article même dont le lien avait été tendu.
+
 ### Vault — RAG sémantique (cœur du système)
 
 Le RAG (`rag/`) découpe chaque fichier Markdown en **chunks** (un par section `#`/`##`/`###`), transforme chaque chunk en vecteur (embedding Gemini) et les stocke. Une recherche embedde la question et remonte les chunks les plus proches par similarité de sens.
@@ -151,6 +181,7 @@ Le RAG (`rag/`) découpe chaque fichier Markdown en **chunks** (un par section `
 
 | Opération | Outil |
 |---|---|
+| **Une source qu'on t'a tendue** (URL, chemin, pièce jointe), **niveau 1, avant toute recherche** | `WebFetch` / `Read` |
 | **Question sémantique / transversale** (« qu'est-ce qu'on sait sur X ? ») | `mcp__vault-rag__search_vault` |
 | **Lire un doc complet** retrouvé par search | `mcp__vault-rag__get_document` |
 | **Lister les documents indexés** | `mcp__vault-rag__list_documents` |

@@ -140,6 +140,33 @@ When I only want an **answer** (a fact, a synthesis), just answer with the sourc
 
 ## Routing — which tool for what
 
+### Level 1 — a source you are handed comes before any search
+
+**A URL, a path, a screenshot or an attachment in the message is not ambience: it is the statement of
+the task.** Open it — `WebFetch` for a link, `Read` for a file — **before any search tool fires**.
+
+The retrieval levels, in order. Level 1 is a position, not a preference:
+
+1. **What the owner handed over** — `WebFetch` / `Read`.
+2. **Exact search** — `Grep` / `Glob`, for anything you can spell: a name, an identifier, a **proper
+   noun**. A semantic search is the wrong instrument for a proper noun and will quietly return nothing.
+3. **Semantic search** — `mcp__vault-rag__search_vault`, for open and cross-cutting questions.
+4. **The web**, last.
+
+- **When the task is defined *relative to* that source** ("complete this article", "fix this file",
+  "like in that repo"), the source **is the specification**. Producing a structured, comparative,
+  serious-looking answer from your reconstruction of it is the failure mode — it looks like work and
+  is built on nothing.
+- **Corollary, and it already has a home**: before concluding anything negative, ask *have I exhausted
+  level 1?* The wording of that conclusion is governed by the **Claim discipline** below — do not
+  restate it here; two paraphrases are two disciplines.
+
+> Field case, 2026-08-08: an article's URL was handed over in the first message and never opened. The
+> answer that came back compared the article against what was "missing" from it, from a reconstruction.
+> Asked afterwards about a tool by name, a semantic search found nothing and the silence became two
+> assertions — *"not in the vault"*, *"your articles never name it"*. It was in the addendum of the
+> very article whose link had been handed over.
+
 ### Vault — semantic RAG (heart of the system)
 
 The RAG (`rag/`) splits each Markdown file into **chunks** (one per `#`/`##`/`###` section), turns each chunk into a vector (Gemini embedding) and stores them. A search embeds the question and surfaces the closest chunks by meaning similarity.
@@ -148,6 +175,7 @@ The RAG (`rag/`) splits each Markdown file into **chunks** (one per `#`/`##`/`##
 
 | Operation | Tool |
 |---|---|
+| **A source the owner handed over** (URL, path, attachment) — **level 1, before any search** | `WebFetch` / `Read` |
 | **Semantic / cross-cutting question** ("what do we know about X?") | `mcp__vault-rag__search_vault` |
 | **Read a full doc** retrieved by search | `mcp__vault-rag__get_document` |
 | **List indexed documents** | `mcp__vault-rag__list_documents` |
