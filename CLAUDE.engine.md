@@ -414,14 +414,26 @@ Question
 
 **Phase 4** — Everything fetched or produced in session is saved to the vault. Nothing remains only in conversation memory.
 
-### Tooling — native tools, NEVER Bash to probe the vault or process text
+### Tooling — prefer the native tools; on Desktop, Bash costs a prompt
 
-This brain often runs in **Claude Desktop (Code tab)**, where **each Bash command re-triggers a
-permission prompt** — and where **compound or risky** commands (`cd … && mkdir …`, multiline
-`python3 -c "…"`, `#` in an argument) are **refused outright** (no "Always allow" button): the
-user *cannot* pre-authorize them. Conversely, the **native tools** `Read`/`Write`/`Edit`/`Glob`/`Grep`
-and the `vault-rag` MCP tools are **pre-authorized and silent**. So, **by default, never use Bash**
-to inspect the vault or manipulate content — use the equivalent native tool:
+> 🧭 **This table is about ERGONOMICS, and its premise is local.** It says which tool *surface* to
+> reach for so a session is not interrupted. It is **not** the Routing table (§ *Vault — semantic
+> RAG*), which is about **correctness** — which kind of tool answers which kind of question — and
+> holds in **every** environment, on every surface, always. **Reading the `❌ grep` cell below as
+> "never run an exact search" is a misreading**, and it collides head-on with Routing, which requires
+> exactly that for anything spellable.
+>
+> ⚠️ **And the difference has teeth.** An **absence** claim — *"X is mentioned nowhere"*, *"nobody
+> asked for Y"* — can only rest on an **exhaustive exact search**. A semantic search returns a top-N by
+> similarity and **can never prove a negative**. See *Claim discipline* further down: this is the
+> mechanism behind the rule there.
+
+This brain **often** runs in **Claude Desktop (Code tab)** with the **default permission mode**, and
+there **each Bash command re-triggers a permission prompt** — while **compound or risky** commands
+(`cd … && mkdir …`, multiline `python3 -c "…"`, `#` in an argument) are **refused outright** (no
+"Always allow" button): the user *cannot* pre-authorize them. Conversely, the **native tools**
+`Read`/`Write`/`Edit`/`Glob`/`Grep` and the `vault-rag` MCP tools are **pre-authorized and silent**.
+So, **by default, prefer the native tool** over Bash to inspect the vault or manipulate content:
 
 | Need | ✅ Native tool (silent) | ❌ Bash (prompt every time, sometimes non-authorizable) |
 |---|---|---|
@@ -434,8 +446,17 @@ to inspect the vault or manipulate content — use the equivalent native tool:
 
 Bash stays reserved for the strict minimum **with no** native equivalent (and for **read-only** git:
 `status`/`log`/`diff`). For everything else — discovering the vault's state before a fan-out,
-re-reading an off-loaded transcript, slicing content — **native tools only**. Never compose
-`cd … &&` with a write.
+re-reading an off-loaded transcript, slicing content — **reach for the native tool first**. Never
+compose `cd … &&` with a write.
+
+> ✅ **When the premise does not hold, the table does not either.** If a native tool is **unavailable**
+> in this session, or if the harness itself tells you to fall back, **use the Bash equivalent** — that
+> is the **expected** behaviour, not a defect, and there is **nothing to report** about it: do not add
+> a friction line and do not ask the owner to arbitrate. *(This paragraph exists because a session did
+> exactly that: running in auto permission mode, with the native `Grep` absent, it read its own
+> constitution as self-contradictory and filed an item asking its owner to settle a rule that lives in
+> the engine layer — a layer owners are told not to edit. The noise was the engine's fault, not
+> theirs.)*
 
 ### Backlogs (`vault/backlog/`)
 

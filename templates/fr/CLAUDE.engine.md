@@ -432,15 +432,27 @@ Question
 
 **Phase 4** — Tout ce qui est récupéré ou produit en session est sauvegardé dans le vault. Rien ne reste uniquement en mémoire de conversation.
 
-### Outillage — outils natifs, JAMAIS de Bash pour sonder le vault ou traiter du texte
+### Outillage — préfère les outils natifs ; sur Desktop, Bash coûte une autorisation
 
-Ce cerveau tourne souvent dans **Claude Desktop (onglet Code)**, où **chaque commande Bash
-redéclenche une demande d'autorisation** — et où les commandes **composées ou risquées**
-(`cd … && mkdir …`, `python3 -c "…"` multiligne, `#` dans un argument) sont **refusées d'office**
-(pas de bouton « Always allow ») : l'utilisateur ne *peut pas* les pré-autoriser. À l'inverse, les
-**outils natifs** `Read`/`Write`/`Edit`/`Glob`/`Grep` et les outils MCP `vault-rag` sont
-**pré-autorisés et silencieux**. Donc, **par défaut, n'utilise jamais Bash** pour inspecter le
-vault ou manipuler du contenu — utilise l'outil natif équivalent :
+> 🧭 **Cette table parle d'ERGONOMIE, et sa prémisse est locale.** Elle dit vers quelle *surface*
+> d'outil tendre la main pour qu'une session ne soit pas interrompue. Ce n'est **pas** la table de
+> **Routage** (§ *Vault, RAG sémantique*), qui parle de **justesse** (quel type d'outil répond à quel
+> type de question) et qui vaut dans **tout** environnement, sur toute surface, toujours. **Lire la
+> case `❌ grep` ci-dessous comme « ne jamais faire de recherche exacte » est un contresens**, et il
+> percute de plein fouet le Routage, qui l'exige justement pour tout ce qui s'épelle.
+>
+> ⚠️ **Et la différence a des dents.** Une affirmation d'**absence** (« X n'est mentionné nulle part »,
+> « personne n'a demandé Y ») ne peut reposer que sur une **recherche exacte exhaustive**. Une
+> recherche sémantique remonte un top-N par similarité et **ne peut jamais prouver un négatif**. Voir
+> la *Discipline d'affirmation* plus bas : c'est le mécanisme derrière la règle qui s'y trouve.
+
+Ce cerveau tourne **souvent** dans **Claude Desktop (onglet Code)** avec le **mode de permission par
+défaut**, et là **chaque commande Bash redéclenche une demande d'autorisation** ; les commandes
+**composées ou risquées** (`cd … && mkdir …`, `python3 -c "…"` multiligne, `#` dans un argument) y sont
+**refusées d'office** (pas de bouton « Always allow ») : on ne *peut pas* les pré-autoriser. À
+l'inverse, les **outils natifs** `Read`/`Write`/`Edit`/`Glob`/`Grep` et les outils MCP `vault-rag` sont
+**pré-autorisés et silencieux**. Donc, **par défaut, préfère l'outil natif** à Bash pour inspecter le
+vault ou manipuler du contenu :
 
 | Besoin | ✅ Outil natif (silencieux) | ❌ Bash (prompt à chaque fois, parfois non-autorisable) |
 |---|---|---|
@@ -452,9 +464,18 @@ vault ou manipuler du contenu — utilise l'outil natif équivalent :
 | Découper / résumer un contenu | **par raisonnement** (tu es un LLM) | `awk`, `sed`, `jq`, `python3 -c` |
 
 Bash reste réservé au strict nécessaire **sans** équivalent natif (et au git **lecture seule** :
-`status`/`log`/`diff`). Pour tout le reste — découverte de l'état du vault avant un fan-out,
-relecture d'un transcript déporté, slicing d'un contenu — **outils natifs uniquement**. Ne
+`status`/`log`/`diff`). Pour tout le reste (découverte de l'état du vault avant un fan-out, relecture
+d'un transcript déporté, slicing d'un contenu), **tends d'abord la main vers l'outil natif**. Ne
 compose jamais `cd … &&` avec une écriture.
+
+> ✅ **Quand la prémisse ne tient pas, la table non plus.** Si un outil natif est **indisponible** dans
+> la session, ou si le harnais lui-même te dit de te rabattre, **utilise l'équivalent Bash** : c'est le
+> comportement **attendu**, ce n'est **pas un défaut**, et il n'y a **rien à remonter** là-dessus.
+> N'ajoute pas de ligne de friction et ne demande pas d'arbitrage. *(Ce paragraphe existe parce qu'une
+> session a fait exactement ça : en mode auto, avec `Grep` natif absent, elle a lu sa propre
+> constitution comme se contredisant et a ouvert une friction demandant de trancher une règle qui vit
+> dans la couche moteur, celle-là même qu'on demande de ne pas éditer. Le bruit venait du moteur, pas
+> de la personne.)*
 
 ### Backlogs (`vault/backlog/`)
 
