@@ -21,6 +21,11 @@ import { reconcileBrain } from "../../../scripts/lib/reconcile-brain.mjs";
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
 import { fingerprint, reseedBaseRefs, reseedProvenance } from "../../../scripts/lib/engine-source.mjs";
+// The PRODUCTION rewriter too, for the same reason as the digest: a hand-rolled
+// `split("\n").join("\r\n")` here would disagree with what the engine calls a CRLF
+// form the day one of them learns about a lone `\r`, and the QA would be green about
+// a byte-state no Windows brain holds.
+import { crlfify } from "../../../scripts/lib/engine-base.mjs";
 
 export const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 export const FIXTURES = join(REPO, "maintainers", "qa", "release-fixtures");
@@ -58,10 +63,21 @@ function localeMarkerAtTag(tag, locale) {
   return defaultGit(["show", `${tag}:templates/${locale}/scripts/lib/demo-locale.mjs`]).out;
 }
 
-export function brainAtRelease(tag, { edits = {}, locale } = {}) {
+export function brainAtRelease(tag, { edits = {}, locale, eol } = {}) {
   const brainDir = mkdtempSync(join(tmpdir(), `sbg-qa-${tag}-`));
   cpSync(join(FIXTURES, tag), brainDir, { recursive: true });
   if (locale) writeFile(brainDir, "scripts/lib/demo-locale.mjs", localeMarkerAtTag(tag, locale));
+  // 🪟 `eol: "crlf"` builds the WINDOWS brain, and it is not a costume. Git for Windows
+  // defaults `core.autocrlf` to true, so a launcher cloned there has a CRLF working
+  // tree; `installer.mjs` lists the tracked files and `copyFileSync`s each one from
+  // that tree, byte-verbatim, no encoding pass. A brain's engine bytes ARE its
+  // launcher checkout's bytes, CRLF from install day.
+  //
+  // Applied BEFORE the provenance loop, and that ordering is the whole defect: the
+  // installer digests the bytes it wrote, so the record is a CRLF digest — and no row
+  // of the fingerprint table is ever CRLF, since every row is folded from a git blob
+  // and the object store holds LF.
+  if (eol === "crlf") for (const rel of skillFilesOf(tag)) writeFile(brainDir, rel, crlfify(readBrain(brainDir, rel)));
   const manifest = JSON.parse(readBrain(brainDir, "engine-manifest.json"));
   const provenance = {};
   for (const rel of skillFilesOf(tag)) provenance[rel] = fingerprint(readBrain(brainDir, rel));

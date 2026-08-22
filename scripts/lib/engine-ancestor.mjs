@@ -53,13 +53,40 @@ export function planAncestorFetch({ manifest, provenance = {}, installedFileMap 
 
       // The tag is the one the BRAIN'S OWN record points at, never the newest the table
       // holds for this rel: fetching the newest would hand the merge someone else's
-      // ancestor, which is the clobber risk wearing a plausible face. A sha the table
-      // does not carry names no tag — which is also why `CLAUDE.md` and
-      // `.claude/settings.json`, generated per brain, never appear here.
-      const entry = table?.files?.[rel]?.[recorded];
-      if (!entry) return null;
+      // ancestor, which is the clobber risk wearing a plausible face.
+      const rows = table?.files?.[rel];
+      const entry = rows?.[recorded];
+      if (entry) return { rel, tag: entry.since, sourcePath: sourcePathFor(rel, entry.locale), recorded };
 
-      return { rel, tag: entry.since, sourcePath: sourcePathFor(rel, entry.locale), recorded };
+      // 🪟 THE MISS PATH, and it is the WINDOWS half of the fleet (W1). A Windows brain
+      // records a CRLF digest at install — the installer digests the bytes it wrote, and
+      // git for Windows had already rewritten the launcher's working tree — while no row
+      // here is ever CRLF, because every row is folded from a git blob and the object
+      // store holds LF. The lookup above therefore misses on EVERY file of a whole
+      // platform, and giving up here is what silenced the release's second promise.
+      //
+      // A digest cannot be un-digested: given a CRLF `recorded`, nothing derives the LF
+      // row it corresponds to. Neither *"normalise the key"* (there is nothing to
+      // normalise) nor *"record normalised shas at install"* (that flips every deployed
+      // Windows brain's record, which S1 deliberately refused) is available. So the
+      // planner stops resolving and starts NOMINATING: the rel's rows are few (2-11 in
+      // this table, 82 over 15 files), and the fetch next door can obtain each blob and
+      // PROVE which one is the record by digesting its CRLF form.
+      //
+      // The planner is pure and cannot digest a blob it has not read, so it cannot tell
+      // a CRLF-recorded sha from a bogus one and does not try. The cost of that honesty
+      // is up to N `git show` on a brain that never gets an ancestor anyway — and only
+      // on a brain whose record the table cannot place, never on an LF one.
+      //
+      // A rel with no rows at all yields no candidates and stays a `null`: `CLAUDE.md`
+      // and `.claude/settings.json` are generated per brain, no published byte can name
+      // their tag, and an entry with an empty list would have the fetch report a failure
+      // for a file nothing could ever help.
+      const candidates = Object.values(rows ?? {}).map((row) => ({
+        tag: row.since,
+        sourcePath: sourcePathFor(rel, row.locale),
+      }));
+      return candidates.length ? { rel, recorded, candidates } : null;
     })
     .filter(Boolean)
     // No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: the rels come from object

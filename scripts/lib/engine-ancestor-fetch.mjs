@@ -27,7 +27,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
-import { baseRelPath, verifyBase } from "./engine-base.mjs";
+import { baseRelPath, recordedVariant, verifyBase } from "./engine-base.mjs";
 import { writeBaseEntries } from "./engine-base-fs.mjs";
 import { defaultGit } from "./engine-fetch.mjs";
 
@@ -59,19 +59,45 @@ export function fetchAncestors({ plan, sourceDir, brainDir, git = defaultGit }) 
   const tagFetched = new Map();
   const entries = [];
 
-  for (const { rel, tag, sourcePath, recorded } of holes) {
-    if (!tagFetched.has(tag)) tagFetched.set(tag, git(fetchArgs(sourceDir, tag)).ok);
-    if (!tagFetched.get(tag)) {
-      failed.push(rel);
-      continue;
+  for (const { rel, tag, sourcePath, recorded, candidates } of holes) {
+    // 🪟 TWO SHAPES, and the asymmetry is deliberate (W1). A HIT carries one tag: the
+    // planner placed the recorded sha in the table, so the row is a FACT and the blob at
+    // it is the delivered content whatever EOL the checkout hands back. A MISS carries
+    // `candidates`: on a Windows brain the record is a CRLF digest the table cannot
+    // place, so the rows are GUESSES and this loop is what proves one of them.
+    //
+    // An LF brain therefore walks a one-element list and issues exactly the calls it
+    // always did — the miss path costs the rest of the fleet nothing.
+    const attempts = candidates ?? [{ tag, sourcePath }];
+    let proven = null;
+
+    for (const attempt of attempts) {
+      if (!tagFetched.has(attempt.tag)) tagFetched.set(attempt.tag, git(fetchArgs(sourceDir, attempt.tag)).ok);
+      // A dead tag costs this candidate and no other. On a hit that is the end of the
+      // file; on a miss the next row may well be alive, and a brain is not owed a
+      // failure because one of its rel's versions has gone.
+      if (!tagFetched.get(attempt.tag)) continue;
+
+      const shown = git(showArgs(sourceDir, attempt.tag, attempt.sourcePath));
+      if (!shown.ok) continue;
+
+      // The verification, at the fetch site and before the write — and it asks a
+      // different question of each shape.
+      //
+      // On a HIT, `verifyBase` is reused rather than re-spelled: a second spelling of
+      // "matches the record" is a second place for the EOL forgiveness to be forgotten,
+      // and the recorded sha was taken on the LF bytes the engine delivered.
+      //
+      // On a MISS, forgiveness is precisely what must not happen. The answer has to BE
+      // bytes — the base must hold WHAT WAS DELIVERED TO THAT BRAIN, and on Windows that
+      // is the CRLF form — so `recordedVariant` returns the byte-state it has PROVED, or
+      // null. A row that cannot be proved is simply not this brain's ancestor.
+      if (candidates) proven = recordedVariant({ recorded, content: shown.out });
+      else if (verifyBase({ recorded, baseContent: shown.out }).usable) proven = shown.out;
+      if (proven !== null) break;
     }
 
-    const shown = git(showArgs(sourceDir, tag, sourcePath));
-    // The verification, at the fetch site and before the write. `verifyBase` is reused
-    // rather than re-spelled: a second spelling of "matches the record" is a second
-    // place for the EOL forgiveness to be forgotten, and the recorded sha was taken on
-    // the LF bytes the engine delivered.
-    if (!shown.ok || !verifyBase({ recorded, baseContent: shown.out }).usable) {
+    if (proven === null) {
       failed.push(rel);
       continue;
     }
@@ -79,7 +105,7 @@ export function fetchAncestors({ plan, sourceDir, brainDir, git = defaultGit }) 
     // Filed under the INSTALLED rel, never the source path: a French brain reads
     // `templates/fr/<rel>` at that tag, but holds the file at `<rel>`, and a base
     // filed anywhere else is invisible to the merge that needs it.
-    entries.push({ baseRel: baseRelPath(rel), content: shown.out });
+    entries.push({ baseRel: baseRelPath(rel), content: proven });
     hydrated.push(rel);
   }
 

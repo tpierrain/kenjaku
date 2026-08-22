@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { baseRelPath, planBaseAdvance, planBaseSeed, verifyBase } from "./engine-base.mjs";
+import { baseRelPath, crlfify, planBaseAdvance, planBaseSeed, recordedVariant, verifyBase } from "./engine-base.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-base — the IMMUTABLE BASE: the bytes the engine last DELIVERED to an
@@ -124,6 +124,63 @@ test("verifyBase — a base rewritten CRLF by a Windows checkout still proves ou
 test("verifyBase — a base whose sha was RECORDED over CRLF bytes proves out too", () => {
   const SHA_ENGINE_V1_CRLF = "sha256:ad736b9c544c7c10b30d9547157c498eacf8e8494393269b651c70a60d380ad7";
   assert.deepEqual(verifyBase({ recorded: SHA_ENGINE_V1_CRLF, baseContent: "engine v1\r\n" }), { usable: true });
+});
+
+// ─── WHICH byte-state IS the record (W1) ─────────────────────────────────────
+// `verifyBase` answers *"do these bytes match?"* and forgives EOL to do it. That
+// forgiveness is right where the answer is a yes/no, and useless where the answer has
+// to be BYTES: the ancestor fetch, on a Windows brain, has to write back the exact
+// byte-state the record was taken over, and a forgiving match cannot say which one
+// that was. So this is a second, deliberately UNFORGIVING question — asked only on
+// the miss path, where the row is a candidate rather than a fact.
+
+const SHA_ENGINE_V1_CRLF = "sha256:ad736b9c544c7c10b30d9547157c498eacf8e8494393269b651c70a60d380ad7";
+
+test("crlfify — LF bytes become CRLF, and bytes that are ALREADY CRLF are left exactly as they are", () => {
+  // The idempotence is the load-bearing half: a naive `split("\n").join("\r\n")` over
+  // CRLF input yields `\r\r\n`, a byte-state nothing in the fleet holds, and every
+  // digest taken over it would miss for a reason no one could see.
+  assert.equal(crlfify("engine v1\n"), "engine v1\r\n");
+  assert.equal(crlfify("engine v1\r\n"), "engine v1\r\n");
+  assert.equal(crlfify("a\nb\r\nc\n"), "a\r\nb\r\nc\r\n", "a mixed file converges on one form");
+  assert.equal(crlfify("no newline at all"), "no newline at all");
+  assert.equal(crlfify(""), "");
+});
+
+test("recordedVariant — the CRLF form of a tag's LF blob IS the record a Windows brain holds", () => {
+  // 🚨 The proof W1 rests on, and it is a MEMBERSHIP proof, not a derivation: the row
+  // whose CRLF form digests to `recorded` is what was delivered to that brain. Nothing
+  // is inferred from the installed bytes — those are the owner's, and trusting them is
+  // exactly the clobber this whole mechanism exists to avoid.
+  assert.equal(recordedVariant({ recorded: SHA_ENGINE_V1_CRLF, content: ENGINE_V1 }), "engine v1\r\n");
+});
+
+test("recordedVariant — a blob that already IS the record comes back untouched, not CRLF-ified", () => {
+  assert.equal(recordedVariant({ recorded: SHA_ENGINE_V1, content: ENGINE_V1 }), ENGINE_V1);
+});
+
+test("recordedVariant — bytes that are neither form of the record answer NULL, never a guess", () => {
+  // 🛑 The refusal this function exists for. It is asked about CANDIDATE rows, so most
+  // of the rows it sees are the wrong ones, and a forgiving answer here would write a
+  // false ancestor into `.engine-base/` — a three-way merge that later resolves against
+  // someone else's file and reports success while doing it.
+  assert.equal(recordedVariant({ recorded: SHA_ENGINE_V2, content: ENGINE_V1 }), null);
+  assert.equal(recordedVariant({ recorded: SHA_ENGINE_V2, content: "engine v1\r\n" }), null);
+});
+
+test("recordedVariant — it does NOT forgive the way `verifyBase` does, and that is the point", () => {
+  // The same input `verifyBase` calls usable: CRLF bytes against an LF record. It IS a
+  // match — but the bytes that match are the NORMALISED ones, and this function only
+  // ever returns a byte-state it has proved. Returning the CRLF input here would write
+  // an ancestor whose digest is not the record.
+  assert.deepEqual(verifyBase({ recorded: SHA_ENGINE_V1, baseContent: "engine v1\r\n" }), { usable: true });
+  assert.equal(recordedVariant({ recorded: SHA_ENGINE_V1, content: "engine v1\r\n" }), null);
+});
+
+test("recordedVariant — no record, or no content, is not a match anyone should act on", () => {
+  assert.equal(recordedVariant({ recorded: undefined, content: ENGINE_V1 }), null);
+  assert.equal(recordedVariant({ recorded: SHA_ENGINE_V1, content: null }), null);
+  assert.equal(recordedVariant({ recorded: SHA_ENGINE_V1, content: undefined }), null);
 });
 
 // ─── When the base moves — the ADVANCE rule ──────────────────────────────────

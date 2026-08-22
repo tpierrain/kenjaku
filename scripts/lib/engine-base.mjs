@@ -56,6 +56,35 @@ export function isSidecarRel(rel) {
 // is still a match, or the whole Windows fleet holds an unprovable base.
 export const normalizeEol = (content) => content.split("\r\n").join("\n");
 
+// The mirror, and it exists because a Windows brain's RECORD was taken over CRLF
+// bytes: the installer digests what it wrote, and what it wrote came from a working
+// tree git had already rewritten. Normalising FIRST is not a flourish — over bytes
+// that are already CRLF, a bare `split("\n")` yields `\r\r\n`, a byte-state nothing in
+// the fleet holds and whose digest would miss for a reason nobody could see.
+export const crlfify = (content) => normalizeEol(content).split("\n").join("\r\n");
+
+// WHICH byte-state IS the record — a different question from `verifyBase`'s, and
+// deliberately an UNFORGIVING one.
+//
+// `verifyBase` answers *"do these bytes match?"* and forgives EOL to do it, which is
+// right when the answer is a yes/no about bytes already on disk. It is useless when the
+// answer has to BE bytes: the ancestor fetch, on the miss path, holds a row it has not
+// proved and must write back the exact byte-state the record was taken over. A forgiving
+// match cannot say which of the two that was, and writing the wrong one puts an ancestor
+// in `.engine-base/` that provably is not the record.
+//
+// So: raw first, then the CRLF form, and null rather than a guess. The row that answers
+// IS the delivered content — a MEMBERSHIP proof, never a derivation, and never taken
+// from the installed bytes (those are the owner's, and trusting them is the clobber this
+// whole mechanism exists to avoid). A digest cannot be un-digested, which is why the
+// caller must walk candidates at all instead of resolving the row directly.
+export function recordedVariant({ recorded, content }) {
+  if (!recorded || content === null || content === undefined) return null;
+  if (fingerprint(content) === recorded) return content;
+  const crlf = crlfify(content);
+  return fingerprint(crlf) === recorded ? crlf : null;
+}
+
 // Is the base we are about to merge FROM the one the engine actually delivered?
 //   • no-provenance — nothing recorded: unprovable, whatever sits on disk. Not a
 //     drift, just a file that never entered the regime. Reported first, because a

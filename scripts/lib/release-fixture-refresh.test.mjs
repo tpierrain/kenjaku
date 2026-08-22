@@ -38,6 +38,7 @@ import {
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
 import { fingerprint, reseedProvenance } from "./engine-source.mjs";
+import { crlfify } from "./engine-base.mjs";
 import { syncBaseTree } from "./engine-base-fs.mjs";
 
 // ── The case this increment was pulled forward for (plan §"The trigger") ──────
@@ -185,4 +186,45 @@ test("QA v3.6.0 → HEAD — a skill edited BEFORE this release now ACQUIRES its
   assert.ok(existsSync(join(brainDir, ".engine-base", REL)), "the hole is filled");
   assert.equal(readBrain(brainDir, `.engine-base/${REL}`), readRepo(REL));
   assert.deepEqual(sync.deferred.filter((d) => d.rel === REL), [], "nothing left to defer");
+});
+
+// ── 🪟 THE SAME BRAIN, INSTALLED ON WINDOWS (W1) ────────────────────────────────
+// The test above is the promise; this is the platform it went quiet on. A Windows
+// brain records a CRLF digest at install (deliberately — the installer digests the
+// bytes it wrote), and the fingerprint table holds none: every row is folded from a git
+// blob, and the object store holds LF. The direct lookup missed, no fetch was even
+// attempted, and *"your edits survive AND the update lands"* silently became *"your
+// edits survive, and the new version waits beside them"* for a whole platform.
+//
+// 🛑 THIS POLE MUST ALSO BE GREEN ON A REAL WINDOWS RUNNER (W6), and a macOS pass is
+// not that: here the CRLF is synthesised, there it is what git actually hands the
+// checkout. The three QA poles CI fails on today are the proof, and reading the run is
+// the acceptance condition — not predicting it from this file.
+test("QA v3.6.0 on WINDOWS → HEAD — a CRLF-recorded brain's edited skill acquires its ancestor and MERGES", async (t) => {
+  const REL = ".claude/skills/prepare-1-1/SKILL.md";
+  const customized = crlfify(readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8") + "\n## My own KPIs\n- churn\n");
+  const { brainDir, manifest } = brainAtRelease("v3.6.0", { eol: "crlf", edits: { [REL]: customized } });
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  // The premise, asserted rather than assumed: this brain's record really is the CRLF
+  // digest, and it really is absent from the table the fetch looks in. Without this the
+  // test could pass on an LF brain wearing a Windows name — the exact way the FR pole
+  // measured the wrong thing for a day.
+  assert.equal(manifest.provenance[REL], fingerprint(crlfify(readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8"))));
+  assert.notEqual(manifest.provenance[REL], fingerprint(readFileSync(join(FIXTURES, `v3.6.0/${REL}`), "utf8")));
+
+  const first = await updateFrom(brainDir, manifest);
+
+  assert.deepEqual(first.ancestorsHydrated, [REL], "the ancestor was fetched, on a CRLF-recorded sha");
+  assert.deepEqual(first.ancestorsFailed, []);
+  const merged = readBrain(brainDir, REL);
+  assert.match(merged, /## My own KPIs\n- churn/, "the owner's own lines are still there");
+  assert.match(merged, /## Claim discipline/, "and the engine's newer content has ARRIVED, in the same pass");
+  assert.deepEqual(first.skillsMerged, ["prepare-1-1"]);
+  assert.deepEqual(first.conflicts, [], "and it merged cleanly — CRLF is not a change to every line");
+  assert.deepEqual(first.skillsPreserved.filter((p) => p.name === "prepare-1-1"), []);
+  // And the file the owner never touched is refreshed exactly as on an LF brain: a
+  // CRLF-recorded UNTOUCHED file must not be dragged into the fetch, nor mistaken for
+  // a customization.
+  assert.equal(readBrain(brainDir, ".claude/skills/switch/SKILL.md"), readRepo(".claude/skills/switch/SKILL.md"));
+  assert.ok(first.skillsRefreshed.includes("switch"));
 });
