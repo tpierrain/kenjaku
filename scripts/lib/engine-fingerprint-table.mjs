@@ -17,6 +17,8 @@
 // either of the owner's two real brains (S7-0, Correction 3).
 // ─────────────────────────────────────────────────────────────────────────────
 import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
+import { normalizeEol } from "./engine-base.mjs";
+import { deliversAsLf } from "./tracked-files.mjs";
 
 // `templates/<locale>/<rel>` is the ONLY localized shape (there is no
 // `templates/en/` — EN is the repo root). Three things carry weight here:
@@ -51,6 +53,33 @@ export function selectFingerprintSources({ manifest, sourceFiles }) {
   return candidates
     .filter((c) => kept.has(c.rel))
     .sort((a, b) => (a.rel === b.rel ? cmp(a.locale, b.locale) : cmp(a.rel, b.rel)));
+}
+
+// The same sources, each carrying THE BYTES A BRAIN RECEIVES — which is NOT what
+// `read` returns on a Windows clone.
+//
+// 🪟 The working tree is the only tree the generator cannot read from git's object
+// store (it is not committed yet), and git for Windows checks it out as CRLF. Fold
+// it verbatim there and the release being cut claims 23 CRLF digests: rows that
+// recognise bytes no brain holds, in an artefact that looks exactly right. The
+// freshness guard read the same tree, so it was red on Windows for the same reason
+// — the last one on the branch.
+//
+// The oracle is `deliversAsLf`, the ONE function the installer copies with: what the
+// table records is what the copy writes. LF for anything the index holds as LF,
+// verbatim for the rest (binaries, committed CRLF, an `eol=crlf` attribute) — and
+// verbatim, too, for a path git said nothing about, because both callers get their
+// map best-effort and an unknown file is copied as-is.
+//
+// Both callers go through here so a wrong table and a green guard cannot coexist.
+export function deliveredSources({ manifest, sourceFiles, eolByPath, read }) {
+  return selectFingerprintSources({ manifest, sourceFiles }).map((source) => {
+    const raw = read(source.sourcePath);
+    return {
+      ...source,
+      content: deliversAsLf(eolByPath?.[source.sourcePath]) ? normalizeEol(raw) : raw,
+    };
+  });
 }
 
 // No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: both sort keys are built

@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   installedRelOf,
   selectFingerprintSources,
+  deliveredSources,
   buildFingerprintTable,
 } from "./engine-fingerprint-table.mjs";
 import { healProvenance } from "./engine-heal.mjs";
@@ -35,6 +36,10 @@ import { healProvenance } from "./engine-heal.mjs";
 // never through `fingerprint()`, so "the table records the right bytes" cannot be
 // true by construction.
 // ═══════════════════════════════════════════════════════════════════════════
+
+// Two lines, because the EOL fixtures below need a line ending IN the content and a
+// one-liner's trailing "\n" is too easy to normalise by accident.
+const EN_V1_TWO_LINES = "doctrine\nv1\n";
 
 const EN_V1 = "doctrine v1\n";
 const EN_V2 = "doctrine v2\n";
@@ -176,6 +181,128 @@ test("selectFingerprintSources — the output is sorted by rel then locale, what
 
 test("selectFingerprintSources — an empty tree yields no sources, and does not throw", () => {
   assert.deepEqual(selectFingerprintSources({ manifest: MANIFEST, sourceFiles: [] }), []);
+});
+
+// ── deliveredSources — the bytes the release SHIPS, not the ones on this disk ──
+//
+// 🪟 THE DEFECT THIS EXISTS AGAINST, and it is a MAINTAINER's, not a user's: the
+// generator folds the release being cut from the WORKING TREE, and git for Windows
+// checks that tree out as CRLF. Cut a release from a Windows clone and every row of
+// the new version is a CRLF digest — a table that recognises the bytes NO brain
+// holds, so the fleet stays frozen and the artefact looks perfectly normal.
+//
+// The oracle is not "which platform am I on": it is `deliversAsLf`, the same
+// function the installer copies with. What the table records is what a brain
+// RECEIVES — LF for anything the index holds as LF, verbatim for everything else.
+//
+// It is also why the S7-2 freshness guard was the last Windows red on CI: it read
+// the same working tree and compared it to an LF table. Both callers now share this
+// one function, so they cannot drift apart into a green guard over a wrong table.
+
+const EOL_LF = { index: "i/lf", worktree: "w/crlf", attr: "" };
+
+const sourcesOf = ({ files, eolByPath }) =>
+  deliveredSources({
+    manifest: MANIFEST,
+    sourceFiles: Object.keys(files),
+    eolByPath,
+    read: (sourcePath) => files[sourcePath],
+  });
+
+test("deliveredSources — an i/lf file checked out as CRLF is folded as LF: the Windows cut", () => {
+  assert.deepEqual(
+    sourcesOf({
+      files: { "CLAUDE.engine.md": "doctrine\r\nv1\r\n" },
+      eolByPath: { "CLAUDE.engine.md": EOL_LF },
+    }),
+    [
+      {
+        sourcePath: "CLAUDE.engine.md",
+        rel: "CLAUDE.engine.md",
+        locale: "en",
+        content: EN_V1_TWO_LINES,
+      },
+    ],
+  );
+});
+
+test("deliveredSources — bytes the index itself holds as CRLF are folded VERBATIM", () => {
+  // `i/crlf` means the launcher really committed those bytes, so that is what a
+  // brain receives. Normalising here would record a byte-state nothing installs.
+  assert.deepEqual(
+    sourcesOf({
+      files: { "CLAUDE.engine.md": "doctrine\r\nv1\r\n" },
+      eolByPath: { "CLAUDE.engine.md": { index: "i/crlf", worktree: "w/crlf", attr: "" } },
+    }).map((s) => s.content),
+    ["doctrine\r\nv1\r\n"],
+  );
+});
+
+test("deliveredSources — an explicit eol=crlf attribute is folded VERBATIM, LF index or not", () => {
+  // The `.cmd` case: `.gitattributes` wins over the index form, the installer
+  // delivers CRLF, and a table folded from LF would call that file edited.
+  assert.deepEqual(
+    sourcesOf({
+      files: { "CLAUDE.engine.md": "doctrine\r\nv1\r\n" },
+      eolByPath: { "CLAUDE.engine.md": { index: "i/lf", worktree: "w/crlf", attr: "text eol=crlf" } },
+    }).map((s) => s.content),
+    ["doctrine\r\nv1\r\n"],
+  );
+});
+
+test("deliveredSources — a path git said NOTHING about is folded verbatim, never guessed", () => {
+  // `git ls-files --eol` is best effort in both callers. An empty map must mean
+  // "verbatim, exactly as before" — the installer's own refusal. The net against a
+  // CRLF table slipping through that way is the macOS leg of CI, whose working tree
+  // is LF: the freshness guard goes red there on every row.
+  assert.deepEqual(
+    sourcesOf({
+      files: { "CLAUDE.engine.md": "doctrine\r\nv1\r\n" },
+      eolByPath: {},
+    }).map((s) => s.content),
+    ["doctrine\r\nv1\r\n"],
+  );
+});
+
+test("deliveredSources — every locale is read at its OWN source path, and comes out sorted", () => {
+  assert.deepEqual(
+    sourcesOf({
+      files: {
+        "templates/fr/CLAUDE.engine.md": "doctrine fr\r\nv1\r\n",
+        "CLAUDE.engine.md": "doctrine\r\nv1\r\n",
+      },
+      eolByPath: {
+        "CLAUDE.engine.md": EOL_LF,
+        "templates/fr/CLAUDE.engine.md": EOL_LF,
+      },
+    }),
+    [
+      {
+        sourcePath: "CLAUDE.engine.md",
+        rel: "CLAUDE.engine.md",
+        locale: "en",
+        content: EN_V1_TWO_LINES,
+      },
+      {
+        sourcePath: "templates/fr/CLAUDE.engine.md",
+        rel: "CLAUDE.engine.md",
+        locale: "fr",
+        content: "doctrine fr\nv1\n",
+      },
+    ],
+  );
+});
+
+test("deliveredSources — a file in another regime is dropped, it is not read at all", () => {
+  // The selection is still `selectFingerprintSources`'. A caller that folded every
+  // tracked file would put `replace`-regime bytes in a table the heal trusts.
+  assert.deepEqual(
+    sourcesOf({
+      files: { "scripts/lib/demo-locale.mjs": "export const x = 1;\n" },
+      eolByPath: { "scripts/lib/demo-locale.mjs": EOL_LF },
+    }),
+    [],
+  );
 });
 
 // ── buildFingerprintTable — the fold ────────────────────────────────────────

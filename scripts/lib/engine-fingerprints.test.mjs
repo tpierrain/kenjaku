@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { fingerprint } from "./engine-source.mjs";
-import { selectFingerprintSources } from "./engine-fingerprint-table.mjs";
+import { deliveredSources } from "./engine-fingerprint-table.mjs";
+import { parseLsFilesEolZ } from "./tracked-files.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // THE FRESHNESS GUARD on `scripts/lib/engine-fingerprints.json` (plan S7-2).
@@ -22,6 +23,13 @@ import { selectFingerprintSources } from "./engine-fingerprint-table.mjs";
 // recognisable. When this goes red the answer is one command, printed in the message:
 //   node maintainers/fingerprints/generate-fingerprints.mjs --version <the tag>
 //
+// 🪟 …but from the working tree AS DELIVERED, not as checked out. On Windows git
+// hands us CRLF, and comparing those bytes to a table folded from LF blobs failed
+// every merge file at once (23 rels, run 32558375080) — a red that said "the table
+// is stale" when the table was fine and the READING was wrong. `deliveredSources`
+// answers with what a brain receives, and the generator folds through the very same
+// function, so this guard and the artefact it judges cannot drift apart.
+//
 // What it deliberately does NOT do: re-read the 25 published tags to re-prove the
 // historical rows. Those bytes cannot change; paying a minute of CI per run to
 // re-confirm them buys nothing.
@@ -35,16 +43,13 @@ const REGENERATE = "node maintainers/fingerprints/generate-fingerprints.mjs --ve
 
 const table = JSON.parse(read(TABLE_REL));
 const manifest = JSON.parse(read("engine-manifest.json"));
-const trackedFiles = execFileSync("git", ["ls-files"], {
-  cwd: REPO_ROOT,
-  encoding: "utf8",
-})
-  .split("\n")
-  .filter(Boolean);
+const git = (args) => execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" });
+const trackedFiles = git(["ls-files"]).split("\n").filter(Boolean);
+const eolByPath = parseLsFilesEolZ(git(["ls-files", "--eol", "-z"]));
 
 test("the table covers every merge file of the release being cut, in every locale", () => {
-  const uncovered = selectFingerprintSources({ manifest, sourceFiles: trackedFiles })
-    .filter(({ sourcePath, rel }) => !(fingerprint(read(sourcePath)) in (table.files?.[rel] ?? {})))
+  const uncovered = deliveredSources({ manifest, sourceFiles: trackedFiles, eolByPath, read })
+    .filter(({ content, rel }) => !(fingerprint(content) in (table.files?.[rel] ?? {})))
     .map(({ sourcePath }) => sourcePath);
 
   assert.deepEqual(

@@ -31,8 +31,10 @@ import { dirname, join } from "node:path";
 
 import {
   selectFingerprintSources,
+  deliveredSources,
   buildFingerprintTable,
 } from "../../scripts/lib/engine-fingerprint-table.mjs";
+import { parseLsFilesEolZ } from "../../scripts/lib/tracked-files.mjs";
 import { parseSemverTag, compareSemverTags } from "../../scripts/lib/semver-tag.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -93,14 +95,21 @@ function main(argv) {
   );
 
   // The working tree LAST, so it only claims bytes no published tag shipped before.
-  versions.push(
-    versionAt(
+  //
+  // 🪟 And it is the ONE tree read off the disk rather than out of the object store,
+  // so it is the one that can be CRLF: cut this release from a Windows clone and
+  // every row it adds would be a digest no brain can ever hold. `deliveredSources`
+  // folds what the installer WRITES instead of what the checkout holds — the same
+  // function the freshness guard judges the result with.
+  versions.push({
+    version,
+    files: deliveredSources({
       manifest,
-      version,
-      (path) => readFileSync(join(REPO_ROOT, path), "utf8"),
-      git(["ls-files"]).split("\n").filter(Boolean),
-    ),
-  );
+      sourceFiles: git(["ls-files"]).split("\n").filter(Boolean),
+      eolByPath: parseLsFilesEolZ(git(["ls-files", "--eol", "-z"])),
+      read: (path) => readFileSync(join(REPO_ROOT, path), "utf8"),
+    }),
+  });
 
   const table = buildFingerprintTable({ generatedAt: version, versions });
   writeFileSync(join(REPO_ROOT, OUTPUT_REL), JSON.stringify(table, null, 2) + "\n");
