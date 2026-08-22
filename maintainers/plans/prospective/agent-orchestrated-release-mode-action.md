@@ -15,8 +15,9 @@
 > >
 > > - **The release's state is NOT in this file** — open
 > >   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) and start
-> >   where **its** header says. It now opens with **§ WAITING ON THOMAS**, the five things that need
-> >   him in one place, then **§ RESUME AT**.
+> >   where **its** header says. Its § *WAITING ON THOMAS* is now § *ANSWERED BY THOMAS* — **all five
+> >   came back on 2026-08-22** and nothing on this release is blocked on him any more; then
+> >   **§ RESUME AT**.
 > > - **The next buildable slice is S7-6** (the CRLF ancestor fetch): its **design is written**, its
 > >   four tests are named, **no code exists yet**. Build it test-first.
 > > - **CI is RED on the branch and that is expected** — four Windows failures, three of them the defect
@@ -480,6 +481,36 @@ list that can only go stale is a list that shrinks by itself.
 
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
+
+- 🎙️ **2026-08-22 (the arbitration round) — THE FIVE QUESTIONS WERE PUT TO HIM AND ALL FIVE CAME BACK,
+  in one sitting.** The night's accumulated blocking boxes had been assembled into a single
+  § *WAITING ON THOMAS* index at the top of the release plan, precisely so they could be answered as a
+  batch instead of one interruption at a time. **That is the shape that worked**: repair Windows
+  (a)+(b), the title, seven bullets kept, regimes (a), and one review / one merge. The five answers are
+  written into the release plan and the note; **this file keeps no copy of them.**
+
+  > 🧭 **THE MODE LESSON, and it is about PREDICTION, not about the answers.** The S9-1b entry below
+  > argued the title was *"not a preference a session can predict"* and offered **three candidates** in
+  > the house style. He took **none of the three**. He wanted a title naming **the merge itself** — the
+  > engine folding its new work into your edits — a fourth axis none of the three occupied. **So the
+  > entry was right for the wrong reason**: the failure was not picking the wrong candidate, it was
+  > believing the candidate LIST was the decision. Offering N options frames the choice, and a framed
+  > choice is already a guess. What was actually owed was the question *"what should the title be
+  > about?"*, asked before any candidate was drafted.
+  >
+  > 📐 **Where the same reflex nearly cost more.** Both prior title arbitrations reasoned from the
+  > v4.9.1 precedent (*he chose the symptom over the mechanism*). A precedent of **one** was used as a
+  > model of his taste, twice. It is the same family as the night's other two corrections: a plausible
+  > inference, held with more confidence than its evidence supports, surviving because nobody ran the
+  > cheap check — and here the cheap check was **asking him**.
+
+  🛑 **AND THE SQUASH INSTRUCTION IS STANDING, not a detail of this release** _(his words: "je ne veux
+  plus que tu squash… je veux garder tout l'historique")_. The repo allows all three merge styles, so
+  squash is one mis-click away at every merge, forever. The release plan carries it as answer 5; it is
+  named here because it is a **working-mode** rule and outlives v5.0.0.
+
+  **Next**: the release plan's § *RESUME AT* is unchanged — **S7-6**, the CRLF ancestor fetch, now
+  un-blocked by answer 1 and no longer at risk of being made moot by (d).
 
 - 📐 **2026-08-22 (the design) — "it is his" was the third inflation in a row, and the written list
   says otherwise.** With the diagnosis corrected, the fix was re-checked against the mode plan's own
