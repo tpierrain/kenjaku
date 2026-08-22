@@ -35,6 +35,19 @@
 > Windows. The `82` byte-states and the retirement of `tdd-discipline` were **re-verified against the
 > table and the manifest**, not assumed.
 >
+> 🗣️ **`What you get` REWRITTEN FOR A NON-DEVELOPER, on Thomas's re-read** _(2026-08-22)_. His verdict
+> on the previous pass: *"trop cryptique … des mots simples et des exemples concrets"*. The seven
+> bullets, their order and their subjects are unchanged; what changed is that each one now **names a
+> situation the reader recognises** (two questions added to the 1-1 skill, a brain installed in June,
+> a pasted URL) instead of describing the mechanism in the abstract — "keeps a private copy so it can
+> tell your words from its own" is true and says nothing to someone who will never open a terminal.
+>
+> - ⚖️ **This deliberately spends §11's brevity budget**: the rule says *"at most one sentence"* per
+>   bullet, and a concrete example does not fit in one. The example is what makes the bullet land, so
+>   it wins here — **but the rule was not rewritten on my own initiative**; §11 still reads "one
+>   sentence", and whether it should say *"one sentence, or one concrete example"* is the owner's
+>   call, raised with him the same day.
+>
 > **Numbers not yet real**: `engineVersion` and the tag are S9-2's, the owner's step. Every figure
 > below the fold is measured and current; nothing here waits on a re-run.
 >
@@ -48,28 +61,33 @@ shipped since either arrives around your edits, or your brain asks you which ver
 
 ### What you get
 
-- ✍️ **A file you made your own stops being a dead end.** Your brain keeps a private copy of exactly
-  what it gave you last time, so it can tell your words from its own. Where the two do not collide,
-  both survive: your edits stay, and what shipped since arrives around them.
-- 🙋 **When it cannot do that, it asks you — with three real answers.** In plain words: take the new
-  version, keep yours, or combine the two. Say which, and it carries it out. Your current version is
-  saved to your brain's history first, so *"take the new one"* can always be undone.
-- 🧊 **A brain frozen since the day it was installed starts receiving again.** It can now recognise the
-  files it was originally given, even with no record of them, so improvements shipped since your
-  install finally reach you. This is the whole point of the release: it is the brains installed
-  *before* it that gain the most.
-- 📣 **It tells you what it is holding back, and since when — between updates, not only during one.**
-  A file kept as you wrote it is named, with the version it is behind, until you answer. Answering
-  settles it until the next release.
-- 📖 **The rules your brain works by can finally be updated.** The half of its constitution that
-  belongs to the engine was frozen at install day on every existing brain; it now travels like
-  everything else, without touching a word of the half that is yours.
-- 🛡️ **It stops drifting from the engine without you knowing.** When something is about to change one
-  of the engine's own files during ordinary work, you are asked first, once, instead of finding out
-  months later that your brain no longer matches what it ships.
-- 🔗 **Hand it a link or a file, and it reads that before it searches anything.** A URL or a path in
-  your message is the subject, not decoration — so you stop getting a confident answer built on what
-  your brain *remembered* of an article it never opened.
+- ✍️ **What you wrote yourself no longer freezes the file.** Say you added two questions of your own
+  to the ready-made skill that prepares your 1-1s: until now, that file never received another
+  improvement, ever. Now your brain remembers exactly what it handed you last time, so it can tell
+  your words from its own — your two questions stay, and everything improved since arrives around
+  them.
+- 🙋 **When your words and the new version collide, it asks you rather than choosing.** Three answers,
+  in plain language: keep mine, take the new one, or combine the two. Whichever you say, it does it —
+  and it puts your current version safely aside first, so *"take the new one"* can always be undone.
+- 🧊 **A brain installed months ago starts receiving again.** If yours has been running since, say,
+  June, some of its files have had nothing since that day and nothing ever said so. It can now
+  recognise the files it was given on day one, even with no record of them, so the improvements
+  shipped since finally reach it. This is the point of the release: the brains installed *before* it
+  are the ones that gain the most.
+- 📣 **It tells you what it is keeping as you wrote it, and how far behind that leaves you.**
+  Something like: *"I am still using your version of the 1-1 preparation; mine has moved on twice
+  since."* Said between updates too, not only while one is running, until you answer.
+- 📖 **The rulebook your brain follows can finally be updated.** Half of it is yours (who you are, how
+  you like to be answered), half belongs to the engine (how it searches, when it asks before
+  writing). The engine's half was stuck at install day on every existing brain; it now updates like
+  everything else, without a word of your half being touched.
+- 🛡️ **It asks before changing one of its own files.** Ask it mid-conversation to adjust the way it
+  searches, and it now says so out loud: *"that is one of my own files — do you confirm?"* One
+  question, once, instead of discovering months later that your brain no longer matches what it
+  ships.
+- 🔗 **Hand it a link or a file, and it reads that first.** Paste a URL and ask what it makes of it: it
+  opens the page before searching anything else, instead of answering from what it vaguely recalls of
+  an article it never read.
 
 ### What you have to do
 
