@@ -465,6 +465,36 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 🔢 **2026-08-22 (the bump) — "his step" was hiding three facts and one question.** The pre-flight had
+  parked the `engineVersion` bump as *"S9-2b's, his"*, and the loop had left it there for a day. Read
+  properly, **three of the four numbers are not decisions at all** — `rag` and `local-mirror` have
+  **zero files changed** since v4.9.1 so they cannot move, and `constitutionTemplate` is purely
+  additive doctrine, the same minor step v4.5.0, v4.6.0 and v4.8.0 each took. Only `scripts` was ever
+  a call, and **25 tags of precedent settle even that**: the vector has **never** used a major bump on
+  any component, and **`v4.0.0` moved not one of the four** (byte-equal to v3.6.2). A Kenjaku major
+  release says nothing about this vector. What genuinely remains is **one number**: `v3.6.0` moved
+  `scripts` 1.1.0 → 1.7.0, so the vector *has* been used to signal scale — the table writes `1.14.0`
+  as the precedent's default and says out loud that it did not choose.
+
+  > 🧭 **"His step" is a claim about the ACT, and the loop kept reading it as a claim about the
+  > INPUTS.** Applying a bump, cutting a tag, publishing: those are his, and no amount of preparation
+  > changes that. But *what the four numbers should be* is a diff plus a precedent, both readable here,
+  > and parking them under his name made his critical path longer for nothing. **S9-2a had already
+  > drawn the line** — assembling what a release needs is checkable work, deciding to publish is not —
+  > **and the loop failed to apply it a second time.** The test to run on anything labelled "his": *is
+  > it the decision, or the material the decision needs?*
+
+  🪤 **A zsh trap worth one line, because it cost three wrong answers**: `git show "$t:file"` makes zsh
+  apply the `:e` **history modifier** to `$t`, silently producing `0ngine-manifest.json`. Every tag
+  read back *"no engineVersion"* — a wrong answer that looks exactly like a real finding. `"${t}:file"`
+  is the fix, and *"an old tag has no such field"* was a conclusion one brace away from being filed.
+
+  🧪 **No mutation pass, stated**: doc-only, zero production lines, and **nothing applied** — the
+  manifest still reads v4.9.1's numbers on purpose.
+
+  **Next**: still his — the CRLF arbitration, then the cut, which now has one fewer thing to work out
+  at the keyboard.
+
 - 📏 **2026-08-22 (the option's price tag) — when the next slice is HIS, the loop's job is to make his
   choice cheaper, not to make it.** The release tail is entirely the owner's (S9-2b, S9-3) and the CRLF
   fix is an arbitration, so the contract says: move to a slice that does not need him. **The slice that

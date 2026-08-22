@@ -308,6 +308,34 @@
 > gh pr edit 76 --title "v5.0.0 — the engine owns what it shipped, and stops leaving old brains behind" --body-file /tmp/pr76.md
 > ```
 >
+> **The `engineVersion` bump — DERIVED, not applied** _(2026-08-22)_. It sat in the pre-flight as
+> *"S9-2b's, his"*, and half of it turned out not to be a decision at all: **three of the four numbers
+> are dictated by the diff, and the fourth is settled by 25 tags of precedent.** Assembling it is the
+> same split S9-2a made — what a release needs is checkable, deciding to publish is not — so it is
+> written here and **nothing is applied**: the manifest still reads v4.9.1's numbers.
+>
+> | component | at v4.9.1 | changed since | → | why |
+> |---|---|---|---|---|
+> | `rag` | `1.4.0` | **0 files** | **`1.4.0`** | not a call: nothing under `rag/` moved |
+> | `local-mirror` | `0.3.0` | **0 files** | **`0.3.0`** | not a call: nothing under `local-mirror/` moved |
+> | `constitutionTemplate` | `1.3.0` | 2 files, +214 / −20 | **`1.4.0`** | purely additive doctrine; the same minor step v4.5.0, v4.6.0 and v4.8.0 each took for the same reason |
+> | `scripts` | `1.13.1` | 122 files, +17 346 / −797 | **`1.14.0`** | **25 new modules, 3 new entry points, 0 deletions, 0 renames** — nothing that worked stops working |
+>
+> - [x] 📐 **The precedent that removes the taste from the last row.** The vector was read at **all 25
+>       published tags**: it has **NEVER used a major bump**, on any component, ever. Sharper still,
+>       **`v4.0.0` moved not one of the four** — rag, mirror, constitution and scripts were byte-equal
+>       to `v3.6.2`. **A Kenjaku major release implies nothing about this vector**; it tracks what
+>       changed *inside a component*, and the release number is a separate story told elsewhere. So
+>       `scripts → 2.0.0` would be a first in the project's history, for a change that removes nothing.
+> - [ ] 🎙️ **What IS still yours, and it is one number.** `v3.6.0` moved `scripts` **1.1.0 → 1.7.0**,
+>       six minors in one release, so the vector *has* been used to signal scale. `1.14.0` is the
+>       conservative read (one release, one minor); a larger jump is available if you want the number
+>       itself to say how much moved. **I did not choose** — the table above writes `1.14.0` because
+>       that is what the precedent's default gives, not because the question is closed.
+> - 🚫 **`indexSchemaVersion` stays `2`, and that is not a bump anyone may take**: it is the promise
+>       *"nothing is re-read and nothing is re-encoded"* in the release note. Moving it would re-index
+>       every deployed brain.
+>
 > **The pre-flight sweep — everything green, and two findings that are not red but are ORDER:**
 >
 > 🛑 **AND IT WAS STILL A LOCAL-ONLY SWEEP, twice.** Both runs read `node --test` on this machine and
@@ -359,8 +387,9 @@
 >       is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is still OPEN**. Either #75 lands
 >       first, or #76 is retargeted to `main`. Deliberate when it was set up (so #75 kept its S0bis
 >       perimeter); it is a decision now, and it is his.
-> - [ ] **The `engineVersion` bump is S9-2b's**, which is why the manifest still reads v4.9.1's numbers
->       (`rag 1.4.0`, `local-mirror 0.3.0`, `constitutionTemplate 1.3.0`, `scripts 1.13.1`).
+> - [ ] **The `engineVersion` bump is now DERIVED and waiting to be applied**, not an open question:
+>       the four numbers, what dictates each and the one that is still yours are in the table under
+>       § *S9-2b's materials* above. No copy here on purpose — the manifest still reads v4.9.1's.
 >
 > 🚦 **After this, the loop has nothing left it may take alone on this release.** S9-2b is his, S9-3
 > needs days of real use, and the arbitration above is his. That is a sentence about THIS release, not
@@ -412,7 +441,8 @@
 >
 > **Two facts the note turns on, both verified rather than assumed**: `indexSchemaVersion` is
 > unchanged since `v4.9.1`, so **nothing is re-read or re-encoded** and *"What you have to do"* is one
-> line; and `engineVersion` is still at v4.9.1's numbers, because **the bump is S9-2's**, his step.
+> line; and `engineVersion` is still at v4.9.1's numbers, because applying the bump is S9-2b's, his
+> step. _(Its four values are now derived — § S9-2b's materials owns them; nothing is copied here.)_
 >
 > **What the note deliberately does NOT do** (§11's *do not alarm*): it advertises no bug that never
 > shipped. S10-QA's three findings were caught before any tag and appear nowhere in it. What it does
@@ -795,7 +825,8 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [x] **S9-2a — the release materials.** _(2026-08-22)_ `release-v5.0.0-pr-body.md` beside this plan
         (#76's live body still describes S1-S6 alone), plus a pre-flight sweep: suite 2 337/2 334, the
         four release guards 69/69, branch 248 ahead of `main` and 0 behind with no merge conflict.
-  - [ ] ▶️ **NEXT — S9-2b — cut, tag, publish.** Owner's, always. Carries the `engineVersion` bump, the
+  - [ ] ▶️ **NEXT — S9-2b — cut, tag, publish.** Owner's, always. Carries **applying** the
+        `engineVersion` bump (its four values are derived and waiting — § *S9-2b's materials*), the
         title he picks, and **the merge-order decision**: #76 is based on the S0bis branch and draft
         PR #75 is still open, so either #75 lands first or #76 is retargeted to `main`.
   - [ ] **S9-3 — the field measurement** carried to the release checklist.
