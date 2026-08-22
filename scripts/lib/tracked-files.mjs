@@ -9,6 +9,66 @@ export function parseLsFilesZ(output) {
   return output.split("\0").filter((p) => p !== "");
 }
 
+// ── WHAT THE OBJECT STORE HOLDS, vs what the checkout holds (plan W2) ────────
+//
+// The installer copies the launcher's WORKING TREE byte-verbatim, and git for
+// Windows defaults `core.autocrlf` to true — so a launcher cloned there hands
+// every brain CRLF from install day, and the installer digests those bytes, so
+// the brain's recorded shas are CRLF too and match no row of a fingerprint table
+// folded from LF blobs. (W1 repairs the brains that already have it; this is the
+// half that stops it recurring.)
+//
+// The installer clones nothing, so there is no `-c core.autocrlf=false` to add
+// here. What there is: `git ls-files --eol`, which reports per file the form the
+// INDEX holds, the form the worktree holds, and the `.gitattributes` verdict.
+// Deliver the index's form and the whole question is answered — by git, on the
+// launcher's own rules, rather than by a guess about file extensions.
+//
+// `git ls-files --eol -z` emits, per file: three SPACE-PADDED fields, a single
+// TAB, the path, then NUL. The tab is what makes a path with spaces safe, and the
+// attribute field is what makes `attr/text eol=crlf` (two words, one value)
+// readable — both are why this is parsed rather than split on whitespace.
+export function parseLsFilesEolZ(output) {
+  const byPath = {};
+  for (const record of output.split("\0")) {
+    const tab = record.indexOf("\t");
+    // No tab → not a record (the trailing empty entry, or a line git did not emit
+    // in this format). Skipped rather than half-parsed: a bogus key here becomes a
+    // file delivered in the wrong form.
+    if (tab < 0) continue;
+    const fields = record.slice(0, tab);
+    const [index, worktree] = fields.trim().split(/\s+/);
+    const attrAt = fields.indexOf("attr/");
+    byPath[record.slice(tab + 1)] = {
+      index,
+      worktree,
+      attr: attrAt < 0 ? "" : fields.slice(attrAt + "attr/".length).trim(),
+    };
+  }
+  return byPath;
+}
+
+// Does this file get LF-normalised on its way into the brain? Two refusals, and
+// each is a real artefact rather than a defensive habit:
+//
+//   • anything the index does NOT hold as LF — `-text` (binary: 29 PNG boards
+//     travel into every brain), `crlf` and `mixed` (content the launcher really
+//     committed that way). Normalising any of them changes what was committed,
+//     which is the opposite of the rule this function is named after.
+//   • an explicit `eol=crlf` attribute. Nothing in the launcher carries one today,
+//     and the day one does it will be a `.cmd`: cmd.exe re-seeks a batch file by
+//     byte offset, and an LF-only one resumes MID-TOKEN. That shipped once
+//     (field report 2026-08-07, fixed at v4.8.1) and `.gitattributes` exists
+//     because of it.
+//
+// An unknown file is a refusal too: the `git ls-files --eol` call is best effort,
+// and an empty map must mean "copy everything verbatim, exactly as before" rather
+// than "normalise everything".
+export function deliversAsLf(info) {
+  if (info?.index !== "i/lf") return false;
+  return !/(^|\s)eol=crlf(\s|$)/.test(info.attr);
+}
+
 // TRACKED launcher files/folders that must NOT be copied into the brain: they
 // only concern the development of the generator itself. They are all tracked (so
 // listed by `ls-files`) and travel between the maintainer's machines, but must

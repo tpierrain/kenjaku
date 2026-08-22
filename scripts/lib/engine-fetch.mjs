@@ -20,8 +20,32 @@ import { pickLatestSemverTag } from "./semver-tag.mjs";
 
 // The exact git argv to shallow-clone a single pinned ref into `dir`. Pure so the
 // command is unit-asserted and proven identical on every platform.
+//
+// 🪟 `-c core.autocrlf=false` (plan W2) is the half that stops the Windows defect
+// RECURRING — W1 repairs the brains that already have it. Git for Windows defaults
+// `core.autocrlf` to **true**, so without this the updater's source tree is CRLF,
+// every byte it delivers is CRLF, and the brain re-records a digest no row of the
+// fingerprint table can match (the table is folded from git blobs, and the object
+// store holds LF). The fleet would need W1's candidate walk at every update forever
+// instead of converging on LF at the first one.
+//
+// It pins `core.autocrlf` and NOTHING ELSE, deliberately: an explicit `eol=`
+// attribute is a different mechanism and it wins regardless, so `.gitattributes`'
+// `*.cmd text eol=crlf` still produces the CRLF batch files Windows needs. Those
+// two rules being opposite is exactly the trap that file's own comment warns about.
 export function buildCloneArgs({ repo, ref, dir }) {
-  return ["clone", "--depth", "1", "--branch", ref, "--single-branch", repo, dir];
+  return [
+    "-c",
+    "core.autocrlf=false",
+    "clone",
+    "--depth",
+    "1",
+    "--branch",
+    ref,
+    "--single-branch",
+    repo,
+    dir,
+  ];
 }
 
 // The git argv that lists the remote's TAG refs (no dereferenced `^{}` peels,

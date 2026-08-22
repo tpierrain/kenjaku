@@ -1,6 +1,105 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseLsFilesZ, filterCopyable } from "./tracked-files.mjs";
+import { parseLsFilesZ, filterCopyable, parseLsFilesEolZ, deliversAsLf } from "./tracked-files.mjs";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// W2 — the installer delivers WHAT THE OBJECT STORE HOLDS, not what the
+// checkout happens to hold (plan § W2 of v5-unfreezes-the-existing-fleet).
+//
+// `installer.mjs` copies the launcher's tracked files from its WORKING TREE,
+// byte-verbatim. Git for Windows defaults `core.autocrlf` to true, so a launcher
+// cloned there has a CRLF working tree and the brain is CRLF from install day —
+// and the installer digests the bytes it wrote, so the brain's recorded shas are
+// CRLF too, matching no row of a table folded from LF blobs.
+//
+// The fix is not a flag (the installer clones nothing): it is to ask git which
+// files it stores as LF, and normalise exactly those. Measured on this repo the
+// day it was written: 840 files `i/lf`, 30 `i/-text` (binary), 2 `i/none`, and
+// **no tracked file carries an `eol=` attribute** — `.gitattributes`' `*.cmd` /
+// `*.sh` rules exist for the launchers a BRAIN generates, not for these.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// One real record, captured from `git ls-files --eol -z` rather than imagined:
+// three space-padded fields, then a single TAB, then the path, then NUL.
+const REC = (i, w, attr, path) => `i/${i}    w/${w}    attr/${attr}${" ".repeat(17)}\t${path}`;
+
+test("parseLsFilesEolZ — reads the index form, the worktree form and the attribute, keyed by path", () => {
+  assert.deepEqual(parseLsFilesEolZ(`${REC("lf", "crlf", "", "README.md")}\0`), {
+    "README.md": { index: "i/lf", worktree: "w/crlf", attr: "" },
+  });
+});
+
+test("parseLsFilesEolZ — several records, and the trailing NUL yields no phantom entry", () => {
+  const out = [REC("lf", "lf", "", "a.mjs"), REC("-text", "-text", "", "img/b.png")].join("\0") + "\0";
+
+  assert.deepEqual(parseLsFilesEolZ(out), {
+    "a.mjs": { index: "i/lf", worktree: "w/lf", attr: "" },
+    "img/b.png": { index: "i/-text", worktree: "w/-text", attr: "" },
+  });
+});
+
+test("parseLsFilesEolZ — an attribute VALUE may contain spaces, and is kept whole", () => {
+  // `attr/text eol=crlf` is two words in one field. Splitting the record on
+  // whitespace would read the attribute as `text` and lose the half that matters.
+  assert.deepEqual(parseLsFilesEolZ(`${REC("lf", "crlf", "text eol=crlf", "launch.cmd")}\0`), {
+    "launch.cmd": { index: "i/lf", worktree: "w/crlf", attr: "text eol=crlf" },
+  });
+});
+
+test("parseLsFilesEolZ — a path containing a SPACE survives, because the separator is a TAB", () => {
+  // Why `-z` and a tab split rather than whitespace tokens: the vault ships notes
+  // with spaces in their names, and a copy that skips them is a silently incomplete
+  // brain.
+  assert.deepEqual(parseLsFilesEolZ(`${REC("lf", "lf", "", "vault/my note.md")}\0`), {
+    "vault/my note.md": { index: "i/lf", worktree: "w/lf", attr: "" },
+  });
+});
+
+test("parseLsFilesEolZ — no output, or a malformed record with no tab, yields nothing rather than a crash", () => {
+  assert.deepEqual(parseLsFilesEolZ(""), {});
+  assert.deepEqual(parseLsFilesEolZ("\0"), {});
+  assert.deepEqual(parseLsFilesEolZ("i/lf w/lf attr/ no-tab-here\0"), {});
+});
+
+test("deliversAsLf — a text file git stores as LF is normalised on delivery", () => {
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/crlf", attr: "" }), true);
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/lf", attr: "" }), true);
+});
+
+test("deliversAsLf — a BINARY is copied verbatim, whatever the worktree says", () => {
+  // 🛑 The one that would corrupt a shipped artefact rather than merely annoy: 29 PNG
+  // boards travel into every brain so its README renders, and `normalizeEol` over a
+  // PNG rewrites its bytes.
+  assert.equal(deliversAsLf({ index: "i/-text", worktree: "w/-text", attr: "" }), false);
+});
+
+test("deliversAsLf — an explicit `eol=crlf` attribute is DELIBERATE and is never normalised", () => {
+  // Nothing in the launcher carries this today. It is asserted anyway because the day
+  // one does, the failure is a Windows user's launcher: cmd.exe re-seeks a batch file
+  // by byte offset, and an LF-only one resumes mid-token (field report 2026-08-07,
+  // shipped and fixed at v4.8.1). A rule that has to be re-derived is a rule that will
+  // be forgotten at exactly that moment.
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/crlf", attr: "text eol=crlf" }), false);
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/lf", attr: "eol=crlf" }), false);
+  assert.equal(deliversAsLf({ index: "i/lf", worktree: "w/lf", attr: "text eol=lf" }), true, "lf is not crlf");
+});
+
+test("deliversAsLf — anything git does NOT store as LF is left exactly as it is", () => {
+  // `i/crlf` means the object store really holds CRLF, and `i/mixed` that it holds
+  // both: normalising either would change the content the launcher committed, which is
+  // the opposite of "deliver what the object store holds".
+  assert.equal(deliversAsLf({ index: "i/crlf", worktree: "w/crlf", attr: "" }), false);
+  assert.equal(deliversAsLf({ index: "i/mixed", worktree: "w/mixed", attr: "" }), false);
+  assert.equal(deliversAsLf({ index: "i/none", worktree: "w/none", attr: "" }), false);
+});
+
+test("deliversAsLf — a file git said NOTHING about is copied verbatim, never guessed at", () => {
+  // The whole `git ls-files --eol` call is best effort: if it fails, the map is empty
+  // and every file falls through to the byte-verbatim copy the installer has always
+  // done. An installer must not refuse to build a brain over a line-ending nicety.
+  assert.equal(deliversAsLf(undefined), false);
+  assert.equal(deliversAsLf(null), false);
+});
 
 test("parseLsFilesZ — splits on NUL and ignores the trailing empty entry", () => {
   assert.deepEqual(parseLsFilesZ("a\0b/c\0"), ["a", "b/c"]);

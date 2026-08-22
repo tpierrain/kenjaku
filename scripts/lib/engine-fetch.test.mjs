@@ -36,11 +36,46 @@ function fakeGit({ ok = true, out = "" } = {}) {
 // on Windows, no shell needed) — proven identical under posix AND win32.
 // ═══════════════════════════════════════════════════════════════════════════
 
-test("buildCloneArgs — a shallow, single-branch clone of the pinned ref into dir", () => {
+test("buildCloneArgs — a shallow, single-branch clone of the pinned ref into dir, with LINE ENDINGS PINNED", () => {
+  // 🪟 `-c core.autocrlf=false` is W2, and it is the half that stops the defect
+  // RECURRING (W1 repairs the brains that already have it). Git for Windows defaults
+  // `core.autocrlf` to **true**, so without this the updater's own source tree is CRLF
+  // — and every byte the update then delivers is CRLF, so the brain re-records a CRLF
+  // digest that no table row can ever match. The fleet would need W1's candidate walk
+  // at every update, forever, instead of converging on the LF the object store holds.
+  //
+  // 🛑 BEFORE the subcommand, not after: `git clone -c …` is not a thing. A flag in the
+  // wrong position is not a weaker fix, it is `git: 'clone' is not a git command`.
   assert.deepEqual(
     buildCloneArgs({ repo: "https://example.test/launcher.git", ref: "v2.0.0", dir: "/tmp/src" }),
-    ["clone", "--depth", "1", "--branch", "v2.0.0", "--single-branch", "https://example.test/launcher.git", "/tmp/src"],
+    [
+      "-c",
+      "core.autocrlf=false",
+      "clone",
+      "--depth",
+      "1",
+      "--branch",
+      "v2.0.0",
+      "--single-branch",
+      "https://example.test/launcher.git",
+      "/tmp/src",
+    ],
   );
+});
+
+test("buildCloneArgs — the `.gitattributes` families are NOT what this pins, and must not be", () => {
+  // The trap `.gitattributes`'s own comment warns about, asserted as a boundary rather
+  // than trusted: `core.autocrlf` and an explicit `eol=` attribute are different
+  // mechanisms, and the attribute WINS. `*.cmd text eol=crlf` therefore still produces
+  // CRLF in a pinned clone — which is required, since cmd.exe re-seeks a batch file by
+  // byte offset and an LF-only launcher resumes mid-token (field report 2026-08-07).
+  //
+  // Nothing here can assert git's behaviour; what it CAN assert is that this argv does
+  // not try to legislate it — no `core.eol`, no `--config` on the attributes.
+  const args = buildCloneArgs({ repo: "r", ref: "v1", dir: "/d" });
+
+  assert.deepEqual(args.filter((a) => a === "-c"), ["-c"], "exactly one -c, so one thing is pinned");
+  assert.ok(!args.some((a) => a.startsWith("core.eol")), "core.eol is git's attribute machinery — untouched");
 });
 
 test("buildLsRemoteArgs — lists the remote's tag refs only (no dereferenced ^{} dupes)", () => {
@@ -197,7 +232,11 @@ for (const { platform, dir } of [
       makeTempDir: () => dir,
     });
     assert.equal(got, dir, "the platform-native temp dir is returned verbatim");
+    // The line-ending pin travels on BOTH platforms, and win32 is the one that needs
+    // it — asserted here rather than only on `buildCloneArgs`, because what reaches
+    // git is what this call passes, not what the builder returns in isolation.
     assert.deepEqual(calls[0], [
+      "-c", "core.autocrlf=false",
       "clone", "--depth", "1", "--branch", "v2.0.0", "--single-branch",
       "https://example.test/launcher.git", dir,
     ]);

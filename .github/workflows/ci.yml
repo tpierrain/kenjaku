@@ -180,3 +180,29 @@ jobs:
           $dir = Join-Path "${{ runner.temp }}" "ci-brain\rag\node_modules\better-sqlite3"
           if (-not (Test-Path $dir)) { Write-Error "rag/node_modules/better-sqlite3 missing — RAG deps not installed"; exit 1 }
           Write-Host "rag/node_modules populated - install path is healthy"
+
+      # 🪟 W2's Windows proof, and it can only be made HERE. This runner's checkout is
+      # CRLF (git for Windows defaults core.autocrlf to true), so a byte-verbatim copy
+      # gives the brain CRLF from install day — recorded shas that match no row of a
+      # fingerprint table folded from LF blobs. A macOS run cannot see this: its
+      # checkout is already LF, so the normalisation is a no-op there and the assertion
+      # would pass without measuring anything.
+      - name: Assert the brain was delivered with LF endings (W2 - the installer copy path)
+        shell: pwsh
+        run: |
+          $brain = Join-Path "${{ runner.temp }}" "ci-brain"
+          $texts = @(Get-ChildItem -Path (Join-Path $brain "scripts") -Recurse -Filter *.mjs) +
+                   @(Get-Item (Join-Path $brain "CLAUDE.engine.md"))
+          if ($texts.Count -lt 50) { Write-Error "only $($texts.Count) text files found - this step is measuring nothing"; exit 1 }
+          $offenders = $texts | Where-Object { (Get-Content -Raw -LiteralPath $_.FullName) -match "`r" }
+          if ($offenders) {
+            Write-Error "delivered with CRLF: $($offenders.FullName -join ', ')"
+            exit 1
+          }
+          Write-Host "$($texts.Count) delivered text files are LF - the copy path holds on Windows"
+          # The positive control, so a green above cannot mean "found no CR anywhere":
+          # the launcher the installer GENERATES must still be CRLF, or cmd.exe re-seeks
+          # a batch file by byte offset and resumes mid-token (field report 2026-08-07).
+          $cmd = Get-Content -Raw -LiteralPath (Join-Path $brain "scripts\run-node.cmd")
+          if ($cmd -notmatch "`r`n") { Write-Error "run-node.cmd lost its CRLF - the Windows launcher defect is back"; exit 1 }
+          Write-Host "run-node.cmd is still CRLF - the generated launchers are untouched"
