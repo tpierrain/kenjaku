@@ -88,7 +88,7 @@ Your second brain ships with ready-made pieces: the skills you call on, the rule
 
 **But the day you tailored one of those pieces, it stopped receiving anything, for good** — so far, your brain could no longer tell your words from its own, so it played safe and left the file alone, silently. Measured on a real brain: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
 
-> ### v5.0.0 ends the choice between keeping the changes you made and receiving the improvements that follow.
+> ### v5.0.0 ends the choice between keeping the changes you made to your second brain's capabilities, and receiving the improvements that follow.
 
 ### What you get, when you update your brain
 

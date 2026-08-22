@@ -3,6 +3,11 @@
 <!-- This file owns the CROSS-PLAN ORDER only. It never duplicates a plan's         -->
 <!-- content (checkboxes, done/remains, commits): each plan stays the single        -->
 <!-- source of truth for its own state; this is the map that says which goes first. -->
+<!--                                                                            -->
+<!-- plan-carrier-guard: delegates-only — the line above is a CONTRACT, and this -->
+<!-- declares it to the Stop hook, which otherwise names this file at every       -->
+<!-- hand-back for restating a status it structurally never holds. Delete this    -->
+<!-- line the day a row here starts carrying state of its own.                    -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # 🧭 ROADMAP — cross-plan ordering authority
