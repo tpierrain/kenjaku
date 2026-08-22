@@ -567,9 +567,14 @@ test("the catch-up line: an OLD report that has no skillsRetired at all still sp
   // The absent twin. This report crosses from `reconcileBrain`, and a version of it that
   // never sets the key must not turn the arrival announcement into a crash — the child
   // runs inside someone's update, where a throw is the update failing.
+  // Asserted WHOLE, not by its opening clause: the fallback's own value is part of the
+  // contract. A `?? ["something"]` would leave that prefix untouched and append a
+  // retirement that never happened — which a prefix match reads as a pass.
   const said = await catchUp({ delivered: { "CLAUDE.engine.md": "a1" }, report: {} });
-  assert.equal(said.length, 1);
-  assert.match(said[0], /^🔓 Catching up: your brain just received 1 engine file/);
+  assert.deepEqual(said, [
+    "🔓 Catching up: your brain just received 1 engine file it had stopped getting updates for " +
+      "(CLAUDE.engine.md). Your own edits were kept.\n",
+  ]);
 });
 
 test("the catch-up line: nothing arrived and nothing went → silence, not an empty announcement", async () => {
