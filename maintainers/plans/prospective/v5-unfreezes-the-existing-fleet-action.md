@@ -50,7 +50,7 @@
 > ✅ **READ, NOT PREDICTED** _(run `32558375080` on `13ef852`)_: the **three product failures are gone
 > on `windows-latest`**, and the harness artifact is not. **Four Windows failures → one.** _(The
 > transient second one was W1's own new pole, whose premise guard was macOS-shaped; fixed in
-> `d3d3d17`.)_ → § *W6*, which owns the detail.
+> `f244290`.)_ → § *W6*, which owns the detail.
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
 >
