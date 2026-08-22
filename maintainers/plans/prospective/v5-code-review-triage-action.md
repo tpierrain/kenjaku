@@ -39,6 +39,13 @@
     `.claude/settings.json` also leave the nudge?* **S4 shows the file is broken on a second machine
     for a different reason**, and that reason has to be fixed either way. The nudge question rides on
     S4's fix rather than standing alone; see F1's follow-up box, which now points here.
+- 🌙 **An unattended night was OFFERED and its scope is HIS to widen** _(2026-08-22, he asked whether
+  he could leave a loop running while he slept)_. The honest answer given: **no loop** — what is
+  authorised here is S11, S15 and the report, well under an hour, after which a loop would only wake
+  up against the prohibitions below. **If he widens it, the recommended candidate is call (3), the
+  delivered-prose hole**: it is real test-first work, it needs no decision mid-flight, and it changes
+  nothing the release promises its owners. **S12/S13 and the G work were NOT offered** — he weighed
+  them and they stay his. **Until he answers, the boundary below is unchanged.**
 - **A session may, alone:** **finish S11 and S15 — and nothing else here.** Not merge, tag
   or publish #76, not touch either real brain, not write under `templates/fr/**`, not spend the G work
   **nor S12/S13**. ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**, unless Thomas
