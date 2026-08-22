@@ -465,6 +465,34 @@ list that can only go stale is a list that shrinks by itself.
 Newest entry first. Each entry: what was done, what it proved, what comes next. Any blocking
 arbitration goes here as a question, and the run continues on other slices.
 
+- 📄 **2026-08-22 (the document that told the reviewer the opposite) — a stale artifact is not merely
+  out of date, it ACTIVELY misinforms.** The PR body is what a reviewer reads before merging. It said
+  **"2 423 tests, 2 420 pass, 0 fail"** with the only Windows caveat being three cosmetic skips — a
+  **local macOS** number presented as the verdict, while CI's Windows job carried four real failures.
+  It listed **"two things to settle before this can be cut"**, and neither was the thing actually
+  holding the cut. And it declared both forbidden claims **fallen**, full stop, when both fall on LF
+  and **stand on Windows**. Corrected: the local figure is labelled as local and points at the red,
+  the two fallen claims carry a *"false on macOS/Linux, unresolved on Windows"* banner, and the CRLF
+  arbitration is now item **1 of three**, with the two measured numbers so the choice is not blind.
+
+  > 🧭 **The release's own diagnosis had already been written, and the document was never re-read
+  > against it.** *"A pre-flight that only reads the local suite is measuring the machine that wrote
+  > the code"* went into the plan yesterday. The PR body committed that exact error in prose, and
+  > survived a day of work on the very defect it was misreporting. **Finding a defect and repairing
+  > every artifact that repeats it are two different jobs**, and only the first one feels finished.
+  > The carrier rule covers plans; **an outward-facing document is a carrier too**, and no hook greps it.
+
+  🔢 **Also stamped, and deliberately not trusted**: the branch counts (212 commits / 166 files against
+  the base, 266 ahead of `main`) with the command to refresh them. The archived plan had already
+  learned this one — *"the commit count that stood here aged into a lie within a day"* — and the
+  successor document reproduced the same figure-without-a-shelf-life. Now it carries its date and its
+  own refresh command.
+
+  🧪 **No mutation pass, stated**: doc-only, zero production lines, and **the live PR was not touched** —
+  editing #76 is outward-facing and the loop does not take that alone.
+
+  **Next**: his, unchanged — the CRLF arbitration, then the cut.
+
 - 🔢 **2026-08-22 (the bump) — "his step" was hiding three facts and one question.** The pre-flight had
   parked the `engineVersion` bump as *"S9-2b's, his"*, and the loop had left it there for a day. Read
   properly, **three of the four numbers are not decisions at all** — `rag` and `local-mirror` have

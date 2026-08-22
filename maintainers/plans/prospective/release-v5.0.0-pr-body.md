@@ -24,8 +24,10 @@
 
 ## What the branch carries
 
-**205 commits, 165 files, +25 658 / −1 542** against this PR's base _(measured 2026-08-22, after the
-doctrine cargo landed)_. Slices **S1 through S10**, the **doctrine cargo** it carries for a neighbouring
+**212 commits, 166 files, +25 996 / −1 542** against this PR's base, and **266 ahead of `main`, 0
+behind** _(re-measured 2026-08-22, after the release tail's materials landed)_. ⚠️ **A count is a
+COPY of state and ages within a day** — this one already did once. The branch is the record; to refresh
+rather than trust: `git diff --shortstat chore/s0bis-entrypoint-mutation-debt..HEAD`. Slices **S1 through S10**, the **doctrine cargo** it carries for a neighbouring
 plan and the issue tracker, plus the release tail's first half. The owning plan is
 [`v5-unfreezes-the-existing-fleet-action.md`](maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md)
 — its predecessor, which built S1–S6, is archived beside it and holds no current state. The working
@@ -155,6 +157,15 @@ what the fleet stopped receiving. Owned by
 They are kept here, with what made each false, because they were pinned by tests and the tests were
 inverted rather than deleted.
 
+> 🛑 **BOTH FELL ON LF, AND BOTH ARE STILL STANDING ON WINDOWS** _(measured on the CI runner,
+> 2026-08-22)_. Read the two entries below as *"false on macOS/Linux, unresolved on Windows"* until the
+> arbitration at the end of this body is settled. **The heal** matches installed bytes by membership in
+> a table of published byte-states, and the digest is over **raw bytes** — `\r\n` is different bytes, so
+> **zero rows match a CRLF file**. **The ancestor fetch** looks for the tag whose blob equals the
+> recorded sha; that sha is the CRLF digest and no published blob is CRLF, so **no fetch happens at
+> all** (the QA pole fails with an empty list, not a wrong one). Neither mechanism is *wrong* on
+> Windows — both are simply **inert**, which is the pre-release behaviour returning silently.
+
 1. ~~**The doctrine layer unfreezes no already-deployed brain.**~~ **False as of S7.** Old brains no
    longer merely stop being *silent*: a brain rebuilt from the real `v3.6.0` tag now **receives**. The
    acceptance test that pinned the old limitation was inverted, its old claim kept above its
@@ -169,7 +180,10 @@ inverted rather than deleted.
 ## How it was judged
 
 - Suite **2 423 tests — 2 420 pass / 0 fail / 3 skipped** (the three are Windows-only:
-  `cmd.exe` cannot parse a batch file on macOS).
+  `cmd.exe` cannot parse a batch file on macOS). ⚠️ **That figure is LOCAL, on macOS, and it is not the
+  verdict.** **CI is RED on Windows**, with four real failures — see the arbitration at the end of this
+  body. Stating the local number alone is the exact defect this release's own pre-flight committed
+  twice: *a pre-flight that only reads the local suite is measuring the machine that wrote the code.*
 - **Test-first throughout**, with the reds taken on assertions rather than on loading errors. The one
   slice where fail-first did not run first is recorded as such in the plan rather than smoothed over.
 - **Mutation measured per block, on the change and not the file** — every number and every named
@@ -210,17 +224,38 @@ inverted rather than deleted.
   ([`release-v5.0.0-note.md`](maintainers/plans/prospective/release-v5.0.0-note.md)), with three title
   candidates rather than one picked for him.
 
-## ⚠️ Two things to settle before this can be cut
+## ⚠️ Three things to settle before this can be cut
 
-1. **One arbitration, written at the top of the plan.** A brain keeps its **install-day list of which
+1. 🛑 **CI IS RED ON WINDOWS, and it is a product defect, not a config one.** Both of S7's mechanisms
+   are **LF-only**: the heal recognises no CRLF file (0 of the table's rows match), and the ancestor
+   fetch finds no tag for a CRLF digest, so it does not run. **A brain installed on Windows holds CRLF
+   from install day** — `installer.mjs` copies the launcher's working tree byte for byte, and Git for
+   Windows defaults `core.autocrlf` to true. So this release's headline promise may be **inert on the
+   entire Windows fleet**. Four options are written at the top of the plan with a recommendation
+   (normalise inside the membership test, and pin the clone). **Two numbers are already measured** so
+   the choice is not blind: LF-normalising the table costs **0 of its 82 byte-states** (nothing
+   collapses, across versions or locales), and no published blob carries CRLF at any ref. It changes
+   what the engine calls *"untouched"* on every deployed brain, so it is not the loop's call.
+   ⚠️ **Whatever is chosen, the release note's *"a brain frozen since the day it was installed starts
+   receiving again"* needs a qualifier or a fix first.**
+2. **One arbitration, written at the top of the plan.** A brain keeps its **install-day list of which
    files the engine manages**, forever — an update never advances `regimes`. Consequence, measured: the
    engine half of the constitution, a `merge` family only v4+ declares, is offered *during* an update on
    a pre-v4 brain but never named by the between-updates banner. Three ways out are written down with a
    recommendation; it changes what an update may write on every deployed brain, so it is not the loop's
    call.
-2. **The merge order.** This PR's base is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is
-   still open**. Either #75 lands first, or this PR is retargeted to `main` — as it stands, the branch is
-   248 commits ahead of `main`, 0 behind, and `git merge-tree` reports no conflict.
+3. **The merge order.** This PR's base is `chore/s0bis-entrypoint-mutation-debt`, and **draft PR #75 is
+   still open**. Either #75 lands first, or this PR is retargeted to `main` — the branch is 0 behind
+   `main` and `git merge-tree` reports no conflict (the ahead-count is stamped at the top of this body,
+   with the command to refresh it).
+
+> 📦 **Ready and NOT applied — the `engineVersion` bump.** Three of its four numbers are dictated by the
+> diff (`rag` and `local-mirror` have **zero files changed** since v4.9.1; `constitutionTemplate` is
+> purely additive doctrine → `1.4.0`), and 25 tags of precedent settle most of the fourth: the vector
+> has **never** used a major bump, and **`v4.0.0` moved not one of the four**. `scripts` → `1.14.0` is
+> the precedent's default; the plan says out loud that it did not choose, since `v3.6.0` once moved that
+> component by six minors to signal scale. `indexSchemaVersion` **stays `2`** — it is the note's promise
+> that nothing is re-read or re-encoded. The table is in the plan under § *S9-2b's materials*.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
