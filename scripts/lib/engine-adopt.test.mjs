@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 
 import { ANSWERS_REL, readAnswers } from "./engine-answers.mjs";
 import { adoptCandidate, planAdoption } from "./engine-adopt.mjs";
@@ -310,6 +310,167 @@ test("adoptCandidate — no sidecar means there is nothing to adopt, and it says
     blocked: "no-candidate",
   });
   assert.equal(read(dir, REL), OWNER);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// F2 / F9 (v5.0.0 code review) — THE PATH ARRIVES FROM THE CONVERSATION.
+//
+// `rel` is typed by an agent relaying what a human said (`update-engine/SKILL.md`
+// documents `node scripts/adopt-engine-file.mjs <file> …`), and until here it was
+// joined onto the brain dir and used. Two holes, both reachable with no hostility at
+// all — a confused path, a skill that guessed:
+//
+//   • it ESCAPED the brain (`../…`), and `.claude/skills/**` is no defence: `**`
+//     compiles to `.*`, which crosses `/` and matches `..` as happily as a name;
+//   • inside the brain it was just as unguarded — ANY path with a `.new` beside it,
+//     including `.env`, `vault/**` and `.engine-base/**`, the last being the exact
+//     path the write guard denies the agent, because forging it destroys the owner's
+//     edit at the next update.
+//
+// F9 is the same door seen from the other side: the manifest was parsed AFTER the
+// file was overwritten and the sidecar deleted, so a manifest error exited 1 — which
+// the skill is told means "nothing was touched" — over a brain already changed.
+// One repair answers both: **ask every question before writing the first byte.**
+// ═══════════════════════════════════════════════════════════════════════════
+
+// A brain whose merge regime is a SUBTREE glob, which is what a real manifest carries
+// (`.claude/skills/coach/**`, `scripts/lib/**`) and what makes the escape reachable.
+function globBrain(t, { merge = [".claude/skills/**"] } = {}) {
+  const dir = mkdtempSync(join(tmpdir(), "sbg-adopt-glob-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const write = (rel, content) => {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), content);
+  };
+  write(REL, OWNER);
+  write(`${REL}.new`, CANDIDATE);
+  write(".env", "GOOGLE_GEMINI_API_KEY=super-secret-do-not-leak\n");
+  write(".env.new", "GOOGLE_GEMINI_API_KEY=stolen\n");
+  write("vault/my-note.md", "# Mollecuisse\n");
+  write("vault/my-note.md.new", "# not a note the engine wrote\n");
+  write(".engine-base/.claude/skills/coach/SKILL.md", "the recorded ancestor\n");
+  write(".engine-base/.claude/skills/coach/SKILL.md.new", "a forged ancestor\n");
+  write("engine-manifest.json", JSON.stringify({ regimes: { merge, local: [".engine-base/**"] }, source: { ref: "v5.0.0" } }));
+  return dir;
+}
+
+test("adoptCandidate — a path that LEAVES the brain is refused, and the file outside is untouched", (t) => {
+  const dir = globBrain(t);
+  // The neighbour: a real file, beside the brain, with a sidecar planted next to it —
+  // everything `adoptCandidate` used to need in order to overwrite it.
+  const outsideDir = mkdtempSync(join(tmpdir(), "sbg-adopt-neighbour-"));
+  t.after(() => rmSync(outsideDir, { recursive: true, force: true }));
+  writeFileSync(join(outsideDir, "notes.md"), "someone else's file\n");
+  writeFileSync(join(outsideDir, "notes.md.new"), "the bytes that must never land\n");
+  // Both temp dirs are siblings, so this is the plainest escape there is. Asserted
+  // rather than assumed: a fixture whose traversal did not actually resolve onto the
+  // neighbour would pass against a guard that does nothing.
+  const escaping = `../${basename(outsideDir)}/notes.md`;
+  assert.equal(resolve(dir, escaping), resolve(outsideDir, "notes.md"), "fixture check: the path really does leave the brain");
+
+  const result = adoptCandidate({ brainDir: dir, rel: escaping, decision: "take-theirs", git: cleanGit });
+
+  assert.deepEqual(result, { adopted: false, blocked: "not-adoptable" });
+  assert.equal(readFileSync(join(outsideDir, "notes.md"), "utf8"), "someone else's file\n");
+  assert.equal(existsSync(join(outsideDir, "notes.md.new")), true, "the neighbour's file is not the engine's to tidy either");
+});
+
+// 🛑 The one a containment test alone would let through, and the reason the spelling is
+// checked at all: this path stays INSIDE the brain — `.claude/skills/../..` cancels back
+// to the brain dir — while matching `.claude/skills/**`, because `**` compiles to `.*`
+// and crosses `/`. The regime says yes about a string; the write would land on a file the
+// regime never named.
+test("adoptCandidate — a traversal that MATCHES a merge glob but lands elsewhere IN the brain is refused", (t) => {
+  const dir = globBrain(t);
+  const landing = ".claude/skills/../../adopted-by-accident.md";
+  assert.equal(resolve(dir, landing), resolve(dir, "adopted-by-accident.md"), "fixture check: it lands outside the skills tree");
+  writeFileSync(join(dir, "adopted-by-accident.md.new"), "the bytes that must never land\n");
+
+  const result = adoptCandidate({ brainDir: dir, rel: landing, decision: "take-theirs", git: cleanGit });
+
+  assert.deepEqual(result, { adopted: false, blocked: "not-adoptable" });
+  assert.equal(existsSync(join(dir, "adopted-by-accident.md")), false, "a file no merge glob truly names must not even be created");
+});
+
+// …and the same trick aimed OUT of the brain: one more `..`, and the regime still says
+// yes about the string.
+test("adoptCandidate — a traversal that MATCHES a merge glob and leaves the brain is refused", (t) => {
+  const dir = globBrain(t);
+  const neighbour = join(dirname(dir), "adopted-by-accident.md");
+  t.after(() => rmSync(neighbour, { force: true }));
+  writeFileSync(`${neighbour}.new`, "the bytes that must never land\n");
+
+  const result = adoptCandidate({
+    brainDir: dir,
+    rel: ".claude/skills/../../../adopted-by-accident.md",
+    decision: "take-theirs",
+    git: cleanGit,
+  });
+
+  assert.deepEqual(result, { adopted: false, blocked: "not-adoptable" });
+  assert.equal(existsSync(neighbour), false, "a path outside the brain must not even be created");
+});
+
+// An ABSOLUTE path is its own family of confusion: `join` does not honour it, it
+// re-roots it under the brain — so `/etc/passwd` quietly becomes `<brain>/etc/passwd`,
+// and a caller who believed they were naming a system file is now naming a brain file.
+// Refused on the spelling, before any of that matters.
+test("adoptCandidate — an ABSOLUTE path is not a brain-relative one, and is refused", (t) => {
+  const dir = globBrain(t);
+  writeFileSync(join(dir, "absolute.md.new"), "the bytes that must never land\n");
+
+  const result = adoptCandidate({ brainDir: dir, rel: "/absolute.md", decision: "take-theirs", git: cleanGit });
+
+  assert.deepEqual(result, { adopted: false, blocked: "not-adoptable" });
+  assert.equal(existsSync(join(dir, "absolute.md")), false);
+});
+
+// The three paths the finding names, one test each in a loop: inside the brain, with a
+// sidecar sitting beside them, and in NO merge regime. `.engine-base/**` is the sharpest —
+// it is `local`, and forging an ancestor destroys the owner's edit at the next update.
+for (const [what, rel, untouched] of [
+  ["the owner's API key", ".env", "GOOGLE_GEMINI_API_KEY=super-secret-do-not-leak\n"],
+  ["a vault note", "vault/my-note.md", "# Mollecuisse\n"],
+  ["a recorded ancestor", ".engine-base/.claude/skills/coach/SKILL.md", "the recorded ancestor\n"],
+]) {
+  test(`adoptCandidate — ${what} is not the engine's to offer, sidecar or no sidecar`, (t) => {
+    const dir = globBrain(t);
+
+    const result = adoptCandidate({ brainDir: dir, rel, decision: "take-theirs", git: cleanGit });
+
+    assert.deepEqual(result, { adopted: false, blocked: "not-adoptable" });
+    assert.equal(read(dir, rel), untouched);
+    assert.equal(existsSync(join(dir, `${rel}.new`)), true, "a refusal leaves the brain EXACTLY as it was — the sidecar included");
+  });
+}
+
+test("adoptCandidate — a merge file inside the brain is still adoptable (the guard refuses, it does not close the door)", (t) => {
+  const dir = globBrain(t);
+
+  const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
+
+  assert.deepEqual(result, { adopted: true });
+  assert.equal(read(dir, REL), CANDIDATE);
+});
+
+// F9 — the atomicity claim, stated as the skill states it: exit 1 means the brain was
+// NOT changed. The manifest is the last thing an adoption needs and was the last thing
+// it read; a brain whose manifest is mid-edit therefore lost the file AND the offer.
+test("adoptCandidate — an unreadable manifest changes NOTHING, neither the file nor the offer", (t) => {
+  const dir = brain(t);
+  writeFileSync(join(dir, "engine-manifest.json"), "{ this is not json");
+
+  // The matcher pins WHICH failure this is: a manifest that would not parse. Left loose,
+  // the test would pass just as happily on a guard that threw for the wrong reason —
+  // including one that threw AFTER writing.
+  assert.throws(
+    () => adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit }),
+    /JSON/i,
+  );
+
+  assert.equal(read(dir, REL), OWNER, "the owner's file must survive a manifest we could not parse");
+  assert.equal(read(dir, `${REL}.new`), CANDIDATE, "and so must the offer, or the choice is destroyed with it");
+  assert.equal(existsSync(join(dir, ANSWERS_REL)), false, "and no answer may be recorded for a choice that never landed");
 });
 
 test("adoptCandidate — answering a SECOND file keeps the first answer", (t) => {

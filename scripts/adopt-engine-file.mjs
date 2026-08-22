@@ -51,6 +51,16 @@ const MARKED_CANDIDATE_LINE = (rel) =>
   ` so what is waiting beside it is a marked-up merge of both, not a version anyone should` +
   ` install as-is. Ask me to combine the two and I'll write the merged version with you.`;
 
+// F2 — the path was not one the engine has anything to say about: it left the brain, it
+// was not spelled as the brain spells its own files, or no engine regime names it (`.env`,
+// a vault note, a recorded ancestor). Written for the AGENT relaying it as much as for the
+// owner, because that is who got it wrong: the remedy is to name the file the report
+// named, not to try again.
+const NOT_ADOPTABLE_LINE = (rel) =>
+  `${rel} is not a file the engine offers you, so I left everything exactly as it is.` +
+  ` Adoption only ever applies to the engine's own files, named as they appear in your` +
+  ` update report — not to your notes, your keys, or a path outside this brain.`;
+
 const NO_CANDIDATE_LINE = (rel) =>
   `There is no newer version waiting beside ${rel}, so there is nothing to adopt —` +
   ` your file stands exactly as it is. Either this choice was already made, or this` +
@@ -64,6 +74,7 @@ const BLOCKED_LINE = {
   ...ADOPTION_BLOCKED_LINE,
   "no-candidate": NO_CANDIDATE_LINE,
   "marked-candidate": MARKED_CANDIDATE_LINE,
+  "not-adoptable": NOT_ADOPTABLE_LINE,
 };
 
 const APPLIED_LINE = {

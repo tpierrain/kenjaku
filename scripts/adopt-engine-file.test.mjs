@@ -210,8 +210,21 @@ test("a MARKED merge gets its own sentence, and is never called 'nothing to adop
   assert.match(said(calls), /combine/i, "and point at the offer that does work here");
 });
 
+// F2 — the refusal the seam gained when it stopped writing wherever it was pointed. The
+// reader who got this wrong is usually the AGENT, not the owner, so the sentence has to
+// say what adoption is FOR rather than merely decline.
+test("a path the engine does not own gets its own sentence, and never 'nothing to adopt'", () => {
+  const { deps, calls } = harness({ adopt: () => ({ adopted: false, blocked: "not-adoptable" }) });
+
+  assert.equal(runAdoptEngineFile([REL, "take-theirs"], deps), 1);
+
+  assert.doesNotMatch(said(calls), /no newer version/i, "this is not an offer that was already taken");
+  assert.match(said(calls), /not a file the engine offers you/i, "it must say what is actually wrong");
+  assert.match(said(calls), /update report/i, "and where the right name comes from");
+});
+
 test("every blocked outcome says the brain was left ALONE — that is the reassurance", () => {
-  for (const blocked of ["refused", "conflicted", "no-candidate", "marked-candidate"]) {
+  for (const blocked of ["refused", "conflicted", "no-candidate", "marked-candidate", "not-adoptable"]) {
     const { deps, calls } = harness({ adopt: () => ({ adopted: false, blocked }) });
     runAdoptEngineFile([REL, "take-theirs"], deps);
     assert.match(said(calls), /left|stands|unchanged/i, `"${blocked}" must reassure, not just refuse`);

@@ -25,13 +25,13 @@
 // it in silently — the same trap inverted, and worse than the freeze it replaces.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join, relative } from "node:path";
 
 import { readAnswers, recordAnswer, writeAnswers } from "./engine-answers.mjs";
 import { safetyCommit } from "./engine-commit.mjs";
 import { syncBaseTree } from "./engine-base-fs.mjs";
 import { sidecarPath } from "./engine-base.mjs";
-import { reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
+import { reseedBaseRefs, reseedProvenance, selectMergeFiles } from "./engine-source.mjs";
 import { installRef } from "./engine-version.mjs";
 
 // PURE, and deliberately wearing `mergeVerdict`'s two words. This IS row 8's rule with
@@ -72,10 +72,53 @@ export function planAdoption({ decision, candidate, combined }) {
 // merely quotes one, and this seam must never block a legitimate adoption to feel safe.
 const isMarkedMerge = (content) => /^<<<<<<</m.test(content) && /^>>>>>>>/m.test(content);
 
+// 🚨 F2 — IS THIS A FILE THE ENGINE MAY OFFER AT ALL? `rel` arrives from the
+// CONVERSATION (`update-engine/SKILL.md` documents `adopt-engine-file.mjs <file> …`, and
+// an agent types the `<file>`), so it is the one input to this module nothing upstream
+// has vetted. THREE questions, and no two of them collapse into one:
+//
+//   • IS IT SPELLED AS THE BRAIN SPELLS IT? The manifest, the sidecar, the provenance
+//     entry and the base tree are all keyed by this exact string, so a rel that is not
+//     already the canonical brain-relative POSIX path means the name the regime is asked
+//     about is NOT the file that would be written. `.claude/skills/../../notes.md` lands
+//     on `notes.md` and matches `.claude/skills/**` — because `**` compiles to `.*`,
+//     which crosses `/`. This is the question that catches it, and it also disposes of an
+//     absolute path (which `join` quietly re-roots inside the brain) and of a win32
+//     spelling (which no manifest glob uses).
+//   • DOES IT STAY IN THE BRAIN? Canonical is not the same as inside: `../elsewhere.md`
+//     is its own canonical form. `relative()` rather than a string prefix, for the same
+//     reason as the write guard's `brainRelative` — a sibling directory whose name merely
+//     starts with the brain's is not inside it.
+//   • IS IT ENGINE-OWNED? A path can pass both and still be `.env`, a vault note, or
+//     `.engine-base/**` — the last being the exact path the write guard denies the agent,
+//     because forging an ancestor destroys the owner's edit at the next update.
+function isAdoptable({ brainDir, rel, manifest }) {
+  const canonical = relative(brainDir, join(brainDir, rel)).split("\\").join("/");
+  if (canonical !== rel) return false;
+  if (canonical.startsWith("../") || isAbsolute(canonical)) return false;
+  return selectMergeFiles(manifest, [rel]).length > 0;
+}
+
 // `{ adopted: true }`, or `{ adopted: false, blocked: <reason> }`. Every blocked reason
 // leaves the brain EXACTLY as it was — file, sidecar, base, manifest and answers — so a
 // caller that only checks `adopted` can never be halfway.
 export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
+  // 🛑 F9 — THE MANIFEST IS READ FIRST, and that ordering is the whole of the second
+  // repair. It used to be parsed at the END, after the file had been overwritten and the
+  // sidecar deleted: a manifest mid-edit then threw, the CLI exited 1, and exit 1 is what
+  // `update-engine/SKILL.md` tells the agent means "nothing was touched" — over a brain
+  // whose file was gone and whose offer had been destroyed with it. Read here, the throw
+  // costs nothing but the answer, which is exactly what the contract promises.
+  //
+  // It is also what F2's guard needs in order to ask its second question, so the two
+  // findings have one fix: ask everything before writing the first byte.
+  const manifestPath = join(brainDir, "engine-manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  // F2 — before the sidecar is even looked for: the existence of a `.new` beside a file
+  // is not what makes it the engine's. Anyone can put one there, including a mistaken
+  // agent relaying a path it half-heard.
+  if (!isAdoptable({ brainDir, rel, manifest })) return { adopted: false, blocked: "not-adoptable" };
+
   const sidecar = join(brainDir, sidecarPath(rel));
   // No sidecar, no offer. This is reachable in ordinary life: the owner asks about a
   // file whose engine version has already been adopted, or whose update never ran here.
@@ -114,9 +157,6 @@ export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
   // it there is a claim about a decision already taken. (The engine also replaces a
   // stale one at the next update, S10-1, but that is a repair, not a licence to litter.)
   rmSync(sidecar);
-
-  const manifestPath = join(brainDir, "engine-manifest.json");
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 
   if (deliver !== undefined) {
     // One file, the existing recorders. `deliveredFileMap` is exactly what the update
