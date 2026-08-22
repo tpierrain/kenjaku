@@ -16,8 +16,14 @@
 > > - **The release's state is NOT in this file** — open
 > >   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) and start
 > >   where **its** header says. Its § *WAITING ON THOMAS* is now § *ANSWERED BY THOMAS* — **all five
-> >   came back on 2026-08-22** and nothing on this release is blocked on him any more; then
-> >   **§ RESUME AT**.
+> >   came back on 2026-08-22** — and § *RESUME AT* is now a **work order, W1 → W5b, Windows first**,
+> >   set by him.
+> > - ⚠️ **"All five are answered" is NOT "nothing is blocked on him".** The session wrote the second
+> >   sentence and it was **false**: the **wording** of the four doctrine text changes is his and is due
+> >   before the tag (**W5b**), and it was never one of the five. Caught by the `plan-carrier-guard`
+> >   hook, which named a carrier whose header had been saying so for a day. **A closed list is not an
+> >   emptied inventory** — the third time this release has been told that, each time on a different
+> >   surface.
 > > - **The next buildable slice is S7-6** (the CRLF ancestor fetch): its **design is written**, its
 > >   four tests are named, **no code exists yet**. Build it test-first.
 > > - **CI is RED on the branch and that is expected** — four Windows failures, three of them the defect

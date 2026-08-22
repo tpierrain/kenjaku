@@ -334,6 +334,20 @@
 >       seven-bullet shape are **done**; what the note still owes is W3's line. Nothing else.
 > - [ ] **W5 — HIS, not the loop's**: retarget #76 to `main`, one review over the whole branch, **one
 >       merge commit, never a squash**, then cut / tag / publish. → answer 5, and § *S9-2b's materials*.
+> - [ ] **W5b — HIS TOO, and it was NOT one of the five: the WORDING of the doctrine text.** Four text
+>       changes to `CLAUDE.engine.md` (#61, #67, #64's rule half, and the source-first rule) are
+>       **written, placed and guarded** — the mechanism is the loop's and it is done. **The sentences
+>       speak in his voice and are his to arbitrate, and they are due BEFORE the tag.** The guards
+>       assert patterns, not prose: he can rewrite every sentence and the suite stays green, and when a
+>       rule stops being recognisable the test names which one. → the doctrine-cargo block further down,
+>       and [`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](field-finding-2026-08-08-source-first-and-frozen-doctrine.md)
+>       for the fourth.
+>       - 🛑 **Why it is written here at all**: the five-question round of 2026-08-22 closed the
+>         § *WAITING ON THOMAS* list, and the session then said out loud *"nothing on this release is
+>         blocked on him any more"*. **That was false**, and the `plan-carrier-guard` hook is what broke
+>         it open — by naming a carrier the session had not opened, whose own header had said for a day
+>         that the wording was his. **A list that closes is not the same as an inventory that empties**,
+>         which is the exact lesson this plan already recorded twice, on other surfaces.
 >
 > > ### 🪟 W6 — THE STANDING PROOF THOMAS ASKED FOR: **real Windows, on GitHub CI, at the END**
 > >

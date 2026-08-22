@@ -8,6 +8,18 @@
 
 > ## ▶️ WHERE THIS RESUMES: nothing to build. **The wording is his, then the release carries it.**
 >
+> > 🛑 **AND THE FIVE-QUESTION ROUND OF 2026-08-22 DID NOT COVER IT** — read this before assuming the
+> > release is unblocked. Thomas answered the release's five open arbitrations that day (Windows,
+> > title, note shape, regimes, merge order), the owning plan closed its § *WAITING ON THOMAS*, and the
+> > session then claimed *"nothing on this release is blocked on him any more"*. **This file's wording
+> > was not in that list and is still his**, due before the tag. It is now carried as **W5b** in
+> > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)'s work
+> > order, so the release's queue names it instead of leaving it only here.
+> >
+> > 🪝 **The `plan-carrier-guard` hook is what found this**, by naming this file as a carrier the
+> > session kept not opening. It judges no content: it only made the omission impossible to not see,
+> > and the omission was a **false claim about the owner's own backlog**.
+>
 > ✅ **S1 is written and guarded** _(2026-08-22, `5729282`, branch `feat/engine-base-unfreeze`)_. Both
 > `CLAUDE.engine.md` and `templates/fr/CLAUDE.engine.md` open their routing section with a **`Level 1`
 > block** (`Niveau 1` in French) and carry a level-1 row in the routing table.
