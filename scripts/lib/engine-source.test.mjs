@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 
 import {
+  advanceRegimes,
   fingerprint,
   selectMergeFiles,
   buildProvenance,
@@ -404,4 +405,69 @@ test("recordSourceAndProvenance — writes source + fingerprints ONLY the merge 
   // "\ No newline at end of file" — noise in the one file whose diff must stay readable.
   const raw = readFileSync(join(brainDir, "engine-manifest.json"), "utf8");
   assert.equal(raw, JSON.stringify(m, null, 2) + "\n");
+});
+
+// ─── W3 — the brain's regime list stops being an install-day souvenir ─────────
+// THE DEFECT, measured on a brain rebuilt from the real v3.6.0 tag (S10-QA): step 7
+// writes back `{...local, engineVersion, indexSchemaVersion, source, provenance,
+// baseRefs}`, and `regimes` is in none of that — so it comes from the brain's own
+// manifest and is never advanced. A brain therefore keeps, FOREVER, the list of file
+// families the engine had on the day it was installed.
+//
+// What that costs v5 exactly: `CLAUDE.engine.md` is a `merge` family only v4+ declares.
+// The doctrine is offered correctly DURING an update, but every standing surface between
+// two updates reads the brain's stale globs — the session nudge stays silent about it, and
+// adopting it writes the file without advancing its ancestor, so the same question comes
+// back at the next release instead of being settled.
+//
+// Thomas's call, 2026-08-22, answer 4 → option (a): advance the list, and say so in the
+// release note, because the write guard reads this very list.
+const V3_REGIMES = {
+  merge: ["CLAUDE.md", ".claude/settings.json", ".claude/skills/**"],
+  replace: ["rag/src/**", "scripts/lib/**"],
+};
+const V5_REGIMES = {
+  merge: ["CLAUDE.md", ".claude/settings.json", ".claude/skills/**", "CLAUDE.engine.md"],
+  replace: ["rag/src/**", "scripts/lib/**"],
+  regenerate: ["scripts/run-node.cmd"],
+};
+
+test("advanceRegimes — the brain adopts the ENGINE's regime list, and its tombstones with it", () => {
+  assert.deepEqual(
+    advanceRegimes({
+      local: { regimes: V3_REGIMES, retired: [] },
+      target: { regimes: V5_REGIMES, retired: [".claude/skills/tdd-discipline/**"] },
+    }),
+    // The WHOLE object, so this also pins that it advances these two fields and NOTHING
+    // else: it is spread over the brain's manifest, where a stray key would overwrite a
+    // record (provenance, baseRefs, source) that step 7 has already computed.
+    { regimes: V5_REGIMES, retired: [".claude/skills/tdd-discipline/**"] },
+  );
+});
+
+test("advanceRegimes — `retired` advances even when it is the only list the engine moved", () => {
+  const advanced = advanceRegimes({
+    local: { regimes: V5_REGIMES, retired: [] },
+    target: { regimes: V5_REGIMES, retired: [".claude/skills/tdd-discipline/**", ".claude/skills/gone/**"] },
+  });
+  assert.deepEqual(advanced.retired, [".claude/skills/tdd-discipline/**", ".claude/skills/gone/**"]);
+  assert.deepEqual(advanced.regimes, V5_REGIMES);
+});
+
+// 🛑 THE FAILURE MODE THIS GUARDS, and it is fleet-wide rather than cosmetic. The result
+// is SPREAD over the brain's manifest, so a key present with `undefined` does not fall
+// back to what `{...local}` put there — it overwrites it, and `JSON.stringify` then drops
+// the key entirely. A target manifest that failed to declare its regimes would leave every
+// updated brain with NO regime list at all: `regimeOf` returns null for every path, the
+// write guard stops recognising a single engine file, and an agent silently diverges the
+// brain from its engine — the exact interruption S3 exists to raise.
+test("advanceRegimes — an engine that declares no lists never BLANKS the brain's own", () => {
+  assert.deepEqual(
+    advanceRegimes({ local: { regimes: V3_REGIMES, retired: [".claude/skills/tdd-discipline/**"] }, target: {} }),
+    { regimes: V3_REGIMES, retired: [".claude/skills/tdd-discipline/**"] },
+  );
+});
+
+test("advanceRegimes — a brain that has neither, updating from an engine that has neither, keeps none", () => {
+  assert.deepEqual(advanceRegimes({ local: {}, target: {} }), { regimes: undefined, retired: undefined });
 });

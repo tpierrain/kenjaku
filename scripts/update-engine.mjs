@@ -35,7 +35,7 @@ import {
 } from "./lib/engine-fetch.mjs";
 import { checkUpstream, formatUpdateCheck, unknownUpstream } from "./lib/engine-update-check.mjs";
 import { reconcileBrain } from "./lib/reconcile-brain.mjs";
-import { reseedBaseRefs, reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
+import { advanceRegimes, reseedBaseRefs, reseedProvenance, resolveSourceRepo } from "./lib/engine-source.mjs";
 import { parseSemverTag, compareSemverTags } from "./lib/semver-tag.mjs";
 import { readEngineDivergence, syncBaseTree } from "./lib/engine-base-fs.mjs";
 import { DIVERGENCE_CLOSING, DIVERGENCE_LINE } from "./lib/engine-divergence-nudge.mjs";
@@ -678,6 +678,14 @@ export async function updateEngine({
     ...local,
     engineVersion: target.engineVersion,
     indexSchemaVersion: target.indexSchemaVersion,
+    //    W3 — and WHICH file families this engine governs. Until here the brain kept its
+    //    INSTALL-DAY list for life, so every standing surface between two updates read
+    //    globs from the release the owner happened to install at: the session nudge could
+    //    not see `CLAUDE.engine.md` (a `merge` family only v4+ declares) and a retired
+    //    skill went on being treated as a merge file. It widens the write guard's
+    //    allowlist to whatever the new engine declares — the point, and the risk, which is
+    //    why the release note says it out loud.
+    ...advanceRegimes({ local, target }),
     //    F1: the repo is re-read from the launcher we just fetched, not carried over
     //    from install day. `source.repo` was written once, at install, and revised
     //    never — so a repository RENAME reached no deployed brain and they all kept

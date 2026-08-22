@@ -37,7 +37,10 @@ import {
 } from "../../maintainers/qa/release-fixtures/brain-at-release.mjs";
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
-import { fingerprint, reseedProvenance } from "./engine-source.mjs";
+import { fingerprint, reseedProvenance, selectMergeFiles } from "./engine-source.mjs";
+// The write guard's own reader, deliberately: W3's claim is about what the STANDING
+// surfaces see, so the pole asks the surface rather than re-reading the glob list itself.
+import { regimeOf } from "./engine-write-guard.mjs";
 import { crlfify } from "./engine-base.mjs";
 import { syncBaseTree } from "./engine-base-fs.mjs";
 
@@ -233,4 +236,44 @@ test("QA v3.6.0 on WINDOWS → HEAD — a CRLF-recorded brain's edited skill acq
   // a customization.
   assert.equal(readBrain(brainDir, ".claude/skills/switch/SKILL.md"), readRepo(".claude/skills/switch/SKILL.md"));
   assert.ok(first.skillsRefreshed.includes("switch"));
+});
+
+// ── W3 — a brain stops carrying its INSTALL-DAY regime list forever ────────────
+// S10-QA measured this on this very fixture: step 7 never wrote `regimes` back, so a
+// v3.6.0 brain kept a v3.6.0 list of file families for life. Thomas's call, 2026-08-22
+// (answer 4, option (a)): advance it, and say so in the release note, because the write
+// guard reads this same list and advancing it WIDENS what an agent gets asked about.
+//
+// The two real movements between v3.6.0 and HEAD, and neither is hypothetical:
+//   · `CLAUDE.engine.md` — a `merge` family only v4+ declares. This release is the one
+//     that unfreezes the doctrine, and a brain that does not list the file cannot see it
+//     on any standing surface between two updates.
+//   · `.claude/skills/tdd-discipline/**` — v3.6.0 lists it under `merge` and knows no
+//     `retired` key at all. HEAD retires it. `selectMergeFiles` subtracts tombstones, so
+//     until the brain adopts the list it goes on seeding a base for a skill nobody ships.
+test("QA v3.6.0 → HEAD — the updated brain adopts the ENGINE's regimes, install-day list and all", async (t) => {
+  const { brainDir, manifest } = brainAtRelease("v3.6.0");
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const target = JSON.parse(readRepo("engine-manifest.json"));
+  // The premise, asserted rather than assumed — this pole proves nothing on a fixture
+  // that already knew the doctrine family.
+  assert.ok(!manifest.regimes.merge.includes("CLAUDE.engine.md"), "premise: v3.6.0 declares no doctrine family");
+  assert.equal(manifest.retired, undefined, "premise: v3.6.0 predates tombstones entirely");
+  assert.ok(manifest.regimes.merge.includes(".claude/skills/tdd-discipline/**"), "premise: and it still merges tdd-discipline");
+
+  await updateFrom(brainDir, manifest);
+
+  const after = JSON.parse(readBrain(brainDir, "engine-manifest.json"));
+  assert.deepEqual(after.regimes, target.regimes, "the brain's families are now the engine's");
+  assert.deepEqual(after.retired, target.retired, "and so are its tombstones");
+  // What the owner actually gets out of it, on both surfaces that read this list:
+  assert.equal(regimeOf({ rel: "CLAUDE.engine.md", manifest: after }), "merge", "the doctrine is finally an engine file here");
+  assert.deepEqual(
+    selectMergeFiles(after, [".claude/skills/tdd-discipline/SKILL.md", "CLAUDE.engine.md"]),
+    ["CLAUDE.engine.md"],
+    "the retired skill stops being treated as a merge file, and the doctrine starts",
+  );
+  // Nothing else in the manifest was collateral damage — step 7's own records stand.
+  assert.deepEqual(after.engineVersion, target.engineVersion);
+  assert.ok(Object.keys(after.provenance).length > 0, "provenance survived the same write");
 });

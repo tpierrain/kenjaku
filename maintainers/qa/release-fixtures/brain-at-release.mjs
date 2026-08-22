@@ -20,7 +20,7 @@ import { defaultGit } from "../../../scripts/lib/engine-fetch.mjs";
 import { reconcileBrain } from "../../../scripts/lib/reconcile-brain.mjs";
 // The PRODUCTION digest, deliberately: a hand-rolled sha256 in the test would silently
 // disagree with the manifest's format and turn every untouched skill into "customized".
-import { fingerprint, reseedBaseRefs, reseedProvenance } from "../../../scripts/lib/engine-source.mjs";
+import { advanceRegimes, fingerprint, reseedBaseRefs, reseedProvenance } from "../../../scripts/lib/engine-source.mjs";
 // The PRODUCTION rewriter too, for the same reason as the digest: a hand-rolled
 // `split("\n").join("\r\n")` here would disagree with what the engine calls a CRLF
 // form the day one of them learns about a lone `\r`, and the QA would be green about
@@ -133,17 +133,19 @@ export function seams() {
 // BACK (the adoption QA asks what the brain still holds back, then answers it), the
 // fixture would have been measuring a fiction.
 //
-// Mirrored on step 7 line for line, including what it does NOT advance: `regimes` come
-// from `local`, so a brain keeps its install-day regime list forever. That is a real
-// engine behaviour (`session-self-heal.mjs` calls it out: "update-engine never refreshes
-// those"), and reproducing it is the point — a fixture that quietly advanced the regimes
-// would make the QA green about a fleet that is not.
+// Mirrored on step 7 — and this comment used to end by explaining that the mirror kept
+// `regimes` at the brain's install-day value BECAUSE the engine did, a fidelity the QA
+// depended on. W3 is the decision that changed the engine (Thomas, 2026-08-22, answer 4),
+// so the fixture now advances them for the same reason it did not before: it must
+// reproduce the field, not a preference. It calls `advanceRegimes` rather than restating
+// it — a hand-copied mirror is a fixture that will lie the next time step 7 moves.
 function finalizeManifest({ brainDir, target, local, report }) {
   const deliveredFileMap = { ...report.installedFileMap, ...report.refreshedFileMap };
   const updated = {
     ...local,
     engineVersion: target.engineVersion,
     indexSchemaVersion: target.indexSchemaVersion,
+    ...advanceRegimes({ local, target }),
     provenance: reseedProvenance({
       priorProvenance: report.healedProvenance ?? local.provenance ?? {},
       manifest: target,

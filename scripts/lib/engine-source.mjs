@@ -107,6 +107,35 @@ export function reseedBaseRefs({ priorBaseRefs, manifest, deliveredFileMap, ref 
   return { ...priorBaseRefs, ...Object.fromEntries(redelivered.map((rel) => [rel, ref])) };
 }
 
+// The brain's record of WHICH file families the engine governs — and, until W3, the one
+// field of the manifest that stayed at its install-day value forever. Step 7 wrote back
+// `{...local, engineVersion, indexSchemaVersion, source, provenance, baseRefs}`, and
+// `regimes` was in none of it, so a v3.6.0 brain kept a v3.6.0 list of families for the
+// rest of its life. `session-self-heal.mjs` already named it in a comment ("update-engine
+// never refreshes those, which is the whole bug") and worked around it by deriving the
+// desired state from what the engine DELIVERS instead.
+//
+// What it costs v5 exactly: `CLAUDE.engine.md` is a `merge` family only v4+ declares. The
+// doctrine is still offered correctly DURING an update, but every standing surface between
+// two updates reads the brain's stale globs — so the session nudge never mentions it, and
+// adopting it writes the file without advancing its ancestor, which brings the same
+// question back at the next release instead of settling it.
+//
+// 🛑 THE FALLBACK IS LOAD-BEARING, not defensive habit. The result is SPREAD over the
+// manifest, where an `undefined` value does not defer to what `{...local}` put there — it
+// overwrites it, and `JSON.stringify` then drops the key. An engine that shipped without
+// declaring its regimes would leave every updated brain with NO regime list at all, and
+// the write guard recognises no engine file without one.
+//
+// Widening the allowlist to whatever the new engine declares is the POINT and also the
+// risk, which is why the release note says so out loud (Thomas's call, 2026-08-22).
+export function advanceRegimes({ local, target }) {
+  return {
+    regimes: target?.regimes ?? local?.regimes,
+    retired: target?.retired ?? local?.retired,
+  };
+}
+
 // ─── I/O orchestrator (the installer's thin wiring) ──────────────────────────
 // Real fs on the brain dir; the launcher git facts are passed in as data (no git
 // spawn / network here → unit-testable on a temp fixture brain). Walks the brain
