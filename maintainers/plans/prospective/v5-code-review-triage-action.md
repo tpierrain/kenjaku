@@ -11,20 +11,43 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **exactly two boxes are left of the second batch — S11 and S15**, both in § L, both cheap
-  and neither carrying a decision. **S11**: `update-engine.mjs` lines 429/432/438/446/517/520 still
-  print `(s)`, and line 429 is pinned by a test that enshrines it — the test moves with the fix.
-  **S15**: `ignore-base-settings.mjs` gains two blank lines on an empty `.gitignore`, and does not
-  recognise a directory-level `.engine-base/` entry as already covering the path. Everything else
-  under the GO is **done, green and pushed**: § I `ca46027`, § J `f716066` `d17896c` `94272e9`
-  `e27ed4a`, § K `e6c4deb`, S14 with `e27ed4a`.
-  - ✅ **THE GO, in his words** _(2026-08-22)_: *"oui, en test-first, et tu me montres à la fin."* Word
-    for word the first batch's GO, on the scope that was recommended with it: **I, J, K, and the cheap
-    half of L (S11, S14, S15)**. **S12 and S13 are NOT in it** — they are weighed like G, and stay
-    Thomas's.
-  - 📣 **HE HAS NOT HAD THE "montres à la fin" YET.** The GO asked for a report at the end and the
-    batch is not finished, so the last thing a resuming session owes him, after S11 and S15, is **one
-    plain-language report** — same register as the first batch's.
+- **Next:** **THE SCOPE WAS WIDENED TO "THE MAXIMUM"** _(2026-08-22, his words: "je veux que tu en
+  fasses le maximum (tout ce qu'on a identifié comme à faire)", said while going to bed, for an
+  unattended stretch)_. **The queue below is ordered, and it is the whole of it.** Same discipline as
+  the two batches before it: red first for the right reason, one commit per subject, green only,
+  pushed as it goes. Everything under the previous GO is **done, green and pushed**: § I `ca46027`,
+  § J `f716066` `d17896c` `94272e9` `e27ed4a`, § K `e6c4deb`, S14 with `e27ed4a`.
+  1. **S15** — `ignore-base-settings.mjs`: two blank lines on an empty `.gitignore`, and a
+     directory-level `.engine-base/` entry not recognised as already covering the path. A real bug on
+     the owner's own file, so it goes first.
+  2. **S11** — `update-engine.mjs` lines 429/432/438/446/517/520 still print `(s)`. Line 429 is pinned
+     by a test that enshrines the hedge; the test moves with the fix.
+  3. **The delivered-prose hole** (owner's call (3), now GRANTED by "the maximum"): `CONNECTORS.md`,
+     `.claude/skills/EXAMPLES.md` and `engine-skills/mcp-token-expired/SKILL.md` can be **gutted with
+     the suite fully green**. Build the guard. ⚠️ **Read § H's 📐 box first** — this is exactly the
+     class of check the mode has written weakly before.
+  4. **S13** — `reconcile-brain.mjs`: a recording write helper that owns both the write and
+     `reconciledFileMap`, so the next in-place write cannot silently recreate F1.
+  5. **S12** — an `invited` regime declared in `engine-manifest.json` instead of the hardcoded
+     `new Set(["CLAUDE.md"])`. **This one touches the fleet-wide vocabulary on an already-large
+     release**: if it turns out to need a migration story, STOP, write the question here, take 6.
+  6. **F13** — thread the already-read `installedFileMap` through, killing four full read+sha256
+     passes per update and a fifth at every session start.
+  7. **F12** — `stripComments` is not regex-aware in `entrypoint-discipline.mjs:141`.
+  8. **The two named residuals**: F14's `file(s)` in `repo-status.mjs` and `locale-drift.mjs`; S5's
+     unreadable-file sentence, which belongs to the **health banner** (see § J's decision 3).
+  9. **The report he is owed** — see below. It is the last act, not an optional one.
+  - 📣 **HE HAS NOT HAD THE "montres à la fin" YET.** Two GOs have now asked for a report at the end
+    and neither has been delivered. After the queue, **one plain-language report** in French, same
+    register as the first batch's: what it fixed, in terms of what would have gone wrong for an owner.
+  - 🛑 **"The maximum" DID NOT lift the prohibitions.** They are unchanged and they are absolute: not
+    merge, tag or publish #76, not touch either of his two real brains, **not write under
+    `templates/fr/**`**, not run the rehearsal on a copy of a real brain. A GO on engineering is not a
+    GO on the release.
+  - ❓ **F11 is the ONE thing "the maximum" cannot settle by itself, and he was asked** _(2026-08-22)_:
+    translating the French twin means writing under `templates/fr/**`, which is forbidden here.
+    **Until he answers, do the half that is mine**: state the loss in the release note (an English
+    artifact) so the note stops being silent about it. If he says "translate", it becomes item 10.
 - **Blocked on:** nothing. **Suite at the last commit: 2 541 green, 3 skipped** (CI's own invocation,
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
@@ -46,7 +69,7 @@
   delivered-prose hole**: it is real test-first work, it needs no decision mid-flight, and it changes
   nothing the release promises its owners. **S12/S13 and the G work were NOT offered** — he weighed
   them and they stay his. **Until he answers, the boundary below is unchanged.**
-- **A session may, alone:** **finish S11 and S15 — and nothing else here.** Not merge, tag
+- **A session may, alone:** **work the ordered queue in the Next block, all nine items.** Not merge, tag
   or publish #76, not touch either real brain, not write under `templates/fr/**`, not spend the G work
   **nor S12/S13**. ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**, unless Thomas
   ships with a named finding deferred.
