@@ -435,6 +435,22 @@
 > 🛑 **So there is now genuinely nothing for a loop to take on this release.** The next `/loop` firing
 > should say so and stop, rather than find something.
 >
+> ### 🧭 ON "ON REPREND" AFTER THE CLEAR OF 2026-08-22 EVENING — FIVE STEPS LEFT, ALL HIS
+>
+> _(Written immediately before that `/clear`, so it survives it.)_ **The build is done and the note is
+> done.** What is left is the cut below, and **not one line of it is engineering**: step 1 (retarget
+> #76 + its body), step 2 (**W5b**, the wording of the four doctrine texts — the only thing left that
+> needs him to decide CONTENT), then 4, 5, 6 (one review + one merge commit, the bump, the tag).
+> **Step 3 is closed**: the note was re-read with him line by line and §11 rewritten from it.
+>
+> - **Do not re-ask the version question** — answered, `scripts` `1.13.1 → 1.14.0`.
+> - **Do not take an entry from the cut**, and do not look for engineering work: there is none left on
+>   this release.
+> - **Outside this repo, one thing is in flight**: the harness consolidation is open as
+>   [PR #2 on `use-case-driven-harness`](https://github.com/tpierrain/use-case-driven-harness/pull/2)
+>   and **waits on Thomas to merge it** (the session was blocked by a permission classifier). It is
+>   **not** part of this cut; it carries the plural-carrier rule and the guard's declared door.
+>
 > ### ✅ THE ONE QUESTION IS ANSWERED — NOTHING IS PENDING A DECISION ANY MORE
 >
 > _(2026-08-22. The question was `scripts` `1.13.1 → 1.14.0` versus a larger jump. Asked alone, in
@@ -469,9 +485,15 @@
 >       rule half and the source-first rule are written, placed and guarded. **The guards assert
 >       patterns, not prose**: rewrite every sentence and the suite stays green; when a rule stops
 >       being recognisable, the test names which one. → § *W5b*.
-> - [ ] **3. The release note — your voice.** Title already decided: **`v5.0.0 — The One Where Your
->       Edits and Its Updates Finally Merge`**, seven bullets kept.
->       → [`release-v5.0.0-note.md`](release-v5.0.0-note.md).
+> - [x] ✅ **3. The release note — DONE, re-read WITH Thomas line by line** _(2026-08-22 evening)_.
+>       Title unchanged (**`v5.0.0 — The One Where Your Edits and Its Updates Finally Merge`**), same
+>       seven bullets. What changed is the top, on nine successive corrections of his: an opening
+>       section *What this release is about* led by a pull quote, the bullets **grouped by moment**
+>       (update / ordinary conversation), a concrete example in each, the old freeze described as the
+>       **deliberate protection it was**, the field measurement pushed back under the fold, and the
+>       body unwrapped. **`CONVENTIONS.md` §11 was rewritten to carry all of it** (`a95f7f4`), so the
+>       next note starts here instead of re-deriving it. → [`release-v5.0.0-note.md`](release-v5.0.0-note.md).
+>       **Nothing is owed on this file** unless he wants another pass; it is ready to paste.
 > - [ ] **4. ONE review, ONE merge, NO squash.** The repo allows all three merge styles, so **squash is
 >       reachable by a mis-click** — the button must read *Create a merge commit* at the moment of
 >       merging. History kept whole.
