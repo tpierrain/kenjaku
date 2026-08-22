@@ -14,10 +14,12 @@
   all five live plans, the ROADMAP's Status column, and both repo-level carriers of the archiving
   ritual. Step 10 (pruning the archived corpus) is **out of scope and stays out**.
 - **Blocked on:** nothing.
-- **Owner's call pending:** **one — the lint, and it does not block any step above.** His *"on
-  diffère le lint"* came from an autocompletion accepted before knowing what a lint was; asked again
-  in plain terms, still unanswered. Three options, recommendation is to **split it** (cheap half now,
-  hard half after the v5.0.0 tag). → § *The lint, reopened*.
+- **Owner's call pending:** **two, neither blocking.** (1) **The lint** — his *"on diffère le lint"*
+  came from an autocompletion accepted before knowing what a lint was; asked again in plain terms,
+  still unanswered. Recommendation: **split it** (cheap half now, hard half after the v5.0.0 tag). →
+  § *The lint, reopened*. (2) **The branch `chore/plan-discipline-points-at-the-harness`** (pushed, no
+  PR), which is what deletes this repo's two stale copies of the plan-discipline doc. They still teach
+  the superseded ritual. → § *Findings*, first entry.
 - **A session may, alone:** apply the convention to any plan that still lacks it (a dormant plan
   waking up, a new one). **It may NOT delete the hook, the `delegates-only` door or the certificate**
   — those three retire only when the lint replaces them — and it may **not** build the lint: that is
@@ -453,6 +455,18 @@ comes last: biggest edit, least reversible.
       is F-A caught in the act**, and it is the sharpest evidence in the whole study: the box is not
       where the state is, so the box goes stale while everyone reads the prose that buried it. Nobody
       was careless — the file had simply grown past the point where anyone re-reads it to the bottom.
+- [ ] ⚠️ **Two files in THIS repo still teach the superseded ritual, and the fix already exists on a
+      branch nobody merged** _(found 2026-08-22 by grepping for *"header note"* after step 9)_.
+      `maintainers/plan-discipline.md` (163 lines) and `maintainers/skills/plan-discipline/SKILL.md`
+      (97 lines) are the **pre-consolidation copies** of the harness's method: they say *"read its
+      header note and its `## Tracking`"*, know nothing of the door or the STATE block, and one of
+      them is a full 163-line duplicate of a document the harness now owns. **Their removal is
+      already written**, on `chore/plan-discipline-points-at-the-harness` (deletes the skill folder,
+      reduces the doc to a pointer) — **pushed, never opened as a PR, and recorded as the owner's, not
+      work to pick up**. 🚫 **Deliberately NOT fixed here**: editing them would duplicate that
+      branch's work and conflict with it, and rewriting them in place would recreate the very copy the
+      consolidation deleted. **What is needed is a decision about that branch, not an edit.** → it is
+      the harness plan's *Owner's call pending*.
 - [x] **The convention has two outward-facing copies, and step 4 just made them stale** _(found
       2026-08-22, while doing step 4)_. The public extract `plan-memory-test-harness` and the
       published page both carry the **pre-2026-08-22** discipline (singular carriers, no door, no

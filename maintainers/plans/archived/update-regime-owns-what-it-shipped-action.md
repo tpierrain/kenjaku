@@ -1,44 +1,43 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🏁 DONE, ARCHIVED (2026-08-21). S1 through S6 were BUILT, on the  -->
-<!-- branch feat/engine-base-unfreeze. That is history and stays true.         -->
+<!-- ARCHIVED 2026-08-21. This file owns the DESIGN RECORD of S1-S6: how each  -->
+<!-- shipped mechanism was designed and what was rejected on the way. Open it  -->
+<!-- for that, and for nothing else. It carries no `## 📍 STATE` block and no  -->
+<!-- current status, by construction — its successor does:                     -->
+<!--   maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md -->
 <!--                                                                          -->
 <!-- plan-carrier-guard: delegates-only                                        -->
-<!-- (Thomas's call, 2026-08-22.) It names the branch because it BUILT it,     -->
-<!-- which is history, and it holds no status about it. What it does own: the  -->
-<!-- design record of S1-S6, i.e. HOW each shipped mechanism was designed and  -->
-<!-- what was rejected on the way. Nothing perishable.                         -->
+<!-- (Thomas's call, 2026-08-22, and EARNED: added only after the file was     -->
+<!-- read end to end and a real state copy was removed from this header. It is -->
+<!-- a certificate that someone checked, never a way to stop checking. It      -->
+<!-- names the branch because it BUILT it, which is history.)                  -->
 <!--                                                                          -->
-<!-- 🔍 EARNED, NOT ASSUMED: the line was added only AFTER the file was read   -->
-<!-- end to end and a real state copy was removed from this very header (see   -->
-<!-- below). It is a certificate that someone checked, never a way to stop     -->
-<!-- checking. DELETE IT the day any row here starts carrying live state.      -->
-<!--                                                                          -->
-<!-- 🚫 WHETHER IT IS MERGED, TAGGED OR PUBLISHED IS NOT ANSWERED HERE, EVER.  -->
-<!-- This header said "draft PR #76 / nothing tagged" until 2026-08-22, and    -->
-<!-- both were live status in a file that tells its reader not to come here    -->
-<!-- for status — so nobody would ever have come to correct them, and the day  -->
-<!-- of the tag they would simply have become false. Removed for the same      -->
-<!-- reason the commit count was removed before them: a COPY of state in an    -->
-<!-- archived file is a lie with a delivery date. The branch is the record;    -->
-<!-- the successor plan below is the answer.                                   -->
-<!--                                                                          -->
-<!-- 🛑 DO NOT OPEN THIS FILE TO FIND OUT WHERE THE WORK STANDS. It is ~2 200  -->
-<!-- lines and holds NO current state. The live plan is:                       -->
-<!--   maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md -->
-<!-- Every decision here that still binds has been COPIED into it, so that     -->
-<!-- plan is self-sufficient. Open this one only to investigate HOW a shipped  -->
-<!-- mechanism was designed.                                                   -->
-<!--                                                                          -->
-<!-- WHY IT CLOSED SHORT OF PUBLISHING: the release, AS THIS PLAN BUILT IT,    -->
-<!-- unfroze brains installed from v5.0.0 on and NOBODY already installed —    -->
-<!-- i.e. the entire fleet. Owner's call, 2026-08-21: do not publish in that   -->
-<!-- state. Healing the frozen fleet moved to the successor plan's S7.         -->
-<!--                                                                          -->
-<!-- ⚠️ THAT IS HISTORY, NOT THE CURRENT STATE. S7 shipped later the same day  -->
-<!-- and a brain rebuilt from v3.6.0 now RECEIVES. Do not quote the sentence   -->
-<!-- above as if it still held: the successor plan owns where this stands, and -->
-<!-- this header keeps no second copy of it.                                   -->
+<!-- Why it closed short of publishing, which is history and stays true: the   -->
+<!-- release AS THIS PLAN BUILT IT unfroze brains installed from v5.0.0 on and -->
+<!-- nobody already installed. Owner's call, 2026-08-21: do not publish in     -->
+<!-- that state. Healing the frozen fleet moved to the successor's S7.         -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     📉 This header was FORTY LINES until 2026-08-22, and shrank to the block
+     above with nothing lost. Kept as evidence, because it is the cheapest
+     demonstration of what the plan-state convention is for.
+
+     Almost all of it was shouting: "DO NOT OPEN THIS FILE TO FIND OUT WHERE
+     THE WORK STANDS", twice, in caps. A file writes that when it keeps being
+     opened by mistake — and it kept being opened by mistake because there were
+     MANY doors: a memory pointer, the ROADMAP, a grep, a link from another
+     plan. One door (plans/ACTIVE.md) removed the mistake, so the shouting had
+     nothing left to prevent.
+
+     The rest was a correction of itself. This header once asserted "draft
+     PR #76 / nothing tagged", live status inside a file whose own first line
+     tells the reader not to come here for status — so nobody would ever have
+     come to fix it, and the day of the tag it would simply have become false.
+     Rule 2 (a fact another system owns is linked, never asserted) is exactly
+     that failure written as a rule.
+
+     Study: plans/prospective/plan-state-single-source-study.md
+     ───────────────────────────────────────────────────────────────────────── -->
 
 > ## ✅ RESOLVED — S6e is DROPPED (owner, 2026-08-21, in conversation)
 > _(Raised by the night loop at iteration 34; answered the same day. **No French
