@@ -8,10 +8,19 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS AUTHORIZED AND NOT STARTED** _(written 2026-08-22, right before a `/clear`)_
+> ## ▶️ WHERE THIS RESUMES — **THE FIXING IS RUNNING. NEXT: F2.** _(updated 2026-08-22, mid autonomous run)_
 >
-> **The review has RUN and returned 15 findings. Not one is fixed yet.** The merge of #76 is gated on
-> this file. **Thomas answered both open questions before the clear** — do not re-ask either:
+> **A. is discharged** — F1 (both halves) and F8 landed together in `7f0ae6a`, test-first, pushed.
+> **Resume at F2** (the write that escapes the brain), then F3, then the rest of B and C, then D and F.
+> The order and the boundaries below are unchanged and still govern.
+>
+> ❓ **ONE QUESTION FOR THOMAS CAME OUT OF F1, and nothing is blocked on it** — it is written under F1
+> below, in the *"what F1 does not settle"* box: whether `.claude/settings.json` should ALSO leave the
+> nudge, the way `CLAUDE.md` just did. It is not part of the decided repair, and no other finding
+> depends on it.
+>
+> **The review has RUN and returned 15 findings.** The merge of #76 is gated on this file. **Thomas
+> answered both open questions before the clear** — do not re-ask either:
 >
 > - ✅ **THE BLOCKER IS DECIDED — shape (a).** *"Ne parler que des fichiers vraiment tenus par toi."*
 >   The engine **re-records `.claude/settings.json`'s provenance right after it rewrites it**, and
@@ -25,8 +34,8 @@
 >   worth asking about before spending it).
 >
 > **So the next session starts by fixing, not by triaging.** Suggested order, hardest-hitting first:
-> F1 (the fleet-wide false claim), F2 (the write that escapes the brain), F3 (the silent deletion),
-> then the rest of B and C, then D and F.
+> ~~F1 (the fleet-wide false claim)~~ ✅, F2 (the write that escapes the brain), F3 (the silent
+> deletion), then the rest of B and C, then D and F.
 >
 > ⚠️ **Nothing may be merged or tagged until this file's § Tracking is discharged**, or until Thomas
 > explicitly ships with a named finding deferred (his call, recorded here if it happens).
@@ -82,8 +91,8 @@ catches any of this.
 
 ## Tracking
 
-- [ ] **A. The blocker — DECIDED by Thomas, now a repair to build test-first**
-  - [ ] **F1 — the session nudge will tell every owner, forever, that `.claude/settings.json` and
+- [x] **A. The blocker — DECIDED by Thomas, now a repair to build test-first** _(2026-08-22 · 7f0ae6a)_
+  - [x] **F1 — the session nudge will tell every owner, forever, that `.claude/settings.json` and
         `CLAUDE.md` are "yours", and they cannot silence it.**
         `scripts/lib/engine-divergence.mjs:47`. Both files are in `regimes.merge`.
         `reconcile-brain.mjs:357` rewrites `settings.json` whenever a hook entry is added, and **this
@@ -95,19 +104,49 @@ catches any of this.
         nudge's own header says it exists to prevent.**
         - [x] ✅ **DECIDED 2026-08-22 — shape (a), Thomas's words: *"ne parler que des fichiers
               vraiment tenus par toi"*.** Two halves, and both are owed tests:
-              - [ ] **The engine re-records `.claude/settings.json`'s provenance right after it
-                    rewrites it.** The rewrite is `reconcile-brain.mjs` step 2.quinquies; the file is
-                    in `regimes.merge`, so nothing else re-seeds it. A brain the engine just touched
-                    must not read as a brain the owner touched. **Fail-first pole**: a brain that
-                    receives a new hook entry reports **no** held-back file afterwards.
-              - [ ] **`CLAUDE.md` leaves the nudge.** Editing one's own constitution is the product
-                    working as designed, so naming it "held back" is a false claim, not a helpful one.
-                    ⚠️ **Scope it to the NUDGE only** — the update-time merge behaviour for `CLAUDE.md`
-                    is untouched and must stay untouched; the owner's edits still merge. **Fail-first
-                    pole**: an owner-edited `CLAUDE.md` is absent from the report while an owner-edited
-                    engine skill is still present in it.
-              - [ ] **F8 travels with this** — a fresh install with a connector is born diverged for the
+              - [x] **The engine re-records `.claude/settings.json`'s provenance right after it
+                    rewrites it.** _(2026-08-22 · 7f0ae6a)_ The rewrite is `reconcile-brain.mjs` step
+                    2.quinquies; the file is in `regimes.merge`, so nothing else re-seeds it. A brain
+                    the engine just touched must not read as a brain the owner touched. **Fail-first
+                    pole, seen red**: a brain that receives a new hook entry reports **no** held-back
+                    file afterwards.
+                    _Shape, so it is not re-derived_: `reconcileBrain` returns **`reconciledFileMap`**
+                    (the bytes it wrote, `{}` when it wrote none) and the **two** manifest writers on
+                    the path fold it in — `runReconcileCli` (the last writer, self-heal + finalize) and
+                    `update-engine` step 7. Both are needed: by the time the finalize child runs, the
+                    hooks are already wired, so its own reconcile writes nothing and would record
+                    nothing. **Gated on the write**, and a second test pins why: a blanket re-seed
+                    would grant an amnesty to the owner's own edits, which is the opposite defect.
+              - [x] **`CLAUDE.md` leaves the nudge.** _(2026-08-22 · 7f0ae6a)_ Editing one's own
+                    constitution is the product working as designed, so naming it "held back" is a
+                    false claim, not a helpful one. ⚠️ **Scoped to the NUDGE only** — `CLAUDE.md` stays
+                    a `merge` file and the update-time merge behaviour is untouched. **Fail-first pole,
+                    seen red**: an owner-edited `CLAUDE.md` is absent from the report while an
+                    owner-edited engine skill is still present in it.
+                    _Shape_: `INVITED_EDITS` in `engine-divergence.mjs`, filtered **before** the verdict
+                    so it covers `no-provenance` too — which is the branch the whole deployed fleet is
+                    in for that file. A **name**, not a shape: `CLAUDE.engine.md` is the engine's half
+                    and is still reported (pinned by a test, one dot apart).
+              - [x] **F8 travels with this** — a fresh install with a connector is born diverged for the
                     exact same reason, so the same re-recording has to cover the installer's ordering.
+                    _(2026-08-22 · 7f0ae6a)_ New door: **`rerecordEngineWrite`** in `engine-base-fs.mjs`
+                    (merge-regime-gated, existence-gated, writes nothing when it records nothing),
+                    called after the connectors step and only when a connector actually merged.
+              - [ ] ❓ **WHAT F1 DOES NOT SETTLE — FOR THOMAS, and nothing is blocked on it.**
+                    `.claude/settings.json` is now truthful about the ENGINE's writes. It is still
+                    reported when the **owner** edits it — and `SETUP.md` §"community MCP" tells them
+                    to (add `mcp__<server>__<tool>` by hand). That is the same argument that just took
+                    `CLAUDE.md` out of the report, on a file that is **also** un-adoptable
+                    (`no-candidate` forever, no refresh family writes a `.new` beside it). **The
+                    counter-argument, which is why this was not decided alone**: the allowlist is what
+                    the engine's write guard reasons about, and an owner who widens it may well want to
+                    be told the engine no longer recognises the file. Two defensible designs → his
+                    call. _(One thing to check before deciding, and it changes the answer: if Claude
+                    Code's "Always allow" writes into `settings.local.json` — which no regime names —
+                    then the everyday case never fires this and only a deliberate hand-edit does, which
+                    is a much weaker reason to go silent. **Not verified here**, and the repo's only
+                    two mentions of that file are in an ADR and an archived plan, neither of them
+                    evidence.)_
               _(The two rejected shapes, so they are not re-litigated: (b) keep both and make them
               dismissible — more machinery, and it leaves a message still saying something arguable
               about `CLAUDE.md`; (c) restrict the nudge to files with a fetchable ancestor — cheap, but
@@ -145,10 +184,11 @@ catches any of this.
         `readEngineDivergence`'s file reads sit outside its try/catch, and it runs *after* the merge,
         the manifest rewrite and the commit — so one unreadable file at that instant prints
         `❌ update-engine failed — the brain was NOT changed`, which is false, and invites a re-run.
-  - [ ] **F8 — a brand-new install is born diverged.** `installer.mjs:639`. Provenance and the base tree
-        are recorded **before** the connectors step merges permissions into `settings.json`, so any
-        interactive install with a connector ends with a file that mismatches its own recorded sha, and
-        F1's nudge fires on a brain minutes old. Record after step 5, or re-record after the merge.
+  - [x] **F8 — a brand-new install is born diverged.** ✅ **Fixed with F1, whose box owns the detail**
+        (A. above) _(2026-08-22 · 7f0ae6a)_. `installer.mjs:639`. Provenance and the base tree were
+        recorded **before** the connectors step merges permissions into `settings.json`, so any
+        interactive install with a connector ended with a file that mismatches its own recorded sha,
+        and F1's nudge fired on a brain minutes old. Taken by the *re-record after the merge* branch.
   - [ ] **F10 — the ancestor fetch inherits Node's 1 MB `maxBuffer`.** `engine-fetch.mjs:130`. The
         sibling seam `engine-merge-git.mjs:60` sets 64 MB with a comment naming this exact hazard.
         Latent today (merge files are ~40 KB), and it silently degrades to "the update server could not
