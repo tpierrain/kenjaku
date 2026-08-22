@@ -209,6 +209,60 @@ test("a runner at the very first character of the file is still a runner", () =>
   ]);
 });
 
+// ── F12: the scanner knew about strings and comments, and not about REGEXES ──
+//
+// Not hypothetical, and not found by imagining a fixture: run this scanner over the
+// repo's own `scripts/**` and **13 files leave it stuck inside a phantom string** at
+// end of file — one of them production code delivered into every brain
+// (`brain-locale.mjs`, whose `/BRAIN_LOCALE\s*=\s*"([^"]+)"/` carries THREE quote
+// characters). From that line on, in that file, no comment is stripped: every `//` note
+// mentioning a guard token counts as live code. This guard's ceilings are declared to
+// only ever go DOWN, and a file can be pushed over one by a sentence of prose.
+test("a QUOTE inside a regex literal does not open a string that swallows the file", () => {
+  // The real line, copied from `brain-locale.mjs`, followed by the kind of comment this
+  // repo writes everywhere: the history of a debt that has been paid.
+  const src =
+    'const m = /BRAIN_LOCALE\\s*=\\s*"([^"]+)"/.exec(content);\n' +
+    "// the old shape of this file read process.argv[1] itself\n" +
+    "runAsEntrypoint(import.meta.url, process.argv, main);\n";
+  assert.deepEqual(findHandRolledGuards(src), []);
+  assert.equal(hasEntrypointTail(src), true);
+});
+
+test("a SLASH PAIR inside a regex character class does not blank the rest of the line", () => {
+  // `[//]` is a valid class (a `/` does not close the literal inside brackets), and it
+  // is the finding's own case: read as a comment, everything after it on the line — the
+  // guard included — is gone, and the file reads as clean.
+  const src = "const sep = /[//]/;  const first = process.argv[1];\n";
+  assert.deepEqual(findHandRolledGuards(src), [{ line: 1, token: "process.argv[1]" }]);
+});
+
+test("a DIVISION is not mistaken for a regex, however it is spaced", () => {
+  // The other half of the same ambiguity, and the one that breaks a scanner that treats
+  // every `/` as a literal: `total / 2` would open a "regex" that runs to the next `/`,
+  // eating whatever sits between — here the guard token.
+  assert.deepEqual(findHandRolledGuards("const half = total / 2; const a = process.argv[1] / 3;\n"), [
+    { line: 1, token: "process.argv[1]" },
+  ]);
+});
+
+test("a regex right after a KEYWORD is still a regex, not a division", () => {
+  // `return /x/` and `typeof /x/`: the character before the slash is a letter, so a
+  // "previous character is a word character → division" rule gets this exactly wrong and
+  // re-opens the swallowing it was written to stop.
+  const src = 'function f() { return /a"b/.test(s); }\n// once read process.argv[1]\nrunAsEntrypoint(a, b, c);\n';
+  assert.deepEqual(findHandRolledGuards(src), []);
+  assert.equal(hasEntrypointTail(src), true);
+});
+
+test("an UNTERMINATED regex is not allowed to eat the rest of the file", () => {
+  // A `/` the heuristic reads as a regex opener with no closer on its line — the honest
+  // failure mode is to give up at the newline, so a mis-read costs one line, never the
+  // whole scan.
+  const src = "const odd = a /b + c\nconst first = process.argv[1];\n";
+  assert.deepEqual(findHandRolledGuards(src), [{ line: 2, token: "process.argv[1]" }]);
+});
+
 test("an UNTERMINATED block comment swallows the rest, and does not crash", () => {
   assert.deepEqual(findInlineInvocations("/* opened and never closed\nspawn(a, [], {});\n"), []);
 });
