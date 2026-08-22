@@ -84,7 +84,7 @@
 
 ### What this release is about
 
-Your second brain ships with ready-made pieces: the skills you call on, the rules it works by, the way it searches. Kenjaku keeps improving them, and your brain picks that up whenever you ask it to update.
+Your second brain ships with ready-made pieces: the skills you call on, the rules it works by, the way it searches. The Kenjaku project keeps improving those pieces, in good part thanks to what its users report back, and asking your brain for an update is what carries the improvements over to you.
 
 **But the day you tailored one of those pieces, it stopped receiving anything, for good** — your brain could no longer tell your words from its own, so it played safe and left the file alone, silently. Measured on a real brain: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
 
