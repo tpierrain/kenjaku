@@ -1,40 +1,41 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🟢 OPEN (2026-08-22) — a STUDY Thomas asked for, not a build.    -->
-<!-- Nothing here is authorized to change a rule, a hook or a skill yet: the  -->
-<!-- deliverable is a reasoned proposal he arbitrates. This file OWNS the     -->
-<!-- brief and the evidence; it holds no other chantier's state.              -->
+<!-- STATUS: the STATE block below is this file's only perishable content —   -->
+<!-- do not restate it in a comment, a header or another file. This file OWNS -->
+<!-- the study, its evidence, the convention it produced, and the state of    -->
+<!-- APPLYING that convention. It holds no other chantier's state.            -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Study — plans that need no guard: making duplicated state structurally impossible
 
-> ## ▶️ WHERE THIS RESUMES — **THE STUDY IS DONE. THE ANSWER IS § The proposal. STEP 4 IS THOMAS'S.**
-> _(steps 1-3 done 2026-08-22, after the `/clear`, as asked. Brief preserved below.)_
->
-> **Nothing has been applied**: no rule edited, no hook touched, no plan refactored — that was the
-> boundary and it held. What exists now is **one recommended convention with its cost, what it
-> retires, and what it cannot fix** (§ The proposal), on top of a corpus measurement that **confirmed
-> the hypothesis and moved its centre of gravity** (§ 1 — what the corpus actually says).
->
-> **The one-sentence answer**: the leak is not the file, it is the **form** — state and history are
-> both written as *paragraphs*, and no mechanism can tell one paragraph from another, which is why
-> only detection was ever available. Give state a form of its own (a capped, fixed-key block) and the
-> five workarounds lose their reason to exist.
->
-> **What Thomas arbitrates**: adopt / amend / reject, and if adopted, whether the lint is built now or
-> the convention travels alone first.
->
-> **Thomas's ask, in his words**: *"est-ce qu'on ne manque pas d'une convention qui rendrait caduque
-> tous ces workarounds qu'on fait en permanence sur ce sujet… une solution rationnelle et efficace de
-> gestion des plans, de l'historique… une petite étude quoi."*
->
-> **What he is reacting to**: the accumulation of patches. Each one is defensible alone; together they
-> are a tell. The save-point rule, then its plural-carriers amendment, then a machine-local hook to
-> enforce it, then a declared door to silence the hook, then (today) a "certificate" variant of that
-> door. **Five mechanisms for one problem is a design smell, not a discipline.**
->
-> ⚠️ **This is a STUDY. Do not refactor the plan corpus, do not edit `rules/plans.md`, do not touch
-> the hook.** Produce a proposal with its trade-offs; he decides. The evidence below is already
-> gathered: **do not re-derive it**, spend the effort on the answer.
+## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+
+- **Next:** apply the convention — § *Application*, in its order: the pilot, then the harness rule,
+  then the remaining live plans and the ROADMAP.
+- **Blocked on:** nothing.
+- **Owner's call pending:** none. Arbitrated 2026-08-22 — *"adopte la convention, on diffère le lint"*.
+- **A session may, alone:** apply rules 1-3 to any plan, and write the convention into the harness.
+  **It may NOT delete the hook, the `delegates-only` door or the certificate** — those three retire
+  with the lint, and the lint is deferred.
+
+> 🧪 **This block is the convention's own first instance.** If it ever needs a sixth key or a
+> thirtieth line, that is evidence against § *The proposal*, and it belongs in § *Application*'s
+> findings rather than in a wider block.
+
+## The brief (durable — this is why the study was asked for)
+
+**Thomas's ask, in his words**: *"est-ce qu'on ne manque pas d'une convention qui rendrait caduque
+tous ces workarounds qu'on fait en permanence sur ce sujet… une solution rationnelle et efficace de
+gestion des plans, de l'historique… une petite étude quoi."*
+
+**What he was reacting to**: the accumulation of patches. Each one is defensible alone; together they
+are a tell. The save-point rule, then its plural-carriers amendment, then a machine-local hook to
+enforce it, then a declared door to silence the hook, then a "certificate" variant of that door.
+**Five mechanisms for one problem is a design smell, not a discipline.**
+
+**The one-sentence answer the study reached**: the leak is not the file, it is the **form** — state
+and history are both written as *paragraphs*, and no mechanism can tell one paragraph from another,
+which is why only detection was ever available. Give state a form of its own (a capped, fixed-key
+block) and the five workarounds lose their reason to exist.
 
 ## The question
 
@@ -246,18 +247,28 @@ conventions that must reach every clone, which is precisely what `~/.claude/hook
 
 ### What it retires (the five workarounds, plus the sixth nobody counted)
 
+> ⚖️ **HALF OF THIS LIST IS GATED ON THE LINT, WHICH THOMAS DEFERRED (2026-08-22).** The hook, the
+> door and the certificate were to be retired **by** the lint replacing them; with no replacement,
+> removing them would leave nothing at all. **They stay, and the door's declaration on `ROADMAP.md`
+> becomes honest** the moment rule 3 empties that file of statuses. The three items that depend only
+> on the convention retire now. Each line below says which it is.
+
 - [ ] **The plural-carriers amendment** → moot. One address per item; other files hold links, and a
-      link cannot go stale.
-- [ ] **`~/.claude/hooks/plan-carrier-guard.mjs`** (machine-local, branch-grep, judges no content) →
-      replaced by the repo-side shape lint, which judges content, travels with the clone, and does not
-      over-fire on correct files.
-- [ ] **The `delegates-only` door** → unnecessary (see above). The two declarations in the repo get deleted.
-- [ ] **The "certificate" variant** → dies with the door, and with it the 40-line header written to
-      justify one.
+      link cannot go stale. **Retires with the convention — in scope now.**
 - [ ] **The `WHERE THIS RESUMES` headers** → become the STATE block, capped, in all 4 files.
+      **Retires with the convention — in scope now.**
 - [ ] **The save-point rule SURVIVES and shrinks** to one line: *before handing back, the STATE block
       must already say what your reply says.* Four keys and ≤ 20 lines is cheap enough to write
       mid-reply, which is the only thing that even partly reaches the sequencing hole.
+      **Rewritten with the convention — in scope now.**
+- [ ] ⏸️ **`~/.claude/hooks/plan-carrier-guard.mjs`** (machine-local, branch-grep, judges no content) →
+      to be replaced by the repo-side shape lint, which judges content, travels with the clone, and
+      does not over-fire on correct files. **GATED ON THE LINT — it stays installed and firing.**
+- [ ] ⏸️ **The `delegates-only` door** → unnecessary once the lint judges shape. **GATED ON THE LINT.**
+      Interim: rule 3 makes the `ROADMAP.md` declaration *true* instead of aspirational, which is
+      strictly better than today and costs nothing.
+- [ ] ⏸️ **The "certificate" variant** → dies with the door. **GATED ON THE LINT.** The 40-line header
+      that justifies one stays until then.
 
 ### What it costs
 
@@ -290,10 +301,46 @@ prose per day per live plan, part of which is restating state.
       rejected, one kept as hygiene)_
 - [x] **3. Write the proposal**: one recommended convention, its migration cost, what it retires
       (which of the five mechanisms disappear), and what it cannot fix. _(2026-08-22 · § 3)_
-- [ ] **4. Hand to Thomas for arbitration.** ⛔ Nothing is applied without his GO. Three ways to
-      answer: **adopt as written** · **adopt the convention, defer the lint** · **reject / amend**.
-      If adopted, the destination is the harness (`rules/plans.md` + the `plan-discipline` skill),
-      and only the lint lands in Kenjaku.
+- [x] **4. Hand to Thomas for arbitration.** _(2026-08-22)_ → **ADOPTED, LINT DEFERRED.** His words:
+      *"adopte la convention, on diffère le lint."* The invariant and rules 1-3 are in force from
+      today; the shape lint is not built. **What that gates is written in § *What it retires***: the
+      hook, the door and the certificate were to be retired *by* the lint, so they stay until it
+      exists. Do not remove them "for consistency with the convention" — that would leave no net at
+      all, which is worse than the over-firing it replaces.
+
+## Application — putting the convention in force
+
+The study is closed; this section is the **only live work** in this file, and it owns its state
+(the STATE block at the top is its resume marker).
+
+**Order, and why.** The pilot comes before the written rule on purpose: migrating one real plan is
+what would expose a wrong key or a too-tight cap, and it is cheaper to learn that before the
+convention is carved into the harness than after. The ROADMAP comes last because it is the biggest
+single edit and the least reversible.
+
+- [ ] **1. Pilot — one real plan gets a STATE block, and the block's design is judged on it.**
+      Target: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) — smallest live
+      plan (371 lines), and its ~80-line resume header is the workaround being replaced, so it is the
+      honest test. Record what the migration cost and whether the four keys were enough.
+- [ ] **2. The harness carries the convention** — `~/Dev/use-case-driven-harness`, on its own branch:
+      - [ ] `rules/plans.md` (always-on): the invariant, rules 1-3, the shrunk save-point rule, and
+            the hook demoted to *interim net, pending the lint*.
+      - [ ] `skills/plan-discipline/SKILL.md` (on-demand): how to write, tick and resume a STATE block.
+      - [ ] `skills/plan-discipline/plan-discipline.md`: the rationale + the measurement that produced
+            it, so the convention travels with its evidence and is not re-litigated from scratch.
+- [ ] **3. The remaining live plans get their block** — `v5-unfreezes-the-existing-fleet-action.md`,
+      `agent-orchestrated-release-mode-action.md`, `field-finding-2026-08-08-source-first-and-frozen-doctrine.md`.
+      Dormant prospective plans are **not** migrated: they are touched when they wake.
+- [ ] **4. `ROADMAP.md` loses its Status column** (rule 3). The durable lessons currently buried in
+      those cells are **kept** — they are history, and criterion 6 forbids losing them; only the
+      perishable statuses go, replaced by the link to the owning plan.
+- [ ] **5. Prune the archived corpus of nothing.** Explicitly out of scope, restated here because it
+      is the tempting next step: 70 archived files, 33 654 lines, zero benefit.
+
+### Findings from the application (append as they land)
+
+_(Empty until the pilot runs. Anything the migration teaches about the convention itself goes here,
+because it is evidence about § *The proposal*, not status.)_
 
 ## Scope
 
