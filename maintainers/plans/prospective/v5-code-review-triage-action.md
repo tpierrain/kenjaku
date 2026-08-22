@@ -10,8 +10,10 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **nothing a session can do.** Every finding under the GO is fixed, test-first, green and
-  pushed — categories **A, B, C, D, F**. What is left is Thomas's, below.
+- **Next:** **one thing, and it is a read, not a fix** — answer Thomas's open question under § H:
+  *does anything in the suite go red when a doctrine sentence in DELIVERED Markdown changes?* Read the
+  tests, then answer; do not answer from memory. Every finding under the GO is otherwise fixed,
+  test-first, green and pushed — categories **A, B, C, D, F**. The rest is Thomas's, below.
 - **Blocked on:** nothing.
 - **Owner's call pending:** **four.** (1) **§ H** — re-run `/code-review` on `fc4e7bb..HEAD`; a
   session cannot type his command. (2) **E / F11** — the French twin: translate it, or say so in the
@@ -314,13 +316,32 @@ catches any of this.
 - [ ] **H. After the fixes — his command to type, never a session's**
   - [ ] 🎯 **Re-run `/code-review` on the fix range. THE EXACT RANGE: `fc4e7bb..HEAD` on
         `feat/engine-base-unfreeze`.**
-        - 📐 **The range keeps growing, and only in Markdown — checked, not assumed** _(2026-08-22)_.
-          Since `2ce39d8`, the last fix commit, **not one non-Markdown file has changed**: the plan
-          corpus was migrated to the STATE-block convention and a doctrine branch was merged, all of
-          it prose. **So the code this re-run has to read is exactly the code it had to read the
-          moment the batch closed**, and no later commit adds to its job. Re-check the same way
-          before typing it — `git diff --name-only 2ce39d8..HEAD | grep -v '\.md$'` — rather than
-          trusting this line, which is only true until someone commits code.
+        - 📐 **Nothing SHIPPED has changed since the batch closed — and the check that proves it is
+          not the one written here first** _(2026-08-22, corrected the same hour by Thomas)_.
+          🛑 **The wrong check was `git diff --name-only 2ce39d8..HEAD | grep -v '\.md$'`**, i.e.
+          *"ignore the Markdown"*. **In this product Markdown IS behaviour**: `CLAUDE.engine.md`,
+          `.claude/skills/**` and `templates/fr/**` are prose the engine ships into brains and that
+          the brain then obeys. A rule that excludes `.md` is blind to the exact class of change
+          this release exists to deliver. **His objection, verbatim**: *"le contenu markdown ça va
+          changer le comportement du second brain"*.
+          ✅ **The right check is "was any DELIVERED file touched?", and it has a machine answer**:
+          `scripts/lib/tracked-files.mjs` decides what enters a brain — `DEV_ONLY_PREFIXES` excludes
+          `maintainers/`, `DEV_ONLY_FILES` excludes `DEVELOPING.md`. Everything committed since
+          `2ce39d8` falls in one of those two, **read on disk, not recalled**, so the delivered
+          surface is byte-identical to the moment the batch closed and this re-run's job is
+          unchanged. **Re-derive it that way, never by file extension.**
+        - ❓ **His second question, OPEN and unanswered — what actually guards shipped prose?**
+          *"Tu veux dire qu'on n'a aucun test qui [...] peut devenir faux à cause de changements de
+          comportements ?"* If a doctrine sentence in `CLAUDE.engine.md` or a shipped skill is the
+          behaviour, then **a test that only reads code cannot go red when the behaviour changes** —
+          and the release's whole safety net would be resting on review, not on the suite.
+          **NOT VERIFIED — do not answer from memory.** What must be read, on disk, before saying
+          anything: which tests assert on the *content* of delivered Markdown, what exactly they
+          assert (a pattern, a fingerprint, a hash, or nothing), and what a doctrine wording change
+          would have to break for one of them to fail. Names to start from, unconfirmed:
+          `source-first-discipline.test.mjs`, the locale-drift guard, `tracked-files.test.mjs`.
+          Related, and already known: **W5b's guards assert patterns, not prose** — which is a first
+          data point *for* his worry, not against it.
         - 🧾 **The plans in the diff do not drown the code**: the first pass read `main...HEAD` with
           **27 113 lines of plans** in it and still found 15 findings in 7 257 lines of production
           diff. No need to slice the range by hand.

@@ -12,10 +12,15 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** **no engineering is left on this release** — the queue is empty, checked against the three
-  surfaces rather than recalled. What remains is the cut, and every line of it is Thomas's: § *WHAT IS
-  YOURS, IN ORDER*. Say that in one line rather than reciting the list, and **do not take an entry
-  from it**.
+- **Next:** **two conversations he asked to resume after a `/clear`** _(2026-08-22, his words: "on
+  continue nos échanges sur ces deux sujets, le Lint et ça")_ — (1) **the lint**, argued in
+  [`plan-state-single-source-study.md`](plan-state-single-source-study.md), his call, recommendation
+  on record; (2) **does any test go red when DELIVERED Markdown changes the brain's behaviour?**,
+  argued under § H of [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) and
+  **unverified** — read the tests before answering. Beyond those two, **no engineering is left on this
+  release**: the queue is empty, checked against the three surfaces rather than recalled, and what
+  remains is the cut, every line of it Thomas's — § *WHAT IS YOURS, IN ORDER*. Say that in one line
+  rather than reciting the list, and **do not take an entry from it**.
 - **Blocked on:** the code review's findings —
   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns them and its own STATE
   block answers where they stand. **Nothing is merged or tagged until its § Tracking is discharged**,
