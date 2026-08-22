@@ -36,7 +36,7 @@ import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
 import { ignoreBaseSettings } from "./ignore-base-settings.mjs";
-import { reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
+import { advanceRegimes, reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
 import { syncBaseTree, readBaseTree, readInstalledMergeFiles } from "./engine-base-fs.mjs";
 import { healFromDisk, readFingerprintTable } from "./engine-heal-fs.mjs";
 import { planAncestorFetch } from "./engine-ancestor.mjs";
@@ -542,6 +542,23 @@ function flagValue(argv, name) {
   return i >= 0 ? argv[i + 1] : undefined;
 }
 
+/**
+ * The release's own manifest, from the tree the parent fetched — or `null` when there
+ * is none to read.
+ *
+ * Null rather than a throw, deliberately: this child is a best-effort finisher whose
+ * caller swallows its failure, so throwing here would leave a brain silently frozen
+ * with a green update behind it. `advanceRegimes` falls back to the brain's own list on
+ * null, which is exactly the behaviour of the version that never looked.
+ */
+function sourceManifest(sourceDir) {
+  try {
+    return JSON.parse(readFileSync(join(sourceDir, "engine-manifest.json"), "utf8"));
+  } catch {
+    return null;
+  }
+}
+
 export async function runReconcileCli({ argv, seams = {} }) {
   const brainDir = flagValue(argv, "--brainDir");
   const sourceDir = flagValue(argv, "--sourceDir");
@@ -550,7 +567,25 @@ export async function runReconcileCli({ argv, seams = {} }) {
     throw new Error("reconcile-brain: --brainDir and --sourceDir are required");
   }
   const manifestPath = join(brainDir, "engine-manifest.json");
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const local = JSON.parse(readFileSync(manifestPath, "utf8"));
+
+  // 🚨 THE FAMILIES COME FROM THE SOURCE, and this is what makes the first update on a
+  // brain that is already out there do anything at all.
+  //
+  // Measured on a copy of a real v4.9.1 brain: an update to v5.0.0 is performed by the
+  // brain's OWN, OLD `update-engine.mjs` — every deployed engine predates the release it
+  // installs — and no deployed step 7 advances `regimes`. This child is the new code's
+  // only chance to repair that on the first pass. Reading the brain's own manifest as its
+  // target made it reconcile against the family list of the release BEFORE last, so a
+  // family this release invents (the doctrine) was invisible: the brain came out saying
+  // "v5.0.0, up to date" with its doctrine still frozen. It took a SECOND update, which
+  // nothing ever asks for.
+  //
+  // `advanceRegimes` is W3's own decision (Thomas, answer 4), called rather than restated.
+  // For the SessionStart self-heal, `sourceDir` IS the brain, so the two manifests are the
+  // same file and this is a provable no-op — pinned by a test of its own.
+  const manifest = { ...local, ...advanceRegimes({ local, target: sourceManifest(sourceDir) }) };
+  const familiesMoved = JSON.stringify([manifest.regimes, manifest.retired]) !== JSON.stringify([local.regimes, local.retired]);
   const report = await reconcileBrain({
     brainDir,
     platform,
@@ -604,7 +639,13 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // No `?? []` on `report.healed`: this report comes from `reconcileBrain` three lines up,
   // which always returns the array. A fallback that cannot fire is a mutant nest, not a
   // safety net (the lesson S7-2's comparator taught, applied one file over).
-  if (Object.keys(delivered).length > 0 || report.healed.length > 0) {
+  // `familiesMoved` is the third reason to write, and it is the migration's own: a
+  // release may advance a family list while delivering nothing yet (a tombstone whose
+  // skill the owner edited, a family whose file is already at the right content). Left
+  // unwritten, the advance would be recomputed and thrown away at every run, and every
+  // STANDING surface — the session nudge, the write guard, the next update — would go on
+  // reasoning from the install-day list.
+  if (Object.keys(delivered).length > 0 || report.healed.length > 0 || familiesMoved) {
     writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance, baseRefs }, null, 2) + "\n");
   }
 

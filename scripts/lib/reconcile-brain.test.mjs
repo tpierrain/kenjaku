@@ -366,6 +366,78 @@ test("runReconcileCli — parses flags, loads the brain manifest, and converges 
   assert.deepEqual(calls.reindex, [], "the auto-finalize child must not reindex (it converges, it does not migrate)");
 });
 
+// ── Test 5bis: THE FIRST UPDATE ON A BRAIN THAT IS ALREADY OUT THERE ─────────
+//
+// Measured on a copy of a real v4.9.1 brain (release plan, § THE REHEARSAL): after ONE
+// `/update-engine` to v5.0.0, the doctrine was still the file it had held since v3.6.0,
+// the retired skill was still on disk, and `--check` answered "that is the latest
+// release, there is nothing to install". A second update did the whole thing perfectly.
+//
+// The reason is that the update carrying a new feature is performed by the brain's OLD
+// engine, and no deployed engine advances the file families. The child below is the new
+// code's ONLY chance to repair that on the first pass — and it was reading the brain's
+// own, stale manifest as its target, so it could not see a family the release had just
+// invented. The source directory it is handed carries the release's own manifest; the
+// families come from THERE.
+//
+// Every other QA pole in this repo calls HEAD's reconciler with HEAD's manifest, which
+// models the SECOND update. This is the first one.
+test("runReconcileCli — the child takes its FAMILIES from the source, or a deployed brain's first update is a no-op", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // The brain as its OLD engine left it: a family list that predates the release, and a
+  // manifest that has never heard of `retired`.
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(manifest(), null, 2));
+  // The release: a new engine skill, declared merge-governed by the SOURCE's manifest
+  // and by nothing the brain holds — plus a tombstone the brain has never seen.
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", "---\nname: coach\n---\nYour sparring partner.\n");
+  writeFile(
+    sourceDir,
+    "engine-manifest.json",
+    JSON.stringify(manifest({ extraMerge: [".claude/skills/coach/**"], retired: [".claude/skills/old-timer/**"] }), null, 2),
+  );
+
+  const { calls, ...s } = seams();
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: s,
+  });
+
+  assert.deepEqual(report.installedSkills, ["coach"], "the release's own family list is what decides, not the brain's memory of the last one");
+  assert.equal(existsSync(join(brainDir, ".claude/skills/coach/SKILL.md")), true);
+  // …and it is WRITTEN DOWN, or the standing surfaces (the session nudge, the next
+  // update, the write guard) go on reasoning from the install-day list forever.
+  const after = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.ok(after.regimes.merge.includes(".claude/skills/coach/**"), "the advanced families must survive the run");
+  assert.deepEqual(after.retired, [".claude/skills/old-timer/**"], "and the tombstones with them — W3's decision, applied where a deployed brain will meet it");
+  // The parent already migrated the index if it had to; the child converges files.
+  assert.deepEqual(calls.reindex, [], "advancing the families must not turn the child into a migration");
+});
+
+// The other caller of the very same CLI is the SessionStart self-heal, where `sourceDir`
+// IS the brain: the two manifests are then the same file, so the advance above must be a
+// provable no-op there rather than merely an unlikely one.
+test("runReconcileCli — a self-heal (sourceDir === brainDir) advances nothing, because there is nothing newer", async (t) => {
+  const brainDir = buildBrain();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  const own = manifest({ extraMerge: [".claude/skills/coach/**"], retired: [".claude/skills/gone/**"] });
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(own, null, 2));
+
+  const { calls, ...s } = seams();
+  const runReconcileCli = await loadCli();
+  await runReconcileCli({ argv: ["--brainDir", brainDir, "--sourceDir", brainDir, "--platform", "posix"], seams: s });
+
+  const after = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.deepEqual(after.regimes, own.regimes, "its own list, byte for byte");
+  assert.deepEqual(after.retired, own.retired);
+  assert.deepEqual(calls.reindex, []);
+});
+
 // ── Test 6: SessionStart self-heal mode — sourceDir === brainDir (ADR 0026, Layer B).
 //    The brain converges from its OWN on-disk code (no fetch, no network). The reconciler
 //    must NEVER copy an engine file onto itself: on Linux `copyFileSync(f, f)` truncates
