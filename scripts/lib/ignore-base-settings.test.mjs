@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { BASE_SETTINGS_ENTRY, ignoreBaseSettings } from "./ignore-base-settings.mjs";
+import { BASE_SETTINGS_COMMENT, BASE_SETTINGS_ENTRY, ignoreBaseSettings } from "./ignore-base-settings.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // F4 (v5.0.0 code review) — THE BACKUP REPO MUST NOT PUBLISH THIS MACHINE.
@@ -81,6 +81,74 @@ test("a file with no trailing newline does not have its last entry welded to our
 
   assert.ok(text.split("\n").includes("*.bak"), "their last entry must survive as its own line");
   assert.ok(text.split("\n").includes(BASE_SETTINGS_ENTRY));
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// S15 (second code-review pass) — the two edge cases where "touch nothing else"
+// was not honoured. Both are the owner's own file, and both are invisible to the
+// tests above because those only ever feed the module its OWN spelling back.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// (a) An empty `.gitignore` is ordinary — a brain whose owner has never ignored
+// anything of their own. `endsWith("\n")` is false on `""`, so the separator fires on
+// a file that has nothing to be separated from, and the block lands two blank lines
+// down. Nobody wrote those, and every later diff carries them.
+test("an EMPTY .gitignore gains the block ALONE, not two blank lines the owner never wrote", () => {
+  const { text, changed } = ignoreBaseSettings("");
+
+  assert.equal(changed, true);
+  assert.equal(
+    text,
+    `${BASE_SETTINGS_COMMENT}\n${BASE_SETTINGS_ENTRY}\n`,
+    "nothing precedes a block on a file that had nothing to precede it",
+  );
+});
+
+// (b) `.engine-base/` is the broader, equally correct entry a maintainer writes by
+// hand — and to git it already ignores everything below it, our path included.
+// Appending the narrow line under it is not idempotence, it is churn on someone
+// else's file, and it comes back at every update because the exact-match test can
+// never see it.
+test("a brain that already ignores the WHOLE .engine-base/ directory gets no narrower line appended", () => {
+  const already = `${OWNERS}.engine-base/\n`;
+
+  const { text, changed } = ignoreBaseSettings(already);
+
+  assert.equal(changed, false);
+  assert.equal(text, already, "not merely equivalent — the same bytes, or auto-commit sees a diff");
+});
+
+// The same entry, in the three other spellings git treats identically: no trailing
+// slash, a leading slash, and the directory one level down. Triangulated because a
+// single example would be satisfied by a hardcoded string comparison.
+test("the other spellings of that same directory entry are recognised too", () => {
+  for (const spelling of [".engine-base", "/.engine-base/", ".engine-base/.claude/", "/.engine-base"]) {
+    assert.equal(
+      ignoreBaseSettings(`${OWNERS}${spelling}\n`).changed,
+      false,
+      `${spelling} already covers the path git-wise, so nothing may be appended`,
+    );
+  }
+});
+
+// 🛑 The negative pole, and it is the one that matters: reading a prefix as "covered"
+// is exactly how a coverage check becomes a lie. A neighbour directory whose name
+// merely STARTS with ours covers nothing, and a negation un-ignores rather than
+// ignores — treating either as covering would leave the machine's paths published.
+test("a name that merely starts like ours, and a negation, cover NOTHING", () => {
+  for (const spelling of [".engine-base-old/", ".engine-baseline/", `!${BASE_SETTINGS_ENTRY}`, "!.engine-base/", ".engine/"]) {
+    assert.equal(
+      ignoreBaseSettings(`${OWNERS}${spelling}\n`).changed,
+      true,
+      `${spelling} does not ignore our path, so the entry is still owed`,
+    );
+  }
+});
+
+// A comment is prose, not an entry — including one that names the very path, which is
+// how an owner records a decision they later reversed.
+test("a COMMENT naming the path is prose, and ignores nothing", () => {
+  assert.equal(ignoreBaseSettings(`${OWNERS}# .engine-base/ used to be ignored here\n`).changed, true);
 });
 
 // 🎯 THE TWO SPELLINGS MUST AGREE. A fresh install copies the launcher's own

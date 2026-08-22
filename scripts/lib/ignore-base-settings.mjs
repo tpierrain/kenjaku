@@ -41,16 +41,43 @@ const bare = (line) => line.trim();
  * a no-op and a converged brain sees no churn.
  */
 export function ignoreBaseSettings(text) {
-  // A leading `/` is the same entry to git, and an owner may well have written one.
-  const isEntry = (line) => bare(line).replace(/^\//, "") === BASE_SETTINGS_ENTRY;
-  if (text.split("\n").some(isEntry)) return { text, changed: false };
+  if (text.split("\n").some(covers)) return { text, changed: false };
 
   // Appended, never inserted next to its sibling: the sibling may have been moved,
   // renamed or commented out by the owner, and an insertion point we have to find is an
   // insertion point we can get wrong on someone else's file.
   const eol = text.includes("\r\n") ? "\r\n" : "\n";
   // A file that does not end in a newline would otherwise have our comment welded onto
-  // its last entry, turning that entry into something git no longer matches.
-  const separator = text.endsWith("\n") ? "" : eol;
-  return { text: `${text}${separator}${eol}${BASE_SETTINGS_COMMENT}${eol}${BASE_SETTINGS_ENTRY}${eol}`, changed: true };
+  // its last entry, turning that entry into something git no longer matches. On a file
+  // that is EMPTY there is nothing to weld to and nothing to separate from: both the
+  // separator and the blank line would be two leading blanks the owner never wrote, and
+  // they would show up in their diff forever (S15a).
+  const prefix = text === "" ? "" : `${text.endsWith("\n") ? "" : eol}${eol}`;
+  return { text: `${text}${prefix}${BASE_SETTINGS_COMMENT}${eol}${BASE_SETTINGS_ENTRY}${eol}`, changed: true };
+}
+
+/**
+ * Does this `.gitignore` line already keep our path out of the repo?
+ *
+ * Not "is it our entry, spelled our way" (S15b): `.engine-base/` is the broader and
+ * equally correct line a maintainer writes by hand, and to git it already ignores
+ * everything below it. Appending the narrow entry under it is churn on someone else's
+ * file — and churn that comes back at every update, because an exact-match check can
+ * never see the line it keeps duplicating.
+ *
+ * Deliberately literal: a **directory prefix**, nothing more. A glob (`*.json`,
+ * `.engine-*`) may well cover the path too, and answering that would mean
+ * re-implementing git's matcher — where a wrong "yes" leaks this machine's absolute
+ * paths into a published repo. An extra entry under a glob is harmless; a missing one
+ * is not.
+ */
+function covers(line) {
+  const entry = bare(line);
+  // `!` un-ignores. Reading it as coverage would be the exact inversion of its meaning.
+  if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
+
+  // A leading `/` anchors, a trailing `/` says "directory": neither changes WHICH path
+  // is named here, since ours is anchored at the brain root either way.
+  const named = entry.replace(/^\//, "").replace(/\/+$/, "");
+  return named === BASE_SETTINGS_ENTRY || BASE_SETTINGS_ENTRY.startsWith(`${named}/`);
 }
