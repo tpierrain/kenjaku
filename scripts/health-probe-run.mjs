@@ -21,6 +21,8 @@ import { fileURLToPath } from "node:url";
 
 import { runActivatedHealthChecks } from "./lib/health-check-runner.mjs";
 import { buildHeadlessHealthCheckCaller } from "./lib/headless-health-check.mjs";
+import { countOf } from "./lib/plural.mjs";
+import { readInstalledMergeFiles } from "./lib/engine-base-fs.mjs";
 import { tsxInvocation } from "./lib/tsx-invocation.mjs";
 
 export async function runProbeChild({ runProbes, readPriorVerdict, writeVerdict, notify }) {
@@ -54,6 +56,35 @@ export function notifyInvocation({ brainDir, platform, title, body, ...seams }) 
   // that raised it. Composed inside the runner it was unobservable; losing it would turn a
   // notified break back into a silent one, which is this release's own bug family.
   return { command, args, options: { cwd: brainDir, detached: true, stdio: "ignore", windowsHide: true, shell } };
+}
+
+/**
+ * S5's residual — the engine files this process could not READ, as a health verdict.
+ *
+ * `readInstalledMergeFiles` has taken an opt-in `unreadable` collector since S5, and the
+ * SessionStart divergence hook hands it one and discards it, deliberately: that hook's
+ * voice is *"a file the engine leaves alone is a choice, not a problem"*, and a file the
+ * filesystem refused (a bad umask, a cloud sync client's placeholder, a half-restored
+ * backup) is neither. It is an alarm, so it is said by the surface that owns the alarm
+ * voice — and it reaches an owner the same way every other health fact does, through the
+ * banner this probe's verdict feeds.
+ *
+ * Silent when everything reads: an `ok` row here would be a line in engine-health.json
+ * and a thing to explain, for a state that is simply normal.
+ */
+export function engineFilesVerdict(unreadable) {
+  if (unreadable.length === 0) return [];
+  // Sorted because a human reads it: the same two files must not swap places between two
+  // sessions and read as a new problem.
+  const detail = `${countOf(unreadable.length, "engine file")} could not be read — ${[...unreadable].sort().join(", ")}`;
+  return [
+    {
+      capability: "engine-files",
+      status: "broken",
+      detail,
+      checks: [{ name: "readable", status: "broken", detail }],
+    },
+  ];
 }
 
 // Map the runner's per-module verdict onto the persisted shape session-health.mjs +
@@ -107,7 +138,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     await runProbeChild({
       runProbes: async () => {
         const { modules } = await runActivatedHealthChecks({ manifest, isRegistered, callHealthCheck });
-        return toBannerVerdict(modules);
+        // S5 — read the engine's own body while we are here. It costs one pass over the
+        // merge regime (16 files, ~2 ms on a real brain) in a child that already runs
+        // detached, and it is the only surface that can say this in the alarm voice.
+        const unreadable = [];
+        readInstalledMergeFiles({ brainDir, manifest, unreadable });
+        return [...toBannerVerdict(modules), ...engineFilesVerdict(unreadable)];
       },
       readPriorVerdict: () =>
         existsSync(healthFile) ? JSON.parse(readFileSync(healthFile, "utf8")).verdict ?? null : null,

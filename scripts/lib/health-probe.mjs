@@ -27,6 +27,11 @@ function gestureForCheck(name, detail) {
         : "check your network and the API key in your .env";
     case "store":
       return "check the mirror's path, or refresh it";
+    case "readable":
+      // S5. The filesystem refused the file — a bad umask, a sync client's placeholder,
+      // a half-restored backup. Neither a restart nor a reindex touches that, and the
+      // engine re-delivers the file on its own once it can read the path again.
+      return "check that file's permissions, or let your brain restore it at the next update";
     case "notes":
       // F15: the note is named in the detail, and the only thing that clears it is an
       // edit to that note. A restart or a reindex would leave it exactly as it is.
