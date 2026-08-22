@@ -9,9 +9,10 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** § *Application* **step 4 — the harness carries the convention.** Steps 1-3 are done
-  (the door exists, memory is a pointer again, the ROADMAP is no longer an entry point). Then 5, 6,
-  7, 8 in order. Everything there is authorized: **do not ask again, execute.**
+- **Next:** § *Application* **step 5 — pilot the STATE block on
+  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md).** Steps 1-4 are done (the
+  door, the memory pointer, the ROADMAP, and the harness now carries the convention). Then 6, 7, 8
+  in order. Everything there is authorized: **do not ask again, execute.**
 - **Blocked on:** nothing.
 - **Owner's call pending:** **one — the lint, and it does not block any step above.** His *"on
   diffère le lint"* came from an autocompletion accepted before knowing what a lint was; asked again
@@ -333,17 +334,24 @@ comes last: biggest edit, least reversible.
 - [x] **3. `ROADMAP.md` stops being a door** _(2026-08-22)_. Its *"How to use this file"* told a
       post-clear session to hunt the first unchecked gate; it now sends them to `ACTIVE.md` and keeps
       cross-plan **order** only. _(Its Status column is a separate, bigger job: step 7.)_
-- [ ] **4. The harness carries the convention** — `~/Dev/use-case-driven-harness`. ⚠️ **It is on
-      `main` and clean: branch first** (e.g. `chore/plan-state-convention`), never commit to `main`.
-      - [ ] `rules/plans.md` (always-on, ~112 lines today): add **the entry point** (*"on reprend" →
-            `ACTIVE.md`, one door at instant T, sub-plans reached through the active plan*) and **the
-            invariant + rules 1-3**; shrink the save-point rule to *"the STATE block must already say
-            what the reply says"*; **demote the hook and its door to *interim net, pending the
-            lint*** rather than deleting them.
-      - [ ] `skills/plan-discipline/SKILL.md` (on-demand): how to write, tick and resume a STATE
-            block; how to hand the door over when the active plan changes.
-      - [ ] `skills/plan-discipline/plan-discipline.md`: the rationale **and the measurement**, so the
-            convention travels with its evidence and is never re-litigated from scratch.
+- [x] **4. The harness carries the convention** _(2026-08-22 · `~/Dev/use-case-driven-harness`,
+      branch `chore/plan-state-convention`, pushed, PR not opened — `3939c40`, `52e47cf`, `c2fb656`)_
+      - [x] `rules/plans.md` (112 → 132 lines): **the door** (*"on reprend" → `ACTIVE.md`*), **the
+            invariant** and **rules 1-3**; the save-point rule shrank to *"the STATE block must
+            already say what the reply says"*; the hook, its door and the certificate **demoted to
+            *interim net, pending the shape lint*** under a heading that says *do NOT remove it*.
+      - [x] `skills/plan-discipline/SKILL.md`: resuming is door-then-block; writing a plan starts
+            with the block; ticking a step updates `Next:` in the same edit; **handing the door over**
+            is an edit and a commit, with the trap named (no status in `ACTIVE.md`, in either list).
+      - [x] `skills/plan-discipline/plan-discipline.md`: the rationale **and both measurements**
+            (2026-08-20 carriers-plural, 2026-08-22 the corpus table), plus a paste-ready always-on
+            block for a repo with no rules layer.
+      - [x] **Dogfooded there, unasked but authorized** _(*"applying the convention to any plan"*)_:
+            the harness's own live plan had a **~44-line prose header** — the exact workaround being
+            replaced, opening on a merge status git owns. Migrated to a STATE block; the repo got its
+            own `docs/plans/ACTIVE.md`. **Why it was not deferred**: a repo that publishes the
+            convention while its own plan breaks it is how a shareable surface starts lying.
+      - [x] `bash test/bootstrap-check.sh` green (the repo's only mechanical net).
 - [ ] **5. Pilot the STATE block on one real plan** —
       [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md), 371 lines, whose ~80-line
       resume header is exactly the workaround being replaced. **Its migration is already drafted**:
@@ -394,6 +402,14 @@ comes last: biggest edit, least reversible.
       a blanket "no shas outside the STATE block"**: it needs a scope (which files) and an exemption
       (a marked history section), and that is the expensive half of it. This is a real argument for
       not building it in a hurry, and it is the reason the split option below exists at all.
+- [x] **The convention has two outward-facing copies, and step 4 just made them stale** _(found
+      2026-08-22, while doing step 4)_. The public extract `plan-memory-test-harness` and the
+      published page both carry the **pre-2026-08-22** discipline (singular carriers, no door, no
+      STATE block). **This study does not own that** — the harness plan does, and it is already an
+      unanswered owner's call there:
+      [`harness-consolidation-action.md`](https://github.com/tpierrain/use-case-driven-harness/blob/main/docs/plans/harness-consolidation-action.md),
+      *Owner's call pending*. Written here as a **link, not a status** (rule 3), so this file cannot
+      go false the day he answers.
 
 ## The ENTRY POINT — Thomas's own convention, and the half this study missed
 
