@@ -373,12 +373,14 @@
 > 🧭 **RESUME AT W2** _(2026-08-22, after W1 landed and W6 was read for it)_. W1 is built, pushed, and
 > **proved green on a real `windows-latest` runner** (run `32558375080`).
 >
-> **Two things first, both small, before starting W2:**
+> **Both opening reads are DONE** _(2026-08-22, run `32558912124`, the full PR matrix on `621d1cb`)_:
 >
-> - [ ] **Read the run for `f244290`.** W1's own new Windows pole had a macOS-shaped premise guard; the
->       reshaped one is green here and **unverified on Windows**. → § *W6*.
-> - [ ] **Note that ONE Windows red remains** and it is the harness artifact, not the product — W6's
->       own bullet. Do not fold it into W2: W2 is the delivery pin, that is the release-cutting tool.
+> - [x] **The reshaped premise guard is GREEN on Windows.** W1's new pole no longer appears in any
+>       failure list, on Node 22, 24 or 26. → § *W6*.
+> - [x] **Exactly ONE Windows red remains, and it is the harness artifact** — *"the table covers every
+>       merge file of the release being cut, in every locale"*, 23 rels unrecognised. **Not the
+>       product.** macOS is green on all three Node versions, and so is `Installer e2e · windows-latest`.
+>       Do not fold it into W2: W2 is the **delivery** pin, this is the **release-cutting tool**.
 >
 > - [x] ✅ **W1 — S7-6, the CRLF ancestor fetch (answer 1, half a). BUILT** _(2026-08-22 · `65a6080`
 >       fix + `13ef852` the mutation survivor's test)_. Test-first, the four named poles red on their
@@ -450,9 +452,9 @@
 > >       - 🛑 **The lesson, and it is exactly Thomas's argument for W6**: a guard written on the
 > >         platform that does not have the defect can be **green for a reason that does not exist**
 > >         elsewhere. The test was correct about the product and wrong about the world.
-> >       - [ ] ⏳ **The reshaped guard owes its OWN Windows reading** — pushed at `f244290`, green on
-> >         macOS, unverified on the platform that broke the first spelling. **Read that run at the top
-> >         of the next iteration**, before anything else claims W1 is finished.
+> >       - [x] ✅ **The reshaped guard is GREEN ON WINDOWS** _(2026-08-22, run `32558912124`, the full
+> >         PR matrix on `621d1cb`, Node 22 / 24 / 26)_. **W1 is now proved end to end on the platform**:
+> >         its own pole and the three it repairs.
 > > - [ ] **▶️ THE ONE WINDOWS RED THAT REMAINS is the HARNESS artifact, and it must be closed too**,
 > >       separately and without pretending it is the same bug: the S7-2 freshness guard regenerates the
 > >       fingerprint table from the runner's working tree, which is CRLF there. → the box at the top
