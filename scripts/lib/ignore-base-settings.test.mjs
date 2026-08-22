@@ -115,6 +115,21 @@ test("an EMPTY .gitignore gains the block ALONE, not two blank lines the owner n
   );
 });
 
+// 🛑 Our explanation is PROSE inside a file of patterns, and git does not know the
+// difference: a comment that loses its `#` becomes a rule, and a rule made of an
+// English sentence quietly ignores whatever it happens to match. So the block is
+// asserted to be exactly two lines — one comment, one entry — with nothing in between
+// that git would read as a pattern.
+test("every line we append is either OUR entry or a `#` comment — never a stray pattern", () => {
+  const appended = ignoreBaseSettings(OWNERS).text.slice(OWNERS.length).split("\n").filter((l) => l !== "");
+
+  assert.deepEqual(
+    appended.map((line) => (line === BASE_SETTINGS_ENTRY ? "entry" : line.startsWith("#") ? "comment" : line)),
+    ["comment", "entry"],
+    "one comment, then the entry: anything else is a pattern the owner never wrote",
+  );
+});
+
 // (b) `.engine-base/` is the broader, equally correct entry a maintainer writes by
 // hand — and to git it already ignores everything below it, our path included.
 // Appending the narrow line under it is not idempotence, it is churn on someone
