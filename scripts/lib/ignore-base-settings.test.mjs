@@ -33,6 +33,14 @@ test("a brain that never ignored the base copy gains the entry, and keeps every 
     "the entry must be a line of its own, matchable by git",
   );
   assert.match(text, /THIS machine/, "and it must say WHY, in words an owner reads when their sync misbehaves");
+  // The WHOLE result, not a set of properties of it: "the entry is in there somewhere"
+  // is satisfied by a block that arrives welded, doubled, or three blank lines down —
+  // which is precisely the family S15(a) turned out to be.
+  assert.equal(
+    text,
+    `${OWNERS}\n${BASE_SETTINGS_COMMENT}\n${BASE_SETTINGS_ENTRY}\n`,
+    "one blank line separates our block from theirs — exactly one",
+  );
 });
 
 // Idempotence is what keeps a converged brain from committing a `.gitignore` churn at
@@ -81,6 +89,9 @@ test("a file with no trailing newline does not have its last entry welded to our
 
   assert.ok(text.split("\n").includes("*.bak"), "their last entry must survive as its own line");
   assert.ok(text.split("\n").includes(BASE_SETTINGS_ENTRY));
+  // Same whole-result assertion as above, on the other branch of the separator: the
+  // missing newline is supplied, and still exactly one blank line follows it.
+  assert.equal(text, `*.bak\n\n${BASE_SETTINGS_COMMENT}\n${BASE_SETTINGS_ENTRY}\n`);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -163,5 +174,13 @@ test("the launcher's own .gitignore already ignores it, so a fresh install needs
     ignoreBaseSettings(shipped).changed,
     false,
     "the shipped .gitignore must already carry the entry the migration adds, spelled identically",
+  );
+  // And the COMMENT with it. A fresh install copies this file; a deployed brain gets
+  // the block from the migration. If the two texts drift apart, two brains of the same
+  // version explain the same line differently — and the drift is invisible, because
+  // `changed` only ever looks at the entry.
+  assert.ok(
+    shipped.includes(BASE_SETTINGS_COMMENT),
+    "the shipped file must explain the entry in the same words the migration would write",
   );
 });

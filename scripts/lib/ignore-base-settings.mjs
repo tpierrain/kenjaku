@@ -72,12 +72,14 @@ export function ignoreBaseSettings(text) {
  * is not.
  */
 function covers(line) {
-  const entry = bare(line);
-  // `!` un-ignores. Reading it as coverage would be the exact inversion of its meaning.
-  if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
-
   // A leading `/` anchors, a trailing `/` says "directory": neither changes WHICH path
   // is named here, since ours is anchored at the brain root either way.
-  const named = entry.replace(/^\//, "").replace(/\/+$/, "");
+  const named = bare(line).replace(/^\//, "").replace(/\/$/, "");
+
+  // 🛑 A blank line, a `#` comment and a `!` negation need NO special case, and the
+  // mutation run is what proved it: each one keeps its own leading character, so it can
+  // neither equal our entry nor be a directory prefix of it. A guard that cannot change
+  // an answer is not caution, it is a branch nothing can test — so it is not written.
+  // The three of them are pinned by tests, on the behaviour rather than on the branch.
   return named === BASE_SETTINGS_ENTRY || BASE_SETTINGS_ENTRY.startsWith(`${named}/`);
 }

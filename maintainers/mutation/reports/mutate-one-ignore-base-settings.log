@@ -1,0 +1,110 @@
+[32m23:31:55 (71234) INFO ProjectReader[39m Found 1 of 884 file(s) to be mutated.
+[32m23:31:55 (71234) INFO Instrumenter[39m Instrumented 1 source file(s) with 53 mutant(s)
+[32m23:31:55 (71234) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m23:31:55 (71234) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-aYA3D8
+[32m23:31:55 (71234) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m23:31:55 (71234) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m23:31:59 (71234) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 4 seconds (net 4382 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/53 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/53 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~4m) 5/53 tested (1 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~6m) 5/53 tested (1 survived, 0 timed out)
+Mutation testing 18% (elapsed: <1m, remaining: ~3m) 10/53 tested (1 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~1m, remaining: ~4m) 10/53 tested (1 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~1m, remaining: ~5m) 10/53 tested (1 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~1m, remaining: ~3m) 15/53 tested (1 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~1m, remaining: ~3m) 15/53 tested (1 survived, 0 timed out)
+Mutation testing 37% (elapsed: ~1m, remaining: ~2m) 20/53 tested (1 survived, 0 timed out)
+Mutation testing 37% (elapsed: ~1m, remaining: ~3m) 20/53 tested (1 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~2m, remaining: ~2m) 25/53 tested (4 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~2m, remaining: ~2m) 25/53 tested (4 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~2m, remaining: ~2m) 25/53 tested (4 survived, 0 timed out)
+Mutation testing 56% (elapsed: ~2m, remaining: ~1m) 30/53 tested (5 survived, 0 timed out)
+Mutation testing 56% (elapsed: ~2m, remaining: ~2m) 30/53 tested (5 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~2m, remaining: ~1m) 35/53 tested (9 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~3m, remaining: ~1m) 35/53 tested (9 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~3m, remaining: ~1m) 37/53 tested (11 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~3m, remaining: ~1m) 40/53 tested (12 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~3m, remaining: ~1m) 40/53 tested (12 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~3m, remaining: <1m) 45/53 tested (13 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~3m, remaining: <1m) 45/53 tested (13 survived, 0 timed out)
+Mutation testing 94% (elapsed: ~4m, remaining: <1m) 50/53 tested (13 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 40)
+
+[Survived] StringLiteral
+scripts/lib/ignore-base-settings.mjs:31:3
+-     "# The engine's copy of settings.json (same reason as the line above: absolute paths" +
++     "" +
+
+[Survived] MethodExpression
+scripts/lib/ignore-base-settings.mjs:55:40
+-     const prefix = text === "" ? "" : `${text.endsWith("\n") ? "" : eol}${eol}`;
++     const prefix = text === "" ? "" : `${text.startsWith("\n") ? "" : eol}${eol}`;
+
+[Survived] StringLiteral
+scripts/lib/ignore-base-settings.mjs:55:54
+-     const prefix = text === "" ? "" : `${text.endsWith("\n") ? "" : eol}${eol}`;
++     const prefix = text === "" ? "" : `${text.endsWith("") ? "" : eol}${eol}`;
+
+[Survived] StringLiteral
+scripts/lib/ignore-base-settings.mjs:55:62
+-     const prefix = text === "" ? "" : `${text.endsWith("\n") ? "" : eol}${eol}`;
++     const prefix = text === "" ? "" : `${text.endsWith("\n") ? "Stryker was here!" : eol}${eol}`;
+
+[Survived] ConditionalExpression
+scripts/lib/ignore-base-settings.mjs:77:7
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if (false) return false;
+
+[Survived] LogicalOperator
+scripts/lib/ignore-base-settings.mjs:77:7
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if ((entry === "" || entry.startsWith("#")) && entry.startsWith("!")) return false;
+
+[Survived] ConditionalExpression
+scripts/lib/ignore-base-settings.mjs:77:7
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if (false || entry.startsWith("!")) return false;
+
+[Survived] LogicalOperator
+scripts/lib/ignore-base-settings.mjs:77:7
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if (entry === "" && entry.startsWith("#") || entry.startsWith("!")) return false;
+
+[Survived] ConditionalExpression
+scripts/lib/ignore-base-settings.mjs:77:7
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if (false || entry.startsWith("#") || entry.startsWith("!")) return false;
+
+[Survived] StringLiteral
+scripts/lib/ignore-base-settings.mjs:77:17
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if (entry === "Stryker was here!" || entry.startsWith("#") || entry.startsWith("!")) return false;
+
+[Survived] MethodExpression
+scripts/lib/ignore-base-settings.mjs:77:23
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if (entry === "" || entry.endsWith("#") || entry.startsWith("!")) return false;
+
+[Survived] MethodExpression
+scripts/lib/ignore-base-settings.mjs:77:48
+-     if (entry === "" || entry.startsWith("#") || entry.startsWith("!")) return false;
++     if (entry === "" || entry.startsWith("#") || entry.endsWith("!")) return false;
+
+[Survived] Regex
+scripts/lib/ignore-base-settings.mjs:81:50
+-     const named = entry.replace(/^\//, "").replace(/\/+$/, "");
++     const named = entry.replace(/^\//, "").replace(/\/$/, "");
+
+Ran 1.00 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  75.47 |   75.47 |       40 |         0 |         13 |        0 |        0 |
+ ignore-base-settings.mjs |  75.47 |   75.47 |       40 |         0 |         13 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m23:36:09 (71234) INFO MutationTestExecutor[39m Done in 4 minutes and 13 seconds.
+[32m23:36:09 (71234) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-aYA3D8.
