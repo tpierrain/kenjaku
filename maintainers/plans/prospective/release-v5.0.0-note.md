@@ -84,11 +84,11 @@
 
 ### What this release is about
 
-Your second brain arrives with ready-made pieces: the skills you call on, the rules it works by, the way it searches your notes. Kenjaku keeps improving them, and your brain picks those improvements up when you ask it to update. Sooner or later, though, you tailor one of those pieces yourself, because your brain is yours: a question added here, a sentence rewritten there.
+Your second brain ships with ready-made pieces: the skills you call on, the rules it works by, the way it searches. Kenjaku keeps improving them, and your brain picks that up whenever you ask it to update.
 
-**Until this release, that small gesture quietly cost you every future update of that file.** Your brain could no longer tell your words from its own, so it played it safe and left the file alone, for good. Kenjaku went on improving, other brains went on receiving it, and yours kept your version alone, without ever mentioning it. Measured on a real brain in the field: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
+**But the day you tailored one of those pieces, it stopped receiving anything, for good** — your brain could no longer tell your words from its own, so it played safe and left the file alone, silently. Measured on a real brain: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
 
-**v5.0.0 ends the choice between a brain the way you want it and a brain that is up to date.** From now on your words are never lost: what shipped since either arrives around your edits, or your brain asks you which version you want.
+**v5.0.0 ends the choice between a brain the way you want it and a brain that is up to date.**
 
 ### What you get, when you update your brain
 
