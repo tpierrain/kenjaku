@@ -47,8 +47,11 @@
   5. **S12** — an `invited` regime declared in `engine-manifest.json` instead of the hardcoded
      `new Set(["CLAUDE.md"])`. **This one touches the fleet-wide vocabulary on an already-large
      release**: if it turns out to need a migration story, STOP, write the question here, take 6.
-  6. **F13** — thread the already-read `installedFileMap` through, killing four full read+sha256
-     passes per update and a fifth at every session start.
+  6. - [x] **F13** — **measured, then declined**, with the numbers and the risk written beside the
+        finding itself (§ G). One line of it here because it is the only item that ends in a "no":
+        the four passes cost **~7 ms** of an update that spends tens of seconds installing and
+        reindexing, and threading the map would make a **stale divergence report** reachable by
+        refactor — F1 arriving by the back door. **Reversible on one word from Thomas.**
   7. **F12** — `stripComments` is not regex-aware in `entrypoint-discipline.mjs:141`.
   8. **The residual that is left**: S5's unreadable-file sentence, which belongs to the **health
      banner** (see § J's decision 3). _(F14's `file(s)` in `repo-status.mjs` and `locale-drift.mjs`
@@ -420,9 +423,29 @@ catches any of this.
   - [ ] **F12 — `stripComments` is not regex-aware** (`entrypoint-discipline.mjs:141`): a `//` inside a
         regex literal blanks the rest of the line, so the entry-point guard can miss a hand-rolled
         guard and its ceilings can be satisfied by a file that still hand-rolls one.
-  - [ ] **F13 — four full read-and-sha256 passes per update** over every engine-owned file
+  - [x] **F13 — four full read-and-sha256 passes per update** over every engine-owned file
         (`engine-base-fs.mjs:64`), despite the module's own "Read ONCE, used TWICE" comment, plus a
         fifth at **every** session start. Thread the already-read `installedFileMap` through.
+        - 🔬 **MEASURED, THEN DECLINED — 2026-08-23.** On a **copy of a real brain** (682 notes,
+          v5.0.0): the merge regime resolves to **16 files**; one full read pass is **1.65 ms**, one
+          sha256 pass over them **0.62 ms**. So the four passes cost **~7 ms of an update that spends
+          tens of seconds in `npm install` and a reindex**, and the session-start pass costs **1.7 ms**.
+          The walk was already narrowed to the globs' roots at S4-4c, which is where the cost that
+          mattered (reading the owner's whole vault) actually was.
+        - 🛑 **What threading would buy, against what it would risk.** The reads are NOT redundant:
+          the update **writes merge files between them** (three refresh families, plus the in-place
+          settings write), and `readEngineDivergence`'s own comment states the requirement — it must
+          read the brain **as it now is**, because a report computed from an earlier pass describes a
+          brain that existed halfway through the update. Threading a map through those points buys
+          ~5 ms and makes a **stale divergence report** reachable by refactor: the brain telling an
+          owner they are holding back a file the engine had just rewritten, which is F1 — the defect
+          this release exists to remove — arriving by the back door.
+        - ✅ **The "Read ONCE, used TWICE" comment is not the lie it reads as.** It is scoped to its
+          own two lines (`reconcile-brain.mjs:145`): the heal and the ancestor fetch share one read,
+          and they do. Nothing there claims the update reads once overall.
+        - 🎚️ **Reversible in one sentence from Thomas**, and this is the only reason it is not simply
+          closed: the numbers say no, but the call to spend 5 ms of engineering risk is his. Nothing
+          else in the queue depends on it.
 - [x] **H. After the fixes — his command to type, never a session's** _(2026-08-22 · run, 15 findings
       → § I–L)_
   - [x] 🎯 **Re-run `/code-review` on the fix range. THE EXACT RANGE: `fc4e7bb..HEAD` on
