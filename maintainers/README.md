@@ -193,9 +193,11 @@
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local
   embedders (Step 4). `node scripts/run-eval.mjs`. **Dev-only** (excluded from the generated brain).
-- **`plans/`** — implementation plans, each with a `STATUS` line at the **top**
-  (🗺️ ACTION PLAN / 🔬 STUDY / 🔭 PROSPECTIVE / 💡 BACKLOG / ⏳ PENDING / IN PROGRESS / ✅ SHIPPED / ABANDONED).
-  Three buckets along a **past · present · future** axis:
+- **`plans/`** — implementation plans. **The way in is [`plans/ACTIVE.md`](plans/ACTIVE.md)**: one door
+  at instant T, which names the active plan and holds links and a date, never a status. Every **live**
+  plan opens with a `## 📍 STATE` block (four keys, ≤ 20 lines) and no hand-written resume header;
+  the invariant and its two companion rules are `CONVENTIONS.md` §3ter. Three buckets along a
+  **past · present · future** axis:
   - **root of `plans/` = present** — action plans **mid-flight**:
     - [`golden-source-sync-action.md`](plans/archived/golden-source-sync-action.md) — **🗺️ action plan** for
       the **`local-mirror`** MCP (named `golden-source-sync` when this plan was written — a new local MCP
@@ -206,9 +208,12 @@
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).
-  > **Definition of done = archived.** The moment a plan ships, in the **same change**: set its top
-  > `STATUS` to ✅ (with the proof — commit SHAs / what was verified) **and `git mv` it into
-  > [`plans/archived/`](plans/archived/)**. Never leave a shipped plan at the root, and never delete it
+  > **Definition of done = archived.** The moment a plan ships, in the **same change**: `git mv` it
+  > into [`plans/archived/`](plans/archived/) **under a date-prefixed name** — `2026-08-21-<name>.md`,
+  > the date it closed, so the filename itself reads as a historical record and sorts by close date
+  > _(newly archived files only; **no retro-rename**, it would break cross-links corpus-wide)_. Drop
+  > its `## 📍 STATE` block for one line naming the release that shipped it, and remove it from
+  > [`plans/ACTIVE.md`](plans/ACTIVE.md). Never leave a shipped plan at the root, and never delete it
   > (the archive keeps the step-by-step detail). A plan whose **core shipped but that still carries an
   > open conditional/exploratory tail** goes to `plans/prospective/`, not `archived/`.
   > **One fact, one OWNER — a plan that restates a neighbour's status is a future lie.** Measured

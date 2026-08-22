@@ -98,22 +98,52 @@ not copies**:
   Everything else is either in the plan, in the code, or in git — and therefore must **not** be
   duplicated here. Every extra line spends the same bounded budget the critical instructions need.
 - **On ship, prune it** — retire the SHIPPED pointer + its index line in the archiving change (§7).
+- **The only pointer this repo needs is the door.** *"On reprend"* → open
+  [`plans/ACTIVE.md`](plans/ACTIVE.md). Anything in memory that ranks plans, flags one *"read this
+  first"*, or carries a due date **is state wearing a pointer's clothes**.
 - **`/clear` resume ritual:** a `/clear` is *free* precisely because nothing is lost in memory —
-  the state is in the plan. To resume: **follow the pointer → open the repo plan → read its header
-  note and its `## Tracking` → restart where the header says → announce it before writing any code.**
-  (Ticking the plan as work proceeds, §1, is what makes this pointer not lie.)
-- **The first unticked `- [ ]` is NOT reliably the resume point**, which is why the header note above
+  the state is in the plan. To resume: **open [`plans/ACTIVE.md`](plans/ACTIVE.md) → follow its link
+  to the active plan → read that plan's `## 📍 STATE` block → announce the step before writing any
+  code.** No grep, no ROADMAP scan, no ranking of candidates. Sub-plans are legitimate and are reached
+  **through** the active plan, never directly.
+- **The first unticked `- [ ]` is NOT reliably the resume point**, which is why the STATE block
   outranks it. Constraints, rejected options and evidence are checkboxes too; a step can be done bar
-  one line of doc; a check can be waiting on an environment. A plan whose header does not say what
-  the next real step is has not saved its state, however many boxes are ticked.
+  one line of doc; a check can be waiting on an environment.
+
+### 3ter. State has a FORM of its own — the invariant
+
+> 🎯 **A paragraph in a plan may not contain a fact that can become false.**
+
+_(Adopted 2026-08-22, on a measurement of this repo's own corpus: 90 plan files, 33 654 lines, and
+**84 %** of the writes to the biggest live plan moved **no checkbox at all** — the state was in the
+prose the whole time. The study, its evidence and what it retires:
+[`plans/prospective/plan-state-single-source-study.md`](plans/prospective/plan-state-single-source-study.md).
+The convention itself is the harness's, see the banner in §1.)_
+
+If a sentence can go false **without anyone editing it**, it is state, and state has exactly two legal
+forms: a **checkbox**, or a line in the plan's **`## 📍 STATE`** block. Prose then carries only what is
+true forever: rationale, evidence, what was rejected and why, how it went.
+
+1. **Every live plan opens with the block**, immediately under its title: four keys — `Next:`,
+   `Blocked on:`, `Owner's call pending:`, `A session may, alone:` — one date, **≤ 20 lines**, always
+   that heading. The cap *is* the prevention: four slots have nowhere to put a narration and nowhere
+   to put a second copy. It **replaces** any hand-written `WHERE THIS RESUMES` / `RESUME AT` header.
+2. **A fact another system owns is linked, never asserted.** Merged, tagged, released, CI green,
+   branch alive, which commit: **git and `gh` are the record.** Write `PR #76` as a link; never
+   *"#76 is a draft"*, *"CI 7/7"* or *"nothing tagged"*. A ticked checkbox's _(date · commit)_
+   annotation is history and stays welcome.
+3. **One item, one STATE block**; every other mention is a **link**, syntactically. Hence
+   [`plans/ROADMAP.md`](plans/ROADMAP.md)'s map has columns `Plan | Delivers | Depends on` and **no
+   Status column**: a form with no status field cannot hold a status.
 
 ### The save point is EVERY handed-back turn — not the end of a step
 
 **Before handing back** — that is, any reply that does not chain into another tool call, so **every
-instant the human may `/clear`** — the plan must already say what the chat message is about to say.
-The test, applied before writing the reply: **if my reply contains "next: X", "Y remains", "resume at
-Z", those sentences must already exist in the plan, committed.** Otherwise write them there first,
-and let the chat be the echo.
+instant the human may `/clear`** — the plan's **`## 📍 STATE` block** must already say what the chat
+message is about to say. The test, applied before writing the reply: **if my reply contains "next: X",
+"Y remains", "resume at Z", or a decision taken in conversation, those sentences already exist in the
+committed block.** Otherwise write them there first, and let the chat be the echo. Four keys and
+≤ 20 lines is cheap enough to write mid-reply — that cheapness is the rule, not a bonus.
 
 This is what no checkbox says on its own:
 
@@ -478,11 +508,24 @@ ADR.**
 
 ## 7. Plan done = archived
 
-The moment a plan ships, **in the same change**: set its top `STATUS` to ✅ (with proof — commit
-SHAs / what was verified) **and `git mv` it into [`plans/archived/`](plans/archived/)**. Never leave a
-shipped plan at the root; never delete it (the archive keeps the step detail). A plan whose core
-shipped but that still carries an open conditional/exploratory tail goes to `plans/prospective/`.
-Update the plans listing in [`README.md`](README.md). Full convention: [`README.md`](README.md).
+The moment a plan ships, **in the same change**: `git mv` it into
+[`plans/archived/`](plans/archived/) **under a date-prefixed name** — `2026-08-21-<name>.md`, the date
+it closed. Never leave a shipped plan at the root; never delete it (the archive keeps the step
+detail). A plan whose core shipped but that still carries an open conditional/exploratory tail goes to
+`plans/prospective/`. Update the plans listing in [`README.md`](README.md), and **hand the door over**:
+remove its link from [`plans/ACTIVE.md`](plans/ACTIVE.md) in the same commit.
+
+> 📅 **Why the date prefix** _(2026-08-22, Thomas asked for an archived marker in the filename itself)_.
+> A date reads as *historical record* at a glance and sorts by close date, which is what an archive is
+> for. **Newly archived files only — no retro-rename of the existing ones**: it would break Markdown
+> cross-links across the whole corpus to fix what the one-door rule already fixes by removing the other
+> ways in.
+>
+> 🚫 **And the archived plan's `## 📍 STATE` block goes when it is archived** — replaced by one line
+> saying which release shipped it. A block whose name means *"the only perishable thing here"* has no
+> business in a file that is, by definition, finished. _(This is what produced a 40-line apology header
+> in one archived plan: two live statuses were written into a file whose own first line forbids reading
+> it for status.)_
 
 **Ship ⇒ also retire the working-memory pointer (anti-context-rot).** A maintainer's running
 working-memory (the agent's `MEMORY.md` index, loaded in full every session) must NOT accumulate

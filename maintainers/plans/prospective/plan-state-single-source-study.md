@@ -9,18 +9,19 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** § *Application* **step 8 — a date prefix on NEWLY archived plans** (`archived/2026-08-21-<name>.md`),
-  the last step and the only one that is a judgment call rather than a clear instruction (see its
-  box). Steps 1-7 are done. Step 9 is out of scope and stays out.
-  It is authorized: **do not ask again, execute.**
+- **Next:** **nothing a session can take. § *Application* is discharged, steps 1-9.** The convention
+  is adopted and applied everywhere it was meant to reach: the door, the memory pointer, the harness,
+  all five live plans, the ROADMAP's Status column, and both repo-level carriers of the archiving
+  ritual. Step 10 (pruning the archived corpus) is **out of scope and stays out**.
 - **Blocked on:** nothing.
 - **Owner's call pending:** **one — the lint, and it does not block any step above.** His *"on
   diffère le lint"* came from an autocompletion accepted before knowing what a lint was; asked again
   in plain terms, still unanswered. Three options, recommendation is to **split it** (cheap half now,
   hard half after the v5.0.0 tag). → § *The lint, reopened*.
-- **A session may, alone:** every step of § *Application*, and applying the convention to any plan.
-  **It may NOT delete the hook, the `delegates-only` door or the certificate** — those three retire
-  only when the lint replaces them.
+- **A session may, alone:** apply the convention to any plan that still lacks it (a dormant plan
+  waking up, a new one). **It may NOT delete the hook, the `delegates-only` door or the certificate**
+  — those three retire only when the lint replaces them — and it may **not** build the lint: that is
+  the pending call above.
 
 > 🧪 **This block is the convention's own first instance.** If it ever needs a sixth key or a
 > thirtieth line, that is evidence against § *The proposal*, and it belongs in § *Application*'s
@@ -395,13 +396,31 @@ comes last: biggest edit, least reversible.
       - [x] **The `plan-carrier-guard: delegates-only` declaration STAYS, and is now true.** It was
             aspirational when Thomas granted it (finding F-C: the file held 22 shas that day). Rule 3
             is what made the header honest rather than the header making the file honest.
-- [ ] **8. Newly archived plans get a date prefix** — `archived/2026-08-21-<name>.md`.
+- [x] **8. Newly archived plans get a date prefix** _(2026-08-22)_ — `archived/2026-08-21-<name>.md`.
+      Written into **both** carriers of the archiving ritual: `CONVENTIONS.md` §7 and
+      `maintainers/README.md`'s *definition of done*. **No retro-rename of the 70 existing files** —
+      that would break cross-links corpus-wide to fix what step 1 already fixes by removing the other
+      doors.
       ⚠️ **This one is a judgment call, not a clear instruction**: Thomas asked for an archived
       marker in filenames himself, then answered *"1. oui"* to a question whose second half was this.
       Taken as a yes because he raised it; **it is one convention line to delete if he meant
-      otherwise**. **No retro-rename of the 70 existing files** — that would break cross-links
-      corpus-wide to fix what step 1 already fixes by removing the other doors.
-- [ ] **9. Prune the archived corpus of nothing.** Out of scope, written down because it is the
+      otherwise** _(two, now: `CONVENTIONS.md` §7 and `README.md`)_.
+      - [x] **Two things were added while writing it, because the ritual was incomplete without
+            them.** (a) Archiving now **hands the door over** — remove the plan's link from
+            `ACTIVE.md` in the same commit, or the door points at a finished file. (b) **An archived
+            plan drops its `## 📍 STATE` block** for one line naming the release that shipped it: a
+            block whose heading means *"the only perishable thing here"* has no business in a file
+            that is finished, and that is exactly what produced the 40-line apology header the study
+            measured.
+- [x] **9. The convention reached the two repo-level carriers it needed** _(2026-08-22, not in the
+      original order, found by grepping for what still described the OLD discipline)_.
+      `maintainers/CONVENTIONS.md` — which exists so the rules **travel with a clone** — still taught
+      *"follow the pointer → read the header note and the `## Tracking`"*. It now carries the door in
+      §3bis and a new **§3ter** with the invariant and rules 1-3; `maintainers/README.md` names the
+      door and the STATE block where it describes `plans/`. **This is the plural-carriers rule paying
+      for itself**: step 4 named the harness and only the harness, and two files in this repo were
+      teaching the superseded ritual.
+- [ ] **10. Prune the archived corpus of nothing.** Out of scope, written down because it is the
       tempting next step: 70 files, 33 654 lines, zero benefit.
 
 ### Decisions already taken — do NOT re-litigate
