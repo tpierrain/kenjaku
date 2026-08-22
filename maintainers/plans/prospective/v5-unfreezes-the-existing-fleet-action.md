@@ -40,8 +40,25 @@
 >         has to be set to *Create a merge commit* at the moment of merging. The branch is **259 ahead
 >         of `main`, 0 behind, no conflict**, so retargeting owes **no rebase** and rewrites nothing.
 >
-> 📦 **Ready and NOT applied, so it does not need deciding, only doing**: the `engineVersion` bump (three
-> of its four numbers dictated by the diff, the fourth by 25 tags of precedent) — § *S9-2b's materials*.
+> 📦 **Ready and NOT applied**: the `engineVersion` bump (three of its four numbers dictated by the
+> diff, the fourth by 25 tags of precedent) — § *S9-2b's materials*.
+>
+> > 🛑 **AND IT LANDS WITH THE CUT, NOT BEFORE — Thomas, 2026-08-22.** This line used to end *"so it
+> > does not need deciding, only doing"*, and the session offered to apply it early. **He refused, and
+> > the reason is the fleet, not tidiness**: a bumped version that is not published makes everyone
+> > believe the release is out, and **a fresh install stamps itself with a version that was never
+> > released** while the rest of the work is still pending on his machine.
+> >
+> > 📐 **Checked, so the constraint is enforceable rather than a feeling** _(2026-08-22)_: what
+> > publishes a release to the fleet is the **TAG** — `releasesAhead` compares published semver tags
+> > against the tag a brain was installed at, and `engineVersion` plays no part in it. There is also
+> > **no release workflow** in `.github/workflows/` (only `ci` and the nightly mutation run), so
+> > merging to `main` triggers no publication. **But the install side is exactly his point**: a new
+> > brain is created by copying the launcher's default branch, so whatever sits on `main` is what it
+> > receives, and the `engineVersion` it records is whatever the manifest there says.
+> >
+> > **The rule this leaves**: the bump is **not the loop's**, and it is not a pre-cut chore. It is
+> > applied as part of cutting, in the same movement as the tag.
 >
 > 🔴 **CI was RED on `feat/engine-base-unfreeze`, and that was expected**: four Windows failures — three
 > were item 1's defect, the fourth is a harness artifact (the fingerprint table regenerated from a CRLF

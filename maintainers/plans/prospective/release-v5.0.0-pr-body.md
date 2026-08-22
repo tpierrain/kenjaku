@@ -300,6 +300,13 @@ inverted rather than deleted.
 > the precedent's default; the plan says out loud that it did not choose, since `v3.6.0` once moved that
 > component by six minors to signal scale. `indexSchemaVersion` **stays `2`** — it is the note's promise
 > that nothing is re-read or re-encoded. The table is in the plan under § *S9-2b's materials*.
+>
+> 🛑 **It is applied WITH the cut, never ahead of it** _(Thomas, 2026-08-22)_. A bumped version that is
+> not published tells everyone the release is out, and **a fresh install stamps itself with a version
+> that was never released** — a new brain is created by copying the launcher's default branch, so
+> whatever sits on `main` is what it records. Publication itself is the **tag** (`releasesAhead`
+> compares published semver tags against the one a brain was installed at, and the repo has no release
+> workflow), but the install side is the half that would lie.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
