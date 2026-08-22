@@ -313,17 +313,55 @@
 > _(My recommendation if you want one: **(a)**, with the write guard's widening called out in the
 > release note. But the fleet is yours.)_
 >
-> ## ▶️ RESUME AT: **S7-6 — the CRLF ancestor fetch. DESIGN DONE, BUILD IT NEXT.** _(2026-08-22)_
+> ## ▶️ RESUME AT — **THE WORK ORDER, set by Thomas 2026-08-22 after he answered all five**
 >
-> **The design is written**, in the blocking box at the top of this file under § *The DESIGN for (a)*,
-> with the four tests it owes and what is deliberately out. Next iteration **builds it test-first**:
-> the four poles red on their assertions, then the code, then the full suite, then commit.
+> _(He asked for exactly this, in these terms: a loop that **carries out the five decisions**, with
+> **the Windows fixes at the top**. This queue IS the loop's order of work; take W1 first and do not
+> re-derive the order from the slice numbering.)_
 >
-> **Why the loop may take it**, checked against the mode plan's written list rather than felt: cutting,
-> release-note tone, scope arbitration, merging and destructive acts need the owner — **repairing a
-> defect in unreleased code this branch already carries is none of those**. The arbitration box stays
-> at the top because you may still prefer **(d) ship and state the limit**, which would make this slice
-> moot; building it does not pre-empt that, it only removes the reason to choose (d) reluctantly.
+> - [ ] **W1 — S7-6, the CRLF ancestor fetch (answer 1, half a).** Design written, four tests named,
+>       **no code yet**. Build it **test-first**: the four poles red on their assertions, then the code,
+>       then the full suite, then commit. → § *The DESIGN for (a)* at the top of this file.
+> - [ ] **W2 — pin the line endings at delivery (answer 1, half b).** `-c core.autocrlf=false` on the
+>       updater's clone (`buildCloneArgs`) **and** on the installer's copy path. Future-only by nature;
+>       W1 is what repairs brains already installed. **Deliberately a separate slice** — the design of
+>       (a) says so.
+> - [ ] **W3 — regimes → (a) (answer 4).** Advance `regimes` and `retired` to the target's at step 7 of
+>       the update, **plus the honest line in the release note** about the write guard's widening. The
+>       note clause was part of the recommendation he took, so the slice is not done without it.
+>       → § *THOMAS'S CALL — a brain keeps its INSTALL-DAY regime list*.
+> - [ ] **W4 — the note's remaining write (answers 2 and 3 are already applied).** Title and the
+>       seven-bullet shape are **done**; what the note still owes is W3's line. Nothing else.
+> - [ ] **W5 — HIS, not the loop's**: retarget #76 to `main`, one review over the whole branch, **one
+>       merge commit, never a squash**, then cut / tag / publish. → answer 5, and § *S9-2b's materials*.
+>
+> > ### 🪟 W6 — THE STANDING PROOF THOMAS ASKED FOR: **real Windows, on GitHub CI, at the END**
+> >
+> > His words, 2026-08-22: *"j'aimerais que tu t'assures avec des vrais tests concrets sur Windows, sur
+> > GitHub, à la fin, sur la CI"*. **This is an acceptance condition on the release, not a slice**: the
+> > Windows repair is not done because tests pass on a Mac.
+> >
+> > - [x] 📐 **The runner already exists, checked rather than assumed** _(2026-08-22)_.
+> >       `.github/workflows/ci.yml` runs **`windows-latest` twice**: a *Windows tripwire · harness* job
+> >       on every branch push, and the full `macos-latest` × `windows-latest` matrix on pull requests.
+> >       **So nothing has to be built to get a real Windows image** — the question is only whether the
+> >       tests we point at it genuinely exercise the CRLF path.
+> > - [ ] **W1's four tests must run ON Windows and be green there**, not merely green locally. The
+> >       three QA poles CI fails today are exactly the defect W1 repairs — they are the proof, already
+> >       written and already red on a real image.
+> > - [ ] **The fourth Windows red is a HARNESS artifact and must be closed too**, separately and
+> >       without pretending it is the same bug: the S7-2 freshness guard regenerates the fingerprint
+> >       table from the runner's working tree, which is CRLF there. → the box at the top names it.
+> > - [ ] **Verify on GitHub, by reading the run** — not by predicting it from a local pass. The branch
+> >       is pushed at every slice, so the tripwire reports on each push; the full matrix needs the PR.
+> > - [ ] ⚠️ **A green Windows suite is NOT yet the full claim.** The suite reports **3 skipped, all
+> >       three Windows-only**. Before calling W6 done, read what those three skip and say in writing
+> >       whether any of them is part of what W1/W2 are supposed to prove.
+>
+> **Why the loop may take W1 through W4**, checked against the mode plan's written list rather than
+> felt: cutting, release-note tone, scope arbitration, merging and destructive acts need the owner.
+> **Repairing a defect in unreleased code this branch already carries is none of those** — and option
+> (d), *ship and state the limit*, which would have made W1 moot, was **explicitly rejected**.
 >
 > **After it: S9-2b — cut, tag, publish. HIS.** _(the doctrine cargo is COMPLETE, 2026-08-22)_
 >
