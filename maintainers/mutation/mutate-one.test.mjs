@@ -28,6 +28,8 @@ import {
   parseTestCounts,
   parseMutationReport,
   tuningViolations,
+  targetPaths,
+  uncommittedTargets,
   runMutateOne,
   USAGE,
 } from "./mutate-one.mjs";
@@ -495,7 +497,8 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
   assert.equal(code, 0);
   assert.deepEqual(
     h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")),
-    ["worktree prune", "reset --hard bd9277d1c0ffee0000000000000000000000beef", "clean -qfd -e rag/node_modules", GUARD_KEY, MUTATE_KEY()]
+    // The gate comes FIRST, before a single git command touches a worktree.
+    [STATUS_KEY("scripts/lint-vault.mjs"), "worktree prune", "reset --hard bd9277d1c0ffee0000000000000000000000beef", "clean -qfd -e rag/node_modules", GUARD_KEY, MUTATE_KEY()]
   );
   // Two removals, and the ORDER matters: the link's path is cleared before the symlink
   // is made (the step is unconditional now, so it meets an existing link), and the
@@ -552,7 +555,8 @@ test("runMutateOne — a git step that fails stops the run there, with git's own
   const code = runMutateOne(["scripts/lint-vault.mjs"], h.deps);
 
   assert.equal(code, 1);
-  assert.deepEqual(h.calls.filter((c) => c.fn === "run").map((c) => c.args[0]), ["worktree", "worktree"]);
+  // "status" first: the gate proves the target is committed before any worktree exists.
+  assert.deepEqual(h.calls.filter((c) => c.fn === "run").map((c) => c.args[0]), ["status", "worktree", "worktree"]);
   assert.deepEqual(h.out.slice(-2), [
     "❌ `git worktree add --detach /Users/dev/kenjaku-mut-one bd9277d1c0ffee0000000000000000000000beef   (in /Users/dev/kenjaku)` failed:",
     "fatal: '/Users/dev/kenjaku-mut-one' already exists",
@@ -701,6 +705,126 @@ test("runMutateOne — --dry-run prints the plan, whole, and runs nothing", () =
   ]);
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// The UNCOMMITTED-TARGET gate — the trap that cost two runs on 2026-08-22.
+//
+// The worktree is built at `git rev-parse HEAD`, deliberately (a mutant of
+// auto-commit.mjs must not be able to commit the instrumented tree). So a pass
+// launched over an UNCOMMITTED change measures the old file and prints `✅` in
+// exactly the same words. It happened at W1, the rule "COMMIT, THEN MUTATE" was
+// written in RESULTS.md in bold the same night, and it happened again at W6 two
+// hours later — because a written rule competes with an output that says ✅, and
+// the output wins.
+//
+// Scoped to the TARGETS, never to the tree: editing plans while mutating a
+// committed .mjs is the normal way this tool is used, and a whole-tree check
+// would refuse every real run.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STATUS_KEY = (...paths) => `status --porcelain -- ${paths.join(" ")}`;
+
+test("targetPaths — the line range is stripped, because git status takes a path", () => {
+  assert.deepEqual(
+    targetPaths(["scripts/lib/a.mjs:75-88", "scripts/b.mjs", "scripts/lib/c.mjs:12-12"]),
+    ["scripts/lib/a.mjs", "scripts/b.mjs", "scripts/lib/c.mjs"],
+  );
+});
+
+test("uncommittedTargets — a modified file is reported with git's own two status columns", () => {
+  assert.deepEqual(uncommittedTargets(" M scripts/lib/a.mjs\n"), [
+    { status: " M", path: "scripts/lib/a.mjs" },
+  ]);
+});
+
+test("uncommittedTargets — a file that was never committed at all is reported too", () => {
+  // The worst case of the family: at HEAD the file does not exist, so Stryker
+  // matches no file and scores the rest of the batch as if it had.
+  assert.deepEqual(uncommittedTargets("?? scripts/lib/brand-new.mjs\n"), [
+    { status: "??", path: "scripts/lib/brand-new.mjs" },
+  ]);
+});
+
+test("uncommittedTargets — STAGED is still not committed, and both entries come back in order", () => {
+  assert.deepEqual(uncommittedTargets("M  scripts/a.mjs\n M scripts/b.mjs\n"), [
+    { status: "M ", path: "scripts/a.mjs" },
+    { status: " M", path: "scripts/b.mjs" },
+  ]);
+});
+
+test("uncommittedTargets — a clean pathspec says nothing, and that is an empty list", () => {
+  assert.deepEqual(uncommittedTargets(""), []);
+  assert.deepEqual(uncommittedTargets("\n"), []);
+});
+
+test("runMutateOne — an uncommitted TARGET is refused before the worktree is touched", () => {
+  const h = harness({
+    results: { [STATUS_KEY("scripts/lib/a.mjs")]: { code: 0, output: " M scripts/lib/a.mjs\n" } },
+  });
+
+  const code = runMutateOne(["scripts/lib/a.mjs:75-88"], h.deps);
+
+  assert.equal(code, 1);
+  // The ONLY thing it ran is the question itself: no prune, no worktree, no mutants.
+  assert.deepEqual(
+    h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")),
+    [STATUS_KEY("scripts/lib/a.mjs")],
+  );
+  assert.deepEqual(h.out, [
+    "❌ the worktree is built at HEAD, and these TARGETS are not committed:",
+    "    M scripts/lib/a.mjs",
+    "   A run now would score the OLD bytes and say ✅ in the same words. Commit, then mutate.",
+  ]);
+});
+
+test("runMutateOne — the question is asked about the TARGETS only, ranges stripped", () => {
+  // A whole-tree check would refuse every real run: editing plans while mutating a
+  // committed file is how this tool is used.
+  const h = harness({
+    results: {
+      [STATUS_KEY("scripts/a.mjs", "scripts/lib/b.mjs")]: { code: 0, output: "" },
+      [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
+      [MUTATE_KEY("scripts/a.mjs:1-9,scripts/lib/b.mjs")]: { code: 0, output: STRYKER_TAIL },
+    },
+  });
+
+  const code = runMutateOne(["scripts/a.mjs:1-9", "scripts/lib/b.mjs"], h.deps);
+
+  assert.equal(code, 0);
+  assert.equal(h.calls.filter((c) => c.fn === "run")[0].args.join(" "), STATUS_KEY("scripts/a.mjs", "scripts/lib/b.mjs"));
+});
+
+test("runMutateOne — a git status that FAILS is refused, never read as clean", () => {
+  // Empty output means "clean" and a crashed git also produces empty output. The
+  // one that must not happen is a run proceeding because the question went wrong.
+  const h = harness({
+    results: {
+      [STATUS_KEY("scripts/lib/a.mjs")]: { code: 128, output: "fatal: not a git repository\n" },
+    },
+  });
+
+  const code = runMutateOne(["scripts/lib/a.mjs"], h.deps);
+
+  assert.equal(code, 1);
+  assert.deepEqual(h.out, [
+    "❌ could not check whether the targets are committed — refusing to measure a tree I cannot name:",
+    "fatal: not a git repository",
+  ]);
+});
+
+test("runMutateOne — --dry-run still runs NOTHING, this gate included", () => {
+  // Deliberate: the gate protects a SCORE, and a dry run produces none. "Runs
+  // nothing" is a contract worth keeping literally true — a dry run that shells
+  // out is not a dry run. The real run is where the refusal belongs.
+  const h = harness({
+    results: { [STATUS_KEY("scripts/a.mjs")]: { code: 0, output: " M scripts/a.mjs\n" } },
+  });
+
+  const code = runMutateOne(["--dry-run", "scripts/a.mjs"], h.deps);
+
+  assert.equal(code, 0);
+  assert.equal(h.calls.some((c) => c.fn === "run"), false);
+});
+
 test("runMutateOne — a usage error prints the usage and never touches the repo", () => {
   const h = harness();
 
@@ -840,6 +964,7 @@ test("runMutateOne — a missing worktree is created, and the rag link with it",
   assert.deepEqual(
     h.calls.filter((c) => c.fn === "run").map((c) => c.args.slice(0, 3).join(" ")),
     [
+      "status --porcelain --",
       "worktree prune",
       "worktree add --detach",
       "--test scripts/lib/vault-write-guard.test.mjs",

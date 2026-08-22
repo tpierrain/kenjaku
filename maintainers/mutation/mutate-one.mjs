@@ -166,6 +166,44 @@ export function planRun({ repoRoot, worktreePath, sha, targets, logPath, stryker
   return steps;
 }
 
+// ── Are the targets actually IN the tree we are about to measure? ────────────
+//
+// 🚨 THE TRAP THIS CLOSES, met TWICE on 2026-08-22, two hours apart. The worktree
+// is built at `git rev-parse HEAD` — deliberate, and stated in this file's header
+// — so a pass launched over an UNCOMMITTED change measures the OLD bytes and
+// prints `✅ Mutation score 100 %` in exactly the same words. At W1 it scored 32
+// mutants of code that had not been written; at W6, 8 mutants of a function the
+// change had replaced. Between the two, the rule *"COMMIT, THEN MUTATE"* was
+// written into RESULTS.md in bold, and it did not fire: a written rule competes
+// with an output that says ✅ either way, and the output wins.
+//
+// So it joins the other refusals this script already makes (a stale log, a
+// starved timeout share, a write-guard that skips) — its own charter is *"a loud
+// failure instead of a score that was never measured"*, and this was the one
+// precondition it never checked.
+//
+// SCOPED TO THE TARGETS, never to the tree: editing plans while mutating a
+// committed `.mjs` is how this tool is used every single run, and a whole-tree
+// check would refuse all of them and be disabled within a day.
+
+// `scripts/lib/a.mjs:75-88` → `scripts/lib/a.mjs`. The range is Stryker's business;
+// git wants a pathspec.
+export function targetPaths(targets) {
+  return targets.map((target) => target.split(":")[0]);
+}
+
+// `git status --porcelain` emits, per entry, TWO status columns, a space, then the
+// path. Both columns are kept and shown: ` M` (edited), `M ` (staged, still not in
+// HEAD) and `??` (never committed — the worst of the family, since at HEAD the file
+// does not exist and Stryker matches nothing at all) are three different stories,
+// and the person reading the refusal is the one who has to tell them apart.
+export function uncommittedTargets(porcelain) {
+  return porcelain
+    .split("\n")
+    .filter((line) => line.length > 3)
+    .map((line) => ({ status: line.slice(0, 2), path: line.slice(3) }));
+}
+
 // ── The config the run is about to use ───────────────────────────────────────
 
 export function tuningViolations(config) {
@@ -274,6 +312,29 @@ export function runMutateOne(argv, deps) {
     say(`▶ plan for ${parsed.targets.join(", ")} (worktree ${worktreePath}):`);
     for (const step of steps) say(`   ${renderStep(step)}`);
     return 0;
+  }
+
+  // AFTER the dry-run return, on purpose: the gate protects a SCORE, and a dry run
+  // produces none. "--dry-run runs nothing" is a contract worth keeping literally
+  // true — a dry run that shells out is not a dry run.
+  const status = run({
+    command: "git",
+    args: ["status", "--porcelain", "--", ...targetPaths(parsed.targets)],
+    cwd: repoRoot,
+  });
+  if (status.code !== 0) {
+    // Empty output means "clean", and a crashed git also produces empty output. The
+    // one thing that must not happen is a run proceeding because the question failed.
+    say("❌ could not check whether the targets are committed — refusing to measure a tree I cannot name:");
+    say(status.output.trimEnd());
+    return 1;
+  }
+  const uncommitted = uncommittedTargets(status.output);
+  if (uncommitted.length) {
+    say("❌ the worktree is built at HEAD, and these TARGETS are not committed:");
+    for (const { status: state, path } of uncommitted) say(`   ${state} ${path}`);
+    say("   A run now would score the OLD bytes and say ✅ in the same words. Commit, then mutate.");
+    return 1;
   }
 
   for (const step of steps) {
