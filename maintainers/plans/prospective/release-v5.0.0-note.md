@@ -74,11 +74,14 @@
 >   line breaks at ~100 columns are invisible once rendered and a nuisance in every editor that
 >   reflows; the file is a body to be pasted, not source to be diffed line by line.
 >
-> - ⚖️ **This deliberately spends §11's brevity budget**: the rule says *"at most one sentence"* per
->   bullet, and a concrete example does not fit in one. The example is what makes the bullet land, so
->   it wins here — **but the rule was not rewritten on my own initiative**; §11 still reads "one
->   sentence", and whether it should say *"one sentence, or one concrete example"* is the owner's
->   call, raised with him the same day.
+> - ✅ **AND §11 NOW SAYS ALL OF IT — the deviation is over** _(arbitrated by Thomas, 2026-08-22:
+>   *"oui, on met à jour"*)_. This note ran ahead of the convention on three counts (an opening
+>   section instead of the two-sentence lead, bullets grouped by moment, an example where the rule
+>   allowed one sentence), each recorded here as a deviation rather than smuggled in. The convention
+>   was then rewritten to carry them, plus the two lessons that had no home: **the writer's shorthand
+>   is not plain language**, and **field measurements belong under the fold**. So this box documents
+>   how the note got here; **`CONVENTIONS.md` §11 is the rule from now on**, and the next note starts
+>   from it.
 >
 > **Numbers not yet real**: `engineVersion` and the tag are S9-2's, the owner's step. Every figure
 > below the fold is measured and current; nothing here waits on a re-run.

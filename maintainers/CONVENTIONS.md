@@ -610,19 +610,42 @@ what they gain is.
 
 **The shape, every time:**
 
-1. **A two-sentence lead** saying what the reader gains, in their words. No `git`, no file names, no
-   internal vocabulary. Not what we built: what changes for them.
-2. **`What you get`** — one-line bullets, an emoji + a bold claim + at most one sentence of plain
-   language. Six bullets is already a lot. If a bullet needs a paragraph, the paragraph belongs in
-   *Under the hood* and the bullet keeps only the outcome.
-3. **`What you have to do`** — the shortest section, the command and the cost.
-4. **`---`, then `Under the hood`** and everything technical: the mechanics, the ADRs, the review,
+1. **`What this release is about`** — the subject, before any fix. It opens on **one sentence set as a
+   pull quote** (`> ###`), the single thing a reader scanning for ten seconds must leave with, then
+   says in two or three short paragraphs what the product does today, what the problem costs them,
+   and what this release ends. **Describe the old behaviour fairly**: if it was a deliberate
+   trade-off, say so — a note that presents yesterday's design as a flaw teaches the reader to
+   distrust today's.
+2. **`What you get`, grouped by MOMENT** — one heading per moment the reader can situate themselves
+   in (*when you update your brain*, *the rest of the time, in ordinary conversations*), each under
+   one line of framing that names the moment and the command that triggers it. A flat list forces the
+   reader to infer, bullet by bullet, *when* each promise applies.
+3. **Every bullet stands ALONE**: an emoji, a bold claim that names its own context, then **one plain
+   sentence — or one concrete example**, whichever lands. An example is worth its extra line;
+   abstraction dressed as brevity is not. Seven bullets is already a lot. If one needs a paragraph,
+   the paragraph belongs in *Under the hood* and the bullet keeps the outcome.
+4. **`What you have to do`** — the shortest section, the command and the cost.
+5. **`---`, then `Under the hood`** and everything technical: the mechanics, the ADRs, the review,
    CI, the mutation snapshot. **Nothing is cut** — depth is kept, it is *moved below the fold*, where
-   the readers who want it will go and the others will not trip over it.
+   the readers who want it will go and the others will not trip over it. **Field measurements live
+   here**, not at the top: *"a skill frozen since install day with not one line of its owner's in
+   it"* proves an internal heuristic was wrong, which convinces a maintainer and costs a
+   non-developer a subtlety they never asked to hold.
 
 **Be brief on purpose.** We are in an era where machines generate a lot of text and humans are tired
 of reading it. Length is not thoroughness — the technical sections carry the thoroughness. Every
 sentence above the `---` earns its place or goes.
+
+**And the writer's shorthand is not plain language.** *"A brain the way you want it"*, *"your words
+are never lost"*, *"it keeps a private copy so it can tell your words from its own"*: each is true,
+compact, and leaves the reader to guess what it stands for. Name the things themselves — *the changes
+you made to your second brain's capabilities*, *the improvements that follow*. The test is not
+whether the sentence is short: it is whether someone who did not build this can picture what it
+describes.
+
+**The body is written UNWRAPPED**, one line per paragraph or bullet. Hard breaks at ~100 columns are
+invisible once rendered and a nuisance in any editor that reflows — this file is a body to be pasted,
+not source to be diffed line by line.
 
 **Do not alarm.** State a fix without dramatizing the defect ("notes that could come out damaged,
 don't" — not "notes were destroyed"), scope it to what actually happened, and **never advertise bugs
@@ -634,6 +657,15 @@ frame them as the quality of what ships, not as a list of near-misses the reader
 > nothing told you". Rewritten top-down for a non-dev reader, technical depth preserved under
 > *Under the hood*. Complements §10, which says the note is a marketing artifact and must lead with
 > *why this matters to you* — this section says how.
+>
+> **Rewritten 2026-08-22, on Thomas's call, from his live re-read of the v5.0.0 note.** The old shape
+> (*two-sentence lead*, *one flat `What you get`*, *at most one sentence per bullet*) had been obeyed
+> to the letter and still produced a top he judged *"trop cryptique … technico-technique"*. What the
+> rewrite cost him was **nine successive corrections in one sitting** — the subject was missing, the
+> moment was missing, the examples were missing, the promise arrived last, the shorthand said nothing
+> — and every one of them is now a line above, so the next release starts where this one finished
+> instead of re-deriving it. **The rule was not amended quietly**: the note deviated first, said in
+> writing that it was deviating, and the convention was changed only once he arbitrated it.
 
 ## 12. Orchestrating subagents — what may be delegated, and what a wave costs
 
