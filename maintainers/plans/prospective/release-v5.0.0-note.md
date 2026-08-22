@@ -47,6 +47,24 @@
 >   about an update**. A reader who lands on that line, and not on the lead above it, cannot tell what
 >   moment is being described. The claim now names it: *whatever you changed in the past no longer
 >   stops that file from being updated*.
+> - 🕰️ **GROUPED BY MOMENT, because a promise with no "when" is not a promise** _(his third pass, same
+>   day: *"il faut expliquer dans quel cas … regrouper ces puces-là par moment ou use case"*)_. The
+>   seven bullets were a flat list, so nothing said which of them happen **while your brain updates**
+>   and which happen **in ordinary conversation** — the reader had to infer the moment from each
+>   sentence. Now: *What you get, when you update your brain* (4 bullets) and *And what changes the
+>   rest of the time, in ordinary conversations* (3), each under one line of plain framing. **Still
+>   the same seven bullets**, unchanged in subject and order within their group, so the decision above
+>   stands; §11's single `What you get` heading became two, deliberately.
+>   - The lead gained its missing premise too: *Kenjaku keeps improving, and your brain picks up those
+>     improvements when you ask it to update.* Everything below depends on that sentence and it was
+>     never written.
+> - 🚪 **AN OPENING SECTION, `What this release is about`** _(his fourth pass, same day)_. Two sentences
+>   were not enough to state the subject: what this release exists for is a **problem people live
+>   with**, and the note went straight to the fixes. It now says, before anything else, what a second
+>   brain ships with, what happens the day you tailor a piece of it, and what v5.0.0 ends. The field
+>   measurement (a skill frozen since install day with **not one line of its owner's in it**) moves up
+>   with it — it is the proof the problem is real, and it was buried under the fold. §11's *two-sentence
+>   lead* becomes this section, on the owner's explicit ask.
 > - ↩️ **The body is written UNWRAPPED, one line per paragraph or bullet** _(his ask, same day)_. Hard
 >   line breaks at ~100 columns are invisible once rendered and a nuisance in every editor that
 >   reflows; the file is a body to be pasted, not source to be diffed line by line.
@@ -64,15 +82,28 @@
 
 ---
 
-If you ever tailored one of your brain's ready-made skills, it quietly stopped receiving improvements the moment you did, and nothing ever told you. **From this release your words are never lost**: what shipped since either arrives around your edits, or your brain asks you which version you want.
+### What this release is about
 
-### What you get
+Your second brain arrives with ready-made pieces: the skills you call on, the rules it works by, the way it searches your notes. Kenjaku keeps improving them, and your brain picks those improvements up when you ask it to update. Sooner or later, though, you tailor one of those pieces yourself, because your brain is yours: a question added here, a sentence rewritten there.
+
+**Until this release, that small gesture quietly cost you every future update of that file.** Your brain could no longer tell your words from its own, so it played it safe and left the file alone, for good. Kenjaku went on improving, other brains went on receiving it, and yours kept your version alone, without ever mentioning it. Measured on a real brain in the field: a ready-made skill frozen since install day, with **not one line of its owner's in it**.
+
+**v5.0.0 ends the choice between a brain the way you want it and a brain that is up to date.** From now on your words are never lost: what shipped since either arrives around your edits, or your brain asks you which version you want.
+
+### What you get, when you update your brain
+
+*You ask for an update (once, see below); here is what changes in that moment.*
 
 - ✍️ **Whatever you changed in your brain in the past no longer stops that file from being updated.** Say you added two questions of your own to the ready-made skill that prepares your 1-1s: from that day on, that file never received another improvement from Kenjaku's updates, ever. Now, when your brain updates itself, it remembers exactly what it handed you last time, so it can tell your words from its own — your two questions stay, and everything improved since arrives around them.
 - 🙋 **When your words and the new version collide, it asks you rather than choosing.** Three answers, in plain language: keep mine, take the new one, or combine the two. Whichever you say, it does it — and it puts your current version safely aside first, so *"take the new one"* can always be undone.
 - 🧊 **A brain installed months ago starts receiving again.** If yours has been running since, say, June, some of its files have had nothing from Kenjaku's updates since that day, and nothing ever said so. It can now recognise the files it was given on day one, even with no record of them, so the improvements shipped since finally reach it. This is the point of the release: the brains installed *before* it are the ones that gain the most.
-- 📣 **It tells you what it is keeping as you wrote it, and how far behind that leaves you.** Something like: *"I am still using your version of the 1-1 preparation; mine has moved on twice since."* Said between updates too, not only while one is running, until you answer.
 - 📖 **The rulebook your brain follows can finally be updated.** Half of it is yours (who you are, how you like to be answered), half belongs to the engine (how it searches, when it asks before writing). The engine's half was stuck at install day on every existing brain; it now updates like everything else, without a word of your half being touched.
+
+### And what changes the rest of the time, in ordinary conversations
+
+*No update running, no command to type: this is your brain on an ordinary day.*
+
+- 📣 **It tells you what it is keeping as you wrote it, and how far behind that leaves you.** Something like: *"I am still using your version of the 1-1 preparation; mine has moved on twice since."* Said between two updates, not only while one is running, until you answer.
 - 🛡️ **It asks before changing one of its own files.** Ask it mid-conversation to adjust the way it searches, and it now says so out loud: *"that is one of my own files — do you confirm?"* One question, once, instead of discovering months later that your brain no longer matches what it ships.
 - 🔗 **Hand it a link or a file, and it reads that first.** Paste a URL and ask what it makes of it: it opens the page before searching anything else, instead of answering from what it vaguely recalls of an article it never read.
 
