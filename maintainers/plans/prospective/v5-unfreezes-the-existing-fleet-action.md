@@ -8,6 +8,37 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
+> ## 🎙️ WAITING ON THOMAS — the whole list, in one place _(assembled 2026-08-22, before a `/clear`)_
+>
+> Five things, and **nothing ships without them**. They live in different sections because each belongs
+> beside its evidence; this block is the index, and it **keeps no copy** — follow the link for the
+> argument, the options and the recommendation.
+>
+> - [ ] **1. Windows: repair, or ship and state the limit?** A brain that personalized a skill *before*
+>       this release keeps its file and gets the new version **beside** it, instead of merged. The
+>       headline promise (*a frozen brain receives again*) is **unaffected** — that was measured and an
+>       earlier version of this plan said otherwise. → § *THOMAS'S CALL — the ancestor FETCH is inert on
+>       Windows*, directly below. **Recommended: repair.** It is small, the design is written, its one
+>       feared cost measured at zero, and it makes the note need no qualifier at all.
+> - [ ] **2. The release TITLE** — three candidates in the house style, none picked for you.
+>       → [`release-v5.0.0-note.md`](release-v5.0.0-note.md), top of file.
+> - [ ] **3. How many things the note says out loud.** The release gives a user **ten**; the convention
+>       allows **six**. Which six get said, and which move below the fold.
+>       → [`release-v5.0.0-note.md`](release-v5.0.0-note.md), the arbitration box at the top.
+> - [ ] **4. The regimes question** — a brain keeps its **install-day** list of which files the engine
+>       manages, forever. Three ways out, with a recommendation. → § *THOMAS'S CALL — a brain keeps its
+>       INSTALL-DAY regime list*, further down this file.
+> - [ ] **5. The merge order, then cut / tag / publish.** This PR's base is another branch still open:
+>       either it lands first, or this one is retargeted. → § *S9-2b's materials*, and § *S9 — the
+>       release tail*.
+>
+> 📦 **Ready and NOT applied, so it does not need deciding, only doing**: the `engineVersion` bump (three
+> of its four numbers dictated by the diff, the fourth by 25 tags of precedent) — § *S9-2b's materials*.
+>
+> 🔴 **CI is RED on `feat/engine-base-unfreeze`, and that is expected**: four Windows failures — three
+> are item 1's defect, the fourth is a harness artifact (the fingerprint table regenerated from a CRLF
+> checkout). Nothing else is failing, on any platform.
+
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
 >
 > _(Found 2026-08-22 by reading the CI the pre-flight had never looked at. **This bears on the

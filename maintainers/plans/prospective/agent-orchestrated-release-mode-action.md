@@ -9,6 +9,22 @@
 
 > ## ⏳ WHERE THIS RESUMES — read before the Tracking
 >
+> > 🌙 **AS OF 2026-08-22, after a night of `/loop` iterations and immediately before a `/clear`.** The
+> > landmark below is still true and is no longer the useful one: it dates from 2026-08-20. **Start
+> > here instead.**
+> >
+> > - **The release's state is NOT in this file** — open
+> >   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) and start
+> >   where **its** header says. It now opens with **§ WAITING ON THOMAS**, the five things that need
+> >   him in one place, then **§ RESUME AT**.
+> > - **The next buildable slice is S7-6** (the CRLF ancestor fetch): its **design is written**, its
+> >   four tests are named, **no code exists yet**. Build it test-first.
+> > - **CI is RED on the branch and that is expected** — four Windows failures, three of them the defect
+> >   S7-6 repairs, one a harness artifact. Nothing else fails anywhere.
+> > - **The run log below is the night's trace**, newest first. Read the top three entries before
+> >   trusting anything older in this file: two of them are **corrections of earlier entries**, and the
+> >   biggest lesson of the night is that a crisp wrong diagnosis survived two iterations.
+>
 > **S0BIS IS COMPLETE** _(2026-08-20)_ — `session-status.mjs`, its last blocking arbitration, was
 > answered "yes, now" by the owner and paid. Everything is on
 > `chore/s0bis-entrypoint-mutation-debt`, pushed, under draft
