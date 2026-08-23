@@ -14,7 +14,11 @@
 // reindex pairing — a seeded-but-unindexed note would be a false `broken`).
 // ─────────────────────────────────────────────────────────────────────────────
 import { mkdirSync, copyFileSync, existsSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, sep } from "node:path";
+
+import { listFilesRelPosix } from "./fs-walk.mjs";
+import { resolveLocaleSource } from "./engine-copy-select.mjs";
+import { readBrainLocale } from "./brain-locale.mjs";
 
 const STAGED_NOTE = "engine-health/health-check.md";
 // Where the canary lives once seeded, brain-relative. Exported because whoever
@@ -22,12 +26,28 @@ const STAGED_NOTE = "engine-health/health-check.md";
 // spelling of this path is a canary that silently stops being found.
 export const VAULT_NOTE = "vault/engine-health/health-check.md";
 
-export function seedHealthNote({ sourceDir, brainDir }) {
+// 🌍 LOCALE-RESOLVED SINCE T10 (third v5.0.0 review pass). The canary is the one artefact
+// an owner reads in their own language at the exact moment they are checking whether
+// their brain works, and it was delivered from the root regardless of locale. No twin
+// exists yet, so this is future-proofing rather than a live regression — but that is
+// precisely what ADR 0040 rule 1 promises: a localized artefact is covered the moment its
+// twin exists, with no code change and no decision.
+//
+// The EXISTENCE check stays on the ROOT rel: the root staging path is what declares that
+// the release ships a canary at all, so a twin committed ahead of its English source
+// seeds nothing rather than a note the release does not carry.
+export function seedHealthNote({
+  sourceDir,
+  brainDir,
+  sourceFiles = listFilesRelPosix(sourceDir),
+  locale = readBrainLocale(brainDir),
+}) {
   const src = join(sourceDir, STAGED_NOTE);
   const dest = join(brainDir, VAULT_NOTE);
   if (existsSync(src) && !existsSync(dest)) {
+    const srcRel = resolveLocaleSource({ rel: STAGED_NOTE, locale, sourceFiles });
     mkdirSync(dirname(dest), { recursive: true });
-    copyFileSync(src, dest);
+    copyFileSync(join(sourceDir, srcRel.split("/").join(sep)), dest);
   }
   return { present: existsSync(dest) };
 }

@@ -1,0 +1,40 @@
+[32m23:43:40 (39361) INFO ProjectReader[39m Found 1 of 845 file(s) to be mutated.
+[32m23:43:40 (39361) INFO Instrumenter[39m Instrumented 1 source file(s) with 33 mutant(s)
+[32m23:43:40 (39361) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m23:43:40 (39361) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-OkBQ93
+[32m23:43:40 (39361) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m23:43:40 (39361) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m23:43:43 (39361) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2987 ms, overhead 2 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/33 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: <1m, remaining: ~1m) 5/33 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: <1m, remaining: ~2m) 5/33 tested (0 survived, 0 timed out)
+Mutation testing 30% (elapsed: <1m, remaining: ~1m) 10/33 tested (0 survived, 0 timed out)
+Mutation testing 45% (elapsed: <1m, remaining: ~1m) 15/33 tested (0 survived, 0 timed out)
+Mutation testing 45% (elapsed: ~1m, remaining: ~1m) 15/33 tested (0 survived, 0 timed out)
+Mutation testing 60% (elapsed: ~1m, remaining: <1m) 20/33 tested (0 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~1m, remaining: <1m) 25/33 tested (2 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~1m, remaining: <1m) 26/33 tested (2 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 31)
+
+[Survived] MethodExpression
+scripts/update-engine.mjs:297:20
+-     const awaiting = preserved.filter(({ newVersionPath }) => newVersionPath !== undefined);
++     const awaiting = preserved;
+
+[Survived] ConditionalExpression
+scripts/update-engine.mjs:297:61
+-     const awaiting = preserved.filter(({ newVersionPath }) => newVersionPath !== undefined);
++     const awaiting = preserved.filter(({ newVersionPath }) => true);
+
+Ran 1.00 tests per mutant on average.
+-------------------|------------------|----------|-----------|------------|----------|----------|
+                   | % Mutation score |          |           |            |          |          |
+File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files          |  93.94 |   93.94 |       31 |         0 |          2 |        0 |        0 |
+ update-engine.mjs |  93.94 |   93.94 |       31 |         0 |          2 |        0 |        0 |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m23:45:23 (39361) INFO MutationTestExecutor[39m Done in 1 minute and 42 seconds.
+[32m23:45:23 (39361) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-OkBQ93.

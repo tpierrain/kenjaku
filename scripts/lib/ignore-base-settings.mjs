@@ -1,0 +1,85 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ignore-base-settings.mjs — F4 of the v5.0.0 code review: the brain's BACKUP REPO
+// must not start publishing the owner's absolute paths.
+//
+// `.claude/settings.json` is gitignored on purpose, and the reason is written beside
+// it in every brain's `.gitignore`: it holds absolute paths belonging to ONE machine,
+// plus that machine's connector permissions. This release invents `.engine-base/`,
+// which keeps the last-delivered BYTES of every merge file — settings.json included —
+// and nothing ignored the copy. Auto-commit sweeps it, auto-push publishes it, and on
+// a second machine the pulled base describes machine A.
+//
+// A gitignore line is the whole repair, and it is enough BECAUSE `.engine-base/` is
+// new: no deployed brain has ever tracked that path, so there is nothing to untrack —
+// only something to never start tracking. It has to land BEFORE the tree is written,
+// which is why it runs inside the reconcile (the base is laid down after it) and why
+// the launcher's own `.gitignore` — the one a fresh install copies — carries the line
+// already. A test pins those two spellings against each other.
+//
+// The same surgical contract as `unignore-pointer.mjs`, its twin one door over: this
+// file is the OWNER's. We add one entry and one comment, at the end, and touch nothing
+// else — their lines, their order, their line endings. Pure: the caller reads and writes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// The path the engine keeps the ancestor bytes at. Spelled here once; the migration and
+// the shipped `.gitignore` are asserted to agree rather than trusted to.
+export const BASE_SETTINGS_ENTRY = ".engine-base/.claude/settings.json";
+
+// Why, in the owner's terms rather than ours — they read this file when their sync
+// misbehaves, and "provenance base" would mean nothing there.
+export const BASE_SETTINGS_COMMENT =
+  "# The engine's copy of settings.json (same reason as the line above: absolute paths" +
+  " belonging to THIS machine — never commit it).";
+
+// Trailing spaces are git's own rule for a `.gitignore` entry, and `.trim()` also strips
+// a CRLF file's trailing `\r`, which is whitespace.
+const bare = (line) => line.trim();
+
+/**
+ * Returns the `.gitignore` with the base copy of settings.json ignored, and whether
+ * anything moved. Already ignored → the SAME string back, so a second run is provably
+ * a no-op and a converged brain sees no churn.
+ */
+export function ignoreBaseSettings(text) {
+  if (text.split("\n").some(covers)) return { text, changed: false };
+
+  // Appended, never inserted next to its sibling: the sibling may have been moved,
+  // renamed or commented out by the owner, and an insertion point we have to find is an
+  // insertion point we can get wrong on someone else's file.
+  const eol = text.includes("\r\n") ? "\r\n" : "\n";
+  // A file that does not end in a newline would otherwise have our comment welded onto
+  // its last entry, turning that entry into something git no longer matches. On a file
+  // that is EMPTY there is nothing to weld to and nothing to separate from: both the
+  // separator and the blank line would be two leading blanks the owner never wrote, and
+  // they would show up in their diff forever (S15a).
+  const prefix = text === "" ? "" : `${text.endsWith("\n") ? "" : eol}${eol}`;
+  return { text: `${text}${prefix}${BASE_SETTINGS_COMMENT}${eol}${BASE_SETTINGS_ENTRY}${eol}`, changed: true };
+}
+
+/**
+ * Does this `.gitignore` line already keep our path out of the repo?
+ *
+ * Not "is it our entry, spelled our way" (S15b): `.engine-base/` is the broader and
+ * equally correct line a maintainer writes by hand, and to git it already ignores
+ * everything below it. Appending the narrow entry under it is churn on someone else's
+ * file — and churn that comes back at every update, because an exact-match check can
+ * never see the line it keeps duplicating.
+ *
+ * Deliberately literal: a **directory prefix**, nothing more. A glob (`*.json`,
+ * `.engine-*`) may well cover the path too, and answering that would mean
+ * re-implementing git's matcher — where a wrong "yes" leaks this machine's absolute
+ * paths into a published repo. An extra entry under a glob is harmless; a missing one
+ * is not.
+ */
+function covers(line) {
+  // A leading `/` anchors, a trailing `/` says "directory": neither changes WHICH path
+  // is named here, since ours is anchored at the brain root either way.
+  const named = bare(line).replace(/^\//, "").replace(/\/$/, "");
+
+  // 🛑 A blank line, a `#` comment and a `!` negation need NO special case, and the
+  // mutation run is what proved it: each one keeps its own leading character, so it can
+  // neither equal our entry nor be a directory prefix of it. A guard that cannot change
+  // an answer is not caution, it is a branch nothing can test — so it is not written.
+  // The three of them are pinned by tests, on the behaviour rather than on the branch.
+  return named === BASE_SETTINGS_ENTRY || BASE_SETTINGS_ENTRY.startsWith(`${named}/`);
+}

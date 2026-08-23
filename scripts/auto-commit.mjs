@@ -10,10 +10,15 @@
 // script location (not the hook's cwd).
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync } from "node:child_process";
-import { realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { treeState } from "./lib/repo-status.mjs";
+import { isEntrypoint, runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { attemptCommit, COMMIT_MESSAGE } from "./lib/vault-commit.mjs";
+
+// Re-exported, not re-implemented: `attemptCommit` and `COMMIT_MESSAGE` moved to
+// lib/vault-commit.mjs (see its header for why), and this module keeps publishing
+// them because a PRESERVED older auto-push.mjs imports them from here by name.
+export { attemptCommit, COMMIT_MESSAGE };
 
 // Builds the real git runner bound to `repo`. `execFile` is injected (default:
 // execFileSync) so the ok/failure mapping is unit-testable without a real git.
@@ -35,55 +40,40 @@ export function buildGit(repo, execFile = execFileSync) {
   };
 }
 
-export const COMMIT_MESSAGE = "auto: vault/claude sync";
-
-// Commit-only vault persistence: if the tree is dirty, stage everything and
-// commit (never pushes — the Stop hook does that once per turn). Returns
-// "committed" | "clean" | "conflicted" | "failed". `git` is the injected runner.
-// NEVER throws: `buildGit` maps a git that blew up to `{ok: false}`, and this reads
-// it rather than assuming success. Best-effort still, but it says which.
-//
-// "committed" is a CLAIM, so it is only made when git accepted both halves. It used
-// to be returned unconditionally, which turned an `.git/index.lock` contention with
-// the PostToolUse hook into a silent non-commit reported as a success — the one
-// failure mode a second brain must never paper over.
-//
-// "conflicted" is the one case where persistence steps aside: this hook fires on
-// every write, conflict-resolution writes included, and `add .` on an unmerged tree
-// stages the `<<<<<<<` markers AND fake-resolves the rebase. The rule is shared
-// (`treeState`) with the session-start sweep and the engine update, so all three
-// persistence paths refuse the same tree.
-export function attemptCommit({ git }) {
-  const state = treeState(git(["status", "--porcelain"]).out);
-  if (state !== "dirty") return state;
-  if (!git(["add", "."]).ok) return "failed";
-  if (!git(["commit", "-m", COMMIT_MESSAGE]).ok) return "failed";
-  return "committed";
-}
-
 // Repo root derived from THIS module's location (one level up from scripts/),
 // not the hook's cwd. `metaUrl` is injected so it is testable.
 export function repoRoot(metaUrl) {
   return resolve(dirname(fileURLToPath(metaUrl)), "..");
 }
 
-// Is THIS module the process entry point (invoked as the hook), vs merely
-// imported by a test? Compare REAL paths — import.meta.url is already symlink-
-// resolved by Node, so we realpath argv[1] too (macOS /var → /private/var).
-export function isEntryPoint(argv1, metaUrl) {
-  try {
-    // A falsy/absent argv1 makes realpathSync throw → caught → false (imported case).
-    return realpathSync(argv1) === fileURLToPath(metaUrl);
-  } catch {
-    return false;
-  }
+// ── CLI entry (the actual PostToolUse hook) ──────────────────────────────────
+// Behind the shared tail, so importing this module in tests does NOT run it.
+// Commit-only; the push moved to the Stop hook (auto-push.mjs). It returns
+// nothing on purpose: the work is fully synchronous (execFileSync) and Node
+// exits 0 on its own, so the tail must not call process.exit for it.
+//
+// This file used to carry its OWN entry predicate — `isEntryPoint(argv1, meta)`,
+// same idea as the shared one but with the arguments the other way round. Two
+// spellings of "am I the entry point?" are two behaviours to keep in step forever,
+// so the IMPLEMENTATION is gone: the realpath lesson it had learned lives in
+// lib/entrypoint.mjs, tested once. Only the NAME survives, just below.
+export function runAutoCommitHook() {
+  attemptCommit({ git: buildGit(repoRoot(import.meta.url)) });
 }
 
-// ── CLI entry (the actual PostToolUse hook) ──────────────────────────────────
-// Guarded so importing this module in tests does NOT run it. Commit-only; the
-// push moved to the Stop hook (auto-push.mjs). No explicit process.exit: the
-// work is fully synchronous (execFileSync), so Node exits 0 on its own — and
-// NOT exiting at import time keeps the module unit-testable under mutation.
-if (isEntryPoint(process.argv[1], import.meta.url)) {
-  attemptCommit({ git: buildGit(repoRoot(import.meta.url)) });
+runAsEntrypoint(import.meta.url, process.argv, runAutoCommitHook);
+
+// ── The v4.9.1 name, kept for a PRESERVED sibling (T2, third v5.0.0 review) ──
+// Deleting the export was not a tidy-up, it was a fleet-wide outage: `auto-push.mjs`
+// is a SEPARATE `merge`-regime file, refreshed independently, so an owner who tuned
+// theirs keeps v4.9.1's opening line — `import { attemptCommit, isEntryPoint } from
+// "./auto-commit.mjs"` — against this engine's auto-commit. A missing named export
+// is a LINK error: the Stop hook dies before its first statement, taking the sweep,
+// the push and the whole backup path with it, at every turn, in silence.
+//
+// It DELEGATES — one behaviour, two names — so those old callers also inherit the
+// realpath fix they never shipped with. It goes the day no supported brain can hold
+// a v4.9.1 auto-push.mjs, and not before.
+export function isEntryPoint(argv1, metaUrl) {
+  return isEntrypoint(metaUrl, argv1);
 }

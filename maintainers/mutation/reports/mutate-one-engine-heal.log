@@ -1,0 +1,33 @@
+[32m19:15:59 (91832) INFO ProjectReader[39m Found 1 of 814 file(s) to be mutated.
+[32m19:15:59 (91832) INFO Instrumenter[39m Instrumented 1 source file(s) with 28 mutant(s)
+[32m19:15:59 (91832) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m19:15:59 (91832) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-ctAesP
+[32m19:15:59 (91832) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m19:15:59 (91832) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m19:16:01 (91832) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2352 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/28 tested (0 survived, 0 timed out)
+Mutation testing 17% (elapsed: <1m, remaining: ~1m) 5/28 tested (0 survived, 0 timed out)
+Mutation testing 35% (elapsed: <1m, remaining: <1m) 10/28 tested (0 survived, 0 timed out)
+Mutation testing 35% (elapsed: <1m, remaining: ~1m) 10/28 tested (0 survived, 0 timed out)
+Mutation testing 53% (elapsed: <1m, remaining: <1m) 15/28 tested (0 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~1m, remaining: <1m) 20/28 tested (1 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~1m, remaining: <1m) 25/28 tested (1 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 27)
+
+[Survived] EqualityOperator
+scripts/lib/engine-heal.mjs:53:22
+-       .sort((a, b) => (a.rel < b.rel ? -1 : 1));
++       .sort((a, b) => (a.rel <= b.rel ? -1 : 1));
+
+Ran 1.00 tests per mutant on average.
+-----------------|------------------|----------|-----------|------------|----------|----------|
+                 | % Mutation score |          |           |            |          |          |
+File             |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+All files        |  96.43 |   96.43 |       27 |         0 |          1 |        0 |        0 |
+ engine-heal.mjs |  96.43 |   96.43 |       27 |         0 |          1 |        0 |        0 |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m19:17:16 (91832) INFO MutationTestExecutor[39m Done in 1 minute and 17 seconds.
+[32m19:17:16 (91832) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-ctAesP.

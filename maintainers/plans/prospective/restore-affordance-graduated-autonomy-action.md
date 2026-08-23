@@ -7,7 +7,12 @@
 > the options". We traded the magic for a dashboard. This plan restores the affordance without losing
 > the self-maintenance mechanics.
 >
-> North-star, always-loaded pointer: memory `brain-graduated-autonomy-affordance`. Siblings: ADR 0009
+> ⚠️ **Where this plan is named** _(corrected 2026-08-22)_: [`../ROADMAP.md`](../ROADMAP.md) §
+> *Off-ordering, but alive*. The line here used to read *"North-star, always-loaded pointer: memory
+> `brain-graduated-autonomy-affordance`"* — **that entry no longer exists**. `MEMORY.md` is
+> size-bounded and pruned as chantiers ship, so a plan that leans on a memory pointer for its
+> discoverability becomes invisible the day the index is tidied, silently. The repo file is the
+> carrier that survives. Siblings: ADR 0009
 > (deterministic-first = the 🟢 tier), the axis-1 wiki-health plan (`wiki-health-axis1-mechanisms-action.md`).
 
 ## Tracking

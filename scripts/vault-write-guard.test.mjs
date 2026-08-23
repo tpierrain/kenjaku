@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { runGuard, realGuardDeps } from "./vault-write-guard.mjs";
 
@@ -156,6 +156,23 @@ test("run as the harness runs it, the hook reads stdin and denies on stdout", ne
   assert.match(payload.hookSpecificOutput.permissionDecisionReason, /vault[\\/]briefings[\\/]2026-08-02\.md/);
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by RUNNING the hook as a process, which is the
+// only thing that proves the tail actually fires only on real invocation. Same
+// canary as lint-vault's S0bis conversion: if the shared tail is wrong, it is
+// wrong HERE first, on one file.
+// ─────────────────────────────────────────────────────────────────────────────
+test("the hook, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing (in particular,
+  // it never blocks reading stdin). Asserted from a child process so an accidental
+  // process.exit() cannot take the suite with it.
+  const probe = `import("${pathToFileURL(join(SCRIPTS_DIR, "vault-write-guard.mjs")).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the hook must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
 // ── The net under the two skips above ────────────────────────────────────────
 // Same rule as `lib/vault-write-guard.test.mjs`: an assertion that skips when the
 // engine is absent is worth exactly what CI does about it. Pinned from the suite, so
@@ -164,9 +181,13 @@ test("CI cashes the deferral in: this file is re-run after the engine's own deps
   const ci = readFileSync(join(BRAIN_ROOT, ".github", "workflows", "ci.yml"), "utf8");
 
   const engineInstall = ci.indexOf("run: npm ci");
-  const rerun = ci.indexOf('"scripts/vault-write-guard.test.mjs"');
+  // Path + "node --test", never the whole command line — see the twin in
+  // scripts/lib/vault-write-guard.test.mjs for what pinning the flags cost.
+  const rerunLine = ci.split("\n").find((l) => l.includes('"scripts/vault-write-guard.test.mjs"'));
+  const rerun = rerunLine ? ci.indexOf(rerunLine) : -1;
 
   assert.notEqual(rerun, -1, "ci.yml must re-run THIS file with the engine's parser resolvable");
+  assert.match(rerunLine ?? "", /run: node --test\b/, "and it must be re-run BY the test runner, not merely named");
   assert.notEqual(engineInstall, -1, "ci.yml must still install the engine");
   assert.ok(
     engineInstall < rerun,

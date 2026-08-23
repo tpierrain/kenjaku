@@ -251,6 +251,38 @@ test("refresh-note, as a real process — rewrites the page and bumps updated:",
   assert.equal(existsSync(join(brain, "vault", "topics", "nope.md")), false);
 });
 
+test("the CLI, run as a process with EMPTY stdin — a usage error, not a write", () => {
+  // The one HARMLESS real invocation this CLI has: no argv parsing happens at all,
+  // so the only door in is stdin, and empty stdin fails JSON.parse before the vault
+  // is even looked at — exit 1, an error line, and (by construction) nothing written.
+  // `input: ""` closes stdin immediately, so this can never block waiting for EOF.
+  const run = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("./refresh-note.mjs", import.meta.url))],
+    { input: "", encoding: "utf8" },
+  );
+
+  assert.equal(run.status, 1, run.stdout);
+  assert.match(run.stderr, /Invalid JSON spec on stdin/);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by RUNNING the CLI as a process, which is the
+// only thing that proves the tail actually fires. Modeled on lint-vault.test.mjs's
+// canary test: the same shared tail lands on every top-level scripts/*.mjs.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const target = new URL("./refresh-note.mjs", import.meta.url).href;
+  const probe = `import("${target}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
 test("realRefreshDeps — the real ports are what they claim, field by field", () => {
   const dir = mkdtempSync(join(tmpdir(), "refresh-deps-"));
   const file = join(dir, "note.md");

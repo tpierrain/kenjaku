@@ -135,8 +135,9 @@ wiki-health** skills that keep your notes tidy (`/lint`, `/consolidate`, `/file-
 links, duplicates and unfiled captures, then **propose** fixes you confirm), plus `import`,
 `sync-sources`, `prepare-1-1`, `local-mirror`, `switch` and `update-engine` — and, above all, **you add
 your own just by describing them**. Skills are plain Markdown you can read, tweak and grow. The ones you
-leave alone **keep improving with each engine update**; the ones you tailor become yours and are never
-overwritten. *Not just a wiki — a platform.*
+leave alone **keep improving with each engine update**; the ones you tailor become yours — **your words
+are never lost**, and when a newer version arrives your brain either folds it into your edits or asks
+you which one you want, instead of quietly leaving you behind. *Not just a wiki — a platform.*
 
 ---
 
@@ -265,7 +266,13 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   notes** (your `.env`, `CLAUDE.md`, settings and custom skills are sacred too). No terminal, no
   re-install. **Since v4.1.0 its ready-made skills come along too**: the ones you never edited are
   brought up to date, and any skill you've tailored is left exactly as you wrote it, with the new
-  version parked beside it for you to take or ignore. **Since v4.7.0 it also tells you when the engine
+  version parked beside it for you to take or ignore. **Since v5.0.0 a skill you tailored stops being a
+  dead end**: where your words and the engine's do not collide, the two are **brought together for
+  you** — you keep your edits *and* you get what shipped since; where they do collide, your version
+  stands and your brain asks you, in plain words, which of three you want: take the new one, keep
+  yours, or combine them. It also **stops leaving older brains behind**: a brain frozen since the day
+  it was installed can now recognise the files it was given back then, and start receiving improvements
+  again. **Since v4.7.0 it also tells you when the engine
   answering you is no longer the one on disk** — a session loads its wiring once, at start, so an update
   that lands mid-session (typically pulled from your remote when you open your brain on a **second
   machine**) used to be answered by the old code, silently, for the rest of the session. Now it says so,
@@ -409,11 +416,15 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   the note's header with the **engine's own parser** — the very one that indexes it. A note that parser
   would reject is never written at all, instead of being born invisible to search while the counter says
   it is on its way.
-- **It never overwrites your work, and it has to *prove* it**: a structural write-allowlist means the
+- **It never loses your work, and it has to *prove* it**: a structural write-allowlist means the
   reconciler and the **self-upgradable engine** only add what's missing, plus two narrow moves they can
   demonstrate are about *their own* files. An engine file is refreshed **only when its fingerprint proves
   you never edited it** (that's how skill improvements finally reach an existing brain); the moment
-  you've made it yours, it's left alone and the new version waits beside it. And your brain can now
+  you've made it yours, the engine can reach it **only through a merge from the exact version it gave
+  you last time** — so what shipped since arrives *around* your edits, and if the two touch the same
+  lines yours stands and you are asked which one you want. **Nothing is left silently behind**: a file
+  it is holding back is named, with the version it is behind, and the newer one is placed beside it so
+  all three answers are real ones. And your brain can now
   **take something back**: the status line it once installed is removed so **yours** runs again — only
   ever the line it recognises as its own, never one you wrote. **Your notes, keys and constitution stay
   untouched, full stop.** *(ADR 0012 / 0014 / 0025 / 0026 / 0036)*
@@ -483,7 +494,8 @@ That's also why it's a **living, personal product** rather than a frozen app. A 
 **personal** (what serves a Head of Engineering, a PM or a researcher barely overlaps), so the generator
 tailors ***your own*** to your line of work, then it **keeps living on its own**. The engine
 **self-upgrades only when you opt in**, and an upgrade touches **only the engine machinery, never your
-notes, keys, constitution, nor any skill you've made your own**. It's run **as a product, not a hack**:
+notes, keys nor your constitution** — and a skill you made your own is **never lost**: what shipped
+since is merged around your words, or offered to you as a choice. It's run **as a product, not a hack**:
 brains **in real use**, every upgrade **tested against existing brains before it ships** (the migration
 path is a **release gate**). You
 share the **generator**, never the brain, and you could walk away from this repo tomorrow without losing a thing.

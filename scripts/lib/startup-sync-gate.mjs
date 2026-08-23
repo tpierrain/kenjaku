@@ -174,3 +174,42 @@ function writeMarker({ repo, sessionId, io, phase, now }) {
     return false;
   }
 }
+
+/**
+ * THE ONE SPELLING of "wait for THIS session's pull before reading anything tracked".
+ *
+ * Spelled at the call site it is five arguments that all have to agree, and the way they
+ * stop agreeing is a hook that quietly stops waiting: a wrong `repo` waits on another
+ * brain's marker, a forgotten `pullerWired` makes every pre-barrier brain pay the grace
+ * at every session start, and either reads as success. T11 added the second caller, so
+ * the spelling gets a home before there are two of it.
+ *
+ * Fail-open like everything else here, and it needs no try/catch of its own to be: every
+ * part it composes already swallows — `readHookPayload`, `hookSessionId`, `pullerWiredIn`
+ * and the gate's own `readMarker`. A hostile io therefore answers `not-expected` (nobody
+ * will pull, carry on) rather than throwing at a caller for whom this is now the FIRST
+ * thing done, ahead of its own try/catch. A wrapper here would be unreachable code
+ * claiming to guard something — it was written, then measured, then removed.
+ *
+ * `readPayload` is a SEAM, not a convenience: its default reads the harness's JSON off
+ * `readFileSync(0)`, and a test process's stdin is a pipe with no writer. POSIX answers
+ * EAGAIN there and the swallow hides it; WINDOWS BLOCKS, forever. A test that called this
+ * without the seam held a CI runner 2 h 46 min on 2026-08-23 and queued three hours of
+ * jobs behind it. Every caller that is not a real hook must pass it.
+ *
+ * ⚠️ `session-universe.mjs` deliberately keeps its inline spelling until after the v5.0.0
+ * tag. Its three files are byte-identical to `main`, and that is exactly what makes the
+ * macOS CI flake diagnosable as inherited rather than introduced (release plan, § THE
+ * macOS FLAKE). Adopting this helper there is post-tag work, alongside the instrument
+ * that will record WHICH fail-open branch the flake takes.
+ */
+export function awaitStartupSync({ repo, io, now = Date.now, sleep = blockingSleep, readPayload = readHookPayload }) {
+  return waitForStartupSync({
+    repo,
+    sessionId: hookSessionId(readPayload()),
+    io,
+    now,
+    sleep,
+    pullerWired: pullerWiredIn({ repo, io }),
+  });
+}

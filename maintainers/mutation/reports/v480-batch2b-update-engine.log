@@ -1,0 +1,109 @@
+20:10:36 (70222) INFO ProjectReader Found 1 of 660 file(s) to be mutated.
+20:10:36 (70222) INFO Instrumenter Instrumented 1 source file(s) with 250 mutant(s)
+20:10:36 (70222) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+20:10:36 (70222) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-tlFplm
+20:10:36 (70222) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+20:10:36 (70222) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+20:10:38 (70222) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1907 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 233)
+
+[Survived] ArrayDeclaration
+scripts/update-engine.mjs:85:167
+-     const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false } = report;
++     const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = ["Stryker was here"], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false } = report;
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:161:7
+-         `   repo, and committing would have buried the <<<<<<< markers in it. Resolve that`,
++         ``,
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:162:7
+-         `   conflict, then commit — your engine is updated on disk either way.`,
++         ``,
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:170:7
+-         `   git config --global user.email "you@example.com"). They are staged and waiting;`,
++         ``,
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:171:7
+-         `   commit them once git is happy, or your brain's startup pull stays blocked.`,
++         ``,
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:238:55
+-     const local = JSON.parse(readFileSync(manifestPath, "utf8"));
++     const local = JSON.parse(readFileSync(manifestPath, ""));
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:300:87
+-       ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "utf8")])),
++       ...Object.fromEntries(copied.map((rel) => [rel, readFileSync(join(brainDir, rel), "")])),
+
+[Survived] BlockStatement
+scripts/update-engine.mjs:408:54
+-   export function defaultReadInstalledSource(brainDir) {
+-     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+-     return { repo: source?.repo ?? null, ref: source?.ref ?? null };
+-   }
++   export function defaultReadInstalledSource(brainDir) {}
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:409:61
+-     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
++     const { source } = JSON.parse(readFileSync(join(brainDir, ""), "utf8"));
+
+[Survived] StringLiteral
+scripts/update-engine.mjs:409:86
+-     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
++     const { source } = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), ""));
+
+[Survived] ObjectLiteral
+scripts/update-engine.mjs:410:10
+-     return { repo: source?.repo ?? null, ref: source?.ref ?? null };
++     return {};
+
+[Survived] LogicalOperator
+scripts/update-engine.mjs:410:18
+-     return { repo: source?.repo ?? null, ref: source?.ref ?? null };
++     return { repo: source?.repo && null, ref: source?.ref ?? null };
+
+[Survived] OptionalChaining
+scripts/update-engine.mjs:410:18
+-     return { repo: source?.repo ?? null, ref: source?.ref ?? null };
++     return { repo: source.repo ?? null, ref: source?.ref ?? null };
+
+[Survived] LogicalOperator
+scripts/update-engine.mjs:410:45
+-     return { repo: source?.repo ?? null, ref: source?.ref ?? null };
++     return { repo: source?.repo ?? null, ref: source?.ref && null };
+
+[Survived] OptionalChaining
+scripts/update-engine.mjs:410:45
+-     return { repo: source?.repo ?? null, ref: source?.ref ?? null };
++     return { repo: source?.repo ?? null, ref: source.ref ?? null };
+
+[Survived] ArrayDeclaration
+scripts/update-engine.mjs:433:21
+-             releases: [],
++             releases: ["Stryker was here"],
+
+[Survived] MethodExpression
+scripts/update-engine.mjs:444:66
+-   export async function runUpdateCli(deps = realUpdateDeps, argv = process.argv.slice(2)) {
++   export async function runUpdateCli(deps = realUpdateDeps, argv = process.argv) {
+
+Ran 1.00 tests per mutant on average.
+-------------------|------------------|----------|-----------|------------|----------|----------|
+                   | % Mutation score |          |           |            |          |          |
+File               |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files          |  93.20 |   93.20 |      233 |         0 |         17 |        0 |        0 |
+ update-engine.mjs |  93.20 |   93.20 |      233 |         0 |         17 |        0 |        0 |
+-------------------|--------|---------|----------|-----------|------------|----------|----------|
+20:17:15 (70222) INFO MutationTestExecutor Done in 6 minutes and 39 seconds.
+20:17:15 (70222) INFO Sandbox Resetting your original files from .stryker-tmp/backup-tlFplm.

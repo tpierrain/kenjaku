@@ -1,0 +1,339 @@
+# PR #76 body — v5.0.0 (S9-2a, ready to apply)
+
+> 🚧 **This file IS the body.** Everything below the first `---` is what
+> `gh pr edit 76 --body-file …` should send. It is written here rather than pushed straight to GitHub
+> because editing a live PR is an outward-facing action and the loop does not take those alone. **The
+> command is in the plan, ready for S9-2b.**
+>
+> **Suggested title** (the current one, *"v5.0.0 — the engine owns what it shipped (S1–S6, bar the FR
+> rider)"*, has been wrong since 2026-08-21): **`v5.0.0 — the engine owns what it shipped, and stops
+> leaving old brains behind`**. The RELEASE title is a separate choice with its own three candidates,
+> in `release-v5.0.0-note.md`.
+
+---
+
+> **Draft, deliberately.** Nothing here is merged, tagged or published. This is the reviewable diff the
+> overnight loop was asked to leave behind. It is based on **`main`**, retargeted on 2026-08-22 so the
+> whole release is reviewed **once** and merged **once**, with a merge commit and no squash. Draft
+> PR #75 keeps its own S0bis perimeter and is **not** merged first, **not** closed by hand: its head is
+> an ancestor of this branch, so GitHub marks it merged on its own the day this one lands.
+>
+> ⚠️ **This body has been rewritten TWICE, and both times for the same reason.** On 2026-08-21 it still
+> described S1 alone, ninety commits after that stopped being true. It is rewritten again on 2026-08-22
+> because the branch has since grown S7, S8, S10 and the release tail — more than doubling it. **That
+> staleness is the exact defect this release exists to end** — a copy of a state, drifting silently,
+> with nobody told — so it is named here rather than quietly overwritten.
+
+## What the branch carries
+
+**326 commits, 278 files, +46 278 / −1 686** against `main`, **0 behind** _(re-measured 2026-08-22,
+against the new base)_. ⚠️ **A count is a COPY of state and ages within a day** — this one already did
+twice. The branch is the record; to refresh rather than trust:
+`git diff --shortstat main...HEAD`.
+
+📖 **Where to actually look, because half of that total is not code.** The maintainers' plans and
+measurement registers account for **139 files and 27 113 insertions** of it. The code perimeter a
+reviewer owes attention to is **79 source files (+6 957 / −533)**, plus **44 test files (+11 498)** —
+and inside it, the files that write into brains that are already installed (`scripts/lib/engine-*.mjs`,
+`reconcile-brain.mjs`) carry the operational risk. Slices **S1 through S10**, the **doctrine cargo** it carries for a neighbouring
+plan and the issue tracker, plus the release tail's first half. The owning plan is
+[`v5-unfreezes-the-existing-fleet-action.md`](maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md)
+— its predecessor, which built S1–S6, is archived beside it and holds no current state. The working
+contract and the run log are in
+[`agent-orchestrated-release-mode-action.md`](maintainers/plans/prospective/agent-orchestrated-release-mode-action.md).
+
+## The problem, in one paragraph
+
+`provenance` has always recorded a base's *digest* and never kept its *bytes*. That leaves an update
+exactly one thing to do with a base — an equality test — hence two outcomes: clobber the owner, or
+abandon the file. The engine chose abandon, **permanently and silently**. `CLAUDE.engine.md` made it
+measurable: across the nine published tags `v3.6.0` → `v4.9.1` the file is **absent from every regime**,
+while its content grew 23 504 → 33 531 bytes. The freeze was never a bug in the update path; it was a
+file nothing declared.
+
+## The slices
+
+**S1 — an immutable base per `merge` file.** `.engine-base/<rel>`, written by one function serving both
+moments: **advance** to what the update *delivered* (never to what it *fetched*), then **seed** whatever
+the brain can still prove about itself. Wired into all three writers, including
+`reconcile-brain.mjs`'s `runReconcileCli` — the last writer on the update path, and the one that runs
+when a brain on the old code performs its first upgrade. The tree got its own fourth regime, `local`,
+because leaving that answer blank is precisely why the doctrine layer reached nobody.
+
+**S2 — a real three-way merge, so "preserve" stops meaning "abandon".** A nine-row verdict table
+(`engine-merge.mjs`) over one shared I/O carrier (`engine-merge-apply.mjs`) serving all three merge
+families. The trap the header exists to make unmissable: **the disk takes the MERGE, the base advances
+to the CANDIDATE** — record the merged bytes as the ancestor and the next update fast-forwards straight
+over the edit just preserved. A merge that would not parse is never written; a conflict is reported and
+names its door instead of being a cul-de-sac. S2b took the four engine scripts out of the copy bucket;
+S2c made `CLAUDE.md` merge-governed rather than inviolable (owner's call, recorded in the plan).
+
+**S3 — the owner's intent stays out of engine files, by construction.** A `PreToolUse` write guard that
+tells an owner what editing an engine file costs, before they do it. ADR 0012 amended rather than a new
+ADR opened. It reaches brains through `settings.json.template` only, so the launcher is out by
+construction, not by exemption.
+
+**S4 — divergence becomes audible.** A brain says which engine files it is holding back and how far
+behind they are. "Which" was free; "how far behind" had **no source at all**, so a `baseRefs: {rel: ref}`
+map joined the manifest beside `provenance`. The surface is decided by
+[ADR 0036](maintainers/decisions/0036-deterministic-channels-differ-by-surface.md)'s channel matrix and
+not by reflex: `statusLine` is opt-in *and* renders nothing in Desktop's Code tab, where a SessionStart
+`systemMessage` is dropped too — so the notice rides `additionalContext`, which is also the right shape
+for a fact that must be **stated and never nagged**.
+
+**S5 — the doctrine layer joins a regime**, as the first client of the new model.
+
+**S6 — `tdd-discipline` is retired and `test-first-discipline` ships**, with the two paths that put a
+skill back, and the one door that erases.
+
+**S7 — the frozen fleet heals itself.** S1–S6 fixed the mechanism for brains installed *from this
+release on*; S7 is what makes the release worth anything to the ones already out there. A brain proves
+its own installed bytes by **membership in a table of every byte-state the engine ever published**
+(`engine-fingerprints.json`, 82 states at v5.0.0, regenerated by a maintainer script and guarded by a
+test that goes red the moment a `merge`-regime file changes without it). A file whose bytes are in the
+table has, by definition, never been edited — so a brain that recorded no provenance recovers one, and
+stops being frozen. **S7-5 goes one step further**: when a digest *is* recorded but its bytes are not,
+the ancestor is **fetched from the published tag that digest names**, so a genuinely edited file reaches
+the merge path instead of the preserve path. Best effort by design — offline or on a vanished tag, the
+file is preserved exactly as before and the report says so in one line.
+
+**S8 — the French tree stops drifting in silence.** `locale-drift.mjs` goes red when an English file
+moves without its `templates/fr/` twin in a paired commit; green over the 16 real pairs, with a waiver
+map that turned out to be load-bearing (empty it and it names `f7a00fc`, the one commit where English
+caught up with French and no French edit can ever pair it). ADR 0040 records the doctrine. **This is
+what S6e became** — see *What is NOT in here*.
+
+**S10 — a file you personalized becomes a QUESTION, not a blind spot.** The owner's acceptance
+criterion for this release, and the half no mechanism above delivers on its own: a preserved file now
+carries the engine's version beside it (`<file>.new`), the update report **names that path**, the
+`update-engine` skill turns it into a conversation in plain words, and a real command carries out the
+answer — `node scripts/adopt-engine-file.mjs <file> take-theirs|keep-mine|combine --from <path>`. The
+answer is recorded **against the engine version it was given at** (`.engine-answers.json`), so a new
+release re-opens the question with no timer and no rule. Three invariants earned their own guards: the
+owner's current bytes are committed to the brain's history *before* an adoption writes (so *take the new
+one* is undoable), *keep mine* must **not** advance the ancestor (or the next merge would fold in the
+version they refused), and a conflicted `.new` — which carries `<<<<<<<` markers, not a clean candidate
+— is **refused** rather than pasted into the live file and recorded as its ancestor.
+
+**The doctrine cargo — text changes to the very file this release unfreezes.** Deliberately **not**
+numbered as slices: they were arbitrated in (owner, 2026-08-15) from a neighbouring plan and the issue
+tracker, and only *ride* here. Shipping them inside `CLAUDE.engine.md` is the proof by example that the
+carrier works. Each lands in both locales in one commit, with the fingerprint table regenerated beside
+it, and each is held by its own doc guard with EN/FR parity.
+
+**#61 — announce before acting on a signal.** Ending a session in plain words ran the passive
+observation ritual in complete silence: backlog read, long conversation scanned, four files written,
+and the answer only afterwards. **An internal inconsistency rather than a missing feature** — the
+engine already demanded exactly this one section earlier, for the background sync — so the fix
+generalises the rule that existed instead of inventing a second one, states it **above both of its
+instances**, and has the ritual that failed point at it in one line.
+
+**#67 — the tooling rule becomes conditional and self-describing.** *"Never Bash to probe the vault"*
+rested on a premise true of one surface in one permission mode, and was written as an absolute — in
+the title first. In a session in auto mode with the native `Grep` absent, the brain read its own
+constitution as self-contradictory and **filed a friction item asking its owner to arbitrate a rule
+that lives in the engine layer**. The rule now names its surface and its mode, and says that falling
+back to Bash when a native tool is unavailable is **expected, not a defect, and nothing to report**.
+Second half, a separation rather than a rule: Routing is about *correctness* and holds everywhere,
+Tooling is about *ergonomics* and is environment-dependent — with the teeth named, since an **absence**
+claim needs an exhaustive exact search and a top-N by similarity cannot prove a negative.
+
+**#64 (rule half) — delegation gets an objective threshold.** The delegation guidance was not missing,
+it was **advisory**: *"a large document"*, *"reasonable size"*, no number — and a rule with no number is
+remembered when there is room to spare and forgotten when there is not. Consultation reads now go to a
+sub-agent past **~1,500 lines or ~60 KB**, with the two carve-outs stated in the same breath and pinned
+by a test to follow the number rather than live elsewhere: a file about to be **edited** (`Edit`
+requires a prior `Read`) and content to be quoted **verbatim**. The issue's third part ships too, as a
+rule: loading a big skill for three facts is the same disease. ⚠️ **Its `PreToolUse(Read)` hook is NOT
+here** — deferred by the owner, and the guard **asserts its absence**, because a doc guard is where
+undecided scope quietly becomes shipped scope.
+
+**The source-first rule — the routing doctrine gains a level 1 it never had.** The routing table had rows for
+semantic, exact and structural retrieval and **none at all for a source the owner hands over** — the
+2026-08-08 field case, where an article's URL sat in the first message, was never opened, and the answer
+compared that article against a reconstruction of itself. Both constitutions now open their routing
+section with a `Level 1` block, and the block is placed **above** the search routing because a rule
+about reading order that is itself read last reproduces the order that failed —
+`source-first-discipline.test.mjs` pins the rules, the EN/FR parity, the table row's position and the
+block's. Its corollary **points at** the existing claim discipline rather than restating it. It rides
+this release rather than the next one for the obvious reason: it is doctrine, and doctrine is exactly
+what the fleet stopped receiving. Owned by
+[`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](maintainers/plans/prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md).
+
+## 🛑 The two claims the release note was FORBIDDEN — both have now fallen
+
+They are kept here, with what made each false, because they were pinned by tests and the tests were
+inverted rather than deleted.
+
+> ✅ **BOTH CLAIMS NOW FALL ON BOTH PLATFORMS** _(2026-08-22, `65a6080` + `13ef852`)_. **The heal was
+> never affected on Windows**: it normalises the installed content before consulting the table
+> (`engine-heal.mjs:32`), and CRLF content heals byte-identically to LF while an owner's edit still
+> heals not at all. **The ancestor fetch WAS** — it resolved the tag by a direct lookup on the recorded
+> sha, a Windows brain records a **CRLF** digest at install, and no table row is CRLF (every row is
+> folded from a git blob, and the object store holds LF), so no fetch was attempted at all.
+>
+> **A digest cannot be un-digested**, so the lookup could not be repaired in place. Instead the planner
+> stops resolving on a miss and **nominates**: it hands the fetch the rel's rows, and the fetch proves
+> which one is the record by digesting its CRLF form. The row that answers **is** what was delivered —
+> a membership proof, never derived from the installed bytes — and the CRLF form is what lands in
+> `.engine-base/`, because the base must hold what was delivered to *that* brain. An LF brain takes the
+> hit path unchanged and pays nothing.
+>
+> 🪟 **And the real Windows runner has said so** _(run `32558375080`)_: the three QA poles that carried
+> this are green on `windows-latest`. **The whole matrix is green there now** _(run `32564338986`,
+> 7/7)_ — the last red was the release-cutting tool, not the product, and it is closed.
+
+1. ~~**The doctrine layer unfreezes no already-deployed brain.**~~ **False as of S7.** Old brains no
+   longer merely stop being *silent*: a brain rebuilt from the real `v3.6.0` tag now **receives**. The
+   acceptance test that pinned the old limitation was inverted, its old claim kept above its
+   replacement.
+2. ~~**The merge does not reach BACK.**~~ **False as of S7-5 (`fa0f5be`).** The reasoning was sound but
+   for one word: an ancestor cannot be seeded **from the disk**, but it can be **fetched** from the tag
+   the recorded digest names. Measured on a brain built from `v3.6.0` with a tailored skill: their lines
+   survive *and* the engine's newer content arrives, cleanly, no sidecar. ⚠️ What is still **not**
+   promised, and the note does not overstate it: the fetch is best effort, and two edits in the **same
+   region** still conflict — correctly, and visibly.
+
+## How it was judged
+
+- Suite **2 481 tests — 2 478 pass / 0 fail / 3 skipped** locally. ⚠️ **That figure is LOCAL, on macOS,
+  and it is not the verdict** — stating the local number alone is the exact defect this release's own
+  pre-flight committed twice: *a pre-flight that only reads the local suite is measuring the machine
+  that wrote the code.*
+  - 📐 **And the skip count says it again, one level down.** *"3 skipped, all Windows-only"* was the
+    developer-machine number: the macOS runner reports **9** and the Windows runner **11**, because a
+    laptop already has `rag/node_modules` and a fresh runner does not. **The list is read on both
+    platforms rather than counted on one**, and the claim that matters holds: **no test in the harness
+    suite skips on both**. The three that skip on macOS pass on `windows-latest`; the six *"engine
+    parser absent"* ones are re-run in the same job after `npm ci` (**32 / 0 skipped**, both
+    platforms); the rest are POSIX launchers and one POSIX-permissions test, all green on macOS.
+  - 🪟 **The Windows verdict, read from CI rather than predicted** _(2026-08-22, run `32564338986` on
+    `3b6820b`)_: **four failures → ZERO. The full matrix is 7/7**, `windows-latest` on Node 22, 24 and
+    26 plus the installer e2e. The three that were the product are repaired (W1); delivery is pinned so
+    they cannot recur on a new install (W2), proved there by **316 delivered text files LF** with its
+    premise measured in the same job.
+  - 🛑 **And the last one was worth more than a green tick.** It looked like a stale fingerprint table
+    (23 rels unrecognised) and it was a **reading**: the freshness guard read the runner's working
+    tree, which git checks out as CRLF. Underneath sat a defect nobody had named — **the
+    release-cutting tool folds the release being cut from that same tree, so a release cut from a
+    Windows clone would have shipped a CRLF fingerprint table**: every row a digest no brain can hold,
+    an artefact that looks perfectly normal, and a fleet left frozen by the very release that exists to
+    unfreeze it. The generator and the guard now both fold through the installer's own copy oracle
+    (`deliversAsLf`), so a wrong table and a green guard cannot coexist.
+- **Test-first throughout**, with the reds taken on assertions rather than on loading errors. The one
+  slice where fail-first did not run first is recorded as such in the plan rather than smoothed over.
+- **Mutation measured per block, on the change and not the file** — every number and every named
+  survivor is in [`maintainers/mutation/RESULTS.md`](maintainers/mutation/RESULTS.md). Representative
+  rows: `lib/engine-merge.mjs` 100 %, `lib/engine-merge-apply.mjs` 100 %, `lib/engine-base.mjs` 100 %,
+  `lib/engine-doctrine-refresh.mjs` 100 %, `lib/engine-skill-refresh.mjs` 100 %,
+  `lib/engine-write-guard.mjs` 98.89 %, `update-engine.mjs` 99.44 % whole-file with 100 % on the changed
+  hunk; and for the S10 block, `lib/engine-adopt.mjs` 96.67 %, `adopt-engine-file.mjs` 100 % over 60
+  mutants, then **96.15 % → 100 %** over S10-QA's changed hunks.
+- **Acceptance tests over brains rebuilt from real published tags**, not from fixtures this repo
+  invented. `release-fixture-doctrine.test.mjs` (S7): three poles whose only variable is the ancestor.
+  `release-fixture-adoption.test.mjs` (S10-QA): five poles over a `v3.6.0` brain with three files edited
+  **before** the release — preserved-and-offered, a clash that yields a marked merge and is refused, the
+  offer answered and the question closed, and the answer **re-opening when the engine moves**.
+- **S10-QA found three product defects that no hand-written fixture could have shown**, each fixed
+  test-first: an answer recorded on a brain that cannot name its engine version was written and then
+  silently dropped on read; a conflicted `.new` was adoptable blind; and a `merge` glob matched
+  `SKILL.md.new` as happily as `SKILL.md`, so every sidecar counted as a file the brain was holding back
+  — the engine naming its own offer as a divergence. None of them ever shipped.
+- **Every design and exclusion box in the plan re-verified against the code** by read-only agents, not
+  against the plan's own prose. S4's audit: 19/19 true. S1's: **two false claims**, struck in place with
+  their reason. That asymmetry is why the audit is run per-section instead of sampled.
+- **The marketing surface was re-read before the note was written** (CONVENTIONS §10, S9-1a): one
+  outright false promise found and repaired — `SETUP.md` swore an update never writes to a skill you
+  customized, which S7-5 makes false on purpose — plus six undersells, and one capability (the heal)
+  that appeared in no user-facing document at all.
+
+## What is NOT in here
+
+- **S6e — the French `test-first-discipline`** is **dropped** (owner's call, 2026-08-21). Going to write
+  it surfaced the real finding — *the FR tree has no owner and no staleness report* — which became **S8**
+  and shipped.
+- **One field measurement**, carried to the release checklist: whether the S3 write guard's prompt
+  becomes noise on a session that legitimately customizes an engine skill. Only living with it answers
+  that.
+- **The release note's voice and title, the cut, the tag and the publish.** The owner's, always. The
+  note itself is drafted to CONVENTIONS §11 and waiting beside the plan
+  ([`release-v5.0.0-note.md`](maintainers/plans/prospective/release-v5.0.0-note.md)), with three title
+  candidates rather than one picked for him.
+
+## ⚠️ Three things to settle before this can be cut
+
+1. ✅ 🪟 **THE WINDOWS REPAIR IS BUILT, AND ITS ACCEPTANCE CONDITION IS DISCHARGED** — the proof
+   the owner asked for is a green `windows-latest` run, READ: it is `32564338986`, the full matrix
+   **7/7**, zero Windows failures. What follows is the history of the four that were red.
+   CI was red on Windows with four failures, three of them one real product defect: **the ancestor
+   fetch never ran on a Windows brain.** A Windows brain records a **CRLF** digest at install —
+   deliberately, so an update does not flip a sha for content nobody touched — and no table row is
+   CRLF, so the direct lookup missed and nothing was fetched. Two more QA poles fell with it, because
+   all three need that ancestor. **A brain installed on Windows does hold CRLF**: `installer.mjs`
+   copies the launcher's working tree byte for byte (`installer.mjs:309`) and Git for Windows defaults
+   `core.autocrlf` to true.
+   - ✅ **Repaired** _(`65a6080` + `13ef852`)_: on a miss the planner **nominates** the rel's rows
+     instead of giving up, and the fetch proves which one is the record by digesting its CRLF form,
+     then writes that form. 22 tests, all red on their assertions first, including a QA pole on a brain
+     rebuilt from the real `v3.6.0` tag with CRLF-recorded provenance. Scoped mutation 100 % on all
+     three seams.
+   - ✅ **AND PROVED ON A REAL WINDOWS RUNNER, read rather than predicted** _(run `32558375080`,
+     `Node 24 · windows-latest`)_: the three QA poles that were the defect are **green there**. On that
+     platform git checks the fixtures out as CRLF, so the brain records a CRLF digest against an
+     LF table and the repair is exercised **without any fixture arranging it** — the environment builds
+     the defect for free. **Windows went from four failures to one.**
+   - ✅ **And the delivery is now PINNED, so it cannot recur** (W2, the owner's half (b)):
+     `-c core.autocrlf=false` on the updater's clone, and the installer delivering **what the object
+     store holds** rather than what its checkout holds. The second one is not a flag — the installer
+     clones nothing, it copies the launcher's working tree — so it asks `git ls-files --eol` which
+     files git stores as LF, and normalises exactly those. Binaries (29 PNG boards ship into every
+     brain) and any explicit `eol=crlf` are copied verbatim; a failed call falls back to the
+     byte-verbatim copy, so an installer never refuses to build a brain over a line-ending nicety.
+     **A macOS run cannot prove this fires** — its checkout is already LF — so the assertion lives in
+     the `windows-latest` installer e2e, with a positive control and a floor on the file count.
+   - ✅ **The heal was NOT affected**, so *"a frozen brain starts receiving again"* held on Windows all
+     along. It normalises the installed content before consulting the table (`engine-heal.mjs:32`) —
+     measured, CRLF heals identically to LF, and an owner's edit still heals not at all.
+   - ✅ **The fourth Windows failure is CLOSED, and it was the most interesting of the four**
+     _(`3b6820b` + `87e9be1`)_. It presented as a harness artifact — the freshness guard reading the
+     runner's CRLF working tree against an LF table — but what it was pointing at is a **maintainer**
+     defect: the release-cutting tool folds the release being cut from that same tree, so **a release
+     cut from a Windows checkout would have shipped a CRLF fingerprint table** and left the fleet
+     frozen with nothing to see. Both now fold through the installer's own copy oracle
+     (`deliversAsLf`). Regenerating on macOS yields a byte-identical artefact, and the full matrix is
+     **7/7 green** _(run `32564338986`)_.
+   - ✅ **What the release note owes here is now NOTHING.** The honest line this section used to
+     demand — *on Windows, a file edited before this release is preserved with its `.new` sidecar
+     rather than merged* — **is no longer true and must not be written.**
+2. ✅ **That arbitration is ANSWERED and BUILT** _(2026-08-22 · `df09f17` + `ea85b07`)_. It read: a
+   brain keeps its **install-day list of which files the engine manages**, forever — an update never
+   advances `regimes` — so the engine half of the constitution, a `merge` family only v4+ declares, was
+   offered *during* an update on a pre-v4 brain and never named by the between-updates banner. The
+   owner took option (a): **step 7 now advances `regimes` and `retired` to the engine's**, with the
+   condition he attached — the **write guard's widening is stated in the release note**, because it
+   reads the same list and will start asking about files it used to let through. Scoped mutation 100 %
+   on the changed lines. The plan owns the detail; this item is closed, not summarised.
+3. ✅ **The merge order is SETTLED** _(2026-08-22, the owner's call)_. This PR is **retargeted to
+   `main`** and reviewed as one body of work: one review, one merge commit, **no squash**, history kept
+   whole. The retarget owed no rebase and rewrote nothing (0 behind `main`, no conflict). ⚠️ The repo
+   allows all three merge styles, so **squash is reachable by a mis-click**: the button must read
+   *Create a merge commit* at the moment of merging.
+
+> 📦 **Ready and NOT applied — the `engineVersion` bump.** Three of its four numbers are dictated by the
+> diff (`rag` and `local-mirror` have **zero files changed** since v4.9.1; `constitutionTemplate` is
+> purely additive doctrine → `1.4.0`), and 25 tags of precedent settle most of the fourth: the vector
+> has **never** used a major bump, and **`v4.0.0` moved not one of the four**. The fourth is now
+> **arbitrated by the owner**: `scripts` **`1.13.1 → 1.14.0`**, the precedent's default (the larger jump,
+> à la `v3.6.0`, was offered and declined). `indexSchemaVersion` **stays `2`** — it is the note's promise
+> that nothing is re-read or re-encoded. The table is in the plan under § *S9-2b's materials*.
+>
+> 🛑 **It is applied WITH the cut, never ahead of it** _(Thomas, 2026-08-22)_. A bumped version that is
+> not published tells everyone the release is out, and **a fresh install stamps itself with a version
+> that was never released** — a new brain is created by copying the launcher's default branch, so
+> whatever sits on `main` is what it records. Publication itself is the **tag** (`releasesAhead`
+> compares published semver tags against the one a brain was installed at, and the repo has no release
+> workflow), but the install side is the half that would lie.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+https://claude.ai/code/session_01FQohjQbznWkuM8ppf2ieQ7

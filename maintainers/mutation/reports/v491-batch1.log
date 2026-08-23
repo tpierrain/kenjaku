@@ -1,0 +1,293 @@
+12:53:36 (72045) INFO ProjectReader Found 4 of 692 file(s) to be mutated.
+12:53:36 (72045) INFO Instrumenter Instrumented 4 source file(s) with 461 mutant(s)
+12:53:36 (72045) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+12:53:36 (72045) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-o8n3Ng
+12:53:36 (72045) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+12:53:36 (72045) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+12:53:38 (72045) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2037 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 411)
+
+[Survived] StringLiteral
+scripts/lib/universe-persist.mjs:29:3
+-     "\n⚠️  SWITCH NOT COMMITTED — the universe changed on THIS machine only and " +
++     "" +
+
+[Survived] StringLiteral
+scripts/lib/universe-persist.mjs:30:3
+-     "will not travel. Run `git status` in your brain to see what stopped the commit.";
++     "";
+
+[Survived] StringLiteral
+scripts/lib/universe-persist.mjs:40:58
+-     if (!git(["add", "-A", "--", ".vault-rag"]).ok) return "failed";
++     if (!git(["add", "-A", "--", ".vault-rag"]).ok) return "";
+
+[Survived] ConditionalExpression
+scripts/lib/universe-persist.mjs:60:7
+-     if (res.code !== 0 || !res.wrote) return res;
++     if (false || !res.wrote) return res;
+
+[Survived] StringLiteral
+scripts/lib/universe-persist.mjs:63:41
+-     if (commit === "failed" || commit === "conflicted") message += SWITCH_NOT_COMMITTED_WARNING;
++     if (commit === "failed" || commit === "") message += SWITCH_NOT_COMMITTED_WARNING;
+
+[Survived] Regex
+scripts/lib/universes.mjs:37:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-|-+$/g, ""); // trim leading/trailing hyphens
+
+[Survived] Regex
+scripts/lib/universes.mjs:37:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-+|-$/g, ""); // trim leading/trailing hyphens
+
+[Survived] ArrayDeclaration
+scripts/lib/universes.mjs:46:50
+-     if (!name || name === DEFAULT_UNIVERSE) return [...registry];
++     if (!name || name === DEFAULT_UNIVERSE) return [];
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:107:70
+-     if (first === "switch") return { action: "switch", name: rest.join(" ") };
++     if (first === "switch") return { action: "switch", name: rest.join("") };
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:110:46
+-     return { action: "switch", name: argv.join(" ") };
++     return { action: "switch", name: argv.join("") };
+
+[Survived] ConditionalExpression
+scripts/lib/universes.mjs:124:35
+-     if (intent.action === "list" || intent.action === "menu") {
++     if (intent.action === "list" || false) {
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:124:53
+-     if (intent.action === "list" || intent.action === "menu") {
++     if (intent.action === "list" || intent.action === "") {
+
+[Survived] ConditionalExpression
+scripts/lib/universes.mjs:126:9
+-       if (intent.action === "menu") {
++       if (false) {
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:126:27
+-       if (intent.action === "menu") {
++       if (intent.action === "") {
+
+[Survived] BlockStatement
+scripts/lib/universes.mjs:126:35
+-       if (intent.action === "menu") {
+-         return { code: 0, message: `active: ${current}\navailable: ${all.join(", ")}` };
+-       }
++       if (intent.action === "menu") {}
+
+[Survived] ObjectLiteral
+scripts/lib/universes.mjs:127:14
+-         return { code: 0, message: `active: ${current}\navailable: ${all.join(", ")}` };
++         return {};
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:127:34
+-         return { code: 0, message: `active: ${current}\navailable: ${all.join(", ")}` };
++         return { code: 0, message: `` };
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:127:77
+-         return { code: 0, message: `active: ${current}\navailable: ${all.join(", ")}` };
++         return { code: 0, message: `active: ${current}\navailable: ${all.join("")}` };
+
+[Survived] ConditionalExpression
+scripts/lib/universes.mjs:135:9
+-       if (!res.ok) return { code: 1, message: `cannot create universe (${res.reason})` };
++       if (false) return { code: 1, message: `cannot create universe (${res.reason})` };
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:135:45
+-       if (!res.ok) return { code: 1, message: `cannot create universe (${res.reason})` };
++       if (!res.ok) return { code: 1, message: `` };
+
+[Survived] ObjectLiteral
+scripts/lib/universes.mjs:135:25
+-       if (!res.ok) return { code: 1, message: `cannot create universe (${res.reason})` };
++       if (!res.ok) return {};
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:138:9
+-         : `switched to '${res.name}'`;
++         : ``;
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:144:9
+-           `New notes you capture here will file under vault/${res.name}/.`
++           ``
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:145:9
+-         : "";
++         : "Stryker was here!";
+
+[Survived] ConditionalExpression
+scripts/lib/universes.mjs:159:7
+-     if (res.reason === "unknown") {
++     if (true) {
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:165:30
+-     return { code: 1, message: "no universe name given" };
++     return { code: 1, message: "" };
+
+[Survived] ConditionalExpression
+scripts/lib/universes.mjs:206:7
+-     if (!io.existsSync(path)) return [];
++     if (false) return [];
+
+[Survived] OptionalChaining
+scripts/lib/universes.mjs:209:26
+-       return Array.isArray(parsed?.universes) ? parsed.universes : [];
++       return Array.isArray(parsed.universes) ? parsed.universes : [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universes.mjs:209:66
+-       return Array.isArray(parsed?.universes) ? parsed.universes : [];
++       return Array.isArray(parsed?.universes) ? parsed.universes : ["Stryker was here"];
+
+[Survived] BlockStatement
+scripts/lib/universes.mjs:210:11
+-     } catch {
+-       return [];
+-     }
++     } catch {}
+
+[Survived] ArrayDeclaration
+scripts/lib/universes.mjs:211:12
+-       return [];
++       return ["Stryker was here"];
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:220:56
+-       JSON.stringify({ universes: registry }, null, 2) + "\n"
++       JSON.stringify({ universes: registry }, null, 2) + ""
+
+[Survived] ConditionalExpression
+scripts/lib/universes.mjs:278:7
+-     if (!name) return { ok: false, reason: "empty" };
++     if (false) return { ok: false, reason: "empty" };
+
+[Survived] ObjectLiteral
+scripts/lib/universes.mjs:278:21
+-     if (!name) return { ok: false, reason: "empty" };
++     if (!name) return {};
+
+[Survived] BooleanLiteral
+scripts/lib/universes.mjs:278:27
+-     if (!name) return { ok: false, reason: "empty" };
++     if (!name) return { ok: true, reason: "empty" };
+
+[Survived] StringLiteral
+scripts/lib/universes.mjs:278:42
+-     if (!name) return { ok: false, reason: "empty" };
++     if (!name) return { ok: false, reason: "" };
+
+[Survived] ConditionalExpression
+scripts/lib/universes.mjs:300:7
+-     if (created) writeRegistry(io, dir, addToRegistry(registry, name));
++     if (true) writeRegistry(io, dir, addToRegistry(registry, name));
+
+[Survived] MethodExpression
+scripts/auto-push.mjs:34:16
+-         ? Number(git(["rev-list", "--count", "@{u}..HEAD"]).out.trim()) || 0
++         ? Number(git(["rev-list", "--count", "@{u}..HEAD"]).out) || 0
+
+[Survived] ConditionalExpression
+scripts/auto-push.mjs:115:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/auto-push.mjs:115:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (false) {
+
+[Survived] LogicalOperator
+scripts/auto-push.mjs:115:5
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] || resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+
+[Survived] ConditionalExpression
+scripts/auto-push.mjs:115:24
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] && true) {
+
+[Survived] EqualityOperator
+scripts/auto-push.mjs:115:24
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++   if (process.argv[1] && resolve(process.argv[1]) !== fileURLToPath(import.meta.url)) {
+
+[Survived] BlockStatement
+scripts/auto-push.mjs:115:85
+-   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+-     process.exit(runHook(realHookDeps(import.meta.url)));
+-   }
++   if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {}
+
+[Survived] StringLiteral
+scripts/set-active-universe.mjs:31:40
+-     readFileSync: (p) => readFileSync(p, "utf-8"),
++     readFileSync: (p) => readFileSync(p, ""),
+
+[Survived] ConditionalExpression
+scripts/set-active-universe.mjs:36:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/set-active-universe.mjs:36:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/set-active-universe.mjs:36:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     // Persisted variant (issue #69): a pointer write commits + pushes itself —
+-     // written through Bash, it is invisible to the PostToolUse/Stop hook net.
+-     const { code, message } = runSwitchCliPersisted(realIo, vaultRagDir(), process.argv.slice(2), {
+-       git: buildGit(repoRoot(import.meta.url)),
+-       sleep: realSleep,
+-     });
+-     console.log(message);
+-     process.exit(code);
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] MethodExpression
+scripts/set-active-universe.mjs:39:74
+-     const { code, message } = runSwitchCliPersisted(realIo, vaultRagDir(), process.argv.slice(2), {
++     const { code, message } = runSwitchCliPersisted(realIo, vaultRagDir(), process.argv, {
+
+[Survived] ObjectLiteral
+scripts/set-active-universe.mjs:39:97
+-     const { code, message } = runSwitchCliPersisted(realIo, vaultRagDir(), process.argv.slice(2), {
+-       git: buildGit(repoRoot(import.meta.url)),
+-       sleep: realSleep,
+-     });
++     const { code, message } = runSwitchCliPersisted(realIo, vaultRagDir(), process.argv.slice(2), {});
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  89.15 |   89.15 |      411 |         0 |         50 |        0 |        0 |
+ lib                     |  89.69 |   89.69 |      322 |         0 |         37 |        0 |        0 |
+  universe-persist.mjs   |  91.80 |   91.80 |       56 |         0 |          5 |        0 |        0 |
+  universes.mjs          |  89.26 |   89.26 |      266 |         0 |         32 |        0 |        0 |
+ auto-push.mjs           |  92.55 |   92.55 |       87 |         0 |          7 |        0 |        0 |
+ set-active-universe.mjs |  25.00 |   25.00 |        2 |         0 |          6 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+13:06:26 (72045) INFO MutationTestExecutor Done in 12 minutes and 50 seconds.
+13:06:26 (72045) INFO Sandbox Resetting your original files from .stryker-tmp/backup-o8n3Ng.

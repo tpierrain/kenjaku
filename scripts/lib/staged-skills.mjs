@@ -16,6 +16,8 @@ import { join, dirname, sep } from "node:path";
 
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { fingerprint } from "./engine-source.mjs";
+import { resolveLocaleSource } from "./engine-copy-select.mjs";
+import { readBrainLocale } from "./brain-locale.mjs";
 
 // The staging path a staged skill's SOURCE ships at, and where it gets installed.
 export const STAGING_PREFIX = "engine-skills/";
@@ -42,7 +44,22 @@ export function readStagedProvenance(brainDir) {
   return base;
 }
 
-export function installStagedSkills({ sourceDir, brainDir }) {
+// 🌍 LOCALE-RESOLVED SINCE T10 (third v5.0.0 review pass). The finding named
+// reconcileBrain's merge-skill door; running it here found the SAME defect one door
+// along — a French brain received the ENGLISH staged skill and then held it for good,
+// because its dir now exists and install-if-absent never fires twice. The resolution is
+// ADR 0040 rule 3's own function, not a second locale rule: read `templates/<locale>/
+// engine-skills/<name>/…` when a twin exists, write `.claude/skills/<name>/…` either way.
+//
+// `sourceFiles` and `locale` are injectable because `reconcileBrain` has already computed
+// both — walking the tree twice per session-start self-heal would be pure waste — and
+// they default here so the installer's call site needs to know nothing about locales.
+export function installStagedSkills({
+  sourceDir,
+  brainDir,
+  sourceFiles = listFilesRelPosix(sourceDir),
+  locale = readBrainLocale(brainDir),
+}) {
   const stagingDir = join(sourceDir, "engine-skills");
   if (!existsSync(stagingDir)) return [];
 
@@ -55,10 +72,14 @@ export function installStagedSkills({ sourceDir, brainDir }) {
 
     const srcSkillDir = join(stagingDir, name);
     for (const rel of listFilesRelPosix(srcSkillDir)) {
-      const osRel = rel.split("/").join(sep);
-      const dest = join(destSkillDir, osRel);
+      // The rel as the SOURCE TREE spells it — what rule 3 resolves against. The staging
+      // dir is walked (never `templates/`), so a twin can add no file the root lacks:
+      // an FR-only staged file is invisible here, exactly as an FR-only anything is.
+      const stagedRel = `${STAGING_PREFIX}${name}/${rel}`;
+      const srcRel = resolveLocaleSource({ rel: stagedRel, locale, sourceFiles });
+      const dest = join(destSkillDir, rel.split("/").join(sep));
       mkdirSync(dirname(dest), { recursive: true });
-      copyFileSync(join(srcSkillDir, osRel), dest);
+      copyFileSync(join(sourceDir, srcRel.split("/").join(sep)), dest);
     }
     installed.push(name);
   }

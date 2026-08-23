@@ -132,9 +132,10 @@ flowchart LR
 > replicates a live zone into your **own** vault — searchable, citable, yours, right now. Same
 > vault contract; the day a central platform exists, you switch over without rewriting the engine.
 
-> 🛠️ *Maintainers:* the full rationale lives in the PRD —
-> [positioning (§1)](maintainers/plans/prd-golden-source-sync.md#1-problem--positioning) and
-> [trajectory (§19)](maintainers/plans/prd-golden-source-sync.md#19-trajectory-out-of-mvp).
+> 🛠️ *Maintainers:* the full rationale lives in the PRD, in the launcher's repository —
+> `maintainers/plans/prd-golden-source-sync.md`, §1 (positioning) and §19 (trajectory out of MVP).
+> *(Named as a path rather than linked: this page ships into your brain, and the launcher's
+> maintainer folder does not travel with it.)*
 
 ---
 

@@ -9,7 +9,10 @@
     "mutate:local-mirror": "cd ../.. && node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.local-mirror.config.mjs",
     "mutate:scripts": "cd ../.. && node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.config.mjs",
     "mutate:all": "npm run mutate:rag && npm run mutate:local-mirror && npm run mutate:scripts",
-    "mutate:changed": "node mutate-changed.mjs"
+    "mutate:maintainers": "cd ../.. && node maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.maintainers.config.mjs",
+    "mutate:changed": "node mutate-changed.mjs",
+    "mutate:one": "node mutate-one.mjs",
+    "test": "node --test \"*.test.mjs\""
   },
   "devDependencies": {
     "@stryker-mutator/core": "^9.6.1"

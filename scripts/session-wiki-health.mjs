@@ -21,6 +21,7 @@
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
 import { lintVault } from "./lib/wiki-lint.mjs";
 import { consolidationCandidates } from "./lib/consolidation-candidates.mjs";
@@ -47,7 +48,11 @@ export function sessionWikiHealth({ readNotes, vaultDir, emit }) {
 }
 
 // ── main: wire the real read-only seams (deterministic glue, not unit-tested) ──
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// runAsEntrypoint, never a hand-rolled argv[1] comparison: `resolve(argv[1])` is the
+// path AS TYPED and `import.meta.url` is the path Node REALPATH-RESOLVED, so on any
+// brain whose path holds a symlink the two differ and this whole block silently never
+// ran. Pinned by the symlinked-path pole in the sibling test.
+runAsEntrypoint(import.meta.url, process.argv, () => {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const brainDir = resolve(__dirname, "..");
   const vaultDir = join(brainDir, "vault");
@@ -64,5 +69,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     // additionalContext is the ONLY Desktop-visible channel (chat) — see buildWikiHealthHookOutput.
     process.stdout.write(JSON.stringify(output) + "\n");
   }
-  process.exit(0); // fail-open: ALWAYS exit 0, never block session start
-}
+  return 0; // fail-open: ALWAYS exit 0, never block session start
+});

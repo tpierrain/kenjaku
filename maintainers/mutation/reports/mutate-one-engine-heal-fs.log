@@ -1,0 +1,29 @@
+[32m21:02:11 (71841) INFO ProjectReader[39m Found 1 of 824 file(s) to be mutated.
+[32m21:02:11 (71841) INFO Instrumenter[39m Instrumented 1 source file(s) with 13 mutant(s)
+[32m21:02:11 (71841) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m21:02:11 (71841) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-tbd8ct
+[32m21:02:11 (71841) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m21:02:11 (71841) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m21:02:13 (71841) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2423 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/13 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: <1m) 5/13 tested (0 survived, 0 timed out)
+Mutation testing 76% (elapsed: <1m, remaining: <1m) 10/13 tested (1 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 12)
+
+[Survived] StringLiteral
+scripts/lib/engine-heal-fs.mjs:40:55
+-         raw = readFileSync(join(dir, FINGERPRINTS_REL), "utf8");
++         raw = readFileSync(join(dir, FINGERPRINTS_REL), "");
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  92.31 |   92.31 |       12 |         0 |          1 |        0 |        0 |
+ engine-heal-fs.mjs |  92.31 |   92.31 |       12 |         0 |          1 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m21:02:47 (71841) INFO MutationTestExecutor[39m Done in 35 seconds.
+[32m21:02:47 (71841) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-tbd8ct.

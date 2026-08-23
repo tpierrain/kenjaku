@@ -1,0 +1,57 @@
+18:10:27 (56206) INFO ProjectReader Found 2 of 629 file(s) to be mutated.
+18:10:27 (56206) INFO Instrumenter Instrumented 2 source file(s) with 319 mutant(s)
+18:10:27 (56206) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+18:10:27 (56206) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-FOsriX
+18:10:27 (56206) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+18:10:27 (56206) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+18:10:29 (56206) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2137 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 312)
+
+[Survived] OptionalChaining
+scripts/lib/universe-profile.mjs:92:26
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
++       return Array.isArray(parsed.declined) ? parsed.declined : [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:174:75
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: [], topics: [], connectors: [], other: ["Stryker was here"] };
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s+(.*)/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s(.*)$/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:185:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/^[-*]\s/, ""));
+
+[Survived] ConditionalExpression
+scripts/lib/vault-write-guard.mjs:127:7
+-     if (typeof oldString !== "string" || typeof newString !== "string") return null;
++     if (false || typeof newString !== "string") return null;
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:150:38
+-     const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
++     const raw = toolName === "Write" ? toolInput.content : editedNote({ toolInput, readFile });
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  97.81 |   97.81 |      312 |         0 |          7 |        0 |        0 |
+ universe-profile.mjs  |  97.37 |   97.37 |      185 |         0 |          5 |        0 |        0 |
+ vault-write-guard.mjs |  98.45 |   98.45 |      127 |         0 |          2 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+18:17:27 (56206) INFO MutationTestExecutor Done in 6 minutes and 59 seconds.
+18:17:27 (56206) INFO Sandbox Resetting your original files from .stryker-tmp/backup-FOsriX.

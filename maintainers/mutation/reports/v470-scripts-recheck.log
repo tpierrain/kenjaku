@@ -1,0 +1,37 @@
+08:41:48 (47455) INFO ProjectReader Found 4 of 644 file(s) to be mutated.
+08:41:48 (47455) INFO Instrumenter Instrumented 4 source file(s) with 82 mutant(s)
+08:41:48 (47455) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+08:41:48 (47455) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-SyH3Ou
+08:41:48 (47455) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+08:41:48 (47455) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+08:41:51 (47455) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2676 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 80)
+
+[Survived] BlockStatement
+scripts/lib/restart-signal.mjs:51:11
+-     } catch {
+-       return false;
+-     }
++     } catch {}
+
+[Survived] ConditionalExpression
+scripts/prompt-restart-nudge.mjs:55:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (true) {
+
+Ran 1.00 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  97.56 |   97.56 |       80 |         0 |          2 |        0 |        0 |
+ lib                      |  98.46 |   98.46 |       64 |         0 |          1 |        0 |        0 |
+  frozen-wiring.mjs       | 100.00 |  100.00 |       28 |         0 |          0 |        0 |        0 |
+  restart-nudge.mjs       | 100.00 |  100.00 |       15 |         0 |          0 |        0 |        0 |
+  restart-signal.mjs      |  95.45 |   95.45 |       21 |         0 |          1 |        0 |        0 |
+ prompt-restart-nudge.mjs |  94.12 |   94.12 |       16 |         0 |          1 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+08:44:20 (47455) INFO MutationTestExecutor Done in 2 minutes and 32 seconds.
+08:44:20 (47455) INFO Sandbox Resetting your original files from .stryker-tmp/backup-SyH3Ou.

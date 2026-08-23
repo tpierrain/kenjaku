@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { runProbeChild, toBannerVerdict, notifyInvocation } from "./health-probe-run.mjs";
+import { runProbeChild, toBannerVerdict, notifyInvocation, engineFilesVerdict } from "./health-probe-run.mjs";
 
 const PROBE = join(dirname(fileURLToPath(import.meta.url)), "health-probe-run.mjs");
 
@@ -180,4 +180,44 @@ test("notifyInvocation — the spawn options are part of the request, detachment
     windowsHide: true,
     shell: false,
   });
+});
+
+// ── S5: the engine's own body, checked by the surface that owns the alarm ─────
+//
+// `readInstalledMergeFiles` has taken an opt-in `unreadable` collector since S5, and
+// the SessionStart divergence hook hands it one and throws it away — deliberately: a
+// hook whose voice is "a file the engine leaves alone is a choice, not a problem" has
+// no register for a file the filesystem refused. The alarm belongs to the health
+// banner, which is fed from here.
+test("engineFilesVerdict — a brain whose engine files all read stays silent", () => {
+  // Quiet when healthy is the whole contract of this surface: an entry with status
+  // "ok" would still be a row in engine-health.json and a thing to explain.
+  assert.deepEqual(engineFilesVerdict([]), []);
+});
+
+test("engineFilesVerdict — ONE unreadable file is named, counted, and marked broken", () => {
+  assert.deepEqual(engineFilesVerdict([".claude/skills/coach/SKILL.md"]), [
+    {
+      capability: "engine-files",
+      status: "broken",
+      detail: "1 engine file could not be read — .claude/skills/coach/SKILL.md",
+      checks: [
+        {
+          name: "readable",
+          status: "broken",
+          detail: "1 engine file could not be read — .claude/skills/coach/SKILL.md",
+        },
+      ],
+    },
+  ]);
+});
+
+test("engineFilesVerdict — SEVERAL are all named, in a stable order, and the count agrees", () => {
+  // Sorted rather than left in walk order: this line is read by a human, and the same
+  // two files must not swap places between two sessions and read as a new problem.
+  const verdict = engineFilesVerdict(["scripts/auto-commit.mjs", "CLAUDE.engine.md"]);
+  assert.equal(
+    verdict[0].detail,
+    "2 engine files could not be read — CLAUDE.engine.md, scripts/auto-commit.mjs",
+  );
 });

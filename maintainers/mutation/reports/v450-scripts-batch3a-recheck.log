@@ -1,0 +1,54 @@
+18:38:13 (67237) INFO ProjectReader Found 2 of 637 file(s) to be mutated.
+18:38:13 (67237) INFO Instrumenter Instrumented 2 source file(s) with 111 mutant(s)
+18:38:13 (67237) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+18:38:13 (67237) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-GbQpnQ
+18:38:13 (67237) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+18:38:13 (67237) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+18:38:15 (67237) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1651 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 104)
+
+[Survived] ConditionalExpression
+scripts/rehydrate.mjs:130:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (true) {
+
+[Survived] ConditionalExpression
+scripts/rehydrate.mjs:130:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (false) {
+
+[Survived] BlockStatement
+scripts/rehydrate.mjs:130:53
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
+-     process.exit(runRehydrate(process.argv.slice(2)));
+-   }
++   if (isEntrypoint(import.meta.url, process.argv[1])) {}
+
+[Survived] MethodExpression
+scripts/rehydrate.mjs:131:29
+-     process.exit(runRehydrate(process.argv.slice(2)));
++     process.exit(runRehydrate(process.argv));
+
+[Survived] StringLiteral
+scripts/vault-write-guard.mjs:24:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] ObjectLiteral
+scripts/vault-write-guard.mjs:29:38
+-     parser: (brainDir) => engineParser({ brainDir }),
++     parser: (brainDir) => engineParser({}),
+
+Ran 0.99 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  94.59 |   94.59 |      104 |         1 |          6 |        0 |        0 |
+ rehydrate.mjs         |  95.40 |   95.40 |       83 |         0 |          4 |        0 |        0 |
+ vault-write-guard.mjs |  91.67 |   91.67 |       21 |         1 |          2 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+18:41:20 (67237) INFO MutationTestExecutor Done in 3 minutes and 6 seconds.
+18:41:20 (67237) INFO Sandbox Resetting your original files from .stryker-tmp/backup-GbQpnQ.

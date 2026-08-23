@@ -1,0 +1,42 @@
+22:23:20 (8654) INFO ProjectReader Found 2 of 663 file(s) to be mutated.
+22:23:20 (8654) INFO Instrumenter Instrumented 2 source file(s) with 91 mutant(s)
+22:23:20 (8654) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+22:23:20 (8654) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-4RLOqD
+22:23:20 (8654) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+22:23:20 (8654) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+22:23:22 (8654) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1828 ms, overhead 3 ms).
+
+All tests
+  ✓ All tests (killed 87)
+
+[Survived] StringLiteral
+scripts/lib/semver-tag.mjs:12:51
+-     const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "");
++     const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(tag ?? "Stryker was here!");
+
+[Survived] ArrayDeclaration
+scripts/lib/semver-tag.mjs:20:29
+-     for (const tag of tags ?? []) {
++     for (const tag of tags ?? ["Stryker was here"]) {
+
+[Survived] StringLiteral
+scripts/lib/upstream-cache.mjs:35:45
+-     const at = Date.parse(cached.checkedAt ?? "");
++     const at = Date.parse(cached.checkedAt ?? "Stryker was here!");
+
+[Survived] StringLiteral
+scripts/lib/upstream-cache.mjs:47:37
+-     readFile = (p) => readFileSync(p, "utf8"),
++     readFile = (p) => readFileSync(p, ""),
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  95.60 |   95.60 |       87 |         0 |          4 |        0 |        0 |
+ semver-tag.mjs     |  95.45 |   95.45 |       42 |         0 |          2 |        0 |        0 |
+ upstream-cache.mjs |  95.74 |   95.74 |       45 |         0 |          2 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+22:25:48 (8654) INFO MutationTestExecutor Done in 2 minutes and 27 seconds.
+22:25:48 (8654) INFO Sandbox Resetting your original files from .stryker-tmp/backup-4RLOqD.

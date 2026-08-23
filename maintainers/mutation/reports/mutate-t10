@@ -1,0 +1,65 @@
+[32m16:38:43 (36892) INFO ProjectReader[39m Found 4 of 917 file(s) to be mutated.
+[32m16:38:43 (36892) INFO Instrumenter[39m Instrumented 4 source file(s) with 58 mutant(s)
+[32m16:38:43 (36892) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m16:38:43 (36892) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-F9ZXaS
+[32m16:38:43 (36892) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m16:38:43 (36892) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m16:38:47 (36892) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 4 seconds (net 4339 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/58 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/58 tested (0 survived, 0 timed out)
+Mutation testing 8% (elapsed: <1m, remaining: ~5m) 5/58 tested (0 survived, 0 timed out)
+Mutation testing 8% (elapsed: <1m, remaining: ~7m) 5/58 tested (0 survived, 0 timed out)
+Mutation testing 17% (elapsed: <1m, remaining: ~4m) 10/58 tested (0 survived, 0 timed out)
+Mutation testing 17% (elapsed: ~1m, remaining: ~4m) 10/58 tested (0 survived, 0 timed out)
+Mutation testing 17% (elapsed: ~1m, remaining: ~5m) 10/58 tested (0 survived, 0 timed out)
+Mutation testing 25% (elapsed: ~1m, remaining: ~3m) 15/58 tested (1 survived, 0 timed out)
+Mutation testing 25% (elapsed: ~1m, remaining: ~4m) 15/58 tested (1 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~1m, remaining: ~3m) 19/58 tested (1 survived, 0 timed out)
+Mutation testing 34% (elapsed: ~1m, remaining: ~3m) 20/58 tested (2 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~2m, remaining: ~3m) 23/58 tested (2 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~2m, remaining: ~2m) 25/58 tested (2 survived, 0 timed out)
+Mutation testing 44% (elapsed: ~2m, remaining: ~2m) 26/58 tested (2 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~2m, remaining: ~2m) 30/58 tested (2 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~2m, remaining: ~2m) 31/58 tested (2 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~2m, remaining: ~2m) 34/58 tested (2 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~3m, remaining: ~1m) 36/58 tested (2 survived, 0 timed out)
+Mutation testing 67% (elapsed: ~3m, remaining: ~1m) 39/58 tested (2 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~3m, remaining: ~1m) 41/58 tested (2 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~3m, remaining: ~1m) 43/58 tested (2 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~3m, remaining: <1m) 46/58 tested (2 survived, 0 timed out)
+Mutation testing 82% (elapsed: ~3m, remaining: <1m) 48/58 tested (3 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~4m, remaining: <1m) 50/58 tested (3 survived, 0 timed out)
+Mutation testing 91% (elapsed: ~4m, remaining: <1m) 53/58 tested (3 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~4m, remaining: <1m) 54/58 tested (3 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 55)
+
+[Survived] ConditionalExpression
+scripts/lib/engine-copy-select.mjs:67:35
+-         text: code.slice(lineStart, lineEnd === -1 ? code.length : lineEnd).trim(),
++         text: code.slice(lineStart, false ? code.length : lineEnd).trim(),
+
+[Survived] UnaryOperator
+scripts/lib/engine-copy-select.mjs:67:47
+-         text: code.slice(lineStart, lineEnd === -1 ? code.length : lineEnd).trim(),
++         text: code.slice(lineStart, lineEnd === +1 ? code.length : lineEnd).trim(),
+
+[Survived] ConditionalExpression
+scripts/lib/staged-skills.mjs:68:9
+-       if (!entry.isDirectory()) continue;
++       if (false) continue;
+
+Ran 1.00 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  94.83 |   94.83 |       55 |         0 |          3 |        0 |        0 |
+ engine-copy-select.mjs |  88.24 |   88.24 |       15 |         0 |          2 |        0 |        0 |
+ reconcile-brain.mjs    | 100.00 |  100.00 |        8 |         0 |          0 |        0 |        0 |
+ staged-health-note.mjs | 100.00 |  100.00 |       10 |         0 |          0 |        0 |        0 |
+ staged-skills.mjs      |  95.65 |   95.65 |       22 |         0 |          1 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m16:43:10 (36892) INFO MutationTestExecutor[39m Done in 4 minutes and 27 seconds.
+[32m16:43:10 (36892) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-F9ZXaS.

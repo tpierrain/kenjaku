@@ -6,12 +6,14 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 
 import {
+  advanceRegimes,
   fingerprint,
   selectMergeFiles,
   buildProvenance,
   buildSource,
   resolveSourceRepo,
   enrichManifest,
+  reseedBaseRefs,
   reseedProvenance,
   recordSourceAndProvenance,
 } from "./engine-source.mjs";
@@ -47,6 +49,27 @@ test("selectMergeFiles — a manifest with no merge regime selects nothing, and 
   assert.deepEqual(selectMergeFiles({ regimes: { replace: ["rag/src/**"] } }, ["CLAUDE.md", "rag/src/index.ts"]), []);
   assert.deepEqual(selectMergeFiles({ manifestVersion: 1 }, ["CLAUDE.md"]), []);
   assert.deepEqual(selectMergeFiles(undefined, ["CLAUDE.md"]), []);
+});
+
+// ⚰️ A RETIRED FILE IS NOT A MERGE FILE, whatever `merge` still says (plan S6c). This
+// is one line in one chokepoint, and it is where it belongs: everything that treats a
+// file as engine-owned asks THIS question — the skills refresh, the base seeding, the
+// provenance re-seed, the version stamps. Without it, the refresh's absent-install puts
+// a just-retired directory straight back in the SAME pass (measured, not feared), and
+// the base tree keeps seeding an ancestor for a file nobody ships.
+// The precedence is deliberate, and it is the same one `computeApplyPlan` applies to
+// `installSkills`: between "we still ship this" and "we no longer ship this", the
+// second is the more explicit statement, and it is the one that took a decision.
+test("selectMergeFiles — a retired entry is subtracted, however the merge regime still names it", () => {
+  const manifest = {
+    regimes: { merge: [".claude/skills/tdd-discipline/**", ".claude/skills/coach/**"] },
+    retired: [".claude/skills/tdd-discipline/**"],
+  };
+  const candidates = [".claude/skills/tdd-discipline/SKILL.md", ".claude/skills/coach/SKILL.md"];
+  assert.deepEqual(selectMergeFiles(manifest, candidates), [".claude/skills/coach/SKILL.md"]);
+  // ...and a manifest with no tombstone at all — every manifest the product has shipped
+  // so far — selects exactly what it always did.
+  assert.deepEqual(selectMergeFiles({ regimes: manifest.regimes }, candidates), candidates);
 });
 
 test("selectMergeFiles — a `**` glob selects the whole subtree, nothing outside it", () => {
@@ -175,7 +198,7 @@ test("resolveSourceRepo — a blank declaration declares nothing, and a padded o
   );
 });
 
-test("enrichManifest — sets source + provenance, preserves the rest, never mutates the input", () => {
+test("enrichManifest — sets source + provenance + baseRefs, preserves the rest, never mutates the input", () => {
   const original = {
     manifestVersion: 1,
     engineVersion: { rag: "1.1.0" },
@@ -184,8 +207,9 @@ test("enrichManifest — sets source + provenance, preserves the rest, never mut
   };
   const source = { repo: "git@github.com:me/launcher.git", ref: "v1.1.0" };
   const provenance = { "CLAUDE.md": fingerprint("c") };
+  const baseRefs = { "CLAUDE.md": "v1.1.0" };
 
-  const enriched = enrichManifest(original, { source, provenance });
+  const enriched = enrichManifest(original, { source, provenance, baseRefs });
 
   assert.deepEqual(enriched, {
     manifestVersion: 1,
@@ -193,10 +217,12 @@ test("enrichManifest — sets source + provenance, preserves the rest, never mut
     regimes: { merge: ["CLAUDE.md"] },
     source,
     provenance,
+    baseRefs,
   });
   // The input object is left untouched (still the empty provenance, still no source).
   assert.deepEqual(original.provenance, {});
   assert.equal("source" in original, false);
+  assert.equal("baseRefs" in original, false);
 });
 
 // ── reseedProvenance: refresh the 3-way base after an update-engine swap (Step 5) ──
@@ -238,6 +264,78 @@ test("reseedProvenance — a user merge file the swap never touched KEEPS its pr
     "CLAUDE.md": fingerprint("the engine's last-delivered constitution"), // preserved
     "scripts/auto-commit.mjs": fingerprint("// auto-commit vB"), // refreshed
   });
+});
+
+// ── reseedBaseRefs: WHICH engine version each base came from (S4) ────────────
+// The base tree holds the last-delivered BYTES; nothing held the VERSION they came
+// from, so a brain could say "you are holding this file back" and never "back from
+// what". `baseRefs` is that missing half, and it means exactly one thing: the last
+// engine version whose bytes this file actually received. One meaning, so no state
+// machine — unlike a "first became held back" stamp, which would have to know when
+// to stop moving.
+
+test("reseedBaseRefs — stamps the ref on the re-delivered merge files, and on nothing else", () => {
+  const target = {
+    regimes: { replace: ["rag/src/**"], merge: ["CLAUDE.md", "scripts/auto-commit.mjs"] },
+  };
+  const deliveredFileMap = {
+    "scripts/auto-commit.mjs": "// auto-commit vB",
+    "rag/src/index.ts": "// engine vB", // replace-regime → never stamped
+  };
+
+  assert.deepEqual(reseedBaseRefs({ priorBaseRefs: {}, manifest: target, deliveredFileMap, ref: "v5.0.0" }), {
+    "scripts/auto-commit.mjs": "v5.0.0",
+  });
+});
+
+test("reseedBaseRefs — a file the update passed by KEEPS its older ref, which is the whole point", () => {
+  // This is the sentence S4 exists to make possible: "coach last received an engine
+  // version at v4.7.0, and this brain now runs v5.0.0". Move this entry forward and
+  // every held-back file reads as up to date.
+  const target = { regimes: { merge: ["CLAUDE.md", ".claude/skills/coach/SKILL.md"] } };
+  const prior = { "CLAUDE.md": "v4.7.0", ".claude/skills/coach/SKILL.md": "v4.7.0" };
+
+  assert.deepEqual(
+    reseedBaseRefs({
+      priorBaseRefs: prior,
+      manifest: target,
+      deliveredFileMap: { "CLAUDE.md": "the newer constitution" },
+      ref: "v5.0.0",
+    }),
+    { "CLAUDE.md": "v5.0.0", ".claude/skills/coach/SKILL.md": "v4.7.0" },
+  );
+});
+
+test("reseedBaseRefs — no usable ref stamps NOTHING, rather than recording a lie", () => {
+  // An absent entry already means "unknown, say since your install". Writing `null`
+  // or `""` as the version would make an unknown look like an answer, and every
+  // reader downstream would have to know that it is not one.
+  const target = { regimes: { merge: ["CLAUDE.md"] } };
+  const delivered = { "CLAUDE.md": "content" };
+
+  for (const ref of [null, undefined, ""]) {
+    assert.deepEqual(
+      reseedBaseRefs({ priorBaseRefs: { "CLAUDE.md": "v4.7.0" }, manifest: target, deliveredFileMap: delivered, ref }),
+      { "CLAUDE.md": "v4.7.0" },
+      `ref ${JSON.stringify(ref)} must leave the record untouched`,
+    );
+  }
+});
+
+test("reseedBaseRefs — an older brain with no record at all starts one, it does not crash", () => {
+  const target = { regimes: { merge: ["CLAUDE.md"] } };
+
+  assert.deepEqual(
+    reseedBaseRefs({ priorBaseRefs: undefined, manifest: target, deliveredFileMap: { "CLAUDE.md": "c" }, ref: "v5.0.0" }),
+    { "CLAUDE.md": "v5.0.0" },
+  );
+});
+
+test("reseedBaseRefs — a manifest declaring no merge regime stamps nothing", () => {
+  assert.deepEqual(
+    reseedBaseRefs({ priorBaseRefs: {}, manifest: {}, deliveredFileMap: { "CLAUDE.md": "c" }, ref: "v5.0.0" }),
+    {},
+  );
 });
 
 // ── The thin I/O orchestrator the installer calls (real fs, git facts injected) ──
@@ -289,6 +387,15 @@ test("recordSourceAndProvenance — writes source + fingerprints ONLY the merge 
     ".claude/skills/coach/SKILL.md": fingerprint("coach skill"),
     "scripts/auto-commit.mjs": fingerprint("// auto-commit"),
   });
+  // S4 — and WHICH version each of those bases came from. At install the answer is
+  // exact for every merge file: they all arrived together, at the install ref. A
+  // brain therefore knows "since when" from day one, rather than from its first update.
+  assert.deepEqual(m.baseRefs, {
+    "CLAUDE.md": "v1.1.0",
+    ".claude/settings.json": "v1.1.0",
+    ".claude/skills/coach/SKILL.md": "v1.1.0",
+    "scripts/auto-commit.mjs": "v1.1.0",
+  });
   // The rest of the manifest is preserved.
   assert.equal(m.engineVersion.rag, "1.1.0");
 
@@ -298,4 +405,75 @@ test("recordSourceAndProvenance — writes source + fingerprints ONLY the merge 
   // "\ No newline at end of file" — noise in the one file whose diff must stay readable.
   const raw = readFileSync(join(brainDir, "engine-manifest.json"), "utf8");
   assert.equal(raw, JSON.stringify(m, null, 2) + "\n");
+});
+
+// ─── W3 — the brain's regime list stops being an install-day souvenir ─────────
+// THE DEFECT, measured on a brain rebuilt from the real v3.6.0 tag (S10-QA): step 7
+// writes back `{...local, engineVersion, indexSchemaVersion, source, provenance,
+// baseRefs}`, and `regimes` is in none of that — so it comes from the brain's own
+// manifest and is never advanced. A brain therefore keeps, FOREVER, the list of file
+// families the engine had on the day it was installed.
+//
+// What that costs v5 exactly: `CLAUDE.engine.md` is a `merge` family only v4+ declares.
+// The doctrine is offered correctly DURING an update, but every standing surface between
+// two updates reads the brain's stale globs — the session nudge stays silent about it, and
+// adopting it writes the file without advancing its ancestor, so the same question comes
+// back at the next release instead of being settled.
+//
+// Thomas's call, 2026-08-22, answer 4 → option (a): advance the list, and say so in the
+// release note, because the write guard reads this very list.
+const V3_REGIMES = {
+  merge: ["CLAUDE.md", ".claude/settings.json", ".claude/skills/**"],
+  replace: ["rag/src/**", "scripts/lib/**"],
+};
+const V5_REGIMES = {
+  merge: ["CLAUDE.md", ".claude/settings.json", ".claude/skills/**", "CLAUDE.engine.md"],
+  replace: ["rag/src/**", "scripts/lib/**"],
+  regenerate: ["scripts/run-node.cmd"],
+};
+
+test("advanceRegimes — the brain adopts the ENGINE's regime list, and its tombstones with it", () => {
+  assert.deepEqual(
+    advanceRegimes({
+      local: { regimes: V3_REGIMES, retired: [] },
+      target: { regimes: V5_REGIMES, retired: [".claude/skills/tdd-discipline/**"] },
+    }),
+    // The WHOLE object, so this also pins that it advances these two fields and NOTHING
+    // else: it is spread over the brain's manifest, where a stray key would overwrite a
+    // record (provenance, baseRefs, source) that step 7 has already computed.
+    { regimes: V5_REGIMES, retired: [".claude/skills/tdd-discipline/**"] },
+  );
+});
+
+test("advanceRegimes — `retired` advances even when it is the only list the engine moved", () => {
+  const advanced = advanceRegimes({
+    local: { regimes: V5_REGIMES, retired: [] },
+    target: { regimes: V5_REGIMES, retired: [".claude/skills/tdd-discipline/**", ".claude/skills/gone/**"] },
+  });
+  assert.deepEqual(advanced.retired, [".claude/skills/tdd-discipline/**", ".claude/skills/gone/**"]);
+  assert.deepEqual(advanced.regimes, V5_REGIMES);
+});
+
+// 🛑 THE FAILURE MODE THIS GUARDS, and it is fleet-wide rather than cosmetic. The result
+// is SPREAD over the brain's manifest, so a key present with `undefined` does not fall
+// back to what `{...local}` put there — it overwrites it, and `JSON.stringify` then drops
+// the key entirely. A target manifest that failed to declare its regimes would leave every
+// updated brain with NO regime list at all: `regimeOf` returns null for every path, the
+// write guard stops recognising a single engine file, and an agent silently diverges the
+// brain from its engine — the exact interruption S3 exists to raise.
+test("advanceRegimes — an engine that declares no lists never BLANKS the brain's own", () => {
+  assert.deepEqual(
+    advanceRegimes({ local: { regimes: V3_REGIMES, retired: [".claude/skills/tdd-discipline/**"] }, target: {} }),
+    { regimes: V3_REGIMES, retired: [".claude/skills/tdd-discipline/**"] },
+  );
+});
+
+// The absent case, fed on purpose and for the same reason `selectMergeFiles` is fed one:
+// this runs at step 7, AFTER the reconcile has already converged the files on disk. A throw
+// here does not merely lose the regimes — it aborts the manifest write entirely, leaving a
+// brain whose FILES are at HEAD and whose MANIFEST is at install day. Nothing downstream is
+// written to expect that pair. Triangulated down to no manifests at all.
+test("advanceRegimes — a brain and an engine that declare nothing keep nothing, and never throw", () => {
+  assert.deepEqual(advanceRegimes({ local: {}, target: {} }), { regimes: undefined, retired: undefined });
+  assert.deepEqual(advanceRegimes({}), { regimes: undefined, retired: undefined });
 });

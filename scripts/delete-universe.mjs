@@ -24,7 +24,7 @@ import {
   DEFAULT_UNIVERSE,
 } from "./lib/universes.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { listFilesRelPosix } from "./lib/fs-walk.mjs";
 
 // Windows hands cwd() back as C:\brain, and a backslash survives into every path
@@ -145,6 +145,4 @@ export function realDeleteDeps() {
   };
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(await runDeleteUniverse(process.argv.slice(2), realDeleteDeps()));
-}
+runAsEntrypoint(import.meta.url, process.argv, (argv) => runDeleteUniverse(argv, realDeleteDeps()));

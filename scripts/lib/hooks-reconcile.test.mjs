@@ -116,15 +116,28 @@ test("reconcileHooks — a brain with no PreToolUse at all is given the write gu
   });
   const withUserHook = reconcileHooks({ brainHooks, templateHooks: realTemplateHooks(), projectRoot: "/brains/foo" });
 
+  // BOTH write guards, each in its own group — and that separation is load-bearing,
+  // not cosmetic. `reconcileHooks` identifies a template group by its FIRST script
+  // (`.map(hookScript).find(Boolean)`) and skips the group when that script is
+  // already wired, so a second hook packed INSIDE the vault guard's group would
+  // reach zero deployed brains, silently. This assertion is what makes that
+  // regression loud: pack them together and the second command disappears here.
   assert.deepEqual(
     hooks.PreToolUse,
-    [{ matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/vault-write-guard.mjs"', timeout: 10000 }] }],
+    [
+      { matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/vault-write-guard.mjs"', timeout: 10000 }] },
+      { matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/engine-write-guard.mjs"', timeout: 10000 }] },
+    ],
     "the event must be CREATED, matcher and timeout intact, with the brain's own node + dir substituted",
   );
-  assert.ok(hooksAdded.includes("scripts/vault-write-guard.mjs"), "the newly-wired guard must be named in hooksAdded");
+  assert.deepEqual(
+    hooksAdded.filter((s) => s.includes("write-guard")),
+    ["scripts/vault-write-guard.mjs", "scripts/engine-write-guard.mjs"],
+    "both newly-wired guards must be named in hooksAdded, or the report under-counts what an update did",
+  );
   assert.deepEqual(
     withUserHook.hooks.PreToolUse,
-    [userGuard, hooks.PreToolUse[0]],
+    [userGuard, ...hooks.PreToolUse],
     "a brain that already had its OWN PreToolUse hook keeps it, first, with the engine's appended after",
   );
 });

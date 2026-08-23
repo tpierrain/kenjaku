@@ -8,6 +8,7 @@
 //     that refused, e.g. no identity configured).
 // Either way we SHOUT instead of showing a misleading ✅.
 // ─────────────────────────────────────────────────────────────────────────────
+import { countOf, itOrThem } from "./plural.mjs";
 
 // Counts the `git status --porcelain` entries that concern the vault. The
 // porcelain format = 2 status chars + space + path (e.g. "?? vault/x.md",
@@ -93,23 +94,27 @@ export function repoStatusLine({ pullOk, pullOut, short, changedCount = 0, uncom
   // to commit, so it is also the one where the usual "commit by hand" advice would
   // do damage. It needs a human, and it must say so first.
   if (conflictedCount > 0) {
+    const many = conflictedCount !== 1;
     return (
-      `⚠️ Sync BLOCKED by a conflict — ${conflictedCount} file(s) hold changes git could not ` +
-      `merge on its own. Nothing was committed for you (that would bury the <<<<<<< markers ` +
-      `in your notes). Open them, keep what you want, then finish with: git rebase --continue.`
+      `⚠️ Sync BLOCKED by a conflict — ${countOf(conflictedCount, "file")} ${many ? "hold" : "holds"} ` +
+      `changes git could not merge on its own. Nothing was committed for you (that would bury ` +
+      `the <<<<<<< markers in your notes). Open ${itOrThem(conflictedCount)}, keep what you want, ` +
+      `then finish with: git rebase --continue.`
     );
   }
   // Then: uncommitted notes at startup = the sweep couldn't commit them (a git
   // identity missing, a hook that never ran). Flag it loudly, ahead of any
   // reassuring "up to date" status.
   if (uncommittedVault > 0) {
+    const many = uncommittedVault !== 1;
     return (
-      `⚠️ ${uncommittedVault} vault note(s) NOT committed — the startup sweep could not ` +
-      `commit them. Your notes are ON DISK but not versioned. Commit by hand to get git's ` +
-      `own reason: git add -A && git commit (a missing git identity is the usual culprit).`
+      `⚠️ ${countOf(uncommittedVault, "vault note")} NOT committed — the startup sweep could not ` +
+      `commit ${itOrThem(uncommittedVault)}. Your ${many ? "notes are" : "note is"} ON DISK but not ` +
+      `versioned. Commit by hand to get git's own reason: git add -A && git commit ` +
+      `(a missing git identity is the usual culprit).`
     );
   }
   if (!pullOk) return `⚠️ Pull failed — ${pullFailureReason(pullOut) || "check manually."}`;
   if (/already up to date|déjà à jour/i.test(pullOut)) return `✅ Repo up to date (commit ${short}).`;
-  return `📥 Repo updated — ${changedCount} file(s) changed (commit ${short}).`;
+  return `📥 Repo updated — ${countOf(changedCount, "file")} changed (commit ${short}).`;
 }

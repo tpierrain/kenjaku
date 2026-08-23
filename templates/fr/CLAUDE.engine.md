@@ -143,6 +143,36 @@ Quand je veux seulement une **réponse** (un fait, une synthèse), répondre ave
 
 ## Routage — quel outil pour quoi
 
+### Niveau 1 : la source qu'on te tend passe avant toute recherche
+
+**Une URL, un chemin, une capture ou une pièce jointe dans le message, ce n'est pas du décor : c'est
+l'énoncé de la tâche.** Ouvre-la (`WebFetch` pour un lien, `Read` pour un fichier) **avant toute
+recherche**, quel que soit l'outil.
+
+Les niveaux de retrieval, dans l'ordre. Le niveau 1 est une position, pas une préférence :
+
+1. **Ce qu'on t'a tendu** : `WebFetch` / `Read`.
+2. **Recherche exacte** : `Grep` / `Glob`, pour tout ce qui s'épelle (un nom, un identifiant, un **nom
+   propre**). La recherche sémantique est le mauvais instrument pour un nom propre, et elle ne
+   remontera rien, sans bruit.
+3. **Recherche sémantique** : `mcp__vault-rag__search_vault`, pour les questions ouvertes et
+   transversales.
+4. **Le web**, en dernier.
+
+- **Quand la tâche est définie *par rapport à* cette source** (« complète cet article », « corrige ce
+  fichier », « comme dans ce repo »), la source **est la spécification**. Produire une réponse
+  structurée, comparative, d'apparence sérieuse à partir de ta reconstitution de cette source, voilà
+  le mode de défaillance : ça ressemble à du travail et c'est bâti sur rien.
+- **Corollaire, et il a déjà son endroit** : avant de conclure quoi que ce soit de négatif, demande-toi
+  *ai-je épuisé le niveau 1 ?* La formulation de cette conclusion, elle, relève de la
+  **Discipline d'affirmation** plus bas. Ne la redis pas ici : deux paraphrases font deux disciplines.
+
+> Cas de terrain, 2026-08-08 : l'URL d'un article est tendue dans le premier message et n'est jamais
+> ouverte. La réponse compare l'article à ce qui lui « manque », à partir d'une reconstitution. Puis,
+> interrogé sur un outil nommé explicitement, une recherche sémantique ne trouve rien, et ce silence
+> devient deux affirmations (« pas dans le vault », « tes articles ne le nomment jamais »). Il était
+> dans l'addendum de l'article même dont le lien avait été tendu.
+
 ### Vault — RAG sémantique (cœur du système)
 
 Le RAG (`rag/`) découpe chaque fichier Markdown en **chunks** (un par section `#`/`##`/`###`), transforme chaque chunk en vecteur (embedding Gemini) et les stocke. Une recherche embedde la question et remonte les chunks les plus proches par similarité de sens.
@@ -151,6 +181,7 @@ Le RAG (`rag/`) découpe chaque fichier Markdown en **chunks** (un par section `
 
 | Opération | Outil |
 |---|---|
+| **Une source qu'on t'a tendue** (URL, chemin, pièce jointe), **niveau 1, avant toute recherche** | `WebFetch` / `Read` |
 | **Question sémantique / transversale** (« qu'est-ce qu'on sait sur X ? ») | `mcp__vault-rag__search_vault` |
 | **Lire un doc complet** retrouvé par search | `mcp__vault-rag__get_document` |
 | **Lister les documents indexés** | `mcp__vault-rag__list_documents` |
@@ -195,7 +226,9 @@ lève le problème, un redémarrage ou une ré-indexation n'y changent rien.
 
 Un **univers** est un périmètre de recherche *souple* au-dessus du vault unique et partagé : des employeurs successifs, des clients ou des sphères gardés comme **corpus par défaut distincts** dans le même cerveau. Tant qu'un univers est actif, `search_vault` renvoie **les notes de cet univers plus tes notes transverses (par défaut)**, et rien des autres : une question sur ton contexte actuel n'est pas diluée par un ancien.
 
-- **C'est le moteur qui cadre la recherche, pas toi.** L'univers actif est lu depuis l'état persistant (`.vault-rag/active-universe`) et injecté **côté serveur** ; tu ne le passes jamais. Pour chercher délibérément **dans tous les univers**, active le paramètre `allUniverses` de l'outil `search_vault` : ne le propose que si la personne demande explicitement « tous les univers » / « tous les contextes ».
+- **C'est le moteur qui cadre la recherche, pas toi.** L'univers actif est lu depuis l'état persistant
+  (`.vault-rag/active-universe`, **versionné**, il suit donc son propriétaire d'une machine à l'autre,
+  ADR 0034) et injecté **côté serveur** ; tu ne le passes jamais. Pour chercher délibérément **dans tous les univers**, active le paramètre `allUniverses` de l'outil `search_vault` : ne le propose que si la personne demande explicitement « tous les univers » / « tous les contextes ».
 - **Pertinence, pas sécurité.** C'est une frontière de pertinence, jamais un mur d'isolation : un `grep`, Obsidian ou `get_document` par chemin peut toujours la traverser, et pour un cerveau privé c'est très bien. Ne la présente **jamais** comme de la confidentialité.
 - **Basculer / créer** passe par la skill **`/switch`** ; les nouvelles notes se rangent alors sous `vault/<univers>/` (voir *Univers — où se range une note* dans Format des notes). Rapatrie toute une sphère externe dans son propre univers avec **`/import --universe <nom>`**.
 
@@ -244,6 +277,27 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 
 **Lire directement (Read / grep) quand :** fichier connu, chemin exact, taille raisonnable ; recherche exacte ; besoin du contenu fidèle, pas d'un résumé.
 
+**📏 Le seuil, pour que « gros » cesse d'être un jugement.** Lire un fichier **en consultation**
+(tu veux savoir ce qu'il contient, pas le modifier) passe par un sous-agent au-delà de **~1 500 lignes
+ou ~60 Ko**, au premier des deux atteint. En dessous, lis-le toi-même. *(Les deux mesures, parce qu'un
+fichier large peut être court en lignes et noyer le contexte quand même. **Ajuste** les nombres si tes
+notes sont couramment plus grosses ; ce qui ne s'ajuste pas, c'est le fait d'avoir un nombre.)*
+
+> 🛑 **Deux exceptions, et ce sont elles qui rendent le nombre énonçable.** Toutes les lectures
+> **ne passent pas** par un sous-agent : ça casserait le flux d'édition, ajouterait de la latence sur
+> les petites notes et perdrait la fidélité là où elle compte.
+>
+> - **Un fichier que tu t'apprêtes à ÉDITER se lit directement, quelle que soit sa taille.** Ce n'est
+>   pas une préférence, c'est un mécanisme : `Edit` exige une lecture **préalable** de ce fichier dans
+>   *ce* contexte.
+> - **Un contenu que tu vas citer VERBATIM se lit directement aussi.** Un digest est un résumé, et le
+>   travail au mot près (un article, une citation, un extrait de transcript) a besoin des mots.
+
+**🧩 Même maladie, autre vecteur : charger une grosse skill pour trois faits.** Si une skill n'est
+tirée que pour sourcer quelques chiffres ou noms, fais-la charger par un **sous-agent** qui te rend
+les faits. Celle-ci relève du jugement (rien ne peut lire ton intention), mais elle est écrite parce
+qu'elle a coûté plus de contexte, en un seul tour, que n'importe quelle note.
+
 **Règle d'or** : un sous-agent ne renvoie que des signaux pré-digérés (~500 tokens), jamais des dumps de fichiers.
 
 ### Règles générales
@@ -256,6 +310,26 @@ Le contexte de la session principale est une **ressource rare et qualitative**. 
 - **Ne jamais éditer une daily note passée** (sauf correction de typo flagrante signalée).
 - **La mémoire durable, c'est le repo, jamais la mémoire locale de Claude Code.** Tout ce qui doit survivre entre sessions va dans le repo : `vault/` pour le contenu, `CLAUDE.md` pour les règles. Le repo est portable (autre machine, backup) et survit à un `/clear` ; la mémoire locale de Claude Code, non. Ne rien laisser d'utile uniquement en mémoire de conversation.
 - Si on touche au harnais (`.claude/`), commit séparé avec message clair (`harness: …`).
+
+### Annonce avant d'agir sur un signal
+
+**Quand une action est déclenchée par un *signal* et non par une demande explicite, dis-le en une
+ligne AVANT de la lancer.** Un signal, c'est la personne qui fait quelque chose qui démarre un travail
+qu'elle n'a pas demandé avec ces mots-là : terminer une session, poser une question dont la réponse a
+pu bouger, tendre une source.
+
+- **Avant, jamais avec le résultat.** Une annonce qui arrive en même temps que la sortie explique une
+  attente déjà finie. Dite d'abord, la même phrase transforme l'attente en progression.
+- **Annoncer, ce n'est pas demander.** On ne demande pas la **permission** pour quelque chose qui est
+  censé tourner tout seul : voir la règle de sync plus bas, qui est la forme la plus forte de
+  celle-ci.
+- **Ce que ça coûte quand on l'oublie**, pour que ça ne se lise pas comme de la politesse : en face,
+  on voit un **silence** là où une réponse était attendue, sans pouvoir dire si l'attente travaille
+  pour soi ou si quelque chose est bloqué.
+
+Ses deux instances, toutes deux plus bas : le **sync de sources en tâche de fond** (que le moteur
+tenait déjà, et d'où cette règle est généralisée) et le rituel de **fin de session**, qui scannait
+toute la conversation, lisait le backlog et écrivait dans plusieurs fichiers sans un mot.
 
 ### Sourçage et traçabilité
 
@@ -379,15 +453,27 @@ Question
 
 **Phase 4** — Tout ce qui est récupéré ou produit en session est sauvegardé dans le vault. Rien ne reste uniquement en mémoire de conversation.
 
-### Outillage — outils natifs, JAMAIS de Bash pour sonder le vault ou traiter du texte
+### Outillage — préfère les outils natifs ; sur Desktop, Bash coûte une autorisation
 
-Ce cerveau tourne souvent dans **Claude Desktop (onglet Code)**, où **chaque commande Bash
-redéclenche une demande d'autorisation** — et où les commandes **composées ou risquées**
-(`cd … && mkdir …`, `python3 -c "…"` multiligne, `#` dans un argument) sont **refusées d'office**
-(pas de bouton « Always allow ») : l'utilisateur ne *peut pas* les pré-autoriser. À l'inverse, les
-**outils natifs** `Read`/`Write`/`Edit`/`Glob`/`Grep` et les outils MCP `vault-rag` sont
-**pré-autorisés et silencieux**. Donc, **par défaut, n'utilise jamais Bash** pour inspecter le
-vault ou manipuler du contenu — utilise l'outil natif équivalent :
+> 🧭 **Cette table parle d'ERGONOMIE, et sa prémisse est locale.** Elle dit vers quelle *surface*
+> d'outil tendre la main pour qu'une session ne soit pas interrompue. Ce n'est **pas** la table de
+> **Routage** (§ *Vault, RAG sémantique*), qui parle de **justesse** (quel type d'outil répond à quel
+> type de question) et qui vaut dans **tout** environnement, sur toute surface, toujours. **Lire la
+> case `❌ grep` ci-dessous comme « ne jamais faire de recherche exacte » est un contresens**, et il
+> percute de plein fouet le Routage, qui l'exige justement pour tout ce qui s'épelle.
+>
+> ⚠️ **Et la différence a des dents.** Une affirmation d'**absence** (« X n'est mentionné nulle part »,
+> « personne n'a demandé Y ») ne peut reposer que sur une **recherche exacte exhaustive**. Une
+> recherche sémantique remonte un top-N par similarité et **ne peut jamais prouver un négatif**. Voir
+> la *Discipline d'affirmation* plus bas : c'est le mécanisme derrière la règle qui s'y trouve.
+
+Ce cerveau tourne **souvent** dans **Claude Desktop (onglet Code)** avec le **mode de permission par
+défaut**, et là **chaque commande Bash redéclenche une demande d'autorisation** ; les commandes
+**composées ou risquées** (`cd … && mkdir …`, `python3 -c "…"` multiligne, `#` dans un argument) y sont
+**refusées d'office** (pas de bouton « Always allow ») : on ne *peut pas* les pré-autoriser. À
+l'inverse, les **outils natifs** `Read`/`Write`/`Edit`/`Glob`/`Grep` et les outils MCP `vault-rag` sont
+**pré-autorisés et silencieux**. Donc, **par défaut, préfère l'outil natif** à Bash pour inspecter le
+vault ou manipuler du contenu :
 
 | Besoin | ✅ Outil natif (silencieux) | ❌ Bash (prompt à chaque fois, parfois non-autorisable) |
 |---|---|---|
@@ -399,9 +485,18 @@ vault ou manipuler du contenu — utilise l'outil natif équivalent :
 | Découper / résumer un contenu | **par raisonnement** (tu es un LLM) | `awk`, `sed`, `jq`, `python3 -c` |
 
 Bash reste réservé au strict nécessaire **sans** équivalent natif (et au git **lecture seule** :
-`status`/`log`/`diff`). Pour tout le reste — découverte de l'état du vault avant un fan-out,
-relecture d'un transcript déporté, slicing d'un contenu — **outils natifs uniquement**. Ne
+`status`/`log`/`diff`). Pour tout le reste (découverte de l'état du vault avant un fan-out, relecture
+d'un transcript déporté, slicing d'un contenu), **tends d'abord la main vers l'outil natif**. Ne
 compose jamais `cd … &&` avec une écriture.
+
+> ✅ **Quand la prémisse ne tient pas, la table non plus.** Si un outil natif est **indisponible** dans
+> la session, ou si le harnais lui-même te dit de te rabattre, **utilise l'équivalent Bash** : c'est le
+> comportement **attendu**, ce n'est **pas un défaut**, et il n'y a **rien à remonter** là-dessus.
+> N'ajoute pas de ligne de friction et ne demande pas d'arbitrage. *(Ce paragraphe existe parce qu'une
+> session a fait exactement ça : en mode auto, avec `Grep` natif absent, elle a lu sa propre
+> constitution comme se contredisant et a ouvert une friction demandant de trancher une règle qui vit
+> dans la couche moteur, celle-là même qu'on demande de ne pas éditer. Le bruit venait du moteur, pas
+> de la personne.)*
 
 ### Backlogs (`vault/backlog/`)
 
@@ -430,6 +525,12 @@ La personne ne devrait jamais avoir à corriger « attention, c'est déjà fait 
 **Conséquence : ne PAS lancer `git add` / `commit` / `push` soi-même** quand le hook tourne (un commit manuel court après le hook et brouille la sortie). Les commandes git en lecture (`status`, `log`, `diff`) restent OK.
 
 ### Observation passive — frictions en fin de session
+
+> 📣 **Dis-le en une ligne d'abord** (« un instant, je scanne la session pour repérer les frictions
+> avant qu'on ferme »), puis fais le travail. C'est ce rituel qui a donné son nom à la règle
+> *Annonce avant d'agir sur un signal* : il lisait le backlog, scannait une longue conversation et
+> écrivait dans quatre fichiers dans un silence complet, au moment précis où une réponse immédiate
+> était attendue.
 
 En fin de session (signal explicite de l'utilisateur **ET** 10+ échanges), avant le dernier message : scanner la session pour détecter workarounds répétés, questions sans réponse du vault, skills ratés, recherches longues. Si friction → ajouter une ligne à `vault/backlog/harnais.md` :
 ```

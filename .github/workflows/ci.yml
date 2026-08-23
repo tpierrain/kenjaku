@@ -43,8 +43,26 @@ jobs:
     # and on `main` the merge has already been arbitrated.
     if: github.event_name == 'push' && github.ref != 'refs/heads/main'
     runs-on: windows-latest
+    # A GREEN run of this job is 1 minute, and it is a TRIPWIRE — one that can sit for
+    # GitHub's default 6 HOURS is not a tripwire, it is a runner leak. Measured 2026-08-23:
+    # a Windows harness process blocked on `readFileSync(0)` held its runner 2 h 46 min and
+    # queued 24 commits' worth of jobs behind it, while every surface said "in progress".
+    #
+    # 8, not 5, and the number is DERIVED: it must stay clear of the 4-minute per-test
+    # ceiling below, or the job dies first and kills the hang MUTE — which is precisely the
+    # diagnosis that cost an afternoon. The per-test ceiling names the test; the job timeout
+    # is only the backstop behind it, so it has to be the looser of the two.
+    timeout-minutes: 8
     steps:
+      # 🛑 FULL HISTORY AND TAGS, not the default depth-1 shallow checkout.
+      # Two suites reach into git and BOTH went silently red on 2026-08-21 when they
+      # landed: `locale-drift` resolves a waived sha (`fatal: ambiguous argument
+      # 'f7a00fc'`), and the release fixtures rebuild brains from real published tags
+      # (`fatal: invalid object name 'v3.6.0'`). Locally both pass, because a dev clone
+      # has the history — which is exactly how a red tripwire went unread for a day.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node 24
         uses: actions/setup-node@v4
@@ -52,19 +70,27 @@ jobs:
           node-version: 24
 
       - name: Harness tests
-        run: node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
+        run: node --test --test-timeout=240000 "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
 
   test:
     name: Node ${{ matrix.node }} · ${{ matrix.os }}
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.os }}
+    # 12, against a green run of 1-2 minutes. Roomier than the tripwire's 8 because this job
+    # also builds a native binding and installs two dependency trees, and a cold cache or a
+    # busy GitHub is a legitimate slow day — a timeout that fires on load is a false red, and
+    # a false red is how a real one stops being read. Still 30x under the 6h default.
+    timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
         node: [22, 24, 26]
     steps:
+      # Full history + tags — see the tripwire job above for why depth-1 breaks two suites.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node ${{ matrix.node }}
         uses: actions/setup-node@v4
@@ -76,7 +102,16 @@ jobs:
       # bottle" is dependency-free .mjs, so rag's `npm test` (tsx over src/lib/*.test.ts) never
       # globbed it and it was running nowhere.
       - name: Harness tests
-        run: node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
+        run: node --test --test-timeout=240000 "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
+
+      # Maintainer tooling (dev-only, never copied into a brain): the mutation
+      # runner's own suite. macOS only, deliberately — mutate-one.mjs is a
+      # maintainer's machine tool (git worktree + Stryker + POSIX path fixtures)
+      # that is never run on Windows, so the cross-OS matrix has nothing to say
+      # about it. Without this step its tests would run in no job at all.
+      - name: Maintainer tooling tests
+        if: runner.os == 'macOS'
+        run: node --test --test-timeout=240000 "maintainers/mutation/*.test.mjs"
 
       # Engine — `npm ci` builds the native binding (better-sqlite3) on this
       # exact Node; the test run then exercises it. This is the real net.
@@ -93,7 +128,7 @@ jobs:
       # Pinned from the suite itself (`vault-write-guard.test.mjs`, last test), so deleting
       # this step goes red instead of going quiet.
       - name: Vault write-guard tests (with the engine's own parser)
-        run: node --test "scripts/lib/vault-write-guard.test.mjs" "scripts/vault-write-guard.test.mjs"
+        run: node --test --test-timeout=240000 "scripts/lib/vault-write-guard.test.mjs" "scripts/vault-write-guard.test.mjs"
 
       - name: Engine tests
         working-directory: rag
@@ -137,7 +172,11 @@ jobs:
     name: Installer e2e · windows-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: windows-latest
-    timeout-minutes: 20
+    # 20 -> 12, on the same 2026-08-23 measurement: this job greens in under a minute, and
+    # the deferred-index path it deliberately takes is what keeps it that fast. Aligned with
+    # the matrix rather than tightened further — it spawns npm/npx through Windows shims,
+    # the slowest thing in this file on a loaded runner.
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
@@ -160,3 +199,37 @@ jobs:
           $dir = Join-Path "${{ runner.temp }}" "ci-brain\rag\node_modules\better-sqlite3"
           if (-not (Test-Path $dir)) { Write-Error "rag/node_modules/better-sqlite3 missing — RAG deps not installed"; exit 1 }
           Write-Host "rag/node_modules populated - install path is healthy"
+
+      # 🪟 W2's Windows proof, and it can only be made HERE. This runner's checkout is
+      # CRLF (git for Windows defaults core.autocrlf to true), so a byte-verbatim copy
+      # gives the brain CRLF from install day — recorded shas that match no row of a
+      # fingerprint table folded from LF blobs. A macOS run cannot see this: its
+      # checkout is already LF, so the normalisation is a no-op there and the assertion
+      # would pass without measuring anything.
+      - name: Assert the brain was delivered with LF endings (W2 - the installer copy path)
+        shell: pwsh
+        run: |
+          # THE PREMISE, measured in this same job rather than asserted in a comment:
+          # the whole proof below is vacuous unless THIS checkout is CRLF. If a future
+          # runner image flips core.autocrlf, the assertions keep passing while proving
+          # nothing — so the premise fails loudly instead of going quiet.
+          $eol = git ls-files --eol -- scripts/lib/engine-base.mjs
+          if ($eol -notmatch "w/crlf") { Write-Error "this checkout is not CRLF ($eol) - the LF proof below would be vacuous"; exit 1 }
+          Write-Host "the launcher checkout IS CRLF here ($eol) - the proof below has something to measure"
+
+          $brain = Join-Path "${{ runner.temp }}" "ci-brain"
+          $texts = @(Get-ChildItem -Path (Join-Path $brain "scripts") -Recurse -Filter *.mjs) +
+                   @(Get-Item (Join-Path $brain "CLAUDE.engine.md"))
+          if ($texts.Count -lt 50) { Write-Error "only $($texts.Count) text files found - this step is measuring nothing"; exit 1 }
+          $offenders = $texts | Where-Object { (Get-Content -Raw -LiteralPath $_.FullName) -match "`r" }
+          if ($offenders) {
+            Write-Error "delivered with CRLF: $($offenders.FullName -join ', ')"
+            exit 1
+          }
+          Write-Host "$($texts.Count) delivered text files are LF - the copy path holds on Windows"
+          # The positive control, so a green above cannot mean "found no CR anywhere":
+          # the launcher the installer GENERATES must still be CRLF, or cmd.exe re-seeks
+          # a batch file by byte offset and resumes mid-token (field report 2026-08-07).
+          $cmd = Get-Content -Raw -LiteralPath (Join-Path $brain "scripts\run-node.cmd")
+          if ($cmd -notmatch "`r`n") { Write-Error "run-node.cmd lost its CRLF - the Windows launcher defect is back"; exit 1 }
+          Write-Host "run-node.cmd is still CRLF - the generated launchers are untouched"

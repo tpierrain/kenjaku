@@ -1,0 +1,138 @@
+17:12:03 (94488) INFO ProjectReader Found 1 of 629 file(s) to be mutated.
+17:12:03 (94488) INFO Instrumenter Instrumented 1 source file(s) with 190 mutant(s)
+17:12:03 (94488) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+17:12:04 (94488) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-NYr4RI
+17:12:04 (94488) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+17:12:04 (94488) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+17:12:13 (94488) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 8 seconds (net 8470 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 167)
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:57:40
+-     io.mkdirSync(dirnamePosix(absolute), { recursive: true });
++     io.mkdirSync(dirnamePosix(absolute), {});
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:57:53
+-     io.mkdirSync(dirnamePosix(absolute), { recursive: true });
++     io.mkdirSync(dirnamePosix(absolute), { recursive: false });
+
+[Survived] BlockStatement
+scripts/lib/universe-profile.mjs:64:29
+-   function dirnamePosix(path) {
+-     return path.slice(0, path.lastIndexOf("/"));
+-   }
++   function dirnamePosix(path) {}
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:65:10
+-     return path.slice(0, path.lastIndexOf("/"));
++     return path;
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:65:41
+-     return path.slice(0, path.lastIndexOf("/"));
++     return path.slice(0, path.lastIndexOf(""));
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:80:20
+-     const declined = [...new Set([...readDeclined(io, dir), universe])].sort();
++     const declined = [...new Set([...readDeclined(io, dir), universe])];
+
+[Survived] ObjectLiteral
+scripts/lib/universe-profile.mjs:81:21
+-     io.mkdirSync(dir, { recursive: true });
++     io.mkdirSync(dir, {});
+
+[Survived] BooleanLiteral
+scripts/lib/universe-profile.mjs:81:34
+-     io.mkdirSync(dir, { recursive: true });
++     io.mkdirSync(dir, { recursive: false });
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:82:90
+-     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "\n");
++     io.writeFileSync(`${dir}/${NUDGE_STATE_FILE}`, JSON.stringify({ declined }, null, 2) + "");
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:89:7
+-     if (!io.existsSync(path)) return [];
++     if (false) return [];
+
+[Survived] OptionalChaining
+scripts/lib/universe-profile.mjs:92:26
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
++       return Array.isArray(parsed.declined) ? parsed.declined : [];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:94:12
+-       return [];
++       return ["Stryker was here"];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:92:64
+-       return Array.isArray(parsed?.declined) ? parsed.declined : [];
++       return Array.isArray(parsed?.declined) ? parsed.declined : ["Stryker was here"];
+
+[Survived] ArrayDeclaration
+scripts/lib/universe-profile.mjs:174:75
+-     const out = { about: [], people: [], topics: [], connectors: [], other: [] };
++     const out = { about: [], people: [], topics: [], connectors: [], other: ["Stryker was here"] };
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s+(.*)/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/##\s+(.*)$/);
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:177:32
+-       const heading = line.match(/^##\s+(.*)$/);
++       const heading = line.match(/^##\s(.*)$/);
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:179:48
+-         current = SECTIONS[heading[1].trim()] ?? "other";
++         current = SECTIONS[heading[1].trim()] ?? "";
+
+[Survived] MethodExpression
+scripts/lib/universe-profile.mjs:182:34
+-       if (line.startsWith("# ") || line.trim() === "") continue;
++       if (line.startsWith("# ") || line === "") continue;
+
+[Survived] ConditionalExpression
+scripts/lib/universe-profile.mjs:185:23
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(false ? line : line.replace(/^[-*]\s*/, ""));
+
+[Survived] StringLiteral
+scripts/lib/universe-profile.mjs:185:35
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "" ? line : line.replace(/^[-*]\s*/, ""));
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:185:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/[-*]\s*/, ""));
+
+[Survived] Regex
+scripts/lib/universe-profile.mjs:185:65
+-       out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
++       out[current].push(current === "about" ? line : line.replace(/^[-*]\s/, ""));
+
+Ran 1.00 tests per mutant on average.
+----------------------|------------------|----------|-----------|------------|----------|----------|
+                      | % Mutation score |          |           |            |          |          |
+File                  |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files             |  87.89 |   87.89 |      167 |         0 |         23 |        0 |        0 |
+ universe-profile.mjs |  87.89 |   87.89 |      167 |         0 |         23 |        0 |        0 |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+17:19:32 (94488) INFO MutationTestExecutor Done in 7 minutes and 29 seconds.
+17:19:32 (94488) INFO Sandbox Resetting your original files from .stryker-tmp/backup-NYr4RI.

@@ -1,0 +1,23 @@
+[32m18:35:48 (78167) INFO ProjectReader[39m Found 1 of 925 file(s) to be mutated.
+[32m18:35:48 (78167) INFO Instrumenter[39m Instrumented 1 source file(s) with 6 mutant(s)
+[32m18:35:48 (78167) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m18:35:48 (78167) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-HHbU42
+[32m18:35:48 (78167) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m18:35:48 (78167) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m18:35:53 (78167) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 4 seconds (net 4249 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/6 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/6 tested (0 survived, 0 timed out)
+
+All tests
+  [92m✓[39m [90mAll tests[39m (killed 6)
+
+Ran 1.00 tests per mutant on average.
+------------|------------------|----------|-----------|------------|----------|----------|
+            | % Mutation score |          |           |            |          |          |
+File        |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------|--------|---------|----------|-----------|------------|----------|----------|
+All files   |[32m 100.00 [39m|[32m  100.00 [39m|        6 |         0 |          0 |        0 |        0 |
+ plural.mjs |[32m 100.00 [39m|[32m  100.00 [39m|        6 |         0 |          0 |        0 |        0 |
+------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m18:36:20 (78167) INFO MutationTestExecutor[39m Done in 32 seconds.
+[32m18:36:20 (78167) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-HHbU42.

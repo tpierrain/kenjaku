@@ -1,0 +1,31 @@
+[32m16:56:23 (377) INFO ProjectReader[39m Found 2 of 919 file(s) to be mutated.
+[32m16:56:23 (377) INFO Instrumenter[39m Instrumented 2 source file(s) with 6 mutant(s)
+[32m16:56:23 (377) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m16:56:23 (377) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-8ZAmE4
+[32m16:56:23 (377) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m16:56:23 (377) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m16:56:28 (377) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 4 seconds (net 4538 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/6 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/6 tested (0 survived, 0 timed out)
+Mutation testing 83% (elapsed: <1m, remaining: <1m) 5/6 tested (1 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 5)
+
+[Survived] StringLiteral
+scripts/session-engine-divergence.mjs:62:63
+-     brainDir = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
++     brainDir = resolve(dirname(fileURLToPath(import.meta.url)), ""),
+
+Ran 1.00 tests per mutant on average.
+-------------------------------|------------------|----------|-----------|------------|----------|----------|
+                               | % Mutation score |          |           |            |          |          |
+File                           |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                      |  83.33 |   83.33 |        5 |         0 |          1 |        0 |        0 |
+ lib                           | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |
+  startup-sync-gate.mjs        | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |
+ session-engine-divergence.mjs |  66.67 |   66.67 |        2 |         0 |          1 |        0 |        0 |
+-------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m16:56:58 (377) INFO MutationTestExecutor[39m Done in 35 seconds.
+[32m16:56:58 (377) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-8ZAmE4.

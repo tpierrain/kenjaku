@@ -1,0 +1,152 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// locale-drift.mjs — does a `templates/<locale>/<rel>` twin still carry what its
+// English source carries? It judges NO translation quality: it names the commits a
+// human has to look at, and stops there.
+//
+// THE CRITERION is *unpaired commits*: commits touching `<rel>` since the twin's own
+// last commit that do not ALSO touch the twin. Measured on the 16 real pairs, the
+// obvious signal (commits on EN since the twin's date) reads 1 for a perfectly
+// synchronised pair — a pair updated in ONE shared commit contains that commit in
+// its own window — and 14 of the 16 scored exactly that while being in sync.
+//
+// ⚠️ TWO LIMITATIONS, stated rather than discovered later. A RENAME resets the window
+// and makes this under-report: `--follow` exists, is per-pair, and carries its own
+// heuristics — an under-reporting guard is honest, a mis-attributing one is not. And
+// a twin created LATER than its source is assumed current at creation, which is what
+// creating it means.
+// ─────────────────────────────────────────────────────────────────────────────
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+import { buildGitInvocation } from "./engine-fetch.mjs";
+import { countOf } from "./plural.mjs";
+
+// 🛑 THE GUARD ROOTS ITSELF, and it is not a convenience (T7). Every path here is a
+// PATHSPEC — `templates/fr/<rel>` — and git resolves a pathspec against the process's
+// own directory, which `buildGitInvocation` deliberately leaves alone. Run from
+// `scripts/` instead of the root, the twin matched nothing, `since` came back empty,
+// the window collapsed to `..HEAD`, and the guard reported **0 drifts** where the root
+// reported 1 — suite green from both. RESULTS.md § S7-5 had already named exactly this
+// blindness: *"a missing `-C` is invisible from a return value, since the command still
+// succeeds, just in the wrong directory."*
+//
+// The repository is not a parameter, and that is the point: this guard exists to judge
+// THIS repository's own `templates/` tree, so the one directory it may ever ask about is
+// the one its own source file sits in. Nobody can forget to pass it.
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+// 🛑 Pinned. `%h` widens on its own as a repository grows, and the waiver map is keyed
+// on exactly what the failure message prints — so copying a sha out of the message has
+// to keep matching next year.
+const ABBREV = "--abbrev=7";
+
+const SEPARATOR = "\t";
+
+export const twinLastCommitArgs = (sourcePath) => [
+  "log",
+  "-1",
+  "--format=%H",
+  "--",
+  sourcePath,
+];
+
+export const commitsSinceArgs = (since, path) => [
+  "log",
+  `--format=%h${SEPARATOR}%s`,
+  ABBREV,
+  `${since}..HEAD`,
+  "--",
+  path,
+];
+
+// The default seam THROWS when git fails, and that is deliberate: the `{ok:false}`
+// convention `defaultGit` uses would turn a broken git call into "no drift found",
+// which is the exact silence this guard exists to break. The INVOCATION is still
+// `engine-fetch`'s builder — a second spelling of "ask git" would be a second
+// behaviour to keep in step forever (CONVENTIONS §5ter).
+export function defaultLog(args, execFile = execFileSync) {
+  const { command, args: argv, options } = buildGitInvocation(["-C", REPO_ROOT, ...args]);
+  return execFile(command, argv, options).trim();
+}
+
+export function parseCommits(out) {
+  return (out ?? "")
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const at = line.indexOf(SEPARATOR);
+      return { sha: line.slice(0, at), subject: line.slice(at + 1) };
+    });
+}
+
+export function unpairedCommits({ commits, pairedShas, waived = {} }) {
+  const paired = new Set(pairedShas);
+  return commits.filter(({ sha }) => !paired.has(sha) && !(sha in waived));
+}
+
+// A rel is locale-owned iff a `templates/<locale>/` twin exists — the engine's own
+// rule (`engine-copy-select.mjs`: "with no list to maintain here"), reused so new
+// pairs are inherited for free. The mirror case is deliberate: an English file with
+// NO twin is not an omission, it means the product did not localize it, and reporting
+// it would flood the output with every English file forever.
+export function localeDriftPairs(sourceFiles) {
+  const tracked = new Set(sourceFiles);
+  return sourceFiles
+    .flatMap((sourcePath) => {
+      // ⚠️ The trailing `$` is a NAMED EQUIVALENT: `.+` is greedy and a path holds no
+      // newline, so it already runs to the end. The LEADING `^` is not — without it,
+      // `docs/templates/fr/nested.md` joins the watched set — and a test says so.
+      const m = /^templates\/([^/]+)\/(.+)$/.exec(sourcePath);
+      return m && tracked.has(m[2])
+        ? [{ sourcePath, locale: m[1], rel: m[2] }]
+        : [];
+    })
+    // `<` vs `<=` is a NAMED EQUIVALENT: source paths come from a tracked-file listing,
+    // so no two compared here are ever equal. The sort itself is NOT decoration — the
+    // report's order is what a human diffs between two runs.
+    .sort((a, b) => (a.sourcePath < b.sourcePath ? -1 : 1));
+}
+
+export function measureLocaleDrift({ sourceFiles, waived = {}, git = defaultLog }) {
+  return localeDriftPairs(sourceFiles)
+    .map(({ sourcePath, rel }) => {
+      const since = git(twinLastCommitArgs(sourcePath));
+      // 🛑 UNMEASURED IS NOT UNCHANGED. An empty last-commit collapses the window to
+      // `..HEAD`, git answers "no commits", and the pair reads as perfectly in sync — the
+      // very silence `defaultLog` refuses `{ok:false}` for, arriving through another door.
+      // A twin comes from a tracked-file listing, so having no commit means the question
+      // was asked somewhere it could not be answered. Say so instead of reporting green.
+      if (!since) {
+        throw new Error(
+          `locale-drift cannot place ${sourcePath}: git reports no commit for it, so its ` +
+            `window would be empty and the pair would read as in sync without being measured.`,
+        );
+      }
+      const commits = unpairedCommits({
+        commits: parseCommits(git(commitsSinceArgs(since, rel))),
+        pairedShas: parseCommits(git(commitsSinceArgs(since, sourcePath))).map((c) => c.sha),
+        waived,
+      });
+      return { rel, sourcePath, commits };
+    })
+    .filter(({ commits }) => commits.length > 0);
+}
+
+// Subjects, never a count: `sync` and `prepare-1-1` both scored 1, and one was a third
+// of the file while the other was a one-line review fix. A number tells a human nothing
+// and trains them to ignore the guard.
+export function describeDrift(drifting) {
+  return [
+    `${countOf(drifting.length, "localized file")} behind ${drifting.length === 1 ? "its" : "their"} English source:`,
+    ...drifting.flatMap(({ rel, sourcePath, commits }) => [
+      `  ${sourcePath} is behind ${rel}:`,
+      ...commits.map(({ sha, subject }) => `    ${sha} ${subject}`),
+    ]),
+    "",
+    "Two ways to clear each commit, and only two:",
+    "  • PORT it into the localized file (the usual answer), or",
+    "  • if it cannot be ported — e.g. it fixed English to match a translation that was",
+    "    already right — add it to NOT_A_PORT in locale-drift.test.mjs WITH A REASON.",
+  ].join("\n");
+}

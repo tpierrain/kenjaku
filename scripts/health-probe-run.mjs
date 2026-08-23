@@ -21,7 +21,10 @@ import { fileURLToPath } from "node:url";
 
 import { runActivatedHealthChecks } from "./lib/health-check-runner.mjs";
 import { buildHeadlessHealthCheckCaller } from "./lib/headless-health-check.mjs";
+import { countOf } from "./lib/plural.mjs";
+import { readInstalledMergeFiles } from "./lib/engine-base-fs.mjs";
 import { tsxInvocation } from "./lib/tsx-invocation.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 export async function runProbeChild({ runProbes, readPriorVerdict, writeVerdict, notify }) {
   const verdict = await runProbes();
@@ -56,6 +59,35 @@ export function notifyInvocation({ brainDir, platform, title, body, ...seams }) 
   return { command, args, options: { cwd: brainDir, detached: true, stdio: "ignore", windowsHide: true, shell } };
 }
 
+/**
+ * S5's residual — the engine files this process could not READ, as a health verdict.
+ *
+ * `readInstalledMergeFiles` has taken an opt-in `unreadable` collector since S5, and the
+ * SessionStart divergence hook hands it one and discards it, deliberately: that hook's
+ * voice is *"a file the engine leaves alone is a choice, not a problem"*, and a file the
+ * filesystem refused (a bad umask, a cloud sync client's placeholder, a half-restored
+ * backup) is neither. It is an alarm, so it is said by the surface that owns the alarm
+ * voice — and it reaches an owner the same way every other health fact does, through the
+ * banner this probe's verdict feeds.
+ *
+ * Silent when everything reads: an `ok` row here would be a line in engine-health.json
+ * and a thing to explain, for a state that is simply normal.
+ */
+export function engineFilesVerdict(unreadable) {
+  if (unreadable.length === 0) return [];
+  // Sorted because a human reads it: the same two files must not swap places between two
+  // sessions and read as a new problem.
+  const detail = `${countOf(unreadable.length, "engine file")} could not be read — ${[...unreadable].sort().join(", ")}`;
+  return [
+    {
+      capability: "engine-files",
+      status: "broken",
+      detail,
+      checks: [{ name: "readable", status: "broken", detail }],
+    },
+  ];
+}
+
 // Map the runner's per-module verdict onto the persisted shape session-health.mjs +
 // formatHealthBanner read ({ capability, status, detail }). The structured `checks` are
 // carried through too (ADR 0030 F7-ter, baby-step 5) so the banner can name each cause +
@@ -75,7 +107,11 @@ export function toBannerVerdict(modules) {
 // loads the embedder + searches → seconds) so session start never waits. Writes
 // engine-health.json and OS-notifies only on a newly-broken capability. Fail-open:
 // ALWAYS exit 0.
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// runAsEntrypoint, never a hand-rolled argv[1] comparison: `resolve(argv[1])` is the
+// path AS TYPED and `import.meta.url` is the path Node REALPATH-RESOLVED, so on any
+// brain whose path holds a symlink the two differ and this whole block silently never
+// ran -- no output, no error, no exit code. See lib/entrypoint.mjs.
+runAsEntrypoint(import.meta.url, process.argv, async () => {
   const argv = process.argv.slice(2);
   const flag = (name) => {
     const i = argv.indexOf(`--${name}`);
@@ -107,7 +143,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     await runProbeChild({
       runProbes: async () => {
         const { modules } = await runActivatedHealthChecks({ manifest, isRegistered, callHealthCheck });
-        return toBannerVerdict(modules);
+        // S5 — read the engine's own body while we are here. It costs one pass over the
+        // merge regime (16 files, ~2 ms on a real brain) in a child that already runs
+        // detached, and it is the only surface that can say this in the alarm voice.
+        const unreadable = [];
+        readInstalledMergeFiles({ brainDir, manifest, unreadable });
+        return [...toBannerVerdict(modules), ...engineFilesVerdict(unreadable)];
       },
       readPriorVerdict: () =>
         existsSync(healthFile) ? JSON.parse(readFileSync(healthFile, "utf8")).verdict ?? null : null,
@@ -125,5 +166,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   } catch {
     // fail-open: swallow everything (a broken probe must never block / fail a session).
   }
-  process.exit(0); // ALWAYS exit 0
-}
+  return 0; // ALWAYS exit 0
+});

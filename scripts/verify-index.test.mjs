@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { join, dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
   buildCrosscheckInvocation,
@@ -8,6 +10,8 @@ import {
   realVerifyIndexDeps,
   runVerifyIndex,
 } from "./verify-index.mjs";
+
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "verify-index.mjs");
 
 // Spelled with `join`, like production: the command derives `rag/` from the cwd, so on
 // Windows a fixture hand-written with `/` compares `\brain\rag` against `/brain/rag`
@@ -168,4 +172,22 @@ test("defaultRunCrosscheck hands the built invocation to the spawn, and returns 
     platform: "darwin",
   });
   assert.deepEqual(calls, [[command, args, options]]);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by RUNNING the CLI as a process, which is the
+// only thing that proves the tail actually fires. Only the import half is
+// exercised here: every real invocation of this CLI spawns npx/tsx against a
+// rag/ folder, so unlike lint-vault there is no harmless "run it and check the
+// output" invocation — running it for real reaches the toolchain.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const probe = `import("${pathToFileURL(CLI).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
 });

@@ -7,8 +7,11 @@ import { join } from "node:path";
 
 import {
   buildCloneArgs,
+  buildGitInvocation,
   buildLsRemoteArgs,
+  defaultGit,
   fetchSource,
+  GIT_MAX_BUFFER,
   readTargetManifest,
   resolveLatestTag,
 } from "./engine-fetch.mjs";
@@ -34,11 +37,46 @@ function fakeGit({ ok = true, out = "" } = {}) {
 // on Windows, no shell needed) — proven identical under posix AND win32.
 // ═══════════════════════════════════════════════════════════════════════════
 
-test("buildCloneArgs — a shallow, single-branch clone of the pinned ref into dir", () => {
+test("buildCloneArgs — a shallow, single-branch clone of the pinned ref into dir, with LINE ENDINGS PINNED", () => {
+  // 🪟 `-c core.autocrlf=false` is W2, and it is the half that stops the defect
+  // RECURRING (W1 repairs the brains that already have it). Git for Windows defaults
+  // `core.autocrlf` to **true**, so without this the updater's own source tree is CRLF
+  // — and every byte the update then delivers is CRLF, so the brain re-records a CRLF
+  // digest that no table row can ever match. The fleet would need W1's candidate walk
+  // at every update, forever, instead of converging on the LF the object store holds.
+  //
+  // 🛑 BEFORE the subcommand, not after: `git clone -c …` is not a thing. A flag in the
+  // wrong position is not a weaker fix, it is `git: 'clone' is not a git command`.
   assert.deepEqual(
     buildCloneArgs({ repo: "https://example.test/launcher.git", ref: "v2.0.0", dir: "/tmp/src" }),
-    ["clone", "--depth", "1", "--branch", "v2.0.0", "--single-branch", "https://example.test/launcher.git", "/tmp/src"],
+    [
+      "-c",
+      "core.autocrlf=false",
+      "clone",
+      "--depth",
+      "1",
+      "--branch",
+      "v2.0.0",
+      "--single-branch",
+      "https://example.test/launcher.git",
+      "/tmp/src",
+    ],
   );
+});
+
+test("buildCloneArgs — the `.gitattributes` families are NOT what this pins, and must not be", () => {
+  // The trap `.gitattributes`'s own comment warns about, asserted as a boundary rather
+  // than trusted: `core.autocrlf` and an explicit `eol=` attribute are different
+  // mechanisms, and the attribute WINS. `*.cmd text eol=crlf` therefore still produces
+  // CRLF in a pinned clone — which is required, since cmd.exe re-seeks a batch file by
+  // byte offset and an LF-only launcher resumes mid-token (field report 2026-08-07).
+  //
+  // Nothing here can assert git's behaviour; what it CAN assert is that this argv does
+  // not try to legislate it — no `core.eol`, no `--config` on the attributes.
+  const args = buildCloneArgs({ repo: "r", ref: "v1", dir: "/d" });
+
+  assert.deepEqual(args.filter((a) => a === "-c"), ["-c"], "exactly one -c, so one thing is pinned");
+  assert.ok(!args.some((a) => a.startsWith("core.eol")), "core.eol is git's attribute machinery — untouched");
 });
 
 test("buildLsRemoteArgs — lists the remote's tag refs only (no dereferenced ^{} dupes)", () => {
@@ -195,9 +233,100 @@ for (const { platform, dir } of [
       makeTempDir: () => dir,
     });
     assert.equal(got, dir, "the platform-native temp dir is returned verbatim");
+    // The line-ending pin travels on BOTH platforms, and win32 is the one that needs
+    // it — asserted here rather than only on `buildCloneArgs`, because what reaches
+    // git is what this call passes, not what the builder returns in isolation.
     assert.deepEqual(calls[0], [
+      "-c", "core.autocrlf=false",
       "clone", "--depth", "1", "--branch", "v2.0.0", "--single-branch",
       "https://example.test/launcher.git", dir,
     ]);
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// defaultGit — debt 2 of the v4.8.0 mutation pass. The real runner used to be a
+// single execFileSync call the unit tests never entered (21 live mutants, and a
+// comment that documented its own exemption). Same fix as v4.5.0's
+// buildCrosscheckInvocation: the request becomes a VALUE, asserted whole, and
+// the runner shrinks to the forwarding plus the ok/failure mapping.
+//
+// No platform branch is asserted on purpose: git is a real executable on Windows
+// too (no `.cmd` wrapper, unlike npx), so the invocation is byte-identical
+// everywhere — see the module header. That absence is the design, not an omission.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("buildGitInvocation — the whole request, arguments passed through untouched", () => {
+  assert.deepEqual(buildGitInvocation(["ls-remote", "--tags", "git@host:me/repo.git"]), {
+    command: "git",
+    args: ["ls-remote", "--tags", "git@host:me/repo.git"],
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
+  });
+});
+
+test("buildGitInvocation — an empty argument list is still a well-formed request", () => {
+  assert.deepEqual(buildGitInvocation([]), {
+    command: "git",
+    args: [],
+    options: { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
+  });
+});
+
+// F10 (v5.0.0 code review) — THE CEILING IS A NUMBER, AND SILENCE IS ITS FAILURE MODE.
+//
+// This seam carries `git show <ref>:<path>`, the ancestor hydration: whole FILE bytes out
+// of the object store. It inherited node's 1 MB default, and `defaultGit` maps any throw
+// to `{ ok: false }` — which the update path reads as "the update server could not be
+// reached". So a file one byte over the line would have reported a network problem, and
+// the owner's merge would have silently gone to a frozen fallback.
+test("the git seam's ceiling is far above node's 1 MB default", () => {
+  assert.equal(GIT_MAX_BUFFER, 64 * 1024 * 1024, "the value itself, so a slip to a smaller one is caught");
+  assert.equal(buildGitInvocation(["show", "v1.0.0:CLAUDE.md"]).options.maxBuffer, GIT_MAX_BUFFER);
+});
+
+test("defaultGit — hands the BUILT invocation to the runner, whole and in order", () => {
+  const calls = [];
+  defaultGit(["status", "--porcelain"], (...a) => {
+    calls.push(a);
+    return "";
+  });
+  assert.deepEqual(calls, [
+    ["git", ["status", "--porcelain"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER }],
+  ]);
+});
+
+test("defaultGit — a run that succeeds returns its output and ok:true", () => {
+  // The return value is a fingerprint, never something the mapping could invent.
+  assert.deepEqual(defaultGit(["rev-parse", "HEAD"], () => "9f3c1ab-from-the-runner\n"), {
+    out: "9f3c1ab-from-the-runner\n",
+    ok: true,
+  });
+});
+
+test("defaultGit — a runner returning nothing maps to an EMPTY string, never undefined", () => {
+  // `stdio: ignore` on stdout is a real case, and `out` is concatenated by callers.
+  assert.deepEqual(defaultGit(["fetch"], () => undefined), { out: "", ok: true });
+  assert.deepEqual(defaultGit(["fetch"], () => null), { out: "", ok: true });
+});
+
+test("defaultGit — a failing run maps to ok:false, stdout THEN stderr", () => {
+  const boom = Object.assign(new Error("git exited 128"), {
+    stdout: "partial-output",
+    stderr: "fatal: repository not found",
+  });
+  assert.deepEqual(
+    defaultGit(["clone", "nope"], () => {
+      throw boom;
+    }),
+    { out: "partial-outputfatal: repository not found", ok: false },
+  );
+});
+
+test("defaultGit — a failure carrying neither stream is an empty out, not 'undefined'", () => {
+  assert.deepEqual(
+    defaultGit(["clone", "nope"], () => {
+      throw new Error("spawn ENOENT");
+    }),
+    { out: "", ok: false },
+  );
+});

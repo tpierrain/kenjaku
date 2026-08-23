@@ -666,9 +666,22 @@ offer** the update.
 4. **Brings the engine skills you never edited up to date.** Your brain records a fingerprint of every
    skill file the engine delivered, so it can *prove* which ones you never touched: those are refreshed
    to the newer version, and improvements shipped since your install finally reach you. **A skill you
-   tailored is never overwritten**: it stands byte-for-byte as you wrote it, and the engine's newer
-   version is dropped **beside** it as `<skill>/SKILL.md.new`, yours to adopt, cherry-pick or delete.
-   The report names both, so a silent delivery never leaves you unaware of what you gained.
+   tailored is never LOST** — and since v5.0.0 that is a stronger promise than "never touched", because
+   it now has three possible outcomes instead of one dead end:
+   - **Merged.** Your brain keeps the exact bytes it delivered to that file last time, so it can tell
+     your edits from the engine's. Where the two do not collide, both survive: your words stay, and
+     what shipped since arrives around them. Nothing to do, nothing to arbitrate.
+   - **Offered.** Where the two touch the same lines, or where nothing can be proved about that file's
+     history, **your version stands byte-for-byte** and the engine's newer one is dropped **beside** it
+     as `<skill>/SKILL.md.new`. The update report names the file *and* that path, and your brain raises
+     it in conversation with three real answers: take the new one, keep yours, or combine them. Say
+     which, and it carries it out — your current version is committed to your brain's history first, so
+     "take the new one" can always be undone.
+   - **Said out loud, between updates too.** A file it is holding back is named in the session banner,
+     with the version it is behind, until you answer. Answering settles it until the *next* release.
+
+   *(The technical door, if you ever want it by hand: `node scripts/adopt-engine-file.mjs <file>
+   take-theirs|keep-mine|combine --from <path>`. Ask in plain words instead — the skill drives it.)*
 5. Runs `npm install` in `rag/` — this installs the engine's **dependencies locally**; it does **not**
    pull your brain from any registry (self-hosted, ADR 0001).
 6. **Reindexes only if** `indexSchemaVersion` changed (a few minutes); otherwise your index is left
@@ -682,10 +695,15 @@ offer** the update.
   `source`.
 - **Fails loud, never half-applies.** If a step fails, it stops with a clear error (non-zero exit) and
   leaves your brain working as before.
-- **Sacred by construction.** An update never writes to your `vault/` notes, `.env`, `CLAUDE.md`,
-  `.claude/settings.json`, or anything under `.claude/skills/` you customized. This is enforced
-  mechanically — the plan is a **write-allowlist** driven by `engine-manifest.json`, plus a
-  defense-in-depth scrub of those paths (never an `rsync --delete` of the folder).
+- **Sacred by construction.** An update never writes to your `vault/` notes, `.env`, `CLAUDE.md` or
+  `.claude/settings.json`. This is enforced mechanically — the plan is a **write-allowlist** driven by
+  `engine-manifest.json`, plus a defense-in-depth scrub of those paths (never an `rsync --delete` of
+  the folder). **A skill you customized is protected differently, and the difference matters**: it is
+  off the copy path entirely — nothing is ever *pasted over* it — but the engine may reach it through a
+  **merge from the exact version it delivered to you last time**, which is how your edits and the newer
+  content end up in the same file. It can never do that from a version it cannot prove, and never on a
+  collision: there, your file is untouched and you are asked. *"Never written to" was the old promise
+  and it was a freeze; "never lost" is the one that survives an update.*
 
 > 🛠️ **Run it yourself** (technical, optional). From the brain folder:
 > ```bash
@@ -790,7 +808,7 @@ and always **propose** fixes you confirm (never a silent rewrite):
 |---|---|---|
 | **`sync-sources`** | Pulls the **delta** of external sources in parallel **read-only** sub-agents — the engine behind Phase 2. 🔧 to wire to your connectors. | **your questions** (never you) |
 | **auto-commit hook** | **Commits** your vault on every change (and **pushes** it if you've enabled a remote repository — *opt-in*, off by default). This is what means a **non-technical** profile **never has to know git**: everything is versioned on its own, locally, nothing gets lost. | automatic |
-| **`tdd-discipline`** | Vendored TDD discipline — used to develop *the harness itself*. | Claude, when modifying the harness |
+| **`test-first-discipline`** | Vendored test-first discipline — used to develop *the harness itself*. Replaces `tdd-discipline`, which the engine has retired: if your brain still holds an untouched copy, an update removes it and says so. | Claude, when modifying the harness |
 
 The rest is **not shipped**: those are **skill ideas** to let emerge as you need them, detailed in
 [`.claude/skills/EXAMPLES.md`](.claude/skills/EXAMPLES.md) — e.g. `briefing-journee` (morning briefing),

@@ -1,0 +1,100 @@
+tee: /Users/tpierrain/Dev/kenjaku/maintainers/mutation/logs/v470-scripts-changed.log: No such file or directory
+08:33:46 (95499) INFO ProjectReader Found 4 of 644 file(s) to be mutated.
+08:33:46 (95499) INFO Instrumenter Instrumented 4 source file(s) with 84 mutant(s)
+08:33:46 (95499) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+08:33:46 (95499) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-mhZkoT
+08:33:46 (95499) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+08:33:46 (95499) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+08:33:48 (95499) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 2 seconds (net 2576 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 70)
+
+[Survived] Regex
+scripts/lib/frozen-wiring.mjs:33:24
+-     return diffOut.split(/\r?\n/).filter((line) => line.trim().length > 0);
++     return diffOut.split(/\r\n/).filter((line) => line.trim().length > 0);
+
+[Survived] MethodExpression
+scripts/lib/frozen-wiring.mjs:33:50
+-     return diffOut.split(/\r?\n/).filter((line) => line.trim().length > 0);
++     return diffOut.split(/\r?\n/).filter((line) => line.length > 0);
+
+[Survived] StringLiteral
+scripts/lib/restart-nudge.mjs:59:5
+-       "loads its hooks, skills and servers only at start. Open your reply by telling the " +
++       "" +
+
+[Survived] BooleanLiteral
+scripts/lib/restart-signal.mjs:26:19
+-     let gapNeeded = false;
++     let gapNeeded = true;
+
+[Survived] StringLiteral
+scripts/lib/restart-signal.mjs:29:32
+-       const mcpPath = join(repo, ".mcp.json");
++       const mcpPath = join(repo, "");
+
+[Survived] StringLiteral
+scripts/lib/restart-signal.mjs:31:62
+-         ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
++         ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "")).mcpServers ?? {}))
+
+[Survived] LogicalOperator
+scripts/lib/restart-signal.mjs:31:29
+-         ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers ?? {}))
++         ? new Set(Object.keys(JSON.parse(readFileSync(mcpPath, "utf8")).mcpServers && {}))
+
+[Survived] ArrowFunction
+scripts/lib/restart-signal.mjs:36:23
+-         skillDirExists: (dir) => existsSync(join(repo, dir)),
++         skillDirExists: () => undefined,
+
+[Survived] ArrowFunction
+scripts/lib/restart-signal.mjs:37:28
+-         mcpServerRegistered: (id) => registered.has(id),
++         mcpServerRegistered: () => undefined,
+
+[Survived] BlockStatement
+scripts/lib/restart-signal.mjs:39:11
+-     } catch {
+-       gapNeeded = false;
+-     }
++     } catch {}
+
+[Survived] BooleanLiteral
+scripts/lib/restart-signal.mjs:43:20
+-     let flagExists = false;
++     let flagExists = true;
+
+[Survived] BlockStatement
+scripts/lib/restart-signal.mjs:46:11
+-     } catch {
+-       flagExists = false;
+-     }
++     } catch {}
+
+[Survived] BooleanLiteral
+scripts/lib/restart-signal.mjs:47:18
+-       flagExists = false;
++       flagExists = true;
+
+[Survived] ConditionalExpression
+scripts/prompt-restart-nudge.mjs:55:5
+-   if (isEntrypoint(import.meta.url, process.argv[1])) {
++   if (true) {
+
+Ran 1.00 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  83.33 |   83.33 |       70 |         0 |         14 |        0 |        0 |
+ lib                      |  80.60 |   80.60 |       54 |         0 |         13 |        0 |        0 |
+  frozen-wiring.mjs       |  92.86 |   92.86 |       26 |         0 |          2 |        0 |        0 |
+  restart-nudge.mjs       |  93.33 |   93.33 |       14 |         0 |          1 |        0 |        0 |
+  restart-signal.mjs      |  58.33 |   58.33 |       14 |         0 |         10 |        0 |        0 |
+ prompt-restart-nudge.mjs |  94.12 |   94.12 |       16 |         0 |          1 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+08:36:25 (95499) INFO MutationTestExecutor Done in 2 minutes and 39 seconds.
+08:36:25 (95499) INFO Sandbox Resetting your original files from .stryker-tmp/backup-mhZkoT.

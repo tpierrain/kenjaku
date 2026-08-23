@@ -13,6 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { matchesAny } from "./glob-match.mjs";
 import { filterCopyable } from "./tracked-files.mjs";
+import { stripComments, lineOf } from "./source-scan.mjs";
 
 // The rel paths a LOCALE owns, derived from the source's templates/<locale>/<rel>
 // tree: `templates/fr/scripts/lib/demo-locale.mjs` → `scripts/lib/demo-locale.mjs`.
@@ -33,6 +34,40 @@ export function localeOwnedPaths(sourceFiles) {
 export function resolveLocaleSource({ rel, locale, sourceFiles }) {
   const localized = `templates/${locale}/${rel}`;
   return sourceFiles.includes(localized) ? localized : rel;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THE CENSUS OF THE DOORS — what stops a FOURTH one being written locale-blind.
+//
+// T10 was reported against ONE call site and there were THREE, each delivering engine
+// content into a brain through its own `copyFileSync`, none of them resolving the locale.
+// A hand-audit is what had already failed: a copy that reads the root rel is invisible in
+// review, because it reads exactly like the correct one. So the rule gets a machine that
+// counts its doors — same shape and same argument as `findRawDirComparisons`
+// (`update-mode.mjs`, T8): a pure scanner over a source string, and one repo-wide
+// fail-loud test that pins the whole set.
+//
+// It lives HERE, beside `resolveLocaleSource`, on purpose: rule 3 of ADR 0040 and the
+// census of the places that must obey it are one subject, and splitting them is how the
+// census stops being aimed at the rule.
+// ─────────────────────────────────────────────────────────────────────────────
+export function findDeliveryCopies(source) {
+  const code = stripComments(source);
+  const out = [];
+  // The word boundary is what keeps a future `safeCopyFileSync` wrapper out of the
+  // census, and `\s*\(` is what keeps a formatter's wrapped call in it. A bare mention
+  // (an import, a destructured seam) has no `(` after it and is not a door.
+  const call = /\bcopyFileSync\s*\(/g;
+  let match;
+  while ((match = call.exec(code)) !== null) {
+    const lineStart = code.lastIndexOf("\n", match.index) + 1;
+    const lineEnd = code.indexOf("\n", match.index);
+    out.push({
+      line: lineOf(code, match.index),
+      text: code.slice(lineStart, lineEnd === -1 ? code.length : lineEnd).trim(),
+    });
+  }
+  return out;
 }
 
 // The rel paths to ACTUALLY copy: matching the engine copy globs, MINUS the dev-only

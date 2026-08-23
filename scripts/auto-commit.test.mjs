@@ -1,9 +1,18 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, copyFileSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  readdirSync,
+  realpathSync,
+  rmSync,
+  copyFileSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { tmpdir } from "node:os";
 import {
   buildGit,
@@ -19,7 +28,7 @@ import {
 // Green right away: we characterize an already-correct behavior, not an addition.
 //
 // Mutation score 98.21 % — the single residual survivor is a documented equivalent:
-// the `if (isEntryPoint(...))` guard forced to `if (true)`. It only matters when the
+// the entry-point tail forced to always fire. It only matters when the
 // module IS the process; under the command runner, forcing it true merely self-runs
 // attemptCommit at import (harmless, no assertion observes it). Effective 100 % on
 // non-equivalents. (The integration tests below drive the REAL script as a subprocess,
@@ -34,9 +43,17 @@ function makeRepo() {
   const root = mkdtempSync(join(tmpdir(), "auto-commit-"));
   mkdirSync(join(root, "scripts", "lib"), { recursive: true });
   copyFileSync(REAL_SCRIPT, join(root, "scripts", "auto-commit.mjs"));
-  // The hook reads the tree through `treeState` (shared with the sweep and the
-  // engine update), so the fixture must ship that module too — a brain does.
-  copyFileSync(join(HERE, "lib", "repo-status.mjs"), join(root, "scripts", "lib", "repo-status.mjs"));
+  // The hook reads the tree through `treeState` and exits through `runAsEntrypoint`,
+  // so the fixture must ship those modules too — a brain does. It used to name the two
+  // it needed, one `copyFileSync` each, and that list was a hand-maintained fact about
+  // somebody else's imports: the day `repo-status.mjs` imported a third module, four
+  // tests failed with ERR_MODULE_NOT_FOUND about a file this test had never heard of.
+  // `scripts/lib/**` is ONE `replace` glob in the manifest — a brain receives the whole
+  // folder — so the fixture takes the whole folder too, and stops having a list to keep.
+  for (const file of readdirSync(join(HERE, "lib"))) {
+    if (!file.endsWith(".mjs") || file.endsWith(".test.mjs")) continue;
+    copyFileSync(join(HERE, "lib", file), join(root, "scripts", "lib", file));
+  }
   const git = (args) =>
     execFileSync("git", args, { cwd: root, encoding: "utf8" });
   git(["init", "-q"]);
@@ -203,24 +220,6 @@ test("repoRoot — resolves ONE level up from the module (scripts/ → repo root
   assert.notEqual(repoRoot(import.meta.url), dirname(here));
 });
 
-test("isEntryPoint — true when argv1 realpath matches the module URL", () => {
-  const me = fileURLToPath(import.meta.url);
-  assert.equal(isEntryPoint(me, import.meta.url), true);
-});
-
-test("isEntryPoint — false when argv1 points at a different file", () => {
-  assert.equal(isEntryPoint(REAL_SCRIPT, import.meta.url), false);
-});
-
-test("isEntryPoint — false for a missing argv1 (imported, not invoked)", () => {
-  assert.equal(isEntryPoint(undefined, import.meta.url), false);
-  assert.equal(isEntryPoint("", import.meta.url), false);
-});
-
-test("isEntryPoint — false (not throwing) when argv1 does not exist on disk", () => {
-  assert.equal(isEntryPoint("/no/such/path/x.mjs", import.meta.url), false);
-});
-
 test("auto-commit — no remote: local commit, no push, no error", () => {
   const { root, git } = makeRepo();
   try {
@@ -274,6 +273,82 @@ test("auto-commit — remote present but autopush OFF (default): local commit, N
 // so it happens once per turn, not once per edit. auto-commit must NEVER push —
 // even with a remote AND autopush ON. (The push itself is covered by
 // auto-push.test.mjs / git-push.test.mjs.)
+// ─────────────────────────────────────────────────────────────────────────────
+// The v4.9.1 SIBLING CONTRACT — `isEntryPoint` is a published export, not an
+// internal detail (T2, third v5.0.0 review pass).
+//
+// `auto-commit.mjs` and `auto-push.mjs` are BOTH `merge` regime, and the manifest
+// lists them separately (`groupOf: rel => rel`), so an update refreshes them
+// INDEPENDENTLY. An owner who tuned their auto-push keeps their copy — v4.9.1's,
+// which opens with `import { attemptCommit, isEntryPoint } from "./auto-commit.mjs"`
+// — while auto-commit is refreshed to this engine's. Drop the export and that
+// import fails at LINK time: the whole Stop hook (sweep + push + the only backup
+// path) is dead at every turn, with a SyntaxError `node --check` cannot see and
+// `verifyWrite` never looks for, because it only ever inspects the file it writes.
+//
+// So the name stays, delegating to the canonical predicate — one behaviour, two
+// spellings — and these tests are what makes removing it go red.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("isEntryPoint — v4.9.1's signature (argv1 FIRST) answers true for the calling module", () => {
+  assert.equal(isEntryPoint(fileURLToPath(import.meta.url), import.meta.url), true);
+});
+
+test("isEntryPoint — false for another file, and for the imported case (no argv1)", () => {
+  assert.equal(isEntryPoint(REAL_SCRIPT, import.meta.url), false);
+  assert.equal(isEntryPoint(undefined, import.meta.url), false);
+  assert.equal(isEntryPoint("", import.meta.url), false);
+});
+
+// The fingerprint that it DELEGATES rather than re-implements: a symlinked argv1
+// still matches. A hand-rolled `pathToFileURL(argv1).href === metaUrl` answers
+// false here — which is exactly the defect T1 paid for, and the legacy callers
+// inherit the fix for free by going through this alias.
+test("isEntryPoint — a SYMLINKED argv1 still matches (the canonical realpath lesson)", () => {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), "auto-commit-symlink-")));
+  try {
+    const real = join(dir, "real.mjs");
+    const link = join(dir, "link.mjs");
+    writeFileSync(real, "");
+    symlinkSync(real, link);
+    assert.equal(isEntryPoint(link, pathToFileURL(real).href), true);
+    assert.notEqual(pathToFileURL(link).href, pathToFileURL(real).href);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// The seam itself, run AS A PROCESS — the only way this defect is visible, since
+// it is a link error and every in-process import of auto-commit.mjs succeeds.
+// The fixture is v4.9.1's import line and entry guard, written by hand: a copy of
+// the shape the fleet is holding, never generated by the code under test.
+test("a PRESERVED v4.9.1 auto-push.mjs still LINKS against this engine's auto-commit.mjs", () => {
+  const { root } = makeRepo();
+  try {
+    const legacy = join(root, "scripts", "legacy-auto-push.mjs");
+    writeFileSync(
+      legacy,
+      [
+        'import { attemptCommit, isEntryPoint } from "./auto-commit.mjs";',
+        "if (isEntryPoint(process.argv[1], import.meta.url)) {",
+        '  process.stdout.write(JSON.stringify({ entry: true, commit: typeof attemptCommit }));',
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    const out = execFileSync("node", [legacy], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    assert.deepEqual(JSON.parse(out), { entry: true, commit: "function" });
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("auto-commit — autopush ON: still COMMIT-ONLY, never pushes (push moved to Stop hook)", () => {
   const { root, git } = makeRepo();
   const { bare, headCount } = addBareRemote(root, git);

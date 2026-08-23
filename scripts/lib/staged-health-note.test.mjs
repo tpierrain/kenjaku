@@ -79,3 +79,58 @@ test("seedHealthNote — no staged note at the source → seeds nothing, reports
   assert.equal(result.present, false, "with nothing staged there is nothing to seed");
   assert.ok(!existsSync(join(brainDir, HEALTH_NOTE)), "no vault note is created out of thin air");
 });
+
+// ── T10's THIRD door, same shape as the two the fix already closed ───────────
+// The canary is a VAULT NOTE — the one artefact an owner reads in their own language at
+// the very moment they are checking whether their brain works. Delivered from the root,
+// a French brain's health check answers in English. No twin exists today, so this is the
+// pole that keeps the door honest the day one is written (ADR 0040, rule 1).
+test("seedHealthNote — a FR brain is seeded from the FR staged note (T10)", (t) => {
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(brainDir, "scripts/lib/demo-locale.mjs", 'export const BRAIN_LOCALE = "fr";\n');
+  const french = "---\ntitle: Contrôle de santé du moteur\n---\nCanari Quibblethorne.\n";
+  writeFile(sourceDir, STAGED_NOTE, "---\ntitle: Engine health check\n---\nQuibblethorne canary.\n");
+  writeFile(sourceDir, `templates/fr/${STAGED_NOTE}`, french);
+
+  const result = seedHealthNote({ sourceDir, brainDir });
+
+  assert.equal(readFileSync(join(brainDir, HEALTH_NOTE), "utf8"), french);
+  assert.equal(result.present, true);
+});
+
+test("seedHealthNote — with no FR twin a FR brain is still seeded, from the root (T10)", (t) => {
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(brainDir, "scripts/lib/demo-locale.mjs", 'export const BRAIN_LOCALE = "fr";\n');
+  const root = "---\ntitle: Engine health check\n---\nQuibblethorne canary.\n";
+  writeFile(sourceDir, STAGED_NOTE, root);
+
+  const result = seedHealthNote({ sourceDir, brainDir });
+
+  assert.equal(readFileSync(join(brainDir, HEALTH_NOTE), "utf8"), root, "no twin must never mean no canary");
+  assert.equal(result.present, true);
+});
+
+test("seedHealthNote — an EN brain is seeded from the ROOT even when a FR twin exists (T10)", (t) => {
+  const { sourceDir, brainDir } = freshDirs(t);
+  const english = "---\ntitle: Engine health check\n---\nQuibblethorne canary.\n";
+  writeFile(sourceDir, STAGED_NOTE, english);
+  writeFile(sourceDir, `templates/fr/${STAGED_NOTE}`, "---\ntitle: Santé\n---\nCanari.\n");
+
+  seedHealthNote({ sourceDir, brainDir });
+
+  assert.equal(readFileSync(join(brainDir, HEALTH_NOTE), "utf8"), english);
+});
+
+test("seedHealthNote — a FR twin ALONE seeds nothing: the root staging path is what declares the canary", (t) => {
+  // The existence check must stay on the ROOT rel. Move it to the resolved path and a
+  // half-finished translation (a twin committed before its English source) would seed a
+  // note the release does not ship — and `present: true` would then vouch for it.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(brainDir, "scripts/lib/demo-locale.mjs", 'export const BRAIN_LOCALE = "fr";\n');
+  writeFile(sourceDir, `templates/fr/${STAGED_NOTE}`, "---\ntitle: Santé\n---\nCanari.\n");
+
+  const result = seedHealthNote({ sourceDir, brainDir });
+
+  assert.equal(result.present, false);
+  assert.ok(!existsSync(join(brainDir, HEALTH_NOTE)), "a twin without its root source is not a delivery");
+});

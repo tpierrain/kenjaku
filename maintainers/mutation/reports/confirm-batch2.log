@@ -1,0 +1,56 @@
+12:39:34 (41926) INFO ProjectReader Found 1 of 600 file(s) to be mutated.
+12:39:34 (41926) INFO Instrumenter Instrumented 1 source file(s) with 172 mutant(s)
+12:39:34 (41926) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+12:39:34 (41926) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-fwg4k7
+12:39:34 (41926) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+12:39:34 (41926) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+12:39:35 (41926) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1514 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 164)
+
+[Survived] Regex
+scripts/lib/reconcile-brain.mjs:106:40
+-       const skillDir = skillGlob.replace(/\/\*\*?$/, ""); // ".../local-mirror/**" → ".../local-mirror"
++       const skillDir = skillGlob.replace(/\/\*\*?/, ""); // ".../local-mirror/**" → ".../local-mirror"
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:109:105
+-         if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
++         if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "");
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:159:60
+-       const brainMcp = JSON.parse(readFileSync(brainMcpPath, "utf8"));
++       const brainMcp = JSON.parse(readFileSync(brainMcpPath, ""));
+
+[Survived] BooleanLiteral
+scripts/lib/reconcile-brain.mjs:188:30
+-     let statusLineWasRemoved = false;
++     let statusLineWasRemoved = true;
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:193:70
+-       const brainSettings = JSON.parse(readFileSync(brainSettingsPath, "utf8"));
++       const brainSettings = JSON.parse(readFileSync(brainSettingsPath, ""));
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:194:76
+-       const templateSettings = JSON.parse(readFileSync(settingsTemplatePath, "utf8"));
++       const templateSettings = JSON.parse(readFileSync(settingsTemplatePath, ""));
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:312:58
+-     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
++     const manifest = JSON.parse(readFileSync(manifestPath, ""));
+
+Ran 0.99 tests per mutant on average.
+---------------------|------------------|----------|-----------|------------|----------|----------|
+                     | % Mutation score |          |           |            |          |          |
+File                 |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files            |  95.93 |   95.93 |      164 |         1 |          7 |        0 |        0 |
+ reconcile-brain.mjs |  95.93 |   95.93 |      164 |         1 |          7 |        0 |        0 |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+12:43:35 (41926) INFO MutationTestExecutor Done in 4 minutes and 1 second.
+12:43:35 (41926) INFO Sandbox Resetting your original files from .stryker-tmp/backup-fwg4k7.

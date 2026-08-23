@@ -1,0 +1,27 @@
+
+▶ Mutating 2 changed rag file(s):
+   rag/src/lib/index-shortfall.ts
+   rag/src/lib/status-report.ts
+08:27:40 (88049) INFO ProjectReader Found 2 of 813 file(s) to be mutated.
+08:27:40 (88049) INFO Instrumenter Instrumented 2 source file(s) with 159 mutant(s)
+08:27:40 (88049) INFO ConcurrencyTokenProvider Creating 4 test runner process(es).
+08:27:41 (88049) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: maintainers/mutation/.stryker-tmp/backup-onijgz
+08:27:41 (88049) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+08:27:41 (88049) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+08:27:41 (88049) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 0 seconds (net 602 ms, overhead 1 ms).
+
+All tests
+  ✓ All tests (killed 159)
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           | 100.00 |  100.00 |      159 |         0 |          0 |        0 |        0 |
+ index-shortfall.ts | 100.00 |  100.00 |       48 |         0 |          0 |        0 |        0 |
+ status-report.ts   | 100.00 |  100.00 |      111 |         0 |          0 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+08:29:08 (88049) INFO HtmlReporter Your report can be found at: file:///Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutation-rag.html
+08:29:08 (88049) INFO MutationTestExecutor Done in 1 minute and 28 seconds.
+08:29:08 (88049) INFO Sandbox Resetting your original files from maintainers/mutation/.stryker-tmp/backup-onijgz.

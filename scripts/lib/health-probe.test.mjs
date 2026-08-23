@@ -254,3 +254,47 @@ test("formatHealthBanner — a legacy module with no detail falls back to its st
       "   Your notes themselves are untouched.",
   );
 });
+
+// S5's residual, closed where the decision said it belonged (triage plan § J,
+// decision 3). An engine file this process cannot READ — a bad umask, a cloud sync
+// client's placeholder, a half-restored backup — used to be collected by the session
+// divergence hook and thrown away, because that hook's voice is *"a file the engine
+// leaves alone is a choice, not a problem"* and an unreadable file is neither. It is
+// an alarm, so it belongs to the surface that owns the alarm voice.
+test("formatHealthBanner — an engine file that cannot be READ is an alarm, with the gesture that clears it", () => {
+  const banner = formatHealthBanner([
+    {
+      capability: "engine-files",
+      status: "broken",
+      checks: [
+        {
+          name: "readable",
+          status: "broken",
+          detail: "1 engine file could not be read — .claude/skills/coach/SKILL.md",
+        },
+      ],
+    },
+  ]);
+  assert.equal(
+    banner,
+    "⚠️ Last health-check found a problem with your brain:\n" +
+      "   • 1 engine file could not be read — .claude/skills/coach/SKILL.md → " +
+      "check that file's permissions, or let your brain restore it at the next update.\n" +
+      "   Your notes themselves are untouched.",
+  );
+  // The two gestures this must NOT be. A reindex is about the vault, and a restart
+  // changes nothing about a file the filesystem refuses.
+  assert.doesNotMatch(banner, /reindex/);
+  assert.doesNotMatch(banner, /restart the brain/);
+});
+
+test("formatHealthBanner — unreadable engine files are CORE, never the soft 'a source is behind' note", () => {
+  // The severity call, asserted rather than assumed: this is the engine's own body,
+  // not a mirrored source, so it may never land in the ℹ️ section where an owner reads
+  // "your brain still answers" over a skill it can no longer load.
+  const banner = formatHealthBanner([
+    { capability: "engine-files", status: "broken", checks: [{ name: "readable", status: "broken", detail: "2 engine files could not be read — a.md, b.md" }] },
+  ]);
+  assert.match(banner, /^⚠️ Last health-check/);
+  assert.doesNotMatch(banner, /still answers/);
+});

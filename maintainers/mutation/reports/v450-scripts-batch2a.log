@@ -1,0 +1,139 @@
+16:58:36 (49794) INFO ProjectReader Found 2 of 629 file(s) to be mutated.
+16:58:36 (49794) INFO Instrumenter Instrumented 2 source file(s) with 125 mutant(s)
+16:58:36 (49794) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+16:58:37 (49794) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-nYcM9W
+16:58:37 (49794) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+16:58:37 (49794) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+16:58:45 (49794) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 7 seconds (net 7946 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 102)
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:15:41
+-   function gestureForCheck(name, detail = "") {
++   function gestureForCheck(name, detail = "Stryker was here!") {
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:18:10
+-       case "canary":
++       case "":
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:24:11
+-           : "check your network and the API key in your .env";
++           : "";
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:25:5
+-       case "store":
+-         return "check the mirror's path, or refresh it";
++       case "store":
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:26:14
+-         return "check the mirror's path, or refresh it";
++         return "";
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:25:10
+-       case "store":
++       case "":
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:31:5
+-       default:
+-         return "restart the brain";
++       default:
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:32:14
+-         return "restart the brain";
++         return "";
+
+[Survived] MethodExpression
+scripts/lib/health-probe.mjs:44:19
+-     const failing = (mod.checks ?? []).filter((c) => c.status !== "ok");
++     const failing = mod.checks ?? [];
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:44:52
+-     const failing = (mod.checks ?? []).filter((c) => c.status !== "ok");
++     const failing = (mod.checks ?? []).filter((c) => true);
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:44:65
+-     const failing = (mod.checks ?? []).filter((c) => c.status !== "ok");
++     const failing = (mod.checks ?? []).filter((c) => c.status !== "");
+
+[Survived] LogicalOperator
+scripts/lib/health-probe.mjs:45:64
+-     if (failing.length === 0) return [`   • ${mod.capability} (${mod.detail ?? mod.status}) → restart the brain.`];
++     if (failing.length === 0) return [`   • ${mod.capability} (${mod.detail && mod.status}) → restart the brain.`];
+
+[Survived] MethodExpression
+scripts/lib/health-probe.mjs:61:26
+-     const optionalBroken = broken.filter((m) => OPTIONAL_MODULES.has(m.capability));
++     const optionalBroken = broken;
+
+[Survived] ArrayDeclaration
+scripts/lib/health-probe.mjs:63:20
+-     const sections = [];
++     const sections = ["Stryker was here"];
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:69:9
+-           "   Your notes themselves are untouched.",
++           "",
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:70:14
+-         ].join("\n"),
++         ].join(""),
+
+[Survived] ConditionalExpression
+scripts/lib/health-probe.mjs:73:7
+-     if (optionalBroken.length > 0) {
++     if (true) {
+
+[Survived] EqualityOperator
+scripts/lib/health-probe.mjs:73:7
+-     if (optionalBroken.length > 0) {
++     if (optionalBroken.length >= 0) {
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:78:14
+-         ].join("\n"),
++         ].join(""),
+
+[Survived] StringLiteral
+scripts/lib/health-probe.mjs:81:24
+-     return sections.join("\n");
++     return sections.join("");
+
+[Survived] BooleanLiteral
+scripts/lib/universe-reminder.mjs:58:74
+-   export function profileCaptureOffer({ hasProfile, declined, multiverse = false }) {
++   export function profileCaptureOffer({ hasProfile, declined, multiverse = true }) {
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:104:88
+-       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
++       hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("") },
+
+[Survived] StringLiteral
+scripts/lib/universe-reminder.mjs:105:67
+-       systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
++       systemMessage: [nudge, synthesis, offer].filter(Boolean).join(""),
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  81.60 |   81.60 |      102 |         0 |         23 |        0 |        0 |
+ health-probe.mjs      |  71.83 |   71.83 |       51 |         0 |         20 |        0 |        0 |
+ universe-reminder.mjs |  94.44 |   94.44 |       51 |         0 |          3 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+17:04:38 (49794) INFO MutationTestExecutor Done in 6 minutes and 2 seconds.
+17:04:38 (49794) INFO Sandbox Resetting your original files from .stryker-tmp/backup-nYcM9W.

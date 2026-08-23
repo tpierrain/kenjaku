@@ -12,6 +12,7 @@ import {
   pullerWiredIn,
   readHookPayload,
   waitForStartupSync,
+  awaitStartupSync,
 } from "./startup-sync-gate.mjs";
 
 // In-memory fs with the four calls the gate is allowed to make. Keyed on the real
@@ -416,4 +417,108 @@ test("pullerWiredIn: no settings file, or bytes that are not JSON — nobody is 
   assert.equal(pullerWiredIn({ repo: "/brain", io: fakeIo() }), false);
   const corrupt = fakeIo(new Map([[join("/brain", ".claude", "settings.json"), "{ not json"]]));
   assert.equal(pullerWiredIn({ repo: "/brain", io: corrupt }), false);
+});
+
+// ── awaitStartupSync — the ONE spelling, and the fail-open it owes (T11) ─────
+// Added when the barrier got its SECOND caller (`session-engine-divergence.mjs`). At
+// the call site it is five arguments that all have to agree, and the way they stop
+// agreeing is a hook that quietly stops waiting: a wrong `repo` waits on another
+// brain's marker, a forgotten `pullerWired` taxes every pre-barrier brain forever, and
+// either one reads exactly like success.
+//
+// 🛑 AND EVERY ONE OF THEM PASSES `readPayload`, WHICH IS NOT DECORATION. Without the
+// seam this helper called `readHookPayload()` internally, i.e. `readFileSync(0)` on the
+// TEST PROCESS's own stdin. `node --test` gives each file a stdin pipe with no writer:
+// POSIX answers EAGAIN and the swallow turns it into "", so all three tests below went
+// green in microseconds on macOS — while Windows BLOCKS on that read, forever. Measured
+// 2026-08-23: 2 h 46 min on one runner, three hours of CI queued behind it, `node --test`
+// finally reporting only "Promise resolution is still pending". A unit test must never
+// read the process's real stdin; whether the SHIPPED default is still `readFileSync(0)`
+// is asserted separately, below.
+
+test("awaitStartupSync: it reads the payload through the seam, never the process's own stdin", () => {
+  // The regression test for the hang, and it is about REACHABILITY, not about a value:
+  // if the helper ever goes back to reading fd 0 itself, the spy is not called and this
+  // fails on POSIX — where the defect is otherwise invisible — instead of hanging on
+  // Windows three hours after the push.
+  const settings = JSON.stringify({
+    hooks: { SessionStart: [{ hooks: [{ command: 'node "/brain/scripts/session-status.mjs"' }] }] },
+  });
+  const io = fakeIo(new Map([[join("/brain", ".claude", "settings.json"), settings]]));
+  // 🛑 `fakeClock`, NOT `now: () => 0, sleep: () => {}`. The three tests above can afford a
+  // frozen clock because each returns BEFORE the poll loop; this one gets past the puller
+  // gate with a real session id, reaches the loop, and a clock that never advances never
+  // reaches the grace deadline — an infinite spin. Caught locally, by the suite hanging.
+  const clock = fakeClock();
+  let asked = 0;
+
+  const outcome = awaitStartupSync({
+    repo: "/brain",
+    io,
+    now: clock.now,
+    sleep: clock.sleep,
+    readPayload: () => {
+      asked += 1;
+      return JSON.stringify({ session_id: "s-42" });
+    },
+  });
+
+  assert.equal(asked, 1, "the injected reader is the ONLY thing consulted for the payload");
+  assert.notEqual(outcome.status, "unknown-session", "and the session id it returned actually reached the gate");
+});
+
+test("awaitStartupSync: the SHIPPED default still reads the harness's payload off stdin", () => {
+  // The other half of the seam: an injection point is also a way to ship a helper that
+  // reads nothing in production. `readHookPayload` is the default, and it is `isTTY`-aware
+  // — so a hook run at a keyboard reads "" rather than blocking on a human. Asserted here
+  // because the test above deliberately never exercises the default.
+  assert.equal(readHookPayload({ isTTY: () => true, readInput: () => "unreachable" }), "");
+  assert.equal(readHookPayload({ isTTY: () => false, readInput: () => '{"session_id":"s-7"}' }), '{"session_id":"s-7"}');
+});
+
+test("awaitStartupSync: an io that throws costs a stale read at worst, never the session start", () => {
+  // This runs BEFORE its callers' own try/catch — it is the first thing a hook does —
+  // so the guarantee has to live in what SHIPS. A hook asserting the same thing through
+  // an injected throwing double would only ever prove the double.
+  //
+  // A wrapper here was written first, and this test is what measured it as unreachable:
+  // every part composed already swallows, so a disk in revolt answers "nobody will pull"
+  // and the caller reads what is on disk. The wrapper came back out.
+  const hostile = {
+    existsSync: () => {
+      throw new Error("EIO");
+    },
+    readFileSync: () => {
+      throw new Error("EIO");
+    },
+  };
+
+  const outcome = awaitStartupSync({ repo: "/brain", io: hostile, now: () => 0, sleep: () => {}, readPayload: () => "" });
+
+  assert.deepEqual(outcome, { status: "not-expected", waitedMs: 0 }, "it answers, rather than throwing at its caller");
+});
+
+test("awaitStartupSync: no puller wired → it returns at once, without reading a marker", () => {
+  // The brains that predate the barrier, and the owners who removed the hook. Waiting
+  // would tax every one of their session starts for a marker that cannot appear.
+  const io = fakeIo(new Map());
+
+  const outcome = awaitStartupSync({ repo: "/brain", io, now: () => 0, sleep: () => {}, readPayload: () => "" });
+
+  assert.deepEqual(outcome, { status: "not-expected", waitedMs: 0 });
+});
+
+test("awaitStartupSync: it asks the gate about the repo it was GIVEN, not about a default", () => {
+  // A helper that resolved its own root would answer for the wrong brain and look like
+  // success — the exact failure it exists to prevent at the call sites.
+  const settings = JSON.stringify({
+    hooks: { SessionStart: [{ hooks: [{ command: 'node "/elsewhere/scripts/session-status.mjs"' }] }] },
+  });
+  const io = fakeIo(new Map([[join("/elsewhere", ".claude", "settings.json"), settings]]));
+
+  const wired = awaitStartupSync({ repo: "/elsewhere", io, now: () => 0, sleep: () => {}, readPayload: () => "" });
+  const elsewhere = awaitStartupSync({ repo: "/brain", io, now: () => 0, sleep: () => {}, readPayload: () => "" });
+
+  assert.equal(wired.status, "unknown-session", "the puller IS wired there — it got past the first gate");
+  assert.equal(elsewhere.status, "not-expected", "and nothing is wired here");
 });

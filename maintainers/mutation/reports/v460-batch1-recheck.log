@@ -1,0 +1,58 @@
+21:37:19 (47509) INFO ProjectReader Found 2 of 634 file(s) to be mutated.
+21:37:19 (47509) INFO Instrumenter Instrumented 2 source file(s) with 239 mutant(s)
+21:37:19 (47509) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+21:37:19 (47509) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-wiHPir
+21:37:19 (47509) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+21:37:19 (47509) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+21:37:20 (47509) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1612 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 231)
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-|-+$/g, ""); // trim leading/trailing hyphens
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:29:14
+-       .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
++       .replace(/^-+|-$/g, ""); // trim leading/trailing hyphens
+
+[Survived] Regex
+scripts/lib/filed-note.mjs:138:44
+-     return cardPath.split("/").pop().replace(/\.md$/, "").split("-")[0];
++     return cardPath.split("/").pop().replace(/\.md/, "").split("-")[0];
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:81:58
+-         { existsSync, readFileSync: (p) => readFileSync(p, "utf-8") },
++         { existsSync, readFileSync: (p) => readFileSync(p, "") },
+
+[Survived] StringLiteral
+scripts/file-back-note.mjs:84:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] Regex
+scripts/file-back-note.mjs:148:57
+-         const firstName = String(spec.title).trim().split(/\s+/)[0];
++         const firstName = String(spec.title).trim().split(/\s/)[0];
+
+[Survived] MethodExpression
+scripts/file-back-note.mjs:167:28
+-     process.exit(runFileBack(process.argv.slice(2)));
++     process.exit(runFileBack(process.argv));
+
+Ran 1.00 tests per mutant on average.
+--------------------|------------------|----------|-----------|------------|----------|----------|
+                    | % Mutation score |          |           |            |          |          |
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  97.07 |   97.07 |      231 |         1 |          7 |        0 |        0 |
+ lib                |  97.60 |   97.60 |      122 |         0 |          3 |        0 |        0 |
+  filed-note.mjs    |  97.60 |   97.60 |      122 |         0 |          3 |        0 |        0 |
+ file-back-note.mjs |  96.49 |   96.49 |      109 |         1 |          4 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+21:42:58 (47509) INFO MutationTestExecutor Done in 5 minutes and 39 seconds.
+21:42:58 (47509) INFO Sandbox Resetting your original files from .stryker-tmp/backup-wiHPir.

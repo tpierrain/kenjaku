@@ -87,7 +87,11 @@
     additive-only upgrade (write-allowlist + managed file set, never `rsync --delete`) — a user addition
     is *never* deleted/overwritten, structurally. Three **regimes** (replace / merge-3way / never-touch),
     Engine versioned as a **vector**. **Phased + channel-deferred** (decouple now, defer npm/plugin to
-    proven need; engine must start **offline**). **Scope: Second brain (runtime) + Installer.**
+    proven need; engine must start **offline**). Reads the boundary **both ways**: beside the allowlist
+    that governs what the engine writes into a brain sits a **write guard** governing what the brain's
+    **agent** writes into the engine — allow on the owner's own files, **ask** on an engine file with the
+    price named per regime, **deny** only on the recorded merge base, whose edit would forge the
+    provenance. **Scope: Second brain (runtime) + Installer.**
   - [`0013-resume-via-single-open-pr.md`](decisions/0013-resume-via-single-open-pr.md) —
     **resume multi-session work via the maintainer's single open PR** (the first *maintainer-workflow*
     ADR). Invariant: **at most one open PR authored by `tpierrain`** (the agent never opens a 2nd, never
@@ -159,28 +163,66 @@
     Re-examines each of ADR 0011's four costs — including owning the timer against ADR 0009 — and states
     the bound plainly: *searchable in seconds, committed within minutes, as long as your brain is open*.
     **Scope: Second brain (runtime).**
+  - [`0038-sacred-splits-inviolable-and-merge-governed.md`](decisions/0038-sacred-splits-inviolable-and-merge-governed.md) —
+    **amends ADR 0012**: one word, *sacred*, was filing three different reasons, and the flattening
+    answered a question nobody had decided. **Inviolable** (`.env`, `vault/`, undeclared skills) means
+    no door, ever; **merge-governed** (`CLAUDE.md`, `.claude/settings.json`) means the engine may reach
+    it **only** through a three-way merge from a provable base — never by copy, never on a conflict.
+    One boundary read from two sides, so the list **is** the write guard's `OWNER_AUTHORED`, pinned by
+    identity. **No behaviour change**: a door named is not a door open, and nothing in this release
+    delivers either file. **Scope: Second brain (runtime).**
+  - [`0039-engine-retires-a-skill-declared-and-provenance-guarded.md`](decisions/0039-engine-retires-a-skill-declared-and-provenance-guarded.md) —
+    **amends ADR 0025**: the engine's surface was additive because nothing could remove, not because
+    anyone decided it should be. Exactly **one** subtractive door opens, on ADR 0036's shape: a skill
+    directory the manifest **declares** in a `retired` tombstone list, removed **only** when every file
+    under it is provably ours. Any doubt preserves the whole directory and names the file that blocked
+    it. A tombstone beats a regime — measured, because the reconcile's own install-if-absent put a
+    just-deleted skill straight back in the same pass. First and only tombstone:
+    `tdd-discipline`, superseded by `test-first-discipline`. **Scope: Second brain (runtime).**
+  - [`0040-a-brain-has-one-locale-and-it-is-written-on-the-brain.md`](decisions/0040-a-brain-has-one-locale-and-it-is-written-on-the-brain.md) —
+    three questions that kept being answered independently, now answered in one place: **which files
+    are localized** (those with a `templates/<locale>/` twin — derived, never listed; English is the
+    root, so *no twin* means the product did not localize it), **what language a brain is** (what
+    `demo-locale.mjs` says on **that brain**, and nothing else — not its content, not its bytes), and
+    **which source an update reads** (`resolveLocaleSource`, once, inside the shared merge carrier;
+    resolved at the source, written at the rel). The corollary is the one that cost a day: a `locale`
+    reported by the fingerprint lookup describes **the bytes it matched**, never the brain. Adding a
+    locale is adding a directory. **No behaviour change** — it writes down what the code has enforced
+    since v4.9.1. **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local
   embedders (Step 4). `node scripts/run-eval.mjs`. **Dev-only** (excluded from the generated brain).
-- **`plans/`** — implementation plans, each with a `STATUS` line at the **top**
-  (🗺️ ACTION PLAN / 🔬 STUDY / 🔭 PROSPECTIVE / 💡 BACKLOG / ⏳ PENDING / IN PROGRESS / ✅ SHIPPED / ABANDONED).
-  Three buckets along a **past · present · future** axis:
+- **`plans/`** — implementation plans. **The way in is [`plans/ACTIVE.md`](plans/ACTIVE.md)**: one door
+  at instant T, which names the active plan and holds links and a date, never a status. Every **live**
+  plan opens with a `## 📍 STATE` block (four keys, ≤ 20 lines) and no hand-written resume header;
+  the invariant and its two companion rules are `CONVENTIONS.md` §3ter. Three buckets along a
+  **past · present · future** axis:
   - **root of `plans/` = present** — action plans **mid-flight**:
-    - [`golden-source-sync-action.md`](plans/golden-source-sync-action.md) — **🗺️ action plan** for
+    - [`golden-source-sync-action.md`](plans/archived/golden-source-sync-action.md) — **🗺️ action plan** for
       the **`local-mirror`** MCP (named `golden-source-sync` when this plan was written — a new local MCP
       that synchronizes declared **local mirrors** into the vault; ADR 0022,
-      PRD [`prd-golden-source-sync.md`](plans/prd-golden-source-sync.md)). Self-contained
+      PRD [`prd-golden-source-sync.md`](plans/archived/prd-golden-source-sync.md)). Self-contained
       steps with a Tracking table to drive it session by session (a `/clear` between each). **STATUS:
       🚧 ACTIVE — not started.**
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).
-  > **Definition of done = archived.** The moment a plan ships, in the **same change**: set its top
-  > `STATUS` to ✅ (with the proof — commit SHAs / what was verified) **and `git mv` it into
-  > [`plans/archived/`](plans/archived/)**. Never leave a shipped plan at the root, and never delete it
+  > **Definition of done = archived.** The moment a plan ships, in the **same change**: `git mv` it
+  > into [`plans/archived/`](plans/archived/) **under a date-prefixed name** — `2026-08-21-<name>.md`,
+  > the date it closed, so the filename itself reads as a historical record and sorts by close date
+  > _(newly archived files only; **no retro-rename**, it would break cross-links corpus-wide)_. Drop
+  > its `## 📍 STATE` block for one line naming the release that shipped it, and remove it from
+  > [`plans/ACTIVE.md`](plans/ACTIVE.md). Never leave a shipped plan at the root, and never delete it
   > (the archive keeps the step-by-step detail). A plan whose **core shipped but that still carries an
   > open conditional/exploratory tail** goes to `plans/prospective/`, not `archived/`.
+  > **One fact, one OWNER — a plan that restates a neighbour's status is a future lie.** Measured
+  > 2026-08-20: one work item's status sat in four files, and a session that obeyed the save-point rule
+  > on every commit still left three of them stale, because it updated **the plan that was open**. So a
+  > plan restates no status it does not own: it **links**. The standing split here is *the release's
+  > state* → its own action plan; *every measured number* → `mutation/RESULTS.md`; *the working mode and
+  > its run log* → the mode plan; *why a debt exists and when its due date moved* → the debt plan.
+  > (Rule and its machine-local net: `CONVENTIONS.md` §3bis.)
   - **🔭 Prospective (`plans/prospective/`):**
     - [`rag-embedder-plan-action.md`](plans/prospective/rag-embedder-plan-action.md) — **🗺️ action plan**
       that **orchestrates** the embedder effort into **self-contained steps** (port → eval-set →
@@ -195,7 +237,7 @@
       **refreshed** watch (EmbeddingGemma, bge-m3, Qwen3, E2GraphRAG…), **privacy scale by
       provider**, plain-language "embedder ≠ chat LLM", eval-first. **STATUS: 🔬 STUDY — nothing
       enacted.** *(feeds the SPI plan + ADR 0007)*
-    - [`active-universe-follows-the-owner-action.md`](plans/prospective/active-universe-follows-the-owner-action.md) —
+    - [`active-universe-follows-the-owner-action.md`](plans/archived/active-universe-follows-the-owner-action.md) —
       **🗺️ action plan**: make the **active universe travel between machines** instead of staying
       machine-local. The native connectors are account-global, so half the "which context am I in"
       already follows the owner and half does not — and the half that does not fails **silently** (the
@@ -205,7 +247,7 @@
     - [`post-v3.1.0-ux-backlog.md`](plans/prospective/post-v3.1.0-ux-backlog.md) — **💡 backlog** of
       post-v3.1.0 UX ideas (custom notification icon, a `doctor` / "am I OK?" self-check…). Captured,
       **not committed work** — promote one to a real `*-action.md` when it's picked up.
-    - [`local-mirror-auto-refresh-spike.md`](plans/prospective/local-mirror-auto-refresh-spike.md) —
+    - [`local-mirror-auto-refresh-spike.md`](plans/archived/local-mirror-auto-refresh-spike.md) —
       **🔭 design spike (doc-only)**: should a declared local mirror refresh itself, and how? Surveys
       the state of the art (TTL-gated `stale-while-revalidate`), weighs 4 options, and **recommends a
       session-triggered staleness refresh, no daemon** (a near-clone of the `session-self-heal`

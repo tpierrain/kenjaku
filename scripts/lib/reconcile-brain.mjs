@@ -26,15 +26,27 @@ import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
 import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
 import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
+import { retireDeclaredSkills } from "./skill-retirement-fs.mjs";
+import { refreshEngineScripts } from "./engine-script-refresh.mjs";
+import { refreshEngineDoctrine } from "./engine-doctrine-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
 import { reconcileMcpServers } from "./mcp-reconcile.mjs";
 import { reconcileHooks, repairEngineHookCommands, repairWin32NodePrefix } from "./hooks-reconcile.mjs";
 import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
-import { reseedProvenance } from "./engine-source.mjs";
+import { ignoreBaseSettings } from "./ignore-base-settings.mjs";
+import { advanceRegimes, reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
+import { agreeing, countOf } from "./plural.mjs";
+import { syncBaseTree, readBaseTree, readInstalledMergeFiles } from "./engine-base-fs.mjs";
+import { healFromDisk, readFingerprintTable } from "./engine-heal-fs.mjs";
+import { planAncestorFetch } from "./engine-ancestor.mjs";
+import { fetchAncestors } from "./engine-ancestor-fetch.mjs";
+import { defaultGit } from "./engine-fetch.mjs";
+import { isSelfHeal } from "./update-mode.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
-import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
+import { selectEngineFilesToCopy, resolveLocaleSource } from "./engine-copy-select.mjs";
+import { readBrainLocale } from "./brain-locale.mjs";
 import {
   defaultRunInstall,
   defaultRunReindex,
@@ -53,8 +65,42 @@ import {
 // otherwise a no-op and any regression in it would be invisible.
 export const toPosix = (p) => p.split("\\").join("/");
 
-function copyInto(srcDir, destDir, rel) {
-  const src = join(srcDir, rel);
+// The allowlist path of the settings file, in the manifest's own POSIX spelling — the
+// same string the `merge` regime declares, so the write below and the record that has to
+// follow it are talking about one file rather than two spellings of one.
+const SETTINGS_REL = ".claude/settings.json";
+
+/**
+ * THE ONE DOOR for rewriting, in place, a brain file the OWNER may also be holding (S13).
+ *
+ * F1's invariant is general — a file the ENGINE wrote must never read as a file the owner
+ * is holding back — but it was carried by a single assignment beside a single
+ * `writeFileSync`. Whoever added the next in-place write had to remember that line, and
+ * the two callers that thread the map onwards; missing any one tells the owner, at every
+ * session start and with no way to dismiss it, that they are holding back a file the
+ * engine rewrote itself.
+ *
+ * Returned as a callable carrying its own `recorded` map, so the write and the record are
+ * one gesture rather than two that have to agree. The bytes recorded are the bytes handed
+ * in, never a re-read: what the record must describe is what THIS pass wrote, and a
+ * re-read describes whatever the file holds by the time the manifest writer runs.
+ */
+function engineWrites() {
+  const recorded = {};
+  const write = ({ brainDir, rel, text }) => {
+    writeFileSync(join(brainDir, rel), text);
+    recorded[rel] = text;
+  };
+  write.recorded = recorded;
+  return write;
+}
+
+// Copies into `destDir/rel`, READING `srcRel` — which defaults to `rel` and differs only
+// where ADR 0040 rule 3 resolves a locale: `templates/fr/<rel>` is read, `<rel>` is
+// written. Splitting the two arguments is the whole fix for T10: with one argument, the
+// resolution had nowhere to live and every caller silently delivered the root bytes.
+function copyInto(srcDir, destDir, rel, srcRel = rel) {
+  const src = join(srcDir, srcRel);
   const dest = join(destDir, rel);
   if (resolve(src) === resolve(dest)) return false;
   mkdirSync(dirname(dest), { recursive: true });
@@ -72,6 +118,10 @@ export async function reconcileBrain({
   runInstall,
   runReindex,
   countVaultNotes,
+  // S7-5-3: the seam the ancestor fetch spawns git through. Same runner as the update
+  // CHECK and as auto-push, because two spellings of "ask git" would be two behaviours
+  // to keep in step forever.
+  git = defaultGit,
 }) {
   // 1. The write-allowlist (the safety core, Step 3): the ONLY files we may write.
   const plan = computeApplyPlan(target);
@@ -87,11 +137,104 @@ export async function reconcileBrain({
   // the STAGED skills (Increment 2.5), and `engine-skills/**` is a `replace` glob — one
   // line later it holds the NEW content and every staged skill would read as untouched.
   const stagedProvenance = readStagedProvenance(brainDir);
-  const copyGlobs = [...plan.overwrite, ...plan.replaceScripts];
+  // ⚠️ ALSO BEFORE the copy, and computed exactly ONCE: THE HEAL (plan S7-3). The whole
+  // deployed fleet recorded no provenance for `CLAUDE.engine.md` — it was in no regime at
+  // any published tag — so `mergeVerdict` short-circuits on `!recorded` and answers
+  // `preserve/no-provenance` forever. The ancestor's bytes are on the disk; only the PROOF
+  // was missing, and a table of every version the engine ever published supplies it.
+  //
+  // The seam is the `recorded` INPUT and nothing below it: hand the three refresh families
+  // a provenance the brain can PROVE, and `verifyBase`, `mergeVerdict`, `planBaseSeed` and
+  // `planBaseAdvance` do the right thing untouched. Computing it here rather than at the
+  // seed also removes the crux the design named: one fact, one owner, one write.
+  //
+  // Read ONCE, used TWICE: the heal and the ancestor fetch below need the same installed
+  // bytes and the same table, and this path runs at every session start.
+  //
+  // 🚨 AND IT ASKS TO BE TOLD, rather than denying the whole converge (T3, third review
+  // pass). Without the collector this read RETHROWS — before the copy loop, before
+  // retirement, before the launcher regen, before the manifest — so one file the process
+  // cannot read (a bad umask, a locked file, a cloud client's placeholder) froze every
+  // OTHER engine file too. Worse on the self-heal path, which spawns this code `detached`
+  // with `stdio: "ignore"`: the banner goes nowhere, the gap survives, and the same
+  // failure re-fires at every session start with no output at all.
+  //
+  // Set aside costs the FILE and only the file: absent from this map, it is a candidate
+  // for neither the heal nor the ancestor fetch (both select on its keys), so nothing is
+  // recorded about bytes nobody read. The alarm voice is already owned elsewhere — the
+  // health probe says it out loud (`engineFilesVerdict`, S5) — and the report carries the
+  // names so no surface has to infer them from a gap.
+  const unreadableMergeFiles = [];
+  const installedMergeFiles = readInstalledMergeFiles({
+    brainDir,
+    manifest: target,
+    unreadable: unreadableMergeFiles,
+  });
+  const fingerprintTable = readFingerprintTable({ sourceDir, brainDir });
+  const { provenance: healedProvenance, baseRefs: healedBaseRefs, healed } = healFromDisk({
+    manifest: target,
+    provenance: local?.provenance ?? {},
+    sourceDir,
+    brainDir,
+    installedFileMap: installedMergeFiles,
+    table: fingerprintTable,
+  });
+  // ⚠️ AND THEN THE FETCH, in this order (plan S7-5-3). The heal is what keeps this list
+  // minimal: a healed file has `recorded === installed`, so it needs no ancestor at all
+  // and `planAncestorFetch` skips it. Running the fetch first would buy network calls for
+  // files the heal was about to prove.
+  //
+  // The other half of the fleet, and it does not overlap: files that HAVE a recorded sha,
+  // whose bytes moved because the owner edited them, and whose ancestor was never
+  // persisted — `.engine-base/` is invented by this release. They are row 7 of
+  // `mergeVerdict` today: preserved, frozen, with a `.new` sidecar. Hydrating the hole
+  // HERE, before the three refresh families run, is what lets the very same pass merge.
+  //
+  // No `sourceDir !== brainDir` gate here on purpose: it lives inside `fetchAncestors`,
+  // at the only place that spawns git, so no caller has to remember it.
+  const {
+    hydrated: ancestorsHydrated,
+    unreachable: ancestorsUnreachable,
+    unmatched: ancestorsUnmatched,
+  } = fetchAncestors({
+    plan: planAncestorFetch({
+      manifest: target,
+      provenance: healedProvenance,
+      installedFileMap: installedMergeFiles,
+      baseContentMap: readBaseTree({ brainDir, rels: Object.keys(installedMergeFiles) }),
+      table: fingerprintTable,
+    }),
+    sourceDir,
+    brainDir,
+    git,
+  });
+  // ⚠️ `plan.mergeScripts` is NOT here since S2b-3. Those four (auto-commit, auto-push,
+  // status-line, verify-rag) are declared `merge` and were copied anyway — an owner who
+  // tuned their commit hook lost the tuning at every update, silently. They now go
+  // through step 2.bis-scripts below, which is why this slice is ONE commit: the moment
+  // they leave this bucket, something else has to deliver them.
+  const copyGlobs = [...plan.overwrite];
   const copied = [];
   for (const rel of selectEngineFilesToCopy({ sourceFiles, copyGlobs })) {
     if (copyInto(sourceDir, brainDir, rel)) copied.push(rel);
   }
+
+  // 2.bis-retire RETIRE the skills the engine no longer ships (plan S6c, ADR 0039).
+  //    FIRST of the skill steps, and deliberately: a manifest that both declares a skill
+  //    `merge` and retires it (a half-finished edit, or a fetch mid-release) would
+  //    otherwise have the engine carefully three-way-merge a directory it is about to
+  //    delete. Provenance-guarded, on ADR 0036's shape — the decision is next door and
+  //    every doubt preserves. The provenance is the BRAIN'S OWN (`local`), because the
+  //    question is "did we deliver these exact bytes to YOU?", which only the brain's
+  //    manifest can answer; the fetched one would be answering about someone else.
+  //    F3: `sourceDir` travels so the retirement can tell an UPDATE from a self-heal. The
+  //    gate itself is inside `retireDeclaredSkills`, at the only line that deletes.
+  const { skillsRetired, skillsRetirePreserved } = retireDeclaredSkills({
+    brainDir,
+    sourceDir,
+    plan,
+    provenance: local?.provenance,
+  });
 
   // 2.bis Install engine-declared skills the brain is MISSING (ADR 0025): additive,
   //    install-if-absent at the SKILL-DIR level. A skill dir that already exists
@@ -102,12 +245,26 @@ export async function reconcileBrain({
   // base like any other delivered merge file. Without it the freshly-installed skill
   // reads `no-provenance` at every later update and is frozen forever — the very freeze
   // this increment removes, re-entering by the install-if-absent door.
+  //
+  // 🌍 AND IT READS THE BRAIN'S LOCALE (T10, third review pass). This door used to copy
+  // the ROOT rel, so a French brain missing an engine skill received the ENGLISH bytes —
+  // and kept them for good: its dir now exists, so install-if-absent never fires again,
+  // and the refresh finds no gap because the file matches the source it was never meant
+  // to read. Latent only because today's French brains already hold every localized
+  // skill; the NEXT localized skill would have arrived in English, in silence.
+  // ADR 0040 already PROMISED this behaviour ("install-if-absent copies the resolved
+  // source") — the code was the half that was wrong, so the fix is to keep the promise,
+  // through the one resolver rule 3 names, rather than to invent a second locale rule.
+  const brainLocale = readBrainLocale(brainDir);
   const installedFileMap = {};
   for (const skillGlob of plan.installSkills) {
     const skillDir = skillGlob.replace(/\/\*\*?$/, ""); // ".../local-mirror/**" → ".../local-mirror"
     if (existsSync(join(brainDir, skillDir))) continue; // present → preserve, never overwrite
     for (const rel of sourceFiles.filter((f) => matchesAny([skillGlob], f))) {
-      if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
+      const srcRel = resolveLocaleSource({ rel, locale: brainLocale, sourceFiles });
+      if (copyInto(sourceDir, brainDir, rel, srcRel)) {
+        installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
+      }
     }
     installedSkills.push(skillDir.split("/").pop()); // the skill name, for the report
   }
@@ -117,7 +274,10 @@ export async function reconcileBrain({
   //    it), so its source ships at the NON-sacred `engine-skills/<name>/` path (a `replace`
   //    file → pass-1 delivers it). install-if-absent each into `.claude/skills/<name>/`,
   //    alongside the merge-skill install above; fold the names into the same report.
-  installedSkills.push(...installStagedSkills({ sourceDir, brainDir }));
+  //    Handed the file list and the locale this pass already computed: the defaults
+  //    inside would re-walk the whole tree and re-read the marker at every session-start
+  //    self-heal, for an answer that cannot have changed since a few lines ago.
+  installedSkills.push(...installStagedSkills({ sourceDir, brainDir, sourceFiles, locale: brainLocale }));
 
   // 2.bis-refresh REFRESH the engine skills the brain has NOT touched (Increment 2.5).
   //    install-if-absent above stops at the skill-DIR level, so an already-present skill
@@ -129,7 +289,7 @@ export async function reconcileBrain({
   //    update the owner explicitly asked for (auto-finalize hands us the FETCHED source),
   //    NEVER at SessionStart self-heal (which passes the brain as its own source — no new
   //    content, and nobody asked). ADR 0026's "additive" invariant holds where it matters.
-  const { skillsRefreshed, skillsPreserved, refreshedFileMap } = refreshUntouchedSkills({
+  const { skillsRefreshed, skillsPreserved, skillsMerged, conflicts, refreshedFileMap } = refreshUntouchedSkills({
     brainDir,
     sourceDir,
     sourceFiles,
@@ -140,7 +300,62 @@ export async function reconcileBrain({
     // No `?? {}`: object spread already ignores undefined, so the fallback could not
     // change a byte (mutation lesson — a guard that cannot matter is noise). The `?.`,
     // on the other hand, is load-bearing: a caller may legitimately have no `local`.
-    provenance: { ...local?.provenance, ...stagedProvenance },
+    // S7-3: the HEALED map, not the recorded one — same map plus what the brain can
+    // prove about itself. A frozen brain's untouched skill is now provable like anyone's.
+    provenance: { ...healedProvenance, ...stagedProvenance },
+  });
+
+  // 2.bis-scripts THE ENGINE SCRIPTS, same journey (plan S2b-3). The mirror image of the
+  //    skills' freeze, and the half that could DESTROY rather than merely withhold: the
+  //    four merge-declared top-level scripts were applied `replace`, so an owner's edit
+  //    to their own auto-commit hook was overwritten at every update with no trace.
+  //    Same provenance base, same three-way merge, same sidecars — the difference is the
+  //    SYNTAX GATE, which `engine-script-refresh` wires itself (these files are EXECUTED,
+  //    and a clean merge that does not parse would leave a brain that stops committing).
+  //    Guarded on `sourceDir !== brainDir` by the shared carrier, like the skills.
+  const {
+    scriptsRefreshed,
+    scriptsPreserved,
+    scriptsMerged,
+    scriptConflicts,
+    refreshedFileMap: refreshedScriptMap,
+  } = refreshEngineScripts({
+    brainDir,
+    sourceDir,
+    sourceFiles,
+    manifest: target,
+    // No staged family here: an engine script ships AT its runtime path, always. So the
+    // recorded sha256 — S7-3: or the HEALED one, which is that map plus what the brain can
+    // prove — is the only base there is.
+    provenance: healedProvenance,
+  });
+
+  // 2.bis-doctrine THE CONSTITUTION'S ENGINE HALF, third and last merge family (plan
+  //    S5c). `CLAUDE.engine.md` was in NO regime at all, which is neither of the two
+  //    bugs above: it was not clobbered and it was not frozen by a bad base — it was
+  //    never delivered, by anything, since the day the brain was installed. A rule
+  //    written into the ambient doctrine reached fresh installs and nobody else.
+  //    Same carrier, same provenance base, same sidecars as the scripts. The
+  //    difference is the ABSENCE of the syntax gate: doctrine is prose read by an
+  //    agent, and gating it would refuse every merge it ever produced.
+  //    ⚠️ On a brain deployed before this release there is no provenance for the file,
+  //    so this preserves and REPORTS rather than delivering. That is the honest
+  //    verdict, and the report says so in words that claim nothing (S4-3).
+  const {
+    doctrineRefreshed,
+    doctrinePreserved,
+    doctrineMerged,
+    doctrineConflicts,
+    refreshedFileMap: refreshedDoctrineMap,
+  } = refreshEngineDoctrine({
+    brainDir,
+    sourceDir,
+    sourceFiles,
+    manifest: target,
+    // Like the scripts and unlike the skills: the constitution ships AT its runtime
+    // path, so the recorded sha256 is the only base there is — and S7-3 is what finally
+    // gives the deployed fleet one, so THIS is the call the whole arc was built for.
+    provenance: healedProvenance,
   });
 
   // 2.ter Reconcile .mcp.json against the engine's MCP servers (ADR 0025): register a
@@ -184,11 +399,26 @@ export async function reconcileBrain({
   //    needed). Upgraders from v3.3.0+ converge the same way in-band via auto-finalize.
   const hooksAdded = [];
   const hooksRepaired = [];
+  // 🚨 F1 (v5.0.0 code review) — WHAT THE ENGINE WROTE, so the record can move with the
+  // bytes. `.claude/settings.json` is a `merge` file that NOTHING else re-seeds: the
+  // surgical write below is the only engine write it ever takes, and this release adds
+  // two hook entries to the template, so the WHOLE fleet takes it on the update itself.
+  // Left unrecorded, the file stopped matching its own recorded digest and every standing
+  // surface then reported it held back BY THE OWNER — at every session start, forever, and
+  // undismissibly (no refresh family writes a `.new` beside it, so there is nothing to
+  // adopt). Populated ONLY when the write actually happens: a blanket re-seed would
+  // silence the owner's own edits too, which is the opposite defect.
+  //
+  // S13 — and it is a DOOR rather than a variable, because the invariant is general and
+  // the enforcement was one hand-written line. `engineWrites()` performs the write and
+  // the record in the same call, so the two cannot drift apart; a guard in the test file
+  // keeps every other raw write on a named list of files that have no record to follow.
+  const engineWrote = engineWrites();
   // ADR 0036: set when the retreat removed the statusLine WE installed, so the
   // caller can tell the owner their own line is back.
   let statusLineWasRemoved = false;
   const settingsTemplatePath = join(sourceDir, ".claude", "settings.json.template");
-  const brainSettingsPath = join(brainDir, ".claude", "settings.json");
+  const brainSettingsPath = join(brainDir, SETTINGS_REL);
   if (existsSync(settingsTemplatePath) && existsSync(brainSettingsPath)) {
     const projectRoot = toPosix(brainDir); // same normalisation as step 2.ter
     const brainSettings = JSON.parse(readFileSync(brainSettingsPath, "utf8"));
@@ -220,7 +450,10 @@ export async function reconcileBrain({
     if (added.length > 0 || repaired.length > 0 || statusLineRepaired || statusLineRemoved) {
       const nextSettings = { ...retreatedSettings, hooks: healedHooks };
       if (statusLineRepaired) nextSettings.statusLine = { ...retreatedSettings.statusLine, command: healedStatusLine };
-      writeFileSync(brainSettingsPath, JSON.stringify(nextSettings, null, 2) + "\n");
+      // The bytes are captured rather than re-read off the disk: what the record must
+      // describe is what THIS pass wrote, and a re-read would describe whatever the file
+      // holds by the time the manifest writer runs.
+      engineWrote({ brainDir, rel: SETTINGS_REL, text: JSON.stringify(nextSettings, null, 2) + "\n" });
       hooksAdded.push(...added);
       hooksRepaired.push(...repaired, ...(statusLineRepaired ? ["statusLine"] : []));
     }
@@ -239,12 +472,26 @@ export async function reconcileBrain({
   //    `commitEngineUpdate` (`add -A`) and the session-start sweep, which commits before
   //    `git pull --rebase` by construction. That is what keeps a first pull from hitting
   //    git's "untracked working tree file would be overwritten" dead end.
+  //
+  //    F4 rides the same read and the same write, and it points the OTHER way: START
+  //    ignoring `.engine-base/.claude/settings.json`. The settings file is gitignored
+  //    because it holds absolute paths belonging to one machine; its copy in the base tree
+  //    was not, so auto-commit would sweep it and auto-push would publish it, and a second
+  //    machine's pull would then describe machine A. The launcher's own `.gitignore` (what
+  //    a fresh install copies) carries the line already; this is the only route to a brain
+  //    that is already deployed.
+  //
+  //    ⏱️ ORDER IS LOAD-BEARING: this runs INSIDE the reconcile, and `syncBaseTree` runs
+  //    after it in both callers — so the entry is in place before the tree it names is
+  //    written for the very first time. `.engine-base/` is new in this release, so there is
+  //    nothing to untrack anywhere in the fleet: only something to never start tracking.
   let pointerUnignored = false;
   const gitignorePath = join(brainDir, ".gitignore");
   if (existsSync(gitignorePath)) {
-    const { text, changed } = unignoreActiveUniverse(readFileSync(gitignorePath, "utf8"));
-    if (changed) writeFileSync(gitignorePath, text);
-    pointerUnignored = changed;
+    const unignored = unignoreActiveUniverse(readFileSync(gitignorePath, "utf8"));
+    const ignored = ignoreBaseSettings(unignored.text);
+    if (unignored.changed || ignored.changed) writeFileSync(gitignorePath, ignored.text);
+    pointerUnignored = unignored.changed;
   }
 
   // 2.quater Ensure the engine-owned health-check note is present AND indexed (ADR 0026
@@ -261,7 +508,14 @@ export async function reconcileBrain({
   //    seeded the note but crashed before indexing it (flaky npm / ABI hiccup), the next run
   //    still finds it present-but-maybe-unindexed and re-pairs the (cheap, incremental)
   //    reindex → the canary can never become a permanent false `broken` (finding #6).
-  const { present: healthNotePresent } = seedHealthNote({ sourceDir, brainDir });
+  //    Locale-resolved like the two install-if-absent doors above (T10), and handed the
+  //    same already-computed file list and marker rather than re-deriving both.
+  const { present: healthNotePresent } = seedHealthNote({
+    sourceDir,
+    brainDir,
+    sourceFiles,
+    locale: brainLocale,
+  });
 
   // 3. Regenerate the launchers (both halves, ADR 0015).
   const regenerated = plan.regenerate.length > 0;
@@ -295,15 +549,69 @@ export async function reconcileBrain({
     reindexReason,
     vaultNoteCount,
     installedSkills,
+    // S6c: the engine's only subtractive door. Two lists, like every other family —
+    // what went, and what was kept with the file that blocked it. Separate from
+    // `skillsPreserved`, because a skill preserved from a REFRESH is still maintained
+    // and a skill preserved from a RETIREMENT is one the engine has stopped shipping.
+    skillsRetired,
+    skillsRetirePreserved,
     installedFileMap,
     skillsRefreshed,
     skillsPreserved,
-    refreshedFileMap,
+    // S2: a skill that kept the owner's edits AND took this update's changes, and one
+    // where the two touched the same lines. Both travel to `formatReport` — a merge
+    // nobody is told about lands silently, and a conflict nobody is told about is a
+    // `.new` file appearing beside a skill with no explanation.
+    skillsMerged,
+    conflicts,
+    // S2b-3: the same four verdicts for the engine SCRIPTS, in lists of their own. A
+    // script is a path the owner opens, not a skill they know by name, so the report
+    // says "file" about these — and their conflicts stay separable from a skill's.
+    scriptsRefreshed,
+    scriptsPreserved,
+    scriptsMerged,
+    scriptConflicts,
+    // S5c: the same four verdicts for the constitution's ENGINE half. Lists of their
+    // own, like the scripts', so a frozen doctrine can never be read as a frozen skill
+    // — and because a `no-provenance` preserve on THIS file is the standing state of
+    // the whole deployed fleet, not an incident.
+    doctrineRefreshed,
+    doctrinePreserved,
+    doctrineMerged,
+    doctrineConflicts,
+    // S7-3 — what the brain proved about ITSELF this pass. Three consumers, and none of
+    // them can re-derive it: the report says it out loud, and `runReconcileCli` persists
+    // the map and the refs it learned. Empty on every brain that already had provenance,
+    // which is every brain installed from v5.0.0 on — this is the migration's own trace.
+    healed,
+    healedProvenance,
+    healedBaseRefs,
+    // S7-5-3 — the ancestors this pass went and got, and (T14) the two DISTINCT ways it
+    // can come back without one. Both are EMPTY unless a fetch was actually attempted: a
+    // brain that never needed one must hear nothing, and a self-heal never even tries.
+    // They stay apart all the way to the report because the report asserts a CAUSE.
+    ancestorsHydrated,
+    ancestorsUnreachable,
+    ancestorsUnmatched,
+    // ONE delivered map, because it feeds ONE thing: the provenance re-seed in
+    // `runReconcileCli`. A script left out of it would be called "user-modified" at the
+    // very next update and frozen again — the feature working exactly once per brain.
+    refreshedFileMap: { ...refreshedFileMap, ...refreshedScriptMap, ...refreshedDoctrineMap },
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
+    // F1 — the settings file as THIS pass rewrote it, or `{}` when it did not. It is not
+    // folded into `refreshedFileMap`: that map is what the engine DELIVERED from a source,
+    // this one is what the engine rewrote IN PLACE in the brain's own file, and merging the
+    // two would lose the distinction the day one of them needs a different treatment.
+    reconciledFileMap: engineWrote.recorded,
     statusLineRemoved: statusLineWasRemoved,
     pointerUnignored,
+    // T3 — the merge files this pass could not READ, named rather than left as a gap in
+    // lists that otherwise read as complete. Empty on every healthy brain, which is why
+    // it is a list and not a boolean: what a surface needs is WHICH file, and there may
+    // be more than one.
+    unreadable: unreadableMergeFiles,
   };
 }
 
@@ -323,6 +631,23 @@ function flagValue(argv, name) {
   return i >= 0 ? argv[i + 1] : undefined;
 }
 
+/**
+ * The release's own manifest, from the tree the parent fetched — or `null` when there
+ * is none to read.
+ *
+ * Null rather than a throw, deliberately: this child is a best-effort finisher whose
+ * caller swallows its failure, so throwing here would leave a brain silently frozen
+ * with a green update behind it. `advanceRegimes` falls back to the brain's own list on
+ * null, which is exactly the behaviour of the version that never looked.
+ */
+function sourceManifest(sourceDir) {
+  try {
+    return JSON.parse(readFileSync(join(sourceDir, "engine-manifest.json"), "utf8"));
+  } catch {
+    return null;
+  }
+}
+
 export async function runReconcileCli({ argv, seams = {} }) {
   const brainDir = flagValue(argv, "--brainDir");
   const sourceDir = flagValue(argv, "--sourceDir");
@@ -331,7 +656,25 @@ export async function runReconcileCli({ argv, seams = {} }) {
     throw new Error("reconcile-brain: --brainDir and --sourceDir are required");
   }
   const manifestPath = join(brainDir, "engine-manifest.json");
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const local = JSON.parse(readFileSync(manifestPath, "utf8"));
+
+  // 🚨 THE FAMILIES COME FROM THE SOURCE, and this is what makes the first update on a
+  // brain that is already out there do anything at all.
+  //
+  // Measured on a copy of a real v4.9.1 brain: an update to v5.0.0 is performed by the
+  // brain's OWN, OLD `update-engine.mjs` — every deployed engine predates the release it
+  // installs — and no deployed step 7 advances `regimes`. This child is the new code's
+  // only chance to repair that on the first pass. Reading the brain's own manifest as its
+  // target made it reconcile against the family list of the release BEFORE last, so a
+  // family this release invents (the doctrine) was invisible: the brain came out saying
+  // "v5.0.0, up to date" with its doctrine still frozen. It took a SECOND update, which
+  // nothing ever asks for.
+  //
+  // `advanceRegimes` is W3's own decision (Thomas, answer 4), called rather than restated.
+  // For the SessionStart self-heal, `sourceDir` IS the brain, so the two manifests are the
+  // same file and this is a provable no-op — pinned by a test of its own.
+  const manifest = { ...local, ...advanceRegimes({ local, target: sourceManifest(sourceDir) }) };
+  const familiesMoved = JSON.stringify([manifest.regimes, manifest.retired]) !== JSON.stringify([local.regimes, local.retired]);
   const report = await reconcileBrain({
     brainDir,
     platform,
@@ -350,16 +693,109 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // the refresh happens HERE). Without this, a refreshed file no longer matches its
   // recorded base → the next update calls it "user-modified" and never refreshes it
   // again: the feature would work exactly once per brain, silently.
-  const delivered = { ...report.installedFileMap, ...report.refreshedFileMap };
-  if (Object.keys(delivered).length > 0) {
-    const provenance = reseedProvenance({
-      priorProvenance: manifest.provenance ?? {},
-      manifest,
-      deliveredFileMap: delivered,
-    });
-    writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance }, null, 2) + "\n");
+  // F1 — `reconciledFileMap` rides here with the two delivery maps because the three feed
+  // ONE thing: the record of what the ENGINE last put in each merge file. A file the engine
+  // rewrote and did not record reads as the owner's at the very next session start.
+  const delivered = { ...report.installedFileMap, ...report.refreshedFileMap, ...report.reconciledFileMap };
+  // S7-3 — the prior is the HEALED map: the manifest's own record PLUS whatever the brain
+  // proved about itself this pass. Re-seeding from `manifest.provenance` here would throw
+  // the heal away at the last step, and the very next update would meet the same frozen
+  // brain — the feature working for one run and then forgetting.
+  const provenance = reseedProvenance({
+    priorProvenance: report.healedProvenance ?? manifest.provenance ?? {},
+    manifest,
+    deliveredFileMap: delivered,
+  });
+  // S4 — the base's VERSION travels with its digest, written by the same last writer,
+  // for the same migration reason. The ref is the brain's OWN (`source.ref`, already
+  // advanced by the parent's step 7): the child never fetched anything, so it has no
+  // other version to speak of, and a brain that records none records nothing here.
+  // S7-3 — the learned refs go UNDER the recorded ones: a heal tells us which version
+  // those bytes first shipped at, which is worth having, but a ref the brain actually
+  // recorded is a fact about ITS delivery and always wins.
+  const baseRefs = reseedBaseRefs({
+    priorBaseRefs: { ...report.healedBaseRefs, ...(manifest.baseRefs ?? {}) },
+    manifest,
+    deliveredFileMap: delivered,
+    ref: manifest.source?.ref,
+  });
+  // 🚨 S7-3 WIDENED THIS GUARD, and the clause it rescues would otherwise have been
+  // silently false. "A self-heal heals too" (design S7-0) depends on this write, and a
+  // self-heal DELIVERS NOTHING — all three refresh families are gated on
+  // `sourceDir !== brainDir`. Left as "delivered something", the heal would be computed,
+  // used for one run and thrown away unwritten, so the next update would meet the same
+  // frozen brain forever.
+  // No `?? []` on `report.healed`: this report comes from `reconcileBrain` three lines up,
+  // which always returns the array. A fallback that cannot fire is a mutant nest, not a
+  // safety net (the lesson S7-2's comparator taught, applied one file over).
+  // `familiesMoved` is the third reason to write, and it is the migration's own: a
+  // release may advance a family list while delivering nothing yet (a tombstone whose
+  // skill the owner edited, a family whose file is already at the right content). Left
+  // unwritten, the advance would be recomputed and thrown away at every run, and every
+  // STANDING surface — the session nudge, the write guard, the next update — would go on
+  // reasoning from the install-day list.
+  if (Object.keys(delivered).length > 0 || report.healed.length > 0 || familiesMoved) {
+    writeFileSync(manifestPath, JSON.stringify({ ...manifest, provenance, baseRefs }, null, 2) + "\n");
   }
-  return report;
+
+  // S1 — the base TREE, beside that record, and for the same reason the re-seed above
+  // lives here: the child is the LAST writer on the update path, and on the first update
+  // carrying this feature the parent ran the OLD code. A tree written only by step 7
+  // would arrive one update late, on the very brains being migrated.
+  //
+  // Run even when nothing was delivered — that is precisely the migration case (a
+  // self-heal converging a brain from its own code delivers nothing, and can still seed
+  // every ancestor the brain is able to prove).
+  //
+  // T3 — and it asks to be told too, or the throw the reconcile just survived would come
+  // straight back here, at the LAST line that writes. The names join the ones the
+  // reconcile set aside: the two reads are of the same brain moments apart, so a `Set`
+  // is what keeps one file from being reported twice.
+  const lateUnreadable = [];
+  syncBaseTree({ brainDir, manifest, provenance, deliveredFileMap: delivered, unreadable: lateUnreadable });
+  announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit: seams.emit ?? (() => {}) });
+  return { ...report, unreadable: [...new Set([...report.unreadable, ...lateUnreadable])] };
+}
+
+/**
+ * ONE line, on the one update where nobody else can say it.
+ *
+ * The recap an owner reads after their first update to a new release is printed by the
+ * engine that RAN that update — the old one — and it knows nothing about the families
+ * the new release invented. So on the single run that performs the catch-up, the whole
+ * event lands in silence. This child's stdout is inherited by that parent process, which
+ * makes it the only voice available at that moment.
+ *
+ * It goes quiet by itself: from the second update on, the parent is the new code and
+ * prints all of this properly, and this child then delivers nothing. A self-heal
+ * (`sourceDir === brainDir`) delivers nothing either, and must never speak — a converged
+ * brain re-opened every morning would otherwise be told daily about an update that
+ * happened once.
+ *
+ * Exported for the same reason `repoStatusLine` is: the WORDS are the contract here, not
+ * the plumbing — this may be the only trace the catch-up leaves an owner — and the exact
+ * sentence is only assertable when the caller chooses what arrived and what went.
+ */
+export function announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit }) {
+  // T8's scanner found this door, which the finding itself had not named: the same raw
+  // comparison, and a misspelled self-heal would tell a converged brain it was "catching
+  // up" every single morning. Not a deletion, but the same defect and the same fix.
+  if (isSelfHeal({ brainDir, sourceDir })) return;
+  const arrived = Object.keys(delivered).sort();
+  const gone = report.skillsRetired ?? [];
+  if (arrived.length === 0 && gone.length === 0) return;
+
+  // Said in the owner's terms, not ours: "provenance", "merge regime" and "reconcile"
+  // mean nothing to the person reading their terminal, and this line may be the only
+  // trace the catch-up leaves.
+  const parts = [];
+  if (arrived.length > 0) {
+    parts.push(`your brain just received ${countOf(arrived.length, "engine file")} it had stopped getting updates for (${arrived.join(", ")})`);
+  }
+  if (gone.length > 0) {
+    parts.push(`the ${gone.join(", ")} ${agreeing(gone.length, "skill")} the engine no longer ships ${gone.length === 1 ? "was" : "were"} removed`);
+  }
+  emit(`🔓 Catching up: ${parts.join(", and ")}. Your own edits were kept.\n`);
 }
 
 // The real I/O the child process runs on: the flags it was actually launched with and
@@ -370,6 +806,11 @@ export const realReconcileDeps = {
   argv: process.argv.slice(2),
   runReconcileCli,
   error: (s) => process.stderr.write(s),
+  // The child's stdout is INHERITED by the update that spawned it, so a line written
+  // here reaches the owner's terminal. Wired at the process edge and nowhere else:
+  // every other caller of `runReconcileCli` (78 of them are tests) stays silent by
+  // default, which is what keeps a suite's output readable.
+  log: (s) => process.stdout.write(s),
 };
 
 // What the auto-finalize child process does, minus the process. Returns the exit code.
@@ -380,7 +821,7 @@ export const realReconcileDeps = {
 // nobody anything.
 export async function runReconcileCliProcess(deps = realReconcileDeps) {
   try {
-    await deps.runReconcileCli({ argv: deps.argv });
+    await deps.runReconcileCli({ argv: deps.argv, seams: { emit: deps.log } });
     return 0;
   } catch (e) {
     deps.error(`\n❌ reconcile-brain failed.\n${e?.message ?? e ?? "no reason given"}\n`);

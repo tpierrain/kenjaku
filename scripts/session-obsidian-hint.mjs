@@ -16,6 +16,7 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { obsidianHealth, runtimeObsidianHint } from "./lib/obsidian-health.mjs";
 
 // Testable core: compute the hint (injected), emit it only when present, fail-open.
@@ -33,7 +34,11 @@ export function sessionObsidianHint({ computeHint, emit }) {
 }
 
 // ── main: wire the real read-only seams (deterministic glue, not unit-tested) ──
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// runAsEntrypoint, never a hand-rolled argv[1] comparison: `resolve(argv[1])` is the
+// path AS TYPED and `import.meta.url` is the path Node REALPATH-RESOLVED, so on any
+// brain whose path holds a symlink the two differ and this whole block silently never
+// ran -- no output, no error, no exit code. See lib/entrypoint.mjs.
+runAsEntrypoint(import.meta.url, process.argv, () => {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const brainDir = resolve(__dirname, "..");
   const vaultPath = join(brainDir, "vault");
@@ -61,5 +66,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       }) + "\n",
     );
   }
-  process.exit(0); // fail-open: ALWAYS exit 0, never block session start
-}
+  return 0; // fail-open: ALWAYS exit 0, never block session start
+});

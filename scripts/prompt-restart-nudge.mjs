@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 
 import { restartPromptDirective } from "./lib/restart-nudge.mjs";
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
 
 export const realNudgeDeps = {
@@ -52,6 +52,7 @@ export function runPromptNudge(deps = realNudgeDeps) {
   return 0;
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runPromptNudge());
-}
+// runPromptNudge's own parameter is `deps` (defaulted to realNudgeDeps), not argv — so it
+// must be wrapped, never passed directly: passed as-is, runAsEntrypoint would hand it the
+// argv slice in place of deps.
+runAsEntrypoint(import.meta.url, process.argv, () => runPromptNudge());

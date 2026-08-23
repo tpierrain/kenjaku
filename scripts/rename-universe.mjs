@@ -25,7 +25,7 @@ import {
 } from "./lib/universes.mjs";
 import { restampUniverse } from "./lib/stamp-universe.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
-import { isEntrypoint } from "./lib/entrypoint.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { listFilesRelPosix } from "./lib/fs-walk.mjs";
 
 // What each refusal from the pure core says out loud, in one place, so no session
@@ -147,6 +147,4 @@ export function realRenameDeps() {
   };
 }
 
-if (isEntrypoint(import.meta.url, process.argv[1])) {
-  process.exit(runRenameUniverse(process.argv.slice(2), realRenameDeps()));
-}
+runAsEntrypoint(import.meta.url, process.argv, (argv) => runRenameUniverse(argv, realRenameDeps()));

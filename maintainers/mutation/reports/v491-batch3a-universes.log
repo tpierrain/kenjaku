@@ -1,0 +1,26 @@
+13:26:57 (25530) INFO ProjectReader Found 1 of 692 file(s) to be mutated.
+13:26:57 (25530) INFO Instrumenter Instrumented 1 source file(s) with 296 mutant(s)
+13:26:57 (25530) INFO ConcurrencyTokenProvider Creating 5 test runner process(es).
+13:26:57 (25530) INFO Sandbox In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-LW2vjD
+13:26:57 (25530) INFO BroadcastReporter Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+13:26:57 (25530) INFO DryRunExecutor Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+13:26:59 (25530) INFO DryRunExecutor Initial test run succeeded. Ran 1 tests in 1 second (net 1933 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 295)
+
+[Survived] OptionalChaining
+scripts/lib/universes.mjs:211:26
+-       return Array.isArray(parsed?.universes) ? parsed.universes : [];
++       return Array.isArray(parsed.universes) ? parsed.universes : [];
+
+Ran 1.00 tests per mutant on average.
+---------------|------------------|----------|-----------|------------|----------|----------|
+               | % Mutation score |          |           |            |          |          |
+File           |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------|--------|---------|----------|-----------|------------|----------|----------|
+All files      |  99.66 |   99.66 |      295 |         0 |          1 |        0 |        0 |
+ universes.mjs |  99.66 |   99.66 |      295 |         0 |          1 |        0 |        0 |
+---------------|--------|---------|----------|-----------|------------|----------|----------|
+13:35:32 (25530) INFO MutationTestExecutor Done in 8 minutes and 35 seconds.
+13:35:32 (25530) INFO Sandbox Resetting your original files from .stryker-tmp/backup-LW2vjD.

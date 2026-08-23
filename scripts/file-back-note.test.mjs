@@ -4,10 +4,12 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { runFileBack, listPeopleCards, realListIo, realFileBackDeps } from "./file-back-note.mjs";
+
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "file-back-note.mjs");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // file-back-note — the thin CLI glue over the pure filed-note core (ADR 0009
@@ -483,4 +485,33 @@ test("realFileBackDeps.peopleCards — reads the vault under the CURRENT brain f
   } finally {
     process.chdir(previous);
   }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The entry-point seam — asserted by RUNNING the CLI as a process, which is the
+// only thing that proves the tail actually fires. Same shape as lint-vault's
+// canary: if the shared tail is wrong it is wrong HERE first, on one file.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("the CLI, run as a process with an invalid spec — exits 1 without writing, no crash", () => {
+  // Harmless on purpose: invalid JSON is rejected before any fs write, git spawn
+  // or network reach, and the input is given explicitly so stdin never blocks.
+  const brain = mkdtempSync(join(tmpdir(), "file-back-invalid-"));
+  const run = spawnSync(process.execPath, [CLI], {
+    cwd: brain,
+    input: "not json",
+    encoding: "utf8",
+  });
+  assert.equal(run.status, 1, `an invalid spec must exit 1 — stderr: ${run.stderr}`);
+  assert.match(run.stderr, /Invalid JSON spec on stdin/i);
+});
+
+test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {
+  // The whole point of the tail: importing the module runs nothing. Asserted from
+  // a child process so an accidental process.exit() cannot take the suite with it.
+  const probe = `import("${pathToFileURL(CLI).href}").then(() => { console.log("imported-and-still-alive"); });`;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", probe], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
+  assert.equal(run.stdout.trim(), "imported-and-still-alive");
 });

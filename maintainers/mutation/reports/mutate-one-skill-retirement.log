@@ -1,0 +1,26 @@
+[32m10:18:57 (19968) INFO ProjectReader[39m Found 1 of 804 file(s) to be mutated.
+[32m10:18:57 (19968) INFO Instrumenter[39m Instrumented 1 source file(s) with 26 mutant(s)
+[32m10:18:57 (19968) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m10:18:57 (19968) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-A4Q10D
+[32m10:18:57 (19968) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m10:18:57 (19968) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m10:19:00 (19968) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2317 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/26 tested (0 survived, 0 timed out)
+Mutation testing 19% (elapsed: <1m, remaining: ~1m) 5/26 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: <1m) 10/26 tested (0 survived, 0 timed out)
+Mutation testing 57% (elapsed: <1m, remaining: <1m) 15/26 tested (0 survived, 0 timed out)
+Mutation testing 76% (elapsed: <1m, remaining: <1m) 20/26 tested (0 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 26)
+
+Ran 1.00 tests per mutant on average.
+----------------------|------------------|----------|-----------|------------|----------|----------|
+                      | % Mutation score |          |           |            |          |          |
+File                  |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files             | 100.00 |  100.00 |       26 |         0 |          0 |        0 |        0 |
+ skill-retirement.mjs | 100.00 |  100.00 |       26 |         0 |          0 |        0 |        0 |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m10:19:58 (19968) INFO MutationTestExecutor[39m Done in 1 minute and 0 seconds.
+[32m10:19:58 (19968) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-A4Q10D.

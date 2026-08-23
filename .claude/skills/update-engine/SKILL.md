@@ -1,7 +1,7 @@
 ---
 name: update-engine
 description: "Updates your second brain's ENGINE (the RAG search code, launchers and engine-owned scripts) to a newer version, opt-in and without ever touching your notes, .env, constitution, settings, your own skills or any engine skill you tailored. Reindexes only if the index format changed. Use when the user asks to update/upgrade their brain's engine, or to check whether an engine update is available."
-version: 1.3.0
+version: 1.4.0
 ---
 
 # /update-engine — Upgrade your brain's engine (opt-in, non-destructive)
@@ -44,7 +44,7 @@ code on disk and may trigger a reindex; it must always be a conscious, accepted 
 | engine scripts (`auto-commit`, `auto-push`, `status-line`, `verify-rag`) | `CLAUDE.md` (your constitution) |
 | `update-engine` itself (it self-updates) | `.claude/settings.json` |
 | **missing** engine skills (e.g. `local-mirror`) — _added if absent_ (ADR 0025) | your **own** skills (`.claude/skills/**`): the engine never declared them, so it can never write them |
-| engine skills **you never edited**: _brought up to date_ (ADR 0026 §8) | any engine skill **you tailored**: kept byte-for-byte, with the engine's newer version dropped **beside** it as `.new` |
+| engine skills **you never edited**: _brought up to date_ (ADR 0026 §8) | any engine skill **you tailored**: kept byte-for-byte, with the engine's newer version dropped **beside** it as `.new` — and offered to you as a choice (Step 4), never silently |
 | **missing** engine MCP servers in `.mcp.json` — _added if absent_ (ADR 0025) | any server you added yourself to `.mcp.json` |
 
 ## Procedure
@@ -86,8 +86,8 @@ Then, before the yes, explain plainly:
 - **your notes, `.env`, constitution, settings and your own skills stay untouched**;
 - it will **bring up to date the engine skills you never edited**, so improvements shipped
   since this brain was installed finally reach it; **anything you tailored stands exactly as
-  you wrote it**, and the engine's newer version is simply left beside it as `.new`, yours to
-  adopt or ignore;
+  you wrote it**, and the engine's newer version is left beside it — afterwards it will **ask
+  you**, file by file, whether to take the new one, keep yours, or combine the two;
 - it will **reindex only if the index format changed** (a few minutes, nothing lost:
   your notes are simply re-encoded);
 - **prerequisites**: `git`, `npm` and a network connection (same as at install). Here
@@ -119,9 +119,10 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
   - When the summary lists **engine skill(s) brought up to date**, name them: an
     improvement shipped months ago has just reached this brain, and silent delivery
     leaves the user unaware they now have it.
-  - When it says a **customized skill was kept**, relay that too, **with the `.new`
-    path**: their version stands untouched, and the engine's newer one sits beside it —
-    offer to compare the two, or to merge the new bits into theirs, if they want it.
+  - When it says files were **left alone** because they carry the user's own edits,
+    that is not a footnote — it is a **question waiting to be asked**. Relay it, then
+    go to **Step 4**. Do not end the conversation on "your version was kept": that
+    sentence is exactly what let a file sit frozen for months without anyone noticing.
 - **`exit 1`** → **relay the error as-is** and tell the user the brain was not changed
   past the point of failure. **Never claim success when it failed.**
 
@@ -185,6 +186,76 @@ exactly the engine-owned files, regenerates the launchers, runs `npm install`, r
 > versions to disk, so after **one** restart the loud report + the persistent nudge take over and
 > every subsequent update is loud. Tell a pre-3.3 upgrader plainly: "restart once after this
 > first update — from then on your brain will tell you loudly whenever a restart is needed."_
+
+### Step 4 — The files it left alone: **ask**, don't just mention
+
+A file the engine left alone is a file **you personalized** and the engine could not
+safely update. Saying so and moving on is what this release exists to stop: the
+version sitting beside it as `.new` is an offer nobody ever made out loud.
+
+This step is a **conversation**, not a report. It can happen right after an update, or
+days later when the user asks about it — the offers stay open until they are answered.
+
+#### Say what actually differs, in their words
+
+Open both versions — theirs, and the `.new` beside it — read them, and say **what they
+changed** and **what the new version brings**. Two or three plain sentences per file.
+
+- **No conflict markers**, no diff dumps, no line numbers.
+- **No path as the headline.** "Your coach skill" first; the path only if they ask.
+- If the newer version brings nothing they would care about, **say that too** — it is a
+  real answer and it makes "keep mine" the obvious choice.
+
+#### Then offer three things, and never fewer
+
+> **Take the new one** — the engine's version replaces theirs. Their current version is
+> **saved in this brain's history first**, always, so nothing is lost.
+> **Keep mine** — their version stands. The engine stops raising it until its next release.
+> **Combine them** — the best of both, which is the offer only a conversation can make.
+
+**Combining is your job, and it is why this is a skill and not a script.** Read both
+versions, write the combination yourself, show it to them, and only apply it once they
+agree. A mechanical merge cannot do this here: these files have **no common ancestor**
+to merge from, which is precisely why the engine left them alone in the first place.
+
+#### Apply the answer with the command — never by editing the file
+
+```bash
+node scripts/adopt-engine-file.mjs <file> take-theirs
+node scripts/adopt-engine-file.mjs <file> keep-mine
+node scripts/adopt-engine-file.mjs <file> combine --from <path-to-your-combination>
+```
+
+🛑 **Do not write the file yourself, ever, not even for "keep mine".** The command does
+three things you cannot do by editing: it **saves their current version into the brain's
+history before overwriting anything**, it records the engine's version as the file's new
+**ancestor** so future updates can merge instead of asking again, and it remembers the
+answer so the question is not re-asked until the next release. Edit the file directly and
+the file is raised again at every release, forever — and on "take the new one", their work
+is overwritten with nothing to go back to.
+
+For **combine**, write your combination to a scratch file first and pass it with `--from`.
+The bytes adopted are exactly the bytes they approved.
+
+**What the command tells you:**
+
+- **exit `0`** → applied. Relay its sentence; it says what changed and what happens next.
+- **exit `1`** → **nothing was touched**, and the reason needs *them*, not a retry: git
+  has no name/email set yet, a merge is in progress in their brain's repo, or there was
+  no newer version waiting. Relay the sentence as-is and let them decide. **Do not run it
+  again hoping for a different answer.**
+- **exit `2`** → you called it wrong. Fix the call; never show that message to the user.
+
+#### Twelve files must not become twelve questions
+
+If several files are waiting, **group them first**. Name them in one short list, then
+offer, for the whole group: **take all the new ones**, **keep all of mine**, or **let's
+go through them one by one**. Only open the per-file conversation above for the ones they
+actually want to look at.
+
+If they say nothing, or say "later", that is a complete answer: leave everything as it is.
+The offers are not lost — the engine will mention them again, and they never expire before
+the next release.
 
 ## Edge cases
 - **No source recorded** (`source.repo` is null — e.g. a brain whose launcher had no
