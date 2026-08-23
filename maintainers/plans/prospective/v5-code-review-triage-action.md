@@ -1,6 +1,7 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- This file OWNS the findings of BOTH v5.0.0 code-review passes (15 + 15), -->
-<!-- their fixes, and their state. The `## 📍 STATE` block below is its only  -->
+<!-- This file OWNS the findings of EVERY v5.0.0 code-review pass — two so far -->
+<!-- (F1-F15, then S1-S15), each in its own dated section, a THIRD incoming.   -->
+<!-- Their fixes and their state too. The `## 📍 STATE` block below is its only-->
 <!-- perishable content: do not restate it here, in another file, or in a     -->
 <!-- resume header.                                                           -->
 <!-- Owning release plan: v5-unfreezes-the-existing-fleet-action.md (item 4a),-->
@@ -88,10 +89,14 @@
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
   assertion rather than a loading error.
-- 📥 **INCOMING — a second `/code-review` pass, launched by Thomas on 2026-08-23 after a clear.**
-  Its findings open a **NEW dated section** in this file. **Do NOT re-open § Tracking below**: it is
-  discharged in full, and mixing two passes' findings loses which pass found what, which is the only
-  way to tell a regression from a miss. The first pass's 15 findings are all paid.
+- 📥 **INCOMING — the THIRD `/code-review` pass, launched by Thomas on 2026-08-23 after a clear.**
+  ⚠️ **Third, not second**: two have already run, **both on 2026-08-22** — F1–F15 (§ Tracking) and
+  S1–S15 (§ *Second pass*), **30 findings, all paid**. This line said "second" until 2026-08-23, and
+  the error is not cosmetic: it is the exact confusion the rest of this box exists to prevent.
+  - Its findings open a **NEW dated section** in this file, and are numbered **T1…Tn** — a third
+    prefix, so they can collide with neither F nor S. **Do NOT re-open § Tracking**, and do not
+    append to § *Second pass*: mixing two passes' findings loses which pass found what, which is the
+    only way to tell a regression from a miss.
 - **Owner's call pending:** **NONE. F11 is decided, and this block is where it was lost.**
   **E / F11 → remedy (b), confirmed by Thomas 2026-08-23**: the retired `tdd-discipline` twin is not
   translated, because its successor replaces the very strategy it taught. His words: *"ça n'est pas
