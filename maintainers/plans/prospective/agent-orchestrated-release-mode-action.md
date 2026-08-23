@@ -3068,6 +3068,16 @@ arbitration goes here as a question, and the run continues on other slices.
         accuracy claim above rests on numbers a tool prints, and **that tool is inside the perimeter
         being reviewed, not outside it**. It was found by measuring, not by reading. Detail is the
         triage plan's (T14) and the register's.
+      - 📉 **THE COUNT HELD AT 15, BUT THE STAKES DID NOT — and that is the argument a fourth pass has
+        to answer.** The number alone says the yield is flat, and it was read that way above. Working
+        all fifteen says something the count cannot: **this pass produced almost no owner-facing
+        defect.** Its heaviest item (T14) was a sentence that blamed a network for a thing no network
+        did; the rest were the measuring tools, the test corpus and the plans' own discipline. The
+        first pass, by contrast, moved the update path itself. So **the passes are drilling into a
+        thinner seam even as the count stays put** — a fourth would very likely return 15 again, and
+        15 of what matters less. _(Whether to commission one is Thomas's and only his: a session
+        cannot launch `/code-review`. The question is parked in the release plan's STATE, which owns
+        it; this bullet is the evidence, not the decision.)_
       - 🔍 **UNDER-reporting is the recurring shape, and it ended at FIVE items out of fifteen.** One
         named three call sites and a scanner written for the fix found **a fourth**; another's stated
         threshold **bracketed** the measured one rather than overshooting it; a third named **one**

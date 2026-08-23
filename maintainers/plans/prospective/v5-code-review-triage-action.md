@@ -28,9 +28,10 @@
   [#76](https://github.com/tpierrain/kenjaku/pull/76), **not** touch either of his two real brains,
   **not** write under `templates/fr/**` — § *How the batch was worked* holds why, and a GO on
   engineering has never been a GO on the release.
-- 📣 **OWED HIM AT THE END OF THIS STRETCH:** one plain-language report in French — what was fixed, in
-  terms of what would have gone wrong for an owner. Two GOs asked for it (*"tu me montres à la fin"*);
-  one was delivered on 2026-08-23, and the work since then has not been reported yet.
+- 📣 **OWED HIM AT THE END OF THIS STRETCH: nothing — delivered 2026-08-23**, covering T14, T15 and
+  the scoreboard's own blind spot in owner's terms, plus the re-run rehearsal. Re-arm this line the
+  next time engineering lands: two GOs asked for it (*"tu me montres à la fin"*), so it is owed per
+  stretch, not once.
 
 ## 🔭 FOUND ON THE WAY AND **NOT** TAKEN — open, each with what it would cost
 
