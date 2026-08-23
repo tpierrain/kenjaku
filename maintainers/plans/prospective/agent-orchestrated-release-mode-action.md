@@ -3078,6 +3078,18 @@ arbitration goes here as a question, and the run continues on other slices.
         15 of what matters less. _(**Thomas closed the campaign at three passes on 2026-08-23**, on
         this argument. The decision and its wording are the release plan's, § *WHAT IS YOURS* step 4a
         — this file keeps the evidence and no copy of the call.)_
+      - 🧪 **AND THE QUESTION AN OWNER ACTUALLY ASKS WAS NEVER ANSWERED BY ANY OF THE THREE PASSES**
+        _(2026-08-23, the evening of the cut)_. Thomas, doubting the whole apparatus: *"j'ai peur de
+        plein d'abstractions, plein de stubs… que tes tests ne permettent pas de vérifier qu'une fois
+        déployée la v5 dégèlera tout comme il faut sur tous les cerveaux"*. **Forty-five findings across
+        three independent reads, and not one of them is the answer to that** — the release-blocking
+        defect (first update lands nothing, reports success) was found by the **field rehearsal**, an
+        instrument no review pass contains. **So "how many review passes" is the wrong axis for a
+        release that writes into machines already in use**: reviews read the code, and the fleet runs
+        an *old* engine handing off to a new one, which is a state the diff does not describe. A
+        release of this shape owes **one rehearsal on a copy of a real installation**, and that duty is
+        not discharged by any amount of reading. → the release plan's § *THE REHEARSAL* owns the
+        instrument, its greens and its two blind spots (npm stubbed; macOS only).
       - 🔍 **UNDER-reporting is the recurring shape, and it ended at FIVE items out of fifteen.** One
         named three call sites and a scanner written for the fix found **a fourth**; another's stated
         threshold **bracketed** the measured one rather than overshooting it; a third named **one**
