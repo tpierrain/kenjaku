@@ -26,7 +26,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { chmodSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 
@@ -77,10 +77,14 @@ function buildMirror(work, tag) {
 // A pristine copy, minus everything that would tie it back to the original or take
 // minutes to duplicate. It becomes its own git repo so the update can commit into it.
 function copyBrain(brain, work, mirror) {
-  const copy = join(work, `${brain.split("/").filter(Boolean).pop()}-copy`);
+  // `basename`, NOT `split("/").pop()`: `brain` and the `src` handed to the filter are OS
+  // paths, and a Windows one carries no `/` — the split would return the whole path, so the
+  // skip set would match nothing and the copy would drag `.git` (a remote, and a push that
+  // could reach the owner's real brain) plus every `node_modules`.
+  const copy = join(work, `${basename(brain)}-copy`);
   const skipped = new Set([".git", "node_modules", ".cache"]);
   rmSync(copy, { recursive: true, force: true });
-  cpSync(brain, copy, { recursive: true, filter: (src) => !skipped.has(src.split("/").pop()) });
+  cpSync(brain, copy, { recursive: true, filter: (src) => !skipped.has(basename(src)) });
   git(copy, "init", "-q");
   git(copy, "add", "-A");
   git(copy, "commit", "-qm", "the brain as it stands today");

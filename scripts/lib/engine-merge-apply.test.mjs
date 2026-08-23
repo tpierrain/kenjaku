@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
 import { applyMergeGoverned } from "./engine-merge-apply.mjs";
 
@@ -221,7 +221,9 @@ test("T8 — a self-heal spelled with a trailing separator writes nothing either
   const { brainDir } = trees(t);
   const rel = "scripts/auto-commit.mjs";
 
-  for (const sourceDir of [`${brainDir}/`, `${brainDir}/.`, join(brainDir, "..", brainDir.split("/").pop())]) {
+  // `basename`, NOT `split("/").pop()` — see the twin note in skill-retirement-fs.test.mjs:
+  // a Windows tmpdir has no `/` in it, so the split hands back the whole absolute path.
+  for (const sourceDir of [`${brainDir}/`, `${brainDir}/.`, join(brainDir, "..", basename(brainDir))]) {
     writeInto(brainDir, rel, OWNER);
     writeInto(brainDir, `${rel}.new`, STALE_SIDECAR);
 

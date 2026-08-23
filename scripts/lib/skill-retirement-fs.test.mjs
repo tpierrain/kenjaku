@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, basename } from "node:path";
 import { createHash } from "node:crypto";
 
 import { retireDeclaredSkills } from "./skill-retirement-fs.mjs";
@@ -102,7 +102,11 @@ test("T8 — a self-heal spelled with a trailing separator is still a self-heal"
     (dir) => `${dir}/`,
     (dir) => `${dir}/.`,
     (dir) => `${dir}//`,
-    (dir) => join(dir, "..", dir.split("/").pop()), // out through the parent and back in
+    // Out through the parent and back in. `basename`, NOT `split("/").pop()`: a tmpdir is
+    // spelled with `\` on Windows, so the split finds no separator, returns the WHOLE
+    // absolute path, and the join produces `C:\…\Temp\C:\…\Temp\<dir>` — a fixture that
+    // tests nothing and reddens only on Windows. CONVENTIONS §9's named class, verbatim.
+    (dir) => join(dir, "..", basename(dir)),
   ];
 
   for (const spell of spellings) {
