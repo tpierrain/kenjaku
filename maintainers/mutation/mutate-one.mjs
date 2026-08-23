@@ -23,7 +23,11 @@
 //     bogus timeouts — checked on the config before the run, and on the report
 //     after it;
 //   • a stale log discarded BEFORE the run, and a loud failure instead of a
-//     score that was never measured;
+//     score that was never measured — which includes the run that measured
+//     NOTHING (`n/a`, 0 mutants, and a green tick until 2026-08-23) and the
+//     TARGET that contributed nothing: a file with no mutants is not listed with
+//     a zero, it is absent from the table, and the score belongs to its
+//     neighbours;
 //   • and the two arguments that are PATHS, not labels: `--worktree` selects the
 //     directory `git reset --hard` lands in, `--log` the file `rmSync` deletes.
 //     A run may only reset a directory git calls a worktree OF THIS REPO — names
@@ -333,37 +337,103 @@ export function parseTestCounts(output) {
   return { pass, fail, skipped };
 }
 
+// `n/a`, never NaN. Stryker prints `n/a` in the score column when there is no score
+// to print — `isNaN(score) ? 'n/a' : score.toFixed(2)`, and the score is NaN exactly
+// when the run produced ZERO mutants. `Number("n/a")` is NaN, and NaN is a number
+// that fails every test it is put to WITHOUT failing loudly: it printed
+// `✅ Mutation score NaN %` and exited 0 (T13). A null is a fact a gate can read.
+function scoreOrNull(cell) {
+  const value = Number(cell);
+  return Number.isFinite(value) ? value : null;
+}
+
 // Stryker's clear-text table. Returns null when there is no table — a killed or
 // crashed run has no score, and that is not a zero.
 export function parseMutationReport(log) {
   const rows = log
     .split("\n")
-    .map((line) => line.split("|").map((cell) => cell.trim()))
-    .filter((cells) => cells.length >= 8);
+    .map((line) => line.split("|"))
+    .filter((cells) => cells.length >= 8)
+    // The first cell's INDENT is kept, because the table is a TREE: a directory is a
+    // row of its own and its files are indented one space further beneath it. Trimmed
+    // away, `scripts/lib/engine-write-guard.mjs` and `scripts/engine-write-guard.mjs`
+    // — both of which exist here — become the same row.
+    .map((cells) => ({
+      indent: cells[0].length - cells[0].trimStart().length,
+      cells: cells.map((cell) => cell.trim()),
+    }));
 
-  const all = rows.find((cells) => cells[0] === "All files");
+  const all = rows.find((row) => row.cells[0] === "All files");
   if (!all) return null;
 
-  const [score, killed, timeout, survived] = [Number(all[1]), Number(all[3]), Number(all[4]), Number(all[5])];
+  const [killed, timeout, survived] = [Number(all.cells[3]), Number(all.cells[4]), Number(all.cells[5])];
   const total = killed + timeout + survived;
   const timeoutShare = total ? timeout / total : 0;
 
+  // Everything the tree walk needs is the indent: `All files`, the header and the
+  // rules sit at zero and are not part of it; a directory at depth d occupies slot
+  // d-1 and drops everything deeper; a file at depth d hangs under the d-1 dirs above it.
+  const dirs = [];
+  const files = [];
+  for (const { indent, cells } of rows) {
+    if (indent === 0) continue;
+    const name = cells[0];
+    if (name.endsWith(".mjs") || name.endsWith(".ts")) {
+      files.push({
+        // Stryker's own label, printed back verbatim so the breakdown can be laid
+        // beside the log it came from; `path` is where that file actually lives.
+        file: name,
+        path: [...dirs.slice(0, indent - 1), name].join("/"),
+        score: scoreOrNull(cells[1]),
+        survived: Number(cells[5]),
+        timeout: Number(cells[4]),
+      });
+    } else {
+      dirs.length = indent - 1;
+      dirs.push(name);
+    }
+  }
+
   return {
-    score,
+    score: scoreOrNull(all.cells[1]),
     killed,
     timeout,
     survived,
-    files: rows
-      .filter((cells) => cells[0].endsWith(".mjs") || cells[0].endsWith(".ts"))
-      .map((cells) => ({
-        file: cells[0],
-        score: Number(cells[1]),
-        survived: Number(cells[5]),
-        timeout: Number(cells[4]),
-      })),
+    total,
+    files,
     timeoutShare,
     trustworthy: timeoutShare <= MAX_TIMEOUT_SHARE,
   };
+}
+
+// ── Did the run measure the files it was ASKED for? ──────────────────────────
+//
+// 🚨 T13, and it was met in the wild before it was reported: a file that produces
+// no mutants is not listed with a zero, it is ABSENT — and the score belongs to
+// whatever else was in the batch. On 2026-08-23 a range typed `:34-52` over a guard
+// sitting on line 53 measured `engine-ancestor.mjs` NOT AT ALL, and the run printed
+// `✅ Mutation score 100 %`. It was caught by reading the per-file breakdown by
+// hand, every run, which is a discipline and therefore already failing.
+//
+// Matching is by PATH SUFFIX and never by name: the table's paths are relative to
+// whatever root the measured files happen to share, and four basenames exist twice
+// in `scripts/`. The LONGEST match wins, so `scripts/lib/x.mjs` takes the `lib/x.mjs`
+// row and leaves the bare `x.mjs` row to `scripts/x.mjs`; and a row answers for ONE
+// target, so a single row can never certify two files at once.
+export function unmeasuredTargets(targets, files) {
+  const available = files.map((file) => file.path);
+  const missing = [];
+
+  for (const path of targetPaths(targets)) {
+    const [match] = available
+      .filter((reported) => path === reported || path.endsWith(`/${reported}`))
+      .sort((left, right) => right.length - left.length);
+
+    if (match === undefined) missing.push(path);
+    else available.splice(available.indexOf(match), 1);
+  }
+
+  return missing;
 }
 
 // ── The run itself ───────────────────────────────────────────────────────────
@@ -526,11 +596,35 @@ export function runMutateOne(argv, deps) {
         say(`❌ Stryker failed and measured nothing — full output in ${logPath}`);
         return 1;
       }
+      // BEFORE the timeout share and before the score: a run with no mutants has a
+      // vacuous timeout share (0 of 0) and a score that is not a number, so this is
+      // the first question worth asking of a table at all.
+      if (report.total === 0) {
+        say(
+          "❌ Stryker ran and measured NOTHING — 0 mutants, so its score is `n/a` and not a number. A mistyped " +
+            "path, a line range past the end of the file, or a range landing entirely on comments each produce " +
+            `exactly this, and none of them says so. Full output in ${logPath}`
+        );
+        return 1;
+      }
       if (!report.trustworthy) {
         say(
-          `❌ ${report.timeout} of ${report.killed + report.timeout + report.survived} mutants TIMED OUT ` +
+          `❌ ${report.timeout} of ${report.total} mutants TIMED OUT ` +
             `(${Math.round(report.timeoutShare * 100)} %) — the ${report.score} % is starved CPU, not killed mutants. ` +
             `Re-run with nothing else running. Full output in ${logPath}`
+        );
+        return 1;
+      }
+      // AFTER the timeout gate: a starved run's per-file rows are as unreliable as
+      // its total, and naming a missing target there would be a second complaint
+      // about a run that has already failed for a bigger reason.
+      const unmeasured = unmeasuredTargets(parsed.targets, report.files);
+      if (unmeasured.length) {
+        say(`❌ ${report.score} % was measured over the OTHER files — these TARGETS contributed no mutants at all:`);
+        for (const path of unmeasured) say(`   ${path}`);
+        say(
+          "   A line range past the end of the file, or one landing entirely on comments, measures nothing and " +
+            `says nothing. Full output in ${logPath}`
         );
         return 1;
       }

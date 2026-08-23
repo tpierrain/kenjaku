@@ -30,6 +30,7 @@ import {
   tuningViolations,
   targetPaths,
   uncommittedTargets,
+  unmeasuredTargets,
   runMutateOne,
   linkedWorktrees,
   USAGE,
@@ -524,11 +525,14 @@ test("parseMutationReport — the overall row and every file row, whole", () => 
     killed: 331,
     timeout: 32,
     survived: 82,
+    // The mutants this run actually produced — the number the two gates below read,
+    // and the one the timeout message used to recompute at its call site.
+    total: 445,
     files: [
-      { file: "entrypoint-discipline.mjs", score: 71.82, survived: 82, timeout: 28 },
-      { file: "entrypoint.mjs", score: 100, survived: 0, timeout: 4 },
-      { file: "status-line.mjs", score: 100, survived: 0, timeout: 0 },
-      { file: "upstream-check-run.mjs", score: 100, survived: 0, timeout: 0 },
+      { file: "entrypoint-discipline.mjs", path: "lib/entrypoint-discipline.mjs", score: 71.82, survived: 82, timeout: 28 },
+      { file: "entrypoint.mjs", path: "lib/entrypoint.mjs", score: 100, survived: 0, timeout: 4 },
+      { file: "status-line.mjs", path: "status-line.mjs", score: 100, survived: 0, timeout: 0 },
+      { file: "upstream-check-run.mjs", path: "upstream-check-run.mjs", score: 100, survived: 0, timeout: 0 },
     ],
     timeoutShare: 32 / (331 + 32 + 82),
     trustworthy: true,
@@ -562,8 +566,8 @@ All files       |  96.00 |   96.00 |       48 |         0 |          2 |        
 `;
 
   assert.deepEqual(parseMutationReport(tsTable).files, [
-    { file: "markdown.ts", score: 100, survived: 0, timeout: 0 },
-    { file: "search.ts", score: 94, survived: 2, timeout: 0 },
+    { file: "markdown.ts", path: "markdown.ts", score: 100, survived: 0, timeout: 0 },
+    { file: "search.ts", path: "search.ts", score: 94, survived: 2, timeout: 0 },
   ]);
 });
 
@@ -598,6 +602,136 @@ test("parseMutationReport — no table means no result, and that is not a zero",
   // A crashed or killed run leaves output with no table. Returning null is what
   // makes the caller fail loudly instead of reporting a score it did not measure.
   assert.equal(parseMutationReport("00:52:13 INFO Stryker An error occurred\n"), null);
+});
+
+// A run that generated ZERO mutants still prints a table, and its score cells read
+// `n/a` — Stryker's own rendering of a NaN score (clear-text-score-table.js:
+// `isNaN(score) ? 'n/a' : score.toFixed(2)`). `thresholds.break` is null in this
+// repo's config, so Stryker exits 0 and the whole thing reads as a good run.
+const EMPTY_TABLE = `----------------|------------------|----------|-----------|------------|----------|----------|
+File            |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------|--------|---------|----------|-----------|------------|----------|----------|
+All files       |    n/a |     n/a |        0 |         0 |          0 |        0 |        0 |
+----------------|--------|---------|----------|-----------|------------|----------|----------|
+`;
+
+test("parseMutationReport — a run that measured NOTHING has no score, and `n/a` is not a number", () => {
+  // T13. `Number("n/a")` is NaN, and NaN travelled the whole way to the screen:
+  // `✅ Mutation score NaN % — 0 killed, 0 survived, 0 timeout`, exit 0. A null is
+  // a fact the gate one door down can read; NaN is a number that fails every test
+  // it is put to, silently.
+  assert.deepEqual(parseMutationReport(EMPTY_TABLE), {
+    score: null,
+    killed: 0,
+    timeout: 0,
+    survived: 0,
+    total: 0,
+    files: [],
+    timeoutShare: 0,
+    // Vacuously: nothing timed out because nothing ran. The emptiness is refused
+    // by its own gate, never by this one.
+    trustworthy: true,
+  });
+});
+
+// Stryker's table is a TREE: a directory is a row of its own, and its files are
+// indented one space further beneath it. Real shape, read off reports/confirm-batch1.log
+// (` lib` then `  note-refresh.mjs`, beside a bare ` refresh-note.mjs`), with one
+// more level so the arithmetic that rebuilds a path has something to be wrong about.
+const NESTED_TABLE = `--------------------|------------------|----------|-----------|------------|----------|----------|
+File                |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files           |  90.00 |   90.00 |       27 |         0 |          3 |        0 |        0 |
+ lib                |  85.00 |   85.00 |       17 |         0 |          3 |        0 |        0 |
+  sub               |  80.00 |   80.00 |        8 |         0 |          2 |        0 |        0 |
+   deep.mjs         |  80.00 |   80.00 |        8 |         0 |          2 |        0 |        0 |
+  shallow.mjs       |  90.00 |   90.00 |        9 |         0 |          1 |        0 |        0 |
+ root.mjs           | 100.00 |  100.00 |       10 |         0 |          0 |        0 |        0 |
+--------------------|--------|---------|----------|-----------|------------|----------|----------|
+`;
+
+test("parseMutationReport — a file row carries WHERE it lives, and a basename is not an identity", () => {
+  // `engine-write-guard.mjs` exists BOTH at `scripts/` and at `scripts/lib/` in this
+  // repo (so do vault-write-guard, ai-summary-guard and open-env), so a breakdown
+  // read by name alone lets one of the two answer for the other. The indent is the
+  // only thing in the table that tells them apart.
+  assert.deepEqual(parseMutationReport(NESTED_TABLE).files, [
+    { file: "deep.mjs", path: "lib/sub/deep.mjs", score: 80, survived: 2, timeout: 0 },
+    { file: "shallow.mjs", path: "lib/shallow.mjs", score: 90, survived: 1, timeout: 0 },
+    { file: "root.mjs", path: "root.mjs", score: 100, survived: 0, timeout: 0 },
+  ]);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// unmeasuredTargets — the file list you asked for, against the one you got
+// ─────────────────────────────────────────────────────────────────────────────
+
+// The two rows a run of `scripts/engine-write-guard.mjs` + `scripts/lib/engine-write-guard.mjs`
+// produces: same name, two directories, and the table's paths relative to the root
+// the two of them share.
+const TWINS = parseMutationReport(`--------------------------|------------------|----------|-----------|------------|----------|----------|
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  90.00 |   90.00 |       18 |         0 |          2 |        0 |        0 |
+ lib                      | 100.00 |  100.00 |       10 |         0 |          0 |        0 |        0 |
+  engine-write-guard.mjs  | 100.00 |  100.00 |       10 |         0 |          0 |        0 |        0 |
+ engine-write-guard.mjs   |  80.00 |   80.00 |        8 |         0 |          2 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+`).files;
+
+test("unmeasuredTargets — every target the breakdown names is measured, and the answer is empty", () => {
+  assert.deepEqual(
+    unmeasuredTargets(["scripts/status-line.mjs", "scripts/lib/entrypoint.mjs"], parseMutationReport(STRYKER_TAIL).files),
+    []
+  );
+});
+
+test("unmeasuredTargets — a target absent from the breakdown is NAMED, with its range stripped", () => {
+  // T4's first run, 2026-08-23, in the wild: the range was typed `:34-52` and the
+  // guard sat on line 53, so `engine-ancestor.mjs` contributed zero mutants and was
+  // silently absent from the table while the batch's other file scored 100 %.
+  assert.deepEqual(
+    unmeasuredTargets(
+      ["scripts/status-line.mjs", "scripts/lib/engine-ancestor.mjs:34-52"],
+      parseMutationReport(STRYKER_TAIL).files
+    ),
+    ["scripts/lib/engine-ancestor.mjs"]
+  );
+});
+
+test("unmeasuredTargets — two files of the same NAME are told apart by their directory", () => {
+  assert.deepEqual(unmeasuredTargets(["scripts/engine-write-guard.mjs", "scripts/lib/engine-write-guard.mjs"], TWINS), []);
+
+  // And the half that matters: with only the `lib` one measured, the other is named
+  // — a suffix match on the bare basename would have let the `lib` row answer for it.
+  assert.deepEqual(
+    unmeasuredTargets(
+      ["scripts/engine-write-guard.mjs", "scripts/lib/engine-write-guard.mjs"],
+      TWINS.filter((file) => file.path.startsWith("lib/"))
+    ),
+    ["scripts/engine-write-guard.mjs"]
+  );
+});
+
+test("unmeasuredTargets — ONE row answers for ONE target: a single row cannot certify two", () => {
+  // When a single file has mutants, the table's root collapses onto its directory
+  // and the row is a bare `engine-write-guard.mjs`, which is a legal suffix of both
+  // targets. Consuming the row is what stops it certifying the file that was never
+  // measured. The order is not the point — one of the two is named, whichever.
+  const lonely = [{ file: "engine-write-guard.mjs", path: "engine-write-guard.mjs", score: 100, survived: 0, timeout: 0 }];
+
+  assert.deepEqual(unmeasuredTargets(["scripts/engine-write-guard.mjs", "scripts/lib/engine-write-guard.mjs"], lonely), [
+    "scripts/lib/engine-write-guard.mjs",
+  ]);
+});
+
+test("unmeasuredTargets — a table with no file rows at all names every target", () => {
+  // The zero-mutant run: `n/a`, no rows, and every target unmeasured. Its own gate
+  // speaks first in the runner, but this function must not go quiet here.
+  assert.deepEqual(unmeasuredTargets(["scripts/a.mjs", "scripts/lib/b.mjs:1-9"], parseMutationReport(EMPTY_TABLE).files), [
+    "scripts/a.mjs",
+    "scripts/lib/b.mjs",
+  ]);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -644,15 +778,20 @@ const GUARD_KEY = "--test scripts/lib/vault-write-guard.test.mjs";
 const MUTATE_KEY = (t = "scripts/lint-vault.mjs") =>
   `/Users/dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate ${t}`;
 
+// The target is `scripts/status-line.mjs` and NOT the `lint-vault.mjs` of the cases
+// above, for one reason: STRYKER_TAIL is a real captured table, it names status-line
+// and it does not name lint-vault. A fixture asking for a file its own table never
+// mentions is the T13 defect wearing a green tick — and since 2026-08-23 the runner
+// refuses exactly that, so the fixture had to become a run that could really happen.
 test("runMutateOne — the happy path runs every step, writes the log, and reports the score", () => {
   const h = harness({
     results: {
       [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
-      [MUTATE_KEY()]: { code: 0, output: STRYKER_TAIL },
+      [MUTATE_KEY("scripts/status-line.mjs")]: { code: 0, output: STRYKER_TAIL },
     },
   });
 
-  const code = runMutateOne(["scripts/lint-vault.mjs"], h.deps);
+  const code = runMutateOne(["scripts/status-line.mjs"], h.deps);
 
   assert.equal(code, 0);
   assert.deepEqual(
@@ -663,12 +802,12 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
     // committed. Both are read-only; everything after them is not.
     [
       WORKTREE_LIST_KEY,
-      STATUS_KEY("scripts/lint-vault.mjs"),
+      STATUS_KEY("scripts/status-line.mjs"),
       "worktree prune",
       "reset --hard bd9277d1c0ffee0000000000000000000000beef",
       "clean -qfd -e rag/node_modules",
       GUARD_KEY,
-      MUTATE_KEY(),
+      MUTATE_KEY("scripts/status-line.mjs"),
     ]
   );
   // Two removals, and the ORDER matters: the link's path is cleared before the symlink
@@ -676,7 +815,7 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
   // stale log goes before the mutants run, never after.
   assert.deepEqual(h.calls.filter((c) => c.fn === "removeFile"), [
     { fn: "removeFile", path: "/Users/dev/kenjaku-mut-one/rag/node_modules" },
-    { fn: "removeFile", path: "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log" },
+    { fn: "removeFile", path: "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-status-line.log" },
   ]);
   assert.deepEqual(h.calls.filter((c) => c.fn === "symlink"), [
     { fn: "symlink", from: "/Users/dev/kenjaku/rag/node_modules", to: "/Users/dev/kenjaku-mut-one/rag/node_modules" },
@@ -684,7 +823,7 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
   assert.deepEqual(h.calls.filter((c) => c.fn === "writeFile"), [
     {
       fn: "writeFile",
-      path: "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+      path: "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-status-line.log",
       bytes: STRYKER_TAIL.length,
     },
   ]);
@@ -697,14 +836,16 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
     "▶ symlink /Users/dev/kenjaku/rag/node_modules → /Users/dev/kenjaku-mut-one/rag/node_modules",
     "▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/dev/kenjaku-mut-one)",
     "   ✓ write guard: 22 pass, 0 skipped",
-    "▶ discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
-    `▶ node ${MUTATE_KEY()}   (in /Users/dev/kenjaku-mut-one)`,
+    "▶ discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-status-line.log",
+    `▶ node ${MUTATE_KEY("scripts/status-line.mjs")}   (in /Users/dev/kenjaku-mut-one)`,
     "✅ Mutation score 81.57 % — 331 killed, 82 survived, 32 timeout",
+    // The breakdown prints Stryker's own labels, so it can be laid beside the log
+    // it came from. Where a file LIVES is the gate's business, not the reader's.
     "   entrypoint-discipline.mjs: 71.82 % (82 survived, 28 timeout)",
     "   entrypoint.mjs: 100 % (0 survived, 4 timeout)",
     "   status-line.mjs: 100 % (0 survived, 0 timeout)",
     "   upstream-check-run.mjs: 100 % (0 survived, 0 timeout)",
-    "   log: /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault.log",
+    "   log: /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-status-line.log",
   ]);
 });
 
@@ -844,6 +985,61 @@ test("runMutateOne — a run whose score is made of timeouts is reported as untr
   assert.equal(h.out.some((line) => line.includes("✅")), false);
 });
 
+test("runMutateOne — a run that measured NOTHING is refused, and no ✅ is printed", () => {
+  // T13, third pass of the v5.0.0 review. Reproduced through this very function
+  // before a line was changed: `✅ Mutation score NaN % — 0 killed, 0 survived, 0
+  // timeout`, exit 0. Every mutation number this repo records as evidence comes
+  // through here, and this file's own charter is "a loud failure instead of a score
+  // that was never measured".
+  const h = harness({
+    results: {
+      [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
+      [MUTATE_KEY("scripts/lint-vault.mjs:900-999")]: { code: 0, output: EMPTY_TABLE },
+    },
+  });
+
+  const code = runMutateOne(["scripts/lint-vault.mjs:900-999"], h.deps);
+
+  assert.equal(code, 1);
+  // The output is still written — it is the diagnosis, and the log is where the
+  // reader finds Stryker's own `did not result in any files` line, if there was one.
+  assert.deepEqual(h.calls.filter((c) => c.fn === "writeFile").map((c) => c.path), [
+    "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault-900-999.log",
+  ]);
+  assert.deepEqual(h.out.slice(-1), [
+    "❌ Stryker ran and measured NOTHING — 0 mutants, so its score is `n/a` and not a number. A mistyped " +
+      "path, a line range past the end of the file, or a range landing entirely on comments each produce " +
+      "exactly this, and none of them says so. Full output in " +
+      "/Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-lint-vault-900-999.log",
+  ]);
+  assert.equal(h.out.some((line) => line.includes("✅")), false);
+});
+
+test("runMutateOne — a TARGET that contributed no mutants is refused, BY NAME", () => {
+  // The same defect one degree less total, and the one met in the wild on
+  // 2026-08-23 (T4's first run): the batch scores 81.57 % over the files that DID
+  // produce mutants, and the file the range missed is simply not in the table.
+  // Reading the per-file breakdown by hand is what caught it; this is that read.
+  const targets = ["scripts/status-line.mjs", "scripts/lib/engine-ancestor.mjs:34-52"];
+  const h = harness({
+    results: {
+      [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
+      [MUTATE_KEY(targets.join(","))]: { code: 0, output: STRYKER_TAIL },
+    },
+  });
+
+  const code = runMutateOne(targets, h.deps);
+
+  assert.equal(code, 1);
+  assert.deepEqual(h.out.slice(-3), [
+    "❌ 81.57 % was measured over the OTHER files — these TARGETS contributed no mutants at all:",
+    "   scripts/lib/engine-ancestor.mjs",
+    "   A line range past the end of the file, or one landing entirely on comments, measures nothing and " +
+      "says nothing. Full output in /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-status-line+1.log",
+  ]);
+  assert.equal(h.out.some((line) => line.includes("✅")), false);
+});
+
 test("runMutateOne — a drifted config stops the run before it costs 15 minutes", () => {
   const h = harness({ config: { ...SOUND_CONFIG, concurrency: 13 } });
 
@@ -978,19 +1174,24 @@ test("runMutateOne — an uncommitted TARGET is refused before the worktree is t
 test("runMutateOne — the question is asked about the TARGETS only, ranges stripped", () => {
   // A whole-tree check would refuse every real run: editing plans while mutating a
   // committed file is how this tool is used.
+  // Both targets are files STRYKER_TAIL really names, and one of them lives in
+  // `lib/` — the run ends at 0, so it has to be a run that could really happen.
   const h = harness({
     results: {
-      [STATUS_KEY("scripts/a.mjs", "scripts/lib/b.mjs")]: { code: 0, output: "" },
+      [STATUS_KEY("scripts/status-line.mjs", "scripts/lib/entrypoint.mjs")]: { code: 0, output: "" },
       [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
-      [MUTATE_KEY("scripts/a.mjs:1-9,scripts/lib/b.mjs")]: { code: 0, output: STRYKER_TAIL },
+      [MUTATE_KEY("scripts/status-line.mjs:1-9,scripts/lib/entrypoint.mjs")]: { code: 0, output: STRYKER_TAIL },
     },
   });
 
-  const code = runMutateOne(["scripts/a.mjs:1-9", "scripts/lib/b.mjs"], h.deps);
+  const code = runMutateOne(["scripts/status-line.mjs:1-9", "scripts/lib/entrypoint.mjs"], h.deps);
 
   assert.equal(code, 0);
   // [1], not [0]: the ownership question is asked first and knows nothing of targets.
-  assert.equal(h.calls.filter((c) => c.fn === "run")[1].args.join(" "), STATUS_KEY("scripts/a.mjs", "scripts/lib/b.mjs"));
+  assert.equal(
+    h.calls.filter((c) => c.fn === "run")[1].args.join(" "),
+    STATUS_KEY("scripts/status-line.mjs", "scripts/lib/entrypoint.mjs")
+  );
 });
 
 test("runMutateOne — a git status that FAILS is refused, never read as clean", () => {
@@ -1279,10 +1480,15 @@ test("entry point — no argument exits 2 with the usage, and runs nothing", () 
 test("runMutateOne — a missing worktree is created, and the rag link with it", () => {
   const h = harness({
     worktreeExists: false,
-    results: { [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL }, [MUTATE_KEY()]: { code: 0, output: STRYKER_TAIL } },
+    results: {
+      [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
+      // status-line, like the happy path and for the same reason: it is a file
+      // STRYKER_TAIL really names, and this case asserts a run that ends at 0.
+      [MUTATE_KEY("scripts/status-line.mjs")]: { code: 0, output: STRYKER_TAIL },
+    },
   });
 
-  const code = runMutateOne(["scripts/lint-vault.mjs"], h.deps);
+  const code = runMutateOne(["scripts/status-line.mjs"], h.deps);
 
   assert.equal(code, 0);
   assert.deepEqual(h.calls.filter((c) => c.fn === "symlink"), [
@@ -1292,7 +1498,7 @@ test("runMutateOne — a missing worktree is created, and the rag link with it",
   // symlink and the discarded log were INVISIBLE, which reads as "it never
   // linked anything" on the one output anybody keeps.
   assert.match(h.out.join("\n"), /symlink \/Users\/dev\/kenjaku\/rag\/node_modules → \/Users\/dev\/kenjaku-mut-one\/rag\/node_modules/);
-  assert.match(h.out.join("\n"), /discard stale log \/Users\/dev\/kenjaku\/maintainers\/mutation\/reports\/mutate-one-lint-vault\.log/);
+  assert.match(h.out.join("\n"), /discard stale log \/Users\/dev\/kenjaku\/maintainers\/mutation\/reports\/mutate-one-status-line\.log/);
   assert.deepEqual(
     h.calls.filter((c) => c.fn === "run").map((c) => c.args.slice(0, 3).join(" ")),
     [
