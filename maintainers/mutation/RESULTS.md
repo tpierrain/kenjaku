@@ -233,6 +233,40 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T6 — thirteen anchors nobody had tested, on a filter whose ONLY safety is its anchors — 2026-08-23
+
+`1604d3e` (the fix) + `67682ad` (the survivors' poles). State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `engine-base.mjs:73-91` (`STRAY_ARTIFACT_PATTERNS`) | **35 %** — 13 survived | **100 %** — 26 killed | 0 |
+| `engine-base-fs.mjs:87` (the filter's one call site) | **100 %** | **100 %** | 0 |
+
+**Reproduce**: `FORCE_COLOR=0 NO_COLOR=1 node maintainers/mutation/mutate-one.mjs
+scripts/lib/engine-base.mjs:73-91 scripts/lib/engine-base-fs.mjs:87-87`. Twice after the fix: **100 %
+both times, 26 mutants both times**, both files named in the breakdown. Logs:
+[`t6-survivors`](reports/t6-survivors) (the 35 % first pass, and the thirteen names are the point),
+then [`t6`](reports/t6) and [`t6-confirm`](reports/t6-confirm).
+
+**ALL THIRTEEN SURVIVORS WERE THE SAME ANCHOR, AND THE ANCHOR IS THE WHOLE SAFETY ARGUMENT.** The
+filter silences files the engine never delivered, so its one forbidden failure is eating a real one —
+and the only thing standing between the two is that every pattern is anchored at the END of a name
+(`.bak` as a suffix is junk, `bak.md` is somebody's skill). Stryker deleted every `$`, and the four
+OS patterns' `(^|\/)` → `(\/)`, **with the suite green**.
+
+The negative that existed tested names that **start** with those letters — a case no anchor is
+load-bearing for. What kills them is the pair the anchors actually separate: a name that **contains**
+an ending without ending in it (`SKILL.md.bak.md`, `notes~2.md`, `.DS_Store.md`), and a dropping at
+the brain's **root**, where Finder and Explorer really leave theirs and where only the `^` arm can
+reach.
+
+➡️ **Same family as T2's coupling scanner, two days apart**: a matcher passed every case written for
+it while being a guess about **where a match may start and end**. When a fix's safety rests on a
+boundary, the boundary is the thing to triangulate — the happy path proves nothing about it.
+
+---
+
 ## T5 — the collector past the point of no return — 2026-08-23
 
 `21aefbf`. State owned by

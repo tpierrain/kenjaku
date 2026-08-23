@@ -12,15 +12,20 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T6.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T5 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`)_; **T6–T15 are open**,
-  in § *Third pass*, which owns them and their order. **Read its ⚠️ first**: unlike the two earlier
-  passes, that section is the reviewer's word and **the items below T5 have not been independently
-  re-checked**. Verify, then fix test-first, red first, one commit per subject, pushed as it goes.
-  - **T6 next**: an editor backup (`SKILL.md.bak`, `SKILL.md~`, `.DS_Store`) becomes a
-    **permanent, un-dismissable** session-start nudge — the answer that would dismiss it is refused
-    **before** `writeAnswers`, so nothing is ever recorded. All the realistic vectors are in the
-    brain's shipped `.gitignore`, i.e. invisible in `git status` while being shouted about daily.
+- 🔴 **NEXT — RESUME AT T7.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T6 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`)_;
+  **T7–T15 are open**, in § *Third pass*, which owns them and their order. **Read its ⚠️ first**:
+  unlike the two earlier passes, that section is the reviewer's word and **the items below T6 have not
+  been independently re-checked**. Verify, then fix test-first, red first, one commit per subject,
+  pushed as it goes.
+  - **T7 next**: the new EN/FR drift guard measures **nothing** when run from anywhere but the repo
+    root, and stays green — 16 pairs, 1 drift from the root; 16 pairs, **0 drifts** from `scripts/`.
+    Its anti-vacuity companion cannot catch it. **The repo already states the exact remedy for another
+    caller** (`-C <dir>` is mandatory), so start by reading that.
+  - ✅ **T6 paid, and its mutation run is the one to remember**: 35 % first pass, and **all thirteen
+    survivors were the same anchor** — the very boundary the fix's safety rests on. **When a fix is
+    safe only because of a boundary, triangulate the boundary; the happy path proves nothing about
+    it.** T2 taught the same thing two days earlier.
   - ✅ **T5 paid, and the collector family is now three deep** (T3, T5, and T5's own sibling): the
     same missing opt-in, three consequences — a denied converge, a contradicted promise, and one
     still open. **When a fourth call site turns up, look for the collector first.**
@@ -975,13 +980,33 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
             exit-code or a partial-success sentence, which is a **product** decision about what the
             owner is told — not a session's to invent mid-queue. The one thrower the finding named is
             gone; the class is named here with its cost.
-- [ ] **T6 — an editor backup makes a PERMANENT, un-dismissable session-start nudge**
-      (`engine-base-fs.mjs:81`). Merge globs keep every on-disk match (only `.new` is filtered, fs-walk
-      skips no dotfile), so `SKILL.md.bak`, `SKILL.md~`, `.DS_Store` become `no-provenance` divergence
-      lines — and the answer that would dismiss them is refused with `no-candidate` **before**
-      `writeAnswers`, so `.engine-answers.json` is never created and the nudge is byte-identical
-      forever. The realistic vectors are all in the brain's shipped `.gitignore`, so they are invisible
-      in `git status` while being shouted about at every session start.
+- [x] ✅ **T6 — an editor backup makes a PERMANENT, un-dismissable session-start nudge — PAID**
+      _(2026-08-23 · `1604d3e` + `67682ad`)_. **Confirmed independently before fixing**: three junk
+      files beside a perfectly untouched skill → **three** `no-provenance` lines, the dismissal
+      refused with `no-candidate`, no answer file written, and the same three lines again on the next
+      read. Now **zero**, and the untouched skill is still there.
+      - **Fixed at the SOURCE, not in the report**, and the sidecar filter's own sentence is why:
+            *"the glob cannot tell them apart… counting it makes the brain claim to hold back a file
+            it has never held."* Nothing downstream should ever have been asked about a file the
+            engine cannot deliver — not the heal, not the ancestor fetch, not the base seed.
+      - 🛑 **A NAMED LIST IS INCOMPLETE BY CONSTRUCTION, and that is only acceptable because of WHICH
+            WAY IT FAILS**: a missing pattern leaves the status quo (one more line), a greedy one
+            **silences a real held-back engine file** — the exact defect the whole divergence surface
+            exists to prevent. So the greedy direction is not left to judgement: a pole runs every rel
+            this release actually ships under a `merge` glob, **both locales**, through the filter and
+            demands that none be caught. Add a pattern that eats a real file and it goes red on the
+            same commit.
+      - 🧪 **Mutation 35 % → 100 %** (26 mutants, reproduced twice). **All thirteen survivors were the
+            same anchor**, and the anchor IS the safety argument: every `$`, and the four OS patterns'
+            `^` arm, could be deleted with the suite green. The negative that existed tested names
+            that *start* with those letters — a case no anchor is load-bearing for. **Same family as
+            T2's coupling scanner, two days apart: a matcher passing every case written for it while
+            guessing where a match may start and end.** →
+            [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T6.
+      - 📐 **The un-dismissability itself was NOT changed, deliberately.** A genuine engine file with
+            no provenance and no sidecar still cannot be dismissed — and it should not be: that nudge
+            is legitimate and ends when the engine heals or delivers. What was wrong was the
+            population, and the population is what moved.
 - [ ] **T7 — the new EN/FR drift guard measures NOTHING off the repo root, and stays green**
       (`locale-drift.mjs:53`). It runs git through `buildGitInvocation`, which sets no `cwd`, so every
       window collapses to `"..HEAD"`. From the repo root: 16 pairs, 1 real drift. From `scripts/`: 16

@@ -1,10 +1,10 @@
-[32m15:13:48 (54700) INFO ProjectReader[39m Found 2 of 908 file(s) to be mutated.
-[32m15:13:48 (54700) INFO Instrumenter[39m Instrumented 2 source file(s) with 26 mutant(s)
-[32m15:13:48 (54700) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m15:13:49 (54700) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-5DyWgz
-[32m15:13:49 (54700) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m15:13:49 (54700) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m15:13:52 (54700) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3584 ms, overhead 2 ms).
+[32m15:15:50 (90444) INFO ProjectReader[39m Found 2 of 908 file(s) to be mutated.
+[32m15:15:50 (90444) INFO Instrumenter[39m Instrumented 2 source file(s) with 26 mutant(s)
+[32m15:15:50 (90444) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m15:15:50 (90444) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-bAaMCV
+[32m15:15:50 (90444) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m15:15:50 (90444) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m15:15:54 (90444) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 4 seconds (net 4055 ms, overhead 0 ms).
 Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/26 tested (0 survived, 0 timed out)
 Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/26 tested (0 survived, 0 timed out)
 Mutation testing 19% (elapsed: <1m, remaining: ~2m) 5/26 tested (0 survived, 0 timed out)
@@ -15,7 +15,7 @@ Mutation testing 57% (elapsed: ~1m, remaining: <1m) 15/26 tested (0 survived, 0 
 Mutation testing 57% (elapsed: ~1m, remaining: <1m) 15/26 tested (0 survived, 0 timed out)
 Mutation testing 76% (elapsed: ~1m, remaining: <1m) 20/26 tested (0 survived, 0 timed out)
 Mutation testing 76% (elapsed: ~1m, remaining: <1m) 20/26 tested (0 survived, 0 timed out)
-Mutation testing 96% (elapsed: ~1m, remaining: <1m) 25/26 tested (0 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~1m, remaining: <1m) 22/26 tested (0 survived, 0 timed out)
 
 All tests
   ✓ All tests (killed 26)
@@ -29,5 +29,5 @@ All files           | 100.00 |  100.00 |       26 |         0 |          0 |    
  engine-base-fs.mjs | 100.00 |  100.00 |        6 |         0 |          0 |        0 |        0 |
  engine-base.mjs    | 100.00 |  100.00 |       20 |         0 |          0 |        0 |        0 |
 --------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m15:15:44 (54700) INFO MutationTestExecutor[39m Done in 1 minute and 55 seconds.
-[32m15:15:44 (54700) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-5DyWgz.
+[32m15:17:47 (90444) INFO MutationTestExecutor[39m Done in 1 minute and 57 seconds.
+[32m15:17:47 (90444) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-bAaMCV.
