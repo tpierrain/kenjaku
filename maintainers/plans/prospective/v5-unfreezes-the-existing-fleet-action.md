@@ -32,10 +32,14 @@
   until the review queue's § Tracking is discharged* — is **lifted**: that § Tracking is fully ticked.
   What remains is the merge of PR #76, the tag and the publication, none of which a session may do
   alone (see below).
-- **Owner's call pending:** **one, and it does not block a ship** — **F11**: the French twin
-  (`templates/fr/**`) is not translated, so a `--lang fr` brain reads its constitution in English. The
-  release note states the limit honestly as written. Translating it is **his** call because
-  `templates/fr/**` is product, and a session may not write there. _(Everything else he was asked is
+- **Owner's call pending:** **one, and it does not block a ship** — **F11**, whose perimeter is ONE
+  SKILL and must not be restated any wider. ⚠️ A 2026-08-23 session wrote here that *"the French twin
+  is not translated, so a `--lang fr` brain reads its constitution in English"*. **That is false, and
+  measurably so**: `templates/fr/CLAUDE.engine.md` is 548 lines against the English 549, with the same
+  30 sections, fully translated. What ships English-only is `test-first-discipline` (350 lines), whose
+  retired French predecessor was 147 lines of doctrine this release deliberately dropped. The triage
+  plan's § E owns the finding, the measured impact and the two remedies. Translating is **his** call
+  because `templates/fr/**` is product, and a session may not write there alone. _(Everything else he was asked is
   answered: the five decisions, the `scripts` bump at `1.14.0`, and **W5b — the four doctrine texts
   ship as written**, 2026-08-22. **Do not re-ask any of them.** F13 was measured and declined, and
   that too is reversible on one word — see the triage plan's § G.)_
