@@ -238,6 +238,13 @@
 >       deletable with the suite green, the whole retired-skill half unreached. Nine poles now assert it
 >       whole (arrivals, retirements, both joined, the silences) — plus the guard that writes an advance
 >       down when the pass **delivers nothing**, which no test had made load-bearing.
+> - [x] 🔁 **RE-RUN GREEN AFTER THE WHOLE TRIAGE** _(2026-08-23 · at `d579972`)_. Its last green was at
+>       `2cb7d68`, and the third review pass has since changed the update path itself — the ancestor
+>       fetch, the report the owner reads, the reconcile that forwards them. So the trial was re-run on
+>       fresh copies of **both** real brains: **exit 0 both times**, doctrine 334 → 549 lines, `retired`
+>       arriving, `baseRefs` recorded, and **the owner's territory byte-identical** on each. The report
+>       printed is the post-T14 one, and on a run where the network answers it says nothing about a
+>       network — which is the whole point of T14.
 >
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
