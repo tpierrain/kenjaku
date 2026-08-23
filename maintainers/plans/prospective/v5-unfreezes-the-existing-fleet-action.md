@@ -27,7 +27,9 @@
     lint for plans**, argued in [`plan-state-single-source-study.md`](plan-state-single-source-study.md),
     his call, recommendation on record.
   - **No engineering is left on this release.** Say that in one line rather than reciting
-    § *WHAT IS YOURS*, and **do not take an entry from it**.
+    § *WHAT IS YOURS*, and **do not take an entry from it**. ⚠️ **Qualified 2026-08-23**: still true of
+    the release's own code, and **no longer true of the branch** — the macOS flake below owes an
+    instrument, which is a session's to write once the review has finished reading.
 - 🔴 **THE THIRD `/code-review` PASS IS BEING LAUNCHED BY THOMAS — 2026-08-23, right after a context
   clear.** This is **step 4's own instruction** discharging itself (*"findings are fixed test-first
   and the review is re-run on the fix, as v3.3.0 did"*). **Two passes have already run, both on
@@ -41,6 +43,23 @@
     **Both queues are discharged, and re-opening either would lose which pass found what.**
   - **If it returns nothing**, say so and tick step 4: an empty third pass on a branch whose two
     earlier passes found 30 is a result, not a non-event.
+- 🎲 **A NEW FINDING, AND IT IS THE ONE THING ON THIS RELEASE THAT IS NOT SETTLED** _(2026-08-23, found
+  while the third review pass ran)_. **The branch's CI is red about 1 PR run in 6** — 5 of the last 30,
+  **always the same test, always macOS**: the universe hook does not wait for the startup pull. **It is
+  NOT v5's**: the three files involved are byte-identical to `main`. It did **not** reproduce here in
+  ~200 runs, and four hypotheses were run and killed. → § *THE macOS FLAKE*, which owns all of it.
+  - **What is his**: whether a known ~17 % red CI, inherited and not introduced, holds the tag.
+    **Recommendation: it does not** — the code is `main`'s, the failure mode is a fail-open back to the
+    pre-barrier behaviour, and nothing has been observed in the field. But CI has stopped being a
+    tripwire, so it wants its own item straight after the tag.
+  - **What is a session's, and is NOT done**: a test that records **which** fail-open branch it took, so
+    the next red is read rather than reasoned. Held back deliberately — it edits a file identical to
+    `main` while a review is reading the branch.
+- ✅ **RE-VERIFIED AT `2cb7d68`, the commit the third review pass is reading** _(2026-08-23)_: product
+  suite **2 593 green / 0 fail / 3 skipped**, maintainer suite **66/66**, and the **field rehearsal
+  green on copies of BOTH real brains, exit 0** — `mind-palace` (v4.9.1) and `autre-brain` (v3.5.0)
+  each unfreeze on the **first** update, owner's territory byte-identical. It was owed: **seven engine
+  commits landed after the rehearsal last ran**, so its green was stale until now.
 - **Blocked on:** **Thomas, and only Thomas.** The gate this line carried — *nothing merged or tagged
   until the review queue's § Tracking is discharged* — is **lifted**: that § Tracking is fully ticked.
   What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER*, and that section is the
@@ -129,7 +148,57 @@
 > ✅ **AND NOW → ZERO** _(2026-08-22, run `32564338986` on `3b6820b`, the full PR matrix 7/7)_: the last
 > one was the S7-2 harness artifact, and closing it also closed a maintainer defect nobody had named —
 > **a release cut from a Windows clone would have shipped a CRLF fingerprint table**. → § *W6*.
+>
+> ⛔ **AND "ZERO" IS NOT WHAT THE BRANCH'S CI ACTUALLY DOES — measured 2026-08-23.** That line reads a
+> **single green run** as a property of the branch. Over the **last 30 PR runs: 25 green, 5 red**, and
+> **all five are the same test on macOS** — never Windows, never another test. → § *THE macOS FLAKE*,
+> which owns the measurement and what is still unknown. **A one-run green is not a green matrix**, and
+> this is the same shape as the emptiness claims this plan already paid for twice.
 
+> ## 🎲 THE macOS FLAKE — **one test reddens ~1 CI run in 6, and the cause is NOT known**
+>
+> _(Measured 2026-08-23, while the third `/code-review` pass was running. Recorded with its cause still
+> open **on purpose**: this plan's own doctrine is that a located cause is a hypothesis until something
+> is run, and four hypotheses were run and killed. Nothing was changed on the strength of a guess.)_
+>
+> **The fact.** `scripts/session-universe.test.mjs:334` — *"the universe hook waits for the startup
+> pull, and announces the universe that ARRIVED"* — fails on **`macos-latest` only**, on **Node 22 and
+> Node 26 alike**, in **5 of the branch's last 30 PR runs**. Every failure is byte-identical: the hook
+> printed `Active universe: 'acme'` (the pre-pull value) where the test demands `'blue-team'` (the one
+> the simulated pull landed). **The hook did not wait.** Runs: `32623233706`, `32623082342`,
+> `32623045541`, `32603217332`, `32602441587`.
+>
+> - [x] 🟢 **AND IT IS NOT THIS RELEASE'S DOING — checked, not assumed.** `git diff main...HEAD` over
+>       `session-universe.mjs`, `session-universe.test.mjs` and `lib/startup-sync-gate.mjs` is
+>       **empty**: all three are byte-identical to `main`. v5 neither introduces the flake nor touches
+>       the barrier. It is inherited, and it is already on every brain in the fleet.
+> - [x] 🔬 **NOT REPRODUCED HERE, and the attempt was not casual** _(~200 runs, all green)_: the test
+>       alone **25×**; the **full suite 8×**; an instrumented copy of the hook outside the repo, made
+>       to confess the gate's own return value, **12×** (`status: "done"` every time, `waitedMs` 201-232
+>       against a 250 ms flip); and a **sweep of the flip delay** (0/10/25/40/60/100/150 ms) — the gate
+>       released on `done` in every single case, so no window exists on this machine.
+> - [x] 🪦 **Four hypotheses run and KILLED**, so the next session does not re-run them: `readFileSync(0)`
+>       throwing `EAGAIN` on a not-yet-written pipe (360 spawns, 0 failures); the same with the parent's
+>       event loop **frozen** right after `.end()` so the payload cannot flush (100 spawns, 0); the
+>       grace/ceiling deadlines firing early (they cannot — both are far longer than the test's 250 ms,
+>       and either would yield `blue-team`, not `acme`); and a torn read of the pointer (that would
+>       announce the **default** universe, not `acme`).
+> - **What that leaves, stated as the open question it is**: the only gate returns that release before
+>       the flip are `not-expected` (settings unreadable → no puller) and `unknown-session` (stdin
+>       payload unreadable → no key). **Both are fail-open branches, and both are unproven here.** The
+>       decisive instrument is a test that **records which branch it took** when it fails, so the next
+>       red run is read instead of reasoned. **Not written yet — it edits a file identical to `main`
+>       while a review is reading the branch.**
+>
+> **Why it matters even though it is not v5's**: the barrier exists because announcing one sphere while
+> retrieving from another is a real field defect (the 2026-08-08 ordering defect). If the fail-open is
+> reachable in the field and not only in the harness, that defect is intermittently back. **Nobody has
+> observed it in the field**, and this measurement does not show that it can happen there — it shows
+> the harness can reach it.
+>
+> **And the cheaper harm is certain**: at 1 red run in 6, CI stops being a tripwire. A red on this
+> branch is now ambiguous, which is exactly what a release's last week must not have.
+>
 > ## 🚨 THE REHEARSAL — **the first update to v5 does not unfreeze anything, and says it is up to date**
 >
 > _(2026-08-23. Run on a **copy** of `mind-palace` (v4.9.1, French), against a local mirror of this
