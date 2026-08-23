@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -11,6 +12,7 @@ import {
   defaultLog,
   localeDriftPairs,
   measureLocaleDrift,
+  twinLastCommitArgs,
 } from "./locale-drift.mjs";
 import { buildGitInvocation } from "./engine-fetch.mjs";
 
@@ -169,9 +171,15 @@ test("describeDrift lists every drifting pair and every commit, not just the fir
   );
 });
 
-test("defaultLog hands git a BUILT invocation and trims what comes back", () => {
+test("defaultLog hands git a BUILT invocation, ROOTED at this repository, and trims what comes back", () => {
   // The invocation is a value handed to a thin runner (CONVENTIONS §5ter, debt 2 of the
   // v4.8.0 pass) — and it is `engine-fetch`'s builder, not a second spelling of "ask git".
+  //
+  // 🛑 AND IT IS COMPARED WHOLE, `-C` INCLUDED (T7). `buildGitInvocation` sets no `cwd`, so
+  // a bare `git log -- templates/fr/x` resolves its pathspec against whatever directory the
+  // process happens to sit in. RESULTS.md § S7-5 already named why sampling cannot see that:
+  // *"a missing `-C` is invisible from a return value, since the command still succeeds,
+  // just in the wrong directory."* Here it succeeded and matched nothing.
   const seen = [];
   const out = defaultLog(["log", "-1"], (command, args, options) => {
     seen.push({ command, args, options });
@@ -179,7 +187,61 @@ test("defaultLog hands git a BUILT invocation and trims what comes back", () => 
   });
 
   assert.equal(out, "435c164\tfeat: a fingerprint");
-  assert.deepEqual(seen, [buildGitInvocation(["log", "-1"])]);
+  assert.deepEqual(seen, [buildGitInvocation(["-C", REPO_ROOT, "log", "-1"])]);
+});
+
+test("the guard measures from ANY working directory — even one outside a git repository", () => {
+  // 🚨 THE POLE FOR T7, and it runs the module as a PROCESS because that is the only place
+  // the defect lived: every unit here injects its own `git`, so the real invocation — the
+  // one thing that was wrong — was never exercised. From the repo root the guard read 16
+  // pairs and 1 drift; from `scripts/`, 16 pairs and **0 drifts**, suite green from both.
+  //
+  // The cwd chosen is deliberately the harshest one: a temp dir, which is in no repository
+  // at all. Unrooted, git does not answer the wrong thing here — it refuses outright — and
+  // the sha asserted below is one only THIS repository can produce, so a `-C` pointing
+  // somewhere else fails too.
+  const twin = "templates/fr/.claude/skills/sync/SKILL.md";
+  const probe = [
+    `import { defaultLog, twinLastCommitArgs } from ${JSON.stringify(new URL("./locale-drift.mjs", import.meta.url).href)};`,
+    `process.stdout.write(defaultLog(twinLastCommitArgs(${JSON.stringify(twin)})));`,
+  ].join("\n");
+
+  const fromNowhere = execFileSync(process.execPath, ["--input-type=module", "-e", probe], {
+    cwd: tmpdir(),
+    encoding: "utf8",
+  });
+
+  assert.match(fromNowhere, /^[0-9a-f]{40}$/, `the twin could not be placed from ${tmpdir()}`);
+  assert.equal(fromNowhere, defaultLog(twinLastCommitArgs(twin)), "two directories, two answers");
+});
+
+test("measureLocaleDrift REFUSES to call an unplaceable twin 'in sync'", () => {
+  // The module already argues this in prose, above `defaultLog`: the `{ok:false}` convention
+  // "would turn a broken git call into 'no drift found', which is the exact silence this
+  // guard exists to break". An EMPTY last-commit is the same silence by another door — the
+  // window collapses to `..HEAD`, git answers "no commits", and the pair reads as current.
+  //
+  // A twin comes from a tracked-file listing, so it having no commit means the question was
+  // asked somewhere it could not be answered. That is *unmeasured*, never *unchanged*.
+  const git = (args) => (args[1] === "-1" ? "" : assert.fail("git was asked to measure an unplaced twin"));
+
+  assert.throws(
+    () => measureLocaleDrift({ sourceFiles: ["a.md", "templates/fr/a.md"], waived: {}, git }),
+    /templates\/fr\/a\.md/,
+  );
+});
+
+test("twinLastCommitArgs asks for the twin's own last commit, in full, and for nothing else", () => {
+  // The window's left edge. Spelled out because `-1` and the `--` separator are both
+  // load-bearing: without `-1` the window opens at the FIRST commit, and without `--` a
+  // path that happens to look like a ref is resolved as one.
+  assert.deepEqual(twinLastCommitArgs("templates/fr/a.md"), [
+    "log",
+    "-1",
+    "--format=%H",
+    "--",
+    "templates/fr/a.md",
+  ]);
 });
 
 test("localeDriftPairs derives a pair only where BOTH sides exist, in any locale, in a stable order", () => {

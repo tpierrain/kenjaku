@@ -16,9 +16,25 @@
 // creating it means.
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
 import { buildGitInvocation } from "./engine-fetch.mjs";
 import { countOf } from "./plural.mjs";
+
+// 🛑 THE GUARD ROOTS ITSELF, and it is not a convenience (T7). Every path here is a
+// PATHSPEC — `templates/fr/<rel>` — and git resolves a pathspec against the process's
+// own directory, which `buildGitInvocation` deliberately leaves alone. Run from
+// `scripts/` instead of the root, the twin matched nothing, `since` came back empty,
+// the window collapsed to `..HEAD`, and the guard reported **0 drifts** where the root
+// reported 1 — suite green from both. RESULTS.md § S7-5 had already named exactly this
+// blindness: *"a missing `-C` is invisible from a return value, since the command still
+// succeeds, just in the wrong directory."*
+//
+// The repository is not a parameter, and that is the point: this guard exists to judge
+// THIS repository's own `templates/` tree, so the one directory it may ever ask about is
+// the one its own source file sits in. Nobody can forget to pass it.
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 // 🛑 Pinned. `%h` widens on its own as a repository grows, and the waiver map is keyed
 // on exactly what the failure message prints — so copying a sha out of the message has
@@ -50,7 +66,7 @@ export const commitsSinceArgs = (since, path) => [
 // `engine-fetch`'s builder — a second spelling of "ask git" would be a second
 // behaviour to keep in step forever (CONVENTIONS §5ter).
 export function defaultLog(args, execFile = execFileSync) {
-  const { command, args: argv, options } = buildGitInvocation(args);
+  const { command, args: argv, options } = buildGitInvocation(["-C", REPO_ROOT, ...args]);
   return execFile(command, argv, options).trim();
 }
 
@@ -96,6 +112,17 @@ export function measureLocaleDrift({ sourceFiles, waived = {}, git = defaultLog 
   return localeDriftPairs(sourceFiles)
     .map(({ sourcePath, rel }) => {
       const since = git(twinLastCommitArgs(sourcePath));
+      // 🛑 UNMEASURED IS NOT UNCHANGED. An empty last-commit collapses the window to
+      // `..HEAD`, git answers "no commits", and the pair reads as perfectly in sync — the
+      // very silence `defaultLog` refuses `{ok:false}` for, arriving through another door.
+      // A twin comes from a tracked-file listing, so having no commit means the question
+      // was asked somewhere it could not be answered. Say so instead of reporting green.
+      if (!since) {
+        throw new Error(
+          `locale-drift cannot place ${sourcePath}: git reports no commit for it, so its ` +
+            `window would be empty and the pair would read as in sync without being measured.`,
+        );
+      }
       const commits = unpairedCommits({
         commits: parseCommits(git(commitsSinceArgs(since, rel))),
         pairedShas: parseCommits(git(commitsSinceArgs(since, sourcePath))).map((c) => c.sha),
