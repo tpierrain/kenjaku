@@ -88,6 +88,10 @@
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
   assertion rather than a loading error.
+- 📥 **INCOMING — a second `/code-review` pass, launched by Thomas on 2026-08-23 after a clear.**
+  Its findings open a **NEW dated section** in this file. **Do NOT re-open § Tracking below**: it is
+  discharged in full, and mixing two passes' findings loses which pass found what, which is the only
+  way to tell a regression from a miss. The first pass's 15 findings are all paid.
 - **Owner's call pending:** **NONE. F11 is decided, and this block is where it was lost.**
   **E / F11 → remedy (b), confirmed by Thomas 2026-08-23**: the retired `tdd-discipline` twin is not
   translated, because its successor replaces the very strategy it taught. His words: *"ça n'est pas

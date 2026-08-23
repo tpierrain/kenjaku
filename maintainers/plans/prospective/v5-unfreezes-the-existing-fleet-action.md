@@ -28,6 +28,17 @@
     his call, recommendation on record.
   - **No engineering is left on this release.** Say that in one line rather than reciting
     § *WHAT IS YOURS*, and **do not take an entry from it**.
+- 🔴 **A `/code-review` RE-RUN IS BEING LAUNCHED BY THOMAS — 2026-08-23, right after a context
+  clear.** This is **step 4's own instruction** discharging itself (*"findings are fixed test-first
+  and the review is re-run on the fix, as v3.3.0 did"*) — the first pass, 2026-08-22, returned 15
+  findings, all of which are now paid.
+  - **A session cannot launch it**: `/code-review` is user-triggered and billed. Do not attempt it,
+    do not simulate it, and do not report on a run you did not see.
+  - **WHERE ITS FINDINGS GO**: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md),
+    in a **NEW section dated 2026-08-23**, never by reviving its § Tracking — **that queue is
+    discharged, all nine items, and re-opening it would lose which pass found what.**
+  - **If it returns nothing**, say so and tick step 4: an empty second pass on a branch whose first
+    pass found 15 is a result, not a non-event.
 - **Blocked on:** **Thomas, and only Thomas.** The gate this line carried — *nothing merged or tagged
   until the review queue's § Tracking is discharged* — is **lifted**: that § Tracking is fully ticked.
   What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER*, and that section is the
