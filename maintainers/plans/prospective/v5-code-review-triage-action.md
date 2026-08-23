@@ -1340,9 +1340,27 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
   delivered suite is already red on `main`).
 - **Quality**: duplicated `buildGitInvocation` / `countMarkdown` / `ENGINE_SCRIPT` / `BASE_TREE`
   spellings; two Node boots per Write/Edit; an uncached `globToRegExp`.
-- [ ] 🇫🇷 **CONVENTION — 28 French `why:` strings in four new `scripts/lib/*.test.mjs`**, surfacing in
-      test names and assertion messages, against the English-artifacts rule. **Cheap, and it is a rule
-      this repo states about itself** → take it.
+- [x] ✅ 🇫🇷 **CONVENTION — French `why:` strings in four new `scripts/lib/*.test.mjs` — PAID**
+      _(2026-08-23)_. They surfaced in test names and assertion messages, against the
+      English-artifacts rule this repo states about itself. **The four files were right and the count
+      was not: 32, not 28** — the under-reporting shape a sixth time, and the reason the census was
+      re-run rather than trusted.
+      - **What was translated and what was NOT.** Each of the four files holds an EN list and its FR
+        twin, so every French `why:` had an English sibling three lines up: the fix is that sibling's
+        wording. **The `pattern` regexes stay French** — they are the assertion's subject — and so do
+        the quoted doctrine fragments inside the new English prose (« gros document », « d'abord »),
+        under the quotes carve-out.
+      - 🔍 **And the neighbours were run, not re-read**: a scan of all six new discipline files for
+        French in comments, test names and assertion messages comes back **empty**. Suite 2 705.
+      - 📌 **NOT done, deliberately, and it is not a decision anyone owes**: five OTHER
+        `scripts/lib/*.test.mjs` carry the same French `why:` strings — `backlog-discipline`,
+        `claim-discipline`, `identity-discipline`, `source-discipline`, `update-consent-discipline`.
+        They are **byte-identical to `main`** and have shipped in published tags, so they are
+        inherited rather than this release's, exactly like the macOS flake. **Post-tag chore**, named
+        here so it is not rediscovered as news.
+      - 📐 **Also not done**: folding each file's twin lists into one `{ why, en, fr }` table. It
+        would delete the duplicated prose, and it is a design change to four test files while a
+        review is reading the branch — and the two locales must stay independently editable.
 - [ ] 📏 **CONVENTION — all five live plans' `## 📍 STATE` blocks exceed the ≤20-line cap this branch
       introduced** (reported 26/69/122/230/**1431**). ⚠️ **The 1431 needs checking before it is
       believed**: these files put their sections in `>` blockquotes, so a measurement that stops at the

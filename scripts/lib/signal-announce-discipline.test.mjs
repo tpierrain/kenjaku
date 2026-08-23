@@ -83,22 +83,22 @@ const RULES_EN = [
 ];
 
 const RULES_FR = [
-  { why: "l'action est ANNONCÉE, et c'est tout le correctif", pattern: /annonc/i },
+  { why: "the action is ANNOUNCED, which is the whole of the fix", pattern: /annonc/i },
   {
-    why: "l'annonce vient AVANT le travail, pas avec le résultat : après coup, c'est une excuse",
+    why: "the announcement comes BEFORE the work, not with the result — after the fact it is an apology",
     pattern: /avant/i,
   },
   {
-    why: "le déclencheur est un SIGNAL, pas une demande explicite, et cette distinction est la portée de la règle",
+    why: "what triggers it is a SIGNAL from the user, not an explicit request — that distinction is the rule's scope",
     pattern: /signal/i,
   },
-  { why: "annoncer n'est pas demander : jamais de demande de permission", pattern: /permission/i },
+  { why: "announcing is NOT asking: permission is never requested for something that should run on its own", pattern: /permission/i },
   {
-    why: "le coût est nommé, pour que la règle ne se lise pas comme de la politesse : un SILENCE là où une réponse était attendue",
+    why: "the cost is named, so the rule is not read as politeness — the user sees SILENCE where an answer was expected",
     pattern: /silence/i,
   },
-  { why: "le rituel de fin de session est nommé comme instance, pour que la règle ne soit pas abstraite", pattern: /fin de session/i },
-  { why: "le sync de sources en tâche de fond est nommé comme l'instance que le moteur tenait DÉJÀ", pattern: /sync/i },
+  { why: "the end-of-session ritual is named as an instance, so the rule is not abstract", pattern: /fin de session/i },
+  { why: "the background source sync is named as the instance the engine ALREADY had right", pattern: /sync/i },
 ];
 
 for (const { locale, layers } of CONSTITUTIONS) {

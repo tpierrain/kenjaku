@@ -86,20 +86,20 @@ const RULES_EN = [
 ];
 
 const RULES_FR = [
-  { why: "la source qu'on te tend est OUVERTE, et l'outil qui l'ouvre est nommé", pattern: /WebFetch/ },
-  { why: "elle est ouverte AVANT toute recherche : l'ordre est toute la règle", pattern: /avant toute recherche/i },
+  { why: "the handed-over source is OPENED, and the tool that opens it is named", pattern: /WebFetch/ },
+  { why: "it is opened BEFORE any search fires — the ordering is the whole rule", pattern: /avant toute recherche/i },
   {
-    why: "quand la tâche est définie PAR RAPPORT à la source, la source EST la spécification",
+    why: "when the task is defined RELATIVE to the source, the source IS the specification",
     pattern: /spécification/i,
   },
   {
-    why: "les niveaux en dessous sont nommés DANS L'ORDRE, pour que « d'abord » soit une position",
+    why: "the levels below it are named IN ORDER, so « d'abord » is a position and not a vibe",
     pattern: /Grep[\s\S]*search_vault/,
   },
-  { why: "un nom propre passe par la recherche exacte, jamais par la recherche sémantique", pattern: /nom propre/i },
-  { why: "rien de négatif ne se conclut avant d'avoir épuisé le niveau 1", pattern: /épuis/i },
+  { why: "a proper noun goes to exact search — a semantic search is the wrong instrument for it", pattern: /nom propre/i },
+  { why: "nothing negative is concluded before level 1 has been exhausted", pattern: /épuis/i },
   {
-    why: "le corollaire POINTE vers la discipline d'affirmation existante au lieu de la paraphraser",
+    why: "the corollary POINTS AT the existing claim discipline instead of paraphrasing it into a second one",
     pattern: /Discipline d'affirmation/,
   },
 ];

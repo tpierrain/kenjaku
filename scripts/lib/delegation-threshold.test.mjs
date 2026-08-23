@@ -90,20 +90,20 @@ const RULES_EN = [
 
 const RULES_FR = [
   {
-    why: "un seuil objectif en LIGNES : « gros document » est un jugement qu'un contexte chargé ne peut plus se payer",
+    why: "an objective threshold in LINES — « gros document » is a judgement the loaded context can no longer afford",
     pattern: /1\s?500 lignes/,
   },
-  { why: "…et en TAILLE, car un fichier large peut être court en lignes et noyer quand même le contexte", pattern: /60 Ko/ },
-  { why: "le seuil est rattaché à la CONSULTATION, le seul cas qu'il régit", pattern: /consultation/i },
-  { why: "exception 1 : un fichier qu'on s'apprête à ÉDITER se lit directement, quelle que soit sa taille", pattern: /édit/i },
+  { why: "…and in SIZE, because a wide file can be short on lines and still flood the context", pattern: /60 Ko/ },
+  { why: "the threshold is attached to CONSULTATION, which is the only case it governs", pattern: /consultation/i },
+  { why: "carve-out 1 — a file about to be EDITED is read directly, whatever its size", pattern: /édit/i },
   {
-    why: "…et la raison mécanique est dite, pour que l'exception ne se lise pas comme une préférence : Edit exige une lecture préalable",
+    why: "…and the mechanical reason is stated, so the exception is not read as a preference: Edit requires a prior Read",
     pattern: /préalable/i,
   },
-  { why: "exception 2 : un contenu à citer VERBATIM, où un digest perd la fidélité au mot près", pattern: /verbatim/i },
-  { why: "le vecteur « chargement de skill » est nommé : une grosse skill chargée pour trois faits, c'est la même maladie", pattern: /skill/i },
-  { why: "le non-objectif est consigné, pour qu'un nombre ne s'applique pas à toute lecture", pattern: /ne passent pas/i },
-  { why: "le nombre est un défaut qu'un cerveau peut déplacer, pas une constante", pattern: /ajuste/i },
+  { why: "carve-out 2 — content to be quoted VERBATIM, where a digest loses word-level fidelity", pattern: /verbatim/i },
+  { why: "the skill-load vector is named: a huge skill loaded for a handful of facts is the same disease", pattern: /skill/i },
+  { why: "the non-goal is recorded, so a number does not get applied to every file open", pattern: /ne passent pas/i },
+  { why: "the number is a default a brain may move, not a constant handed down", pattern: /ajuste/i },
 ];
 
 for (const { locale, layers } of CONSTITUTIONS) {

@@ -93,30 +93,30 @@ const RULES_EN = [
 
 const RULES_FR = [
   {
-    why: "la règle nomme la SURFACE d'où vient sa justification, au lieu de l'énoncer universellement",
+    why: "the rule names the SURFACE its rationale comes from, instead of stating it universally",
     pattern: /Claude Desktop/,
   },
   {
-    why: "elle nomme le MODE DE PERMISSION qu'elle suppose, la prémisse qui était fausse sur le terrain",
+    why: "it names the PERMISSION MODE it assumes — the premise that was false in the field session",
     pattern: /mode de permission/i,
   },
   {
-    why: "le repli est énoncé : quand l'outil natif est INDISPONIBLE, l'équivalent Bash est le bon geste",
+    why: "the fallback is stated: when the native tool is UNAVAILABLE, the Bash equivalent is the right move",
     pattern: /indisponible/i,
   },
   {
-    why: "et ce repli est un comportement ATTENDU, la phrase qui évite qu'un cerveau ouvre une friction sur son propre moteur",
+    why: "and that fallback is EXPECTED behaviour — the sentence that stops a brain filing a friction item about its own engine",
     pattern: /attendu/i,
   },
   {
-    why: "elle dit de ne PAS le remonter comme un défaut, car ça coûte un arbitrage qui n'appartient pas à la personne",
+    why: "it says NOT to report it as a defect, because that report costs the owner an arbitration that is not theirs",
     pattern: /pas un défaut|rien à remonter|ne le remonte pas/i,
   },
-  { why: "les deux tables sont séparées par leur NOM : celle-ci parle d'ergonomie", pattern: /ergonomi/i },
-  { why: "…et la table de routage parle de justesse, vraie dans tout environnement", pattern: /justesse/i },
-  { why: "elle POINTE vers la table de routage au lieu de la paraphraser en seconde règle", pattern: /Routage/ },
+  { why: "the two tables are separated by NAME: this one is about ergonomics", pattern: /ergonomi/i },
+  { why: "…and the routing table is about correctness, which holds in every environment", pattern: /justesse/i },
+  { why: "it POINTS at the routing table rather than paraphrasing it into a second rule", pattern: /Routage/ },
   {
-    why: "les dents : une affirmation d'absence exige une recherche exacte exhaustive, un top-N par similarité ne prouve aucun négatif",
+    why: "the teeth: an absence claim needs an exhaustive exact search — a top-N by similarity cannot prove a negative",
     pattern: /prouver un négatif/i,
   },
 ];
