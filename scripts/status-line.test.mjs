@@ -1,16 +1,20 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { join, dirname } from "node:path";
+import { readFileSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { gitSegment, ragSegment, buildStatusLine, runStatusLine } from "./status-line.mjs";
+import { gitSegment, ragSegment, buildStatusLine, runStatusLine, realGit } from "./status-line.mjs";
+import { GIT_MAX_BUFFER } from "./lib/engine-fetch.mjs";
 
 // A .env that silences the key warning, so these cases assert COMPOSITION rather
 // than dragging in gemini-key's own rule (a keyless embedder needs no key).
 const KEYLESS_ENV = "EMBEDDING_PROVIDER=in-process\n";
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), "status-line.mjs");
+// The repo the real seam reads — the module's own `REPO`, derived the same way it is.
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // status-line — the opt-in `statusLine` producer (ADR 0036). Every one of its
@@ -52,6 +56,60 @@ test("gitSegment — a dirty tree earns the asterisk, a clean one does not", () 
 test("gitSegment — a git that answers nothing degrades to '?', it does not print blanks", () => {
   // Every read is fail-silent by design: a status line must never break a session.
   assert.equal(gitSegment(() => ""), "⎇ ? ?");
+});
+
+// 🚨 T9 — AND FAIL-SILENT IS WHY THE CEILING MATTERS. `?` is an honest "cannot tell" for
+// the branch and the sha. The asterisk has no such glyph: an empty answer to
+// `status --porcelain` renders as **clean**, so a read that failed and a vault with
+// nothing to commit are one and the same line.
+//
+// This seam was the last one left at node's DEFAULT 1 MB `maxBuffer`, running the exact
+// call the release's 64 MB ceiling was introduced for. Measured on a throwaway repo:
+// 20 000 modified notes → 0.88 MB and the `*` shows; **24 000 → 1.05 MB, ENOBUFS, and
+// the line says the tree is clean** over 24 000 uncommitted changes.
+//
+// Every test above hands `gitSegment` its own scripted git, so the one thing that was
+// wrong was never run — the same blind spot T7 had one finding earlier. So the default is
+// asserted here, whole, through its own `execFile` seam.
+test("T9 — the real git seam carries the engine's named buffer ceiling, not node's default", () => {
+  const seen = [];
+  const out = realGit(["status", "--porcelain"], (command, args, options) => {
+    seen.push({ command, args, options });
+    return "  M notes/a.md\n";
+  });
+
+  assert.equal(out, "M notes/a.md");
+  assert.deepEqual(seen, [
+    {
+      command: "git",
+      args: ["status", "--porcelain"],
+      options: { cwd: REPO_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: GIT_MAX_BUFFER },
+    },
+  ]);
+});
+
+test("T9 — the ceiling is IMPORTED, and is the same number the other git seams use", () => {
+  // F10's own closing line: "one named ceiling, imported by all four git seams — do not
+  // re-inline the number." A literal here would pass the pole above and drift the day the
+  // ceiling moves, which is the whole failure this guard exists against.
+  const source = readFileSync(CLI, "utf8");
+
+  assert.match(source, /import \{ GIT_MAX_BUFFER \} from "\.\/lib\/engine-fetch\.mjs";/);
+  assert.equal(source.includes("maxBuffer: GIT_MAX_BUFFER"), true, "the ceiling must be used by name");
+  assert.deepEqual(
+    [...source.matchAll(/maxBuffer:\s*([^,\s}]+)/g)].map((m) => m[1]),
+    ["GIT_MAX_BUFFER"],
+    "a re-inlined number beside the named one is how the four seams drift apart",
+  );
+});
+
+test("T9 — the real seam still swallows a git that throws: a status line may never break a session", () => {
+  assert.equal(
+    realGit(["status", "--porcelain"], () => {
+      throw Object.assign(new Error("spawnSync git ENOBUFS"), { code: "ENOBUFS" });
+    }),
+    "",
+  );
 });
 
 test("ragSegment — an empty vault says so, whatever the DB claims", () => {

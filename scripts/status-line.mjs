@@ -32,6 +32,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { geminiKeyWarning } from "./lib/gemini-key.mjs";
+import { GIT_MAX_BUFFER } from "./lib/engine-fetch.mjs";
 import { formatEngineVersion } from "./lib/engine-version.mjs";
 import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
@@ -87,12 +88,28 @@ export function buildStatusLine({
 }
 
 // Runs git read-only and returns the output (empty string on failure).
-function realGit(args) {
+//
+// `execFile` is a seam, and exported, for the reason T9 measured: every test above hands
+// `gitSegment` its own scripted git, so this — the only git that ever ships — was never
+// run by anything. The options are the whole contract here and they are invisible from a
+// return value.
+export function realGit(args, execFile = execFileSync) {
   try {
-    return execFileSync("git", args, {
+    return execFile("git", args, {
       cwd: REPO,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
+      // 🚨 T9 — THE LAST GIT SEAM STILL ON NODE'S 1 MB DEFAULT, and it runs
+      // `status --porcelain`, the exact call this ceiling was introduced for (F10).
+      // Overflow throws `ENOBUFS`, the catch below answers `""`, and `""` is the same
+      // answer as "nothing to commit" — so the line reports a CLEAN TREE over a vault
+      // full of unsaved work. Measured on a throwaway repo: 20 000 modified notes →
+      // 0.88 MB and the `*` shows; 24 000 → 1.05 MB and it vanishes.
+      //
+      // Imported, never re-inlined: F10's own closing line was "one named ceiling,
+      // imported by all four git seams — do not re-inline the number", and this was the
+      // fourth seam it was talking about.
+      maxBuffer: GIT_MAX_BUFFER,
     }).trim();
   } catch {
     return "";
