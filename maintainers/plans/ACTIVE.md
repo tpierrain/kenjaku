@@ -10,7 +10,8 @@ the active plan, never directly.
 
 ## The active plan
 
-- **Subject:** cutting v5.0.0 — the release that unfreezes the brains that are already frozen.
+- **Subject:** v5.0.0 — the release that unfreezes the brains that are already frozen. **Cut and
+  published on 2026-08-23**; what is left is its post-tag tail, and the plan's `## 📍 STATE` names it.
 - **Plan:** [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md)
 - **Active since:** 2026-08-22
 
