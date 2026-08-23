@@ -194,6 +194,18 @@
 >         >   matrix now costs a re-run more often than the earlier figure suggested.
 >         > - The **"post-tag instrument" below is now the ONLY way to settle the cause**, because the
 >         >   identical-to-main argument is spent.
+>         >
+>         > 🔬 **AND IT IS ALWAYS THIS ONE TEST — a CENSUS, not an impression** _(2026-08-23, on
+>         > Thomas's question "est-ce toujours le même test ?")_. Every macOS cell that ever went red
+>         > on this branch was enumerated and its log read. **Every single readable one is this test**,
+>         > with one exception that proves the method: `6799e69`, where all six matrix cells failed on
+>         > the CI-guard flag defect — deterministic, mine, and fixed in `b301eda`. The older runs whose
+>         > logs GitHub has since expired were read at the time and recorded above as this same test.
+>         > - **Seen on Node 22, 24 AND 26** — so it is not a Node-version effect, which one more
+>         >   hypothesis need not be spent on.
+>         > - **Never once on Windows**, across every run in the census.
+>         > - **No second flake exists on this branch.** That is worth as much as the identification:
+>         >   it means a red macOS cell can be triaged by name, and any OTHER failing test is real.
 > - [x] 🔬 **NOT REPRODUCED HERE, and the attempt was not casual** _(~200 runs, all green)_: the test
 >       alone **25×**; the **full suite 8×**; an instrumented copy of the hook outside the repo, made
 >       to confess the gate's own return value, **12×** (`status: "done"` every time, `waitedMs` 201-232
