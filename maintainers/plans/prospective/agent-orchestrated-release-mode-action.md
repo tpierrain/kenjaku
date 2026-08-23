@@ -19,17 +19,22 @@
   state and its cut. **Do not open a slice, do not look for work, and do not take an entry from that
   cut.** Two review passes have **run**, 15 findings each, and both figures and their debrief are
   recorded below in § *The adversarial-review fan-out as standing QA*.
-- 📊 **ONE THING IS STILL OWED TO THIS FILE BY THE RELEASE: a THIRD figure.** _(2026-08-23 — this line
-  said "nothing further is owed", written the day the second pass closed and overtaken the next
-  morning.)_ Thomas is launching a **third** `/code-review` pass, on the repairs the second batch
-  shipped. **What comes back here is the number, nothing else**: the findings are the triage plan's.
-  - **Why this file cares**: the second pass's own lesson was *repairs are not safer than features* —
-    an independent read found as many defects in the fixes as in the original code. A third pass over
-    a third batch of repairs is the first chance to tell whether that is a trend or a one-off, and a
-    **zero is the stronger answer**.
-  - ⚠️ **The standing warning below applies to this very run and must not be re-learned**: on this
-    repo's diff size the tool's ten parallel finders never returned, on either pass. **Do not read a
-    third result as fan-out** — it is one careful sequential read.
+- 📊 **THE THIRD FIGURE CAME BACK, AND IT IS 15 AGAIN** _(2026-08-23)_. Three independent reads of
+  this branch, **15 findings each, 45 in all** — and the third ran on the repairs the second batch had
+  just shipped test-first and green. **So it is a trend, not a one-off**: the second pass's lesson
+  (*repairs are not safer than features*) now has a second data point rather than an anecdote, and the
+  rate does not decay with the number of passes. The findings are the triage plan's; this file keeps
+  the number and nothing else.
+  - 🔁 **AND THE STANDING WARNING BELOW IS WRONG NOW — say so rather than leave it standing.** It read
+    *"do not commission a third pass expecting fan-out"*, measured twice. **The third pass fanned out**:
+    10 finder angles × 8 candidates, deduped, then 15 verifier agents, one per surviving candidate,
+    four of which it **refuted and dropped**. So the tool's failure to parallelize was a property of
+    those two runs, not of this repo's diff size — which is what both earlier boxes had concluded.
+    **Two measurements agreeing is not a law**, and this is the cheapest possible reminder of it.
+  - 🎯 **What the refutations add, and it is new**: the two earlier passes had no adversarial half at
+    all, so every finding reached the triage plan on one reader's word. This one arrived with four
+    candidates already killed by verifiers. **The first item verified by hand afterwards (T1) held**,
+    which is one point of evidence for the panel and not yet a pattern.
 - **Owner's call pending:** none of this file's own. _(The `scripts` version and the five release
   arbitrations are answered and recorded in the release plan. **Do not re-ask them.**)_
 - **A session may, alone:** run the mode as written — delegate bulk reads, and the implementation of
