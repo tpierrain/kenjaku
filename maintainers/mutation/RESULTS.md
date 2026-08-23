@@ -233,6 +233,31 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T5 — the collector past the point of no return — 2026-08-23
+
+`21aefbf`. State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+Scoped to the **changed lines only** (`engine-adopt.mjs:222`, `:257`, `:272`).
+
+| File (lines) | Score | Survivors |
+|---|---|---|
+| `engine-adopt.mjs` (the collector, its call, its return) | **100 %** | 0 |
+
+**Reproduce**: `FORCE_COLOR=0 NO_COLOR=1 node maintainers/mutation/mutate-one.mjs
+scripts/lib/engine-adopt.mjs:222-222 scripts/lib/engine-adopt.mjs:257-257
+scripts/lib/engine-adopt.mjs:272-272`. Twice: **100 % both times, 4 mutants both times**, and the file
+is named in the per-file breakdown — the check T4's near-miss earned.
+
+**RETURNING the collector is what made it measurable, and that is the transferable half.** The first
+shape passed `unreadable: []` and threw the array away. It was correct and **unkillable**: the
+`ArrayDeclaration` mutant (`[]` → `["Stryker was here"]`) only adds a name nothing else ever reads, so
+no input distinguishes them — the very shape T3 deleted a day earlier. Returning it as
+`{ adopted: true, unreadable }` makes the same value observable, and the deepEqual poles kill the
+mutant on sight. **A value nobody reads cannot be tested; the fix is usually to give it a reader, not
+a test.**
+
+---
+
 ## T4 — the invited carve-out, and a RANGE that measured nothing without saying so — 2026-08-23
 
 `09e0506`. State owned by

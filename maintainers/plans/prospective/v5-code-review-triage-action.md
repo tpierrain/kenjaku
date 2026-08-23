@@ -12,15 +12,18 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T5.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T4 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`)_; **T5–T15 are open**, in § *Third
-  pass*, which owns them and their order. **Read its ⚠️ first**: unlike the two earlier passes, that
-  section is the reviewer's word and **the items below T4 have not been independently re-checked**.
-  Verify, then fix test-first, red first, one commit per subject, pushed as it goes.
-  - **T5 next**: `adoptCandidate` leaves the brain HALF-APPLIED while the skill tells the agent
-    *"nothing was touched … do not run it again"*. Same `unreadable`-collector family as T3, so start
-    from what T3 built rather than from scratch — but the consequence here is a **contradicted
-    promise**, not a denied converge, so the fix is about which sentence is true.
+- 🔴 **NEXT — RESUME AT T6.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T5 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`)_; **T6–T15 are open**,
+  in § *Third pass*, which owns them and their order. **Read its ⚠️ first**: unlike the two earlier
+  passes, that section is the reviewer's word and **the items below T5 have not been independently
+  re-checked**. Verify, then fix test-first, red first, one commit per subject, pushed as it goes.
+  - **T6 next**: an editor backup (`SKILL.md.bak`, `SKILL.md~`, `.DS_Store`) becomes a
+    **permanent, un-dismissable** session-start nudge — the answer that would dismiss it is refused
+    **before** `writeAnswers`, so nothing is ever recorded. All the realistic vectors are in the
+    brain's shipped `.gitignore`, i.e. invisible in `git status` while being shouted about daily.
+  - ✅ **T5 paid, and the collector family is now three deep** (T3, T5, and T5's own sibling): the
+    same missing opt-in, three consequences — a denied converge, a contradicted promise, and one
+    still open. **When a fourth call site turns up, look for the collector first.**
   - ✅ **T4 paid, and the guarding TEST was more of the finding than the code was**: it asserted its
     own fixture's silence back to itself. **A test whose premise is supplied by its own fixture proves
     the fixture** — third time on this branch. Expect it again in the items below.
@@ -945,12 +948,33 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       - **T14 is HALF-DISCHARGED as a side effect, and only half.** The false *"the update server was
             unreachable"* line no longer appears for `CLAUDE.md`, which is what made it fire on every
             update of every brain. The conflation itself is untouched and still T14's to pay.
-- [ ] **T5 — `adoptCandidate` leaves the brain HALF-APPLIED and the skill says "nothing was touched"**
-      (`engine-adopt.mjs:234`). `syncBaseTree` (no `unreadable` collector) is called **after** the
-      owner's file is overwritten, the sidecar `rmSync`'d and the manifest rewritten, and **before**
-      `writeAnswers`. One unreadable bystander → throw → exit 1, which `SKILL.md:243-247` documents to
-      the agent as *"nothing was touched … do not run it again"*. Contradicts `engine-adopt.mjs:146-148`
-      verbatim. Affects `take-theirs` and `combine`.
+- [x] ✅ **T5 — `adoptCandidate` leaves the brain HALF-APPLIED and the skill says "nothing was
+      touched" — PAID** _(2026-08-23 · `21aefbf`)_. **Confirmed independently, and reproduced as a
+      PROCESS through the real CLI** on a brain with one **gitignored** merge file at mode 000 — the
+      shape `.claude/settings.json` is in on every machine: exit **1** with an EACCES stack trace,
+      while the brain held the owner's file **overwritten**, their offer **destroyed**, the manifest
+      **rewritten** and the answer **not recorded**. The same command now exits **0** with its
+      designed sentence, and the answer is recorded.
+      - **Why it was permanent, which the finding did not spell out**: the missing half is the
+            ANSWER. Without it the session nudge goes on offering a file that was already adopted,
+            every session, while the agent has been told to say nothing happened. The fix lands the
+            answer; the base seed, the only thing still owed, is re-attempted free at every update.
+      - 🧭 **The gitignored detail is not a fixture convenience, it is the realistic vector.** The
+            first reproduction failed to reach the defect: `chmod 000` on a TRACKED file shows up as
+            a mode change, so the safety commit refused first and the brain was left correctly
+            untouched. The files this can actually happen to are the ones git does not watch — which
+            is exactly `.claude/settings.json`, gitignored on every brain because it bakes an
+            absolute path.
+      - 🧪 **Mutation 100 %**, 4 mutants, reproduced twice, file named in the per-file breakdown (T4's
+            lesson applied). **The first shape scored 100 % while hiding an unkillable mutant**:
+            `unreadable: []` thrown away is indistinguishable from `["Stryker was here"]` thrown
+            away. **Returning** it as `{ adopted: true, unreadable }` gave the value a reader, and the
+            deepEqual poles kill it on sight. → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T5.
+      - 📐 **What is NOT fixed, and it is deliberate**: a throw from any OTHER late step still exits 1
+            under a skill that reads 1 as *"nothing was touched"*. Making that honest means a new
+            exit-code or a partial-success sentence, which is a **product** decision about what the
+            owner is told — not a session's to invent mid-queue. The one thrower the finding named is
+            gone; the class is named here with its cost.
 - [ ] **T6 — an editor backup makes a PERMANENT, un-dismissable session-start nudge**
       (`engine-base-fs.mjs:81`). Merge globs keep every on-disk match (only `.new` is filtered, fs-walk
       skips no dotfile), so `SKILL.md.bak`, `SKILL.md~`, `.DS_Store` become `no-provenance` divergence
