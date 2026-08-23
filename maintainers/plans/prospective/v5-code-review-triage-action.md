@@ -12,9 +12,18 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** ✅ **THE QUEUE IS DISCHARGED — all nine items, 2026-08-23.** Nothing here is waiting on a
-  session. What is left before this ships is **his**: the merge of #76, and F11 if he wants the twin
-  translated. _(The scope was widened twice — "je veux que tu en fasses le maximum (tout ce qu'on a
+- 🔴 **NEXT — THE THIRD PASS LANDED, 2026-08-23: 15 findings, T1–T15, NONE of them paid yet.**
+  → § *Third pass*, which owns them and their order. **Read its ⚠️ first**: unlike the two earlier
+  passes, this section is the reviewer's word and **not one item has been independently re-checked**.
+  Verify, then fix test-first, red first, one commit per subject, pushed as it goes.
+  - **Start at T1 and T2**: both are fleet-wide and silent. T1 disarms six of eight SessionStart hooks
+    on any brain whose path holds a symlink; T2 kills the Stop hook at load on any brain that
+    customized `auto-push.mjs` — and **T2 is this branch's own doing**, it removes the export.
+  - **T8 and T12 are the destructive-shaped pair** and deserve the same care F6/S1 got.
+  - **The fan-out came back this time** (10 angles × 8 candidates, 15 verifiers), which neither
+    earlier pass obtained. The mode plan's *"do not expect fan-out"* warning is overtaken.
+- **Previously:** ✅ **the first two passes' queue is discharged — all nine items, 2026-08-23.** What is
+  left before this ships that is **his**: the merge of #76. _(The scope was widened twice — "je veux que tu en fasses le maximum (tout ce qu'on a
   identifié comme à faire)" on 2026-08-22, then "j'aimerais que tout soit fait pour pouvoir shipper la
   release" on 2026-08-23. Both are spent.)_ Same discipline throughout: red first for the right
   reason, one commit per subject, green only, pushed as it goes. Everything under the previous GO is
@@ -89,7 +98,7 @@
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
   assertion rather than a loading error.
-- 📥 **INCOMING — the THIRD `/code-review` pass, launched by Thomas on 2026-08-23 after a clear.**
+- ✅ **LANDED — the THIRD `/code-review` pass, launched by Thomas on 2026-08-23 after a clear.**
   ⚠️ **Third, not second**: two have already run, **both on 2026-08-22** — F1–F15 (§ Tracking) and
   S1–S15 (§ *Second pass*), **30 findings, all paid**. This line said "second" until 2026-08-23, and
   the error is not cosmetic: it is the exact confusion the rest of this box exists to prevent.
@@ -773,3 +782,140 @@ before it counts as finished. **The answer arrived from the field, and it is yes
 [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) and not
 restated here**: the same figure came back on the *repairs* (15), two of them inside the guard the
 batch had just written. The lesson, and the tool limitation measured twice, live there.
+
+## Third pass — `/code-review max` (whole branch), 2026-08-23
+
+**How it was run**: typed by Thomas after a context clear, no range — which is the whole branch
+(`main...HEAD`), the same invocation as the first pass. **51 min.** Findings are numbered **T1…T15**
+so they collide with neither F1–F15 nor S1–S15.
+
+**And the fan-out came back this time**, which the two earlier passes never got: **10 finder angles ×
+8 candidates, deduped, then 15 verifier agents**, one per surviving candidate. → the mode plan's
+standing warning (*"do not commission a third pass expecting fan-out"*) is **overtaken by this run**
+and its § *The adversarial-review fan-out as standing QA* owns the correction.
+
+**Four candidates were REFUTED by the verifiers and dropped** — recorded so they are not re-found: the
+"discarded" `healedProvenance` (the self-heal child persists it), the un-liftable tombstone (`retired:
+[]` does lift it, ADR 0039), the removal of `plan.replaceScripts` from `copyGlobs` (the documented
+point of the slice), and the missing French `test-first-discipline` (the owner's S6e decision).
+
+> ⚠️ **NOT INDEPENDENTLY RE-CHECKED YET.** The two earlier passes were re-verified by the session
+> before a line was written, and that caught real false positives. **This section is the reviewer's
+> word until each item carries its own 📐.** Verify before fixing, and fix test-first, red first.
+
+### 📍 Third-pass tracking
+
+- [ ] **T1 — six of eight SessionStart hooks are DISARMED on a symlinked brain path**
+      (`session-self-heal.mjs:186` and five siblings). They still gate on
+      `resolve(process.argv[1]) === fileURLToPath(import.meta.url)`, the predicate this very branch
+      replaced with `realpathSync` in `lib/entrypoint.mjs` — Node realpath-resolves the main module, so
+      the guard is false and the hook **silently does nothing**. `installer.mjs:293` builds the brain
+      path with `resolve()`, never `realpathSync`, so a symlinked home, an aliased volume, `/tmp`, an
+      iCloud/Dropbox path all reach it. Only `session-status.mjs` and `session-engine-divergence.mjs`
+      use `runAsEntrypoint`. **Tracked today only as `HAND_ROLLED_CEILING = 9`, whose failure message
+      is about testability, never about the hooks being dead.** _(Highest fleet impact of the pass.)_
+- [ ] **T2 — the Stop hook dies at load on a brain that customized `auto-push.mjs`**
+      (`auto-commit.mjs:81`). This branch drops the exported `isEntryPoint`; `auto-push.mjs` is a
+      **separate** merge-regime file refreshed independently (`groupOf: rel => rel`), so a preserved
+      customized copy still imports it → `SyntaxError`, **the whole backup/publish path dead at every
+      Stop**. The family's defences are blind twice: `node --check` passes on the broken consumer, and
+      `verifyWrite` only inspects the file being written, never the preserved sibling.
+- [ ] **T3 — ONE unreadable merge file aborts the WHOLE reconcile, silently and forever**
+      (`reconcile-brain.mjs:147`). The call omits the `unreadable` collector, so it rethrows before the
+      copy loop, before retirement, before the launcher regen. On the self-heal path the child is
+      spawned `detached` + `stdio: "ignore"`, so the banner goes nowhere and the condition survives →
+      it re-fires every session, with no output. **Three other call sites pass a collector; the one
+      writer path does not.**
+- [ ] **T4 — `CLAUDE.md` is nominated for an ancestor fetch on EVERY update, forever**
+      (`engine-ancestor.mjs:85`). No `regimes.invited` carve-out, and the comment justifying the
+      omission is **factually false about the shipped table**: `engine-fingerprints.json` holds **five**
+      `CLAUDE.md` rows (the launcher's install stub, same rel). Result on a flawless network: 10
+      subprocesses, `hydrated: []`, `failed: ['CLAUDE.md']`. Permanent — `planBaseSeed` defers an
+      edited file, so the miss recurs every update on every v4+ brain. **The guarding test encodes the
+      same false premise** and is green only because its fixture omits those rows.
+- [ ] **T5 — `adoptCandidate` leaves the brain HALF-APPLIED and the skill says "nothing was touched"**
+      (`engine-adopt.mjs:234`). `syncBaseTree` (no `unreadable` collector) is called **after** the
+      owner's file is overwritten, the sidecar `rmSync`'d and the manifest rewritten, and **before**
+      `writeAnswers`. One unreadable bystander → throw → exit 1, which `SKILL.md:243-247` documents to
+      the agent as *"nothing was touched … do not run it again"*. Contradicts `engine-adopt.mjs:146-148`
+      verbatim. Affects `take-theirs` and `combine`.
+- [ ] **T6 — an editor backup makes a PERMANENT, un-dismissable session-start nudge**
+      (`engine-base-fs.mjs:81`). Merge globs keep every on-disk match (only `.new` is filtered, fs-walk
+      skips no dotfile), so `SKILL.md.bak`, `SKILL.md~`, `.DS_Store` become `no-provenance` divergence
+      lines — and the answer that would dismiss them is refused with `no-candidate` **before**
+      `writeAnswers`, so `.engine-answers.json` is never created and the nudge is byte-identical
+      forever. The realistic vectors are all in the brain's shipped `.gitignore`, so they are invisible
+      in `git status` while being shouted about at every session start.
+- [ ] **T7 — the new EN/FR drift guard measures NOTHING off the repo root, and stays green**
+      (`locale-drift.mjs:53`). It runs git through `buildGitInvocation`, which sets no `cwd`, so every
+      window collapses to `"..HEAD"`. From the repo root: 16 pairs, 1 real drift. From `scripts/`: 16
+      pairs, **0 drifts**, suite 20/20 green from both. The anti-vacuity companion cannot catch it —
+      it builds its list from an explicit `REPO_ROOT`, so the pair count is still 16. **The repo states
+      the exact remedy for another caller** (release plan, `-C <dir>` is mandatory).
+- [ ] **T8 — "update or self-heal?" is spelled THREE ways, and the two raw ones guard an `rmSync` and a
+      fetch** (`skill-retirement-fs.mjs:40`, `engine-ancestor-fetch.mjs:47` compare raw strings;
+      `engine-merge-apply.mjs:45` normalizes with `resolve()`). Demonstrated fail-open: `sourceDir`
+      spelled `<B>/`, `<B>/.` or relative yields verdict `remove` and **the directory is deleted**.
+      The CLI's own `--brainDir` / `--sourceDir` flags are the reachable surface. Latent only because
+      two call sites happen to pass the same variable twice. **The deleted main-branch predecessor DID
+      use `resolve()`** — the weaker comparison was newly written exactly where the consequence became
+      "a directory erased".
+- [ ] **T9 — the status line shows a CLEAN tree over an unversioned vault** (`status-line.mjs:92`).
+      `realGit`, renamed and re-plumbed in this diff, is the one git seam left at node's 1 MB
+      `maxBuffer`, and it runs `git status --porcelain` — the exact call the release's new 64 MB
+      `GIT_MAX_BUFFER` was introduced for. Overflow → `ENOBUFS` → the catch returns `""` → `dirty = ""`.
+      Reproduced at 20 000 notes; threshold ≈ 15 000–25 000 dirty notes. **F10's own closing line was
+      "one named ceiling, imported by all four git seams — do not re-inline the number."**
+- [ ] **T10 — install-if-absent copies the ENGLISH bytes into a French brain**
+      (`reconcile-brain.mjs:224`). `copyInto(sourceDir, brainDir, rel)` never goes through
+      `resolveLocaleSource`. **The sharp end is documentary**: ADR 0040 grants this door a locale-blind
+      exemption on the written premise that it *"copies the resolved source"* — which the code
+      contradicts, while the same ADR promises a new localized artefact is covered the moment its twin
+      exists. Latent this release; the next localized skill arrives in English, silently.
+- [ ] **T11 — the new divergence hook reads state the startup pull is changing, with no barrier**
+      (`session-engine-divergence.mjs:32`). `session-universe.mjs` is the **only** non-test caller of
+      `waitForStartupSync`, and this hook reads the manifest, every merge file and `.engine-base/` —
+      all tracked files that travel with the pull, while the self-heal child rewrites the manifest
+      whole in the same window. A mid-write manifest parses as `null` and the hook goes silent. **Fix
+      is one line.** _(See also § THE macOS FLAKE in the release plan: the barrier itself is separately
+      suspect, and that is `main`'s, not this pass's.)_
+- [ ] **T12 — a tombstone with `..` blinds the never-touch oracle** (`engine-apply-plan.mjs:139`).
+      `retireSkills` is exempted from the sacred-tree scrub and its stated *"ONLY defence"*,
+      `/^\.claude\/skills\/[^/]+\//`, accepts `..`. `planTouches(plan, 'vault/notes/a.md')` returns
+      **false** for a plan that just named the vault. **The `rmSync` is not reachable** (provenance
+      keys cannot match), but the update reads the whole escaped tree into memory and prints a bogus
+      owner-facing retirement line. The comment's claim, restated in the plan and in the hostile-
+      manifest test's intent, is false.
+- [ ] **T13 — a mutation run that measured NOTHING prints a green tick and exits 0**
+      (`mutate-one.mjs:347`). `Number()` on `n/a` → `NaN`; `total ? timeout/total : 0` → `trustworthy:
+      true`; both gates miss. Triggers: a mistyped filename, an out-of-range hunk, a range landing
+      entirely on comments (no warning at all). **Every mutation number this repo records as evidence
+      flows through this function**, whose header promises "a loud failure instead of a score that was
+      never measured".
+- [ ] **T14 — every brain is told the update server was unreachable, on a flawless network**
+      (`engine-ancestor-fetch.mjs:101`). The single `failed.push(rel)` conflates "tag/network
+      unreachable" with "fetched fine, no published blob matches", and `update-engine.mjs:401` renders
+      the flat list with prose asserting the first cause. **Combined with T4 this false line appears on
+      every update of every brain**, so the one channel that reports genuine network trouble is
+      permanently crying wolf.
+- [ ] **T15 — an explicitly typed `--dry-run` is swallowed and the run goes LIVE**
+      (`mutate-one.mjs:104`). `--worktree`/`--log` take `argv[++i]`, and `isPlainName` accepts the
+      swallowed flag because `-` is in its character class. The user who typed `--dry-run` gets a real
+      Stryker run, a green score, exit 0, and a stray worktree named `--dry-run` beside the repo.
+      **Two prior passes hardened these same two arguments on value shape and neither raised this.**
+
+### Cut by the reviewer's 15-item cap — recorded so they are not lost
+
+- **Confirmed but latent**: `engine-write-guard.mjs:57` `rel.startsWith("..")` fail-open (no engine
+  regime names such a path); `adopt-engine-file.mjs:132` `Object.prototype` keys passing the
+  unknown-decision guard; dev-only modules shipping to brains with dangling imports (inert — the
+  delivered suite is already red on `main`).
+- **Quality**: duplicated `buildGitInvocation` / `countMarkdown` / `ENGINE_SCRIPT` / `BASE_TREE`
+  spellings; two Node boots per Write/Edit; an uncached `globToRegExp`.
+- [ ] 🇫🇷 **CONVENTION — 28 French `why:` strings in four new `scripts/lib/*.test.mjs`**, surfacing in
+      test names and assertion messages, against the English-artifacts rule. **Cheap, and it is a rule
+      this repo states about itself** → take it.
+- [ ] 📏 **CONVENTION — all five live plans' `## 📍 STATE` blocks exceed the ≤20-line cap this branch
+      introduced** (reported 26/69/122/230/**1431**). ⚠️ **The 1431 needs checking before it is
+      believed**: these files put their sections in `>` blockquotes, so a measurement that stops at the
+      next `##` swallows the rest of the file. **Verify the measure, then the finding.**
