@@ -88,6 +88,57 @@ test("F3 — a SELF-HEAL retires nothing, whatever the tombstone says", () => {
   rmSync(brainDir, { recursive: true, force: true });
 });
 
+// 🛑 T8 — AND THE GATE MUST RECOGNISE THE BRAIN HOWEVER THE CALLER SPELLS IT. F3's gate
+// compared the two paths as raw strings, so `<brainDir>/` and `<brainDir>/.` walked
+// straight past it: measured on a fixture, verdict `remove`, the directory erased, and
+// the report saying so swallowed by the detached child's `stdio: "ignore"`.
+//
+// A trailing separator is not an exotic input — `reconcile-brain`'s own `--brainDir` /
+// `--sourceDir` flags are the reachable surface, and this was latent only because the two
+// live call sites happen to pass the same variable twice. One typed slash is the distance
+// between "nothing happens" and "a skill is deleted in silence".
+test("T8 — a self-heal spelled with a trailing separator is still a self-heal", () => {
+  const spellings = [
+    (dir) => `${dir}/`,
+    (dir) => `${dir}/.`,
+    (dir) => `${dir}//`,
+    (dir) => join(dir, "..", dir.split("/").pop()), // out through the parent and back in
+  ];
+
+  for (const spell of spellings) {
+    const brainDir = brainWith({ [`${DIR}/SKILL.md`]: "# tdd-discipline\n" });
+    const sourceDir = spell(brainDir);
+
+    const report = retireDeclaredSkills({
+      brainDir,
+      sourceDir,
+      plan: { retireSkills: [TOMBSTONE] },
+      provenance: { [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n") },
+    });
+
+    assert.deepEqual(report, { skillsRetired: [], skillsRetirePreserved: [] }, `spelled ${sourceDir}`);
+    assert.equal(existsSync(join(brainDir, `${DIR}/SKILL.md`)), true, `spelled ${sourceDir}, the skill was deleted`);
+    rmSync(brainDir, { recursive: true, force: true });
+  }
+});
+
+// The other side of that boundary, and it is what stops the fix being "never delete
+// anything": a source whose path merely STARTS with the brain's is a different directory
+// and a real update, so the declared skill still goes.
+test("T8 — a launcher path that merely starts with the brain's is an update, and retires", () => {
+  const brainDir = brainWith({ [`${DIR}/SKILL.md`]: "# tdd-discipline\n" });
+  const report = retireDeclaredSkills({
+    brainDir,
+    sourceDir: `${brainDir}-fetched`,
+    plan: { retireSkills: [TOMBSTONE] },
+    provenance: { [`${DIR}/SKILL.md`]: fp("# tdd-discipline\n") },
+  });
+
+  assert.deepEqual(report, { skillsRetired: ["tdd-discipline"], skillsRetirePreserved: [] });
+  assert.equal(existsSync(join(brainDir, DIR)), false);
+  rmSync(brainDir, { recursive: true, force: true });
+});
+
 // 🛑 The default FAILS TOWARDS KEEPING. A caller that says nothing has not told us this
 // is an update, and "I cannot tell" must never resolve to a delete — this is the one
 // door in the product that removes an owner's file.

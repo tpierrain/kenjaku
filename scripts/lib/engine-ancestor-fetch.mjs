@@ -30,6 +30,7 @@ import { join } from "node:path";
 import { baseRelPath, recordedVariant, verifyBase } from "./engine-base.mjs";
 import { writeBaseEntries } from "./engine-base-fs.mjs";
 import { defaultGit } from "./engine-fetch.mjs";
+import { isSelfHeal } from "./update-mode.mjs";
 
 const fetchArgs = (sourceDir, tag) => ["-C", sourceDir, "fetch", "--depth", "1", "origin", "tag", tag];
 const showArgs = (sourceDir, tag, sourcePath) => ["-C", sourceDir, "show", `${tag}:${sourcePath}`];
@@ -44,7 +45,12 @@ export function fetchAncestors({ plan, sourceDir, brainDir, git = defaultGit }) 
   // private repository. The guard lives at the one place that spawns git, rather than
   // in every caller that would have to remember. `failed` stays empty on purpose:
   // nothing was attempted, so the report has nothing to say.
-  if (sourceDir === brainDir) return { hydrated, failed };
+  //
+  // 🚨 T8 — AND IT ASKS THE QUESTION THE ONE WAY THERE IS TO ASK IT. This compared the
+  // raw strings, so `<brainDir>/` walked past it and the fetch went out against the
+  // owner's own remote. The dangerous half is that it SUCCEEDS: nothing anywhere says a
+  // word, the same blindness a missing `-C` has (RESULTS.md § S7-5).
+  if (isSelfHeal({ brainDir, sourceDir })) return { hydrated, failed };
 
   // A second opinion on the planner's own rule, kept because the action it guards is
   // the irreversible one: an existing `.engine-base/<rel>` is the REAL recorded

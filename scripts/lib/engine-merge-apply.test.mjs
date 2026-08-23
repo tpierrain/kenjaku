@@ -210,6 +210,39 @@ test("sourceDir === brainDir writes nothing and reports nothing", (t) => {
   assert.equal(onDisk(brainDir, `${rel}.new`), STALE_SIDECAR, "not even the stale sidecar is swept: nobody asked");
 });
 
+// 🛑 T8 — AND THE SPELLING. This door was the ONLY one of four that normalized, and
+// nothing here said so: swap its guard for a raw string comparison and every test in
+// this file stays green. A rule that survives only in the copy that happened to be
+// correct is not a rule. `<brainDir>/` is what a `--sourceDir` flag with one typed
+// trailing slash produces, and past this guard the brain becomes its own merge
+// candidate — `preserve: customized`, and the owner's sidecar overwritten with their
+// own bytes.
+test("T8 — a self-heal spelled with a trailing separator writes nothing either", (t) => {
+  const { brainDir } = trees(t);
+  const rel = "scripts/auto-commit.mjs";
+
+  for (const sourceDir of [`${brainDir}/`, `${brainDir}/.`, join(brainDir, "..", brainDir.split("/").pop())]) {
+    writeInto(brainDir, rel, OWNER);
+    writeInto(brainDir, `${rel}.new`, STALE_SIDECAR);
+
+    const report = applyMergeGoverned({
+      brainDir,
+      sourceDir,
+      sourceFiles: [rel],
+      pairs: [pairOf(rel)],
+      provenance: { [rel]: fp(BASE) },
+      groupOf: byPath,
+    });
+
+    assert.deepEqual(
+      report,
+      { refreshed: [], preserved: [], merged: [], conflicts: [], deliveredFileMap: {} },
+      `spelled ${sourceDir}`,
+    );
+    assert.equal(onDisk(brainDir, `${rel}.new`), STALE_SIDECAR, `spelled ${sourceDir}, the sidecar was swept`);
+  }
+});
+
 // ── The four ways bytes do, or do not, reach the disk ────────────────────────
 
 // A file the brain does not have at all: the engine delivers it, parent

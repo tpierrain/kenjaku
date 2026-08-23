@@ -359,6 +359,36 @@ test("fetchAncestors — a SELF-HEAL never walks candidates either", (t) => {
   assert.deepEqual(calls, []);
 });
 
+// 🛑 T8 — AND THE GUARD MUST RECOGNISE THE BRAIN HOWEVER THE CALLER SPELLS IT. It
+// compared the two paths as raw strings, so `<brainDir>/` and `<brainDir>/.` walked past
+// it and a `git fetch origin` went out against the owner's PRIVATE vault remote. What
+// makes this the dangerous half: the invocation still succeeds, so nothing anywhere says
+// a word — the same blindness RESULTS.md § S7-5 named for a missing `-C`.
+test("T8 — a self-heal spelled with a trailing separator still fetches nothing", (t) => {
+  const brainDir = brain(t);
+
+  for (const sourceDir of [`${brainDir}/`, `${brainDir}/.`, `${brainDir}//`, join(brainDir, ".", ".")]) {
+    const { git, calls } = fakeGit({ [`v3.6.0:${DOCTRINE}`]: ANCESTOR });
+
+    const result = fetchAncestors({ plan: [candidate()], sourceDir, brainDir, git });
+
+    assert.deepEqual(result, { hydrated: [], failed: [] }, `spelled ${sourceDir}`);
+    assert.deepEqual(calls, [], `spelled ${sourceDir}, git was pointed at the owner's vault`);
+  }
+});
+
+// The other side of that boundary: a fetched launcher whose path merely STARTS with the
+// brain's is a different directory, and a real update must still go and get its ancestor.
+test("T8 — a launcher path that merely starts with the brain's is an update, and fetches", (t) => {
+  const brainDir = brain(t);
+  const { git, calls } = fakeGit({ [`v3.6.0:${DOCTRINE}`]: ANCESTOR });
+
+  const result = fetchAncestors({ plan: [candidate()], sourceDir: `${brainDir}-fetched`, brainDir, git });
+
+  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(calls[0], ["-C", `${brainDir}-fetched`, "fetch", "--depth", "1", "origin", "tag", "v3.6.0"]);
+});
+
 test("fetchAncestors — one tag fetched ONCE, however many candidate entries name it", (t) => {
   // The memo spans entries and candidate lists alike: two Windows files recorded at the
   // same release must not cost two fetches of the same tag.

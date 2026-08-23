@@ -15,6 +15,7 @@ import { join } from "node:path";
 
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { decideSkillRetirement } from "./skill-retirement.mjs";
+import { isSelfHeal } from "./update-mode.mjs";
 
 // ".claude/skills/tdd-discipline/**" → ".claude/skills/tdd-discipline". The same strip
 // the install-if-absent loop does, and for the same reason: a skill is retired at the
@@ -37,7 +38,14 @@ export function retireDeclaredSkills({ brainDir, sourceDir, plan, provenance = {
   // the owner's `.claude/`, so no caller should have to remember. And an ABSENT
   // `sourceDir` is caught by the same line, deliberately — a caller who has not said this
   // is an update has not earned a deletion, and "I cannot tell" must fail towards keeping.
-  if (sourceDir === undefined || sourceDir === brainDir) return { skillsRetired, skillsRetirePreserved };
+  //
+  // 🚨 T8 — AND IT ASKS THE QUESTION THE ONE WAY THERE IS TO ASK IT. This compared the
+  // raw strings, so `<brainDir>/` and `<brainDir>/.` opened the gate: measured on a
+  // fixture, verdict `remove`, the skill erased, and the report swallowed by the detached
+  // child's `stdio: "ignore"`. One typed slash on `reconcile-brain`'s `--sourceDir`.
+  if (sourceDir === undefined || isSelfHeal({ brainDir, sourceDir })) {
+    return { skillsRetired, skillsRetirePreserved };
+  }
 
   for (const glob of plan.retireSkills) {
     const dir = skillDirOf(glob);

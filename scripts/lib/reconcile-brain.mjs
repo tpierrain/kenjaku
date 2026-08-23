@@ -43,6 +43,7 @@ import { healFromDisk, readFingerprintTable } from "./engine-heal-fs.mjs";
 import { planAncestorFetch } from "./engine-ancestor.mjs";
 import { fetchAncestors } from "./engine-ancestor-fetch.mjs";
 import { defaultGit } from "./engine-fetch.mjs";
+import { isSelfHeal } from "./update-mode.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
 import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
 import {
@@ -741,7 +742,10 @@ export async function runReconcileCli({ argv, seams = {} }) {
  * sentence is only assertable when the caller chooses what arrived and what went.
  */
 export function announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit }) {
-  if (sourceDir === brainDir) return;
+  // T8's scanner found this door, which the finding itself had not named: the same raw
+  // comparison, and a misspelled self-heal would tell a converged brain it was "catching
+  // up" every single morning. Not a deletion, but the same defect and the same fix.
+  if (isSelfHeal({ brainDir, sourceDir })) return;
   const arrived = Object.keys(delivered).sort();
   const gone = report.skillsRetired ?? [];
   if (arrived.length === 0 && gone.length === 0) return;

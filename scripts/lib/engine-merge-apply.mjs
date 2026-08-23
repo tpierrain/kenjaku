@@ -13,7 +13,7 @@
 // bytes, and is where every path in the brain is derived.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join } from "node:path";
 
 // WHERE the ancestor lives. The proof itself, and every question asked of it,
 // belong to `engine-merge.mjs`.
@@ -22,6 +22,7 @@ import { mergeVerdict } from "./engine-merge.mjs";
 import { mergeWithGit } from "./engine-merge-git.mjs";
 import { resolveLocaleSource } from "./engine-copy-select.mjs";
 import { readBrainLocale } from "./brain-locale.mjs";
+import { isSelfHeal } from "./update-mode.mjs";
 
 // ⚠️ GUARD: `sourceDir === brainDir` means SessionStart self-heal — no new content,
 // and nobody asked for anything. A file is only ever rewritten during an update the
@@ -42,7 +43,10 @@ export function applyMergeGoverned({
   const conflicts = [];
   const deliveredFileMap = {};
   const report = { refreshed, preserved, merged, conflicts, deliveredFileMap };
-  if (resolve(sourceDir) === resolve(brainDir)) return report;
+  // The spelling that was already right, now the shared one (T8): three doors asked
+  // this question three ways, and only this one normalized. A rule that lives in one
+  // of three copies is not a rule, it is the copy that happened to be correct.
+  if (isSelfHeal({ brainDir, sourceDir })) return report;
 
   const locale = readBrainLocale(brainDir);
   // Reported per GROUP, not per file: for a skill that is the subtree ("your

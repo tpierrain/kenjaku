@@ -739,6 +739,43 @@ test("the catch-up line: a self-heal stays silent even when it converged files",
   );
 });
 
+// 🛑 T8 — AND THE SPELLING, at the fourth door. The third code-review pass named three
+// places asking "update or self-heal?"; the scanner that came with the fix found this one
+// too, comparing the raw strings like two of the three. `<brainDir>/` is one typed
+// trailing slash on `--sourceDir`, and past this guard a converged brain is told it is
+// "catching up" every single morning.
+test("T8 — a self-heal spelled with a trailing separator stays silent too", async () => {
+  for (const sourceDir of ["/brain/", "/brain/.", "/brain//", "/brain/../brain"]) {
+    assert.deepEqual(
+      await catchUp({
+        brainDir: "/brain",
+        sourceDir,
+        delivered: { "CLAUDE.engine.md": "a1" },
+        report: { skillsRetired: ["tdd-discipline"] },
+      }),
+      [],
+      `spelled ${sourceDir}`,
+    );
+  }
+});
+
+// The other side of that boundary: a real update whose launcher path merely STARTS with
+// the brain's must still speak, or the fix has bought silence instead of safety.
+test("T8 — a launcher path that merely starts with the brain's still announces", async () => {
+  assert.deepEqual(
+    await catchUp({
+      brainDir: "/brain",
+      sourceDir: "/brain-fetched",
+      delivered: { "CLAUDE.engine.md": "a1" },
+      report: { skillsRetired: [] },
+    }),
+    [
+      "🔓 Catching up: your brain just received 1 engine file it had stopped getting updates for " +
+        "(CLAUDE.engine.md). Your own edits were kept.\n",
+    ],
+  );
+});
+
 // The negative pole, and it is the load-bearing one: this line may never appear on the
 // steady state. A converged brain re-opened every day would otherwise be told, at every
 // session start, about an update that happened once.
