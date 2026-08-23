@@ -12,10 +12,11 @@
 
 ## 📍 STATE — the only perishable block in this file · cut back to its cap 2026-08-23
 
-- **Next:** **the plans' `## 📍 STATE` line counts**, the last item of § *Cut by the reviewer's
-  15-item cap*. This file is done; three plans are still over the ≤ 20-line cap (`CONVENTIONS.md`
-  §3ter). ⚠️ **Verify the MEASURE before the finding**: a count that stops at the next `##` swallows
-  the whole file when the sections are in `>` blockquotes.
+- **Next:** **nothing. This queue is empty** — the third pass's fifteen findings and both convention
+  items of § *Cut by the reviewer's 15-item cap* are paid. What is left in that section is **latent /
+  quality, deliberately uncut**: read the box, do not work it as a queue. The release's own remaining
+  steps are [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)'s,
+  § *WHAT IS YOURS, IN ORDER*, and they are Thomas's.
 - **Blocked on:** nothing. The third pass's **T1–T15 are all paid**, in § *Third-pass tracking*,
   which owns each one, its commits, its mutation score and its lesson — **do not restate them here,
   that is what filled this block to 278 lines.** The first two passes' 30 findings are discharged in
@@ -1140,7 +1141,23 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       - 📐 **Also not done**: folding each file's twin lists into one `{ why, en, fr }` table. It
         would delete the duplicated prose, and it is a design change to four test files while a
         review is reading the branch — and the two locales must stay independently editable.
-- [ ] 📏 **CONVENTION — all five live plans' `## 📍 STATE` blocks exceed the ≤20-line cap this branch
-      introduced** (reported 26/69/122/230/**1431**). ⚠️ **The 1431 needs checking before it is
-      believed**: these files put their sections in `>` blockquotes, so a measurement that stops at the
-      next `##` swallows the rest of the file. **Verify the measure, then the finding.**
+- [x] ✅ 📏 **CONVENTION — the live plans' `## 📍 STATE` blocks exceed the ≤ 20-line cap — PAID**
+      _(2026-08-23)_. **All five are now under it: 15 / 16 / 18 / 19 / 19.**
+      - 📐 **THE MEASURE WAS CHECKED FIRST, and it was the finding's weakest part.** Reported
+        26/69/122/230/**1431**; measured honestly — the next heading at any depth, blockquoted or
+        not — **16 / 22 / 60 / 278 / 82**. The 1431 is an artifact of counting to the next `^## `
+        through sections that live in `>` blockquotes. **One of the five was already compliant**, and
+        **the worst offender was not the one the finding named**: the triage plan itself, at 278.
+      - 🏛️ **What 278 lines actually were**: a bullet per closed finding, the whole second pass's
+        queue, stale suite counts, and — three lines apart — *"the report is delivered"* and *"he has
+        not had the report"*. **That contradiction is the cost the cap exists to prevent.**
+      - 📤 **Nothing that lived only in a block was deleted; it was MOVED.** The ~24 candidate dead
+        links across the delivered surface (with its product question) now has § *FOUND ON THE WAY
+        AND NOT TAKEN*; the twice-widened scope and the prohibitions it never lifted sit beside the
+        GO that granted them; the fan-out's three figures moved to the section that owns them; the
+        lesson about a restated decision joined the release plan's § *FOUR LESSONS*.
+      - 🔗 **And it fed the open question it is evidence for**: the cap was **applied everywhere and
+        held nowhere** for three weeks, unnoticed by anything but a review — which is exactly what
+        the *cheap half* of the plan lint would count. Recorded in
+        [`plan-state-single-source-study.md`](plan-state-single-source-study.md) § *QUEUED FOR AFTER
+        THE v5.0.0 TAG*, whose owner's call it is. **Not built: he asked for it after the tag.**

@@ -13,17 +13,14 @@
   is adopted and applied everywhere it was meant to reach: the door, the memory pointer, the harness,
   all five live plans, the ROADMAP's Status column, and both repo-level carriers of the archiving
   ritual. Step 10 (pruning the archived corpus) is **out of scope and stays out**.
+  ⚠️ **Applied is not held**: the ≤ 20-line cap was breached on four of the five plans within three
+  weeks, unnoticed. → § *QUEUED FOR AFTER THE v5.0.0 TAG*, third bullet.
 - **Blocked on:** nothing.
-- **Owner's call pending:** **one, and it does not block.** **The lint** — and it now has fresh
-  evidence, queued at his ask on 2026-08-23 for **after the v5.0.0 tag**: two failures the same day,
-  one where the guard blocked three correct hand-backs, one where it was green while a decision was
-  re-opened twice. → § *QUEUED FOR AFTER THE v5.0.0 TAG*. **Noted, not to be built before the tag.**
-  His *"on diffère le lint"*
-  came from an autocompletion accepted before knowing what a lint was. Asked again in plain terms on
-  2026-08-22 (*"un test de plus dans la suite, qui lit la FORME des plans"*), still unanswered.
-  Recommendation: **split it** — the cheap half now (~20 lines of test: every live plan has the block,
-  four keys, ≤ 20 lines), the hard half after the v5.0.0 tag. → § *The lint, reopened*.
-  _(The stale-copies branch was the second one; it is merged.)_
+- **Owner's call pending:** **one, and it does not block. The lint**, still unanswered since it was
+  put to him in plain terms on 2026-08-22 (*"un test de plus dans la suite, qui lit la FORME des
+  plans"*). Recommendation unchanged: **split it** — the cheap half now, the hard half after the tag.
+  → § *The lint, reopened*, and § *QUEUED FOR AFTER THE v5.0.0 TAG*, which own the three failures
+  that are now its evidence. **Noted, not to be built before the tag** _(his ask)_.
 - **A session may, alone:** apply the convention to any plan that still lacks it (a dormant plan
   waking up, a new one). **It may NOT delete the hook, the `delegates-only` door or the certificate**
   — those three retire only when the lint replaces them — and it may **not** build the lint: that is
@@ -629,6 +626,22 @@ worse.
   - The written rule was patched the same day (`rules/plans.md`, *"before asking the owner anything,
     grep the plan for that item and read what the body already concluded"*) — **belt only**. This
   section is where the braces would come from.
+
+- 📏 **AND A THIRD FAILURE, which is evidence for the CHEAP half rather than the hard one**
+  _(measured 2026-08-23, and it came from a `/code-review` pass rather than from anyone watching)_.
+  **The ≤ 20-line cap was silently breached on four of the five live plans** — 82, 278, 60 and 22
+  non-blank lines — while every one of them carried the block, its heading and its four keys. The
+  convention's *structure* was applied everywhere and its *cap*, which §3ter calls "the prevention",
+  was held nowhere. The worst of them had grown a bullet per closed item until it was **278 lines of
+  history in the block that exists to be read first**, and it contradicted itself inside its own
+  block. **This is exactly what the cheap half counts**: block present, four keys, ≤ 20 lines — no
+  prose judgement, ~20 lines of test, and it would have failed on the day the cap was first passed
+  rather than three weeks later.
+  - ⚠️ **The MEASURE has to be part of that test, not assumed.** The review reported **1431** lines
+    for a block that holds **82**: these files put their sections in `>` blockquotes, so a count that
+    stops at the next `^## ` swallows the rest of the file. A lint that measures this way would
+    scream on every plan and be turned off within the day. The honest boundary is *the next heading
+    at any depth, blockquoted or not*.
 
 **A candidate for the hard half, cheap and free of prose judgement** _(to be argued, not adopted
 here)_: an item named in the STATE block under *owner's call pending* while the body ticks that same

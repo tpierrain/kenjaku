@@ -17,54 +17,9 @@
 - **Blocked on:** the release, which is not this file's —
   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) owns its
   state and its cut. **Do not open a slice, do not look for work, and do not take an entry from that
-  cut.** The review passes that have **run** are counted in the box directly below and nowhere else —
-  this line used to say "two", which the box has contradicted since 2026-08-23. Their figures and
-  their debrief are recorded in § *The adversarial-review fan-out as standing QA*.
-- 📊 **THE THIRD FIGURE CAME BACK, AND IT IS 15 AGAIN** _(2026-08-23)_. Three independent reads of
-  this branch, **15 findings each, 45 in all** — and the third ran on the repairs the second batch had
-  just shipped test-first and green. **So it is a trend, not a one-off**: the second pass's lesson
-  (*repairs are not safer than features*) now has a second data point rather than an anecdote, and the
-  rate does not decay with the number of passes. The findings are the triage plan's; this file keeps
-  the number and nothing else.
-  - 🔁 **AND THE STANDING WARNING BELOW IS WRONG NOW — say so rather than leave it standing.** It read
-    *"do not commission a third pass expecting fan-out"*, measured twice. **The third pass fanned out**:
-    10 finder angles × 8 candidates, deduped, then 15 verifier agents, one per surviving candidate,
-    four of which it **refuted and dropped**. So the tool's failure to parallelize was a property of
-    those two runs, not of this repo's diff size — which is what both earlier boxes had concluded.
-    **Two measurements agreeing is not a law**, and this is the cheapest possible reminder of it.
-  - 🎯 **What the refutations add, and it is new**: the two earlier passes had no adversarial half at
-    all, so every finding reached the triage plan on one reader's word. This one arrived with four
-    candidates already killed by verifiers. **The first item verified by hand afterwards (T1) held**,
-    which is one point of evidence for the panel and not yet a pattern.
-  - ✅ **AND THE PATTERN NOW HAS TWELVE POINTS, ALL THE SAME WAY** _(2026-08-23, updated as the queue
-    was worked)_. Every finding verified by hand since — each reproduced independently as a process or
-    a measurement, on a throwaway fixture where the act was destructive — **held, with no false
-    positive and no exaggerated severity**. Counts and per-item state stay the triage plan's; what
-    this file keeps is that the accuracy held across the whole batch, and **what the batch taught
-    about reading a fan-out's output**:
-    - 🧰 **AND THE THIRTEENTH POINT CAME WITH A WARNING ABOUT THE SCOREBOARD ITSELF** _(2026-08-23)_.
-      The item held like the twelve before it, and the mutation run that proved its fix announced
-      **`✅ Mutation score null %` over a table reading 100.00** — the instrument that judges every one
-      of these repairs had a blind spot of its own, in the half of it that reads the score. So the
-      accuracy claim above rests on numbers a tool prints, and **that tool is inside the perimeter
-      being reviewed, not outside it**. It was found by measuring, not by reading. Detail is the
-      triage plan's (T14) and the register's.
-    - 🔍 **UNDER-reporting is the recurring shape, and it is now FIVE items out of thirteen.** One
-      named three call sites and a scanner written for the fix found **a fourth**; another's stated
-      threshold **bracketed** the measured one rather than overshooting it; a third named **one**
-      copy site where running the same case against its neighbours found **three**; and the fourth
-      named **one** of the two ways its function says nothing, the other half being the one already
-      met in the wild; and the fifth named **two** states where there are **three**, the third being
-      a case that belongs on the quieter side of its own fix. So the standing instruction is not
-      "trust it less" but **"treat the named site as a sample, and run the case against the
-      neighbours"** — every time, that is what found the extra one, never a re-reading.
-    - 🎯 **A finding's own statement of its LIMITS held too**, which is the half a severity-inflating
-      reviewer gets wrong: one item said in as many words that its destructive path was *not*
-      reachable, and reproduction agreed exactly. That is worth more than a high hit rate — it means
-      the severities can be read at face value when triaging the rest.
-    - ⚖️ **Where the reviewer's word needs the most salt is the FIX, not the defect.** *"The fix is
-      one line"* has now been wrong about a seam **four** times on this branch — right about the call
-      each time, wrong about the design. The defect claims held; the remedy claims are estimates.
+  cut.** **How many review passes have run is counted in § *The adversarial-review fan-out as
+  standing QA* and nowhere else** — this line used to carry the number itself, said "two", and was
+  contradicted by that section on 2026-08-23. It owns the figures, the trend and the debrief.
 - **Owner's call pending:** none of this file's own. _(The `scripts` version and the five release
   arbitrations are answered and recorded in the release plan. **Do not re-ask them.**)_
 - **A session may, alone:** run the mode as written — delegate bulk reads, and the implementation of
@@ -3082,6 +3037,53 @@ arbitration goes here as a question, and the run continues on other slices.
           three; and F14's one line was four. **A review's finding is a pointer, not a spec** — a
           fixing loop that implements findings literally would have shipped four half-repairs, all
           green.
+  - 📊 **THE THIRD FIGURE CAME BACK, AND IT IS 15 AGAIN** _(2026-08-23. Written in the STATE block
+    while the queue was worked, and moved here when that block was cut back to its ≤ 20-line cap:
+    none of it was ever a status, and it belongs beside the two figures above.)_ Three independent reads of
+    this branch, **15 findings each, 45 in all** — and the third ran on the repairs the second batch had
+    just shipped test-first and green. **So it is a trend, not a one-off**: the second pass's lesson
+    (*repairs are not safer than features*) now has a second data point rather than an anecdote, and the
+    rate does not decay with the number of passes. The findings are the triage plan's; this file keeps
+    the number and nothing else.
+    - 🔁 **AND THE STANDING WARNING BELOW IS WRONG NOW — say so rather than leave it standing.** It read
+      *"do not commission a third pass expecting fan-out"*, measured twice. **The third pass fanned out**:
+      10 finder angles × 8 candidates, deduped, then 15 verifier agents, one per surviving candidate,
+      four of which it **refuted and dropped**. So the tool's failure to parallelize was a property of
+      those two runs, not of this repo's diff size — which is what both earlier boxes had concluded.
+      **Two measurements agreeing is not a law**, and this is the cheapest possible reminder of it.
+    - 🎯 **What the refutations add, and it is new**: the two earlier passes had no adversarial half at
+      all, so every finding reached the triage plan on one reader's word. This one arrived with four
+      candidates already killed by verifiers. **The first item verified by hand afterwards (T1) held**,
+      which is one point of evidence for the panel and not yet a pattern.
+    - ✅ **AND THE PATTERN CLOSED AT FIFTEEN POINTS, ALL THE SAME WAY** _(2026-08-23, the whole queue
+      worked)_. Every finding verified by hand since — each reproduced independently as a process or
+      a measurement, on a throwaway fixture where the act was destructive — **held, with no false
+      positive and no exaggerated severity**. Counts and per-item state stay the triage plan's; what
+      this file keeps is that the accuracy held across the whole batch, and **what the batch taught
+      about reading a fan-out's output**:
+      - 🧰 **AND ONE OF THEM CAME WITH A WARNING ABOUT THE SCOREBOARD ITSELF** _(2026-08-23, T14)_.
+        The item held like all the others, and the mutation run that proved its fix announced
+        **`✅ Mutation score null %` over a table reading 100.00** — the instrument that judges every one
+        of these repairs had a blind spot of its own, in the half of it that reads the score. So the
+        accuracy claim above rests on numbers a tool prints, and **that tool is inside the perimeter
+        being reviewed, not outside it**. It was found by measuring, not by reading. Detail is the
+        triage plan's (T14) and the register's.
+      - 🔍 **UNDER-reporting is the recurring shape, and it ended at FIVE items out of fifteen.** One
+        named three call sites and a scanner written for the fix found **a fourth**; another's stated
+        threshold **bracketed** the measured one rather than overshooting it; a third named **one**
+        copy site where running the same case against its neighbours found **three**; and the fourth
+        named **one** of the two ways its function says nothing, the other half being the one already
+        met in the wild; and the fifth named **two** states where there are **three**, the third being
+        a case that belongs on the quieter side of its own fix. So the standing instruction is not
+        "trust it less" but **"treat the named site as a sample, and run the case against the
+        neighbours"** — every time, that is what found the extra one, never a re-reading.
+      - 🎯 **A finding's own statement of its LIMITS held too**, which is the half a severity-inflating
+        reviewer gets wrong: one item said in as many words that its destructive path was *not*
+        reachable, and reproduction agreed exactly. That is worth more than a high hit rate — it means
+        the severities can be read at face value when triaging the rest.
+      - ⚖️ **Where the reviewer's word needs the most salt is the FIX, not the defect.** *"The fix is
+        one line"* has now been wrong about a seam **four** times on this branch — right about the call
+        each time, wrong about the design. The defect claims held; the remedy claims are estimates.
   - [ ] 🔍 **The contrast is arriving from the OTHER end** _(2026-08-22, Thomas's call)_: rather than
         one reviewed slice against one unreviewed, a **tooled `/code-review` runs over the WHOLE
         fan-out-built branch** before the merge, in three passes by descending operational risk. The

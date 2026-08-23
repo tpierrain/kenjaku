@@ -10,90 +10,27 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
-## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+## 📍 STATE — the only perishable block in this file · cut back to its cap 2026-08-23
 
-- 🔴 **NEXT — THE THIRD `/code-review` PASS LANDED AND ITS QUEUE IS OPEN** _(2026-08-23)_. Its findings
-  and its progress are owned entirely by
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) — **resume there, at the item
-  its own STATE block names**, and do not restate a count or a next item here: that is what went stale
-  twice on this file, and once more on 2026-08-23. **Step 4 of § *WHAT IS
-  YOURS* is therefore NOT tickable yet** — its own instruction is that findings are fixed test-first
-  before the merge.
-- **Previously, and still true of the release's own scope:** ✅ **everything a session could do alone
-  BEFORE that pass was done** _(2026-08-23)_. The
-  rehearsal ran on COPIES of both real brains and found **exactly** the thing Thomas said he wanted to
-  avoid: the first update to v5 swapped the engine, answered *"that is the latest release"*, and left
-  the doctrine frozen where it was — the real unfreeze needed a **second** `/update-engine` that no
-  surface ever asked for. It is fixed, and both brains now unfreeze on the **first** update with the
-  catch-up announced in one plain line and the owner's territory byte-identical. → § *THE REHEARSAL*,
-  which owns the measurement, the cause and the design.
-  - The code-review queue that gated the merge is **discharged in full** —
-    [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) and its STATE block OWN the
-    nine items and how each was paid. **Do not restate any of it here**: this line used to carry the
-    count and the pending question, and both went stale within the day.
-  - The other conversation he opened is still open and is **not** on this release's path: **the shape
-    lint for plans**, argued in [`plan-state-single-source-study.md`](plan-state-single-source-study.md),
-    his call, recommendation on record.
-  - **No engineering is left on this release.** Say that in one line rather than reciting
-    § *WHAT IS YOURS*, and **do not take an entry from it**. ⚠️ **Qualified 2026-08-23**: still true of
-    the release's own code, and **no longer true of the branch** — the macOS flake below owes an
-    instrument, which is a session's to write once the review has finished reading.
-- 🔴 **THE THIRD `/code-review` PASS IS BEING LAUNCHED BY THOMAS — 2026-08-23, right after a context
-  clear.** This is **step 4's own instruction** discharging itself (*"findings are fixed test-first
-  and the review is re-run on the fix, as v3.3.0 did"*). **Two passes have already run, both on
-  2026-08-22 — 15 findings each, 30 in all, every one paid.** _(This line said "the first pass,
-  returned 15" until 2026-08-23; the triage plan says why the ordinal is load-bearing.)_
-  - **A session cannot launch it**: `/code-review` is user-triggered and billed. Do not attempt it,
-    do not simulate it, and do not report on a run you did not see.
-  - **WHERE ITS FINDINGS GO**: [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md),
-    in a **NEW section dated 2026-08-23**, numbered **T1…Tn** so they collide with neither the F nor
-    the S series — never by reviving its § Tracking and never appended to its § *Second pass*.
-    **Both queues are discharged, and re-opening either would lose which pass found what.**
-  - **If it returns nothing**, say so and tick step 4: an empty third pass on a branch whose two
-    earlier passes found 30 is a result, not a non-event.
-- 🎲 **A NEW FINDING, AND IT NO LONGER GATES THE RELEASE** _(2026-08-23, found while the third review
-  pass ran)_. **The branch's CI is red about 1 PR run in 6** — 5 of the last 30,
-  **always the same test, always macOS**: the universe hook does not wait for the startup pull. **It is
-  NOT v5's**: the three files involved are byte-identical to `main`. It did **not** reproduce here in
-  ~200 runs, and four hypotheses were run and killed. → § *THE macOS FLAKE*, which owns all of it.
-  - ✅ **DECIDED BY THOMAS, 2026-08-23: the flake does NOT hold the tag.** His words: *"d'accord pour
-    ne pas conditionner la sortie de la V5 à la correction de la CI qui échoue une fois tous les… à
-    cause de flaky tests."* The recommendation was taken as given: the code is `main`'s, the failure
-    mode is a fail-open back to the pre-barrier behaviour, and nothing has been observed in the field.
-    **Do not re-open this and do not re-ask it.** The flake keeps its own item **after** the tag, since
-    CI has stopped being a tripwire.
-  - **What is a session's, and is NOT done**: a test that records **which** fail-open branch it took, so
-    the next red is read rather than reasoned. It was held back while a review was reading the branch;
-    **that hold is now lifted** (the third pass has finished reading). It is **not** a gate on the tag —
-    it belongs to the post-tag flake item above.
-- ✅ **RE-VERIFIED AT `2cb7d68`, the commit the third review pass is reading** _(2026-08-23)_: product
-  suite **2 593 green / 0 fail / 3 skipped**, maintainer suite **66/66**, and the **field rehearsal
-  green on copies of BOTH real brains, exit 0** — `mind-palace` (v4.9.1) and `autre-brain` (v3.5.0)
-  each unfreeze on the **first** update, owner's territory byte-identical. It was owed: **seven engine
-  commits landed after the rehearsal last ran**, so its green was stale until now.
-- **Blocked on:** **Thomas, and only Thomas.** The gate this line carried — *nothing merged or tagged
-  until the review queue's § Tracking is discharged* — is **lifted**: that § Tracking is fully ticked.
-  What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER*, and that section is the
-  authority** — do not summarise it as "the merge", which is what this line said until 2026-08-23 and
-  which silently dropped **step 4's re-run of `/code-review` on the fixes**. That re-run is written
-  into step 4 (*"findings are fixed TEST-FIRST and the review is re-run on the fix, as v3.3.0 did"*),
-  it is **user-triggered and billed, so no session can launch it**, and #76 is **still a draft**. What
-  reaches the fleet is the **tag**, not the merge.
-- **Owner's call pending:** **NONE.** **F11 is closed** — remedy (b), confirmed by Thomas on
-  2026-08-23: the retired `tdd-discipline` French twin is **not** translated, because its successor
-  replaces the strategy it taught. The release note already states the limit (line 154). ⚠️ Two
-  earlier versions of this line were wrong in two different directions and both cost him a
-  correction: one called the whole French twin untranslated (it is 548 lines of French against the
-  English 549), the other advertised a decision as pending that § E of
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) had already answered. **That
-  section owns F11: do not restate its impact here, and do not re-open it.** _(Everything else he was
-  asked is answered: the five decisions, the `scripts` bump at `1.14.0`, and **W5b — the four doctrine
-  texts ship as written**, 2026-08-22. **Do not re-ask any of them.** F13 was measured and declined,
-  reversible on one word — triage plan § G.)_
+- **Next:** **nothing engineering is left on this release, and the queue that gated it is empty.**
+  The third `/code-review` pass's **T1–T15 are all paid**, plus the two convention items its cap had
+  cut — [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns every one of them
+  and this file restates none. What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER***,
+  and **that section is the authority** — do not summarise it as "the merge", which silently drops
+  step 4's own instruction.
+- **Blocked on:** **Thomas, and only Thomas**, on the question step 4 leaves open: it says findings
+  are fixed test-first **and the review is re-run on the fix**. Three passes have now run and each
+  returned **15** — the third on the second's repairs — so a fourth is neither obviously owed nor
+  obviously pointless. **A session cannot launch one** (`/code-review` is user-triggered and billed),
+  and must not simulate one or report on a run it did not see.
+- **Owner's call pending:** **NONE that is this file's.** Every question put to him is answered — the
+  five decisions, the `scripts` bump at `1.14.0`, W5b, the macOS flake not holding the tag, F11
+  (§ E of the triage plan owns it). **Do not re-ask any of them, and do not restate their impact
+  here** — see § *FOUR LESSONS* for what a restated decision cost him twice.
 - **A session may, alone:** re-run the rehearsal (`node maintainers/qa/field-rehearsal/rehearse.mjs`)
-  against a copy, and nothing else on this release. **Not** merge, tag, publish, push to `main`, write
-  into `templates/fr/**`, or write into either of his two real brains (a read-only COPY under the
-  job's tmp dir is not the brain).
+  against a copy, and write the macOS flake's instrument (§ *THE macOS FLAKE* owns it — post-tag, not
+  a gate). **Not** merge, tag, publish, push to `main`, write into `templates/fr/**`, or write into
+  either of his two real brains (a read-only COPY under the job's tmp dir is not the brain).
 
 > ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the arguments; the state is in the block above)_
 >
@@ -653,6 +590,13 @@
 >   answered with six ordered steps and buried the only actual decision inside step 5. His reply:
 >   *"je ne comprends pas ce que tu attends de moi"*. That is why the STATE block has a key of its own
 >   for the owner's calls, and why the cut below is announced in **one line** rather than recited.
+> - 🪤 **A STATE line about someone else's decision is wrong in BOTH directions, and it cost him twice.**
+>   The `Owner's call pending:` key here carried F11 — which belongs to § E of
+>   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md), not to this file. One version
+>   said the whole French twin was untranslated (it is 548 lines of French against the English 549);
+>   the next advertised as pending a decision that section had already answered. **Both were
+>   corrections he had to make.** A decision is restated as a **link**, never as a summary — a summary
+>   is a copy, and a copy of a decision goes stale in exactly the two ways this one did.
 > - 🧰 **A rule restated a third time should become a gate.** `mutate-one.mjs` scoring uncommitted work
 >   was met twice in one night, two hours apart, with the rule against it written in bold both times →
 >   it now **refuses** an uncommitted target _(2026-08-22 · `ced15a0`)_. Detail:
