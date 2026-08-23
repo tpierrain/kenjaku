@@ -20,7 +20,7 @@
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { baseRelPath, isSidecarRel, planBaseAdvance, planBaseSeed } from "./engine-base.mjs";
+import { baseRelPath, isSidecarRel, isStrayArtifactRel, planBaseAdvance, planBaseSeed } from "./engine-base.mjs";
 import { engineDivergence } from "./engine-divergence.mjs";
 import { globRoots } from "./glob-match.mjs";
 import { recordSourceAndProvenance, reseedBaseRefs, reseedProvenance, selectMergeFiles } from "./engine-source.mjs";
@@ -78,8 +78,13 @@ export function readInstalledMergeFiles({ brainDir, manifest, unreadable = null 
   // apart: `.claude/skills/**` matches `SKILL.md.new` exactly as well as `SKILL.md`
   // (S10-QA, on the real v3.6.0 tree). A sidecar is the engine's own offer, loaded by
   // nothing — counting it makes the brain claim to hold back a file it has never held.
+  //
+  // T6 — and the same sentence is true of somebody ELSE's leftovers: an editor's `.bak`,
+  // vim's swap, a merge tool's `.orig`, the OS's `.DS_Store`. Filtered HERE rather than in
+  // the report, because nothing downstream should ever have been asked about a file the
+  // engine cannot deliver — not the heal, not the ancestor fetch, not the base seed.
   const onDisk = listFilesUnderRoots(brainDir, globRoots(manifest?.regimes?.merge ?? [])).filter(
-    (rel) => !isSidecarRel(rel),
+    (rel) => !isSidecarRel(rel) && !isStrayArtifactRel(rel),
   );
   const rels = selectMergeFiles(manifest, onDisk);
   const entries = [];

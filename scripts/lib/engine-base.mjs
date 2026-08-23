@@ -50,6 +50,46 @@ export function isSidecarRel(rel) {
   return rel.endsWith(SIDECAR_SUFFIX);
 }
 
+// THE SAME QUESTION, ASKED OF SOMEBODY ELSE'S LEFTOVERS (T6, third review pass).
+//
+// A `merge` glob matches `SKILL.md.bak`, `SKILL.md~` and `.DS_Store` as happily as it
+// matches `SKILL.md` — `**` compiles to `.*`, and the fs walk skips no dotfile. So an
+// editor's backup, a merge tool's leftover or the OS's own droppings became
+// `no-provenance` lines in the session-start nudge: the brain telling its owner, every
+// morning, that it was holding back a file the engine has never delivered and never
+// will. Un-dismissable, too — the answer that would silence one is refused with
+// `no-candidate` before `writeAnswers` is ever reached, so the nudge came back
+// byte-identical forever. And invisible where they would look: every pattern below is
+// named by the brain's own shipped `.gitignore`, so `git status` stays clean throughout.
+//
+// 🛑 WHY A NAMED LIST IS THE RIGHT SHAPE HERE, and not the usual objection to one. It is
+// incomplete by construction — there will always be one more editor — and that is
+// acceptable BECAUSE OF WHICH WAY IT FAILS: a pattern that is missing leaves the status
+// quo (one more line in the nudge), while a pattern that is too greedy would silence a
+// real held-back engine file. So the list stays SMALL and ANCHORED at the end of the
+// name, and `engine-fingerprints.test.mjs` proves against the release's own tracked files
+// that not one rel this engine delivers is caught by it. That test is the guarantee; the
+// list is only the convenience.
+export const STRAY_ARTIFACT_PATTERNS = [
+  // Backups and merge leftovers, all anchored at the END of the name — `bak.md` is
+  // somebody's skill, `SKILL.md.bak` is nobody's.
+  /\.bak$/,
+  /\.orig$/,
+  /\.rej$/,
+  /~$/,
+  // Vim's swap files, which are dotfiles beside the real one: `.SKILL.md.swp`.
+  /\.sw[a-p]$/,
+  // The OS's own droppings, matched as whole names rather than suffixes.
+  /(^|\/)\.DS_Store$/,
+  /(^|\/)\._[^/]+$/,
+  /(^|\/)Thumbs\.db$/,
+  /(^|\/)desktop\.ini$/,
+];
+
+export function isStrayArtifactRel(rel) {
+  return STRAY_ARTIFACT_PATTERNS.some((pattern) => pattern.test(rel));
+}
+
 // Line endings are not authorship. This tree is engine-written and never hand-edited,
 // but a brain cloned on Windows can have it rewritten LF→CRLF by git itself, and the
 // recorded sha was taken on the LF bytes the engine delivered — so a normalized match

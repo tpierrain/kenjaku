@@ -7,6 +7,7 @@ import { dirname, join } from "node:path";
 
 import { fingerprint } from "./engine-source.mjs";
 import { deliveredSources } from "./engine-fingerprint-table.mjs";
+import { isStrayArtifactRel } from "./engine-base.mjs";
 import { parseLsFilesEolZ } from "./tracked-files.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -57,6 +58,44 @@ test("the table covers every merge file of the release being cut, in every local
     [],
     `bytes shipped by this release that no row recognises (regenerate: ${REGENERATE}): ${uncovered.join(", ")}`,
   );
+});
+
+// 🚨 THE SAFETY GUARANTEE FOR T6's STRAY-ARTIFACT FILTER, and it lives here because this
+// is the only file that reads the release's OWN delivered rels.
+//
+// `isStrayArtifactRel` is a named list of editor / merge-tool / OS leftovers, and a named
+// list is incomplete by construction. That is acceptable only because of WHICH WAY it
+// fails: a missing pattern leaves the status quo (one more line in the session nudge),
+// while a greedy one would silence a real held-back engine file — the exact defect the
+// whole divergence surface exists to prevent.
+//
+// So the greedy direction is not left to judgement. Every rel this release actually ships
+// under a `merge` glob, both locales, is run through the filter here: not one may be
+// caught. Add a pattern that eats a real file and this goes red on the same commit.
+test("no file this release DELIVERS is mistaken for an editor's leftover", () => {
+  const caught = deliveredSources({ manifest, sourceFiles: trackedFiles, eolByPath, read })
+    .map(({ rel }) => rel)
+    .filter(isStrayArtifactRel);
+
+  assert.deepEqual(caught, [], `the stray-artifact filter would silence real engine files: ${caught.join(", ")}`);
+});
+
+test("and it does catch what it is named after, on paths shaped like a real brain's", () => {
+  // The other half, or the pole above passes just as well with an empty pattern list.
+  // Spelled at the depth these actually appear at — beside a skill, not at the root —
+  // because the OS-dropping patterns are anchored on a path separator.
+  const strays = [
+    ".claude/skills/coach/SKILL.md.bak",
+    ".claude/skills/coach/SKILL.md.orig",
+    ".claude/skills/coach/SKILL.md.rej",
+    ".claude/skills/coach/SKILL.md~",
+    ".claude/skills/coach/.SKILL.md.swp",
+    ".claude/skills/coach/.DS_Store",
+    ".claude/skills/coach/._SKILL.md",
+    ".claude/skills/coach/Thumbs.db",
+    ".claude/skills/coach/desktop.ini",
+  ];
+  assert.deepEqual(strays.filter(isStrayArtifactRel), strays);
 });
 
 // 🚨 THE PREMISE GUARD FOR T4's CARVE-OUT, and it lives here because this is the only

@@ -215,6 +215,76 @@ test("readInstalledMergeFiles — a merge glob with no static prefix walks the W
   });
 });
 
+// ── T6 (third review pass): an editor's leftovers were being reported as ENGINE
+//    FILES, permanently and un-dismissably ─────────────────────────────────────
+//
+// Measured before a line was written, on a brain holding `SKILL.md.bak`, `SKILL.md~` and
+// `.DS_Store` beside a perfectly untouched skill: **three** `no-provenance` lines in the
+// session-start nudge. Asking to dismiss one is refused with `no-candidate` — there is no
+// sidecar, so `writeAnswers` is never reached — and the nudge comes back byte-identical at
+// the next session, and the one after that, forever.
+//
+// And they are invisible where the owner would look for them: every realistic vector is
+// named by the brain's own shipped `.gitignore` (`*~`, `*.swp`, `.DS_Store`, `._*`), so
+// `git status` is clean while the brain complains daily.
+//
+// The reasoning is the SIDECAR filter's, word for word — *"the glob cannot tell them
+// apart… counting it makes the brain claim to hold back a file it has never held"* — so
+// the repair is in the same place, at the source, and not only in the report: nothing
+// downstream should ever have been asked about a file the engine cannot deliver.
+test("readInstalledMergeFiles — an editor's backups and the OS's droppings are not engine files", (t) => {
+  const kept = "# coach, as delivered\n";
+  const dir = brain(t, {
+    ".claude/skills/coach/SKILL.md": kept,
+    ".claude/skills/coach/SKILL.md.bak": "# a backup my editor made\n",
+    ".claude/skills/coach/SKILL.md~": "# and the one vim made\n",
+    ".claude/skills/coach/.SKILL.md.swp": "vim's swap\n",
+    ".claude/skills/coach/SKILL.md.orig": "what a merge left behind\n",
+    ".claude/skills/coach/.DS_Store": "macOS junk\n",
+  });
+
+  // The real file, alone. Asserted as the WHOLE map rather than by absence, so a filter
+  // that grew too hungry and ate the skill itself cannot pass.
+  assert.deepEqual(readInstalledMergeFiles({ brainDir: dir, manifest: MANIFEST }), {
+    ".claude/skills/coach/SKILL.md": kept,
+  });
+});
+
+test("readEngineDivergence — and the owner is therefore told NOTHING about them", (t) => {
+  // The pole that pins the consequence rather than the mechanism: this list IS the
+  // session-start nudge. Three junk files beside an untouched skill used to make three
+  // lines nobody could ever dismiss.
+  const delivered = "# coach, as delivered\n";
+  const dir = brain(t, {
+    ".claude/skills/coach/SKILL.md": delivered,
+    ".claude/skills/coach/SKILL.md.bak": "# a backup my editor made\n",
+    ".claude/skills/coach/.DS_Store": "macOS junk\n",
+    "engine-manifest.json":
+      JSON.stringify({
+        ...MANIFEST,
+        provenance: { ".claude/skills/coach/SKILL.md": fp(delivered) },
+        baseRefs: { ".claude/skills/coach/SKILL.md": "v5.0.0" },
+      }) + "\n",
+  });
+
+  assert.deepEqual(readEngineDivergence({ brainDir: dir }), []);
+});
+
+test("readInstalledMergeFiles — a file whose NAME merely contains one of those words is still an engine file", (t) => {
+  // The discriminating negative, and the whole risk of a name-shaped filter: `.bak` as a
+  // suffix is junk, `bak` inside a name is somebody's skill. A filter that matched
+  // anywhere would silence real files while every assertion above stayed green.
+  const files = {
+    ".claude/skills/coach/SKILL.md": "# the skill\n",
+    ".claude/skills/coach/bak.md": "# a file that starts with those letters\n",
+    ".claude/skills/coach/orig-notes.md": "# and one that starts with these\n",
+    ".claude/skills/coach/DS_Store.md": "# named after the joke\n",
+  };
+  const dir = brain(t, files);
+
+  assert.deepEqual(readInstalledMergeFiles({ brainDir: dir, manifest: MANIFEST }), files);
+});
+
 test("readInstalledMergeFiles — the owner's notes are NOT read, proved by making them unreadable", (t) => {
   // The measurement that opened S4-4c: the old walk read every note in the vault to
   // look at files no merge glob can name (~2.3 µs each, 18.5 ms for 8 000 notes, at
