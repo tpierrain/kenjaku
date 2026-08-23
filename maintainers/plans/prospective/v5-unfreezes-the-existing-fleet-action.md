@@ -12,10 +12,11 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — THE THIRD `/code-review` PASS LANDED AND ITS QUEUE IS OPEN** _(2026-08-23)_. 15 findings,
-  **T1 paid, T2–T15 to go**, owned entirely by
-  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) — **resume there, at T2**, and
-  do not restate a count here: that is what went stale twice on this file. **Step 4 of § *WHAT IS
+- 🔴 **NEXT — THE THIRD `/code-review` PASS LANDED AND ITS QUEUE IS OPEN** _(2026-08-23)_. Its findings
+  and its progress are owned entirely by
+  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) — **resume there, at the item
+  its own STATE block names**, and do not restate a count or a next item here: that is what went stale
+  twice on this file, and once more on 2026-08-23. **Step 4 of § *WHAT IS
   YOURS* is therefore NOT tickable yet** — its own instruction is that findings are fixed test-first
   before the merge.
 - **Previously, and still true of the release's own scope:** ✅ **everything a session could do alone

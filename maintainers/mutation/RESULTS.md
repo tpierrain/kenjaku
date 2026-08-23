@@ -233,6 +233,38 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T2 — the coupling guard, and a file the instrument CANNOT reach — 2026-08-23
+
+`814be9a` (the fix) + `6e0181c` `566ba35` (the survivors' poles). State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+NEW module → measured **on its lines only**.
+
+| File (range) | First pass | After | Survivors |
+|---|---|---|---|
+| `scripts/lib/engine-script-coupling.mjs:21-40` (`findSiblingImports`) | **90.91 %** — 20 killed, 2 survived | **100 %** — 22 killed | 0 |
+
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-script-coupling.mjs:21-40"`.
+
+**All three survivors were boundaries, and all three were guesses** — the scanner passed every case
+written for it while being quietly wrong about where a match may start and end: the `^` alternative (a
+specifier context opening the file, i.e. a dynamic `import()` on line 1), `\s+` vs `\s` (one space
+between `from` and its specifier in every fixture, so trimming ONE character was indistinguishable),
+and the trailing `$` (which turns *"the context immediately precedes the specifier"* into *"it appears
+somewhere above it"* — the false positive being the ordinary shape of every module in this repo).
+
+🚧 **AND ONE HUNK OF THIS FIX COULD NOT BE MEASURED AT ALL — named rather than silently dropped.**
+`scripts/auto-commit.mjs:77-79`, the `isEntryPoint` compatibility alias, is in a **`merge`-regime**
+file. Stryker instruments the file it mutates, so its bytes change — and the S7-2 freshness guard
+(*"the table covers every merge file of the release being cut"*) hashes exactly those bytes and goes
+red in the dry run. The whole batch then measures nothing. **The tool refused loudly rather than
+scoring the rest**, which is the behaviour its charter promises, so this is a limitation to know about,
+not a defect to fix: **any pass targeting one of the four merge-regime scripts (`auto-commit`,
+`auto-push`, `status-line`, `verify-rag`) will fail this way.** What stands in for it: the alias is
+three lines delegating to `isEntrypoint`, and its two tests assert `true` and `false` by strict
+equality on both branches, so the block mutant (`{}` → `undefined`) is killed by either one.
+
+---
+
 ## W6 — the CRLF cut, and the SAME instrument lie two hours after it was written down — 2026-08-22
 
 `3b6820b` (the fix) + `87e9be1` (the survivor's pole). State owned by

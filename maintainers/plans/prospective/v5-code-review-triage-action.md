@@ -12,14 +12,21 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T2.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1 is PAID** _(`779637e`)_; **T2–T15 are open**, in § *Third pass*, which owns them and their
-  order. **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and
-  **the items below T1 have not been independently re-checked**. Verify, then fix test-first, red
-  first, one commit per subject, pushed as it goes.
-  - **T2 next, and it is this branch's own doing**: removing `isEntryPoint` from `auto-commit.mjs`
-    kills the Stop hook at load on any brain that customized `auto-push.mjs` — the whole backup path,
-    with a `SyntaxError` that `node --check` does not see. Fleet-wide and silent, like T1 was.
+- 🔴 **NEXT — RESUME AT T3.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1 and T2 are PAID** _(`779637e`; `814be9a`)_; **T3–T15 are open**, in § *Third pass*, which owns
+  them and their order. **Read its ⚠️ first**: unlike the two earlier passes, that section is the
+  reviewer's word and **the items below T2 have not been independently re-checked**. Verify, then fix
+  test-first, red first, one commit per subject, pushed as it goes.
+  - **T3 next**: one unreadable merge file aborts the WHOLE reconcile, and on the self-heal path the
+    child is detached with `stdio: "ignore"`, so it re-fires every session with no output at all.
+  - ✅ **T2 paid, and it made the same point T1 did**: the defect was real (reproduced as a process on
+    the REAL v4.9.1 file), **and both defences that should have caught it were green** — `node --check`
+    parses the broken consumer, `verifyWrite` never looks at the preserved sibling. The fix removed the
+    coupling rather than only restoring the export, and a repo-wide guard now holds the class at zero.
+    ⚠️ **One practical thing the next session needs**: a `merge`-regime file **cannot be mutation-scored**
+    (Stryker instruments it, the S7-2 freshness guard hashes those bytes and goes red in the dry run),
+    and **any change to a merge file needs the fingerprint table regenerated**
+    (`node maintainers/fingerprints/generate-fingerprints.mjs --version v5.0.0`).
   - ✅ **T1 paid, and the shape of it is worth carrying into the rest**: the defect was real
     (reproduced as a process — through its real path the hook speaks, through a symlink to the same
     directory it returns the empty string), **and the guard that should have caught it was measuring
@@ -102,7 +109,7 @@
     translating the French twin means writing under `templates/fr/**`, which is forbidden here.
     **Until he answers, do the half that is mine**: state the loss in the release note (an English
     artifact) so the note stops being silent about it. If he says "translate", it becomes item 10.
-- **Blocked on:** nothing. **Suite at the last commit: 2 593 green, 3 skipped** (CI's own invocation,
+- **Blocked on:** nothing. **Suite at the last commit: 2 619 green, 0 fail, 3 skipped** (CI's own invocation,
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
   assertion rather than a loading error.
@@ -828,7 +835,34 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       iCloud/Dropbox path all reach it. Only `session-status.mjs` and `session-engine-divergence.mjs`
       use `runAsEntrypoint`. **Tracked today only as `HAND_ROLLED_CEILING = 9`, whose failure message
       is about testability, never about the hooks being dead.** _(Highest fleet impact of the pass.)_
-- [ ] **T2 — the Stop hook dies at load on a brain that customized `auto-push.mjs`**
+- [x] ✅ **T2 — the Stop hook dies at load on a brain that customized `auto-push.mjs` — PAID**
+      _(2026-08-23 · `814be9a` + `6e0181c` `566ba35`)_. **Confirmed independently before fixing, and
+      reproduced as a PROCESS on the REAL `v4.9.1:scripts/auto-push.mjs`**: exit 1, `SyntaxError: does
+      not provide an export named 'isEntryPoint'`, while `node --check` passed on the same file — the
+      two blindnesses the finding named, both observed rather than reasoned.
+      - 📏 **The population is exact, and it is measured, not estimated.** Over the **25 published
+            tags**, `auto-push.mjs` imports from `auto-commit.mjs` at **v4.9.1 and nowhere else** — so
+            the brains at risk are those on the LATEST release whose auto-push they had tuned. It is
+            also the only cross-import between merge-regime scripts in the repo's whole history.
+      - **Three things landed, and the third is the one that matters.** (1) `isEntryPoint` is published
+            again, **delegating** to the canonical predicate — one behaviour, two names — so those old
+            callers also inherit the realpath fix T1 paid for and never shipped with. (2)
+            `attemptCommit`/`COMMIT_MESSAGE` moved to `lib/vault-commit.mjs` and are re-exported from
+            auto-commit for the fleet: `scripts/lib/**` is one `replace` glob, delivered whole and
+            never preserved, so **the coupling is gone in BOTH directions**. (3) A repo-wide guard,
+            `engine-script-coupling.mjs`, holds the CLASS at zero — no `merge`-regime script may import
+            another one — **seen red naming `scripts/auto-push.mjs:17 imports ./auto-commit.mjs`**,
+            which is the defect itself.
+      - 🧪 **Mutation 90.91 % → 100 %** on the new scanner (`21-40`), three survivors, all three real
+            boundaries the tests had guessed. ⚠️ **And one hunk the instrument CANNOT reach**: a
+            `merge`-regime file is instrumented by Stryker, which changes its bytes and turns the S7-2
+            freshness guard red in the dry run, so the whole batch measures nothing. It refused loudly
+            rather than scoring the rest. → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T2.
+      - 🧭 **The compat alias is a THIRD spelling of the entry predicate, and it is NAMED, not
+            counted**: `HAND_ROLLED_CEILING` stays at 2 and a shrink-only `LEGACY_ALIAS_EXEMPT` carries
+            it, because counting a compatibility surface as the defect is how a ceiling starts lying.
+      - **The original wording is kept below, because the shape T1 warned about held again**: the two
+            defences that should have caught it were both green while the hook was dead.
       (`auto-commit.mjs:81`). This branch drops the exported `isEntryPoint`; `auto-push.mjs` is a
       **separate** merge-regime file refreshed independently (`groupOf: rel => rel`), so a preserved
       customized copy still imports it → `SyntaxError`, **the whole backup/publish path dead at every

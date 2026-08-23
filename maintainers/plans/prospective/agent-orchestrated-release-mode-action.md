@@ -17,8 +17,9 @@
 - **Blocked on:** the release, which is not this file's —
   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) owns its
   state and its cut. **Do not open a slice, do not look for work, and do not take an entry from that
-  cut.** Two review passes have **run**, 15 findings each, and both figures and their debrief are
-  recorded below in § *The adversarial-review fan-out as standing QA*.
+  cut.** The review passes that have **run** are counted in the box directly below and nowhere else —
+  this line used to say "two", which the box has contradicted since 2026-08-23. Their figures and
+  their debrief are recorded in § *The adversarial-review fan-out as standing QA*.
 - 📊 **THE THIRD FIGURE CAME BACK, AND IT IS 15 AGAIN** _(2026-08-23)_. Three independent reads of
   this branch, **15 findings each, 45 in all** — and the third ran on the repairs the second batch had
   just shipped test-first and green. **So it is a trend, not a one-off**: the second pass's lesson
