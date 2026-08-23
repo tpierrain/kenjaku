@@ -113,6 +113,32 @@ function isSacred(entry) {
   return SACRED_FILES.includes(s) || SACRED_TREES.some((tree) => (s + "/").startsWith(tree));
 }
 
+// 🚨 T12 (third v5.0.0 review pass) — AN ENTRY THAT CLIMBS OUT IS NOT AN ENTRY.
+//
+// Every check in this module reasons about a manifest entry as a path INSIDE the brain:
+// `isSacred` compares prefixes, `ENGINE_SKILL` matches `.claude/skills/<segment>/`, and
+// `[^/]+` accepts `..` as happily as it accepts `coach`. So
+// `.claude/skills/../../vault/**` passed the check the retirement bucket calls its
+// *"ONLY defence"*, and `planTouches` — the never-touch oracle every guard test in this
+// repo asks — then answered "the engine never writes there" about a plan that had just
+// named the vault.
+//
+// Refused HERE, at the allowlist's own construction, rather than in the oracle: an entry
+// that reaches no bucket is one the oracle cannot be wrong about, and the six other
+// consumers of these buckets inherit the refusal without knowing it exists.
+//
+// SEGMENTS, not characters: `.claude/skills/my..skill/**` is a perfectly good skill name,
+// and a guard that is wrong about legitimate input is one people widen instead of read.
+// Split on BOTH separators, because `path.win32.join` treats `\` as one — a check that
+// only knew `/` would reject nothing on the single platform where the traversal actually
+// resolves. A manifest entry is POSIX-spelled by contract (ADR 0015), so a backslash in
+// one is malformed whatever it is trying to do.
+function climbsOut(entry) {
+  return stem(entry)
+    .split(/[\\/]/)
+    .some((segment) => segment === ".." || segment === ".");
+}
+
 // True iff the plan would write `relPath` — the never-touch oracle the guard tests
 // and the apply step (Step 4) use to resolve globs against concrete files. Because
 // the plan is an allowlist, this is false for every user file by construction.
@@ -128,7 +154,11 @@ export function planTouches(plan, relPath) {
 
 export function computeApplyPlan(targetManifest) {
   const regimes = targetManifest?.regimes ?? {};
-  const scrub = (entries) => entries.filter((entry) => !isSacred(entry));
+  // T12 — `climbsOut` first and unconditionally, on EVERY bucket including the two the
+  // sacred scrub deliberately spares: an entry the engine cannot spell is not one the
+  // owner declared, whatever else is true of it.
+  const declared = (entries) => (entries ?? []).filter((entry) => !climbsOut(entry));
+  const scrub = (entries) => declared(entries).filter((entry) => !isSacred(entry));
   // ⚰️ A TOMBSTONE BEATS A REGIME. Computed before the buckets because `installSkills`
   // has to subtract it: the reconcile's install-if-absent runs a few lines after the
   // retirement, finds a directory that just went missing, and puts it straight back —
@@ -136,7 +166,7 @@ export function computeApplyPlan(targetManifest) {
   // manifest edits are meant to be one change; this makes that a belt rather than the
   // only thing holding it up, and it is the right precedence anyway: of "we still ship
   // this" and "we no longer ship this", the second is the more explicit statement.
-  const retireSkills = (targetManifest?.retired ?? []).filter((entry) => ENGINE_SKILL.test(entry));
+  const retireSkills = declared(targetManifest?.retired).filter((entry) => ENGINE_SKILL.test(entry));
   const retiredDirs = new Set(retireSkills.map(stem));
   return {
     overwrite: scrub([...(regimes.replace ?? [])]),
@@ -146,8 +176,8 @@ export function computeApplyPlan(targetManifest) {
     // that is not sacred and never can be, so a scrub could not remove one entry ever.
     // A guard that cannot change a byte is noise (the repeated mutation lesson) — the
     // anchoring IS the guard, and `SACRED_FILES` keeps defending the sibling it protects.
-    mergeDoctrine: (regimes.merge ?? []).filter((entry) => ENGINE_DOCTRINE.test(entry)),
-    installSkills: (regimes.merge ?? [])
+    mergeDoctrine: declared(regimes.merge).filter((entry) => ENGINE_DOCTRINE.test(entry)),
+    installSkills: declared(regimes.merge)
       .filter((entry) => ENGINE_SKILL.test(entry))
       .filter((entry) => !retiredDirs.has(stem(entry))),
     // ⚰️ THE SUBTRACTIVE BUCKET, and the only list in this product whose entries end in
@@ -157,8 +187,13 @@ export function computeApplyPlan(targetManifest) {
     // parse half way would otherwise read as "retire everything".
     // Unscrubbed like `installSkills`, and for the same reason: `.claude/skills/` is an
     // inviolable TREE, so a scrub would empty this every time and the tombstone would
-    // be a silent no-op. So `ENGINE_SKILL` is again the ONLY defence — which here means
-    // it is what stands between a hand-broken manifest and the owner's vault.
+    // be a silent no-op.
+    // ⚠️ This comment said `ENGINE_SKILL` was "the ONLY defence" and that was the
+    // sentence T12 was really about: `[^/]+` accepts `..`, so an entry that started
+    // inside the skills tree and climbed back out walked through the one check standing
+    // between a hand-broken manifest and the owner's vault. There are TWO checks now, and
+    // `climbsOut` is the load-bearing one here — `ENGINE_SKILL` says "this is shaped like
+    // a skill", it never said "and it stays where it claims to be".
     retireSkills,
   };
 }

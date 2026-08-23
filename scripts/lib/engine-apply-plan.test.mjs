@@ -490,3 +490,80 @@ test("computeApplyPlan — a `local` regime contributes to NO bucket: an update 
     assert.equal(planTouches(plan, basePath), false, `the plan must NOT touch ${basePath}`);
   }
 });
+
+// ─── T12 (third review pass): `..` walked straight through the ONLY defence ──
+// The hostile-manifest test above says `retired` retires skill directories "and nothing
+// else", and it was true of every entry it thought to try. `ENGINE_SKILL` matches
+// `.claude/skills/<segment>/`, and `[^/]+` accepts `..` — so an entry that STARTS inside
+// the skills tree and then climbs back out passed the one check standing between a
+// hand-broken manifest and the owner's vault.
+//
+// What it cost, measured rather than assumed: no deletion (a provenance key cannot match
+// a vault note, so the verdict is never `remove`), but the retirement LISTS the escaped
+// tree and reads every file in it into memory, then names it in an owner-facing line. And
+// `planTouches` — the never-touch oracle every guard test in this repo asks — answered
+// "the engine never writes there" about a plan that had just named the vault.
+const ESCAPES = [
+  ".claude/skills/../../vault/**",     // out of the tree from the skill-name segment
+  ".claude/skills/coach/../../../vault/**", // ...and from below a legitimate skill
+  ".claude/skills/./../vault/**",      // `.` is no more a skill name than `..` is
+  ".claude/skills/../.env",            // the owner's API key, one segment away
+];
+
+test("computeApplyPlan — SAFETY CORE: a tombstone that CLIMBS OUT of the skills tree is no tombstone (T12)", () => {
+  const plan = computeApplyPlan({ retired: [...ESCAPES, ".claude/skills/tdd-discipline/**"] });
+
+  assert.deepEqual(plan.retireSkills, [".claude/skills/tdd-discipline/**"], "only the entry that stays inside");
+});
+
+test("computeApplyPlan — the escape is refused on WINDOWS separators too (T12)", () => {
+  // `path.win32.join` treats `\` as a separator, so a check that splits on `/` alone
+  // rejects nothing at all on the one platform where the traversal would actually
+  // resolve. A manifest entry is POSIX-spelled by contract (ADR 0015); a backslash in
+  // one is malformed whatever it is trying to do.
+  const plan = computeApplyPlan({
+    retired: [".claude/skills/..\\..\\vault/**", ".claude/skills/tdd-discipline/**"],
+  });
+
+  assert.deepEqual(plan.retireSkills, [".claude/skills/tdd-discipline/**"]);
+});
+
+test("computeApplyPlan — an escaping entry reaches NO bucket, not merely the subtractive one (T12)", () => {
+  // The finding named `retireSkills` because it is the bucket that ends in a delete. But
+  // the oracle's promise is about the whole plan, and an entry the engine cannot spell
+  // has no business in a copy bucket either.
+  const plan = computeApplyPlan({
+    regimes: {
+      replace: ["scripts/../vault/**", "rag/src/**"],
+      regenerate: ["scripts/../../elsewhere/launch.sh", "rag/launch.sh"],
+      merge: [".claude/skills/../../vault/**", ".claude/skills/coach/**", "scripts/../auto-commit.mjs"],
+    },
+  });
+
+  assert.deepEqual(plan.overwrite, ["rag/src/**"]);
+  assert.deepEqual(plan.regenerate, ["rag/launch.sh"]);
+  assert.deepEqual(plan.installSkills, [".claude/skills/coach/**"]);
+  assert.deepEqual(plan.mergeScripts, []);
+});
+
+test("planTouches — the oracle no longer says 'never' about a tree the plan just named (T12)", () => {
+  // The assertion the finding is really about: every guard test in this repo asks this
+  // question, and it must not answer "the engine never writes there" about a path the
+  // plan escaped to. It is true now because the entry never entered a bucket — the
+  // oracle was never the right place to fix it.
+  const plan = computeApplyPlan({ retired: [".claude/skills/../../vault/**"] });
+
+  assert.deepEqual(plan.retireSkills, []);
+  assert.equal(planTouches(plan, "vault/notes/a.md"), false, "and it is false because nothing named it");
+});
+
+test("computeApplyPlan — a skill whose name merely CONTAINS dots is still a skill (T12)", () => {
+  // The refusal is about path SEGMENTS, not about the character. A guard that rejected
+  // any entry containing ".." would take `.claude/skills/my..skill/**` with it, and a
+  // guard that is wrong about legitimate input is one people widen instead of read.
+  const plan = computeApplyPlan({
+    retired: [".claude/skills/my..skill/**", ".claude/skills/...dots/**"],
+  });
+
+  assert.deepEqual(plan.retireSkills, [".claude/skills/my..skill/**", ".claude/skills/...dots/**"]);
+});
