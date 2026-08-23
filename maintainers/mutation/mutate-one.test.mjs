@@ -543,6 +543,45 @@ All files                   |  81.57 |   81.57 |      331 |        32 |         
 00:52:13 (53593) INFO MutationTestExecutor Done in 14 minutes and 34 seconds.
 `;
 
+// Stryker wraps its two SCORE columns in colour whenever the terminal takes it:
+// `|\x1b[32m 100.00 \x1b[39m|`. Nothing else in the table is coloured, which is why the
+// killed/survived counts kept reading and only the score went missing.
+const colourScores = (table, open = "\x1b[32m", close = "\x1b[39m") =>
+  table
+    .split("\n")
+    .map((line) => {
+      const cells = line.split("|");
+      if (cells.length < 8) return line;
+      return cells.map((cell, i) => (i === 1 || i === 2 ? `${open}${cell}${close}` : cell)).join("|");
+    })
+    .join("\n");
+
+test("parseMutationReport — a COLOURISED table reads exactly like a plain one", () => {
+  // 🛑 Found while measuring T14's own fix: 66 killed, 0 survived, and the runner
+  // announced `✅ Mutation score null %` over a table whose every row said 100.00.
+  // `Number("\x1b[32m 100.00 \x1b[39m")` is NaN, and T13 had just turned NaN into null —
+  // so the tell for "this run measured nothing" now also fires on a perfect score.
+  //
+  // T13 stripped the colour out of the OTHER parser in this file and stopped there. The
+  // census was one function short, which is T10's lesson for the fifth time on this
+  // branch: the call site a finding names is a sample, not the census.
+  assert.deepEqual(parseMutationReport(colourScores(STRYKER_TAIL)), parseMutationReport(STRYKER_TAIL));
+  // Pinned as a VALUE too, not only as an agreement: two identical nulls would satisfy
+  // the line above while measuring nothing at all.
+  assert.equal(parseMutationReport(colourScores(STRYKER_TAIL)).score, 81.57);
+  assert.deepEqual(
+    parseMutationReport(colourScores(STRYKER_TAIL)).files.map((f) => f.score),
+    [71.82, 100, 100, 100],
+    "and the per-file breakdown too — it is what the `measured nothing` gate reads",
+  );
+});
+
+test("parseMutationReport — ANY colour sequence, not the one spelling Stryker uses today", () => {
+  // The same triangulation `parseTestCounts` carries one section up, and for the same
+  // reason: a stripper that knows a single shape is the bet this file has now lost twice.
+  assert.equal(parseMutationReport(colourScores(STRYKER_TAIL, "\x1b[1;32m", "\x1b[m")).score, 81.57);
+});
+
 test("parseMutationReport — the overall row and every file row, whole", () => {
   assert.deepEqual(parseMutationReport(STRYKER_TAIL), {
     score: 81.57,

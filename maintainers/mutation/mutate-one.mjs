@@ -325,18 +325,25 @@ export function tuningViolations(config) {
 
 // ── Reading what the two runs said ───────────────────────────────────────────
 
+// 🚨 COLOUR IS NOT CONTENT, and this is the ONE place that says so. Both readers below
+// parse a terminal's output, and both were blinded by the same escape sequences —
+// `node --test` wraps its summary lines, Stryker wraps its two score columns. T13 fixed
+// the first and stopped there, so the second went on failing for one more day: it
+// returned `null` over a table reading 100.00, and `null` is now the tell for a run that
+// measured NOTHING. Two copies of this rule is how the second one gets forgotten.
+//
+// ANY colour sequence, not the spellings these two tools happen to use today: a
+// parameter list (`\x1b[1;34m`) and the bare reset (`\x1b[m`) are just as legal, and a
+// stripper written against one shape is the bet this file has now lost twice. Spelled
+// `\x1b` rather than the raw byte, which is invisible to whoever reads this next.
+const withoutColour = (text) => text.replace(/\x1b\[[\d;]*m/g, "");
+
 // node --test's summary, or null when there is none: a run that crashed before
 // reporting must never read as "nothing skipped".
 export function parseTestCounts(output) {
-  // node --test wraps each summary line in colour when anything in the environment
-  // asks for it (`FORCE_COLOR`): `\x1b[34mℹ pass 22\x1b[39m`. Both anchors below
-  // then match nothing, and a green run reads as a run that reported nothing.
-  //
-  // ANY colour sequence, not the two spellings node happens to use today: a
-  // parameter list (`\x1b[1;34m`) and the bare reset (`\x1b[m`) are just as legal,
-  // and a stripper written against one shape is the bet that was just lost. Spelled
-  // `\x1b` rather than the raw byte, which is invisible to whoever reads this next.
-  const plain = output.replace(/\x1b\[[\d;]*m/g, "");
+  // Colour costs both anchors below their match, and a green run then reads as a run
+  // that reported nothing.
+  const plain = withoutColour(output);
   const count = (label) => {
     const found = plain.match(new RegExp(`^\\s*ℹ ${label} (\\d+)$`, "m"));
     return found ? Number(found[1]) : null;
@@ -359,7 +366,7 @@ function scoreOrNull(cell) {
 // Stryker's clear-text table. Returns null when there is no table — a killed or
 // crashed run has no score, and that is not a zero.
 export function parseMutationReport(log) {
-  const rows = log
+  const rows = withoutColour(log)
     .split("\n")
     .map((line) => line.split("|"))
     .filter((cells) => cells.length >= 8)

@@ -1,0 +1,51 @@
+[32m18:27:14 (88555) INFO ProjectReader[39m Found 3 of 924 file(s) to be mutated.
+[32m18:27:14 (88555) INFO Instrumenter[39m Instrumented 3 source file(s) with 66 mutant(s)
+[32m18:27:14 (88555) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m18:27:14 (88555) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-x1Fn6F
+[32m18:27:14 (88555) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m18:27:14 (88555) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m18:27:18 (88555) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3542 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/66 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/66 tested (0 survived, 0 timed out)
+Mutation testing 7% (elapsed: <1m, remaining: ~6m) 5/66 tested (0 survived, 0 timed out)
+Mutation testing 7% (elapsed: <1m, remaining: ~8m) 5/66 tested (0 survived, 0 timed out)
+Mutation testing 16% (elapsed: <1m, remaining: ~4m) 11/66 tested (0 survived, 0 timed out)
+Mutation testing 16% (elapsed: ~1m, remaining: ~5m) 11/66 tested (0 survived, 0 timed out)
+Mutation testing 24% (elapsed: ~1m, remaining: ~3m) 16/66 tested (0 survived, 0 timed out)
+Mutation testing 24% (elapsed: ~1m, remaining: ~4m) 16/66 tested (0 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~1m, remaining: ~3m) 21/66 tested (0 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~1m, remaining: ~3m) 21/66 tested (0 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~1m, remaining: ~3m) 24/66 tested (0 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~2m, remaining: ~3m) 26/66 tested (0 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~2m, remaining: ~3m) 26/66 tested (0 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~2m, remaining: ~2m) 31/66 tested (0 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~2m, remaining: ~2m) 31/66 tested (0 survived, 0 timed out)
+Mutation testing 54% (elapsed: ~2m, remaining: ~2m) 36/66 tested (0 survived, 0 timed out)
+Mutation testing 54% (elapsed: ~2m, remaining: ~2m) 36/66 tested (0 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~3m, remaining: ~1m) 41/66 tested (0 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~3m, remaining: ~1m) 41/66 tested (0 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~3m, remaining: ~1m) 44/66 tested (0 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~3m, remaining: ~1m) 46/66 tested (0 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~3m, remaining: ~1m) 48/66 tested (0 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~3m, remaining: ~1m) 52/66 tested (0 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~4m, remaining: <1m) 53/66 tested (0 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~4m, remaining: <1m) 57/66 tested (0 survived, 0 timed out)
+Mutation testing 87% (elapsed: ~4m, remaining: <1m) 58/66 tested (0 survived, 0 timed out)
+Mutation testing 95% (elapsed: ~4m, remaining: <1m) 63/66 tested (0 survived, 0 timed out)
+
+All tests
+  [92m✓[39m [90mAll tests[39m (killed 66)
+
+Ran 1.00 tests per mutant on average.
+----------------------------|------------------|----------|-----------|------------|----------|----------|
+                            | % Mutation score |          |           |            |          |          |
+File                        |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                   |[32m 100.00 [39m|[32m  100.00 [39m|       66 |         0 |          0 |        0 |        0 |
+ lib                        |[32m 100.00 [39m|[32m  100.00 [39m|       50 |         0 |          0 |        0 |        0 |
+  engine-ancestor-fetch.mjs |[32m 100.00 [39m|[32m  100.00 [39m|       44 |         0 |          0 |        0 |        0 |
+  plural.mjs                |[32m 100.00 [39m|[32m  100.00 [39m|        6 |         0 |          0 |        0 |        0 |
+ update-engine.mjs          |[32m 100.00 [39m|[32m  100.00 [39m|       16 |         0 |          0 |        0 |        0 |
+----------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m18:31:53 (88555) INFO MutationTestExecutor[39m Done in 4 minutes and 39 seconds.
+[32m18:31:53 (88555) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-x1Fn6F.

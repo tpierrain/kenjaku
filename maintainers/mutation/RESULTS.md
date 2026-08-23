@@ -299,6 +299,18 @@ every invocation — a thing to remember, so a thing to forget. Stripped now, fo
 first pass scored 75 % with both survivors in the parameter-list group, since nothing had fed it
 `\x1b[1;34m` or the bare reset `\x1b[m`.
 
+🛑 **AND THE FIX ABOVE WAS ONE FUNCTION SHORT — found the next day, by the first run that took it at
+its word** _(2026-08-23 · T14's own measurement · `parseMutationReport`)_. Dropping the workaround is
+what exposed it: `parseMutationReport` reads the SAME terminal output and was never taught the same
+lesson, so Stryker's two colourised score columns (`|\x1b[32m 100.00 \x1b[39m|`) reached `Number()`
+as NaN. The killed and survived counts kept reading — those columns are not coloured — so the run
+announced **`✅ Mutation score null %` over a table whose every row said 100.00**. Worse than
+cosmetic: `null` is precisely the tell T13 had just installed for *"this run measured nothing"*, and
+here it fired on a **perfect** score, in a runner whose whole job is to make an unmeasured run
+impossible to miss. **This is T10's lesson for the fifth time on this branch** — the call site a
+finding names is a sample, not the census. The rule now has ONE home (`withoutColour`), read by both
+parsers, and the colourised table is pinned against the plain one in two SGR spellings.
+
 ---
 
 ## T9 — a fix in the file the instrument CANNOT reach, for the second time — 2026-08-23
