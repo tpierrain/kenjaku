@@ -144,7 +144,10 @@ export function syncBaseTree({ brainDir, manifest, provenance = {}, deliveredFil
   // that may already have moved on.
   const advanced = { ...provenance, ...Object.fromEntries(advance.map((entry) => [entry.rel, entry.sha])) };
   const installedFileMap = readInstalledMergeFiles({ brainDir, manifest, unreadable });
-  const setAside = new Set(unreadable ?? []);
+  // `new Set(null)` is already the empty set, so no `?? []` guard: written with one, the
+  // fallback was a mutant no input could kill — the only caller that reaches here with a
+  // null collector is one for which nothing was set aside anyway.
+  const setAside = new Set(unreadable);
   const recorded = Object.fromEntries(Object.entries(advanced).filter(([rel]) => !setAside.has(rel)));
   const candidates = [...new Set([...Object.keys(installedFileMap), ...Object.keys(recorded)])];
   const { seeds, deferred } = planBaseSeed({
