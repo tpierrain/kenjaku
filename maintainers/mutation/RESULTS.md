@@ -233,6 +233,27 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T15 — the careful invocation was the live one — 2026-08-23
+
+`0286481`. State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+EXISTING file changed → measured **on THOSE LINES ONLY**: `--mutate
+"maintainers/mutation/mutate-one.mjs:109-146"` through the maintainers config.
+**49 killed, 0 survived, 2 timeouts (3.9 %, well under the 25 % tell) → 100.00 %.**
+
+**Reproduced through the real CLI as a process** before a line changed: `--worktree` and `--log` took
+`argv[++i]` whatever it was, so `mutate-one.mjs <target> --worktree --dry-run` meant *"a worktree
+named `--dry-run`, and no dry run"* — a real Stryker run, a real score, exit 0, and a stray directory
+beside the repo, **for the person who was being careful**.
+
+🧭 **Why two earlier passes hardened these exact two arguments and neither saw it.** F6 checked the
+worktree name's SHAPE, S2 checked the log name's, and `isPlainName` allows `-` because
+`kenjaku-mut-one` needs it. Both were answering *"what does this value look like?"*, and the question
+here is **"was that ever a value?"** A guard cannot find a defect it is not asking about, however
+many times it is pointed at the same line.
+
+---
+
 ## T14 — one word for two kinds of bad news, and the honest one was crying wolf — 2026-08-23
 
 `49fa874` (the two verdicts) + `9e431a4` (the instrument that could not read its own 100). State owned

@@ -12,20 +12,22 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T15, THE LAST ONE.** The third pass landed 2026-08-23 with 15 findings,
-  T1–T15. **T1–T14 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`;
-  `00caad7`; `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`;
-  `658c348`+`da1fe2e`+`3eec3cc`+`74fb898`+`d48d2c5`; `49fa874`+`9e431a4`)_; **T15 alone is open**, in
-  § *Third pass*, which owns it.
-  **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and **the
-  items below T9 have not been independently re-checked**. Verify, then fix test-first, red first, one
-  commit per subject, pushed as it goes.
-  - **T15 next**: `mutate-one.mjs`'s `parseArgs` lets `--worktree` / `--log` swallow a following
-    `--dry-run` via `argv[++i]`, and `isPlainName` accepts the swallowed flag because `-` is in its
-    character class. Someone who typed `--dry-run` gets a **real** Stryker run and a worktree named
-    `--dry-run` beside the repo. **Two earlier passes hardened these same two arguments on value
-    shape and neither raised this** — so verify it as a process before fixing, as every item since T1
-    has been.
+- 🟢 **NEXT — THE FIFTEEN ARE DONE; WHAT IS LEFT IS THE TWO CONVENTION ITEMS THE CAP CUT.** The third
+  pass landed 2026-08-23 with 15 findings, T1–T15, and **all fifteen are PAID** _(`779637e`;
+  `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`; `85c2167`; `c3f26bd`;
+  `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`;
+  `658c348`+`da1fe2e`+`3eec3cc`+`74fb898`+`d48d2c5`; `49fa874`+`9e431a4`; `0286481`)_. Each was
+  reproduced independently before its fix, fixed test-first, and mutation-scored on the lines it
+  changed. **Resume in § *Cut by the reviewer's 15-item cap***, at its first unticked box:
+  - **The French `why:` strings** in four new `scripts/lib/*.test.mjs` — a rule this repo states about
+    itself, and cheap. **Take it.**
+  - **Then the plans' `## 📍 STATE` line counts.** ⚠️ **Verify the MEASURE before the finding**: these
+    files put their sections in `>` blockquotes, so a count that stops at the next `##` swallows the
+    rest of the file, and one of the five was reported at 1431 lines.
+  - The rest of that section is **latent / quality, deliberately uncut** — read the box, do not treat
+    it as a queue.
+  **And read § *Third pass*'s ⚠️ if a claim there is ever reused**: it is the reviewer's word, and it
+  is the *fixes* that were verified item by item, not the prose around them.
   - ✅ **T14 paid, and the run that measured it found the INSTRUMENT blind**
     _(`49fa874` the two verdicts + `9e431a4` the colour strip · scoped mutation **100.00 %** on both,
     71 mutants, 0 survivors)_. One `failed` list said "the update server was unreachable" over a git
@@ -1314,11 +1316,21 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
         else's tests. One home for the rule now (`withoutColour`), both parsers reading it, pinned in
         two SGR spellings and on the per-file breakdown the "measured nothing" gate reads.
         → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T14 and the tail of § T13.
-- [ ] **T15 — an explicitly typed `--dry-run` is swallowed and the run goes LIVE**
-      (`mutate-one.mjs:104`). `--worktree`/`--log` take `argv[++i]`, and `isPlainName` accepts the
-      swallowed flag because `-` is in its character class. The user who typed `--dry-run` gets a real
-      Stryker run, a green score, exit 0, and a stray worktree named `--dry-run` beside the repo.
-      **Two prior passes hardened these same two arguments on value shape and neither raised this.**
+- [x] ✅ **T15 — an explicitly typed `--dry-run` is swallowed and the run goes LIVE — PAID**
+      _(2026-08-23 · `0286481` · scoped mutation **100.00 %**, 49 killed, 0 survivors, 2 timeouts)_.
+      **Confirmed independently, and reproduced through the real CLI as a process**: `--worktree
+      --dry-run` printed the plan for a live Stryker run on a worktree named `--dry-run`. It now
+      refuses with exit 2 before spawning anything, and the legitimate `--worktree kenjaku-mut-one
+      --dry-run` is untouched.
+      - 🧭 **Why two earlier passes hardened these exact two arguments and neither saw it** — the most
+        useful thing in the item. F6 checked the worktree name's SHAPE and S2 the log name's, and
+        `isPlainName` allows `-` because `kenjaku-mut-one` needs it. Both were asking *"what does this
+        value look like?"*; the question here is **"was that ever a value?"** A guard cannot find a
+        defect it is not asking about, however many times it is pointed at the same line.
+      - **Written once for BOTH options**, not for the one the finding named: F6 fixed `--worktree`
+        and S2 had to come back for `--log`, on this very seam. The error is also raised **before**
+        the shape guards, which would have described `--dry-run` as a badly-shaped folder name when
+        what actually happened is that a flag went missing.
 
 ### Cut by the reviewer's 15-item cap — recorded so they are not lost
 
