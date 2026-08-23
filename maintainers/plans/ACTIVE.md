@@ -1,6 +1,6 @@
 <!-- THE DOOR — it answers ONE question: where does work resume? Links and a date -->
 <!-- only, never a status: every plan owns its own state and this file copies none. -->
-<!-- Under 30 lines, forever. Why: prospective/plan-state-single-source-study.md    -->
+<!-- Under 30 lines, forever. Why: ../studies/plan-state-single-source-study.md   -->
 
 # ▶️ ACTIVE — the one way in
 
@@ -19,7 +19,7 @@ the active plan, never directly.
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
-- [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md) —
+- [`prospective/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
   its queued items come due now that the tag is cut.
 - [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)
   — read before v5.1's universe group; it says why universe changes keep escaping green suites.

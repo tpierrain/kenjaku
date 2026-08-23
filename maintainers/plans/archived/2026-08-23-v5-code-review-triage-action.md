@@ -1157,5 +1157,5 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       - 🔗 **And it fed the open question it is evidence for**: the cap was **applied everywhere and
         held nowhere** for three weeks, unnoticed by anything but a review — which is exactly what
         the *cheap half* of the plan lint would count. Recorded in
-        [`plan-state-single-source-study.md`](../prospective/plan-state-single-source-study.md) § *QUEUED FOR AFTER
+        [`plan-state-single-source-study.md`](../../studies/plan-state-single-source-study.md) § *QUEUED FOR AFTER
         THE v5.0.0 TAG*, whose owner's call it is. **Not built: he asked for it after the tag.**

@@ -52,7 +52,7 @@ _(Everything below is the historical record of the mode and its debriefs. Do not
 >   lesson's real content: the mode's claims about its own state have exactly one reviewer, and he is
 >   not a mechanism. The written half is patched (`rules/plans.md`: read the body before asking him
 >   anything); the mechanical half is queued behind the tag in
->   [`plan-state-single-source-study.md`](../prospective/plan-state-single-source-study.md).
+>   [`plan-state-single-source-study.md`](../../studies/plan-state-single-source-study.md).
 > - 📐 **"Checked, not assumed" is a claim about the CHECK, and the mode writes it fastest when the
 >   check is weakest** _(2026-08-22)_. A long unattended stretch recorded a range verdict as a
 >   📐-marked box — the marker this mode uses to mean *measured* — over a command that was really a

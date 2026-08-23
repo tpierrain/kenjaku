@@ -10,7 +10,7 @@
 > The three questions below were **asked and answered**. The answer moved the subject off this note
 > entirely: by *Graph Engineering* he meant **orchestrating subagents to build the next Kenjaku
 > release**, not a graph structure inside the product. The working contract that came out of it lives
-> in its own plan: [`agent-orchestrated-release-mode-action.md`](../archived/2026-08-23-agent-orchestrated-release-mode-action.md).
+> in its own plan: [`agent-orchestrated-release-mode-action.md`](../plans/archived/2026-08-23-agent-orchestrated-release-mode-action.md).
 >
 > **What this note keeps**: the *runtime* graph question — a graph as a retrieval or ingestion object
 > inside Kenjaku — which he says he does have in mind and wants to **study with me, but AFTER the
@@ -41,7 +41,7 @@
 >
 > **UNPAUSED 2026-08-19**: `update-regime-owns-what-it-shipped-action.md` kept everything it carried
 > and is live again, to be built in the orchestrated mode described in
-> [`agent-orchestrated-release-mode-action.md`](../archived/2026-08-23-agent-orchestrated-release-mode-action.md).
+> [`agent-orchestrated-release-mode-action.md`](../plans/archived/2026-08-23-agent-orchestrated-release-mode-action.md).
 >
 > ### ✅ THE FRAMING CONVERSATION — asked 2026-08-15, ANSWERED 2026-08-19
 >
@@ -113,7 +113,7 @@ of the answers, and then the **RAG (which came second)**, pulled all the investm
 and let the **curation / consolidation / lint discipline quietly lapse**. The RAG is an **augmentation
 of the LLM-Wiki principle, not a departure from it** — but its success **eclipsed** the compile
 discipline. **Reclaiming Axis 1 is precisely what this study, and its action plan
-([`wiki-health-axis1-mechanisms-action.md`](wiki-health-axis1-mechanisms-action.md)), are for** — and
+([`wiki-health-axis1-mechanisms-action.md`](../plans/prospective/wiki-health-axis1-mechanisms-action.md)), are for** — and
 the §8 audit confirms Axis 1 is, today, under-invested.
 
 ---
@@ -212,7 +212,7 @@ embedder watch: **eval-first, measure, don't assume** (that note's §6).
 
 - Sibling: [`etude-rag-local-criteres-et-veille.md`](etude-rag-local-criteres-et-veille.md) —
   embedder alternatives for the *vector* RAG. This note is the *retrieval-paradigm* companion.
-- The `Embedder` SPI plan [`embedder-spi.md`](embedder-spi.md) and the stable MCP contract
+- The `Embedder` SPI plan [`embedder-spi.md`](../plans/archived/embedder-spi.md) and the stable MCP contract
   (ADR 0006) mean a consolidation layer could be added **behind** the contract, as an
   ingestion-side transform, without breaking the harness.
 - Any decision to actually pursue this belongs in an **ADR** ("embedding-RAG vs compiled-wiki

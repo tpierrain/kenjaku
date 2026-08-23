@@ -12,7 +12,7 @@
   (the push stays opt-in and debounced — reused verbatim, not reimplemented);
   [`0006-rag-mcp-is-stable-contract.md`](0006-rag-mcp-is-stable-contract.md) (the coupling objection,
   re-examined below); [`0009-prefer-deterministic-mechanisms.md`](0009-prefer-deterministic-mechanisms.md);
-  field log [`../plans/prospective/fleet-upgrade-field-feedback.md`](../plans/prospective/fleet-upgrade-field-feedback.md)
+  field log [`../plans/prospective/fleet-upgrade-field-feedback.md`](../studies/fleet-upgrade-field-feedback.md)
   (F8/P1, F9, F11).
 
 ## Crux

@@ -5,7 +5,7 @@
   lineage / positioning decision; it also **frames** the Axis-1 engine features it justifies (plan
   [`../plans/prospective/wiki-health-axis1-mechanisms-action.md`](../plans/prospective/wiki-health-axis1-mechanisms-action.md)).
 - **Related:** study
-  [`../plans/prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](../plans/prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md)
+  [`../plans/prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](../studies/llm-wiki-vs-embedding-rag-karpathy-graphify.md)
   (the two-axis model + the wiki-health audit);
   [`0007-three-embedder-adapters-privacy-scale.md`](0007-three-embedder-adapters-privacy-scale.md)
   and [`0008-lightrag-graph-rag-deferred.md`](0008-lightrag-graph-rag-deferred.md) (the Axis-2 / RAG

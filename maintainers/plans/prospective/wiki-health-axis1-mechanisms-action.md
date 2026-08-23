@@ -17,7 +17,7 @@
 # Action plan — give Axis 1 (wiki-health / consolidation) real mechanics
 
 > **Why this plan exists.** The study
-> [`llm-wiki-vs-embedding-rag-karpathy-graphify.md`](llm-wiki-vs-embedding-rag-karpathy-graphify.md)
+> [`llm-wiki-vs-embedding-rag-karpathy-graphify.md`](../../studies/llm-wiki-vs-embedding-rag-karpathy-graphify.md)
 > (§8 audit) established that Kenjaku ships **Axis 2** (retrieval / RAG) as a full versioned, tested,
 > auto-updating engine, but ships **Axis 1** (the LLM-Wiki compile / consolidation discipline) as
 > **constitution conventions with zero enforcement**. This plan gives Axis 1 some *mechanics*. The
@@ -272,9 +272,9 @@ artifacts**:
 
 ## Related
 
-- Study: [`llm-wiki-vs-embedding-rag-karpathy-graphify.md`](llm-wiki-vs-embedding-rag-karpathy-graphify.md)
+- Study: [`llm-wiki-vs-embedding-rag-karpathy-graphify.md`](../../studies/llm-wiki-vs-embedding-rag-karpathy-graphify.md)
 - Positioning / lineage: [`../../decisions/0033-descends-from-karpathy-llm-wiki-not-graphify.md`](../../decisions/0033-descends-from-karpathy-llm-wiki-not-graphify.md)
 - Determinism ladder: [`../../decisions/0009-prefer-deterministic-mechanisms.md`](../../decisions/0009-prefer-deterministic-mechanisms.md)
 - Engine packaging / self-install: ADR 0012, ADR 0025
 - Import chantier (private content): [`second-brain-migration-and-engine-upstream-action.md`](second-brain-migration-and-engine-upstream-action.md)
-- Sibling RAG watch: [`etude-rag-local-criteres-et-veille.md`](etude-rag-local-criteres-et-veille.md)
+- Sibling RAG watch: [`etude-rag-local-criteres-et-veille.md`](../../studies/etude-rag-local-criteres-et-veille.md)

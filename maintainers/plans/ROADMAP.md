@@ -39,7 +39,7 @@ all this file records:
   The living rule moved to `CONVENTIONS.md` **§12** (what is delegable, what a wave costs) — read
   that before dispatching anything to a subagent; open the archived plan only for the measurements.
 - **The runtime-graph question goes back to a WATCH note**
-  ([`prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md)):
+  ([`../studies/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](../studies/llm-wiki-vs-embedding-rag-karpathy-graphify.md)):
   **deferred, on his explicit ask, to AFTER this release** — a study to do *with* him, not work to
   pick up. He also **ruled out** building the release on top of a knowledge graph of the codebase (too
   long, too little code for the payoff).
@@ -121,7 +121,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         `CLAUDE.engine.md` (no clobber, no reindex, no behaviour change). Trivially safe while the
         engine layer is not propagated to deployed brains.
   - [ ] Field-verify a real fresh two-layer install (EN + FR) at Gate 3 generate time.
-  - [x] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Sequencing decision".
+  - [x] **Canonical plan:** ~~`engine-managed-file-merge-strategy.md`~~ (deleted; see [ADR 0038](../decisions/0038-sacred-splits-inviolable-and-merge-governed.md)) → §"Sequencing decision".
 - [x] **Gate 2 — 🌌 Universes: soft, progressively-disclosed retrieval scope (depends on Gate 1).** _(2026-07-19 · PR #38; CI matrix 7/7 incl. Windows)_
   - [x] `universe` column + engine-injected default filter + `/switch` + progressive-disclosure gate
         (visible only at count >= 2) + `--universe` import stamp. Bucket-1 change → lands **before** the
@@ -139,7 +139,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
   - [x] **Why it jumped the queue:** the gap is live, not theoretical (12 skill commits since v3.2.2 have
         reached nobody; `4e43e70` in v3.6.2 will never reach a v3.6.0/v3.6.1 brain), and the frozen share
         of the fleet grows with the installed base.
-  - [x] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Increment 2.5".
+  - [x] **Canonical plan:** ~~`engine-managed-file-merge-strategy.md`~~ (deleted; see [ADR 0038](../decisions/0038-sacred-splits-inviolable-and-merge-governed.md)) → §"Increment 2.5".
 - [x] **Gate 2.6 — 🌌 Universes v2: per-universe profiles + lifecycle.** _(2026-07-28 · PR #49 · merge `96d0546`; released as **v4.2.0**, "The One Where Your Brain Knows Where It Is"; CI 7/7 incl. Windows)_
   - [x] Was blocked by design, not by code: its user-facing surface is the `/switch` skill, which could
         not reach the existing fleet until Gate 2.5 shipped. **Unblocked** by v4.1.0 — an untouched
@@ -196,7 +196,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         **previous** sphere (inqom), so they may be obsolete rather than missing. Ask, don't assume.
   - [ ] Track D tail: formal canary (`node scripts/verify-rag.mjs` → exit 0) never recorded; daily use
         answers from the vault, so run it once on the owner's machine for the record, or waive it.
-  - [ ] **Canonical plan:** `prospective/second-brain-migration-and-engine-upstream-action.md` → Track D.
+  - [ ] **Canonical plan:** `archived/2026-08-23-second-brain-migration-and-engine-upstream-action.md` → Track D.
 - [ ] **Gate 4 — 🔴 Fleet re-layering + big-jump upgrade experience (deferred until after Gate 3).**
   - [ ] (A) Completeness across a big jump (frozen files: constitution + shipped user-skills).
   - [ ] (B) Benefit-framed changelog spanning the jump (*The One With…* substrate).
@@ -214,7 +214,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         source-level guard cannot prove the flow *behaves*; only this fixture can.
   - [x] (D) **Field feedback from a real big-jump upgrade** _(opened and closed 2026-07-28)_:
         `mind-palace` v4.0.0 → v4.3.0, defects logged as met — **F1-F12**, each verified on disk.
-        **Field log (evidence):** `prospective/fleet-upgrade-field-feedback.md`. Cheaper than fixtures
+        **Field log (evidence):** `../studies/fleet-upgrade-field-feedback.md`. Cheaper than fixtures
         and it said which fixtures are worth building.
   - [x] **(D) graduated into its own release — ✅ SHIPPED as v4.4.0** _(2026-08-02, tag `v4.4.0`
         "The One Where It Saves What You Wrote Elsewhere", PR #53 → `a0ea5d8`, CI 7/7)_:
@@ -225,7 +225,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         fixtures F12 and the prefill defect each earned.
   - [ ] Likely graduates to its own plan ("engine upgrade experience for the deployed fleet");
         F-B7e (constitution re-layering) becomes one component of it.
-  - [ ] **Canonical plan:** `prospective/engine-managed-file-merge-strategy.md` → §"Sequencing decision" (deferred half).
+  - [ ] **Canonical plan:** ~~`engine-managed-file-merge-strategy.md`~~ (deleted; see [ADR 0038](../decisions/0038-sacred-splits-inviolable-and-merge-governed.md)) → §"Sequencing decision" (deferred half).
 
 > Determinism note (once green exists): consider a lightweight guard that fails loud if a release
 > bumps `constitutionTemplate` before green has shipped — turning this ordering invariant into an
@@ -250,9 +250,9 @@ still owed, and lessons that outlived their release — is in § *Kept from the 
 | Plan (canonical) | What it delivers | Depends on |
 | --- | --- | --- |
 | [`archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md) | v5.0.0 stops being a release that only helps brains installed after it: an already-frozen brain proves its own ancestor from the digests of every version the engine ever published; **a file the owner had edited before the release gets its ancestor FETCHED from the tag that sha names, so it merges instead of staying frozen**; the FR tree stops drifting in silence (a test names any localized file left behind by its English source); and **a file you personalized becomes a QUESTION with three offers — take the new one / keep yours / combine them — instead of a blind spot** (the owner's acceptance criterion, explicitly v5 and not v5.1). | Finishes what [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md) built (S1-S6). Supersedes Gate 4's F-B7e. |
-| [`prospective/engine-managed-file-merge-strategy.md`](prospective/engine-managed-file-merge-strategy.md) | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. Two halves: the **skills** half (increment 2.5) and the **constitution** half. | Gates 1, 2.5 and 4. The constitution half is Gate 4's. |
-| [`prospective/fleet-upgrade-field-feedback.md`](prospective/fleet-upgrade-field-feedback.md) | Defects observed on a real deployed brain crossing three versions, captured live (F1-F12, each verified on disk). It is **evidence, not a work list** — it said which fixtures are worth building. | Gate 4. F3 (silent reindex) and F7 (an unverified outcome reported in the measured voice) stay here on purpose. |
-| [`prospective/second-brain-migration-and-engine-upstream-action.md`](prospective/second-brain-migration-and-engine-upstream-action.md) | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | Gate 3. Track D's core has been the owner's daily brain since 2026-07-19; its two tails are in § *Still owed*. |
+| ~~`engine-managed-file-merge-strategy.md`~~ (**deleted 2026-08-23**) | Propagated engine improvements into user-editable provided files. **Delivered by v5.0.0 by a different design** (split the file rather than fence a managed block); its prior-art survey lives on in [ADR 0038](../decisions/0038-sacred-splits-inviolable-and-merge-governed.md). Git keeps the text. | — |
+| [`../studies/fleet-upgrade-field-feedback.md`](../studies/fleet-upgrade-field-feedback.md) | Defects observed on a real deployed brain crossing three versions, captured live (F1-F12, each verified on disk). It is **evidence, not a work list** — it said which fixtures are worth building. | Gate 4. F3 (silent reindex) and F7 (an unverified outcome reported in the measured voice) stay here on purpose. |
+| [`archived/2026-08-23-second-brain-migration-and-engine-upstream-action.md`](archived/2026-08-23-second-brain-migration-and-engine-upstream-action.md) | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | Gate 3. Track D's core has been the owner's daily brain since 2026-07-19; its two tails are in § *Still owed*. |
 
 > Other in-flight plans on their own branches (e.g. wiki-health axis 1, marketing page) are **not
 > part of this fleet-upgrade ordering** and are tracked by their own plans + memory pointers; they
@@ -280,14 +280,14 @@ when they wake.
 | Plan (canonical) | What it is | What it waits for |
 | --- | --- | --- |
 | [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md) | The answer to *"why did universes break six components that every green suite missed?"* — a non-default fixture everywhere, one vault-path seam, a cross-cutting-contract gate. | Nothing for M1: a non-default fixture is mechanical and needs no arbitration. M2 needs an **ADR**. |
-| [`prospective/restore-affordance-graduated-autonomy-action.md`](prospective/restore-affordance-graduated-autonomy-action.md) | Restore *"things happen on their own"* after `/lint` + `/consolidate` turned the brain into a wall of jargon-laden prompts. | Its step 1 is *"agree the model (ADR)"* — a design call, **the owner's**, so nothing below it can start. ⚠️ Its header still names a memory pointer that no longer exists; see above. |
+| [`archived/2026-08-23-restore-affordance-graduated-autonomy-action.md`](archived/2026-08-23-restore-affordance-graduated-autonomy-action.md) (now [issue #79](https://github.com/tpierrain/kenjaku/issues/79)) | Restore *"things happen on their own"* after `/lint` + `/consolidate` turned the brain into a wall of jargon-laden prompts. | Its step 1 is *"agree the model (ADR)"* — a design call, **the owner's**, so nothing below it can start. ⚠️ Its header still names a memory pointer that no longer exists; see above. |
 | [`prospective/wiki-health-axis1-mechanisms-action.md`](prospective/wiki-health-axis1-mechanisms-action.md) | `/lint`, `/file-back`, `/consolidate`, contradiction flagging, the activity ledger, the SessionStart trigger. Tracks A→F were proven on the real 405-note vault. | Its two remaining pieces are **owner-side**: a cross-cutting retrieval measurement, and the formal private import. |
 | [`prospective/rag-embedder-plan-action.md`](prospective/rag-embedder-plan-action.md) | Swappable 3-adapter embedder + adaptive install. Its core has been in production since 2026-06-09. | Its steps 6-7 are **conditional on a quality ceiling that was never observed** — parked, not pending. Nothing to pick up unless that ceiling shows up. |
-| [`prospective/post-v3.1.0-ux-backlog.md`](prospective/post-v3.1.0-ux-backlog.md) | Captured UX ideas, explicitly **not committed work**. | A scope call: promote one to an `*-action.md` when it is picked up. |
-| [`prospective/background-consolidation-mode-study.md`](prospective/background-consolidation-mode-study.md) | Design study: the RAG's process shape, a "pulse" projection, keeping the brain fresh without making the owner wait. | The measurement it names. The action plan comes after, never before. |
-| [`prospective/etude-rag-local-criteres-et-veille.md`](prospective/etude-rag-local-criteres-et-veille.md) | Watch note: offering a range of RAG alternatives per person's constraints. | Nothing decided; it is a watch. |
-| [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md) | Makes duplicated plan state structurally impossible (a capped STATE block per plan) and gives the corpus **one door**, [`ACTIVE.md`](ACTIVE.md), instead of eight. It is what deleted this file's own role as an entry point, and its own Status column. | Its plan owns that; this row keeps no copy, by construction now. |
-| [`prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md) | The runtime-graph question. | The owner deferred it to **after** the unfreeze release: a study to do *with* him, not work to pick up. |
+| [`../studies/post-v3.1.0-ux-backlog.md`](../studies/post-v3.1.0-ux-backlog.md) | Captured UX ideas, explicitly **not committed work**. | A scope call: promote one to an `*-action.md` when it is picked up. |
+| [`../studies/background-consolidation-mode-study.md`](../studies/background-consolidation-mode-study.md) | Design study: the RAG's process shape, a "pulse" projection, keeping the brain fresh without making the owner wait. | The measurement it names. The action plan comes after, never before. |
+| [`../studies/etude-rag-local-criteres-et-veille.md`](../studies/etude-rag-local-criteres-et-veille.md) | Watch note: offering a range of RAG alternatives per person's constraints. | Nothing decided; it is a watch. |
+| [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) | Makes duplicated plan state structurally impossible (a capped STATE block per plan) and gives the corpus **one door**, [`ACTIVE.md`](ACTIVE.md), instead of eight. It is what deleted this file's own role as an entry point, and its own Status column. | Its plan owns that; this row keeps no copy, by construction now. |
+| [`../studies/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](../studies/llm-wiki-vs-embedding-rag-karpathy-graphify.md) | The runtime-graph question. | The owner deferred it to **after** the unfreeze release: a study to do *with* him, not work to pick up. |
 
 ## 📚 Kept from the old Status column — append-only
 
@@ -361,7 +361,7 @@ out-of-band arrivals, so five issues filed by the owner's brain sat invisible to
 > 🚪 **THIS FILE IS NOT THE DOOR — since 2026-08-22 it never answers *"where do I resume?"***
 > That question has exactly one address: **[`ACTIVE.md`](ACTIVE.md)**. This file owns **cross-plan
 > order** and nothing else. _(Thomas's convention: one way in at instant T. Rationale and the rest of
-> the migration: [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md).)_
+> the migration: [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md).)_
 
 - **Picking up work after a `/clear`:** open [`ACTIVE.md`](ACTIVE.md). Do **not** hunt for the first
   unchecked gate here — a gate is an ordering fact, not a resume point, and reading it as one is how

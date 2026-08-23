@@ -364,7 +364,7 @@ comes last: biggest edit, least reversible.
       been stapled to the top of the file *because that was where it could be found*. F-B, confirmed
       on a real migration. Rule 3 applied at the same time: W5b and the rehearsal on a copy of a real
       brain became links to the release plan that owns them.
-      The file: [`v5-code-review-triage-action.md`](../archived/2026-08-23-v5-code-review-triage-action.md).
+      The file: [`v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 - [x] **6. The remaining live plans get their block** _(2026-08-22)_ —
       `v5-unfreezes-the-existing-fleet-action.md` (2 406 → 2 378), `field-finding-2026-08-08-…`
       (257 → 215), `agent-orchestrated-release-mode-action.md` (3 079 → 3 040). **All five live plans
@@ -653,7 +653,7 @@ than the prose detector, and it may even be worth more than the cheap half alrea
 ## Scope
 
 - **Out**: the v5.0.0 release and its findings — that is
-  [`v5-code-review-triage-action.md`](../archived/2026-08-23-v5-code-review-triage-action.md), and this study must not touch it.
+  [`v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md), and this study must not touch it.
 - **Likely destination of the OUTPUT**: the harness (`~/Dev/use-case-driven-harness`, `rules/plans.md`
   + the `plan-discipline` skill), because the convention is global. The **evidence** lives here, in
   Kenjaku, which is why the brief does.

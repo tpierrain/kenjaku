@@ -86,6 +86,31 @@ lets the follow-on chantier be discussed honestly instead of being blocked by a 
   **outside** `update-engine.mjs`, which runs non-interactively). This release ships only the pointer
   sentence.
 
+## Prior art — why this is not NIH
+
+_(Carried here on 2026-08-23 from the 2026-06-21 analysis this decision made obsolete, whose one durable
+contribution was the survey. §6quinquies: an ADR that quietly re-derives a known standard reads as NIH.)_
+
+**The problem is the oldest one in package management: a file the vendor owns and the operator edits.**
+Three established answers exist, and this design deliberately picks the second with the third as its
+fallback:
+
+- **Merge-governed = git's 3-way merge.** `base` / `theirs` / `mine`, auto-apply the clean hunks,
+  surface only the real conflicts. Feasible here for the reason it is feasible in git: we keep the
+  ancestor (`.engine-base/`, the bytes the engine last *delivered*). Without that base there is no
+  merge — which is precisely the argument, above, for not opening the door on `CLAUDE.md`.
+- **The fallback = Debian `dpkg` conffiles / `ucf`, and RPM's `.rpmnew`.** On a conflict: keep the
+  operator's file, drop the vendor's version *beside* it, and say so. Zero auto-merge risk, and the
+  human decides. Ours is the three offers (*take the new one / keep mine / combine*), which is
+  `dpkg`'s prompt with the combine case added.
+- **The road NOT taken = a delimited managed block inside the file** (Ansible's
+  `BEGIN/END ANSIBLE MANAGED BLOCK`, the same trick in `/etc/hosts` and `known_hosts`). The 2026-06-21
+  analysis recommended it as the foundation: it eliminates conflicts by construction. **v5.0.0 chose a
+  cleaner variant of the same insight — split the file rather than fence a region of it**:
+  `CLAUDE.engine.md` is engine-owned and merge-governed, the owner's `CLAUDE.md` stays off the copy
+  path entirely. Same goal (separate what the engine owns from what the owner owns), without a parser
+  for markers a hand-edit can break.
+
 ## Alternatives considered
 
 - **Leave "sacred" as one word and decide per file in the plans.** Rejected: the flattening had already

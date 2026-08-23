@@ -33,7 +33,7 @@ other than Google Gemini"):
    we talk about it first. ⛔ **Do not start a 2nd concrete impl without that exchange.** This plan
    just prepares the ground so that it's then a local plug-in, without touching the harness.
    → Watch + selection criteria in the study
-   [`etude-rag-local-criteres-et-veille.md`](../prospective/etude-rag-local-criteres-et-veille.md) (free,
+   [`etude-rag-local-criteres-et-veille.md`](../../studies/etude-rag-local-criteres-et-veille.md) (free,
    privacy/local, Mac+PC, office machine, tiered offering; candidates bge-m3 / nomic / Qwen3;
    decision **after measurement** via a local eval-set).
 

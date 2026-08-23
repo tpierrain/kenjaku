@@ -231,7 +231,7 @@
       study + ADR 0007. **STATUS: 🔭 PROSPECTIVE** — D1 + Steps 1–5 **shipped** (in prod since
       2026-06-09); Steps 6/7 (reranker / big-machine graph-RAG) **conditional**, never triggered →
       parked. Also the **reference model** for the checkbox/Tracking convention.
-    - [`etude-rag-local-criteres-et-veille.md`](plans/prospective/etude-rag-local-criteres-et-veille.md) — **study/watch**:
+    - [`etude-rag-local-criteres-et-veille.md`](studies/etude-rag-local-criteres-et-veille.md) — **study/watch**:
       offer a **range of RAG alternatives according to people's needs/constraints** (privacy, budget,
       machine power, OS, install friction). Office / big-machine / API-endpoint profiles +
       **refreshed** watch (EmbeddingGemma, bge-m3, Qwen3, E2GraphRAG…), **privacy scale by
@@ -244,7 +244,7 @@
       wrong retrieval scope, no error). Commits the pointer beside its registry, migrates the deployed
       fleet (`.gitignore` reaches no brain through any engine regime), and fixes the conflict path.
       **STATUS: 🟢 OPEN — opened 2026-08-07, nothing started.** *(amends ADR 0034 in place)*
-    - [`post-v3.1.0-ux-backlog.md`](plans/prospective/post-v3.1.0-ux-backlog.md) — **💡 backlog** of
+    - [`post-v3.1.0-ux-backlog.md`](studies/post-v3.1.0-ux-backlog.md) — **💡 backlog** of
       post-v3.1.0 UX ideas (custom notification icon, a `doctor` / "am I OK?" self-check…). Captured,
       **not committed work** — promote one to a real `*-action.md` when it's picked up.
     - [`local-mirror-auto-refresh-spike.md`](plans/archived/local-mirror-auto-refresh-spike.md) —
