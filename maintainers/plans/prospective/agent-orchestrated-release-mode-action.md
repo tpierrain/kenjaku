@@ -45,6 +45,17 @@
 > - 🪝 **A net never watches the session that writes it.** `plan-carrier-guard.mjs` loads at **session
 >   start**, so the session that built it ran unguarded — worth knowing before trusting a hook the day
 >   it lands.
+> - 🔁 **AND IT RECURRED TWICE THE NEXT DAY, without a single 📐 box in sight** _(2026-08-23)_. Same
+>   shape, wider than the badge: **a status asserted from memory instead of from the section that owns
+>   it.** (a) A product call answered the day before, ✅, was re-put to the owner **twice**, the second
+>   time argued the opposite way, because the STATE block still advertised it as pending. His verdict:
+>   *"c'est comme si tu n'apprenais pas ou ne retenais rien."* (b) The same session then summarised his
+>   remaining cut as *"only the merge"*, which silently dropped **a step only he can run** (the review
+>   re-run, billed). **Both were caught by the owner, neither by a mechanism** — which is the fourth
+>   lesson's real content: the mode's claims about its own state have exactly one reviewer, and he is
+>   not a mechanism. The written half is patched (`rules/plans.md`: read the body before asking him
+>   anything); the mechanical half is queued behind the tag in
+>   [`plan-state-single-source-study.md`](plan-state-single-source-study.md).
 > - 📐 **"Checked, not assumed" is a claim about the CHECK, and the mode writes it fastest when the
 >   check is weakest** _(2026-08-22)_. A long unattended stretch recorded a range verdict as a
 >   📐-marked box — the marker this mode uses to mean *measured* — over a command that was really a
