@@ -14,7 +14,7 @@
 >
 > **What LEAVES this plan, and where it went** — the two structural mutation remedies the owner
 > arbitrated into v4.9.0 on 2026-08-05 (the shared `runAsEntrypoint` + its guard test, and `defaultGit`
-> as a pure value). They are the head of **`prospective/v4.9.0-mutation-debt-plan.md`**, and they are
+> as a pure value). They are the head of **`archived/2026-08-23-v4.9.0-mutation-debt-plan.md`**, and they are
 > also written as numbered debt in `RESULTS.md § v4.8.0`. **Nothing else is outstanding here**: the
 > unticked boxes below are the evidence and the rejected options, not remaining work — read them as the
 > record of how each finding was settled.

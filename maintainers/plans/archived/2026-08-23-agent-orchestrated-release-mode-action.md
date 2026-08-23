@@ -8,23 +8,20 @@
 
 # Working contract — building the unfreeze release with orchestrated subagents
 
-## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+## ✅ CLOSED — the release it was the working contract for shipped as **v5.0.0** _(archived 2026-08-23)_
 
-- **Next:** **nothing to build, and no slice to open.** The mode is in force and debriefed:
-  **MECHANICAL ONLY** for S1-S5 — read § *Tracking*'s debrief box before delegating anything. Its own
-  deferred question, *does fan-out-built work owe an independent review?*, **has been answered YES
-  with numbers** → § *The adversarial-review fan-out as standing QA*, which owns the figures.
-- **Blocked on:** the release, which is not this file's —
-  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) owns its
-  state and its cut. **Do not open a slice, do not look for work, and do not take an entry from that
-  cut.** **How many review passes have run is counted in § *The adversarial-review fan-out as
-  standing QA* and nowhere else** — this line used to carry the number itself, said "two", and was
-  contradicted by that section on 2026-08-23. It owns the figures, the trend and the debrief.
-- **Owner's call pending:** none of this file's own. _(The `scripts` version and the five release
-  arbitrations are answered and recorded in the release plan. **Do not re-ask them.**)_
-- **A session may, alone:** run the mode as written — delegate bulk reads, and the implementation of
-  a slice whose tests already exist and are red. It may **not** dispatch judgement, and it may not
-  advance the release's queue past what the owner reserved.
+This file was the working contract for building one release with orchestrated subagents. That release
+was cut and published on 2026-08-23, so the contract is spent. **What it was really for was the
+question it deferred** — *does fan-out-built work owe an independent review before it counts as
+finished?* — and that question came back answered, with numbers, in § *The adversarial-review fan-out
+as standing QA*: **yes**, three passes, forty-five findings in code the loop had declared finished
+three times over.
+
+**The durable half does not live here.** `CONVENTIONS.md` §12 carries what may be delegated and what
+a wave costs, and §10bis carries the release-time issue sweep. This file keeps the measurements and
+the four lessons that produced them.
+
+_(Everything below is the historical record of the mode and its debriefs. Do not read it for status.)_
 
 > ## 🧭 FOUR LESSONS THIS MODE PAID FOR — durable, and none of them is a status
 >
@@ -55,7 +52,7 @@
 >   lesson's real content: the mode's claims about its own state have exactly one reviewer, and he is
 >   not a mechanism. The written half is patched (`rules/plans.md`: read the body before asking him
 >   anything); the mechanical half is queued behind the tag in
->   [`plan-state-single-source-study.md`](plan-state-single-source-study.md).
+>   [`plan-state-single-source-study.md`](../prospective/plan-state-single-source-study.md).
 > - 📐 **"Checked, not assumed" is a claim about the CHECK, and the mode writes it fastest when the
 >   check is weakest** _(2026-08-22)_. A long unattended stretch recorded a range verdict as a
 >   📐-marked box — the marker this mode uses to mean *measured* — over a command that was really a
@@ -73,14 +70,14 @@
 >   population.** So on any branch a release is cut from, the check is `gh run list` over the recent
 >   history, not the badge on HEAD — and it costs one command. _(The defect itself is not this file's
 >   and is not v5's: it is owned by
->   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)
+>   [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
 >   § *THE macOS FLAKE*, and its code is byte-identical to `main`.)_
 >   - 🪝 **And it is the second finding in two days that a session owed to LOOKING rather than
 >     recalling** — the first was the `plan-carrier-guard` hook forcing an archived plan open and
 >     breaking a wrong CRLF verdict. Both were free. Both were skipped for as long as nothing insisted.
 >
 > _(A fifth, **"a closed list is not an emptied inventory"**, was learned here too and is now owned by
-> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *FOUR
+> [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md) § *FOUR
 > LESSONS*. Linked, not copied.)_
 >
 > ## 📦 What this mode shipped besides the release _(2026-08-20)_
@@ -236,7 +233,7 @@
 > argument; this file deliberately keeps no copy. Do not re-open that question either.
 
 > **This plan owns HOW, not WHAT.** The what is
-> [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md), which
+> [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md), which
 > is unchanged and remains the single source of the release's own state. This file exists so the
 > *working mode* is written down instead of living in a conversation, and so a session resuming after
 > a `/clear` knows what it may dispatch and what it may not.
@@ -1510,7 +1507,7 @@ arbitration goes here as a question, and the run continues on other slices.
   owner's own two brains. The rule the run should carry: **before a diagnosis is written into a carrier,
   run the thing.** The repo's own habit is right there — the QA is built to avoid tautologies by using
   the production path; a diagnosis deserves the same standard.
-  State is owned by [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md);
+  State is owned by [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md);
   not restated here.
 - 🧪 **2026-08-21 (S8-2b) — A GUARD THAT SAYS "assert empty" IS THE EASIEST TEST IN THE WORLD TO PASS
   BY ACCIDENT, and the mutation pass proved the same thing about its own fixture.** The drift guard's
@@ -1532,7 +1529,7 @@ arbitration goes here as a question, and the run continues on other slices.
   paragraphs instead of unpicking a shipped guard. And the reason it was caught at all is that the port
   began by **reading the commit being ported** rather than trusting the criterion that selected it: a
   measurement is a claim about the past, and the artifact it points at can still contradict it. State
-  is owned by [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md);
+  is owned by [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md);
   not restated here.
 - 🛑 **2026-08-21 (S7-4) — A QA SLICE FOUND WHAT LOOKED LIKE A DEFECT THE FEATURE ITSELF CREATED, and
   the loop nearly did not look.** ⚠️ **The defect was NOT real — see the S8-3 entry above**; what
@@ -1540,7 +1537,7 @@ arbitration goes here as a question, and the run continues on other slices.
   either way. S7-4 was filed as "breadth" — the boring tail of a finished chantier. Building the
   French pole appeared to measure that **S7 unfreezes a French brain INTO ENGLISH**: the heal reads the
   locale perfectly, the delivery ignores it. The owner's own two brains are French. State is owned by
-  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) (box at the
+  [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md) (box at the
   top); not restated here. **What the MODE takes from it**: a slice labelled "remaining coverage" is
   the one most likely to be skipped as tidy-up, and it is exactly where a feature's blind spot lives —
   because the coverage that was postponed is the coverage the author found least obvious. And the QA
@@ -1560,7 +1557,7 @@ arbitration goes here as a question, and the run continues on other slices.
   killed *"the doctrine layer unfreezes no already-deployed brain"*; S7-5 killed *"the merge does not
   reach back, permanently"*. Both were **pinned by tests**, which is why neither could be quietly
   forgotten and why both inversions had to carry their old claim above the new one. State is owned by
-  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md).
+  [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md).
 
 - 📉 **2026-08-21 (S7-5-1) — THE JUDGE ITSELF CAME BACK NON-DETERMINISTIC, and the loop's own habits
   are what caught it.** The same command, on the same commit, scored **96.97 %** then **93.94 %**
@@ -1574,7 +1571,7 @@ arbitration goes here as a question, and the run continues on other slices.
 
 - 🛑 **2026-08-21 (owner, in conversation) — THE RELEASE IS STOPPED TWO HOURS FROM PUBLISHING, and the
   loop had filed the reason as a wording problem.** The plan owning what comes next is now
-  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md); the old one
+  [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md); the old one
   is archived and closed.
   - 🧊 **The measurement that stopped it**: the release is named *"the engine owns what it shipped"* and
     unfreezes **nobody already installed** — the entire fleet. Pole A of the acceptance test says so in
@@ -2058,7 +2055,7 @@ arbitration goes here as a question, and the run continues on other slices.
   (*may the engine write `CLAUDE.md`?*). It was answerable in one exchange **because it had been written
   down as a box weeks of slices earlier**, with its measured facts attached — nothing had to be
   re-derived, and the loop had lost nothing waiting. _(The answer itself is the owning plan's, and this
-  file deliberately keeps no copy: [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md),
+  file deliberately keeps no copy: [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
   box at the top.)_
   - ➡️ **For the mode, and it is the finding**: the box's value is not that it *defers* a question, it
     is that it **keeps the question answerable by someone who was not in the window**. The owner had no
@@ -3013,7 +3010,7 @@ arbitration goes here as a question, and the run continues on other slices.
         that **escapes the brain folder**; and a skill **deleted again, silently**, at self-heal. None
         is exotic. **They are the kind an author's own tests cannot catch, because those tests encode
         the author's model of the problem** — which is the whole argument for an independent read, and
-        it now has numbers instead of taste. → [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md).
+        it now has numbers instead of taste. → [`v5-code-review-triage-action.md`](2026-08-23-v5-code-review-triage-action.md).
         - **So the standing answer is YES**: fan-out-built work owes an independent review before it
           counts as finished. What stays open is the *shape* (a tooled review at the release boundary,
           as here, versus an adversarial pass per slice) — and that is a cost question, decidable at
@@ -3028,7 +3025,7 @@ arbitration goes here as a question, and the run continues on other slices.
           fleet-wide defects for roughly one session of repair — so the argument against a standing
           adversarial pass per slice is not cost, it is redundancy. **This is evidence for the tooled
           review at the boundary, not against the per-slice pass**; the two have not been compared.
-          → [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns which finding is
+          → [`v5-code-review-triage-action.md`](2026-08-23-v5-code-review-triage-action.md) owns which finding is
           which, and this file keeps no copy of that.
         - 🔬 **What the fixing run itself learned about the mode, and it is not a detail**: **four of
           the ten findings were bigger than their write-up**. F2's stated repair (containment + regime
@@ -3125,7 +3122,7 @@ arbitration goes here as a question, and the run continues on other slices.
               not safer than features. A fixing batch owes the same independent read as the work it
               fixes, and *"the author already thought hard about this exact hazard"* predicts nothing —
               F6's author wrote the hazard into a comment and still compared strings.
-              → the findings are [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md)'s,
+              → the findings are [`v5-code-review-triage-action.md`](2026-08-23-v5-code-review-triage-action.md)'s,
               § I–L, and only its.
         - [x] 🛑 **A limitation of the TOOL, measured twice and worth recording here rather than in the
               triage plan**: on this repo's diff size, `/code-review max`'s ten parallel finder agents

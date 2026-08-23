@@ -33,10 +33,11 @@ all this file records:
 - **v5.0.0 belongs to** [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md).
   Its predecessor, [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md),
   built S1-S6 and is closed.
-- **How it gets built is itself a subject**, with its own plan:
-  [`prospective/agent-orchestrated-release-mode-action.md`](prospective/agent-orchestrated-release-mode-action.md)
-  — the working contract (what is delegable, the deterministic-check rule, the human stop points, the
-  loop's shape). **Read it before dispatching anything to a subagent.**
+- **How it gets built was itself a subject**, and its working contract is now **closed with the
+  release it served**:
+  [`archived/2026-08-23-agent-orchestrated-release-mode-action.md`](archived/2026-08-23-agent-orchestrated-release-mode-action.md).
+  The living rule moved to `CONVENTIONS.md` **§12** (what is delegable, what a wave costs) — read
+  that before dispatching anything to a subagent; open the archived plan only for the measurements.
 - **The runtime-graph question goes back to a WATCH note**
   ([`prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md`](prospective/llm-wiki-vs-embedding-rag-karpathy-graphify.md)):
   **deferred, on his explicit ask, to AFTER this release** — a study to do *with* him, not work to
@@ -185,7 +186,7 @@ migration. Rationale in its gate entry below; it is independent of Gate 3, so th
         more notes into a brain whose promises did not hold yet would only have widened the gap.
         Canonical plan (now finished and archived): `archived/field-findings-2026-08-02-action.md`.
         Its one leftover is **not** in Track D: it is the head of
-        `prospective/v4.9.0-mutation-debt-plan.md`.
+        `archived/2026-08-23-v4.9.0-mutation-debt-plan.md`.
   - [x] Track D **core**: generate brain + `/import --universe` — ✅ **done 2026-07-19** (~422 notes
         imported universe-stamped, `/switch` + scoped search verified live; the brain — `mind-palace` —
         has been the owner's daily brain ever since, replacing the ad-hoc `inqom-brain`). _(Recorded
@@ -249,10 +250,6 @@ still owed, and lessons that outlived their release — is in § *Kept from the 
 | Plan (canonical) | What it delivers | Depends on |
 | --- | --- | --- |
 | [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md) | v5.0.0 stops being a release that only helps brains installed after it: an already-frozen brain proves its own ancestor from the digests of every version the engine ever published; **a file the owner had edited before the release gets its ancestor FETCHED from the tag that sha names, so it merges instead of staying frozen**; the FR tree stops drifting in silence (a test names any localized file left behind by its English source); and **a file you personalized becomes a QUESTION with three offers — take the new one / keep yours / combine them — instead of a blind spot** (the owner's acceptance criterion, explicitly v5 and not v5.1). | Finishes what [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md) built (S1-S6). Supersedes Gate 4's F-B7e. |
-| [`prospective/agent-orchestrated-release-mode-action.md`](prospective/agent-orchestrated-release-mode-action.md) | The working contract for building a release with orchestrated subagents: what is delegable, the deterministic-check rule, the human stop points, the loop's shape. **Read it before dispatching anything to a subagent.** | Runs alongside the release above; owns HOW, never WHAT. |
-| [`prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md) | A source the owner hands over (URL, path) is read **before** any search tool, and the doctrine layer that says so actually reaches deployed brains. _(Measured, not supposed: a brain pinned at v4.8.1 carried a `CLAUDE.engine.md` frozen at install day, 11.4 KB and 12 doctrine commits behind, because that file was in **no regime**. Carrier question resolved without choosing: no hook — the rule goes in both constitutions and the unfreeze release delivers it.)_ | Ships **with** the unfreeze release. Closes when v5.0.0 reaches the fleet, never when a branch goes green. |
-| [`prospective/field-finding-2026-08-05-silent-skill-freeze.md`](prospective/field-finding-2026-08-05-silent-skill-freeze.md) | An engine skill kept as "customized" on a brain that had **zero lines of the owner's** in it, frozen since install day and never mentioned again. Persist the provenance base, teach the engine to recognise its own past output so frozen brains heal themselves, and make the freeze audible. | **All three halves are answered by the v5 chantier** — the persisted base by S1-S6, self-healing as S7, and *audible* as S4-3/S4-4 then S10, which goes past audible. ⚠️ **Name no slice here**: this cell said "since S10-3" and was outdated within a day. |
-| [`prospective/v4.9.0-mutation-debt-plan.md`](prospective/v4.9.0-mutation-debt-plan.md) | The two structural mutation remedies v4.8.0 deferred: a shared `runAsEntrypoint` (+ the guard test that makes it stick) and `defaultGit` as a pure value. | Falls due **with the unfreeze release**, not with v4.9.0. Third due date named as such: cutting that release without paying it is a defect, not a re-arbitration. Evidence: `mutation/RESULTS.md` § v4.8.0. |
 | [`prospective/engine-managed-file-merge-strategy.md`](prospective/engine-managed-file-merge-strategy.md) | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. Two halves: the **skills** half (increment 2.5) and the **constitution** half. | Gates 1, 2.5 and 4. The constitution half is Gate 4's. |
 | [`prospective/fleet-upgrade-field-feedback.md`](prospective/fleet-upgrade-field-feedback.md) | Defects observed on a real deployed brain crossing three versions, captured live (F1-F12, each verified on disk). It is **evidence, not a work list** — it said which fixtures are worth building. | Gate 4. F3 (silent reindex) and F7 (an unverified outcome reported in the measured voice) stay here on purpose. |
 | [`prospective/second-brain-migration-and-engine-upstream-action.md`](prospective/second-brain-migration-and-engine-upstream-action.md) | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | Gate 3. Track D's core has been the owner's daily brain since 2026-07-19; its two tails are in § *Still owed*. |

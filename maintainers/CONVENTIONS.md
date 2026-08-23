@@ -688,6 +688,74 @@ looked at*, and the next release should not have to re-derive it.
 > section that sold tweaking without saying what tweaking costs). None of them would have been caught by
 > a test. Hence the standing pass.
 
+## 10bis. Every release sweeps the open issues and closes what it covers
+
+**A release that fixes a reported defect and leaves its issue open has done half the job.** The tracker
+is the only surface a user outside the repo can read, so an issue that stays open after its fix ships
+says, to everyone but us, *"still broken"*. And the drift is silent: nothing in CI, nothing in the note,
+nothing at the tag.
+
+So, **at every release, after the tag and before calling it done**: read **every** open issue, decide
+one by one whether this release covers it, and close the ones it does.
+
+**The closing condition is what shipped, not what merged.**
+
+- A **code** defect closes when the fix is in the published tag.
+- A **doctrine** issue — a rule in `CLAUDE.engine.md`, a wording, a threshold — closes when **a brain
+  RECEIVES the rule**, never when the branch carries it. That distinction is not pedantry: it is the
+  defect the v5.0.0 release exists against, where doctrine shipped for months and landed nowhere.
+  Verify it by **reading the rule out of a real updated brain**, in that brain's own locale, and put
+  that in the closing comment.
+- **Write the evidence in the comment, not a link to the merge.** A future reader must be able to tell
+  *checked* from *assumed* without opening the diff.
+
+**And say what you did NOT close.** Every issue you leave open was reviewed too, and that review is
+worth as much as the closes: re-read the reported code on `main` and confirm the defect is still there,
+rather than assuming it. Then **list both sets in the release note** — closed, and knowingly still open.
+A reader deserves to know a defect they reported was seen and deliberately not taken.
+
+> Origin _(2026-08-23, Thomas at the v5.0.0 release: "peux-tu revoir toutes les issues du projet pour
+> fermer celles qui ont été couvertes par la v5 ?", then "n'hésite pas à les lister dans la release
+> note")_. Three of ten open issues were covered, and the three had stayed open **on purpose** because
+> the plan had written their closing condition down in advance. Reviewing the other seven found
+> something worth having: three of them are false positives in the wiki-link check, which means a real
+> brain's *"17 links point nowhere"* is not 17 defects — a thing nobody would have learned from a
+> tracker nobody swept.
+
+## 10ter. A release that changes the update path owes one rehearsal on a copy of a REAL brain
+
+**No test in this repo can see the path the fleet actually runs.** In the field, the update is
+performed by the **old** engine: the `scripts/update-engine.mjs` already installed in someone's brain
+fetches the new release and hands off to it. Every suite here — unit, integration, release fixtures —
+calls **HEAD's** code. *Old parent, new child* is therefore structurally invisible, and a release can
+be perfect from HEAD's point of view while converging nothing.
+
+So, before the tag, on any release that touches the update path:
+
+```bash
+node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/some-brain
+```
+
+Once per brain you can lay hands on, **the older the better** — an old brain has more to catch up on,
+and it is the population this kind of release exists for. Exit `0` means the update worked *and* the
+owner's territory did not move. Read its three sections against each other, never one alone: the
+report an owner would read is exactly what lied last time.
+
+- 🔒 **Originals are only ever read.** The copy is taken without `.git`, so it has no remote and a push
+  home is not even expressible; every write goes to a temp dir.
+- 🧪 **A fixture is not a substitute.** The value comes from hand-edits, an old install date and a full
+  vault that nobody authored for the test.
+- ⚠️ **Know what it does NOT prove.** `npm install` and the reindex are stubbed, so *"search still
+  works afterwards"* is `scripts/verify-rag.mjs`'s answer on an updated brain, not this trial's. And
+  it has only ever run on macOS.
+
+> Origin _(2026-08-22)_: on its first run this harness found that v5's first update landed **nothing**
+> on either brain it was rehearsed against, while telling their owner they were up to date — the
+> auto-finalize child was reading the brain's own stale manifest as its target. Three `/code-review`
+> passes and forty-five findings had not surfaced it, and could not have: **a review reads the diff,
+> and the diff does not describe a state where an old engine is driving.** That is the whole argument
+> for this section existing beside §10 rather than being folded into it.
+
 ## 11. A release note is written for the non-developer first
 
 **Most Kenjaku users are not developers.** The release note is the most-read artifact we publish, so
@@ -757,7 +825,7 @@ frame them as the quality of what ships, not as a list of near-misses the reader
 
 Measured on the **first real run** of the mode (S0bis, 2026-08-20: two structural mutation debts paid,
 14 agents, ~1 h). Homed here rather than left in
-[`plans/prospective/agent-orchestrated-release-mode-action.md`](plans/prospective/agent-orchestrated-release-mode-action.md)
+[`plans/archived/2026-08-23-agent-orchestrated-release-mode-action.md`](plans/archived/2026-08-23-agent-orchestrated-release-mode-action.md)
 because that file is scheduled to be **archived when the release ships** — and a doctrine kept in a
 file with an expiry date is how the same lesson gets re-learned. The plan keeps the run's narrative;
 what survived the measurement lives here.

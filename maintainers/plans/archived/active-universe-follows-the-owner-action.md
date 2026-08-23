@@ -30,7 +30,7 @@
 > **S4's prose is done too** (2026-08-08 · `8341e18`), and **the version question is ARBITRATED**: the
 > owner chose (2026-08-08) to **re-arbitrate the mutation-debt floor in writing** and cut **`v4.9.0`**
 > with the universes work alone. That re-arbitration is **already written** — in
-> `prospective/v4.9.0-mutation-debt-plan.md` (the floor moves to the unfreeze release) and carried in
+> `archived/2026-08-23-v4.9.0-mutation-debt-plan.md` (the floor moves to the unfreeze release) and carried in
 > `prospective/update-regime-owns-what-it-shipped-action.md` **S0bis** (so it arrives with its release).
 > Do not re-open that question.
 >

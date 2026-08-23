@@ -1,5 +1,25 @@
 # Action plan — a skill frozen as "yours" that you never touched, and nothing said so
 
+## ✅ CLOSED — absorbed by the v5.0.0 chantier and shipped there _(archived 2026-08-23)_
+
+**The boxes below were never ticked, and that is not an omission: they stopped being this file's to
+do.** Each of its five steps was absorbed into the unfreeze chantier, built there, and shipped in
+**v5.0.0** on 2026-08-23:
+
+| this plan asked for | what shipped, and where |
+| --- | --- |
+| **Step 1** — persist the base instead of re-deriving it | `.engine-base/`, the bytes the engine last *delivered*, per managed file |
+| **Step 2** — heal the fleet that is ALREADY frozen | the heal: a brain proves its own installed bytes against a table of every byte-state the engine ever published (82 at this release) |
+| **Step 3** — make the freeze audible | the divergence notice, then the three offers (*take the new one / keep mine / combine*), which goes past audible |
+| **Step 4** — prove the class is closed, not just the case | the acceptance suite runs on brains rebuilt from real published tags (`v3.2.2`, `v3.6.0`), edited *before* the release |
+| **Step 5** — re-check the deployed brain after the fix lands | done twice: the field rehearsal on copies of two real brains, then the owner's own `mind-palace` updated for real on 2026-08-23 — the skill named here is retired and its successor installed, with the vault byte-identical |
+
+The originating fact is the one that made the whole release: a skill reported as *customized* with
+**zero lines of the owner's in it**, frozen since install day. That is the sentence at the top of
+v5.0.0's release note.
+
+_(Everything below is the historical record of the finding. Do not read it for status.)_
+
 > **The field fact (mind-palace, 2026-08-05, engine v4.7.0 → v4.8.0).** The update reported
 > `local-mirror` as **customized** and dropped a `SKILL.md.new` beside it. The owner asked for the diff.
 > The installed file was **byte-for-byte the engine's own skill**, at the version shipped before the

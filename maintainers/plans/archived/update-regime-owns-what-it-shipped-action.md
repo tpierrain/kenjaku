@@ -151,7 +151,7 @@
 > whole time; only its start date had moved, and it has now arrived.
 >
 > **⚠️ Read the companion plan first**:
-> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md). It carries
+> [`agent-orchestrated-release-mode-action.md`](2026-08-23-agent-orchestrated-release-mode-action.md). It carries
 > the working contract for this chantier — what may be dispatched to a subagent, the rule that nothing
 > ships without a machine-checkable pass/fail, and the points where the owner is required. It does not
 > change a single item of the cargo below.
@@ -365,7 +365,7 @@
 >       MORE** _(2026-08-22)_. The note exists, is written to be published as-is, and its top was
 >       rewritten for a non-developer reader on the owner's re-read; it is **step 3 of the cut in the
 >       successor plan**, which owns it end to end:
->       [`../prospective/release-v5.0.0-note.md`](../prospective/release-v5.0.0-note.md), ordered from
+>       [`../archived/2026-08-23-release-v5.0.0-note.md`](../archived/2026-08-23-release-v5.0.0-note.md), ordered from
 >       [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
 >       § *WHAT IS YOURS, IN ORDER*. Ticked here so an archived file stops carrying a live-looking box
 >       for work another plan is running. **The two claims below stay**, because they are constraints
@@ -509,7 +509,7 @@
 > why a fully-up-to-date brain is still 10 KB of doctrine behind. Do **not** re-measure any of it. ✅ **The slice that came before it is DONE**
 > _(2026-08-20)_ — the `mutation-testing` pair (script + skill), so **S1 is the live work now**. Its
 > record, and the working mode that governs how S1 may be dispatched, stay in
-> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) § Tracking;
+> [`agent-orchestrated-release-mode-action.md`](2026-08-23-agent-orchestrated-release-mode-action.md) § Tracking;
 > read that plan's header first, it is still the landmark for the chantier. One thing is still open on S6 and does not block it: its **Kenjaku-side
 > delivery** (manifest `merge` regime, the explicit retirement of `tdd-discipline`, the
 > `templates/fr/` version, `CONVENTIONS.md` §5) is release work, and it needs the power S1-S5 build —
@@ -664,7 +664,7 @@ audible divergence.
       It was the declared floor of v4.9.0; the owner re-arbitrated it in writing onto this
       release when v4.9.0 was scoped to universes alone. It is carried here so it arrives with its
       release instead of relying on someone re-opening the other file.
-  - [x] Pay both debts from `prospective/v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
+  - [x] Pay both debts from `archived/2026-08-23-v4.9.0-mutation-debt-plan.md` (Debt 1: a shared
         `runAsEntrypoint` + the guard test whose allowlist may only shrink; Debt 2: `defaultGit` as a
         pure value), then re-measure and close the loop in `maintainers/mutation/RESULTS.md`
         _(2026-08-20 — both paid, ceilings **32/26 → 13/9**; the scores are in `RESULTS.md` § S0bis)_.
@@ -1539,7 +1539,7 @@ audible divergence.
         obvious surface is disqualified by an ADR.
 
   - [x] 🔗 **This slice OWNS the third defect of
-        [`field-finding-2026-08-05-silent-skill-freeze.md`](field-finding-2026-08-05-silent-skill-freeze.md)**
+        [`field-finding-2026-08-05-silent-skill-freeze.md`](2026-08-23-field-finding-2026-08-05-silent-skill-freeze.md)**
         (*"Step 3 — make the freeze audible (the real subject)"*). That plan states the requirement and
         this one holds the state: a preserved file must say **since when** it has been kept and **which
         engine version** it diverges from, and it must say it *where a freeze is visible over time*, not
