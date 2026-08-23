@@ -98,6 +98,37 @@ test("and it does catch what it is named after, on paths shaped like a real brai
   assert.deepEqual(strays.filter(isStrayArtifactRel), strays);
 });
 
+test("a stray at the BRAIN'S ROOT is one too — the patterns anchor on a separator OR the start", () => {
+  // The `^` arm of every OS pattern, which a mutation run found unreached: with only
+  // `(\/)` they would all miss a dropping sitting at the top of the brain, beside
+  // `CLAUDE.md` — which is exactly where Finder and Explorer leave theirs.
+  const atRoot = [".DS_Store", "._CLAUDE.md", "Thumbs.db", "desktop.ini"];
+  assert.deepEqual(atRoot.filter(isStrayArtifactRel), atRoot);
+});
+
+test("a name that merely CONTAINS one of those endings is an engine file, not a leftover", () => {
+  // Every pattern is anchored at the END of the name, and nothing tested that until a
+  // mutation run deleted all thirteen `$` with the suite green. It is the same shape T2's
+  // coupling scanner was quietly wrong about: the boundary was a guess.
+  //
+  // These are the files an unanchored filter would silence — and silencing a real
+  // held-back engine file is the one direction this list must never fail in.
+  const real = [
+    ".claude/skills/coach/SKILL.md.bak.md",
+    ".claude/skills/coach/SKILL.md.orig.md",
+    ".claude/skills/coach/SKILL.md.rej.md",
+    ".claude/skills/coach/notes~2.md",
+    ".claude/skills/coach/SKILL.md.swp.md",
+    ".claude/skills/coach/.DS_Store.md",
+    ".claude/skills/coach/Thumbs.db.md",
+    ".claude/skills/coach/desktop.ini.md",
+    // And the filter judges the FILE, never its ancestry: a directory whose name looks
+    // like a dropping does not silence what somebody put inside it.
+    ".claude/skills/._coach/SKILL.md",
+  ];
+  assert.deepEqual(real.filter(isStrayArtifactRel), []);
+});
+
 // 🚨 THE PREMISE GUARD FOR T4's CARVE-OUT, and it lives here because this is the only
 // file that reads the SHIPPED table.
 //
