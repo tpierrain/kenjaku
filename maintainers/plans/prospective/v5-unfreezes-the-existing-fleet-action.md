@@ -221,8 +221,25 @@
 >       the flip are `not-expected` (settings unreadable → no puller) and `unknown-session` (stdin
 >       payload unreadable → no key). **Both are fail-open branches, and both are unproven here.** The
 >       decisive instrument is a test that **records which branch it took** when it fails, so the next
->       red run is read instead of reasoned. **Not written yet — it edits a file identical to `main`
->       while a review is reading the branch.**
+>       red run is read instead of reasoned.
+>       - [x] ✅ **POST-TAG, and that is now DECIDED rather than merely deferred** _(Thomas,
+>             2026-08-23, "ok pour après")_. Offered with its cost when the flake was displayed to him:
+>             an hour, on a file deliberately frozen until the tag, changing none of the decisions
+>             already taken. He took *after*. **Do not open it before the tag, and do not re-offer it.**
+>       - 🆕 **AND THE STDIN-WRITE RACE MOVES BACK UP THE LIST, on evidence this branch produced by
+>             accident.** `unknown-session` is reached when the payload is unreadable, and the harness
+>             hands it over with `child.stdin.end(payload)` **immediately after `spawn`** — if the hook
+>             reads fd 0 before that write lands, it gets nothing, concludes it has no session key,
+>             does not wait, and announces `acme`. **Which is the observed symptom, exactly.**
+>             - ⚠️ **This hypothesis is on the KILLED list above** (360 spawns, 0 failures) and it stays
+>               there: not reproduced is not refuted, and 360 spawns on an idle laptop says little
+>               about a loaded CI runner. **Do not record it as the cause.**
+>             - **What is new is its PRIOR, not its proof.** On 2026-08-23 this very seam — a hook
+>               reading `readFileSync(0)` off a pipe — cost three hours of CI, because on Windows the
+>               same read never returns at all (§ *THE CI WAS RED FOR THREE HOURS*). A seam already
+>               measured as environment-fragile in one direction is a better suspect for being
+>               environment-fragile in the other. **The instrument settles it; this note only says
+>               where to point it first.**
 >
 > **Why it matters even though it is not v5's**: the barrier exists because announcing one sphere while
 > retrieving from another is a real field defect (the 2026-08-08 ordering defect). If the fail-open is
