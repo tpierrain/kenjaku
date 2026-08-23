@@ -10,28 +10,25 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-## 📍 STATE — the only perishable block in this file · cut back to its cap 2026-08-23
+## ✅ CLOSED — all 45 findings discharged, shipped in **v5.0.0** _(archived 2026-08-23)_
 
-- **Next:** **nothing. This queue is empty** — the third pass's fifteen findings and both convention
-  items of § *Cut by the reviewer's 15-item cap* are paid. What is left in that section is **latent /
-  quality, deliberately uncut**: read the box, do not work it as a queue. The release's own remaining
-  steps are [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)'s,
-  § *WHAT IS YOURS, IN ORDER*, and they are Thomas's.
-- **Blocked on:** nothing. The third pass's **T1–T15 are all paid**, in § *Third-pass tracking*,
-  which owns each one, its commits, its mutation score and its lesson — **do not restate them here,
-  that is what filled this block to 278 lines.** The first two passes' 30 findings are discharged in
-  § *Tracking* and § *Second pass*.
-- **Owner's call pending:** **NONE for this plan.** F11 is decided (§ E owns the answer — do not
-  re-open it). One question is merely *offered*, and nobody is waiting on it: the README half of the
-  dead-link finding in § *FOUND ON THE WAY AND NOT TAKEN*.
-- **A session may, alone:** work the queue above. **Not** merge, tag or publish
-  [#76](https://github.com/tpierrain/kenjaku/pull/76), **not** touch either of his two real brains,
-  **not** write under `templates/fr/**` — § *How the batch was worked* holds why, and a GO on
-  engineering has never been a GO on the release.
-- 📣 **OWED HIM AT THE END OF THIS STRETCH: nothing — delivered 2026-08-23**, covering T14, T15 and
-  the scoreboard's own blind spot in owner's terms, plus the re-run rehearsal. Re-arm this line the
-  next time engineering lands: two GOs asked for it (*"tu me montres à la fin"*), so it is owed per
-  stretch, not once.
+Three independent `/code-review` passes ran on this branch (F1-F15, S1-S15, T1-T15). **Every one of
+the forty-five findings is paid**, each in its own dated section below, with its commits, its
+mutation score and its lesson. The campaign was closed at three passes by Thomas on 2026-08-23
+(*"on close (ça a déjà trop duré)"*), on the argument that the count held at fifteen while the
+**stakes** thinned — the first pass moved the update path itself, the third mostly moved the
+measuring tools.
+
+The release these findings gated was cut and published the same day:
+[`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+owns the cut, and it is the only plan still open on v5.
+
+🔗 **The one finding that was NOT taken now has a home outside this file**: the ~24 candidate dead
+links across delivered docs, and the product question inside it, are
+[issue #78](https://github.com/tpierrain/kenjaku/issues/78). It was lifted out **before** this plan
+was archived, on purpose — an open finding buried in a closed plan is how a real defect disappears.
+
+_(Everything below is the historical record of the three passes. Do not read it for status.)_
 
 ## 🔭 FOUND ON THE WAY AND **NOT** TAKEN — open, each with what it would cost
 
@@ -101,7 +98,7 @@ which is Thomas's. So on this run, **prose fixes landed in the CODE's own string
 
 **Owned elsewhere, linked rather than restated**: the wording of the four doctrine texts (W5b) and the
 undecided rehearsal on a copy of a real brain both belong to
-[`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md). This file
+[`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md). This file
 used to carry their status; it now points, and cannot go false when they move.
 
 ## 🧾 How this review was run, and its ONE honest limitation
@@ -498,7 +495,7 @@ catches any of this.
           diff. No need to slice the range by hand.
   - [x] Re-run `/code-review` on the fix range (the `v3.3.0` discipline: the second pass caught what the
         first missed), and report the figure back to
-        [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) —
+        [`agent-orchestrated-release-mode-action.md`](2026-08-23-agent-orchestrated-release-mode-action.md) —
         which owes a verdict on whether fan-out-built work needs an independent review to count as
         finished. **This run already answers it in the affirmative, with numbers.** _(2026-08-22 —
         figure reported: 15.)_
@@ -702,7 +699,7 @@ The mode's own deferred question was whether a slice built by a fan-out owes an 
 before it counts as finished. **The answer arrived from the field, and it is yes.**
 
 **What the SECOND pass added to that, owned by
-[`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md) and not
+[`agent-orchestrated-release-mode-action.md`](2026-08-23-agent-orchestrated-release-mode-action.md) and not
 restated here**: the same figure came back on the *repairs* (15), two of them inside the guard the
 batch had just written. The lesson, and the tool limitation measured twice, live there.
 
@@ -1160,5 +1157,5 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       - 🔗 **And it fed the open question it is evidence for**: the cap was **applied everywhere and
         held nowhere** for three weeks, unnoticed by anything but a review — which is exactly what
         the *cheap half* of the plan lint would count. Recorded in
-        [`plan-state-single-source-study.md`](plan-state-single-source-study.md) § *QUEUED FOR AFTER
+        [`plan-state-single-source-study.md`](../prospective/plan-state-single-source-study.md) § *QUEUED FOR AFTER
         THE v5.0.0 TAG*, whose owner's call it is. **Not built: he asked for it after the tag.**

@@ -34,9 +34,19 @@
   against a copy, and write the macOS flake's instrument (§ *THE macOS FLAKE* owns it). **Not** write
   into `templates/fr/**`, and **not** write into either of his two real brains — updating his own
   brain to v5 is his, at his keyboard, and a read-only COPY under the job's tmp dir is not the brain.
-- 🔭 **Watch, now that it is out**: the **nightly mutation run on `main` has failed two nights
-  running** (2026-08-22 and 2026-08-23, before this merge). Pre-existing on `main`, unrelated to the
-  cut, and nobody has read it — the same shape as the CI incident this branch already paid for.
+- 🔭 **Watch, now that it is out** — three things, none of them a gate:
+  - the **nightly mutation run on `main` has failed two nights running** (2026-08-22 and 2026-08-23,
+    before this merge). Pre-existing, unrelated to the cut, and nobody has read it — the same shape as
+    the CI incident this branch already paid for.
+  - **[#77](https://github.com/tpierrain/kenjaku/issues/77)**, filed by Thomas **from his own brain**
+    hours after the update, and it ships **in** v5: the auto-commit hook matches `Write|Edit`, so notes
+    written by the engine's own writer scripts (`refresh-note.mjs`, `file-back-note.mjs`, invoked from
+    Bash) never trigger it. `/consolidate` and `/file-back` say `✓ Refreshed` and nothing is committed.
+    Real, structural, and the first candidate for the next release.
+  - **[#78](https://github.com/tpierrain/kenjaku/issues/78)** — the delivered docs' dead links, lifted
+    out of the triage plan before it was archived so the finding would outlive its file.
+  - 📌 **Both are now the tracker's, not this plan's.** `CONVENTIONS.md` **§10bis** makes the sweep a
+    release-time duty, so they will be looked at again by construction rather than by memory.
 
 > ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the arguments; the state is in the block above)_
 >
@@ -51,10 +61,10 @@
 > - [x] **2. The release TITLE → `v5.0.0 — The One Where Your Edits and Its Updates Finally Merge`.**
 >       His own framing, asked for twice: the title must say **the merge** (Kenjaku folds its new work
 >       into your own edits at update time), not the promise or the symptom. The three earlier
->       candidates are superseded. → [`release-v5.0.0-note.md`](release-v5.0.0-note.md).
+>       candidates are superseded. → [`release-v5.0.0-note.md`](../archived/2026-08-23-release-v5.0.0-note.md).
 > - [x] **3. The note KEEPS ITS SEVEN bullets** — one more than `CONVENTIONS.md` §11's six, deliberately.
 >       Nothing is folded, nothing is promoted from the doctrine cargo below the fold.
->       → [`release-v5.0.0-note.md`](release-v5.0.0-note.md), the arbitration box at the top.
+>       → [`release-v5.0.0-note.md`](../archived/2026-08-23-release-v5.0.0-note.md), the arbitration box at the top.
 > - [x] **4. The regimes question → (a): advance `regimes` (and `retired`) to the target's at step 7.**
 >       With the write guard's widening **called out in the release note** — that was the condition
 >       attached to the recommendation, and he took the recommendation. → § *THOMAS'S CALL — a brain
@@ -729,7 +739,7 @@
 >   made against **three surfaces** — this file's slices, the ROADMAP's open rows, and the scheduled
 >   open issues — or it is not made.
 > - 🔀 **The findings are the triage plan's, and only its.**
->   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) answers how many are fixed,
+>   [`v5-code-review-triage-action.md`](../archived/2026-08-23-v5-code-review-triage-action.md) answers how many are fixed,
 >   which is next, and what the blocker was decided to be. **This plan restates none of it**: a count
 >   copied here is a count that goes stale the next time a finding closes.
 > - 🗣️ **A question is not an item in a list of steps.** Asked what remained, an earlier session
@@ -738,7 +748,7 @@
 >   for the owner's calls, and why the cut below is announced in **one line** rather than recited.
 > - 🪤 **A STATE line about someone else's decision is wrong in BOTH directions, and it cost him twice.**
 >   The `Owner's call pending:` key here carried F11 — which belongs to § E of
->   [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md), not to this file. One version
+>   [`v5-code-review-triage-action.md`](../archived/2026-08-23-v5-code-review-triage-action.md), not to this file. One version
 >   said the whole French twin was untranslated (it is 548 lines of French against the English 549);
 >   the next advertised as pending a decision that section had already answered. **Both were
 >   corrections he had to make.** A decision is restated as a **link**, never as a summary — a summary
@@ -792,7 +802,7 @@
 >       (update / ordinary conversation), a concrete example in each, the old freeze described as the
 >       **deliberate protection it was**, the field measurement pushed back under the fold, and the
 >       body unwrapped. **`CONVENTIONS.md` §11 was rewritten to carry all of it** (`a95f7f4`), so the
->       next note starts here instead of re-deriving it. → [`release-v5.0.0-note.md`](release-v5.0.0-note.md).
+>       next note starts here instead of re-deriving it. → [`release-v5.0.0-note.md`](../archived/2026-08-23-release-v5.0.0-note.md).
 >       **Nothing is owed on this file** unless he wants another pass; it is ready to paste.
 > - [x] ✅ **4. ONE review, ONE merge, NO squash — DONE** _(2026-08-23 19:22 UTC · merge commit
 >       `e1fa4e4`)_. Merged with `gh pr merge 76 --merge`, which cannot mis-click: the style is the
@@ -821,7 +831,7 @@
 >       - 🔴 **IT RAN, on the WHOLE branch at `max` effort, and it came back with 15 findings**
 >         _(2026-08-22, ~37 min)_. The three-pass slicing was not needed: it read the 7 257-line
 >         production diff and the 16 260-line test diff in one go. **The findings and their triage are
->         in [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md)** — that file owns
+>         in [`v5-code-review-triage-action.md`](../archived/2026-08-23-v5-code-review-triage-action.md)** — that file owns
 >         them, this one links to it and restates nothing. **One blocker, two silent-damage defects,
 >         one locale regression that the release note does not mention.**
 >       - 🛑 **And the honest limitation, recorded rather than glossed**: its ten parallel finder agents
@@ -829,7 +839,7 @@
 >         is one reader's, which is an argument for the re-run after the fixes, not against the run.
 >       - 📌 **This also answers, in the field, the question the mode plan deferred**: whether work built
 >         by a subagent fan-out owes an independent review before it counts as finished. →
->         [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).
+>         [`agent-orchestrated-release-mode-action.md`](../archived/2026-08-23-agent-orchestrated-release-mode-action.md).
 >       - [x] ✅ **THE CAMPAIGN IS CLOSED AT THREE PASSES — Thomas, 2026-08-23**, *"on close (ça a déjà
 >         trop duré)"*. The instruction above ("re-run on the fix") **is satisfied and spent**: three
 >         independent reads ran, the second on the first's repairs and the third on the second's, and
@@ -1061,7 +1071,7 @@
 >       source-first rule), **written, placed and guarded** — the mechanism was the loop's, the
 >       sentences were his. **The guards assert patterns, not prose**, so this was never something the
 >       suite could have settled for him. → the doctrine-cargo block further down,
->       and [`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](field-finding-2026-08-08-source-first-and-frozen-doctrine.md)
+>       and [`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](../archived/2026-08-23-field-finding-2026-08-08-source-first-and-frozen-doctrine.md)
 >       for the fourth.
 >       - 🛑 **Why it is written here at all**: the five-question round of 2026-08-22 closed the
 >         § *WAITING ON THOMAS* list, and the session then said out loud *"nothing on this release is
@@ -1274,14 +1284,14 @@
 > ✅ **S9-2a — THE MATERIALS ARE READY** _(2026-08-22)_. **S9-2 split the way S9-1 did**: assembling
 > what a release needs is checkable work; deciding to publish is not.
 >
-> **The PR body** — [`release-v5.0.0-pr-body.md`](release-v5.0.0-pr-body.md), beside this plan.
+> **The PR body** — [`release-v5.0.0-pr-body.md`](../archived/2026-08-23-release-v5.0.0-pr-body.md), beside this plan.
 > #76's live body still describes **S1–S6 alone** and has been wrong since 2026-08-21 — the branch has
 > since more than doubled. The new one covers S1 → S10, both fallen forbidden claims, how it was
 > judged, and the two things to settle before a cut. **Written to a file rather than pushed**: editing
 > a live PR is outward-facing and the loop does not take those alone. To apply it, from the repo root:
 >
 > ```bash
-> sed '1,/^---$/d' maintainers/plans/prospective/release-v5.0.0-pr-body.md > /tmp/pr76.md
+> sed '1,/^---$/d' maintainers/plans/archived/2026-08-23-release-v5.0.0-pr-body.md > /tmp/pr76.md
 > gh pr edit 76 --title "v5.0.0 — the engine owns what it shipped, and stops leaving old brains behind" --body-file /tmp/pr76.md
 > ```
 >
@@ -1380,7 +1390,7 @@
 > literally — *on this release* — and went looking at the repo's other open plans, which is what the
 > mode's contract tells it to do. It found **an unbuilt slice that had been arbitrated INTO this very
 > release** two weeks earlier: the **source-first rule**, S1 of
-> [`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](field-finding-2026-08-08-source-first-and-frozen-doctrine.md),
+> [`field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](../archived/2026-08-23-field-finding-2026-08-08-source-first-and-frozen-doctrine.md),
 > whose own S4 box reads *"it ships with the unfreeze release"*. It is now written into both
 > constitutions and guarded, and it appears in the PR body and the release note.
 >
@@ -1413,7 +1423,7 @@
 > checklist, not to a slice, and no amount of loop iterations replaces the days.
 >
 > ✅ **S9-1b — THE RELEASE NOTE IS DRAFTED** _(2026-08-22)_ —
-> [`release-v5.0.0-note.md`](release-v5.0.0-note.md), beside this plan, written to `CONVENTIONS.md`
+> [`release-v5.0.0-note.md`](../archived/2026-08-23-release-v5.0.0-note.md), beside this plan, written to `CONVENTIONS.md`
 > §11 (two-sentence lead in the reader's words, six `What you get` bullets, the shortest possible
 > `What you have to do`, then everything technical below the `---`). **The body is written to be
 > published as-is; the VOICE is his, and so is the TITLE** — three candidates are listed at the top of
@@ -2687,7 +2697,7 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
         LOST" is the promise that survives an update** — and it is the note's lead.
   - [x] **Six passages corrected** across `README.md`, `EN-QUOI-C-EST-DIFFERENT.md` and `SETUP.md`; the
         **heal**, which appeared in no user-facing document at all, is now in the updater bullet.
-- [x] **S9-1b — the release note, DRAFTED** _(2026-08-22)_ — [`release-v5.0.0-note.md`](release-v5.0.0-note.md),
+- [x] **S9-1b — the release note, DRAFTED** _(2026-08-22)_ — [`release-v5.0.0-note.md`](../archived/2026-08-23-release-v5.0.0-note.md),
       to `CONVENTIONS.md` §11's shape. **Both old forbidden claims have fallen** — S7 made *"unfreezes
       nobody already installed"* false, S10 made *"the merge does not reach back"* irrelevant to the
       user — so the note says plainly what it could not say before.
@@ -2701,7 +2711,7 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
   - [x] **Verified, not assumed**: `indexSchemaVersion` is unchanged since `v4.9.1`, so nothing is
         re-read or re-encoded and *"What you have to do"* is one line.
 - [x] **S9-2a — the release materials** _(2026-08-22)_: the PR body for #76 rewritten to cover S1 → S10
-      ([`release-v5.0.0-pr-body.md`](release-v5.0.0-pr-body.md), with the `gh pr edit` command in the
+      ([`release-v5.0.0-pr-body.md`](../archived/2026-08-23-release-v5.0.0-pr-body.md), with the `gh pr edit` command in the
       header — the loop writes the file, it does not edit a live PR), plus a green pre-flight sweep.
   - [x] **The sweep's one non-green finding is an ORDER, not a defect**: #76's base is the S0bis branch
         and draft PR #75 is still open. Either #75 lands first, or #76 is retargeted to `main`.

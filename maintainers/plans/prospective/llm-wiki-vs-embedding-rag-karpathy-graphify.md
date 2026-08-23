@@ -10,7 +10,7 @@
 > The three questions below were **asked and answered**. The answer moved the subject off this note
 > entirely: by *Graph Engineering* he meant **orchestrating subagents to build the next Kenjaku
 > release**, not a graph structure inside the product. The working contract that came out of it lives
-> in its own plan: [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).
+> in its own plan: [`agent-orchestrated-release-mode-action.md`](../archived/2026-08-23-agent-orchestrated-release-mode-action.md).
 >
 > **What this note keeps**: the *runtime* graph question — a graph as a retrieval or ingestion object
 > inside Kenjaku — which he says he does have in mind and wants to **study with me, but AFTER the
@@ -41,7 +41,7 @@
 >
 > **UNPAUSED 2026-08-19**: `update-regime-owns-what-it-shipped-action.md` kept everything it carried
 > and is live again, to be built in the orchestrated mode described in
-> [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).
+> [`agent-orchestrated-release-mode-action.md`](../archived/2026-08-23-agent-orchestrated-release-mode-action.md).
 >
 > ### ✅ THE FRAMING CONVERSATION — asked 2026-08-15, ANSWERED 2026-08-19
 >

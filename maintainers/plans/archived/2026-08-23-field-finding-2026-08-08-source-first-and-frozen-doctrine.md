@@ -7,24 +7,23 @@
 
 # Action plan — the source the owner hands you comes first, and the doctrine that says so must actually arrive
 
-## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+## ✅ CLOSED — shipped in **v5.0.0**, and *received* _(archived 2026-08-23)_
 
-- **Next:** **nothing to build.** S1 is written and guarded in both constitutions _(2026-08-22 ·
-  `5729282`)_: `CLAUDE.engine.md` and `templates/fr/CLAUDE.engine.md` open their routing section with
-  a `Level 1` / `Niveau 1` block and carry a level-1 row in the routing table, held by
-  `source-first-discipline.test.mjs` — **20 assertions, EN/FR parity**, each rule naming the field
-  defect it prevents.
-- **Blocked on:** **the ship, not the branch.** This plan closes when v5.0.0 **reaches the fleet**,
-  because the whole finding is *a rule written where the fleet never receives it* — and a rule
-  delivered to a branch is that same defect one commit further along. The cut is
-  [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)'s; no
-  status is copied here.
-- **Owner's call pending:** **the WORDING**, carried as **W5b** in that plan's work order. Also his to
-  voice: the release-note line (drafted in
-  [`release-v5.0.0-note.md`](release-v5.0.0-note.md)). And one thing neither of us can do yet: the
-  **field re-test** — same brain, same kind of prompt, once it runs a v5 engine.
-- **A session may, alone:** nothing here. The mechanism is built; what is left is prose in the
-  owner's voice, and shipping.
+**This plan wrote its own closing condition, and that condition was met.** It read: *"closes when
+v5.0.0 reaches the fleet, because the whole finding is a rule written where the fleet never receives
+it"*. v5.0.0 was tagged on 2026-08-23; the same evening the owner's `mind-palace` was updated from
+v4.9.1 and its `CLAUDE.engine.md` went 334 → 548 lines, carrying the `Niveau 1` block. The rule is on
+a real brain, not on a branch — which is the only form of *done* this particular finding accepts.
+
+The wording (W5b) was arbitrated as written, and the release note carries its line.
+
+🔁 **One thing is deliberately NOT closed here, and was handed on rather than dropped**: the *field
+re-test* — the same brain, the same kind of prompt, now that it runs a v5 engine. It sits with the
+other post-tag observations in
+[`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+the one plan still open on this release.
+
+_(Everything below is the historical record of the finding and its design. Do not read it for status.)_
 
 > ## 🎙️ Why the wording is HIS, and the guard is not
 >
@@ -198,7 +197,7 @@ release on: **shipping something the fleet never receives**, silently.
       doctrine rule arriving with it is the demonstration, not a bundle.
   - [x] Release note per §11: what the owner gains is *"when you hand your brain a link or a file, it
         reads it before answering"* — never a paragraph about regimes and manifests. **Drafted
-        2026-08-22** in [`release-v5.0.0-note.md`](release-v5.0.0-note.md), in those words. ⚠️ It makes
+        2026-08-22** in [`release-v5.0.0-note.md`](2026-08-23-release-v5.0.0-note.md), in those words. ⚠️ It makes
         a **seventh** `What you get` bullet where §11 allows six: written in rather than dropped
         silently, with the cut flagged at the top of that file as the owner's.
 

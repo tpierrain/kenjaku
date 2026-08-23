@@ -19,10 +19,11 @@ the active plan, never directly.
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
-- [`prospective/v5-code-review-triage-action.md`](prospective/v5-code-review-triage-action.md)
-- [`prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md`](prospective/field-finding-2026-08-08-source-first-and-frozen-doctrine.md)
-- [`prospective/agent-orchestrated-release-mode-action.md`](prospective/agent-orchestrated-release-mode-action.md)
-- [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md)
+- [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md) —
+  its queued items come due now that the tag is cut.
+
+_(Three plans left this list on 2026-08-23, archived with the release: the code-review triage, the
+source-first field finding and the orchestrated-release working contract.)_
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that

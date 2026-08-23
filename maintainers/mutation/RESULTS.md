@@ -236,7 +236,7 @@ local-mirror's `fs-state-store` and `content-hash`.
 ## T15 — the careful invocation was the live one — 2026-08-23
 
 `0286481`. State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 EXISTING file changed → measured **on THOSE LINES ONLY**: `--mutate
 "maintainers/mutation/mutate-one.mjs:109-146"` through the maintainers config.
 **49 killed, 0 survived, 2 timeouts (3.9 %, well under the 25 % tell) → 100.00 %.**
@@ -257,7 +257,7 @@ many times it is pointed at the same line.
 ## T14 — one word for two kinds of bad news, and the honest one was crying wolf — 2026-08-23
 
 `49fa874` (the two verdicts) + `9e431a4` (the instrument that could not read its own 100). State owned
-by [`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+by [`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 EXISTING files changed → measured **on THOSE LINES ONLY**.
 **Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-ancestor-fetch.mjs:53-144"
 "scripts/update-engine.mjs:404-417" "scripts/lib/plural.mjs:36-38" --log t14-ancestor-verdicts.log`,
@@ -289,7 +289,7 @@ is the whole argument of the section below.
 
 `658c348` (the two gates) + `da1fe2e` (the survivors' poles) + `3eec3cc` (a dead disjunct removed) +
 `74fb898` + `d48d2c5` (the colour strip). State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 EXISTING file changed in five places → measured **on THOSE LINES ONLY**.
 **Reproduce**: `npm --prefix maintainers/mutation run mutate:maintainers` scoped with
 `--mutate "maintainers/mutation/mutate-one.mjs:354-357,…:361-416,…:438-452,…:617-632,…:636-645"` for
@@ -368,7 +368,7 @@ parsers, and the colourised table is pinned against the plain one in two SGR spe
 ## T9 — a fix in the file the instrument CANNOT reach, for the second time — 2026-08-23
 
 `c3f26bd` (the fix) + `175eb6b` (the pole that read its own source). State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 
 🚧 **NO SCORE, AND THAT IS THE HONEST ANSWER.** `scripts/status-line.mjs` is **`merge`-regime**, and
 T2's box below already named the consequence: Stryker instruments the file it mutates, the S7-2
@@ -399,7 +399,7 @@ imported name"*, it says the same thing and survives its own tooling.
 ## T8 — one question, four doors, and the scanner found the fourth — 2026-08-23
 
 `85c2167` (the fix) + `2013d0d` (the scanner's whitespace). State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 Scoped to the **new module** and to the **four changed guard lines**.
 
 | File (lines) | First pass | After | Survivors |
@@ -438,7 +438,7 @@ findings earlier.
 ## T7 — a guard that measured nothing, and the units that could not see it — 2026-08-23
 
 `00caad7` (the fix) + `977cdb8` (the refusal's message). State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 Scoped to the **changed lines only**.
 
 | File (lines) | First pass | After | Survivors |
@@ -474,7 +474,7 @@ reason `describeDrift`'s own pole already gave one screen up: **this message is 
 ## T6 — thirteen anchors nobody had tested, on a filter whose ONLY safety is its anchors — 2026-08-23
 
 `1604d3e` (the fix) + `67682ad` (the survivors' poles). State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 
 | File (range) | First pass | After | Survivors |
 |---|---|---|---|
@@ -508,7 +508,7 @@ boundary, the boundary is the thing to triangulate — the happy path proves not
 ## T5 — the collector past the point of no return — 2026-08-23
 
 `21aefbf`. State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 Scoped to the **changed lines only** (`engine-adopt.mjs:222`, `:257`, `:272`).
 
 | File (lines) | Score | Survivors |
@@ -533,7 +533,7 @@ a test.**
 ## T4 — the invited carve-out, and a RANGE that measured nothing without saying so — 2026-08-23
 
 `09e0506`. State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 Scoped to the **changed lines only**.
 
 | File (range) | Score | Survivors |
@@ -562,7 +562,7 @@ distrust any run whose file list is shorter than the file list you asked for.**
 ## T3 — the collector on the writer path, and a fallback nothing could reach — 2026-08-23
 
 `ab1751d` (the fix) + `6219f6f` (the survivor's removal). State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 Scoped to the **changed lines only**, never the files.
 
 | File (ranges) | First pass | After | Survivors |
@@ -589,7 +589,7 @@ it.
 ## T2 — the coupling guard, and a file the instrument CANNOT reach — 2026-08-23
 
 `814be9a` (the fix) + `6e0181c` `566ba35` (the survivors' poles). State owned by
-[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+[`../plans/archived/2026-08-23-v5-code-review-triage-action.md`](../plans/archived/2026-08-23-v5-code-review-triage-action.md).
 NEW module → measured **on its lines only**.
 
 | File (range) | First pass | After | Survivors |
@@ -2223,8 +2223,8 @@ it belongs to the S0bis ceilings, not to the tooling slice.
 ## S0bis — the two structural debts, paid (`scripts` only) — 2026-08-20
 
 **Not a release: the debt run itself.** Branch `chore/s0bis-entrypoint-mutation-debt`, working contract
-in [`../plans/prospective/agent-orchestrated-release-mode-action.md`](../plans/prospective/agent-orchestrated-release-mode-action.md),
-debt statement in [`../plans/prospective/v4.9.0-mutation-debt-plan.md`](../plans/prospective/v4.9.0-mutation-debt-plan.md).
+in [`../plans/archived/2026-08-23-agent-orchestrated-release-mode-action.md`](../plans/archived/2026-08-23-agent-orchestrated-release-mode-action.md),
+debt statement in [`../plans/archived/2026-08-23-v4.9.0-mutation-debt-plan.md`](../plans/archived/2026-08-23-v4.9.0-mutation-debt-plan.md).
 It exists to pay the **two named structural debts** the [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05)
 recorded and every published tag has carried since: the **entry-guard tier** (top-level scripts whose
 whole body no test can import, hence 0 %) and **`defaultGit`'s inline invocation** (54.05 %).
