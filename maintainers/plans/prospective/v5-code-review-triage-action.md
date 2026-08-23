@@ -12,17 +12,35 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T10.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T9 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
-  `85c2167`; `c3f26bd`)_; **T10–T15 are open**, in § *Third pass*, which owns them and their order.
+- 🔴 **NEXT — RESUME AT T11.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T10 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
+  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`)_; **T11–T15 are open**, in § *Third pass*, which owns them
+  and their order.
   **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and **the
   items below T9 have not been independently re-checked**. Verify, then fix test-first, red first, one
   commit per subject, pushed as it goes.
-  - **T10 next**: install-if-absent copies the **English** bytes into a French brain —
-    `copyInto(sourceDir, brainDir, rel)` never goes through `resolveLocaleSource`. Latent this
-    release, and **the sharp end is documentary**: ADR 0040 grants this door its locale-blind
-    exemption on a written premise the code contradicts. So read the ADR first — the fix has to
-    leave the ADR and the code saying the same thing.
+  - **T11 next**: the new divergence hook reads the manifest, every merge file and `.engine-base/`
+    **while the startup pull is rewriting them** — a mid-write manifest parses as `null` and the hook
+    goes silent. The finding calls the fix one line, and *"one line"* has now been wrong about a seam
+    **four** times on this branch (W1, T2, T3, T10) — so run it before believing it.
+    ⚠️ **And it touches the same barrier the macOS flake is about** (§ *THE macOS FLAKE* in the
+    release plan): that instrument is **post-tag** work and does **not** block T11.
+  - ✅ **T10 paid, and the finding named ONE door out of THREE** _(`8977248` the fix + `3df9f15` the
+    mutation poles · scoped mutation **100 %**, 58 killed, all four files present in the breakdown)_.
+    install-if-absent read the root rel, so a French brain got the English bytes **and kept them**:
+    the directory then exists, so the door never fires again. Running the same case one door along
+    found it in `installStagedSkills` and in `seedHealthNote` too.
+    - 🧭 **The lesson, and it is the fourth time on this branch**: the finding's call site is a
+      sample, not the census. What settled it was **running the case against the neighbours**, not
+      re-reading them — T3, T5 and T8 each said the same thing in their own words.
+    - 🔒 **So the rule now has a machine**: `findDeliveryCopies` censuses every `copyFileSync` in the
+      engine and the installer, and a repo-wide test pins the set against a table of verdicts. **A
+      fourth door fails the suite until someone judges it.** Reuse this shape for T12, which is the
+      other item whose stated *"ONLY defence"* is a phrase repeated in more than one place.
+    - 📎 **ADR 0040 was corrected, not softened**: its *"install-if-absent copies the resolved
+      source"* was the promise the code broke, and its `Scope:` said *"No behaviour change"*, which
+      was true of the merge-governed families only. Both now separate the **decision** (locale-blind,
+      correctly) from the **delivery** (resolved).
   - ✅ **T9 paid, and it could NOT be mutation-scored**: `status-line.mjs` is `merge`-regime, and
     instrumenting it makes the fingerprint freshness guard red before the first mutant. **T2 had
     already named that limitation** — the four scripts it applies to are `auto-commit`, `auto-push`,
@@ -1102,12 +1120,29 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
             measured, this one self-inflicted, and now gone.
       - 📎 `status-line.mjs` being `merge`-regime also means the **fingerprint table was regenerated**
             for v5.0.0 in the same commit, the branch's own precedent from T2.
-- [ ] **T10 — install-if-absent copies the ENGLISH bytes into a French brain**
+- [x] **T10 — install-if-absent copies the ENGLISH bytes into a French brain**
       (`reconcile-brain.mjs:224`). `copyInto(sourceDir, brainDir, rel)` never goes through
       `resolveLocaleSource`. **The sharp end is documentary**: ADR 0040 grants this door a locale-blind
       exemption on the written premise that it *"copies the resolved source"* — which the code
       contradicts, while the same ADR promises a new localized artefact is covered the moment its twin
       exists. Latent this release; the next localized skill arrives in English, silently.
+      _(2026-08-23 · `8977248` the fix + `3df9f15` the mutation poles.)_
+      - 🔎 **THREE doors, not one.** The finding named `reconcile-brain`'s merge-skill install.
+        `installStagedSkills` and `seedHealthNote` had the identical defect, found by running the FR
+        case against them rather than by re-reading them. All three now resolve through rule 3's own
+        function; `copyInto` gained a source rel distinct from its destination rel, which is where the
+        resolution had nowhere to live before.
+      - 🔒 **`findDeliveryCopies` + a repo-wide census** now pins every `copyFileSync` in the engine
+        and the installer against a table of verdicts (`locale-resolved` / `not-an-engine-delivery`
+        with its reason). A fourth door, or a door that stops calling the resolver, fails the suite.
+      - 📐 **Scoped mutation 100 %** (58 killed, 0 survived, 0 timeout), and **all four requested files
+        appeared in the per-file breakdown** — the manual version of the check T13 exists to automate.
+        First pass was 94.83 %: two survivors were the census losing its own last line when a file ends
+        without a newline, the third deleted the staged install's directory test, which no fixture had
+        ever exercised.
+      - 📎 **ADR 0040 corrected in the same movement**, so the code and the decision say one thing: the
+        install/retire doors **decide** locale-blind and **deliver** locale-resolved, and its
+        `Scope:` no longer claims "No behaviour change" for doors this changes.
 - [ ] **T11 — the new divergence hook reads state the startup pull is changing, with no barrier**
       (`session-engine-divergence.mjs:32`). `session-universe.mjs` is the **only** non-test caller of
       `waitForStartupSync`, and this hook reads the manifest, every merge file and `.engine-base/` —
