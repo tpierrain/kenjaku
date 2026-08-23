@@ -144,7 +144,26 @@ export async function reconcileBrain({
   //
   // Read ONCE, used TWICE: the heal and the ancestor fetch below need the same installed
   // bytes and the same table, and this path runs at every session start.
-  const installedMergeFiles = readInstalledMergeFiles({ brainDir, manifest: target });
+  //
+  // 🚨 AND IT ASKS TO BE TOLD, rather than denying the whole converge (T3, third review
+  // pass). Without the collector this read RETHROWS — before the copy loop, before
+  // retirement, before the launcher regen, before the manifest — so one file the process
+  // cannot read (a bad umask, a locked file, a cloud client's placeholder) froze every
+  // OTHER engine file too. Worse on the self-heal path, which spawns this code `detached`
+  // with `stdio: "ignore"`: the banner goes nowhere, the gap survives, and the same
+  // failure re-fires at every session start with no output at all.
+  //
+  // Set aside costs the FILE and only the file: absent from this map, it is a candidate
+  // for neither the heal nor the ancestor fetch (both select on its keys), so nothing is
+  // recorded about bytes nobody read. The alarm voice is already owned elsewhere — the
+  // health probe says it out loud (`engineFilesVerdict`, S5) — and the report carries the
+  // names so no surface has to infer them from a gap.
+  const unreadableMergeFiles = [];
+  const installedMergeFiles = readInstalledMergeFiles({
+    brainDir,
+    manifest: target,
+    unreadable: unreadableMergeFiles,
+  });
   const fingerprintTable = readFingerprintTable({ sourceDir, brainDir });
   const { provenance: healedProvenance, baseRefs: healedBaseRefs, healed } = healFromDisk({
     manifest: target,
@@ -552,6 +571,11 @@ export async function reconcileBrain({
     reconciledFileMap: engineWrote.recorded,
     statusLineRemoved: statusLineWasRemoved,
     pointerUnignored,
+    // T3 — the merge files this pass could not READ, named rather than left as a gap in
+    // lists that otherwise read as complete. Empty on every healthy brain, which is why
+    // it is a list and not a boolean: what a surface needs is WHICH file, and there may
+    // be more than one.
+    unreadable: unreadableMergeFiles,
   };
 }
 
@@ -686,9 +710,15 @@ export async function runReconcileCli({ argv, seams = {} }) {
   // Run even when nothing was delivered — that is precisely the migration case (a
   // self-heal converging a brain from its own code delivers nothing, and can still seed
   // every ancestor the brain is able to prove).
-  syncBaseTree({ brainDir, manifest, provenance, deliveredFileMap: delivered });
+  //
+  // T3 — and it asks to be told too, or the throw the reconcile just survived would come
+  // straight back here, at the LAST line that writes. The names join the ones the
+  // reconcile set aside: the two reads are of the same brain moments apart, so a `Set`
+  // is what keeps one file from being reported twice.
+  const lateUnreadable = [];
+  syncBaseTree({ brainDir, manifest, provenance, deliveredFileMap: delivered, unreadable: lateUnreadable });
   announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, report, emit: seams.emit ?? (() => {}) });
-  return report;
+  return { ...report, unreadable: [...new Set([...report.unreadable, ...lateUnreadable])] };
 }
 
 /**

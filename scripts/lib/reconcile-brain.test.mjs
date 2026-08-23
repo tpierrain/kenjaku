@@ -7,6 +7,7 @@ import {
   readFileSync,
   existsSync,
   rmSync,
+  chmodSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
@@ -417,6 +418,98 @@ test("runReconcileCli — the child takes its FAMILIES from the source, or a dep
   assert.deepEqual(after.retired, [".claude/skills/old-timer/**"], "and the tombstones with them — W3's decision, applied where a deployed brain will meet it");
   // The parent already migrated the index if it had to; the child converges files.
   assert.deepEqual(calls.reindex, [], "advancing the families must not turn the child into a migration");
+});
+
+// ── T3 (third review pass): ONE UNREADABLE MERGE FILE USED TO ABORT EVERYTHING ──
+//
+// Reproduced as a PROCESS before a line was written: the reconcile CLI, run on a brain
+// with one merge file at mode 000, exits 1 with `EACCES` on stderr and leaves the engine
+// file at its OLD content — no copy, no retirement, no launcher regen, no manifest.
+//
+// And on the self-heal path nobody hears it: `session-self-heal.mjs` spawns this child
+// `detached` with `stdio: "ignore"`, so the banner goes nowhere, the gap survives, and
+// the same silent failure re-fires at every single session start. The alarm voice for a
+// file the filesystem refused already exists and is the health probe's
+// (`engineFilesVerdict`, S5) — what was missing here is that the OTHER fifteen files
+// went on being denied their update because of it.
+test("reconcileBrain — one unreadable merge file costs that FILE, never the whole converge", async (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  const locked = join(brainDir, ".claude/skills/zzz-mine/SKILL.md");
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  // A merge-governed file this process cannot read: a bad umask, a locked file, a cloud
+  // client's placeholder. `zzz-mine` is the fixture's own `merge` family.
+  chmodSync(locked, 0o000);
+
+  const { calls, ...s } = seams();
+  let report;
+  try {
+    report = await reconcile({
+      brainDir,
+      platform: "posix",
+      sourceDir,
+      target: manifest(),
+      local: manifest({ ragVersion: "1.0.0" }),
+      ...s,
+    });
+  } finally {
+    // Restored before any assertion: `buildBrain`'s own cleanup would otherwise trip on
+    // a file it cannot stat, and a green test would die in its after-hook.
+    chmodSync(locked, 0o644);
+  }
+
+  // The converge happened — all of it, exactly as it does when every file reads.
+  assert.equal(readFileSync(join(brainDir, "rag/src/index.ts"), "utf8"), "// engine vB\n", "the engine file must still be swapped");
+  assert.deepEqual(calls.regenerate, ["posix"], "the launchers must still be regenerated");
+  assert.deepEqual(calls.install, [join(brainDir, "rag")], "install must still run");
+  // …and the file that could not be read is NAMED, so no surface has to infer it from a
+  // gap in a list that otherwise reads as complete.
+  assert.deepEqual(report.unreadable, [".claude/skills/zzz-mine/SKILL.md"]);
+});
+
+// The same defect met where the FLEET meets it: the CLI child, whose failure the parent
+// swallows as best-effort and whose stderr the self-heal throws away.
+test("runReconcileCli — a locked merge file no longer leaves the brain frozen with nothing written", async (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  const locked = join(brainDir, ".claude/skills/zzz-mine/SKILL.md");
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(sourceDir, ".claude/skills/coach/SKILL.md", "---\nname: coach\n---\nYour sparring partner.\n");
+  writeFile(brainDir, "engine-manifest.json", JSON.stringify(manifest(), null, 2));
+  writeFile(sourceDir, "engine-manifest.json", JSON.stringify(manifest({ extraMerge: [".claude/skills/coach/**"] }), null, 2));
+  chmodSync(locked, 0o000);
+
+  const { calls, ...s } = seams();
+  const runReconcileCli = await loadCli();
+  let report;
+  try {
+    report = await runReconcileCli({
+      argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+      seams: s,
+    });
+  } finally {
+    chmodSync(locked, 0o644);
+  }
+
+  assert.deepEqual(report.installedSkills, ["coach"], "the missing engine skill must still be installed");
+  // The advance is WRITTEN DOWN — the half a thrown reconcile lost every session, forever.
+  const after = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.ok(after.regimes.merge.includes(".claude/skills/coach/**"), "the advanced families must survive a brain with a locked file");
+  assert.deepEqual(report.unreadable, [".claude/skills/zzz-mine/SKILL.md"]);
 });
 
 // …and the advance must survive a pass that hands over NOTHING, which is the case the

@@ -121,15 +121,31 @@ function listFilesUnderRoots(brainDir, roots) {
 // same delivery, the same digests). Passing it in rather than re-deriving it is what
 // keeps one fact with one owner: this module writes bytes, `reseedProvenance` writes
 // shas, and the two are asserted to agree.
-export function syncBaseTree({ brainDir, manifest, provenance = {}, deliveredFileMap = {} }) {
+//
+// 🚨 `unreadable` — THE SAME OPT-IN COLLECTOR, extended to the SEEDER (T3, third pass).
+// S5 left the writers out of it on the argument that "a seeder that quietly skipped a
+// file it could not read would record an ancestor for a brain it never saw". That is
+// still true of a SILENT skip, and it is why the collector stays opt-in here too — a
+// caller that does not ask to be told still gets the throw. What it is not an argument
+// for is denying the other fifteen files their base: this function is the LAST writer on
+// the reconcile path, so its bare throw took the whole converge with it — the copies,
+// the retirement, the launcher regen, the manifest — on the strength of one locked file.
+//
+// The set-aside rel is dropped from the candidates rather than left to fall through
+// `planBaseSeed`, which would defer it as `not-installed`: a sentence about a file the
+// owner deleted, said about a file that is right there. Nothing is seeded for it, and the
+// collector is the only thing that speaks about it.
+export function syncBaseTree({ brainDir, manifest, provenance = {}, deliveredFileMap = {}, unreadable = null }) {
   const advance = planBaseAdvance({ manifest, deliveredFileMap });
   writeBaseEntries({ brainDir, entries: advance });
 
   // Fold the advance's own digests in, so a file just advanced reads as PROVABLE below
   // and is left alone — instead of being seeded a second time from an installed file
   // that may already have moved on.
-  const recorded = { ...provenance, ...Object.fromEntries(advance.map((entry) => [entry.rel, entry.sha])) };
-  const installedFileMap = readInstalledMergeFiles({ brainDir, manifest });
+  const advanced = { ...provenance, ...Object.fromEntries(advance.map((entry) => [entry.rel, entry.sha])) };
+  const installedFileMap = readInstalledMergeFiles({ brainDir, manifest, unreadable });
+  const setAside = new Set(unreadable ?? []);
+  const recorded = Object.fromEntries(Object.entries(advanced).filter(([rel]) => !setAside.has(rel)));
   const candidates = [...new Set([...Object.keys(installedFileMap), ...Object.keys(recorded)])];
   const { seeds, deferred } = planBaseSeed({
     manifest,

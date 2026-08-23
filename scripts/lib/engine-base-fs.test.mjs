@@ -339,6 +339,68 @@ test("syncBaseTree — what it cannot seed is NAMED, one reason per refusal, rat
   assert.equal(existsSync(join(dir, ".engine-base")), false, "nothing provable, nothing written");
 });
 
+// ── syncBaseTree — the file the FILESYSTEM refused (T3, third pass) ───────────
+//
+// S5 gave `readInstalledMergeFiles` an opt-in collector and deliberately left the
+// WRITERS out of it: a seeder that quietly skipped a file it could not read would
+// record an ancestor for a brain it never saw. That reasoning holds for the SEED and
+// only for it — and `syncBaseTree` is the LAST writer on the reconcile path, so its
+// bare throw took the whole converge down with it (the copies, the retirement, the
+// launcher regen, the manifest), on the strength of one locked file.
+//
+// The repair keeps the rule and pays its price per file: the rel the process could not
+// read is set aside, seeded from nothing, NAMED to the caller — and every other file
+// still gets its base.
+test("syncBaseTree — one unreadable installed file costs that file its seed, never the whole tree", (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const readable = "coach, as installed\n";
+  const locked = "# constitution as installed\n";
+  const dir = brain(t, { "CLAUDE.md": locked, ".claude/skills/coach/SKILL.md": readable });
+  const provenance = { "CLAUDE.md": fp(locked), ".claude/skills/coach/SKILL.md": fp(readable) };
+  chmodSync(join(dir, "CLAUDE.md"), 0o000);
+  const unreadable = [];
+  try {
+    const report = syncBaseTree({ brainDir: dir, manifest: MANIFEST, provenance, unreadable });
+
+    // The other file is seeded exactly as it would have been alone.
+    assert.deepEqual(report, { advanced: [], seeded: [".claude/skills/coach/SKILL.md"], deferred: [] });
+    assert.equal(read(dir, ".engine-base/.claude/skills/coach/SKILL.md"), readable);
+    // And the caller is TOLD, rather than left to read an absence.
+    assert.deepEqual(unreadable, ["CLAUDE.md"]);
+  } finally {
+    chmodSync(join(dir, "CLAUDE.md"), 0o644);
+  }
+  // 🛑 The half that makes this safe rather than merely quiet: no base is invented for
+  // a file whose bytes were never seen. `verifyBase` would answer "absent" on them and
+  // `planBaseSeed` would defer it as `not-installed` — a sentence about a file the
+  // owner deleted, said about a file that is right there. So it is not a candidate at
+  // all, and the collector is the only thing that speaks about it.
+  assert.equal(existsSync(join(dir, ".engine-base/CLAUDE.md")), false, "a base seeded from bytes nobody read would be a fiction");
+});
+
+// The collector stays OPT-IN here for the same reason it is opt-in next door: a caller
+// that does not ask to be told still gets the throw, so no new seeder can go silent by
+// forgetting a parameter.
+test("syncBaseTree — without a collector, an unreadable installed file still throws", (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const dir = brain(t, { "CLAUDE.md": "# constitution as installed\n" });
+  chmodSync(join(dir, "CLAUDE.md"), 0o000);
+  try {
+    assert.throws(
+      () => syncBaseTree({ brainDir: dir, manifest: MANIFEST, provenance: { "CLAUDE.md": fp("# whatever\n") } }),
+      /EACCES|EPERM/,
+    );
+  } finally {
+    chmodSync(join(dir, "CLAUDE.md"), 0o644);
+  }
+});
+
 test("syncBaseTree — a DRIFTED base is repaired from the installed file, and the tree never nests inside itself", (t) => {
   const delivered = "// auto-commit, as delivered\n";
   const dir = brain(t, {
