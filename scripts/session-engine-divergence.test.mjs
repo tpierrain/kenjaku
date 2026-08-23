@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -302,3 +303,37 @@ test("runSessionEngineDivergence — a barrier that gives up is NOT a gate on sp
 // FIRST thing this hook does, ahead of its own try/catch, so the guarantee has to be a
 // property of what SHIPS rather than of a throwing double a test injects. Asserting it
 // through the seam would have proved the double.
+
+// ── The entry point, RUN AS A PROCESS — T7's lesson aimed at a DEFAULT ───────
+// A mutant replaced this hook's own `brainDir` default, `".."`, with `""` and every
+// test above stayed green: each one hands in its own brainDir, so not one of them ever
+// ran the resolution that SHIPS. With `""` the hook would look for a brain inside
+// `scripts/`, find no manifest, and be silent on every real brain forever — the same
+// silence T11 is about, arriving by the other door.
+//
+// So it is spawned with no arguments at all, exactly as the harness spawns it, and the
+// only thing that can make it speak is resolving its own root correctly.
+test("session-engine-divergence, as a PROCESS with no arguments, resolves its OWN brain root", async (t) => {
+  // realpath: on macOS the temp dir is a symlink, and `runAsEntrypoint` compares the
+  // path as typed against the path Node realpath-resolved.
+  const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-divergence-entry-")));
+  t.after(() => rmSync(brain, { recursive: true, force: true }));
+  cpSync(join(REPO_ROOT, "scripts"), join(brain, "scripts"), { recursive: true });
+  const delivered = "---\nname: coach\n---\nas the engine wrote it\n";
+  mkdirSync(join(brain, ".claude", "skills", "coach"), { recursive: true });
+  writeFileSync(join(brain, ".claude/skills/coach/SKILL.md"), delivered + "and the owner's own paragraph\n");
+  writeFileSync(join(brain, "engine-manifest.json"), divergentManifest(delivered));
+
+  const child = spawn(process.execPath, [join(brain, "scripts", "session-engine-divergence.mjs")], {
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  // No puller is wired in this fixture, so the barrier returns at once. Feeding stdin is
+  // still mandatory: the hook reads fd 0, and an open pipe would hang it forever.
+  child.stdin.end(JSON.stringify({ session_id: "s-entry", source: "startup" }));
+  let stdout = "";
+  child.stdout.on("data", (chunk) => (stdout += chunk));
+  const code = await new Promise((resolve) => child.on("close", resolve));
+
+  assert.equal(code, 0, "fail-open: the hook always exits 0");
+  assert.match(stdout, /\.claude\/skills\/coach\/SKILL\.md/, "it found the manifest one level ABOVE scripts/");
+});
