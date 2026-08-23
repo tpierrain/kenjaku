@@ -22,10 +22,11 @@
   pass — **is answered: NO, the campaign is closed at three** (Thomas, 2026-08-23, *"on close (ça a
   déjà trop duré)"*). § *WHAT IS YOURS* step 4a records it and owns the argument. **Do not re-open
   it, do not offer a pass**; what is left is the merge, the bump and the tag, and all three are his.
-- **Owner's call pending:** **NONE that is this file's.** Every question put to him is answered — the
-  five decisions, the `scripts` bump at `1.14.0`, W5b, the macOS flake not holding the tag, F11
-  (§ E of the triage plan owns it). **Do not re-ask any of them, and do not restate their impact
-  here** — see § *FOUR LESSONS* for what a restated decision cost him twice.
+- **Owner's call pending:** **ONE, and it gates nothing** — the `concurrency` group for `ci.yml`,
+  offered twice on 2026-08-23 and simply not answered. § *THE ONE PIECE OF THE CAUSE STILL
+  UNREPAIRED* holds the three lines, the trade-off and the recommendation (yes). Everything else is
+  answered: the five decisions, the `scripts` bump, W5b, the flake not holding the tag and its
+  instrument being post-tag, the review campaign closed at three passes, F11. **Do not re-ask those.**
 - **A session may, alone:** re-run the rehearsal (`node maintainers/qa/field-rehearsal/rehearse.mjs`)
   against a copy, and write the macOS flake's instrument (§ *THE macOS FLAKE* owns it — post-tag, not
   a gate). **Not** merge, tag, publish, push to `main`, write into `templates/fr/**`, or write into
@@ -141,6 +142,22 @@
 > - **NO HOOK, and that is a decision, not an omission** _(Thomas, 2026-08-23)_: *"j'ai peur que ça
 >   alourdisse vraiment la latence… on a de plus en plus de hooks"*. So the written rule is the **only**
 >   net here — `CONVENTIONS.md` §9 and the always-loaded `rules/ci.md`. No braces behind the belt.
+>
+> ### 🟡 THE ONE PIECE OF THE CAUSE STILL UNREPAIRED — **offered twice, not yet answered**
+>
+> **`ci.yml` has no `concurrency` group**, so a new commit supersedes nothing: each one stacks another
+> set of jobs behind whatever is already queued. That is what turned one hung job into **48 runs** on
+> 2026-08-23, and what made 46 hand-cancellations (plus three more later) necessary. Three lines fix
+> it — `concurrency: {group: ci-${{ github.ref }}, cancel-in-progress: true}`.
+>
+> - **Put to Thomas twice on 2026-08-23; he answered the other questions and not this one.** Not a
+>   refusal, just an unanswered offer — so it is written here rather than left in a chat that clears.
+> - **The recommendation is YES.** The tripwire's value is per-commit signal on the LATEST commit;
+>   superseded runs buy nothing and starve the runner pool.
+> - **The trade-off, stated so the answer is informed**: intermediate commits stop getting their own
+>   Windows verdict. Given the tripwire exists to speak while a branch is being written, and the branch
+>   is what gets merged, that is a cost worth paying — but it IS a cost, and the call is his.
+> - **A session may not do this unasked**: it changes the CI's behaviour for every future branch.
 >
 > ✅ **Closed**: the full 7/7 matrix is green on `b301eda` **and on `9a7a336`**, macOS and Windows, in
 > ~2 minutes each. The whole 13:40 → 14:50 wall of red was the Windows path bug (three Windows cells,
