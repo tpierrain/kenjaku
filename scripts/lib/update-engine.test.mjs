@@ -3281,7 +3281,8 @@ test("updateEngine — the missing ancestor is FETCHED, and the file the owner e
   const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix", git });
 
   assert.deepEqual(report.ancestorsHydrated, ["CLAUDE.engine.md"]);
-  assert.deepEqual(report.ancestorsFailed, []);
+  assert.deepEqual(report.ancestorsUnreachable, []);
+  assert.deepEqual(report.ancestorsUnmatched, []);
   // 🛑 AND THE BASE DOES NOT STAY AT THE ANCESTOR — asserting that it did was a guess
   // about the code, and the code is right. The ancestor is fetched, the merge CONSUMES
   // it, then `planBaseAdvance` moves the base to what the engine has just delivered, so
@@ -3319,7 +3320,8 @@ test("updateEngine — a fetch that cannot reach the server is TOLD once, and al
   const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix", git });
 
   assert.deepEqual(report.ancestorsHydrated, []);
-  assert.deepEqual(report.ancestorsFailed, ["CLAUDE.engine.md"]);
+  assert.deepEqual(report.ancestorsUnreachable, ["CLAUDE.engine.md"]);
+  assert.deepEqual(report.ancestorsUnmatched, [], "and nothing was mis-filed as the other verdict");
   // The state is EXACTLY today's behaviour — preserved, with the new version beside it.
   assert.deepEqual(report.doctrinePreserved, [
     { name: "CLAUDE.engine.md", reason: "customized", newVersionPath: "CLAUDE.engine.md.new" },
@@ -3330,6 +3332,62 @@ test("updateEngine — a fetch that cannot reach the server is TOLD once, and al
     /could not reach the update server to recover the original of 1 file — it is preserved as usual, and the next update will try again/,
   );
   assert.doesNotMatch(line, /error|failed|corrupt/i, "and it cannot read as an incident");
+  assert.doesNotMatch(line, /in any published version/, "and only ONE of the two lines is printed");
+});
+
+// 🚨 T14 (third pass of the v5.0.0 review) — THE OTHER CAUSE, AND IT IS NOT A NETWORK.
+// One `failed` list carried both "the tag never came down" and "it came down and holds
+// no version of this file that matches what the brain recorded", and the report rendered
+// the flat list with prose asserting the first. So the one channel that reports genuine
+// network trouble was crying wolf — permanently, since a retry does exactly the same.
+test("updateEngine — an original no published version holds is TOLD as such, and blames no network", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource({ indexSchemaVersion: 1 });
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  buildEditedBrain({ brainDir, sourceDir });
+  // A FLAWLESS network: the fetch succeeds, the show succeeds, the bytes arrive. They
+  // are simply not the ones this brain recorded at install.
+  const { git, calls } = ancestorGit({ "v3.6.0:CLAUDE.engine.md": "bytes from some other version entirely\n" });
+
+  const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix", git });
+
+  assert.deepEqual(report.ancestorsHydrated, []);
+  assert.deepEqual(report.ancestorsUnreachable, [], "nothing was unreachable — git answered twice");
+  assert.deepEqual(report.ancestorsUnmatched, ["CLAUDE.engine.md"]);
+  assert.deepEqual(calls, [
+    ["-C", sourceDir, "fetch", "--depth", "1", "origin", "tag", "v3.6.0"],
+    ["-C", sourceDir, "show", "v3.6.0:CLAUDE.engine.md"],
+  ]);
+  // The state is unchanged from today's — preserved, with the new version beside it.
+  assert.deepEqual(report.doctrinePreserved, [
+    { name: "CLAUDE.engine.md", reason: "customized", newVersionPath: "CLAUDE.engine.md.new" },
+  ]);
+  const line = formatReport(report);
+  assert.match(
+    line,
+    /could not find the original of 1 file in any published version — it is preserved as usual, and there is nothing to retry/,
+  );
+  assert.doesNotMatch(line, /could not reach the update server/, "🛑 the lie T14 named");
+  assert.doesNotMatch(line, /error|failed|corrupt/i, "and it cannot read as an incident either");
+});
+
+test("updateEngine — the two verdicts are SEPARATE lines, each with its own count", (t) => {
+  // Asserted on the formatter directly, because a brain can only be in one of the two
+  // states at a time and the report is where they meet. The plural of each is its own:
+  // a shared count would put "2 files" on a line that is about one of them.
+  const line = formatReport({
+    ref: "v5.0.0",
+    engineVersion: "5.0.0",
+    copied: 0,
+    ancestorsUnreachable: ["a.md"],
+    ancestorsUnmatched: ["b.md", "c.md"],
+  });
+
+  assert.match(line, /could not reach the update server to recover the original of 1 file — it is preserved/);
+  assert.match(line, /could not find the original of 2 files in any published version — they are preserved/);
 });
 
 test("updateEngine — a brain that needed no ancestor hears NOTHING about fetching", async (t) => {
@@ -3345,9 +3403,10 @@ test("updateEngine — a brain that needed no ancestor hears NOTHING about fetch
 
   const { report } = await runUpdate({ brainDir, sourceDir, platform: "posix", git });
 
-  assert.deepEqual(report.ancestorsFailed, []);
+  assert.deepEqual(report.ancestorsUnreachable, []);
+  assert.deepEqual(report.ancestorsUnmatched, []);
   assert.deepEqual(calls, [], "and git was never spawned");
-  assert.doesNotMatch(formatReport(report), /could not reach the update server/);
+  assert.doesNotMatch(formatReport(report), /could not reach the update server|in any published version/);
 });
 
 // 🚨 S5 (second pass of the v5.0.0 review) — "COULD NOT LOOK" IS NOT "NOTHING TO SAY".

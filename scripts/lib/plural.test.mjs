@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { agreeing, countOf, itOrThem } from "./plural.mjs";
+import { agreeing, countOf, itIsOrTheyAre, itOrThem } from "./plural.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // The agreement rule was written three times in this engine and got fixed once
@@ -26,6 +26,12 @@ test("the noun alone agrees the same way, for a sentence that shows its count as
 
 test("and the pronoun that follows a count agrees with it too", () => {
   assert.deepEqual([0, 1, 2].map(itOrThem), ["them", "it", "them"]);
+});
+
+// The VERB has to agree as well, and the update report was about to hand-roll it a
+// second time in the same function — which is the exact history this file records.
+test("the pronoun and its verb agree together, so no sentence has to hand-roll them", () => {
+  assert.deepEqual([0, 1, 2].map(itIsOrTheyAre), ["they are", "it is", "they are"]);
 });
 
 // A multi-word noun is the common case here ("engine file", "vault note"), and only

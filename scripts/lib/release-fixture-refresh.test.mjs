@@ -171,7 +171,8 @@ test("QA v3.6.0 → HEAD — a skill edited BEFORE this release now ACQUIRES its
 
   // 🛑 The whole finding, inverted, in three assertions.
   assert.deepEqual(first.ancestorsHydrated, [REL], "the ancestor was fetched, for this exact file");
-  assert.deepEqual(first.ancestorsFailed, [], "and nothing had to be apologised for");
+  assert.deepEqual(first.ancestorsUnreachable, [], "and nothing had to be apologised for");
+  assert.deepEqual(first.ancestorsUnmatched, [], "on either count");
   assert.deepEqual(
     first.skillsPreserved.filter((p) => p.name === "prepare-1-1"),
     [],
@@ -224,7 +225,8 @@ test("QA v3.6.0 on WINDOWS → HEAD — a CRLF-recorded brain's edited skill acq
   const first = await updateFrom(brainDir, manifest);
 
   assert.deepEqual(first.ancestorsHydrated, [REL], "the ancestor was fetched, on a CRLF-recorded sha");
-  assert.deepEqual(first.ancestorsFailed, []);
+  assert.deepEqual(first.ancestorsUnreachable, []);
+  assert.deepEqual(first.ancestorsUnmatched, []);
   const merged = readBrain(brainDir, REL);
   assert.match(merged, /## My own KPIs\n- churn/, "the owner's own lines are still there");
   assert.match(merged, /## Claim discipline/, "and the engine's newer content has ARRIVED, in the same pass");

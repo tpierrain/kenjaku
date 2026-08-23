@@ -91,7 +91,11 @@ test("fetchAncestors — bytes that do NOT match the recorded sha are NEVER writ
 
   const result = fetchAncestors({ plan: [entry()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [], failed: [DOCTRINE] });
+  // 🚨 T14 — AND IT IS `unmatched`, NEVER `unreachable`. Both git commands returned
+  // `ok` here: the server was reached, the blob arrived, and it simply is not this
+  // brain's original. Filing that under the same word as a dead network is what made
+  // the update tell every owner their connection had failed on a flawless one.
+  assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [DOCTRINE] });
   assert.equal(existsSync(baseAt(brainDir, DOCTRINE)), false, "nothing is written");
   assert.equal(calls.length, 2, "and it did try — fetch then show");
 });
@@ -111,7 +115,7 @@ test("fetchAncestors — a verified file IS written, and its neighbour's imposto
     git,
   });
 
-  assert.deepEqual(result, { hydrated: [HOOK], failed: [DOCTRINE] });
+  assert.deepEqual(result, { hydrated: [HOOK], unreachable: [], unmatched: [DOCTRINE] });
   assert.equal(readFileSync(baseAt(brainDir, HOOK), "utf8"), HOOK_ANCESTOR);
   assert.equal(existsSync(baseAt(brainDir, DOCTRINE)), false);
 });
@@ -140,7 +144,7 @@ test("fetchAncestors — the bytes land at `.engine-base/<rel>`, byte-identical"
 
   const result = fetchAncestors({ plan: [entry()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
   assert.equal(readFileSync(baseAt(brainDir, DOCTRINE), "utf8"), ANCESTOR);
 });
 
@@ -159,7 +163,7 @@ test("fetchAncestors — the planner's sourcePath is used VERBATIM, so a French 
     git,
   });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
   assert.deepEqual(calls[1], ["-C", SOURCE, "show", `v3.6.0:${frPath}`]);
   // 🛑 And it lands under the INSTALLED rel, not the source path: the brain has no
   // `templates/` tree, and a base filed there would be invisible to the merge.
@@ -176,7 +180,7 @@ test("fetchAncestors — a blob whose line endings were rewritten still matches 
 
   const result = fetchAncestors({ plan: [entry()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
   assert.equal(readFileSync(baseAt(brainDir, DOCTRINE), "utf8"), crlf, "written as git gave them");
 });
 
@@ -206,7 +210,7 @@ test("fetchAncestors — a CANDIDATE list: the row whose CRLF form IS the record
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
   assert.equal(readFileSync(baseAt(brainDir, DOCTRINE), "utf8"), CRLF_ANCESTOR, "the CRLF form, not the LF blob");
 });
 
@@ -230,7 +234,7 @@ test("fetchAncestors — a row further down the list still answers, and only it 
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
   assert.equal(readFileSync(baseAt(brainDir, DOCTRINE), "utf8"), CRLF_ANCESTOR);
   assert.equal(calls.length, 4, "both tags fetched, both blobs shown, and no more");
 });
@@ -245,7 +249,7 @@ test("fetchAncestors — a candidate list NOTHING can prove writes nothing at al
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [], failed: [DOCTRINE] });
+  assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [DOCTRINE] });
   assert.ok(!existsSync(baseAt(brainDir, DOCTRINE)), "not one byte was written");
 });
 
@@ -261,7 +265,7 @@ test("fetchAncestors — a candidate list refuses a row whose CRLF form is not t
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [], failed: [DOCTRINE] });
+  assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [DOCTRINE] });
   assert.ok(!existsSync(baseAt(brainDir, DOCTRINE)));
 });
 
@@ -274,7 +278,7 @@ test("fetchAncestors — a candidate whose TAG cannot be fetched costs the next 
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
   assert.deepEqual(calls, [
     ["-C", SOURCE, "fetch", "--depth", "1", "origin", "tag", "v3.6.0"],
     ["-C", SOURCE, "fetch", "--depth", "1", "origin", "tag", "v4.0.0"],
@@ -305,7 +309,7 @@ test("fetchAncestors — a candidate whose PATH is gone at that tag costs the ne
     git,
   });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
 });
 
 test("fetchAncestors — bytes that arrive WITH a failure are not bytes: `ok` is the authority", (t) => {
@@ -325,8 +329,10 @@ test("fetchAncestors — bytes that arrive WITH a failure are not bytes: `ok` is
   const hit = fetchAncestors({ plan: [entry()], sourceDir: SOURCE, brainDir, git });
   const miss = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(hit, { hydrated: [], failed: [DOCTRINE] });
-  assert.deepEqual(miss, { hydrated: [], failed: [DOCTRINE] });
+  // T14 — the tag WAS fetched, so this is not a server anyone failed to reach: the
+  // repository answered and handed over nothing usable, which is `unmatched`.
+  assert.deepEqual(hit, { hydrated: [], unreachable: [], unmatched: [DOCTRINE] });
+  assert.deepEqual(miss, { hydrated: [], unreachable: [], unmatched: [DOCTRINE] });
   assert.ok(!existsSync(baseAt(brainDir, DOCTRINE)), "and not one byte was written by either");
 });
 
@@ -341,7 +347,7 @@ test("fetchAncestors — an existing `.engine-base/<rel>` stops a CANDIDATE entr
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [], failed: [] });
+  assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [] });
   assert.deepEqual(calls, [], "no tag was even fetched");
   assert.equal(readFileSync(baseAt(brainDir, DOCTRINE), "utf8"), "the real ancestor, already here\n");
 });
@@ -355,7 +361,7 @@ test("fetchAncestors — a SELF-HEAL never walks candidates either", (t) => {
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: brainDir, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [], failed: [] });
+  assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [] });
   assert.deepEqual(calls, []);
 });
 
@@ -372,7 +378,7 @@ test("T8 — a self-heal spelled with a trailing separator still fetches nothing
 
     const result = fetchAncestors({ plan: [candidate()], sourceDir, brainDir, git });
 
-    assert.deepEqual(result, { hydrated: [], failed: [] }, `spelled ${sourceDir}`);
+    assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [] }, `spelled ${sourceDir}`);
     assert.deepEqual(calls, [], `spelled ${sourceDir}, git was pointed at the owner's vault`);
   }
 });
@@ -385,7 +391,7 @@ test("T8 — a launcher path that merely starts with the brain's is an update, a
 
   const result = fetchAncestors({ plan: [candidate()], sourceDir: `${brainDir}-fetched`, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE], unreachable: [], unmatched: [] });
   assert.deepEqual(calls[0], ["-C", `${brainDir}-fetched`, "fetch", "--depth", "1", "origin", "tag", "v3.6.0"]);
 });
 
@@ -453,7 +459,7 @@ test("fetchAncestors — two DISTINCT tags cost one fetch each", (t) => {
     git,
   });
 
-  assert.deepEqual(result, { hydrated: [DOCTRINE, HOOK], failed: [] });
+  assert.deepEqual(result, { hydrated: [DOCTRINE, HOOK], unreachable: [], unmatched: [] });
   assert.deepEqual(
     calls.filter((c) => c[2] === "fetch"),
     [
@@ -478,7 +484,9 @@ test("fetchAncestors — a fetch that fails costs its files, and NO show is atte
     git,
   });
 
-  assert.deepEqual(result, { hydrated: [], failed: [DOCTRINE, HOOK] });
+  // T14 — `unreachable`, and this is the ONE shape that word is true of: the tag never
+  // came down, so a later update, on a working network, genuinely may repair it.
+  assert.deepEqual(result, { hydrated: [], unreachable: [DOCTRINE, HOOK], unmatched: [] });
   assert.deepEqual(calls, [["-C", SOURCE, "fetch", "--depth", "1", "origin", "tag", "v3.6.0"]]);
 });
 
@@ -493,10 +501,10 @@ test("fetchAncestors — a failed tag does not cost the OTHER tag's files", (t) 
     git,
   });
 
-  assert.deepEqual(result, { hydrated: [HOOK], failed: [DOCTRINE] });
+  assert.deepEqual(result, { hydrated: [HOOK], unreachable: [DOCTRINE], unmatched: [] });
 });
 
-test("fetchAncestors — a show that fails costs only its own file", (t) => {
+test("fetchAncestors — a show that fails costs only its own file, and blames no network", (t) => {
   const brainDir = brain(t);
   const { git } = fakeGit(
     { [`v3.6.0:${HOOK}`]: HOOK_ANCESTOR },
@@ -510,8 +518,45 @@ test("fetchAncestors — a show that fails costs only its own file", (t) => {
     git,
   });
 
-  assert.deepEqual(result, { hydrated: [HOOK], failed: [DOCTRINE] });
+  // T14 — its tag was fetched and the path simply is not there at it. Nothing about
+  // that is a network, and nothing about it changes at the next update.
+  assert.deepEqual(result, { hydrated: [HOOK], unreachable: [], unmatched: [DOCTRINE] });
   assert.equal(existsSync(baseAt(brainDir, DOCTRINE)), false);
+});
+
+// ── T14 · the two verdicts, where they MEET ─────────────────────────────────
+// Every test above puts a rel in one channel or the other from a single cause. These
+// two are the cases where the causes MIX inside one rel's candidate walk, and they are
+// where a rule that merely reads well can still be wrong.
+
+test("T14 — a dead tag beside a blob that does not match is UNREACHABLE: the retry is owed", (t) => {
+  // The candidate the network hid may well have been the right row, so the honest
+  // verdict is the retryable one. Fail TOWARDS the retry, never towards a verdict the
+  // owner cannot act on — the whole finding is about a sentence that claimed too much.
+  const brainDir = brain(t);
+  const { git } = fakeGit({ [`v4.0.0:${DOCTRINE}`]: IMPOSTOR }, { fetchFails: ["v3.6.0"] });
+
+  const result = fetchAncestors({ plan: [candidate()], sourceDir: SOURCE, brainDir, git });
+
+  assert.deepEqual(result, { hydrated: [], unreachable: [DOCTRINE], unmatched: [] });
+  assert.ok(!existsSync(baseAt(brainDir, DOCTRINE)), "and still not one byte was written");
+});
+
+test("T14 — a rel the planner could nominate NO row for is UNMATCHED, and costs no git at all", (t) => {
+  // An empty candidate list is the table saying it holds nothing this brain could have
+  // been delivered. There is no network in that answer, and no later update changes it.
+  const brainDir = brain(t);
+  const { git, calls } = fakeGit({ [`v3.6.0:${DOCTRINE}`]: ANCESTOR });
+
+  const result = fetchAncestors({
+    plan: [candidate({ candidates: [] })],
+    sourceDir: SOURCE,
+    brainDir,
+    git,
+  });
+
+  assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [DOCTRINE] });
+  assert.deepEqual(calls, [], "nothing to try, so nothing was spawned");
 });
 
 // ── The two silences ────────────────────────────────────────────────────────
@@ -524,7 +569,8 @@ test("fetchAncestors — an empty plan touches git NOT AT ALL", (t) => {
 
   assert.deepEqual(fetchAncestors({ plan: [], sourceDir: SOURCE, brainDir, git }), {
     hydrated: [],
-    failed: [],
+    unreachable: [],
+    unmatched: [],
   });
   assert.deepEqual(calls, []);
 });
@@ -540,9 +586,10 @@ test("fetchAncestors — a SELF-HEAL never fetches: sourceDir === brainDir stops
 
   const result = fetchAncestors({ plan: [entry()], sourceDir: brainDir, brainDir, git });
 
-  // `failed` is EMPTY, deliberately: nothing was attempted, so the report has nothing
-  // to say. A self-healing brain must not be told a fetch it never wanted went wrong.
-  assert.deepEqual(result, { hydrated: [], failed: [] });
+  // BOTH channels are EMPTY, deliberately: nothing was attempted, so the report has
+  // nothing to say. A self-healing brain must not be told a fetch it never wanted went
+  // wrong — and T14 doubled the number of ways it could be told that.
+  assert.deepEqual(result, { hydrated: [], unreachable: [], unmatched: [] });
   assert.deepEqual(calls, []);
   assert.equal(existsSync(baseAt(brainDir, DOCTRINE)), false);
 });
@@ -560,7 +607,11 @@ test("fetchAncestors — an existing `.engine-base/<rel>` is left untouched", (t
 
   const result = fetchAncestors({ plan: [entry()], sourceDir: SOURCE, brainDir, git });
 
-  assert.deepEqual(result, { hydrated: [], failed: [] }, "not a failure — there was nothing to do");
+  assert.deepEqual(
+    result,
+    { hydrated: [], unreachable: [], unmatched: [] },
+    "not a failure of either kind — there was nothing to do",
+  );
   assert.equal(readFileSync(baseAt(brainDir, DOCTRINE), "utf8"), "the REAL ancestor, already on disk\n");
   assert.deepEqual(calls, [], "and no git was spawned for it");
 });

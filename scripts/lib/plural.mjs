@@ -31,3 +31,8 @@ export function agreeing(n, noun) {
 export function itOrThem(n) {
   return n === 1 ? "it" : "them";
 }
+
+/** "it is" / "they are" — the same pronoun with its verb, for a clause that needs both. */
+export function itIsOrTheyAre(n) {
+  return n === 1 ? "it is" : "they are";
+}

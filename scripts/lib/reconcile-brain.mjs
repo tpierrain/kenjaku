@@ -192,7 +192,11 @@ export async function reconcileBrain({
   //
   // No `sourceDir !== brainDir` gate here on purpose: it lives inside `fetchAncestors`,
   // at the only place that spawns git, so no caller has to remember it.
-  const { hydrated: ancestorsHydrated, failed: ancestorsFailed } = fetchAncestors({
+  const {
+    hydrated: ancestorsHydrated,
+    unreachable: ancestorsUnreachable,
+    unmatched: ancestorsUnmatched,
+  } = fetchAncestors({
     plan: planAncestorFetch({
       manifest: target,
       provenance: healedProvenance,
@@ -582,11 +586,13 @@ export async function reconcileBrain({
     healed,
     healedProvenance,
     healedBaseRefs,
-    // S7-5-3 — the ancestors this pass went and got. `ancestorsFailed` is what the report
-    // speaks from, and it is EMPTY unless a fetch was actually attempted and failed: a
+    // S7-5-3 — the ancestors this pass went and got, and (T14) the two DISTINCT ways it
+    // can come back without one. Both are EMPTY unless a fetch was actually attempted: a
     // brain that never needed one must hear nothing, and a self-heal never even tries.
+    // They stay apart all the way to the report because the report asserts a CAUSE.
     ancestorsHydrated,
-    ancestorsFailed,
+    ancestorsUnreachable,
+    ancestorsUnmatched,
     // ONE delivered map, because it feeds ONE thing: the provenance re-seed in
     // `runReconcileCli`. A script left out of it would be called "user-modified" at the
     // very next update and frozen again — the feature working exactly once per brain.

@@ -35,22 +35,38 @@ import { isSelfHeal } from "./update-mode.mjs";
 const fetchArgs = (sourceDir, tag) => ["-C", sourceDir, "fetch", "--depth", "1", "origin", "tag", tag];
 const showArgs = (sourceDir, tag, sourcePath) => ["-C", sourceDir, "show", `${tag}:${sourcePath}`];
 
+// 🚨 T14 — TWO WAYS TO COME BACK EMPTY-HANDED, AND THEY ARE NOT THE SAME NEWS. This
+// returned one `failed` list, and the report rendered it with prose asserting a cause:
+// "could not reach the update server". Half the entries in it never had a network
+// problem — the tag came down, the blob arrived, and it simply is not what this brain
+// recorded. The owner was told to expect a retry that does exactly the same thing, and
+// the one channel that reports genuine network trouble was crying wolf.
+//
+//   • `unreachable` — a tag that never came down. RETRYABLE, and the only shape the
+//     "could not reach" sentence is true of.
+//   • `unmatched`   — git answered, and nothing published is this brain's original.
+//     A settled verdict: the next update repeats it word for word.
+//
+// A rel that MIXES the two (one candidate's tag dead, another's bytes wrong) is
+// `unreachable`: the candidate the network hid may have been the right row, so the
+// honest verdict is the one the owner can still act on.
 export function fetchAncestors({ plan, sourceDir, brainDir, git = defaultGit }) {
   const hydrated = [];
-  const failed = [];
+  const unreachable = [];
+  const unmatched = [];
 
   // 🚨 SAFETY, not an optimisation. On a SessionStart self-heal the source IS the
   // brain, and the brain is a git repo — the OWNER'S vault, whose `origin` is their
   // personal backup. `git fetch origin tag …` there would point engine machinery at a
   // private repository. The guard lives at the one place that spawns git, rather than
-  // in every caller that would have to remember. `failed` stays empty on purpose:
+  // in every caller that would have to remember. BOTH channels stay empty on purpose:
   // nothing was attempted, so the report has nothing to say.
   //
   // 🚨 T8 — AND IT ASKS THE QUESTION THE ONE WAY THERE IS TO ASK IT. This compared the
   // raw strings, so `<brainDir>/` walked past it and the fetch went out against the
   // owner's own remote. The dangerous half is that it SUCCEEDS: nothing anywhere says a
   // word, the same blindness a missing `-C` has (RESULTS.md § S7-5).
-  if (isSelfHeal({ brainDir, sourceDir })) return { hydrated, failed };
+  if (isSelfHeal({ brainDir, sourceDir })) return { hydrated, unreachable, unmatched };
 
   // A second opinion on the planner's own rule, kept because the action it guards is
   // the irreversible one: an existing `.engine-base/<rel>` is the REAL recorded
@@ -76,13 +92,19 @@ export function fetchAncestors({ plan, sourceDir, brainDir, git = defaultGit }) 
     // always did — the miss path costs the rest of the fleet nothing.
     const attempts = candidates ?? [{ tag, sourcePath }];
     let proven = null;
+    // T14 — the one thing that makes "could not reach the update server" true, and it
+    // is remembered across the whole walk rather than read off the last attempt.
+    let tagMissed = false;
 
     for (const attempt of attempts) {
       if (!tagFetched.has(attempt.tag)) tagFetched.set(attempt.tag, git(fetchArgs(sourceDir, attempt.tag)).ok);
       // A dead tag costs this candidate and no other. On a hit that is the end of the
       // file; on a miss the next row may well be alive, and a brain is not owed a
       // failure because one of its rel's versions has gone.
-      if (!tagFetched.get(attempt.tag)) continue;
+      if (!tagFetched.get(attempt.tag)) {
+        tagMissed = true;
+        continue;
+      }
 
       const shown = git(showArgs(sourceDir, attempt.tag, attempt.sourcePath));
       if (!shown.ok) continue;
@@ -104,7 +126,10 @@ export function fetchAncestors({ plan, sourceDir, brainDir, git = defaultGit }) 
     }
 
     if (proven === null) {
-      failed.push(rel);
+      // A `git show` that refused is NOT a network either: its tag came down, and the
+      // path is simply not at it. That belongs with the settled verdict, not with the
+      // sentence promising a retry.
+      (tagMissed ? unreachable : unmatched).push(rel);
       continue;
     }
 
@@ -116,5 +141,5 @@ export function fetchAncestors({ plan, sourceDir, brainDir, git = defaultGit }) 
   }
 
   writeBaseEntries({ brainDir, entries });
-  return { hydrated, failed };
+  return { hydrated, unreachable, unmatched };
 }

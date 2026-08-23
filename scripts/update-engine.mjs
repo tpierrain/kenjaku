@@ -26,7 +26,7 @@ import { fileURLToPath } from "node:url";
 
 import { armRestartPending } from "./lib/restart-signal.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
-import { agreeing, countOf, itOrThem } from "./lib/plural.mjs";
+import { agreeing, countOf, itIsOrTheyAre, itOrThem } from "./lib/plural.mjs";
 
 import {
   fetchSource as defaultFetchSource,
@@ -385,25 +385,39 @@ function recognizedLines(healed) {
   ];
 }
 
-// S7-5-3 — the ONE line the ancestor fetch is allowed to print, and only when a fetch
-// was ATTEMPTED and FAILED. Three silences are deliberate: a brain that needed no
-// ancestor, a brain whose fetch worked, and a self-heal (which never even tries, because
-// the shell refuses to spawn git when the source IS the brain).
+// S7-5-3 — the lines the ancestor fetch is allowed to print, and only when a fetch was
+// ATTEMPTED and came back empty-handed. Three silences are deliberate: a brain that
+// needed no ancestor, a brain whose fetch worked, and a self-heal (which never even
+// tries, because the shell refuses to spawn git when the source IS the brain).
 //
 // The wording is doing real work. This owner is not being told about a defect: they are
-// in the state they were already in, the file is preserved exactly as before, and the
-// situation is RETRYABLE. Silence would make a temporary network problem look like a
-// permanent verdict on their file — which is the failure mode this whole chantier exists
-// to end — while the word "error" would make a routine offline moment look like damage.
-function ancestorLines(ancestorsFailed) {
-  if (ancestorsFailed.length === 0) return [];
-  return [
-    `   • could not reach the update server to recover the original of ${countOf(ancestorsFailed.length, "file")} — ${ancestorsFailed.length === 1 ? "it is" : "they are"} preserved as usual, and the next update will try again`,
-  ];
+// in the state they were already in, and the file is preserved exactly as before.
+// Silence would make a temporary network problem look like a permanent verdict on their
+// file — which is the failure mode this whole chantier exists to end — while the word
+// "error" would make a routine offline moment look like damage.
+//
+// 🚨 T14 — AND THE CAUSE HAS TO BE THE TRUE ONE. There was one line here, and it named a
+// network for a list that also held files whose original no published version holds. On
+// those, "the next update will try again" is a promise the next update cannot keep, and
+// the sentence turned the one channel that reports real network trouble into noise.
+// Two causes, two lines, each with its own count — and each honest about the retry.
+function ancestorLines({ unreachable, unmatched }) {
+  const lines = [];
+  if (unreachable.length > 0) {
+    lines.push(
+      `   • could not reach the update server to recover the original of ${countOf(unreachable.length, "file")} — ${itIsOrTheyAre(unreachable.length)} preserved as usual, and the next update will try again`,
+    );
+  }
+  if (unmatched.length > 0) {
+    lines.push(
+      `   • could not find the original of ${countOf(unmatched.length, "file")} in any published version — ${itIsOrTheyAre(unmatched.length)} preserved as usual, and there is nothing to retry`,
+    );
+  }
+  return lines;
 }
 
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsFailed = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsUnreachable = [], ancestorsUnmatched = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -473,7 +487,7 @@ export function formatReport(report) {
   // Absent on every brain installed from v5.0.0 on, and on every brain already healed —
   // an event that did not happen must not be announced.
   lines.push(...recognizedLines(healed));
-  lines.push(...ancestorLines(ancestorsFailed));
+  lines.push(...ancestorLines({ unreachable: ancestorsUnreachable, unmatched: ancestorsUnmatched }));
   // The two families' merged + preserved sentences (see the helpers above), then
   // EVERY conflict, last. A fast-forwarded script needs no line of its own: it is
   // already counted as a swapped engine file, which is what it has always been.
@@ -674,7 +688,8 @@ export async function updateEngine({
     // name is a verdict the owner never hears, and this one is the OTHER half of the
     // fleet: the files the owner edited before v5, which stop being frozen.
     ancestorsHydrated,
-    ancestorsFailed,
+    ancestorsUnreachable,
+    ancestorsUnmatched,
     refreshedFileMap,
     // F1: what the reconcile rewrote IN PLACE in the brain's own settings.json. It has to
     // reach step 7's record, and the auto-finalize child cannot cover for it — by the time
@@ -867,7 +882,8 @@ export async function updateEngine({
     doctrineConflicts,
     healed,
     ancestorsHydrated,
-    ancestorsFailed,
+    ancestorsUnreachable,
+    ancestorsUnmatched,
     mcpServersAdded,
     hooksAdded,
     hooksRepaired,
