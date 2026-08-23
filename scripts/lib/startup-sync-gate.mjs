@@ -191,16 +191,22 @@ function writeMarker({ repo, sessionId, io, phase, now }) {
  * thing done, ahead of its own try/catch. A wrapper here would be unreachable code
  * claiming to guard something — it was written, then measured, then removed.
  *
+ * `readPayload` is a SEAM, not a convenience: its default reads the harness's JSON off
+ * `readFileSync(0)`, and a test process's stdin is a pipe with no writer. POSIX answers
+ * EAGAIN there and the swallow hides it; WINDOWS BLOCKS, forever. A test that called this
+ * without the seam held a CI runner 2 h 46 min on 2026-08-23 and queued three hours of
+ * jobs behind it. Every caller that is not a real hook must pass it.
+ *
  * ⚠️ `session-universe.mjs` deliberately keeps its inline spelling until after the v5.0.0
  * tag. Its three files are byte-identical to `main`, and that is exactly what makes the
  * macOS CI flake diagnosable as inherited rather than introduced (release plan, § THE
  * macOS FLAKE). Adopting this helper there is post-tag work, alongside the instrument
  * that will record WHICH fail-open branch the flake takes.
  */
-export function awaitStartupSync({ repo, io, now = Date.now, sleep = blockingSleep }) {
+export function awaitStartupSync({ repo, io, now = Date.now, sleep = blockingSleep, readPayload = readHookPayload }) {
   return waitForStartupSync({
     repo,
-    sessionId: hookSessionId(readHookPayload()),
+    sessionId: hookSessionId(readPayload()),
     io,
     now,
     sleep,
