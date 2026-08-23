@@ -30,8 +30,12 @@
     § *WHAT IS YOURS*, and **do not take an entry from it**.
 - **Blocked on:** **Thomas, and only Thomas.** The gate this line carried — *nothing merged or tagged
   until the review queue's § Tracking is discharged* — is **lifted**: that § Tracking is fully ticked.
-  What remains is the merge of PR #76, the tag and the publication, none of which a session may do
-  alone (see below).
+  What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER*, and that section is the
+  authority** — do not summarise it as "the merge", which is what this line said until 2026-08-23 and
+  which silently dropped **step 4's re-run of `/code-review` on the fixes**. That re-run is written
+  into step 4 (*"findings are fixed TEST-FIRST and the review is re-run on the fix, as v3.3.0 did"*),
+  it is **user-triggered and billed, so no session can launch it**, and #76 is **still a draft**. What
+  reaches the fleet is the **tag**, not the merge.
 - **Owner's call pending:** **NONE.** **F11 is closed** — remedy (b), confirmed by Thomas on
   2026-08-23: the retired `tdd-discipline` French twin is **not** translated, because its successor
   replaces the strategy it taught. The release note already states the limit (line 154). ⚠️ Two
