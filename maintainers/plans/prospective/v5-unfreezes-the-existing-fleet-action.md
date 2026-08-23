@@ -10,27 +10,33 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
-## 📍 STATE — the only perishable block in this file · cut back to its cap 2026-08-23
+## 📍 STATE — the only perishable block in this file · 🚢 SHIPPED 2026-08-23
 
-- **Next:** **nothing engineering is left on this release, and the queue that gated it is empty.**
-  The third `/code-review` pass's **T1–T15 are all paid**, plus the two convention items its cap had
-  cut — [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns every one of them
-  and this file restates none. What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER***
-  — merge, bump, tag — and **that section is the authority**. Step 4's review instruction is spent
-  (4a): the campaign is closed, so step 4 is now the merge itself and nothing else.
-- **Blocked on:** **nothing a session can move.** The one open question — a fourth `/code-review`
-  pass — **is answered: NO, the campaign is closed at three** (Thomas, 2026-08-23, *"on close (ça a
-  déjà trop duré)"*). § *WHAT IS YOURS* step 4a records it and owns the argument. **Do not re-open
-  it, do not offer a pass**; what is left is the merge, the bump and the tag, and all three are his.
+- **Next:** **v5.0.0 IS CUT AND PUBLISHED** _(2026-08-23 19:23 UTC, on Thomas's "ok, on cut la
+  release")_. Merge commit `e1fa4e4` on `main` (a **merge** commit, history whole, #75 marked merged
+  on its own as predicted), tag `v5.0.0`, release published with the note's body verbatim. Steps 4,
+  5 and 6 of § *WHAT IS YOURS, IN ORDER* are done and that section records each one. **The plan is
+  NOT archived yet**, because three things it owns are deliberately post-tag: the macOS flake's
+  instrument (§ *THE macOS FLAKE*), **S9-3** the field measurement of the write guard's prompts, and
+  the three issues that close only when a brain *receives* the rule (#61, #67, #64).
+- **Blocked on:** nothing. The engineering queue is empty and the release is out.
 - **Owner's call pending:** **ONE, and it gates nothing** — the `concurrency` group for `ci.yml`,
-  offered twice on 2026-08-23 and simply not answered. § *THE ONE PIECE OF THE CAUSE STILL
-  UNREPAIRED* holds the three lines, the trade-off and the recommendation (yes). Everything else is
-  answered: the five decisions, the `scripts` bump, W5b, the flake not holding the tag and its
-  instrument being post-tag, the review campaign closed at three passes, F11. **Do not re-ask those.**
+  offered twice on 2026-08-23 and still unanswered. § *THE ONE PIECE OF THE CAUSE STILL UNREPAIRED*
+  holds the three lines, the trade-off and the recommendation (yes). Everything else is answered:
+  the five decisions, the `scripts` bump, W5b, the review campaign closed at three passes, F11.
+  **Do not re-ask those.**
+  - 🧪 **And one offer he answered by moving past it**: a rehearsal with `npm install` and the
+    reindex **un-stubbed**, offered on the eve of the cut as the last closable blind spot. His reply
+    was *"ok, on cut la release"*, so it was not run. It is **not** a defect and **not** a gate; it
+    is the one thing the rehearsal still does not prove, and `node scripts/verify-rag.mjs` on an
+    updated brain answers it in one command, after the fact.
 - **A session may, alone:** re-run the rehearsal (`node maintainers/qa/field-rehearsal/rehearse.mjs`)
-  against a copy, and write the macOS flake's instrument (§ *THE macOS FLAKE* owns it — post-tag, not
-  a gate). **Not** merge, tag, publish, push to `main`, write into `templates/fr/**`, or write into
-  either of his two real brains (a read-only COPY under the job's tmp dir is not the brain).
+  against a copy, and write the macOS flake's instrument (§ *THE macOS FLAKE* owns it). **Not** write
+  into `templates/fr/**`, and **not** write into either of his two real brains — updating his own
+  brain to v5 is his, at his keyboard, and a read-only COPY under the job's tmp dir is not the brain.
+- 🔭 **Watch, now that it is out**: the **nightly mutation run on `main` has failed two nights
+  running** (2026-08-22 and 2026-08-23, before this merge). Pre-existing on `main`, unrelated to the
+  cut, and nobody has read it — the same shape as the CI incident this branch already paid for.
 
 > ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the arguments; the state is in the block above)_
 >
@@ -788,9 +794,16 @@
 >       body unwrapped. **`CONVENTIONS.md` §11 was rewritten to carry all of it** (`a95f7f4`), so the
 >       next note starts here instead of re-deriving it. → [`release-v5.0.0-note.md`](release-v5.0.0-note.md).
 >       **Nothing is owed on this file** unless he wants another pass; it is ready to paste.
-> - [ ] **4. ONE review, ONE merge, NO squash.** The repo allows all three merge styles, so **squash is
->       reachable by a mis-click** — the button must read *Create a merge commit* at the moment of
->       merging. History kept whole.
+> - [x] ✅ **4. ONE review, ONE merge, NO squash — DONE** _(2026-08-23 19:22 UTC · merge commit
+>       `e1fa4e4`)_. Merged with `gh pr merge 76 --merge`, which cannot mis-click: the style is the
+>       argument, not a button. **History kept whole**, and **#75 flipped to MERGED on its own** the
+>       moment #76 landed, exactly as answer 5 predicted — it was never touched by hand.
+>       - 📐 **Read before merging, not after**: the full matrix was green on the very commit that was
+>         merged (`e22933c`), both the Windows tripwire and the 7/7 arbiter, and the macOS flake did
+>         not fire on that run. The local suites were re-run on `main` **after** the merge as well:
+>         2 704 pass / 0 fail, maintainer 87/87.
+>       - ⛔ **The repo still allows all three merge styles.** Nothing was hardened here; the safety
+>         came from the command. The next release inherits the same mis-click.
 >       - 🔍 **4a — A TOOLED `/code-review` RUNS FIRST, and this is Thomas's call of 2026-08-22.** His
 >         reason is the one that matters: *"pour une fois en plus on a tout programmé en mode loop"* —
 >         this release was built by orchestrated subagents overnight, and **nothing outside the loop has
@@ -827,16 +840,28 @@
 >         pass moved the update path itself. **No session may re-open this**, offer a pass, or read the
 >         flat count as a reason to. _(He is the only one who could launch one anyway: `/code-review`
 >         is user-triggered and billed.)_
-> - [ ] **5. The `engineVersion` bump, IN THE SAME MOVEMENT AS THE TAG** — never before it (a bumped
->       version that is not published makes a fresh install stamp itself with a version that was never
->       released). `rag` and `local-mirror` **unchanged** (0 files moved), `constitutionTemplate`
->       **1.3.0 → 1.4.0**, `scripts` **1.13.1 → 1.14.0**. → § *S9-2b's materials* for the table and the
->       25-tag precedent.
->       - ✅ **All four numbers are settled**: three are dictated by the diff, and the fourth,
->         `scripts`, was **arbitrated by Thomas at `1.14.0`** on 2026-08-22 (the larger jump, à la
->         `v3.6.0`, was offered and declined). Nothing left to decide here, only to apply.
-> - [ ] **6. Tag, publish.** What reaches the fleet is the **TAG** (`releasesAhead` compares published
->       semver tags); merging to `main` publishes nothing, there is no release workflow.
+> - [x] ✅ **5. The `engineVersion` bump — APPLIED, IN THE SAME MOVEMENT AS THE TAG** _(2026-08-23 ·
+>       `32a6ec4`, twenty minutes before the tag and inside the same cut)_. The table below was applied
+>       verbatim: `constitutionTemplate` **1.3.0 → 1.4.0**, `scripts` **1.13.1 → 1.14.0**, `rag` and
+>       `local-mirror` **untouched**, `indexSchemaVersion` **still 2** — which is what keeps the note's
+>       *"nothing is re-read and nothing is re-encoded"* true. Suites green on the bumped manifest
+>       before it was pushed, and the constraint below was honoured to the letter: it was never on
+>       `main` unpublished.
+> - [x] ✅ **6. Tag, publish — DONE** _(2026-08-23 19:23 UTC)_. `v5.0.0` annotated on `e1fa4e4` and
+>       pushed, then the release published from the note's body verbatim (`sed '1,/^---$/d'`, so the
+>       drafting box above the fold never reached anyone) under the title Thomas chose:
+>       **v5.0.0 — The One Where Your Edits and Its Updates Finally Merge**.
+>       <https://github.com/tpierrain/kenjaku/releases/tag/v5.0.0>
+>       - 🩹 **Two things in the note were repaired in the same movement** (`e22933c`), because a note is
+>         an artifact and ages like one: its suite figure said **2 596** on a suite that runs **2 707**,
+>         and the *Quality* section said nothing about the **field rehearsal** — the only check that
+>         exercises what every reader will live, their own installed engine fetching this release.
+>       - 📌 **The two rules these steps were carrying, kept because they bind the NEXT release too**:
+>         a bump that lands before publication makes a fresh install stamp itself with a version that
+>         was never released (why 5 waits for 6), and **what reaches the fleet is the TAG** —
+>         `releasesAhead` compares published semver tags, merging to `main` publishes nothing, and
+>         there is still no release workflow. → § *S9-2b's materials* for the table and the 25-tag
+>         precedent behind `scripts → 1.14.0`.
 >
 > **Not part of the cut, on purpose**: **#61, #67 and #64 stay OPEN** — what closes them is a brain
 > *receiving* the rule, not the branch carrying it.
@@ -1771,11 +1796,14 @@ a status drifts, which is why none is copied. **Do not open the archived plan to
   - [x] **S9-2a — the release materials.** _(2026-08-22)_ `release-v5.0.0-pr-body.md` beside this plan
         (#76's live body still describes S1-S6 alone), plus a pre-flight sweep: suite 2 337/2 334, the
         four release guards 69/69, branch 248 ahead of `main` and 0 behind with no merge conflict.
-  - [ ] ▶️ **NEXT — S9-2b — cut, tag, publish.** Owner's, always. Carries **applying** the
-        `engineVersion` bump (its four values are derived and waiting — § *S9-2b's materials*), the
-        title he picks, and **the merge-order decision**: #76 is based on the S0bis branch and draft
-        PR #75 is still open, so either #75 lands first or #76 is retargeted to `main`.
-  - [ ] **S9-3 — the field measurement** carried to the release checklist.
+  - [x] ✅ **S9-2b — cut, tag, publish — DONE** _(2026-08-23, on his GO)_. Bump applied, #76 merged
+        with a merge commit, `v5.0.0` tagged and published. § *WHAT IS YOURS, IN ORDER* steps 4-6 own
+        the detail; the merge-order question this line carried was settled by retargeting #76 to
+        `main`, and #75 went MERGED on its own.
+  - [ ] **S9-3 — the field measurement** carried to the release checklist. **Live now**: the guard is
+        published, so the question (do the write guard's prompts become noise on a session that
+        legitimately customizes an engine skill?) can only be answered by using a v5 brain for a few
+        days. Nothing to build; something to notice.
 
 ---
 
@@ -2659,8 +2687,10 @@ release forever. `S7-0`'s trap, one more time, and this is where it gets answere
       header — the loop writes the file, it does not edit a live PR), plus a green pre-flight sweep.
   - [x] **The sweep's one non-green finding is an ORDER, not a defect**: #76's base is the S0bis branch
         and draft PR #75 is still open. Either #75 lands first, or #76 is retargeted to `main`.
-- [ ] ▶️ **NEXT — S9-2b — cut, tag, publish.** The owner's, always. **Deciding to publish is not
-      delegable**, and that is the line the S9-1 / S9-2 splits both draw.
+- [x] ✅ **S9-2b — cut, tag, publish — DONE 2026-08-23.** **Deciding to publish is not delegable**, and
+      it was not delegated: Thomas said *"ok, on cut la release"* and the mechanics followed. That is
+      exactly the line the S9-1 / S9-2 splits both draw — assembling is checkable work, deciding is
+      his — and it held all the way to the last step. → § *WHAT IS YOURS, IN ORDER*, steps 4-6.
 - [ ] **S9-3 — the field measurement**, carried to the release checklist rather than to a slice: do the
       write guard's prompts become noise on a session that legitimately customizes an engine skill?
       Correct the first time, noise the tenth. Only living with the guard for a few days answers it,
