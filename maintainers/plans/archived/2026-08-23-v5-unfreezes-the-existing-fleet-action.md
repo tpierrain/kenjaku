@@ -21,7 +21,7 @@ owner's `mind-palace` went v4.9.1 → v5.0.0 the same evening, its doctrine 334 
 588-note vault byte-identical. The three doctrine issues it was holding open on exactly that
 condition (#61, #64, #67) were closed with the rule read back out of that brain.
 
-🔁 **What outlived the release went to [`v5.1-clear-the-tracker-action.md`](../prospective/v5.1-clear-the-tracker-action.md)**,
+🔁 **What outlived the release went to [`v5.1-clear-the-tracker-action.md`](../prospective/clear-the-tracker-action.md)**,
 which is why this file could close: the macOS flake's instrument, the write guard's field measurement
 (S9-3), the unread nightly mutation run, and the `ci.yml` `concurrency` question that is still the
 owner's. Nothing was dropped to make this archivable.

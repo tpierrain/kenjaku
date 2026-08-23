@@ -10,9 +10,9 @@ the active plan, never directly.
 
 ## The active plan
 
-- **Subject:** v5.1 — clear the tracker: almost every open GitHub issue, starting with the one that
-  can lose a note.
-- **Plan:** [`prospective/v5.1-clear-the-tracker-action.md`](prospective/v5.1-clear-the-tracker-action.md)
+- **Subject:** clear the tracker in two releases — **v5.1** repairs only what an outside contributor
+  reported (the link checker crying wolf), **v5.2** takes the rest.
+- **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
 - **Active since:** 2026-08-23
 
 ## Open, but NOT active

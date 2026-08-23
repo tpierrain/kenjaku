@@ -708,6 +708,18 @@ nothing at the tag.
 So, **at every release, after the tag and before calling it done**: read **every** open issue, decide
 one by one whether this release covers it, and close the ones it does.
 
+> 🏷️ **Two markers make that sweep readable at a glance, and both are OURS to maintain, not a
+> reporter's** _(2026-08-23, Thomas: « préfixer mes issues (et seulement les miennes) »)_.
+>
+> - **A `BUG:` / `FEAT:` prefix on the title of every issue WE open.** A tracker where a data-loss
+>   defect and a nice idea look identical is a tracker that gets triaged by whoever shouts loudest.
+> - **A milestone naming the release that will carry it** — and *no* milestone is itself a statement
+>   (see #62): it means *decided out, with a reason written in the plan*.
+>
+> **Never rewrite an outside contributor's title.** Their words are how they described what they saw,
+> and re-labelling someone else's report is both rude and lossy. We classify our own reports; theirs we
+> classify with the milestone and the labels, which sit beside the title instead of over it.
+
 **The closing condition is what shipped, not what merged.**
 
 - A **code** defect closes when the fix is in the published tag.
