@@ -66,6 +66,19 @@ test("findSiblingImports — a bare string that is not a specifier is ignored", 
   assert.deepEqual(findSiblingImports(src), []);
 });
 
+// The `from` has to be the LAST thing before the specifier, not merely present
+// somewhere above it. A mutant proved the difference invisible, and the false
+// positive it allows is the ordinary shape of every module in this repo: real
+// imports at the top, a path named in a string further down.
+test("findSiblingImports — a real import above does not turn a later plain path into one", () => {
+  const src = [
+    'import { readFileSync } from "node:fs";',
+    'const REL = "./auto-commit.mjs";',
+    "",
+  ].join("\n");
+  assert.deepEqual(findSiblingImports(src), []);
+});
+
 test("findSiblingImports — a nested path under another folder is not a top-level sibling", () => {
   const src = 'import x from "./engine-health/probe.mjs";\n';
   assert.deepEqual(findSiblingImports(src), []);
