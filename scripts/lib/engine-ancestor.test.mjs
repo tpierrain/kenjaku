@@ -48,9 +48,17 @@ const SHA_CRLF = "sha256:6612d9c94c2da8d2544e1188348fc7baf717ffff1bacde51929a166
 
 const DOCTRINE = "CLAUDE.engine.md";
 const HOOK = "scripts/auto-commit.mjs";
+const CONSTITUTION = "CLAUDE.md";
 
 const MANIFEST = {
-  regimes: { merge: [DOCTRINE, HOOK, ".claude/skills/coach/**"], replace: ["scripts/lib/**"] },
+  regimes: {
+    merge: [CONSTITUTION, DOCTRINE, HOOK, ".claude/skills/coach/**"],
+    replace: ["scripts/lib/**"],
+    // S12's family, and T4 is why this planner has to read it too: a file the owner is
+    // INVITED to edit is generated per brain, so its recorded sha names bytes no tag ever
+    // published and no candidate can ever be proved.
+    invited: [CONSTITUTION],
+  },
   retired: [".claude/skills/tdd-discipline/**"],
 };
 
@@ -63,6 +71,20 @@ const TABLE = {
       [SHA_SHIPPED_V4]: { since: "v4.0.0", locale: "en" },
     },
     [HOOK]: { [SHA_LF]: { since: "v4.9.1", locale: "en" } },
+    // 🚨 THE ROWS THE OLD FIXTURE OMITTED, AND OMITTING THEM IS WHAT MADE ITS POLE A LIE
+    // (T4). The shipped table really does hold `CLAUDE.md` rows — **five**, v3.0.0 through
+    // v4.2.0 — because the LAUNCHER's own install stub lives at that rel and is folded
+    // like any other delivered file. The test that stood here asserted *"no published byte
+    // can name its tag"* against a fixture with no such rows, so it proved a property of
+    // the fixture. `engine-fingerprints.test.mjs` now pins the premise on the SHIPPED
+    // table, so this cannot drift back into agreement with itself.
+    //
+    // TWO rows, not one: a carve-out that only worked for a single-row rel would pass a
+    // one-row fixture, and the real rel has five.
+    [CONSTITUTION]: {
+      [SHA_SHIPPED_V4]: { since: "v4.0.0", locale: "en" },
+      [SHA_LF]: { since: "v4.2.0", locale: "en" },
+    },
   },
 };
 
@@ -236,17 +258,63 @@ test("planAncestorFetch — a rel the table holds NO row for plans nothing at al
   );
 });
 
-test("planAncestorFetch — CLAUDE.md is generated per brain, so no published byte can name its tag", () => {
-  // Not a special case in the code, and deliberately so: it falls out of the lookup
-  // above. Named here because it is 2 of the 15 files measured on the real brains, and
-  // someone will otherwise wonder why it never appears.
+// ── The INVITED carve-out (T4, third review pass) ────────────────────────────
+//
+// ⛔ WHAT STOOD HERE WAS WRONG, and it is kept in words because the way it was wrong is
+// the lesson: *"CLAUDE.md is generated per brain, so no published byte can name its
+// tag — not a special case in the code, and deliberately so: it falls out of the
+// lookup."* It does not fall out of anything. The shipped table holds FIVE `CLAUDE.md`
+// rows (the launcher's own install stub, same rel), and the pole was green only because
+// its fixture had none. **A test whose premise is supplied by its own fixture proves the
+// fixture.**
+//
+// Measured on the REAL shipped table and the REAL shipped manifest, before a line was
+// changed: one plan entry, **five candidates, ten git subprocesses on a flawless
+// network**, `hydrated: []`, `failed: ["CLAUDE.md"]`. And permanent — `planBaseSeed`
+// defers an edited file, so no `.engine-base/CLAUDE.md` is ever written and the miss
+// recurs at **every** update of **every** v4+ brain.
+test("planAncestorFetch — an INVITED file is never nominated, however many rows the table holds for it", () => {
+  // The fleet's actual state: the constitution was generated for THIS owner, so its
+  // recorded sha is in no row — the miss path, which nominates every row as a candidate.
+  assert.deepEqual(
+    plan({ provenance: { [CONSTITUTION]: SHA_SHIPPED }, installedFileMap: { [CONSTITUTION]: EDITED } }),
+    [],
+  );
+});
+
+test("planAncestorFetch — nor when the table CAN place the invited file's record", () => {
+  // The other way in, and it needs its own pole: the carve-out has to precede the direct
+  // lookup as well as the miss path, or a record the table happens to know would still
+  // buy a fetch for a file nothing can help.
+  assert.deepEqual(
+    plan({ provenance: { [CONSTITUTION]: SHA_SHIPPED_V4 }, installedFileMap: { [CONSTITUTION]: EDITED } }),
+    [],
+  );
+});
+
+test("planAncestorFetch — a brain whose manifest predates the `invited` key still spares its constitution", () => {
+  // NOT a defensive habit: it is the state the whole deployed fleet is in. An update is
+  // performed by the brain's OLD engine, and `invited` is this release's own invention —
+  // so the brains that would spend ten subprocesses per update are exactly the ones whose
+  // manifest cannot name the family. Same fallback, same reason, as the session nudge's.
+  const { invited, ...withoutInvited } = MANIFEST.regimes;
   assert.deepEqual(
     plan({
-      manifest: { ...MANIFEST, regimes: { ...MANIFEST.regimes, merge: [...MANIFEST.regimes.merge, "CLAUDE.md"] } },
-      provenance: { "CLAUDE.md": SHA_SHIPPED },
-      installedFileMap: { "CLAUDE.md": EDITED },
+      manifest: { ...MANIFEST, regimes: withoutInvited },
+      provenance: { [CONSTITUTION]: SHA_SHIPPED },
+      installedFileMap: { [CONSTITUTION]: EDITED },
     }),
     [],
+  );
+});
+
+test("planAncestorFetch — `CLAUDE.engine.md` is ONE DOT away, and is still fetched for", () => {
+  // The discriminating negative, and the whole risk of this change: a carve-out that
+  // matched by prefix would silence the ENGINE's own half of the constitution — the file
+  // this release exists to unfreeze — while every other assertion here stayed green.
+  assert.deepEqual(
+    plan({ provenance: { [DOCTRINE]: SHA_SHIPPED }, installedFileMap: { [DOCTRINE]: EDITED } }),
+    [{ rel: DOCTRINE, tag: "v3.6.0", sourcePath: DOCTRINE, recorded: SHA_SHIPPED }],
   );
 });
 

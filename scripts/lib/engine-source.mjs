@@ -38,6 +38,27 @@ export function selectMergeFiles(manifest, candidates) {
   );
 }
 
+// THE FILES THE OWNER IS INVITED TO EDIT (S12), and which rels they are.
+//
+// It lives HERE, beside `selectMergeFiles`, because it is the same kind of question — a
+// regime naming a set of rels — and because it now has TWO readers with nothing else in
+// common: the session nudge, which stops narrating an edit it invited, and
+// `planAncestorFetch`, which must not go and fetch an ancestor for a file that is
+// generated per brain (T4). One spelling, or the second reader is a second place for the
+// fallback below to be forgotten.
+//
+// The fallback is NOT a defensive habit — it is a state the fleet was measurably in. An
+// update is performed by the brain's OLD engine, and `invited` is this release's own
+// invention, so this new code sits beside manifests whose families have never named it.
+// Falling back to nothing there would put BOTH defects straight back on the one run
+// where nobody could act on either: the undismissible fleet-wide line about the
+// constitution, and ten git subprocesses certain to fail.
+export const INVITED_EDITS_FALLBACK = ["CLAUDE.md"];
+
+export function invitedEdits(manifest) {
+  return manifest?.regimes?.invited ?? INVITED_EDITS_FALLBACK;
+}
+
 // The provenance base map: { relPath: fingerprint(content) } over a file→content
 // map the installer prepared (already restricted to the merge files). This is the
 // base Phase 2's 3-way merge will diff against to detect user edits.

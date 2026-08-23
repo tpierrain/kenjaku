@@ -25,7 +25,7 @@
 // convey to the only reader that matters.
 // ─────────────────────────────────────────────────────────────────────────────
 import { INSTALLED_REFUSAL, normalizeEol, verifyBase } from "./engine-base.mjs";
-import { selectMergeFiles } from "./engine-source.mjs";
+import { invitedEdits, selectMergeFiles } from "./engine-source.mjs";
 import { matchesAny } from "./glob-match.mjs";
 
 // 🚪 THE ONE FILE THIS REPORT MAY NOT NAME (Thomas's call, 2026-08-22, on F1 of the
@@ -54,14 +54,11 @@ import { matchesAny } from "./glob-match.mjs";
 // delivered exactly as before, and `regimeOf` walks a fixed list of the four delivery
 // regimes, so the write guard never sees this key.
 //
-// The fallback below is NOT a defensive habit — it is a state the fleet was measurably
-// in. An update is performed by the brain's OLD engine, and until the first-update fix
-// (2026-08-23) this new code could sit beside a manifest whose families had never been
-// advanced. Falling back to nothing there would put the undismissible fleet-wide line
-// about the constitution straight back, on the one run where nobody could act on it.
-export const INVITED_EDITS_FALLBACK = ["CLAUDE.md"];
-
-const invitedEdits = (manifest) => manifest?.regimes?.invited ?? INVITED_EDITS_FALLBACK;
+// 📍 The list itself, and its fallback, MOVED to `engine-source.mjs` at T4 — beside
+// `selectMergeFiles`, which answers the same kind of question. It gained a second reader
+// there with nothing else in common with this one: `planAncestorFetch` must not go and
+// fetch an ancestor for a file generated per brain. Two readers, one spelling; the
+// rationale for the fallback travelled with it.
 
 // Candidates are what is ON DISK, never the union with the record — and that is
 // the one deliberate asymmetry with `planBaseSeed`, which does take the union. A

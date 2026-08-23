@@ -59,6 +59,32 @@ test("the table covers every merge file of the release being cut, in every local
   );
 });
 
+// 🚨 THE PREMISE GUARD FOR T4's CARVE-OUT, and it lives here because this is the only
+// file that reads the SHIPPED table.
+//
+// `engine-ancestor.test.mjs` asserts that an `invited` file is never nominated for an
+// ancestor fetch, and that assertion only means something if the table really does hold
+// rows the planner would otherwise walk. The pole it replaced asserted the opposite —
+// *"no published byte can name its tag"* — against a fixture with no such rows, and was
+// green for a year of commits while the real table held five. **A test whose premise is
+// supplied by its own fixture proves the fixture.**
+//
+// So the premise is measured against the real thing: the launcher's own install stub
+// lives at `CLAUDE.md`, is folded like any other delivered file, and its rows are what
+// make the carve-out load-bearing rather than decorative. The day this goes red, the
+// carve-out is free and its poles have stopped discriminating — which is worth being told.
+test("the shipped table really does hold rows for an INVITED rel, or the ancestor carve-out guards nothing", () => {
+  const invited = manifest.regimes?.invited ?? [];
+  assert.ok(invited.length > 0, "the shipped manifest must declare the invited family at all");
+
+  const withRows = invited.filter((rel) => Object.keys(table.files?.[rel] ?? {}).length > 0);
+  assert.deepEqual(
+    withRows,
+    invited,
+    `an invited rel the table cannot place needs no carve-out — invited: ${invited.join(", ")}`,
+  );
+});
+
 test("the table names the version it was generated for", () => {
   // Without it, `since` on a row-2 match is a number nobody can trace back to a
   // release — and there is no other record of when the table was last refreshed.
