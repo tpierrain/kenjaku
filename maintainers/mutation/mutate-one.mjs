@@ -420,13 +420,19 @@ export function parseMutationReport(log) {
 // in `scripts/`. The LONGEST match wins, so `scripts/lib/x.mjs` takes the `lib/x.mjs`
 // row and leaves the bare `x.mjs` row to `scripts/x.mjs`; and a row answers for ONE
 // target, so a single row can never certify two files at once.
+//
+// A STRICT tail, and an equality case would be dead code: `parseArgs` refuses every
+// target outside `scripts/`, and Stryker's table drops the prefix its files share,
+// so a reported path can never be the whole target. Measured, not assumed — the
+// disjunct `path === reported` survived a mutation run, having never once been the
+// reason a target matched.
 export function unmeasuredTargets(targets, files) {
   const available = files.map((file) => file.path);
   const missing = [];
 
   for (const path of targetPaths(targets)) {
     const [match] = available
-      .filter((reported) => path === reported || path.endsWith(`/${reported}`))
+      .filter((reported) => path.endsWith(`/${reported}`))
       .sort((left, right) => right.length - left.length);
 
     if (match === undefined) missing.push(path);
