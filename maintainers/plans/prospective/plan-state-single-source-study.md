@@ -606,7 +606,7 @@ the guard silent while a decision was actually lost. **The mechanism we have is 
 wrong and blind where something is**, and any fix that only softens the noise makes the second one
 worse.
 
-- 🔔 **FALSE POSITIVE — the guard blocked three consecutive hand-backs on a correct file.**
+- 🔔 **FALSE POSITIVE — the guard blocked FOUR consecutive hand-backs on a correct file.**
   `agent-orchestrated-release-mode-action.md` names the branch, holds no status of this item, and
   **delegates by a link** (*"Blocked on: the release, which is not this file's → [owning plan]"*),
   which is precisely the shape the convention asks for. The guard counts *files naming the branch
@@ -614,8 +614,11 @@ worse.
   that went stale. **The declared door cannot absorb this**: `delegates-only` is reserved for files
   holding no state *by construction*, and *"a plan may never declare it"* — this file legitimately
   holds its own state, it merely holds none of **this item's**. So the door's carve-out is per-FILE
-  while the actual property is per-ITEM. Three hand-backs each cost a paragraph of explanation to
-  the owner, which is the consent-fatigue shape this whole corpus exists to prevent.
+  while the actual property is per-ITEM. Each of the four cost a paragraph of explanation to the
+  owner, on a file nobody ever disputed, which is the consent-fatigue shape this whole corpus exists
+  to prevent. **The fourth landed on the very turn that recorded the first three** — the guard cannot
+  be discharged by writing down that it is wrong, only by opening the file it names, which is the
+  loop the fix has to break.
 - 🕳️ **FALSE NEGATIVE, and it is the expensive one — the guard was GREEN on the day a decision was
   re-opened twice.** F11 was answered on 2026-08-22 in the section that owns it, ✅. The STATE block
   of the **same file**, three hundred lines above, went on listing it under *owner's call pending*.
