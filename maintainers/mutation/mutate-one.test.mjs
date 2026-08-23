@@ -142,6 +142,75 @@ test("parseArgs — an option that eats its value cannot swallow the target", ()
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// T15 (third pass of the v5.0.0 review) — AN OPTION'S VALUE IS NEVER ANOTHER OPTION.
+//
+// `--worktree` and `--log` take `argv[++i]` whatever it is, so `--worktree --dry-run`
+// quietly means "a worktree named `--dry-run`, and NO dry run". The person who typed
+// `--dry-run` — the one who was being careful — gets a real Stryker run, a real score,
+// exit 0, and a stray directory beside the repo. No shape guard can catch it: `-` is
+// legal inside `kenjaku-mut-one`, and both earlier passes hardened these two arguments
+// on the shape of their value without ever asking whether it WAS one.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const swallowedError = (option, value) =>
+  `${option} needs a name, and "${value}" is another option — it was swallowed, so whatever you meant ` +
+  "by it will NOT happen (a --dry-run eaten this way is a REAL Stryker run)\n" +
+  "usage: node maintainers/mutation/mutate-one.mjs <scripts/file.mjs> [more files…] " +
+  "[--worktree <name>] [--log <name>] [--dry-run]";
+
+test("T15 — `--worktree --dry-run` is refused, instead of silently going LIVE", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree", "--dry-run"]), {
+    ok: false,
+    error: swallowedError("--worktree", "--dry-run"),
+  });
+});
+
+test("T15 — and `--log` swallows exactly as hungrily, so it is refused the same way", () => {
+  // The sibling F6 fixed and S2 fixed again, each time for one argument at a time. The
+  // guard is written once, for both, rather than for the one the finding happened to name.
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--log", "--dry-run"]), {
+    ok: false,
+    error: swallowedError("--log", "--dry-run"),
+  });
+});
+
+test("T15 — ANY option is refused as a value, not the one spelling that was reported", () => {
+  assert.equal(parseArgs(["scripts/lint-vault.mjs", "--worktree", "--log"]).ok, false);
+  // A single dash too: a directory whose name begins with one is an option to every
+  // command that will ever be handed it, starting with the `git worktree add` below.
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--log", "-x"]), {
+    ok: false,
+    error: swallowedError("--log", "-x"),
+  });
+});
+
+test("T15 — the FIRST swallowed option is the one named, so the message points at the typo", () => {
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree", "--log", "--dry-run"]), {
+    ok: false,
+    error: swallowedError("--worktree", "--log"),
+  });
+});
+
+test("T15 — a real value beside a real `--dry-run` is untouched, and the dry run still happens", () => {
+  // The whole risk of this guard is refusing a legitimate invocation, so the positive
+  // pole is the one that must be explicit: an ordinary name, a dash inside it, and the
+  // flag that follows still read as the flag it is.
+  assert.deepEqual(parseArgs(["scripts/lint-vault.mjs", "--worktree", "kenjaku-mut-one", "--dry-run"]), {
+    ok: true,
+    targets: ["scripts/lint-vault.mjs"],
+    worktree: "kenjaku-mut-one",
+    logName: "mutate-one-lint-vault.log",
+    dryRun: true,
+  });
+});
+
+test("T15 — a bare trailing option still reports the MISSING name, not a swallowed one", () => {
+  // Nothing followed it at all, which is a different mistake and already has its own
+  // sentence. Triangulated because `undefined` and "an option" are one `if` apart.
+  assert.equal(parseArgs(["scripts/lint-vault.mjs", "--log"]).error.startsWith("--log needs a name\n"), true);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // F6 (v5.0.0 code review) — THE WORKTREE NAME IS AN ARGUMENT TO `git reset --hard`.
 //
 // The name is joined onto the repo's PARENT, and the run that follows ends with

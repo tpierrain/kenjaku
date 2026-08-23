@@ -96,21 +96,55 @@ function isPlainName(name) {
   return /^[A-Za-z0-9._+-]+$/.test(name) && name !== "." && name !== "..";
 }
 
+// 🚨 T15 — AN OPTION'S VALUE IS NEVER ANOTHER OPTION. `--worktree` and `--log` take
+// whatever follows them, so `--worktree --dry-run` used to mean "a worktree named
+// `--dry-run`, and NO dry run": the person who typed `--dry-run` — the one being
+// careful — got a real Stryker run, a real score, exit 0 and a stray directory beside
+// the repo. No shape guard can catch that, because `-` is legal inside
+// `kenjaku-mut-one`; the question is not what the value looks like, it is whether the
+// thing after the option was ever a value at all.
+//
+// A LEADING dash is the whole rule. `undefined` is deliberately NOT an option here —
+// nothing followed at all, which is a different mistake with its own sentence below.
+const isOption = (value) => value !== undefined && value.startsWith("-");
+
 export function parseArgs(argv) {
   const targets = [];
   let worktree = DEFAULT_WORKTREE;
   let logName = null;
   let dryRun = false;
+  // The FIRST one, so the message points at the typo rather than at its last consequence.
+  let swallowed = null;
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--dry-run") dryRun = true;
-    else if (arg === "--worktree") worktree = argv[++i];
-    else if (arg === "--log") logName = argv[++i];
-    else targets.push(normalizeRange(arg));
+    else if (arg === "--worktree" || arg === "--log") {
+      const value = argv[++i];
+      // Written once for BOTH, rather than for the one a finding happened to name: F6
+      // hardened `--worktree` and S2 had to come back for `--log`, on the very same
+      // question. `i` has already moved past the swallowed option, so it is not read a
+      // second time as a target either.
+      if (isOption(value)) swallowed ??= { option: arg, value };
+      else if (arg === "--worktree") worktree = value;
+      else logName = value;
+    } else targets.push(normalizeRange(arg));
   }
 
   if (!targets.length) return { ok: false, error: `no target file given\n${USAGE}` };
+
+  // Before the shape guards below, and that ordering is the point: they would report
+  // `--worktree "--dry-run" must be a single folder name`, which describes the value as
+  // if it had been meant as one. What actually happened is that a flag went missing.
+  if (swallowed) {
+    return {
+      ok: false,
+      error:
+        `${swallowed.option} needs a name, and "${swallowed.value}" is another option — it was swallowed, ` +
+        "so whatever you meant by it will NOT happen (a --dry-run eaten this way is a REAL Stryker run)\n" +
+        USAGE,
+    };
+  }
 
   // 🚨 THE WORKTREE NAME IS AN ARGUMENT TO `git reset --hard` (F6 of the v5.0.0 review).
   // It is joined onto the repo's PARENT, and the run that follows ends with
