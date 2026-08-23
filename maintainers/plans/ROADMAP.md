@@ -30,7 +30,7 @@ Engineering* the owner meant **orchestrating subagents to BUILD the next release
 Kenjaku's runtime (*"c'est aucune de ces deux options"*). The three ordering consequences, which is
 all this file records:
 
-- **v5.0.0 belongs to** [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md).
+- **v5.0.0 belongs to** [`archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
   Its predecessor, [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md),
   built S1-S6 and is closed.
 - **How it gets built was itself a subject**, and its working contract is now **closed with the
@@ -92,7 +92,7 @@ fleet's upgrade in the interim.
 > 🚫 **Deliberately NOT rewritten here**: whether 🔴 stays deferred once brains receive again is a scope
 > call, and it is the owner's. What is fixed is the *reason* on offer, which was false. The release's
 > own state lives in
-> [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md);
+> [`archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md);
 > this note keeps no copy of it.
 
 > ✅ **Closed (2026-07-28 · `a3943e9`).** For a while this paragraph's claim that `update-engine`
@@ -249,7 +249,7 @@ still owed, and lessons that outlived their release — is in § *Kept from the 
 
 | Plan (canonical) | What it delivers | Depends on |
 | --- | --- | --- |
-| [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md) | v5.0.0 stops being a release that only helps brains installed after it: an already-frozen brain proves its own ancestor from the digests of every version the engine ever published; **a file the owner had edited before the release gets its ancestor FETCHED from the tag that sha names, so it merges instead of staying frozen**; the FR tree stops drifting in silence (a test names any localized file left behind by its English source); and **a file you personalized becomes a QUESTION with three offers — take the new one / keep yours / combine them — instead of a blind spot** (the owner's acceptance criterion, explicitly v5 and not v5.1). | Finishes what [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md) built (S1-S6). Supersedes Gate 4's F-B7e. |
+| [`archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md) | v5.0.0 stops being a release that only helps brains installed after it: an already-frozen brain proves its own ancestor from the digests of every version the engine ever published; **a file the owner had edited before the release gets its ancestor FETCHED from the tag that sha names, so it merges instead of staying frozen**; the FR tree stops drifting in silence (a test names any localized file left behind by its English source); and **a file you personalized becomes a QUESTION with three offers — take the new one / keep yours / combine them — instead of a blind spot** (the owner's acceptance criterion, explicitly v5 and not v5.1). | Finishes what [`archived/update-regime-owns-what-it-shipped-action.md`](archived/update-regime-owns-what-it-shipped-action.md) built (S1-S6). Supersedes Gate 4's F-B7e. |
 | [`prospective/engine-managed-file-merge-strategy.md`](prospective/engine-managed-file-merge-strategy.md) | Propagate engine improvements into user-editable provided files (constitution + shipped skills) without clobbering edits. Two halves: the **skills** half (increment 2.5) and the **constitution** half. | Gates 1, 2.5 and 4. The constitution half is Gate 4's. |
 | [`prospective/fleet-upgrade-field-feedback.md`](prospective/fleet-upgrade-field-feedback.md) | Defects observed on a real deployed brain crossing three versions, captured live (F1-F12, each verified on disk). It is **evidence, not a work list** — it said which fixtures are worth building. | Gate 4. F3 (silent reindex) and F7 (an unverified outcome reported in the measured voice) stay here on purpose. |
 | [`prospective/second-brain-migration-and-engine-upstream-action.md`](prospective/second-brain-migration-and-engine-upstream-action.md) | Migrate the pre-existing personal brain (~405 notes) + upstream the generic delta. | Gate 3. Track D's core has been the owner's daily brain since 2026-07-19; its two tails are in § *Still owed*. |
@@ -351,7 +351,7 @@ out-of-band arrivals, so five issues filed by the owner's brain sat invisible to
 >
 > **So the inventory before a cut is three things, not one**: the live plan's slices **+** the open
 > rows here **+** the **scheduled** open issues. That rule now lives beside the plan that has to obey
-> it — [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md)
+> it — [`archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)
 > § *FOUR LESSONS* — and this note keeps no copy of what it found.
 
 ---

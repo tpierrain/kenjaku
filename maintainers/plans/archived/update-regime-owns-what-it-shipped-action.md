@@ -3,7 +3,7 @@
 <!-- shipped mechanism was designed and what was rejected on the way. Open it  -->
 <!-- for that, and for nothing else. It carries no `## 📍 STATE` block and no  -->
 <!-- current status, by construction — its successor does:                     -->
-<!--   maintainers/plans/prospective/v5-unfreezes-the-existing-fleet-action.md -->
+<!--   maintainers/plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md -->
 <!--                                                                          -->
 <!-- plan-carrier-guard: delegates-only                                        -->
 <!-- (Thomas's call, 2026-08-22, and EARNED: added only after the file was     -->
@@ -53,7 +53,7 @@
 > since been overtaken — do not quote any figure from them as current.** The `sync` FR skill has been
 > brought up to its English source (S8-2a), and *"no FR version at all"* has been re-read as the
 > engine's own rule (a file is locale-owned only once its twin exists) rather than as a hole. Both
-> belong to S8 of [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+> belong to S8 of [`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md),
 > **which owns that state; this record keeps no copy of it.**
 >
 > - [ ] 📉 **The FR tree is already partial and silently drifting, and S6e closes one hole of five.**
@@ -189,7 +189,7 @@
 > ROADMAP, and reported the release complete bar the owner's steps — with **#61, #67 and #64's rule
 > half still open and still arbitrated into it**. Only the `plan-carrier-guard` Stop hook, naming this
 > file, surfaced them. **The cargo has since graduated to the live plan's resume box**
-> ([`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)),
+> ([`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)),
 > which owns its state from now on. This paragraph stays as the **record of the arbitration** and keeps
 > no copy of what remains.
 
@@ -366,7 +366,7 @@
 >       rewritten for a non-developer reader on the owner's re-read; it is **step 3 of the cut in the
 >       successor plan**, which owns it end to end:
 >       [`../archived/2026-08-23-release-v5.0.0-note.md`](../archived/2026-08-23-release-v5.0.0-note.md), ordered from
->       [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+>       [`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)
 >       § *WHAT IS YOURS, IN ORDER*. Ticked here so an archived file stops carrying a live-looking box
 >       for work another plan is running. **The two claims below stay**, because they are constraints
 >       on what the note may say, pinned by tests, not a status:
@@ -394,7 +394,7 @@
 >         real `v3.6.0` tag — the owner's lines survive and the update lands, in the same pass — and the
 >         two QA tests that pinned the old limitation are inverted. **The successor plan owns what the
 >         note may now claim and this row keeps no copy**:
->         [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md).
+>         [`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 >         Flagged here only so nobody quotes "permanently" out of an archive.
 > - [ ] ✂️ **Cutting, tagging and publishing** — his, always (§ *Where the owner is required*).
 > - [ ] 🔬 **The one S3 item that is a field measurement, not code** (§ S3, and it says so there):
@@ -772,7 +772,7 @@ audible divergence.
           diagnosis needed and did not read**, staying wrong for two iterations about a mechanism this
           plan had already solved. Consolidating N callers into one helper does not stop caller N+1
           from re-asking the question by hand; only a test does. The repair is **S7-6**, owned by
-          [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+          [`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)
           — no copy of its state here.
           - ✅ **S7-6 IS BUILT** _(2026-08-22)_, and it turned out to be **a third caller AND a third
             question**: the fix could not be a fourth call to the shared helper, because `verifyBase`
@@ -856,7 +856,7 @@ audible divergence.
         and the only one that should produce a sidecar or a question. ⚠️ **The "only one" no longer
         holds** _(2026-08-21)_: rows 3 and 7 emit sidecars too, and **S10 turns a sidecar into an
         actual question** — the owner's acceptance criterion for v5. Owned by
-        `../prospective/v5-unfreezes-the-existing-fleet-action.md`; left visible, since what this line
+        `../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`; left visible, since what this line
         got right is that a conflict is the case that costs a human something.
   - [x] ~~Markdown-aware where it pays (doctrine and skills are section-structured), line-based
         otherwise.~~ ⛔ **DROPPED, and this line contradicted its own section until the carrier audit
@@ -942,7 +942,7 @@ audible divergence.
         | 9 | edited, engine moved, `B` usable, conflict | `conflict` | — (owner's copy stands) | marked merge | **no** |
 
     > ⚠️ **ROW 3 HAS MOVED SINCE THIS PLAN WAS ARCHIVED — 2026-08-21, S10-1 of
-    > [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+    > [`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md),
     > which OWNS that behaviour now.** A `no-provenance` preserve emits the candidate as a **sidecar**,
     > where this table says it emits none. The reasoning written here was sound and its premise stopped
     > holding: the table's *"no sidecar"* rested on there being nothing useful to say about a file
@@ -1326,7 +1326,7 @@ audible divergence.
     - [x] **Seeding a base for a no-record file that holds the engine's exact bytes** (row 2). Cheap and
           correct, but it is S1's planner's business — noted here so it is not lost, not done here.
           ✅ **CLOSED elsewhere, 2026-08-21**: absorbed by **S7** of
-          [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+          [`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)
           — row 2 is the special case where the version recognized is the one being delivered, so the
           historical fingerprint table answers it with no code of its own. Ticked here so this archive
           stops advertising an open exclusion it no longer owns; **the design and its test case live
@@ -1338,7 +1338,7 @@ audible divergence.
           prompting *from the update*; what the follow-on chantier adds is a separate on-demand flow the
           report points at. **S2d**, in this release, is only that pointer sentence.
           📎 **That chantier now has a name**: it is **S10** of
-          [`../prospective/v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+          [`../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md),
           **which owns its state** — go there rather than reading a status into this line. The
           exclusion above still holds exactly as written: the on-demand flow is a **separate command**,
           run from a conversation, never a prompt raised by the update.
@@ -1638,7 +1638,7 @@ audible divergence.
             this verdict cannot make, and the false claim that once sent an owner diffing a file nobody
             had edited. It names no sidecar: that verdict writes none. ⚠️ **Superseded 2026-08-21 by
             S10-1** (see the row-3 note under the verdict table): the verdict now DOES write one, and
-            the sentence names it. The owning plan is `../prospective/v5-unfreezes-the-existing-fleet-action.md`.
+            the sentence names it. The owning plan is `../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`.
       - [x] **The standing recap** — `where your brain stands now, running <ref>: N engine file(s) this
             update leaves alone`, each with the version it last received. Deliberately a RECAP that
             **repeats** a file named above rather than subtracting it: the subtraction needs a join

@@ -70,14 +70,14 @@ _(Everything below is the historical record of the mode and its debriefs. Do not
 >   population.** So on any branch a release is cut from, the check is `gh run list` over the recent
 >   history, not the badge on HEAD — and it costs one command. _(The defect itself is not this file's
 >   and is not v5's: it is owned by
->   [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+>   [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)
 >   § *THE macOS FLAKE*, and its code is byte-identical to `main`.)_
 >   - 🪝 **And it is the second finding in two days that a session owed to LOOKING rather than
 >     recalling** — the first was the `plan-carrier-guard` hook forcing an archived plan open and
 >     breaking a wrong CRLF verdict. Both were free. Both were skipped for as long as nothing insisted.
 >
 > _(A fifth, **"a closed list is not an emptied inventory"**, was learned here too and is now owned by
-> [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md) § *FOUR
+> [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md) § *FOUR
 > LESSONS*. Linked, not copied.)_
 >
 > ## 📦 What this mode shipped besides the release _(2026-08-20)_
@@ -233,7 +233,7 @@ _(Everything below is the historical record of the mode and its debriefs. Do not
 > argument; this file deliberately keeps no copy. Do not re-open that question either.
 
 > **This plan owns HOW, not WHAT.** The what is
-> [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md), which
+> [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md), which
 > is unchanged and remains the single source of the release's own state. This file exists so the
 > *working mode* is written down instead of living in a conversation, and so a session resuming after
 > a `/clear` knows what it may dispatch and what it may not.
@@ -1507,7 +1507,7 @@ arbitration goes here as a question, and the run continues on other slices.
   owner's own two brains. The rule the run should carry: **before a diagnosis is written into a carrier,
   run the thing.** The repo's own habit is right there — the QA is built to avoid tautologies by using
   the production path; a diagnosis deserves the same standard.
-  State is owned by [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md);
+  State is owned by [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md);
   not restated here.
 - 🧪 **2026-08-21 (S8-2b) — A GUARD THAT SAYS "assert empty" IS THE EASIEST TEST IN THE WORLD TO PASS
   BY ACCIDENT, and the mutation pass proved the same thing about its own fixture.** The drift guard's
@@ -1529,7 +1529,7 @@ arbitration goes here as a question, and the run continues on other slices.
   paragraphs instead of unpicking a shipped guard. And the reason it was caught at all is that the port
   began by **reading the commit being ported** rather than trusting the criterion that selected it: a
   measurement is a claim about the past, and the artifact it points at can still contradict it. State
-  is owned by [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md);
+  is owned by [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md);
   not restated here.
 - 🛑 **2026-08-21 (S7-4) — A QA SLICE FOUND WHAT LOOKED LIKE A DEFECT THE FEATURE ITSELF CREATED, and
   the loop nearly did not look.** ⚠️ **The defect was NOT real — see the S8-3 entry above**; what
@@ -1537,7 +1537,7 @@ arbitration goes here as a question, and the run continues on other slices.
   either way. S7-4 was filed as "breadth" — the boring tail of a finished chantier. Building the
   French pole appeared to measure that **S7 unfreezes a French brain INTO ENGLISH**: the heal reads the
   locale perfectly, the delivery ignores it. The owner's own two brains are French. State is owned by
-  [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md) (box at the
+  [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md) (box at the
   top); not restated here. **What the MODE takes from it**: a slice labelled "remaining coverage" is
   the one most likely to be skipped as tidy-up, and it is exactly where a feature's blind spot lives —
   because the coverage that was postponed is the coverage the author found least obvious. And the QA
@@ -1557,7 +1557,7 @@ arbitration goes here as a question, and the run continues on other slices.
   killed *"the doctrine layer unfreezes no already-deployed brain"*; S7-5 killed *"the merge does not
   reach back, permanently"*. Both were **pinned by tests**, which is why neither could be quietly
   forgotten and why both inversions had to carry their old claim above the new one. State is owned by
-  [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md).
+  [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 
 - 📉 **2026-08-21 (S7-5-1) — THE JUDGE ITSELF CAME BACK NON-DETERMINISTIC, and the loop's own habits
   are what caught it.** The same command, on the same commit, scored **96.97 %** then **93.94 %**
@@ -1571,7 +1571,7 @@ arbitration goes here as a question, and the run continues on other slices.
 
 - 🛑 **2026-08-21 (owner, in conversation) — THE RELEASE IS STOPPED TWO HOURS FROM PUBLISHING, and the
   loop had filed the reason as a wording problem.** The plan owning what comes next is now
-  [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md); the old one
+  [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md); the old one
   is archived and closed.
   - 🧊 **The measurement that stopped it**: the release is named *"the engine owns what it shipped"* and
     unfreezes **nobody already installed** — the entire fleet. Pole A of the acceptance test says so in
@@ -2055,7 +2055,7 @@ arbitration goes here as a question, and the run continues on other slices.
   (*may the engine write `CLAUDE.md`?*). It was answerable in one exchange **because it had been written
   down as a box weeks of slices earlier**, with its measured facts attached — nothing had to be
   re-derived, and the loop had lost nothing waiting. _(The answer itself is the owning plan's, and this
-  file deliberately keeps no copy: [`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+  file deliberately keeps no copy: [`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md),
   box at the top.)_
   - ➡️ **For the mode, and it is the finding**: the box's value is not that it *defers* a question, it
     is that it **keeps the question answerable by someone who was not in the window**. The owner had no

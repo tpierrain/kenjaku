@@ -20,7 +20,7 @@ mutation score and its lesson. The campaign was closed at three passes by Thomas
 measuring tools.
 
 The release these findings gated was cut and published the same day:
-[`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md)
+[`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)
 owns the cut, and it is the only plan still open on v5.
 
 🔗 **The one finding that was NOT taken now has a home outside this file**: the ~24 candidate dead
@@ -98,7 +98,7 @@ which is Thomas's. So on this run, **prose fixes landed in the CODE's own string
 
 **Owned elsewhere, linked rather than restated**: the wording of the four doctrine texts (W5b) and the
 undecided rehearsal on a copy of a real brain both belong to
-[`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md). This file
+[`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md). This file
 used to carry their status; it now points, and cannot go false when they move.
 
 ## 🧾 How this review was run, and its ONE honest limitation
