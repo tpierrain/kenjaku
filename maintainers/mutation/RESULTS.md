@@ -233,6 +233,35 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T4 — the invited carve-out, and a RANGE that measured nothing without saying so — 2026-08-23
+
+`09e0506`. State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+Scoped to the **changed lines only**.
+
+| File (range) | Score | Survivors |
+|---|---|---|
+| `engine-ancestor.mjs:34-53` (the `invited` skip) | **100 %** | 0 |
+| `engine-source.mjs:56-60` (`invitedEdits` + its fleet fallback) | **100 %** | 0 |
+
+**Reproduce**: `FORCE_COLOR=0 NO_COLOR=1 node maintainers/mutation/mutate-one.mjs
+scripts/lib/engine-ancestor.mjs:34-53 scripts/lib/engine-source.mjs:56-60`. Run twice per the
+lone-survivor protocol: **100 % both times, 8 mutants both times.**
+
+🚧 **AND THE FIRST RUN OF THIS PASS MEASURED THE FIX NOT AT ALL — caught by reading the per-file
+breakdown, not by anything the tool said.** The range was typed `:34-52` and the guard being tested
+sits on line **53**, one line past the end (a fifteen-line comment block stands between the function's
+head and its first statement). The run reported **✅ 100 % — 6 killed** and listed **only
+`engine-source.mjs`**: `engine-ancestor.mjs` contributed zero mutants and was silently absent from the
+table. Widening to `:34-53` brought it to 8 mutants and named both files.
+
+➡️ **This is T13 in the wild** (*"a mutation run that measured NOTHING prints a green tick and exits
+0"*), on its third trigger — a range landing entirely on comments, which the finding notes produces
+**no warning at all**. The cheap discipline until T13 is paid: **read the per-file breakdown, and
+distrust any run whose file list is shorter than the file list you asked for.**
+
+---
+
 ## T3 — the collector on the writer path, and a fallback nothing could reach — 2026-08-23
 
 `ab1751d` (the fix) + `6219f6f` (the survivor's removal). State owned by

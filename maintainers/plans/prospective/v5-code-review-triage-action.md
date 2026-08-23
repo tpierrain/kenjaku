@@ -12,16 +12,22 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T4.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1, T2 and T3 are PAID** _(`779637e`; `814be9a`; `ab1751d`)_; **T4–T15 are open**, in § *Third
+- 🔴 **NEXT — RESUME AT T5.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T4 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`)_; **T5–T15 are open**, in § *Third
   pass*, which owns them and their order. **Read its ⚠️ first**: unlike the two earlier passes, that
-  section is the reviewer's word and **the items below T3 have not been independently re-checked**.
+  section is the reviewer's word and **the items below T4 have not been independently re-checked**.
   Verify, then fix test-first, red first, one commit per subject, pushed as it goes.
-  - **T4 next**: `CLAUDE.md` is nominated for an ancestor fetch on **every** update, forever, and the
-    comment justifying the omission is factually false about the shipped table — **the guarding test
-    encodes the same false premise**, so check the fixture before believing either. It pairs with
-    **T14** (every brain is then told the update server was unreachable on a flawless network), and
-    the two are the same owner-facing lie seen from both ends.
+  - **T5 next**: `adoptCandidate` leaves the brain HALF-APPLIED while the skill tells the agent
+    *"nothing was touched … do not run it again"*. Same `unreadable`-collector family as T3, so start
+    from what T3 built rather than from scratch — but the consequence here is a **contradicted
+    promise**, not a denied converge, so the fix is about which sentence is true.
+  - ✅ **T4 paid, and the guarding TEST was more of the finding than the code was**: it asserted its
+    own fixture's silence back to itself. **A test whose premise is supplied by its own fixture proves
+    the fixture** — third time on this branch. Expect it again in the items below.
+  - ⚠️ **AND WATCH THE MUTATION RANGES**: T4's first run measured the fix **not at all** and printed
+    ✅ (the range stopped one line short of the guard, past a long comment block). It was caught only
+    by reading the per-file breakdown. **Distrust any run whose file list is shorter than the file
+    list you asked for** — until **T13** is paid, which is exactly what T13 is about.
   - ✅ **T3 paid, and it made a point the two before it did not**: the finding named ONE call site and
     there were **two** — fixing `:147` alone just moved the throw to the last line that writes. What
     said so was the test, not a re-read of the code. Same shape as W1 and T2: *"one line"* was wrong
@@ -908,13 +914,37 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
             auto-finalize. Loud and wrong rather than silent and wrong. **Not taken here**: it is the
             parent's path, it needs its own pole, and T3 is about the child. Cost if wanted: the same
             one line plus one test.
-- [ ] **T4 — `CLAUDE.md` is nominated for an ancestor fetch on EVERY update, forever**
-      (`engine-ancestor.mjs:85`). No `regimes.invited` carve-out, and the comment justifying the
-      omission is **factually false about the shipped table**: `engine-fingerprints.json` holds **five**
-      `CLAUDE.md` rows (the launcher's install stub, same rel). Result on a flawless network: 10
-      subprocesses, `hydrated: []`, `failed: ['CLAUDE.md']`. Permanent — `planBaseSeed` defers an
-      edited file, so the miss recurs every update on every v4+ brain. **The guarding test encodes the
-      same false premise** and is green only because its fixture omits those rows.
+- [x] ✅ **T4 — `CLAUDE.md` is nominated for an ancestor fetch on EVERY update, forever — PAID**
+      _(2026-08-23 · `09e0506`)_. **Confirmed independently before fixing, on the REAL shipped table
+      and the REAL shipped manifest**: one plan entry, five candidates, **ten git subprocesses on a
+      flawless network**, `hydrated: []`, `failed: ["CLAUDE.md"]`. The same measurement now reads
+      **zero and zero**. Every number the finding gave was exact.
+      - **The carve-out is by REGIME, not by name**, and that choice is the fix's whole quality:
+            `invited` means *"the owner is expected to have made this theirs"*, which is the same fact
+            that makes an ancestor unfindable — and unlike *"no row can name it"*, it cannot become
+            untrue by regenerating a table. `CLAUDE.engine.md` is one dot away and is still fetched
+            for, with a pole of its own, because a prefix match would have silenced the very file this
+            release exists to unfreeze while every other assertion stayed green.
+      - 🧭 **THE GUARDING TEST WAS THE FINDING, more than the code was.** It asserted *"no published
+            byte can name its tag"* against a fixture holding **no `CLAUDE.md` rows**, while the
+            shipped table holds five. **A test whose premise is supplied by its own fixture proves the
+            fixture** — the same family as the FR false alarm and the hand-rolled lookup, met a third
+            time on this branch. Its replacement runs against a fixture that HAS the rows, and a new
+            pole in `engine-fingerprints.test.mjs` pins the premise on the **shipped** table, so the
+            two can never drift back into agreeing with each other.
+      - **The deployed-fleet fallback travels with it**: `invited` is this release's own invention, so
+            the brains that would spend ten subprocesses per update are exactly the ones whose
+            manifest cannot name the family. `invitedEdits` moved to `engine-source.mjs` beside
+            `selectMergeFiles` — two readers now, with nothing else in common, and one spelling is
+            what keeps the second from forgetting the fallback.
+      - 🧪 **Mutation 100 %** on the changed lines, 8 mutants, reproduced twice. ⚠️ **The FIRST run of
+            this pass measured the fix not at all and said ✅**: the range was typed `:34-52` and the
+            guard sits on line **53**, one past the end. Caught by reading the per-file breakdown —
+            `engine-ancestor.mjs` contributed zero mutants and was silently absent. **That is T13 in
+            the wild, third trigger.** → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T4.
+      - **T14 is HALF-DISCHARGED as a side effect, and only half.** The false *"the update server was
+            unreachable"* line no longer appears for `CLAUDE.md`, which is what made it fire on every
+            update of every brain. The conflation itself is untouched and still T14's to pay.
 - [ ] **T5 — `adoptCandidate` leaves the brain HALF-APPLIED and the skill says "nothing was touched"**
       (`engine-adopt.mjs:234`). `syncBaseTree` (no `unreadable` collector) is called **after** the
       owner's file is overwritten, the sidecar `rmSync`'d and the manifest rewritten, and **before**
