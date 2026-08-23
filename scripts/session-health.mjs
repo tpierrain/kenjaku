@@ -21,6 +21,7 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { formatHealthBanner } from "./lib/health-probe.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 export async function sessionHealth({ brainDir, readCachedHealth, spawnProbe, emit }) {
   let reported = false;
@@ -51,14 +52,20 @@ export async function sessionHealth({ brainDir, readCachedHealth, spawnProbe, em
 // The re-probe runs DETACHED in the background (it loads the embedder + searches →
 // seconds) so session start never blocks. The probe child writes a fresh
 // engine-health.json and OS-notifies on a newly-broken capability.
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// runAsEntrypoint, never a hand-rolled argv[1] comparison: `resolve(argv[1])` is the
+// path AS TYPED and `import.meta.url` is the path Node REALPATH-RESOLVED, so on any
+// brain whose path holds a symlink the two differ and this whole block silently never
+// ran -- no output, no error, no exit code. See lib/entrypoint.mjs.
+// The chain is RETURNED so the tail awaits it; its own process.exit(0) still wins,
+// which keeps "always exit 0, never block session start" byte-for-byte what it was.
+runAsEntrypoint(import.meta.url, process.argv, () => {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const brainDir = resolve(__dirname, "..");
   const probeCli = join(__dirname, "health-probe-run.mjs");
   const healthFile = join(brainDir, "engine-health.json");
   const lines = [];
 
-  sessionHealth({
+  return sessionHealth({
     brainDir,
     readCachedHealth: () =>
       existsSync(healthFile) ? JSON.parse(readFileSync(healthFile, "utf8")).verdict ?? null : null,
@@ -85,4 +92,4 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       process.exit(0); // fail-open: ALWAYS exit 0, never block session start
     })
     .catch(() => process.exit(0));
-}
+});

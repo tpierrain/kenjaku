@@ -24,6 +24,7 @@ import { buildHeadlessHealthCheckCaller } from "./lib/headless-health-check.mjs"
 import { countOf } from "./lib/plural.mjs";
 import { readInstalledMergeFiles } from "./lib/engine-base-fs.mjs";
 import { tsxInvocation } from "./lib/tsx-invocation.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 export async function runProbeChild({ runProbes, readPriorVerdict, writeVerdict, notify }) {
   const verdict = await runProbes();
@@ -106,7 +107,11 @@ export function toBannerVerdict(modules) {
 // loads the embedder + searches → seconds) so session start never waits. Writes
 // engine-health.json and OS-notifies only on a newly-broken capability. Fail-open:
 // ALWAYS exit 0.
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// runAsEntrypoint, never a hand-rolled argv[1] comparison: `resolve(argv[1])` is the
+// path AS TYPED and `import.meta.url` is the path Node REALPATH-RESOLVED, so on any
+// brain whose path holds a symlink the two differ and this whole block silently never
+// ran -- no output, no error, no exit code. See lib/entrypoint.mjs.
+runAsEntrypoint(import.meta.url, process.argv, async () => {
   const argv = process.argv.slice(2);
   const flag = (name) => {
     const i = argv.indexOf(`--${name}`);
@@ -161,5 +166,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   } catch {
     // fail-open: swallow everything (a broken probe must never block / fail a session).
   }
-  process.exit(0); // ALWAYS exit 0
-}
+  return 0; // ALWAYS exit 0
+});

@@ -29,6 +29,7 @@ import { computeApplyPlan } from "./lib/engine-apply-plan.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
 import { armRestartPending } from "./lib/restart-signal.mjs";
 import { rehydrationPlan, unwiredFiles } from "./lib/brain-rehydrate.mjs";
+import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 export async function sessionSelfHeal({
   brainDir,
@@ -183,13 +184,19 @@ export function deriveWanted(brainDir) {
 // The reconcile runs DETACHED in the background (its npm install / launcher regen
 // can outlast the hook timeout) so session start never blocks. The brain converges
 // from its OWN on-disk code (sourceDir === brainDir) → no network, no reindex.
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// runAsEntrypoint, never a hand-rolled argv[1] comparison: `resolve(argv[1])` is the
+// path AS TYPED and `import.meta.url` is the path Node REALPATH-RESOLVED, so on any
+// brain whose path holds a symlink the two differ and this whole block silently never
+// ran -- no output, no error, no exit code. See lib/entrypoint.mjs.
+// The chain is RETURNED so the tail awaits it; its own process.exit(0) still wins,
+// which keeps "always exit 0, never block session start" byte-for-byte what it was.
+runAsEntrypoint(import.meta.url, process.argv, () => {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const brainDir = resolve(__dirname, "..");
   const reconcileCli = join(__dirname, "lib", "reconcile-brain.mjs");
   const lines = [];
 
-  sessionSelfHeal({
+  return sessionSelfHeal({
     brainDir,
     // Desired-state from the files the engine DELIVERS, never the frozen manifest
     // (F-B7 2g): wanted skills = engine merge skills ∪ staged `engine-skills/`;
@@ -246,4 +253,4 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       process.exit(0); // fail-open: ALWAYS exit 0, never block session start
     })
     .catch(() => process.exit(0));
-}
+});

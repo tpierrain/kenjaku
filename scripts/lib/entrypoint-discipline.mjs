@@ -40,6 +40,34 @@ export function findHandRolledGuards(source) {
     .map(({ line, token }) => ({ line, token }));
 }
 
+// The SHARP half of the hand-rolled question, and the only one with a hard ceiling.
+//
+// `findHandRolledGuards` counts every non-canonical spelling, including ones that
+// are correct. This counts the spelling that is WRONG: process.argv[1] compared to
+// import.meta.url without being realpath-resolved first. Node realpath-resolves the
+// main module, so on any path holding a symlink — an aliased volume, a synced
+// folder, macOS's own /tmp -> /private/tmp — the two differ, the guard is false and
+// the body it protects silently never runs.
+//
+// A WINDOW rather than a line, because a formatter may split the comparison; and a
+// comparison OPERATOR is required, so delegating to a predicate (isEntrypoint(...))
+// is not a finding. One finding per line: the live shape names argv[1] twice.
+const GUARD_WINDOW = 200;
+
+export function findSymlinkBlindGuards(source) {
+  const clean = stripComments(source);
+  const needle = "process.argv[1]";
+  const lines = new Set();
+  for (let at = clean.indexOf(needle); at !== -1; at = clean.indexOf(needle, at + needle.length)) {
+    const window = clean.slice(Math.max(0, at - GUARD_WINDOW), at + GUARD_WINDOW);
+    if (!window.includes("import.meta.url")) continue; // not this question at all
+    if (!/[=!]==/.test(window)) continue; // a delegation, not a comparison
+    if (window.replace(/\s+/g, "").includes("realpathSync(process.argv[1]")) continue; // resolved: correct
+    lines.add(lineOf(clean, at));
+  }
+  return [...lines].sort((a, b) => a - b).map((line) => ({ line }));
+}
+
 // True when the module ends its body behind the shared tail rather than running
 // it at import. A mention inside a comment does not count — it is the call that
 // makes the body importable, not the intention to write one.

@@ -4,6 +4,7 @@ import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  findSymlinkBlindGuards,
   findHandRolledGuards,
   hasEntrypointTail,
   findInlineInvocations,
@@ -317,7 +318,16 @@ const SCRIPTS = join(REPO_ROOT, "scripts");
 // Ceilings measured on 2026-08-20, before the first conversion. LOWER THEM as the
 // conversion lands; never raise one — raising it is what turned this into debt.
 const NO_TAIL_CEILING = 13;
-const HAND_ROLLED_CEILING = 9;
+// 2026-08-23 (T1, third review pass): 9 -> 2. Seven top-level scripts were converted;
+// what is left is import-brain.mjs (realpaths BOTH sides) and update-engine.mjs (calls
+// the canonical predicate) — non-canonical spellings that are nonetheless CORRECT, so
+// this count is a tidiness debt and cannot go to 0 on its own.
+//
+// 🛑 The hard ceiling is the OTHER one: "NO shipped script compares argv1 to
+// import.meta.url without realpath", at 0 and staying there. A count of spellings was
+// green at 9 while six SessionStart hooks were dead — which is why correctness now has
+// a guard of its own instead of riding on a budget.
+const HAND_ROLLED_CEILING = 2;
 
 // Top-level CLIs with no `.test.mjs` sibling. Inherited; paying them off is not
 // this run's cargo, so they are named rather than counted.
@@ -431,6 +441,72 @@ test("the count of hand-rolled entry guards only goes DOWN", () => {
 
   assert.ok(
     offenders.length <= HAND_ROLLED_CEILING,
-    `${offenders.length} top-level scripts hand-roll their entry detection, ceiling is ${HAND_ROLLED_CEILING}. There is ONE canonical tail — runAsEntrypoint(import.meta.url, process.argv, main).\n${offenders.join("\n")}`,
+    `${offenders.length} top-level scripts hand-roll their entry detection, ceiling is ${HAND_ROLLED_CEILING}.
+
+This count is a TIDINESS debt — correctness is guarded separately, by "NO shipped script
+compares argv1 to import.meta.url without realpath". Do not raise this number: on
+2026-08-23 it sat green at 9 while six of the eight SessionStart hooks were silently dead
+on any brain path holding a symlink.
+
+There is ONE canonical tail — runAsEntrypoint(import.meta.url, process.argv, main).\n${offenders.join("\n")}`,
+  );
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// findSymlinkBlindGuards — the SHARP half of the hand-rolled question.
+//
+// `findHandRolledGuards` above counts every spelling that is not the canonical
+// tail, which includes spellings that are perfectly correct (import-brain.mjs
+// realpaths both sides; update-engine.mjs calls the canonical predicate). Those
+// are a tidiness debt.
+//
+// This one counts the spellings that are WRONG: a comparison of process.argv[1]
+// against import.meta.url where argv[1] is not realpath-resolved first. Node
+// realpath-resolves the main module, so such a guard is FALSE on any path holding
+// a symlink and the body it protects silently never runs. Ceiling 0, forever.
+// ─────────────────────────────────────────────────────────────────────────────
+test("the disarmed shape — argv1 compared to import.meta.url without realpath — is found", () => {
+  const src = "if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {\n";
+  assert.deepEqual(findSymlinkBlindGuards(src), [{ line: 1 }]);
+});
+
+test("the hand-rolled URL shape (bug B2) is the same defect and is found too", () => {
+  assert.deepEqual(findSymlinkBlindGuards("if (import.meta.url === `file://${process.argv[1]}`) {\n"), [
+    { line: 1 },
+  ]);
+});
+
+test("a comparison that DOES realpath argv1 is not a finding — that one is correct", () => {
+  const src = "return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));\n";
+  assert.deepEqual(findSymlinkBlindGuards(src), []);
+});
+
+test("delegating to the canonical predicate is not a comparison at all", () => {
+  assert.deepEqual(findSymlinkBlindGuards("if (isEntrypoint(import.meta.url, process.argv[1])) {\n"), []);
+});
+
+test("argv1 used for something that is not this question is left alone", () => {
+  assert.deepEqual(findSymlinkBlindGuards('const target = process.argv[1] ?? "";\n'), []);
+});
+
+test("a comment describing the defect is not the defect", () => {
+  const src = "// resolve(process.argv[1]) === fileURLToPath(import.meta.url) is the disarmed shape\nconst a = 1;\n";
+  assert.deepEqual(findSymlinkBlindGuards(src), []);
+});
+
+test("the comparison split across lines is still found — a formatter must not hide it", () => {
+  const src = "if (\n  resolve(process.argv[1]) ===\n  fileURLToPath(import.meta.url)\n) {\n";
+  assert.deepEqual(findSymlinkBlindGuards(src), [{ line: 2 }]);
+});
+
+test("NO shipped script compares argv1 to import.meta.url without realpath — ceiling 0, forever", () => {
+  const offenders = topLevelScripts()
+    .filter((f) => findSymlinkBlindGuards(readFileSync(f, "utf8")).length > 0)
+    .map(rel);
+
+  assert.deepEqual(
+    offenders,
+    [],
+    `These scripts are DEAD on any brain whose path holds a symlink — the guarded body never runs, with no output and no error. Node realpath-resolves the main module, so argv[1] as typed never equals import.meta.url. Use runAsEntrypoint(import.meta.url, process.argv, main).\n${offenders.join("\n")}`,
   );
 });
