@@ -32,17 +32,17 @@
   until the review queue's § Tracking is discharged* — is **lifted**: that § Tracking is fully ticked.
   What remains is the merge of PR #76, the tag and the publication, none of which a session may do
   alone (see below).
-- **Owner's call pending:** **one, and it does not block a ship** — **F11**, whose perimeter is ONE
-  SKILL and must not be restated any wider. ⚠️ A 2026-08-23 session wrote here that *"the French twin
-  is not translated, so a `--lang fr` brain reads its constitution in English"*. **That is false, and
-  measurably so**: `templates/fr/CLAUDE.engine.md` is 548 lines against the English 549, with the same
-  30 sections, fully translated. What ships English-only is `test-first-discipline` (350 lines), whose
-  retired French predecessor was 147 lines of doctrine this release deliberately dropped. The triage
-  plan's § E owns the finding, the measured impact and the two remedies. Translating is **his** call
-  because `templates/fr/**` is product, and a session may not write there alone. _(Everything else he was asked is
-  answered: the five decisions, the `scripts` bump at `1.14.0`, and **W5b — the four doctrine texts
-  ship as written**, 2026-08-22. **Do not re-ask any of them.** F13 was measured and declined, and
-  that too is reversible on one word — see the triage plan's § G.)_
+- **Owner's call pending:** **NONE.** **F11 is closed** — remedy (b), confirmed by Thomas on
+  2026-08-23: the retired `tdd-discipline` French twin is **not** translated, because its successor
+  replaces the strategy it taught. The release note already states the limit (line 154). ⚠️ Two
+  earlier versions of this line were wrong in two different directions and both cost him a
+  correction: one called the whole French twin untranslated (it is 548 lines of French against the
+  English 549), the other advertised a decision as pending that § E of
+  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) had already answered. **That
+  section owns F11: do not restate its impact here, and do not re-open it.** _(Everything else he was
+  asked is answered: the five decisions, the `scripts` bump at `1.14.0`, and **W5b — the four doctrine
+  texts ship as written**, 2026-08-22. **Do not re-ask any of them.** F13 was measured and declined,
+  reversible on one word — triage plan § G.)_
 - **A session may, alone:** re-run the rehearsal (`node maintainers/qa/field-rehearsal/rehearse.mjs`)
   against a copy, and nothing else on this release. **Not** merge, tag, publish, push to `main`, write
   into `templates/fr/**`, or write into either of his two real brains (a read-only COPY under the

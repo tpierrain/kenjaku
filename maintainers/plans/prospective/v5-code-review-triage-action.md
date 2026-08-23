@@ -88,10 +88,23 @@
   `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
   66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
   assertion rather than a loading error.
-- **Owner's call pending:** **one.** **E / F11** — the French twin: translate it, or say so in the
-  release note. _(The other two are settled: **G** and **the delivered-prose hole** were both taken
-  by "the maximum", and the prose hole is closed above. The G items stay in the queue below, where
-  their order lives.)_
+- **Owner's call pending:** **NONE. F11 is decided, and this block is where it was lost.**
+  **E / F11 → remedy (b), confirmed by Thomas 2026-08-23**: the retired `tdd-discipline` twin is not
+  translated, because its successor replaces the very strategy it taught. His words: *"ça n'est pas
+  nécessaire de traduire la skill sur le tdd qu'on remplace par une autre stratégie"*. The note
+  already carries the limit (line 154). **Do not re-open it, and do not re-explain its impact.**
+  - 🪤 **HOW IT WAS RE-OPENED TWICE, and the shape is worth more than the item.** § E answered this
+    on 2026-08-22, ✅, ending with *"Recorded so the next session does not re-open this as an
+    unresolved product call"* — and **this block, three hundred lines above it, went on saying
+    "pending"**. A session reads STATE first and the owning section maybe never. So the answer was
+    on disk and invisible, the decision was put to him again, and the second time it was argued the
+    OTHER way. He named the cost himself: *"c'est comme si tu n'apprenais pas ou ne retenais rien."*
+    **`plans.md`'s rule is scoped to a second FILE restating a status; the hole was a second BLOCK,
+    in the same file.** A STATE line that names an item the body has closed is not a summary, it is
+    a contradiction, and STATE is the half that wins.
+  _(The other two are settled: **G** and **the delivered-prose hole** were both taken by "the
+  maximum", and the prose hole is closed above. The G items stay in the queue below, where their
+  order lives.)_
   - ✅ **A fourth call is ANSWERED by the second pass, not by him** — *should
     `.claude/settings.json` also leave the nudge?* **S4 shows the file is broken on a second machine
     for a different reason**, and that reason has to be fixed either way. The nudge question rides on
@@ -374,8 +387,8 @@ catches any of this.
               project. Closing it needs a new I/O dep (is this path a *linked* worktree of this repo?)
               plus a change to the test harness, which is beyond the finding as written. **Worth doing
               before the next mutation campaign; the three shapes the review named are closed.**
-- [ ] **E. Product / locale — needs Thomas's call**
-  - [ ] **F11 — a French brain loses a localized skill and receives an English one.**
+- [x] **E. Product / locale — ANSWERED BY THOMAS** _(2026-08-23 · remedy (b), no translation)_
+  - [x] **F11 — a French brain loses a localized skill and receives an English one.**
         `engine-manifest.json:75`. The branch deletes the French `tdd-discipline` twin;
         `test-first-discipline` ships **English only**. So on a French brain the localized skill is
         retired (provably, by sha) and the English one installed in its place. `locale-drift.mjs` needs
@@ -413,6 +426,11 @@ catches any of this.
               🛡️ **The counterweight, stated so the decision is honest**: nothing merges without him,
               so a translation would wait in #76 like everything else. The real risk is not a bad
               merge, it is **him merging 350 lines of French he did not read**.
+              ✅ **CONFIRMED BY THOMAS, 2026-08-23, and this is the last word**: *"ça n'est pas
+              nécessaire de traduire la skill sur le tdd qu'on remplace par une autre stratégie"*.
+              He was asked twice more after the ✅ above was written, because the STATE block still
+              advertised the call as pending (see it, and the trap that fixes it, up there). **The
+              measured impact above is settled evidence, not an argument to re-run at him.**
 - [x] **F. Prose the owner reads — cheap, fix** _(2026-08-22 · 2ce39d8 — one commit, one subject)_
   - [x] **F14 — `2 engine file(s)`** (`update-engine.mjs:242`): the count is known at render time, so
         the parenthesised plural is never needed. Every other line in this release picks the word.
