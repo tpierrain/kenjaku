@@ -177,6 +177,15 @@ forgotten: the state had been **copied**, and a copy is invisible from inside th
 - **An orchestrated run (§12) has almost no hand-backs**: dozens of tool calls between two of them, so
   the mode rarefies the save point exactly when there is most state to record. On such a run, save at
   **each decision as it lands**.
+- **And the second carrier is often INSIDE the same file — the STATE block itself** _(measured here,
+  2026-08-23)_. A product call was answered in the section that owns it, ✅, closing on the words
+  *"recorded so the next session does not re-open this"*; three hundred lines above, STATE still
+  listed it as pending. **A session reads STATE first and the owning section maybe never**, so the
+  answer sat on disk and invisible: the call was put to the owner twice more, and the second time
+  argued the opposite way. So: **before asking the owner anything, grep the plan for that item and
+  read what the body already concluded.** A STATE line naming an item the body has closed is not a
+  summary, it is a contradiction, and the ✅ is the half that is right. This is what the **≤ 20-line
+  cap** of §3ter buys: a block that cannot hold a narration cannot hold a second copy of one.
 - **Deterministic net (ADR 0009), machine-local**: `~/.claude/hooks/plan-carrier-guard.mjs` blocks the
   hand-back naming the untouched carriers. It judges **no content**. Braces; this section is the belt.
 

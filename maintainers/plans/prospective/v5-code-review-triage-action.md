@@ -10,286 +10,47 @@
 
 # Action plan — triaging the v5.0.0 code review
 
-## 📍 STATE — the only perishable block in this file · moved 2026-08-22
+## 📍 STATE — the only perishable block in this file · cut back to its cap 2026-08-23
 
-- 🟢 **NEXT — THE FIFTEEN ARE DONE; WHAT IS LEFT IS THE TWO CONVENTION ITEMS THE CAP CUT.** The third
-  pass landed 2026-08-23 with 15 findings, T1–T15, and **all fifteen are PAID** _(`779637e`;
-  `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`; `85c2167`; `c3f26bd`;
-  `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`;
-  `658c348`+`da1fe2e`+`3eec3cc`+`74fb898`+`d48d2c5`; `49fa874`+`9e431a4`; `0286481`)_. Each was
-  reproduced independently before its fix, fixed test-first, and mutation-scored on the lines it
-  changed. **Resume in § *Cut by the reviewer's 15-item cap***, at its first unticked box:
-  - **The French `why:` strings** in four new `scripts/lib/*.test.mjs` — a rule this repo states about
-    itself, and cheap. **Take it.**
-  - **Then the plans' `## 📍 STATE` line counts.** ⚠️ **Verify the MEASURE before the finding**: these
-    files put their sections in `>` blockquotes, so a count that stops at the next `##` swallows the
-    rest of the file, and one of the five was reported at 1431 lines.
-  - The rest of that section is **latent / quality, deliberately uncut** — read the box, do not treat
-    it as a queue.
-  **And read § *Third pass*'s ⚠️ if a claim there is ever reused**: it is the reviewer's word, and it
-  is the *fixes* that were verified item by item, not the prose around them.
-  - ✅ **T14 paid, and the run that measured it found the INSTRUMENT blind**
-    _(`49fa874` the two verdicts + `9e431a4` the colour strip · scoped mutation **100.00 %** on both,
-    71 mutants, 0 survivors)_. One `failed` list said "the update server was unreachable" over a git
-    that had answered twice; it is two channels now, `unreachable` and `unmatched`, and only the first
-    advertises a retry. Then the scoped run printed **`✅ Mutation score null %` over a table reading
-    100.00** — T13's colour strip had reached one of `mutate-one.mjs`'s two parsers and not the other,
-    and `null` is the tell T13 had just installed for a run that measured nothing. **Detail in
-    § *Third pass* under T14**, and in [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T14.
-  - ✅ **T13 paid, and the corpus it casts doubt on was AUDITED rather than trusted**
-    _(`658c348` the gates + `da1fe2e` the poles + `3eec3cc` a dead branch removed · scoped mutation
-    **97.80 %**, the two survivors equivalent and proved so over all 98 kept logs)_. A run with zero
-    mutants printed `✅ Mutation score NaN %` and exited 0; a TARGET that produced nothing was simply
-    absent from the breakdown while the score spoke for its neighbours. Both reproduced through the
-    real runner first. Detail, and the score table, in
-    [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T13.
-    - 📊 **The queue's own question — "how much are the T1–T12 numbers worth?" — is answered, and the
-      answer is: all of them.** **97 of the 98 kept logs carry a real score**; the 98th has no table
-      (a crashed run the tool already refuses). **None came from a run that measured nothing.**
-    - ⚠️ **One kept log IS the second defect in the wild**, and it is written down rather than
-      smoothed over: `mutate-one-adopt-engine-file-136-136+8.log` named **nine** hunks and its
-      breakdown holds **two files**. The thirteen mutants were really killed, so the number is not
-      false — its **scope is narrower than its row's heading**, and nothing in the run said so.
-    - 📌 **The ANSI papercut travelled with it and is paid too** _(`74fb898` + `d48d2c5` · scoped
-      mutation **100 %**)_. `parseTestCounts` now strips any SGR spelling, so the
-      `NO_COLOR=1 FORCE_COLOR=0` workaround is no longer needed — a thing to remember was a thing to
-      forget. The first pass on it scored 75 %: both survivors sat in the parameter-list group, since
-      nothing had fed it `\x1b[1;34m` or the bare reset `\x1b[m`.
-  - ✅ **T12 paid** _(`21b7397` the fix + `97796a1` the pole · scoped mutation **95.92 %**, the two
-    survivors equivalent and recorded as such in the code)_. `ENGINE_SKILL` says *"this is shaped like
-    a skill"*; it never said *"and it stays where it claims to be"*, and `[^/]+` accepts `..`.
-    - 🩺 **Measured, not assumed, and the finding was right**: **no deletion is reachable** — a
-      provenance key cannot match a vault note, so the verdict is never `remove`. What was real: the
-      retirement lists the escaped tree, reads every file into memory, and names it in an owner-facing
-      line, while `planTouches` answered *"never writes there"* about a plan that had just named the
-      vault.
-    - 🏗️ **Fixed at the ALLOWLIST's construction, not in the oracle**: an entry that reaches no bucket
-      is one the oracle cannot be wrong about, and the other consumers inherit it without knowing.
-      Applied to every bucket, including the two the sacred scrub deliberately spares.
-    - 🪟 **The Windows half is load-bearing**: `path.win32.join` treats `\` as a separator, so a check
-      that split on `/` alone would reject nothing on the one platform where the traversal resolves.
-    - ⚠️ **What this does NOT cover**, so nobody assumes it did: the cut-by-cap item
-      `engine-write-guard.mjs` `rel.startsWith("..")` is a different defect (a file legitimately named
-      `..foo` INSIDE the brain falls outside the guard). Still latent, still uncut. What T12 does give
-      it is a stronger premise: its justification was *"no engine regime names such a path"*, which was
-      an observation and is now enforced.
-  - ✅ **T11 paid, and the barrier now has ONE spelling** _(`dd9e1d5` the fix + `4e62652` the
-    entry-point pole · scoped mutation **100 %**)_. `session-universe.mjs` was the barrier's only
-    non-test caller; rather than write a second inline spelling of five arguments that all have to
-    agree, `awaitStartupSync` is the one spelling and the divergence hook is its second caller.
-    - 🧭 **The survivor was the composition root's own DEFAULT** (`".."` → `""`, whole file green):
-      every test handed in its own brain root, so nobody ran the one that ships. **T7 taught this two
-      days ago about an injected `git`** — the shape is now twice-measured on this branch, so when a
-      file's tests all inject a collaborator, spawn the entry point as a process before believing the
-      score.
-    - 🧪 **A try/catch was written into the helper, then MEASURED as unreachable** and removed: every
-      part it composes already swallows. The test asserts what actually happens (a disk in revolt
-      answers *"nobody will pull"*), rather than guarding a case that cannot arise.
-    - ⏱️ **Proven by ORDER, never by timing** — the injected barrier IS the pull. Deliberate: this is
-      the one branch that already owns a timing flake, and the flaky test is the barrier's own.
-    - 🛑 **`session-universe.mjs` deliberately keeps its inline spelling until after the tag.** Its
-      three files are byte-identical to `main`, and that is precisely what makes the macOS flake
-      diagnosable as inherited rather than introduced (release plan, § *THE macOS FLAKE*, whose call
-      Thomas made on 2026-08-23). Adopting the helper there is **post-tag**, alongside the instrument.
-    - 🔎 **TWO MORE HOOKS RACE THE PULL, and neither is T11's** — found by asking the same question of
-      the neighbours, as T10 taught. **Recorded, not fixed**, and the reasoning is in § *Third pass*
-      under T11: both are self-correcting at the next session start, and one of them is the most
-      operationally sensitive hook there is. **Recommendation: post-tag, with `session-universe`'s
-      adoption, as one piece of work.**
-  - ✅ **T10 paid, and the finding named ONE door out of THREE** _(`8977248` the fix + `3df9f15` the
-    mutation poles · scoped mutation **100 %**, 58 killed, all four files present in the breakdown)_.
-    install-if-absent read the root rel, so a French brain got the English bytes **and kept them**:
-    the directory then exists, so the door never fires again. Running the same case one door along
-    found it in `installStagedSkills` and in `seedHealthNote` too.
-    - 🧭 **The lesson, and it is the fourth time on this branch**: the finding's call site is a
-      sample, not the census. What settled it was **running the case against the neighbours**, not
-      re-reading them — T3, T5 and T8 each said the same thing in their own words.
-    - 🔒 **So the rule now has a machine**: `findDeliveryCopies` censuses every `copyFileSync` in the
-      engine and the installer, and a repo-wide test pins the set against a table of verdicts. **A
-      fourth door fails the suite until someone judges it.** Reuse this shape for T12, which is the
-      other item whose stated *"ONLY defence"* is a phrase repeated in more than one place.
-    - 📎 **ADR 0040 was corrected, not softened**: its *"install-if-absent copies the resolved
-      source"* was the promise the code broke, and its `Scope:` said *"No behaviour change"*, which
-      was true of the merge-governed families only. Both now separate the **decision** (locale-blind,
-      correctly) from the **delivery** (resolved).
-  - ✅ **T9 paid, and it could NOT be mutation-scored**: `status-line.mjs` is `merge`-regime, and
-    instrumenting it makes the fingerprint freshness guard red before the first mutant. **T2 had
-    already named that limitation** — the four scripts it applies to are `auto-commit`, `auto-push`,
-    `status-line`, `verify-rag`. When a fix lands in one of them, plan for whole-invocation
-    assertions instead of a score, and say so rather than showing a green tick.
-  - ✅ **T8 paid, and the SCANNER that came with it found a fourth door the finding never named.**
-    The lesson is not about paths: **when a rule lives as a phrase repeated in N places, a hand-audit
-    of that phrase is what has already failed** — the wrong spelling reads exactly like the right one.
-    Give the rule one home and a machine that counts its copies. **T12 is the other
-    destructive-shaped item and it is still open**; the same care applies — a throwaway fixture,
-    nothing real, and no deletion path surfaced as a suggestion.
-  - ✅ **T7 paid, and its lesson is the entry-point seam rule aimed at a DEFAULT**: every unit in that
-    file injected its own `git`, so nine green tests and an anti-vacuity companion never once ran the
-    invocation that was wrong. **When every test passes its own version of a collaborator, ask who
-    runs the one that ships** — and run it as a process.
-  - ✅ **T6 paid, and its mutation run is the one to remember**: 35 % first pass, and **all thirteen
-    survivors were the same anchor** — the very boundary the fix's safety rests on. **When a fix is
-    safe only because of a boundary, triangulate the boundary; the happy path proves nothing about
-    it.** T2 taught the same thing two days earlier.
-  - ✅ **T5 paid, and the collector family is now three deep** (T3, T5, and T5's own sibling): the
-    same missing opt-in, three consequences — a denied converge, a contradicted promise, and one
-    still open. **When a fourth call site turns up, look for the collector first.**
-  - ✅ **T4 paid, and the guarding TEST was more of the finding than the code was**: it asserted its
-    own fixture's silence back to itself. **A test whose premise is supplied by its own fixture proves
-    the fixture** — third time on this branch. Expect it again in the items below.
-  - ⚠️ **AND WATCH THE MUTATION RANGES**: T4's first run measured the fix **not at all** and printed
-    ✅ (the range stopped one line short of the guard, past a long comment block). It was caught only
-    by reading the per-file breakdown. **Distrust any run whose file list is shorter than the file
-    list you asked for** — ✅ **and since 2026-08-23 you no longer have to: T13 made that read a
-    gate**, which refuses the run and names the target that measured nothing.
-  - ✅ **T3 paid, and it made a point the two before it did not**: the finding named ONE call site and
-    there were **two** — fixing `:147` alone just moved the throw to the last line that writes. What
-    said so was the test, not a re-read of the code. Same shape as W1 and T2: *"one line"* was wrong
-    about a seam three times on this branch, and a run corrected it every time.
-  - ✅ **T2 paid, and it made the same point T1 did**: the defect was real (reproduced as a process on
-    the REAL v4.9.1 file), **and both defences that should have caught it were green** — `node --check`
-    parses the broken consumer, `verifyWrite` never looks at the preserved sibling. The fix removed the
-    coupling rather than only restoring the export, and a repo-wide guard now holds the class at zero.
-    ⚠️ **One practical thing the next session needs**: a `merge`-regime file **cannot be mutation-scored**
-    (Stryker instruments it, the S7-2 freshness guard hashes those bytes and goes red in the dry run),
-    and **any change to a merge file needs the fingerprint table regenerated**
-    (`node maintainers/fingerprints/generate-fingerprints.mjs --version v5.0.0`).
-  - ✅ **T1 paid, and the shape of it is worth carrying into the rest**: the defect was real
-    (reproduced as a process — through its real path the hook speaks, through a symlink to the same
-    directory it returns the empty string), **and the guard that should have caught it was measuring
-    the wrong property** — a count of non-canonical spellings, green at 9, with a failure message
-    about testability. Seven scripts converted; correctness now has its own ceiling-0 guard.
-    **Expect the same split elsewhere in this pass**: several findings name a guard that is green
-    while the thing it is named after is broken.
-  - **T8 and T12 are the destructive-shaped pair** and deserve the same care F6/S1 got.
-  - **The fan-out came back this time** (10 angles × 8 candidates, 15 verifiers), which neither
-    earlier pass obtained. The mode plan's *"do not expect fan-out"* warning is overtaken.
-- **Previously:** ✅ **the first two passes' queue is discharged — all nine items, 2026-08-23.** What is
-  left before this ships that is **his**: the merge of #76. _(The scope was widened twice — "je veux que tu en fasses le maximum (tout ce qu'on a
-  identifié comme à faire)" on 2026-08-22, then "j'aimerais que tout soit fait pour pouvoir shipper la
-  release" on 2026-08-23. Both are spent.)_ Same discipline throughout: red first for the right
-  reason, one commit per subject, green only, pushed as it goes. Everything under the previous GO is
-  **done, green and pushed**: § I `ca46027`, § J `f716066` `d17896c` `94272e9` `e27ed4a`,
-  § K `e6c4deb`, S14 with `e27ed4a`.
-  1. - [x] **S15** — `ignore-base-settings.mjs`: two blank lines on an empty `.gitignore`, and a
-        directory-level `.engine-base/` entry not recognised as already covering the path. A real bug
-        on the owner's own file, so it went first. _(2026-08-22 · `229cc4c` `eff040c` `1cac9b8`)_
-  2. - [x] **S11** — the `(s)` hedges in `update-engine.mjs`, plus F14's two named residuals, closed
-        together behind one `plural.mjs`. _(2026-08-22 · `84c8d07`)_
-  3. - [x] **The delivered-prose hole** _(2026-08-23 · `156ce8e`)_ — twelve rules over the three
-        files, leaning on what a keyword cannot fake: the frontmatter contract the loader reads
-        (**every** shipped skill, all three locales, not just the three named files), relations
-        between two shipped artefacts, and order/placement. **Proved the way the finding was found**:
-        each file gutted in turn, red every time (3, 2, 5 failures). § H's 📐 box was read first, and
-        its warning is quoted in the guard's own header — a doctrine sentence was once inverted with
-        every asserted keyword left standing, and nothing fired.
-     - 🐛 **It found a live defect on the way in**: `CONNECTORS.md` linked twice into `maintainers/`,
-       which `filterCopyable` excludes from every generated brain — two dead ends for every owner who
-       followed them. Fixed in the same commit.
-     - 📋 **AND A WIDER ONE, NAMED HERE RATHER THAN QUIETLY DROPPED.** The same probe over the whole
-       delivered surface flags **~24 candidate dead links in 41 files** — `README.md` alone links a
-       dozen times into `maintainers/` and to `EN-QUOI-C-EST-DIFFERENT.md`, both dev-only. Most of the
-       rest are **false positives of a naive resolver**: `engine-skills/<x>/SKILL.md` is installed at
-       `.claude/skills/<x>/`, so its `../sync-sources/SKILL.md` is correct in a brain and wrong in the
-       launcher tree. A guard for that class needs **install-location awareness**, and the README half
-       is a product call (is a brain's copy of the launcher README meant to link to the launcher's own
-       docs?). **Not taken tonight**: it is a new finding, not one of the fifteen, and it would decide
-       a question that is Thomas's. Cost if he wants it: the resolver is ~20 lines, the README
-       decision is one sentence from him.
-  4. - [x] **S13** — `reconcile-brain.mjs`: the record of an in-place write IS the write now
-        (`engineWrites()` carries its own map), and a source guard keeps that door the only one:
-        every other raw `writeFileSync` must be on a named list with the reason it needs no record.
-        _(2026-08-23 · `659c598`, seen red naming `brainSettingsPath`)_
-  5. - [x] **S12** — the `invited` list is declared in `engine-manifest.json` and rides in `regimes`,
-        which is the object `advanceRegimes` already carries onto older brains. **No migration story,
-        and the fallback is why**: a manifest that declares none still spares the constitution,
-        because that is a state the fleet was measurably in this morning. _(2026-08-23 · `45fc4d7`,
-        hardened at `2cd9484` after a mutation run)_
-  6. - [x] **F13** — **measured, then declined**, with the numbers and the risk written beside the
-        finding itself (§ G). One line of it here because it is the only item that ends in a "no":
-        the four passes cost **~7 ms** of an update that spends tens of seconds installing and
-        reindexing, and threading the map would make a **stale divergence report** reachable by
-        refactor — F1 arriving by the back door. **Reversible on one word from Thomas.**
-  7. - [x] **F12** — `stripComments` is regex-aware now. Not a theoretical gap: **13 files** in this
-        repo's own `scripts/**` left the scanner stuck inside a phantom string at end of file, one of
-        them production code delivered into every brain. _(2026-08-23 · `27d9ce9`)_
-  8. - [x] **The residual that is left**: S5's unreadable-file sentence now belongs to the **health
-        banner**, produced by the detached probe that feeds it, with the only gesture that clears it
-        (not a reindex, not a restart). _(2026-08-23 · `328de15`)_ _(F14's `file(s)` rode with S11.)_
-  9. - [x] **The report he is owed** — delivered 2026-08-23, in French, in the reply that ends this
-        stretch. It answers his own question ("est-ce que tu es confiant ?") with the rehearsal's
-        finding at its centre, and says in one line that he has nothing to decide except the merge.
-  - 📣 **HE HAS NOT HAD THE "montres à la fin" YET.** Two GOs have now asked for a report at the end
-    and neither has been delivered. After the queue, **one plain-language report** in French, same
-    register as the first batch's: what it fixed, in terms of what would have gone wrong for an owner.
-  - 🛑 **"The maximum" DID NOT lift the prohibitions.** They are unchanged and they are absolute: not
-    merge, tag or publish #76, not touch either of his two real brains, **not write under
-    `templates/fr/**`**. A GO on engineering is not a GO on the release.
-    - 🔄 **One line of this box was overtaken by his next message and is retired here** _(2026-08-23)_:
-      it also forbade *running the rehearsal on a copy of a real brain*, written when the rehearsal
-      was an idea nobody had asked for. He then asked, in as many words, to make sure the QA campaign
-      is enough and that v5 not turn out to touch no existing brain — which is that trial and nothing
-      else. It ran on **copies** (no `.git`, so no remote and no push is even expressible) and it
-      found the release-stopping defect. **The originals stay untouchable**, and the rehearsal is
-      owned by the release plan's § *THE REHEARSAL*, not restated here.
-  - ❓ **F11 is the ONE thing "the maximum" cannot settle by itself, and he was asked** _(2026-08-22)_:
-    translating the French twin means writing under `templates/fr/**`, which is forbidden here.
-    **Until he answers, do the half that is mine**: state the loss in the release note (an English
-    artifact) so the note stops being silent about it. If he says "translate", it becomes item 10.
-- **Blocked on:** nothing. **Suite at the last commit: 2 619 green, 0 fail, 3 skipped** (CI's own invocation,
-  `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"`) · **maintainer suite
-  66/66** (`node --test maintainers/mutation/*.test.mjs`). Every fix was seen **red first**, for an
-  assertion rather than a loading error.
-- ✅ **LANDED — the THIRD `/code-review` pass, launched by Thomas on 2026-08-23 after a clear.**
-  ⚠️ **Third, not second**: two have already run, **both on 2026-08-22** — F1–F15 (§ Tracking) and
-  S1–S15 (§ *Second pass*), **30 findings, all paid**. This line said "second" until 2026-08-23, and
-  the error is not cosmetic: it is the exact confusion the rest of this box exists to prevent.
-  - Its findings open a **NEW dated section** in this file, and are numbered **T1…Tn** — a third
-    prefix, so they can collide with neither F nor S. **Do NOT re-open § Tracking**, and do not
-    append to § *Second pass*: mixing two passes' findings loses which pass found what, which is the
-    only way to tell a regression from a miss.
-  - 🎲 **ONE DEFECT IS ALREADY KNOWN AND IS NOT THIS FILE'S — do not record it as a T-finding.** The
-    branch's CI is red about 1 PR run in 6, always the same macOS test (the universe hook not waiting
-    for the startup pull). It was found **independently on 2026-08-23**, outside any review, it is
-    **byte-identical to `main`** so no pass could call it a v5 regression, and it is owned by
-    [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)
-    § *THE macOS FLAKE*, with its measurement and its four killed hypotheses. **If the third pass
-    reports it, link that section instead of opening a duplicate** — and if the pass reaches a cause,
-    that is news the owning section wants, not a new item here.
-- **Owner's call pending:** **NONE. F11 is decided, and this block is where it was lost.**
-  **E / F11 → remedy (b), confirmed by Thomas 2026-08-23**: the retired `tdd-discipline` twin is not
-  translated, because its successor replaces the very strategy it taught. His words: *"ça n'est pas
-  nécessaire de traduire la skill sur le tdd qu'on remplace par une autre stratégie"*. The note
-  already carries the limit (line 154). **Do not re-open it, and do not re-explain its impact.**
-  - 🪤 **HOW IT WAS RE-OPENED TWICE, and the shape is worth more than the item.** § E answered this
-    on 2026-08-22, ✅, ending with *"Recorded so the next session does not re-open this as an
-    unresolved product call"* — and **this block, three hundred lines above it, went on saying
-    "pending"**. A session reads STATE first and the owning section maybe never. So the answer was
-    on disk and invisible, the decision was put to him again, and the second time it was argued the
-    OTHER way. He named the cost himself: *"c'est comme si tu n'apprenais pas ou ne retenais rien."*
-    **`plans.md`'s rule is scoped to a second FILE restating a status; the hole was a second BLOCK,
-    in the same file.** A STATE line that names an item the body has closed is not a summary, it is
-    a contradiction, and STATE is the half that wins.
-  _(The other two are settled: **G** and **the delivered-prose hole** were both taken by "the
-  maximum", and the prose hole is closed above. The G items stay in the queue below, where their
-  order lives.)_
-  - ✅ **A fourth call is ANSWERED by the second pass, not by him** — *should
-    `.claude/settings.json` also leave the nudge?* **S4 shows the file is broken on a second machine
-    for a different reason**, and that reason has to be fixed either way. The nudge question rides on
-    S4's fix rather than standing alone; see F1's follow-up box, which now points here.
-- 🌙 **The night WAS widened, and this line is kept only so the widening is not re-litigated**
-  _(offered 2026-08-22 as "no loop, S11 + S15 + the report"; widened the same evening to "tout ce
-  qu'on a identifié comme à faire", then again on 2026-08-23 with "j'aimerais que tout soit fait pour
-  pouvoir shipper la release")_. **S12/S13 and the G work were held back at the offer and are IN
-  scope now** — the queue above is the whole of it.
-- **A session may, alone:** **work the ordered queue in the Next block, all nine items — S12 and S13
-  and the G work included.** Not merge, tag or publish #76, not touch either real brain, not write
-  under `templates/fr/**`. ⚠️ **Nothing may be merged or tagged until § Tracking is discharged**,
-  unless Thomas ships with a named finding deferred.
-  - 🪤 **This line used to end with "not spend the G work nor S12/S13", contradicting the queue three
-    lines above it.** It was the pre-widening boundary, left standing when the queue was rewritten.
-    Corrected 2026-08-23. Worth the sentence: a stale prohibition reads with the same authority as a
-    live one, and the next session obeys whichever it happens to read first.
+- **Next:** **the plans' `## 📍 STATE` line counts**, the last item of § *Cut by the reviewer's
+  15-item cap*. This file is done; three plans are still over the ≤ 20-line cap (`CONVENTIONS.md`
+  §3ter). ⚠️ **Verify the MEASURE before the finding**: a count that stops at the next `##` swallows
+  the whole file when the sections are in `>` blockquotes.
+- **Blocked on:** nothing. The third pass's **T1–T15 are all paid**, in § *Third-pass tracking*,
+  which owns each one, its commits, its mutation score and its lesson — **do not restate them here,
+  that is what filled this block to 278 lines.** The first two passes' 30 findings are discharged in
+  § *Tracking* and § *Second pass*.
+- **Owner's call pending:** **NONE for this plan.** F11 is decided (§ E owns the answer — do not
+  re-open it). One question is merely *offered*, and nobody is waiting on it: the README half of the
+  dead-link finding in § *FOUND ON THE WAY AND NOT TAKEN*.
+- **A session may, alone:** work the queue above. **Not** merge, tag or publish
+  [#76](https://github.com/tpierrain/kenjaku/pull/76), **not** touch either of his two real brains,
+  **not** write under `templates/fr/**` — § *How the batch was worked* holds why, and a GO on
+  engineering has never been a GO on the release.
+- 📣 **OWED HIM AT THE END OF THIS STRETCH:** one plain-language report in French — what was fixed, in
+  terms of what would have gone wrong for an owner. Two GOs asked for it (*"tu me montres à la fin"*);
+  one was delivered on 2026-08-23, and the work since then has not been reported yet.
+
+## 🔭 FOUND ON THE WAY AND **NOT** TAKEN — open, each with what it would cost
+
+_(Lifted out of the `## 📍 STATE` block on 2026-08-23, when that block was cut back to its cap. These
+were living **only** there, which is how a real finding becomes invisible: STATE is read at every
+resume and rewritten at every one too. They are not statuses — they are findings with an open
+question, and they belong in prose until someone answers them.)_
+
+- 🔗 **~24 candidate dead links across 41 delivered files**, found by the probe written for the
+  delivered-prose guard. `README.md` alone links a dozen times into `maintainers/` and to
+  `EN-QUOI-C-EST-DIFFERENT.md`, both dev-only, so **every owner who follows them lands nowhere**.
+  _(The one certain instance, `CONNECTORS.md`'s two links into `maintainers/`, was fixed in
+  `156ce8e`.)_
+  - ⚠️ **Most of the rest are FALSE POSITIVES of a naive resolver**, and that is the whole reason it
+    was not simply fixed: `engine-skills/<x>/SKILL.md` is installed at `.claude/skills/<x>/`, so its
+    `../sync-sources/SKILL.md` is right in a brain and wrong in the launcher tree. A guard for this
+    class needs **install-location awareness**.
+  - ❓ **And the README half is a product question, not an engineering one**: is a brain's copy of the
+    launcher README meant to link to the launcher's own docs? **That one is Thomas's.**
+  - **Cost if it is wanted**: the resolver is ~20 lines; the README decision is one sentence from him.
+  It is a **new finding**, not one of the fifteen, which is why it was not folded into the queue.
 
 ## How the batch was worked — durable, this is what it cost
 
@@ -301,6 +62,24 @@ work worth costing before spending).
 **The blocker was decided before the batch started, shape (a)**: *"ne parler que des fichiers vraiment
 tenus par toi."* F1 below carries the design, what it owed in tests, and the two rejected shapes, so
 none of it is re-litigated.
+
+**The scope was WIDENED TWICE, and the record is kept here so it is never re-litigated** _(moved out
+of the STATE block on 2026-08-23)_. The first offer was narrow — *"no loop, S11 + S15 + the report"*.
+It became *"je veux que tu en fasses le maximum (tout ce qu'on a identifié comme à faire)"* the same
+evening _(2026-08-22)_, then *"j'aimerais que tout soit fait pour pouvoir shipper la release"*
+_(2026-08-23)_. Both are **spent**: the work they bought is done.
+
+> 🛑 **AND "THE MAXIMUM" NEVER LIFTED THE PROHIBITIONS.** They are unchanged and absolute: do not
+> merge, tag or publish [#76](https://github.com/tpierrain/kenjaku/pull/76), do not write into either
+> of his two real brains, do not write under `templates/fr/**`. **A GO on engineering is not a GO on
+> the release**, and the STATE block restates only the prohibitions, never this paragraph.
+>
+> 🔄 **One line of that box WAS overtaken and is retired here**: it also forbade running the rehearsal
+> on a copy of a real brain — written when the rehearsal was an idea nobody had asked for. He then
+> asked, in as many words, to make sure the QA campaign was enough and that v5 would not turn out to
+> touch no existing brain, which is that trial and nothing else. It ran on **copies** (no `.git`, so
+> no remote and no push is even expressible) and it found the release-stopping defect. The originals
+> stay untouchable, and the rehearsal is the release plan's, § *THE REHEARSAL*.
 
 **The autonomous run** _(2026-08-22, asked and granted: he went for a walk and wanted the batch worked
 without him)_. Its boundaries still govern any further session here: **never**, alone, merge #76, tag,
