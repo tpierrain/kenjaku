@@ -233,6 +233,37 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T9 — a fix in the file the instrument CANNOT reach, for the second time — 2026-08-23
+
+`c3f26bd` (the fix) + `175eb6b` (the pole that read its own source). State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+
+🚧 **NO SCORE, AND THAT IS THE HONEST ANSWER.** `scripts/status-line.mjs` is **`merge`-regime**, and
+T2's box below already named the consequence: Stryker instruments the file it mutates, the S7-2
+freshness guard hashes exactly those bytes, and the dry run goes red before the first mutant. **Any
+pass targeting `auto-commit`, `auto-push`, `status-line` or `verify-rag` fails this way.** The tool
+refused loudly and scored nothing rather than scoring the rest, which is its charter.
+
+**What stands in for the score**, and it is the shape RESULTS.md § S7-5 prescribes for exactly this
+class of defect: *"a missing option is invisible from a return value, since the command still
+succeeds"*. So the invocation is asserted **whole** — command, argv and the entire options object,
+`maxBuffer` included — through an `execFile` seam, and both branches of the try/catch have a pole
+(an `ENOBUFS` throw must still answer `""`, because a status line may never break a session).
+
+**And a second pole that a value assertion cannot replace.** Re-inline the ceiling as
+`64 * 1024 * 1024` and the whole-invocation pole stays **green**: it is the same number. Verified by
+hand — only the source-level pole goes red, which is what makes F10's closing line
+(*"one named ceiling, imported by all four git seams — do not re-inline the number"*) enforceable
+rather than aspirational.
+
+⚠️ **A POLE THAT READS ITS OWN SOURCE MUST SUBTRACT, NEVER COUNT.** The first version demanded exactly
+one `maxBuffer:` in the file. Under in-place instrumentation every expression is emitted twice, so it
+was red in the dry run on its own account — a self-inflicted second reason the file could not be
+measured, on top of the structural one. Written as *"no `maxBuffer:` is anything other than the
+imported name"*, it says the same thing and survives its own tooling.
+
+---
+
 ## T8 — one question, four doors, and the scanner found the fourth — 2026-08-23
 
 `85c2167` (the fix) + `2013d0d` (the scanner's whitespace). State owned by

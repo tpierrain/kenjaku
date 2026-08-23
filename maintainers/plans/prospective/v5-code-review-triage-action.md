@@ -12,17 +12,22 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T9.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T8 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
-  `85c2167`)_; **T9–T15 are open**, in § *Third pass*, which owns them and their order. **Read its ⚠️
-  first**: unlike the two earlier passes, that section is the reviewer's word and **the items below T8
-  have not been independently re-checked**. Verify, then fix test-first, red first, one commit per
-  subject, pushed as it goes.
-  - **T9 next**: the status line shows a **clean tree over an unversioned vault** — the one git seam
-    left at node's 1 MB `maxBuffer`, running the exact call the release's new 64 MB ceiling was
-    introduced for. Overflow → the catch returns `""` → "no changes". Reproduced by the reviewer at
-    20 000 notes. **F10's own closing line was *"one named ceiling, imported by all four git seams —
-    do not re-inline the number"***, so start by reading that.
+- 🔴 **NEXT — RESUME AT T10.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T9 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
+  `85c2167`; `c3f26bd`)_; **T10–T15 are open**, in § *Third pass*, which owns them and their order.
+  **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and **the
+  items below T9 have not been independently re-checked**. Verify, then fix test-first, red first, one
+  commit per subject, pushed as it goes.
+  - **T10 next**: install-if-absent copies the **English** bytes into a French brain —
+    `copyInto(sourceDir, brainDir, rel)` never goes through `resolveLocaleSource`. Latent this
+    release, and **the sharp end is documentary**: ADR 0040 grants this door its locale-blind
+    exemption on a written premise the code contradicts. So read the ADR first — the fix has to
+    leave the ADR and the code saying the same thing.
+  - ✅ **T9 paid, and it could NOT be mutation-scored**: `status-line.mjs` is `merge`-regime, and
+    instrumenting it makes the fingerprint freshness guard red before the first mutant. **T2 had
+    already named that limitation** — the four scripts it applies to are `auto-commit`, `auto-push`,
+    `status-line`, `verify-rag`. When a fix lands in one of them, plan for whole-invocation
+    assertions instead of a score, and say so rather than showing a green tick.
   - ✅ **T8 paid, and the SCANNER that came with it found a fourth door the finding never named.**
     The lesson is not about paths: **when a rule lives as a phrase repeated in N places, a hand-audit
     of that phrase is what has already failed** — the wrong spelling reads exactly like the right one.
@@ -1070,12 +1075,33 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
             reproduced twice, all four doors named in the breakdown). Two survivors were the same
             `\s*`: every fixture had exactly one space, so neither `sourceDir===brainDir` nor a
             formatter-wrapped comparison was covered → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T8.
-- [ ] **T9 — the status line shows a CLEAN tree over an unversioned vault** (`status-line.mjs:92`).
-      `realGit`, renamed and re-plumbed in this diff, is the one git seam left at node's 1 MB
-      `maxBuffer`, and it runs `git status --porcelain` — the exact call the release's new 64 MB
-      `GIT_MAX_BUFFER` was introduced for. Overflow → `ENOBUFS` → the catch returns `""` → `dirty = ""`.
-      Reproduced at 20 000 notes; threshold ≈ 15 000–25 000 dirty notes. **F10's own closing line was
-      "one named ceiling, imported by all four git seams — do not re-inline the number."**
+- [x] ✅ **T9 — the status line shows a CLEAN tree over an unversioned vault — PAID**
+      _(2026-08-23 · `c3f26bd` + `175eb6b`)_. **Confirmed independently before fixing**, on a
+      throwaway git repo of tracked, modified notes: **20 000 → 0.88 MB of porcelain and the `*`
+      shows; 24 000 → 1.05 MB, `ENOBUFS`, and the line reports a clean tree** over 24 000 uncommitted
+      changes. After: the `*` is back at 24 000. _(The reviewer's 15 000–25 000 bracket holds; the
+      exact threshold is a function of note-name length.)_
+      - 🛑 **WHY IT WAS SILENT, and it is worth carrying**: `?` is an honest "cannot tell" for the
+            branch and the sha. **The dirty flag has no such glyph** — an empty answer renders as
+            *clean*, so a read that failed and a vault with nothing to commit are the same line. That
+            is why the ceiling had to be the fix rather than a wider catch.
+      - 📐 **A "cannot tell" glyph for the asterisk was NOT invented.** What the owner sees is a
+            product decision, and the queue is not the place to make one — same call as T5's sibling.
+            Named here so it is a choice on record rather than an omission.
+      - **Same blind spot as T7, one finding later**: every existing test hands `gitSegment` its own
+            scripted git, so the only git that ships was never run by anything. The seam is now
+            exported with an `execFile` parameter and its invocation asserted **whole**.
+      - 🚧 **NO MUTATION SCORE, and it cannot have one.** `status-line.mjs` is `merge`-regime, and
+            **T2 already named this exact limitation**: instrumenting the file changes its bytes, the
+            fingerprint freshness guard hashes those bytes, and the dry run dies before the first
+            mutant. What stands in: the whole-invocation assertion, a pole on each branch of the
+            try/catch, and a source-level pole verified **by hand** to be the only one that catches a
+            re-inlined `64 * 1024 * 1024` → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T9.
+      - ⚠️ **And a pole that reads its own source must SUBTRACT, never count** — counting is red under
+            in-place instrumentation on its own account. A second reason the file could not be
+            measured, this one self-inflicted, and now gone.
+      - 📎 `status-line.mjs` being `merge`-regime also means the **fingerprint table was regenerated**
+            for v5.0.0 in the same commit, the branch's own precedent from T2.
 - [ ] **T10 — install-if-absent copies the ENGLISH bytes into a French brain**
       (`reconcile-brain.mjs:224`). `copyInto(sourceDir, brainDir, rel)` never goes through
       `resolveLocaleSource`. **The sharp end is documentary**: ADR 0040 grants this door a locale-blind
