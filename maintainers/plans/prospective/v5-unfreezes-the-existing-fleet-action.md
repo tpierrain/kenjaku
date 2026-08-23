@@ -142,7 +142,11 @@
 >   alourdisse vraiment la latence… on a de plus en plus de hooks"*. So the written rule is the **only**
 >   net here — `CONVENTIONS.md` §9 and the always-loaded `rules/ci.md`. No braces behind the belt.
 >
-> ✅ **Closed**: the full 7/7 matrix is green again on `b301eda`, in ~2 minutes, macOS and Windows.
+> ✅ **Closed**: the full 7/7 matrix is green on `b301eda` **and on `9a7a336`**, macOS and Windows, in
+> ~2 minutes each. The whole 13:40 → 14:50 wall of red was the Windows path bug (three Windows cells,
+> every run); the 18:28 wall was the CI-guard flag; **since the fixes, the only red left anywhere is
+> the macOS flake**, which struck `ae6ad2d` and `9a7a336` and cleared on a re-run of that single cell.
+> → § *THE macOS FLAKE* owns it, and Thomas already ruled it does not hold the tag.
 >
 > ## 🎲 THE macOS FLAKE — **one test reddens ~1 CI run in 6, and the cause is NOT known**
 >
@@ -177,11 +181,19 @@
 >         > own**, with nobody editing it. Same family as the stale proposal box further down, and as
 >         > § *FOUR LESSONS*' restated decisions — the third instance on this branch alone.
 >         >
->         > 🔎 **A sixth and a seventh observation, for the record**: the same test reddened again on
->         > `f92dcbe` (17:53 UTC, Node 24) and on `ae6ad2d` (18:34 UTC, Node 26), both macOS, both with
->         > the divergences present — and, on the second, the other six cells green in two minutes. It
->         > changes no verdict, and the ~1-in-6 rate is unmoved. But the **"post-tag instrument" below
->         > is now the ONLY way to settle the cause**, because the identical-to-main argument is spent.
+>         > 🔎 **Three more observations, and one of them is the cleanest evidence yet.** The same test
+>         > reddened on `f92dcbe` (Node 24), `ae6ad2d` (Node 26) and `9a7a336` (Node 22) — three
+>         > different Node versions, all macOS, all with the divergences present. Then **the single
+>         > failing cell of `9a7a336` was re-run on its own and PASSED**, the other six untouched and
+>         > green: same commit, same code, opposite verdict. That is the tightest demonstration on file
+>         > that this is a flake and not a defect of the branch.
+>         > - ⚠️ **But the RATE looks worse than the ~1-in-6 above, and the honest word is "looks".**
+>         >   Two of the three PR runs on fixed code flaked. Three runs is not a sample, and the two
+>         >   figures were taken under different runner load — so **do not overwrite the 5-in-30 with
+>         >   this**, and do not reassure with it either. What it does change: obtaining a fully green
+>         >   matrix now costs a re-run more often than the earlier figure suggested.
+>         > - The **"post-tag instrument" below is now the ONLY way to settle the cause**, because the
+>         >   identical-to-main argument is spent.
 > - [x] 🔬 **NOT REPRODUCED HERE, and the attempt was not casual** _(~200 runs, all green)_: the test
 >       alone **25×**; the **full suite 8×**; an instrumented copy of the hook outside the repo, made
 >       to confess the gate's own return value, **12×** (`status: "done"` every time, `waitedMs` 201-232
