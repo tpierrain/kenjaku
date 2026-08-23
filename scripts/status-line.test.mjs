@@ -96,9 +96,14 @@ test("T9 — the ceiling is IMPORTED, and is the same number the other git seams
 
   assert.match(source, /import \{ GIT_MAX_BUFFER \} from "\.\/lib\/engine-fetch\.mjs";/);
   assert.equal(source.includes("maxBuffer: GIT_MAX_BUFFER"), true, "the ceiling must be used by name");
+
+  // Every `maxBuffer:` in the file must be the imported name — asserted by SUBTRACTION,
+  // never by counting. A mutation run instruments this file IN PLACE and emits each
+  // expression twice, so a count is red before the first mutant even runs and the file
+  // becomes unmeasurable. Subtracting says the same thing and survives its own tooling.
   assert.deepEqual(
-    [...source.matchAll(/maxBuffer:\s*([^,\s}]+)/g)].map((m) => m[1]),
-    ["GIT_MAX_BUFFER"],
+    [...source.matchAll(/maxBuffer:\s*([^,\s}]+)/g)].map((m) => m[1]).filter((value) => value !== "GIT_MAX_BUFFER"),
+    [],
     "a re-inlined number beside the named one is how the four seams drift apart",
   );
 });
