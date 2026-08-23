@@ -1,11 +1,24 @@
 # Migrate a pre-existing second brain into a generated brain — capability gap analysis & strategy
 
-> **Status:** in progress upstream (refreshed 2026-07-17). **Track A DONE** (merged to `main` via
-> PR #29, squash `9448230`, cross-platform CI green). **Track B DONE** and **merged to `main`** via
-> PR #30 (squash `2420fdc`) — the 2 generic skills now ship at `engine-skills/open-note` and
-> `engine-skills/mcp-token-expired`. **Next: Track C** (constitution merge). Tracks D/F not started.
-> This is the **canonical** plan (repo = single source of truth). The plan-mode scratch file
-> `~/.claude/plans/shimmering-snacking-tome.md` is superseded.
+## ✅ CLOSED — the migration happened, and the header saying otherwise was a year stale _(archived 2026-08-23)_
+
+**Tracks A, B, C, E: shipped** (PR #29 `9448230`, PR #30 `2420fdc`, the constitution merge, and this
+file's own relocation).
+
+**Track D — the corpus migration — is DONE, confirmed by Thomas on 2026-08-23**: *« la migration du
+second cerveau, si c'était le mien, c'est fait depuis longtemps : inqom-brain ⇒ mind-palace »*. The
+plan was still tracking it as *not started* and had been wrong for weeks — which is exactly the failure
+this file's own §Tracking discipline exists to prevent, and a reminder that **an unticked box is not
+evidence of undone work**, only of an unopened file. The brain it produced is the one the whole v5.0.0
+release was rehearsed against.
+
+**Track F — product exploration** (regular content ingestion, ideas borrowed from other second brains)
+was never work: it is an idea box, and idea boxes live in
+[`post-v3.1.0-ux-backlog.md`](../../studies/post-v3.1.0-ux-backlog.md), not in a plan that stays open
+forever waiting for inspiration. Promote one to a real action plan the day it is picked up.
+
+_(Everything below is the historical record of the gap analysis and the three shipped tracks. Do not
+read it for status.)_
 
 ## Context
 

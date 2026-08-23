@@ -14,7 +14,7 @@
   deterministic channel is worth more than an instruction to the agent — this ADR bounds *where*
   that holds); [`0015-cross-platform-parity.md`](0015-cross-platform-parity.md) (same shape, one
   layer down: what the host gives us is not uniform); field log
-  [`../plans/prospective/fleet-upgrade-field-feedback.md`](../plans/prospective/fleet-upgrade-field-feedback.md)
+  [`../plans/prospective/fleet-upgrade-field-feedback.md`](../studies/fleet-upgrade-field-feedback.md)
   (F2, F4, F5).
 
 ## Crux

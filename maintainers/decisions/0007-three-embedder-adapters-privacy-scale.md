@@ -11,7 +11,7 @@
 - **Associated implementation plan:** [`../plans/embedder-spi.md`](../plans/embedder-spi.md) (the
   `Embedder` port + the identity stamp) — this ADR **opens the "prior discussion"** that its §0.2
   required before any 2nd concrete impl.
-- **Study / watch:** [`../plans/prospective/etude-rag-local-criteres-et-veille.md`](../plans/prospective/etude-rag-local-criteres-et-veille.md)
+- **Study / watch:** [`../plans/prospective/etude-rag-local-criteres-et-veille.md`](../studies/etude-rag-local-criteres-et-veille.md)
   (range of profiles, embedder watch, detailed privacy scale).
 
 ## Context

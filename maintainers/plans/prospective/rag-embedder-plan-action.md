@@ -16,7 +16,7 @@
 > - the *why* → ADR [`../decisions/0007-three-embedder-adapters-privacy-scale.md`](../../decisions/0007-three-embedder-adapters-privacy-scale.md)
 >   (+ [`../decisions/0006-rag-mcp-is-stable-contract.md`](../../decisions/0006-rag-mcp-is-stable-contract.md));
 > - the *how* of the port → plan [`embedder-spi.md`](../archived/embedder-spi.md) **(✅ DELIVERED — archived)**;
-> - the *what to measure* → study [`etude-rag-local-criteres-et-veille.md`](etude-rag-local-criteres-et-veille.md).
+> - the *what to measure* → study [`etude-rag-local-criteres-et-veille.md`](../../studies/etude-rag-local-criteres-et-veille.md).
 
 ## How to use this plan (mandatory reading)
 
@@ -172,7 +172,7 @@
 
 - **Prerequisite:** none. *(Ideally the Step 1 port is there, but not required to build
   the eval-set itself.)*
-- **Load:** study [`etude-rag-local-criteres-et-veille.md`](etude-rag-local-criteres-et-veille.md)
+- **Load:** study [`etude-rag-local-criteres-et-veille.md`](../../studies/etude-rag-local-criteres-et-veille.md)
   §6; `scripts/verify-rag.mjs` (the "Mollecuisse" canary = the eval seed already there).
 - **Do:** build **15-20 questions → expected answer/passages** on a **representative vault**
   (Thomas's real brain or a realistic sample, rich in entities/relations). A local script like
@@ -230,7 +230,7 @@
 > quality — but via **Ollama** (separate app to install), a deal-breaker friction for a non-dev. This
 > step tests the **viability of an embedder embedded in the MCP itself** (Transformers.js + Gemma in
 > ONNX): *"paste nothing, it works"*. If it passes, it's **the** #1 candidate for the default in D1.
-> Watch recorded: study [`etude-rag-local-criteres-et-veille.md`](etude-rag-local-criteres-et-veille.md) **§3 ter**.
+> Watch recorded: study [`etude-rag-local-criteres-et-veille.md`](../../studies/etude-rag-local-criteres-et-veille.md) **§3 ter**.
 
 - **Prerequisite:** **Step 1 delivered** (the `Embedder` port) + **Step 4 delivered** (the 90%/80%
   baseline to match); eval-set (Step 2).

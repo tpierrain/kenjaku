@@ -13,7 +13,7 @@
   stays Claude → already bounds the privacy promise; LightRAG would add an LLM **at indexing**).
 - **Associated plan:** [`../plans/prospective/rag-embedder-plan-action.md`](../plans/prospective/rag-embedder-plan-action.md)
   (Step 7 "big-machine profile", **conditional**, where this lead lands) and the study
-  [`../plans/prospective/etude-rag-local-criteres-et-veille.md`](../plans/prospective/etude-rag-local-criteres-et-veille.md)
+  [`../plans/prospective/etude-rag-local-criteres-et-veille.md`](../studies/etude-rag-local-criteres-et-veille.md)
   §4 (graph path; E2GraphRAG).
 
 ## Context

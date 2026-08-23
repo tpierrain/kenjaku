@@ -1,5 +1,19 @@
 # Restore the second brain's affordance — graduated autonomy + plain language
 
+## 📮 MOVED TO THE TRACKER — now [issue #79](https://github.com/tpierrain/kenjaku/issues/79) _(archived 2026-08-23)_
+
+**Nothing here shipped, and nothing here was dropped.** This was a real direction that nobody was
+working, and a plan file is a working document for work in progress — so it became an issue, on
+Thomas's call: *"ça ne vaudrait pas le coup de créer des issues à la place ?"*
+
+**Why that is not just tidying**: since `CONVENTIONS.md` §10bis, every release **sweeps the tracker**
+and decides, issue by issue, whether it covers it. An issue is therefore re-read by construction. A
+dormant plan in `prospective/` is re-read by nobody — this one sat untouched from 2026-07-19 to
+2026-08-23, and its four steps were as unstarted at the end as at the beginning.
+
+The origin note and the four steps are kept below, as the record of what was observed and what it
+would take.
+
 > **Origin (2026-07-19, owner).** Since `/lint` and `/consolidate` landed (axis-1 wiki-health), the
 > generated brain's original strength — "things happen on their own" — degraded: it now **interrogates**
 > the user (a wall of decision-prompts) in **tool-jargon** a non-technical person can't parse. In one

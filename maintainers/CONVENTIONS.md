@@ -120,7 +120,7 @@ not copies**:
 _(Adopted 2026-08-22, on a measurement of this repo's own corpus: 90 plan files, 33 654 lines, and
 **84 %** of the writes to the biggest live plan moved **no checkbox at all** — the state was in the
 prose the whole time. The study, its evidence and what it retires:
-[`plans/prospective/plan-state-single-source-study.md`](plans/prospective/plan-state-single-source-study.md).
+[`maintainers/studies/plan-state-single-source-study.md`](studies/plan-state-single-source-study.md).
 The convention itself is the harness's, see the banner in §1.)_
 
 If a sentence can go false **without anyone editing it**, it is state, and state has exactly two legal
@@ -538,6 +538,16 @@ remove its link from [`plans/ACTIVE.md`](plans/ACTIVE.md) in the same commit.
 > business in a file that is, by definition, finished. _(This is what produced a 40-line apology header
 > in one archived plan: two live statuses were written into a file whose own first line forbids reading
 > it for status.)_
+
+> 🔬 **A study is not a plan, and it is never archived — it is deleted** _(2026-08-23, Thomas: « des
+> études ce ne sont pas des plans et ne doivent pas être nommé/classifié comme tel »)_. Research,
+> watches, field logs and idea boxes live in [`studies/`](studies/README.md), which states the whole
+> four-home rule: **work someone is doing** → `plans/`; **work nobody is doing yet, however real** →
+> the **GitHub tracker** (where §10bis re-reads it at every release); **research** → `studies/`;
+> **a decision** → an ADR. Filing the last three as plans is what let `prospective/` reach **thirteen
+> files** of which only four were plans. A study that has been answered is **deleted** once its durable
+> contribution is carried into the ADR that owes it: an archive means *shipped*, and a stale study left
+> standing is read as current.
 
 **Ship ⇒ also retire the working-memory pointer (anti-context-rot).** A maintainer's running
 working-memory (the agent's `MEMORY.md` index, loaded in full every session) must NOT accumulate

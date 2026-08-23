@@ -7,7 +7,7 @@
 > **STATUS: 🔬 STUDY / WATCH** (created 2026-06-08, **watch refreshed 2026-06-08** via
 > multi-source research + adversarial verification — see §8). **Nothing is decided here** — it's the
 > exploration note that will feed decisions (ADR) and the implementation plan
-> [`embedder-spi.md`](embedder-spi.md). The concrete choice of an embedder/strategy is made **after
+> [`embedder-spi.md`](../plans/archived/embedder-spi.md). The concrete choice of an embedder/strategy is made **after
 > measurement** (see §6), not on intuition.
 >
 > **The thesis (reframed with Thomas, 2026-06-08).** The goal is **not** "get out of Gemini" —
@@ -62,10 +62,10 @@ each addressing a set of constraints:
 | **API endpoint (OpenAI-compatible)** (opt-in) | • either *zero local install* (personal key) • or **in a company** with an OpenAI/Azure **approved by the company** (Dimitry's case) | **A single "OpenAI-compatible" adapter, configurable URL + key** → public OpenAI, **Azure OpenAI**, company **internal gateway**, **Mistral**… (+ current Gemini via its native adapter) |
 
 > **What makes this architecturally possible:** the **`Embedder` SPI port** (plan
-> [`embedder-spi.md`](embedder-spi.md)) + the index identity stamp. It's what lets us
+> [`embedder-spi.md`](../plans/archived/embedder-spi.md)) + the index identity stamp. It's what lets us
 > offer **several profiles** (office / big machine / API endpoint) without touching the
 > harness or the MCP contract (ADR
-> [`../decisions/0006-rag-mcp-is-stable-contract.md`](../../decisions/0006-rag-mcp-is-stable-contract.md)).
+> [`../decisions/0006-rag-mcp-is-stable-contract.md`](../decisions/0006-rag-mcp-is-stable-contract.md)).
 >
 > **🎯 The "OpenAI-compatible" adapter is the concrete impl with the highest leverage.** Since OpenAI's
 > embeddings API (`/v1/embeddings`) is the **de facto standard**, **a single** adapter with a
@@ -76,7 +76,7 @@ each addressing a set of constraints:
 > best default**: zero install, zero Ollama, and **confidentiality is already settled by the
 > company** (no additional approval to request). ⚠️ It's still **cloud** (notes go out to the
 > endpoint at indexing time) — so "provider approved by the employer", *not* "100% on-device".
-> → It opens the **prior discussion** required by the SPI plan ([`embedder-spi.md`](embedder-spi.md) §0.2)
+> → It opens the **prior discussion** required by the SPI plan ([`embedder-spi.md`](../plans/archived/embedder-spi.md) §0.2)
 > before any 2nd concrete impl: the OpenAI-compatible adapter is the natural first candidate.
 
 ### 1.3 — Deflating the "resources" jargon: embedder ≠ chat LLM
@@ -116,7 +116,7 @@ its filing under "big-machine profile, not the default" (§4).
 ### Honest framing — where privacy really stops
 
 The brain **runs in Claude** (ADR
-[`../decisions/0004-claude-only-for-now.md`](../../decisions/0004-claude-only-for-now.md)).
+[`../decisions/0004-claude-only-for-now.md`](../decisions/0004-claude-only-for-now.md)).
 So the layer that **answers** already sends questions + retrieved passages to Anthropic (cloud). **The
 only piece we can make 100% local is the RAG** (embeddings + index + search).
 
@@ -214,7 +214,7 @@ is not rebuilt from scratch.
 
 > **What was "to benchmark" above now is.** First real numbers under our
 > own harness (eval-set, judge = Claude) on the FR Flemmr vault, via Ollama + the
-> OpenAI-compatible adapter. Detail + repro: [`../eval-set.md`](../../eval-set.md#step-4--measured-results-local-vs-gemini-2026-06-09).
+> OpenAI-compatible adapter. Detail + repro: [`../eval-set.md`](../eval-set.md#step-4--measured-results-local-vs-gemini-2026-06-09).
 
 | Embedder | Location | Dim | **FR score** | Index 7 notes (warm) | Disk | RAM |
 |---|---|---|---|---|---|---|
@@ -382,7 +382,7 @@ acceptable). It turns "tricky / risky" into **"measured"** — exactly Thomas's 
 
 ## 7. Recommended sequence (recalibrated on the criteria)
 
-1. **Finish the `Embedder` port** (plan [`embedder-spi.md`](embedder-spi.md)) — the **instrument**.
+1. **Finish the `Embedder` port** (plan [`embedder-spi.md`](../plans/archived/embedder-spi.md)) — the **instrument**.
 2. **Local eval-set** (judge = Claude). Little code, huge leverage. **Confirmed indispensable by the
    watch**: no local/FR figure exists in the literature, we'll decide only by measurement.
 3. **Wire up `bge-m3` AND `EmbeddingGemma` via Ollama** behind the port and **MEASURE** vs Gemini on
