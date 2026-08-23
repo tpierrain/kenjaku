@@ -12,6 +12,7 @@ import {
   pullerWiredIn,
   readHookPayload,
   waitForStartupSync,
+  awaitStartupSync,
 } from "./startup-sync-gate.mjs";
 
 // In-memory fs with the four calls the gate is allowed to make. Keyed on the real
@@ -416,4 +417,58 @@ test("pullerWiredIn: no settings file, or bytes that are not JSON — nobody is 
   assert.equal(pullerWiredIn({ repo: "/brain", io: fakeIo() }), false);
   const corrupt = fakeIo(new Map([[join("/brain", ".claude", "settings.json"), "{ not json"]]));
   assert.equal(pullerWiredIn({ repo: "/brain", io: corrupt }), false);
+});
+
+// ── awaitStartupSync — the ONE spelling, and the fail-open it owes (T11) ─────
+// Added when the barrier got its SECOND caller (`session-engine-divergence.mjs`). At
+// the call site it is five arguments that all have to agree, and the way they stop
+// agreeing is a hook that quietly stops waiting: a wrong `repo` waits on another
+// brain's marker, a forgotten `pullerWired` taxes every pre-barrier brain forever, and
+// either one reads exactly like success.
+
+test("awaitStartupSync: an io that throws costs a stale read at worst, never the session start", () => {
+  // This runs BEFORE its callers' own try/catch — it is the first thing a hook does —
+  // so the guarantee has to live in what SHIPS. A hook asserting the same thing through
+  // an injected throwing double would only ever prove the double.
+  //
+  // A wrapper here was written first, and this test is what measured it as unreachable:
+  // every part composed already swallows, so a disk in revolt answers "nobody will pull"
+  // and the caller reads what is on disk. The wrapper came back out.
+  const hostile = {
+    existsSync: () => {
+      throw new Error("EIO");
+    },
+    readFileSync: () => {
+      throw new Error("EIO");
+    },
+  };
+
+  const outcome = awaitStartupSync({ repo: "/brain", io: hostile, now: () => 0, sleep: () => {} });
+
+  assert.deepEqual(outcome, { status: "not-expected", waitedMs: 0 }, "it answers, rather than throwing at its caller");
+});
+
+test("awaitStartupSync: no puller wired → it returns at once, without reading a marker", () => {
+  // The brains that predate the barrier, and the owners who removed the hook. Waiting
+  // would tax every one of their session starts for a marker that cannot appear.
+  const io = fakeIo(new Map());
+
+  const outcome = awaitStartupSync({ repo: "/brain", io, now: () => 0, sleep: () => {} });
+
+  assert.deepEqual(outcome, { status: "not-expected", waitedMs: 0 });
+});
+
+test("awaitStartupSync: it asks the gate about the repo it was GIVEN, not about a default", () => {
+  // A helper that resolved its own root would answer for the wrong brain and look like
+  // success — the exact failure it exists to prevent at the call sites.
+  const settings = JSON.stringify({
+    hooks: { SessionStart: [{ hooks: [{ command: 'node "/elsewhere/scripts/session-status.mjs"' }] }] },
+  });
+  const io = fakeIo(new Map([[join("/elsewhere", ".claude", "settings.json"), settings]]));
+
+  const wired = awaitStartupSync({ repo: "/elsewhere", io, now: () => 0, sleep: () => {} });
+  const elsewhere = awaitStartupSync({ repo: "/brain", io, now: () => 0, sleep: () => {} });
+
+  assert.equal(wired.status, "unknown-session", "the puller IS wired there — it got past the first gate");
+  assert.equal(elsewhere.status, "not-expected", "and nothing is wired here");
 });

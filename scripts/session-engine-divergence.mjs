@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import { readAnswers } from "./lib/engine-answers.mjs";
 import { readEngineDivergence } from "./lib/engine-base-fs.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { awaitStartupSync } from "./lib/startup-sync-gate.mjs";
 import { buildEngineDivergenceHookOutput, engineDivergenceNudge } from "./lib/engine-divergence-nudge.mjs";
 import { installRef } from "./lib/engine-version.mjs";
 
@@ -57,7 +58,22 @@ export function sessionEngineDivergence({ brainDir, readDivergence, readRef, rea
 // The composition root: wires the real read-only seams. Exported so it is ordinary
 // importable code rather than a body behind a guard, which is what the v4.8.0 pass
 // measured at 0 % — see `entrypoint.mjs`.
-export function runSessionEngineDivergence({ brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..") } = {}) {
+export function runSessionEngineDivergence({
+  brainDir = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
+  awaitSync = awaitStartupSync,
+} = {}) {
+  // WAIT FOR THE STARTUP PULL BEFORE READING A SINGLE TRACKED BYTE (T11, third review
+  // pass). SessionStart hooks run in PARALLEL and the pull lives in `session-status.mjs`,
+  // so this hook — a manifest, every merge file and the whole of `.engine-base/`, all of
+  // them tracked — raced it and usually won. A manifest caught mid-rewrite parses as
+  // nothing, `readEngineDivergence` is fail-soft about exactly that, and the surface
+  // whose ONLY job is to speak about a freeze at rest went silent. Worse than a stale
+  // read: a stale read says something.
+  //
+  // Every verdict the barrier can return means "read what is on disk anyway", so the
+  // answer is deliberately not consulted — waiting is the whole contribution. Wrapped
+  // because this now runs BEFORE the try/catch below, and fail-open is the contract.
+  awaitSync({ repo: brainDir, io: { existsSync, readFileSync } });
   let nudge = null;
   sessionEngineDivergence({
     brainDir,

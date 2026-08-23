@@ -200,3 +200,105 @@ test("runSessionEngineDivergence — one unreadable merge file no longer silence
   assert.equal(written.length, 1, "the file it COULD read is still spoken about");
   assert.match(written[0], /\.claude\/skills\/coach\/SKILL\.md/);
 });
+
+// ── T11 (third review pass): this hook read state the startup pull was writing ─
+// SessionStart hooks run in PARALLEL and the pull lives in `session-status.mjs`. This
+// one reads the manifest, every merge file and `.engine-base/` — all tracked, all
+// rewritten by a pull — and it took no barrier at all. `session-universe.mjs` was the
+// only non-test caller of `waitForStartupSync`. A manifest caught mid-write parses as
+// nothing and the hook goes silent: the one surface whose whole job is to speak about a
+// freeze at REST is also the one that says nothing when the read comes at a bad moment.
+//
+// Proven by ORDER, not by timing: the injected barrier IS the pull. If the hook reads
+// before waiting it sees the pre-pull state and has nothing to say — which is the defect,
+// and it is what this asserted before the fix. No sleeping, nothing to go flaky.
+function divergentManifest(delivered) {
+  return (
+    JSON.stringify({
+      manifestVersion: 1,
+      regimes: { replace: ["rag/src/**"], merge: [".claude/skills/**"] },
+      source: { repo: "https://example.test/launcher.git", ref: "v5.0.0" },
+      provenance: { ".claude/skills/coach/SKILL.md": fingerprint(delivered) },
+      baseRefs: { ".claude/skills/coach/SKILL.md": "v4.7.0" },
+    }) + "\n"
+  );
+}
+
+function brainMidPull(t) {
+  const delivered = "---\nname: coach\n---\nas the engine wrote it\n";
+  const dir = mkdtempSync(join(tmpdir(), "sbg-divergence-race-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const write = (rel, body) => {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), body);
+  };
+  write(".claude/skills/coach/SKILL.md", delivered + "and the owner's own paragraph\n");
+  // What is on disk BEFORE the pull lands: a manifest that declares no merge family at
+  // all, so nothing is held back and the hook has nothing to say.
+  write("engine-manifest.json", JSON.stringify({ manifestVersion: 1, regimes: {}, provenance: {} }) + "\n");
+  return { dir, landThePull: () => write("engine-manifest.json", divergentManifest(delivered)) };
+}
+
+function captureStdout(run) {
+  const written = [];
+  const realWrite = process.stdout.write;
+  process.stdout.write = (chunk) => (written.push(String(chunk)), true);
+  try {
+    run();
+  } finally {
+    process.stdout.write = realWrite;
+  }
+  return written;
+}
+
+test("runSessionEngineDivergence — waits for the startup pull, and speaks about the state that ARRIVED (T11)", (t) => {
+  const { dir, landThePull } = brainMidPull(t);
+
+  const written = captureStdout(() =>
+    runSessionEngineDivergence({ brainDir: dir, awaitSync: () => landThePull() }),
+  );
+
+  assert.equal(written.length, 1, "reading before the barrier sees the pre-pull manifest and says nothing");
+  assert.match(written[0], /\.claude\/skills\/coach\/SKILL\.md/);
+});
+
+test("runSessionEngineDivergence — hands the barrier the brain root, and an io that can read the marker (T11)", (t) => {
+  // The barrier's answer depends entirely on WHICH repo it is pointed at and whether it
+  // can read a file. A call wired with the wrong root, or with an io missing a method,
+  // returns a fail-open verdict for the wrong brain and looks exactly like success.
+  const { dir, landThePull } = brainMidPull(t);
+  const seen = [];
+
+  captureStdout(() =>
+    runSessionEngineDivergence({
+      brainDir: dir,
+      awaitSync: (args) => (seen.push(args), landThePull()),
+    }),
+  );
+
+  assert.equal(seen.length, 1, "the barrier is consulted exactly once");
+  assert.equal(seen[0].repo, dir);
+  assert.equal(typeof seen[0].io.existsSync, "function");
+  assert.equal(typeof seen[0].io.readFileSync, "function");
+});
+
+test("runSessionEngineDivergence — a barrier that gives up is NOT a gate on speaking (T11)", (t) => {
+  // Every non-`done` verdict — no puller wired, no session id, a pull that never lands —
+  // means "read what is on disk anyway". A hook that stayed silent on a timeout would
+  // have turned a race into a permanent silence for every brain without the puller.
+  const { dir, landThePull } = brainMidPull(t);
+  landThePull(); // the state is already on disk; the barrier simply gives up
+
+  const written = captureStdout(() =>
+    runSessionEngineDivergence({ brainDir: dir, awaitSync: () => ({ status: "timeout", waitedMs: 12_000 }) }),
+  );
+
+  assert.equal(written.length, 1);
+  assert.match(written[0], /\.claude\/skills\/coach\/SKILL\.md/);
+});
+
+// The fail-open half of T11 is asserted on `awaitStartupSync` itself, in
+// `lib/startup-sync-gate.test.mjs`, and deliberately not here: the barrier is now the
+// FIRST thing this hook does, ahead of its own try/catch, so the guarantee has to be a
+// property of what SHIPS rather than of a throwing double a test injects. Asserting it
+// through the seam would have proved the double.
