@@ -12,7 +12,14 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- **Next:** ✅ **EVERYTHING A SESSION MAY DO ALONE ON THIS RELEASE IS DONE** _(2026-08-23)_. The
+- 🔴 **NEXT — THE THIRD `/code-review` PASS LANDED AND ITS QUEUE IS OPEN** _(2026-08-23)_. 15 findings,
+  **T1 paid, T2–T15 to go**, owned entirely by
+  [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) — **resume there, at T2**, and
+  do not restate a count here: that is what went stale twice on this file. **Step 4 of § *WHAT IS
+  YOURS* is therefore NOT tickable yet** — its own instruction is that findings are fixed test-first
+  before the merge.
+- **Previously, and still true of the release's own scope:** ✅ **everything a session could do alone
+  BEFORE that pass was done** _(2026-08-23)_. The
   rehearsal ran on COPIES of both real brains and found **exactly** the thing Thomas said he wanted to
   avoid: the first update to v5 swapped the engine, answered *"that is the latest release"*, and left
   the doctrine frozen where it was — the real unfreeze needed a **second** `/update-engine` that no
