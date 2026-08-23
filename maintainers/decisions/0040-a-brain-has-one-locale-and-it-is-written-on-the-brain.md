@@ -15,7 +15,7 @@
   applies to); [`0025`](0025-update-engine-installs-missing-engine-skills-and-servers.md) and
   [`0039`](0039-engine-retires-a-skill-declared-and-provenance-guarded.md) (the install/retire doors,
   whose DECISION is locale-blind by design while their DELIVERY is resolved — see Consequences); plan
-  [`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md)
+  [`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md)
   (§ S8).
 
 ## Crux

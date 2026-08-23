@@ -10,10 +10,10 @@ the active plan, never directly.
 
 ## The active plan
 
-- **Subject:** v5.0.0 — the release that unfreezes the brains that are already frozen. **Cut and
-  published on 2026-08-23**; what is left is its post-tag tail, and the plan's `## 📍 STATE` names it.
-- **Plan:** [`prospective/v5-unfreezes-the-existing-fleet-action.md`](prospective/v5-unfreezes-the-existing-fleet-action.md)
-- **Active since:** 2026-08-22
+- **Subject:** v5.1 — clear the tracker: almost every open GitHub issue, starting with the one that
+  can lose a note.
+- **Plan:** [`prospective/v5.1-clear-the-tracker-action.md`](prospective/v5.1-clear-the-tracker-action.md)
+- **Active since:** 2026-08-23
 
 ## Open, but NOT active
 
@@ -21,9 +21,11 @@ Links only — each one's own `## 📍 STATE` block says whose it is and where i
 
 - [`prospective/plan-state-single-source-study.md`](prospective/plan-state-single-source-study.md) —
   its queued items come due now that the tag is cut.
+- [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)
+  — read before v5.1's universe group; it says why universe changes keep escaping green suites.
 
-_(Three plans left this list on 2026-08-23, archived with the release: the code-review triage, the
-source-first field finding and the orchestrated-release working contract.)_
+_(v5.0.0 shipped on 2026-08-23. Its plan and seven others were archived with it; the post-tag tail
+they carried is inside the active plan, not lost.)_
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that

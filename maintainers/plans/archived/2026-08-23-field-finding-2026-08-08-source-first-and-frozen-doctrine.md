@@ -20,7 +20,7 @@ The wording (W5b) was arbitrated as written, and the release note carries its li
 🔁 **One thing is deliberately NOT closed here, and was handed on rather than dropped**: the *field
 re-test* — the same brain, the same kind of prompt, now that it runs a v5 engine. It sits with the
 other post-tag observations in
-[`v5-unfreezes-the-existing-fleet-action.md`](../prospective/v5-unfreezes-the-existing-fleet-action.md),
+[`v5-unfreezes-the-existing-fleet-action.md`](../archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md),
 the one plan still open on this release.
 
 _(Everything below is the historical record of the finding and its design. Do not read it for status.)_

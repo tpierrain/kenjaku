@@ -621,7 +621,7 @@ equality on both branches, so the block mutant (`{}` → `undefined`) is killed 
 ## W6 — the CRLF cut, and the SAME instrument lie two hours after it was written down — 2026-08-22
 
 `3b6820b` (the fix) + `87e9be1` (the survivor's pole). State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 NEW function in an existing file → measured **on those lines only**.
 
 | File (range) | First pass | After | Survivors |
@@ -690,7 +690,7 @@ of going quiet. Same shape as W2's six survivors — the run asked for LESS code
 ## W3 — the regime list advances, and the survivors were all the absent case — 2026-08-22
 
 `df09f17` (the slice) + `ea85b07` (the survivors' test). State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
 
 | File (range) | First pass | After | Survivors |
@@ -718,7 +718,7 @@ pass does not re-discover them as new.
 ## W2 — pinning the delivery, and six survivors that asked for LESS code — 2026-08-22
 
 `dd08024` (the slice) + `a5b8c2a` (the simplification) + the boundary test. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
 
 | File (range) | First pass | After | Survivors |
@@ -770,7 +770,7 @@ CRLF).
 ## W1 (S7-6) — the CRLF ancestor fetch, and a pass that measured the code it had NOT written — 2026-08-22
 
 `65a6080` (the fix) + `13ef852` (the survivor's test). State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 EXISTING files changed by a few lines → measured **on THOSE LINES ONLY**.
 
 | File (range) | Score | Survivors |
@@ -814,7 +814,7 @@ two-minute pass: it observes the kill directly rather than inferring it from an 
 ## S10-QA — the acceptance test, and the guard that refused too much — 2026-08-22
 
 `612f306`, `5c16fc2`, `ea78d42`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 EXISTING files changed by a few lines → measured **on THOSE LINES ONLY** (16 hunks across six files).
 **Reproduce**: each run's full `mutate-one.mjs` invocation is quoted in its log header — logs
 [`s10-qa-hunks`](reports/s10-qa-hunks) and [`s10-qa-single-lines`](reports/s10-qa-single-lines).
@@ -889,7 +889,7 @@ otherwise touched would ever have said so. Deleted, not asserted.
 ## S10-6a — the command, and 18 survivors that were all the SAME defect — 2026-08-22
 
 `087d57b` then `160d36e`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 NEW file → measured **whole**.
 **Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/adopt-engine-file.mjs` — log
 [`s10-6a-cli`](reports/s10-6a-cli).
@@ -942,7 +942,7 @@ production layout, which is worth more here than the three points it also bought
 ## S10-5 — the adoption seam, and the survivor that was a FLEET-SCALE defect — 2026-08-22
 
 `4238e16` then `363db77`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 NEW file → measured **whole**.
 **Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-adopt.mjs` — log
 [`s10-5-adopt`](reports/s10-5-adopt).
@@ -990,7 +990,7 @@ is what tells a reader these are text files. **Kept, documented, not chased.**
 ## S10-4 — the safety commit, 40 mutants, and a count that finally matches the diff — 2026-08-21
 
 `e7a1952`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 NEW code inside an EXISTING file → **hunk-scoped** (`:76-109`).
 **Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/engine-commit.mjs:76-109` — log
 [`s10-4-safety`](reports/s10-4-safety).
@@ -1016,7 +1016,7 @@ the owner's bytes nowhere in history, the second would bury `<<<<<<<` markers in
 ## S10-3 — the wiring, and a 100 % that measured a QUARTER of the change — 2026-08-21
 
 `216d3b6`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 Three EXISTING files changed by a few lines each → **hunk-scoped**, per the mode's rule.
 **Reproduce**: see the per-row commands below — logs [`s10-3-nudge`](reports/s10-3-nudge),
 [`s10-3-session`](reports/s10-3-session), [`s10-3-report2`](reports/s10-3-report2), [`s10-3-report3`](reports/s10-3-report3).
@@ -1136,7 +1136,7 @@ never once been observed to fail.
 ## S10-1 — row 3's sidecar, and seven tests that had to be inverted on purpose — 2026-08-21
 
 `39f37bb`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 **Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-merge.mjs:64-71"` — log
 [`mutate-one-engine-merge-64-71.log`](reports/mutate-one-engine-merge-64-71.log).
 
@@ -1173,7 +1173,7 @@ because you are already reading it.**
 ## S8-2b — the drift guard, and a fixture that agreed with the code by construction — 2026-08-21
 
 `ab85fde` → `417e264` → `3625dee`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 **Reproduce**: `node maintainers/mutation/mutate-one.mjs scripts/lib/locale-drift.mjs` — log
 [`mutate-one-locale-drift.log`](reports/mutate-one-locale-drift.log).
 
@@ -1216,7 +1216,7 @@ two, unsorted*; on a comparator, two is not enough — it takes **three**.
 ## S7-5-3 — the wiring, and a NETWORK CALL that nearly entered the suite — 2026-08-21
 
 `fa0f5be`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 
 | Hunk | Score | Survivors |
 |---|---|---|
@@ -1252,7 +1252,7 @@ a network dependency reports success in exactly the same way as one that did not
 ## S7-5-2 — the git shell, and the first perfect score this document CHECKED — 2026-08-21
 
 `d5324a0`. State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 
 | File | First pass | Confirmation | Survivors |
 |---|---|---|---|
@@ -1278,7 +1278,7 @@ not because the mutants were weak.
 ## S7-5-1 — the planner, and a survivor that was worth KEEPING — 2026-08-21
 
 `1d545b2` (the slice) + `d019d38` (the kills). State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 
 | File | First pass | After the kills | Survivors |
 |---|---|---|---|
@@ -1315,7 +1315,7 @@ verdict** — sometimes the honest answer is a comment, not a test and not a del
 ## S7-3 — the wiring, and a fallback that could not fire — 2026-08-21
 
 `f3d72c4` (the slice) + `778482c` (the kills). State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 
 | File | First pass | After the kills | Survivors |
 |---|---|---|---|
@@ -1344,7 +1344,7 @@ UTF-8. Byte-for-byte the same answer.
 ## S7-2 — the fingerprint table, and the runner's HEAD trap wearing a PLAUSIBLE score — 2026-08-21
 
 `e716a33` (the slice) + `9c50842` (the kills). State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 
 | File | First pass | After the kills | Survivors |
 |---|---|---|---|
@@ -1373,7 +1373,7 @@ loaded.
 ## S7-1 — the heal, and a test that never reached the thing it was testing — 2026-08-21
 
 `3908b7f` (the slice) + `924b0d9` (the kills). State owned by
-[`../plans/prospective/v5-unfreezes-the-existing-fleet-action.md`](../plans/prospective/v5-unfreezes-the-existing-fleet-action.md).
+[`../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md`](../plans/archived/2026-08-23-v5-unfreezes-the-existing-fleet-action.md).
 
 | File | First pass | After the kills | Survivors |
 |---|---|---|---|

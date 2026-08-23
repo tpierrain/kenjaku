@@ -10,43 +10,24 @@
 
 # Action plan — v5.0.0 unfreezes the brains that are ALREADY frozen
 
-## 📍 STATE — the only perishable block in this file · 🚢 SHIPPED 2026-08-23
+## ✅ CLOSED — **v5.0.0 shipped 2026-08-23**, and its tail has a new owner _(archived the same day)_
 
-- **Next:** **v5.0.0 IS CUT AND PUBLISHED** _(2026-08-23 19:23 UTC, on Thomas's "ok, on cut la
-  release")_. Merge commit `e1fa4e4` on `main` (a **merge** commit, history whole, #75 marked merged
-  on its own as predicted), tag `v5.0.0`, release published with the note's body verbatim. Steps 4,
-  5 and 6 of § *WHAT IS YOURS, IN ORDER* are done and that section records each one. **The plan is
-  NOT archived yet**, because three things it owns are deliberately post-tag: the macOS flake's
-  instrument (§ *THE macOS FLAKE*), **S9-3** the field measurement of the write guard's prompts, and
-  the three issues that close only when a brain *receives* the rule (#61, #67, #64).
-- **Blocked on:** nothing. The engineering queue is empty and the release is out.
-- **Owner's call pending:** **ONE, and it gates nothing** — the `concurrency` group for `ci.yml`,
-  offered twice on 2026-08-23 and still unanswered. § *THE ONE PIECE OF THE CAUSE STILL UNREPAIRED*
-  holds the three lines, the trade-off and the recommendation (yes). Everything else is answered:
-  the five decisions, the `scripts` bump, W5b, the review campaign closed at three passes, F11.
-  **Do not re-ask those.**
-  - 🧪 **And one offer he answered by moving past it**: a rehearsal with `npm install` and the
-    reindex **un-stubbed**, offered on the eve of the cut as the last closable blind spot. His reply
-    was *"ok, on cut la release"*, so it was not run. It is **not** a defect and **not** a gate; it
-    is the one thing the rehearsal still does not prove, and `node scripts/verify-rag.mjs` on an
-    updated brain answers it in one command, after the fact.
-- **A session may, alone:** re-run the rehearsal (`node maintainers/qa/field-rehearsal/rehearse.mjs`)
-  against a copy, and write the macOS flake's instrument (§ *THE macOS FLAKE* owns it). **Not** write
-  into `templates/fr/**`, and **not** write into either of his two real brains — updating his own
-  brain to v5 is his, at his keyboard, and a read-only COPY under the job's tmp dir is not the brain.
-- 🔭 **Watch, now that it is out** — three things, none of them a gate:
-  - the **nightly mutation run on `main` has failed two nights running** (2026-08-22 and 2026-08-23,
-    before this merge). Pre-existing, unrelated to the cut, and nobody has read it — the same shape as
-    the CI incident this branch already paid for.
-  - **[#77](https://github.com/tpierrain/kenjaku/issues/77)**, filed by Thomas **from his own brain**
-    hours after the update, and it ships **in** v5: the auto-commit hook matches `Write|Edit`, so notes
-    written by the engine's own writer scripts (`refresh-note.mjs`, `file-back-note.mjs`, invoked from
-    Bash) never trigger it. `/consolidate` and `/file-back` say `✓ Refreshed` and nothing is committed.
-    Real, structural, and the first candidate for the next release.
-  - **[#78](https://github.com/tpierrain/kenjaku/issues/78)** — the delivered docs' dead links, lifted
-    out of the triage plan before it was archived so the finding would outlive its file.
-  - 📌 **Both are now the tracker's, not this plan's.** `CONVENTIONS.md` **§10bis** makes the sweep a
-    release-time duty, so they will be looked at again by construction rather than by memory.
+Cut at 19:23 UTC on Thomas's *"ok, on cut la release"*: bump applied, #76 merged as `e1fa4e4` with a
+**merge** commit so the history stayed whole, tag `v5.0.0`, release published from the note's body
+verbatim. § *WHAT IS YOURS, IN ORDER* records each of the six steps and what it actually did.
+
+The release was then **received**, which is the only form of *done* this chantier accepted: the
+owner's `mind-palace` went v4.9.1 → v5.0.0 the same evening, its doctrine 334 → 548 lines, its
+588-note vault byte-identical. The three doctrine issues it was holding open on exactly that
+condition (#61, #64, #67) were closed with the rule read back out of that brain.
+
+🔁 **What outlived the release went to [`v5.1-clear-the-tracker-action.md`](../prospective/v5.1-clear-the-tracker-action.md)**,
+which is why this file could close: the macOS flake's instrument, the write guard's field measurement
+(S9-3), the unread nightly mutation run, and the `ci.yml` `concurrency` question that is still the
+owner's. Nothing was dropped to make this archivable.
+
+_(Everything below is the historical record of how v5.0.0 was designed, built and cut. Do not read it
+for status.)_
 
 > ## ✅ ANSWERED BY THOMAS — all five, 2026-08-22 _(the arguments; the state is in the block above)_
 >
