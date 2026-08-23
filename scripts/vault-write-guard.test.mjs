@@ -181,9 +181,13 @@ test("CI cashes the deferral in: this file is re-run after the engine's own deps
   const ci = readFileSync(join(BRAIN_ROOT, ".github", "workflows", "ci.yml"), "utf8");
 
   const engineInstall = ci.indexOf("run: npm ci");
-  const rerun = ci.indexOf('"scripts/vault-write-guard.test.mjs"');
+  // Path + "node --test", never the whole command line — see the twin in
+  // scripts/lib/vault-write-guard.test.mjs for what pinning the flags cost.
+  const rerunLine = ci.split("\n").find((l) => l.includes('"scripts/vault-write-guard.test.mjs"'));
+  const rerun = rerunLine ? ci.indexOf(rerunLine) : -1;
 
   assert.notEqual(rerun, -1, "ci.yml must re-run THIS file with the engine's parser resolvable");
+  assert.match(rerunLine ?? "", /run: node --test\b/, "and it must be re-run BY the test runner, not merely named");
   assert.notEqual(engineInstall, -1, "ci.yml must still install the engine");
   assert.ok(
     engineInstall < rerun,

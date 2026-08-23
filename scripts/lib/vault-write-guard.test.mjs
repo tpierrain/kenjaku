@@ -216,9 +216,15 @@ test("CI cashes the deferral in: this file is re-run after the engine's own deps
   const ci = readFileSync(join(REPO_ROOT, ".github", "workflows", "ci.yml"), "utf8");
 
   const engineInstall = ci.indexOf("run: npm ci");
-  const rerun = ci.indexOf('node --test "scripts/lib/vault-write-guard.test.mjs"');
+  // Matched on the PATH plus "node --test", never on the whole command line: this guard's
+  // claim is "this file is re-run after `npm ci`", and the flags are none of its business.
+  // Pinning them made it go red on 2026-08-23 for a `--test-timeout` added to every suite
+  // — a true statement about the file's position, refuted by an irrelevant edit.
+  const rerunLine = ci.split("\n").find((l) => l.includes('"scripts/lib/vault-write-guard.test.mjs"'));
+  const rerun = rerunLine ? ci.indexOf(rerunLine) : -1;
 
   assert.notEqual(rerun, -1, "ci.yml must re-run this file with the engine's parser resolvable");
+  assert.match(rerunLine ?? "", /run: node --test\b/, "and it must be re-run BY the test runner, not merely named");
   assert.notEqual(engineInstall, -1, "ci.yml must still install the engine");
   assert.ok(
     engineInstall < rerun,
