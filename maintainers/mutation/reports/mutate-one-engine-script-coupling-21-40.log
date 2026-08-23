@@ -1,0 +1,40 @@
+[32m09:55:58 (84186) INFO ProjectReader[39m Found 1 of 899 file(s) to be mutated.
+[32m09:55:58 (84186) INFO Instrumenter[39m Instrumented 1 source file(s) with 22 mutant(s)
+[32m09:55:58 (84186) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m09:55:58 (84186) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-VljSjB
+[32m09:55:58 (84186) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m09:55:58 (84186) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m09:56:02 (84186) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3613 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/22 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/22 tested (0 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~1m) 5/22 tested (0 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~2m) 5/22 tested (0 survived, 0 timed out)
+Mutation testing 45% (elapsed: <1m, remaining: ~1m) 10/22 tested (1 survived, 0 timed out)
+Mutation testing 45% (elapsed: ~1m, remaining: ~1m) 10/22 tested (1 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~1m, remaining: <1m) 15/22 tested (2 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~1m, remaining: <1m) 15/22 tested (2 survived, 0 timed out)
+Mutation testing 90% (elapsed: ~1m, remaining: <1m) 20/22 tested (2 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 20)
+
+[Survived] Regex
+scripts/lib/engine-script-coupling.mjs:27:22
+-   const IS_SPECIFIER = /(?:^|[^\w$])(?:from|import\()$/;
++   const IS_SPECIFIER = /(?:[^\w$])(?:from|import\()$/;
+
+[Survived] Regex
+scripts/lib/engine-script-coupling.mjs:35:56
+-       const before = clean.slice(0, match.index).replace(/\s+$/, "");
++       const before = clean.slice(0, match.index).replace(/\s$/, "");
+
+Ran 1.00 tests per mutant on average.
+----------------------------|------------------|----------|-----------|------------|----------|----------|
+                            | % Mutation score |          |           |            |          |          |
+File                        |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                   |  90.91 |   90.91 |       20 |         0 |          2 |        0 |        0 |
+ engine-script-coupling.mjs |  90.91 |   90.91 |       20 |         0 |          2 |        0 |        0 |
+----------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m09:57:38 (84186) INFO MutationTestExecutor[39m Done in 1 minute and 39 seconds.
+[32m09:57:38 (84186) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-VljSjB.

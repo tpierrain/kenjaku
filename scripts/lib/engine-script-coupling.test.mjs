@@ -71,6 +71,24 @@ test("findSiblingImports — a nested path under another folder is not a top-lev
   assert.deepEqual(findSiblingImports(src), []);
 });
 
+// Both triangulations below were demanded by a surviving mutant, not invented: the
+// scanner passed every case above with the boundary quietly wrong.
+
+// There is nothing in front of a specifier context that opens the file. A dynamic
+// import on line 1 column 1 is the everyday shape of a lazily-loaded sibling.
+test("findSiblingImports — a specifier context at the very START of the source counts", () => {
+  assert.deepEqual(findSiblingImports('import("./auto-commit.mjs");\n'), [
+    { line: 1, module: "auto-commit.mjs" },
+  ]);
+});
+
+// A formatter wraps a long import, and `from` ends up a newline plus an indent away
+// from its specifier. Trimming ONE whitespace character would lose it.
+test("findSiblingImports — `from` separated from its specifier by a newline and an indent", () => {
+  const src = ['import { attemptCommit } from', '  "./auto-commit.mjs";', ""].join("\n");
+  assert.deepEqual(findSiblingImports(src), [{ line: 2, module: "auto-commit.mjs" }]);
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // The repo-wide guard — T2's class, held at zero.
 //
