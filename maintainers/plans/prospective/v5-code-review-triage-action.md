@@ -12,13 +12,20 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T3.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1 and T2 are PAID** _(`779637e`; `814be9a`)_; **T3–T15 are open**, in § *Third pass*, which owns
-  them and their order. **Read its ⚠️ first**: unlike the two earlier passes, that section is the
-  reviewer's word and **the items below T2 have not been independently re-checked**. Verify, then fix
-  test-first, red first, one commit per subject, pushed as it goes.
-  - **T3 next**: one unreadable merge file aborts the WHOLE reconcile, and on the self-heal path the
-    child is detached with `stdio: "ignore"`, so it re-fires every session with no output at all.
+- 🔴 **NEXT — RESUME AT T4.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1, T2 and T3 are PAID** _(`779637e`; `814be9a`; `ab1751d`)_; **T4–T15 are open**, in § *Third
+  pass*, which owns them and their order. **Read its ⚠️ first**: unlike the two earlier passes, that
+  section is the reviewer's word and **the items below T3 have not been independently re-checked**.
+  Verify, then fix test-first, red first, one commit per subject, pushed as it goes.
+  - **T4 next**: `CLAUDE.md` is nominated for an ancestor fetch on **every** update, forever, and the
+    comment justifying the omission is factually false about the shipped table — **the guarding test
+    encodes the same false premise**, so check the fixture before believing either. It pairs with
+    **T14** (every brain is then told the update server was unreachable on a flawless network), and
+    the two are the same owner-facing lie seen from both ends.
+  - ✅ **T3 paid, and it made a point the two before it did not**: the finding named ONE call site and
+    there were **two** — fixing `:147` alone just moved the throw to the last line that writes. What
+    said so was the test, not a re-read of the code. Same shape as W1 and T2: *"one line"* was wrong
+    about a seam three times on this branch, and a run corrected it every time.
   - ✅ **T2 paid, and it made the same point T1 did**: the defect was real (reproduced as a process on
     the REAL v4.9.1 file), **and both defences that should have caught it were green** — `node --check`
     parses the broken consumer, `verifyWrite` never looks at the preserved sibling. The fix removed the
@@ -868,12 +875,39 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       customized copy still imports it → `SyntaxError`, **the whole backup/publish path dead at every
       Stop**. The family's defences are blind twice: `node --check` passes on the broken consumer, and
       `verifyWrite` only inspects the file being written, never the preserved sibling.
-- [ ] **T3 — ONE unreadable merge file aborts the WHOLE reconcile, silently and forever**
-      (`reconcile-brain.mjs:147`). The call omits the `unreadable` collector, so it rethrows before the
-      copy loop, before retirement, before the launcher regen. On the self-heal path the child is
-      spawned `detached` + `stdio: "ignore"`, so the banner goes nowhere and the condition survives →
-      it re-fires every session, with no output. **Three other call sites pass a collector; the one
-      writer path does not.**
+- [x] ✅ **T3 — ONE unreadable merge file aborts the WHOLE reconcile, silently and forever — PAID**
+      _(2026-08-23 · `ab1751d` + `6219f6f`)_. **Confirmed independently before fixing, and reproduced
+      as a PROCESS on the real CLI**: exit 1, `EACCES` on stderr, and the engine file still at its old
+      content — no copy, no retirement, no launcher regen, no manifest. The same process now exits 0
+      and the new bytes reach the brain.
+      - **It was TWO seams, not the one line the finding names**, and reading the code was not what
+            said so — the test did. Fixing only `:147` moved the throw to `syncBaseTree` at the very
+            **last** line that writes, which aborts the same converge a few hundred lines later. Both
+            reads now take the opt-in collector. _(Third time on this branch that "one line" was wrong
+            about a seam and a run corrected it: W1's ancestor fetch, T2's coupling, this.)_
+      - **What set-aside costs, stated exactly**: the FILE and only the file. Absent from the installed
+            map, it is a candidate for neither the heal nor the ancestor fetch (both select on its
+            keys), so nothing is ever recorded about bytes nobody read. In `syncBaseTree` it is
+            dropped from the candidates rather than left to `planBaseSeed`, which would defer it as
+            `not-installed` — a sentence about a deleted file, said about a file that is right there.
+      - **The collector stays OPT-IN in both places**, which is S5's rule kept rather than bent: a
+            caller that does not ask to be told still gets the throw, so no future seeder can go
+            silent by forgetting a parameter. Two poles pin that, one per module.
+      - 🔊 **The alarm voice was already owned and needed nothing new**: the health probe says a file
+            the filesystem refused out loud (`engineFilesVerdict`, S5). What was missing is that the
+            other fifteen files went on being denied their update because of one. The report now
+            carries the names so no surface has to infer them from a gap.
+      - 🧪 **Mutation 95 % → 100 %** on the changed lines, 15 mutants, **reproduced twice** per the
+            lone-survivor protocol. The single survivor was a `?? []` **no input could reach**, and
+            the honest reply was to delete it rather than write a test around it. →
+            [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T3.
+      - 📋 **A SIBLING, NAMED RATHER THAN QUIETLY WIDENED INTO**: `update-engine.mjs:769` calls
+            `syncBaseTree` with no collector too, at step 7. Its throw is a different animal — it
+            happens **after** the manifest is written and in the owner's own terminal, so it prints
+            *"the brain was NOT changed past this point"* over an update that WAS recorded, and skips
+            auto-finalize. Loud and wrong rather than silent and wrong. **Not taken here**: it is the
+            parent's path, it needs its own pole, and T3 is about the child. Cost if wanted: the same
+            one line plus one test.
 - [ ] **T4 — `CLAUDE.md` is nominated for an ancestor fetch on EVERY update, forever**
       (`engine-ancestor.mjs:85`). No `regimes.invited` carve-out, and the comment justifying the
       omission is **factually false about the shipped table**: `engine-fingerprints.json` holds **five**

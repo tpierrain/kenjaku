@@ -233,6 +233,33 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T3 — the collector on the writer path, and a fallback nothing could reach — 2026-08-23
+
+`ab1751d` (the fix) + `6219f6f` (the survivor's removal). State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+Scoped to the **changed lines only**, never the files.
+
+| File (ranges) | First pass | After | Survivors |
+|---|---|---|---|
+| `engine-base-fs.mjs:138-148` | **90.91 %** — 10 killed, 1 survived | **100 %** — 6 killed | 0 |
+| `reconcile-brain.mjs:161-166` + `:574-580` + `:713-721` | **100 %** — 9 killed | **100 %** — 9 killed | 0 |
+
+**Reproduce**: `FORCE_COLOR=0 NO_COLOR=1 node maintainers/mutation/mutate-one.mjs
+scripts/lib/engine-base-fs.mjs:138-148 scripts/lib/reconcile-brain.mjs:161-166
+scripts/lib/reconcile-brain.mjs:574-580 scripts/lib/reconcile-brain.mjs:713-721`. Run twice, per the
+lone-survivor protocol at the top of this file: **100 % both times, 15 mutants both times.**
+
+**The one survivor was the guard the fix did not need**, and it is a shape worth naming beside the
+`?? ["Stryker was here"]` family above: `new Set(unreadable ?? [])` mutated to
+`new Set(unreadable ?? ["Stryker was here"])`, and **no input can kill it** — the only caller that
+reaches that line with a null collector is one for which nothing was set aside, so the fallback's
+contents can never change an answer. `new Set(null)` is already the empty set, so the honest reply was
+to delete the fallback rather than write a test around it. **The mutant count fell 20 → 15 with the
+guard**, which is the tell: five of the twenty mutants lived in a branch that had no behaviour behind
+it.
+
+---
+
 ## T2 — the coupling guard, and a file the instrument CANNOT reach — 2026-08-23
 
 `814be9a` (the fix) + `6e0181c` `566ba35` (the survivors' poles). State owned by
