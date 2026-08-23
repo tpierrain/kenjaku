@@ -43,12 +43,16 @@ jobs:
     # and on `main` the merge has already been arbitrated.
     if: github.event_name == 'push' && github.ref != 'refs/heads/main'
     runs-on: windows-latest
-    # 🛑 5, because a GREEN run of this job is 1 minute and it is a TRIPWIRE — a tripwire
-    # that can sit for GitHub's default 6 hours is not a tripwire, it is a runner leak.
-    # Measured 2026-08-23: a Windows harness process blocked on `readFileSync(0)` held its
-    # runner 2 h 46 min, and 24 commits' worth of jobs queued behind it for three hours
-    # while every surface said "in progress". A hang must cost minutes, not an afternoon.
-    timeout-minutes: 5
+    # A GREEN run of this job is 1 minute, and it is a TRIPWIRE — one that can sit for
+    # GitHub's default 6 HOURS is not a tripwire, it is a runner leak. Measured 2026-08-23:
+    # a Windows harness process blocked on `readFileSync(0)` held its runner 2 h 46 min and
+    # queued 24 commits' worth of jobs behind it, while every surface said "in progress".
+    #
+    # 8, not 5, and the number is DERIVED: it must stay clear of the 4-minute per-test
+    # ceiling below, or the job dies first and kills the hang MUTE — which is precisely the
+    # diagnosis that cost an afternoon. The per-test ceiling names the test; the job timeout
+    # is only the backstop behind it, so it has to be the looser of the two.
+    timeout-minutes: 8
     steps:
       # 🛑 FULL HISTORY AND TAGS, not the default depth-1 shallow checkout.
       # Two suites reach into git and BOTH went silently red on 2026-08-21 when they
@@ -66,16 +70,17 @@ jobs:
           node-version: 24
 
       - name: Harness tests
-        run: node --test --test-timeout=60000 "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
+        run: node --test --test-timeout=240000 "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
 
   test:
     name: Node ${{ matrix.node }} · ${{ matrix.os }}
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.os }}
-    # 10, against a green run of 1-2 minutes — roomier than the tripwire's 5 because this
-    # job also builds a native binding and installs two dependency trees, so a cold cache
-    # is a legitimate slow day. Still 5x the measured green, and 36x under the 6h default.
-    timeout-minutes: 10
+    # 12, against a green run of 1-2 minutes. Roomier than the tripwire's 8 because this job
+    # also builds a native binding and installs two dependency trees, and a cold cache or a
+    # busy GitHub is a legitimate slow day — a timeout that fires on load is a false red, and
+    # a false red is how a real one stops being read. Still 30x under the 6h default.
+    timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
@@ -97,7 +102,7 @@ jobs:
       # bottle" is dependency-free .mjs, so rag's `npm test` (tsx over src/lib/*.test.ts) never
       # globbed it and it was running nowhere.
       - name: Harness tests
-        run: node --test --test-timeout=60000 "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
+        run: node --test --test-timeout=240000 "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
 
       # Maintainer tooling (dev-only, never copied into a brain): the mutation
       # runner's own suite. macOS only, deliberately — mutate-one.mjs is a
@@ -106,7 +111,7 @@ jobs:
       # about it. Without this step its tests would run in no job at all.
       - name: Maintainer tooling tests
         if: runner.os == 'macOS'
-        run: node --test --test-timeout=60000 "maintainers/mutation/*.test.mjs"
+        run: node --test --test-timeout=240000 "maintainers/mutation/*.test.mjs"
 
       # Engine — `npm ci` builds the native binding (better-sqlite3) on this
       # exact Node; the test run then exercises it. This is the real net.
@@ -123,7 +128,7 @@ jobs:
       # Pinned from the suite itself (`vault-write-guard.test.mjs`, last test), so deleting
       # this step goes red instead of going quiet.
       - name: Vault write-guard tests (with the engine's own parser)
-        run: node --test --test-timeout=60000 "scripts/lib/vault-write-guard.test.mjs" "scripts/vault-write-guard.test.mjs"
+        run: node --test --test-timeout=240000 "scripts/lib/vault-write-guard.test.mjs" "scripts/vault-write-guard.test.mjs"
 
       - name: Engine tests
         working-directory: rag
@@ -167,9 +172,11 @@ jobs:
     name: Installer e2e · windows-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: windows-latest
-    # 20 -> 10, on the same 2026-08-23 measurement: this job greens in under a minute, and
-    # the deferred-index path it deliberately takes is what keeps it that fast.
-    timeout-minutes: 10
+    # 20 -> 12, on the same 2026-08-23 measurement: this job greens in under a minute, and
+    # the deferred-index path it deliberately takes is what keeps it that fast. Aligned with
+    # the matrix rather than tightened further — it spawns npm/npx through Windows shims,
+    # the slowest thing in this file on a loaded runner.
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
