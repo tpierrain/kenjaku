@@ -329,6 +329,15 @@ const NO_TAIL_CEILING = 13;
 // a guard of its own instead of riding on a budget.
 const HAND_ROLLED_CEILING = 2;
 
+// The ONE spelling that is not debt at all, so it is NAMED rather than counted
+// (T2, third review pass): `auto-commit.mjs` re-publishes `isEntryPoint` under
+// v4.9.1's name and signature because a PRESERVED auto-push.mjs still imports it
+// by that name, and a missing named export kills the Stop hook at link time. It
+// DELEGATES to the canonical predicate — one behaviour, two names — so counting it
+// as a hand-rolled guard would be counting the compatibility surface as the defect.
+// Shrink-only, enforced below: it goes the day the file stops carrying the alias.
+const LEGACY_ALIAS_EXEMPT = new Set(["scripts/auto-commit.mjs"]);
+
 // Top-level CLIs with no `.test.mjs` sibling. Inherited; paying them off is not
 // this run's cargo, so they are named rather than counted.
 const NO_SIBLING_EXEMPT = new Set([
@@ -435,9 +444,18 @@ test("the count of top-level scripts running their body at import only goes DOWN
 });
 
 test("the count of hand-rolled entry guards only goes DOWN", () => {
-  const offenders = topLevelScripts()
+  const all = topLevelScripts()
     .filter((f) => findHandRolledGuards(readFileSync(f, "utf8")).length > 0)
     .map(rel);
+  const offenders = all.filter((f) => !LEGACY_ALIAS_EXEMPT.has(f));
+
+  // Shrink-only, enforced: an exemption that is no longer earned must GO, or the
+  // list quietly becomes a place to hide the next hand-rolled guard.
+  assert.deepEqual(
+    [...LEGACY_ALIAS_EXEMPT].filter((f) => !all.includes(f)).sort(),
+    [],
+    "These files no longer publish a legacy entry-point alias — delete them from LEGACY_ALIAS_EXEMPT.",
+  );
 
   assert.ok(
     offenders.length <= HAND_ROLLED_CEILING,

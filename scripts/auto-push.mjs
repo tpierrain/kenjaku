@@ -14,7 +14,11 @@ import { execFileSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { shouldPush } from "./lib/git-push.mjs";
-import { attemptCommit } from "./auto-commit.mjs";
+// From lib/, never from ./auto-commit.mjs (T2): both files are `merge` regime and
+// refreshed independently, so either can be PRESERVED at an older version — an
+// import between them is a promise across versions, and it fails at link time.
+// `scripts/lib/**` is one `replace` glob, always delivered whole.
+import { attemptCommit } from "./lib/vault-commit.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 // attemptPush — testable core. `git` is an injected runner (args[]) → {out, ok};
