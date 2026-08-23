@@ -173,7 +173,11 @@ test("QA v3.6.0 → HEAD — answering 'take the new one' applies it, and the br
   // and the safety commit's own refusals are S10-4's subject, not this suite's.
   const result = adoptCandidate({ brainDir, rel: OWN, decision: "take-theirs", git: () => ({ out: "", ok: true }) });
 
-  assert.deepEqual(result, { adopted: true });
+  // `unreadable: []` is part of the shape since T5, and empty is the assertion that
+  // matters here: on a brain rebuilt from a real tag every merge file reads, so an
+  // adoption that quietly set one aside would be a defect of THIS fixture, not a state
+  // the pole is meant to tolerate.
+  assert.deepEqual(result, { adopted: true, unreadable: [] });
   assert.equal(readBrain(brainDir, OWN), readRepo(OWN), "the engine's version is now theirs, byte for byte");
   assert.equal(existsSync(join(brainDir, `${OWN}.new`)), false, "the offer was taken, so it is no longer open");
   assert.deepEqual(readAnswers({ brainDir })[OWN], { decision: "take-theirs", at: UNKNOWN_REF });

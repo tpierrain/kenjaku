@@ -215,6 +215,12 @@ export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
   // stale one at the next update, S10-1, but that is a repair, not a licence to litter.)
   rmSync(sidecar);
 
+  // 🛑 EVERYTHING BELOW IS PAST THE POINT OF NO RETURN: the owner's file is written and
+  // their offer is gone. Declared here, outside the `deliver` branch, so every adopted
+  // result has ONE shape — "keep mine" reads no file at all, and an absent key would make
+  // a caller ask which of the two silences it was looking at.
+  const unreadable = [];
+
   if (deliver !== undefined) {
     // One file, the existing recorders. `deliveredFileMap` is exactly what the update
     // hands them after a merge, so an adoption and a merge leave the brain in the same
@@ -231,7 +237,24 @@ export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
       }),
     };
     writeFileSync(manifestPath, `${JSON.stringify(advanced, null, 2)}\n`);
-    syncBaseTree({ brainDir, manifest: advanced, provenance: advanced.provenance, deliveredFileMap });
+    // 🛑 T5 — THE COLLECTOR IS NOT OPTIONAL HERE, because this call is PAST THE POINT OF
+    // NO RETURN. By now the owner's file has been overwritten and their sidecar — the open
+    // offer — destroyed. Without it, one merge file the process cannot read (a bad umask, a
+    // cloud client's placeholder; `.claude/settings.json` is gitignored on every machine)
+    // threw an EACCES straight out of the CLI, which exits 1 — and `update-engine/SKILL.md`
+    // documents exit 1 to the agent as *"nothing was touched … do not run it again"*.
+    // Measured as a process: file overwritten, offer gone, manifest rewritten, and the
+    // answer NOT recorded, so the nudge went on offering a file already adopted while the
+    // owner was told nothing had happened. It contradicted this function's own contract,
+    // fifty lines up, verbatim.
+    //
+    // The names are RETURNED rather than dropped on the floor, for the reason T3's
+    // reconcile returns its own: a caller reading a list has no way to tell a file that
+    // was set aside from one that was never there. It is not the alarm — that voice
+    // belongs to the health probe (`engineFilesVerdict`) — it is the record that the
+    // adoption's own bookkeeping is one file short, and the next update re-attempts it
+    // for free.
+    syncBaseTree({ brainDir, manifest: advanced, provenance: advanced.provenance, deliveredFileMap, unreadable });
   }
 
   writeAnswers({
@@ -246,5 +269,5 @@ export function adoptCandidate({ brainDir, rel, decision, combined, git }) {
     }),
   });
 
-  return { adopted: true };
+  return { adopted: true, unreadable };
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 
@@ -263,7 +263,7 @@ test("adoptCandidate — KEEP MINE is still allowed on a marked merge: it neithe
 
   const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "keep-mine", git: cleanGit });
 
-  assert.deepEqual(result, { adopted: true });
+  assert.deepEqual(result, { adopted: true, unreadable: [] });
   assert.equal(read(dir, REL), OWNER);
   assert.equal(existsSync(join(dir, `${REL}.new`)), false, "the offer was declined, so it stops standing");
   assert.equal(existsSync(join(dir, ".engine-base")), false, "and a declined version is never an ancestor");
@@ -296,10 +296,75 @@ for (const [shape, candidate] of [
 
     const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
 
-    assert.deepEqual(result, { adopted: true });
+    assert.deepEqual(result, { adopted: true, unreadable: [] });
     assert.equal(read(dir, REL), candidate, "the engine's version arrived, markers-in-prose and all");
   });
 }
+
+// ── T5 (third review pass): A BYSTANDER THE FILESYSTEM REFUSED USED TO UNDO THE
+//    WHOLE PROMISE ──────────────────────────────────────────────────────────
+//
+// Reproduced as a PROCESS through the real CLI before a line was written, on a brain
+// with one gitignored merge file at mode 000 (the shape `.claude/settings.json` is in on
+// every machine). `adopt-engine-file.mjs … take-theirs` exited **1** with an EACCES stack
+// trace — and `update-engine/SKILL.md` documents exit 1 to the agent as *"**nothing was
+// touched** … do not run it again"*.
+//
+// What the brain actually looked like at that moment: the owner's file **overwritten**,
+// their sidecar — the open offer — **destroyed**, the manifest **rewritten**, and the
+// answer **not recorded**, so the nudge would go on offering a file already adopted while
+// the agent told them nothing had happened. It contradicted this module's own contract
+// verbatim: *"a caller that only checks `adopted` can never be halfway"*.
+test("adoptCandidate — an unreadable BYSTANDER cannot undo an adoption that already happened", (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const dir = brain(t);
+  // Not the file being answered about: the OTHER merge file, which this adoption has no
+  // business reading and which the base seeding walks anyway.
+  chmodSync(join(dir, OTHER), 0o000);
+
+  let result;
+  try {
+    result = adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
+  } finally {
+    // Restored before the assertions: `brain()`'s cleanup would otherwise die on a file
+    // it cannot stat, and the test would fail in its after-hook with the answer green.
+    chmodSync(join(dir, OTHER), 0o644);
+  }
+
+  // The whole adoption, and `adopted: true` is what the CLI relays and the skill reads.
+  // The bystander is NAMED beside it rather than dropped: a caller reading a list has no
+  // way to tell a file that was set aside from one that was never there.
+  assert.deepEqual(result, { adopted: true, unreadable: [OTHER] });
+  assert.equal(read(dir, REL), CANDIDATE);
+  assert.equal(existsSync(join(dir, `${REL}.new`)), false, "the offer was answered, so it must be gone");
+  assert.notEqual(manifestOf(dir).provenance[REL], "sha256:whatever-the-engine-last-delivered");
+  // 🛑 The half whose absence made the old failure permanent: without the answer, the
+  // session nudge re-offers a file that was adopted, forever.
+  assert.equal(readAnswers({ brainDir: dir })[REL]?.decision, "take-theirs");
+});
+
+test("adoptCandidate — and the bystander gets NO ancestor invented from bytes nobody read", (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("needs POSIX permissions and a non-root user to be meaningful");
+    return;
+  }
+  const dir = brain(t);
+  chmodSync(join(dir, OTHER), 0o000);
+  try {
+    adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
+  } finally {
+    chmodSync(join(dir, OTHER), 0o644);
+  }
+
+  // Surviving the throw must not become "seed whatever". A base recorded for a file this
+  // process never read would be a fiction, and the merge that later trusts it is how an
+  // update clobbers an edit.
+  assert.equal(existsSync(join(dir, `.engine-base/${OTHER}`)), false);
+  assert.equal(read(dir, `.engine-base/${REL}`), CANDIDATE, "the ANSWERED file's ancestor still lands");
+});
 
 test("adoptCandidate — no sidecar means there is nothing to adopt, and it says so", (t) => {
   const dir = brain(t);
@@ -449,7 +514,7 @@ test("adoptCandidate — a merge file inside the brain is still adoptable (the g
 
   const result = adoptCandidate({ brainDir: dir, rel: REL, decision: "take-theirs", git: cleanGit });
 
-  assert.deepEqual(result, { adopted: true });
+  assert.deepEqual(result, { adopted: true, unreadable: [] });
   assert.equal(read(dir, REL), CANDIDATE);
 });
 
