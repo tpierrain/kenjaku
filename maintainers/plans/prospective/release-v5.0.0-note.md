@@ -161,3 +161,13 @@ Ask for **`/update-engine`** once.
 - The release's acceptance test runs against **brains rebuilt from real published tags** (`v3.2.2`, `v3.6.0`), with files edited *before* this release, so the promises above are checked on real released content rather than on a fixture written by someone who already knew the answer.
 - **And it runs on Windows, not only on a Mac.** That is not a formality here. A Windows brain records its files in a different byte-form from the day it is installed, and the headline promise — *a file you tailored is merged rather than abandoned* — was **silently false there**, on a suite that was green on a Mac. It is repaired, delivery is pinned so it cannot come back on a new install, and both are proved on a real Windows machine in CI. The check that proves them **fails rather than passing quietly** if the machine it lands on cannot reproduce the condition it is testing for.
 - Findings caught before the tag stayed before the tag. Nothing in this list shipped to anyone.
+
+**Issues this release closes**
+
+Each one had stayed open on purpose after its code was green, because what closes a doctrine issue is a brain *receiving* the rule, not a branch carrying it — which is the very defect this release ends. All three are verified on a real brain updated from v4.9.1 to v5.0.0, in French, not on the repo.
+
+- [#61](https://github.com/tpierrain/kenjaku/issues/61) — work started by a *signal* rather than by a request is announced in one line before it runs.
+- [#64](https://github.com/tpierrain/kenjaku/issues/64) — a stated size past which a file read *to consult it* goes to a helper, instead of a judgement call, with the carve-outs written down.
+- [#67](https://github.com/tpierrain/kenjaku/issues/67) — the tooling table declares its own premise as local, so a brain running elsewhere stops asking its owner to arbitrate a rule the owner is told not to edit.
+
+Still open, and untouched by this release: the `/feedback` path upstream ([#62](https://github.com/tpierrain/kenjaku/issues/62)), per-universe facts surviving a `/clear` ([#66](https://github.com/tpierrain/kenjaku/issues/66)), `/switch` leaving the conversation window unscoped ([#68](https://github.com/tpierrain/kenjaku/issues/68)), silent universe drift ([#72](https://github.com/tpierrain/kenjaku/issues/72)), and three false positives in the wiki link check ([#71](https://github.com/tpierrain/kenjaku/issues/71), [#73](https://github.com/tpierrain/kenjaku/issues/73), [#74](https://github.com/tpierrain/kenjaku/issues/74)).

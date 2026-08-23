@@ -866,6 +866,21 @@
 > **Not part of the cut, on purpose**: **#61, #67 and #64 stay OPEN** — what closes them is a brain
 > *receiving* the rule, not the branch carrying it.
 >
+> - [x] ✅ **AND THAT CONDITION IS NOW MET, SO ALL THREE ARE CLOSED** _(2026-08-23, hours after the tag)_.
+>       Thomas updated his own `mind-palace` from v4.9.1 to v5.0.0 and each rule was then **read out of
+>       that brain's own `CLAUDE.engine.md`, in French** (`Annonce avant d'agir sur un signal`,
+>       `~1 500 lignes`, `Cette table parle d'ERGONOMIE, et sa prémisse est locale`), 548 lines where it
+>       held 334 since v3.6.0. Closed with that evidence in the comment, not with a link to the merge.
+>       **The discipline held end to end**: the condition was written down before the merge, it was not
+>       quietly downgraded to "the branch is green", and it was checked against a brain rather than the
+>       repo. → they are also listed in the release note, on his ask.
+>       - 📋 **The other seven were reviewed against the shipped code and left open, deliberately**: the
+>         `/feedback` path (#62), per-universe facts surviving a `/clear` (#66), `/switch` leaving the
+>         window unscoped (#68), silent universe drift (#72), and the three wiki-link false positives
+>         (#71, #73, #74) — all three of which were **re-read in `wiki-lint.mjs` / `wiki-lint-io.mjs` on
+>         `main` and are still exactly as reported**. Worth knowing: the linter's dangling-link count on
+>         a real brain is inflated by #71 and #73, so *"17 links point nowhere"* is not 17 defects.
+>
 > ### ✅ DONE — a rehearsal on a COPY of a real brain, before the tag
 >
 > _(Offered 2026-08-22 when Thomas asked how to take the least operational risk. **It was built and
@@ -1161,9 +1176,12 @@
 > plan's slices (S9-2b, S9-3), the ROADMAP's open rows, **and the scheduled open issues** — the third
 > surface being the one that was missed, twice, before a hook named it.
 >
-> - **#61, #67 and #64 stay OPEN**: they are reports from deployed brains, and what closes them is a
->   brain **receiving** the rule, not the branch carrying it. Closing them at merge would be the same
->   *"delivered to a branch"* error the source-first plan's header warns about.
+> - ~~**#61, #67 and #64 stay OPEN**~~ → **CLOSED 2026-08-23, once a brain had received the rule** —
+>   the condition this line set, met and checked. The rule it states is the durable half and it holds
+>   for the next release: they were reports from deployed brains, and closing them at merge would have
+>   been the same *"delivered to a branch"* error the source-first plan's header warns about. The
+>   evidence and the seven that stayed open are at § *WHAT IS YOURS, IN ORDER* — this line owns none of
+>   it and keeps no copy.
 > - **Deferred with their reasons, not forgotten**: #64's `PreToolUse(Read)` hook (his arbitration —
 >   and a test now asserts the rule does not announce it), and #67's optional part 3 (allowlist and
 >   auto permission mode in the setup docs — user-facing text carrying a prompt-injection trade-off).
