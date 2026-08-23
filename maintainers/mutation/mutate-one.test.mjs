@@ -650,6 +650,22 @@ All files           |  90.00 |   90.00 |       27 |         0 |          3 |    
 --------------------|--------|---------|----------|-----------|------------|----------|----------|
 `;
 
+test("parseMutationReport — a line that merely SAYS the table's words is not the table", () => {
+  // Hostile rather than observed, and that is the point: a Stryker log is thousands
+  // of lines of mutant diffs, stack traces and test names, and the ONLY thing
+  // keeping any of them out of the table is the cell count. Both intruders below
+  // wear a shape the rest of the parse would honour — one is the totals row's own
+  // words, the other an indented path ending in `.mjs`.
+  const noisy = `All files\n    scripts/lib/engine-source.mjs\n${STRYKER_TAIL}`;
+  const report = parseMutationReport(noisy);
+
+  assert.equal(report.killed, 331);
+  assert.deepEqual(
+    report.files.map((file) => file.path),
+    ["lib/entrypoint-discipline.mjs", "lib/entrypoint.mjs", "status-line.mjs", "upstream-check-run.mjs"]
+  );
+});
+
 test("parseMutationReport — a file row carries WHERE it lives, and a basename is not an identity", () => {
   // `engine-write-guard.mjs` exists BOTH at `scripts/` and at `scripts/lib/` in this
   // repo (so do vault-write-guard, ai-summary-guard and open-env), so a breakdown
@@ -710,6 +726,21 @@ test("unmeasuredTargets — two files of the same NAME are told apart by their d
       TWINS.filter((file) => file.path.startsWith("lib/"))
     ),
     ["scripts/engine-write-guard.mjs"]
+  );
+});
+
+test("unmeasuredTargets — the answer does not depend on the ORDER the table listed the rows in", () => {
+  // The most specific row wins, and that must be a property of the function rather
+  // than of Stryker's habit of printing directories before files. Reversed, a
+  // first-match-wins reading hands `lib/engine-write-guard.mjs`'s target the bare
+  // row, and then reports the file that WAS measured as missing.
+  assert.deepEqual(
+    unmeasuredTargets(["scripts/lib/engine-write-guard.mjs", "scripts/engine-write-guard.mjs"], TWINS),
+    []
+  );
+  assert.deepEqual(
+    unmeasuredTargets(["scripts/lib/engine-write-guard.mjs", "scripts/engine-write-guard.mjs"], [...TWINS].reverse()),
+    []
   );
 });
 
