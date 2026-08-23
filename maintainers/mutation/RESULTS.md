@@ -233,6 +233,74 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T13 — the instrument printed ✅ over a run that had measured NOTHING — 2026-08-23
+
+`658c348` (the two gates) + `da1fe2e` (the survivors' poles) + `3eec3cc` (a dead disjunct removed) +
+`74fb898` + `d48d2c5` (the colour strip). State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+EXISTING file changed in five places → measured **on THOSE LINES ONLY**.
+**Reproduce**: `npm --prefix maintainers/mutation run mutate:maintainers` scoped with
+`--mutate "maintainers/mutation/mutate-one.mjs:354-357,…:361-416,…:438-452,…:617-632,…:636-645"` for
+the gates, and `…:330-345` for the colour strip. Logs are the run's own, under the job's tmp dir.
+
+**Every number on this page came through `parseMutationReport`, and it had two ways of saying
+nothing while looking like a result.** Both were reproduced through `runMutateOne` itself before a
+line was changed, never argued from the source:
+
+- **Nothing measured at all.** With zero mutants Stryker still prints its table, with `n/a` in the
+  score column (`clear-text-score-table.js`: `isNaN(score) ? 'n/a' : score.toFixed(2)`) and three
+  zeroes in the counts — and this repo's configs set `thresholds.break` to null, so it **exits 0**.
+  `Number("n/a")` is NaN, `total ? timeout / total : 0` is 0, both gates missed, and the run
+  announced `✅ Mutation score NaN % — 0 killed, 0 survived, 0 timeout`.
+- **A TARGET measured nothing.** A file that produces no mutants is not listed with a zero, it is
+  **absent**, and the score belongs to whatever else was in the batch. This is T4's first run, one
+  day earlier: a range typed `:34-52` over a guard sitting on line 53 measured `engine-ancestor.mjs`
+  not at all and printed 100 %.
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| first pass (`658c348`) | 96 | 91.67 % | 8 |
+| after the two poles (`da1fe2e`) | 96 | 96.88 % | 3 |
+| after the dead disjunct went (`3eec3cc`) | 84 | 97.62 % | 2, both equivalent |
+| final, the whole changed set (`d48d2c5`) | 91 | **97.80 %** | 2, both equivalent |
+| the colour strip alone (`d48d2c5`) | 22 | **100.00 %** | 0 |
+
+**The two equivalents are PROVED, and proved by measurement rather than by argument** — replayed over
+**all 98 real Stryker logs this repo has kept**:
+
+- `cells.length >= 8` → `> 8`: **0 logs disagree**. Every table row Stryker emits has nine cells; the
+  only eight-cell line in the whole corpus is the blank `| % Mutation score |` header, whose name is
+  empty, which the tree walk drops on the next row either way.
+- `const dirs = []` seeded with a value: **0 logs disagree**. A file row at depth 1 slices nothing off
+  the stack, and a deeper one is always preceded by the depth-1 directory row that truncates it.
+
+🧭 **The survivor that was DELETED rather than tested**, which is the shape T11 met two days ago:
+`path === reported` in the target census had never once been the reason a target matched. `parseArgs`
+refuses every target outside `scripts/`, and Stryker's table drops the prefix its files share, so a
+reported path is always a strict tail. The comment carries the reason now; the branch does not.
+
+🔦 **And the corpus was AUDITED rather than trusted, because the queue's own question was "how much
+are the T1–T12 numbers worth?"** Answer, measured: **97 of the 98 kept logs carry a real score**, the
+98th has no table at all (a crashed run, which the tool already refuses). **No score on this page came
+from a run that measured nothing.**
+
+⚠️ **But one kept log IS the second defect, in the wild, and it is recorded rather than smoothed
+over.** `reports/mutate-one-adopt-engine-file-136-136+8.log` (2026-08-22, the S10-6 row *"after
+deleting the dead arm — 13 mutants, 100.00 %"*): the run named **nine** hunks and its breakdown holds
+**two files**, `engine-answers.mjs` and `engine-merge-apply.mjs`. The thirteen mutants were really
+killed, so the number is not false — but its **scope is narrower than the row's heading**, and
+nothing in the run said so. That is exactly the line the gate now prints instead.
+
+📌 **The papercut that travelled with it.** `parseTestCounts` was ANSI-blind: under any environment
+asking for colour, node --test wraps its summary (`\x1b[34mℹ pass 22\x1b[39m`), both anchors match
+nothing, and the write-guard gate aborts a **perfectly green** run with *"did not report a result"*.
+It failed loudly, which is the right direction, and the workaround was `NO_COLOR=1 FORCE_COLOR=0` on
+every invocation — a thing to remember, so a thing to forget. Stripped now, for any SGR spelling: the
+first pass scored 75 % with both survivors in the parameter-list group, since nothing had fed it
+`\x1b[1;34m` or the bare reset `\x1b[m`.
+
+---
+
 ## T9 — a fix in the file the instrument CANNOT reach, for the second time — 2026-08-23
 
 `c3f26bd` (the fix) + `175eb6b` (the pole that read its own source). State owned by

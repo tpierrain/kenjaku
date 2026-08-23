@@ -36,18 +36,20 @@
     all, so every finding reached the triage plan on one reader's word. This one arrived with four
     candidates already killed by verifiers. **The first item verified by hand afterwards (T1) held**,
     which is one point of evidence for the panel and not yet a pattern.
-  - ✅ **AND THE PATTERN NOW HAS ELEVEN POINTS, ALL THE SAME WAY** _(2026-08-23, updated as the queue
+  - ✅ **AND THE PATTERN NOW HAS TWELVE POINTS, ALL THE SAME WAY** _(2026-08-23, updated as the queue
     was worked)_. Every finding verified by hand since — each reproduced independently as a process or
     a measurement, on a throwaway fixture where the act was destructive — **held, with no false
     positive and no exaggerated severity**. Counts and per-item state stay the triage plan's; what
     this file keeps is that the accuracy held across the whole batch, and **what the batch taught
     about reading a fan-out's output**:
-    - 🔍 **UNDER-reporting is the recurring shape, and it is now THREE items out of eleven.** One
+    - 🔍 **UNDER-reporting is the recurring shape, and it is now FOUR items out of twelve.** One
       named three call sites and a scanner written for the fix found **a fourth**; another's stated
-      threshold **bracketed** the measured one rather than overshooting it; and a third named **one**
-      copy site where running the same case against its neighbours found **three**. So the standing
-      instruction is not "trust it less" but **"treat the named site as a sample, and run the case
-      against the neighbours"** — every time, that is what found the extra one, never a re-reading.
+      threshold **bracketed** the measured one rather than overshooting it; a third named **one**
+      copy site where running the same case against its neighbours found **three**; and the fourth
+      named **one** of the two ways its function says nothing, the other half being the one already
+      met in the wild. So the standing instruction is not "trust it less" but **"treat the named site
+      as a sample, and run the case against the neighbours"** — every time, that is what found the
+      extra one, never a re-reading.
     - 🎯 **A finding's own statement of its LIMITS held too**, which is the half a severity-inflating
       reviewer gets wrong: one item said in as many words that its destructive path was *not*
       reachable, and reproduction agreed exactly. That is worth more than a high hit rate — it means

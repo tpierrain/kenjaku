@@ -12,24 +12,38 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T13.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T12 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
-  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`)_;
-  **T13–T15 are open**, in § *Third pass*, which owns them and their order.
+- 🔴 **NEXT — RESUME AT T14.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T13 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
+  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`;
+  `658c348`+`da1fe2e`+`3eec3cc`+`74fb898`+`d48d2c5`)_; **T14 and T15 are open**, in § *Third pass*,
+  which owns them and their order.
   **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and **the
   items below T9 have not been independently re-checked**. Verify, then fix test-first, red first, one
   commit per subject, pushed as it goes.
-  - **T13 next, and it is the instrument every other item's evidence flows through**: a mutation run
-    that measured NOTHING prints a green tick and exits 0 (`Number()` on `n/a` → `NaN`, and both gates
-    miss). **Every score this queue has recorded came through that function** — so it is also the item
-    that decides how much the T1–T12 numbers are worth.
-    - 📌 **Two things measured while paying T10–T12, both material to T13.** (a) The per-file
-      breakdown was read BY HAND after each run, and it matched the files asked for every time — that
-      manual check is exactly what T13 should make automatic. (b) `parseTestCounts` is **ANSI-blind**:
-      under a colourising terminal the write-guard verification fails to parse a perfectly green
-      `22 pass / 0 skipped` and the run aborts. It aborts LOUDLY, which is the correct direction, so
-      it is a papercut and not a lie — but it is one line from the same function family. Workaround
-      in the meantime: run `mutate-one.mjs` with `NO_COLOR=1 FORCE_COLOR=0`.
+  - **T14 next**: one `failed.push(rel)` conflates *"the tag or the network is unreachable"* with
+    *"fetched fine, and no published blob matches"*, and the update renders the flat list with prose
+    asserting the first cause. **T4 discharged HALF of it as a side effect** — the false line no
+    longer fires for `CLAUDE.md`, which is what made it appear on every update of every brain — and
+    the conflation itself is untouched.
+  - ✅ **T13 paid, and the corpus it casts doubt on was AUDITED rather than trusted**
+    _(`658c348` the gates + `da1fe2e` the poles + `3eec3cc` a dead branch removed · scoped mutation
+    **97.80 %**, the two survivors equivalent and proved so over all 98 kept logs)_. A run with zero
+    mutants printed `✅ Mutation score NaN %` and exited 0; a TARGET that produced nothing was simply
+    absent from the breakdown while the score spoke for its neighbours. Both reproduced through the
+    real runner first. Detail, and the score table, in
+    [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T13.
+    - 📊 **The queue's own question — "how much are the T1–T12 numbers worth?" — is answered, and the
+      answer is: all of them.** **97 of the 98 kept logs carry a real score**; the 98th has no table
+      (a crashed run the tool already refuses). **None came from a run that measured nothing.**
+    - ⚠️ **One kept log IS the second defect in the wild**, and it is written down rather than
+      smoothed over: `mutate-one-adopt-engine-file-136-136+8.log` named **nine** hunks and its
+      breakdown holds **two files**. The thirteen mutants were really killed, so the number is not
+      false — its **scope is narrower than its row's heading**, and nothing in the run said so.
+    - 📌 **The ANSI papercut travelled with it and is paid too** _(`74fb898` + `d48d2c5` · scoped
+      mutation **100 %**)_. `parseTestCounts` now strips any SGR spelling, so the
+      `NO_COLOR=1 FORCE_COLOR=0` workaround is no longer needed — a thing to remember was a thing to
+      forget. The first pass on it scored 75 %: both survivors sat in the parameter-list group, since
+      nothing had fed it `\x1b[1;34m` or the bare reset `\x1b[m`.
   - ✅ **T12 paid** _(`21b7397` the fix + `97796a1` the pole · scoped mutation **95.92 %**, the two
     survivors equivalent and recorded as such in the code)_. `ENGINE_SKILL` says *"this is shaped like
     a skill"*; it never said *"and it stays where it claims to be"*, and `[^/]+` accepts `..`.
@@ -115,7 +129,8 @@
   - ⚠️ **AND WATCH THE MUTATION RANGES**: T4's first run measured the fix **not at all** and printed
     ✅ (the range stopped one line short of the guard, past a long comment block). It was caught only
     by reading the per-file breakdown. **Distrust any run whose file list is shorter than the file
-    list you asked for** — until **T13** is paid, which is exactly what T13 is about.
+    list you asked for** — ✅ **and since 2026-08-23 you no longer have to: T13 made that read a
+    gate**, which refuses the run and names the target that measured nothing.
   - ✅ **T3 paid, and it made a point the two before it did not**: the finding named ONE call site and
     there were **two** — fixing `:147` alone just moved the throw to the last line that writes. What
     said so was the test, not a re-read of the code. Same shape as W1 and T2: *"one line"* was wrong
@@ -1237,12 +1252,32 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       keys cannot match), but the update reads the whole escaped tree into memory and prints a bogus
       owner-facing retirement line. The comment's claim, restated in the plan and in the hostile-
       manifest test's intent, is false.
-- [ ] **T13 — a mutation run that measured NOTHING prints a green tick and exits 0**
-      (`mutate-one.mjs:347`). `Number()` on `n/a` → `NaN`; `total ? timeout/total : 0` → `trustworthy:
-      true`; both gates miss. Triggers: a mistyped filename, an out-of-range hunk, a range landing
-      entirely on comments (no warning at all). **Every mutation number this repo records as evidence
-      flows through this function**, whose header promises "a loud failure instead of a score that was
-      never measured".
+- [x] ✅ **T13 — a mutation run that measured NOTHING printed a green tick and exited 0 — PAID**
+      _(2026-08-23 · `658c348` the gates + `da1fe2e` the poles + `3eec3cc` a dead branch removed +
+      `74fb898`/`d48d2c5` the colour strip)_. **Confirmed independently before fixing, and not by
+      reading the source**: both halves were reproduced **through `runMutateOne` itself**, printing
+      `✅ Mutation score NaN % — 0 killed, 0 survived, 0 timeout` and returning **0**. Every clause of
+      the finding was exact, including `thresholds.break: null`, which is what lets Stryker exit 0
+      with nothing measured. Scoped mutation **97.80 %**, the two survivors equivalent and **proved so
+      over all 98 kept logs** rather than argued. → [`mutation/RESULTS.md`](../../mutation/RESULTS.md)
+      § T13, which owns the numbers.
+      - 🔍 **The finding named ONE of the two ways this function says nothing** — the fourth
+        under-reporting on this branch, and the shape T10 taught. Beside the total that is `n/a`,
+        a **single TARGET** that produces no mutants is not listed with a zero, it is **absent**, and
+        the score belongs to whatever else was in the batch. That is the half already met in the wild
+        (T4's first run), so the gate refuses on both and names the target.
+      - 📊 **The queue's own question is ANSWERED, and the answer is that the T1–T12 numbers stand**:
+        97 of the 98 kept logs carry a real score, the 98th has no table at all. **One** kept log is
+        the second defect in the wild — nine hunks asked for, two files measured — and its row's scope
+        is narrower than its heading. Recorded, not smoothed over.
+      - 🌳 **The table had to be read as the TREE it is** for the target census to mean anything:
+        Stryker prints a directory as its own row and its files indented beneath, so a trimmed cell
+        makes `scripts/lib/engine-write-guard.mjs` and `scripts/engine-write-guard.mjs` — both of
+        which exist here, as do three more such pairs — the same row.
+      - 🧪 **Three runner FIXTURES were the defect too**: they asked for `scripts/lint-vault.mjs` while
+        their table named four other files — a test whose premise made it a run that could never
+        happen, which is the family of the FR false alarm, the hand-rolled lookup and T4's guarding
+        test. **The gate went red on its own suite first**, which is how they were found.
 - [ ] **T14 — every brain is told the update server was unreachable, on a flawless network**
       (`engine-ancestor-fetch.mjs:101`). The single `failed.push(rel)` conflates "tag/network
       unreachable" with "fetched fine, no published blob matches", and `update-engine.mjs:401` renders
