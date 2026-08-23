@@ -491,10 +491,21 @@ test("parseTestCounts — a COLOURISED summary reads exactly like a plain one", 
   // not report a result". Loud and wrong is the right direction and still an hour
   // lost, with a workaround (`NO_COLOR=1`) that has to be remembered.
   const coloured = NODE_TEST_TAIL.split("\n")
-    .map((line) => (line.startsWith("ℹ") ? `[34m${line}[39m` : line))
+    .map((line) => (line.startsWith("ℹ") ? `\x1b[34m${line}\x1b[39m` : line))
     .join("\n");
 
   assert.deepEqual(parseTestCounts(coloured), { pass: 22, fail: 0, skipped: 0 });
+});
+
+test("parseTestCounts — ANY colour sequence, not the two spellings node uses today", () => {
+  // `\x1b[1;34m` (a parameter list) and `\x1b[m` (the bare reset) are as legal as
+  // the `\x1b[34m` above, and both are one reporter change away. A stripper that
+  // knows only the shape it was written against is the same bet that was just lost.
+  const exotic = NODE_TEST_TAIL.split("\n")
+    .map((line) => (line.startsWith("ℹ") ? `\x1b[1;34m${line}\x1b[m` : line))
+    .join("\n");
+
+  assert.deepEqual(parseTestCounts(exotic), { pass: 22, fail: 0, skipped: 0 });
 });
 
 test("parseTestCounts — output with no summary at all is null, never a green guess", () => {

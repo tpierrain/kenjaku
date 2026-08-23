@@ -331,7 +331,12 @@ export function parseTestCounts(output) {
   // node --test wraps each summary line in colour when anything in the environment
   // asks for it (`FORCE_COLOR`): `\x1b[34mℹ pass 22\x1b[39m`. Both anchors below
   // then match nothing, and a green run reads as a run that reported nothing.
-  const plain = output.replace(/\[\d+(;\d+)*m/g, "");
+  //
+  // ANY colour sequence, not the two spellings node happens to use today: a
+  // parameter list (`\x1b[1;34m`) and the bare reset (`\x1b[m`) are just as legal,
+  // and a stripper written against one shape is the bet that was just lost. Spelled
+  // `\x1b` rather than the raw byte, which is invisible to whoever reads this next.
+  const plain = output.replace(/\x1b\[[\d;]*m/g, "");
   const count = (label) => {
     const found = plain.match(new RegExp(`^\\s*ℹ ${label} (\\d+)$`, "m"));
     return found ? Number(found[1]) : null;
