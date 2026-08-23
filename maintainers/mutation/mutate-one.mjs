@@ -328,8 +328,12 @@ export function tuningViolations(config) {
 // node --test's summary, or null when there is none: a run that crashed before
 // reporting must never read as "nothing skipped".
 export function parseTestCounts(output) {
+  // node --test wraps each summary line in colour when anything in the environment
+  // asks for it (`FORCE_COLOR`): `\x1b[34mℹ pass 22\x1b[39m`. Both anchors below
+  // then match nothing, and a green run reads as a run that reported nothing.
+  const plain = output.replace(/\[\d+(;\d+)*m/g, "");
   const count = (label) => {
-    const found = output.match(new RegExp(`^\\s*ℹ ${label} (\\d+)$`, "m"));
+    const found = plain.match(new RegExp(`^\\s*ℹ ${label} (\\d+)$`, "m"));
     return found ? Number(found[1]) : null;
   };
   const [pass, fail, skipped] = [count("pass"), count("fail"), count("skipped")];

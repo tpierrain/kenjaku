@@ -484,6 +484,19 @@ test("parseTestCounts — a skipped case is reported, not rounded to zero", () =
   });
 });
 
+test("parseTestCounts — a COLOURISED summary reads exactly like a plain one", () => {
+  // Real bytes, from `FORCE_COLOR=3 node --test`: every summary line is wrapped,
+  // `\x1b[34mℹ pass 1\x1b[39m`. Both anchors then match nothing, all three counts
+  // read null, and the runner aborts a perfectly green write-guard run with "did
+  // not report a result". Loud and wrong is the right direction and still an hour
+  // lost, with a workaround (`NO_COLOR=1`) that has to be remembered.
+  const coloured = NODE_TEST_TAIL.split("\n")
+    .map((line) => (line.startsWith("ℹ") ? `[34m${line}[39m` : line))
+    .join("\n");
+
+  assert.deepEqual(parseTestCounts(coloured), { pass: 22, fail: 0, skipped: 0 });
+});
+
 test("parseTestCounts — output with no summary at all is null, never a green guess", () => {
   assert.equal(parseTestCounts("Error: Cannot find module 'node:test'\n"), null);
   assert.equal(parseTestCounts(""), null);
