@@ -365,6 +365,19 @@
 >       arriving, `baseRefs` recorded, and **the owner's territory byte-identical** on each. The report
 >       printed is the post-T14 one, and on a run where the network answers it says nothing about a
 >       network — which is the whole point of T14.
+> - [x] 🔁 **AND RE-RUN ONCE MORE ON THE COMMIT THAT WILL CARRY THE TAG** _(2026-08-23 · at `439d720`)_.
+>       Asked for by Thomas the evening of the cut, whose doubt was the right one to have: *"j'ai peur
+>       de plein d'abstractions, plein de stubs… que tes tests ne permettent pas de vérifier qu'une
+>       fois déployée la v5 dégèlera tout comme il faut"*. Two changes had landed since the previous
+>       green, and neither is behaviour: `basename` in the harness's own copy filter (Windows), and
+>       `readPayload` becoming a seam in `startup-sync-gate.mjs` whose **default is the shipped
+>       reader**. Re-run anyway rather than argued from the diff. **Exit 0 on both brains**, doctrine
+>       334 → 549, `retired` arriving, owner's territory byte-identical (the 592-note vault included).
+>       - ⚠️ **What this trial still does NOT cover, stated so nobody reads its green as total**:
+>             `npm install` and `npm run index` are stubbed, so *"the search still works after the
+>             update"* is not among its assertions — `scripts/verify-rag.mjs` on the updated brain is
+>             what answers that. And it has only ever been run on **macOS**: a Windows brain's first
+>             update is held by the suites and the 7/7 matrix, never yet by a real Windows brain.
 >
 
 > ## 🛑 THOMAS'S CALL — **the ancestor FETCH is inert on Windows. The heal is FINE.**
