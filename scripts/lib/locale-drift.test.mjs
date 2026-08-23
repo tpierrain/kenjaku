@@ -223,11 +223,19 @@ test("measureLocaleDrift REFUSES to call an unplaceable twin 'in sync'", () => {
   //
   // A twin comes from a tracked-file listing, so it having no commit means the question was
   // asked somewhere it could not be answered. That is *unmeasured*, never *unchanged*.
+  // The message is asserted WHOLE, for the reason `describeDrift`'s own pole gives: it IS
+  // the feature. Named alone, "cannot place X" reads like a missing file; what a human has
+  // to be told is that the answer they were about to trust was never measured. A mutation
+  // run emptied the second sentence with the suite green.
   const git = (args) => (args[1] === "-1" ? "" : assert.fail("git was asked to measure an unplaced twin"));
 
   assert.throws(
     () => measureLocaleDrift({ sourceFiles: ["a.md", "templates/fr/a.md"], waived: {}, git }),
-    /templates\/fr\/a\.md/,
+    {
+      message:
+        "locale-drift cannot place templates/fr/a.md: git reports no commit for it, so its " +
+        "window would be empty and the pair would read as in sync without being measured.",
+    },
   );
 });
 
