@@ -45,7 +45,8 @@ import { fetchAncestors } from "./engine-ancestor-fetch.mjs";
 import { defaultGit } from "./engine-fetch.mjs";
 import { isSelfHeal } from "./update-mode.mjs";
 import { listFilesRelPosix } from "./fs-walk.mjs";
-import { selectEngineFilesToCopy } from "./engine-copy-select.mjs";
+import { selectEngineFilesToCopy, resolveLocaleSource } from "./engine-copy-select.mjs";
+import { readBrainLocale } from "./brain-locale.mjs";
 import {
   defaultRunInstall,
   defaultRunReindex,
@@ -94,8 +95,12 @@ function engineWrites() {
   return write;
 }
 
-function copyInto(srcDir, destDir, rel) {
-  const src = join(srcDir, rel);
+// Copies into `destDir/rel`, READING `srcRel` — which defaults to `rel` and differs only
+// where ADR 0040 rule 3 resolves a locale: `templates/fr/<rel>` is read, `<rel>` is
+// written. Splitting the two arguments is the whole fix for T10: with one argument, the
+// resolution had nowhere to live and every caller silently delivered the root bytes.
+function copyInto(srcDir, destDir, rel, srcRel = rel) {
+  const src = join(srcDir, srcRel);
   const dest = join(destDir, rel);
   if (resolve(src) === resolve(dest)) return false;
   mkdirSync(dirname(dest), { recursive: true });
@@ -236,12 +241,26 @@ export async function reconcileBrain({
   // base like any other delivered merge file. Without it the freshly-installed skill
   // reads `no-provenance` at every later update and is frozen forever — the very freeze
   // this increment removes, re-entering by the install-if-absent door.
+  //
+  // 🌍 AND IT READS THE BRAIN'S LOCALE (T10, third review pass). This door used to copy
+  // the ROOT rel, so a French brain missing an engine skill received the ENGLISH bytes —
+  // and kept them for good: its dir now exists, so install-if-absent never fires again,
+  // and the refresh finds no gap because the file matches the source it was never meant
+  // to read. Latent only because today's French brains already hold every localized
+  // skill; the NEXT localized skill would have arrived in English, in silence.
+  // ADR 0040 already PROMISED this behaviour ("install-if-absent copies the resolved
+  // source") — the code was the half that was wrong, so the fix is to keep the promise,
+  // through the one resolver rule 3 names, rather than to invent a second locale rule.
+  const brainLocale = readBrainLocale(brainDir);
   const installedFileMap = {};
   for (const skillGlob of plan.installSkills) {
     const skillDir = skillGlob.replace(/\/\*\*?$/, ""); // ".../local-mirror/**" → ".../local-mirror"
     if (existsSync(join(brainDir, skillDir))) continue; // present → preserve, never overwrite
     for (const rel of sourceFiles.filter((f) => matchesAny([skillGlob], f))) {
-      if (copyInto(sourceDir, brainDir, rel)) installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
+      const srcRel = resolveLocaleSource({ rel, locale: brainLocale, sourceFiles });
+      if (copyInto(sourceDir, brainDir, rel, srcRel)) {
+        installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
+      }
     }
     installedSkills.push(skillDir.split("/").pop()); // the skill name, for the report
   }
@@ -251,7 +270,10 @@ export async function reconcileBrain({
   //    it), so its source ships at the NON-sacred `engine-skills/<name>/` path (a `replace`
   //    file → pass-1 delivers it). install-if-absent each into `.claude/skills/<name>/`,
   //    alongside the merge-skill install above; fold the names into the same report.
-  installedSkills.push(...installStagedSkills({ sourceDir, brainDir }));
+  //    Handed the file list and the locale this pass already computed: the defaults
+  //    inside would re-walk the whole tree and re-read the marker at every session-start
+  //    self-heal, for an answer that cannot have changed since a few lines ago.
+  installedSkills.push(...installStagedSkills({ sourceDir, brainDir, sourceFiles, locale: brainLocale }));
 
   // 2.bis-refresh REFRESH the engine skills the brain has NOT touched (Increment 2.5).
   //    install-if-absent above stops at the skill-DIR level, so an already-present skill
@@ -482,7 +504,14 @@ export async function reconcileBrain({
   //    seeded the note but crashed before indexing it (flaky npm / ABI hiccup), the next run
   //    still finds it present-but-maybe-unindexed and re-pairs the (cheap, incremental)
   //    reindex → the canary can never become a permanent false `broken` (finding #6).
-  const { present: healthNotePresent } = seedHealthNote({ sourceDir, brainDir });
+  //    Locale-resolved like the two install-if-absent doors above (T10), and handed the
+  //    same already-computed file list and marker rather than re-deriving both.
+  const { present: healthNotePresent } = seedHealthNote({
+    sourceDir,
+    brainDir,
+    sourceFiles,
+    locale: brainLocale,
+  });
 
   // 3. Regenerate the launchers (both halves, ADR 0015).
   const regenerated = plan.regenerate.length > 0;

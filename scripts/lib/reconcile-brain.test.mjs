@@ -2178,6 +2178,129 @@ test("reconcileBrain — a FR brain is refreshed from the FR source, never re-an
   assert.deepEqual(report.skillsRefreshed, ["coach"]);
 });
 
+// ── T10 (third review pass): the OTHER door into a French brain ──────────────
+// The refresh door above resolves the locale. install-if-absent (ADR 0025) did not: it
+// copied the ROOT rel, so a French brain missing an engine skill received the ENGLISH
+// bytes and then held them forever (its dir now exists → never re-installed, and the
+// refresh finds no gap because the file is byte-identical to... the English source it
+// was never meant to read). Latent only because today's French brains already have
+// every localized skill; the NEXT localized skill would arrive in English, silently.
+//
+// ADR 0040 is the sharp end: its Consequences promise that install-if-absent "copies the
+// resolved source", and rule 1 promises a new localized artefact is covered the moment
+// its twin exists. Both were false of this door.
+test("reconcileBrain — a skill INSTALLED into a FR brain comes from the FR source (T10)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "scripts/lib/demo-locale.mjs", 'export const BRAIN_LOCALE = "fr";\n');
+  const englishSwitch = "---\nname: switch\n---\nSwitch universes.\n";
+  const frenchSwitch = "---\nname: switch\n---\nChange d'univers.\n";
+  // Absent from the brain → install-if-absent. Present in BOTH locales at the source.
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", englishSwitch);
+  writeFile(sourceDir, "templates/fr/.claude/skills/switch/SKILL.md", frenchSwitch);
+  const target = manifest({ extraMerge: [".claude/skills/switch/**"] });
+  const local = { ...manifest({ ragVersion: "1.0.0" }), provenance: {} };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.installedSkills, ["switch"]);
+  assert.equal(
+    readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"),
+    frenchSwitch,
+    "the FR brain must receive the FR skill — the English bytes would be frozen there forever",
+  );
+});
+
+// The provenance base PERSISTED for that install must describe the bytes the brain
+// ACTUALLY holds. Record the English fingerprint for a French file and the very next
+// update reads "user-modified" and preserves it: the freeze re-enters by the door this
+// increment opened. Through the CLI, because the manifest on disk is the artefact the
+// next update will read — the in-memory report is not what freezes anybody.
+test("runReconcileCli — the base persisted for a FR install describes the FR bytes (T10)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "scripts/lib/demo-locale.mjs", 'export const BRAIN_LOCALE = "fr";\n');
+  const frenchSwitch = "---\nname: switch\n---\nChange d'univers.\n";
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", "---\nname: switch\n---\nSwitch universes.\n");
+  writeFile(sourceDir, "templates/fr/.claude/skills/switch/SKILL.md", frenchSwitch);
+  writeFile(
+    brainDir,
+    "engine-manifest.json",
+    JSON.stringify({ ...manifest({ extraMerge: [".claude/skills/switch/**"] }), provenance: {} }, null, 2),
+  );
+
+  const runReconcileCli = await loadCli();
+  const report = await runReconcileCli({
+    argv: ["--brainDir", brainDir, "--sourceDir", sourceDir, "--platform", "posix"],
+    seams: seams(),
+  });
+
+  assert.deepEqual(report.installedSkills, ["switch"]);
+  const persisted = JSON.parse(readFileSync(join(brainDir, "engine-manifest.json"), "utf8"));
+  assert.equal(
+    persisted.provenance[".claude/skills/switch/SKILL.md"],
+    base(frenchSwitch),
+    "the base must fingerprint what was installed, or the next update calls it user-modified",
+  );
+});
+
+// The mirror case, and the one that stops the fix from over-reaching: a rel with NO twin
+// is not an omission, it is the product saying "this file is not localized" (ADR 0040,
+// rule 1). A French brain must still receive it, from the root.
+test("reconcileBrain — a skill with no FR twin still reaches a FR brain, from the root (T10)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, "scripts/lib/demo-locale.mjs", 'export const BRAIN_LOCALE = "fr";\n');
+  const rootOnly = "---\nname: switch\n---\nSwitch universes.\n";
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", rootOnly);
+  // A twin for ANOTHER skill: the resolver must not be tempted by a neighbour's locale file.
+  writeFile(sourceDir, "templates/fr/.claude/skills/coach/SKILL.md", "---\nname: coach\n---\nCoach.\n");
+  const target = manifest({ extraMerge: [".claude/skills/switch/**"] });
+  const local = { ...manifest({ ragVersion: "1.0.0" }), provenance: {} };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.deepEqual(report.installedSkills, ["switch"]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"), rootOnly);
+});
+
+// And an EN brain is untouched by all of this: it reads the root even when a twin exists.
+// Without this pole a resolver that ignored `locale` altogether would pass the three
+// tests above (it would just always prefer the FR twin) and anglicize nothing while
+// francizing everyone.
+test("reconcileBrain — an EN brain installs the ROOT skill even when a FR twin exists (T10)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const englishSwitch = "---\nname: switch\n---\nSwitch universes.\n";
+  writeFile(sourceDir, ".claude/skills/switch/SKILL.md", englishSwitch);
+  writeFile(sourceDir, "templates/fr/.claude/skills/switch/SKILL.md", "---\nname: switch\n---\nChange d'univers.\n");
+  const target = manifest({ extraMerge: [".claude/skills/switch/**"] });
+  const local = { ...manifest({ ragVersion: "1.0.0" }), provenance: {} };
+
+  const { ...s } = seams();
+  const report = await reconcile({ brainDir, platform: "posix", sourceDir, target, local, ...s });
+
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/switch/SKILL.md"), "utf8"), englishSwitch);
+});
+
 // ── T1: the trap that would make this feature die silently after ONE use ─────
 // A refreshed file no longer matches the base recorded for it. Unless the base is
 // re-seeded, the NEXT update classifies it "user-modified" and never refreshes it
