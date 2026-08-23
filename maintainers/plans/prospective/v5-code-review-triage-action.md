@@ -12,18 +12,23 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T8.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T7 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`)_;
-  **T8–T15 are open**, in § *Third pass*, which owns them and their order. **Read its ⚠️ first**:
-  unlike the two earlier passes, that section is the reviewer's word and **the items below T7 have not
-  been independently re-checked**. Verify, then fix test-first, red first, one commit per subject,
-  pushed as it goes.
-  - 🛑 **T8 next, and it is one of the two DESTRUCTIVE-SHAPED items** (with T12): "update or
-    self-heal?" is spelled three ways, and the two raw string comparisons guard an `rmSync` and a
-    fetch. Spell `sourceDir` as `<B>/` or `<B>/.` and the verdict flips to `remove`. **Give it the
-    care F6 and S1 got**: reproduce it in a throwaway fixture, never against anything real, and
-    never surface a deletion path as a suggestion. The third spelling already normalizes with
-    `resolve()`, so the fix has a model in the repo.
+- 🔴 **NEXT — RESUME AT T9.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T8 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
+  `85c2167`)_; **T9–T15 are open**, in § *Third pass*, which owns them and their order. **Read its ⚠️
+  first**: unlike the two earlier passes, that section is the reviewer's word and **the items below T8
+  have not been independently re-checked**. Verify, then fix test-first, red first, one commit per
+  subject, pushed as it goes.
+  - **T9 next**: the status line shows a **clean tree over an unversioned vault** — the one git seam
+    left at node's 1 MB `maxBuffer`, running the exact call the release's new 64 MB ceiling was
+    introduced for. Overflow → the catch returns `""` → "no changes". Reproduced by the reviewer at
+    20 000 notes. **F10's own closing line was *"one named ceiling, imported by all four git seams —
+    do not re-inline the number"***, so start by reading that.
+  - ✅ **T8 paid, and the SCANNER that came with it found a fourth door the finding never named.**
+    The lesson is not about paths: **when a rule lives as a phrase repeated in N places, a hand-audit
+    of that phrase is what has already failed** — the wrong spelling reads exactly like the right one.
+    Give the rule one home and a machine that counts its copies. **T12 is the other
+    destructive-shaped item and it is still open**; the same care applies — a throwaway fixture,
+    nothing real, and no deletion path surfaced as a suggestion.
   - ✅ **T7 paid, and its lesson is the entry-point seam rule aimed at a DEFAULT**: every unit in that
     file injected its own `git`, so nine green tests and an anti-vacuity companion never once ran the
     invocation that was wrong. **When every test passes its own version of a collaborator, ask who
@@ -1040,14 +1045,31 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
             refusal's sentence**: the pole matched on the twin's path, so *"the pair would read as in
             sync without being measured"* could be emptied. Asserted whole now →
             [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T7.
-- [ ] **T8 — "update or self-heal?" is spelled THREE ways, and the two raw ones guard an `rmSync` and a
-      fetch** (`skill-retirement-fs.mjs:40`, `engine-ancestor-fetch.mjs:47` compare raw strings;
-      `engine-merge-apply.mjs:45` normalizes with `resolve()`). Demonstrated fail-open: `sourceDir`
-      spelled `<B>/`, `<B>/.` or relative yields verdict `remove` and **the directory is deleted**.
-      The CLI's own `--brainDir` / `--sourceDir` flags are the reachable surface. Latent only because
-      two call sites happen to pass the same variable twice. **The deleted main-branch predecessor DID
-      use `resolve()`** — the weaker comparison was newly written exactly where the consequence became
-      "a directory erased".
+- [x] ✅ **T8 — "update or self-heal?" is spelled THREE ways, and the two raw ones guard an `rmSync`
+      and a fetch — PAID** _(2026-08-23 · `85c2167` + `2013d0d`)_. **Confirmed independently before
+      fixing, on a throwaway fixture and never near anything real**: same brain, three spellings.
+      `<brainDir>` keeps the skill; `<brainDir>/` and `<brainDir>/.` **erase it** and send the
+      `git fetch` out at the owner's private vault remote. After: all three keep it, and no git.
+      - 🚨 **THE REPORT SAYING SO GOES NOWHERE.** On the self-heal path the child is spawned detached
+            with `stdio: "ignore"`, so `skillsRetired: ["tdd-discipline"]` is written to a stream
+            nobody reads. The owner learns their skill is gone by missing it.
+      - **One question, one spelling, in one module** (`update-mode.mjs`). Not tidiness: the rule
+            survived only in the copy that happened to be correct, and `engine-merge-apply` — the one
+            that normalized — had **no test saying so**, so swapping its guard for a raw comparison
+            left its whole file green. It has one now.
+      - 🛑 **AND A SCANNER BESIDE THE ANSWER, which paid for itself before the fix was green.** The
+            finding named three doors; the repo-wide test's first red listed **four**. The extra one
+            is the catch-up line, which a misspelled self-heal would print at a converged brain
+            **every morning**. A raw `sourceDir === brainDir` reads exactly like the safe version —
+            that is how it passed review twice — and a machine does not have that problem. Same shape
+            and same argument as `engine-script-coupling.mjs` (T2's remedy).
+      - 📐 **Every door is poled on BOTH sides of the boundary**: a spelling that names the brain
+            refrains, *and* a launcher path that merely starts with the brain's still acts. Without
+            the second half the fix buys silence instead of safety.
+      - 🧪 **Mutation 82.61 % → 100 %** (23 mutants on the module, 18 on the four call sites, each
+            reproduced twice, all four doors named in the breakdown). Two survivors were the same
+            `\s*`: every fixture had exactly one space, so neither `sourceDir===brainDir` nor a
+            formatter-wrapped comparison was covered → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T8.
 - [ ] **T9 — the status line shows a CLEAN tree over an unversioned vault** (`status-line.mjs:92`).
       `realGit`, renamed and re-plumbed in this diff, is the one git seam left at node's 1 MB
       `maxBuffer`, and it runs `git status --porcelain` — the exact call the release's new 64 MB

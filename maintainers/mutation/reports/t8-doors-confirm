@@ -1,0 +1,30 @@
+[32m15:46:02 (95461) INFO ProjectReader[39m Found 4 of 914 file(s) to be mutated.
+[32m15:46:02 (95461) INFO Instrumenter[39m Instrumented 4 source file(s) with 18 mutant(s)
+[32m15:46:02 (95461) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m15:46:02 (95461) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-1pbWSk
+[32m15:46:02 (95461) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m15:46:02 (95461) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m15:46:06 (95461) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 3 seconds (net 3824 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/18 tested (0 survived, 0 timed out)
+Mutation testing 5% (elapsed: <1m, remaining: ~5m) 1/18 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: <1m, remaining: ~1m) 5/18 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: ~1m) 7/18 tested (0 survived, 0 timed out)
+Mutation testing 55% (elapsed: <1m, remaining: <1m) 10/18 tested (0 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~1m, remaining: <1m) 12/18 tested (0 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 18)
+
+Ran 1.00 tests per mutant on average.
+---------------------------|------------------|----------|-----------|------------|----------|----------|
+                           | % Mutation score |          |           |            |          |          |
+File                       |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                  | 100.00 |  100.00 |       18 |         0 |          0 |        0 |        0 |
+ engine-ancestor-fetch.mjs | 100.00 |  100.00 |        4 |         0 |          0 |        0 |        0 |
+ engine-merge-apply.mjs    | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |
+ reconcile-brain.mjs       | 100.00 |  100.00 |        3 |         0 |          0 |        0 |        0 |
+ skill-retirement-fs.mjs   | 100.00 |  100.00 |        8 |         0 |          0 |        0 |        0 |
+---------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m15:47:16 (95461) INFO MutationTestExecutor[39m Done in 1 minute and 13 seconds.
+[32m15:47:16 (95461) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-1pbWSk.

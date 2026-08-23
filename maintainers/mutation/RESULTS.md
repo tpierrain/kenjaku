@@ -233,6 +233,45 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T8 — one question, four doors, and the scanner found the fourth — 2026-08-23
+
+`85c2167` (the fix) + `2013d0d` (the scanner's whitespace). State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+Scoped to the **new module** and to the **four changed guard lines**.
+
+| File (lines) | First pass | After | Survivors |
+|---|---|---|---|
+| `update-mode.mjs:33-55` (the predicate + its scanner) | **82.61 %** — 4 survived | **100 %** — 23 killed | 0 |
+| the four guard call sites (`skill-retirement-fs`, `engine-ancestor-fetch`, `engine-merge-apply`, `reconcile-brain`) | **100 %** | **100 %** — 18 killed | 0 |
+
+**Reproduce**: `FORCE_COLOR=0 NO_COLOR=1 node maintainers/mutation/mutate-one.mjs
+scripts/lib/update-mode.mjs:33-55`, then the same with `scripts/lib/skill-retirement-fs.mjs:46-48
+scripts/lib/engine-ancestor-fetch.mjs:53-53 scripts/lib/engine-merge-apply.mjs:49-49
+scripts/lib/reconcile-brain.mjs:748-748`. Twice each: **100 %, 23 and 18 mutants, both times**, and
+all four doors are named in the second breakdown. Logs [`t8`](reports/t8) / [`t8-confirm`](reports/t8-confirm)
+and [`t8-doors`](reports/t8-doors) / [`t8-doors-confirm`](reports/t8-doors-confirm).
+
+**THE SCANNER PAID FOR ITSELF BEFORE THE FIX WAS EVEN GREEN.** The finding named three places asking
+*"update or self-heal?"*; the repo-wide test's first red listed **four**, and the extra one was
+`announceWhatTheOldRecapCannot` — a misspelled self-heal would tell a converged brain it was catching
+up every single morning. A hand-audit of a phrase is exactly what missed it twice already: a raw
+`sourceDir === brainDir` reads identically to the safe version, which is how it got through review,
+and a machine does not have that problem.
+
+**Two of the four survivors were the same quantifier**, `\s*` narrowed to `\s` on either side of the
+operator. Every fixture had exactly one space — and neither `sourceDir===brainDir` nor a comparison a
+formatter has wrapped across a line is hypothetical. **A scanner a line break defeats is one nobody
+can rely on**, and nothing said otherwise. The third was the filter that makes the
+`(sourceDir|brainDir)` alternation safe on both sides: no pole said `brainDir === brainDir` is a
+tautology rather than a defect.
+
+➡️ **And every door was poled on BOTH sides of the boundary**: a spelling that names the brain
+refrains, *and* a launcher path that merely starts with the brain's still acts. Without the second
+half the fix buys silence instead of safety — the same shape T6's stray-artifact filter needed, six
+findings earlier.
+
+---
+
 ## T7 — a guard that measured nothing, and the units that could not see it — 2026-08-23
 
 `00caad7` (the fix) + `977cdb8` (the refusal's message). State owned by
