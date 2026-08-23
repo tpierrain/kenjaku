@@ -233,6 +233,42 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T7 — a guard that measured nothing, and the units that could not see it — 2026-08-23
+
+`00caad7` (the fix) + `977cdb8` (the refusal's message). State owned by
+[`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+Scoped to the **changed lines only**.
+
+| File (lines) | First pass | After | Survivors |
+|---|---|---|---|
+| `locale-drift.mjs:37`, `:69`, `:120-126` | **90 %** — 1 survived | **100 %** — 10 killed | 0 |
+
+**Reproduce**: `FORCE_COLOR=0 NO_COLOR=1 node maintainers/mutation/mutate-one.mjs
+scripts/lib/locale-drift.mjs:37-37 scripts/lib/locale-drift.mjs:69-69
+scripts/lib/locale-drift.mjs:120-126`. Twice: **100 % both times, 10 mutants both times**, and the
+file is named in the per-file breakdown. Logs [`t7`](reports/t7) and [`t7-confirm`](reports/t7-confirm).
+
+**EVERY UNIT IN THAT FILE INJECTS ITS OWN `git`, SO THE ONE THING THAT WAS WRONG WAS NEVER RUN.** The
+seam is excellent for what it tests — the criterion, the parsing, the pairing — and it is precisely
+why nine tests and an anti-vacuity companion all stayed green while the guard, run from `scripts/`,
+reported **0 drifts** where the root reported 1. The defect lived in the default the seam replaces.
+So the pole runs the module **as a process** from a temp dir, in no repository at all, and asserts a
+sha only this repository can produce: it fails one way if the invocation is unrooted (git refuses
+outright) and another if it is rooted somewhere else.
+
+➡️ **This is the entry-point seam rule applied to a DEFAULT, not to an entry point.** A parameter with
+a real-world default has two implementations, and the tests were all exercising the other one. The
+transferable question: *when every test passes its own version of a collaborator, who runs the one
+that ships?*
+
+**And the survivor was half a sentence.** The refusal message's second clause — *"the pair would read
+as in sync without being measured"* — could be emptied with the suite green, because the pole matched
+on the twin's path. Named alone, "cannot place X" reads like a missing file rather than a void
+measurement, which is the whole distinction the throw exists to draw. Asserted whole now, for the
+reason `describeDrift`'s own pole already gave one screen up: **this message is the feature.**
+
+---
+
 ## T6 — thirteen anchors nobody had tested, on a filter whose ONLY safety is its anchors — 2026-08-23
 
 `1604d3e` (the fix) + `67682ad` (the survivors' poles). State owned by

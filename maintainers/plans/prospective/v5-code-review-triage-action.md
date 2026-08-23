@@ -12,16 +12,22 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T7.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T6 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`)_;
-  **T7–T15 are open**, in § *Third pass*, which owns them and their order. **Read its ⚠️ first**:
-  unlike the two earlier passes, that section is the reviewer's word and **the items below T6 have not
+- 🔴 **NEXT — RESUME AT T8.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T7 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`)_;
+  **T8–T15 are open**, in § *Third pass*, which owns them and their order. **Read its ⚠️ first**:
+  unlike the two earlier passes, that section is the reviewer's word and **the items below T7 have not
   been independently re-checked**. Verify, then fix test-first, red first, one commit per subject,
   pushed as it goes.
-  - **T7 next**: the new EN/FR drift guard measures **nothing** when run from anywhere but the repo
-    root, and stays green — 16 pairs, 1 drift from the root; 16 pairs, **0 drifts** from `scripts/`.
-    Its anti-vacuity companion cannot catch it. **The repo already states the exact remedy for another
-    caller** (`-C <dir>` is mandatory), so start by reading that.
+  - 🛑 **T8 next, and it is one of the two DESTRUCTIVE-SHAPED items** (with T12): "update or
+    self-heal?" is spelled three ways, and the two raw string comparisons guard an `rmSync` and a
+    fetch. Spell `sourceDir` as `<B>/` or `<B>/.` and the verdict flips to `remove`. **Give it the
+    care F6 and S1 got**: reproduce it in a throwaway fixture, never against anything real, and
+    never surface a deletion path as a suggestion. The third spelling already normalizes with
+    `resolve()`, so the fix has a model in the repo.
+  - ✅ **T7 paid, and its lesson is the entry-point seam rule aimed at a DEFAULT**: every unit in that
+    file injected its own `git`, so nine green tests and an anti-vacuity companion never once ran the
+    invocation that was wrong. **When every test passes its own version of a collaborator, ask who
+    runs the one that ships** — and run it as a process.
   - ✅ **T6 paid, and its mutation run is the one to remember**: 35 % first pass, and **all thirteen
     survivors were the same anchor** — the very boundary the fix's safety rests on. **When a fix is
     safe only because of a boundary, triangulate the boundary; the happy path proves nothing about
@@ -1007,12 +1013,33 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
             no provenance and no sidecar still cannot be dismissed — and it should not be: that nudge
             is legitimate and ends when the engine heals or delivers. What was wrong was the
             population, and the population is what moved.
-- [ ] **T7 — the new EN/FR drift guard measures NOTHING off the repo root, and stays green**
-      (`locale-drift.mjs:53`). It runs git through `buildGitInvocation`, which sets no `cwd`, so every
-      window collapses to `"..HEAD"`. From the repo root: 16 pairs, 1 real drift. From `scripts/`: 16
-      pairs, **0 drifts**, suite 20/20 green from both. The anti-vacuity companion cannot catch it —
-      it builds its list from an explicit `REPO_ROOT`, so the pair count is still 16. **The repo states
-      the exact remedy for another caller** (release plan, `-C <dir>` is mandatory).
+- [x] ✅ **T7 — the new EN/FR drift guard measures NOTHING off the repo root, and stays green — PAID**
+      _(2026-08-23 · `00caad7` + `977cdb8`)_. **Confirmed independently before fixing**, as a process
+      and from three directories: 16 pairs everywhere, **1 drift from the root, 0 from `scripts/`**,
+      and the twin's last commit coming back **empty** so the window collapses to `..HEAD`. Suite
+      20/20 green from both. After: **the same 1 drift and the same sha from the root, from
+      `scripts/`, and from a temp dir outside any repository.**
+      - **The guard roots ITSELF, and the repository is deliberately not a parameter.** Its one job is
+            to judge *this* repo's `templates/` tree, so it derives the root from its own source
+            location and prepends `-C`. A caller cannot forget what it is never asked for. The repo
+            had already written the remedy down for another caller, **and the reason it hides**:
+            *"a missing `-C` is invisible from a return value, since the command still succeeds, just
+            in the wrong directory"* (RESULTS.md § S7-5).
+      - 🛑 **EVERY UNIT IN THAT FILE INJECTS ITS OWN `git`, SO THE ONE THING THAT WAS WRONG WAS NEVER
+            RUN.** Nine tests plus an anti-vacuity companion, all green, all exercising a fake. **This
+            is the entry-point seam rule applied to a DEFAULT**: a parameter with a real-world default
+            has two implementations, and the suite was testing the other one. So the new pole runs the
+            module **as a process**, from a temp dir in no repository at all, and asserts a sha only
+            this repository can produce — it fails one way unrooted, another way misrooted.
+      - 📐 **The collapse is no longer allowed to be quiet, and that is a second, deliberate change.**
+            An empty last-commit made the window empty and the pair read as *in sync*. A twin comes
+            from a tracked listing, so no commit means the question was asked where it could not be
+            answered. **Unmeasured is not unchanged** — it throws now, which is the same argument
+            `defaultLog` already made in prose for refusing the `{ok:false}` convention.
+      - 🧪 **Mutation 90 % → 100 %** (10 mutants, reproduced twice). The lone survivor was **half the
+            refusal's sentence**: the pole matched on the twin's path, so *"the pair would read as in
+            sync without being measured"* could be emptied. Asserted whole now →
+            [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T7.
 - [ ] **T8 — "update or self-heal?" is spelled THREE ways, and the two raw ones guard an `rmSync` and a
       fetch** (`skill-retirement-fs.mjs:40`, `engine-ancestor-fetch.mjs:47` compare raw strings;
       `engine-merge-apply.mjs:45` normalizes with `resolve()`). Demonstrated fail-open: `sourceDir`
