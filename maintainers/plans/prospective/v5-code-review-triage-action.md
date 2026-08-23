@@ -97,6 +97,14 @@
     prefix, so they can collide with neither F nor S. **Do NOT re-open § Tracking**, and do not
     append to § *Second pass*: mixing two passes' findings loses which pass found what, which is the
     only way to tell a regression from a miss.
+  - 🎲 **ONE DEFECT IS ALREADY KNOWN AND IS NOT THIS FILE'S — do not record it as a T-finding.** The
+    branch's CI is red about 1 PR run in 6, always the same macOS test (the universe hook not waiting
+    for the startup pull). It was found **independently on 2026-08-23**, outside any review, it is
+    **byte-identical to `main`** so no pass could call it a v5 regression, and it is owned by
+    [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)
+    § *THE macOS FLAKE*, with its measurement and its four killed hypotheses. **If the third pass
+    reports it, link that section instead of opening a duplicate** — and if the pass reaches a cause,
+    that is news the owning section wants, not a new item here.
 - **Owner's call pending:** **NONE. F11 is decided, and this block is where it was lost.**
   **E / F11 → remedy (b), confirmed by Thomas 2026-08-23**: the retired `tdd-discipline` twin is not
   translated, because its successor replaces the very strategy it taught. His words: *"ça n'est pas
