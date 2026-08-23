@@ -233,6 +233,37 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## T14 — one word for two kinds of bad news, and the honest one was crying wolf — 2026-08-23
+
+`49fa874` (the two verdicts) + `9e431a4` (the instrument that could not read its own 100). State owned
+by [`../plans/prospective/v5-code-review-triage-action.md`](../plans/prospective/v5-code-review-triage-action.md).
+EXISTING files changed → measured **on THOSE LINES ONLY**.
+**Reproduce**: `node maintainers/mutation/mutate-one.mjs "scripts/lib/engine-ancestor-fetch.mjs:53-144"
+"scripts/update-engine.mjs:404-417" "scripts/lib/plural.mjs:36-38" --log t14-ancestor-verdicts.log`,
+and for the runner half `--mutate "maintainers/mutation/mutate-one.mjs:339-346,…:369-369"` through the
+maintainers config.
+
+| Run | Mutants | Score | Survivors |
+|---|---|---|---|
+| the two verdicts, three files (`49fa874`) | 66 | **100.00 %** | 0 |
+| the colour strip in the runner (`9e431a4`) | 5 | **100.00 %** | 0 |
+
+**The defect, reproduced through the real formatter before a line was changed**: a git that answers
+`ok` to both the fetch and the show, handing back bytes that are not this brain's original, produced
+*"could not reach the update server … the next update will try again"*. Both halves false, and the
+second one permanently: the retry repeats the run word for word. Two channels now — `unreachable`
+(a tag that never came down, retryable) and `unmatched` (git answered, nothing published matches) —
+kept apart all the way to the owner's screen, because the sentence asserts a **cause**.
+
+🎯 **AND THE RUN THAT MEASURED IT FOUND THE INSTRUMENT'S OWN BLIND SPOT** — see the box at the end of
+§ T13 above. `parseMutationReport` announced **`✅ Mutation score null %` over a table reading 100.00**,
+because T13's colour strip had been applied to one of this file's two parsers. The 66/0 above was read
+off the table by hand first, then re-read by the fixed parser and by a fresh `mutate-one` run printing
+`✅ Mutation score 100 %` as a process. **A score is only as good as the thing that prints it**, which
+is the whole argument of the section below.
+
+---
+
 ## T13 — the instrument printed ✅ over a run that had measured NOTHING — 2026-08-23
 
 `658c348` (the two gates) + `da1fe2e` (the survivors' poles) + `3eec3cc` (a dead disjunct removed) +

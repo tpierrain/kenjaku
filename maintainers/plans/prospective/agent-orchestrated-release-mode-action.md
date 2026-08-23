@@ -42,14 +42,22 @@
     positive and no exaggerated severity**. Counts and per-item state stay the triage plan's; what
     this file keeps is that the accuracy held across the whole batch, and **what the batch taught
     about reading a fan-out's output**:
-    - 🔍 **UNDER-reporting is the recurring shape, and it is now FOUR items out of twelve.** One
+    - 🧰 **AND THE THIRTEENTH POINT CAME WITH A WARNING ABOUT THE SCOREBOARD ITSELF** _(2026-08-23)_.
+      The item held like the twelve before it, and the mutation run that proved its fix announced
+      **`✅ Mutation score null %` over a table reading 100.00** — the instrument that judges every one
+      of these repairs had a blind spot of its own, in the half of it that reads the score. So the
+      accuracy claim above rests on numbers a tool prints, and **that tool is inside the perimeter
+      being reviewed, not outside it**. It was found by measuring, not by reading. Detail is the
+      triage plan's (T14) and the register's.
+    - 🔍 **UNDER-reporting is the recurring shape, and it is now FIVE items out of thirteen.** One
       named three call sites and a scanner written for the fix found **a fourth**; another's stated
       threshold **bracketed** the measured one rather than overshooting it; a third named **one**
       copy site where running the same case against its neighbours found **three**; and the fourth
       named **one** of the two ways its function says nothing, the other half being the one already
-      met in the wild. So the standing instruction is not "trust it less" but **"treat the named site
-      as a sample, and run the case against the neighbours"** — every time, that is what found the
-      extra one, never a re-reading.
+      met in the wild; and the fifth named **two** states where there are **three**, the third being
+      a case that belongs on the quieter side of its own fix. So the standing instruction is not
+      "trust it less" but **"treat the named site as a sample, and run the case against the
+      neighbours"** — every time, that is what found the extra one, never a re-reading.
     - 🎯 **A finding's own statement of its LIMITS held too**, which is the half a severity-inflating
       reviewer gets wrong: one item said in as many words that its destructive path was *not*
       reachable, and reproduction agreed exactly. That is worth more than a high hit rate — it means

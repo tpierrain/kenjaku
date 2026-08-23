@@ -12,19 +12,28 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T14.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T13 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
-  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`;
-  `658c348`+`da1fe2e`+`3eec3cc`+`74fb898`+`d48d2c5`)_; **T14 and T15 are open**, in § *Third pass*,
-  which owns them and their order.
+- 🔴 **NEXT — RESUME AT T15, THE LAST ONE.** The third pass landed 2026-08-23 with 15 findings,
+  T1–T15. **T1–T14 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`;
+  `00caad7`; `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`;
+  `658c348`+`da1fe2e`+`3eec3cc`+`74fb898`+`d48d2c5`; `49fa874`+`9e431a4`)_; **T15 alone is open**, in
+  § *Third pass*, which owns it.
   **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and **the
   items below T9 have not been independently re-checked**. Verify, then fix test-first, red first, one
   commit per subject, pushed as it goes.
-  - **T14 next**: one `failed.push(rel)` conflates *"the tag or the network is unreachable"* with
-    *"fetched fine, and no published blob matches"*, and the update renders the flat list with prose
-    asserting the first cause. **T4 discharged HALF of it as a side effect** — the false line no
-    longer fires for `CLAUDE.md`, which is what made it appear on every update of every brain — and
-    the conflation itself is untouched.
+  - **T15 next**: `mutate-one.mjs`'s `parseArgs` lets `--worktree` / `--log` swallow a following
+    `--dry-run` via `argv[++i]`, and `isPlainName` accepts the swallowed flag because `-` is in its
+    character class. Someone who typed `--dry-run` gets a **real** Stryker run and a worktree named
+    `--dry-run` beside the repo. **Two earlier passes hardened these same two arguments on value
+    shape and neither raised this** — so verify it as a process before fixing, as every item since T1
+    has been.
+  - ✅ **T14 paid, and the run that measured it found the INSTRUMENT blind**
+    _(`49fa874` the two verdicts + `9e431a4` the colour strip · scoped mutation **100.00 %** on both,
+    71 mutants, 0 survivors)_. One `failed` list said "the update server was unreachable" over a git
+    that had answered twice; it is two channels now, `unreachable` and `unmatched`, and only the first
+    advertises a retry. Then the scoped run printed **`✅ Mutation score null %` over a table reading
+    100.00** — T13's colour strip had reached one of `mutate-one.mjs`'s two parsers and not the other,
+    and `null` is the tell T13 had just installed for a run that measured nothing. **Detail in
+    § *Third pass* under T14**, and in [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T14.
   - ✅ **T13 paid, and the corpus it casts doubt on was AUDITED rather than trusted**
     _(`658c348` the gates + `da1fe2e` the poles + `3eec3cc` a dead branch removed · scoped mutation
     **97.80 %**, the two survivors equivalent and proved so over all 98 kept logs)_. A run with zero
@@ -1278,12 +1287,33 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
         their table named four other files — a test whose premise made it a run that could never
         happen, which is the family of the FR false alarm, the hand-rolled lookup and T4's guarding
         test. **The gate went red on its own suite first**, which is how they were found.
-- [ ] **T14 — every brain is told the update server was unreachable, on a flawless network**
-      (`engine-ancestor-fetch.mjs:101`). The single `failed.push(rel)` conflates "tag/network
-      unreachable" with "fetched fine, no published blob matches", and `update-engine.mjs:401` renders
-      the flat list with prose asserting the first cause. **Combined with T4 this false line appears on
-      every update of every brain**, so the one channel that reports genuine network trouble is
-      permanently crying wolf.
+- [x] ✅ **T14 — every brain is told the update server was unreachable, on a flawless network — PAID**
+      _(2026-08-23 · `49fa874` the two verdicts + `9e431a4` the instrument · scoped mutation
+      **100.00 %** on both, 71 mutants, 0 survivors)_. **Confirmed independently before fixing**, and
+      reproduced through the **real formatter** on a git answering `ok` to both commands: the owner
+      read *"could not reach the update server … the next update will try again"* over a fetch that
+      had reached it twice. **Both halves false**, and the second one permanently — the retry repeats
+      the run word for word.
+      - **The shape of the fix**: two channels, kept apart all the way to the screen, because the
+        sentence asserts a **cause**. `unreachable` = a tag that never came down (retryable, and the
+        only shape the old sentence was ever true of); `unmatched` = git answered and nothing
+        published is this brain's original (a settled verdict, said in its own words, no retry
+        advertised). A rel that mixes both inside one candidate walk is `unreachable` — the candidate
+        the network hid may have been the right row, so the verdict fails towards the one the owner
+        can act on.
+      - 🔍 **The finding named TWO states and there are THREE** — the under-reporting shape, for the
+        fifth time on this branch. A `git show` that refuses is neither of its two: the tag came down,
+        so no network failed, and the path is simply not at it. It joins `unmatched`, which is the
+        half that promises nothing.
+      - 🚨 **AND MEASURING IT BROKE THE INSTRUMENT OPEN.** The scoped run announced
+        **`✅ Mutation score null %` over a table reading 100.00 on every row**: T13's colour strip had
+        been applied to `parseTestCounts` and not to `parseMutationReport`, one function below, and
+        `null` is precisely the tell T13 had just installed for *"this run measured nothing"*. Dropping
+        the `NO_COLOR=1` workaround T13 made unnecessary is what exposed it. **The census was one
+        function short** — T10's lesson again, and this time about the tool that judges everyone
+        else's tests. One home for the rule now (`withoutColour`), both parsers reading it, pinned in
+        two SGR spellings and on the per-file breakdown the "measured nothing" gate reads.
+        → [`mutation/RESULTS.md`](../../mutation/RESULTS.md) § T14 and the tail of § T13.
 - [ ] **T15 — an explicitly typed `--dry-run` is swallowed and the run goes LIVE**
       (`mutate-one.mjs:104`). `--worktree`/`--log` take `argv[++i]`, and `isPlainName` accepts the
       swallowed flag because `-` is in its character class. The user who typed `--dry-run` gets a real
