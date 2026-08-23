@@ -12,19 +12,42 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T12.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T11 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
-  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`)_; **T12–T15 are open**, in
-  § *Third pass*, which owns them and their order.
+- 🔴 **NEXT — RESUME AT T13.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T12 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
+  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`; `21b7397`+`97796a1`)_;
+  **T13–T15 are open**, in § *Third pass*, which owns them and their order.
   **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and **the
   items below T9 have not been independently re-checked**. Verify, then fix test-first, red first, one
   commit per subject, pushed as it goes.
-  - **T12 next, and it is one of the branch's two destructive-shaped items.** A tombstone containing
-    `..` escapes the never-touch oracle, whose stated *"ONLY defence"* is a regex. **The `rmSync` is
-    NOT reachable** (provenance keys cannot match) — so this is a false claim and a bogus owner-facing
-    line, not a deletion. Same care F6/S1 and T8 got: a throwaway fixture, nothing real, and **no
-    deletion path surfaced as a suggestion**. Its defence is a phrase repeated in more than one place,
-    which is exactly the shape T10's census was built for — **reuse it rather than hand-auditing**.
+  - **T13 next, and it is the instrument every other item's evidence flows through**: a mutation run
+    that measured NOTHING prints a green tick and exits 0 (`Number()` on `n/a` → `NaN`, and both gates
+    miss). **Every score this queue has recorded came through that function** — so it is also the item
+    that decides how much the T1–T12 numbers are worth.
+    - 📌 **Two things measured while paying T10–T12, both material to T13.** (a) The per-file
+      breakdown was read BY HAND after each run, and it matched the files asked for every time — that
+      manual check is exactly what T13 should make automatic. (b) `parseTestCounts` is **ANSI-blind**:
+      under a colourising terminal the write-guard verification fails to parse a perfectly green
+      `22 pass / 0 skipped` and the run aborts. It aborts LOUDLY, which is the correct direction, so
+      it is a papercut and not a lie — but it is one line from the same function family. Workaround
+      in the meantime: run `mutate-one.mjs` with `NO_COLOR=1 FORCE_COLOR=0`.
+  - ✅ **T12 paid** _(`21b7397` the fix + `97796a1` the pole · scoped mutation **95.92 %**, the two
+    survivors equivalent and recorded as such in the code)_. `ENGINE_SKILL` says *"this is shaped like
+    a skill"*; it never said *"and it stays where it claims to be"*, and `[^/]+` accepts `..`.
+    - 🩺 **Measured, not assumed, and the finding was right**: **no deletion is reachable** — a
+      provenance key cannot match a vault note, so the verdict is never `remove`. What was real: the
+      retirement lists the escaped tree, reads every file into memory, and names it in an owner-facing
+      line, while `planTouches` answered *"never writes there"* about a plan that had just named the
+      vault.
+    - 🏗️ **Fixed at the ALLOWLIST's construction, not in the oracle**: an entry that reaches no bucket
+      is one the oracle cannot be wrong about, and the other consumers inherit it without knowing.
+      Applied to every bucket, including the two the sacred scrub deliberately spares.
+    - 🪟 **The Windows half is load-bearing**: `path.win32.join` treats `\` as a separator, so a check
+      that split on `/` alone would reject nothing on the one platform where the traversal resolves.
+    - ⚠️ **What this does NOT cover**, so nobody assumes it did: the cut-by-cap item
+      `engine-write-guard.mjs` `rel.startsWith("..")` is a different defect (a file legitimately named
+      `..foo` INSIDE the brain falls outside the guard). Still latent, still uncut. What T12 does give
+      it is a stronger premise: its justification was *"no engine regime names such a path"*, which was
+      an observation and is now enforced.
   - ✅ **T11 paid, and the barrier now has ONE spelling** _(`dd9e1d5` the fix + `4e62652` the
     entry-point pole · scoped mutation **100 %**)_. `session-universe.mjs` was the barrier's only
     non-test caller; rather than write a second inline spelling of five arguments that all have to
@@ -1194,7 +1217,20 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
         - 📌 **Recommendation: post-tag**, in one piece with `session-universe.mjs`'s adoption of the
           helper and with the macOS flake instrument — all three touch the same barrier, and two of
           them touch files that must stay byte-identical to `main` until the tag is cut.
-- [ ] **T12 — a tombstone with `..` blinds the never-touch oracle** (`engine-apply-plan.mjs:139`).
+- [x] **T12 — a tombstone with `..` blinds the never-touch oracle** (`engine-apply-plan.mjs:139`).
+      _(2026-08-23 · `21b7397` the fix + `97796a1` the pole · scoped mutation **95.92 %**; the two
+      remaining survivors are equivalent — every caller of `declared` follows it with a shape filter —
+      and that is recorded in the code rather than papered over with a test that could not reach past
+      it.)_
+      - 🔒 `climbsOut` refuses any entry with a `.` or `..` SEGMENT, at the allowlist's construction,
+        on every bucket. Segments and not characters, so `.claude/skills/my..skill/**` stays a skill.
+        Split on both separators, because `path.win32.join` treats `\` as one.
+      - 💡 **The lone `.` is not about escaping**, and the mutation run is what made that clear: it
+        climbs nowhere, but it is a SECOND SPELLING of a path this module compares as a string, so a
+        `.`-spelled tombstone would be honoured by the retirement and ignored by the install-if-absent
+        a few lines later — the skill deleted and put straight back in one pass.
+      - 📎 The comment claiming a single defence is **corrected in place**: that sentence is what the
+        finding was really about, and the hostile-manifest test's intent is now true.
       `retireSkills` is exempted from the sacred-tree scrub and its stated *"ONLY defence"*,
       `/^\.claude\/skills\/[^/]+\//`, accepts `..`. `planTouches(plan, 'vault/notes/a.md')` returns
       **false** for a plan that just named the vault. **The `rmSync` is not reachable** (provenance
