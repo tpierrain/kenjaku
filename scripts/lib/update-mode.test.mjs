@@ -113,6 +113,28 @@ test("findRawDirComparisons reads code, not prose: a comparison quoted in a comm
   assert.deepEqual(findRawDirComparisons(source), []);
 });
 
+test("findRawDirComparisons finds it whatever the whitespace — none at all, or a wrapped line", () => {
+  // Both fixtures came from a mutation run: every case above had exactly ONE space either
+  // side of the operator, so `\s*` could be narrowed to `\s` twice over with the suite
+  // green. Neither spacing is hypothetical — `sourceDir===brainDir` is what a hand types,
+  // and the wrapped form is what a formatter produces on a long line. A scanner that a
+  // line break defeats is a scanner nobody can rely on.
+  const source = ["if (sourceDir===brainDir) return;", "if (", "  sourceDir ===", "    brainDir", ") return;"].join("\n");
+
+  assert.deepEqual(findRawDirComparisons(source), [
+    { line: 1, text: "sourceDir===brainDir" },
+    { line: 3, text: "sourceDir ===\n    brainDir" },
+  ]);
+});
+
+test("findRawDirComparisons does not report a name compared to ITSELF — that is a tautology, not this defect", () => {
+  // What makes the `(sourceDir|brainDir)` alternation safe on both sides. Without the
+  // filter the scanner reports `brainDir === brainDir`, which is nonsense code but not a
+  // misspelled self-heal gate — and a guard that cries about the wrong line is a guard
+  // people learn to widen instead of to read.
+  assert.deepEqual(findRawDirComparisons("if (brainDir === brainDir) return;\nif (sourceDir !== sourceDir) act();"), []);
+});
+
 test("findRawDirComparisons compares the two dirs to EACH OTHER, and to nothing else", () => {
   // A comparison against undefined, against a third variable, or between identifiers
   // that merely begin with those names is not this defect.
