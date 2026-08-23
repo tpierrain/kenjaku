@@ -150,3 +150,18 @@ test("installStagedSkills — the twin is never MISTAKEN for a staged skill of i
 
   assert.deepEqual(installStagedSkills({ sourceDir, brainDir }), ["local-mirror"]);
 });
+
+test("installStagedSkills — a stray FILE at the staging root is not a skill, and installs nothing", (t) => {
+  // A mutant deleted the directory test and every assertion stayed green: nothing had
+  // ever put a plain file in `engine-skills/`. A README, a `.DS_Store` or an index would
+  // be reported to the owner as a skill they now have, and copied file-by-file into a
+  // directory named after it.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/README.md", "What this staging directory is for.\n");
+  writeFile(sourceDir, "engine-skills/local-mirror/SKILL.md", "---\nname: local-mirror\n---\nMirror.\n");
+
+  const installed = installStagedSkills({ sourceDir, brainDir });
+
+  assert.deepEqual(installed, ["local-mirror"], "only directories are skills");
+  assert.ok(!existsSync(join(brainDir, ".claude/skills/README.md")), "a stray file must not be installed as a skill");
+});

@@ -180,6 +180,17 @@ test("findDeliveryCopies — a name that merely ENDS in the call's name is a dif
   assert.deepEqual(findDeliveryCopies("safeCopyFileSync(a, b);\nmyCopyFileSync(c, d);"), []);
 });
 
+test("findDeliveryCopies — a call on the LAST line, with no trailing newline, is reported WHOLE", () => {
+  // Two mutants survived the first pass here, and both flipped the same branch: with no
+  // trailing newline there is no `\n` to find, and the fallback to the end of the source
+  // is what stops the reported text losing its last character. A census whose evidence is
+  // truncated is one people stop believing — and "no newline at end of file" is not an
+  // exotic fixture, it is what a hand-written last line looks like.
+  assert.deepEqual(findDeliveryCopies("const a = 1;\ncopyFileSync(src, dest);"), [
+    { line: 2, text: "copyFileSync(src, dest);" },
+  ]);
+});
+
 // ── The repo-wide half: the whole set of doors, pinned ───────────────────────
 // Each entry is a VERDICT, not an allowance. `locale-resolved` means the file must go
 // through ADR 0040 rule 3; the exemptions say, in words, why the bytes they copy are not
