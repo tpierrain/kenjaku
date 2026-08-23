@@ -75,6 +75,19 @@
 >   from its badge, not from what it proved. So: 📐 is earned by naming **what would have to be true
 >   for the command to answer the question**, not by having run something. On an autonomous stretch
 >   there is no hand-back where that gets asked, which is exactly when the badge gets typed.
+> - 🎲 **THE MODE ASKED "IS CI GREEN?" AND NEVER "HOW OFTEN?"** _(2026-08-23)_. Every green claim this
+>   release made about CI was read off **the last run**. Reading the **distribution** instead — thirty
+>   runs, not one — showed the branch red **1 PR run in 6**, on the same macOS test every time, for
+>   weeks, in plain sight. Nobody was careless: a flake is invisible to the question the loop kept
+>   asking, because half its answers are honest greens. **A green is a sample; a matrix is a
+>   population.** So on any branch a release is cut from, the check is `gh run list` over the recent
+>   history, not the badge on HEAD — and it costs one command. _(The defect itself is not this file's
+>   and is not v5's: it is owned by
+>   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md)
+>   § *THE macOS FLAKE*, and its code is byte-identical to `main`.)_
+>   - 🪝 **And it is the second finding in two days that a session owed to LOOKING rather than
+>     recalling** — the first was the `plan-carrier-guard` hook forcing an archived plan open and
+>     breaking a wrong CRLF verdict. Both were free. Both were skipped for as long as nothing insisted.
 >
 > _(A fifth, **"a closed list is not an emptied inventory"**, was learned here too and is now owned by
 > [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) § *FOUR
