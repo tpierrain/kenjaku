@@ -51,18 +51,21 @@
     **Both queues are discharged, and re-opening either would lose which pass found what.**
   - **If it returns nothing**, say so and tick step 4: an empty third pass on a branch whose two
     earlier passes found 30 is a result, not a non-event.
-- 🎲 **A NEW FINDING, AND IT IS THE ONE THING ON THIS RELEASE THAT IS NOT SETTLED** _(2026-08-23, found
-  while the third review pass ran)_. **The branch's CI is red about 1 PR run in 6** — 5 of the last 30,
+- 🎲 **A NEW FINDING, AND IT NO LONGER GATES THE RELEASE** _(2026-08-23, found while the third review
+  pass ran)_. **The branch's CI is red about 1 PR run in 6** — 5 of the last 30,
   **always the same test, always macOS**: the universe hook does not wait for the startup pull. **It is
   NOT v5's**: the three files involved are byte-identical to `main`. It did **not** reproduce here in
   ~200 runs, and four hypotheses were run and killed. → § *THE macOS FLAKE*, which owns all of it.
-  - **What is his**: whether a known ~17 % red CI, inherited and not introduced, holds the tag.
-    **Recommendation: it does not** — the code is `main`'s, the failure mode is a fail-open back to the
-    pre-barrier behaviour, and nothing has been observed in the field. But CI has stopped being a
-    tripwire, so it wants its own item straight after the tag.
+  - ✅ **DECIDED BY THOMAS, 2026-08-23: the flake does NOT hold the tag.** His words: *"d'accord pour
+    ne pas conditionner la sortie de la V5 à la correction de la CI qui échoue une fois tous les… à
+    cause de flaky tests."* The recommendation was taken as given: the code is `main`'s, the failure
+    mode is a fail-open back to the pre-barrier behaviour, and nothing has been observed in the field.
+    **Do not re-open this and do not re-ask it.** The flake keeps its own item **after** the tag, since
+    CI has stopped being a tripwire.
   - **What is a session's, and is NOT done**: a test that records **which** fail-open branch it took, so
-    the next red is read rather than reasoned. Held back deliberately — it edits a file identical to
-    `main` while a review is reading the branch.
+    the next red is read rather than reasoned. It was held back while a review was reading the branch;
+    **that hold is now lifted** (the third pass has finished reading). It is **not** a gate on the tag —
+    it belongs to the post-tag flake item above.
 - ✅ **RE-VERIFIED AT `2cb7d68`, the commit the third review pass is reading** _(2026-08-23)_: product
   suite **2 593 green / 0 fail / 3 skipped**, maintainer suite **66/66**, and the **field rehearsal
   green on copies of BOTH real brains, exit 0** — `mind-palace` (v4.9.1) and `autre-brain` (v3.5.0)
@@ -206,6 +209,24 @@
 >
 > **And the cheaper harm is certain**: at 1 red run in 6, CI stops being a tripwire. A red on this
 > branch is now ambiguous, which is exactly what a release's last week must not have.
+>
+> ### ✅ THOMAS'S CALL — **this flake does NOT hold the v5.0.0 tag** _(2026-08-23)_
+>
+> Asked whether a known ~17 % red CI, **inherited from `main` and not introduced here**, should gate the
+> release, he answered no: *"d'accord pour ne pas conditionner la sortie de la V5 à la correction de la
+> CI qui échoue une fois tous les… à cause de flaky tests."* The recommendation above was taken as
+> given, on its three stated grounds — the code is `main`'s, the failure mode is a fail-open back to the
+> pre-barrier behaviour, and nothing has been observed in the field.
+>
+> **What that does and does not license**, so the next session does not read it too widely:
+>
+> - The tag ships with this red **known and written down**, not with it hidden. A red macOS run on THIS
+>   test is expected; a red anywhere else is still a stop.
+> - **The flake keeps its own item, straight after the tag** — CI being an ambiguous signal is a real
+>   cost, and the decision buys time, not absolution.
+> - **The instrument is still owed** (the test that records which fail-open branch it took). Its hold
+>   was *"a review is reading the branch"*, and that hold is spent. It is post-tag work, and it is what
+>   turns the next red from a thing to reason about into a thing to read.
 >
 > ## 🚨 THE REHEARSAL — **the first update to v5 does not unfreeze anything, and says it is up to date**
 >
