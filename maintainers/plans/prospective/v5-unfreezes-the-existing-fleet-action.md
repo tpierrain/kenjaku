@@ -102,6 +102,48 @@
 > which owns the measurement and what is still unknown. **A one-run green is not a green matrix**, and
 > this is the same shape as the emptiness claims this plan already paid for twice.
 
+> ## 🔴 THE CI WAS RED FOR THREE HOURS AND NOBODY LOOKED _(2026-08-23, closed the same evening)_
+>
+> _(Not a code-review finding, and not v5's promise — but it happened ON this branch, in the hours
+> before the merge, and it is the reason the tag was not cut tonight. The durable half is
+> `CONVENTIONS.md` §9, which now carries both bullets; this box keeps the incident.)_
+>
+> **What went wrong, in the order it went wrong:**
+>
+> - [x] 🪟 **A fixture spelled a path with `/` where Windows uses `\`** — `dir.split("/").pop()` on a
+>       `C:\…\Temp\…` tmpdir returns the WHOLE path, so `join(dir, "..", that)` pointed at a directory
+>       that cannot exist. Red on every Windows cell from 14:38 UTC. **The tripwire caught it on the
+>       first push**, in 54 seconds, exactly as §9 designed it to. → `3ce9574`.
+> - [x] 🧊 **Then a second defect turned the red into a THREE-HOUR OUTAGE** — `awaitStartupSync` read
+>       the test process's own stdin (`readFileSync(0)`). Under `node --test` that is a pipe with no
+>       writer: POSIX answers EAGAIN, **Windows never answers at all**. One runner held **2 h 46 min**;
+>       with no `timeout-minutes` on any job but one, GitHub's **6-hour** default applied, so 24
+>       commits' worth of jobs queued behind it while every surface said *"in progress"*. → `6799e69`.
+> - [x] 🕰️ **The ceilings, which is what makes the next one cheap** — every job now carries a
+>       `timeout-minutes` sized at a few times its measured green, and every suite a per-test ceiling
+>       **strictly tighter** than the job's, so a hang **names its test** instead of dying mute.
+>       Loosened on Thomas's call from 60 s to 4 min per test _(a timeout that fires on a busy GitHub
+>       is a false red, and a false red is how a real one stops being read)_. → `ae6ad2d`.
+> - [x] 🪞 **And a guard of ours went red for a true reason it had no business asserting** — the vault
+>       write-guard's self-guard matched the whole CI command line to check a claim about that line's
+>       POSITION, so adding a flag refuted it on all seven cells. Matched on the path now, and checked
+>       in **both** directions rather than assumed. → `b301eda`.
+>
+> ### 🛑 THE ACTUAL FAILURE, and it is mine, not the tooling's
+>
+> **Twenty-odd commits were pushed and not one was read.** §9's standing rule said *push every green
+> commit so the tripwire is not disabled* — it made the net fire and never made anyone look at it.
+> **Thomas found it from the GitHub UI**, three hours in: *"ça fait au moins 10 builds qui sont
+> queued"*, then *"tout est rouge depuis 15h30"*. The human was the monitoring.
+>
+> - **A push whose result is never read is worse than no push**: it manufactures the appearance of a
+>   net. Strictly worse than §9's earlier 52- and 67-commit episodes, where nobody believed otherwise.
+> - **NO HOOK, and that is a decision, not an omission** _(Thomas, 2026-08-23)_: *"j'ai peur que ça
+>   alourdisse vraiment la latence… on a de plus en plus de hooks"*. So the written rule is the **only**
+>   net here — `CONVENTIONS.md` §9 and the always-loaded `rules/ci.md`. No braces behind the belt.
+>
+> ✅ **Closed**: the full 7/7 matrix is green again on `b301eda`, in ~2 minutes, macOS and Windows.
+>
 > ## 🎲 THE macOS FLAKE — **one test reddens ~1 CI run in 6, and the cause is NOT known**
 >
 > _(Measured 2026-08-23, while the third `/code-review` pass was running. Recorded with its cause still
@@ -115,10 +157,31 @@
 > the simulated pull landed). **The hook did not wait.** Runs: `32623233706`, `32623082342`,
 > `32623045541`, `32603217332`, `32602441587`.
 >
-> - [x] 🟢 **AND IT IS NOT THIS RELEASE'S DOING — checked, not assumed.** `git diff main...HEAD` over
->       `session-universe.mjs`, `session-universe.test.mjs` and `lib/startup-sync-gate.mjs` is
->       **empty**: all three are byte-identical to `main`. v5 neither introduces the flake nor touches
->       the barrier. It is inherited, and it is already on every brain in the fleet.
+> - [x] 🟢 **AND IT IS NOT THIS RELEASE'S DOING — checked, not assumed.** The five failures above ran
+>       on `4cc2ace` … `d850ede` (2026-08-22 22:26 → 2026-08-23 06:33 UTC), and on **every one of those
+>       commits** `session-universe.mjs`, `session-universe.test.mjs` and `lib/startup-sync-gate.mjs`
+>       were byte-identical to `main`. v5 neither introduces the flake nor touches the barrier at the
+>       moment it was measured. It is inherited, and it is already on every brain in the fleet.
+>       - > 🛑 **CORRECTION, 2026-08-23 evening — this bullet said "`git diff main...HEAD` … is empty",
+>         > in the PRESENT TENSE, and that sentence was ALREADY FALSE when it was written.**
+>         > `session-universe.mjs` had diverged at **09:40 that morning** (`779637e`, the symlink
+>         > entrypoint fix), and `lib/startup-sync-gate.mjs` diverged at 16:56 (`dd9e1d5`, T11's second
+>         > caller). Re-run that diff today and it comes back **+8/−3 and +39/−0** — a future session
+>         > checking the claim as written would find it refuted and could throw out a verdict that is
+>         > actually sound.
+>         >
+>         > **The verdict survives because the EVIDENCE was never the diff at HEAD — it was the diff at
+>         > the commits that failed**, and that is now what the bullet says. The lesson is the shape:
+>         > *"X is identical to main"* is a claim about a moving target, and a plan is read for weeks.
+>         > **Anchor a factual claim to the commit it was measured on, or it decays into a lie on its
+>         > own**, with nobody editing it. Same family as the stale proposal box further down, and as
+>         > § *FOUR LESSONS*' restated decisions — the third instance on this branch alone.
+>         >
+>         > 🔎 **A sixth and a seventh observation, for the record**: the same test reddened again on
+>         > `f92dcbe` (17:53 UTC, Node 24) and on `ae6ad2d` (18:34 UTC, Node 26), both macOS, both with
+>         > the divergences present — and, on the second, the other six cells green in two minutes. It
+>         > changes no verdict, and the ~1-in-6 rate is unmoved. But the **"post-tag instrument" below
+>         > is now the ONLY way to settle the cause**, because the identical-to-main argument is spent.
 > - [x] 🔬 **NOT REPRODUCED HERE, and the attempt was not casual** _(~200 runs, all green)_: the test
 >       alone **25×**; the **full suite 8×**; an instrumented copy of the hook outside the repo, made
 >       to confess the gate's own return value, **12×** (`status: "done"` every time, `waitedMs` 201-232

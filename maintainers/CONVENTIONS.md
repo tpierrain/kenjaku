@@ -615,6 +615,37 @@ Node 22/24/26 × macOS + Windows). Use it as the source of truth.
     every time produces the same outcome as never pushing, because the question is easy to not answer.
   - **Scope, so this stays safe**: branches only, never a direct push to `main`; and pushing is not
     merging — the 7/7 matrix before merge (above) is untouched.
+- **🛑 …and the commits have to BE READ. Supplying a net is not consuming one** (added 2026-08-23, on
+  this branch). The bullet above shipped **half** a discipline: it says push, so the tripwire fires —
+  it never says **look at what came back**. Measured the same day: a fixture spelled a path with `/`
+  where Windows uses `\`, the tripwire went red **on the first push exactly as designed**, and
+  **twenty-odd commits followed, every one pushed, not one read.** Three hours later Thomas found it
+  from the GitHub UI (*"tout est rouge depuis 15h30"*). **The human was the monitoring.**
+  - **The rule: the session that pushes is the session that reads.** `gh run list` after the push; a
+    red stops the next commit, because after a red every later commit is ambiguous — was it already
+    broken, or did I break it? If the verdict is still pending when the reply goes out, **say so**:
+    "it is pushed" must never stand in for "it is green".
+  - **A push whose result is never read is worse than no push** — it manufactures the appearance of a
+    net while the net goes unread. That is strictly worse than the 52- and 67-commit episodes above,
+    where at least nobody believed they were covered.
+  - **No hook, deliberately** _(Thomas's call, 2026-08-23)_: a `Stop` guard would query the network on
+    **every** hand-back, and the hook budget is already spent. *"On a de plus en plus de hooks et si on
+    doit en plus aller fetcher et analyser des CI, ça va pas le faire."* So this bullet is the **only**
+    net — no braces behind it.
+- **Every job carries a `timeout-minutes`, and the per-test ceiling is TIGHTER than the job's** (added
+  2026-08-23). GitHub's default is **6 hours**: without one, a hung job is not a red, it is a runner
+  leak. Measured that day — a Windows harness process blocked on `readFileSync(0)` (POSIX answers
+  EAGAIN, **Windows never answers**) held one runner **2 h 46 min** and queued 24 commits' worth of
+  jobs behind it, while every surface read "in progress".
+  - Job ceilings are sized at a **few times the measured green**, never at the tightest number that
+    passes: a timeout that fires on a busy GitHub is a false red, and a false red is how a real one
+    stops being read.
+  - `node --test --test-timeout=…` on **every** suite, strictly below every job ceiling. The job
+    timeout kills a hang **mute**; the per-test one **names the test**. Getting that order backwards
+    reproduces the afternoon this bullet is paying for.
+  - **A unit test must never read the process's real stdin** (`readFileSync(0)`). Under `node --test`
+    each file is a child whose stdin is a pipe with no writer: POSIX makes that instant and Windows
+    makes it eternal, so the defect is **invisible on the machine you develop on**. Inject the reader.
 
 Full rationale: ADR [`0015`](decisions/0015-cross-platform-parity.md) (cross-platform parity).
 
