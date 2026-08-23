@@ -17,9 +17,19 @@
 - **Blocked on:** the release, which is not this file's —
   [`v5-unfreezes-the-existing-fleet-action.md`](v5-unfreezes-the-existing-fleet-action.md) owns its
   state and its cut. **Do not open a slice, do not look for work, and do not take an entry from that
-  cut.** The **second** review pass this file was waiting on has **run**, and its figure and
-  its debrief are recorded below in § *Tracking* — nothing further is owed to this file by the
-  release.
+  cut.** Two review passes have **run**, 15 findings each, and both figures and their debrief are
+  recorded below in § *The adversarial-review fan-out as standing QA*.
+- 📊 **ONE THING IS STILL OWED TO THIS FILE BY THE RELEASE: a THIRD figure.** _(2026-08-23 — this line
+  said "nothing further is owed", written the day the second pass closed and overtaken the next
+  morning.)_ Thomas is launching a **third** `/code-review` pass, on the repairs the second batch
+  shipped. **What comes back here is the number, nothing else**: the findings are the triage plan's.
+  - **Why this file cares**: the second pass's own lesson was *repairs are not safer than features* —
+    an independent read found as many defects in the fixes as in the original code. A third pass over
+    a third batch of repairs is the first chance to tell whether that is a trend or a one-off, and a
+    **zero is the stronger answer**.
+  - ⚠️ **The standing warning below applies to this very run and must not be re-learned**: on this
+    repo's diff size the tool's ten parallel finders never returned, on either pass. **Do not read a
+    third result as fan-out** — it is one careful sequential read.
 - **Owner's call pending:** none of this file's own. _(The `scripts` version and the five release
   arbitrations are answered and recorded in the release plan. **Do not re-ask them.**)_
 - **A session may, alone:** run the mode as written — delegate bulk reads, and the implementation of
@@ -3051,6 +3061,13 @@ arbitration goes here as a question, and the run continues on other slices.
               and said so. So what the command actually buys here is **one careful sequential read, not
               ten independent ones** — a real result (30 findings) obtained without the diversity the
               mode's own thesis is about. **Do not commission a third pass expecting fan-out.**
+        - [ ] 📥 **AND A THIRD PASS IS BEING COMMISSIONED, 2026-08-23** — knowingly, on the terms the
+              line above sets: one sequential read, not ten. It runs on the **second batch's repairs**
+              (S12, S13, the G work, the prose guard, and the first-update fix the field rehearsal
+              forced). **What this box wants from it is the count**, written here beside the other
+              two; the findings themselves are the triage plan's, in a new dated section numbered
+              **T1…Tn**. **Two 15s then a zero is a different lesson about the mode from three 15s**,
+              and this is the run that tells them apart.
 - [~] **When the release ships**: fold the surviving lessons into `maintainers/CONVENTIONS.md` (or
       kill this file), and rewrite the memory pointer to whatever becomes live next.
   - [x] **Folded EARLY, on purpose** _(2026-08-20 — `CONVENTIONS.md` **§12**)_: the two delegation
