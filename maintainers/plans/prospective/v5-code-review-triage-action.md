@@ -12,19 +12,42 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — RESUME AT T11.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
-  **T1–T10 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
-  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`)_; **T11–T15 are open**, in § *Third pass*, which owns them
-  and their order.
+- 🔴 **NEXT — RESUME AT T12.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1–T11 are PAID** _(`779637e`; `814be9a`; `ab1751d`; `09e0506`; `21aefbf`; `1604d3e`; `00caad7`;
+  `85c2167`; `c3f26bd`; `8977248`+`3df9f15`; `dd9e1d5`+`4e62652`)_; **T12–T15 are open**, in
+  § *Third pass*, which owns them and their order.
   **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and **the
   items below T9 have not been independently re-checked**. Verify, then fix test-first, red first, one
   commit per subject, pushed as it goes.
-  - **T11 next**: the new divergence hook reads the manifest, every merge file and `.engine-base/`
-    **while the startup pull is rewriting them** — a mid-write manifest parses as `null` and the hook
-    goes silent. The finding calls the fix one line, and *"one line"* has now been wrong about a seam
-    **four** times on this branch (W1, T2, T3, T10) — so run it before believing it.
-    ⚠️ **And it touches the same barrier the macOS flake is about** (§ *THE macOS FLAKE* in the
-    release plan): that instrument is **post-tag** work and does **not** block T11.
+  - **T12 next, and it is one of the branch's two destructive-shaped items.** A tombstone containing
+    `..` escapes the never-touch oracle, whose stated *"ONLY defence"* is a regex. **The `rmSync` is
+    NOT reachable** (provenance keys cannot match) — so this is a false claim and a bogus owner-facing
+    line, not a deletion. Same care F6/S1 and T8 got: a throwaway fixture, nothing real, and **no
+    deletion path surfaced as a suggestion**. Its defence is a phrase repeated in more than one place,
+    which is exactly the shape T10's census was built for — **reuse it rather than hand-auditing**.
+  - ✅ **T11 paid, and the barrier now has ONE spelling** _(`dd9e1d5` the fix + `4e62652` the
+    entry-point pole · scoped mutation **100 %**)_. `session-universe.mjs` was the barrier's only
+    non-test caller; rather than write a second inline spelling of five arguments that all have to
+    agree, `awaitStartupSync` is the one spelling and the divergence hook is its second caller.
+    - 🧭 **The survivor was the composition root's own DEFAULT** (`".."` → `""`, whole file green):
+      every test handed in its own brain root, so nobody ran the one that ships. **T7 taught this two
+      days ago about an injected `git`** — the shape is now twice-measured on this branch, so when a
+      file's tests all inject a collaborator, spawn the entry point as a process before believing the
+      score.
+    - 🧪 **A try/catch was written into the helper, then MEASURED as unreachable** and removed: every
+      part it composes already swallows. The test asserts what actually happens (a disk in revolt
+      answers *"nobody will pull"*), rather than guarding a case that cannot arise.
+    - ⏱️ **Proven by ORDER, never by timing** — the injected barrier IS the pull. Deliberate: this is
+      the one branch that already owns a timing flake, and the flaky test is the barrier's own.
+    - 🛑 **`session-universe.mjs` deliberately keeps its inline spelling until after the tag.** Its
+      three files are byte-identical to `main`, and that is precisely what makes the macOS flake
+      diagnosable as inherited rather than introduced (release plan, § *THE macOS FLAKE*, whose call
+      Thomas made on 2026-08-23). Adopting the helper there is **post-tag**, alongside the instrument.
+    - 🔎 **TWO MORE HOOKS RACE THE PULL, and neither is T11's** — found by asking the same question of
+      the neighbours, as T10 taught. **Recorded, not fixed**, and the reasoning is in § *Third pass*
+      under T11: both are self-correcting at the next session start, and one of them is the most
+      operationally sensitive hook there is. **Recommendation: post-tag, with `session-universe`'s
+      adoption, as one piece of work.**
   - ✅ **T10 paid, and the finding named ONE door out of THREE** _(`8977248` the fix + `3df9f15` the
     mutation poles · scoped mutation **100 %**, 58 killed, all four files present in the breakdown)_.
     install-if-absent read the root rel, so a French brain got the English bytes **and kept them**:
@@ -1143,13 +1166,34 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
       - 📎 **ADR 0040 corrected in the same movement**, so the code and the decision say one thing: the
         install/retire doors **decide** locale-blind and **deliver** locale-resolved, and its
         `Scope:` no longer claims "No behaviour change" for doors this changes.
-- [ ] **T11 — the new divergence hook reads state the startup pull is changing, with no barrier**
+- [x] **T11 — the new divergence hook reads state the startup pull is changing, with no barrier**
       (`session-engine-divergence.mjs:32`). `session-universe.mjs` is the **only** non-test caller of
       `waitForStartupSync`, and this hook reads the manifest, every merge file and `.engine-base/` —
       all tracked files that travel with the pull, while the self-heal child rewrites the manifest
       whole in the same window. A mid-write manifest parses as `null` and the hook goes silent. **Fix
       is one line.** _(See also § THE macOS FLAKE in the release plan: the barrier itself is separately
       suspect, and that is `main`'s, not this pass's.)_
+      _(2026-08-23 · `dd9e1d5` the fix + `4e62652` the entry-point pole · scoped mutation **100 %**.)_
+      - 🏠 **"One line" was right about the CALL and wrong about the DESIGN.** Writing it inline would
+        have made two copies of a five-argument wiring that all has to agree — a wrong `repo` waits on
+        another brain's marker, a forgotten `pullerWired` taxes every pre-barrier brain at every
+        session start, and either one reads exactly like success. `awaitStartupSync` is now the one
+        spelling, in `startup-sync-gate.mjs` beside the gate it wires.
+      - 🔎 **AND TWO MORE HOOKS RACE THE PULL** — asked of the neighbours rather than of the finding:
+        - **`session-self-heal.mjs`** reads `engine-manifest.json` (`deriveWanted`) to decide whether
+          to spawn the converge child. A mid-write manifest throws, its outer try swallows, and the
+          self-heal silently does nothing that session. **The sharp one**, and the reason it is not
+          fixed here: it is the hook that spawns a background converge, a barrier changes WHEN that
+          decision is taken, and the finding named neither it nor that risk. It is also **benign by
+          construction** — it re-runs at every session start, so a skipped session costs one session.
+        - **`session-wiki-health.mjs`** reads the vault, whose notes travel with the pull. Same class,
+          lowest stakes: a nudge about notes the pull had just fixed.
+        - **Not affected**: `session-health.mjs` (reads gitignored `.cache/`), `session-obsidian-hint.mjs`
+          (vault path + Obsidian's own config, outside the brain), `session-actions-log.mjs` (no
+          tracked read). Listed so the next session does not re-derive the census.
+        - 📌 **Recommendation: post-tag**, in one piece with `session-universe.mjs`'s adoption of the
+          helper and with the macOS flake instrument — all three touch the same barrier, and two of
+          them touch files that must stay byte-identical to `main` until the tag is cut.
 - [ ] **T12 — a tombstone with `..` blinds the never-touch oracle** (`engine-apply-plan.mjs:139`).
       `retireSkills` is exempted from the sacred-tree scrub and its stated *"ONLY defence"*,
       `/^\.claude\/skills\/[^/]+\//`, accepts `..`. `planTouches(plan, 'vault/notes/a.md')` returns
