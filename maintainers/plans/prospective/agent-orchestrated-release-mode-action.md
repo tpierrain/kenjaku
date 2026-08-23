@@ -3075,9 +3075,9 @@ arbitration goes here as a question, and the run continues on other slices.
         did; the rest were the measuring tools, the test corpus and the plans' own discipline. The
         first pass, by contrast, moved the update path itself. So **the passes are drilling into a
         thinner seam even as the count stays put** — a fourth would very likely return 15 again, and
-        15 of what matters less. _(Whether to commission one is Thomas's and only his: a session
-        cannot launch `/code-review`. The question is parked in the release plan's STATE, which owns
-        it; this bullet is the evidence, not the decision.)_
+        15 of what matters less. _(**Thomas closed the campaign at three passes on 2026-08-23**, on
+        this argument. The decision and its wording are the release plan's, § *WHAT IS YOURS* step 4a
+        — this file keeps the evidence and no copy of the call.)_
       - 🔍 **UNDER-reporting is the recurring shape, and it ended at FIVE items out of fifteen.** One
         named three call sites and a scanner written for the fix found **a fourth**; another's stated
         threshold **bracketed** the measured one rather than overshooting it; a third named **one**

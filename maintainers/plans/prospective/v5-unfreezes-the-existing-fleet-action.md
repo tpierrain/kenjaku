@@ -15,14 +15,13 @@
 - **Next:** **nothing engineering is left on this release, and the queue that gated it is empty.**
   The third `/code-review` pass's **T1–T15 are all paid**, plus the two convention items its cap had
   cut — [`v5-code-review-triage-action.md`](v5-code-review-triage-action.md) owns every one of them
-  and this file restates none. What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER***,
-  and **that section is the authority** — do not summarise it as "the merge", which silently drops
-  step 4's own instruction.
-- **Blocked on:** **Thomas, and only Thomas**, on the question step 4 leaves open: it says findings
-  are fixed test-first **and the review is re-run on the fix**. Three passes have now run and each
-  returned **15** — the third on the second's repairs — so a fourth is neither obviously owed nor
-  obviously pointless. **A session cannot launch one** (`/code-review` is user-triggered and billed),
-  and must not simulate one or report on a run it did not see.
+  and this file restates none. What remains is **steps 4, 5 and 6 of § *WHAT IS YOURS, IN ORDER***
+  — merge, bump, tag — and **that section is the authority**. Step 4's review instruction is spent
+  (4a): the campaign is closed, so step 4 is now the merge itself and nothing else.
+- **Blocked on:** **nothing a session can move.** The one open question — a fourth `/code-review`
+  pass — **is answered: NO, the campaign is closed at three** (Thomas, 2026-08-23, *"on close (ça a
+  déjà trop duré)"*). § *WHAT IS YOURS* step 4a records it and owns the argument. **Do not re-open
+  it, do not offer a pass**; what is left is the merge, the bump and the tag, and all three are his.
 - **Owner's call pending:** **NONE that is this file's.** Every question put to him is answered — the
   five decisions, the `scripts` bump at `1.14.0`, W5b, the macOS flake not holding the tag, F11
   (§ E of the triage plan owns it). **Do not re-ask any of them, and do not restate their impact
@@ -684,6 +683,16 @@
 >       - 📌 **This also answers, in the field, the question the mode plan deferred**: whether work built
 >         by a subagent fan-out owes an independent review before it counts as finished. →
 >         [`agent-orchestrated-release-mode-action.md`](agent-orchestrated-release-mode-action.md).
+>       - [x] ✅ **THE CAMPAIGN IS CLOSED AT THREE PASSES — Thomas, 2026-08-23**, *"on close (ça a déjà
+>         trop duré)"*. The instruction above ("re-run on the fix") **is satisfied and spent**: three
+>         independent reads ran, the second on the first's repairs and the third on the second's, and
+>         all 45 findings are discharged in the triage plan. A fourth was offered with its argument and
+>         **declined**. The recommendation put to him was *close*, and the evidence behind it is the
+>         mode plan's: the count held at 15 while the **stakes** thinned — this pass's fifteen were
+>         mostly the measuring tools, the test corpus and the plans' own discipline, where the first
+>         pass moved the update path itself. **No session may re-open this**, offer a pass, or read the
+>         flat count as a reason to. _(He is the only one who could launch one anyway: `/code-review`
+>         is user-triggered and billed.)_
 > - [ ] **5. The `engineVersion` bump, IN THE SAME MOVEMENT AS THE TAG** — never before it (a bumped
 >       version that is not published makes a fresh install stamp itself with a version that was never
 >       released). `rag` and `local-mirror` **unchanged** (0 files moved), `constitutionTemplate`
@@ -698,10 +707,20 @@
 > **Not part of the cut, on purpose**: **#61, #67 and #64 stay OPEN** — what closes them is a brain
 > *receiving* the rule, not the branch carrying it.
 >
-> ### 🟡 PROPOSED, NOT DECIDED — a rehearsal on a COPY of a real brain, before the tag
+> ### ✅ DONE — a rehearsal on a COPY of a real brain, before the tag
 >
-> _(Offered 2026-08-22 when Thomas asked how to take the least operational risk. **He has not ruled on
-> it**; it is written here so the question survives a clear, not to be treated as agreed.)_
+> _(Offered 2026-08-22 when Thomas asked how to take the least operational risk. **It was built and
+> run**: § *THE REHEARSAL* at the top of this file owns what it found, what it now is, and its green
+> re-runs on copies of both brains. This box keeps only the ARGUMENT for it, which is durable.)_
+>
+> > 🛑 **This box said "PROPOSED, NOT DECIDED — he has not ruled on it" for a full day after the
+> > rehearsal had run, found a release-blocking defect, been fixed and turned into a command.** Two
+> > sections of the SAME file, one describing the thing as an open question and the other as delivered.
+> > It is the exact failure `CONVENTIONS.md` §3bis names, in its second form: not a stale copy in
+> > another file, but **a stale copy a few hundred lines from the live one**. A session reads STATE and
+> > the section it is working, never the whole file — so a wrong status can sit in plain sight for as
+> > long as nobody scrolls. The fix is not vigilance: it is that **a proposal is deleted or converted
+> > the moment it is acted on**, in the same commit as the act.
 >
 > The most expensive net for a release that rewrites files inside brains people already use is **not** a
 > code review: it is **replaying the real update on a copy of one of the owner's two real brains** (copy
