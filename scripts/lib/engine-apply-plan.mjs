@@ -157,6 +157,10 @@ export function computeApplyPlan(targetManifest) {
   // T12 — `climbsOut` first and unconditionally, on EVERY bucket including the two the
   // sacred scrub deliberately spares: an entry the engine cannot spell is not one the
   // owner declared, whatever else is true of it.
+  // `entries ?? []` is an EQUIVALENT mutant and stays: every caller below follows this
+  // with a shape filter (`ENGINE_SKILL`, `ENGINE_DOCTRINE`, `ENGINE_SCRIPT`, `isSacred`),
+  // so a bogus default is rejected one line later whatever it contains. Recorded rather
+  // than defended by a test that would have to assert the filter it cannot reach past.
   const declared = (entries) => (entries ?? []).filter((entry) => !climbsOut(entry));
   const scrub = (entries) => declared(entries).filter((entry) => !isSacred(entry));
   // ⚰️ A TOMBSTONE BEATS A REGIME. Computed before the buckets because `installSkills`

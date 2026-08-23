@@ -567,3 +567,21 @@ test("computeApplyPlan — a skill whose name merely CONTAINS dots is still a sk
 
   assert.deepEqual(plan.retireSkills, [".claude/skills/my..skill/**", ".claude/skills/...dots/**"]);
 });
+
+test("computeApplyPlan — a lone `.` segment is refused too, and it is not about escaping (T12)", () => {
+  // Two mutants survived the first pass by deleting the `.` half, because every escape
+  // fixture above also carried a `..`. A lone `.` climbs nowhere — `join` normalises it
+  // away — so the harm is a different one: it is a SECOND SPELLING of a path this module
+  // compares as a string. `retiredDirs` subtracts stems, and `.claude/skills/./coach`
+  // does not equal `.claude/skills/coach`, so the tombstone would be honoured by the
+  // retirement and ignored by the install-if-absent that runs a few lines later: the skill
+  // deleted and put straight back, in one pass, which is the very order defect the
+  // tombstone precedence exists to prevent.
+  const plan = computeApplyPlan({
+    retired: [".claude/skills/./coach/**"],
+    regimes: { merge: [".claude/skills/coach/**"] },
+  });
+
+  assert.deepEqual(plan.retireSkills, [], "a mis-spelled tombstone is refused, never half-honoured");
+  assert.deepEqual(plan.installSkills, [".claude/skills/coach/**"], "and the skill it mis-named is untouched");
+});
