@@ -14,7 +14,11 @@
   all five live plans, the ROADMAP's Status column, and both repo-level carriers of the archiving
   ritual. Step 10 (pruning the archived corpus) is **out of scope and stays out**.
 - **Blocked on:** nothing.
-- **Owner's call pending:** **one, and it does not block.** **The lint** — his *"on diffère le lint"*
+- **Owner's call pending:** **one, and it does not block.** **The lint** — and it now has fresh
+  evidence, queued at his ask on 2026-08-23 for **after the v5.0.0 tag**: two failures the same day,
+  one where the guard blocked three correct hand-backs, one where it was green while a decision was
+  re-opened twice. → § *QUEUED FOR AFTER THE v5.0.0 TAG*. **Noted, not to be built before the tag.**
+  His *"on diffère le lint"*
   came from an autocompletion accepted before knowing what a lint was. Asked again in plain terms on
   2026-08-22 (*"un test de plus dans la suite, qui lit la FORME des plans"*), still unanswered.
   Recommendation: **split it** — the cheap half now (~20 lines of test: every live plan has the block,
@@ -590,6 +594,45 @@ is not defensible as the end state, and nothing in the corpus would have said so
         not have today.
       - **Until the hard half exists, the hook and the door STAY, and this file says so** rather than
         letting "we adopted the convention" be read as "the workarounds are gone".
+
+## 📥 QUEUED FOR AFTER THE v5.0.0 TAG — two failures of 2026-08-23, and they point opposite ways
+
+_(Thomas's ask, in his words: **"comment faire en sorte que ce genre de cas ne se reproduise plus ?
+tu peux le noter pour qu'on s'en occupe après la release de la 5.0 ?"** So: **noted, not built.** A
+session may not start this before the tag. It is the evidence the hard half above said it lacked.)_
+
+**The pair is the finding.** One failure is the guard firing on a file that was right; the other is
+the guard silent while a decision was actually lost. **The mechanism we have is loud where nothing is
+wrong and blind where something is**, and any fix that only softens the noise makes the second one
+worse.
+
+- 🔔 **FALSE POSITIVE — the guard blocked three consecutive hand-backs on a correct file.**
+  `agent-orchestrated-release-mode-action.md` names the branch, holds no status of this item, and
+  **delegates by a link** (*"Blocked on: the release, which is not this file's → [owning plan]"*),
+  which is precisely the shape the convention asks for. The guard counts *files naming the branch
+  that the session did not open*, so a plan that delegates correctly is indistinguishable from one
+  that went stale. **The declared door cannot absorb this**: `delegates-only` is reserved for files
+  holding no state *by construction*, and *"a plan may never declare it"* — this file legitimately
+  holds its own state, it merely holds none of **this item's**. So the door's carve-out is per-FILE
+  while the actual property is per-ITEM. Three hand-backs each cost a paragraph of explanation to
+  the owner, which is the consent-fatigue shape this whole corpus exists to prevent.
+- 🕳️ **FALSE NEGATIVE, and it is the expensive one — the guard was GREEN on the day a decision was
+  re-opened twice.** F11 was answered on 2026-08-22 in the section that owns it, ✅. The STATE block
+  of the **same file**, three hundred lines above, went on listing it under *owner's call pending*.
+  The session read STATE, re-asked the owner, and the second time argued the opposite way. His
+  verdict: *"c'est comme si tu n'apprenais pas ou ne retenais rien."* **The guard saw nothing,
+  correctly by its own definition**: the file had been opened and edited that session. The duplicate
+  was not between files, it was between a file's summary and its own body.
+  - The written rule was patched the same day (`rules/plans.md`, *"before asking the owner anything,
+    grep the plan for that item and read what the body already concluded"*) — **belt only**. This
+  section is where the braces would come from.
+
+**A candidate for the hard half, cheap and free of prose judgement** _(to be argued, not adopted
+here)_: an item named in the STATE block under *owner's call pending* while the body ticks that same
+item `- [x]` is a **contradiction detectable mechanically** — two lists, one intersection, no reading
+of meaning. It would have caught 2026-08-23 exactly, and it needs no corpus of "status shapes" to be
+gathered first. **If it holds up, the ordering flips**: this is a better first slice of the hard half
+than the prose detector, and it may even be worth more than the cheap half already recommended.
 
 ## Scope
 
