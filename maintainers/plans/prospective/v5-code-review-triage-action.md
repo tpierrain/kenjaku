@@ -12,13 +12,21 @@
 
 ## 📍 STATE — the only perishable block in this file · moved 2026-08-22
 
-- 🔴 **NEXT — THE THIRD PASS LANDED, 2026-08-23: 15 findings, T1–T15, NONE of them paid yet.**
-  → § *Third pass*, which owns them and their order. **Read its ⚠️ first**: unlike the two earlier
-  passes, this section is the reviewer's word and **not one item has been independently re-checked**.
-  Verify, then fix test-first, red first, one commit per subject, pushed as it goes.
-  - **Start at T1 and T2**: both are fleet-wide and silent. T1 disarms six of eight SessionStart hooks
-    on any brain whose path holds a symlink; T2 kills the Stop hook at load on any brain that
-    customized `auto-push.mjs` — and **T2 is this branch's own doing**, it removes the export.
+- 🔴 **NEXT — RESUME AT T2.** The third pass landed 2026-08-23 with 15 findings, T1–T15.
+  **T1 is PAID** _(`779637e`)_; **T2–T15 are open**, in § *Third pass*, which owns them and their
+  order. **Read its ⚠️ first**: unlike the two earlier passes, that section is the reviewer's word and
+  **the items below T1 have not been independently re-checked**. Verify, then fix test-first, red
+  first, one commit per subject, pushed as it goes.
+  - **T2 next, and it is this branch's own doing**: removing `isEntryPoint` from `auto-commit.mjs`
+    kills the Stop hook at load on any brain that customized `auto-push.mjs` — the whole backup path,
+    with a `SyntaxError` that `node --check` does not see. Fleet-wide and silent, like T1 was.
+  - ✅ **T1 paid, and the shape of it is worth carrying into the rest**: the defect was real
+    (reproduced as a process — through its real path the hook speaks, through a symlink to the same
+    directory it returns the empty string), **and the guard that should have caught it was measuring
+    the wrong property** — a count of non-canonical spellings, green at 9, with a failure message
+    about testability. Seven scripts converted; correctness now has its own ceiling-0 guard.
+    **Expect the same split elsewhere in this pass**: several findings name a guard that is green
+    while the thing it is named after is broken.
   - **T8 and T12 are the destructive-shaped pair** and deserve the same care F6/S1 got.
   - **The fan-out came back this time** (10 angles × 8 candidates, 15 verifiers), which neither
     earlier pass obtained. The mode plan's *"do not expect fan-out"* warning is overtaken.
@@ -805,7 +813,13 @@ point of the slice), and the missing French `test-first-discipline` (the owner's
 
 ### 📍 Third-pass tracking
 
-- [ ] **T1 — six of eight SessionStart hooks are DISARMED on a symlinked brain path**
+- [x] ✅ **T1 — six of eight SessionStart hooks are DISARMED on a symlinked brain path — PAID**
+      _(2026-08-23 · `779637e`)_. Confirmed independently before fixing, then reproduced **as a
+      process** on the real hook. Seven scripts moved to `runAsEntrypoint`; the two spellings left are
+      non-canonical but correct (`import-brain.mjs` realpaths both sides, `update-engine.mjs` calls the
+      canonical predicate), so the old count went 9 → 2 rather than to 0 — and a **new** guard,
+      `findSymlinkBlindGuards`, holds the correctness half at **0, forever**. Suites 2 602 / 66.
+      **The original wording is kept below, because how the old guard lied is the lesson.**
       (`session-self-heal.mjs:186` and five siblings). They still gate on
       `resolve(process.argv[1]) === fileURLToPath(import.meta.url)`, the predicate this very branch
       replaced with `realpathSync` in `lib/entrypoint.mjs` — Node realpath-resolves the main module, so
