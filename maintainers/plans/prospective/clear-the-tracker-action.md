@@ -11,12 +11,19 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** **v5.1, and nothing else.** Three issues, all reported from the field by an outside
-  contributor, all one subject: [#71](https://github.com/tpierrain/kenjaku/issues/71),
+- **Next:** **v5.1, and nothing else.** **Four** issues now, all reported from the field by outside
+  users, in **two** subjects: the checker that cries wolf
+  ([#71](https://github.com/tpierrain/kenjaku/issues/71),
   [#73](https://github.com/tpierrain/kenjaku/issues/73),
-  [#74](https://github.com/tpierrain/kenjaku/issues/74) → § *v5.1*. Nothing is started.
-- **Blocked on:** nothing. v5.1 is three defects with obvious tests and no design question; a session
-  may open it today, test-first.
+  [#74](https://github.com/tpierrain/kenjaku/issues/74)) and a source that goes quiet without saying
+  so ([#80](https://github.com/tpierrain/kenjaku/issues/80)) → § *v5.1*. Nothing is started.
+- **Blocked on:** nothing. The three `/lint` defects have obvious tests and no design question; #80
+  needs one design call named in its own step (what a control query looks like per connector) and
+  nothing else. A session may open v5.1 today, test-first.
+  - ⚠️ **#80 has a French twin.** `templates/fr/.claude/skills/sync-sources/SKILL.md` carries the same
+    skill, and this plan forbids a session from writing into `templates/fr/**` alone. So a session
+    ships the English half and **stops**, leaving the localized half for the owner. Do not treat that
+    as the step being done.
 - **Owner's call pending:** **ONE, and it is about v5.2's shape** — § *THE ONE QUESTION*: should
   [#77](https://github.com/tpierrain/kenjaku/issues/77), the only open issue that can **lose a user's
   note**, really wait for v5.2, or ride along in v5.1? Recommendation inside; it does not block v5.1
@@ -34,14 +41,18 @@
 > **The two-release split is the owner's, 2026-08-23**: *« ce serait bien de faire une petite issue
 > pour bug fixer les issues remontées par Stefan ces prochains jours (une 5.1), puis de traiter les
 > autres sujets en 5.2 »*. **The reason it is a good split, said out loud so nobody re-merges them**:
-> the three v5.1 issues are the only ones a **person outside the project** took the trouble to report,
+> the v5.1 issues are the only ones **people outside the project** took the trouble to report,
 > and they are cheap. A contributor who is answered in days reports again; one who waits behind a
 > nine-issue release does not. Everything in v5.2 is either the owner's own finding or the owner's own
 > idea, and can wait a fortnight without anyone feeling ignored.
 
 ## Tracking
 
-### v5.1 — a checker stops reporting healthy things as broken · milestone [`v5.1`](https://github.com/tpierrain/kenjaku/milestone/1)
+### v5.1 — what outside users reported · milestone [`v5.1`](https://github.com/tpierrain/kenjaku/milestone/1)
+
+_Two subjects, two reporters, one criterion: somebody outside the project hit it on a real brain._
+
+#### A checker stops reporting healthy things as broken
 
 _Reported by [@StefanPenndorf](https://github.com/StefanPenndorf), from a real vault._
 
@@ -54,12 +65,51 @@ _Reported by [@StefanPenndorf](https://github.com/StefanPenndorf), from a real v
 - [ ] **3.** `/lint` stops flagging `backlog/` as an orphan zone —
       [#74](https://github.com/tpierrain/kenjaku/issues/74). The shipped constitution declares it and
       the engine writes into it: the checker is complaining about the engine's own work.
-- [ ] **4. 📉 The release is measured by the number, not by the three fixes.** A real brain reports
+- [ ] **4. 📉 This half is measured by the number, not by the three fixes.** A real brain reports
       *"17 links point nowhere"* today, and #71 + #73 inflate that count. **A checker nobody believes
       is a checker nobody reads.** So the acceptance test is what the count says on a real vault
       afterwards, and the release note leads with that, not with three bug references.
-- [ ] **5. Answer the reporter.** Each issue closed with what shipped and how it was verified
-      (`CONVENTIONS.md` §10bis), and the release note names the contributor.
+
+#### A source that goes quiet is reported as a source with no news
+
+_Reported 2026-08-24 by a user running a deployed brain, during a wide catch-up sync. **Keep this
+entry de-identified**: the raw report named a person, a company and mailbox content, and the owner
+asked for it anonymised. Nothing identifying goes into the issue, the plan, or the release note._
+
+- [ ] **5. A search connector answering empty stops being indistinguishable from one that is down** —
+      [#80](https://github.com/tpierrain/kenjaku/issues/80). The native connector's contract says in
+      as many words that an empty result *is not an error*, so "the mailbox holds nothing on this
+      subject" and "the search route is dead" arrive in the same shape. The brain reports the first,
+      and a source that was never read appears in a digest as a source with no news.
+  - [ ] **The discriminator is a known-positive control query**, one per search connector, broad and
+        keyword-free, designed so that zero rows is impossible on a live account. Zero on the control
+        = the source is **down**, not empty. **This is the one design call in v5.1**: what that query
+        is for each connector we ship.
+  - [ ] **A down source is an alert, never an omission** — named in the reply and in any written
+        briefing, and it disables every negative claim that depended on it ("no mail on this topic"
+        becomes unwritable). It may not be silently skipped.
+  - [ ] **The verdict is never cached**, per `sync-sources`' own rule that a capability recorded as
+        absent must be re-tested.
+  - [ ] **Pace the fan-out.** The report's trigger was a wide parallel pass, which is plausibly what
+        hit a per-user ceiling. Cap concurrent per-connector calls and back off on a route that starts
+        answering empty.
+  - [ ] 🔬 **The leading hypothesis, and the one-line test that settles it.** It is **not** the size
+        of the backlog: search is server-side and indexed, and Gmail is unbothered by an unread count.
+        It is the **number of search calls our catch-up made** — a long absence means a wide window,
+        which means deep pagination, and the route that got throttled is precisely the expensive one
+        (single-thread reads stayed cheap and kept working throughout). **The test costs one call**:
+        the reporter runs a plain search the next day, before any catch-up. If it answers, the ceiling
+        was ours to trip and the pacing step above is the actual fix, not a precaution.
+- [ ] **6. ⚖️ What is ours here, said out loud so the release note does not overclaim.** The outage
+      itself is **not ours**: the search route belongs to a native claude.ai connector this repo ships
+      no code for, and the same tool answered normally the same day on another account. What is ours,
+      and all we fix, is that the brain **presented an unread source as a read one**.
+
+#### Both subjects
+
+- [ ] **7. Answer both reporters.** Each issue closed with what shipped and how it was verified
+      (`CONVENTIONS.md` §10bis). The release note names the `/lint` contributor; the second report
+      came through a private channel, so it is credited **without a name**.
 
 ### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
 
@@ -164,7 +214,9 @@ tracker and close what the release covers — and these two are its first custom
 release that changes the update path owes one rehearsal on a copy of a real brain), **§11** (the note
 is written for the non-developer first), **§7** (plan done = archived).
 
-- **v5.1** touches `/lint` only, which is read-only over the vault: **§10ter does not apply**, and
-  that is a large part of why it can ship in days.
+- **v5.1** touches `/lint` and the `sync-sources` skill, both read-only over the vault and neither on
+  the update path: **§10ter does not apply**, and that is a large part of why it can still ship in
+  days. It does touch a **shipped skill**, so its French twin under `templates/fr/**` is owed (see the
+  STATE block) and §10's marketing-surface re-read has one more file to cover.
 - **v5.2** almost certainly triggers §10ter through #77, which changes what gets written into a
   brain. Budget the rehearsal rather than discover it at the tag.
