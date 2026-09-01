@@ -10,22 +10,21 @@ the active plan, never directly.
 
 ## The active plan
 
-- **Subject:** clear the tracker in two releases — **v5.1** repairs only what an outside contributor
-  reported (the link checker crying wolf), **v5.2** takes the rest.
-- **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
-- **Active since:** 2026-08-23
+- **Subject:** a brain open on two machines stays in step on its own, merges notes without a
+  human, and says what arrived — issue #84.
+- **Plan:** [`prospective/live-remote-sync-action.md`](prospective/live-remote-sync-action.md)
+- **Active since:** 2026-09-01
 
 ## Open, but NOT active
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
-- [`prospective/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
+- [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md) — the
+  two-release tracker sweep (v5.1 for outside reports, v5.2 for the rest); resumes after the plan above.
+- [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
   its queued items come due now that the tag is cut.
 - [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)
   — read before v5.1's universe group; it says why universe changes keep escaping green suites.
-
-_(v5.0.0 shipped on 2026-08-23. Its plan and seven others were archived with it; the post-tag tail
-they carried is inside the active plan, not lost.)_
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that
