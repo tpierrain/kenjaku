@@ -17,11 +17,20 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 - **Next:** step 2.4 — the entry `scripts/remote-sync.mjs` run as a process on a real temp
   repo with a local remote (union case through the entry, trace at the brain root left
   untracked by the launcher's `.gitignore`, git env with prompts forbidden and a 20 s kill).
-  The tick (2.2), the gate (2.3) and their 30 tests are committed and green. **Read the CI
-  verdict of the last push first** (`gh run list --branch feat/live-remote-sync`): the session
-  that pushed it handed back before reading it (owner asked for a /clear). The POC is closed: the `FileChanged`
+  The tick (2.2), the gate (2.3) and their 30 tests are committed and green. **CI read
+  2026-09-01: all four pushes of this branch pass** — nothing outstanding, start straight at 2.4.
+  The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
   the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
+- **Design already settled for 2.4** (so a cleared context does not re-derive it): the entry is
+  a thin composition root over `runTick` — brain root from the module's own location (never the
+  cwd, as `auto-commit.mjs`), a `git` runner with `GIT_TERMINAL_PROMPT=0`, an inert `GIT_ASKPASS`,
+  `GIT_SSH_COMMAND` in `BatchMode=yes` and a 20 s `timeout`; the gate from `openTickGate` on
+  `.cache/`; `indexLockPresent` on `.git/index.lock`; the trace read/written at the brain root by
+  atomic rename; `checkNote` through `engineParser` + `frontmatterVerdict` (the engine's own
+  parser, CONVENTIONS §5quater); `push` through `shouldPush` + `git push` **in-process, not a
+  child of `auto-push.mjs`** — a top-level script importing another top-level script is the T2
+  cross-version trap named in `auto-push.mjs`; `notify` a named no-op until 5.2 fills it.
 - **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
   at 7.4; the per-machine lock (2.3) is built regardless.
 - **Owner's call pending:** the release number (the feature ships alone under the next tag,
