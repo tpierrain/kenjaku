@@ -14,7 +14,12 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 2 (the sync tick, test first: 2.1 then 2.2). Step 1 shipped. The POC is closed: the `FileChanged`
+- **Next:** step 2.4 — the entry `scripts/remote-sync.mjs` run as a process on a real temp
+  repo with a local remote (union case through the entry, trace at the brain root left
+  untracked by the launcher's `.gitignore`, git env with prompts forbidden and a 20 s kill).
+  The tick (2.2), the gate (2.3) and their 30 tests are committed and green. **Read the CI
+  verdict of the last push first** (`gh run list --branch feat/live-remote-sync`): the session
+  that pushed it handed back before reading it (owner asked for a /clear). The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
   the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
 - **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
@@ -72,17 +77,17 @@ a real brain.
 
 ### 2. The brain pulls the remote on its own while a window is open
 
-- [ ] **2.1** Failing tests first, `scripts/lib/remote-sync.test.mjs`: fake `git` keyed on the
+- [x] **2.1** _(2026-09-01)_ Failing tests first, `scripts/lib/remote-sync.test.mjs`: fake `git` keyed on the
       **whole command**, call sequence pinned by `deepEqual` (CONVENTIONS §5ter). Cases: no
       remote / no upstream → nothing; dirty tree → deferred, nothing run; rebase in progress or
       `index.lock` present → nothing; probe equal → silence, no file written; behind → rebase,
       arrivals trace with files and authors, then push script invoked; conflict → `rebase
       --abort`, blocked trace, tree intact; merged header invalid → abort; lock held → yield.
-- [ ] **2.2** `scripts/lib/remote-sync.mjs`: the pure tick (§ B), `git` injected as
+- [x] **2.2** _(2026-09-01)_ `scripts/lib/remote-sync.mjs`: the pure tick (§ B), `git` injected as
       `(args) → {out, ok}` like `startup-sync.mjs`; reuses `treeState` from `repo-status.mjs`,
       the rebase-in-progress probe from `universe-persist.mjs`, `shouldPush` from
       `git-push.mjs`; writes the trace as an atomic rename.
-- [ ] **2.3** The per-machine lock `.cache/remote-sync.lock` (`{pid, lastTickAt}`, `O_EXCL`
+- [x] **2.3** _(2026-09-01, `remote-sync-gate.mjs` + 8 tests)_ The per-machine lock `.cache/remote-sync.lock` (`{pid, lastTickAt}`, `O_EXCL`
       creation, dead or stale holder reclaimed after 10 min): one effective clock per machine
       whatever the window count (§ Risks 1). Tested with two fake holders.
 - [ ] **2.4** `scripts/remote-sync.mjs`: the thin entry, **run as a process** in
@@ -91,8 +96,9 @@ a real brain.
       `GIT_TERMINAL_PROMPT=0`, inert askpass, SSH batch mode, 20 s kill timeout per command.
 - [ ] **2.5** The entry is added to the `replace` list of `engine-manifest.json` (a top-level
       script is listed file by file; `scripts/lib/**` travels by glob).
-- [ ] **2.6** `.gitignore`: the trace and the lock under `.cache/` are already covered; asserted
-      by a test the way `.vault-rag/**` is.
+- [ ] **2.6** `.gitignore`: the lock and last-tick marker live under `.cache/` (already ignored);
+      the trace `remote-arrivals.json` sits at the brain ROOT (POC 0.1) and needs its own ignore
+      line, proven by the process-level test (a tick leaves `git status` clean).
 - [ ] **2.7** Mutation run on the two new files the day they are written
       (`maintainers/mutation`, commit then mutate); one line each in `RESULTS.md`.
 
