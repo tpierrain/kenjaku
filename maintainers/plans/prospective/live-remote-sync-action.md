@@ -14,7 +14,7 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 1 (union merge of notes, test first). The POC is closed: the `FileChanged`
+- **Next:** step 2 (the sync tick, test first: 2.1 then 2.2). Step 1 shipped. The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
   the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
 - **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
@@ -61,11 +61,11 @@ a real brain.
 
 ### 1. Two people appending to the same note no longer conflict
 
-- [ ] **1.1** Failing test first: a real temp repo with a local remote, two clones appending to
+- [x] **1.1** _(2026-09-01)_ Failing test first: a real temp repo with a local remote, two clones appending to
       the same `vault/daily/*.md`, the second rebase leaves **no markers and both lines**
       (`core.autocrlf false` pinned for Windows CI).
-- [ ] **1.2** `.gitattributes` gains `vault/**/*.md merge=union` (see § A).
-- [ ] **1.3** `.gitattributes` enters the `replace` regime of `engine-manifest.json` so an engine
+- [x] **1.2** _(2026-09-01)_ `.gitattributes` gains `vault/**/*.md merge=union` (see § A).
+- [x] **1.3** _(2026-09-01)_ `.gitattributes` enters the `replace` regime of `engine-manifest.json` so an engine
       update delivers it to existing brains (decision 4); the manifest-integrity tests still pass.
 - [ ] **1.4** The frontmatter check after a merge (§ A, the honest limit): a merged note whose
       header no longer parses makes the tick abort (tested in 2.x, listed here for the reader).

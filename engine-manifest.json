@@ -52,6 +52,7 @@
       "scripts/lib/**",
       ".claude/settings.json.template",
       ".mcp.json.template",
+      ".gitattributes",
       "engine-skills/**",
       "engine-health/**"
     ],

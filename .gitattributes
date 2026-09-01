@@ -17,3 +17,14 @@
 #          invisible byte with an unreadable "command not found".
 *.cmd text eol=crlf
 *.sh text eol=lf
+
+# Notes merge by UNION (plan #84, live sync between machines). Two brains — a second
+# machine, or a second person on the same private repo — routinely append to the SAME
+# daily note or actions log. Git's built-in `union` driver resolves such a hunk by
+# keeping both sides, no markers, no human: exactly the "keep both" the `/sync` skill
+# recommends by hand for append-only vault content. Scoped to vault notes on purpose:
+# a constitution or a registry edited two ways is not keep-both material and must
+# still stop a rebase. Limit: two edits to the same frontmatter line keep both lines;
+# the sync tick re-checks a merged note's header and aborts the rebase if it no
+# longer parses (scripts/lib/remote-sync.mjs).
+vault/**/*.md merge=union
