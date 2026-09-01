@@ -179,13 +179,26 @@ Three practical consequences:
   pull; the delta arrives when the owner works. A habit as small as "one question every morning
   in that brain" is the whole synchronisation mechanism until a scheduler exists (§6).
 - **For the human side of the newcomer's job, Gmail delegation is the right tool**, not the
-  brain: Google's own "grant access to your account" lets them read (and, if wanted, send from)
-  the owner's mailbox in their own Gmail, with no password shared. Whether the Claude Gmail
-  connector can see a delegated mailbox is **unverified**; assume not, and do not build on it.
-- **Future mail can also flow to the newcomer's own account**, so that *their* connector sees
-  it: a Gmail filter forwarding the relevant correspondents to their address. This is a
-  business decision more than a technical one (they then hold a copy), so it is a question (§7,
-  Q5), not a default.
+  brain: Google's own "grant access to your account" (Settings › Accounts and Import) lets them
+  read, search, send from and archive the owner's mailbox from their own Gmail, with no password
+  shared, revocable at any time by the owner. Verified on Google's help page (2026-09-01):
+  available on a personal `@gmail.com` account (up to ten delegates), the owner must verify
+  their identity first, the invitation lasts a week, and it can take **up to 24 hours** to take
+  effect, so it is a before-day-one step. A delegate does not see Drive-hosted attachments.
+  Whether the Claude Gmail connector can see a delegated mailbox is **unverified** in Anthropic's
+  docs, and the Gmail API does not expose delegated mailboxes for consumer accounts: assume not,
+  and do not build on it. Delegation serves the human, not the brain.
+- **Future mail flows to the newcomer's own account, so that *their* connector sees it:** a
+  Gmail filter forwarding the relevant correspondents (or everything) to their address. Native,
+  reversible by deleting the filter, future mail only, and the newcomer then holds a copy. This
+  is the mechanism that lets the newcomer's *brain* read the owner's mail, and the recommended
+  one (§7, Q5).
+- **Considered and not recommended: binding the owner's Google account to the newcomer's
+  Claude.** The owner could type their own credentials on the newcomer's consent screen, and
+  revoke from their Google "third-party access" page. It reads the owner's whole mailbox, past
+  included, but the connector reads **one** Google account per Claude account (the newcomer's
+  own mailbox then disappears from their brain), and Anthropic documents no such pattern. Keep
+  it as the fallback if the past mail ever has to enter the newcomer's brain.
 
 **The mail history is left where it is.** Years of mail are neither a day-one job nor a good
 first target: the retrieval that matters is the archive folder, and the connector already
@@ -244,9 +257,10 @@ answers from what they know and asks the owner only what they cannot infer.
 4. **Which Claude account, paid by whom?** The newcomer needs Claude Code under an account of
    their own. *Recommended:* an account in the business's name, so the access can be revoked
    without touching the owner's.
-5. **Should future mail also reach the newcomer's own mailbox?** Delegation lets them read the
-   owner's; forwarding gives them a copy their own brain can search. *Recommended:* delegation
-   only, for the first month; forwarding is a business decision about where copies live.
+5. **How does the newcomer's brain reach the owner's mail?** Delegation lets the human read
+   the owner's mailbox; only forwarding puts mail where the newcomer's own connector can see
+   it. *Recommended:* forwarding filter plus delegation, both native and reversible; binding the
+   owner's account to the newcomer's Claude stays the fallback (§5).
 6. **Is the brain single-universe?** If the owner uses universes in that brain, switching on
    one machine moves the other person's pointer at the next pull. *Recommended:* keep that brain
    to one universe; a separate brain per sphere already does the job universes would.
@@ -256,13 +270,21 @@ answers from what they know and asks the owner only what they cannot infer.
    later forwarding. *Recommended:* answer it in one sentence and write it at the top of the
    constitution's owner section.
 
+**Round 1, closed on 2026-09-01 by the proxy:** the recommended answer was taken on all eight
+questions (whole history shared, the newcomer writes, a capable Mac with the in-process
+embedder, an account revocable without touching the owner's, forwarding plus delegation, one
+universe, the newcomer keeps the catalogue, nothing leaves the two machines). Round 2 is the
+frontier those answers opened: does the newcomer already hold a Google address (delegation on
+a personal account and the connector both need one); which mail is forwarded, everything or a
+list of correspondents; and who performs the day-one setup on the newcomer's machine.
+
 ## 8. The day-one runbook (a procedure for two humans, not a chantier of this repo)
 
 Before day one, on the owner's side: answer §7; if Q1 says "not everything", re-initialise the
 repo from a snapshot; add the two constitution paragraphs (who is at the keyboard, how to
 search the archive); run the catalogue script once; share the cloud folder to the newcomer;
-set *Keep Downloaded* on it; invite the newcomer's GitHub account to the private repo; enable
-Gmail delegation if Q5 says so.
+set *Keep Downloaded* on it; invite the newcomer's GitHub account to the private repo; grant
+Gmail delegation (up to 24 hours to take effect) and create the forwarding filter.
 
 On day one, on the newcomer's side, in this order: accept the shared folder and let it
 download; clone the repo, `node scripts/rehydrate.mjs`, their `.env`;
