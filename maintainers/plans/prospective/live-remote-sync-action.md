@@ -14,10 +14,11 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 0 (the POC): unknowns 3 and 5 are answered (see 0.3, 0.5); unknowns 1, 2 and 4
-  need the owner at the keyboard for five minutes (protocol in the POC folder's README).
-- **Blocked on:** nothing. The POC's verdict on unknown 2 decides whether step 5.1 ships or
-  falls back to the banner alone; steps 1 to 4 do not depend on it.
+- **Next:** step 1 (union merge of notes, test first). The POC is closed: the `FileChanged`
+  hook runs code but cannot speak to the conversation, so the immediate display falls back to
+  the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
+- **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
+  at 7.4; the per-machine lock (2.3) is built regardless.
 - **Owner's call pending:** the release number (the feature ships alone under the next tag,
   decision 3; which tag it is gets settled at step 8 against the v5.1 promise in
   [`clear-the-tracker-action.md`](clear-the-tracker-action.md)).
@@ -32,21 +33,31 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 Throwaway folder in the session scratchpad (`poc-filechanged/`), nothing in Kenjaku, nothing in
 a real brain.
 
-- [ ] **0.1** The `FileChanged` matcher: which names it accepts (letters, digits, `_`, `|` per
-      the docs, yet the docs' own example is `.envrc|.env`), whether it sees a file under
-      `.cache/` or only at the root, and what the stdin JSON carries (path, event).
-- [ ] **0.2** The display: does the hook's `systemMessage` show while Claude is idle, in the CLI
-      and in Claude Desktop; does its `additionalContext` reach Claude at the next turn (witness
-      word in the reply).
+- [x] **0.1** The `FileChanged` matcher _(2026-09-01, POC on the maintainer's Mac)_: dots,
+      dashes, underscores and `|` all match (`remote_arrivals`, `remote-arrivals.json`,
+      `arrivals|other` each fired); **only files at the project root fire** (the same names
+      under `.cache/` fired nothing); stdin carries `session_id`, `transcript_path`, `cwd`,
+      `hook_event_name`, the absolute `file_path` and `event: "change"`. Consequence: the trace
+      is `remote-arrivals.json` at the brain root, gitignored (2.6 adjusts the ignore rule).
+- [x] **0.2** The display — **negative** _(2026-09-01, CLI v2.1.220, owner at the keyboard)_:
+      the hook ran four times, yet nothing showed on screen while idle, nothing reached Claude
+      at the next turn (no witness word), and the session transcript holds no entry at all
+      between the two turns. Tried both output shapes (`hookSpecificOutput.additionalContext`,
+      then top-level `additionalContext` + `systemMessage` + `continue`). Verdict: on this
+      version `FileChanged` is a way to *run code* when a file lands, never a way to *tell*
+      the human or Claude anything. Desktop not tried: same engine, and nothing left to gain.
 - [x] **0.3** The OS banner from a Node child with no terminal: `osascript … display
       notification` returns ok and the banner shows _(2026-09-01, on the maintainer's Mac)_.
 - [ ] **0.4** Several Desktop conversations on one brain: how many `vault-rag` servers live,
-      and whether background conversations keep theirs alive after minutes (sizes the lock, 2.5).
+      and whether background conversations keep theirs alive after minutes. **Moved to 7.4**
+      (measured on the rehearsal copy); the per-machine lock (2.3) is built either way.
 - [x] **0.5** `git ls-remote` from a child with no terminal and prompts forbidden
       (`GIT_TERMINAL_PROMPT=0`, `GIT_ASKPASS` inert, `ssh -o BatchMode=yes`): answers in 1 s
       _(2026-09-01, the maintainer's machine; the target machines are checked at step 7)_.
-- [ ] **0.6** Verdict written here: trace file name and location, what each client displays;
-      step 5.1 confirmed or replaced by the banner alone.
+- [x] **0.6** Verdict _(2026-09-01)_: trace `remote-arrivals.json` at the brain root
+      (gitignored); no client displays anything while idle; **5.1 dropped**, the immediate
+      signal is the native banner (5.2) and the announcement lands at the next message (4).
+      No new hook entry, so the update path is unchanged; the rehearsal (7) stays anyway.
 
 ### 1. Two people appending to the same note no longer conflict
 
@@ -114,12 +125,9 @@ a real brain.
 
 ### 5. The arrival shows at once, and a banner reaches the person even in another app
 
-- [ ] **5.1** `FileChanged` hook entry in `.claude/settings.json.template` (matcher and location
-      per 0.6), running `scripts/remote-arrivals-display.mjs`: `systemMessage` for the human and
-      the same directive as `additionalContext`. Delivered to existing brains by the reconciler's
-      surgical hook write (`hooks-reconcile.mjs`), which changes the update path → step 7 is
-      mandatory (CONVENTIONS §10ter). Tests: process-level, JSON shape, nothing emitted when the
-      trace is already announced.
+- [x] **5.1** ~~`FileChanged` hook entry for an immediate `systemMessage`~~ **dropped**
+      _(2026-09-01, POC 0.2: the event cannot speak to the conversation)_. No new hook entry;
+      the immediate signal is 5.2 alone.
 - [ ] **5.2** The native banner from the tick (§ D bis 2): macOS `osascript`, Windows
       PowerShell toast, otherwise nothing; only when an incoming author differs from the local
       `git config user.name`; at most one per tick; `REMOTE_SYNC_BANNER=0` disables. Tested
@@ -173,7 +181,8 @@ a real brain.
 - [x] **9.5** Default interval 90 s, fixed, with jitter; progressive back-off when idle stays
       out of v1 (§ Risks 2.3).
 - [x] **9.6** The `FileChanged` hook for immediate display, with the rehearsal it imposes (5.1,
-      7); the banner alone if the POC's unknown 2 fails.
+      7); the banner alone if the POC's unknown 2 fails → **unknown 2 failed, banner alone**
+      _(2026-09-01)_.
 - [x] **9.7** The native banner on by default, only for another author's notes, disableable (5.2).
 - [x] **9.8** No "duo mode" to declare: the remote is the declaration (§ Why no duo mode).
 
