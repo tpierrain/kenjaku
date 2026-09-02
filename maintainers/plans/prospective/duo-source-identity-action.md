@@ -22,9 +22,10 @@ and measured (parent plan); what is missing is code.
   _(the owner's instruction, 2026-09-02, before going to bed)_. Read the parent plan's
   § *Why no duo mode* first — it is the reasoning this plan assumes and does not repeat — then start
   at the first unticked box below.
-- ⚖️ **Two design calls are MINE, taken to keep moving, and both are cheap to reverse.** They are
+- ⚖️ **Three design calls are MINE, taken to keep moving, and all are cheap to reverse.** They are
   written at § *Design calls taken without him* with what each would cost to undo. He reviews them
-  when he wakes; neither blocks the work.
+  when he wakes; none of them blocks the work. **The third one (4bis) narrows a rule this release
+  already shipped**, so it is the one most worth his eye.
 - **Blocked on:** nothing.
 - **A session may, alone:** run every step below test-first end to end, on `feat/live-remote-sync`,
   **pushing every green commit and READING its CI** (rules/ci.md: a push whose result is never read
@@ -113,6 +114,35 @@ and measured (parent plan); what is missing is code.
       assume it: the universe blind spot in those very lists has its own hardening plan.
 - [ ] **4.7** Mutation run on the new file.
 
+### 4bis. Narrow the automatic merge to the zones that can actually take it
+
+The owner challenged the merge rule itself on 2026-09-02, and he is right: `merge=union` is
+currently scoped to **`vault/**/*.md`**, i.e. to every note including the curated ones, and union is
+**not a merge — it is a concatenation**. It keeps both sides' lines with no marker and no question.
+That is the correct resolution for a ledger nobody rewrites, and the wrong one for a page two people
+edit. The repo already owns the vocabulary for that split: `RAW_CAPTURE_ZONES` in
+`scripts/lib/wiki-lint.mjs` versus the curated entity types beside it.
+
+- [ ] **4bis.1** `.gitattributes`: `merge=union` **only** on the append-only zones (`daily/`,
+      `raw-sources/`, `inbox/`, `_inbox/`, `actions-log.md`), and **the default conflict behaviour
+      restored everywhere else** in the vault — `people/`, `topics/`, `decisions/`, `meetings/` and
+      the rest. Patterns must match **inside a universe too** (`acme/daily/…`), the blind spot those
+      very zone lists already have a hardening plan for.
+- [ ] **4bis.2** The zone list exists in **one** place, not two: `.gitattributes` and
+      `wiki-lint.mjs` must be asserted to agree rather than trusted to, the way the `.gitignore`
+      migration and `reconcile-brain.mjs` already are (CONVENTIONS §5quater — a third hand-written
+      copy of a rule is the drift that convention warns about).
+- [ ] **4bis.3** Non-regression on #84's own promise: two appends to one **daily** note still merge
+      with no human (`scripts/lib/notes-union-merge.test.mjs` is the existing proof — extend it, do
+      not weaken it), and two edits to one **person card** now produce a real conflict.
+- [ ] **4bis.4** A conflict on a curated page is **not a failure**: the machinery already exists and
+      is built (parent plan, step 4) — `rebase --abort`, the files named in the trace, and the brain
+      guides the merge at the next message. Assert that a curated-page conflict reaches that path.
+- [ ] **4bis.5** The frontmatter corruption this removes is worth recording in the ADR: two edits to
+      one `updated:` line under union produce **two `updated:` keys** and a note the indexer
+      refuses. Today that is caught after the fact (the tick re-checks the header and undoes the
+      rebase); narrowing the rule means curated notes never reach that state at all.
+
 ### 5. The doctrine — what duo mode does and does NOT cover
 
 Not a division of duties: the owner struck that out (parent plan, § *The owner's design call*).
@@ -156,7 +186,14 @@ Both taken to keep the overnight run moving, both cheap to reverse, both his to 
    creating the day's first note at the same instant on two machines → union merge, exactly as
    now). **Cost to reverse:** the rule lives in one pure function (4.1); changing it is changing
    that function and its tests.
-2. **`actions-log.md` stays a single shared file.** Union merge is the right resolution for a flat
+2. **Narrowing `merge=union` rather than removing or keeping it** (4bis). Keeping it vault-wide
+   silently collages curated pages; removing it altogether breaks #84's own promise that two appends
+   to one daily note merge with no human. The middle is the zone split the linter already draws.
+   **The trade-off to be honest about:** more situations will now ask a human to arbitrate, and in
+   duo mode with symmetric roles two people will touch the same `people/` card. A prompt is
+   nonetheless better than a card that quietly says a thing and its opposite, and the guided-merge
+   path is already built. **Cost to reverse:** one line of `.gitattributes` and its tests.
+3. **`actions-log.md` stays a single shared file.** Union merge is the right resolution for a flat
    append-only ledger, and per-person ledgers would make "what did we do about X?" a two-file grep.
    The duplicate risk there is one repeated line, visible and greppable — not a merged document
    that contradicts itself. **Cost to reverse:** a path change in one place plus the seed
