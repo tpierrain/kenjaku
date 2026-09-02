@@ -25,8 +25,12 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
   something important today, and does not want a trial running beside it. **Nothing may be launched
   against any brain of his until he says go**, the rehearsal included. Worth having written down for
   whoever resumes: the fear he named — merges landing on his other machine — is not reachable from
-  here. The rehearsal copies without `.git`, so the copy has no remote to push to; and this feature
-  is not released, so no brain of his is running it. Say that when he asks, do not act on it.
+  here — **but only once the remote question is settled, and it was not**. He pushed back on exactly
+  that: a sync test is made of pushes and pulls, so it needs a remote, and pointing one at his own
+  would land the test's commits in his repository and on his other machine. The answer, now written
+  into step 7 where it is load-bearing: the remote is a bare repository created in the work
+  directory, never his. With that, the copy still has nothing that reaches him, and the feature is
+  not released either, so no brain of his is running it. Say that when he asks, do not act on it.
 - 🚧 **And even with his go, step 7 needs a permission this session does not have** _(2026-09-02)_.
   An unattended session
   cannot launch the rehearsal: the sandbox refuses any command that reaches a brain folder under
@@ -250,6 +254,17 @@ a real brain.
       (CONVENTIONS §10ter): update lands, hook entry reconciled, restart, one tick observed.
       That brain, and not another: it is the one with a remote and two machines, and its installed
       engine is the version the fleet would update **from**.
+> 🛑 **THE REMOTE FOR 7.2 TO 7.4 IS A BARE REPOSITORY IN A TEMP DIR, NEVER THE OWNER'S OWN**
+> _(2026-09-02, his question, and he was right to ask it)_. 7.1 is harmless by construction: the copy
+> is taken without `.git`, so it has no remote and a push home is not expressible. **7.2 to 7.4 are
+> not**, because a sync test is made of pushes and pulls, and it therefore needs a remote to exist.
+> Point either clone at `git@github.com:tpierrain/mind-palace.git` and the test's own commits land in
+> his real repository and reach his other machine at its next pull — the exact accident he named. So
+> the remote is created by the test, `git init --bare` under the work directory, and the two clones
+> are clones **of that**. What this does not prove is the one thing his remote would have: that `git`
+> can authenticate over SSH without asking for a passphrase. That is unknown 5, it is 7.5, and it
+> belongs on his machines with him present either way.
+
 - [ ] **7.2** A note pushed from a second clone arrives within one interval, is indexed, is
       displayed at once (5.1) and announced at the next message (4).
 - [ ] **7.3** Two clones append to the same daily note: union merge, no human.
