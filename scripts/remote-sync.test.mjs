@@ -24,7 +24,17 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { brainRoot, buildCheckNote, buildGit, buildGitInvocation, buildPush, gitEnv, minGapMsFrom, realTickDeps } from "./remote-sync.mjs";
+import {
+  brainRoot,
+  buildCheckNote,
+  buildGit,
+  buildGitInvocation,
+  buildIndexLockPresent,
+  buildPush,
+  gitEnv,
+  minGapMsFrom,
+  realTickDeps,
+} from "./remote-sync.mjs";
 import { buildNotifier } from "./lib/os-banner.mjs";
 import { engineParser } from "./lib/vault-write-guard.mjs";
 import { LAST_TICK_FILE } from "./lib/remote-sync-gate.mjs";
@@ -381,6 +391,21 @@ test("minGapMsFrom follows the configured interval, and falls back to 90 s on an
   assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "30.5" }), 90_000);
 });
 
+// The tick yields while git holds the index, rather than racing the auto-commit hook for it.
+// On a directory this test owns, so the answer never depends on what the repo is doing.
+test("buildIndexLockPresent watches the brain's OWN .git, and answers afresh every time", (t) => {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), "index-lock-")));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  mkdirSync(join(root, ".git"), { recursive: true });
+  const present = buildIndexLockPresent(root);
+
+  assert.equal(present(), false, "no lock: the tick may run");
+  writeFileSync(join(root, ".git", "index.lock"), "");
+  assert.equal(present(), true, "git is mid-commit: yield");
+  rmSync(join(root, ".git", "index.lock"));
+  assert.equal(present(), false, "…and the answer is read from disk each time, never remembered");
+});
+
 test("buildPush pushes only when the four conditions of the Stop hook hold, and says so", () => {
   const answers = {
     remote: "origin\n",
@@ -508,7 +533,11 @@ test("realTickDeps wires every seam the tick asks for, bound to the brain the mo
   assert.equal(typeof deps.gate.acquire, "function");
   assert.equal(typeof deps.gate.release, "function");
   assert.ok(deps.now() instanceof Date);
-  assert.equal(deps.indexLockPresent(), false, "this repo is not mid-commit while its own test runs");
+  // 🚩 What is deliberately NOT asserted here: `deps.indexLockPresent()`. It reads the
+  // ambient state of THIS working copy, so a stale `.git/index.lock` — left behind by any
+  // git command that was interrupted, which is a normal thing to happen on a maintainer's
+  // machine — turned an unrelated test red. A test that fails on the weather is worse than
+  // no test: the port's real behaviour is pinned just below, on a directory it owns.
 
   // A notifier wired to nothing looks exactly like a notifier that decided to stay quiet, so
   // the wiring is checked by the request that reaches the spawn — on the platforms that have

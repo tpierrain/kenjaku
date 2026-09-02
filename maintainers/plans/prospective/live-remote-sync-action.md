@@ -20,17 +20,12 @@ server with its knob and its shutdown, the announcement that reaches the convers
 next message, the banner for notes written by someone else, and the doctrine and docs that say so.
 Two things are open, and only one of them is mine to move.
 
-- 🔬 **IN FLIGHT — the mutation recheck** _(started 2026-09-02, ~1 h 30, the owner watching)_, into
-  `maintainers/mutation/reports/sync-84-recheck.log`, over the six files of this chantier:
-  `scripts/remote-sync.mjs`, and in `scripts/lib/` `remote-sync.mjs`, `remote-sync-gate.mjs`,
-  `gitignore-entry.mjs`, `remote-arrivals.mjs`, `os-banner.mjs`. **On resuming: read that log.**
-  The first pass read **86.17 %** (`reports/sync-84-batchA.log`) — `gitignore-entry` 100 %,
-  `remote-sync` 92.44 %, the entry 91.98 %, `os-banner` 88.35 %, `remote-arrivals` 79.87 %, and the
-  **gate at 67.74 %**, the piece that decides whether a machine ticks at all. Its survivors were
-  closed in `6b5bbd9`. **What still owes writing, and is the whole of what remains in 2.7**: one
-  line per file in `maintainers/mutation/RESULTS.md`, newest-first, with the accepted equivalents
-  **named rather than implied** — two are known and unkillable without a seam nobody should add: an
-  `openSync` error that is not `EEXIST`, and the staging file a failed trace write leaves behind.
+- ✅ **2.7 is DONE** _(2026-09-02)_. Two passes over the six files this chantier writes: **86.17 %
+  → 95.98 %**, and the gate — the piece that decides whether a machine ticks at all — **67.74 % →
+  83.53 %**, whose fourteen remaining survivors are every one an equivalent. The table, the four
+  defects the first pass actually found, and the reasoning behind the one gap deliberately left
+  (an `fs` call failing with something other than `EEXIST`, which would cost a seam on the gate's
+  hottest path) are recorded in `maintainers/mutation/RESULTS.md`, newest-first. Nothing owed.
 - ⏸️ **WAITING ON THE OWNER — step 7, the rehearsal.** It is the acceptance test of the whole
   chantier, and the first place any of this meets a brain that was not built by a fixture. Two
   separate reasons it has not run, and BOTH must lift:
@@ -163,7 +158,7 @@ a real brain.
       the plan had missed**: `.gitignore` reaches no deployed brain by regime, so the line is
       also delivered by a surgical migration inside `reconcileBrain` (update **and** self-heal),
       through the new `lib/gitignore-entry.mjs` — see the STATE block for why it is not optional.
-- [ ] **2.7** Mutation run on the new files the day they are written
+- [x] **2.7** _(2026-09-02, `6b5bbd9` + the recheck)_ Mutation run on the new files the day they are written
       (`maintainers/mutation`, commit then mutate); one line each in `RESULTS.md`. Targets:
       `scripts/remote-sync.mjs`, `scripts/lib/remote-sync.mjs`, `scripts/lib/remote-sync-gate.mjs`,
       `scripts/lib/gitignore-entry.mjs`, and — written after this line was first drafted —

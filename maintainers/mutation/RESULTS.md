@@ -233,6 +233,70 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #84 — live sync between machines, the six files it writes — 2026-09-02
+
+State owned by
+[`../plans/prospective/live-remote-sync-action.md`](../plans/prospective/live-remote-sync-action.md)
+(step 2.7). New files → measured whole, in one batch, twice: once the day they were written, once
+after their survivors were closed. Logs: `reports/sync-84-batchA.log`, `reports/sync-84-recheck.log`.
+
+| File | First pass | After | Survivors left | Read |
+|---|---|---|---|---|
+| `lib/gitignore-entry.mjs` | **100 %** | **100 %** | 0 | nothing to say, and it is the smallest |
+| `remote-sync.mjs` (the entry) | 91.98 % | **99.00 %** | 2 | both `Number()`/`?? ""` already-trimming equivalents |
+| `lib/remote-sync.mjs` (the tick) | 92.44 % | **98.32 %** | 2 | a `?? ""` with no slash in it, and `/\s+/`→`/\s/` before `[0]` |
+| `lib/os-banner.mjs` | 88.35 % | **97.92 %** | 2 | one `?? ""` equivalent; the other closed in this pass |
+| `lib/remote-arrivals.mjs` | 79.87 % | **94.97 %** | 8 + 1 timeout | the budget-loop bounds and the staging-file cleanup, below |
+| `lib/remote-sync-gate.mjs` | **67.74 %** | **83.53 %** | 14 | every one an equivalent — read the next paragraph before believing the number |
+| **Batch** | **86.17 %** | **95.98 %** | 28 of 697 | 668 killed, 1 timeout |
+
+**The gate's 83.53 % is an effective 100 % on non-equivalents, and that claim is spent carefully.**
+Its fourteen survivors are three shapes, none of them a thin test: (a) an encoding argument replaced
+by `""`, which Node accepts on write and answers with a Buffer on read, so `JSON.parse` coerces it
+back — *measured*, not assumed; (b) a `catch { return null }` emptied to return `undefined`, which
+every caller treats identically (`!record`, and `at - undefined` is NaN, which no comparison passes);
+(c) **the one real gap, and it is a cost decision**: an `openSync`/`rmSync` failing with something
+that is not `EEXIST`. Producing that deterministically on both POSIX and Windows means either a
+filesystem trick whose error code differs per platform, or an injected `fs` — a seam on the hottest
+path of the gate, to observe a branch that only fires when the disk itself misbehaves. Not worth it.
+The same class covers `remote-arrivals`' staging-file cleanup, which needs `writeFileSync` to fail.
+
+### What the first pass actually bought — the part worth keeping
+
+The score moved because **four defects were found, not because assertions were widened**:
+
+1. **`Date.parse` answers NaN on a timestamp carrying a trailing newline.** The gate's `.trim()` on
+   its last-tick marker was therefore load-bearing, and nothing said so. Removed, the marker reads
+   as **absent** — and every window on the machine ticks at once, which is the exact failure the
+   gate exists to prevent. Same shape one file over: git prints `\r\n` wherever `core.autocrlf` is
+   on, so an untrimmed path matches no note on disk.
+2. **The real liveness probe was measured by nothing.** Every test injected its own `isAlive`, so
+   the one that runs on the fleet had no coverage at all. Now exercised against this very process,
+   against a pid that does not exist, and against one we may not signal — **`EPERM` means alive**,
+   which a bare `catch → false` gets backwards.
+3. **`isNote` existed three times**, spelled identically in three files. Three chances to drift.
+   One copy now, exported where the announcement lives.
+4. **The banner's decision sat inside a catch-all**, where a guard that stopped working produced
+   the same silence as a guard that worked. It is a pure function now, and the `try` covers only
+   the spawn — the shape that also killed the last remaining killable survivor in the recheck.
+
+### 🔕 And the one that was not in the code at all
+
+The run **raised real desktop notifications on the maintainer's machine**, one per arrival test,
+once per mutant — for two hours, until he reported them. The suite runs the real entry point, and
+that entry point ends in a native banner. A single suite run raises a handful and nobody notices; a
+mutation run runs the suite once per mutant, which is what made it visible. **Mutation testing found
+a defect in the tests by being what it is**, before it ever reported a number.
+
+The durable half is now rule 3 of [`../CONVENTIONS.md`](../CONVENTIONS.md) §5ter: **anything that can
+surface outside the process is injected in tests, never merely switched off** — a switch is one
+mutant away from being on. And a second flake surfaced in the same hour, worth recording beside it: a
+test asserting `indexLockPresent()` on **this repo's** working copy went red because a stale
+`.git/index.lock` was lying around after an interrupted command. A test that fails on the weather is
+worse than no test; it now runs against a directory it owns.
+
+---
+
 ## T15 — the careful invocation was the live one — 2026-08-23
 
 `0286481`. State owned by

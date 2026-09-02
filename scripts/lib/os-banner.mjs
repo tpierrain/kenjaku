@@ -128,8 +128,12 @@ export function buildNotifier({ platform, env, spawn }) {
   return ({ files, authors }) => {
     const request = bannerRequest({ platform, env, files, authors });
     if (request === null) return;
+    // Read OUTSIDE the `try`, and that is the point: reaching in for a field of the request
+    // is not spawning, so a bug here must surface rather than be filed under "the notifier
+    // was missing". The catch below covers the one thing it is for.
+    const { command, args, options } = request;
     try {
-      spawn(request.command, request.args, request.options).unref();
+      spawn(command, args, options).unref();
     } catch {
       // Best-effort: a missing notifier costs a banner, never a sync.
     }
