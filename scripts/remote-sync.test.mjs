@@ -100,7 +100,12 @@ function makeBrain(t, { name = "Paul", remote = true } = {}) {
 function otherMachine(t, bare, name = "Claire") {
   const clone = realpathSync(mkdtempSync(join(tmpdir(), "remote-sync-other-")));
   t.after(() => rmSync(clone, { recursive: true, force: true }));
-  execFileSync("git", ["clone", "--quiet", bare, clone]);
+  // `-c core.autocrlf=false` on the CLONE ITSELF, not merely afterwards: the checkout
+  // happens during `clone`, so a Windows runner's global autocrlf would land CRLF in the
+  // other machine's working tree — and its very next commit would then rewrite the line
+  // endings of every file in the repo. The tick would report three arrivals instead of
+  // one, which is exactly what the Windows tripwire saw.
+  execFileSync("git", ["-c", "core.autocrlf=false", "clone", "--quiet", bare, clone]);
   identify(clone, name);
   const git = gitIn(clone);
   return {
