@@ -9,6 +9,8 @@ import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { spawn } from "node:child_process";
+import { pathToFileURL } from "node:url";
 
 import { LAST_TICK_FILE, LOCK_FILE, STALE_AFTER_MS, openTickGate } from "./remote-sync-gate.mjs";
 
@@ -169,4 +171,58 @@ test("the gate creates its directory when .cache/ does not exist yet", (t) => {
   assert.equal(gate.acquire(), true);
   gate.release();
   assert.equal(existsSync(join(d, LAST_TICK_FILE)), true);
+});
+
+// ── The arbitration, measured between REAL processes ─────────────────────────
+//
+// Every test above runs in ONE process and hands the gate its own `isAlive`, so all
+// of them together prove the DECISIONS and none of them prove the EXCLUSION — which
+// is the gate's entire job, and happens between operating-system processes.
+//
+// The field rehearsal of 2026-09-02 is what noticed: three windows ticking at once
+// on a copy of a real brain, and TWO of them got through, the second dying on the
+// git lock the first was holding. The cause is visible only across processes — a
+// lock file appears the instant it is created and is filled a moment later, so a
+// rival that reads it in between finds no holder, concludes the holder is dead,
+// and steals a lock that is very much alive.
+const CHILD = `
+import { openTickGate } from "GATE_URL";
+// \`node -e\` leaves no script path in argv, so the directory is argv[1], not argv[2].
+const gate = openTickGate({ dir: process.argv[1], minGapMs: 1_000 });
+const won = gate.acquire();
+// Stay alive while the rivals make up their minds: a winner that exits at once is
+// genuinely dead, and a rival reclaiming its lock would be right to.
+await new Promise((resolve) => setTimeout(resolve, 400));
+process.stdout.write(won ? "won" : "lost");
+`;
+
+async function raceWindows(d, count) {
+  const script = CHILD.replace("GATE_URL", pathToFileURL(join(import.meta.dirname, "remote-sync-gate.mjs")).href);
+  const outcomes = await Promise.all(
+    Array.from({ length: count }, () => {
+      const child = spawn(process.execPath, ["--input-type=module", "-e", script, d], { stdio: ["ignore", "pipe", "inherit"] });
+      let out = "";
+      child.stdout.on("data", (chunk) => (out += chunk));
+      return new Promise((resolve, reject) => {
+        child.on("error", reject);
+        child.on("close", () => resolve(out));
+      });
+    }),
+  );
+  return outcomes.filter((outcome) => outcome === "won").length;
+}
+
+test("four windows starting at the same instant: exactly ONE ticks, every round", async (t) => {
+  // Rounds, because the interleaving that breaks it is a matter of microseconds: one
+  // round can pass by luck. Each gets its own `.cache/`, so no round inherits another's
+  // marker and every one of them is the first tick on a quiet machine.
+  const winners = [];
+  for (let round = 0; round < 12; round += 1) {
+    winners.push(await raceWindows(join(dir(t), ".cache"), 4));
+  }
+  assert.deepEqual(
+    winners,
+    Array.from({ length: 12 }, () => 1),
+    "a round with two winners is two windows fetching into one repository, and the loser dies on the other's git lock",
+  );
 });

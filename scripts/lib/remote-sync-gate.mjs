@@ -8,17 +8,17 @@
 //
 //   • `remote-sync.last` — when the last tick RAN, whichever window ran it. A tick
 //     that lands within `minGapMs` of it yields: the machine already probed.
-//   • `remote-sync.lock` — who is ticking RIGHT NOW. Taken by an exclusive create
-//     (`wx` / O_EXCL), atomic across processes, so two windows ticking at the same
-//     instant cannot both win. A dead holder (pid gone) or a stale one (older than
-//     10 min: a tick never takes that long) is reclaimed, as the local mirror's
-//     per-source lock does (ADR 0032).
+//   • `remote-sync.lock` — who is ticking RIGHT NOW. It is written COMPLETE and then
+//     hard-linked into place, so it appears already naming its holder and is never
+//     observable half-made (see `tryCreate`). A dead holder (pid gone) or a stale one
+//     (older than 10 min: a tick never takes that long) is reclaimed, as the local
+//     mirror's per-source lock does (ADR 0032).
 //
 // Both reads fail OPEN on garbage (an unreadable marker is not a reason to stop
 // syncing forever) and the whole thing is best-effort: an I/O error on release is
 // swallowed — the next window reclaims a stale lock on its own.
 // ─────────────────────────────────────────────────────────────────────────────
-import { closeSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync, writeSync } from "node:fs";
+import { closeSync, linkSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import { join } from "node:path";
 
 export const LOCK_FILE = "remote-sync.lock";
@@ -36,6 +36,25 @@ const defaultIsAlive = (pid) => {
     return error.code === "EPERM";
   }
 };
+
+// The fallback for a filesystem with no hard links: create exclusively, fill after.
+// It carries the race `tryCreate` exists to remove, and is reached only where the
+// atomic route is unavailable.
+function exclusiveCreate(path, record) {
+  let fd;
+  try {
+    fd = openSync(path, "wx");
+  } catch (error) {
+    if (error.code === "EEXIST") return false;
+    throw error;
+  }
+  try {
+    writeSync(fd, record);
+  } finally {
+    closeSync(fd);
+  }
+  return true;
+}
 
 function readJson(path) {
   try {
@@ -78,20 +97,36 @@ export function openTickGate({ dir, pid = process.pid, now = () => new Date(), i
     return isAlive(record.pid);
   };
 
+  // The lock is written somewhere else FIRST and only then linked into place, and
+  // that order is the whole exclusion. Creating the file and filling it afterwards
+  // leaves a window — microseconds wide, and hit three times in four when four real
+  // windows start together — in which the lock EXISTS but is EMPTY. A rival reading
+  // it there finds no holder, `holderIsLive` says false as it must for a genuinely
+  // corrupt lock, and it steals a lock whose owner is mid-fetch. Measured on the
+  // field rehearsal of 2026-09-02: two windows through the gate, the second dying
+  // on the git lock the first was holding.
+  //
+  // `link` fails with EEXIST when the name is taken, atomically, and the file it
+  // publishes is already complete. Filesystems without hard links (a network share,
+  // an exotic mount) answer something else: fall back to the exclusive create rather
+  // than stop syncing — that is today's behaviour, race and all, and no worse.
   const tryCreate = (at) => {
-    let fd;
+    const record = JSON.stringify({ pid, acquiredAt: new Date(at).toISOString() });
+    const staging = `${lockPath}.${pid}.staging`;
     try {
-      fd = openSync(lockPath, "wx");
+      writeFileSync(staging, record);
+      linkSync(staging, lockPath);
+      return true;
     } catch (error) {
       if (error.code === "EEXIST") return false;
-      throw error;
-    }
-    try {
-      writeSync(fd, JSON.stringify({ pid, acquiredAt: new Date(at).toISOString() }));
+      return exclusiveCreate(lockPath, record);
     } finally {
-      closeSync(fd);
+      try {
+        rmSync(staging, { force: true });
+      } catch {
+        // best-effort: a leftover staging file is inert, and the next tick overwrites it
+      }
     }
-    return true;
   };
 
   return {
