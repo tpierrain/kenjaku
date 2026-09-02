@@ -43,11 +43,16 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
   `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. Steps 7.2 to 7.4 run
   on the copy that command produces, so they are behind the same door; 7.5 needs the second
   machine and is his either way.
-- **2.7 is running** _(restarted 2026-09-02 07:30)_, over the six files of this chantier rather
-  than four — `scripts/lib/remote-arrivals.mjs` and `scripts/lib/os-banner.mjs` were written after
-  the first run started, and `scripts/remote-sync.mjs` changed under it. Log:
-  `maintainers/mutation/reports/sync-84-batchA.log`. The earlier run measured nothing: it was
-  killed at 60 % by mistake, read as hung because its workers did not match a process filter.
+- **2.7, first pass measured: 86.17 %** over the six files of this chantier _(2026-09-02,
+  `maintainers/mutation/reports/sync-84-batchA.log`)_ — `gitignore-entry` 100 %, `remote-sync`
+  92.44 %, the entry 91.98 %, `os-banner` 88.35 %, `remote-arrivals` 79.87 %, and the **gate at
+  67.74 %**, which is the piece that decides whether a machine ticks at all. Survivors closed and
+  pushed as `6b5bbd9` (CI green); a recheck run is measuring the new score, into
+  `reports/sync-84-recheck.log`. **What remains of 2.7 once it lands**: one line per file in
+  `maintainers/mutation/RESULTS.md`, newest-first, with the accepted equivalents named rather than
+  implied. Two survivors are known to be unkillable without a seam nobody should add — an
+  `openSync` error that is not `EEXIST`, and the staging file a failed trace write leaves behind —
+  and they belong in that line as equivalents, not as silence.
 - **3.6** (the `engineVersion` bump) trails deliberately, moved to step 8 — see there for why.
   The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
