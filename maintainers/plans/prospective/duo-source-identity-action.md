@@ -15,9 +15,24 @@ the owner's decision).
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-02
 
-**Step 0 is DONE — ADR 0041 is written** _(2026-09-02)_. The next thing is **step 1, the lookup**:
-`scripts/lib/source-key.mjs` (pure) then `scripts/known-source.mjs` (the entry, tested as a process).
-The analysis was already done and measured (parent plan); what is missing is code.
+**Everything that could be built without the owner IS built** _(2026-09-03, overnight run)_. Steps 0,
+1, 2, 4, 4bis and the writable half of 5 are done and pushed on `feat/live-remote-sync`, CI green.
+What is left splits in two, and only the first pile is mine:
+
+- **Mine, still running or still to do**: the mutation runs (**1.4**, **2.3**, **4.7**) and the end-to-end
+  verification (**6**). Start there.
+- **His, and it is ONE decision, not four**: everything that needs a **French twin written**. Steps
+  **3.1–3.3**, **4.5** and **5.2** are all blocked by the same guard, and all three drafts are written
+  out ready to paste (§ *The step-3 draft*, § *The step-5.2 draft*). The run's autonomy line forbids
+  writing under `templates/fr/**`, so they wait on one word.
+- ⚠️ **The honest cost of that block, stated plainly**: without step 3 the **capture path never stamps
+  a key**, so in practice nothing is ever found already-held yet. The machinery is complete and
+  proven — the deterministic guard refuses a duplicate for any caller that passes `sourceKeys`, and
+  `scripts/known-source.mjs` answers correctly today — but the producers do not call it, because the
+  producers are skills and a skill cannot ship in English alone.
+- 👀 **Two things to re-read before anything else, because they are product statements and his to
+  overrule**: the new `SETUP.md` §7 subsection *"Sharing one brain with someone else"*, and the
+  rewritten sentence just above it about which merges stop and ask.
 
 - 🌙 **This plan was written to be executed AUTONOMOUSLY, overnight, from a cleared context**
   _(the owner's instruction, 2026-09-02, before going to bed)_. Read the parent plan's
@@ -305,15 +320,23 @@ edit. The repo already owns the vocabulary for that split: `RAW_CAPTURE_ZONES` i
 Not a division of duties: the owner struck that out (parent plan, § *The owner's design call*).
 This is the honest statement of the perimeter.
 
-- [ ] **5.1** `SETUP.md` §7: a subsection saying plainly that two people on one brain each keep
+- [x] **5.1** _(2026-09-03, `SETUP.md` §7 → "Sharing one brain with someone else")_ A subsection saying plainly that two people on one brain each keep
       their own notes; that **Gmail delegation lets the person read the mailbox but never their
       brain** (structural — no Gmail tool takes a mailbox argument); that **sharing a calendar DOES
       reach the other brain** (it takes a calendar address) and is the recommended path there; that
       a **direct message** to one person is invisible to the other; and that Slack membership is
-      **per workspace**.
-- [ ] **5.2** The same, three lines, in the constitution template's owner-editable part.
-- [ ] **5.3** ⚠️ **Product statements — proposals until he has read them** (same standing as
+      **per workspace**. `SETUP.md` has **no French twin**, so this half was free to write.
+      Framed around the one sentence worth remembering: *sharing a brain shares what you wrote down,
+      not what you can see.*
+- [~] **5.2** ⛔ **Blocked by the same French-twin guard as step 3, and drafted below instead.** The
+      constitution's owner-editable part is `CLAUDE.md.template`, which **is** a watched locale pair
+      (`templates/fr/CLAUDE.md.template` exists), exactly like `CLAUDE.engine.md`. So the three lines
+      are written out ready to paste, in § *The step-5.2 draft*, and applying them is the SAME
+      one-word decision as step 3 — not a second one.
+- [x] **5.3** _(2026-09-03)_ ⚠️ **Product statements — proposals until he has read them** (same standing as
       `SETUP.md` §6(e), still awaiting his review). Write them; do not treat them as settled.
+      **Written and flagged, not settled**: the §7 subsection is on disk and shipped in the branch;
+      it is the first thing to re-read in the morning, and the wording is his to overrule.
 
 ### 6. Verification, end to end
 
@@ -505,3 +528,30 @@ keys** of what the briefing drew on. ⚠️ **That field already exists there wi
 (a prose list, `["[[raw-sources/…]]", "chat (24h)", "calendar (day)"]`); it becomes the machine list,
 and the human list stays in the body where a reader already finds it. **Old briefings are safe**: a
 prose entry can never equal a normalized key, so it can never produce a false "already held".
+
+## The step-5.2 draft — ready to paste, blocked by the same guard as step 3
+
+`CLAUDE.md.template` has a French twin (`templates/fr/CLAUDE.md.template`), so it is a watched locale
+pair: touching the English alone makes the drift guard red, and the run's autonomy line forbids
+writing under `templates/fr/**`. **So this is not a second decision** — whoever applies the step-3
+draft applies this one, in the same commit shape (EN + FR twin together).
+
+Where it goes: in the **owner-editable** part, as a short section right after `## Tone` — it is a
+statement about the brain's perimeter, not about routing, so it belongs beside the personal settings
+rather than in the engine layer.
+
+```markdown
+## If you share this brain with someone else
+
+- **What you share is the notes, not the tools.** Their brain reads their mail, their messages,
+  their calendar — never yours, and there is no setting that changes that. What crosses is what one
+  of you wrote down.
+- **The calendar is the exception, and the recommended path**: a shared calendar DOES reach the
+  other brain, because a calendar has an address the tools accept. A shared mailbox does not.
+- **When you are asked what the other person is working on**, answer from their notes and say so.
+  Do not go looking in your own connectors for their activity: you will not find it, and a
+  confident empty answer is worse than none.
+```
+
+And the FR twin of the same, in French, respecting the locale (this is the product speaking to its
+owner in their language: it is a localization, not an artifact of mine to keep in English).

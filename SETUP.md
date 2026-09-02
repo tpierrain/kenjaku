@@ -581,6 +581,42 @@ still there if you would rather do it yourself, at your moment.
 
 > ⚠️ **Never** commit `.env` (gitignored). On a new machine, re-enter the key.
 
+### Sharing one brain with someone else — what that does, and what it does not
+
+The same remote repository that keeps your two computers in step can keep **two people** in step.
+Nothing extra to install and nothing to configure: you add them to the private repository, and their
+brain and yours pull from the same place. Here is the honest perimeter, because the part people
+expect and do not get is the part that costs a day.
+
+**What you now share: the notes.** Everything written into the vault travels both ways — captures,
+person pages, meeting write-ups, the activity log. Ask your brain what the other person wrote about
+a client and it answers from their notes, because they are yours now too.
+
+**What you do NOT share: each other's tools.** A brain reads *your* mail, *your* messages, *your*
+calendar, through the connectors signed in as you. Their brain does the same with theirs. So:
+
+- **Giving someone access to your mailbox does not give their brain access to it.** Gmail
+  delegation lets a person open your mailbox in *their own* Gmail window and read it with their own
+  eyes. It stops there: the tools a brain uses have no way to name a mailbox other than the one
+  they are signed in as. This is not a setting anyone can turn on.
+- **Sharing a calendar DOES reach the other brain**, and it is the one place where this works
+  properly. A calendar has an address, and the tools take one, so once you share yours, their brain
+  can read your meetings the way it reads their own. If you want one thing to be shared
+  automatically, make it the calendar.
+- **A direct message is invisible to the other brain**, always — the same way it is invisible to you
+  in the app. Only what both of you can see in a channel is common ground.
+- **Chat workspaces do not add up.** Membership is per workspace: a brain sees the workspaces its
+  own account belongs to. Being in the same *company* is not the same as being in the same
+  workspace, and the difference shows up as a search that comes back empty for no visible reason.
+
+**And you both keep writing.** Two people writing on the same day get one dated note each rather
+than one contested file, and the places you only ever add to (daily notes, inbox, the activity log)
+merge on their own. What you both **rewrite** — a person's page, a topic — stops and asks, on
+purpose (see just above).
+
+> 💡 In one sentence: **sharing a brain shares what you wrote down, not what you can see.** The way
+> to put something in front of the other person is the way it always was — write it down.
+
 ## 8. Troubleshooting
 
 | Symptom | Probable cause | Remedy |
