@@ -233,6 +233,48 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #84 duo — the source identity, and half the survivors were a design smell — 2026-09-03
+
+State owned by
+[`../plans/prospective/duo-source-identity-action.md`](../plans/prospective/duo-source-identity-action.md)
+(steps 1.4 / 2.3). Two new files, measured whole the day they were written, then again after their
+survivors were closed. Log: `reports/mutate-one-source-key+1.log`.
+
+| File | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/source-key.mjs` | **82.39 %** | **98.04 %** | 3, of which 1 equivalent |
+| `known-source.mjs` | **73.77 %** | **100.00 %** | 0 |
+| **Together** | **80.17 %** | **98.60 %** | 209 killed, 3 survived, 2 timeout |
+
+**The reusable lesson is that half of the first pass's survivors were not thin tests — they were
+production carrying risk it did not need to carry.** The field table named each field's normalizer
+with a **string** (`["channel", "id"]`), so a dispatch chain had to turn the label back into
+behaviour; five `StringLiteral` mutants emptied a label and survived, because a label nothing checks
+is a label a typo can silently change. Putting the **function** in the table deleted the labels, the
+dispatch and the five survivors at once. Two more came from a presence check that ran **twice**, once
+before normalization and once after — and only the second can be right, since a value that reduces to
+nothing is missing whether or not it arrived empty. Two more from `.trim()` calls that were already
+dead: whitespace is unsafe, so it becomes a hyphen and is stripped at the edge anyway.
+
+➡️ **When a survivor sits on a string that names behaviour, or on a check the code performs twice,
+reach for the production first.** A test written to kill it would be pinning a fact the design should
+not have had.
+
+The rest were genuine gaps, and every one of them is a key that would come out **different on the
+other person's machine** — which is the one failure this whole chantier exists to prevent: an unsafe
+RUN inside an id (one hyphen, not one per character), the hyphens a source really spelled, a
+subject's accents, a long number that merely *ends* in thirteen digits (an unanchored epoch match
+would key a real mail at a wrong instant), and a descriptor with no type at all.
+
+Two assertions were also **right for the wrong reason**, which the score cannot see but the survivor
+list points straight at: `isSourceKey` handed an ARRAY answered true (a regular expression
+stringifies its argument), and a check written `assert.match(log, /read/i)` passed on the word
+"al**read**y" — so the rule *"already held means go and READ it"* was never actually asserted.
+
+**What is left**: one equivalent (`/\.\d+Z$/` losing its anchor — `toISOString` produces exactly one
+`.mmmZ`, and nothing can precede it) and two timeouts on the entry point, which the `command` runner
+counts as kills.
+
 ## #84 — the gate, re-measured after the field rehearsal changed it — 2026-09-02
 
 The rehearsal on a copy of a real brain found a race in `lib/remote-sync-gate.mjs` (three windows

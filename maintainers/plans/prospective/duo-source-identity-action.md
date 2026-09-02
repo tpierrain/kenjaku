@@ -118,8 +118,14 @@ What is left splits in two, and only the first pile is mine:
 - [x] **1.3** _(2026-09-02)_ Tested **as a process** (rules/testing.md entry-point seam rule), not only through its
       imported functions: a real temp brain, a note inside a universe subtree, a human subject with
       spaces and punctuation surviving the command line, and a brain with no vault at all.
-- [ ] **1.4** Mutation run on both new files, results appended to `maintainers/mutation/RESULTS.md`
+- [x] **1.4** _(2026-09-03, 80.17 % → 98.60 %)_ Mutation run on both new files, results appended to `maintainers/mutation/RESULTS.md`
       newest-first.
+      **Half the first pass's survivors were a design smell, not thin tests** — the field table named
+      each normalizer with a *string*, so a dispatch had to turn the label back into behaviour and a
+      typo could change it silently; the presence check ran twice; two `.trim()` calls were already
+      dead. Putting the **function** in the table deleted five survivors and the dispatch with them.
+      The genuine gaps were all one shape: a key that would come out **different on the other
+      person's machine**. `known-source.mjs` ends at **100 %**.
 
 > 🚦 **The exit codes are THREE, and the third one is the safety of the whole chantier.**
 > `0` not held (or could not find out) → capture · `1` already held → go and read the note it names ·

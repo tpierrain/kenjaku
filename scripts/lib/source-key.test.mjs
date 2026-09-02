@@ -182,6 +182,10 @@ test("a missing identifier is refused loudly, field by field — there is no key
     [{ type: "notion", page: null }, "page"],
     [{ type: "mail", date: "2026-09-02T16:19:32Z", subject: "x" }, "from"],
     [{ type: "mail", from: "a@b.com", subject: "x" }, "date"],
+    // A blank date is a MISSING date, not an unparseable one: a shell that passed
+    // `--date ""` forgot the field, and the refusal must send the caller to the field
+    // rather than to a discussion about date formats.
+    [{ type: "mail", from: "a@b.com", date: "   ", subject: "x" }, "date"],
   ];
   for (const [descriptor, field] of missing) {
     assert.throws(
@@ -317,7 +321,12 @@ test("the frontmatter line is rendered as an inline list, deduplicated, in the o
 test("rendering refuses a string the composer could not have produced, and says which one", () => {
   assert.throws(
     () => renderSourcesField([MAIL, "the invoice mail from billing"]),
-    (err) => err.message.includes("the invoice mail from billing") && err.message.includes(SOURCES_FIELD),
+    (err) =>
+      err.message.includes("the invoice mail from billing") &&
+      err.message.includes(SOURCES_FIELD) &&
+      // And the way out, or the caller is told only that they are wrong: the whole
+      // point is that they reach for the composer instead of typing a key by hand.
+      err.message.includes("compose it with sourceKey({ type, … })"),
     "a hand-written key never matches anything, so it is a silent no-op rather than a claim",
   );
 });
