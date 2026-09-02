@@ -108,24 +108,29 @@ measurements only the owner's own machines can make.**
      CONVENTIONS §5quater warns about.
 - **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
   at 7.4; the per-machine lock (2.3) is built regardless.
-- ⏸️ **A duo risk analysed and costed, and its answer is his** _(2026-09-02, he raised it, then read
-  it as a release prerequisite and asked for the shaping)_. Two people on one brain can digest the
-  same source twice, and `merge=union` keeps both silently where a conflict used to show. The
-  sentence hides **three** defects: the same raw capture stored twice (needs source identity — a
-  chantier the size of #84, and it **would not have covered mail-by-forward**, since a forwarded copy
-  is a different message to the connector), the same day's synthesis written twice (needs per-person
-  paths — deterministic, cheap, no LLM discipline), and the same fact restated in a curated page
-  (doctrine only, forever). **His design call then struck out the cheap half**: duo mode is a
-  *delegation*, both instances hold the same powers, and *"je ne veux pas de répartition de
-  travail"* — so "one writer of record per source" is dead, and **dedup by identity is the only
-  mechanism left that can stop a double**. The per-person paths survive (they assign nobody
-  anything) and are needed whatever else is built. **Next, and it gates the design of A: verify
-  whether the Gmail connector reads a DELEGATED mailbox, and whether a forwarded copy keeps a usable
-  identity — the transport decides whether a machine key exists at all.** Findings, the step-by-step,
-  the risks, his call and the transport table: § Why no duo mode → *"But two people on one brain CAN
-  digest the same source twice"* and its three subsections. Awaiting his go on what ships with this
-  release, and on running that verification.
-- **Owner's call pending:** the release number (the feature ships alone under the next tag,
+- 🔜 **THE RELEASE GREW BY A CHANTIER — his call, against the recommendation, and the measurement
+  backs him** _(2026-09-02)_. Two people on one brain can digest the same source twice, and
+  `merge=union` keeps both silently where a conflict used to show. The sentence hides **three**
+  defects: the same raw capture stored twice, the same day's synthesis written twice, and the same
+  fact restated in a curated page (that third one is doctrine only, forever). His design call —
+  **duo mode is a delegation, both instances hold the same powers, no division of duties** — struck
+  out the cheap doctrine answer, leaving identity as the only mechanism that can stop a double.
+  **His decision: the per-person paths AND the duplicate recognition both ship with this release.**
+  The recommendation had been the paths alone; he judged duo mode unusable without the rest.
+  - ✅ **The Gmail frontier is measured** (§ *What the measurement returned*): the connector
+    **cannot** read a delegated mailbox — no tool takes a mailbox argument, so this is structural,
+    not an assumption — and a universal mail identifier both **exists** and is an **exact, working
+    lookup key** (`rfc822msgid:` returned precisely the one message). Still unmeasured, and now
+    harmless: whether a forward preserves it.
+  - 🟢 **The design changed under the measurement**: the key is **sender + timestamp + subject**,
+    free in the cheapest formats and identical across copies whatever the transport — not the RFC
+    `Message-Id`, whose only access path is a full raw-message fetch, i.e. exactly what the fan-out
+    exists to keep out of context. The red risk is downgraded: no fuzzy matching, so nothing can
+    silently drop a real mail.
+  - ▶️ **Next**: open the chantier's own plan file (it is no longer a candidate), sequence it
+    against step 8, and settle the release number — it now covers two features, not one.
+  Shaping, risks and the measurement live in § Why no duo mode → *"But two people on one brain CAN
+  digest the same source twice"* and its subsections; this line restates none of it.
   decision 3; which tag it is gets settled at step 8 against the v5.1 promise in
   [`clear-the-tracker-action.md`](clear-the-tracker-action.md)).
 - **A session may, alone:** run steps 0 to 7 test-first end to end, on this branch, pushing
@@ -669,15 +674,14 @@ second, genuinely new fact" without a judgment call, and a wrong call here delet
 
 **The risks, worst first:**
 
-- 🔴 **The identity does not survive a forward — which kills the very case that prompted this.** A
-  mail forwarded into the assistant's mailbox is, to the connector, a **different message with a
-  different id**. So dedup by connector id cannot match the two copies. Matching them would take a
-  content fingerprint (subject + sender + date, normalized), which is **fuzzy** — and a fuzzy match
-  that fires wrongly **silently drops a genuinely new mail**, which is far worse than a double. The
-  chantier therefore delivers on sources both brains reach **at the same address** — a Slack
-  permalink, a Notion page, a Drive file, a calendar event, all of which duo mode has plenty of —
-  and **not** on mail-by-forward. Mail becomes machine-dedupable only if both brains read the **same
-  mailbox** (the study's rejected fallback), or is settled by doctrine.
+- 🟠 ~~🔴~~ **The identity does not survive a forward** — *written before the measurement, and
+  **downgraded** by it_. The fear was that a forwarded mail, being a different message to the
+  connector, could only be matched by a fuzzy content fingerprint, which can silently drop a real
+  mail. The measurement found a better key: **sender + timestamp + subject**, free in the cheapest
+  formats, identical across every copy whatever the transport, and exact rather than fuzzy when all
+  three must match. What remains is that **the Gmail-internal id is useless across mailboxes** (so
+  the key must be the composite, never `id`), and that the forwarding behaviour of `Message-Id` is
+  still unmeasured — which now costs nothing, since the design no longer leans on it.
 - 🟠 **Enforcement is partial by construction.** A guard covers the deterministic write path; the
   LLM can always reach for `Write`. The guarantee is "usually", and a dedup one believes in but that
   leaks is worse than none, because it stops being checked.
@@ -731,13 +735,43 @@ whether a machine key exists at all**, which is precisely why it cannot be left 
 | **Forwarding filter** | a **copy** in her own mailbox, **new id** | ❌ not by id; only a fuzzy fingerprint, which can drop a real mail |
 | **The owner's Google account bound to her Claude** | the same mailbox, same ids | ✅ — but her own mailbox disappears from her brain (one Google account per Claude account) |
 
-**Two facts are unverified and both are cheap to settle**, and everything downstream hangs on them:
+**Two facts were unverified and both were cheap to settle**, and everything downstream hangs on them:
 whether the Claude Gmail connector reads a **delegated** mailbox (the study assumed not: the Gmail
 API does not expose delegated mailboxes for consumer accounts, so *"delegation serves the human, not
 the brain"*), and whether a **forwarded** copy still carries the original RFC `Message-ID` **and
-whether the connector exposes it**. If it does, mail-by-forward has a natural key after all and A
-covers the founding case; if it does not, the only symmetric paths left are delegation-if-it-works
-or a shared account. **Verify before designing** — the whole shape of A depends on the answer.
+whether the connector exposes it**. Measured below, on his go-ahead.
+
+#### What the measurement returned _(2026-09-02, on the owner's own mailbox, two impersonal notification mails)_
+
+- ✅ **The connector CANNOT read a delegated mailbox, and this is now structural, not assumed.**
+  Every Gmail tool is documented against *"the authenticated user's Gmail account"* and **not one of
+  them takes a parameter naming another mailbox**. There is no argument to pass. The study's
+  assumption is upgraded to a certainty: **delegation serves the human, never their brain.**
+- ✅ **A universal identifier exists and the connector exposes it.** `messageFormat: RAW` returns the
+  full RFC headers, `Message-Id` among them, and it is set by the **sender's** server before any
+  recipient exists (`<620fdd77-…@noota.io>`, `<20260602161932.…@mail.notion.so>`). Every copy of one
+  mail therefore starts life carrying the same string.
+- ✅ **And it is an exact, working lookup key.** `rfc822msgid:<the id>` returned **exactly the one
+  message** it should, nothing else. So "have I already seen this mail?" is answerable, cheaply, by
+  a query rather than by reasoning over content.
+- ❓ **Whether a Gmail auto-forward preserves it is STILL NOT MEASURED, and the reason matters.**
+  The owner's mailbox turned out to hold **no forwarded mail to test on**: it receives two domains
+  (`@visma.com`, `@inqom.com`) and each message shows a single `Delivered-To` naming its own original
+  recipient, with no `X-Forwarded-For` chain. That is **one mailbox with two addresses, not a
+  forward**. Standard practice (RFC 5322) is that a resent message keeps its `Message-ID` and adds
+  `Resent-Message-ID`, so the expectation is strong — but the repo's own rule cuts both ways: a
+  recorded absence is a measurement with an expiry, and so is a recorded permission. **Settling it
+  needs a real forwarding filter and one test mail**, on the field setup rather than here.
+- 🟢 **A finding that changes the design and lowers the risk: the key should NOT be the `Message-Id`.**
+  Reading it costs a **RAW fetch of the whole MIME message** — the 105 KB mails in that mailbox are
+  exactly what the fan-out architecture exists to keep out of context. Whereas **sender address +
+  send timestamp + subject** come back in the *cheapest* formats (`MINIMAL`, `METADATA_ONLY`), for
+  free, and are identical across every copy **whatever the transport**, forward included. Requiring
+  all three to match exactly is **not fuzzy matching**: two distinct mails sharing one sender, one
+  timestamp to the second and one subject is a negligible event. So: **composite natural key as the
+  primary, `Message-Id` used only when already in hand.** This downgrades the red risk above — the
+  chantier no longer depends on the unmeasured forwarding behaviour, and no longer needs a
+  fingerprint that could silently drop a real mail.
 - **Assessment: does not block step 8.** ⏸️ **Owner's call** — whether the doctrine paragraph ships
   with this release, and whether the source-identity item is filed as an issue.
 
