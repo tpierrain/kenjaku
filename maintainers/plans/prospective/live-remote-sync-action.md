@@ -127,6 +127,11 @@ measurements only the owner's own machines can make.**
     `Message-Id`, whose only access path is a full raw-message fetch, i.e. exactly what the fan-out
     exists to keep out of context. The red risk is downgraded: no fuzzy matching, so nothing can
     silently drop a real mail.
+  - 🗝️ **The identity is PER SOURCE TYPE, and mail is the hard case, not the model** (§ *Slack and
+    Calendar measured too*). Slack keys on `channel_id + ts` and Calendar on the event id, both free
+    and **shared by construction** — one object on one server, not two copies. Only mail needs the
+    composite. Calendar even reads **across accounts** (`calendarId` takes an email address), which
+    is what delegation failed to be for mail.
   - ▶️ **Next**: open the chantier's own plan file (it is no longer a candidate), sequence it
     against step 8, and settle the release number — it now covers two features, not one.
   Shaping, risks and the measurement live in § Why no duo mode → *"But two people on one brain CAN
@@ -772,6 +777,54 @@ whether the connector exposes it**. Measured below, on his go-ahead.
   primary, `Message-Id` used only when already in hand.** This downgrades the red risk above — the
   chantier no longer depends on the unmeasured forwarding behaviour, and no longer needs a
   fingerprint that could silently drop a real mail.
+
+#### Slack and Calendar measured too — and both are EASIER than mail _(2026-09-02, the owner asked)_
+
+Same method, same mailbox-owner's own accounts, on his go-ahead. **Mail turns out to be the hard
+case, not the representative one**, and that is worth knowing before the identity scheme is designed
+around it.
+
+- ✅ **Slack is the easy case, and it has no transport problem at all.** Channels carry
+  **workspace-global** ids (`C0CEQ4R5E`, `C6T6MLBHN` — the same string in every member's client) and
+  a message is keyed by its `ts` within its channel (the connector's own `message_ts`, `oldest`,
+  `latest` all speak that language). **There is ONE message on ONE server**: two people do not hold
+  two copies, they read the same object. So `channel_id + ts` is an exact shared key, free in every
+  response, and it is already what a Slack permalink encodes — which `sync-sources` § *Source
+  discipline* already insists on keeping.
+- ✅ **Calendar is nearly as easy: the event id is the SAME for every attendee.** The listing returns
+  `id: 0e61bh4mqcqvk3b9fd7jevibmi`, and the event's own `htmlLink` carries `eid=` = base64 of
+  **`<eventId> <calendarId>`** — decoded on a real event, `0e61bh4mqcqvk3b9fd7jevibmi
+  thomas.pierrain@visma.com`. The **event id is the shared half, the calendar id the per-person
+  half**: two attendees looking at one meeting hold the same event id. Free in the ordinary listing,
+  no expensive fetch.
+  - ⚠️ **Recurring events need the INSTANCE, not the series.** The connector returns
+    `pgtmb1knn969ftm8i3sd01ojiq_20260903T073000Z` plus a separate `recurringEventId`. Both brains
+    digesting "the daily of 3 September" agree; one keying on the series and the other on the
+    occurrence would not. The scheme must say which, once.
+- 🟢 **An asymmetry with Gmail that is worth exploiting: Calendar CAN be read across accounts.**
+  `list_events` / `get_event` take a **`calendarId` (an email address)**, where no Gmail tool takes a
+  mailbox at all. So if the owner shares their calendar, the assistant's brain reads **the owner's
+  own events** — literally the same objects, same ids — and the symmetry the owner demands is met
+  with no copying and nothing to dedup. **Calendar sharing is to the calendar what delegation failed
+  to be for mail.**
+- 🕳️ **Two real holes, and neither is a duplication problem — they are gaps in the duo promise.**
+  A **DM** to the owner is invisible to the assistant unless she is in it, and Slack memberships are
+  **per workspace** (`team_id`): on different workspaces there is no shared message to dedup, and no
+  shared message to read either. Both belong in the doctrine paragraph, not in the identity scheme.
+
+**What this settles for the design: the identity is PER SOURCE TYPE, and the ADR owes a table.**
+
+| Source | Key | Cost | Shared across the two people? |
+| --- | --- | --- | --- |
+| **Slack** | `channel_id` + `ts` | free | ✅ by construction — one message, one server |
+| **Calendar** | event `id` (instance, not series) | free | ✅ same id for every attendee |
+| **Notion mirror** | `source_url` | free | ✅ already shipped, already idempotent |
+| **Drive** | file `id` | free | ✅ same file id for every reader |
+| **Mail** | sender + timestamp + subject | free | ✅ whatever the transport; the Gmail id is per-mailbox and unusable |
+
+**Mail is the only row needing a composite**, because it is the only source where each person holds
+their **own copy** of the object rather than a view onto one. Designing the whole scheme from the
+mail case would have imported that awkwardness into four sources that do not have it.
 - **Assessment: does not block step 8.** ⏸️ **Owner's call** — whether the doctrine paragraph ships
   with this release, and whether the source-identity item is filed as an issue.
 
