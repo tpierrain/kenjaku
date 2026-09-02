@@ -542,6 +542,8 @@ const captureSpec = (sourceKeys) =>
     sourceKeys,
   });
 
+const THREAD_KEY = "slack|C0CEQ4R5E|1725283200.001200";
+
 const HOLDING_THE_MAIL = [
   { path: "daily/2026-09-02.md", frontmatter: {} },
   { path: "raw-sources/2026-09-02-invoice.md", frontmatter: { sources: [MAIL_KEY] } },
@@ -557,7 +559,27 @@ test("runFileBack — a capture the vault already holds is REFUSED, and the refu
   assert.equal(errors.length, 1);
   assert.match(errors[0], /vault\/raw-sources\/2026-09-02-invoice\.md/, "so the caller can cite it instead of re-capturing");
   assert.match(errors[0], new RegExp(MAIL_KEY.replace(/[|.]/g, "\\$&")));
-  assert.match(errors[0], /read|enrich/i, "ADR 0041 §6: already held is an instruction to go and read, not to discard");
+  // ADR 0041 §6: already held is an instruction to go and read, not to discard. Spelled
+  // out rather than matched on /read/i, which the word "already" satisfies on its own.
+  assert.match(errors[0], /Read that note and enrich it/);
+  assert.match(errors[0], /that source:/, "one source, said in the singular");
+});
+
+// Two of them, and both already held: the complaint must list each key with its own
+// holders, or the caller is told a number and left to go looking.
+test("runFileBack — several held sources are each named, with every note that holds them", () => {
+  const heldTwice = [
+    ...HOLDING_THE_MAIL,
+    { path: "briefings/2026-09-02.md", frontmatter: { sources: [MAIL_KEY, THREAD_KEY] } },
+  ];
+  const { deps, errors } = fakeDeps({ input: captureSpec([A_THREAD, A_MAIL]), vaultNotes: heldTwice });
+
+  assert.equal(runFileBack([], deps), 1);
+  assert.match(errors[0], /these sources:/, "two of them, said in the plural");
+  assert.match(errors[0], /slack\|C0CEQ4R5E\|1725283200\.001200\n\s+already in vault\/briefings\/2026-09-02\.md\n/);
+  // The mail is held by TWO notes, and the two are separated: names run together are
+  // names nobody can open.
+  assert.match(errors[0], /already in vault\/raw-sources\/2026-09-02-invoice\.md, vault\/briefings\/2026-09-02\.md/);
 });
 
 test("runFileBack — one held source among several is enough to refuse, and only the held one is named", () => {
@@ -599,6 +621,26 @@ test("runFileBack — a vault that cannot be read does not block the write", () 
   };
 
   assert.equal(runFileBack([], deps), 0);
+});
+
+// 🛑 AS A PROCESS, because this is the only thing that exercises the REAL vault reader.
+// Every test above injects the notes, so all of them would pass just as well if the
+// reader looked one folder too high, or at a folder that does not exist — and either
+// would mean the guard silently never fires in the field.
+test("file-back-note, as a real process — the guard reads the brain's OWN vault and refuses", () => {
+  const brain = mkdtempSync(join(tmpdir(), "file-back-dup-"));
+  mkdirSync(join(brain, "vault", "raw-sources"), { recursive: true });
+  writeFileSync(
+    join(brain, "vault", "raw-sources", "2026-09-02-invoice.md"),
+    `---\ntype: raw\ncreated: 2026-09-02\nupdated: 2026-09-02\ntags: [x]\nsources: [${MAIL_KEY}]\n---\n\n# The invoice\n`,
+  );
+
+  const run = spawnSync(process.execPath, [CLI], { cwd: brain, input: captureSpec([A_MAIL]), encoding: "utf8" });
+
+  assert.equal(run.status, 1, run.stderr);
+  assert.match(run.stderr, /already captured that source:/);
+  assert.match(run.stderr, /already in vault\/raw-sources\/2026-09-02-invoice\.md/);
+  assert.equal(run.stdout, "", "nothing announced as filed, because nothing was filed");
 });
 
 test("realFileBackDeps — the vault reader is wired to the brain's own vault/", () => {
