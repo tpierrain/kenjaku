@@ -14,13 +14,12 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 5.2 — the native banner from the tick (macOS `osascript`, Windows toast,
-  otherwise nothing; only for another author's notes, at most one per tick,
-  `REMOTE_SYNC_BANNER=0` disables), through the `notify` port the tick already calls and that
-  `noNotifier` currently fills. Steps 1 to 4 are done and green: the merge rule, the tick, the
-  gate, the entry point driven **as a process** on a real repo with a local remote, the clock
-  in the search server with its knob and its shutdown, and the announcement that reaches the
-  conversation at the owner's next message. Two things trail behind, both deliberately:
+- **Next:** step 6 — the doctrine and the docs (ADR 0011's fifth trigger row, SETUP §7,
+  README, and the `/sync` skill left deliberately untouched). Steps 1 to 5 are done and green:
+  the merge rule, the tick, the gate, the entry point driven **as a process** on a real repo
+  with a local remote, the clock in the search server with its knob and its shutdown, the
+  announcement that reaches the conversation at the owner's next message, and the native
+  banner for notes written by someone else. Two things trail behind, both deliberately:
   **2.7** (the mutation run, started 2026-09-02 — and `scripts/remote-sync.mjs` changed after
   it started, so that one file is owed a re-run) and **3.6** (the `engineVersion` bump, moved
   to step 8 — see there for why).
@@ -185,10 +184,14 @@ a real brain.
 - [x] **5.1** ~~`FileChanged` hook entry for an immediate `systemMessage`~~ **dropped**
       _(2026-09-01, POC 0.2: the event cannot speak to the conversation)_. No new hook entry;
       the immediate signal is 5.2 alone.
-- [ ] **5.2** The native banner from the tick (§ D bis 2): macOS `osascript`, Windows
+- [x] **5.2** _(2026-09-02, `scripts/lib/os-banner.mjs` + 13 tests)_ The native banner from the tick (§ D bis 2): macOS `osascript`, Windows
       PowerShell toast, otherwise nothing; only when an incoming author differs from the local
-      `git config user.name`; at most one per tick; `REMOTE_SYNC_BANNER=0` disables. Tested
-      through an injected notifier.
+      `git config user.name`; at most one per tick; `REMOTE_SYNC_BANNER=0` disables (and so do
+      `CI` and the engine's existing `SBG_NO_NOTIFY`). Tested through an injected notifier, and
+      documented in `.env.example` beside the interval. It is a SECOND implementation of "raise
+      an OS notification" (`rag/src/lib/notify.ts` is the first) and could not be otherwise: the
+      scripts are plain `.mjs` and cannot import the TypeScript package, nor it them. The
+      escaping rules are deliberately identical and each is pinned by its own test.
 
 ### 6. The doctrine and the docs say it
 

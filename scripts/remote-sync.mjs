@@ -30,7 +30,7 @@
 //     because it cannot judge;
 //   • the notifier is a NAMED no-op until step 5.2 fills it with the OS banner.
 // ─────────────────────────────────────────────────────────────────────────────
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,6 +40,7 @@ import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 // two top-level scripts may not import each other (the cross-version trap), and one shared
 // lib module is how they agree on the same bytes.
 import { buildTrace, CACHE_DIR } from "./lib/remote-arrivals.mjs";
+import { buildNotifier } from "./lib/os-banner.mjs";
 import { shouldPush } from "./lib/git-push.mjs";
 import { DEFAULT_INTERVAL_MS, runTick } from "./lib/remote-sync.mjs";
 import { openTickGate } from "./lib/remote-sync-gate.mjs";
@@ -157,12 +158,6 @@ export function buildPush({ git }) {
   };
 }
 
-/**
- * The banner is step 5.2's; until then the tick has somewhere to send it. Named
- * rather than an inline arrow so the wiring is observable (CONVENTIONS §5ter 2).
- */
-export function noNotifier() {}
-
 /** Every port of `runTick`, bound to the brain this module sits in. */
 export function realTickDeps(metaUrl, env = process.env) {
   const brainDir = brainRoot(metaUrl);
@@ -176,7 +171,7 @@ export function realTickDeps(metaUrl, env = process.env) {
     writeTrace: trace.write,
     checkNote: buildCheckNote({ brainDir }),
     push: buildPush({ git }),
-    notify: noNotifier,
+    notify: buildNotifier({ platform: process.platform, env, spawn }),
     now: () => new Date(),
   };
 }

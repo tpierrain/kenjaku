@@ -24,7 +24,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { brainRoot, buildCheckNote, buildGit, buildGitInvocation, buildPush, gitEnv, minGapMsFrom, noNotifier, realTickDeps } from "./remote-sync.mjs";
+import { brainRoot, buildCheckNote, buildGit, buildGitInvocation, buildPush, gitEnv, minGapMsFrom, realTickDeps } from "./remote-sync.mjs";
+import { buildNotifier } from "./lib/os-banner.mjs";
 import { engineParser } from "./lib/vault-write-guard.mjs";
 import { LAST_TICK_FILE } from "./lib/remote-sync-gate.mjs";
 
@@ -447,8 +448,21 @@ test("buildCheckNote says 'ok' when it cannot judge: an unverifiable note is not
   );
 });
 
-test("noNotifier is the named placeholder step 5.2 replaces, and it does nothing", () => {
-  assert.equal(noNotifier({ files: ["vault/a.md"], authors: ["Claire"] }), undefined);
+// The banner's own rules are pinned in `lib/os-banner.test.mjs`; what is asserted HERE is
+// that the entry point hands the tick the real one, bound to this machine and its switches.
+// A notifier wired to nothing looks exactly like a notifier that decided to stay quiet.
+test("the tick's notifier is the real banner, bound to this platform and this environment", () => {
+  const spawned = [];
+  const notify = buildNotifier({
+    platform: "darwin",
+    env: {},
+    spawn: (command, args) => (spawned.push({ command, args }), { unref: () => {} }),
+  });
+
+  notify({ files: ["vault/people/claire.md"], authors: ["Claire"] });
+
+  assert.equal(spawned[0].command, "osascript");
+  assert.match(spawned[0].args[1], /1 note from Claire/);
 });
 
 test("realTickDeps wires every seam the tick asks for, bound to the brain the module sits in", () => {
