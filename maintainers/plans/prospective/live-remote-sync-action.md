@@ -43,6 +43,15 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
   `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. Steps 7.2 to 7.4 run
   on the copy that command produces, so they are behind the same door; 7.5 needs the second
   machine and is his either way.
+- 🔕 **The mutation run was raising REAL desktop banners on the owner's machine, and he is the one
+  who noticed** _(2026-09-02, `73a2379`)_. The suite runs the real entry point, which ends in a real
+  native notification; one suite run raises a handful, and a mutation run raises one per mutant.
+  Fixed on both halves — the process fixture passes the engine's quiet switch, and `realTickDeps`
+  now takes the spawn as a seam so the wiring is asserted on the request rather than on the screen.
+  The durable half is carved in `CONVENTIONS.md` §5ter as its own numbered rule: **anything that can
+  surface outside the process is injected in tests, never merely switched off** — a switch is one
+  mutant away from being on. ⚠️ **The recheck run was killed for this and must be started again**;
+  the 86.17 % below is still the last honest number.
 - **2.7, first pass measured: 86.17 %** over the six files of this chantier _(2026-09-02,
   `maintainers/mutation/reports/sync-84-batchA.log`)_ — `gitignore-entry` 100 %, `remote-sync`
   92.44 %, the entry 91.98 %, `os-banner` 88.35 %, `remote-arrivals` 79.87 %, and the **gate at

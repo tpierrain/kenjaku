@@ -286,7 +286,18 @@ Step 6) found **recurring shapes** of surviving mutant. Two homes:
      import-testable. The entry guard itself is an **accepted equivalent** (runs only when the file IS
      the process) — earn it back with **one** subprocess integration test where it matters (that lone
      test is the whole gap between `auto-commit` 98 % and `auto-push` 92 %).
-  3. **LLM-facing string surfaces** (MCP tool names + every tool/field description) never affect a
+  3. **🔕 Anything that can surface OUTSIDE the process — a desktop banner, a sound, a window — is
+     INJECTED in tests, never merely switched off.** A switch is one mutant away from being on, and
+     mutation testing's whole job is to flip switches: it runs the suite once per mutant, so a test
+     that relies on a guard to stay quiet becomes a notification generator that fires for hours.
+     _(Measured on 2026-09-02, plan #84: the live-sync suite raised native "1 note from Claire"
+     banners on the maintainer's machine, one per arrival test, until he reported them. Two
+     causes — a process-level fixture inheriting the ambient environment, and a wiring test calling
+     the real notifier behind a `CI` check the mutants disabled.)_ So: the composition root takes
+     the spawn as a **parameter**, the wiring is asserted on **the request that reaches the fake**,
+     and a suite that runs the real entry point as a process passes the engine's quiet switch as
+     **belt on top of braces**, not instead of them.
+  4. **LLM-facing string surfaces** (MCP tool names + every tool/field description) never affect a
      return value, so behavioural tests miss them — **assert them explicitly** (drive the real
      registered surface via an in-memory `Client`/`InMemoryTransport`, assert names + non-empty
      descriptions). They steer the model; a blanked description is a silent contract regression.
