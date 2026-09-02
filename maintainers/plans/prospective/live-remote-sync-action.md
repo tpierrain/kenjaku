@@ -14,23 +14,31 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 2.4 — the entry `scripts/remote-sync.mjs` run as a process on a real temp
-  repo with a local remote (union case through the entry, trace at the brain root left
-  untracked by the launcher's `.gitignore`, git env with prompts forbidden and a 20 s kill).
-  The tick (2.2), the gate (2.3) and their 30 tests are committed and green. **CI read
-  2026-09-01: all four pushes of this branch pass** — nothing outstanding, start straight at 2.4.
+- **Next:** step 3 — the clock in the search server (`rag/src/lib/remote-sync-scheduler.ts`,
+  its interval parser, and the wiring in `rag/src/index.ts` behind `persistenceApplies`).
+  Everything the tick itself needs is done and green: the merge rule (1), the tick (2.2), the
+  gate (2.3), and now the entry point driven **as a process** on a real repo with a local
+  remote (2.4), its manifest line (2.5) and its ignore line, fleet migration included (2.6).
+  2.7's mutation run is the one thing left on step 2.
   The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
   the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
-- **Design already settled for 2.4** (so a cleared context does not re-derive it): the entry is
-  a thin composition root over `runTick` — brain root from the module's own location (never the
-  cwd, as `auto-commit.mjs`), a `git` runner with `GIT_TERMINAL_PROMPT=0`, an inert `GIT_ASKPASS`,
-  `GIT_SSH_COMMAND` in `BatchMode=yes` and a 20 s `timeout`; the gate from `openTickGate` on
-  `.cache/`; `indexLockPresent` on `.git/index.lock`; the trace read/written at the brain root by
-  atomic rename; `checkNote` through `engineParser` + `frontmatterVerdict` (the engine's own
-  parser, CONVENTIONS §5quater); `push` through `shouldPush` + `git push` **in-process, not a
-  child of `auto-push.mjs`** — a top-level script importing another top-level script is the T2
-  cross-version trap named in `auto-push.mjs`; `notify` a named no-op until 5.2 fills it.
+- **Three things step 2.4 changed that were not in the plan** _(2026-09-02, all test-first,
+  each with its own commit)_:
+  1. **Arrivals are read from `ORIG_HEAD..@{u}`, not `ORIG_HEAD..HEAD`.** A rebase replays the
+     machine's own unpushed commits with new SHAs, so the trace announced the person at the
+     keyboard as the author of what had just arrived. The upstream ref does not move during a
+     rebase, so that range names the incoming commits and nothing else _(commit `546ead4`)_.
+  2. **The ignore line has to reach ALREADY-DEPLOYED brains**, and `.gitignore` is carried by no
+     engine regime. Untracked and unignored, the trace makes the tree dirty → the next tick
+     defers → the feature silently does nothing on the very brains that just received it, while
+     the sweep commits the trace and publishes one machine's arrivals to the other. Delivered
+     the way the two migrations before it were: surgically, inside `reconcileBrain`, on the
+     update **and** the self-heal path.
+  3. **`lib/gitignore-entry.mjs`** now owns the "does this line already cover that path?"
+     decision, once. `ignore-base-settings.mjs` (F4) delegates to it and keeps its own suite as
+     the non-regression proof; a third hand-written copy of that matcher was the drift
+     CONVENTIONS §5quater warns about.
 - **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
   at 7.4; the per-machine lock (2.3) is built regardless.
 - **Owner's call pending:** the release number (the feature ships alone under the next tag,
@@ -81,8 +89,10 @@ a real brain.
 - [x] **1.2** _(2026-09-01)_ `.gitattributes` gains `vault/**/*.md merge=union` (see § A).
 - [x] **1.3** _(2026-09-01)_ `.gitattributes` enters the `replace` regime of `engine-manifest.json` so an engine
       update delivers it to existing brains (decision 4); the manifest-integrity tests still pass.
-- [ ] **1.4** The frontmatter check after a merge (§ A, the honest limit): a merged note whose
-      header no longer parses makes the tick abort (tested in 2.x, listed here for the reader).
+- [x] **1.4** _(2026-09-02)_ The frontmatter check after a merge (§ A, the honest limit): a merged note whose
+      header no longer parses makes the tick abort. Pinned twice — against a fake `checkNote`
+      in 2.1, and through the entry on a real repo where both sides retitle the same note and
+      `union` leaves two `title:` lines, judged by the ENGINE's own parser (2.4).
 
 ### 2. The brain pulls the remote on its own while a window is open
 
@@ -99,17 +109,27 @@ a real brain.
 - [x] **2.3** _(2026-09-01, `remote-sync-gate.mjs` + 8 tests)_ The per-machine lock `.cache/remote-sync.lock` (`{pid, lastTickAt}`, `O_EXCL`
       creation, dead or stale holder reclaimed after 10 min): one effective clock per machine
       whatever the window count (§ Risks 1). Tested with two fake holders.
-- [ ] **2.4** `scripts/remote-sync.mjs`: the thin entry, **run as a process** in
+- [x] **2.4** _(2026-09-02, `85b859e` — 25 tests)_ `scripts/remote-sync.mjs`: the thin entry, **run as a process** in
       `scripts/remote-sync.test.mjs` (CONVENTIONS §5bis) on a real temp repo + local remote,
       including the real `union` case of 1.1 through the entry point; git env for the child:
       `GIT_TERMINAL_PROMPT=0`, inert askpass, SSH batch mode, 20 s kill timeout per command.
-- [ ] **2.5** The entry is added to the `replace` list of `engine-manifest.json` (a top-level
+      Two departures from the design above, both forced by a repo guard and both improvements:
+      the child-process request is composed as a **value** (`buildGitInvocation`, §5ter debt 2,
+      so the kill timeout and the closed doors are asserted rather than trusted), and the gate's
+      minimum gap **follows `REMOTE_SYNC_INTERVAL`** instead of the 90 s constant — a gate of
+      90 s against a configured clock of 30 s would silently drop two ticks out of three.
+- [x] **2.5** _(2026-09-02, `85b859e`)_ The entry is added to the `replace` list of `engine-manifest.json` (a top-level
       script is listed file by file; `scripts/lib/**` travels by glob).
-- [ ] **2.6** `.gitignore`: the lock and last-tick marker live under `.cache/` (already ignored);
+- [x] **2.6** _(2026-09-02, `85b859e`)_ `.gitignore`: the lock and last-tick marker live under `.cache/` (already ignored);
       the trace `remote-arrivals.json` sits at the brain ROOT (POC 0.1) and needs its own ignore
-      line, proven by the process-level test (a tick leaves `git status` clean).
-- [ ] **2.7** Mutation run on the two new files the day they are written
-      (`maintainers/mutation`, commit then mutate); one line each in `RESULTS.md`.
+      line, proven by the process-level test (a tick leaves `git status` clean). **Plus the half
+      the plan had missed**: `.gitignore` reaches no deployed brain by regime, so the line is
+      also delivered by a surgical migration inside `reconcileBrain` (update **and** self-heal),
+      through the new `lib/gitignore-entry.mjs` — see the STATE block for why it is not optional.
+- [ ] **2.7** Mutation run on the new files the day they are written
+      (`maintainers/mutation`, commit then mutate); one line each in `RESULTS.md`. Targets:
+      `scripts/remote-sync.mjs`, `scripts/lib/remote-sync.mjs`, `scripts/lib/remote-sync-gate.mjs`,
+      `scripts/lib/gitignore-entry.mjs`.
 
 ### 3. The clock lives in the search server, bounded to the session
 
