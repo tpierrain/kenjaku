@@ -46,20 +46,29 @@ and measured (parent plan); what is missing is code.
       this is content-addressing applied to captures; the Notion mirror already does it).
 - [ ] **0.2** The ADR carries **the key table** — reproduced from the parent plan's measurement, one
       row per source type, and the rule that **an absent key means UNKNOWN, never "already seen"**.
-- [ ] **0.3** It states the **two fields and their two jobs**: `source_key` (normalized, machine,
-      the dedup key) and `source_url` (human, clickable, what the citation renderer already reads —
-      `rag/src/lib/citation-renderer.ts`). A note may carry one, both, or neither.
+- [ ] **0.3** It states the **two fields and their two jobs**: `sources` (a **LIST** of normalized
+      keys, machine, what dedup reads) and `source_url` (human, clickable, what the citation
+      renderer already reads — `rag/src/lib/citation-renderer.ts`). A note may carry one, both, or
+      neither. **A list, not a single key — see § A note has SOURCES, plural.**
 - [ ] **0.4** It states the **failing direction**: the check may only ever SAY "already held" and
       leave the skip visible. A silent skip trades a duplicate for a loss, and a loss cannot be
       noticed from inside the vault.
+- [ ] **0.5** It states what "already held" **means for the second brain**, which is not "discard":
+      **do not re-capture, go read what the vault already wrote from that source** — and enrich that
+      note if the second person's question needs something the first did not extract. That is the
+      whole value of sharing a brain, and it is the opposite of throwing work away.
+- [ ] **0.6** It records the **partial-digestion edge**: a Slack thread digested at 8 messages and
+      met again at 20 has the same thread id and different content. So a thread is keyed by its
+      **messages**, not by the thread, or the record says how far it went. A recorded "already seen"
+      is a measurement with an expiry, like every other one in this repo.
 
 ### 1. The lookup — "do I already hold this source?", deterministically
 
 - [ ] **1.1** `scripts/lib/source-key.mjs`: the pure, I/O-free core (ADR 0009 rung 1) — normalize a
-      raw source descriptor into a `source_key`, one function per source type, plus the mail
-      composite (sender + ISO timestamp + subject, each normalized). Tests first.
-- [ ] **1.2** `scripts/known-source.mjs`: the entry point. Reads a key on argv, **scans the vault's
-      note frontmatter** (never the index — a note that arrived by git seconds ago is not indexed
+      raw source descriptor into a key, one function per source type, plus the mail composite
+      (sender + ISO timestamp + subject, each normalized). Tests first.
+- [ ] **1.2** `scripts/known-source.mjs`: the entry point. Reads a key on argv and answers **"does
+      ANY note list this source?"** — it **scans the vault's note frontmatter** (never the index — a note that arrived by git seconds ago is not indexed
       yet, and an index-backed check would answer "never seen" precisely in the duo case it exists
       for), prints one line, **exits non-zero on a hit**. Same shape as the check the skill already
       calls for Slack (`set-universe-profile.mjs --check-slack`): pre-authorized, greppable.
@@ -70,7 +79,7 @@ and measured (parent plan); what is missing is code.
 
 ### 2. The writer guard — the deterministic path cannot write a known duplicate
 
-- [ ] **2.1** `scripts/file-back-note.mjs` refuses a spec whose `source_key` the vault already
+- [ ] **2.1** `scripts/file-back-note.mjs` refuses a spec whose sources the vault already
       holds, reusing the homonym-refusal shape it already carries (exit 1, name the note that
       already holds it). Test first, including the "no key at all" case, which must pass.
 - [ ] **2.2** The refusal message names the existing note's path, so the caller can cite it rather
@@ -79,8 +88,9 @@ and measured (parent plan); what is missing is code.
 
 ### 3. The producers — the identity gets written, and checked before capture
 
-- [ ] **3.1** `.claude/skills/sync-sources/SKILL.md`: stamp `source_key` on everything captured from
-      an external source, and run the check **before** capturing. Prose, asserted the way the other
+- [ ] **3.1** `.claude/skills/sync-sources/SKILL.md`: stamp `sources` on everything written from an
+      external source (one entry for a capture, **as many as it drew on** for a synthesis), and run
+      the check **before** capturing. Prose, asserted the way the other
       disciplines are (`claim-discipline.test.mjs`, `connector-discipline.test.mjs` are the models).
 - [ ] **3.2** The key table lands in the skill too, in the terms a sub-agent can apply, with the
       cheap-format rule for mail: sender + timestamp + subject come back in `MINIMAL` /
@@ -88,7 +98,7 @@ and measured (parent plan); what is missing is code.
 - [ ] **3.3** `templates/fr/.claude/skills/sync-sources/SKILL.md` — the French twin. ⚠️ Deliberate
       product localization (rules/language.md): translated, not anglicized. **Owner-only per the
       autonomy line above → leave a ticked-off note here and DO NOT write it.**
-- [ ] **3.4** The linter accepts `source_key` (`scripts/lib/wiki-lint.mjs`), and the frontmatter
+- [ ] **3.4** The linter accepts `sources` (`scripts/lib/wiki-lint.mjs`), and the frontmatter
       parser exposes it (`rag/src/lib/frontmatter-parser.ts`) the way `sourceUrl` already is.
 
 ### 4. Per-person paths — two syntheses of one day stop colliding
@@ -173,6 +183,34 @@ This is the honest statement of the perimeter.
 - [ ] **7.1** This STATE block says where it stopped, in the terms of § *Design calls taken without
       him*, before the last commit of the run.
 - [ ] **7.2** The parent plan's step 8 is unblocked (or says precisely what still blocks it).
+
+## A note has SOURCES, plural — and that is what makes his simple model work
+
+The owner's model, in his words _(2026-09-02)_: *"à partir du moment où dans le vault j'ai déjà
+traité un document source, quand je le traite pour la deuxième fois à partir de l'autre personne, ça
+discarde"*. **That is exactly right, and it is the whole design** — with one shape correction he
+half-saw himself when he asked whether a synthesis can rest on several sources.
+
+**It can, and the brain writes two different kinds of note:**
+
+- **A capture** — a transcript, a mail stored, a Slack thread saved under `raw-sources/`. **One
+  source, one note.** His rule applies verbatim, and it is what the Notion mirror already does: one
+  page, one file, rewritten in place, idempotent for free.
+- **A synthesis** — a briefing, a `people/` card, a `topics/` page. **Made from N sources, and each
+  source feeds N notes.** Many-to-many. A single `source_key` field on the note is therefore the
+  wrong shape: such a note does not *have* a source, it *drew on* several.
+
+**The fix keeps his rule and changes only the field**: `sources` is a **list**. A capture lists one
+entry, a synthesis lists what it drew on. And the question dedup actually asks is about the
+**source**, never about the note — *"has this Slack message been digested by anyone?"* — which is
+answered by *"does any note list it?"*. Scanning the notes, so **no separate ledger to seed, drift
+or corrupt** (the same statelessness `consolidation-candidates.mjs` argues for in its own header).
+
+**And "already digested" must not mean "discard".** The second brain does not throw the work away:
+it **goes and reads what the first one wrote from that source**, answers from it, and enriches that
+note if its own question needs something the first pass did not extract. Reuse, not deletion —
+which is the point of sharing a brain in the first place, and which keeps the failing direction of
+0.4 intact.
 
 ## Design calls taken without him
 
