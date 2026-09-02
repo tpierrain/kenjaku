@@ -26,8 +26,9 @@ measurements only the owner's own machines can make.**
   83.53 %**, whose fourteen remaining survivors are every one an equivalent. The table, the four
   defects the first pass actually found, and the reasoning behind the one gap deliberately left
   (an `fs` call failing with something other than `EEXIST`, which would cost a seam on the gate's
-  hottest path) are recorded in `maintainers/mutation/RESULTS.md`, newest-first. Re-measured after
-  the step-7 fix changed the gate, and recorded in the same place.
+  hottest path) are recorded in `maintainers/mutation/RESULTS.md`, newest-first. **The gate was then
+  re-measured, because step 7's fix rewrote it**: 83.53 % → 66.67 % (the fix added a branch no test
+  reached) → **83.84 %** once that branch got the tests it deserved. Same file, same register.
 - ✅ **STEP 7 RAN, and it earned its keep** _(2026-09-02 afternoon, the owner's go-ahead, commits
   `771403a` + `5f3dcf2`, CI green including the Windows tripwire)_. The rehearsal was driven against
   a copy of `~/mind-palace`, with the release tagged `v5.1.0` so the update was the one the field
@@ -64,7 +65,7 @@ measurements only the owner's own machines can make.**
   than on the screen), and the durable half is carved in `CONVENTIONS.md` §5ter as its own numbered
   rule: **anything that can surface outside the process is injected in tests, never merely switched
   off** — a switch is one mutant away from being on.
-- 📄 **THE ONE AVAILABLE PIECE OF WORK — a documentation gap, and it is not this chantier's**
+- 📄 **A documentation gap, WRITTEN and awaiting review — no longer available work**
   _(surfaced 2026-09-02, preparing a client briefing)_. Asked what a new owner must do about
   **Gmail, Drive, iCloud and Spotlight**, the repo answers cleanly for two and **says nothing at all
   about the other two**: there is no iCloud connector and no mention of one, and Spotlight appears
