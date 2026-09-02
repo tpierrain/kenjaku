@@ -138,17 +138,42 @@ The analysis was already done and measured (parent plan); what is missing is cod
 
 ### 3. The producers — the identity gets written, and checked before capture
 
-- [ ] **3.1** `.claude/skills/sync-sources/SKILL.md`: stamp `sources` on everything written from an
+- [ ] **3.1** ⛔ **DRAFTED, NOT APPLIED — one word from the owner unblocks it** (§ *The step-3 draft*).
+      `.claude/skills/sync-sources/SKILL.md`: stamp `sources` on everything written from an
       external source (one entry for a capture, **as many as it drew on** for a synthesis), and run
       the check **before** capturing. Prose, asserted the way the other
       disciplines are (`claim-discipline.test.mjs`, `connector-discipline.test.mjs` are the models).
-- [ ] **3.2** The key table lands in the skill too, in the terms a sub-agent can apply, with the
+- [ ] **3.2** ⛔ Same blocker. The key table lands in the skill too, in the terms a sub-agent can apply, with the
       cheap-format rule for mail: sender + timestamp + subject come back in `MINIMAL` /
       `METADATA_ONLY`, so **never fetch a raw message just to get an identity**.
 - [ ] **3.3** `templates/fr/.claude/skills/sync-sources/SKILL.md` — the French twin. ⚠️ Deliberate
       product localization (rules/language.md): translated, not anglicized. **Owner-only per the
       autonomy line above: leave this box UNTICKED, note beside it that the English twin is ready,
       and DO NOT write it.**
+
+> 🛑 **THE PLAN ASSUMED THE ENGLISH HALF COULD SHIP ALONE. IT CANNOT** _(measured 2026-09-02, during
+> the run)_. `scripts/lib/locale-drift.test.mjs` fails the suite the moment a commit touches an
+> English file that has a `templates/fr/` twin without touching the twin — and
+> `.claude/skills/sync-sources/SKILL.md` has one. So 3.1 and 3.2 are not "English now, French later":
+> **editing the skill at all requires editing both twins in the same commit**, or the suite and the
+> CI go red.
+>
+> The three ways out, and why only one is honest:
+>
+> - **Write the French twin too** — forbidden by this plan's own autonomy line, and by the parent
+>   plan's. Not taken: an explicit instruction outranks my reading of what it was for.
+> - **Waive the commit in `NOT_A_PORT`** — that map exists for commits which *cannot* be ported (an
+>   English fix bringing English up to French's standard), and its own header calls a waiver "a claim
+>   someone must be able to check". "I will port it later" is not one. Not taken.
+> - **Draft it, do not apply it, and make it a one-word decision.** Taken. The exact text is below,
+>   ready to paste; applying it is one commit touching both twins.
+>
+> ⚠️ **What this costs if it is never applied**: steps 1, 2 and 4 build the mechanism, and step 3 is
+> what makes anything *call* it. Without 3.1, `sync-sources` never stamps a key, so nothing is ever
+> found already-held and the writer guard has nothing to compare. **The deterministic half is real
+> either way** — `file-back-note.mjs` refuses a duplicate for any caller that does pass `sourceKeys` —
+> but the capture path stays as it is today. So this is the one unticked box that changes what the
+> release *does*, not merely what it says.
 - [x] **3.4** _(2026-09-02)_ The linter accepts `sources` (`scripts/lib/wiki-lint.mjs`), and the frontmatter
       parser exposes it (`rag/src/lib/frontmatter-parser.ts`) the way `sourceUrl` already is.
       **The linter needed no change** — it checks that required keys are PRESENT and is indifferent
@@ -346,3 +371,81 @@ that produced it is still the reasoning that defends it.
 - **Verifying whether a Gmail forward preserves the original `Message-ID`.** Measured as
   unnecessary: the mail key is the composite, which survives any transport. Settling it would need
   a real forwarding filter and a test mail on the field setup — not here, and not needed.
+
+## The step-3 draft — ready to paste, deliberately not applied
+
+Why it sits here and not in the skill: the blocker box at 3.1. Applying it means **one commit
+touching `.claude/skills/sync-sources/SKILL.md` AND `templates/fr/.claude/skills/sync-sources/SKILL.md`**,
+plus a `source-identity-discipline` slice in `scripts/lib/source-discipline.test.mjs` on the model of
+the section already there (same `docSection` slicing, one `pattern` per rule, EN and FR).
+
+The section goes **immediately after `## Source discipline`**, before `## Identity discipline`.
+
+```markdown
+## Source identity — do not digest the same source twice
+
+> **Two people can share one brain, and then the same mail, the same thread, the same document is
+> reachable from both.** Nothing in a note used to record WHICH object it was built from — permalinks
+> live in prose, and prose is not a lookup key — so the second brain could not know the first had
+> already read it. Since notes in the append-only zones now merge without asking anyone, a doubled
+> digest lands silently. This is the rule that removes the cause rather than the alarm (ADR 0041).
+
+1. **Before you capture anything from a connector, ask the vault whether it already holds it.**
+   One command, from the brain folder, with the connector's own raw fields — never a key you spelled
+   yourself:
+
+   ```bash
+   node scripts/known-source.mjs --type slack --channel C0CEQ4R5E --ts 1725283200.001200
+   node scripts/known-source.mjs --type mail --from "Billing <b@example.com>" \
+        --date 2026-09-02T16:19:32Z --subject "Your invoice is ready"
+   ```
+
+   **Three exit codes, and the third is not a hit**: `0` not held (or it could not find out) → capture ·
+   `1` already held → the line names the note · `2` the question itself is broken. Never treat
+   "non-zero" as "already held": a typo in your own arguments would then cancel a real capture.
+
+2. **"Already held" means GO AND READ IT, never "drop the question".** Open the note the check named,
+   answer from it, and **enrich it** if what you were asked needs something the first pass did not
+   extract. That is the whole value of sharing a brain. Discarding the work is the one reading of this
+   rule that makes the brain worse.
+
+3. **Stamp what you drew on.** Every note written from an external source carries `sources:` in its
+   frontmatter — an inline list of normalized keys. **A capture lists one** (one mail, one thread, one
+   document, one note). **A synthesis lists as many as it drew on** (a briefing, a person card, a
+   topic page): such a note does not *have* a source, it *drew on* several. `file-back-note.mjs`
+   composes the keys for you from `"sourceKeys": [{ "type": …, … }]` — descriptors, not strings.
+
+4. **The key table, one row per source, and every value below is free in the ordinary response:**
+
+   | Source | What identifies it | Where you already have it |
+   |---|---|---|
+   | Slack | the channel id + the message `ts` | every message response; it is what a permalink encodes |
+   | Calendar | the event id **of the instance**, never the series | the ordinary listing (a recurring event returns both — take the instance) |
+   | Drive | the file id | the search result |
+   | Notion | the page id | the mirror already keys on it |
+   | Mail | the **sender address + the sent timestamp + the subject** | `MINIMAL` / `METADATA_ONLY` |
+
+   🛑 **Never fetch a raw message just to get an identity.** The RFC `Message-Id` would need a full
+   MIME fetch — a hundred kilobytes into your context for one header, which is exactly what this
+   fan-out exists to prevent. The three cheap fields are identical across every copy of a mail,
+   whatever the transport, and requiring all three to match is exact, not fuzzy.
+
+5. **No key is UNKNOWN, never "already seen".** A conversation, a document a human read to you, a
+   source with no row above: write no `sources` key at all rather than a made-up one. Every note
+   written before this rule is in that state, and a brain that read "no key" as "seen" would believe
+   it had already digested the world.
+
+6. **The identity is never a reason to say less.** If the check says held and your question needs
+   more than the held note says, say so and go further. This rule removes duplicate STORAGE, not
+   duplicate thinking.
+```
+
+And in `### Step 2 — Sub-agent fan-out`, one line in the transcript-extractor and chat-extractor
+prompts: *"Before storing anything, run the source-identity check (see § Source identity). If it says
+already held, return the note it names instead of re-capturing."*
+
+And in `### Step 4 — Writing the briefing`, the template's `sources:` line becomes the **normalized
+keys** of what the briefing drew on. ⚠️ **That field already exists there with a different meaning**
+(a prose list, `["[[raw-sources/…]]", "chat (24h)", "calendar (day)"]`); it becomes the machine list,
+and the human list stays in the body where a reader already finds it. **Old briefings are safe**: a
+prose entry can never equal a normalized key, so it can never produce a false "already held".
