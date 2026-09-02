@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { slugify, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
+import { slugify, slugSafe, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // filed-note — the pure, I/O-free core of Track B ("file the good answer back").
@@ -797,4 +797,22 @@ test("renderFiledNote — the machine keys and the human tier stamp coexist with
 
   assert.match(note.content, /^source_tier: ai-summary$/m);
   assert.match(note.content, /^sources: \[mail\|billing@example\.com\|20260902T161932Z\|your-invoice-is-ready\]$/m);
+});
+
+// `slugSafe` — the same rule as `slugify`, minus the throw. It exists because the
+// per-person note paths need to ask "does this name have a slug at all?" and answer
+// "no" without an exception: a name written in a script with no Latin letters is a
+// legitimate git author, and the right answer there is to fall back to the shared
+// path, not to refuse the note. One owner for the slug rule, per CONVENTIONS §5quater.
+test("slugSafe — same slug as slugify wherever slugify has one", () => {
+  for (const title of ["Jane Doe", "Capacity Management", "Claire Dubois", "Éloïse Martin"]) {
+    assert.equal(slugSafe(title), slugify(title), title);
+  }
+});
+
+test("slugSafe — answers null where slugify throws, instead of throwing", () => {
+  for (const title of ["", "   ", "!!!", "日本語"]) {
+    assert.equal(slugSafe(title), null, JSON.stringify(title));
+    assert.throws(() => slugify(title), /empty slug/, "and slugify keeps its refusal");
+  }
 });

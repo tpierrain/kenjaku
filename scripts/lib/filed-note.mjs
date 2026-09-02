@@ -21,14 +21,25 @@ function activeUniverse(spec) {
   return spec.universe && spec.universe !== DEFAULT_UNIVERSE ? spec.universe : null;
 }
 
-export function slugify(title) {
+// The slug rule itself, answering `null` instead of throwing when a title reduces
+// to nothing. Split out of `slugify` — not duplicated beside it (CONVENTIONS
+// §5quater) — because the per-person note paths need to ASK whether a name has a
+// slug and carry on when it does not: a git author name written in a script with
+// no Latin letters is legitimate, and the right answer there is to fall back to
+// the shared path, never to refuse the note.
+export function slugSafe(title) {
   const slug = title
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "") // strip combining accent marks
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-") // any run of non-alphanumerics → one hyphen
     .replace(/^-+|-+$/g, ""); // trim leading/trailing hyphens
-  if (slug === "") throw new Error(`empty slug: title "${title}" has no slug-able characters`);
+  return slug === "" ? null : slug;
+}
+
+export function slugify(title) {
+  const slug = slugSafe(title);
+  if (slug === null) throw new Error(`empty slug: title "${title}" has no slug-able characters`);
   return slug;
 }
 

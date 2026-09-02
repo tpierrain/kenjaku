@@ -29,6 +29,7 @@
 // NEVER throws in production; the gate, the trace I/O, the header check, the push
 // and the banner are injected too, so the whole sequence is pinned by tests.
 // ─────────────────────────────────────────────────────────────────────────────
+import { localAuthorName } from "./brain-author.mjs";
 import { isNote } from "./remote-arrivals.mjs";
 import { treeState } from "./repo-status.mjs";
 
@@ -150,7 +151,9 @@ function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notif
 
   const outcome = record({ readTrace, writeTrace }, { arrivedAt: now().toISOString(), files, authors, blocked: null });
   push();
-  const me = git(["config", "--get", "user.name"]).out.trim();
+  // ONE notion of "who is at this keyboard" for the whole brain (brain-author.mjs):
+  // the banner here and the per-person note paths must never disagree about a name.
+  const me = localAuthorName(git);
   if (authors.some((a) => a !== me)) notify({ files, authors });
   return outcome;
 }

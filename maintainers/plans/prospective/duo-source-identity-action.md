@@ -185,23 +185,28 @@ The analysis was already done and measured (parent plan); what is missing is cod
 
 ### 4. Per-person paths — two syntheses of one day stop colliding
 
-- [ ] **4.1** `scripts/lib/dated-note-path.mjs`: pure core. Given the date, the author and what the
+- [x] **4.1** _(2026-09-02, 12 tests)_ `scripts/lib/dated-note-path.mjs`: pure core. Given the date, the author and what the
       vault already holds, answer where today's `briefings/` or `daily/` note goes. **Rule:** the
       base name (`daily/2026-09-02.md`) belongs to whoever writes first; a *different* author
       writing the same day gets `daily/2026-09-02-<author-slug>.md`. A solo brain therefore **never
       sees a suffix** — see § *Design calls taken without him*.
-- [ ] **4.2** The author identity comes from `git config --get user.name`, already read by
+- [x] **4.2** _(2026-09-02)_ The author identity comes from `git config --get user.name`, already read by
       `scripts/lib/remote-sync.mjs:153` — reuse it, do not re-invent a second notion of "who".
-- [ ] **4.3** The identity reaches the session through `additionalContext` at SessionStart, the
+      **Done by extraction, not by copying**: `scripts/lib/brain-author.mjs` now owns that question,
+      and the live sync's banner reads it from there, so the name that decides where a note lands and
+      the name that decides whether to raise a banner can never disagree.
+- [x] **4.3** _(2026-09-02, `scripts/session-authors.mjs`, 9 + 18 tests)_ The identity reaches the session through `additionalContext` at SessionStart, the
       proven channel (`scripts/session-universe.mjs` is the model). One line, silent when the brain
-      has one author.
-- [ ] **4.3bis** **The announcement that pays for the implicitness** (§ *The owner's call*): the
+      has one author. **A new hook entry, and that is affordable here**: `reconcileHooks` adds a
+      missing engine hook to a DEPLOYED brain's `settings.json` additively (ADR 0026), so the fleet
+      gets it at its next update — which is why #84 could avoid one and this can have one.
+- [x] **4.3bis** _(2026-09-02)_ **The announcement that pays for the implicitness** (§ *The owner's call*): the
       **first** time a second author is seen writing in this brain, the brain says so **once**, in
       plain words, and offers (without requiring) to describe who is who. Never repeated: the "said
       it" marker lives beside the other per-machine markers under `.cache/`, so a brain that already
       knows stays silent forever. **Authors are read from git history, not from a list somebody
       maintains** — no new record of who people are, and nothing to keep in step.
-- [ ] **4.3ter** The offer points at the surface that already exists for describing people (the
+- [x] **4.3ter** _(2026-09-02)_ The offer points at the surface that already exists for describing people (the
       universe profile, ADR 0035), and **nothing in steps 1 to 4 may depend on that description**:
       declining it must change no behaviour whatsoever.
 - [ ] **4.4** `actions-log.md` **stays one file** — union merge is exactly right for a flat
@@ -214,6 +219,16 @@ The analysis was already done and measured (parent plan); what is missing is cod
       the folder, not the file name, so a suffix changes nothing for them. **Assert that**, do not
       assume it: the universe blind spot in those very lists has its own hardening plan.
 - [ ] **4.7** Mutation run on the new file.
+
+> 🚨 **THE F5 GUARD CAUGHT THIS FEATURE WHILE IT WAS BEING WRITTEN, which is what it exists for**
+> _(2026-09-02)_. `startup-payload-guard.test.mjs` censuses every module that writes into
+> `additionalContext` — the block echoed VERBATIM to a CLI owner, prefixed `SessionStart:startup
+> says:`, **before they have typed a word** — and refuses a new one that carries no length bound. My
+> draft named every author of the brain and explained the whole rule: **~900 characters** at every
+> session start, on the exact reasoning the guard's own header records as having failed twice before
+> ("additionalContext only ever speaks to the agent" — it does not).
+> **Shipped instead**: three names then a count, and one clause saying what to call rather than
+> composing a path. 228 + 248 characters, bounded by their own tests. Ninth emitter, registered.
 
 ### 4bis. Narrow the automatic merge to the zones that can actually take it
 
