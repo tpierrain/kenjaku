@@ -62,6 +62,7 @@ import {
 // ancestor, which is exactly the tautology this repo's QA is built to avoid.
 import { readInstalledMergeFiles, syncBaseTree } from "./engine-base-fs.mjs";
 import { buildProvenance, fingerprint, reseedProvenance } from "./engine-source.mjs";
+import { instrumentationStandDown } from "./instrumented-source.mjs";
 
 const DOCTRINE = "CLAUDE.engine.md";
 const TAG = "v3.6.0";
@@ -270,6 +271,11 @@ const HOOK = "scripts/auto-commit.mjs";
 const HOOK_AT_TAG = () => readFileSync(join(FIXTURES, "blobs", TAG, HOOK), "utf8");
 
 test("QA v3.6.0 → HEAD — a frozen engine SCRIPT is healed too, and named by the tag its BYTES came from", async (t) => {
+  // The whole assertion is that the hook's CURRENT bytes are recognised by the
+  // fingerprint table. Under a mutation run they are the runner's bytes, in no row.
+  const standDown = instrumentationStandDown([{ name: HOOK, source: readRepo(HOOK) }]);
+  if (standDown) return t.skip(standDown);
+
   const { brainDir, manifest } = brainAtRelease(TAG, { edits: { [HOOK]: HOOK_AT_TAG() } });
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   assert.equal(manifest.provenance?.[HOOK], undefined, "the frozen cohort again, on another family");
