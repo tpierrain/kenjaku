@@ -21,10 +21,23 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
   **as a process** on a real repo with a local remote, the clock in the search server with its
   knob and its shutdown, the announcement that reaches the conversation at the owner's next
   message, the banner for notes written by someone else, and the doctrine and docs that say so.
-  Two things trail behind, both deliberately:
-  **2.7** (the mutation run, started 2026-09-02 — and `scripts/remote-sync.mjs` changed after
-  it started, so that one file is owed a re-run) and **3.6** (the `engineVersion` bump, moved
-  to step 8 — see there for why).
+- 🚧 **Step 7 is BLOCKED on a permission, not on code** _(2026-09-02)_. An unattended session
+  cannot launch the rehearsal: the sandbox refuses any command that reaches a brain folder under
+  the owner's home, in either spelling tried. Nothing about the harness is at fault — it only ever
+  **reads** the original (`.git`, `node_modules` and `.cache` are skipped, so the copy has no
+  remote and a push home is not expressible), and every write lands in a temp dir. **What lifts
+  it:** the owner runs the one line himself, or approves it once. The brain to aim at is
+  `~/mind-palace` — it is the one with a remote and two machines, and its installed engine
+  (`scripts` 1.14.0) is exactly the version the fleet would update **from**:
+  `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. Steps 7.2 to 7.4 run
+  on the copy that command produces, so they are behind the same door; 7.5 needs the second
+  machine and is his either way.
+- **2.7 is running** _(restarted 2026-09-02 07:30)_, over the six files of this chantier rather
+  than four — `scripts/lib/remote-arrivals.mjs` and `scripts/lib/os-banner.mjs` were written after
+  the first run started, and `scripts/remote-sync.mjs` changed under it. Log:
+  `maintainers/mutation/reports/sync-84-batchA.log`. The earlier run measured nothing: it was
+  killed at 60 % by mistake, read as hung because its workers did not match a process filter.
+- **3.6** (the `engineVersion` bump) trails deliberately, moved to step 8 — see there for why.
   The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
   the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
@@ -134,7 +147,8 @@ a real brain.
 - [ ] **2.7** Mutation run on the new files the day they are written
       (`maintainers/mutation`, commit then mutate); one line each in `RESULTS.md`. Targets:
       `scripts/remote-sync.mjs`, `scripts/lib/remote-sync.mjs`, `scripts/lib/remote-sync-gate.mjs`,
-      `scripts/lib/gitignore-entry.mjs`.
+      `scripts/lib/gitignore-entry.mjs`, and — written after this line was first drafted —
+      `scripts/lib/remote-arrivals.mjs` and `scripts/lib/os-banner.mjs`. Six files, one batch.
 
 ### 3. The clock lives in the search server, bounded to the session
 
@@ -221,8 +235,14 @@ a real brain.
 
 ### 7. Rehearsal on a copy of a real brain (the update is driven by the OLD engine)
 
-- [ ] **7.1** `node maintainers/qa/field-rehearsal/rehearse.mjs --brain <copy of the owner's brain>`
+> 🚧 **The whole of step 7 waits on the owner** — an unattended session is not allowed to reach a
+> brain folder under his home, and 7.2 to 7.4 run on the copy 7.1 produces. See the STATE block for
+> what lifts it and why the harness itself is safe.
+
+- [ ] **7.1** `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`
       (CONVENTIONS §10ter): update lands, hook entry reconciled, restart, one tick observed.
+      That brain, and not another: it is the one with a remote and two machines, and its installed
+      engine is the version the fleet would update **from**.
 - [ ] **7.2** A note pushed from a second clone arrives within one interval, is indexed, is
       displayed at once (5.1) and announced at the next message (4).
 - [ ] **7.3** Two clones append to the same daily note: union merge, no human.
