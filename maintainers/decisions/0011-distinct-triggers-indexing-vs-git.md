@@ -144,9 +144,25 @@ under the same conditions ADR 0032 admitted one for the local mirror:
   process, exactly as the persistence path already does (ADR 0037). Cost 1's separation is preserved:
   a degraded RAG costs a late pull, never a lost note.
 
-What the pull carries is the other side's notes, so **vault notes merge by `union`** (both contributions
-kept, no markers, no human) and anything else conflicts as it always did. A merged note whose header no
-longer parses undoes the whole pull rather than leave an unindexable note behind.
+What the pull carries is the other side's notes, so **the vault's append-only zones merge by `union`**
+(both contributions kept, no markers, no human) and anything else conflicts as it always did. A merged
+note whose header no longer parses undoes the whole pull rather than leave an unindexable note behind.
+
+**The scope of that word is the decision, and it narrowed.** `union` is not a merge, it is a
+**concatenation**: it keeps both sides' lines with no marker and no question asked. Shipped first
+over every note in the vault, it was right for the ledgers and wrong for the pages — and the wrongness
+is not merely aesthetic. **Two people editing one curated page each touch its `updated:` line, and
+union keeps both**: the note then carries `updated:` twice, and the frontmatter parser refuses a note
+it cannot read. The safety net above catches that after the fact (the header check undoes the whole
+pull), which means the outcome of a perfectly ordinary edit was *the day's sync silently reverted*.
+
+So the rule now follows the vault's own vocabulary — the **raw capture zones** (`daily/`,
+`raw-sources/`, `inbox/`, `_inbox/`, `actions-log.md`, at the root and inside a universe), the same
+list the linter exempts from the orphan and frontmatter rules, asserted to agree rather than copied.
+Everywhere else a double edit **stops the rebase**, and that is not a failure: the tick aborts, names
+the files, and the brain guides the merge at the next message. **A conflict is a question asked of a
+human; a concatenation is an answer invented for them** — and only one of the two can be wrong
+without anyone noticing.
 
 ## The gap (non-Claude edits) is now closed — by a `SessionStart` sweep
 

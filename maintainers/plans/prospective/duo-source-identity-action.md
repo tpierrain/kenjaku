@@ -254,25 +254,51 @@ That is the correct resolution for a ledger nobody rewrites, and the wrong one f
 edit. The repo already owns the vocabulary for that split: `RAW_CAPTURE_ZONES` in
 `scripts/lib/wiki-lint.mjs` versus the curated entity types beside it.
 
-- [ ] **4bis.1** `.gitattributes`: `merge=union` **only** on the append-only zones (`daily/`,
+- [x] **4bis.1** _(2026-09-03)_ `.gitattributes`: `merge=union` **only** on the append-only zones (`daily/`,
       `raw-sources/`, `inbox/`, `_inbox/`, `actions-log.md`), and **the default conflict behaviour
       restored everywhere else** in the vault — `people/`, `topics/`, `decisions/`, `meetings/` and
       the rest. Patterns must match **inside a universe too** (`acme/daily/…`), the blind spot those
       very zone lists already have a hardening plan for.
-- [ ] **4bis.2** The zone list exists in **one** place, not two: `.gitattributes` and
+      **Five patterns of the shape `vault/**/<zone>/**/*.md`**: `**/` matches zero or more
+      directories, so one line covers the root and every universe subtree. The file is under the
+      manifest's `replace` regime, so the narrowing reaches every deployed brain at its next engine
+      update — it is not a rule that only new brains get.
+- [x] **4bis.2** _(2026-09-03)_ The zone list exists in **one** place, not two: `.gitattributes` and
       `wiki-lint.mjs` must be asserted to agree rather than trusted to, the way the `.gitignore`
       migration and `reconcile-brain.mjs` already are (CONVENTIONS §5quater — a third hand-written
       copy of a rule is the drift that convention warns about).
-- [ ] **4bis.3** Non-regression on #84's own promise: two appends to one **daily** note still merge
+      **`RAW_CAPTURE_ZONES` is now exported**, and the test reads the union rules back out of
+      `.gitattributes` and asserts the two sets are equal — so a zone added on one side and not the
+      other fails the suite instead of shipping half a rule.
+- [x] **4bis.3** _(2026-09-03)_ Non-regression on #84's own promise: two appends to one **daily** note still merge
       with no human (`scripts/lib/notes-union-merge.test.mjs` is the existing proof — extend it, do
       not weaken it), and two edits to one **person card** now produce a real conflict.
-- [ ] **4bis.4** A conflict on a curated page is **not a failure**: the machinery already exists and
+      **Extended, not weakened**: the file went from 3 tests to 17, driving real git. Every zone is
+      exercised at both depths (root and universe), from the linter's list rather than a hand-typed
+      one. The one existing test that had to move is the universe case, which used to prove its
+      point on `acme/people/claire.md` — a curated page, which is now precisely the thing that must
+      NOT merge; it proves the same point on `acme/daily/…` and the curated pair became the new
+      negative pole.
+- [x] **4bis.4** _(2026-09-03)_ A conflict on a curated page is **not a failure**: the machinery already exists and
       is built (parent plan, step 4) — `rebase --abort`, the files named in the trace, and the brain
       guides the merge at the next message. Assert that a curated-page conflict reaches that path.
-- [ ] **4bis.5** The frontmatter corruption this removes is worth recording in the ADR: two edits to
+      **Asserted by the command, not by narration**: the test runs the very
+      `git diff --name-only --diff-filter=U` of `remote-sync.mjs`'s conflict branch on a real
+      conflicted curated page and pins its exact output, then aborts and checks the tree is intact.
+      The path itself stays unit-tested against a fake git; what was missing was the proof that real
+      git hands it what it expects.
+- [x] **4bis.5** _(2026-09-03)_ The frontmatter corruption this removes is worth recording in the ADR: two edits to
       one `updated:` line under union produce **two `updated:` keys** and a note the indexer
       refuses. Today that is caught after the fact (the tick re-checks the header and undoes the
       rebase); narrowing the rule means curated notes never reach that state at all.
+      **Recorded in ADR 0011** (amended in place, §6bis — #84 owns no ADR of its own), with the
+      sentence the decision turns on: *a conflict is a question asked of a human; a concatenation is
+      an answer invented for them, and only one of the two can be wrong without anyone noticing.*
+- [x] **4bis.6** _(2026-09-03, not planned, found while grepping the carriers)_ `SETUP.md` §7 told the
+      owner a merge only needs a hand for "the same line changed two ways, a file that is not a
+      note" — **true when the rule covered every note, false the moment it stopped**. Rewritten in
+      plain words: keep-both applies where you only ever ADD; anything you REWRITE stops and asks.
+      No French twin exists for `SETUP.md`, so this one was free to fix.
 
 ### 5. The doctrine — what duo mode does and does NOT cover
 

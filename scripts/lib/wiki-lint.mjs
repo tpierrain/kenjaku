@@ -91,7 +91,12 @@ export function isUnderZone(path, prefix) {
 // widespread Obsidian habit of prefixing an underscore to sort a folder to the top
 // of the file tree. Keeping only the bare spelling made every capture in an
 // underscored inbox an orphan — six per pass on the owner's own brain.
-const RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "_inbox/", "actions-log.md"];
+// Exported because a SECOND mechanism now keys on the very same list: `.gitattributes`
+// gives these zones — and only these — git's `union` merge driver, so two people
+// appending to one ledger never see a conflict while two people editing one curated
+// page still do (plan #84 step 4bis). Two hand-written copies of one rule is the drift
+// CONVENTIONS §5quater warns about, so `notes-union-merge.test.mjs` asserts they agree.
+export const RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "_inbox/", "actions-log.md"];
 const ENGINE_WORK_ZONES = ["meetings/", "briefings/", "prep-1-1/", "coaching/"];
 // A universe's profile page (`universe.md` at the root, `<universe>/universe.md`
 // in a subtree — isUnderZone matches both) describes a whole sphere: nothing links

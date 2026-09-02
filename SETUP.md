@@ -553,9 +553,13 @@ even if Claude's window is behind another app. Nothing runs when no window is op
 downloaded when nothing changed: the check asks the remote for one reference and stops there.
 
 Two notes appended the same afternoon, on both machines, to the **same** daily note **merge on their
-own** — both contributions kept, nobody asked anything. When a merge genuinely needs a hand (the same
-line changed two ways, a file that is not a note), your brain says so at your next message and walks
-you through it; the `/sync` skill is still there if you would rather do it yourself, at your moment.
+own** — both contributions kept, nobody asked anything. That automatic keep-both applies to the
+places you only ever **add** to: your daily notes, your inbox, imported raw sources, the activity
+log. Elsewhere — a person's page, a topic, anything you **rewrite** rather than append to — two
+different versions **stop and ask you**, deliberately: keeping both halves of a page two people
+rewrote would leave it saying two contradictory things, and nobody would ever notice. When a merge
+needs a hand, your brain says so at your next message and walks you through it; the `/sync` skill is
+still there if you would rather do it yourself, at your moment.
 
 > Both knobs live in `.env` and neither is required: `REMOTE_SYNC_INTERVAL` (seconds, `0` turns the
 > automatic check off and leaves you the session-start catch-up and `/sync`) and `REMOTE_SYNC_BANNER`
