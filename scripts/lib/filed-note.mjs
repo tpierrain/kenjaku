@@ -10,6 +10,7 @@
 // Turn a human title into a filename-safe slug: lowercased, accent-stripped,
 // kebab-case (e.g. "Jane Doe" → "jane-doe").
 import { DEFAULT_UNIVERSE } from "./universes.mjs";
+import { renderSourcesField, SOURCES_FIELD, sourceKey } from "./source-key.mjs";
 
 // The active universe carried by a spec, or null when the note belongs to the
 // vault root — no universe, or the implicit default (ADR 0034: a default-universe
@@ -172,6 +173,12 @@ export function renderFiledNote(spec) {
   const links = spec.links ?? [];
   const path = filedNotePath(spec);
   const universe = activeUniverse(spec);
+  // The MACHINE identity of what this note drew on (ADR 0041) — not to be confused
+  // with `spec.sources` one field above, which says what TIER of material it rests
+  // on and is read by a human. Composed here rather than accepted ready-made, so a
+  // half-filled descriptor refuses the note instead of stamping a key that would
+  // match nothing. Deduplicated: one source named twice is one source.
+  const sourceKeys = [...new Set((spec.sourceKeys ?? []).map(sourceKey))];
   // Rendered (and validated) before the frontmatter, because the level lands in
   // both: the field is what a later pass can FIND, the line is what a human reads.
   const sure = spec.confidence ? `> **Confidence** — ${confidenceLine(spec.confidence)}\n\n` : "";
@@ -194,6 +201,11 @@ export function renderFiledNote(spec) {
     // What the note rests on, as a field: "which notes here were built on an AI
     // synthesis?" must be answerable without re-reading every one of them.
     `source_tier: ${weakestSourceTier(spec.sources)}`,
+    // Which objects this note was captured from, so a second brain can ask "do I
+    // already hold this?" without reading the prose. Omitted when there is nothing
+    // to claim: ABSENT means unknown (ADR 0041 §3), and an empty list would say
+    // "drew on nothing", which is a different and usually false statement.
+    ...(sourceKeys.length > 0 ? [`${SOURCES_FIELD}: ${renderSourcesField(sourceKeys)}`] : []),
     // Additive scope key so retrieval travels with the file (ADR 0034), appended
     // last to match the import stamper (stamp-universe.mjs). Omitted at the root.
     ...(universe ? [`universe: ${universe}`] : []),
@@ -206,7 +218,10 @@ export function renderFiledNote(spec) {
   // that does not say which one only moves the ambiguity.
   const which = spec.distinguish ? `> **Which one** — ${spec.distinguish}\n\n` : "";
   const content = `${frontmatter}\n\n# ${spec.title}\n\n${which}${sure}${built}${spec.body}\n${related}`;
-  return { path, content };
+  // The keys travel back out, because the CALLER is the one that must ask the vault
+  // whether it already holds one of them — and composing them twice is how the
+  // question and the stamp come to disagree.
+  return { path, content, sourceKeys };
 }
 
 // The first-name segment of a people-card path: `acme/people/romain-durand.md`

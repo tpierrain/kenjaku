@@ -169,6 +169,7 @@ test("renderFiledNote — with no links, omits the Related section entirely", ()
     today: "2026-07-17",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "decisions/2026-07-17-adopt-the-hive.md",
     content: `---
 type: decision
@@ -198,6 +199,7 @@ test("renderFiledNote — under an active universe, prefixes the path and stamps
     universe: "acme",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "acme/topics/capacity-management.md",
     content: `---
 type: topic
@@ -242,6 +244,7 @@ test("renderFiledNote — builds path + conformant frontmatter, body, and woven 
     today: "2026-07-17",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "topics/capacity-management.md",
     content: `---
 type: topic
@@ -331,6 +334,7 @@ test("renderFiledNote — a probable resolution says so, in the claim discipline
   // field case itself — a name welded together inside an AI synthesis — and it
   // now says both, in that order.
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "people/jeremy-hinard.md",
     content: `---
 type: person
@@ -459,6 +463,7 @@ test("renderFiledNote — `distinguish` becomes the homonymy block, right under 
     today: "2026-08-03",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "people/romain-lefevre.md",
     content: `---
 type: person
@@ -694,4 +699,102 @@ test("sourcesBlock — several sources are several LINES, not one run-on line", 
       "> - 🤖 AI synthesis · same export, Gemini notes at the top",
     ].join("\n"),
   );
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// `sourceKeys` — the MACHINE identity of what a note was captured from (ADR 0041).
+//
+// ⚠️ It is NOT `sources`, and the two live one field apart in the same spec on
+// purpose-built confusion: `sources` says what TIER of material this note rests on
+// (verbatim, human synthesis, AI synthesis) and is read by a human; `sourceKeys`
+// says WHICH objects it drew on and is read by a grep. A note may carry either,
+// both, or neither.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const A_MAIL = { type: "mail", from: "Billing <billing@example.com>", date: "2026-09-02T16:19:32Z", subject: "Your invoice is ready" };
+const A_THREAD = { type: "slack", channel: "C0CEQ4R5E", ts: "1725283200.001200" };
+
+test("renderFiledNote — the sources it drew on are stamped as normalized keys, and handed back", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "Invoicing",
+    tags: ["finance"],
+    body: "b",
+    sources: SAID_HERE,
+    sourceKeys: [A_THREAD, A_MAIL],
+    today: "2026-09-02",
+  });
+
+  assert.match(
+    note.content,
+    /^source_tier: conversation\nsources: \[slack\|C0CEQ4R5E\|1725283200\.001200, mail\|billing@example\.com\|20260902T161932Z\|your-invoice-is-ready\]\n---$/m,
+    "one inline list, after the tier stamp, in the order the note drew on them",
+  );
+  assert.deepEqual(note.sourceKeys, [
+    "slack|C0CEQ4R5E|1725283200.001200",
+    "mail|billing@example.com|20260902T161932Z|your-invoice-is-ready",
+  ], "the caller needs them to ask the vault whether it already holds one");
+});
+
+test("renderFiledNote — a note that drew on nothing identifiable carries no claim at all", () => {
+  for (const spec of [{}, { sourceKeys: [] }]) {
+    const note = renderFiledNote({
+      type: "topic",
+      title: "X",
+      tags: ["a"],
+      body: "b",
+      sources: SAID_HERE,
+      today: "2026-09-02",
+      ...spec,
+    });
+
+    assert.doesNotMatch(note.content, /^sources:/m, "absent means UNKNOWN, and an empty list would claim otherwise");
+    assert.deepEqual(note.sourceKeys, []);
+  }
+});
+
+test("renderFiledNote — one source named twice is one source", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    sourceKeys: [A_THREAD, { ...A_THREAD, channel: " C0CEQ4R5E " }],
+    today: "2026-09-02",
+  });
+
+  assert.match(note.content, /^sources: \[slack\|C0CEQ4R5E\|1725283200\.001200\]$/m);
+});
+
+test("renderFiledNote — a descriptor that cannot be keyed refuses the note, it does not stamp a guess", () => {
+  assert.throws(
+    () =>
+      renderFiledNote({
+        type: "topic",
+        title: "X",
+        tags: ["a"],
+        body: "b",
+        sources: SAID_HERE,
+        sourceKeys: [{ type: "slack", channel: "C0CEQ4R5E" }],
+        today: "2026-09-02",
+      }),
+    (err) => err.message.includes("ts") && err.message.includes("slack"),
+    "half a key matches nothing, so it would be a claim wearing the shape of one",
+  );
+});
+
+test("renderFiledNote — the machine keys and the human tier stamp coexist without touching", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: [{ tier: "ai-summary", ref: "the connector's own digest" }],
+    sourceKeys: [A_MAIL],
+    today: "2026-09-02",
+  });
+
+  assert.match(note.content, /^source_tier: ai-summary$/m);
+  assert.match(note.content, /^sources: \[mail\|billing@example\.com\|20260902T161932Z\|your-invoice-is-ready\]$/m);
 });

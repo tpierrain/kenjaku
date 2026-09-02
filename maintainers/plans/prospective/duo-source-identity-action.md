@@ -124,11 +124,16 @@ The analysis was already done and measured (parent plan); what is missing is cod
 
 ### 2. The writer guard — the deterministic path cannot write a known duplicate
 
-- [ ] **2.1** `scripts/file-back-note.mjs` refuses a spec whose sources the vault already
+- [x] **2.1** _(2026-09-02)_ `scripts/file-back-note.mjs` refuses a spec whose sources the vault already
       holds, reusing the homonym-refusal shape it already carries (exit 1, name the note that
       already holds it). Test first, including the "no key at all" case, which must pass.
-- [ ] **2.2** The refusal message names the existing note's path, so the caller can cite it rather
-      than re-capture it.
+      **The spec field is `sourceKeys` and it takes DESCRIPTORS, not keys** — the raw fields a
+      connector handed back — because composing the key is the deterministic side's job (ADR 0009);
+      `renderFiledNote` hands the composed keys back so the question and the stamp cannot disagree.
+- [x] **2.2** _(2026-09-02)_ The refusal message names the existing note's path, so the caller can cite it rather
+      than re-capture it — and says to **read and enrich** it, which is what ADR 0041 §6 means by
+      "already held". An unreadable vault does **not** block the write: failing towards a greppable
+      duplicate, never towards an invisible loss.
 - [ ] **2.3** Mutation run on the changed file.
 
 ### 3. The producers — the identity gets written, and checked before capture
