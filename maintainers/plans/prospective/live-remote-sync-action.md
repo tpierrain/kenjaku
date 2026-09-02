@@ -115,10 +115,16 @@ measurements only the owner's own machines can make.**
   chantier the size of #84, and it **would not have covered mail-by-forward**, since a forwarded copy
   is a different message to the connector), the same day's synthesis written twice (needs per-person
   paths — deterministic, cheap, no LLM discipline), and the same fact restated in a curated page
-  (doctrine only, forever). **Recommended as prerequisites: the per-person paths and the
-  writer-of-record paragraph. Not the source identity.** Findings, the step-by-step and the risks:
-  § Why no duo mode → *"But two people on one brain CAN digest the same source twice"* and its
-  shaping subsection. Awaiting his go on which of the three ships with this release.
+  (doctrine only, forever). **His design call then struck out the cheap half**: duo mode is a
+  *delegation*, both instances hold the same powers, and *"je ne veux pas de répartition de
+  travail"* — so "one writer of record per source" is dead, and **dedup by identity is the only
+  mechanism left that can stop a double**. The per-person paths survive (they assign nobody
+  anything) and are needed whatever else is built. **Next, and it gates the design of A: verify
+  whether the Gmail connector reads a DELEGATED mailbox, and whether a forwarded copy keeps a usable
+  identity — the transport decides whether a machine key exists at all.** Findings, the step-by-step,
+  the risks, his call and the transport table: § Why no duo mode → *"But two people on one brain CAN
+  digest the same source twice"* and its three subsections. Awaiting his go on what ships with this
+  release, and on running that verification.
 - **Owner's call pending:** the release number (the feature ships alone under the next tag,
   decision 3; which tag it is gets settled at step 8 against the v5.1 promise in
   [`clear-the-tracker-action.md`](clear-the-tracker-action.md)).
@@ -684,10 +690,54 @@ second, genuinely new fact" without a judgment call, and a wrong call here delet
   old path, so type detection, the linter zones and consolidation must accept both spellings.
 - 🟡 **The release slips** by a chantier the size of #84 if A is made a prerequisite.
 
-**Recommendation: B and the doctrine paragraph are the prerequisites; A is not.** B removes the
-structural collision deterministically, the paragraph is the only thing that works for forwarded
-mail whatever gets built, and A is a real chantier that would not have covered the case it was asked
-for. If A is taken, it gets its own plan file; this section is the shaping, not the plan.
+**First recommendation, and the owner killed half of it the same day: B and the doctrine paragraph
+are the prerequisites, A is not.** B removes the structural collision deterministically, the
+paragraph looked like the only thing that works for forwarded mail, and A is a real chantier that
+would not have covered the case it was asked for. If A is taken, it gets its own plan file; this
+section is the shaping, not the plan.
+
+#### 🛑 The owner's design call, and it strikes out the doctrine fix _(2026-09-02, his words)_
+
+> *"c'est une mécanique de délégation dans laquelle la personne, la DAF, doit être capable de faire
+> tout ce que le client lui peut faire habituellement avec son second cerveau… Je ne veux pas de
+> répartition de travail, elle elle fait ci et lui il fait ça. Les deux mêmes marges de manœuvre et
+> action pour les deux instances du même second cerveau, mais pilotées, activées, consultées par des
+> personnes différentes."*
+
+**Duo mode is a DELEGATION, not a split.** Both instances hold the same powers over the same
+information; only the human at the keyboard differs. Three consequences, and they are load-bearing:
+
+- ❌ **"One writer of record per source" is rejected.** It is a division of duties by definition, and
+  a division of duties is exactly what this call forbids. The cheap doctrine fix is off the table,
+  and with it the answer that covered mail-by-forward. **Dedup by identity is therefore no longer
+  the nice-to-have half: it is the only mechanism left that can stop a double.**
+- ✅ **Per-person paths (B) survive the call, and it is worth saying why**, because they look like a
+  split and are not: nobody is assigned a subject, a source or a duty. Each person's own writing
+  simply lands in their own file instead of two texts colliding in one, and either of them still
+  does everything. B is also needed **whatever else gets built**: two people asking the same question
+  each produce a synthesis, and no source identity can dedup two syntheses.
+- 🟡 **"The same fact restated in a curated page" (C) gets worse under symmetry**, and stays
+  doctrine-only. Two brains with identical remits will touch the same person and topic pages.
+
+#### The frontier this opens, and it is a FACT to verify, not a preference _(2026-09-02)_
+
+The owner's words: *"peut-être elles arrivent par des moyens différents, si c'est la délégation
+Gmail, mais je ne sais pas comment ça marche."* **The transport is not indifferent — it decides
+whether a machine key exists at all**, which is precisely why it cannot be left unverified:
+
+| Transport | What the second brain sees | Can a machine dedup? |
+| --- | --- | --- |
+| **Gmail delegation** | the **same** message in the **same** mailbox, same Gmail id | ✅ trivially — if the connector can see a delegated mailbox at all |
+| **Forwarding filter** | a **copy** in her own mailbox, **new id** | ❌ not by id; only a fuzzy fingerprint, which can drop a real mail |
+| **The owner's Google account bound to her Claude** | the same mailbox, same ids | ✅ — but her own mailbox disappears from her brain (one Google account per Claude account) |
+
+**Two facts are unverified and both are cheap to settle**, and everything downstream hangs on them:
+whether the Claude Gmail connector reads a **delegated** mailbox (the study assumed not: the Gmail
+API does not expose delegated mailboxes for consumer accounts, so *"delegation serves the human, not
+the brain"*), and whether a **forwarded** copy still carries the original RFC `Message-ID` **and
+whether the connector exposes it**. If it does, mail-by-forward has a natural key after all and A
+covers the founding case; if it does not, the only symmetric paths left are delegation-if-it-works
+or a shared account. **Verify before designing** — the whole shape of A depends on the answer.
 - **Assessment: does not block step 8.** ⏸️ **Owner's call** — whether the doctrine paragraph ships
   with this release, and whether the source-identity item is filed as an issue.
 
