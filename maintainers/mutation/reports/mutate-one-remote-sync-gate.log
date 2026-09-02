@@ -1,0 +1,299 @@
+[32m13:06:55 (36089) INFO ProjectReader[39m Found 1 of 949 file(s) to be mutated.
+[32m13:06:55 (36089) INFO Instrumenter[39m Instrumented 1 source file(s) with 99 mutant(s)
+[32m13:06:55 (36089) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m13:06:55 (36089) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Xm4R65
+[32m13:06:55 (36089) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m13:06:55 (36089) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m13:07:05 (36089) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 10 seconds (net 10198 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/99 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/99 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/99 tested (0 survived, 0 timed out)
+Mutation testing 1% (elapsed: <1m, remaining: ~1h 5m) 1/99 tested (0 survived, 0 timed out)
+Mutation testing 5% (elapsed: <1m, remaining: ~15m) 5/99 tested (0 survived, 0 timed out)
+Mutation testing 5% (elapsed: ~1m, remaining: ~18m) 5/99 tested (0 survived, 0 timed out)
+Mutation testing 5% (elapsed: ~1m, remaining: ~21m) 5/99 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: ~1m, remaining: ~11m) 10/99 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: ~1m, remaining: ~13m) 10/99 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: ~1m, remaining: ~14m) 10/99 tested (0 survived, 0 timed out)
+Mutation testing 11% (elapsed: ~1m, remaining: ~14m) 11/99 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~2m, remaining: ~11m) 15/99 tested (3 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~2m, remaining: ~12m) 15/99 tested (3 survived, 0 timed out)
+Mutation testing 16% (elapsed: ~2m, remaining: ~12m) 16/99 tested (4 survived, 0 timed out)
+Mutation testing 16% (elapsed: ~2m, remaining: ~12m) 16/99 tested (4 survived, 0 timed out)
+Mutation testing 20% (elapsed: ~2m, remaining: ~10m) 20/99 tested (8 survived, 0 timed out)
+Mutation testing 20% (elapsed: ~2m, remaining: ~11m) 20/99 tested (8 survived, 0 timed out)
+Mutation testing 21% (elapsed: ~3m, remaining: ~11m) 21/99 tested (9 survived, 0 timed out)
+Mutation testing 25% (elapsed: ~3m, remaining: ~9m) 25/99 tested (12 survived, 0 timed out)
+Mutation testing 26% (elapsed: ~3m, remaining: ~9m) 26/99 tested (12 survived, 0 timed out)
+Mutation testing 26% (elapsed: ~3m, remaining: ~9m) 26/99 tested (12 survived, 0 timed out)
+Mutation testing 26% (elapsed: ~3m, remaining: ~10m) 26/99 tested (12 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~3m, remaining: ~8m) 31/99 tested (14 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~4m, remaining: ~8m) 31/99 tested (14 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~4m, remaining: ~9m) 31/99 tested (14 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~4m, remaining: ~9m) 31/99 tested (14 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~4m, remaining: ~9m) 33/99 tested (14 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~4m, remaining: ~8m) 36/99 tested (15 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~4m, remaining: ~8m) 36/99 tested (15 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~5m, remaining: ~8m) 38/99 tested (15 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~5m, remaining: ~7m) 41/99 tested (15 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~5m, remaining: ~7m) 41/99 tested (15 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~5m, remaining: ~7m) 41/99 tested (15 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~5m, remaining: ~7m) 43/99 tested (15 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~5m, remaining: ~6m) 46/99 tested (15 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~6m, remaining: ~6m) 46/99 tested (15 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~6m, remaining: ~7m) 46/99 tested (15 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~6m, remaining: ~5m) 51/99 tested (15 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~6m, remaining: ~6m) 51/99 tested (15 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~6m, remaining: ~6m) 51/99 tested (15 survived, 0 timed out)
+Mutation testing 54% (elapsed: ~6m, remaining: ~5m) 54/99 tested (15 survived, 0 timed out)
+Mutation testing 56% (elapsed: ~7m, remaining: ~5m) 56/99 tested (15 survived, 0 timed out)
+Mutation testing 56% (elapsed: ~7m, remaining: ~5m) 56/99 tested (15 survived, 0 timed out)
+Mutation testing 57% (elapsed: ~7m, remaining: ~5m) 57/99 tested (15 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~7m, remaining: ~5m) 58/99 tested (15 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~7m, remaining: ~4m) 61/99 tested (18 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~7m, remaining: ~4m) 61/99 tested (18 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~8m, remaining: ~4m) 61/99 tested (18 survived, 0 timed out)
+Mutation testing 63% (elapsed: ~8m, remaining: ~4m) 63/99 tested (20 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~8m, remaining: ~4m) 64/99 tested (20 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~8m, remaining: ~4m) 66/99 tested (22 survived, 0 timed out)
+Mutation testing 67% (elapsed: ~8m, remaining: ~4m) 67/99 tested (23 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~8m, remaining: ~3m) 70/99 tested (24 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~9m, remaining: ~3m) 70/99 tested (24 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~9m, remaining: ~3m) 71/99 tested (24 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~9m, remaining: ~3m) 72/99 tested (24 survived, 0 timed out)
+Mutation testing 73% (elapsed: ~9m, remaining: ~3m) 73/99 tested (24 survived, 0 timed out)
+Mutation testing 75% (elapsed: ~9m, remaining: ~3m) 75/99 tested (24 survived, 0 timed out)
+Mutation testing 76% (elapsed: ~9m, remaining: ~2m) 76/99 tested (25 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~10m, remaining: ~2m) 77/99 tested (25 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~10m, remaining: ~2m) 78/99 tested (25 survived, 0 timed out)
+Mutation testing 81% (elapsed: ~10m, remaining: ~2m) 81/99 tested (25 survived, 0 timed out)
+Mutation testing 81% (elapsed: ~10m, remaining: ~2m) 81/99 tested (25 survived, 0 timed out)
+Mutation testing 82% (elapsed: ~10m, remaining: ~2m) 82/99 tested (25 survived, 0 timed out)
+Mutation testing 85% (elapsed: ~10m, remaining: ~1m) 85/99 tested (26 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~11m, remaining: ~1m) 86/99 tested (26 survived, 0 timed out)
+Mutation testing 87% (elapsed: ~11m, remaining: ~1m) 87/99 tested (26 survived, 0 timed out)
+Mutation testing 87% (elapsed: ~11m, remaining: ~1m) 87/99 tested (26 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~11m, remaining: ~1m) 89/99 tested (26 survived, 0 timed out)
+Mutation testing 91% (elapsed: ~11m, remaining: ~1m) 91/99 tested (28 survived, 0 timed out)
+Mutation testing 91% (elapsed: ~11m, remaining: ~1m) 91/99 tested (28 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~12m, remaining: <1m) 93/99 tested (30 survived, 0 timed out)
+Mutation testing 95% (elapsed: ~12m, remaining: <1m) 95/99 tested (30 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 66)
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:43:40
+-   function exclusiveCreate(path, record) {
+-     let fd;
+-     try {
+-       fd = openSync(path, "wx");
+-     } catch (error) {
+-       if (error.code === "EEXIST") return false;
+-       throw error;
+-     }
+-     try {
+-       writeSync(fd, record);
+-     } finally {
+-       closeSync(fd);
+-     }
+-     return true;
+-   }
++   function exclusiveCreate(path, record) {}
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:45:7
+-     try {
+-       fd = openSync(path, "wx");
+-     } catch (error) {
++     try {} catch (error) {
+
+[Survived] StringLiteral
+scripts/lib/remote-sync-gate.mjs:46:25
+-       fd = openSync(path, "wx");
++       fd = openSync(path, "");
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:47:19
+-     } catch (error) {
+-       if (error.code === "EEXIST") return false;
+-       throw error;
+-     }
++     } catch (error) {}
+
+[Survived] ConditionalExpression
+scripts/lib/remote-sync-gate.mjs:48:9
+-       if (error.code === "EEXIST") return false;
++       if (false) return false;
+
+[Survived] ConditionalExpression
+scripts/lib/remote-sync-gate.mjs:48:9
+-       if (error.code === "EEXIST") return false;
++       if (true) return false;
+
+[Survived] EqualityOperator
+scripts/lib/remote-sync-gate.mjs:48:9
+-       if (error.code === "EEXIST") return false;
++       if (error.code !== "EEXIST") return false;
+
+[Survived] StringLiteral
+scripts/lib/remote-sync-gate.mjs:48:24
+-       if (error.code === "EEXIST") return false;
++       if (error.code === "") return false;
+
+[Survived] BooleanLiteral
+scripts/lib/remote-sync-gate.mjs:48:41
+-       if (error.code === "EEXIST") return false;
++       if (error.code === "EEXIST") return true;
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:51:7
+-     try {
+-       writeSync(fd, record);
+-     } finally {
++     try {} finally {
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:53:13
+-     } finally {
+-       closeSync(fd);
+-     }
++     } finally {}
+
+[Survived] BooleanLiteral
+scripts/lib/remote-sync-gate.mjs:56:10
+-     return true;
++     return false;
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:62:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] StringLiteral
+scripts/lib/remote-sync-gate.mjs:61:42
+-       return JSON.parse(readFileSync(path, "utf8"));
++       return JSON.parse(readFileSync(path, ""));
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:75:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:120:21
+-       } catch (error) {
+-         if (error.code === "EEXIST") return false;
+-         return exclusiveCreate(lockPath, record);
+-       } finally {
++       } catch (error) {} finally {
+
+[Survived] ConditionalExpression
+scripts/lib/remote-sync-gate.mjs:121:11
+-         if (error.code === "EEXIST") return false;
++         if (true) return false;
+
+[Survived] ConditionalExpression
+scripts/lib/remote-sync-gate.mjs:121:11
+-         if (error.code === "EEXIST") return false;
++         if (false) return false;
+
+[Survived] EqualityOperator
+scripts/lib/remote-sync-gate.mjs:121:11
+-         if (error.code === "EEXIST") return false;
++         if (error.code !== "EEXIST") return false;
+
+[Survived] StringLiteral
+scripts/lib/remote-sync-gate.mjs:121:26
+-         if (error.code === "EEXIST") return false;
++         if (error.code === "") return false;
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:123:15
+-       } finally {
+-         try {
+-           rmSync(staging, { force: true });
+-         } catch {
+-           // best-effort: a leftover staging file is inert, and the next tick overwrites it
+-         }
+-       }
++       } finally {}
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:124:11
+-         try {
+-           rmSync(staging, { force: true });
+-         } catch {
++         try {} catch {
+
+[Survived] ObjectLiteral
+scripts/lib/remote-sync-gate.mjs:125:25
+-           rmSync(staging, { force: true });
++           rmSync(staging, {});
+
+[Survived] BooleanLiteral
+scripts/lib/remote-sync-gate.mjs:125:34
+-           rmSync(staging, { force: true });
++           rmSync(staging, { force: false });
+
+[Survived] ConditionalExpression
+scripts/lib/remote-sync-gate.mjs:137:11
+-         if (last !== null && at - last < minGapMs) return false;
++         if (true && at - last < minGapMs) return false;
+
+[Survived] ConditionalExpression
+scripts/lib/remote-sync-gate.mjs:138:11
+-         if (tryCreate(at)) return true;
++         if (false) return true;
+
+[Survived] ObjectLiteral
+scripts/lib/remote-sync-gate.mjs:144:26
+-           rmSync(lockPath, { force: true });
++           rmSync(lockPath, {});
+
+[Survived] BooleanLiteral
+scripts/lib/remote-sync-gate.mjs:144:35
+-           rmSync(lockPath, { force: true });
++           rmSync(lockPath, { force: false });
+
+[Survived] BlockStatement
+scripts/lib/remote-sync-gate.mjs:145:15
+-         } catch {
+-           return false;
+-         }
++         } catch {}
+
+[Survived] BooleanLiteral
+scripts/lib/remote-sync-gate.mjs:146:16
+-           return false;
++           return true;
+
+[Survived] StringLiteral
+scripts/lib/remote-sync-gate.mjs:152:54
+-           writeFileSync(lastPath, now().toISOString(), "utf8");
++           writeFileSync(lastPath, now().toISOString(), "");
+
+[Survived] ObjectLiteral
+scripts/lib/remote-sync-gate.mjs:157:26
+-           rmSync(lockPath, { force: true });
++           rmSync(lockPath, {});
+
+[Survived] BooleanLiteral
+scripts/lib/remote-sync-gate.mjs:157:35
+-           rmSync(lockPath, { force: true });
++           rmSync(lockPath, { force: false });
+
+Ran 1.00 tests per mutant on average.
+----------------------|------------------|----------|-----------|------------|----------|----------|
+                      | % Mutation score |          |           |            |          |          |
+File                  |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files             |  66.67 |   66.67 |       66 |         0 |         33 |        0 |        0 |
+ remote-sync-gate.mjs |  66.67 |   66.67 |       66 |         0 |         33 |        0 |        0 |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m13:19:25 (36089) INFO MutationTestExecutor[39m Done in 12 minutes and 29 seconds.
+[32m13:19:25 (36089) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-Xm4R65.

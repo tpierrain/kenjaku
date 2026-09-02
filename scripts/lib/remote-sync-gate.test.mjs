@@ -6,13 +6,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
-import { LAST_TICK_FILE, LOCK_FILE, STALE_AFTER_MS, openTickGate } from "./remote-sync-gate.mjs";
+import { LAST_TICK_FILE, LOCK_FILE, STALE_AFTER_MS, exclusiveCreate, openTickGate } from "./remote-sync-gate.mjs";
 
 const T0 = new Date("2026-09-08T09:00:00.000Z");
 const at = (seconds) => new Date(T0.getTime() + seconds * 1000);
@@ -171,6 +171,49 @@ test("the gate creates its directory when .cache/ does not exist yet", (t) => {
   assert.equal(gate.acquire(), true);
   gate.release();
   assert.equal(existsSync(join(d, LAST_TICK_FILE)), true);
+});
+
+// ── Publishing the lock: the atomic route, and the one for filesystems without it ──
+
+test("the lock is the only thing the gate leaves in .cache/ — its staging copy does not survive", (t) => {
+  const d = dir(t);
+  const gate = openTickGate({ dir: d, pid: 101, now: () => T0, isAlive: () => true, minGapMs: 60_000 });
+  assert.equal(gate.acquire(), true);
+  assert.deepEqual(readdirSync(d), [LOCK_FILE], "a staging file left beside the lock is litter in every brain's .cache/");
+});
+
+test("a filesystem with no hard links still gets a lock, and a complete one", (t) => {
+  const d = dir(t);
+  let attempts = 0;
+  const noLinks = () => {
+    attempts += 1;
+    const error = new Error("operation not permitted");
+    error.code = "EPERM";
+    throw error;
+  };
+  const gate = openTickGate({ dir: d, pid: 101, now: () => T0, isAlive: () => true, minGapMs: 60_000, link: noLinks });
+
+  assert.equal(gate.acquire(), true, "a network share is not a reason to stop syncing");
+  assert.equal(attempts, 1, "the atomic route is TRIED first — a fallback nothing falls back to proves nothing");
+  assert.deepEqual(JSON.parse(readFileSync(join(d, LOCK_FILE), "utf8")), { pid: 101, acquiredAt: T0.toISOString() });
+  assert.deepEqual(readdirSync(d), [LOCK_FILE], "and the fallback tidies up after itself too");
+});
+
+// The fallback on its own, because it is the half no ordinary run reaches: on every
+// filesystem this project actually runs on, `link` answers and this code never fires.
+test("the fallback creates the lock exclusively and fills it, refuses a taken name, and lets a real failure through", (t) => {
+  const d = dir(t);
+  const path = join(d, LOCK_FILE);
+
+  assert.equal(exclusiveCreate(path, '{"pid":7}'), true);
+  assert.equal(readFileSync(path, "utf8"), '{"pid":7}', "created AND filled: an empty lock is the defect this file exists against");
+  assert.equal(exclusiveCreate(path, '{"pid":8}'), false, "the name is taken, and the holder's record is not overwritten");
+  assert.equal(readFileSync(path, "utf8"), '{"pid":7}');
+  assert.throws(
+    () => exclusiveCreate(join(d, "no-such-dir", LOCK_FILE), "{}"),
+    /ENOENT/,
+    "a broken cache directory is a real failure, not a lock somebody else holds",
+  );
 });
 
 // ── The arbitration, measured between REAL processes ─────────────────────────

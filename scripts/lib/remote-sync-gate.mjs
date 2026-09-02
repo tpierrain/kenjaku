@@ -40,7 +40,7 @@ const defaultIsAlive = (pid) => {
 // The fallback for a filesystem with no hard links: create exclusively, fill after.
 // It carries the race `tryCreate` exists to remove, and is reached only where the
 // atomic route is unavailable.
-function exclusiveCreate(path, record) {
+export function exclusiveCreate(path, record) {
   let fd;
   try {
     fd = openSync(path, "wx");
@@ -85,8 +85,18 @@ function readTime(path) {
  * @param {(pid: number) => boolean} [opts.isAlive]
  * @param {number} opts.minGapMs a tick within this gap of the last one yields
  * @param {number} [opts.staleAfterMs]
+ * @param {(from: string, to: string) => void} [opts.link] the atomic publish; injected so the
+ *   fallback for a filesystem without hard links is reachable by a test
  */
-export function openTickGate({ dir, pid = process.pid, now = () => new Date(), isAlive = defaultIsAlive, minGapMs, staleAfterMs = STALE_AFTER_MS }) {
+export function openTickGate({
+  dir,
+  pid = process.pid,
+  now = () => new Date(),
+  isAlive = defaultIsAlive,
+  minGapMs,
+  staleAfterMs = STALE_AFTER_MS,
+  link = linkSync,
+}) {
   const lockPath = join(dir, LOCK_FILE);
   const lastPath = join(dir, LAST_TICK_FILE);
 
@@ -115,7 +125,7 @@ export function openTickGate({ dir, pid = process.pid, now = () => new Date(), i
     const staging = `${lockPath}.${pid}.staging`;
     try {
       writeFileSync(staging, record);
-      linkSync(staging, lockPath);
+      link(staging, lockPath);
       return true;
     } catch (error) {
       if (error.code === "EEXIST") return false;
