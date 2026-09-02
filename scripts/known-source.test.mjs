@@ -49,16 +49,18 @@ test("a source the vault already holds exits 1 and names the note to go and read
   assert.deepEqual(errors, []);
   assert.equal(logs.length, 1, "one line, so a skill can read it without parsing a report");
   assert.match(logs[0], /already held/);
-  assert.match(logs[0], /briefings\/2026-09-02\.md/);
-  assert.match(logs[0], /read/i, "ADR 0041 §6: already held means go and read it, never discard");
+  assert.match(logs[0], /vault\/briefings\/2026-09-02\.md/);
+  // ADR 0041 §6: already held means go and READ it, never discard. Spelled out rather
+  // than matched on /read/i, which the word "already" satisfies all by itself.
+  assert.match(logs[0], /Read that note and enrich it/);
 });
 
-test("every note holding the source is named, not just the first", () => {
+test("every note holding the source is named, and the names are separated", () => {
   const { deps, logs } = fakeDeps(HELD_BY_TWO);
 
   assert.equal(runKnownSource(["--key", MAIL], deps), 1);
-  assert.match(logs[0], /briefings\/2026-09-02\.md/);
-  assert.match(logs[0], /raw-sources\/2026-09-02-invoice\.md/);
+  // The whole list, verbatim: two paths run together are one path nobody can open.
+  assert.match(logs[0], /listed by vault\/briefings\/2026-09-02\.md, vault\/raw-sources\/2026-09-02-invoice\.md\./);
 });
 
 test("a source nobody holds exits 0, and says so in the affirmative", () => {
@@ -96,12 +98,16 @@ test("the key is composed here from the raw fields a connector hands back, not b
 // distinguishable from a hit — otherwise a typo silently cancels a capture.
 test("a question that cannot be answered exits 2, never 1", () => {
   const broken = [
-    [[], /usage|--key|--type/i],
-    [["--key", "not a key at all"], /not a source key|key/i],
+    [[], /nothing to look up/],
+    [["--key", "not a key at all"], /"not a key at all" is not a source key\. Compose one/],
     [["--type", "linkedin", "--post", "123"], /linkedin/],
     [["--type", "slack", "--channel", "C0CEQ4R5E"], /ts/],
-    [["--key"], /--key/],
-    [["--type"], /--type/],
+    // A flag with nothing after it is the typo a caller actually makes, and it must not
+    // fall through as "no key given" — which is a different mistake with a different fix.
+    [["--key"], /--key needs a value/],
+    [["--type"], /--type needs a value/],
+    // Something that is not a flag at all: a shell that lost a quote, most often.
+    [["Your invoice, is ready!", "--type", "mail"], /unexpected argument "Your invoice, is ready!"/],
   ];
   for (const [argv, expected] of broken) {
     const { deps, logs, errors } = fakeDeps(HELD_BY_TWO);
@@ -110,6 +116,33 @@ test("a question that cannot be answered exits 2, never 1", () => {
     assert.equal(errors.length, 1);
     assert.match(errors[0], expected);
   }
+});
+
+// A refusal that does not say what the caller SHOULD have typed sends them to the source,
+// and this tool exists precisely so that nobody has to read it. Every line of the usage
+// text is load-bearing: the two doors, the types, and the fields of each type.
+test("a refusal that comes with the usage text carries all of it — both doors and every field", () => {
+  const { deps, errors } = fakeDeps(HELD_BY_TWO);
+
+  assert.equal(runKnownSource([], deps), 2);
+  for (const fragment of [
+    'usage: known-source.mjs --key "<source key>"',
+    "or: known-source.mjs --type <slack|calendar|drive|notion|mail> --<field> <value>",
+    "slack: --channel --ts · calendar: --event · drive: --file · notion: --page",
+    "mail: --from --date --subject",
+  ]) {
+    assert.ok(errors[0].includes(fragment), `the usage text still says: ${fragment}`);
+  }
+});
+
+// The other half of the same refusal: a ready-made key that is not one must point at the
+// door that composes keys correctly, not merely at the fact that this one is wrong.
+test("a malformed key is refused with the way to compose a real one", () => {
+  const { deps, errors } = fakeDeps(HELD_BY_TWO);
+
+  assert.equal(runKnownSource(["--key", "the invoice mail from billing"], deps), 2);
+  assert.match(errors[0], /--type <…> --<field> <value>/);
+  assert.match(errors[0], /a key nothing can match is worse than none/);
 });
 
 // A vault that cannot be read is "I could not find out", and the safe answer to that
@@ -160,11 +193,25 @@ test("run as a process from a brain folder, it reads that brain's vault and answ
   const held = run(root, ["--key", THREAD]);
   assert.equal(held.status, 1);
   assert.match(held.stdout, /already held/);
-  assert.match(held.stdout, /briefings\/2026-09-02\.md/);
+  // The path is relative to the VAULT, spelled whole: a reader that started one folder
+  // too high would print `vault/vault/…`, which names no file anyone can open.
+  assert.match(held.stdout, /listed by vault\/briefings\/2026-09-02\.md\./);
 
   const fresh = run(root, ["--key", "drive|1A2b3C"]);
   assert.equal(fresh.status, 0);
   assert.match(fresh.stdout, /not held/);
+});
+
+// A refusal the caller never sees is a refusal that did not happen: the skill reads the
+// exit code, but the human debugging their own arguments reads stderr.
+test("as a process, a broken question reaches stderr and leaves stdout empty", () => {
+  const root = brainWithNotes({ "briefings/2026-09-02.md": [MAIL] });
+
+  const broken = run(root, ["--type", "linkedin", "--post", "123"]);
+
+  assert.equal(broken.status, 2);
+  assert.equal(broken.stdout, "");
+  assert.match(broken.stderr, /linkedin/);
 });
 
 // A universe's notes live one folder deeper (ADR 0034). A check blind to them would

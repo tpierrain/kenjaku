@@ -127,13 +127,50 @@ test("an empty or missing subject is a legitimate mail, not a refusal", () => {
   assert.equal(isSourceKey(blank), true);
 });
 
+// An id is reduced, not rewritten: each RUN of characters a key may not carry becomes
+// ONE hyphen, and the hyphens that reduction leaves at the edges go. Spelled out with a
+// value that carries several of each, because the failure mode is silent — a reduction
+// that collapsed one character at a time, or dropped them instead, would still look
+// like a key and would simply be a DIFFERENT one on the other person's machine.
+test("an unsafe run inside an opaque id becomes one hyphen, and the edges are trimmed", () => {
+  assert.equal(sourceKey({ type: "drive", file: "  1A2b//3C  " }), "drive|1A2b-3C");
+});
+
+// Hyphens a source really spelled are kept — `-` is in the safe set. Only the ones the
+// reduction itself pushed to the edges go, and there can be several of them.
+test("the hyphens an id really carries survive, at every position but the edges", () => {
+  assert.equal(sourceKey({ type: "drive", file: "--1A--2b3C--" }), "drive|1A--2b3C");
+});
+
+test("a subject's accents are stripped, so one subject typed on two keyboards is one key", () => {
+  assert.equal(
+    sourceKey({ type: "mail", from: "a@b.com", date: "2026-09-02T16:19:32Z", subject: "Réunion budget" }),
+    "mail|a@b.com|20260902T161932Z|reunion-budget",
+  );
+});
+
 test("an unknown source type is refused loudly, and the refusal names the types that exist", () => {
+  // Hand-written, not `SOURCE_TYPES.join(…)`: the point is that the refusal SEPARATES the
+  // names it lists, and a list computed the same way the message computes it would agree
+  // with a message that ran them all together.
+  assert.deepEqual(SOURCE_TYPES, ["slack", "calendar", "drive", "notion", "mail"]);
   assert.throws(
     () => sourceKey({ type: "linkedin", post: "123" }),
     (err) =>
-      /linkedin/.test(err.message) && SOURCE_TYPES.every((t) => err.message.includes(t)),
+      /linkedin/.test(err.message) &&
+      err.message.includes("slack, calendar, drive, notion, mail"),
     "a typo must not quietly disable dedup for a whole source",
   );
+});
+
+// A descriptor with no type at all — nothing, or an object that forgot the field — is the
+// same mistake as a misspelled one, and must refuse the same way rather than crash.
+test("a descriptor that names no type at all is refused as an unknown type, not as a crash", () => {
+  const expected =
+    'unknown source type "": the sources that carry an identity are slack, calendar, drive, notion, mail.';
+
+  assert.throws(() => sourceKey({}), (err) => err.message === expected);
+  assert.throws(() => sourceKey(undefined), (err) => err.message === expected);
 });
 
 test("a missing identifier is refused loudly, field by field — there is no key to guess", () => {
@@ -149,7 +186,12 @@ test("a missing identifier is refused loudly, field by field — there is no key
   for (const [descriptor, field] of missing) {
     assert.throws(
       () => sourceKey(descriptor),
-      (err) => err.message.includes(field) && err.message.includes(descriptor.type),
+      (err) =>
+        err.message.includes(field) &&
+        err.message.includes(descriptor.type) &&
+        // The instruction is the load-bearing half: a caller told only "field missing"
+        // fills it with a placeholder, and a placeholder keys as a real source.
+        err.message.includes("write no key rather than a partial one"),
       `a ${descriptor.type} descriptor without ${field} cannot be keyed`,
     );
   }
@@ -158,8 +200,25 @@ test("a missing identifier is refused loudly, field by field — there is no key
 test("a timestamp that names no instant is refused, rather than keyed as one", () => {
   assert.throws(
     () => sourceKey({ type: "mail", from: "a@b.com", date: "last tuesday", subject: "x" }),
-    (err) => err.message.includes("last tuesday") && err.message.includes("date"),
+    (err) =>
+      err.message.includes("last tuesday") &&
+      err.message.includes("date") &&
+      // Without the two accepted spellings, the refusal tells a connector author nothing.
+      err.message.includes("epoch in seconds or milliseconds"),
   );
+});
+
+// 🛑 The epoch shortcuts are matched WHOLE. A longer number that merely ends in thirteen
+// digits is not a timestamp, and reading its tail as one would key a real source at a
+// wrong instant — two brains would then disagree about a mail they both hold.
+test("a number that is not an epoch is refused, not read as the epoch hiding inside it", () => {
+  for (const date of ["12345678901234", "017883659720"]) {
+    assert.throws(
+      () => sourceKey({ type: "mail", from: "a@b.com", date, subject: "x" }),
+      (err) => err.message.includes(date),
+      `${date} names no instant`,
+    );
+  }
 });
 
 test("isSourceKey accepts only what the composer can produce", () => {
@@ -179,6 +238,18 @@ test("isSourceKey accepts only what the composer can produce", () => {
     rejected.map(() => false),
   );
   assert.equal(isSourceKey("slack|C0CEQ4R5E|1725283200.001200"), true);
+});
+
+// 🛑 A regular expression stringifies whatever it is handed, so a one-element ARRAY holding
+// a key tests true. Accepting it would let a note claim a source through a shape this
+// module never produced — and the writer that renders the frontmatter trusts this answer.
+test("isSourceKey answers about a STRING, not about anything that reads like one", () => {
+  const notStrings = [["slack|C0CEQ4R5E|1725283200.001200"], null, undefined, 42, { toString: () => "mail|a|b" }];
+
+  assert.deepEqual(
+    notStrings.map(isSourceKey),
+    notStrings.map(() => false),
+  );
 });
 
 test("the type is read case-insensitively, because a connector's label is not our vocabulary", () => {
@@ -208,6 +279,9 @@ test("a note's sources are read from an inline list, from a lone key, and from n
   assert.deepEqual(noteSources({}), [], "a note written before this decision holds no claim, not an empty one");
   assert.deepEqual(noteSources({ sources: "" }), []);
   assert.deepEqual(noteSources({ sources: [] }), []);
+  // A note whose frontmatter could not be parsed at all reaches here as nothing. That is
+  // UNKNOWN — and UNKNOWN must answer "no claim", never abort the check for every note.
+  assert.deepEqual(noteSources(undefined), []);
 });
 
 // A source is legitimately listed by SEVERAL notes: the capture that stored it and
