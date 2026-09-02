@@ -7,6 +7,7 @@ import { dirname, join } from "node:path";
 
 import { matchesAny } from "./glob-match.mjs";
 import { selectModulesToCheck } from "./health-activation.mjs";
+import { instrumentationStandDown } from "./instrumented-source.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-manifest integrity — a structural guard over the REAL repo-root
@@ -321,10 +322,17 @@ const spawnedScriptsIn = (files) => [
   ),
 ].sort();
 
-test("engine-manifest — every script an engine script SPAWNS is itself carried (a detached child fails silently)", () => {
+test("engine-manifest — every script an engine script SPAWNS is itself carried (a detached child fails silently)", (t) => {
   const carriedScripts = trackedFiles.filter(
     (file) => file.startsWith("scripts/") && file.endsWith(".mjs") && !file.endsWith(".test.mjs"),
   );
+
+  // The scan reads call sites out of the source text, and a mutation run rewrites
+  // every one of them: the scan comes back empty and reads as a defect.
+  const standDown = instrumentationStandDown(
+    carriedScripts.map((file) => ({ name: file, source: readFileSync(join(repoRoot, file), "utf8") })),
+  );
+  if (standDown) return t.skip(standDown);
 
   const spawned = spawnedScriptsIn(carriedScripts);
   assert.ok(
