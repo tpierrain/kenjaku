@@ -209,15 +209,30 @@ The analysis was already done and measured (parent plan); what is missing is cod
 - [x] **4.3ter** _(2026-09-02)_ The offer points at the surface that already exists for describing people (the
       universe profile, ADR 0035), and **nothing in steps 1 to 4 may depend on that description**:
       declining it must change no behaviour whatsoever.
-- [ ] **4.4** `actions-log.md` **stays one file** — union merge is exactly right for a flat
+- [~] **4.4** _(2026-09-02, the durable half done)_ `actions-log.md` **stays one file** — union merge is exactly right for a flat
       append-only ledger — but each appended line carries its author, so "keep both" is readable
       without a human sorting out who said what (the study's own cheap mitigation).
-- [ ] **4.5** `sync-sources` and the daily-note convention updated to call 4.1 rather than compose a
-      path by hand.
-- [ ] **4.6** Compatibility: **old unsuffixed notes keep working** — type detection by prefix
+      **The documented format now carries `· <who>`**, in the seed (`actions-log-seed.mjs`) and with
+      the reason beside it. ⛔ **The APPENDING half rides with step 3**: nothing deterministic appends
+      to that ledger — `sync-sources` does, in prose — so the line only starts carrying a name when
+      the skill can be edited. The seed reaches new brains only, deliberately: `vault/actions-log.md`
+      is the owner's file and the engine never rewrites it.
+- [ ] **4.5** ⛔ **Blocked with step 3** (same French-twin guard). `sync-sources` and the daily-note
+      convention updated to call 4.1 rather than compose a path by hand. **Partly rescued in the
+      meantime**: the SessionStart hook of 4.3 tells every session, on any brain with two authors, to
+      take a dated note's path from `scripts/dated-note-path.mjs` instead of composing it — a channel
+      that needs no twinned file. So the mechanism is reachable before the skill says so.
+- [x] **4.6** _(2026-09-02, `suffixed-dated-note-compat.test.mjs` + a rag test)_ Compatibility: **old unsuffixed notes keep working** — type detection by prefix
       (`TYPE_BY_PREFIX`), the linter's zone lists and the consolidation capture zones all match on
       the folder, not the file name, so a suffix changes nothing for them. **Assert that**, do not
       assume it: the universe blind spot in those very lists has its own hardening plan.
+      **Asserted from the outside, in one file, on names built by the rule itself** so the test
+      cannot drift from what is actually written: type detection (a per-person daily is still a
+      daily, at the root and inside a universe), the linter (no orphan, no frontmatter complaint —
+      a permanent unclearable complaint is §5quater's own failure mode), and the consolidation
+      gesture (both suffixed notes are read as captures and their mentions still become candidates).
+      Plus the negative pole: the suffix grants **nothing** — a curated page named like a day is
+      still held to every rule.
 - [ ] **4.7** Mutation run on the new file.
 
 > 🚨 **THE F5 GUARD CAUGHT THIS FEATURE WHILE IT WAS BEING WRITTEN, which is what it exists for**

@@ -77,3 +77,21 @@ test("buildActionsLogHookOutput keeps the echoed note short — volume IS the de
 test("buildActionsLogHookOutput — stays silent (null) when nothing was seeded", () => {
   assert.equal(buildActionsLogHookOutput(false), null);
 });
+
+// ── Two people, one ledger (plan step 4.4) ────────────────────────────────────
+// The ledger deliberately stays a SINGLE shared file: union merge is the right
+// resolution for a flat append-only list, and per-person ledgers would turn "what
+// did we do about X?" into a two-file grep. What union cannot supply is WHO — two
+// people's lines interleaved with no attribution read as one person's history. So
+// the attribution is in the line itself, which costs nothing and survives any merge.
+test("initialActionsLog — the documented entry format carries who did it", () => {
+  const seed = initialActionsLog("2026-09-02");
+
+  assert.match(seed, /## \[YYYY-MM-DD\] <action> — #channel \[\[people\/recipient\]\] · <who>/);
+  assert.match(seed, /who did it/i, "and the header says why the last field is there");
+});
+
+test("initialActionsLog — it still says the ledger is one shared file, not one per person", () => {
+  assert.match(initialActionsLog("2026-09-02"), /append-only/i);
+  assert.doesNotMatch(initialActionsLog("2026-09-02"), /one ledger per/i);
+});

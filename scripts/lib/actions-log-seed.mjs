@@ -38,8 +38,12 @@ appends here automatically; you can append by hand too.
 Format — one \`##\` line per action:
 
 \`\`\`markdown
-## [YYYY-MM-DD] <action> — #channel [[people/recipient]]
+## [YYYY-MM-DD] <action> — #channel [[people/recipient]] · <who>
 \`\`\`
+
+The last field is **who did it**. It matters the day this brain is shared: two
+people appending to one ledger have their lines kept side by side, and without a
+name the result reads as one person's history.
 
 Usage: *"what did I do about X?"* → \`grep -i "X" ${ACTIONS_LOG_REL}\`.
 `;
