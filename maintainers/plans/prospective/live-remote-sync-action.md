@@ -26,6 +26,13 @@ Two things are open, and only one of them is mine to move.
   defects the first pass actually found, and the reasoning behind the one gap deliberately left
   (an `fs` call failing with something other than `EEXIST`, which would cost a seam on the gate's
   hottest path) are recorded in `maintainers/mutation/RESULTS.md`, newest-first. Nothing owed.
+> ⚠️ **A SESSION RESUMING HERE HAS ALMOST NOTHING IT MAY DO ALONE — read this before looking for
+> work.** Steps 1 to 6 and 2.7 are done, green and pushed (CI read on each, last: `b6b9468`).
+> **Step 7 is doubly blocked** (see below) and **step 8 is outside the declared boundary** — no tag,
+> no publication. So the honest state is: *this chantier is waiting on its owner, not on a session.*
+> Do not invent adjacent work to fill the time. The **one** thing genuinely available is the
+> documentation gap named at the end of this block, and even that has a question pending on it.
+
 - ⏸️ **WAITING ON THE OWNER — step 7, the rehearsal.** It is the acceptance test of the whole
   chantier, and the first place any of this meets a brain that was not built by a fixture. Two
   separate reasons it has not run, and BOTH must lift:
@@ -51,6 +58,17 @@ Two things are open, and only one of them is mine to move.
   than on the screen), and the durable half is carved in `CONVENTIONS.md` §5ter as its own numbered
   rule: **anything that can surface outside the process is injected in tests, never merely switched
   off** — a switch is one mutant away from being on.
+- 📄 **THE ONE AVAILABLE PIECE OF WORK — a documentation gap, and it is not this chantier's**
+  _(surfaced 2026-09-02, preparing a client briefing)_. Asked what a new owner must do about
+  **Gmail, Drive, iCloud and Spotlight**, the repo answers cleanly for two and **says nothing at all
+  about the other two**: there is no iCloud connector and no mention of one, and Spotlight appears
+  nowhere outside marketing prose. Neither absence is wrong; both are **undocumented**, which is what
+  makes a newcomer ask. The work, if it is wanted: a short subsection in `SETUP.md` §6 saying plainly
+  that iCloud has no connector today (with the two practicable routes — import notes once through
+  `/import`, or keep living documents on Drive) and that Spotlight is neither used nor to be
+  configured, with one line on why the vault's own search is a different tool. 🙋 **The owner has NOT
+  yet said whether to write it**; the recommendation put to him was to do it with him rather than
+  alone, because both answers are product statements. Do not write it unprompted.
 - **3.6** (the `engineVersion` bump) trails deliberately, moved to step 8 — see there for why.
   The POC is closed: the `FileChanged` hook runs code but cannot speak to the conversation, so the
   immediate display falls back to the native banner (5.2) and the next-message announcement (4);
