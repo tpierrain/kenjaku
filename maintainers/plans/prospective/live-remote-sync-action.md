@@ -409,6 +409,10 @@ a real brain.
       _(2026-09-01)_.
 - [x] **9.7** The native banner on by default, only for another author's notes, disableable (5.2).
 - [x] **9.8** No "duo mode" to declare: the remote is the declaration (§ Why no duo mode).
+      **Re-put by the owner on 2026-09-02 for the duplication work, and confirmed with what it owes
+      in exchange** — the reasoning and the announcement it buys live in the sub-plan, at
+      [`duo-source-identity-action.md`](duo-source-identity-action.md) § *The owner's call: duo mode
+      is implicit*.
 
 ## What the two people will see
 

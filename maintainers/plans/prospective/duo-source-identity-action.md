@@ -22,10 +22,12 @@ and measured (parent plan); what is missing is code.
   _(the owner's instruction, 2026-09-02, before going to bed)_. Read the parent plan's
   § *Why no duo mode* first — it is the reasoning this plan assumes and does not repeat — then start
   at the first unticked box below.
-- ⚖️ **Three design calls are MINE, taken to keep moving, and all are cheap to reverse.** They are
-  written at § *Design calls taken without him* with what each would cost to undo. He reviews them
-  when he wakes; none of them blocks the work. **The third one (4bis) narrows a rule this release
-  already shipped**, so it is the one most worth his eye.
+- ✅ **HIS CALL, taken before the run: duo mode is IMPLICIT, and the brain announces it once.**
+  Nothing to activate, no per-person profile to fill in. § *The owner's call: duo mode is implicit*
+  holds the reasoning and the three things it settles.
+- ⚖️ **Two design calls are still MINE**, written at § *Design calls taken without him* with what each
+  would cost to undo (the third, the per-person suffix, is now his). **4bis narrows a rule this
+  release already shipped**, so it is the one most worth his eye.
 - **Blocked on:** nothing.
 - **A session may, alone:** run every step below test-first end to end, on `feat/live-remote-sync`,
   **pushing every green commit and READING its CI** (rules/ci.md: a push whose result is never read
@@ -115,6 +117,15 @@ and measured (parent plan); what is missing is code.
 - [ ] **4.3** The identity reaches the session through `additionalContext` at SessionStart, the
       proven channel (`scripts/session-universe.mjs` is the model). One line, silent when the brain
       has one author.
+- [ ] **4.3bis** **The announcement that pays for the implicitness** (§ *The owner's call*): the
+      **first** time a second author is seen writing in this brain, the brain says so **once**, in
+      plain words, and offers (without requiring) to describe who is who. Never repeated: the "said
+      it" marker lives beside the other per-machine markers under `.cache/`, so a brain that already
+      knows stays silent forever. **Authors are read from git history, not from a list somebody
+      maintains** — no new record of who people are, and nothing to keep in step.
+- [ ] **4.3ter** The offer points at the surface that already exists for describing people (the
+      universe profile, ADR 0035), and **nothing in steps 1 to 4 may depend on that description**:
+      declining it must change no behaviour whatsoever.
 - [ ] **4.4** `actions-log.md` **stays one file** — union merge is exactly right for a flat
       append-only ledger — but each appended line carries its author, so "keep both" is readable
       without a human sorting out who said what (the study's own cheap mitigation).
@@ -186,6 +197,38 @@ This is the honest statement of the perimeter.
       him*, before the last commit of the run.
 - [ ] **7.2** The parent plan's step 8 is unblocked (or says precisely what still blocks it).
 
+## 🛑 The owner's call: duo mode is implicit, and the brain announces it once _(2026-09-02, before the run)_
+
+He put the question himself, and it is the right one to have asked before any of this was built: should
+duo mode be **declared** — a switch people turn on, with a profile per person, so the brain can label
+who does what — or should the brain simply **record who is at the keyboard** without asking anyone?
+
+**His answer: implicit, and announced.** Nothing to activate, no profile to fill in for the mechanisms
+to work. What made the call:
+
+- **Most of this chantier does not need to know who anyone is.** The duplicate check asks *"does the
+  vault already hold this source?"*, never *"who digested it"*. Steps 1, 2, 3 and 4bis are entirely
+  person-agnostic; only the per-day paths (4) and the announcement (4.3bis) read an identity at all.
+- **Reading it is not collecting it.** The name comes from `git config --get user.name`, which git
+  already writes into **every commit this brain makes**, and which the live sync already speaks aloud
+  ("1 note from Claire arrived"). Nothing new is recorded, and no list of people is maintained.
+- **A switch protects whoever thought to flip it**, which is never the duo about to have its notes
+  doubled. A protection that must be foreseen before the problem is not a protection.
+- **It stays invisible for one person.** The per-day suffix appears only when a *second* name writes
+  the same day, so a solo owner — even with two Macs and a remote — sees no change at all. Same
+  doctrine as universes (ADR 0034): nothing surfaces until a second one exists.
+
+**What implicitness owes in exchange, and it is not a switch: a sentence.** A brain that quietly starts
+filing things differently is opaque. So the first time a second author is seen, the brain says it once,
+in plain words, and offers to describe who is who — an offer that activates nothing and may be declined
+with no consequence (4.3bis, 4.3ter). Transparency is the price of the implicitness, and it is paid in
+one sentence rather than in a setting everyone must understand at install time.
+
+This **confirms and extends** the parent plan's decision 9.8 (*"no duo mode to declare: the remote is
+the declaration"*), which was taken about the live sync alone: it now covers the duplication work too.
+It also settles what had been my own first design call, the per-person suffix appearing only on
+collision — that is his call now, not mine.
+
 ## A note has SOURCES, plural — and that is what makes his simple model work
 
 The owner's model, in his words _(2026-09-02)_: *"à partir du moment où dans le vault j'ai déjà
@@ -216,10 +259,11 @@ which is the point of sharing a brain in the first place, and which keeps the fa
 
 ## Design calls taken without him
 
-All three taken to keep the overnight run moving, all three cheap to reverse, all three his to
-confirm.
+Taken to keep the overnight run moving, cheap to reverse, his to confirm. **The first is no longer
+mine — he confirmed it before the run** (§ *The owner's call*); it is kept here because the reasoning
+that produced it is still the reasoning that defends it.
 
-1. **The per-person suffix appears only on collision, not always.** The alternative considered was
+1. ✅ **HIS, since 2026-09-02.** **The per-person suffix appears only on collision, not always.** The alternative considered was
    suffixing every dated note in any brain that has a remote — the criterion the live sync already
    uses to decide a brain "lives in more than one place" (decision 9.8). Rejected because a great
    many solo owners wire a remote purely for **backup**, and they would get uglier file names for
