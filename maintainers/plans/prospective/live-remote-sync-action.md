@@ -108,6 +108,12 @@ measurements only the owner's own machines can make.**
      CONVENTIONS §5quater warns about.
 - **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
   at 7.4; the per-machine lock (2.3) is built regardless.
+- ⏸️ **A duo risk analysed, and its answer is his** _(2026-09-02, he raised it)_. Two people on one
+  brain, both able to reach the same mailbox, can digest the same email twice — and `merge=union`
+  keeps both silently where a conflict used to show. Nothing carries a source identity today except
+  Notion mirrors. **It does not block the release**; what awaits him is whether the one-paragraph
+  doctrine (a writer of record per source) ships with it. Findings, code checked, and the two fixes:
+  § Why no duo mode → *"But two people on one brain CAN digest the same source twice"*.
 - **Owner's call pending:** the release number (the feature ships alone under the next tag,
   decision 3; which tag it is gets settled at step 8 against the v5.1 promise in
   [`clear-the-tracker-action.md`](clear-the-tracker-action.md)).
@@ -569,6 +575,44 @@ skill unchanged.
 - **What stays declared is human**: the "who is at the keyboard" paragraph of the constitution,
   written by the owner. Announcement names come from each side's git author name.
 - **Off switch**: `REMOTE_SYNC_INTERVAL=0`.
+
+### But two people on one brain CAN digest the same source twice, and this release removes the alarm
+
+Raised by the owner, 2026-09-02, about the field case the study describes: an owner and their
+assistant, two clones of one private repo, and — because the study's own §5/Q5 recommends a
+forwarding filter so the assistant's connector sees the owner's mail — **the same email reachable
+from both Claude accounts**. Checked in the code the same day:
+
+- **No source carries an identity, and nothing records what has been digested.** `source_url` is
+  written by exactly one producer, the Notion local mirror (`local-mirror/src/lib/markdown.ts`),
+  which is idempotent because a page always rewrites its own file. Everything `sync-sources`
+  writes — briefings, `actions-log.md`, `people/`, `topics/`, `raw-sources/` — carries permalinks
+  **in prose** and no machine-readable id, and there is no ledger of "already seen". So a second
+  brain cannot know a mail, a Slack thread or a Notion page was already distilled, and no later
+  pass can detect that it was. The index has a `source_url` column and the citation renderer reads
+  it for any note (`rag/src/lib/citation-renderer.ts`): the field exists engine-side and is simply
+  never written outside mirrors.
+- **What this chantier changes is the ALARM, not the duplication.** Before `merge=union` (1.2), two
+  people filing the same day hit a conflict on `briefings/YYYY-MM-DD.md` and a human saw it. With
+  union both texts are kept, no marker, no question — the right rule for an append-only ledger, and
+  the reason a doubled digest now lands silently. `.gitattributes` is in the `replace` regime (1.3),
+  so this reaches already-deployed brains at their next engine update.
+- **What limits it today**: there is **no mail sub-agent** in the fan-out (the procedure has
+  transcripts, chat, my-actions, calendar — mail is only in the skill's description), and no
+  scheduler. Duplication is opportunistic — both people asking about the same subject — not
+  systematic. The skill's novelty check already asks the main context to search the vault before
+  presenting something as news; it works on subject matter, not on source identity, and it is prose.
+- **The cheap fix removes the cause: one writer of record per source.** Two people sharing a brain
+  name, per connector-fed source, whose brain distils it; the other reads the notes. For the field
+  case that is the owner for mail — Gmail delegation still lets the assistant *read* the mailbox as
+  a human. A paragraph in SETUP §7 and in the constitution template, no code. Candidate 6 of the
+  study is the same idea, unpicked.
+- **The proper fix is a chantier, not a pre-release patch**: a source identity in the frontmatter of
+  anything written from an external source, checked against the vault before writing. The writer is
+  an LLM, so it stays doctrine unless a deterministic refusal enforces it (the `file-back-note.mjs`
+  shape). Not #84's, and not the release's.
+- **Assessment: does not block step 8.** ⏸️ **Owner's call** — whether the doctrine paragraph ships
+  with this release, and whether the source-identity item is filed as an issue.
 
 ## Not in scope
 
