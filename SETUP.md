@@ -470,6 +470,37 @@ question needed. The cadence is set by **`LOCAL_MIRROR_SYNC_INTERVAL`** in `.env
 = 5 min; **`0` disables** the background timer and falls back to the question-time refresh only). It ticks
 only while a window is open (it is not a 24/7 daemon).
 
+### (e) Two things people expect to find here and will not — iCloud, and Spotlight
+
+Neither is an oversight, and neither needs configuring. They are named here because their
+absence is the kind that makes a newcomer hunt for a setting that does not exist.
+
+**iCloud — there is no connector, and there are two routes that work.** Nothing in this
+brain reads iCloud, and nothing is planned:
+
+- **Notes you already have as files** (Markdown sitting in iCloud Drive): bring them in
+  **once**, with the **`/import` skill** (§11) — point it at the folder, it copies, never
+  overwrites, and reindexes. After that they are ordinary notes in your vault, versioned
+  with everything else.
+- **Documents that keep changing** (a spec you edit every week): leave them where they
+  live and reach them through a connector — **Google Drive** is the wired path (see the
+  menu above). A one-off import of a moving document only ever captures the version it had
+  that day.
+- **Apple Notes is a different thing again**: it is not a folder of files, so `/import` has
+  nothing to point at. Exporting from it is a manual step on Apple's side, and once the
+  notes are Markdown on disk the first route applies.
+- ⚠️ **Do not put the brain itself inside iCloud Drive.** It is a git repository, and a file
+  syncer and git are two systems trying to own the same files: the way to have one brain on
+  two machines is a **private git remote** (§7), which is built for exactly that and
+  survives conflicts instead of duplicating files.
+
+**Spotlight — not used, nothing to configure, and it is not the same tool.** Your vault is
+plain Markdown, so macOS will happily index it and you can keep using Spotlight to *open a
+file whose name you remember*. Your brain never consults it. Searching your vault goes
+through the RAG engine (§4), which answers a **question** with the passages that mean the
+same thing — not the files that contain the same words — and **cites the notes it used**.
+Two different jobs: one finds a document, the other answers with your own material.
+
 ## 7. Backup & multi-machine portability (remote repo)
 
 Set up a private git remote, **then enable push** (without it, auto-commit stays local — it's
