@@ -5,6 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { instrumentationStandDown, isInstrumented } from "./instrumented-source.mjs";
@@ -39,7 +40,19 @@ test("the bare word is not the marker: only the runner's hashed identifiers coun
 });
 
 test("this module's own source does not trip its own detector", () => {
-  const own = readFileSync(fileURLToPath(new URL("./instrumented-source.mjs", import.meta.url)), "utf8");
+  const onDisk = readFileSync(fileURLToPath(new URL("./instrumented-source.mjs", import.meta.url)), "utf8");
+
+  // Under a mutation run this very file is one of the rewritten ones, and reading it
+  // off disk would find the runner's markers rather than ours. The property being
+  // pinned is about the bytes we COMMIT, so in that case ask git for them — which
+  // keeps the assertion meaningful instead of standing it down into a tautology.
+  const own = isInstrumented(onDisk)
+    ? execFileSync("git", ["show", "HEAD:scripts/lib/instrumented-source.mjs"], {
+        cwd: fileURLToPath(new URL("../..", import.meta.url)),
+        encoding: "utf8",
+      })
+    : onDisk;
+
   assert.equal(isInstrumented(own), false, "a detector that fires on itself silences every guard that consults it");
 });
 
