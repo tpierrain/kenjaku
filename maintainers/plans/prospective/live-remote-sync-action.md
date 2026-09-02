@@ -72,10 +72,19 @@ measurements only the owner's own machines can make.**
   makes a newcomer ask. The work, if it is wanted: a short subsection in `SETUP.md` §6 saying plainly
   that iCloud has no connector today (with the two practicable routes — import notes once through
   `/import`, or keep living documents on Drive) and that Spotlight is neither used nor to be
-  configured, with one line on why the vault's own search is a different tool. ✍️ **The owner's call,
-  2026-09-02 afternoon: write a proposal alone, he reviews it.** He declined the "do it together"
-  option deliberately, so the draft is a draft — it lands for review, and neither product statement
-  is settled until he has read it.
+  configured, with one line on why the vault's own search is a different tool. ✍️ **WRITTEN, and
+  awaiting his review** _(2026-09-02, `9e1117c`)_ — `SETUP.md` §6(e). He picked "write a proposal
+  alone" over doing it together, so the draft is a draft: **both are product statements and neither
+  is settled until he has read it.** It says a bit more than the plan asked, and each addition is a
+  claim he may want to strike: that Apple Notes is a separate problem because it is not files at
+  all, and that the brain must not live inside iCloud Drive (a file syncer and git fighting over one
+  repository, when §7's private remote exists for that).
+- 🧹 **This branch also carries work that is NOT #84's, and it is deliberate** _(2026-09-02)_. The
+  nightly mutation measurement had been failing unread since 2026-08-22; it was read, diagnosed and
+  fixed here, then **cherry-picked onto its own branch as [PR #85](https://github.com/tpierrain/kenjaku/pull/85)**
+  so it can ship without waiting for this chantier. The commits therefore exist on **both** branches
+  with identical content — whichever merges second will find them already applied. State for that
+  work belongs to [`clear-the-tracker-action.md`](clear-the-tracker-action.md), not here.
 - **3.6** (the `engineVersion` bump) trails deliberately, moved to step 8 — see there for why.
   The POC is closed: the `FileChanged` hook runs code but cannot speak to the conversation, so the
   immediate display falls back to the native banner (5.2) and the next-message announcement (4);
