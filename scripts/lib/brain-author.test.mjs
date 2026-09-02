@@ -57,6 +57,14 @@ test("one person spelled several ways is one author, and the first spelling is t
   assert.deepEqual(distinctAuthors(["Claire Dubois", "claire dubois", "  Claire   Dubois  "]), [HER]);
 });
 
+// The kept spelling is TIDIED, not merely kept: a `user.name` really can carry a stray
+// space at either end or a double space in the middle, and this name is about to be
+// printed into a session-start line an owner reads before typing.
+test("the kept spelling loses its stray whitespace, at the edges and in the middle", () => {
+  assert.deepEqual(distinctAuthors(["  Claire   Dubois  "]), [HER]);
+  assert.deepEqual(distinctAuthors(["\tAmina\t\tHaddad\n"]), ["Amina Haddad"]);
+});
+
 test("distinct authors keep the order they first appear in, so a list reads chronologically", () => {
   assert.deepEqual(distinctAuthors([HER, ME, HER, "Amina Haddad"]), [HER, ME, "Amina Haddad"]);
 });
@@ -98,6 +106,56 @@ test("a machine whose git has no user name still gets the line, and is not named
 
   assert.match(line, /more than one person/i);
   assert.doesNotMatch(line, /At this keyboard/);
+  // And nobody is invented to stand in for the missing name: the list is the history.
+  assert.match(line, /^More than one person writes here \(Claire Dubois, Thomas Pierrain\)\. Take a dated note/);
+});
+
+// 🛑 THE SAME MACHINE, SOLO. A brain whose git has no `user.name` has ONE author, and a
+// nameless keyboard is not a second one. Get this wrong and every such machine opens
+// every session announcing a person who does not exist.
+test("a nameless keyboard is not a second author — a solo brain stays silent on it", () => {
+  assert.equal(authorsReminder({ authors: [ME, ME], me: null }), null);
+  assert.equal(secondAuthorAnnouncement({ authors: [ME], me: null, announced: false }), null);
+});
+
+test("the name at the keyboard is tidied before it is shown, like every other name", () => {
+  assert.match(authorsReminder({ authors: [HER], me: "  Thomas   Pierrain " }), /At this keyboard: Thomas Pierrain\./);
+});
+
+// 🛑 A `user.name` this brain cannot slug is not someone it can NAME, and it must not
+// count as a second author either — otherwise a solo owner whose git says "???" would
+// start seeing a line about "more than one person" written for nobody.
+test("an unsluggable name at the keyboard is neither named nor counted", () => {
+  assert.equal(authorsReminder({ authors: [ME], me: "???" }), null, "one real author plus a name that is not one");
+
+  const line = authorsReminder({ authors: [HER, ME], me: "???" });
+  assert.match(line, /^More than one person writes here \(Claire Dubois, Thomas Pierrain\)\. Take a dated note/);
+});
+
+// The whole sentence, once, so that no piece of it can be emptied without a test
+// noticing: the count, the names, the keyboard, the instruction, and the ban on
+// composing a path by hand — which is the only thing the line actually asks for.
+test("the line says exactly what it means to say, word for word", () => {
+  assert.equal(
+    authorsReminder({ authors: [HER], me: ME }),
+    "More than one person writes here (Claire Dubois, Thomas Pierrain). At this keyboard: Thomas Pierrain. " +
+      "Take a dated note's path from `node scripts/dated-note-path.mjs --folder <f> --date <d>`; " +
+      "never compose it. Silent background.",
+  );
+});
+
+// The boundary of the "+N": three people are all named, four is where counting starts.
+// One off either way and a brain either hides a name it had room for, or grows a roll call.
+test("three authors are all named with no count; the fourth is where counting starts", () => {
+  assert.match(
+    authorsReminder({ authors: [HER, "Amina Haddad"], me: ME }),
+    /\(Claire Dubois, Amina Haddad, Thomas Pierrain\)\./,
+    "exactly three: named, and no +0 hanging off the end",
+  );
+  assert.match(
+    authorsReminder({ authors: [HER, "Amina Haddad", "Lena Fischer"], me: ME }),
+    /\(Claire Dubois, Amina Haddad, Lena Fischer \+1\)\./,
+  );
 });
 
 // ── The one-time announcement, and the offer that activates nothing ───────────
@@ -133,18 +191,30 @@ test("nothing to say produces no output at all, so a solo brain's session start 
   assert.equal(buildAuthorsHookOutput({}), null);
 });
 
+// The exact block, both halves, both channels: this is what a CLI owner reads verbatim,
+// so its punctuation and its separation are part of the behaviour rather than around it.
 test("what there is to say rides additionalContext, the only channel Claude Desktop shows", () => {
   const out = buildAuthorsHookOutput({ reminder: "R", announcement: "A" });
 
-  assert.equal(out.hookSpecificOutput.hookEventName, "SessionStart");
-  assert.match(out.hookSpecificOutput.additionalContext, /\[authors\] R/);
-  assert.match(out.hookSpecificOutput.additionalContext, /A/);
-  assert.match(out.systemMessage, /R/);
+  assert.deepEqual(out, {
+    hookSpecificOutput: {
+      hookEventName: "SessionStart",
+      additionalContext: "[authors] R\n\n[authors — say this once] A",
+    },
+    systemMessage: "R\nA",
+  });
 });
 
+// Each half alone must carry ONLY itself: a block that printed "[authors] null" would
+// still match a test looking for the other half.
 test("the reminder alone is enough to emit, and so is the announcement alone", () => {
-  assert.match(buildAuthorsHookOutput({ reminder: "R" }).hookSpecificOutput.additionalContext, /R/);
-  assert.match(buildAuthorsHookOutput({ announcement: "A" }).hookSpecificOutput.additionalContext, /A/);
+  const reminderOnly = buildAuthorsHookOutput({ reminder: "R" });
+  assert.equal(reminderOnly.hookSpecificOutput.additionalContext, "[authors] R");
+  assert.equal(reminderOnly.systemMessage, "R");
+
+  const announcementOnly = buildAuthorsHookOutput({ announcement: "A" });
+  assert.equal(announcementOnly.hookSpecificOutput.additionalContext, "[authors — say this once] A");
+  assert.equal(announcementOnly.systemMessage, "A");
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

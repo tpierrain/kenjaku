@@ -63,7 +63,10 @@ export function sessionAuthorsNotice({ authors, me, announced, markAnnounced, em
       }
     }
   } catch {
-    return 0; // fail-open: session start belongs to the owner, not to this hook.
+    // Fail-open: session start belongs to the owner, not to this hook. Nothing was
+    // built, so `output` is still null, nothing is emitted, and the 0 below is the
+    // same 0 — which is why this block is deliberately empty rather than returning
+    // a second time from a function with one exit.
   }
   if (output) emit(output);
   return 0;
@@ -88,7 +91,10 @@ runAsEntrypoint(import.meta.url, process.argv, () => {
     me: () => localAuthorName(git),
     announced: () => {
       try {
-        return readFileSync(marker, "utf8").trim() !== "";
+        // "Has content", not "differs from the empty string": a marker left blank by an
+        // interrupted write says nothing was announced, and the safe reading of nothing
+        // is to say it (at worst twice) rather than to stay silent for good.
+        return readFileSync(marker, "utf8").trim().length > 0;
       } catch {
         return false; // never announced, or unreadable → say it (at worst, twice).
       }

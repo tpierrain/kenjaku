@@ -18,12 +18,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { spawnSync } from "node:child_process";
-import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { sessionAuthorsNotice } from "./session-authors.mjs";
+import { ANNOUNCED_REL, sessionAuthorsNotice } from "./session-authors.mjs";
 
 const ME = "Thomas Pierrain";
 const HER = "Claire Dubois";
@@ -146,6 +146,10 @@ test("as a process on a one-author brain, it says nothing and exits 0", (t) => {
 
 test("as a process on a two-author brain, it emits the SessionStart payload, and the sentence only once", (t) => {
   const root = brainRepo(t, [ME, HER]);
+  // 🛑 `.cache/` already exists, which is the ordinary state of any brain the sync has
+  // ever ticked in. A non-recursive mkdir throws EEXIST here, the marker is never
+  // written, and the sentence said "once" is said at every session start forever.
+  mkdirSync(join(root, ".cache"), { recursive: true });
 
   const first = run(root);
   assert.equal(first.status, 0, first.stderr);
@@ -153,12 +157,33 @@ test("as a process on a two-author brain, it emits the SessionStart payload, and
   assert.equal(payload.hookSpecificOutput.hookEventName, "SessionStart");
   assert.match(payload.hookSpecificOutput.additionalContext, new RegExp(HER));
   assert.match(payload.hookSpecificOutput.additionalContext, /say this once/i);
+  // The name at the keyboard comes from THIS repository's git config, and this is the
+  // only test that reaches that wiring: every other one injects it.
+  assert.match(payload.hookSpecificOutput.additionalContext, new RegExp(`At this keyboard: ${ME}\\.`));
+
+  // And the marker lands in the brain's OWN `.cache/`, not one folder deeper: the hook
+  // roots itself on its file location, and getting that wrong writes a marker nothing
+  // will ever read back — so the sentence would be said again at every session.
+  assert.ok(existsSync(join(root, ANNOUNCED_REL)), `no marker at ${ANNOUNCED_REL}`);
 
   const second = run(root);
   assert.equal(second.status, 0, second.stderr);
   const again = JSON.parse(second.stdout).hookSpecificOutput.additionalContext;
   assert.match(again, /more than one person/i, "the line every session needs is still there");
   assert.doesNotMatch(again, /say this once/i, "and the sentence said once stays said");
+});
+
+// A marker left blank by an interrupted write remembers nothing, and the safe reading of
+// nothing is to say the sentence again — at worst twice, where the other way round the
+// human never hears it at all.
+test("as a process, a blank marker means the sentence was never said", (t) => {
+  const root = brainRepo(t, [ME, HER]);
+  mkdirSync(join(root, dirname(ANNOUNCED_REL)), { recursive: true });
+  writeFileSync(join(root, ANNOUNCED_REL), "  \n");
+
+  const answer = run(root);
+
+  assert.match(JSON.parse(answer.stdout).hookSpecificOutput.additionalContext, /say this once/i);
 });
 
 // 🛑 The marker is per machine and must never travel: the other machine has its own

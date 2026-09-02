@@ -77,7 +77,9 @@ export function runDatedNotePath(argv, deps = realDatedNotePathDeps) {
   const author = flags.author ?? deps.author();
   // An unreadable vault is "I could not find out", and the safe answer is the shared
   // file: it merges visibly, where an invented path would simply not be looked in.
-  let notes = [];
+  // Declared without an initial value on purpose — one that both branches overwrite is
+  // dead code wearing the shape of a default.
+  let notes;
   try {
     notes = deps.notes();
   } catch {

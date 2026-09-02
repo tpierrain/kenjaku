@@ -51,13 +51,22 @@ test("a day nobody has written yields the base name, and the author to stamp on 
 // 🎯 The case the step exists for, and the line that explains it — a file appearing
 // under a name nobody chose is confusing unless the reason comes with it.
 test("a day someone else already wrote yields a file of my own, and says why", () => {
-  const { deps, logs } = fakeDeps({ notes: HER_DAY });
+  // Two other notes sit in the vault, and neither is the day in question: the
+  // explanation must name the person who wrote THAT day, not the first note it finds.
+  const alongside = [
+    { path: "briefings/2026-09-01.md", frontmatter: { author: "Amina Haddad" } },
+    ...HER_DAY,
+    { path: "acme/briefings/2026-09-02.md", frontmatter: { author: "Lena Fischer" } },
+  ];
+  const { deps, logs } = fakeDeps({ notes: alongside });
 
   assert.equal(runDatedNotePath(["--folder", "briefings", "--date", "2026-09-02"], deps), 0);
-  assert.equal(logs[0], "path: vault/briefings/2026-09-02-thomas-pierrain.md");
-  assert.equal(logs[1], `author: ${ME}`);
-  assert.match(logs[2], new RegExp(HER));
-  assert.match(logs[2], /briefings\/2026-09-02\.md/);
+  assert.deepEqual(logs, [
+    "path: vault/briefings/2026-09-02-thomas-pierrain.md",
+    `author: ${ME}`,
+    `note: ${HER} already wrote briefings/2026-09-02.md today, so this ` +
+      "one is yours — both are kept, and neither is merged into the other.",
+  ]);
 });
 
 test("the author who owns the day keeps writing to it, with nothing to explain", () => {
@@ -81,17 +90,62 @@ test("a machine with no git author falls back to the shared file, and says so", 
   const { deps, logs } = fakeDeps({ notes: HER_DAY, author: null });
 
   assert.equal(runDatedNotePath(["--folder", "briefings", "--date", "2026-09-02"], deps), 0);
-  assert.equal(logs[0], "path: vault/briefings/2026-09-02.md");
   assert.doesNotMatch(logs.join("\n"), /^author:/m, "there is no name to stamp, so none is invented");
-  assert.match(logs.join("\n"), /user\.name/);
+  // The whole answer, word for word: the explanation is the only thing that turns a
+  // silently-shared file into something the owner can act on, so it is not optional prose.
+  assert.deepEqual(logs, [
+    "path: vault/briefings/2026-09-02.md",
+    "note: this machine's git has no user.name, so there is no author to stamp and no file of " +
+      'your own to give you. Set it (git config user.name "…") if two people write in this brain.',
+  ]);
 });
 
-test("a broken question exits 2 and answers nothing on stdout", () => {
-  for (const argv of [[], ["--folder", "daily"], ["--date", "2026-09-02"], ["--folder", "daily", "--date", "yesterday"]]) {
+// 🛑 THE NEGATIVE POLE. Each of these is a caller mistake with a DIFFERENT fix, so each
+// refusal has to say which one it is — "exit 2" alone sends the caller to the source.
+test("a broken question exits 2, answers nothing on stdout, and says which mistake it was", () => {
+  const broken = [
+    [[], /--folder is required/],
+    [["--folder", "daily"], /--date is required/],
+    [["--date", "2026-09-02"], /--folder is required/],
+    [["--folder", "daily", "--date", "yesterday"], /--date must be a day, spelled YYYY-MM-DD \(got "yesterday"\)/],
+    // A flag with nothing after it is the typo a caller actually makes, and it must not
+    // fall through as "the flag was never given" — a different mistake with a different fix.
+    [["--folder", "daily", "--date"], /--date needs a value/],
+    [["--folder"], /--folder needs a value/],
+    // Something that is not a flag at all: a shell that lost a quote, most often.
+    [["daily", "--date", "2026-09-02"], /unexpected argument "daily"/],
+  ];
+  for (const [argv, expected] of broken) {
     const { deps, logs, errors } = fakeDeps();
     assert.equal(runDatedNotePath(argv, deps), 2, JSON.stringify(argv));
     assert.deepEqual(logs, []);
     assert.equal(errors.length, 1);
+    assert.match(errors[0], expected);
+    assert.match(errors[0], /^✗ /, "a refusal is marked as one, not printed as an answer");
+  }
+});
+
+// A date that merely CONTAINS a day is not a day: unanchored, `--date 2026-09-02T09:00Z`
+// or a stray prefix would be accepted and would compose a filename nobody looks for.
+test("a date must be a day WHOLE, not a string with a day somewhere inside it", () => {
+  for (const date of ["2026-09-02T09:00:00Z", "on-2026-09-02", "2026-09-023"]) {
+    const { deps, errors } = fakeDeps();
+    assert.equal(runDatedNotePath(["--folder", "daily", "--date", date], deps), 2, date);
+    assert.match(errors[0], /must be a day/);
+  }
+});
+
+// The refusal comes with the usage text, and every line of it is load-bearing: the two
+// required flags, the universe form, and where the author comes from when it is omitted.
+test("a refusal carries the whole usage text, not a fragment of it", () => {
+  const { deps, errors } = fakeDeps();
+
+  assert.equal(runDatedNotePath([], deps), 2);
+  for (const fragment of [
+    "usage: dated-note-path.mjs --folder <daily|briefings|…> --date <YYYY-MM-DD> [--author \"<name>\"]",
+    "--folder may carry a universe (acme/daily); --author defaults to git config user.name.",
+  ]) {
+    assert.ok(errors[0].includes(fragment), `the usage text still says: ${fragment}`);
   }
 });
 
@@ -140,4 +194,42 @@ test("as a process, a brain with no vault at all still answers the base name", (
 
   assert.equal(run.status, 0, run.stderr);
   assert.match(run.stdout, /^path: vault\/daily\/2026-09-02\.md$/m);
+});
+
+// 🛑 WITHOUT `--author`, and this is the only test that reaches the REAL git wiring.
+// Every test above injects the name. The wiring roots git with `-C <cwd>` rather than
+// trusting the process's directory — a hook's cwd is not this script's to assume, and a
+// git command run in the wrong place does not fail, it answers about somewhere else.
+test("as a process with no --author, the name comes from THIS brain's git config", () => {
+  const root = mkdtempSync(join(tmpdir(), "kenjaku-dated-note-git-"));
+  const git = (...args) => spawnSync("git", args, { cwd: root, encoding: "utf8" });
+  git("init", "--quiet", "--initial-branch=main");
+  git("config", "user.name", HER);
+  git("config", "user.email", "claire@example.invalid");
+  mkdirSync(join(root, "vault", "daily"), { recursive: true });
+  writeFileSync(join(root, "vault", "daily", "2026-09-02.md"), `---\nauthor: ${ME}\n---\n\n# Monday\n`);
+
+  const run = spawnSync(process.execPath, [CLI, "--folder", "daily", "--date", "2026-09-02"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(run.stdout, new RegExp(`^author: ${HER}$`, "m"), "the name really came from git, not from a default");
+  assert.match(run.stdout, /^path: vault\/daily\/2026-09-02-claire-dubois\.md$/m);
+});
+
+// A refusal the caller never sees is a refusal that did not happen: the skill reads the
+// exit code, the human debugging their own arguments reads stderr.
+test("as a process, a broken question reaches stderr and leaves stdout empty", () => {
+  const root = mkdtempSync(join(tmpdir(), "kenjaku-dated-note-broken-"));
+
+  const run = spawnSync(process.execPath, [CLI, "--folder", "daily", "--date", "yesterday"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+
+  assert.equal(run.status, 2);
+  assert.equal(run.stdout, "");
+  assert.match(run.stderr, /--date must be a day/);
 });

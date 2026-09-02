@@ -67,6 +67,16 @@ test("a note that claims no author, and an author with no slug, both fall back t
     path: "daily/2026-09-02.md",
     suffixed: false,
   });
+  // 🛑 And NO author at all — the caller's git had no `user.name`. It must degrade the
+  // same way, never invent a stand-in: a suffix built from a placeholder would file the
+  // note under a name nobody would ever think to look for.
+  for (const author of [null, undefined, ""]) {
+    assert.deepEqual(
+      datedNotePath({ folder: "daily", date: DAY, author, base: { author: "Claire Dubois" } }),
+      { path: "daily/2026-09-02.md", suffixed: false },
+      `an author of ${JSON.stringify(author)} takes the shared file`,
+    );
+  }
 });
 
 test("a universe's notes live one folder deeper, and the rule follows them there", () => {
