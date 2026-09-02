@@ -54,7 +54,15 @@ jobs:
           - package: scripts
             extra: "--inPlace"
     steps:
+      # fetch-depth: 0 — the suites under mutation assert against REAL git history:
+      # the QA fixtures replay a brain from tag v3.6.0, one test checks that every
+      # waived sha is still reachable, and the manifest-integrity checks walk
+      # `git ls-files`. A shallow, tagless clone fails them in Stryker's own initial
+      # test run, before a single mutant, so the job reports a truncated checkout and
+      # never a score. Every ci.yml job running these suites pins the same thing.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node 24
         uses: actions/setup-node@v4
