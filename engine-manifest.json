@@ -49,6 +49,7 @@
       "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",
       "scripts/remote-sync.mjs",
+      "scripts/known-source.mjs",
       "scripts/verify-index.mjs",
       "scripts/lib/**",
       ".claude/settings.json.template",

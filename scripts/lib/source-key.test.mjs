@@ -13,7 +13,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { isSourceKey, sourceKey, SOURCE_TYPES } from "./source-key.mjs";
+import {
+  isSourceKey,
+  noteSources,
+  notesHoldingSource,
+  renderSourcesField,
+  sourceKey,
+  SOURCE_TYPES,
+  SOURCES_FIELD,
+} from "./source-key.mjs";
 
 // The five rows of ADR 0041's key table, spelled out as the ADR spells them. Hand-
 // written on purpose (CONVENTIONS §5ter): a fixture computed by the code under test
@@ -177,5 +185,65 @@ test("the type is read case-insensitively, because a connector's label is not ou
   assert.equal(
     sourceKey({ type: " Slack ", channel: "C0CEQ4R5E", ts: "1725283200.001200" }),
     "slack|C0CEQ4R5E|1725283200.001200",
+  );
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The vault IS the ledger (ADR 0041): "has anyone digested this?" is answered by
+// "does any note list it?". These helpers own the frontmatter field's name and
+// the two directions it travels — read by the check, written by the producers —
+// so the reader and the writer can never drift into two spellings.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MAIL = "mail|billing@example.com|20260902T161932Z|your-invoice-is-ready";
+const THREAD = "slack|C0CEQ4R5E|1725283200.001200";
+
+test("the field has ONE name, and both directions use it", () => {
+  assert.equal(SOURCES_FIELD, "sources");
+});
+
+test("a note's sources are read from an inline list, from a lone key, and from nothing at all", () => {
+  assert.deepEqual(noteSources({ sources: [MAIL, ` ${THREAD} `] }), [MAIL, THREAD]);
+  assert.deepEqual(noteSources({ sources: MAIL }), [MAIL], "one key needs no list to be one source");
+  assert.deepEqual(noteSources({}), [], "a note written before this decision holds no claim, not an empty one");
+  assert.deepEqual(noteSources({ sources: "" }), []);
+  assert.deepEqual(noteSources({ sources: [] }), []);
+});
+
+// A source is legitimately listed by SEVERAL notes: the capture that stored it and
+// every synthesis that drew on it. The check must name them all, so the caller can
+// cite the right one rather than the first one found.
+test("every note holding a source is named, and a source nobody holds names nobody", () => {
+  const notes = [
+    { path: "briefings/2026-09-02.md", frontmatter: { sources: [THREAD, MAIL] } },
+    { path: "people/claire-dubois.md", frontmatter: { sources: ["drive|1A2b3C"] } },
+    { path: "raw-sources/2026-09-02-invoice.md", frontmatter: { sources: [MAIL] } },
+    { path: "daily/2026-09-02.md", frontmatter: {} },
+  ];
+
+  assert.deepEqual(notesHoldingSource(notes, MAIL), [
+    "briefings/2026-09-02.md",
+    "raw-sources/2026-09-02-invoice.md",
+  ]);
+  assert.deepEqual(notesHoldingSource(notes, "calendar|never-seen"), []);
+});
+
+// 🛑 A near-miss must NOT read as a hit: that is the false "already held" of ADR 0041 §5.
+test("a key that merely starts like another one is a different source", () => {
+  const notes = [{ path: "raw-sources/a.md", frontmatter: { sources: [`${THREAD}extra`] } }];
+
+  assert.deepEqual(notesHoldingSource(notes, THREAD), []);
+});
+
+test("the frontmatter line is rendered as an inline list, deduplicated, in the order given", () => {
+  assert.equal(renderSourcesField([THREAD, MAIL, THREAD]), `[${THREAD}, ${MAIL}]`);
+  assert.equal(renderSourcesField([MAIL]), `[${MAIL}]`);
+});
+
+test("rendering refuses a string the composer could not have produced, and says which one", () => {
+  assert.throws(
+    () => renderSourcesField([MAIL, "the invoice mail from billing"]),
+    (err) => err.message.includes("the invoice mail from billing") && err.message.includes(SOURCES_FIELD),
+    "a hand-written key never matches anything, so it is a silent no-op rather than a claim",
   );
 });

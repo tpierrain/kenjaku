@@ -138,3 +138,56 @@ function requirePresent(value, name, type) {
 export function isSourceKey(value) {
   return typeof value === "string" && /^[a-z]+(\|[A-Za-z0-9_.@+-]+)+$/.test(value);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The vault IS the ledger (ADR 0041). "Has anyone digested this source?" is
+// answered by "does any note list it?" — so there is no second store to seed,
+// migrate or repair, and nothing that can go out of step with the notes.
+//
+// The field's name and the two directions it travels — read by the check, written
+// by the producers — live here together, because a reader and a writer that drift
+// into two spellings make a check that silently never matches.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** The frontmatter key a note lists its sources under. One name, one owner. */
+export const SOURCES_FIELD = "sources";
+
+/**
+ * The source keys one note claims. The frontmatter reader hands back an array for
+ * an inline list and a plain string for a lone value, and a note written before
+ * this decision hands back nothing at all — which is UNKNOWN, never "none".
+ */
+export function noteSources(frontmatter) {
+  const raw = frontmatter?.[SOURCES_FIELD];
+  const values = Array.isArray(raw) ? raw : [raw];
+  return values.map((v) => String(v ?? "").trim()).filter((v) => v !== "");
+}
+
+/**
+ * Every note that lists `key`, in the order the notes were given. Plural on
+ * purpose: a source is legitimately held by the capture that stored it AND by
+ * every synthesis that drew on it, and the caller should cite the right one.
+ * The comparison is whole-string equality — a key that merely starts like
+ * another one is a different source, which is the false hit ADR 0041 §5 forbids.
+ */
+export function notesHoldingSource(notes, key) {
+  return notes.filter((note) => noteSources(note.frontmatter).includes(key)).map((note) => note.path);
+}
+
+/**
+ * The frontmatter value a producer writes: an inline list, deduplicated, in the
+ * order the note drew on its sources. Refuses anything the composer could not
+ * have produced — a hand-written key matches nothing, so it is not a weaker
+ * claim but a silent no-op wearing the shape of one.
+ */
+export function renderSourcesField(keys) {
+  for (const key of keys) {
+    if (!isSourceKey(key)) {
+      throw new Error(
+        `${JSON.stringify(key)} is not a source key, so it cannot go in "${SOURCES_FIELD}": ` +
+          `compose it with sourceKey({ type, … }) — a key nothing can match is worse than none.`,
+      );
+    }
+  }
+  return `[${[...new Set(keys)].join(", ")}]`;
+}

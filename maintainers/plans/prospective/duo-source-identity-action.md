@@ -91,16 +91,36 @@ The analysis was already done and measured (parent plan); what is missing is cod
       id invents a collision between two different documents — a false "already held", which is the
       silent loss ADR 0041 §5 forbids; keeping the case of a subject line invents a miss, which is
       merely a duplicate. The two rules point in opposite directions because the two failures do.
-- [ ] **1.2** `scripts/known-source.mjs`: the entry point. Reads a key on argv and answers **"does
+- [x] **1.2** _(2026-09-02, 10 tests)_ `scripts/known-source.mjs`: the entry point. Reads a key on argv and answers **"does
       ANY note list this source?"** — it **scans the vault's note frontmatter** (never the index: a
       note that arrived by git seconds ago is not indexed yet, and an index-backed check would
       answer "never seen" precisely in the duo case it exists for), prints one line, **exits
       non-zero on a hit**. Same shape as the check the skill already
       calls for Slack (`set-universe-profile.mjs --check-slack`): pre-authorized, greppable.
-- [ ] **1.3** Tested **as a process** (rules/testing.md entry-point seam rule), not only through its
-      imported functions.
+      **Three exit codes, not two, and that is a change from the plan** — see the note below.
+      Listed in `engine-manifest.json`'s `replace` regime, like every other top-level entry point,
+      so a deployed brain receives it at its next engine update.
+- [x] **1.3** _(2026-09-02)_ Tested **as a process** (rules/testing.md entry-point seam rule), not only through its
+      imported functions: a real temp brain, a note inside a universe subtree, a human subject with
+      spaces and punctuation surviving the command line, and a brain with no vault at all.
 - [ ] **1.4** Mutation run on both new files, results appended to `maintainers/mutation/RESULTS.md`
       newest-first.
+
+> 🚦 **The exit codes are THREE, and the third one is the safety of the whole chantier.**
+> `0` not held (or could not find out) → capture · `1` already held → go and read the note it names ·
+> `2` **the question itself is broken** (unknown source type, missing field, malformed key). The plan
+> said "non-zero on a hit", and a caller that tested only *non-zero* would let a **typo in its own
+> arguments cancel a real capture** — a silent loss, which is exactly the direction ADR 0041 §5
+> forbids. So a broken question is loud, on stderr, with its own code; an *answer* always goes to
+> stdout. Same reason an unreadable vault answers `0` and says "could not find out": failing towards
+> a duplicate is failing towards something greppable.
+>
+> 🔎 **A stray observation, his to act on or ignore**: the plan calls this shape "pre-authorized", on
+> the model of `set-universe-profile.mjs --check-slack`. In fact **no engine script is in the shipped
+> permission allowlist today** — `.claude/settings.json.template` allows `node --import tsx --test`
+> and nothing else of the kind, so every one of these checks asks the owner once. Nothing was changed
+> here: adding this one script and not its eight siblings would be arbitrary, and the permission list
+> is the owner's surface.
 
 ### 2. The writer guard — the deterministic path cannot write a known duplicate
 
