@@ -14,58 +14,52 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 7 — the rehearsal on a COPY of a real brain, driven by the old engine
-  (`maintainers/qa/field-rehearsal/rehearse.mjs`). It is the acceptance test of the whole
-  chantier, and the first place any of this meets a brain that was not built by a fixture.
-  Steps 1 to 6 are done and green: the merge rule, the tick, the gate, the entry point driven
-  **as a process** on a real repo with a local remote, the clock in the search server with its
-  knob and its shutdown, the announcement that reaches the conversation at the owner's next
-  message, the banner for notes written by someone else, and the doctrine and docs that say so.
-- ⏸️ **Step 7 is ON HOLD at the owner's request** _(2026-09-02 morning)_. He needs his own brain for
-  something important today, and does not want a trial running beside it. **Nothing may be launched
-  against any brain of his until he says go**, the rehearsal included. Worth having written down for
-  whoever resumes: the fear he named — merges landing on his other machine — is not reachable from
-  here — **but only once the remote question is settled, and it was not**. He pushed back on exactly
-  that: a sync test is made of pushes and pulls, so it needs a remote, and pointing one at his own
-  would land the test's commits in his repository and on his other machine. The answer, now written
-  into step 7 where it is load-bearing: the remote is a bare repository created in the work
-  directory, never his. With that, the copy still has nothing that reaches him, and the feature is
-  not released either, so no brain of his is running it. Say that when he asks, do not act on it.
-- 🚧 **And even with his go, step 7 needs a permission this session does not have** _(2026-09-02)_.
-  An unattended session
-  cannot launch the rehearsal: the sandbox refuses any command that reaches a brain folder under
-  the owner's home, in either spelling tried. Nothing about the harness is at fault — it only ever
-  **reads** the original (`.git`, `node_modules` and `.cache` are skipped, so the copy has no
-  remote and a push home is not expressible), and every write lands in a temp dir. **What lifts
-  it:** the owner runs the one line himself, or approves it once. The brain to aim at is
-  `~/mind-palace` — it is the one with a remote and two machines, and its installed engine
-  (`scripts` 1.14.0) is exactly the version the fleet would update **from**:
-  `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. Steps 7.2 to 7.4 run
-  on the copy that command produces, so they are behind the same door; 7.5 needs the second
-  machine and is his either way.
-- 🔕 **The mutation run was raising REAL desktop banners on the owner's machine, and he is the one
-  who noticed** _(2026-09-02, `73a2379`)_. The suite runs the real entry point, which ends in a real
-  native notification; one suite run raises a handful, and a mutation run raises one per mutant.
-  Fixed on both halves — the process fixture passes the engine's quiet switch, and `realTickDeps`
-  now takes the spawn as a seam so the wiring is asserted on the request rather than on the screen.
-  The durable half is carved in `CONVENTIONS.md` §5ter as its own numbered rule: **anything that can
-  surface outside the process is injected in tests, never merely switched off** — a switch is one
-  mutant away from being on. ⚠️ **The recheck run was killed for this and must be started again**;
-  the 86.17 % below is still the last honest number.
-- **2.7, first pass measured: 86.17 %** over the six files of this chantier _(2026-09-02,
-  `maintainers/mutation/reports/sync-84-batchA.log`)_ — `gitignore-entry` 100 %, `remote-sync`
-  92.44 %, the entry 91.98 %, `os-banner` 88.35 %, `remote-arrivals` 79.87 %, and the **gate at
-  67.74 %**, which is the piece that decides whether a machine ticks at all. Survivors closed and
-  pushed as `6b5bbd9` (CI green); a recheck run is measuring the new score, into
-  `reports/sync-84-recheck.log`. **What remains of 2.7 once it lands**: one line per file in
-  `maintainers/mutation/RESULTS.md`, newest-first, with the accepted equivalents named rather than
-  implied. Two survivors are known to be unkillable without a seam nobody should add — an
-  `openSync` error that is not `EEXIST`, and the staging file a failed trace write leaves behind —
-  and they belong in that line as equivalents, not as silence.
+**Steps 1 to 6 are done, green and pushed** (CI read on each): the merge rule, the tick, the gate,
+the entry point driven **as a process** on a real repo with a local remote, the clock in the search
+server with its knob and its shutdown, the announcement that reaches the conversation at the owner's
+next message, the banner for notes written by someone else, and the doctrine and docs that say so.
+Two things are open, and only one of them is mine to move.
+
+- 🔬 **IN FLIGHT — the mutation recheck** _(started 2026-09-02, ~1 h 30, the owner watching)_, into
+  `maintainers/mutation/reports/sync-84-recheck.log`, over the six files of this chantier:
+  `scripts/remote-sync.mjs`, and in `scripts/lib/` `remote-sync.mjs`, `remote-sync-gate.mjs`,
+  `gitignore-entry.mjs`, `remote-arrivals.mjs`, `os-banner.mjs`. **On resuming: read that log.**
+  The first pass read **86.17 %** (`reports/sync-84-batchA.log`) — `gitignore-entry` 100 %,
+  `remote-sync` 92.44 %, the entry 91.98 %, `os-banner` 88.35 %, `remote-arrivals` 79.87 %, and the
+  **gate at 67.74 %**, the piece that decides whether a machine ticks at all. Its survivors were
+  closed in `6b5bbd9`. **What still owes writing, and is the whole of what remains in 2.7**: one
+  line per file in `maintainers/mutation/RESULTS.md`, newest-first, with the accepted equivalents
+  **named rather than implied** — two are known and unkillable without a seam nobody should add: an
+  `openSync` error that is not `EEXIST`, and the staging file a failed trace write leaves behind.
+- ⏸️ **WAITING ON THE OWNER — step 7, the rehearsal.** It is the acceptance test of the whole
+  chantier, and the first place any of this meets a brain that was not built by a fixture. Two
+  separate reasons it has not run, and BOTH must lift:
+  1. **He asked for it to wait** _(2026-09-02 morning)_ — he needed his own brain that day. Nothing
+     may be launched against any brain of his until he says go.
+  2. **An unattended session cannot start it anyway**: the sandbox refuses any command reaching a
+     brain folder under his home, in both spellings tried. What lifts it is him running the line, or
+     approving it once. Nothing about the harness is at fault — it only ever **reads** the original,
+     and skips `.git`, so the copy has no remote and a push home is not expressible.
+
+  The brain to aim at is `~/mind-palace`, and not another: it is the one with a remote and two
+  machines, and its installed engine (`scripts` 1.14.0) is the version the fleet would update
+  **from**. `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. Steps 7.2 to
+  7.4 run on the copy that command produces; 7.5 needs the second machine and is his either way.
+  🛑 And the question he asked, which the plan had not answered: **a sync test is made of pushes and
+  pulls, so it needs a remote — that remote is a bare repository created in the work directory,
+  NEVER his.** The reasoning is at step 7, where it is load-bearing.
+- 🔕 **A rule this chantier bought, the hard way** _(2026-09-02, `73a2379`, then `a04011a`)_. The
+  mutation run raised REAL desktop banners on the owner's machine — one per arrival test, once per
+  mutant — and **he is the one who noticed**. The suite runs the real entry point, which ends in a
+  real native notification. Fixed on both halves (the process fixture passes the engine's quiet
+  switch; `realTickDeps` takes the spawn as a seam, so the wiring is asserted on the request rather
+  than on the screen), and the durable half is carved in `CONVENTIONS.md` §5ter as its own numbered
+  rule: **anything that can surface outside the process is injected in tests, never merely switched
+  off** — a switch is one mutant away from being on.
 - **3.6** (the `engineVersion` bump) trails deliberately, moved to step 8 — see there for why.
-  The POC is closed: the `FileChanged`
-  hook runs code but cannot speak to the conversation, so the immediate display falls back to
-  the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
+  The POC is closed: the `FileChanged` hook runs code but cannot speak to the conversation, so the
+  immediate display falls back to the native banner (5.2) and the next-message announcement (4);
+  5.1 is dropped.
 - **Three things step 2.4 changed that were not in the plan** _(2026-09-02, all test-first,
   each with its own commit)_:
   1. **Arrivals are read from `ORIG_HEAD..@{u}`, not `ORIG_HEAD..HEAD`.** A rebase replays the
