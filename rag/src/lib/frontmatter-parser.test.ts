@@ -284,3 +284,34 @@ test("returns the body content with the frontmatter stripped", () => {
   assert.equal(parsed.content.trim(), "hello world");
   assert.equal(parsed.frontmatter.title, "T");
 });
+
+// --- sources: the MACHINE identity of what a note was captured from (ADR 0041) ---
+// Beside `source_url`, and doing a different job: `source_url` is a link a human
+// clicks, `sources` is a list of normalized keys a machine compares. The parser
+// exposes it the way it exposes sourceUrl, so retrieval, citation and consolidation
+// can read it without re-parsing the file.
+
+test("exposes the sources list a captured note carries", () => {
+  const raw =
+    "---\ntitle: Invoice\nsources: [mail|billing@example.com|20260902T161932Z|your-invoice-is-ready, slack|C0CEQ4R5E|1725283200.001200]\n---\n";
+
+  const parsed = parseDocument(raw, "raw-sources/2026-09-02-invoice.md");
+
+  assert.deepEqual(parsed.sources, [
+    "mail|billing@example.com|20260902T161932Z|your-invoice-is-ready",
+    "slack|C0CEQ4R5E|1725283200.001200",
+  ]);
+});
+
+test("a lone key needs no list to be one source", () => {
+  const raw = "---\ntitle: Invoice\nsources: drive|1A2b3C4d\n---\n";
+
+  assert.deepEqual(parseDocument(raw, "raw-sources/x.md").sources, ["drive|1A2b3C4d"]);
+});
+
+// 🛑 A note written before this decision claims NOTHING, and an empty list is what
+// that must look like to a reader — never a claim to have drawn on nothing.
+test("sources is empty for every note written before the decision", () => {
+  assert.deepEqual(parseDocument("---\ntitle: Plain\n---\n# Plain\n", "topics/plain.md").sources, []);
+  assert.deepEqual(parseDocument("# No frontmatter at all\n", "daily/2026-09-02.md").sources, []);
+});

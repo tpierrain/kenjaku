@@ -149,8 +149,14 @@ The analysis was already done and measured (parent plan); what is missing is cod
       product localization (rules/language.md): translated, not anglicized. **Owner-only per the
       autonomy line above: leave this box UNTICKED, note beside it that the English twin is ready,
       and DO NOT write it.**
-- [ ] **3.4** The linter accepts `sources` (`scripts/lib/wiki-lint.mjs`), and the frontmatter
+- [x] **3.4** _(2026-09-02)_ The linter accepts `sources` (`scripts/lib/wiki-lint.mjs`), and the frontmatter
       parser exposes it (`rag/src/lib/frontmatter-parser.ts`) the way `sourceUrl` already is.
+      **The linter needed no change** — it checks that required keys are PRESENT and is indifferent
+      to any others — so what landed there is a **non-regression assertion**, not a fix: it pins the
+      indifference, so a future required-key list cannot start complaining about a field the engine
+      itself writes (the permanent, unclearable complaint §5quater forbids). The parser half was a
+      real change, test-first: a lone key needs no list to be one source, and a note written before
+      this decision exposes an **empty** list, which reads as UNKNOWN and never as "drew on nothing".
 
 ### 4. Per-person paths — two syntheses of one day stop colliding
 
