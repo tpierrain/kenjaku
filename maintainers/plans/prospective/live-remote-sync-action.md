@@ -132,15 +132,21 @@ measurements only the owner's own machines can make.**
     and **shared by construction** — one object on one server, not two copies. Only mail needs the
     composite. Calendar even reads **across accounts** (`calendarId` takes an email address), which
     is what delegation failed to be for mail.
-  - ▶️ **Next**: open the chantier's own plan file (it is no longer a candidate), sequence it
-    against step 8, and settle the release number — it now covers two features, not one.
+  - ▶️ **The chantier has its own plan now**:
+    [`duo-source-identity-action.md`](duo-source-identity-action.md) _(opened 2026-09-02)_. It is a
+    **sub-plan reached through this one**, it owns its own state, and **it blocks step 8**. It was
+    written to be run autonomously overnight from a cleared context, and it carries the two design
+    calls taken without him. The release number is still the owner's, and it now covers two
+    features, not one.
   Shaping, risks and the measurement live in § Why no duo mode → *"But two people on one brain CAN
   digest the same source twice"* and its subsections; this line restates none of it.
   decision 3; which tag it is gets settled at step 8 against the v5.1 promise in
   [`clear-the-tracker-action.md`](clear-the-tracker-action.md)).
 - **A session may, alone:** run steps 0 to 7 test-first end to end, on this branch, pushing
-  every green commit and reading its CI. Not: tag, publish, push to `main`, write into
-  `templates/fr/**`, or write into either of the owner's real brains.
+  every green commit and reading its CI — **and, since 2026-09-02, every step of the sub-plan
+  [`duo-source-identity-action.md`](duo-source-identity-action.md)**, which now stands between this
+  plan and its step 8. Not: tag, publish, push to `main`, write into `templates/fr/**`, or write
+  into either of the owner's real brains.
 
 ## Tracking
 
@@ -364,6 +370,11 @@ a real brain.
       machines without stopping to ask for a passphrase.
 
 ### 8. Release
+
+> ⛔ **Blocked until the sub-plan lands.** By the owner's decision of 2026-09-02 this release ships
+> **two** features, not one: live sync, and the duo-mode duplication work of
+> [`duo-source-identity-action.md`](duo-source-identity-action.md). Its § *What is deliberately NOT
+> in this plan* is the honest perimeter to describe at 8.2.
 
 - [ ] **8.1** Marketing-surface re-read (CONVENTIONS §10): README, EN-QUOI-C-EST-DIFFERENT,
       SETUP, CONNECTORS, boards; verdicts recorded here.
