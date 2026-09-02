@@ -15,8 +15,9 @@ the owner's decision).
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-02
 
-**Nothing is built yet. Step 0 is the ADR, and it is the first thing to do.** The analysis is done
-and measured (parent plan); what is missing is code.
+**Step 0 is DONE — ADR 0041 is written** _(2026-09-02)_. The next thing is **step 1, the lookup**:
+`scripts/lib/source-key.mjs` (pure) then `scripts/known-source.mjs` (the entry, tested as a process).
+The analysis was already done and measured (parent plan); what is missing is code.
 
 - 🌙 **This plan was written to be executed AUTONOMOUSLY, overnight, from a cleared context**
   _(the owner's instruction, 2026-09-02, before going to bed)_. Read the parent plan's
@@ -43,26 +44,42 @@ and measured (parent plan); what is missing is code.
 
 ### 0. The ADR — what a source identity IS, decided once
 
-- [ ] **0.1** `maintainers/decisions/0041-a-captured-source-carries-its-identity.md`, with the
+- [x] **0.1** _(2026-09-02)_ `maintainers/decisions/0041-a-captured-source-carries-its-identity.md`, with the
       `Scope:` field (§6), the Crux block first (§6quater), and the prior art named (§6quinquies:
-      this is content-addressing applied to captures; the Notion mirror already does it).
-- [ ] **0.2** The ADR carries **the key table** — reproduced from the parent plan's measurement, one
-      row per source type, and the rule that **an absent key means UNKNOWN, never "already seen"**.
-- [ ] **0.3** It states the **two fields and their two jobs**: `sources` (a **LIST** of normalized
+      this is content-addressing applied to captures; the Notion mirror already does it). Prior art
+      named twice over: the lockfile / `Message-ID` / git-blob family in the Crux, and **ADR 0023**
+      (canonicalize before you compare) as the in-repo precedent for normalizing a volatile string
+      before it is used as an identity.
+- [x] **0.2** _(2026-09-02)_ The ADR carries **the key table** — reproduced from the parent plan's measurement, one
+      row per source type, and the rule that **an absent key means UNKNOWN, never "already seen"**
+      (§ 3, with the reason: every note in every existing vault is in that state).
+- [x] **0.3** _(2026-09-02)_ It states the **two fields and their two jobs**: `sources` (a **LIST** of normalized
       keys, machine, what dedup reads) and `source_url` (human, clickable, what the citation
       renderer already reads — `rag/src/lib/citation-renderer.ts`). A note may carry one, both, or
       neither. **A list, not a single key — see § A note has SOURCES, plural.**
-- [ ] **0.4** It states the **failing direction**: the check may only ever SAY "already held" and
+- [x] **0.4** _(2026-09-02)_ It states the **failing direction**: the check may only ever SAY "already held" and
       leave the skip visible. A silent skip trades a duplicate for a loss, and a loss cannot be
       noticed from inside the vault.
-- [ ] **0.5** It states what "already held" **means for the second brain**, which is not "discard":
+- [x] **0.5** _(2026-09-02)_ It states what "already held" **means for the second brain**, which is not "discard":
       **do not re-capture, go read what the vault already wrote from that source** — and enrich that
       note if the second person's question needs something the first did not extract. That is the
       whole value of sharing a brain, and it is the opposite of throwing work away.
-- [ ] **0.6** It records the **partial-digestion edge**: a Slack thread digested at 8 messages and
+- [x] **0.6** _(2026-09-02)_ It records the **partial-digestion edge**: a Slack thread digested at 8 messages and
       met again at 20 has the same thread id and different content. So a thread is keyed by its
       **messages**, not by the thread, or the record says how far it went. A recorded "already seen"
       is a measurement with an expiry, like every other one in this repo.
+
+> 🔤 **The ADR settled one thing the plan had not, and it is load-bearing: the SPELLING of a key.**
+> `type|field|field`, each field normalized to `[a-z0-9._@+-]`, everything else collapsed to `-`.
+> That is not cosmetics — it makes a key safe in a YAML **inline** list (the only list shape the
+> brain's own dependency-free frontmatter reader parses), safe as **one** shell argument, and
+> greppable. It is why no key may contain a comma or a colon, and why a calendar or mail timestamp is
+> written in the basic ISO form (`20260902T161932Z`).
+>
+> ⚠️ **And one homonym to keep straight**: a *filing spec* already has a `sources` field, and it means
+> something else entirely (the tier of material the note rests on — verbatim, human synthesis, AI
+> synthesis). The machine identity therefore travels through a spec as **`sourceKeys`** and lands in
+> the note's frontmatter as **`sources`**. The two never meet in one field.
 
 ### 1. The lookup — "do I already hold this source?", deterministically
 
