@@ -320,6 +320,12 @@ edit. The repo already owns the vocabulary for that split: `RAW_CAPTURE_ZONES` i
       note" — **true when the rule covered every note, false the moment it stopped**. Rewritten in
       plain words: keep-both applies where you only ever ADD; anything you REWRITE stops and asks.
       No French twin exists for `SETUP.md`, so this one was free to fix.
+      **The other carriers were checked and need nothing**, which is worth recording so the release's
+      §10 re-read does not have to re-derive it: `README.md` promises exactly *"two notes added the
+      same afternoon to the same daily note merge by themselves"* — a daily note, i.e. a zone the
+      narrowed rule still covers, so the sentence stays true word for word. The other `merge` hits in
+      `README.md` and `EN-QUOI-C-EST-DIFFERENT.md` are about the **engine skill** merge, a different
+      mechanism entirely.
 
 ### 5. The doctrine — what duo mode does and does NOT cover
 
