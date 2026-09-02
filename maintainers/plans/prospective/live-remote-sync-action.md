@@ -21,7 +21,14 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
   **as a process** on a real repo with a local remote, the clock in the search server with its
   knob and its shutdown, the announcement that reaches the conversation at the owner's next
   message, the banner for notes written by someone else, and the doctrine and docs that say so.
-- 🚧 **Step 7 is BLOCKED on a permission, not on code** _(2026-09-02)_. An unattended session
+- ⏸️ **Step 7 is ON HOLD at the owner's request** _(2026-09-02 morning)_. He needs his own brain for
+  something important today, and does not want a trial running beside it. **Nothing may be launched
+  against any brain of his until he says go**, the rehearsal included. Worth having written down for
+  whoever resumes: the fear he named — merges landing on his other machine — is not reachable from
+  here. The rehearsal copies without `.git`, so the copy has no remote to push to; and this feature
+  is not released, so no brain of his is running it. Say that when he asks, do not act on it.
+- 🚧 **And even with his go, step 7 needs a permission this session does not have** _(2026-09-02)_.
+  An unattended session
   cannot launch the rehearsal: the sandbox refuses any command that reaches a brain folder under
   the owner's home, in either spelling tried. Nothing about the harness is at fault — it only ever
   **reads** the original (`.git`, `node_modules` and `.cache` are skipped, so the copy has no
