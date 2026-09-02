@@ -233,6 +233,37 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #84 — the gate, re-measured after the field rehearsal changed it — 2026-09-02
+
+The rehearsal on a copy of a real brain found a race in `lib/remote-sync-gate.mjs` (three windows
+ticking, two through the gate), so the file below moved after the batch measured it. Re-measured
+because the rule is that a file is judged the day it is written, and this one was written twice.
+
+| Pass | Score | Killed / survived | What changed |
+|---|---|---|---|
+| Before the fix (2.7's recheck) | **83.53 %** | 14 survivors | the batch figure below |
+| After the fix, before new tests | **66.67 %** | 66 / 33 | the fix added a whole branch the suite never reached |
+| After the tests that branch deserved | **83.84 %** | 83 / 16 | back above the baseline, on a bigger file |
+
+**The 66.67 % is the interesting number, and it is exactly what the instrument is for.** The fix
+publishes the lock by writing it elsewhere and hard-linking it into place, with a fallback to the
+old exclusive-create for filesystems without hard links. **Nineteen of the thirty-three survivors
+sat in that fallback** — code no ordinary run reaches, because `link` answers on every filesystem
+this project runs on. A green suite said nothing about it; the score named it in one line.
+
+What closed them, and the shape is worth reusing: the fallback became an **export**, tested on its
+own (it creates AND fills, refuses a taken name without overwriting the holder's record, and lets a
+real failure through instead of reporting it as a lock somebody else holds), and `link` became an
+**injected seam** so the fallback itself is exercised — with the injected link **counted**, or the
+test would pass just as well with no fallback at all. Plus one property nobody had pinned: the
+staging copy does not survive the tick, which is litter in every brain's `.cache/` otherwise.
+
+The sixteen left are the same three shapes as before (an encoding argument replaced by `""`, an
+emptied `catch { return null }`, an `fs` call failing with something other than `EEXIST`), plus one
+new pair that is equivalent by construction: mutating `if (error.code === "EEXIST") return false`
+in the atomic route sends the call into `exclusiveCreate`, which meets the same taken name and
+answers `false` too. Same outcome, two ways.
+
 ## #84 — live sync between machines, the six files it writes — 2026-09-02
 
 State owned by
