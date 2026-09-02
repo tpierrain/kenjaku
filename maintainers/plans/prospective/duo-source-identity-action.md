@@ -342,10 +342,23 @@ This is the honest statement of the perimeter.
 
 - [ ] **6.1** Green suite: `node --test --test-timeout=240000 "scripts/*.test.mjs"
       "scripts/lib/*.test.mjs" "rag/*.test.mjs"`, plus `npm test` and `tsc --noEmit` in `rag/`.
-- [ ] **6.2** A **two-clone rehearsal** in step 7's shape (parent plan): two clones of a scratch
+- [x] **6.2** _(2026-09-03, 16 claims held, 0 failed)_ A **two-clone rehearsal** in step 7's shape (parent plan): two clones of a scratch
       brain, two different `user.name`s, both capturing the *same* fabricated source → the second
       is refused and cites the first; both writing the same day → two files, no collision.
       **On a scratch brain built here, never on either of the owner's real brains.**
+      **Kept as a repeatable harness**, on the model of the field rehearsal beside it:
+      `maintainers/qa/duo-rehearsal/rehearse.mjs` (+ its README). It proves the one thing no unit
+      test can — that **the key one machine writes is the key the other machine composes**, days
+      later, from different raw fields, in another timezone, after a git merge. That agreement lives
+      *between* the parts; each part's own tests prove its end against a fixture.
+      It also walks the narrowed merge rule end to end: two appends to one daily keep both lines,
+      two edits to one person card conflict, name the file exactly as the sync tick reads it, and
+      leave **one** `updated:` line after the abort.
+      ⚠️ **And it made one thing visible that no box had stated**: step 5 only works because the
+      daily note carries an `author:` in its frontmatter. The entry point says so in its own output,
+      and a note claiming nobody falls back to the shared file (today's behaviour, not a breakage) —
+      but **the suffix mechanism is only as live as the caller that stamps the field**, and that
+      caller is the skill blocked with step 3. Recorded in the rehearsal's README.
 - [ ] **6.3** Every push read on CI (`gh run list --branch feat/live-remote-sync`).
 
 ### 7. Hand-back
