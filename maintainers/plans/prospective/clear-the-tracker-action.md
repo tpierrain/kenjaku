@@ -30,6 +30,11 @@
   `templates/fr/**`, or write into either of his two real brains.
 - **One tidy-up is decided and NOT done** — § *The fold that is owed*. Five minutes of editing; it
   belongs to whoever opens v5.2's universe group.
+- 🙋 **ONE THING WAITS ON THE OWNER AND ON NOBODY ELSE** _(2026-09-02)_: **merge
+  [PR #85](https://github.com/tpierrain/kenjaku/pull/85), then dispatch the nightly mutation
+  workflow by hand and READ the score.** Both causes of its fortnight of red are fixed and verified
+  in CI's own shape (§ *Inherited from v5.0.0*), but "dispatch and read before trusting the cron"
+  is the rollout condition that workflow was written with, and no session may declare it met.
 
 > **The two-release split is the owner's, 2026-08-23**: *« ce serait bien de faire une petite issue
 > pour bug fixer les issues remontées par Stefan ces prochains jours (une 5.1), puis de traiter les
