@@ -58,11 +58,24 @@ slack|C0CEQ4R5E|1725283200.001200
 mail|thomas.pierrain@example.com|20260902T161932Z|your-invoice-is-ready
 ```
 
-Each field is normalized before it is joined: trimmed, lowercased where the source is
-case-insensitive, and every character outside `[a-z0-9._@+-]` replaced by a single `-`. The result is
-therefore safe in a YAML inline list, safe as **one** shell argument, and greppable with a plain
-`grep`. Canonicalizing before comparing is the same rule ADR 0023 applies to presigned URLs: two
-spellings of one thing must reduce to one string, or the comparison measures the spelling.
+Each field is normalized before it is joined, and every character outside `[A-Za-z0-9_.@+-]` becomes
+a single `-`. The result carries no comma, no colon, no bracket and no space, so a key is safe in a
+YAML **inline** list, safe as **one** shell argument, and greppable with a plain `grep`.
+Canonicalizing before comparing is the same rule ADR 0023 applies to presigned URLs: two spellings of
+one thing must reduce to one string, or the comparison measures the spelling.
+
+**Two normalizations, pulling in opposite directions on purpose:**
+
+- **An opaque identifier keeps its case.** Drive and Notion identifiers are case-sensitive; folding
+  them would invent a collision between two genuinely different documents, and a collision is a false
+  "already held" — the one direction § 5 forbids.
+- **Human text loses its case, its accents and its punctuation** (a subject line reduces exactly as a
+  title does when it becomes a filename). Keeping them would invent a miss between two spellings of
+  one subject, and a check that never matches is indistinguishable from a check nobody wired up.
+
+An instant is written in the **basic** ISO 8601 form, `20260902T161932Z` — basic rather than extended
+because the extended form carries colons, and a colon is what would make the key unsafe in the very
+list it is written into.
 
 Normalization is **the deterministic side's job, never the model's** (ADR 0009): a caller hands over
 the raw fields it read from a connector, and the code composes the key.

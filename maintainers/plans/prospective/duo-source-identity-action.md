@@ -83,9 +83,14 @@ The analysis was already done and measured (parent plan); what is missing is cod
 
 ### 1. The lookup — "do I already hold this source?", deterministically
 
-- [ ] **1.1** `scripts/lib/source-key.mjs`: the pure, I/O-free core (ADR 0009 rung 1) — normalize a
+- [x] **1.1** _(2026-09-02, 13 tests)_ `scripts/lib/source-key.mjs`: the pure, I/O-free core (ADR 0009 rung 1) — normalize a
       raw source descriptor into a key, one function per source type, plus the mail composite
       (sender + ISO timestamp + subject, each normalized). Tests first.
+      **One design point the plan had not named, and it is the negative pole of the whole chantier:**
+      an **opaque identifier keeps its case** while **human text loses it**. Folding a Drive or Notion
+      id invents a collision between two different documents — a false "already held", which is the
+      silent loss ADR 0041 §5 forbids; keeping the case of a subject line invents a miss, which is
+      merely a duplicate. The two rules point in opposite directions because the two failures do.
 - [ ] **1.2** `scripts/known-source.mjs`: the entry point. Reads a key on argv and answers **"does
       ANY note list this source?"** — it **scans the vault's note frontmatter** (never the index: a
       note that arrived by git seconds ago is not indexed yet, and an index-backed check would

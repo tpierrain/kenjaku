@@ -1,0 +1,140 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// source-key.mjs — the pure, I/O-free core of the source identity (ADR 0041,
+// rung 1 of the determinism ladder). It turns what a connector handed back about
+// a mail, a message, an event or a document into ONE normalized string, so that
+// two brains meeting the same source land on the same key and the duplicate check
+// is a `grep` rather than a judgement call.
+//
+// Two rules do all the work, and they pull in opposite directions on purpose:
+//
+//   - an OPAQUE IDENTIFIER keeps its case. Folding it would invent collisions
+//     between two genuinely different documents, and a collision is a false
+//     "already held" — the one direction ADR 0041 §5 forbids.
+//   - HUMAN TEXT loses its case, its accents and its punctuation. Keeping them
+//     would invent misses between two spellings of one subject, and a check that
+//     never matches is indistinguishable from a check nobody wired up.
+//
+// The result carries no comma, no colon, no bracket and no space — so a key is
+// safe in a YAML inline list (the only list shape note-parse.mjs reads), safe as
+// ONE shell argument, and greppable.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Every character a key may carry inside a field. `|` is the separator and is
+// therefore NOT here; a field that contained one would forge a key of its own.
+const SAFE_IN_FIELD = /[^A-Za-z0-9_.@+-]+/g;
+
+// The identifying fields of each source type, in the order they are joined —
+// ADR 0041's key table, in code. The kind decides which normalizer applies, which
+// is the whole of the case-preserving/case-folding split above.
+const FIELDS = {
+  slack: [["channel", "id"], ["ts", "id"]],
+  calendar: [["event", "id"]],
+  drive: [["file", "id"]],
+  notion: [["page", "id"]],
+  // Mail is the only composite, because it is the only source where each person
+  // holds their OWN copy of the object rather than a view onto one shared object.
+  mail: [["from", "address"], ["date", "timestamp"], ["subject", "text"]],
+};
+
+/** The source types that have an identity at all. Anything else is UNKNOWN, never "already seen". */
+export const SOURCE_TYPES = Object.keys(FIELDS);
+
+// An opaque identifier: whatever the source called it, minus what a key may not
+// carry. Case survives — see the header.
+function normalizeId(raw) {
+  return String(raw).trim().replace(SAFE_IN_FIELD, "-").replace(/^-+|-+$/g, "");
+}
+
+// An email address, out of whatever the connector wrapped it in: `Name <a@b.com>`
+// and `a@b.com` are the same person writing. Lowercased, because mail addresses
+// are compared without regard to case everywhere they are actually used.
+function normalizeAddress(raw) {
+  const text = String(raw).trim();
+  const angled = text.match(/<([^>]*)>/);
+  return normalizeId((angled ? angled[1] : text).toLowerCase());
+}
+
+// Human text — a subject line. Accents stripped and punctuation collapsed, the
+// same reduction slugify performs on a title, so two keyboards spell one subject
+// once. An empty subject is a legitimate mail, not a refusal: it keys as "-".
+function normalizeText(raw) {
+  const slug = String(raw ?? "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug === "" ? "-" : slug;
+}
+
+// The instant, as basic ISO 8601 in UTC to the second: `20260902T161932Z`. Basic
+// rather than extended because the extended form carries colons, and a colon is
+// what would make the key unsafe in the very list it is written into. Two people
+// in two timezones name one instant one way.
+function normalizeTimestamp(raw, type) {
+  const text = String(raw).trim();
+  // Epoch forms first: `Date.parse` answers NaN to a bare number, so a connector
+  // handing back `internalDate` would otherwise read as "names no instant".
+  const ms = /^\d{10}$/.test(text)
+    ? Number(text) * 1000
+    : /^\d{13}$/.test(text)
+      ? Number(text)
+      : Date.parse(text);
+  if (!Number.isFinite(ms)) {
+    throw new Error(
+      `a ${type} source's "date" does not name an instant: ${JSON.stringify(text)}. ` +
+        `Give the sent time as ISO 8601 (2026-09-02T16:19:32Z) or as an epoch in seconds or milliseconds.`,
+    );
+  }
+  return new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+}
+
+/**
+ * The normalized key for one source, e.g.
+ *   { type: "slack", channel: "C0CEQ4R5E", ts: "1725283200.001200" }
+ *     → "slack|C0CEQ4R5E|1725283200.001200"
+ *
+ * Refuses loudly rather than guessing: an unknown type is a typo that would
+ * quietly disable dedup for a whole source, and a missing identifier is a key
+ * nobody can invent. A source with no identity at all is expressed by writing no
+ * key — not by passing a half-filled descriptor.
+ */
+export function sourceKey(descriptor) {
+  const type = String(descriptor?.type ?? "").trim().toLowerCase();
+  const fields = FIELDS[type];
+  if (!fields) {
+    throw new Error(
+      `unknown source type ${JSON.stringify(String(descriptor?.type ?? ""))}: ` +
+        `the sources that carry an identity are ${SOURCE_TYPES.join(", ")}.`,
+    );
+  }
+  const parts = fields.map(([name, kind]) => {
+    if (kind === "text") return normalizeText(descriptor[name]);
+    if (kind === "timestamp") {
+      requirePresent(descriptor[name], name, type);
+      return normalizeTimestamp(descriptor[name], type);
+    }
+    requirePresent(descriptor[name], name, type);
+    const value = kind === "address" ? normalizeAddress(descriptor[name]) : normalizeId(descriptor[name]);
+    requirePresent(value, name, type);
+    return value;
+  });
+  return [type, ...parts].join("|");
+}
+
+// A field that is absent, or that normalizes down to nothing, leaves the source
+// with no identity — and half a key is not one. Named, so the caller learns which
+// field to go and read rather than which line threw.
+function requirePresent(value, name, type) {
+  if (value == null || String(value).trim() === "") {
+    throw new Error(
+      `a ${type} source has no "${name}" — there is no key to compose without it. ` +
+        `A source you cannot identify is UNKNOWN: write no key rather than a partial one.`,
+    );
+  }
+}
+
+/** Whether a string is a key this module could have produced — the shape the frontmatter may carry. */
+export function isSourceKey(value) {
+  return typeof value === "string" && /^[a-z]+(\|[A-Za-z0-9_.@+-]+)+$/.test(value);
+}
