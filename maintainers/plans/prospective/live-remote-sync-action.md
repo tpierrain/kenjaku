@@ -14,13 +14,16 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 4 — the next-message announcement (`prompt-restart-nudge.mjs` reads the trace
-  and hands Claude a directive). Steps 1, 2 and 3 are done and green: the merge rule, the tick,
-  the gate, the entry point driven **as a process** on a real repo with a local remote, its
-  manifest line, its ignore line with the fleet migration, and the clock in the search server
-  with its knob, its jitter and its shutdown. Two things trail behind, both deliberately:
-  **2.7** (the mutation run on the four new files, started 2026-09-02) and **3.6** (the
-  `engineVersion` bump, moved to step 8 — see there for why).
+- **Next:** step 5.2 — the native banner from the tick (macOS `osascript`, Windows toast,
+  otherwise nothing; only for another author's notes, at most one per tick,
+  `REMOTE_SYNC_BANNER=0` disables), through the `notify` port the tick already calls and that
+  `noNotifier` currently fills. Steps 1 to 4 are done and green: the merge rule, the tick, the
+  gate, the entry point driven **as a process** on a real repo with a local remote, the clock
+  in the search server with its knob and its shutdown, and the announcement that reaches the
+  conversation at the owner's next message. Two things trail behind, both deliberately:
+  **2.7** (the mutation run, started 2026-09-02 — and `scripts/remote-sync.mjs` changed after
+  it started, so that one file is owed a re-run) and **3.6** (the `engineVersion` bump, moved
+  to step 8 — see there for why).
   The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
   the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
@@ -161,13 +164,20 @@ a real brain.
 
 ### 4. At the next message, the brain says what arrived, or guides the merge itself
 
-- [ ] **4.1** Failing tests first in `scripts/prompt-restart-nudge.test.mjs`: arrivals → a
+- [x] **4.1** _(2026-09-02)_ Failing tests first in `scripts/prompt-restart-nudge.test.mjs`: arrivals → a
       directive to Claude (≤ 360 chars, files and authors, "say it in one sentence, then
       answer"); blocked → the merge-guidance directive (§ D); nothing new → nothing emitted;
-      `announcedAt` written once; no `git`, no network in the hook.
-- [ ] **4.2** `scripts/lib/remote-arrivals.mjs`: pure reader and formatter of the trace, using
-      `plural.mjs` for agreement (no hand-rolled `(s)`).
-- [ ] **4.3** `scripts/prompt-restart-nudge.mjs` reads the trace after the restart flag and emits
+      `announcedAt` written once; no `git`, no network in the hook. Plus: a restart pending
+      **and** an arrival ride in ONE payload (`additionalContext` is a string, not a list),
+      blocker first; and a stamp that cannot be written still lets the announcement out.
+- [x] **4.2** _(2026-09-02, 18 tests)_ `scripts/lib/remote-arrivals.mjs`: pure reader and formatter of the trace, using
+      `plural.mjs` for agreement (no hand-rolled `(s)`). It also became the **one owner of the
+      trace's bytes** — `buildTrace` moved here out of the entry point, because the writer and
+      the reader are two top-level scripts and those may not import each other. Two truths the
+      formatter refuses to blur: a pulled engine file is never called a note, and a list that
+      would overflow the budget gives up its names one at a time rather than truncate the
+      instruction.
+- [x] **4.3** _(2026-09-02)_ `scripts/prompt-restart-nudge.mjs` reads the trace after the restart flag and emits
       the directive in the same `hookSpecificOutput.additionalContext` channel.
 
 ### 5. The arrival shows at once, and a banner reaches the person even in another app

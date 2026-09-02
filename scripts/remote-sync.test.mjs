@@ -24,7 +24,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { brainRoot, buildCheckNote, buildGit, buildGitInvocation, buildPush, buildTrace, gitEnv, minGapMsFrom, noNotifier, realTickDeps } from "./remote-sync.mjs";
+import { brainRoot, buildCheckNote, buildGit, buildGitInvocation, buildPush, gitEnv, minGapMsFrom, noNotifier, realTickDeps } from "./remote-sync.mjs";
 import { engineParser } from "./lib/vault-write-guard.mjs";
 import { LAST_TICK_FILE } from "./lib/remote-sync-gate.mjs";
 
@@ -417,27 +417,9 @@ test("buildPush skips on each missing condition, and reports a refused push as f
   assert.equal(push({ push: { out: "rejected", ok: false } }), "failed", "the next tick retries; a hook never shouts");
 });
 
-test("buildTrace reads nothing when there is nothing, and round-trips what it wrote", (t) => {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), "remote-sync-trace-")));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
-  const trace = buildTrace(root);
-  const written = { arrivedAt: "2026-09-08T09:00:00.000Z", files: ["vault/a.md"], authors: ["Claire"], blocked: null, announcedAt: null };
-
-  assert.equal(trace.read(), null, "an absent trace is 'nothing arrived', never a crash");
-
-  trace.write(written);
-  assert.deepEqual(trace.read(), written);
-  assert.deepEqual(JSON.parse(readFileSync(join(root, "remote-arrivals.json"), "utf8")), written);
-  assert.deepEqual(readdirSync(join(root, ".cache")), [], "the temp file of the atomic rename is gone, and never sat at the root");
-});
-
-test("buildTrace reads a damaged trace as nothing: a corrupt file must not stop syncing forever", (t) => {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), "remote-sync-trace-")));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
-  writeFileSync(join(root, "remote-arrivals.json"), "{ not json");
-
-  assert.equal(buildTrace(root).read(), null);
-});
+// The trace's own read/write moved to `lib/remote-arrivals.mjs` — the announcement hook reads
+// the very bytes this entry writes, and two top-level scripts may not import each other. Its
+// tests moved with it, to `lib/remote-arrivals.test.mjs`.
 
 test("buildCheckNote judges through the ENGINE's own parser: the header the indexer refuses is refused here", NEEDS_ENGINE_PARSER, (t) => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), "remote-sync-check-")));

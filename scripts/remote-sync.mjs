@@ -31,21 +31,22 @@
 //   • the notifier is a NAMED no-op until step 5.2 fills it with the OS banner.
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+// The trace is READ by the announcement hook and WRITTEN here, so it belongs to neither:
+// two top-level scripts may not import each other (the cross-version trap), and one shared
+// lib module is how they agree on the same bytes.
+import { buildTrace, CACHE_DIR } from "./lib/remote-arrivals.mjs";
 import { shouldPush } from "./lib/git-push.mjs";
-import { DEFAULT_INTERVAL_MS, TRACE_REL, runTick } from "./lib/remote-sync.mjs";
+import { DEFAULT_INTERVAL_MS, runTick } from "./lib/remote-sync.mjs";
 import { openTickGate } from "./lib/remote-sync-gate.mjs";
 import { engineParser, frontmatterVerdict } from "./lib/vault-write-guard.mjs";
 
 /** A git that stopped to ask a question is killed at this point, and the tick is missed. */
 export const GIT_TIMEOUT_MS = 20_000;
-
-/** Where the per-machine gate and the atomic-rename staging area live (gitignored). */
-export const CACHE_DIR = ".cache";
 
 /**
  * The environment every child `git` runs under. It INHERITS (a git with no PATH
@@ -118,39 +119,6 @@ export function minGapMsFrom(env) {
 /** Is git holding the index right now (an auto-commit mid-flight)? */
 export function buildIndexLockPresent(brainDir) {
   return () => existsSync(join(brainDir, ".git", "index.lock"));
-}
-
-/**
- * The trace the announcement path reads, at the brain ROOT (a watcher only sees root
- * files, POC 0.1) and gitignored. Written by ATOMIC RENAME so a reader never catches
- * half a file: the staging copy is made under `.cache/`, which keeps the brain root
- * free of a stray `.tmp` a crash could leave behind — and the rename stays on one
- * filesystem, since both live inside the brain.
- */
-export function buildTrace(brainDir) {
-  const path = join(brainDir, TRACE_REL);
-  const staging = join(brainDir, CACHE_DIR, `${TRACE_REL}.tmp`);
-  return {
-    read() {
-      try {
-        return JSON.parse(readFileSync(path, "utf8"));
-      } catch {
-        // Absent, or damaged: both mean "nothing to carry over". A corrupt trace must
-        // not be the reason a brain stops syncing.
-        return null;
-      }
-    },
-    write(trace) {
-      mkdirSync(dirname(staging), { recursive: true });
-      writeFileSync(staging, `${JSON.stringify(trace, null, 2)}\n`, "utf8");
-      try {
-        renameSync(staging, path);
-      } catch (error) {
-        rmSync(staging, { force: true });
-        throw error;
-      }
-    },
-  };
 }
 
 /**

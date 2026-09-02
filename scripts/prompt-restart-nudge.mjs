@@ -14,14 +14,21 @@
 // that lever is deliberately not used, because a wrong verdict would lock an owner
 // out of their own brain, while a wrong sentence costs them one sentence.
 //
-// The words live in lib/restart-nudge.mjs, the disk verdict in lib/restart-signal.mjs.
-// This file is only the contract with the harness.
+// It carries a SECOND message now (plan #84): what the live sync pulled in while
+// nobody was typing. Same reasoning, one door further — the search server that
+// ran the sync cannot speak into a conversation at all, so the news waits on disk
+// until the owner's next message, which is this event.
+//
+// The words live in lib/restart-nudge.mjs and lib/remote-arrivals.mjs, the disk
+// verdicts in lib/restart-signal.mjs and the arrivals trace. This file is only the
+// contract with the harness.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { restartPromptDirective } from "./lib/restart-nudge.mjs";
+import { buildTrace, markAnnounced, remoteArrivalsDirective } from "./lib/remote-arrivals.mjs";
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
@@ -31,25 +38,53 @@ export const realNudgeDeps = {
   // scripts/), never from the hook's cwd — same rule as auto-commit.mjs.
   brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   pending: (repo) => restartPendingOnDisk({ repo, deriveWanted, existsSync, readFileSync }),
+  trace: (repo) => buildTrace(repo),
+  now: () => new Date(),
   emit: (payload) => console.log(JSON.stringify(payload)),
 };
 
 /**
- * Asks whether a restart is pending and, if so, injects the directive. Always returns 0:
- * this hook sits in front of every prompt the owner types, so its own breakage must never
- * become theirs — an unreadable brain, a hiccup in the verdict, anything unexpected leaves
- * the prompt untouched, in silence.
+ * Asks the two questions this hook exists for and injects what they answer. Always returns
+ * 0: it sits in front of every prompt the owner types, so its own breakage must never become
+ * theirs — an unreadable brain, a hiccup in a verdict, anything unexpected leaves the prompt
+ * untouched, in silence.
+ *
+ * The two are read in the order they matter. A pending restart is a BLOCKER — this
+ * conversation is running code that is no longer on disk — while an arrival is news. They
+ * ride in one payload because `additionalContext` is one string, not a list.
+ *
+ * The second question is the live sync's (plan #84): the tick pulled while nobody was
+ * typing and has no way to say so — the search server cannot speak into a conversation.
+ * The trace is stamped as announced right after, so the same notes are named once and not
+ * at every message for the rest of the session. The stamp is best-effort: a brain whose
+ * disk refuses the write still gets its announcement, and simply gets it again later.
  */
 export function runPromptNudge(deps = realNudgeDeps) {
   try {
-    const directive = restartPromptDirective(deps.pending(deps.brainDir()));
+    const repo = deps.brainDir();
+    const restart = restartPromptDirective(deps.pending(repo));
+    const trace = deps.trace(repo);
+    const arrived = trace.read();
+    const arrivals = remoteArrivalsDirective(arrived);
+
+    const directive = [restart, arrivals].filter(Boolean).join("\n\n");
     if (directive) {
       deps.emit({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: directive } });
     }
+    if (arrivals) stampQuietly(trace, arrived, deps.now());
   } catch {
     // Silent by design: see the doc comment above.
   }
   return 0;
+}
+
+/** Records that the arrivals were said. A failure here costs a repeat, never the message. */
+function stampQuietly(trace, arrived, at) {
+  try {
+    trace.write(markAnnounced(arrived, at));
+  } catch {
+    // Best-effort: the announcement already went out, and the next tick rewrites the trace.
+  }
 }
 
 // runPromptNudge's own parameter is `deps` (defaulted to realNudgeDeps), not argv — so it
