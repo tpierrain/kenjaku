@@ -510,8 +510,32 @@ Then two things it cannot do for you:
 
 That first rooted session is also what **indexes the vault** — a clone carries your notes but not the
 index (`rag/.cache` is local). So a first-session banner announcing an empty index is expected, not a
-defect: let the indexing run. Afterwards, during a session, the `/sync` skill brings in the changes
-made on the other machine.
+defect: let the indexing run.
+
+### While you work — the two brains keep themselves in step
+
+Once a remote is wired, your brain **checks on its own** whether the other machine pushed anything,
+about every minute and a half, for as long as a window is open. What it finds, it brings in and
+indexes; then it tells you at your **next message** ("2 notes from Claire arrived: …"), and shows a
+small notification on your computer when the notes were written by **someone else** — so you see it
+even if Claude's window is behind another app. Nothing runs when no window is open, and nothing is
+downloaded when nothing changed: the check asks the remote for one reference and stops there.
+
+Two notes appended the same afternoon, on both machines, to the **same** daily note **merge on their
+own** — both contributions kept, nobody asked anything. When a merge genuinely needs a hand (the same
+line changed two ways, a file that is not a note), your brain says so at your next message and walks
+you through it; the `/sync` skill is still there if you would rather do it yourself, at your moment.
+
+> Both knobs live in `.env` and neither is required: `REMOTE_SYNC_INTERVAL` (seconds, `0` turns the
+> automatic check off and leaves you the session-start catch-up and `/sync`) and `REMOTE_SYNC_BANNER`
+> (`0` keeps the sync and drops the notification).
+
+> 🔐 **What sharing one repository means, plainly.** A brain's repository holds your notes **and the
+> code your brain runs** (`scripts/`, `rag/`). So anyone you let push to it can, in principle, have
+> code run on your machine at your next session. That has been true since the day you wired a remote,
+> and it is why the repository is **private**: the fence is its collaborator list. Sharing a brain
+> with a colleague is a real decision — the same one as sharing a machine, not the one as sharing a
+> document.
 
 > 🧭 **The universe you are working in travels too** (if you use several — see §5). Switch context on
 > one computer and the others land in it at their next sync, and say which one they are in when the

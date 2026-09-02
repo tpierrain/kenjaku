@@ -13,7 +13,11 @@
   [`0009-prefer-deterministic-mechanisms.md`](0009-prefer-deterministic-mechanisms.md)
   (which already lists `auto-commit.mjs` and `reindex-scheduler.ts` as **two distinct rungs** — this
   ADR *names* that split as a decision), [`0010-debounce-auto-push-to-stop-hook.md`](0010-debounce-auto-push-to-stop-hook.md)
-  (same "the **event** is the debounce, not a daemon-timer" reasoning).
+  (same "the **event** is the debounce, not a daemon-timer" reasoning),
+  [`0032-local-mirror-session-scoped-refresh-timer.md`](0032-local-mirror-session-scoped-refresh-timer.md)
+  (the session-scoped timer and the reclaimable lock this ADR's remote-pull rung reuses),
+  [`0037-indexing-campaign-is-a-persistence-trigger.md`](0037-indexing-campaign-is-a-persistence-trigger.md)
+  (the path by which the search server runs a `scripts/` git command as a child, which the pull follows).
 
 ## Crux
 
@@ -36,6 +40,7 @@ The generated brain runs **two** background mechanisms that both react to "a not
 | **Git auto-save** | the Claude **`PostToolUse Write\|Edit`** hook (`auto-commit.mjs`) + the **`Stop`** hook (`auto-push.mjs`) | the **Claude client** | **only Claude** (its `Write`/`Edit` tools) |
 | **Engine writes** | the **updater itself**, at the end of an update (`update-engine.mjs` step 9) | the **update run** | **only its own** writes (engine-owned, versioned files) |
 | **Catch-all sweep** | the **`SessionStart`** hook, *before* the startup pull (`startup-sync.mjs`) | the **Claude client** | **anything** left dirty by anyone — including the update that installed this very sweep |
+| **Remote pull** | the **search server's clock**, on an interval, and **only on a clean tree** (`remote-sync-scheduler.ts` → `scripts/remote-sync.mjs`) | the **MCP server process** decides *when*; the **script** does the git | **the other machine's** commits — what a second computer, or a second person on the same private repo, pushed since |
 
 A natural "DRY" question arises: *`chokidar` already watches the whole filesystem — why not **also**
 drive `git commit` from it, instead of from a Claude hook that only sees Claude's own edits?* The
@@ -58,6 +63,9 @@ This ADR records why we **keep the two triggers separate** anyway.
   (`secondbrain.autopush`, ADR 0010).
 - **A `SessionStart` sweep is the catch-all**, run *before* the startup pull: whatever the two rules
   above missed is committed at the conversation boundary (see "The gap … is now closed").
+- **The remote pull runs on the server's clock**, and only there (see below): it is the one rung whose
+  trigger is neither a Claude event nor a filesystem change, because what it reacts to happens on
+  **another machine**, where nothing local can observe it.
 
 The shared thing between the two is only **change *detection*** — and we already have it in **two
 valid, orthogonal places** (the hook for Claude edits, the sha256 hash for the index). Merging the
@@ -111,6 +119,35 @@ This is not a special case bolted onto the updater: it is what keeps the two-tri
 having a hole in the middle. Any future engine-owned writer that runs outside a Claude tool call
 inherits the same obligation.
 
+### The one rung a local event cannot carry: what the OTHER machine wrote
+
+Every trigger above reacts to something that happened **here** — a Claude tool call, a file appearing on
+this disk, a conversation starting. A brain that lives on two machines has a fourth kind of event, and
+it is invisible to all of them: **somebody pushed, elsewhere**. Until it is pulled, nothing local has
+changed, so no watcher fires and no hook has anything to see. The session start pulls once and then the
+window may stay open for hours.
+
+That is the one place a **timer** is the honest mechanism rather than a shortcut, and it is admitted
+under the same conditions ADR 0032 admitted one for the local mirror:
+
+- **it lives in the search server**, which is up for exactly as long as a window is open — so there is
+  still **no daemon**, and no clock outlives the session it belongs to;
+- **it probes before it pulls.** Asking the remote for one reference costs a few hundred bytes; a fetch
+  happens only when the answer differs from what this machine already has. Equal → total silence: no
+  file written, nothing announced. A "nothing new" every interval is the alarm fatigue that makes a
+  real signal unreadable;
+- **it never commits.** Cost 3 above stands whole: this rung refuses a dirty tree outright and defers to
+  the persistence path, which commits on its own quiet window. It also stands aside for a paused rebase
+  or a held `.git/index.lock`, so cost 4's multi-window race is not amplified — one **shared lock per
+  machine** means one effective clock whatever the number of open windows;
+- **git stays out of the MCP.** The server decides *when*; the git itself runs in `scripts/`, as a child
+  process, exactly as the persistence path already does (ADR 0037). Cost 1's separation is preserved:
+  a degraded RAG costs a late pull, never a lost note.
+
+What the pull carries is the other side's notes, so **vault notes merge by `union`** (both contributions
+kept, no markers, no human) and anything else conflicts as it always did. A merged note whose header no
+longer parses undoes the whole pull rather than leave an unindexable note behind.
+
 ## The gap (non-Claude edits) is now closed — by a `SessionStart` sweep
 
 The separation left one **honestly-acknowledged gap**: an edit made **outside Claude** (Obsidian /
@@ -162,6 +199,10 @@ daemon** (launchd/cron) or a **git-side hook** — heavier, against the "zero da
   the other — note persistence and retrieval fail in **independent domains**.
 - **The non-Claude-edit gap is closed, not just documented** — by the `SessionStart` sweep, on the
   deterministic event-bound shape this ADR had held in reserve.
+- **A timer is admissible for exactly one thing: an event that happens on another machine.** The rule
+  the review question becomes is narrower than "no timers": *what is this reacting to, and can anything
+  local observe it?* Everything observable here keeps its event; only the remote pull may hold a clock,
+  and it holds it inside the session, behind a probe, on a clean tree, and under one lock per machine.
 - **A dirty tree stays a real signal, so the startup banner must explain it.** Since no engine path
   leaves the repo dirty on purpose, a blocked pull now means something the user needs to read:
   `repo-status.mjs` therefore surfaces git's own reason (locale included) instead of a bare

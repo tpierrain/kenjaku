@@ -14,12 +14,14 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 6 — the doctrine and the docs (ADR 0011's fifth trigger row, SETUP §7,
-  README, and the `/sync` skill left deliberately untouched). Steps 1 to 5 are done and green:
-  the merge rule, the tick, the gate, the entry point driven **as a process** on a real repo
-  with a local remote, the clock in the search server with its knob and its shutdown, the
-  announcement that reaches the conversation at the owner's next message, and the native
-  banner for notes written by someone else. Two things trail behind, both deliberately:
+- **Next:** step 7 — the rehearsal on a COPY of a real brain, driven by the old engine
+  (`maintainers/qa/field-rehearsal/rehearse.mjs`). It is the acceptance test of the whole
+  chantier, and the first place any of this meets a brain that was not built by a fixture.
+  Steps 1 to 6 are done and green: the merge rule, the tick, the gate, the entry point driven
+  **as a process** on a real repo with a local remote, the clock in the search server with its
+  knob and its shutdown, the announcement that reaches the conversation at the owner's next
+  message, the banner for notes written by someone else, and the doctrine and docs that say so.
+  Two things trail behind, both deliberately:
   **2.7** (the mutation run, started 2026-09-02 — and `scripts/remote-sync.mjs` changed after
   it started, so that one file is owed a re-run) and **3.6** (the `engineVersion` bump, moved
   to step 8 — see there for why).
@@ -195,14 +197,25 @@ a real brain.
 
 ### 6. The doctrine and the docs say it
 
-- [ ] **6.1** ADR 0011 amended in place (CONVENTIONS §6bis): a fifth row in its trigger table
+- [x] **6.1** _(2026-09-02)_ ADR 0011 amended in place (CONVENTIONS §6bis): a fifth row in its trigger table
       ("remote pull: the server's clock, on an interval, only on a clean tree"), prior art named
-      (ADR 0032 for the timer and lock, ADR 0037 for the persistence path). No ADR 0041.
-- [ ] **6.2** `SETUP.md` §7: the sentence "during a session, `/sync` brings in the other
-      machine's changes" rewritten; the trust note (§ Risks 5) added without drama.
-- [ ] **6.3** `README.md`: one bullet in the persistence narrative ("and it catches up
-      mid-session"). Explicit §10 verdict on the boards: copy still holds, no re-render.
-- [ ] **6.4** `.claude/skills/sync/SKILL.md` **not modified** (stays the manual door and the
+      (ADR 0032 for the timer and lock, ADR 0037 for the persistence path). No ADR 0041. Written
+      timeless (§6ter — no dated "AMENDED" scar), and the section it gained answers the question
+      the table alone would leave open: **why a timer is admissible here and nowhere else** — the
+      event happens on another machine, so nothing local can observe it.
+- [x] **6.2** _(2026-09-02)_ `SETUP.md` §7: the sentence "during a session, `/sync` brings in the other
+      machine's changes" rewritten (a new "While you work" subsection: what it does, what it says,
+      the two `.env` knobs, and that `/sync` remains for whoever prefers to do it by hand); the
+      trust note (§ Risks 5) added without drama — *"the same decision as sharing a machine, not
+      the one as sharing a document"*.
+- [x] **6.3** _(2026-09-02)_ `README.md`: one bullet in the persistence narrative ("and it catches up
+      mid-session"), plus one clause in the determinism ladder, which claimed *"real event
+      triggers, not timers"* and now names its single exception rather than being quietly false.
+      **§10 verdict on the boards: the copy still holds, no re-render.** Neither board claims a
+      brain syncs only at session start: `board-flow` describes the answer→catch-up→amend→save
+      loop (unchanged), and `board-anatomy` lists the hooks (auto-commit, auto-push, reconcile) —
+      and this feature adds no hook, since 5.1 was dropped.
+- [x] **6.4** _(2026-09-02, verified untouched)_ `.claude/skills/sync/SKILL.md` **not modified** (stays the manual door and the
       assisted resolution; no French twin to write, and the active plan forbids a session from
       writing `templates/fr/**` alone).
 
