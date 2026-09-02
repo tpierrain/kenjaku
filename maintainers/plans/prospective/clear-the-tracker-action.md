@@ -153,9 +153,20 @@ _(That plan is archived; these came here so it could close. They belong to no mi
       that legitimately customizes an engine skill? Correct the first time, noise the tenth. Only
       living with it for a few days answers it, and the escape hatch (`/permissions`) already exists.
       **Nothing to build; something to notice.**
-- [ ] **The nightly mutation run on `main` has failed two nights** (2026-08-22, 2026-08-23) and nobody
-      has read it. Pre-existing, unrelated to the cut — and unread CI is the exact shape that cost
-      this project three hours on 2026-08-23. Read it before anything else in this section.
+- [x] **The nightly mutation run on `main` fails every night, and the cause is a missing checkout
+      line** _(read 2026-09-02; it had gone unread since 2026-08-22)_. Every scheduled run listed
+      still fails, back to 2026-08-26 at least. Only `mutate · scripts` is red — `rag` and
+      `local-mirror` pass — and it dies in Stryker's **initial test run, before a single mutant**,
+      on the tests that need real git history: the QA fixtures that replay from tag `v3.6.0`, the
+      one asserting every waived sha is still reachable, the release-table and manifest integrity
+      checks. `.github/workflows/mutation-nightly.yml` checks out with **`actions/checkout@v4` and
+      no `fetch-depth`** (shallow, no tags), while every `ci.yml` job running that same suite pins
+      **`fetch-depth: 0`**. So the score has been unmeasured for a fortnight and the job is not
+      reporting a weak suite, it is reporting a truncated clone.
+- [ ] **The fix, not yet applied**: add `with: fetch-depth: 0` to the nightly's checkout, dispatch
+      the workflow by hand, and confirm the `scripts` score comes back honest before trusting the
+      cron again. Left for the owner to schedule: it touches CI on `main`, and the chantier open at
+      the time (#84) had a standing instruction not to take on adjacent work.
 
 ## How each release is cut, when it gets there
 
