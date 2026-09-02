@@ -14,42 +14,48 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-**Steps 1 to 6 are done, green and pushed** (CI read on each): the merge rule, the tick, the gate,
+**Steps 1 to 7 are done, green and pushed** (CI read on each): the merge rule, the tick, the gate,
 the entry point driven **as a process** on a real repo with a local remote, the clock in the search
 server with its knob and its shutdown, the announcement that reaches the conversation at the owner's
-next message, the banner for notes written by someone else, and the doctrine and docs that say so.
-Two things are open, and only one of them is mine to move.
+next message, the banner for notes written by someone else, the doctrine and docs that say so, and
+the rehearsal against a copy of a real brain. **What remains is step 8 (the release) and two
+measurements only the owner's own machines can make.**
 
 - ✅ **2.7 is DONE** _(2026-09-02)_. Two passes over the six files this chantier writes: **86.17 %
   → 95.98 %**, and the gate — the piece that decides whether a machine ticks at all — **67.74 % →
   83.53 %**, whose fourteen remaining survivors are every one an equivalent. The table, the four
   defects the first pass actually found, and the reasoning behind the one gap deliberately left
   (an `fs` call failing with something other than `EEXIST`, which would cost a seam on the gate's
-  hottest path) are recorded in `maintainers/mutation/RESULTS.md`, newest-first. Nothing owed.
-> ⚠️ **A SESSION RESUMING HERE HAS ALMOST NOTHING IT MAY DO ALONE — read this before looking for
-> work.** Steps 1 to 6 and 2.7 are done, green and pushed (CI read on each, last: `b6b9468`).
-> **Step 7 is doubly blocked** (see below) and **step 8 is outside the declared boundary** — no tag,
-> no publication. So the honest state is: *this chantier is waiting on its owner, not on a session.*
-> Do not invent adjacent work to fill the time. The **one** thing genuinely available is the
-> documentation gap named at the end of this block, and even that has a question pending on it.
+  hottest path) are recorded in `maintainers/mutation/RESULTS.md`, newest-first. Re-measured after
+  the step-7 fix changed the gate, and recorded in the same place.
+- ✅ **STEP 7 RAN, and it earned its keep** _(2026-09-02 afternoon, the owner's go-ahead, commits
+  `771403a` + `5f3dcf2`, CI green including the Windows tripwire)_. The rehearsal was driven against
+  a copy of `~/mind-palace`, with the release tagged `v5.1.0` so the update was the one the field
+  will perform, and a bare repository created in the work directory as the remote — never his.
+  7.1 to 7.4 pass; what each proved is ticked at step 7.
+  - 🐞 **It found a real defect, which is the whole reason this step exists.** Three windows ticking
+    at once, and **two got through the gate** — the second dying on the git lock the first was
+    holding. The cause was an ordering, not a decision: the lock file was created empty and filled a
+    moment later, so a rival reading it in that window found no holder, concluded the holder was
+    dead, and stole a lock whose owner was mid-fetch. Microseconds wide, and hit in **three rounds
+    out of four**. The lock is now written elsewhere and hard-linked into place, so it appears
+    already naming its holder; a filesystem without hard links falls back to today's behaviour.
+  - 🔍 **Why fourteen green tests never saw it, and the rule that comes out of it.** Every one of
+    them runs in ONE process and injects its own liveness, so together they prove the gate's
+    DECISIONS and none of them prove its EXCLUSION — which happens between operating-system
+    processes. The new test races four real processes, released together by a barrier file, twelve
+    rounds, and demands exactly one winner. It fails **all twelve** rounds on the old code.
+  - ⚠️ **And the first version of that test was itself wrong, caught by the Windows check.** Spawning
+    four processes takes hundreds of milliseconds and unevenly: on a loaded machine the first child
+    had acquired, slept and exited before the last had started, and a rival reclaiming a dead
+    holder's lock is the gate working. The barrier plus an injected `isAlive` is what turned the
+    weather into the subject.
 
-- ⏸️ **WAITING ON THE OWNER — step 7, the rehearsal.** It is the acceptance test of the whole
-  chantier, and the first place any of this meets a brain that was not built by a fixture. Two
-  separate reasons it has not run, and BOTH must lift:
-  1. **He asked for it to wait** _(2026-09-02 morning)_ — he needed his own brain that day. Nothing
-     may be launched against any brain of his until he says go.
-  2. **An unattended session cannot start it anyway**: the sandbox refuses any command reaching a
-     brain folder under his home, in both spellings tried. What lifts it is him running the line, or
-     approving it once. Nothing about the harness is at fault — it only ever **reads** the original,
-     and skips `.git`, so the copy has no remote and a push home is not expressible.
-
-  The brain to aim at is `~/mind-palace`, and not another: it is the one with a remote and two
-  machines, and its installed engine (`scripts` 1.14.0) is the version the fleet would update
-  **from**. `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. Steps 7.2 to
-  7.4 run on the copy that command produces; 7.5 needs the second machine and is his either way.
-  🛑 And the question he asked, which the plan had not answered: **a sync test is made of pushes and
-  pulls, so it needs a remote — that remote is a bare repository created in the work directory,
-  NEVER his.** The reasoning is at step 7, where it is load-bearing.
+- ⏸️ **WHAT IS LEFT OF STEP 7 IS HIS, and only his** — 7.5, the SSH check on the two real machines
+  (unknown 5: can `git` authenticate without stopping to ask for a passphrase), and the half of 7.4
+  that needs Claude Desktop rather than three tick processes: **how many `vault-rag` servers live
+  when several conversations are open on one brain** (unknown 4, from 0.4). The exclusion those
+  servers rely on is now proved; the count is not, and no headless run can measure it.
 - 🔕 **A rule this chantier bought, the hard way** _(2026-09-02, `73a2379`, then `a04011a`)_. The
   mutation run raised REAL desktop banners on the owner's machine — one per arrival test, once per
   mutant — and **he is the one who noticed**. The suite runs the real entry point, which ends in a
@@ -66,9 +72,10 @@ Two things are open, and only one of them is mine to move.
   makes a newcomer ask. The work, if it is wanted: a short subsection in `SETUP.md` §6 saying plainly
   that iCloud has no connector today (with the two practicable routes — import notes once through
   `/import`, or keep living documents on Drive) and that Spotlight is neither used nor to be
-  configured, with one line on why the vault's own search is a different tool. 🙋 **The owner has NOT
-  yet said whether to write it**; the recommendation put to him was to do it with him rather than
-  alone, because both answers are product statements. Do not write it unprompted.
+  configured, with one line on why the vault's own search is a different tool. ✍️ **The owner's call,
+  2026-09-02 afternoon: write a proposal alone, he reviews it.** He declined the "do it together"
+  option deliberately, so the draft is a draft — it lands for review, and neither product statement
+  is settled until he has read it.
 - **3.6** (the `engineVersion` bump) trails deliberately, moved to step 8 — see there for why.
   The POC is closed: the `FileChanged` hook runs code but cannot speak to the conversation, so the
   immediate display falls back to the native banner (5.2) and the next-message announcement (4);
@@ -267,14 +274,20 @@ a real brain.
 
 ### 7. Rehearsal on a copy of a real brain (the update is driven by the OLD engine)
 
-> 🚧 **The whole of step 7 waits on the owner** — an unattended session is not allowed to reach a
-> brain folder under his home, and 7.2 to 7.4 run on the copy 7.1 produces. See the STATE block for
-> what lifts it and why the harness itself is safe.
+> ✅ **Ran 2026-09-02, on the owner's explicit go-ahead**, against a copy of `~/mind-palace`. What it
+> found, and the fix that came out of it, are in the STATE block.
 
-- [ ] **7.1** `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`
-      (CONVENTIONS §10ter): update lands, hook entry reconciled, restart, one tick observed.
-      That brain, and not another: it is the one with a remote and two machines, and its installed
-      engine is the version the fleet would update **from**.
+- [x] **7.1** _(2026-09-02)_ `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace --tag v5.1.0`
+      — the tag matters: with the brain already installed at `v5.0.0`, rehearsing against `v5.0.0`
+      measures an update to the version it is already on. Exit 0. `source.ref` moved `v5.0.0` →
+      `v5.1.0`, **471 engine files swapped**, and the owner's territory came back **byte-identical**.
+      Verified on the copy afterwards, piece by piece: `vault/**/*.md merge=union` present in
+      `.gitattributes`, the five new `scripts/lib/` modules and the `remote-sync.mjs` entry point
+      delivered, the `rag` scheduler and its knob delivered, and — the one that had to be checked
+      because no engine regime carries it — **`remote-arrivals.json` present in the copy's
+      `.gitignore`**, which is 2.4's surgical migration reaching a brain that predates it.
+      The "hook entry reconciled" this step used to promise is moot: 5.1 was dropped, so the release
+      adds no hook entry at all.
 > 🛑 **THE REMOTE FOR 7.2 TO 7.4 IS A BARE REPOSITORY IN A TEMP DIR, NEVER THE OWNER'S OWN**
 > _(2026-09-02, his question, and he was right to ask it)_. 7.1 is harmless by construction: the copy
 > is taken without `.git`, so it has no remote and a push home is not expressible. **7.2 to 7.4 are
@@ -286,13 +299,32 @@ a real brain.
 > can authenticate over SSH without asking for a passphrase. That is unknown 5, it is 7.5, and it
 > belongs on his machines with him present either way.
 
-- [ ] **7.2** A note pushed from a second clone arrives within one interval, is indexed, is
-      displayed at once (5.1) and announced at the next message (4).
-- [ ] **7.3** Two clones append to the same daily note: union merge, no human.
-- [ ] **7.4** Three Desktop conversations open on the copy: one effective clock (lock), no
-      `index.lock` collision, the persistence no-op after a pull is harmless in the logs.
+- [x] **7.2** _(2026-09-02)_ A note pushed from the second clone (authored by someone else) arrives on
+      the first tick: outcome `arrived`, the trace naming the file and the author, the note on disk,
+      the tree clean. The announcement then reaches the conversation — the hook emits
+      *"📥 The brain synchronised on its own: 1 note from … arrived since the last message…"* — and
+      **only once**: the next message carries nothing, `announcedAt` having been stamped. The
+      immediate display is 5.2's banner, which was deliberately switched off for this run
+      (`REMOTE_SYNC_BANNER=0`) rather than raised on the owner's screen: §5ter's rule, and the
+      wiring is asserted on the request in the suite.
+- [x] **7.3** _(2026-09-02)_ Both clones append to the same note without knowing about each other; the
+      tick rebases and the **union merge keeps both lines, in order, with no markers and no human**.
+      Two runs of it: one with push off — the tick correctly kept its work local, `secondbrain.autopush`
+      being opt-in — and one with push on, where the merged note went back to the remote and the
+      second machine picked it up on an ordinary pull. **Two machines converge, unattended.**
+      ⚠️ One behaviour worth knowing, and it is by design: a tick whose probe finds the remote equal
+      returns `up-to-date` and pushes nothing, so a local commit made while nothing was arriving
+      waits for the Stop hook's auto-push. The tick pushes what it REBASED, not everything pending.
+- [x] **7.4** _(2026-09-02)_ Three tick processes released at once on the copy: **one `arrived`, two
+      `gated`**, the note landing exactly once, and no `index.lock` left behind — five rounds out of
+      five. It took the fix above to read that way: before it, three rounds in four had a second
+      window through the gate, dying on the first one's git lock.
+      - [ ] The half no headless run can do: **how many `vault-rag` servers actually live** with
+            several Desktop conversations open on one brain (unknown 4, from 0.4), and whether a
+            background conversation keeps its own alive. The lock is proved; the count is not.
 - [ ] **7.5** Unknown 5 re-checked on the target machines' SSH setup (step 0.5 covered only the
-      maintainer's).
+      maintainer's). **His, and only his** — it asks whether `git` can authenticate on those two
+      machines without stopping to ask for a passphrase.
 
 ### 8. Release
 
