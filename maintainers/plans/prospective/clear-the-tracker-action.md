@@ -153,20 +153,39 @@ _(That plan is archived; these came here so it could close. They belong to no mi
       that legitimately customizes an engine skill? Correct the first time, noise the tenth. Only
       living with it for a few days answers it, and the escape hatch (`/permissions`) already exists.
       **Nothing to build; something to notice.**
-- [x] **The nightly mutation run on `main` fails every night, and the cause is a missing checkout
-      line** _(read 2026-09-02; it had gone unread since 2026-08-22)_. Every scheduled run listed
-      still fails, back to 2026-08-26 at least. Only `mutate · scripts` is red — `rag` and
-      `local-mirror` pass — and it dies in Stryker's **initial test run, before a single mutant**,
-      on the tests that need real git history: the QA fixtures that replay from tag `v3.6.0`, the
-      one asserting every waived sha is still reachable, the release-table and manifest integrity
-      checks. `.github/workflows/mutation-nightly.yml` checks out with **`actions/checkout@v4` and
-      no `fetch-depth`** (shallow, no tags), while every `ci.yml` job running that same suite pins
-      **`fetch-depth: 0`**. So the score has been unmeasured for a fortnight and the job is not
-      reporting a weak suite, it is reporting a truncated clone.
-- [ ] **The fix, not yet applied**: add `with: fetch-depth: 0` to the nightly's checkout, dispatch
-      the workflow by hand, and confirm the `scripts` score comes back honest before trusting the
-      cron again. Left for the owner to schedule: it touches CI on `main`, and the chantier open at
-      the time (#84) had a standing instruction not to take on adjacent work.
+- [x] **The nightly mutation run on `main` fails every night, and it has TWO causes, not one**
+      _(read at last 2026-09-02; unread since 2026-08-22)_. Every scheduled run still fails, back to
+      2026-08-26 at least. Only `mutate · scripts` is red (`rag` and `local-mirror` pass), and it
+      dies in Stryker's **initial test run, before a single mutant** — so the job has never been
+      reporting a weak suite, it has been reporting an environment it cannot run in. Eight tests
+      failed; the two causes split them four and four.
+  - [x] **Cause 1, a truncated clone — fixed, PR [#85](https://github.com/tpierrain/kenjaku/pull/85).**
+        `mutation-nightly.yml` checked out with bare `actions/checkout@v4` (shallow, no tags) while
+        every `ci.yml` job running these same suites pins `fetch-depth: 0`. Four of the eight need
+        real history: the QA fixtures replaying a brain from tag `v3.6.0` (EN, FR and the CRLF one)
+        and `every waived sha is a real commit that is still reachable`. A hand-dispatched run on
+        the fix branch confirms it: **8 failures → 4**.
+  - [ ] **Cause 2, source-scanning guards versus instrumentation — DIAGNOSED, NOT FIXED, and it is
+        a design call.** _Reproduced locally 2026-09-02 in a throwaway worktree off `main`, so it is
+        measured and not inferred._ Four tests do not test behaviour at all, they **read the engine's
+        own source text**: the byte fingerprints of a release's merge files, `every script an engine
+        script SPAWNS is itself carried`, `no module composes a child-process request at the call
+        site`, and the byte-dated doctrine fixture. Stryker's whole job is to **rewrite that source
+        text** to inject mutants (157 files, 9 833 mutants), so those four fail under **every**
+        configuration: `--inPlace` as CI runs it (4 fail), the `batch` config (3), and the committed
+        sandbox config is worse (8 — it also lacks `.git`). ⚠️ Which means the note in
+        `stryker.scripts.batch.config.mjs` saying *"the whole harness suite dry-runs green here"* is
+        **stale**: it was true on 2026-07-28, before these guards were written.
+    - [ ] **The evidence for whatever gets chosen**: skipping exactly those four by name makes the
+          dry run pass in CI's own shape (verified with a throwaway probe config). So the run is
+          four skips away from producing a score again.
+    - [ ] **Option A, ten minutes**: skip them by name from the mutation command. Brittle — a
+          renamed test silently un-skips — but the failure is loud, not silent.
+    - [ ] **Option B, recommended**: each guard **detects an instrumented tree and skips itself,
+          naming why**. It survives renames, and it puts the reason where a reader will look instead
+          of in a CI flag. Costs four test files and their own tests, test-first.
+    - [ ] Either way, dispatch the workflow by hand afterwards and read the score before the cron is
+          trusted again — that was the rollout condition when this workflow was written.
 
 ## How each release is cut, when it gets there
 
