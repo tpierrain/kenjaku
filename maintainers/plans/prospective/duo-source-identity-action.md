@@ -326,6 +326,12 @@ edit. The repo already owns the vocabulary for that split: `RAW_CAPTURE_ZONES` i
       narrowed rule still covers, so the sentence stays true word for word. The other `merge` hits in
       `README.md` and `EN-QUOI-C-EST-DIFFERENT.md` are about the **engine skill** merge, a different
       mechanism entirely.
+- [ ] **4bis.7** ➡️ **For the release note (parent plan 8.2), do not let this one slip.** The
+      narrowing is the only change in this chantier that a brain already in the field will *feel*:
+      a curated page two machines edited used to merge silently and now **stops and asks**. That is
+      the fix, not a regression, and the note should say so in that order — *"a page you rewrote on
+      two machines now asks you which version wins, instead of quietly keeping both halves"*. Left
+      unticked deliberately: it belongs to the release, and the release is the owner's.
 
 ### 5. The doctrine — what duo mode does and does NOT cover
 
