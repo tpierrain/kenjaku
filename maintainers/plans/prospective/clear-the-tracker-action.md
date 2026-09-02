@@ -165,27 +165,34 @@ _(That plan is archived; these came here so it could close. They belong to no mi
         real history: the QA fixtures replaying a brain from tag `v3.6.0` (EN, FR and the CRLF one)
         and `every waived sha is a real commit that is still reachable`. A hand-dispatched run on
         the fix branch confirms it: **8 failures → 4**.
-  - [ ] **Cause 2, source-scanning guards versus instrumentation — DIAGNOSED, NOT FIXED, and it is
-        a design call.** _Reproduced locally 2026-09-02 in a throwaway worktree off `main`, so it is
-        measured and not inferred._ Four tests do not test behaviour at all, they **read the engine's
-        own source text**: the byte fingerprints of a release's merge files, `every script an engine
-        script SPAWNS is itself carried`, `no module composes a child-process request at the call
-        site`, and the byte-dated doctrine fixture. Stryker's whole job is to **rewrite that source
-        text** to inject mutants (157 files, 9 833 mutants), so those four fail under **every**
-        configuration: `--inPlace` as CI runs it (4 fail), the `batch` config (3), and the committed
-        sandbox config is worse (8 — it also lacks `.git`). ⚠️ Which means the note in
-        `stryker.scripts.batch.config.mjs` saying *"the whole harness suite dry-runs green here"* is
-        **stale**: it was true on 2026-07-28, before these guards were written.
-    - [ ] **The evidence for whatever gets chosen**: skipping exactly those four by name makes the
-          dry run pass in CI's own shape (verified with a throwaway probe config). So the run is
-          four skips away from producing a score again.
-    - [ ] **Option A, ten minutes**: skip them by name from the mutation command. Brittle — a
-          renamed test silently un-skips — but the failure is loud, not silent.
-    - [ ] **Option B, recommended**: each guard **detects an instrumented tree and skips itself,
-          naming why**. It survives renames, and it puts the reason where a reader will look instead
-          of in a CI flag. Costs four test files and their own tests, test-first.
-    - [ ] Either way, dispatch the workflow by hand afterwards and read the score before the cron is
-          trusted again — that was the rollout condition when this workflow was written.
+  - [x] **Cause 2, source-scanning guards versus instrumentation — FIXED** _(the owner picked
+        option B, 2026-09-02; commits on the same PR)_. Four tests do not test behaviour at all,
+        they **read the engine's own source text**: the byte fingerprints of a release's merge
+        files, `every script an engine script SPAWNS is itself carried`, `no module composes a
+        child-process request at the call site`, and the byte-dated doctrine fixture. Stryker's
+        whole job is to **rewrite that source text** to inject mutants (157 files, 9 833 mutants),
+        so those four failed under **every** configuration tried: `--inPlace` as CI runs it (4
+        fail), the `batch` config (3), and the committed sandbox config worst of all (8 — it also
+        lacks `.git`).
+    - [x] **What was built**: `scripts/lib/instrumented-source.mjs` answers one question — has this
+          text been rewritten by the runner — and each guard asks it about the very files it is
+          about to read, standing down with a sentence that says so. Neither a false red nor a
+          silent green, and it survives a rename, which a skip-by-name would not.
+    - [x] **The trap it was written around, and it fired**: the detector is itself engine source,
+          read by the guards it protects, so a detector matching the bare word would silence all
+          four on a clean checkout with nothing to see. It matches the runner's HASHED identifiers,
+          its own test pins that — and caught the module's own doc comment before the wiring
+          existed.
+    - [x] **Verified in CI's exact shape**: `--inPlace`, full scope, in a throwaway worktree —
+          *"Initial test run succeeded … the dry-run has been completed successfully"*. The nightly
+          can produce a score again.
+    - [ ] **What is left, and it is the owner's**: merge PR #85, then **dispatch the workflow by
+          hand and read the score** before the cron is trusted again — that was the rollout
+          condition when this workflow was written, and no session should declare it met.
+    - [ ] ⚠️ **A stale note to correct while nearby**: `stryker.scripts.batch.config.mjs` says
+          *"the whole harness suite dry-runs green here"*. It was true on 2026-07-28, before these
+          guards were written; it is now true again for a different reason, and the comment
+          explains neither.
 
 ## How each release is cut, when it gets there
 
