@@ -28,12 +28,10 @@
 // notification` from a Node child with no terminal returns ok, and the banner shows.
 // ─────────────────────────────────────────────────────────────────────────────
 import { countOf } from "./plural.mjs";
-import { joinNames } from "./remote-arrivals.mjs";
+import { isNote, joinNames } from "./remote-arrivals.mjs";
 
 /** The name the owner already sees on this engine's other notifications. */
 export const BANNER_TITLE = "Second brain";
-
-const isNote = (rel) => rel.startsWith("vault/") && rel.toLowerCase().endsWith(".md");
 
 // Escape for an AppleScript double-quoted literal: backslash is the escape char, so a
 // stray `"` — in a note author's name, say — would otherwise close the literal and make
@@ -109,18 +107,28 @@ export function shouldBanner(env) {
 }
 
 /**
+ * The whole decision — may we, is there anything to say, and does this platform have a
+ * banner we trust — as one pure function returning the request or `null`. Kept out of the
+ * notifier's `try` on purpose: a catch-all around a DECISION hides the bugs it makes, and
+ * this one is only allowed to protect the spawn.
+ */
+export function bannerRequest({ platform, env, files, authors }) {
+  if (!shouldBanner(env)) return null;
+  const body = bannerBody({ files, authors });
+  if (body === null) return null;
+  return buildBannerCommand(platform, { title: BANNER_TITLE, body });
+}
+
+/**
  * The `notify` port of the tick: raise the banner, detached, and let go of it. NEVER
  * throws — the tick has already done the useful work by the time this runs, and a toast
  * may not undo it.
  */
 export function buildNotifier({ platform, env, spawn }) {
   return ({ files, authors }) => {
+    const request = bannerRequest({ platform, env, files, authors });
+    if (request === null) return;
     try {
-      if (!shouldBanner(env)) return;
-      const body = bannerBody({ files, authors });
-      if (body === null) return;
-      const request = buildBannerCommand(platform, { title: BANNER_TITLE, body });
-      if (request === null) return;
       spawn(request.command, request.args, request.options).unref();
     } catch {
       // Best-effort: a missing notifier costs a banner, never a sync.

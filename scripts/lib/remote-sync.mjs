@@ -29,6 +29,7 @@
 // NEVER throws in production; the gate, the trace I/O, the header check, the push
 // and the banner are injected too, so the whole sequence is pinned by tests.
 // ─────────────────────────────────────────────────────────────────────────────
+import { isNote } from "./remote-arrivals.mjs";
 import { treeState } from "./repo-status.mjs";
 
 /** The trace the announcement hooks read. At the brain ROOT: a watcher only sees root files (POC 0.1). */
@@ -59,9 +60,10 @@ export function upstreamParts(upstreamRef) {
   return { remote: ref.slice(0, slash), branch: ref.slice(slash + 1) };
 }
 
+// `.trim()` on each line, not tidiness: git's output arrives `\r\n`-terminated wherever
+// core.autocrlf is on, and a path carrying a stray `\r` matches nothing downstream.
 const lines = (out) => out.split("\n").map((l) => l.trim()).filter(Boolean);
 const unique = (items) => [...new Set(items)];
-const isVaultNote = (rel) => rel.startsWith("vault/") && rel.toLowerCase().endsWith(".md");
 
 /**
  * The trace accumulates until the announcement path marks it announced: two ticks
@@ -112,7 +114,7 @@ function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notif
   const known = git(["rev-parse", "@{u}"]).out.trim();
   const probe = git(["ls-remote", "--heads", parts.remote, parts.branch]);
   if (!probe.ok) return "probe-failed";
-  const remoteSha = probe.out.trim().split(/\s+/)[0] ?? "";
+  const remoteSha = probe.out.trim().split(/\s+/)[0];
   if (remoteSha === "" || remoteSha === known) return "up-to-date";
 
   if (!git(["fetch", parts.remote]).ok) return "fetch-failed";
@@ -134,7 +136,7 @@ function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notif
 
   const damaged = [];
   let reason = null;
-  for (const rel of files.filter(isVaultNote)) {
+  for (const rel of files.filter(isNote)) {
     const verdict = checkNote(rel);
     if (!verdict.ok) {
       damaged.push(rel);

@@ -10,7 +10,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { BANNER_SPAWN_OPTIONS, BANNER_TITLE, bannerBody, buildBannerCommand, buildNotifier, shouldBanner } from "./os-banner.mjs";
+import {
+  BANNER_SPAWN_OPTIONS,
+  BANNER_TITLE,
+  bannerBody,
+  bannerRequest,
+  buildBannerCommand,
+  buildNotifier,
+  shouldBanner,
+} from "./os-banner.mjs";
 
 // ── What it says ─────────────────────────────────────────────────────────────
 
@@ -61,13 +69,41 @@ test("a quote or a backslash in a name cannot break the AppleScript literal", ()
   assert.deepEqual(command.args, ["-e", 'display notification "C:\\\\notes" with title "He said \\"hi\\""']);
 });
 
-test("Windows raises a balloon tip through PowerShell, with its own escaping", () => {
-  const command = buildBannerCommand("win32", { title: BANNER_TITLE, body: 'a $var and a "quote"' });
+// The whole script, as one string. Matching a fragment leaves every line nobody asserted on
+// free to go missing, and this one is a program: a PowerShell script with a line removed does
+// not warn, it fails at the shell where nobody is watching.
+test("Windows raises a balloon tip through PowerShell, and the script is complete", () => {
+  const command = buildBannerCommand("win32", { title: BANNER_TITLE, body: "1 note from Claire" });
 
   assert.equal(command.command, "powershell");
   assert.deepEqual(command.args.slice(0, 2), ["-NoProfile", "-Command"]);
-  assert.match(command.args[2], /ShowBalloonTip/);
-  assert.match(command.args[2], /a `\$var and a `"quote`"/, "PowerShell's escape char is the backtick");
+  assert.equal(
+    command.args[2],
+    "Add-Type -AssemblyName System.Windows.Forms; " +
+      "$n = New-Object System.Windows.Forms.NotifyIcon; " +
+      "$n.Icon = [System.Drawing.SystemIcons]::Information; " +
+      "$n.Visible = $true; " +
+      '$n.ShowBalloonTip(5000, "Second brain", "1 note from Claire", ' +
+      "[System.Windows.Forms.ToolTipIcon]::Info)",
+  );
+  assert.deepEqual(command.options, BANNER_SPAWN_OPTIONS);
+});
+
+// All three of PowerShell's dangerous characters at once, INCLUDING the backtick itself —
+// which has to be doubled FIRST, or the backticks the other two escapes insert get doubled
+// in turn and the script stops being valid.
+test("a backtick, a quote and a dollar in one name are all escaped, and in the right order", () => {
+  const command = buildBannerCommand("win32", { title: "t", body: 'a `tick, a "quote" and a $var' });
+
+  assert.equal(
+    command.args[2],
+    "Add-Type -AssemblyName System.Windows.Forms; " +
+      "$n = New-Object System.Windows.Forms.NotifyIcon; " +
+      "$n.Icon = [System.Drawing.SystemIcons]::Information; " +
+      "$n.Visible = $true; " +
+      '$n.ShowBalloonTip(5000, "t", "a ``tick, a `"quote`" and a `$var", ' +
+      "[System.Windows.Forms.ToolTipIcon]::Info)",
+  );
 });
 
 test("any other platform gets no banner at all, rather than a wrong one", () => {
@@ -88,6 +124,24 @@ test("the owner's off switch is one variable, and only `0` turns it off", () => 
 test("automated contexts stay silent: a toast nobody is there to see is spam in a log", () => {
   assert.equal(shouldBanner({ CI: "true" }), false);
   assert.equal(shouldBanner({ SBG_NO_NOTIFY: "1" }), false, "the engine's existing install/QA switch is honoured too");
+});
+
+// ── The decision, on its own ─────────────────────────────────────────────────
+//
+// It used to live inside the notifier's catch-all, where a guard that stopped working
+// produced the same silence as a guard that worked. Out here, a missing guard THROWS.
+
+test("the request is null on each of the three reasons to stay quiet, and a value otherwise", () => {
+  const arrival = { files: ["vault/a.md"], authors: ["Claire"] };
+
+  assert.equal(bannerRequest({ platform: "darwin", env: { REMOTE_SYNC_BANNER: "0" }, ...arrival }), null, "switched off");
+  assert.equal(bannerRequest({ platform: "linux", env: {}, ...arrival }), null, "no banner we trust on this platform");
+  assert.equal(bannerRequest({ platform: "darwin", env: {}, files: [], authors: [] }), null, "nothing arrived to announce");
+  assert.deepEqual(bannerRequest({ platform: "darwin", env: {}, ...arrival }), {
+    command: "osascript",
+    args: ["-e", 'display notification "1 note from Claire — already in your brain." with title "Second brain"'],
+    options: BANNER_SPAWN_OPTIONS,
+  });
 });
 
 // ── The notifier the tick actually calls ─────────────────────────────────────

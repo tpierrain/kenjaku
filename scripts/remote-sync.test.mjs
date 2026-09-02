@@ -366,6 +366,29 @@ test("minGapMsFrom follows the configured interval, and falls back to 90 s on an
   assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "90s" }), 90_000);
   assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "" }), 90_000);
   assert.equal(minGapMsFrom({}), 90_000);
+  assert.equal(minGapMsFrom(undefined), 90_000, "called with no environment at all");
+  assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "  30  " }), 30_000, "a value typed with spaces around it still counts");
+  // Every one of these is a number JavaScript would happily accept and a person never
+  // meant: whole seconds, or the default. Nothing in between.
+  assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "1e3" }), 90_000);
+  assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "0x1E" }), 90_000);
+  assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "+30" }), 90_000);
+  assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "30.5" }), 90_000);
+});
+
+// The banner is the one port whose wiring nothing else can observe: the tick calls it, the
+// toast is native, and a port handed the wrong arguments would fail on a machine where
+// nobody is watching. `CI` makes the decision "stay quiet", so this exercises the wiring
+// with no child process at all — and a mis-wired port throws right here instead.
+test("realTickDeps wires every port the tick needs, banner included", () => {
+  const deps = realTickDeps(import.meta.url, { CI: "1" });
+
+  assert.deepEqual(
+    Object.keys(deps).sort(),
+    ["checkNote", "gate", "git", "indexLockPresent", "notify", "now", "push", "readTrace", "writeTrace"],
+    "runTick destructures exactly these: a port added there and forgotten here is `undefined is not a function`",
+  );
+  assert.doesNotThrow(() => deps.notify({ files: ["vault/a.md"], authors: ["Claire"] }));
 });
 
 test("buildPush pushes only when the four conditions of the Stop hook hold, and says so", () => {
@@ -411,6 +434,7 @@ test("buildPush skips on each missing condition, and reports a refused push as f
     })();
 
   assert.equal(push({ remote: "" }), "skipped");
+  assert.equal(push({ remote: "\n" }), "skipped", "a brain with no remote answers a blank line, not an empty string");
   assert.equal(push({ "config --get secondbrain.autopush": "false\n" }), "skipped", "push stays opt-in");
   assert.equal(push({ "rev-parse --abbrev-ref --symbolic-full-name @{u}": { out: "", ok: false } }), "skipped");
   assert.equal(push({ "rev-list --count @{u}..HEAD": "0\n" }), "skipped", "nothing to push");

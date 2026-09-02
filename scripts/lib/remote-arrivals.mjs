@@ -42,7 +42,14 @@ export const DIRECTIVE_MAX = 360;
 /** How many paths are named before the rest become a count. */
 const NAMED_AT_MOST = 3;
 
-const isNote = (rel) => rel.startsWith("vault/") && rel.toLowerCase().endsWith(".md");
+/**
+ * A note is Markdown INSIDE the vault, and nothing else. A pull can carry engine files, and
+ * a vault can carry an image pasted into a note — calling either one a "note" is a confident
+ * falsehood about something the owner cannot re-read. Exported because the banner
+ * ({@link ./os-banner.mjs}) has to draw the same line, and two copies of one predicate are
+ * two chances to drift.
+ */
+export const isNote = (rel) => rel.startsWith("vault/") && rel.toLowerCase().endsWith(".md");
 
 /** `vault/people/claire.md` → `people/claire.md`: the prefix means nothing to the owner. */
 const readable = (rel) => (rel.startsWith("vault/") ? rel.slice("vault/".length) : rel);

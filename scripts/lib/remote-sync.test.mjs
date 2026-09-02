@@ -7,7 +7,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { DEFAULT_INTERVAL_MS, TRACE_REL, mergeTrace, runTick, upstreamParts } from "./remote-sync.mjs";
+import { DEFAULT_INTERVAL_MS, TRACE_IGNORE_COMMENT, TRACE_REL, mergeTrace, runTick, upstreamParts } from "./remote-sync.mjs";
 
 const NOW = new Date("2026-09-08T09:00:00.000Z");
 
@@ -81,6 +81,17 @@ test("upstreamParts splits 'origin/main' into the remote and the branch, and ref
   assert.deepEqual(upstreamParts("origin/feature/x"), { remote: "origin", branch: "feature/x" });
   assert.equal(upstreamParts("main"), null);
   assert.equal(upstreamParts(""), null);
+  assert.equal(upstreamParts("/main"), null, "a slash in front names no remote");
+  assert.equal(upstreamParts("origin/"), null, "…and a slash at the end names no branch");
+  assert.equal(upstreamParts(undefined), null, "git answered nothing at all");
+});
+
+test("the ignore line is pinned to its exact words: the migration writes it, and a rewording would orphan it", () => {
+  assert.equal(
+    TRACE_IGNORE_COMMENT,
+    "# What the live sync between machines just pulled in, kept for the next message to announce" +
+      " (this machine's own business — never commit it).",
+  );
 });
 
 test("no remote → nothing at all: no network, no lock, no trace", () => {
@@ -251,9 +262,80 @@ test("a real conflict (outside the union rule) → abort, the conflicting files 
   );
   assert.equal(runTick(h.deps), "blocked");
   assert.deepEqual(h.calls.slice(-3), ["rebase @{u}", "diff --name-only --diff-filter=U", "rebase --abort"]);
-  assert.deepEqual(h.writes[0].blocked, { files: ["CLAUDE.md"], reason: "conflict" });
+  assert.deepEqual(
+    h.writes,
+    [{ arrivedAt: null, files: [], authors: [], blocked: { files: ["CLAUDE.md"], reason: "conflict" }, announcedAt: null }],
+    "a conflict brings NOTHING in: an arrival recorded here would be announced as landed when it was undone",
+  );
   assert.deepEqual(h.pushes, []);
   assert.equal(h.gate.released, 1);
+});
+
+// ── What git actually hands back, as opposed to what one would like it to ────
+
+test("a brain with no remote answers a blank line, not an empty string", () => {
+  const h = harness({ remote: "\n" });
+  assert.equal(runTick(h.deps), "no-remote");
+  assert.deepEqual(h.calls, ["remote"], "and it stops right there: no upstream probe, no lock, no network");
+});
+
+// The branch exists locally but was never pushed: `ls-remote` finds nothing and says so
+// with silence. Reading that as "a sha that differs from mine" would fetch and rebase
+// onto a branch that is not there.
+test("a probe that comes back empty is up to date, not an arrival", () => {
+  const h = harness(behindAnswers({ "ls-remote --heads origin main": "" }));
+  assert.equal(runTick(h.deps), "up-to-date");
+  assert.ok(!h.calls.includes("fetch origin"));
+  assert.deepEqual(h.writes, []);
+});
+
+test("a probe padded with whitespace still yields the sha", () => {
+  const h = harness(behindAnswers({ "ls-remote --heads origin main": "\n  bbbb222\trefs/heads/main  \n" }));
+  assert.equal(runTick(h.deps), "arrived");
+});
+
+// Wherever core.autocrlf is on — which is the default on Windows — every line git prints
+// ends `\r\n`. Split on `\n` alone and each path keeps a trailing `\r`, so it matches no
+// note on disk: the header check looks at nothing and the announcement names ghosts.
+test("paths arrive without the carriage return Windows puts on them", () => {
+  const looked = [];
+  const h = harness(
+    behindAnswers({
+      "diff --name-only ORIG_HEAD HEAD": "vault/daily/2026-09-08.md\r\nvault/people/notaire.md\r\n",
+      "log --format=%an ORIG_HEAD..@{u}": "Claire\r\n",
+    }),
+    { checkNote: (rel) => (looked.push(rel), { ok: true }) },
+  );
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(looked, ["vault/daily/2026-09-08.md", "vault/people/notaire.md"]);
+  assert.deepEqual(h.writes[0].files, ["vault/daily/2026-09-08.md", "vault/people/notaire.md"]);
+  assert.deepEqual(h.writes[0].authors, ["Claire"]);
+});
+
+// A vault holds more than Markdown: an image pasted into a note, a PDF dropped beside it.
+// The header check parses front-matter, and handing it a PNG would report every attachment
+// as a damaged note — which undoes a pull that was perfectly fine.
+test("an attachment under vault/ is not put through the header check", () => {
+  const looked = [];
+  const h = harness(
+    behindAnswers({ "diff --name-only ORIG_HEAD HEAD": "vault/attachments/photo.png\nvault/topics/lease.md\n" }),
+    { checkNote: (rel) => (looked.push(rel), { ok: true }) },
+  );
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(looked, ["vault/topics/lease.md"]);
+});
+
+// A rebase can bring back a stretch containing BOTH my own commits from the other machine
+// and someone else's. One name that is not mine is reason enough to raise the banner.
+test("a pull carrying my commits AND someone else's still raises the banner", () => {
+  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "Paul\nClaire\n" }));
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(h.notices, [
+    { files: ["vault/daily/2026-09-08.md", "vault/people/notaire.md"], authors: ["Paul", "Claire"] },
+  ]);
 });
 
 test("the fetch fails after a positive probe → nothing rebased, nothing written, lock released", () => {

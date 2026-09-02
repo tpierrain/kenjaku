@@ -21,6 +21,7 @@ import {
   arrivalsDirective,
   blockedDirective,
   buildTrace,
+  joinNames,
   markAnnounced,
   remoteArrivalsDirective,
 } from "./remote-arrivals.mjs";
@@ -110,6 +111,66 @@ test("an arrival of engine files ALONE is still announced, and calls them what t
   assert.doesNotMatch(directive, /\bnotes?\b/, "nothing arrived that is a note");
 });
 
+// Every test above matches a FRAGMENT, and a sentence is only as good as its worst half:
+// the parts nobody asserts on are exactly where a wrong word survives. So twice — once with
+// notes, once without — the whole thing is checked as what it is, a sentence a human reads.
+test("the announcement, word for word, when notes arrived", () => {
+  assert.equal(
+    arrivalsDirective(trace({ files: ["vault/people/claire.md", "vault/daily/monday.md"], authors: ["Paul"] })),
+    "📥 The brain synchronised on its own: 2 notes from Paul arrived since the last message: " +
+      "people/claire.md, daily/monday.md. Say it in one sentence, in the owner's language, then answer them." +
+      " Re-read any of those notes before editing it.",
+  );
+});
+
+test("the announcement, word for word, when only engine files arrived — and then no re-read sentence", () => {
+  assert.equal(
+    arrivalsDirective(trace({ files: ["scripts/lib/x.mjs"], authors: ["Paul"] })),
+    "📥 The brain synchronised on its own: 1 other file from Paul arrived since the last message: " +
+      "scripts/lib/x.mjs. Say it in one sentence, in the owner's language, then answer them.",
+  );
+});
+
+// `git log --format=%an` can come back empty — a commit with no author to speak of, or a
+// trace written by an older engine that had no `authors` field at all. Neither may produce
+// " from " with a hole in it, and neither may throw.
+test("an arrival nobody can be credited for still says what landed", () => {
+  const expected =
+    "📥 The brain synchronised on its own: 1 note arrived since the last message: a.md. " +
+    "Say it in one sentence, in the owner's language, then answer them. Re-read any of those notes before editing it.";
+
+  assert.equal(arrivalsDirective(trace({ files: ["vault/a.md"], authors: [] })), expected);
+  assert.equal(arrivalsDirective({ files: ["vault/a.md"] }), expected, "a trace with no `authors` key at all reads the same");
+});
+
+test("joining nobody is the empty string, never `undefined` spliced into a sentence", () => {
+  assert.equal(joinNames([]), "");
+  assert.equal(joinNames(["Claire"]), "Claire");
+});
+
+// A vault holds more than Markdown — an image pasted into a note, a PDF dropped beside it.
+// "1 note" would be a lie about something the owner cannot re-read.
+test("an attachment under vault/ is a file, not a note: only Markdown is a note", () => {
+  const directive = arrivalsDirective(trace({ files: ["vault/attachments/photo.png"], authors: ["Paul"] }));
+
+  assert.match(directive, /1 other file from Paul/);
+  assert.doesNotMatch(directive, /\bnotes?\b/);
+});
+
+// The last rung of the budget. Paths so long that not even ONE of them fits, so the list
+// gives up its final name and becomes a bare count — which is still true, still short, and
+// still leaves the instruction whole. Below this rung there is nothing left to give.
+test("when not even one path fits, the list becomes a count and the instruction survives", () => {
+  const files = Array.from({ length: 12 }, (_, i) => `vault/${"y".repeat(300)}-${i}.md`);
+
+  const directive = arrivalsDirective(trace({ files, authors: ["Claire"] }));
+
+  assert.ok(directive.length <= DIRECTIVE_MAX, `${directive.length} > ${DIRECTIVE_MAX}`);
+  assert.match(directive, /: 12 of them\./, "named none, counted all");
+  assert.match(directive, /one sentence/i, "the instruction is the half that may never be cut");
+  assert.match(directive, /re-read/i);
+});
+
 test("nothing arrived, or it was already announced → nothing at all", () => {
   assert.equal(arrivalsDirective(trace({ files: [], authors: [] })), null);
   assert.equal(arrivalsDirective(null), null);
@@ -152,9 +213,23 @@ test("a blocked list is capped like the other one, instruction intact", () => {
   assert.match(directive, /keep both/i);
 });
 
+// `conflict` is what the sentence ALREADY says in plain words ("both copies changed the same
+// file"), so repeating it in brackets is noise. Any other reason is the engine telling the
+// repairer what is actually wrong, and that must reach the message intact.
+test("the cause is shown when it adds something, and suppressed when it only repeats the sentence", () => {
+  const causeIn = (blocked) => blockedDirective(trace({ blocked }))?.match(/^⚠️ The background sync could not merge (.*?) and undid/)?.[1];
+
+  assert.equal(causeIn({ files: ["vault/a.md"], reason: "damaged-header" }), "a.md (damaged-header)");
+  assert.equal(causeIn({ files: ["vault/a.md"], reason: "conflict" }), "a.md", "the plain words below already say this");
+  assert.equal(causeIn({ files: ["vault/a.md"] }), "a.md", "no reason given, nothing to put in brackets");
+  assert.equal(causeIn({ files: ["vault/a.md"], reason: "" }), "a.md", "an empty reason is not a reason");
+});
+
 test("no block → nothing", () => {
   assert.equal(blockedDirective(trace()), null);
   assert.equal(blockedDirective(null), null);
+  assert.equal(blockedDirective(trace({ blocked: { files: [], reason: "conflict" } })), null, "a block with no file blocks nothing");
+  assert.equal(blockedDirective(trace({ blocked: { reason: "conflict" } })), null, "…and neither does one with no file LIST");
 });
 
 // ── The two together ─────────────────────────────────────────────────────────
@@ -166,6 +241,12 @@ test("notes arrived AND something is stuck: both are said, arrivals first", () =
 
   assert.ok(directive.indexOf("1 note from Claire") < directive.indexOf("CLAUDE.md"), "what worked, then what needs a hand");
   assert.match(directive, /keep both/i);
+  assert.match(directive, /editing it\. ⚠️ The background sync/, "one space between the two, not run together");
+});
+
+test("a trace that carries neither an arrival nor a block is nothing, not an empty message", () => {
+  assert.equal(remoteArrivalsDirective(trace()), null);
+  assert.equal(remoteArrivalsDirective(trace({ files: [], blocked: { files: [] } })), null);
 });
 
 test("markAnnounced stamps the trace and changes nothing else", () => {

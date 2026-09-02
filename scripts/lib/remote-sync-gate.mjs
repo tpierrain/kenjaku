@@ -33,7 +33,7 @@ const defaultIsAlive = (pid) => {
     return true;
   } catch (error) {
     // EPERM: the process exists but is not ours — alive nonetheless.
-    return error?.code === "EPERM";
+    return error.code === "EPERM";
   }
 };
 
@@ -45,6 +45,10 @@ function readJson(path) {
   }
 }
 
+// `.trim()` is load-bearing, not tidiness: `Date.parse` answers NaN on a timestamp
+// carrying so much as a trailing newline, and a marker file is exactly the kind of
+// thing an editor, a shell redirect or a sync tool adds one to. Without it, such a
+// marker reads as absent and every window on the machine ticks.
 function readTime(path) {
   try {
     const t = Date.parse(readFileSync(path, "utf8").trim());
@@ -79,7 +83,7 @@ export function openTickGate({ dir, pid = process.pid, now = () => new Date(), i
     try {
       fd = openSync(lockPath, "wx");
     } catch (error) {
-      if (error?.code === "EEXIST") return false;
+      if (error.code === "EEXIST") return false;
       throw error;
     }
     try {
@@ -96,17 +100,17 @@ export function openTickGate({ dir, pid = process.pid, now = () => new Date(), i
       mkdirSync(dir, { recursive: true });
       const last = readTime(lastPath);
       if (last !== null && at - last < minGapMs) return false;
-      // Two attempts: the first EEXIST may be a dead/stale holder we then reclaim.
-      for (let attempt = 0; attempt < 2; attempt++) {
-        if (tryCreate(at)) return true;
-        if (holderIsLive(readJson(lockPath), at)) return false;
-        try {
-          rmSync(lockPath, { force: true });
-        } catch {
-          return false;
-        }
+      if (tryCreate(at)) return true;
+      // The EEXIST may be a dead or stale holder, so reclaim it and try ONCE more.
+      // Not a loop: a further attempt could only lose the same race again, and a
+      // count of two is a number no test can pin down.
+      if (holderIsLive(readJson(lockPath), at)) return false;
+      try {
+        rmSync(lockPath, { force: true });
+      } catch {
+        return false;
       }
-      return false;
+      return tryCreate(at);
     },
     release() {
       try {
