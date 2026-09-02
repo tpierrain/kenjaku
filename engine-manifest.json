@@ -48,6 +48,7 @@
       "scripts/engine-write-guard.mjs",
       "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",
+      "scripts/remote-sync.mjs",
       "scripts/verify-index.mjs",
       "scripts/lib/**",
       ".claude/settings.json.template",

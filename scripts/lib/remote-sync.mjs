@@ -34,6 +34,17 @@ import { treeState } from "./repo-status.mjs";
 /** The trace the announcement hooks read. At the brain ROOT: a watcher only sees root files (POC 0.1). */
 export const TRACE_REL = "remote-arrivals.json";
 
+/**
+ * Why that file is in the owner's `.gitignore`, in their words rather than ours — they
+ * read that file when their sync misbehaves. It is per-machine on purpose: the other
+ * machine has its OWN arrivals to announce, and a committed trace would travel as a note
+ * about notes. Spelled here once; the shipped `.gitignore` and the fleet migration
+ * (reconcile-brain.mjs) are asserted to agree rather than trusted to.
+ */
+export const TRACE_IGNORE_COMMENT =
+  "# What the live sync between machines just pulled in, kept for the next message to announce" +
+  " (this machine's own business — never commit it).";
+
 /** How often a window ticks. One effective tick per machine per interval (the gate). */
 export const DEFAULT_INTERVAL_MS = 90_000;
 

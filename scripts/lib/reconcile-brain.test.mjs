@@ -22,6 +22,7 @@ import { readEngineDivergence } from "./engine-base-fs.mjs";
 // F4: spelled once, in the module that owns it — a test that re-typed the entry could
 // pass while the migration wrote a different line.
 import { BASE_SETTINGS_ENTRY } from "./ignore-base-settings.mjs";
+import { TRACE_IGNORE_COMMENT, TRACE_REL } from "./remote-sync.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // reconcile-brain — the RECONCILE half of update-engine, extracted (ADR 0026).
@@ -3120,11 +3121,12 @@ test("reconcileBrain — a brain already migrated is not touched again, and does
   const sourceDir = buildSource();
   t.after(() => rmSync(brainDir, { recursive: true, force: true }));
   t.after(() => rmSync(sourceDir, { recursive: true, force: true }));
-  // Already migrated on BOTH counts — the universes pointer (which this test is named for)
-  // and F4's base copy of settings.json, since the two share one read and one write. A
-  // fixture missing either entry would be a brain with something left to do, and the
-  // byte-for-byte claim below would prove nothing about the idempotence of the other.
-  const migrated = `.env\nscratch/\n${BASE_SETTINGS_ENTRY}\n`;
+  // Already migrated on ALL THREE counts — the universes pointer (which this test is named
+  // for), F4's base copy of settings.json, and the live sync's arrivals trace, since they
+  // share one read and one write. A fixture missing any entry would be a brain with
+  // something left to do, and the byte-for-byte claim below would prove nothing about the
+  // idempotence of the others.
+  const migrated = `.env\nscratch/\n${BASE_SETTINGS_ENTRY}\n${TRACE_REL}\n`;
   writeFile(brainDir, ".gitignore", migrated);
   const args = {
     brainDir,
@@ -3139,6 +3141,34 @@ test("reconcileBrain — a brain already migrated is not touched again, and does
 
   assert.equal(report.pointerUnignored, false, "nothing to migrate must not read as a migration");
   assert.equal(readFileSync(join(brainDir, ".gitignore"), "utf8"), migrated);
+});
+
+// The live sync between machines (plan #84) writes its arrivals trace at the brain ROOT,
+// per machine. On a deployed brain nothing ignores it, and the consequences compound: the
+// tree is dirty, so the very next tick DEFERS instead of syncing — the feature silently
+// does nothing — and meanwhile the sweep commits the trace and publishes one machine's
+// arrivals to the other. Same read, same write, same reason as the two migrations above.
+test("reconcileBrain — a deployed brain starts ignoring the live sync's arrivals trace", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => rmSync(brainDir, { recursive: true, force: true }));
+  t.after(() => rmSync(sourceDir, { recursive: true, force: true }));
+  writeFile(brainDir, ".gitignore", `.env\n# mine\nscratch/\n`);
+
+  await reconcile({
+    brainDir,
+    platform: "darwin",
+    sourceDir,
+    target: manifest(),
+    local: manifest(),
+    ...seams(),
+  });
+
+  const gitignore = readFileSync(join(brainDir, ".gitignore"), "utf8");
+  assert.ok(gitignore.split("\n").includes(TRACE_REL), "the entry must be a line of its own, matchable by git");
+  assert.ok(gitignore.includes(TRACE_IGNORE_COMMENT), "and it must say why, in the owner's terms");
+  assert.match(gitignore, /^scratch\/$/m, "the owner's own entries are untouched");
+  assert.match(gitignore, /^\.env$/m);
 });
 
 test("reconcileBrain — a brain with no .gitignore at all migrates nothing, and never creates one", async (t) => {

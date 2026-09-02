@@ -83,6 +83,8 @@ maintainers/mutation/reports/*.html
 !maintainers/mutation/reports/*.log
 .cache/
 tmp/
+# What the live sync between machines just pulled in, kept for the next message to announce (this machine's own business — never commit it).
+remote-arrivals.json
 
 # QA feedback dumps that may contain confidential source data — never commit
 maintainers/qa/_private/

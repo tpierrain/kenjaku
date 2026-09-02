@@ -19,7 +19,14 @@
 // The same surgical contract as `unignore-pointer.mjs`, its twin one door over: this
 // file is the OWNER's. We add one entry and one comment, at the end, and touch nothing
 // else — their lines, their order, their line endings. Pure: the caller reads and writes.
+//
+// HOW it is added is no longer written here: the live sync between machines needs the
+// very same migration for its arrivals trace, and the subtle half — deciding whether a
+// line ALREADY covers the path — must not exist in two copies. It moved, whole and with
+// its mutation-run lessons, to `gitignore-entry.mjs`; this file keeps WHAT is ignored
+// and WHY, which is all it ever really said.
 // ─────────────────────────────────────────────────────────────────────────────
+import { ensureIgnored } from "./gitignore-entry.mjs";
 
 // The path the engine keeps the ancestor bytes at. Spelled here once; the migration and
 // the shipped `.gitignore` are asserted to agree rather than trusted to.
@@ -31,55 +38,11 @@ export const BASE_SETTINGS_COMMENT =
   "# The engine's copy of settings.json (same reason as the line above: absolute paths" +
   " belonging to THIS machine — never commit it).";
 
-// Trailing spaces are git's own rule for a `.gitignore` entry, and `.trim()` also strips
-// a CRLF file's trailing `\r`, which is whitespace.
-const bare = (line) => line.trim();
-
 /**
  * Returns the `.gitignore` with the base copy of settings.json ignored, and whether
  * anything moved. Already ignored → the SAME string back, so a second run is provably
  * a no-op and a converged brain sees no churn.
  */
 export function ignoreBaseSettings(text) {
-  if (text.split("\n").some(covers)) return { text, changed: false };
-
-  // Appended, never inserted next to its sibling: the sibling may have been moved,
-  // renamed or commented out by the owner, and an insertion point we have to find is an
-  // insertion point we can get wrong on someone else's file.
-  const eol = text.includes("\r\n") ? "\r\n" : "\n";
-  // A file that does not end in a newline would otherwise have our comment welded onto
-  // its last entry, turning that entry into something git no longer matches. On a file
-  // that is EMPTY there is nothing to weld to and nothing to separate from: both the
-  // separator and the blank line would be two leading blanks the owner never wrote, and
-  // they would show up in their diff forever (S15a).
-  const prefix = text === "" ? "" : `${text.endsWith("\n") ? "" : eol}${eol}`;
-  return { text: `${text}${prefix}${BASE_SETTINGS_COMMENT}${eol}${BASE_SETTINGS_ENTRY}${eol}`, changed: true };
-}
-
-/**
- * Does this `.gitignore` line already keep our path out of the repo?
- *
- * Not "is it our entry, spelled our way" (S15b): `.engine-base/` is the broader and
- * equally correct line a maintainer writes by hand, and to git it already ignores
- * everything below it. Appending the narrow entry under it is churn on someone else's
- * file — and churn that comes back at every update, because an exact-match check can
- * never see the line it keeps duplicating.
- *
- * Deliberately literal: a **directory prefix**, nothing more. A glob (`*.json`,
- * `.engine-*`) may well cover the path too, and answering that would mean
- * re-implementing git's matcher — where a wrong "yes" leaks this machine's absolute
- * paths into a published repo. An extra entry under a glob is harmless; a missing one
- * is not.
- */
-function covers(line) {
-  // A leading `/` anchors, a trailing `/` says "directory": neither changes WHICH path
-  // is named here, since ours is anchored at the brain root either way.
-  const named = bare(line).replace(/^\//, "").replace(/\/$/, "");
-
-  // 🛑 A blank line, a `#` comment and a `!` negation need NO special case, and the
-  // mutation run is what proved it: each one keeps its own leading character, so it can
-  // neither equal our entry nor be a directory prefix of it. A guard that cannot change
-  // an answer is not caution, it is a branch nothing can test — so it is not written.
-  // The three of them are pinned by tests, on the behaviour rather than on the branch.
-  return named === BASE_SETTINGS_ENTRY || BASE_SETTINGS_ENTRY.startsWith(`${named}/`);
+  return ensureIgnored({ text, entry: BASE_SETTINGS_ENTRY, comment: BASE_SETTINGS_COMMENT });
 }
