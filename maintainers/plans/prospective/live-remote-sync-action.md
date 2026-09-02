@@ -14,12 +14,13 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-01
 
-- **Next:** step 3 — the clock in the search server (`rag/src/lib/remote-sync-scheduler.ts`,
-  its interval parser, and the wiring in `rag/src/index.ts` behind `persistenceApplies`).
-  Everything the tick itself needs is done and green: the merge rule (1), the tick (2.2), the
-  gate (2.3), and now the entry point driven **as a process** on a real repo with a local
-  remote (2.4), its manifest line (2.5) and its ignore line, fleet migration included (2.6).
-  2.7's mutation run is the one thing left on step 2.
+- **Next:** step 4 — the next-message announcement (`prompt-restart-nudge.mjs` reads the trace
+  and hands Claude a directive). Steps 1, 2 and 3 are done and green: the merge rule, the tick,
+  the gate, the entry point driven **as a process** on a real repo with a local remote, its
+  manifest line, its ignore line with the fleet migration, and the clock in the search server
+  with its knob, its jitter and its shutdown. Two things trail behind, both deliberately:
+  **2.7** (the mutation run on the four new files, started 2026-09-02) and **3.6** (the
+  `engineVersion` bump, moved to step 8 — see there for why).
   The POC is closed: the `FileChanged`
   hook runs code but cannot speak to the conversation, so the immediate display falls back to
   the native banner (5.2) and the next-message announcement (4); 5.1 is dropped.
@@ -133,19 +134,30 @@ a real brain.
 
 ### 3. The clock lives in the search server, bounded to the session
 
-- [ ] **3.1** Failing tests first, `rag/src/lib/remote-sync-scheduler.test.ts`: injected timer
+- [x] **3.1** _(2026-09-02, 14 tests)_ Failing tests first, `rag/src/lib/remote-sync-scheduler.test.ts`: injected timer
       and clock, fixed interval with ±10 % jitter, one tick in flight (the next waits), re-armed
       in `finally` after a failure, stopped on shutdown, `0` disables.
-- [ ] **3.2** `rag/src/lib/remote-sync-scheduler.ts` (§ C), same shape as
+- [x] **3.2** _(2026-09-02)_ `rag/src/lib/remote-sync-scheduler.ts` (§ C), same shape as
       `local-mirror/src/auto-sync-scheduler.ts`.
-- [ ] **3.3** `rag/src/lib/remote-sync-interval.ts`: `REMOTE_SYNC_INTERVAL` parser (`/^\d+$/`,
+- [x] **3.3** _(2026-09-02)_ `rag/src/lib/remote-sync-interval.ts`: `REMOTE_SYNC_INTERVAL` parser (`/^\d+$/`,
       `0` = off, malformed → default 90), on the model of `local-mirror/src/lib/sync-interval.ts`.
-- [ ] **3.4** Wired in `rag/src/index.ts` only when `persistenceApplies(manifest)` (never on the
+- [x] **3.4** _(2026-09-02)_ Wired in `rag/src/index.ts` only when `persistenceApplies(manifest)` (never on the
       generator), through the existing `buildScriptRunner`; the tick is an async child, a search
-      never waits on it.
-- [ ] **3.5** `.env.example` documents the variable, commented out, under ADVANCED / OPTIONAL
+      never waits on it. **Plus the half the plan had not named**: the shutdown. The clock now
+      has its own seam in `vaultShutdownPlan` (`stopRemoteSync`), and a background loop that
+      refuses to stop no longer takes the other one down with it — a clock outliving its window
+      would keep pulling into a brain nobody is looking at, and fight the next session for
+      `.git/index.lock` from a process with no window at all.
+- [x] **3.5** _(2026-09-02)_ `.env.example` documents the variable, commented out, under ADVANCED / OPTIONAL
       (reaches new installs only: the default lives in code). `indexSchemaVersion` untouched.
-- [ ] **3.6** `engineVersion.rag` and `engineVersion.scripts` bumped in the manifest.
+- [ ] **3.6** ~~`engineVersion.rag` and `engineVersion.scripts` bumped in the manifest~~ →
+      **moved to step 8, on the owner's own rule** _(2026-09-02)_. Commit `32a6ec4`: *"a bumped
+      version that is not published makes a fresh install stamp itself with a version that was
+      never released"*. The bump lands **in the same movement as the tag**, not a day earlier.
+      The table it will apply: `rag` 1.4.0 → 1.5.0 (a new scheduler and its knob),
+      `scripts` 1.14.0 → 1.15.0 (a new entry point and two new lib modules),
+      `rag/package.json` `version` in step with `engineVersion.rag`, `local-mirror` and
+      `constitutionTemplate` unmoved, `indexSchemaVersion` unmoved (no reindex is owed).
 
 ### 4. At the next message, the brain says what arrived, or guides the merge itself
 
@@ -199,6 +211,9 @@ a real brain.
       SETUP, CONNECTORS, boards; verdicts recorded here.
 - [ ] **8.2** Release note (§11): brief, non-alarmist, "What you get" grouped by moment, with the
       `### What you get` heading the `--check` prose is parsed from.
+- [ ] **8.2bis** The `engineVersion` bump, applied here and not before (the table is at 3.6):
+      a version that is bumped but unpublished makes a fresh install stamp itself with a
+      version that never existed (`32a6ec4`).
 - [ ] **8.3** Tag (number: owner's call, see STATE), `git push --tags`, published release.
 - [ ] **8.4** Tracker sweep (§10bis): #84 closed when a real brain **receives** the feature;
       say what was not closed.
