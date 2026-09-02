@@ -134,7 +134,12 @@ function tick(root, env = {}) {
     cwd: tmpdir(),
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, ...env },
+    // 🔕 A TEST MAY NOT PUT A POPUP ON ANYONE'S SCREEN. These tests run the real entry point,
+    // which ends in a real native banner when notes arrive — so without this switch the suite
+    // raised one desktop notification per arrival, and a mutation run raised hundreds. The
+    // banner's own rules are pinned in `lib/os-banner.test.mjs`, against an injected spawn;
+    // what belongs here is the tick, and the tick is exactly as true with the toast silenced.
+    env: { ...process.env, SBG_NO_NOTIFY: "1", ...env },
   }).trim();
 }
 
@@ -376,21 +381,6 @@ test("minGapMsFrom follows the configured interval, and falls back to 90 s on an
   assert.equal(minGapMsFrom({ REMOTE_SYNC_INTERVAL: "30.5" }), 90_000);
 });
 
-// The banner is the one port whose wiring nothing else can observe: the tick calls it, the
-// toast is native, and a port handed the wrong arguments would fail on a machine where
-// nobody is watching. `CI` makes the decision "stay quiet", so this exercises the wiring
-// with no child process at all — and a mis-wired port throws right here instead.
-test("realTickDeps wires every port the tick needs, banner included", () => {
-  const deps = realTickDeps(import.meta.url, { CI: "1" });
-
-  assert.deepEqual(
-    Object.keys(deps).sort(),
-    ["checkNote", "gate", "git", "indexLockPresent", "notify", "now", "push", "readTrace", "writeTrace"],
-    "runTick destructures exactly these: a port added there and forgotten here is `undefined is not a function`",
-  );
-  assert.doesNotThrow(() => deps.notify({ files: ["vault/a.md"], authors: ["Claire"] }));
-});
-
 test("buildPush pushes only when the four conditions of the Stop hook hold, and says so", () => {
   const answers = {
     remote: "origin\n",
@@ -490,7 +480,15 @@ test("the tick's notifier is the real banner, bound to this platform and this en
 });
 
 test("realTickDeps wires every seam the tick asks for, bound to the brain the module sits in", () => {
-  const deps = realTickDeps(`file://${join(LAUNCHER, "scripts", "remote-sync.mjs")}`, { REMOTE_SYNC_INTERVAL: "90" });
+  // The spawn is handed in, and it MUST be: the notifier this wiring builds raises a native
+  // desktop banner, so exercising it against the real one puts a popup on the screen of
+  // whoever runs the suite — thousands of them under a mutation run.
+  const spawned = [];
+  const deps = realTickDeps(
+    `file://${join(LAUNCHER, "scripts", "remote-sync.mjs")}`,
+    { REMOTE_SYNC_INTERVAL: "90" },
+    (command, args) => (spawned.push({ command, args }), { unref: () => {} }),
+  );
 
   assert.deepEqual(Object.keys(deps).sort(), [
     "checkNote",
@@ -511,4 +509,15 @@ test("realTickDeps wires every seam the tick asks for, bound to the brain the mo
   assert.equal(typeof deps.gate.release, "function");
   assert.ok(deps.now() instanceof Date);
   assert.equal(deps.indexLockPresent(), false, "this repo is not mid-commit while its own test runs");
+
+  // A notifier wired to nothing looks exactly like a notifier that decided to stay quiet, so
+  // the wiring is checked by the request that reaches the spawn — on the platforms that have
+  // a banner. Elsewhere there is none to build, and silence is the correct answer.
+  deps.notify({ files: ["vault/people/claire.md"], authors: ["Claire"] });
+  if (process.platform === "darwin" || process.platform === "win32") {
+    assert.equal(spawned.length, 1, "the entry point hands the tick a REAL notifier, bound to this machine");
+    assert.match(spawned[0].args.at(-1), /1 note from Claire/);
+  } else {
+    assert.deepEqual(spawned, []);
+  }
 });

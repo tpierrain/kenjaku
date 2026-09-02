@@ -158,8 +158,15 @@ export function buildPush({ git }) {
   };
 }
 
-/** Every port of `runTick`, bound to the brain this module sits in. */
-export function realTickDeps(metaUrl, env = process.env) {
+/**
+ * Every port of `runTick`, bound to the brain this module sits in.
+ *
+ * `spawnChild` is a seam, and it is not decoration: the notifier it feeds raises a NATIVE
+ * desktop banner, so any test that exercises this wiring against the real `spawn` puts a
+ * popup on the screen of whoever is running it — a thousand of them under a mutation run,
+ * where breaking the switch that silences it is precisely what the mutants do.
+ */
+export function realTickDeps(metaUrl, env = process.env, spawnChild = spawn) {
   const brainDir = brainRoot(metaUrl);
   const git = buildGit(brainDir);
   const trace = buildTrace(brainDir);
@@ -171,7 +178,7 @@ export function realTickDeps(metaUrl, env = process.env) {
     writeTrace: trace.write,
     checkNote: buildCheckNote({ brainDir }),
     push: buildPush({ git }),
-    notify: buildNotifier({ platform: process.platform, env, spawn }),
+    notify: buildNotifier({ platform: process.platform, env, spawn: spawnChild }),
     now: () => new Date(),
   };
 }
