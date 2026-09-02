@@ -114,7 +114,12 @@ function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notif
   }
 
   const files = lines(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out);
-  const authors = unique(lines(git(["log", "--format=%an", "ORIG_HEAD..HEAD"]).out));
+  // The FILES are a tree comparison, so my own unpushed work — identical on both sides —
+  // cancels out and only what changed shows. The AUTHORS cannot be read the same way:
+  // a rebase replays my local commits with new SHAs, so `ORIG_HEAD..HEAD` lists me among
+  // the arrivals. `@{u}` does not move during a rebase, so `ORIG_HEAD..@{u}` is exactly
+  // what the other side pushed — and the announcement names people, not machines.
+  const authors = unique(lines(git(["log", "--format=%an", "ORIG_HEAD..@{u}"]).out));
 
   const damaged = [];
   let reason = null;

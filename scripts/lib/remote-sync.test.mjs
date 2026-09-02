@@ -44,7 +44,7 @@ function behindAnswers(overrides = {}) {
     "fetch origin": "",
     "rebase @{u}": "Successfully rebased and updated refs/heads/main.\n",
     "diff --name-only ORIG_HEAD HEAD": "vault/daily/2026-09-08.md\nvault/people/notaire.md\n",
-    "log --format=%an ORIG_HEAD..HEAD": "Claire\nClaire\n",
+    "log --format=%an ORIG_HEAD..@{u}": "Claire\nClaire\n",
     "config --get user.name": "Paul\n",
     ...overrides,
   };
@@ -167,7 +167,7 @@ test("behind → fetch, rebase, trace of what arrived (files + authors), push, b
     "fetch origin",
     "rebase @{u}",
     "diff --name-only ORIG_HEAD HEAD",
-    "log --format=%an ORIG_HEAD..HEAD",
+    "log --format=%an ORIG_HEAD..@{u}",
     "config --get user.name",
   ]);
   assert.deepEqual(h.writes, [
@@ -184,8 +184,26 @@ test("behind → fetch, rebase, trace of what arrived (files + authors), push, b
   assert.equal(h.gate.released, 1);
 });
 
+// The rebase REPLAYS my unpushed commits, so they land in `ORIG_HEAD..HEAD` with brand-new
+// SHAs and would be announced as things that "arrived" — from myself, to myself. What
+// arrived is what the OTHER side pushed, and that range is `ORIG_HEAD..@{u}`: the upstream
+// ref does not move during a rebase, so it names the incoming commits and nothing else.
+// Found while driving the entry point on a real repo (step 2.4): the local author showed up
+// in the trace of a union merge.
+test("my own unpushed commits, replayed by the rebase, are NOT arrivals: only the other side's authors", () => {
+  const h = harness(
+    behindAnswers({
+      "log --format=%an ORIG_HEAD..HEAD": "Paul\nClaire\n",
+      "log --format=%an ORIG_HEAD..@{u}": "Claire\n",
+    }),
+  );
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(h.writes[0].authors, ["Claire"], "the local author is not an arrival");
+  assert.deepEqual(h.notices, [{ files: ["vault/daily/2026-09-08.md", "vault/people/notaire.md"], authors: ["Claire"] }]);
+});
+
 test("notes from MYSELF (my other machine) arrive silently: trace and push, but no banner", () => {
-  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..HEAD": "Paul\n" }));
+  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "Paul\n" }));
   assert.equal(runTick(h.deps), "arrived");
   assert.deepEqual(h.notices, []);
   assert.equal(h.writes[0].authors[0], "Paul");
