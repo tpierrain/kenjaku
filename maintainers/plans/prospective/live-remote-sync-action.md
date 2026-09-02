@@ -108,12 +108,17 @@ measurements only the owner's own machines can make.**
      CONVENTIONS §5quater warns about.
 - **Blocked on:** nothing. Unknown 4 (server count across Desktop conversations) is measured
   at 7.4; the per-machine lock (2.3) is built regardless.
-- ⏸️ **A duo risk analysed, and its answer is his** _(2026-09-02, he raised it)_. Two people on one
-  brain, both able to reach the same mailbox, can digest the same email twice — and `merge=union`
-  keeps both silently where a conflict used to show. Nothing carries a source identity today except
-  Notion mirrors. **It does not block the release**; what awaits him is whether the one-paragraph
-  doctrine (a writer of record per source) ships with it. Findings, code checked, and the two fixes:
-  § Why no duo mode → *"But two people on one brain CAN digest the same source twice"*.
+- ⏸️ **A duo risk analysed and costed, and its answer is his** _(2026-09-02, he raised it, then read
+  it as a release prerequisite and asked for the shaping)_. Two people on one brain can digest the
+  same source twice, and `merge=union` keeps both silently where a conflict used to show. The
+  sentence hides **three** defects: the same raw capture stored twice (needs source identity — a
+  chantier the size of #84, and it **would not have covered mail-by-forward**, since a forwarded copy
+  is a different message to the connector), the same day's synthesis written twice (needs per-person
+  paths — deterministic, cheap, no LLM discipline), and the same fact restated in a curated page
+  (doctrine only, forever). **Recommended as prerequisites: the per-person paths and the
+  writer-of-record paragraph. Not the source identity.** Findings, the step-by-step and the risks:
+  § Why no duo mode → *"But two people on one brain CAN digest the same source twice"* and its
+  shaping subsection. Awaiting his go on which of the three ships with this release.
 - **Owner's call pending:** the release number (the feature ships alone under the next tag,
   decision 3; which tag it is gets settled at step 8 against the v5.1 promise in
   [`clear-the-tracker-action.md`](clear-the-tracker-action.md)).
@@ -597,11 +602,15 @@ from both Claude accounts**. Checked in the code the same day:
   union both texts are kept, no marker, no question — the right rule for an append-only ledger, and
   the reason a doubled digest now lands silently. `.gitattributes` is in the `replace` regime (1.3),
   so this reaches already-deployed brains at their next engine update.
-- **What limits it today**: there is **no mail sub-agent** in the fan-out (the procedure has
-  transcripts, chat, my-actions, calendar — mail is only in the skill's description), and no
-  scheduler. Duplication is opportunistic — both people asking about the same subject — not
-  systematic. The skill's novelty check already asks the main context to search the vault before
-  presenting something as news; it works on subject matter, not on source identity, and it is prose.
+- **What limits it today, and how much — the first read of this was too soft.** There is **no mail
+  sub-agent** in the fan-out (the procedure has transcripts, chat, my-actions, calendar; mail is only
+  in the skill's description) and no scheduler, so nothing hoovers a mailbox on its own: the trigger
+  is always a question. That was written up as *"opportunistic, not systematic"*, and the owner
+  pushed back on 2026-09-02 — **rightly**. Two people who share a brain share it **because they work
+  the same dossiers**: an assistant exists to handle the owner's affairs. Overlapping questions are
+  the normal case, not bad luck. The rate is question-driven, the collision is expected.
+  The skill's novelty check already asks the main context to search the vault before presenting
+  something as news; it works on subject matter, not on source identity, and it is prose.
 - **The cheap fix removes the cause: one writer of record per source.** Two people sharing a brain
   name, per connector-fed source, whose brain distils it; the other reads the notes. For the field
   case that is the owner for mail — Gmail delegation still lets the assistant *read* the mailbox as
@@ -610,7 +619,75 @@ from both Claude accounts**. Checked in the code the same day:
 - **The proper fix is a chantier, not a pre-release patch**: a source identity in the frontmatter of
   anything written from an external source, checked against the vault before writing. The writer is
   an LLM, so it stays doctrine unless a deterministic refusal enforces it (the `file-back-note.mjs`
-  shape). Not #84's, and not the release's.
+  shape). Not #84's, and not the release's. Shaped and costed below, because the owner read it as a
+  release prerequisite and asked what it would take.
+
+#### Shaping the source-identity chantier — asked for on 2026-09-02, and it splits in three
+
+**"The same thing lands twice" is three defects wearing one sentence**, and they need three
+different mechanisms. Conflating them is what makes source identity look like the whole answer.
+
+| What doubles | Why | What actually fixes it | Cost |
+| --- | --- | --- | --- |
+| **A. The same raw capture** — one mail, one thread, one doc, stored by both brains | nothing records what has been digested | source identity in frontmatter + a lookup before writing | a chantier |
+| **B. The same day's synthesis** — both write `briefings/YYYY-MM-DD.md`, union concatenates | the path is keyed by DAY, not by author | per-person paths for the per-day aggregates | one or two sessions, deterministic |
+| **C. The same fact restated** inside `people/x.md` or `topics/y.md`, in two wordings | two writers, one curated page | nothing mechanical: the novelty check and `/consolidate`, both prose | doctrine only |
+
+**B is the one that makes a duo vault look broken, and it is the cheap one.** Two briefings for one
+day concatenated into one file, silently, is the shape a first duo would meet in its first week. The
+identity it needs already exists and is already read (`git config --get user.name`,
+`remote-sync.mjs:153`), and the channel to hand it to a session exists and is proven
+(`additionalContext` at SessionStart, `session-universe.mjs`). It is study candidate 1, and it needs
+no LLM discipline whatsoever: a different path cannot collide.
+
+**C is honest doctrine and will stay so.** No machine tells "the same fact in other words" from "a
+second, genuinely new fact" without a judgment call, and a wrong call here deletes real content.
+
+**What A would take, step by step** (comparable in size to #84 itself, ADR included):
+
+1. **An ADR: what a source identity IS.** Which sources have one, how it is spelled, what a note
+   carries when its source has none, and whether it reuses `source_url` or gets its own key.
+2. **The lookup** — a deterministic `known-source` script, one line of output, non-zero on a hit,
+   in the exact shape the skill already calls for Slack (`set-universe-profile.mjs --check-slack`):
+   pre-authorized, greppable, testable. **It must scan the notes, not the index**: a note that
+   arrived by git seconds ago is not indexed yet, and an index-backed check would answer
+   "never seen" precisely in the duo case it exists for.
+3. **The writer guard** — `file-back-note.mjs` refuses a spec whose source identity the vault
+   already holds, reusing the homonym-refusal shape it already carries.
+4. **The producers** — `sync-sources` stamps the identity and runs the check before capturing.
+   Prose, asserted the way the other disciplines are (`claim-discipline.test.mjs`,
+   `connector-discipline.test.mjs`).
+5. **Compatibility** — every note written before this has no identity, and "no identity" must read
+   as *unknown*, never as *seen*; the linter must accept the new key.
+6. **A rehearsal on two clones**, in step 7's shape, because nothing else proves it.
+
+**The risks, worst first:**
+
+- 🔴 **The identity does not survive a forward — which kills the very case that prompted this.** A
+  mail forwarded into the assistant's mailbox is, to the connector, a **different message with a
+  different id**. So dedup by connector id cannot match the two copies. Matching them would take a
+  content fingerprint (subject + sender + date, normalized), which is **fuzzy** — and a fuzzy match
+  that fires wrongly **silently drops a genuinely new mail**, which is far worse than a double. The
+  chantier therefore delivers on sources both brains reach **at the same address** — a Slack
+  permalink, a Notion page, a Drive file, a calendar event, all of which duo mode has plenty of —
+  and **not** on mail-by-forward. Mail becomes machine-dedupable only if both brains read the **same
+  mailbox** (the study's rejected fallback), or is settled by doctrine.
+- 🟠 **Enforcement is partial by construction.** A guard covers the deterministic write path; the
+  LLM can always reach for `Write`. The guarantee is "usually", and a dedup one believes in but that
+  leaks is worse than none, because it stops being checked.
+- 🟠 **Failing direction.** The check must only ever *say* "already held" and leave the skip visible.
+  A silent skip trades a duplicate for a loss, and a loss cannot be noticed from inside the vault.
+- 🟡 **It touches the hottest doctrine surfaces**: a 553-line skill of hard-won prose and the
+  linter's zone lists, whose universe blind spots already have a plan of their own
+  (`harness-universe-blindspot-hardening-action.md`).
+- 🟡 **B changes the vault's shape for every brain, not only duo ones** — old briefings stay at the
+  old path, so type detection, the linter zones and consolidation must accept both spellings.
+- 🟡 **The release slips** by a chantier the size of #84 if A is made a prerequisite.
+
+**Recommendation: B and the doctrine paragraph are the prerequisites; A is not.** B removes the
+structural collision deterministically, the paragraph is the only thing that works for forwarded
+mail whatever gets built, and A is a real chantier that would not have covered the case it was asked
+for. If A is taken, it gets its own plan file; this section is the shaping, not the plan.
 - **Assessment: does not block step 8.** ⏸️ **Owner's call** — whether the doctrine paragraph ships
   with this release, and whether the source-identity item is filed as an issue.
 
