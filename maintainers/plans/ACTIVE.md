@@ -11,7 +11,9 @@ the active plan, never directly.
 ## The active plan
 
 - **Subject:** a brain open on two machines stays in step on its own, merges notes without a
-  human, and says what arrived — issue #84.
+  human, and says what arrived — issue #84. **Since 2026-09-02 it also carries the duo-mode work**
+  (two people on one brain stop storing the same thing twice), whose own plan is reached through
+  the plan below.
 - **Plan:** [`prospective/live-remote-sync-action.md`](prospective/live-remote-sync-action.md)
 - **Active since:** 2026-09-01
 

@@ -18,8 +18,13 @@ that surfaced it: [`../../studies/two-humans-one-brain-study.md`](../../studies/
 the entry point driven **as a process** on a real repo with a local remote, the clock in the search
 server with its knob and its shutdown, the announcement that reaches the conversation at the owner's
 next message, the banner for notes written by someone else, the doctrine and docs that say so, and
-the rehearsal against a copy of a real brain. **What remains is step 8 (the release) and two
-measurements only the owner's own machines can make.**
+the rehearsal against a copy of a real brain.
+
+> ▶️ **START HERE.** What remains is **NOT** step 8. Since 2026-09-02 this release carries a second
+> feature, and its work is the sub-plan
+> [`duo-source-identity-action.md`](duo-source-identity-action.md) — **open it and start at its
+> first unticked box**. Step 8 (the release) is blocked until it lands; the only other things left
+> are two measurements only the owner's own machines can make, and reviews that are his.
 
 - ✅ **2.7 is DONE** _(2026-09-02)_. Two passes over the six files this chantier writes: **86.17 %
   → 95.98 %**, and the gate — the piece that decides whether a machine ticks at all — **67.74 % →
