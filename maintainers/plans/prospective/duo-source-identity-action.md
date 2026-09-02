@@ -68,9 +68,10 @@ and measured (parent plan); what is missing is code.
       raw source descriptor into a key, one function per source type, plus the mail composite
       (sender + ISO timestamp + subject, each normalized). Tests first.
 - [ ] **1.2** `scripts/known-source.mjs`: the entry point. Reads a key on argv and answers **"does
-      ANY note list this source?"** — it **scans the vault's note frontmatter** (never the index — a note that arrived by git seconds ago is not indexed
-      yet, and an index-backed check would answer "never seen" precisely in the duo case it exists
-      for), prints one line, **exits non-zero on a hit**. Same shape as the check the skill already
+      ANY note list this source?"** — it **scans the vault's note frontmatter** (never the index: a
+      note that arrived by git seconds ago is not indexed yet, and an index-backed check would
+      answer "never seen" precisely in the duo case it exists for), prints one line, **exits
+      non-zero on a hit**. Same shape as the check the skill already
       calls for Slack (`set-universe-profile.mjs --check-slack`): pre-authorized, greppable.
 - [ ] **1.3** Tested **as a process** (rules/testing.md entry-point seam rule), not only through its
       imported functions.
@@ -97,7 +98,8 @@ and measured (parent plan); what is missing is code.
       `METADATA_ONLY`, so **never fetch a raw message just to get an identity**.
 - [ ] **3.3** `templates/fr/.claude/skills/sync-sources/SKILL.md` — the French twin. ⚠️ Deliberate
       product localization (rules/language.md): translated, not anglicized. **Owner-only per the
-      autonomy line above → leave a ticked-off note here and DO NOT write it.**
+      autonomy line above: leave this box UNTICKED, note beside it that the English twin is ready,
+      and DO NOT write it.**
 - [ ] **3.4** The linter accepts `sources` (`scripts/lib/wiki-lint.mjs`), and the frontmatter
       parser exposes it (`rag/src/lib/frontmatter-parser.ts`) the way `sourceUrl` already is.
 
@@ -214,7 +216,8 @@ which is the point of sharing a brain in the first place, and which keeps the fa
 
 ## Design calls taken without him
 
-Both taken to keep the overnight run moving, both cheap to reverse, both his to confirm.
+All three taken to keep the overnight run moving, all three cheap to reverse, all three his to
+confirm.
 
 1. **The per-person suffix appears only on collision, not always.** The alternative considered was
    suffixing every dated note in any brain that has a remote — the criterion the live sync already
