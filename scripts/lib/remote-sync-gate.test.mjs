@@ -185,40 +185,58 @@ test("the gate creates its directory when .cache/ does not exist yet", (t) => {
 // lock file appears the instant it is created and is filled a moment later, so a
 // rival that reads it in between finds no holder, concludes the holder is dead,
 // and steals a lock that is very much alive.
+// Two things the child does deliberately, and the test is worthless without either:
+//
+//   • it waits on a `go` file before touching the gate. Spawning four Node processes
+//     takes hundreds of milliseconds, and unevenly — on a loaded CI machine the first
+//     child can be finished before the last has started, which races nothing at all.
+//     The barrier is what makes them contend.
+//   • it injects `isAlive: () => true`. The liveness probe has its own tests; here it
+//     would only add a second way to win — a child that has exited IS dead, and a
+//     rival reclaiming its lock would be right to. Held out, the only thing left that
+//     can produce two winners is a failure of the exclusion itself.
 const CHILD = `
+import { existsSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { openTickGate } from "GATE_URL";
-// \`node -e\` leaves no script path in argv, so the directory is argv[1], not argv[2].
-const gate = openTickGate({ dir: process.argv[1], minGapMs: 1_000 });
-const won = gate.acquire();
-// Stay alive while the rivals make up their minds: a winner that exits at once is
-// genuinely dead, and a rival reclaiming its lock would be right to.
-await new Promise((resolve) => setTimeout(resolve, 400));
-process.stdout.write(won ? "won" : "lost");
+// \`node -e\` leaves no script path in argv, so the arguments start at index 1.
+const [, dir, id] = process.argv;
+writeFileSync(join(dir, "ready." + id), "");
+while (!existsSync(join(dir, "go"))) { /* spin: the tightest start four processes can share */ }
+const gate = openTickGate({ dir: join(dir, ".cache"), minGapMs: 1_000, isAlive: () => true });
+process.stdout.write(gate.acquire() ? "won" : "lost");
 `;
 
+const GATE_URL = pathToFileURL(join(import.meta.dirname, "remote-sync-gate.mjs")).href;
+
 async function raceWindows(d, count) {
-  const script = CHILD.replace("GATE_URL", pathToFileURL(join(import.meta.dirname, "remote-sync-gate.mjs")).href);
-  const outcomes = await Promise.all(
-    Array.from({ length: count }, () => {
-      const child = spawn(process.execPath, ["--input-type=module", "-e", script, d], { stdio: ["ignore", "pipe", "inherit"] });
-      let out = "";
-      child.stdout.on("data", (chunk) => (out += chunk));
-      return new Promise((resolve, reject) => {
-        child.on("error", reject);
-        child.on("close", () => resolve(out));
-      });
-    }),
-  );
-  return outcomes.filter((outcome) => outcome === "won").length;
+  const script = CHILD.replace("GATE_URL", GATE_URL);
+  const children = Array.from({ length: count }, (_, i) => {
+    const child = spawn(process.execPath, ["--input-type=module", "-e", script, d, String(i)], {
+      stdio: ["ignore", "pipe", "inherit"],
+    });
+    let out = "";
+    child.stdout.on("data", (chunk) => (out += chunk));
+    return new Promise((resolve, reject) => {
+      child.on("error", reject);
+      child.on("close", () => resolve(out));
+    });
+  });
+
+  while (Array.from({ length: count }, (_, i) => existsSync(join(d, `ready.${i}`))).includes(false)) {
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  writeFileSync(join(d, "go"), "");
+  return (await Promise.all(children)).filter((outcome) => outcome === "won").length;
 }
 
-test("four windows starting at the same instant: exactly ONE ticks, every round", async (t) => {
+test("four windows released at the same instant: exactly ONE ticks, every round", async (t) => {
   // Rounds, because the interleaving that breaks it is a matter of microseconds: one
-  // round can pass by luck. Each gets its own `.cache/`, so no round inherits another's
+  // round can pass by luck. Each gets its own directory, so no round inherits another's
   // marker and every one of them is the first tick on a quiet machine.
   const winners = [];
   for (let round = 0; round < 12; round += 1) {
-    winners.push(await raceWindows(join(dir(t), ".cache"), 4));
+    winners.push(await raceWindows(dir(t), 4));
   }
   assert.deepEqual(
     winners,
