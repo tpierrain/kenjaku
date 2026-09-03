@@ -34,10 +34,10 @@ What is left splits in two, and only the first pile is mine:
   overrule**: the new `SETUP.md` §7 subsection *"Sharing one brain with someone else"*, and the
   rewritten sentence just above it about which merges stop and ask.
 
-- 🌙 **This plan was written to be executed AUTONOMOUSLY, overnight, from a cleared context**
-  _(the owner's instruction, 2026-09-02, before going to bed)_. Read the parent plan's
-  § *Why no duo mode* first — it is the reasoning this plan assumes and does not repeat — then start
-  at the first unticked box below.
+- 🌙 **The autonomous overnight run happened and is OVER** _(instruction of 2026-09-02, executed the
+  night of 2026-09-03)_. ⚠️ **Do NOT restart at the first unticked box**: it is 3.1, and 3.1 is
+  blocked on the owner. Restart where the two bullets at the top of this block say — nothing is
+  waiting on a session, everything is waiting on one word from him.
 - ✅ **HIS CALL, taken before the run: duo mode is IMPLICIT, and the brain announces it once.**
   Nothing to activate, no per-person profile to fill in. § *The owner's call: duo mode is implicit*
   holds the reasoning and the three things it settles.
