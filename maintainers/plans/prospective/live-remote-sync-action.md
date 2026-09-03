@@ -20,6 +20,16 @@ server with its knob and its shutdown, the announcement that reaches the convers
 next message, the banner for notes written by someone else, the doctrine and docs that say so, and
 the rehearsal against a copy of a real brain.
 
+> ✅ **THE OWNER'S GO IS GIVEN, AND THE NUMBER IS `v5.1.0`** _(2026-09-03, in conversation)_. His
+> words: *"ok pour v5.1.0, go pour la release"*. So 8.3's "owner's call" is answered — **the tag is
+> `v5.1.0`**, which is also the number the fingerprint table already carries (8.2ter therefore needs
+> no re-run unless something else changes it) and the number the field rehearsal used.
+>
+> ▶️ **RESUME AT 8.1** (marketing-surface re-read), then 8.2, 8.2bis, 8.3, 8.4, 8.5 in that order.
+> **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
+> and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
+> can do, and a red there is a follow-up fix, not a reason to withhold the release.
+>
 > ▶️ **START HERE: step 8, the release.** The second feature this release carries — the duo-mode
 > sub-plan [`duo-source-identity-action.md`](duo-source-identity-action.md) — **landed in full on
 > 2026-09-03** (`415cd7c`), so it no longer blocks anything; open it only for that feature's own
@@ -400,7 +410,7 @@ a real brain.
       merge-regime bytes and the freshness guard stays red until the table recognises them. **If the
       tag is not `v5.1.0`, the table names a version that was never published** — the exact defect
       8.2bis exists against, one file over.
-- [ ] **8.3** Tag (number: owner's call, see STATE), `git push --tags`, published release.
+- [ ] **8.3** Tag **`v5.1.0`** (settled 2026-09-03, see STATE), `git push --tags`, published release.
 - [ ] **8.4** Tracker sweep (§10bis): #84 closed when a real brain **receives** the feature;
       say what was not closed.
 - [ ] **8.5** This plan archived as `plans/archived/2026-09-0X-live-remote-sync.md`, STATE

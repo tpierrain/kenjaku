@@ -25,10 +25,9 @@ owner gave the go-ahead, both twins were written in the same commit, and steps 3
   **nothing called it** — the capture path stamped no key, so nothing was ever found already-held.
   The producers are skills, a skill may not ship in English alone, so the feature could not exist
   until both locales said the same thing. They now do, guarded rule by rule (36 red, then 67 green).
-- ⚠️ **One consequence to carry into the release**: `scripts/lib/engine-fingerprints.json` was
-  regenerated in that commit, stamped **`v5.1.0`** — the first merge-regime bytes this branch ships,
-  and the freshness guard is red until the table recognises them. **If the tag cut is not `v5.1.0`,
-  the generator must be re-run with the real one** (parent plan, 8.2ter).
+- ✅ **The tag is `v5.1.0`, settled by the owner on 2026-09-03** — which is exactly what
+  `scripts/lib/engine-fingerprints.json` was stamped with in that commit, so nothing has to be
+  regenerated on that account (parent plan, 8.2ter).
 - 👀 **Still his, and still not answered**: two product statements written during the run — the new
   `SETUP.md` §7 subsection *"Sharing one brain with someone else"*, and the rewritten sentence just
   above it about which merges stop and ask. They are shipped in the branch; his to overrule.
