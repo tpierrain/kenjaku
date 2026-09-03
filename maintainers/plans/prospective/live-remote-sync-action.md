@@ -67,7 +67,7 @@ the rehearsal against a copy of a real brain.
 > [`release-v5.1.0-note.md`](release-v5.1.0-note.md) under **whichever title he picks**. Then 8.4
 > (tracker sweep, close #84 when a real brain receives the feature) and 8.5 (archive this plan).
 >
-> **What is his, in one list**: merge #86; pick the release title (three candidates in the note);
+> **What is his, in one list**: merge #86 — **the title is settled, "The One with the Duo Mode"**;
 > the two measurements only his own machines can make (7.5, and the server count of 7.4) — neither of
 > which gates the tag; the two product statements flagged in `SETUP.md` §7; and, if he disagrees with
 > it, the board call recorded at 8.1.
@@ -594,9 +594,11 @@ a real brain.
         and fell back to its title — silently. Nothing to fix in a published tag; what was fixable is
         the net, so the constraint moved out of this plan and into **CONVENTIONS §11**, where the
         next release will read it.
-  - [ ] 🏷️ **The TITLE is the owner's**, as v4.9.1's was: *"The One Where Your Two Computers Stop
-        Drifting Apart"* is mine, and the two others considered are recorded in the note's header.
-        Not a blocker — the note publishes under whichever he picks.
+  - [x] 🏷️ **TITLE SETTLED** _(2026-09-03)_: **"v5.1.0 — The One with the Duo Mode"**, the owner's
+        own and none of the four put to him. It restores **`The One with…`**, the form the series
+        echoes and had drifted away from. The reservation raised (*"duo mode"* is our vocabulary, not
+        a phrase a user has read) was heard and overruled; both are in the note's header so neither
+        is re-litigated.
 - [x] **8.2bis** **The `engineVersion` bump is applied** _(2026-09-03)_, here and not before — a
       version bumped but unpublished makes a fresh install stamp itself with a version that never
       existed (`32a6ec4`). Exactly the table at 3.6: `rag` **1.4.0 → 1.5.0**, `scripts`

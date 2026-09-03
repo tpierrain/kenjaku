@@ -1,13 +1,21 @@
-# v5.1.0 — The One Where Your Two Computers Stop Drifting Apart
+# v5.1.0 — The One with the Duo Mode
 
 > **This file mirrors the release body to be published.** Written per `CONVENTIONS.md` §11:
 > non-developer first, technical depth kept but moved below the `---`. Mutation figures pinned from
 > the runs of 2026-09-03 (rag half, then the two `scripts/` batches).
 >
-> 🏷️ **The TITLE is the owner's to arbitrate**, as v4.9.1's was. Mine names what people live (two
-> machines that no longer agree); the two others considered named the mechanism (*"The One Where It
-> Catches Up on Its Own"*) and the arrival (*"The One Where the Other Machine Gets a Word In"*).
-> Recorded here so it is decided once rather than re-litigated at the tag.
+> 🏷️ **TITLE SETTLED BY THE OWNER** _(2026-09-03)_: **"The One with the Duo Mode"** — his own, not
+> one of the candidates put to him. It is **`The One WITH…`**, and that is the point: the series here
+> had drifted to `The One Where…` throughout, while the source it echoes uses `The One with…` far more
+> often. Recorded so the next release knows **both forms are open**.
+>
+> One reservation was raised and he kept the title anyway, which is the whole record needed: *"duo
+> mode"* is **our** vocabulary, never a phrase a user has read, whereas the series otherwise names
+> what the person lives (his own arbitration at v4.9.1). The body's first line carries the meaning,
+> so the title can afford to be playful. The candidates it beat, kept only so they are not
+> re-proposed: *"…Where Your Two Computers Stop Drifting Apart"*, *"…Where It Catches Up on Its Own"*,
+> *"…Where the Other Machine Gets a Word In"*, *"…Where Your Brain Isn't Tied to One Machine, or One
+> Person"*.
 >
 > ✅ **The `### What you get` heading is BARE on purpose, and it is load-bearing.** `/update-engine`
 > quotes that section verbatim before asking for consent, and its parser
