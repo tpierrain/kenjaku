@@ -19,8 +19,8 @@ the owner's decision).
 1, 2, 4, 4bis and the writable half of 5 are done and pushed on `feat/live-remote-sync`, CI green.
 What is left splits in two, and only the first pile is mine:
 
-- **Mine, still running or still to do**: the mutation runs (**1.4**, **2.3**, **4.7**) and the end-to-end
-  verification (**6**). Start there.
+- **Mine, and DONE**: every mutation run (**1.4** 98.60 %, **2.3** 96.50 %, **4.7** 98.03 % over its
+  batch) and the end-to-end verification (**6**), including a two-clone rehearsal kept as a harness.
 - **His, and it is ONE decision, not four**: everything that needs a **French twin written**. Steps
   **3.1–3.3**, **4.5** and **5.2** are all blocked by the same guard, and all three drafts are written
   out ready to paste (§ *The step-3 draft*, § *The step-5.2 draft*). The run's autonomy line forbids
@@ -155,7 +155,13 @@ What is left splits in two, and only the first pile is mine:
       than re-capture it — and says to **read and enrich** it, which is what ADR 0041 §6 means by
       "already held". An unreadable vault does **not** block the write: failing towards a greppable
       duplicate, never towards an invisible loss.
-- [ ] **2.3** Mutation run on the changed file.
+- [x] **2.3** _(2026-09-03, 96.50 %)_ Mutation run on the changed file.
+      Measured in the step-4 batch (one worktree, one run). Its five remaining survivors are every
+      one an equivalent, named in `RESULTS.md` rather than implied. The pass also found that three
+      assertions on the refusal were weaker than they read — `/read|enrich/i` passes on the word
+      "al**read**y", so the rule it claimed to pin was never asserted — and that the REAL vault
+      reader had no test at all: every other one injects the notes, so all of them would pass with
+      a reader looking one folder too high, which in the field means the guard silently never fires.
 
 ### 3. The producers — the identity gets written, and checked before capture
 
@@ -254,7 +260,18 @@ What is left splits in two, and only the first pile is mine:
       gesture (both suffixed notes are read as captures and their mentions still become candidates).
       Plus the negative pole: the suffix grants **nothing** — a curated page named like a day is
       still held to every rule.
-- [ ] **4.7** Mutation run on the new file.
+- [x] **4.7** _(2026-09-03, 80.00 % → 98.03 % over the batch)_ Mutation run on the new file.
+      Four files, not one: the two pure cores end at **100 %**, the session hook at **95.35 %**, the
+      entry point at **98.75 %** from **66.67 %**.
+      **The low number was concentrated in the refusals**: six error paths shared one test that
+      checked `exit 2` and nothing else, so each could say whatever it liked while "passing" — and
+      each has a different fix for the caller, which is the only reason the message exists.
+      **Two seams had never been reached**, both of the kind that fail silently in the field: the
+      git wiring (only ever exercised with an injected name, so nothing observed that it roots git
+      on the brain — a git command run in the wrong place does not fail, it answers about somewhere
+      else), and the marker's `mkdir` (the fixture had no `.cache/` yet, while every brain the sync
+      has ticked in does — where a non-recursive mkdir throws, the marker is never written, and the
+      sentence said "once" is said at every session start forever).
 
 > 🚨 **THE F5 GUARD CAUGHT THIS FEATURE WHILE IT WAS BEING WRITTEN, which is what it exists for**
 > _(2026-09-02)_. `startup-payload-guard.test.mjs` censuses every module that writes into
@@ -358,7 +375,7 @@ This is the honest statement of the perimeter.
 
 ### 6. Verification, end to end
 
-- [ ] **6.1** Green suite: `node --test --test-timeout=240000 "scripts/*.test.mjs"
+- [x] **6.1** _(2026-09-03: 2978 pass / 0 fail, rag 534 pass / 0 fail, tsc clean)_ Green suite: `node --test --test-timeout=240000 "scripts/*.test.mjs"
       "scripts/lib/*.test.mjs" "rag/*.test.mjs"`, plus `npm test` and `tsc --noEmit` in `rag/`.
 - [x] **6.2** _(2026-09-03, 16 claims held, 0 failed)_ A **two-clone rehearsal** in step 7's shape (parent plan): two clones of a scratch
       brain, two different `user.name`s, both capturing the *same* fabricated source → the second
@@ -377,13 +394,17 @@ This is the honest statement of the perimeter.
       and a note claiming nobody falls back to the shared file (today's behaviour, not a breakage) —
       but **the suffix mechanism is only as live as the caller that stamps the field**, and that
       caller is the skill blocked with step 3. Recorded in the rehearsal's README.
-- [ ] **6.3** Every push read on CI (`gh run list --branch feat/live-remote-sync`).
+- [x] **6.3** _(2026-09-03, every one)_ Every push read on CI (`gh run list --branch feat/live-remote-sync`).
+      Ten pushes over the run, each read before the next commit; no red at any point.
 
 ### 7. Hand-back
 
-- [ ] **7.1** This STATE block says where it stopped, in the terms of § *Design calls taken without
+- [x] **7.1** _(2026-09-03)_ This STATE block says where it stopped, in the terms of § *Design calls taken without
       him*, before the last commit of the run.
-- [ ] **7.2** The parent plan's step 8 is unblocked (or says precisely what still blocks it).
+- [x] **7.2** _(2026-09-03)_ The parent plan's step 8 is unblocked (or says precisely what still blocks it).
+      **It is not unblocked, and the blocker is one sentence long**: the three skill/constitution
+      edits need their French twins, and only the owner writes those. The parent's step-8 header now
+      says that, and points here rather than restating any status.
 
 ## 🛑 The owner's call: duo mode is implicit, and the brain announces it once _(2026-09-02, before the run)_
 

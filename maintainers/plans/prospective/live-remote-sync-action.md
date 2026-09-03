@@ -380,6 +380,11 @@ a real brain.
 > **two** features, not one: live sync, and the duo-mode duplication work of
 > [`duo-source-identity-action.md`](duo-source-identity-action.md). Its § *What is deliberately NOT
 > in this plan* is the honest perimeter to describe at 8.2.
+>
+> 🔎 **What still blocks it, as of 2026-09-03: three edits that need a FRENCH TWIN written**, and
+> only the owner writes those. Everything else in the sub-plan is built, green and pushed. The
+> drafts are ready to paste in that plan (§ *The step-3 draft*, § *The step-5.2 draft*); its STATE
+> block holds the detail and is the only place that does.
 
 - [ ] **8.1** Marketing-surface re-read (CONVENTIONS §10): README, EN-QUOI-C-EST-DIFFERENT,
       SETUP, CONNECTORS, boards; verdicts recorded here.

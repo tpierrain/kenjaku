@@ -153,7 +153,9 @@ export function runFileBack(argv, deps = realFileBackDeps) {
   // A vault that cannot be read is "I could not find out", and the safe answer to
   // that is to write: a duplicate is greppable and removable, a capture refused by
   // mistake is invisible from inside the vault.
-  let heldSources = [];
+  // Declared without an initial value on purpose: one that both branches overwrite is
+  // dead code wearing the shape of a default, and it hides whether the catch still runs.
+  let heldSources;
   try {
     const notes = deps.vaultNotes();
     heldSources = note.sourceKeys

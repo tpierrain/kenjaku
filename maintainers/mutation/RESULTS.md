@@ -233,6 +233,53 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #84 duo — per-person paths and the writer guard: the refusals nobody had read — 2026-09-03
+
+State owned by
+[`../plans/prospective/duo-source-identity-action.md`](../plans/prospective/duo-source-identity-action.md)
+(steps 2.3 / 4.7). The four files step 4 wrote, plus the one step 2 changed. Two passes.
+Log: `reports/mutate-one-dated-note-path+4.log`.
+
+| File | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/brain-author.mjs` | **82.80 %** | **100.00 %** | 0 |
+| `lib/dated-note-path.mjs` | **97.87 %** | **100.00 %** | 0 |
+| `dated-note-path.mjs` (entry) | **66.67 %** | **98.75 %** | 1 equivalent, 2 timeout |
+| `session-authors.mjs` | **79.55 %** | **95.35 %** | 2, both equivalents |
+| `file-back-note.mjs` | not measured since it changed | **96.50 %** | 5, all equivalents |
+| **Together** | **80.00 %** | **98.03 %** | 396 killed, 8 survived, 2 timeout |
+
+**The 66.67 % was concentrated in one place: the REFUSALS.** Six of the entry point's error
+paths shared a single test that checked `exit 2` and nothing else — so `--date` with nothing
+after it, a lost quote around a folder name, a date that is not a day, and a missing flag all
+"passed" the same assertion while saying whatever they liked. Each has a **different fix for
+the caller**, which is the whole reason the message exists.
+
+➡️ **A loop over broken inputs asserting only the exit code is a test of the code, not of the
+tool.** Assert what each refusal SAYS, or the messages are unowned prose.
+
+**Two seams had never been reached at all**, and both are the kind that fail silently in the
+field rather than loudly in a suite:
+
+- the path tool's **git wiring** was only ever exercised with an injected name, so nothing
+  observed that it roots git on the brain (`-C <dir>`) rather than on the process's directory —
+  and a git command run in the wrong place does not fail, it answers about **somewhere else**;
+- the session hook's **marker**: the fixture's `.cache/` did not exist yet, so a non-recursive
+  `mkdir` passed. Every brain the sync has ever ticked in already has that folder, where the
+  same call throws, the marker is never written, and the sentence said "once" is said at every
+  session start forever.
+
+**Two pieces of production went with the survivors**, and both are the same shape as the
+source-identity pass: `let x = []` that both branches overwrite is a **default that is really
+dead code**, and it masks whether the `catch` still runs (the two mutants cover for each other,
+so both survive). Plus a redundant second `return 0` in a fail-open catch.
+
+**What is left is equivalents**, listed rather than implied: an encoding argument replaced by
+`""` (the family already recorded for #84 — Node accepts it and the buffer stringifies), a
+`catch` assigning `[]` to a variable nothing distinguishes it by, `split(/\s+/)[0]` after a
+`.trim()` (only a leading run could differ, and trim removed it), and two swallowed messages in
+the hook's fail-open path.
+
 ## #84 duo — the source identity, and half the survivors were a design smell — 2026-09-03
 
 State owned by
