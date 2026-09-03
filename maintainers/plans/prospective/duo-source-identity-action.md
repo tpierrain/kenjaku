@@ -19,8 +19,11 @@ the owner's decision).
 owner gave the go-ahead, both twins were written in the same commit, and steps 3.1–3.3, 4.4, 4.5 and
 5.2 landed with it. Nothing in this plan waits on anything any more.
 
-- ▶️ **WHERE WORK RESUMES: the parent plan's step 8**, the release. This sub-plan blocked it and no
-  longer does. What still stands between the branch and a tag lives there, not here.
+- ▶️ **WHERE WORK RESUMES: whatever the parent plan's own `## 📍 STATE` block names.** This sub-plan
+  blocked the release and no longer does; what still stands between the branch and a tag lives there,
+  not here — including its order, which this file deliberately does not restate. _(It used to say
+  "step 8"; the parent then found an earlier step of its own, and a named step here is a status copy
+  by another route — corrected 2026-09-03.)_
 - **What the last commit changed, and why it was the one that mattered**: the mechanism was built and
   **nothing called it** — the capture path stamped no key, so nothing was ever found already-held.
   The producers are skills, a skill may not ship in English alone, so the feature could not exist
