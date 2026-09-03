@@ -596,9 +596,16 @@ a real brain.
         next release will read it.
   - [x] 🏷️ **TITLE SETTLED** _(2026-09-03)_: **"v5.1.0 — The One with the Duo Mode"**, the owner's
         own and none of the four put to him. It restores **`The One with…`**, the form the series
-        echoes and had drifted away from. The reservation raised (*"duo mode"* is our vocabulary, not
-        a phrase a user has read) was heard and overruled; both are in the note's header so neither
-        is re-litigated.
+        echoes and had drifted away from. My reservation (*"duo mode"* is our vocabulary, not a
+        phrase a user has read) was **wrong, and the reason is reusable**: a feature's name is new
+        vocabulary by construction, and the title is how it enters the language. *Name what the
+        person lives* governs describing a symptom, not christening something new.
+  - [x] 📣 **So the name was carried through the product, not left in the title** _(2026-09-03)_ —
+        a name that appears only in a release title is not a name. The note's lead introduces *duo
+        mode* in those words and its `What you get` moment is headed with it (still parsing, 16 lines
+        captured); `SETUP.md` §7's subsection is now *"Duo mode — sharing one brain with someone
+        else"* and says it needs nothing switched on; EN-QUOI's Sharing row and the README's close
+        name it too. Harness suite green after the change.
 - [x] **8.2bis** **The `engineVersion` bump is applied** _(2026-09-03)_, here and not before — a
       version bumped but unpublished makes a fresh install stamp itself with a version that never
       existed (`32a6ec4`). Exactly the table at 3.6: `rag` **1.4.0 → 1.5.0**, `scripts`

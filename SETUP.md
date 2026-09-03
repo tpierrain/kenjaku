@@ -581,9 +581,11 @@ still there if you would rather do it yourself, at your moment.
 
 > ⚠️ **Never** commit `.env` (gitignored). On a new machine, re-enter the key.
 
-### Sharing one brain with someone else — what that does, and what it does not
+### Duo mode — sharing one brain with someone else, what it does and what it does not
 
 The same remote repository that keeps your two computers in step can keep **two people** in step.
+That is **duo mode**: nothing to switch on, it is what the brain does once a second person pulls from
+the same repository.
 Nothing extra to install and nothing to configure: you add them to the private repository, and their
 brain and yours pull from the same place. Here is the honest perimeter, because the part people
 expect and do not get is the part that costs a day.

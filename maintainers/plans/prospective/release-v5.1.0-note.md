@@ -9,11 +9,20 @@
 > had drifted to `The One Where…` throughout, while the source it echoes uses `The One with…` far more
 > often. Recorded so the next release knows **both forms are open**.
 >
-> One reservation was raised and he kept the title anyway, which is the whole record needed: *"duo
-> mode"* is **our** vocabulary, never a phrase a user has read, whereas the series otherwise names
-> what the person lives (his own arbitration at v4.9.1). The body's first line carries the meaning,
-> so the title can afford to be playful. The candidates it beat, kept only so they are not
-> re-proposed: *"…Where Your Two Computers Stop Drifting Apart"*, *"…Where It Catches Up on Its Own"*,
+> ❌ **A reservation was raised and it was WRONG** — recorded because the reasoning is reusable. I
+> objected that *"duo mode"* is our vocabulary and no user has read it, against the series' habit of
+> naming what the person lives. His answer: **it is a MARKETING term for a capability that did not
+> exist before**, and a feature's name is new vocabulary *by construction* — the title is how the
+> name enters the language. "Name what the person lives" governs describing a **symptom**; it does not
+> govern **christening** something new. Most people will never turn duo mode on, and that is fine: it
+> is named for the people who will.
+>
+> ➡️ **The consequence, and it was work rather than a note**: if *duo mode* is the name, the release
+> must actually use it. The note's lead now introduces it in those words, its `What you get` moment is
+> headed *"Duo mode"*, and the marketing surface says it too — `SETUP.md` §7's subsection, EN-QUOI's
+> Sharing row and the README's close. A name that appears only in a release title is not a name.
+>
+> The candidates it beat, kept only so they are not re-proposed: *"…Where Your Two Computers Stop Drifting Apart"*, *"…Where It Catches Up on Its Own"*,
 > *"…Where the Other Machine Gets a Word In"*, *"…Where Your Brain Isn't Tied to One Machine, or One
 > Person"*.
 >
@@ -36,7 +45,9 @@ Your second brain lives in a folder on your machine, and if you wired up a repos
 
 **Until now it caught up only when a conversation started.** That was a deliberate choice: a brain that reaches for the network in the middle of your work is a brain that can interrupt it. The cost landed elsewhere, though. Leave a window open all afternoon on one machine, write on the other, and the first one keeps answering from what it knew this morning, with nothing on screen to say it is behind.
 
-**v5.1.0 lets an open brain keep itself up to date, quietly.** It notices what your other computer wrote, brings it in on its own, and tells you at your next message. And because two people can now write into one brain without treading on each other, the same release makes sharing a brain with a colleague something you can actually do.
+**v5.1.0 lets an open brain keep itself up to date, quietly.** It notices what your other computer wrote, brings it in on its own, and tells you at your next message.
+
+**And it opens the same door to a second person: this release introduces *duo mode*.** Two people can now work in one brain without treading on each other — what you both only ever add to merges by itself, and the same thing captured twice is stored once. Most people will never turn it on, and nothing changes for them. For those who work as a pair, it is new, and it is what this release is named after.
 
 ### What you get
 
@@ -51,7 +62,7 @@ Your second brain lives in a folder on your machine, and if you wired up a repos
 - 🧭 **The context you are working in follows you.** If you keep several universes (a past employer, a client), switching on one computer lands the others in it too, so your notes stop contradicting the tools you have open.
 - 🤫 **It stays out of your way.** It only reaches for the network when your brain has nothing half-written in it, one machine at a time, and it never interrupts what you are doing.
 
-**When two of you use one brain.**
+**Duo mode — when two of you work in one brain.**
 
 - 👥 **The same thing captured twice is stored once.** You and a colleague both come out of the same meeting and both ask your brain to keep it: it recognises that it already holds that source, and does not write a second copy.
 - 📆 **You both keep writing on the same day without colliding.** Two people's write-ups of the same day become one note each rather than one contested file.
