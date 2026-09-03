@@ -243,17 +243,21 @@ test("with no timer injected, the real setTimeout fires the tick and the real cl
     log: () => {},
   });
 
+  // The windows are ~25× the cadence, not 2×: this is the one test here that waits on a
+  // real clock, and a starved CI machine is the normal case, not the exception. It asserts
+  // "at least one" rather than a count for the same reason — a cadence is not a promise
+  // about how many ticks fit in half a second.
   scheduler.start();
-  await new Promise((done) => setTimeout(done, 200));
+  await new Promise((done) => setTimeout(done, 500));
   await scheduler.whenSettled();
   assert.ok(
     ticks.length >= 1,
-    `the default setTimeout never fired the tick (${ticks.length} in 200 ms of a 20 ms cadence)`,
+    `the default setTimeout never fired the tick (${ticks.length} in 500 ms of a 20 ms cadence)`,
   );
 
   const seenBeforeStop = ticks.length;
   scheduler.stop();
-  await new Promise((done) => setTimeout(done, 200));
+  await new Promise((done) => setTimeout(done, 300));
   assert.equal(
     ticks.length,
     seenBeforeStop,
