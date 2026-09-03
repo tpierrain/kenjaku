@@ -40,11 +40,16 @@ the rehearsal against a copy of a real brain.
 > and are green and pushed (`cf7d5fb`). One survivor stands over the whole scripts half and it is a
 > named equivalent. Nothing about mutation testing is owed before the cut any more.
 >
-> ▶️ **RESUME AT 8.1 — IN FLIGHT, findings already recorded there.** The marketing-surface re-read
-> found one absolute promise this release turns into a half-truth (*"you share the generator, **never**
-> the brain"*, in the README prose, in EN-QUOI's Sharing row, and **painted into `board-generator.png`'s
-> ribbon**) and two undersells in EN-QUOI. The prose fixes are mine; **the board is a question for the
-> owner**, written out at 8.1. **Then 8.2**, 8.2bis, 8.2ter, 8.2quater, 8.3, 8.4, 8.5 in that order.
+> ✅ **8.1 IS DONE TOO** _(2026-09-03)_. The marketing surface was re-read whole. It found **one**
+> absolute promise this release turns into a half-truth — *"you share the generator, **never** the
+> brain"* — now corrected in the README and in EN-QUOI's Sharing row, and **two undersells** in
+> EN-QUOI, which never said the two machines stay in step by themselves. The boards were re-read and
+> **deliberately not re-rendered**; the reasoning, and the fact that it is the owner's to overrule,
+> is written at 8.1 rather than left to be re-derived next release.
+>
+> ▶️ **RESUME AT 8.2 — the release note.** Then 8.2bis (the `engineVersion` bump, table at 3.6),
+> 8.2ter (re-run the fingerprint generator only if the tag is not `v5.1.0` — it already is), 8.2quater
+> (the PR into `main`), 8.3 (tag on `main` once merged), 8.4 (tracker sweep), 8.5 (archive this plan).
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
 > and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
 > can do, and a red there is a follow-up fix, not a reason to withhold the release.
@@ -520,8 +525,42 @@ a real brain.
 > only the owner's own machines can make (7.5, and the server count of 7.4) and the product
 > statements that are his to overrule.
 
-- [ ] **8.1** Marketing-surface re-read (CONVENTIONS §10): README, EN-QUOI-C-EST-DIFFERENT,
-      SETUP, CONNECTORS, boards; verdicts recorded here.
+- [x] **8.1** **Marketing-surface re-read DONE** _(2026-09-03)_, CONVENTIONS §10. The whole list was
+      re-read against what this release ships: the live sync between machines, and the duo-mode work
+      (two people on one brain). Verdicts, including the boring ones:
+  - [x] **What this release made FALSE — one, and it is an absolute promise, the class §10 hunts.**
+        *"You share the **generator**, never the brain"* is now a half-truth: SETUP §7 documents and
+        supports **two people on one brain**, and the duo-mode feature exists precisely to make that
+        work. Fixed in the two places that are prose: `README.md` (the *"isn't tied to this repo"*
+        close) and `EN-QUOI-C-EST-DIFFERENT.md`'s **Sharing** row. Both now say the same thing —
+        **one brain each by default, never a space at a vendor's, and sharing one is a deliberate
+        choice with its perimeter written down**, not the shape you are put in.
+  - [x] **What this release made TRUE and we did not sell — two, both in EN-QUOI.** The README
+        already described the live sync (its *"Nothing to save, nothing to lose"* block, accurate as
+        written, re-read and left alone). EN-QUOI did not: its *"almost nothing to do"* list stopped
+        at backup / indexing / freshness, and its multi-machine paragraph stopped at *"one offline
+        command rebuilds them"*. Both now say the two machines **stay in step by themselves**, and
+        that what you only add to merges while what you both rewrite stops and asks.
+  - [x] **`SETUP.md` — current, no change owed.** §7 was written by this branch: the interval and its
+        knob, what merges by itself and what stops to ask, the universe travelling, the security note
+        on sharing one repository, and the *"Sharing one brain with someone else"* subsection. Two
+        of its product statements are flagged for the owner in the STATE block; they are his to
+        overrule, not a §10 finding.
+  - [x] **`CONNECTORS.md` — re-read, unaffected.** No connector behaviour changes here, and it makes
+        no claim the duo work contradicts: a brain reads the accounts it is signed in as, which is
+        exactly what SETUP §7 now spells out for two people.
+  - [x] 🖼️ **The boards — re-read through their alt texts and their prompts; verdict: the copy still
+        holds, NO re-render.** One is worth naming because it was close: `board-generator.png`'s
+        painted ribbon reads *"Everyone generates their own. You share the generator, never the
+        brain."* **The judgement, so the next release does not re-derive it**: that ribbon is about
+        **ownership and the default** — every brain is generated, owned, local, and nobody is put in
+        a shared space at a vendor's — and all of that is still exactly true. Sharing one brain is
+        an opt-in choice between two people who ask for it, documented with its own warnings. The
+        prose around the board now carries that nuance, which is where a nuance belongs; a ribbon
+        that tried to would stop being a ribbon. `board-flow.png` was checked too (its four-step loop
+        does not include the sync clock, and does not claim to be exhaustive) — unchanged.
+        👀 **The owner can overrule this one**: it is a positioning call, not a fact, and the cost
+        of overruling it is one prompt edit plus a re-render.
 - [ ] **8.2** Release note (§11): brief, non-alarmist, "What you get" grouped by moment, with the
       `### What you get` heading the `--check` prose is parsed from.
 - [ ] **8.2bis** The `engineVersion` bump, applied here and not before (the table is at 3.6):

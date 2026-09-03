@@ -55,6 +55,9 @@ questions, you read answers. Everything else runs on its own.
 - **Indexing**: the semantic index **rebuilds itself**, incrementally, as soon as the vault
   changes.
 - **Freshness**: on every question, the delta of external sources is pulled in the background.
+- **Catching up between your own computers** (if you wired up a remote): an open brain notices what
+  the other machine wrote, brings it in **on its own**, and tells you at your next message. Two notes
+  added to the same daily note the same afternoon are both kept, and nobody was asked.
 - **You have to understand neither how it's built nor how it's organized** — not git, not MCP, not
   embeddings, not hooks.
 
@@ -116,7 +119,7 @@ by using it: your notes, your rules (`CLAUDE.md`), your skills.
 |---|---|---|
 | **What's delivered** | A finished product, identical for everyone | A **generator** that produces **your** instance |
 | **Customization** | Settings in a closed UI | **Your constitution** (`CLAUDE.md`) + **your skills**, in the clear, editable |
-| **Sharing** | Shared accounts/spaces | We share the **generator**, not the brain: everyone has their own |
+| **Sharing** | Shared accounts/spaces | We share the **generator**, not the brain: everyone has their own — and two people who *want* one between them can share theirs, deliberately, with the perimeter written down ([SETUP §7](SETUP.md)) |
 
 > 📌 *Underlying decisions:* [`maintainers/decisions/0001`](maintainers/decisions/0001-launcher-vs-brain.md)
 > (reusable launcher vs brain created elsewhere) and
@@ -165,7 +168,9 @@ by construction. Backup/multi-machine = wire up **your** remote repository, **op
 pushed until you ask for it). On a **second machine**, cloning that repository is not quite enough —
 the files that carry the machine's own paths are deliberately not versioned — so one **offline**
 command rebuilds them locally (`node scripts/rehydrate.mjs`): nothing is fetched from here, and the
-launcher is not needed again.
+launcher is not needed again. From then on the two **stay in step by themselves**: a brain left open
+pulls what the other one wrote and says so at your next message, and what you both only ever add to
+merges without asking. What you both **rewrite** stops and asks, on purpose.
 
 > 📌 *Underlying decisions:* [`0002`](maintainers/decisions/0002-in-house-installer-vs-plugin.md)
 > (home-grown vs plugin), [`0003`](maintainers/decisions/0003-no-brain-capability-upgrade.md)
