@@ -410,7 +410,12 @@ a real brain.
       merge-regime bytes and the freshness guard stays red until the table recognises them. **If the
       tag is not `v5.1.0`, the table names a version that was never published** — the exact defect
       8.2bis exists against, one file over.
-- [ ] **8.3** Tag **`v5.1.0`** (settled 2026-09-03, see STATE), `git push --tags`, published release.
+- [ ] **8.2quater** The PR into `main`, opened from `feat/live-remote-sync` and titled for the
+      release (body in English, §11's register). **Every release on this repo lands as a merge
+      commit on `main`** (`git log --first-parent main`), never a tag on a branch — so this is the
+      step 8.3 tags. The merge itself is the owner's click unless he says otherwise.
+- [ ] **8.3** Tag **`v5.1.0`** (settled 2026-09-03, see STATE) **on `main` once the PR is merged**,
+      `git push --tags`, published release.
 - [ ] **8.4** Tracker sweep (§10bis): #84 closed when a real brain **receives** the feature;
       say what was not closed.
 - [ ] **8.5** This plan archived as `plans/archived/2026-09-0X-live-remote-sync.md`, STATE
