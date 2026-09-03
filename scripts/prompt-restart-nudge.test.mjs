@@ -114,6 +114,14 @@ test("a restart pending AND notes arrived: one payload carries both, restart fir
   assert.equal(d.emitted.length, 1, "one hook, one payload: `additionalContext` is a single string");
   const context = d.emitted[0].hookSpecificOutput.additionalContext;
   assert.ok(context.indexOf("OLD engine") < context.indexOf("1 note from Claire"), "the blocker comes first");
+  // One string, yes — but TWO paragraphs. Welded together they read as a single run-on
+  // instruction, and the model receives "close and reopen Claude" and "notes arrived" as
+  // one thought. The blank line is the whole difference, so it is asserted rather than
+  // assumed: neither directive contains one of its own.
+  const paragraphs = context.split("\n\n");
+  assert.equal(paragraphs.length, 2, "two directives stay two paragraphs, separated by a blank line");
+  assert.match(paragraphs[0], /OLD engine/);
+  assert.match(paragraphs[1], /^📥 .*1 note from Claire/);
 });
 
 test("an empty trace is the ordinary case, and it must cost the prompt nothing", () => {
