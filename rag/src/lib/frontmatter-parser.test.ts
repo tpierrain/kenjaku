@@ -309,6 +309,16 @@ test("a lone key needs no list to be one source", () => {
   assert.deepEqual(parseDocument(raw, "raw-sources/x.md").sources, ["drive|1A2b3C4d"]);
 });
 
+// A key is compared for EQUALITY against the one the capture path stamped, so a stray
+// space is the difference between "already held" and "never seen". Hand-edited
+// frontmatter and a YAML block list both produce padding, and a blank entry is what a
+// trailing `-` on its own line leaves behind: neither may become a key of its own.
+test("a padded key is trimmed, and a blank entry is not a source", () => {
+  const raw = "---\ntitle: Invoice\nsources:\n  - '  drive|1A2b3C4d  '\n  - '   '\n  - ''\n---\n";
+
+  assert.deepEqual(parseDocument(raw, "raw-sources/x.md").sources, ["drive|1A2b3C4d"]);
+});
+
 // 🛑 A note written before this decision claims NOTHING, and an empty list is what
 // that must look like to a reader — never a claim to have drawn on nothing.
 test("sources is empty for every note written before the decision", () => {

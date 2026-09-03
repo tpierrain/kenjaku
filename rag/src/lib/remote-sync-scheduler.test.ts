@@ -220,3 +220,95 @@ test("the interval it is given is the interval it uses, whatever the default may
 
   assert.deepEqual(clock.delays, [30_000]);
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The DEFAULTS — the implementations that actually ship.
+//
+// Every test above hands the scheduler its own timer, its own jitter roll and its own
+// log, which is what makes them readable and precisely why the code the SERVER runs is
+// exercised by none of them: a parameter with a real-world default has TWO
+// implementations, and a suite that always injects the other one certifies nothing
+// about the one in production. The transferable question, already paid for once in this
+// repo (`lib/locale-drift.mjs`, RESULTS.md T7): when every test passes its own version
+// of a collaborator, who runs the one that ships?
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("with no timer injected, the real setTimeout fires the tick and the real clearTimeout cancels it", async () => {
+  const ticks: number[] = [];
+  const scheduler = new RemoteSyncScheduler({
+    tick: async () => {
+      ticks.push(ticks.length + 1);
+    },
+    intervalMs: 20,
+    log: () => {},
+  });
+
+  scheduler.start();
+  await new Promise((done) => setTimeout(done, 200));
+  await scheduler.whenSettled();
+  assert.ok(
+    ticks.length >= 1,
+    `the default setTimeout never fired the tick (${ticks.length} in 200 ms of a 20 ms cadence)`,
+  );
+
+  const seenBeforeStop = ticks.length;
+  scheduler.stop();
+  await new Promise((done) => setTimeout(done, 200));
+  assert.equal(
+    ticks.length,
+    seenBeforeStop,
+    "the default clearTimeout left the pending tick armed — an orphan timer outliving the session is the one thing stop() exists for",
+  );
+});
+
+test("with no jitter roll injected, the real Math.random still lands the delay inside the band", () => {
+  const clock = fakeClock();
+  const scheduler = new RemoteSyncScheduler({
+    tick: async () => {},
+    intervalMs: 90_000,
+    setTimer: clock.set,
+    clearTimer: clock.clear,
+    log: () => {},
+  });
+
+  scheduler.start();
+
+  assert.equal(clock.delays.length, 1);
+  const delay = clock.delays[0]!;
+  // A roll that answers nothing makes the delay NaN, which `setTimeout` treats as 0: the
+  // clock would then probe the remote as fast as the ticks settle, and nothing on screen
+  // would say the cadence the person configured had been dropped.
+  assert.ok(Number.isFinite(delay), `the default jitter roll produced a delay of ${delay}`);
+  assert.ok(delay >= 81_000 && delay <= 99_000, `${delay} ms is outside the ±10 % band`);
+});
+
+test("with no log injected, a tick that fails is reported on stderr", async () => {
+  const clock = fakeClock();
+  const stderr: string[] = [];
+  const realConsoleError = console.error;
+  console.error = (...args: unknown[]) => {
+    stderr.push(args.map(String).join(" "));
+  };
+  try {
+    const scheduler = new RemoteSyncScheduler({
+      tick: async () => {
+        throw new Error("ssh: connection refused");
+      },
+      intervalMs: 90_000,
+      random: noJitter,
+      setTimer: clock.set,
+      clearTimer: clock.clear,
+    });
+
+    scheduler.start();
+    clock.advance(90_000);
+    await scheduler.whenSettled();
+  } finally {
+    console.error = realConsoleError;
+  }
+
+  // Failing is the NORMAL case here — offline, a git that refuses, a brain mid-rebase.
+  // A default that swallows it turns "this brain stopped syncing hours ago" into a
+  // question no log can answer.
+  assert.deepEqual(stderr, ["[vault-rag] remote sync: this tick failed — ssh: connection refused"]);
+});

@@ -38,8 +38,13 @@ test("a watcher that fails to stop does not take the clock with it: both are rel
 
   assert.deepEqual(released, ["index"]);
   assert.equal(traced.length, 3);
-  assert.match(traced[1]!, /chokidar is wedged/);
-  assert.match(traced[2]!, /the timer would not clear/);
+  // Whole lines, not just the error text: the LABEL is the half that says WHICH loop
+  // refused, and it is the only thing that tells "the watcher is wedged" from "the clock
+  // is still pulling into this brain" when the two errors read alike.
+  assert.deepEqual(traced.slice(1), [
+    "⚠️ the live watcher would not stop: chokidar is wedged",
+    "⚠️ the live-sync clock would not stop: the timer would not clear",
+  ]);
 });
 
 // The lock is what starves the next session, so releasing it cannot be conditional on the rest
@@ -60,7 +65,7 @@ test("a watcher that fails to stop is reported, and the index is closed anyway",
   assert.deepEqual(released, ["index"]);
   assert.equal(traced.length, 2);
   assert.match(traced[0]!, /session ended/i);
-  assert.match(traced[1]!, /chokidar is wedged/);
+  assert.equal(traced[1], "⚠️ the live watcher would not stop: chokidar is wedged");
 });
 
 // This defect was invisible for the length of its life: no error, no warning, just tools that
