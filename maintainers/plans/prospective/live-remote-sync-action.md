@@ -34,15 +34,20 @@ the rehearsal against a copy of a real brain.
 > written. A mutation run changes production code often enough (measured four times on this branch
 > alone) that doing it after the release note would invalidate the note. So: **3.7, then 8.1**.
 >
-> ▶️ **RESUME AT 8.1** (marketing-surface re-read), then 8.2, 8.2bis, 8.3, 8.4, 8.5 in that order.
+> ▶️ **RESUME AT 3.7** (the mutation run: the rag half first, then the `scripts/` files changed since
+> their own last run), **then 8.1** (marketing-surface re-read), 8.2, 8.2bis, 8.2ter, 8.2quater, 8.3,
+> 8.4, 8.5 in that order. _(An earlier version of this block said "resume at 8.1"; 3.7 was found
+> after it was written and comes first — corrected 2026-09-03, before any of it ran.)_
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
 > and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
 > can do, and a red there is a follow-up fix, not a reason to withhold the release.
 >
-> ▶️ **START HERE: step 8, the release.** The second feature this release carries — the duo-mode
+> ✅ **THE SUB-PLAN IS NOT IN THE WAY EITHER.** The second feature this release carries — the duo-mode
 > sub-plan [`duo-source-identity-action.md`](duo-source-identity-action.md) — **landed in full on
 > 2026-09-03** (`415cd7c`), so it no longer blocks anything; open it only for that feature's own
-> detail. Everything else outstanding is the owner's: two measurements only his machines can make
+> detail. Its own files **were** mutation-measured as they were written (`RESULTS.md`, the
+> `source-key`/`brain-author`/`dated-note-path` batches), which is why 3.7's target list does not name
+> them. Everything else outstanding is the owner's: two measurements only his machines can make
 > (7.5, and the server count of 7.4), the product statements flagged for his review, and the tag.
 
 - ✅ **2.7 is DONE** _(2026-09-02)_. Two passes over the six files this chantier writes: **86.17 %
