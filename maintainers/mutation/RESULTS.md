@@ -233,6 +233,83 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #84 — the `scripts/` files this branch changed after their own last run — 2026-09-03
+
+State owned by
+[`../plans/prospective/live-remote-sync-action.md`](../plans/prospective/live-remote-sync-action.md)
+(step 3.7b). Run through `mutate-one.mjs` in a disposable worktree — hunk-scoped for the files that
+already had a measurement, whole for the one this branch creates — in **two batches**, so neither
+exceeds the runner's window. Logs: `reports/v510-scripts-batch-a.log`,
+`reports/v510-scripts-batch-b.log`, `reports/v510-scripts-batch-b-recheck.log`.
+
+Same reason as the section below: step 2.7 measured six files, and these seven were changed
+**after** their own last run. The release is the union of the target lists, not the last one.
+
+| File (scope) | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/filed-note.mjs` (6 hunks) | **100.00 %** | — | 0 |
+| `lib/instrumented-source.mjs` (new, whole) | 80.95 % | **94.12 %** | 1, an equivalent |
+| **Batch A** | 90.00 %* | **97.22 %** | 35 killed, 1 survived of 36 |
+| `lib/ignore-base-settings.mjs` (47) | **100.00 %** | — | 0 |
+| `lib/wiki-lint.mjs` (99) | **100.00 %** | — | 0 |
+| `prompt-restart-nudge.mjs` (41-42, 64-74, 82-88) | 93.33 % | **100.00 %** | 0 |
+| `lib/reconcile-brain.mjs` (501-502) | 33.33 % | **100.00 %** | 0 |
+| **Batch B** | 82.14 % | **100.00 %** | 28 killed, 0 survived of 28 |
+
+\* **Batch A's first-pass total is recomputed, not read off a log**: the runner reuses one log name
+per batch, so the re-measurement overwrote it. 36 of 40 mutants, from the two file scores this plan
+recorded at the time (19 + 21 mutants, 4 survivors). The per-file numbers are the measured ones; only
+the batch line is arithmetic, and it is marked rather than passed off as a reading.
+
+⛔ **`lib/actions-log-seed.mjs` was dropped from the targets, and it is not an omission.** Its whole
+change is prose inside a template literal (the ledger's format line gains a `· <who>` field):
+**zero mutants**. This register's own doctrine covers it — a file with no mutants is absent from the
+table, not listed with a zero, and the score belongs to its neighbours.
+
+### The finding that cost the most: a guard whose riders are never seen apart
+
+`reconcile-brain.mjs` opened at **33.33 %** — four survivors on **one line**, and all four were the
+same hole. The line is `if (unignored.changed || ignored.changed || arrivals.changed) write(…)`:
+three migrations of the owner's `.gitignore` that share one read and one write. `|| → &&`,
+`if (true)`, and dropping two of the three riders **all passed**, because **every existing test hands
+the reconciler a brain where several riders have work at once**. The guard was never observed
+deciding anything.
+
+The case that mattered most was the missing one: **only the arrivals trace still to ignore** — which
+is exactly a brain that predates the live sync receiving the line, the migration the plan calls
+load-bearing. The field rehearsal proved it end-to-end on a copy of a real brain; **no unit did**.
+
+➡️ **A condition with N riders needs N tests in which exactly one rider is true**, and the shape to
+recognise is a fixture where the riders always travel together. A "converged" test is the other half:
+it must prove **nothing was written**, and identical bytes cannot — a rewrite of the same text reads
+the same. Pinning the file's mtime is what kills `if (true)`, and what it protects is real: this file
+is the owner's, and every needless rewrite of it is a line in their `git status`.
+
+### The behaviour call: a type check that judged what it should have stood down on
+
+`isInstrumented` type-checked its argument and answered *no* to anything that was not a string. So a
+caller who forgot the encoding handed it a **Buffer** and had its instrumented bytes **judged** —
+the exact false verdict this module exists to prevent. It coerces now, and fails towards standing
+down. The one survivor left is its fallback's *content* (`source ?? ""` → `source ?? "…"`): only the
+absence of null is observable, so the value is unobservable by construction — an equivalent.
+
+### And a separator nothing asserted
+
+`prompt-restart-nudge.mjs` joins the restart blocker and the arrivals announcement into one payload
+with a blank line between them; `join("\n\n") → join("")` survived. The tests pinned that both ride
+in **one** string and that the blocker comes first, never that they stay **two paragraphs** — welded,
+they reach Claude as a single run-on instruction. Ordering and separation are two claims, and only
+one of them was written down.
+
+### 🛠️ The runner itself refused a measurement it had really made — the mirror of T13
+
+Found before batch B could be believed, fixed first (`97b8279`, 88 cases green). Stryker prints **one
+row per FILE** however many ranges it is handed; the guard consumed **one row per TARGET**, so five
+of six hunks of one file read as *"contributed no mutants at all"* — over 19 honestly-killed mutants
+at 100 %. This is T13 pointing the other way: a **refusal nobody can trust gets bypassed within a
+day**, which costs exactly what a green that lies costs. A guard that cannot be trusted is not a
+conservative guard, it is a disabled one.
+
 ## #84 — the half the target list never named: the clock inside the search server — 2026-09-03
 
 State owned by

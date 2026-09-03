@@ -34,18 +34,17 @@ the rehearsal against a copy of a real brain.
 > written. A mutation run changes production code often enough (measured four times on this branch
 > alone) that doing it after the release note would invalidate the note. So: **3.7, then 8.1**.
 >
-> ▶️ **RESUME AT 3.7b's BATCH-B RECHECK.** The two cases batch B owed are **written and green**
-> _(2026-09-03, `cf7d5fb`, pushed)_ — the `.gitignore` guard's three riders now each have a case that
-> isolates them (including the arrivals-only one: the migration that reaches an old brain, which the
-> field rehearsal proved and no unit did), and the blank line between the two directives is asserted.
-> Each of the four mutants was applied by hand and seen red first. **Left: the recheck** (same six
-> ranges, log `v510-scripts-batch-b-recheck`), **then that half's `RESULTS.md` section.** Batches A and B have both
-> RUN and their numbers are in the plan; the mutation runner itself was found refusing a measurement
-> it had really made, and was fixed first (`97b8279`). **3.7a (the rag half) is DONE**
-> _(2026-09-03: 82.89 % → 97.37 %, four tests owed and written, two named equivalents left)_; what
-> it found is at step 3.7 and in `RESULTS.md`. **Then 8.1** (marketing-surface re-read), 8.2, 8.2bis,
-> 8.2ter, 8.2quater, 8.3, 8.4, 8.5 in that order. _(An earlier version of this block said "resume at
-> 8.1"; 3.7 was found after it was written and comes first — corrected 2026-09-03.)_
+> ✅ **3.7 IS CLOSED, BOTH HALVES** _(2026-09-03)_. The rag half **82.89 % → 97.37 %**; the scripts
+> half **batch A 97.22 %**, **batch B 82.14 % → 100 %**. Each half has its own `RESULTS.md` section,
+> newest-first, and the two cases batch B owed were written, seen red against each mutant by hand,
+> and are green and pushed (`cf7d5fb`). One survivor stands over the whole scripts half and it is a
+> named equivalent. Nothing about mutation testing is owed before the cut any more.
+>
+> ▶️ **RESUME AT 8.1 — IN FLIGHT, findings already recorded there.** The marketing-surface re-read
+> found one absolute promise this release turns into a half-truth (*"you share the generator, **never**
+> the brain"*, in the README prose, in EN-QUOI's Sharing row, and **painted into `board-generator.png`'s
+> ribbon**) and two undersells in EN-QUOI. The prose fixes are mine; **the board is a question for the
+> owner**, written out at 8.1. **Then 8.2**, 8.2bis, 8.2ter, 8.2quater, 8.3, 8.4, 8.5 in that order.
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
 > and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
 > can do, and a red there is a follow-up fix, not a reason to withhold the release.
@@ -289,7 +288,9 @@ a real brain.
       `.git/index.lock` from a process with no window at all.
 - [x] **3.5** _(2026-09-02)_ `.env.example` documents the variable, commented out, under ADVANCED / OPTIONAL
       (reaches new installs only: the default lives in code). `indexSchemaVersion` untouched.
-- [ ] **3.7** **Mutation run on the rag half of this release** — the box step 3 never had, added
+- [x] **3.7** **DONE** _(2026-09-03)_ — **rag half 82.89 % → 97.37 %**, **scripts half: batch A
+      97.22 %, batch B 82.14 % → 100 %**. Both halves have their `RESULTS.md` section. **Mutation
+      run on the rag half of this release** — the box step 3 never had, added
       2026-09-03 before the cut. Config: `maintainers/mutation/stryker.rag.config.mjs`, one line per
       file in `RESULTS.md`, newest-first. Targets, in this order (biggest new surface first):
       `rag/src/lib/remote-sync-scheduler.ts` (new, 119 lines), `rag/src/lib/remote-sync-interval.ts`
@@ -317,7 +318,9 @@ a real brain.
         test exists" rather than "the tests are weak". Same class as the top-level `scripts/`
         entry points, and it is **already named debt** in this register (the v4.7.0 entry says so
         in those words).
-  - [ ] **3.7b — the `scripts/` files changed since their own last run**, through
+  - [x] **3.7b — the `scripts/` files changed since their own last run** _(2026-09-03)_: batch A
+        **97.22 %**, batch B **82.14 % → 100 %**. One survivor left over both batches, an equivalent.
+        Through
         `mutate-one.mjs` (disposable worktree, hunk-scoped for the existing files, whole for the
         new one), in two batches so neither exceeds the runner's window (~6 min each).
     - [x] **The runner itself had to be fixed first** _(2026-09-03, `97b8279`)_. It **refused a
@@ -368,10 +371,20 @@ a real brain.
             halves are named, so a weld collapses it to one paragraph and the test says so.
             The prose of each directive is deliberately NOT re-pinned here — it is asserted
             where each directive is built, and a second copy would break on every rewording.
-    - [ ] **Then the batch-B recheck**, same ranges, same log name + `-recheck`.
-    - [ ] **Then the `RESULTS.md` section for this whole scripts half** — deliberately NOT written
-          yet, so it records the pass that closed rather than a snapshot of one in flight. The
-          numbers it must carry are all above, in this box; the rag half already has its section.
+    - [x] **The batch-B recheck** _(2026-09-03)_: same six ranges, **100 %** — 28 killed, 0
+          survived, 0 timeout, all four files at 100 %. `reports/v510-scripts-batch-b-recheck.log`.
+          **82.14 % → 100 %.**
+    - [x] **Batch A had already been re-measured too**, and this box had not said so: **97.22 %**
+          (`filed-note.mjs` 100 %, `instrumented-source.mjs` 80.95 % → **94.12 %**), one survivor
+          left and it is an equivalent — the fallback's *content* in `source ?? ""`, where only the
+          absence of null is observable. The log was written before the plan line above was, which
+          is how "being re-measured" outlived the measurement.
+    - [x] **The `RESULTS.md` section for this whole scripts half** _(2026-09-03)_, written once the
+          pass had closed rather than mid-flight: both batches, the guard whose three riders were
+          never seen apart, the type check that judged a Buffer it should have stood down on, the
+          separator nothing asserted, and the runner's own T13 mirror. ⚠️ Batch A's **first-pass**
+          batch total is marked in that table as **recomputed** (36/40 from the two file scores):
+          the runner reuses one log name per batch, so the re-measurement overwrote the reading.
     - [x] ⛔ **`lib/actions-log-seed.mjs` is dropped from the targets, and it is not an omission**
           _(2026-09-03)_. Its whole change is **prose inside a template literal** (the ledger's
           format line gains a `· <who>` field, plus three lines saying why): **zero mutants**. This

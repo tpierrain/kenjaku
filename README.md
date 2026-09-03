@@ -501,8 +501,10 @@ tailors ***your own*** to your line of work, then it **keeps living on its own**
 notes, keys nor your constitution** — and a skill you made your own is **never lost**: what shipped
 since is merged around your words, or offered to you as a choice. It's run **as a product, not a hack**:
 brains **in real use**, every upgrade **tested against existing brains before it ships** (the migration
-path is a **release gate**). You
-share the **generator**, never the brain, and you could walk away from this repo tomorrow without losing a thing.
+path is a **release gate**). What you share is the **generator** — one brain each, by default, and
+never a space at a vendor's. Two people who *want* one brain between them can have it, deliberately
+and with the perimeter written down ([SETUP §7](SETUP.md)); it is a choice you make, not the shape you
+are put in. And you could walk away from this repo tomorrow without losing a thing.
 
 *The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
 Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
