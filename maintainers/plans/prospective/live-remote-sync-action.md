@@ -53,9 +53,13 @@ the rehearsal against a copy of a real brain.
 > **The release TITLE is the owner's to pick** (three candidates in the note's header) — it does not
 > block anything.
 >
-> ▶️ **RESUME AT 8.2bis — the `engineVersion` bump** (table at 3.6),
-> 8.2ter (re-run the fingerprint generator only if the tag is not `v5.1.0` — it already is), 8.2quater
-> (the PR into `main`), 8.3 (tag on `main` once merged), 8.4 (tracker sweep), 8.5 (archive this plan).
+> ✅ **8.2bis AND 8.2ter ARE DONE** _(2026-09-03)_: the bump is applied exactly as 3.6's table says
+> (`rag` 1.5.0, `scripts` 1.15.0, `indexSchemaVersion` unmoved), and the fingerprint table needs no
+> re-run — it already names `v5.1.0` and the whole suite is green with the bump in.
+>
+> ▶️ **RESUME AT 8.2quater — the PR into `main`.** Then 8.3 (tag on `main` **once the owner merges**),
+> 8.4 (tracker sweep, #84), 8.5 (archive this plan). **The merge is his click**; everything before it
+> is mine.
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
 > and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
 > can do, and a red there is a follow-up fix, not a reason to withhold the release.
@@ -582,10 +586,18 @@ a real brain.
   - [ ] 🏷️ **The TITLE is the owner's**, as v4.9.1's was: *"The One Where Your Two Computers Stop
         Drifting Apart"* is mine, and the two others considered are recorded in the note's header.
         Not a blocker — the note publishes under whichever he picks.
-- [ ] **8.2bis** The `engineVersion` bump, applied here and not before (the table is at 3.6):
-      a version that is bumped but unpublished makes a fresh install stamp itself with a
-      version that never existed (`32a6ec4`).
-- [ ] **8.2ter** **Re-run the fingerprint generator with the tag actually being cut**:
+- [x] **8.2bis** **The `engineVersion` bump is applied** _(2026-09-03)_, here and not before — a
+      version bumped but unpublished makes a fresh install stamp itself with a version that never
+      existed (`32a6ec4`). Exactly the table at 3.6: `rag` **1.4.0 → 1.5.0**, `scripts`
+      **1.14.0 → 1.15.0**, `rag/package.json` `version` moved in step with `engineVersion.rag`,
+      **`local-mirror` and `constitutionTemplate` unmoved**, **`indexSchemaVersion` unmoved** (no
+      reindex is owed by this release). Manifest-integrity tests green.
+- [x] **8.2ter** **No re-run owed, and it was verified rather than assumed** _(2026-09-03)_. The
+      table's `generatedAt` already reads **`v5.1.0`**, which is the tag settled by the owner, and
+      the branch has shipped no new merge-regime bytes since `415cd7c` stamped it — the whole suite
+      (3020 tests) is green with the bump applied, freshness guard included. The instruction it
+      answers, kept for the next release: **Re-run the fingerprint generator with the tag actually
+      being cut**:
       `node maintainers/fingerprints/generate-fingerprints.mjs --version <tag>`. It was already run
       at `415cd7c` and stamped **`v5.1.0`**, because that commit ships the branch's first
       merge-regime bytes and the freshness guard stays red until the table recognises them. **If the

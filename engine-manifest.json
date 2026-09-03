@@ -2,10 +2,10 @@
   "manifestVersion": 1,
   "canonicalRepo": "https://github.com/tpierrain/kenjaku.git",
   "engineVersion": {
-    "rag": "1.4.0",
+    "rag": "1.5.0",
     "local-mirror": "0.3.0",
     "constitutionTemplate": "1.4.0",
-    "scripts": "1.14.0"
+    "scripts": "1.15.0"
   },
   "indexSchemaVersion": 2,
   "regimes": {
