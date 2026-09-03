@@ -15,29 +15,29 @@ the owner's decision).
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-02
 
-**Everything that could be built without the owner IS built** _(2026-09-03, overnight run)_. Steps 0,
-1, 2, 4, 4bis and the writable half of 5 are done and pushed on `feat/live-remote-sync`, CI green.
-What is left splits in two, and only the first pile is mine:
+**EVERY STEP OF THIS PLAN IS DONE** _(2026-09-03, `415cd7c`)_. The French-twin block is lifted: the
+owner gave the go-ahead, both twins were written in the same commit, and steps 3.1–3.3, 4.4, 4.5 and
+5.2 landed with it. Nothing in this plan waits on anything any more.
 
-- **Mine, and DONE**: every mutation run (**1.4** 98.60 %, **2.3** 97.89 %, **4.7** 98.03 % over its
-  batch) and the end-to-end verification (**6**), including a two-clone rehearsal kept as a harness.
-- **His, and it is ONE decision, not four**: everything that needs a **French twin written**. Steps
-  **3.1–3.3**, **4.5** and **5.2** are all blocked by the same guard, and all three drafts are written
-  out ready to paste (§ *The step-3 draft*, § *The step-5.2 draft*). The run's autonomy line forbids
-  writing under `templates/fr/**`, so they wait on one word.
-- ⚠️ **The honest cost of that block, stated plainly**: without step 3 the **capture path never stamps
-  a key**, so in practice nothing is ever found already-held yet. The machinery is complete and
-  proven — the deterministic guard refuses a duplicate for any caller that passes `sourceKeys`, and
-  `scripts/known-source.mjs` answers correctly today — but the producers do not call it, because the
-  producers are skills and a skill cannot ship in English alone.
-- 👀 **Two things to re-read before anything else, because they are product statements and his to
-  overrule**: the new `SETUP.md` §7 subsection *"Sharing one brain with someone else"*, and the
-  rewritten sentence just above it about which merges stop and ask.
-
-- 🌙 **The autonomous overnight run happened and is OVER** _(instruction of 2026-09-02, executed the
-  night of 2026-09-03)_. ⚠️ **Do NOT restart at the first unticked box**: it is 3.1, and 3.1 is
-  blocked on the owner. Restart where the two bullets at the top of this block say — nothing is
-  waiting on a session, everything is waiting on one word from him.
+- ▶️ **WHERE WORK RESUMES: the parent plan's step 8**, the release. This sub-plan blocked it and no
+  longer does. What still stands between the branch and a tag lives there, not here.
+- **What the last commit changed, and why it was the one that mattered**: the mechanism was built and
+  **nothing called it** — the capture path stamped no key, so nothing was ever found already-held.
+  The producers are skills, a skill may not ship in English alone, so the feature could not exist
+  until both locales said the same thing. They now do, guarded rule by rule (36 red, then 67 green).
+- ⚠️ **One consequence to carry into the release**: `scripts/lib/engine-fingerprints.json` was
+  regenerated in that commit, stamped **`v5.1.0`** — the first merge-regime bytes this branch ships,
+  and the freshness guard is red until the table recognises them. **If the tag cut is not `v5.1.0`,
+  the generator must be re-run with the real one** (parent plan, 8.2ter).
+- 👀 **Still his, and still not answered**: two product statements written during the run — the new
+  `SETUP.md` §7 subsection *"Sharing one brain with someone else"*, and the rewritten sentence just
+  above it about which merges stop and ask. They are shipped in the branch; his to overrule.
+- 🕰️ **Where the ban that blocked this came from, since he asked and no file said** _(2026-09-03)_.
+  Not an instruction of his: it was written by a session on 2026-08-22 into the v5 triage plan's
+  autonomous-run boundary list, for **one** concrete item (a 350-line French doctrine twin whose fate
+  was a product call), then **copied forward** into this plan and its parent as a generic clause,
+  where its reason no longer applied. A copied boundary outlives the case that justified it — the
+  same failure mode as a copied status, and the same fix: it is not restated anywhere any more.
 - ✅ **HIS CALL, taken before the run: duo mode is IMPLICIT, and the brain announces it once.**
   Nothing to activate, no per-person profile to fill in. § *The owner's call: duo mode is implicit*
   holds the reasoning and the three things it settles.
@@ -48,9 +48,10 @@ What is left splits in two, and only the first pile is mine:
 - **A session may, alone:** run every step below test-first end to end, on `feat/live-remote-sync`,
   **pushing every green commit and READING its CI** (rules/ci.md: a push whose result is never read
   is worse than no push). Mutation-score every new production file the day it is written
-  (CONVENTIONS §5quinquies). **Not**: tag, publish, push to `main`, write into `templates/fr/**`,
-  write into either of the owner's real brains, or touch his Gmail/Slack/Calendar again — the
-  measurements are done and recorded.
+  (CONVENTIONS §5quinquies). **Writing a French twin is part of editing an English file that has
+  one** — never one without the other, in the same commit, which is exactly what the drift guard
+  asks. **Not**: tag, publish, push to `main`, write into either of the owner's real brains, or
+  touch his Gmail/Slack/Calendar again — the measurements are done and recorded.
 - 🔁 **The save point moves**, because an autonomous run has no hand-back to hang it on
   (rules/plans.md): **write each decision into this file as it lands and commit it**, do not bank it
   for a hand-back that may be hours away.
@@ -165,42 +166,45 @@ What is left splits in two, and only the first pile is mine:
 
 ### 3. The producers — the identity gets written, and checked before capture
 
-- [ ] **3.1** ⛔ **DRAFTED, NOT APPLIED — one word from the owner unblocks it** (§ *The step-3 draft*).
-      `.claude/skills/sync-sources/SKILL.md`: stamp `sources` on everything written from an
+- [x] **3.1** _(2026-09-03, `415cd7c`)_ `.claude/skills/sync-sources/SKILL.md`: stamp `sources` on everything written from an
       external source (one entry for a capture, **as many as it drew on** for a synthesis), and run
       the check **before** capturing. Prose, asserted the way the other
       disciplines are (`claim-discipline.test.mjs`, `connector-discipline.test.mjs` are the models).
-- [ ] **3.2** ⛔ Same blocker. The key table lands in the skill too, in the terms a sub-agent can apply, with the
+      **Applied where the writing happens, not only where the rule is stated**: both capturing
+      sub-agents run the check, a capture stamps its one key, and the briefing's `sources:` becomes
+      the machine list (the human list stays in the body, as backlinks).
+- [x] **3.2** _(2026-09-03, `415cd7c`)_ The key table lands in the skill too, in the terms a sub-agent can apply, with the
       cheap-format rule for mail: sender + timestamp + subject come back in `MINIMAL` /
       `METADATA_ONLY`, so **never fetch a raw message just to get an identity**.
-- [ ] **3.3** `templates/fr/.claude/skills/sync-sources/SKILL.md` — the French twin. ⚠️ Deliberate
-      product localization (rules/language.md): translated, not anglicized. **Owner-only per the
-      autonomy line above: leave this box UNTICKED, note beside it that the English twin is ready,
-      and DO NOT write it.**
+- [x] **3.3** _(2026-09-03, `415cd7c`)_ `templates/fr/.claude/skills/sync-sources/SKILL.md` — the French twin, written in the
+      SAME commit as its English source. ⚠️ Deliberate product localization (rules/language.md):
+      translated, not anglicized, and every rule the guard asserts is asserted in French too.
 
-> 🛑 **THE PLAN ASSUMED THE ENGLISH HALF COULD SHIP ALONE. IT CANNOT** _(measured 2026-09-02, during
-> the run)_. `scripts/lib/locale-drift.test.mjs` fails the suite the moment a commit touches an
-> English file that has a `templates/fr/` twin without touching the twin — and
-> `.claude/skills/sync-sources/SKILL.md` has one. So 3.1 and 3.2 are not "English now, French later":
-> **editing the skill at all requires editing both twins in the same commit**, or the suite and the
-> CI go red.
+> ✅ **THE BLOCK IS LIFTED, and what it was is worth keeping** _(2026-09-03, the owner's go-ahead)_.
+> `scripts/lib/locale-drift.test.mjs` fails the suite the moment a commit touches an English file that
+> has a `templates/fr/` twin without touching the twin — and `.claude/skills/sync-sources/SKILL.md`
+> has one. **That guard was never the blocker**: it does not forbid the work, it requires both halves
+> in one commit, which is what happened. The blocker was a *boundary line copied into this plan* —
+> "do not write under `templates/fr/**`" — traced back on 2026-09-03 to the v5 triage plan of
+> 2026-08-22, where it covered one specific product call and nothing else.
 >
-> The three ways out, and why only one is honest:
+> The three ways out, and why the honest one turned out to be a question rather than a workaround:
 >
-> - **Write the French twin too** — forbidden by this plan's own autonomy line, and by the parent
->   plan's. Not taken: an explicit instruction outranks my reading of what it was for.
+> - **Write the French twin too** — the right answer, and it needed the owner's word because the plan
+>   said so. Taken, once he gave it: an explicit instruction outranks my reading of what it was for,
+>   and asking is how a copied instruction gets re-examined instead of quietly ignored.
 > - **Waive the commit in `NOT_A_PORT`** — that map exists for commits which *cannot* be ported (an
 >   English fix bringing English up to French's standard), and its own header calls a waiver "a claim
 >   someone must be able to check". "I will port it later" is not one. Not taken.
-> - **Draft it, do not apply it, and make it a one-word decision.** Taken. The exact text is below,
->   ready to paste; applying it is one commit touching both twins.
+> - **Draft it, do not apply it, and make it a one-word decision.** Taken overnight, and the drafts
+>   below are what got applied verbatim — kept here as the record of what was pasted.
 >
-> ⚠️ **What this costs if it is never applied**: steps 1, 2 and 4 build the mechanism, and step 3 is
-> what makes anything *call* it. Without 3.1, `sync-sources` never stamps a key, so nothing is ever
-> found already-held and the writer guard has nothing to compare. **The deterministic half is real
-> either way** — `file-back-note.mjs` refuses a duplicate for any caller that does pass `sourceKeys` —
-> but the capture path stays as it is today. So this is the one unticked box that changes what the
-> release *does*, not merely what it says.
+> ⚠️ **What it cost while it stood**: steps 1, 2 and 4 build the mechanism, and step 3 is what makes
+> anything *call* it. Until 3.1 landed, `sync-sources` stamped no key, so nothing was ever found
+> already-held and the writer guard had nothing to compare. **The deterministic half was real either
+> way** — `file-back-note.mjs` refuses a duplicate for any caller that passes `sourceKeys` — but the
+> capture path was unchanged. It was the one unticked box that changed what the release *does*,
+> rather than what it says.
 - [x] **3.4** _(2026-09-02)_ The linter accepts `sources` (`scripts/lib/wiki-lint.mjs`), and the frontmatter
       parser exposes it (`rag/src/lib/frontmatter-parser.ts`) the way `sourceUrl` already is.
       **The linter needed no change** — it checks that required keys are PRESENT and is indifferent
@@ -236,19 +240,21 @@ What is left splits in two, and only the first pile is mine:
 - [x] **4.3ter** _(2026-09-02)_ The offer points at the surface that already exists for describing people (the
       universe profile, ADR 0035), and **nothing in steps 1 to 4 may depend on that description**:
       declining it must change no behaviour whatsoever.
-- [~] **4.4** _(2026-09-02, the durable half done)_ `actions-log.md` **stays one file** — union merge is exactly right for a flat
+- [x] **4.4** _(2026-09-02 for the seed, 2026-09-03 `415cd7c` for the appending half)_ `actions-log.md` **stays one file** — union merge is exactly right for a flat
       append-only ledger — but each appended line carries its author, so "keep both" is readable
       without a human sorting out who said what (the study's own cheap mitigation).
       **The documented format now carries `· <who>`**, in the seed (`actions-log-seed.mjs`) and with
-      the reason beside it. ⛔ **The APPENDING half rides with step 3**: nothing deterministic appends
-      to that ledger — `sync-sources` does, in prose — so the line only starts carrying a name when
-      the skill can be edited. The seed reaches new brains only, deliberately: `vault/actions-log.md`
-      is the owner's file and the engine never rewrites it.
-- [ ] **4.5** ⛔ **Blocked with step 3** (same French-twin guard). `sync-sources` and the daily-note
-      convention updated to call 4.1 rather than compose a path by hand. **Partly rescued in the
-      meantime**: the SessionStart hook of 4.3 tells every session, on any brain with two authors, to
-      take a dated note's path from `scripts/dated-note-path.mjs` instead of composing it — a channel
-      that needs no twinned file. So the mechanism is reachable before the skill says so.
+      the reason beside it. **The APPENDING half rode with step 3 and landed with it**: nothing
+      deterministic appends to that ledger — `sync-sources` does, in prose — so the skill (both
+      locales) now documents the name field and where the name comes from. The seed reaches new
+      brains only, deliberately: `vault/actions-log.md` is the owner's file and the engine never
+      rewrites it.
+- [x] **4.5** _(2026-09-03, `415cd7c`)_ `sync-sources` and the daily-note
+      convention updated to call 4.1 rather than compose a path by hand: step 4 now asks
+      `node scripts/dated-note-path.mjs --folder briefings --date …` for the path and writes where it
+      says, in both locales. **It was already reachable before that**: the SessionStart hook of 4.3
+      tells every session, on any brain with two authors, to take a dated note's path from that same
+      script — a channel that needs no twinned file.
 - [x] **4.6** _(2026-09-02, `suffixed-dated-note-compat.test.mjs` + a rag test)_ Compatibility: **old unsuffixed notes keep working** — type detection by prefix
       (`TYPE_BY_PREFIX`), the linter's zone lists and the consolidation capture zones all match on
       the folder, not the file name, so a suffix changes nothing for them. **Assert that**, do not
@@ -363,11 +369,12 @@ This is the honest statement of the perimeter.
       **per workspace**. `SETUP.md` has **no French twin**, so this half was free to write.
       Framed around the one sentence worth remembering: *sharing a brain shares what you wrote down,
       not what you can see.*
-- [~] **5.2** ⛔ **Blocked by the same French-twin guard as step 3, and drafted below instead.** The
+- [x] **5.2** _(2026-09-03, `415cd7c`)_ Applied with step 3, in the same commit, as predicted. The
       constitution's owner-editable part is `CLAUDE.md.template`, which **is** a watched locale pair
-      (`templates/fr/CLAUDE.md.template` exists), exactly like `CLAUDE.engine.md`. So the three lines
-      are written out ready to paste, in § *The step-5.2 draft*, and applying them is the SAME
-      one-word decision as step 3 — not a second one.
+      (`templates/fr/CLAUDE.md.template` exists), exactly like `CLAUDE.engine.md` — so the section
+      *"If you share this brain with someone else"* landed in both, right after `## Tone`, and is
+      asserted rule by rule beside the source-identity guard. It reaches **new installs only**
+      (the template is in no update regime): a deployed brain's constitution is the owner's file.
 - [x] **5.3** _(2026-09-03)_ ⚠️ **Product statements — proposals until he has read them** (same standing as
       `SETUP.md` §6(e), still awaiting his review). Write them; do not treat them as settled.
       **Written and flagged, not settled**: the §7 subsection is on disk and shipped in the branch;
@@ -401,10 +408,11 @@ This is the honest statement of the perimeter.
 
 - [x] **7.1** _(2026-09-03)_ This STATE block says where it stopped, in the terms of § *Design calls taken without
       him*, before the last commit of the run.
-- [x] **7.2** _(2026-09-03)_ The parent plan's step 8 is unblocked (or says precisely what still blocks it).
-      **It is not unblocked, and the blocker is one sentence long**: the three skill/constitution
-      edits need their French twins, and only the owner writes those. The parent's step-8 header now
-      says that, and points here rather than restating any status.
+- [x] **7.2** _(2026-09-03, twice: at the hand-back, then at the unblocking)_ The parent plan's step 8 is unblocked (or says precisely what still blocks it).
+      At the hand-back it was **not** unblocked, and the blocker was one sentence long: the three
+      skill/constitution edits needed their French twins. **Since `415cd7c` it IS unblocked** — the
+      twins are written, and the parent's step-8 header says so and points here rather than
+      restating any status.
 
 ## 🛑 The owner's call: duo mode is implicit, and the brain announces it once _(2026-09-02, before the run)_
 
@@ -503,12 +511,15 @@ that produced it is still the reasoning that defends it.
   unnecessary: the mail key is the composite, which survives any transport. Settling it would need
   a real forwarding filter and a test mail on the field setup — not here, and not needed.
 
-## The step-3 draft — ready to paste, deliberately not applied
+## The step-3 draft — ✅ APPLIED 2026-09-03 (`415cd7c`), kept as the record of what was pasted
 
-Why it sits here and not in the skill: the blocker box at 3.1. Applying it means **one commit
-touching `.claude/skills/sync-sources/SKILL.md` AND `templates/fr/.claude/skills/sync-sources/SKILL.md`**,
-plus a `source-identity-discipline` slice in `scripts/lib/source-discipline.test.mjs` on the model of
-the section already there (same `docSection` slicing, one `pattern` per rule, EN and FR).
+It sat here while the boundary line stood; it is now in the skill, in both locales, in one commit
+touching `.claude/skills/sync-sources/SKILL.md` AND `templates/fr/.claude/skills/sync-sources/SKILL.md`,
+with the `source-identity` slice added to `scripts/lib/source-discipline.test.mjs` on the model of the
+section already there (same `docSection` slicing, one `pattern` per rule, EN and FR).
+**One thing the draft could not predict**: three guarded phrases had to be re-wrapped in the prose,
+because a sentence that breaks across a line makes its guard red for typography rather than for
+meaning — the failure the source-discipline guard already records having met three times.
 
 The section goes **immediately after `## Source discipline`**, before `## Identity discipline`.
 
@@ -581,7 +592,7 @@ keys** of what the briefing drew on. ⚠️ **That field already exists there wi
 and the human list stays in the body where a reader already finds it. **Old briefings are safe**: a
 prose entry can never equal a normalized key, so it can never produce a false "already held".
 
-## The step-5.2 draft — ready to paste, blocked by the same guard as step 3
+## The step-5.2 draft — ✅ APPLIED 2026-09-03 (`415cd7c`), in the same commit as step 3
 
 `CLAUDE.md.template` has a French twin (`templates/fr/CLAUDE.md.template`), so it is a watched locale
 pair: touching the English alone makes the drift guard red, and the run's autonomy line forbids

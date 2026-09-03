@@ -20,11 +20,11 @@ server with its knob and its shutdown, the announcement that reaches the convers
 next message, the banner for notes written by someone else, the doctrine and docs that say so, and
 the rehearsal against a copy of a real brain.
 
-> ▶️ **START HERE.** What remains is **NOT** step 8. Since 2026-09-02 this release carries a second
-> feature, and its work is the sub-plan
-> [`duo-source-identity-action.md`](duo-source-identity-action.md) — **open it and start at its
-> first unticked box**. Step 8 (the release) is blocked until it lands; the only other things left
-> are two measurements only the owner's own machines can make, and reviews that are his.
+> ▶️ **START HERE: step 8, the release.** The second feature this release carries — the duo-mode
+> sub-plan [`duo-source-identity-action.md`](duo-source-identity-action.md) — **landed in full on
+> 2026-09-03** (`415cd7c`), so it no longer blocks anything; open it only for that feature's own
+> detail. Everything else outstanding is the owner's: two measurements only his machines can make
+> (7.5, and the server count of 7.4), the product statements flagged for his review, and the tag.
 
 - ✅ **2.7 is DONE** _(2026-09-02)_. Two passes over the six files this chantier writes: **86.17 %
   → 95.98 %**, and the gate — the piece that decides whether a machine ticks at all — **67.74 % →
@@ -150,8 +150,10 @@ the rehearsal against a copy of a real brain.
 - **A session may, alone:** run steps 0 to 7 test-first end to end, on this branch, pushing
   every green commit and reading its CI — **and, since 2026-09-02, every step of the sub-plan
   [`duo-source-identity-action.md`](duo-source-identity-action.md)**, which now stands between this
-  plan and its step 8. Not: tag, publish, push to `main`, write into `templates/fr/**`, or write
-  into either of the owner's real brains.
+  plan and its step 8. **A French twin is written WITH its English source, in the same commit** —
+  that is what the drift guard asks, and the old "never write under `templates/fr/**`" clause was a
+  boundary copied from another plan's one-off case (lifted 2026-09-03). Not: tag, publish, push to
+  `main`, or write into either of the owner's real brains.
 
 ## Tracking
 
@@ -317,8 +319,7 @@ a real brain.
       loop (unchanged), and `board-anatomy` lists the hooks (auto-commit, auto-push, reconcile) —
       and this feature adds no hook, since 5.1 was dropped.
 - [x] **6.4** _(2026-09-02, verified untouched)_ `.claude/skills/sync/SKILL.md` **not modified** (stays the manual door and the
-      assisted resolution; no French twin to write, and the active plan forbids a session from
-      writing `templates/fr/**` alone).
+      assisted resolution; it needed no edit at all, so its French twin needed none either).
 
 ### 7. Rehearsal on a copy of a real brain (the update is driven by the OLD engine)
 
@@ -376,15 +377,15 @@ a real brain.
 
 ### 8. Release
 
-> ⛔ **Blocked until the sub-plan lands.** By the owner's decision of 2026-09-02 this release ships
-> **two** features, not one: live sync, and the duo-mode duplication work of
-> [`duo-source-identity-action.md`](duo-source-identity-action.md). Its § *What is deliberately NOT
-> in this plan* is the honest perimeter to describe at 8.2.
+> ▶️ **UNBLOCKED since 2026-09-03 (`415cd7c`): the sub-plan has landed in full.** By the owner's
+> decision of 2026-09-02 this release ships **two** features, not one: live sync, and the duo-mode
+> duplication work of [`duo-source-identity-action.md`](duo-source-identity-action.md). Its
+> § *What is deliberately NOT in this plan* is the honest perimeter to describe at 8.2, and its STATE
+> block holds that plan's detail — the only place that does.
 >
-> 🔎 **What still blocks it, as of 2026-09-03: three edits that need a FRENCH TWIN written**, and
-> only the owner writes those. Everything else in the sub-plan is built, green and pushed. The
-> drafts are ready to paste in that plan (§ *The step-3 draft*, § *The step-5.2 draft*); its STATE
-> block holds the detail and is the only place that does.
+> **This is where work resumes.** What is left below is the release itself, plus the two measurements
+> only the owner's own machines can make (7.5, and the server count of 7.4) and the product
+> statements that are his to overrule.
 
 - [ ] **8.1** Marketing-surface re-read (CONVENTIONS §10): README, EN-QUOI-C-EST-DIFFERENT,
       SETUP, CONNECTORS, boards; verdicts recorded here.
@@ -393,6 +394,12 @@ a real brain.
 - [ ] **8.2bis** The `engineVersion` bump, applied here and not before (the table is at 3.6):
       a version that is bumped but unpublished makes a fresh install stamp itself with a
       version that never existed (`32a6ec4`).
+- [ ] **8.2ter** **Re-run the fingerprint generator with the tag actually being cut**:
+      `node maintainers/fingerprints/generate-fingerprints.mjs --version <tag>`. It was already run
+      at `415cd7c` and stamped **`v5.1.0`**, because that commit ships the branch's first
+      merge-regime bytes and the freshness guard stays red until the table recognises them. **If the
+      tag is not `v5.1.0`, the table names a version that was never published** — the exact defect
+      8.2bis exists against, one file over.
 - [ ] **8.3** Tag (number: owner's call, see STATE), `git push --tags`, published release.
 - [ ] **8.4** Tracker sweep (§10bis): #84 closed when a real brain **receives** the feature;
       say what was not closed.
