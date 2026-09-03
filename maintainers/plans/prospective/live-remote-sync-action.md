@@ -59,7 +59,8 @@ the rehearsal against a copy of a real brain.
 >
 > 🛑 **EVERYTHING THAT IS MINE IS DONE. THE RELEASE NOW WAITS ON THE OWNER, AND ON NOTHING ELSE.**
 > PR [#86](https://github.com/tpierrain/kenjaku/pull/86) is open into `main` with the whole release in
-> it, all checks green at the time of opening.
+> it, and **its checks have finished and are GREEN** _(2026-09-03, read not assumed: 8 pass, 3 skipped
+> as duplicates of the branch run — the Windows tripwire and the end-to-end install among the eight)_.
 >
 > ▶️ **RESUME AT 8.3, and only after he has merged #86** — tag `v5.1.0` **on `main`**, `git push
 > --tags`, publish the release with the body of
