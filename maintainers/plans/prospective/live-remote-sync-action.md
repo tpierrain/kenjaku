@@ -25,15 +25,6 @@ the rehearsal against a copy of a real brain.
 > `v5.1.0`**, which is also the number the fingerprint table already carries (8.2ter therefore needs
 > no re-run unless something else changes it) and the number the field rehearsal used.
 >
-> 🔬 **BUT 3.7 COMES FIRST, and it is a hole this plan never had a box for** _(found 2026-09-03, on
-> the owner's question "is there mutation testing left?")_. Step 3 wrote the clock **inside the search
-> server** — `rag/src/lib/remote-sync-scheduler.ts` (119 new lines), `remote-sync-interval.ts`, the
-> shutdown seam and the wiring in `index.ts` — and **2.7 measured only the `scripts/` half**, six
-> files, because that is what its own target list named. The rag half of this release has therefore
-> **never been mutation-measured**, and CONVENTIONS §5quinquies asks for it the day the file is
-> written. A mutation run changes production code often enough (measured four times on this branch
-> alone) that doing it after the release note would invalidate the note. So: **3.7, then 8.1**.
->
 > ✅ **3.7 IS CLOSED, BOTH HALVES** _(2026-09-03)_. The rag half **82.89 % → 97.37 %**; the scripts
 > half **batch A 97.22 %**, **batch B 82.14 % → 100 %**. Each half has its own `RESULTS.md` section,
 > newest-first, and the two cases batch B owed were written, seen red against each mutant by hand,
@@ -50,8 +41,6 @@ the rehearsal against a copy of a real brain.
 > ✅ **8.2 IS WRITTEN** _(2026-09-03)_ → [`release-v5.1.0-note.md`](release-v5.1.0-note.md). Checking
 > its `What you get` heading against the real parser found that **v5.0.0's note was never quoted** by
 > `/update-engine` at all; the constraint now lives in CONVENTIONS §11 instead of in one plan.
-> **The release TITLE is the owner's to pick** (three candidates in the note's header) — it does not
-> block anything.
 >
 > ✅ **8.2bis AND 8.2ter ARE DONE** _(2026-09-03)_: the bump is applied exactly as 3.6's table says
 > (`rag` 1.5.0, `scripts` 1.15.0, `indexSchemaVersion` unmoved), and the fingerprint table needs no
@@ -64,24 +53,21 @@ the rehearsal against a copy of a real brain.
 >
 > ▶️ **RESUME AT 8.3, and only after he has merged #86** — tag `v5.1.0` **on `main`**, `git push
 > --tags`, publish the release with the body of
-> [`release-v5.1.0-note.md`](release-v5.1.0-note.md) under **whichever title he picks**. Then 8.4
+> [`release-v5.1.0-note.md`](release-v5.1.0-note.md), titled **"v5.1.0 — The One with the Duo Mode"**
+> (his, settled 2026-09-03 — the note's header holds the reasoning). Then 8.4
 > (tracker sweep, close #84 when a real brain receives the feature) and 8.5 (archive this plan).
 >
 > **What is his, in one list**: merge #86 — **the title is settled, "The One with the Duo Mode"**;
 > the two measurements only his own machines can make (7.5, and the server count of 7.4) — neither of
 > which gates the tag; the two product statements flagged in `SETUP.md` §7; and, if he disagrees with
 > it, the board call recorded at 8.1.
-> **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
-> and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
-> can do, and a red there is a follow-up fix, not a reason to withhold the release.
 >
 > ✅ **THE SUB-PLAN IS NOT IN THE WAY EITHER.** The second feature this release carries — the duo-mode
 > sub-plan [`duo-source-identity-action.md`](duo-source-identity-action.md) — **landed in full on
 > 2026-09-03** (`415cd7c`), so it no longer blocks anything; open it only for that feature's own
 > detail. Its own files **were** mutation-measured as they were written (`RESULTS.md`, the
 > `source-key`/`brain-author`/`dated-note-path` batches), which is why 3.7's target list does not name
-> them. Everything else outstanding is the owner's: two measurements only his machines can make
-> (7.5, and the server count of 7.4), the product statements flagged for his review, and the tag.
+> them. What is still outstanding is listed once, above.
 
 - ✅ **2.7 is DONE** _(2026-09-02)_. Two passes over the six files this chantier writes: **86.17 %
   → 95.98 %**, and the gate — the piece that decides whether a machine ticks at all — **67.74 % →
