@@ -40,6 +40,14 @@ owner gave the go-ahead, both twins were written in the same commit, and steps 3
   was a product call), then **copied forward** into this plan and its parent as a generic clause,
   where its reason no longer applied. A copied boundary outlives the case that justified it — the
   same failure mode as a copied status, and the same fix: it is not restated anywhere any more.
+- 🏷️ **AND IT NOW HAS A PUBLIC NAME, which is his too** _(2026-09-03)_. *"Duo mode"* stops being our
+  internal shorthand for this plan and becomes the **product's marketing name**: v5.1.0 is titled
+  **"The One with the Duo Mode"**, and the name is carried through the release note, `SETUP.md` §7,
+  the README and EN-QUOI. His reasoning, against my objection that no user had read those words: **a
+  feature's name is unfamiliar by construction, and the release is what puts it into the language** —
+  *name what the person lives* governs describing a symptom, not christening something new. Written
+  into CONVENTIONS §11 so it is not re-argued. **Consequence for this plan: the words *duo mode* here
+  are now the same words the product says**, not a working label to be translated at publication.
 - ✅ **HIS CALL, taken before the run: duo mode is IMPLICIT, and the brain announces it once.**
   Nothing to activate, no per-person profile to fill in. § *The owner's call: duo mode is implicit*
   holds the reasoning and the three things it settles.
