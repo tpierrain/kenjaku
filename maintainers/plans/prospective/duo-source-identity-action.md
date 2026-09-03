@@ -19,7 +19,7 @@ the owner's decision).
 1, 2, 4, 4bis and the writable half of 5 are done and pushed on `feat/live-remote-sync`, CI green.
 What is left splits in two, and only the first pile is mine:
 
-- **Mine, and DONE**: every mutation run (**1.4** 98.60 %, **2.3** 96.50 %, **4.7** 98.03 % over its
+- **Mine, and DONE**: every mutation run (**1.4** 98.60 %, **2.3** 97.89 %, **4.7** 98.03 % over its
   batch) and the end-to-end verification (**6**), including a two-clone rehearsal kept as a harness.
 - **His, and it is ONE decision, not four**: everything that needs a **French twin written**. Steps
   **3.1–3.3**, **4.5** and **5.2** are all blocked by the same guard, and all three drafts are written
@@ -155,7 +155,7 @@ What is left splits in two, and only the first pile is mine:
       than re-capture it — and says to **read and enrich** it, which is what ADR 0041 §6 means by
       "already held". An unreadable vault does **not** block the write: failing towards a greppable
       duplicate, never towards an invisible loss.
-- [x] **2.3** _(2026-09-03, 96.50 %)_ Mutation run on the changed file.
+- [x] **2.3** _(2026-09-03, 97.89 %)_ Mutation run on the changed file.
       Measured in the step-4 batch (one worktree, one run). Its five remaining survivors are every
       one an equivalent, named in `RESULTS.md` rather than implied. The pass also found that three
       assertions on the refusal were weaker than they read — `/read|enrich/i` passes on the word

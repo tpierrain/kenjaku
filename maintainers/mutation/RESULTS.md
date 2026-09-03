@@ -246,8 +246,10 @@ Log: `reports/mutate-one-dated-note-path+4.log`.
 | `lib/dated-note-path.mjs` | **97.87 %** | **100.00 %** | 0 |
 | `dated-note-path.mjs` (entry) | **66.67 %** | **98.75 %** | 1 equivalent, 2 timeout |
 | `session-authors.mjs` | **79.55 %** | **95.35 %** | 2, both equivalents |
-| `file-back-note.mjs` | not measured since it changed | **96.50 %** | 5, all equivalents |
+| `file-back-note.mjs` | not measured since it changed | **97.89 %** | 3, all equivalents |
 | **Together** | **80.00 %** | **98.03 %** | 396 killed, 8 survived, 2 timeout |
+
+_(`file-back-note.mjs` was re-measured on its own after the dead-initializer fix below: **96.50 % → 97.89 %**, `reports/mutate-one-file-back-note.log`. The batch figure above is the one before that fix, kept because it is what the batch measured.)_
 
 **The 66.67 % was concentrated in one place: the REFUSALS.** Six of the entry point's error
 paths shared a single test that checked `exit 2` and nothing else — so `--date` with nothing
@@ -274,7 +276,7 @@ source-identity pass: `let x = []` that both branches overwrite is a **default t
 dead code**, and it masks whether the `catch` still runs (the two mutants cover for each other,
 so both survive). Plus a redundant second `return 0` in a fail-open catch.
 
-**What is left is equivalents**, listed rather than implied: an encoding argument replaced by
+**What is left is equivalents**, listed rather than implied: two encoding arguments replaced by
 `""` (the family already recorded for #84 — Node accepts it and the buffer stringifies), a
 `catch` assigning `[]` to a variable nothing distinguishes it by, `split(/\s+/)[0]` after a
 `.trim()` (only a leading run could differ, and trim removed it), and two swallowed messages in
