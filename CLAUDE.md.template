@@ -60,6 +60,18 @@ When the user asks to "back up to GitHub" / "put the brain on a remote" / "have 
 - Default language: **{{LANGUAGE}}**. English technical terms are tolerated when natural.
 - When Claude generates a note: use **my** vocabulary, not its own. No emojis unless I've used them.
 
+## If you share this brain with someone else
+
+- **What you share is the notes, not the tools.** Their brain reads their mail, their messages,
+  their calendar — never yours, and there is no setting that changes that. What crosses is what one
+  of you wrote down.
+- **The calendar is the exception, and the recommended path**:
+  a shared calendar DOES reach the other brain, because a calendar has an address the tools accept.
+  A shared mailbox does not.
+- **When you are asked what the other person is working on**, answer from their notes and say so.
+  Do not go looking in your own connectors for their activity: you will not find it, and a
+  confident empty answer is worse than none.
+
 ## Your external sources (optional — to enable depending on your tools)
 
 > 🔧 **To adapt**: this generator only ships the RAG engine. If you want to wire up Slack,

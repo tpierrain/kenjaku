@@ -1,5 +1,5 @@
 {
-  "generatedAt": "v5.0.0",
+  "generatedAt": "v5.1.0",
   "files": {
     ".claude/skills/coach/SKILL.md": {
       "sha256:3a1df7202920eb0cf1879bf8cecaf1eba91944a7efcbef339c0d0e6a3cd9aa74": {
@@ -134,6 +134,14 @@
       },
       "sha256:1f0e7d8d857f1b139937ca483d94730658aec7b2dfcbb21b3d8d0b4f2072114a": {
         "since": "v4.8.0",
+        "locale": "fr"
+      },
+      "sha256:87121db61a1b3ce053feca911318a73fa9a7d6e2b9865d3012bca0e1a72e87c1": {
+        "since": "v5.1.0",
+        "locale": "en"
+      },
+      "sha256:6b5ff16c8a88d028f2330e936e5c6199445143604cebb7b7e4da7250226089d5": {
+        "since": "v5.1.0",
         "locale": "fr"
       }
     },

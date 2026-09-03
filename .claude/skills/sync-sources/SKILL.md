@@ -142,6 +142,64 @@ one. See "Identity discipline" just below: the name stays plain text. This secti
    what came back is a synthesis. It fires on the signatures it knows, so its silence is not permission —
    an export it has never seen is still an export, and rules 1 to 4 hold with or without it.
 
+## Source identity — do not digest the same source twice
+
+> **Two people can share one brain, and then the same mail, the same thread, the same document is
+> reachable from both.** Nothing in a note used to record WHICH object it was built from — permalinks
+> live in prose, and prose is not a lookup key — so the second brain could not know the first had
+> already read it. Since notes in the append-only zones now merge without asking anyone, a doubled
+> digest lands silently. This is the rule that removes the cause rather than the alarm (ADR 0041).
+
+1. **Before you capture anything from a connector, ask the vault whether it already holds it.**
+   One command, from the brain folder, with the connector's own raw fields — never a key you spelled
+   yourself:
+
+   ```bash
+   node scripts/known-source.mjs --type slack --channel C0CEQ4R5E --ts 1725283200.001200
+   node scripts/known-source.mjs --type mail --from "Billing <b@example.com>" \
+        --date 2026-09-02T16:19:32Z --subject "Your invoice is ready"
+   ```
+
+   **Three exit codes, and the third is not a hit**: `0` not held (or it could not find out) → capture ·
+   `1` already held → the line names the note · `2` the question itself is broken.
+   Never treat "non-zero" as "already held": a typo in your own arguments would then cancel a real
+   capture.
+
+2. **"Already held" means GO AND READ IT, never "drop the question".** Open the note the check named,
+   answer from it, and **enrich it** if what you were asked needs something the first pass did not
+   extract. That is the whole value of sharing a brain. Discarding the work is the one reading of this
+   rule that makes the brain worse.
+
+3. **Stamp what you drew on.** Every note written from an external source carries `sources:` in its
+   frontmatter — an inline list of normalized keys. **A capture lists one** (one mail, one thread, one
+   document, one note). **A synthesis lists as many as it drew on** (a briefing, a person card, a
+   topic page): such a note does not *have* a source, it *drew on* several. `file-back-note.mjs`
+   composes the keys for you from `"sourceKeys": [{ "type": …, … }]` — descriptors, not strings.
+
+4. **The key table, one row per source, and every value below is free in the ordinary response:**
+
+   | Source | What identifies it | Where you already have it |
+   |---|---|---|
+   | Slack | the channel id + the message `ts` | every message response; it is what a permalink encodes |
+   | Calendar | the event id **of the instance**, never the series | the ordinary listing (a recurring event returns both — take the instance) |
+   | Drive | the file id | the search result |
+   | Notion | the page id | the mirror already keys on it |
+   | Mail | the **sender address + the sent timestamp + the subject** | `MINIMAL` / `METADATA_ONLY` |
+
+   🛑 **Never fetch a raw message just to get an identity.** The RFC `Message-Id` would need a full
+   MIME fetch — a hundred kilobytes into your context for one header, which is exactly what this
+   fan-out exists to prevent. The three cheap fields are identical across every copy of a mail,
+   whatever the transport, and requiring all three to match is exact, not fuzzy.
+
+5. **No key means UNKNOWN, never "already seen".** A conversation, a document a human read to you, a
+   source with no row above: write no `sources` key at all rather than a made-up one. Every note
+   written before this rule is in that state, and a brain that read "no key" as "seen" would believe
+   it had already digested the world.
+
+6. **The identity is never a reason to say less.** If the check says held and your question needs
+   more than the held note says, say so and go further.
+   This rule removes duplicate STORAGE, not duplicate thinking.
+
 ## Identity discipline
 
 > **Read the vault before you write about the people in it.** A briefing once turned the source's
@@ -300,12 +358,17 @@ Agent(
 You are a meeting-transcript extraction agent. READ-ONLY.
 
 TASK:
+0. Before storing anything, run the source-identity check from the brain folder:
+   `node scripts/known-source.mjs --type drive --file <DOC_ID>`.
+   Exit 1 = this brain already captured that document: return the note it names,
+   with what your question needed, instead of capturing it a second time.
 1. Read the document <DOC_ID> via your Drive connector (mcp__<drive>__read_file).
 2. Save the raw content to vault/raw-sources/transcripts/YYYY-MM-DD-<slug>.md
    with this frontmatter:
    ---
    type: transcript
    source: <connector>
+   sources: ["drive|<DOC_ID>"]
    meeting: "<title>"
    date: YYYY-MM-DD
    captured: <today's date>
@@ -395,6 +458,9 @@ WHICH WORKSPACE YOU WERE ON — return this, it is not optional:
   so it may be authenticated on a completely different organisation.
 
 RULES:
+- Before storing anything, run the source-identity check (see § Source identity):
+  `node scripts/known-source.mjs --type slack --channel <channel id> --ts <message ts>`.
+  Exit 1 = already held: return the note it names instead of re-capturing it.
 - Ignore pure conversational noise (hello/thanks/emoji) and bots/notifications.
 - Backlinks via vault/people/ (kebab-case, no accents). No full name, no link: the name stays plain text.
 - NEVER a shell (python3 -c, node -e, awk, sed, jq, grep, cat…) to read/load/split the
@@ -462,14 +528,24 @@ carry that through to the briefing rather than rounding it to "nothing happened"
 
 ### Step 4 — Writing the briefing (if morning briefing)
 
-Write to `vault/briefings/YYYY-MM-DD.md`:
+**Ask for the path, do not compose it** — two people on one brain write two briefings for the same
+day, and the second must not land on the first:
+
+```bash
+node scripts/dated-note-path.mjs --folder briefings --date YYYY-MM-DD
+```
+
+It answers `vault/briefings/YYYY-MM-DD.md` on a brain with one author (nothing changes for you), and
+a per-person path once someone else already wrote that day. Same command for `--folder daily`.
+
+Write to the path it gave you:
 
 ```markdown
 ---
 type: briefing
 date: YYYY-MM-DD
 architecture: fan-out/fan-in
-sources: ["[[raw-sources/transcripts/...]]", "chat (24h)", "calendar (day)"]
+sources: ["drive|<id>", "slack|<channel>|<ts>"]   # what this briefing DREW ON, normalized keys
 unverified: true          # true as long as one caveat below is unticked — see Caveats
 tags: [briefing]
 ---
@@ -513,6 +589,12 @@ urgency, or the one signal that protects a relationship gets lost in decoration.
 
 No empty section — omit it. Each signal cites its source (brackets or backlink).
 
+**The `sources:` field is the machine list now** (see *Source identity* above): the normalized keys of
+what this briefing drew on, so another brain that meets the same document knows this one already
+digested it. The **human** list of sources stays in the body, where a reader already finds it as
+backlinks. Old briefings whose `sources:` holds prose are safe: a prose entry can never equal a
+normalized key, so it can never produce a false "already held".
+
 ### Step 5 — Append to `vault/actions-log.md`
 
 The ledger is a **first-class, seeded artifact**: it is created at install and re-seeded (if ever
@@ -521,8 +603,13 @@ missing) on session start by the `session-actions-log` hook, so it normally alre
 absent):
 
 ```markdown
-## [YYYY-MM-DD] <action> — #channel [[people/recipient]]
+## [YYYY-MM-DD] <action> — #channel [[people/recipient]] · <who>
 ```
+
+The last field is **who did it** — `git config --get user.name`, the same name everything else in
+this brain answers "who" with. It matters the day the brain is shared: two people appending to one
+ledger have their lines kept side by side, and without a name the result reads as one person's
+history.
 
 **Append-only**: never rewrite the existing lines or the seeded header. Usage: "what did I do on
 X?" → `grep -i "X" vault/actions-log.md` then enrich via the referenced briefings.
