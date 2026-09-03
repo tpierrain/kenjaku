@@ -25,6 +25,15 @@ the rehearsal against a copy of a real brain.
 > `v5.1.0`**, which is also the number the fingerprint table already carries (8.2ter therefore needs
 > no re-run unless something else changes it) and the number the field rehearsal used.
 >
+> 🔬 **BUT 3.7 COMES FIRST, and it is a hole this plan never had a box for** _(found 2026-09-03, on
+> the owner's question "is there mutation testing left?")_. Step 3 wrote the clock **inside the search
+> server** — `rag/src/lib/remote-sync-scheduler.ts` (119 new lines), `remote-sync-interval.ts`, the
+> shutdown seam and the wiring in `index.ts` — and **2.7 measured only the `scripts/` half**, six
+> files, because that is what its own target list named. The rag half of this release has therefore
+> **never been mutation-measured**, and CONVENTIONS §5quinquies asks for it the day the file is
+> written. A mutation run changes production code often enough (measured four times on this branch
+> alone) that doing it after the release note would invalidate the note. So: **3.7, then 8.1**.
+>
 > ▶️ **RESUME AT 8.1** (marketing-surface re-read), then 8.2, 8.2bis, 8.3, 8.4, 8.5 in that order.
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
 > and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
@@ -267,6 +276,20 @@ a real brain.
       `.git/index.lock` from a process with no window at all.
 - [x] **3.5** _(2026-09-02)_ `.env.example` documents the variable, commented out, under ADVANCED / OPTIONAL
       (reaches new installs only: the default lives in code). `indexSchemaVersion` untouched.
+- [ ] **3.7** **Mutation run on the rag half of this release** — the box step 3 never had, added
+      2026-09-03 before the cut. Config: `maintainers/mutation/stryker.rag.config.mjs`, one line per
+      file in `RESULTS.md`, newest-first. Targets, in this order (biggest new surface first):
+      `rag/src/lib/remote-sync-scheduler.ts` (new, 119 lines), `rag/src/lib/remote-sync-interval.ts`
+      (new), `rag/src/lib/shutdown-plan.ts` (the `stopRemoteSync` seam), `rag/src/index.ts` (the
+      wiring), and `rag/src/lib/frontmatter-parser.ts` + `rag/src/lib/campaign-persist.ts`, both of
+      which this branch changed **after** their last measurement (97.87 % / 2026-08).
+      **And the `scripts/` files changed since their own last run**, which 2.7 and 4.7 did not
+      cover: `scripts/lib/filed-note.mjs` (+32, the `sources` composition), `scripts/lib/
+      actions-log-seed.mjs`, `scripts/prompt-restart-nudge.mjs` (+49), `scripts/lib/
+      instrumented-source.mjs` (+54), `scripts/lib/ignore-base-settings.mjs`,
+      `scripts/lib/reconcile-brain.mjs`, `scripts/lib/wiki-lint.mjs`.
+      ⚠️ **Expect it to change production code**: it did on all four earlier passes of this branch,
+      which is why it comes before the release note rather than after.
 - [ ] **3.6** ~~`engineVersion.rag` and `engineVersion.scripts` bumped in the manifest~~ →
       **moved to step 8, on the owner's own rule** _(2026-09-02)_. Commit `32a6ec4`: *"a bumped
       version that is not published makes a fresh install stamp itself with a version that was
