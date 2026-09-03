@@ -843,6 +843,18 @@ you made to your second brain's capabilities*, *the improvements that follow*. T
 whether the sentence is short: it is whether someone who did not build this can picture what it
 describes.
 
+> 🏷️ **The one exception, and it is not shorthand: NAMING a capability that did not exist before.**
+> A feature's name is unfamiliar vocabulary **by construction** — nobody has read it yet, and the
+> release is what puts it into the language. *Duo mode* (v5.1.0) is the case that settled it: the
+> objection *"no user has ever read those words"* is an argument against **describing** a symptom in
+> our jargon, not against **christening** something new. Both rules hold at once, and the split is
+> clean: **describe in the reader's words, name in ours.**
+>
+> **What a name costs, though, is that it must be used.** A name that appears only in a release title
+> is not a name. Whenever a release christens something, the same movement puts it in the note's lead,
+> in the `What you get` moment it belongs to, and on the marketing surface — otherwise the next
+> release has to introduce it all over again, and the word never becomes anybody's.
+
 **The body is written UNWRAPPED**, one line per paragraph or bullet. Hard breaks at ~100 columns are
 invisible once rendered and a nuisance in any editor that reflows — this file is a body to be pasted,
 not source to be diffed line by line.
