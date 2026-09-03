@@ -1,6 +1,7 @@
 # PR body — v5.1.0 (step 8.2quater)
 
-> 🚧 **This file IS the body.** Everything below the first `---` is what was sent as the PR body. It
+> 📤 **SENT** — this is the body of [#86](https://github.com/tpierrain/kenjaku/pull/86), opened
+> 2026-09-03 from `feat/live-remote-sync` into `main`. Everything below the first `---` is what was sent. It
 > is written here as well as on GitHub so the record of what a reviewer was told survives the PR, and
 > so a re-open or an edit starts from the text rather than from memory.
 >

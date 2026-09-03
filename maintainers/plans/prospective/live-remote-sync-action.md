@@ -57,9 +57,19 @@ the rehearsal against a copy of a real brain.
 > (`rag` 1.5.0, `scripts` 1.15.0, `indexSchemaVersion` unmoved), and the fingerprint table needs no
 > re-run — it already names `v5.1.0` and the whole suite is green with the bump in.
 >
-> ▶️ **RESUME AT 8.2quater — the PR into `main`.** Then 8.3 (tag on `main` **once the owner merges**),
-> 8.4 (tracker sweep, #84), 8.5 (archive this plan). **The merge is his click**; everything before it
-> is mine.
+> 🛑 **EVERYTHING THAT IS MINE IS DONE. THE RELEASE NOW WAITS ON THE OWNER, AND ON NOTHING ELSE.**
+> PR [#86](https://github.com/tpierrain/kenjaku/pull/86) is open into `main` with the whole release in
+> it, all checks green at the time of opening.
+>
+> ▶️ **RESUME AT 8.3, and only after he has merged #86** — tag `v5.1.0` **on `main`**, `git push
+> --tags`, publish the release with the body of
+> [`release-v5.1.0-note.md`](release-v5.1.0-note.md) under **whichever title he picks**. Then 8.4
+> (tracker sweep, close #84 when a real brain receives the feature) and 8.5 (archive this plan).
+>
+> **What is his, in one list**: merge #86; pick the release title (three candidates in the note);
+> the two measurements only his own machines can make (7.5, and the server count of 7.4) — neither of
+> which gates the tag; the two product statements flagged in `SETUP.md` §7; and, if he disagrees with
+> it, the board call recorded at 8.1.
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
 > and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
 > can do, and a red there is a follow-up fix, not a reason to withhold the release.
@@ -603,7 +613,13 @@ a real brain.
       merge-regime bytes and the freshness guard stays red until the table recognises them. **If the
       tag is not `v5.1.0`, the table names a version that was never published** — the exact defect
       8.2bis exists against, one file over.
-- [ ] **8.2quater** The PR into `main`, opened from `feat/live-remote-sync` and titled for the
+- [x] **8.2quater** **PR [#86](https://github.com/tpierrain/kenjaku/pull/86) IS OPEN** _(2026-09-03)_,
+      from `feat/live-remote-sync` into `main`, titled *"v5.1.0 — two machines stay in step on their
+      own, and two people can share one brain"*. Body staged in
+      [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md) and sent from there, so the record of
+      what the reviewer was told survives the PR. **86 commits, 98 files, +14 123 / −122** at the
+      time of opening. ⏸️ **The merge is the owner's click.** The instruction it answers:
+      The PR into `main`, opened from `feat/live-remote-sync` and titled for the
       release (body in English, §11's register). **Every release on this repo lands as a merge
       commit on `main`** (`git log --first-parent main`), never a tag on a branch — so this is the
       step 8.3 tags. The merge itself is the owner's click unless he says otherwise.
