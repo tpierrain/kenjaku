@@ -34,7 +34,9 @@ the rehearsal against a copy of a real brain.
 > written. A mutation run changes production code often enough (measured four times on this branch
 > alone) that doing it after the release note would invalidate the note. So: **3.7, then 8.1**.
 >
-> ▶️ **RESUME AT 3.7b** — the `scripts/` half of the mutation run. **3.7a (the rag half) is DONE**
+> ▶️ **RESUME AT 3.7b's batch B** — the four `scripts/` files left, whose exact ranges are written
+> at that box. Batch A is measured and its four survivors fixed; the mutation runner itself was
+> found refusing a measurement it had made, and fixed first (`97b8279`). **3.7a (the rag half) is DONE**
 > _(2026-09-03: 82.89 % → 97.37 %, four tests owed and written, two named equivalents left)_; what
 > it found is at step 3.7 and in `RESULTS.md`. **Then 8.1** (marketing-surface re-read), 8.2, 8.2bis,
 > 8.2ter, 8.2quater, 8.3, 8.4, 8.5 in that order. _(An earlier version of this block said "resume at
@@ -312,7 +314,29 @@ a real brain.
         in those words).
   - [ ] **3.7b — the `scripts/` files changed since their own last run**, through
         `mutate-one.mjs` (disposable worktree, hunk-scoped for the existing files, whole for the
-        new one), in two batches so neither exceeds the runner's window.
+        new one), in two batches so neither exceeds the runner's window (~6 min each).
+    - [x] **The runner itself had to be fixed first** _(2026-09-03, `97b8279`)_. It **refused a
+          measurement it had really made**: Stryker prints one row per FILE however many ranges it
+          is handed, and the guard consumed one row per TARGET, so five of six hunks of one file
+          read as "contributed no mutants at all" over 19 honestly-killed mutants at 100 %. Fixed
+          test-first (88 cases green), with the reason written where it happened: this is the
+          mirror of `RESULTS.md` T13 — a refusal nobody can trust is bypassed within a day, which
+          costs exactly what a green that lies costs.
+    - [x] **Batch A first pass** _(2026-09-03)_: `lib/filed-note.mjs` (6 hunks) **100 %**;
+          `lib/instrumented-source.mjs` (new, whole) **80.95 %**, four survivors, all real and all
+          fixed in `97b8279` — including a behaviour call: `isInstrumented` type-checked its
+          argument, so a caller that forgot the encoding handed a **Buffer** and had its
+          instrumented bytes **judged**, which is the false red this module exists against. It
+          coerces now and fails towards standing down. Being re-measured.
+    - [ ] **Batch B**, the four files left, code-bearing ranges only:
+          `prompt-restart-nudge.mjs:41-42`, `:64-74`, `:82-88`,
+          `lib/ignore-base-settings.mjs:47-47`, `lib/reconcile-brain.mjs:501-502`,
+          `lib/wiki-lint.mjs:99-99`.
+    - [x] ⛔ **`lib/actions-log-seed.mjs` is dropped from the targets, and it is not an omission**
+          _(2026-09-03)_. Its whole change is **prose inside a template literal** (the ledger's
+          format line gains a `· <who>` field, plus three lines saying why): **zero mutants**. This
+          register's own doctrine covers it — a file with no mutants is not listed with a zero, it
+          is absent from the table, and the score belongs to its neighbours.
 - [ ] **3.6** ~~`engineVersion.rag` and `engineVersion.scripts` bumped in the manifest~~ →
       **moved to step 8, on the owner's own rule** _(2026-09-02)_. Commit `32a6ec4`: *"a bumped
       version that is not published makes a fresh install stamp itself with a version that was
