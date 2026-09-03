@@ -47,7 +47,13 @@ the rehearsal against a copy of a real brain.
 > **deliberately not re-rendered**; the reasoning, and the fact that it is the owner's to overrule,
 > is written at 8.1 rather than left to be re-derived next release.
 >
-> ▶️ **RESUME AT 8.2 — the release note.** Then 8.2bis (the `engineVersion` bump, table at 3.6),
+> ✅ **8.2 IS WRITTEN** _(2026-09-03)_ → [`release-v5.1.0-note.md`](release-v5.1.0-note.md). Checking
+> its `What you get` heading against the real parser found that **v5.0.0's note was never quoted** by
+> `/update-engine` at all; the constraint now lives in CONVENTIONS §11 instead of in one plan.
+> **The release TITLE is the owner's to pick** (three candidates in the note's header) — it does not
+> block anything.
+>
+> ▶️ **RESUME AT 8.2bis — the `engineVersion` bump** (table at 3.6),
 > 8.2ter (re-run the fingerprint generator only if the tag is not `v5.1.0` — it already is), 8.2quater
 > (the PR into `main`), 8.3 (tag on `main` once merged), 8.4 (tracker sweep), 8.5 (archive this plan).
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
@@ -561,8 +567,21 @@ a real brain.
         does not include the sync clock, and does not claim to be exhaustive) — unchanged.
         👀 **The owner can overrule this one**: it is a positioning call, not a fact, and the cost
         of overruling it is one prompt edit plus a re-render.
-- [ ] **8.2** Release note (§11): brief, non-alarmist, "What you get" grouped by moment, with the
-      `### What you get` heading the `--check` prose is parsed from.
+- [x] **8.2** **Release note WRITTEN** _(2026-09-03)_ →
+      [`release-v5.1.0-note.md`](release-v5.1.0-note.md), the file that mirrors the body to publish.
+      §11 shape: a pull-quote lead, what the old behaviour cost **described fairly as the deliberate
+      trade-off it was**, two moments (*while a conversation is open*, *when two of you use one
+      brain*), nine bullets, and every mechanism below the `---`.
+  - [x] 🔒 **The `### What you get` heading is bare, and it was CHECKED against the real parser**
+        (16 lines captured, both moments) rather than assumed. **This found a shipped defect in the
+        note before it**: v5.0.0 wrote `### What you get, when you update your brain`, which
+        `extractWhatYouGet` does not match, so `/update-engine` **never quoted that release's prose**
+        and fell back to its title — silently. Nothing to fix in a published tag; what was fixable is
+        the net, so the constraint moved out of this plan and into **CONVENTIONS §11**, where the
+        next release will read it.
+  - [ ] 🏷️ **The TITLE is the owner's**, as v4.9.1's was: *"The One Where Your Two Computers Stop
+        Drifting Apart"* is mine, and the two others considered are recorded in the note's header.
+        Not a blocker — the note publishes under whichever he picks.
 - [ ] **8.2bis** The `engineVersion` bump, applied here and not before (the table is at 3.6):
       a version that is bumped but unpublished makes a fresh install stamp itself with a
       version that never existed (`32a6ec4`).

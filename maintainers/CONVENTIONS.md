@@ -807,6 +807,19 @@ what they gain is.
    in (*when you update your brain*, *the rest of the time, in ordinary conversations*), each under
    one line of framing that names the moment and the command that triggers it. A flat list forces the
    reader to infer, bullet by bullet, *when* each promise applies.
+   > 🔒 **The `What you get` heading itself must be BARE — the three words and nothing after.** It is
+   > not a style point: `/update-engine` **quotes that section verbatim** to the owner before asking
+   > for consent (ADR 0009 — quoted, never summarised), and `extractWhatYouGet` matches only a
+   > heading ending right after those words, then reads **to the next heading**. So the moments of
+   > point 2 are written as **bold lines inside** the section, never as sub-headings: a sub-heading
+   > ends the quote at the first moment and the rest is silently dropped.
+   >
+   > ⚠️ **Measured, not theoretical: the v5.0.0 note wrote `### What you get, when you update your
+   > brain` and was therefore never quoted at all** — the consent prose fell back to the release
+   > title, with nothing on screen to say so. Written here at v5.1.0, because until then the
+   > constraint lived only in one release's plan, which is no net for the release after it. **Check
+   > it, do not trust it**: run the real parser over the drafted body before publishing.
+
 3. **Every bullet stands ALONE**: an emoji, a bold claim that names its own context, then **one plain
    sentence — or one concrete example**, whichever lands. An example is worth its extra line;
    abstraction dressed as brevity is not. Seven bullets is already a lot. If one needs a paragraph,
