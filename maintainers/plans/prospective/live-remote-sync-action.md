@@ -34,11 +34,12 @@ the rehearsal against a copy of a real brain.
 > written. A mutation run changes production code often enough (measured four times on this branch
 > alone) that doing it after the release note would invalidate the note. So: **3.7, then 8.1**.
 >
-> ▶️ **RESUME AT 3.7b's "two fixes batch B owes"** — both are written out there in full, with the
-> survivor that names each, so nothing has to be re-derived: a `.gitignore` guard whose three riders
-> are never isolated from one another (the arrivals-only case is the migration that reaches an old
-> brain, proved by the field rehearsal and by no unit), and a blank line between two directives that
-> nothing asserts. Then the recheck, then that half's `RESULTS.md` section. Batches A and B have both
+> ▶️ **RESUME AT 3.7b's BATCH-B RECHECK.** The two cases batch B owed are **written and green**
+> _(2026-09-03, `cf7d5fb`, pushed)_ — the `.gitignore` guard's three riders now each have a case that
+> isolates them (including the arrivals-only one: the migration that reaches an old brain, which the
+> field rehearsal proved and no unit did), and the blank line between the two directives is asserted.
+> Each of the four mutants was applied by hand and seen red first. **Left: the recheck** (same six
+> ranges, log `v510-scripts-batch-b-recheck`), **then that half's `RESULTS.md` section.** Batches A and B have both
 > RUN and their numbers are in the plan; the mutation runner itself was found refusing a measurement
 > it had really made, and was fixed first (`97b8279`). **3.7a (the rag half) is DONE**
 > _(2026-09-03: 82.89 % → 97.37 %, four tests owed and written, two named equivalents left)_; what
@@ -339,9 +340,12 @@ a real brain.
           `ignore-base-settings.mjs` **100 %**, `wiki-lint.mjs` **100 %**,
           `prompt-restart-nudge.mjs` **93.33 %** (1), `lib/reconcile-brain.mjs` **33.33 %** (4).
           Log: `maintainers/mutation/reports/v510-scripts-batch-b.log`.
-    - [ ] ⚠️ **THE TWO FIXES BATCH B OWES — this is where work resumes.** Both are missing test
-          cases, not thin assertions, and neither needs any production change:
-      - [ ] **`lib/reconcile-brain.mjs:502` — four survivors on ONE line, and they are all the
+    - [x] ⚠️ **THE TWO FIXES BATCH B OWES** _(2026-09-03, `cf7d5fb`)_. Both were missing test
+          cases, not thin assertions, and neither needed any production change — the batch's
+          own reading held. Each mutant was applied by hand and seen to go red before the
+          commit: `&&` (5 tests red), `if (true)` (1), `if (arrivals.changed)` (2),
+          `join("")` (1). What each owed is below:
+      - [x] **`lib/reconcile-brain.mjs:502` — four survivors on ONE line, and they are all the
             same hole.** The guard is `if (unignored.changed || ignored.changed ||
             arrivals.changed) writeFileSync(...)`, and **no test ever isolates one rider from the
             other two**: `|| → &&`, `if (true)`, and `false || arrivals.changed` all pass. The case
@@ -350,12 +354,20 @@ a real brain.
             STATE block calls load-bearing (step 2.6). The field rehearsal (7.1) proved it
             end-to-end on a copy of `~/mind-palace`; **no unit does**. Owed: one case per rider
             alone (three), plus the all-quiet case that must write nothing.
-      - [ ] **`scripts/prompt-restart-nudge.mjs:70` — `join("\n\n")` → `join("")` survives.** The
+            ✅ Written: three cases, each on a brain where the other two migrations are already
+            done, so the guard has exactly one rider to hear. And the converged case gained the
+            assertion it was missing — **identical bytes cannot tell a no-op from a rewrite**, so
+            it now stamps the file's mtime into the past and demands it survive. That is what
+            kills `if (true)`, and it is the owner's `git status` it protects.
+      - [x] **`scripts/prompt-restart-nudge.mjs:70` — `join("\n\n")` → `join("")` survives.** The
             blank line between the two directives is unasserted, so a restart blocker and an
             arrivals announcement would run together into one paragraph in the payload Claude
             reads. Step 4.1 pinned that both ride in ONE string, blocker first; it never pinned
             that they stay two paragraphs. Owed: assert the joined payload whole in the
-            both-at-once case.
+            both-at-once case. ✅ Written: the payload is split on the blank line and both
+            halves are named, so a weld collapses it to one paragraph and the test says so.
+            The prose of each directive is deliberately NOT re-pinned here — it is asserted
+            where each directive is built, and a second copy would break on every rewording.
     - [ ] **Then the batch-B recheck**, same ranges, same log name + `-recheck`.
     - [ ] **Then the `RESULTS.md` section for this whole scripts half** — deliberately NOT written
           yet, so it records the pass that closed rather than a snapshot of one in flight. The
