@@ -34,10 +34,11 @@ the rehearsal against a copy of a real brain.
 > written. A mutation run changes production code often enough (measured four times on this branch
 > alone) that doing it after the release note would invalidate the note. So: **3.7, then 8.1**.
 >
-> ▶️ **RESUME AT 3.7** (the mutation run: the rag half first, then the `scripts/` files changed since
-> their own last run), **then 8.1** (marketing-surface re-read), 8.2, 8.2bis, 8.2ter, 8.2quater, 8.3,
-> 8.4, 8.5 in that order. _(An earlier version of this block said "resume at 8.1"; 3.7 was found
-> after it was written and comes first — corrected 2026-09-03, before any of it ran.)_
+> ▶️ **RESUME AT 3.7b** — the `scripts/` half of the mutation run. **3.7a (the rag half) is DONE**
+> _(2026-09-03: 82.89 % → 97.37 %, four tests owed and written, two named equivalents left)_; what
+> it found is at step 3.7 and in `RESULTS.md`. **Then 8.1** (marketing-surface re-read), 8.2, 8.2bis,
+> 8.2ter, 8.2quater, 8.3, 8.4, 8.5 in that order. _(An earlier version of this block said "resume at
+> 8.1"; 3.7 was found after it was written and comes first — corrected 2026-09-03.)_
 > **Nothing else blocks the cut.** His two measurements (7.5, and the server count of 7.4) stay open
 > and do NOT gate the tag: they verify the feature on his own two machines, which no headless run
 > can do, and a red there is a follow-up fix, not a reason to withhold the release.
@@ -295,6 +296,23 @@ a real brain.
       `scripts/lib/reconcile-brain.mjs`, `scripts/lib/wiki-lint.mjs`.
       ⚠️ **Expect it to change production code**: it did on all four earlier passes of this branch,
       which is why it comes before the release note rather than after.
+  - [x] **3.7a — the rag half** _(2026-09-03, `424ba2d` + `27bf9f7`)_: **82.89 % → 97.37 %**, two
+        survivors left and both named equivalents. Four tests were owed, and the biggest was the
+        shape T7 already taught once: **fifteen good tests, every one injecting its own timer, so
+        the four defaults the server actually runs — `setTimeout`, `clearTimeout`, `Math.random`,
+        the stderr log — were executed by nothing.** Also: a spawned script's name checked by
+        nothing, a shutdown trace matched on the error text but not the label saying WHICH loop
+        refused, and a `sources` key never fed padding or a blank entry. The table, the two
+        equivalents with their reasons, and why this run had to exist at all (a per-step target
+        list is a plan artefact; the release is the UNION of them) are in `RESULTS.md`, newest-first.
+        ⛔ **`rag/src/index.ts` was deliberately dropped from the run**: it is the composition root,
+        no suite imports it, so every mutant would survive and the number would measure "no unit
+        test exists" rather than "the tests are weak". Same class as the top-level `scripts/`
+        entry points, and it is **already named debt** in this register (the v4.7.0 entry says so
+        in those words).
+  - [ ] **3.7b — the `scripts/` files changed since their own last run**, through
+        `mutate-one.mjs` (disposable worktree, hunk-scoped for the existing files, whole for the
+        new one), in two batches so neither exceeds the runner's window.
 - [ ] **3.6** ~~`engineVersion.rag` and `engineVersion.scripts` bumped in the manifest~~ →
       **moved to step 8, on the owner's own rule** _(2026-09-02)_. Commit `32a6ec4`: *"a bumped
       version that is not published makes a fresh install stamp itself with a version that was

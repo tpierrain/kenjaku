@@ -233,6 +233,90 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #84 — the half the target list never named: the clock inside the search server — 2026-09-03
+
+State owned by
+[`../plans/prospective/live-remote-sync-action.md`](../plans/prospective/live-remote-sync-action.md)
+(step 3.7 — a box added the day of the cut, because step 3 never had one). Config:
+`stryker.rag.config.mjs`. Logs: `reports/v510-rag-changed.log`, then
+`reports/v510-rag-changed-recheck.log`.
+
+➡️ **Why this run exists at all, and it is the transferable part.** Step 2.7 measured **six files**
+and read as "this chantier is mutation-tested". It was: the six files **its own target list named** —
+all under `scripts/`. Meanwhile step 3 had written the clock in the **other** package (119 new lines
+of scheduler, a new knob, a shutdown seam), and **no list named those**, so the run that looked like
+the chantier's measurement had never touched them. **A per-step target list is a plan artefact, and
+the release is measured by the union of them, not by the last one that ran.** The check that would
+have caught it costs one command: `git diff --name-only main...HEAD` against what `RESULTS.md`
+records.
+
+| File (scope) | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/campaign-persist.ts` (48-55) | **0.00 %** | **100.00 %** | 0 |
+| `lib/frontmatter-parser.ts` (21-26, 149-155) | 75.00 % | **100.00 %** | 0 |
+| `lib/shutdown-plan.ts` (whole, 20 of 46 lines changed) | 80.00 % | **100.00 %** | 0 |
+| `lib/remote-sync-scheduler.ts` (new, whole) | 86.11 % | **97.22 %** | 1, an equivalent |
+| `lib/remote-sync-interval.ts` (new, whole) | 92.31 % | **92.31 %** | 1, an equivalent |
+| **Batch** | **82.89 %** | **97.37 %** | 70 killed, 4 timeout, 2 survived of 76 |
+
+### The one finding worth carrying: fifteen tests, and none of them ran the code that ships
+
+The scheduler's five survivors were **four defaults in one constructor** —
+`opts.log ?? console.error`, `opts.random ?? Math.random`, `opts.setTimer ?? setTimeout`,
+`opts.clearTimer ?? clearTimeout` — plus a dead initializer. Its suite is a good one: a virtual
+clock that honours each duration, a `clearTimer` double that **refuses a missing handle**, jitter
+triangulated at three rolls. And that is exactly the problem: **every one of the fifteen tests hands
+the scheduler its own timer, so the four implementations the server actually runs were executed by
+nothing.** Each mutant emptied one of them to `() => undefined` with the suite green.
+
+This is the **same finding as T7** (`lib/locale-drift.mjs`, one release earlier), on a different
+package and a different collaborator, which is what promotes it from an anecdote to a shape:
+
+➡️ **A parameter with a real-world default has TWO implementations, and a suite that always injects
+the other one certifies nothing about the one in production.** The question to ask of any seam:
+*when every test passes its own version of a collaborator, who runs the one that ships?*
+
+Three tests answer it here, and each is deliberately narrow: the real `setTimeout` fires a tick and
+the real `clearTimeout` cancels the pending one; the real `Math.random` produces a **finite** delay
+inside the ±10 % band (a roll that answers nothing makes the delay `NaN`, which `setTimeout` treats
+as **zero** — the configured cadence silently dropped, with nothing on screen to say so); and a
+failed tick with no log injected reaches **stderr**, failing being the normal case for this loop.
+
+⚠️ **The timeouts went 1 → 4, and they are honest kills of the strongest kind.** The real-timer test
+keeps a live timer chain in the process, so a mutant that defeats `stop()` no longer merely
+mis-counts — **the test process never exits**, which is precisely the defect the shutdown seam exists
+against (a clock outliving its window keeps pulling into a brain nobody is looking at). 4 of 76 is
+well under the 25 % share that means a starved runner rather than a detected mutant.
+
+### The other three, in one line each
+
+- **`REMOTE_SYNC_SCRIPT` could be emptied to `""`** — a constant the clock spawns by name, checked
+  by nothing. This is the quietest failure the server has: the child exits non-zero, the tick reports
+  `failed`, and the brain simply never catches up. Now checked against the two things that must agree
+  with it — the file this repo ships (`statSync(...).isFile()`, because `existsSync("scripts/")` is
+  **true** for the emptied name) and the manifest regime that carries it to a brain predating the
+  feature.
+- **The shutdown trace was matched on the error text only**, so the label naming *which* loop refused
+  could be emptied with the suite green — and the label is the half that tells "the watcher is
+  wedged" from "the clock is still pulling into this brain". Asserted whole.
+- **A `sources` key had never been fed padding or a blank entry**, though a YAML block list and a
+  hand-edited note both produce them, and a key is compared for **equality** against the one the
+  capture path stamped. One case (`'  drive|1A2b  '`, `'   '`, `''` → one key) killed all four
+  survivors in that hunk.
+
+### The two survivors, named with their reason
+
+- **`if (!trimmed) return DEFAULT` → `if (false)`** (`remote-sync-interval.ts`). Equivalent, and not
+  dead code: the regex below it rejects `""` and answers the default anyway, so no test can
+  distinguish the two — but the guard is what **narrows the type** from `string | undefined` for
+  that regex. Removing it costs a `?? ""` whose own literal is an equivalent one line down, so the
+  trade is one unkillable mutant for another, in a shape that would then differ from
+  `local-mirror/src/lib/sync-interval.ts`, its twin one package over. Left as it is, deliberately.
+- **`private stopped = false` → `= true`** (`remote-sync-scheduler.ts`). Equivalent: `start()` is the
+  only door into the loop and sets the field itself before anything reads it, so the initial value is
+  unobservable. It exists for `strict`'s property initialisation, and the sibling scheduler carries
+  the same two statements for the same reason.
+
 ## #84 duo — per-person paths and the writer guard: the refusals nobody had read — 2026-09-03
 
 State owned by
