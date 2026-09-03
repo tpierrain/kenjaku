@@ -888,6 +888,50 @@ test("unmeasuredTargets — ONE row answers for ONE target: a single row cannot 
   ]);
 });
 
+test("unmeasuredTargets — SEVERAL HUNKS of one file are one file to the table, and share its row", () => {
+  // Met in the wild, 2026-09-03, on #84's step 3.7: a batch naming six hunks of
+  // `lib/filed-note.mjs` was REFUSED with "these TARGETS contributed no mutants at
+  // all" listing five of them — over a run that had honestly measured all six, at
+  // 100 % on 19 mutants. Stryker prints ONE row per FILE however many ranges it was
+  // handed, so consuming a row per target made the extra hunks look unmeasured.
+  //
+  // This is the exact mirror of T13: there the instrument printed ✅ over a run that
+  // had measured nothing; here it printed ❌ over a run that had measured everything.
+  // A refusal nobody can trust is disabled within a day, so it costs as much as a
+  // green that lies.
+  //
+  // The "one row cannot certify two" rule above is NOT weakened: it is about two
+  // distinct FILES, and two hunks of one file are one file.
+  const oneRow = [{ file: "filed-note.mjs", path: "lib/filed-note.mjs", score: 100, survived: 0, timeout: 0 }];
+
+  assert.deepEqual(
+    unmeasuredTargets(
+      [
+        "scripts/lib/filed-note.mjs:13-13",
+        "scripts/lib/filed-note.mjs:37-42",
+        "scripts/lib/filed-note.mjs:187-192",
+      ],
+      oneRow
+    ),
+    []
+  );
+
+  // And the half that keeps it honest: a SECOND file, named by hunks of its own and
+  // absent from the table, is still reported — once, not once per hunk.
+  assert.deepEqual(
+    unmeasuredTargets(
+      [
+        "scripts/lib/filed-note.mjs:13-13",
+        "scripts/lib/filed-note.mjs:37-42",
+        "scripts/lib/actions-log-seed.mjs:41-47",
+        "scripts/lib/actions-log-seed.mjs:60-66",
+      ],
+      oneRow
+    ),
+    ["scripts/lib/actions-log-seed.mjs"]
+  );
+});
+
 test("unmeasuredTargets — a table with no file rows at all names every target", () => {
   // The zero-mutant run: `n/a`, no rows, and every target unmeasured. Its own gate
   // speaks first in the runner, but this function must not go quiet here.

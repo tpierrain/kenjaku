@@ -480,7 +480,18 @@ export function unmeasuredTargets(targets, files) {
   const available = files.map((file) => file.path);
   const missing = [];
 
-  for (const path of targetPaths(targets)) {
+  // 🚨 ONE FILE, HOWEVER MANY HUNKS. Stryker prints one row per FILE whatever the
+  // number of ranges it was handed, so a batch naming six hunks of one file must
+  // consume ONE row, not six — otherwise five of them look unmeasured and the run is
+  // refused over a measurement it really made (met 2026-09-03, #84 step 3.7: five
+  // hunks named as contributing nothing, over 19 honestly-killed mutants at 100 %).
+  // That refusal is the exact mirror of T13's false green, and costs the same: a
+  // guard nobody can trust gets bypassed within a day.
+  //
+  // It does NOT weaken "one row cannot certify two": that rule is about two distinct
+  // FILES, and two hunks of one file are one file. `Set` keeps the first spelling and
+  // its order, which is the one the refusal message names.
+  for (const path of new Set(targetPaths(targets))) {
     const [match] = available
       .filter((reported) => path.endsWith(`/${reported}`))
       .sort((left, right) => right.length - left.length);

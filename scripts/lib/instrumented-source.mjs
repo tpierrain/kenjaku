@@ -31,9 +31,17 @@
  */
 const MARKER = /\bstry(?:NS|Cov|MutAct)_[0-9a-f]{4,}\b/;
 
-/** Has this text been rewritten by the mutation runner? */
+/**
+ * Has this text been rewritten by the mutation runner?
+ *
+ * Coerced rather than type-checked, and that is the deliberate direction: a caller
+ * that forgot the encoding hands a Buffer, and instrumented bytes are instrumented
+ * whatever their container. Standing down on a Buffer costs one unasked question;
+ * judging it costs a red that reads exactly like a real defect. `null`/`undefined`
+ * become the empty string, so nothing here throws.
+ */
 export function isInstrumented(source) {
-  return typeof source === "string" && MARKER.test(source);
+  return MARKER.test(String(source ?? ""));
 }
 
 /**

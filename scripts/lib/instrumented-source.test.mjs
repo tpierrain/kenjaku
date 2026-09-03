@@ -63,17 +63,32 @@ test("the stand-down names every rewritten file, and no clean one", () => {
     { name: "scripts/a.mjs", source: `if (stryMutAct_9fa48("2")) {}` },
   ]);
 
-  assert.match(reason, /scripts\/z\.mjs/);
-  assert.match(reason, /scripts\/a\.mjs/);
-  assert.doesNotMatch(reason, /scripts\/clean\.mjs/, "a file that was not rewritten is not evidence of anything");
+  // The list WHOLE, separator included: two names run together read as one path
+  // nobody can find, and the file that was NOT rewritten is not evidence of anything.
+  assert.equal(
+    reason,
+    "the mutation runner has rewritten the engine's source text " +
+      "(scripts/z.mjs, scripts/a.mjs), and this guard judges source text: it cannot tell the " +
+      "repository's bytes from an instrumented copy of them, so it stands down rather than " +
+      "report a defect that is not there",
+  );
 });
 
 // A skip message nobody understands is a skip nobody questions: the sentence has to
-// say what happened and why judging is impossible, not merely that it gave up.
+// say what happened and why judging is impossible, not merely that it gave up. So it
+// is asserted WHOLE — each of its three clauses answers a different question a reader
+// will otherwise ask out loud (what happened, why this guard cannot judge it, why
+// going quiet is the right answer), and any one of them can be emptied on its own.
 test("the stand-down says what happened, so a reader is not left guessing why a guard went quiet", () => {
   const reason = instrumentationStandDown([{ name: "scripts/a.mjs", source: `var stryNS_9fa48 = {};` }]);
-  assert.match(reason, /mutation/i);
-  assert.match(reason, /source text/i);
+
+  assert.equal(
+    reason,
+    "the mutation runner has rewritten the engine's source text " +
+      "(scripts/a.mjs), and this guard judges source text: it cannot tell the " +
+      "repository's bytes from an instrumented copy of them, so it stands down rather than " +
+      "report a defect that is not there",
+  );
 });
 
 test("nothing to judge is not a reason to stand down", () => {
@@ -85,4 +100,21 @@ test("an unreadable or empty source is not instrumented, and never throws", () =
     assert.equal(isInstrumented(source), false, `${JSON.stringify(source)} carries no marker`);
   }
   assert.equal(instrumentationStandDown([{ name: "scripts/a.mjs", source: null }]), null);
+});
+
+// 🛑 THE DIRECTION THIS MUST FAIL IN. `readFileSync(path)` with the encoding forgotten
+// answers a Buffer, and this module's whole charter is that a guard cannot be right
+// about text rewritten underneath it. Instrumented bytes are instrumented whatever
+// their container, so a Buffer carrying the marker stands the guard DOWN — a false
+// skip costs one unasked question, and the alternative costs a red that reads exactly
+// like a real defect. Guessing wrong here is what cost the nightly measurement three
+// weeks of unread failures.
+test("instrumented BYTES are instrumented too: a caller that forgot the encoding is not judged", () => {
+  const bytes = Buffer.from(`if (stryMutAct_9fa48("7")) {}`);
+
+  assert.equal(isInstrumented(bytes), true);
+  assert.match(
+    instrumentationStandDown([{ name: "scripts/a.mjs", source: bytes }]),
+    /scripts\/a\.mjs/,
+  );
 });
