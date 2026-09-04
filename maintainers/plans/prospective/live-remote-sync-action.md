@@ -70,10 +70,14 @@ the rehearsal against a copy of a real brain.
 > `docs/study-two-humans-one-brain`. To settle after the release: merge that branch, or repoint the
 > link.
 >
-> 🛑🛑 **THE RELEASE IS HELD. THE OWNER'S DECISION, 2026-09-04:** *"On ne publie pas la release tant
+> 🛑🛑 **THE RELEASE WAS HELD. THE OWNER'S DECISION, 2026-09-04:** *"On ne publie pas la release tant
 > qu'on n'a pas amélioré le mode Duo."* **Do not tag, do not publish, do not merge #86** until the
 > work named below has landed. Everything already built stays: nothing is reverted, nothing is thrown
 > away, and the branch stays green.
+>
+> ✅ **THAT WORK HAS LANDED** _(2026-09-04 night — see the next block for what shipped)_, bar its
+> mutation measurement. **The hold is his to lift**, not mine: the tag, the publication and the merge
+> of #86 were his before the hold and still are.
 >
 > **Why he held it, and he is right.** He asked how the brain can be sure it is really facing two
 > people rather than one person with two Macs. **It cannot.** `brain-author.mjs` compares git author
@@ -94,13 +98,19 @@ the rehearsal against a copy of a real brain.
 > the owner adds them as a collaborator on GitHub. The detection decides **how notes are filed**, never
 > **who may write**. No self-declared stranger can walk in.
 >
-> ▶️ **RESUME HERE: the duo-mode confirmation — sub-plan
-> [`duo-source-identity-action.md`](duo-source-identity-action.md), its STEP 8**, which owns the ten
-> sub-steps and the *implicit* doctrine this refines — the shape agreed in conversation: **detection stays automatic** (his 2026-09-03
-> reasoning survives: a switch protects only whoever thought to flip it, never the duo about to be
-> doubled), but **the once-in-a-brain's-life announcement becomes a QUESTION** — *"I see a second
-> name, X. Is that someone else, or you on another machine?"* — and **the answer is remembered**, so
-> *"it's me"* fuses the two names into one person and no suffix is ever written.
+> ✅ **THE WORK THE HOLD ASKED FOR IS BUILT, GREEN AND PUSHED** _(2026-09-04 night, CI read on each
+> commit)_. The sub-plan [`duo-source-identity-action.md`](duo-source-identity-action.md) owns the
+> detail and the four design calls; in one line: **detection stays automatic** (his 2026-09-03
+> reasoning survives — a switch protects only whoever thought to flip it, never the duo about to be
+> doubled), and **the once-in-a-brain's-life announcement is now a QUESTION** — *"I see a second name,
+> X. Is that someone else, or you on another machine?"* — **asked at every session start until it is
+> answered either way**, with the answer written where it travels to the other machine. *"It's me"*
+> fuses the two names and no suffix is ever written; *"it's someone else"* confirms duo mode and the
+> question is over.
+>
+> ▶️ **WHAT IS LEFT ON THIS BRANCH, AND IT IS ONE THING**: the sub-plan's **8.8**, the mutation
+> measurement of what step 8 wrote, whose figures then join the release note's *Quality* paragraph.
+> Nothing else is owed before the tag.
 >
 > ⏸️ **Then, and only then, 8.3** — tag `v5.1.0` **on `main`**, `git push
 > --tags`, publish the release with the body of
