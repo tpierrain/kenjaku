@@ -22,6 +22,17 @@
 > headed *"Duo mode"*, and the marketing surface says it too — `SETUP.md` §7's subsection, EN-QUOI's
 > Sharing row and the README's close. A name that appears only in a release title is not a name.
 >
+> 🔁 **AND THE NAME MUST LEAD, NOT TRAIL** _(2026-09-04, the owner, reading the note)_: *"c'est comme
+> si on disait que le duo mode était un side effect alors que c'était ça le driver."* He is right, and
+> the plan's own header proves it: #84 was surfaced by
+> [`two-humans-one-brain-study.md`](../../studies/two-humans-one-brain-study.md), whose origin is a
+> brain owner handing their brain to a second person, and which calls the machine-to-machine sync
+> **"the whole lever"** — the means, not the end. The intro was written the other way round: the sync
+> first, duo mode as an *"and it also…"* in the last paragraph. **The intro is now led by duo mode**,
+> with the live catch-up presented as what making it work bought everyone. Generalisable: this is the
+> same defect as the note above, one layer up. Using the name is not enough if the structure still
+> reads the feature as a side effect. **A release note's order is a claim about what mattered.**
+>
 > The candidates it beat, kept only so they are not re-proposed: *"…Where Your Two Computers Stop Drifting Apart"*, *"…Where It Catches Up on Its Own"*,
 > *"…Where the Other Machine Gets a Word In"*, *"…Where Your Brain Isn't Tied to One Machine, or One
 > Person"*.
@@ -39,15 +50,15 @@
 
 ### What this release is about
 
-> ### v5.1.0 ends having to remember which computer your second brain last heard from.
+> ### v5.1.0 lets two people share one second brain — and keeps every machine it runs on in step by itself.
 
-Your second brain lives in a folder on your machine, and if you wired up a repository of your own it backs itself up there. That repository is also what lets you use the same brain from your laptop and from your desktop, or share it with one other person.
+A second brain has always been one person's. The moment someone else worked in it too — an assistant, a colleague, someone joining you at short notice — the two of you wrote over each other: the same meeting captured twice, the same day's page contested, and each machine answering from whatever it last heard.
 
-**Until now it caught up only when a conversation started.** That was a deliberate choice: a brain that reaches for the network in the middle of your work is a brain that can interrupt it. The cost landed elsewhere, though. Leave a window open all afternoon on one machine, write on the other, and the first one keeps answering from what it knew this morning, with nothing on screen to say it is behind.
+**v5.1.0 makes two people in one brain actually work, and it calls that *duo mode*.** What you both only ever add to merges on its own, and the same thing captured twice is stored once. Nobody is asked, and nothing is lost.
 
-**v5.1.0 lets an open brain keep itself up to date, quietly.** It notices what your other computer wrote, brings it in on its own, and tells you at your next message.
+**Getting there meant fixing something every one of us gets for free.** To a brain, two people are simply two machines — and until now a brain caught up only when a conversation started. That was a deliberate choice: a brain that reaches for the network in the middle of your work is a brain that can interrupt it. The cost landed elsewhere, though. Leave a window open all afternoon on one machine, write on the other, and the first one keeps answering from what it knew this morning, with nothing on screen to say it is behind. **Now an open brain keeps itself up to date, quietly**: it notices what the other one wrote, brings it in on its own, and tells you at your next message.
 
-**And it opens the same door to a second person: this release introduces *duo mode*.** Two people can now work in one brain without treading on each other — what you both only ever add to merges by itself, and the same thing captured twice is stored once. Most people will never turn it on, and nothing changes for them. For those who work as a pair, it is new, and it is what this release is named after.
+**So this release lands twice over.** Share a brain with someone, and that is new ground. Work alone across a laptop and a desk, and you get the thing you never thought to ask for: a brain that stops trailing behind you.
 
 ### What you get
 
