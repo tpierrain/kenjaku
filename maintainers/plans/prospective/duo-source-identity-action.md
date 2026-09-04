@@ -34,12 +34,14 @@ below, and the release is held until it lands.**
   the once-in-a-brain's-life announcement becomes *"I see a second name, X. Is that someone else, or
   you on another machine?"*, and the answer is remembered so *"it's me"* fuses the two names and no
   suffix is ever written. Test-first, and the sub-steps get written here before any code.
-  **▶️ 8.1 and 8.2 are TICKED, and the whole design of 8.3 → 8.9 is now written at step 8 itself
-  (four design calls). Restart at 8.3** — the registry exists and is honoured everywhere in
-  `brain-author.mjs`, but **nothing reads or writes it on disk yet**, so in a real brain it is inert:
-  `identities` arrives `undefined` from every caller and every behaviour is byte-identical to before.
-  That is deliberate (each sub-step ships green), and it is also why **8.2 alone fixes nothing for a
-  user** — 8.3 gives it `.vault-rag/authors.json`, 8.4 and 8.5 obtain and record the answer.
+  **▶️ 8.1 THROUGH 8.7 ARE DONE, GREEN AND PUSHED (CI read on each), AND THE FEATURE IS WHOLE**
+  _(2026-09-04 night)_: the registry on disk, the question that replaces the assertion, the entry
+  point that records either answer and pushes it, the filing and the banner both resolving through
+  it, and the loop proved end to end as processes — the hook asks, the answer is recorded, the hook
+  goes silent. **8.9 is written too** (SETUP §7, the release note's duo block, the PR body on GitHub;
+  the note re-checked against the real `extractWhatYouGet`: 17 lines captured, both moments in).
+  **▶️ WHAT IS LEFT HERE IS 8.8, the mutation measurement**, then the note's Quality paragraph gains
+  its figures, then the parent plan's 8.3 (the tag) is the owner's.
 - ✅ **THE CI WAS READ ON RESUMING** _(2026-09-04, 23:31 push)_: the checks for `9246e12` **and** for
   the plan commit after it both **passed**. Nothing red is outstanding, so a failure appearing from
   here belongs to the work below (`rules/ci.md`).
