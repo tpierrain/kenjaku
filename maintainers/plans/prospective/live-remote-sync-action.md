@@ -94,9 +94,9 @@ the rehearsal against a copy of a real brain.
 > the owner adds them as a collaborator on GitHub. The detection decides **how notes are filed**, never
 > **who may write**. No self-declared stranger can walk in.
 >
-> ▶️ **RESUME HERE: the duo-mode confirmation**, whose steps are owned by the sub-plan
-> [`duo-source-identity-action.md`](duo-source-identity-action.md) (it owns the *implicit* doctrine
-> this refines) — the shape agreed in conversation: **detection stays automatic** (his 2026-09-03
+> ▶️ **RESUME HERE: the duo-mode confirmation — sub-plan
+> [`duo-source-identity-action.md`](duo-source-identity-action.md), its STEP 8**, which owns the ten
+> sub-steps and the *implicit* doctrine this refines — the shape agreed in conversation: **detection stays automatic** (his 2026-09-03
 > reasoning survives: a switch protects only whoever thought to flip it, never the duo about to be
 > doubled), but **the once-in-a-brain's-life announcement becomes a QUESTION** — *"I see a second
 > name, X. Is that someone else, or you on another machine?"* — and **the answer is remembered**, so

@@ -24,7 +24,8 @@ below, and the release is held until it lands.**
   release tant qu'on n'a pas amélioré le mode Duo."* The parent plan's `## 📍 STATE` holds the hold
   itself and the evidence behind it; **what this plan owns is the doctrine being refined and the work
   that refines it**, below.
-- ▶️ **STEP 6 — THE ANNOUNCEMENT BECOMES A QUESTION** _(opened 2026-09-04, the work resumes here)_.
+- ▶️ **STEP 8 — THE ANNOUNCEMENT BECOMES A QUESTION** _(opened 2026-09-04, the work resumes here; 6
+  and 7 were already taken by the original run, so this is 8)_.
   **The defect:** `brain-author.mjs` compares git author names and nothing else, so one person whose
   two Macs say `Thomas Pierrain` and `tpierrain` is read as two people — announced as *"a second
   person now writes here"* to someone who is alone, and their daily notes split one file per machine.
@@ -444,6 +445,41 @@ This is the honest statement of the perimeter.
       skill/constitution edits needed their French twins. **Since `415cd7c` it IS unblocked** — the
       twins are written, and the parent's step-8 header says so and points here rather than
       restating any status.
+
+### 8. The announcement becomes a QUESTION — one person with two Macs is not a duo _(opened 2026-09-04, the release is held on this)_
+
+> **Read § *The owner's call* below first**: this step does not reverse it, it pays what it left owing.
+> Detection stays automatic and there is still no switch. What changes is that a brain may **file** on
+> a guess but may not **assert** one, and the guess it was asserting can be false.
+
+- [ ] **8.1** Amend § *The owner's call* with the refinement and its trigger, so the section that
+      settled "implicit" is not read alone. _(Doc only, no code.)_
+- [ ] **8.2** **The pure rule, test-first**: `brain-author.mjs` learns an **identity registry** — a set
+      of name spellings known to be the same person. `distinctAuthors` resolves through it before
+      comparing slugs, so `Thomas Pierrain` + `tpierrain` collapse to one. Fail-open: no registry, or
+      an unreadable one, behaves exactly as today.
+- [ ] **8.3** **The storage that TRAVELS**: `.vault-rag/authors.json`, beside `universes.json` — the
+      precedent for brain state that must reach the other machine (a fused identity is a fact about
+      the world, true on every Mac; answering once must be enough). Read tolerant of absence and of
+      corruption, same contract as every session-hook seam.
+- [ ] **8.4** **The announcement becomes the question**: `secondAuthorAnnouncement` stops asserting
+      *"a second person now writes here"* and asks *"I see a second name, X — someone else, or you on
+      another machine?"*. Until answered, filing keeps today's protective behaviour (a real duo that
+      never answers is still protected), and the question is asked at session start, **before** the
+      day's first note, so the false-positive case never gets a split note at all.
+- [ ] **8.5** **The way the answer is recorded**: an entry point the agent calls (`--same-person` /
+      `--different`), which writes `authors.json` and commits + pushes it **scoped**, reusing the
+      universe switch's own machinery (`universe-persist.mjs`) rather than a second one.
+- [ ] **8.6** **Filing follows the answer**: `dated-note-path.mjs` resolves the author through the
+      registry, so a fused name never yields a suffix. Its header comment's promise (*"even one with
+      two Macs"*) becomes true instead of hopeful.
+- [ ] **8.7** **The entry point is tested as a PROCESS**, not only through its imported functions
+      (`test-first-discipline`, the entry-point seam rule).
+- [ ] **8.8** **Mutation-measured** like the rest of this release, results in `maintainers/mutation/RESULTS.md`, newest-first.
+- [ ] **8.9** **The surface says it**: `SETUP.md` §7 and the release note's duo-mode block describe the
+      question, not a silent detection. If the note changes, **re-check it against the real
+      `extractWhatYouGet` parser** (the constraint is CONVENTIONS §11).
+- [ ] **8.10** Then, and only then, the parent plan's 8.3 is unblocked and the release can be cut.
 
 ## 🛑 The owner's call: duo mode is implicit, and the brain announces it once _(2026-09-02, before the run)_
 
