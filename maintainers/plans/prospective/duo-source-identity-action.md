@@ -15,15 +15,35 @@ the owner's decision).
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-02
 
-**EVERY STEP OF THIS PLAN IS DONE** _(2026-09-03, `415cd7c`)_. The French-twin block is lifted: the
-owner gave the go-ahead, both twins were written in the same commit, and steps 3.1–3.3, 4.4, 4.5 and
-5.2 landed with it. Nothing in this plan waits on anything any more.
+**EVERY STEP THIS PLAN ORIGINALLY CARRIED IS DONE** _(2026-09-03, `415cd7c`)_. The French-twin block
+is lifted: the owner gave the go-ahead, both twins were written in the same commit, and steps
+3.1–3.3, 4.4, 4.5 and 5.2 landed with it. **But the plan reopened on 2026-09-04 with one more step,
+below, and the release is held until it lands.**
 
-- ▶️ **WHERE WORK RESUMES: whatever the parent plan's own `## 📍 STATE` block names.** This sub-plan
-  blocked the release and no longer does; what still stands between the branch and a tag lives there,
-  not here — including its order, which this file deliberately does not restate. _(It used to say
-  "step 8"; the parent then found an earlier step of its own, and a named step here is a status copy
-  by another route — corrected 2026-09-03.)_
+- 🛑 **THE RELEASE IS HELD ON THIS PLAN AGAIN, BY THE OWNER** _(2026-09-04)_: *"On ne publie pas la
+  release tant qu'on n'a pas amélioré le mode Duo."* The parent plan's `## 📍 STATE` holds the hold
+  itself and the evidence behind it; **what this plan owns is the doctrine being refined and the work
+  that refines it**, below.
+- ▶️ **STEP 6 — THE ANNOUNCEMENT BECOMES A QUESTION** _(opened 2026-09-04, the work resumes here)_.
+  **The defect:** `brain-author.mjs` compares git author names and nothing else, so one person whose
+  two Macs say `Thomas Pierrain` and `tpierrain` is read as two people — announced as *"a second
+  person now writes here"* to someone who is alone, and their daily notes split one file per machine.
+  `dated-note-path.mjs`'s header promises the opposite (*"even one with two Macs"*), and nothing
+  enforces that promise. **The shape, agreed with him in conversation:** detection stays automatic,
+  the once-in-a-brain's-life announcement becomes *"I see a second name, X. Is that someone else, or
+  you on another machine?"*, and the answer is remembered so *"it's me"* fuses the two names and no
+  suffix is ever written. Test-first, and the sub-steps get written here before any code.
+- ⚖️ **WHICH REFINES HIS 2026-09-03 CALL WITHOUT REVERSING IT.** *Implicit* stays: there is still no
+  switch to flip, and his reasoning for that is untouched — **a switch protects only whoever thought
+  to flip it, which is never the duo about to have its notes doubled.** What changes is what
+  implicitness owes back. It already owed a sentence; it turns out it owes a **question**, because the
+  sentence it was saying can be false. A brain may file things on a guess; it may not *assert* the
+  guess.
+- ▶️ **For anything about the RELEASE itself: whatever the parent plan's own `## 📍 STATE` block
+  names.** What stands between the branch and a tag lives there, not here — including its order,
+  which this file deliberately does not restate. _(It used to say "step 8"; the parent then found an
+  earlier step of its own, and a named step here is a status copy by another route — corrected
+  2026-09-03.)_
 - **What the last commit changed, and why it was the one that mattered**: the mechanism was built and
   **nothing called it** — the capture path stamped no key, so nothing was ever found already-held.
   The producers are skills, a skill may not ship in English alone, so the feature could not exist
@@ -50,7 +70,8 @@ owner gave the go-ahead, both twins were written in the same commit, and steps 3
   are now the same words the product says**, not a working label to be translated at publication.
 - ✅ **HIS CALL, taken before the run: duo mode is IMPLICIT, and the brain announces it once.**
   Nothing to activate, no per-person profile to fill in. § *The owner's call: duo mode is implicit*
-  holds the reasoning and the three things it settles.
+  holds the reasoning and the three things it settles. ⚠️ **Still true, but no longer the whole
+  rule** — step 6 above turns that one announcement into a question, for the reason recorded there.
 - ⚖️ **Two design calls are still MINE**, written at § *Design calls taken without him* with what each
   would cost to undo (the third, the per-person suffix, is now his). **4bis narrows a rule this
   release already shipped**, so it is the one most worth his eye.

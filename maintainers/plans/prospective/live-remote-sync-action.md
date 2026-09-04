@@ -70,12 +70,39 @@ the rehearsal against a copy of a real brain.
 > `docs/study-two-humans-one-brain`. To settle after the release: merge that branch, or repoint the
 > link.
 >
-> 🛑 **EVERYTHING ELSE THAT IS MINE IS DONE. THE RELEASE NOW WAITS ON THE OWNER, AND ON NOTHING ELSE.**
-> PR [#86](https://github.com/tpierrain/kenjaku/pull/86) is open into `main` with the whole release in
-> it, and **its checks have finished and are GREEN** _(2026-09-03, read not assumed: 8 pass, 3 skipped
-> as duplicates of the branch run — the Windows tripwire and the end-to-end install among the eight)_.
+> 🛑🛑 **THE RELEASE IS HELD. THE OWNER'S DECISION, 2026-09-04:** *"On ne publie pas la release tant
+> qu'on n'a pas amélioré le mode Duo."* **Do not tag, do not publish, do not merge #86** until the
+> work named below has landed. Everything already built stays: nothing is reverted, nothing is thrown
+> away, and the branch stays green.
 >
-> ▶️ **RESUME AT 8.3, and only after he has merged #86** — tag `v5.1.0` **on `main`**, `git push
+> **Why he held it, and he is right.** He asked how the brain can be sure it is really facing two
+> people rather than one person with two Macs. **It cannot.** `brain-author.mjs` compares git author
+> names and nothing else, so two machines configured `Thomas Pierrain` and `tpierrain` read as two
+> humans. `dated-note-path.mjs`'s own header promises *"a solo owner — even one with two Macs and a
+> remote — never sees a suffix at all"*: that promise holds only if both machines spell the name
+> identically, and **nothing checks it**. The cost of the false positive is not cosmetic — the brain
+> announces *"a second person now writes here"* to someone who is alone, and starts splitting their
+> daily notes one file per machine. For a product whose whole asset is trust, an alarming false
+> statement is worse than a missing feature.
+>
+> **Measured on his own machines, 2026-09-04** _(so this is a latent defect, not a live one)_:
+> `~/mind-palace` carries **2314 commits under a single signature, `Thomas Pierrain`** — his two Macs
+> already agree, and nothing would misfire for him today.
+>
+> **What is NOT a hole, checked so it is not re-argued.** Authorisation never was Kenjaku's: the right
+> to push into a brain's remote is the git host's to grant, so a second person writes nothing until
+> the owner adds them as a collaborator on GitHub. The detection decides **how notes are filed**, never
+> **who may write**. No self-declared stranger can walk in.
+>
+> ▶️ **RESUME HERE: the duo-mode confirmation**, whose steps are owned by the sub-plan
+> [`duo-source-identity-action.md`](duo-source-identity-action.md) (it owns the *implicit* doctrine
+> this refines) — the shape agreed in conversation: **detection stays automatic** (his 2026-09-03
+> reasoning survives: a switch protects only whoever thought to flip it, never the duo about to be
+> doubled), but **the once-in-a-brain's-life announcement becomes a QUESTION** — *"I see a second
+> name, X. Is that someone else, or you on another machine?"* — and **the answer is remembered**, so
+> *"it's me"* fuses the two names into one person and no suffix is ever written.
+>
+> ⏸️ **Then, and only then, 8.3** — tag `v5.1.0` **on `main`**, `git push
 > --tags`, publish the release with the body of
 > [`release-v5.1.0-note.md`](release-v5.1.0-note.md), titled **"v5.1.0 — The One with the Duo Mode"**
 > (his, settled 2026-09-03 — the note's header holds the reasoning). Then 8.4
