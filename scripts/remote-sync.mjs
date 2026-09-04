@@ -35,7 +35,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { readAuthorsState } from "./lib/author-identities.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { vaultRagDir } from "./lib/universes.mjs";
 // The trace is READ by the announcement hook and WRITTEN here, so it belongs to neither:
 // two top-level scripts may not import each other (the cross-version trap), and one shared
 // lib module is how they agree on the same bytes.
@@ -179,6 +181,12 @@ export function realTickDeps(metaUrl, env = process.env, spawnChild = spawn) {
     checkNote: buildCheckNote({ brainDir }),
     push: buildPush({ git }),
     notify: buildNotifier({ platform: process.platform, env, spawn: spawnChild }),
+    // The owner's answers about their own names, read at tick time from the brain this
+    // script sits in. Without this seam the banner falls back to comparing spellings,
+    // and an owner's second Mac announces itself as somebody else (step 8.6bis).
+    identities: () =>
+      readAuthorsState({ existsSync, readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(brainDir))
+        .identities,
     now: () => new Date(),
   };
 }

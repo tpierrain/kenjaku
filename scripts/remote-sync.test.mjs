@@ -519,6 +519,7 @@ test("realTickDeps wires every seam the tick asks for, bound to the brain the mo
     "checkNote",
     "gate",
     "git",
+    "identities",
     "indexLockPresent",
     "notify",
     "now",

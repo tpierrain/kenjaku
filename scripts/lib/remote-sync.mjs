@@ -29,7 +29,7 @@
 // NEVER throws in production; the gate, the trace I/O, the header check, the push
 // and the banner are injected too, so the whole sequence is pinned by tests.
 // ─────────────────────────────────────────────────────────────────────────────
-import { localAuthorName } from "./brain-author.mjs";
+import { isSamePerson, localAuthorName } from "./brain-author.mjs";
 import { isNote } from "./remote-arrivals.mjs";
 import { treeState } from "./repo-status.mjs";
 
@@ -87,7 +87,7 @@ export function mergeTrace(previous, incoming) {
  *   | "deferred-index-lock" | "gated" | "probe-failed" | "up-to-date" | "fetch-failed"
  *   | "arrived" | "blocked" | "failed"
  */
-export function runTick({ git, gate, indexLockPresent, readTrace, writeTrace, checkNote, push, notify, now }) {
+export function runTick({ git, gate, indexLockPresent, readTrace, writeTrace, checkNote, push, notify, now, identities }) {
   if (git(["remote"]).out.trim() === "") return "no-remote";
   const upstream = git(["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]);
   const parts = upstream.ok ? upstreamParts(upstream.out) : null;
@@ -103,7 +103,7 @@ export function runTick({ git, gate, indexLockPresent, readTrace, writeTrace, ch
 
   if (!gate.acquire()) return "gated";
   try {
-    return synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notify, now });
+    return synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notify, now, identities });
   } catch {
     return "failed";
   } finally {
@@ -111,7 +111,7 @@ export function runTick({ git, gate, indexLockPresent, readTrace, writeTrace, ch
   }
 }
 
-function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notify, now }) {
+function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notify, now, identities }) {
   const known = git(["rev-parse", "@{u}"]).out.trim();
   const probe = git(["ls-remote", "--heads", parts.remote, parts.branch]);
   if (!probe.ok) return "probe-failed";
@@ -153,8 +153,20 @@ function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notif
   push();
   // ONE notion of "who is at this keyboard" for the whole brain (brain-author.mjs):
   // the banner here and the per-person note paths must never disagree about a name.
+  // …and "myself" is whoever the OWNER said is myself: an unanswered registry compares
+  // by slug alone, an answered one fuses the machines they confirmed. A raw `!==` here
+  // popped a real desktop banner at an owner about their own second Mac's notes, which
+  // is the same defect as splitting their day in two, one surface over.
   const me = localAuthorName(git);
-  if (authors.some((a) => a !== me)) notify({ files, authors });
+  let confirmed = [];
+  try {
+    confirmed = identities();
+  } catch {
+    // A registry that cannot be read costs the fusion, never the tick: one banner too
+    // many is a nuisance, a sync that stops is a brain out of step.
+    confirmed = [];
+  }
+  if (authors.some((a) => !isSamePerson(a, me, confirmed))) notify({ files, authors });
   return outcome;
 }
 

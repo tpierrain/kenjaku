@@ -24,6 +24,7 @@
 // this brain makes and which the live sync already speaks aloud ("1 note from
 // Claire arrived"). Nothing new is recorded, and no list of people is maintained.
 // ─────────────────────────────────────────────────────────────────────────────
+import { canonicalAuthor } from "./brain-author.mjs";
 import { slugSafe } from "./filed-note.mjs";
 
 /** The frontmatter key a dated note stamps so the rule can read it back next time. */
@@ -48,13 +49,17 @@ export function noteAuthor(frontmatter) {
  *
  * @returns { path, suffixed }
  */
-export function datedNotePath({ folder, date, author, base }) {
+export function datedNotePath({ folder, date, author, base, identities }) {
   const shared = { path: `${folder}/${date}.md`, suffixed: false };
   // Nobody has written today, or the note that exists is this same person's: the
   // base name is theirs and stays theirs.
   if (base == null) return shared;
-  const owner = base.author == null ? null : slugSafe(base.author);
-  const mine = slugSafe(author ?? "");
+  // Both sides go through the registry FIRST (step 8), so the promise in this file's
+  // header — a solo owner, even one with two Macs, never sees a suffix — is true
+  // rather than hopeful: until the owner's answer was consulted here, it held only
+  // while both machines happened to spell the name identically, and nothing checked.
+  const owner = base.author == null ? null : slugSafe(canonicalAuthor(base.author, identities) ?? "");
+  const mine = slugSafe(canonicalAuthor(author ?? "", identities) ?? "");
   // A note predating this rule names no author, and a name with no slug cannot be
   // spelled into a filename. Both degrade to the shared file — today's behaviour,
   // which is a union merge: visible, and not a path nobody expects.
@@ -68,8 +73,14 @@ export function datedNotePath({ folder, date, author, base }) {
  * note would decide where a root note goes (ADR 0034 puts a universe one level
  * deeper, and its days are its own).
  */
-export function resolveDatedNotePath({ notes, folder, date, author }) {
+export function resolveDatedNotePath({ notes, folder, date, author, identities }) {
   const basePath = `${folder}/${date}.md`;
   const base = notes.find((note) => note.path === basePath);
-  return datedNotePath({ folder, date, author, base: base ? { author: noteAuthor(base.frontmatter) } : null });
+  return datedNotePath({
+    folder,
+    date,
+    author,
+    identities,
+    base: base ? { author: noteAuthor(base.frontmatter) } : null,
+  });
 }

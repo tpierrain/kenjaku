@@ -24,6 +24,7 @@ import {
   duoConfirmedNotice,
   GIT_AUTHOR_ARGS,
   GIT_AUTHORS_ARGS,
+  isSamePerson,
   localAuthorName,
   secondAuthorQuestion,
 } from "./brain-author.mjs";
@@ -355,6 +356,25 @@ test("an absent, empty or malformed registry behaves exactly as no registry at a
 
 test("an entry whose canonical name cannot be slugged is not an identity anyone can be fused into", () => {
   assert.equal(canonicalAuthor(ME_ON_THE_OTHER_MAC, [{ name: "???", aka: [ME_ON_THE_OTHER_MAC] }]), ME_ON_THE_OTHER_MAC);
+});
+
+// The one comparison the whole brain makes about names, so the banner, the note
+// paths and the session line can never disagree about whether two spellings are
+// one human. Raw `!==` was what the tick's banner used, which is why an owner's
+// second Mac popped a desktop notification about their own notes.
+test("two spellings are the same person when the registry says so, and by slug otherwise", () => {
+  assert.equal(isSamePerson(ME, ME_ON_THE_OTHER_MAC, IDENTITIES), true);
+  assert.equal(isSamePerson(ME, ME_ON_THE_OTHER_MAC), false, "without an answer, they are two people");
+  assert.equal(isSamePerson(ME, "  thomas   PIERRAIN "), true, "case and spacing were never two people");
+  assert.equal(isSamePerson(ME, HER, IDENTITIES), false);
+});
+
+// A name with no slug is nobody this brain can name. Two of them are not therefore
+// the same person — treating them as one would silence a banner about a stranger.
+test("a name this brain cannot spell is nobody, and nobody is not somebody else", () => {
+  assert.equal(isSamePerson("✨", "✨"), false);
+  assert.equal(isSamePerson(null, ME), false);
+  assert.equal(isSamePerson(ME, undefined), false);
 });
 
 test("counting people goes through the registry, so two spellings of one owner are one author", () => {

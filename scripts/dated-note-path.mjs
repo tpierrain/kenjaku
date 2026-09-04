@@ -23,12 +23,15 @@
 //
 // Exit 0 with an answer, 2 when the question itself is broken.
 // ─────────────────────────────────────────────────────────────────────────────
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { localAuthorName } from "./lib/brain-author.mjs";
+import { readAuthorsState } from "./lib/author-identities.mjs";
+import { canonicalAuthor, localAuthorName } from "./lib/brain-author.mjs";
 import { resolveDatedNotePath } from "./lib/dated-note-path.mjs";
 import { defaultGit } from "./lib/engine-fetch.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { vaultRagDir } from "./lib/universes.mjs";
 import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
 
 const USAGE =
@@ -44,6 +47,11 @@ export const realDatedNotePathDeps = {
   // succeeds — it just answers about somewhere else (the blindness locale-drift.mjs
   // was bitten by).
   author: () => localAuthorName((args) => defaultGit(["-C", process.cwd(), ...args])),
+  // Read from the brain this command was run in, like the vault above it: the answer
+  // the owner gave lives with their notes, not with the engine.
+  identities: () =>
+    readAuthorsState({ existsSync, readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(process.cwd()))
+      .identities,
   log: (...a) => console.log(...a),
   error: (...a) => console.error(...a),
 };
@@ -74,7 +82,19 @@ export function runDatedNotePath(argv, deps = realDatedNotePathDeps) {
     return 2;
   }
 
-  const author = flags.author ?? deps.author();
+  // The answers the owner gave about their own names, if any. Unreadable ones cost
+  // the fusion and nothing else — the same fail-open direction as everywhere else
+  // this registry is consulted.
+  let identities = [];
+  try {
+    identities = deps.identities();
+  } catch {
+    identities = [];
+  }
+  // Resolved to the spelling they KEPT, because that spelling is what gets stamped
+  // into the note — and the stamp is what tomorrow's resolution reads back. Stamping
+  // whichever machine wrote would leave every note claiming a Mac instead of a person.
+  const author = canonicalAuthor(flags.author ?? deps.author(), identities);
   // An unreadable vault is "I could not find out", and the safe answer is the shared
   // file: it merges visibly, where an invented path would simply not be looked in.
   // Declared without an initial value on purpose — one that both branches overwrite is
@@ -95,7 +115,13 @@ export function runDatedNotePath(argv, deps = realDatedNotePathDeps) {
     return 0;
   }
 
-  const { path, suffixed } = resolveDatedNotePath({ notes, folder: flags.folder, date: flags.date, author });
+  const { path, suffixed } = resolveDatedNotePath({
+    notes,
+    folder: flags.folder,
+    date: flags.date,
+    author,
+    identities,
+  });
   deps.log(`path: vault/${path}`);
   deps.log(`author: ${author}`);
   if (suffixed) {

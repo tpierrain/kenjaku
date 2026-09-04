@@ -30,6 +30,7 @@ function fakeDeps(overrides = {}) {
     deps: {
       notes: () => overrides.notes ?? [],
       author: () => (overrides.author === undefined ? ME : overrides.author),
+      identities: () => overrides.identities ?? [],
       log: (l) => logs.push(l),
       error: (l) => errors.push(l),
     },
@@ -232,4 +233,69 @@ test("as a process, a broken question reaches stderr and leaves stdout empty", (
   assert.equal(run.status, 2);
   assert.equal(run.stdout, "");
   assert.match(run.stderr, /--date must be a day/);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 8 — THE ANSWER REACHES THE FILING, and the stamp says who the person IS.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MY_OTHER_MAC = "tpierrain";
+
+test("a confirmed alias is given the base note, and stamped with the spelling they kept", () => {
+  const { deps, logs } = fakeDeps({
+    notes: [{ path: "daily/2026-09-02.md", frontmatter: { author: ME } }],
+    author: MY_OTHER_MAC,
+    identities: [{ name: ME, aka: [MY_OTHER_MAC] }],
+  });
+
+  assert.equal(runDatedNotePath(["--folder", "daily", "--date", "2026-09-02"], deps), 0);
+
+  assert.deepEqual(logs, ["path: vault/daily/2026-09-02.md", `author: ${ME}`]);
+});
+
+// The stamp is what tomorrow's resolution reads back. Stamping the machine's own
+// spelling would leave every note claiming whichever Mac wrote it, and the fusion
+// would have to be re-applied on every read forever.
+test("the stamp is the canonical spelling even when nothing collides today", () => {
+  const { deps, logs } = fakeDeps({ author: MY_OTHER_MAC, identities: [{ name: ME, aka: [MY_OTHER_MAC] }] });
+
+  runDatedNotePath(["--folder", "daily", "--date", "2026-09-02"], deps);
+
+  assert.deepEqual(logs, ["path: vault/daily/2026-09-02.md", `author: ${ME}`]);
+});
+
+test("a registry that cannot be read costs the fusion, never the answer", () => {
+  const { deps, logs } = fakeDeps({
+    notes: [{ path: "daily/2026-09-02.md", frontmatter: { author: ME } }],
+    author: MY_OTHER_MAC,
+  });
+  deps.identities = () => {
+    throw new Error("EACCES");
+  };
+
+  assert.equal(runDatedNotePath(["--folder", "daily", "--date", "2026-09-02"], deps), 0);
+
+  assert.equal(logs[0], "path: vault/daily/2026-09-02-tpierrain.md");
+});
+
+// 🛑 The wiring, end to end: the registry is read from the brain the command runs in.
+test("as a process, an answered brain files both Macs into one note", () => {
+  const root = mkdtempSync(join(tmpdir(), "kenjaku-dated-note-fused-"));
+  mkdirSync(join(root, "vault", "daily"), { recursive: true });
+  writeFileSync(join(root, "vault", "daily", "2026-09-02.md"), `---\nauthor: ${ME}\n---\n\n# Monday\n`);
+  mkdirSync(join(root, ".vault-rag"), { recursive: true });
+  writeFileSync(
+    join(root, ".vault-rag", "authors.json"),
+    `${JSON.stringify({ identities: [{ name: ME, aka: [MY_OTHER_MAC] }], distinct: [] })}\n`,
+  );
+
+  const run = spawnSync(
+    process.execPath,
+    [CLI, "--folder", "daily", "--date", "2026-09-02", "--author", MY_OTHER_MAC],
+    { cwd: root, encoding: "utf8" },
+  );
+
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(run.stdout, /^path: vault\/daily\/2026-09-02\.md$/m, "one owner, one day, one note");
+  assert.match(run.stdout, new RegExp(`^author: ${ME}$`, "m"));
 });

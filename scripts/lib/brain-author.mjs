@@ -73,6 +73,21 @@ export function canonicalAuthor(name, identities) {
 }
 
 /**
+ * Are these two spellings the same human? THE comparison for the whole brain — the
+ * arrival banner, the per-person note paths and the session line all ask it here, so
+ * they can never disagree about a name.
+ *
+ * Confirmed identities first, then slug, because case and spacing were never two
+ * people. A name with no slug is nobody this brain can name, and two nobodies are
+ * not each other: answering true there would silence a banner about a stranger.
+ */
+export function isSamePerson(a, b, identities) {
+  const left = slugSafe(canonicalAuthor(a, identities) ?? "");
+  const right = slugSafe(canonicalAuthor(b, identities) ?? "");
+  return left !== null && left === right;
+}
+
+/**
  * The distinct people among a list of git author names, in the order they first
  * appear, each kept in the spelling it first appeared with. Compared by slug, so
  * one person who typed their name three ways is one person — and a name with no

@@ -65,6 +65,7 @@ function harness(answers, extra = {}) {
     checkNote: () => ({ ok: true }),
     push: () => pushes.push("push"),
     notify: (n) => notices.push(n),
+    identities: () => [],
     now: () => NOW,
     ...extra,
   };
@@ -218,6 +219,52 @@ test("notes from MYSELF (my other machine) arrive silently: trace and push, but 
   assert.equal(runTick(h.deps), "arrived");
   assert.deepEqual(h.notices, []);
   assert.equal(h.writes[0].authors[0], "Paul");
+});
+
+// 🛑 STEP 8 — AND "MYSELF" IS WHOEVER THE OWNER SAID IS MYSELF. The comparison above
+// was a raw `!==` on git author names, so an owner whose second Mac is configured
+// `paul` popped a real desktop banner announcing their own notes as somebody else's.
+// The registry is the only thing that can tell that apart, and it is consulted here
+// for the same reason the note paths consult it: one notion of "who", brain-wide.
+test("notes from a CONFIRMED alias of mine arrive silently too — no banner about my own Mac", () => {
+  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "paulo\n" }), {
+    identities: () => [{ name: "Paul", aka: ["paulo"] }],
+  });
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(h.notices, []);
+  assert.deepEqual(h.writes[0].authors, ["paulo"], "the trace still records what git actually said");
+});
+
+// And the converse, so the fix cannot be "banner less often": a real second person
+// still raises one, registry or no registry.
+test("a real second person still raises the banner, registry or not", () => {
+  const h = harness(behindAnswers(), { identities: () => [{ name: "Paul", aka: ["paulo"] }] });
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(h.notices, [{ files: ["vault/daily/2026-09-08.md", "vault/people/notaire.md"], authors: ["Claire"] }]);
+});
+
+// Spellings were never two people either: without any registry at all, `paul` and
+// `Paul` are one human, and the raw comparison called them two.
+test("a difference of case alone is not a second person", () => {
+  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "  PAUL \n" }));
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(h.notices, []);
+});
+
+// The registry is read off disk at tick time; a brain whose file is damaged must
+// still sync. The cost is one banner too many, never a tick.
+test("a registry that cannot be read costs the fusion, never the tick", () => {
+  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "paulo\n" }), {
+    identities: () => {
+      throw new Error("EACCES");
+    },
+  });
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.deepEqual(h.notices, [{ files: ["vault/daily/2026-09-08.md", "vault/people/notaire.md"], authors: ["paulo"] }]);
 });
 
 test("a merged note whose header no longer parses → the rebase is undone (reset to ORIG_HEAD), blocked trace, no push", () => {

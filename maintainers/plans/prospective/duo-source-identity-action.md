@@ -562,13 +562,26 @@ This is the honest statement of the perimeter.
       and `known-source.mjs` before it, this entry point is **not in the brain's allowlist**, so
       recording an answer costs one permission click. Consistent with its siblings, so nothing was
       changed here — but the three of them are the same question, once.
-- [ ] **8.6** **Filing follows the answer**: `dated-note-path.mjs` resolves the author through the
+- [x] **8.6** _(2026-09-04)_ **Filing follows the answer**: `dated-note-path.mjs` resolves the author through the
       registry, so a fused name never yields a suffix. Its header comment's promise (*"even one with
       two Macs"*) becomes true instead of hopeful.
-- [ ] **8.6bis** **And so does the banner** (design call 4 above): the tick's native notification
+      ✅ Done in the pure rule **and** in the entry point, and the entry point gained one thing the
+      step had not asked for: **the `author:` it tells the note to stamp is now the CANONICAL
+      spelling**. The stamp is what tomorrow's resolution reads back, so stamping whichever Mac wrote
+      would leave every note claiming a machine instead of a person, and the fusion would have to be
+      re-applied on every read forever.
+- [x] **8.6bis** _(2026-09-04)_ **And so does the banner** (design call 4 above): the tick's native notification
       compares an arriving author to the local `user.name` with `!==`, so a fused owner is popped a
       desktop banner about their own notes. Resolve both sides through the registry and compare
       slugs — the same comparison the rest of the module already makes.
+      ✅ Done through a new `isSamePerson(a, b, identities)` — **the** name comparison for the whole
+      brain, so the banner, the note paths and the session line can never disagree about a human.
+      ⚠️ **And the wiring is what nearly escaped**: every tick test injects its own seam, so adding
+      `identities` to the tick left the REAL `realTickDeps` never reading the registry — the suite
+      stayed green while the feature did nothing in a real brain. Exactly the shape `RESULTS.md` T7
+      names. Caught by adding the key to the deps-shape assertion FIRST and watching it go red.
+      Two cases the writing added: **case alone was never two people** (the old `!==` bannered on
+      `paul` vs `Paul`), and an unreadable registry costs the fusion, never the tick.
 - [x] **8.7** _(2026-09-04, with 8.5)_ **The entry point is tested as a PROCESS**, not only through its imported functions
       (`test-first-discipline`, the entry-point seam rule).
 - [ ] **8.8** **Mutation-measured** like the rest of this release, results in `maintainers/mutation/RESULTS.md`, newest-first.

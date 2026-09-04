@@ -15,6 +15,10 @@
 // the base name, i.e. to exactly today's behaviour, which is a union merge: a
 // visible concatenation rather than an invented file nobody expects.
 // ─────────────────────────────────────────────────────────────────────────────
+// 🛑 STEP 8. The header of the module under test promises that "a solo owner — even
+// one with two Macs and a remote — never sees a suffix at all". Until the registry
+// was consulted here that promise was HOPEFUL: the two Macs had to be spelled
+// identically, and nothing checked it. These are the cases that make it true.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
@@ -162,4 +166,65 @@ test("resolveDatedNotePath does not mistake one folder for another that ends the
     resolveDatedNotePath({ notes, folder: "acme/briefings", date: DAY, author: "Thomas Pierrain" }).path,
     "acme/briefings/2026-09-02-thomas-pierrain.md",
   );
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 8 — ONE PERSON WITH TWO MACS GETS ONE NOTE.
+//
+// The rule compares author names, so an owner whose machines say `Thomas
+// Pierrain` and `tpierrain` was handed a suffix by their OWN second Mac: two
+// files for one day, for one person, with nobody to merge them. The registry
+// (`.vault-rag/authors.json`) holds the answer they gave; filing reads it.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MY_OTHER_MAC = "tpierrain";
+const MY_DAY = [{ path: "daily/2026-09-02.md", frontmatter: { author: "Thomas Pierrain" } }];
+const FUSED = [{ name: "Thomas Pierrain", aka: [MY_OTHER_MAC] }];
+
+test("a confirmed alias writing into their own day gets the base note, not a second one", () => {
+  const answer = resolveDatedNotePath({
+    notes: MY_DAY,
+    folder: "daily",
+    date: DAY,
+    author: MY_OTHER_MAC,
+    identities: FUSED,
+  });
+
+  assert.deepEqual(answer, { path: "daily/2026-09-02.md", suffixed: false });
+});
+
+// …and the other direction, because the base note may just as well have been
+// written by the machine spelled the short way.
+test("it holds whichever machine wrote first", () => {
+  const notes = [{ path: "daily/2026-09-02.md", frontmatter: { author: MY_OTHER_MAC } }];
+
+  assert.deepEqual(
+    resolveDatedNotePath({ notes, folder: "daily", date: DAY, author: "Thomas Pierrain", identities: FUSED }),
+    { path: "daily/2026-09-02.md", suffixed: false },
+  );
+});
+
+// And the converse, so the fix cannot be "stop suffixing": a real second person is
+// still given their own file, registry or no registry.
+test("a real second person still gets their own note, registry or not", () => {
+  assert.deepEqual(
+    resolveDatedNotePath({ notes: MY_DAY, folder: "daily", date: DAY, author: "Claire Dubois", identities: FUSED }),
+    { path: "daily/2026-09-02-claire-dubois.md", suffixed: true },
+  );
+  assert.deepEqual(
+    resolveDatedNotePath({ notes: MY_DAY, folder: "daily", date: DAY, author: MY_OTHER_MAC }),
+    { path: "daily/2026-09-02-tpierrain.md", suffixed: true },
+    "with no answer recorded, the two spellings are still two people — the registry never guesses",
+  );
+});
+
+test("a damaged registry costs the fusion and nothing else", () => {
+  for (const junk of [null, "nope", 42, [{ aka: ["x"] }]]) {
+    assert.equal(
+      resolveDatedNotePath({ notes: MY_DAY, folder: "daily", date: DAY, author: MY_OTHER_MAC, identities: junk })
+        .suffixed,
+      true,
+      `junk: ${JSON.stringify(junk)}`,
+    );
+  }
 });
