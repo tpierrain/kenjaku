@@ -34,17 +34,15 @@ below, and the release is held until it lands.**
   the once-in-a-brain's-life announcement becomes *"I see a second name, X. Is that someone else, or
   you on another machine?"*, and the answer is remembered so *"it's me"* fuses the two names and no
   suffix is ever written. Test-first, and the sub-steps get written here before any code.
-  **▶️ 8.1 is doc-only and still open; 8.2 is TICKED. Restart at 8.3** — the registry now exists and
-  is honoured everywhere in `brain-author.mjs`, but **nothing reads or writes it on disk yet**, so in
-  a real brain it is inert: `identities` arrives `undefined` from every caller and every behaviour is
-  byte-identical to before. That is deliberate (each sub-step ships green), and it is also why
-  **8.2 alone fixes nothing for a user** — 8.3 gives it `.vault-rag/authors.json`, 8.4 and 8.5 obtain
-  and record the answer.
-- ⏳ **FIRST THING ON RESUMING: read the CI, it was still running at the hand-back** _(2026-09-04,
-  context cleared here on the owner's ask)_. The scripts suite was green locally (3021) and the
-  branch's last read verdict was green, but the checks for `9246e12` had not finished. `gh run list
-  --branch feat/live-remote-sync` before writing a line of 8.3 — a red left unread makes every later
-  commit ambiguous (`rules/ci.md`).
+  **▶️ 8.1 and 8.2 are TICKED, and the whole design of 8.3 → 8.9 is now written at step 8 itself
+  (four design calls). Restart at 8.3** — the registry exists and is honoured everywhere in
+  `brain-author.mjs`, but **nothing reads or writes it on disk yet**, so in a real brain it is inert:
+  `identities` arrives `undefined` from every caller and every behaviour is byte-identical to before.
+  That is deliberate (each sub-step ships green), and it is also why **8.2 alone fixes nothing for a
+  user** — 8.3 gives it `.vault-rag/authors.json`, 8.4 and 8.5 obtain and record the answer.
+- ✅ **THE CI WAS READ ON RESUMING** _(2026-09-04, 23:31 push)_: the checks for `9246e12` **and** for
+  the plan commit after it both **passed**. Nothing red is outstanding, so a failure appearing from
+  here belongs to the work below (`rules/ci.md`).
 - ⚖️ **WHICH REFINES HIS 2026-09-03 CALL WITHOUT REVERSING IT.** *Implicit* stays: there is still no
   switch to flip, and his reasoning for that is untouched — **a switch protects only whoever thought
   to flip it, which is never the duo about to have its notes doubled.** What changes is what
@@ -463,8 +461,37 @@ This is the honest statement of the perimeter.
 > Detection stays automatic and there is still no switch. What changes is that a brain may **file** on
 > a guess but may not **assert** one, and the guess it was asserting can be false.
 
-- [ ] **8.1** Amend § *The owner's call* with the refinement and its trigger, so the section that
-      settled "implicit" is not read alone. _(Doc only, no code.)_
+> 🧭 **THE DESIGN, settled before any code was written** _(2026-09-04, session 2)_. Four calls, each
+> taken alone, each cheap to reverse, and each written here because the sub-steps below read as
+> mechanical once they are known:
+>
+> 1. **The memory that stops the question is the ANSWER, and the per-machine marker is DELETED.**
+>    Today `.cache/second-author-announced` stamps "said" the instant the sentence is emitted. Turn
+>    the sentence into a question and that marker becomes the defect: a question asked once, ignored
+>    once, and **never asked again** leaves the false positive standing for the life of the brain —
+>    which is precisely what the release is held on. So the question repeats at session start until it
+>    is answered, and what silences it is `.vault-rag/authors.json`, which **travels**: answering on
+>    one Mac answers for both. The marker's suppression role is not replaced, it is removed.
+> 2. **A refusal is an answer too, so the file records BOTH.** `{ identities: [{name, aka}],
+>    distinct: [name] }`. Without `distinct`, a real duo — who answer *"no, that is my colleague"* —
+>    would be asked the same question at every session forever, and the honest answer would be the one
+>    the design punishes. Compared by slug, stored in the spelling the human used.
+> 3. **The one-time explanation moves to the moment it becomes true.** Today's sentence explains duo
+>    mode (*"each person's day gets its own note…"*) on a guess. It is now printed by the recording
+>    entry point itself, when the human confirms a real second person — deterministic, said exactly
+>    once, and **no marker is needed to remember it** because the event that triggers it happens once
+>    by construction. A fused identity gets no duo-mode explanation at all, because nothing about
+>    their brain has changed.
+> 4. **The native banner is in scope, and it was NOT in the step as written.** `remote-sync.mjs`
+>    raises an OS notification when an arriving author `!==` the local `user.name` — a raw string
+>    compare, so an owner's second Mac pops a desktop banner about their own notes. Same defect, same
+>    root, one line from the same registry: it is 8.6bis below rather than a follow-up nobody files.
+
+- [x] **8.1** _(2026-09-04)_ Amend § *The owner's call* with the refinement and its trigger, so the
+      section that settled "implicit" is not read alone. _(Doc only, no code.)_ ✍️ Written as a
+      subsection **under** the call rather than an edit inside it: the call is the owner's words and
+      stays legible as such, and the refinement carries the sentence that generalises — **a brain may
+      FILE on a guess, it may not ASSERT one.**
 - [x] **8.2** _(2026-09-04, `brain-author.mjs`)_ **The pure rule, test-first**: `brain-author.mjs` learned an
       **identity registry** — `[{ name, aka: [...] }]`, spellings the owner has confirmed are one
       person. New `canonicalAuthor(name, identities)`; `distinctAuthors`, `authorsReminder` and
@@ -478,18 +505,32 @@ This is the honest statement of the perimeter.
 - [ ] **8.3** **The storage that TRAVELS**: `.vault-rag/authors.json`, beside `universes.json` — the
       precedent for brain state that must reach the other machine (a fused identity is a fact about
       the world, true on every Mac; answering once must be enough). Read tolerant of absence and of
-      corruption, same contract as every session-hook seam.
+      corruption, same contract as every session-hook seam. New `scripts/lib/author-identities.mjs`:
+      `readAuthorsState` / `writeAuthorsState` over the injected fs of `universes.mjs`, plus the two
+      pure edits `fuseAuthors(state, canonical, alias)` and `markDistinct(state, name)`.
+      **Idempotent and convergent by construction**: fusing merges into whichever entry already knows
+      either spelling, so the same answer given twice — or given on the other Mac first — lands on one
+      entry, never two rival ones.
 - [ ] **8.4** **The announcement becomes the question**: `secondAuthorAnnouncement` stops asserting
       *"a second person now writes here"* and asks *"I see a second name, X — someone else, or you on
       another machine?"*. Until answered, filing keeps today's protective behaviour (a real duo that
       never answers is still protected), and the question is asked at session start, **before** the
-      day's first note, so the false-positive case never gets a split note at all.
+      day's first note, so the false-positive case never gets a split note at all. **Renamed
+      `secondAuthorQuestion`**, because a caller reading `…Announcement` would be reading a lie about
+      what it now returns.
 - [ ] **8.5** **The way the answer is recorded**: an entry point the agent calls (`--same-person` /
       `--different`), which writes `authors.json` and commits + pushes it **scoped**, reusing the
-      universe switch's own machinery (`universe-persist.mjs`) rather than a second one.
+      universe switch's own machinery (`universe-persist.mjs`) rather than a second one. That reuse
+      needs one refactor: the commit is scoped to `.vault-rag` but its MESSAGE is hard-coded to a
+      universe switch, so the message becomes a parameter and `commitUniverseState` keeps its own by
+      delegating.
 - [ ] **8.6** **Filing follows the answer**: `dated-note-path.mjs` resolves the author through the
       registry, so a fused name never yields a suffix. Its header comment's promise (*"even one with
       two Macs"*) becomes true instead of hopeful.
+- [ ] **8.6bis** **And so does the banner** (design call 4 above): the tick's native notification
+      compares an arriving author to the local `user.name` with `!==`, so a fused owner is popped a
+      desktop banner about their own notes. Resolve both sides through the registry and compare
+      slugs — the same comparison the rest of the module already makes.
 - [ ] **8.7** **The entry point is tested as a PROCESS**, not only through its imported functions
       (`test-first-discipline`, the entry-point seam rule).
 - [ ] **8.8** **Mutation-measured** like the rest of this release, results in `maintainers/mutation/RESULTS.md`, newest-first.
@@ -524,6 +565,26 @@ filing things differently is opaque. So the first time a second author is seen, 
 in plain words, and offers to describe who is who — an offer that activates nothing and may be declined
 with no consequence (4.3bis, 4.3ter). Transparency is the price of the implicitness, and it is paid in
 one sentence rather than in a setting everyone must understand at install time.
+
+### ⚖️ The refinement — a sentence is not enough, because the sentence can be FALSE _(2026-09-04, step 8)_
+
+> Read this WITH the call above, never instead of it. **Nothing here reverses it**: detection stays
+> automatic, there is still no switch, and *"a switch protects only whoever thought to flip it"* is as
+> true as it was.
+
+What the call did not foresee is that the brain **cannot know** whether it faces two people. It compares
+git author names, so one owner whose two Macs are configured `Thomas Pierrain` and `tpierrain` is read
+as a duo: told *"a second person now writes here"* while they are alone, and their days split one file
+per machine. The owner put the question himself on 2026-09-04 and held the release on the answer.
+
+**So the price of implicitness goes up by exactly one word: the sentence becomes a QUESTION.**
+*"I see a second name, X. Is that someone else, or you on another machine?"* — and the answer is
+remembered, in a file that travels, so answering once on one Mac is answering for both.
+
+The line that generalises, and it is the reusable half: **a brain may FILE on a guess; it may not
+ASSERT one.** Filing on a guess costs a file in an unexpected place, which is visible and reversible.
+Asserting a guess costs the human's trust in everything else the brain says — and for a product whose
+whole asset is trust, an alarming false statement is worse than a missing feature.
 
 This **confirms and extends** the parent plan's decision 9.8 (*"no duo mode to declare: the remote is
 the declaration"*), which was taken about the live sync alone: it now covers the duplication work too.
