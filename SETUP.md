@@ -616,6 +616,24 @@ than one contested file, and the places you only ever add to (daily notes, inbox
 merge on their own. What you both **rewrite** — a person's page, a topic — stops and asks, on
 purpose (see just above).
 
+**One question your brain will ask you, and why it asks rather than decides.** All it knows about
+who writes here is the name git is configured with on each computer. If your two machines spell your
+name differently (`Thomas Pierrain` on one, `tpierrain` on the other), that looks exactly like a
+second person — and treating you as two would tell you a colleague had arrived, and start splitting
+your days into one file per machine. It has no way of telling the difference, so it does not guess:
+the first time a second name appears, it asks you, in plain words, **is that someone else, or you on
+another machine?**
+
+- **If it is you**, say so. Your brain records that the two spellings are one person, and nothing of
+  yours is ever filed apart again.
+- **If it really is someone else**, say that instead. Duo mode is confirmed, your brain explains in
+  one sentence what changes, and the question is over.
+- **The answer travels.** It is stored with your notes and pushed like everything else, so answering
+  on one computer answers for both. Until you answer, it will ask again at the start of each session:
+  a question nobody answered would otherwise leave your brain filing on a guess forever.
+- **Changed your mind?** Answer the other way and it corrects itself — a fusion made by mistake is
+  undone, and the two people go back to having a file each.
+
 > 💡 In one sentence: **sharing a brain shares what you wrote down, not what you can see.** The way
 > to put something in front of the other person is the way it always was — write it down.
 
