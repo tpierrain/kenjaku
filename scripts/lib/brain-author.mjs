@@ -150,13 +150,18 @@ export function authorsReminder({ authors, me, identities }) {
  * OTHER name, and asking somebody to place themselves is asking them nothing.
  */
 function unplacedAuthors({ authors, me, identities, distinct }) {
-  const mine = slugSafe(canonicalAuthor(me, identities) ?? "");
+  // `me` is a name with a slug — its only caller has just refused anything else — and
+  // `canonicalAuthor` hands back what it was given when nobody claims it.
+  const mine = slugSafe(canonicalAuthor(me, identities));
   const confirmed = new Set(
     (Array.isArray(distinct) ? distinct : []).map((name) => (typeof name === "string" ? slugSafe(name) : null)),
   );
+  // Every name here came through `distinctAuthors`, which already dropped the ones
+  // this brain cannot spell: re-checking for a null slug would be a branch no test
+  // could ever reach. Measured: it was one, and it is gone.
   return everyone({ authors, me, identities }).filter((person) => {
     const slug = slugSafe(person);
-    return slug !== null && slug !== mine && !confirmed.has(slug);
+    return slug !== mine && !confirmed.has(slug);
   });
 }
 

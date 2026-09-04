@@ -44,9 +44,12 @@ const emptyState = () => ({ identities: [], distinct: [] });
 /** The slug of anything at all, or null when it is not a name this brain could file under. */
 const nameSlug = (name) => (typeof name === "string" ? slugSafe(name) : null);
 
-/** Every spelling an entry answers to: its canonical name first, then its confirmed aliases. */
-const entrySlugs = (entry) =>
-  [entry?.name, ...(Array.isArray(entry?.aka) ? entry.aka : [])].map(nameSlug).filter((s) => s !== null);
+// Every spelling an entry answers to: its canonical name first, then its confirmed
+// aliases. An entry hand-edited into nonsense contributes `null` slugs, and those are
+// left in deliberately — nothing is ever LOOKED UP by a null slug (every caller has
+// already refused an unusable name), so filtering them out would be a line no test
+// could ever distinguish. Measured: it was one, and it is gone.
+const entrySlugs = (entry) => [entry?.name, ...(Array.isArray(entry?.aka) ? entry.aka : [])].map(nameSlug);
 
 /**
  * The two lists, as they are on disk.
@@ -60,13 +63,15 @@ const entrySlugs = (entry) =>
  * Each list is validated on its own, so a file damaged in half keeps its good half.
  */
 export function readAuthorsState(io, dir) {
-  const path = authorsPath(dir);
-  if (!io.existsSync(path)) return emptyState();
   try {
-    const parsed = JSON.parse(io.readFileSync(path));
+    // No `existsSync` probe: an absent file throws here and lands in the same empty
+    // state one line below, so the probe was a second, weaker copy of one decision —
+    // and no test could tell the two apart. THIS is the single normalisation point for
+    // the whole registry, which is why nothing downstream re-validates the two lists.
+    const parsed = JSON.parse(io.readFileSync(authorsPath(dir)));
     return {
-      identities: Array.isArray(parsed?.identities) ? parsed.identities : [],
-      distinct: Array.isArray(parsed?.distinct) ? parsed.distinct.filter((n) => typeof n === "string") : [],
+      identities: Array.isArray(parsed.identities) ? parsed.identities : [],
+      distinct: Array.isArray(parsed.distinct) ? parsed.distinct.filter((n) => typeof n === "string") : [],
     };
   } catch {
     return emptyState();
@@ -84,10 +89,16 @@ export function writeAuthorsState(io, dir, state) {
   io.writeFileSync(authorsPath(dir), `${JSON.stringify(body, null, 2)}\n`);
 }
 
-/** Has the owner confirmed this name is genuinely somebody else? Compared by slug, like every other name here. */
+/**
+ * Has the owner confirmed this name is genuinely somebody else? Compared by slug,
+ * like every other name here — and a name with no slug is nobody, so it matches
+ * nobody, not even another nameless one.
+ *
+ * `state` is the shape {@link readAuthorsState} returns; it is not re-validated here.
+ */
 export function isAcknowledged(state, name) {
   const slug = nameSlug(name);
-  if (slug === null || !Array.isArray(state?.distinct)) return false;
+  if (slug === null) return false;
   return state.distinct.some((known) => nameSlug(known) === slug);
 }
 
@@ -99,6 +110,11 @@ export function isAcknowledged(state, name) {
  * knows either spelling. Two entries for one person would be a registry that
  * disagrees with itself, and it would be produced by the ordinary case of
  * answering wherever you happen to be sitting.
+ *
+ * `state` is the shape {@link readAuthorsState} returns — the two lists are already
+ * arrays there, so nothing is re-validated here. Their ENTRIES are another matter: a
+ * hand-edited file can hold `{ name: 42 }` inside a perfectly valid array, and that
+ * must cost the entry rather than the answer.
  *
  * @returns `{ ok, reason?, state, changed, canonical }` — `state` is the input
  * itself when nothing is written, so a caller may always persist what it gets back.
@@ -112,7 +128,7 @@ export function fuseAuthors(state, canonical, alias) {
     return { ok: false, reason: "unusable", state, changed: false, canonical: null };
   }
 
-  const identities = Array.isArray(state?.identities) ? state.identities : [];
+  const { identities } = state;
   const found = identities.findIndex((entry) => {
     const slugs = entrySlugs(entry);
     return slugs.includes(canonicalSlug) || slugs.includes(aliasSlug);
@@ -124,7 +140,7 @@ export function fuseAuthors(state, canonical, alias) {
     const aka = aliasSlug === canonicalSlug ? [] : [alias];
     return {
       ok: true,
-      state: { ...state, identities: [...identities, { name: canonical, aka }], distinct: state.distinct ?? [] },
+      state: { ...state, identities: [...identities, { name: canonical, aka }] },
       changed: true,
       canonical,
     };
@@ -136,9 +152,11 @@ export function fuseAuthors(state, canonical, alias) {
   // Whichever of the two spellings this entry had not met yet joins it. The kept
   // name never moves: a brain that renamed the person at every answer would file
   // the same human under a different file each time somebody replied.
+  // Both are known-good slugs by now (the guard above refused anything else), so the
+  // only question left is whether this entry has met them.
   const additions = [canonical, alias].filter((name) => {
     const slug = nameSlug(name);
-    if (slug === null || known.has(slug)) return false;
+    if (known.has(slug)) return false;
     known.add(slug);
     return true;
   });
@@ -167,7 +185,7 @@ export function markDistinct(state, name) {
   const slug = nameSlug(name);
   if (slug === null) return { ok: false, reason: "unusable", state, changed: false };
 
-  const identities = Array.isArray(state?.identities) ? state.identities : [];
+  const { identities } = state;
   const unfused = identities.map((entry) => {
     const aka = Array.isArray(entry?.aka) ? entry.aka : [];
     const kept = aka.filter((alias) => nameSlug(alias) !== slug);
@@ -175,7 +193,7 @@ export function markDistinct(state, name) {
   });
   const fusionUndone = unfused.some((entry, i) => entry !== identities[i]);
 
-  const distinct = Array.isArray(state?.distinct) ? state.distinct : [];
+  const { distinct } = state;
   const already = distinct.some((known) => nameSlug(known) === slug);
   if (already && !fusionUndone) return { ok: true, state, changed: false };
 

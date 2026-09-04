@@ -115,8 +115,6 @@ export function runAuthorIdentity(argv, deps = realAuthorIdentityDeps()) {
   }
 
   let result;
-  let message;
-  let said;
   if (intent.action === "fuse") {
     // A fusion needs a name to fuse INTO, and that is whoever is at this keyboard: the
     // question asked was "or YOU on another machine?". A machine whose git has no name
@@ -130,14 +128,8 @@ export function runAuthorIdentity(argv, deps = realAuthorIdentityDeps()) {
       return 2;
     }
     result = fuseAuthors(state, me, intent.name);
-    message = `auto: ${intent.name} is ${result.canonical ?? me} on another machine`;
-    said = () =>
-      `Recorded: "${intent.name}" is you, on another machine. Your notes stay filed under ` +
-      `${result.canonical}, and no note of yours will be split in two.`;
   } else {
     result = markDistinct(state, intent.name);
-    message = `auto: ${intent.name} is a second person in this brain`;
-    said = () => duoConfirmedNotice(intent.name);
   }
 
   if (!result.ok) {
@@ -148,18 +140,31 @@ export function runAuthorIdentity(argv, deps = realAuthorIdentityDeps()) {
     return 2;
   }
 
+  // Only past the refusal above, where a fusion is guaranteed to name the spelling it
+  // kept: composing these two before it would need a fallback for a name that does
+  // not exist, and a fallback no test can reach is a lie about the code.
+  const message =
+    intent.action === "fuse"
+      ? `auto: ${intent.name} is ${result.canonical} on another machine`
+      : `auto: ${intent.name} is a second person in this brain`;
+  const said =
+    intent.action === "fuse"
+      ? `Recorded: "${intent.name}" is you, on another machine. Your notes stay filed under ` +
+        `${result.canonical}, and no note of yours will be split in two.`
+      : duoConfirmedNotice(intent.name);
+
   // Nothing new to write is not an error: the human answered a question they had
   // already answered, so the answer is repeated and the disk is left alone. Writing
   // anyway would dirty the tree and make the next sync tick defer, for nothing.
   if (!result.changed) {
-    deps.log(said());
+    deps.log(said);
     return 0;
   }
 
   writeAuthorsState(deps.io, deps.vaultRagDir, result.state);
   // Committed AFTER the write, or the commit carries the previous answer.
   const persisted = persistVaultRagChange({ git: deps.git, sleep: deps.sleep, message });
-  deps.log(said() + travelNote(persisted));
+  deps.log(said + travelNote(persisted));
   return 0;
 }
 

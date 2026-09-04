@@ -211,6 +211,21 @@ test("a fused machine is never asked about either, and a third name still is", (
   assert.match(secondAuthorQuestion({ authors: ["tpierrain", HER], me: ME, identities }), new RegExp(HER));
 });
 
+// 🛑 PINNED WORD FOR WORD. This is the sentence a duo meets before they have typed
+// anything, and every clause of it is load-bearing: the count, the name, that it is
+// put to THEM in THEIR language, that guessing is forbidden, both commands, and the
+// promise that nothing moves meanwhile. Matching a keyword would let any of them
+// rot away.
+test("the question asked of one unplaced name is exactly this, to the letter", () => {
+  assert.equal(
+    secondAuthorQuestion({ authors: [HER], me: ME }),
+    "This brain cannot place 1 name writing here: Claire Dubois. ASK before today's first note, " +
+      "in their language — is that someone else, or them on another machine? NEVER guess. Record " +
+      'their answer: `node scripts/author-identity.mjs --same-person "<name>"`, or ' +
+      '`--different "<name>"`. Until then nothing changes.',
+  );
+});
+
 test("two unplaced names are asked about together, in one question", () => {
   const asked = secondAuthorQuestion({ authors: [HER, "Amina Haddad"], me: ME });
 
@@ -222,6 +237,30 @@ test("two unplaced names are asked about together, in one question", () => {
 // fusion needs a canonical name to fuse INTO. Silence beats an unanswerable question.
 test("with no name at this keyboard, nothing is asked", () => {
   assert.equal(secondAuthorQuestion({ authors: [HER, "Amina Haddad"], me: null }), null);
+});
+
+// Same reason, one step further: a keyboard whose git name is an emoji is a keyboard
+// this brain cannot name either — and it must not turn that into a question about
+// somebody else, whose answer it could not record.
+test("a keyboard whose name cannot be spelled asks nothing either", () => {
+  assert.equal(secondAuthorQuestion({ authors: [HER], me: "✨" }), null);
+});
+
+// Three names still fit, so the count that follows them must not appear. A stray
+// "+0" is the tell of an off-by-one in the only sentence a duo ever reads.
+test("three unplaced names are all named, with nothing counted after them", () => {
+  const asked = secondAuthorQuestion({ authors: [HER, "Amina Haddad", "Lena Fischer"], me: ME });
+
+  assert.match(asked, /place 3 names writing here: Claire Dubois, Amina Haddad, Lena Fischer\. ASK/);
+});
+
+// A `distinct` list hand-edited into nonsense costs the answers it holds and nothing
+// else: the question is still asked, and asked without throwing at session start.
+test("a damaged list of confirmed people still lets the question be asked", () => {
+  const asked = secondAuthorQuestion({ authors: [HER], me: ME, distinct: [42, null, { name: HER }] });
+
+  assert.match(asked, new RegExp(HER));
+  assert.equal(secondAuthorQuestion({ authors: [HER], me: ME, distinct: "Claire Dubois" }), asked);
 });
 
 // ── What is said once the answer is "yes, that is somebody else" ─────────────
@@ -335,6 +374,26 @@ test("a confirmed alias resolves to the spelling the owner keeps", () => {
 
 // Matched by slug like every other comparison here, or the registry would be a
 // second, subtly different notion of "the same name" living beside the first.
+// The spelling the owner KEEPS is returned even when the name arrives as its own
+// canonical, typed sloppily. Missing this files the same human under two names.
+test("the kept spelling is returned even when the name given is that spelling, mistyped", () => {
+  assert.equal(canonicalAuthor("  THOMAS   pierrain ", IDENTITIES), ME);
+});
+
+// 🛑 A name this brain cannot spell is NOBODY, and an alias it cannot spell either is
+// not that nobody. Fusing two unspellable names would file a stranger's notes into the
+// owner's day, silently.
+test("a name with no slug is not fused into an entry whose alias has none either", () => {
+  assert.equal(canonicalAuthor("✨", [{ name: ME, aka: ["🌟"] }]), "✨");
+});
+
+// Fail-open on a hand-edited registry: a junk alias costs its own entry, never the
+// session. It must not throw, and it must not swallow somebody.
+test("an entry with a junk alias is skipped rather than thrown over", () => {
+  assert.equal(canonicalAuthor(HER, [{ name: ME, aka: [42, null, { name: HER }] }]), HER);
+  assert.equal(canonicalAuthor(HER, [{ name: ME, aka: "claire dubois" }]), HER);
+});
+
 test("an alias is matched the way every other name is: by slug, not by spelling", () => {
   assert.equal(canonicalAuthor("  TPierrain  ", IDENTITIES), ME);
 });
@@ -373,6 +432,7 @@ test("two spellings are the same person when the registry says so, and by slug o
 // the same person — treating them as one would silence a banner about a stranger.
 test("a name this brain cannot spell is nobody, and nobody is not somebody else", () => {
   assert.equal(isSamePerson("✨", "✨"), false);
+  assert.equal(isSamePerson(null, null), false, "two names this brain does not have are not one person");
   assert.equal(isSamePerson(null, ME), false);
   assert.equal(isSamePerson(ME, undefined), false);
 });

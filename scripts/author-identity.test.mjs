@@ -26,7 +26,13 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ANSWER_NOT_COMMITTED_WARNING, ANSWER_DEFERRED_NOTE, runAuthorIdentity } from "./author-identity.mjs";
+import {
+  ANSWER_NOT_COMMITTED_WARNING,
+  ANSWER_DEFERRED_NOTE,
+  describeAnswers,
+  parseAnswer,
+  runAuthorIdentity,
+} from "./author-identity.mjs";
 import { PUSH_FAILED_WARNING } from "./auto-push.mjs";
 import { readAuthorsState } from "./lib/author-identities.mjs";
 
@@ -273,6 +279,132 @@ test("--list on a brain nobody has answered for says so, rather than printing an
   assert.doesNotMatch(only(f.said), /\[\]|\{\}/, "an empty JSON shape is not an answer to a human");
 });
 
+// ── The two answers, as they are parsed ──────────────────────────────────────
+//
+// Read STRICTLY on purpose: a name that lands under the wrong flag fuses two
+// colleagues or splits one person, and both are undone by hand afterwards.
+
+test("each flag is read as the answer it is, with the name untouched", () => {
+  assert.deepEqual(parseAnswer(["--same-person", MY_OTHER_MAC]), { action: "fuse", name: MY_OTHER_MAC });
+  assert.deepEqual(parseAnswer(["--different", HER]), { action: "distinct", name: HER });
+  assert.deepEqual(parseAnswer(["--list"]), { action: "list" });
+});
+
+test("--list takes no name, so a --list with one is a question this brain will not guess at", () => {
+  assert.equal(parseAnswer(["--list", HER]), null);
+  assert.equal(parseAnswer(["--list", "--same-person"]), null);
+});
+
+// ── What --list prints, exactly ──────────────────────────────────────────────
+
+test("the registry is read back as sentences, one person per line", () => {
+  const listed = describeAnswers({
+    identities: [{ name: ME, aka: [MY_OTHER_MAC, "tp"] }, { name: "Amina Haddad", aka: [] }],
+    distinct: [HER],
+  });
+
+  assert.equal(
+    listed,
+    `${ME} — also writes as ${MY_OTHER_MAC}, tp\n` + `Amina Haddad\n` + `${HER} — a second person, confirmed`,
+  );
+});
+
+// Fail-open here too: this is the command an owner runs to CHECK a registry they
+// suspect, so it must survive the damage it is being run to find.
+test("a hand-damaged entry is skipped, and the rest of the registry still reads", () => {
+  const listed = describeAnswers({
+    identities: [null, { name: 42, aka: [] }, { aka: [ME] }, { name: ME, aka: "tpierrain" }],
+    distinct: [],
+  });
+
+  assert.equal(listed, ME, "an entry with no readable name is not a person, and an alias list that is not one is empty");
+});
+
+// ── The words themselves, pinned ─────────────────────────────────────────────
+//
+// 🛑 These three are the whole user-facing surface of this command, and asserting
+// them against the constant they come from proves nothing. An answer that quietly
+// stopped saying it had NOT travelled is the one defect this command cannot afford.
+
+test("the warning that an answer stayed local says so, in these words", () => {
+  assert.equal(
+    ANSWER_NOT_COMMITTED_WARNING,
+    "\n⚠️  ANSWER NOT COMMITTED — it is recorded on THIS machine only and will not reach the other one. " +
+      "Run `git status` in your brain to see what stopped the commit.",
+  );
+});
+
+test("the note that a commit is merely waiting is calm, and says why", () => {
+  assert.equal(
+    ANSWER_DEFERRED_NOTE,
+    "\nNote: a merge/rebase is in progress here, so the answer will be committed with it at the end of the turn.",
+  );
+});
+
+test("a broken question is answered with the usage, in full", () => {
+  const f = fakes();
+
+  runAuthorIdentity(["--maybe", HER], f.deps);
+
+  assert.equal(
+    only(f.wept),
+    '✗ usage: author-identity.mjs --same-person "<name>" | --different "<name>" | --list\n' +
+      "       --same-person: that spelling is YOU, on another machine (the two are fused).\n" +
+      "       --different:   that really is a second person (asked about once, never again).",
+  );
+});
+
+test("a machine with no git name is told which command fixes it, in full", () => {
+  const f = fakes({}, committing(FUSED));
+  f.deps.author = () => null;
+
+  runAuthorIdentity(["--same-person", MY_OTHER_MAC], f.deps);
+
+  assert.equal(
+    only(f.wept),
+    `✗ this machine's git has no user.name, so there is nobody to fuse "${MY_OTHER_MAC}" with. ` +
+      'Set it first: git config user.name "<your name>".',
+  );
+});
+
+test("a name that cannot be filed is refused in full, and pointed back at the question", () => {
+  const f = fakes({}, committing(FUSED));
+
+  runAuthorIdentity(["--different", "✨"], f.deps);
+
+  assert.equal(
+    only(f.wept),
+    '✗ "✨" is not a name this brain can file under (it has no letters or digits), so it cannot be ' +
+      "recorded. Use the spelling git shows in the question.",
+  );
+});
+
+// 🛑 AND WHEN IT ALL WORKED, IT SAYS NOTHING EXTRA. Every warning above is added to
+// this sentence, so a healthy answer is the only place their ABSENCE can be proven —
+// a command that warned about a commit that succeeded is a command nobody believes.
+test("an answer that travelled is reported plainly, with no warning of any kind", () => {
+  const f = fakes({}, { ...committing(FUSED), ...pushReady(), push: {} });
+
+  runAuthorIdentity(["--same-person", MY_OTHER_MAC], f.deps);
+
+  assert.equal(
+    only(f.said),
+    `Recorded: "${MY_OTHER_MAC}" is you, on another machine. Your notes stay filed under ${ME}, ` +
+      "and no note of yours will be split in two.",
+  );
+});
+
+// A tree with unmerged files is not a tree an answer may be committed into: the
+// commit would bury the conflict markers. It did not travel, so it is said.
+test("a conflicted tree is a commit that did not happen, and the owner hears it", () => {
+  const f = fakes({}, { "status --porcelain": { out: "UU vault/note.md\n" } });
+
+  assert.equal(runAuthorIdentity(["--different", HER], f.deps), 0, "the answer IS on disk");
+
+  assert.ok(only(f.said).includes(ANSWER_NOT_COMMITTED_WARNING.trim()), only(f.said));
+  assert.deepEqual(readAuthorsState(f.deps.io, DIR).distinct, [HER]);
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 // AS A PROCESS (CONVENTIONS §5bis, step 8.7) — a real git repository, a real run,
 // and the loop closed end to end: the hook asks, this entry point answers, the
@@ -370,6 +502,20 @@ test("as a process, a broken question exits 2 and says so on stderr", (t) => {
   assert.equal(answer.status, 2);
   assert.match(answer.stderr, /--same-person/);
   assert.equal(answer.stdout.trim(), "");
+});
+
+// 🛑 THE REAL READER, EXERCISED. Every test above injects its own file access, so
+// the wiring that opens the actual file on disk is proven nowhere else: answer, then
+// read the answer back in a SECOND process, which can only work if the registry was
+// really written and really re-read.
+test("as a process, an answer given in one run is read back by the next one", (t) => {
+  const root = brainRepo(t, [ME, MY_OTHER_MAC]);
+
+  runIn(root, "author-identity.mjs", ["--same-person", MY_OTHER_MAC]);
+  const listed = runIn(root, "author-identity.mjs", ["--list"]);
+
+  assert.equal(listed.status, 0, listed.stderr);
+  assert.equal(listed.stdout.trim(), `${ME} — also writes as ${MY_OTHER_MAC}`);
 });
 
 test("as a process, --list on an unanswered brain says nothing is recorded and exits 0", (t) => {
