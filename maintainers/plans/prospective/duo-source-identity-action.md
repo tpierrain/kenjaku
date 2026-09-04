@@ -47,7 +47,11 @@ below, and the release is held until it lands.**
   measurements are running** — the three new files again, plus the ranges step 8 changed in the
   files that already existed. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
   plan is open**; when those come back at this release's standard, `RESULTS.md` gains its section and
-  the release note's Quality paragraph gains its figures.
+  **both** surfaces that quote figures gain them in the same commit: the release note's *Quality*
+  paragraph and [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md)'s *Quality evidence*, whose
+  current numbers cover this release's earlier halves and **not** step 8's three new files. The PR
+  body is edited on GitHub in that same move, as it was for the reordering — deliberately once, when
+  the numbers are real, rather than twice around a measurement still running.
 - ✅ **THE CI WAS READ ON RESUMING** _(2026-09-04, 23:31 push)_: the checks for `9246e12` **and** for
   the plan commit after it both **passed**. Nothing red is outstanding, so a failure appearing from
   here belongs to the work below (`rules/ci.md`).
