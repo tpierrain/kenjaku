@@ -46,7 +46,31 @@ the rehearsal against a copy of a real brain.
 > (`rag` 1.5.0, `scripts` 1.15.0, `indexSchemaVersion` unmoved), and the fingerprint table needs no
 > re-run — it already names `v5.1.0` and the whole suite is green with the bump in.
 >
-> 🛑 **EVERYTHING THAT IS MINE IS DONE. THE RELEASE NOW WAITS ON THE OWNER, AND ON NOTHING ELSE.**
+> 🔁 **8.2 REOPENED ONCE, ON THE OWNER'S READING — DUO MODE LEADS THE NOTE NOW** _(2026-09-04,
+> `34c8580`)_. His words: *"c'est comme si on disait que le duo mode était un side effect alors que
+> c'était ça le driver."* He is right, and this plan's own header is the proof: #84 was surfaced by
+> the two-humans-one-brain study, whose origin is handing a brain to a second person and which calls
+> the multi-machine sync **"the whole lever"**. The note's intro had the means first and the end as a
+> trailing *"and it also…"*; **the intro is now led by duo mode**, the live catch-up presented as what
+> making it work bought everyone. Reasoning recorded in the note's own header, beside the naming
+> decision it extends: **using the name is not enough if the structure still reads the feature as a
+> side effect — a release note's order is a claim about what mattered.**
+>
+> ✅ **AND HE ORDERED THE SAME INVERSION EVERYWHERE ELSE** _(2026-09-04, *"inverse aussi sinon"*)_.
+> The backwards order survived in two more places, both now fixed: the note's `What you get` list
+> (duo mode's three bullets lead, the six machine-sync ones follow under *"and underneath it, for
+> everyone"*), and `release-v5.1.0-pr-body.md`, which numbered the sync `1.` and duo mode `2.` and
+> never named the product in its lead — duo mode is now `1.` and named, the sync `2.` and explicitly
+> *"the lever the above needed"*. **The PR body was edited on GitHub too**, not only in this file.
+> The reordered `What you get` was re-checked against the real `extractWhatYouGet` parser: still
+> **16 lines captured, both moments in**, so `/update-engine` still quotes it.
+>
+> 🔗 **A broken link found on the way, and it blocks nothing**: this file's header points at
+> `../../studies/two-humans-one-brain-study.md`, which lives only on the unmerged branch
+> `docs/study-two-humans-one-brain`. To settle after the release: merge that branch, or repoint the
+> link.
+>
+> 🛑 **EVERYTHING ELSE THAT IS MINE IS DONE. THE RELEASE NOW WAITS ON THE OWNER, AND ON NOTHING ELSE.**
 > PR [#86](https://github.com/tpierrain/kenjaku/pull/86) is open into `main` with the whole release in
 > it, and **its checks have finished and are GREEN** _(2026-09-03, read not assumed: 8 pass, 3 skipped
 > as duplicates of the branch run — the Windows tripwire and the end-to-end install among the eight)_.

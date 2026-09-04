@@ -64,7 +64,13 @@ A second brain has always been one person's. The moment someone else worked in i
 
 *Nothing to install and nothing to switch on: an engine update is enough, and this only ever concerns brains that have a repository of their own.*
 
-**While a conversation is open, on either machine.**
+**Duo mode — when two of you work in one brain.** Nothing to turn on: your brain notices on its own that a second person writes here, says so once, and files things accordingly from then on.
+
+- 👥 **The same thing captured twice is stored once.** You and a colleague both come out of the same meeting and both ask your brain to keep it: it recognises that it already holds that source, and does not write a second copy.
+- 📆 **You both keep writing on the same day without colliding.** Two people's write-ups of the same day become one note each rather than one contested file.
+- 📖 **And what sharing a brain does — and does not — do is written down.** The short version: it shares what you wrote down, not what you can see. Your mail, your messages, your calendar stay yours; a shared calendar is the one thing that crosses over. [SETUP §7](https://github.com/tpierrain/kenjaku/blob/main/SETUP.md) has the honest perimeter, worth two minutes before you invite anyone in.
+
+**And underneath it, for everyone: while a conversation is open, on either machine.**
 
 - 🔄 **Your brain notices what the other computer wrote, and goes and gets it.** You spend the morning on your laptop, then move to your desk after lunch and leave the laptop's window open. It catches up on its own rather than waiting for you to start a fresh conversation there.
 - 💬 **It tells you what arrived, at your next message.** One sentence, in your own language, before it answers you: what came in and who wrote it. Not a notification you have to go looking for.
@@ -72,12 +78,6 @@ A second brain has always been one person's. The moment someone else worked in i
 - ✍️ **Two notes added the same afternoon to the same daily note are both kept.** Nobody is asked and nothing is lost. What you both *rewrite* — a person's page, a topic — stops and asks you instead, on purpose: those are worth a decision.
 - 🧭 **The context you are working in follows you.** If you keep several universes (a past employer, a client), switching on one computer lands the others in it too, so your notes stop contradicting the tools you have open.
 - 🤫 **It stays out of your way.** It only reaches for the network when your brain has nothing half-written in it, one machine at a time, and it never interrupts what you are doing.
-
-**Duo mode — when two of you work in one brain.**
-
-- 👥 **The same thing captured twice is stored once.** You and a colleague both come out of the same meeting and both ask your brain to keep it: it recognises that it already holds that source, and does not write a second copy.
-- 📆 **You both keep writing on the same day without colliding.** Two people's write-ups of the same day become one note each rather than one contested file.
-- 📖 **And what sharing a brain does — and does not — do is written down.** The short version: it shares what you wrote down, not what you can see. Your mail, your messages, your calendar stay yours; a shared calendar is the one thing that crosses over. [SETUP §7](https://github.com/tpierrain/kenjaku/blob/main/SETUP.md) has the honest perimeter, worth two minutes before you invite anyone in.
 
 ### What you have to do
 
