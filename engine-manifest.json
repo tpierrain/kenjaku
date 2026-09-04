@@ -52,6 +52,7 @@
       "scripts/remote-sync.mjs",
       "scripts/known-source.mjs",
       "scripts/dated-note-path.mjs",
+      "scripts/author-identity.mjs",
       "scripts/verify-index.mjs",
       "scripts/lib/**",
       ".claude/settings.json.template",

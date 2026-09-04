@@ -538,12 +538,30 @@ This is the honest statement of the perimeter.
       the notice, because unreadable answers must read as *not answered yet*. The prose duo mode owed
       is not lost: it moved into `duoConfirmedNotice`, which 8.5 prints at the moment the answer makes
       it true.
-- [ ] **8.5** **The way the answer is recorded**: an entry point the agent calls (`--same-person` /
+- [x] **8.5** _(2026-09-04, `author-identity.mjs` + 19 tests, 8.7 inside)_ **The way the answer is
+      recorded**: an entry point the agent calls (`--same-person` /
       `--different`), which writes `authors.json` and commits + pushes it **scoped**, reusing the
       universe switch's own machinery (`universe-persist.mjs`) rather than a second one. That reuse
       needs one refactor: the commit is scoped to `.vault-rag` but its MESSAGE is hard-coded to a
       universe switch, so the message becomes a parameter and `commitUniverseState` keeps its own by
       delegating.
+      ✅ **Done, refactor included** (`commitVaultRagState` / `persistVaultRagChange`, two tests of
+      their own; the switch delegates and its whole suite is untouched). Four things worth keeping:
+      **a re-answer writes nothing at all** — the same answer twice leaves the disk alone, because
+      writing anyway dirties the tree and makes the next sync tick defer, for nothing; **the answer
+      is written BEFORE it is committed**, pinned on one shared timeline of fs and git events, since
+      neither fake can see that order alone and a commit that runs first commits the PREVIOUS answer;
+      **a commit or push that cannot happen is said out loud and the exit code stays 0** — the answer
+      IS on disk, and what the human must hear is that it has not reached the other machine; and the
+      commit stays **scoped**, proved on a real repository with a STAGED draft that survives untouched
+      (the v4.9.1 review finding, one entry point over).
+      ✅ **8.7 landed with it**: the entry point is driven **as a process** on a real git repository,
+      and the loop is closed end to end — the hook asks, the answer is recorded, **the hook goes
+      silent**. That last test is the release's held defect, closed; neither half proves it alone.
+      📝 **One observation, and it is the owner's to settle, not a defect**: like `dated-note-path.mjs`
+      and `known-source.mjs` before it, this entry point is **not in the brain's allowlist**, so
+      recording an answer costs one permission click. Consistent with its siblings, so nothing was
+      changed here — but the three of them are the same question, once.
 - [ ] **8.6** **Filing follows the answer**: `dated-note-path.mjs` resolves the author through the
       registry, so a fused name never yields a suffix. Its header comment's promise (*"even one with
       two Macs"*) becomes true instead of hopeful.
@@ -551,7 +569,7 @@ This is the honest statement of the perimeter.
       compares an arriving author to the local `user.name` with `!==`, so a fused owner is popped a
       desktop banner about their own notes. Resolve both sides through the registry and compare
       slugs — the same comparison the rest of the module already makes.
-- [ ] **8.7** **The entry point is tested as a PROCESS**, not only through its imported functions
+- [x] **8.7** _(2026-09-04, with 8.5)_ **The entry point is tested as a PROCESS**, not only through its imported functions
       (`test-first-discipline`, the entry-point seam rule).
 - [ ] **8.8** **Mutation-measured** like the rest of this release, results in `maintainers/mutation/RESULTS.md`, newest-first.
 - [ ] **8.9** **The surface says it**: `SETUP.md` §7 and the release note's duo-mode block describe the

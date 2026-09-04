@@ -2,7 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   commitUniverseState,
+  commitVaultRagState,
   persistUniverseSwitch,
+  persistVaultRagChange,
   runSwitchCliPersisted,
   switchCommitMessage,
   SWITCH_NOT_COMMITTED_WARNING,
@@ -89,6 +91,35 @@ test("commitUniverseState stages the .vault-rag state and commits with the switc
 
 test("switchCommitMessage names the universe it switched to", () => {
   assert.equal(switchCommitMessage("blue-team"), "auto: switch active universe to 'blue-team'");
+});
+
+// `.vault-rag` stopped being only the universe pointer: the duo-mode answers
+// (`authors.json`) live there too and must travel the same way, for the same reason.
+// So the MESSAGE is a parameter and the scoping, the opt-in and the retry stay in
+// one place — a second copy of this would be a second, subtly different notion of
+// "commit the state that travels".
+test("commitVaultRagState carries whatever message its caller owns, with the same scoping", () => {
+  const message = "auto: tpierrain is Thomas Pierrain on another machine";
+  const git = fakeGit(commitPath(message, " M .vault-rag/authors.json\n"));
+
+  assert.equal(commitVaultRagState({ git, message }), "committed");
+
+  assert.deepEqual(
+    git.calls.filter((a) => a[0] === "commit"),
+    [["commit", "-m", message, "--", ".vault-rag"]],
+  );
+});
+
+test("persistVaultRagChange commits THEN pushes, exactly as a switch does", () => {
+  const message = "auto: Claire Dubois is a second person in this brain";
+  const git = fakeGit({ ...commitPath(message, " M .vault-rag/authors.json\n"), ...pushReady() });
+
+  assert.deepEqual(persistVaultRagChange({ git, sleep: () => {}, message }), {
+    commit: "committed",
+    push: "pushed",
+  });
+  const keys = keysOf(git);
+  assert.ok(keys.findIndex((k) => k.startsWith("commit ")) < keys.indexOf("push"), keys.join(" | "));
 });
 
 test("commitUniverseState scopes BOTH the emptiness gate and the commit to .vault-rag (review finding, v4.9.1)", () => {
