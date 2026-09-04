@@ -502,7 +502,8 @@ This is the honest statement of the perimeter.
       test over eleven malformed shapes, and the converse too: a real second person is still counted,
       announced and named. **It resolves nothing on its own** — the registry only remembers an answer
       already given, which is 8.4's and 8.5's job to obtain.
-- [ ] **8.3** **The storage that TRAVELS**: `.vault-rag/authors.json`, beside `universes.json` — the
+- [x] **8.3** _(2026-09-04, `author-identities.mjs` + 26 tests)_ **The storage that TRAVELS**:
+      `.vault-rag/authors.json`, beside `universes.json` — the
       precedent for brain state that must reach the other machine (a fused identity is a fact about
       the world, true on every Mac; answering once must be enough). Read tolerant of absence and of
       corruption, same contract as every session-hook seam. New `scripts/lib/author-identities.mjs`:
@@ -511,6 +512,15 @@ This is the honest statement of the perimeter.
       **Idempotent and convergent by construction**: fusing merges into whichever entry already knows
       either spelling, so the same answer given twice — or given on the other Mac first — lands on one
       entry, never two rival ones.
+      ✅ **Written test-first** (a stub carried the load, so the 25 reds were assertions and not a
+      missing export), and two things came out of the writing that the design had not named:
+      **a half-damaged file keeps its good half** — the two lists are validated separately, so a
+      mangled `distinct` costs the refusals and not the fusions — and **`markDistinct` UNDOES a wrong
+      fusion**, dropping the name from whoever had swallowed it. Without that, a human who answered
+      *"it's me"* about a colleague could say so and be ignored by the filing rule, which is the same
+      class of unfixable-wrong-answer the step exists against. The 26th test is a fixture correction
+      kept as its own case: `thomas.pierrain` and `Thomas Pierrain` are ALREADY one name here, because
+      a slug is what this brain compares.
 - [ ] **8.4** **The announcement becomes the question**: `secondAuthorAnnouncement` stops asserting
       *"a second person now writes here"* and asks *"I see a second name, X — someone else, or you on
       another machine?"*. Until answered, filing keeps today's protective behaviour (a real duo that
