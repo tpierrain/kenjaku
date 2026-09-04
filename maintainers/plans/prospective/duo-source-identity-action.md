@@ -40,6 +40,11 @@ below, and the release is held until it lands.**
   byte-identical to before. That is deliberate (each sub-step ships green), and it is also why
   **8.2 alone fixes nothing for a user** — 8.3 gives it `.vault-rag/authors.json`, 8.4 and 8.5 obtain
   and record the answer.
+- ⏳ **FIRST THING ON RESUMING: read the CI, it was still running at the hand-back** _(2026-09-04,
+  context cleared here on the owner's ask)_. The scripts suite was green locally (3021) and the
+  branch's last read verdict was green, but the checks for `9246e12` had not finished. `gh run list
+  --branch feat/live-remote-sync` before writing a line of 8.3 — a red left unread makes every later
+  commit ambiguous (`rules/ci.md`).
 - ⚖️ **WHICH REFINES HIS 2026-09-03 CALL WITHOUT REVERSING IT.** *Implicit* stays: there is still no
   switch to flip, and his reasoning for that is untouched — **a switch protects only whoever thought
   to flip it, which is never the duo about to have its notes doubled.** What changes is what
