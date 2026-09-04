@@ -18,6 +18,7 @@ import assert from "node:assert/strict";
 import {
   authorsReminder,
   buildAuthorsHookOutput,
+  canonicalAuthor,
   distinctAuthors,
   GIT_AUTHOR_ARGS,
   GIT_AUTHORS_ARGS,
@@ -242,4 +243,99 @@ test("the whole payload stays under what an owner reads before typing a word", (
 
   assert.ok(announcement.length <= 280, `the one-time sentence is ${announcement.length} chars`);
   assert.ok(additionalContext.length <= 600, `the whole block is ${additionalContext.length} chars`);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 8 — ONE PERSON WITH TWO MACS IS NOT A DUO.
+//
+// The defect this section pins: everything above compares git author NAMES, so
+// an owner whose two machines are configured `Thomas Pierrain` and `tpierrain`
+// is read as two humans — told "a second person now writes here" while alone,
+// and their daily notes split one file per machine. The comment on the gate
+// above even promises the opposite ("even one with two Macs"): case and spacing
+// were the only spellings it ever reconciled.
+//
+// The fix is an IDENTITY REGISTRY — spellings the owner has confirmed are one
+// person — consulted before any comparison. It resolves nothing on its own: it
+// only remembers an answer already given, which is why it may never invent a
+// fusion the human did not confirm.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const ME_ON_THE_OTHER_MAC = "tpierrain";
+const IDENTITIES = [{ name: ME, aka: [ME_ON_THE_OTHER_MAC] }];
+
+test("a confirmed alias resolves to the spelling the owner keeps", () => {
+  assert.equal(canonicalAuthor(ME_ON_THE_OTHER_MAC, IDENTITIES), ME);
+  assert.equal(canonicalAuthor(ME, IDENTITIES), ME, "the canonical spelling resolves to itself");
+});
+
+// Matched by slug like every other comparison here, or the registry would be a
+// second, subtly different notion of "the same name" living beside the first.
+test("an alias is matched the way every other name is: by slug, not by spelling", () => {
+  assert.equal(canonicalAuthor("  TPierrain  ", IDENTITIES), ME);
+});
+
+test("a name nobody confirmed is returned untouched — the registry never guesses", () => {
+  assert.equal(canonicalAuthor(HER, IDENTITIES), HER);
+  assert.equal(canonicalAuthor("Thomas Pierre", IDENTITIES), "Thomas Pierre", "a near-miss is a different person");
+});
+
+// 🛑 FAIL-OPEN, IN EVERY DIRECTION. This registry is read off disk at session
+// start; a missing file, a half-written one, or a hand-edited one must cost the
+// fusion and nothing else. Anything harsher turns a corrupt byte into a brain
+// that will not start.
+test("an absent, empty or malformed registry behaves exactly as no registry at all", () => {
+  for (const junk of [undefined, null, [], "nope", 42, {}, [null], [{}], [{ name: ME }], [{ aka: ["x"] }], [{ name: ME, aka: "x" }]]) {
+    assert.equal(canonicalAuthor(ME_ON_THE_OTHER_MAC, junk), ME_ON_THE_OTHER_MAC, `junk: ${JSON.stringify(junk)}`);
+  }
+});
+
+test("an entry whose canonical name cannot be slugged is not an identity anyone can be fused into", () => {
+  assert.equal(canonicalAuthor(ME_ON_THE_OTHER_MAC, [{ name: "???", aka: [ME_ON_THE_OTHER_MAC] }]), ME_ON_THE_OTHER_MAC);
+});
+
+test("counting people goes through the registry, so two spellings of one owner are one author", () => {
+  assert.deepEqual(distinctAuthors([ME, ME_ON_THE_OTHER_MAC], IDENTITIES), [ME]);
+  assert.deepEqual(
+    distinctAuthors([ME_ON_THE_OTHER_MAC, ME], IDENTITIES),
+    [ME],
+    "and the kept spelling is the canonical one even when the alias came first",
+  );
+});
+
+test("without a registry, counting is exactly what it was — two spellings, two people", () => {
+  assert.deepEqual(distinctAuthors([ME, ME_ON_THE_OTHER_MAC]), [ME, ME_ON_THE_OTHER_MAC]);
+});
+
+test("the registry fuses only who it was told about, and leaves a real second person alone", () => {
+  assert.deepEqual(distinctAuthors([ME, ME_ON_THE_OTHER_MAC, HER], IDENTITIES), [ME, HER]);
+});
+
+// 🛑 THE DEFECT ITSELF, in the two places it reaches the human. This is the pair
+// of assertions the whole step exists for: a solo owner with two differently
+// configured Macs must be told NOTHING, and must never be announced a colleague.
+test("a solo owner with two Macs, once confirmed, goes back to complete silence", () => {
+  assert.equal(authorsReminder({ authors: [ME, ME_ON_THE_OTHER_MAC], me: ME, identities: IDENTITIES }), null);
+  assert.equal(
+    authorsReminder({ authors: [ME], me: ME_ON_THE_OTHER_MAC, identities: IDENTITIES }),
+    null,
+    "including when the OTHER Mac is the one at the keyboard",
+  );
+  assert.equal(
+    secondAuthorAnnouncement({ authors: [ME, ME_ON_THE_OTHER_MAC], me: ME, identities: IDENTITIES, announced: false }),
+    null,
+  );
+});
+
+// And the converse, so the fix cannot be "stay silent more often": a genuine duo
+// is still seen, registry or no registry.
+test("a real second person is still counted, announced and named, registry or not", () => {
+  const line = authorsReminder({ authors: [ME, ME_ON_THE_OTHER_MAC, HER], me: ME, identities: IDENTITIES });
+
+  assert.match(line, /^More than one person writes here \(Thomas Pierrain, Claire Dubois\)\./);
+  assert.doesNotMatch(line, new RegExp(ME_ON_THE_OTHER_MAC), "the alias is not a third name in the list");
+  assert.match(
+    secondAuthorAnnouncement({ authors: [ME, HER], me: ME, identities: IDENTITIES, announced: false }),
+    /once/i,
+  );
 });

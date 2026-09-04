@@ -34,6 +34,12 @@ below, and the release is held until it lands.**
   the once-in-a-brain's-life announcement becomes *"I see a second name, X. Is that someone else, or
   you on another machine?"*, and the answer is remembered so *"it's me"* fuses the two names and no
   suffix is ever written. Test-first, and the sub-steps get written here before any code.
+  **▶️ 8.1 is doc-only and still open; 8.2 is TICKED. Restart at 8.3** — the registry now exists and
+  is honoured everywhere in `brain-author.mjs`, but **nothing reads or writes it on disk yet**, so in
+  a real brain it is inert: `identities` arrives `undefined` from every caller and every behaviour is
+  byte-identical to before. That is deliberate (each sub-step ships green), and it is also why
+  **8.2 alone fixes nothing for a user** — 8.3 gives it `.vault-rag/authors.json`, 8.4 and 8.5 obtain
+  and record the answer.
 - ⚖️ **WHICH REFINES HIS 2026-09-03 CALL WITHOUT REVERSING IT.** *Implicit* stays: there is still no
   switch to flip, and his reasoning for that is untouched — **a switch protects only whoever thought
   to flip it, which is never the duo about to have its notes doubled.** What changes is what
@@ -454,10 +460,16 @@ This is the honest statement of the perimeter.
 
 - [ ] **8.1** Amend § *The owner's call* with the refinement and its trigger, so the section that
       settled "implicit" is not read alone. _(Doc only, no code.)_
-- [ ] **8.2** **The pure rule, test-first**: `brain-author.mjs` learns an **identity registry** — a set
-      of name spellings known to be the same person. `distinctAuthors` resolves through it before
-      comparing slugs, so `Thomas Pierrain` + `tpierrain` collapse to one. Fail-open: no registry, or
-      an unreadable one, behaves exactly as today.
+- [x] **8.2** _(2026-09-04, `brain-author.mjs`)_ **The pure rule, test-first**: `brain-author.mjs` learned an
+      **identity registry** — `[{ name, aka: [...] }]`, spellings the owner has confirmed are one
+      person. New `canonicalAuthor(name, identities)`; `distinctAuthors`, `authorsReminder` and
+      `secondAuthorAnnouncement` all resolve through it before comparing slugs, so `Thomas Pierrain`
+      + `tpierrain` collapse to one and the reminder names the spelling that was kept. **Seen red
+      first**: 6 failures on their assertions (not on a missing export — a stub carried the load),
+      then 34/34 green, and the whole scripts suite green at 3021. Fail-open is pinned by its own
+      test over eleven malformed shapes, and the converse too: a real second person is still counted,
+      announced and named. **It resolves nothing on its own** — the registry only remembers an answer
+      already given, which is 8.4's and 8.5's job to obtain.
 - [ ] **8.3** **The storage that TRAVELS**: `.vault-rag/authors.json`, beside `universes.json` — the
       precedent for brain state that must reach the other machine (a fused identity is a fact about
       the world, true on every Mac; answering once must be enough). Read tolerant of absence and of

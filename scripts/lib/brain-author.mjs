@@ -36,20 +36,54 @@ export function localAuthorName(git) {
 }
 
 /**
+ * The spelling the owner keeps for `name`, when they have CONFIRMED that several
+ * spellings are one person; `name` untouched otherwise (step 8).
+ *
+ * `identities` is `[{ name, aka: [...] }]` — the registry that travels between
+ * machines. It remembers an answer already given and never infers one: two names
+ * that merely look alike stay two people, because the only thing that can tell
+ * `tpierrain` (the same owner's other Mac) from `tpierrain` (a colleague who
+ * happens to share the handle) is the human who was asked.
+ *
+ * Fail-open in every direction. This registry is read off disk at session start,
+ * so a missing file, a half-written one or a hand-edited one must cost the fusion
+ * and strictly nothing else: every malformed shape degrades to "no registry".
+ */
+export function canonicalAuthor(name, identities) {
+  const slug = typeof name === "string" ? slugSafe(name) : null;
+  if (slug === null || !Array.isArray(identities)) return name;
+  for (const entry of identities) {
+    const canonical = typeof entry?.name === "string" ? entry.name : null;
+    // An entry whose own canonical name cannot be spelled into a filename is not an
+    // identity anyone can be fused INTO: honouring it would replace a usable name
+    // with an unusable one, which is worse than not fusing at all.
+    if (canonical === null || slugSafe(canonical) === null) continue;
+    if (slugSafe(canonical) === slug) return canonical;
+    const aka = Array.isArray(entry.aka) ? entry.aka : [];
+    if (aka.some((alias) => typeof alias === "string" && slugSafe(alias) === slug)) return canonical;
+  }
+  return name;
+}
+
+/**
  * The distinct people among a list of git author names, in the order they first
  * appear, each kept in the spelling it first appeared with. Compared by slug, so
  * one person who typed their name three ways is one person — and a name with no
  * slug at all is not someone this brain can name, so it is dropped rather than
  * counted as a mysterious second author.
+ *
+ * Confirmed identities are resolved FIRST, so an owner's two Macs count once and
+ * are listed under the spelling they kept, whichever machine committed first.
  */
-export function distinctAuthors(names) {
+export function distinctAuthors(names, identities) {
   const seen = new Set();
   const people = [];
   for (const raw of names) {
-    const slug = typeof raw === "string" ? slugSafe(raw) : null;
+    const resolved = canonicalAuthor(raw, identities);
+    const slug = typeof resolved === "string" ? slugSafe(resolved) : null;
     if (slug === null || seen.has(slug)) continue;
     seen.add(slug);
-    people.push(raw.trim().replace(/\s+/g, " "));
+    people.push(resolved.trim().replace(/\s+/g, " "));
   }
   return people;
 }
@@ -57,8 +91,8 @@ export function distinctAuthors(names) {
 // Everyone this brain knows about: its history PLUS whoever is sitting here. The
 // second person has committed nothing yet on their first session, and that is
 // exactly the session where the brain must not be silent.
-function everyone({ authors, me }) {
-  return distinctAuthors([...authors, ...(me ? [me] : [])]);
+function everyone({ authors, me, identities }) {
+  return distinctAuthors([...authors, ...(me ? [me] : [])], identities);
 }
 
 /**
@@ -67,10 +101,13 @@ function everyone({ authors, me }) {
  * the keyboard and where to get a dated note's path, because composing that path by
  * hand is what makes two people's days collide.
  */
-export function authorsReminder({ authors, me }) {
-  const people = everyone({ authors, me });
+export function authorsReminder({ authors, me, identities }) {
+  const people = everyone({ authors, me, identities });
   if (people.length < 2) return null;
-  const here = me && slugSafe(me) !== null ? ` At this keyboard: ${me.trim().replace(/\s+/g, " ")}.` : "";
+  // Named the way the list names them: an owner who confirmed two spellings reads
+  // the one they kept, not whichever one this machine happens to be configured with.
+  const iAm = canonicalAuthor(me, identities);
+  const here = iAm && slugSafe(iAm) !== null ? ` At this keyboard: ${iAm.trim().replace(/\s+/g, " ")}.` : "";
   // Named up to three, then counted. Volume IS the defect (F5): this block is echoed
   // VERBATIM to a CLI owner before they have typed a word, and a brain that grew to a
   // dozen authors would otherwise open every session with a roll call.
@@ -88,9 +125,9 @@ export function authorsReminder({ authors, me }) {
  * time a second author is seen. Null once it has been said, and null on a brain
  * with one author.
  */
-export function secondAuthorAnnouncement({ authors, me, announced }) {
+export function secondAuthorAnnouncement({ authors, me, announced, identities }) {
   if (announced) return null;
-  const people = everyone({ authors, me });
+  const people = everyone({ authors, me, identities });
   if (people.length < 2) return null;
   return (
     `A second person now writes here. Say ONCE, in their language: each person's day gets its own ` +
