@@ -42,6 +42,12 @@ below, and the release is held until it lands.**
   the note re-checked against the real `extractWhatYouGet`: 17 lines captured, both moments in).
   **▶️ WHAT IS LEFT HERE IS 8.8, the mutation measurement**, then the note's Quality paragraph gains
   its figures, then the parent plan's 8.3 (the tag) is the owner's.
+  **▶️ 8.8 IS UNDER WAY** _(2026-09-05, 01:35)_: the first pass came back at **84.6 %**, its 75
+  survivors are answered (deleted where unreachable, tested where real, `24fa9cc`), and **two
+  measurements are running** — the three new files again, plus the ranges step 8 changed in the
+  files that already existed. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
+  plan is open**; when those come back at this release's standard, `RESULTS.md` gains its section and
+  the release note's Quality paragraph gains its figures.
 - ✅ **THE CI WAS READ ON RESUMING** _(2026-09-04, 23:31 push)_: the checks for `9246e12` **and** for
   the plan commit after it both **passed**. Nothing red is outstanding, so a failure appearing from
   here belongs to the work below (`rules/ci.md`).
@@ -587,6 +593,25 @@ This is the honest statement of the perimeter.
 - [x] **8.7** _(2026-09-04, with 8.5)_ **The entry point is tested as a PROCESS**, not only through its imported functions
       (`test-first-discipline`, the entry-point seam rule).
 - [ ] **8.8** **Mutation-measured** like the rest of this release, results in `maintainers/mutation/RESULTS.md`, newest-first.
+  - [x] **First pass on the three new files** _(2026-09-05, `v510-duo-batch-a.log`)_: **84.6 %** — 412
+        killed, 75 survived, 0 timeout (`author-identities` 82.18 %, `brain-author` 91.94 %,
+        `author-identity` 77.17 %). Far under the 97–100 % this release has held elsewhere, so it was
+        read as a real list rather than a formality.
+  - [x] **The 75 answered, and the split is the finding** _(2026-09-05, `24fa9cc`)_. **Deleted**
+        (no test could ever tell them apart): the `existsSync` probe in front of a try/catch that
+        already answers "no file" identically, the optional chaining inside that same try, a
+        null-slug filter on lookups no null slug reaches, the re-validation of two lists their reader
+        has already normalised, a `?? ""` on a name the caller has just refused anything but a string
+        for, a `slug !== null` on names `distinctAuthors` had already dropped — and the message in
+        `runAuthorIdentity` now composed **after** the refusal, which removes the fallback for a
+        canonical name that cannot exist. **Tested** (real behaviour nobody had claimed): two
+        unspellable names are not one person, "already confirmed" still frees somebody from a fusion,
+        merging one person leaves everybody else untouched, and the question, the usage, both
+        refusals and the two travel warnings are pinned word for word — with a healthy answer
+        asserting the **absence** of all of them. 3208 tests, 0 fail.
+  - [ ] **Re-measure, and batch B** _(running 2026-09-05 ~01:35)_: `v510-duo-batch-a2` over the three
+        files again, and `v510-duo-batch-b` over the ranges step 8 CHANGED in files that already
+        existed (`session-authors`, both `dated-note-path`, both `remote-sync`, `universe-persist`).
 - [ ] **8.9** **The surface says it**: `SETUP.md` §7 and the release note's duo-mode block describe the
       question, not a silent detection. If the note changes, **re-check it against the real
       `extractWhatYouGet` parser** (the constraint is CONVENTIONS §11).
