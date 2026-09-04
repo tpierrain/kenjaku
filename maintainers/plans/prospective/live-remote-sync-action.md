@@ -76,8 +76,14 @@ the rehearsal against a copy of a real brain.
 > away, and the branch stays green.
 >
 > ✅ **THAT WORK HAS LANDED** _(2026-09-04 night — see the next block for what shipped)_, bar its
-> mutation measurement. **The hold is his to lift**, not mine: the tag, the publication and the merge
-> of #86 were his before the hold and still are.
+> mutation measurement, which is running as this is written and whose state the sub-plan owns at its
+> step 8.8. **The hold is his to lift**, not mine: the tag, the publication and the merge of #86 were
+> his before the hold and still are.
+>
+> ↩️ **One figure above has since moved, and it moved the right way**: the `What you get` re-check
+> quoted at 16 captured lines was true of the reordering that produced it. Step 8 then added the
+> question to the note's duo block, and the same real parser now captures **17**, both moments still
+> in. The check is the sub-plan's to re-run if the note changes again.
 >
 > **Why he held it, and he is right.** He asked how the brain can be sure it is really facing two
 > people rather than one person with two Macs. **It cannot.** `brain-author.mjs` compares git author
