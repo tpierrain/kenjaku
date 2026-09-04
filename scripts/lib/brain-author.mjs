@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // brain-author.mjs — who writes in this brain, and the one thing implicitness owes
-// them in exchange: a sentence, said once.
+// them in exchange: a QUESTION, asked until it is answered.
 //
 // Duo mode is IMPLICIT (the owner's call, plan § *The owner's call*). Nothing to
 // switch on, no per-person profile to fill in, no list of people to maintain. The
@@ -11,14 +11,21 @@
 // A switch would protect whoever thought to flip it, which is never the duo about
 // to have its notes doubled — a protection that must be foreseen before the problem
 // is not a protection. But a brain that quietly starts filing things differently is
-// opaque, so the first time a second author is seen it SAYS so, once, and offers to
-// describe who is who: an offer that activates nothing, and whose refusal changes
-// no behaviour at all.
+// opaque, so it owes the human a word about it.
+//
+// AND THAT WORD IS A QUESTION, NOT A STATEMENT (step 8). All this module has is git
+// author names, so one owner whose two Macs say `Thomas Pierrain` and `tpierrain`
+// is the same evidence as two colleagues. It used to ASSERT "a second person now
+// writes here" — to somebody who may be alone. **A brain may FILE on a guess (a file
+// in an unexpected place is visible and reversible); it may not ASSERT one.** So it
+// asks, the answer is remembered in a registry that travels between the machines,
+// and what the answer buys is silence in both directions.
 //
 // Below two authors this module is silent, in every direction. Same doctrine as
 // universes (ADR 0034): nothing surfaces until a second one exists.
 // ─────────────────────────────────────────────────────────────────────────────
 import { slugSafe } from "./filed-note.mjs";
+import { countOf } from "./plural.mjs";
 
 /** How many authors get named before the rest are merely counted (F5: volume IS the defect). */
 const NAMES_SHOWN = 3;
@@ -121,18 +128,68 @@ export function authorsReminder({ authors, me, identities }) {
 }
 
 /**
- * What implicitness owes back, said exactly once in this brain's life: the first
- * time a second author is seen. Null once it has been said, and null on a brain
- * with one author.
+ * The names writing in this brain that the owner has never placed: neither fused
+ * into somebody (`identities`) nor confirmed as a second person (`distinct`).
+ *
+ * Whoever is at the keyboard is never in this list — the question is about the
+ * OTHER name, and asking somebody to place themselves is asking them nothing.
  */
-export function secondAuthorAnnouncement({ authors, me, announced, identities }) {
-  if (announced) return null;
-  const people = everyone({ authors, me, identities });
-  if (people.length < 2) return null;
+function unplacedAuthors({ authors, me, identities, distinct }) {
+  const mine = slugSafe(canonicalAuthor(me, identities) ?? "");
+  const confirmed = new Set(
+    (Array.isArray(distinct) ? distinct : []).map((name) => (typeof name === "string" ? slugSafe(name) : null)),
+  );
+  return everyone({ authors, me, identities }).filter((person) => {
+    const slug = slugSafe(person);
+    return slug !== null && slug !== mine && !confirmed.has(slug);
+  });
+}
+
+/**
+ * What implicitness owes back — and step 8 raised the price from a sentence to a
+ * QUESTION, for a reason that generalises: **this brain may FILE on a guess, it may
+ * not ASSERT one.** It compares git author names and nothing else, so an owner's
+ * second Mac spelled `tpierrain` and a colleague named `tpierrain` are the same
+ * evidence. The sentence that used to stand here ("a second person now writes
+ * here") is therefore a statement the brain cannot know is true, said to someone
+ * who may well be alone — and for a product whose asset is trust, an alarming false
+ * statement costs more than a missing feature.
+ *
+ * So it asks, and it keeps asking until it is answered EITHER WAY. Null once every
+ * name is placed, and null on a brain that has no second name or no name at this
+ * keyboard — a brain that does not know who "you" is cannot ask "or you on another
+ * machine?", and could not record the answer either (a fusion needs a canonical
+ * name to fuse into).
+ */
+export function secondAuthorQuestion({ authors, me, identities, distinct }) {
+  if (!me || slugSafe(me) === null) return null;
+  const unplaced = unplacedAuthors({ authors, me, identities, distinct });
+  if (unplaced.length === 0) return null;
+  // Named up to three then counted, exactly like the line above: five unplaced names
+  // is a brain that was handed round a team, and a roll call is not a question
+  // anybody answers.
+  const named = unplaced.slice(0, NAMES_SHOWN);
+  const rest = unplaced.length - named.length;
+  const list = `${named.join(", ")}${rest > 0 ? ` +${rest}` : ""}`;
   return (
-    `A second person now writes here. Say ONCE, in their language: each person's day gets its own ` +
-    `note instead of the two being merged, and a source both meet is not stored twice. Then OFFER ` +
-    `(never require) to say who is who — declining changes nothing.`
+    `This brain cannot place ${countOf(unplaced.length, "name")} writing here: ${list}. ASK before ` +
+    `today's first note, in their language — is that someone else, or them on another machine? ` +
+    `NEVER guess. Record their answer: \`node scripts/author-identity.mjs --same-person "<name>"\`, ` +
+    `or \`--different "<name>"\`. Until then nothing changes.`
+  );
+}
+
+/**
+ * And what a CONFIRMED duo is owed, said once: the explanation duo mode always owed,
+ * moved from the guess to the confirmation. Printed by the entry point that records
+ * the answer, so it is said exactly once by construction — the event that triggers
+ * it happens once — and needs no marker anybody has to remember to write.
+ */
+export function duoConfirmedNotice(name) {
+  return (
+    `Recorded: ${name} is a second person. Say ONCE, in their language: from here on each person's ` +
+    `day gets its own note instead of the two being merged, and a source you both meet is not stored ` +
+    `twice. Nothing to switch on, and nothing else changes.`
   );
 }
 
@@ -142,13 +199,13 @@ export function secondAuthorAnnouncement({ authors, me, announced, identities })
  * was. Mirrors buildUniverseHookOutput: `additionalContext` is the only channel
  * Claude Desktop shows, `systemMessage` carries the raw fact for the CLI.
  */
-export function buildAuthorsHookOutput({ reminder = null, announcement = null } = {}) {
-  if (!reminder && !announcement) return null;
+export function buildAuthorsHookOutput({ reminder = null, question = null } = {}) {
+  if (!reminder && !question) return null;
   const parts = [];
   if (reminder) parts.push(`[authors] ${reminder}`);
-  if (announcement) parts.push(`[authors — say this once] ${announcement}`);
+  if (question) parts.push(`[authors — ask, never guess] ${question}`);
   return {
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
-    systemMessage: [reminder, announcement].filter(Boolean).join("\n"),
+    systemMessage: [reminder, question].filter(Boolean).join("\n"),
   };
 }

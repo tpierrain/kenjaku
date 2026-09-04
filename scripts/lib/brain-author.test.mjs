@@ -7,10 +7,11 @@
 // user.name`, which git already writes into every commit this brain makes and
 // which the live sync already speaks aloud ("1 note from Claire arrived").
 //
-// What implicitness owes in exchange is not a switch, it is a SENTENCE: a brain
-// that quietly starts filing things differently is opaque. So the first time a
-// second author is seen, it says so once, offers to describe who is who — an offer
-// that activates nothing — and never mentions it again.
+// What implicitness owes in exchange is not a switch: a brain that quietly starts
+// filing things differently is opaque. It owed a SENTENCE, and step 8 found that
+// the sentence it was saying can be false — this brain compares git author names,
+// so an owner's second Mac and a colleague look exactly alike. So it owes a
+// QUESTION, asked until it is answered, and the answer is what silences it.
 // ─────────────────────────────────────────────────────────────────────────────
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -20,10 +21,11 @@ import {
   buildAuthorsHookOutput,
   canonicalAuthor,
   distinctAuthors,
+  duoConfirmedNotice,
   GIT_AUTHOR_ARGS,
   GIT_AUTHORS_ARGS,
   localAuthorName,
-  secondAuthorAnnouncement,
+  secondAuthorQuestion,
 } from "./brain-author.mjs";
 
 const ME = "Thomas Pierrain";
@@ -116,7 +118,7 @@ test("a machine whose git has no user name still gets the line, and is not named
 // every session announcing a person who does not exist.
 test("a nameless keyboard is not a second author — a solo brain stays silent on it", () => {
   assert.equal(authorsReminder({ authors: [ME, ME], me: null }), null);
-  assert.equal(secondAuthorAnnouncement({ authors: [ME], me: null, announced: false }), null);
+  assert.equal(secondAuthorQuestion({ authors: [ME], me: null }), null);
 });
 
 test("the name at the keyboard is tidied before it is shown, like every other name", () => {
@@ -159,63 +161,115 @@ test("three authors are all named with no count; the fourth is where counting st
   );
 });
 
-// ── The one-time announcement, and the offer that activates nothing ───────────
+// ── The question, and why it is a question ───────────────────────────────────
+//
+// 🛑 STEP 8. What used to stand here ASSERTED "a second person now writes here" —
+// a sentence this brain has no way of knowing is true. It compares git author
+// names, so an owner's second Mac is indistinguishable from a colleague. A brain
+// may FILE on a guess (a file in an unexpected place is visible and reversible);
+// it may not ASSERT one.
 
-test("the announcement fires once, for the first second author, and never again", () => {
-  const first = secondAuthorAnnouncement({ authors: [HER], me: ME, announced: false });
+test("an unplaced second name is a QUESTION, and it names the name", () => {
+  const asked = secondAuthorQuestion({ authors: [HER], me: ME });
 
-  assert.match(first, /once/i, "it is addressed to the human, in their language, exactly one time");
-  assert.match(first, /own/, "it says what actually changes: each person's day gets its own note");
-  assert.match(first, /twice/, "and that a shared source is not stored twice");
-  assert.equal(secondAuthorAnnouncement({ authors: [HER], me: ME, announced: true }), null);
+  assert.match(asked, new RegExp(HER), "the human cannot answer about a name they were not shown");
+  assert.match(asked, /someone else/i);
+  assert.match(asked, /another machine/i);
+  assert.match(asked, /ask/i, "it is put to the human, not decided");
+  assert.match(asked, /never guess|do not guess/i);
 });
 
-test("the announcement never fires on a brain with one author", () => {
-  assert.equal(secondAuthorAnnouncement({ authors: [ME], me: ME, announced: false }), null);
+test("the question carries the exact way to record either answer", () => {
+  const asked = secondAuthorQuestion({ authors: [HER], me: ME });
+
+  assert.match(asked, /scripts\/author-identity\.mjs/, "an answer nobody can record is a question asked forever");
+  assert.match(asked, /--same-person/);
+  assert.match(asked, /--different/);
 });
 
-// 🛑 4.3ter: the offer must be declinable at no cost. If declining changed anything,
-// it would be a switch wearing the clothes of a question — the exact thing the
-// owner's call rejected.
-test("the offer is explicitly optional, and declining is said to change nothing", () => {
-  const said = secondAuthorAnnouncement({ authors: [HER], me: ME, announced: false });
+test("nothing is asked on a brain with one author", () => {
+  assert.equal(secondAuthorQuestion({ authors: [ME], me: ME }), null);
+});
 
-  assert.match(said, /offer/i);
-  assert.match(said, /declin/i);
-  assert.match(said, /nothing|no behaviour/i);
+// 🛑 THE ANSWER IS WHAT SILENCES IT, and both answers do. A design that only
+// remembered "yes, it's me" would ask an honest duo the same question at every
+// session start for the life of their brain — punishing the true answer.
+test("a confirmed second person is never asked about again", () => {
+  assert.equal(secondAuthorQuestion({ authors: [HER], me: ME, distinct: [HER] }), null);
+  assert.equal(
+    secondAuthorQuestion({ authors: [HER], me: ME, distinct: ["  claire   DUBOIS "] }),
+    null,
+    "matched by slug, like every other name here",
+  );
+});
+
+test("a fused machine is never asked about either, and a third name still is", () => {
+  const identities = [{ name: ME, aka: ["tpierrain"] }];
+
+  assert.equal(secondAuthorQuestion({ authors: ["tpierrain"], me: ME, identities }), null);
+  assert.match(secondAuthorQuestion({ authors: ["tpierrain", HER], me: ME, identities }), new RegExp(HER));
+});
+
+test("two unplaced names are asked about together, in one question", () => {
+  const asked = secondAuthorQuestion({ authors: [HER, "Amina Haddad"], me: ME });
+
+  assert.match(asked, /Claire Dubois, Amina Haddad/);
+});
+
+// A brain whose git has no user.name cannot ask "or YOU on another machine?" — it
+// does not know who "you" is — and could not record the answer either, since a
+// fusion needs a canonical name to fuse INTO. Silence beats an unanswerable question.
+test("with no name at this keyboard, nothing is asked", () => {
+  assert.equal(secondAuthorQuestion({ authors: [HER, "Amina Haddad"], me: null }), null);
+});
+
+// ── What is said once the answer is "yes, that is somebody else" ─────────────
+//
+// The explanation duo mode owes moved HERE, from the guess to the confirmation:
+// it is printed by the entry point that records the answer, so it is said exactly
+// once by construction and needs no marker to remember it.
+
+test("a confirmed duo is told what changes, once, and that nothing had to be switched on", () => {
+  const said = duoConfirmedNotice(HER);
+
+  assert.match(said, new RegExp(HER));
+  assert.match(said, /once/i, "it is addressed to the human, in their language, exactly one time");
+  assert.match(said, /own/, "it says what actually changes: each person's day gets its own note");
+  assert.match(said, /twice/, "and that a shared source is not stored twice");
+  assert.match(said, /nothing to switch on|switch on/i);
 });
 
 // ── The hook output ───────────────────────────────────────────────────────────
 
 test("nothing to say produces no output at all, so a solo brain's session start is untouched", () => {
-  assert.equal(buildAuthorsHookOutput({ reminder: null, announcement: null }), null);
+  assert.equal(buildAuthorsHookOutput({ reminder: null, question: null }), null);
   assert.equal(buildAuthorsHookOutput({}), null);
 });
 
 // The exact block, both halves, both channels: this is what a CLI owner reads verbatim,
 // so its punctuation and its separation are part of the behaviour rather than around it.
 test("what there is to say rides additionalContext, the only channel Claude Desktop shows", () => {
-  const out = buildAuthorsHookOutput({ reminder: "R", announcement: "A" });
+  const out = buildAuthorsHookOutput({ reminder: "R", question: "Q" });
 
   assert.deepEqual(out, {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
-      additionalContext: "[authors] R\n\n[authors — say this once] A",
+      additionalContext: "[authors] R\n\n[authors — ask, never guess] Q",
     },
-    systemMessage: "R\nA",
+    systemMessage: "R\nQ",
   });
 });
 
 // Each half alone must carry ONLY itself: a block that printed "[authors] null" would
 // still match a test looking for the other half.
-test("the reminder alone is enough to emit, and so is the announcement alone", () => {
+test("the reminder alone is enough to emit, and so is the question alone", () => {
   const reminderOnly = buildAuthorsHookOutput({ reminder: "R" });
   assert.equal(reminderOnly.hookSpecificOutput.additionalContext, "[authors] R");
   assert.equal(reminderOnly.systemMessage, "R");
 
-  const announcementOnly = buildAuthorsHookOutput({ announcement: "A" });
-  assert.equal(announcementOnly.hookSpecificOutput.additionalContext, "[authors — say this once] A");
-  assert.equal(announcementOnly.systemMessage, "A");
+  const questionOnly = buildAuthorsHookOutput({ question: "Q" });
+  assert.equal(questionOnly.hookSpecificOutput.additionalContext, "[authors — ask, never guess] Q");
+  assert.equal(questionOnly.systemMessage, "Q");
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -238,11 +292,20 @@ test("the line stays short however many people write here — names stop at thre
 
 test("the whole payload stays under what an owner reads before typing a word", () => {
   const reminder = authorsReminder({ authors: MANY, me: ME });
-  const announcement = secondAuthorAnnouncement({ authors: MANY, me: ME, announced: false });
-  const { additionalContext } = buildAuthorsHookOutput({ reminder, announcement }).hookSpecificOutput;
+  const question = secondAuthorQuestion({ authors: MANY, me: ME });
+  const { additionalContext } = buildAuthorsHookOutput({ reminder, question }).hookSpecificOutput;
 
-  assert.ok(announcement.length <= 280, `the one-time sentence is ${announcement.length} chars`);
-  assert.ok(additionalContext.length <= 600, `the whole block is ${additionalContext.length} chars`);
+  assert.ok(question.length <= 420, `the question is ${question.length} chars`);
+  assert.ok(additionalContext.length <= 760, `the whole block is ${additionalContext.length} chars`);
+});
+
+// The question names at most three, like the line above it. Five unplaced names is a
+// brain somebody handed round a team, and a roll call is not a question anyone answers.
+test("the question stops naming at three and counts the rest", () => {
+  const asked = secondAuthorQuestion({ authors: MANY, me: ME });
+
+  assert.match(asked, /Claire Dubois, Amina Haddad, Lena Fischer \+2/);
+  assert.doesNotMatch(asked, /Marco Rossi/);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -321,10 +384,7 @@ test("a solo owner with two Macs, once confirmed, goes back to complete silence"
     null,
     "including when the OTHER Mac is the one at the keyboard",
   );
-  assert.equal(
-    secondAuthorAnnouncement({ authors: [ME, ME_ON_THE_OTHER_MAC], me: ME, identities: IDENTITIES, announced: false }),
-    null,
-  );
+  assert.equal(secondAuthorQuestion({ authors: [ME, ME_ON_THE_OTHER_MAC], me: ME, identities: IDENTITIES }), null);
 });
 
 // And the converse, so the fix cannot be "stay silent more often": a genuine duo
@@ -334,8 +394,5 @@ test("a real second person is still counted, announced and named, registry or no
 
   assert.match(line, /^More than one person writes here \(Thomas Pierrain, Claire Dubois\)\./);
   assert.doesNotMatch(line, new RegExp(ME_ON_THE_OTHER_MAC), "the alias is not a third name in the list");
-  assert.match(
-    secondAuthorAnnouncement({ authors: [ME, HER], me: ME, identities: IDENTITIES, announced: false }),
-    /once/i,
-  );
+  assert.match(secondAuthorQuestion({ authors: [ME, HER], me: ME, identities: IDENTITIES }), new RegExp(HER));
 });

@@ -5,91 +5,110 @@
 // Two obligations, and they are different in kind:
 //   • EVERY session past the gate gets the line, because a session that does not
 //     know who is at the keyboard composes a colliding path;
-//   • ONE session in the brain's life gets the announcement, because implicitness
-//     owes the human a sentence and owes it exactly once.
+//   • an unplaced second name gets a QUESTION, every session UNTIL IT IS ANSWERED
+//     (step 8) — because the brain compares git author names and nothing else, so
+//     it cannot tell an owner's second Mac from a colleague, and a question asked
+//     once and ignored once would leave that wrong guess standing for good.
 //
 // Below two authors: nothing at all, not even an empty payload. A solo owner's
 // session start must be byte-identical to what it was.
 //
 // Contract, like every session hook: fail-open, ALWAYS exit 0. A brain whose git
-// history cannot be read still opens.
+// history cannot be read still opens. And this hook WRITES NOTHING: what it used to
+// remember per machine (`.cache/second-author-announced`) is now the answer itself,
+// in `.vault-rag/authors.json`, which travels to the other machine.
 // ─────────────────────────────────────────────────────────────────────────────
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ANNOUNCED_REL, sessionAuthorsNotice } from "./session-authors.mjs";
+import { sessionAuthorsNotice } from "./session-authors.mjs";
 
 const ME = "Thomas Pierrain";
+const MY_OTHER_MAC = "tpierrain";
 const HER = "Claire Dubois";
 
 function fakeDeps(overrides = {}) {
   const emitted = [];
-  const marked = [];
   return {
     deps: {
       authors: () => overrides.authors ?? [],
       me: () => (overrides.me === undefined ? ME : overrides.me),
-      announced: () => overrides.announced ?? false,
-      markAnnounced: () => marked.push(true),
+      state: () => overrides.state ?? { identities: [], distinct: [] },
       emit: (o) => emitted.push(o),
     },
     emitted,
-    marked,
   };
 }
 
-test("a brain with one author emits nothing and marks nothing", () => {
-  const { deps, emitted, marked } = fakeDeps({ authors: [ME, ME] });
+test("a brain with one author emits nothing at all", () => {
+  const { deps, emitted } = fakeDeps({ authors: [ME, ME] });
 
   assert.equal(sessionAuthorsNotice(deps), 0);
   assert.deepEqual(emitted, []);
-  assert.deepEqual(marked, [], "there is nothing to have announced, so nothing is remembered");
 });
 
-test("a second author: the line rides every session, the announcement rides this one", () => {
-  const { deps, emitted, marked } = fakeDeps({ authors: [HER, ME] });
+test("an unplaced second name: the line rides every session, and so does the question", () => {
+  const { deps, emitted } = fakeDeps({ authors: [HER, ME] });
 
   assert.equal(sessionAuthorsNotice(deps), 0);
   assert.equal(emitted.length, 1);
   const context = emitted[0].hookSpecificOutput.additionalContext;
   assert.match(context, /more than one person/i);
-  assert.match(context, /say this once/i);
-  assert.deepEqual(marked, [true], "and it is remembered, so the next session stays quiet about it");
+  assert.match(context, /never guess/i);
+  assert.match(context, new RegExp(HER));
 });
 
-test("once announced, the line stays and the announcement is gone for good", () => {
-  const { deps, emitted, marked } = fakeDeps({ authors: [HER, ME], announced: true });
+test("once the answer is 'that is a second person', the line stays and the question stops", () => {
+  const { deps, emitted } = fakeDeps({ authors: [HER, ME], state: { identities: [], distinct: [HER] } });
 
   sessionAuthorsNotice(deps);
 
   const context = emitted[0].hookSpecificOutput.additionalContext;
   assert.match(context, /more than one person/i);
-  assert.doesNotMatch(context, /say this once/i);
-  assert.deepEqual(marked, [], "a marker already set is not rewritten at every session start");
+  assert.doesNotMatch(context, /never guess/i, "an answered question is not asked again");
+});
+
+// 🛑 THE DEFECT THE RELEASE WAS HELD ON, at the hook that says it out loud: one
+// person, two Macs, one answer given — and the brain goes completely quiet.
+test("once the answer is 'that is me on my other Mac', the whole notice disappears", () => {
+  const { deps, emitted } = fakeDeps({
+    authors: [MY_OTHER_MAC, ME],
+    state: { identities: [{ name: ME, aka: [MY_OTHER_MAC] }], distinct: [] },
+  });
+
+  assert.equal(sessionAuthorsNotice(deps), 0);
+  assert.deepEqual(emitted, [], "a solo owner's session start is byte-identical to what it was");
 });
 
 // 🛑 FAIL-OPEN. Session start belongs to the owner, not to this hook: anything that
 // goes wrong here costs the notice, never the session.
-test("git that cannot be read, and a marker that cannot be written, both cost only the notice", () => {
-  const unreadable = fakeDeps();
-  unreadable.deps.authors = () => {
+test("git that cannot be read costs the notice, and nothing else", () => {
+  const { deps, emitted } = fakeDeps();
+  deps.authors = () => {
     throw new Error("not a git repository");
   };
-  assert.equal(sessionAuthorsNotice(unreadable.deps), 0);
-  assert.deepEqual(unreadable.emitted, []);
 
-  const unwritable = fakeDeps({ authors: [HER, ME] });
-  unwritable.deps.markAnnounced = () => {
+  assert.equal(sessionAuthorsNotice(deps), 0);
+  assert.deepEqual(emitted, []);
+});
+
+// A registry that cannot be read is "no answer yet", never "no notice": the safe
+// reading of an unreadable answer is to ask again, which costs one line, where the
+// other way round costs a brain that silently files a stranger's notes as the owner's.
+test("a registry that cannot be read costs the fusion, never the question", () => {
+  const { deps, emitted } = fakeDeps({ authors: [HER, ME] });
+  deps.state = () => {
     throw new Error("EACCES");
   };
-  assert.equal(sessionAuthorsNotice(unwritable.deps), 0);
-  assert.equal(unwritable.emitted.length, 1, "the sentence still gets out; only the memory of it is lost");
+
+  assert.equal(sessionAuthorsNotice(deps), 0);
+  assert.match(emitted[0].hookSpecificOutput.additionalContext, /never guess/i);
 });
 
 // The person who just cloned has committed nothing. Counting only the history would
@@ -144,51 +163,58 @@ test("as a process on a one-author brain, it says nothing and exits 0", (t) => {
   assert.equal(answer.stdout.trim(), "", "a solo brain's session start is untouched");
 });
 
-test("as a process on a two-author brain, it emits the SessionStart payload, and the sentence only once", (t) => {
+test("as a process on a two-author brain, it emits the payload — and keeps asking until answered", (t) => {
   const root = brainRepo(t, [ME, HER]);
-  // 🛑 `.cache/` already exists, which is the ordinary state of any brain the sync has
-  // ever ticked in. A non-recursive mkdir throws EEXIST here, the marker is never
-  // written, and the sentence said "once" is said at every session start forever.
-  mkdirSync(join(root, ".cache"), { recursive: true });
 
   const first = run(root);
   assert.equal(first.status, 0, first.stderr);
   const payload = JSON.parse(first.stdout);
   assert.equal(payload.hookSpecificOutput.hookEventName, "SessionStart");
   assert.match(payload.hookSpecificOutput.additionalContext, new RegExp(HER));
-  assert.match(payload.hookSpecificOutput.additionalContext, /say this once/i);
+  assert.match(payload.hookSpecificOutput.additionalContext, /never guess/i);
   // The name at the keyboard comes from THIS repository's git config, and this is the
   // only test that reaches that wiring: every other one injects it.
   assert.match(payload.hookSpecificOutput.additionalContext, new RegExp(`At this keyboard: ${ME}\\.`));
-
-  // And the marker lands in the brain's OWN `.cache/`, not one folder deeper: the hook
-  // roots itself on its file location, and getting that wrong writes a marker nothing
-  // will ever read back — so the sentence would be said again at every session.
-  assert.ok(existsSync(join(root, ANNOUNCED_REL)), `no marker at ${ANNOUNCED_REL}`);
 
   const second = run(root);
   assert.equal(second.status, 0, second.stderr);
   const again = JSON.parse(second.stdout).hookSpecificOutput.additionalContext;
   assert.match(again, /more than one person/i, "the line every session needs is still there");
-  assert.doesNotMatch(again, /say this once/i, "and the sentence said once stays said");
+  assert.match(again, /never guess/i, "and an unanswered question is asked again, or it never gets answered");
 });
 
-// A marker left blank by an interrupted write remembers nothing, and the safe reading of
-// nothing is to say the sentence again — at worst twice, where the other way round the
-// human never hears it at all.
-test("as a process, a blank marker means the sentence was never said", (t) => {
-  const root = brainRepo(t, [ME, HER]);
-  mkdirSync(join(root, dirname(ANNOUNCED_REL)), { recursive: true });
-  writeFileSync(join(root, ANNOUNCED_REL), "  \n");
+// 🛑 THE WIRING THIS FILE OWNS, end to end: the registry is read from the brain's OWN
+// `.vault-rag/`, resolved from the hook's file location. Read it from anywhere else and
+// the answer the owner gave is on disk, correct, and never consulted.
+test("as a process, an answered brain reads its registry and goes silent", (t) => {
+  const root = brainRepo(t, [ME, MY_OTHER_MAC]);
+  mkdirSync(join(root, ".vault-rag"), { recursive: true });
+  writeFileSync(
+    join(root, ".vault-rag", "authors.json"),
+    `${JSON.stringify({ identities: [{ name: ME, aka: [MY_OTHER_MAC] }], distinct: [] }, null, 2)}\n`,
+  );
 
   const answer = run(root);
 
-  assert.match(JSON.parse(answer.stdout).hookSpecificOutput.additionalContext, /say this once/i);
+  assert.equal(answer.status, 0, answer.stderr);
+  assert.equal(answer.stdout.trim(), "", "one owner, two Macs, one answer given: complete silence");
 });
 
-// 🛑 The marker is per machine and must never travel: the other machine has its own
-// first session to announce, and a committed marker would silence it.
-test("as a process, the marker it writes leaves the repository clean", (t) => {
+test("as a process, a registry damaged by hand costs the fusion and not the session", (t) => {
+  const root = brainRepo(t, [ME, MY_OTHER_MAC]);
+  mkdirSync(join(root, ".vault-rag"), { recursive: true });
+  writeFileSync(join(root, ".vault-rag", "authors.json"), "{ half-written");
+
+  const answer = run(root);
+
+  assert.equal(answer.status, 0, answer.stderr);
+  assert.match(JSON.parse(answer.stdout).hookSpecificOutput.additionalContext, /never guess/i);
+});
+
+// 🛑 THIS HOOK WRITES NOTHING. It used to leave a per-machine marker; the memory is
+// now the ANSWER, and the answer is written by the entry point the human's reply
+// triggers. A session start that dirties the tree makes the next tick defer.
+test("as a process, it leaves the repository exactly as it found it", (t) => {
   const root = brainRepo(t, [ME, HER]);
   copyFileSync(join(HERE, "..", ".gitignore"), join(root, ".gitignore"));
   gitIn(root)("add", "-A");
@@ -196,7 +222,7 @@ test("as a process, the marker it writes leaves the repository clean", (t) => {
 
   run(root);
 
-  assert.equal(gitIn(root)("status", "--porcelain").stdout.trim(), "");
+  assert.equal(gitIn(root)("status", "--porcelain").stdout.trim(), "", "no marker, no trace, nothing");
 });
 
 test("as a process outside a git repository, it exits 0 and says nothing", (t) => {

@@ -1,67 +1,78 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
 // session-authors.mjs — SessionStart hook: once a brain has more than one author,
-// every session learns who is at the keyboard, and ONE session in the brain's life
-// says so out loud (plan steps 4.3, 4.3bis).
+// every session learns who is at the keyboard, and a name nobody has placed yet is
+// PUT TO THE HUMAN AS A QUESTION (plan steps 4.3, 4.3bis, then 8.4).
 //
 // Duo mode is implicit: nothing to switch on, no profile to fill in, no list of
 // people to maintain. The names come from git history and from `git config --get
 // user.name` — both of which this brain already writes into every commit it makes.
 // Reading them is not collecting them.
 //
-// What implicitness owes back is a sentence, not a setting: a brain that quietly
-// starts filing things differently is opaque. So the first time a second author is
-// seen, the brain says it once, offers to describe who is who — an offer that
-// activates nothing and whose refusal changes no behaviour — and never mentions it
-// again. The "said it" marker is per machine, under `.cache/`, beside the sync's own.
+// What implicitness owes back is not a setting, and step 8 found it is not a
+// sentence either: the sentence this hook used to emit ASSERTED a second person,
+// which is something git author names cannot establish — one owner's two Macs look
+// exactly like two people. So it asks, and it asks at EVERY session start until the
+// answer is recorded. There is no per-machine "said it" marker any more: the memory
+// is the answer itself, in `.vault-rag/authors.json`, and that one travels to the
+// other machine — which is the whole point, since the question is about that machine.
 //
 // Below two authors it emits nothing at all, not even an empty payload: a solo
 // owner's session start must be byte-identical to what it was (ADR 0034's doctrine).
 //
-// Contract, like every session hook: fail-open, ALWAYS exit 0. Cross-OS: pure Node
-// plus git. Wired in `.claude/settings.json.template`.
+// Contract, like every session hook: fail-open, ALWAYS exit 0, and it WRITES NOTHING.
+// Cross-OS: pure Node plus git. Wired in `.claude/settings.json.template`.
 // ─────────────────────────────────────────────────────────────────────────────
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { readAuthorsState } from "./lib/author-identities.mjs";
 import {
   authorsReminder,
   buildAuthorsHookOutput,
   GIT_AUTHORS_ARGS,
   localAuthorName,
-  secondAuthorAnnouncement,
+  secondAuthorQuestion,
 } from "./lib/brain-author.mjs";
 import { defaultGit } from "./lib/engine-fetch.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { vaultRagDir } from "./lib/universes.mjs";
 
-/** Per machine, never committed: the other machine has its own first session to announce. */
-export const ANNOUNCED_REL = join(".cache", "second-author-announced");
+/** The registry of a brain nobody has answered for yet — and of one whose answers cannot be read. */
+const NO_ANSWERS = { identities: [], distinct: [] };
 
 /**
  * The testable core. Every seam is injected, because the two things worth pinning
- * here are exactly the ones a real run hides: that the announcement fires ONCE, and
- * that nothing at all is emitted below two authors.
+ * here are exactly the ones a real run hides: that an unplaced name is ASKED about
+ * rather than announced, and that nothing at all is emitted below two authors.
  *
- * Fail-open in every direction: a git history that cannot be read costs the notice,
- * and a marker that cannot be written costs only the MEMORY of the notice — the
- * sentence still gets out, which is the half the human needs.
+ * Fail-open in every direction, and in the right direction each time: a git history
+ * that cannot be read costs the notice, while a REGISTRY that cannot be read costs
+ * only the answers it held. Unreadable answers mean "not answered yet", so the
+ * question comes back — one line, against a brain that would otherwise keep filing
+ * on a guess the owner had already corrected.
  */
-export function sessionAuthorsNotice({ authors, me, announced, markAnnounced, emit }) {
+export function sessionAuthorsNotice({ authors, me, state, emit }) {
   let output = null;
   try {
     const seen = authors();
     const here = me();
-    const reminder = authorsReminder({ authors: seen, me: here });
-    const announcement = secondAuthorAnnouncement({ authors: seen, me: here, announced: announced() });
-    output = buildAuthorsHookOutput({ reminder, announcement });
-    if (output && announcement) {
-      try {
-        markAnnounced();
-      } catch {
-        // The sentence is worth more than the memory of it. Worst case it is said twice.
-      }
+    let answers = NO_ANSWERS;
+    try {
+      answers = state();
+    } catch {
+      // Kept deliberately narrow: only the registry read falls back here, so a
+      // failure below still costs the whole notice rather than half of one.
     }
+    const reminder = authorsReminder({ authors: seen, me: here, identities: answers.identities });
+    const question = secondAuthorQuestion({
+      authors: seen,
+      me: here,
+      identities: answers.identities,
+      distinct: answers.distinct,
+    });
+    output = buildAuthorsHookOutput({ reminder, question });
   } catch {
     // Fail-open: session start belongs to the owner, not to this hook. Nothing was
     // built, so `output` is still null, nothing is emitted, and the 0 below is the
@@ -78,7 +89,6 @@ runAsEntrypoint(import.meta.url, process.argv, () => {
   // about somewhere else (the blindness locale-drift.mjs was bitten by).
   const brainDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const git = (args) => defaultGit(["-C", brainDir, ...args]);
-  const marker = join(brainDir, ANNOUNCED_REL);
 
   return sessionAuthorsNotice({
     authors: () => {
@@ -89,20 +99,10 @@ runAsEntrypoint(import.meta.url, process.argv, () => {
       return log.out.split("\n");
     },
     me: () => localAuthorName(git),
-    announced: () => {
-      try {
-        // "Has content", not "differs from the empty string": a marker left blank by an
-        // interrupted write says nothing was announced, and the safe reading of nothing
-        // is to say it (at worst twice) rather than to stay silent for good.
-        return readFileSync(marker, "utf8").trim().length > 0;
-      } catch {
-        return false; // never announced, or unreadable → say it (at worst, twice).
-      }
-    },
-    markAnnounced: () => {
-      mkdirSync(dirname(marker), { recursive: true });
-      writeFileSync(marker, `${new Date().toISOString()}\n`);
-    },
+    // Rooted on the brain, like the git calls above: read from anywhere else and the
+    // answer the owner gave sits on disk, correct, and is never consulted.
+    state: () =>
+      readAuthorsState({ existsSync, readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(brainDir)),
     // additionalContext is the ONLY Desktop-visible channel — see buildAuthorsHookOutput.
     emit: (output) => process.stdout.write(`${JSON.stringify(output)}\n`),
   });

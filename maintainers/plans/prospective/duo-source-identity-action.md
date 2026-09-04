@@ -521,13 +521,23 @@ This is the honest statement of the perimeter.
       class of unfixable-wrong-answer the step exists against. The 26th test is a fixture correction
       kept as its own case: `thomas.pierrain` and `Thomas Pierrain` are ALREADY one name here, because
       a slug is what this brain compares.
-- [ ] **8.4** **The announcement becomes the question**: `secondAuthorAnnouncement` stops asserting
+- [x] **8.4** _(2026-09-04, `brain-author.mjs` + `session-authors.mjs`, 40 + 13 tests)_ **The
+      announcement becomes the question**: `secondAuthorAnnouncement` stops asserting
       *"a second person now writes here"* and asks *"I see a second name, X — someone else, or you on
       another machine?"*. Until answered, filing keeps today's protective behaviour (a real duo that
       never answers is still protected), and the question is asked at session start, **before** the
       day's first note, so the false-positive case never gets a split note at all. **Renamed
       `secondAuthorQuestion`**, because a caller reading `…Announcement` would be reading a lie about
       what it now returns.
+      ✅ **Done, and the per-machine marker is gone with it** — `.cache/second-author-announced` and
+      its `markAnnounced` seam are deleted, so **this hook now writes nothing at all** (its own test
+      says so: a session start that dirties the tree makes the next sync tick defer). Two things the
+      writing added to the design: the question **names at most three** unplaced names and counts the
+      rest, like the line above it — five is a brain handed round a team, and a roll call is not a
+      question anybody answers — and **a registry that cannot be read costs only the answers**, not
+      the notice, because unreadable answers must read as *not answered yet*. The prose duo mode owed
+      is not lost: it moved into `duoConfirmedNotice`, which 8.5 prints at the moment the answer makes
+      it true.
 - [ ] **8.5** **The way the answer is recorded**: an entry point the agent calls (`--same-person` /
       `--different`), which writes `authors.json` and commits + pushes it **scoped**, reusing the
       universe switch's own machinery (`universe-persist.mjs`) rather than a second one. That reuse
