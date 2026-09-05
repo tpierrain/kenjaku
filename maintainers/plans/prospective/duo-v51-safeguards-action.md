@@ -172,7 +172,7 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   DETACHED** (`nohup … &` + `disown`, redirecting to the log) so no tool timeout can reach it, then
   watch the log for the runner's own ✅/❌ line. **Orphans were checked immediately after the kill:
   none** — the kill took the whole process group with it, unlike an interrupted run's spinners.
-- ⏳ **BATCH A IS RUNNING, on `a5a1cee`** _(relaunched 2026-09-05 23:19 detached, ~1 h, log
+- ⏳ **BATCH A IS RUNNING, on `a89af5a`** _(relaunched 2026-09-05 23:19 detached, ~1 h, log
   `reports/v510-95-batch-a5.stdout.log`; the machine was checked for orphans first, none)_. The
   instrument is sound again — the flaky test is deleted, and the whole suite is green under load.
   **Read the runner's own ✅/❌ line and the wall-clock, never "is the process still alive"**: a starved
