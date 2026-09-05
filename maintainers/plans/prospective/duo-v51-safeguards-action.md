@@ -21,6 +21,14 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 > **one at a time and detached**. Everything else about the release is green, pushed and CI-read
 > through `e4b4032`. The only thing waiting on the owner is the ❓ entry below (the second waiter), and
 > it blocks nothing.
+>
+> 🌙 **OVERNIGHT, 2026-09-06 00:00.** A session is watching that run to its end and will carry on with
+> its survivors, then batches B, C and D, one at a time and detached. Checked at 00:00: the run is
+> alive and 41 min in, the machine is on AC, a `caffeinate -ims` holds sleep off, and **one** orphan
+> spinner is left, which is the 30 s deadline of `e34cbb8` doing its job where 60 had piled up before
+> it. **The one thing the machine owes the run is to stay awake: `caffeinate` does not survive a closed
+> lid**, and a sleeping laptop does not kill a mutation run, it starves it into a number that looks
+> like a result.
 
 - ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED, CI READ AND GREEN ON EVERY COMMIT** _(2026-09-05)_
   — the whole suite (3157 tests) and the duo rehearsal (16/16) pass on each. **ONLY 9.5 REMAINS.**
