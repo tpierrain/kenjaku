@@ -28,6 +28,9 @@ Links only — each one's own `## 📍 STATE` block says whose it is and where i
   its queued items come due now that the tag is cut.
 - [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)
   — read before v5.1's universe group; it says why universe changes keep escaping green suites.
+- [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
+  — held until the v5.1.0 tag: the 81-minute mutation run, the weak first pass, the plans read as plans
+  when they are records.
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that
