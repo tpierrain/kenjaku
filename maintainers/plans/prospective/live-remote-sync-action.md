@@ -127,7 +127,15 @@ the rehearsal against a copy of a real brain.
 > _(This block used to say 8.8 was outstanding; it was, until that morning.)_ **Nothing on either plan
 > is owed by a session before the tag.**
 >
-> 🐛 **THE BARRIER THIS PLAN BUILT HAD A HOLE, FOUND AND FIXED 2026-09-05** _(`045bd3f`)_. Steps 5–7
+> 🧭 **AND THEN THE BARRIER ITSELF WAS REMOVED** _(2026-09-05, the owner's call: *"enlève l'attente"*)_.
+> The fix below was **reverted** (`162ec93`) — both repairs of the race broke something worse than the
+> race — and the universe hook now **announces what is on disk at once**, with a switch that arrives
+> afterwards corrected at the owner's next message. Steps 5–7 of this plan describe a wait that **no
+> longer exists**; they are kept as the record of what it was for. The live state, the measurements
+> and what replaced it are in [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md).
+>
+> 🐛 **~~THE BARRIER THIS PLAN BUILT HAD A HOLE, FOUND AND FIXED 2026-09-05~~** _(`045bd3f`, since
+> reverted — read the block above first)_. Steps 5–7
 > above record the wait that stops the universe announcement from running ahead of the pull, and record
 > it as proven. It was proven only for the case where the hook **wins** the race against the harness
 > writing its payload to fd 0. It did not always win, and when it lost it announced the pre-pull

@@ -46,7 +46,7 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     the expected duration.
   - **This is exactly why `mutate-one.mjs` fails a run on its timeout ratio** rather than printing a
     score. Without that guard, 96.32 % goes into the register and nobody ever finds out.
-- 🛑🛑 **STOP — THE INSTRUMENT IS BROKEN, AND IT IS A PRODUCTION DEFECT, NOT A TEST NUISANCE**
+- 🛑🛑 **~~STOP — THE INSTRUMENT IS BROKEN~~ — RESOLVED by removing the wait, kept for the WHY**
   _(2026-09-05 14:49, found because batch B's relaunch died in 1 min instead of running an hour)_.
   Stryker refused to start: **`There were failed tests in the initial test run`** — one test red out of
   3163, `session-universe.test.mjs:334`, *"the universe hook waits for the startup pull, and announces
@@ -88,25 +88,28 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     first thing to look at when a run is slow** — not just for the runner, for what else is alive.
   - 🧹 **Before any measurement: check for orphans.** `ps aux | grep input-type=module`. A run started
     on a machine already at load 200 measures nothing.
-- ✅ **THE OWNER'S CALL IS IN, 2026-09-05: *"enlève l'attente"*.** The barrier goes; a session start
-  never blocks on the network. **This is the next work, and it has two halves — shipping only the first
-  would silently LOSE the information instead of delaying it**:
-  1. **Remove the wait.** `session-universe.mjs:164` drops its `waitForStartupSync` call and announces
-     what is on disk at once. ⚠️ **A second waiter exists and was not part of his question**:
-     `session-engine-divergence.mjs:63` (`awaitStartupSync`). Same shape, same tension with ADR 0028 —
-     put it to him rather than assume; a stale read there produces a *false* "your engine is behind".
-  2. **Say it at the next message when the universe changed.** The correction channel exists
-     (`prompt-restart-nudge.mjs` → `remote-arrivals.mjs`, the directive that rides the next prompt) but
-     it announces **files**: the pointer arriving would read as *"1 other file"*, which tells the owner
-     nothing. **Design settled, not yet written**: a `universeArrivalDirective` that fires when
-     `.vault-rag/active-universe` is among the arrived files, reads the pointer, and names the universe
-     now in force. Keyed on the **arrival** rather than on a remembered value, so a local `/switch`
-     never triggers a false correction, and git only lists the pointer when its content really changed.
-     It leads the message: a correction of something already said comes before the news.
-  3. **The flake dies with the barrier** — `session-universe.test.mjs:334` exists only to prove the
-     wait happens. It is replaced by its opposite: with a puller wired and the marker still *running*,
-     the hook must answer **promptly** and announce what is on disk. **That unblocks 9.5**: no mutation
-     score is trustworthy while a test fails 1 run in 8.
+- ✅✅ **THE OWNER'S CALL IS IN AND IT IS SHIPPED, 2026-09-05: *"enlève l'attente"*** _(green: whole
+  suite 3180 pass / 0 fail / 3 pre-existing skips, duo rehearsal 16/16)_. All three halves landed in
+  one commit, because shipping only the first would LOSE the information instead of delaying it:
+  1. ✅ **The wait is gone.** `session-universe.mjs` no longer imports the gate at all: it announces
+     what is on disk at once, and reads no stdin, so nothing about it can block a session start.
+  2. ✅ **The correction rides the next message.** `universeArrivalDirective` (in
+     `lib/remote-arrivals.mjs`) fires when `.vault-rag/active-universe` is among the arrived files,
+     reads the pointer **through the validated reader** (an orphan pointer names the default scope,
+     not a ghost), and **leads** the message. The pointer is also **lifted out of the file list**, or
+     it would have been announced as *"1 other file"*, which tells the owner nothing.
+  3. ✅ **The flake is gone with the barrier.** The old test is **deleted, not skipped**, and replaced
+     by its opposite, **twice**: with the pull still *running* the hook must answer promptly, once
+     with the payload handed over instantly (the case where the barrier really held — this one failed
+     red before the change, at the 8 s kill) and once with a stdin nobody ever writes (which would
+     catch any future "repair" that blocks on fd 0). **9.5 is unblocked.**
+- ❓ **THE ONE THING THAT IS THE OWNER'S TO ANSWER, AND NOTHING IS BLOCKED ON IT.** A **second waiter**
+  exists and was never part of his question: `session-engine-divergence.mjs:63` (`awaitStartupSync`,
+  now the last caller of the barrier). Same shape, same tension with ADR 0028 — but the failure mode is
+  different, and that is why it is not decided by analogy: a stale read there announces a **false**
+  *"your engine is behind"* rather than a stale universe. Keep its wait, or remove it the same way?
+  Recorded in the code itself (`startup-sync-gate.mjs`, both ⚠️ blocks) so the next reader meets the
+  question where the wait is.
 - 🛑🛑 **THE FIX WAS REVERTED, AND WHAT REPLACES IT IS A QUESTION FOR THE OWNER** _(2026-09-05,
   `162ec93`)_. Both repairs of the stdin race break something that outranks the race, and the
   constraint they break is **already written down**: **ADR 0028** — *"the check must **never slow
@@ -119,7 +122,8 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     stdin. In production that shape is a **hung session start**, far worse than a stale announcement.
   - **Unblocking fd 0 deliberately + polling a 200 ms budget** stays fast and **still misses the
     payload** (probe: 200 ms late → stale universe announced anyway).
-- ❗ **THE REAL SUBJECT IS THE BARRIER ITSELF, AND IT IS BIGGER THAN THE RACE.** `waitForStartupSync`
+- ❗ **~~THE REAL SUBJECT IS THE BARRIER ITSELF~~ — ANSWERED AND SHIPPED, kept for the reasoning.**
+  The call above is the answer to this block: announce-then-correct won. `waitForStartupSync`
   makes the universe hook **wait for the git pull to finish** before it reads which universe is active:
   grace 3 s, **ceiling 12 s**. That is a session start that blocks on the network, shipped in this
   release, and it is in direct tension with ADR 0028. **The race is only what happens when that wait is
@@ -129,16 +133,17 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     disk **instantly**, let the pull land in the background, and **correct at the next message** — the
     live-sync announcement channel this release built is exactly that. Cost: for a few seconds the
     announced universe can be yesterday's. Benefit: no session start ever waits on a network call.
-  - ❓ **The owner's call, and nothing else is blocked on it**: keep the barrier (and accept both the
-    slow start and an unfixable-without-blocking race), or drop it for announce-then-correct.
+  - ✅ **His call, made the same day: drop it for announce-then-correct.** Shipped — see the block
+    above. What is left of this question is the divergence hook alone.
   - 🧪 **A measurement he asked for and we do not have**: whether Claude **Desktop** hands the hook its
     payload the same way the CLI does. If Desktop is slower to write fd 0, the race is not rare there,
     it is the normal case. A probe hook that records what it received would answer it in one session —
     **not wired anywhere yet**, and it must not be installed into either of his real brains.
-- ⚠️ **THE FLAKE IS BACK, BECAUSE THE DEFECT IS BACK**: `session-universe.test.mjs:334` fails about
-  1 run in 8 under load (and 3 of 5 when the file is run alone on a busy machine). **No mutation score
-  can be trusted until the call above is made** — every mutant re-runs the whole suite, and an
-  intermittent failure counts as a kill.
+- ✅ **~~THE FLAKE IS BACK~~ — THE FLAKY TEST NO LONGER EXISTS.** It failed about 1 run in 8 under load
+  (3 of 5 run alone on a busy machine) because it asserted the barrier held, and the barrier is gone.
+  **Deleted, not stabilised and not skipped.** The instrument is sound again, so **the mutation batches
+  can resume** — and batch A's 97.98 %, measured while that test could fail, is still the number to
+  re-run first.
 - 🗂️ **NOTHING WAS LOST IN THE REVERT.** The mechanism, both rejected repairs and their measurements
   live where the next reader meets them: a **characterisation test** pinning today's behaviour as the
   known limit, a note beside the racing process-level test, and a warning in `readHookPayload` itself
@@ -160,8 +165,11 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   - **The test that would have caught it now exists**: the old process-level test handed the payload
     over the instant it spawned, so it only ever proved the barrier holds when the hook **wins** that
     race, and nothing promises it does. The new one hands it over late.
-- ▶️ **BATCH A IS RE-RUNNING ON THE FIXED SUITE** _(relaunched 2026-09-05 15:29, ~1 h → verdict
-  ~16:30, file `maintainers/mutation/reports/v510-95-batch-a3.stdout.log`)_. **Batch A first, not B**:
+- ▶️ **THE NEXT WORK IS 9.5, AND IT STARTS WITH BATCH A, ON THE CURRENT CODE.** _(The 15:29 relaunch
+  named below ran against the stdin repair that was afterwards **reverted**, so whatever it returned is
+  about code nobody has: it is not the measurement, and the run has to be redone from today's HEAD.)_
+  Before launching anything: `ps aux | grep input-type=module` for orphans, then **one run at a time**.
+  **Batch A first, not B**:
   its 97.98 % is the number under doubt, and it is the one already quoted in `RESULTS.md`. Then B
   (`session-authors.mjs` + `author-identity.mjs`), then C (the ranges 9.4 changed in
   `lib/filed-note.mjs` 216 and `file-back-note.mjs` 102, 142). One at a time.
@@ -290,6 +298,18 @@ branch protection are the git host's job, not this brain's.
       accepting it from the caller (a note's author is a fact about the machine, not something a model
       is told), and the constitution + the briefing frontmatter say it in **both locales**. The
       fingerprint table was regenerated for the four doc files, which is what the release gate asks.
+
+- [x] **9.4bis** _(2026-09-05)_ **The wait comes out of the session start, and the correction ships with
+      it** _(his call, "enlève l'attente")_. Not part of the four safeguards: it is the blocker that
+      stood in front of 9.5. `session-universe.mjs` announces the active universe from disk **at once**
+      — no barrier, no stdin read, nothing that can hold a session start on the network (ADR 0028) —
+      and `universeArrivalDirective` takes it back at the owner's next message when the pointer really
+      arrived, naming the universe now in force and **leading** the message. The pointer no longer
+      counts as *"1 other file"*. The test that proved the barrier held is **deleted** (it was also the
+      1-in-8 flake that made every mutation score unreliable) and replaced by two that prove the
+      opposite, one per way in: the payload handed over instantly, and a stdin nobody ever writes.
+      ⚠️ **One thing is left for the owner, and it blocks nothing**: `session-engine-divergence.mjs`
+      still waits. See the ❓ entry in STATE.
 
 - [ ] **9.5** **Measure what step 9 changed** (CONVENTIONS §5quinquies), once 9.3 and 9.4 have landed,
       the way 8.8 did it: the changed ranges of `author-identities.mjs`, `brain-author.mjs`,

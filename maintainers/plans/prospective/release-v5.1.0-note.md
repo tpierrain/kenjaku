@@ -77,7 +77,7 @@ A second brain has always been one person's. The moment someone else worked in i
 - 💬 **It tells you what arrived, at your next message.** One sentence, in your own language, before it answers you: what came in and who wrote it. Not a notification you have to go looking for.
 - 🔔 **And it says so even if you are in another app.** A discreet notification from your system, once, and only when what arrived was written by someone other than you.
 - ✍️ **Two notes added the same afternoon to the same daily note are both kept.** Nobody is asked and nothing is lost. What you both *rewrite* — a person's page, a topic — stops and asks you instead, on purpose: those are worth a decision.
-- 🧭 **The context you are working in follows you.** If you keep several universes (a past employer, a client), switching on one computer lands the others in it too, so your notes stop contradicting the tools you have open.
+- 🧭 **The context you are working in follows you.** If you keep several universes (a past employer, a client), switching on one computer lands the others in it too, so your notes stop contradicting the tools you have open. Opening a conversation never waits for that to arrive: it starts straight away, and if the context had changed on the other computer, it tells you at your next message instead of holding you at the door.
 - 🤫 **It stays out of your way.** It only reaches for the network when your brain has nothing half-written in it, one machine at a time, and it never interrupts what you are doing.
 
 ### What you have to do

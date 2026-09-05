@@ -17,11 +17,12 @@
 // "zero hits". The single write this hook can ever do is that repair, and it is
 // always announced.
 //
-// Contract: quiet below the gate, fail-open (never throws, ALWAYS exits 0).
+// Contract: quiet below the gate, fail-open (never throws, ALWAYS exits 0), and it
+// NEVER BLOCKS — no wait on the startup pull, no read of its own stdin (ADR 0028).
 // Wired as a SessionStart hook (cf. .claude/settings.json). Hooks run in PARALLEL,
-// not in the order they are declared, so this one holds itself back until the
-// startup pull has landed — see the barrier in main() and startup-sync-gate.mjs.
-// Cross-OS: pure Node.
+// so the pull (session-status.mjs) can land a universe switch made on the owner's
+// other machine just after this one has spoken; the correction rides their next
+// message, via `universeArrivalDirective` — see main(). Cross-OS: pure Node.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -45,13 +46,6 @@ import {
   renderUniverseSynthesis,
   profileCaptureDeclined,
 } from "./lib/universe-profile.mjs";
-import {
-  blockingSleep,
-  hookSessionId,
-  pullerWiredIn,
-  readHookPayload,
-  waitForStartupSync,
-} from "./lib/startup-sync-gate.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
 /**
@@ -153,23 +147,14 @@ runAsEntrypoint(import.meta.url, process.argv, () => {
   const vaultDir = `${toPosix(brainDir)}/vault`;
   const lines = [];
 
-  // WAIT FOR THE PULL BEFORE READING A SINGLE BYTE OF UNIVERSE STATE. SessionStart
-  // hooks run in parallel and the startup pull lives in session-status.mjs, so this
-  // hook — a handful of file reads — normally wins that race. It would then announce
-  // the universe this machine went to sleep in, and inject THAT sphere's profile,
-  // while the pointer arriving milliseconds later scopes every search of the session
-  // to the other one: the context of one sphere, the retrieval of another.
-  // Fail-open on every branch (no puller wired, no session id, a pull that never
-  // lands): we read what is on disk, exactly as the brain did before this barrier.
-  waitForStartupSync({
-    repo: brainDir,
-    sessionId: hookSessionId(readHookPayload()),
-    io,
-    now: Date.now,
-    sleep: blockingSleep,
-    pullerWired: pullerWiredIn({ repo: brainDir, io }),
-  });
-
+  // NO WAITING HERE, EVER. This hook used to hold itself back until the startup pull had
+  // landed, so it could not announce the universe this machine went to sleep in. It cost a
+  // session start that blocks on the network, which ADR 0028 forbids outright — and the
+  // owner's call on 2026-09-05 was *"enlève l'attente"*: start fast, answer fast, and
+  // correct a stale announcement a minute later rather than delay every one of them.
+  // What is on disk is announced at once; when the pull then lands a switch made
+  // elsewhere, `universeArrivalDirective` (lib/remote-arrivals.mjs) says so at the owner's
+  // very next message. That correction is the half that makes this removal honest.
   const { synthesis, offer } = sessionUniverseReminder({
     dir: vaultRagDir(brainDir),
     // The profile of the universe actually in force. Read through

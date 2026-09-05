@@ -31,6 +31,7 @@ import { restartPromptDirective } from "./lib/restart-nudge.mjs";
 import { buildTrace, markAnnounced, remoteArrivalsDirective } from "./lib/remote-arrivals.mjs";
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
 
 export const realNudgeDeps = {
@@ -39,6 +40,11 @@ export const realNudgeDeps = {
   brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   pending: (repo) => restartPendingOnDisk({ repo, deriveWanted, existsSync, readFileSync }),
   trace: (repo) => buildTrace(repo),
+  // Read HERE, after the pull, and through the VALIDATED reader: a pointer left aimed at a
+  // universe that is gone resolves to the default scope, which is where the searches really
+  // land — announcing the ghost would name a sphere nothing can be found in.
+  universe: (repo) =>
+    readActiveUniverse({ existsSync, readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(repo)),
   now: () => new Date(),
   emit: (payload) => console.log(JSON.stringify(payload)),
 };
@@ -53,6 +59,12 @@ export const realNudgeDeps = {
  * conversation is running code that is no longer on disk — while an arrival is news. They
  * ride in one payload because `additionalContext` is one string, not a list.
  *
+ * And when what arrived is the ACTIVE-UNIVERSE POINTER, the news is also a correction: the
+ * session start no longer waits for the pull before naming the universe (ADR 0028 — a
+ * session start never blocks on the network), so it may have opened on the sphere this
+ * machine went to sleep in. That half is not optional. Shipping the removal of the wait
+ * without it would not delay the information, it would LOSE it.
+ *
  * The second question is the live sync's (plan #84): the tick pulled while nobody was
  * typing and has no way to say so — the search server cannot speak into a conversation.
  * The trace is stamped as announced right after, so the same notes are named once and not
@@ -65,7 +77,7 @@ export function runPromptNudge(deps = realNudgeDeps) {
     const restart = restartPromptDirective(deps.pending(repo));
     const trace = deps.trace(repo);
     const arrived = trace.read();
-    const arrivals = remoteArrivalsDirective(arrived);
+    const arrivals = remoteArrivalsDirective(arrived, () => deps.universe(repo));
 
     const directive = [restart, arrivals].filter(Boolean).join("\n\n");
     if (directive) {

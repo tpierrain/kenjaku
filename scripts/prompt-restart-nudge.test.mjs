@@ -16,7 +16,7 @@ const BRAIN_ROOT = resolve(SCRIPTS_DIR, "..");
 // F20's delivery half. The verdict itself is decided elsewhere (restart-signal.mjs reads the
 // disk, restart-nudge.mjs writes the words); this file is only the contract with the harness —
 // ask, and answer in the one dialect `UserPromptSubmit` acts on.
-function deps({ pending = false, trace = null, writeFails = false } = {}) {
+function deps({ pending = false, trace = null, writeFails = false, universe = "acme" } = {}) {
   const emitted = [];
   const asked = [];
   const written = [];
@@ -25,6 +25,10 @@ function deps({ pending = false, trace = null, writeFails = false } = {}) {
     asked,
     written,
     brainDir: () => "/brain",
+    universe: (repo) => {
+      asked.push(repo);
+      return universe;
+    },
     pending: (repo) => {
       asked.push(repo);
       return pending;
@@ -132,6 +136,38 @@ test("an empty trace is the ordinary case, and it must cost the prompt nothing",
   assert.deepEqual(d.written, []);
 });
 
+// ── The universe that arrived (2026-09-05, "enlève l'attente") ───────────────
+// The session-start hook stopped waiting for the pull before naming the active universe
+// (ADR 0028), so it can open a session on the sphere this machine went to sleep in. This
+// hook is where that gets taken back — at the owner's very next message, and only when the
+// pointer really arrived. Without this wiring the removal of the wait would not delay the
+// information, it would LOSE it.
+
+test("a universe that arrived is corrected at the next message, and named", () => {
+  const d = deps({ trace: arrived({ files: [".vault-rag/active-universe"] }), universe: "blue-team" });
+
+  assert.equal(runPromptNudge(d), 0);
+
+  const context = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.match(context, /'blue-team'/);
+  assert.match(context, /correct/i);
+  assert.ok(d.asked.includes("/brain"), "the pointer is read from the brain this script lives in");
+});
+
+test("a restart pending AND a universe that arrived: the blocker first, the correction next", () => {
+  const d = deps({
+    pending: true,
+    trace: arrived({ files: [".vault-rag/active-universe", "vault/people/claire.md"] }),
+    universe: "blue-team",
+  });
+
+  assert.equal(runPromptNudge(d), 0);
+
+  const context = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.ok(context.indexOf("OLD engine") < context.indexOf("blue-team"), "the blocker still comes first");
+  assert.ok(context.indexOf("blue-team") < context.indexOf("1 note from Claire"), "…then the correction, then the news");
+});
+
 // The stamp is a nice-to-have; the announcement is not. A brain on a read-only disk (or one
 // whose trace someone chmod'ed) must still say what arrived, and simply say it again later.
 test("a trace that cannot be stamped is still announced, and the hook still exits 0", () => {
@@ -187,6 +223,25 @@ test("realNudgeDeps.trace reads the arrivals file of the brain it is handed, and
     trace.write(record);
 
     assert.deepEqual(realNudgeDeps.trace(dir).read(), record, "the very bytes the tick writes, read back here");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("realNudgeDeps.universe reads the pointer of the brain it is handed, VALIDATED against the registry", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-universe-"));
+  try {
+    assert.equal(realNudgeDeps.universe(dir), "default", "a brain with no pointer works in the default scope");
+
+    mkdirSync(join(dir, ".vault-rag"), { recursive: true });
+    writeFileSync(join(dir, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["blue-team"] }));
+    writeFileSync(join(dir, ".vault-rag", "active-universe"), "blue-team\n");
+    assert.equal(realNudgeDeps.universe(dir), "blue-team");
+
+    // A pointer naming a universe that is gone is an orphan: the scope really IS the
+    // default, and announcing the ghost would name a sphere nothing can be found in.
+    writeFileSync(join(dir, ".vault-rag", "active-universe"), "vanished\n");
+    assert.equal(realNudgeDeps.universe(dir), "default");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

@@ -28,6 +28,7 @@ import { dirname, join } from "node:path";
 
 import { agreeing, countOf } from "./plural.mjs";
 import { TRACE_REL } from "./remote-sync.mjs";
+import { ACTIVE_UNIVERSE_REL } from "./universes.mjs";
 
 /** Where the staging copy of the atomic rename lives (gitignored, and off the brain root). */
 export const CACHE_DIR = ".cache";
@@ -50,6 +51,15 @@ const NAMED_AT_MOST = 3;
  * two chances to drift.
  */
 export const isNote = (rel) => rel.startsWith("vault/") && rel.toLowerCase().endsWith(".md");
+
+/**
+ * The active-universe pointer, which is a file the owner has no use for and a piece of
+ * NEWS they very much do: announced as "1 other file" it says nothing at all, so it is
+ * lifted out of the file list and gets its own sentence ({@link universeArrivalDirective}).
+ * Compared in POSIX form because a list of paths is not always a `git diff`'s, and a
+ * separator must never be the reason a correction is lost.
+ */
+const isUniversePointer = (rel) => rel.split("\\").join("/") === ACTIVE_UNIVERSE_REL;
 
 /** `vault/people/claire.md` → `people/claire.md`: the prefix means nothing to the owner. */
 const readable = (rel) => (rel.startsWith("vault/") ? rel.slice("vault/".length) : rel);
@@ -103,7 +113,7 @@ export function isAnnounced(trace) {
  * never do.
  */
 export function arrivalsDirective(trace) {
-  const files = trace?.files ?? [];
+  const files = (trace?.files ?? []).filter((rel) => !isUniversePointer(rel));
   if (files.length === 0) return null;
   const notes = files.filter(isNote);
   const others = files.filter((rel) => !isNote(rel));
@@ -128,6 +138,49 @@ export function arrivalsDirective(trace) {
 }
 
 /**
+ * WHICH SPHERE THIS SESSION IS ACTUALLY WORKING IN, when the answer changed under it.
+ *
+ * The session-start hook no longer waits for the startup pull before naming the active
+ * universe: a session start never blocks on the network (ADR 0028, the owner's call of
+ * 2026-09-05). The price is that it can name the sphere this machine went to sleep in,
+ * and this is where that gets taken back — at the owner's very next message.
+ *
+ * Keyed on the pointer ARRIVING, never on a remembered value: git lists the pointer only
+ * when its bytes really changed, so a local `/switch` can never produce a phantom
+ * correction. `readUniverse` is a thunk rather than a name because the pointer must be
+ * read AFTER the pull, here, and not carried from wherever the trace was written.
+ */
+export function universeArrivalDirective(trace, readUniverse) {
+  if (!(trace?.files ?? []).some(isUniversePointer)) return null;
+  let universe = null;
+  try {
+    universe = readUniverse();
+  } catch {
+    // A state dir that cannot be read names no universe. Saying "the scope changed" without
+    // saying to WHAT would send the owner looking for a switch they cannot see, and naming
+    // the wrong one is worse still — so this half goes quiet and the arrivals half survives.
+  }
+  if (!universe) return null;
+  return withinNameBudget(
+    (name) =>
+      `🧭 The active universe changed on another machine: it is now '${name}'. Say so in one ` +
+      `sentence, in the owner's language, before anything else — and correct it explicitly if this ` +
+      `session already announced another one. Searches are scoped to it plus their cross-cutting notes.`,
+    universe,
+  );
+}
+
+/**
+ * A universe is named by whoever created it, and nothing bounds that name. Same rule as the
+ * file list one line up: what gives way is the NAME, never the instruction — trimmed to the
+ * exact character, because the budget is the reason this rides in front of a prompt at all.
+ */
+function withinNameBudget(render, name) {
+  const over = render(name).length - DIRECTIVE_MAX;
+  return over <= 0 ? render(name) : render(`${name.slice(0, name.length - over - 1)}…`);
+}
+
+/**
  * What could NOT be merged, as an instruction. Three things it must carry: the files, the
  * engine's own reason (it says what to repair), and the order of operations — the merge is
  * explained and redone BEFORE the answer, keeping both sides, asking only as a last resort.
@@ -148,12 +201,18 @@ export function blockedDirective(trace) {
 }
 
 /**
- * The whole message for the next prompt, or `null`. What worked comes first, what needs a
- * hand second: a person reads the reassuring half and then the ask, never the other way round.
+ * The whole message for the next prompt, or `null`. A CORRECTION of something already said
+ * leads — the session opened by naming a universe that has since changed, and everything it
+ * answered was scoped to it. Then what worked, then what needs a hand: a person reads the
+ * reassuring half and then the ask, never the other way round.
  */
-export function remoteArrivalsDirective(trace) {
+export function remoteArrivalsDirective(trace, readUniverse = () => null) {
   if (isAnnounced(trace)) return null;
-  const parts = [arrivalsDirective(trace), blockedDirective(trace)].filter(Boolean);
+  const parts = [
+    universeArrivalDirective(trace, readUniverse),
+    arrivalsDirective(trace),
+    blockedDirective(trace),
+  ].filter(Boolean);
   return parts.length > 0 ? parts.join(" ") : null;
 }
 

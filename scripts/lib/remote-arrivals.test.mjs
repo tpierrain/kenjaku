@@ -24,7 +24,9 @@ import {
   joinNames,
   markAnnounced,
   remoteArrivalsDirective,
+  universeArrivalDirective,
 } from "./remote-arrivals.mjs";
+import { ACTIVE_UNIVERSE_REL } from "./universes.mjs";
 
 const trace = (over = {}) => ({ arrivedAt: "2026-09-08T09:00:00.000Z", files: [], authors: [], blocked: null, announcedAt: null, ...over });
 
@@ -232,6 +234,89 @@ test("no block → nothing", () => {
   assert.equal(blockedDirective(trace({ blocked: { reason: "conflict" } })), null, "…and neither does one with no file LIST");
 });
 
+// ── The universe that arrived (2026-09-05, the owner's call: "enlève l'attente") ──
+// The session-start hook no longer waits for the pull before naming the active universe
+// (ADR 0028: a session start never blocks on the network). So it can announce the sphere
+// this machine went to sleep in, and THIS is the half that repairs it — the correction
+// rides the owner's next message. Keyed on the pointer ARRIVING, never on a remembered
+// value: a local `/switch` must never produce a phantom correction, and git only lists
+// the pointer when its bytes really changed.
+
+test("the pointer arriving is announced as the universe now in force, and names it", () => {
+  const directive = universeArrivalDirective(trace({ files: [ACTIVE_UNIVERSE_REL] }), () => "blue-team");
+
+  assert.match(directive, /'blue-team'/, "the universe is NAMED: 'the scope changed' tells the owner nothing");
+  assert.match(directive, /one sentence/i, "Claude is told to say it, not handed a sentence to repeat");
+  assert.match(directive, /correct/i, "a session that already announced the other one must take it back");
+  assert.doesNotMatch(directive, /active-universe|vault-rag/, "the pointer's PATH means nothing to the owner");
+  assert.ok(directive.length <= DIRECTIVE_MAX, `${directive.length} > ${DIRECTIVE_MAX}`);
+});
+
+test("the universe correction, word for word", () => {
+  assert.equal(
+    universeArrivalDirective(trace({ files: [ACTIVE_UNIVERSE_REL], authors: ["Claire"] }), () => "blue-team"),
+    "🧭 The active universe changed on another machine: it is now 'blue-team'. Say so in one " +
+      "sentence, in the owner's language, before anything else — and correct it explicitly if this " +
+      "session already announced another one. Searches are scoped to it plus their cross-cutting notes.",
+  );
+});
+
+test("no pointer among the arrivals → nothing, and the pointer is never even read", () => {
+  let asked = 0;
+  const reader = () => {
+    asked++;
+    return "blue-team";
+  };
+
+  assert.equal(universeArrivalDirective(trace({ files: ["vault/a.md", "scripts/lib/x.mjs"] }), reader), null);
+  assert.equal(universeArrivalDirective(trace({ files: [] }), reader), null);
+  assert.equal(universeArrivalDirective(null, reader), null);
+  assert.equal(asked, 0, "no arrival, no read: the disk is touched only when there is something to say");
+});
+
+// The pointer is on a Windows machine too, and `git diff --name-only` is not the only
+// thing that ever fills this list. A separator must not be the reason a correction is lost.
+test("the pointer is recognised whichever way its path is spelled", () => {
+  assert.match(
+    universeArrivalDirective(trace({ files: [".vault-rag\\active-universe"] }), () => "blue-team"),
+    /'blue-team'/,
+  );
+});
+
+test("a universe that cannot be read says NOTHING, rather than something false", () => {
+  const unreadable = () => {
+    throw new Error("no .vault-rag here");
+  };
+
+  assert.equal(universeArrivalDirective(trace({ files: [ACTIVE_UNIVERSE_REL] }), unreadable), null);
+  assert.equal(universeArrivalDirective(trace({ files: [ACTIVE_UNIVERSE_REL] }), () => null), null);
+  assert.equal(universeArrivalDirective(trace({ files: [ACTIVE_UNIVERSE_REL] }), () => ""), null, "an empty pointer names nobody");
+});
+
+// Same budget as every other directive, and the same rule about what gives way: the NAME
+// is cut, never the instruction. A universe is named by its owner, and nothing bounds that.
+test("an absurdly long universe name is cut to fit, and the instruction survives whole", () => {
+  const directive = universeArrivalDirective(trace({ files: [ACTIVE_UNIVERSE_REL] }), () => "z".repeat(400));
+
+  assert.equal(directive.length, DIRECTIVE_MAX, "it fills the budget exactly, and not one character more");
+  assert.match(directive, /zzz…'/, "the name is truncated, and says so");
+  assert.match(directive, /cross-cutting notes\.$/, "the sentence still ends where it should");
+});
+
+// It arrives in the same `git diff` as everything else, so without this it would be
+// announced as "1 other file" — which is precisely what tells the owner nothing.
+test("the pointer is not one of the files that arrived: it has its own sentence", () => {
+  const directive = arrivalsDirective(trace({ files: ["vault/a.md", ACTIVE_UNIVERSE_REL], authors: ["Claire"] }));
+
+  assert.match(directive, /1 note from Claire/);
+  assert.doesNotMatch(directive, /other file/, "the pointer is not a file the owner has any use for");
+  assert.equal(
+    arrivalsDirective(trace({ files: [ACTIVE_UNIVERSE_REL], authors: ["Claire"] })),
+    null,
+    "a pointer arriving ALONE is not an arrival of files, and must not be announced as one",
+  );
+});
+
 // ── The two together ─────────────────────────────────────────────────────────
 
 test("notes arrived AND something is stuck: both are said, arrivals first", () => {
@@ -242,6 +327,45 @@ test("notes arrived AND something is stuck: both are said, arrivals first", () =
   assert.ok(directive.indexOf("1 note from Claire") < directive.indexOf("CLAUDE.md"), "what worked, then what needs a hand");
   assert.match(directive, /keep both/i);
   assert.match(directive, /editing it\. ⚠️ The background sync/, "one space between the two, not run together");
+});
+
+// A correction of something ALREADY SAID comes before the news: the session opened by
+// naming a universe that has since changed, and every sentence after that was scoped to it.
+test("the universe correction leads the message — before the arrivals, before the block", () => {
+  const directive = remoteArrivalsDirective(
+    trace({
+      files: [ACTIVE_UNIVERSE_REL, "vault/a.md"],
+      authors: ["Claire"],
+      blocked: { files: ["CLAUDE.md"], reason: "conflict" },
+    }),
+    () => "blue-team",
+  );
+
+  assert.ok(directive.indexOf("blue-team") < directive.indexOf("1 note from Claire"), "the correction first");
+  assert.ok(directive.indexOf("1 note from Claire") < directive.indexOf("CLAUDE.md"), "then the news, then the ask");
+  assert.match(directive, /cross-cutting notes\. 📥 The brain synchronised/, "one space between them, not run together");
+});
+
+test("a universe read that blows up costs the correction, never the arrivals", () => {
+  const directive = remoteArrivalsDirective(
+    trace({ files: [ACTIVE_UNIVERSE_REL, "vault/a.md"], authors: ["Claire"] }),
+    () => {
+      throw new Error("unreadable .vault-rag");
+    },
+  );
+
+  assert.match(directive, /1 note from Claire/, "one broken part, one lost part");
+  assert.doesNotMatch(directive, /universe/i);
+});
+
+test("announced once is announced: the correction is not repeated at the next message either", () => {
+  assert.equal(
+    remoteArrivalsDirective(
+      trace({ files: [ACTIVE_UNIVERSE_REL], announcedAt: "2026-09-08T09:01:00.000Z" }),
+      () => "blue-team",
+    ),
+    null,
+  );
 });
 
 test("a trace that carries neither an arrival nor a block is nothing, not an empty message", () => {
