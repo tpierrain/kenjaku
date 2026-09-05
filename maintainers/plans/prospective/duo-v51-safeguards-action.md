@@ -13,6 +13,15 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
+> ▶️ **ON RESUMING (2026-09-05 23:30, context cleared here).** A mutation run is **detached and
+> running** on `a89af5a` (batch A, `reports/v510-95-batch-a5.stdout.log`, launched 23:19, ~1 h).
+> **First thing: read that log's own ✅/❌ line** — never *"is the process alive"*, a starved run comes
+> back looking like a result. If it holds a score, read each survivor against the code before calling
+> any of them equivalent, record it in `../../mutation/RESULTS.md`, then run batch B, then C, then D,
+> **one at a time and detached**. Everything else about the release is green, pushed and CI-read
+> through `e4b4032`. The only thing waiting on the owner is the ❓ entry below (the second waiter), and
+> it blocks nothing.
+
 - ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED, CI READ AND GREEN ON EVERY COMMIT** _(2026-09-05)_
   — the whole suite (3157 tests) and the duo rehearsal (16/16) pass on each. **ONLY 9.5 REMAINS.**
 - ✅ **9.5 BATCH A HAS RUN** _(2026-09-05 10:52, 61 min, log
