@@ -94,8 +94,15 @@ tag rather than a day earlier.
   conversations are open on one brain (the second half of 7.4). A red there is a follow-up fix, not a
   reason to withhold the release.
 - **Two product statements flagged for his review** in `SETUP.md` §7, shipped in the branch and his to
-  overrule.
-- **The release title**, which is his to arbitrate among the three candidates in the note.
+  overrule. **He has since read that section** (2026-09-05), and two of its wordings were corrected on
+  his ask: the one-sentence perimeter now reads *"shares what you wrote down, not what you can see **in
+  your own tools**"* — unqualified, it was being read as *the other person cannot see what is in the
+  brain*, which is backwards — and the mail bullet now leads with **Gmail delegation asking for no
+  password**, contrasts it with the calendar tool that *does* take an address, names account sharing as
+  the thing not to do, and ends on the two arrangements that work. What is left for his eye is
+  narrower than when this PR opened.
+- **The release title**, which was his to arbitrate among the three candidates in the note —
+  **settled since**: *"v5.1.0 — The One with the Duo Mode"*.
 
 ## The numbers, which age
 
