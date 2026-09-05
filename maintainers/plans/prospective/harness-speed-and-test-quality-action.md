@@ -119,14 +119,22 @@ and a five-minute re-read of my own test diff would have caught it without start
       about S2's thesis — the killable ones are still the catalogue, entire — and it is worth the
       correction anyway, because **the skim erred towards "killable" while the careful read erred
       towards "equivalent"**, and the second is the direction that quietly lowers a bar.
-- [x] **S2.0bis The confirming run, and the one lever that cost nothing** _(2026-09-05 12:02, same two
-      files after 8 tests: **92.83 % → 97.98 %**, 9 survivors)_. The plan had **written the 10 expected
-      equivalents down before launching**, so nine returning was a *verdict* and not a vibe: all nine
-      were on the list, and the tenth turned out to be **killable** — an equivalence call we had got
-      wrong. ➡️ **A candidate for S2 that costs one minute, not an hour: name the survivors you expect
-      before a re-run.** It is the difference between a re-run you can fail and a re-run you can only
-      admire, it catches an escaped mutant *on sight* rather than by re-reading everything, and unlike
-      S2.1/S2.2 it needs no new tooling and no new discipline at authoring time.
+- [x] **S2.0bis The confirming run, and the one lever that cost nothing** _(final figures 2026-09-06
+      00:19, same two files after 8 tests: **92.83 % → 97.76 %**, **10 survivors, all equivalents**,
+      effective 100 % on non-equivalents)_. The plan had **written the 10 expected equivalents down
+      before launching**, so what came back was a *verdict* and not a vibe. ➡️ **A candidate for S2 that
+      costs one minute, not an hour: name the survivors you expect before a re-run.** It is the
+      difference between a re-run you can fail and a re-run you can only admire, it catches an escaped
+      mutant *on sight* rather than by re-reading everything, and unlike S2.1/S2.2 it needs no new
+      tooling and no new discipline at authoring time.
+      ↩️ **Corrected 2026-09-06, and the correction makes the lever look BETTER than the first telling
+      did.** This step first read *"97.98 %, 9 survivors, and the tenth turned out to be killable"*.
+      That run was taken on the flaky instrument, which **manufactured** that kill: re-run with the
+      flake gone, over identical code and identical tests, all ten survive and all ten are equivalents.
+      So the named list did not merely confirm a re-run — **it is what made a false kill visible**, and
+      it is the only reason a wrong equivalence verdict did not stay on the books. State and evidence:
+      [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) and
+      [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).
 
 ### S3. A finished plan stops being read as a plan _(the record lever)_
 
