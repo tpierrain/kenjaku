@@ -381,3 +381,65 @@ test("the universe hook waits for the startup pull, and announces the universe t
     "announcing the pre-pull universe is the defect: one sphere's context, another's retrieval",
   );
 });
+
+// The test above hands the payload over the instant it spawns, so it only ever proved
+// the barrier holds when the hook wins that write. Nothing promises it does: the
+// harness writes fd 0 while `node` is still booting, and on 2026-09-05 a LATE payload
+// was read as no payload at all — no session id, barrier skipped, `acme` announced.
+// The unit tests pin the cause (the tty question must not build the stdin stream, and
+// EAGAIN is "not yet"); this one pins the CONSEQUENCE, through a real process, because
+// that is the only place fd 0 has a real mode.
+test("the universe hook waits for the startup pull even when its own payload arrives LATE", async (t) => {
+  const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-universe-late-")));
+  t.after(() => rmSync(brain, { recursive: true, force: true }));
+  cpSync(join(REPO_ROOT, "scripts"), join(brain, "scripts"), { recursive: true });
+  mkdirSync(join(brain, ".vault-rag"), { recursive: true });
+  mkdirSync(join(brain, ".claude"), { recursive: true });
+  mkdirSync(join(brain, ".cache"), { recursive: true });
+  writeFileSync(
+    join(brain, ".vault-rag", "universes.json"),
+    JSON.stringify({ universes: ["acme", "blue-team"] }),
+  );
+  writeFileSync(join(brain, ".vault-rag", "active-universe"), "acme"); // yesterday's scope
+  writeFileSync(
+    join(brain, ".claude", "settings.json"),
+    JSON.stringify({
+      hooks: { SessionStart: [{ hooks: [{ command: `node "${brain}/scripts/session-status.mjs"` }] }] },
+    }),
+  );
+  const marker = join(brain, ".cache", "startup-sync.json");
+  writeFileSync(marker, JSON.stringify({ sessionId: "s-late", phase: "running", at: Date.now() }));
+
+  const child = spawn(process.execPath, [join(brain, "scripts", "session-universe.mjs")], {
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  let stdout = "";
+  child.stdout.on("data", (chunk) => (stdout += chunk));
+  // A hook that has already given up closes fd 0 under us; that must read as the
+  // failure it is, not as a crashed test.
+  child.stdin.on("error", () => {});
+  const closed = new Promise((resolve) => child.on("close", resolve));
+
+  // The payload loses the race against `node` booting — 500 ms was EAGAIN every time.
+  await new Promise((r) => setTimeout(r, 500));
+  child.stdin.end(JSON.stringify({ session_id: "s-late", source: "startup" }));
+
+  // …and only THEN does the pull land the switch made elsewhere.
+  await new Promise((r) => setTimeout(r, 250));
+  writeFileSync(join(brain, ".vault-rag", "active-universe"), "blue-team");
+  writeFileSync(marker, JSON.stringify({ sessionId: "s-late", phase: "done", at: Date.now() }));
+
+  const code = await closed;
+
+  assert.equal(code, 0, "the hook is fail-open: it always exits 0");
+  assert.match(
+    stdout,
+    /Active universe: 'blue-team'/,
+    "a payload that arrives late is still a payload — the barrier must have held",
+  );
+  assert.doesNotMatch(
+    stdout,
+    /Active universe: 'acme'/,
+    "reading a not-yet-written pipe as 'no session id' is what skipped the barrier",
+  );
+});
