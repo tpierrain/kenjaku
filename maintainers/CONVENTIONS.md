@@ -286,7 +286,18 @@ Step 6) found **recurring shapes** of surviving mutant. Two homes:
      import-testable. The entry guard itself is an **accepted equivalent** (runs only when the file IS
      the process) — earn it back with **one** subprocess integration test where it matters (that lone
      test is the whole gap between `auto-commit` 98 % and `auto-push` 92 %).
-  3. **LLM-facing string surfaces** (MCP tool names + every tool/field description) never affect a
+  3. **🔕 Anything that can surface OUTSIDE the process — a desktop banner, a sound, a window — is
+     INJECTED in tests, never merely switched off.** A switch is one mutant away from being on, and
+     mutation testing's whole job is to flip switches: it runs the suite once per mutant, so a test
+     that relies on a guard to stay quiet becomes a notification generator that fires for hours.
+     _(Measured on 2026-09-02, plan #84: the live-sync suite raised native "1 note from Claire"
+     banners on the maintainer's machine, one per arrival test, until he reported them. Two
+     causes — a process-level fixture inheriting the ambient environment, and a wiring test calling
+     the real notifier behind a `CI` check the mutants disabled.)_ So: the composition root takes
+     the spawn as a **parameter**, the wiring is asserted on **the request that reaches the fake**,
+     and a suite that runs the real entry point as a process passes the engine's quiet switch as
+     **belt on top of braces**, not instead of them.
+  4. **LLM-facing string surfaces** (MCP tool names + every tool/field description) never affect a
      return value, so behavioural tests miss them — **assert them explicitly** (drive the real
      registered surface via an in-memory `Client`/`InMemoryTransport`, assert names + non-empty
      descriptions). They steer the model; a blanked description is a silent contract regression.
@@ -796,6 +807,19 @@ what they gain is.
    in (*when you update your brain*, *the rest of the time, in ordinary conversations*), each under
    one line of framing that names the moment and the command that triggers it. A flat list forces the
    reader to infer, bullet by bullet, *when* each promise applies.
+   > 🔒 **The `What you get` heading itself must be BARE — the three words and nothing after.** It is
+   > not a style point: `/update-engine` **quotes that section verbatim** to the owner before asking
+   > for consent (ADR 0009 — quoted, never summarised), and `extractWhatYouGet` matches only a
+   > heading ending right after those words, then reads **to the next heading**. So the moments of
+   > point 2 are written as **bold lines inside** the section, never as sub-headings: a sub-heading
+   > ends the quote at the first moment and the rest is silently dropped.
+   >
+   > ⚠️ **Measured, not theoretical: the v5.0.0 note wrote `### What you get, when you update your
+   > brain` and was therefore never quoted at all** — the consent prose fell back to the release
+   > title, with nothing on screen to say so. Written here at v5.1.0, because until then the
+   > constraint lived only in one release's plan, which is no net for the release after it. **Check
+   > it, do not trust it**: run the real parser over the drafted body before publishing.
+
 3. **Every bullet stands ALONE**: an emoji, a bold claim that names its own context, then **one plain
    sentence — or one concrete example**, whichever lands. An example is worth its extra line;
    abstraction dressed as brevity is not. Seven bullets is already a lot. If one needs a paragraph,
@@ -818,6 +842,18 @@ compact, and leaves the reader to guess what it stands for. Name the things them
 you made to your second brain's capabilities*, *the improvements that follow*. The test is not
 whether the sentence is short: it is whether someone who did not build this can picture what it
 describes.
+
+> 🏷️ **The one exception, and it is not shorthand: NAMING a capability that did not exist before.**
+> A feature's name is unfamiliar vocabulary **by construction** — nobody has read it yet, and the
+> release is what puts it into the language. *Duo mode* (v5.1.0) is the case that settled it: the
+> objection *"no user has ever read those words"* is an argument against **describing** a symptom in
+> our jargon, not against **christening** something new. Both rules hold at once, and the split is
+> clean: **describe in the reader's words, name in ours.**
+>
+> **What a name costs, though, is that it must be used.** A name that appears only in a release title
+> is not a name. Whenever a release christens something, the same movement puts it in the note's lead,
+> in the `What you get` moment it belongs to, and on the marketing surface — otherwise the next
+> release has to introduce it all over again, and the word never becomes anybody's.
 
 **The body is written UNWRAPPED**, one line per paragraph or bullet. Hard breaks at ~100 columns are
 invisible once rendered and a nuisance in any editor that reflows — this file is a body to be pasted,

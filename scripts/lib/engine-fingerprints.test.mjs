@@ -9,6 +9,7 @@ import { fingerprint } from "./engine-source.mjs";
 import { deliveredSources } from "./engine-fingerprint-table.mjs";
 import { isStrayArtifactRel } from "./engine-base.mjs";
 import { parseLsFilesEolZ } from "./tracked-files.mjs";
+import { instrumentationStandDown } from "./instrumented-source.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // THE FRESHNESS GUARD on `scripts/lib/engine-fingerprints.json` (plan S7-2).
@@ -48,8 +49,15 @@ const git = (args) => execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf
 const trackedFiles = git(["ls-files"]).split("\n").filter(Boolean);
 const eolByPath = parseLsFilesEolZ(git(["ls-files", "--eol", "-z"]));
 
-test("the table covers every merge file of the release being cut, in every locale", () => {
-  const uncovered = deliveredSources({ manifest, sourceFiles: trackedFiles, eolByPath, read })
+test("the table covers every merge file of the release being cut, in every locale", (t) => {
+  const delivered = deliveredSources({ manifest, sourceFiles: trackedFiles, eolByPath, read });
+
+  // A fingerprint IS the bytes: under a mutation run the bytes on disk are the
+  // runner's, not the release's, and every row would read as missing.
+  const standDown = instrumentationStandDown(delivered.map(({ sourcePath, content }) => ({ name: sourcePath, source: content })));
+  if (standDown) return t.skip(standDown);
+
+  const uncovered = delivered
     .filter(({ content, rel }) => !(fingerprint(content) in (table.files?.[rel] ?? {})))
     .map(({ sourcePath }) => sourcePath);
 

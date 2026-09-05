@@ -1,14 +1,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  REMOTE_SYNC_SCRIPT,
   buildScriptRunner,
   persistVaultNow,
   persistenceApplies,
   shouldPersistCampaign,
 } from "./campaign-persist.js";
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 test("a campaign that indexed a note asks for the vault to be persisted", () => {
   assert.equal(shouldPersistCampaign({ indexed: 1, removed: 0 }), true);
@@ -118,6 +121,21 @@ test("the real runner launches the brain's own script, with this node, from the 
       { cwd: join("/brains", "mind-palace"), timeout: 120_000 },
     ],
   ]);
+});
+
+// The clock spawns this script BY NAME through the same runner as the two above, and a
+// name that resolves to nothing is the quietest failure this server has: the child exits
+// non-zero, the tick reports "failed", and the brain simply never catches up. So the name
+// is checked against the two things that have to agree with it — the file this repo ships,
+// and the manifest regime that carries it to a brain that predates the feature.
+test("the script the clock spawns exists, and an engine update delivers it", () => {
+  assert.equal(statSync(join(repoRoot, "scripts", REMOTE_SYNC_SCRIPT)).isFile(), true);
+
+  const manifest = JSON.parse(readFileSync(join(repoRoot, "engine-manifest.json"), "utf-8"));
+  assert.ok(
+    manifest.regimes.replace.includes(`scripts/${REMOTE_SYNC_SCRIPT}`),
+    `scripts/${REMOTE_SYNC_SCRIPT} is carried by no regime — the clock would tick against a script that never arrived`,
+  );
 });
 
 test("vault persistence is refused for the REAL committed launcher manifest", () => {

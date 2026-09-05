@@ -324,60 +324,117 @@ test("settings.json.template wires session-universe as a SessionStart hook, AFTE
   assert.ok(selfHealIdx < universeIdx, "universe reminder must run after self-heal (the restart nudge keeps priority)");
 });
 
-// ── The ordering defect (2026-08-08), end to end ─────────────────────────────
-// SessionStart hooks run in PARALLEL, and the startup pull — which can land a
-// universe switch made on the owner's other machine — lives in another hook. This
-// one used to win that race and announce the universe this machine went to sleep
-// in, while every search of the session scoped to the one that had just arrived.
-// A real child process is the only honest proof: the pointer changes UNDER it,
-// exactly as a pull does, and what it prints must be the universe that arrived.
-test("the universe hook waits for the startup pull, and announces the universe that ARRIVED — not the one this machine woke up in", async (t) => {
+// ── A session start never waits on the network (ADR 0028) ────────────────────
+// From 2026-08-08 to 2026-09-05 this hook held itself back until the startup pull had
+// landed, so it would not announce the universe this machine went to sleep in. The
+// owner's call ends that: *"enlève l'attente … ça doit démarrer vite, ça doit répondre
+// vite ; si on se trompe parce qu'on n'a pas d'informations fraîches, on se corrige une
+// à deux minutes après, mais sans bloquer"*. So the proof INVERTS: with the pull still
+// in flight, the hook must answer AT ONCE and announce what is on disk — the correction
+// is owed by the next message (`universeArrivalDirective`), not by this one.
+//
+// A real child process is the only honest proof, and the payload matters as much as the
+// marker. Handed over INSTANTLY, the hook has a session id and the old barrier really
+// held — twelve seconds of ceiling. Never handed over at all, the barrier opened by
+// accident (the stdin race), which is why the same claim is asserted twice: one of the
+// two shapes would pass on a hook that still waits.
+
+/** A brain mid-pull: two universes, the pointer on `acme`, a puller wired, the pull RUNNING. */
+function brainMidPull(t, label) {
   // realpath: on macOS the temp dir is a symlink, and the hook only runs its main
   // block when argv[1] matches its own resolved module path.
-  const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-universe-race-")));
+  const brain = realpathSync(mkdtempSync(join(tmpdir(), `kenjaku-universe-${label}-`)));
   t.after(() => rmSync(brain, { recursive: true, force: true }));
   cpSync(join(REPO_ROOT, "scripts"), join(brain, "scripts"), { recursive: true });
-  mkdirSync(join(brain, ".vault-rag"), { recursive: true });
-  mkdirSync(join(brain, ".claude"), { recursive: true });
-  mkdirSync(join(brain, ".cache"), { recursive: true });
+  for (const dir of [".vault-rag", ".claude", ".cache"]) mkdirSync(join(brain, dir), { recursive: true });
   writeFileSync(
     join(brain, ".vault-rag", "universes.json"),
     JSON.stringify({ universes: ["acme", "blue-team"] }),
   );
-  writeFileSync(join(brain, ".vault-rag", "active-universe"), "acme"); // yesterday's scope
-  // A puller IS wired, so the barrier is expected to hold.
+  writeFileSync(join(brain, ".vault-rag", "active-universe"), "acme");
   writeFileSync(
     join(brain, ".claude", "settings.json"),
     JSON.stringify({
       hooks: { SessionStart: [{ hooks: [{ command: `node "${brain}/scripts/session-status.mjs"` }] }] },
     }),
   );
-  const marker = join(brain, ".cache", "startup-sync.json");
-  writeFileSync(marker, JSON.stringify({ sessionId: "s-race", phase: "running", at: Date.now() }));
+  // `running` and never flipped to `done`: the pull this session start must not wait for.
+  writeFileSync(
+    join(brain, ".cache", "startup-sync.json"),
+    JSON.stringify({ sessionId: "s-nowait", phase: "running", at: Date.now() }),
+  );
+  return brain;
+}
 
+/** Runs the hook the way the harness does, and times it. `payload` null → stdin is never written. */
+async function runUniverseHook(t, brain, payload) {
+  const startedAt = Date.now();
   const child = spawn(process.execPath, [join(brain, "scripts", "session-universe.mjs")], {
     stdio: ["pipe", "pipe", "pipe"],
   });
-  child.stdin.end(JSON.stringify({ session_id: "s-race", source: "startup" }));
+  if (payload !== null) child.stdin.end(payload);
+  // Never a wait without a way out (2026-09-05: four spinners with no deadline held a
+  // laptop at 100 % for nine hours). The kill turns a hook that DOES wait into a failure
+  // here, instead of a suite that hangs until the runner's own timeout.
+  const deadline = setTimeout(() => child.kill("SIGKILL"), 8_000);
+  t.after(() => {
+    clearTimeout(deadline);
+    child.kill("SIGKILL");
+  });
   let stdout = "";
   child.stdout.on("data", (chunk) => (stdout += chunk));
-  // Listen BEFORE the flip: a hook that does not wait is already gone by then, and
-  // a close listener attached afterwards would hang instead of failing.
-  const closed = new Promise((resolve) => child.on("close", resolve));
+  const code = await new Promise((resolve) => child.on("close", resolve));
+  return { code, stdout, elapsed: Date.now() - startedAt };
+}
 
-  // …meanwhile, in the other hook: the pull lands the switch made elsewhere.
-  await new Promise((r) => setTimeout(r, 250));
-  writeFileSync(join(brain, ".vault-rag", "active-universe"), "blue-team");
-  writeFileSync(marker, JSON.stringify({ sessionId: "s-race", phase: "done", at: Date.now() }));
+// The old barrier's SHORTEST branch was a 3 s grace and its ceiling 12 s, so a hook that
+// still waits cannot pass this — while a cold `node` start is well under it.
+const PROMPTLY_MS = 2_000;
 
-  const code = await closed;
+test("the universe hook does not wait for the pull it is HANDED the key to: it announces what is on disk", async (t) => {
+  const brain = brainMidPull(t, "nowait");
+
+  const { code, stdout, elapsed } = await runUniverseHook(
+    t,
+    brain,
+    JSON.stringify({ session_id: "s-nowait", source: "startup" }),
+  );
 
   assert.equal(code, 0, "the hook is fail-open: it always exits 0");
-  // The message lists every universe, so only the ACTIVE one is evidence here.
-  assert.match(stdout, /Active universe: 'blue-team'/, "the session must be told the universe that ARRIVED");
-  assert.doesNotMatch(
-    stdout,
-    /Active universe: 'acme'/,
-    "announcing the pre-pull universe is the defect: one sphere's context, another's retrieval",
-  );
+  assert.ok(elapsed < PROMPTLY_MS, `the session start waited ${elapsed} ms on a pull it must not wait for`);
+  assert.match(stdout, /Active universe: 'acme'/, "what is on disk is what gets announced");
 });
+
+// The same claim through the other door, and the one that would catch a "repair" of the
+// stdin race: fd 0 is a pipe nobody ever writes to, which a BLOCKING read waits on for a
+// close that may never come (measured 2026-09-05: it took this suite from ~50 s to over
+// 10 minutes, and in the field it is a hung session start).
+test("…and it does not wait on its own stdin either, when the harness writes nothing", async (t) => {
+  const brain = brainMidPull(t, "nostdin");
+
+  const { code, stdout, elapsed } = await runUniverseHook(t, brain, null);
+
+  assert.equal(code, 0);
+  assert.ok(elapsed < PROMPTLY_MS, `the session start hung ${elapsed} ms on a stdin nobody wrote`);
+  assert.match(stdout, /Active universe: 'acme'/);
+});
+
+// The other half of the same call, and it must ship WITH the removal above: without it
+// the wait would not be delaying the information, it would be losing it. What repairs a
+// stale announcement is `universeArrivalDirective` — pinned in lib/remote-arrivals.test.mjs
+// and wired in prompt-restart-nudge.test.mjs, on the owner's very next message.
+
+// ── The ordering defect (2026-08-08), and what its repair COST ───────────────
+// SessionStart hooks run in PARALLEL, and the startup pull — which can land a universe
+// switch made on the owner's other machine — lives in another hook. This one wins that
+// race, so it announces the universe this machine went to sleep in while every search
+// of the session scopes to the one that has just arrived. That is a REAL cost, and it
+// is now accepted deliberately: the correction rides the next message.
+//
+// The test that proved the barrier held is DELETED rather than skipped — it asserted a
+// behaviour we no longer want, and a skipped test is a claim nobody checks. It was also
+// the flake: it failed about 1 run in 8 under load (the harness's payload losing the
+// race to a `node` boot), and every mutant re-runs the whole suite, so an intermittent
+// failure did not add noise to a mutation score, it added points. Its story, both
+// rejected repairs and their measurements, live in
+// `maintainers/plans/prospective/duo-v51-safeguards-action.md`.

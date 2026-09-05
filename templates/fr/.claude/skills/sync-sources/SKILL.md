@@ -151,6 +151,71 @@ que tu n'as pas.
    lecture, que ce qui revient est une synthèse. Il se déclenche sur les signatures qu'il connaît, donc son silence ne vaut pas permission :
    un export qu'il n'a jamais vu reste un export, et les règles 1 à 4 s'appliquent avec ou sans lui.
 
+## Identité de source — ne pas digérer deux fois la même source
+
+> **Deux personnes peuvent partager un même cerveau, et alors le même mail, le même fil, le même
+> document est accessible des deux côtés.** Rien, dans une note, n'enregistrait jusqu'ici DE QUEL
+> objet elle avait été tirée (les permaliens vivent dans la prose, et la prose n'est pas une clé de
+> recherche), donc le deuxième cerveau ne pouvait pas savoir que le premier l'avait déjà lu. Comme
+> les notes des zones en ajout seul fusionnent désormais sans demander à personne, un digest en
+> double atterrit en silence. Cette règle supprime la cause, pas l'alarme (ADR 0041).
+
+1. **Avant de capturer quoi que ce soit depuis un connecteur, demande au vault s'il le détient déjà.**
+   Une seule commande, depuis le dossier du cerveau, avec les champs bruts rendus par le connecteur
+   (jamais une clé que tu aurais écrite toi-même) :
+
+   ```bash
+   node scripts/known-source.mjs --type slack --channel C0CEQ4R5E --ts 1725283200.001200
+   node scripts/known-source.mjs --type mail --from "Facturation <b@example.com>" \
+        --date 2026-09-02T16:19:32Z --subject "Votre facture est disponible"
+   ```
+
+   **Trois codes de sortie, et le troisième n'est pas une trouvaille** : `0` non détenu (ou
+   impossible à savoir) → capture · `1` déjà détenu → la ligne nomme la note · `2` la question
+   elle-même est cassée.
+   Ne traite jamais un code non nul comme « déjà détenu » : une faute de frappe dans tes propres
+   arguments annulerait alors une vraie capture.
+
+2. **« Déjà détenu » veut dire VA LA LIRE, jamais « laisse tomber la question ».** Ouvre la note que
+   la vérification a nommée, réponds à partir d'elle, et **enrichis-la** si ce qu'on te demande a
+   besoin de quelque chose que le premier passage n'avait pas extrait. C'est toute la valeur d'un
+   cerveau partagé. Jeter le travail est la seule lecture de cette règle qui rende le cerveau moins
+   bon.
+
+3. **Estampille ce dont tu t'es servi·e.** Toute note écrite à partir d'une source externe porte
+   `sources:` dans son frontmatter : une liste inline de clés normalisées.
+   **Une capture en liste une** (un mail, un fil, un document, une note).
+   **Une synthèse en liste autant qu'elle en a tiré** (un briefing, une fiche de personne, une page
+   de sujet) : une telle note n'*a* pas une
+   source, elle *s'est appuyée* sur plusieurs. `file-back-note.mjs` compose les clés pour toi à
+   partir de `"sourceKeys": [{ "type": …, … }]` (des descripteurs, pas des chaînes).
+
+4. **La table des clés, une ligne par source, et toutes ces valeurs sont gratuites dans la réponse
+   ordinaire :**
+
+   | Source | Ce qui l'identifie | Où tu l'as déjà |
+   |---|---|---|
+   | Slack | l'identifiant du canal + le `ts` du message | toute réponse de message : c'est ce qu'encode un permalien |
+   | Agenda | l'identifiant de l'**occurrence**, jamais celui de la série | le listing ordinaire (un événement récurrent rend les deux : prends l'occurrence) |
+   | Drive | l'identifiant du fichier | le résultat de recherche |
+   | Notion | l'identifiant de la page | le miroir s'y appuie déjà |
+   | Mail | l'**adresse de l'expéditeur + l'horodatage d'envoi + le sujet** | `MINIMAL` / `METADATA_ONLY` |
+
+   🛑 **Ne va jamais chercher un message brut juste pour obtenir une identité.** Le `Message-Id` RFC
+   demanderait un fetch MIME complet : cent kilo-octets dans ton contexte pour un en-tête, c'est
+   exactement ce que ce fan-out existe pour éviter. Les trois champs bon marché sont identiques dans
+   toutes les copies d'un mail, quel que soit le transport, et exiger que les trois correspondent est
+   exact, pas approximatif.
+
+5. **Pas de clé veut dire INCONNUE, jamais « déjà vue ».** Une conversation, un document qu'un humain
+   t'a lu, une source qui n'a pas de ligne ci-dessus : n'écris aucune clé `sources` plutôt qu'une clé
+   inventée. Toutes les notes écrites avant cette règle sont dans cet état, et un cerveau qui lirait
+   « pas de clé » comme « déjà vue » se croirait au courant du monde entier.
+
+6. **L'identité n'est jamais une raison d'en dire moins.** Si la vérification dit « détenu » et que
+   ta question a besoin de plus que ce que dit la note détenue, dis-le et va plus loin.
+   Cette règle supprime le STOCKAGE en double, pas la réflexion en double.
+
 ## Discipline d'identité
 
 > **Lis le vault avant d'écrire sur les personnes qui s'y trouvent.** Un briefing a un jour transformé
@@ -317,12 +382,17 @@ Agent(
 Tu es un agent d'extraction de transcript de réunion. LECTURE SEULE.
 
 TÂCHE :
+0. Avant de stocker quoi que ce soit, lance la vérification d'identité de source depuis le
+   dossier du cerveau : `node scripts/known-source.mjs --type drive --file <DOC_ID>`.
+   Code 1 = ce cerveau a déjà capturé ce document : rends la note qu'il nomme, avec ce dont ta
+   question avait besoin, au lieu de le capturer une deuxième fois.
 1. Lire le document <DOC_ID> via ton connecteur Drive (mcp__<drive>__read_file).
 2. Sauvegarder le contenu brut dans vault/raw-sources/transcripts/YYYY-MM-DD-<slug>.md
    avec ce frontmatter :
    ---
    type: transcript
    source: <connecteur>
+   sources: ["drive|<DOC_ID>"]
    meeting: "<titre>"
    date: YYYY-MM-DD
    captured: <date du jour>
@@ -418,6 +488,9 @@ SUR QUEL WORKSPACE TU ÉTAIS — rends-le, ce n'est pas optionnel :
   changement d'univers, il peut donc être authentifié sur une tout autre organisation.
 
 RÈGLES :
+- Avant de stocker quoi que ce soit, lance la vérification d'identité de source (voir § Identité
+  de source) : `node scripts/known-source.mjs --type slack --channel <id canal> --ts <ts message>`.
+  Code 1 = déjà détenu : rends la note qu'il nomme au lieu de la recapturer.
 - Ignorer le conversationnel pur (bonjour/merci/emoji) et les bots/notifications.
 - Backlinks via vault/people/ (kebab-case, sans accents). Pas de nom complet, pas de lien : le nom reste en texte simple.
 - JAMAIS de shell (python3 -c, node -e, awk, sed, jq, grep, cat…) pour lire/charger/découper le
@@ -486,14 +559,26 @@ Un sous-agent qui a signalé ne pas voir les compteurs de réponses t'a dit que 
 
 ### Étape 4 — Écriture du briefing (si briefing du matin)
 
-Écrire dans `vault/briefings/YYYY-MM-DD.md` :
+**Demande le chemin, ne le compose pas** : deux personnes sur un même cerveau écrivent deux briefings
+pour le même jour, et le second ne doit pas atterrir sur le premier.
+
+```bash
+node scripts/dated-note-path.mjs --folder briefings --date YYYY-MM-DD
+```
+
+Il répond `vault/briefings/YYYY-MM-DD.md` sur un cerveau à un·e seul·e auteur·rice (rien ne change
+pour toi), et un chemin par personne dès que quelqu'un d'autre a déjà écrit ce jour-là. Même commande
+pour `--folder daily`.
+
+Écrire dans le chemin qu'il a rendu :
 
 ```markdown
 ---
 type: briefing
 date: YYYY-MM-DD
+author: <le nom affiché par la commande ci-dessus>   # qui l'a écrit ; absent = inconnu, jamais personne
 architecture: fan-out/fan-in
-sources: ["[[raw-sources/transcripts/...]]", "chat (24h)", "calendar (jour)"]
+sources: ["drive|<id>", "slack|<canal>|<ts>"]   # ce dont ce briefing S'EST SERVI, clés normalisées
 unverified: true          # vrai tant qu'un caveat ci-dessous reste décoché (voir Caveats)
 tags: [briefing]
 ---
@@ -538,6 +623,13 @@ d'urgence, sinon le seul signal qui protège une relation se perd dans la décor
 
 Pas de section vide, l'omettre. Chaque signal cite sa source (crochets ou backlink).
 
+**Le champ `sources:` est désormais la liste machine** (voir *Identité de source* plus haut) : les
+clés normalisées de ce dont ce briefing s'est servi, pour qu'un autre cerveau qui croise le même
+document sache que celui-ci l'a déjà digéré. La liste **humaine** des sources reste dans le corps, là
+où un lecteur ou une lectrice la trouve déjà, sous forme de backlinks. Les anciens briefings dont le
+`sources:` contient de la prose ne risquent rien : une entrée en prose ne peut jamais être égale à
+une clé normalisée, donc elle ne peut jamais produire un faux « déjà détenu ».
+
 ### Étape 5 — Append dans `vault/actions-log.md`
 
 Le ledger est un **artefact de première classe, initialisé (seedé)** : il est créé à l'installation
@@ -546,8 +638,13 @@ il existe normalement déjà - il suffit d'**appender** une ligne plate et *grep
 son en-tête (le créer quand même s'il est absent) :
 
 ```markdown
-## [YYYY-MM-DD] <action> — #canal [[people/destinataire]]
+## [YYYY-MM-DD] <action> — #canal [[people/destinataire]] · <qui>
 ```
+
+Le dernier champ, c'est **qui l'a fait** (`git config --get user.name`, le même nom que tout le reste
+de ce cerveau donne à la question « qui ? »). Ça compte le jour où le cerveau est partagé : deux
+personnes qui appendent dans un même ledger voient leurs lignes conservées côte à côte, et sans nom
+le résultat se lit comme l'histoire d'une seule personne.
 
 **Append-only** : ne jamais réécrire les lignes existantes ni l'en-tête seedé. Usage : « qu'est-ce
 que j'ai fait sur X ? » → `grep -i "X" vault/actions-log.md` puis enrichissement via les briefings

@@ -1,0 +1,43 @@
+[32m17:50:00 (13666) INFO ProjectReader[39m Found 5 of 1118 file(s) to be mutated.
+[32m17:50:00 (13666) INFO Instrumenter[39m Instrumented 5 source file(s) with 76 mutant(s)
+[32m17:50:01 (13666) INFO ConcurrencyTokenProvider[39m Creating 4 test runner process(es).
+[32m17:50:01 (13666) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: maintainers/mutation/.stryker-tmp/backup-i3qQRR
+[32m17:50:01 (13666) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m17:50:01 (13666) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m17:50:02 (13666) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 1 second (net 1384 ms, overhead 0 ms).
+Mutation testing 17% (elapsed: <1m, remaining: <1m) 13/76 tested (0 survived, 0 timed out)
+Mutation testing 42% (elapsed: <1m, remaining: <1m) 32/76 tested (2 survived, 0 timed out)
+Mutation testing 61% (elapsed: <1m, remaining: <1m) 47/76 tested (2 survived, 0 timed out)
+Mutation testing 77% (elapsed: <1m, remaining: <1m) 59/76 tested (2 survived, 0 timed out)
+Mutation testing 77% (elapsed: <1m, remaining: <1m) 59/76 tested (2 survived, 0 timed out)
+Mutation testing 82% (elapsed: ~1m, remaining: <1m) 63/76 tested (2 survived, 2 timed out)
+Mutation testing 97% (elapsed: ~1m, remaining: <1m) 74/76 tested (2 survived, 2 timed out)
+
+All tests
+  ✓ All tests (killed 70)
+
+[Survived] ConditionalExpression
+rag/src/lib/remote-sync-interval.ts:25:7
+-     if (!trimmed) return DEFAULT_REMOTE_SYNC_INTERVAL_SECONDS;
++     if (false) return DEFAULT_REMOTE_SYNC_INTERVAL_SECONDS;
+
+[Survived] BooleanLiteral
+rag/src/lib/remote-sync-scheduler.ts:59:21
+-     private stopped = false;
++     private stopped = true;
+
+Ran 0.95 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 |  97.37 |   97.37 |       70 |         4 |          2 |        0 |        0 |
+ campaign-persist.ts      | 100.00 |  100.00 |        1 |         0 |          0 |        0 |        0 |
+ frontmatter-parser.ts    | 100.00 |  100.00 |       16 |         0 |          0 |        0 |        0 |
+ remote-sync-interval.ts  |  92.31 |   92.31 |       12 |         0 |          1 |        0 |        0 |
+ remote-sync-scheduler.ts |  97.22 |   97.22 |       31 |         4 |          1 |        0 |        0 |
+ shutdown-plan.ts         | 100.00 |  100.00 |       10 |         0 |          0 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m17:51:15 (13666) INFO HtmlReporter[39m Your report can be found at: file:///Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutation-rag.html
+[32m17:51:15 (13666) INFO MutationTestExecutor[39m Done in 1 minute and 14 seconds.
+[32m17:51:15 (13666) INFO Sandbox[39m Resetting your original files from maintainers/mutation/.stryker-tmp/backup-i3qQRR.

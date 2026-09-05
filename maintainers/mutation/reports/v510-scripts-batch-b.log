@@ -1,0 +1,76 @@
+[32m18:09:38 (14816) INFO ProjectReader[39m Found 4 of 975 file(s) to be mutated.
+[32m18:09:38 (14816) INFO Instrumenter[39m Instrumented 4 source file(s) with 28 mutant(s)
+[32m18:09:38 (14816) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m18:09:38 (14816) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-MOtHyM
+[32m18:09:38 (14816) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m18:09:38 (14816) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m18:09:50 (14816) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 11 seconds (net 11950 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/28 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/28 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/28 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/28 tested (0 survived, 0 timed out)
+Mutation testing 17% (elapsed: <1m, remaining: ~3m) 5/28 tested (2 survived, 0 timed out)
+Mutation testing 17% (elapsed: ~1m, remaining: ~4m) 5/28 tested (2 survived, 0 timed out)
+Mutation testing 17% (elapsed: ~1m, remaining: ~5m) 5/28 tested (2 survived, 0 timed out)
+Mutation testing 17% (elapsed: ~1m, remaining: ~6m) 5/28 tested (2 survived, 0 timed out)
+Mutation testing 17% (elapsed: ~1m, remaining: ~6m) 5/28 tested (2 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~1m, remaining: ~3m) 10/28 tested (4 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~1m, remaining: ~3m) 10/28 tested (4 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~2m, remaining: ~3m) 10/28 tested (4 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~2m, remaining: ~3m) 10/28 tested (4 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~2m, remaining: ~4m) 10/28 tested (4 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~2m, remaining: ~2m) 15/28 tested (4 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~2m, remaining: ~2m) 15/28 tested (4 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~2m, remaining: ~2m) 15/28 tested (4 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~3m, remaining: ~2m) 15/28 tested (4 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~3m, remaining: ~2m) 15/28 tested (4 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~3m, remaining: ~1m) 20/28 tested (5 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~3m, remaining: ~1m) 20/28 tested (5 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~3m, remaining: ~1m) 20/28 tested (5 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~3m, remaining: ~1m) 20/28 tested (5 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~4m, remaining: <1m) 25/28 tested (5 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~4m, remaining: <1m) 25/28 tested (5 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~4m, remaining: <1m) 25/28 tested (5 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 23)
+
+[Survived] LogicalOperator
+scripts/lib/reconcile-brain.mjs:502:9
+-       if (unignored.changed || ignored.changed || arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
++       if ((unignored.changed || ignored.changed) && arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
+
+[Survived] ConditionalExpression
+scripts/lib/reconcile-brain.mjs:502:9
+-       if (unignored.changed || ignored.changed || arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
++       if (true) writeFileSync(gitignorePath, arrivals.text);
+
+[Survived] ConditionalExpression
+scripts/lib/reconcile-brain.mjs:502:9
+-       if (unignored.changed || ignored.changed || arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
++       if (false || arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
+
+[Survived] LogicalOperator
+scripts/lib/reconcile-brain.mjs:502:9
+-       if (unignored.changed || ignored.changed || arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
++       if (unignored.changed && ignored.changed || arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
+
+[Survived] StringLiteral
+scripts/prompt-restart-nudge.mjs:70:64
+-       const directive = [restart, arrivals].filter(Boolean).join("\n\n");
++       const directive = [restart, arrivals].filter(Boolean).join("");
+
+Ran 1.00 tests per mutant on average.
+---------------------------|------------------|----------|-----------|------------|----------|----------|
+                           | % Mutation score |          |           |            |          |          |
+File                       |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                  |  82.14 |   82.14 |       23 |         0 |          5 |        0 |        0 |
+ lib                       |  69.23 |   69.23 |        9 |         0 |          4 |        0 |        0 |
+  ignore-base-settings.mjs | 100.00 |  100.00 |        1 |         0 |          0 |        0 |        0 |
+  reconcile-brain.mjs      |  33.33 |   33.33 |        2 |         0 |          4 |        0 |        0 |
+  wiki-lint.mjs            | 100.00 |  100.00 |        6 |         0 |          0 |        0 |        0 |
+ prompt-restart-nudge.mjs  |  93.33 |   93.33 |       14 |         0 |          1 |        0 |        0 |
+---------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m18:14:13 (14816) INFO MutationTestExecutor[39m Done in 4 minutes and 34 seconds.
+[32m18:14:13 (14816) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-MOtHyM.

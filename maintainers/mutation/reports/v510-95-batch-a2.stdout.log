@@ -1,0 +1,12 @@
+▶ git worktree prune   (in /Users/tpierrain/Dev/kenjaku)
+▶ git reset --hard b06991dd85070f786022c3b05c96540784b22aaf   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ git clean -qfd -e rag/node_modules   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ symlink /Users/tpierrain/Dev/kenjaku/rag/node_modules → /Users/tpierrain/Dev/kenjaku-mut-one/rag/node_modules
+▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+   ✓ write guard: 22 pass, 0 skipped
+▶ discard stale log /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-author-identities+1.log
+▶ node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate scripts/lib/author-identities.mjs,scripts/lib/brain-author.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+✅ Mutation score 97.98 % — 437 killed, 9 survived, 0 timeout
+   author-identities.mjs: 98.11 % (4 survived, 0 timeout)
+   brain-author.mjs: 97.86 % (5 survived, 0 timeout)
+   log: /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-author-identities+1.log

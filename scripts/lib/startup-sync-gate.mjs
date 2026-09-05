@@ -41,6 +41,26 @@ const PULLER_SCRIPT = "session-status.mjs";
  * The raw hook payload, from fd 0 where the harness pipes it. A TTY is left alone
  * on purpose: run by hand, fd 0 is a keyboard and the read would hang the hook.
  * Both deps are injected so that guard is assertable without a terminal.
+ *
+ * ⚠️ **This read is BEST-EFFORT, and deliberately so — do not "fix" it into a wait
+ * without reading ADR 0028 first.** Touching `process.stdin` builds the stdin stream,
+ * which switches fd 0 to NON-BLOCKING, so a payload the harness has not written yet
+ * reads as nothing at all: no session id, and the barrier below opens instead of
+ * waiting. That was investigated in full on 2026-09-05 and the two obvious repairs
+ * were both measured and both rejected. Asking the tty question with `tty.isatty(0)`
+ * leaves fd 0 BLOCKING, and a blocking read of a pipe nobody writes to waits for a
+ * close that may never come — it took this repo's suite from ~50 s to over 10
+ * minutes. Polling with a short budget is fast but still misses the payload it was
+ * added to catch.
+ *
+ * **The answer was not to repair it, it was to stop needing it.** ADR 0028's hard
+ * constraint is that a session start never blocks, and a barrier that waits is in
+ * tension with it whether or not the race is fixed — so on 2026-09-05 the owner's
+ * call (*"enlève l'attente"*) removed the universe hook's wait outright: it announces
+ * what is on disk at once, and a switch that arrives afterwards is corrected at the
+ * next message (`remote-arrivals.mjs`). ONE waiter is left, `session-engine-divergence
+ * .mjs`, and the same question is open for it. See
+ * `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
  */
 export function readHookPayload({
   readInput = () => readFileSync(0, "utf8"),
@@ -197,11 +217,11 @@ function writeMarker({ repo, sessionId, io, phase, now }) {
  * without the seam held a CI runner 2 h 46 min on 2026-08-23 and queued three hours of
  * jobs behind it. Every caller that is not a real hook must pass it.
  *
- * ⚠️ `session-universe.mjs` deliberately keeps its inline spelling until after the v5.0.0
- * tag. Its three files are byte-identical to `main`, and that is exactly what makes the
- * macOS CI flake diagnosable as inherited rather than introduced (release plan, § THE
- * macOS FLAKE). Adopting this helper there is post-tag work, alongside the instrument
- * that will record WHICH fail-open branch the flake takes.
+ * ⚠️ There is exactly ONE caller left, and that is the whole live question about this file.
+ * `session-universe.mjs` used to be the other one; its wait was removed on 2026-09-05 (ADR
+ * 0028, the owner's call) in favour of announce-now-correct-later. The same trade is open
+ * for the divergence hook, where a stale read produces a FALSE "your engine is behind"
+ * rather than a stale universe — put it to the owner rather than assume.
  */
 export function awaitStartupSync({ repo, io, now = Date.now, sleep = blockingSleep, readPayload = readHookPayload }) {
   return waitForStartupSync({

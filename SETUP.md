@@ -470,6 +470,37 @@ question needed. The cadence is set by **`LOCAL_MIRROR_SYNC_INTERVAL`** in `.env
 = 5 min; **`0` disables** the background timer and falls back to the question-time refresh only). It ticks
 only while a window is open (it is not a 24/7 daemon).
 
+### (e) Two things people expect to find here and will not — iCloud, and Spotlight
+
+Neither is an oversight, and neither needs configuring. They are named here because their
+absence is the kind that makes a newcomer hunt for a setting that does not exist.
+
+**iCloud — there is no connector, and there are two routes that work.** Nothing in this
+brain reads iCloud, and nothing is planned:
+
+- **Notes you already have as files** (Markdown sitting in iCloud Drive): bring them in
+  **once**, with the **`/import` skill** (§11) — point it at the folder, it copies, never
+  overwrites, and reindexes. After that they are ordinary notes in your vault, versioned
+  with everything else.
+- **Documents that keep changing** (a spec you edit every week): leave them where they
+  live and reach them through a connector — **Google Drive** is the wired path (see the
+  menu above). A one-off import of a moving document only ever captures the version it had
+  that day.
+- **Apple Notes is a different thing again**: it is not a folder of files, so `/import` has
+  nothing to point at. Exporting from it is a manual step on Apple's side, and once the
+  notes are Markdown on disk the first route applies.
+- ⚠️ **Do not put the brain itself inside iCloud Drive.** It is a git repository, and a file
+  syncer and git are two systems trying to own the same files: the way to have one brain on
+  two machines is a **private git remote** (§7), which is built for exactly that and
+  survives conflicts instead of duplicating files.
+
+**Spotlight — not used, nothing to configure, and it is not the same tool.** Your vault is
+plain Markdown, so macOS will happily index it and you can keep using Spotlight to *open a
+file whose name you remember*. Your brain never consults it. Searching your vault goes
+through the RAG engine (§4), which answers a **question** with the passages that mean the
+same thing — not the files that contain the same words — and **cites the notes it used**.
+Two different jobs: one finds a document, the other answers with your own material.
+
 ## 7. Backup & multi-machine portability (remote repo)
 
 Set up a private git remote, **then enable push** (without it, auto-commit stays local — it's
@@ -510,8 +541,36 @@ Then two things it cannot do for you:
 
 That first rooted session is also what **indexes the vault** — a clone carries your notes but not the
 index (`rag/.cache` is local). So a first-session banner announcing an empty index is expected, not a
-defect: let the indexing run. Afterwards, during a session, the `/sync` skill brings in the changes
-made on the other machine.
+defect: let the indexing run.
+
+### While you work — the two brains keep themselves in step
+
+Once a remote is wired, your brain **checks on its own** whether the other machine pushed anything,
+about every minute and a half, for as long as a window is open. What it finds, it brings in and
+indexes; then it tells you at your **next message** ("2 notes from Claire arrived: …"), and shows a
+small notification on your computer when the notes were written by **someone else** — so you see it
+even if Claude's window is behind another app. Nothing runs when no window is open, and nothing is
+downloaded when nothing changed: the check asks the remote for one reference and stops there.
+
+Two notes appended the same afternoon, on both machines, to the **same** daily note **merge on their
+own** — both contributions kept, nobody asked anything. That automatic keep-both applies to the
+places you only ever **add** to: your daily notes, your inbox, imported raw sources, the activity
+log. Elsewhere — a person's page, a topic, anything you **rewrite** rather than append to — two
+different versions **stop and ask you**, deliberately: keeping both halves of a page two people
+rewrote would leave it saying two contradictory things, and nobody would ever notice. When a merge
+needs a hand, your brain says so at your next message and walks you through it; the `/sync` skill is
+still there if you would rather do it yourself, at your moment.
+
+> Both knobs live in `.env` and neither is required: `REMOTE_SYNC_INTERVAL` (seconds, `0` turns the
+> automatic check off and leaves you the session-start catch-up and `/sync`) and `REMOTE_SYNC_BANNER`
+> (`0` keeps the sync and drops the notification).
+
+> 🔐 **What sharing one repository means, plainly.** A brain's repository holds your notes **and the
+> code your brain runs** (`scripts/`, `rag/`). So anyone you let push to it can, in principle, have
+> code run on your machine at your next session. That has been true since the day you wired a remote,
+> and it is why the repository is **private**: the fence is its collaborator list. Sharing a brain
+> with a colleague is a real decision — the same one as sharing a machine, not the one as sharing a
+> document.
 
 > 🧭 **The universe you are working in travels too** (if you use several — see §5). Switch context on
 > one computer and the others land in it at their next sync, and say which one they are in when the
@@ -521,6 +580,34 @@ made on the other machine.
 > switch settles it.
 
 > ⚠️ **Never** commit `.env` (gitignored). On a new machine, re-enter the key.
+
+### Duo mode — sharing one brain with someone else
+
+The same remote repository that keeps your two computers in step can keep **two people** in step.
+That is **duo mode**: nothing to switch on, it is what the brain does once a second person pulls from
+the same repository. You add them to the private repository, and their brain and yours pull from the
+same place.
+
+**📖 The whole thing is one page: [`docs/duo-mode.md`](docs/duo-mode.md)** — what each person does,
+the question your brain will ask you, who controls access and how a duo ends, and the honest
+perimeter. Worth two minutes before you invite anyone in. The three things people get wrong:
+
+- **Sharing a brain shares what you wrote down, not what you can see in your own tools** (mail,
+  messages, calendar, Drive). Each brain reads *its own* account's mail and messages; **giving
+  someone access to your mailbox does not give their brain access to it**, and no setting changes
+  that. A **shared calendar** is the one thing that crosses over.
+- **Access is the repository's, not the brain's.** Nobody adds themselves, and **ending a duo is
+  removing their access on GitHub** — there is nothing to un-declare inside the brain
+  ([ADR 0042](maintainers/decisions/0042-access-belongs-to-the-git-host-the-brain-only-files.md)).
+- **Your brain asks one question and never guesses**: a second name appearing may be a colleague, or
+  you on another machine — it cannot tell, so it asks, and it remembers your answer on both
+  computers.
+
+> 🔐 **What sharing one repository means, plainly.** A brain's repository holds your notes **and the
+> code your brain runs** (`scripts/`, `rag/`). So anyone you let push to it can, in principle, have
+> code run on your machine at your next session. That is why the repository is **private**: the fence
+> is its collaborator list. Sharing a brain with a colleague is a real decision — the same one as
+> sharing a machine, not the one as sharing a document.
 
 ## 8. Troubleshooting
 

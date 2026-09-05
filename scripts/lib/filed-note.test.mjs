@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { slugify, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
+import { noteAuthor } from "./dated-note-path.mjs";
+import { slugify, slugSafe, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // filed-note — the pure, I/O-free core of Track B ("file the good answer back").
@@ -169,6 +170,7 @@ test("renderFiledNote — with no links, omits the Related section entirely", ()
     today: "2026-07-17",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "decisions/2026-07-17-adopt-the-hive.md",
     content: `---
 type: decision
@@ -198,6 +200,7 @@ test("renderFiledNote — under an active universe, prefixes the path and stamps
     universe: "acme",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "acme/topics/capacity-management.md",
     content: `---
 type: topic
@@ -242,6 +245,7 @@ test("renderFiledNote — builds path + conformant frontmatter, body, and woven 
     today: "2026-07-17",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "topics/capacity-management.md",
     content: `---
 type: topic
@@ -331,6 +335,7 @@ test("renderFiledNote — a probable resolution says so, in the claim discipline
   // field case itself — a name welded together inside an AI synthesis — and it
   // now says both, in that order.
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "people/jeremy-hinard.md",
     content: `---
 type: person
@@ -459,6 +464,7 @@ test("renderFiledNote — `distinguish` becomes the homonymy block, right under 
     today: "2026-08-03",
   });
   assert.deepEqual(note, {
+    sourceKeys: [],
     path: "people/romain-lefevre.md",
     content: `---
 type: person
@@ -694,4 +700,202 @@ test("sourcesBlock — several sources are several LINES, not one run-on line", 
       "> - 🤖 AI synthesis · same export, Gemini notes at the top",
     ].join("\n"),
   );
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// `sourceKeys` — the MACHINE identity of what a note was captured from (ADR 0041).
+//
+// ⚠️ It is NOT `sources`, and the two live one field apart in the same spec on
+// purpose-built confusion: `sources` says what TIER of material this note rests on
+// (verbatim, human synthesis, AI synthesis) and is read by a human; `sourceKeys`
+// says WHICH objects it drew on and is read by a grep. A note may carry either,
+// both, or neither.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const A_MAIL = { type: "mail", from: "Billing <billing@example.com>", date: "2026-09-02T16:19:32Z", subject: "Your invoice is ready" };
+const A_THREAD = { type: "slack", channel: "C0CEQ4R5E", ts: "1725283200.001200" };
+
+test("renderFiledNote — the sources it drew on are stamped as normalized keys, and handed back", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "Invoicing",
+    tags: ["finance"],
+    body: "b",
+    sources: SAID_HERE,
+    sourceKeys: [A_THREAD, A_MAIL],
+    today: "2026-09-02",
+  });
+
+  assert.match(
+    note.content,
+    /^source_tier: conversation\nsources: \[slack\|C0CEQ4R5E\|1725283200\.001200, mail\|billing@example\.com\|20260902T161932Z\|your-invoice-is-ready\]\n---$/m,
+    "one inline list, after the tier stamp, in the order the note drew on them",
+  );
+  assert.deepEqual(note.sourceKeys, [
+    "slack|C0CEQ4R5E|1725283200.001200",
+    "mail|billing@example.com|20260902T161932Z|your-invoice-is-ready",
+  ], "the caller needs them to ask the vault whether it already holds one");
+});
+
+test("renderFiledNote — a note that drew on nothing identifiable carries no claim at all", () => {
+  for (const spec of [{}, { sourceKeys: [] }]) {
+    const note = renderFiledNote({
+      type: "topic",
+      title: "X",
+      tags: ["a"],
+      body: "b",
+      sources: SAID_HERE,
+      today: "2026-09-02",
+      ...spec,
+    });
+
+    assert.doesNotMatch(note.content, /^sources:/m, "absent means UNKNOWN, and an empty list would claim otherwise");
+    assert.deepEqual(note.sourceKeys, []);
+  }
+});
+
+test("renderFiledNote — one source named twice is one source", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    sourceKeys: [A_THREAD, { ...A_THREAD, channel: " C0CEQ4R5E " }],
+    today: "2026-09-02",
+  });
+
+  assert.match(note.content, /^sources: \[slack\|C0CEQ4R5E\|1725283200\.001200\]$/m);
+});
+
+test("renderFiledNote — a descriptor that cannot be keyed refuses the note, it does not stamp a guess", () => {
+  assert.throws(
+    () =>
+      renderFiledNote({
+        type: "topic",
+        title: "X",
+        tags: ["a"],
+        body: "b",
+        sources: SAID_HERE,
+        sourceKeys: [{ type: "slack", channel: "C0CEQ4R5E" }],
+        today: "2026-09-02",
+      }),
+    (err) => err.message.includes("ts") && err.message.includes("slack"),
+    "half a key matches nothing, so it would be a claim wearing the shape of one",
+  );
+});
+
+test("renderFiledNote — the machine keys and the human tier stamp coexist without touching", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: [{ tier: "ai-summary", ref: "the connector's own digest" }],
+    sourceKeys: [A_MAIL],
+    today: "2026-09-02",
+  });
+
+  assert.match(note.content, /^source_tier: ai-summary$/m);
+  assert.match(note.content, /^sources: \[mail\|billing@example\.com\|20260902T161932Z\|your-invoice-is-ready\]$/m);
+});
+
+// `slugSafe` — the same rule as `slugify`, minus the throw. It exists because the
+// per-person note paths need to ask "does this name have a slug at all?" and answer
+// "no" without an exception: a name written in a script with no Latin letters is a
+// legitimate git author, and the right answer there is to fall back to the shared
+// path, not to refuse the note. One owner for the slug rule, per CONVENTIONS §5quater.
+test("slugSafe — same slug as slugify wherever slugify has one", () => {
+  for (const title of ["Jane Doe", "Capacity Management", "Claire Dubois", "Éloïse Martin"]) {
+    assert.equal(slugSafe(title), slugify(title), title);
+  }
+});
+
+test("slugSafe — answers null where slugify throws, instead of throwing", () => {
+  for (const title of ["", "   ", "!!!", "日本語"]) {
+    assert.equal(slugSafe(title), null, JSON.stringify(title));
+    assert.throws(() => slugify(title), /empty slug/, "and slugify keeps its refusal");
+  }
+});
+
+// ── Who wrote it, stamped on the note itself (plan step 9.4) ─────────────────
+//
+// 🛑 WHY THE FIELD AND NOT JUST GIT. Every write is committed under its author's
+// name, so history already answers "who wrote this" — as archaeology. Two people
+// sharing one brain will one day want that answered per NOTE (an audit, an export,
+// "everything she wrote"), and a note that is moved, copied or filed back loses its
+// history while keeping its frontmatter. The metadata is laid now so the use case
+// can be built later; the audit itself is not built, and is not promised.
+
+test("renderFiledNote — a note says who wrote it", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    today: "2026-07-17",
+    author: "Thomas Pierrain",
+  });
+
+  assert.match(note.content, /^author: Thomas Pierrain$/m);
+});
+
+// 🛑 The RAW spelling, exactly as this machine's git says it — never resolved through
+// the identity registry. A fusion is an OPINION, correctable and reversible; a stamped
+// name is a fact about who typed. Resolving happens at read time, where it belongs.
+test("renderFiledNote — the spelling is stamped as given, untouched", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    today: "2026-07-17",
+    author: "tpierrain",
+  });
+
+  assert.match(note.content, /^author: tpierrain$/m);
+});
+
+// ABSENT means unknown, exactly like the source keys above: a brain whose git has no
+// user.name must still be able to file a note, and a stamped empty name would be a
+// claim that nobody wrote it.
+test("renderFiledNote — a nameless machine stamps no author at all", () => {
+  for (const author of [undefined, "", "   ", null]) {
+    const note = renderFiledNote({
+      type: "topic",
+      title: "X",
+      tags: ["a"],
+      body: "b",
+      sources: SAID_HERE,
+      today: "2026-07-17",
+      author,
+    });
+
+    assert.doesNotMatch(note.content, /^author:/m, `on ${JSON.stringify(author)}`);
+  }
+});
+
+// The field the per-person dated-note rule reads back is the field written here:
+// two spellings of "who wrote this" would be a rule that never fires.
+test("renderFiledNote — the stamp is the field the dated-note rule reads", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    today: "2026-07-17",
+    author: "Claire Dubois",
+  });
+
+  const frontmatter = Object.fromEntries(
+    note.content
+      .split("---")[1]
+      .trim()
+      .split("\n")
+      .map((line) => [line.slice(0, line.indexOf(": ")), line.slice(line.indexOf(": ") + 2)]),
+  );
+  assert.equal(noteAuthor(frontmatter), "Claire Dubois", "two spellings of who wrote this is a rule that never fires");
 });

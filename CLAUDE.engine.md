@@ -97,6 +97,7 @@ subtree, with the same type-folders nested inside, and carries an additive `univ
 type: daily | person | topic | decision | meeting
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+author: <the name `git config --get user.name` gives on THIS machine>
 tags: [tag1, tag2]
 ---
 
@@ -104,6 +105,15 @@ tags: [tag1, tag2]
 
 Markdown content.
 ```
+
+> ✍️ **`author:` — stamp it on every note you write, with the RAW spelling this machine's git is
+> configured with** (never a merged identity: the registry resolves spellings at read time, and a
+> fusion is a correctable opinion whereas a stamped name is a fact about who typed). It costs
+> nothing on a solo brain and it is what makes two things possible on a shared one: **the per-person
+> dated note** — `dated-note-path.mjs` reads it back, and a note that claims nobody falls back to the
+> shared file, so the rule quietly stops existing — and, later, **being able to answer "what did this
+> person write"** from the notes rather than from git archaeology. `file-back-note.mjs` stamps it for
+> you; notes you write directly are yours to stamp. Absent means UNKNOWN, never "nobody".
 
 ### Obsidian backlinks
 

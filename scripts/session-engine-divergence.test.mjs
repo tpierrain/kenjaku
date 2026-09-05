@@ -205,8 +205,9 @@ test("runSessionEngineDivergence — one unreadable merge file no longer silence
 // ── T11 (third review pass): this hook read state the startup pull was writing ─
 // SessionStart hooks run in PARALLEL and the pull lives in `session-status.mjs`. This
 // one reads the manifest, every merge file and `.engine-base/` — all tracked, all
-// rewritten by a pull — and it took no barrier at all. `session-universe.mjs` was the
-// only non-test caller of `waitForStartupSync`. A manifest caught mid-write parses as
+// rewritten by a pull — and it took no barrier at all. `session-universe.mjs` was then
+// the only non-test caller of `waitForStartupSync`; its wait was removed on 2026-09-05
+// (ADR 0028, the owner's call), so this hook is now the last one that waits at all. A manifest caught mid-write parses as
 // nothing and the hook goes silent: the one surface whose whole job is to speak about a
 // freeze at REST is also the one that says nothing when the read comes at a bad moment.
 //

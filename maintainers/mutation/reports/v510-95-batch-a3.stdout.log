@@ -1,0 +1,9 @@
+▶ git worktree prune   (in /Users/tpierrain/Dev/kenjaku)
+▶ git reset --hard 045bd3f45ad8644a3f7974799b689fecc1b6e85b   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ git clean -qfd -e rag/node_modules   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ symlink /Users/tpierrain/Dev/kenjaku/rag/node_modules → /Users/tpierrain/Dev/kenjaku-mut-one/rag/node_modules
+▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+   ✓ write guard: 22 pass, 0 skipped
+▶ discard stale log /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-author-identities+1.log
+▶ node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate scripts/lib/author-identities.mjs,scripts/lib/brain-author.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+❌ Stryker failed and measured nothing — full output in /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-author-identities+1.log

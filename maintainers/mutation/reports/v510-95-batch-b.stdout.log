@@ -1,0 +1,9 @@
+▶ git worktree prune   (in /Users/tpierrain/Dev/kenjaku)
+▶ git reset --hard 02cbbcec2bf8454b9f5113b31bdca2b894bc3b67   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ git clean -qfd -e rag/node_modules   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ symlink /Users/tpierrain/Dev/kenjaku/rag/node_modules → /Users/tpierrain/Dev/kenjaku-mut-one/rag/node_modules
+▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+   ✓ write guard: 22 pass, 0 skipped
+▶ discard stale log /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-session-authors+1.log
+▶ node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate scripts/session-authors.mjs,scripts/author-identity.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+❌ 58 of 163 mutants TIMED OUT (36 %) — the 96.32 % is starved CPU, not killed mutants. Re-run with nothing else running. Full output in /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-session-authors+1.log

@@ -18,6 +18,12 @@ export interface ParsedDocument {
   title: string;
   /** Clickable source link for mirror notes (Notion); null for plain notes. */
   sourceUrl: string | null;
+  /**
+   * The normalized keys of what this note was captured from (ADR 0041) — the
+   * MACHINE half, beside `sourceUrl`'s human one. Empty for every note written
+   * before that decision, which reads as UNKNOWN and never as "drew on nothing".
+   */
+  sources: string[];
   /** Soft retrieval scope (ADR 0034); the default universe when unset. */
   universe: string;
 }
@@ -140,5 +146,11 @@ export function parseDocument(raw: string, relativePath: string): ParsedDocument
   const title = extractTitle(content, relativePath, frontmatter);
   const sourceUrl =
     typeof frontmatter.source_url === "string" ? frontmatter.source_url : null;
-  return { frontmatter, content, type, tags, title, sourceUrl, universe };
+  // A lone key is one source: YAML gives back a scalar for `sources: drive|1A2b`
+  // and an array for the inline list, and both mean the same thing to a reader.
+  const rawSources = frontmatter.sources;
+  const sources = (Array.isArray(rawSources) ? rawSources : [rawSources])
+    .filter((v) => typeof v === "string" && v.trim() !== "")
+    .map((v) => (v as string).trim());
+  return { frontmatter, content, type, tags, title, sourceUrl, sources, universe };
 }

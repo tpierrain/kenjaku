@@ -479,3 +479,36 @@ test("reportLines — a frontmatter violation lists the note and its missing key
     "  bad.md (missing: created, updated, tags)",
   ]);
 });
+
+// A captured note now carries `sources` — the machine identity of what it was built
+// from (ADR 0041). The linter must read that as an ordinary additional key, not as a
+// violation: a report that complains about a field the engine itself writes is the
+// permanent, unclearable complaint CONVENTIONS §5quater forbids.
+test("lintVault — a note carrying its source keys is conformant, not in violation", () => {
+  const notes = [
+    {
+      path: "raw-sources/2026-09-02-invoice.md",
+      frontmatter: {
+        type: "raw-source",
+        created: "2026-09-02",
+        updated: "2026-09-02",
+        tags: ["finance"],
+        sources: ["mail|billing@example.com|20260902T161932Z|your-invoice-is-ready"],
+      },
+      body: "The invoice said 42.",
+    },
+    {
+      path: "topics/invoicing.md",
+      frontmatter: {
+        type: "topic",
+        created: "2026-09-02",
+        updated: "2026-09-02",
+        tags: ["finance"],
+        sources: ["slack|C0CEQ4R5E|1725283200.001200"],
+      },
+      body: "See [[raw-sources/2026-09-02-invoice]].",
+    },
+  ];
+
+  assert.deepEqual(lintVault(notes).frontmatterViolations, []);
+});

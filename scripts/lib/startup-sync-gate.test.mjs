@@ -389,6 +389,34 @@ test("readHookPayload: an unreadable fd 0 is silence, never a thrown hook", () =
   );
 });
 
+test("readHookPayload: a payload that has NOT LANDED YET reads as nothing — the known limit, ADR 0028", () => {
+  // Not an aspiration: a characterisation test, pinning what this really does so the
+  // gap is visible in the suite instead of being rediscovered from a red run.
+  //
+  // fd 0 is non-blocking here (asking `process.stdin.isTTY` is what makes it so), so a
+  // harness that has not written yet reads as EAGAIN → "" → no session id → the
+  // barrier opens instead of waiting, and the reader acts on what it woke up with.
+  // Measured 2026-09-05 through a real process: a payload handed over 500 ms late lost
+  // every time.
+  //
+  // ⚠️ Both repairs were built and measured, and BOTH were rejected. `tty.isatty(0)`
+  // leaves fd 0 blocking, and a blocking read of a pipe nobody writes to waits for a
+  // close that may never come — it took this suite from ~50 s to over 10 minutes.
+  // Polling with a small budget stays fast and still misses the payload. ADR 0028's
+  // constraint — a session start never blocks — beat the barrier rather than the race:
+  // the universe hook's wait was REMOVED on the owner's call, and the one remaining
+  // waiter is the engine-divergence hook, whose own call is open in
+  // `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
+  const notYet = new Error("EAGAIN: resource temporarily unavailable, read");
+  notYet.code = "EAGAIN";
+
+  assert.equal(
+    readHookPayload({ readInput: () => { throw notYet; }, isTTY: () => false }),
+    "",
+    "today this is silence — change it only WITH the design call, never as a drive-by fix",
+  );
+});
+
 test("blockingSleep: it really blocks the thread — a poll loop that does not is a spin", () => {
   const before = Date.now();
 

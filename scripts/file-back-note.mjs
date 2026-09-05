@@ -21,9 +21,13 @@
 import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+import { localAuthorName } from "./lib/brain-author.mjs";
+import { defaultGit } from "./lib/engine-fetch.mjs";
 import { renderFiledNote, homonymCards, CONFIDENCE } from "./lib/filed-note.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { notesHoldingSource } from "./lib/source-key.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
+import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
 
 // Vault paths are displayed, compared and written in POSIX form so behaviour is
 // identical across platforms — on Windows join() yields backslashes, which would
@@ -88,6 +92,14 @@ export const realFileBackDeps = {
   // exists nowhere else). POSIX-formed like the write path, for one comparison
   // shape across platforms.
   peopleCards: () => listPeopleCards(realListIo, toPosix(join(process.cwd(), "vault"))),
+  // What the vault has already captured, so one source is not stored twice (ADR
+  // 0041). The NOTES, never the index: a note that arrived over git seconds ago is
+  // not indexed yet, and that is exactly the case this guard exists for.
+  vaultNotes: () => readVaultNotes(join(process.cwd(), "vault")),
+  // ONE notion of "who is at this keyboard" for the whole brain (brain-author.mjs),
+  // rooted with `-C` like every other git call here: a command run in the wrong
+  // directory succeeds, it just answers about somewhere else.
+  author: () => localAuthorName((args) => defaultGit(["-C", process.cwd(), ...args])),
   writeFile: (p, content) => {
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, content);
@@ -124,7 +136,10 @@ export function runFileBack(argv, deps = realFileBackDeps) {
 
   let note;
   try {
-    note = renderFiledNote({ ...spec, today: deps.today(), universe: deps.universe() });
+    // WHO is filing, stamped on the note (step 9.4). Read here rather than accepted
+    // from the spec: the caller is a model, and a note's author is a fact about the
+    // machine, not something to be told.
+    note = renderFiledNote({ ...spec, today: deps.today(), universe: deps.universe(), author: deps.author() });
   } catch (err) {
     deps.error(`✗ ${err.message}`);
     return 1;
@@ -135,6 +150,36 @@ export function runFileBack(argv, deps = realFileBackDeps) {
     deps.error(
       `✗ vault/${note.path} already exists — filing back never overwrites. ` +
         `Refine that living page by appending a dated section instead.`,
+    );
+    return 1;
+  }
+
+  // A capture whose source the vault already holds is REFUSED, not written a
+  // second time (ADR 0041). The refusal names the note that holds it, because
+  // "already held" is an instruction to go and read that note — and enrich it if
+  // this question needs more — never to throw the work away.
+  //
+  // A vault that cannot be read is "I could not find out", and the safe answer to
+  // that is to write: a duplicate is greppable and removable, a capture refused by
+  // mistake is invisible from inside the vault.
+  // Declared without an initial value on purpose: one that both branches overwrite is
+  // dead code wearing the shape of a default, and it hides whether the catch still runs.
+  let heldSources;
+  try {
+    const notes = deps.vaultNotes();
+    heldSources = note.sourceKeys
+      .map((key) => ({ key, holders: notesHoldingSource(notes, key) }))
+      .filter(({ holders }) => holders.length > 0);
+  } catch {
+    heldSources = [];
+  }
+  if (heldSources.length > 0) {
+    deps.error(
+      `✗ vault/${note.path} — this brain has already captured ${heldSources.length > 1 ? "these sources" : "that source"}:\n` +
+        heldSources
+          .map(({ key, holders }) => `    ${key}\n      already in ${holders.map((p) => `vault/${p}`).join(", ")}`)
+          .join("\n") +
+        `\n  Read that note and enrich it if your question needs more; capturing it twice is what this refuses.`,
     );
     return 1;
   }

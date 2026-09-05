@@ -16,26 +16,53 @@ const BRAIN_ROOT = resolve(SCRIPTS_DIR, "..");
 // F20's delivery half. The verdict itself is decided elsewhere (restart-signal.mjs reads the
 // disk, restart-nudge.mjs writes the words); this file is only the contract with the harness —
 // ask, and answer in the one dialect `UserPromptSubmit` acts on.
-function deps({ pending = false } = {}) {
+function deps({ pending = false, trace = null, writeFails = false, universe = "acme" } = {}) {
   const emitted = [];
   const asked = [];
+  const written = [];
   return {
     emitted,
     asked,
+    written,
     brainDir: () => "/brain",
+    universe: (repo) => {
+      asked.push(repo);
+      return universe;
+    },
     pending: (repo) => {
       asked.push(repo);
       return pending;
     },
+    trace: (repo) => {
+      asked.push(repo);
+      return {
+        read: () => trace,
+        write: (next) => {
+          if (writeFails) throw new Error("read-only disk");
+          written.push(next);
+        },
+      };
+    },
+    now: () => new Date("2026-09-08T09:02:00.000Z"),
     emit: (payload) => emitted.push(payload),
   };
 }
+
+/** What the tick leaves behind when notes arrived and nobody has been told yet. */
+const arrived = (over = {}) => ({
+  arrivedAt: "2026-09-08T09:00:00.000Z",
+  files: ["vault/people/claire.md"],
+  authors: ["Claire"],
+  blocked: null,
+  announcedAt: null,
+  ...over,
+});
 
 test("a pending restart is injected as context, on the one channel Desktop receives", () => {
   const d = deps({ pending: true });
 
   assert.equal(runPromptNudge(d), 0);
-  assert.deepEqual(d.asked, ["/brain"], "the verdict is asked of the brain the script lives in");
+  assert.deepEqual(d.asked, ["/brain", "/brain"], "both verdicts are asked of the brain the script lives in");
   assert.equal(d.emitted.length, 1);
   assert.equal(d.emitted[0].hookSpecificOutput.hookEventName, "UserPromptSubmit");
   assert.match(d.emitted[0].hookSpecificOutput.additionalContext, /old engine/i);
@@ -54,6 +81,100 @@ test("a converged brain has nothing injected into its prompts", () => {
 
   assert.equal(runPromptNudge(d), 0);
   assert.deepEqual(d.emitted, []);
+});
+
+// ── What the live sync pulled in while nobody was typing (plan #84, step 4) ──
+// The tick has no voice: the search server cannot speak into a conversation, and the
+// `FileChanged` event runs code without being able to tell anyone anything (POC 0.2). This
+// hook is where the words finally reach someone — at the owner's very next message.
+
+test("notes that arrived are handed to Claude as an instruction, and the trace is stamped as said", () => {
+  const d = deps({ trace: arrived() });
+
+  assert.equal(runPromptNudge(d), 0);
+
+  assert.equal(d.emitted.length, 1);
+  assert.match(d.emitted[0].hookSpecificOutput.additionalContext, /1 note from Claire/);
+  assert.match(d.emitted[0].hookSpecificOutput.additionalContext, /people\/claire\.md/);
+  assert.deepEqual(d.written, [{ ...arrived(), announcedAt: "2026-09-08T09:02:00.000Z" }]);
+});
+
+// Said once is said. Without the stamp the same three notes would be announced at every
+// message for the rest of the session — which is how an announcement becomes noise.
+test("a trace already announced adds nothing to the prompt, and is not re-stamped", () => {
+  const d = deps({ trace: arrived({ announcedAt: "2026-09-08T09:01:00.000Z" }) });
+
+  assert.equal(runPromptNudge(d), 0);
+
+  assert.deepEqual(d.emitted, []);
+  assert.deepEqual(d.written, []);
+});
+
+test("a restart pending AND notes arrived: one payload carries both, restart first", () => {
+  const d = deps({ pending: true, trace: arrived() });
+
+  assert.equal(runPromptNudge(d), 0);
+
+  assert.equal(d.emitted.length, 1, "one hook, one payload: `additionalContext` is a single string");
+  const context = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.ok(context.indexOf("OLD engine") < context.indexOf("1 note from Claire"), "the blocker comes first");
+  // One string, yes — but TWO paragraphs. Welded together they read as a single run-on
+  // instruction, and the model receives "close and reopen Claude" and "notes arrived" as
+  // one thought. The blank line is the whole difference, so it is asserted rather than
+  // assumed: neither directive contains one of its own.
+  const paragraphs = context.split("\n\n");
+  assert.equal(paragraphs.length, 2, "two directives stay two paragraphs, separated by a blank line");
+  assert.match(paragraphs[0], /OLD engine/);
+  assert.match(paragraphs[1], /^📥 .*1 note from Claire/);
+});
+
+test("an empty trace is the ordinary case, and it must cost the prompt nothing", () => {
+  const d = deps({ trace: arrived({ files: [], authors: [] }) });
+
+  assert.equal(runPromptNudge(d), 0);
+  assert.deepEqual(d.emitted, []);
+  assert.deepEqual(d.written, []);
+});
+
+// ── The universe that arrived (2026-09-05, "enlève l'attente") ───────────────
+// The session-start hook stopped waiting for the pull before naming the active universe
+// (ADR 0028), so it can open a session on the sphere this machine went to sleep in. This
+// hook is where that gets taken back — at the owner's very next message, and only when the
+// pointer really arrived. Without this wiring the removal of the wait would not delay the
+// information, it would LOSE it.
+
+test("a universe that arrived is corrected at the next message, and named", () => {
+  const d = deps({ trace: arrived({ files: [".vault-rag/active-universe"] }), universe: "blue-team" });
+
+  assert.equal(runPromptNudge(d), 0);
+
+  const context = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.match(context, /'blue-team'/);
+  assert.match(context, /correct/i);
+  assert.ok(d.asked.includes("/brain"), "the pointer is read from the brain this script lives in");
+});
+
+test("a restart pending AND a universe that arrived: the blocker first, the correction next", () => {
+  const d = deps({
+    pending: true,
+    trace: arrived({ files: [".vault-rag/active-universe", "vault/people/claire.md"] }),
+    universe: "blue-team",
+  });
+
+  assert.equal(runPromptNudge(d), 0);
+
+  const context = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.ok(context.indexOf("OLD engine") < context.indexOf("blue-team"), "the blocker still comes first");
+  assert.ok(context.indexOf("blue-team") < context.indexOf("1 note from Claire"), "…then the correction, then the news");
+});
+
+// The stamp is a nice-to-have; the announcement is not. A brain on a read-only disk (or one
+// whose trace someone chmod'ed) must still say what arrived, and simply say it again later.
+test("a trace that cannot be stamped is still announced, and the hook still exits 0", () => {
+  const d = deps({ trace: arrived(), writeFails: true });
+
+  assert.equal(runPromptNudge(d), 0);
+  assert.equal(d.emitted.length, 1, "the owner hears about their notes even when the stamp fails");
 });
 
 test("a verdict that blows up leaves the prompt alone, and the hook still exits 0", () => {
@@ -90,6 +211,49 @@ test("realNudgeDeps.emit prints the payload as ONE line of JSON on stdout", () =
   }
 
   assert.deepEqual(lines, ['{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit"}}']);
+});
+
+test("realNudgeDeps.trace reads the arrivals file of the brain it is handed, and writes it back", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-trace-"));
+  try {
+    const trace = realNudgeDeps.trace(dir);
+    assert.equal(trace.read(), null, "a brain that never synced has nothing to announce");
+
+    const record = { arrivedAt: "2026-09-08T09:00:00.000Z", files: ["vault/a.md"], authors: ["Claire"], blocked: null, announcedAt: null };
+    trace.write(record);
+
+    assert.deepEqual(realNudgeDeps.trace(dir).read(), record, "the very bytes the tick writes, read back here");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("realNudgeDeps.universe reads the pointer of the brain it is handed, VALIDATED against the registry", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-universe-"));
+  try {
+    assert.equal(realNudgeDeps.universe(dir), "default", "a brain with no pointer works in the default scope");
+
+    mkdirSync(join(dir, ".vault-rag"), { recursive: true });
+    writeFileSync(join(dir, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["blue-team"] }));
+    writeFileSync(join(dir, ".vault-rag", "active-universe"), "blue-team\n");
+    assert.equal(realNudgeDeps.universe(dir), "blue-team");
+
+    // A pointer naming a universe that is gone is an orphan: the scope really IS the
+    // default, and announcing the ghost would name a sphere nothing can be found in.
+    writeFileSync(join(dir, ".vault-rag", "active-universe"), "vanished\n");
+    assert.equal(realNudgeDeps.universe(dir), "default");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("realNudgeDeps.now is the real clock, so a stamp says when it was really said", () => {
+  const before = Date.now();
+
+  const stamped = realNudgeDeps.now();
+
+  assert.ok(stamped instanceof Date);
+  assert.ok(stamped.getTime() >= before && stamped.getTime() <= Date.now() + 1000);
 });
 
 test("realNudgeDeps.pending reads the flag on disk, for the brain it is handed", () => {

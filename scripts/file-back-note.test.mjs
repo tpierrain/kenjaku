@@ -36,6 +36,8 @@ function fakeDeps(overrides = {}) {
     readInput: () => overrides.input ?? "{}",
     exists: (p) => existing.has(p),
     peopleCards: () => overrides.peopleCards ?? [],
+    vaultNotes: () => overrides.vaultNotes ?? [],
+    author: () => (overrides.author === undefined ? "Thomas Pierrain" : overrides.author),
     writeFile: (p, content) => writes.push({ path: p, content }),
     log: (line) => logs.push(line),
     error: (line) => errors.push(line),
@@ -514,4 +516,168 @@ test("the CLI, IMPORTED rather than run — the body must not fire on import", a
 
   assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
   assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The writer guard (ADR 0041, plan step 2): the DETERMINISTIC write path cannot
+// file a capture the vault already holds. It refuses, names the note that holds
+// it, and writes nothing — because "already held" means go and read that note,
+// never "throw this away quietly".
+//
+// This is enforcement on one path only, and the ADR says so out loud: the model
+// can always reach for a raw Write. The guarantee is "usually", and a dedup
+// believed to be total but that leaks is worse than one known to be partial.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const A_MAIL = { type: "mail", from: "Billing <billing@example.com>", date: "2026-09-02T16:19:32Z", subject: "Your invoice is ready" };
+const MAIL_KEY = "mail|billing@example.com|20260902T161932Z|your-invoice-is-ready";
+const A_THREAD = { type: "slack", channel: "C0CEQ4R5E", ts: "1725283200.001200" };
+
+const captureSpec = (sourceKeys) =>
+  JSON.stringify({
+    type: "topic",
+    title: "Invoicing",
+    tags: ["finance"],
+    body: "What the invoice said.",
+    sources: SAID_HERE,
+    sourceKeys,
+  });
+
+const THREAD_KEY = "slack|C0CEQ4R5E|1725283200.001200";
+
+const HOLDING_THE_MAIL = [
+  { path: "daily/2026-09-02.md", frontmatter: {} },
+  { path: "raw-sources/2026-09-02-invoice.md", frontmatter: { sources: [MAIL_KEY] } },
+];
+
+test("runFileBack — a capture the vault already holds is REFUSED, and the refusal names the note", () => {
+  const { deps, errors, writes } = fakeDeps({ input: captureSpec([A_MAIL]), vaultNotes: HOLDING_THE_MAIL });
+
+  const code = runFileBack([], deps);
+
+  assert.equal(code, 1);
+  assert.deepEqual(writes, [], "a refused note is not written, not written-then-warned-about");
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /vault\/raw-sources\/2026-09-02-invoice\.md/, "so the caller can cite it instead of re-capturing");
+  assert.match(errors[0], new RegExp(MAIL_KEY.replace(/[|.]/g, "\\$&")));
+  // ADR 0041 §6: already held is an instruction to go and read, not to discard. Spelled
+  // out rather than matched on /read/i, which the word "already" satisfies on its own.
+  assert.match(errors[0], /Read that note and enrich it/);
+  assert.match(errors[0], /that source:/, "one source, said in the singular");
+});
+
+// Two of them, and both already held: the complaint must list each key with its own
+// holders, or the caller is told a number and left to go looking.
+test("runFileBack — several held sources are each named, with every note that holds them", () => {
+  const heldTwice = [
+    ...HOLDING_THE_MAIL,
+    { path: "briefings/2026-09-02.md", frontmatter: { sources: [MAIL_KEY, THREAD_KEY] } },
+  ];
+  const { deps, errors } = fakeDeps({ input: captureSpec([A_THREAD, A_MAIL]), vaultNotes: heldTwice });
+
+  assert.equal(runFileBack([], deps), 1);
+  assert.match(errors[0], /these sources:/, "two of them, said in the plural");
+  assert.match(errors[0], /slack\|C0CEQ4R5E\|1725283200\.001200\n\s+already in vault\/briefings\/2026-09-02\.md\n/);
+  // The mail is held by TWO notes, and the two are separated: names run together are
+  // names nobody can open.
+  assert.match(errors[0], /already in vault\/raw-sources\/2026-09-02-invoice\.md, vault\/briefings\/2026-09-02\.md/);
+});
+
+test("runFileBack — one held source among several is enough to refuse, and only the held one is named", () => {
+  const { deps, errors } = fakeDeps({ input: captureSpec([A_THREAD, A_MAIL]), vaultNotes: HOLDING_THE_MAIL });
+
+  assert.equal(runFileBack([], deps), 1);
+  assert.match(errors[0], new RegExp(MAIL_KEY.replace(/[|.]/g, "\\$&")));
+  assert.doesNotMatch(errors[0], /C0CEQ4R5E/, "a source nobody holds is not part of the complaint");
+});
+
+// 🛑 THE COMPATIBILITY CASE, and it must pass: every note ever written before this
+// decision carries no key, and "no key" reads as UNKNOWN, never as "already seen".
+test("runFileBack — a spec with no sources at all is written exactly as before", () => {
+  const { deps, writes, errors } = fakeDeps({
+    input: JSON.stringify({ type: "topic", title: "Invoicing", tags: ["finance"], body: "b", sources: SAID_HERE }),
+    vaultNotes: HOLDING_THE_MAIL,
+  });
+
+  assert.equal(runFileBack([], deps), 0);
+  assert.deepEqual(errors, []);
+  assert.equal(writes.length, 1);
+  assert.doesNotMatch(writes[0].content, /^sources:/m);
+});
+
+test("runFileBack — a source nobody holds is written, and the note carries its key", () => {
+  const { deps, writes } = fakeDeps({ input: captureSpec([A_THREAD]), vaultNotes: HOLDING_THE_MAIL });
+
+  assert.equal(runFileBack([], deps), 0);
+  assert.equal(writes.length, 1);
+  assert.match(writes[0].content, /^sources: \[slack\|C0CEQ4R5E\|1725283200\.001200\]$/m);
+});
+
+// A vault that cannot be read is "I could not find out", and the safe answer to that
+// is to write: a duplicate is greppable, a capture refused by mistake is a loss.
+test("runFileBack — a vault that cannot be read does not block the write", () => {
+  const { deps } = fakeDeps({ input: captureSpec([A_MAIL]) });
+  deps.vaultNotes = () => {
+    throw new Error("ENOENT");
+  };
+
+  assert.equal(runFileBack([], deps), 0);
+});
+
+// 🛑 AS A PROCESS, because this is the only thing that exercises the REAL vault reader.
+// Every test above injects the notes, so all of them would pass just as well if the
+// reader looked one folder too high, or at a folder that does not exist — and either
+// would mean the guard silently never fires in the field.
+test("file-back-note, as a real process — the guard reads the brain's OWN vault and refuses", () => {
+  const brain = mkdtempSync(join(tmpdir(), "file-back-dup-"));
+  mkdirSync(join(brain, "vault", "raw-sources"), { recursive: true });
+  writeFileSync(
+    join(brain, "vault", "raw-sources", "2026-09-02-invoice.md"),
+    `---\ntype: raw\ncreated: 2026-09-02\nupdated: 2026-09-02\ntags: [x]\nsources: [${MAIL_KEY}]\n---\n\n# The invoice\n`,
+  );
+
+  const run = spawnSync(process.execPath, [CLI], { cwd: brain, input: captureSpec([A_MAIL]), encoding: "utf8" });
+
+  assert.equal(run.status, 1, run.stderr);
+  assert.match(run.stderr, /already captured that source:/);
+  assert.match(run.stderr, /already in vault\/raw-sources\/2026-09-02-invoice\.md/);
+  assert.equal(run.stdout, "", "nothing announced as filed, because nothing was filed");
+});
+
+test("realFileBackDeps — the vault reader is wired to the brain's own vault/", () => {
+  assert.equal(typeof realFileBackDeps.vaultNotes, "function");
+});
+
+// ── Who wrote it, on the note itself (plan step 9.4) ─────────────────────────
+
+test("runFileBack — the note it writes says who wrote it", () => {
+  const spec = JSON.stringify({
+    type: "topic",
+    title: "Capacity Management",
+    tags: ["rag"],
+    body: "The distilled answer.",
+    sources: SAID_HERE,
+  });
+  const f = fakeDeps({ input: spec, author: "Claire Dubois" });
+
+  assert.equal(runFileBack([], f.deps), 0);
+
+  assert.match(f.writes[0].content, /^author: Claire Dubois$/m);
+});
+
+// A machine whose git has no user.name still files: absent means unknown (ADR 0041's
+// rule, applied to the same question one field along), never "nobody wrote this".
+test("runFileBack — a nameless machine still files, with no author stamped", () => {
+  const spec = JSON.stringify({
+    type: "topic",
+    title: "Capacity Management",
+    tags: ["rag"],
+    body: "The distilled answer.",
+    sources: SAID_HERE,
+  });
+  const f = fakeDeps({ input: spec, author: "" });
+
+  assert.equal(runFileBack([], f.deps), 0);
+
+  assert.doesNotMatch(f.writes[0].content, /^author:/m);
 });
