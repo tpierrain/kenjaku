@@ -46,13 +46,41 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     the expected duration.
   - **This is exactly why `mutate-one.mjs` fails a run on its timeout ratio** rather than printing a
     score. Without that guard, 96.32 % goes into the register and nobody ever finds out.
-- ▶️ **RESUME HERE: BATCH B IS RE-RUNNING ON AN IDLE MACHINE** _(relaunched 2026-09-05 14:48, same two
-  files, ~1 h → **verdict expected ~15:50**)_. Its verdict is the file
-  `maintainers/mutation/reports/v510-95-batch-b2.stdout.log` (the runner's own ✅/❌ line and per-file
-  scores); the first attempt's rejected output stays at `v510-95-batch-b.stdout.log` as the record.
-  **If it stops at the launch line, or comes back with a timeout ratio, it is not a result** — relaunch
-  `node maintainers/mutation/mutate-one.mjs scripts/session-authors.mjs scripts/author-identity.mjs`
-  and give it the machine to itself.
+- 🛑🛑 **STOP — THE INSTRUMENT IS BROKEN, AND IT IS A PRODUCTION DEFECT, NOT A TEST NUISANCE**
+  _(2026-09-05 14:49, found because batch B's relaunch died in 1 min instead of running an hour)_.
+  Stryker refused to start: **`There were failed tests in the initial test run`** — one test red out of
+  3163, `session-universe.test.mjs:334`, *"the universe hook waits for the startup pull, and announces
+  the universe that ARRIVED"*. Expected `blue-team`, got `acme`.
+  - **It is not a flaky test to stabilise. The hook really does skip its barrier**, and a focused probe
+    says exactly when. Handing the hook its payload on stdin **immediately** → barrier holds, announces
+    `blue-team` (343 ms). Handing it **200 ms late** → announces `acme` in 258 ms. **500 ms late** →
+    `acme` in 171 ms. It never waits at all: `readHookPayload` does `readFileSync(0)`, gets nothing
+    because the payload has not landed yet, and `catch { return "" }` turns that into *"no session id"*
+    — which `waitForStartupSync` reads as `unknown-session` and returns from instantly.
+  - **Fail-open was chosen deliberately** (`startup-sync-gate.test.mjs:385`, *"an unreadable fd 0 is
+    silence, never a thrown hook"*) and it is right for *run by hand at a terminal*. The hole is that
+    **"the pipe has no data YET" is indistinguishable from "there is no payload"**, and the two deserve
+    opposite answers.
+  - **Both sides of the barrier read that same stdin**: `session-status.mjs:240` (the puller, which
+    stamps the marker with the session id) and `session-universe.mjs:166` (the waiter). An empty read on
+    **either** defeats the barrier.
+  - **In production this is the exact defect the barrier exists to prevent**: announce the universe this
+    machine went to sleep in, while every search of the session is scoped to the one that just arrived —
+    one sphere's context, another's retrieval. Rare (it needs the harness's write to lose a race against
+    a `node` boot), silent, and intermittent.
+- ⚠️ **THEREFORE BATCH A's 97.98 % IS SUSPECT AND MUST BE RE-RUN.** Measured 2026-09-05, **8 concurrent
+  full-suite runs: 1 failed** on this test. Every mutant re-runs the **whole** suite
+  (`stryker.scripts.config.mjs`: `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"`,
+  concurrency 5), and a mutant is killed when the suite **exits non-zero** — so an intermittent failure
+  does not add noise, it adds **points**. This is the register's own durable rule, and the second time
+  it has bitten: *"treat a suite that is not deterministic under load as a broken instrument, and fix it
+  before believing any number it produced"*. Batch A's 92.83 % first pass is under the same doubt.
+- ❓ **ONE CALL IS THE OWNER'S, AND IT IS THE ONLY THING BLOCKING** — see the question at the end of
+  this block. Everything else is ready to go the moment he answers.
+- ▶️ **BATCH B IS NOT RUNNING** _(the 14:48 relaunch aborted in 1 min; its output is
+  `maintainers/mutation/reports/v510-95-batch-b2.stdout.log`)_. **Nothing may be re-measured until the
+  suite is deterministic under load** — a re-run before then buys another hour and another number
+  nobody can quote.
   ⚠️ **Read its survivors against the code, one by one, before calling any of them equivalent** — the
   batch above just proved that verdict can be wrong. **Note `session-authors.mjs` carries 2 known
   equivalents from 8.8** (it read 92.59 % there, hunk-scoped 44-109); this run is **whole-file**, so it
